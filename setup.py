@@ -50,7 +50,7 @@ setup(
         "addfips>=0.4,<0.5",
         "awscli>=1.27,<1.28",
         "catalystcoop.dbfread>=3.0,<3.1",
-        "catalystcoop.ferc-xbrl-extractor==0.7.0",
+        "catalystcoop.ferc-xbrl-extractor==0.8.1",
         "coloredlogs>=15.0,<15.1",
         "dask>=2021.8,<2022.12.2",
         "datapackage>=1.11,<1.16",  # Transition datastore to use frictionless.

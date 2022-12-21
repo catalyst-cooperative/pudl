@@ -26,6 +26,7 @@ non_unique_record_id_tables = [
     "transmission_ferc1",
     "balance_sheet_assets_ferc1",
     "income_statement_ferc1",
+    "depreciation_amortization_summary_ferc1",
 ]
 unique_record_tables = [
     t

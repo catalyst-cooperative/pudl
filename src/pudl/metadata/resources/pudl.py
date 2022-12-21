@@ -79,8 +79,7 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
         "sources": ["pudl"],
     },
 }
-"""
-PUDL-specifiic resource attributes by PUDL identifier (``resource.name``).
+"""PUDL-specifiic resource attributes by PUDL identifier (``resource.name``).
 
 Keys are in alphabetical order.
 

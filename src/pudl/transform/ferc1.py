@@ -73,6 +73,7 @@ class TableIdFerc1(enum.Enum):
     ELECTRIC_ENERGY_SOURCES_FERC1 = "electric_energy_sources_ferc1"
     ELECTRIC_ENERGY_DISPOSITIONS_FERC1 = "electric_energy_dispositions_ferc1"
     UTILITY_PLANT_SUMMARY_FERC1 = "utility_plant_summary_ferc1"
+    DEPRECIATION_AMORTIZATION_SUMMARY_FERC1 = "depreciation_amortization_summary_ferc1"
     BALANCE_SHEET_ASSETS_FERC1 = "balance_sheet_assets_ferc1"
     INCOME_STATEMENT_FERC1 = "income_statement_ferc1"
 
@@ -123,7 +124,8 @@ class WideToTidy(TransformParams):
     pattern of "{to-be stacked category}_{value_type}", rename the columns using a
     ``rename_columns.duration_xbrl``, ``rename_columns.instant_xbrl`` or
     ``rename_columns.dbf`` parameter which will be employed in
-    :meth:`process_duration_xbrl`, :meth:`process_instant_xbrl` or :meth:`process_dbf`."""
+    :meth:`process_duration_xbrl`, :meth:`process_instant_xbrl` or :meth:`process_dbf`.
+    """
 
     expected_drop_cols: int = 0
     """The number of columns that are expected to be dropped.
@@ -2929,6 +2931,43 @@ class IncomeStatementFerc1TableTransformer(Ferc1AbstractTableTransformer):
         return df
 
 
+class DepreciationAmortizationSummaryFerc1TableTransformer(
+    Ferc1AbstractTableTransformer
+):
+    """Transformer class for :ref:`depreciation_amortization_summary_ferc1` table."""
+
+    table_id: TableIdFerc1 = TableIdFerc1.DEPRECIATION_AMORTIZATION_SUMMARY_FERC1
+    has_unique_record_ids: bool = False
+
+    def merge_xbrl_metadata(
+        self, df: pd.DataFrame, params: MergeXbrlMetadata | None = None
+    ) -> pd.DataFrame:
+        """Annotate data using manually compiled FERC accounts & ``ferc_account_label``.
+
+        The FERC accounts are not provided in the XBRL taxonomy like they are for other
+        tables. However, there are only 4 of them, so a hand-compiled mapping is
+        hardcoded here, and merged onto the data similar to how the XBRL taxonomy
+        derived metadata is merged on for other tables.
+        """
+        xbrl_metadata = pd.DataFrame(
+            {
+                "ferc_account_label": [
+                    "depreciation_expense",
+                    "depreciation_expense_asset_retirement",
+                    "amortization_limited_term_electric_plant",
+                    "amortization_other_electric_plant",
+                ],
+                "ferc_account": ["403", "403.1", "404", "405"],
+            }
+        )
+        if not params:
+            params = self.params.merge_xbrl_metadata
+        if params.on:
+            logger.info(f"{self.table_id.value}: merging metadata")
+            df = merge_xbrl_metadata(df, xbrl_metadata, params)
+        return df
+
+
 def transform(
     ferc1_dbf_raw_dfs: dict[str, pd.DataFrame],
     ferc1_xbrl_raw_dfs: dict[str, dict[str, pd.DataFrame]],
@@ -2963,6 +3002,7 @@ def transform(
         "electric_energy_sources_ferc1": ElectricEnergySourcesFerc1TableTransformer,
         "electric_energy_dispositions_ferc1": ElectricEnergyDispositionsFerc1TableTransformer,
         "utility_plant_summary_ferc1": UtilityPlantSummaryFerc1TableTransformer,
+        "depreciation_amortization_summary_ferc1": DepreciationAmortizationSummaryFerc1TableTransformer,
         "balance_sheet_assets_ferc1": BalanceSheetAssetsFerc1TableTransformer,
         "income_statement_ferc1": IncomeStatementFerc1TableTransformer,
     }
@@ -3032,6 +3072,7 @@ if __name__ == "__main__":
             "utility_plant_summary_ferc1",
             "balance_sheet_assets_ferc1",
             "income_statement_ferc1",
+            "depreciation_amortization_summary_ferc1",
         ],
     )
     pudl_settings = pudl.workspace.setup.get_defaults()

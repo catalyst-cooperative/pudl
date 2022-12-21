@@ -677,10 +677,10 @@ FUEL_CATEGORIES: dict[str, set[str]] = {
         },
     }
 }
-"""
-A mapping a canonical fuel name to a set of strings which are used to represent that
-fuel in the FERC Form 1 Reporting. Case is ignored, as all fuel strings are converted to
-lower case in the data set.
+"""A mapping a canonical fuel name to a set of strings which are used to represent that
+fuel in the FERC Form 1 Reporting.
+
+Case is ignored, as all fuel strings are converted to lower case in the data set.
 """
 
 FUEL_UNIT_CATEGORIES: dict[str, set[str]] = {
@@ -1002,10 +1002,8 @@ FUEL_UNIT_CATEGORIES: dict[str, set[str]] = {
         },
     }
 }
-"""
-A mapping of canonical fuel units (keys) to sets of strings representing those
-fuel units (values)
-"""
+"""A mapping of canonical fuel units (keys) to sets of strings representing those fuel
+units (values)"""
 
 PLANT_TYPE_CATEGORIES: dict[str, set[str]] = {
     "categories": {
@@ -1558,9 +1556,10 @@ PLANT_TYPE_CATEGORIES: dict[str, set[str]] = {
         },
     }
 }
-"""
-A mapping from canonical plant kinds (keys) to the associated freeform strings (values)
-identified as being associated with that kind of plant in the FERC Form 1 raw data.
+"""A mapping from canonical plant kinds (keys) to the associated freeform strings
+(values) identified as being associated with that kind of plant in the FERC Form 1 raw
+data.
+
 There are many strings that weren't categorized, Solar and Solar Project were not
 classified as these do not indicate if they are solar thermal or photovoltaic. Variants
 on Steam (e.g. "steam 72" and "steam and gas") were classified based on additional
@@ -1667,10 +1666,11 @@ PLANT_TYPE_CATEGORIES_HYDRO: dict[str, set[str]] = {
         },
     }
 }
-"""
-A mapping from canonical plant kinds (keys) to the associated freeform strings (values)
-identified as being associated with that kind of plant in the FERC Form 1 Hydro Plants
-data. These are seperated out from the rest of the plant types due to the difference in
+"""A mapping from canonical plant kinds (keys) to the associated freeform strings
+(values) identified as being associated with that kind of plant in the FERC Form 1 Hydro
+Plants data.
+
+These are seperated out from the rest of the plant types due to the difference in
 languaged used to refer to hydro vs. other types of plants. For example: "conventional"
 in the context of a hydro plant means that it is conventional hydro-electric. In the
 context of the steam table, however, it's unclear what conventional means.
@@ -2067,8 +2067,7 @@ CONSTRUCTION_TYPE_CATEGORIES: dict[str, set[str]] = {
         },
     }
 }
-"""
-A dictionary of construction types (keys) and lists of construction type strings
+"""A dictionary of construction types (keys) and lists of construction type strings
 associated with each type (values) from FERC Form 1.
 
 There are many strings that weren't categorized, including crosses between conventional
@@ -3261,6 +3260,94 @@ TRANSFORM_PARAMS = {
                 "required_valid_cols": ["starting_balance", "ending_balance"],
             },
         ],
+    },
+    "depreciation_amortization_summary_ferc1": {
+        "rename_columns_ferc1": {
+            "dbf": {
+                "columns": {
+                    "respondent_id": "utility_id_ferc1_dbf",
+                    "report_year": "report_year",
+                    "spplmnt_num": "spplmnt_num",
+                    "row_number": "row_number",
+                    "row_seq": "row_seq",
+                    "row_prvlg": "row_prvlg",
+                    "depr_expn": "depreciation_expense_depreciation_amortization_value",
+                    "depr_asset_retire": "depreciation_expense_asset_retirement_depreciation_amortization_value",
+                    "limterm_elc_plnt": "amortization_limited_term_electric_plant_depreciation_amortization_value",
+                    "othr_elc_plnt": "amortization_other_electric_plant_depreciation_amortization_value",
+                    "total": "depreciation_amortization_total_depreciation_amortization_value",
+                    "xbrl_factoid": "functional_classification",
+                    "report_prd": "report_prd",
+                }
+            },
+            "xbrl": {
+                "columns": {
+                    "entity_id": "utility_id_ferc1_xbrl",
+                    "report_year": "report_year",
+                    "xbrl_factoid": "ferc_account_label",
+                }
+            },
+            "duration_xbrl": {
+                "columns": {
+                    "functional_classification_axis": "functional_classification",
+                    "depreciation_expense_excluding_amortization_of_acquisition_adjustments": "depreciation_expense_depreciation_amortization_value",
+                    "depreciation_expense_for_asset_retirement_costs_excluding_amortizationg_of_acquisition_adjustments": "depreciation_expense_asset_retirement_depreciation_amortization_value",
+                    "amortization_of_limited_term_plant_or_property": "amortization_limited_term_electric_plant_depreciation_amortization_value",
+                    "amortization_of_other_electric_plant": "amortization_other_electric_plant_depreciation_amortization_value",
+                    "depreciation_and_amortization": "depreciation_amortization_total_depreciation_amortization_value",
+                }
+            },
+        },
+        "wide_to_tidy": {
+            "xbrl": {
+                "idx_cols": ["entity_id", "report_year", "functional_classification"],
+                "value_types": [
+                    "depreciation_amortization_value",
+                ],
+                "expected_drop_cols": 3,
+                "stacked_column_name": "xbrl_factoid",
+            },
+            "dbf": {
+                "idx_cols": [
+                    "report_year",
+                    "record_id",
+                    "utility_id_ferc1",
+                    "functional_classification",
+                ],
+                "value_types": ["depreciation_amortization_value"],
+                "expected_drop_cols": 1,
+                "stacked_column_name": "ferc_account_label",
+            },
+        },
+        "categorize_strings": {
+            "functional_classification": {
+                "categories": {
+                    "total": ["total"],
+                    "intangible_plant": ["ferc:IntangiblePlantMember"],
+                    "steam_production_plant": ["ferc:SteamProductionPlantMember"],
+                    "nuclear_production_plant": ["ferc:NuclearProductionPlantMember"],
+                    "hydraulic_production_plant_conventional": [
+                        "ferc:HydraulicProductionPlantConventionalMember"
+                    ],
+                    "hydraulic_production_plant_pumped_storage": [
+                        "ferc:HydraulicProductionPlantPumpedStorageMember"
+                    ],
+                    "other_production_plant": ["ferc:OtherProductionPlantMember"],
+                    "transmission_plant": ["ferc:TransmissionPlantMember"],
+                    "distribution_plant": ["ferc:DistributionPlantMember"],
+                    "regional_transmission_market_plant": [
+                        "ferc:RegionalTransmissionAndMarketOperationMember"
+                    ],
+                    "general_plant": ["ferc:GeneralPlantMember"],
+                    "common_plant_electric": ["ferc:CommonPlantElectricMember"],
+                }
+            },
+        },
+        "align_row_numbers_dbf": {"dbf_table_name": "f1_dacs_epda"},
+        "merge_xbrl_metadata": {
+            "rename_columns": {"ferc_account_label": "ferc_account_label"},
+            "on": "ferc_account_label",
+        },
     },
     "income_statement_ferc1": {
         "rename_columns_ferc1": {

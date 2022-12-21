@@ -372,6 +372,11 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "unit": "USD",
     },
     "demand_mwh": {"type": "number", "unit": "MWh"},
+    "depreciation_amortization_value": {
+        "type": "number",
+        "unit": "USD",
+        "description": "Depreciation and amortization values (USD).",
+    },
     "description": {
         "type": "string",
         "description": "Long human-readable description of the meaning of a code/label.",
@@ -746,6 +751,10 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "type": "string",
         "description": "Reported units of measure for fuel.",
         # Note: Different ENUM constraints are applied below on EIA vs. FERC1
+    },
+    "functional_classification": {
+        "type": "string",
+        "description": "Specifies plant category that record applies to.",
     },
     "furnished_without_charge_mwh": {"type": "number", "unit": "MWh"},
     "future_plant": {
@@ -2015,9 +2024,9 @@ FIELD_METADATA_BY_GROUP: dict[str, dict[str, Any]] = {
 }
 """Field attributes by resource group (`resource.group`) and PUDL identifier.
 
-If a field exists in more than one data group (e.g. both ``eia`` and ``ferc1``)
-and has distinct metadata in those groups, this is the place to specify the
-override. Only those elements which should be overridden need to be specified.
+If a field exists in more than one data group (e.g. both ``eia`` and ``ferc1``) and has
+distinct metadata in those groups, this is the place to specify the override. Only those
+elements which should be overridden need to be specified.
 """
 
 FIELD_METADATA_BY_RESOURCE: dict[str, dict[str, Any]] = {
