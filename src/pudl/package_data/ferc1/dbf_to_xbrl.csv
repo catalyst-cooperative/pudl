@@ -2067,7 +2067,7 @@ f1_hydro,5,1994,FERC Licensed Project No. & Plant Name (5),,,,
 f1_ident_attsttn,1,1994,All Items on Schedule,,,,
 f1_important_chg,1,1994,All Items on Schedule Page 108,,,,
 f1_important_chg,2,1994,All Items on Schedule Page 109,,,,
-f1_incm_stmnt_2,25,1994,Net Utility Operating Income (Carried forward from page 114),,net_utility_operating_income,,Duplicated Line
+f1_incm_stmnt_2,25,1994,Net Utility Operating Income (Carried forward from page 114),,net_utility_operating_income,,Line duplicated in f1_income_stmnt table (row 24)
 f1_incm_stmnt_2,26,1994,Other Income and Deductions,header,#N/A,,
 f1_incm_stmnt_2,27,1994,Other Income,header,#N/A,,
 f1_incm_stmnt_2,28,1994,Nonutilty Operating Income,header,#N/A,,
@@ -2115,7 +2115,9 @@ f1_incm_stmnt_2,69,1994,Net Extraordinary Items (Enter Total of line 67 less lin
 f1_incm_stmnt_2,70,1994,Income Taxes-Federal and Other (409.3),,income_taxes_extraordinary_items,,
 f1_incm_stmnt_2,71,1994,Extraordinary Items After Taxes (Enter Total of line 69 less line 70),,extraordinary_items_after_taxes,,
 f1_incm_stmnt_2,72,1994,Net Income (Enter Total of lines 65 and 71),,net_income_loss,,
-f1_incm_stmnt_2,27,2003,Net Utility Operating Income (Carried forward from page 114),,net_utility_operating_income,,Duplicated Line
+f1_incm_stmnt_2,25,2003,,header,#N/A,This table starts at row 27 after 2003
+f1_incm_stmnt_2,26,2003,,header,#N/A,This table starts at row 27 after 2003
+f1_incm_stmnt_2,27,2003,Net Utility Operating Income (Carried forward from page 114),,net_utility_operating_income,,Line duplicated in f1_income_stmnt table (row 26)
 f1_incm_stmnt_2,28,2003,Other Income and Deductions,header,#N/A,,
 f1_incm_stmnt_2,29,2003,Other Income,header,#N/A,,
 f1_incm_stmnt_2,30,2003,Nonutilty Operating Income,header,#N/A,,
@@ -2238,7 +2240,7 @@ f1_income_stmnt,20,2003,(Less) Gains from Disp. of Utility Plant (411.6),,gains_
 f1_income_stmnt,21,2003,Losses from Disp. of Utility Plant (411.7),,losses_from_disposition_of_service_company_plant,,
 f1_income_stmnt,22,2003,(Less) Gains from Disposition of Allowances (411.8),,gains_from_disposition_of_allowances,,
 f1_income_stmnt,23,2003,Losses from Disposition of Allowances (411.9),,losses_from_disposition_of_allowances,,
-f1_income_stmnt,24,2003,Accretion Expense (411.10),,provision_for_deferred_income_taxes_credit_operating_income,,
+f1_income_stmnt,24,2003,Accretion Expense (411.10),,accretion_expense,,
 f1_income_stmnt,25,2003,TOTAL Utility Operating Expenses (Enter Total of lines 4 thru 24),,utility_operating_expenses,,
 f1_income_stmnt,26,2003,"Net Util Oper Inc (Enter Tot line 2 less 25) Carry to Pg117,line 27",,net_utility_operating_income,,
 f1_leased,1,1994,Line 1,,,,

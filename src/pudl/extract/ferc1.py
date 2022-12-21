@@ -730,20 +730,16 @@ def extract_dbf(
         )
         if pudl_table == "income_statement_ferc1":
             # special case for the income statement. bc the dbf table is two tables.
-            ferc1_raw_dfs[pudl_table] = pd.concat(
-                [
+            income_tbls = []
+            for raw_income_table_name in TABLE_NAME_MAP[pudl_table]["dbf"]:
+                income_tbls.append(
                     extract_dbf_generic(
                         ferc1_engine=sa.create_engine(pudl_settings["ferc1_db"]),
                         ferc1_settings=ferc1_settings,
-                        table_name=TABLE_NAME_MAP[pudl_table]["dbf"][0],
-                    ),
-                    extract_dbf_generic(
-                        ferc1_engine=sa.create_engine(pudl_settings["ferc1_db"]),
-                        ferc1_settings=ferc1_settings,
-                        table_name=TABLE_NAME_MAP[pudl_table]["dbf"][1],
-                    ),
-                ]
-            )
+                        table_name=raw_income_table_name,
+                    ).assign(sched_table_name=raw_income_table_name)
+                )
+            ferc1_raw_dfs[pudl_table] = pd.concat(income_tbls)
         else:
             ferc1_raw_dfs[pudl_table] = extract_dbf_generic(
                 ferc1_engine=sa.create_engine(pudl_settings["ferc1_db"]),

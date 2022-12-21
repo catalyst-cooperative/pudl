@@ -146,7 +146,6 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
                 "row_type_xbrl",
             ],
             "primary_key": [
-                "record_id",
                 "utility_id_ferc1",
                 "report_year",
                 "utility_type",

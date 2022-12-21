@@ -3388,9 +3388,7 @@ TRANSFORM_PARAMS = {
             },
         },
         "drop_duplicate_rows_dbf": {
-            "data_columns": [
-                "income",
-            ],
+            "data_columns": ["income"],
             "table_name": "income_statement_ferc1",
         },
         "align_row_numbers_dbf": {
@@ -3403,11 +3401,11 @@ TRANSFORM_PARAMS = {
                     "electric": ["electric", "ferc:ElectricUtilityMember"],
                     "gas": ["gas", "ferc:GasUtilityMember"],
                     "common": ["common", "ferc:CommonUtilityMember"],
-                    "other1": ["other1", "ferc:OtherUtilityMember"],
+                    "other": ["other", "other_total", "ferc:OtherUtilityMember"],
+                    "other1": ["other1"],
                     "other2": ["other2"],
                     "other3": ["other3"],
                     "other4": ["other4"],
-                    "other_total": ["other_total"],
                 }
             },
         },

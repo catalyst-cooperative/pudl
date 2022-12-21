@@ -805,7 +805,11 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "type": "string",
         "description": "Type of income reported in income_statement_ferc1 table.",
     },
-    "income": {"type": "number", "description": "Dollars of income."},
+    "income": {
+        "type": "number",
+        "description": "Utility income reported by income type.",
+        "unit": "USD",
+    },
     "incremental_energy_savings_mwh": {"type": "number", "unit": "MWh"},
     "incremental_life_cycle_energy_savings_mwh": {"type": "number", "unit": "MWh"},
     "incremental_life_cycle_peak_reduction_mwh": {"type": "number", "unit": "MWh"},

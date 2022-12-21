@@ -20,7 +20,7 @@ from pudl.transform.ferc1 import (
 TEST_DBF_XBRL_MAP = pd.read_csv(
     StringIO(
         """
-sched_column_name,report_year,row_literal,row_number,row_type,xbrl_factoid
+sched_table_name,report_year,row_literal,row_number,row_type,xbrl_factoid
 test_table1,2000,"Header 1",1,header,"N/A"
 test_table1,2000,"Account A",2,ferc_account,account_a
 test_table1,2000,"Account B",3,ferc_account,account_b
@@ -64,27 +64,27 @@ def test_fill_dbf_to_xbrl_map():
     expected = pd.read_csv(
         StringIO(
             """
-report_year,row_number,xbrl_factoid
-2000,2,account_a
-2000,3,account_b
-2000,5,account_c
-2001,2,account_a
-2001,3,account_b
-2001,5,account_c
-2002,2,account_a
-2002,3,account_b
-2002,4,account_b1
-2002,6,account_c
-2003,2,account_a
-2003,3,account_b
-2003,4,account_b1
-2003,6,account_c
+report_year,row_number,sched_table_name,xbrl_factoid
+2000,2,test_table1,account_a
+2000,3,test_table1,account_b
+2000,5,test_table1,account_c
+2001,2,test_table1,account_a
+2001,3,test_table1,account_b
+2001,5,test_table1,account_c
+2002,2,test_table1,account_a
+2002,3,test_table1,account_b
+2002,4,test_table1,account_b1
+2002,6,test_table1,account_c
+2003,2,test_table1,account_a
+2003,3,test_table1,account_b
+2003,4,test_table1,account_b1
+2003,6,test_table1,account_c
 """
         )
     )
-    test_map = TEST_DBF_XBRL_MAP.drop(
-        ["sched_column_name", "row_literal"], axis="columns"
-    ).reset_index(drop=True)
+    test_map = TEST_DBF_XBRL_MAP.drop(["row_literal"], axis="columns").reset_index(
+        drop=True
+    )
     actual = fill_dbf_to_xbrl_map(df=test_map, dbf_years=sorted(range(2000, 2004)))
     actual = actual[actual.xbrl_factoid != "HEADER_ROW"].reset_index(drop=True)
     pd.testing.assert_frame_equal(actual, expected)
