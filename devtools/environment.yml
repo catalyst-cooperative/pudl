@@ -18,9 +18,9 @@ dependencies:
   - sqlite>=3.36,<4
   # These libraries aren't directly specified in setup.py as
   # dependencies, but they are helpful and provide binaries
-  - numba>=0.55.1,<0.57
+  # - numba>=0.55.1,<0.57
 
-    # These are not normal Python packages available on PyPI
+  # These are not normal Python packages available on PyPI
   - nodejs # Useful for Jupyter
   - pandoc # Useful for rendering RST files in Atom
 
