@@ -372,6 +372,11 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "unit": "USD",
     },
     "demand_mwh": {"type": "number", "unit": "MWh"},
+    "depreciation_amortization_value": {
+        "type": "number",
+        "unit": "USD",
+        "description": "Depreciation and amortization values (USD).",
+    },
     "description": {
         "type": "string",
         "description": "Long human-readable description of the meaning of a code/label.",
@@ -746,6 +751,10 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "type": "string",
         "description": "Reported units of measure for fuel.",
         # Note: Different ENUM constraints are applied below on EIA vs. FERC1
+    },
+    "functional_classification": {
+        "type": "string",
+        "description": "Specifies plant category that record applies to.",
     },
     "furnished_without_charge_mwh": {"type": "number", "unit": "MWh"},
     "future_plant": {
