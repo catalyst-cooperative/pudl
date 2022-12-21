@@ -21,6 +21,7 @@ ferc_to_sqlite_settings:
       - f1_utltyplnt_smmry
       - f1_xmssn_line
       - f1_comp_balance_db
+      - f1_dacs_epda
 
   ferc1_xbrl_to_sqlite_settings:
     years: [2021]
@@ -51,6 +52,8 @@ ferc_to_sqlite_settings:
       - transmission_line_statistics_422_instant
       - comparative_balance_sheet_assets_and_other_debits_110_duration
       - comparative_balance_sheet_assets_and_other_debits_110_instant
+      - summary_of_depreciation_and_amortization_charges_section_a_336_duration
+      - summary_of_depreciation_and_amortization_charges_section_a_336_instant
 
   ferc2_xbrl_to_sqlite_settings:
     years: [2021]
