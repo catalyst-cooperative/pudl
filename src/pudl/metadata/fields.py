@@ -2015,9 +2015,9 @@ FIELD_METADATA_BY_GROUP: dict[str, dict[str, Any]] = {
 }
 """Field attributes by resource group (`resource.group`) and PUDL identifier.
 
-If a field exists in more than one data group (e.g. both ``eia`` and ``ferc1``)
-and has distinct metadata in those groups, this is the place to specify the
-override. Only those elements which should be overridden need to be specified.
+If a field exists in more than one data group (e.g. both ``eia`` and ``ferc1``) and has
+distinct metadata in those groups, this is the place to specify the override. Only those
+elements which should be overridden need to be specified.
 """
 
 FIELD_METADATA_BY_RESOURCE: dict[str, dict[str, Any]] = {

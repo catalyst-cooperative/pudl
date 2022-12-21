@@ -123,7 +123,8 @@ class WideToTidy(TransformParams):
     pattern of "{to-be stacked category}_{value_type}", rename the columns using a
     ``rename_columns.duration_xbrl``, ``rename_columns.instant_xbrl`` or
     ``rename_columns.dbf`` parameter which will be employed in
-    :meth:`process_duration_xbrl`, :meth:`process_instant_xbrl` or :meth:`process_dbf`."""
+    :meth:`process_duration_xbrl`, :meth:`process_instant_xbrl` or :meth:`process_dbf`.
+    """
 
     expected_drop_cols: int = 0
     """The number of columns that are expected to be dropped.

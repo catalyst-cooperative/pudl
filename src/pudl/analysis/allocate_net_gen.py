@@ -193,7 +193,6 @@ MISSING_SENTINEL = 0.00001
    sentinel value back to zero's. This is meant to find all instances of aggregated
    sentinel values. We avoid any negative values because there are instances of
    negative orignal values - especially negative net generation.
-
 """
 
 
@@ -1683,10 +1682,10 @@ def allocate_bf_data_to_gens(
 def warn_if_missing_pms(gens):
     """Log warning if there are too many null ``prime_mover_code`` s.
 
-    Warn if prime mover codes in gens do not match the codes in the gf table
-    this is something that should probably be fixed in the input data
-    see https://github.com/catalyst-cooperative/pudl/issues/1585
-    set a threshold and ignore 2001 bc most errors are 2001 errors.
+    Warn if prime mover codes in gens do not match the codes in the gf table this is
+    something that should probably be fixed in the input data see
+    https://github.com/catalyst-cooperative/pudl/issues/1585 set a threshold and ignore
+    2001 bc most errors are 2001 errors.
     """
     missing_pm = gens[
         gens["prime_mover_code"].isna() & (gens.report_date.dt.year != 2001)
