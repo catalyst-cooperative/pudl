@@ -170,6 +170,19 @@ TABLE_NAME_MAP: dict[str, dict[str, str]] = {
         "dbf": ["f1_income_stmnt", "f1_incm_stmnt_2"],
         "xbrl": "statement_of_income_114",
     },
+    "retained_earnings_ferc1": {
+        "dbf": "f1_retained_erng",
+        "xbrl": "retained_earnings_118",
+    },
+    "retrained_earnings_appropriations_ferc1": {
+        "dbf": "f1_retained_erng",
+        "xbrl": "retained_earnings_appropriations_118",
+    },
+    # f1_retained_erng,retained_earnings_common_stock_118
+    #     f1_retained_erng,retained_earnings_credit_118
+    #     f1_retained_erng,retained_earnings_debit_118
+    #     f1_retained_erng,retained_earnings_preferred_stock_118
+    #     f1_retained_erng,retained_earnings_unappropriated_undistributed_subsidiary_earnings_118
     "depreciation_amortization_summary_ferc1": {
         "dbf": "f1_dacs_epda",
         "xbrl": "summary_of_depreciation_and_amortization_charges_section_a_336",

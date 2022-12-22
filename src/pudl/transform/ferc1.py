@@ -75,6 +75,8 @@ class TableIdFerc1(enum.Enum):
     UTILITY_PLANT_SUMMARY_FERC1 = "utility_plant_summary_ferc1"
     DEPRECIATION_AMORTIZATION_SUMMARY_FERC1 = "depreciation_amortization_summary_ferc1"
     BALANCE_SHEET_ASSETS_FERC1 = "balance_sheet_assets_ferc1"
+    RETAINED_EARNINGS_FERC1 = "retained_earnings_ferc1"
+    RETAINED_EARNINGS_APPROPRIATIONS_FERC1 = "retrined_earnings_appropriations_ferc1"
     INCOME_STATEMENT_FERC1 = "income_statement_ferc1"
 
 
@@ -2897,6 +2899,22 @@ class IncomeStatementFerc1TableTransformer(Ferc1AbstractTableTransformer):
             assert source_ferc1 == SourceFerc1.XBRL
             source_table = super().source_table_id(source_ferc1=source_ferc1)
         return source_table
+
+
+class RetainedEarningsFerc1TableTransformer(Ferc1AbstractTableTransformer):
+    """Transformer class for :ref:`retained_earnings_ferc1` table."""
+
+    table_id: TableIdFerc1 = TableIdFerc1.RETAINED_EARNINGS_FERC1
+    has_unique_record_ids: bool = False
+
+
+class RetainedEarningsAppropriationsFerc1TableTransformer(
+    Ferc1AbstractTableTransformer
+):
+    """Transformer class for :ref:`retained_earnings_appropriations_ferc1` table."""
+
+    table_id: TableIdFerc1 = TableIdFerc1.RETAINED_EARNINGS_APPROPRIATIONS_FERC1
+    has_unique_record_ids: bool = False
 
 
 class DepreciationAmortizationSummaryFerc1TableTransformer(

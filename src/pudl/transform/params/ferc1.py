@@ -3349,6 +3349,8 @@ TRANSFORM_PARAMS = {
             "on": "ferc_account_label",
         },
     },
+    "retained_earnings_ferc1": {},
+    "retained_earnings_appropriations_ferc1": {},
     "income_statement_ferc1": {
         "rename_columns_ferc1": {
             "dbf": {
