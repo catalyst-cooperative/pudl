@@ -1157,7 +1157,12 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
             record_id=lambda x: x.source_table_id.str.cat(
                 x[pk_cols].astype(str), sep="_"
             ),
-        ).drop(columns=["source_table_id"])
+        )
+        if df.source_table_id.isnull().any():
+            raise ValueError(
+                f"{self.table_id.value}: Null source_table_id's were found where none "
+                "were expected."
+            )
         df.record_id = enforce_snake_case(df.record_id)
 
         dupe_ids = df.record_id[df.record_id.duplicated()].values
@@ -1166,7 +1171,7 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
                 f"{self.table_id.value}: Found {len(dupe_ids)} duplicate record_ids: \n"
                 f"{dupe_ids}."
             )
-        return df
+        return df.drop(columns=["source_table_id"])
 
     def assign_utility_id_ferc1(
         self, df: pd.DataFrame, source_ferc1: SourceFerc1
@@ -2850,7 +2855,7 @@ class IncomeStatementFerc1TableTransformer(Ferc1AbstractTableTransformer):
 
         Right now we are just dropping these bad row numbers. Should we actually be
         bumping the whole respondent's row numbers - assuming they reported incorrectly
-        for the whole table? See Issue #471.
+        for the whole table? See: https://github.com/catalyst-cooperative/pudl/issues/471
         """
         len_og = len(raw_dbf)
         known_bad_income2_rows = [25, 26]
@@ -2883,11 +2888,15 @@ class IncomeStatementFerc1TableTransformer(Ferc1AbstractTableTransformer):
         if source_ferc1 == SourceFerc1.DBF:
             # sched_table_name is a table name. was added in align_row_numbers_dbf
             if df.sched_table_name.isnull().any():
-                raise AssertionError(f"BAd. {df.sched_table_name.isnull().any()}")
-            return df.sched_table_name
+                raise ValueError(
+                    f"{self.table_id.value}: Null sched_table_name found in DBF to XBRL"
+                    " row map."
+                )
+            source_table = df.sched_table_name
         else:
             assert source_ferc1 == SourceFerc1.XBRL
-            return super().source_table_id(source_ferc1=source_ferc1)
+            source_table = super().source_table_id(source_ferc1=source_ferc1)
+        return source_table
 
 
 class DepreciationAmortizationSummaryFerc1TableTransformer(
