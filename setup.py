@@ -47,11 +47,12 @@ setup(
     python_requires=">=3.10,<3.11",
     setup_requires=["setuptools_scm"],
     install_requires=[
-        "addfips>=0.3.1,<0.4.0",
+        "addfips>=0.4,<0.5",
+        "awscli>=1.27,<1.28",
         "catalystcoop.dbfread>=3.0,<3.1",
         "coloredlogs>=14.0,<15.1",  # Dagster requires 14.0
-        "catalystcoop.ferc_xbrl_extractor @ git+https://github.com/catalyst-cooperative/ferc-xbrl-extractor.git@dev",
-        "dask>=2021.8,<2022.11.2",
+        "catalystcoop.ferc-xbrl-extractor==0.8.1",
+        "dask>=2021.8,<2022.12.2",
         "datapackage>=1.11,<1.16",  # Transition datastore to use frictionless.
         "dagster~=1.0.17",
         "dagit~=1.0.17",
@@ -62,30 +63,28 @@ setup(
         "jinja2>=2,<3.2",
         "matplotlib>=3.3,<3.7",  # Should make this optional with a "viz" extras
         "networkx>=2.2,<2.9",
-        "numpy>=1.18.5,<1.24,!=1.23.0",
-        "pandas>=1.4,<1.5.2",
+        "numpy>=1.18.5,!=1.23.0,<1.25",
+        "pandas>=1.4,<1.5.3",
         "pyarrow>=5,<10.1",
         "pydantic[email]>=1.7,<2",
         "python-snappy>=0.6,<0.7",
-        "pygeos>=0.10,<0.14",
         "pyyaml>=5,<6.1",
-        "scikit-learn>=1.0,<1.2",
-        "Shapely!=1.8.3",  # Seems to have a bug or incompatibility
+        "scikit-learn>=1.0,<1.3",
         "scipy>=1.6,<1.10",
-        "Shapely!=1.8.3",  # Bug or incompatibility in upstream dependencies
-        "sqlalchemy>=1.4,<1.4.45",
+        "Shapely>=2.0,<2.1",
+        "sqlalchemy>=1.4,<1.4.46",
         "timezonefinder>=5,<6.2",
         "xlsxwriter>=3,<3.1",
     ],
     extras_require={
         "dev": [
-            "black>=22.0,<22.11",
+            "black>=22.0,<22.13",
             "docformatter>=1.5,<1.6",
             "ipdb>=0.13,<0.14",
-            "isort>=5.0,<5.11",
+            "isort>=5.0,<5.12",
             "jedi>=0.18,<0.19",
             "lxml>=4.6,<4.10",
-            "tox>=3.20,<4.0.0",
+            "tox>=3.20,<4.1",
             "twine>=3.3,<4.1",
         ],
         "doc": [
@@ -99,9 +98,9 @@ setup(
         ],
         "test": [
             "bandit>=1.6,<1.8",
-            "coverage>=5.3,<6.6",
+            "coverage>=5.3,<7.1",
             "doc8>=0.9,<1.1",
-            "flake8>=4.0,<5.1",
+            "flake8>=4.0,<6.1",
             "flake8-builtins>=1.5,<2.1",
             "flake8-docstrings>=1.5,<1.7",
             "flake8-rst-docstrings>=0.2,<0.4",
@@ -117,7 +116,7 @@ setup(
             "pytest-mock>=3.0,<3.11",
             "responses>=0.14,<0.23",
             "rstcheck[sphinx]>=5.0,<6.2",
-            "tox>=3.20,<3.28",
+            "tox>=3.20,<4.1",
         ],
         "datasette": [
             "datasette>=0.60,<0.64",

@@ -41,7 +41,7 @@ def check_gdf(gdf: gpd.GeoDataFrame) -> None:
         raise ValueError("Geometry contains (Multi)Polygon geometries with zero area")
     is_mpoly = gdf.geometry.geom_type == "MultiPolygon"
     for mpoly in gdf.geometry[is_mpoly]:
-        for poly in mpoly:
+        for poly in mpoly.geoms:
             if not poly.area:
                 raise ValueError(
                     "MultiPolygon contains Polygon geometries with zero area"
@@ -63,7 +63,7 @@ def polygonize(geom: BaseGeometry) -> Polygon | MultiPolygon:
     polys = []
     # Explode geometries to polygons
     if isinstance(geom, GeometryCollection):
-        for g in geom:
+        for g in geom.geoms:
             if isinstance(g, Polygon):
                 polys.append(g)
             elif isinstance(g, MultiPolygon):

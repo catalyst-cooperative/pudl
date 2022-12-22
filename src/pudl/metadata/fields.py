@@ -89,6 +89,10 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "description": "Asset retirement cost (USD).",
         "unit": "USD",
     },
+    "asset_type": {
+        "type": "string",
+        "description": "Type of asset being reported to the balance_sheet_assets_ferc1 table.",
+    },
     "associated_combined_heat_power": {
         "type": "boolean",
         "description": "Indicates whether the generator is associated with a combined heat and power system",
@@ -97,6 +101,10 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     "automated_meter_reading": {"type": "integer"},
     "avg_num_employees": {"type": "number"},
     "backup_capacity_mw": {"type": "number", "unit": "MW"},
+    "balance": {
+        "type": "string",
+        "description": "Indication of whether a column is a credit or debit, as reported in the XBRL taxonomy.",
+    },
     "balancing_authority_code_eia": {
         "type": "string",
         "description": "EIA short code identifying a balancing authority.",
@@ -187,6 +195,11 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "description": "Cost of plant: land and land rights (USD).",
         "unit": "USD",
     },
+    "capex_other": {
+        "type": "number",
+        "description": "Other costs associated with the plant (USD).",
+        "unit": "USD",
+    },
     "capex_per_mw": {
         "type": "number",
         "description": "Cost of plant per megawatt of installed (nameplate) capacity. Nominal USD.",
@@ -244,6 +257,10 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "type": "number",
         "description": "Average monthly coincident peak (CP) demand (for requirements purchases, and any transactions involving demand charges). Monthly CP demand is the metered demand during the hour (60-minute integration) in which the supplier's system reaches its monthly peak. In megawatts.",
         "unit": "MW",
+    },
+    "conductor_size_and_material": {
+        "type": "string",
+        "description": "Size of transmission conductor and material of the transmission line.",
     },
     "construction_type": {
         "type": "string",
@@ -355,18 +372,43 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "unit": "USD",
     },
     "demand_mwh": {"type": "number", "unit": "MWh"},
+    "depreciation_amortization_value": {
+        "type": "number",
+        "unit": "USD",
+        "description": "Depreciation and amortization values (USD).",
+    },
     "description": {
         "type": "string",
         "description": "Long human-readable description of the meaning of a code/label.",
+    },
+    "designed_voltage_kv": {
+        "type": "number",
+        "description": "Manufactured (Designed) voltage, expressed in kilo-volts, for three-phase 60 cycle alternative current transmission lines",
+        "unit": "KV",
+    },
+    "doi": {
+        "type": "string",
+        "description": "Unique digitial object identifier of Zenodo archive.",
     },
     "ending_balance": {
         "type": "number",
         "description": "Account balance at end of year.",
         "unit": "USD",
     },
-    "ferc_account_description": {
-        "type": "string",
+    "energy_mwh": {
+        "type": "number",
+        "unit": "MWh",
+        "description": "Sources and uses of energy in MWh.",
     },
+    "energy_source_type": {
+        "type": "string",
+        "description": "Type of energy source reported in the electric_energy_sources_ferc1 table. There are three groups of energy sources: generation, power exchanges and transmission.",
+    },
+    "energy_disposition_type": {
+        "type": "string",
+        "description": "Type of energy disposition reported in the electric_energy_dispositions_ferc1. Dispositions include sales to customers, re-sales of energy, energy used internally, losses, etc.",
+    },
+    "ferc_account_description": {"type": "string"},
     "fuel_agg": {
         "type": "string",
         "description": "Category of fuel aggregation in EIA bulk electricity data.",
@@ -424,6 +466,10 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     "emissions_unit_id_epa": {
         "type": "string",
         "description": "Emissions (smokestack) unit monitored by EPA CEMS.",
+    },
+    "end_point": {
+        "type": "string",
+        "description": "The end point of a transmission line.",
     },
     "energy_charges": {
         "type": "number",
@@ -705,6 +751,10 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "type": "string",
         "description": "Reported units of measure for fuel.",
         # Note: Different ENUM constraints are applied below on EIA vs. FERC1
+    },
+    "functional_classification": {
+        "type": "string",
+        "description": "Specifies plant category that record applies to.",
     },
     "furnished_without_charge_mwh": {"type": "number", "unit": "MWh"},
     "future_plant": {
@@ -990,6 +1040,10 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "type": "string",
         "description": "For nuclear plants only, the unit number .One digit numeric. Nuclear plants are the only type of plants for which data are shown explicitly at the generating unit level.",
     },
+    "num_transmission_circuits": {
+        "type": "integer",
+        "description": "Number of circuits in a transmission line.",
+    },
     "operates_generating_plant": {"type": "boolean"},
     "operating_date": {
         "type": "date",
@@ -1011,6 +1065,11 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     "operating_year": {
         "type": "integer",
         "description": "Year a generator went into service.",
+    },
+    "operating_voltage_kv": {
+        "type": "number",
+        "description": "The operating voltage, expressed kilo-volts, for three-phase 60 cycle alternative current transmission lines.",
+        "unit": "KV",
     },
     "operational_status": {
         "type": "string",
@@ -1226,6 +1285,10 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "type": "boolean",
         "description": "Whether a plant part record has a duplicate record with different ownership status.",
     },
+    "partitions": {
+        "type": "string",
+        "description": "The data parititions used to generate this instance of the database.",
+    },
     "peak_demand_mw": {
         "type": "number",
         "unit": "MW",
@@ -1404,6 +1467,10 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "description": "Code for the type of prime mover (e.g. CT, CG)",
     },
     "project_num": {"type": "integer", "description": "FERC Licensed Project Number."},
+    "pudl_version": {
+        "type": "string",
+        "description": "The version of PUDL used to generate this database.",
+    },
     "pulverized_coal_tech": {
         "type": "boolean",
         "description": "Indicates whether the generator uses pulverized coal technology",
@@ -1485,7 +1552,7 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     "row_type_xbrl": {
         "type": "string",
         "description": "Indicates whether the value reported in the row is calculated, or uniquely reported within the table.",
-        "constraints": {"enum": ["calculated", "ferc_account"]},
+        "constraints": {"enum": ["calculated_value", "reported_value"]},
     },
     "rto_iso_lmp_node_id": {
         "type": "string",
@@ -1559,6 +1626,10 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "description": "Indicates whether the generator is part of a solid fuel gasification system",
     },
     "standard": {"type": "string", "constraints": {"enum": RELIABILITY_STANDARDS}},
+    "start_point": {
+        "type": "string",
+        "description": "The starting point of a transmission line.",
+    },
     "starting_balance": {
         "type": "number",
         "description": "Account balance at beginning of year.",
@@ -1669,6 +1740,10 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "type": "string",
         "description": "Company that sold the fuel to the plant or, in the case of Natural Gas, pipline owner.",
     },
+    "supporting_structure_type": {
+        "type": "string",
+        "description": "Supporting structure of the transmission line.",
+    },
     "switch_oil_gas": {
         "type": "boolean",
         "description": "Indicates whether the generator switch between oil and natural gas.",
@@ -1753,6 +1828,14 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "type": "string",
         "description": "State location for owner of transmission/distribution system to which the plant is interconnected.",
     },
+    "transmission_line_and_structures_length_miles": {
+        "type": "number",
+        "description": "Length (in pole miles or circuit miles (if transmission lines are underground)) for lines that are agrregated with other lines / structures (whose cost are aggregated and combined with other structures).",
+    },
+    "transmission_line_length_miles": {
+        "type": "number",
+        "description": "Length (in pole miles or circuit miles (if transmission lines are underground)) for lines that are stand alone structures (whose cost are reported on a stand-alone basis).",
+    },
     "true_gran": {
         "type": "boolean",
         "description": "Indicates whether a plant part list record is associated with the highest priority plant part for all identical records.",
@@ -1823,7 +1906,20 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "description": "Utility name, chosen arbitrarily from the several possible utility names available in the utility matching process. Included for human readability only.",
     },
     "utility_owned_capacity_mw": {"type": "number", "unit": "MW"},
+    "utility_plant_asset_type": {
+        "type": "string",
+        "description": "Type of utility plant asset reported in the utility_plant_summary_ferc1 table. Assets include those leased to others, held for future use, construction work-in-progress and details of accumulated depreciation.",
+    },
+    "utility_plant_value": {"type": "number", "description": "Utility plant value."},
     "utility_pobox": {"type": "string"},
+    "utility_type": {
+        "type": "string",
+        "description": "Listing of utility plant types. Examples include Electric Utility, Gas Utility, and Other Utility.",
+    },
+    "utility_type_other": {
+        "type": "string",
+        "description": "Freeform description of type of utility reported in one of the other three other utility_type sections in the utility_plant_summary_ferc1 table. This field is reported only in the DBF reporting years (1994-2020).",
+    },
     "variable_peak_pricing": {"type": "boolean"},
     "virtual_capacity_mw": {"type": "number", "unit": "MW"},
     "virtual_customers": {"type": "integer"},
@@ -1919,9 +2015,9 @@ FIELD_METADATA_BY_GROUP: dict[str, dict[str, Any]] = {
 }
 """Field attributes by resource group (`resource.group`) and PUDL identifier.
 
-If a field exists in more than one data group (e.g. both ``eia`` and ``ferc1``)
-and has distinct metadata in those groups, this is the place to specify the
-override. Only those elements which should be overridden need to be specified.
+If a field exists in more than one data group (e.g. both ``eia`` and ``ferc1``) and has
+distinct metadata in those groups, this is the place to specify the override. Only those
+elements which should be overridden need to be specified.
 """
 
 FIELD_METADATA_BY_RESOURCE: dict[str, dict[str, Any]] = {
@@ -1975,6 +2071,23 @@ FIELD_METADATA_BY_RESOURCE: dict[str, dict[str, Any]] = {
             "constraints": {"enum": set(CODE_METADATA["prime_movers_eia"]["df"].code)}
         },
         "technology_description": {"constraints": {"enum": set(TECH_DESCRIPTIONS)}},
+    },
+    "transmission_ferc1": {
+        "capex_land": {
+            "description": "Cost of Land and land rights for the transmission line."
+        },
+        "capex_other": {
+            "description": "Construction and other costs for the transmission line."
+        },
+        "capex_total": {"description": "Total costs for the transmission line."},
+        "opex_operations": {
+            "description": "Operating expenses for the transmission line."
+        },
+        "opex_maintenance": {
+            "description": "Maintenance expenses for the transmission line."
+        },
+        "opex_rents": {"description": "Rent expenses for the transmission line."},
+        "opex_total": {"description": "Overall expenses for the transmission line."},
     },
 }
 

@@ -13,7 +13,6 @@ data from:
  - US Environmental Protection Agency (EPA):
    - Continuous Emissions Monitory System (epacems)
 """
-import itertools
 import logging
 import time
 from concurrent.futures import ProcessPoolExecutor
@@ -226,7 +225,10 @@ def _etl_ferc1(
     ferc1_xbrl_raw_dfs = pudl.extract.ferc1.extract_xbrl(
         ferc1_settings=ferc1_settings, pudl_settings=pudl_settings
     )
-    xbrl_metadata_json = pudl.extract.ferc1.extract_xbrl_metadata(pudl_settings)
+    xbrl_metadata_json = pudl.extract.ferc1.extract_xbrl_metadata(
+        ferc1_settings=ferc1_settings,
+        pudl_settings=pudl_settings,
+    )
     # Transform FERC form 1
     ferc1_transformed_dfs = pudl.transform.ferc1.transform(
         ferc1_dbf_raw_dfs=ferc1_dbf_raw_dfs,
@@ -361,9 +363,9 @@ def etl_epacems(
             compression="snappy",
             version="2.6",
         ) as pqwriter:
-            for year, state in itertools.product(
-                epacems_settings.years, epacems_settings.states
-            ):
+            for part in epacems_settings.partitions:
+                year = part["year"]
+                state = part["state"]
                 logger.info(f"Processing EPA CEMS hourly data for {year}-{state}")
                 df = pudl.extract.epacems.extract(year=year, state=state, ds=ds)
                 df = pudl.transform.epacems.transform(df, pudl_engine=pudl_engine)
