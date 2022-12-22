@@ -3181,7 +3181,7 @@ TRANSFORM_PARAMS = {
                     "utility_type_other",
                 ],
                 "value_types": ["utility_plant_value"],
-                "expected_drop_cols": 2,
+                "expected_drop_cols": 1,
                 "stacked_column_name": "utility_plant_asset_type",
             },
         },

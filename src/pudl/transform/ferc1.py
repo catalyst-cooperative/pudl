@@ -545,9 +545,11 @@ def fill_dbf_to_xbrl_map(
 
     # Forward fill missing XBRL column names, until a new definition for the row
     # number is encountered:
-    df["xbrl_factoid"] = df.groupby("row_number").xbrl_factoid.transform("ffill")
+    df["xbrl_factoid"] = df.groupby(
+        ["row_number", "sched_table_name"]
+    ).xbrl_factoid.transform("ffill")
     # Drop NA values produced in the broadcasting merge onto the exhaustive index.
-    df = df.dropna(subset="xbrl_factoid")
+    df = df.dropna(subset="xbrl_factoid").drop(columns=["sched_table_name"])
     # There should be no NA values left at this point:
     if not df.all(axis=None):
         raise ValueError(
@@ -1047,7 +1049,7 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
         logger.debug(f"{self.table_id.value}: Dropping DBF footnote columns.")
         return df.drop(columns=df.filter(regex=r".*_f$").columns)
 
-    def source_table_id(self, source_ferc1: SourceFerc1) -> str:
+    def source_table_id(self, source_ferc1: SourceFerc1, **kwargs) -> str:
         """Look up the ID of the raw data source table."""
         return TABLE_NAME_MAP[self.table_id.value][source_ferc1.value]
 
@@ -1149,7 +1151,9 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
                 f"{df[pk_cols].isnull().any()}"
             )
         df = df.assign(
-            source_table_id=self.source_table_id(source_ferc1),
+            # Include df=df as an argument here because it is needed for the income
+            # table. In all other instances, nothing will be done with df.
+            source_table_id=self.source_table_id(source_ferc1, df=df),
             record_id=lambda x: x.source_table_id.str.cat(
                 x[pk_cols].astype(str), sep="_"
             ),
@@ -2846,21 +2850,17 @@ class IncomeStatementFerc1TableTransformer(Ferc1AbstractTableTransformer):
 
         Right now we are just dropping these bad row numbers. Should we actually be
         bumping the whole respondent's row numbers - assuming they reported incorrectly
-        for the whole table?
+        for the whole table? See Issue #471.
         """
         len_og = len(raw_dbf)
         known_bad_income2_rows = [25, 26]
-        raw_dbf = (
-            raw_dbf[
-                ~(
-                    (raw_dbf.sched_table_name == "f1_incm_stmnt_2")
-                    & (raw_dbf.report_year == 2003)
-                    & (raw_dbf.row_number.isin(known_bad_income2_rows))
-                )
-            ]
-            .copy()
-            .drop(columns=["sched_table_name"])
-        )
+        raw_dbf = raw_dbf[
+            ~(
+                (raw_dbf.sched_table_name == "f1_incm_stmnt_2")
+                & (raw_dbf.report_year == 2003)
+                & (raw_dbf.row_number.isin(known_bad_income2_rows))
+            )
+        ].copy()
         logger.info(
             f"Dropped {len_og - len(raw_dbf)} records ({(len_og - len(raw_dbf))/len_og:.1%} of"
             "total) records from 2003 from the f1_incm_stmnt_2 DBF table that have "
@@ -2869,66 +2869,25 @@ class IncomeStatementFerc1TableTransformer(Ferc1AbstractTableTransformer):
         raw_dbf = super().process_dbf(raw_dbf)
         return raw_dbf
 
-    def assign_record_id(
-        self, df: pd.DataFrame, source_ferc1: SourceFerc1
-    ) -> pd.DataFrame:
-        """Add a column identifying the original source record for each row.
+    def source_table_id(
+        self, source_ferc1: SourceFerc1, df: pd.DataFrame | None = None
+    ) -> str | pd.Series:
+        """Look up the ID of the raw data source table.
 
-        Generate the ``record_id`` column in similar fashion to
-        :meth:`Ferc1AbstractTableTransformer.assign_record_id`, but use the table name
-        from the ``dbf_to_xbrl.csv`` during the :meth:`align_row_numbers_dbf` for the
-        DBF side of the table because this DBF input came from two seperate tables.
-
-        Args:
-            df: table to assign ``record_id`` to
-            table_name: name of table
-            source_ferc1: data source of raw ferc1 database.
-
-        Raises:
-            ValueError: If any of the primary key columns are missing from the DataFrame
-                being processed.
-            ValueError: If there are any null values in the primary key columns.
-            ValueError: If the resulting `record_id` column is non-unique.
+        Because the raw DBF data comes from two seperate tables, this table-specific
+        method generates a Series of tables names based on the ``sched_table_name``
+        columns which was assigned during the transform step. For the XBRL source, the
+        standard method is employed and a string is returned.
         """
-        logger.debug(
-            f"{self.table_id.value}: Assigning {source_ferc1.value} source record IDs."
-        )
-        pk_cols = self.renamed_table_primary_key(source_ferc1)
-        missing_pk_cols = set(pk_cols).difference(df.columns)
-        if missing_pk_cols:
-            raise ValueError(
-                f"{self.table_id.value} ({source_ferc1.value}): Missing primary key "
-                "columns in dataframe while assigning source record_id: "
-                f"{missing_pk_cols}"
-            )
-        if df[pk_cols].isnull().any(axis=None):
-            raise ValueError(
-                f"{self.table_id.value} ({source_ferc1.value}): Found null primary key "
-                "values.\n"
-                f"{df[pk_cols].isnull().any()}"
-            )
         # assign the source_table_id column based on the source
         if source_ferc1 == SourceFerc1.DBF:
             # sched_table_name is a table name. was added in align_row_numbers_dbf
-            df.sched_table_name.isnull().any()
-            df = df.assign(source_table_id=lambda x: x.sched_table_name)
+            if df.sched_table_name.isnull().any():
+                raise AssertionError(f"BAd. {df.sched_table_name.isnull().any()}")
+            return df.sched_table_name
         else:
             assert source_ferc1 == SourceFerc1.XBRL
-            df = df.assign(source_table_id=self.source_table_id(source_ferc1))
-        df = df.assign(
-            record_id=lambda x: x.source_table_id.str.cat(
-                x[pk_cols].astype(str), sep="_"
-            ),
-        ).drop(columns=["source_table_id"])
-        df.record_id = enforce_snake_case(df.record_id)
-
-        dupe_ids = df.record_id[df.record_id.duplicated()].values
-        if dupe_ids.any() and self.has_unique_record_ids:
-            logger.warning(
-                f"{self.table_id.value}: Found {len(dupe_ids)} duplicate record_ids: \n"
-                f"{dupe_ids}."
-            )
-        return df
+            return super().source_table_id(source_ferc1=source_ferc1)
 
 
 class DepreciationAmortizationSummaryFerc1TableTransformer(
