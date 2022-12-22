@@ -331,16 +331,11 @@ def align_row_numbers_dbf(
         params = AlignRowNumbersDbf()
     if params.dbf_table_names:
         logger.info(
-            f"Aligning row numbers from DBF row to XBRL map for  {params.dbf_table_names}"
+            f"Aligning row numbers from DBF row to XBRL map for {params.dbf_table_names}"
         )
-        row_maps = []
-        for dbf_table_name in params.dbf_table_names:
-            row_maps.append(
-                read_dbf_to_xbrl_map(dbf_table_name=dbf_table_name).pipe(
-                    fill_dbf_to_xbrl_map
-                )
-            )
-        row_map = pd.concat(row_maps)
+        row_map = read_dbf_to_xbrl_map(dbf_table_names=params.dbf_table_names).pipe(
+            fill_dbf_to_xbrl_map
+        )
         if not row_map.all(axis=None):
             raise ValueError(
                 "Filled DBF-XBRL map contains NA values, which should never happen:"
@@ -434,7 +429,7 @@ def update_dbf_to_xbrl_map(ferc1_engine: sa.engine.Engine) -> pd.DataFrame:
     )
 
 
-def read_dbf_to_xbrl_map(dbf_table_name: str) -> pd.DataFrame:
+def read_dbf_to_xbrl_map(dbf_table_names: list[str]) -> pd.DataFrame:
     """Read the manually compiled DBF row to XBRL column mapping for a given table.
 
     Args:
@@ -459,7 +454,7 @@ def read_dbf_to_xbrl_map(dbf_table_name: str) -> pd.DataFrame:
             ],
         )
     # Select only the rows that pertain to dbf_table_name
-    row_map = row_map.loc[row_map.sched_table_name == dbf_table_name]
+    row_map = row_map.loc[row_map.sched_table_name.isin(dbf_table_names)]
     return row_map
 
 
