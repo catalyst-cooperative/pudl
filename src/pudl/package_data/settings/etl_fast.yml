@@ -21,6 +21,8 @@ ferc_to_sqlite_settings:
       - f1_utltyplnt_smmry
       - f1_xmssn_line
       - f1_comp_balance_db
+      - f1_income_stmnt
+      - f1_incm_stmnt_2
       - f1_dacs_epda
 
   ferc1_xbrl_to_sqlite_settings:
@@ -52,6 +54,8 @@ ferc_to_sqlite_settings:
       - transmission_line_statistics_422_instant
       - comparative_balance_sheet_assets_and_other_debits_110_duration
       - comparative_balance_sheet_assets_and_other_debits_110_instant
+      - statement_of_income_114_duration
+      - statement_of_income_114_instant
       - summary_of_depreciation_and_amortization_charges_section_a_336_duration
       - summary_of_depreciation_and_amortization_charges_section_a_336_instant
 
@@ -89,6 +93,7 @@ datasets:
       - utility_plant_summary_ferc1
       - depreciation_amortization_summary_ferc1
       - balance_sheet_assets_ferc1
+      - income_statement_ferc1
     years: [2020, 2021]
   eia:
     eia923:
