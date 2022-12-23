@@ -61,7 +61,7 @@ test_table2,2002,"Account E",9,ferc_account,account_e
 def test_dbf_to_xbrl_mapping_is_unique(dbf_table_name):
     """Verify that our DBF to XBRL mapping results in at most 1 mapping per year."""
     dbf_xbrl_map = fill_dbf_to_xbrl_map(
-        df=read_dbf_to_xbrl_map(dbf_table_name=dbf_table_name),
+        df=read_dbf_to_xbrl_map(dbf_table_names=[dbf_table_name]),
         dbf_years=Ferc1Settings().dbf_years,
     )
     dbf_xbrl_map = dbf_xbrl_map[dbf_xbrl_map.xbrl_factoid != "HEADER_ROW"]
