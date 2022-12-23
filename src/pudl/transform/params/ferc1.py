@@ -3349,7 +3349,48 @@ TRANSFORM_PARAMS = {
             "on": "ferc_account_label",
         },
     },
-    "retained_earnings_ferc1": {},
+    "retained_earnings_ferc1": {
+        "rename_columns_ferc1": {
+            "duration_xbrl": {
+                "columns": {
+                    "retained_earnings_primary_contra_account_affected": "retained_earnings_contra_primary_account_affected"
+                }
+                | {
+                    col: f"{col}_contra_primary_account_affected"
+                    for col in [
+                        "adjustments_to_retained_earnings_debit",
+                        "balance_transferred_from_income",
+                        "appropriations_of_retained_earnings",
+                        "adjustments_to_retained_earnings_credit",
+                        "dividends_declared_common_stock",
+                        "dividends_declared_preferred_stock",
+                        "changes_unappropriated_undistributed_subsidiary_earnings_credits",
+                    ]
+                }
+            },
+            "xbrl": {
+                "columns": {
+                    "entity_id": "utility_id_ferc1_xbrl",
+                    "report_year": "report_year",
+                }
+            },
+        },
+        "wide_to_tidy": {
+            "xbrl": {
+                "idx_cols": [
+                    "entity_id",
+                    "report_year",
+                ],
+                "value_types": [
+                    "starting_balance",
+                    "ending_balance",
+                    "contra_primary_account_affected",
+                ],
+                "expected_drop_cols": 2,
+                "stacked_column_name": "xbrl_factoid",
+            },
+        },
+    },
     "retained_earnings_appropriations_ferc1": {},
     "income_statement_ferc1": {
         "rename_columns_ferc1": {

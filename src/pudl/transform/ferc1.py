@@ -947,10 +947,10 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
 
         if instant.empty:
             logger.info(f"{self.table_id.value}: No XBRL instant table found.")
-            return duration
+            out_df = duration
         elif duration.empty:
             logger.info(f"{self.table_id.value}: No XBRL duration table found.")
-            return instant
+            out_df = instant
         else:
             logger.info(
                 f"{self.table_id.value}: Both XBRL instant & duration tables found."
@@ -968,7 +968,7 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
                     "using RIGHT-MERGE."
                 )
                 # Merge instant into duration.
-                return pd.merge(
+                out_df = pd.merge(
                     instant,
                     duration,
                     how="right",
@@ -985,7 +985,7 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
                     f"{self.table_id.value}: Combining XBRL instant & duration tables "
                     "using CONCATENATION."
                 )
-                return pd.concat(
+                out_df = pd.concat(
                     [
                         instant.set_index(["report_year", "entity_id"] + instant_axes),
                         duration.set_index(
@@ -994,6 +994,7 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
                     ],
                     axis="columns",
                 ).reset_index()
+        return out_df
 
     @cache_df("process_instant_xbrl")
     def process_instant_xbrl(self, df: pd.DataFrame) -> pd.DataFrame:
@@ -2906,6 +2907,43 @@ class RetainedEarningsFerc1TableTransformer(Ferc1AbstractTableTransformer):
 
     table_id: TableIdFerc1 = TableIdFerc1.RETAINED_EARNINGS_FERC1
     has_unique_record_ids: bool = False
+
+    @cache_df("process_instant_xbrl")
+    def process_instant_xbrl(self, df: pd.DataFrame) -> pd.DataFrame:
+        """Pre-processing required to make the instant and duration tables compatible.
+
+        Each year the plant account balances are reported twice, in two separate
+        records: one for the end of the previous year, and one for the end of the
+        current year, with appropriate dates for the two year ends. Here we are
+        reshaping the table so that we instead have two columns: ``starting_balance``
+        and ``ending_balance`` that both pertain to the current year, so that all of
+        the records pertaining to a single ``report_year`` can be identified without
+        dealing with the instant / duration distinction.
+
+        NOTE: this is a copy/paste from the plant in service table. We should probably
+        generalize & parameterize it. Right now it looks like it would *only* be a bool.
+        """
+        df = super().process_instant_xbrl(df)
+        df["year"] = pd.to_datetime(df["date"]).dt.year
+        df.loc[df.report_year == (df.year + 1), "balance_type"] = "starting_balance"
+        df.loc[df.report_year == df.year, "balance_type"] = "ending_balance"
+        if not df.balance_type.notna().all():
+            raise ValueError(
+                f"Unexpected years found in the {self.table_id.value} table: "
+                f"{df.loc[df.balance_type.isna(), 'year'].unique()}"
+            )
+        df = (
+            df.drop(["year", "date"], axis="columns")
+            .set_index(["entity_id", "report_year", "balance_type"])
+            .unstack("balance_type")
+        )
+        # This turns a multi-index into a single-level index with tuples of strings as
+        # the keys, and then converts the tuples of strings into a single string by
+        # joining their values with an underscore. This results in column labels like
+        # boiler_plant_equipment_steam_production_starting_balance
+        # Is there a better way?
+        df.columns = ["_".join(items) for items in df.columns.to_flat_index()]
+        return df.reset_index()
 
 
 class RetainedEarningsAppropriationsFerc1TableTransformer(
