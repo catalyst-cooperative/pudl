@@ -169,6 +169,10 @@ TABLE_NAME_MAP: dict[str, dict[str, str]] = {
         "dbf": "f1_dacs_epda",
         "xbrl": "summary_of_depreciation_and_amortization_charges_section_a_336",
     },
+    "other_regulatory_liabilities_ferc1": {
+        "dbf": "f1_othr_reg_liab",
+        "xbrl": "summary_of_depreciation_and_amortization_charges_section_a_336",
+    },
 }
 """A mapping of PUDL DB table names to their XBRL and DBF source table names."""
 
