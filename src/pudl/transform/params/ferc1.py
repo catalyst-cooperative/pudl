@@ -3372,6 +3372,20 @@ TRANSFORM_PARAMS = {
                 "columns": {
                     "entity_id": "utility_id_ferc1_xbrl",
                     "report_year": "report_year",
+                    "contra_primary_account_affected": "amount",
+                }
+            },
+            "dbf": {
+                "columns": {
+                    "respondent_id": "utility_id_ferc1_dbf",
+                    "report_year": "report_year",
+                    "spplmnt_num": "spplmnt_num",
+                    "row_number": "row_number",
+                    "row_seq": "row_seq",
+                    "row_prvlg": "row_prvlg",
+                    "report_prd": "report_prd",
+                    "xbrl_factoid": "earnings_type",
+                    "prev_balance": "starting_balance",
                 }
             },
         },
@@ -3387,9 +3401,20 @@ TRANSFORM_PARAMS = {
                     "contra_primary_account_affected",
                 ],
                 "expected_drop_cols": 2,
-                "stacked_column_name": "xbrl_factoid",
+                "stacked_column_name": "earnings_type",
             },
         },
+        "align_row_numbers_dbf": {"dbf_table_names": ["f1_retained_erng"]},
+        "select_dbf_rows_from_category": {
+            "column_name": "earnings_type",
+            "select_based_on_xbrl_category": True,
+            "expected_categories_to_drop": 6,
+        },
+        "merge_xbrl_metadata": {
+            "rename_columns": {"xbrl_factoid": "earnings_type"},
+            "on": "earnings_type",
+        },
+        "strip_non_numeric_values": {"amount": {"strip_non_numeric_values": True}},
     },
     "retained_earnings_appropriations_ferc1": {},
     "income_statement_ferc1": {

@@ -80,6 +80,11 @@ class TableIdFerc1(enum.Enum):
     INCOME_STATEMENT_FERC1 = "income_statement_ferc1"
 
 
+################################################################################
+# FERC 1 specific Column, MultiColumn, and Table Transform Functions
+################################################################################
+
+
 class RenameColumnsFerc1(TransformParams):
     """Dictionaries for renaming either XBRL or DBF derived FERC 1 columns.
 
@@ -353,6 +358,71 @@ def align_row_numbers_dbf(
     return df
 
 
+class SelectDbfRowsFromCategory(TransformParams):
+    """Parameters for :func:`select_dbf_rows_from_category`."""
+
+    column_name: str | None = None
+    select_based_on_xbrl_category: bool = False
+    additional_categories: list[str] = []
+    expected_categories_to_drop: int = 0
+
+
+def select_dbf_rows_from_category(
+    processed_dbf: pd.DataFrame,
+    processed_xbrl: pd.DataFrame,
+    params: SelectDbfRowsFromCategory,
+) -> pd.DataFrame:
+    """Select DBF rows with values listed or found in XBRL in a categorical-like column.
+
+    The XBRL data often breaks out sub-sections of DBF tables into their own table.
+    These breakout tables are often messy, unstructured portions of a particular
+    schedule or page on the FERC1 PDF. We often want to preserve some of the ways the
+    XBRL data is segmented so we need to be able to select only portions of the DBF
+    table to be concatenated with the XBRL data.
+
+    In mapping DBF data to XBRL data for the tables that rely on their ``row_number``
+    we map each row to its corresponding ``xbrl_factoid``. The standard use of this
+    transformer is to use the ``column_name`` that corresponds to the ``xbrl_factoid``
+    that was merged into the DBF data via :func:`align_row_numbers_dbf` and was
+    converted into a column in the XBRL data via :func:`wide_to_tidy`.
+
+    Note: Often, the unstructured portion of the DBF table that (possibly) sums up into
+    a single value in structured data has the same ``xbrl_factoid`` name in the XBRL
+    tables. By convention, we are employing a pattern in the ``dbf_to_xbrl.csv`` map
+    that involves adding an ``_unstructed`` suffix to the rows that correspond to the
+    unstructured portion of the table. This enables a simple selection of the structured
+    part of the table. When processing the unstructured table, you can either rename the
+    XBRL data's factoid name to include an ``_unstructed`` suffix or you can specify
+    the categories with ``_unstructed`` suffixes using the ``additional_categories``
+    parameter.
+    """
+    # compile the list of categories from the possible options.
+    categories_to_select = []
+    if params.select_based_on_xbrl_category:
+        categories_to_select = categories_to_select + list(
+            processed_xbrl[params.column_name].unique()
+        )
+    if params.additional_categories:
+        categories_to_select = categories_to_select + params.additional_categories
+
+    # check if we are getting the same number of expected categories to drop
+    categories_to_drop = [
+        cat
+        for cat in processed_dbf[params.column_name].unique()
+        if cat not in categories_to_select
+    ]
+    if len(categories_to_drop) != params.expected_categories_to_drop:
+        logger.warning(
+            f"Dropping {len(categories_to_drop)} DBF categories that contain the "
+            f"following values in {params.column_name} but expected "
+            f"{params.expected_categories_to_drop}:"
+            f"{categories_to_drop}"
+        )
+    return processed_dbf[
+        processed_dbf[params.column_name].isin(categories_to_select)
+    ].copy()
+
+
 class Ferc1TableTransformParams(TableTransformParams):
     """A model defining what TransformParams are allowed for FERC Form 1.
 
@@ -377,12 +447,9 @@ class Ferc1TableTransformParams(TableTransformParams):
     merge_xbrl_metadata: MergeXbrlMetadata = MergeXbrlMetadata()
     align_row_numbers_dbf: AlignRowNumbersDbf = AlignRowNumbersDbf()
     drop_duplicate_rows_dbf: DropDuplicateRowsDbf = DropDuplicateRowsDbf()
-
-
-################################################################################
-# FERC 1 specific Column, MultiColumn, and Table Transform Functions
-# (empty for now, but we anticipate there will be some)
-################################################################################
+    select_dbf_rows_from_category: SelectDbfRowsFromCategory = (
+        SelectDbfRowsFromCategory()
+    )
 
 
 ################################################################################
@@ -639,6 +706,9 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
         """Process the raw data until the XBRL and DBF inputs have been unified."""
         processed_dbf = self.process_dbf(raw_dbf)
         processed_xbrl = self.process_xbrl(raw_xbrl_instant, raw_xbrl_duration)
+        processed_dbf = self.select_dbf_rows_from_category(
+            processed_dbf, processed_xbrl
+        )
         logger.info(f"{self.table_id.value}: Concatenating DBF + XBRL dataframes.")
         return pd.concat([processed_dbf, processed_xbrl]).reset_index(drop=True)
 
@@ -685,6 +755,26 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
                     f"{self.table_id.value}: Column {col} is entirely NULL!"
                 )
         return df
+
+    def select_dbf_rows_from_category(
+        self,
+        processed_dbf: pd.DataFrame,
+        processed_xbrl: pd.DataFrame,
+        params: SelectDbfRowsFromCategory | None = None,
+    ) -> pd.DataFrame:
+        """Warpper method for :func:`select_dbf_rows_from_category`."""
+        if not params:
+            params = self.params.select_dbf_rows_from_category
+        if params.column_name:
+            logger.info(
+                f"{self.table_id.value}: Selection DBF rows with desired values in {params.column_name}."
+            )
+            processed_dbf = select_dbf_rows_from_category(
+                processed_dbf=processed_dbf,
+                processed_xbrl=processed_xbrl,
+                params=params,
+            )
+        return processed_dbf
 
     @cache_df(key="process_xbrl_metadata")
     def process_xbrl_metadata(self, xbrl_metadata_json) -> pd.DataFrame:
@@ -2940,11 +3030,34 @@ class RetainedEarningsFerc1TableTransformer(Ferc1AbstractTableTransformer):
         df.columns = ["_".join(items) for items in df.columns.to_flat_index()]
         return df.reset_index()
 
+    @cache_df("process_xbrl_metadata")
+    def process_xbrl_metadata(self, xbrl_metadata_json) -> pd.DataFrame:
+        """Transform the metadata to reflect the transformed data.
+
+        Run the generic :func:`process_xbrl_metadata` and then remove some suffixes that
+        were removed during :meth:`wide_to_tidy`.
+        """
+        meta = (
+            super()
+            .process_xbrl_metadata(xbrl_metadata_json)
+            .assign(
+                # we
+                xbrl_factoid=lambda x: x.xbrl_factoid.str.removesuffix(
+                    "_contra_primary_account_affected"
+                ).str.removesuffix("_primary_contra_account_affected")
+            )
+            .drop_duplicates(subset=["xbrl_factoid"], keep="first")
+        )
+        return meta
+
 
 class RetainedEarningsAppropriationsFerc1TableTransformer(
     Ferc1AbstractTableTransformer
 ):
-    """Transformer class for :ref:`retained_earnings_appropriations_ferc1` table."""
+    """Transformer class for unstructured parts of :ref:`retained_earnings_ferc1`.
+
+    Very very WIP.
+    """
 
     table_id: TableIdFerc1 = TableIdFerc1.RETAINED_EARNINGS_APPROPRIATIONS_FERC1
     has_unique_record_ids: bool = False
@@ -3024,6 +3137,7 @@ def transform(
         "depreciation_amortization_summary_ferc1": DepreciationAmortizationSummaryFerc1TableTransformer,
         "balance_sheet_assets_ferc1": BalanceSheetAssetsFerc1TableTransformer,
         "income_statement_ferc1": IncomeStatementFerc1TableTransformer,
+        "retained_earnings_ferc1": RetainedEarningsFerc1TableTransformer,
     }
     # create an empty ditctionary to fill up through the transform fuctions
     ferc1_transformed_dfs = {}
@@ -3092,6 +3206,7 @@ if __name__ == "__main__":
             "balance_sheet_assets_ferc1",
             "income_statement_ferc1",
             "depreciation_amortization_summary_ferc1",
+            "retained_earnings_ferc1",
         ],
     )
     pudl_settings = pudl.workspace.setup.get_defaults()

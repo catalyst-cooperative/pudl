@@ -465,7 +465,20 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
     "retained_earnings_ferc1": {
         "description": "Reatained Earnings - The structed part of schedule 118.",
         "schema": {
-            "fields": ["utility_id_ferc1", "report_year", "utility_type", "record_id"],
+            "fields": [
+                "utility_id_ferc1",
+                "report_year",
+                "record_id",
+                "earnings_type",
+                "amount",
+                "starting_balance",
+                "ending_balance",
+            ],
+            # "primary_key": [
+            #     "utility_id_ferc1",
+            #     "report_year",
+            #     "earnings_type",
+            # ],
         },
         "sources": ["ferc1"],
         "etl_group": "ferc1",
