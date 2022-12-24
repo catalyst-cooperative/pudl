@@ -1,10 +1,12 @@
 *.ipynb linguist-detectable=false
+*.html linguist-detectable=false
 eia861-transform.ipynb merge=ours
 *.csv text
 *.py text
 *.json text
 *.yml text
 *.yaml text
+*.html text
 *.rst text
 *.toml text
 *.ini text
