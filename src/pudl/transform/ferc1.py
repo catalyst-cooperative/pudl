@@ -382,6 +382,11 @@ def unstack_balances_to_report_year_instant_xbrl(
         params = UnstackBalancesToReportYearInstantXbrl()
     if params.unstack_balances_to_report_year:
         df["year"] = pd.to_datetime(df["date"]).dt.year
+        if df.duplicated(["entity_id", "year"]).any():
+            raise AssertionError(
+                "Looks like there are multiple entries per year--not sure which to use "
+                "for the start/end balance. Check to see if the data are quarterly."
+            )
         df.loc[df.report_year == (df.year + 1), "balance_type"] = "starting_balance"
         df.loc[df.report_year == df.year, "balance_type"] = "ending_balance"
         if not df.balance_type.notna().all():
