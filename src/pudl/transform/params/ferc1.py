@@ -3302,11 +3302,11 @@ TRANSFORM_PARAMS = {
             "data_columns": ["ending_balance", "starting_balance"],
             "table_name": "balance_sheet_liabilities_ferc1",
         },
+        "align_row_numbers_dbf": {"dbf_table_names": ["f1_bal_sheet_cr"]},
         "merge_xbrl_metadata": {
             "rename_columns": {"xbrl_factoid": "liability_type"},
             "on": "liability_type",
         },
-        "align_row_numbers_dbf": {"dbf_table_name": "f1_bal_sheet_cr"},
     },
     "depreciation_amortization_summary_ferc1": {
         "rename_columns_ferc1": {
