@@ -86,7 +86,7 @@ setup(
             "twine>=3.3,<4.1",
         ],
         "doc": [
-            "doc8>=0.9,<1.1",
+            "doc8>=0.9,<1.2",
             "furo>=2022.4.7",
             "sphinx>=4,!=5.1.0,<5.3.1",
             "sphinx-autoapi>=1.8,<2.1",
@@ -97,7 +97,7 @@ setup(
         "test": [
             "bandit>=1.6,<1.8",
             "coverage>=5.3,<7.1",
-            "doc8>=0.9,<1.1",
+            "doc8>=0.9,<1.2",
             "flake8>=4.0,<6.1",
             "flake8-builtins>=1.5,<2.2",
             "flake8-docstrings>=1.5,<1.7",
@@ -106,7 +106,7 @@ setup(
             "mccabe>=0.6,<0.8",
             "nbval>=0.9,<0.10",
             "pep8-naming>=0.12,<0.14",
-            "pre-commit>=2.9,<2.21",
+            "pre-commit>=2.9,<2.22",
             "pydocstyle>=5.1,<6.2",
             "pytest>=6.2,<7.3",
             "pytest-console-scripts>=1.1,<1.4",
