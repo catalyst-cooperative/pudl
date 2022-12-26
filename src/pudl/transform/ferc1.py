@@ -367,17 +367,16 @@ def create_start_end_cols_instant_xbrl(
 ) -> pd.DataFrame:
     """Turn start year end year rows into columns for each value type.
 
-    This function is utilized in :func:`process_instant_xbrl` to prep the data for
-    :func:`wide_to_tidy`.
+    This function is utilized in :func:`process_instant_xbrl`.
 
     There are some instant tables that report the start-of-year data and the
     end-of-year data on seperate rows. The dbf version of the table has a column for the
     starting data, a column for the ending data, and a row number that cooresponds with
     the row literal that data represents: i.e., cost, etc.
 
-    This kind of table needs two adjustments in order to be compatible with the dbf
-    version. First, it needs this parameter set to True, triggering a restructuring in
-    the :func:`process_instant_xbrl`, then it needs wide_to_tidy parameters.
+    This function unstacks that table and adds the suffixes ``_starting_balance`` and
+    ``_ending_balance`` to each of the columns. These may then be used as
+    ``value_types`` in the :func:`wide_to_tody` function to normalize the table.
     """
     if params is None:
         params = CreateStartEndColsInstantXbrl()
