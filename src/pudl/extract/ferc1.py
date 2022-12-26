@@ -165,6 +165,11 @@ TABLE_NAME_MAP: dict[str, dict[str, str]] = {
         "dbf": "f1_comp_balance_db",
         "xbrl": "comparative_balance_sheet_assets_and_other_debits_110",
     },
+    # Special case for this table bc there are two dbf tables
+    "income_statement_ferc1": {
+        "dbf": ["f1_income_stmnt", "f1_incm_stmnt_2"],
+        "xbrl": "statement_of_income_114",
+    },
     "depreciation_amortization_summary_ferc1": {
         "dbf": "f1_dacs_epda",
         "xbrl": "summary_of_depreciation_and_amortization_charges_section_a_336",
@@ -727,11 +732,24 @@ def extract_dbf(
             f"Converting extracted FERC Form 1 table {pudl_table} into a "
             f"pandas DataFrame from DBF table."
         )
-        ferc1_raw_dfs[pudl_table] = extract_dbf_generic(
-            ferc1_engine=sa.create_engine(pudl_settings["ferc1_db"]),
-            ferc1_settings=ferc1_settings,
-            table_name=TABLE_NAME_MAP[pudl_table]["dbf"],
-        )
+        if pudl_table == "income_statement_ferc1":
+            # special case for the income statement. bc the dbf table is two tables.
+            income_tbls = []
+            for raw_income_table_name in TABLE_NAME_MAP[pudl_table]["dbf"]:
+                income_tbls.append(
+                    extract_dbf_generic(
+                        ferc1_engine=sa.create_engine(pudl_settings["ferc1_db"]),
+                        ferc1_settings=ferc1_settings,
+                        table_name=raw_income_table_name,
+                    ).assign(sched_table_name=raw_income_table_name)
+                )
+            ferc1_raw_dfs[pudl_table] = pd.concat(income_tbls)
+        else:
+            ferc1_raw_dfs[pudl_table] = extract_dbf_generic(
+                ferc1_engine=sa.create_engine(pudl_settings["ferc1_db"]),
+                ferc1_settings=ferc1_settings,
+                table_name=TABLE_NAME_MAP[pudl_table]["dbf"],
+            )
 
     return ferc1_raw_dfs
 
