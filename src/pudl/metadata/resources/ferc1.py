@@ -47,6 +47,30 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
         "etl_group": "ferc1",
         "field_namespace": "ferc1",
     },
+    "other_regulatory_liabilities_ferc1": {
+        "description": "Other regulatory liabilities, including rate order docket number.",
+        "schema": {
+            "fields": [
+                "utility_id_ferc1",
+                "report_year",
+                "description",
+                "ending_balance",
+                "starting_balance",
+                "increase_in_other_regulatory_liabilities",
+                "debits_account_credited",
+                "decrease_in_other_regulatory_liabilities",
+            ],
+            "primary_key": [
+                "utility_id_ferc1",
+                "report_year",
+                "description",
+                "debits_account_credited",
+            ],
+        },
+        "sources": ["ferc1"],
+        "etl_group": "ferc1",
+        "field_namespace": "ferc1",
+    },
     "electric_energy_sources_ferc1": {
         "description": "Amount of electricity the utility obtained from each of several sources, by year.",
         "schema": {

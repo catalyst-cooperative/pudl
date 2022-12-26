@@ -355,6 +355,15 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "type": "string",
         "description": "Geodetic coordinate system identifier (e.g. NAD27, NAD83, or WGS84).",
     },
+    "debits_account_credited": {
+        "type": "string",
+        "description": "Description of the account number credited from making debit adjustment to other regulatory liabilities.",
+    },
+    "decrease_in_other_regulatory_liabilities": {
+        "type": "number",
+        "description": "The decrease during the reporting period of other regulatory liabilities.",
+        "unit": "USD",
+    },
     "deliver_power_transgrid": {
         "type": "boolean",
         "description": "Indicate whether the generator can deliver power to the transmission grid.",
@@ -810,6 +819,11 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     "highest_distribution_voltage_kv": {"type": "number", "unit": "kV"},
     "home_area_network": {"type": "integer"},
     "inactive_accounts_included": {"type": "boolean"},
+    "increase_in_other_regulatory_liabilities": {
+        "type": "number",
+        "description": "The increase during the reporting period of other regulatory liabilities.",
+        "unit": "USD",
+    },
     "incremental_energy_savings_mwh": {"type": "number", "unit": "MWh"},
     "incremental_life_cycle_energy_savings_mwh": {"type": "number", "unit": "MWh"},
     "incremental_life_cycle_peak_reduction_mwh": {"type": "number", "unit": "MWh"},
