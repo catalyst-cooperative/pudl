@@ -377,6 +377,18 @@ def unstack_balances_to_report_year_instant_xbrl(
     This function unstacks that table and adds the suffixes ``_starting_balance`` and
     ``_ending_balance`` to each of the columns. These may then be used as
     ``value_types`` in the :func:`wide_to_tody` function to normalize the table.
+
+    There are two checks in place:
+
+    First, it will make sure that there are not multiple entries per year for the same
+    entiity_id. Ex: a row for 2020-12-31 and 2020-06-30 for entitiy_id X means that
+    there's more data here than is getting reported. We could just drop these mid-year
+    values, but we might want to keep them or at least check that there is no funny
+    business with the data.
+
+    It will also check that there are no mid-year dates period. If an entity reports
+    a value from the middle of the year, there is no telling whether that actually
+    represents the start or end balance and requires a closer look.
     """
     if params is None:
         params = UnstackBalancesToReportYearInstantXbrl()
@@ -385,7 +397,12 @@ def unstack_balances_to_report_year_instant_xbrl(
         if df.duplicated(["entity_id", "year"]).any():
             raise AssertionError(
                 "Looks like there are multiple entries per year--not sure which to use "
-                "for the start/end balance. Check to see if the data are quarterly."
+                "for the start/end balance."
+            )
+        if not pd.to_datetime(df["date"]).dt.is_year_end.all():
+            raise AssertionError(
+                "Looks like there are some values in here that aren't from the end of "
+                "the year. We can't use those to calculate start and end balances."
             )
         df.loc[df.report_year == (df.year + 1), "balance_type"] = "starting_balance"
         df.loc[df.report_year == df.year, "balance_type"] = "ending_balance"

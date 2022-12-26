@@ -365,6 +365,14 @@ entity_id,report_year,idx_ending_balance,idx_starting_balance,test_value_ending_
     # If there is more than one value per year (not report year) an AssertionError
     # should raise
     df_non_unique_years = df.copy()
-    df_non_unique_years.loc[4] = [4, 2, "2020-6-30", 2021, 500]
+    df_non_unique_years.loc[4] = [4, 2, "2020-12-31", 2021, 500]
+    with pytest.raises(AssertionError):
+        unstack_balances_to_report_year_instant_xbrl(df_non_unique_years, params=params)
+
+    # If there are mid-year values an AssertionError should raise
+    df_mid_year = df.copy()
+    df_mid_year.loc[
+        (df_mid_year["entity_id"] == 2) & (df_mid_year["date"] == "2020-12-31"), "date"
+    ] = "2020-06-30"
     with pytest.raises(AssertionError):
         unstack_balances_to_report_year_instant_xbrl(df_non_unique_years, params=params)
