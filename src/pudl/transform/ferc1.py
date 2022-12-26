@@ -355,15 +355,15 @@ def align_row_numbers_dbf(
     return df
 
 
-class CreateStartEndColsInstantXbrl(TransformParams):
-    """Parameters for creating start and end columns for instant xbrl data."""
+class UnstackBalancesToReportYearInstantXbrl(TransformParams):
+    """Parameters for :func:`unstack_balances_to_report_year_instant_xbrl`."""
 
-    create_start_end_cols: bool = False
-    """If True create start and end columns."""
+    unstack_balances_to_report_year: bool = False
+    """If True unstack balances to a single year (the report year)."""
 
 
-def create_start_end_cols_instant_xbrl(
-    df: pd.DataFrame, params: CreateStartEndColsInstantXbrl
+def unstack_balances_to_report_year_instant_xbrl(
+    df: pd.DataFrame, params: UnstackBalancesToReportYearInstantXbrl
 ) -> pd.DataFrame:
     """Turn start year end year rows into columns for each value type.
 
@@ -379,8 +379,8 @@ def create_start_end_cols_instant_xbrl(
     ``value_types`` in the :func:`wide_to_tody` function to normalize the table.
     """
     if params is None:
-        params = CreateStartEndColsInstantXbrl()
-    if params.create_start_end_cols:
+        params = UnstackBalancesToReportYearInstantXbrl()
+    if params.unstack_balances_to_report_year:
         df["year"] = pd.to_datetime(df["date"]).dt.year
         df.loc[df.report_year == (df.year + 1), "balance_type"] = "starting_balance"
         df.loc[df.report_year == df.year, "balance_type"] = "ending_balance"
@@ -430,8 +430,8 @@ class Ferc1TableTransformParams(TableTransformParams):
     merge_xbrl_metadata: MergeXbrlMetadata = MergeXbrlMetadata()
     align_row_numbers_dbf: AlignRowNumbersDbf = AlignRowNumbersDbf()
     drop_duplicate_rows_dbf: DropDuplicateRowsDbf = DropDuplicateRowsDbf()
-    create_start_end_cols_instant_xbrl: CreateStartEndColsInstantXbrl = (
-        CreateStartEndColsInstantXbrl()
+    unstack_balances_to_report_year_instant_xbrl: UnstackBalancesToReportYearInstantXbrl = (
+        UnstackBalancesToReportYearInstantXbrl()
     )
 
 
@@ -910,17 +910,17 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
             )
         return df
 
-    def create_start_end_cols_instant_xbrl(
-        self, df: pd.DataFrame, params: CreateStartEndColsInstantXbrl | None = None
+    def unstack_balances_to_report_year_instant_xbrl(
+        self,
+        df: pd.DataFrame,
+        params: UnstackBalancesToReportYearInstantXbrl | None = None,
     ) -> pd.DataFrame:
         """Turn start year end year rows into columns for each value type."""
-        logger.info(
-            f"{self.table_id.value}: Creating columns for start and end balance."
-        )
+        logger.info(f"{self.table_id.value}: Unstacking balances to the report years.")
         if params is None:
-            params = self.params.create_start_end_cols_instant_xbrl
-        if params.create_start_end_cols:
-            df = create_start_end_cols_instant_xbrl(df, params=params)
+            params = self.params.unstack_balances_to_report_year_instant_xbrl
+        if params.unstack_balances_to_report_year:
+            df = unstack_balances_to_report_year_instant_xbrl(df, params=params)
         return df
 
     @cache_df(key="xbrl")
@@ -1073,7 +1073,7 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
         reshaping and concatenating these tables together.
         """
         df = self.rename_columns(df, rename_stage="instant_xbrl").pipe(
-            self.create_start_end_cols_instant_xbrl
+            self.unstack_balances_to_report_year_instant_xbrl
         )
         return df
 
