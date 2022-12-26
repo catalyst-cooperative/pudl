@@ -71,6 +71,28 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
         "etl_group": "ferc1",
         "field_namespace": "ferc1",
     },
+    "depreciation_amortization_summary_ferc1": {
+        "description": "Summary of depreciation, and amortization of electric plant as reported on page 336a of FERC Form 1.",
+        "schema": {
+            "fields": [
+                "utility_id_ferc1",
+                "report_year",
+                "functional_classification",
+                "ferc_account_label",
+                "ferc_account",
+                "depreciation_amortization_value",
+            ],
+            "primary_key": [
+                "utility_id_ferc1",
+                "report_year",
+                "functional_classification",
+                "ferc_account_label",
+            ],
+        },
+        "sources": ["ferc1"],
+        "etl_group": "ferc1",
+        "field_namespace": "ferc1",
+    },
     "electric_energy_sources_ferc1": {
         "description": "Amount of electricity the utility obtained from each of several sources, by year.",
         "schema": {
@@ -149,6 +171,31 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
                 "fuel_cost_per_unit_burned",
                 "fuel_cost_per_unit_delivered",
                 "fuel_cost_per_mmbtu",
+            ],
+        },
+        "sources": ["ferc1"],
+        "etl_group": "ferc1",
+        "field_namespace": "ferc1",
+    },
+    "income_statement_ferc1": {
+        "description": "Income statement.",
+        "schema": {
+            "fields": [
+                "record_id",
+                "utility_id_ferc1",
+                "report_year",
+                "utility_type",
+                "income_type",
+                "income",
+                "balance",
+                "ferc_account",
+                "row_type_xbrl",
+            ],
+            "primary_key": [
+                "utility_id_ferc1",
+                "report_year",
+                "utility_type",
+                "income_type",
             ],
         },
         "sources": ["ferc1"],
@@ -491,8 +538,7 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
         "field_namespace": "ferc1",
     },
 }
-"""
-FERC Form 1 resource attributes by PUDL identifier (``resource.name``).
+"""FERC Form 1 resource attributes by PUDL identifier (``resource.name``).
 
 Keys are in alphabetical order.
 

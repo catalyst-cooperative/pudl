@@ -677,10 +677,10 @@ FUEL_CATEGORIES: dict[str, set[str]] = {
         },
     }
 }
-"""
-A mapping a canonical fuel name to a set of strings which are used to represent that
-fuel in the FERC Form 1 Reporting. Case is ignored, as all fuel strings are converted to
-lower case in the data set.
+"""A mapping a canonical fuel name to a set of strings which are used to represent that
+fuel in the FERC Form 1 Reporting.
+
+Case is ignored, as all fuel strings are converted to lower case in the data set.
 """
 
 FUEL_UNIT_CATEGORIES: dict[str, set[str]] = {
@@ -1002,10 +1002,8 @@ FUEL_UNIT_CATEGORIES: dict[str, set[str]] = {
         },
     }
 }
-"""
-A mapping of canonical fuel units (keys) to sets of strings representing those
-fuel units (values)
-"""
+"""A mapping of canonical fuel units (keys) to sets of strings representing those fuel
+units (values)"""
 
 PLANT_TYPE_CATEGORIES: dict[str, set[str]] = {
     "categories": {
@@ -1558,9 +1556,10 @@ PLANT_TYPE_CATEGORIES: dict[str, set[str]] = {
         },
     }
 }
-"""
-A mapping from canonical plant kinds (keys) to the associated freeform strings (values)
-identified as being associated with that kind of plant in the FERC Form 1 raw data.
+"""A mapping from canonical plant kinds (keys) to the associated freeform strings
+(values) identified as being associated with that kind of plant in the FERC Form 1 raw
+data.
+
 There are many strings that weren't categorized, Solar and Solar Project were not
 classified as these do not indicate if they are solar thermal or photovoltaic. Variants
 on Steam (e.g. "steam 72" and "steam and gas") were classified based on additional
@@ -1667,10 +1666,11 @@ PLANT_TYPE_CATEGORIES_HYDRO: dict[str, set[str]] = {
         },
     }
 }
-"""
-A mapping from canonical plant kinds (keys) to the associated freeform strings (values)
-identified as being associated with that kind of plant in the FERC Form 1 Hydro Plants
-data. These are seperated out from the rest of the plant types due to the difference in
+"""A mapping from canonical plant kinds (keys) to the associated freeform strings
+(values) identified as being associated with that kind of plant in the FERC Form 1 Hydro
+Plants data.
+
+These are seperated out from the rest of the plant types due to the difference in
 languaged used to refer to hydro vs. other types of plants. For example: "conventional"
 in the context of a hydro plant means that it is conventional hydro-electric. In the
 context of the steam table, however, it's unclear what conventional means.
@@ -2067,8 +2067,7 @@ CONSTRUCTION_TYPE_CATEGORIES: dict[str, set[str]] = {
         },
     }
 }
-"""
-A dictionary of construction types (keys) and lists of construction type strings
+"""A dictionary of construction types (keys) and lists of construction type strings
 associated with each type (values) from FERC Form 1.
 
 There are many strings that weren't categorized, including crosses between conventional
@@ -2628,7 +2627,7 @@ TRANSFORM_PARAMS = {
             "rename_columns": {"xbrl_factoid": "ferc_account_label"},
             "on": "ferc_account_label",
         },
-        "align_row_numbers_dbf": {"dbf_table_name": "f1_plant_in_srvce"},
+        "align_row_numbers_dbf": {"dbf_table_names": ["f1_plant_in_srvce"]},
     },
     "plants_pumped_storage_ferc1": {
         "rename_columns_ferc1": {
@@ -3006,7 +3005,7 @@ TRANSFORM_PARAMS = {
             "rename_columns": {"xbrl_factoid": "energy_source_type"},
             "on": "energy_source_type",
         },
-        "align_row_numbers_dbf": {"dbf_table_name": "f1_elctrc_erg_acct"},
+        "align_row_numbers_dbf": {"dbf_table_names": ["f1_elctrc_erg_acct"]},
     },
     "electric_energy_dispositions_ferc1": {
         "rename_columns_ferc1": {
@@ -3067,7 +3066,7 @@ TRANSFORM_PARAMS = {
             "rename_columns": {"xbrl_factoid": "energy_disposition_type"},
             "on": "energy_disposition_type",
         },
-        "align_row_numbers_dbf": {"dbf_table_name": "f1_elctrc_erg_acct"},
+        "align_row_numbers_dbf": {"dbf_table_names": ["f1_elctrc_erg_acct"]},
     },
     "utility_plant_summary_ferc1": {
         "rename_columns_ferc1": {
@@ -3191,7 +3190,7 @@ TRANSFORM_PARAMS = {
             "rename_columns": {"xbrl_factoid": "utility_plant_asset_type"},
             "on": "utility_plant_asset_type",
         },
-        "align_row_numbers_dbf": {"dbf_table_name": "f1_utltyplnt_smmry"},
+        "align_row_numbers_dbf": {"dbf_table_names": ["f1_utltyplnt_smmry"]},
         "categorize_strings": {
             "utility_type": {
                 "categories": {
@@ -3252,7 +3251,7 @@ TRANSFORM_PARAMS = {
             "data_columns": ["ending_balance", "starting_balance"],
             "table_name": "balance_sheet_assets_ferc1",
         },
-        "align_row_numbers_dbf": {"dbf_table_name": "f1_comp_balance_db"},
+        "align_row_numbers_dbf": {"dbf_table_names": ["f1_comp_balance_db"]},
         "merge_xbrl_metadata": {
             "rename_columns": {"xbrl_factoid": "asset_type"},
             "on": "asset_type",
@@ -3308,6 +3307,252 @@ TRANSFORM_PARAMS = {
             "on": "liability_type",
         },
         "align_row_numbers_dbf": {"dbf_table_name": "f1_bal_sheet_cr"},
+    },
+    "depreciation_amortization_summary_ferc1": {
+        "rename_columns_ferc1": {
+            "dbf": {
+                "columns": {
+                    "respondent_id": "utility_id_ferc1_dbf",
+                    "report_year": "report_year",
+                    "spplmnt_num": "spplmnt_num",
+                    "row_number": "row_number",
+                    "row_seq": "row_seq",
+                    "row_prvlg": "row_prvlg",
+                    "depr_expn": "depreciation_expense_depreciation_amortization_value",
+                    "depr_asset_retire": "depreciation_expense_asset_retirement_depreciation_amortization_value",
+                    "limterm_elc_plnt": "amortization_limited_term_electric_plant_depreciation_amortization_value",
+                    "othr_elc_plnt": "amortization_other_electric_plant_depreciation_amortization_value",
+                    "total": "depreciation_amortization_total_depreciation_amortization_value",
+                    "xbrl_factoid": "functional_classification",
+                    "report_prd": "report_prd",
+                }
+            },
+            "xbrl": {
+                "columns": {
+                    "entity_id": "utility_id_ferc1_xbrl",
+                    "report_year": "report_year",
+                    "xbrl_factoid": "ferc_account_label",
+                }
+            },
+            "duration_xbrl": {
+                "columns": {
+                    "functional_classification_axis": "functional_classification",
+                    "depreciation_expense_excluding_amortization_of_acquisition_adjustments": "depreciation_expense_depreciation_amortization_value",
+                    "depreciation_expense_for_asset_retirement_costs_excluding_amortizationg_of_acquisition_adjustments": "depreciation_expense_asset_retirement_depreciation_amortization_value",
+                    "amortization_of_limited_term_plant_or_property": "amortization_limited_term_electric_plant_depreciation_amortization_value",
+                    "amortization_of_other_electric_plant": "amortization_other_electric_plant_depreciation_amortization_value",
+                    "depreciation_and_amortization": "depreciation_amortization_total_depreciation_amortization_value",
+                }
+            },
+        },
+        "wide_to_tidy": {
+            "xbrl": {
+                "idx_cols": ["entity_id", "report_year", "functional_classification"],
+                "value_types": [
+                    "depreciation_amortization_value",
+                ],
+                "expected_drop_cols": 3,
+                "stacked_column_name": "xbrl_factoid",
+            },
+            "dbf": {
+                "idx_cols": [
+                    "report_year",
+                    "record_id",
+                    "utility_id_ferc1",
+                    "functional_classification",
+                ],
+                "value_types": ["depreciation_amortization_value"],
+                "expected_drop_cols": 1,
+                "stacked_column_name": "ferc_account_label",
+            },
+        },
+        "categorize_strings": {
+            "functional_classification": {
+                "categories": {
+                    "total": ["total"],
+                    "intangible_plant": ["ferc:IntangiblePlantMember"],
+                    "steam_production_plant": ["ferc:SteamProductionPlantMember"],
+                    "nuclear_production_plant": ["ferc:NuclearProductionPlantMember"],
+                    "hydraulic_production_plant_conventional": [
+                        "ferc:HydraulicProductionPlantConventionalMember"
+                    ],
+                    "hydraulic_production_plant_pumped_storage": [
+                        "ferc:HydraulicProductionPlantPumpedStorageMember"
+                    ],
+                    "other_production_plant": ["ferc:OtherProductionPlantMember"],
+                    "transmission_plant": ["ferc:TransmissionPlantMember"],
+                    "distribution_plant": ["ferc:DistributionPlantMember"],
+                    "regional_transmission_market_plant": [
+                        "ferc:RegionalTransmissionAndMarketOperationMember"
+                    ],
+                    "general_plant": ["ferc:GeneralPlantMember"],
+                    "common_plant_electric": ["ferc:CommonPlantElectricMember"],
+                }
+            },
+        },
+        "align_row_numbers_dbf": {"dbf_table_names": ["f1_dacs_epda"]},
+        "merge_xbrl_metadata": {
+            "rename_columns": {"ferc_account_label": "ferc_account_label"},
+            "on": "ferc_account_label",
+        },
+    },
+    "income_statement_ferc1": {
+        "rename_columns_ferc1": {
+            "dbf": {
+                "columns": {
+                    "respondent_id": "utility_id_ferc1_dbf",
+                    "report_year": "report_year",
+                    "spplmnt_num": "spplmnt_num",
+                    "row_number": "row_number",
+                    "row_seq": "row_seq",
+                    "row_prvlg": "row_prvlg",
+                    "report_prd": "report_prd",
+                    "xbrl_factoid": "income_type",
+                    "current_yr_total": "total_income",
+                    "cy_elctrc_total": "electric_income",
+                    "cy_gas_total": "gas_income",
+                    "cy_other_total_1": "other1_income",
+                    "cy_other_total_2": "other2_income",
+                    "cy_other_total_3": "other3_income",
+                    "cy_other_total_4": "other4_income",
+                    "cy_other_total": "other_total_income",
+                }
+            },
+            "xbrl": {
+                "columns": {
+                    "entity_id": "utility_id_ferc1_xbrl",
+                    "report_year": "report_year",
+                    "utility_type_axis": "utility_type",
+                    "xbrl_factoid": "income_type",
+                }
+            },
+            "duration_xbrl": {
+                "columns": {
+                    xbrl_col: f"{xbrl_col}_income"
+                    for xbrl_col in [
+                        "accretion_expense",
+                        "equity_in_earnings_of_subsidiary_companies",
+                        "miscellaneous_nonoperating_income",
+                        "amortization_of_conversion_expenses",
+                        "regulatory_credits",
+                        "expenditures_for_certain_civic_political_and_related_activities",
+                        "income_taxes_other",
+                        "other_interest_expense",
+                        "provisions_for_deferred_income_taxes_utility_operating_income",
+                        "losses_from_disposition_of_service_company_plant",
+                        "gains_from_disposition_of_allowances",
+                        "investment_tax_credit_adjustments_nonutility_operations",
+                        "net_extraordinary_items",
+                        "amortization_of_property_losses_unrecovered_plant_and_regulatory_study_costs",
+                        "depreciation_expense_for_asset_retirement_costs",
+                        "depreciation_expense",
+                        "interest_on_debt_to_associated_companies",
+                        "amortization_of_debt_discount_and_expense",
+                        "amortization_of_electric_plant_acquisition_adjustments",
+                        "provision_for_deferred_income_taxes_credit_operating_income",
+                        "taxes_on_other_income_and_deductions",
+                        "interest_on_long_term_debt",
+                        "gains_from_disposition_of_plant",
+                        "regulatory_debits",
+                        "costs_and_expenses_of_merchandising_jobbing_and_contract_work",
+                        "penalties",
+                        "expenses_of_nonutility_operations",
+                        "income_taxes_operating_income",
+                        "allowance_for_other_funds_used_during_construction",
+                        "other_income_deductions",
+                        "amortization_and_depletion_of_utility_plant",
+                        "investment_tax_credits",
+                        "other_income",
+                        "donations",
+                        "investment_tax_credit_adjustments",
+                        "allowance_for_borrowed_funds_used_during_construction_credit",
+                        "losses_from_disposition_of_allowances",
+                        "income_taxes_extraordinary_items",
+                        "provision_for_deferred_income_taxes_other_income_and_deductions",
+                        "miscellaneous_amortization",
+                        "net_utility_operating_income",
+                        "operation_expense",
+                        "net_income_loss",
+                        "income_taxes_utility_operating_income_other",
+                        "nonoperating_rental_income",
+                        "net_other_income_and_deductions",
+                        "amortization_of_loss_on_reacquired_debt",
+                        "amortization_of_gain_on_reacquired_debt_credit",
+                        "loss_on_disposition_of_property",
+                        "taxes_other_than_income_taxes_other_income_and_deductions",
+                        "life_insurance",
+                        "income_before_extraordinary_items",
+                        "net_interest_charges",
+                        "maintenance_expense",
+                        "revenues_from_merchandising_jobbing_and_contract_work",
+                        "other_deductions",
+                        "operating_revenues",
+                        "provision_for_deferred_income_taxes_credit_other_income_and_deductions",
+                        "extraordinary_items_after_taxes",
+                        "revenues_from_nonutility_operations",
+                        "taxes_other_than_income_taxes_utility_operating_income",
+                        "utility_operating_expenses",
+                        "gain_on_disposition_of_property",
+                        "extraordinary_deductions",
+                        "interest_and_dividend_income",
+                        "income_taxes_federal",
+                        "extraordinary_income",
+                        "amortization_of_premium_on_debt_credit",
+                    ]
+                }
+            },
+        },
+        "wide_to_tidy": {
+            "xbrl": {
+                "idx_cols": ["entity_id", "report_year", "utility_type_axis"],
+                "value_types": ["income"],
+                "expected_drop_cols": 2,
+                "stacked_column_name": "xbrl_factoid",
+            },
+            "dbf": {
+                "idx_cols": [
+                    "utility_id_ferc1",
+                    "report_year",
+                    "income_type",
+                    "record_id",
+                ],
+                "value_types": ["income"],
+                "expected_drop_cols": 12,
+                "stacked_column_name": "utility_type",
+            },
+        },
+        "drop_duplicate_rows_dbf": {
+            "data_columns": ["income"],
+            "table_name": "income_statement_ferc1",
+        },
+        "align_row_numbers_dbf": {
+            "dbf_table_names": ["f1_income_stmnt", "f1_incm_stmnt_2"]
+        },
+        "categorize_strings": {
+            "utility_type": {
+                "categories": {
+                    "total": ["total"],
+                    "electric": ["electric", "ferc:ElectricUtilityMember"],
+                    "gas": ["gas", "ferc:GasUtilityMember"],
+                    "common": ["common", "ferc:CommonUtilityMember"],
+                    "other": ["other", "other_total", "ferc:OtherUtilityMember"],
+                    "other1": ["other1"],
+                    "other2": ["other2"],
+                    "other3": ["other3"],
+                    "other4": ["other4"],
+                }
+            },
+        },
+        "merge_xbrl_metadata": {
+            "rename_columns": {"xbrl_factoid": "income_type"},
+            "on": "income_type",
+        },
+        "drop_invalid_rows": [
+            {
+                "invalid_values": [pd.NA, np.nan, ""],
+                "required_valid_cols": ["income"],
+            },
+        ],
     },
 }
 

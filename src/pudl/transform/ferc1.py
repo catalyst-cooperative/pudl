@@ -74,7 +74,9 @@ class TableIdFerc1(enum.Enum):
     ELECTRIC_ENERGY_DISPOSITIONS_FERC1 = "electric_energy_dispositions_ferc1"
     UTILITY_PLANT_SUMMARY_FERC1 = "utility_plant_summary_ferc1"
     BALANCE_SHEET_LIABILITIES = "balance_sheet_liabilities_ferc1"
+    DEPRECIATION_AMORTIZATION_SUMMARY_FERC1 = "depreciation_amortization_summary_ferc1"
     BALANCE_SHEET_ASSETS_FERC1 = "balance_sheet_assets_ferc1"
+    INCOME_STATEMENT_FERC1 = "income_statement_ferc1"
 
 
 class RenameColumnsFerc1(TransformParams):
@@ -123,7 +125,8 @@ class WideToTidy(TransformParams):
     pattern of "{to-be stacked category}_{value_type}", rename the columns using a
     ``rename_columns.duration_xbrl``, ``rename_columns.instant_xbrl`` or
     ``rename_columns.dbf`` parameter which will be employed in
-    :meth:`process_duration_xbrl`, :meth:`process_instant_xbrl` or :meth:`process_dbf`."""
+    :meth:`process_duration_xbrl`, :meth:`process_instant_xbrl` or :meth:`process_dbf`.
+    """
 
     expected_drop_cols: int = 0
     """The number of columns that are expected to be dropped.
@@ -235,7 +238,11 @@ class DropDuplicateRowsDbf(TransformParams):
     """List of data column names to ensure primary key duplicates have the same data."""
 
 
-def drop_duplicate_rows_dbf(df, params: DropDuplicateRowsDbf):
+def drop_duplicate_rows_dbf(
+    df: pd.DataFrame,
+    params: DropDuplicateRowsDbf,
+    return_dupes_w_unique_data: bool = False,
+) -> pd.DataFrame:
     """Drop duplicate DBF rows if duplicates have indentical data or one row has nulls.
 
     There are several instances of the DBF data reporting the same value on multiple
@@ -244,6 +251,13 @@ def drop_duplicate_rows_dbf(df, params: DropDuplicateRowsDbf):
     the data columns while the other record has complete data. If the duplicates have no
     unique data, the duplicates are dropped with ``keep="first"``. If any duplicates do
     not contain the same data or half null data, an assertion will be raised.
+
+    Args:
+        df: DBF table containing PUDL primary key columns
+        params: an instance of :class:`DropDuplicateRowsDbf`
+        return_dupes_w_unique_data: Boolean flag used for debuging only which returns
+            the duplicates which contain actually unique data instead of raising
+            assertion. Default is False.
     """
     pks = (
         pudl.metadata.classes.Package.from_resource_ids()
@@ -255,30 +269,41 @@ def drop_duplicate_rows_dbf(df, params: DropDuplicateRowsDbf):
 
     # checks to make sure the drop is targeted as expected
     # of the PK dupes, drop all instances when the data *is also the same*
-    dupes_w_unique_data = df[df.duplicated(pks, keep=False)].drop_duplicates(
+    dupes_w_possible_unique_data = df.drop_duplicates(
         pks + params.data_columns, keep=False
     )
+    dupes_w_possible_unique_data = dupes_w_possible_unique_data[
+        dupes_w_possible_unique_data.duplicated(pks, keep=False)
+    ]
     # if there are pk+data dupes, is there one record with some null data
     # an other with completely non-null data??
     # OR are there any records that have some null data and some actually unique
     # data
     nunique_data_columns = [f"{col}_nunique" for col in params.data_columns]
-    dupes_w_unique_data.loc[:, nunique_data_columns + ["null_data_nunique"]] = (
-        dupes_w_unique_data.groupby(pks)[params.data_columns + ["null_data"]]
+    dupes_w_possible_unique_data.loc[
+        :, nunique_data_columns + ["null_data_nunique"]
+    ] = (
+        dupes_w_possible_unique_data.groupby(pks)[params.data_columns + ["null_data"]]
         .transform("nunique")
         .add_suffix("_nunique")
     )
-
-    if not dupes_w_unique_data[
-        (dupes_w_unique_data.null_data_nunique != 2)
-        | dupes_w_unique_data[dupes_w_unique_data[nunique_data_columns] != 1].any(
-            axis="columns"
+    dupes_w_unique_data = dupes_w_possible_unique_data[
+        (dupes_w_possible_unique_data.null_data_nunique != 2)
+        | (
+            dupes_w_possible_unique_data[
+                dupes_w_possible_unique_data[nunique_data_columns] != 1
+            ].any(axis="columns")
         )
-    ].empty:
-        raise AssertionError(
-            "Duplicates have unique data and should not be dropped. Unique data: "
-            f"{len(dupes_w_unique_data)}: {dupes_w_unique_data}"
-        )
+    ].sort_values(by=pks)
+    if not dupes_w_unique_data.empty:
+        if return_dupes_w_unique_data:
+            logger.warning("Returning duplicate records for debugging.")
+            return dupes_w_unique_data
+        else:
+            raise AssertionError(
+                "Duplicates have unique data and should not be dropped. Unique data: "
+                f"{len(dupes_w_unique_data)}: \n{dupes_w_unique_data.sort_values(by=pks)}"
+            )
     len_og = len(df)
     df = (
         df.sort_values(by=["null_data"], ascending=True)
@@ -295,7 +320,7 @@ def drop_duplicate_rows_dbf(df, params: DropDuplicateRowsDbf):
 class AlignRowNumbersDbf(TransformParams):
     """Parameters for aligning DBF row numbers with metadata from mannual maps."""
 
-    dbf_table_name: str | None = None
+    dbf_table_names: list[str] | None = None
     """DBF table to use to grab the row map in :func:`align_row_numbers_dbf`.
 
     Default is ``None``.
@@ -308,11 +333,11 @@ def align_row_numbers_dbf(
     """Rename the xbrl_factoid column after :meth:`align_row_numbers_dbf`."""
     if params is None:
         params = AlignRowNumbersDbf()
-    if params.dbf_table_name:
+    if params.dbf_table_names:
         logger.info(
-            f"Aligning row numbers from DBF row to XBRL map for  {params.dbf_table_name}"
+            f"Aligning row numbers from DBF row to XBRL map for {params.dbf_table_names}"
         )
-        row_map = read_dbf_to_xbrl_map(dbf_table_name=params.dbf_table_name).pipe(
+        row_map = read_dbf_to_xbrl_map(dbf_table_names=params.dbf_table_names).pipe(
             fill_dbf_to_xbrl_map
         )
         if not row_map.all(axis=None):
@@ -323,9 +348,7 @@ def align_row_numbers_dbf(
 
         df = pd.merge(df, row_map, on=["report_year", "row_number"], how="left")
         if df.xbrl_factoid.isna().any():
-            raise ValueError(
-                "Found null FERC Account labels after aligning DBF/XBRL rows."
-            )
+            raise ValueError("Found null row labeles after aligning DBF/XBRL rows.")
         # eliminate the header rows since they (should!) contain no data in either the
         # DBF or XBRL records:
         df = df[df.xbrl_factoid != "HEADER_ROW"]
@@ -465,7 +488,7 @@ def update_dbf_to_xbrl_map(ferc1_engine: sa.engine.Engine) -> pd.DataFrame:
     )
 
 
-def read_dbf_to_xbrl_map(dbf_table_name: str) -> pd.DataFrame:
+def read_dbf_to_xbrl_map(dbf_table_names: list[str]) -> pd.DataFrame:
     """Read the manually compiled DBF row to XBRL column mapping for a given table.
 
     Args:
@@ -474,7 +497,7 @@ def read_dbf_to_xbrl_map(dbf_table_name: str) -> pd.DataFrame:
             ``f1_plant_in_srvce``.
 
     Returns:
-        DataFrame with columns ``[report_year, row_number, row_type, xbrl_factoid]``
+        DataFrame with columns ``[sched_table_name, report_year, row_number, row_type, xbrl_factoid]``
     """
     with importlib.resources.open_text(
         "pudl.package_data.ferc1", "dbf_to_xbrl.csv"
@@ -490,11 +513,7 @@ def read_dbf_to_xbrl_map(dbf_table_name: str) -> pd.DataFrame:
             ],
         )
     # Select only the rows that pertain to dbf_table_name
-    row_map = row_map.loc[
-        row_map.sched_table_name == dbf_table_name,
-        ["report_year", "row_number", "row_type", "xbrl_factoid"],
-    ]
-    row_map = row_map.fillna(value={"dbf_only": False})
+    row_map = row_map.loc[row_map.sched_table_name.isin(dbf_table_names)]
     return row_map
 
 
@@ -547,7 +566,8 @@ def fill_dbf_to_xbrl_map(
             "Invalid combination of years and DBF-XBRL mapping. The first year cannot\n"
             "be filled and **must** be mapped.\n"
             f"First year: {min(dbf_years)}, "
-            f"Mapped years: {sorted(df.report_years.unique())}"
+            f"Mapped years: {sorted(df.report_year.unique())}\n"
+            f"{df}"
         )
 
     if df.loc[(df.row_type == "header"), "xbrl_factoid"].notna().any():
@@ -556,33 +576,34 @@ def fill_dbf_to_xbrl_map(
 
     if df["xbrl_factoid"].isna().any():
         raise ValueError(
-            "Found NA XBRL values in the DBF-XBRL mapping, which shouldn't happen."
+            "Found NA XBRL values in the DBF-XBRL mapping, which shouldn't happen. \n"
+            f"{df[df['xbrl_factoid'].isna()]}"
         )
     df = df.drop(["row_type"], axis="columns")
 
     # Create an index containing all combinations of report_year and row_number
+    idx_cols = ["report_year", "row_number", "sched_table_name"]
     idx = pd.MultiIndex.from_product(
-        [
-            dbf_years,
-            df.row_number.unique(),
-        ],
-        names=["report_year", "row_number"],
+        [dbf_years, df.row_number.unique(), df.sched_table_name.unique()],
+        names=idx_cols,
     )
 
     # Concatenate the row map with the empty index, so we have blank spaces to fill:
     df = pd.concat(
         [
             pd.DataFrame(index=idx),
-            df.set_index(["report_year", "row_number"]),
+            df.set_index(idx_cols),
         ],
         axis="columns",
     ).reset_index()
 
     # Forward fill missing XBRL column names, until a new definition for the row
     # number is encountered:
-    df["xbrl_factoid"] = df.groupby("row_number").xbrl_factoid.transform("ffill")
+    df["xbrl_factoid"] = df.groupby(
+        ["row_number", "sched_table_name"]
+    ).xbrl_factoid.transform("ffill")
     # Drop NA values produced in the broadcasting merge onto the exhaustive index.
-    df = df.dropna(subset="xbrl_factoid")
+    df = df.dropna(subset="xbrl_factoid").drop(columns=["sched_table_name"])
     # There should be no NA values left at this point:
     if not df.all(axis=None):
         raise ValueError(
@@ -792,7 +813,7 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
         """
         if params is None:
             params = self.params.align_row_numbers_dbf
-        if params.dbf_table_name:
+        if params.dbf_table_names:
             df = align_row_numbers_dbf(df, params=params)
         return df
 
@@ -1097,7 +1118,7 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
         logger.debug(f"{self.table_id.value}: Dropping DBF footnote columns.")
         return df.drop(columns=df.filter(regex=r".*_f$").columns)
 
-    def source_table_id(self, source_ferc1: SourceFerc1) -> str:
+    def source_table_id(self, source_ferc1: SourceFerc1, **kwargs) -> str:
         """Look up the ID of the raw data source table."""
         return TABLE_NAME_MAP[self.table_id.value][source_ferc1.value]
 
@@ -1199,11 +1220,18 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
                 f"{df[pk_cols].isnull().any()}"
             )
         df = df.assign(
-            source_table_id=self.source_table_id(source_ferc1),
+            # Include df=df as an argument here because it is needed for the income
+            # table. In all other instances, nothing will be done with df.
+            source_table_id=self.source_table_id(source_ferc1, df=df),
             record_id=lambda x: x.source_table_id.str.cat(
                 x[pk_cols].astype(str), sep="_"
             ),
-        ).drop(columns=["source_table_id"])
+        )
+        if df.source_table_id.isnull().any():
+            raise ValueError(
+                f"{self.table_id.value}: Null source_table_id's were found where none "
+                "were expected."
+            )
         df.record_id = enforce_snake_case(df.record_id)
 
         dupe_ids = df.record_id[df.record_id.duplicated()].values
@@ -1212,7 +1240,7 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
                 f"{self.table_id.value}: Found {len(dupe_ids)} duplicate record_ids: \n"
                 f"{dupe_ids}."
             )
-        return df
+        return df.drop(columns=["source_table_id"])
 
     def assign_utility_id_ferc1(
         self, df: pd.DataFrame, source_ferc1: SourceFerc1
@@ -2811,6 +2839,108 @@ class BalanceSheetAssetsFerc1TableTransformer(Ferc1AbstractTableTransformer):
     has_unique_record_ids: bool = False
 
 
+class IncomeStatementFerc1TableTransformer(Ferc1AbstractTableTransformer):
+    """Transformer class for the :ref:`income_statement_ferc1` table."""
+
+    table_id: TableIdFerc1 = TableIdFerc1.INCOME_STATEMENT_FERC1
+    has_unique_record_ids: bool = False
+
+    def process_dbf(self, raw_dbf):
+        """Drop incorrect row numbers from f1_incm_stmnt_2 before standard processing.
+
+        In 2003, two rows were added to the ``f1_income_stmnt`` dbf table, which bumped
+        the starting ``row_number`` of ``f1_incm_stmnt_2`` from 25 to 27. A small
+        handfull of respondents seem to have not gotten the memo about this this in
+        2003 and have information on these row numbers that shouldn't exist at all for
+        this table.
+
+        This step necessitates the ability to know which source table each record
+        actually comes from, which required adding a column (``sched_table_name``) in
+        the extract step before these two dbf input tables were concatenated.
+
+        Right now we are just dropping these bad row numbers. Should we actually be
+        bumping the whole respondent's row numbers - assuming they reported incorrectly
+        for the whole table? See: https://github.com/catalyst-cooperative/pudl/issues/471
+        """
+        len_og = len(raw_dbf)
+        known_bad_income2_rows = [25, 26]
+        raw_dbf = raw_dbf[
+            ~(
+                (raw_dbf.sched_table_name == "f1_incm_stmnt_2")
+                & (raw_dbf.report_year == 2003)
+                & (raw_dbf.row_number.isin(known_bad_income2_rows))
+            )
+        ].copy()
+        logger.info(
+            f"Dropped {len_og - len(raw_dbf)} records ({(len_og - len(raw_dbf))/len_og:.1%} of"
+            "total) records from 2003 from the f1_incm_stmnt_2 DBF table that have "
+            "known incorrect row numbers."
+        )
+        raw_dbf = super().process_dbf(raw_dbf)
+        return raw_dbf
+
+    def source_table_id(
+        self, source_ferc1: SourceFerc1, df: pd.DataFrame | None = None
+    ) -> str | pd.Series:
+        """Look up the ID of the raw data source table.
+
+        Because the raw DBF data comes from two seperate tables, this table-specific
+        method generates a Series of tables names based on the ``sched_table_name``
+        columns which was assigned during the transform step. For the XBRL source, the
+        standard method is employed and a string is returned.
+        """
+        # assign the source_table_id column based on the source
+        if source_ferc1 == SourceFerc1.DBF:
+            # sched_table_name is a table name. was added in align_row_numbers_dbf
+            if df.sched_table_name.isnull().any():
+                raise ValueError(
+                    f"{self.table_id.value}: Null sched_table_name found in DBF to XBRL"
+                    " row map."
+                )
+            source_table = df.sched_table_name
+        else:
+            assert source_ferc1 == SourceFerc1.XBRL
+            source_table = super().source_table_id(source_ferc1=source_ferc1)
+        return source_table
+
+
+class DepreciationAmortizationSummaryFerc1TableTransformer(
+    Ferc1AbstractTableTransformer
+):
+    """Transformer class for :ref:`depreciation_amortization_summary_ferc1` table."""
+
+    table_id: TableIdFerc1 = TableIdFerc1.DEPRECIATION_AMORTIZATION_SUMMARY_FERC1
+    has_unique_record_ids: bool = False
+
+    def merge_xbrl_metadata(
+        self, df: pd.DataFrame, params: MergeXbrlMetadata | None = None
+    ) -> pd.DataFrame:
+        """Annotate data using manually compiled FERC accounts & ``ferc_account_label``.
+
+        The FERC accounts are not provided in the XBRL taxonomy like they are for other
+        tables. However, there are only 4 of them, so a hand-compiled mapping is
+        hardcoded here, and merged onto the data similar to how the XBRL taxonomy
+        derived metadata is merged on for other tables.
+        """
+        xbrl_metadata = pd.DataFrame(
+            {
+                "ferc_account_label": [
+                    "depreciation_expense",
+                    "depreciation_expense_asset_retirement",
+                    "amortization_limited_term_electric_plant",
+                    "amortization_other_electric_plant",
+                ],
+                "ferc_account": ["403", "403.1", "404", "405"],
+            }
+        )
+        if not params:
+            params = self.params.merge_xbrl_metadata
+        if params.on:
+            logger.info(f"{self.table_id.value}: merging metadata")
+            df = merge_xbrl_metadata(df, xbrl_metadata, params)
+        return df
+
+
 def transform(
     ferc1_dbf_raw_dfs: dict[str, pd.DataFrame],
     ferc1_xbrl_raw_dfs: dict[str, dict[str, pd.DataFrame]],
@@ -2846,7 +2976,9 @@ def transform(
         "electric_energy_dispositions_ferc1": ElectricEnergyDispositionsFerc1TableTransformer,
         "utility_plant_summary_ferc1": UtilityPlantSummaryFerc1TableTransformer,
         "balance_sheet_liabilities_ferc1": BalanceSheetLiabilitiesFerc1TableTransformer,
+        "depreciation_amortization_summary_ferc1": DepreciationAmortizationSummaryFerc1TableTransformer,
         "balance_sheet_assets_ferc1": BalanceSheetAssetsFerc1TableTransformer,
+        "income_statement_ferc1": IncomeStatementFerc1TableTransformer,
     }
     # create an empty ditctionary to fill up through the transform fuctions
     ferc1_transformed_dfs = {}
@@ -2913,6 +3045,8 @@ if __name__ == "__main__":
             "electric_energy_dispositions_ferc1",
             "utility_plant_summary_ferc1",
             "balance_sheet_assets_ferc1",
+            "income_statement_ferc1",
+            "depreciation_amortization_summary_ferc1",
         ],
     )
     pudl_settings = pudl.workspace.setup.get_defaults()
