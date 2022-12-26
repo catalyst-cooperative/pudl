@@ -75,6 +75,7 @@ class TableIdFerc1(enum.Enum):
     UTILITY_PLANT_SUMMARY_FERC1 = "utility_plant_summary_ferc1"
     DEPRECIATION_AMORTIZATION_SUMMARY_FERC1 = "depreciation_amortization_summary_ferc1"
     BALANCE_SHEET_ASSETS_FERC1 = "balance_sheet_assets_ferc1"
+    OTHER_REGULATORY_LIABILITIES_FERC1 = "other_regulatory_liabilities_ferc1"
 
 
 class RenameColumnsFerc1(TransformParams):
@@ -2841,6 +2842,84 @@ class DepreciationAmortizationSummaryFerc1TableTransformer(
         return df
 
 
+class OtherRegulatoryLiabilitiesFerc1(Ferc1AbstractTableTransformer):
+    """Transformer class for :ref:`other_regulatory_liabilities_ferc1` table."""
+
+    table_id: TableIdFerc1 = TableIdFerc1.OTHER_REGULATORY_LIABILITIES_FERC1
+    has_unique_record_ids: bool = False
+
+    @cache_df(key="dbf")
+    def process_dbf(self, raw_dbf: pd.DataFrame) -> pd.DataFrame:
+        """DBF-specific transformations that take place before concatenation.
+
+        This is same as the general implementation of ``process_dbf``, except for the
+        exclusion of the ``align_row_numbers_dbf`` method.
+        """
+        logger.info(f"{self.table_id.value}: Processing DBF data pre-concatenation.")
+        return (
+            raw_dbf.drop_duplicates()
+            .pipe(self.select_annual_rows_dbf)
+            .pipe(self.drop_footnote_columns_dbf)
+            .pipe(self.rename_columns, rename_stage="dbf")
+            .pipe(self.assign_record_id, source_ferc1=SourceFerc1.DBF)
+            .pipe(self.drop_unused_original_columns_dbf)
+            .pipe(self.assign_utility_id_ferc1, source_ferc1=SourceFerc1.DBF)
+            .pipe(
+                self.wide_to_tidy,
+                source_ferc1=SourceFerc1.DBF,
+            )
+            .pipe(self.drop_duplicate_rows_dbf)
+        )
+
+    @cache_df("process_instant_xbrl")
+    def process_instant_xbrl(self, df: pd.DataFrame) -> pd.DataFrame:
+        """Pre-processing required to make the instant and duration tables compatible.
+
+        Each year the plant account balances are reported twice, in two separate
+        records: one for the end of the previous year, and one for the end of the
+        current year, with appropriate dates for the two year ends. Here we are
+        reshaping the table so that we instead have two columns: ``starting_balance``
+        and ``ending_balance`` that both pertain to the current year, so that all of
+        the records pertaining to a single ``report_year`` can be identified without
+        dealing with the instant / duration distinction.
+
+        NOTE: this is a copy/paste from the plant in service table. We should probably
+        generalize & parameterize it. Right now it looks like it would *only* be a bool.
+
+        One small change was added to this implementation, which is the addition of
+        ``other_regulatory_liability_axis`` to the ``set_index`` call. This could be
+        paramatarized.
+        """
+        df = super().process_instant_xbrl(df)
+        df["year"] = pd.to_datetime(df["date"]).dt.year
+        df.loc[df.report_year == (df.year + 1), "balance_type"] = "starting_balance"
+        df.loc[df.report_year == df.year, "balance_type"] = "ending_balance"
+        if not df.balance_type.notna().all():
+            raise ValueError(
+                f"Unexpected years found in the {self.table_id.value} table: "
+                f"{df.loc[df.balance_type.isna(), 'year'].unique()}"
+            )
+        df = (
+            df.drop(["year", "date"], axis="columns")
+            .set_index(
+                [
+                    "entity_id",
+                    "report_year",
+                    "balance_type",
+                    "other_regulatory_liability_axis",
+                ]
+            )
+            .unstack("balance_type")
+        )
+        # This turns a multi-index into a single-level index with tuples of strings as
+        # the keys, and then converts the tuples of strings into a single string by
+        # joining their values with an underscore. This results in column labels like
+        # boiler_plant_equipment_steam_production_starting_balance
+        # Is there a better way?
+        df.columns = ["_".join(items) for items in df.columns.to_flat_index()]
+        return df.reset_index()
+
+
 def transform(
     ferc1_dbf_raw_dfs: dict[str, pd.DataFrame],
     ferc1_xbrl_raw_dfs: dict[str, dict[str, pd.DataFrame]],
@@ -2877,6 +2956,7 @@ def transform(
         "utility_plant_summary_ferc1": UtilityPlantSummaryFerc1TableTransformer,
         "depreciation_amortization_summary_ferc1": DepreciationAmortizationSummaryFerc1TableTransformer,
         "balance_sheet_assets_ferc1": BalanceSheetAssetsFerc1TableTransformer,
+        "other_regulatory_liabilities_ferc1": OtherRegulatoryLiabilitiesFerc1,
     }
     # create an empty ditctionary to fill up through the transform fuctions
     ferc1_transformed_dfs = {}
@@ -2944,6 +3024,7 @@ if __name__ == "__main__":
             "utility_plant_summary_ferc1",
             "balance_sheet_assets_ferc1",
             "depreciation_amortization_summary_ferc1",
+            "other_regulatory_liabilities_ferc1",
         ],
     )
     pudl_settings = pudl.workspace.setup.get_defaults()
