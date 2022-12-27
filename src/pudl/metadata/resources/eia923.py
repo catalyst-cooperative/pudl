@@ -155,8 +155,7 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
         "etl_group": "eia923",
     },
 }
-"""
-EIA-923 resource attributes organized by PUDL identifier (``resource.name``).
+"""EIA-923 resource attributes organized by PUDL identifier (``resource.name``).
 
 Keys are in alphabetical order.
 
