@@ -3519,8 +3519,20 @@ TRANSFORM_PARAMS = {
                     "row_seq": "row_seq",
                     "spplmnt_num": "spplmnt_num",
                 }
-            }
+            },
+            "xbrl": {
+                "columns": {
+                    "entity_id": "utility_id_ferc1_xbrl",
+                    "report_year": "report_year",
+                }
+            },
         },
+        "align_row_numbers_dbf": {"dbf_table_names": ["f1_elc_op_mnt_expn"]},
+        # "wide_to_tidy": {
+        #     "dbf": {
+        #         "idx_cols": ["entity_id", "report_year", ""]
+        #     }
+        # }
     },
 }
 

@@ -2939,23 +2939,6 @@ class ElectricOperatingAndMaintenanceFerc1TableTransformer(
 
     table_id: TableIdFerc1 = TableIdFerc1.ELECTRIC_OANDM_FERC1
 
-    @cache_df(key="dbf")
-    def process_dbf(self, raw_dbf: pd.DataFrame) -> pd.DataFrame:
-        """Calculate difference between start and end values.
-
-        There are some dbf tables that provide start values and end values over a given
-        timeframe when the xbrl duration version provides the difference. In order to
-        reconcile then, you must calculate the difference between the values in the dbf
-        table.
-        """
-        # This could be standardized if it's useful for other tables...
-        df = super().process_dbf(raw_dbf)
-        df["annual_o_and_m_expense"] = df["crnt_yr_amt"] - df["prev_yr_amt"]
-        # need to deal with NA values.
-        # If prev is NA and current is not NA -> the value is just current? or NA...
-        # If prev is not NA and current is Na -> the value is NA?
-        return df
-
 
 def transform(
     ferc1_dbf_raw_dfs: dict[str, pd.DataFrame],
