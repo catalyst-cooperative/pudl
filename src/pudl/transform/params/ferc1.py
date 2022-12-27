@@ -2607,6 +2607,9 @@ TRANSFORM_PARAMS = {
                 }
             },
         },
+        "unstack_balances_to_report_year_instant_xbrl": {
+            "unstack_balances_to_report_year": True
+        },
         "wide_to_tidy": {
             "xbrl": {
                 "idx_cols": ["entity_id", "report_year"],
@@ -3234,6 +3237,9 @@ TRANSFORM_PARAMS = {
                 }
             },
         },
+        "unstack_balances_to_report_year_instant_xbrl": {
+            "unstack_balances_to_report_year": True
+        },
         "wide_to_tidy": {
             "xbrl": {
                 "idx_cols": [
@@ -3260,6 +3266,53 @@ TRANSFORM_PARAMS = {
                 "required_valid_cols": ["starting_balance", "ending_balance"],
             },
         ],
+    },
+    "balance_sheet_liabilities_ferc1": {
+        "rename_columns_ferc1": {
+            "dbf": {
+                "columns": {
+                    "respondent_id": "utility_id_ferc1_dbf",
+                    "report_year": "report_year",
+                    "spplmnt_num": "spplmnt_num",
+                    "row_number": "row_number",
+                    "row_seq": "row_seq",
+                    "row_prvlg": "row_prvlg",
+                    "begin_yr_balance": "starting_balance",
+                    "end_yr_balance": "ending_balance",
+                    "report_prd": "report_prd",
+                    "end_qtr_bal": "end_qtr_bal",
+                    "pri_yr_q4_bal": "pri_yr_q4_bal",
+                    "xbrl_factoid": "liability_type",
+                }
+            },
+            "xbrl": {
+                "columns": {
+                    "entity_id": "utility_id_ferc1_xbrl",
+                    "report_year": "report_year",
+                    "xbrl_factoid": "liability_type",
+                }
+            },
+        },
+        "unstack_balances_to_report_year_instant_xbrl": {
+            "unstack_balances_to_report_year": True
+        },
+        "wide_to_tidy": {
+            "xbrl": {
+                "idx_cols": ["entity_id", "report_year"],
+                "value_types": ["starting_balance", "ending_balance"],
+                "expected_drop_cols": 0,
+                "stacked_column_name": "xbrl_factoid",
+            }
+        },
+        "drop_duplicate_rows_dbf": {
+            "data_columns": ["ending_balance", "starting_balance"],
+            "table_name": "balance_sheet_liabilities_ferc1",
+        },
+        "align_row_numbers_dbf": {"dbf_table_names": ["f1_bal_sheet_cr"]},
+        "merge_xbrl_metadata": {
+            "rename_columns": {"xbrl_factoid": "liability_type"},
+            "on": "liability_type",
+        },
     },
     "depreciation_amortization_summary_ferc1": {
         "rename_columns_ferc1": {
@@ -3530,7 +3583,7 @@ TRANSFORM_PARAMS = {
         "align_row_numbers_dbf": {"dbf_table_names": ["f1_elc_op_mnt_expn"]},
         # "wide_to_tidy": {
         #     "dbf": {
-        #         "idx_cols": ["entity_id", "report_year", ""]
+        #         "idx_cols": ["utility_id_ferc1", "report_year", ""]
         #     }
         # }
     },
