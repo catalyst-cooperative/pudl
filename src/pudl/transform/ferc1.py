@@ -777,12 +777,8 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
         return (
             pd.concat(
                 [
-                    pd.json_normalize(
-                        xbrl_metadata_json[self.table_id.value]["instant"]
-                    ),
-                    pd.json_normalize(
-                        xbrl_metadata_json[self.table_id.value]["duration"]
-                    ),
+                    pd.json_normalize(xbrl_metadata_json["instant"]),
+                    pd.json_normalize(xbrl_metadata_json["duration"]),
                 ]
             )
             .drop("references.form_location", axis="columns")
