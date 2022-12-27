@@ -1,14 +1,18 @@
 FROM condaforge/mambaforge:4.12.0-0
 
 # Install curl and js
+# awscli requires unzip, less, groff and mandoc
 # hadolint ignore=DL3008
-RUN apt-get update && apt-get install --no-install-recommends -y curl jq \
+RUN apt-get update && apt-get install --no-install-recommends -y curl jq unzip less groff mandoc \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/*
 
 # Configure gsutil authentication
 # hadolint ignore=DL3059
 RUN printf '[GoogleCompute]\nservice_account = default' > /etc/boto.cfg
+
+# Install awscli2
+RUN curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip" && unzip awscliv2.zip && ./aws/install
 
 # Create a non-root user inside the container
 # hadolint ignore=DL3059
