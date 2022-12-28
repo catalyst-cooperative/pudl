@@ -335,7 +335,7 @@ report_year,utility_id_ferc1,asset_type,data_col1,data_col2
 
 
 def test_unstack_balances_to_report_year_instant_xbrl():
-    """Test :meth:`unstack_balances_to_report_year_instant_xbrl`."""
+    """Test :func:`unstack_balances_to_report_year_instant_xbrl`."""
     df = pd.read_csv(
         StringIO(
             """
