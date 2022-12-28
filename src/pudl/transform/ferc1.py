@@ -820,7 +820,7 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
         if not params:
             params = self.params.merge_xbrl_metadata
         if params.on:
-            logger.info(f"{self.table_id.value}: merging metadata")
+            logger.info(f"{self.table_id.value}: Merging metadata")
             df = merge_xbrl_metadata(df, self.xbrl_metadata, params)
         return df
 
@@ -842,13 +842,17 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
     def drop_duplicate_rows_dbf(
         self, df: pd.DataFrame, params: DropDuplicateRowsDbf | None = None
     ) -> pd.DataFrame:
-        """Drop the duplicate DBF rows when the PKs and data columns are the same.
+        """Drop the duplicate DBF rows when the PKs and data columns are duplicated.
 
         Wrapper function for :func:`drop_duplicate_rows_dbf`.
         """
         if params is None:
             params = self.params.drop_duplicate_rows_dbf
         if params.table_name:
+            logger.info(
+                f"{self.table_id.value}: Dropping rows where primary key and data "
+                "columns are duplicated."
+            )
             df = drop_duplicate_rows_dbf(df, params=params)
         return df
 
