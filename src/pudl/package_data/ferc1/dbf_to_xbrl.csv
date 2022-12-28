@@ -508,7 +508,7 @@ f1_429_trans_aff,40,2009,,,,,
 f1_429_trans_aff,41,2009,,,,,
 f1_429_trans_aff,42,2009,,,,,
 f1_acb_epda,1,1994,Basis for Amortization Charges,,,,
-f1_accumdepr_prvsn,1,1994,Balance Beginning of Year,reported_value,starting_balance,,
+f1_accumdepr_prvsn,1,1994,Balance Beginning of Year,reported_value,starting_balance,,"Corresponds to accumulated_provision_for_depreciation_of_electric_utility_plant in XBRL instant table, but here we have to differentiate between the starting and 2 separate copies of the ending balances."
 f1_accumdepr_prvsn,2,1994,"Depreciation Provisions for Year, Charged to",header,,,
 f1_accumdepr_prvsn,3,1994,(403) Depreciation Expense,reported_value,depreciation_expense_excluding_adjustments,,
 f1_accumdepr_prvsn,4,1994,(413) Exp. of Elec. Plt. Leas. to Others,reported_value,expenses_of_electric_plant_leased_to_others,,
@@ -524,7 +524,7 @@ f1_accumdepr_prvsn,13,1994,Salvage (Credit),reported_value,salvage_value_of_reti
 f1_accumdepr_prvsn,14,1994,TOTAL Net Chrgs. for Plant Ret. (Enter Total of lines 11 thru 13),calculated_value,net_charges_for_retired_plant,,
 f1_accumdepr_prvsn,15,1994,Other Debit or Cr. Items (Describe):,reported_value,other_adjustments_to_accumulated_depreciation,,
 f1_accumdepr_prvsn,16,1994,Line 16,reported_value,other_adjustments_to_accumulated_depreciation_details,TRUE,DBF contains unstructured data with a description in the item column.
-f1_accumdepr_prvsn,17,1994,"Balance End of Year (Enter Totals of lines 1, 9, 14, 15, and 16)",calculated_value,ending_balance_accounts,,
+f1_accumdepr_prvsn,17,1994,"Balance End of Year (Enter Totals of lines 1, 9, 14, 15, and 16)",calculated_value,ending_balance_accounts,,"Corresponds to accumulated_provision_for_depreciation_of_electric_utility_plant in XBRL instant table, but here we have to differentiate between the starting and 2 separate copies of the ending balances."
 f1_accumdepr_prvsn,18,1994,Steam Production,reported_value,accumulated_depreciation_steam_production,,
 f1_accumdepr_prvsn,19,1994,Nuclear Production,reported_value,accumulated_depreciation_nuclear_production,,
 f1_accumdepr_prvsn,20,1994,Hydraulic Production-Conventional,reported_value,accumulated_depreciation_hydraulic_production_conventional,,
@@ -533,7 +533,7 @@ f1_accumdepr_prvsn,22,1994,Other Production,reported_value,accumulated_depreciat
 f1_accumdepr_prvsn,23,1994,Transmission,reported_value,accumulated_depreciation_transmission,,
 f1_accumdepr_prvsn,24,1994,Distribution,reported_value,accumulated_depreciation_distribution,,
 f1_accumdepr_prvsn,25,1994,General,reported_value,accumulated_depreciation_general,,
-f1_accumdepr_prvsn,26,1994,TOTAL (Enter Total of lines 18 thru 25),calculated_value,ending_balance_functional,,
+f1_accumdepr_prvsn,26,1994,TOTAL (Enter Total of lines 18 thru 25),calculated_value,ending_balance_functional,,"Corresponds to accumulated_provision_for_depreciation_of_electric_utility_plant in XBRL instant table, but here we have to differentiate between the starting and 2 separate copies of the ending balances."
 f1_accumdepr_prvsn,7,2002,"Other Accounts (Specify, details in footnote):",reported_value,other_accounts,,
 f1_accumdepr_prvsn,15,2002,"Other Debit or Cr. Items (Describe, details in footnote):",reported_value,other_adjustments_to_accumulated_depreciation,,
 f1_accumdepr_prvsn,4,2003,(403.1) Depreciation Expense for Asset Retirement Costs,reported_value,depreciation_expense_for_asset_retirement_costs,,
@@ -551,7 +551,7 @@ f1_accumdepr_prvsn,15,2003,TOTAL Net Chrgs. for Plant Ret. (Enter Total of lines
 f1_accumdepr_prvsn,16,2003,"Other Debit or Cr. Items (Describe, details in footnote):",reported_value,other_adjustments_to_accumulated_depreciation,,
 f1_accumdepr_prvsn,17,2003,Line 16,reported_value,other_adjustments_to_accumulated_depreciation_details,TRUE,DBF contains unstructured data with a description in the item column.
 f1_accumdepr_prvsn,18,2003,Book Cost or Asset Retirement Costs Retired,reported_value,book_cost_of_asset_retirement_costs,,
-f1_accumdepr_prvsn,19,2003,"Balance End of Year (Enter Totals of lines 1, 10, 15, 16, and 18)",calculated_value,ending_balance_accounts,,
+f1_accumdepr_prvsn,19,2003,"Balance End of Year (Enter Totals of lines 1, 10, 15, 16, and 18)",calculated_value,ending_balance_accounts,,"Corresponds to accumulated_provision_for_depreciation_of_electric_utility_plant in XBRL instant table, but here we have to differentiate between the starting and 2 separate copies of the ending balances."
 f1_accumdepr_prvsn,20,2003,Steam Production,reported_value,accumulated_depreciation_steam_production,,
 f1_accumdepr_prvsn,21,2003,Nuclear Production,reported_value,accumulated_depreciation_nuclear_production,,
 f1_accumdepr_prvsn,22,2003,Hydraulic Production-Conventional,reported_value,accumulated_depreciation_hydraulic_production_conventional,,
@@ -563,7 +563,7 @@ f1_accumdepr_prvsn,27,2003,General,reported_value,accumulated_depreciation_gener
 f1_accumdepr_prvsn,28,2003,TOTAL (Enter Total of lines 20 thru 27),calculated_value,accumulated_provision_for_depreciation_of_electric_utility_plant,,
 f1_accumdepr_prvsn,27,2006,Regional Transmission and Market Operation,reported_value,accumulated_depreciation_regional_transmission_and_market_operation,,
 f1_accumdepr_prvsn,28,2006,General,reported_value,accumulated_depreciation_general,,
-f1_accumdepr_prvsn,29,2006,TOTAL (Enter Total of lines 20 thru 28),calculated_value,ending_balance_functional,,
+f1_accumdepr_prvsn,29,2006,TOTAL (Enter Total of lines 20 thru 28),calculated_value,ending_balance_functional,,"Corresponds to accumulated_provision_for_depreciation_of_electric_utility_plant in XBRL instant table, but here we have to differentiate between the starting and 2 separate copies of the ending balances."
 f1_accumdfrrdtaxcr,1,1994,Electric Utility,,,,
 f1_accumdfrrdtaxcr,2,1994,3%,,,,
 f1_accumdfrrdtaxcr,3,1994,4%,,,,
