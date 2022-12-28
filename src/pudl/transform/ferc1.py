@@ -2975,23 +2975,6 @@ class ElectricOperatingAndMaintenanceFerc1TableTransformer(
     table_id: TableIdFerc1 = TableIdFerc1.ELECTRIC_OANDM_FERC1
     has_unique_record_ids: bool = False
 
-    @cache_df(key="xbrl")
-    def process_xbrl(
-        self,
-        raw_xbrl_instant: pd.DataFrame,
-        raw_xbrl_duration: pd.DataFrame,
-    ) -> pd.DataFrame:
-        """Process XBRL data and remove duplicate data from previous years."""
-        processed_xbrl = super().process_xbrl(raw_xbrl_instant, raw_xbrl_duration)
-        # Only keep data from this report year. Unlike the balance sheet tables,
-        # Each row represents the annual total, not just start date and end date, so the
-        # data from the previous year is a duplicate and can be removed.
-        logger.info(f"{self.table_id.value}: Removing duplicate 'previous year' data")
-        return processed_xbrl.loc[
-            pd.to_datetime(processed_xbrl["end_date"]).dt.year
-            == processed_xbrl.report_year
-        ]
-
     @cache_df(key="dbf")
     def process_dbf(self, raw_dbf: pd.DataFrame) -> pd.DataFrame:
         """Process DBF but drop a bad row that is flagged by drop_duplicates."""
