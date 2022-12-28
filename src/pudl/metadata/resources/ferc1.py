@@ -137,7 +137,18 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
     },
     "electric_oandm_ferc1": {
         "description": "Operating and maintenance costs associated with producing electricty.",
-        "schema": {"fields": ["report_year"]},
+        "schema": {
+            "fields": [
+                "utility_id_ferc1",
+                "report_year",
+                "annual_oandm_expense",
+                "oandm_expense_type",
+                "record_id",
+                "ferc_account",
+                "row_type_xbrl",
+            ],
+            "primary_key": ["utility_id_ferc1", "report_year", "oandm_expense_type"],
+        },
         "sources": ["ferc1"],
         "etl_group": "ferc1",
         "field_namespace": "ferc1",

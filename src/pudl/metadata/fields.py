@@ -56,6 +56,11 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     "alternative_fuel_vehicle_2_activity": {"type": "boolean"},
     "alternative_fuel_vehicle_activity": {"type": "boolean"},
     "annual_indirect_program_cost": {"type": "number", "unit": "USD"},
+    "annual_oandm_expense": {
+        "type": "number",
+        "unit": "USD",
+        "description": "Operations and maintenance expense",
+    },
     "annual_total_cost": {"type": "number", "unit": "USD"},
     "appro_part_label": {
         "type": "string",
@@ -1056,6 +1061,10 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     "num_transmission_circuits": {
         "type": "integer",
         "description": "Number of circuits in a transmission line.",
+    },
+    "oandm_expense_type": {
+        "type": "string",
+        "description": "The type of electric operating and maintenance expese",
     },
     "operates_generating_plant": {"type": "boolean"},
     "operating_date": {
