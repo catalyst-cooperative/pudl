@@ -463,6 +463,11 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "description": "Electric Plant In Service (USD).",
         "unit": "USD",
     },
+    "electric_plant_classification": {
+        "type": "string",
+        "description": "Status of electric plant (in service, future, leased, total).",
+        # "constraints": {"enum": ["in_service", "future", "total", "leased"]}
+    },
     "emissions_unit_id_epa": {
         "type": "string",
         "description": "Emissions (smokestack) unit monitored by EPA CEMS.",

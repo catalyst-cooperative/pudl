@@ -4,23 +4,28 @@ from typing import Any
 from pudl.metadata.codes import CODE_METADATA
 
 RESOURCE_METADATA: dict[str, dict[str, Any]] = {
-    "accumulated_depreciation_ferc1": {
+    "accumulated_depreciation_plant_ferc1": {
         "description": "Balances and changes to FERC Accumulated Provision for Depreciation.",
         "schema": {
             "fields": [
                 "utility_id_ferc1",
                 "report_year",
-                "record_id",
-                "line_id",
-                "total",
+                "ferc_account_label",
+                "electric_plant_classification",
+                "utility_type",
                 "electric_plant",
-                "future_plant",
-                "leased_plant",
+                "record_id",
             ],
-            "primary_key": ["utility_id_ferc1", "report_year", "line_id"],
+            "primary_key": [
+                "utility_id_ferc1",
+                "report_year",
+                "ferc_account_label",
+                "electric_plant_classification",
+                "utility_type",
+            ],
         },
         "sources": ["ferc1"],
-        "etl_group": "ferc1_disabled",
+        "etl_group": "ferc1",
         "field_namespace": "ferc1",
     },
     "balance_sheet_assets_ferc1": {
