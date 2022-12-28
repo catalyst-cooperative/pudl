@@ -47,10 +47,15 @@ def _read_static_encoding_tables(
         table_name: AssetOut(io_manager_key="pudl_sqlite_io_manager")
         for table_name in Package.get_etl_group_tables("static_pudl")
     },
+    required_resource_keys={"dataset_settings", "datastore"},
 )
-def static_pudl_tables():
+def static_pudl_tables(context):
     """Read static tables compiled as part of PUDL and not from any agency dataset."""
+    ds = context.resources.datastore
+    dataset_settings = context.resources.dataset_settings
+
     static_pudl_tables_dict = {"political_subdivisions": POLITICAL_SUBDIVISIONS}
+    static_pudl_tables_dict["datasources"] = dataset_settings.make_datasources_table(ds)
     return (
         Output(output_name=table_name, value=df)
         for table_name, df in static_pudl_tables_dict.items()

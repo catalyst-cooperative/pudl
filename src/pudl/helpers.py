@@ -7,6 +7,7 @@ should probably live here. There are lost of transform type functions in here th
 with cleaning and restructing dataframes.
 """
 import itertools
+import os
 import pathlib
 import re
 import shutil
@@ -21,6 +22,8 @@ import numpy as np
 import pandas as pd
 import requests
 import sqlalchemy as sa
+from dagster import Noneable
+from dagster._config.errors import PostProcessingError
 from pandas._libs.missing import NAType
 
 import pudl.logging_helpers
@@ -1543,3 +1546,36 @@ def convert_df_to_excel_file(df: pd.DataFrame, **kwargs) -> pd.ExcelFile:
     workbook = bio.read()
 
     return pd.ExcelFile(workbook)
+
+
+class EnvVar(Noneable):
+    """A dagster config type for env vars."""
+
+    def __init__(self, env_var: str) -> None:
+        """Initialize EnvVarField."""
+        super().__init__(inner_type=str)
+        self.env_var = env_var
+
+    def post_process(self, value: str) -> str:
+        """Validate an EnvVar config value.
+
+        Returns the value of the object environment variable if the
+        config value is not specified is not specified with dagster.
+
+        Args:
+            value: config value to validate.
+
+        Returns:
+            validated config value.
+
+        Raises:
+            PostProcessingError: if the value is not specified in the env var or config.
+        """
+        if value is None:
+            try:
+                return os.environ[self.env_var]
+            except KeyError:
+                raise PostProcessingError(
+                    f"Config value could not be found. Set the {self.env_var} environment variable or specify a value in dagster config."
+                )
+        return value

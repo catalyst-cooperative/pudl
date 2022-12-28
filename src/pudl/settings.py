@@ -708,7 +708,7 @@ def dataset_settings(init_context):
     This resource allows us to specify the years we want to process for each datasource
     in the Dagit UI.
 
-    We configuring the assets using a resource instead of op configs so the settings can
+    We configure the assets using a resource instead of op configs so the settings can
     be accesible by any op.
     """
     return DatasetsSettings(**init_context.resource_config)

@@ -1,5 +1,4 @@
 """Dagster IO Managers."""
-import os
 from pathlib import Path
 from sqlite3 import sqlite_version
 
@@ -10,6 +9,7 @@ from packaging import version
 from sqlalchemy.exc import SQLAlchemyError
 
 import pudl
+from pudl.helpers import EnvVar
 from pudl.metadata.classes import Package
 
 logger = pudl.logging_helpers.get_logger(__name__)
@@ -31,7 +31,7 @@ class ForeignKeyError(SQLAlchemyError):
 
     def __str__(self):
         """Create string representation of ForeignKeyError object."""
-        return f"Foreign key error for table: {self.child_table} -- {self.parent_table} {self.foreign_key} -- on for rows {self.rowids}\n"
+        return f"Foreign key error for table: {self.child_table} -- {self.parent_table} {self.foreign_key} -- on rows {self.rowids}\n"
 
     def __eq__(self, other):
         """Compare a ForeignKeyError with another object."""
@@ -339,9 +339,11 @@ class SQLiteIOManager(IOManager):
 @io_manager(
     config_schema={
         "pudl_output_path": Field(
-            str,
+            EnvVar(
+                env_var="PUDL_OUTPUT",
+            ),
             description="Path of directory to store the database in.",
-            default_value=os.environ.get("PUDL_OUTPUT"),
+            default_value=None,
         ),
     }
 )

@@ -3,7 +3,6 @@ import argparse
 import hashlib
 import io
 import json
-import os
 import re
 import sys
 import zipfile
@@ -20,6 +19,7 @@ from requests.adapters import HTTPAdapter
 from requests.packages.urllib3.util.retry import Retry
 
 import pudl
+from pudl.helpers import EnvVar
 from pudl.workspace import resource_cache
 from pudl.workspace.resource_cache import PudlResourceKey
 
@@ -394,9 +394,11 @@ class Datastore:
 @resource(
     config_schema={
         "local_cache_path": Field(
-            str,
+            EnvVar(
+                env_var="PUDL_CACHE",
+            ),
             description="Path to local cache of raw data.",
-            default_value=os.environ.get("PUDL_CACHE"),
+            default_value=None,
         ),
         "gcs_cache_path": Field(
             str,
