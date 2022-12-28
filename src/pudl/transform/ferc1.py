@@ -3087,7 +3087,7 @@ if __name__ == "__main__":
             "balance_sheet_assets_ferc1",
             "income_statement_ferc1",
             "depreciation_amortization_summary_ferc1",
-            "accumulated_depreciaton_provision_ferc1",
+            "accumulated_depreciation_plant_ferc1",
         ],
     )
     pudl_settings = pudl.workspace.setup.get_defaults()
