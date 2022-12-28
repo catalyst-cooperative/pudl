@@ -2934,8 +2934,29 @@ class AccumulatedDepreciationPlantFerc1TableTransformer(Ferc1AbstractTableTransf
 
     @cache_df("dbf")
     def process_dbf(self, df: pd.DataFrame) -> pd.DataFrame:
-        """Set utility type column to electric."""
-        return super().process_dbf(df).assign(utility_type="electric")
+        """Accumulated Depreciation table specific DBF cleaning operations.
+
+        * Drop functional classification rows.
+        * Drop unstructured data rows.
+        * Set utility_type to electric for all rows.
+        """
+        excluded_labels = [
+            "other_adjustments_to_accumulated_depreciation_details",  # Unstructured
+            "other_accounts_details",  # Unstructured
+            "accumulated_depreciation_distribution",
+            "accumulated_depreciation_general",
+            "accumulated_depreciation_hydraulic_production_conventional",
+            "accumulated_depreciation_hydraulic_production_pumped_storage",
+            "accumulated_depreciation_nuclear_production",
+            "accumulated_depreciation_other_production",
+            "accumulated_depreciation_regional_transmission_and_market_operation",
+            "accumulated_depreciation_steam_production",
+            "accumulated_depreciation_transmission",
+            "ending_balance_functional",
+        ]
+        df = super().process_dbf(df).assign(utility_type="electric")
+        df = df.loc[~df.ferc_account_label.isin(excluded_labels)]
+        return df
 
     @cache_df("process_instant_xbrl")
     def process_instant_xbrl(self, df: pd.DataFrame) -> pd.DataFrame:
