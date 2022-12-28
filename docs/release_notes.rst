@@ -25,6 +25,7 @@ Data Coverage
   * :ref:`depreciation_amortization_summary_ferc1`, see issue :issue:`1816` & PR
     :pr:`2143`.
   * :ref:`income_statement_ferc1`, see issue :issue:`1813` & :pr:`2147`.
+  * :ref:`accumulated_depreciation_plant_ferc1` see issue :issue:`1808` & :pr:`2119`.
 
 .. _release-v2022.11.30:
 
