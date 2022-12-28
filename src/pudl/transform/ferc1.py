@@ -76,6 +76,7 @@ class TableIdFerc1(enum.Enum):
     DEPRECIATION_AMORTIZATION_SUMMARY_FERC1 = "depreciation_amortization_summary_ferc1"
     BALANCE_SHEET_ASSETS_FERC1 = "balance_sheet_assets_ferc1"
     INCOME_STATEMENT_FERC1 = "income_statement_ferc1"
+    ACCUMULATED_DEPRECIATION_PLANT_FERC1 = "accumulated_depreciation_plant_ferc1"
 
 
 class RenameColumnsFerc1(TransformParams):
@@ -181,7 +182,7 @@ def wide_to_tidy(df: pd.DataFrame, params: WideToTidy) -> pd.DataFrame:
     logger.debug(f"dropping: {dropped_cols}")
     if params.expected_drop_cols != len(dropped_cols):
         raise AssertionError(
-            f"Dropping more columns ({len(dropped_cols)}) than expected "
+            f"Unexpected number of columns dropped: ({len(dropped_cols)}) instead of "
             f"({params.expected_drop_cols}). Columns dropped: {dropped_cols}"
         )
 
@@ -784,10 +785,7 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
             .pipe(self.assign_record_id, source_ferc1=SourceFerc1.DBF)
             .pipe(self.drop_unused_original_columns_dbf)
             .pipe(self.assign_utility_id_ferc1, source_ferc1=SourceFerc1.DBF)
-            .pipe(
-                self.wide_to_tidy,
-                source_ferc1=SourceFerc1.DBF,
-            )
+            .pipe(self.wide_to_tidy, source_ferc1=SourceFerc1.DBF)
             .pipe(self.drop_duplicate_rows_dbf)
         )
 
@@ -806,10 +804,7 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
             .pipe(self.wide_to_tidy, source_ferc1=SourceFerc1.XBRL)
             .pipe(self.rename_columns, rename_stage="xbrl")
             .pipe(self.assign_record_id, source_ferc1=SourceFerc1.XBRL)
-            .pipe(
-                self.assign_utility_id_ferc1,
-                source_ferc1=SourceFerc1.XBRL,
-            )
+            .pipe(self.assign_utility_id_ferc1, source_ferc1=SourceFerc1.XBRL)
         )
 
     def rename_columns(
@@ -2931,6 +2926,61 @@ class DepreciationAmortizationSummaryFerc1TableTransformer(
         return df
 
 
+class AccumulatedDepreciationPlantFerc1TableTransformer(Ferc1AbstractTableTransformer):
+    """Transformer class for :ref:`accumulated_depreciation_plant_ferc1` table."""
+
+    table_id: TableIdFerc1 = TableIdFerc1.ACCUMULATED_DEPRECIATION_PLANT_FERC1
+    has_unique_record_ids: bool = False
+
+    @cache_df("dbf")
+    def process_dbf(self, df: pd.DataFrame) -> pd.DataFrame:
+        """Set utility type column to electric."""
+        return super().process_dbf(df).assign(utility_type="electric")
+
+    @cache_df("process_instant_xbrl")
+    def process_instant_xbrl(self, df: pd.DataFrame) -> pd.DataFrame:
+        """Pre-processing required to make the instant and duration tables compatible.
+
+        Each year the plant account balances are reported twice, in two separate
+        records: one for the end of the previous year, and one for the end of the
+        current year, with appropriate dates for the two year ends. Here we are
+        reshaping the table so that we instead have two columns: ``starting_balance``
+        and ``ending_balance`` that both pertain to the current year, so that all of
+        the records pertaining to a single ``report_year`` can be identified without
+        dealing with the instant / duration distinction.
+        """
+        df = super().process_instant_xbrl(df)
+        df["year"] = pd.to_datetime(df["date"]).dt.year
+        df.loc[df.report_year == (df.year + 1), "balance_type"] = "starting_balance"
+        df.loc[df.report_year == df.year, "balance_type"] = "ending_balance"
+        if not df.balance_type.notna().all():
+            raise ValueError(
+                f"Unexpected years found in the {self.table_id.value} table: "
+                f"{df.loc[df.balance_type.isna(), 'year'].unique()}"
+            )
+        df = (
+            df.drop(["year", "date"], axis="columns")
+            .set_index(
+                [
+                    "entity_id",
+                    "report_year",
+                    "electric_plant_classification_axis",
+                    "utility_type_axis",
+                    "balance_type",
+                ]
+            )
+            .unstack("balance_type")
+        )
+        df.columns = ["_".join(items) for items in df.columns.to_flat_index()]
+        df = df.reset_index().rename(
+            columns={
+                "accumulated_provision_for_depreciation_of_electric_utility_plant_ending_balance": "ending_balance_accounts_electric_plant",
+                "accumulated_provision_for_depreciation_of_electric_utility_plant_starting_balance": "starting_balance_electric_plant",
+            }
+        )
+        return df
+
+
 def transform(
     ferc1_dbf_raw_dfs: dict[str, pd.DataFrame],
     ferc1_xbrl_raw_dfs: dict[str, dict[str, pd.DataFrame]],
@@ -2968,6 +3018,7 @@ def transform(
         "depreciation_amortization_summary_ferc1": DepreciationAmortizationSummaryFerc1TableTransformer,
         "balance_sheet_assets_ferc1": BalanceSheetAssetsFerc1TableTransformer,
         "income_statement_ferc1": IncomeStatementFerc1TableTransformer,
+        "accumulated_depreciation_plant_ferc1": AccumulatedDepreciationPlantFerc1TableTransformer,
     }
     # create an empty ditctionary to fill up through the transform fuctions
     ferc1_transformed_dfs = {}
@@ -3036,6 +3087,7 @@ if __name__ == "__main__":
             "balance_sheet_assets_ferc1",
             "income_statement_ferc1",
             "depreciation_amortization_summary_ferc1",
+            "accumulated_depreciaton_provision_ferc1",
         ],
     )
     pudl_settings = pudl.workspace.setup.get_defaults()
