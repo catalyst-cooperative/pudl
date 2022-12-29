@@ -2936,9 +2936,19 @@ class AccumulatedDepreciationPlantFerc1TableTransformer(Ferc1AbstractTableTransf
     def process_dbf(self, df: pd.DataFrame) -> pd.DataFrame:
         """Accumulated Depreciation table specific DBF cleaning operations.
 
-        * Drop functional classification rows.
-        * Drop unstructured data rows.
-        * Set utility_type to electric for all rows.
+        Drop functional classification rows, which come from Section B of this table.
+        All sections are are reported together in the DBF data, but they should really
+        be separate tables, and are reported that way in the XBRL, so we are splitting
+        them out.
+
+        Similarly we are dropping the a couple of DBF rows that contain unstructured
+        data, which is reported separately in the XBRL, and which we'll pull out in a
+        separate transformer.
+
+        The XBRL reports a utility_type which is always electric in this table, but
+        which may be necessary for differentiating between different values when this
+        data is combined with other tables. The DBF data doesn't report this value so
+        we are adding it here for consistency across the two data sources.
         """
         excluded_labels = [
             "other_adjustments_to_accumulated_depreciation_details",  # Unstructured
@@ -2970,7 +2980,6 @@ class AccumulatedDepreciationPlantFerc1TableTransformer(Ferc1AbstractTableTransf
         the records pertaining to a single ``report_year`` can be identified without
         dealing with the instant / duration distinction.
         """
-        df = super().process_instant_xbrl(df)
         df["year"] = pd.to_datetime(df["date"]).dt.year
         df.loc[df.report_year == (df.year + 1), "balance_type"] = "starting_balance"
         df.loc[df.report_year == df.year, "balance_type"] = "ending_balance"
@@ -2993,12 +3002,7 @@ class AccumulatedDepreciationPlantFerc1TableTransformer(Ferc1AbstractTableTransf
             .unstack("balance_type")
         )
         df.columns = ["_".join(items) for items in df.columns.to_flat_index()]
-        df = df.reset_index().rename(
-            columns={
-                "accumulated_provision_for_depreciation_of_electric_utility_plant_ending_balance": "ending_balance_accounts_electric_plant",
-                "accumulated_provision_for_depreciation_of_electric_utility_plant_starting_balance": "starting_balance_electric_plant",
-            }
-        )
+        df = df.reset_index().pipe(self.rename_columns, rename_stage="instant_xbrl")
         return df
 
 
