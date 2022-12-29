@@ -161,6 +161,10 @@ TABLE_NAME_MAP: dict[str, dict[str, str]] = {
         "dbf": "f1_xmssn_line",
         "xbrl": "transmission_line_statistics_422",
     },
+    "balance_sheet_liabilities_ferc1": {
+        "dbf": "f1_bal_sheet_cr",
+        "xbrl": "comparative_balance_sheet_liabilities_and_other_credits_110",
+    },
     "balance_sheet_assets_ferc1": {
         "dbf": "f1_comp_balance_db",
         "xbrl": "comparative_balance_sheet_assets_and_other_debits_110",

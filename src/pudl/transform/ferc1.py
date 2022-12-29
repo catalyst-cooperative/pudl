@@ -73,6 +73,7 @@ class TableIdFerc1(enum.Enum):
     ELECTRIC_ENERGY_SOURCES_FERC1 = "electric_energy_sources_ferc1"
     ELECTRIC_ENERGY_DISPOSITIONS_FERC1 = "electric_energy_dispositions_ferc1"
     UTILITY_PLANT_SUMMARY_FERC1 = "utility_plant_summary_ferc1"
+    BALANCE_SHEET_LIABILITIES = "balance_sheet_liabilities_ferc1"
     DEPRECIATION_AMORTIZATION_SUMMARY_FERC1 = "depreciation_amortization_summary_ferc1"
     BALANCE_SHEET_ASSETS_FERC1 = "balance_sheet_assets_ferc1"
     INCOME_STATEMENT_FERC1 = "income_statement_ferc1"
@@ -309,7 +310,10 @@ def drop_duplicate_rows_dbf(
         .drop_duplicates(pks, keep="first")
         .drop(columns=["null_data"])
     )
-    logger.info(f"Dropped {(len_og - len(df))/len_og:.1%} of duplicate records.")
+    logger.info(
+        f"Dropped {len_og - len(df)} duplicate records: {(len_og - len(df))/len_og:.1%}"
+        " of total rows."
+    )
     return df
 
 
@@ -351,6 +355,79 @@ def align_row_numbers_dbf(
     return df
 
 
+class UnstackBalancesToReportYearInstantXbrl(TransformParams):
+    """Parameters for :func:`unstack_balances_to_report_year_instant_xbrl`."""
+
+    unstack_balances_to_report_year: bool = False
+    """If True unstack balances to a single year (the report year)."""
+
+
+def unstack_balances_to_report_year_instant_xbrl(
+    df: pd.DataFrame, params: UnstackBalancesToReportYearInstantXbrl
+) -> pd.DataFrame:
+    """Turn start year end year rows into columns for each value type.
+
+    This function is utilized in :func:`process_instant_xbrl`.
+
+    There are some instant tables that report the start-of-year data and the
+    end-of-year data on seperate rows. The dbf version of the table has a column for the
+    starting data, a column for the ending data, and a row number that cooresponds with
+    the row literal that data represents: i.e., cost, etc.
+
+    This function unstacks that table and adds the suffixes ``_starting_balance`` and
+    ``_ending_balance`` to each of the columns. These may then be used as
+    ``value_types`` in the :func:`wide_to_tody` function to normalize the table.
+
+    There are two checks in place:
+
+    First, it will make sure that there are not multiple entries per year for the same
+    entiity_id. Ex: a row for 2020-12-31 and 2020-06-30 for entitiy_id X means that
+    there's more data here than is getting reported. We could just drop these mid-year
+    values, but we might want to keep them or at least check that there is no funny
+    business with the data.
+
+    It will also check that there are no mid-year dates period. If an entity reports
+    a value from the middle of the year, there is no telling whether that actually
+    represents the start or end balance and requires a closer look.
+    """
+    if params is None:
+        params = UnstackBalancesToReportYearInstantXbrl()
+    if params.unstack_balances_to_report_year:
+        df["year"] = pd.to_datetime(df["date"]).dt.year
+        if df.duplicated(["entity_id", "year"]).any():
+            raise AssertionError(
+                "Looks like there are multiple entries per year--not sure which to use "
+                "for the start/end balance."
+            )
+        if not pd.to_datetime(df["date"]).dt.is_year_end.all():
+            raise AssertionError(
+                "Looks like there are some values in here that aren't from the end of "
+                "the year. We can't use those to calculate start and end balances."
+            )
+        df.loc[df.report_year == (df.year + 1), "balance_type"] = "starting_balance"
+        df.loc[df.report_year == df.year, "balance_type"] = "ending_balance"
+        if not df.balance_type.notna().all():
+            # Remove rows from years that are not representative of start/end dates
+            # for a given report year (i.e., the report year and one year prior).
+            logger.warning(
+                f"Dropping unexpected years: "
+                f"{df.loc[df.balance_type.isna(), 'year'].unique()}"
+            )
+            df = df[df["balance_type"].notna()].copy()
+        df = (
+            df.drop(["year", "date"], axis="columns")
+            .set_index(["entity_id", "report_year", "balance_type"])
+            .unstack("balance_type")
+        )
+        # This turns a multi-index into a single-level index with tuples of strings
+        # as the keys, and then converts the tuples of strings into a single string
+        # by joining their values with an underscore. This results in column labels
+        # like boiler_plant_equipment_steam_production_starting_balance
+        df.columns = ["_".join(items) for items in df.columns.to_flat_index()]
+        df = df.reset_index()
+        return df
+
+
 class Ferc1TableTransformParams(TableTransformParams):
     """A model defining what TransformParams are allowed for FERC Form 1.
 
@@ -375,6 +452,9 @@ class Ferc1TableTransformParams(TableTransformParams):
     merge_xbrl_metadata: MergeXbrlMetadata = MergeXbrlMetadata()
     align_row_numbers_dbf: AlignRowNumbersDbf = AlignRowNumbersDbf()
     drop_duplicate_rows_dbf: DropDuplicateRowsDbf = DropDuplicateRowsDbf()
+    unstack_balances_to_report_year_instant_xbrl: UnstackBalancesToReportYearInstantXbrl = (
+        UnstackBalancesToReportYearInstantXbrl()
+    )
 
 
 ################################################################################
@@ -848,6 +928,19 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
             )
         return df
 
+    def unstack_balances_to_report_year_instant_xbrl(
+        self,
+        df: pd.DataFrame,
+        params: UnstackBalancesToReportYearInstantXbrl | None = None,
+    ) -> pd.DataFrame:
+        """Turn start year end year rows into columns for each value type."""
+        logger.info(f"{self.table_id.value}: Unstacking balances to the report years.")
+        if params is None:
+            params = self.params.unstack_balances_to_report_year_instant_xbrl
+        if params.unstack_balances_to_report_year:
+            df = unstack_balances_to_report_year_instant_xbrl(df, params=params)
+        return df
+
     @cache_df(key="xbrl")
     def wide_to_tidy(
         self,
@@ -997,7 +1090,9 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
         conventions of ~95% of all the columns, which we rely on programmatically when
         reshaping and concatenating these tables together.
         """
-        df = self.rename_columns(df, rename_stage="instant_xbrl")
+        df = self.rename_columns(df, rename_stage="instant_xbrl").pipe(
+            self.unstack_balances_to_report_year_instant_xbrl
+        )
         return df
 
     @cache_df("process_duration_xbrl")
@@ -1669,40 +1764,6 @@ class PlantInServiceFerc1TableTransformer(Ferc1AbstractTableTransformer):
 
     table_id: TableIdFerc1 = TableIdFerc1.PLANT_IN_SERVICE_FERC1
     has_unique_record_ids: bool = False
-
-    @cache_df("process_instant_xbrl")
-    def process_instant_xbrl(self, df: pd.DataFrame) -> pd.DataFrame:
-        """Pre-processing required to make the instant and duration tables compatible.
-
-        Each year the plant account balances are reported twice, in two separate
-        records: one for the end of the previous year, and one for the end of the
-        current year, with appropriate dates for the two year ends. Here we are
-        reshaping the table so that we instead have two columns: ``starting_balance``
-        and ``ending_balance`` that both pertain to the current year, so that all of
-        the records pertaining to a single ``report_year`` can be identified without
-        dealing with the instant / duration distinction.
-        """
-        df = super().process_instant_xbrl(df)
-        df["year"] = pd.to_datetime(df["date"]).dt.year
-        df.loc[df.report_year == (df.year + 1), "balance_type"] = "starting_balance"
-        df.loc[df.report_year == df.year, "balance_type"] = "ending_balance"
-        if not df.balance_type.notna().all():
-            raise ValueError(
-                f"Unexpected years found in the {self.table_id.value} table: "
-                f"{df.loc[df.balance_type.isna(), 'year'].unique()}"
-            )
-        df = (
-            df.drop(["year", "date"], axis="columns")
-            .set_index(["entity_id", "report_year", "balance_type"])
-            .unstack("balance_type")
-        )
-        # This turns a multi-index into a single-level index with tuples of strings as
-        # the keys, and then converts the tuples of strings into a single string by
-        # joining their values with an underscore. This results in column labels like
-        # boiler_plant_equipment_steam_production_starting_balance
-        # Is there a better way?
-        df.columns = ["_".join(items) for items in df.columns.to_flat_index()]
-        return df.reset_index()
 
     @cache_df("process_xbrl_metadata")
     def process_xbrl_metadata(self, xbrl_metadata_json) -> pd.DataFrame:
@@ -2785,48 +2846,18 @@ class UtilityPlantSummaryFerc1TableTransformer(Ferc1AbstractTableTransformer):
     has_unique_record_ids: bool = False
 
 
+class BalanceSheetLiabilitiesFerc1TableTransformer(Ferc1AbstractTableTransformer):
+    """Transformer class for :ref:`balance_sheet_liabilities_ferc1` table."""
+
+    table_id: TableIdFerc1 = TableIdFerc1.BALANCE_SHEET_LIABILITIES
+    has_unique_record_ids: bool = False
+
+
 class BalanceSheetAssetsFerc1TableTransformer(Ferc1AbstractTableTransformer):
     """Transformer class for :ref:`balance_sheet_assets_ferc1` table."""
 
     table_id: TableIdFerc1 = TableIdFerc1.BALANCE_SHEET_ASSETS_FERC1
     has_unique_record_ids: bool = False
-
-    @cache_df("process_instant_xbrl")
-    def process_instant_xbrl(self, df: pd.DataFrame) -> pd.DataFrame:
-        """Pre-processing required to make the instant and duration tables compatible.
-
-        Each year the plant account balances are reported twice, in two separate
-        records: one for the end of the previous year, and one for the end of the
-        current year, with appropriate dates for the two year ends. Here we are
-        reshaping the table so that we instead have two columns: ``starting_balance``
-        and ``ending_balance`` that both pertain to the current year, so that all of
-        the records pertaining to a single ``report_year`` can be identified without
-        dealing with the instant / duration distinction.
-
-        NOTE: this is a copy/paste from the plant in service table. We should probably
-        generalize & parameterize it. Right now it looks like it would *only* be a bool.
-        """
-        df = super().process_instant_xbrl(df)
-        df["year"] = pd.to_datetime(df["date"]).dt.year
-        df.loc[df.report_year == (df.year + 1), "balance_type"] = "starting_balance"
-        df.loc[df.report_year == df.year, "balance_type"] = "ending_balance"
-        if not df.balance_type.notna().all():
-            raise ValueError(
-                f"Unexpected years found in the {self.table_id.value} table: "
-                f"{df.loc[df.balance_type.isna(), 'year'].unique()}"
-            )
-        df = (
-            df.drop(["year", "date"], axis="columns")
-            .set_index(["entity_id", "report_year", "balance_type"])
-            .unstack("balance_type")
-        )
-        # This turns a multi-index into a single-level index with tuples of strings as
-        # the keys, and then converts the tuples of strings into a single string by
-        # joining their values with an underscore. This results in column labels like
-        # boiler_plant_equipment_steam_production_starting_balance
-        # Is there a better way?
-        df.columns = ["_".join(items) for items in df.columns.to_flat_index()]
-        return df.reset_index()
 
 
 class IncomeStatementFerc1TableTransformer(Ferc1AbstractTableTransformer):
@@ -2965,6 +2996,7 @@ def transform(
         "electric_energy_sources_ferc1": ElectricEnergySourcesFerc1TableTransformer,
         "electric_energy_dispositions_ferc1": ElectricEnergyDispositionsFerc1TableTransformer,
         "utility_plant_summary_ferc1": UtilityPlantSummaryFerc1TableTransformer,
+        "balance_sheet_liabilities_ferc1": BalanceSheetLiabilitiesFerc1TableTransformer,
         "depreciation_amortization_summary_ferc1": DepreciationAmortizationSummaryFerc1TableTransformer,
         "balance_sheet_assets_ferc1": BalanceSheetAssetsFerc1TableTransformer,
         "income_statement_ferc1": IncomeStatementFerc1TableTransformer,
