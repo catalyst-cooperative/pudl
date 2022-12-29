@@ -10,10 +10,12 @@ from pudl.transform.ferc1 import (
     DropDuplicateRowsDbf,
     Ferc1AbstractTableTransformer,
     TableIdFerc1,
+    UnstackBalancesToReportYearInstantXbrl,
     WideToTidy,
     drop_duplicate_rows_dbf,
     fill_dbf_to_xbrl_map,
     read_dbf_to_xbrl_map,
+    unstack_balances_to_report_year_instant_xbrl,
     wide_to_tidy,
 )
 
@@ -330,3 +332,47 @@ report_year,utility_id_ferc1,asset_type,data_col1,data_col2
     )
     with pytest.raises(AssertionError):
         drop_duplicate_rows_dbf(df_null_w_unique_data, params=params)
+
+
+def test_unstack_balances_to_report_year_instant_xbrl():
+    """Test :meth:`unstack_balances_to_report_year_instant_xbrl`."""
+    df = pd.read_csv(
+        StringIO(
+            """
+idx,entity_id,date,report_year,test_value
+0,1,2021-12-31,2021,2000
+1,1,2020-12-31,2021,1000
+2,2,2021-12-31,2021,21000
+3,2,2020-12-31,2021,8000
+"""
+        ),
+    )
+    params = UnstackBalancesToReportYearInstantXbrl(
+        unstack_balances_to_report_year=True
+    )
+    df_out = unstack_balances_to_report_year_instant_xbrl(df=df.copy(), params=params)
+    df_expected = pd.read_csv(
+        StringIO(
+            """
+entity_id,report_year,idx_ending_balance,idx_starting_balance,test_value_ending_balance,test_value_starting_balance
+1,2021,0,1,2000,1000
+2,2021,2,3,21000,8000
+        """
+        ),
+    )
+    pd.testing.assert_frame_equal(df_out, df_expected)
+
+    # If there is more than one value per year (not report year) an AssertionError
+    # should raise
+    df_non_unique_years = df.copy()
+    df_non_unique_years.loc[4] = [4, 2, "2020-12-31", 2021, 500]
+    with pytest.raises(AssertionError):
+        unstack_balances_to_report_year_instant_xbrl(df_non_unique_years, params=params)
+
+    # If there are mid-year values an AssertionError should raise
+    df_mid_year = df.copy()
+    df_mid_year.loc[
+        (df_mid_year["entity_id"] == 2) & (df_mid_year["date"] == "2020-12-31"), "date"
+    ] = "2020-06-30"
+    with pytest.raises(AssertionError):
+        unstack_balances_to_report_year_instant_xbrl(df_non_unique_years, params=params)
