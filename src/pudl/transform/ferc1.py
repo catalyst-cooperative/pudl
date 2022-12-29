@@ -876,10 +876,7 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
             .pipe(self.assign_record_id, source_ferc1=SourceFerc1.DBF)
             .pipe(self.drop_unused_original_columns_dbf)
             .pipe(self.assign_utility_id_ferc1, source_ferc1=SourceFerc1.DBF)
-            .pipe(
-                self.wide_to_tidy,
-                source_ferc1=SourceFerc1.DBF,
-            )
+            .pipe(self.wide_to_tidy, source_ferc1=SourceFerc1.DBF)
             .pipe(self.drop_duplicate_rows_dbf)
         )
 
@@ -898,10 +895,7 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
             .pipe(self.wide_to_tidy, source_ferc1=SourceFerc1.XBRL)
             .pipe(self.rename_columns, rename_stage="xbrl")
             .pipe(self.assign_record_id, source_ferc1=SourceFerc1.XBRL)
-            .pipe(
-                self.assign_utility_id_ferc1,
-                source_ferc1=SourceFerc1.XBRL,
-            )
+            .pipe(self.assign_utility_id_ferc1, source_ferc1=SourceFerc1.XBRL)
         )
 
     def rename_columns(
@@ -3070,6 +3064,108 @@ class DepreciationAmortizationSummaryFerc1TableTransformer(
 
     table_id: TableIdFerc1 = TableIdFerc1.DEPRECIATION_AMORTIZATION_SUMMARY_FERC1
     has_unique_record_ids: bool = False
+
+    def process_dbf(self, raw_dbf: pd.DataFrame) -> pd.DataFrame:
+        """Preform generic :meth:`process_dbf`, plus condense date duplicates."""
+        processed_dbf = (
+            super()
+            .process_dbf(raw_dbf)
+            .pipe(self.condense_double_year_earnings_types_dbf)
+        )
+        return processed_dbf
+
+    def condense_double_year_earnings_types_dbf(self, df: pd.DataFrame) -> pd.DataFrame:
+        """Condense current and past year data reported in 1 report_year into 1 record.
+
+        The DBF table includes two different earnings types that have: "Begining of
+        Period" and "End of Period" rows. But the table has both an amount column that
+        corresponds to a balance and a starting balance column. For these two earnings
+        types, this means that there is in effect two years of data in this table for
+        each report year: a starting and ending balance for the pervious year and a
+        starting and ending balance for the current year. The ending balance for the
+        previous year should be the same as the starting balance for the current year.
+
+        We don't actually want two years of data for each report year, so we want to
+        check these assumptions, extract as much information from these two years of
+        data, but end up with only one annual record for each of these two earnings
+        types for each utility.
+
+        Raises:
+            AssertionError: There are a very small number of instances in which the
+                ending balance from the previous year does not match the starting
+                balance from the current year. The % of these non-matching instances
+                should be less than 1% of the records with these date duplicative
+                earnings types.
+        """
+        current_year_types = [
+            "unappropriated_undistributed_subsidiary_earnings_current_year",
+            "unappropriated_retained_earnings_current_year",
+        ]
+        previous_year_types = [
+            "unappropriated_undistributed_subsidiary_earnings_previous_year",
+            "unappropriated_retained_earnings_previous_year",
+        ]
+        # assign copies so no need to double copy when extracting this slice
+        current_year = df[df.earnings_type.isin(current_year_types)].assign(
+            earnings_type=lambda x: x.earnings_type.str.removesuffix("_current_year")
+        )
+        previous_year = df[df.earnings_type.isin(previous_year_types)].assign(
+            earnings_type=lambda x: x.earnings_type.str.removesuffix("_previous_year")
+        )
+        idx = [
+            "utility_id_ferc1_dbf",
+            "report_year",
+            "utility_id_ferc1",
+            "earnings_type",
+        ]
+        data_columns = ["amount", "starting_balance"]
+        date_dupe_types = pd.merge(
+            current_year,
+            previous_year[idx + data_columns],
+            on=idx,
+            how="outer",
+            suffixes=("", "_previous_year"),
+        )
+
+        date_dupe_types.loc[:, "ending_balance"] = pd.NA
+        # check if the starting balance from the current year is actually
+        # the amount from the previous year
+        date_mismatch = date_dupe_types[
+            ~np.isclose(
+                date_dupe_types.starting_balance,
+                date_dupe_types.amount_previous_year,
+                equal_nan=True,
+            )
+            & (date_dupe_types.starting_balance.notnull())
+            & (date_dupe_types.amount_previous_year.notnull())
+        ]
+        data_mismatch_ratio = len(date_mismatch) / len(date_dupe_types)
+        if data_mismatch_ratio > 0.01:
+            raise AssertionError(
+                "More records than expected have data that is not the same in "
+                "the starting_balance vs the amount column for the earnings_type "
+                "that reports both current and previous year. % of mismatch records: "
+                f"{data_mismatch_ratio:.01%} (expected less than 1%)"
+            )
+
+        # the amount from the current year values should be the ending balance.
+        # the amount from the previous year should fill in the starting balance
+        # then drop all of the _previous_year columns
+        date_dupe_types = date_dupe_types.assign(
+            ending_balance=lambda x: x.amount,
+            amount=pd.NA,
+            starting_balance=lambda x: x.starting_balance.fillna(
+                x.amount_previous_year
+            ),
+        ).drop(columns=["amount_previous_year", "starting_balance_previous_year"])
+
+        df = pd.concat(
+            [
+                df[~df.earnings_type.isin(current_year_types + previous_year_types)],
+                date_dupe_types,
+            ]
+        )
+        return df
 
     def merge_xbrl_metadata(
         self, df: pd.DataFrame, params: MergeXbrlMetadata | None = None

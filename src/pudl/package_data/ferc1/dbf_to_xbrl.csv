@@ -3215,7 +3215,7 @@ f1_respdnt_control,24,1994,Line 24,,,,
 f1_respdnt_control,25,1994,Line 25,,,,
 f1_respdnt_control,26,1994,Line 26,,,,
 f1_respdnt_control,27,1994,Line 27,,,,
-f1_retained_erng,1,1994,Balance-Beginning of Year,reported_value,unappropriated_retained_earnings,,_starting_balance
+f1_retained_erng,1,1994,Balance-Beginning of Year,reported_value,unappropriated_retained_earnings_previous_year,,
 f1_retained_erng,2,1994,Changes,header,,,
 f1_retained_erng,3,1994,Adjustments to Retained Earnings (Account 439),header,#N/A,,
 f1_retained_erng,4,1994,Credit:,reported_value,adjustments_to_retained_earnings_credit_unstructured,,
@@ -3252,7 +3252,7 @@ f1_retained_erng,34,1994,Line 34,reported_value,dividends_declared_common_stock_
 f1_retained_erng,35,1994,Line 35,reported_value,dividends_declared_common_stock_unstructured,,
 f1_retained_erng,36,1994,TOTAL Dividends Declared-Common Stock (Acct. 438),calculated_value,dividends_declared_common_stock,,
 f1_retained_erng,37,1994,"Transfers from Acct 216.1, Unapprop. Undistrib. Subsidiary Earnings",reported_value,transfers_from_unappropriated_undistributed_subsidiary_earnings,,
-f1_retained_erng,38,1994,"Balance - End of Year (Total 1,9,15,16,22,29,36,37)",calculcated_value,unappropriated_retained_earnings,,_ending_balance
+f1_retained_erng,38,1994,"Balance - End of Year (Total 1,9,15,16,22,29,36,37)",calculcated_value,unappropriated_retained_earnings_current_year,,
 f1_retained_erng,39,1994,Line 39,reported_value,appropriated_retained_earnings_unstructured,,
 f1_retained_erng,40,1994,Line 40,reported_value,appropriated_retained_earnings_unstructured,,
 f1_retained_erng,41,1994,Line 41,reported_value,appropriated_retained_earnings_unstructured,,
@@ -3263,13 +3263,13 @@ f1_retained_erng,45,1994,TOTAL Appropriated Retained Earnings (Account 215),calc
 f1_retained_erng,46,1994,"TOTAL Approp. Retained Earnings-Amort. Reserve, Federal (Acct. 215.1)",reported_value,appropriated_retained_earnings_amortization_reserve_federal,,
 f1_retained_erng,47,1994,"TOTAL Approp. Retained Earnings (Acct. 215, 215.1) (Total 45,46)",calculated_value,appropriated_retained_earnings_including_reserve_amortization,,
 f1_retained_erng,48,1994,"TOTAL Retained Earnings (Account 215, 215.1, 216) (Total 38, 47)",calculated_value,retained_earnings,,
-f1_retained_erng,49,1994,Balance-Beginning of Year (Debit or Credit),reported_value,unappropriated_undistributed_subsidiary_earnings,,_starting_balance
+f1_retained_erng,49,1994,Balance-Beginning of Year (Debit or Credit),reported_value,unappropriated_undistributed_subsidiary_earnings_previous_year,,
 f1_retained_erng,50,1994,Equity in Earnings for Year (Credit) (Account 418.1),reported_value,equity_in_earnings_of_subsidiary_companies,,
 f1_retained_erng,51,1994,(Less) Dividends Received (Debit),reported_value,dividends_received,,
 f1_retained_erng,52,1994,Other Changes (Explain),reported_value,changes_unappropriated_undistributed_subsidiary_earnings_credits,,
-f1_retained_erng,53,1994,Balance-End of Year (Total lines 49 thru 52),calculated_value,unappropriated_undistributed_subsidiary_earnings,,_ending_balance
-f1_retained_erng,1,2004,Balance-Beginning of Period,reported_value,unappropriated_retained_earnings,,_starting_balance
-f1_retained_erng,38,2004,"Balance - End of Period (Total 1,9,15,16,22,29,36,37)",calculcated_value,unappropriated_retained_earnings,,_ending_balance
+f1_retained_erng,53,1994,Balance-End of Year (Total lines 49 thru 52),calculated_value,unappropriated_undistributed_subsidiary_earnings_current_year,,
+f1_retained_erng,1,2004,Balance-Beginning of Period,reported_value,unappropriated_retained_earnings_previous_year,,
+f1_retained_erng,38,2004,"Balance - End of Period (Total 1,9,15,16,22,29,36,37)",calculcated_value,unappropriated_retained_earnings_current_year,,
 f1_retained_erng,48,2004,"TOTAL Retained Earnings (Acct. 215, 215.1, 216) (Total 38, 47) (216.1)",calculated_value,retained_earnings,,
 f1_rg_trn_srv_rev,1,2006,Line 1,,,,
 f1_rg_trn_srv_rev,2,2006,Line 2,,,,
