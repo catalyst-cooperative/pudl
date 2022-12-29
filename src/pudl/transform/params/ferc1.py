@@ -3457,6 +3457,9 @@ TRANSFORM_PARAMS = {
             "select_based_on_xbrl_category": True,
             "expected_categories_to_drop": 6,
         },
+        "unstack_balances_to_report_year_instant_xbrl": {
+            "unstack_balances_to_report_year": True
+        },
         "merge_xbrl_metadata": {
             "rename_columns": {"xbrl_factoid": "earnings_type"},
             "on": "earnings_type",

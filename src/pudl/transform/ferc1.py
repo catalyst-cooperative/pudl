@@ -3018,45 +3018,14 @@ class RetainedEarningsFerc1TableTransformer(Ferc1AbstractTableTransformer):
     table_id: TableIdFerc1 = TableIdFerc1.RETAINED_EARNINGS_FERC1
     has_unique_record_ids: bool = False
 
-    @cache_df("process_instant_xbrl")
-    def process_instant_xbrl(self, df: pd.DataFrame) -> pd.DataFrame:
-        """Pre-processing required to make the instant and duration tables compatible.
-
-        Each year the plant account balances are reported twice, in two separate
-        records: one for the end of the previous year, and one for the end of the
-        current year, with appropriate dates for the two year ends. Here we are
-        reshaping the table so that we instead have two columns: ``starting_balance``
-        and ``ending_balance`` that both pertain to the current year, so that all of
-        the records pertaining to a single ``report_year`` can be identified without
-        dealing with the instant / duration distinction.
-
-        NOTE: this is a copy/paste from the plant in service table. We should probably
-        generalize & parameterize it. Right now it looks like it would *only* be a bool.
-        """
-        df = super().process_instant_xbrl(df)
-        df["year"] = pd.to_datetime(df["date"]).dt.year
-        df.loc[df.report_year == (df.year + 1), "balance_type"] = "starting_balance"
-        df.loc[df.report_year == df.year, "balance_type"] = "ending_balance"
-        if not df.balance_type.notna().all():
-            raise ValueError(
-                f"Unexpected years found in the {self.table_id.value} table: "
-                f"{df.loc[df.balance_type.isna(), 'year'].unique()}"
-            )
-        df = (
-            df.drop(["year", "date"], axis="columns")
-            .set_index(["entity_id", "report_year", "balance_type"])
-            .unstack("balance_type")
-        )
-        # This turns a multi-index into a single-level index with tuples of strings as
-        # the keys, and then converts the tuples of strings into a single string by
-        # joining their values with an underscore. This results in column labels like
-        # boiler_plant_equipment_steam_production_starting_balance
-        # Is there a better way?
-        df.columns = ["_".join(items) for items in df.columns.to_flat_index()]
-        return df.reset_index()
-
     def process_dbf(self, raw_dbf: pd.DataFrame) -> pd.DataFrame:
-        """Preform generic :meth:`process_dbf`, plus condense date duplicates."""
+        """Preform generic :meth:`process_dbf`, plus deal with duplicates.
+
+        Along with the standard processing in
+        :meth:`Ferc1AbstractTableTransformer.process_dbf`, this method runs:
+        * :meth:`targeted_drop_duplicates_dbf`
+        * :meth:`condense_double_year_earnings_types_dbf`
+        """
         processed_dbf = (
             super()
             .process_dbf(raw_dbf)
