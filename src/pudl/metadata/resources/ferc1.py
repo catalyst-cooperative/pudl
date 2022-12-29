@@ -28,6 +28,56 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
         "etl_group": "ferc1",
         "field_namespace": "ferc1",
     },
+    "balance_sheet_liabilities_ferc1": {
+        "description": "Comparative balance sheet (liabilities and other credits)",
+        "schema": {
+            "fields": [
+                "record_id",
+                "report_year",
+                "utility_id_ferc1",
+                "starting_balance",
+                "ending_balance",
+                "liability_type",
+                "balance",
+                "ferc_account",
+                "row_type_xbrl",
+            ],
+            "primary_key": [
+                "utility_id_ferc1",
+                "report_year",
+                "liability_type",
+            ],
+        },
+        "sources": ["ferc1"],
+        "etl_group": "ferc1",
+        "field_namespace": "ferc1",
+    },
+    "depreciation_amortization_summary_ferc1": {
+        "description": (
+            "Depreciation and Amortization of Electric Plan (Account 403, 404, 405) "
+            "Section A: Summary of depreciation and amortization changes. "
+            "Schedule 336a of FERC Form 1."
+        ),
+        "schema": {
+            "fields": [
+                "utility_id_ferc1",
+                "report_year",
+                "functional_classification",
+                "ferc_account_label",
+                "ferc_account",
+                "depreciation_amortization_value",
+            ],
+            "primary_key": [
+                "utility_id_ferc1",
+                "report_year",
+                "functional_classification",
+                "ferc_account_label",
+            ],
+        },
+        "sources": ["ferc1"],
+        "etl_group": "ferc1",
+        "field_namespace": "ferc1",
+    },
     "electric_energy_sources_ferc1": {
         "description": (
             "Electric Energy Account, sources only. Schedule 401a. Amount of "
@@ -453,6 +503,39 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
         "etl_group": "ferc1",
         "field_namespace": "ferc1",
     },
+    "transmission_statistics_ferc1": {
+        "description": (
+            "Transmission Line Statistics. Schedule 422 of FERC Form 1. Information "
+            "describing transmission lines, the cost of lines, annual operating and "
+            "capital expenses, etc."
+        ),
+        "schema": {
+            "fields": [
+                "record_id",
+                "utility_id_ferc1",
+                "report_year",
+                "start_point",
+                "end_point",
+                "operating_voltage_kv",
+                "designed_voltage_kv",
+                "supporting_structure_type",
+                "transmission_line_length_miles",
+                "transmission_line_and_structures_length_miles",
+                "num_transmission_circuits",
+                "conductor_size_and_material",
+                "capex_land",
+                "capex_other",
+                "capex_total",
+                "opex_operations",
+                "opex_maintenance",
+                "opex_rents",
+                "opex_total",
+            ],
+        },
+        "sources": ["ferc1"],
+        "etl_group": "ferc1",
+        "field_namespace": "ferc1",
+    },
     "utilities_ferc1": {
         "description": "This table maps two manually assigned utility IDs: a PUDL ID and a FERC1 ID. The PUDL ID maps EIA and FERC1 utilities. The FERC1 ID maps the older DBF respondent IDs to new XBRL entity IDs. This table is generated from a table stored in the PUDL repository: src/package_data/glue/utility_id_pudl.csv",
         "schema": {
@@ -506,65 +589,6 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
                 "report_year",
                 "utility_type",
                 "utility_plant_asset_type",
-            ],
-        },
-        "sources": ["ferc1"],
-        "etl_group": "ferc1",
-        "field_namespace": "ferc1",
-    },
-    "depreciation_amortization_summary_ferc1": {
-        "description": (
-            "Depreciation and Amortization of Electric Plan (Account 403, 404, 405) "
-            "Section A: Summary of depreciation and amortization changes. "
-            "Schedule 336a of FERC Form 1."
-        ),
-        "schema": {
-            "fields": [
-                "utility_id_ferc1",
-                "report_year",
-                "functional_classification",
-                "ferc_account_label",
-                "ferc_account",
-                "depreciation_amortization_value",
-            ],
-            "primary_key": [
-                "utility_id_ferc1",
-                "report_year",
-                "functional_classification",
-                "ferc_account_label",
-            ],
-        },
-        "sources": ["ferc1"],
-        "etl_group": "ferc1",
-        "field_namespace": "ferc1",
-    },
-    "transmission_statistics_ferc1": {
-        "description": (
-            "Transmission Line Statistics. Schedule 422 of FERC Form 1. Information "
-            "describing transmission lines, the cost of lines, annual operating and "
-            "capital expenses, etc."
-        ),
-        "schema": {
-            "fields": [
-                "record_id",
-                "utility_id_ferc1",
-                "report_year",
-                "start_point",
-                "end_point",
-                "operating_voltage_kv",
-                "designed_voltage_kv",
-                "supporting_structure_type",
-                "transmission_line_length_miles",
-                "transmission_line_and_structures_length_miles",
-                "num_transmission_circuits",
-                "conductor_size_and_material",
-                "capex_land",
-                "capex_other",
-                "capex_total",
-                "opex_operations",
-                "opex_maintenance",
-                "opex_rents",
-                "opex_total",
             ],
         },
         "sources": ["ferc1"],

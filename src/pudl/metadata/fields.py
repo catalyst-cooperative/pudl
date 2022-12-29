@@ -859,6 +859,10 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "description": "Electric Plant Leased to Others (USD).",
         "unit": "USD",
     },
+    "liability_type": {
+        "type": "string",
+        "description": "Type of liability being reported to the balance_sheet_liabilities_ferc1 table.",
+    },
     "line_id": {
         "type": "string",
         "description": "A human readable string uniquely identifying the FERC depreciation account. Used in lieu of the actual line number, as those numbers are not guaranteed to be consistent from year to year.",
