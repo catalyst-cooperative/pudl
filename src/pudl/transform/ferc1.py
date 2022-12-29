@@ -2936,6 +2936,31 @@ class ElectricPlantDepreciationChangesFerc1TableTransformer(
     table_id: TableIdFerc1 = TableIdFerc1.ELECTRIC_PLANT_DEPRECIATION_CHANGES_FERC1
     has_unique_record_ids: bool = False
 
+    @cache_df("process_xbrl_metadata")
+    def process_xbrl_metadata(self, xbrl_metadata_json) -> pd.DataFrame:
+        """Transform the metadata to reflect the transformed data.
+
+        Replace the name of the balance column reported in the XBRL Instant table with
+        starting_balance / ending_balance since we pull those two values into their own
+        separate labeled rows, each of which should get the original metadata for the
+        Instant column.
+        """
+        meta = (
+            super()
+            .process_xbrl_metadata(xbrl_metadata_json)
+            .assign(
+                xbrl_factoid=lambda x: x.xbrl_factoid.replace(
+                    {
+                        "accumulated_provision_for_depreciation_of_electric_utility_plant": "starting_balance"
+                    }
+                )
+            )
+        )
+        ending_balance = meta[meta.xbrl_factoid == "starting_balance"].assign(
+            xbrl_factoid="ending_balance"
+        )
+        return pd.concat([meta, ending_balance])
+
     @cache_df("dbf")
     def process_dbf(self, df: pd.DataFrame) -> pd.DataFrame:
         """Accumulated Depreciation table specific DBF cleaning operations.
@@ -2969,6 +2994,9 @@ class ElectricPlantDepreciationChangesFerc1TableTransformer(
             "ending_balance_functional",
         ]
         df = super().process_dbf(df).assign(utility_type="electric")
+        df.loc[
+            df.ferc_account_label == "ending_balance_accounts", "ferc_account_label"
+        ] = "ending_balance"
         df = df.loc[~df.ferc_account_label.isin(excluded_labels)]
         return df
 

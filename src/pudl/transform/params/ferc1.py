@@ -3644,6 +3644,10 @@ TRANSFORM_PARAMS = {
                 "stacked_column_name": "ferc_account_label",
             },
         },
+        "merge_xbrl_metadata": {
+            "rename_columns": {"xbrl_factoid": "ferc_account_label"},
+            "on": "ferc_account_label",
+        },
     },
 }
 

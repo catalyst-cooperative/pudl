@@ -90,6 +90,9 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
                 "utility_type",
                 "utility_plant_value",
                 "record_id",
+                "balance",
+                "ferc_account",
+                "row_type_xbrl",
             ],
             "primary_key": [
                 "utility_id_ferc1",

@@ -560,7 +560,7 @@ f1_accumdepr_prvsn,24,2003,Other Production,reported_value,accumulated_depreciat
 f1_accumdepr_prvsn,25,2003,Transmission,reported_value,accumulated_depreciation_transmission,,
 f1_accumdepr_prvsn,26,2003,Distribution,reported_value,accumulated_depreciation_distribution,,
 f1_accumdepr_prvsn,27,2003,General,reported_value,accumulated_depreciation_general,,
-f1_accumdepr_prvsn,28,2003,TOTAL (Enter Total of lines 20 thru 27),calculated_value,accumulated_provision_for_depreciation_of_electric_utility_plant,,
+f1_accumdepr_prvsn,28,2003,TOTAL (Enter Total of lines 20 thru 27),calculated_value,ending_balance_functional,,"Corresponds to accumulated_provision_for_depreciation_of_electric_utility_plant in XBRL instant table, but here we have to differentiate between the starting and 2 separate copies of the ending balances."
 f1_accumdepr_prvsn,27,2006,Regional Transmission and Market Operation,reported_value,accumulated_depreciation_regional_transmission_and_market_operation,,
 f1_accumdepr_prvsn,28,2006,General,reported_value,accumulated_depreciation_general,,
 f1_accumdepr_prvsn,29,2006,TOTAL (Enter Total of lines 20 thru 28),calculated_value,ending_balance_functional,,"Corresponds to accumulated_provision_for_depreciation_of_electric_utility_plant in XBRL instant table, but here we have to differentiate between the starting and 2 separate copies of the ending balances."
