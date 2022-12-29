@@ -3024,55 +3024,44 @@ class RetainedEarningsFerc1TableTransformer(Ferc1AbstractTableTransformer):
         df.columns = ["_".join(items) for items in df.columns.to_flat_index()]
         return df.reset_index()
 
-    @cache_df("process_xbrl_metadata")
-    def process_xbrl_metadata(self, xbrl_metadata_json) -> pd.DataFrame:
-        """Transform the metadata to reflect the transformed data.
-
-        Run the generic :func:`process_xbrl_metadata` and then remove some suffixes that
-        were removed during :meth:`wide_to_tidy`.
-        """
-        meta = (
-            super()
-            .process_xbrl_metadata(xbrl_metadata_json)
-            .assign(
-                # we
-                xbrl_factoid=lambda x: x.xbrl_factoid.str.removesuffix(
-                    "_contra_primary_account_affected"
-                ).str.removesuffix("_primary_contra_account_affected")
-            )
-            .drop_duplicates(subset=["xbrl_factoid"], keep="first")
-        )
-        return meta
-
-
-class RetainedEarningsAppropriationsFerc1TableTransformer(
-    Ferc1AbstractTableTransformer
-):
-    """Transformer class for unstructured parts of :ref:`retained_earnings_ferc1`.
-
-    Very very WIP.
-    """
-
-    table_id: TableIdFerc1 = TableIdFerc1.RETAINED_EARNINGS_APPROPRIATIONS_FERC1
-    has_unique_record_ids: bool = False
-
-
-class DepreciationAmortizationSummaryFerc1TableTransformer(
-    Ferc1AbstractTableTransformer
-):
-    """Transformer class for :ref:`depreciation_amortization_summary_ferc1` table."""
-
-    table_id: TableIdFerc1 = TableIdFerc1.DEPRECIATION_AMORTIZATION_SUMMARY_FERC1
-    has_unique_record_ids: bool = False
-
     def process_dbf(self, raw_dbf: pd.DataFrame) -> pd.DataFrame:
         """Preform generic :meth:`process_dbf`, plus condense date duplicates."""
         processed_dbf = (
             super()
             .process_dbf(raw_dbf)
+            .pipe(self.targeted_drop_duplicates_dbf)
             .pipe(self.condense_double_year_earnings_types_dbf)
         )
         return processed_dbf
+
+    def targeted_drop_duplicates_dbf(self, df: pd.DataFrame) -> pd.DataFrame:
+        """Drop duplicates with truly duplicate data.
+
+        There are instances of utilities that reported multiple values for several
+        earnings types for a specific year (utility_id_ferc1 68 in 1998 &
+        utility_id_ferc1 296 in 2015). We are taking the largest value reported and
+        dropping the rest. There very well could be a better strategey here, but there
+        are only 25 records that have this problem, so we've going with this.
+        """
+        pks = (
+            pudl.metadata.classes.Package.from_resource_ids()
+            .get_resource(self.table_id.value)
+            .schema.primary_key
+        )
+        # we are not going to check all of the unstructed earnings types for dupes bc
+        # we will drop these later
+        dupe_mask = ~df.earnings_type.str.endswith("_unstructured") & df.duplicated(
+            subset=pks, keep=False
+        )
+        dupes = df[dupe_mask]
+        if len(dupes) > 25:
+            raise AssertionError("Too many duplicates found.")
+        # we are simply sorting to get the biggest value and dropping the rest.
+        dupes = dupes.sort_values(
+            ["starting_balance", "amount"], ascending=False
+        ).drop_duplicates(subset=pks)
+        df = pd.concat([df[~dupe_mask], dupes])
+        return df
 
     def condense_double_year_earnings_types_dbf(self, df: pd.DataFrame) -> pd.DataFrame:
         """Condense current and past year data reported in 1 report_year into 1 record.
@@ -3097,6 +3086,7 @@ class DepreciationAmortizationSummaryFerc1TableTransformer(
                 should be less than 1% of the records with these date duplicative
                 earnings types.
         """
+        logger.info(f"{self.table_id.value}: Removing previous year's data.")
         current_year_types = [
             "unappropriated_undistributed_subsidiary_earnings_current_year",
             "unappropriated_retained_earnings_current_year",
@@ -3166,6 +3156,47 @@ class DepreciationAmortizationSummaryFerc1TableTransformer(
             ]
         )
         return df
+
+    @cache_df("process_xbrl_metadata")
+    def process_xbrl_metadata(self, xbrl_metadata_json) -> pd.DataFrame:
+        """Transform the metadata to reflect the transformed data.
+
+        Run the generic :func:`process_xbrl_metadata` and then remove some suffixes that
+        were removed during :meth:`wide_to_tidy`.
+        """
+        meta = (
+            super()
+            .process_xbrl_metadata(xbrl_metadata_json)
+            .assign(
+                # we
+                xbrl_factoid=lambda x: x.xbrl_factoid.str.removesuffix(
+                    "_contra_primary_account_affected"
+                ).str.removesuffix("_primary_contra_account_affected")
+            )
+            .drop_duplicates(subset=["xbrl_factoid"], keep="first")
+        )
+        return meta
+
+
+class RetainedEarningsAppropriationsFerc1TableTransformer(
+    Ferc1AbstractTableTransformer
+):
+    """Transformer class for unstructured parts of :ref:`retained_earnings_ferc1`.
+
+    Very very WIP.
+    """
+
+    table_id: TableIdFerc1 = TableIdFerc1.RETAINED_EARNINGS_APPROPRIATIONS_FERC1
+    has_unique_record_ids: bool = False
+
+
+class DepreciationAmortizationSummaryFerc1TableTransformer(
+    Ferc1AbstractTableTransformer
+):
+    """Transformer class for :ref:`depreciation_amortization_summary_ferc1` table."""
+
+    table_id: TableIdFerc1 = TableIdFerc1.DEPRECIATION_AMORTIZATION_SUMMARY_FERC1
+    has_unique_record_ids: bool = False
 
     def merge_xbrl_metadata(
         self, df: pd.DataFrame, params: MergeXbrlMetadata | None = None

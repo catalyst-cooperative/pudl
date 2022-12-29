@@ -474,11 +474,11 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
                 "starting_balance",
                 "ending_balance",
             ],
-            # "primary_key": [
-            #     "utility_id_ferc1",
-            #     "report_year",
-            #     "earnings_type",
-            # ],
+            "primary_key": [
+                "utility_id_ferc1",
+                "report_year",
+                "earnings_type",
+            ],
         },
         "sources": ["ferc1"],
         "etl_group": "ferc1",
