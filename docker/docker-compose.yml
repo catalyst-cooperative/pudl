@@ -3,6 +3,7 @@
 
 services:
   pudl-etl:
+    platform: linux/x86_64 # Need to specify x84 because M1 chips default to use ARM: https://stackoverflow.com/questions/68630526/lib64-ld-linux-x86-64-so-2-no-such-file-or-directory-error
     environment:
       - API_KEY_EIA
       - GCP_BILLING_PROJECT
