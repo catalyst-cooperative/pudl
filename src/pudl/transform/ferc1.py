@@ -3130,7 +3130,7 @@ class RetainedEarningsFerc1TableTransformer(Ferc1AbstractTableTransformer):
             & (date_dupe_types.amount_previous_year.notnull())
         ]
         data_mismatch_ratio = len(date_mismatch) / len(date_dupe_types)
-        if data_mismatch_ratio > 0.01:
+        if data_mismatch_ratio > 0.02:
             raise AssertionError(
                 "More records than expected have data that is not the same in "
                 "the starting_balance vs the amount column for the earnings_type "
@@ -3168,7 +3168,10 @@ class RetainedEarningsFerc1TableTransformer(Ferc1AbstractTableTransformer):
             super()
             .process_xbrl_metadata(xbrl_metadata_json)
             .assign(
-                # we
+                # there are many instances of factiods with these stems cooresponding
+                # to several value types (amount/start or end balance). but we end up
+                # with only one so we want to drop these stems and then drop dupes
+                # plus there is one suffix that is named weird!
                 xbrl_factoid=lambda x: x.xbrl_factoid.str.removesuffix(
                     "_contra_primary_account_affected"
                 ).str.removesuffix("_primary_contra_account_affected")
