@@ -69,14 +69,16 @@ class TableIdFerc1(enum.Enum):
     PLANTS_PUMPED_STORAGE_FERC1 = "plants_pumped_storage_ferc1"
     PLANT_IN_SERVICE_FERC1 = "plant_in_service_ferc1"
     PURCHASED_POWER_FERC1 = "purchased_power_ferc1"
-    TRANSMISSION_FERC1 = "transmission_ferc1"
+    TRANSMISSION_STATISTICS_FERC1 = "transmission_statistics_ferc1"
     ELECTRIC_ENERGY_SOURCES_FERC1 = "electric_energy_sources_ferc1"
     ELECTRIC_ENERGY_DISPOSITIONS_FERC1 = "electric_energy_dispositions_ferc1"
     UTILITY_PLANT_SUMMARY_FERC1 = "utility_plant_summary_ferc1"
     DEPRECIATION_AMORTIZATION_SUMMARY_FERC1 = "depreciation_amortization_summary_ferc1"
     BALANCE_SHEET_ASSETS_FERC1 = "balance_sheet_assets_ferc1"
     INCOME_STATEMENT_FERC1 = "income_statement_ferc1"
-    ACCUMULATED_DEPRECIATION_PLANT_FERC1 = "accumulated_depreciation_plant_ferc1"
+    ELECTRIC_PLANT_DEPRECIATION_CHANGES_FERC1 = (
+        "electric_plant_depreciation_changes_ferc1"
+    )
 
 
 class RenameColumnsFerc1(TransformParams):
@@ -2745,10 +2747,10 @@ class PlantsSmallFerc1TableTransformer(Ferc1AbstractTableTransformer):
         return df
 
 
-class TransmissionFerc1TableTransformer(Ferc1AbstractTableTransformer):
-    """A table transformer specific to the :ref:`transmission_ferc1` table."""
+class TransmissionStatisticsFerc1TableTransformer(Ferc1AbstractTableTransformer):
+    """A table transformer for the :ref:`transmission_statistics_ferc1` table."""
 
-    table_id: TableIdFerc1 = TableIdFerc1.TRANSMISSION_FERC1
+    table_id: TableIdFerc1 = TableIdFerc1.TRANSMISSION_STATISTICS_FERC1
     has_unique_record_ids: bool = False
 
 
@@ -2926,10 +2928,12 @@ class DepreciationAmortizationSummaryFerc1TableTransformer(
         return df
 
 
-class AccumulatedDepreciationPlantFerc1TableTransformer(Ferc1AbstractTableTransformer):
-    """Transformer class for :ref:`accumulated_depreciation_plant_ferc1` table."""
+class ElectricPlantDepreciationChangesFerc1TableTransformer(
+    Ferc1AbstractTableTransformer
+):
+    """Transformer class for :ref:`electric_plant_depreciation_changes_ferc1` table."""
 
-    table_id: TableIdFerc1 = TableIdFerc1.ACCUMULATED_DEPRECIATION_PLANT_FERC1
+    table_id: TableIdFerc1 = TableIdFerc1.ELECTRIC_PLANT_DEPRECIATION_CHANGES_FERC1
     has_unique_record_ids: bool = False
 
     @cache_df("dbf")
@@ -3035,7 +3039,7 @@ def transform(
         "plants_hydro_ferc1": PlantsHydroFerc1TableTransformer,
         "plant_in_service_ferc1": PlantInServiceFerc1TableTransformer,
         "plants_pumped_storage_ferc1": PlantsPumpedStorageFerc1TableTransformer,
-        "transmission_ferc1": TransmissionFerc1TableTransformer,
+        "transmission_statistics_ferc1": TransmissionStatisticsFerc1TableTransformer,
         "purchased_power_ferc1": PurchasedPowerFerc1TableTransformer,
         "electric_energy_sources_ferc1": ElectricEnergySourcesFerc1TableTransformer,
         "electric_energy_dispositions_ferc1": ElectricEnergyDispositionsFerc1TableTransformer,
@@ -3043,7 +3047,7 @@ def transform(
         "depreciation_amortization_summary_ferc1": DepreciationAmortizationSummaryFerc1TableTransformer,
         "balance_sheet_assets_ferc1": BalanceSheetAssetsFerc1TableTransformer,
         "income_statement_ferc1": IncomeStatementFerc1TableTransformer,
-        "accumulated_depreciation_plant_ferc1": AccumulatedDepreciationPlantFerc1TableTransformer,
+        "electric_plant_depreciation_changes_ferc1": ElectricPlantDepreciationChangesFerc1TableTransformer,
     }
     # create an empty ditctionary to fill up through the transform fuctions
     ferc1_transformed_dfs = {}
@@ -3105,14 +3109,14 @@ if __name__ == "__main__":
             "plants_pumped_storage_ferc1",
             "purchased_power_ferc1",
             "plants_small_ferc1",
-            "transmission_ferc1",
+            "transmission_statistics_ferc1",
             "electric_energy_sources_ferc1",
             "electric_energy_dispositions_ferc1",
             "utility_plant_summary_ferc1",
             "balance_sheet_assets_ferc1",
             "income_statement_ferc1",
             "depreciation_amortization_summary_ferc1",
-            "accumulated_depreciation_plant_ferc1",
+            "electric_plant_depreciation_changes_ferc1",
         ],
     )
     pudl_settings = pudl.workspace.setup.get_defaults()

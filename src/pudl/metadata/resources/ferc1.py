@@ -4,33 +4,6 @@ from typing import Any
 from pudl.metadata.codes import CODE_METADATA
 
 RESOURCE_METADATA: dict[str, dict[str, Any]] = {
-    "accumulated_depreciation_plant_ferc1": {
-        "description": (
-            "Accumulated provision for depreciation of electric utility plant "
-            "(Account 108). Schedule 219 Section A: balances and changes during year."
-        ),
-        "schema": {
-            "fields": [
-                "utility_id_ferc1",
-                "report_year",
-                "ferc_account_label",
-                "plant_classification_type",
-                "utility_type",
-                "utility_plant_value",
-                "record_id",
-            ],
-            "primary_key": [
-                "utility_id_ferc1",
-                "report_year",
-                "ferc_account_label",
-                "plant_classification_type",
-                "utility_type",
-            ],
-        },
-        "sources": ["ferc1"],
-        "etl_group": "ferc1",
-        "field_namespace": "ferc1",
-    },
     "balance_sheet_assets_ferc1": {
         "description": "Comparative Balance Sheet (Assets and Other Debits). Schedule 110.",
         "schema": {
@@ -97,6 +70,33 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
                 "utility_id_ferc1",
                 "report_year",
                 "energy_disposition_type",
+            ],
+        },
+        "sources": ["ferc1"],
+        "etl_group": "ferc1",
+        "field_namespace": "ferc1",
+    },
+    "electric_plant_depreciation_changes_ferc1": {
+        "description": (
+            "Accumulated provision for depreciation of electric utility plant "
+            "(Account 108). Schedule 219 Section A: balances and changes during year."
+        ),
+        "schema": {
+            "fields": [
+                "utility_id_ferc1",
+                "report_year",
+                "ferc_account_label",
+                "plant_classification_type",
+                "utility_type",
+                "utility_plant_value",
+                "record_id",
+            ],
+            "primary_key": [
+                "utility_id_ferc1",
+                "report_year",
+                "ferc_account_label",
+                "plant_classification_type",
+                "utility_type",
             ],
         },
         "sources": ["ferc1"],
@@ -535,7 +535,7 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
         "etl_group": "ferc1",
         "field_namespace": "ferc1",
     },
-    "transmission_ferc1": {
+    "transmission_statistics_ferc1": {
         "description": (
             "Transmission Line Statistics. Schedule 422 of FERC Form 1. Information "
             "describing transmission lines, the cost of lines, annual operating and "

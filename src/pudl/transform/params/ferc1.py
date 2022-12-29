@@ -2928,7 +2928,7 @@ TRANSFORM_PARAMS = {
             }
         ],
     },
-    "transmission_ferc1": {
+    "transmission_statistics_ferc1": {
         "rename_columns_ferc1": {
             "dbf": {
                 "columns": {
@@ -3562,7 +3562,7 @@ TRANSFORM_PARAMS = {
             },
         ],
     },
-    "accumulated_depreciation_plant_ferc1": {
+    "electric_plant_depreciation_changes_ferc1": {
         "rename_columns_ferc1": {
             "dbf": {
                 "columns": {

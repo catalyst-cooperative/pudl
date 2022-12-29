@@ -92,14 +92,14 @@ datasets:
       - plants_pumped_storage_ferc1
       - plant_in_service_ferc1
       - purchased_power_ferc1
-      - transmission_ferc1
+      - transmission_statistics_ferc1
       - electric_energy_sources_ferc1
       - electric_energy_dispositions_ferc1
       - utility_plant_summary_ferc1
       - depreciation_amortization_summary_ferc1
       - balance_sheet_assets_ferc1
       - income_statement_ferc1
-      - accumulated_depreciation_plant_ferc1
+      - electric_plant_depreciation_changes_ferc1
     years: [2020, 2021]
   eia:
     eia923:
