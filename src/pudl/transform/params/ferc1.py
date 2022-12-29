@@ -3551,7 +3551,12 @@ TRANSFORM_PARAMS = {
             },
         ],
         "drop_duplicate_rows_dbf": {
-            "data_columns": ["ending_balance", "starting_balance"],
+            "data_columns": [
+                "ending_balance",
+                "starting_balance",
+                "increase_in_other_regulatory_liabilities",
+                "decrease_in_other_regulatory_liabilities",
+            ],
             "table_name": "other_regulatory_liabilities_ferc1",
         },
     },

@@ -2936,7 +2936,6 @@ class OtherRegulatoryLiabilitiesFerc1(Ferc1AbstractTableTransformer):
     """Transformer class for :ref:`other_regulatory_liabilities_ferc1` table."""
 
     table_id: TableIdFerc1 = TableIdFerc1.OTHER_REGULATORY_LIABILITIES_FERC1
-    has_unique_record_ids: bool = False
 
     @cache_df(key="dbf")
     def process_dbf(self, raw_dbf: pd.DataFrame) -> pd.DataFrame:
