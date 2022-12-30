@@ -263,6 +263,10 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "description": "Average monthly coincident peak (CP) demand (for requirements purchases, and any transactions involving demand charges). Monthly CP demand is the metered demand during the hour (60-minute integration) in which the supplier's system reaches its monthly peak. In megawatts.",
         "unit": "MW",
     },
+    "combined_heat_power": {
+        "type": "boolean",
+        "description": "Indicates whether the generator is a combined heat and power system",
+    },
     "conductor_size_and_material": {
         "type": "string",
         "description": "Size of transmission conductor and material of the transmission line.",

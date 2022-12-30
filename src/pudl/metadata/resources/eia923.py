@@ -15,6 +15,7 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
                 "fuel_mmbtu_per_unit",
                 "sulfur_content_pct",
                 "ash_content_pct",
+                "combined_heat_power",
             ],
             "primary_key": [
                 "plant_id_eia",
