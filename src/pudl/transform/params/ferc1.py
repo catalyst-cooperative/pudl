@@ -3565,20 +3565,20 @@ TRANSFORM_PARAMS = {
                     "row_number": "row_number",
                     "row_seq": "row_seq",
                     "spplmnt_num": "spplmnt_num",
-                    "crnt_yr_amt": "annual_oandm_expense",
-                    "xbrl_factoid": "oandm_expense_type",
+                    "crnt_yr_amt": "expense",
+                    "xbrl_factoid": "expense_type",
                 }
             },
             "xbrl": {
                 "columns": {
                     "entity_id": "utility_id_ferc1_xbrl",
                     "report_year": "report_year",
-                    "xbrl_factoid": "oandm_expense_type",
+                    "xbrl_factoid": "expense_type",
                 }
             },
             "duration_xbrl": {
                 "columns": {
-                    xbrl_col: f"{xbrl_col}_annual_oandm_expense"
+                    xbrl_col: f"{xbrl_col}_expense"
                     for xbrl_col in [
                         "administrative_and_general_expenses",
                         "administrative_and_general_operation_expense",
@@ -3759,17 +3759,17 @@ TRANSFORM_PARAMS = {
         "wide_to_tidy": {
             "xbrl": {
                 "idx_cols": ["entity_id", "end_date", "start_date", "report_year"],
-                "value_types": ["annual_oandm_expense"],
+                "value_types": ["expense"],
                 "stacked_column_name": "xbrl_factoid",
             }
         },
         "drop_duplicate_rows_dbf": {
-            "data_columns": ["annual_oandm_expense"],
+            "data_columns": ["expense"],
             "table_name": "electric_opex_ferc1",
         },
         "merge_xbrl_metadata": {
-            "rename_columns": {"xbrl_factoid": "oandm_expense_type"},
-            "on": "oandm_expense_type",
+            "rename_columns": {"xbrl_factoid": "expense_type"},
+            "on": "expense_type",
         },
     },
 }
