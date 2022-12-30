@@ -350,7 +350,12 @@ idx,entity_id,date,report_year,test_value
     params = UnstackBalancesToReportYearInstantXbrl(
         unstack_balances_to_report_year=True
     )
-    df_out = unstack_balances_to_report_year_instant_xbrl(df=df.copy(), params=params)
+    pk_cols = ["entity_id", "report_year"]
+    df_out = unstack_balances_to_report_year_instant_xbrl(
+        df=df.copy(),
+        params=params,
+        primary_key_cols=pk_cols,
+    )
     df_expected = pd.read_csv(
         StringIO(
             """
@@ -367,7 +372,9 @@ entity_id,report_year,idx_ending_balance,idx_starting_balance,test_value_ending_
     df_non_unique_years = df.copy()
     df_non_unique_years.loc[4] = [4, 2, "2020-12-31", 2021, 500]
     with pytest.raises(AssertionError):
-        unstack_balances_to_report_year_instant_xbrl(df_non_unique_years, params=params)
+        unstack_balances_to_report_year_instant_xbrl(
+            df_non_unique_years, params=params, primary_key_cols=pk_cols
+        )
 
     # If there are mid-year values an AssertionError should raise
     df_mid_year = df.copy()
@@ -375,4 +382,6 @@ entity_id,report_year,idx_ending_balance,idx_starting_balance,test_value_ending_
         (df_mid_year["entity_id"] == 2) & (df_mid_year["date"] == "2020-12-31"), "date"
     ] = "2020-06-30"
     with pytest.raises(AssertionError):
-        unstack_balances_to_report_year_instant_xbrl(df_non_unique_years, params=params)
+        unstack_balances_to_report_year_instant_xbrl(
+            df_non_unique_years, params=params, primary_key_cols=pk_cols
+        )

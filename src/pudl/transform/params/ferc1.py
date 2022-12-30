@@ -3770,6 +3770,9 @@ TRANSFORM_PARAMS = {
             "select_by_xbrl_categories": True,
             "len_expected_categories_to_drop": 12,
         },
+        "unstack_balances_to_report_year_instant_xbrl": {
+            "unstack_balances_to_report_year": True
+        },
     },
     "electric_opex_ferc1": {
         "rename_columns_ferc1": {
