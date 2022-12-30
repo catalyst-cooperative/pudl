@@ -3276,39 +3276,17 @@ class ElectricPlantDepreciationChangesFerc1TableTransformer(
     def process_dbf(self, df: pd.DataFrame) -> pd.DataFrame:
         """Accumulated Depreciation table specific DBF cleaning operations.
 
-        Drop functional classification rows, which come from Section B of this table.
-        All sections are are reported together in the DBF data, but they should really
-        be separate tables, and are reported that way in the XBRL, so we are splitting
-        them out.
-
-        Similarly we are dropping the a couple of DBF rows that contain unstructured
-        data, which is reported separately in the XBRL, and which we'll pull out in a
-        separate transformer.
-
         The XBRL reports a utility_type which is always electric in this table, but
         which may be necessary for differentiating between different values when this
         data is combined with other tables. The DBF data doesn't report this value so
         we are adding it here for consistency across the two data sources.
+
+        Also rename the ``ending_balance_accounts`` to ``ending_balance``
         """
-        excluded_labels = [
-            "other_adjustments_to_accumulated_depreciation_details",  # Unstructured
-            "other_accounts_details",  # Unstructured
-            "accumulated_depreciation_distribution",
-            "accumulated_depreciation_general",
-            "accumulated_depreciation_hydraulic_production_conventional",
-            "accumulated_depreciation_hydraulic_production_pumped_storage",
-            "accumulated_depreciation_nuclear_production",
-            "accumulated_depreciation_other_production",
-            "accumulated_depreciation_regional_transmission_and_market_operation",
-            "accumulated_depreciation_steam_production",
-            "accumulated_depreciation_transmission",
-            "ending_balance_functional",
-        ]
         df = super().process_dbf(df).assign(utility_type="electric")
         df.loc[
             df.ferc_account_label == "ending_balance_accounts", "ferc_account_label"
         ] = "ending_balance"
-        df = df.loc[~df.ferc_account_label.isin(excluded_labels)]
         return df
 
     @cache_df("process_instant_xbrl")

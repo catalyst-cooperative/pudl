@@ -3765,6 +3765,11 @@ TRANSFORM_PARAMS = {
             "rename_columns": {"xbrl_factoid": "ferc_account_label"},
             "on": "ferc_account_label",
         },
+        "select_dbf_rows_by_category": {
+            "column_name": "ferc_account_label",
+            "select_by_xbrl_categories": True,
+            "len_expected_categories_to_drop": 12,
+        },
     },
 }
 
