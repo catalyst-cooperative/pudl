@@ -20,6 +20,7 @@ ferc_to_sqlite_settings:
       - f1_elctrc_erg_acct
       - f1_utltyplnt_smmry
       - f1_xmssn_line
+      - f1_elc_op_mnt_expn
       - f1_bal_sheet_cr
       - f1_comp_balance_db
       - f1_income_stmnt
@@ -67,6 +68,8 @@ ferc_to_sqlite_settings:
       - accumulated_provision_for_depreciation_of_electric_utility_plant_changes_section_a_219_instant
       - accumulated_provision_for_depreciation_of_electric_utility_plant_functional_classification_section_b_219_duration
       - accumulated_provision_for_depreciation_of_electric_utility_plant_functional_classification_section_b_219_instant
+      - electric_operations_and_maintenance_expenses_320_duration
+      - electric_operations_and_maintenance_expenses_320_instant
       - retained_earnings_118_duration
       - retained_earnings_118_instant
 
@@ -101,6 +104,7 @@ datasets:
       - transmission_statistics_ferc1
       - electric_energy_sources_ferc1
       - electric_energy_dispositions_ferc1
+      - electric_opex_ferc1
       - utility_plant_summary_ferc1
       - balance_sheet_liabilities_ferc1
       - depreciation_amortization_summary_ferc1

@@ -141,10 +141,6 @@ TABLE_NAME_MAP: dict[str, dict[str, str]] = {
         "dbf": "f1_purchased_pwr",
         "xbrl": "purchased_power_326",
     },
-    "electric_oandm_ferc1": {
-        "dbf": "f1_324_elc_expns",
-        "xbrl": "electric_operations_and_maintenance_expenses_320",
-    },
     "electric_energy_sources_ferc1": {
         "dbf": "f1_elctrc_erg_acct",
         "xbrl": "electric_energy_account_401a",
@@ -160,6 +156,10 @@ TABLE_NAME_MAP: dict[str, dict[str, str]] = {
     "transmission_statistics_ferc1": {
         "dbf": "f1_xmssn_line",
         "xbrl": "transmission_line_statistics_422",
+    },
+    "electric_opex_ferc1": {
+        "dbf": "f1_elc_op_mnt_expn",
+        "xbrl": "electric_operations_and_maintenance_expenses_320",
     },
     "balance_sheet_liabilities_ferc1": {
         "dbf": "f1_bal_sheet_cr",

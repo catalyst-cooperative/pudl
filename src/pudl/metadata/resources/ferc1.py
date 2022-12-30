@@ -126,6 +126,27 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
         "etl_group": "ferc1",
         "field_namespace": "ferc1",
     },
+    "electric_opex_ferc1": {
+        "description": (
+            "Operating and maintenance costs associated with producing electricty, "
+            "reported in Schedule 320 of FERC Form 1."
+        ),
+        "schema": {
+            "fields": [
+                "utility_id_ferc1",
+                "report_year",
+                "expense",
+                "expense_type",
+                "record_id",
+                "ferc_account",
+                "row_type_xbrl",
+            ],
+            "primary_key": ["utility_id_ferc1", "report_year", "expense_type"],
+        },
+        "sources": ["ferc1"],
+        "etl_group": "ferc1",
+        "field_namespace": "ferc1",
+    },
     "electric_plant_depreciation_changes_ferc1": {
         "description": (
             "Accumulated provision for depreciation of electric utility plant "
