@@ -563,7 +563,7 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
         "field_namespace": "ferc1",
     },
     "retained_earnings_appropriations_ferc1": {
-        "description": "Reatained Earnings - some of the structed part of schedule 118.",
+        "description": "Retained Earnings - some of the unstructed part of schedule 118.",
         "schema": {
             "fields": ["utility_id_ferc1", "report_year", "utility_type", "record_id"],
         },

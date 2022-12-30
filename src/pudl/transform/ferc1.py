@@ -375,10 +375,10 @@ class SelectDbfRowsByCategory(TransformParams):
     additional_categories: list[str] = []
     """List of additional categories to select by.
 
-    If ``select_by_xbrl_categories`` is ``True``, these additional categories will be
-    added to the categories that show up in the XBRL data to select the rows in the DBF
-    data by. If ``select_by_xbrl_categories`` is ``False``, these additional categories
-    alone will be the used to select the DBF data by.
+    If ``select_by_xbrl_categories`` is ``True``, these categories will be added to the
+    XBRL categories and both will be used to select rows from the DBF data. If
+    ``select_by_xbrl_categories`` is ``False``, only the "additional" categories will be
+    the used to select rows from the DBF data.
     """
     len_expected_categories_to_drop: int = 0
     """Number of categories that are expected to be dropped from the DBF data.
