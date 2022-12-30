@@ -3787,6 +3787,13 @@ TRANSFORM_PARAMS = {
                     "xbrl_factoid": "expense_type",
                 }
             },
+            "xbrl": {
+                "columns": {
+                    "entity_id": "utility_id_ferc1_xbrl",
+                    "report_year": "report_year",
+                    "xbrl_factoid": "expense_type",
+                }
+            },
             "duration_xbrl": {
                 "columns": {
                     xbrl_col: f"{xbrl_col}_expense"
