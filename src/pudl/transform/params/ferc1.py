@@ -3452,10 +3452,10 @@ TRANSFORM_PARAMS = {
             },
         },
         "align_row_numbers_dbf": {"dbf_table_names": ["f1_retained_erng"]},
-        "select_dbf_rows_from_category": {
+        "select_dbf_rows_by_category": {
             "column_name": "earnings_type",
-            "select_based_on_xbrl_category": True,
-            "expected_categories_to_drop": 6,
+            "select_by_xbrl_categories": True,
+            "len_expected_categories_to_drop": 6,
         },
         "unstack_balances_to_report_year_instant_xbrl": {
             "unstack_balances_to_report_year": True
@@ -3466,7 +3466,6 @@ TRANSFORM_PARAMS = {
         },
         "strip_non_numeric_values": {"amount": {"strip_non_numeric_values": True}},
     },
-    "retained_earnings_appropriations_ferc1": {},
     "income_statement_ferc1": {
         "rename_columns_ferc1": {
             "dbf": {

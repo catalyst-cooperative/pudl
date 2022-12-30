@@ -397,7 +397,7 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     },
     "earnings_type": {
         "type": "string",
-        "description": "Type of earnings reported in the retained_earnings_ferc1 table.",
+        "description": "Label describing types of earnings.",
     },
     "ending_balance": {
         "type": "number",

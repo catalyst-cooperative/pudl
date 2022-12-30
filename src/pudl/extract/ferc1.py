@@ -178,7 +178,7 @@ TABLE_NAME_MAP: dict[str, dict[str, str]] = {
         "dbf": "f1_retained_erng",
         "xbrl": "retained_earnings_118",
     },
-    "retrained_earnings_appropriations_ferc1": {
+    "retained_earnings_appropriations_ferc1": {
         "dbf": "f1_retained_erng",
         "xbrl": "retained_earnings_appropriations_118",
     },

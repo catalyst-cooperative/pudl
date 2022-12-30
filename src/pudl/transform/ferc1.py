@@ -77,7 +77,6 @@ class TableIdFerc1(enum.Enum):
     DEPRECIATION_AMORTIZATION_SUMMARY_FERC1 = "depreciation_amortization_summary_ferc1"
     BALANCE_SHEET_ASSETS_FERC1 = "balance_sheet_assets_ferc1"
     RETAINED_EARNINGS_FERC1 = "retained_earnings_ferc1"
-    RETAINED_EARNINGS_APPROPRIATIONS_FERC1 = "retrined_earnings_appropriations_ferc1"
     INCOME_STATEMENT_FERC1 = "income_statement_ferc1"
 
 
@@ -362,19 +361,38 @@ def align_row_numbers_dbf(
     return df
 
 
-class SelectDbfRowsFromCategory(TransformParams):
-    """Parameters for :func:`select_dbf_rows_from_category`."""
+class SelectDbfRowsByCategory(TransformParams):
+    """Parameters for :func:`select_dbf_rows_by_category`."""
 
     column_name: str | None = None
-    select_based_on_xbrl_category: bool = False
+    """The column name containing categories to select by."""
+    select_by_xbrl_categories: bool = False
+    """Boolean flag to indicate whether or not to use the categories in the XBRL table.
+
+    If True, :func:`select_dbf_rows_by_category` will find the list of categories that
+    exist in the passed in ``processed_xbrl`` to select by.
+    """
     additional_categories: list[str] = []
-    expected_categories_to_drop: int = 0
+    """List of additional categories to select by.
+
+    If ``select_by_xbrl_categories`` is ``True``, these additional categories will be
+    added to the categories that show up in the XBRL data to select the rows in the DBF
+    data by. If ``select_by_xbrl_categories`` is ``False``, these additional categories
+    alone will be the used to select the DBF data by.
+    """
+    len_expected_categories_to_drop: int = 0
+    """Number of categories that are expected to be dropped from the DBF data.
+
+    This is here to ensure no unexpected manipulations to the categories have occured. A
+    warning will be flagged if this number is different than the number of categories
+    that are being dropped.
+    """
 
 
-def select_dbf_rows_from_category(
+def select_dbf_rows_by_category(
     processed_dbf: pd.DataFrame,
     processed_xbrl: pd.DataFrame,
-    params: SelectDbfRowsFromCategory,
+    params: SelectDbfRowsByCategory,
 ) -> pd.DataFrame:
     """Select DBF rows with values listed or found in XBRL in a categorical-like column.
 
@@ -402,7 +420,7 @@ def select_dbf_rows_from_category(
     """
     # compile the list of categories from the possible options.
     categories_to_select = []
-    if params.select_based_on_xbrl_category:
+    if params.select_by_xbrl_categories:
         categories_to_select = categories_to_select + list(
             processed_xbrl[params.column_name].unique()
         )
@@ -415,16 +433,17 @@ def select_dbf_rows_from_category(
         for cat in processed_dbf[params.column_name].unique()
         if cat not in categories_to_select
     ]
-    if len(categories_to_drop) != params.expected_categories_to_drop:
+    if len(categories_to_drop) != params.len_expected_categories_to_drop:
         logger.warning(
             f"Dropping {len(categories_to_drop)} DBF categories that contain the "
             f"following values in {params.column_name} but expected "
-            f"{params.expected_categories_to_drop}:"
+            f"{params.len_expected_categories_to_drop}:"
             f"{categories_to_drop}"
         )
-    return processed_dbf[
-        processed_dbf[params.column_name].isin(categories_to_select)
-    ].copy()
+    # now select only the rows which contain the categories we want to include in the
+    # column that we care about. Copy bc this is a slice of the og dataframe.
+    category_mask = processed_dbf[params.column_name].isin(categories_to_select)
+    return processed_dbf.loc[category_mask].copy()
 
 
 class UnstackBalancesToReportYearInstantXbrl(TransformParams):
@@ -524,9 +543,7 @@ class Ferc1TableTransformParams(TableTransformParams):
     merge_xbrl_metadata: MergeXbrlMetadata = MergeXbrlMetadata()
     align_row_numbers_dbf: AlignRowNumbersDbf = AlignRowNumbersDbf()
     drop_duplicate_rows_dbf: DropDuplicateRowsDbf = DropDuplicateRowsDbf()
-    select_dbf_rows_from_category: SelectDbfRowsFromCategory = (
-        SelectDbfRowsFromCategory()
-    )
+    select_dbf_rows_by_category: SelectDbfRowsByCategory = SelectDbfRowsByCategory()
     unstack_balances_to_report_year_instant_xbrl: UnstackBalancesToReportYearInstantXbrl = (
         UnstackBalancesToReportYearInstantXbrl()
     )
@@ -786,9 +803,7 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
         """Process the raw data until the XBRL and DBF inputs have been unified."""
         processed_dbf = self.process_dbf(raw_dbf)
         processed_xbrl = self.process_xbrl(raw_xbrl_instant, raw_xbrl_duration)
-        processed_dbf = self.select_dbf_rows_from_category(
-            processed_dbf, processed_xbrl
-        )
+        processed_dbf = self.select_dbf_rows_by_category(processed_dbf, processed_xbrl)
         logger.info(f"{self.table_id.value}: Concatenating DBF + XBRL dataframes.")
         return pd.concat([processed_dbf, processed_xbrl]).reset_index(drop=True)
 
@@ -836,20 +851,20 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
                 )
         return df
 
-    def select_dbf_rows_from_category(
+    def select_dbf_rows_by_category(
         self,
         processed_dbf: pd.DataFrame,
         processed_xbrl: pd.DataFrame,
-        params: SelectDbfRowsFromCategory | None = None,
+        params: SelectDbfRowsByCategory | None = None,
     ) -> pd.DataFrame:
-        """Warpper method for :func:`select_dbf_rows_from_category`."""
+        """Wrapper method for :func:`select_dbf_rows_by_category`."""
         if not params:
-            params = self.params.select_dbf_rows_from_category
+            params = self.params.select_dbf_rows_by_category
         if params.column_name:
             logger.info(
-                f"{self.table_id.value}: Selection DBF rows with desired values in {params.column_name}."
+                f"{self.table_id.value}: Selecting DBF rows with desired values in {params.column_name}."
             )
-            processed_dbf = select_dbf_rows_from_category(
+            processed_dbf = select_dbf_rows_by_category(
                 processed_dbf=processed_dbf,
                 processed_xbrl=processed_xbrl,
                 params=params,
@@ -3055,7 +3070,10 @@ class RetainedEarningsFerc1TableTransformer(Ferc1AbstractTableTransformer):
         )
         dupes = df[dupe_mask]
         if len(dupes) > 25:
-            raise AssertionError("Too many duplicates found.")
+            raise AssertionError(
+                f"{self.table_id.value}: Too many duplicates found ({len(dupes)}). "
+                "Expected 25 or less."
+            )
         # we are simply sorting to get the biggest value and dropping the rest.
         dupes = dupes.sort_values(
             ["starting_balance", "amount"], ascending=False
@@ -3083,7 +3101,7 @@ class RetainedEarningsFerc1TableTransformer(Ferc1AbstractTableTransformer):
             AssertionError: There are a very small number of instances in which the
                 ending balance from the previous year does not match the starting
                 balance from the current year. The % of these non-matching instances
-                should be less than 1% of the records with these date duplicative
+                should be less than 2% of the records with these date duplicative
                 earnings types.
         """
         logger.info(f"{self.table_id.value}: Removing previous year's data.")
@@ -3179,18 +3197,6 @@ class RetainedEarningsFerc1TableTransformer(Ferc1AbstractTableTransformer):
             .drop_duplicates(subset=["xbrl_factoid"], keep="first")
         )
         return meta
-
-
-class RetainedEarningsAppropriationsFerc1TableTransformer(
-    Ferc1AbstractTableTransformer
-):
-    """Transformer class for unstructured parts of :ref:`retained_earnings_ferc1`.
-
-    Very very WIP.
-    """
-
-    table_id: TableIdFerc1 = TableIdFerc1.RETAINED_EARNINGS_APPROPRIATIONS_FERC1
-    has_unique_record_ids: bool = False
 
 
 class DepreciationAmortizationSummaryFerc1TableTransformer(
