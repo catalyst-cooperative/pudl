@@ -3260,12 +3260,6 @@ TRANSFORM_PARAMS = {
             "rename_columns": {"xbrl_factoid": "asset_type"},
             "on": "asset_type",
         },
-        "drop_invalid_rows": [
-            {
-                "invalid_values": [pd.NA, np.nan, ""],
-                "required_valid_cols": ["starting_balance", "ending_balance"],
-            },
-        ],
     },
     "balance_sheet_liabilities_ferc1": {
         "rename_columns_ferc1": {
