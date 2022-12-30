@@ -14,7 +14,6 @@ from pydantic import BaseSettings, root_validator, validator
 
 import pudl
 import pudl.workspace.setup
-from pudl import TABLE_NAME_MAP_FERC1
 from pudl.metadata.classes import DataSource
 from pudl.metadata.constants import DBF_TABLES_FILENAMES, XBRL_TABLES
 from pudl.metadata.resources.eia861 import TABLE_DEPENDENCIES
@@ -652,42 +651,46 @@ class EtlSettings(BaseSettings):
     @root_validator(pre=False)
     def raw_table_validation_ferc1(cls, field_values):
         """Require the presence of raw FERC1 tables needed for PUDL table creation."""
-        ferc1_settings = field_values["datasets"].ferc1
-        ferc1_xbrl_to_sqlite_settings = field_values[
-            "ferc_to_sqlite_settings"
-        ].ferc1_xbrl_to_sqlite_settings
-        ferc1_dbf_to_sqlite_settings = field_values[
-            "ferc_to_sqlite_settings"
-        ].ferc1_dbf_to_sqlite_settings
+        if field_values["datasets"]:
+            ferc1_settings = field_values["datasets"].ferc1
+            ferc1_xbrl_to_sqlite_settings = field_values[
+                "ferc_to_sqlite_settings"
+            ].ferc1_xbrl_to_sqlite_settings
+            ferc1_dbf_to_sqlite_settings = field_values[
+                "ferc_to_sqlite_settings"
+            ].ferc1_dbf_to_sqlite_settings
 
-        pudl_etl_tables = ferc1_settings.tables
-        table_map = {
-            pudl_table: raw_dict
-            for (pudl_table, raw_dict) in TABLE_NAME_MAP_FERC1.items()
-            if pudl_table in pudl_etl_tables
-        }
-        # DBF table check
-        dbf_tables_needed = set(
-            collapse([tbl_dict["dbf"] for tbl_dict in table_map.values()])
-        )
-        dbf_tables_needed.add("f1_respondent_id")
-        if dbf_missing := dbf_tables_needed.difference(
-            set(ferc1_dbf_to_sqlite_settings.tables)
-        ):
-            raise AssertionError(f"DBF settings: {dbf_missing}")
+            pudl_etl_tables = ferc1_settings.tables
+            table_map = {
+                pudl_table: raw_dict
+                for (pudl_table, raw_dict) in pudl.TABLE_NAME_MAP_FERC1.items()
+                if pudl_table in pudl_etl_tables
+            }
+            # DBF table check
+            dbf_tables_needed = set(
+                collapse([tbl_dict["dbf"] for tbl_dict in table_map.values()])
+            )
+            dbf_tables_needed.add("f1_respondent_id")
+            if dbf_missing := dbf_tables_needed.difference(
+                set(ferc1_dbf_to_sqlite_settings.tables)
+            ):
+                raise AssertionError(f"DBF tables missing: {dbf_missing}")
 
-        # XBRL table check
-        xbrl_tables_needed = set(
-            collapse([tbl_dict["xbrl"] for tbl_dict in table_map.values()])
-        )
-        xbrl_tables_needed.add("identification_001")
-        xbrl_tables_needed = {tbl + "_instant" for tbl in xbrl_tables_needed} | {
-            tbl + "_duration" for tbl in xbrl_tables_needed
-        }
-        if xbrl_missing := xbrl_tables_needed.difference(
-            set(ferc1_xbrl_to_sqlite_settings.tables)
-        ):
-            raise AssertionError(f"XBRL settings: {xbrl_missing}")
+            # XBRL table check
+            # the XBRL extractor can take a list of none and extract everything so only
+            # do this check if there are any tables given.
+            if ferc1_xbrl_to_sqlite_settings.tables:
+                xbrl_tables_needed = set(
+                    collapse([tbl_dict["xbrl"] for tbl_dict in table_map.values()])
+                )
+                xbrl_tables_needed.add("identification_001")
+                xbrl_tables_needed = {
+                    tbl + "_instant" for tbl in xbrl_tables_needed
+                } | {tbl + "_duration" for tbl in xbrl_tables_needed}
+                if xbrl_missing := xbrl_tables_needed.difference(
+                    set(ferc1_xbrl_to_sqlite_settings.tables)
+                ):
+                    raise AssertionError(f"XBRL tables missing: {xbrl_missing}")
         return field_values
 
     @classmethod
