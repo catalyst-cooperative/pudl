@@ -156,7 +156,7 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
             "fields": [
                 "utility_id_ferc1",
                 "report_year",
-                "ferc_account_label",
+                "depreciation_type",
                 "plant_classification_type",
                 "utility_type",
                 "utility_plant_value",
@@ -168,7 +168,7 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
             "primary_key": [
                 "utility_id_ferc1",
                 "report_year",
-                "ferc_account_label",
+                "depreciation_type",
                 "plant_classification_type",
                 "utility_type",
             ],

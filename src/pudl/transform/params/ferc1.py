@@ -3694,7 +3694,7 @@ TRANSFORM_PARAMS = {
                     "future_plant": "future_utility_plant_value",
                     "leased_plant": "leased_utility_plant_value",
                     "electric_plant": "in_service_utility_plant_value",
-                    "xbrl_factoid": "ferc_account_label",
+                    "xbrl_factoid": "depreciation_type",
                 }
             },
             "instant_xbrl": {
@@ -3742,7 +3742,7 @@ TRANSFORM_PARAMS = {
                 "idx_cols": [
                     "utility_id_ferc1",
                     "report_year",
-                    "ferc_account_label",
+                    "depreciation_type",
                     "record_id",
                 ],
                 "value_types": ["utility_plant_value"],
@@ -3758,15 +3758,15 @@ TRANSFORM_PARAMS = {
                 ],
                 "value_types": ["utility_plant_value"],
                 "expected_drop_cols": 2,
-                "stacked_column_name": "ferc_account_label",
+                "stacked_column_name": "depreciation_type",
             },
         },
         "merge_xbrl_metadata": {
-            "rename_columns": {"xbrl_factoid": "ferc_account_label"},
-            "on": "ferc_account_label",
+            "rename_columns": {"xbrl_factoid": "depreciation_type"},
+            "on": "depreciation_type",
         },
         "select_dbf_rows_by_category": {
-            "column_name": "ferc_account_label",
+            "column_name": "depreciation_type",
             "select_by_xbrl_categories": True,
             "len_expected_categories_to_drop": 12,
         },

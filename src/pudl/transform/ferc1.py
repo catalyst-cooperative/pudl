@@ -3306,7 +3306,7 @@ class ElectricPlantDepreciationChangesFerc1TableTransformer(
         """
         df = super().process_dbf(df).assign(utility_type="electric")
         df.loc[
-            df.ferc_account_label == "ending_balance_accounts", "ferc_account_label"
+            df["depreciation_type"] == "ending_balance_accounts", "depreciation_type"
         ] = "ending_balance"
         return df
 
