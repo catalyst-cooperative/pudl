@@ -76,7 +76,13 @@ class TableIdFerc1(enum.Enum):
     BALANCE_SHEET_LIABILITIES = "balance_sheet_liabilities_ferc1"
     DEPRECIATION_AMORTIZATION_SUMMARY_FERC1 = "depreciation_amortization_summary_ferc1"
     BALANCE_SHEET_ASSETS_FERC1 = "balance_sheet_assets_ferc1"
+    RETAINED_EARNINGS_FERC1 = "retained_earnings_ferc1"
     INCOME_STATEMENT_FERC1 = "income_statement_ferc1"
+
+
+################################################################################
+# FERC 1 specific Column, MultiColumn, and Table Transform Functions
+################################################################################
 
 
 class RenameColumnsFerc1(TransformParams):
@@ -355,6 +361,91 @@ def align_row_numbers_dbf(
     return df
 
 
+class SelectDbfRowsByCategory(TransformParams):
+    """Parameters for :func:`select_dbf_rows_by_category`."""
+
+    column_name: str | None = None
+    """The column name containing categories to select by."""
+    select_by_xbrl_categories: bool = False
+    """Boolean flag to indicate whether or not to use the categories in the XBRL table.
+
+    If True, :func:`select_dbf_rows_by_category` will find the list of categories that
+    exist in the passed in ``processed_xbrl`` to select by.
+    """
+    additional_categories: list[str] = []
+    """List of additional categories to select by.
+
+    If ``select_by_xbrl_categories`` is ``True``, these categories will be added to the
+    XBRL categories and both will be used to select rows from the DBF data. If
+    ``select_by_xbrl_categories`` is ``False``, only the "additional" categories will be
+    the used to select rows from the DBF data.
+    """
+    len_expected_categories_to_drop: int = 0
+    """Number of categories that are expected to be dropped from the DBF data.
+
+    This is here to ensure no unexpected manipulations to the categories have occured. A
+    warning will be flagged if this number is different than the number of categories
+    that are being dropped.
+    """
+
+
+def select_dbf_rows_by_category(
+    processed_dbf: pd.DataFrame,
+    processed_xbrl: pd.DataFrame,
+    params: SelectDbfRowsByCategory,
+) -> pd.DataFrame:
+    """Select DBF rows with values listed or found in XBRL in a categorical-like column.
+
+    The XBRL data often breaks out sub-sections of DBF tables into their own table.
+    These breakout tables are often messy, unstructured portions of a particular
+    schedule or page on the FERC1 PDF. We often want to preserve some of the ways the
+    XBRL data is segmented so we need to be able to select only portions of the DBF
+    table to be concatenated with the XBRL data.
+
+    In mapping DBF data to XBRL data for the tables that rely on their ``row_number``
+    we map each row to its corresponding ``xbrl_factoid``. The standard use of this
+    transformer is to use the ``column_name`` that corresponds to the ``xbrl_factoid``
+    that was merged into the DBF data via :func:`align_row_numbers_dbf` and was
+    converted into a column in the XBRL data via :func:`wide_to_tidy`.
+
+    Note: Often, the unstructured portion of the DBF table that (possibly) sums up into
+    a single value in structured data has the same ``xbrl_factoid`` name in the XBRL
+    tables. By convention, we are employing a pattern in the ``dbf_to_xbrl.csv`` map
+    that involves adding an ``_unstructed`` suffix to the rows that correspond to the
+    unstructured portion of the table. This enables a simple selection of the structured
+    part of the table. When processing the unstructured table, you can either rename the
+    XBRL data's factoid name to include an ``_unstructed`` suffix or you can specify
+    the categories with ``_unstructed`` suffixes using the ``additional_categories``
+    parameter.
+    """
+    # compile the list of categories from the possible options.
+    categories_to_select = []
+    if params.select_by_xbrl_categories:
+        categories_to_select = categories_to_select + list(
+            processed_xbrl[params.column_name].unique()
+        )
+    if params.additional_categories:
+        categories_to_select = categories_to_select + params.additional_categories
+
+    # check if we are getting the same number of expected categories to drop
+    categories_to_drop = [
+        cat
+        for cat in processed_dbf[params.column_name].unique()
+        if cat not in categories_to_select
+    ]
+    if len(categories_to_drop) != params.len_expected_categories_to_drop:
+        logger.warning(
+            f"Dropping {len(categories_to_drop)} DBF categories that contain the "
+            f"following values in {params.column_name} but expected "
+            f"{params.len_expected_categories_to_drop}:"
+            f"{categories_to_drop}"
+        )
+    # now select only the rows which contain the categories we want to include in the
+    # column that we care about. Copy bc this is a slice of the og dataframe.
+    category_mask = processed_dbf[params.column_name].isin(categories_to_select)
+    return processed_dbf.loc[category_mask].copy()
+
+
 class UnstackBalancesToReportYearInstantXbrl(TransformParams):
     """Parameters for :func:`unstack_balances_to_report_year_instant_xbrl`."""
 
@@ -452,15 +543,10 @@ class Ferc1TableTransformParams(TableTransformParams):
     merge_xbrl_metadata: MergeXbrlMetadata = MergeXbrlMetadata()
     align_row_numbers_dbf: AlignRowNumbersDbf = AlignRowNumbersDbf()
     drop_duplicate_rows_dbf: DropDuplicateRowsDbf = DropDuplicateRowsDbf()
+    select_dbf_rows_by_category: SelectDbfRowsByCategory = SelectDbfRowsByCategory()
     unstack_balances_to_report_year_instant_xbrl: UnstackBalancesToReportYearInstantXbrl = (
         UnstackBalancesToReportYearInstantXbrl()
     )
-
-
-################################################################################
-# FERC 1 specific Column, MultiColumn, and Table Transform Functions
-# (empty for now, but we anticipate there will be some)
-################################################################################
 
 
 ################################################################################
@@ -717,6 +803,7 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
         """Process the raw data until the XBRL and DBF inputs have been unified."""
         processed_dbf = self.process_dbf(raw_dbf)
         processed_xbrl = self.process_xbrl(raw_xbrl_instant, raw_xbrl_duration)
+        processed_dbf = self.select_dbf_rows_by_category(processed_dbf, processed_xbrl)
         logger.info(f"{self.table_id.value}: Concatenating DBF + XBRL dataframes.")
         return pd.concat([processed_dbf, processed_xbrl]).reset_index(drop=True)
 
@@ -763,6 +850,26 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
                     f"{self.table_id.value}: Column {col} is entirely NULL!"
                 )
         return df
+
+    def select_dbf_rows_by_category(
+        self,
+        processed_dbf: pd.DataFrame,
+        processed_xbrl: pd.DataFrame,
+        params: SelectDbfRowsByCategory | None = None,
+    ) -> pd.DataFrame:
+        """Wrapper method for :func:`select_dbf_rows_by_category`."""
+        if not params:
+            params = self.params.select_dbf_rows_by_category
+        if params.column_name:
+            logger.info(
+                f"{self.table_id.value}: Selecting DBF rows with desired values in {params.column_name}."
+            )
+            processed_dbf = select_dbf_rows_by_category(
+                processed_dbf=processed_dbf,
+                processed_xbrl=processed_xbrl,
+                params=params,
+            )
+        return processed_dbf
 
     @cache_df(key="process_xbrl_metadata")
     def process_xbrl_metadata(self, xbrl_metadata_json) -> pd.DataFrame:
@@ -864,10 +971,7 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
             .pipe(self.assign_record_id, source_ferc1=SourceFerc1.DBF)
             .pipe(self.drop_unused_original_columns_dbf)
             .pipe(self.assign_utility_id_ferc1, source_ferc1=SourceFerc1.DBF)
-            .pipe(
-                self.wide_to_tidy,
-                source_ferc1=SourceFerc1.DBF,
-            )
+            .pipe(self.wide_to_tidy, source_ferc1=SourceFerc1.DBF)
             .pipe(self.drop_duplicate_rows_dbf)
         )
 
@@ -886,10 +990,7 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
             .pipe(self.wide_to_tidy, source_ferc1=SourceFerc1.XBRL)
             .pipe(self.rename_columns, rename_stage="xbrl")
             .pipe(self.assign_record_id, source_ferc1=SourceFerc1.XBRL)
-            .pipe(
-                self.assign_utility_id_ferc1,
-                source_ferc1=SourceFerc1.XBRL,
-            )
+            .pipe(self.assign_utility_id_ferc1, source_ferc1=SourceFerc1.XBRL)
         )
 
     def rename_columns(
@@ -1033,10 +1134,10 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
 
         if instant.empty:
             logger.info(f"{self.table_id.value}: No XBRL instant table found.")
-            return duration
+            out_df = duration
         elif duration.empty:
             logger.info(f"{self.table_id.value}: No XBRL duration table found.")
-            return instant
+            out_df = instant
         else:
             logger.info(
                 f"{self.table_id.value}: Both XBRL instant & duration tables found."
@@ -1054,7 +1155,7 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
                     "using RIGHT-MERGE."
                 )
                 # Merge instant into duration.
-                return pd.merge(
+                out_df = pd.merge(
                     instant,
                     duration,
                     how="right",
@@ -1071,7 +1172,7 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
                     f"{self.table_id.value}: Combining XBRL instant & duration tables "
                     "using CONCATENATION."
                 )
-                return pd.concat(
+                out_df = pd.concat(
                     [
                         instant.set_index(["report_year", "entity_id"] + instant_axes),
                         duration.set_index(
@@ -1080,6 +1181,7 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
                     ],
                     axis="columns",
                 ).reset_index()
+        return out_df
 
     @cache_df("process_instant_xbrl")
     def process_instant_xbrl(self, df: pd.DataFrame) -> pd.DataFrame:
@@ -2925,6 +3027,178 @@ class IncomeStatementFerc1TableTransformer(Ferc1AbstractTableTransformer):
         return source_table
 
 
+class RetainedEarningsFerc1TableTransformer(Ferc1AbstractTableTransformer):
+    """Transformer class for :ref:`retained_earnings_ferc1` table."""
+
+    table_id: TableIdFerc1 = TableIdFerc1.RETAINED_EARNINGS_FERC1
+    has_unique_record_ids: bool = False
+
+    def process_dbf(self, raw_dbf: pd.DataFrame) -> pd.DataFrame:
+        """Preform generic :meth:`process_dbf`, plus deal with duplicates.
+
+        Along with the standard processing in
+        :meth:`Ferc1AbstractTableTransformer.process_dbf`, this method runs:
+        * :meth:`targeted_drop_duplicates_dbf`
+        * :meth:`condense_double_year_earnings_types_dbf`
+        """
+        processed_dbf = (
+            super()
+            .process_dbf(raw_dbf)
+            .pipe(self.targeted_drop_duplicates_dbf)
+            .pipe(self.condense_double_year_earnings_types_dbf)
+        )
+        return processed_dbf
+
+    def targeted_drop_duplicates_dbf(self, df: pd.DataFrame) -> pd.DataFrame:
+        """Drop duplicates with truly duplicate data.
+
+        There are instances of utilities that reported multiple values for several
+        earnings types for a specific year (utility_id_ferc1 68 in 1998 &
+        utility_id_ferc1 296 in 2015). We are taking the largest value reported and
+        dropping the rest. There very well could be a better strategey here, but there
+        are only 25 records that have this problem, so we've going with this.
+        """
+        pks = (
+            pudl.metadata.classes.Package.from_resource_ids()
+            .get_resource(self.table_id.value)
+            .schema.primary_key
+        )
+        # we are not going to check all of the unstructed earnings types for dupes bc
+        # we will drop these later
+        dupe_mask = ~df.earnings_type.str.endswith("_unstructured") & df.duplicated(
+            subset=pks, keep=False
+        )
+        dupes = df[dupe_mask]
+        if len(dupes) > 25:
+            raise AssertionError(
+                f"{self.table_id.value}: Too many duplicates found ({len(dupes)}). "
+                "Expected 25 or less."
+            )
+        # we are simply sorting to get the biggest value and dropping the rest.
+        dupes = dupes.sort_values(
+            ["starting_balance", "amount"], ascending=False
+        ).drop_duplicates(subset=pks)
+        df = pd.concat([df[~dupe_mask], dupes])
+        return df
+
+    def condense_double_year_earnings_types_dbf(self, df: pd.DataFrame) -> pd.DataFrame:
+        """Condense current and past year data reported in 1 report_year into 1 record.
+
+        The DBF table includes two different earnings types that have: "Begining of
+        Period" and "End of Period" rows. But the table has both an amount column that
+        corresponds to a balance and a starting balance column. For these two earnings
+        types, this means that there is in effect two years of data in this table for
+        each report year: a starting and ending balance for the pervious year and a
+        starting and ending balance for the current year. The ending balance for the
+        previous year should be the same as the starting balance for the current year.
+
+        We don't actually want two years of data for each report year, so we want to
+        check these assumptions, extract as much information from these two years of
+        data, but end up with only one annual record for each of these two earnings
+        types for each utility.
+
+        Raises:
+            AssertionError: There are a very small number of instances in which the
+                ending balance from the previous year does not match the starting
+                balance from the current year. The % of these non-matching instances
+                should be less than 2% of the records with these date duplicative
+                earnings types.
+        """
+        logger.info(f"{self.table_id.value}: Removing previous year's data.")
+        current_year_types = [
+            "unappropriated_undistributed_subsidiary_earnings_current_year",
+            "unappropriated_retained_earnings_current_year",
+        ]
+        previous_year_types = [
+            "unappropriated_undistributed_subsidiary_earnings_previous_year",
+            "unappropriated_retained_earnings_previous_year",
+        ]
+        # assign copies so no need to double copy when extracting this slice
+        current_year = df[df.earnings_type.isin(current_year_types)].assign(
+            earnings_type=lambda x: x.earnings_type.str.removesuffix("_current_year")
+        )
+        previous_year = df[df.earnings_type.isin(previous_year_types)].assign(
+            earnings_type=lambda x: x.earnings_type.str.removesuffix("_previous_year")
+        )
+        idx = [
+            "utility_id_ferc1_dbf",
+            "report_year",
+            "utility_id_ferc1",
+            "earnings_type",
+        ]
+        data_columns = ["amount", "starting_balance"]
+        date_dupe_types = pd.merge(
+            current_year,
+            previous_year[idx + data_columns],
+            on=idx,
+            how="outer",
+            suffixes=("", "_previous_year"),
+        )
+
+        date_dupe_types.loc[:, "ending_balance"] = pd.NA
+        # check if the starting balance from the current year is actually
+        # the amount from the previous year
+        date_mismatch = date_dupe_types[
+            ~np.isclose(
+                date_dupe_types.starting_balance,
+                date_dupe_types.amount_previous_year,
+                equal_nan=True,
+            )
+            & (date_dupe_types.starting_balance.notnull())
+            & (date_dupe_types.amount_previous_year.notnull())
+        ]
+        data_mismatch_ratio = len(date_mismatch) / len(date_dupe_types)
+        if data_mismatch_ratio > 0.02:
+            raise AssertionError(
+                "More records than expected have data that is not the same in "
+                "the starting_balance vs the amount column for the earnings_type "
+                "that reports both current and previous year. % of mismatch records: "
+                f"{data_mismatch_ratio:.01%} (expected less than 1%)"
+            )
+
+        # the amount from the current year values should be the ending balance.
+        # the amount from the previous year should fill in the starting balance
+        # then drop all of the _previous_year columns
+        date_dupe_types = date_dupe_types.assign(
+            ending_balance=lambda x: x.amount,
+            amount=pd.NA,
+            starting_balance=lambda x: x.starting_balance.fillna(
+                x.amount_previous_year
+            ),
+        ).drop(columns=["amount_previous_year", "starting_balance_previous_year"])
+
+        df = pd.concat(
+            [
+                df[~df.earnings_type.isin(current_year_types + previous_year_types)],
+                date_dupe_types,
+            ]
+        )
+        return df
+
+    @cache_df("process_xbrl_metadata")
+    def process_xbrl_metadata(self, xbrl_metadata_json) -> pd.DataFrame:
+        """Transform the metadata to reflect the transformed data.
+
+        Run the generic :func:`process_xbrl_metadata` and then remove some suffixes that
+        were removed during :meth:`wide_to_tidy`.
+        """
+        meta = (
+            super()
+            .process_xbrl_metadata(xbrl_metadata_json)
+            .assign(
+                # there are many instances of factiods with these stems cooresponding
+                # to several value types (amount/start or end balance). but we end up
+                # with only one so we want to drop these stems and then drop dupes
+                # plus there is one suffix that is named weird!
+                xbrl_factoid=lambda x: x.xbrl_factoid.str.removesuffix(
+                    "_contra_primary_account_affected"
+                ).str.removesuffix("_primary_contra_account_affected")
+            )
+            .drop_duplicates(subset=["xbrl_factoid"], keep="first")
+        )
+        return meta
+
+
 class DepreciationAmortizationSummaryFerc1TableTransformer(
     Ferc1AbstractTableTransformer
 ):
@@ -3000,6 +3274,7 @@ def transform(
         "depreciation_amortization_summary_ferc1": DepreciationAmortizationSummaryFerc1TableTransformer,
         "balance_sheet_assets_ferc1": BalanceSheetAssetsFerc1TableTransformer,
         "income_statement_ferc1": IncomeStatementFerc1TableTransformer,
+        "retained_earnings_ferc1": RetainedEarningsFerc1TableTransformer,
     }
     # create an empty ditctionary to fill up through the transform fuctions
     ferc1_transformed_dfs = {}
@@ -3068,6 +3343,7 @@ if __name__ == "__main__":
             "balance_sheet_assets_ferc1",
             "income_statement_ferc1",
             "depreciation_amortization_summary_ferc1",
+            "retained_earnings_ferc1",
         ],
     )
     pudl_settings = pudl.workspace.setup.get_defaults()

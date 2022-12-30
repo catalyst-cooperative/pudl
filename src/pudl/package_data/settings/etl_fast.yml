@@ -25,6 +25,7 @@ ferc_to_sqlite_settings:
       - f1_income_stmnt
       - f1_incm_stmnt_2
       - f1_dacs_epda
+      - f1_retained_erng
 
   ferc1_xbrl_to_sqlite_settings:
     years: [2021]
@@ -61,6 +62,8 @@ ferc_to_sqlite_settings:
       - statement_of_income_114_instant
       - summary_of_depreciation_and_amortization_charges_section_a_336_duration
       - summary_of_depreciation_and_amortization_charges_section_a_336_instant
+      - retained_earnings_118_duration
+      - retained_earnings_118_instant
 
   ferc2_xbrl_to_sqlite_settings:
     years: [2021]
@@ -98,6 +101,7 @@ datasets:
       - depreciation_amortization_summary_ferc1
       - balance_sheet_assets_ferc1
       - income_statement_ferc1
+      - retained_earnings_ferc1
     years: [2020, 2021]
   eia:
     eia923:

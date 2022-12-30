@@ -537,6 +537,40 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
         "etl_group": "ferc1",
         "field_namespace": "ferc1",
     },
+    "retained_earnings_ferc1": {
+        "description": "Retained Earnings - The structed part of schedule 118.",
+        "schema": {
+            "fields": [
+                "utility_id_ferc1",
+                "report_year",
+                "record_id",
+                "earnings_type",
+                "amount",
+                "starting_balance",
+                "ending_balance",
+                "balance",
+                "ferc_account",
+                "row_type_xbrl",
+            ],
+            "primary_key": [
+                "utility_id_ferc1",
+                "report_year",
+                "earnings_type",
+            ],
+        },
+        "sources": ["ferc1"],
+        "etl_group": "ferc1",
+        "field_namespace": "ferc1",
+    },
+    "retained_earnings_appropriations_ferc1": {
+        "description": "Retained Earnings - some of the unstructed part of schedule 118.",
+        "schema": {
+            "fields": ["utility_id_ferc1", "report_year", "utility_type", "record_id"],
+        },
+        "sources": ["ferc1"],
+        "etl_group": "ferc1_disabled",
+        "field_namespace": "ferc1",
+    },
 }
 """FERC Form 1 resource attributes by PUDL identifier (``resource.name``).
 
