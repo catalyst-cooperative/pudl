@@ -588,6 +588,12 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     },
     "exchange_energy_delivered_mwh": {"type": "number", "unit": "MWh"},
     "exchange_energy_received_mwh": {"type": "number", "unit": "MWh"},
+    "expense": {
+        "type": "number",
+        "unit": "USD",
+        "description": "The amount of a given expense in USD.",
+    },
+    "expense_type": {"type": "string", "description": "The type of expense."},
     "ferc_account": {
         "type": "string",
         "description": "Actual FERC Account number (e.g. '359.1') if available, or a PUDL assigned ID when FERC accounts have been split or combined in reporting.",

@@ -22,9 +22,11 @@ Data Coverage
   * :ref:`transmission_ferc1`, see issue :issue:`1822` & PR :pr:`2103`
   * :ref:`utility_plant_summary_ferc1`, see issue :issue:`1806` & PR :pr:`2105`.
   * :ref:`balance_sheet_assets_ferc1`, see issue :issue:`1805` & PRs :pr:`2112,2127`.
+  * :ref:`balance_sheet_liabilities_ferc1`, see issue :issue:`1810` & PR :pr:`2134`.
   * :ref:`depreciation_amortization_summary_ferc1`, see issue :issue:`1816` & PR
     :pr:`2143`.
   * :ref:`income_statement_ferc1`, see issue :issue:`1813` & PR :pr:`2147`.
+  * :ref:`electric_opex_ferc1`, see issue :issue:`1817` & PR :pr:`2162`.
   * :ref:`retained_earnings_ferc1`, see issue :issue:`1811` & PR :pr:`2155`.
 
 .. _release-v2022.11.30:

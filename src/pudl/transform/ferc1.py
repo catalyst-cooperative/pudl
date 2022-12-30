@@ -73,6 +73,7 @@ class TableIdFerc1(enum.Enum):
     ELECTRIC_ENERGY_SOURCES_FERC1 = "electric_energy_sources_ferc1"
     ELECTRIC_ENERGY_DISPOSITIONS_FERC1 = "electric_energy_dispositions_ferc1"
     UTILITY_PLANT_SUMMARY_FERC1 = "utility_plant_summary_ferc1"
+    ELECTRIC_OPEX_FERC1 = "electric_opex_ferc1"
     BALANCE_SHEET_LIABILITIES = "balance_sheet_liabilities_ferc1"
     DEPRECIATION_AMORTIZATION_SUMMARY_FERC1 = "depreciation_amortization_summary_ferc1"
     BALANCE_SHEET_ASSETS_FERC1 = "balance_sheet_assets_ferc1"
@@ -926,7 +927,7 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
         if not params:
             params = self.params.merge_xbrl_metadata
         if params.on:
-            logger.info(f"{self.table_id.value}: merging metadata")
+            logger.info(f"{self.table_id.value}: Merging metadata")
             df = merge_xbrl_metadata(df, self.xbrl_metadata, params)
         return df
 
@@ -948,13 +949,17 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
     def drop_duplicate_rows_dbf(
         self, df: pd.DataFrame, params: DropDuplicateRowsDbf | None = None
     ) -> pd.DataFrame:
-        """Drop the duplicate DBF rows when the PKs and data columns are the same.
+        """Drop the DBF rows where the PKs and data columns are duplicated.
 
         Wrapper function for :func:`drop_duplicate_rows_dbf`.
         """
         if params is None:
             params = self.params.drop_duplicate_rows_dbf
         if params.table_name:
+            logger.info(
+                f"{self.table_id.value}: Dropping rows where primary key and data "
+                "columns are duplicated."
+            )
             df = drop_duplicate_rows_dbf(df, params=params)
         return df
 
@@ -3236,6 +3241,34 @@ class DepreciationAmortizationSummaryFerc1TableTransformer(
         return df
 
 
+class ElectricOpexFerc1TableTransformer(Ferc1AbstractTableTransformer):
+    """Transformer class for :ref:`electric_opex_ferc1` table."""
+
+    table_id: TableIdFerc1 = TableIdFerc1.ELECTRIC_OPEX_FERC1
+    has_unique_record_ids: bool = False
+
+    def targeted_drop_duplicates_dbf(self, raw_df: pd.DataFrame) -> pd.DataFrame:
+        """Drop incorrect duplicate from 2002.
+
+        In 2002, utility_id_ferc1_dbf 96 reported two values for
+        administrative_and_general_operation_expense. I found the correct value by
+        looking at the prev_yr_amt value in 2003. This removes the incorrect row.
+        """
+        start_len = len(raw_df)
+        raw_df = raw_df[
+            ~((raw_df["report_year"] == 2002) & (raw_df["crnt_yr_amt"] == 35990321))
+        ]
+        if (dropped := start_len - len(raw_df)) > 1:
+            raise AssertionError(f"More rows dropped than expected: {dropped}")
+        logger.info("Heyyyy dropping that one row")
+        return raw_df
+
+    @cache_df(key="dbf")
+    def process_dbf(self, raw_dbf: pd.DataFrame) -> pd.DataFrame:
+        """Process DBF but drop a bad row that is flagged by drop_duplicates."""
+        return super().process_dbf(self.targeted_drop_duplicates_dbf(raw_dbf))
+
+
 def transform(
     ferc1_dbf_raw_dfs: dict[str, pd.DataFrame],
     ferc1_xbrl_raw_dfs: dict[str, dict[str, pd.DataFrame]],
@@ -3270,6 +3303,7 @@ def transform(
         "electric_energy_sources_ferc1": ElectricEnergySourcesFerc1TableTransformer,
         "electric_energy_dispositions_ferc1": ElectricEnergyDispositionsFerc1TableTransformer,
         "utility_plant_summary_ferc1": UtilityPlantSummaryFerc1TableTransformer,
+        "electric_opex_ferc1": ElectricOpexFerc1TableTransformer,
         "balance_sheet_liabilities_ferc1": BalanceSheetLiabilitiesFerc1TableTransformer,
         "depreciation_amortization_summary_ferc1": DepreciationAmortizationSummaryFerc1TableTransformer,
         "balance_sheet_assets_ferc1": BalanceSheetAssetsFerc1TableTransformer,
