@@ -23,6 +23,76 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
         "etl_group": "ferc1_disabled",
         "field_namespace": "ferc1",
     },
+    "balance_sheet_assets_ferc1": {
+        "description": "Comparative Balance Sheet (Assets and Other Debits).",
+        "schema": {
+            "fields": [
+                "utility_id_ferc1",
+                "report_year",
+                "record_id",
+                "asset_type",
+                "ending_balance",
+                "starting_balance",
+                "ferc_account",
+                "balance",
+                "row_type_xbrl",
+            ],
+            "primary_key": [
+                "utility_id_ferc1",
+                "report_year",
+                "asset_type",
+            ],
+        },
+        "sources": ["ferc1"],
+        "etl_group": "ferc1",
+        "field_namespace": "ferc1",
+    },
+    "balance_sheet_liabilities_ferc1": {
+        "description": "Comparative balance sheet (liabilities and other credits)",
+        "schema": {
+            "fields": [
+                "record_id",
+                "report_year",
+                "utility_id_ferc1",
+                "starting_balance",
+                "ending_balance",
+                "liability_type",
+                "balance",
+                "ferc_account",
+                "row_type_xbrl",
+            ],
+            "primary_key": [
+                "utility_id_ferc1",
+                "report_year",
+                "liability_type",
+            ],
+        },
+        "sources": ["ferc1"],
+        "etl_group": "ferc1",
+        "field_namespace": "ferc1",
+    },
+    "depreciation_amortization_summary_ferc1": {
+        "description": "Summary of depreciation, and amortization of electric plant as reported on page 336a of FERC Form 1.",
+        "schema": {
+            "fields": [
+                "utility_id_ferc1",
+                "report_year",
+                "functional_classification",
+                "ferc_account_label",
+                "ferc_account",
+                "depreciation_amortization_value",
+            ],
+            "primary_key": [
+                "utility_id_ferc1",
+                "report_year",
+                "functional_classification",
+                "ferc_account_label",
+            ],
+        },
+        "sources": ["ferc1"],
+        "etl_group": "ferc1",
+        "field_namespace": "ferc1",
+    },
     "electric_energy_sources_ferc1": {
         "description": "Amount of electricity the utility obtained from each of several sources, by year.",
         "schema": {
@@ -32,6 +102,7 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
                 "energy_source_type",
                 "row_type_xbrl",
                 "energy_mwh",
+                "record_id",
             ],
             "primary_key": [
                 "utility_id_ferc1",
@@ -52,6 +123,7 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
                 "energy_disposition_type",
                 "row_type_xbrl",
                 "energy_mwh",
+                "record_id",
             ],
             "primary_key": [
                 "utility_id_ferc1",
@@ -99,6 +171,31 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
                 "fuel_cost_per_unit_burned",
                 "fuel_cost_per_unit_delivered",
                 "fuel_cost_per_mmbtu",
+            ],
+        },
+        "sources": ["ferc1"],
+        "etl_group": "ferc1",
+        "field_namespace": "ferc1",
+    },
+    "income_statement_ferc1": {
+        "description": "Income statement.",
+        "schema": {
+            "fields": [
+                "record_id",
+                "utility_id_ferc1",
+                "report_year",
+                "utility_type",
+                "income_type",
+                "income",
+                "balance",
+                "ferc_account",
+                "row_type_xbrl",
+            ],
+            "primary_key": [
+                "utility_id_ferc1",
+                "report_year",
+                "utility_type",
+                "income_type",
             ],
         },
         "sources": ["ferc1"],
@@ -356,6 +453,35 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
         "etl_group": "ferc1",
         "field_namespace": "ferc1",
     },
+    "transmission_ferc1": {
+        "description": "Information concerning transmission lines, cost of lines, and expenses for year.",
+        "schema": {
+            "fields": [
+                "record_id",
+                "utility_id_ferc1",
+                "report_year",
+                "start_point",
+                "end_point",
+                "operating_voltage_kv",
+                "designed_voltage_kv",
+                "supporting_structure_type",
+                "transmission_line_length_miles",
+                "transmission_line_and_structures_length_miles",
+                "num_transmission_circuits",
+                "conductor_size_and_material",
+                "capex_land",
+                "capex_other",
+                "capex_total",
+                "opex_operations",
+                "opex_maintenance",
+                "opex_rents",
+                "opex_total",
+            ],
+        },
+        "sources": ["ferc1"],
+        "etl_group": "ferc1",
+        "field_namespace": "ferc1",
+    },
     "utilities_ferc1": {
         "description": "This table maps two manually assigned utility IDs: a PUDL ID and a FERC1 ID. The PUDL ID maps EIA and FERC1 utilities. The FERC1 ID maps the older DBF respondent IDs to new XBRL entity IDs. This table is generated from a table stored in the PUDL repository: src/package_data/glue/utility_id_pudl.csv",
         "schema": {
@@ -411,38 +537,8 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
         "etl_group": "ferc1",
         "field_namespace": "ferc1",
     },
-    "transmission_ferc1": {
-        "description": "Information concerning transmission lines, cost of lines, and expenses for year.",
-        "schema": {
-            "fields": [
-                "record_id",
-                "utility_id_ferc1",
-                "report_year",
-                "start_point",
-                "end_point",
-                "operating_voltage_kv",
-                "designed_voltage_kv",
-                "supporting_structure_type",
-                "transmission_line_length_miles",
-                "transmission_line_and_structures_length_miles",
-                "num_transmission_circuits",
-                "conductor_size_and_material",
-                "capex_land",
-                "capex_other",
-                "capex_total",
-                "opex_operations",
-                "opex_maintenance",
-                "opex_rents",
-                "opex_total",
-            ],
-        },
-        "sources": ["ferc1"],
-        "etl_group": "ferc1",
-        "field_namespace": "ferc1",
-    },
 }
-"""
-FERC Form 1 resource attributes by PUDL identifier (``resource.name``).
+"""FERC Form 1 resource attributes by PUDL identifier (``resource.name``).
 
 Keys are in alphabetical order.
 

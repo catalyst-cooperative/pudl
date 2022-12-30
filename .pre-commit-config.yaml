@@ -32,20 +32,20 @@ repos:
   ####################################################################################
   # Make sure import statements are sorted uniformly.
   - repo: https://github.com/PyCQA/isort
-    rev: 5.10.1
+    rev: 5.11.4
     hooks:
       - id: isort
 
   # Format the code
   - repo: https://github.com/psf/black
-    rev: 22.10.0
+    rev: 22.12.0
     hooks:
       - id: black
         language_version: python3.10
 
   # Format docstrings
   - repo: https://github.com/PyCQA/docformatter
-    rev: v1.5.0
+    rev: v1.5.1
     hooks:
       - id: docformatter
         args: ["--in-place", "--config", "tox.ini"]
@@ -70,7 +70,7 @@ repos:
 
   # Update Python language constructs to modern standards
   - repo: https://github.com/asottile/pyupgrade
-    rev: v3.3.0
+    rev: v3.3.1
     hooks:
       - id: pyupgrade
         args: ["--py310-plus"]
@@ -111,7 +111,7 @@ repos:
       - id: hadolint
   # Check for errors in restructuredtext (.rst) files under the doc hierarchy
   - repo: https://github.com/PyCQA/doc8
-    rev: v1.0.0
+    rev: v1.1.1
     hooks:
       - id: doc8
         args: [--config, tox.ini]

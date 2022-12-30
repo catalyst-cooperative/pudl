@@ -418,8 +418,8 @@ class Encoder(Base):
     ignored_codes: list[Int | str] = []
     """A list of non-standard codes which appear in the data, and will be set to NA.
 
-    These codes may be the result of data entry errors, and we are unable to map them
-    to the appropriate canonical code. They are discarded from the raw input data.
+    These codes may be the result of data entry errors, and we are unable to map them to
+    the appropriate canonical code. They are discarded from the raw input data.
     """
 
     code_fixes: dict[Int | String, Int | String] = {}
@@ -431,7 +431,7 @@ class Encoder(Base):
     """
 
     name: String = None
-    """The name of the code. """
+    """The name of the code."""
 
     @pydantic.validator("df")
     def _df_is_encoding_table(cls, df):  # noqa: N805
@@ -947,7 +947,16 @@ class DataSource(Base):
 
     def add_datastore_metadata(self) -> None:
         """Get source file metadata from the datastore."""
-        dp_desc = Datastore(sandbox=False).get_datapackage_descriptor(self.name)
+        pudl_settings = pudl.workspace.setup.get_defaults()
+        if pudl_settings["pudl_in"] is None:
+            local_cache_path = None
+        else:
+            local_cache_path = pudl_settings["data_dir"]
+        dp_desc = Datastore(
+            sandbox=False,
+            local_cache_path=local_cache_path,
+            gcs_cache_path="gs://zenodo-cache.catalyst.coop",
+        ).get_datapackage_descriptor(self.name)
         partitions = dp_desc.get_partitions()
         if "year" in partitions:
             partitions["years"] = partitions["year"]
@@ -971,7 +980,10 @@ class DataSource(Base):
         data_source_dir = docs_dir / "data_sources"
         download_paths = [
             path.relative_to(data_source_dir)
-            for path in (data_source_dir / self.name).glob("*.pdf")
+            for path in (
+                list((data_source_dir / self.name).glob("*.pdf"))
+                + list((data_source_dir / self.name).glob("*.html"))
+            )
             if path.is_file()
         ]
         download_paths = sorted(download_paths)
@@ -1015,8 +1027,8 @@ class ResourceHarvest(Base):
     harvest: Bool = False
     """Whether to harvest from dataframes based on field names.
 
-    If `False`, the dataframe with the same name is used
-    and the process is limited to dropping unwanted fields.
+    If `False`, the dataframe with the same name is used and the process is limited to
+    dropping unwanted fields.
     """
 
     tolerance: PositiveFloat = 0.0

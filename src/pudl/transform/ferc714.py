@@ -189,7 +189,6 @@ time for whatever timezone is being used. Even though many respondents use dayli
 savings / standard time abbreviations, a large majority do appear to conform to using a
 single UTC offset throughout the year. There are 6 instances in which the timezone
 associated with reporting changed dropped.
-
 """
 
 TZ_CODES = {
@@ -230,7 +229,7 @@ EIA_CODE_FIXES = {
     324: 58791,  # NaturEner Wind Watch LLC (Fixes bad ID 57995)
     329: 39347,  # East Texas Electricity Cooperative (missing)
 }
-"""Overrides of FERC 714 respondent IDs with wrong or missing EIA Codes"""
+"""Overrides of FERC 714 respondent IDs with wrong or missing EIA Codes."""
 
 RENAME_COLS = {
     "respondent_id_ferc714": {
