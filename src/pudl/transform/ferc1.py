@@ -2975,19 +2975,26 @@ class ElectricOperatingAndMaintenanceFerc1TableTransformer(
     table_id: TableIdFerc1 = TableIdFerc1.ELECTRIC_OANDM_FERC1
     has_unique_record_ids: bool = False
 
+    def targeted_drop_duplicates_dbf(self, raw_df: pd.DataFrame) -> pd.DataFrame:
+        """Drop incorrect duplicate from 2002.
+
+        In 2002, utility_id_ferc1_dbf 96 reported two values for
+        administrative_and_general_operation_expense. I found the correct value by
+        looking at the prev_yr_amt value in 2003. This removes the incorrect row.
+        """
+        start_len = len(raw_df)
+        raw_df = raw_df[
+            ~((raw_df["report_year"] == 2002) & (raw_df["crnt_yr_amt"] == 35990321))
+        ]
+        if (dropped := start_len - len(raw_df)) > 1:
+            raise AssertionError(f"More rows dropped than expected: {dropped}")
+        logger.info("Heyyyy dropping that one row")
+        return raw_df
+
     @cache_df(key="dbf")
     def process_dbf(self, raw_dbf: pd.DataFrame) -> pd.DataFrame:
         """Process DBF but drop a bad row that is flagged by drop_duplicates."""
-        # In 2002, utility_id_ferc1_dbf 96 reported two values for
-        # administrative_and_general_operation_expense. I found the correct value by
-        # looking at the prev_yr_amt value in 2003. This removes the incorrect row
-        start_len = len(raw_dbf)
-        raw_dbf = raw_dbf[
-            ~((raw_dbf["report_year"] == 2002) & (raw_dbf["crnt_yr_amt"] == 35990321))
-        ]
-        if (dropped := start_len - len(raw_dbf)) > 1:
-            raise AssertionError(f"More rows dropped than expected: {dropped}")
-        return super().process_dbf(raw_dbf)
+        return super().process_dbf(self.targeted_drop_duplicates_dbf(raw_dbf))
 
 
 def transform(
