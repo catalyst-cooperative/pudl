@@ -12,10 +12,12 @@ from sklearn.pipeline import Pipeline
 from sklearn.preprocessing import OrdinalEncoder
 
 from pudl.helpers import add_fips_ids, date_merge
-from pudl.metadata.enums import STATE_TO_CENSUS_REGION
+from pudl.metadata.dfs import POLITICAL_SUBDIVISIONS
 
 logger = logging.getLogger(__name__)
 
+
+STATE_TO_CENSUS_REGION = POLITICAL_SUBDIVISIONS.set_index('subdivision_code')['division_code_us_census'].to_dict()
 
 class FuelPriceAgg(TypedDict):
     """A data structure for storing fuel price aggregation arguments."""
@@ -253,8 +255,7 @@ def load_pudl_features(
     pudl_engine: sa.engine.Engine, dp1_engine: sa.engine.Engine
 ) -> pd.DataFrame:
     """Assemble a dataframe of information relevant to fuel price imputation."""
-    monthly_query = """
-    -- SQLite
+    query = """
     SELECT
         frc.plant_id_eia,
         frc.report_date,
@@ -276,6 +277,9 @@ def load_pudl_features(
         frc.natural_gas_delivery_contract_type_code,
         frc.moisture_content_pct,
         frc.chlorine_content_ppm,
+        frc.fuel_group_code,
+        -- for joining with annual data
+        date(strftime('%Y', frc.report_date) || '-01-01') as first_day_of_report_year,
 
         mine.mine_name,
         mine.mine_type_code,
@@ -283,44 +287,34 @@ def load_pudl_features(
         mine.county_id_fips as mine_county_id_fips,
         mine.state as mine_state,
 
-        sources.fuel_group_eiaepm,
-
-        entity.ferc_cogen_status,
-        entity.ferc_exempt_wholesale_generator,
-        entity.ferc_small_power_producer,
-        entity.iso_rto_code,
         entity.latitude,
         entity.longitude,
         entity.state,
         entity.county,
-        entity.sector_name_eia
+
+        -- plants_eia860 is reported annually
+        plants_860.ferc_cogen_status,
+        plants_860.ferc_exempt_wholesale_generator,
+        plants_860.ferc_small_power_producer,
+        plants_860.iso_rto_code,
+        plants_860.sector_name_eia,
+        plants_860.natural_gas_pipeline_name_1,
+        plants_860.natural_gas_pipeline_name_2,
+        plants_860.natural_gas_pipeline_name_3,
+        plants_860.regulatory_status_code,
+        plants_860.water_source
     FROM fuel_receipts_costs_eia923 as frc
     LEFT JOIN coalmine_eia923 as mine
         USING (mine_id_pudl)
-    LEFT JOIN energy_sources_eia as sources
-        on sources.code = frc.energy_source_code
     LEFT JOIN plants_entity_eia as entity
         USING (plant_id_eia)
+    LEFT JOIN plants_eia860 as plants_860
+        on frc.plant_id_eia = plants_860.plant_id_eia
+            AND first_day_of_report_year = plants_860.report_date
     ;
     """
-    logger.info("Loading monthly fuel receipts and costs data.")
-    frc = pd.read_sql(monthly_query, pudl_engine)
-
-    annual_query = """
-    SELECT
-        plant_id_eia,
-        report_date,
-        natural_gas_pipeline_name_1,
-        natural_gas_pipeline_name_2,
-        natural_gas_pipeline_name_3,
-        regulatory_status_code,
-        water_source
-    FROM plants_eia860
-    ;
-    """
-    logger.info("Loading annual plant attributes.")
-    plant_info = pd.read_sql(annual_query, pudl_engine)
-    frc = date_merge(left=frc, right=plant_info, on=["plant_id_eia"], how="left")
+    logger.info("Loading fuel receipts and costs data.")
+    frc = pd.read_sql(query, pudl_engine)
 
     logger.info("Inferring coal mine locations via Census DP1.")
     mine_locations = (
