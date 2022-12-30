@@ -76,9 +76,11 @@ from typing import Any, Literal
 
 import pandas as pd
 import sqlalchemy as sa
+from dagster import AssetKey, Field, SourceAsset, asset
 from dbfread import DBF, FieldParser
 
 import pudl
+from pudl.helpers import EnvVar
 from pudl.metadata.classes import DataSource
 from pudl.metadata.constants import DBF_TABLES_FILENAMES
 from pudl.settings import Ferc1DbfToSqliteSettings, Ferc1Settings
@@ -891,6 +893,98 @@ def extract_xbrl_metadata(
             f"Reading XBRL Taxonomy metadata for FERC Form 1 table {pudl_table}"
         )
         # Attempt to extract both duration and instant tables
+        xbrl_table = TABLE_NAME_MAP[pudl_table]["xbrl"]
+        xbrl_meta_out[pudl_table] = {}
+
+        for period in ["instant", "duration"]:
+            try:
+                xbrl_meta_out[pudl_table][period] = xbrl_meta_all[
+                    f"{xbrl_table}_{period}"
+                ]
+            except KeyError:
+                xbrl_meta_out[pudl_table][period] = []
+
+    return xbrl_meta_out
+
+
+# DAGSTER ASSETS
+def create_raw_ferc1_assets() -> list[SourceAsset]:
+    """Create SourceAssets for raw ferc1 tables.
+
+    SourceAssets allow you to access assets that are generated elsewhere.
+    In our case, the xbrl and dbf database are created in a separate dagster repository.
+
+    Returns:
+        A list of ferc1 SourceAssets.
+    """
+    # Deduplicate the table names because f1_elctrc_erg_acct feeds into multiple pudl tables.
+    dbf_table_names = tuple({v["dbf"] for v in TABLE_NAME_MAP.values()})
+    raw_ferc1_dbf_assets = [
+        SourceAsset(
+            key=AssetKey(table_name), io_manager_key="ferc1_dbf_sqlite_io_manager"
+        )
+        for table_name in dbf_table_names
+    ]
+
+    # Create assets for the duration and instant tables
+    xbrl_table_names = tuple(
+        {
+            (v["xbrl"] + "_duration", v["xbrl"] + "_instant")
+            for v in TABLE_NAME_MAP.values()
+        }
+    )
+    xbrl_table_names = (
+        table_name for id_names in xbrl_table_names for table_name in id_names
+    )
+    raw_ferc1_xbrl_assets = [
+        SourceAsset(
+            key=AssetKey(table_name), io_manager_key="ferc1_xbrl_sqlite_io_manager"
+        )
+        for table_name in xbrl_table_names
+    ]
+    return raw_ferc1_dbf_assets + raw_ferc1_xbrl_assets
+
+
+raw_ferc1_assets = create_raw_ferc1_assets()
+
+# TODO (bendnorman): The metadata asset could be improved.
+# Select the subset of metadata entries that pudl is actually processing.
+# Could also create an IO manager that pulls from the metadata based on the
+# asset name.
+
+
+@asset(
+    config_schema={
+        "pudl_output_path": Field(
+            EnvVar(
+                env_var="PUDL_OUTPUT",
+            ),
+            description="Path of directory to store the database in.",
+            default_value=None,
+        ),
+    },
+)
+def xbrl_metadata_json(context) -> dict[str, dict[str, list[dict[str, Any]]]]:
+    """Extract the FERC 1 XBRL Taxonomy metadata we've stored as JSON.
+
+    Returns:
+        A dictionary keyed by PUDL table name, with an instant and a duration entry
+        for each table, corresponding to the metadata for each of the respective instant
+        or duration tables from XBRL if they exist. Table metadata is returned as a list
+        of dictionaries, each of which can be interpreted as a row in a tabular
+        structure, with each row annotating a separate XBRL concept from the FERC 1
+        filings. If there is no instant/duration table, an empty list is returned
+        instead.
+    """
+    metadata_path = (
+        Path(context.op_config["pudl_output_path"])
+        / "ferc1_xbrl_taxonomy_metadata.json"
+    )
+    with open(metadata_path) as f:
+        xbrl_meta_all = json.load(f)
+
+    xbrl_meta_out = {}
+    for pudl_table in TABLE_NAME_MAP:
         xbrl_table = TABLE_NAME_MAP[pudl_table]["xbrl"]
         xbrl_meta_out[pudl_table] = {}
 

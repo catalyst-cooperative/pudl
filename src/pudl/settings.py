@@ -7,7 +7,7 @@ from typing import ClassVar
 
 import pandas as pd
 import yaml
-from dagster import Field, Noneable, resource
+from dagster import Any, Field, Noneable, resource
 from pydantic import AnyHttpUrl
 from pydantic import BaseModel as PydanticBaseModel
 from pydantic import BaseSettings, root_validator, validator
@@ -406,40 +406,6 @@ class DatasetsSettings(BaseModel):
         """Gets dictionary of dataset settings."""
         return vars(self)
 
-    @staticmethod
-    def _convert_settings_to_dagster_config(d: dict) -> None:
-        """Convert dictionary of dataset settings to dagster config.
-
-        For each partition parameter in a GenericDatasetSettings subclass, create a Noneable
-        Dagster field with a default value of None. The GenericDatasetSettings
-        subclasses will default to include all working paritions if the partition value
-        is None. Get the value type so dagster can do some basic type checking in the UI.
-
-        The `table` is not included in the dagster config because we are not supporting
-        processing a subset of tables.
-
-        Args:
-            d: dictionary of datasources and their parameters.
-        """
-        # We do not want to configure tables so remove tables from the dict
-        d.pop("tables", None)
-        for k, v in d.items():
-            if isinstance(v, dict):
-                DatasetsSettings._convert_settings_to_dagster_config(v)
-            else:
-                d[k] = Field(Noneable(type(v)), default_value=None)
-
-    @classmethod
-    def create_dagster_config(cls) -> dict:
-        """Create a dictionary of dagster config for the DatasetsSettings Class.
-
-        Returns:
-            A dictionary of dagster configuration.
-        """
-        ds = cls().dict()
-        cls._convert_settings_to_dagster_config(ds)
-        return ds
-
     def make_datasources_table(self, ds: Datastore) -> pd.DataFrame:
         """Compile a table of dataset information.
 
@@ -648,6 +614,26 @@ class FercToSqliteSettings(BaseSettings):
     ferc60_xbrl_to_sqlite_settings: Ferc60XbrlToSqliteSettings = None
     ferc714_xbrl_to_sqlite_settings: Ferc714XbrlToSqliteSettings = None
 
+    @root_validator(pre=True)
+    def default_load_all(cls, values):  # noqa: N805
+        """If no datasets are specified default to all.
+
+        Args:
+            values (Dict[str, BaseModel]): dataset settings.
+
+        Returns:
+            values (Dict[str, BaseModel]): dataset settings.
+        """
+        if not any(values.values()):
+            values["ferc1_dbf_to_sqlite_settings"] = Ferc1DbfToSqliteSettings()
+            values["ferc1_xbrl_to_sqlite_settings"] = Ferc1XbrlToSqliteSettings()
+            values["ferc2_xbrl_to_sqlite_settings"] = Ferc2XbrlToSqliteSettings()
+            values["ferc6_xbrl_to_sqlite_settings"] = Ferc6XbrlToSqliteSettings()
+            values["ferc60_xbrl_to_sqlite_settings"] = Ferc60XbrlToSqliteSettings()
+            values["ferc714_xbrl_to_sqlite_settings"] = Ferc714XbrlToSqliteSettings()
+
+        return values
+
     def get_xbrl_dataset_settings(
         self, form_number: XbrlFormNumber
     ) -> FercGenericXbrlToSqliteSettings:
@@ -701,7 +687,41 @@ class EtlSettings(BaseSettings):
         return cls.parse_obj(yaml_file)
 
 
-@resource(config_schema=DatasetsSettings.create_dagster_config())
+def _convert_settings_to_dagster_config(d: dict) -> None:
+    """Convert dictionary of dataset settings to dagster config.
+
+    For each partition parameter in a GenericDatasetSettings subclass, create a Noneable
+    Dagster field with a default value of None. The GenericDatasetSettings
+    subclasses will default to include all working paritions if the partition value
+    is None. Get the value type so dagster can do some basic type checking in the UI.
+
+    The `table` is not included in the dagster config because we are not supporting
+    processing a subset of tables.
+
+    Args:
+        d: dictionary of datasources and their parameters.
+    """
+    # We do not want to configure tables so remove tables from the dict
+    d.pop("tables", None)
+    for k, v in d.items():
+        if isinstance(v, dict):
+            _convert_settings_to_dagster_config(v)
+        else:
+            d[k] = Field(Noneable(Any), default_value=None)
+
+
+def create_dagster_config(settings: BaseModel) -> dict:
+    """Create a dictionary of dagster config for the DatasetsSettings Class.
+
+    Returns:
+        A dictionary of dagster configuration.
+    """
+    ds = settings.dict()
+    _convert_settings_to_dagster_config(ds)
+    return ds
+
+
+@resource(config_schema=create_dagster_config(DatasetsSettings()))
 def dataset_settings(init_context):
     """Dagster resource for parameterizing assets.
 
@@ -712,6 +732,20 @@ def dataset_settings(init_context):
     be accesible by any op.
     """
     return DatasetsSettings(**init_context.resource_config)
+
+
+# @resource(config_schema=create_dagster_config(FercToSqliteSettings()))
+@resource()
+def ferc_to_sqlite_settings(init_context):
+    """Dagster resource for parameterizing assets.
+
+    This resource allows us to specify the years we want to process for each datasource
+    in the Dagit UI.
+
+    We configure the assets using a resource instead of op configs so the settings can
+    be accesible by any op.
+    """
+    return FercToSqliteSettings(**init_context.resource_config)
 
 
 def _make_doi_clickable(link):

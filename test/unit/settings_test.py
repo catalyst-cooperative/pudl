@@ -20,6 +20,7 @@ from pudl.settings import (
     Ferc1DbfToSqliteSettings,
     Ferc1Settings,
     GenericDatasetSettings,
+    _convert_settings_to_dagster_config,
     dataset_settings,
 )
 from pudl.workspace.datastore import Datastore
@@ -224,7 +225,7 @@ class TestDatasetsSettings:
             }
         }
 
-        DatasetsSettings._convert_settings_to_dagster_config(dct)
+        _convert_settings_to_dagster_config(dct)
         assert dct.keys() == expected_dct.keys()
         assert dct["eia"].keys() == expected_dct["eia"].keys()
         assert isinstance(dct["eia"]["eia860"]["years"], Field)
@@ -267,7 +268,7 @@ class TestDatasetsSettingsResource:
     def test_invalid_field_type(self):
         """Test an error is thrown when there is an incorrect type in the config."""
         init_context = build_init_resource_context(config={"ferc1": {"years": 2021}})
-        with pytest.raises(DagsterInvalidConfigError):
+        with pytest.raises(ValidationError):
             _ = dataset_settings(init_context)
 
 

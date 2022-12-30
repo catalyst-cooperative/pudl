@@ -98,11 +98,10 @@ class SQLiteIOManager(IOManager):
                 "As a result, data type constraint checking has been disabled."
             )
 
-        # If no metadata is specified use PUDL metadata.
-        if not md:
-            self.md = Package.from_resource_ids().to_sql()
-        else:
-            self.md = md
+        # If no metadata is specified, create an empty sqlalchemy metadata object.
+        self.md = md
+        if not self.md:
+            self.md = sa.MetaData()
 
         self.engine = self._setup_database()
 
@@ -153,7 +152,7 @@ class SQLiteIOManager(IOManager):
             #     f"{sa_table} not found in database metadata. Either add the table to the metadata or use a different IO Manager."
             # )
             logger.warning(
-                f"{sa_table} not found in database metadata. Dtypes of returned DataFrame might be incorrect."
+                f"{table_name} not found in database metadata. Dtypes of returned DataFrame might be incorrect."
             )
         return sa_table
 
@@ -207,6 +206,7 @@ class SQLiteIOManager(IOManager):
         Raises:
             ForeignKeyErrors: if data in the database violate foreign key constraints.
         """
+        logger.info(f"Running foreign key check on {self.db_name} database.")
         with self.engine.connect() as con:
             fk_errors = pd.read_sql_query("PRAGMA foreign_key_check;", con)
 
@@ -253,7 +253,7 @@ class SQLiteIOManager(IOManager):
         sa_table = self._get_sqlalchemy_table(table_name)
         engine = self.engine
 
-        # TODO (bendnorman) I included this if else statement for the analysis table example.
+        # TODO (bendnorman): I included this if else statement for the analysis table example.
         if sa_table is None:
             with engine.connect() as con:
                 # Remove old table records before loading to db
@@ -334,8 +334,6 @@ class SQLiteIOManager(IOManager):
             )
 
 
-# TODO (bendnorman): Create a custom Config type that provides a helpful
-# Error when the environment variable isn't set.
 @io_manager(
     config_schema={
         "pudl_output_path": Field(
@@ -348,9 +346,181 @@ class SQLiteIOManager(IOManager):
     }
 )
 def pudl_sqlite_io_manager(init_context) -> SQLiteIOManager:
-    """Create a SQLiteManager dagster resource."""
+    """Create a SQLiteManager dagster resource for the pudl database."""
     base_dir = init_context.resource_config["pudl_output_path"]
-    return SQLiteIOManager(
+    md = Package.from_resource_ids().to_sql()
+    return SQLiteIOManager(base_dir=base_dir, db_name="pudl", md=md)
+
+
+class Ferc1DBFSQLiteIOManager(SQLiteIOManager):
+    """IO Manager for only reading tables from the FERC 1 database."""
+
+    def __init__(
+        self, base_dir: str = None, db_name: str = None, md: sa.MetaData = None
+    ):
+        """Initialize Ferc1DBFSQLiteIOManager."""
+        super().__init__(base_dir, db_name, md)
+
+    def _setup_database(self) -> sa.engine.Engine:
+        """Create database engine and read the metadata.
+
+        Returns:
+            engine: SQL Alchemy engine that connects to a database in the base_dir.
+        """
+        # If the sqlite directory doesn't exist, create it.
+        db_path = self.base_dir / f"{self.db_name}.sqlite"
+        if not db_path.exists():
+            raise ValueError(
+                f"No {self.db_name}.sqlite found. Create the {self.db_name}.sqlite database."
+            )
+
+        engine = sa.create_engine(f"sqlite:///{db_path}")
+
+        # Connect to the local SQLite DB and read its structure.
+        ferc1_meta = sa.MetaData()
+        ferc1_meta.reflect(engine)
+        self.md = ferc1_meta
+
+        return engine
+
+    def handle_output(self, context: OutputContext, obj: pd.DataFrame | str):
+        """Handle an op or asset output."""
+        raise NotImplementedError("Ferc1DBFSQLiteIOManager can't write outputs yet.")
+
+    def load_input(self, context: InputContext) -> pd.DataFrame:
+        """Load a dataframe from a sqlite database.
+
+        Args:
+            context: dagster keyword that provides access output information like asset name.
+        """
+        ferc1_settings = context.resources.dataset_settings.ferc1
+
+        table_name = self._get_table_name(context)
+        _ = self._get_sqlalchemy_table(table_name)
+
+        engine = self.engine
+
+        with engine.connect() as con:
+            return pd.read_sql_query(
+                f"SELECT * FROM {table_name} "  # nosec: B608
+                "WHERE report_year BETWEEN :min_year AND :max_year;",
+                con=con,
+                params={
+                    "min_year": min(ferc1_settings.dbf_years),
+                    "max_year": max(ferc1_settings.dbf_years),
+                },
+            )
+
+
+@io_manager(
+    config_schema={
+        "pudl_output_path": Field(
+            EnvVar(
+                env_var="PUDL_OUTPUT",
+            ),
+            description="Path of directory to store the database in.",
+            default_value=None,
+        ),
+    },
+    required_resource_keys={"dataset_settings"},
+)
+def ferc1_dbf_sqlite_io_manager(init_context) -> Ferc1DBFSQLiteIOManager:
+    """Create a SQLiteManager dagster resource for the ferc1 dbf database."""
+    base_dir = init_context.resource_config["pudl_output_path"]
+    return Ferc1DBFSQLiteIOManager(
         base_dir=base_dir,
-        db_name="pudl",
+        db_name="ferc1",
+    )
+
+
+class Ferc1XBRLSQLiteIOManager(SQLiteIOManager):
+    """IO Manager for only reading tables from the XBRL database."""
+
+    def __init__(
+        self, base_dir: str = None, db_name: str = None, md: sa.MetaData = None
+    ):
+        """Initialize Ferc1XBRLSQLiteIOManager."""
+        super().__init__(base_dir, db_name, md)
+
+    def _setup_database(self) -> sa.engine.Engine:
+        """Create database engine and read the metadata.
+
+        Returns:
+            engine: SQL Alchemy engine that connects to a database in the base_dir.
+        """
+        # If the sqlite directory doesn't exist, create it.
+        db_path = self.base_dir / f"{self.db_name}.sqlite"
+        if not db_path.exists():
+            raise ValueError(
+                f"No {self.db_name}.sqlite found. Create the {self.db_name}.sqlite database."
+            )
+
+        engine = sa.create_engine(f"sqlite:///{db_path}")
+
+        # Connect to the local SQLite DB and read its structure.
+        ferc1_meta = sa.MetaData()
+        ferc1_meta.reflect(engine)
+        self.md = ferc1_meta
+
+        return engine
+
+    def handle_output(self, context: OutputContext, obj: pd.DataFrame | str):
+        """Handle an op or asset output."""
+        raise NotImplementedError("Ferc1XBRLSQLiteIOManager can't write outputs yet.")
+
+    def load_input(self, context: InputContext) -> pd.DataFrame:
+        """Load a dataframe from a sqlite database.
+
+        Args:
+            context: dagster keyword that provides access output information like asset name.
+        """
+        ferc1_settings = context.resources.dataset_settings.ferc1
+
+        table_name = self._get_table_name(context)
+        _ = self._get_sqlalchemy_table(table_name)
+
+        engine = self.engine
+
+        # TODO (bendnorman): Figure out a better to handle tables that
+        # don't have duration and instant
+        # Not every table contains both instant and duration
+        # Return empty dataframe if table doesn't exist
+        if table_name not in self.md.tables:
+            return pd.DataFrame()
+
+        id_table = "identification_001_duration"
+
+        with engine.connect() as con:
+            return pd.read_sql(
+                f"""
+                    SELECT {table_name}.*, {id_table}.report_year FROM {table_name}
+                    JOIN {id_table} ON {id_table}.filing_name = {table_name}.filing_name
+                    WHERE {id_table}.report_year BETWEEN :min_year AND :max_year;
+                    """,
+                con=con,
+                params={
+                    "min_year": min(ferc1_settings.xbrl_years),
+                    "max_year": max(ferc1_settings.xbrl_years),
+                },
+            )
+
+
+@io_manager(
+    config_schema={
+        "pudl_output_path": Field(
+            EnvVar(
+                env_var="PUDL_OUTPUT",
+            ),
+            description="Path of directory to store the database in.",
+            default_value=None,
+        ),
+    },
+    required_resource_keys={"dataset_settings"},
+)
+def ferc1_xbrl_sqlite_io_manager(init_context) -> Ferc1XBRLSQLiteIOManager:
+    """Create a SQLiteManager dagster resource for the ferc1 dbf database."""
+    base_dir = init_context.resource_config["pudl_output_path"]
+    return Ferc1XBRLSQLiteIOManager(
+        base_dir=base_dir,
+        db_name="ferc1_xbrl",
     )

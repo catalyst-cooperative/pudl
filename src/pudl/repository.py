@@ -8,8 +8,12 @@ from dagster import (
 
 import pudl
 from pudl.etl import create_glue_tables, fuel_receipts_costs_aggs_eia
-from pudl.io_managers import pudl_sqlite_io_manager
-from pudl.settings import dataset_settings
+from pudl.io_managers import (
+    ferc1_dbf_sqlite_io_manager,
+    ferc1_xbrl_sqlite_io_manager,
+    pudl_sqlite_io_manager,
+)
+from pudl.settings import dataset_settings, ferc_to_sqlite_settings
 from pudl.workspace.datastore import datastore
 
 logger = pudl.logging_helpers.get_logger(__name__)
@@ -37,11 +41,20 @@ def pudl_repository():
                 *load_assets_from_modules(
                     [pudl.output.output_assets], group_name="output_assets"
                 ),
+                *load_assets_from_modules(
+                    [pudl.extract.ferc1], group_name="ferc_assets"
+                ),
+                *load_assets_from_modules(
+                    [pudl.transform.ferc1], group_name="ferc_assets"
+                ),
             ],
             resource_defs={
                 "datastore": datastore,
                 "pudl_sqlite_io_manager": pudl_sqlite_io_manager,
+                "ferc1_dbf_sqlite_io_manager": ferc1_dbf_sqlite_io_manager,
+                "ferc1_xbrl_sqlite_io_manager": ferc1_xbrl_sqlite_io_manager,
                 "dataset_settings": dataset_settings,
+                "ferc_to_sqlite_settings": ferc_to_sqlite_settings,
             },
         ),
         define_asset_job(name="etl_full"),
