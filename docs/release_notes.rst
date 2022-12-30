@@ -27,6 +27,7 @@ Data Coverage
     :pr:`2143`.
   * :ref:`income_statement_ferc1`, see issue :issue:`1813` & PR :pr:`2147`.
   * :ref:`electric_opex_ferc1`, see issue :issue:`1817` & PR :pr:`2162`.
+  * :ref:`retained_earnings_ferc1`, see issue :issue:`1811` & PR :pr:`2155`.
 
 .. _release-v2022.11.30:
 

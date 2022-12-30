@@ -57,6 +57,11 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     "alternative_fuel_vehicle_activity": {"type": "boolean"},
     "annual_indirect_program_cost": {"type": "number", "unit": "USD"},
     "annual_total_cost": {"type": "number", "unit": "USD"},
+    "amount": {
+        "description": "Reported amount of dollars. This could be a balance or a change in value.",
+        "type": "number",
+        "unit": "USD",
+    },
     "appro_part_label": {
         "type": "string",
         "description": "Plant part of the associated true granularity record.",
@@ -389,6 +394,10 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     "doi": {
         "type": "string",
         "description": "Unique digitial object identifier of Zenodo archive.",
+    },
+    "earnings_type": {
+        "type": "string",
+        "description": "Label describing types of earnings.",
     },
     "ending_balance": {
         "type": "number",
