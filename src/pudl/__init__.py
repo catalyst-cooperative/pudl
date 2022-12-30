@@ -42,3 +42,72 @@ on climate.
 """
 __projecturl__ = "https://catalyst.coop/pudl/"
 __downloadurl__ = "https://github.com/catalyst-cooperative/pudl/"
+
+TABLE_NAME_MAP_FERC1: dict[str, dict[str, str]] = {
+    "fuel_ferc1": {
+        "dbf": "f1_fuel",
+        "xbrl": "steam_electric_generating_plant_statistics_large_plants_fuel_statistics_402",
+    },
+    "plants_steam_ferc1": {
+        "dbf": "f1_steam",
+        "xbrl": "steam_electric_generating_plant_statistics_large_plants_402",
+    },
+    "plants_small_ferc1": {
+        "dbf": "f1_gnrt_plant",
+        "xbrl": "generating_plant_statistics_410",
+    },
+    "plants_hydro_ferc1": {
+        "dbf": "f1_hydro",
+        "xbrl": "hydroelectric_generating_plant_statistics_large_plants_406",
+    },
+    "plants_pumped_storage_ferc1": {
+        "dbf": "f1_pumped_storage",
+        "xbrl": "pumped_storage_generating_plant_statistics_large_plants_408",
+    },
+    "plant_in_service_ferc1": {
+        "dbf": "f1_plant_in_srvce",
+        "xbrl": "electric_plant_in_service_204",
+    },
+    "purchased_power_ferc1": {
+        "dbf": "f1_purchased_pwr",
+        "xbrl": "purchased_power_326",
+    },
+    "electric_oandm_ferc1": {
+        "dbf": "f1_324_elc_expns",
+        "xbrl": "electric_operations_and_maintenance_expenses_320",
+    },
+    "electric_energy_sources_ferc1": {
+        "dbf": "f1_elctrc_erg_acct",
+        "xbrl": "electric_energy_account_401a",
+    },
+    "electric_energy_dispositions_ferc1": {
+        "dbf": "f1_elctrc_erg_acct",
+        "xbrl": "electric_energy_account_401a",
+    },
+    "utility_plant_summary_ferc1": {
+        "dbf": "f1_utltyplnt_smmry",
+        "xbrl": "summary_of_utility_plant_and_accumulated_provisions_for_depreciation_amortization_and_depletion_200",
+    },
+    "transmission_ferc1": {
+        "dbf": "f1_xmssn_line",
+        "xbrl": "transmission_line_statistics_422",
+    },
+    "balance_sheet_liabilities_ferc1": {
+        "dbf": "f1_bal_sheet_cr",
+        "xbrl": "comparative_balance_sheet_liabilities_and_other_credits_110",
+    },
+    "balance_sheet_assets_ferc1": {
+        "dbf": "f1_comp_balance_db",
+        "xbrl": "comparative_balance_sheet_assets_and_other_debits_110",
+    },
+    # Special case for this table bc there are two dbf tables
+    "income_statement_ferc1": {
+        "dbf": ["f1_income_stmnt", "f1_incm_stmnt_2"],
+        "xbrl": "statement_of_income_114",
+    },
+    "depreciation_amortization_summary_ferc1": {
+        "dbf": "f1_dacs_epda",
+        "xbrl": "summary_of_depreciation_and_amortization_charges_section_a_336",
+    },
+}
+"""A mapping of PUDL DB table names to their XBRL and DBF source table names."""

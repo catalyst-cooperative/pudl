@@ -7,12 +7,14 @@ from typing import ClassVar
 
 import pandas as pd
 import yaml
+from more_itertools import collapse
 from pydantic import AnyHttpUrl
 from pydantic import BaseModel as PydanticBaseModel
 from pydantic import BaseSettings, root_validator, validator
 
 import pudl
 import pudl.workspace.setup
+from pudl import TABLE_NAME_MAP_FERC1
 from pudl.metadata.classes import DataSource
 from pudl.metadata.constants import DBF_TABLES_FILENAMES, XBRL_TABLES
 from pudl.metadata.resources.eia861 import TABLE_DEPENDENCIES
@@ -646,6 +648,47 @@ class EtlSettings(BaseSettings):
 
     pudl_in: str = pudl.workspace.setup.get_defaults()["pudl_in"]
     pudl_out: str = pudl.workspace.setup.get_defaults()["pudl_out"]
+
+    @root_validator(pre=False)
+    def raw_table_validation_ferc1(cls, field_values):
+        """Require the presence of raw FERC1 tables needed for PUDL table creation."""
+        ferc1_settings = field_values["datasets"].ferc1
+        ferc1_xbrl_to_sqlite_settings = field_values[
+            "ferc_to_sqlite_settings"
+        ].ferc1_xbrl_to_sqlite_settings
+        ferc1_dbf_to_sqlite_settings = field_values[
+            "ferc_to_sqlite_settings"
+        ].ferc1_dbf_to_sqlite_settings
+
+        pudl_etl_tables = ferc1_settings.tables
+        table_map = {
+            pudl_table: raw_dict
+            for (pudl_table, raw_dict) in TABLE_NAME_MAP_FERC1.items()
+            if pudl_table in pudl_etl_tables
+        }
+        # DBF table check
+        dbf_tables_needed = set(
+            collapse([tbl_dict["dbf"] for tbl_dict in table_map.values()])
+        )
+        dbf_tables_needed.add("f1_respondent_id")
+        if dbf_missing := dbf_tables_needed.difference(
+            set(ferc1_dbf_to_sqlite_settings.tables)
+        ):
+            raise AssertionError(f"DBF settings: {dbf_missing}")
+
+        # XBRL table check
+        xbrl_tables_needed = set(
+            collapse([tbl_dict["xbrl"] for tbl_dict in table_map.values()])
+        )
+        xbrl_tables_needed.add("identification_001")
+        xbrl_tables_needed = {tbl + "_instant" for tbl in xbrl_tables_needed} | {
+            tbl + "_duration" for tbl in xbrl_tables_needed
+        }
+        if xbrl_missing := xbrl_tables_needed.difference(
+            set(ferc1_xbrl_to_sqlite_settings.tables)
+        ):
+            raise AssertionError(f"XBRL settings: {xbrl_missing}")
+        return field_values
 
     @classmethod
     def from_yaml(cls, path: str) -> "EtlSettings":
