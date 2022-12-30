@@ -76,7 +76,7 @@ from typing import Any, Literal
 
 import pandas as pd
 import sqlalchemy as sa
-from dagster import AssetKey, Field, SourceAsset, asset
+from dagster import AssetKey, Field, SourceAsset, asset, op
 from dbfread import DBF, FieldParser
 
 import pudl
@@ -573,27 +573,34 @@ def get_raw_df(
         )
 
 
-def dbf2sqlite(
-    ferc1_to_sqlite_settings: Ferc1DbfToSqliteSettings | None = None,
-    pudl_settings: dict[str, Any] | None = None,
-    clobber: bool = False,
-    datastore: Datastore | None = None,
-) -> None:
-    """Clone the FERC Form 1 Visual FoxPro databases into SQLite.
+# TODO (bendnorman): set clobber default to False
+@op(
+    config_schema={
+        "pudl_output_path": Field(
+            EnvVar(
+                env_var="PUDL_OUTPUT",
+            ),
+            description="Path of directory to store the database in.",
+            default_value=None,
+        ),
+        "clobber": Field(
+            bool, description="Clobber existing ferc1 database.", default_value=True
+        ),
+    },
+    required_resource_keys={"ferc_to_sqlite_settings", "datastore"},
+)
+def dbf2sqlite(context) -> None:
+    """Clone the FERC Form 1 Visual FoxPro databases into SQLite."""
+    ferc1_to_sqlite_settings = (
+        context.resources.ferc_to_sqlite_settings.ferc1_dbf_to_sqlite_settings
+    )
+    datastore = context.resources.datastore
+    db_path = str(Path(context.op_config["pudl_output_path"]) / "ferc1.sqlite")
+    clobber = context.op_config["clobber"]
 
-    Args:
-        ferc1_to_sqlite_settings: Object containing Ferc1 to SQLite validated settings.
-            If None (the default) then a default :class:`Ferc1DbfToSqliteSettings`
-            object will be used.
-        pudl_settings: Dictionary containing paths and database URLs used by PUDL.
-        clobber: Whether to clobber an existing FERC 1 database.
-        datastore: instance of a datastore providing access to raw resources.
-    """
-    if not ferc1_to_sqlite_settings:
-        ferc1_to_sqlite_settings = Ferc1DbfToSqliteSettings()
     # Read in the structure of the DB, if it exists
     logger.info("Dropping the old FERC Form 1 SQLite DB if it exists.")
-    sqlite_engine = sa.create_engine(pudl_settings["ferc1_db"])
+    sqlite_engine = sa.create_engine(f"sqlite:///{db_path}")
     try:
         # So that we can wipe it out
         pudl.helpers.drop_tables(sqlite_engine, clobber=clobber)
@@ -601,7 +608,7 @@ def dbf2sqlite(
         pass
 
     # And start anew
-    sqlite_engine = sa.create_engine(pudl_settings["ferc1_db"])
+    sqlite_engine = sa.create_engine(f"sqlite:///{db_path}")
     sqlite_meta = sa.MetaData()
     sqlite_meta.reflect(sqlite_engine)
 

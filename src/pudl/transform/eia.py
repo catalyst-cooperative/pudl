@@ -1137,7 +1137,7 @@ final_eia_table_names = (
     ins={
         asset_key.to_python_identifier(): AssetIn()
         for eia_asset in eia_assets
-        for asset_key in eia_asset.asset_keys
+        for asset_key in eia_asset.keys
     },
     outs={
         table_name: AssetOut(io_manager_key="pudl_sqlite_io_manager")

@@ -494,7 +494,7 @@ class Ferc1DbfToSqliteSettings(GenericDatasetSettings):
     """
 
     data_source: ClassVar[DataSource] = DataSource.from_id("ferc1")
-    years: list[int] = [
+    years: list[int] | None = [
         year for year in data_source.working_partitions["years"] if year <= 2020
     ]
     tables: list[str] = sorted(list(DBF_TABLES_FILENAMES.keys()))
@@ -520,9 +520,9 @@ class FercGenericXbrlToSqliteSettings(BaseSettings):
         years: list of years to validate.
     """
 
-    taxonomy: AnyHttpUrl
+    taxonomy: AnyHttpUrl | None
     tables: list[int] | None = None
-    years: list[int]
+    years: list[int] | None
 
 
 class Ferc1XbrlToSqliteSettings(FercGenericXbrlToSqliteSettings):
@@ -534,11 +534,11 @@ class Ferc1XbrlToSqliteSettings(FercGenericXbrlToSqliteSettings):
     """
 
     data_source: ClassVar[DataSource] = DataSource.from_id("ferc1")
-    years: list[int] = [
+    years: list[int] | None = [
         year for year in data_source.working_partitions["years"] if year >= 2021
     ]
-    taxonomy: AnyHttpUrl = "https://eCollection.ferc.gov/taxonomy/form1/2022-01-01/form/form1/form-1_2022-01-01.xsd"
-    tables: list[str] = XBRL_TABLES
+    taxonomy: AnyHttpUrl | None = "https://eCollection.ferc.gov/taxonomy/form1/2022-01-01/form/form1/form-1_2022-01-01.xsd"
+    tables: list[str] | None = XBRL_TABLES
 
     @validator("tables")
     def validate_tables(cls, tables):  # noqa: N805
@@ -558,8 +558,8 @@ class Ferc2XbrlToSqliteSettings(FercGenericXbrlToSqliteSettings):
     """
 
     data_source: ClassVar[DataSource] = DataSource.from_id("ferc2")
-    years: list[int] = data_source.working_partitions["years"]
-    taxonomy: AnyHttpUrl = "https://eCollection.ferc.gov/taxonomy/form2/2022-01-01/form/form2/form-2_2022-01-01.xsd"
+    years: list[int] | None = data_source.working_partitions["years"]
+    taxonomy: AnyHttpUrl | None = "https://eCollection.ferc.gov/taxonomy/form2/2022-01-01/form/form2/form-2_2022-01-01.xsd"
 
 
 class Ferc6XbrlToSqliteSettings(FercGenericXbrlToSqliteSettings):
@@ -570,8 +570,8 @@ class Ferc6XbrlToSqliteSettings(FercGenericXbrlToSqliteSettings):
     """
 
     data_source: ClassVar[DataSource] = DataSource.from_id("ferc6")
-    years: list[int] = data_source.working_partitions["years"]
-    taxonomy: AnyHttpUrl = "https://eCollection.ferc.gov/taxonomy/form6/2022-01-01/form/form6/form-6_2022-01-01.xsd"
+    years: list[int] | None = data_source.working_partitions["years"]
+    taxonomy: AnyHttpUrl | None = "https://eCollection.ferc.gov/taxonomy/form6/2022-01-01/form/form6/form-6_2022-01-01.xsd"
 
 
 class Ferc60XbrlToSqliteSettings(FercGenericXbrlToSqliteSettings):
@@ -582,8 +582,8 @@ class Ferc60XbrlToSqliteSettings(FercGenericXbrlToSqliteSettings):
     """
 
     data_source: ClassVar[DataSource] = DataSource.from_id("ferc60")
-    years: list[int] = data_source.working_partitions["years"]
-    taxonomy: AnyHttpUrl = "https://eCollection.ferc.gov/taxonomy/form60/2022-01-01/form/form60/form-60_2022-01-01.xsd"
+    years: list[int] | None = data_source.working_partitions["years"]
+    taxonomy: AnyHttpUrl | None = "https://eCollection.ferc.gov/taxonomy/form60/2022-01-01/form/form60/form-60_2022-01-01.xsd"
 
 
 class Ferc714XbrlToSqliteSettings(FercGenericXbrlToSqliteSettings):
@@ -594,8 +594,8 @@ class Ferc714XbrlToSqliteSettings(FercGenericXbrlToSqliteSettings):
     """
 
     data_source: ClassVar[DataSource] = DataSource.from_id("ferc714")
-    years: list[int] = [2021]
-    taxonomy: AnyHttpUrl = "https://eCollection.ferc.gov/taxonomy/form714/2022-01-01/form/form714/form-714_2022-01-01.xsd"
+    years: list[int] | None = [2021]
+    taxonomy: AnyHttpUrl | None = "https://eCollection.ferc.gov/taxonomy/form714/2022-01-01/form/form714/form-714_2022-01-01.xsd"
 
 
 class FercToSqliteSettings(BaseSettings):
@@ -734,8 +734,7 @@ def dataset_settings(init_context):
     return DatasetsSettings(**init_context.resource_config)
 
 
-# @resource(config_schema=create_dagster_config(FercToSqliteSettings()))
-@resource()
+@resource(config_schema=create_dagster_config(FercToSqliteSettings()))
 def ferc_to_sqlite_settings(init_context):
     """Dagster resource for parameterizing assets.
 
