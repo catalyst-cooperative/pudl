@@ -26,6 +26,7 @@ ferc_to_sqlite_settings:
       - f1_incm_stmnt_2
       - f1_dacs_epda
       - f1_accumdepr_prvsn
+      - f1_retained_erng
 
   ferc1_xbrl_to_sqlite_settings:
     years: [2021]
@@ -66,6 +67,8 @@ ferc_to_sqlite_settings:
       - accumulated_provision_for_depreciation_of_electric_utility_plant_changes_section_a_219_instant
       - accumulated_provision_for_depreciation_of_electric_utility_plant_functional_classification_section_b_219_duration
       - accumulated_provision_for_depreciation_of_electric_utility_plant_functional_classification_section_b_219_instant
+      - retained_earnings_118_duration
+      - retained_earnings_118_instant
 
   ferc2_xbrl_to_sqlite_settings:
     years: [2021]
@@ -104,6 +107,7 @@ datasets:
       - balance_sheet_assets_ferc1
       - income_statement_ferc1
       - electric_plant_depreciation_changes_ferc1
+      - retained_earnings_ferc1
     years: [2020, 2021]
   eia:
     eia923:
