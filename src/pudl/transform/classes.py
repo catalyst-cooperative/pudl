@@ -254,6 +254,11 @@ class RenameColumns(TransformParams):
     implemented as a column transform).
     """
 
+    class Config:
+        """Only allow the known table transform params."""
+
+        extra = "forbid"
+
     columns: dict[str, str] = {}
 
 
@@ -268,6 +273,11 @@ class StringNormalization(TransformParams):
     different columns to be comparable, but there are a couple of column-specific
     parameterizations that are useful, and they are encapsulated by this class.
     """
+
+    class Config:
+        """Only allow the known table transform params."""
+
+        extra = "forbid"
 
     remove_chars: str
     """A string of individual ASCII characters removed at the end of normalization."""
@@ -318,6 +328,11 @@ normalize_strings_multicol = multicol_transform_factory(normalize_strings)
 ################################################################################
 class EnforceSnakeCase(TransformParams):
     """Boolean parameter for :func:`enforce_snake_case`."""
+
+    class Config:
+        """Only allow the known table transform params."""
+
+        extra = "forbid"
 
     enforce_snake_case: bool
 
@@ -370,6 +385,11 @@ class StripNonNumericValues(TransformParams):
     variables without needing to define a model.
     """
 
+    class Config:
+        """Only allow the known table transform params."""
+
+        extra = "forbid"
+
     strip_non_numeric_values: bool
 
 
@@ -409,6 +429,11 @@ strip_non_numeric_values_multicol = multicol_transform_factory(strip_non_numeric
 ################################################################################
 class StringCategories(TransformParams):
     """Mappings to categorize the values in freeform string columns."""
+
+    class Config:
+        """Only allow the known table transform params."""
+
+        extra = "forbid"
 
     categories: dict[str, set[str]]
     """Mapping from a categorical string to the set of the values it should replace."""
@@ -495,6 +520,11 @@ class UnitConversion(TransformParams):
             and ``to_unit`` can be left unset, but not just one of them.
     """
 
+    class Config:
+        """Only allow the known table transform params."""
+
+        extra = "forbid"
+
     multiplier: float = 1.0  # By default, multiply by 1 (no change)
     adder: float = 0.0  # By default, add 0 (no change)
     from_unit: str = ""  # If it's the empty string, no renaming will happen.
@@ -566,6 +596,11 @@ convert_units_multicol = multicol_transform_factory(convert_units)
 class ValidRange(TransformParams):
     """Column level specification of min and/or max values."""
 
+    class Config:
+        """Only allow the known table transform params."""
+
+        extra = "forbid"
+
     lower_bound: float = -np.inf
     upper_bound: float = np.inf
 
@@ -603,6 +638,11 @@ class UnitCorrections(TransformParams):
     select a relevant subset of records, it is a table transform not a column transform,
     and so needs to know what column it applies to internally.
     """
+
+    class Config:
+        """Only allow the known table transform params."""
+
+        extra = "forbid"
 
     data_col: str
     """The label of the column to be modified."""
@@ -731,6 +771,11 @@ def correct_units(df: pd.DataFrame, params: UnitCorrections) -> pd.DataFrame:
 class InvalidRows(TransformParams):
     """Pameters that identify invalid rows to drop."""
 
+    class Config:
+        """Only allow the known table transform params."""
+
+        extra = "forbid"
+
     invalid_values: conset(Any, min_items=1) | None = None
     """A list of values that should be considered invalid in the selected columns."""
 
@@ -838,6 +883,11 @@ class ReplaceWithNa(TransformParams):
     certain specific values with NA without having to categorize the rest of the column.
     """
 
+    class Config:
+        """Only allow the known table transform params."""
+
+        extra = "forbid"
+
     replace_with_na: list[str]
     """A list of values that should be replaced with NA."""
 
@@ -866,6 +916,11 @@ class TableTransformParams(TransformParams):
     the data source-specific transform modules and inherit from this class. See e.g.
     :class:`pudl.transform.ferc1.Ferc1TableTransformParams`
     """
+
+    class Config:
+        """Only allow the known table transform params."""
+
+        extra = "forbid"
 
     # MultiColumnTransformParams can be initilized to empty dictionaries, since they
     # all iterate over the columns they apply to. Empty means... do nothing.

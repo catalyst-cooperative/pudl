@@ -101,6 +101,11 @@ class RenameColumnsFerc1(TransformParams):
       e.g. in the case of unit conversions with a column rename.
     """
 
+    class Config:
+        """Only allow the known table transform params."""
+
+        extra = "forbid"
+
     dbf: RenameColumns = RenameColumns()
     xbrl: RenameColumns = RenameColumns()
     duration_xbrl: RenameColumns = RenameColumns()
@@ -109,6 +114,11 @@ class RenameColumnsFerc1(TransformParams):
 
 class WideToTidy(TransformParams):
     """Parameters for converting a wide table to a tidy table with value types."""
+
+    class Config:
+        """Only allow the known table transform params."""
+
+        extra = "forbid"
 
     idx_cols: list[str] | None
     """List of column names to treat as the table index."""
@@ -145,6 +155,11 @@ class WideToTidy(TransformParams):
 
 class WideToTidySourceFerc1(TransformParams):
     """Parameters for converting either or both XBRL and DBF table from wide to tidy."""
+
+    class Config:
+        """Only allow the known table transform params."""
+
+        extra = "forbid"
 
     xbrl: WideToTidy = WideToTidy()
     dbf: WideToTidy = WideToTidy()
@@ -205,6 +220,11 @@ def wide_to_tidy(df: pd.DataFrame, params: WideToTidy) -> pd.DataFrame:
 class MergeXbrlMetadata(TransformParams):
     """Parameters for merging in XBRL metadata."""
 
+    class Config:
+        """Only allow the known table transform params."""
+
+        extra = "forbid"
+
     rename_columns: dict[str, str] = {}
     """Dictionary to rename columns in the normalized metadata before merging.
 
@@ -230,6 +250,11 @@ def merge_xbrl_metadata(
 
 class DropDuplicateRowsDbf(TransformParams):
     """Parameter for dropping duplicate DBF rows."""
+
+    class Config:
+        """Only allow the known table transform params."""
+
+        extra = "forbid"
 
     table_name: TableIdFerc1 | None = None
     """Name of table used to grab primary keys of PUDL table to check for duplicates."""
@@ -320,6 +345,11 @@ def drop_duplicate_rows_dbf(
 class AlignRowNumbersDbf(TransformParams):
     """Parameters for aligning DBF row numbers with metadata from mannual maps."""
 
+    class Config:
+        """Only allow the known table transform params."""
+
+        extra = "forbid"
+
     dbf_table_names: list[str] | None = None
     """DBF table to use to grab the row map in :func:`align_row_numbers_dbf`.
 
@@ -357,6 +387,11 @@ def align_row_numbers_dbf(
 
 class UnstackBalancesToReportYearInstantXbrl(TransformParams):
     """Parameters for :func:`unstack_balances_to_report_year_instant_xbrl`."""
+
+    class Config:
+        """Only allow the known table transform params."""
+
+        extra = "forbid"
 
     unstack_balances_to_report_year: bool = False
     """If True unstack balances to a single year (the report year)."""
@@ -443,8 +478,8 @@ class Ferc1TableTransformParams(TableTransformParams):
     rename_columns_ferc1: RenameColumnsFerc1 = RenameColumnsFerc1(
         dbf=RenameColumns(),
         xbrl=RenameColumns(),
-        xbrl_instant=RenameColumns(),
-        xbrl_duration=RenameColumns(),
+        instant_xbrl=RenameColumns(),
+        duration_xbrl=RenameColumns(),
     )
     wide_to_tidy: WideToTidySourceFerc1 = WideToTidySourceFerc1(
         dbf=WideToTidy(), xbrl=WideToTidy()
