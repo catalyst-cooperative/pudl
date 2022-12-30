@@ -3444,29 +3444,14 @@ if __name__ == "__main__":
     """Make the module runnable for iterative testing during development."""
 
     ferc1_settings = Ferc1Settings(
-        # Do one year of each, type of data, or all the years:
+        # 1 year DBF + 1 year XBRL:
         years=[2020, 2021],
+        # All the years (slow with plants_steam_ferc1 included)
         # years=Ferc1Settings().years,
-        tables=[
-            "fuel_ferc1",
-            "plants_steam_ferc1",
-            "plants_hydro_ferc1",
-            "plant_in_service_ferc1",
-            "plants_pumped_storage_ferc1",
-            "purchased_power_ferc1",
-            "plants_small_ferc1",
-            "transmission_statistics_ferc1",
-            "electric_energy_sources_ferc1",
-            "electric_energy_dispositions_ferc1",
-            "utility_plant_summary_ferc1",
-            "balance_sheet_assets_ferc1",
-            "income_statement_ferc1",
-            "depreciation_amortization_summary_ferc1",
-            "electric_plant_depreciation_changes_ferc1",
-            "balance_sheet_liabilities_ferc1",
-            "retained_earnings_ferc1",
-            "electric_opex_ferc1",
-        ],
+        # Just test your new table:
+        # tables=["your_new_table_ferc1"],
+        # Run all the tables to make sure you haven't broken something!
+        tables=Ferc1Settings().tables,
     )
     pudl_settings = pudl.workspace.setup.get_defaults()
     ferc1_dbf_raw_dfs = pudl.extract.ferc1.extract_dbf(
