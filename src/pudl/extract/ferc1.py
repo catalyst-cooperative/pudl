@@ -157,7 +157,7 @@ TABLE_NAME_MAP: dict[str, dict[str, str]] = {
         "dbf": "f1_xmssn_line",
         "xbrl": "transmission_line_statistics_422",
     },
-    "electric_oandm_ferc1": {
+    "electric_opex_ferc1": {
         "dbf": "f1_elc_op_mnt_expn",
         "xbrl": "electric_operations_and_maintenance_expenses_320",
     },

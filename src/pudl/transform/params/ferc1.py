@@ -3554,7 +3554,7 @@ TRANSFORM_PARAMS = {
             },
         ],
     },
-    "electric_oandm_ferc1": {
+    "electric_opex_ferc1": {
         "rename_columns_ferc1": {
             "dbf": {
                 "columns": {
@@ -3765,7 +3765,7 @@ TRANSFORM_PARAMS = {
         },
         "drop_duplicate_rows_dbf": {
             "data_columns": ["annual_oandm_expense"],
-            "table_name": "electric_oandm_ferc1",
+            "table_name": "electric_opex_ferc1",
         },
         "merge_xbrl_metadata": {
             "rename_columns": {"xbrl_factoid": "oandm_expense_type"},

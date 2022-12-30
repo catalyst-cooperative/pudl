@@ -94,6 +94,7 @@ datasets:
       - transmission_ferc1
       - electric_energy_sources_ferc1
       - electric_energy_dispositions_ferc1
+      - electric_opex_ferc1
       - utility_plant_summary_ferc1
       - balance_sheet_liabilities_ferc1
       - depreciation_amortization_summary_ferc1
