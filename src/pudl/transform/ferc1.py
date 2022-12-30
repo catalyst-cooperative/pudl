@@ -842,7 +842,7 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
     def drop_duplicate_rows_dbf(
         self, df: pd.DataFrame, params: DropDuplicateRowsDbf | None = None
     ) -> pd.DataFrame:
-        """Drop the duplicate DBF rows when the PKs and data columns are duplicated.
+        """Drop the DBF rows where the PKs and data columns are duplicated.
 
         Wrapper function for :func:`drop_duplicate_rows_dbf`.
         """
