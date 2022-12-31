@@ -187,11 +187,11 @@ class GenericPlantFerc1TableTransformer(Ferc1AbstractTableTransformer):
     def transform(
         self,
         raw_dbf: pd.DataFrame,
-        raw_xbrl_instant: pd.DataFrame,
-        raw_xbrl_duration: pd.DataFrame,
+        raw_instant_xbrl: pd.DataFrame,
+        raw_duration_xbrl: pd.DataFrame,
     ) -> pd.DataFrame:
         """Only apply the generic :meth:``transform_start``."""
-        return self.transform_start(raw_dbf, raw_xbrl_instant, raw_xbrl_duration).pipe(
+        return self.transform_start(raw_dbf, raw_instant_xbrl, raw_duration_xbrl).pipe(
             self.transform_main
         )
 
@@ -268,8 +268,8 @@ def get_plants_ferc1_raw(
             table_id=TableIdFerc1(table)
         ).transform(
             raw_dbf=ferc1_dbf_raw_dfs[table],
-            raw_xbrl_instant=ferc1_xbrl_raw_dfs[table].get("instant", pd.DataFrame()),
-            raw_xbrl_duration=ferc1_xbrl_raw_dfs[table].get("duration", pd.DataFrame()),
+            raw_instant_xbrl=ferc1_xbrl_raw_dfs[table].get("instant", pd.DataFrame()),
+            raw_duration_xbrl=ferc1_xbrl_raw_dfs[table].get("duration", pd.DataFrame()),
         )
         plant_dfs.append(plant_df)
 

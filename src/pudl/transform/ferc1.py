@@ -669,8 +669,8 @@ def fill_dbf_to_xbrl_map(
 
 
 def get_data_cols_raw_xbrl(
-    raw_xbrl_instant: pd.DataFrame,
-    raw_xbrl_duration: pd.DataFrame,
+    raw_instant_xbrl: pd.DataFrame,
+    raw_duration_xbrl: pd.DataFrame,
 ) -> list[str]:
     """Get a list of all XBRL data columns appearing in a given XBRL table.
 
@@ -689,8 +689,8 @@ def get_data_cols_raw_xbrl(
         "start_date",
     ]
     return sorted(
-        set(raw_xbrl_instant.columns)
-        .union(raw_xbrl_duration.columns)
+        set(raw_instant_xbrl.columns)
+        .union(raw_duration_xbrl.columns)
         .difference(excluded_cols)
     )
 
@@ -746,12 +746,12 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
     def transform_start(
         self,
         raw_dbf: pd.DataFrame,
-        raw_xbrl_instant: pd.DataFrame,
-        raw_xbrl_duration: pd.DataFrame,
+        raw_instant_xbrl: pd.DataFrame,
+        raw_duration_xbrl: pd.DataFrame,
     ) -> pd.DataFrame:
         """Process the raw data until the XBRL and DBF inputs have been unified."""
         processed_dbf = self.process_dbf(raw_dbf)
-        processed_xbrl = self.process_xbrl(raw_xbrl_instant, raw_xbrl_duration)
+        processed_xbrl = self.process_xbrl(raw_instant_xbrl, raw_duration_xbrl)
         logger.info(f"{self.table_id.value}: Concatenating DBF + XBRL dataframes.")
         return pd.concat([processed_dbf, processed_xbrl]).reset_index(drop=True)
 
@@ -909,14 +909,14 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
     @cache_df(key="xbrl")
     def process_xbrl(
         self,
-        raw_xbrl_instant: pd.DataFrame,
-        raw_xbrl_duration: pd.DataFrame,
+        raw_instant_xbrl: pd.DataFrame,
+        raw_duration_xbrl: pd.DataFrame,
     ) -> pd.DataFrame:
         """XBRL-specific transformations that take place before concatenation."""
         logger.info(f"{self.table_id.value}: Processing XBRL data pre-concatenation.")
         return (
             self.merge_instant_and_duration_tables_xbrl(
-                raw_xbrl_instant, raw_xbrl_duration
+                raw_instant_xbrl, raw_duration_xbrl
             )
             .pipe(self.wide_to_tidy, source_ferc1=SourceFerc1.XBRL)
             .pipe(self.rename_columns, rename_stage="xbrl")
@@ -1011,8 +1011,8 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
     @cache_df(key="xbrl")
     def merge_instant_and_duration_tables_xbrl(
         self,
-        raw_xbrl_instant: pd.DataFrame,
-        raw_xbrl_duration: pd.DataFrame,
+        raw_instant_xbrl: pd.DataFrame,
+        raw_duration_xbrl: pd.DataFrame,
     ) -> pd.DataFrame:
         """Merge XBRL instant and duration tables, reshaping instant as needed.
 
@@ -1031,8 +1031,8 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
         Note: This should always be applied before :meth:``rename_columns``
 
         Args:
-            raw_xbrl_instant: table representing XBRL instant facts.
-            raw_xbrl_duration: table representing XBRL duration facts.
+            raw_instant_xbrl: table representing XBRL instant facts.
+            raw_duration_xbrl: table representing XBRL duration facts.
 
         Returns:
             A unified table combining the XBRL duration and instant facts, if both types
@@ -1042,14 +1042,14 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
         """
         drop_cols = ["filing_name", "index"]
         # Ignore errors in case not all drop_cols are present.
-        instant = raw_xbrl_instant.drop(columns=drop_cols, errors="ignore")
-        duration = raw_xbrl_duration.drop(columns=drop_cols, errors="ignore")
+        instant = raw_instant_xbrl.drop(columns=drop_cols, errors="ignore")
+        duration = raw_duration_xbrl.drop(columns=drop_cols, errors="ignore")
 
         instant_axes = [
-            col for col in raw_xbrl_instant.columns if col.endswith("_axis")
+            col for col in raw_instant_xbrl.columns if col.endswith("_axis")
         ]
         duration_axes = [
-            col for col in raw_xbrl_duration.columns if col.endswith("_axis")
+            col for col in raw_duration_xbrl.columns if col.endswith("_axis")
         ]
         if (
             bool(instant_axes)
@@ -1423,7 +1423,7 @@ class FuelFerc1TableTransformer(Ferc1AbstractTableTransformer):
 
     @cache_df(key="xbrl")
     def process_xbrl(
-        self, raw_xbrl_instant: pd.DataFrame, raw_xbrl_duration: pd.DataFrame
+        self, raw_instant_xbrl: pd.DataFrame, raw_duration_xbrl: pd.DataFrame
     ) -> pd.DataFrame:
         """Special pre-concat treatment of the :ref:`fuel_ferc1` table.
 
@@ -1435,8 +1435,8 @@ class FuelFerc1TableTransformer(Ferc1AbstractTableTransformer):
         need to be aggregated.
 
         Args:
-            raw_xbrl_instant: Freshly extracted XBRL instant fact table.
-            raw_xbrl_duration: Freshly extracted XBRL duration fact table.
+            raw_instant_xbrl: Freshly extracted XBRL instant fact table.
+            raw_duration_xbrl: Freshly extracted XBRL duration fact table.
 
         Returns:
             Almost fully transformed XBRL data table, with instant and duration facts
@@ -1444,7 +1444,7 @@ class FuelFerc1TableTransformer(Ferc1AbstractTableTransformer):
         """
         return (
             self.merge_instant_and_duration_tables_xbrl(
-                raw_xbrl_instant, raw_xbrl_duration
+                raw_instant_xbrl, raw_duration_xbrl
             )
             .pipe(self.rename_columns, rename_stage="xbrl")
             .pipe(self.convert_units)
@@ -1698,8 +1698,8 @@ class PlantsSteamFerc1TableTransformer(Ferc1AbstractTableTransformer):
     def transform(
         self,
         raw_dbf: pd.DataFrame,
-        raw_xbrl_instant: pd.DataFrame,
-        raw_xbrl_duration: pd.DataFrame,
+        raw_instant_xbrl: pd.DataFrame,
+        raw_duration_xbrl: pd.DataFrame,
         transformed_fuel: pd.DataFrame,
     ) -> pd.DataFrame:
         """Redfine the transform method to accommodate the use of transformed_fuel.
@@ -1712,8 +1712,8 @@ class PlantsSteamFerc1TableTransformer(Ferc1AbstractTableTransformer):
         df = (
             self.transform_start(
                 raw_dbf=raw_dbf,
-                raw_xbrl_instant=raw_xbrl_instant,
-                raw_xbrl_duration=raw_xbrl_duration,
+                raw_instant_xbrl=raw_instant_xbrl,
+                raw_duration_xbrl=raw_duration_xbrl,
             )
             .pipe(self.transform_main, transformed_fuel=transformed_fuel)
             .pipe(self.transform_end)
@@ -3049,10 +3049,10 @@ def transform(
                 xbrl_metadata_json=xbrl_metadata_json[table],
             ).transform(
                 raw_dbf=ferc1_dbf_raw_dfs[table],
-                raw_xbrl_instant=ferc1_xbrl_raw_dfs[table].get(
+                raw_instant_xbrl=ferc1_xbrl_raw_dfs[table].get(
                     "instant", pd.DataFrame()
                 ),
-                raw_xbrl_duration=ferc1_xbrl_raw_dfs[table].get(
+                raw_duration_xbrl=ferc1_xbrl_raw_dfs[table].get(
                     "duration", pd.DataFrame()
                 ),
             )
@@ -3063,10 +3063,10 @@ def transform(
             xbrl_metadata_json=xbrl_metadata_json["plants_steam_ferc1"]
         ).transform(
             raw_dbf=ferc1_dbf_raw_dfs["plants_steam_ferc1"],
-            raw_xbrl_instant=ferc1_xbrl_raw_dfs["plants_steam_ferc1"].get(
+            raw_instant_xbrl=ferc1_xbrl_raw_dfs["plants_steam_ferc1"].get(
                 "instant", pd.DataFrame()
             ),
-            raw_xbrl_duration=ferc1_xbrl_raw_dfs["plants_steam_ferc1"].get(
+            raw_duration_xbrl=ferc1_xbrl_raw_dfs["plants_steam_ferc1"].get(
                 "duration", pd.DataFrame()
             ),
             # use a copy of the fuel table because we *definitely* don't want it to
