@@ -141,10 +141,6 @@ TABLE_NAME_MAP: dict[str, dict[str, str]] = {
         "dbf": "f1_purchased_pwr",
         "xbrl": "purchased_power_326",
     },
-    "electric_oandm_ferc1": {
-        "dbf": "f1_324_elc_expns",
-        "xbrl": "electric_operations_and_maintenance_expenses_320",
-    },
     "electric_energy_sources_ferc1": {
         "dbf": "f1_elctrc_erg_acct",
         "xbrl": "electric_energy_account_401a",
@@ -161,6 +157,10 @@ TABLE_NAME_MAP: dict[str, dict[str, str]] = {
         "dbf": "f1_xmssn_line",
         "xbrl": "transmission_line_statistics_422",
     },
+    "electric_opex_ferc1": {
+        "dbf": "f1_elc_op_mnt_expn",
+        "xbrl": "electric_operations_and_maintenance_expenses_320",
+    },
     "balance_sheet_liabilities_ferc1": {
         "dbf": "f1_bal_sheet_cr",
         "xbrl": "comparative_balance_sheet_liabilities_and_other_credits_110",
@@ -173,6 +173,14 @@ TABLE_NAME_MAP: dict[str, dict[str, str]] = {
     "income_statement_ferc1": {
         "dbf": ["f1_income_stmnt", "f1_incm_stmnt_2"],
         "xbrl": "statement_of_income_114",
+    },
+    "retained_earnings_ferc1": {
+        "dbf": "f1_retained_erng",
+        "xbrl": "retained_earnings_118",
+    },
+    "retained_earnings_appropriations_ferc1": {
+        "dbf": "f1_retained_erng",
+        "xbrl": "retained_earnings_appropriations_118",
     },
     "depreciation_amortization_summary_ferc1": {
         "dbf": "f1_dacs_epda",
