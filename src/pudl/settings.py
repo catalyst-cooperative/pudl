@@ -7,13 +7,13 @@ from typing import ClassVar
 
 import pandas as pd
 import yaml
-from more_itertools import collapse
 from pydantic import AnyHttpUrl
 from pydantic import BaseModel as PydanticBaseModel
 from pydantic import BaseSettings, root_validator, validator
 
 import pudl
 import pudl.workspace.setup
+from pudl.helpers import flatten
 from pudl.metadata.classes import DataSource
 from pudl.metadata.constants import DBF_TABLES_FILENAMES, XBRL_TABLES
 from pudl.metadata.resources.eia861 import TABLE_DEPENDENCIES
@@ -668,7 +668,7 @@ class EtlSettings(BaseSettings):
             }
             # DBF table check
             dbf_tables_needed = set(
-                collapse([tbl_dict["dbf"] for tbl_dict in table_map.values()])
+                flatten([tbl_dict["dbf"] for tbl_dict in table_map.values()])
             )
             dbf_tables_needed.add("f1_respondent_id")
             if dbf_missing := dbf_tables_needed.difference(
@@ -681,7 +681,7 @@ class EtlSettings(BaseSettings):
             # do this check if there are any tables given.
             if ferc1_xbrl_to_sqlite_settings.tables:
                 xbrl_tables_needed = set(
-                    collapse([tbl_dict["xbrl"] for tbl_dict in table_map.values()])
+                    flatten([tbl_dict["xbrl"] for tbl_dict in table_map.values()])
                 )
                 xbrl_tables_needed.add("identification_001")
                 xbrl_tables_needed = {

@@ -11,6 +11,7 @@ import pathlib
 import re
 import shutil
 from collections import defaultdict
+from collections.abc import Generator, Iterable
 from functools import partial
 from importlib import resources
 from io import BytesIO
@@ -1525,6 +1526,19 @@ def get_eia_ferc_acct_map():
 def dedupe_n_flatten_list_of_lists(mega_list):
     """Flatten a list of lists and remove duplicates."""
     return list({item for sublist in mega_list for item in sublist})
+
+
+def flatten(xs: list) -> Generator:
+    """Flatten an irregular (arbitrarily nested) list of lists.
+
+    Inspiration from: https://stackoverflow.com/questions/2158395/flatten-an-irregular-
+    arbitrarily-nested-list-of-lists
+    """
+    for x in xs:
+        if isinstance(x, Iterable) and not isinstance(x, (str, bytes)):
+            yield from flatten(x)
+        else:
+            yield x
 
 
 def convert_df_to_excel_file(df: pd.DataFrame, **kwargs) -> pd.ExcelFile:
