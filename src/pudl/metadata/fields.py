@@ -57,6 +57,11 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     "alternative_fuel_vehicle_activity": {"type": "boolean"},
     "annual_indirect_program_cost": {"type": "number", "unit": "USD"},
     "annual_total_cost": {"type": "number", "unit": "USD"},
+    "amount": {
+        "description": "Reported amount of dollars. This could be a balance or a change in value.",
+        "type": "number",
+        "unit": "USD",
+    },
     "appro_part_label": {
         "type": "string",
         "description": "Plant part of the associated true granularity record.",
@@ -372,6 +377,13 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "unit": "USD",
     },
     "demand_mwh": {"type": "number", "unit": "MWh"},
+    "depreciation_type": {
+        "type": "string",
+        "description": (
+            "Type of depreciation provision within FERC Account 108, including cost of"
+            "removal, depreciation expenses, salvage, cost of retired plant, etc."
+        ),
+    },
     "depreciation_amortization_value": {
         "type": "number",
         "unit": "USD",
@@ -389,6 +401,10 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     "doi": {
         "type": "string",
         "description": "Unique digitial object identifier of Zenodo archive.",
+    },
+    "earnings_type": {
+        "type": "string",
+        "description": "Label describing types of earnings.",
     },
     "ending_balance": {
         "type": "number",
@@ -462,6 +478,10 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "type": "number",
         "description": "Electric Plant In Service (USD).",
         "unit": "USD",
+    },
+    "plant_classification_type": {
+        "type": "string",
+        "description": "Status of electric plant (in service, future, leased, total).",
     },
     "emissions_unit_id_epa": {
         "type": "string",
@@ -579,6 +599,12 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     },
     "exchange_energy_delivered_mwh": {"type": "number", "unit": "MWh"},
     "exchange_energy_received_mwh": {"type": "number", "unit": "MWh"},
+    "expense": {
+        "type": "number",
+        "unit": "USD",
+        "description": "The amount of a given expense in USD.",
+    },
+    "expense_type": {"type": "string", "description": "The type of expense."},
     "ferc_account": {
         "type": "string",
         "description": "Actual FERC Account number (e.g. '359.1') if available, or a PUDL assigned ID when FERC accounts have been split or combined in reporting.",

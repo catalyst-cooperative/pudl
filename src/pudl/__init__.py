@@ -72,10 +72,6 @@ TABLE_NAME_MAP_FERC1: dict[str, dict[str, str]] = {
         "dbf": "f1_purchased_pwr",
         "xbrl": "purchased_power_326",
     },
-    "electric_oandm_ferc1": {
-        "dbf": "f1_324_elc_expns",
-        "xbrl": "electric_operations_and_maintenance_expenses_320",
-    },
     "electric_energy_sources_ferc1": {
         "dbf": "f1_elctrc_erg_acct",
         "xbrl": "electric_energy_account_401a",
@@ -88,9 +84,13 @@ TABLE_NAME_MAP_FERC1: dict[str, dict[str, str]] = {
         "dbf": "f1_utltyplnt_smmry",
         "xbrl": "summary_of_utility_plant_and_accumulated_provisions_for_depreciation_amortization_and_depletion_200",
     },
-    "transmission_ferc1": {
+    "transmission_statistics_ferc1": {
         "dbf": "f1_xmssn_line",
         "xbrl": "transmission_line_statistics_422",
+    },
+    "electric_opex_ferc1": {
+        "dbf": "f1_elc_op_mnt_expn",
+        "xbrl": "electric_operations_and_maintenance_expenses_320",
     },
     "balance_sheet_liabilities_ferc1": {
         "dbf": "f1_bal_sheet_cr",
@@ -105,9 +105,25 @@ TABLE_NAME_MAP_FERC1: dict[str, dict[str, str]] = {
         "dbf": ["f1_income_stmnt", "f1_incm_stmnt_2"],
         "xbrl": "statement_of_income_114",
     },
+    "retained_earnings_ferc1": {
+        "dbf": "f1_retained_erng",
+        "xbrl": "retained_earnings_118",
+    },
+    "retained_earnings_appropriations_ferc1": {
+        "dbf": "f1_retained_erng",
+        "xbrl": "retained_earnings_appropriations_118",
+    },
     "depreciation_amortization_summary_ferc1": {
         "dbf": "f1_dacs_epda",
         "xbrl": "summary_of_depreciation_and_amortization_charges_section_a_336",
+    },
+    "electric_plant_depreciation_changes_ferc1": {
+        "dbf": "f1_accumdepr_prvsn",
+        "xbrl": "accumulated_provision_for_depreciation_of_electric_utility_plant_changes_section_a_219",
+    },
+    "electric_plant_depreciation_functional_ferc1": {
+        "dbf": "f1_accumdepr_prvsn",
+        "xbrl": "accumulated_provision_for_depreciation_of_electric_utility_plant_functional_classification_section_b_219",
     },
 }
 """A mapping of PUDL DB table names to their XBRL and DBF source table names."""

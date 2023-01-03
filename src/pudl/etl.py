@@ -28,11 +28,7 @@ import sqlalchemy as sa
 import pudl
 from pudl.helpers import convert_cols_dtypes
 from pudl.metadata.classes import Package, Resource
-from pudl.metadata.dfs import (
-    FERC_ACCOUNTS,
-    FERC_DEPRECIATION_LINES,
-    POLITICAL_SUBDIVISIONS,
-)
+from pudl.metadata.dfs import FERC_ACCOUNTS, POLITICAL_SUBDIVISIONS
 from pudl.metadata.fields import apply_pudl_dtypes
 from pudl.settings import (
     EiaSettings,
@@ -140,17 +136,13 @@ def _read_static_tables_ferc1():
     """Compile static tables for FERC1 for foriegn key constaints.
 
     This function grabs static encoded tables via :func:`_read_static_encoding_tables`
-    as well as two static tables that are non-encoded tables (``ferc_accounts`` and
-    ``ferc_depreciation_lines``).
+    as well as any static tables that are non-encoded tables (e.e. ``ferc_accounts``).
     """
     static_table_dict = _read_static_encoding_tables("static_ferc1")
     static_table_dict.update(
         {
             "ferc_accounts": FERC_ACCOUNTS[
                 ["ferc_account_id", "ferc_account_description"]
-            ],
-            "ferc_depreciation_lines": FERC_DEPRECIATION_LINES[
-                ["line_id", "ferc_account_description"]
             ],
         }
     )
