@@ -377,6 +377,13 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "unit": "USD",
     },
     "demand_mwh": {"type": "number", "unit": "MWh"},
+    "depreciation_type": {
+        "type": "string",
+        "description": (
+            "Type of depreciation provision within FERC Account 108, including cost of"
+            "removal, depreciation expenses, salvage, cost of retired plant, etc."
+        ),
+    },
     "depreciation_amortization_value": {
         "type": "number",
         "unit": "USD",
@@ -471,6 +478,10 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "type": "number",
         "description": "Electric Plant In Service (USD).",
         "unit": "USD",
+    },
+    "plant_classification_type": {
+        "type": "string",
+        "description": "Status of electric plant (in service, future, leased, total).",
     },
     "emissions_unit_id_epa": {
         "type": "string",

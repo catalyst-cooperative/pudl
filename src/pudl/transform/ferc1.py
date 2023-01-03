@@ -69,7 +69,7 @@ class TableIdFerc1(enum.Enum):
     PLANTS_PUMPED_STORAGE_FERC1 = "plants_pumped_storage_ferc1"
     PLANT_IN_SERVICE_FERC1 = "plant_in_service_ferc1"
     PURCHASED_POWER_FERC1 = "purchased_power_ferc1"
-    TRANSMISSION_FERC1 = "transmission_ferc1"
+    TRANSMISSION_STATISTICS_FERC1 = "transmission_statistics_ferc1"
     ELECTRIC_ENERGY_SOURCES_FERC1 = "electric_energy_sources_ferc1"
     ELECTRIC_ENERGY_DISPOSITIONS_FERC1 = "electric_energy_dispositions_ferc1"
     UTILITY_PLANT_SUMMARY_FERC1 = "utility_plant_summary_ferc1"
@@ -79,6 +79,9 @@ class TableIdFerc1(enum.Enum):
     BALANCE_SHEET_ASSETS_FERC1 = "balance_sheet_assets_ferc1"
     RETAINED_EARNINGS_FERC1 = "retained_earnings_ferc1"
     INCOME_STATEMENT_FERC1 = "income_statement_ferc1"
+    ELECTRIC_PLANT_DEPRECIATION_CHANGES_FERC1 = (
+        "electric_plant_depreciation_changes_ferc1"
+    )
 
 
 ################################################################################
@@ -189,7 +192,7 @@ def wide_to_tidy(df: pd.DataFrame, params: WideToTidy) -> pd.DataFrame:
     logger.debug(f"dropping: {dropped_cols}")
     if params.expected_drop_cols != len(dropped_cols):
         raise AssertionError(
-            f"Dropping more columns ({len(dropped_cols)}) than expected "
+            f"Unexpected number of columns dropped: ({len(dropped_cols)}) instead of "
             f"({params.expected_drop_cols}). Columns dropped: {dropped_cols}"
         )
 
@@ -455,41 +458,51 @@ class UnstackBalancesToReportYearInstantXbrl(TransformParams):
 
 
 def unstack_balances_to_report_year_instant_xbrl(
-    df: pd.DataFrame, params: UnstackBalancesToReportYearInstantXbrl
+    df: pd.DataFrame,
+    params: UnstackBalancesToReportYearInstantXbrl,
+    primary_key_cols: list[str],
 ) -> pd.DataFrame:
     """Turn start year end year rows into columns for each value type.
 
-    This function is utilized in :func:`process_instant_xbrl`.
+    Called in :meth:`Ferc1AbstractTableTransformer.process_instant_xbrl`.
 
-    There are some instant tables that report the start-of-year data and the
-    end-of-year data on seperate rows. The dbf version of the table has a column for the
-    starting data, a column for the ending data, and a row number that cooresponds with
-    the row literal that data represents: i.e., cost, etc.
+    Some instant tables report year-end data, with their datestamps in different years,
+    but we want year-start and year-end data within a single report_year (which is
+    equivalent) stored in two separate columns for compatibility with the DBF data.
 
     This function unstacks that table and adds the suffixes ``_starting_balance`` and
-    ``_ending_balance`` to each of the columns. These may then be used as
-    ``value_types`` in the :func:`wide_to_tody` function to normalize the table.
+    ``_ending_balance`` to each of the columns. These can then be used as
+    ``value_types`` in :func:`wide_to_tidy` to normalize the table.
 
     There are two checks in place:
 
-    First, it will make sure that there are not multiple entries per year for the same
-    entiity_id. Ex: a row for 2020-12-31 and 2020-06-30 for entitiy_id X means that
-    there's more data here than is getting reported. We could just drop these mid-year
+    First, it will make sure that there are not duplicate entries for a single year +
+    other primary key fields. Ex: a row for 2020-12-31 and 2020-06-30 for entitiy_id X
+    means that the data isn't annually unique. We could just drop these mid-year
     values, but we might want to keep them or at least check that there is no funny
     business with the data.
 
-    It will also check that there are no mid-year dates period. If an entity reports
-    a value from the middle of the year, there is no telling whether that actually
-    represents the start or end balance and requires a closer look.
+    We also check that there are no mid-year dates at all. If an entity reports a value
+    from the middle of the year, we can't identify it as a start/end of year value.
+
+    Params:
+        primary_key_cols: The columns that should be used to check for duplicated data,
+            and also for unstacking the balance -- these are set to be the index before
+            unstack is called. These are typically set by the wrapping method and
+            generated automatically based on other class transformation parameters via
+            :meth:`Ferc1AbstractTableTransformer.source_table_primary_key`.
     """
-    if params is None:
-        params = UnstackBalancesToReportYearInstantXbrl()
     if params.unstack_balances_to_report_year:
         df["year"] = pd.to_datetime(df["date"]).dt.year
-        if df.duplicated(["entity_id", "year"]).any():
+        # Check that the originally reported records are annually unique.
+        # year and report_year aren't necessarily the same since previous year data
+        # is often reported in the current report year, but we're constructing a table
+        # where report_year is part of the primary key, so we have to do this:
+        unique_cols = [c for c in primary_key_cols if c != "report_year"] + ["year"]
+        if df.duplicated(unique_cols).any():
             raise AssertionError(
                 "Looks like there are multiple entries per year--not sure which to use "
-                "for the start/end balance."
+                f"for the start/end balance. {params=} {primary_key_cols=}"
             )
         if not pd.to_datetime(df["date"]).dt.is_year_end.all():
             raise AssertionError(
@@ -498,7 +511,7 @@ def unstack_balances_to_report_year_instant_xbrl(
             )
         df.loc[df.report_year == (df.year + 1), "balance_type"] = "starting_balance"
         df.loc[df.report_year == df.year, "balance_type"] = "ending_balance"
-        if not df.balance_type.notna().all():
+        if df.balance_type.isna().any():
             # Remove rows from years that are not representative of start/end dates
             # for a given report year (i.e., the report year and one year prior).
             logger.warning(
@@ -508,7 +521,7 @@ def unstack_balances_to_report_year_instant_xbrl(
             df = df[df["balance_type"].notna()].copy()
         df = (
             df.drop(["year", "date"], axis="columns")
-            .set_index(["entity_id", "report_year", "balance_type"])
+            .set_index(primary_key_cols + ["balance_type"])
             .unstack("balance_type")
         )
         # This turns a multi-index into a single-level index with tuples of strings
@@ -1044,7 +1057,13 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
         if params is None:
             params = self.params.unstack_balances_to_report_year_instant_xbrl
         if params.unstack_balances_to_report_year:
-            df = unstack_balances_to_report_year_instant_xbrl(df, params=params)
+            df = unstack_balances_to_report_year_instant_xbrl(
+                df,
+                params=params,
+                primary_key_cols=self.source_table_primary_key(
+                    source_ferc1=SourceFerc1.XBRL
+                ),
+            )
         return df
 
     @cache_df(key="xbrl")
@@ -2918,10 +2937,10 @@ class PlantsSmallFerc1TableTransformer(Ferc1AbstractTableTransformer):
         return df
 
 
-class TransmissionFerc1TableTransformer(Ferc1AbstractTableTransformer):
-    """A table transformer specific to the :ref:`transmission_ferc1` table."""
+class TransmissionStatisticsFerc1TableTransformer(Ferc1AbstractTableTransformer):
+    """A table transformer for the :ref:`transmission_statistics_ferc1` table."""
 
-    table_id: TableIdFerc1 = TableIdFerc1.TRANSMISSION_FERC1
+    table_id: TableIdFerc1 = TableIdFerc1.TRANSMISSION_STATISTICS_FERC1
     has_unique_record_ids: bool = False
 
 
@@ -3241,6 +3260,71 @@ class DepreciationAmortizationSummaryFerc1TableTransformer(
         return df
 
 
+class ElectricPlantDepreciationChangesFerc1TableTransformer(
+    Ferc1AbstractTableTransformer
+):
+    """Transformer class for :ref:`electric_plant_depreciation_changes_ferc1` table."""
+
+    table_id: TableIdFerc1 = TableIdFerc1.ELECTRIC_PLANT_DEPRECIATION_CHANGES_FERC1
+    has_unique_record_ids: bool = False
+
+    @cache_df("process_xbrl_metadata")
+    def process_xbrl_metadata(self, xbrl_metadata_json) -> pd.DataFrame:
+        """Transform the metadata to reflect the transformed data.
+
+        Replace the name of the balance column reported in the XBRL Instant table with
+        starting_balance / ending_balance since we pull those two values into their own
+        separate labeled rows, each of which should get the original metadata for the
+        Instant column.
+        """
+        meta = (
+            super()
+            .process_xbrl_metadata(xbrl_metadata_json)
+            .assign(
+                xbrl_factoid=lambda x: x.xbrl_factoid.replace(
+                    {
+                        "accumulated_provision_for_depreciation_of_electric_utility_plant": "starting_balance"
+                    }
+                )
+            )
+        )
+        ending_balance = meta[meta.xbrl_factoid == "starting_balance"].assign(
+            xbrl_factoid="ending_balance"
+        )
+        return pd.concat([meta, ending_balance])
+
+    @cache_df("dbf")
+    def process_dbf(self, df: pd.DataFrame) -> pd.DataFrame:
+        """Accumulated Depreciation table specific DBF cleaning operations.
+
+        The XBRL reports a utility_type which is always electric in this table, but
+        which may be necessary for differentiating between different values when this
+        data is combined with other tables. The DBF data doesn't report this value so
+        we are adding it here for consistency across the two data sources.
+
+        Also rename the ``ending_balance_accounts`` to ``ending_balance``
+        """
+        df = super().process_dbf(df).assign(utility_type="electric")
+        df.loc[
+            df["depreciation_type"] == "ending_balance_accounts", "depreciation_type"
+        ] = "ending_balance"
+        return df
+
+    @cache_df("process_instant_xbrl")
+    def process_instant_xbrl(self, df: pd.DataFrame) -> pd.DataFrame:
+        """Pre-processing required to make the instant and duration tables compatible.
+
+        This table has a rename that needs to take place in an unusual spot -- after the
+        starting / ending balances have been usntacked, but before the instant &
+        duration tables are merged. This method just reversed the order in which these
+        operations happen, comapared to the inherited method.
+        """
+        df = self.unstack_balances_to_report_year_instant_xbrl(df).pipe(
+            self.rename_columns, rename_stage="instant_xbrl"
+        )
+        return df
+
+
 class ElectricOpexFerc1TableTransformer(Ferc1AbstractTableTransformer):
     """Transformer class for :ref:`electric_opex_ferc1` table."""
 
@@ -3298,7 +3382,7 @@ def transform(
         "plants_hydro_ferc1": PlantsHydroFerc1TableTransformer,
         "plant_in_service_ferc1": PlantInServiceFerc1TableTransformer,
         "plants_pumped_storage_ferc1": PlantsPumpedStorageFerc1TableTransformer,
-        "transmission_ferc1": TransmissionFerc1TableTransformer,
+        "transmission_statistics_ferc1": TransmissionStatisticsFerc1TableTransformer,
         "purchased_power_ferc1": PurchasedPowerFerc1TableTransformer,
         "electric_energy_sources_ferc1": ElectricEnergySourcesFerc1TableTransformer,
         "electric_energy_dispositions_ferc1": ElectricEnergyDispositionsFerc1TableTransformer,
@@ -3308,6 +3392,7 @@ def transform(
         "depreciation_amortization_summary_ferc1": DepreciationAmortizationSummaryFerc1TableTransformer,
         "balance_sheet_assets_ferc1": BalanceSheetAssetsFerc1TableTransformer,
         "income_statement_ferc1": IncomeStatementFerc1TableTransformer,
+        "electric_plant_depreciation_changes_ferc1": ElectricPlantDepreciationChangesFerc1TableTransformer,
         "retained_earnings_ferc1": RetainedEarningsFerc1TableTransformer,
     }
     # create an empty ditctionary to fill up through the transform fuctions
@@ -3359,26 +3444,14 @@ if __name__ == "__main__":
     """Make the module runnable for iterative testing during development."""
 
     ferc1_settings = Ferc1Settings(
-        # Do one year of each, type of data, or all the years:
+        # 1 year DBF + 1 year XBRL:
         years=[2020, 2021],
+        # All the years (slow with plants_steam_ferc1 included)
         # years=Ferc1Settings().years,
-        tables=[
-            "fuel_ferc1",
-            "plants_steam_ferc1",
-            "plants_hydro_ferc1",
-            "plant_in_service_ferc1",
-            "plants_pumped_storage_ferc1",
-            "purchased_power_ferc1",
-            "plants_small_ferc1",
-            "transmission_ferc1",
-            "electric_energy_sources_ferc1",
-            "electric_energy_dispositions_ferc1",
-            "utility_plant_summary_ferc1",
-            "balance_sheet_assets_ferc1",
-            "income_statement_ferc1",
-            "depreciation_amortization_summary_ferc1",
-            "retained_earnings_ferc1",
-        ],
+        # Just test your new table:
+        # tables=["your_new_table_ferc1"],
+        # Run all the tables to make sure you haven't broken something!
+        tables=Ferc1Settings().tables,
     )
     pudl_settings = pudl.workspace.setup.get_defaults()
     ferc1_dbf_raw_dfs = pudl.extract.ferc1.extract_dbf(
