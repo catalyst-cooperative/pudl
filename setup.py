@@ -106,7 +106,7 @@ setup(
             "nbval>=0.9,<0.10",
             "pep8-naming>=0.12,<0.14",
             "pre-commit>=2.9,<2.22",
-            "pydocstyle>=5.1,<6.2",
+            "pydocstyle>=5.1,<6.3",
             "pytest>=6.2,<7.3",
             "pytest-console-scripts>=1.1,<1.4",
             "pytest-cov>=2.10,<4.1",
