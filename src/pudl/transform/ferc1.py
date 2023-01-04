@@ -1267,7 +1267,9 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
 
     def source_table_id(self, source_ferc1: SourceFerc1, **kwargs) -> str:
         """Look up the ID of the raw data source table."""
-        return pudl.TABLE_NAME_MAP_FERC1[self.table_id.value][source_ferc1.value]
+        return pudl.extract.ferc1.TABLE_NAME_MAP_FERC1[self.table_id.value][
+            source_ferc1.value
+        ]
 
     def source_table_primary_key(self, source_ferc1: SourceFerc1) -> list[str]:
         """Look up the pre-renaming source table primary key columns."""

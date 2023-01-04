@@ -13,7 +13,7 @@ from pydantic import BaseSettings, root_validator, validator
 
 import pudl
 import pudl.workspace.setup
-from pudl.helpers import flatten
+from pudl.helpers import flatten_list
 from pudl.metadata.classes import DataSource
 from pudl.metadata.constants import DBF_TABLES_FILENAMES, XBRL_TABLES
 from pudl.metadata.resources.eia861 import TABLE_DEPENDENCIES
@@ -650,72 +650,99 @@ class EtlSettings(BaseSettings):
 
     @root_validator(pre=False)
     def raw_table_validation_ferc1(cls, field_values):
-        """Require the presence of raw FERC1 tables needed for PUDL table creation."""
+        """Require the presence of raw FERC1 tables needed for PUDL table creation.
+
+        The FERC-derivative PUDL tables being loaded within this settings object
+        (within ``ferc_to_sqlite_settings``) are dependent on the presence of the tables
+        in the raw FERC SQLite databases, which are also a part of this settings object
+        (within ``datasets.ferc1``). A user doesn't always run ``ferc_to_sqlite`` and
+        ``pudl_etl`` at the same time, but this settings object has no idea what the
+        settings will be used for, so it validates that the tables that are in the
+        settings object are internally consistent.
+
+        If this settings object contains FERC-derivative PUDL tables AND there are
+        ``ferc_to_sqlite_settings``, this validator will run. If you are not attempting
+        to run ``ferc_to_sqlite``, you can either include no ``ferc_to_sqlite_settings``
+        or provide ``ferc_to_sqlite_settings`` that are consistent with your tables
+        in ``datasets.ferc1``.
+        """
         # only check if we are actually loading any pudl tables
-        if field_values["datasets"] and field_values["ferc_to_sqlite_settings"]:
-            ferc1_settings = field_values["datasets"].ferc1
-            ferc1_xbrl_to_sqlite_settings = field_values[
-                "ferc_to_sqlite_settings"
-            ].ferc1_xbrl_to_sqlite_settings
-            ferc1_dbf_to_sqlite_settings = field_values[
-                "ferc_to_sqlite_settings"
-            ].ferc1_dbf_to_sqlite_settings
+        if not field_values["datasets"] and not field_values["ferc_to_sqlite_settings"]:
+            return field_values
+        ferc1_settings = field_values["datasets"].ferc1
+        ferc1_xbrl_to_sqlite_settings = field_values[
+            "ferc_to_sqlite_settings"
+        ].ferc1_xbrl_to_sqlite_settings
+        ferc1_dbf_to_sqlite_settings = field_values[
+            "ferc_to_sqlite_settings"
+        ].ferc1_dbf_to_sqlite_settings
 
-            pudl_etl_tables = ferc1_settings.tables
-            table_map = {
-                pudl_table: raw_dict
-                for (pudl_table, raw_dict) in pudl.TABLE_NAME_MAP_FERC1.items()
-                if pudl_table in pudl_etl_tables
+        pudl_etl_tables = ferc1_settings.tables
+        table_map = {
+            pudl_table: raw_dict
+            for (
+                pudl_table,
+                raw_dict,
+            ) in pudl.extract.ferc1.TABLE_NAME_MAP_FERC1.items()
+            if pudl_table in pudl_etl_tables
+        }
+
+        def _get_tables_from_table_map_by_source(
+            table_map: dict[str, dict[Literal["dbf", "xbrl"], str | list[str]]],
+            source_ferc1: Literal["dbf", "xbrl"],
+        ) -> set:
+            """Convert the table_map into a set of source table names.
+
+            We grab all of the raw tables needed from the FERC1 sources from the
+            table_map. These raw tables are stored as either a string or a list of
+            strings, so we flatten them. The we add the respondent table because it is
+            always needed.
+            """
+            tables_needed = set(
+                flatten_list(
+                    [tbl_dict[source_ferc1] for tbl_dict in table_map.values()]
+                )
+            )
+            # add the respondent table bc its always needed
+            tables_needed.add(
+                "f1_respondent_id" if source_ferc1 == "dbf" else "identification_001"
+            )
+            return tables_needed
+
+        def missing_table_error_message(
+            missing_tables: list[str],
+            source_ferc1: Literal["dbf", "xbrl"],
+        ) -> str:
+            """Return error message for missing tables."""
+            return (
+                f"There are tables missing from ferc1_{source_ferc1}_to_sqlite_settings"
+                " that are needed to load FERC-derivative PUDL tables in these settings."
+                f"\nMissing Tables: {missing_tables}. \nNOTE: If you are not trying to "
+                "run ferc_to_sqlite, but your settings contain FERC-derivative PUDL "
+                "tables, you can EITHER provide NO ferc_to_sqlite_settings or provide "
+                "tables consistent with your PUDL table settings."
+            )
+
+        # DBF table check
+        if ferc1_dbf_to_sqlite_settings:
+            dbf_tables_needed = _get_tables_from_table_map_by_source(table_map, "dbf")
+            if dbf_missing := dbf_tables_needed.difference(
+                set(ferc1_dbf_to_sqlite_settings.tables)
+            ):
+                raise AssertionError(missing_table_error_message(dbf_missing, "dbf"))
+
+        # XBRL table check
+        # the XBRL extractor can take a list of none and extract everything so only
+        # do this check if there are any tables given.
+        if ferc1_xbrl_to_sqlite_settings and ferc1_xbrl_to_sqlite_settings.tables:
+            xbrl_tables_needed = _get_tables_from_table_map_by_source(table_map, "xbrl")
+            xbrl_tables_needed = {tbl + "_instant" for tbl in xbrl_tables_needed} | {
+                tbl + "_duration" for tbl in xbrl_tables_needed
             }
-
-            def _get_tables_from_table_map_by_source(
-                table_map: dict[str, dict[Literal["dbf", "xbrl"], str | list[str]]],
-                source_ferc1: Literal["dbf", "xbrl"],
-            ) -> set:
-                """Convert the table_map into a set of source table names.
-
-                We grab all of the raw tables needed from the FERC1 sources from the
-                table_map. These raw tables are stored as either a string or a list of
-                strings, so we flatten them. The we add the respondent table because it
-                is always needed.
-                """
-                tables_needed = set(
-                    flatten([tbl_dict[source_ferc1] for tbl_dict in table_map.values()])
-                )
-                # add the respondent table bc its always needed
-                tables_needed.add(
-                    "f1_respondent_id"
-                    if source_ferc1 == "dbf"
-                    else "identification_001"
-                )
-                return tables_needed
-
-            # DBF table check
-            if ferc1_dbf_to_sqlite_settings:
-                dbf_tables_needed = _get_tables_from_table_map_by_source(
-                    table_map, "dbf"
-                )
-                if dbf_missing := dbf_tables_needed.difference(
-                    set(ferc1_dbf_to_sqlite_settings.tables)
-                ):
-                    raise AssertionError(
-                        f"DBF tables missing from settings: {dbf_missing}"
-                    )
-
-            # XBRL table check
-            # the XBRL extractor can take a list of none and extract everything so only
-            # do this check if there are any tables given.
-            if ferc1_xbrl_to_sqlite_settings and ferc1_xbrl_to_sqlite_settings.tables:
-                xbrl_tables_needed = _get_tables_from_table_map_by_source(
-                    table_map, "xbrl"
-                )
-                xbrl_tables_needed = {
-                    tbl + "_instant" for tbl in xbrl_tables_needed
-                } | {tbl + "_duration" for tbl in xbrl_tables_needed}
-                if xbrl_missing := xbrl_tables_needed.difference(
-                    set(ferc1_xbrl_to_sqlite_settings.tables)
-                ):
-                    raise AssertionError(f"XBRL tables missing: {xbrl_missing}")
+            if xbrl_missing := xbrl_tables_needed.difference(
+                set(ferc1_xbrl_to_sqlite_settings.tables)
+            ):
+                raise AssertionError(missing_table_error_message(xbrl_missing, "xbrl"))
         return field_values
 
     @classmethod
