@@ -652,9 +652,19 @@ class EtlSettings(BaseSettings):
     def raw_table_validation_ferc1(cls, field_values):
         """Require the presence of raw FERC1 tables needed for PUDL table creation.
 
-        The FERC-derivative PUDL tables being loaded within this settings object are
-        dependent on the presence of the tables in the raw FERC SQLite databases, which
-        are also
+        The FERC-derivative PUDL tables being loaded within this settings object
+        (within ``ferc_to_sqlite_settings``) are dependent on the presence of the tables
+        in the raw FERC SQLite databases, which are also a part of this settings object
+        (within ``datasets.ferc1``). A user doesn't always run ``ferc_to_sqlite`` and
+        ``pudl_etl`` at the same time, but this settings object has no idea what the
+        settings will be used for, so it validates that the tables that are in the
+        settings object are internally consistent.
+
+        If this settings object contains FERC-derivative PUDL tables AND there are
+        ``ferc_to_sqlite_settings``, this validator will run. If you are not attempting
+        to run ``ferc_to_sqlite``, you can either include no ``ferc_to_sqlite_settings``
+        or provide ``ferc_to_sqlite_settings`` that are consistent with your tables
+        in ``datasets.ferc1``.
         """
         # only check if we are actually loading any pudl tables
         if not field_values["datasets"] and not field_values["ferc_to_sqlite_settings"]:
@@ -699,13 +709,27 @@ class EtlSettings(BaseSettings):
             )
             return tables_needed
 
+        def missing_table_error_message(
+            missing_tables: list[str],
+            source_ferc1: Literal["dbf", "xbrl"],
+        ) -> str:
+            """Return error message for missing tables."""
+            return (
+                f"There are tables missing from ferc1_{source_ferc1}_to_sqlite_settings"
+                " that are needed to load FERC-derivative PUDL tables in these settings."
+                f"\nMissing Tables: {missing_tables}. \nNOTE: If you are not trying to "
+                "run ferc_to_sqlite, but your settings contain FERC-derivative PUDL "
+                "tables, you can EITHER provide NO ferc_to_sqlite_settings or provide "
+                "tables consistent with your PUDL table settings."
+            )
+
         # DBF table check
         if ferc1_dbf_to_sqlite_settings:
             dbf_tables_needed = _get_tables_from_table_map_by_source(table_map, "dbf")
             if dbf_missing := dbf_tables_needed.difference(
                 set(ferc1_dbf_to_sqlite_settings.tables)
             ):
-                raise AssertionError(f"DBF tables missing from settings: {dbf_missing}")
+                raise AssertionError(missing_table_error_message(dbf_missing, "dbf"))
 
         # XBRL table check
         # the XBRL extractor can take a list of none and extract everything so only
@@ -718,7 +742,7 @@ class EtlSettings(BaseSettings):
             if xbrl_missing := xbrl_tables_needed.difference(
                 set(ferc1_xbrl_to_sqlite_settings.tables)
             ):
-                raise AssertionError(f"XBRL tables missing: {xbrl_missing}")
+                raise AssertionError(missing_table_error_message(xbrl_missing, "xbrl"))
         return field_values
 
     @classmethod
