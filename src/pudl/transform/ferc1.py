@@ -540,11 +540,6 @@ class Ferc1TableTransformParams(TableTransformParams):
     :class:`pudl.transform.classes.AbstractTableTransformer` class.
     """
 
-    class Config:
-        """Only allow the known table transform params."""
-
-        extra = "forbid"
-
     rename_columns_ferc1: RenameColumnsFerc1 = RenameColumnsFerc1(
         dbf=RenameColumns(),
         xbrl=RenameColumns(),
