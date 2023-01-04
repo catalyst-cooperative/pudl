@@ -67,7 +67,7 @@ setup(
         "python-snappy>=0.6,<0.7",
         "pyyaml>=5,<6.1",
         "scikit-learn>=1.0,<1.3",
-        "scipy>=1.6,<1.10",
+        "scipy>=1.6,<1.11",
         "Shapely>=2.0,<2.1",
         "sqlalchemy>=1.4,<1.4.46",
         "timezonefinder>=5,<6.2",
