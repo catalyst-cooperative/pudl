@@ -598,8 +598,8 @@ def test_zero_pad_numeric_string(df, n_digits):
 
 def test_flatten_strings():
     """Test if :func:`flatten` can flatten an arbitraty list of strings."""
-    lista = ["a", "b", ["c", ["d", "e"]], ["f"]]
-    assert list(flatten(lista)) == ["a", "b", "c", "d", "e", "f"]
+    lista = ["aa", "b", ["cc", ["d", "e"]], ["fff"]]
+    assert list(flatten(lista)) == ["aa", "b", "cc", "d", "e", "fff"]
 
 
 def test_flatten_ints():
@@ -610,5 +610,5 @@ def test_flatten_ints():
 
 def test_flatten_mix_types():
     """Test if :func:`flatten` can flatten an arbitraty list of ints."""
-    list1a = ["1", 2, ["3", [4, "5"]], [[6]]]
-    assert list(flatten(list1a)) == ["1", 2, "3", 4, "5", 6]
+    list1a = ["1", 22, ["333", [4, "5"]], [[666]]]
+    assert list(flatten(list1a)) == ["1", 22, "333", 4, "5", 666]

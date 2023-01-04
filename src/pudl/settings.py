@@ -652,7 +652,7 @@ class EtlSettings(BaseSettings):
     def raw_table_validation_ferc1(cls, field_values):
         """Require the presence of raw FERC1 tables needed for PUDL table creation."""
         # only check if we are actually loading any pudl tables
-        if field_values["datasets"]:
+        if field_values["datasets"] and field_values["ferc_to_sqlite_settings"]:
             ferc1_settings = field_values["datasets"].ferc1
             ferc1_xbrl_to_sqlite_settings = field_values[
                 "ferc_to_sqlite_settings"
@@ -691,16 +691,21 @@ class EtlSettings(BaseSettings):
                 return tables_needed
 
             # DBF table check
-            dbf_tables_needed = _get_tables_from_table_map_by_source(table_map, "dbf")
-            if dbf_missing := dbf_tables_needed.difference(
-                set(ferc1_dbf_to_sqlite_settings.tables)
-            ):
-                raise AssertionError(f"DBF tables missing from settings: {dbf_missing}")
+            if ferc1_dbf_to_sqlite_settings:
+                dbf_tables_needed = _get_tables_from_table_map_by_source(
+                    table_map, "dbf"
+                )
+                if dbf_missing := dbf_tables_needed.difference(
+                    set(ferc1_dbf_to_sqlite_settings.tables)
+                ):
+                    raise AssertionError(
+                        f"DBF tables missing from settings: {dbf_missing}"
+                    )
 
             # XBRL table check
             # the XBRL extractor can take a list of none and extract everything so only
             # do this check if there are any tables given.
-            if ferc1_xbrl_to_sqlite_settings.tables:
+            if ferc1_xbrl_to_sqlite_settings and ferc1_xbrl_to_sqlite_settings.tables:
                 xbrl_tables_needed = _get_tables_from_table_map_by_source(
                     table_map, "xbrl"
                 )
