@@ -650,7 +650,12 @@ class EtlSettings(BaseSettings):
 
     @root_validator(pre=False)
     def raw_table_validation_ferc1(cls, field_values):
-        """Require the presence of raw FERC1 tables needed for PUDL table creation."""
+        """Require the presence of raw FERC1 tables needed for PUDL table creation.
+
+        The FERC-derivative PUDL tables being loaded within this settings object are
+        dependent on the presence of the tables in the raw FERC SQLite databases, which
+        are also
+        """
         # only check if we are actually loading any pudl tables
         if field_values["datasets"] and field_values["ferc_to_sqlite_settings"]:
             ferc1_settings = field_values["datasets"].ferc1
