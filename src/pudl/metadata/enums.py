@@ -68,8 +68,7 @@ NERC_REGIONS: list[str] = [
     "AS",  # American Samoa
     "UNK",
 ]
-"""
-North American Reliability Corporation (NERC) regions.
+"""North American Reliability Corporation (NERC) regions.
 
 See https://www.eia.gov/electricity/data/eia411/#tabs_NERC-3.
 """

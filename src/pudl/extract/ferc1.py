@@ -141,17 +141,58 @@ TABLE_NAME_MAP: dict[str, dict[str, str]] = {
         "dbf": "f1_purchased_pwr",
         "xbrl": "purchased_power_326",
     },
-    "electric_oandm_ferc1": {
-        "dbf": "f1_324_elc_expns",
+    "electric_energy_sources_ferc1": {
+        "dbf": "f1_elctrc_erg_acct",
+        "xbrl": "electric_energy_account_401a",
+    },
+    "electric_energy_dispositions_ferc1": {
+        "dbf": "f1_elctrc_erg_acct",
+        "xbrl": "electric_energy_account_401a",
+    },
+    "utility_plant_summary_ferc1": {
+        "dbf": "f1_utltyplnt_smmry",
+        "xbrl": "summary_of_utility_plant_and_accumulated_provisions_for_depreciation_amortization_and_depletion_200",
+    },
+    "transmission_statistics_ferc1": {
+        "dbf": "f1_xmssn_line",
+        "xbrl": "transmission_line_statistics_422",
+    },
+    "electric_opex_ferc1": {
+        "dbf": "f1_elc_op_mnt_expn",
         "xbrl": "electric_operations_and_maintenance_expenses_320",
     },
-    "electric_energy_account_sources_ferc1": {
-        "dbf": "f1_elctrc_erg_acct",
-        "xbrl": "electric_energy_account_401a",
+    "balance_sheet_liabilities_ferc1": {
+        "dbf": "f1_bal_sheet_cr",
+        "xbrl": "comparative_balance_sheet_liabilities_and_other_credits_110",
     },
-    "electric_energy_account_dispositions_ferc1": {
-        "dbf": "f1_elctrc_erg_acct",
-        "xbrl": "electric_energy_account_401a",
+    "balance_sheet_assets_ferc1": {
+        "dbf": "f1_comp_balance_db",
+        "xbrl": "comparative_balance_sheet_assets_and_other_debits_110",
+    },
+    # Special case for this table bc there are two dbf tables
+    "income_statement_ferc1": {
+        "dbf": ["f1_income_stmnt", "f1_incm_stmnt_2"],
+        "xbrl": "statement_of_income_114",
+    },
+    "retained_earnings_ferc1": {
+        "dbf": "f1_retained_erng",
+        "xbrl": "retained_earnings_118",
+    },
+    "retained_earnings_appropriations_ferc1": {
+        "dbf": "f1_retained_erng",
+        "xbrl": "retained_earnings_appropriations_118",
+    },
+    "depreciation_amortization_summary_ferc1": {
+        "dbf": "f1_dacs_epda",
+        "xbrl": "summary_of_depreciation_and_amortization_charges_section_a_336",
+    },
+    "electric_plant_depreciation_changes_ferc1": {
+        "dbf": "f1_accumdepr_prvsn",
+        "xbrl": "accumulated_provision_for_depreciation_of_electric_utility_plant_changes_section_a_219",
+    },
+    "electric_plant_depreciation_functional_ferc1": {
+        "dbf": "f1_accumdepr_prvsn",
+        "xbrl": "accumulated_provision_for_depreciation_of_electric_utility_plant_functional_classification_section_b_219",
     },
 }
 """A mapping of PUDL DB table names to their XBRL and DBF source table names."""
@@ -711,11 +752,24 @@ def extract_dbf(
             f"Converting extracted FERC Form 1 table {pudl_table} into a "
             f"pandas DataFrame from DBF table."
         )
-        ferc1_raw_dfs[pudl_table] = extract_dbf_generic(
-            ferc1_engine=sa.create_engine(pudl_settings["ferc1_db"]),
-            ferc1_settings=ferc1_settings,
-            table_name=TABLE_NAME_MAP[pudl_table]["dbf"],
-        )
+        if pudl_table == "income_statement_ferc1":
+            # special case for the income statement. bc the dbf table is two tables.
+            income_tbls = []
+            for raw_income_table_name in TABLE_NAME_MAP[pudl_table]["dbf"]:
+                income_tbls.append(
+                    extract_dbf_generic(
+                        ferc1_engine=sa.create_engine(pudl_settings["ferc1_db"]),
+                        ferc1_settings=ferc1_settings,
+                        table_name=raw_income_table_name,
+                    ).assign(sched_table_name=raw_income_table_name)
+                )
+            ferc1_raw_dfs[pudl_table] = pd.concat(income_tbls)
+        else:
+            ferc1_raw_dfs[pudl_table] = extract_dbf_generic(
+                ferc1_engine=sa.create_engine(pudl_settings["ferc1_db"]),
+                ferc1_settings=ferc1_settings,
+                table_name=TABLE_NAME_MAP[pudl_table]["dbf"],
+            )
 
     return ferc1_raw_dfs
 
@@ -750,10 +804,10 @@ def extract_xbrl(
         return ferc1_raw_dfs
 
     for pudl_table in ferc1_settings.tables:
-        # TODO: Raise exception once XBRL tables are fully integrated
-        # For now skip because map is not defined for all pudl tables
+        if pudl_table not in TABLE_NAME_MAP:
+            raise ValueError(f"{pudl_table} not found in the list of known tables.")
         if "xbrl" not in TABLE_NAME_MAP[pudl_table]:
-            continue
+            raise ValueError(f"No XBRL tables have been associated with {pudl_table}.")
 
         logger.info(
             f"Converting extracted FERC Form 1 table {pudl_table} into a "
@@ -834,8 +888,56 @@ def extract_dbf_generic(
     )
 
 
-def extract_xbrl_metadata(pudl_settings: dict[Any]) -> list[dict[Any]]:
-    """Extract the XBRL Taxonomy we've stored as JSON."""
+def extract_xbrl_metadata(
+    ferc1_settings: Ferc1Settings | None = None,
+    pudl_settings: dict[Any] | None = None,
+) -> dict[str, dict[str, list[dict[str, Any]]]]:
+    """Extract the FERC 1 XBRL Taxonomy metadata we've stored as JSON.
+
+    Args:
+        ferc1_settings: Settings object used to identify which tables metadata should
+            be extracted for.
+        pudl_settings: PUDL settings dictionary used to look up the location of the
+            XBRL metadata.
+
+    Returns:
+        A dictionary keyed by PUDL table name, with an instant and a duration entry
+        for each table, corresponding to the metadata for each of the respective instant
+        or duration tables from XBRL if they exist. Table metadata is returned as a list
+        of dictionaries, each of which can be interpreted as a row in a tabular
+        structure, with each row annotating a separate XBRL concept from the FERC 1
+        filings. If there is no instant/duration table, an empty list is returned
+        instead.
+    """
+    if pudl_settings is None:
+        pudl_settings = pudl.workspace.setup.get_defaults()
+
+    if ferc1_settings is None:
+        ferc1_settings = Ferc1Settings()
+
     with open(pudl_settings["ferc1_xbrl_taxonomy_metadata"]) as f:
-        xbrl_meta = json.load(f)
-    return xbrl_meta
+        xbrl_meta_all = json.load(f)
+
+    xbrl_meta_out = {}
+    for pudl_table in ferc1_settings.tables:
+        if pudl_table not in TABLE_NAME_MAP:
+            raise ValueError(f"{pudl_table} not found in the list of known tables.")
+        if "xbrl" not in TABLE_NAME_MAP[pudl_table]:
+            raise ValueError(f"No XBRL tables have been associated with {pudl_table}.")
+
+        logger.info(
+            f"Reading XBRL Taxonomy metadata for FERC Form 1 table {pudl_table}"
+        )
+        # Attempt to extract both duration and instant tables
+        xbrl_table = TABLE_NAME_MAP[pudl_table]["xbrl"]
+        xbrl_meta_out[pudl_table] = {}
+
+        for period in ["instant", "duration"]:
+            try:
+                xbrl_meta_out[pudl_table][period] = xbrl_meta_all[
+                    f"{xbrl_table}_{period}"
+                ]
+            except KeyError:
+                xbrl_meta_out[pudl_table][period] = []
+
+    return xbrl_meta_out
