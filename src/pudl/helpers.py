@@ -1532,6 +1532,7 @@ def flatten_list(xs: Iterable) -> Generator:
     """Flatten an irregular (arbitrarily nested) list of lists (or sets).
 
     Inspiration from: `stackoverflow
+    
     <https://stackoverflow.com/questions/2158395/flatten-an-irregular-arbitrarily-nested-list-of-lists>`__
     """
     for x in xs:
