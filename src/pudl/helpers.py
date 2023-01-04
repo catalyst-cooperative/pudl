@@ -1528,7 +1528,7 @@ def dedupe_n_flatten_list_of_lists(mega_list):
     return list({item for sublist in mega_list for item in sublist})
 
 
-def flatten(xs: list) -> Generator:
+def flatten_list(xs: list) -> Generator:
     """Flatten an irregular (arbitrarily nested) list of lists.
 
     Inspiration from: https://stackoverflow.com/questions/2158395/flatten-an-irregular-
@@ -1536,7 +1536,7 @@ def flatten(xs: list) -> Generator:
     """
     for x in xs:
         if isinstance(x, Iterable) and not isinstance(x, (str, bytes)):
-            yield from flatten(x)
+            yield from flatten_list(x)
         else:
             yield x
 
