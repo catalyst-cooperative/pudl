@@ -3774,6 +3774,7 @@ TRANSFORM_PARAMS = {
             "unstack_balances_to_report_year": True
         },
     },
+    "cash_flow_ferc1": {},
     "electric_opex_ferc1": {
         "rename_columns_ferc1": {
             "dbf": {
