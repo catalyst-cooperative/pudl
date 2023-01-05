@@ -650,24 +650,22 @@ class EtlSettings(BaseSettings):
 
     @root_validator(pre=False)
     def raw_table_validation_ferc1(cls, field_values):
-        """Require the presence of raw FERC1 tables needed for PUDL table creation.
+        """Ensure FERC to SQLite and PUDL ETL settings are internally self-consistent.
 
-        The FERC-derivative PUDL tables being loaded within this settings object
-        (within ``ferc_to_sqlite_settings``) are dependent on the presence of the tables
-        in the raw FERC SQLite databases, which are also a part of this settings object
-        (within ``datasets.ferc1``). A user doesn't always run ``ferc_to_sqlite`` and
-        ``pudl_etl`` at the same time, but this settings object has no idea what the
-        settings will be used for, so it validates that the tables that are in the
-        settings object are internally consistent.
+        If FERC Form 1 tables are specified in both the :class:`FercToSqliteSettings`
+        and :class:`Ferc1Settings` within a single :class:`EtlSettings` object, ensure
+        that any FERC Form 1 tables required by the PUDL ETL will be produced by the
+        FERC to SQLite extraction. Otherwise raise a validation error.
 
-        If this settings object contains FERC-derivative PUDL tables AND there are
-        ``ferc_to_sqlite_settings``, this validator will run. If you are not attempting
-        to run ``ferc_to_sqlite``, you can either include no ``ferc_to_sqlite_settings``
-        or provide ``ferc_to_sqlite_settings`` that are consistent with your tables
-        in ``datasets.ferc1``.
+        To prevent this validation error, you can either remove one of the sets of
+        tables (if you aren't performing both steps of the ETL) or ensure that the
+        specified sets of tables are compatible.
         """
-        # only check if we are actually loading any pudl tables
-        if not field_values["datasets"] and not field_values["ferc_to_sqlite_settings"]:
+        # only check if we are actually loading any pudl tables. check for datasets
+        # first bc default null is None, which will have no ferc1 attribute
+        if (
+            not field_values["datasets"] or not field_values["ferc_to_sqlite_settings"]
+        ) or (field_values["datasets"] and not field_values["datasets"].ferc1):
             return field_values
         ferc1_settings = field_values["datasets"].ferc1
         ferc1_xbrl_to_sqlite_settings = field_values[
