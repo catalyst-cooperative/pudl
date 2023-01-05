@@ -1066,7 +1066,6 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
             )
         return df
 
-    @cache_df(key="xbrl")
     def wide_to_tidy(
         self,
         df: pd.DataFrame,
@@ -3359,6 +3358,21 @@ class CashFlowFerc1TableTransformer(Ferc1AbstractTableTransformer):
     """Transform class for :ref:`cash_flow_ferc1` table."""
 
     table_id: TableIdFerc1 = TableIdFerc1.CASH_FLOW_FERC1
+    has_unique_record_ids: bool = False
+
+    @cache_df("process_instant_xbrl")
+    def process_instant_xbrl(self, df: pd.DataFrame) -> pd.DataFrame:
+        """Pre-processing required to make the instant and duration tables compatible.
+
+        This table has a rename that needs to take place in an unusual spot -- after the
+        starting / ending balances have been usntacked, but before the instant &
+        duration tables are merged. This method just reversed the order in which these
+        operations happen, comapared to the inherited method.
+        """
+        df = self.unstack_balances_to_report_year_instant_xbrl(df).pipe(
+            self.rename_columns, rename_stage="instant_xbrl"
+        )
+        return df
 
 
 def transform(

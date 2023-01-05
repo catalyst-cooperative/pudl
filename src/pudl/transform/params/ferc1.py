@@ -3774,7 +3774,97 @@ TRANSFORM_PARAMS = {
             "unstack_balances_to_report_year": True
         },
     },
-    "cash_flow_ferc1": {},
+    "cash_flow_ferc1": {
+        "rename_columns_ferc1": {
+            "instant_xbrl": {
+                "columns": {
+                    "cash_and_cash_equivalents_starting_balance": "cash_and_cash_equivalents_amount",
+                }
+            },
+            "duration_xbrl": {
+                "columns": {
+                    xbrl_col: f"{xbrl_col}_amount"
+                    for xbrl_col in [
+                        "net_increase_decrease_in_allowances_held_for_speculation_investing_activities",
+                        "net_increase_decrease_in_other_regulatory_assets_operating_activities",
+                        "gross_additions_to_nonutility_plant_investing_activities",
+                        "net_increase_decrease_in_payables_and_accrued_expenses_operating_activities",
+                        "payments_for_retirement_of_common_stock_financing_activities",
+                        "depreciation_and_depletion",
+                        "proceeds_from_disposal_of_noncurrent_assets",
+                        "gross_additions_to_utility_plant_less_nuclear_fuel_investing_activities",
+                        "gross_additions_to_nuclear_fuel_investing_activities",
+                        "gross_additions_to_common_utility_plant_investing_activities",
+                        "net_increase_decrease_in_inventory_investing_activities",
+                        "net_increase_decrease_in_payables_and_accrued_expenses_investing_activities",
+                        "dividends_on_common_stock",
+                        "cash_provided_by_outside_sources",
+                        "noncash_adjustments_to_cash_flows_from_operating_activities",
+                        "cash_flows_provided_from_used_in_investment_activities",
+                        "dividends_on_preferred_stock",
+                        "net_increase_decrease_in_receivables_operating_activities",
+                        "other_retirements_of_balances_impacting_cash_flows_from_financing_activities",
+                        "other_adjustments_by_outside_sources_to_cash_flows_from_financing_activities",
+                        "other_adjustments_to_cash_flows_from_investment_activities",
+                        "net_increase_decrease_in_inventory_operating_activities",
+                        "other_adjustments_to_cash_flows_from_operating_activities",
+                        "collections_on_loans",
+                        "net_increase_decrease_in_other_regulatory_liabilities_operating_activities",
+                        "net_increase_decrease_in_allowances_inventory_operating_activities",
+                        "net_increase_decrease_in_cash_and_cash_equivalents_abstract",
+                        "net_cash_flow_from_operating_activities",
+                        "disposition_of_investments_in_and_advances_to_associated_and_subsidiary_companies_abstract",
+                        "proceeds_from_issuance_of_common_stock_financing_activities",
+                        "net_income_loss",
+                        "allowance_for_other_funds_used_during_construction_operating_activities",
+                        "payments_for_retirement_of_preferred_stock_financing_activities",
+                        "net_decrease_in_short_term_debt",
+                        "net_increase_decrease_in_receivables_investing_activities",
+                        "payments_for_retirement_abstract",
+                        "investment_tax_credit_adjustments_net",
+                        "acquisition_of_other_noncurrent_assets",
+                        "investments_in_and_advances_to_associated_and_subsidiary_companies",
+                        "undistributed_earnings_from_subsidiary_companies_operating_activities",
+                        "allowance_for_other_funds_used_during_construction_investing_activities",
+                        "other_adjustments_to_cash_flows_from_financing_activities",
+                        "proceeds_from_issuance_of_long_term_debt_financing_activities",
+                        "deferred_income_taxes_net",
+                        "loans_made_or_purchased",
+                        "proceeds_from_issuance_of_preferred_stock_financing_activities",
+                        "cash_outflows_for_plant",
+                        "contributions_and_advances_from_associated_and_subsidiary_companies",
+                        "disposition_of_investments_in_and_advances_to_associated_and_subsidiary_companies",
+                        "purchase_of_investment_securities",
+                        "cash_flows_provided_from_used_in_financing_activities",
+                        "proceeds_from_sales_of_investment_securities",
+                        "payments_for_retirement_of_long_term_debt_financing_activities",
+                        "net_increase_in_short_term_debt",
+                        "other_construction_and_acquisition_of_plant_investment_activities",
+                    ]
+                }
+            },
+            "xbrl": {
+                "columns": {
+                    "entity_id": "utility_id_ferc1_xbrl",
+                    "report_year": "report_year",
+                }
+            },
+            "dbf": {
+                "report_year": "report_year",
+            },
+        },
+        "unstack_balances_to_report_year_instant_xbrl": {
+            "unstack_balances_to_report_year": True
+        },
+        "wide_to_tidy": {
+            "xbrl": {
+                "idx_cols": ["entity_id", "end_date", "start_date", "report_year"],
+                "value_types": ["amount"],
+                "stacked_column_name": "amount_type",
+                "expected_drop_cols": 1,  # dropping the starting balance from instant_xbrl
+            }
+        },
+    },
     "electric_opex_ferc1": {
         "rename_columns_ferc1": {
             "dbf": {
