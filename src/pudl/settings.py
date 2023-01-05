@@ -664,8 +664,10 @@ class EtlSettings(BaseSettings):
         # only check if we are actually loading any pudl tables. check for datasets
         # first bc default null is None, which will have no ferc1 attribute
         if (
-            not field_values["datasets"] or not field_values["ferc_to_sqlite_settings"]
-        ) or (field_values["datasets"] and not field_values["datasets"].ferc1):
+            not field_values["datasets"]
+            or (field_values["datasets"] and not field_values["datasets"].ferc1)
+            or not field_values["ferc_to_sqlite_settings"]
+        ):
             return field_values
         ferc1_settings = field_values["datasets"].ferc1
         ferc1_xbrl_to_sqlite_settings = field_values[
