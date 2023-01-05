@@ -26,6 +26,7 @@ ferc_to_sqlite_settings:
       - f1_income_stmnt
       - f1_incm_stmnt_2
       - f1_dacs_epda
+      - f1_accumdepr_prvsn
       - f1_retained_erng
 
   ferc1_xbrl_to_sqlite_settings:
@@ -63,6 +64,10 @@ ferc_to_sqlite_settings:
       - statement_of_income_114_instant
       - summary_of_depreciation_and_amortization_charges_section_a_336_duration
       - summary_of_depreciation_and_amortization_charges_section_a_336_instant
+      - accumulated_provision_for_depreciation_of_electric_utility_plant_changes_section_a_219_duration
+      - accumulated_provision_for_depreciation_of_electric_utility_plant_changes_section_a_219_instant
+      - accumulated_provision_for_depreciation_of_electric_utility_plant_functional_classification_section_b_219_duration
+      - accumulated_provision_for_depreciation_of_electric_utility_plant_functional_classification_section_b_219_instant
       - electric_operations_and_maintenance_expenses_320_duration
       - electric_operations_and_maintenance_expenses_320_instant
       - retained_earnings_118_duration
@@ -96,7 +101,7 @@ datasets:
       - plants_pumped_storage_ferc1
       - plant_in_service_ferc1
       - purchased_power_ferc1
-      - transmission_ferc1
+      - transmission_statistics_ferc1
       - electric_energy_sources_ferc1
       - electric_energy_dispositions_ferc1
       - electric_opex_ferc1
@@ -105,6 +110,7 @@ datasets:
       - depreciation_amortization_summary_ferc1
       - balance_sheet_assets_ferc1
       - income_statement_ferc1
+      - electric_plant_depreciation_changes_ferc1
       - retained_earnings_ferc1
     years: [2020, 2021]
   eia:
