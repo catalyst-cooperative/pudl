@@ -62,7 +62,10 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "type": "number",
         "unit": "USD",
     },
-    "amount_type": {"type": "string", "description": "Type of amount reported."},
+    "amount_type": {
+        "type": "string",
+        "description": "Label describing the type of amount being reported. This could be a balance or a change in value.",
+    },
     "appro_part_label": {
         "type": "string",
         "description": "Plant part of the associated true granularity record.",
