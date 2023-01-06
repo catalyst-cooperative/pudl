@@ -3373,10 +3373,8 @@ class ElectricPlantDepreciationFunctionalFerc1TableTransformer(
         operations happen comapared to the inherited method. We also want to strip the
         ``accumulated_depreciation`` that appears on every plant functional class.
         """
-        df = (
-            self.unstack_balances_to_report_year_instant_xbrl(df)
-            .pipe(self.rename_columns, rename_stage="instant_xbrl")
-            .rename(columns=lambda x: re.sub("^accumulated_depreciation_", "", x))
+        df = self.unstack_balances_to_report_year_instant_xbrl(df).pipe(
+            self.rename_columns, rename_stage="instant_xbrl"
         )
         return df
 
