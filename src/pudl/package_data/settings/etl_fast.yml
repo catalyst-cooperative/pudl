@@ -72,6 +72,8 @@ ferc_to_sqlite_settings:
       - electric_operations_and_maintenance_expenses_320_instant
       - retained_earnings_118_duration
       - retained_earnings_118_instant
+      - electric_operating_revenues_300_duration
+      - electric_operating_revenues_other_300_duration
 
   ferc2_xbrl_to_sqlite_settings:
     years: [2021]
@@ -112,6 +114,7 @@ datasets:
       - income_statement_ferc1
       - electric_plant_depreciation_changes_ferc1
       - retained_earnings_ferc1
+      - electric_operating_revenues_ferc1
     years: [2020, 2021]
   eia:
     eia923:

@@ -568,6 +568,7 @@ datasets:
       - income_statement_ferc1
       - electric_plant_depreciation_changes_ferc1
       - retained_earnings_ferc1
+      - electric_operating_revenues_ferc1
     years:
       [
         1994,
