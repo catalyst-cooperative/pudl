@@ -81,6 +81,9 @@ class TableIdFerc1(enum.Enum):
     ELECTRIC_PLANT_DEPRECIATION_CHANGES_FERC1 = (
         "electric_plant_depreciation_changes_ferc1"
     )
+    ELECTRIC_PLANT_DEPRECIATION_FUNCTIONAL_FERC1 = (
+        "electric_plant_depreciation_functional_ferc1"
+    )
 
 
 ################################################################################
@@ -336,12 +339,8 @@ class AlignRowNumbersDbf(TransformParams):
     """
 
 
-def align_row_numbers_dbf(
-    df: pd.DataFrame, params: AlignRowNumbersDbf | None = None
-) -> pd.DataFrame:
+def align_row_numbers_dbf(df: pd.DataFrame, params: AlignRowNumbersDbf) -> pd.DataFrame:
     """Rename the xbrl_factoid column after :meth:`align_row_numbers_dbf`."""
-    if params is None:
-        params = AlignRowNumbersDbf()
     if params.dbf_table_names:
         logger.info(
             f"Aligning row numbers from DBF row to XBRL map for {params.dbf_table_names}"
@@ -953,6 +952,7 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
             df = align_row_numbers_dbf(df, params=params)
         return df
 
+    @cache_df(key="dbf")
     def drop_duplicate_rows_dbf(
         self, df: pd.DataFrame, params: DropDuplicateRowsDbf | None = None
     ) -> pd.DataFrame:
@@ -3317,6 +3317,66 @@ class ElectricPlantDepreciationChangesFerc1TableTransformer(
         """
         df = self.unstack_balances_to_report_year_instant_xbrl(df).pipe(
             self.rename_columns, rename_stage="instant_xbrl"
+        )
+        return df
+
+
+class ElectricPlantDepreciationFunctionalFerc1TableTransformer(
+    Ferc1AbstractTableTransformer
+):
+    """Transformer for :ref:`electric_plant_depreciation_functional_ferc1` table."""
+
+    table_id: TableIdFerc1 = TableIdFerc1.ELECTRIC_PLANT_DEPRECIATION_FUNCTIONAL_FERC1
+    has_unique_record_ids: bool = False
+
+    @cache_df("process_xbrl_metadata")
+    def process_xbrl_metadata(self, xbrl_metadata_json) -> pd.DataFrame:
+        """Transform the metadata to reflect the transformed data.
+
+        Transform the xbrl factoid values so that they match the final plant functional
+        classification categories and can be merged with the output dataframe.
+        """
+        df = (
+            super()
+            .process_xbrl_metadata(xbrl_metadata_json)
+            .assign(
+                xbrl_factoid=lambda x: x.xbrl_factoid.str.replace(
+                    r"^accumulated_depreciation_", "", regex=True
+                ),
+            )
+        )
+        df.loc[
+            df.xbrl_factoid
+            == "accumulated_provision_for_depreciation_of_electric_utility_plant",
+            "xbrl_factoid",
+        ] = "ending_balance_functional"
+        return df
+
+    @cache_df("dbf")
+    def process_dbf(self, df: pd.DataFrame) -> pd.DataFrame:
+        """Accumulated Depreciation table specific DBF cleaning operations.
+
+        The XBRL reports a utility_type which is always electric in this table, but
+        which may be necessary for differentiating between different values when this
+        data is combined with other tables. The DBF data doesn't report this value so we
+        are adding it here for consistency across the two data sources.
+        """
+        return super().process_dbf(df).assign(utility_type="electric")
+
+    @cache_df("process_instant_xbrl")
+    def process_instant_xbrl(self, df: pd.DataFrame) -> pd.DataFrame:
+        """Pre-processing required to make the instant and duration tables compatible.
+
+        This table has a rename that needs to take place in an unusual spot -- after the
+        starting / ending balances have been usntacked, but before the instant &
+        duration tables are merged. This method reverses the order in which these
+        operations happen comapared to the inherited method. We also want to strip the
+        ``accumulated_depreciation`` that appears on every plant functional class.
+        """
+        df = (
+            self.unstack_balances_to_report_year_instant_xbrl(df)
+            .pipe(self.rename_columns, rename_stage="instant_xbrl")
+            .rename(columns=lambda x: re.sub("^accumulated_depreciation_", "", x))
         )
         return df
 

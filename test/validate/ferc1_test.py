@@ -29,6 +29,7 @@ non_unique_record_id_tables = [
     "income_statement_ferc1",
     "depreciation_amortization_summary_ferc1",
     "electric_plant_depreciation_changes_ferc1",
+    "electric_plant_depreciation_functional_ferc1",
     "electric_opex_ferc1",
     "retained_earnings_ferc1",
 ]

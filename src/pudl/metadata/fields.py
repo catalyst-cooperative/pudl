@@ -479,10 +479,6 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "description": "Electric Plant In Service (USD).",
         "unit": "USD",
     },
-    "plant_classification_type": {
-        "type": "string",
-        "description": "Status of electric plant (in service, future, leased, total).",
-    },
     "emissions_unit_id_epa": {
         "type": "string",
         "description": "Emissions (smokestack) unit monitored by EPA CEMS.",
@@ -1414,6 +1410,14 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "type": "number",
         "description": "Net plant capability in megawatts.",
         "unit": "MW",
+    },
+    "plant_classification_type": {
+        "type": "string",
+        "description": "Status of electric plant (in service, future, leased, total).",
+    },
+    "plant_functional_type": {
+        "type": "string",
+        "description": "Functional plant type (steam, hydro, distribution, etc.).",
     },
     "plant_hours_connected_while_generating": {
         "type": "number",

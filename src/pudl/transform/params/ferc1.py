@@ -247,7 +247,7 @@ INVALID_PLANT_NAMES = [pd.NA, np.nan, "not applicable", "0", "", "-"]
 ##############################################################################
 # String categorizations
 ##############################################################################
-PLANT_FUNCTIONAL_CLASSIFICATION_CATEGORIES = {
+PLANT_FUNCTIONAL_CATEGORIES = {
     "categories": {
         "intangible_plant": {
             "intangible_plant",
@@ -1752,7 +1752,6 @@ languaged used to refer to hydro vs. other types of plants. For example: "conven
 in the context of a hydro plant means that it is conventional hydro-electric. In the
 context of the steam table, however, it's unclear what conventional means.
 """
-
 
 CONSTRUCTION_TYPE_CATEGORIES: dict[str, set[str]] = {
     "categories": {
@@ -3443,7 +3442,7 @@ TRANSFORM_PARAMS = {
         },
         "categorize_strings": {
             "functional_classification": {
-                "categories": PLANT_FUNCTIONAL_CLASSIFICATION_CATEGORIES["categories"]
+                "categories": PLANT_FUNCTIONAL_CATEGORIES["categories"]
                 | {"total": ["total"]}
             },
         },
@@ -3769,6 +3768,101 @@ TRANSFORM_PARAMS = {
             "column_name": "depreciation_type",
             "select_by_xbrl_categories": True,
             "len_expected_categories_to_drop": 12,
+        },
+        "unstack_balances_to_report_year_instant_xbrl": {
+            "unstack_balances_to_report_year": True
+        },
+    },
+    "electric_plant_depreciation_functional_ferc1": {
+        "rename_columns_ferc1": {
+            "dbf": {
+                "columns": {
+                    "respondent_id": "utility_id_ferc1_dbf",
+                    "report_year": "report_year",
+                    "spplmnt_num": "spplmnt_num",
+                    "row_number": "row_number",
+                    "row_seq": "row_seq",
+                    "row_prvlg": "row_prvlg",
+                    "report_prd": "report_prd",
+                    "total_cde": "total_utility_plant_value",
+                    "future_plant": "future_utility_plant_value",
+                    "leased_plant": "leased_utility_plant_value",
+                    "electric_plant": "in_service_utility_plant_value",
+                    "xbrl_factoid": "plant_functional_type",
+                }
+            },
+            "instant_xbrl": {
+                "columns": {
+                    "accumulated_depreciation_steam_production_ending_balance": "steam_production_utility_plant_value",
+                    "accumulated_depreciation_nuclear_production_ending_balance": "nuclear_production_utility_plant_value",
+                    "accumulated_depreciation_hydraulic_production_conventional_ending_balance": "hydraulic_production_conventional_utility_plant_value",
+                    "accumulated_depreciation_hydraulic_production_pumped_storage_ending_balance": "hydraulic_production_pumped_storage_utility_plant_value",
+                    "accumulated_depreciation_other_production_ending_balance": "other_production_utility_plant_value",
+                    "accumulated_depreciation_transmission_ending_balance": "transmission_utility_plant_value",
+                    "accumulated_depreciation_distribution_ending_balance": "distribution_utility_plant_value",
+                    "accumulated_depreciation_general_ending_balance": "general_utility_plant_value",
+                    "accumulated_depreciation_regional_transmission_and_market_operation_ending_balance": "regional_transmission_and_market_operation_utility_plant_value",
+                    "accumulated_provision_for_depreciation_of_electric_utility_plant_ending_balance": "ending_balance_functional_utility_plant_value",
+                }
+            },
+            "xbrl": {
+                "columns": {
+                    "entity_id": "utility_id_ferc1_xbrl",
+                    "report_year": "report_year",
+                    "electric_plant_classification_axis": "plant_classification_type",
+                    "utility_type_axis": "utility_type",
+                }
+            },
+        },
+        "categorize_strings": {
+            "utility_type": UTILITY_TYPE_CATEGORIES,
+            "plant_classification_type": ELECTRIC_PLANT_CLASSIFICATION_CATEGORIES,
+        },
+        "align_row_numbers_dbf": {"dbf_table_names": ["f1_accumdepr_prvsn"]},
+        "wide_to_tidy": {
+            "dbf": {
+                "idx_cols": [
+                    "utility_id_ferc1",
+                    "report_year",
+                    "plant_functional_type",
+                    "record_id",
+                ],
+                "value_types": ["utility_plant_value"],
+                "expected_drop_cols": 2,
+                "stacked_column_name": "plant_classification_type",
+            },
+            "xbrl": {
+                "idx_cols": [
+                    "entity_id",
+                    "report_year",
+                    "electric_plant_classification_axis",
+                    "utility_type_axis",
+                ],
+                "value_types": ["utility_plant_value"],
+                "expected_drop_cols": 10,
+                "stacked_column_name": "plant_functional_type",
+            },
+        },
+        "merge_xbrl_metadata": {
+            "rename_columns": {"xbrl_factoid": "plant_functional_type"},
+            "on": "plant_functional_type",
+        },
+        "select_dbf_rows_by_category": {
+            "column_name": "plant_functional_type",
+            "select_by_xbrl_categories": False,
+            "additional_categories": [
+                "distribution",
+                "general",
+                "hydraulic_production_conventional",
+                "hydraulic_production_pumped_storage",
+                "nuclear_production",
+                "other_production",
+                "regional_transmission_and_market_operation",
+                "steam_production",
+                "transmission",
+                "ending_balance_functional",
+            ],
+            "len_expected_categories_to_drop": 17,
         },
         "unstack_balances_to_report_year_instant_xbrl": {
             "unstack_balances_to_report_year": True

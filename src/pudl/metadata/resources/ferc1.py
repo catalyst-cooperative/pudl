@@ -177,6 +177,36 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
         "etl_group": "ferc1",
         "field_namespace": "ferc1",
     },
+    "electric_plant_depreciation_functional_ferc1": {
+        "description": (
+            "Accumulated provision for depreciation of electric utility plant "
+            "(Account 108). Schedule 219 Section B: Functional plant classifications."
+        ),
+        "schema": {
+            "fields": [
+                "utility_id_ferc1",
+                "report_year",
+                "plant_functional_type",
+                "plant_classification_type",
+                "utility_type",
+                "utility_plant_value",
+                "record_id",
+                "balance",
+                "ferc_account",
+                "row_type_xbrl",
+            ],
+            "primary_key": [
+                "utility_id_ferc1",
+                "report_year",
+                "plant_functional_type",
+                "plant_classification_type",
+                "utility_type",
+            ],
+        },
+        "sources": ["ferc1"],
+        "etl_group": "ferc1",
+        "field_namespace": "ferc1",
+    },
     "ferc_accounts": {
         "description": "Account numbers from the FERC Uniform System of Accounts for Electric Plant, which is defined in Code of Federal Regulations (CFR) Title 18, Chapter I, Subchapter C, Part 101. (See e.g. https://www.law.cornell.edu/cfr/text/18/part-101).",
         "schema": {
