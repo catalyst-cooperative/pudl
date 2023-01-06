@@ -82,6 +82,7 @@ class TableIdFerc1(enum.Enum):
     ELECTRIC_PLANT_DEPRECIATION_CHANGES_FERC1 = (
         "electric_plant_depreciation_changes_ferc1"
     )
+    ELECTRIC_OPERATING_REVENUES_FERC1 = "electric_operating_revenues_ferc1"
 
 
 ################################################################################
@@ -3353,6 +3354,13 @@ class ElectricOpexFerc1TableTransformer(Ferc1AbstractTableTransformer):
         return super().process_dbf(self.targeted_drop_duplicates_dbf(raw_dbf))
 
 
+class ElectricOperatingRevenuesFerc1TableTransformer(Ferc1AbstractTableTransformer):
+    """Transformer class for :ref:`electric_operating_revenues_ferc1` table."""
+
+    table_id: TableIdFerc1 = TableIdFerc1.ELECTRIC_OPERATING_REVENUES_FERC1
+    has_unique_record_ids: bool = False
+
+
 def transform(
     ferc1_dbf_raw_dfs: dict[str, pd.DataFrame],
     ferc1_xbrl_raw_dfs: dict[str, dict[str, pd.DataFrame]],
@@ -3394,6 +3402,7 @@ def transform(
         "income_statement_ferc1": IncomeStatementFerc1TableTransformer,
         "electric_plant_depreciation_changes_ferc1": ElectricPlantDepreciationChangesFerc1TableTransformer,
         "retained_earnings_ferc1": RetainedEarningsFerc1TableTransformer,
+        "electric_operating_revenues_ferc1": ElectricOperatingRevenuesFerc1TableTransformer,
     }
     # create an empty ditctionary to fill up through the transform fuctions
     ferc1_transformed_dfs = {}
