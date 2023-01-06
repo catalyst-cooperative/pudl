@@ -23,7 +23,7 @@ non_unique_record_id_tables = [
     "electric_energy_sources_ferc1",
     "electric_energy_dispositions_ferc1",
     "utility_plant_summary_ferc1",
-    "transmission_ferc1",
+    "transmission_statistics_ferc1",
     "balance_sheet_liabilities_ferc1",
     "balance_sheet_assets_ferc1",
     "income_statement_ferc1",

@@ -2124,7 +2124,7 @@ FIELD_METADATA_BY_RESOURCE: dict[str, dict[str, Any]] = {
         },
         "technology_description": {"constraints": {"enum": set(TECH_DESCRIPTIONS)}},
     },
-    "transmission_ferc1": {
+    "transmission_statistics_ferc1": {
         "capex_land": {
             "description": "Cost of Land and land rights for the transmission line."
         },

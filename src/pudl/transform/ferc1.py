@@ -23,7 +23,6 @@ from pudl.analysis.classify_plants_ferc1 import (
     plants_steam_assign_plant_ids,
     plants_steam_validate_ids,
 )
-from pudl.extract.ferc1 import TABLE_NAME_MAP
 from pudl.helpers import convert_cols_dtypes
 from pudl.settings import Ferc1Settings
 from pudl.transform.classes import (
@@ -541,16 +540,11 @@ class Ferc1TableTransformParams(TableTransformParams):
     :class:`pudl.transform.classes.AbstractTableTransformer` class.
     """
 
-    class Config:
-        """Only allow the known table transform params."""
-
-        extra = "forbid"
-
     rename_columns_ferc1: RenameColumnsFerc1 = RenameColumnsFerc1(
         dbf=RenameColumns(),
         xbrl=RenameColumns(),
-        xbrl_instant=RenameColumns(),
-        xbrl_duration=RenameColumns(),
+        instant_xbrl=RenameColumns(),
+        duration_xbrl=RenameColumns(),
     )
     wide_to_tidy: WideToTidySourceFerc1 = WideToTidySourceFerc1(
         dbf=WideToTidy(), xbrl=WideToTidy()
@@ -1268,7 +1262,9 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
 
     def source_table_id(self, source_ferc1: SourceFerc1, **kwargs) -> str:
         """Look up the ID of the raw data source table."""
-        return TABLE_NAME_MAP[self.table_id.value][source_ferc1.value]
+        return pudl.extract.ferc1.TABLE_NAME_MAP_FERC1[self.table_id.value][
+            source_ferc1.value
+        ]
 
     def source_table_primary_key(self, source_ferc1: SourceFerc1) -> list[str]:
         """Look up the pre-renaming source table primary key columns."""
