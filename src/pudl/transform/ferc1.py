@@ -350,7 +350,7 @@ def align_row_numbers_dbf(
         row_map = read_dbf_to_xbrl_map(dbf_table_names=params.dbf_table_names).pipe(
             fill_dbf_to_xbrl_map
         )
-        if row_map.isnull().any().any():
+        if row_map.isnull().any(axis=None):
             raise ValueError(
                 "Filled DBF-XBRL map contains NA values, which should never happen:"
                 f"{row_map}"
@@ -723,7 +723,7 @@ def fill_dbf_to_xbrl_map(
     # Drop NA values produced in the broadcasting merge onto the exhaustive index.
     df = df.dropna(subset="xbrl_factoid").drop(columns=["sched_table_name"])
     # There should be no NA values left at this point:
-    if df.isnull().any().any():
+    if df.isnull().any(axis=None):
         raise ValueError(
             "Filled DBF-XBRL map contains NA values, which should never happen:"
             f"\n{df[df.isnull().any(axis='columns')]}"
@@ -3391,6 +3391,29 @@ class CashFlowFerc1TableTransformer(Ferc1AbstractTableTransformer):
         if (len_dupes := dupe_mask.value_counts().loc[True]) != 1:
             raise ValueError(f"Expected to find 1 duplicate record. Found {len_dupes}")
         return df[~dupe_mask].copy()
+
+    @cache_df("process_xbrl_metadata")
+    def process_xbrl_metadata(self, xbrl_metadata_json) -> pd.DataFrame:
+        """Transform the metadata to reflect the transformed data.
+
+        Replace the name of the balance column reported in the XBRL Instant table with
+        starting_balance / ending_balance since we pull those two values into their own
+        separate labeled rows, each of which should get the original metadata for the
+        Instant column.
+        """
+        meta = (
+            super()
+            .process_xbrl_metadata(xbrl_metadata_json)
+            .assign(
+                xbrl_factoid=lambda x: x.xbrl_factoid.replace(
+                    {"cash_and_cash_equivalents": "starting_balance"}
+                )
+            )
+        )
+        ending_balance = meta[meta.xbrl_factoid == "starting_balance"].assign(
+            xbrl_factoid="ending_balance"
+        )
+        return pd.concat([meta, ending_balance])
 
 
 def transform(

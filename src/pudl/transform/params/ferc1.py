@@ -3778,7 +3778,8 @@ TRANSFORM_PARAMS = {
         "rename_columns_ferc1": {
             "instant_xbrl": {
                 "columns": {
-                    "cash_and_cash_equivalents_ending_balance": "cash_and_cash_equivalents_amount",
+                    "cash_and_cash_equivalents_ending_balance": "ending_balance_amount",
+                    "cash_and_cash_equivalents_starting_balance": "starting_balance_amount",
                 }
             },
             "duration_xbrl": {
@@ -3872,7 +3873,6 @@ TRANSFORM_PARAMS = {
                 "idx_cols": ["entity_id", "end_date", "start_date", "report_year"],
                 "value_types": ["amount"],
                 "stacked_column_name": "amount_type",
-                "expected_drop_cols": 1,  # dropping the starting balance from instant_xbrl
             }
         },
         "align_row_numbers_dbf": {"dbf_table_names": ["f1_cash_flow"]},
@@ -3882,14 +3882,8 @@ TRANSFORM_PARAMS = {
             "additional_categories": [
                 "net_increase_decrease_in_cash_and_cash_equivalents"
             ],
-            "len_expected_categories_to_drop": 6,
+            "len_expected_categories_to_drop": 5,
         },
-        # "drop_invalid_rows": [
-        #     {
-        #         "invalid_values": [0, pd.NA, np.nan, ""],
-        #         "required_valid_cols": ["amount"],
-        #     },
-        # ],
         "merge_xbrl_metadata": {
             "rename_columns": {"xbrl_factoid": "amount_type"},
             "on": "amount_type",
