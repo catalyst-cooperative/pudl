@@ -30,6 +30,7 @@ Data Coverage
     :pr:`2119`.
   * :ref:`electric_opex_ferc1`, see issue :issue:`1817` & PR :pr:`2162`.
   * :ref:`retained_earnings_ferc1`, see issue :issue:`1811` & PR :pr:`2155`.
+  * :ref:`cash_flow_ferc1`, see issue :issue:`1821` & PR :pr:`2184`
 
 .. _release-v2022.11.30:
 
