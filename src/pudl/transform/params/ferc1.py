@@ -3778,7 +3778,7 @@ TRANSFORM_PARAMS = {
         "rename_columns_ferc1": {
             "instant_xbrl": {
                 "columns": {
-                    "cash_and_cash_equivalents_starting_balance": "cash_and_cash_equivalents_amount",
+                    "cash_and_cash_equivalents_ending_balance": "cash_and_cash_equivalents_amount",
                 }
             },
             "duration_xbrl": {
@@ -3850,7 +3850,18 @@ TRANSFORM_PARAMS = {
                 }
             },
             "dbf": {
-                "report_year": "report_year",
+                "columns": {
+                    "respondent_id": "utility_id_ferc1_dbf",
+                    "report_year": "report_year",
+                    "report_prd": "report_prd",
+                    "row_prvlg": "row_prvlg",
+                    "row_number": "row_number",
+                    "row_seq": "row_seq",
+                    "spplmnt_num": "spplmnt_num",
+                    "xbrl_factoid": "amount_type",
+                    "amounts": "amount",
+                    "prev_amounts": "starting_balance",
+                }
             },
         },
         "unstack_balances_to_report_year_instant_xbrl": {
@@ -3863,6 +3874,25 @@ TRANSFORM_PARAMS = {
                 "stacked_column_name": "amount_type",
                 "expected_drop_cols": 1,  # dropping the starting balance from instant_xbrl
             }
+        },
+        "align_row_numbers_dbf": {"dbf_table_names": ["f1_cash_flow"]},
+        "select_dbf_rows_by_category": {
+            "column_name": "amount_type",
+            "select_by_xbrl_categories": True,
+            "additional_categories": [
+                "net_increase_decrease_in_cash_and_cash_equivalents"
+            ],
+            "len_expected_categories_to_drop": 6,
+        },
+        # "drop_invalid_rows": [
+        #     {
+        #         "invalid_values": [0, pd.NA, np.nan, ""],
+        #         "required_valid_cols": ["amount"],
+        #     },
+        # ],
+        "merge_xbrl_metadata": {
+            "rename_columns": {"xbrl_factoid": "amount_type"},
+            "on": "amount_type",
         },
     },
     "electric_opex_ferc1": {

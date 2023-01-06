@@ -350,7 +350,7 @@ def align_row_numbers_dbf(
         row_map = read_dbf_to_xbrl_map(dbf_table_names=params.dbf_table_names).pipe(
             fill_dbf_to_xbrl_map
         )
-        if not row_map.all(axis=None):
+        if row_map.isnull().any().any():
             raise ValueError(
                 "Filled DBF-XBRL map contains NA values, which should never happen:"
                 f"{row_map}"
@@ -358,7 +358,9 @@ def align_row_numbers_dbf(
 
         df = pd.merge(df, row_map, on=["report_year", "row_number"], how="left")
         if df.xbrl_factoid.isna().any():
-            raise ValueError("Found null row labeles after aligning DBF/XBRL rows.")
+            raise ValueError(
+                rf"Found null row labeles after aligning DBF/XBRL rows. n\ {df[df.xbrl_factoid.isna()]}"
+            )
         # eliminate the header rows since they (should!) contain no data in either the
         # DBF or XBRL records:
         df = df[df.xbrl_factoid != "HEADER_ROW"]
@@ -721,9 +723,10 @@ def fill_dbf_to_xbrl_map(
     # Drop NA values produced in the broadcasting merge onto the exhaustive index.
     df = df.dropna(subset="xbrl_factoid").drop(columns=["sched_table_name"])
     # There should be no NA values left at this point:
-    if not df.all(axis=None):
+    if df.isnull().any().any():
         raise ValueError(
-            "Filled DBF-XBRL map contains NA values, which should never happen:" f"{df}"
+            "Filled DBF-XBRL map contains NA values, which should never happen:"
+            f"\n{df[df.isnull().any(axis='columns')]}"
         )
     return df
 
@@ -3368,6 +3371,26 @@ class CashFlowFerc1TableTransformer(Ferc1AbstractTableTransformer):
             self.rename_columns, rename_stage="instant_xbrl"
         )
         return df
+
+    def transform_main(self, df):
+        """Add bespoke removal of duplicate record after standard transform_main."""
+        return super().transform_main(df).pipe(self.targeted_drop_duplicates)
+
+    def targeted_drop_duplicates(self, df):
+        """Drop one duplicate record from 2020, utility_id_ferc1 2037.
+
+        Note: This step could be avoided if we employed a :meth:`drop_invalid_rows`
+        transform step with ``required_valid_cols = ["amount"]``
+        """
+        dupe_mask = (
+            (df.utility_id_ferc1 == 237)
+            & (df.report_year == 2020)
+            & (df.amount_type == "dividends_on_common_stock")
+            & (df.amount.isnull())
+        )
+        if (len_dupes := dupe_mask.value_counts().loc[True]) != 1:
+            raise ValueError(f"Expected to find 1 duplicate record. Found {len_dupes}")
+        return df[~dupe_mask].copy()
 
 
 def transform(
