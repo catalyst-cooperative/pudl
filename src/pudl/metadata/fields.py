@@ -105,6 +105,10 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     "attention_line": {"type": "string"},
     "automated_meter_reading": {"type": "integer"},
     "avg_num_employees": {"type": "number"},
+    "avg_customers_per_month": {
+        "type": "number",
+        "description": "Average number of customers per month.",
+    },
     "backup_capacity_mw": {"type": "number", "unit": "MW"},
     "balance": {
         "type": "string",
@@ -967,6 +971,11 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "type": "boolean",
         "description": "Can the generator burn multiple fuels?",
     },
+    "mwh_sold": {
+        "type": "number",
+        "description": "Megawatt hours sold.",
+        "unit": "MWh",
+    },
     "nameplate_power_factor": {
         "type": "number",
         "description": "The nameplate power factor of the generator.",
@@ -1588,6 +1597,10 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     },
     "revenue": {"type": "number", "unit": "USD"},
     "revenue_class": {"type": "string", "constraints": {"enum": REVENUE_CLASSES}},
+    "revenue_type": {
+        "type": "string",
+        "description": "Label describing types of revenues.",
+    },
     "row_type_xbrl": {
         "type": "string",
         "description": "Indicates whether the value reported in the row is calculated, or uniquely reported within the table.",
