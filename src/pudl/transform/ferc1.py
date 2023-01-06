@@ -3372,10 +3372,17 @@ class CashFlowFerc1TableTransformer(Ferc1AbstractTableTransformer):
         )
         return df
 
+    @cache_df("main")
     def transform_main(self, df):
-        """Add bespoke removal of duplicate record after standard transform_main."""
-        return super().transform_main(df).pipe(self.targeted_drop_duplicates)
+        """Add duplicate removal and validation after standard transform_main."""
+        return (
+            super()
+            .transform_main(df)
+            .pipe(self.targeted_drop_duplicates)
+            .pipe(self.validate_start_end_balance)
+        )
 
+    @cache_df("main")
     def targeted_drop_duplicates(self, df):
         """Drop one duplicate record from 2020, utility_id_ferc1 2037.
 
@@ -3391,6 +3398,47 @@ class CashFlowFerc1TableTransformer(Ferc1AbstractTableTransformer):
         if (len_dupes := dupe_mask.value_counts().loc[True]) != 1:
             raise ValueError(f"Expected to find 1 duplicate record. Found {len_dupes}")
         return df[~dupe_mask].copy()
+
+    @cache_df("main")
+    def validate_start_end_balance(self, df):
+        """Validate of start balance + net = end balance.
+
+        Add a quick check to ensure the vast majority of the ending balances are
+        calculable from the net change + the starting balance = the ending balance.
+        """
+        # calculate ending balance
+        df.amount = pd.to_numeric(df.amount)
+        end_bal_calc = (
+            df[
+                df.amount_type.isin(
+                    [
+                        "starting_balance",
+                        "net_increase_decrease_in_cash_and_cash_equivalents",
+                    ]
+                )
+            ]
+            .groupby(["utility_id_ferc1", "report_year"])[["amount"]]
+            .sum(min_count=2, numeric_only=True)
+            .add_suffix("_ending_balace")
+        )
+        # grab reported ending balance & squish with the calculated version
+        end_bal = df[df.amount_type == "ending_balance"].set_index(
+            ["utility_id_ferc1", "report_year"]
+        )
+        logger.info(end_bal_calc.columns)
+        end_bal.loc[:, "amount_ending_balace"] = end_bal_calc.amount_ending_balace
+
+        # when both exist, are they close?
+        end_bal_off = end_bal[
+            ~np.isclose(end_bal.amount, end_bal.amount_ending_balace)
+            & end_bal[["amount", "amount_ending_balace"]].notnull().all(axis="columns")
+        ]
+        if (end_bal_off_ratio := len(end_bal_off) / len(end_bal)) > 0.005:
+            raise ValueError(
+                f"Ahhh!! The ending balance isn't calculable in {end_bal_off_ratio:.2%}"
+                " of records. Expected under 0.5%."
+            )
+        return df
 
     @cache_df("process_xbrl_metadata")
     def process_xbrl_metadata(self, xbrl_metadata_json) -> pd.DataFrame:
