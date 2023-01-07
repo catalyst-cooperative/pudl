@@ -60,8 +60,9 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
         ),
         "schema": {
             "fields": [
-                "utility_id_ferc1",
+                "record_id",
                 "report_year",
+                "utility_id_ferc1",
                 "functional_classification",
                 "ferc_account_label",
                 "ferc_account",
