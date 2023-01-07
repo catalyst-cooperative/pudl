@@ -3348,7 +3348,7 @@ class ElectricPlantDepreciationFunctionalFerc1TableTransformer(
             df.xbrl_factoid
             == "accumulated_provision_for_depreciation_of_electric_utility_plant",
             "xbrl_factoid",
-        ] = "ending_balance_functional"
+        ] = "total"
         return df
 
     @cache_df("dbf")

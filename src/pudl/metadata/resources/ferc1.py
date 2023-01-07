@@ -63,7 +63,7 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
                 "record_id",
                 "report_year",
                 "utility_id_ferc1",
-                "functional_classification",
+                "plant_function",
                 "ferc_account_label",
                 "ferc_account",
                 "depreciation_amortization_value",
@@ -71,7 +71,7 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
             "primary_key": [
                 "utility_id_ferc1",
                 "report_year",
-                "functional_classification",
+                "plant_function",
                 "ferc_account_label",
             ],
         },
@@ -187,7 +187,7 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
             "fields": [
                 "utility_id_ferc1",
                 "report_year",
-                "plant_functional_type",
+                "plant_function",
                 "plant_status",
                 "utility_type",
                 "utility_plant_value",
@@ -199,7 +199,7 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
             "primary_key": [
                 "utility_id_ferc1",
                 "report_year",
-                "plant_functional_type",
+                "plant_function",
                 "plant_status",
                 "utility_type",
             ],

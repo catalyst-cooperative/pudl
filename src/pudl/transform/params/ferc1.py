@@ -247,52 +247,53 @@ INVALID_PLANT_NAMES = [pd.NA, np.nan, "not applicable", "0", "", "-"]
 ##############################################################################
 # String categorizations
 ##############################################################################
-PLANT_FUNCTIONAL_CATEGORIES = {
+PLANT_FUNCTION_CATEGORIES = {
     "categories": {
-        "intangible_plant": {
-            "intangible_plant",
+        "intangible": {
+            "intangible",
             "ferc:IntangiblePlantMember",
         },
-        "steam_production_plant": {
-            "steam_production_plant",
+        "steam_production": {
+            "steam_production",
             "ferc:SteamProductionPlantMember",
         },
-        "nuclear_production_plant": {
-            "nuclear_production_plant",
+        "nuclear_production": {
+            "nuclear_production",
             "ferc:NuclearProductionPlantMember",
         },
-        "hydraulic_production_plant_conventional": {
-            "hydraulic_production_plant_conventional",
+        "hydraulic_production_conventional": {
+            "hydraulic_production_conventional",
             "ferc:HydraulicProductionPlantConventionalMember",
         },
-        "hydraulic_production_plant_pumped_storage": {
-            "hydraulic_production_plant_pumped_storage",
+        "hydraulic_production_pumped_storage": {
+            "hydraulic_production_pumped_storage",
             "ferc:HydraulicProductionPlantPumpedStorageMember",
         },
-        "other_production_plant": {
-            "other_production_plant",
+        "other_production": {
+            "other_production",
             "ferc:OtherProductionPlantMember",
         },
-        "transmission_plant": {
-            "transmission_plant",
+        "transmission": {
+            "transmission",
             "ferc:TransmissionPlantMember",
         },
-        "distribution_plant": {
-            "distribution_plant",
+        "distribution": {
+            "distribution",
             "ferc:DistributionPlantMember",
         },
-        "regional_transmission_market_plant": {
-            "regional_transmission_market_plant",
+        "regional_transmission_and_market_operation": {
+            "regional_transmission_and_market_operation",
             "ferc:RegionalTransmissionAndMarketOperationMember",
         },
-        "general_plant": {
-            "general_plant",
+        "general": {
+            "general",
             "ferc:GeneralPlantMember",
         },
         "common_plant_electric": {
             "common_plant_electric",
             "ferc:CommonPlantElectricMember",
         },
+        "total": {"total"},
     }
 }
 
@@ -3397,7 +3398,7 @@ TRANSFORM_PARAMS = {
                     "limterm_elc_plnt": "amortization_limited_term_electric_plant_depreciation_amortization_value",
                     "othr_elc_plnt": "amortization_other_electric_plant_depreciation_amortization_value",
                     "total": "depreciation_amortization_total_depreciation_amortization_value",
-                    "xbrl_factoid": "functional_classification",
+                    "xbrl_factoid": "plant_function",
                     "report_prd": "report_prd",
                 }
             },
@@ -3410,7 +3411,7 @@ TRANSFORM_PARAMS = {
             },
             "duration_xbrl": {
                 "columns": {
-                    "functional_classification_axis": "functional_classification",
+                    "functional_classification_axis": "plant_function",
                     "depreciation_expense_excluding_amortization_of_acquisition_adjustments": "depreciation_expense_depreciation_amortization_value",
                     "depreciation_expense_for_asset_retirement_costs_excluding_amortizationg_of_acquisition_adjustments": "depreciation_expense_asset_retirement_depreciation_amortization_value",
                     "amortization_of_limited_term_plant_or_property": "amortization_limited_term_electric_plant_depreciation_amortization_value",
@@ -3421,7 +3422,7 @@ TRANSFORM_PARAMS = {
         },
         "wide_to_tidy": {
             "xbrl": {
-                "idx_cols": ["entity_id", "report_year", "functional_classification"],
+                "idx_cols": ["entity_id", "report_year", "plant_function"],
                 "value_types": [
                     "depreciation_amortization_value",
                 ],
@@ -3433,19 +3434,14 @@ TRANSFORM_PARAMS = {
                     "report_year",
                     "record_id",
                     "utility_id_ferc1",
-                    "functional_classification",
+                    "plant_function",
                 ],
                 "value_types": ["depreciation_amortization_value"],
                 "expected_drop_cols": 1,
                 "stacked_column_name": "ferc_account_label",
             },
         },
-        "categorize_strings": {
-            "functional_classification": {
-                "categories": PLANT_FUNCTIONAL_CATEGORIES["categories"]
-                | {"total": ["total"]}
-            },
-        },
+        "categorize_strings": {"plant_function": PLANT_FUNCTION_CATEGORIES},
         "align_row_numbers_dbf": {"dbf_table_names": ["f1_dacs_epda"]},
         "merge_xbrl_metadata": {
             "rename_columns": {"ferc_account_label": "ferc_account_label"},
@@ -3788,7 +3784,7 @@ TRANSFORM_PARAMS = {
                     "future_plant": "future_utility_plant_value",
                     "leased_plant": "leased_utility_plant_value",
                     "electric_plant": "in_service_utility_plant_value",
-                    "xbrl_factoid": "plant_functional_type",
+                    "xbrl_factoid": "plant_function",
                 }
             },
             "instant_xbrl": {
@@ -3802,7 +3798,7 @@ TRANSFORM_PARAMS = {
                     "accumulated_depreciation_distribution_ending_balance": "distribution_utility_plant_value",
                     "accumulated_depreciation_general_ending_balance": "general_utility_plant_value",
                     "accumulated_depreciation_regional_transmission_and_market_operation_ending_balance": "regional_transmission_and_market_operation_utility_plant_value",
-                    "accumulated_provision_for_depreciation_of_electric_utility_plant_ending_balance": "ending_balance_functional_utility_plant_value",
+                    "accumulated_provision_for_depreciation_of_electric_utility_plant_ending_balance": "total_utility_plant_value",
                 }
             },
             "xbrl": {
@@ -3817,6 +3813,7 @@ TRANSFORM_PARAMS = {
         "categorize_strings": {
             "utility_type": UTILITY_TYPE_CATEGORIES,
             "plant_status": PLANT_STATUS,
+            "plant_function": PLANT_FUNCTION_CATEGORIES,
         },
         "align_row_numbers_dbf": {"dbf_table_names": ["f1_accumdepr_prvsn"]},
         "wide_to_tidy": {
@@ -3824,7 +3821,7 @@ TRANSFORM_PARAMS = {
                 "idx_cols": [
                     "utility_id_ferc1",
                     "report_year",
-                    "plant_functional_type",
+                    "plant_function",
                     "record_id",
                 ],
                 "value_types": ["utility_plant_value"],
@@ -3840,15 +3837,15 @@ TRANSFORM_PARAMS = {
                 ],
                 "value_types": ["utility_plant_value"],
                 "expected_drop_cols": 10,
-                "stacked_column_name": "plant_functional_type",
+                "stacked_column_name": "plant_function",
             },
         },
         "merge_xbrl_metadata": {
-            "rename_columns": {"xbrl_factoid": "plant_functional_type"},
-            "on": "plant_functional_type",
+            "rename_columns": {"xbrl_factoid": "plant_function"},
+            "on": "plant_function",
         },
         "select_dbf_rows_by_category": {
-            "column_name": "plant_functional_type",
+            "column_name": "plant_function",
             "select_by_xbrl_categories": False,
             "additional_categories": [
                 "distribution",
@@ -3860,7 +3857,7 @@ TRANSFORM_PARAMS = {
                 "regional_transmission_and_market_operation",
                 "steam_production",
                 "transmission",
-                "ending_balance_functional",
+                "total",
             ],
             "len_expected_categories_to_drop": 17,
         },

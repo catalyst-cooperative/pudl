@@ -774,10 +774,6 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "description": "Reported units of measure for fuel.",
         # Note: Different ENUM constraints are applied below on EIA vs. FERC1
     },
-    "functional_classification": {
-        "type": "string",
-        "description": "Specifies plant category that record applies to.",
-    },
     "furnished_without_charge_mwh": {"type": "number", "unit": "MWh"},
     "future_plant": {
         "type": "number",
@@ -1411,9 +1407,9 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "description": "Net plant capability in megawatts.",
         "unit": "MW",
     },
-    "plant_functional_type": {
+    "plant_function": {
         "type": "string",
-        "description": "Functional plant type (steam, hydro, distribution, etc.).",
+        "description": "Functional role played by utility plant (steam production, nuclear production, distribution, transmission, etc.).",
     },
     "plant_hours_connected_while_generating": {
         "type": "number",
