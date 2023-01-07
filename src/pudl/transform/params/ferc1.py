@@ -304,7 +304,7 @@ UTILITY_TYPE_CATEGORIES = {
     }
 }
 
-ELECTRIC_PLANT_CLASSIFICATION_CATEGORIES = {
+PLANT_STATUS = {
     "categories": {
         "in_service": {
             "in_service",
@@ -3726,14 +3726,14 @@ TRANSFORM_PARAMS = {
                 "columns": {
                     "entity_id": "utility_id_ferc1_xbrl",
                     "report_year": "report_year",
-                    "electric_plant_classification_axis": "plant_classification_type",
+                    "electric_plant_classification_axis": "plant_status",
                     "utility_type_axis": "utility_type",
                 }
             },
         },
         "categorize_strings": {
             "utility_type": UTILITY_TYPE_CATEGORIES,
-            "plant_classification_type": ELECTRIC_PLANT_CLASSIFICATION_CATEGORIES,
+            "plant_status": PLANT_STATUS,
         },
         "align_row_numbers_dbf": {"dbf_table_names": ["f1_accumdepr_prvsn"]},
         "wide_to_tidy": {
@@ -3746,7 +3746,7 @@ TRANSFORM_PARAMS = {
                 ],
                 "value_types": ["utility_plant_value"],
                 "expected_drop_cols": 2,
-                "stacked_column_name": "plant_classification_type",
+                "stacked_column_name": "plant_status",
             },
             "xbrl": {
                 "idx_cols": [
@@ -3809,14 +3809,14 @@ TRANSFORM_PARAMS = {
                 "columns": {
                     "entity_id": "utility_id_ferc1_xbrl",
                     "report_year": "report_year",
-                    "electric_plant_classification_axis": "plant_classification_type",
+                    "electric_plant_classification_axis": "plant_status",
                     "utility_type_axis": "utility_type",
                 }
             },
         },
         "categorize_strings": {
             "utility_type": UTILITY_TYPE_CATEGORIES,
-            "plant_classification_type": ELECTRIC_PLANT_CLASSIFICATION_CATEGORIES,
+            "plant_status": PLANT_STATUS,
         },
         "align_row_numbers_dbf": {"dbf_table_names": ["f1_accumdepr_prvsn"]},
         "wide_to_tidy": {
@@ -3829,7 +3829,7 @@ TRANSFORM_PARAMS = {
                 ],
                 "value_types": ["utility_plant_value"],
                 "expected_drop_cols": 2,
-                "stacked_column_name": "plant_classification_type",
+                "stacked_column_name": "plant_status",
             },
             "xbrl": {
                 "idx_cols": [

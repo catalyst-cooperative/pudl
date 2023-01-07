@@ -1411,10 +1411,6 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "description": "Net plant capability in megawatts.",
         "unit": "MW",
     },
-    "plant_classification_type": {
-        "type": "string",
-        "description": "Status of electric plant (in service, future, leased, total).",
-    },
     "plant_functional_type": {
         "type": "string",
         "description": "Functional plant type (steam, hydro, distribution, etc.).",
@@ -1466,6 +1462,10 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     "plant_part_id_eia": {
         "type": "string",
         "description": "Contains EIA plant ID, plant part, ownership, and EIA utility id",
+    },
+    "plant_status": {
+        "type": "string",
+        "description": "Utility plant financial status (in service, future, leased, total).",
     },
     "plant_type": {
         "type": "string"  # if plant_type is categorized w/ categorize_strings, add enum in FIELD_METADATA_BY_RESOURCE
