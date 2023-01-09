@@ -34,6 +34,14 @@ Data Coverage
   * :ref:`retained_earnings_ferc1`, see issue :issue:`1811` & PR :pr:`2155`.
   * :ref:`cash_flow_ferc1`, see issue :issue:`1821` & PR :pr:`2184`
 
+Deprecations
+^^^^^^^^^^^^
+
+* Replace references to deprecated ``pudl-scrapers`` and
+  ``pudl-zenodo-datastore`` repositories with references to `pudl-archiver
+  <https://www.github.com/catalyst-cooperative/pudl-archiver>`__ repository in
+  :doc:`intro`, :doc:`dev/datastore`, and :doc:`dev/annual_updates`.
+
 .. _release-v2022.11.30:
 
 ---------------------------------------------------------------------------------------
