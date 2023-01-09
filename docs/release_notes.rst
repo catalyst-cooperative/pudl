@@ -40,7 +40,7 @@ Deprecations
 * Replace references to deprecated ``pudl-scrapers`` and
   ``pudl-zenodo-datastore`` repositories with references to `pudl-archiver
   <https://www.github.com/catalyst-cooperative/pudl-archiver>`__ repository in
-  :doc:`intro`, :doc:`dev/datastore`, and :doc:`dev/annual_updates`.
+  :doc:`intro`, :doc:`dev/datastore`, and :doc:`dev/annual_updates`. See :pr:`2190`.
 
 .. _release-v2022.11.30:
 
