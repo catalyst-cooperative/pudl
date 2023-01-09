@@ -52,6 +52,28 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
         "etl_group": "ferc1",
         "field_namespace": "ferc1",
     },
+    "cash_flow_ferc1": {
+        "description": "The structured portion of the FERC1 cash flow table - Schedule 120.",
+        "schema": {
+            "fields": [
+                "record_id",
+                "report_year",
+                "utility_id_ferc1",
+                "amount_type",
+                "amount",
+                "balance",
+                "row_type_xbrl",
+            ],
+            "primary_key": [
+                "utility_id_ferc1",
+                "report_year",
+                "amount_type",
+            ],
+        },
+        "sources": ["ferc1"],
+        "etl_group": "ferc1",
+        "field_namespace": "ferc1",
+    },
     "depreciation_amortization_summary_ferc1": {
         "description": (
             "Depreciation and Amortization of Electric Plan (Account 403, 404, 405) "
