@@ -168,6 +168,10 @@ TABLE_NAME_MAP_FERC1: dict[str, dict[str, str]] = {
         "dbf": "f1_accumdepr_prvsn",
         "xbrl": "accumulated_provision_for_depreciation_of_electric_utility_plant_functional_classification_section_b_219",
     },
+    "cash_flow_ferc1": {
+        "dbf": "f1_cash_flow",
+        "xbrl": "statement_of_cash_flows_120",
+    },
 }
 """A mapping of PUDL DB table names to their XBRL and DBF source table names."""
 

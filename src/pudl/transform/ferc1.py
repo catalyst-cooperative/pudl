@@ -83,6 +83,7 @@ class TableIdFerc1(enum.Enum):
     ELECTRIC_PLANT_DEPRECIATION_FUNCTIONAL_FERC1 = (
         "electric_plant_depreciation_functional_ferc1"
     )
+    CASH_FLOW_FERC1 = "cash_flow_ferc1"
 
 
 ################################################################################
@@ -347,7 +348,7 @@ def align_row_numbers_dbf(df: pd.DataFrame, params: AlignRowNumbersDbf) -> pd.Da
         row_map = read_dbf_to_xbrl_map(dbf_table_names=params.dbf_table_names).pipe(
             fill_dbf_to_xbrl_map
         )
-        if not row_map.all(axis=None):
+        if row_map.isnull().any(axis=None):
             raise ValueError(
                 "Filled DBF-XBRL map contains NA values, which should never happen:"
                 f"{row_map}"
@@ -355,7 +356,9 @@ def align_row_numbers_dbf(df: pd.DataFrame, params: AlignRowNumbersDbf) -> pd.Da
 
         df = pd.merge(df, row_map, on=["report_year", "row_number"], how="left")
         if df.xbrl_factoid.isna().any():
-            raise ValueError("Found null row labeles after aligning DBF/XBRL rows.")
+            raise ValueError(
+                rf"Found null row labeles after aligning DBF/XBRL rows. n\ {df[df.xbrl_factoid.isna()]}"
+            )
         # eliminate the header rows since they (should!) contain no data in either the
         # DBF or XBRL records:
         df = df[df.xbrl_factoid != "HEADER_ROW"]
@@ -718,9 +721,10 @@ def fill_dbf_to_xbrl_map(
     # Drop NA values produced in the broadcasting merge onto the exhaustive index.
     df = df.dropna(subset="xbrl_factoid").drop(columns=["sched_table_name"])
     # There should be no NA values left at this point:
-    if not df.all(axis=None):
+    if df.isnull().any(axis=None):
         raise ValueError(
-            "Filled DBF-XBRL map contains NA values, which should never happen:" f"{df}"
+            "Filled DBF-XBRL map contains NA values, which should never happen:"
+            f"\n{df[df.isnull().any(axis='columns')]}"
         )
     return df
 
@@ -1059,7 +1063,6 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
             )
         return df
 
-    @cache_df(key="xbrl")
     def wide_to_tidy(
         self,
         df: pd.DataFrame,
@@ -3406,6 +3409,118 @@ class ElectricOpexFerc1TableTransformer(Ferc1AbstractTableTransformer):
         return super().process_dbf(self.targeted_drop_duplicates_dbf(raw_dbf))
 
 
+class CashFlowFerc1TableTransformer(Ferc1AbstractTableTransformer):
+    """Transform class for :ref:`cash_flow_ferc1` table."""
+
+    table_id: TableIdFerc1 = TableIdFerc1.CASH_FLOW_FERC1
+    has_unique_record_ids: bool = False
+
+    @cache_df("process_instant_xbrl")
+    def process_instant_xbrl(self, df: pd.DataFrame) -> pd.DataFrame:
+        """Pre-processing required to make the instant and duration tables compatible.
+
+        This table has a rename that needs to take place in an unusual spot -- after the
+        starting / ending balances have been usntacked, but before the instant &
+        duration tables are merged. This method just reversed the order in which these
+        operations happen, comapared to the inherited method.
+        """
+        df = self.unstack_balances_to_report_year_instant_xbrl(df).pipe(
+            self.rename_columns, rename_stage="instant_xbrl"
+        )
+        return df
+
+    @cache_df("main")
+    def transform_main(self, df):
+        """Add duplicate removal and validation after standard transform_main."""
+        return (
+            super()
+            .transform_main(df)
+            .pipe(self.targeted_drop_duplicates)
+            .pipe(self.validate_start_end_balance)
+        )
+
+    @cache_df("main")
+    def targeted_drop_duplicates(self, df):
+        """Drop one duplicate record from 2020, utility_id_ferc1 2037.
+
+        Note: This step could be avoided if we employed a :meth:`drop_invalid_rows`
+        transform step with ``required_valid_cols = ["amount"]``
+        """
+        dupe_mask = (
+            (df.utility_id_ferc1 == 237)
+            & (df.report_year == 2020)
+            & (df.amount_type == "dividends_on_common_stock")
+            & (df.amount.isnull())
+        )
+        if (len_dupes := dupe_mask.value_counts().loc[True]) != 1:
+            raise ValueError(f"Expected to find 1 duplicate record. Found {len_dupes}")
+        return df[~dupe_mask].copy()
+
+    @cache_df("main")
+    def validate_start_end_balance(self, df):
+        """Validate of start balance + net = end balance.
+
+        Add a quick check to ensure the vast majority of the ending balances are
+        calculable from the net change + the starting balance = the ending balance.
+        """
+        # calculate ending balance
+        df.amount = pd.to_numeric(df.amount)
+        end_bal_calc = (
+            df[
+                df.amount_type.isin(
+                    [
+                        "starting_balance",
+                        "net_increase_decrease_in_cash_and_cash_equivalents",
+                    ]
+                )
+            ]
+            .groupby(["utility_id_ferc1", "report_year"])[["amount"]]
+            .sum(min_count=2, numeric_only=True)
+            .add_suffix("_ending_balace")
+        )
+        # grab reported ending balance & squish with the calculated version
+        end_bal = df[df.amount_type == "ending_balance"].set_index(
+            ["utility_id_ferc1", "report_year"]
+        )
+        logger.info(end_bal_calc.columns)
+        end_bal.loc[:, "amount_ending_balace"] = end_bal_calc.amount_ending_balace
+
+        # when both exist, are they close?
+        end_bal_off = end_bal[
+            ~np.isclose(end_bal.amount, end_bal.amount_ending_balace)
+            & end_bal[["amount", "amount_ending_balace"]].notnull().all(axis="columns")
+        ]
+        if (end_bal_off_ratio := len(end_bal_off) / len(end_bal)) > 0.005:
+            raise ValueError(
+                f"Ahhh!! The ending balance isn't calculable in {end_bal_off_ratio:.2%}"
+                " of records. Expected under 0.5%."
+            )
+        return df
+
+    @cache_df("process_xbrl_metadata")
+    def process_xbrl_metadata(self, xbrl_metadata_json) -> pd.DataFrame:
+        """Transform the metadata to reflect the transformed data.
+
+        Replace the name of the balance column reported in the XBRL Instant table with
+        starting_balance / ending_balance since we pull those two values into their own
+        separate labeled rows, each of which should get the original metadata for the
+        Instant column.
+        """
+        meta = (
+            super()
+            .process_xbrl_metadata(xbrl_metadata_json)
+            .assign(
+                xbrl_factoid=lambda x: x.xbrl_factoid.replace(
+                    {"cash_and_cash_equivalents": "starting_balance"}
+                )
+            )
+        )
+        ending_balance = meta[meta.xbrl_factoid == "starting_balance"].assign(
+            xbrl_factoid="ending_balance"
+        )
+        return pd.concat([meta, ending_balance])
+
+
 def transform(
     ferc1_dbf_raw_dfs: dict[str, pd.DataFrame],
     ferc1_xbrl_raw_dfs: dict[str, dict[str, pd.DataFrame]],
@@ -3448,6 +3563,7 @@ def transform(
         "electric_plant_depreciation_changes_ferc1": ElectricPlantDepreciationChangesFerc1TableTransformer,
         "electric_plant_depreciation_functional_ferc1": ElectricPlantDepreciationFunctionalFerc1TableTransformer,
         "retained_earnings_ferc1": RetainedEarningsFerc1TableTransformer,
+        "cash_flow_ferc1": CashFlowFerc1TableTransformer,
     }
     ferc1_transformed_dfs = {}
     for table in ferc1_settings.tables:
