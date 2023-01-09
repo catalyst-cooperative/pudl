@@ -59,7 +59,7 @@ setup(
         "geopandas>=0.9,<0.13",
         "jinja2>=2,<3.2",
         "matplotlib>=3.3,<3.7",  # Should make this optional with a "viz" extras
-        "networkx>=2.2,<2.9",
+        "networkx>=2.2,<3.1",
         "numpy>=1.18.5,!=1.23.0,<1.25",
         "pandas>=1.4,<1.5.3",
         "pyarrow>=5,<10.1",
