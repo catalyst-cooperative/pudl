@@ -483,10 +483,6 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "description": "Electric Plant In Service (USD).",
         "unit": "USD",
     },
-    "plant_classification_type": {
-        "type": "string",
-        "description": "Status of electric plant (in service, future, leased, total).",
-    },
     "emissions_unit_id_epa": {
         "type": "string",
         "description": "Emissions (smokestack) unit monitored by EPA CEMS.",
@@ -781,10 +777,6 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "type": "string",
         "description": "Reported units of measure for fuel.",
         # Note: Different ENUM constraints are applied below on EIA vs. FERC1
-    },
-    "functional_classification": {
-        "type": "string",
-        "description": "Specifies plant category that record applies to.",
     },
     "furnished_without_charge_mwh": {"type": "number", "unit": "MWh"},
     "future_plant": {
@@ -1419,6 +1411,10 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "description": "Net plant capability in megawatts.",
         "unit": "MW",
     },
+    "plant_function": {
+        "type": "string",
+        "description": "Functional role played by utility plant (steam production, nuclear production, distribution, transmission, etc.).",
+    },
     "plant_hours_connected_while_generating": {
         "type": "number",
         "description": "Hours the plant was connected to load while generating in the report year.",
@@ -1466,6 +1462,10 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     "plant_part_id_eia": {
         "type": "string",
         "description": "Contains EIA plant ID, plant part, ownership, and EIA utility id",
+    },
+    "plant_status": {
+        "type": "string",
+        "description": "Utility plant financial status (in service, future, leased, total).",
     },
     "plant_type": {
         "type": "string"  # if plant_type is categorized w/ categorize_strings, add enum in FIELD_METADATA_BY_RESOURCE

@@ -28,6 +28,8 @@ Data Coverage
   * :ref:`income_statement_ferc1`, see issue :issue:`1813` & PR :pr:`2147`.
   * :ref:`electric_plant_depreciation_changes_ferc1` see issue :issue:`1808` &
     :pr:`2119`.
+  * :ref:`electric_plant_depreciation_functional_ferc1` see issue :issue:`1808` & PR
+    :pr:`2183`
   * :ref:`electric_opex_ferc1`, see issue :issue:`1817` & PR :pr:`2162`.
   * :ref:`retained_earnings_ferc1`, see issue :issue:`1811` & PR :pr:`2155`.
   * :ref:`cash_flow_ferc1`, see issue :issue:`1821` & PR :pr:`2184`
