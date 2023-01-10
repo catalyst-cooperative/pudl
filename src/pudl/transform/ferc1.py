@@ -23,7 +23,6 @@ from pudl.analysis.classify_plants_ferc1 import (
     plants_steam_assign_plant_ids,
     plants_steam_validate_ids,
 )
-from pudl.helpers import convert_cols_dtypes
 from pudl.settings import Ferc1Settings
 from pudl.transform.classes import (
     AbstractTableTransformer,
@@ -82,6 +81,9 @@ class TableIdFerc1(enum.Enum):
         "electric_plant_depreciation_changes_ferc1"
     )
     ELECTRIC_OPERATING_REVENUES_FERC1 = "electric_operating_revenues_ferc1"
+    ELECTRIC_PLANT_DEPRECIATION_FUNCTIONAL_FERC1 = (
+        "electric_plant_depreciation_functional_ferc1"
+    )
     CASH_FLOW_FERC1 = "cash_flow_ferc1"
 
 
@@ -338,12 +340,8 @@ class AlignRowNumbersDbf(TransformParams):
     """
 
 
-def align_row_numbers_dbf(
-    df: pd.DataFrame, params: AlignRowNumbersDbf | None = None
-) -> pd.DataFrame:
+def align_row_numbers_dbf(df: pd.DataFrame, params: AlignRowNumbersDbf) -> pd.DataFrame:
     """Rename the xbrl_factoid column after :meth:`align_row_numbers_dbf`."""
-    if params is None:
-        params = AlignRowNumbersDbf()
     if params.dbf_table_names:
         logger.info(
             f"Aligning row numbers from DBF row to XBRL map for {params.dbf_table_names}"
@@ -958,6 +956,7 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
             df = align_row_numbers_dbf(df, params=params)
         return df
 
+    @cache_df(key="dbf")
     def drop_duplicate_rows_dbf(
         self, df: pd.DataFrame, params: DropDuplicateRowsDbf | None = None
     ) -> pd.DataFrame:
@@ -3046,7 +3045,7 @@ class IncomeStatementFerc1TableTransformer(Ferc1AbstractTableTransformer):
                 )
             source_table = df.sched_table_name
         else:
-            assert source_ferc1 == SourceFerc1.XBRL
+            assert source_ferc1 == SourceFerc1.XBRL  # nosec: B101
             source_table = super().source_table_id(source_ferc1=source_ferc1)
         return source_table
 
@@ -3325,6 +3324,64 @@ class ElectricPlantDepreciationChangesFerc1TableTransformer(
         return df
 
 
+class ElectricPlantDepreciationFunctionalFerc1TableTransformer(
+    Ferc1AbstractTableTransformer
+):
+    """Transformer for :ref:`electric_plant_depreciation_functional_ferc1` table."""
+
+    table_id: TableIdFerc1 = TableIdFerc1.ELECTRIC_PLANT_DEPRECIATION_FUNCTIONAL_FERC1
+    has_unique_record_ids: bool = False
+
+    @cache_df("process_xbrl_metadata")
+    def process_xbrl_metadata(self, xbrl_metadata_json) -> pd.DataFrame:
+        """Transform the metadata to reflect the transformed data.
+
+        Transform the xbrl factoid values so that they match the final plant functional
+        classification categories and can be merged with the output dataframe.
+        """
+        df = (
+            super()
+            .process_xbrl_metadata(xbrl_metadata_json)
+            .assign(
+                xbrl_factoid=lambda x: x.xbrl_factoid.str.replace(
+                    r"^accumulated_depreciation_", "", regex=True
+                ),
+            )
+        )
+        df.loc[
+            df.xbrl_factoid
+            == "accumulated_provision_for_depreciation_of_electric_utility_plant",
+            "xbrl_factoid",
+        ] = "total"
+        return df
+
+    @cache_df("dbf")
+    def process_dbf(self, df: pd.DataFrame) -> pd.DataFrame:
+        """Accumulated Depreciation table specific DBF cleaning operations.
+
+        The XBRL reports a utility_type which is always electric in this table, but
+        which may be necessary for differentiating between different values when this
+        data is combined with other tables. The DBF data doesn't report this value so we
+        are adding it here for consistency across the two data sources.
+        """
+        return super().process_dbf(df).assign(utility_type="electric")
+
+    @cache_df("process_instant_xbrl")
+    def process_instant_xbrl(self, df: pd.DataFrame) -> pd.DataFrame:
+        """Pre-processing required to make the instant and duration tables compatible.
+
+        This table has a rename that needs to take place in an unusual spot -- after the
+        starting / ending balances have been usntacked, but before the instant &
+        duration tables are merged. This method reverses the order in which these
+        operations happen comapared to the inherited method. We also want to strip the
+        ``accumulated_depreciation`` that appears on every plant functional class.
+        """
+        df = self.unstack_balances_to_report_year_instant_xbrl(df).pipe(
+            self.rename_columns, rename_stage="instant_xbrl"
+        )
+        return df
+
+
 class ElectricOpexFerc1TableTransformer(Ferc1AbstractTableTransformer):
     """Transformer class for :ref:`electric_opex_ferc1` table."""
 
@@ -3512,32 +3569,27 @@ def transform(
         "balance_sheet_assets_ferc1": BalanceSheetAssetsFerc1TableTransformer,
         "income_statement_ferc1": IncomeStatementFerc1TableTransformer,
         "electric_plant_depreciation_changes_ferc1": ElectricPlantDepreciationChangesFerc1TableTransformer,
+        "electric_plant_depreciation_functional_ferc1": ElectricPlantDepreciationFunctionalFerc1TableTransformer,
         "retained_earnings_ferc1": RetainedEarningsFerc1TableTransformer,
         "electric_operating_revenues_ferc1": ElectricOperatingRevenuesFerc1TableTransformer,
         "cash_flow_ferc1": CashFlowFerc1TableTransformer,
     }
-    # create an empty ditctionary to fill up through the transform fuctions
     ferc1_transformed_dfs = {}
-    # for each ferc table,
-    for table in ferc1_tfr_classes:
-        if table in ferc1_settings.tables:
-            logger.info(
-                f"Transforming raw FERC Form 1 dataframe for loading into {table}"
-            )
+    for table in ferc1_settings.tables:
+        if table == "plants_steam_ferc1":  # Special case, see below.
+            continue
+        logger.info(f"Transforming raw FERC Form 1 dataframe for loading into {table}")
 
-            ferc1_transformed_dfs[table] = ferc1_tfr_classes[table](
-                xbrl_metadata_json=xbrl_metadata_json[table],
-            ).transform(
-                raw_dbf=ferc1_dbf_raw_dfs[table],
-                raw_xbrl_instant=ferc1_xbrl_raw_dfs[table].get(
-                    "instant", pd.DataFrame()
-                ),
-                raw_xbrl_duration=ferc1_xbrl_raw_dfs[table].get(
-                    "duration", pd.DataFrame()
-                ),
-            )
-    # Bespoke exception. fuel must come before steam b/c fuel proportions are used to
-    # aid in FERC plant ID assignment.
+        ferc1_transformed_dfs[table] = ferc1_tfr_classes[table](
+            xbrl_metadata_json=xbrl_metadata_json[table],
+        ).transform(
+            raw_dbf=ferc1_dbf_raw_dfs[table],
+            raw_xbrl_instant=ferc1_xbrl_raw_dfs[table].get("instant", pd.DataFrame()),
+            raw_xbrl_duration=ferc1_xbrl_raw_dfs[table].get("duration", pd.DataFrame()),
+        )
+    # Special case: fuel must come before steam because the fuel proportions are used
+    # in FERC plant ID assignment process, and sthe steam table has a different call
+    # signature so it can accommodate the fuel table as an input:
     if "plants_steam_ferc1" in ferc1_settings.tables:
         ferc1_transformed_dfs["plants_steam_ferc1"] = PlantsSteamFerc1TableTransformer(
             xbrl_metadata_json=xbrl_metadata_json["plants_steam_ferc1"]
@@ -3554,11 +3606,7 @@ def transform(
             transformed_fuel=ferc1_transformed_dfs["fuel_ferc1"].copy(),
         )
 
-    # convert types and return:
-    return {
-        name: convert_cols_dtypes(df, data_source="ferc1")
-        for name, df in ferc1_transformed_dfs.items()
-    }
+    return ferc1_transformed_dfs
 
 
 if __name__ == "__main__":

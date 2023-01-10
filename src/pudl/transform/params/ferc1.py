@@ -247,52 +247,53 @@ INVALID_PLANT_NAMES = [pd.NA, np.nan, "not applicable", "0", "", "-"]
 ##############################################################################
 # String categorizations
 ##############################################################################
-PLANT_FUNCTIONAL_CLASSIFICATION_CATEGORIES = {
+PLANT_FUNCTION_CATEGORIES = {
     "categories": {
-        "intangible_plant": {
-            "intangible_plant",
+        "intangible": {
+            "intangible",
             "ferc:IntangiblePlantMember",
         },
-        "steam_production_plant": {
-            "steam_production_plant",
+        "steam_production": {
+            "steam_production",
             "ferc:SteamProductionPlantMember",
         },
-        "nuclear_production_plant": {
-            "nuclear_production_plant",
+        "nuclear_production": {
+            "nuclear_production",
             "ferc:NuclearProductionPlantMember",
         },
-        "hydraulic_production_plant_conventional": {
-            "hydraulic_production_plant_conventional",
+        "hydraulic_production_conventional": {
+            "hydraulic_production_conventional",
             "ferc:HydraulicProductionPlantConventionalMember",
         },
-        "hydraulic_production_plant_pumped_storage": {
-            "hydraulic_production_plant_pumped_storage",
+        "hydraulic_production_pumped_storage": {
+            "hydraulic_production_pumped_storage",
             "ferc:HydraulicProductionPlantPumpedStorageMember",
         },
-        "other_production_plant": {
-            "other_production_plant",
+        "other_production": {
+            "other_production",
             "ferc:OtherProductionPlantMember",
         },
-        "transmission_plant": {
-            "transmission_plant",
+        "transmission": {
+            "transmission",
             "ferc:TransmissionPlantMember",
         },
-        "distribution_plant": {
-            "distribution_plant",
+        "distribution": {
+            "distribution",
             "ferc:DistributionPlantMember",
         },
-        "regional_transmission_market_plant": {
-            "regional_transmission_market_plant",
+        "regional_transmission_and_market_operation": {
+            "regional_transmission_and_market_operation",
             "ferc:RegionalTransmissionAndMarketOperationMember",
         },
-        "general_plant": {
-            "general_plant",
+        "general": {
+            "general",
             "ferc:GeneralPlantMember",
         },
         "common_plant_electric": {
             "common_plant_electric",
             "ferc:CommonPlantElectricMember",
         },
+        "total": {"total"},
     }
 }
 
@@ -304,7 +305,7 @@ UTILITY_TYPE_CATEGORIES = {
     }
 }
 
-ELECTRIC_PLANT_CLASSIFICATION_CATEGORIES = {
+PLANT_STATUS = {
     "categories": {
         "in_service": {
             "in_service",
@@ -1752,7 +1753,6 @@ languaged used to refer to hydro vs. other types of plants. For example: "conven
 in the context of a hydro plant means that it is conventional hydro-electric. In the
 context of the steam table, however, it's unclear what conventional means.
 """
-
 
 CONSTRUCTION_TYPE_CATEGORIES: dict[str, set[str]] = {
     "categories": {
@@ -3398,7 +3398,7 @@ TRANSFORM_PARAMS = {
                     "limterm_elc_plnt": "amortization_limited_term_electric_plant_depreciation_amortization_value",
                     "othr_elc_plnt": "amortization_other_electric_plant_depreciation_amortization_value",
                     "total": "depreciation_amortization_total_depreciation_amortization_value",
-                    "xbrl_factoid": "functional_classification",
+                    "xbrl_factoid": "plant_function",
                     "report_prd": "report_prd",
                 }
             },
@@ -3411,7 +3411,7 @@ TRANSFORM_PARAMS = {
             },
             "duration_xbrl": {
                 "columns": {
-                    "functional_classification_axis": "functional_classification",
+                    "functional_classification_axis": "plant_function",
                     "depreciation_expense_excluding_amortization_of_acquisition_adjustments": "depreciation_expense_depreciation_amortization_value",
                     "depreciation_expense_for_asset_retirement_costs_excluding_amortizationg_of_acquisition_adjustments": "depreciation_expense_asset_retirement_depreciation_amortization_value",
                     "amortization_of_limited_term_plant_or_property": "amortization_limited_term_electric_plant_depreciation_amortization_value",
@@ -3422,7 +3422,7 @@ TRANSFORM_PARAMS = {
         },
         "wide_to_tidy": {
             "xbrl": {
-                "idx_cols": ["entity_id", "report_year", "functional_classification"],
+                "idx_cols": ["entity_id", "report_year", "plant_function"],
                 "value_types": [
                     "depreciation_amortization_value",
                 ],
@@ -3434,19 +3434,14 @@ TRANSFORM_PARAMS = {
                     "report_year",
                     "record_id",
                     "utility_id_ferc1",
-                    "functional_classification",
+                    "plant_function",
                 ],
                 "value_types": ["depreciation_amortization_value"],
                 "expected_drop_cols": 1,
                 "stacked_column_name": "ferc_account_label",
             },
         },
-        "categorize_strings": {
-            "functional_classification": {
-                "categories": PLANT_FUNCTIONAL_CLASSIFICATION_CATEGORIES["categories"]
-                | {"total": ["total"]}
-            },
-        },
+        "categorize_strings": {"plant_function": PLANT_FUNCTION_CATEGORIES},
         "align_row_numbers_dbf": {"dbf_table_names": ["f1_dacs_epda"]},
         "merge_xbrl_metadata": {
             "rename_columns": {"ferc_account_label": "ferc_account_label"},
@@ -3840,14 +3835,14 @@ TRANSFORM_PARAMS = {
                 "columns": {
                     "entity_id": "utility_id_ferc1_xbrl",
                     "report_year": "report_year",
-                    "electric_plant_classification_axis": "plant_classification_type",
+                    "electric_plant_classification_axis": "plant_status",
                     "utility_type_axis": "utility_type",
                 }
             },
         },
         "categorize_strings": {
             "utility_type": UTILITY_TYPE_CATEGORIES,
-            "plant_classification_type": ELECTRIC_PLANT_CLASSIFICATION_CATEGORIES,
+            "plant_status": PLANT_STATUS,
         },
         "align_row_numbers_dbf": {"dbf_table_names": ["f1_accumdepr_prvsn"]},
         "wide_to_tidy": {
@@ -3860,7 +3855,7 @@ TRANSFORM_PARAMS = {
                 ],
                 "value_types": ["utility_plant_value"],
                 "expected_drop_cols": 2,
-                "stacked_column_name": "plant_classification_type",
+                "stacked_column_name": "plant_status",
             },
             "xbrl": {
                 "idx_cols": [
@@ -3882,6 +3877,102 @@ TRANSFORM_PARAMS = {
             "column_name": "depreciation_type",
             "select_by_xbrl_categories": True,
             "len_expected_categories_to_drop": 12,
+        },
+        "unstack_balances_to_report_year_instant_xbrl": {
+            "unstack_balances_to_report_year": True
+        },
+    },
+    "electric_plant_depreciation_functional_ferc1": {
+        "rename_columns_ferc1": {
+            "dbf": {
+                "columns": {
+                    "respondent_id": "utility_id_ferc1_dbf",
+                    "report_year": "report_year",
+                    "spplmnt_num": "spplmnt_num",
+                    "row_number": "row_number",
+                    "row_seq": "row_seq",
+                    "row_prvlg": "row_prvlg",
+                    "report_prd": "report_prd",
+                    "total_cde": "total_utility_plant_value",
+                    "future_plant": "future_utility_plant_value",
+                    "leased_plant": "leased_utility_plant_value",
+                    "electric_plant": "in_service_utility_plant_value",
+                    "xbrl_factoid": "plant_function",
+                }
+            },
+            "instant_xbrl": {
+                "columns": {
+                    "accumulated_depreciation_steam_production_ending_balance": "steam_production_utility_plant_value",
+                    "accumulated_depreciation_nuclear_production_ending_balance": "nuclear_production_utility_plant_value",
+                    "accumulated_depreciation_hydraulic_production_conventional_ending_balance": "hydraulic_production_conventional_utility_plant_value",
+                    "accumulated_depreciation_hydraulic_production_pumped_storage_ending_balance": "hydraulic_production_pumped_storage_utility_plant_value",
+                    "accumulated_depreciation_other_production_ending_balance": "other_production_utility_plant_value",
+                    "accumulated_depreciation_transmission_ending_balance": "transmission_utility_plant_value",
+                    "accumulated_depreciation_distribution_ending_balance": "distribution_utility_plant_value",
+                    "accumulated_depreciation_general_ending_balance": "general_utility_plant_value",
+                    "accumulated_depreciation_regional_transmission_and_market_operation_ending_balance": "regional_transmission_and_market_operation_utility_plant_value",
+                    "accumulated_provision_for_depreciation_of_electric_utility_plant_ending_balance": "total_utility_plant_value",
+                }
+            },
+            "xbrl": {
+                "columns": {
+                    "entity_id": "utility_id_ferc1_xbrl",
+                    "report_year": "report_year",
+                    "electric_plant_classification_axis": "plant_status",
+                    "utility_type_axis": "utility_type",
+                }
+            },
+        },
+        "categorize_strings": {
+            "utility_type": UTILITY_TYPE_CATEGORIES,
+            "plant_status": PLANT_STATUS,
+            "plant_function": PLANT_FUNCTION_CATEGORIES,
+        },
+        "align_row_numbers_dbf": {"dbf_table_names": ["f1_accumdepr_prvsn"]},
+        "wide_to_tidy": {
+            "dbf": {
+                "idx_cols": [
+                    "utility_id_ferc1",
+                    "report_year",
+                    "plant_function",
+                    "record_id",
+                ],
+                "value_types": ["utility_plant_value"],
+                "expected_drop_cols": 2,
+                "stacked_column_name": "plant_status",
+            },
+            "xbrl": {
+                "idx_cols": [
+                    "entity_id",
+                    "report_year",
+                    "electric_plant_classification_axis",
+                    "utility_type_axis",
+                ],
+                "value_types": ["utility_plant_value"],
+                "expected_drop_cols": 10,
+                "stacked_column_name": "plant_function",
+            },
+        },
+        "merge_xbrl_metadata": {
+            "rename_columns": {"xbrl_factoid": "plant_function"},
+            "on": "plant_function",
+        },
+        "select_dbf_rows_by_category": {
+            "column_name": "plant_function",
+            "select_by_xbrl_categories": False,
+            "additional_categories": [
+                "distribution",
+                "general",
+                "hydraulic_production_conventional",
+                "hydraulic_production_pumped_storage",
+                "nuclear_production",
+                "other_production",
+                "regional_transmission_and_market_operation",
+                "steam_production",
+                "transmission",
+                "total",
+            ],
+            "len_expected_categories_to_drop": 17,
         },
         "unstack_balances_to_report_year_instant_xbrl": {
             "unstack_balances_to_report_year": True

@@ -82,9 +82,10 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
         ),
         "schema": {
             "fields": [
-                "utility_id_ferc1",
+                "record_id",
                 "report_year",
-                "functional_classification",
+                "utility_id_ferc1",
+                "plant_function",
                 "ferc_account_label",
                 "ferc_account",
                 "depreciation_amortization_value",
@@ -92,7 +93,7 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
             "primary_key": [
                 "utility_id_ferc1",
                 "report_year",
-                "functional_classification",
+                "plant_function",
                 "ferc_account_label",
             ],
         },
@@ -179,7 +180,7 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
                 "utility_id_ferc1",
                 "report_year",
                 "depreciation_type",
-                "plant_classification_type",
+                "plant_status",
                 "utility_type",
                 "utility_plant_value",
                 "record_id",
@@ -191,7 +192,37 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
                 "utility_id_ferc1",
                 "report_year",
                 "depreciation_type",
-                "plant_classification_type",
+                "plant_status",
+                "utility_type",
+            ],
+        },
+        "sources": ["ferc1"],
+        "etl_group": "ferc1",
+        "field_namespace": "ferc1",
+    },
+    "electric_plant_depreciation_functional_ferc1": {
+        "description": (
+            "Accumulated provision for depreciation of electric utility plant "
+            "(Account 108). Schedule 219 Section B: Functional plant classifications."
+        ),
+        "schema": {
+            "fields": [
+                "utility_id_ferc1",
+                "report_year",
+                "plant_function",
+                "plant_status",
+                "utility_type",
+                "utility_plant_value",
+                "record_id",
+                "balance",
+                "ferc_account",
+                "row_type_xbrl",
+            ],
+            "primary_key": [
+                "utility_id_ferc1",
+                "report_year",
+                "plant_function",
+                "plant_status",
                 "utility_type",
             ],
         },

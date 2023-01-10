@@ -567,6 +567,7 @@ datasets:
       - balance_sheet_assets_ferc1
       - income_statement_ferc1
       - electric_plant_depreciation_changes_ferc1
+      - electric_plant_depreciation_functional_ferc1
       - retained_earnings_ferc1
       - electric_operating_revenues_ferc1
       - cash_flow_ferc1
