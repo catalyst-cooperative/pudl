@@ -8,6 +8,7 @@ from dagster import asset
 @asset(
     non_argument_deps={"utilities_entity_eia", "utilities_eia860", "utilities_eia"},
     io_manager_key="pudl_sqlite_io_manager",
+    compute_kind="SQL",
 )
 def utils_eia860() -> str:
     """Create view of all fields from the EIA860 Utilities table."""
@@ -27,9 +28,7 @@ def utils_eia860() -> str:
     return query
 
 
-@asset(
-    io_manager_key="pudl_sqlite_io_manager",
-)
+@asset(io_manager_key="pudl_sqlite_io_manager", compute_kind="Python")
 def utility_analysis(utils_eia860):
     """Example of how to create an analysis table that depends on an output view.
 
