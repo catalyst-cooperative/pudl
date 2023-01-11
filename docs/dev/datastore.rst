@@ -62,3 +62,30 @@ We maintain a tool at `pudl-archiver
 archival and versioning of datasets. See the `documentation
 <https://github.com/catalyst-cooperative/pudl-archiver#adding-a-new-dataset>`__
 for information on adding datasets to the datastore.
+
+
+Prepare the Datastore
+^^^^^^^^^^^^^^^^^^^^^
+
+If you have used pudl-archiver to prepare a Zenodo archive as above, you
+can add support for your archive to the datastore by adding the DOI to
+pudl.workspace.datastore.DOI, under "sandbox" or "production" as appropriate.
+
+If you want to prepare an archive for the datastore separately, the following
+are required.
+
+#. The root path must contain a ``datapackage.json`` file that conforms to the
+`frictionless datapackage spec <https://specs.frictionlessdata.io/data-package/>`__
+#. Each listed resource among the ``datapackage.json`` resources must include:
+
+   * ``path`` containing the zenodo download url for the specific file.
+   * ``remote_url`` with the same url as the ``path``
+   * ``name`` of the file
+   * ``hash`` with the md5 hash of the file
+   * ``parts`` a set of key / value pairs defining additional attributes that
+     can be used to select a subset of the whole datapackage. For example, the
+     ``epacems`` dataset is partitioned by year and state, and
+     ``"parts": {"year": 2010, "state": "ca"}`` would indicate that the
+     resource contains data for the state of California in the year 2010.
+     Unpartitioned datasets like the ``ferc714`` which includes all years in
+     a single file, would have an empty ``"parts": {}``
