@@ -40,7 +40,7 @@ jobs:
 
       - name: Docker Metadata
         id: docker_metadata
-        uses: docker/metadata-action@v4.1.1
+        uses: docker/metadata-action@v4.2.0
         with:
           images: catalystcoop/pudl-etl
           flavor: |
