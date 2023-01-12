@@ -3416,6 +3416,25 @@ class ElectricOperatingRevenuesFerc1TableTransformer(Ferc1AbstractTableTransform
     table_id: TableIdFerc1 = TableIdFerc1.ELECTRIC_OPERATING_REVENUES_FERC1
     has_unique_record_ids: bool = False
 
+    @cache_df("main")
+    def transform_main(self, df):
+        """Add duplicate removal after standard transform_main."""
+        return super().transform_main(df).pipe(self.targeted_drop_duplicates)
+
+    @cache_df("main")
+    def targeted_drop_duplicates(self, df):
+        """Drop one duplicate records from 2011, utility_id_ferc1 295."""
+        dupe_mask = (
+            (df.utility_id_ferc1 == 295)
+            & (df.report_year == 2011)
+            & ((df.amount == 3.33e8) | (df.amount == 3.333e9))
+        )
+        if (len_dupes := dupe_mask.value_counts().loc[True]) != 10:
+            raise ValueError(
+                f"Expected to find 10 duplicate records. Found {len_dupes}"
+            )
+        return df[~dupe_mask].copy()
+
 
 class CashFlowFerc1TableTransformer(Ferc1AbstractTableTransformer):
     """Transform class for :ref:`cash_flow_ferc1` table."""
