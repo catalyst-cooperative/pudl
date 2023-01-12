@@ -102,7 +102,7 @@ setup(
             "flake8-rst-docstrings>=0.2,<0.4",
             "flake8-use-fstring>=1.0,<1.5",
             "mccabe>=0.6,<0.8",
-            "nbval>=0.9,<0.10",
+            "nbval>=0.9,<0.11",
             "pep8-naming>=0.12,<0.14",
             "pre-commit>=2.9,<2.22",
             "pydocstyle>=5.1,<6.3",
