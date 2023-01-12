@@ -187,7 +187,7 @@ Datasette:
 
   * `FERC-2 SQLite derived from XBRL (2021) <http://intake.catalyst.coop.s3.amazonaws.com/dev/ferc2_xbrl.sqlite>`__
   * `FERC-2 Datapackage (JSON) describing SQLite derived from XBRL <http://intake.catalyst.coop.s3.amazonaws.com/dev/ferc2_xbrl_datapackage.json>`__
-  * `FERC-2 XBRL Taxonomy Metadata as JSON (2021) <http://intake.catalyst.coop.s3.amazoaws.com/dev/ferc2_xbrl_taxonomy_metadata.json>`__
+  * `FERC-2 XBRL Taxonomy Metadata as JSON (2021) <http://intake.catalyst.coop.s3.amazonaws.com/dev/ferc2_xbrl_taxonomy_metadata.json>`__
 
 * Raw FERC Form 6:
 
