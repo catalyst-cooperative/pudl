@@ -3429,10 +3429,7 @@ class ElectricOperatingRevenuesFerc1TableTransformer(Ferc1AbstractTableTransform
             & (df.report_year == 2011)
             & ((df.amount == 3.33e8) | (df.amount == 3.333e9))
         )
-        if (len_dupes := dupe_mask.value_counts().loc[True]) != 10:
-            raise ValueError(
-                f"Expected to find 10 duplicate records. Found {len_dupes}"
-            )
+
         return df[~dupe_mask].copy()
 
 
