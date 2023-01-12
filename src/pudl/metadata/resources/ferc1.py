@@ -703,6 +703,33 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
         "etl_group": "ferc1_disabled",
         "field_namespace": "ferc1",
     },
+    "electric_operating_revenues_ferc1": {
+        "description": (
+            "Electric operating revenues - The structed part of schedule 300."
+            "There are a number of revenue_type's that do not have sales_mwh,"
+            "or avg_customers_per_month provided, in which case these columns"
+            "will be NULL."
+        ),
+        "schema": {
+            "fields": [
+                "utility_id_ferc1",
+                "report_year",
+                "record_id",
+                "revenue_type",
+                "revenue",
+                "sales_mwh",
+                "avg_customers_per_month",
+            ],
+            "primary_key": [
+                "utility_id_ferc1",
+                "report_year",
+                "revenue_type",
+            ],
+        },
+        "sources": ["ferc1"],
+        "etl_group": "ferc1",
+        "field_namespace": "ferc1",
+    },
 }
 """FERC Form 1 resource attributes by PUDL identifier (``resource.name``).
 

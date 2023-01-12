@@ -28,6 +28,7 @@ ferc_to_sqlite_settings:
       - f1_dacs_epda
       - f1_accumdepr_prvsn
       - f1_retained_erng
+      - f1_elctrc_oper_rev
       - f1_cash_flow
 
   ferc1_xbrl_to_sqlite_settings:
@@ -73,8 +74,10 @@ ferc_to_sqlite_settings:
       - electric_operations_and_maintenance_expenses_320_instant
       - retained_earnings_118_duration
       - retained_earnings_118_instant
-      - statement_of_cash_flows_120_duration
+      - electric_operating_revenues_300_duration
+      - electric_operating_revenues_300_instant
       - statement_of_cash_flows_120_instant
+      - statement_of_cash_flows_120_duration
 
   ferc2_xbrl_to_sqlite_settings:
     years: [2021]
@@ -116,6 +119,7 @@ datasets:
       - electric_plant_depreciation_changes_ferc1
       - electric_plant_depreciation_functional_ferc1
       - retained_earnings_ferc1
+      - electric_operating_revenues_ferc1
       - cash_flow_ferc1
     years: [2020, 2021]
   eia:
