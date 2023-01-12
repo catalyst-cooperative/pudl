@@ -76,8 +76,6 @@ ferc_to_sqlite_settings:
       - retained_earnings_118_instant
       - electric_operating_revenues_300_duration
       - electric_operating_revenues_300_instant
-      - electric_operating_revenues_other_300_duration
-      - electric_operating_revenues_300_instant
       - statement_of_cash_flows_120_instant
       - statement_of_cash_flows_120_duration
 
