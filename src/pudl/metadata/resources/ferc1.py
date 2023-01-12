@@ -704,7 +704,12 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
         "field_namespace": "ferc1",
     },
     "electric_operating_revenues_ferc1": {
-        "description": "Electric operating revenues - The structed part of schedule 300.",
+        "description": (
+            "Electric operating revenues - The structed part of schedule 300."
+            "There are a number of revenue_type's that do not have sales_mwh,"
+            "or avg_customers_per_month provided, in which case these columns"
+            "will be NULL."
+        ),
         "schema": {
             "fields": [
                 "utility_id_ferc1",

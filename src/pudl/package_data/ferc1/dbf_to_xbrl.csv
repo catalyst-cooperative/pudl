@@ -1915,21 +1915,21 @@ f1_elctrc_oper_rev,12,1994,TOTAL Sales of Electricity,calculated_value,sales_of_
 f1_elctrc_oper_rev,13,1994,(Less) (449.1) Provision for Rate Refunds,reported_value,provision_for_rate_refunds,,
 f1_elctrc_oper_rev,14,1994,TOTAL Revenues Net of Prov. for Refunds,calculated_value,revenues_net_of_provision_for_refunds,,
 f1_elctrc_oper_rev,15,1994,Other Operating Revenues,header,#N/A,,
-f1_elctrc_oper_rev,16,1994,(450) Forfeited Discounts,reported_value,forfeited_discounts,,
-f1_elctrc_oper_rev,17,1994,(451) Miscellaneous Service Revenues,reported_value,miscellaneous_service_revenues,,
-f1_elctrc_oper_rev,18,1994,(453) Sales of Water and Water Power,reported_value,sales_of_water_and_water_power,,
-f1_elctrc_oper_rev,19,1994,(454) Rent from Electric Property,reported_value,rent_from_electric_property,,
-f1_elctrc_oper_rev,20,1994,(455) Interdepartmental Rents,reported_value,interdepartmental_rents,,
-f1_elctrc_oper_rev,21,1994,(456) Other Electric Revenues,reported_value,other_electric_revenue,,
+f1_elctrc_oper_rev,16,1994,(450) Forfeited Discounts,reported_value,forfeited_discounts,,No MWh sold or average number of customers per month provided.
+f1_elctrc_oper_rev,17,1994,(451) Miscellaneous Service Revenues,reported_value,miscellaneous_service_revenues,,No MWh sold or average number of customers per month provided.
+f1_elctrc_oper_rev,18,1994,(453) Sales of Water and Water Power,reported_value,sales_of_water_and_water_power,,No MWh sold or average number of customers per month provided.
+f1_elctrc_oper_rev,19,1994,(454) Rent from Electric Property,reported_value,rent_from_electric_property,,No MWh sold or average number of customers per month provided.
+f1_elctrc_oper_rev,20,1994,(455) Interdepartmental Rents,reported_value,interdepartmental_rents,,No MWh sold or average number of customers per month provided.
+f1_elctrc_oper_rev,21,1994,(456) Other Electric Revenues,reported_value,other_electric_revenue,,No MWh sold or average number of customers per month provided.
 f1_elctrc_oper_rev,22,1994,Line 22,reported_value,other_operating_revenues_unstructured,,
 f1_elctrc_oper_rev,23,1994,Line 23,reported_value,other_operating_revenues_unstructured,,
 f1_elctrc_oper_rev,24,1994,Line 24,reported_value,other_operating_revenues_unstructured,,
 f1_elctrc_oper_rev,25,1994,Line 25,reported_value,other_operating_revenues_unstructured,,
-f1_elctrc_oper_rev,26,1994,TOTAL Other Operating Revenues,calculated_value,other_operating_revenues,,
-f1_elctrc_oper_rev,27,1994,TOTAL Electric Operating Revenues,calculated_value,electric_operating_revenues,,
-f1_elctrc_oper_rev,22,2006,(456.1) Revenues from Transmission of Electricity of Others,reported_value,revenues_from_transmission_of_electricity_of_others,,
-f1_elctrc_oper_rev,23,2006,(457.1) Regional Control Service Revenues,reported_value,regional_transmission_service_revenues,,
-f1_elctrc_oper_rev,24,2006,(457.2) Miscellaneous Revenues,reported_value,miscellaneous_revenue,,
+f1_elctrc_oper_rev,26,1994,TOTAL Other Operating Revenues,calculated_value,other_operating_revenues,,No MWh sold or average number of customers per month provided.
+f1_elctrc_oper_rev,27,1994,TOTAL Electric Operating Revenues,calculated_value,electric_operating_revenues,,No MWh sold or average number of customers per month provided.
+f1_elctrc_oper_rev,22,2006,(456.1) Revenues from Transmission of Electricity of Others,reported_value,revenues_from_transmission_of_electricity_of_others,,No MWh sold or average number of customers per month provided.
+f1_elctrc_oper_rev,23,2006,(457.1) Regional Control Service Revenues,reported_value,regional_transmission_service_revenues,,No MWh sold or average number of customers per month provided.
+f1_elctrc_oper_rev,24,2006,(457.2) Miscellaneous Revenues,reported_value,miscellaneous_revenue,,No MWh sold or average number of customers per month provided.
 f1_electric,1,1994,Number at Beginning of Year,,,,
 f1_electric,2,1994,Additions During Year,,,,
 f1_electric,3,1994,Purchases,,,,
