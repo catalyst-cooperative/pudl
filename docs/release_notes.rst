@@ -15,6 +15,28 @@ Dependencies / Environment
 ^^^^^^^^^^^^^^^^^^^^^^^^^^
 * PUDL now uses Python 3.11. :pr:`2152`
 * We now rely on Shapely 2.0 instead of pygeos to wrap the GEOS geospatial library.
+* Updated :doc:`data_sources/eia860` to include data as of 2022-09.
+* New PUDL tables from :doc:`data_sources/ferc1`, integrating older DBF and newer XBRL
+  data. See :issue:`1574` for an overview of our progress integrating FERC's XBRL data.
+  To see which DBF and XBRL tables the following PUDL tables are derived from, refer to
+  :py:const:`pudl.extract.ferc1.TABLE_NAME_MAP`
+
+  * :ref:`electric_energy_sources_ferc1`, see issue :issue:`1819` & PR :pr:`2094`.
+  * :ref:`electric_energy_dispositions_ferc1`, see issue :issue:`1819` & PR :pr:`2100`.
+  * :ref:`transmission_statistics_ferc1`, see issue :issue:`1822` & PR :pr:`2103`
+  * :ref:`utility_plant_summary_ferc1`, see issue :issue:`1806` & PR :pr:`2105`.
+  * :ref:`balance_sheet_assets_ferc1`, see issue :issue:`1805` & PRs :pr:`2112,2127`.
+  * :ref:`balance_sheet_liabilities_ferc1`, see issue :issue:`1810` & PR :pr:`2134`.
+  * :ref:`depreciation_amortization_summary_ferc1`, see issue :issue:`1816` & PR
+    :pr:`2143`.
+  * :ref:`income_statement_ferc1`, see issue :issue:`1813` & PR :pr:`2147`.
+  * :ref:`electric_plant_depreciation_changes_ferc1` see issue :issue:`1808` &
+    :pr:`2119`.
+  * :ref:`electric_plant_depreciation_functional_ferc1` see issue :issue:`1808` & PR
+    :pr:`2183`
+  * :ref:`electric_opex_ferc1`, see issue :issue:`1817` & PR :pr:`2162`.
+  * :ref:`retained_earnings_ferc1`, see issue :issue:`1811` & PR :pr:`2155`.
+  * :ref:`cash_flow_ferc1`, see issue :issue:`1821` & PR :pr:`2184`
 
 .. _release-v2022.11.30:
 
@@ -24,6 +46,7 @@ v2022.11.30
 
 Data Coverage
 ^^^^^^^^^^^^^
+
 * Added archives of the bulk EIA electricity API data to our datastore, since the API
   itself is too unreliable for production use. This is part of :issue:`1763`. The code
   for this new data is ``eia_bulk_elec`` and the data comes as a single 200MB zipped

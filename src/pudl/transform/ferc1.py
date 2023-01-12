@@ -23,8 +23,6 @@ from pudl.analysis.classify_plants_ferc1 import (
     plants_steam_assign_plant_ids,
     plants_steam_validate_ids,
 )
-from pudl.extract.ferc1 import TABLE_NAME_MAP
-from pudl.helpers import convert_cols_dtypes
 from pudl.settings import Ferc1Settings
 from pudl.transform.classes import (
     AbstractTableTransformer,
@@ -69,12 +67,29 @@ class TableIdFerc1(enum.Enum):
     PLANTS_PUMPED_STORAGE_FERC1 = "plants_pumped_storage_ferc1"
     PLANT_IN_SERVICE_FERC1 = "plant_in_service_ferc1"
     PURCHASED_POWER_FERC1 = "purchased_power_ferc1"
-    TRANSMISSION_FERC1 = "transmission_ferc1"
+    TRANSMISSION_STATISTICS_FERC1 = "transmission_statistics_ferc1"
     ELECTRIC_ENERGY_SOURCES_FERC1 = "electric_energy_sources_ferc1"
     ELECTRIC_ENERGY_DISPOSITIONS_FERC1 = "electric_energy_dispositions_ferc1"
     UTILITY_PLANT_SUMMARY_FERC1 = "utility_plant_summary_ferc1"
+    ELECTRIC_OPEX_FERC1 = "electric_opex_ferc1"
+    BALANCE_SHEET_LIABILITIES = "balance_sheet_liabilities_ferc1"
     DEPRECIATION_AMORTIZATION_SUMMARY_FERC1 = "depreciation_amortization_summary_ferc1"
     BALANCE_SHEET_ASSETS_FERC1 = "balance_sheet_assets_ferc1"
+    RETAINED_EARNINGS_FERC1 = "retained_earnings_ferc1"
+    INCOME_STATEMENT_FERC1 = "income_statement_ferc1"
+    ELECTRIC_PLANT_DEPRECIATION_CHANGES_FERC1 = (
+        "electric_plant_depreciation_changes_ferc1"
+    )
+    ELECTRIC_OPERATING_REVENUES_FERC1 = "electric_operating_revenues_ferc1"
+    ELECTRIC_PLANT_DEPRECIATION_FUNCTIONAL_FERC1 = (
+        "electric_plant_depreciation_functional_ferc1"
+    )
+    CASH_FLOW_FERC1 = "cash_flow_ferc1"
+
+
+################################################################################
+# FERC 1 specific Column, MultiColumn, and Table Transform Functions
+################################################################################
 
 
 class RenameColumnsFerc1(TransformParams):
@@ -180,7 +195,7 @@ def wide_to_tidy(df: pd.DataFrame, params: WideToTidy) -> pd.DataFrame:
     logger.debug(f"dropping: {dropped_cols}")
     if params.expected_drop_cols != len(dropped_cols):
         raise AssertionError(
-            f"Dropping more columns ({len(dropped_cols)}) than expected "
+            f"Unexpected number of columns dropped: ({len(dropped_cols)}) instead of "
             f"({params.expected_drop_cols}). Columns dropped: {dropped_cols}"
         )
 
@@ -236,7 +251,11 @@ class DropDuplicateRowsDbf(TransformParams):
     """List of data column names to ensure primary key duplicates have the same data."""
 
 
-def drop_duplicate_rows_dbf(df, params: DropDuplicateRowsDbf):
+def drop_duplicate_rows_dbf(
+    df: pd.DataFrame,
+    params: DropDuplicateRowsDbf,
+    return_dupes_w_unique_data: bool = False,
+) -> pd.DataFrame:
     """Drop duplicate DBF rows if duplicates have indentical data or one row has nulls.
 
     There are several instances of the DBF data reporting the same value on multiple
@@ -245,6 +264,13 @@ def drop_duplicate_rows_dbf(df, params: DropDuplicateRowsDbf):
     the data columns while the other record has complete data. If the duplicates have no
     unique data, the duplicates are dropped with ``keep="first"``. If any duplicates do
     not contain the same data or half null data, an assertion will be raised.
+
+    Args:
+        df: DBF table containing PUDL primary key columns
+        params: an instance of :class:`DropDuplicateRowsDbf`
+        return_dupes_w_unique_data: Boolean flag used for debuging only which returns
+            the duplicates which contain actually unique data instead of raising
+            assertion. Default is False.
     """
     pks = (
         pudl.metadata.classes.Package.from_resource_ids()
@@ -256,64 +282,74 @@ def drop_duplicate_rows_dbf(df, params: DropDuplicateRowsDbf):
 
     # checks to make sure the drop is targeted as expected
     # of the PK dupes, drop all instances when the data *is also the same*
-    dupes_w_unique_data = df[df.duplicated(pks, keep=False)].drop_duplicates(
+    dupes_w_possible_unique_data = df.drop_duplicates(
         pks + params.data_columns, keep=False
     )
+    dupes_w_possible_unique_data = dupes_w_possible_unique_data[
+        dupes_w_possible_unique_data.duplicated(pks, keep=False)
+    ]
     # if there are pk+data dupes, is there one record with some null data
     # an other with completely non-null data??
     # OR are there any records that have some null data and some actually unique
     # data
     nunique_data_columns = [f"{col}_nunique" for col in params.data_columns]
-    dupes_w_unique_data.loc[:, nunique_data_columns + ["null_data_nunique"]] = (
-        dupes_w_unique_data.groupby(pks)[params.data_columns + ["null_data"]]
+    dupes_w_possible_unique_data.loc[
+        :, nunique_data_columns + ["null_data_nunique"]
+    ] = (
+        dupes_w_possible_unique_data.groupby(pks)[params.data_columns + ["null_data"]]
         .transform("nunique")
         .add_suffix("_nunique")
     )
-
-    if not dupes_w_unique_data[
-        (dupes_w_unique_data.null_data_nunique != 2)
-        | dupes_w_unique_data[dupes_w_unique_data[nunique_data_columns] != 1].any(
-            axis="columns"
+    dupes_w_unique_data = dupes_w_possible_unique_data[
+        (dupes_w_possible_unique_data.null_data_nunique != 2)
+        | (
+            dupes_w_possible_unique_data[
+                dupes_w_possible_unique_data[nunique_data_columns] != 1
+            ].any(axis="columns")
         )
-    ].empty:
-        raise AssertionError(
-            "Duplicates have unique data and should not be dropped. Unique data: "
-            f"{len(dupes_w_unique_data)}: {dupes_w_unique_data}"
-        )
+    ].sort_values(by=pks)
+    if not dupes_w_unique_data.empty:
+        if return_dupes_w_unique_data:
+            logger.warning("Returning duplicate records for debugging.")
+            return dupes_w_unique_data
+        else:
+            raise AssertionError(
+                "Duplicates have unique data and should not be dropped. Unique data: "
+                f"{len(dupes_w_unique_data)}: \n{dupes_w_unique_data.sort_values(by=pks)}"
+            )
     len_og = len(df)
     df = (
         df.sort_values(by=["null_data"], ascending=True)
         .drop_duplicates(pks, keep="first")
         .drop(columns=["null_data"])
     )
-    logger.info(f"Dropped {(len_og - len(df))/len_og:.1%} of duplicate records.")
+    logger.info(
+        f"Dropped {len_og - len(df)} duplicate records: {(len_og - len(df))/len_og:.1%}"
+        " of total rows."
+    )
     return df
 
 
 class AlignRowNumbersDbf(TransformParams):
     """Parameters for aligning DBF row numbers with metadata from mannual maps."""
 
-    dbf_table_name: str | None = None
+    dbf_table_names: list[str] | None = None
     """DBF table to use to grab the row map in :func:`align_row_numbers_dbf`.
 
     Default is ``None``.
     """
 
 
-def align_row_numbers_dbf(
-    df: pd.DataFrame, params: AlignRowNumbersDbf | None = None
-) -> pd.DataFrame:
+def align_row_numbers_dbf(df: pd.DataFrame, params: AlignRowNumbersDbf) -> pd.DataFrame:
     """Rename the xbrl_factoid column after :meth:`align_row_numbers_dbf`."""
-    if params is None:
-        params = AlignRowNumbersDbf()
-    if params.dbf_table_name:
+    if params.dbf_table_names:
         logger.info(
-            f"Aligning row numbers from DBF row to XBRL map for  {params.dbf_table_name}"
+            f"Aligning row numbers from DBF row to XBRL map for {params.dbf_table_names}"
         )
-        row_map = read_dbf_to_xbrl_map(dbf_table_name=params.dbf_table_name).pipe(
+        row_map = read_dbf_to_xbrl_map(dbf_table_names=params.dbf_table_names).pipe(
             fill_dbf_to_xbrl_map
         )
-        if not row_map.all(axis=None):
+        if row_map.isnull().any(axis=None):
             raise ValueError(
                 "Filled DBF-XBRL map contains NA values, which should never happen:"
                 f"{row_map}"
@@ -322,12 +358,180 @@ def align_row_numbers_dbf(
         df = pd.merge(df, row_map, on=["report_year", "row_number"], how="left")
         if df.xbrl_factoid.isna().any():
             raise ValueError(
-                "Found null FERC Account labels after aligning DBF/XBRL rows."
+                rf"Found null row labeles after aligning DBF/XBRL rows. n\ {df[df.xbrl_factoid.isna()]}"
             )
         # eliminate the header rows since they (should!) contain no data in either the
         # DBF or XBRL records:
         df = df[df.xbrl_factoid != "HEADER_ROW"]
     return df
+
+
+class SelectDbfRowsByCategory(TransformParams):
+    """Parameters for :func:`select_dbf_rows_by_category`."""
+
+    column_name: str | None = None
+    """The column name containing categories to select by."""
+    select_by_xbrl_categories: bool = False
+    """Boolean flag to indicate whether or not to use the categories in the XBRL table.
+
+    If True, :func:`select_dbf_rows_by_category` will find the list of categories that
+    exist in the passed in ``processed_xbrl`` to select by.
+    """
+    additional_categories: list[str] = []
+    """List of additional categories to select by.
+
+    If ``select_by_xbrl_categories`` is ``True``, these categories will be added to the
+    XBRL categories and both will be used to select rows from the DBF data. If
+    ``select_by_xbrl_categories`` is ``False``, only the "additional" categories will be
+    the used to select rows from the DBF data.
+    """
+    len_expected_categories_to_drop: int = 0
+    """Number of categories that are expected to be dropped from the DBF data.
+
+    This is here to ensure no unexpected manipulations to the categories have occured. A
+    warning will be flagged if this number is different than the number of categories
+    that are being dropped.
+    """
+
+
+def select_dbf_rows_by_category(
+    processed_dbf: pd.DataFrame,
+    processed_xbrl: pd.DataFrame,
+    params: SelectDbfRowsByCategory,
+) -> pd.DataFrame:
+    """Select DBF rows with values listed or found in XBRL in a categorical-like column.
+
+    The XBRL data often breaks out sub-sections of DBF tables into their own table.
+    These breakout tables are often messy, unstructured portions of a particular
+    schedule or page on the FERC1 PDF. We often want to preserve some of the ways the
+    XBRL data is segmented so we need to be able to select only portions of the DBF
+    table to be concatenated with the XBRL data.
+
+    In mapping DBF data to XBRL data for the tables that rely on their ``row_number``
+    we map each row to its corresponding ``xbrl_factoid``. The standard use of this
+    transformer is to use the ``column_name`` that corresponds to the ``xbrl_factoid``
+    that was merged into the DBF data via :func:`align_row_numbers_dbf` and was
+    converted into a column in the XBRL data via :func:`wide_to_tidy`.
+
+    Note: Often, the unstructured portion of the DBF table that (possibly) sums up into
+    a single value in structured data has the same ``xbrl_factoid`` name in the XBRL
+    tables. By convention, we are employing a pattern in the ``dbf_to_xbrl.csv`` map
+    that involves adding an ``_unstructed`` suffix to the rows that correspond to the
+    unstructured portion of the table. This enables a simple selection of the structured
+    part of the table. When processing the unstructured table, you can either rename the
+    XBRL data's factoid name to include an ``_unstructed`` suffix or you can specify
+    the categories with ``_unstructed`` suffixes using the ``additional_categories``
+    parameter.
+    """
+    # compile the list of categories from the possible options.
+    categories_to_select = []
+    if params.select_by_xbrl_categories:
+        categories_to_select = categories_to_select + list(
+            processed_xbrl[params.column_name].unique()
+        )
+    if params.additional_categories:
+        categories_to_select = categories_to_select + params.additional_categories
+
+    # check if we are getting the same number of expected categories to drop
+    categories_to_drop = [
+        cat
+        for cat in processed_dbf[params.column_name].unique()
+        if cat not in categories_to_select
+    ]
+    if len(categories_to_drop) != params.len_expected_categories_to_drop:
+        logger.warning(
+            f"Dropping {len(categories_to_drop)} DBF categories that contain the "
+            f"following values in {params.column_name} but expected "
+            f"{params.len_expected_categories_to_drop}:"
+            f"{categories_to_drop}"
+        )
+    # now select only the rows which contain the categories we want to include in the
+    # column that we care about. Copy bc this is a slice of the og dataframe.
+    category_mask = processed_dbf[params.column_name].isin(categories_to_select)
+    return processed_dbf.loc[category_mask].copy()
+
+
+class UnstackBalancesToReportYearInstantXbrl(TransformParams):
+    """Parameters for :func:`unstack_balances_to_report_year_instant_xbrl`."""
+
+    unstack_balances_to_report_year: bool = False
+    """If True unstack balances to a single year (the report year)."""
+
+
+def unstack_balances_to_report_year_instant_xbrl(
+    df: pd.DataFrame,
+    params: UnstackBalancesToReportYearInstantXbrl,
+    primary_key_cols: list[str],
+) -> pd.DataFrame:
+    """Turn start year end year rows into columns for each value type.
+
+    Called in :meth:`Ferc1AbstractTableTransformer.process_instant_xbrl`.
+
+    Some instant tables report year-end data, with their datestamps in different years,
+    but we want year-start and year-end data within a single report_year (which is
+    equivalent) stored in two separate columns for compatibility with the DBF data.
+
+    This function unstacks that table and adds the suffixes ``_starting_balance`` and
+    ``_ending_balance`` to each of the columns. These can then be used as
+    ``value_types`` in :func:`wide_to_tidy` to normalize the table.
+
+    There are two checks in place:
+
+    First, it will make sure that there are not duplicate entries for a single year +
+    other primary key fields. Ex: a row for 2020-12-31 and 2020-06-30 for entitiy_id X
+    means that the data isn't annually unique. We could just drop these mid-year
+    values, but we might want to keep them or at least check that there is no funny
+    business with the data.
+
+    We also check that there are no mid-year dates at all. If an entity reports a value
+    from the middle of the year, we can't identify it as a start/end of year value.
+
+    Params:
+        primary_key_cols: The columns that should be used to check for duplicated data,
+            and also for unstacking the balance -- these are set to be the index before
+            unstack is called. These are typically set by the wrapping method and
+            generated automatically based on other class transformation parameters via
+            :meth:`Ferc1AbstractTableTransformer.source_table_primary_key`.
+    """
+    if params.unstack_balances_to_report_year:
+        df["year"] = pd.to_datetime(df["date"]).dt.year
+        # Check that the originally reported records are annually unique.
+        # year and report_year aren't necessarily the same since previous year data
+        # is often reported in the current report year, but we're constructing a table
+        # where report_year is part of the primary key, so we have to do this:
+        unique_cols = [c for c in primary_key_cols if c != "report_year"] + ["year"]
+        if df.duplicated(unique_cols).any():
+            raise AssertionError(
+                "Looks like there are multiple entries per year--not sure which to use "
+                f"for the start/end balance. {params=} {primary_key_cols=}"
+            )
+        if not pd.to_datetime(df["date"]).dt.is_year_end.all():
+            raise AssertionError(
+                "Looks like there are some values in here that aren't from the end of "
+                "the year. We can't use those to calculate start and end balances."
+            )
+        df.loc[df.report_year == (df.year + 1), "balance_type"] = "starting_balance"
+        df.loc[df.report_year == df.year, "balance_type"] = "ending_balance"
+        if df.balance_type.isna().any():
+            # Remove rows from years that are not representative of start/end dates
+            # for a given report year (i.e., the report year and one year prior).
+            logger.warning(
+                f"Dropping unexpected years: "
+                f"{df.loc[df.balance_type.isna(), 'year'].unique()}"
+            )
+            df = df[df["balance_type"].notna()].copy()
+        df = (
+            df.drop(["year", "date"], axis="columns")
+            .set_index(primary_key_cols + ["balance_type"])
+            .unstack("balance_type")
+        )
+        # This turns a multi-index into a single-level index with tuples of strings
+        # as the keys, and then converts the tuples of strings into a single string
+        # by joining their values with an underscore. This results in column labels
+        # like boiler_plant_equipment_steam_production_starting_balance
+        df.columns = ["_".join(items) for items in df.columns.to_flat_index()]
+        df = df.reset_index()
+        return df
 
 
 class Ferc1TableTransformParams(TableTransformParams):
@@ -337,16 +541,11 @@ class Ferc1TableTransformParams(TableTransformParams):
     :class:`pudl.transform.classes.AbstractTableTransformer` class.
     """
 
-    class Config:
-        """Only allow the known table transform params."""
-
-        extra = "forbid"
-
     rename_columns_ferc1: RenameColumnsFerc1 = RenameColumnsFerc1(
         dbf=RenameColumns(),
         xbrl=RenameColumns(),
-        xbrl_instant=RenameColumns(),
-        xbrl_duration=RenameColumns(),
+        instant_xbrl=RenameColumns(),
+        duration_xbrl=RenameColumns(),
     )
     wide_to_tidy: WideToTidySourceFerc1 = WideToTidySourceFerc1(
         dbf=WideToTidy(), xbrl=WideToTidy()
@@ -354,12 +553,10 @@ class Ferc1TableTransformParams(TableTransformParams):
     merge_xbrl_metadata: MergeXbrlMetadata = MergeXbrlMetadata()
     align_row_numbers_dbf: AlignRowNumbersDbf = AlignRowNumbersDbf()
     drop_duplicate_rows_dbf: DropDuplicateRowsDbf = DropDuplicateRowsDbf()
-
-
-################################################################################
-# FERC 1 specific Column, MultiColumn, and Table Transform Functions
-# (empty for now, but we anticipate there will be some)
-################################################################################
+    select_dbf_rows_by_category: SelectDbfRowsByCategory = SelectDbfRowsByCategory()
+    unstack_balances_to_report_year_instant_xbrl: UnstackBalancesToReportYearInstantXbrl = (
+        UnstackBalancesToReportYearInstantXbrl()
+    )
 
 
 ################################################################################
@@ -408,7 +605,7 @@ def update_dbf_to_xbrl_map(ferc1_engine: sa.engine.Engine) -> pd.DataFrame:
     )
 
 
-def read_dbf_to_xbrl_map(dbf_table_name: str) -> pd.DataFrame:
+def read_dbf_to_xbrl_map(dbf_table_names: list[str]) -> pd.DataFrame:
     """Read the manually compiled DBF row to XBRL column mapping for a given table.
 
     Args:
@@ -417,7 +614,7 @@ def read_dbf_to_xbrl_map(dbf_table_name: str) -> pd.DataFrame:
             ``f1_plant_in_srvce``.
 
     Returns:
-        DataFrame with columns ``[report_year, row_number, row_type, xbrl_factoid]``
+        DataFrame with columns ``[sched_table_name, report_year, row_number, row_type, xbrl_factoid]``
     """
     with importlib.resources.open_text(
         "pudl.package_data.ferc1", "dbf_to_xbrl.csv"
@@ -433,11 +630,7 @@ def read_dbf_to_xbrl_map(dbf_table_name: str) -> pd.DataFrame:
             ],
         )
     # Select only the rows that pertain to dbf_table_name
-    row_map = row_map.loc[
-        row_map.sched_table_name == dbf_table_name,
-        ["report_year", "row_number", "row_type", "xbrl_factoid"],
-    ]
-    row_map = row_map.fillna(value={"dbf_only": False})
+    row_map = row_map.loc[row_map.sched_table_name.isin(dbf_table_names)]
     return row_map
 
 
@@ -490,7 +683,8 @@ def fill_dbf_to_xbrl_map(
             "Invalid combination of years and DBF-XBRL mapping. The first year cannot\n"
             "be filled and **must** be mapped.\n"
             f"First year: {min(dbf_years)}, "
-            f"Mapped years: {sorted(df.report_years.unique())}"
+            f"Mapped years: {sorted(df.report_year.unique())}\n"
+            f"{df}"
         )
 
     if df.loc[(df.row_type == "header"), "xbrl_factoid"].notna().any():
@@ -499,37 +693,39 @@ def fill_dbf_to_xbrl_map(
 
     if df["xbrl_factoid"].isna().any():
         raise ValueError(
-            "Found NA XBRL values in the DBF-XBRL mapping, which shouldn't happen."
+            "Found NA XBRL values in the DBF-XBRL mapping, which shouldn't happen. \n"
+            f"{df[df['xbrl_factoid'].isna()]}"
         )
     df = df.drop(["row_type"], axis="columns")
 
     # Create an index containing all combinations of report_year and row_number
+    idx_cols = ["report_year", "row_number", "sched_table_name"]
     idx = pd.MultiIndex.from_product(
-        [
-            dbf_years,
-            df.row_number.unique(),
-        ],
-        names=["report_year", "row_number"],
+        [dbf_years, df.row_number.unique(), df.sched_table_name.unique()],
+        names=idx_cols,
     )
 
     # Concatenate the row map with the empty index, so we have blank spaces to fill:
     df = pd.concat(
         [
             pd.DataFrame(index=idx),
-            df.set_index(["report_year", "row_number"]),
+            df.set_index(idx_cols),
         ],
         axis="columns",
     ).reset_index()
 
     # Forward fill missing XBRL column names, until a new definition for the row
     # number is encountered:
-    df["xbrl_factoid"] = df.groupby("row_number").xbrl_factoid.transform("ffill")
+    df["xbrl_factoid"] = df.groupby(
+        ["row_number", "sched_table_name"]
+    ).xbrl_factoid.transform("ffill")
     # Drop NA values produced in the broadcasting merge onto the exhaustive index.
-    df = df.dropna(subset="xbrl_factoid")
+    df = df.dropna(subset="xbrl_factoid").drop(columns=["sched_table_name"])
     # There should be no NA values left at this point:
-    if not df.all(axis=None):
+    if df.isnull().any(axis=None):
         raise ValueError(
-            "Filled DBF-XBRL map contains NA values, which should never happen:" f"{df}"
+            "Filled DBF-XBRL map contains NA values, which should never happen:"
+            f"\n{df[df.isnull().any(axis='columns')]}"
         )
     return df
 
@@ -618,6 +814,7 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
         """Process the raw data until the XBRL and DBF inputs have been unified."""
         processed_dbf = self.process_dbf(raw_dbf)
         processed_xbrl = self.process_xbrl(raw_xbrl_instant, raw_xbrl_duration)
+        processed_dbf = self.select_dbf_rows_by_category(processed_dbf, processed_xbrl)
         logger.info(f"{self.table_id.value}: Concatenating DBF + XBRL dataframes.")
         return pd.concat([processed_dbf, processed_xbrl]).reset_index(drop=True)
 
@@ -664,6 +861,26 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
                     f"{self.table_id.value}: Column {col} is entirely NULL!"
                 )
         return df
+
+    def select_dbf_rows_by_category(
+        self,
+        processed_dbf: pd.DataFrame,
+        processed_xbrl: pd.DataFrame,
+        params: SelectDbfRowsByCategory | None = None,
+    ) -> pd.DataFrame:
+        """Wrapper method for :func:`select_dbf_rows_by_category`."""
+        if not params:
+            params = self.params.select_dbf_rows_by_category
+        if params.column_name:
+            logger.info(
+                f"{self.table_id.value}: Selecting DBF rows with desired values in {params.column_name}."
+            )
+            processed_dbf = select_dbf_rows_by_category(
+                processed_dbf=processed_dbf,
+                processed_xbrl=processed_xbrl,
+                params=params,
+            )
+        return processed_dbf
 
     @cache_df(key="process_xbrl_metadata")
     def process_xbrl_metadata(self, xbrl_metadata_json) -> pd.DataFrame:
@@ -720,7 +937,7 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
         if not params:
             params = self.params.merge_xbrl_metadata
         if params.on:
-            logger.info(f"{self.table_id.value}: merging metadata")
+            logger.info(f"{self.table_id.value}: Merging metadata")
             df = merge_xbrl_metadata(df, self.xbrl_metadata, params)
         return df
 
@@ -735,20 +952,25 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
         """
         if params is None:
             params = self.params.align_row_numbers_dbf
-        if params.dbf_table_name:
+        if params.dbf_table_names:
             df = align_row_numbers_dbf(df, params=params)
         return df
 
+    @cache_df(key="dbf")
     def drop_duplicate_rows_dbf(
         self, df: pd.DataFrame, params: DropDuplicateRowsDbf | None = None
     ) -> pd.DataFrame:
-        """Drop the duplicate DBF rows when the PKs and data columns are the same.
+        """Drop the DBF rows where the PKs and data columns are duplicated.
 
         Wrapper function for :func:`drop_duplicate_rows_dbf`.
         """
         if params is None:
             params = self.params.drop_duplicate_rows_dbf
         if params.table_name:
+            logger.info(
+                f"{self.table_id.value}: Dropping rows where primary key and data "
+                "columns are duplicated."
+            )
             df = drop_duplicate_rows_dbf(df, params=params)
         return df
 
@@ -765,10 +987,7 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
             .pipe(self.assign_record_id, source_ferc1=SourceFerc1.DBF)
             .pipe(self.drop_unused_original_columns_dbf)
             .pipe(self.assign_utility_id_ferc1, source_ferc1=SourceFerc1.DBF)
-            .pipe(
-                self.wide_to_tidy,
-                source_ferc1=SourceFerc1.DBF,
-            )
+            .pipe(self.wide_to_tidy, source_ferc1=SourceFerc1.DBF)
             .pipe(self.drop_duplicate_rows_dbf)
         )
 
@@ -787,10 +1006,7 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
             .pipe(self.wide_to_tidy, source_ferc1=SourceFerc1.XBRL)
             .pipe(self.rename_columns, rename_stage="xbrl")
             .pipe(self.assign_record_id, source_ferc1=SourceFerc1.XBRL)
-            .pipe(
-                self.assign_utility_id_ferc1,
-                source_ferc1=SourceFerc1.XBRL,
-            )
+            .pipe(self.assign_utility_id_ferc1, source_ferc1=SourceFerc1.XBRL)
         )
 
     def rename_columns(
@@ -829,7 +1045,25 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
             )
         return df
 
-    @cache_df(key="xbrl")
+    def unstack_balances_to_report_year_instant_xbrl(
+        self,
+        df: pd.DataFrame,
+        params: UnstackBalancesToReportYearInstantXbrl | None = None,
+    ) -> pd.DataFrame:
+        """Turn start year end year rows into columns for each value type."""
+        logger.info(f"{self.table_id.value}: Unstacking balances to the report years.")
+        if params is None:
+            params = self.params.unstack_balances_to_report_year_instant_xbrl
+        if params.unstack_balances_to_report_year:
+            df = unstack_balances_to_report_year_instant_xbrl(
+                df,
+                params=params,
+                primary_key_cols=self.source_table_primary_key(
+                    source_ferc1=SourceFerc1.XBRL
+                ),
+            )
+        return df
+
     def wide_to_tidy(
         self,
         df: pd.DataFrame,
@@ -921,10 +1155,10 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
 
         if instant.empty:
             logger.info(f"{self.table_id.value}: No XBRL instant table found.")
-            return duration
+            out_df = duration
         elif duration.empty:
             logger.info(f"{self.table_id.value}: No XBRL duration table found.")
-            return instant
+            out_df = instant
         else:
             logger.info(
                 f"{self.table_id.value}: Both XBRL instant & duration tables found."
@@ -942,7 +1176,7 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
                     "using RIGHT-MERGE."
                 )
                 # Merge instant into duration.
-                return pd.merge(
+                out_df = pd.merge(
                     instant,
                     duration,
                     how="right",
@@ -959,7 +1193,7 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
                     f"{self.table_id.value}: Combining XBRL instant & duration tables "
                     "using CONCATENATION."
                 )
-                return pd.concat(
+                out_df = pd.concat(
                     [
                         instant.set_index(["report_year", "entity_id"] + instant_axes),
                         duration.set_index(
@@ -968,6 +1202,7 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
                     ],
                     axis="columns",
                 ).reset_index()
+        return out_df
 
     @cache_df("process_instant_xbrl")
     def process_instant_xbrl(self, df: pd.DataFrame) -> pd.DataFrame:
@@ -978,7 +1213,9 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
         conventions of ~95% of all the columns, which we rely on programmatically when
         reshaping and concatenating these tables together.
         """
-        df = self.rename_columns(df, rename_stage="instant_xbrl")
+        df = self.rename_columns(df, rename_stage="instant_xbrl").pipe(
+            self.unstack_balances_to_report_year_instant_xbrl
+        )
         return df
 
     @cache_df("process_duration_xbrl")
@@ -1025,9 +1262,11 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
         logger.debug(f"{self.table_id.value}: Dropping DBF footnote columns.")
         return df.drop(columns=df.filter(regex=r".*_f$").columns)
 
-    def source_table_id(self, source_ferc1: SourceFerc1) -> str:
+    def source_table_id(self, source_ferc1: SourceFerc1, **kwargs) -> str:
         """Look up the ID of the raw data source table."""
-        return TABLE_NAME_MAP[self.table_id.value][source_ferc1.value]
+        return pudl.extract.ferc1.TABLE_NAME_MAP_FERC1[self.table_id.value][
+            source_ferc1.value
+        ]
 
     def source_table_primary_key(self, source_ferc1: SourceFerc1) -> list[str]:
         """Look up the pre-renaming source table primary key columns."""
@@ -1127,11 +1366,18 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
                 f"{df[pk_cols].isnull().any()}"
             )
         df = df.assign(
-            source_table_id=self.source_table_id(source_ferc1),
+            # Include df=df as an argument here because it is needed for the income
+            # table. In all other instances, nothing will be done with df.
+            source_table_id=self.source_table_id(source_ferc1, df=df),
             record_id=lambda x: x.source_table_id.str.cat(
                 x[pk_cols].astype(str), sep="_"
             ),
-        ).drop(columns=["source_table_id"])
+        )
+        if df.source_table_id.isnull().any():
+            raise ValueError(
+                f"{self.table_id.value}: Null source_table_id's were found where none "
+                "were expected."
+            )
         df.record_id = enforce_snake_case(df.record_id)
 
         dupe_ids = df.record_id[df.record_id.duplicated()].values
@@ -1140,7 +1386,7 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
                 f"{self.table_id.value}: Found {len(dupe_ids)} duplicate record_ids: \n"
                 f"{dupe_ids}."
             )
-        return df
+        return df.drop(columns=["source_table_id"])
 
     def assign_utility_id_ferc1(
         self, df: pd.DataFrame, source_ferc1: SourceFerc1
@@ -1643,40 +1889,6 @@ class PlantInServiceFerc1TableTransformer(Ferc1AbstractTableTransformer):
 
     table_id: TableIdFerc1 = TableIdFerc1.PLANT_IN_SERVICE_FERC1
     has_unique_record_ids: bool = False
-
-    @cache_df("process_instant_xbrl")
-    def process_instant_xbrl(self, df: pd.DataFrame) -> pd.DataFrame:
-        """Pre-processing required to make the instant and duration tables compatible.
-
-        Each year the plant account balances are reported twice, in two separate
-        records: one for the end of the previous year, and one for the end of the
-        current year, with appropriate dates for the two year ends. Here we are
-        reshaping the table so that we instead have two columns: ``starting_balance``
-        and ``ending_balance`` that both pertain to the current year, so that all of
-        the records pertaining to a single ``report_year`` can be identified without
-        dealing with the instant / duration distinction.
-        """
-        df = super().process_instant_xbrl(df)
-        df["year"] = pd.to_datetime(df["date"]).dt.year
-        df.loc[df.report_year == (df.year + 1), "balance_type"] = "starting_balance"
-        df.loc[df.report_year == df.year, "balance_type"] = "ending_balance"
-        if not df.balance_type.notna().all():
-            raise ValueError(
-                f"Unexpected years found in the {self.table_id.value} table: "
-                f"{df.loc[df.balance_type.isna(), 'year'].unique()}"
-            )
-        df = (
-            df.drop(["year", "date"], axis="columns")
-            .set_index(["entity_id", "report_year", "balance_type"])
-            .unstack("balance_type")
-        )
-        # This turns a multi-index into a single-level index with tuples of strings as
-        # the keys, and then converts the tuples of strings into a single string by
-        # joining their values with an underscore. This results in column labels like
-        # boiler_plant_equipment_steam_production_starting_balance
-        # Is there a better way?
-        df.columns = ["_".join(items) for items in df.columns.to_flat_index()]
-        return df.reset_index()
 
     @cache_df("process_xbrl_metadata")
     def process_xbrl_metadata(self, xbrl_metadata_json) -> pd.DataFrame:
@@ -2724,10 +2936,10 @@ class PlantsSmallFerc1TableTransformer(Ferc1AbstractTableTransformer):
         return df
 
 
-class TransmissionFerc1TableTransformer(Ferc1AbstractTableTransformer):
-    """A table transformer specific to the :ref:`transmission_ferc1` table."""
+class TransmissionStatisticsFerc1TableTransformer(Ferc1AbstractTableTransformer):
+    """A table transformer for the :ref:`transmission_statistics_ferc1` table."""
 
-    table_id: TableIdFerc1 = TableIdFerc1.TRANSMISSION_FERC1
+    table_id: TableIdFerc1 = TableIdFerc1.TRANSMISSION_STATISTICS_FERC1
     has_unique_record_ids: bool = False
 
 
@@ -2759,48 +2971,255 @@ class UtilityPlantSummaryFerc1TableTransformer(Ferc1AbstractTableTransformer):
     has_unique_record_ids: bool = False
 
 
+class BalanceSheetLiabilitiesFerc1TableTransformer(Ferc1AbstractTableTransformer):
+    """Transformer class for :ref:`balance_sheet_liabilities_ferc1` table."""
+
+    table_id: TableIdFerc1 = TableIdFerc1.BALANCE_SHEET_LIABILITIES
+    has_unique_record_ids: bool = False
+
+
 class BalanceSheetAssetsFerc1TableTransformer(Ferc1AbstractTableTransformer):
     """Transformer class for :ref:`balance_sheet_assets_ferc1` table."""
 
     table_id: TableIdFerc1 = TableIdFerc1.BALANCE_SHEET_ASSETS_FERC1
     has_unique_record_ids: bool = False
 
-    @cache_df("process_instant_xbrl")
-    def process_instant_xbrl(self, df: pd.DataFrame) -> pd.DataFrame:
-        """Pre-processing required to make the instant and duration tables compatible.
 
-        Each year the plant account balances are reported twice, in two separate
-        records: one for the end of the previous year, and one for the end of the
-        current year, with appropriate dates for the two year ends. Here we are
-        reshaping the table so that we instead have two columns: ``starting_balance``
-        and ``ending_balance`` that both pertain to the current year, so that all of
-        the records pertaining to a single ``report_year`` can be identified without
-        dealing with the instant / duration distinction.
+class IncomeStatementFerc1TableTransformer(Ferc1AbstractTableTransformer):
+    """Transformer class for the :ref:`income_statement_ferc1` table."""
 
-        NOTE: this is a copy/paste from the plant in service table. We should probably
-        generalize & parameterize it. Right now it looks like it would *only* be a bool.
+    table_id: TableIdFerc1 = TableIdFerc1.INCOME_STATEMENT_FERC1
+    has_unique_record_ids: bool = False
+
+    def process_dbf(self, raw_dbf):
+        """Drop incorrect row numbers from f1_incm_stmnt_2 before standard processing.
+
+        In 2003, two rows were added to the ``f1_income_stmnt`` dbf table, which bumped
+        the starting ``row_number`` of ``f1_incm_stmnt_2`` from 25 to 27. A small
+        handfull of respondents seem to have not gotten the memo about this this in
+        2003 and have information on these row numbers that shouldn't exist at all for
+        this table.
+
+        This step necessitates the ability to know which source table each record
+        actually comes from, which required adding a column (``sched_table_name``) in
+        the extract step before these two dbf input tables were concatenated.
+
+        Right now we are just dropping these bad row numbers. Should we actually be
+        bumping the whole respondent's row numbers - assuming they reported incorrectly
+        for the whole table? See: https://github.com/catalyst-cooperative/pudl/issues/471
         """
-        df = super().process_instant_xbrl(df)
-        df["year"] = pd.to_datetime(df["date"]).dt.year
-        df.loc[df.report_year == (df.year + 1), "balance_type"] = "starting_balance"
-        df.loc[df.report_year == df.year, "balance_type"] = "ending_balance"
-        if not df.balance_type.notna().all():
-            raise ValueError(
-                f"Unexpected years found in the {self.table_id.value} table: "
-                f"{df.loc[df.balance_type.isna(), 'year'].unique()}"
+        len_og = len(raw_dbf)
+        known_bad_income2_rows = [25, 26]
+        raw_dbf = raw_dbf[
+            ~(
+                (raw_dbf.sched_table_name == "f1_incm_stmnt_2")
+                & (raw_dbf.report_year == 2003)
+                & (raw_dbf.row_number.isin(known_bad_income2_rows))
             )
-        df = (
-            df.drop(["year", "date"], axis="columns")
-            .set_index(["entity_id", "report_year", "balance_type"])
-            .unstack("balance_type")
+        ].copy()
+        logger.info(
+            f"Dropped {len_og - len(raw_dbf)} records ({(len_og - len(raw_dbf))/len_og:.1%} of"
+            "total) records from 2003 from the f1_incm_stmnt_2 DBF table that have "
+            "known incorrect row numbers."
         )
-        # This turns a multi-index into a single-level index with tuples of strings as
-        # the keys, and then converts the tuples of strings into a single string by
-        # joining their values with an underscore. This results in column labels like
-        # boiler_plant_equipment_steam_production_starting_balance
-        # Is there a better way?
-        df.columns = ["_".join(items) for items in df.columns.to_flat_index()]
-        return df.reset_index()
+        raw_dbf = super().process_dbf(raw_dbf)
+        return raw_dbf
+
+    def source_table_id(
+        self, source_ferc1: SourceFerc1, df: pd.DataFrame | None = None
+    ) -> str | pd.Series:
+        """Look up the ID of the raw data source table.
+
+        Because the raw DBF data comes from two seperate tables, this table-specific
+        method generates a Series of tables names based on the ``sched_table_name``
+        columns which was assigned during the transform step. For the XBRL source, the
+        standard method is employed and a string is returned.
+        """
+        # assign the source_table_id column based on the source
+        if source_ferc1 == SourceFerc1.DBF:
+            # sched_table_name is a table name. was added in align_row_numbers_dbf
+            if df.sched_table_name.isnull().any():
+                raise ValueError(
+                    f"{self.table_id.value}: Null sched_table_name found in DBF to XBRL"
+                    " row map."
+                )
+            source_table = df.sched_table_name
+        else:
+            assert source_ferc1 == SourceFerc1.XBRL  # nosec: B101
+            source_table = super().source_table_id(source_ferc1=source_ferc1)
+        return source_table
+
+
+class RetainedEarningsFerc1TableTransformer(Ferc1AbstractTableTransformer):
+    """Transformer class for :ref:`retained_earnings_ferc1` table."""
+
+    table_id: TableIdFerc1 = TableIdFerc1.RETAINED_EARNINGS_FERC1
+    has_unique_record_ids: bool = False
+
+    def process_dbf(self, raw_dbf: pd.DataFrame) -> pd.DataFrame:
+        """Preform generic :meth:`process_dbf`, plus deal with duplicates.
+
+        Along with the standard processing in
+        :meth:`Ferc1AbstractTableTransformer.process_dbf`, this method runs:
+        * :meth:`targeted_drop_duplicates_dbf`
+        * :meth:`condense_double_year_earnings_types_dbf`
+        """
+        processed_dbf = (
+            super()
+            .process_dbf(raw_dbf)
+            .pipe(self.targeted_drop_duplicates_dbf)
+            .pipe(self.condense_double_year_earnings_types_dbf)
+        )
+        return processed_dbf
+
+    def targeted_drop_duplicates_dbf(self, df: pd.DataFrame) -> pd.DataFrame:
+        """Drop duplicates with truly duplicate data.
+
+        There are instances of utilities that reported multiple values for several
+        earnings types for a specific year (utility_id_ferc1 68 in 1998 &
+        utility_id_ferc1 296 in 2015). We are taking the largest value reported and
+        dropping the rest. There very well could be a better strategey here, but there
+        are only 25 records that have this problem, so we've going with this.
+        """
+        pks = (
+            pudl.metadata.classes.Package.from_resource_ids()
+            .get_resource(self.table_id.value)
+            .schema.primary_key
+        )
+        # we are not going to check all of the unstructed earnings types for dupes bc
+        # we will drop these later
+        dupe_mask = ~df.earnings_type.str.endswith("_unstructured") & df.duplicated(
+            subset=pks, keep=False
+        )
+        dupes = df[dupe_mask]
+        if len(dupes) > 25:
+            raise AssertionError(
+                f"{self.table_id.value}: Too many duplicates found ({len(dupes)}). "
+                "Expected 25 or less."
+            )
+        # we are simply sorting to get the biggest value and dropping the rest.
+        dupes = dupes.sort_values(
+            ["starting_balance", "amount"], ascending=False
+        ).drop_duplicates(subset=pks)
+        df = pd.concat([df[~dupe_mask], dupes])
+        return df
+
+    def condense_double_year_earnings_types_dbf(self, df: pd.DataFrame) -> pd.DataFrame:
+        """Condense current and past year data reported in 1 report_year into 1 record.
+
+        The DBF table includes two different earnings types that have: "Begining of
+        Period" and "End of Period" rows. But the table has both an amount column that
+        corresponds to a balance and a starting balance column. For these two earnings
+        types, this means that there is in effect two years of data in this table for
+        each report year: a starting and ending balance for the pervious year and a
+        starting and ending balance for the current year. The ending balance for the
+        previous year should be the same as the starting balance for the current year.
+
+        We don't actually want two years of data for each report year, so we want to
+        check these assumptions, extract as much information from these two years of
+        data, but end up with only one annual record for each of these two earnings
+        types for each utility.
+
+        Raises:
+            AssertionError: There are a very small number of instances in which the
+                ending balance from the previous year does not match the starting
+                balance from the current year. The % of these non-matching instances
+                should be less than 2% of the records with these date duplicative
+                earnings types.
+        """
+        logger.info(f"{self.table_id.value}: Removing previous year's data.")
+        current_year_types = [
+            "unappropriated_undistributed_subsidiary_earnings_current_year",
+            "unappropriated_retained_earnings_current_year",
+        ]
+        previous_year_types = [
+            "unappropriated_undistributed_subsidiary_earnings_previous_year",
+            "unappropriated_retained_earnings_previous_year",
+        ]
+        # assign copies so no need to double copy when extracting this slice
+        current_year = df[df.earnings_type.isin(current_year_types)].assign(
+            earnings_type=lambda x: x.earnings_type.str.removesuffix("_current_year")
+        )
+        previous_year = df[df.earnings_type.isin(previous_year_types)].assign(
+            earnings_type=lambda x: x.earnings_type.str.removesuffix("_previous_year")
+        )
+        idx = [
+            "utility_id_ferc1_dbf",
+            "report_year",
+            "utility_id_ferc1",
+            "earnings_type",
+        ]
+        data_columns = ["amount", "starting_balance"]
+        date_dupe_types = pd.merge(
+            current_year,
+            previous_year[idx + data_columns],
+            on=idx,
+            how="outer",
+            suffixes=("", "_previous_year"),
+        )
+
+        date_dupe_types.loc[:, "ending_balance"] = pd.NA
+        # check if the starting balance from the current year is actually
+        # the amount from the previous year
+        date_mismatch = date_dupe_types[
+            ~np.isclose(
+                date_dupe_types.starting_balance,
+                date_dupe_types.amount_previous_year,
+                equal_nan=True,
+            )
+            & (date_dupe_types.starting_balance.notnull())
+            & (date_dupe_types.amount_previous_year.notnull())
+        ]
+        data_mismatch_ratio = len(date_mismatch) / len(date_dupe_types)
+        if data_mismatch_ratio > 0.02:
+            raise AssertionError(
+                "More records than expected have data that is not the same in "
+                "the starting_balance vs the amount column for the earnings_type "
+                "that reports both current and previous year. % of mismatch records: "
+                f"{data_mismatch_ratio:.01%} (expected less than 1%)"
+            )
+
+        # the amount from the current year values should be the ending balance.
+        # the amount from the previous year should fill in the starting balance
+        # then drop all of the _previous_year columns
+        date_dupe_types = date_dupe_types.assign(
+            ending_balance=lambda x: x.amount,
+            amount=pd.NA,
+            starting_balance=lambda x: x.starting_balance.fillna(
+                x.amount_previous_year
+            ),
+        ).drop(columns=["amount_previous_year", "starting_balance_previous_year"])
+
+        df = pd.concat(
+            [
+                df[~df.earnings_type.isin(current_year_types + previous_year_types)],
+                date_dupe_types,
+            ]
+        )
+        return df
+
+    @cache_df("process_xbrl_metadata")
+    def process_xbrl_metadata(self, xbrl_metadata_json) -> pd.DataFrame:
+        """Transform the metadata to reflect the transformed data.
+
+        Run the generic :func:`process_xbrl_metadata` and then remove some suffixes that
+        were removed during :meth:`wide_to_tidy`.
+        """
+        meta = (
+            super()
+            .process_xbrl_metadata(xbrl_metadata_json)
+            .assign(
+                # there are many instances of factiods with these stems cooresponding
+                # to several value types (amount/start or end balance). but we end up
+                # with only one so we want to drop these stems and then drop dupes
+                # plus there is one suffix that is named weird!
+                xbrl_factoid=lambda x: x.xbrl_factoid.str.removesuffix(
+                    "_contra_primary_account_affected"
+                ).str.removesuffix("_primary_contra_account_affected")
+            )
+            .drop_duplicates(subset=["xbrl_factoid"], keep="first")
+        )
+        return meta
 
 
 class DepreciationAmortizationSummaryFerc1TableTransformer(
@@ -2837,8 +3256,293 @@ class DepreciationAmortizationSummaryFerc1TableTransformer(
         if params.on:
             logger.info(f"{self.table_id.value}: merging metadata")
             df = merge_xbrl_metadata(df, xbrl_metadata, params)
-
         return df
+
+
+class ElectricPlantDepreciationChangesFerc1TableTransformer(
+    Ferc1AbstractTableTransformer
+):
+    """Transformer class for :ref:`electric_plant_depreciation_changes_ferc1` table."""
+
+    table_id: TableIdFerc1 = TableIdFerc1.ELECTRIC_PLANT_DEPRECIATION_CHANGES_FERC1
+    has_unique_record_ids: bool = False
+
+    @cache_df("process_xbrl_metadata")
+    def process_xbrl_metadata(self, xbrl_metadata_json) -> pd.DataFrame:
+        """Transform the metadata to reflect the transformed data.
+
+        Replace the name of the balance column reported in the XBRL Instant table with
+        starting_balance / ending_balance since we pull those two values into their own
+        separate labeled rows, each of which should get the original metadata for the
+        Instant column.
+        """
+        meta = (
+            super()
+            .process_xbrl_metadata(xbrl_metadata_json)
+            .assign(
+                xbrl_factoid=lambda x: x.xbrl_factoid.replace(
+                    {
+                        "accumulated_provision_for_depreciation_of_electric_utility_plant": "starting_balance"
+                    }
+                )
+            )
+        )
+        ending_balance = meta[meta.xbrl_factoid == "starting_balance"].assign(
+            xbrl_factoid="ending_balance"
+        )
+        return pd.concat([meta, ending_balance])
+
+    @cache_df("dbf")
+    def process_dbf(self, df: pd.DataFrame) -> pd.DataFrame:
+        """Accumulated Depreciation table specific DBF cleaning operations.
+
+        The XBRL reports a utility_type which is always electric in this table, but
+        which may be necessary for differentiating between different values when this
+        data is combined with other tables. The DBF data doesn't report this value so
+        we are adding it here for consistency across the two data sources.
+
+        Also rename the ``ending_balance_accounts`` to ``ending_balance``
+        """
+        df = super().process_dbf(df).assign(utility_type="electric")
+        df.loc[
+            df["depreciation_type"] == "ending_balance_accounts", "depreciation_type"
+        ] = "ending_balance"
+        return df
+
+    @cache_df("process_instant_xbrl")
+    def process_instant_xbrl(self, df: pd.DataFrame) -> pd.DataFrame:
+        """Pre-processing required to make the instant and duration tables compatible.
+
+        This table has a rename that needs to take place in an unusual spot -- after the
+        starting / ending balances have been usntacked, but before the instant &
+        duration tables are merged. This method just reversed the order in which these
+        operations happen, comapared to the inherited method.
+        """
+        df = self.unstack_balances_to_report_year_instant_xbrl(df).pipe(
+            self.rename_columns, rename_stage="instant_xbrl"
+        )
+        return df
+
+
+class ElectricPlantDepreciationFunctionalFerc1TableTransformer(
+    Ferc1AbstractTableTransformer
+):
+    """Transformer for :ref:`electric_plant_depreciation_functional_ferc1` table."""
+
+    table_id: TableIdFerc1 = TableIdFerc1.ELECTRIC_PLANT_DEPRECIATION_FUNCTIONAL_FERC1
+    has_unique_record_ids: bool = False
+
+    @cache_df("process_xbrl_metadata")
+    def process_xbrl_metadata(self, xbrl_metadata_json) -> pd.DataFrame:
+        """Transform the metadata to reflect the transformed data.
+
+        Transform the xbrl factoid values so that they match the final plant functional
+        classification categories and can be merged with the output dataframe.
+        """
+        df = (
+            super()
+            .process_xbrl_metadata(xbrl_metadata_json)
+            .assign(
+                xbrl_factoid=lambda x: x.xbrl_factoid.str.replace(
+                    r"^accumulated_depreciation_", "", regex=True
+                ),
+            )
+        )
+        df.loc[
+            df.xbrl_factoid
+            == "accumulated_provision_for_depreciation_of_electric_utility_plant",
+            "xbrl_factoid",
+        ] = "total"
+        return df
+
+    @cache_df("dbf")
+    def process_dbf(self, df: pd.DataFrame) -> pd.DataFrame:
+        """Accumulated Depreciation table specific DBF cleaning operations.
+
+        The XBRL reports a utility_type which is always electric in this table, but
+        which may be necessary for differentiating between different values when this
+        data is combined with other tables. The DBF data doesn't report this value so we
+        are adding it here for consistency across the two data sources.
+        """
+        return super().process_dbf(df).assign(utility_type="electric")
+
+    @cache_df("process_instant_xbrl")
+    def process_instant_xbrl(self, df: pd.DataFrame) -> pd.DataFrame:
+        """Pre-processing required to make the instant and duration tables compatible.
+
+        This table has a rename that needs to take place in an unusual spot -- after the
+        starting / ending balances have been usntacked, but before the instant &
+        duration tables are merged. This method reverses the order in which these
+        operations happen comapared to the inherited method. We also want to strip the
+        ``accumulated_depreciation`` that appears on every plant functional class.
+        """
+        df = self.unstack_balances_to_report_year_instant_xbrl(df).pipe(
+            self.rename_columns, rename_stage="instant_xbrl"
+        )
+        return df
+
+
+class ElectricOpexFerc1TableTransformer(Ferc1AbstractTableTransformer):
+    """Transformer class for :ref:`electric_opex_ferc1` table."""
+
+    table_id: TableIdFerc1 = TableIdFerc1.ELECTRIC_OPEX_FERC1
+    has_unique_record_ids: bool = False
+
+    def targeted_drop_duplicates_dbf(self, raw_df: pd.DataFrame) -> pd.DataFrame:
+        """Drop incorrect duplicate from 2002.
+
+        In 2002, utility_id_ferc1_dbf 96 reported two values for
+        administrative_and_general_operation_expense. I found the correct value by
+        looking at the prev_yr_amt value in 2003. This removes the incorrect row.
+        """
+        start_len = len(raw_df)
+        raw_df = raw_df[
+            ~((raw_df["report_year"] == 2002) & (raw_df["crnt_yr_amt"] == 35990321))
+        ]
+        if (dropped := start_len - len(raw_df)) > 1:
+            raise AssertionError(f"More rows dropped than expected: {dropped}")
+        logger.info("Heyyyy dropping that one row")
+        return raw_df
+
+    @cache_df(key="dbf")
+    def process_dbf(self, raw_dbf: pd.DataFrame) -> pd.DataFrame:
+        """Process DBF but drop a bad row that is flagged by drop_duplicates."""
+        return super().process_dbf(self.targeted_drop_duplicates_dbf(raw_dbf))
+
+
+class ElectricOperatingRevenuesFerc1TableTransformer(Ferc1AbstractTableTransformer):
+    """Transformer class for :ref:`electric_operating_revenues_ferc1` table."""
+
+    table_id: TableIdFerc1 = TableIdFerc1.ELECTRIC_OPERATING_REVENUES_FERC1
+    has_unique_record_ids: bool = False
+
+    @cache_df("main")
+    def transform_main(self, df):
+        """Add duplicate removal after standard transform_main."""
+        return super().transform_main(df).pipe(self.targeted_drop_duplicates)
+
+    @cache_df("main")
+    def targeted_drop_duplicates(self, df):
+        """Drop one duplicate records from 2011, utility_id_ferc1 295."""
+        dupe_mask = (
+            (df.utility_id_ferc1 == 295)
+            & (df.report_year == 2011)
+            & ((df.amount == 3.33e8) | (df.amount == 3.333e9))
+        )
+
+        return df[~dupe_mask].copy()
+
+
+class CashFlowFerc1TableTransformer(Ferc1AbstractTableTransformer):
+    """Transform class for :ref:`cash_flow_ferc1` table."""
+
+    table_id: TableIdFerc1 = TableIdFerc1.CASH_FLOW_FERC1
+    has_unique_record_ids: bool = False
+
+    @cache_df("process_instant_xbrl")
+    def process_instant_xbrl(self, df: pd.DataFrame) -> pd.DataFrame:
+        """Pre-processing required to make the instant and duration tables compatible.
+
+        This table has a rename that needs to take place in an unusual spot -- after the
+        starting / ending balances have been usntacked, but before the instant &
+        duration tables are merged. This method just reversed the order in which these
+        operations happen, comapared to the inherited method.
+        """
+        df = self.unstack_balances_to_report_year_instant_xbrl(df).pipe(
+            self.rename_columns, rename_stage="instant_xbrl"
+        )
+        return df
+
+    @cache_df("main")
+    def transform_main(self, df):
+        """Add duplicate removal and validation after standard transform_main."""
+        return (
+            super()
+            .transform_main(df)
+            .pipe(self.targeted_drop_duplicates)
+            .pipe(self.validate_start_end_balance)
+        )
+
+    @cache_df("main")
+    def targeted_drop_duplicates(self, df):
+        """Drop one duplicate record from 2020, utility_id_ferc1 2037.
+
+        Note: This step could be avoided if we employed a :meth:`drop_invalid_rows`
+        transform step with ``required_valid_cols = ["amount"]``
+        """
+        dupe_mask = (
+            (df.utility_id_ferc1 == 237)
+            & (df.report_year == 2020)
+            & (df.amount_type == "dividends_on_common_stock")
+            & (df.amount.isnull())
+        )
+        if (len_dupes := dupe_mask.value_counts().loc[True]) != 1:
+            raise ValueError(f"Expected to find 1 duplicate record. Found {len_dupes}")
+        return df[~dupe_mask].copy()
+
+    @cache_df("main")
+    def validate_start_end_balance(self, df):
+        """Validate of start balance + net = end balance.
+
+        Add a quick check to ensure the vast majority of the ending balances are
+        calculable from the net change + the starting balance = the ending balance.
+        """
+        # calculate ending balance
+        df.amount = pd.to_numeric(df.amount)
+        end_bal_calc = (
+            df[
+                df.amount_type.isin(
+                    [
+                        "starting_balance",
+                        "net_increase_decrease_in_cash_and_cash_equivalents",
+                    ]
+                )
+            ]
+            .groupby(["utility_id_ferc1", "report_year"])[["amount"]]
+            .sum(min_count=2, numeric_only=True)
+            .add_suffix("_ending_balace")
+        )
+        # grab reported ending balance & squish with the calculated version
+        end_bal = df[df.amount_type == "ending_balance"].set_index(
+            ["utility_id_ferc1", "report_year"]
+        )
+        logger.info(end_bal_calc.columns)
+        end_bal.loc[:, "amount_ending_balace"] = end_bal_calc.amount_ending_balace
+
+        # when both exist, are they close?
+        end_bal_off = end_bal[
+            ~np.isclose(end_bal.amount, end_bal.amount_ending_balace)
+            & end_bal[["amount", "amount_ending_balace"]].notnull().all(axis="columns")
+        ]
+        if (end_bal_off_ratio := len(end_bal_off) / len(end_bal)) > 0.005:
+            raise ValueError(
+                f"Ahhh!! The ending balance isn't calculable in {end_bal_off_ratio:.2%}"
+                " of records. Expected under 0.5%."
+            )
+        return df
+
+    @cache_df("process_xbrl_metadata")
+    def process_xbrl_metadata(self, xbrl_metadata_json) -> pd.DataFrame:
+        """Transform the metadata to reflect the transformed data.
+
+        Replace the name of the balance column reported in the XBRL Instant table with
+        starting_balance / ending_balance since we pull those two values into their own
+        separate labeled rows, each of which should get the original metadata for the
+        Instant column.
+        """
+        meta = (
+            super()
+            .process_xbrl_metadata(xbrl_metadata_json)
+            .assign(
+                xbrl_factoid=lambda x: x.xbrl_factoid.replace(
+                    {"cash_and_cash_equivalents": "starting_balance"}
+                )
+            )
+        )
+        ending_balance = meta[meta.xbrl_factoid == "starting_balance"].assign(
+            xbrl_factoid="ending_balance"
+        )
+        return pd.concat([meta, ending_balance])
 
 
 def transform(
@@ -2870,36 +3574,38 @@ def transform(
         "plants_hydro_ferc1": PlantsHydroFerc1TableTransformer,
         "plant_in_service_ferc1": PlantInServiceFerc1TableTransformer,
         "plants_pumped_storage_ferc1": PlantsPumpedStorageFerc1TableTransformer,
-        "transmission_ferc1": TransmissionFerc1TableTransformer,
+        "transmission_statistics_ferc1": TransmissionStatisticsFerc1TableTransformer,
         "purchased_power_ferc1": PurchasedPowerFerc1TableTransformer,
         "electric_energy_sources_ferc1": ElectricEnergySourcesFerc1TableTransformer,
         "electric_energy_dispositions_ferc1": ElectricEnergyDispositionsFerc1TableTransformer,
         "utility_plant_summary_ferc1": UtilityPlantSummaryFerc1TableTransformer,
+        "electric_opex_ferc1": ElectricOpexFerc1TableTransformer,
+        "balance_sheet_liabilities_ferc1": BalanceSheetLiabilitiesFerc1TableTransformer,
         "depreciation_amortization_summary_ferc1": DepreciationAmortizationSummaryFerc1TableTransformer,
         "balance_sheet_assets_ferc1": BalanceSheetAssetsFerc1TableTransformer,
+        "income_statement_ferc1": IncomeStatementFerc1TableTransformer,
+        "electric_plant_depreciation_changes_ferc1": ElectricPlantDepreciationChangesFerc1TableTransformer,
+        "electric_plant_depreciation_functional_ferc1": ElectricPlantDepreciationFunctionalFerc1TableTransformer,
+        "retained_earnings_ferc1": RetainedEarningsFerc1TableTransformer,
+        "electric_operating_revenues_ferc1": ElectricOperatingRevenuesFerc1TableTransformer,
+        "cash_flow_ferc1": CashFlowFerc1TableTransformer,
     }
-    # create an empty ditctionary to fill up through the transform fuctions
     ferc1_transformed_dfs = {}
-    # for each ferc table,
-    for table in ferc1_tfr_classes:
-        if table in ferc1_settings.tables:
-            logger.info(
-                f"Transforming raw FERC Form 1 dataframe for loading into {table}"
-            )
+    for table in ferc1_settings.tables:
+        if table == "plants_steam_ferc1":  # Special case, see below.
+            continue
+        logger.info(f"Transforming raw FERC Form 1 dataframe for loading into {table}")
 
-            ferc1_transformed_dfs[table] = ferc1_tfr_classes[table](
-                xbrl_metadata_json=xbrl_metadata_json[table],
-            ).transform(
-                raw_dbf=ferc1_dbf_raw_dfs[table],
-                raw_xbrl_instant=ferc1_xbrl_raw_dfs[table].get(
-                    "instant", pd.DataFrame()
-                ),
-                raw_xbrl_duration=ferc1_xbrl_raw_dfs[table].get(
-                    "duration", pd.DataFrame()
-                ),
-            )
-    # Bespoke exception. fuel must come before steam b/c fuel proportions are used to
-    # aid in FERC plant ID assignment.
+        ferc1_transformed_dfs[table] = ferc1_tfr_classes[table](
+            xbrl_metadata_json=xbrl_metadata_json[table],
+        ).transform(
+            raw_dbf=ferc1_dbf_raw_dfs[table],
+            raw_xbrl_instant=ferc1_xbrl_raw_dfs[table].get("instant", pd.DataFrame()),
+            raw_xbrl_duration=ferc1_xbrl_raw_dfs[table].get("duration", pd.DataFrame()),
+        )
+    # Special case: fuel must come before steam because the fuel proportions are used
+    # in FERC plant ID assignment process, and sthe steam table has a different call
+    # signature so it can accommodate the fuel table as an input:
     if "plants_steam_ferc1" in ferc1_settings.tables:
         ferc1_transformed_dfs["plants_steam_ferc1"] = PlantsSteamFerc1TableTransformer(
             xbrl_metadata_json=xbrl_metadata_json["plants_steam_ferc1"]
@@ -2916,35 +3622,21 @@ def transform(
             transformed_fuel=ferc1_transformed_dfs["fuel_ferc1"].copy(),
         )
 
-    # convert types and return:
-    return {
-        name: convert_cols_dtypes(df, data_source="ferc1")
-        for name, df in ferc1_transformed_dfs.items()
-    }
+    return ferc1_transformed_dfs
 
 
 if __name__ == "__main__":
     """Make the module runnable for iterative testing during development."""
 
     ferc1_settings = Ferc1Settings(
-        # Do one year of each, type of data, or all the years:
+        # 1 year DBF + 1 year XBRL:
         years=[2020, 2021],
+        # All the years (slow with plants_steam_ferc1 included)
         # years=Ferc1Settings().years,
-        tables=[
-            "fuel_ferc1",
-            "plants_steam_ferc1",
-            "plants_hydro_ferc1",
-            "plant_in_service_ferc1",
-            "plants_pumped_storage_ferc1",
-            "purchased_power_ferc1",
-            "plants_small_ferc1",
-            "transmission_ferc1",
-            "electric_energy_sources_ferc1",
-            "electric_energy_dispositions_ferc1",
-            "utility_plant_summary_ferc1",
-            "balance_sheet_assets_ferc1",
-            "depreciation_amortization_summary_ferc1",
-        ],
+        # Just test your new table:
+        # tables=["your_new_table_ferc1"],
+        # Run all the tables to make sure you haven't broken something!
+        tables=Ferc1Settings().tables,
     )
     pudl_settings = pudl.workspace.setup.get_defaults()
     ferc1_dbf_raw_dfs = pudl.extract.ferc1.extract_dbf(

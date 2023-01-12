@@ -57,6 +57,15 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     "alternative_fuel_vehicle_activity": {"type": "boolean"},
     "annual_indirect_program_cost": {"type": "number", "unit": "USD"},
     "annual_total_cost": {"type": "number", "unit": "USD"},
+    "amount": {
+        "description": "Reported amount of dollars. This could be a balance or a change in value.",
+        "type": "number",
+        "unit": "USD",
+    },
+    "amount_type": {
+        "type": "string",
+        "description": "Label describing the type of amount being reported. This could be a balance or a change in value.",
+    },
     "appro_part_label": {
         "type": "string",
         "description": "Plant part of the associated true granularity record.",
@@ -100,6 +109,10 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     "attention_line": {"type": "string"},
     "automated_meter_reading": {"type": "integer"},
     "avg_num_employees": {"type": "number"},
+    "avg_customers_per_month": {
+        "type": "number",
+        "description": "Average number of customers per month.",
+    },
     "backup_capacity_mw": {"type": "number", "unit": "MW"},
     "balance": {
         "type": "string",
@@ -372,6 +385,13 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "unit": "USD",
     },
     "demand_mwh": {"type": "number", "unit": "MWh"},
+    "depreciation_type": {
+        "type": "string",
+        "description": (
+            "Type of depreciation provision within FERC Account 108, including cost of"
+            "removal, depreciation expenses, salvage, cost of retired plant, etc."
+        ),
+    },
     "depreciation_amortization_value": {
         "type": "number",
         "unit": "USD",
@@ -389,6 +409,10 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     "doi": {
         "type": "string",
         "description": "Unique digitial object identifier of Zenodo archive.",
+    },
+    "earnings_type": {
+        "type": "string",
+        "description": "Label describing types of earnings.",
     },
     "ending_balance": {
         "type": "number",
@@ -579,6 +603,12 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     },
     "exchange_energy_delivered_mwh": {"type": "number", "unit": "MWh"},
     "exchange_energy_received_mwh": {"type": "number", "unit": "MWh"},
+    "expense": {
+        "type": "number",
+        "unit": "USD",
+        "description": "The amount of a given expense in USD.",
+    },
+    "expense_type": {"type": "string", "description": "The type of expense."},
     "ferc_account": {
         "type": "string",
         "description": "Actual FERC Account number (e.g. '359.1') if available, or a PUDL assigned ID when FERC accounts have been split or combined in reporting.",
@@ -752,10 +782,6 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "description": "Reported units of measure for fuel.",
         # Note: Different ENUM constraints are applied below on EIA vs. FERC1
     },
-    "functional_classification": {
-        "type": "string",
-        "description": "Specifies plant category that record applies to.",
-    },
     "furnished_without_charge_mwh": {"type": "number", "unit": "MWh"},
     "future_plant": {
         "type": "number",
@@ -810,6 +836,15 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     "highest_distribution_voltage_kv": {"type": "number", "unit": "kV"},
     "home_area_network": {"type": "integer"},
     "inactive_accounts_included": {"type": "boolean"},
+    "income_type": {
+        "type": "string",
+        "description": "Type of income reported in income_statement_ferc1 table.",
+    },
+    "income": {
+        "type": "number",
+        "description": "Utility income reported by income type.",
+        "unit": "USD",
+    },
     "incremental_energy_savings_mwh": {"type": "number", "unit": "MWh"},
     "incremental_life_cycle_energy_savings_mwh": {"type": "number", "unit": "MWh"},
     "incremental_life_cycle_peak_reduction_mwh": {"type": "number", "unit": "MWh"},
@@ -845,6 +880,10 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "type": "number",
         "description": "Electric Plant Leased to Others (USD).",
         "unit": "USD",
+    },
+    "liability_type": {
+        "type": "string",
+        "description": "Type of liability being reported to the balance_sheet_liabilities_ferc1 table.",
     },
     "line_id": {
         "type": "string",
@@ -1376,6 +1415,10 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "description": "Net plant capability in megawatts.",
         "unit": "MW",
     },
+    "plant_function": {
+        "type": "string",
+        "description": "Functional role played by utility plant (steam production, nuclear production, distribution, transmission, etc.).",
+    },
     "plant_hours_connected_while_generating": {
         "type": "number",
         "description": "Hours the plant was connected to load while generating in the report year.",
@@ -1423,6 +1466,10 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     "plant_part_id_eia": {
         "type": "string",
         "description": "Contains EIA plant ID, plant part, ownership, and EIA utility id",
+    },
+    "plant_status": {
+        "type": "string",
+        "description": "Utility plant financial status (in service, future, leased, total).",
     },
     "plant_type": {
         "type": "string"  # if plant_type is categorized w/ categorize_strings, add enum in FIELD_METADATA_BY_RESOURCE
@@ -1549,6 +1596,10 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     },
     "revenue": {"type": "number", "unit": "USD"},
     "revenue_class": {"type": "string", "constraints": {"enum": REVENUE_CLASSES}},
+    "revenue_type": {
+        "type": "string",
+        "description": "Label describing types of revenues.",
+    },
     "row_type_xbrl": {
         "type": "string",
         "description": "Indicates whether the value reported in the row is calculated, or uniquely reported within the table.",
@@ -2072,7 +2123,7 @@ FIELD_METADATA_BY_RESOURCE: dict[str, dict[str, Any]] = {
         },
         "technology_description": {"constraints": {"enum": set(TECH_DESCRIPTIONS)}},
     },
-    "transmission_ferc1": {
+    "transmission_statistics_ferc1": {
         "capex_land": {
             "description": "Cost of Land and land rights for the transmission line."
         },

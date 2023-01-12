@@ -86,33 +86,7 @@ from pudl.workspace.datastore import Datastore
 
 logger = pudl.logging_helpers.get_logger(__name__)
 
-DBF_TYPES = {
-    "C": sa.String,
-    "D": sa.Date,
-    "F": sa.Float,
-    "I": sa.Integer,
-    "L": sa.Boolean,
-    "M": sa.Text,  # 10 digit .DBT block number, stored as a string...
-    "N": sa.Float,
-    "T": sa.DateTime,
-    "0": sa.Integer,  # based on dbf2sqlite mapping
-    "B": "XXX",  # .DBT block number, binary string
-    "@": "XXX",  # Timestamp... Date = Julian Day, Time is in milliseconds?
-    "+": "XXX",  # Autoincrement (e.g. for IDs)
-    "O": "XXX",  # Double, 8 bytes
-    "G": "XXX",  # OLE 10 digit/byte number of a .DBT block, stored as string
-}
-"""dict: A mapping of DBF field types to SQLAlchemy Column types.
-
-This dictionary maps the strings which are used to denote field types in the DBF objects
-to the corresponding generic SQLAlchemy Column types: These definitions come from a
-combination of the dbfread example program dbf2sqlite and this DBF file format
-documentation page: http://www.dbase.com/KnowledgeBase/int/db7_file_fmt.htm
-
-Unmapped types left as 'XXX' which should result in an error if encountered.
-"""
-
-TABLE_NAME_MAP: dict[str, dict[str, str]] = {
+TABLE_NAME_MAP_FERC1: dict[str, dict[str, str]] = {
     "fuel_ferc1": {
         "dbf": "f1_fuel",
         "xbrl": "steam_electric_generating_plant_statistics_large_plants_fuel_statistics_402",
@@ -141,10 +115,6 @@ TABLE_NAME_MAP: dict[str, dict[str, str]] = {
         "dbf": "f1_purchased_pwr",
         "xbrl": "purchased_power_326",
     },
-    "electric_oandm_ferc1": {
-        "dbf": "f1_324_elc_expns",
-        "xbrl": "electric_operations_and_maintenance_expenses_320",
-    },
     "electric_energy_sources_ferc1": {
         "dbf": "f1_elctrc_erg_acct",
         "xbrl": "electric_energy_account_401a",
@@ -157,20 +127,83 @@ TABLE_NAME_MAP: dict[str, dict[str, str]] = {
         "dbf": "f1_utltyplnt_smmry",
         "xbrl": "summary_of_utility_plant_and_accumulated_provisions_for_depreciation_amortization_and_depletion_200",
     },
-    "transmission_ferc1": {
+    "transmission_statistics_ferc1": {
         "dbf": "f1_xmssn_line",
         "xbrl": "transmission_line_statistics_422",
+    },
+    "electric_opex_ferc1": {
+        "dbf": "f1_elc_op_mnt_expn",
+        "xbrl": "electric_operations_and_maintenance_expenses_320",
+    },
+    "balance_sheet_liabilities_ferc1": {
+        "dbf": "f1_bal_sheet_cr",
+        "xbrl": "comparative_balance_sheet_liabilities_and_other_credits_110",
     },
     "balance_sheet_assets_ferc1": {
         "dbf": "f1_comp_balance_db",
         "xbrl": "comparative_balance_sheet_assets_and_other_debits_110",
     },
+    # Special case for this table bc there are two dbf tables
+    "income_statement_ferc1": {
+        "dbf": ["f1_income_stmnt", "f1_incm_stmnt_2"],
+        "xbrl": "statement_of_income_114",
+    },
+    "retained_earnings_ferc1": {
+        "dbf": "f1_retained_erng",
+        "xbrl": "retained_earnings_118",
+    },
+    "retained_earnings_appropriations_ferc1": {
+        "dbf": "f1_retained_erng",
+        "xbrl": "retained_earnings_appropriations_118",
+    },
     "depreciation_amortization_summary_ferc1": {
         "dbf": "f1_dacs_epda",
         "xbrl": "summary_of_depreciation_and_amortization_charges_section_a_336",
     },
+    "electric_plant_depreciation_changes_ferc1": {
+        "dbf": "f1_accumdepr_prvsn",
+        "xbrl": "accumulated_provision_for_depreciation_of_electric_utility_plant_changes_section_a_219",
+    },
+    "electric_plant_depreciation_functional_ferc1": {
+        "dbf": "f1_accumdepr_prvsn",
+        "xbrl": "accumulated_provision_for_depreciation_of_electric_utility_plant_functional_classification_section_b_219",
+    },
+    "electric_operating_revenues_ferc1": {
+        "dbf": "f1_elctrc_oper_rev",
+        "xbrl": "electric_operating_revenues_300",
+    },
+    "cash_flow_ferc1": {
+        "dbf": "f1_cash_flow",
+        "xbrl": "statement_of_cash_flows_120",
+    },
 }
 """A mapping of PUDL DB table names to their XBRL and DBF source table names."""
+
+DBF_TYPES = {
+    "C": sa.String,
+    "D": sa.Date,
+    "F": sa.Float,
+    "I": sa.Integer,
+    "L": sa.Boolean,
+    "M": sa.Text,  # 10 digit .DBT block number, stored as a string...
+    "N": sa.Float,
+    "T": sa.DateTime,
+    "0": sa.Integer,  # based on dbf2sqlite mapping
+    "B": "XXX",  # .DBT block number, binary string
+    "@": "XXX",  # Timestamp... Date = Julian Day, Time is in milliseconds?
+    "+": "XXX",  # Autoincrement (e.g. for IDs)
+    "O": "XXX",  # Double, 8 bytes
+    "G": "XXX",  # OLE 10 digit/byte number of a .DBT block, stored as string
+}
+"""dict: A mapping of DBF field types to SQLAlchemy Column types.
+
+This dictionary maps the strings which are used to denote field types in the DBF objects
+to the corresponding generic SQLAlchemy Column types: These definitions come from a
+combination of the dbfread example program dbf2sqlite and this DBF file format
+documentation page: http://www.dbase.com/KnowledgeBase/int/db7_file_fmt.htm
+
+Unmapped types left as 'XXX' which should result in an error if encountered.
+"""
 
 PUDL_RIDS: dict[int, str] = {
     514: "AEP Texas",
@@ -718,7 +751,7 @@ def extract_dbf(
 
     ferc1_raw_dfs = {}
     for pudl_table in ferc1_settings.tables:
-        if pudl_table not in TABLE_NAME_MAP:
+        if pudl_table not in TABLE_NAME_MAP_FERC1:
             raise ValueError(
                 f"No extract function found for requested FERC Form 1 data "
                 f"table {pudl_table}!"
@@ -727,11 +760,24 @@ def extract_dbf(
             f"Converting extracted FERC Form 1 table {pudl_table} into a "
             f"pandas DataFrame from DBF table."
         )
-        ferc1_raw_dfs[pudl_table] = extract_dbf_generic(
-            ferc1_engine=sa.create_engine(pudl_settings["ferc1_db"]),
-            ferc1_settings=ferc1_settings,
-            table_name=TABLE_NAME_MAP[pudl_table]["dbf"],
-        )
+        if pudl_table == "income_statement_ferc1":
+            # special case for the income statement. bc the dbf table is two tables.
+            income_tbls = []
+            for raw_income_table_name in TABLE_NAME_MAP_FERC1[pudl_table]["dbf"]:
+                income_tbls.append(
+                    extract_dbf_generic(
+                        ferc1_engine=sa.create_engine(pudl_settings["ferc1_db"]),
+                        ferc1_settings=ferc1_settings,
+                        table_name=raw_income_table_name,
+                    ).assign(sched_table_name=raw_income_table_name)
+                )
+            ferc1_raw_dfs[pudl_table] = pd.concat(income_tbls)
+        else:
+            ferc1_raw_dfs[pudl_table] = extract_dbf_generic(
+                ferc1_engine=sa.create_engine(pudl_settings["ferc1_db"]),
+                ferc1_settings=ferc1_settings,
+                table_name=TABLE_NAME_MAP_FERC1[pudl_table]["dbf"],
+            )
 
     return ferc1_raw_dfs
 
@@ -766,9 +812,9 @@ def extract_xbrl(
         return ferc1_raw_dfs
 
     for pudl_table in ferc1_settings.tables:
-        if pudl_table not in TABLE_NAME_MAP:
+        if pudl_table not in TABLE_NAME_MAP_FERC1:
             raise ValueError(f"{pudl_table} not found in the list of known tables.")
-        if "xbrl" not in TABLE_NAME_MAP[pudl_table]:
+        if "xbrl" not in TABLE_NAME_MAP_FERC1[pudl_table]:
             raise ValueError(f"No XBRL tables have been associated with {pudl_table}.")
 
         logger.info(
@@ -777,7 +823,7 @@ def extract_xbrl(
         )
 
         # Attempt to extract both duration and instant tables
-        xbrl_table = TABLE_NAME_MAP[pudl_table]["xbrl"]
+        xbrl_table = TABLE_NAME_MAP_FERC1[pudl_table]["xbrl"]
         ferc1_raw_dfs[pudl_table] = {}
         for period_type in ["duration", "instant"]:
             ferc1_raw_dfs[pudl_table][period_type] = extract_xbrl_generic(
@@ -882,16 +928,16 @@ def extract_xbrl_metadata(
 
     xbrl_meta_out = {}
     for pudl_table in ferc1_settings.tables:
-        if pudl_table not in TABLE_NAME_MAP:
+        if pudl_table not in TABLE_NAME_MAP_FERC1:
             raise ValueError(f"{pudl_table} not found in the list of known tables.")
-        if "xbrl" not in TABLE_NAME_MAP[pudl_table]:
+        if "xbrl" not in TABLE_NAME_MAP_FERC1[pudl_table]:
             raise ValueError(f"No XBRL tables have been associated with {pudl_table}.")
 
         logger.info(
             f"Reading XBRL Taxonomy metadata for FERC Form 1 table {pudl_table}"
         )
         # Attempt to extract both duration and instant tables
-        xbrl_table = TABLE_NAME_MAP[pudl_table]["xbrl"]
+        xbrl_table = TABLE_NAME_MAP_FERC1[pudl_table]["xbrl"]
         xbrl_meta_out[pudl_table] = {}
 
         for period in ["instant", "duration"]:
