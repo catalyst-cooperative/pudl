@@ -967,11 +967,6 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "type": "boolean",
         "description": "Can the generator burn multiple fuels?",
     },
-    "mwh_sold": {
-        "type": "number",
-        "description": "Megawatt hours sold.",
-        "unit": "MWh",
-    },
     "nameplate_power_factor": {
         "type": "number",
         "description": "The nameplate power factor of the generator.",

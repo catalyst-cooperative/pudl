@@ -711,8 +711,8 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
                 "report_year",
                 "record_id",
                 "revenue_type",
-                "amount",
-                "mwh_sold",
+                "revenue",
+                "sales_mwh",
                 "avg_customers_per_month",
             ],
             "primary_key": [

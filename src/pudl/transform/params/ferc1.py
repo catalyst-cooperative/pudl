@@ -3452,7 +3452,7 @@ TRANSFORM_PARAMS = {
         "rename_columns_ferc1": {
             "duration_xbrl": {
                 "columns": {
-                    f"megawatt_hours_sold_{col}": f"{col}_mwh_sold"
+                    f"megawatt_hours_sold_{col}": f"{col}_sales_mwh"
                     for col in [
                         "residential_sales",
                         "small_or_commercial",
@@ -3518,7 +3518,7 @@ TRANSFORM_PARAMS = {
                 "columns": {
                     "entity_id": "utility_id_ferc1_xbrl",
                     "report_year": "report_year",
-                    "electric_operating_revenue": "amount",
+                    "electric_operating_revenue": "revenue",
                 }
             },
             "dbf": {
@@ -3532,7 +3532,7 @@ TRANSFORM_PARAMS = {
                     "report_prd": "report_prd",
                     "xbrl_factoid": "revenue_type",
                     "rev_amt_crnt_yr": "amount",
-                    "mwh_sold_crnt_yr": "mwh_sold",
+                    "mwh_sold_crnt_yr": "sales_mwh",
                     "avg_cstmr_crntyr": "avg_customers_per_month",
                 }
             },
@@ -3545,7 +3545,7 @@ TRANSFORM_PARAMS = {
                 ],
                 "value_types": [
                     "electric_operating_revenue",
-                    "mwh_sold",
+                    "sales_mwh",
                     "avg_customers_per_month",
                 ],
                 "expected_drop_cols": 2,
@@ -3567,7 +3567,7 @@ TRANSFORM_PARAMS = {
                 "invalid_values": [pd.NA, np.nan, ""],
                 "required_valid_cols": [
                     "amount",
-                    "mwh_sold",
+                    "sales_mwh",
                     "avg_customers_per_month",
                 ],
             },
