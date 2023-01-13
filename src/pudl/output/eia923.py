@@ -70,7 +70,11 @@ def generation_fuel_eia923(
     if end_date is not None:
         gf_select = gf_select.where(gf_tbl.c.report_date <= end_date)
 
-    gf_df = pd.read_sql(gf_select, pudl_engine)
+    gf_df = (
+        pd.read_sql(gf_select, pudl_engine)
+        .rename(columns={"eia_sector": "sector_id_eia"})
+        .rename(columns={"sector_name": "sector_name_eia"})
+    )
 
     by = [
         "plant_id_eia",
@@ -466,7 +470,11 @@ def boiler_fuel_eia923(pudl_engine, freq=None, start_date=None, end_date=None):
         bf_eia923_select = bf_eia923_select.where(
             bf_eia923_tbl.c.report_date <= end_date
         )
-    bf_df = pd.read_sql(bf_eia923_select, pudl_engine)
+    bf_df = (
+        pd.read_sql(bf_eia923_select, pudl_engine)
+        .rename(columns={"eia_sector": "sector_id_eia"})
+        .rename(columns={"sector_name": "sector_name_eia"})
+    )
 
     # The total heat content is also useful in its own right, and we'll keep it
     # around.  Also needed to calculate average heat content per unit of fuel.
@@ -600,7 +608,11 @@ def generation_eia923(pudl_engine, freq=None, start_date=None, end_date=None):
         )
     if end_date is not None:
         g_eia923_select = g_eia923_select.where(g_eia923_tbl.c.report_date <= end_date)
-    g_df = pd.read_sql(g_eia923_select, pudl_engine)
+    g_df = (
+        pd.read_sql(g_eia923_select, pudl_engine)
+        .rename(columns={"eia_sector": "sector_id_eia"})
+        .rename(columns={"sector_name": "sector_name_eia"})
+    )
 
     # Index by date and aggregate net generation.
     # Create a date index for grouping based on freq

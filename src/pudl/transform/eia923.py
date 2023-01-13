@@ -527,7 +527,7 @@ def plants(eia923_dfs, eia923_transformed_dfs):
             "plant_id_eia",
             "combined_heat_power",
             "plant_state",
-            "eia_sector",
+            "sector_id_eia",
             "naics_code",
             "reporting_frequency_code",
             "census_region",
@@ -613,6 +613,9 @@ def generation_fuel(eia923_dfs, eia923_transformed_dfs):
     """
     # This needs to be a copy of what we're passed in so we can edit it.
     gen_fuel = eia923_dfs["generation_fuel"].copy()
+    gen_fuel.rename(columns={"eia_sector": "sector_id_eia"}).rename(
+        columns={"sector_name": "sector_name_eia"}
+    )
 
     # Drop fields we're not inserting into the generation_fuel_eia923 table.
     cols_to_drop = [
@@ -624,8 +627,6 @@ def generation_fuel(eia923_dfs, eia923_transformed_dfs):
         "census_region",
         "nerc_region",
         "naics_code",
-        "eia_sector",
-        "sector_name",
         "fuel_unit",
         "total_fuel_consumption_quantity",
         "electric_fuel_consumption_quantity",
@@ -759,7 +760,12 @@ def _aggregate_duplicate_boiler_fuel_keys(boiler_fuel_df: pd.DataFrame) -> pd.Da
     relative_cols = ["ash_content_pct", "sulfur_content_pct", "fuel_mmbtu_per_unit"]
     key_cols = ["boiler_id", "energy_source_code", "plant_id_eia", "report_date"]
 
-    expected_cols = set(quantity_cols + relative_cols + key_cols + ["prime_mover_code"])
+    expected_cols = set(
+        quantity_cols
+        + relative_cols
+        + key_cols
+        + ["prime_mover_code", "eia_sector", "sector_name"]
+    )
     actual_cols = set(boiler_fuel_df.columns)
     difference = actual_cols.symmetric_difference(expected_cols)
 
@@ -825,6 +831,9 @@ def boiler_fuel(eia923_dfs, eia923_transformed_dfs):
             that page (values).
     """
     bf_df = eia923_dfs["boiler_fuel"].copy()
+    bf_df.rename(columns={"eia_sector": "sector_id_eia"}).rename(
+        columns={"sector_name": "sector_name_eia"}
+    )
 
     # Need to stop dropping fields that contain harvestable entity attributes.
     # See https://github.com/catalyst-cooperative/pudl/issues/509
@@ -837,8 +846,6 @@ def boiler_fuel(eia923_dfs, eia923_transformed_dfs):
         "census_region",
         "nerc_region",
         "naics_code",
-        "eia_sector",
-        "sector_name",
         "fuel_unit",
         "total_fuel_consumption_quantity",
         "balancing_authority_code_eia",
@@ -915,8 +922,6 @@ def generation(eia923_dfs, eia923_transformed_dfs):
                 "census_region",
                 "nerc_region",
                 "naics_code",
-                "eia_sector",
-                "sector_name",
                 "net_generation_mwh_year_to_date",
                 "early_release",
             ],
@@ -925,6 +930,8 @@ def generation(eia923_dfs, eia923_transformed_dfs):
         .pipe(_yearly_to_monthly_records)
         .pipe(pudl.helpers.fix_eia_na)
         .pipe(pudl.helpers.convert_to_date)
+        .rename(columns={"eia_sector": "sector_id_eia"})
+        .rename(columns={"sector_name": "sector_name_eia"})
     )
     # There are a few records that contain (literal) "nan"s in the generator_id
     # field.  We are doing a targeted drop here instead of a full drop because
