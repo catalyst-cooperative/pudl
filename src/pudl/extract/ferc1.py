@@ -176,6 +176,13 @@ TABLE_NAME_MAP_FERC1: dict[str, dict[str, str]] = {
         "xbrl": [
             "sales_of_electricity_by_rate_schedules_account_440_residential_304",
             "sales_of_electricity_by_rate_schedules_account_442_commercial_304",
+            "sales_of_electricity_by_rate_schedules_account_442_industrial_304",
+            "sales_of_electricity_by_rate_schedules_account_444_public_street_and_highway_lighting_304",
+            "sales_of_electricity_by_rate_schedules_account_445_other_sales_to_public_authorities_304",
+            "sales_of_electricity_by_rate_schedules_account_446_sales_to_railroads_and_railways_304",
+            "sales_of_electricity_by_rate_schedules_account_448_interdepartmental_sales_304",
+            "sales_of_electricity_by_rate_schedules_account_4491_provision_for_rate_refunds_304",
+            "sales_of_electricity_by_rate_schedules_account_totals_304",
         ],
     },
 }
