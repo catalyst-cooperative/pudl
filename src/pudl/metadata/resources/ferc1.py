@@ -230,6 +230,13 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
         "etl_group": "ferc1",
         "field_namespace": "ferc1",
     },
+    "electricity_sales_by_rate_schedule": {
+        "description": "Electricity sales by category: residential, industrial, commercial, lighting, railways, public authorities, interdepartmental, and provision for rate refund. Pre 2021 data (non-xbrl data) is uncategorized.",
+        "schema": {"fields": ["report_year"]},  # need to add more later
+        "sources": ["ferc1"],
+        "etl_group": "ferc1",
+        "field_namespace": "ferc1",
+    },
     "ferc_accounts": {
         "description": "Account numbers from the FERC Uniform System of Accounts for Electric Plant, which is defined in Code of Federal Regulations (CFR) Title 18, Chapter I, Subchapter C, Part 101. (See e.g. https://www.law.cornell.edu/cfr/text/18/part-101).",
         "schema": {

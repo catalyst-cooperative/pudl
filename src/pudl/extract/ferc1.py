@@ -143,7 +143,6 @@ TABLE_NAME_MAP_FERC1: dict[str, dict[str, str]] = {
         "dbf": "f1_comp_balance_db",
         "xbrl": "comparative_balance_sheet_assets_and_other_debits_110",
     },
-    # Special case for this table bc there are two dbf tables
     "income_statement_ferc1": {
         "dbf": ["f1_income_stmnt", "f1_incm_stmnt_2"],
         "xbrl": "statement_of_income_114",
@@ -171,6 +170,13 @@ TABLE_NAME_MAP_FERC1: dict[str, dict[str, str]] = {
     "cash_flow_ferc1": {
         "dbf": "f1_cash_flow",
         "xbrl": "statement_of_cash_flows_120",
+    },
+    "electricity_sales_by_rate_schedule": {
+        "dbf": "f1_sales_by_sched",
+        "xbrl": [
+            "sales_of_electricity_by_rate_schedules_account_440_residential_304",
+            "sales_of_electricity_by_rate_schedules_account_442_commercial_304",
+        ],
     },
 }
 """A mapping of PUDL DB table names to their XBRL and DBF source table names."""
@@ -747,32 +753,27 @@ def extract_dbf(
 
     ferc1_raw_dfs = {}
     for pudl_table in ferc1_settings.tables:
+        logger.info(
+            f"Converting extracted FERC Form 1 table {pudl_table} into a "
+            f"pandas DataFrame from DBF table."
+        )
         if pudl_table not in TABLE_NAME_MAP_FERC1:
             raise ValueError(
                 f"No extract function found for requested FERC Form 1 data "
                 f"table {pudl_table}!"
             )
-        logger.info(
-            f"Converting extracted FERC Form 1 table {pudl_table} into a "
-            f"pandas DataFrame from DBF table."
-        )
-        if pudl_table == "income_statement_ferc1":
-            # special case for the income statement. bc the dbf table is two tables.
-            income_tbls = []
-            for raw_income_table_name in TABLE_NAME_MAP_FERC1[pudl_table]["dbf"]:
-                income_tbls.append(
-                    extract_dbf_generic(
-                        ferc1_engine=sa.create_engine(pudl_settings["ferc1_db"]),
-                        ferc1_settings=ferc1_settings,
-                        table_name=raw_income_table_name,
-                    ).assign(sched_table_name=raw_income_table_name)
-                )
-            ferc1_raw_dfs[pudl_table] = pd.concat(income_tbls)
+        dbf_table = TABLE_NAME_MAP_FERC1[pudl_table]["dbf"]
+        if type(dbf_table) is list and len(dbf_table) > 1:
+            ferc1_raw_dfs[pudl_table] = extract_dbf_concat(
+                table_names=dbf_table,
+                ferc1_settings=ferc1_settings,
+                pudl_settings=pudl_settings,
+            )
         else:
             ferc1_raw_dfs[pudl_table] = extract_dbf_generic(
                 ferc1_engine=sa.create_engine(pudl_settings["ferc1_db"]),
                 ferc1_settings=ferc1_settings,
-                table_name=TABLE_NAME_MAP_FERC1[pudl_table]["dbf"],
+                table_name=dbf_table,
             )
 
     return ferc1_raw_dfs
@@ -821,12 +822,21 @@ def extract_xbrl(
         # Attempt to extract both duration and instant tables
         xbrl_table = TABLE_NAME_MAP_FERC1[pudl_table]["xbrl"]
         ferc1_raw_dfs[pudl_table] = {}
+
         for period_type in ["duration", "instant"]:
-            ferc1_raw_dfs[pudl_table][period_type] = extract_xbrl_generic(
-                ferc1_engine=sa.create_engine(pudl_settings["ferc1_xbrl_db"]),
-                ferc1_settings=ferc1_settings,
-                table_name=f"{xbrl_table}_{period_type}",
-            )
+            if type(xbrl_table) is list and len(xbrl_table) > 1:
+                ferc1_raw_dfs[pudl_table][period_type] = extract_xbrl_concat(
+                    table_names=xbrl_table,
+                    period=period_type,
+                    pudl_settings=pudl_settings,
+                    ferc1_settings=ferc1_settings,
+                )
+            else:
+                ferc1_raw_dfs[pudl_table][period_type] = extract_xbrl_generic(
+                    ferc1_engine=sa.create_engine(pudl_settings["ferc1_xbrl_db"]),
+                    ferc1_settings=ferc1_settings,
+                    table_name=f"{xbrl_table}_{period_type}",
+                )
 
     return ferc1_raw_dfs
 
@@ -890,6 +900,92 @@ def extract_dbf_generic(
             "max_year": max(ferc1_settings.dbf_years),
         },
     )
+
+
+def extract_xbrl_concat(
+    table_names: list[str],
+    ferc1_settings: Ferc1Settings,
+    pudl_settings: dict[str, Any],
+    period: Literal["duration", "instant"],
+) -> pd.DataFrame:
+    """Combine multiple raw xbrl instant or duration tables into one.
+
+    Args:
+        table_names: The list of raw table names provided in TABLE_NAME_MAP_FERC1
+            under xbrl. These are the tables you want to combine.
+        ferc1_settings: Object containing validated settings relevant to FERC Form 1.
+            Contains the tables and years to be loaded into PUDL.
+        pudl_settings: A PUDL settings dictionary.
+        period: Either duration or instant, specific to xbrl data.
+
+    There are some instances where multiple xbrl tables ought to be combined into
+    a single table to best mesh with data from the other source. This function
+    concatinates those tables into one. It is similar to the extract_dbf_concat
+    except that this function handles the instant and duration tables from xbrl.
+
+    It does not combine instant and duration tables, rather, it creates an instant table
+    that is a combination of several other instant tables, and a duration table that is
+    the combination of several other instant tables (those listed in table_names).
+    """
+    tables = []
+    for raw_table_name in table_names:
+        tables.append(
+            extract_xbrl_generic(
+                ferc1_engine=sa.create_engine(pudl_settings["ferc1_xbrl_db"]),
+                ferc1_settings=ferc1_settings,
+                table_name=f"{raw_table_name}_{period}",
+            ).assign(sched_table_name=raw_table_name)
+        )
+
+    combined_table = pd.concat(tables)
+    if combined_table.empty:
+        combined_table = pd.DataFrame()
+    if not len(combined_table) == sum([len(x) for x in tables]):
+        raise AssertionError(
+            "Something went wrong with the concatination and the table lengths don't "
+            "match."
+        )
+    return combined_table
+
+
+def extract_dbf_concat(
+    table_names: list[str],
+    ferc1_settings: Ferc1Settings,
+    pudl_settings: dict[str, Any],
+) -> pd.DataFrame:
+    """Combine multiple raw dbf tables into one.
+
+    Args:
+        table_names: The name of the raw dbf tables you want to combine
+            under xbrl. These are the tables you want to combine.
+        ferc1_settings: Object containing validated settings relevant to FERC Form 1.
+            Contains the tables and years to be loaded into PUDL.
+        pudl_settings: A PUDL settings dictionary.
+        period: Either duration or instant.
+
+    There are some instances where multiple dbf tables ought to be combined into
+    a single table to best mesh with data from the other source. This function
+    concatinates those tables into one. It is similar to the extract_xbr_concat
+    except that this function doesn't have to deal with instant and duration tables.
+    """
+    tables = []
+    for raw_table_name in table_names:
+        tables.append(
+            extract_dbf_generic(
+                ferc1_engine=sa.create_engine(pudl_settings["ferc1_db"]),
+                ferc1_settings=ferc1_settings,
+                table_name=raw_table_name,
+            ).assign(sched_table_name=raw_table_name)
+        )
+    combined_table = pd.concat(tables)
+    if combined_table.empty:
+        combined_table = pd.DataFrame()
+    if not len(combined_table) == sum([len(x) for x in tables]):
+        raise AssertionError(
+            "Something went wrong with the concatination and the table lengths don't "
+            "match."
+        )
+    return combined_table
 
 
 def extract_xbrl_metadata(
