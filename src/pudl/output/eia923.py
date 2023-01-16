@@ -70,11 +70,7 @@ def generation_fuel_eia923(
     if end_date is not None:
         gf_select = gf_select.where(gf_tbl.c.report_date <= end_date)
 
-    gf_df = (
-        pd.read_sql(gf_select, pudl_engine)
-        .rename(columns={"eia_sector": "sector_id_eia"})
-        .rename(columns={"sector_name": "sector_name_eia"})
-    )
+    gf_df = pd.read_sql(gf_select, pudl_engine)
 
     by = [
         "plant_id_eia",
