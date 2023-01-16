@@ -613,6 +613,9 @@ def generation_fuel(eia923_dfs, eia923_transformed_dfs):
     """
     # This needs to be a copy of what we're passed in so we can edit it.
     gen_fuel = eia923_dfs["generation_fuel"].copy()
+    gen_fuel.rename(columns={"eia_sector": "sector_id_eia"}).rename(
+        columns={"sector_name": "sector_name_eia"}
+    )
 
     # Drop fields we're not inserting into the generation_fuel_eia923 table.
     cols_to_drop = [
@@ -828,6 +831,9 @@ def boiler_fuel(eia923_dfs, eia923_transformed_dfs):
             that page (values).
     """
     bf_df = eia923_dfs["boiler_fuel"].copy()
+    bf_df.rename(columns={"eia_sector": "sector_id_eia"}).rename(
+        columns={"sector_name": "sector_name_eia"}
+    )
 
     # Need to stop dropping fields that contain harvestable entity attributes.
     # See https://github.com/catalyst-cooperative/pudl/issues/509
@@ -924,6 +930,8 @@ def generation(eia923_dfs, eia923_transformed_dfs):
         .pipe(_yearly_to_monthly_records)
         .pipe(pudl.helpers.fix_eia_na)
         .pipe(pudl.helpers.convert_to_date)
+        .rename(columns={"eia_sector": "sector_id_eia"})
+        .rename(columns={"sector_name": "sector_name_eia"})
     )
     # There are a few records that contain (literal) "nan"s in the generator_id
     # field.  We are doing a targeted drop here instead of a full drop because
