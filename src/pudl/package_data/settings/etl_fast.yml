@@ -75,6 +75,24 @@ ferc_to_sqlite_settings:
       - retained_earnings_118_instant
       - statement_of_cash_flows_120_duration
       - statement_of_cash_flows_120_instant
+      - sales_of_electricity_by_rate_schedules_account_440_residential_304_duration
+      - sales_of_electricity_by_rate_schedules_account_440_residential_304_instant
+      - sales_of_electricity_by_rate_schedules_account_442_commercial_304_duration
+      - sales_of_electricity_by_rate_schedules_account_442_commercial_304_instant
+      - sales_of_electricity_by_rate_schedules_account_442_industrial_304_duration
+      - sales_of_electricity_by_rate_schedules_account_442_industrial_304_instant
+      - sales_of_electricity_by_rate_schedules_account_444_public_street_and_highway_lighting_304_duration
+      - sales_of_electricity_by_rate_schedules_account_444_public_street_and_highway_lighting_304_instant
+      - sales_of_electricity_by_rate_schedules_account_445_other_sales_to_public_authorities_304_duration
+      - sales_of_electricity_by_rate_schedules_account_445_other_sales_to_public_authorities_304_instant
+      - sales_of_electricity_by_rate_schedules_account_446_sales_to_railroads_and_railways_304_duration
+      - sales_of_electricity_by_rate_schedules_account_446_sales_to_railroads_and_railways_304_instant
+      - sales_of_electricity_by_rate_schedules_account_448_interdepartmental_sales_304_duration
+      - sales_of_electricity_by_rate_schedules_account_448_interdepartmental_sales_304_instant
+      - sales_of_electricity_by_rate_schedules_account_4491_provision_for_rate_refunds_304_duration
+      - sales_of_electricity_by_rate_schedules_account_4491_provision_for_rate_refunds_304_instant
+      - sales_of_electricity_by_rate_schedules_account_totals_304_duration
+      - sales_of_electricity_by_rate_schedules_account_totals_304_instant
 
   ferc2_xbrl_to_sqlite_settings:
     years: [2021]

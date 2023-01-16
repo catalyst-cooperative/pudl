@@ -230,7 +230,7 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
         "etl_group": "ferc1",
         "field_namespace": "ferc1",
     },
-    "electricity_sales_by_rate_schedule": {
+    "electricity_sales_by_rate_schedule_ferc1": {
         "description": "Electricity sales by category: residential, industrial, commercial, lighting, railways, public authorities, interdepartmental, and provision for rate refund. Pre 2021 data (non-xbrl data) is uncategorized.",
         "schema": {"fields": ["report_year"]},  # need to add more later
         "sources": ["ferc1"],

@@ -4199,6 +4199,28 @@ TRANSFORM_PARAMS = {
             "on": "expense_type",
         },
     },
+    "electricity_sales_by_rate_schedule_ferc1": {
+        "rename_columns_ferc1": {
+            "dbf": {
+                "columns": {
+                    "respondent_id": "utility_id_ferc1_dbf",
+                    "report_year": "report_year",
+                    "report_prd": "report_prd",
+                    "row_prvlg": "row_prvlg",
+                    "row_number": "row_number",
+                    "row_seq": "row_seq",
+                    "spplmt_num": "spplmt_num",
+                    "sched_num_ttl": "rate_schedule_type",
+                    "mwh_sold": "mwh_sold",
+                    "revenue": "sales",
+                    "avg_num_cstmr": "average_customers_per_month",
+                    "kwh_sale_cstmr": "kwh_sales_per_customer",
+                    "revenue_kwh_sold": "revenue_per_kwh_sold",
+                }
+            },
+            "xbrl": {},
+        }
+    },
 }
 
 """The full set of parameters used to transform the FERC Form 1 data.

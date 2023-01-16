@@ -171,7 +171,7 @@ TABLE_NAME_MAP_FERC1: dict[str, dict[str, str]] = {
         "dbf": "f1_cash_flow",
         "xbrl": "statement_of_cash_flows_120",
     },
-    "electricity_sales_by_rate_schedule": {
+    "electricity_sales_by_rate_schedule_ferc1": {
         "dbf": "f1_sales_by_sched",
         "xbrl": [
             "sales_of_electricity_by_rate_schedules_account_440_residential_304",
