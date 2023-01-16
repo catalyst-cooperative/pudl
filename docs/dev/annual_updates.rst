@@ -22,46 +22,35 @@ into integrating the 2020 data.
 
 1. Obtain Fresh Data
 --------------------
-**1.1)** Scrape a new copy of the raw PUDL inputs from agency websites using the tools
+**1.1)** Add a new copy of the raw PUDL inputs from agency websites using the tools
 in the
-`pudl-scrapers repository <https://github.com/catalyst-cooperative/pudl-scrapers>`__.
+`pudl-archiver repository <https://github.com/catalyst-cooperative/pudl-archiver>`__.
 If the structure of the web pages or the URLs have changed, you may need to update the
-scrapers themselves.
+archivers themselves.
 
-**1.2)** Use the newly scraped files and the tools in the `pudl-zenodo-storage
-repository <https://github.com/catalyst-cooperative/pudl-zenodo-storage>`__ to create
-new raw input achives on Zenodo. If we've previously archived the dataset this will add
-a new version to an existing archive.
-
-.. note::
-    It is useful to run the ``zenodo_store.py`` script using the ``--noop`` option first
-    to see what actions will be taken. In addition to the new year, **take note of any
-    older years of data that have been retroactively changed** so that you can address
-    them later on in the file mapping and transform updates.
-
-**1.3)** Update the dictionary of production DOIs in :mod:`pudl.workspace.datastore` to
+**1.2)** Update the dictionary of production DOIs in :mod:`pudl.workspace.datastore` to
 refer to the new raw input archives.
 
-**1.4)** In :py:const:`pudl.metadata.sources.SOURCES`, update the ``working_partitions``
+**1.3)** In :py:const:`pudl.metadata.sources.SOURCES`, update the ``working_partitions``
 to reflect the years of data that are available within each dataset and the
 ``records_liberated`` to show how many records are available. Check to make sure other
 fields such as ``source_format`` or ``path`` are still accurate.
 
-**1.5)** Update the years of data to be processed in the ``etl_full.yml`` and
+.. note::
+
+    EIA861 is not yet included in the ETL, so you can stop after 1.3 if you're updating 861.
+    You can also skip all steps after 3.
+
+**1.4)** Update the years of data to be processed in the ``etl_full.yml`` and
 ``etl_fast.yml`` settings files stored under ``src/pudl/package_data/settings`` in the
 PUDL repo.
 
-**1.6)** Update the settings files in your PUDL workspace to reflect the new
+**1.5)** Update the settings files in your PUDL workspace to reflect the new
 years by running ``pudl_setup {path to your pudl_work directory} -c``. Don't worry, it
 won't remove any custom settings files you've added under a diffrent name.
 
-.. note::
-
-    EIA861 is not yet included in the ETL, so you can skip 1.5 if you're updating 861.
-    You can also skip all steps after 3.
-
-**1.7)** Use the ``pudl_datastore`` script (see :doc:`datastore`) to download the new
-raw data archives in bulk so that network hiccups don't cause issues during ETL.
+**1.6)** Use the ``pudl_datastore`` script (see :doc:`datastore`) to download the new
+raw data archives in bulk so that network hiccups don't cause issues during the ETL.
 
 2. Map the Structure of the New Data
 ------------------------------------

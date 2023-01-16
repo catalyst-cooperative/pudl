@@ -52,6 +52,28 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
         "etl_group": "ferc1",
         "field_namespace": "ferc1",
     },
+    "cash_flow_ferc1": {
+        "description": "The structured portion of the FERC1 cash flow table - Schedule 120.",
+        "schema": {
+            "fields": [
+                "record_id",
+                "report_year",
+                "utility_id_ferc1",
+                "amount_type",
+                "amount",
+                "balance",
+                "row_type_xbrl",
+            ],
+            "primary_key": [
+                "utility_id_ferc1",
+                "report_year",
+                "amount_type",
+            ],
+        },
+        "sources": ["ferc1"],
+        "etl_group": "ferc1",
+        "field_namespace": "ferc1",
+    },
     "depreciation_amortization_summary_ferc1": {
         "description": (
             "Depreciation and Amortization of Electric Plan (Account 403, 404, 405) "
@@ -60,9 +82,10 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
         ),
         "schema": {
             "fields": [
-                "utility_id_ferc1",
+                "record_id",
                 "report_year",
-                "functional_classification",
+                "utility_id_ferc1",
+                "plant_function",
                 "ferc_account_label",
                 "ferc_account",
                 "depreciation_amortization_value",
@@ -70,7 +93,7 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
             "primary_key": [
                 "utility_id_ferc1",
                 "report_year",
-                "functional_classification",
+                "plant_function",
                 "ferc_account_label",
             ],
         },
@@ -157,7 +180,7 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
                 "utility_id_ferc1",
                 "report_year",
                 "depreciation_type",
-                "plant_classification_type",
+                "plant_status",
                 "utility_type",
                 "utility_plant_value",
                 "record_id",
@@ -169,7 +192,37 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
                 "utility_id_ferc1",
                 "report_year",
                 "depreciation_type",
-                "plant_classification_type",
+                "plant_status",
+                "utility_type",
+            ],
+        },
+        "sources": ["ferc1"],
+        "etl_group": "ferc1",
+        "field_namespace": "ferc1",
+    },
+    "electric_plant_depreciation_functional_ferc1": {
+        "description": (
+            "Accumulated provision for depreciation of electric utility plant "
+            "(Account 108). Schedule 219 Section B: Functional plant classifications."
+        ),
+        "schema": {
+            "fields": [
+                "utility_id_ferc1",
+                "report_year",
+                "plant_function",
+                "plant_status",
+                "utility_type",
+                "utility_plant_value",
+                "record_id",
+                "balance",
+                "ferc_account",
+                "row_type_xbrl",
+            ],
+            "primary_key": [
+                "utility_id_ferc1",
+                "report_year",
+                "plant_function",
+                "plant_status",
                 "utility_type",
             ],
         },
@@ -648,6 +701,33 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
         },
         "sources": ["ferc1"],
         "etl_group": "ferc1_disabled",
+        "field_namespace": "ferc1",
+    },
+    "electric_operating_revenues_ferc1": {
+        "description": (
+            "Electric operating revenues - The structed part of schedule 300."
+            "There are a number of revenue_type's that do not have sales_mwh,"
+            "or avg_customers_per_month provided, in which case these columns"
+            "will be NULL."
+        ),
+        "schema": {
+            "fields": [
+                "utility_id_ferc1",
+                "report_year",
+                "record_id",
+                "revenue_type",
+                "revenue",
+                "sales_mwh",
+                "avg_customers_per_month",
+            ],
+            "primary_key": [
+                "utility_id_ferc1",
+                "report_year",
+                "revenue_type",
+            ],
+        },
+        "sources": ["ferc1"],
+        "etl_group": "ferc1",
         "field_namespace": "ferc1",
     },
 }
