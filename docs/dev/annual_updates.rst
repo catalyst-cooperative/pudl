@@ -235,11 +235,20 @@ you'll need to include it in the ``rename_columns`` dictionary in
 * Consider whether the column could benefit from custom transformations. If it's
   something that could be applicable to other columns, consider building it in
   :mod:`pudl.tranform.classes`. If not, build it in the relevant table transformer
-  class in :mod:`pudl.transform.ferc1`.
+  class in :mod:`pudl.transform.ferc1`. Make sure to write a unit test for any new
+  functions.
 
 **4.B.4)** If there's a new table, add it to the transform process. You'll need to build
 or augment a table transformer in :mod:`pudl.transform.ferc1` and follow all
 instructions applicable to new columns.
+
+**4.B.5)** To see if the transformations work, you can run the transform module as a
+script in the terminal. From within the pudl repo directory, run:
+
+.. code-block:: bash
+
+    python src/pudl/transform/ferc1.py
+
 
 5. Update the PUDL DB Schema
 ----------------------------
