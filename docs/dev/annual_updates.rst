@@ -2,8 +2,8 @@
 Annual Updates
 ===============================================================================
 Much of the data we work with is released in a "final" state annually. We typically
-integrate the new year of data over 2-4 weeks in October of each year, since by that
-time the final release for the previous year have been published by EIA and FERC. We
+integrate the new year of data over 2-4 weeks in October since, by that
+time, the final release for the previous year have been published by EIA and FERC. We
 also integrate EIA early release data when available. The ``data_maturity`` field will
 indicate whether the data is final or provisional.
 
@@ -16,9 +16,8 @@ As of fall 2021 the annual updates include:
 * :doc:`/data_sources/ferc1`
 * :ref:`data-ferc714`
 
-This document outlines all the tasks required to complete the annual update, based on
-our experience in 2021. You can look at :issue:`1255` to see all the commits that went
-into integrating the 2020 data.
+This document outlines all the tasks required to complete the annual update based on
+our experience in 2022.
 
 1. Obtain Fresh Data
 --------------------
@@ -38,8 +37,8 @@ fields such as ``source_format`` or ``path`` are still accurate.
 
 .. note::
 
-    EIA861 is not yet included in the ETL, so you can stop after 1.3 if you're updating 861.
-    You can also skip all steps after 3.
+    EIA861 is not yet included in the ETL, so you can stop after 1.3 if you're updating
+    form 861. You can also skip all steps after 3.
 
 **1.4)** Update the years of data to be processed in the ``etl_full.yml`` and
 ``etl_fast.yml`` settings files stored under ``src/pudl/package_data/settings`` in the
@@ -84,7 +83,7 @@ directly to PUDL database table names because we don't load the data from all pa
 some pages result in more than one database table after normalization.
 
 **2.A.1)** Add a column for the new year of data to each of the aforementioned files. If
-there are any changes too prior years, make sure to address those too. (See note above).
+there are any changes to prior years, make sure to address those too. (See note above).
 If you are updating early release data with final release data, replace the values in
 the appropriate year column.
 
@@ -108,33 +107,17 @@ pages, or columns) then create new mappings to track that information over time.
     In all of the the above CSV files we use a value of ``-1`` to indicate that the data
     does not exist in a given year.
 
-B. FERC Form 1
-^^^^^^^^^^^^^^
-**2.B.1)** Update the path to the directory containing the database files stored within
-the annual FERC 1 zipfiles to reflect the new year of data. We store this information in
-``src/pudl/package_data/ferc1/file_map.csv``
-
-**2.B.2)** The process we use for :doc:`clone_ferc1` uses the most recent annual
-database to define the schema for our multi-year FERC 1 DB. This only works because
-historically the FERC 1 DB has only added tables and columns over time. To check whether
-the new year of data continues this pattern, you can run:
-
-.. code-block:: bash
-
-  pytest --etl_settings src/pudl/package_data/settings/etl_full.yml \
-    test/integration/etl_test.py::test_ferc1_schema
-
-C. FERC Form 714
+B. FERC Form 714
 ^^^^^^^^^^^^^^^^
 FERC Form 714 is distributed as an archive of CSV files, each of which spans
 all available years of data. This means there's much less structure to keep track of.
 The main thing that changes from year to year is the names of the CSV files within the
 ZIP archive.
 
-**2.C.1)** Update the mapping between extracted dataframes and those filenames in the
+**2.B.1)** Update the mapping between extracted dataframes and those filenames in the
 :py:const:`pudl.extract.ferc714.TABLE_FNAME` dictionary.
 
-**2.C.2)** The character encodings of these CSV files may vary with some of them using
+**2.B.2)** The character encodings of these CSV files may vary with some of them using
 ``iso-8859-1`` (Latin) rather than ``utf-8`` (Unicode). Note the per-file encoding
 in :py:const:`pudl.extract.ferc714.TABLE_ENCODING` and that it may change over time.
 
@@ -159,6 +142,9 @@ B. FERC Form 1
 This is necessary to enable mapping associations between the FERC 1 and EIA plants and
 utilities later.
 
+**3.B.2)** You can use the ``devtools/ferc1-etl-debug.ipynb`` notebook to run the
+extract process for each table.
+
 4. Update Table & Column Transformations
 ----------------------------------------
 We're in the process of transitioning from our old transform framework to a newer, more
@@ -180,16 +166,49 @@ inspected for cleanup.
 B. FERC Form 1
 ^^^^^^^^^^^^^^
 Some FERC 1 tables store different variables in different rows instead of or in addition
-to using columns. Rows are identified by ``row_number``. What row number corresponds to
-which variable changes from year to year. We catalog this correspondence in the FERC 1
-row maps, a collection of CSV files stored under
-``src/pudl/package_data/ferc1/row_maps`` and organized by original FERC 1 DB table name.
+to using columns. In the Pre-2021 data (from the DBF files), rows are identified by
+``row_number``, and the row number that corresponds to a given variable changes from
+year to year. We cataloged this correspondence in the FERC 1 row maps, a collection of
+CSV files stored under ``src/pudl/package_data/ferc1/row_maps`` and organized it by
+original FERC 1 DB table name.
 
-**4.B.1)** Check whether the data associated with a given row number has changed
-by looking at the table's entries in the ``f1_row_lit_tbl`` table. This table stores the
-descriptive strings associated with each row in the FERC Form 1, and also indicates the
-last year that the string was changed in the ``row_chg_yr`` column. The
-``devtools/ferc1/ferc1-new-year.ipynb`` notebook can make this process less tedious.
+The FERC 1 data from 2021 onwards (XBRL files) is organized into a taxonomy that keeps
+it relatively consistent year to year. We keep track of the connection between DBF and
+XBRL tables in the ``src/pudl/package_data/ferc1/dbf_to_xbrl_tables.csv`` and
+``src/pudl/package_data/ferc1/dbf_to_xbrl.csv`` files.
+
+**4.B.1)** If there are any new tables or reason to believe that the xbrl taxonomy has
+changed, revisit the ``dbf_to_xbrl_tables.csv`` and ``dbf_to_xbrl.csv`` files and map
+the tables and records to one another.
+
+.. note::
+
+    **How to use the mapping spreadsheets:**
+
+    The ``dbf_to_xbrl.csv`` maps row numbers from the DBF data with taxonomy factoids
+    from the XBRL data therefore allowing us to merge the data into one continuous
+    timeseries. The ``row_literal`` column is the DBF label for the ``row_number`` in
+    question. This ``row_literal`` must be mapped to an ``xbrl_factoid`` from the XBRL
+    data. These ``xbrl_factoid`` entires are the value columns from the raw XBRL data.
+
+    Look at the ``row_literal`` values for a given table and see which XBRL columns they
+    coorespond to. It's helpful to
+    `view the XBRL taxonomy <https://xbrlview.ferc.gov/>`__ for the table in question.
+
+    The ``row_literals`` may contain elements of the FERC 1 form such as
+    headers that don't map to an XBRL column. These can be marked as ``headers`` in the
+    ``row_type`` column. Other values are either marked as ``report_value`` or
+    ``calculated_value`` to indicate whether the XBRL data is original or can be
+    calculated from other fields. The way to check this is by looking at the online
+    taxonomy and clicking on the "Relationships" tab for a given field. If there are
+    relationships it's probably a ``calculated_value`` and if there are not, it's a
+    ``reported_value``
+
+    The ``dbf_only`` column is marked ``TRUE`` if the ``row_literal`` only shows up in
+    the DBF files. An common example is when several fields are aggregated in the DBF
+    data but not in XBRL. The ``notes`` column is a place to indicate complexity or
+    reasoning and is intended for humans (vs. computers) to read.
+
 
 **4.B.2)** Use the FERC 1 debugging notebook ``devtools/ferc1-etl-debug.ipynb`` to run
 the transforms for each table. Heed any errors or warnings that pop up in the
