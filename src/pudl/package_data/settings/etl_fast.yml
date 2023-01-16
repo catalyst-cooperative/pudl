@@ -29,6 +29,7 @@ ferc_to_sqlite_settings:
       - f1_accumdepr_prvsn
       - f1_retained_erng
       - f1_cash_flow
+      - f1_sales_by_sched
 
   ferc1_xbrl_to_sqlite_settings:
     years: [2021]
