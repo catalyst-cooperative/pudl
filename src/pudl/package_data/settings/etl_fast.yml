@@ -136,6 +136,7 @@ datasets:
       - electric_plant_depreciation_functional_ferc1
       - retained_earnings_ferc1
       - cash_flow_ferc1
+      - electricity_sales_by_rate_schedule_ferc1
     years: [2020, 2021]
   eia:
     eia923:
