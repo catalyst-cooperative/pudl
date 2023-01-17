@@ -2,7 +2,7 @@
 repos:
   # Quick content checks based on grepping for python specific patterns:
   - repo: https://github.com/pre-commit/pygrep-hooks
-    rev: v1.9.0
+    rev: v1.10.0
     hooks:
       - id: python-check-blanket-noqa # Prohibit overly broad QA exclusions.
       - id: python-no-eval # Never use eval() it's dangerous.
@@ -52,7 +52,7 @@ repos:
 
   # Remove f-string prefix when there's nothing in the string to format.
   - repo: https://github.com/dannysepler/rm_unneeded_f_str
-    rev: v0.1.0
+    rev: v0.2.0
     hooks:
       - id: rm-unneeded-f-str
 
