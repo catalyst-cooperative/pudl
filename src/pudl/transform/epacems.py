@@ -4,7 +4,7 @@ import datetime
 
 import pandas as pd
 import pytz
-from dagster import Out, op
+from dagster import op
 
 import pudl.logging_helpers
 from pudl.helpers import remove_leading_zeros_from_numeric_strings
@@ -173,7 +173,6 @@ def correct_gross_load_mw(df: pd.DataFrame) -> pd.DataFrame:
     return df
 
 
-@op(out=Out(io_manager_key="partitioned_epacems_io_manager"))
 def transform(
     raw_df: pd.DataFrame,
     epacamd_eia: pd.DataFrame,

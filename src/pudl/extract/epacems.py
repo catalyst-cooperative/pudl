@@ -17,13 +17,11 @@ it appears in CEMS and the `plant_id_eia` field used in EIA data. Hense, we've c
 `plant_id_epa` until it gets transformed into `plant_id_eia` during the transform
 process with help from the crosswalk.
 """
-import itertools
 from pathlib import Path
 from typing import NamedTuple
 from zipfile import ZipFile
 
 import pandas as pd
-from dagster import DynamicOut, DynamicOutput, op
 
 import pudl.logging_helpers
 from pudl.workspace.datastore import Datastore
@@ -157,8 +155,7 @@ class EpaCemsDatastore:
         ).rename(columns=RENAME_DICT)
 
 
-@op(required_resource_keys={"datastore", "dataset_settings"}, out=DynamicOut())
-def extract(context):
+def extract(partition: EpaCemsPartition, ds: EpaCemsDatastore):
     """Coordinate the extraction of EPA CEMS hourly DataFrames.
 
     Args:
@@ -168,15 +165,6 @@ def extract(context):
     Yields:
         pandas.DataFrame: A single state-year of EPA CEMS hourly emissions data.
     """
-    settings = context.resources.dataset_settings.epacems
-    partitions = itertools.product(settings.years, settings.states)
-
-    ds = context.resources.datastore
-    ds = EpaCemsDatastore(ds)
-
-    for year, state in partitions:
-        partition = EpaCemsPartition(state=state, year=year)
-        # We have to assign the reporting year for partitioning purposes
-        df = ds.get_data_frame(partition).assign(year=year)
-        mapping_key = f"epacems_{year}_{state}"
-        yield DynamicOutput(df, mapping_key=mapping_key)
+    # TODO (bendnorman): am I treating this extra year param correctly?
+    # We have to assign the reporting year for partitioning purposes
+    return ds.get_data_frame(partition).assign(year=partition.year)

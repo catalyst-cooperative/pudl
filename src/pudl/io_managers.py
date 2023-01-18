@@ -1,8 +1,8 @@
 """Dagster IO Managers."""
-import re
 from pathlib import Path
 from sqlite3 import sqlite_version
 
+import dask.dataframe as dd
 import pandas as pd
 import pyarrow as pa
 import pyarrow.parquet as pq
@@ -560,40 +560,15 @@ class PandasParquetIOManager(UPathIOManager):
                 pa.Table.from_pandas(obj, schema=self.schema, preserve_index=False)
             )
 
-
-class EpaCemsPandasParquetIOManager(PandasParquetIOManager):
-    """An IO Manager that writes all EPA CEMS partitions to a single parquet file."""
-
     def load_from_path(self, context: InputContext, path: UPath) -> pd.DataFrame:
-        """Load dataframe from path."""
-        raise NotImplementedError("Can't load data using PandasParquetIOManager yet.")
-
-
-class PartitionedEpaCemsPandasParquetIOManager(PandasParquetIOManager):
-    """An IO Manager that writes EPA CEMS partitions to individual parquet files."""
-
-    def _get_path_without_extension(
-        self, context: InputContext | OutputContext
-    ) -> UPath:
-        """Get partition name of op output."""
-        if context.has_asset_key:
-            # we are dealing with an asset
-            raise NotImplementedError("This IO manager does not support assets.")
-        else:
-            # we are dealing with an op output
-            # TODO (bendnorman): indexing to get step_key. Raise warning if we get
-            # an unexpected identifier.
-            # This regex is grabbing the partition name from the step_key.
-            match = re.search(r"\[([A-Za-z0-9_]+)\]", context.get_identifier()[1])
-            partition = match.group(1)
-            context_path = [partition]
-
-        return self._base_path.joinpath(*context_path)
-
-    def load_from_path(self, context: InputContext, path: UPath) -> pd.DataFrame:
-        """Load a dataframe from parquet file."""
-        with path.open("rb") as file:
-            return pd.read_parquet(file)
+        """Load a directory of parquet files to a dask dataframe."""
+        return dd.read_parquet(
+            path.parent,
+            use_nullable_dtypes=True,
+            engine="pyarrow",
+            index=False,
+            split_row_groups=True,
+        )
 
 
 @io_manager(
@@ -607,32 +582,10 @@ class PartitionedEpaCemsPandasParquetIOManager(PandasParquetIOManager):
         )
     }
 )
-def combined_epacems_io_manager(
+def epacems_io_manager(
     init_context: InitResourceContext,
-) -> EpaCemsPandasParquetIOManager:
-    """IO Manager that writes EPA CEMS partitions to a single parquet file."""
-    schema = Resource.from_id("hourly_emissions_epacems").to_pyarrow()
-    base_path = UPath(init_context.resource_config["base_path"])
-    return EpaCemsPandasParquetIOManager(base_path=base_path, schema=schema)
-
-
-@io_manager(
-    config_schema={
-        "base_path": Field(
-            EnvVar(
-                env_var="PUDL_OUTPUT",
-            ),
-            is_required=False,
-            default_value=None,
-        )
-    }
-)
-def partitioned_epacems_io_manager(
-    init_context: InitResourceContext,
-) -> PartitionedEpaCemsPandasParquetIOManager:
+) -> PandasParquetIOManager:
     """IO Manager that writes EPA CEMS partitions to individual parquet files."""
     schema = Resource.from_id("hourly_emissions_epacems").to_pyarrow()
-    base_path = (
-        UPath(init_context.resource_config["base_path"]) / "hourly_emissions_epacems"
-    )
-    return PartitionedEpaCemsPandasParquetIOManager(base_path=base_path, schema=schema)
+    base_path = UPath(init_context.resource_config["base_path"])
+    return PandasParquetIOManager(base_path=base_path, schema=schema)
