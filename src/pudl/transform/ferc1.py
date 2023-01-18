@@ -1264,12 +1264,6 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
         logger.debug(f"{self.table_id.value}: Dropping DBF footnote columns.")
         return df.drop(columns=df.filter(regex=r".*_f$").columns)
 
-    def source_table_id(self, source_ferc1: SourceFerc1, **kwargs) -> str:
-        """Look up the ID of the raw data source table."""
-        return pudl.extract.ferc1.TABLE_NAME_MAP_FERC1[self.table_id.value][
-            source_ferc1.value
-        ]
-
     def source_table_primary_key(self, source_ferc1: SourceFerc1) -> list[str]:
         """Look up the pre-renaming source table primary key columns."""
         if source_ferc1 == SourceFerc1.DBF:
@@ -1368,16 +1362,13 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
                 f"{df[pk_cols].isnull().any()}"
             )
         df = df.assign(
-            # Include df=df as an argument here because it is needed for the income
-            # table. In all other instances, nothing will be done with df.
-            source_table_id=self.source_table_id(source_ferc1, df=df),
-            record_id=lambda x: x.source_table_id.str.cat(
+            record_id=lambda x: x.sched_table_name.str.cat(
                 x[pk_cols].astype(str), sep="_"
             ),
         )
-        if df.source_table_id.isnull().any():
+        if df.sched_table_name.isnull().any():
             raise ValueError(
-                f"{self.table_id.value}: Null source_table_id's were found where none "
+                f"{self.table_id.value}: Null sched_table_name's were found where none "
                 "were expected."
             )
         df.record_id = enforce_snake_case(df.record_id)
@@ -1388,7 +1379,7 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
                 f"{self.table_id.value}: Found {len(dupe_ids)} duplicate record_ids: \n"
                 f"{dupe_ids}."
             )
-        return df.drop(columns=["source_table_id"])
+        return df
 
     def assign_utility_id_ferc1(
         self, df: pd.DataFrame, source_ferc1: SourceFerc1
@@ -3026,30 +3017,6 @@ class IncomeStatementFerc1TableTransformer(Ferc1AbstractTableTransformer):
         )
         raw_dbf = super().process_dbf(raw_dbf)
         return raw_dbf
-
-    def source_table_id(
-        self, source_ferc1: SourceFerc1, df: pd.DataFrame | None = None
-    ) -> str | pd.Series:
-        """Look up the ID of the raw data source table.
-
-        Because the raw DBF data comes from two seperate tables, this table-specific
-        method generates a Series of tables names based on the ``sched_table_name``
-        columns which was assigned during the transform step. For the XBRL source, the
-        standard method is employed and a string is returned.
-        """
-        # assign the source_table_id column based on the source
-        if source_ferc1 == SourceFerc1.DBF:
-            # sched_table_name is a table name. was added in align_row_numbers_dbf
-            if df.sched_table_name.isnull().any():
-                raise ValueError(
-                    f"{self.table_id.value}: Null sched_table_name found in DBF to XBRL"
-                    " row map."
-                )
-            source_table = df.sched_table_name
-        else:
-            assert source_ferc1 == SourceFerc1.XBRL  # nosec: B101
-            source_table = super().source_table_id(source_ferc1=source_ferc1)
-        return source_table
 
 
 class RetainedEarningsFerc1TableTransformer(Ferc1AbstractTableTransformer):

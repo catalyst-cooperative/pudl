@@ -4209,7 +4209,7 @@ TRANSFORM_PARAMS = {
                     "row_prvlg": "row_prvlg",
                     "row_number": "row_number",
                     "row_seq": "row_seq",
-                    "spplmt_num": "spplmt_num",
+                    "spplmnt_num": "spplmnt_num",
                     "sched_num_ttl": "rate_schedule_type",
                     "mwh_sold": "mwh_sold",
                     "revenue": "sales",
@@ -4218,7 +4218,12 @@ TRANSFORM_PARAMS = {
                     "revenue_kwh_sold": "revenue_per_kwh_sold",
                 }
             },
-            "xbrl": {},
+            "xbrl": {
+                "columns": {
+                    "entity_id": "utility_id_ferc1_xbrl",
+                    "report_year": "report_year",
+                }
+            },
         }
     },
 }
