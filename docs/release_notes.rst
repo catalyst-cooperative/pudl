@@ -19,12 +19,28 @@ Data Coverage
 
   * :ref:`electric_energy_sources_ferc1`, see issue :issue:`1819` & PR :pr:`2094`.
   * :ref:`electric_energy_dispositions_ferc1`, see issue :issue:`1819` & PR :pr:`2100`.
-  * :ref:`transmission_ferc1`, see issue :issue:`1822` & PR :pr:`2103`
+  * :ref:`transmission_statistics_ferc1`, see issue :issue:`1822` & PR :pr:`2103`
   * :ref:`utility_plant_summary_ferc1`, see issue :issue:`1806` & PR :pr:`2105`.
   * :ref:`balance_sheet_assets_ferc1`, see issue :issue:`1805` & PRs :pr:`2112,2127`.
+  * :ref:`balance_sheet_liabilities_ferc1`, see issue :issue:`1810` & PR :pr:`2134`.
   * :ref:`depreciation_amortization_summary_ferc1`, see issue :issue:`1816` & PR
     :pr:`2143`.
-  * :ref:`income_statement_ferc1`, see issue :issue:`1813` & :pr:`2147`.
+  * :ref:`income_statement_ferc1`, see issue :issue:`1813` & PR :pr:`2147`.
+  * :ref:`electric_plant_depreciation_changes_ferc1` see issue :issue:`1808` &
+    :pr:`2119`.
+  * :ref:`electric_plant_depreciation_functional_ferc1` see issue :issue:`1808` & PR
+    :pr:`2183`
+  * :ref:`electric_opex_ferc1`, see issue :issue:`1817` & PR :pr:`2162`.
+  * :ref:`retained_earnings_ferc1`, see issue :issue:`1811` & PR :pr:`2155`.
+  * :ref:`cash_flow_ferc1`, see issue :issue:`1821` & PR :pr:`2184`
+
+Deprecations
+^^^^^^^^^^^^
+
+* Replace references to deprecated ``pudl-scrapers`` and
+  ``pudl-zenodo-datastore`` repositories with references to `pudl-archiver
+  <https://www.github.com/catalyst-cooperative/pudl-archiver>`__ repository in
+  :doc:`intro`, :doc:`dev/datastore`, and :doc:`dev/annual_updates`. See :pr:`2190`.
 
 .. _release-v2022.11.30:
 

@@ -247,6 +247,84 @@ INVALID_PLANT_NAMES = [pd.NA, np.nan, "not applicable", "0", "", "-"]
 ##############################################################################
 # String categorizations
 ##############################################################################
+PLANT_FUNCTION_CATEGORIES = {
+    "categories": {
+        "intangible": {
+            "intangible",
+            "ferc:IntangiblePlantMember",
+        },
+        "steam_production": {
+            "steam_production",
+            "ferc:SteamProductionPlantMember",
+        },
+        "nuclear_production": {
+            "nuclear_production",
+            "ferc:NuclearProductionPlantMember",
+        },
+        "hydraulic_production_conventional": {
+            "hydraulic_production_conventional",
+            "ferc:HydraulicProductionPlantConventionalMember",
+        },
+        "hydraulic_production_pumped_storage": {
+            "hydraulic_production_pumped_storage",
+            "ferc:HydraulicProductionPlantPumpedStorageMember",
+        },
+        "other_production": {
+            "other_production",
+            "ferc:OtherProductionPlantMember",
+        },
+        "transmission": {
+            "transmission",
+            "ferc:TransmissionPlantMember",
+        },
+        "distribution": {
+            "distribution",
+            "ferc:DistributionPlantMember",
+        },
+        "regional_transmission_and_market_operation": {
+            "regional_transmission_and_market_operation",
+            "ferc:RegionalTransmissionAndMarketOperationMember",
+        },
+        "general": {
+            "general",
+            "ferc:GeneralPlantMember",
+        },
+        "common_plant_electric": {
+            "common_plant_electric",
+            "ferc:CommonPlantElectricMember",
+        },
+        "total": {"total"},
+    }
+}
+
+UTILITY_TYPE_CATEGORIES = {
+    "categories": {
+        "electric": {"electric", "ferc:ElectricUtilityMember"},
+        "gas": {"gas", "ferc:GasUtilityMember"},
+        "common": {"common", "ferc:CommonUtilityMember"},
+    }
+}
+
+PLANT_STATUS = {
+    "categories": {
+        "in_service": {
+            "in_service",
+            "ferc:ElectricPlantInServiceMember",
+        },
+        "future": {
+            "future",
+            "ferc:ElectricPlantHeldForFutureUseMember",
+        },
+        "leased": {
+            "leased",
+            "ferc:ElectricPlantLeasedToOthersMember",
+        },
+        "total": {
+            "total",
+        },
+    }
+}
+
 FUEL_CATEGORIES: dict[str, set[str]] = {
     "categories": {
         "coal": {
@@ -1676,7 +1754,6 @@ in the context of a hydro plant means that it is conventional hydro-electric. In
 context of the steam table, however, it's unclear what conventional means.
 """
 
-
 CONSTRUCTION_TYPE_CATEGORIES: dict[str, set[str]] = {
     "categories": {
         "outdoor": {
@@ -2854,7 +2931,7 @@ TRANSFORM_PARAMS = {
             }
         ],
     },
-    "transmission_ferc1": {
+    "transmission_statistics_ferc1": {
         "rename_columns_ferc1": {
             "dbf": {
                 "columns": {
@@ -3195,14 +3272,12 @@ TRANSFORM_PARAMS = {
         "align_row_numbers_dbf": {"dbf_table_names": ["f1_utltyplnt_smmry"]},
         "categorize_strings": {
             "utility_type": {
-                "categories": {
-                    "total": ["total"],
-                    "electric": ["electric", "ferc:ElectricUtilityMember"],
-                    "gas": ["gas", "ferc:GasUtilityMember"],
-                    "common": ["common", "ferc:CommonUtilityMember"],
-                    "other1": ["other1", "ferc:OtherUtilityMember"],
-                    "other2": ["other2", "ferc:OtherUtility2Member"],
-                    "other3": ["other3", "ferc:OtherUtility3Member"],
+                "categories": UTILITY_TYPE_CATEGORIES["categories"]
+                | {
+                    "total": {"total"},
+                    "other1": {"other1", "ferc:OtherUtilityMember"},
+                    "other2": {"other2", "ferc:OtherUtility2Member"},
+                    "other3": {"other3", "ferc:OtherUtility3Member"},
                 }
             },
         },
@@ -3323,7 +3398,7 @@ TRANSFORM_PARAMS = {
                     "limterm_elc_plnt": "amortization_limited_term_electric_plant_depreciation_amortization_value",
                     "othr_elc_plnt": "amortization_other_electric_plant_depreciation_amortization_value",
                     "total": "depreciation_amortization_total_depreciation_amortization_value",
-                    "xbrl_factoid": "functional_classification",
+                    "xbrl_factoid": "plant_function",
                     "report_prd": "report_prd",
                 }
             },
@@ -3336,7 +3411,7 @@ TRANSFORM_PARAMS = {
             },
             "duration_xbrl": {
                 "columns": {
-                    "functional_classification_axis": "functional_classification",
+                    "functional_classification_axis": "plant_function",
                     "depreciation_expense_excluding_amortization_of_acquisition_adjustments": "depreciation_expense_depreciation_amortization_value",
                     "depreciation_expense_for_asset_retirement_costs_excluding_amortizationg_of_acquisition_adjustments": "depreciation_expense_asset_retirement_depreciation_amortization_value",
                     "amortization_of_limited_term_plant_or_property": "amortization_limited_term_electric_plant_depreciation_amortization_value",
@@ -3347,7 +3422,7 @@ TRANSFORM_PARAMS = {
         },
         "wide_to_tidy": {
             "xbrl": {
-                "idx_cols": ["entity_id", "report_year", "functional_classification"],
+                "idx_cols": ["entity_id", "report_year", "plant_function"],
                 "value_types": [
                     "depreciation_amortization_value",
                 ],
@@ -3359,42 +3434,214 @@ TRANSFORM_PARAMS = {
                     "report_year",
                     "record_id",
                     "utility_id_ferc1",
-                    "functional_classification",
+                    "plant_function",
                 ],
                 "value_types": ["depreciation_amortization_value"],
                 "expected_drop_cols": 1,
                 "stacked_column_name": "ferc_account_label",
             },
         },
-        "categorize_strings": {
-            "functional_classification": {
-                "categories": {
-                    "total": ["total"],
-                    "intangible_plant": ["ferc:IntangiblePlantMember"],
-                    "steam_production_plant": ["ferc:SteamProductionPlantMember"],
-                    "nuclear_production_plant": ["ferc:NuclearProductionPlantMember"],
-                    "hydraulic_production_plant_conventional": [
-                        "ferc:HydraulicProductionPlantConventionalMember"
-                    ],
-                    "hydraulic_production_plant_pumped_storage": [
-                        "ferc:HydraulicProductionPlantPumpedStorageMember"
-                    ],
-                    "other_production_plant": ["ferc:OtherProductionPlantMember"],
-                    "transmission_plant": ["ferc:TransmissionPlantMember"],
-                    "distribution_plant": ["ferc:DistributionPlantMember"],
-                    "regional_transmission_market_plant": [
-                        "ferc:RegionalTransmissionAndMarketOperationMember"
-                    ],
-                    "general_plant": ["ferc:GeneralPlantMember"],
-                    "common_plant_electric": ["ferc:CommonPlantElectricMember"],
-                }
-            },
-        },
+        "categorize_strings": {"plant_function": PLANT_FUNCTION_CATEGORIES},
         "align_row_numbers_dbf": {"dbf_table_names": ["f1_dacs_epda"]},
         "merge_xbrl_metadata": {
             "rename_columns": {"ferc_account_label": "ferc_account_label"},
             "on": "ferc_account_label",
         },
+    },
+    "electric_operating_revenues_ferc1": {
+        "rename_columns_ferc1": {
+            "duration_xbrl": {
+                "columns": {
+                    f"megawatt_hours_sold_{col}": f"{col}_sales_mwh"
+                    for col in [
+                        "residential_sales",
+                        "small_or_commercial",
+                        "large_or_industrial",
+                        "public_street_and_highway_lighting",
+                        "other_sales_to_public_authorities",
+                        "sales_to_railroads_and_railways",
+                        "interdepartmental_sales",
+                        "sales_to_ultimate_consumers",
+                        "sales_for_resale",
+                        "sales_of_electricity",
+                        "provision_for_rate_refunds",
+                        "revenues_net_of_provision_for_refunds",
+                    ]
+                }
+                | {
+                    f"average_number_of_customers_per_month_{col}": f"{col}_avg_customers_per_month"
+                    for col in [
+                        "residential_sales",
+                        "small_or_commercial",
+                        "large_or_industrial",
+                        "public_street_and_highway_lighting",
+                        "other_sales_to_public_authorities",
+                        "sales_to_railroads_and_railways",
+                        "interdepartmental_sales",
+                        "sales_to_ultimate_consumers",
+                        "sales_for_resale",
+                        "sales_of_electricity",
+                        "provision_for_rate_refunds",
+                        "revenues_net_of_provision_for_refunds",
+                    ]
+                }
+                | {
+                    col: f"{col}_electric_operating_revenue"
+                    for col in [
+                        "residential_sales",
+                        # Note: the small_or_commercial/large_or_industrial columns are already prefixed
+                        "public_street_and_highway_lighting",
+                        "other_sales_to_public_authorities",
+                        "sales_to_railroads_and_railways",
+                        "interdepartmental_sales",
+                        "sales_to_ultimate_consumers",
+                        "sales_for_resale",
+                        "sales_of_electricity",
+                        "provision_for_rate_refunds",
+                        "revenues_net_of_provision_for_refunds",
+                        "forfeited_discounts",
+                        "miscellaneous_service_revenues",
+                        "sales_of_water_and_water_power",
+                        "rent_from_electric_property",
+                        "interdepartmental_rents",
+                        "other_electric_revenue",
+                        "revenues_from_transmission_of_electricity_of_others",
+                        "regional_transmission_service_revenues",
+                        "miscellaneous_revenue",
+                        "other_miscellaneous_operating_revenues",
+                        "other_operating_revenues",
+                        "electric_operating_revenues",
+                    ]
+                }
+            },
+            "xbrl": {
+                "columns": {
+                    "entity_id": "utility_id_ferc1_xbrl",
+                    "report_year": "report_year",
+                    "electric_operating_revenue": "revenue",
+                }
+            },
+            "dbf": {
+                "columns": {
+                    "respondent_id": "utility_id_ferc1_dbf",
+                    "report_year": "report_year",
+                    "spplmnt_num": "spplmnt_num",
+                    "row_number": "row_number",
+                    "row_seq": "row_seq",
+                    "row_prvlg": "row_prvlg",
+                    "report_prd": "report_prd",
+                    "xbrl_factoid": "revenue_type",
+                    "rev_amt_crnt_yr": "amount",
+                    "mwh_sold_crnt_yr": "sales_mwh",
+                    "avg_cstmr_crntyr": "avg_customers_per_month",
+                }
+            },
+        },
+        "wide_to_tidy": {
+            "xbrl": {
+                "idx_cols": [
+                    "entity_id",
+                    "report_year",
+                ],
+                "value_types": [
+                    "electric_operating_revenue",
+                    "sales_mwh",
+                    "avg_customers_per_month",
+                ],
+                "expected_drop_cols": 2,
+                "stacked_column_name": "revenue_type",
+            },
+        },
+        "align_row_numbers_dbf": {"dbf_table_names": ["f1_elctrc_oper_rev"]},
+        "select_dbf_rows_by_category": {
+            "column_name": "revenue_type",
+            "select_by_xbrl_categories": True,
+            "len_expected_categories_to_drop": 4,
+        },
+        "merge_xbrl_metadata": {
+            "rename_columns": {"xbrl_factoid": "revenue_type"},
+            "on": "revenue_type",
+        },
+        "drop_invalid_rows": [
+            {
+                "invalid_values": [pd.NA, np.nan, ""],
+                "required_valid_cols": [
+                    "amount",
+                    "sales_mwh",
+                    "avg_customers_per_month",
+                ],
+            },
+        ],
+    },
+    "retained_earnings_ferc1": {
+        "rename_columns_ferc1": {
+            "duration_xbrl": {
+                "columns": {
+                    "retained_earnings_primary_contra_account_affected": "retained_earnings_contra_primary_account_affected"
+                }
+                | {
+                    col: f"{col}_contra_primary_account_affected"
+                    for col in [
+                        "adjustments_to_retained_earnings_debit",
+                        "balance_transferred_from_income",
+                        "appropriations_of_retained_earnings",
+                        "adjustments_to_retained_earnings_credit",
+                        "dividends_declared_common_stock",
+                        "dividends_declared_preferred_stock",
+                        "changes_unappropriated_undistributed_subsidiary_earnings_credits",
+                    ]
+                }
+            },
+            "xbrl": {
+                "columns": {
+                    "entity_id": "utility_id_ferc1_xbrl",
+                    "report_year": "report_year",
+                    "contra_primary_account_affected": "amount",
+                }
+            },
+            "dbf": {
+                "columns": {
+                    "respondent_id": "utility_id_ferc1_dbf",
+                    "report_year": "report_year",
+                    "spplmnt_num": "spplmnt_num",
+                    "row_number": "row_number",
+                    "row_seq": "row_seq",
+                    "row_prvlg": "row_prvlg",
+                    "report_prd": "report_prd",
+                    "xbrl_factoid": "earnings_type",
+                    "prev_balance": "starting_balance",
+                }
+            },
+        },
+        "wide_to_tidy": {
+            "xbrl": {
+                "idx_cols": [
+                    "entity_id",
+                    "report_year",
+                ],
+                "value_types": [
+                    "starting_balance",
+                    "ending_balance",
+                    "contra_primary_account_affected",
+                ],
+                "expected_drop_cols": 2,
+                "stacked_column_name": "earnings_type",
+            },
+        },
+        "align_row_numbers_dbf": {"dbf_table_names": ["f1_retained_erng"]},
+        "select_dbf_rows_by_category": {
+            "column_name": "earnings_type",
+            "select_by_xbrl_categories": True,
+            "len_expected_categories_to_drop": 6,
+        },
+        "unstack_balances_to_report_year_instant_xbrl": {
+            "unstack_balances_to_report_year": True
+        },
+        "merge_xbrl_metadata": {
+            "rename_columns": {"xbrl_factoid": "earnings_type"},
+            "on": "earnings_type",
+        },
+        "strip_non_numeric_values": {"amount": {"strip_non_numeric_values": True}},
     },
     "income_statement_ferc1": {
         "rename_columns_ferc1": {
@@ -3530,16 +3777,14 @@ TRANSFORM_PARAMS = {
         },
         "categorize_strings": {
             "utility_type": {
-                "categories": {
-                    "total": ["total"],
-                    "electric": ["electric", "ferc:ElectricUtilityMember"],
-                    "gas": ["gas", "ferc:GasUtilityMember"],
-                    "common": ["common", "ferc:CommonUtilityMember"],
-                    "other": ["other", "other_total", "ferc:OtherUtilityMember"],
-                    "other1": ["other1"],
-                    "other2": ["other2"],
-                    "other3": ["other3"],
-                    "other4": ["other4"],
+                "categories": UTILITY_TYPE_CATEGORIES["categories"]
+                | {
+                    "total": {"total"},
+                    "other": {"other", "other_total", "ferc:OtherUtilityMember"},
+                    "other1": {"other1"},
+                    "other2": {"other2"},
+                    "other3": {"other3"},
+                    "other4": {"other4"},
                 }
             },
         },
@@ -3553,6 +3798,531 @@ TRANSFORM_PARAMS = {
                 "required_valid_cols": ["income"],
             },
         ],
+    },
+    "electric_plant_depreciation_changes_ferc1": {
+        "rename_columns_ferc1": {
+            "dbf": {
+                "columns": {
+                    "respondent_id": "utility_id_ferc1_dbf",
+                    "report_year": "report_year",
+                    "spplmnt_num": "spplmnt_num",
+                    "row_number": "row_number",
+                    "row_seq": "row_seq",
+                    "row_prvlg": "row_prvlg",
+                    "report_prd": "report_prd",
+                    "total_cde": "total_utility_plant_value",
+                    "future_plant": "future_utility_plant_value",
+                    "leased_plant": "leased_utility_plant_value",
+                    "electric_plant": "in_service_utility_plant_value",
+                    "xbrl_factoid": "depreciation_type",
+                }
+            },
+            "instant_xbrl": {
+                "columns": {
+                    "accumulated_provision_for_depreciation_of_electric_utility_plant_ending_balance": "ending_balance_utility_plant_value",
+                    "accumulated_provision_for_depreciation_of_electric_utility_plant_starting_balance": "starting_balance_utility_plant_value",
+                }
+            },
+            "duration_xbrl": {
+                "columns": {
+                    xbrl_col: f"{xbrl_col}_utility_plant_value"
+                    for xbrl_col in [
+                        "book_cost_of_asset_retirement_costs",
+                        "book_cost_of_retired_plant",
+                        "cost_of_removal_of_plant",
+                        "depreciation_expense_excluding_adjustments",
+                        "depreciation_expense_for_asset_retirement_costs",
+                        "depreciation_provision",
+                        "expenses_of_electric_plant_leased_to_others",
+                        "net_charges_for_retired_plant",
+                        "other_accounts",
+                        "other_adjustments_to_accumulated_depreciation",
+                        "other_clearing_accounts",
+                        "salvage_value_of_retired_plant",
+                        "transportation_expenses_clearing",
+                    ]
+                }
+            },
+            "xbrl": {
+                "columns": {
+                    "entity_id": "utility_id_ferc1_xbrl",
+                    "report_year": "report_year",
+                    "electric_plant_classification_axis": "plant_status",
+                    "utility_type_axis": "utility_type",
+                }
+            },
+        },
+        "categorize_strings": {
+            "utility_type": UTILITY_TYPE_CATEGORIES,
+            "plant_status": PLANT_STATUS,
+        },
+        "align_row_numbers_dbf": {"dbf_table_names": ["f1_accumdepr_prvsn"]},
+        "wide_to_tidy": {
+            "dbf": {
+                "idx_cols": [
+                    "utility_id_ferc1",
+                    "report_year",
+                    "depreciation_type",
+                    "record_id",
+                ],
+                "value_types": ["utility_plant_value"],
+                "expected_drop_cols": 2,
+                "stacked_column_name": "plant_status",
+            },
+            "xbrl": {
+                "idx_cols": [
+                    "entity_id",
+                    "report_year",
+                    "electric_plant_classification_axis",
+                    "utility_type_axis",
+                ],
+                "value_types": ["utility_plant_value"],
+                "expected_drop_cols": 2,
+                "stacked_column_name": "depreciation_type",
+            },
+        },
+        "merge_xbrl_metadata": {
+            "rename_columns": {"xbrl_factoid": "depreciation_type"},
+            "on": "depreciation_type",
+        },
+        "select_dbf_rows_by_category": {
+            "column_name": "depreciation_type",
+            "select_by_xbrl_categories": True,
+            "len_expected_categories_to_drop": 12,
+        },
+        "unstack_balances_to_report_year_instant_xbrl": {
+            "unstack_balances_to_report_year": True
+        },
+    },
+    "electric_plant_depreciation_functional_ferc1": {
+        "rename_columns_ferc1": {
+            "dbf": {
+                "columns": {
+                    "respondent_id": "utility_id_ferc1_dbf",
+                    "report_year": "report_year",
+                    "spplmnt_num": "spplmnt_num",
+                    "row_number": "row_number",
+                    "row_seq": "row_seq",
+                    "row_prvlg": "row_prvlg",
+                    "report_prd": "report_prd",
+                    "total_cde": "total_utility_plant_value",
+                    "future_plant": "future_utility_plant_value",
+                    "leased_plant": "leased_utility_plant_value",
+                    "electric_plant": "in_service_utility_plant_value",
+                    "xbrl_factoid": "plant_function",
+                }
+            },
+            "instant_xbrl": {
+                "columns": {
+                    "accumulated_depreciation_steam_production_ending_balance": "steam_production_utility_plant_value",
+                    "accumulated_depreciation_nuclear_production_ending_balance": "nuclear_production_utility_plant_value",
+                    "accumulated_depreciation_hydraulic_production_conventional_ending_balance": "hydraulic_production_conventional_utility_plant_value",
+                    "accumulated_depreciation_hydraulic_production_pumped_storage_ending_balance": "hydraulic_production_pumped_storage_utility_plant_value",
+                    "accumulated_depreciation_other_production_ending_balance": "other_production_utility_plant_value",
+                    "accumulated_depreciation_transmission_ending_balance": "transmission_utility_plant_value",
+                    "accumulated_depreciation_distribution_ending_balance": "distribution_utility_plant_value",
+                    "accumulated_depreciation_general_ending_balance": "general_utility_plant_value",
+                    "accumulated_depreciation_regional_transmission_and_market_operation_ending_balance": "regional_transmission_and_market_operation_utility_plant_value",
+                    "accumulated_provision_for_depreciation_of_electric_utility_plant_ending_balance": "total_utility_plant_value",
+                }
+            },
+            "xbrl": {
+                "columns": {
+                    "entity_id": "utility_id_ferc1_xbrl",
+                    "report_year": "report_year",
+                    "electric_plant_classification_axis": "plant_status",
+                    "utility_type_axis": "utility_type",
+                }
+            },
+        },
+        "categorize_strings": {
+            "utility_type": UTILITY_TYPE_CATEGORIES,
+            "plant_status": PLANT_STATUS,
+            "plant_function": PLANT_FUNCTION_CATEGORIES,
+        },
+        "align_row_numbers_dbf": {"dbf_table_names": ["f1_accumdepr_prvsn"]},
+        "wide_to_tidy": {
+            "dbf": {
+                "idx_cols": [
+                    "utility_id_ferc1",
+                    "report_year",
+                    "plant_function",
+                    "record_id",
+                ],
+                "value_types": ["utility_plant_value"],
+                "expected_drop_cols": 2,
+                "stacked_column_name": "plant_status",
+            },
+            "xbrl": {
+                "idx_cols": [
+                    "entity_id",
+                    "report_year",
+                    "electric_plant_classification_axis",
+                    "utility_type_axis",
+                ],
+                "value_types": ["utility_plant_value"],
+                "expected_drop_cols": 10,
+                "stacked_column_name": "plant_function",
+            },
+        },
+        "merge_xbrl_metadata": {
+            "rename_columns": {"xbrl_factoid": "plant_function"},
+            "on": "plant_function",
+        },
+        "select_dbf_rows_by_category": {
+            "column_name": "plant_function",
+            "select_by_xbrl_categories": False,
+            "additional_categories": [
+                "distribution",
+                "general",
+                "hydraulic_production_conventional",
+                "hydraulic_production_pumped_storage",
+                "nuclear_production",
+                "other_production",
+                "regional_transmission_and_market_operation",
+                "steam_production",
+                "transmission",
+                "total",
+            ],
+            "len_expected_categories_to_drop": 17,
+        },
+        "unstack_balances_to_report_year_instant_xbrl": {
+            "unstack_balances_to_report_year": True
+        },
+    },
+    "cash_flow_ferc1": {
+        "rename_columns_ferc1": {
+            "instant_xbrl": {
+                "columns": {
+                    "cash_and_cash_equivalents_ending_balance": "ending_balance_amount",
+                    "cash_and_cash_equivalents_starting_balance": "starting_balance_amount",
+                }
+            },
+            "duration_xbrl": {
+                "columns": {
+                    xbrl_col: f"{xbrl_col}_amount"
+                    for xbrl_col in [
+                        "net_increase_decrease_in_allowances_held_for_speculation_investing_activities",
+                        "net_increase_decrease_in_other_regulatory_assets_operating_activities",
+                        "gross_additions_to_nonutility_plant_investing_activities",
+                        "net_increase_decrease_in_payables_and_accrued_expenses_operating_activities",
+                        "payments_for_retirement_of_common_stock_financing_activities",
+                        "depreciation_and_depletion",
+                        "proceeds_from_disposal_of_noncurrent_assets",
+                        "gross_additions_to_utility_plant_less_nuclear_fuel_investing_activities",
+                        "gross_additions_to_nuclear_fuel_investing_activities",
+                        "gross_additions_to_common_utility_plant_investing_activities",
+                        "net_increase_decrease_in_inventory_investing_activities",
+                        "net_increase_decrease_in_payables_and_accrued_expenses_investing_activities",
+                        "dividends_on_common_stock",
+                        "cash_provided_by_outside_sources",
+                        "noncash_adjustments_to_cash_flows_from_operating_activities",
+                        "cash_flows_provided_from_used_in_investment_activities",
+                        "dividends_on_preferred_stock",
+                        "net_increase_decrease_in_receivables_operating_activities",
+                        "other_retirements_of_balances_impacting_cash_flows_from_financing_activities",
+                        "other_adjustments_by_outside_sources_to_cash_flows_from_financing_activities",
+                        "other_adjustments_to_cash_flows_from_investment_activities",
+                        "net_increase_decrease_in_inventory_operating_activities",
+                        "other_adjustments_to_cash_flows_from_operating_activities",
+                        "collections_on_loans",
+                        "net_increase_decrease_in_other_regulatory_liabilities_operating_activities",
+                        "net_increase_decrease_in_allowances_inventory_operating_activities",
+                        "net_increase_decrease_in_cash_and_cash_equivalents_abstract",
+                        "net_cash_flow_from_operating_activities",
+                        "disposition_of_investments_in_and_advances_to_associated_and_subsidiary_companies_abstract",
+                        "proceeds_from_issuance_of_common_stock_financing_activities",
+                        "net_income_loss",
+                        "allowance_for_other_funds_used_during_construction_operating_activities",
+                        "payments_for_retirement_of_preferred_stock_financing_activities",
+                        "net_decrease_in_short_term_debt",
+                        "net_increase_decrease_in_receivables_investing_activities",
+                        "payments_for_retirement_abstract",
+                        "investment_tax_credit_adjustments_net",
+                        "acquisition_of_other_noncurrent_assets",
+                        "investments_in_and_advances_to_associated_and_subsidiary_companies",
+                        "undistributed_earnings_from_subsidiary_companies_operating_activities",
+                        "allowance_for_other_funds_used_during_construction_investing_activities",
+                        "other_adjustments_to_cash_flows_from_financing_activities",
+                        "proceeds_from_issuance_of_long_term_debt_financing_activities",
+                        "deferred_income_taxes_net",
+                        "loans_made_or_purchased",
+                        "proceeds_from_issuance_of_preferred_stock_financing_activities",
+                        "cash_outflows_for_plant",
+                        "contributions_and_advances_from_associated_and_subsidiary_companies",
+                        "disposition_of_investments_in_and_advances_to_associated_and_subsidiary_companies",
+                        "purchase_of_investment_securities",
+                        "cash_flows_provided_from_used_in_financing_activities",
+                        "proceeds_from_sales_of_investment_securities",
+                        "payments_for_retirement_of_long_term_debt_financing_activities",
+                        "net_increase_in_short_term_debt",
+                        "other_construction_and_acquisition_of_plant_investment_activities",
+                    ]
+                }
+            },
+            "xbrl": {
+                "columns": {
+                    "entity_id": "utility_id_ferc1_xbrl",
+                    "report_year": "report_year",
+                }
+            },
+            "dbf": {
+                "columns": {
+                    "respondent_id": "utility_id_ferc1_dbf",
+                    "report_year": "report_year",
+                    "report_prd": "report_prd",
+                    "row_prvlg": "row_prvlg",
+                    "row_number": "row_number",
+                    "row_seq": "row_seq",
+                    "spplmnt_num": "spplmnt_num",
+                    "xbrl_factoid": "amount_type",
+                    "amounts": "amount",
+                    "prev_amounts": "starting_balance",
+                }
+            },
+        },
+        "unstack_balances_to_report_year_instant_xbrl": {
+            "unstack_balances_to_report_year": True
+        },
+        "wide_to_tidy": {
+            "xbrl": {
+                "idx_cols": ["entity_id", "end_date", "start_date", "report_year"],
+                "value_types": ["amount"],
+                "stacked_column_name": "amount_type",
+            }
+        },
+        "align_row_numbers_dbf": {"dbf_table_names": ["f1_cash_flow"]},
+        "select_dbf_rows_by_category": {
+            "column_name": "amount_type",
+            "select_by_xbrl_categories": True,
+            "additional_categories": [
+                "net_increase_decrease_in_cash_and_cash_equivalents"
+            ],
+            "len_expected_categories_to_drop": 5,
+        },
+        "merge_xbrl_metadata": {
+            "rename_columns": {"xbrl_factoid": "amount_type"},
+            "on": "amount_type",
+        },
+    },
+    "electric_opex_ferc1": {
+        "rename_columns_ferc1": {
+            "dbf": {
+                "columns": {
+                    "respondent_id": "utility_id_ferc1_dbf",
+                    "report_year": "report_year",
+                    "report_prd": "report_prd",
+                    "row_prvlg": "row_prvlg",
+                    "row_number": "row_number",
+                    "row_seq": "row_seq",
+                    "spplmnt_num": "spplmnt_num",
+                    "crnt_yr_amt": "expense",
+                    "xbrl_factoid": "expense_type",
+                    "xbrl_factoid": "expense_type",
+                }
+            },
+            "xbrl": {
+                "columns": {
+                    "entity_id": "utility_id_ferc1_xbrl",
+                    "report_year": "report_year",
+                    "xbrl_factoid": "expense_type",
+                }
+            },
+            "duration_xbrl": {
+                "columns": {
+                    xbrl_col: f"{xbrl_col}_expense"
+                    for xbrl_col in [
+                        "administrative_and_general_expenses",
+                        "administrative_and_general_operation_expense",
+                        "administrative_and_general_salaries",
+                        "administrative_expenses_transferred_credit",
+                        "advertising_expenses",
+                        "allowances",
+                        "ancillary_services_market_administration",
+                        "capacity_market_administration",
+                        "coolants_and_water",
+                        "customer_account_expenses",
+                        "customer_assistance_expenses",
+                        "customer_installations_expenses",
+                        "customer_records_and_collection_expenses",
+                        "customer_service_and_information_expenses",
+                        "day_ahead_and_real_time_market_administration",
+                        "demonstrating_and_selling_expenses",
+                        "distribution_expenses",
+                        "distribution_maintenance_expense_electric",
+                        "distribution_operation_expenses_electric",
+                        "duplicate_charges_credit",
+                        "electric_expenses_hydraulic_power_generation",
+                        "electric_expenses_nuclear_power_generation",
+                        "electric_expenses_steam_power_generation",
+                        "employee_pensions_and_benefits",
+                        "franchise_requirements",
+                        "fuel",
+                        "fuel_steam_power_generation",
+                        "general_advertising_expenses",
+                        "generation_expenses",
+                        "generation_interconnection_studies",
+                        "hydraulic_expenses",
+                        "hydraulic_power_generation_maintenance_expense",
+                        "hydraulic_power_generation_operations_expense",
+                        "informational_and_instructional_advertising_expenses",
+                        "injuries_and_damages",
+                        "load_dispatch_monitor_and_operate_transmission_system",
+                        "load_dispatch_reliability",
+                        "load_dispatch_transmission_service_and_scheduling",
+                        "load_dispatching",
+                        "maintenance_of_boiler_plant_steam_power_generation",
+                        "maintenance_of_communication_equipment_electric_transmission",
+                        "maintenance_of_communication_equipment_regional_market_expenses",
+                        "maintenance_of_computer_hardware",
+                        "maintenance_of_computer_hardware_transmission",
+                        "maintenance_of_computer_software",
+                        "maintenance_of_computer_software_transmission",
+                        "maintenance_of_electric_plant_hydraulic_power_generation",
+                        "maintenance_of_electric_plant_nuclear_power_generation",
+                        "maintenance_of_electric_plant_steam_power_generation",
+                        "maintenance_of_energy_storage_equipment",
+                        "maintenance_of_energy_storage_equipment_other_power_generation",
+                        "maintenance_of_energy_storage_equipment_transmission",
+                        "maintenance_of_general_plant",
+                        "maintenance_of_generating_and_electric_plant",
+                        "maintenance_of_line_transformers",
+                        "maintenance_of_meters",
+                        "maintenance_of_miscellaneous_distribution_plant",
+                        "maintenance_of_miscellaneous_hydraulic_plant",
+                        "maintenance_of_miscellaneous_market_operation_plant",
+                        "maintenance_of_miscellaneous_nuclear_plant",
+                        "maintenance_of_miscellaneous_other_power_generation_plant",
+                        "maintenance_of_miscellaneous_regional_transmission_plant",
+                        "maintenance_of_miscellaneous_steam_plant",
+                        "maintenance_of_miscellaneous_transmission_plant",
+                        "maintenance_of_overhead_lines",
+                        "maintenance_of_overhead_lines_transmission",
+                        "maintenance_of_reactor_plant_equipment_nuclear_power_generation",
+                        "maintenance_of_reservoirs_dams_and_waterways",
+                        "maintenance_of_station_equipment",
+                        "maintenance_of_station_equipment_transmission",
+                        "maintenance_of_street_lighting_and_signal_systems",
+                        "maintenance_of_structures",
+                        "maintenance_of_structures_and_improvements_regional_market_expenses",
+                        "maintenance_of_structures_distribution_expense",
+                        "maintenance_of_structures_hydraulic_power_generation",
+                        "maintenance_of_structures_nuclear_power_generation",
+                        "maintenance_of_structures_steam_power_generation",
+                        "maintenance_of_structures_transmission_expense",
+                        "maintenance_of_underground_lines",
+                        "maintenance_of_underground_lines_transmission",
+                        "maintenance_supervision_and_engineering",
+                        "maintenance_supervision_and_engineering_electric_transmission_expenses",
+                        "maintenance_supervision_and_engineering_hydraulic_power_generation",
+                        "maintenance_supervision_and_engineering_nuclear_power_generation",
+                        "maintenance_supervision_and_engineering_other_power_generation",
+                        "maintenance_supervision_and_engineering_steam_power_generation",
+                        "market_facilitation_monitoring_and_compliance_services",
+                        "market_monitoring_and_compliance",
+                        "meter_expenses",
+                        "meter_reading_expenses",
+                        "miscellaneous_customer_accounts_expenses",
+                        "miscellaneous_customer_service_and_informational_expenses",
+                        "miscellaneous_distribution_expenses",
+                        "miscellaneous_general_expenses",
+                        "miscellaneous_hydraulic_power_generation_expenses",
+                        "miscellaneous_nuclear_power_expenses",
+                        "miscellaneous_other_power_generation_expenses",
+                        "miscellaneous_sales_expenses",
+                        "miscellaneous_steam_power_expenses",
+                        "miscellaneous_transmission_expenses",
+                        "nuclear_fuel_expense",
+                        "nuclear_power_generation_maintenance_expense",
+                        "nuclear_power_generation_operations_expense",
+                        "office_supplies_and_expenses",
+                        "operation_of_energy_storage_equipment",
+                        "operation_of_energy_storage_equipment_distribution",
+                        "operation_of_energy_storage_equipment_transmission_expense",
+                        "operation_supervision",
+                        "operation_supervision_and_engineering_distribution_expense",
+                        "operation_supervision_and_engineering_electric_transmission_expenses",
+                        "operation_supervision_and_engineering_hydraulic_power_generation",
+                        "operation_supervision_and_engineering_nuclear_power_generation",
+                        "operation_supervision_and_engineering_other_power_generation",
+                        "operation_supervision_and_engineering_steam_power_generation",
+                        "operations_and_maintenance_expenses_electric",
+                        "other_expenses_other_power_supply_expenses",
+                        "other_power_generation_maintenance_expense",
+                        "other_power_generation_operations_expense",
+                        "other_power_supply_expense",
+                        "outside_services_employed",
+                        "overhead_line_expense",
+                        "overhead_line_expenses",
+                        "power_production_expenses",
+                        "power_production_expenses_hydraulic_power",
+                        "power_production_expenses_nuclear_power",
+                        "power_production_expenses_other_power",
+                        "power_production_expenses_steam_power",
+                        "power_purchased_for_storage_operations",
+                        "property_insurance",
+                        "purchased_power",
+                        "regional_market_expenses",
+                        "regional_market_maintenance_expense",
+                        "regional_market_operation_expense",
+                        "regulatory_commission_expenses",
+                        "reliability_planning_and_standards_development",
+                        "reliability_planning_and_standards_development_services",
+                        "rents_administrative_and_general_expense",
+                        "rents_distribution_expense",
+                        "rents_hydraulic_power_generation",
+                        "rents_nuclear_power_generation",
+                        "rents_other_power_generation",
+                        "rents_regional_market_expenses",
+                        "rents_steam_power_generation",
+                        "rents_transmission_electric_expense",
+                        "sales_expenses",
+                        "scheduling_system_control_and_dispatch_services",
+                        "station_expenses_distribution",
+                        "station_expenses_transmission_expense",
+                        "steam_expenses_nuclear_power_generation",
+                        "steam_expenses_steam_power_generation",
+                        "steam_from_other_sources",
+                        "steam_from_other_sources_nuclear_power_generation",
+                        "steam_power_generation_maintenance_expense",
+                        "steam_power_generation_operations_expense",
+                        "steam_transferred_credit",
+                        "steam_transferred_credit_nuclear_power_generation",
+                        "street_lighting_and_signal_system_expenses",
+                        "supervision_customer_account_expenses",
+                        "supervision_customer_service_and_information_expenses",
+                        "supervision_sales_expense",
+                        "system_control_and_load_dispatching_electric",
+                        "transmission_expenses",
+                        "transmission_maintenance_expense_electric",
+                        "transmission_of_electricity_by_others",
+                        "transmission_operation_expense",
+                        "transmission_rights_market_administration",
+                        "transmission_service_studies",
+                        "uncollectible_accounts",
+                        "underground_line_expenses",
+                        "underground_line_expenses_transmission_expense",
+                        "water_for_power",
+                    ]
+                }
+            },
+        },
+        "align_row_numbers_dbf": {"dbf_table_names": ["f1_elc_op_mnt_expn"]},
+        "wide_to_tidy": {
+            "xbrl": {
+                "idx_cols": ["entity_id", "end_date", "start_date", "report_year"],
+                "value_types": ["expense"],
+                "stacked_column_name": "xbrl_factoid",
+            }
+        },
+        "drop_duplicate_rows_dbf": {
+            "data_columns": ["expense"],
+            "table_name": "electric_opex_ferc1",
+        },
+        "merge_xbrl_metadata": {
+            "rename_columns": {"xbrl_factoid": "expense_type"},
+            "on": "expense_type",
+        },
     },
     "other_regulatory_liabilities_ferc1": {
         "rename_columns_ferc1": {
@@ -3597,15 +4367,6 @@ TRANSFORM_PARAMS = {
                 ],
             },
         ],
-        "drop_duplicate_rows_dbf": {
-            "data_columns": [
-                "ending_balance",
-                "starting_balance",
-                "increase_in_other_regulatory_liabilities",
-                "decrease_in_other_regulatory_liabilities",
-            ],
-            "table_name": "other_regulatory_liabilities_ferc1",
-        },
     },
 }
 

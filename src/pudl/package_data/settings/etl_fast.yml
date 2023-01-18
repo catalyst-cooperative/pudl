@@ -20,11 +20,16 @@ ferc_to_sqlite_settings:
       - f1_elctrc_erg_acct
       - f1_utltyplnt_smmry
       - f1_xmssn_line
+      - f1_elc_op_mnt_expn
       - f1_bal_sheet_cr
       - f1_comp_balance_db
       - f1_income_stmnt
       - f1_incm_stmnt_2
       - f1_dacs_epda
+      - f1_accumdepr_prvsn
+      - f1_retained_erng
+      - f1_elctrc_oper_rev
+      - f1_cash_flow
       - f1_othr_reg_liab
 
   ferc1_xbrl_to_sqlite_settings:
@@ -62,6 +67,18 @@ ferc_to_sqlite_settings:
       - statement_of_income_114_instant
       - summary_of_depreciation_and_amortization_charges_section_a_336_duration
       - summary_of_depreciation_and_amortization_charges_section_a_336_instant
+      - accumulated_provision_for_depreciation_of_electric_utility_plant_changes_section_a_219_duration
+      - accumulated_provision_for_depreciation_of_electric_utility_plant_changes_section_a_219_instant
+      - accumulated_provision_for_depreciation_of_electric_utility_plant_functional_classification_section_b_219_duration
+      - accumulated_provision_for_depreciation_of_electric_utility_plant_functional_classification_section_b_219_instant
+      - electric_operations_and_maintenance_expenses_320_duration
+      - electric_operations_and_maintenance_expenses_320_instant
+      - retained_earnings_118_duration
+      - retained_earnings_118_instant
+      - electric_operating_revenues_300_duration
+      - electric_operating_revenues_300_instant
+      - statement_of_cash_flows_120_instant
+      - statement_of_cash_flows_120_duration
       - other_regulatory_liabilities_account_254_278_duration
       - other_regulatory_liabilities_account_254_278_instant
 
@@ -93,14 +110,20 @@ datasets:
       - plants_pumped_storage_ferc1
       - plant_in_service_ferc1
       - purchased_power_ferc1
-      - transmission_ferc1
+      - transmission_statistics_ferc1
       - electric_energy_sources_ferc1
       - electric_energy_dispositions_ferc1
+      - electric_opex_ferc1
       - utility_plant_summary_ferc1
       - balance_sheet_liabilities_ferc1
       - depreciation_amortization_summary_ferc1
       - balance_sheet_assets_ferc1
       - income_statement_ferc1
+      - electric_plant_depreciation_changes_ferc1
+      - electric_plant_depreciation_functional_ferc1
+      - retained_earnings_ferc1
+      - electric_operating_revenues_ferc1
+      - cash_flow_ferc1
       - other_regulatory_liabilities_ferc1
     years: [2020, 2021]
   eia:
