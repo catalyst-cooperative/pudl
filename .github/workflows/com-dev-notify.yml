@@ -39,7 +39,7 @@ jobs:
           # See also: https://api.slack.com/methods/chat.postMessage#channels
           # You can pass in multiple channels to post to by providing a comma-delimited list of channel IDs.
           channel-id: "community-dev"
-          # For posting a simple plain text message
+          # For posting a markdown message
           payload: |
             {
               "blocks": [
