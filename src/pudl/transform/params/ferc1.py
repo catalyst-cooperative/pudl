@@ -4353,8 +4353,12 @@ TRANSFORM_PARAMS = {
                     "other_regulatory_liabilities_description_of_credited_account_number_for_debit_adjustment": "debits_account_credited",
                     "other_regulatory_liabilities_ending_balance": "ending_balance",
                     "other_regulatory_liabilities_starting_balance": "starting_balance",
+                    "other_regulatory_liability_axis": "other_regulatory_liability_axis",
                 }
             },
+        },
+        "unstack_balances_to_report_year_instant_xbrl": {
+            "unstack_balances_to_report_year": True,
         },
         "drop_invalid_rows": [
             {
