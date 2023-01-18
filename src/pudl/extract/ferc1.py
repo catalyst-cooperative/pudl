@@ -883,7 +883,7 @@ def extract_xbrl_generic(
             "min_year": min(ferc1_settings.xbrl_years),
             "max_year": max(ferc1_settings.xbrl_years),
         },
-    )
+    ).assign(sched_table_name=table_name)
 
 
 def extract_dbf_generic(
@@ -906,7 +906,7 @@ def extract_dbf_generic(
             "min_year": min(ferc1_settings.dbf_years),
             "max_year": max(ferc1_settings.dbf_years),
         },
-    )
+    ).assign(sched_table_name=table_name)
 
 
 def extract_xbrl_concat(
@@ -941,7 +941,7 @@ def extract_xbrl_concat(
                 ferc1_engine=sa.create_engine(pudl_settings["ferc1_xbrl_db"]),
                 ferc1_settings=ferc1_settings,
                 table_name=f"{raw_table_name}_{period}",
-            ).assign(sched_table_name=raw_table_name)
+            )
         )
 
     combined_table = pd.concat(tables)
@@ -982,7 +982,7 @@ def extract_dbf_concat(
                 ferc1_engine=sa.create_engine(pudl_settings["ferc1_db"]),
                 ferc1_settings=ferc1_settings,
                 table_name=raw_table_name,
-            ).assign(sched_table_name=raw_table_name)
+            )
         )
     combined_table = pd.concat(tables)
     if combined_table.empty:
