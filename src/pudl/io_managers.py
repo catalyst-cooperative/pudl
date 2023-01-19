@@ -554,7 +554,7 @@ class PandasParquetIOManager(UPathIOManager):
     def load_from_path(self, context: InputContext, path: UPath) -> pd.DataFrame:
         """Load a directory of parquet files to a dask dataframe."""
         return dd.read_parquet(
-            path,
+            path.parent,
             use_nullable_dtypes=True,
             engine="pyarrow",
             index=False,
@@ -578,5 +578,7 @@ def epacems_io_manager(
 ) -> PandasParquetIOManager:
     """IO Manager that writes EPA CEMS partitions to individual parquet files."""
     schema = Resource.from_id("hourly_emissions_epacems").to_pyarrow()
-    base_path = UPath(init_context.resource_config["base_path"])
+    base_path = (
+        UPath(init_context.resource_config["base_path"]) / "hourly_emissions_epacems"
+    )
     return PandasParquetIOManager(base_path=base_path, schema=schema)

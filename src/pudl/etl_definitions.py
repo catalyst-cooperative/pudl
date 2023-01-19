@@ -64,21 +64,22 @@ def hourly_emissions_epacems(
 
     schema = Resource.from_id("hourly_emissions_epacems").to_pyarrow()
     epacems_path = (
-        Path(context.op_config["pudl_output_path"]) / "hourly_emissions_epacems.parquet"
+        Path(context.op_config["pudl_output_path"]) / "hourly_emissions_epacems"
     )
+    epacems_path.mkdir(exist_ok=True)
 
-    with pq.ParquetWriter(
-        where=str(epacems_path),
-        schema=schema,
-        compression="snappy",
-        version="2.6",
-    ) as pqwriter:
-        for part in epacems_settings.partitions:
-            year = part["year"]
-            state = part["state"]
-            logger.info(f"Processing EPA CEMS hourly data for {year}-{state}")
-            df = pudl.extract.epacems.extract(year=year, state=state, ds=ds)
-            df = pudl.transform.epacems.transform(df, epacamd_eia, timezones)
+    for part in epacems_settings.partitions:
+        year = part["year"]
+        state = part["state"]
+        logger.info(f"Processing EPA CEMS hourly data for {year}-{state}")
+        df = pudl.extract.epacems.extract(year=year, state=state, ds=ds)
+        df = pudl.transform.epacems.transform(df, epacamd_eia, timezones)
+        with pq.ParquetWriter(
+            where=epacems_path / f"epacems-{year}-{state}.parquet",
+            schema=schema,
+            compression="snappy",
+            version="2.6",
+        ) as pqwriter:
             pqwriter.write_table(
                 pa.Table.from_pandas(df, schema=schema, preserve_index=False)
             )
