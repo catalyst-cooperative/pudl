@@ -17,6 +17,5 @@ from . import (  # noqa: F401
     epacems,
     ferc1,
     ferc714,
-    output_assets,
     pudltabl,
 )
