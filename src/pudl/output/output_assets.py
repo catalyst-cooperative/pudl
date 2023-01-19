@@ -1,5 +1,9 @@
 """Output table assets."""
-from dagster import asset
+from dagster import AssetIn, asset
+
+import pudl
+
+logger = pudl.logging_helpers.get_logger(__name__)
 
 
 # TODO (bendnorman): We could also save the SQL code in sql files so we can
@@ -36,3 +40,17 @@ def utility_analysis(utils_eia860):
     """
     # Do some analysis on utils_eia860
     return utils_eia860
+
+
+@asset(
+    io_manager_key="pudl_sqlite_io_manager",
+    ins={
+        "hourly_emissions_epacems": AssetIn(input_manager_key="epacems_io_manager"),
+    },
+    compute_kind="Python",
+)
+def epacems_output(hourly_emissions_epacems):
+    """Example of how to create an asset that depends on CEMS."""
+    p_df = hourly_emissions_epacems[["state", "year"]].drop_duplicates().compute()
+    logger.info(p_df)
+    return p_df

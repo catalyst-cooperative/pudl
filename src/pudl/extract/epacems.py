@@ -155,16 +155,17 @@ class EpaCemsDatastore:
         ).rename(columns=RENAME_DICT)
 
 
-def extract(partition: EpaCemsPartition, ds: EpaCemsDatastore):
+def extract(year: int, state: str, ds: Datastore):
     """Coordinate the extraction of EPA CEMS hourly DataFrames.
 
     Args:
         year: report year of the data to extract
+        state: report state of the data to extract
         ds: Initialized datastore
-
     Yields:
         pandas.DataFrame: A single state-year of EPA CEMS hourly emissions data.
     """
-    # TODO (bendnorman): am I treating this extra year param correctly?
+    ds = EpaCemsDatastore(ds)
+    partition = EpaCemsPartition(state=state, year=year)
     # We have to assign the reporting year for partitioning purposes
-    return ds.get_data_frame(partition).assign(year=partition.year)
+    return ds.get_data_frame(partition).assign(year=year)

@@ -5,7 +5,6 @@ from sqlite3 import sqlite_version
 import dask.dataframe as dd
 import pandas as pd
 import pyarrow as pa
-import pyarrow.parquet as pq
 import sqlalchemy as sa
 from dagster import (
     Field,
@@ -550,20 +549,12 @@ class PandasParquetIOManager(UPathIOManager):
 
     def dump_to_path(self, context: OutputContext, obj: pd.DataFrame, path: UPath):
         """Write dataframe to parquet file."""
-        with pq.ParquetWriter(
-            where=str(path),
-            schema=self.schema,
-            compression="snappy",
-            version="2.6",
-        ) as pqwriter:
-            pqwriter.write_table(
-                pa.Table.from_pandas(obj, schema=self.schema, preserve_index=False)
-            )
+        raise NotImplementedError("This IO Manager doesn't support writing data.")
 
     def load_from_path(self, context: InputContext, path: UPath) -> pd.DataFrame:
         """Load a directory of parquet files to a dask dataframe."""
         return dd.read_parquet(
-            path.parent,
+            path,
             use_nullable_dtypes=True,
             engine="pyarrow",
             index=False,
