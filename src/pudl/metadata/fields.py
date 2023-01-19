@@ -368,7 +368,7 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "type": "string",
         "description": "Geodetic coordinate system identifier (e.g. NAD27, NAD83, or WGS84).",
     },
-    "debits_account_credited": {
+    "account_detail": {
         "type": "string",
         "description": "Description of the account number credited from making debit adjustment to other regulatory liabilities.",
     },

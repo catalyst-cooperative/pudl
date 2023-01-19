@@ -296,7 +296,7 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
                 "ending_balance",
                 "starting_balance",
                 "increase_in_other_regulatory_liabilities",
-                "debits_account_credited",
+                "account_detail",
                 "decrease_in_other_regulatory_liabilities",
             ],
         },
