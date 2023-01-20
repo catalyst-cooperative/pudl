@@ -1196,7 +1196,9 @@ class PudlTabl:
         if update_any or self._dfs["ferc1_eia"] is None:
             self._dfs["ferc1_eia"] = pudl.analysis.ferc1_eia.execute(
                 pudl_out=self,
-                plant_parts_eia=self.plant_parts_eia(update=update_plant_parts_eia),
+                plant_parts_eia_distinct=pudl.analysis.plant_parts_eia.plant_parts_eia_distinct(
+                    self.plant_parts_eia(update=update_plant_parts_eia)
+                ),
             )
         return self._dfs["ferc1_eia"]
 

@@ -214,9 +214,16 @@ def test_ferc714_respondents_georef_counties(ferc714_out):
     assert not ferc714_gdf.empty, "ferc714_gdf is empty!"
 
 
-def test_plant_parts_eia_filled(fast_out_annual):
-    """Ensure the EIA plant-parts list can be generated."""
-    fast_out_annual.plant_parts_eia()
+@pytest.mark.parametrize(
+    "df_name",
+    ["plant_parts_eia", "ferc1_eia"],
+)
+def test_annual_only_outputs(fast_out_annual, df_name):
+    """Check that output methods that only operate with an ``AS`` frequency."""
+    logger.info(f"Running fast_out_annual.{df_name}()")
+    df = fast_out_annual.__getattribute__(df_name)()
+    logger.info(f"Found {len(df)} rows in {df_name}")
+    assert not df.empty
 
 
 @pytest.fixture(scope="module")

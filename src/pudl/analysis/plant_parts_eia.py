@@ -341,7 +341,7 @@ PPE_COLS = [
     "plant_part",
     "report_year",
     "report_date",
-    "ownership",
+    "ownership_record_type",
     "plant_name_eia",
     "plant_id_eia",
     "generator_id",
@@ -1592,18 +1592,38 @@ def match_to_single_plant_part(
     return out_df
 
 
-def reassign_id_ownership_dupes(plant_parts_eia):
+def plant_parts_eia_distinct(plant_parts_eia: pd.DataFrame) -> pd.DataFrame:
+    """Get the EIA plant_parts with only the unique granularities.
+
+    Read in the pickled dataframe or generate it from the full PPE. Get only
+    the records of the PPE that are "true granularities" and those which are not
+    duplicates based on their ownership so the FERC to EIA matching model
+    doesn't get confused as to which option to pick if there are many records
+    with duplicate data.
+
+    Arguments:
+        plant_parts_eia: EIA plant parts table.
     """
-    Reassign the record_id for the records that are labeled ownership_dupe.
+    plant_parts_eia = plant_parts_eia.assign(
+        plant_id_report_year_util_id=lambda x: x.plant_id_report_year
+        + "_"
+        + x.utility_id_pudl.map(str)
+    ).astype({"installation_year": "float"})
+    distinct_ppe = plant_parts_eia[
+        (plant_parts_eia["true_gran"]) & (~plant_parts_eia["ownership_dupe"])
+    ]
+    if distinct_ppe.index.name != "record_id_eia":
+        logger.error("Plant parts list index is not record_id_eia.")
+    return distinct_ppe
+
+
+def reassign_id_ownership_dupes(plant_parts_eia: pd.DataFrame) -> pd.DataFrame:
+    """Reassign the record_id for the records that are labeled ownership_dupe.
 
     This function is used after the EIA plant-parts table is created.
 
     Args:
-        plant_parts_eia (pandas.DataFrame): master unit list. Result of
-            ``generate_master_unit_list()`` or ``get_master_unit_list_eia()``.
-            Must have boolean column ``ownership_dupe`` and string column or
-            index of ``record_id_eia``.
-
+        plant_parts_eia: EIA plant parts table.
     """
     # the record_id_eia's need to be a column to mess with it and record_id_eia
     # is typically the index of plant_parts_df, so we are going to reset index
