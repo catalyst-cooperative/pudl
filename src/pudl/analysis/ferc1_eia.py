@@ -34,6 +34,7 @@ import importlib.resources
 import statistics
 import warnings
 from copy import deepcopy
+from typing import Literal
 
 import numpy as np
 import pandas as pd
@@ -53,16 +54,26 @@ IDX_STEAM = ["utility_id_ferc1", "plant_id_ferc1", "report_date"]
 
 
 def execute(
-    pudl_out: "pudl.output.pudltabl.PudlTabl", plant_parts_eia_distinct: pd.DataFrame
+    plants_all_ferc1: pd.DataFrame,
+    fbp_ferc1: pd.DataFrame,
+    plant_parts_eia: pd.DataFrame,
 ) -> pd.DataFrame:
     """Coordinate the connection between FERC1 plants and EIA plant-parts.
 
     Args:
-        pudl_out (object): instance of `pudl.output.pudltabl.PudlTabl()`
-        plant_parts_eia_distinct: The EIA plant parts list
-            with only true granularity records included.
+        plants_all_ferc1: Table of all of the FERC1-reporting plants.
+        fbp_ferc1: Table of the fuel reported aggregated to the FERC1 plant-level.
+        plant_parts_eia: The EIA plant parts list.
     """
-    inputs = InputManager(pudl_out, plant_parts_eia_distinct)
+    # wanted to pass in the start/end date from pudl_out, but when you have a db w/
+    # restricted years, the start/end date don't correspong. Used EIA dates bc omigosh
+    # the ferc output tables are not actually being masked for start/end date (will be
+    # fixed in dagster/views transtion)
+    start_date = min(plant_parts_eia.report_year)
+    end_date = max(plant_parts_eia.report_year)
+    inputs = InputManager(
+        plants_all_ferc1, fbp_ferc1, plant_parts_eia, start_date, end_date
+    )
     features_all = Features(feature_type="all", inputs=inputs).get_features(
         clobber=False
     )
@@ -81,7 +92,9 @@ def execute(
     # add capex (this should be moved into pudl_out.plants_steam_ferc1)
     connects_ferc1_eia = calc_annual_capital_additions_ferc1(connects_ferc1_eia)
     # Override specified record_id_ferc1 values with NA record_id_eia
-    connects_ferc1_eia = add_null_overrides(connects_ferc1_eia)
+    connects_ferc1_eia = add_null_overrides(
+        connects_ferc1_eia, start_date=start_date, end_date=end_date
+    )
 
     return connects_ferc1_eia
 
@@ -91,20 +104,30 @@ class InputManager:
 
     def __init__(
         self,
-        pudl_out: "pudl.output.pudltabl.PudlTabl",
-        plant_parts_eia_distinct: pd.DataFrame,
+        plants_all_ferc1: pd.DataFrame,
+        fbp_ferc1: pd.DataFrame,
+        plant_parts_eia: pd.DataFrame,
+        start_date,
+        end_date,
     ):
         """Initialize inputs manager that gets inputs for linking FERC and EIA.
 
         Args:
-            pudl_out: instance of `pudl.output.pudltabl.PudlTabl()`.
-            plant_parts_eia_distinct: Distinct EIA plant parts.
+            plants_all_ferc1: Table of all of the FERC1-reporting plants.
+            fbp_ferc1: Table of the fuel reported aggregated to the FERC1 plant-level.
+            plant_parts_eia: The EIA plant parts list.
+            start_date: Start date that cooresponds to the tables passed in.
+            end_date: End date that cooresponds to the tables passed in.
         """
-        self.pudl_out = pudl_out
-        self.plant_parts_true_df = plant_parts_eia_distinct
+        self.plant_parts_eia = plant_parts_eia
+        self.plants_all_ferc1 = plants_all_ferc1
+        self.fbp_ferc1 = fbp_ferc1
+        self.start_date = start_date
+        self.end_date = end_date
 
         # generate empty versions of the inputs.. this let's this class check
         # whether or not the compiled inputs exist before compilnig
+        self.plant_parts_true_df = None
         self.plants_ferc1_df = None
         self.train_df = None
         self.train_index = None
@@ -119,16 +142,19 @@ class InputManager:
     def get_plant_parts_true(self, clobber=False):
         """Get the EIA plant-parts with only the unique granularities."""
         if self.plant_parts_true_df is None or clobber:
-            self.plant_parts_true_df = self.plant_parts_true_df
+            self.plant_parts_true_df = (
+                pudl.analysis.plant_parts_eia.plant_parts_eia_distinct(
+                    self.plant_parts_eia
+                )
+            )
         return self.plant_parts_true_df
 
     def get_all_ferc1(self, clobber=False):
         """Prepare FERC1 plants data for record linkage with EIA plant-parts.
 
-        This method grabs two tables from `pudl_out` (`plants_all_ferc1`
-        and `fuel_by_plant_ferc1`) and ensures that the columns the same as
-        their EIA counterparts, because the output of this method will be used
-        to link FERC and EIA.
+        This method grabs two tables from (`plants_all_ferc1` and `fuel_by_plant_ferc1`)
+        and ensures that the columns the same as their EIA counterparts, because the
+        output of this method will be used to link FERC and EIA.
 
         Returns:
             pandas.DataFrame: a cleaned table of FERC1 plants plant records
@@ -147,9 +173,8 @@ class InputManager:
 
             logger.info("Preparing the FERC1 tables.")
             self.plants_ferc1_df = (
-                self.pudl_out.plants_all_ferc1()
-                .merge(
-                    self.pudl_out.fbp_ferc1()[fbp_cols_to_use],
+                self.plants_all_ferc1.merge(
+                    self.fbp_ferc1[fbp_cols_to_use],
                     on=[
                         "report_year",
                         "utility_id_ferc1",
@@ -193,9 +218,9 @@ class InputManager:
         """
         if self.train_df is None:
             self.train_df = prep_train_connections(
-                ppe=self.pudl_out.plant_parts_eia(),
-                start_date=self.pudl_out.start_date,
-                end_date=self.pudl_out.end_date,
+                ppe=self.plant_parts_eia,
+                start_date=self.start_date,
+                end_date=self.end_date,
             )
         return self.train_df
 
@@ -270,7 +295,7 @@ class Features:
         Args:
             feature_type (string): either 'training' or 'all'. Type of features
                 to compile.
-            inputs (instance of class): instance of ``Inputs``
+            inputs (instance of class): instance of :class:`Inputs`
         """
         self.inputs = inputs
         self.features_df = None
@@ -1002,7 +1027,30 @@ class MatchManager:
         return matches_best_df
 
 
-def prep_train_connections(ppe: pd.DataFrame, start_date, end_date):
+def restrict_train_connections_on_date_range(
+    train_df, id_col: Literal["record_id_eia", "record_id_ferc1"], start_date, end_date
+):
+    """Restrict the training data based on the date ranges of the input tables."""
+    # filter training data by year range
+    # first get list of all years to grab from training data
+    date_range_years_str = "|".join(
+        [
+            f"{year}"
+            for year in pd.date_range(start=start_date, end=end_date, freq="AS").year
+        ]
+    )
+    logger.info(f"Restricting training data on years: {date_range_years_str}")
+    train_df = train_df.assign(
+        year_in_date_range=lambda x: x[id_col].str.extract(
+            r"_{1}" + f"({date_range_years_str})" + "_{1}"
+        )
+    )
+    return train_df.loc[train_df.year_in_date_range.notnull()].copy()
+
+
+def prep_train_connections(
+    ppe: pd.DataFrame, start_date: pd.Timestamp, end_date: pd.Timestamp
+):
     """Get and prepare the training connections.
 
     We have stored training data, which consists of records with ids
@@ -1013,14 +1061,13 @@ def prep_train_connections(ppe: pd.DataFrame, start_date, end_date):
     machine learning model.
 
     Arguments:
-        ppe (pandas.DataFrame): The EIA plant parts. Records from this dataframe
-            will be connected to the training data records. This needs to be the full
-            EIA plant parts, not just the distinct/true granularities because the
-            training data could contain non-distinct records and this function reassigns
-            those to their distinct counterparts.
-        start_date (pd.Timestamp): Beginning date for records from the
-            training data. Should match the start date of `ppe`. Default
-            is None and all the training data will be used.
+        ppe: The EIA plant parts. Records from this dataframe will be connected to the
+            training data records. This needs to be the full EIA plant parts, not just
+            the distinct/true granularities because the training data could contain
+            non-distinct records and this function reassigns those to their distinct
+            counterparts.
+        start_date: Beginning date for records from the training data. Should match the
+            start date of `ppe`. Default is None and all the training data will be used.
         end_date (pd.Timestamp): Ending date for records from the
             training data. Should match the end date of `ppe`. Default is
             None and all the training data will be used.
@@ -1049,26 +1096,18 @@ def prep_train_connections(ppe: pd.DataFrame, start_date, end_date):
         )
         .pipe(pudl.helpers.cleanstrings_snake, ["record_id_eia"])
         .drop_duplicates(subset=["record_id_ferc1", "record_id_eia"])
-    )
-    # filter training data by year range
-    # first get list of all years to grab from training data
-    date_range_years_str = "|".join(
-        [
-            f"{year}"
-            for year in pd.date_range(start=start_date, end=end_date, freq="AS").year
-        ]
-    )
-    train_df = train_df.assign(
-        year_in_date_range=lambda x: x.record_id_eia.str.extract(
-            r"_{1}" + f"({date_range_years_str})" + "_{1}"
+        .pipe(
+            restrict_train_connections_on_date_range,
+            id_col="record_id_eia",
+            start_date=start_date,
+            end_date=end_date,
         )
-    )
-    train_df = train_df.loc[train_df.year_in_date_range.notnull()]
-    train_df = train_df.merge(
-        ppe[ppe_cols].reset_index(),
-        how="left",
-        on=["record_id_eia"],
-        indicator=True,
+        .merge(
+            ppe[ppe_cols].reset_index(),
+            how="left",
+            on=["record_id_eia"],
+            indicator=True,
+        )
     )
     not_in_ppe = train_df[train_df._merge == "left_only"]
     # if not not_in_ppe.empty:
@@ -1079,17 +1118,17 @@ def prep_train_connections(ppe: pd.DataFrame, start_date, end_date):
             f"{list(not_in_ppe.reset_index().record_id_ferc1)}"
         )
     train_df = (
-        train_df
-        # .assign(
-        #     plant_part=lambda x: x["appro_part_label"],
-        #     record_id_eia=lambda x: x["appro_record_id_eia"],
-        # )
-        #     .pipe(pudl.analysis.plant_parts_eia.reassign_id_ownership_dupes)
+        train_df.assign(
+            plant_part=lambda x: x["appro_part_label"],
+            record_id_eia=lambda x: x["appro_record_id_eia"],
+        )
+        .pipe(pudl.analysis.plant_parts_eia.reassign_id_ownership_dupes)
         .fillna(
             value={
                 "record_id_eia": pd.NA,
             }
-        ).set_index(  # recordlinkage and sklearn wants MultiIndexs to do the stuff
+        )
+        .set_index(  # recordlinkage and sklearn wants MultiIndexs to do the stuff
             [
                 "record_id_ferc1",
                 "record_id_eia",
@@ -1229,7 +1268,7 @@ def _log_match_coverage(connects_ferc1_eia):
         return r_eia_years[r_eia_years.record_id_ferc1.str.contains(f"{table_name}")]
 
     def _get_match_pct(df):
-        return round((len(df[df["record_id_eia"].notna()]) / len(df) * 100), 1)
+        return round(len(df[df["record_id_eia"].notna()]) / len(df))
 
     logger.info(
         "Coverage for matches during EIA working years:\n"
@@ -1436,7 +1475,7 @@ def add_mean_cap_additions(steam_df):
     return df
 
 
-def add_null_overrides(connects_ferc1_eia):
+def add_null_overrides(connects_ferc1_eia, start_date, end_date):
     """Override known null matches with pd.NA.
 
     There is no way to indicate in the training data that certain FERC records have no
@@ -1454,6 +1493,11 @@ def add_null_overrides(connects_ferc1_eia):
     # Get record_id_ferc1 values that should be overriden to have no EIA match
     null_overrides = pd.read_csv(
         importlib.resources.open_text("pudl.package_data.glue", "ferc1_eia_null.csv")
+    ).pipe(
+        restrict_train_connections_on_date_range,
+        id_col="record_id_ferc1",
+        start_date=start_date,
+        end_date=end_date,
     )
     # Make sure there is content!
     if null_overrides.empty:

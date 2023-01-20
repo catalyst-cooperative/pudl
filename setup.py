@@ -113,6 +113,7 @@ setup(
             "responses>=0.14,<0.23",
             "rstcheck[sphinx]>=5.0,<6.2",
             "tox>=3.20,<4.4",
+            "recordlinkage>=0.14,<0.16",
         ],
         "datasette": [
             "datasette>=0.60,<0.65",

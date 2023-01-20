@@ -126,9 +126,21 @@ def test_eia_outputs(fast_out, df1_name, df2_name, mult, kwargs):
     ],
 )
 def test_annual_eia_outputs(fast_out, df_name):
-    """Check that the annual EIA 1 output functions work."""
+    """Check that the EIA 1 output functions work."""
     logger.info(f"Running fast_out.{df_name}()")
     df = fast_out.__getattribute__(df_name)()
+    logger.info(f"Found {len(df)} rows in {df_name}")
+    assert not df.empty
+
+
+@pytest.mark.parametrize(
+    "df_name",
+    ["plant_parts_eia", "ferc1_eia"],
+)
+def test_annual_only_outputs(fast_out_annual, df_name):
+    """Check that output methods that only operate with an ``AS`` frequency."""
+    logger.info(f"Running fast_out_annual.{df_name}()")
+    df = fast_out_annual.__getattribute__(df_name)()
     logger.info(f"Found {len(df)} rows in {df_name}")
     assert not df.empty
 
@@ -212,18 +224,6 @@ def test_ferc714_respondents_georef_counties(ferc714_out):
     ferc714_gdf = ferc714_out.georef_counties()
     assert isinstance(ferc714_gdf, gpd.GeoDataFrame), "ferc714_gdf not a GeoDataFrame!"
     assert not ferc714_gdf.empty, "ferc714_gdf is empty!"
-
-
-@pytest.mark.parametrize(
-    "df_name",
-    ["plant_parts_eia", "ferc1_eia"],
-)
-def test_annual_only_outputs(fast_out_annual, df_name):
-    """Check that output methods that only operate with an ``AS`` frequency."""
-    logger.info(f"Running fast_out_annual.{df_name}()")
-    df = fast_out_annual.__getattribute__(df_name)()
-    logger.info(f"Found {len(df)} rows in {df_name}")
-    assert not df.empty
 
 
 @pytest.fixture(scope="module")
