@@ -80,7 +80,6 @@ from dagster import AssetKey, Field, SourceAsset, asset, op
 from dbfread import DBF, FieldParser
 
 import pudl
-from pudl.helpers import EnvVar
 from pudl.metadata.classes import DataSource
 from pudl.metadata.constants import DBF_TABLES_FILENAMES
 from pudl.settings import Ferc1DbfToSqliteSettings, Ferc1Settings
@@ -576,18 +575,11 @@ def get_raw_df(
 # TODO (bendnorman): set clobber default to False
 @op(
     config_schema={
-        "pudl_output_path": Field(
-            EnvVar(
-                env_var="PUDL_OUTPUT",
-            ),
-            description="Path of directory to store the database in.",
-            default_value=None,
-        ),
         "clobber": Field(
             bool, description="Clobber existing ferc1 database.", default_value=True
         ),
     },
-    required_resource_keys={"ferc_to_sqlite_settings", "datastore"},
+    required_resource_keys={"ferc_to_sqlite_settings", "datastore", "pudl_settings"},
 )
 def dbf2sqlite(context) -> None:
     """Clone the FERC Form 1 Visual FoxPro databases into SQLite."""
@@ -595,7 +587,7 @@ def dbf2sqlite(context) -> None:
         context.resources.ferc_to_sqlite_settings.ferc1_dbf_to_sqlite_settings
     )
     datastore = context.resources.datastore
-    db_path = str(Path(context.op_config["pudl_output_path"]) / "ferc1.sqlite")
+    db_path = str(Path(context.resources.pudl_settings["sqlite_dir"]) / "ferc1.sqlite")
     clobber = context.op_config["clobber"]
 
     # Read in the structure of the DB, if it exists
@@ -961,15 +953,7 @@ raw_ferc1_assets = create_raw_ferc1_assets()
 
 
 @asset(
-    config_schema={
-        "pudl_output_path": Field(
-            EnvVar(
-                env_var="PUDL_OUTPUT",
-            ),
-            description="Path of directory to store the database in.",
-            default_value=None,
-        ),
-    },
+    required_resource_keys={"pudl_settings"},
 )
 def xbrl_metadata_json(context) -> dict[str, dict[str, list[dict[str, Any]]]]:
     """Extract the FERC 1 XBRL Taxonomy metadata we've stored as JSON.
@@ -984,9 +968,10 @@ def xbrl_metadata_json(context) -> dict[str, dict[str, list[dict[str, Any]]]]:
         instead.
     """
     metadata_path = (
-        Path(context.op_config["pudl_output_path"])
+        Path(context.resources.pudl_settings["sqlite_dir"])
         / "ferc1_xbrl_taxonomy_metadata.json"
     )
+
     with open(metadata_path) as f:
         xbrl_meta_all = json.load(f)
 

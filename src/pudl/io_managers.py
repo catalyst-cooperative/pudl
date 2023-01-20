@@ -7,7 +7,6 @@ import pandas as pd
 import pyarrow as pa
 import sqlalchemy as sa
 from dagster import (
-    Field,
     InitResourceContext,
     InputContext,
     IOManager,
@@ -20,7 +19,6 @@ from sqlalchemy.exc import SQLAlchemyError
 from upath import UPath
 
 import pudl
-from pudl.helpers import EnvVar
 from pudl.metadata.classes import Package, Resource
 
 logger = pudl.logging_helpers.get_logger(__name__)
@@ -206,9 +204,10 @@ class SQLiteIOManager(IOManager):
         This method can be used in the test suite or a jupyter notebook for debugging.
 
             >>> from pudl.io_managers import pudl_sqlite_io_manager
+            >>> from pudl.resources import pudl_settings
             >>> from dagster import build_init_resource_context
             ...
-            >>> init_context = build_init_resource_context()
+            >>> init_context = build_init_resource_context(resources={"pudl_settings": pudl_settings})
             >>> manager = pudl_sqlite_io_manager(init_context)
             >>> manager.check_foreign_keys()
 
@@ -345,20 +344,10 @@ class SQLiteIOManager(IOManager):
             )
 
 
-@io_manager(
-    config_schema={
-        "pudl_output_path": Field(
-            EnvVar(
-                env_var="PUDL_OUTPUT",
-            ),
-            description="Path of directory to store the database in.",
-            default_value=None,
-        ),
-    }
-)
+@io_manager(required_resource_keys={"pudl_settings"})
 def pudl_sqlite_io_manager(init_context) -> SQLiteIOManager:
     """Create a SQLiteManager dagster resource for the pudl database."""
-    base_dir = init_context.resource_config["pudl_output_path"]
+    base_dir = init_context.resources.pudl_settings["sqlite_dir"]
     md = Package.from_resource_ids().to_sql()
     return SQLiteIOManager(base_dir=base_dir, db_name="pudl", md=md)
 
@@ -455,20 +444,11 @@ class FercDBFSQLiteIOManager(FercSQLiteIOManager):
 
 
 @io_manager(
-    config_schema={
-        "pudl_output_path": Field(
-            EnvVar(
-                env_var="PUDL_OUTPUT",
-            ),
-            description="Path of directory to store the database in.",
-            default_value=None,
-        ),
-    },
-    required_resource_keys={"dataset_settings"},
+    required_resource_keys={"dataset_settings", "pudl_settings"},
 )
 def ferc1_dbf_sqlite_io_manager(init_context) -> FercDBFSQLiteIOManager:
     """Create a SQLiteManager dagster resource for the ferc1 dbf database."""
-    base_dir = init_context.resource_config["pudl_output_path"]
+    base_dir = init_context.resources.pudl_settings["sqlite_dir"]
     return FercDBFSQLiteIOManager(
         base_dir=base_dir,
         db_name="ferc1",
@@ -525,20 +505,11 @@ class FercXBRLSQLiteIOManager(FercSQLiteIOManager):
 
 
 @io_manager(
-    config_schema={
-        "pudl_output_path": Field(
-            EnvVar(
-                env_var="PUDL_OUTPUT",
-            ),
-            description="Path of directory to store the database in.",
-            default_value=None,
-        ),
-    },
-    required_resource_keys={"dataset_settings"},
+    required_resource_keys={"dataset_settings", "pudl_settings"},
 )
 def ferc1_xbrl_sqlite_io_manager(init_context) -> FercXBRLSQLiteIOManager:
     """Create a SQLiteManager dagster resource for the ferc1 dbf database."""
-    base_dir = init_context.resource_config["pudl_output_path"]
+    base_dir = init_context.resources.pudl_settings["sqlite_dir"]
     return FercXBRLSQLiteIOManager(
         base_dir=base_dir,
         db_name="ferc1_xbrl",
@@ -571,15 +542,7 @@ class PandasParquetIOManager(UPathIOManager):
 
 
 @io_manager(
-    config_schema={
-        "base_path": Field(
-            EnvVar(
-                env_var="PUDL_OUTPUT",
-            ),
-            is_required=False,
-            default_value=None,
-        )
-    }
+    required_resource_keys={"pudl_settings"},
 )
 def epacems_io_manager(
     init_context: InitResourceContext,
@@ -587,6 +550,7 @@ def epacems_io_manager(
     """IO Manager that writes EPA CEMS partitions to individual parquet files."""
     schema = Resource.from_id("hourly_emissions_epacems").to_pyarrow()
     base_path = (
-        UPath(init_context.resource_config["base_path"]) / "hourly_emissions_epacems"
+        UPath(init_context.resources.pudl_settings["parquet_dir"])
+        / "hourly_emissions_epacems"
     )
     return PandasParquetIOManager(base_path=base_path, schema=schema)
