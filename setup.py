@@ -54,7 +54,7 @@ setup(
         "dask>=2021.8,<2023.1.1",
         "datapackage>=1.11,<1.16",  # Transition datastore to use frictionless.
         # "email-validator>=1.0.3",  # pydantic[email] dependency
-        "fsspec>=2021.7,<2022.11.1",  # For caching datastore on GCS
+        "fsspec>=2021.7,<2023.1.1",  # For caching datastore on GCS
         "gcsfs>=2021.7,<2022.11.1",  # For caching datastore on GCS
         "geopandas>=0.9,<0.13",
         "jinja2>=2,<3.2",
