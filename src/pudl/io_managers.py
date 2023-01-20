@@ -363,13 +363,19 @@ def pudl_sqlite_io_manager(init_context) -> SQLiteIOManager:
     return SQLiteIOManager(base_dir=base_dir, db_name="pudl", md=md)
 
 
-class Ferc1DBFSQLiteIOManager(SQLiteIOManager):
-    """IO Manager for only reading tables from the FERC 1 database."""
+class FercSQLiteIOManager(SQLiteIOManager):
+    """IO Manager for reading tables from FERC databases.
+
+    This class should be subclassed and the load_input and handle_output
+    methods should be implemented.
+
+    This IOManager exepcts the database to already exist.
+    """
 
     def __init__(
         self, base_dir: str = None, db_name: str = None, md: sa.MetaData = None
     ):
-        """Initialize Ferc1DBFSQLiteIOManager."""
+        """Initialize FercSQLiteIOManager."""
         super().__init__(base_dir, db_name, md)
 
     def _setup_database(self) -> sa.engine.Engine:
@@ -382,7 +388,7 @@ class Ferc1DBFSQLiteIOManager(SQLiteIOManager):
         db_path = self.base_dir / f"{self.db_name}.sqlite"
         if not db_path.exists():
             raise ValueError(
-                f"No {self.db_name}.sqlite found. Create the {self.db_name}.sqlite database."
+                f"No {self.db_name}.sqlite found. Run the job that creates the {self.db_name} database."
             )
 
         engine = sa.create_engine(f"sqlite:///{db_path}")
@@ -394,9 +400,34 @@ class Ferc1DBFSQLiteIOManager(SQLiteIOManager):
 
         return engine
 
+    def handle_output(self, context: OutputContext, obj):
+        """Handle an op or asset output."""
+        raise NotImplementedError(
+            "FercSQLiteIOManager can't write outputs. Subclass FercSQLiteIOManager and implement the handle_output method."
+        )
+
+    def load_input(self, context: InputContext) -> pd.DataFrame:
+        """Load a dataframe from a sqlite database.
+
+        Args:
+            context: dagster keyword that provides access output information like asset name.
+        """
+        raise NotImplementedError(
+            "FercSQLiteIOManager can't load inputs. Subclass FercSQLiteIOManager and implement the load_input method."
+        )
+
+
+class FercDBFSQLiteIOManager(FercSQLiteIOManager):
+    """IO Manager for only reading tables from the FERC 1 database.
+
+    This IO Manager is for reading data only. It does not handle outputs because the raw
+    FERC tables are not known prior to running the ETL and are not recorded in our
+    metadata.
+    """
+
     def handle_output(self, context: OutputContext, obj: pd.DataFrame | str):
         """Handle an op or asset output."""
-        raise NotImplementedError("Ferc1DBFSQLiteIOManager can't write outputs yet.")
+        raise NotImplementedError("FercDBFSQLiteIOManager can't write outputs yet.")
 
     def load_input(self, context: InputContext) -> pd.DataFrame:
         """Load a dataframe from a sqlite database.
@@ -435,49 +466,26 @@ class Ferc1DBFSQLiteIOManager(SQLiteIOManager):
     },
     required_resource_keys={"dataset_settings"},
 )
-def ferc1_dbf_sqlite_io_manager(init_context) -> Ferc1DBFSQLiteIOManager:
+def ferc1_dbf_sqlite_io_manager(init_context) -> FercDBFSQLiteIOManager:
     """Create a SQLiteManager dagster resource for the ferc1 dbf database."""
     base_dir = init_context.resource_config["pudl_output_path"]
-    return Ferc1DBFSQLiteIOManager(
+    return FercDBFSQLiteIOManager(
         base_dir=base_dir,
         db_name="ferc1",
     )
 
 
-class Ferc1XBRLSQLiteIOManager(SQLiteIOManager):
-    """IO Manager for only reading tables from the XBRL database."""
+class FercXBRLSQLiteIOManager(FercSQLiteIOManager):
+    """IO Manager for only reading tables from the XBRL database.
 
-    def __init__(
-        self, base_dir: str = None, db_name: str = None, md: sa.MetaData = None
-    ):
-        """Initialize Ferc1XBRLSQLiteIOManager."""
-        super().__init__(base_dir, db_name, md)
-
-    def _setup_database(self) -> sa.engine.Engine:
-        """Create database engine and read the metadata.
-
-        Returns:
-            engine: SQL Alchemy engine that connects to a database in the base_dir.
-        """
-        # If the sqlite directory doesn't exist, create it.
-        db_path = self.base_dir / f"{self.db_name}.sqlite"
-        if not db_path.exists():
-            raise ValueError(
-                f"No {self.db_name}.sqlite found. Create the {self.db_name}.sqlite database."
-            )
-
-        engine = sa.create_engine(f"sqlite:///{db_path}")
-
-        # Connect to the local SQLite DB and read its structure.
-        ferc1_meta = sa.MetaData()
-        ferc1_meta.reflect(engine)
-        self.md = ferc1_meta
-
-        return engine
+    This IO Manager is for reading data only. It does not handle outputs because the raw
+    FERC tables are not known prior to running the ETL and are not recorded in our
+    metadata.
+    """
 
     def handle_output(self, context: OutputContext, obj: pd.DataFrame | str):
         """Handle an op or asset output."""
-        raise NotImplementedError("Ferc1XBRLSQLiteIOManager can't write outputs yet.")
+        raise NotImplementedError("FercXBRLSQLiteIOManager can't write outputs yet.")
 
     def load_input(self, context: InputContext) -> pd.DataFrame:
         """Load a dataframe from a sqlite database.
@@ -528,10 +536,10 @@ class Ferc1XBRLSQLiteIOManager(SQLiteIOManager):
     },
     required_resource_keys={"dataset_settings"},
 )
-def ferc1_xbrl_sqlite_io_manager(init_context) -> Ferc1XBRLSQLiteIOManager:
+def ferc1_xbrl_sqlite_io_manager(init_context) -> FercXBRLSQLiteIOManager:
     """Create a SQLiteManager dagster resource for the ferc1 dbf database."""
     base_dir = init_context.resource_config["pudl_output_path"]
-    return Ferc1XBRLSQLiteIOManager(
+    return FercXBRLSQLiteIOManager(
         base_dir=base_dir,
         db_name="ferc1_xbrl",
     )
