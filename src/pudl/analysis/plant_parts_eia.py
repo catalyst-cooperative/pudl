@@ -335,6 +335,34 @@ FIRST_COLS = [
     "appro_part_label",
 ]
 
+PPE_COLS = [
+    "record_id_eia",
+    "plant_name_ppe",
+    "plant_part",
+    "report_year",
+    "report_date",
+    "ownership",
+    "plant_name_eia",
+    "plant_id_eia",
+    "generator_id",
+    "unit_id_pudl",
+    "prime_mover_code",
+    "energy_source_code_1",
+    "technology_description",
+    "ferc_acct_name",
+    "operating_year",
+    "utility_id_eia",
+    "utility_id_pudl",
+    "true_gran",
+    "appro_part_label",
+    "appro_record_id_eia",
+    "record_count",
+    "fraction_owned",
+    "ownership_dupe",
+    "operational_status",
+    "operational_status_pudl",
+]
+
 
 class MakeMegaGenTbl:
     """Compiler for a MEGA generator table with ownership integrated.
@@ -1430,7 +1458,7 @@ def make_parts_to_ids_dict():
     """
     parts_to_ids = {}
     for part, part_dict in PLANT_PARTS.items():
-        parts_to_ids[part] = PLANT_PARTS[part]["id_cols"][-1]
+        parts_to_ids[part] = part_dict["id_cols"][-1]
     return parts_to_ids
 
 
@@ -1562,3 +1590,43 @@ def match_to_single_plant_part(
     out_df = pd.concat(out_dfs)
 
     return out_df
+
+
+def reassign_id_ownership_dupes(plant_parts_eia):
+    """
+    Reassign the record_id for the records that are labeled ownership_dupe.
+
+    This function is used after the EIA plant-parts table is created.
+
+    Args:
+        plant_parts_eia (pandas.DataFrame): master unit list. Result of
+            ``generate_master_unit_list()`` or ``get_master_unit_list_eia()``.
+            Must have boolean column ``ownership_dupe`` and string column or
+            index of ``record_id_eia``.
+
+    """
+    # the record_id_eia's need to be a column to mess with it and record_id_eia
+    # is typically the index of plant_parts_df, so we are going to reset index
+    # if record_id_eia is the index
+    og_index = False
+    if plant_parts_eia.index.name == "record_id_eia":
+        plant_parts_eia = plant_parts_eia.reset_index()
+        og_index = True
+    # reassign the record id and ownership col when the record is a dupe
+    logger.info(plant_parts_eia[plant_parts_eia.ownership_dupe.isnull()])
+    plant_parts_eia = plant_parts_eia.assign(
+        record_id_eia=lambda x: np.where(
+            x.ownership_dupe,
+            x.record_id_eia.str.replace("owned", "total"),
+            x.record_id_eia,
+        )
+    )
+    if "ownership" in plant_parts_eia.columns:
+        plant_parts_eia = plant_parts_eia.assign(
+            ownership=lambda x: np.where(x.ownership_dupe, "total", x.ownership)
+        )
+    # then we reset the index so we return the dataframe in the same structure
+    # as we got it.
+    if og_index:
+        plant_parts_eia = plant_parts_eia.set_index("record_id_eia")
+    return plant_parts_eia
