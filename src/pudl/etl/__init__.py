@@ -1,4 +1,4 @@
-"""Dagster repositories for PUDL."""
+"""Dagster definitions for the PUDL ETL and Output tables."""
 from dagster import Definitions, define_asset_job, load_assets_from_modules
 
 import pudl

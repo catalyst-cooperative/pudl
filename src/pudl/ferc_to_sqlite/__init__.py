@@ -1,4 +1,4 @@
-"""Dagster repositories for PUDL."""
+"""Dagster definitions for the FERC to SQLite process."""
 from dagster import Definitions, graph
 
 import pudl
