@@ -252,3 +252,24 @@ def test_mcoe_filled(fast_out_filled, df_name, expected_nuke_fraction, tolerance
         fast_out_filled.__getattribute__(df_name)()
     )
     assert abs(actual_nuke_fraction - expected_nuke_fraction) <= tolerance
+
+
+def test_pudltabl_pickle(test_dir, fast_out_annual):
+    """Test that PudlTabl is serializable with pickle.
+
+    Because pickle is insecure, bandit must be quieted for this test.
+    """
+    import pickle  # nosec
+    from io import BytesIO
+
+    plants = fast_out_annual.plants_eia860()
+    # just to make sure we keep all the parts
+    keys = set(fast_out_annual.__dict__.keys())
+
+    # dump the object into a pickle stored in a buffer
+    pickle.dump(fast_out_annual, buffer := BytesIO())
+    # restore the object from the pickle in the buffer
+    restored = pickle.loads(buffer.getvalue())  # nosec
+
+    pd.testing.assert_frame_equal(restored._dfs["plants_eia860"], plants)
+    assert set(restored.__dict__.keys()) == keys

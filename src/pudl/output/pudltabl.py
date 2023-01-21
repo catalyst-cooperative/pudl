@@ -1214,6 +1214,71 @@ class PudlTabl:
             self._dfs["epacamd_eia"] = pudl.output.epacems.epacamd_eia(self.pudl_engine)
         return self._dfs["epacamd_eia"]
 
+    ###########################################################################
+    # FOR PICKLING AND OTHER IO
+    ###########################################################################
+
+    def __getstate__(self) -> dict:
+        """Get current object state for pickle.
+
+        This method is run as part of pickling the object. It needs to return a dict
+        representing the object's current state with any un-serializable objects
+        converted to a form that can be serialized.
+        """
+        return self.__dict__ | {
+            # defaultdict may be serializable but lambdas are not, so it must go
+            "_dfs": dict(self.__dict__["_dfs"]),
+            # sqlalchemy engines are also a problem here, saving the URL should
+            # provide enough of what is needed to recreate it, though that means the
+            # pickle is not portable, but any fix to that should probably happen
+            # on the other side
+            "pudl_engine": str(self.__dict__["pudl_engine"].url)
+            .removeprefix("Engine(")
+            .removesuffix(")"),
+        }
+
+    def __setstate__(self, state: dict) -> None:
+        """Restore the object's state from a dictionary.
+
+        Args:
+            state: a dict of the object state to restore. This is effectively
+                the dict produced by :meth:`pudl.output.pudltabl.PudlTabl.__getstate__`.
+
+        This method is run when the object is restored from a pickle. Anything
+        that was changed in :meth:`pudl.output.pudltabl.PudlTabl.__getstate__` must be
+        undone here. Another important detail is that ``__init__`` is not run when an
+        object is de-serialized, so under some circumstances, setup that happened there
+        may also need to occur here. The pseudo-esque code below shows how this works.
+
+        .. code-block:: python
+
+            # open the pickle and read the object's state from it
+            with open(file) as pkl:
+                state = pkl.read_state()
+            # create an empty instance of PudlTabl
+            obj = PudlTabl.__new__(PudlTabl)
+            # restore the object's state
+            obj.__setstate__(state)
+        """
+        try:
+            pudl_engine = sa.create_engine(state["pudl_engine"])
+            # make sure that the URL for the engine from ``state`` is usable now, if
+            # it is for a local DB on a different computer, then we fall back to the
+            # PUDL default
+            pudl_engine.connect()
+        except sa.exc.OperationalError:
+            from pudl.workspace.setup import get_defaults
+
+            # if the URL from ``state`` is not valid, create the engine from PUDL
+            # defaults
+            pudl_engine = sa.create_engine(get_defaults()["pudl_db"])
+
+        self.__dict__ = state | {
+            # recreate the defaultdict from the vanilla one from ``state``
+            "_dfs": defaultdict(lambda: None, state["_dfs"]),
+            "pudl_engine": pudl_engine,
+        }
+
 
 def get_table_meta(pudl_engine):
     """Grab the pudl sqlitie database table metadata."""

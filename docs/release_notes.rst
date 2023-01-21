@@ -46,6 +46,9 @@ Miscellaneous
 ^^^^^^^^^^^^^
 * Apply start and end dates to ferc1 data in :class:`pudl.output.pudltabl.PudlTabl`.
   See :pr:`2238` & :issue:`274`.
+* Added :meth:`pudl.output.pudltabl.PudlTabl.__getstate__` and
+  :meth:`pudl.output.pudltabl.PudlTabl.__setstate__` methods to allow
+  :class:`pudl.output.pudltabl.PudlTabl` to be serialized using :mod:`pickle`.
 
 .. _release-v2022.11.30:
 
