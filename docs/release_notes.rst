@@ -42,6 +42,13 @@ Deprecations
   <https://www.github.com/catalyst-cooperative/pudl-archiver>`__ repository in
   :doc:`intro`, :doc:`dev/datastore`, and :doc:`dev/annual_updates`. See :pr:`2190`.
 
+Miscellaneous
+^^^^^^^^^^^^^
+
+* Added :meth:`pudl.output.pudltabl.PudlTabl.__getstate__` and
+  :meth:`pudl.output.pudltabl.PudlTabl.__setstate__` methods to allow
+  :class:`pudl.output.pudltabl.PudlTabl` to be serialized using :mod:`pickle`.
+
 .. _release-v2022.11.30:
 
 ---------------------------------------------------------------------------------------
