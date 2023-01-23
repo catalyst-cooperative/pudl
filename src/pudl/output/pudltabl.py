@@ -1221,11 +1221,12 @@ class PudlTabl:
     def __getstate__(self) -> dict:
         """Get current object state for pickle.
 
-        This method is run as part of pickling the object. It needs to return a dict
-        representing the object's current state with any un-serializable objects
-        converted to a form that can be serialized.
+        This method is run as part of pickling the object. It needs to return the
+        object's current state with any un-serializable objects converted to a form that
+        can be serialized. See :meth:`object.__getstate__` for further details on the
+        expected behavior of this method.
         """
-        return self.__dict__ | {
+        return self.__dict__.copy() | {
             # defaultdict may be serializable but lambdas are not, so it must go
             "_dfs": dict(self.__dict__["_dfs"]),
             # sqlalchemy engines are also a problem here, saving the URL should
@@ -1241,24 +1242,14 @@ class PudlTabl:
         """Restore the object's state from a dictionary.
 
         Args:
-            state: a dict of the object state to restore. This is effectively
-                the dict produced by :meth:`pudl.output.pudltabl.PudlTabl.__getstate__`.
+            state: the object state to restore. This is effectively the output of
+            :meth:`pudl.output.pudltabl.PudlTabl.__getstate__`.
 
         This method is run when the object is restored from a pickle. Anything
         that was changed in :meth:`pudl.output.pudltabl.PudlTabl.__getstate__` must be
         undone here. Another important detail is that ``__init__`` is not run when an
         object is de-serialized, so under some circumstances, setup that happened there
-        may also need to occur here. The pseudo-esque code below shows how this works.
-
-        .. code-block:: python
-
-            # open the pickle and read the object's state from it
-            with open(file) as pkl:
-                state = pkl.read_state()
-            # create an empty instance of PudlTabl
-            obj = PudlTabl.__new__(PudlTabl)
-            # restore the object's state
-            obj.__setstate__(state)
+        may also need to occur here.
         """
         try:
             pudl_engine = sa.create_engine(state["pudl_engine"])
