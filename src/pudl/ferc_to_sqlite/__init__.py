@@ -1,11 +1,10 @@
-"""Dagster repositories for PUDL."""
+"""Dagster definitions for the FERC to SQLite process."""
 from dagster import Definitions, graph
 
 import pudl
 from pudl.extract.ferc1 import dbf2sqlite
 from pudl.extract.xbrl import xbrl2sqlite
-from pudl.settings import ferc_to_sqlite_settings
-from pudl.workspace.datastore import datastore
+from pudl.resources import datastore, ferc_to_sqlite_settings
 
 logger = pudl.logging_helpers.get_logger(__name__)
 

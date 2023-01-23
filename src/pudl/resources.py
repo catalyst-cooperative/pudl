@@ -1,9 +1,7 @@
 """Collection of Dagster resources for PUDL."""
-from pathlib import Path
-
 from dagster import Field, resource
 
-import pudl
+from pudl.helpers import EnvVar
 from pudl.settings import DatasetsSettings, FercToSqliteSettings, create_dagster_config
 from pudl.workspace.datastore import Datastore
 
@@ -36,23 +34,13 @@ def ferc_to_sqlite_settings(init_context):
 
 @resource(
     config_schema={
-        "pudl_out": Field(
-            str, default_value=pudl.workspace.setup.get_defaults()["pudl_out"]
+        "local_cache_path": Field(
+            EnvVar(
+                env_var="PUDL_CACHE",
+            ),
+            description="Path to local cache of raw data.",
+            default_value=None,
         ),
-        "pudl_in": Field(
-            str, default_value=pudl.workspace.setup.get_defaults()["pudl_in"]
-        ),
-    }
-)
-def pudl_settings(init_context) -> dict[str, str]:
-    """PUDL settings, mostly paths for inputs & outputs."""
-    pudl_out = init_context.resource_config["pudl_out"]
-    pudl_in = init_context.resource_config["pudl_in"]
-    return pudl.workspace.setup.derive_paths(pudl_in=pudl_in, pudl_out=pudl_out)
-
-
-@resource(
-    config_schema={
         "gcs_cache_path": Field(
             str,
             description="Load datastore resources from Google Cloud Storage.",
@@ -69,7 +57,6 @@ def pudl_settings(init_context) -> dict[str, str]:
             default_value=False,
         ),
     },
-    required_resource_keys={"pudl_settings"},
 )
 def datastore(init_context):
     """Datastore resource.
@@ -81,6 +68,5 @@ def datastore(init_context):
     ds_kwargs["sandbox"] = init_context.resource_config["sandbox"]
 
     if init_context.resource_config["use_local_cache"]:
-        pudl_settings = init_context.resources.pudl_settings
-        ds_kwargs["local_cache_path"] = Path(pudl_settings["pudl_in"]) / "data"
+        ds_kwargs["local_cache_path"] = init_context.resource_config["local_cache_path"]
     return Datastore(**ds_kwargs)

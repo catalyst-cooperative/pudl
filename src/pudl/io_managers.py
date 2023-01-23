@@ -83,8 +83,8 @@ class SQLiteIOManager(IOManager):
 
     def __init__(
         self,
-        base_dir: str = None,
-        db_name: str = None,
+        base_dir: str,
+        db_name: str,
         md: sa.MetaData = None,
     ):
         """Init a SQLiteIOmanager.
