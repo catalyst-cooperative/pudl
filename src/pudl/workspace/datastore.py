@@ -13,11 +13,13 @@ from typing import Any
 
 import datapackage
 import requests
+from dagster import Field, resource
 from google.auth.exceptions import DefaultCredentialsError
 from requests.adapters import HTTPAdapter
 from requests.packages.urllib3.util.retry import Retry
 
 import pudl
+from pudl.helpers import EnvVar
 from pudl.workspace import resource_cache
 from pudl.workspace.resource_cache import PudlResourceKey
 
@@ -386,6 +388,47 @@ class Datastore:
     def get_zipfile_resource(self, dataset: str, **filters: Any) -> zipfile.ZipFile:
         """Retrieves unique resource and opens it as a ZipFile."""
         return zipfile.ZipFile(io.BytesIO(self.get_unique_resource(dataset, **filters)))
+
+
+# TODO (bendnorman): Create a new Config type that throws a helpful error when env var isn't set
+@resource(
+    config_schema={
+        "local_cache_path": Field(
+            EnvVar(
+                env_var="PUDL_CACHE",
+            ),
+            description="Path to local cache of raw data.",
+            default_value=None,
+        ),
+        "gcs_cache_path": Field(
+            str,
+            description="Load datastore resources from Google Cloud Storage.",
+            default_value="",
+        ),
+        "use_local_cache": Field(
+            bool,
+            description="If enabled, the local file cache for datastore will be used.",
+            default_value=True,
+        ),
+        "sandbox": Field(
+            bool,
+            description="Use the Zenodo sandbox rather than production",
+            default_value=False,
+        ),
+    },
+)
+def datastore(init_context):
+    """Datastore resource.
+
+    This can be configured in the dagit UI.
+    """
+    ds_kwargs = {}
+    ds_kwargs["gcs_cache_path"] = init_context.resource_config["gcs_cache_path"]
+    ds_kwargs["sandbox"] = init_context.resource_config["sandbox"]
+
+    if init_context.resource_config["use_local_cache"]:
+        ds_kwargs["local_cache_path"] = init_context.resource_config["local_cache_path"]
+    return Datastore(**ds_kwargs)
 
 
 class ParseKeyValues(argparse.Action):

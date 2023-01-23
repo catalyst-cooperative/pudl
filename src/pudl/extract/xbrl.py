@@ -10,6 +10,7 @@ from ferc_xbrl_extractor import xbrl
 from ferc_xbrl_extractor.instance import InstanceBuilder
 
 import pudl
+from pudl.helpers import EnvVar
 from pudl.settings import FercGenericXbrlToSqliteSettings, XbrlFormNumber
 from pudl.workspace.datastore import Datastore
 
@@ -95,6 +96,13 @@ def _get_sqlite_engine(
 # TODO (bendnorman): set clobber default to False
 @op(
     config_schema={
+        "pudl_output_path": Field(
+            EnvVar(
+                env_var="PUDL_OUTPUT",
+            ),
+            description="Path of directory to store the database in.",
+            default_value=None,
+        ),
         "clobber": Field(
             bool, description="Clobber existing ferc1 database.", default_value=True
         ),
@@ -109,11 +117,11 @@ def _get_sqlite_engine(
             default_value=50,
         ),
     },
-    required_resource_keys={"ferc_to_sqlite_settings", "datastore", "pudl_settings"},
+    required_resource_keys={"ferc_to_sqlite_settings", "datastore"},
 )
 def xbrl2sqlite(context):
     """Clone the FERC Form 1 XBRL Databsae to SQLite."""
-    output_path = Path(context.resources.pudl_settings["sqlite_dir"])
+    output_path = Path(context.op_config["pudl_output_path"])
     clobber = context.op_config["clobber"]
     batch_size = context.op_config["batch_size"]
     workers = context.op_config["workers"]

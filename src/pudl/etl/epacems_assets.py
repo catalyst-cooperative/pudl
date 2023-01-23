@@ -4,16 +4,26 @@ from pathlib import Path
 import pandas as pd
 import pyarrow as pa
 import pyarrow.parquet as pq
-from dagster import asset
+from dagster import Field, asset
 
 import pudl
+from pudl.helpers import EnvVar
 from pudl.metadata.classes import Resource
 
 logger = pudl.logging_helpers.get_logger(__name__)
 
 
 @asset(
-    required_resource_keys={"datastore", "dataset_settings", "pudl_settings"},
+    required_resource_keys={"datastore", "dataset_settings"},
+    config_schema={
+        "pudl_output_path": Field(
+            EnvVar(
+                env_var="PUDL_OUTPUT",
+            ),
+            description="Path of directory to store the database in.",
+            default_value=None,
+        )
+    },
 )
 def hourly_emissions_epacems(
     context, epacamd_eia: pd.DataFrame, plants_entity_eia: pd.DataFrame
@@ -36,16 +46,11 @@ def hourly_emissions_epacems(
     timezones = pudl.transform.epacems.load_plant_utc_offset(plants_entity_eia)
 
     schema = Resource.from_id("hourly_emissions_epacems").to_pyarrow()
-
     epacems_path = (
-        Path(context.resources.pudl_settings["parquet_dir"])
-        / "hourly_emissions_epacems"
+        Path(context.op_config["pudl_output_path"]) / "hourly_emissions_epacems"
     )
-
     epacems_path.mkdir(exist_ok=True)
 
-    # TODO (bendnorman): Should all partitions be clobbered when we recreate a partition?
-    # Maybe we could just add a clobber param in the config.
     for part in epacems_settings.partitions:
         year = part["year"]
         state = part["state"]

@@ -7,7 +7,7 @@ from typing import ClassVar
 
 import pandas as pd
 import yaml
-from dagster import Any, Field, Noneable
+from dagster import Any, Field, Noneable, resource
 from pydantic import AnyHttpUrl
 from pydantic import BaseModel as PydanticBaseModel
 from pydantic import BaseSettings, root_validator, validator
@@ -719,6 +719,32 @@ def create_dagster_config(settings: BaseModel) -> dict:
     ds = settings.dict()
     _convert_settings_to_dagster_config(ds)
     return ds
+
+
+@resource(config_schema=create_dagster_config(DatasetsSettings()))
+def dataset_settings(init_context):
+    """Dagster resource for parameterizing assets.
+
+    This resource allows us to specify the years we want to process for each datasource
+    in the Dagit UI.
+
+    We configure the assets using a resource instead of op configs so the settings can
+    be accesible by any op.
+    """
+    return DatasetsSettings(**init_context.resource_config)
+
+
+@resource(config_schema=create_dagster_config(FercToSqliteSettings()))
+def ferc_to_sqlite_settings(init_context):
+    """Dagster resource for parameterizing assets.
+
+    This resource allows us to specify the years we want to process for each datasource
+    in the Dagit UI.
+
+    We configure the assets using a resource instead of op configs so the settings can
+    be accesible by any op.
+    """
+    return FercToSqliteSettings(**init_context.resource_config)
 
 
 def _make_doi_clickable(link):

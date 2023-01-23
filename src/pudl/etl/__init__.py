@@ -1,4 +1,4 @@
-"""Dagster definitions for the PUDL ETL and Output tables."""
+"""Dagster repositories for PUDL."""
 from dagster import Definitions, define_asset_job, load_assets_from_modules
 
 import pudl
@@ -8,12 +8,8 @@ from pudl.io_managers import (
     ferc1_xbrl_sqlite_io_manager,
     pudl_sqlite_io_manager,
 )
-from pudl.resources import (
-    dataset_settings,
-    datastore,
-    ferc_to_sqlite_settings,
-    pudl_settings,
-)
+from pudl.settings import dataset_settings, ferc_to_sqlite_settings
+from pudl.workspace.datastore import datastore
 
 from . import (  # noqa: F401
     eia_api_assets,
@@ -41,7 +37,6 @@ defs = Definitions(
     assets=assets,
     resources={
         "datastore": datastore,
-        "pudl_settings": pudl_settings,
         "pudl_sqlite_io_manager": pudl_sqlite_io_manager,
         "ferc1_dbf_sqlite_io_manager": ferc1_dbf_sqlite_io_manager,
         "ferc1_xbrl_sqlite_io_manager": ferc1_xbrl_sqlite_io_manager,

@@ -11,7 +11,6 @@ from pandas import json_normalize
 from pydantic import ValidationError
 
 from pudl.metadata.classes import DataSource
-from pudl.resources import dataset_settings
 from pudl.settings import (
     DatasetsSettings,
     Eia860Settings,
@@ -22,6 +21,7 @@ from pudl.settings import (
     Ferc1Settings,
     GenericDatasetSettings,
     _convert_settings_to_dagster_config,
+    dataset_settings,
 )
 from pudl.workspace.datastore import Datastore
 

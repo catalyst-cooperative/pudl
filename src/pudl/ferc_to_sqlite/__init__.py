@@ -1,10 +1,11 @@
-"""Dagster definitions for the FERC to SQLite process."""
+"""Dagster repositories for PUDL."""
 from dagster import Definitions, graph
 
 import pudl
 from pudl.extract.ferc1 import dbf2sqlite
 from pudl.extract.xbrl import xbrl2sqlite
-from pudl.resources import datastore, ferc_to_sqlite_settings, pudl_settings
+from pudl.settings import ferc_to_sqlite_settings
+from pudl.workspace.datastore import datastore
 
 logger = pudl.logging_helpers.get_logger(__name__)
 
@@ -20,7 +21,6 @@ ferc_to_sqlite_full = ferc_to_sqlite.to_job(
     resource_defs={
         "ferc_to_sqlite_settings": ferc_to_sqlite_settings,
         "datastore": datastore,
-        "pudl_settings": pudl_settings,
     },
     name="ferc_to_sqlite_full",
 )
@@ -29,7 +29,6 @@ ferc_to_sqlite_fast = ferc_to_sqlite.to_job(
     resource_defs={
         "ferc_to_sqlite_settings": ferc_to_sqlite_settings,
         "datastore": datastore,
-        "pudl_settings": pudl_settings,
     },
     name="ferc_to_sqlite_fast",
     config={
