@@ -219,6 +219,41 @@ def test_plant_parts_eia_filled(fast_out_annual):
     fast_out_annual.plant_parts_eia()
 
 
+@pytest.fixture(scope="module")
+def fast_out_filled(pudl_engine, pudl_datastore_fixture):
+    """A PUDL output object for use in CI with net generation filled."""
+    return pudl.output.pudltabl.PudlTabl(
+        pudl_engine,
+        ds=pudl_datastore_fixture,
+        freq="MS",
+        fill_fuel_cost=True,
+        roll_fuel_cost=True,
+        fill_net_gen=True,
+    )
+
+
+@pytest.mark.parametrize(
+    "df_name,expected_nuke_fraction,tolerance",
+    [
+        ("gf_nuclear_eia923", 1.0, 0.001),
+        ("gf_nonuclear_eia923", 0.0, 0.0),
+        ("gf_eia923", 0.2, 0.02),
+        ("mcoe", 0.2, 0.02),
+    ],
+)
+def test_mcoe_filled(fast_out_filled, df_name, expected_nuke_fraction, tolerance):
+    """Test that the net generation allocation process is working.
+
+    In addition to running the allocation itself, make sure that the nuclear and non-
+    nuclear generation fractions are as we would expect after the net generation has
+    been allocated.
+    """
+    actual_nuke_fraction = nuke_gen_fraction(
+        fast_out_filled.__getattribute__(df_name)()
+    )
+    assert abs(actual_nuke_fraction - expected_nuke_fraction) <= tolerance
+
+
 def test_pudltabl_pickle(fast_out_annual):
     """Test that PudlTabl is serializable with pickle.
 
