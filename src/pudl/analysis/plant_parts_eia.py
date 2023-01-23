@@ -1633,7 +1633,6 @@ def reassign_id_ownership_dupes(plant_parts_eia: pd.DataFrame) -> pd.DataFrame:
         plant_parts_eia = plant_parts_eia.reset_index()
         og_index = True
     # reassign the record id and ownership col when the record is a dupe
-    logger.info(plant_parts_eia[plant_parts_eia.ownership_dupe.isnull()])
     plant_parts_eia = plant_parts_eia.assign(
         record_id_eia=lambda x: np.where(
             x.ownership_dupe,

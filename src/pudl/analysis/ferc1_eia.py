@@ -69,8 +69,8 @@ def execute(
     # restricted years, the start/end date don't correspong. Used EIA dates bc omigosh
     # the ferc output tables are not actually being masked for start/end date (will be
     # fixed in dagster/views transtion)
-    start_date = min(plant_parts_eia.report_year)
-    end_date = max(plant_parts_eia.report_year)
+    start_date = min(plant_parts_eia.report_date)
+    end_date = max(plant_parts_eia.report_date)
     inputs = InputManager(
         plants_all_ferc1, fbp_ferc1, plant_parts_eia, start_date, end_date
     )
@@ -830,7 +830,7 @@ class MatchManager:
         best_match = df[
             ((df["rank"] == 1) & (df["diffs"] > distinction))
             | ((df["rank"] == 1) & (df["diffs"].isnull()))
-        ]
+        ].copy()
         # we want to know how many of the
         self.murk_df = self.calc_murk(df, iqr_perc_diff)
         self.ties_df = df[df["rank"] == 1.5]
@@ -1110,8 +1110,7 @@ def prep_train_connections(
         )
     )
     not_in_ppe = train_df[train_df._merge == "left_only"]
-    # if not not_in_ppe.empty:
-    if len(not_in_ppe) > 12:
+    if not not_in_ppe.empty:
         raise AssertionError(
             "Not all training data is associated with EIA records.\n"
             "record_id_ferc1's of bad training data records are: "
