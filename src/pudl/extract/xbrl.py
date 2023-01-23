@@ -37,7 +37,7 @@ class FercXbrlDatastore:
 
         return io.BytesIO(raw_archive), taxonomy_entry_point
 
-    def get_filings(self, year: int, form: XbrlFormNumber):
+    def get_filings(self, year: int, form: XbrlFormNumber) -> list[InstanceBuilder]:
         """Return list of filings from archive."""
         archive = self.datastore.get_zipfile_resource(
             f"ferc{form.value}", year=year, data_format="XBRL"
