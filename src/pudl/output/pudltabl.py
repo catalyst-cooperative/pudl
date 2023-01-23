@@ -1241,15 +1241,15 @@ class PudlTabl:
     def __setstate__(self, state: dict) -> None:
         """Restore the object's state from a dictionary.
 
-        Args:
-            state: the object state to restore. This is effectively the output of
-            :meth:`pudl.output.pudltabl.PudlTabl.__getstate__`.
-
         This method is run when the object is restored from a pickle. Anything
         that was changed in :meth:`pudl.output.pudltabl.PudlTabl.__getstate__` must be
         undone here. Another important detail is that ``__init__`` is not run when an
         object is de-serialized, so under some circumstances, setup that happened there
         may also need to occur here.
+
+        Args:
+            state: the object state to restore. This is effectively the output
+                of :meth:`pudl.output.pudltabl.PudlTabl.__getstate__`.
         """
         try:
             pudl_engine = sa.create_engine(state["pudl_engine"])
