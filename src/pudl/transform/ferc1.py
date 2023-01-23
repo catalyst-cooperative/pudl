@@ -85,6 +85,7 @@ class TableIdFerc1(enum.Enum):
         "electric_plant_depreciation_functional_ferc1"
     )
     CASH_FLOW_FERC1 = "cash_flow_ferc1"
+    OTHER_REGULATORY_LIABILITIES_FERC1 = "other_regulatory_liabilities_ferc1"
 
 
 ################################################################################
@@ -3545,6 +3546,13 @@ class CashFlowFerc1TableTransformer(Ferc1AbstractTableTransformer):
         return pd.concat([meta, ending_balance])
 
 
+class OtherRegulatoryLiabilitiesFerc1(Ferc1AbstractTableTransformer):
+    """Transformer class for :ref:`other_regulatory_liabilities_ferc1` table."""
+
+    table_id: TableIdFerc1 = TableIdFerc1.OTHER_REGULATORY_LIABILITIES_FERC1
+    has_unique_record_ids = False
+
+
 def transform(
     ferc1_dbf_raw_dfs: dict[str, pd.DataFrame],
     ferc1_xbrl_raw_dfs: dict[str, dict[str, pd.DataFrame]],
@@ -3589,6 +3597,7 @@ def transform(
         "retained_earnings_ferc1": RetainedEarningsFerc1TableTransformer,
         "electric_operating_revenues_ferc1": ElectricOperatingRevenuesFerc1TableTransformer,
         "cash_flow_ferc1": CashFlowFerc1TableTransformer,
+        "other_regulatory_liabilities_ferc1": OtherRegulatoryLiabilitiesFerc1,
     }
     ferc1_transformed_dfs = {}
     for table in ferc1_settings.tables:

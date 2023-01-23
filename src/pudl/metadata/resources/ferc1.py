@@ -286,6 +286,24 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
         "etl_group": "ferc1",
         "field_namespace": "ferc1",
     },
+    "other_regulatory_liabilities_ferc1": {
+        "description": "Other regulatory liabilities, including rate order docket number.",
+        "schema": {
+            "fields": [
+                "utility_id_ferc1",
+                "report_year",
+                "description",
+                "ending_balance",
+                "starting_balance",
+                "increase_in_other_regulatory_liabilities",
+                "account_detail",
+                "decrease_in_other_regulatory_liabilities",
+            ],
+        },
+        "sources": ["ferc1"],
+        "etl_group": "ferc1",
+        "field_namespace": "ferc1",
+    },
     "plant_in_service_ferc1": {
         "description": (
             "Balances and changes to FERC Electric Plant in Service accounts, as "
