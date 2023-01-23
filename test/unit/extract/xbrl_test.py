@@ -5,8 +5,16 @@ from datetime import datetime, timedelta
 
 import pytest
 
-from pudl.extract.xbrl import FercXbrlDatastore
-from pudl.settings import XbrlFormNumber
+from pudl.extract.xbrl import FercXbrlDatastore, xbrl2sqlite
+from pudl.settings import (
+    Ferc1XbrlToSqliteSettings,
+    Ferc2XbrlToSqliteSettings,
+    Ferc6XbrlToSqliteSettings,
+    Ferc60XbrlToSqliteSettings,
+    Ferc714XbrlToSqliteSettings,
+    FercToSqliteSettings,
+    XbrlFormNumber,
+)
 
 
 def test_ferc_xbrl_datastore_get_taxonomy(mocker):
@@ -120,3 +128,65 @@ def test_ferc_xbrl_datastore_get_filings(mocker, file_map, selected_filings):
     for filing in filings:
         assert filing.name in selected_filings
         assert filing.file.getvalue() == selected_filings[filing.name]
+
+
+@pytest.mark.parametrize(
+    "settings,forms",
+    [
+        (
+            FercToSqliteSettings(
+                ferc1_xbrl_to_sqlite_settings=Ferc1XbrlToSqliteSettings(),
+                ferc2_xbrl_to_sqlite_settings=Ferc2XbrlToSqliteSettings(),
+                ferc6_xbrl_to_sqlite_settings=Ferc6XbrlToSqliteSettings(),
+                ferc60_xbrl_to_sqlite_settings=Ferc60XbrlToSqliteSettings(),
+                ferc714_xbrl_to_sqlite_settings=Ferc714XbrlToSqliteSettings(),
+            ),
+            [form for form in XbrlFormNumber],
+        ),
+        (
+            FercToSqliteSettings(
+                ferc1_xbrl_to_sqlite_settings=None,
+                ferc2_xbrl_to_sqlite_settings=Ferc2XbrlToSqliteSettings(),
+                ferc6_xbrl_to_sqlite_settings=Ferc6XbrlToSqliteSettings(),
+                ferc60_xbrl_to_sqlite_settings=Ferc60XbrlToSqliteSettings(),
+                ferc714_xbrl_to_sqlite_settings=Ferc714XbrlToSqliteSettings(),
+            ),
+            [form for form in XbrlFormNumber if form != XbrlFormNumber.FORM1],
+        ),
+        (FercToSqliteSettings(), []),
+    ],
+)
+def test_xbrl2sqlite(settings, forms, mocker):
+    """Test xbrl2sqlite function."""
+    convert_form_mock = mocker.MagicMock()
+    mocker.patch("pudl.extract.xbrl.convert_form", new=convert_form_mock)
+
+    mocker.patch("pudl.extract.xbrl._get_sqlite_engine", return_value="sqlite_engine")
+
+    # Mock datastore object to allow comparison
+    mocker.patch("pudl.extract.xbrl.FercXbrlDatastore", return_value="datastore")
+
+    xbrl2sqlite(
+        ferc_to_sqlite_settings=settings,
+        pudl_settings="pudl_settings",
+        clobber=True,
+        datastore="datastore",
+        batch_size=20,
+        workers=10,
+    )
+
+    if len(forms) == 0:
+        convert_form_mock.assert_not_called()
+
+    for form in forms:
+        if form != XbrlFormNumber.FORM714:
+            continue
+        convert_form_mock.assert_any_call(
+            settings.get_xbrl_dataset_settings(form),
+            form,
+            "datastore",
+            "sqlite_engine",
+            pudl_settings="pudl_settings",
+            batch_size=20,
+            workers=10,
+        )
