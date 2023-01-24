@@ -15,8 +15,6 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
                 "fuel_mmbtu_per_unit",
                 "sulfur_content_pct",
                 "ash_content_pct",
-                "sector_id_eia",
-                "sector_name_eia",
             ],
             "primary_key": [
                 "plant_id_eia",
@@ -89,8 +87,6 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
                 "report_date",
                 "net_generation_mwh",
                 "data_maturity",
-                "sector_id_eia",
-                "sector_name_eia",
             ],
             "primary_key": ["plant_id_eia", "generator_id", "report_date"],
         },
@@ -115,8 +111,6 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
                 "fuel_consumed_for_electricity_mmbtu",
                 "net_generation_mwh",
                 "data_maturity",
-                "sector_id_eia",
-                "sector_name_eia",
             ],
             "primary_key": [
                 "plant_id_eia",
