@@ -29,7 +29,8 @@ as "states" in this category and because some of them have 2-letter abbreviation
 collisions with US states, their coding is non-standard.
 
 Instead of using the provided non-standard codes, we convert to the ISO-3166-1
-three letter country codes: https://en.wikipedia.org/wiki/ISO_3166-1_alpha-3
+three letter country codes:
+https://en.wikipedia.org/wiki/ISO_3166-1_alpha-3
 """
 
 ###############################################################################

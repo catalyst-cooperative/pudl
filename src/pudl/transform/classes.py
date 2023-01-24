@@ -949,7 +949,6 @@ def cache_df(key: str = "main") -> Callable[..., pd.DataFrame]:
     Returns:
         The decorated class method.
     """
-
     def _decorator(func: Callable[..., pd.DataFrame]) -> Callable[..., pd.DataFrame]:
         @wraps(func)
         def _wrapper(self: AbstractTableTransformer, *args, **kwargs) -> pd.DataFrame:

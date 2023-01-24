@@ -65,8 +65,9 @@ STANDARD_UTC_OFFSETS: dict[str, str] = {
 }
 """Hour offset from Coordinated Universal Time (UTC) by time zone.
 
-Time zones are canonical names (e.g. 'America/Denver') from tzdata
-(https://www.iana.org/time-zones) mapped to their standard-time UTC offset.
+Time zones are canonical names (e.g. 'America/Denver') from tzdata (
+https://www.iana.org/time-zones)
+mapped to their standard-time UTC offset.
 """
 
 

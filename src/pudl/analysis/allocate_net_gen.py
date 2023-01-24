@@ -1608,11 +1608,15 @@ def allocate_bf_data_to_gens(
     connected generators.
 
     Because fuel consumption in the boiler_fuel_eia923 table is reported per boiler_id,
-    we must first map this data to generators using the boiler_generator_assn_eia860 table.
-    For boilers that have a 1:m or m:m relationship with generators, we allocate the reported
+    we must first map this data to generators using the boiler_generator_assn_eia860
+    table.
+    For boilers that have a 1:m or m:m relationship with generators, we allocate the
+    reported
     fuel to each associated generator based on the nameplate capacity of each generator.
-    So if boiler "1" was associated with generator A (25 MW) and generator B (75 MW), 25%
-    of the fuel consumption would be allocated to generator A and 75% would be allocated to
+    So if boiler "1" was associated with generator A (25 MW) and generator B (75 MW),
+    25%
+    of the fuel consumption would be allocated to generator A and 75% would be allocated
+    to
     generator B.
     """
     # merge generator capacity information into the BGA
@@ -1684,7 +1688,8 @@ def warn_if_missing_pms(gens):
 
     Warn if prime mover codes in gens do not match the codes in the gf table this is
     something that should probably be fixed in the input data see
-    https://github.com/catalyst-cooperative/pudl/issues/1585 set a threshold and ignore
+    https://github.com/catalyst-cooperative/pudl/issues/1585
+    set a threshold and ignore
     2001 bc most errors are 2001 errors.
     """
     missing_pm = gens[
