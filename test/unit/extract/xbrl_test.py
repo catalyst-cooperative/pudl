@@ -179,8 +179,6 @@ def test_xbrl2sqlite(settings, forms, mocker):
         convert_form_mock.assert_not_called()
 
     for form in forms:
-        if form != XbrlFormNumber.FORM714:
-            continue
         convert_form_mock.assert_any_call(
             settings.get_xbrl_dataset_settings(form),
             form,
