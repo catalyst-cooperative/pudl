@@ -1231,8 +1231,8 @@ class PudlTabl:
             "_dfs": dict(self.__dict__["_dfs"]),
             # sqlalchemy engines are also a problem here, saving the URL should
             # provide enough of what is needed to recreate it, though that means the
-            # pickle is not portable, but any fix to that should probably happen
-            # on the other side
+            # pickle is not portable, but any fix to that will happen when the object
+            # is restored
             "pudl_engine": str(self.__dict__["pudl_engine"].url)
             .removeprefix("Engine(")
             .removesuffix(")"),
@@ -1244,8 +1244,8 @@ class PudlTabl:
         This method is run when the object is restored from a pickle. Anything
         that was changed in :meth:`pudl.output.pudltabl.PudlTabl.__getstate__` must be
         undone here. Another important detail is that ``__init__`` is not run when an
-        object is de-serialized, so under some circumstances, setup that happened there
-        may also need to occur here.
+        object is de-serialized, so any setup there that alters external state might
+        need to happen here as well.
 
         Args:
             state: the object state to restore. This is effectively the output
@@ -1253,15 +1253,20 @@ class PudlTabl:
         """
         try:
             pudl_engine = sa.create_engine(state["pudl_engine"])
-            # make sure that the URL for the engine from ``state`` is usable now, if
-            # it is for a local DB on a different computer, then we fall back to the
-            # PUDL default
+            # make sure that the URL for the engine from ``state`` is usable now
             pudl_engine.connect()
         except sa.exc.OperationalError:
+            # if the URL from ``state`` is not valid, e.g. because it is for a local
+            # DB on a different computer, create the engine from PUDL defaults
+
             from pudl.workspace.setup import get_defaults
 
-            # if the URL from ``state`` is not valid, create the engine from PUDL
-            # defaults
+            logger.warning(
+                "Unable to connect to the restored pudl_db URL %s. "
+                "Will use the default pudl_db %s instead.",
+                state["pudl_engine"],
+                get_defaults()["pudl_db"],
+            )
             pudl_engine = sa.create_engine(get_defaults()["pudl_db"])
 
         self.__dict__ = state | {

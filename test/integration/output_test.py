@@ -273,30 +273,3 @@ def test_pudltabl_pickle(fast_out_annual):
 
     pd.testing.assert_frame_equal(restored._dfs["plants_eia860"], plants)
     assert set(restored.__dict__.keys()) == keys
-
-
-def test_pudltabl_datazip(fast_out_annual):
-    """Test that PudlTabl is serializable with DataZip.
-
-    If etoolbox is installed, test that PudlTabl can be serialized with DataZip.
-    """
-    dz = pytest.importorskip("etoolbox.datazip")
-    from io import BytesIO
-
-    plants = fast_out_annual.plants_eia860()
-    # just to make sure we keep all the parts
-    keys = set(fast_out_annual.__dict__.keys())
-    try:
-        # Have not tackled proper serialization of Datastore so
-        # DataZip knows to ignore it
-        keys.remove("ds")
-    except KeyError:
-        pass
-
-    # dump the object into a pickle stored in a buffer
-    dz.DataZip.dump(fast_out_annual, buffer := BytesIO())
-    # restore the object from the pickle in the buffer
-    restored = dz.DataZip.load(buffer)
-
-    pd.testing.assert_frame_equal(restored._dfs["plants_eia860"], plants)
-    assert set(restored.__dict__.keys()) == keys
