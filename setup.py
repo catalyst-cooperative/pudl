@@ -94,7 +94,7 @@ setup(
         ],
         "test": [
             "bandit>=1.6,<1.8",
-            "coverage>=5.3,<7.1",
+            "coverage>=5.3,<7.2",
             "doc8>=0.9,<1.2",
             "flake8>=4.0,<6.1",
             "flake8-builtins>=1.5,<2.2",
