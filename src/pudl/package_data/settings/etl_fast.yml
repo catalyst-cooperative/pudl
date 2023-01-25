@@ -30,6 +30,7 @@ ferc_to_sqlite_settings:
       - f1_retained_erng
       - f1_elctrc_oper_rev
       - f1_cash_flow
+      - f1_othr_reg_liab
 
   ferc1_xbrl_to_sqlite_settings:
     years: [2021]
@@ -78,6 +79,8 @@ ferc_to_sqlite_settings:
       - electric_operating_revenues_300_instant
       - statement_of_cash_flows_120_instant
       - statement_of_cash_flows_120_duration
+      - other_regulatory_liabilities_account_254_278_duration
+      - other_regulatory_liabilities_account_254_278_instant
 
   ferc2_xbrl_to_sqlite_settings:
     years: [2021]
@@ -121,6 +124,7 @@ datasets:
       - retained_earnings_ferc1
       - electric_operating_revenues_ferc1
       - cash_flow_ferc1
+      - other_regulatory_liabilities_ferc1
     years: [2020, 2021]
   eia:
     eia923:
