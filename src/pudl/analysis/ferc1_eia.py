@@ -69,11 +69,7 @@ def execute(
     # restricted years, the start/end date don't correspong. Used EIA dates bc omigosh
     # the ferc output tables are not actually being masked for start/end date (will be
     # fixed in dagster/views transtion)
-    start_date = min(plant_parts_eia.report_date)
-    end_date = max(plant_parts_eia.report_date)
-    inputs = InputManager(
-        plants_all_ferc1, fbp_ferc1, plant_parts_eia, start_date, end_date
-    )
+    inputs = InputManager(plants_all_ferc1, fbp_ferc1, plant_parts_eia)
     features_all = Features(feature_type="all", inputs=inputs).get_features(
         clobber=False
     )
@@ -92,9 +88,7 @@ def execute(
     # add capex (this should be moved into pudl_out.plants_steam_ferc1)
     connects_ferc1_eia = calc_annual_capital_additions_ferc1(connects_ferc1_eia)
     # Override specified record_id_ferc1 values with NA record_id_eia
-    connects_ferc1_eia = add_null_overrides(
-        connects_ferc1_eia, start_date=start_date, end_date=end_date
-    )
+    connects_ferc1_eia = add_null_overrides(connects_ferc1_eia)
 
     return connects_ferc1_eia
 
@@ -107,8 +101,6 @@ class InputManager:
         plants_all_ferc1: pd.DataFrame,
         fbp_ferc1: pd.DataFrame,
         plant_parts_eia: pd.DataFrame,
-        start_date,
-        end_date,
     ):
         """Initialize inputs manager that gets inputs for linking FERC and EIA.
 
@@ -122,8 +114,9 @@ class InputManager:
         self.plant_parts_eia = plant_parts_eia
         self.plants_all_ferc1 = plants_all_ferc1
         self.fbp_ferc1 = fbp_ferc1
-        self.start_date = start_date
-        self.end_date = end_date
+
+        self.start_date = min(plant_parts_eia.report_date)
+        self.end_date = max(plant_parts_eia.report_date)
 
         # generate empty versions of the inputs.. this let's this class check
         # whether or not the compiled inputs exist before compilnig
@@ -1474,7 +1467,7 @@ def add_mean_cap_additions(steam_df):
     return df
 
 
-def add_null_overrides(connects_ferc1_eia, start_date, end_date):
+def add_null_overrides(connects_ferc1_eia):
     """Override known null matches with pd.NA.
 
     There is no way to indicate in the training data that certain FERC records have no
@@ -1495,8 +1488,8 @@ def add_null_overrides(connects_ferc1_eia, start_date, end_date):
     ).pipe(
         restrict_train_connections_on_date_range,
         id_col="record_id_ferc1",
-        start_date=start_date,
-        end_date=end_date,
+        start_date=min(connects_ferc1_eia.report_date),
+        end_date=max(connects_ferc1_eia.report_date),
     )
     # Make sure there is content!
     if null_overrides.empty:
