@@ -203,6 +203,9 @@ def ferc_xbrl(
         # Prep datastore
         datastore = FercXbrlDatastore(pudl_datastore_fixture)
 
+        # Set step size for subsetting
+        step_size = 5
+
         for form in XbrlFormNumber:
             raw_archive, taxonomy_entry_point = datastore.get_taxonomy(year, form)
 
@@ -211,15 +214,15 @@ def ferc_xbrl(
             form_settings = ferc_to_sqlite_settings.get_xbrl_dataset_settings(form)
 
             # Extract every fifth filing
-            filings_subset = datastore.get_filings(year, form)[::5]
+            filings_subset = datastore.get_filings(year, form)[::step_size]
             xbrl.extract(
-                datastore.get_filings(year, form)[::5],  # Take every 5th filing
+                filings_subset,
                 sqlite_engine,
                 raw_archive,
                 form.value,
                 requested_tables=form_settings.tables,
-                batch_size=len(filings_subset) // 5 + 1,
-                workers=5,
+                batch_size=len(filings_subset) // step_size + 1,
+                workers=step_size,
                 datapackage_path=pudl_settings_fixture[
                     f"ferc{form.value}_xbrl_datapackage"
                 ],
