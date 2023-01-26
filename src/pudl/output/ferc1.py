@@ -10,23 +10,29 @@ logger = pudl.logging_helpers.get_logger(__name__)
 
 
 def read_table_with_start_end_dates(
-    tbl_name: str,
+    table_name: str,
     start_date: pd.Timestamp,
     end_date: pd.Timestamp,
     pudl_engine: sa.engine.Engine,
 ) -> pd.DataFrame:
-    """Read a FERC1 table with a start and end date restriction."""
+    """Read a FERC1 table with a start and end date restriction.
+
+    Note: This is a FERC1 function instead of a general function because FERC1 uses
+    ``report_year`` instead of the more standard ``report_date``.
+
+    Args:
+        table_name: Name of FERC1 table.
+        start_date: Beginning date for data to pull from the PUDL DB.
+        end_date: End date for data to pull from the PUDL DB.
+        pudl_engine: : A connection engine for the PUDL DB.
+    """
     pt = pudl.output.pudltabl.get_table_meta(pudl_engine)
-    table = pt[tbl_name]
-    table_select = sa.sql.select(table)
-    if start_date is not None:
-        table_select = table_select.where(
-            table.columns.report_year >= f"{start_date.year}"
-        )
-    if end_date is not None:
-        table_select = table_select.where(
-            table.columns.report_year <= f"{end_date.year}"
-        )
+    table = pt[table_name]
+    table_select = (
+        sa.sql.select(table)
+        .where(table.columns.report_year >= f"{start_date.year}")
+        .where(table.columns.report_year <= f"{end_date.year}")
+    )
     return pd.read_sql(table_select, pudl_engine)
 
 
