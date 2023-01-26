@@ -304,7 +304,7 @@ def plants_pumped_storage_ferc1(pudl_engine, start_date, end_date):
 def purchased_power_ferc1(pudl_engine, start_date, end_date):
     """Pull a useful dataframe of FERC Form 1 Purchased Power data."""
     purc_query = make_query_for_table_with_start_end_date(
-        "plants_pumpepurchased_power_ferc1d_storage_ferc1", start_date, end_date
+        "purchased_power_ferc1", start_date, end_date
     )
     purchased_power_df = (
         pd.read_sql(purc_query, pudl_engine)
