@@ -524,7 +524,7 @@ def unstack_balances_to_report_year_instant_xbrl(
             df = df[df["balance_type"].notna()].copy()
         df = (
             df.drop(["year", "date"], axis="columns")
-            .set_index(primary_key_cols + ["balance_type"])
+            .set_index(primary_key_cols + ["balance_type", "sched_table_name"])
             .unstack("balance_type")
         )
         # This turns a multi-index into a single-level index with tuples of strings
