@@ -1165,8 +1165,16 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
             logger.info(
                 f"{self.table_id.value}: Both XBRL instant & duration tables found."
             )
-            instant_merge_keys = ["entity_id", "report_year"] + instant_axes
-            duration_merge_keys = ["entity_id", "report_year"] + duration_axes
+            instant_merge_keys = [
+                "entity_id",
+                "report_year",
+                "sched_table_name",
+            ] + instant_axes
+            duration_merge_keys = [
+                "entity_id",
+                "report_year",
+                "sched_table_name",
+            ] + duration_axes
             # See if there are any values in the instant table that don't show up in the
             # duration table.
             unique_instant_rows = instant.set_index(
@@ -1197,9 +1205,13 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
                 )
                 out_df = pd.concat(
                     [
-                        instant.set_index(["report_year", "entity_id"] + instant_axes),
+                        instant.set_index(
+                            ["report_year", "entity_id", "sched_table_name"]
+                            + instant_axes
+                        ),
                         duration.set_index(
-                            ["report_year", "entity_id"] + duration_axes
+                            ["report_year", "entity_id", "sched_table_name"]
+                            + duration_axes
                         ),
                     ],
                     axis="columns",
@@ -1379,6 +1391,7 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
                 f"{self.table_id.value}: Found {len(dupe_ids)} duplicate record_ids: \n"
                 f"{dupe_ids}."
             )
+        df = df.drop(columns="sched_table_name")
         return df
 
     def assign_utility_id_ferc1(
@@ -1634,7 +1647,9 @@ class FuelFerc1TableTransformer(Ferc1AbstractTableTransformer):
         self, fuel_xbrl: pd.DataFrame
     ) -> pd.DataFrame:
         """Aggregate the fuel records having duplicate primary keys."""
-        pk_cols = self.renamed_table_primary_key(source_ferc1=SourceFerc1.XBRL)
+        pk_cols = self.renamed_table_primary_key(source_ferc1=SourceFerc1.XBRL) + [
+            "sched_table_name"
+        ]
         fuel_xbrl.loc[:, "fuel_units_count"] = fuel_xbrl.groupby(pk_cols, dropna=False)[
             "fuel_units"
         ].transform("nunique")

@@ -2689,7 +2689,7 @@ TRANSFORM_PARAMS = {
         },
         "wide_to_tidy": {
             "xbrl": {
-                "idx_cols": ["entity_id", "report_year"],
+                "idx_cols": ["entity_id", "report_year", "sched_table_name"],
                 "value_types": [
                     "starting_balance",
                     "additions",
@@ -3074,7 +3074,11 @@ TRANSFORM_PARAMS = {
         ],
         "wide_to_tidy": {
             "xbrl": {
-                "idx_cols": ["entity_id", "report_year"],
+                "idx_cols": [
+                    "entity_id",
+                    "report_year",
+                    "sched_table_name",
+                ],
                 "value_types": ["energy_source_mwh"],
                 "expected_drop_cols": 10,
                 "stacked_column_name": "xbrl_factoid",
@@ -3135,7 +3139,11 @@ TRANSFORM_PARAMS = {
         ],
         "wide_to_tidy": {
             "xbrl": {
-                "idx_cols": ["entity_id", "report_year"],
+                "idx_cols": [
+                    "entity_id",
+                    "report_year",
+                    "sched_table_name",
+                ],
                 "value_types": ["energy_disposition_mwh"],
                 "expected_drop_cols": 19,
                 "stacked_column_name": "xbrl_factoid",
@@ -3247,7 +3255,12 @@ TRANSFORM_PARAMS = {
         ],
         "wide_to_tidy": {
             "xbrl": {
-                "idx_cols": ["entity_id", "report_year", "utility_type_axis"],
+                "idx_cols": [
+                    "entity_id",
+                    "report_year",
+                    "utility_type_axis",
+                    "sched_table_name",
+                ],
                 "value_types": ["utility_plant_value"],
                 "expected_drop_cols": 1,
                 "stacked_column_name": "xbrl_factoid",
@@ -3320,6 +3333,7 @@ TRANSFORM_PARAMS = {
                 "idx_cols": [
                     "entity_id",
                     "report_year",
+                    "sched_table_name",
                 ],
                 "value_types": ["starting_balance", "ending_balance"],
                 "expected_drop_cols": 0,
@@ -3367,7 +3381,11 @@ TRANSFORM_PARAMS = {
         },
         "wide_to_tidy": {
             "xbrl": {
-                "idx_cols": ["entity_id", "report_year"],
+                "idx_cols": [
+                    "entity_id",
+                    "report_year",
+                    "sched_table_name",
+                ],
                 "value_types": ["starting_balance", "ending_balance"],
                 "expected_drop_cols": 0,
                 "stacked_column_name": "xbrl_factoid",
@@ -3422,7 +3440,12 @@ TRANSFORM_PARAMS = {
         },
         "wide_to_tidy": {
             "xbrl": {
-                "idx_cols": ["entity_id", "report_year", "plant_function"],
+                "idx_cols": [
+                    "entity_id",
+                    "report_year",
+                    "plant_function",
+                    "sched_table_name",
+                ],
                 "value_types": [
                     "depreciation_amortization_value",
                 ],
@@ -3493,6 +3516,7 @@ TRANSFORM_PARAMS = {
                 "idx_cols": [
                     "entity_id",
                     "report_year",
+                    "sched_table_name",
                 ],
                 "value_types": [
                     "starting_balance",
@@ -3626,7 +3650,12 @@ TRANSFORM_PARAMS = {
         },
         "wide_to_tidy": {
             "xbrl": {
-                "idx_cols": ["entity_id", "report_year", "utility_type_axis"],
+                "idx_cols": [
+                    "entity_id",
+                    "report_year",
+                    "utility_type_axis",
+                    "sched_table_name",
+                ],
                 "value_types": ["income"],
                 "expected_drop_cols": 2,
                 "stacked_column_name": "xbrl_factoid",
@@ -3639,7 +3668,7 @@ TRANSFORM_PARAMS = {
                     "record_id",
                 ],
                 "value_types": ["income"],
-                "expected_drop_cols": 12,
+                "expected_drop_cols": 11,
                 "stacked_column_name": "utility_type",
             },
         },
@@ -3750,6 +3779,7 @@ TRANSFORM_PARAMS = {
                     "report_year",
                     "electric_plant_classification_axis",
                     "utility_type_axis",
+                    "sched_table_name",
                 ],
                 "value_types": ["utility_plant_value"],
                 "expected_drop_cols": 2,
@@ -3834,6 +3864,7 @@ TRANSFORM_PARAMS = {
                     "report_year",
                     "electric_plant_classification_axis",
                     "utility_type_axis",
+                    "sched_table_name",
                 ],
                 "value_types": ["utility_plant_value"],
                 "expected_drop_cols": 10,
@@ -3961,7 +3992,13 @@ TRANSFORM_PARAMS = {
         },
         "wide_to_tidy": {
             "xbrl": {
-                "idx_cols": ["entity_id", "end_date", "start_date", "report_year"],
+                "idx_cols": [
+                    "entity_id",
+                    "end_date",
+                    "start_date",
+                    "report_year",
+                    "sched_table_name",
+                ],
                 "value_types": ["amount"],
                 "stacked_column_name": "amount_type",
             }
@@ -4185,7 +4222,13 @@ TRANSFORM_PARAMS = {
         "align_row_numbers_dbf": {"dbf_table_names": ["f1_elc_op_mnt_expn"]},
         "wide_to_tidy": {
             "xbrl": {
-                "idx_cols": ["entity_id", "end_date", "start_date", "report_year"],
+                "idx_cols": [
+                    "entity_id",
+                    "end_date",
+                    "start_date",
+                    "report_year",
+                    "sched_table_name",
+                ],
                 "value_types": ["expense"],
                 "stacked_column_name": "xbrl_factoid",
             }

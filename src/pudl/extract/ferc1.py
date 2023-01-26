@@ -830,43 +830,51 @@ def extract_xbrl(
         xbrl_table = TABLE_NAME_MAP_FERC1[pudl_table]["xbrl"]
         ferc1_raw_dfs[pudl_table] = {}
 
+        ferc1_xbrl_engine = sa.create_engine(pudl_settings["ferc1_xbrl_db"])
+
         for period_type in ["duration", "instant"]:
             if type(xbrl_table) is list and len(xbrl_table) > 1:
                 ferc1_raw_dfs[pudl_table][period_type] = extract_xbrl_concat(
                     table_names=xbrl_table,
                     period=period_type,
-                    pudl_settings=pudl_settings,
+                    ferc1_engine=ferc1_xbrl_engine,
                     ferc1_settings=ferc1_settings,
                 )
             else:
                 ferc1_raw_dfs[pudl_table][period_type] = extract_xbrl_generic(
-                    ferc1_engine=sa.create_engine(pudl_settings["ferc1_xbrl_db"]),
+                    table_name=xbrl_table,
+                    period=period_type,
+                    ferc1_engine=ferc1_xbrl_engine,
                     ferc1_settings=ferc1_settings,
-                    table_name=f"{xbrl_table}_{period_type}",
                 )
 
     return ferc1_raw_dfs
 
 
 def extract_xbrl_generic(
+    table_name: str,
+    period: str,
     ferc1_engine: sa.engine.Engine,
     ferc1_settings: Ferc1Settings,
-    table_name: str,
 ) -> pd.DataFrame:
     """Extract a single FERC Form 1 XBRL table by name.
 
     Args:
-        ferc1_engine: An SQL Alchemy connection engine for the FERC Form 1 database.
-        ferc1_settings: Object containing validated settings relevant to FERC Form 1.
         table_name: Name of the XBRL table to extract, as it appears in the original
             XBRL derived SQLite database.
+        period: Either duration or instant, specific to xbrl data.
+        ferc1_engine: An SQL Alchemy connection engine for the FERC Form 1 database.
+        ferc1_settings: Object containing validated settings relevant to FERC Form 1.
     """
+    # Create full table name with _instant or _duration suffix
+    table_name_full = f"{table_name}_{period}"
+
     # Get XBRL DB metadata
     ferc1_meta = get_ferc1_meta(ferc1_engine)
 
     # Not every table contains both instant and duration
     # Return empty dataframe if table doesn't exist
-    if table_name not in ferc1_meta.tables:
+    if table_name_full not in ferc1_meta.tables:
         return pd.DataFrame()
 
     # Identification table used to get the filing year
@@ -874,8 +882,8 @@ def extract_xbrl_generic(
 
     return pd.read_sql(
         f"""
-        SELECT {table_name}.*, {id_table}.report_year FROM {table_name}
-        JOIN {id_table} ON {id_table}.filing_name = {table_name}.filing_name
+        SELECT {table_name_full}.*, {id_table}.report_year FROM {table_name_full}
+        JOIN {id_table} ON {id_table}.filing_name = {table_name_full}.filing_name
         WHERE {id_table}.report_year BETWEEN :min_year AND :max_year;
         """,
         con=ferc1_engine,
@@ -911,19 +919,19 @@ def extract_dbf_generic(
 
 def extract_xbrl_concat(
     table_names: list[str],
-    ferc1_settings: Ferc1Settings,
-    pudl_settings: dict[str, Any],
     period: Literal["duration", "instant"],
+    ferc1_engine: sa.engine.Engine,
+    ferc1_settings: Ferc1Settings,
 ) -> pd.DataFrame:
     """Combine multiple raw xbrl instant or duration tables into one.
 
     Args:
         table_names: The list of raw table names provided in TABLE_NAME_MAP_FERC1
             under xbrl. These are the tables you want to combine.
+        period: Either duration or instant, specific to xbrl data.
+        ferc1_engine: An SQL Alchemy connection engine for the FERC Form 1 database.
         ferc1_settings: Object containing validated settings relevant to FERC Form 1.
             Contains the tables and years to be loaded into PUDL.
-        pudl_settings: A PUDL settings dictionary.
-        period: Either duration or instant, specific to xbrl data.
 
     There are some instances where multiple xbrl tables ought to be combined into
     a single table to best mesh with data from the other source. This function
@@ -938,9 +946,10 @@ def extract_xbrl_concat(
     for raw_table_name in table_names:
         tables.append(
             extract_xbrl_generic(
-                ferc1_engine=sa.create_engine(pudl_settings["ferc1_xbrl_db"]),
+                table_name=raw_table_name,
+                period=period,
+                ferc1_engine=ferc1_engine,
                 ferc1_settings=ferc1_settings,
-                table_name=f"{raw_table_name}_{period}",
             )
         )
 
