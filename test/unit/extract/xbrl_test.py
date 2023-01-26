@@ -5,13 +5,14 @@ from datetime import datetime, timedelta
 
 import pytest
 
-from pudl.extract.xbrl import FercXbrlDatastore, xbrl2sqlite
+from pudl.extract.xbrl import FercXbrlDatastore, convert_form, xbrl2sqlite
 from pudl.settings import (
     Ferc1XbrlToSqliteSettings,
     Ferc2XbrlToSqliteSettings,
     Ferc6XbrlToSqliteSettings,
     Ferc60XbrlToSqliteSettings,
     Ferc714XbrlToSqliteSettings,
+    FercGenericXbrlToSqliteSettings,
     FercToSqliteSettings,
     XbrlFormNumber,
 )
@@ -188,3 +189,55 @@ def test_xbrl2sqlite(settings, forms, mocker):
             batch_size=20,
             workers=10,
         )
+
+
+def test_convert_form(mocker):
+    """Test convert_form method is properly calling extractor."""
+    extractor_mock = mocker.MagicMock()
+    mocker.patch("pudl.extract.xbrl.xbrl.extract", new=extractor_mock)
+
+    # Create fake datastore class for testing
+    class FakeDatastore:
+        def get_taxonomy(self, year, form):
+            return f"raw_archive_{year}_{form}", f"taxonomy_entry_point_{year}_{form}"
+
+        def get_filings(self, year, form):
+            return f"filings_{year}_{form}"
+
+    settings = FercGenericXbrlToSqliteSettings(
+        taxonomy="https://www.fake.taxonomy.url",
+        tables=["table1", "table2"],
+        years=[2020, 2021],
+    )
+
+    # Test convert_form for every form number
+    for form in XbrlFormNumber:
+        pudl_settings = {
+            f"ferc{form.value}_xbrl_datapackage": "datapackage_path",
+            f"ferc{form.value}_xbrl_taxonomy_metadata": "metadata_path",
+        }
+
+        convert_form(
+            settings,
+            form,
+            FakeDatastore(),
+            "sqlite_engine",
+            pudl_settings=pudl_settings,
+            batch_size=10,
+            workers=5,
+        )
+
+        # Verify extractor is called correctly
+        for year in settings.years:
+            extractor_mock.assert_any_call(
+                f"filings_{year}_{form}",
+                "sqlite_engine",
+                f"raw_archive_{year}_{form}",
+                form.value,
+                requested_tables=settings.tables,
+                batch_size=10,
+                workers=5,
+                datapackage_path="datapackage_path",
+                metadata_path="metadata_path",
+                archive_file_path=f"taxonomy_entry_point_{year}_{form}",
+            )
