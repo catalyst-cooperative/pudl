@@ -4265,9 +4265,22 @@ TRANSFORM_PARAMS = {
                 "columns": {
                     "entity_id": "utility_id_ferc1_xbrl",
                     "report_year": "report_year",
+                    "sales_axis": "sales_axis",
                 }
             },
-        }
+        },
+        "combine_axis_columns_xbrl": {
+            "axis_columns_to_combine": [
+                "residential_sales_axis",
+                "commercial_sales_axis",
+                "industrial_sales_axis",
+                "public_street_and_highway_lighting_axis",
+                "other_sales_to_public_authorities_axis",
+                "sales_to_railroads_and_railways_axis",
+                "interdepartmental_sales_axis",
+            ],
+            "new_axis_column_name": "sales_axis",
+        },
     },
 }
 

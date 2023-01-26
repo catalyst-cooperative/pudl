@@ -536,6 +536,95 @@ def unstack_balances_to_report_year_instant_xbrl(
         return df
 
 
+class CombineAxisColumnsXbrl(TransformParams):
+    """Parameters for :func:`combine_axis_columns_xbrl`."""
+
+    axis_columns_to_combine: list | None = None
+    """List of axis columns to combine."""
+
+    new_axis_column_name: str | None = None
+    """The name of the combined axis column -- must end with the suffix ``_axis``!."""
+
+
+def combine_axis_columns_xbrl(
+    df: pd.DataFrame, params: CombineAxisColumnsXbrl
+) -> pd.DataFrame:
+    """Combine axis columns from squished XBRL tables into one column with no NAs.
+
+    Called in :meth:`Ferc1AbstractTableTransformer.process_xbrl`.
+
+    There are instances (ex: sales_by_rate_schedule_ferc1) where the DBF table is equal
+    to several concatenated XBRL tables. These XBRL tables are extracted together with
+    the function :func:`extract_xbrl_concat`. Once combined, we need to deal with their
+    axis columns.
+
+    We use the axis columns (the primary key for the raw XBRL tables) in the creation
+    of ``record_id``s for each of the rows. If each of the concatinated XBRL tables has
+    the same axis column name then there's no need to fret. However, if the columns have
+    slightly different names (ex: ``residential_sales_axis`` vs.
+    ``industrial_sales_axis``), we'll need to combine them. We combine them to get rid
+    of NA values which aren't allowed in primary keys. Otherwise it would look like
+    this:
+
+        +-------------------------+-------------------------+
+        | residential_sales_axis  | industrial_sales_axis   |
+        +=========================+=========================+
+        | value1                  | NA                      |
+        +-------------------------+-------------------------+
+        | value2                  | NA                      |
+        +-------------------------+-------------------------+
+        | NA                      | valueA                  |
+        +-------------------------+-------------------------+
+        | NA                      | valueB                  |
+        +-------------------------+-------------------------+
+
+    vs. this:
+
+        +-------------------------+
+        | sales_axis              |
+        +=========================+
+        | value1                  |
+        +-------------------------+
+        | value2                  |
+        +-------------------------+
+        | valueA                  |
+        +-------------------------+
+        | valueB                  |
+        +-------------------------+
+    """
+    # First, make sure that the new_axis_column_name param as the word axis in it
+    if not params.new_axis_column_name.endswith("_axis"):
+        raise ValueError(
+            "Your new_axis_column_name must end with the suffix _axis so that it gets "
+            "included in the record_id."
+        )
+    # Now, make sure there are no overlapping axis columns
+    if (df[params.axis_columns_to_combine].count(axis=1) > 1).any():
+        raise AssertionError(
+            "You're trying to combine axis columns, but there's more than one axis "
+            "column value per row."
+        )
+    # Now combine all of the columns into one and remove the old axis columns
+    df[params.new_axis_column_name] = pd.NA
+    for col in params.axis_columns_to_combine:
+        df[params.new_axis_column_name] = df[params.new_axis_column_name].fillna(
+            df[col]
+        )
+    df = df.drop(columns=params.axis_columns_to_combine)
+
+    # This is bad, but somehow there are NA values in the sales_by_rate_schedule table
+    # axis columns, which this function is basically made for. Soooo in order for it not
+    # to break when it uses the axis columns as pk values, just fill them with blanks
+    # here. Yike.
+    if df[params.new_axis_column_name].isna().any():
+        logger.warning(
+            "Some of the newly combined axis column values are NA...we're blanking "
+            "them out now, but that's not ideal!"
+        )
+        df[params.new_axis_column_name] = df[params.new_axis_column_name].fillna("")
+    return df
+
+
 class Ferc1TableTransformParams(TableTransformParams):
     """A model defining what TransformParams are allowed for FERC Form 1.
 
@@ -559,6 +648,7 @@ class Ferc1TableTransformParams(TableTransformParams):
     unstack_balances_to_report_year_instant_xbrl: UnstackBalancesToReportYearInstantXbrl = (
         UnstackBalancesToReportYearInstantXbrl()
     )
+    combine_axis_columns_xbrl: CombineAxisColumnsXbrl = CombineAxisColumnsXbrl()
 
 
 ################################################################################
@@ -1007,6 +1097,7 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
             )
             .pipe(self.wide_to_tidy, source_ferc1=SourceFerc1.XBRL)
             .pipe(self.rename_columns, rename_stage="xbrl")
+            .pipe(self.combine_axis_columns_xbrl)
             .pipe(self.assign_record_id, source_ferc1=SourceFerc1.XBRL)
             .pipe(self.assign_utility_id_ferc1, source_ferc1=SourceFerc1.XBRL)
         )
@@ -1095,6 +1186,22 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
                 f"{self.table_id.value}: applying wide_to_tidy for {source_ferc1.value}"
             )
             df = wide_to_tidy(df, params)
+        return df
+
+    def combine_axis_columns_xbrl(
+        self,
+        df: pd.DataFrame,
+        params: CombineAxisColumnsXbrl | None = None,
+    ) -> pd.DataFrame:
+        """Combine axis columns from squished XBRL tables into one column with no NA."""
+        if params is None:
+            params = self.params.combine_axis_columns_xbrl
+        if params.axis_columns_to_combine:
+            logger.info(
+                f"{self.table_id.value}: Combining axis columns: "
+                f"{params.axis_columns_to_combine} into {params.new_axis_column_name}"
+            )
+            df = combine_axis_columns_xbrl(df, params=params)
         return df
 
     @cache_df(key="xbrl")
