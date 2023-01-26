@@ -1,6 +1,7 @@
 """Functions for pulling FERC Form 1 data out of the PUDL DB."""
 import numpy as np
 import pandas as pd
+import sqlalchemy as sa
 
 import pudl
 from pudl.metadata.fields import apply_pudl_dtypes
@@ -8,11 +9,25 @@ from pudl.metadata.fields import apply_pudl_dtypes
 logger = pudl.logging_helpers.get_logger(__name__)
 
 
-def make_query_for_table_with_start_end_date(  # nosec
-    tbl_name: str, start_date: pd.Timestamp, end_date: pd.Timestamp
-) -> str:
-    """Generate a sql query with a start and end date restriction."""
-    return f"SELECT * FROM {tbl_name} WHERE report_year >= {start_date.year} AND report_year <= {end_date.year}"
+def read_table_with_start_end_dates(
+    tbl_name: str,
+    start_date: pd.Timestamp,
+    end_date: pd.Timestamp,
+    pudl_engine: sa.engine.Engine,
+) -> pd.DataFrame:
+    """Read a FERC1 table with a start and end date restriction."""
+    pt = pudl.output.pudltabl.get_table_meta(pudl_engine)
+    table = pt[tbl_name]
+    table_select = sa.sql.select(table)
+    if start_date is not None:
+        table_select = table_select.where(
+            table.columns.report_year >= f"{start_date.year}"
+        )
+    if end_date is not None:
+        table_select = table_select.where(
+            table.columns.report_year <= f"{end_date.year}"
+        )
+    return pd.read_sql(table_select, pudl_engine)
 
 
 def plants_utils_ferc1(pudl_engine):
@@ -52,11 +67,10 @@ def plants_steam_ferc1(pudl_engine, start_date, end_date):
         pandas.DataFrame: A DataFrame containing useful fields from the FERC
         Form 1 steam table.
     """
-    steam_query = make_query_for_table_with_start_end_date(
-        "plants_steam_ferc1", start_date, end_date
-    )
     steam_df = (
-        pd.read_sql(steam_query, pudl_engine)
+        read_table_with_start_end_dates(
+            "plants_steam_ferc1", start_date, end_date, pudl_engine
+        )
         .merge(
             plants_utils_ferc1(pudl_engine),
             on=["utility_id_ferc1", "plant_name_ferc1"],
@@ -109,11 +123,8 @@ def fuel_ferc1(pudl_engine, start_date, end_date):
         pandas.DataFrame: A DataFrame containing useful FERC Form 1 fuel
         information.
     """
-    fuel_query = make_query_for_table_with_start_end_date(
-        "fuel_ferc1", start_date, end_date
-    )
     fuel_df = (
-        pd.read_sql(fuel_query, pudl_engine)
+        read_table_with_start_end_dates("fuel_ferc1", start_date, end_date, pudl_engine)
         .assign(
             fuel_consumed_mmbtu=lambda x: x["fuel_consumed_units"]
             * x["fuel_mmbtu_per_unit"],
@@ -166,17 +177,13 @@ def fuel_by_plant_ferc1(pudl_engine, start_date, end_date, thresh=0.5):
         """
         return df[df.fuel_type_code_pudl != "other"].copy()
 
-    fuel_query = make_query_for_table_with_start_end_date(
-        "fuel_ferc1", start_date, end_date
-    )
-
     fuel_categories = list(
         pudl.transform.ferc1.FuelFerc1TableTransformer()
         .params.categorize_strings["fuel_type_code_pudl"]
         .categories.keys()
     )
     fbp_df = (
-        pd.read_sql(fuel_query, pudl_engine)
+        read_table_with_start_end_dates("fuel_ferc1", start_date, end_date, pudl_engine)
         .pipe(drop_other_fuel_types)
         .pipe(
             pudl.analysis.classify_plants_ferc1.fuel_by_plant_ferc1,
@@ -205,11 +212,10 @@ def fuel_by_plant_ferc1(pudl_engine, start_date, end_date, thresh=0.5):
 
 def plants_small_ferc1(pudl_engine, start_date, end_date):
     """Pull a useful dataframe related to the FERC Form 1 small plants."""
-    small_query = make_query_for_table_with_start_end_date(
-        "plants_small_ferc1", start_date, end_date
-    )
     plants_small_df = (
-        pd.read_sql(small_query, pudl_engine)
+        read_table_with_start_end_dates(
+            "plants_small_ferc1", start_date, end_date, pudl_engine
+        )
         .merge(
             plants_utils_ferc1(pudl_engine),
             on=["utility_id_ferc1", "plant_name_ferc1"],
@@ -241,11 +247,10 @@ def plants_small_ferc1(pudl_engine, start_date, end_date):
 
 def plants_hydro_ferc1(pudl_engine, start_date, end_date):
     """Pull a useful dataframe related to the FERC Form 1 hydro plants."""
-    hyrdo_query = make_query_for_table_with_start_end_date(
-        "plants_hydro_ferc1", start_date, end_date
-    )
     plants_hydro_df = (
-        pd.read_sql(hyrdo_query, pudl_engine)
+        read_table_with_start_end_dates(
+            "plants_hydro_ferc1", start_date, end_date, pudl_engine
+        )
         .merge(
             plants_utils_ferc1(pudl_engine),
             on=["utility_id_ferc1", "plant_name_ferc1"],
@@ -272,11 +277,10 @@ def plants_hydro_ferc1(pudl_engine, start_date, end_date):
 
 def plants_pumped_storage_ferc1(pudl_engine, start_date, end_date):
     """Pull a dataframe of FERC Form 1 Pumped Storage plant data."""
-    pump_query = make_query_for_table_with_start_end_date(
-        "plants_pumped_storage_ferc1", start_date, end_date
-    )
     pumped_storage_df = (
-        pd.read_sql(pump_query, pudl_engine)
+        read_table_with_start_end_dates(
+            "plants_pumped_storage_ferc1", start_date, end_date, pudl_engine
+        )
         .merge(
             pudl.output.ferc1.plants_utils_ferc1(pudl_engine),
             on=["utility_id_ferc1", "plant_name_ferc1"],
@@ -303,11 +307,10 @@ def plants_pumped_storage_ferc1(pudl_engine, start_date, end_date):
 
 def purchased_power_ferc1(pudl_engine, start_date, end_date):
     """Pull a useful dataframe of FERC Form 1 Purchased Power data."""
-    purc_query = make_query_for_table_with_start_end_date(
-        "purchased_power_ferc1", start_date, end_date
-    )
     purchased_power_df = (
-        pd.read_sql(purc_query, pudl_engine)
+        read_table_with_start_end_dates(
+            "purchased_power_ferc1", start_date, end_date, pudl_engine
+        )
         .merge(pd.read_sql("utilities_ferc1", pudl_engine), on="utility_id_ferc1")
         .pipe(
             pudl.helpers.organize_cols,
@@ -326,11 +329,10 @@ def purchased_power_ferc1(pudl_engine, start_date, end_date):
 
 def plant_in_service_ferc1(pudl_engine, start_date, end_date):
     """Pull a dataframe of FERC Form 1 Electric Plant in Service data."""
-    pis_query = make_query_for_table_with_start_end_date(
-        "plant_in_service_ferc1", start_date, end_date
-    )
     pis_df = (
-        pd.read_sql(pis_query, pudl_engine)
+        read_table_with_start_end_dates(
+            "plant_in_service_ferc1", start_date, end_date, pudl_engine
+        )
         .merge(pd.read_sql("utilities_ferc1", pudl_engine), on="utility_id_ferc1")
         .pipe(
             pudl.helpers.organize_cols,
