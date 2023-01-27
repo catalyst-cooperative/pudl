@@ -1049,11 +1049,19 @@ def extract_xbrl_metadata(
         xbrl_meta_out[pudl_table] = {}
 
         for period in ["instant", "duration"]:
-            try:
-                xbrl_meta_out[pudl_table][period] = xbrl_meta_all[
-                    f"{xbrl_table}_{period}"
-                ]
-            except KeyError:
-                xbrl_meta_out[pudl_table][period] = []
-
+            # If you're squashing more than one instant and duration table
+            # No need to worry about duplicates b/c they are handled in
+            # transform.ferc1.process_xbrl_metadata(). Here we treat all xbrl_tables
+            # list a list (even if there is just one table in them) to reduce the
+            # amount of code.
+            if type(xbrl_table) is str:
+                xbrl_table = [xbrl_table]
+            period_meta = []
+            for table in xbrl_table:
+                try:
+                    table_meta = xbrl_meta_all[f"{table}_{period}"]
+                except KeyError:
+                    table_meta = []
+                period_meta += table_meta
+            xbrl_meta_out[pudl_table][period] = period_meta
     return xbrl_meta_out
