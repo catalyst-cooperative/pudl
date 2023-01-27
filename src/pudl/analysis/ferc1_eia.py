@@ -40,7 +40,6 @@ import numpy as np
 import pandas as pd
 import recordlinkage as rl
 import scipy
-import sklearn
 from recordlinkage.compare import Exact, Numeric, String  # , Date
 from sklearn.model_selection import KFold  # , cross_val_score
 
@@ -457,23 +456,6 @@ class ModelTuner:
         self.n_splits = n_splits
         self.results_options = None
         self.best = None
-
-    def fit_model(self):
-        """Bad bad does not work.
-
-        sklearn is mad bc this is a rl classifier :-(
-        """
-        lrc = rl.LogisticRegressionClassifier()
-        clf = sklearn.model_selection.GridSearchCV(
-            estimator=lrc,
-            param_grid=self.get_hyperparameters_options(),
-            cv=5,
-            verbose=True,
-            n_jobs=-1,
-            scoring="f1",
-        )
-        clf.fit(X=self.features_train.to_numpy(), y=self.train_index)
-        return clf
 
     @staticmethod
     def kfold_cross_val(
