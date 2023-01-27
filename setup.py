@@ -54,8 +54,8 @@ setup(
         "catalystcoop.ferc-xbrl-extractor==0.8.1",
         "dask>=2021.8,<2022.12.2",
         "datapackage>=1.11,<1.16",  # Transition datastore to use frictionless.
-        "dagster~=1.0.17",
-        "dagit~=1.0.17",
+        "dagster~=1.1.13",
+        "dagit~=1.1.13",
         # "email-validator>=1.0.3",  # pydantic[email] dependency
         "fsspec>=2021.7,<2022.11.1",  # For caching datastore on GCS
         "gcsfs>=2021.7,<2022.11.1",  # For caching datastore on GCS
