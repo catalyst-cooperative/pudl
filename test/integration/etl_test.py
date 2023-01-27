@@ -38,16 +38,27 @@ def test_ferc1_xbrl2sqlite(ferc1_engine_xbrl, ferc1_xbrl_taxonomy_metadata):
     )
 
     # Has the metadata we've read in from JSON contain a long list of entities?
-    assert isinstance(ferc1_xbrl_taxonomy_metadata, list)  # nosec: B101
-    assert len(ferc1_xbrl_taxonomy_metadata) > 2500  # nosec: B101
+    assert isinstance(ferc1_xbrl_taxonomy_metadata, dict)  # nosec: B101
+    assert "plants_steam_ferc1" in ferc1_xbrl_taxonomy_metadata.keys()  # nosec: B101
+    assert len(ferc1_xbrl_taxonomy_metadata) > 10  # nosec: B101
+    assert len(ferc1_xbrl_taxonomy_metadata) < 100  # nosec: B101
 
     # Can we normalize that list of entities and find data in it that we expect?
-    df = pd.json_normalize(ferc1_xbrl_taxonomy_metadata)
-    assert (  # nosec: B101
-        df.loc[df.name == "spent_nuclear_fuel", "balance"].values == "debit"
+    df = pd.json_normalize(
+        ferc1_xbrl_taxonomy_metadata["plant_in_service_ferc1"]["instant"]
     )
     assert (  # nosec: B101
-        df.loc[df.name == "spent_nuclear_fuel", "references.Account"].values == "120.4"
+        df.loc[
+            df.name == "reactor_plant_equipment_nuclear_production", "balance"
+        ].values
+        == "debit"
+    )
+    assert (  # nosec: B101
+        df.loc[
+            df.name == "reactor_plant_equipment_nuclear_production",
+            "references.account",
+        ].values
+        == "322"
     )
 
 

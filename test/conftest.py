@@ -10,11 +10,13 @@ from pathlib import Path
 import pytest
 import sqlalchemy as sa
 import yaml
+from ferc_xbrl_extractor import xbrl
 
 import pudl
 from pudl.extract.ferc1 import extract_xbrl_metadata
+from pudl.extract.xbrl import FercXbrlDatastore, _get_sqlite_engine
 from pudl.output.pudltabl import PudlTabl
-from pudl.settings import EtlSettings
+from pudl.settings import DatasetsSettings, EtlSettings, XbrlFormNumber
 
 logger = logging.getLogger(__name__)
 
@@ -100,7 +102,7 @@ def check_foreign_keys(request):
 
 
 @pytest.fixture(scope="session", name="etl_settings")
-def etl_parameters(request, test_dir):
+def etl_parameters(request, test_dir) -> EtlSettings:
     """Read the ETL parameters from the test settings or proffered file."""
     if request.config.getoption("--etl-settings"):
         etl_settings_yml = Path(request.config.getoption("--etl-settings"))
@@ -121,7 +123,7 @@ def ferc_to_sqlite_parameters(etl_settings):
 
 
 @pytest.fixture(scope="session", name="pudl_etl_settings")
-def pudl_etl_parameters(etl_settings):
+def pudl_etl_parameters(etl_settings: EtlSettings) -> DatasetsSettings:
     """Read PUDL ETL parameters out of test settings dictionary."""
     return etl_settings.datasets
 
@@ -184,36 +186,70 @@ def ferc1_dbf_sql_engine(
     return engine
 
 
-@pytest.fixture(scope="session", name="ferc1_engine_xbrl")
-def ferc1_xbrl_sql_engine(
+@pytest.fixture(scope="session")
+def ferc_xbrl(
     pudl_settings_fixture,
     live_dbs,
     ferc_to_sqlite_settings,
     pudl_datastore_fixture,
 ):
-    """Grab a connection to the FERC Form 1 DB clone.
+    """Extract XBRL filings and produce raw DB+metadata files.
 
-    If we are using the test database, we initialize it from scratch first. If we're
-    using the live database, then we just yield a conneciton to it.
+    Extracts a subset of filings for each form for the year 2021.
     """
     if not live_dbs:
-        pudl.extract.xbrl.xbrl2sqlite(
-            ferc_to_sqlite_settings=ferc_to_sqlite_settings,
-            pudl_settings=pudl_settings_fixture,
-            clobber=False,
-            datastore=pudl_datastore_fixture,
-            workers=5,
-            batch_size=20,
-        )
+        year = 2021
+
+        # Prep datastore
+        datastore = FercXbrlDatastore(pudl_datastore_fixture)
+
+        # Set step size for subsetting
+        step_size = 5
+
+        for form in XbrlFormNumber:
+            raw_archive, taxonomy_entry_point = datastore.get_taxonomy(year, form)
+
+            sqlite_engine = _get_sqlite_engine(form.value, pudl_settings_fixture, True)
+
+            form_settings = ferc_to_sqlite_settings.get_xbrl_dataset_settings(form)
+
+            # Extract every fifth filing
+            filings_subset = datastore.get_filings(year, form)[::step_size]
+            xbrl.extract(
+                filings_subset,
+                sqlite_engine,
+                raw_archive,
+                form.value,
+                requested_tables=form_settings.tables,
+                batch_size=len(filings_subset) // step_size + 1,
+                workers=step_size,
+                datapackage_path=pudl_settings_fixture[
+                    f"ferc{form.value}_xbrl_datapackage"
+                ],
+                metadata_path=pudl_settings_fixture[
+                    f"ferc{form.value}_xbrl_taxonomy_metadata"
+                ],
+                archive_file_path=taxonomy_entry_point,
+            )
+
+
+@pytest.fixture(scope="session")
+def ferc1_engine_xbrl(pudl_settings_fixture, ferc_xbrl):
+    """Grab connection to raw FERC1 XBRL db."""
     engine = sa.create_engine(pudl_settings_fixture["ferc1_xbrl_db"])
     logger.info("FERC1 Engine: %s", engine)
     return engine
 
 
 @pytest.fixture(scope="session", name="ferc1_xbrl_taxonomy_metadata")
-def ferc1_xbrl_taxonomy_metadata(pudl_settings_fixture, ferc1_engine_xbrl):
+def ferc1_xbrl_taxonomy_metadata(
+    pudl_settings_fixture, pudl_etl_settings: DatasetsSettings, ferc1_engine_xbrl
+):
     """Read the FERC 1 XBRL taxonomy metadata from JSON."""
-    return extract_xbrl_metadata(pudl_settings=pudl_settings_fixture)
+    return extract_xbrl_metadata(
+        ferc1_settings=pudl_etl_settings.ferc1,
+        pudl_settings=pudl_settings_fixture,
+    )
 
 
 @pytest.fixture(scope="session", name="pudl_engine")

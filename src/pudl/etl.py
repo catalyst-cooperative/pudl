@@ -13,7 +13,6 @@ data from:
  - US Environmental Protection Agency (EPA):
    - Continuous Emissions Monitory System (epacems)
 """
-import itertools
 import logging
 import time
 from concurrent.futures import ProcessPoolExecutor
@@ -29,11 +28,7 @@ import sqlalchemy as sa
 import pudl
 from pudl.helpers import convert_cols_dtypes
 from pudl.metadata.classes import Package, Resource
-from pudl.metadata.dfs import (
-    FERC_ACCOUNTS,
-    FERC_DEPRECIATION_LINES,
-    POLITICAL_SUBDIVISIONS,
-)
+from pudl.metadata.dfs import FERC_ACCOUNTS, POLITICAL_SUBDIVISIONS
 from pudl.metadata.fields import apply_pudl_dtypes
 from pudl.settings import (
     EiaSettings,
@@ -141,17 +136,13 @@ def _read_static_tables_ferc1():
     """Compile static tables for FERC1 for foriegn key constaints.
 
     This function grabs static encoded tables via :func:`_read_static_encoding_tables`
-    as well as two static tables that are non-encoded tables (``ferc_accounts`` and
-    ``ferc_depreciation_lines``).
+    as well as any static tables that are non-encoded tables (e.e. ``ferc_accounts``).
     """
     static_table_dict = _read_static_encoding_tables("static_ferc1")
     static_table_dict.update(
         {
             "ferc_accounts": FERC_ACCOUNTS[
                 ["ferc_account_id", "ferc_account_description"]
-            ],
-            "ferc_depreciation_lines": FERC_DEPRECIATION_LINES[
-                ["line_id", "ferc_account_description"]
             ],
         }
     )
@@ -184,7 +175,10 @@ def _etl_ferc1(
     ferc1_xbrl_raw_dfs = pudl.extract.ferc1.extract_xbrl(
         ferc1_settings=ferc1_settings, pudl_settings=pudl_settings
     )
-    xbrl_metadata_json = pudl.extract.ferc1.extract_xbrl_metadata(pudl_settings)
+    xbrl_metadata_json = pudl.extract.ferc1.extract_xbrl_metadata(
+        ferc1_settings=ferc1_settings,
+        pudl_settings=pudl_settings,
+    )
     # Transform FERC form 1
     ferc1_transformed_dfs = pudl.transform.ferc1.transform(
         ferc1_dbf_raw_dfs=ferc1_dbf_raw_dfs,
@@ -319,9 +313,9 @@ def etl_epacems(
             compression="snappy",
             version="2.6",
         ) as pqwriter:
-            for year, state in itertools.product(
-                epacems_settings.years, epacems_settings.states
-            ):
+            for part in epacems_settings.partitions:
+                year = part["year"]
+                state = part["state"]
                 logger.info(f"Processing EPA CEMS hourly data for {year}-{state}")
                 df = pudl.extract.epacems.extract(year=year, state=state, ds=ds)
                 df = pudl.transform.epacems.transform(df, pudl_engine=pudl_engine)
@@ -508,6 +502,9 @@ def etl(  # noqa: C901
         epacems_pq_path.mkdir(exist_ok=True)
 
     sqlite_dfs = _read_static_pudl_tables()
+    sqlite_dfs["datasources"] = validated_etl_settings.make_datasources_table(
+        ds=Datastore(**ds_kwargs)
+    )
     # This could be cleaner if we simplified the settings file format:
     if datasets.get("ferc1", False):
         sqlite_dfs.update(_etl_ferc1(datasets["ferc1"], pudl_settings))

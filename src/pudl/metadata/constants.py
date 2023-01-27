@@ -15,9 +15,7 @@ FIELD_DTYPES_PANDAS: dict[str, str] = {
     "datetime": "datetime64[ns]",
     "year": "datetime64[ns]",
 }
-"""
-Pandas data type by PUDL field type (Data Package `field.type`).
-"""
+"""Pandas data type by PUDL field type (Data Package `field.type`)."""
 
 FIELD_DTYPES_PYARROW: dict[str, pa.lib.DataType] = {
     "boolean": pa.bool_(),
@@ -38,9 +36,7 @@ FIELD_DTYPES_SQL: dict[str, sa.sql.visitors.VisitableType] = {
     "string": sa.Text,
     "year": sa.Integer,
 }
-"""
-SQLAlchemy column types by PUDL field type (Data Package `field.type`).
-"""
+"""SQLAlchemy column types by PUDL field type (Data Package `field.type`)."""
 
 CONSTRAINT_DTYPES: dict[str, type] = {
     "string": str,
@@ -51,9 +47,7 @@ CONSTRAINT_DTYPES: dict[str, type] = {
     "date": datetime.date,
     "datetime": datetime.datetime,
 }
-"""
-Python types for field constraints by PUDL field type (Data Package `field.type`).
-"""
+"""Python types for field constraints by PUDL field type (Data Package `field.type`)."""
 
 LICENSES: dict[str, dict[str, str]] = {
     "cc-by-4.0": {
@@ -67,9 +61,7 @@ LICENSES: dict[str, dict[str, str]] = {
         "path": "https://www.usa.gov/government-works",
     },
 }
-"""
-License attributes.
-"""
+"""License attributes."""
 
 PERIODS: dict[str, Callable[[pd.Series], pd.Series]] = {
     "year": lambda x: pd.Series(x.to_numpy().astype("datetime64[Y]")),
@@ -79,9 +71,7 @@ PERIODS: dict[str, Callable[[pd.Series], pd.Series]] = {
     "month": lambda x: pd.Series(x.to_numpy().astype("datetime64[M]")),
     "date": lambda x: pd.Series(x.to_numpy().astype("datetime64[D]")),
 }
-"""
-Functions converting datetimes to period start times, by time period.
-"""
+"""Functions converting datetimes to period start times, by time period."""
 
 CONTRIBUTORS: dict[str, dict[str, str]] = {
     "catalyst-cooperative": {
@@ -161,9 +151,7 @@ CONTRIBUTORS: dict[str, dict[str, str]] = {
         "organization": "Catalyst Cooperative",
     },
 }
-"""
-PUDL Contributors for attribution.
-"""
+"""PUDL Contributors for attribution."""
 
 KEYWORDS: dict[str, list[str]] = {
     "electricity": [
