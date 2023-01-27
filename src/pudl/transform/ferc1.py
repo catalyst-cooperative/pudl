@@ -1598,7 +1598,7 @@ class FuelFerc1TableTransformer(Ferc1AbstractTableTransformer):
             # MW*days thermal to MWh thermal
             FuelFix("nuclear", "mwdth", "mwhth", 24.0),
             # Straight energy equivalence between BTU and MWh here:
-            FuelFix("nuclear", "mmmbtu", "mwhth", (1.0 / 3.412142)),
+            FuelFix("nuclear", "mmbtu", "mwhth", (1.0 / 3.412142)),
             FuelFix("nuclear", "btu", "mwhth", (1.0 / 3412142)),
             # Unclear if it's possible to convert heavy metal to heat reliably
             FuelFix("nuclear", "grams", "kg", (1.0 / 1000)),
