@@ -4,7 +4,6 @@ import datetime
 
 import pandas as pd
 import pytz
-from dagster import op
 
 import pudl.logging_helpers
 from pudl.helpers import remove_leading_zeros_from_numeric_strings
@@ -129,7 +128,6 @@ def convert_to_utc(df: pd.DataFrame, plant_utc_offset: pd.DataFrame) -> pd.DataF
     return df
 
 
-@op
 def load_plant_utc_offset(plants_entity_eia) -> pd.DataFrame:
     """Load the UTC offset each EIA plant.
 
