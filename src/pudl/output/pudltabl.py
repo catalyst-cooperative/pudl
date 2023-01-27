@@ -116,15 +116,14 @@ class PudlTabl:
 
         # grab all working eia dates to use to set start and end dates if they
         # are not set
-        eia_dates = pudl.helpers.get_working_eia_dates()
         if start_date is None:
-            self.start_date = min(eia_dates)
+            self.start_date = min(pudl.helpers.get_working_dates_by_datasource("ferc1"))
         else:
             # Make sure it's a date... and not a string.
             self.start_date = pd.to_datetime(start_date)
 
         if end_date is None:
-            self.end_date = max(eia_dates)
+            self.end_date = max(pudl.helpers.get_working_dates_by_datasource("eia"))
         else:
             # Make sure it's a date... and not a string.
             self.end_date = pd.to_datetime(end_date)
@@ -829,7 +828,7 @@ class PudlTabl:
         """
         if update or self._dfs["plants_steam_ferc1"] is None:
             self._dfs["plants_steam_ferc1"] = pudl.output.ferc1.plants_steam_ferc1(
-                self.pudl_engine
+                self.pudl_engine, start_date=self.start_date, end_date=self.end_date
             )
         return self._dfs["plants_steam_ferc1"]
 
@@ -844,7 +843,9 @@ class PudlTabl:
             pandas.DataFrame: a denormalized table for interactive use.
         """
         if update or self._dfs["fuel_ferc1"] is None:
-            self._dfs["fuel_ferc1"] = pudl.output.ferc1.fuel_ferc1(self.pudl_engine)
+            self._dfs["fuel_ferc1"] = pudl.output.ferc1.fuel_ferc1(
+                self.pudl_engine, start_date=self.start_date, end_date=self.end_date
+            )
         return self._dfs["fuel_ferc1"]
 
     def fbp_ferc1(self, update=False):
@@ -859,7 +860,7 @@ class PudlTabl:
         """
         if update or self._dfs["fbp_ferc1"] is None:
             self._dfs["fbp_ferc1"] = pudl.output.ferc1.fuel_by_plant_ferc1(
-                self.pudl_engine
+                self.pudl_engine, start_date=self.start_date, end_date=self.end_date
             )
         return self._dfs["fbp_ferc1"]
 
@@ -875,7 +876,7 @@ class PudlTabl:
         """
         if update or self._dfs["plants_small_ferc1"] is None:
             self._dfs["plants_small_ferc1"] = pudl.output.ferc1.plants_small_ferc1(
-                self.pudl_engine
+                self.pudl_engine, start_date=self.start_date, end_date=self.end_date
             )
         return self._dfs["plants_small_ferc1"]
 
@@ -891,7 +892,7 @@ class PudlTabl:
         """
         if update or self._dfs["plants_hydro_ferc1"] is None:
             self._dfs["plants_hydro_ferc1"] = pudl.output.ferc1.plants_hydro_ferc1(
-                self.pudl_engine
+                self.pudl_engine, start_date=self.start_date, end_date=self.end_date
             )
         return self._dfs["plants_hydro_ferc1"]
 
@@ -908,7 +909,9 @@ class PudlTabl:
         if update or self._dfs["plants_pumped_storage_ferc1"] is None:
             self._dfs[
                 "plants_pumped_storage_ferc1"
-            ] = pudl.output.ferc1.plants_pumped_storage_ferc1(self.pudl_engine)
+            ] = pudl.output.ferc1.plants_pumped_storage_ferc1(
+                self.pudl_engine, start_date=self.start_date, end_date=self.end_date
+            )
         return self._dfs["plants_pumped_storage_ferc1"]
 
     def purchased_power_ferc1(self, update=False):
@@ -924,7 +927,9 @@ class PudlTabl:
         if update or self._dfs["purchased_power_ferc1"] is None:
             self._dfs[
                 "purchased_power_ferc1"
-            ] = pudl.output.ferc1.purchased_power_ferc1(self.pudl_engine)
+            ] = pudl.output.ferc1.purchased_power_ferc1(
+                self.pudl_engine, start_date=self.start_date, end_date=self.end_date
+            )
         return self._dfs["purchased_power_ferc1"]
 
     def plant_in_service_ferc1(self, update=False):
@@ -940,7 +945,9 @@ class PudlTabl:
         if update or self._dfs["plant_in_service_ferc1"] is None:
             self._dfs[
                 "plant_in_service_ferc1"
-            ] = pudl.output.ferc1.plant_in_service_ferc1(self.pudl_engine)
+            ] = pudl.output.ferc1.plant_in_service_ferc1(
+                self.pudl_engine, start_date=self.start_date, end_date=self.end_date
+            )
         return self._dfs["plant_in_service_ferc1"]
 
     def plants_all_ferc1(self, update=False):
@@ -955,7 +962,7 @@ class PudlTabl:
         """
         if update or self._dfs["plants_all_ferc1"] is None:
             self._dfs["plants_all_ferc1"] = pudl.output.ferc1.plants_all_ferc1(
-                self.pudl_engine
+                self.pudl_engine, start_date=self.start_date, end_date=self.end_date
             )
         return self._dfs["plants_all_ferc1"]
 

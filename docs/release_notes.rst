@@ -42,6 +42,11 @@ Deprecations
   <https://www.github.com/catalyst-cooperative/pudl-archiver>`__ repository in
   :doc:`intro`, :doc:`dev/datastore`, and :doc:`dev/annual_updates`. See :pr:`2190`.
 
+Miscellaneous
+^^^^^^^^^^^^^
+* Apply start and end dates to ferc1 data in :class:`pudl.output.pudltabl.PudlTabl`.
+  See :pr:`2238` & :issue:`274`.
+
 .. _release-v2022.11.30:
 
 ---------------------------------------------------------------------------------------
