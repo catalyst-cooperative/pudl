@@ -40,6 +40,7 @@ import numpy as np
 import pandas as pd
 import recordlinkage as rl
 import scipy
+import sklearn
 from recordlinkage.compare import Exact, Numeric, String  # , Date
 from sklearn.model_selection import KFold  # , cross_val_score
 
@@ -456,6 +457,23 @@ class ModelTuner:
         self.n_splits = n_splits
         self.results_options = None
         self.best = None
+
+    def fit_model(self):
+        """Bad bad does not work.
+
+        sklearn is mad bc this is a rl classifier :-(
+        """
+        lrc = rl.LogisticRegressionClassifier()
+        clf = sklearn.model_selection.GridSearchCV(
+            estimator=lrc,
+            param_grid=self.get_hyperparameters_options(),
+            cv=5,
+            verbose=True,
+            n_jobs=-1,
+            scoring="f1",
+        )
+        clf.fit(X=self.features_train.to_numpy(), y=self.train_index)
+        return clf
 
     @staticmethod
     def kfold_cross_val(
@@ -927,7 +945,7 @@ class MatchManager:
         return matches_best_df
 
     @staticmethod
-    def fit_predict_lrc(best, features_known, features_all, train_df_ids):
+    def fit_predict_lrc(best, features_train, features_all, train_df):
         """Generate, fit and predict model.
 
         Wahoo.
@@ -943,7 +961,7 @@ class MatchManager:
             multi_class=best["multi_class"].values[0],
         )
         # fit the model with all of the
-        lrc.fit(features_known, train_df_ids.index)
+        lrc.fit(features_train, train_df.index)
         # this step is getting preditions on all of the possible matches based
         # on the last run model above
         predict_all = lrc.predict(features_all)
@@ -1001,7 +1019,10 @@ class MatchManager:
         # this returns all matches that the model deems good enough from the
         # candidate matches in the `features_all`
         matches_model = self.fit_predict_lrc(
-            self.best, features_train, features_all, self.train_df
+            best=self.best,
+            features_train=features_train,
+            features_all=features_all,
+            train_df=self.train_df,
         )
         # weight the features of model matches with the coeficients
         # we need a metric of how different each match is
