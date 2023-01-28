@@ -2,6 +2,51 @@
 PUDL Release Notes
 =======================================================================================
 
+.. _release-v2023.XX.XX:
+
+---------------------------------------------------------------------------------------
+v2023.XX.XX
+---------------------------------------------------------------------------------------
+
+Data Coverage
+^^^^^^^^^^^^^
+
+* Updated :doc:`data_sources/eia860` to include data as of 2022-09.
+* New PUDL tables from :doc:`data_sources/ferc1`, integrating older DBF and newer XBRL
+  data. See :issue:`1574` for an overview of our progress integrating FERC's XBRL data.
+  To see which DBF and XBRL tables the following PUDL tables are derived from, refer to
+  :py:const:`pudl.extract.ferc1.TABLE_NAME_MAP`
+
+  * :ref:`electric_energy_sources_ferc1`, see issue :issue:`1819` & PR :pr:`2094`.
+  * :ref:`electric_energy_dispositions_ferc1`, see issue :issue:`1819` & PR :pr:`2100`.
+  * :ref:`transmission_statistics_ferc1`, see issue :issue:`1822` & PR :pr:`2103`
+  * :ref:`utility_plant_summary_ferc1`, see issue :issue:`1806` & PR :pr:`2105`.
+  * :ref:`balance_sheet_assets_ferc1`, see issue :issue:`1805` & PRs :pr:`2112,2127`.
+  * :ref:`balance_sheet_liabilities_ferc1`, see issue :issue:`1810` & PR :pr:`2134`.
+  * :ref:`depreciation_amortization_summary_ferc1`, see issue :issue:`1816` & PR
+    :pr:`2143`.
+  * :ref:`income_statement_ferc1`, see issue :issue:`1813` & PR :pr:`2147`.
+  * :ref:`electric_plant_depreciation_changes_ferc1` see issue :issue:`1808` &
+    :pr:`2119`.
+  * :ref:`electric_plant_depreciation_functional_ferc1` see issue :issue:`1808` & PR
+    :pr:`2183`
+  * :ref:`electric_opex_ferc1`, see issue :issue:`1817` & PR :pr:`2162`.
+  * :ref:`retained_earnings_ferc1`, see issue :issue:`1811` & PR :pr:`2155`.
+  * :ref:`cash_flow_ferc1`, see issue :issue:`1821` & PR :pr:`2184`
+
+Deprecations
+^^^^^^^^^^^^
+
+* Replace references to deprecated ``pudl-scrapers`` and
+  ``pudl-zenodo-datastore`` repositories with references to `pudl-archiver
+  <https://www.github.com/catalyst-cooperative/pudl-archiver>`__ repository in
+  :doc:`intro`, :doc:`dev/datastore`, and :doc:`dev/annual_updates`. See :pr:`2190`.
+
+Miscellaneous
+^^^^^^^^^^^^^
+* Apply start and end dates to ferc1 data in :class:`pudl.output.pudltabl.PudlTabl`.
+  See :pr:`2238` & :issue:`274`.
+
 .. _release-v2022.11.30:
 
 ---------------------------------------------------------------------------------------
@@ -10,6 +55,7 @@ v2022.11.30
 
 Data Coverage
 ^^^^^^^^^^^^^
+
 * Added archives of the bulk EIA electricity API data to our datastore, since the API
   itself is too unreliable for production use. This is part of :issue:`1763`. The code
   for this new data is ``eia_bulk_elec`` and the data comes as a single 200MB zipped
@@ -25,11 +71,13 @@ Data Coverage
   ``data_maturity`` column and related ``data_maturities`` table into most of the EIA
   data tables in order to alter users to the level of finality of the data. See
   :pr:`1834,1855,1915,1921`.
-* Incorporated 2022 data from the :doc:`data_sources/eia860` monthly update from June
-  2022. See :pr:`1834`. This included adding new ``energy_storage_capacity_mwh`` (for
-  batteries) and ``net_capacity_mwdc`` (for behind-the-meter solar PV) attributes to the
-  :ref:`generators_eia860` table, as they appear in the :doc:`data_sources/eia860`
-  monthly updates for 2022.
+* Incorporated 2022 data from the :doc:`data_sources/eia860` monthly update from
+  September 2022. See :pr:`2079`. A June 2022 eia860m update included adding new
+  ``energy_storage_capacity_mwh`` (for batteries) and ``net_capacity_mwdc`` (for
+  behind-the-meter solar PV) attributes to the :ref:`generators_eia860` table, as they
+  appear in the :doc:`data_sources/eia860` monthly updates for 2022.  See :pr:`1834`.
+* Added new :ref:`datasources` table, which includes partitions used to generate the
+  database. See :pr:`2079`.
 * Integrated several new columns into the EIA 860 and EIA 923 including several
   codes with coding tables (See :doc:`data_dictionaries/codes_and_labels`). :pr:`1836`
 * Added the `EPACAMD-EIA Crosswalk <https://github.com/USEPA/camd-eia-crosswalk>`__ to

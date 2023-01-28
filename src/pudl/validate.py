@@ -1280,8 +1280,8 @@ gf_eia923_coal_heat_content = [
 ]
 """Valid coal heat content values (all coal types).
 
-The Generation Fuel table does not break different coal types out separately,
-so we can only test the validity of the entire suite of coal records.
+The Generation Fuel table does not break different coal types out separately, so we can
+only test the validity of the entire suite of coal records.
 """
 
 gf_eia923_gas_heat_content = [
@@ -1308,8 +1308,8 @@ gf_eia923_gas_heat_content = [
 ]
 """Valid natural gas heat content values.
 
-Focuses on natural gas proper. Lower bound excludes other types of gaseous
-fuels intentionally.
+Focuses on natural gas proper. Lower bound excludes other types of gaseous fuels
+intentionally.
 """
 
 gf_eia923_oil_heat_content = [
@@ -1524,9 +1524,9 @@ bf_eia923_gas_heat_content = [
 ]
 """Valid natural gas heat content values.
 
-Based on historically reported values in EIA 923 Fuel Receipts and Costs. May
-fail because of a population of bad data around 0.1 mmbtu/unit. This appears
-to be an off-by-10x error, possibly due to reporting error in units used.
+Based on historically reported values in EIA 923 Fuel Receipts and Costs. May fail
+because of a population of bad data around 0.1 mmbtu/unit. This appears to be an off-
+by-10x error, possibly due to reporting error in units used.
 """
 
 bf_eia923_coal_ash_content = [
@@ -1571,7 +1571,10 @@ bf_eia923_coal_ash_content = [
         "weight_col": "fuel_consumed_units",
     },
 ]
-"""Valid coal ash content (%). Based on historical reporting in EIA 923."""
+"""Valid coal ash content (%).
+
+Based on historical reporting in EIA 923.
+"""
 
 bf_eia923_coal_sulfur_content = [
     {
@@ -2085,9 +2088,9 @@ frc_eia923_other_gas_heat_content = [
 ]
 """Check for reasonable other gas heat contents.
 
-Based on values given in the EIA 923 instructions, but with the lower bound
-set by the expected lower bound of heat content on blast furnace gas (since
-there were "other" gasses with bounds lower than the expected 0.32 in the data)
+Based on values given in the EIA 923 instructions, but with the lower bound set by the
+expected lower bound of heat content on blast furnace gas (since there were "other"
+gasses with bounds lower than the expected 0.32 in the data)
 https://www.eia.gov/survey/form/eia_923/instructions.pdf
 """
 
@@ -2313,7 +2316,10 @@ frc_eia923_coal_ash_content = [
         "weight_col": "fuel_received_units",
     },
 ]
-"""Valid coal ash content (%). Based on historical reporting in EIA 923."""
+"""Valid coal ash content (%).
+
+Based on historical reporting in EIA 923.
+"""
 
 frc_eia923_coal_sulfur_content = [
     {
@@ -2356,9 +2362,9 @@ frc_eia923_coal_mercury_content = [
 ]
 """Valid coal mercury content limits.
 
-Based on USGS FS095-01: https://pubs.usgs.gov/fs/fs095-01/fs095-01.html
-Upper tail may fail because of a population of extremely high mercury content
-coal (9.0ppm) which is likely a reporting error.
+Based on USGS FS095-01: https://pubs.usgs.gov/fs/fs095-01/fs095-01.html Upper tail may
+fail because of a population of extremely high mercury content coal (9.0ppm) which is
+likely a reporting error.
 """
 
 frc_eia923_coal_moisture_content = [

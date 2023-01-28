@@ -96,6 +96,7 @@ class TransformParams(BaseModel):
         """Prevent parameters from changing part way through."""
 
         allow_mutation = False
+        extra = "forbid"
 
 
 class MultiColumnTransformParams(TransformParams):
@@ -794,9 +795,14 @@ def drop_invalid_rows(df: pd.DataFrame, params: InvalidRows) -> pd.DataFrame:
             params.required_valid_cols or [] + params.allowed_invalid_cols or []
         )
         missing_cols = [col for col in possible_cols if col not in df]
-        if missing_cols:
+        if missing_cols and params.allowed_invalid_cols:
             logger.warning(
                 "Columns used as drop_invalid_rows parameters do not appear in "
+                f"dataframe: {missing_cols}"
+            )
+        if missing_cols and params.required_valid_cols:
+            raise ValueError(
+                "Some required valid columns in drop_invalid_rows are missing from "
                 f"dataframe: {missing_cols}"
             )
         # set filter items using either required_valid_cols or allowed_invalid_cols
@@ -814,13 +820,36 @@ def drop_invalid_rows(df: pd.DataFrame, params: InvalidRows) -> pd.DataFrame:
     mask = ~cols_to_check.isin(params.invalid_values).all(axis="columns")
     # Mask the input dataframe and make a copy to avoid returning a slice.
     df_out = df[mask].copy()
-
     logger.info(
-        f"{1 - (len(df_out)/pre_drop_len):.1%} of records contain only "
-        f"{params.invalid_values} values in required columns. "
+        f"{1 - (len(df_out)/pre_drop_len):.1%} of records ({pre_drop_len-len(df_out)} "
+        f"rows) contain only {params.invalid_values} values in required columns. "
         "Dropped these 💩💩💩 records."
     )
     return df_out
+
+
+################################################################################
+# Replace values with NA
+################################################################################
+class ReplaceWithNa(TransformParams):
+    """Pameters that replace certain values with NA.
+
+    The categorize strings function replaces bad values, but it requires all the values
+    in the column to fall under a certain category. This function allows you to replace
+    certain specific values with NA without having to categorize the rest of the column.
+    """
+
+    replace_with_na: list[str]
+    """A list of values that should be replaced with NA."""
+
+
+def replace_with_na(col: pd.Series, params: ReplaceWithNa) -> pd.Series:
+    """Replace specified values with NA."""
+    return col.replace(params.replace_with_na, pd.NA)
+
+
+replace_with_na_multicol = multicol_transform_factory(replace_with_na)
+"""A multi-column version of the :func:`nullify_outliers` function."""
 
 
 ################################################################################
@@ -846,6 +875,7 @@ class TableTransformParams(TransformParams):
     nullify_outliers: dict[str, ValidRange] = {}
     normalize_strings: dict[str, StringNormalization] = {}
     strip_non_numeric_values: dict[str, StripNonNumericValues] = {}
+    replace_with_na: dict[str, ReplaceWithNa] = {}
 
     # Transformations that apply to whole dataframes have to be treated individually,
     # with default initializations that result in no transformation taking place.
@@ -1102,9 +1132,7 @@ class AbstractTableTransformer(ABC):
         return df
 
     def rename_columns(
-        self,
-        df: pd.DataFrame,
-        params: RenameColumns | None = None,
+        self, df: pd.DataFrame, params: RenameColumns | None = None, **kwargs
     ) -> pd.DataFrame:
         """Rename the whole collection of dataframe columns using input params.
 
@@ -1219,6 +1247,17 @@ class AbstractTableTransformer(ABC):
         for param in params:
             df = drop_invalid_rows(df, param)
         return df
+
+    def replace_with_na(
+        self,
+        df: pd.DataFrame,
+        params: dict[str, ReplaceWithNa] | None = None,
+    ) -> pd.DataFrame:
+        """Replace specified values with NA."""
+        if params is None:
+            params = self.params.replace_with_na
+        logger.info(f"{self.table_id.value}: Replacing specified values with NA.")
+        return replace_with_na_multicol(df, params)
 
     def enforce_schema(self, df: pd.DataFrame) -> pd.DataFrame:
         """Drop columns not in the DB schema and enforce specified types."""

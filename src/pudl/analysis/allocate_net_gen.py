@@ -193,7 +193,6 @@ MISSING_SENTINEL = 0.00001
    sentinel value back to zero's. This is meant to find all instances of aggregated
    sentinel values. We avoid any negative values because there are instances of
    negative orignal values - especially negative net generation.
-
 """
 
 
@@ -1609,13 +1608,12 @@ def adjust_msw_energy_source_codes(
 def add_missing_energy_source_codes_to_gens(gens_at_freq, gf):
     """Adds energy_source_codes that appear in the `gf` table but not `gens` to `gens`.
 
-    In some cases, non-zero fuel consumption and net generation is reported
-    in the EIA-923 generation and fuel table that is associated with an
-    energy_source_code that is not associated with that plant-prime mover
-    in the gens table, which would cause these data to get dropped when
-    these two tables are merged. To fix this, for each plant-pm, this function
-    identifies such esc, and adds them to the `gens_at_freq` table as new
-    energy_source_code columns.
+    In some cases, non-zero fuel consumption and net generation is reported in the
+    EIA-923 generation and fuel table that is associated with an energy_source_code that
+    is not associated with that plant-prime mover in the gens table, which would cause
+    these data to get dropped when these two tables are merged. To fix this, for each
+    plant-pm, this function identifies such esc, and adds them to the `gens_at_freq`
+    table as new energy_source_code columns.
     """
 
     missing_gf_escs_from_gens = identify_missing_gf_escs_in_gens(gens_at_freq, gf)
@@ -1770,10 +1768,10 @@ def allocate_bf_data_to_gens(
 def warn_if_missing_pms(gens):
     """Log warning if there are too many null ``prime_mover_code`` s.
 
-    Warn if prime mover codes in gens do not match the codes in the gf table
-    this is something that should probably be fixed in the input data
-    see https://github.com/catalyst-cooperative/pudl/issues/1585
-    set a threshold and ignore 2001 bc most errors are 2001 errors.
+    Warn if prime mover codes in gens do not match the codes in the gf table this is
+    something that should probably be fixed in the input data see
+    https://github.com/catalyst-cooperative/pudl/issues/1585 set a threshold and ignore
+    2001 bc most errors are 2001 errors.
     """
     missing_pm = gens[
         gens["prime_mover_code"].isna() & (gens.report_date.dt.year != 2001)

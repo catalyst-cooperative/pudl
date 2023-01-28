@@ -77,7 +77,7 @@ SOURCES: dict[str, Any] = {
         "field_namespace": "eia",
         "contributors": [],
         "working_partitions": {
-            "year_month": "2022-06",
+            "year_month": "2022-09",
         },
         "keywords": sorted(
             set(
@@ -530,6 +530,4 @@ SOURCES: dict[str, Any] = {
         "email": "pudl@catalyst.coop",
     },
 }
-"""
-Data source attributes by PUDL identifier.
-"""
+"""Data source attributes by PUDL identifier."""
