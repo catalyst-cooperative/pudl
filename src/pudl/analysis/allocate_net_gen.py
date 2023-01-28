@@ -1646,7 +1646,7 @@ def add_missing_energy_source_codes_to_gens(gens_at_freq, gf):
 
 
 def identify_missing_gf_escs_in_gens(gens_at_freq, gf):
-    """For each plant, identifies energy_source_codes that exist in gf but not gens"""
+    """For each plant, identifies energy_source_codes that exist in gf but not gens."""
     # create a version of gf that identifies all of the unique energy source codes
     # with non-zero data associated with each plant-pm
     # create a filtered version of gf that only includes rows with non-zero data
