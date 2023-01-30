@@ -62,7 +62,7 @@ setup(
         "networkx>=2.2,<3.1",
         "numpy>=1.18.5,!=1.23.0,<1.25",
         "pandas>=1.4,<1.5.4",
-        "pyarrow>=5,<10.1",
+        "pyarrow>=5,<11.1",
         "pydantic[email]>=1.7,<2",
         "python-snappy>=0.6,<0.7",
         "pyyaml>=5,<6.1",
