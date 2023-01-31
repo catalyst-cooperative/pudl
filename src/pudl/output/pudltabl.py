@@ -1251,7 +1251,6 @@ class PudlTabl:
             state: the object state to restore. This is effectively the output
                 of :meth:`pudl.output.pudltabl.PudlTabl.__getstate__`.
         """
-        pudl_settings = pudl.workspace.setup.get_defaults()
         try:
             pudl_engine = sa.create_engine(state["pudl_engine"])
             # make sure that the URL for the engine from ``state`` is usable now
@@ -1259,7 +1258,7 @@ class PudlTabl:
         except sa.exc.OperationalError:
             # if the URL from ``state`` is not valid, e.g. because it is for a local
             # DB on a different computer, create the engine from PUDL defaults
-
+            pudl_settings = pudl.workspace.setup.get_defaults()
             logger.warning(
                 "Unable to connect to the restored pudl_db URL %s. "
                 "Will use the default pudl_db %s instead.",
