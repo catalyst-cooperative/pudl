@@ -1226,18 +1226,21 @@ class PudlTabl:
         can be serialized. See :meth:`object.__getstate__` for further details on the
         expected behavior of this method.
         """
-        if isinstance(self.ds, Datastore):
-            logger.warning(
-                "PudlTabl contains a Datastore which will not be included in the "
-                "pickle. Datastore can contain objects that have non-trivial state "
-                "that is local and unpickleable. The pickle will include a flag that "
-                "the object from which it was created contained a Datastore and "
-                "whether or not it used the Zenodo sandbox.",
-            )
-            # probably not ideal to reach into private attributes here...
-            ds_kwargs = {"sandbox": "sandbox" in self.ds._zenodo_fetcher._api_root}
-        else:
-            ds_kwargs = {}
+        # trying with get/set state for GoogleCloudStorageCache
+
+        # if isinstance(self.ds, Datastore):
+        #     logger.warning(
+        #         "%s contains a Datastore which will not be included in the "
+        #         "pickle. Datastore can contain objects that have non-trivial state "
+        #         "that is local and unpickleable. The pickle will include a flag that "
+        #         "the object from which it was created contained a Datastore and "
+        #         "whether or not it used the Zenodo sandbox.",
+        #         self.__class__.__qualname__
+        #     )
+        #     # probably not ideal to reach into private attributes here...
+        #     ds_kwargs = {"sandbox": "sandbox" in self.ds._zenodo_fetcher._api_root}
+        # else:
+        #     ds_kwargs = {}
 
         return self.__dict__.copy() | {
             # defaultdict may be serializable but lambdas are not, so it must go
@@ -1251,7 +1254,8 @@ class PudlTabl:
             .removesuffix(")"),
             # store state here that can be passed to Datastore.__init__, using
             # 'ds' to overwrite the object
-            "ds": ds_kwargs,
+            # trying with get/set state for GoogleCloudStorageCache
+            # "ds": ds_kwargs,
         }
 
     def __setstate__(self, state: dict) -> None:
@@ -1284,25 +1288,28 @@ class PudlTabl:
             )
             pudl_engine = sa.create_engine(pudl_settings["pudl_db"])
 
-        # ds_kwargs stored as 'ds' to simplify __getstate__
-        if ds_kwargs := state.pop("ds", False):
-            logger.warning(
-                "The PudlTabl from which this pickle was created contained a Datastore."
-                "A Datastore can contain objects that have non-trivial state that is "
-                "local and unpickleable. The restored PudlTabl will contain a "
-                "Datastore created from local defaults and the following saved state"
-                " %s.",
-                ds_kwargs,
-            )
-            ds = Datastore(local_cache_path=pudl_settings["data_dir"], **ds_kwargs)
-        else:
-            ds = None
+        # trying with get/set state for GoogleCloudStorageCache
+
+        # # ds_kwargs stored as 'ds' to simplify __getstate__
+        # if ds_kwargs := state.pop("ds", False):
+        #     logger.warning(
+        #         "The PudlTabl from which this pickle was created contained a Datastore."
+        #         "A Datastore can contain objects that have non-trivial state that is "
+        #         "local and unpickleable. The restored PudlTabl will contain a "
+        #         "Datastore created from local defaults and the following saved state"
+        #         " %s.",
+        #         ds_kwargs,
+        #     )
+        #     ds = Datastore(local_cache_path=pudl_settings["data_dir"], **ds_kwargs)
+        # else:
+        #     ds = None
 
         self.__dict__ = state | {
             # recreate the defaultdict from the vanilla one from ``state``
             "_dfs": defaultdict(lambda: None, state["_dfs"]),
             "pudl_engine": pudl_engine,
-            "ds": ds,
+            # trying with get/set state for GoogleCloudStorageCache
+            # "ds": ds,
         }
 
 

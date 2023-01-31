@@ -139,6 +139,26 @@ class GoogleCloudStorageCache(AbstractCache):
         self._bucket = storage.Client(credentials=credentials).bucket(
             parsed_url.netloc, user_project=project_id
         )
+        # need to store this so we can recreate the object more easily
+        self._state = {"gcs_path": gcs_path, **kwargs}
+
+    def __getstate__(self):
+        """Minimal state."""
+        logger.warning(
+            "When serializing %s, only %s is preserved",
+            self.__class__.__qualname__,
+            self._state,
+        )
+        return self._state.copy()
+
+    def __setstate__(self, state):
+        """Can you call __init__ in here?"""
+        logger.warning(
+            "Restoring %s, from %s",
+            self.__class__.__qualname__,
+            state,
+        )
+        return self.__init__(**state)
 
     def _blob(self, resource: PudlResourceKey) -> Blob:
         """Retrieve Blob object associated with given resource."""
