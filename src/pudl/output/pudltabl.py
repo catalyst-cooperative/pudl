@@ -1226,6 +1226,17 @@ class PudlTabl:
         can be serialized. See :meth:`object.__getstate__` for further details on the
         expected behavior of this method.
         """
+        ds_kwargs = {}
+        if self.ds is not None:
+            logger.warning(
+                "PudlTabl contains a Datastore which will not be included in the "
+                "pickle. Datastore can contain objects that have non-trivial state "
+                "that is local and unpickleable. The pickle will include a flag that "
+                "the object from which it was created contained a Datastore and "
+                "whether or not it used the Zenodo sandbox.",
+            )
+            # probably not ideal to reach into private attributes here...
+            ds_kwargs = {"sandbox": "sandbox" in self.ds._zenodo_fetcher._api_root}
         return self.__dict__.copy() | {
             # defaultdict may be serializable but lambdas are not, so it must go
             "_dfs": dict(self.__dict__["_dfs"]),
@@ -1236,6 +1247,8 @@ class PudlTabl:
             "pudl_engine": str(self.__dict__["pudl_engine"].url)
             .removeprefix("Engine(")
             .removesuffix(")"),
+            # store state here that can be passed to Datastore.__init__
+            "ds_kwargs": ds_kwargs,
         }
 
     def __setstate__(self, state: dict) -> None:
@@ -1251,6 +1264,7 @@ class PudlTabl:
             state: the object state to restore. This is effectively the output
                 of :meth:`pudl.output.pudltabl.PudlTabl.__getstate__`.
         """
+        pudl_settings = pudl.workspace.setup.get_defaults()
         try:
             pudl_engine = sa.create_engine(state["pudl_engine"])
             # make sure that the URL for the engine from ``state`` is usable now
@@ -1259,20 +1273,31 @@ class PudlTabl:
             # if the URL from ``state`` is not valid, e.g. because it is for a local
             # DB on a different computer, create the engine from PUDL defaults
 
-            from pudl.workspace.setup import get_defaults
-
             logger.warning(
                 "Unable to connect to the restored pudl_db URL %s. "
                 "Will use the default pudl_db %s instead.",
                 state["pudl_engine"],
-                get_defaults()["pudl_db"],
+                pudl_settings["pudl_db"],
             )
-            pudl_engine = sa.create_engine(get_defaults()["pudl_db"])
+            pudl_engine = sa.create_engine(pudl_settings["pudl_db"])
+
+        ds = None
+        if ds_kwargs := state.pop("ds_kwargs", False):
+            logger.warning(
+                "The PudlTabl from which this pickle was created contained a Datastore."
+                "A Datastore can contain objects that have non-trivial state that is "
+                "local and unpickleable. The restored PudlTabl will contain a "
+                "Datastore created from local defaults and the following saved state"
+                " %s.",
+                ds_kwargs,
+            )
+            ds = Datastore(local_cache_path=pudl_settings["data_dir"], **ds_kwargs)
 
         self.__dict__ = state | {
             # recreate the defaultdict from the vanilla one from ``state``
             "_dfs": defaultdict(lambda: None, state["_dfs"]),
             "pudl_engine": pudl_engine,
+            "ds": ds,
         }
 
 
