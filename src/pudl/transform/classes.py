@@ -851,6 +851,53 @@ def replace_with_na(col: pd.Series, params: ReplaceWithNa) -> pd.Series:
 replace_with_na_multicol = multicol_transform_factory(replace_with_na)
 """A multi-column version of the :func:`nullify_outliers` function."""
 
+################################################################################
+# Spot fix missing values
+################################################################################
+
+
+class SpotFixes(TransformParams):
+    """Parameters that replace certain values with a manual corrected value."""
+
+    record_col: str | None = None
+    record_id: str | None = None
+    fixes: dict[str, Any]  # TO DECIDE - could also restrict to just string updates.
+    """A dictionary of the column to replace and the value to replace with."""
+
+
+def spot_fix_values(self, df: pd.DataFrame, params: SpotFixes) -> pd.DataFrame:
+    """Manually fix one-off singular missing values.
+
+    A fair amount of records have "" or 0 as a plant name.
+    Most of these records have no other data points in them and thus can be dropped.
+    But some of them actually have some information. Manual investigation of some
+    of these records led to some pretty easy identification of plant names. This
+    function takes a dictionary of these fixes and applies them to the dataframe.
+
+    There are probably plenty of other spot fixes one could add here.
+
+    Params:
+        df: Pre-processed, concatenated XBRL and DBF data.
+        params: an instance of :class:`SpotFixes`
+
+    Returns:
+        The same input DataFrame but with some spot fixes corrected.
+    """
+    logger.info(f"{self.table_id.value}: Spot fixing some values")
+
+    # The default SpotFixValues() instance has no effect:
+    if params.record_id is None or params.record_col is None:
+        return df
+
+    elif params.record_col in list(df.columns):  # If record_col in df
+        for key in params.fixes:  # For each fix
+            if key in list(df.columns):
+                df.loc[df[params.record_col] == params.record_id, key] = params.fixes[
+                    key
+                ]  # Manually update value
+
+        return df
+
 
 ################################################################################
 # A parameter model collecting all the valid generic transform params:
@@ -886,6 +933,9 @@ class TableTransformParams(TransformParams):
     rename_columns: RenameColumns = RenameColumns()
     # InvalidRows has a special case of all None parameters, where it does nothing:
     drop_invalid_rows: list[InvalidRows] = []
+    # This instantiates an empty list. The function iterates over a list,
+    # so does nothing.
+    spot_fix_values: list[SpotFixes] = []
 
     @classmethod
     def from_dict(cls, params: dict[str, Any]) -> "TableTransformParams":
@@ -1258,6 +1308,19 @@ class AbstractTableTransformer(ABC):
             params = self.params.replace_with_na
         logger.info(f"{self.table_id.value}: Replacing specified values with NA.")
         return replace_with_na_multicol(df, params)
+
+    def spot_fix_values(
+        self,
+        df: pd.DataFrame,
+        params: list[SpotFixes] | None = None,
+    ) -> pd.DataFrame:
+        """Replace specified values with specified values."""
+        if params is None:
+            params = self.params.spot_fix_values
+        logger.info(f"{self.table_id.value}: Spot fixing missing values.")
+        for param in params:
+            df = spot_fix_values(self, df, param)
+        return df
 
     def enforce_schema(self, df: pd.DataFrame) -> pd.DataFrame:
         """Drop columns not in the DB schema and enforce specified types."""

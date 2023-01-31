@@ -837,6 +837,7 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
             .pipe(self.strip_non_numeric_values)
             .pipe(self.nullify_outliers)
             .pipe(self.replace_with_na)
+            .pipe(self.spot_fix_values)
             .pipe(self.drop_invalid_rows)
             .pipe(
                 pudl.metadata.classes.Package.from_resource_ids()
@@ -1492,7 +1493,11 @@ class FuelFerc1TableTransformer(Ferc1AbstractTableTransformer):
             A single transformed table concatenating multiple years of cleaned data
             derived from the raw DBF and/or XBRL inputs.
         """
-        return self.drop_invalid_rows(df).pipe(self.correct_units)
+        return (
+            self.spot_fix_values(df)
+            .pipe(self.drop_invalid_rows)
+            .pipe(self.correct_units)
+        )
 
     @cache_df(key="dbf")
     def process_dbf(self, raw_dbf: pd.DataFrame) -> pd.DataFrame:
@@ -2042,6 +2047,7 @@ class PlantsSmallFerc1TableTransformer(Ferc1AbstractTableTransformer):
             .pipe(self.map_header_fuel_and_plant_types)
             .pipe(self.associate_notes_with_values)
             .pipe(self.spot_fix_rows)
+            .pipe(self.spot_fix_values)
             .pipe(self.drop_invalid_rows)
             # Now remove the row_type columns because we've already moved totals to a
             # different column

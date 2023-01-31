@@ -2359,6 +2359,58 @@ TRANSFORM_PARAMS = {
             "opex_per_kwh": PERKWH_TO_PERMWH,
             "net_generation_kwh": KWH_TO_MWH,
         },
+        "spot_fix_values": [
+            {
+                "record_col": "record_id",
+                "record_id": "f1_steam_1999_12_72_0_1",
+                "fixes": {"plant_name_ferc1": "clifty creek"},
+            },
+            {
+                "record_col": "record_id",
+                "record_id": "f1_steam_2010_12_306_0_1",
+                "fixes": {"plant_name_ferc1": "harrison county"},
+            },
+            {
+                "record_col": "record_id",
+                "record_id": "f1_steam_1997_12_230_0_1",
+                "fixes": {"plant_name_ferc1": "hermiston generating"},
+            },
+            {
+                "record_col": "record_id",
+                "record_id": "f1_steam_1998_12_64_0_1",
+                "fixes": {"plant_name_ferc1": "hardee power station"},
+            },
+            {
+                "record_col": "record_id",
+                "record_id": "f1_steam_2015_12_276_0_1",
+                "fixes": {"plant_name_ferc1": "state line"},
+            },
+            {
+                "record_col": "record_id",
+                "record_id": "f1_steam_2014_12_276_0_1",
+                "fixes": {"plant_name_ferc1": "state line"},
+            },
+            {
+                "record_col": "record_id",
+                "record_id": "f1_steam_2003_12_62_2_3",
+                "fixes": {"plant_name_ferc1": "pea ridge"},
+            },
+            {
+                "record_col": "record_id",
+                "record_id": "f1_steam_2003_12_62_2_2",
+                "fixes": {"plant_name_ferc1": "smith"},
+            },
+            {
+                "record_col": "record_id",
+                "record_id": "f1_steam_2000_12_204_0_1",
+                "fixes": {"plant_name_ferc1": "seabrook"},
+            },
+            {
+                "record_col": "record_id",
+                "record_id": "f1_steam_2001_12_204_0_1",
+                "fixes": {"plant_name_ferc1": "seabrook"},
+            },
+        ],
         "drop_invalid_rows": [
             {
                 "invalid_values": [0, "0", pd.NA, np.nan, "", "none"],
