@@ -1233,9 +1233,7 @@ class PudlTabl:
             # provide enough of what is needed to recreate it, though that means the
             # pickle is not portable, but any fix to that will happen when the object
             # is restored
-            "pudl_engine": str(self.__dict__["pudl_engine"].url)
-            .removeprefix("Engine(")
-            .removesuffix(")"),
+            "pudl_engine": str(self.__dict__["pudl_engine"].url),
         }
 
     def __setstate__(self, state: dict) -> None:
