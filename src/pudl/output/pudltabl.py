@@ -1226,8 +1226,7 @@ class PudlTabl:
         can be serialized. See :meth:`object.__getstate__` for further details on the
         expected behavior of this method.
         """
-        ds_kwargs = {}
-        if self.ds is not None:
+        if isinstance(self.ds, Datastore):
             logger.warning(
                 "PudlTabl contains a Datastore which will not be included in the "
                 "pickle. Datastore can contain objects that have non-trivial state "
@@ -1237,6 +1236,9 @@ class PudlTabl:
             )
             # probably not ideal to reach into private attributes here...
             ds_kwargs = {"sandbox": "sandbox" in self.ds._zenodo_fetcher._api_root}
+        else:
+            ds_kwargs = {}
+
         return self.__dict__.copy() | {
             # defaultdict may be serializable but lambdas are not, so it must go
             "_dfs": dict(self.__dict__["_dfs"]),
@@ -1247,8 +1249,9 @@ class PudlTabl:
             "pudl_engine": str(self.__dict__["pudl_engine"].url)
             .removeprefix("Engine(")
             .removesuffix(")"),
-            # store state here that can be passed to Datastore.__init__
-            "ds_kwargs": ds_kwargs,
+            # store state here that can be passed to Datastore.__init__, using
+            # 'ds' to overwrite the object
+            "ds": ds_kwargs,
         }
 
     def __setstate__(self, state: dict) -> None:
@@ -1281,8 +1284,8 @@ class PudlTabl:
             )
             pudl_engine = sa.create_engine(pudl_settings["pudl_db"])
 
-        ds = None
-        if ds_kwargs := state.pop("ds_kwargs", False):
+        # ds_kwargs stored as 'ds' to simplify __getstate__
+        if ds_kwargs := state.pop("ds", False):
             logger.warning(
                 "The PudlTabl from which this pickle was created contained a Datastore."
                 "A Datastore can contain objects that have non-trivial state that is "
@@ -1292,6 +1295,8 @@ class PudlTabl:
                 ds_kwargs,
             )
             ds = Datastore(local_cache_path=pudl_settings["data_dir"], **ds_kwargs)
+        else:
+            ds = None
 
         self.__dict__ = state | {
             # recreate the defaultdict from the vanilla one from ``state``
