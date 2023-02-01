@@ -265,17 +265,24 @@ def test_mcoe_filled(fast_out_filled, df_name, expected_nuke_fraction, tolerance
         ("test_invalid_engine_url", "valid_db"),
     ],
 )
-def test_pudltabl_pickle(fast_out_annual, variation, check):
+def test_pudltabl_pickle(
+    fast_out_annual, pudl_settings_dict, monkeypatch, variation, check
+):
     """Test that PudlTabl is serializable with pickle.
 
-    Because pickle is insecure, bandit must be quieted for this test. This test attempts
-    to simulate the situation where PudlTabl is restored in the same environment that
-    created it 'test_local' and in a different environment from the one that created it
-    'test_invalid_engine_url'.
+    Because pickle is insecure, bandit must be quieted for some lines of this test. This
+    test attempts to simulate the situation where PudlTabl is restored in the same
+    environment that created it 'test_local' and in a different environment from the one
+    that created it 'test_invalid_engine_url'.
     """
     import pickle  # nosec
     from copy import copy
     from io import BytesIO
+
+    # need to monkeypatch `get_defaults` because it is used in PudlTabl.__setstate__
+    # and the real one does not work in GitHub actions because the settings file it
+    # uses does not exist
+    monkeypatch.setattr("pudl.workspace.setup.get_defaults", lambda: pudl_settings_dict)
 
     # make a copy so changes here don't affect other tests
     pudltabl = copy(fast_out_annual)
