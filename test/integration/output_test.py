@@ -266,7 +266,7 @@ def test_mcoe_filled(fast_out_filled, df_name, expected_nuke_fraction, tolerance
     ],
 )
 def test_pudltabl_pickle(
-    fast_out_annual, pudl_settings_dict, monkeypatch, variation, check
+    fast_out_annual, pudl_settings_fixture, monkeypatch, variation, check
 ):
     """Test that PudlTabl is serializable with pickle.
 
@@ -282,7 +282,9 @@ def test_pudltabl_pickle(
     # need to monkeypatch `get_defaults` because it is used in PudlTabl.__setstate__
     # and the real one does not work in GitHub actions because the settings file it
     # uses does not exist
-    monkeypatch.setattr("pudl.workspace.setup.get_defaults", lambda: pudl_settings_dict)
+    monkeypatch.setattr(
+        "pudl.workspace.setup.get_defaults", lambda: pudl_settings_fixture
+    )
 
     # make a copy so changes here don't affect other tests
     pudltabl = copy(fast_out_annual)
