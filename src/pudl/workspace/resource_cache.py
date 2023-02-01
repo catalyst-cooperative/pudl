@@ -190,7 +190,7 @@ class GoogleCloudStorageCache(AbstractCache):
             self.__class__.__qualname__,
             state,
         )
-        return self.__init__(**state)
+        self.__init__(**state)
 
 
 class LayeredCache(AbstractCache):
