@@ -1,4 +1,8 @@
 terraform {
+  backend "gcs" {
+    bucket = "f3441e415e6e5e7d-bucket-tfstate"
+    prefix = "terraform/state"
+  }
   required_providers {
     google = {
       source  = "hashicorp/google"
@@ -16,6 +20,20 @@ provider "google" {
   project = var.project_id
   region  = "us-east1"
   zone    = "us-east1-c"
+}
+
+resource "random_id" "bucket_prefix" {
+  byte_length = 8
+}
+
+resource "google_storage_bucket" "tfstate" {
+  name          = "${random_id.bucket_prefix.hex}-bucket-tfstate"
+  force_destroy = false
+  location      = "US"
+  storage_class = "STANDARD"
+  versioning {
+    enabled = true
+  }
 }
 
 module "gh_oidc" {

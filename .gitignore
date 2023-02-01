@@ -33,3 +33,4 @@ notebooks/*.pkl.gz
 
 **.tfstate
 **.tfstate.*
+terraform/.terraform/*
