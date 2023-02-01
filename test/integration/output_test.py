@@ -27,7 +27,7 @@ def fast_out(pudl_engine, pudl_datastore_fixture):
     )
 
 
-@pytest.fixture(scope="module")
+@pytest.fixture(scope="function")
 def fast_out_annual(pudl_engine, pudl_datastore_fixture):
     """A PUDL output object for use in CI."""
     return pudl.output.pudltabl.PudlTabl(
@@ -276,7 +276,6 @@ def test_pudltabl_pickle(
     that created it 'test_invalid_engine_url'.
     """
     import pickle  # nosec
-    from copy import copy
     from io import BytesIO
 
     # need to monkeypatch `get_defaults` because it is used in PudlTabl.__setstate__
@@ -285,27 +284,23 @@ def test_pudltabl_pickle(
     monkeypatch.setattr(
         "pudl.workspace.setup.get_defaults", lambda: pudl_settings_fixture
     )
-
-    # make a copy so changes here don't affect other tests
-    pudltabl = copy(fast_out_annual)
-    plants = pudltabl.plants_eia860()
-
+    # make sure there's a df to pickle
+    plants = fast_out_annual.plants_eia860()
     if variation == "test_invalid_engine_url":
         import sqlalchemy as sa
 
         # need to change the pudl_engine to one with an invalid URL so that
         # `PudlTabl.__setstate__` has to fall back on the local default
-        pudltabl.pudl_engine = sa.create_engine("sqlite:////wrong/url")
+        fast_out_annual.pudl_engine = sa.create_engine("sqlite:////wrong/url")
 
         # confirm this engine won't work
         with pytest.raises(sa.exc.OperationalError):
-            pudltabl.pudl_engine.connect()
+            fast_out_annual.pudl_engine.connect()
 
     # just to make sure we keep all the parts
-    keys = set(pudltabl.__dict__.keys())
-
+    keys = set(fast_out_annual.__dict__.keys())
     # dump the object into a pickle stored in a buffer
-    pickle.dump(pudltabl, buffer := BytesIO())
+    pickle.dump(fast_out_annual, buffer := BytesIO())
     # restore the object from the pickle in the buffer
     restored = pickle.loads(buffer.getvalue())  # nosec
 
