@@ -6,6 +6,9 @@ on: [push, pull_request]
 jobs:
   ci-test:
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      id-token: write
     strategy:
       fail-fast: false
     defaults:
