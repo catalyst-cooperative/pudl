@@ -75,7 +75,7 @@ setup(
     ],
     extras_require={
         "dev": [
-            "black>=22.0,<22.13",
+            "black>=22.0,<23.2",
             "docformatter>=1.5,<1.6",
             "isort>=5.0,<5.13",
             "jedi>=0.18,<0.19",
