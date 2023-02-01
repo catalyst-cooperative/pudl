@@ -831,13 +831,13 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
             derived from the raw DBF and/or XBRL inputs.
         """
         df = (
-            self.normalize_strings(df)
+            self.spot_fix_values(df)
+            .pipe(self.normalize_strings)
             .pipe(self.categorize_strings)
             .pipe(self.convert_units)
             .pipe(self.strip_non_numeric_values)
             .pipe(self.nullify_outliers)
             .pipe(self.replace_with_na)
-            .pipe(self.spot_fix_values)
             .pipe(self.drop_invalid_rows)
             .pipe(
                 pudl.metadata.classes.Package.from_resource_ids()
@@ -2036,7 +2036,8 @@ class PlantsSmallFerc1TableTransformer(Ferc1AbstractTableTransformer):
             derived from the raw DBF and/or XBRL inputs.
         """
         df = (
-            self.normalize_strings(df)
+            self.spot_fix_values(df)
+            .pipe(self.normalize_strings)
             .pipe(self.nullify_outliers)
             .pipe(self.convert_units)
             .pipe(self.extract_ferc1_license)
@@ -2047,7 +2048,6 @@ class PlantsSmallFerc1TableTransformer(Ferc1AbstractTableTransformer):
             .pipe(self.map_header_fuel_and_plant_types)
             .pipe(self.associate_notes_with_values)
             .pipe(self.spot_fix_rows)
-            .pipe(self.spot_fix_values)
             .pipe(self.drop_invalid_rows)
             # Now remove the row_type columns because we've already moved totals to a
             # different column

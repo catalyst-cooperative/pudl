@@ -860,8 +860,10 @@ class SpotFixes(TransformParams):
     """Parameters that replace certain values with a manual corrected value."""
 
     record_col: str | None = None
+    """The column used to identify a record."""
     record_id: str | None = None
-    fixes: dict[str, Any]  # TO DECIDE - could also restrict to just string updates.
+    """The value in that column used to identify 1+ records to spot fix."""
+    fixes: dict[str, str | int | float | bool]
     """A dictionary of the column to replace and the value to replace with."""
 
 
@@ -874,8 +876,6 @@ def spot_fix_values(self, df: pd.DataFrame, params: SpotFixes) -> pd.DataFrame:
     of these records led to some pretty easy identification of plant names. This
     function takes a dictionary of these fixes and applies them to the dataframe.
 
-    There are probably plenty of other spot fixes one could add here.
-
     Params:
         df: Pre-processed, concatenated XBRL and DBF data.
         params: an instance of :class:`SpotFixes`
@@ -883,8 +883,6 @@ def spot_fix_values(self, df: pd.DataFrame, params: SpotFixes) -> pd.DataFrame:
     Returns:
         The same input DataFrame but with some spot fixes corrected.
     """
-    logger.info(f"{self.table_id.value}: Spot fixing some values")
-
     # The default SpotFixValues() instance has no effect:
     if params.record_id is None or params.record_col is None:
         return df

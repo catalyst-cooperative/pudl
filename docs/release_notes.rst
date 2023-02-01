@@ -46,6 +46,8 @@ Miscellaneous
 ^^^^^^^^^^^^^
 * Apply start and end dates to ferc1 data in :class:`pudl.output.pudltabl.PudlTabl`.
   See :pr:`2238` & :issue:`274`.
+* Add generic spot fix method to transform process, to manually rescue FERC1 records.
+  See :pr:`2254` & :issue:`1980`.
 
 .. _release-v2022.11.30:
 
