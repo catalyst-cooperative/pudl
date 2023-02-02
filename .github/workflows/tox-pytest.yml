@@ -68,11 +68,17 @@ jobs:
           service_account: "tox-pytest-github-action@catalyst-cooperative-pudl.iam.gserviceaccount.com"
           export_environment_variables: true
 
-      - name: Run PyTest with Tox
+      - name: Run PyTest with Tox against GCS cache (internal PRs)
         run: |
           tox -- --gcs-cache-path gs://zenodo-cache.catalyst.coop
         env:
-          CLOUDSDK_BILLING_QUOTA_PROJECT: ${{ steps.gcloud-auth.outputs.project_id }
+          CLOUDSDK_BILLING_QUOTA_PROJECT: ${{ steps.gcloud-auth.outputs.project_id }}
+        if: ${{ steps.gcloud-auth.outcome == 'success' }}
+
+      - name: Run PyTest with Tox against Zenodo (external PRs)
+        run: |
+          tox
+        if: ${{ steps.gcloud-auth.outcome == 'failure' }}
 
       - name: Log post-test Zenodo datastore contents
         run: find ~/pudl-work/data/
