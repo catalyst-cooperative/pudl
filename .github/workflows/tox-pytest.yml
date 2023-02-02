@@ -71,6 +71,8 @@ jobs:
       - name: Run PyTest with Tox
         run: |
           tox -- --gcs-cache-path gs://zenodo-cache.catalyst.coop
+        env:
+          CLOUDSDK_BILLING_QUOTA_PROJECT: ${{ steps.gcloud-auth.outputs.project_id }
 
       - name: Log post-test Zenodo datastore contents
         run: find ~/pudl-work/data/
