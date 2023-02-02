@@ -3621,6 +3621,52 @@ class ElectricitySalesByRateScheduleFerc1TableTransformer(
     table_id: TableIdFerc1 = TableIdFerc1.ELECTRICITY_SALES_BY_RATE_SCHEDULE_FERC1
     has_unique_recor_ids: bool = False
 
+    def add_axis_to_total_table_rows(self, df: pd.DataFrame):
+        """Add total to the axis column for rows from the total table.
+
+        Because we're adding the
+        sales_of_electricity_by_rate_schedules_account_totals_304 table into the mix,
+        we have a bunch of total values that get mixed in with all the _billed columns
+        from the individual tables. If left alone, these totals aren't labeled in any
+        way becuse they don't have the same _axis columns explaining what each of the
+        values are. In order to distinguish them from the rest of the sub-total data we
+        use this function to create an _axis value for them noting that they are totals.
+
+        It's worth noting that there are also some total values in there already.
+        Those would be hard to clean. The idea is that if you want the actual totals,
+        don't try and sum the sub-components, look at the actual labeled total rows.
+
+        This function relies on the ``sched_table_name`` column, so it must be called
+        before that gets dropped.
+        """
+        logger.info(f"{self.table_id.value}: Labeling total values.")
+        df.loc[
+            df["sched_table_name"]
+            == "sales_of_electricity_by_rate_schedules_account_totals_304",
+            ["sales_axis", "description_of_number_and_title_of_rate_schedule"],
+        ] = "total_from_total_table"
+        return df
+
+    @cache_df(key="xbrl")
+    def process_xbrl(
+        self,
+        raw_xbrl_instant: pd.DataFrame,
+        raw_xbrl_duration: pd.DataFrame,
+    ) -> pd.DataFrame:
+        """Rename columns before running wide_to_tidy."""
+        logger.info(f"{self.table_id.value}: Processing XBRL data pre-concatenation.")
+        return (
+            self.merge_instant_and_duration_tables_xbrl(
+                raw_xbrl_instant, raw_xbrl_duration
+            )
+            .pipe(self.rename_columns, rename_stage="xbrl")
+            .pipe(self.combine_axis_columns_xbrl)
+            .pipe(self.add_axis_to_total_table_rows)
+            .pipe(self.wide_to_tidy, source_ferc1=SourceFerc1.XBRL)
+            # .pipe(self.assign_record_id, source_ferc1=SourceFerc1.XBRL)
+            # .pipe(self.assign_utility_id_ferc1, source_ferc1=SourceFerc1.XBRL)
+        )
+
 
 def transform(
     ferc1_dbf_raw_dfs: dict[str, pd.DataFrame],
