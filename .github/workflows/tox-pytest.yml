@@ -62,6 +62,7 @@ jobs:
 
       - name: Set default gcp credentials
         id: gcloud-auth
+        continue-on-error: true
         uses: "google-github-actions/auth@v1"
         with:
           workload_identity_provider: "projects/345950277072/locations/global/workloadIdentityPools/gh-actions-pool/providers/gh-actions-provider"
