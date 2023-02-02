@@ -66,13 +66,11 @@ jobs:
         with:
           workload_identity_provider: "projects/345950277072/locations/global/workloadIdentityPools/gh-actions-pool/providers/gh-actions-provider"
           service_account: "tox-pytest-github-action@catalyst-cooperative-pudl.iam.gserviceaccount.com"
-          export_environment_variables: true
+          create_credentials_file: true
 
       - name: Run PyTest with Tox against GCS cache (internal PRs)
         run: |
           tox -- --gcs-cache-path gs://zenodo-cache.catalyst.coop
-        env:
-          CLOUDSDK_BILLING_QUOTA_PROJECT: ${{ steps.gcloud-auth.outputs.project_id }}
         if: ${{ steps.gcloud-auth.outcome == 'success' }}
 
       - name: Run PyTest with Tox against Zenodo (external PRs)
