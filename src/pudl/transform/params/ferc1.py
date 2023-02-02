@@ -4423,6 +4423,7 @@ TRANSFORM_PARAMS = {
                         "end_date",
                         "description_of_number_and_title_of_rate_schedule",
                         "sched_table_name",
+                        "sales_axis",
                     ],
                     "value_types": [
                         "billed_average_customers_per_month",
@@ -4442,7 +4443,7 @@ TRANSFORM_PARAMS = {
                         "total_sales",
                     ],
                     "stacked_column_name": "rate_schedule_type",
-                    "expected_drop_cols": 2,
+                    "expected_drop_cols": 1,
                 },
                 {
                     "idx_cols": [
@@ -4453,6 +4454,7 @@ TRANSFORM_PARAMS = {
                         "description_of_number_and_title_of_rate_schedule",
                         "sched_table_name",
                         "rate_schedule_type",
+                        "sales_axis",
                     ],
                     "value_types": [
                         "average_customers_per_month",

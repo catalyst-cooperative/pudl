@@ -3625,7 +3625,7 @@ class ElectricitySalesByRateScheduleFerc1TableTransformer(
     """Transform class for :ref:`electricity_sales_by_rate_schedule_ferc1` table."""
 
     table_id: TableIdFerc1 = TableIdFerc1.ELECTRICITY_SALES_BY_RATE_SCHEDULE_FERC1
-    has_unique_recor_ids: bool = False
+    has_unique_record_ids: bool = False
 
     def add_axis_to_total_table_rows(self, df: pd.DataFrame):
         """Add total to the axis column for rows from the total table.
@@ -3672,8 +3672,8 @@ class ElectricitySalesByRateScheduleFerc1TableTransformer(
             .pipe(self.combine_axis_columns_xbrl)
             .pipe(self.add_axis_to_total_table_rows)
             .pipe(self.wide_to_tidy, source_ferc1=SourceFerc1.XBRL)
-            # .pipe(self.assign_record_id, source_ferc1=SourceFerc1.XBRL)
-            # .pipe(self.assign_utility_id_ferc1, source_ferc1=SourceFerc1.XBRL)
+            .pipe(self.assign_record_id, source_ferc1=SourceFerc1.XBRL)
+            .pipe(self.assign_utility_id_ferc1, source_ferc1=SourceFerc1.XBRL)
         )
 
 
