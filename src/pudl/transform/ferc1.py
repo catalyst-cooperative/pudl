@@ -161,8 +161,8 @@ class WideToTidy(TransformParams):
 class WideToTidySourceFerc1(TransformParams):
     """Parameters for converting either or both XBRL and DBF table from wide to tidy."""
 
-    xbrl: WideToTidy = WideToTidy()
-    dbf: WideToTidy = WideToTidy()
+    xbrl: WideToTidy | list[WideToTidy] = WideToTidy()
+    dbf: WideToTidy | list[WideToTidy] = WideToTidy()
 
 
 def wide_to_tidy(df: pd.DataFrame, params: WideToTidy) -> pd.DataFrame:
@@ -1181,11 +1181,17 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
         """
         if not params:
             params = self.params.wide_to_tidy.__getattribute__(source_ferc1.value)
-        if params.idx_cols or params.value_types:
-            logger.info(
-                f"{self.table_id.value}: applying wide_to_tidy for {source_ferc1.value}"
-            )
-            df = wide_to_tidy(df, params)
+
+        if isinstance(params, WideToTidy):
+            multiple_params = [params]
+        else:
+            multiple_params = params
+        for single_params in multiple_params:
+            if single_params.idx_cols or single_params.value_types:
+                logger.info(
+                    f"{self.table_id.value}: applying wide_to_tidy for {source_ferc1.value}"
+                )
+            df = wide_to_tidy(df, single_params)
         return df
 
     def combine_axis_columns_xbrl(
