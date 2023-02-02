@@ -69,7 +69,7 @@ setup(
         "scikit-learn>=1.0,<1.3",
         "scipy>=1.6,<1.11",
         "Shapely>=2.0,<2.1",
-        "sqlalchemy>=1.4,<2.0.1",
+        "sqlalchemy>=1.4,<2.0.2",
         "timezonefinder>=5,<6.2",
         "xlsxwriter>=3,<3.1",
     ],
