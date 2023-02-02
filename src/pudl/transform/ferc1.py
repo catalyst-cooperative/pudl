@@ -3638,13 +3638,16 @@ class ElectricitySalesByRateScheduleFerc1TableTransformer(
 
         This function relies on the ``sched_table_name`` column, so it must be called
         before that gets dropped.
+
+        Args:
+            df: The sales table with a ``sched_table_name`` column.
         """
         logger.info(f"{self.table_id.value}: Labeling total values.")
         df.loc[
             df["sched_table_name"]
             == "sales_of_electricity_by_rate_schedules_account_totals_304",
             ["sales_axis", "description_of_number_and_title_of_rate_schedule"],
-        ] = "total_from_total_table"
+        ] = "total"
         return df
 
     @cache_df(key="xbrl")
