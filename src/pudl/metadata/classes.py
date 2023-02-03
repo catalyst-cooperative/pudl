@@ -662,7 +662,7 @@ class Field(Base):
                 return "float32"
         return FIELD_DTYPES_PANDAS[self.type]
 
-    def to_sql_dtype(self) -> sa.sql.visitors.VisitableType:
+    def to_sql_dtype(self) -> type:
         """Return SQLAlchemy data type."""
         if self.constraints.enum and self.type == "string":
             return sa.Enum(*self.constraints.enum)
