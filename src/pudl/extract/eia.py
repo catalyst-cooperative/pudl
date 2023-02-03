@@ -1,17 +1,9 @@
-"""Run the PUDL ETL Pipeline.
+"""Extract EIA excel data as DataFrames.
 
-The PUDL project integrates several different public datasets into a well
-normalized relational database allowing easier access and interaction between all
-datasets. This module coordinates the extract/transfrom/load process for
-data from:
-
- - US Energy Information Agency (EIA):
-   - Form 860 (eia860)
-   - Form 923 (eia923)
- - US Federal Energy Regulatory Commission (FERC):
-   - Form 1 (ferc1)
- - US Environmental Protection Agency (EPA):
-   - Continuous Emissions Monitory System (epacems)
+- US Energy Information Agency (EIA):
+  - Form 860 (eia860)
+  - Form 860m (eia860m)
+  - Form 923 (eia923)
 """
 
 from dagster import AssetOut, Output, multi_asset

@@ -128,10 +128,10 @@ def convert_to_utc(df: pd.DataFrame, plant_utc_offset: pd.DataFrame) -> pd.DataF
     return df
 
 
-def load_plant_utc_offset(plants_entity_eia) -> pd.DataFrame:
+def _load_plant_utc_offset(plants_entity_eia: pd.DataFrame) -> pd.DataFrame:
     """Load the UTC offset each EIA plant.
 
-    CEMS times don't change for DST, so we get get the UTC offset by using the
+    CEMS times don't change for DST, so we get the UTC offset by using the
     offset for the plants' timezones in January.
 
     Args:
@@ -174,7 +174,7 @@ def correct_gross_load_mw(df: pd.DataFrame) -> pd.DataFrame:
 def transform(
     raw_df: pd.DataFrame,
     epacamd_eia: pd.DataFrame,
-    timezones: pd.DataFrame,
+    plants_entity_eia: pd.DataFrame,
 ) -> pd.DataFrame:
     """Transform EPA CEMS hourly data and ready it for export to Parquet.
 
@@ -191,7 +191,9 @@ def transform(
         raw_df.pipe(apply_pudl_dtypes, group="epacems")
         .pipe(remove_leading_zeros_from_numeric_strings, "emissions_unit_id_epa")
         .pipe(harmonize_eia_epa_orispl, epacamd_eia)
-        .pipe(convert_to_utc, plant_utc_offset=timezones)
+        .pipe(
+            convert_to_utc, plant_utc_offset=_load_plant_utc_offset(plants_entity_eia)
+        )
         .pipe(correct_gross_load_mw)
         .pipe(apply_pudl_dtypes, group="epacems")
     )

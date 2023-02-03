@@ -1,4 +1,4 @@
-"""EPA CEMS Hourley Emissions assets."""
+"""EPA CEMS Hourly Emissions assets."""
 from pathlib import Path
 
 import pandas as pd
@@ -43,8 +43,6 @@ def hourly_emissions_epacems(
     ds = context.resources.datastore
     epacems_settings = context.resources.dataset_settings.epacems
 
-    timezones = pudl.transform.epacems.load_plant_utc_offset(plants_entity_eia)
-
     schema = Resource.from_id("hourly_emissions_epacems").to_pyarrow()
     epacems_path = (
         Path(context.op_config["pudl_output_path"]) / "hourly_emissions_epacems"
@@ -56,7 +54,7 @@ def hourly_emissions_epacems(
         state = part["state"]
         logger.info(f"Processing EPA CEMS hourly data for {year}-{state}")
         df = pudl.extract.epacems.extract(year=year, state=state, ds=ds)
-        df = pudl.transform.epacems.transform(df, epacamd_eia, timezones)
+        df = pudl.transform.epacems.transform(df, epacamd_eia, plants_entity_eia)
         with pq.ParquetWriter(
             where=epacems_path / f"epacems-{year}-{state}.parquet",
             schema=schema,

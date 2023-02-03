@@ -1,4 +1,5 @@
 """FERC and EIA glue assets."""
+import pandas as pd
 from dagster import AssetOut, Output, multi_asset
 
 import pudl
@@ -20,22 +21,15 @@ logger = pudl.logging_helpers.get_logger(__name__)
     },
     required_resource_keys={"datastore", "dataset_settings"},
 )
-def create_glue_tables(context, generators_entity_eia, boilers_entity_eia):
+def create_glue_tables(
+    context, generators_entity_eia: pd.DataFrame, boilers_entity_eia: pd.DataFrame
+):
     """Extract, transform and load CSVs for the Glue tables.
 
     Args:
-        glue_settings: Validated ETL parameters required by this data source.
-        ds_kwargs: Keyword arguments for instantiating a PUDL datastore, so that the ETL
-            can access the raw input data.
-        sqlite_dfs: The dictionary of dataframes to be loaded into the pudl database.
-            We pass the dictionary though because the EPACAMD-EIA crosswalk needs to
-            know which EIA plants and generators are being loaded into the database
-            (based on whether we run the full or fast etl). The tests will break if we
-            pass the generators_entity_eia table as an argument because of the
-            ferc1_solo test (where no eia tables are in the sqlite_dfs dict). Passing
-            the whole dict avoids this because the crosswalk will only load if there
-            are eia tables in the dict, but the dict will always be there.
-        eia_settings: Validated ETL parameters required by this data source.
+        context: dagster keyword that provides access to resources and config.
+        generators_entity_eia: Static generator attributes compiled from across the EIA-860 and EIA-923 data.
+        boilers_entity_eia: boilers_entity_eia.
 
     Returns:
         A dictionary of DataFrames whose keys are the names of the corresponding

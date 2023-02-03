@@ -919,7 +919,7 @@ def create_raw_ferc1_assets() -> list[SourceAsset]:
     """Create SourceAssets for raw ferc1 tables.
 
     SourceAssets allow you to access assets that are generated elsewhere.
-    In our case, the xbrl and dbf database are created in a separate dagster repository.
+    In our case, the xbrl and dbf database are created in a separate dagster Definition.
 
     Returns:
         A list of ferc1 SourceAssets.

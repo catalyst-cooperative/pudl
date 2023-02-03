@@ -2931,7 +2931,7 @@ def ferc1_transform_asset_factory(
 
     This is a convenient way to create assets for tables that only depend on raw dbf,
     raw xbrl instant and duration tables and xbrl metadata. For tables with additional
-    upsream dependencies, create a stand alone asset using an asset decorator. See
+    upstream dependencies, create a stand alone asset using an asset decorator. See
     the plants_steam_ferc1 asset.
 
     Args:
