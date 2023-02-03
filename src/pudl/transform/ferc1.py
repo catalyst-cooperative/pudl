@@ -1191,7 +1191,7 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
                 logger.info(
                     f"{self.table_id.value}: applying wide_to_tidy for {source_ferc1.value}"
                 )
-            df = wide_to_tidy(df, single_params)
+                df = wide_to_tidy(df, single_params)
         return df
 
     def combine_axis_columns_xbrl(

@@ -4254,11 +4254,11 @@ TRANSFORM_PARAMS = {
                     "row_seq": "row_seq",
                     "spplmnt_num": "spplmnt_num",
                     "sched_num_ttl": "rate_schedule_type",
-                    "mwh_sold": "mwh_sold",
+                    "mwh_sold": "mwh",
                     "revenue": "sales",
                     "avg_num_cstmr": "average_customers_per_month",
-                    "kwh_sale_cstmr": "kwh_sales_per_customer",
-                    "revenue_kwh_sold": "revenue_per_kwh_sold",
+                    "kwh_sale_cstmr": "kwh_per_customer",
+                    "revenue_kwh_sold": "revenue_per_kwh",
                 }
             },
             "xbrl": {
@@ -4463,7 +4463,7 @@ TRANSFORM_PARAMS = {
                         "mwh",
                         "sales",
                     ],
-                    "stacked_column_name": "bill_status",
+                    "stacked_column_name": "billing_status",
                     "expected_drop_cols": 0,
                 },
             ]
