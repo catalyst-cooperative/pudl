@@ -6,15 +6,13 @@ main PUDL ETL process. The underlying work in the script is being done in
 :mod:`pudl.extract.ferc1`.
 """
 import argparse
-import pathlib
 import sys
-from pathlib import Path
 
-import yaml
+from dotenv import load_dotenv
 
 import pudl
-from pudl.settings import FercToSqliteSettings
-from pudl.workspace.datastore import Datastore
+from pudl import ferc_to_sqlite
+from pudl.settings import EtlSettings
 
 # Create a logger to output any messages we might have...
 logger = pudl.logging_helpers.get_logger(__name__)
@@ -38,15 +36,6 @@ def parse_command_line(argv):
         default=None,
         type=str,
         help="If specified, write logs to this file.",
-    )
-    parser.add_argument(
-        "-c",
-        "--clobber",
-        action="store_true",
-        help="""Clobber existing sqlite database if it exists. If clobber is
-        not included but the sqlite databse already exists the _build will
-        fail.""",
-        default=False,
     )
     parser.add_argument(
         "--sandbox",
@@ -74,12 +63,6 @@ def parse_command_line(argv):
         help="Load datastore resources from Google Cloud Storage. Should be gs://bucket[/path_prefix]",
     )
     parser.add_argument(
-        "--bypass-local-cache",
-        action="store_true",
-        default=False,
-        help="If enabled, the local file cache for datastore will not be used.",
-    )
-    parser.add_argument(
         "--loglevel",
         help="Set logging level (DEBUG, INFO, WARNING, ERROR, or CRITICAL).",
         default="INFO",
@@ -90,6 +73,7 @@ def parse_command_line(argv):
 
 def main():  # noqa: C901
     """Clone the FERC Form 1 FoxPro database into SQLite."""
+    load_dotenv()
     args = parse_command_line(sys.argv)
 
     # Display logged output from the PUDL package:
@@ -97,45 +81,42 @@ def main():  # noqa: C901
         logfile=args.logfile, loglevel=args.loglevel
     )
 
-    with pathlib.Path(args.settings_file).open() as f:
-        script_settings = yaml.safe_load(f)
-
-    defaults = pudl.workspace.setup.get_defaults()
-    pudl_in = script_settings.get("pudl_in", defaults["pudl_in"])
-    pudl_out = script_settings.get("pudl_out", defaults["pudl_out"])
-
-    pudl_settings = pudl.workspace.setup.derive_paths(
-        pudl_in=pudl_in, pudl_out=pudl_out
-    )
-
-    parsed_settings = FercToSqliteSettings().parse_obj(
-        script_settings["ferc_to_sqlite_settings"]
-    )
-
-    # Configure how we want to obtain raw input data:
-    ds_kwargs = dict(
-        gcs_cache_path=args.gcs_cache_path, sandbox=pudl_settings.get("sandbox", False)
-    )
-    if not args.bypass_local_cache:
-        ds_kwargs["local_cache_path"] = Path(pudl_settings["pudl_in"]) / "data"
-
-    pudl_settings["sandbox"] = args.sandbox
-
-    if parsed_settings.ferc1_dbf_to_sqlite_settings:
-        pudl.extract.ferc1.dbf2sqlite(
-            ferc1_to_sqlite_settings=parsed_settings.ferc1_dbf_to_sqlite_settings,
-            pudl_settings=pudl_settings,
-            clobber=args.clobber,
-            datastore=Datastore(**ds_kwargs),
-        )
-
-    pudl.extract.xbrl.xbrl2sqlite(
-        ferc_to_sqlite_settings=parsed_settings,
-        pudl_settings=pudl_settings,
-        clobber=args.clobber,
-        datastore=Datastore(**ds_kwargs),
-        batch_size=args.batch_size,
-        workers=args.workers,
+    ferc_to_sqlite_job = ferc_to_sqlite.defs.get_job_def("ferc_to_sqlite_fast")
+    ferc_to_sqlite_job.execute_in_process(
+        run_config={
+            "resources": {
+                "ferc_to_sqlite_settings": {
+                    "config": EtlSettings.from_yaml(
+                        args.settings_file
+                    ).ferc_to_sqlite_settings.dict(
+                        exclude={
+                            "ferc1_dbf_to_sqlite_settings": {"tables"},
+                            "ferc1_xbrl_to_sqlite_settings": {"tables"},
+                            "ferc2_xbrl_to_sqlite_settings": {"tables"},
+                            "ferc6_xbrl_to_sqlite_settings": {"tables"},
+                            "ferc60_xbrl_to_sqlite_settings": {"tables"},
+                            "ferc714_xbrl_to_sqlite_settings": {"tables"},
+                        }
+                    )
+                },
+                "datastore": {
+                    "config": {
+                        "sandbox": args.sandbox,
+                        "gcs_cache_path": args.gcs_cache_path
+                        if args.gcs_cache_path
+                        else "",
+                    },
+                },
+            },
+            "ops": {
+                "xbrl2sqlite": {
+                    "config": {
+                        "workers": args.workers,
+                        "batch_size": args.batch_size,
+                    },
+                },
+            },
+        }
     )
 
 
