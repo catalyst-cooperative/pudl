@@ -232,7 +232,21 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
     },
     "electricity_sales_by_rate_schedule_ferc1": {
         "description": "Electricity sales by category: residential, industrial, commercial, lighting, railways, public authorities, interdepartmental, and provision for rate refund. Pre 2021 data (non-xbrl data) is uncategorized.",
-        "schema": {"fields": ["report_year"]},  # need to add more later
+        "schema": {
+            "fields": [
+                "utility_id_ferc1",
+                "report_year",
+                "rate_schedule_type",
+                "billing_status",
+                "description_of_number_and_title_of_rate_schedule",
+                "sales_mwh",
+                "sales_revenue",
+                "avg_customers_per_month",
+                "kwh_per_customer",
+                "revenue_per_kwh",
+                "record_id",
+            ]
+        },
         "sources": ["ferc1"],
         "etl_group": "ferc1",
         "field_namespace": "ferc1",

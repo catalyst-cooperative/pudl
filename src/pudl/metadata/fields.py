@@ -108,6 +108,10 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     },
     "attention_line": {"type": "string"},
     "automated_meter_reading": {"type": "integer"},
+    "avg_customers_per_month": {
+        "type": "number",
+        "description": "Average number of customers per month.",
+    },
     "avg_num_employees": {"type": "number"},
     "backup_capacity_mw": {"type": "number", "unit": "MW"},
     "balance": {
@@ -134,6 +138,10 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "type": "number",
         "description": "Monthly average billing demand (for requirements purchases, and any transactions involving demand charges). In megawatts.",
         "unit": "MW",
+    },
+    "billing_status": {
+        "type": "string",
+        "description": "Whether an amount is billed, unbilled, or both.",
     },
     "boiler_generator_assn_type_code": {
         "type": "string",
@@ -396,6 +404,10 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     "description": {
         "type": "string",
         "description": "Long human-readable description of the meaning of a code/label.",
+    },
+    "description_of_number_and_title_of_rate_schedule": {
+        "type": "string",
+        "description": "Free-form description of what the rate schedule name is. Not standardized.",
     },
     "designed_voltage_kv": {
         "type": "number",
@@ -864,6 +876,7 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "type": "string",
         "description": "The code of the plant's ISO or RTO. NA if not reported in that year.",
     },
+    "kwh_per_customer": {"type": "number", "description": "kwh per customer."},
     "label": {
         "type": "string",
         "description": "Longer human-readable code using snake_case",
@@ -1528,6 +1541,10 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "unit": "MWh",
     },
     "pv_current_flow_type": {"type": "string", "constraints": {"enum": ["AC", "DC"]}},
+    "rate_schedule_type": {
+        "type": "string",
+        "description": "Categorization of rate schedule type.",
+    },
     "reactive_power_output_mvar": {
         "type": "number",
         "description": "Reactive Power Output (MVAr)",
@@ -1592,6 +1609,7 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     },
     "revenue": {"type": "number", "unit": "USD"},
     "revenue_class": {"type": "string", "constraints": {"enum": REVENUE_CLASSES}},
+    "revenue_per_kwh": {"type": "number", "unit": "USD"},
     "row_type_xbrl": {
         "type": "string",
         "description": "Indicates whether the value reported in the row is calculated, or uniquely reported within the table.",
