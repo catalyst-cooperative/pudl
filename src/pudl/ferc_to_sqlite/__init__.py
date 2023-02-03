@@ -1,10 +1,14 @@
 """Dagster definitions for the FERC to SQLite process."""
+import importlib
+
 from dagster import Definitions, graph
 
 import pudl
 from pudl.extract.ferc1 import dbf2sqlite
 from pudl.extract.xbrl import xbrl2sqlite
+from pudl.package_data import settings
 from pudl.resources import datastore, ferc_to_sqlite_settings
+from pudl.settings import EtlSettings
 
 logger = pudl.logging_helpers.get_logger(__name__)
 
@@ -33,14 +37,18 @@ ferc_to_sqlite_fast = ferc_to_sqlite.to_job(
     config={
         "resources": {
             "ferc_to_sqlite_settings": {
-                "config": {
-                    "ferc1_dbf_to_sqlite_settings": {"years": [2020]},
-                    "ferc1_xbrl_to_sqlite_settings": {"years": [2021]},
-                    "ferc2_xbrl_to_sqlite_settings": {"years": [2021]},
-                    "ferc6_xbrl_to_sqlite_settings": {"years": [2021]},
-                    "ferc60_xbrl_to_sqlite_settings": {"years": [2021]},
-                    "ferc714_xbrl_to_sqlite_settings": {"years": [2021]},
-                }
+                "config": EtlSettings.from_yaml(
+                    importlib.resources.path(settings, "etl_fast.yml")
+                ).ferc_to_sqlite_settings.dict(
+                    exclude={
+                        "ferc1_dbf_to_sqlite_settings": {"tables"},
+                        "ferc1_xbrl_to_sqlite_settings": {"tables"},
+                        "ferc2_xbrl_to_sqlite_settings": {"tables"},
+                        "ferc6_xbrl_to_sqlite_settings": {"tables"},
+                        "ferc60_xbrl_to_sqlite_settings": {"tables"},
+                        "ferc714_xbrl_to_sqlite_settings": {"tables"},
+                    }
+                )
             }
         }
     },
