@@ -8,7 +8,6 @@ are ready for normalization and data cleaning by the data source specific module
 :mod:`pudl.transform` subpackage.
 """
 from . import (  # noqa: F401
-    eia,
     eia860,
     eia860m,
     eia861,
