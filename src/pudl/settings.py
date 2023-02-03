@@ -710,7 +710,7 @@ def _convert_settings_to_dagster_config(d: dict) -> None:
             try:
                 d[k] = Field(type(v), default_value=v)
             except DagsterInvalidDefinitionError:
-                # Dagster config excepts a valid dagster type.
+                # Dagster config accepts a valid dagster types.
                 # Most of our settings object properties are valid types
                 # except for fields like taxonomy which are the AnyHttpUrl type.
                 d[k] = Field(Any, default_value=v)
