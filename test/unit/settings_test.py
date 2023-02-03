@@ -1,12 +1,7 @@
 """Tests for settings validation."""
 
 import pytest
-from dagster import (
-    DagsterInvalidConfigError,
-    Field,
-    Noneable,
-    build_init_resource_context,
-)
+from dagster import DagsterInvalidConfigError, Field, build_init_resource_context
 from pandas import json_normalize
 from pydantic import ValidationError
 
@@ -220,8 +215,8 @@ class TestDatasetsSettings:
         }
         expected_dct = {
             "eia": {
-                "eia860": {"years": Field(Noneable(list), default_value=None)},
-                "eia923": {"years": Field(Noneable(list), default_value=None)},
+                "eia860": {"years": Field(list, default_value=[2021, 2022])},
+                "eia923": {"years": Field(list, default_value=[2021, 2022])},
             }
         }
 
@@ -268,8 +263,16 @@ class TestDatasetsSettingsResource:
     def test_invalid_field_type(self):
         """Test an error is thrown when there is an incorrect type in the config."""
         init_context = build_init_resource_context(config={"ferc1": {"years": 2021}})
-        with pytest.raises(ValidationError):
+        with pytest.raises(DagsterInvalidConfigError):
             _ = dataset_settings(init_context)
+
+    def test_default_values(self):
+        """Test the correct default values are created for dagster config."""
+        expected_states = EpaCemsSettings().states
+        assert (
+            dataset_settings.config_schema.default_value["epacems"]["states"]
+            == expected_states
+        )
 
 
 def test_partitions_with_json_normalize(pudl_etl_settings):

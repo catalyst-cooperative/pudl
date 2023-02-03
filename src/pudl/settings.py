@@ -7,7 +7,7 @@ from typing import ClassVar
 
 import pandas as pd
 import yaml
-from dagster import Any, Field, Noneable
+from dagster import Any, DagsterInvalidDefinitionError, Field
 from pydantic import AnyHttpUrl
 from pydantic import BaseModel as PydanticBaseModel
 from pydantic import BaseSettings, root_validator, validator
@@ -115,7 +115,7 @@ class Ferc1Settings(GenericDatasetSettings):
 
     data_source: ClassVar[DataSource] = DataSource.from_id("ferc1")
 
-    years: list[int] | None = data_source.working_partitions["years"]
+    years: list[int] = data_source.working_partitions["years"]
     tables: list[str] = data_source.get_resource_ids()
 
     @validator("tables")
@@ -167,10 +167,10 @@ class EpaCemsSettings(GenericDatasetSettings):
 
     data_source: ClassVar[DataSource] = DataSource.from_id("epacems")
 
-    years: list[int] | None = data_source.working_partitions["years"]
-    states: list[str] | None = data_source.working_partitions["states"]
+    years: list[int] = data_source.working_partitions["years"]
+    states: list[str] = data_source.working_partitions["states"]
     tables: list[str] = data_source.get_resource_ids()
-    partition: bool | None = False
+    partition: bool = False
 
     @validator("states")
     def allow_all_keyword(cls, states):  # noqa: N805
@@ -191,7 +191,7 @@ class Eia923Settings(GenericDatasetSettings):
 
     data_source: ClassVar[DataSource] = DataSource.from_id("eia923")
 
-    years: list[int] | None = data_source.working_partitions["years"]
+    years: list[int] = data_source.working_partitions["years"]
     tables: list[str] = data_source.get_resource_ids()
 
 
@@ -259,9 +259,9 @@ class Eia860Settings(GenericDatasetSettings):
     eia860m_data_source: ClassVar[DataSource] = DataSource.from_id("eia860m")
     eia860m_date: ClassVar[str] = eia860m_data_source.working_partitions["year_month"]
 
-    years: list[int] | None = data_source.working_partitions["years"]
+    years: list[int] = data_source.working_partitions["years"]
     tables: list[str] = data_source.get_resource_ids()
-    eia860m: bool | None = True
+    eia860m: bool = True
 
     @validator("eia860m")
     def check_eia860m_date(cls, eia860m: bool) -> bool:  # noqa: N805
@@ -296,8 +296,8 @@ class GlueSettings(BaseModel):
         ferc1: Include ferc1 in glue settings.
     """
 
-    eia: bool | None = True
-    ferc1: bool | None = True
+    eia: bool = True
+    ferc1: bool = True
 
 
 class EiaSettings(BaseModel):
@@ -494,7 +494,7 @@ class Ferc1DbfToSqliteSettings(GenericDatasetSettings):
     """
 
     data_source: ClassVar[DataSource] = DataSource.from_id("ferc1")
-    years: list[int] | None = [
+    years: list[int] = [
         year for year in data_source.working_partitions["years"] if year <= 2020
     ]
     tables: list[str] = sorted(list(DBF_TABLES_FILENAMES.keys()))
@@ -520,9 +520,9 @@ class FercGenericXbrlToSqliteSettings(BaseSettings):
         years: list of years to validate.
     """
 
-    taxonomy: AnyHttpUrl | None
+    taxonomy: AnyHttpUrl
     tables: list[int] | None = None
-    years: list[int] | None
+    years: list[int]
 
 
 class Ferc1XbrlToSqliteSettings(FercGenericXbrlToSqliteSettings):
@@ -534,11 +534,11 @@ class Ferc1XbrlToSqliteSettings(FercGenericXbrlToSqliteSettings):
     """
 
     data_source: ClassVar[DataSource] = DataSource.from_id("ferc1")
-    years: list[int] | None = [
+    years: list[int] = [
         year for year in data_source.working_partitions["years"] if year >= 2021
     ]
-    taxonomy: AnyHttpUrl | None = "https://eCollection.ferc.gov/taxonomy/form1/2022-01-01/form/form1/form-1_2022-01-01.xsd"
-    tables: list[str] | None = XBRL_TABLES
+    taxonomy: AnyHttpUrl = "https://eCollection.ferc.gov/taxonomy/form1/2022-01-01/form/form1/form-1_2022-01-01.xsd"
+    tables: list[str] = XBRL_TABLES
 
     @validator("tables")
     def validate_tables(cls, tables):  # noqa: N805
@@ -558,8 +558,8 @@ class Ferc2XbrlToSqliteSettings(FercGenericXbrlToSqliteSettings):
     """
 
     data_source: ClassVar[DataSource] = DataSource.from_id("ferc2")
-    years: list[int] | None = data_source.working_partitions["years"]
-    taxonomy: AnyHttpUrl | None = "https://eCollection.ferc.gov/taxonomy/form2/2022-01-01/form/form2/form-2_2022-01-01.xsd"
+    years: list[int] = data_source.working_partitions["years"]
+    taxonomy: AnyHttpUrl = "https://eCollection.ferc.gov/taxonomy/form2/2022-01-01/form/form2/form-2_2022-01-01.xsd"
 
 
 class Ferc6XbrlToSqliteSettings(FercGenericXbrlToSqliteSettings):
@@ -570,8 +570,8 @@ class Ferc6XbrlToSqliteSettings(FercGenericXbrlToSqliteSettings):
     """
 
     data_source: ClassVar[DataSource] = DataSource.from_id("ferc6")
-    years: list[int] | None = data_source.working_partitions["years"]
-    taxonomy: AnyHttpUrl | None = "https://eCollection.ferc.gov/taxonomy/form6/2022-01-01/form/form6/form-6_2022-01-01.xsd"
+    years: list[int] = data_source.working_partitions["years"]
+    taxonomy: AnyHttpUrl = "https://eCollection.ferc.gov/taxonomy/form6/2022-01-01/form/form6/form-6_2022-01-01.xsd"
 
 
 class Ferc60XbrlToSqliteSettings(FercGenericXbrlToSqliteSettings):
@@ -582,8 +582,8 @@ class Ferc60XbrlToSqliteSettings(FercGenericXbrlToSqliteSettings):
     """
 
     data_source: ClassVar[DataSource] = DataSource.from_id("ferc60")
-    years: list[int] | None = data_source.working_partitions["years"]
-    taxonomy: AnyHttpUrl | None = "https://eCollection.ferc.gov/taxonomy/form60/2022-01-01/form/form60/form-60_2022-01-01.xsd"
+    years: list[int] = data_source.working_partitions["years"]
+    taxonomy: AnyHttpUrl = "https://eCollection.ferc.gov/taxonomy/form60/2022-01-01/form/form60/form-60_2022-01-01.xsd"
 
 
 class Ferc714XbrlToSqliteSettings(FercGenericXbrlToSqliteSettings):
@@ -594,8 +594,8 @@ class Ferc714XbrlToSqliteSettings(FercGenericXbrlToSqliteSettings):
     """
 
     data_source: ClassVar[DataSource] = DataSource.from_id("ferc714")
-    years: list[int] | None = [2021]
-    taxonomy: AnyHttpUrl | None = "https://eCollection.ferc.gov/taxonomy/form714/2022-01-01/form/form714/form-714_2022-01-01.xsd"
+    years: list[int] = [2021]
+    taxonomy: AnyHttpUrl = "https://eCollection.ferc.gov/taxonomy/form714/2022-01-01/form/form714/form-714_2022-01-01.xsd"
 
 
 class FercToSqliteSettings(BaseSettings):
@@ -707,7 +707,13 @@ def _convert_settings_to_dagster_config(d: dict) -> None:
         if isinstance(v, dict):
             _convert_settings_to_dagster_config(v)
         else:
-            d[k] = Field(Noneable(Any), default_value=None)
+            try:
+                d[k] = Field(type(v), default_value=v)
+            except DagsterInvalidDefinitionError:
+                # Dagster config accepts a valid dagster types.
+                # Most of our settings object properties are valid types
+                # except for fields like taxonomy which are the AnyHttpUrl type.
+                d[k] = Field(Any, default_value=v)
 
 
 def create_dagster_config(settings: BaseModel) -> dict:
