@@ -92,6 +92,7 @@ jobs:
     steps:
       - name: Inform the Codemonkeys
         uses: 8398a7/action-slack@v3
+        continue-on-error: true
         with:
           status: custom
           fields: workflow,job,commit,repo,ref,author,took
