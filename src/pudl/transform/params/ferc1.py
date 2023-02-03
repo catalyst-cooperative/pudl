@@ -4253,7 +4253,7 @@ TRANSFORM_PARAMS = {
                     "row_number": "row_number",
                     "row_seq": "row_seq",
                     "spplmnt_num": "spplmnt_num",
-                    "sched_num_ttl": "rate_schedule_type",
+                    "sched_num_ttl": "description_of_number_and_title_of_rate_schedule",
                     "mwh_sold": "mwh",
                     "revenue": "sales",
                     "avg_num_cstmr": "average_customers_per_month",
@@ -4468,6 +4468,18 @@ TRANSFORM_PARAMS = {
                 },
             ]
         },
+        "drop_invalid_rows": [
+            {
+                "invalid_values": [np.nan],
+                "required_valid_cols": [
+                    "mwh",
+                    "sales",
+                    "average_customers_per_month",
+                    "kwh_per_customer",
+                    "revenue_per_kwh",
+                ],
+            }
+        ],
     },
 }
 
