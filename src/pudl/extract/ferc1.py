@@ -167,6 +167,10 @@ TABLE_NAME_MAP_FERC1: dict[str, dict[str, str]] = {
         "dbf": "f1_accumdepr_prvsn",
         "xbrl": "accumulated_provision_for_depreciation_of_electric_utility_plant_functional_classification_section_b_219",
     },
+    "electric_operating_revenues_ferc1": {
+        "dbf": "f1_elctrc_oper_rev",
+        "xbrl": "electric_operating_revenues_300",
+    },
     "cash_flow_ferc1": {
         "dbf": "f1_cash_flow",
         "xbrl": "statement_of_cash_flows_120",
@@ -184,6 +188,10 @@ TABLE_NAME_MAP_FERC1: dict[str, dict[str, str]] = {
             "sales_of_electricity_by_rate_schedules_account_4491_provision_for_rate_refunds_304",
             "sales_of_electricity_by_rate_schedules_account_totals_304",
         ],
+    },
+    "other_regulatory_liabilities_ferc1": {
+        "dbf": "f1_othr_reg_liab",
+        "xbrl": "other_regulatory_liabilities_account_254_278",
     },
 }
 """A mapping of PUDL DB table names to their XBRL and DBF source table names."""

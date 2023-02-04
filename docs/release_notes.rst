@@ -34,6 +34,26 @@ Data Coverage
   * :ref:`retained_earnings_ferc1`, see issue :issue:`1811` & PR :pr:`2155`.
   * :ref:`cash_flow_ferc1`, see issue :issue:`1821` & PR :pr:`2184`
 
+Deprecations
+^^^^^^^^^^^^
+
+* Replace references to deprecated ``pudl-scrapers`` and
+  ``pudl-zenodo-datastore`` repositories with references to `pudl-archiver
+  <https://www.github.com/catalyst-cooperative/pudl-archiver>`__ repository in
+  :doc:`intro`, :doc:`dev/datastore`, and :doc:`dev/annual_updates`. See :pr:`2190`.
+
+Miscellaneous
+^^^^^^^^^^^^^
+
+* Apply start and end dates to ferc1 data in :class:`pudl.output.pudltabl.PudlTabl`.
+  See :pr:`2238` & :issue:`274`.
+* Added the ability to serialize :class:`pudl.output.pudltabl.PudlTabl` using
+  :mod:`pickle`. To implement this functionality new ``__getstate__`` and
+  ``__setstate__`` methods have been added to :class:`pudl.output.pudltabl.PudlTabl` and
+  :class:`pudl.workspace.resource_cache.GoogleCloudStorageCache` to accommodate elements
+  of their internals that could not otherwise be serialized.
+
+
 .. _release-v2022.11.30:
 
 ---------------------------------------------------------------------------------------

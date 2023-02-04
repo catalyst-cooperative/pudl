@@ -372,6 +372,15 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "type": "string",
         "description": "Geodetic coordinate system identifier (e.g. NAD27, NAD83, or WGS84).",
     },
+    "account_detail": {
+        "type": "string",
+        "description": "Description of the account number credited from making debit adjustment to other regulatory liabilities.",
+    },
+    "decrease_in_other_regulatory_liabilities": {
+        "type": "number",
+        "description": "The decrease during the reporting period of other regulatory liabilities.",
+        "unit": "USD",
+    },
     "deliver_power_transgrid": {
         "type": "boolean",
         "description": "Indicate whether the generator can deliver power to the transmission grid.",
@@ -851,6 +860,11 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     "income": {
         "type": "number",
         "description": "Utility income reported by income type.",
+        "unit": "USD",
+    },
+    "increase_in_other_regulatory_liabilities": {
+        "type": "number",
+        "description": "The increase during the reporting period of other regulatory liabilities.",
         "unit": "USD",
     },
     "incremental_energy_savings_mwh": {"type": "number", "unit": "MWh"},
@@ -1610,6 +1624,10 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     "revenue": {"type": "number", "unit": "USD"},
     "revenue_class": {"type": "string", "constraints": {"enum": REVENUE_CLASSES}},
     "revenue_per_kwh": {"type": "number", "unit": "USD"},
+    "revenue_type": {
+        "type": "string",
+        "description": "Label describing types of revenues.",
+    },
     "row_type_xbrl": {
         "type": "string",
         "description": "Indicates whether the value reported in the row is calculated, or uniquely reported within the table.",

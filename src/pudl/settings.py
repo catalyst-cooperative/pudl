@@ -517,7 +517,7 @@ class FercGenericXbrlToSqliteSettings(BaseSettings):
     """
 
     taxonomy: AnyHttpUrl
-    tables: list[int] | None = None
+    tables: list[str] | None = None
     years: list[int]
 
 

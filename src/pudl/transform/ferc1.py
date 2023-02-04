@@ -80,6 +80,7 @@ class TableIdFerc1(enum.Enum):
     ELECTRIC_PLANT_DEPRECIATION_CHANGES_FERC1 = (
         "electric_plant_depreciation_changes_ferc1"
     )
+    ELECTRIC_OPERATING_REVENUES_FERC1 = "electric_operating_revenues_ferc1"
     ELECTRIC_PLANT_DEPRECIATION_FUNCTIONAL_FERC1 = (
         "electric_plant_depreciation_functional_ferc1"
     )
@@ -87,6 +88,7 @@ class TableIdFerc1(enum.Enum):
     ELECTRICITY_SALES_BY_RATE_SCHEDULE_FERC1 = (
         "electricity_sales_by_rate_schedule_ferc1"
     )
+    OTHER_REGULATORY_LIABILITIES_FERC1 = "other_regulatory_liabilities_ferc1"
 
 
 ################################################################################
@@ -1716,7 +1718,7 @@ class FuelFerc1TableTransformer(Ferc1AbstractTableTransformer):
             # MW*days thermal to MWh thermal
             FuelFix("nuclear", "mwdth", "mwhth", 24.0),
             # Straight energy equivalence between BTU and MWh here:
-            FuelFix("nuclear", "mmmbtu", "mwhth", (1.0 / 3.412142)),
+            FuelFix("nuclear", "mmbtu", "mwhth", (1.0 / 3.412142)),
             FuelFix("nuclear", "btu", "mwhth", (1.0 / 3412142)),
             # Unclear if it's possible to convert heavy metal to heat reliably
             FuelFix("nuclear", "grams", "kg", (1.0 / 1000)),
@@ -3507,6 +3509,29 @@ class ElectricOpexFerc1TableTransformer(Ferc1AbstractTableTransformer):
         return super().process_dbf(self.targeted_drop_duplicates_dbf(raw_dbf))
 
 
+class ElectricOperatingRevenuesFerc1TableTransformer(Ferc1AbstractTableTransformer):
+    """Transformer class for :ref:`electric_operating_revenues_ferc1` table."""
+
+    table_id: TableIdFerc1 = TableIdFerc1.ELECTRIC_OPERATING_REVENUES_FERC1
+    has_unique_record_ids: bool = False
+
+    @cache_df("main")
+    def transform_main(self, df):
+        """Add duplicate removal after standard transform_main."""
+        return super().transform_main(df).pipe(self.targeted_drop_duplicates)
+
+    @cache_df("main")
+    def targeted_drop_duplicates(self, df):
+        """Drop one duplicate records from 2011, utility_id_ferc1 295."""
+        dupe_mask = (
+            (df.utility_id_ferc1 == 295)
+            & (df.report_year == 2011)
+            & ((df.amount == 3.33e8) | (df.amount == 3.333e9))
+        )
+
+        return df[~dupe_mask].copy()
+
+
 class CashFlowFerc1TableTransformer(Ferc1AbstractTableTransformer):
     """Transform class for :ref:`cash_flow_ferc1` table."""
 
@@ -3677,6 +3702,13 @@ class ElectricitySalesByRateScheduleFerc1TableTransformer(
         )
 
 
+class OtherRegulatoryLiabilitiesFerc1(Ferc1AbstractTableTransformer):
+    """Transformer class for :ref:`other_regulatory_liabilities_ferc1` table."""
+
+    table_id: TableIdFerc1 = TableIdFerc1.OTHER_REGULATORY_LIABILITIES_FERC1
+    has_unique_record_ids = False
+
+
 def transform(
     ferc1_dbf_raw_dfs: dict[str, pd.DataFrame],
     ferc1_xbrl_raw_dfs: dict[str, dict[str, pd.DataFrame]],
@@ -3719,8 +3751,10 @@ def transform(
         "electric_plant_depreciation_changes_ferc1": ElectricPlantDepreciationChangesFerc1TableTransformer,
         "electric_plant_depreciation_functional_ferc1": ElectricPlantDepreciationFunctionalFerc1TableTransformer,
         "retained_earnings_ferc1": RetainedEarningsFerc1TableTransformer,
+        "electric_operating_revenues_ferc1": ElectricOperatingRevenuesFerc1TableTransformer,
         "cash_flow_ferc1": CashFlowFerc1TableTransformer,
         "electricity_sales_by_rate_schedule_ferc1": ElectricitySalesByRateScheduleFerc1TableTransformer,
+        "other_regulatory_liabilities_ferc1": OtherRegulatoryLiabilitiesFerc1,
     }
     ferc1_transformed_dfs = {}
     for table in ferc1_settings.tables:

@@ -3471,6 +3471,131 @@ TRANSFORM_PARAMS = {
             "on": "ferc_account_label",
         },
     },
+    "electric_operating_revenues_ferc1": {
+        "rename_columns_ferc1": {
+            "duration_xbrl": {
+                "columns": {
+                    f"megawatt_hours_sold_{col}": f"{col}_sales_mwh"
+                    for col in [
+                        "residential_sales",
+                        "small_or_commercial",
+                        "large_or_industrial",
+                        "public_street_and_highway_lighting",
+                        "other_sales_to_public_authorities",
+                        "sales_to_railroads_and_railways",
+                        "interdepartmental_sales",
+                        "sales_to_ultimate_consumers",
+                        "sales_for_resale",
+                        "sales_of_electricity",
+                        "provision_for_rate_refunds",
+                        "revenues_net_of_provision_for_refunds",
+                    ]
+                }
+                | {
+                    f"average_number_of_customers_per_month_{col}": f"{col}_avg_customers_per_month"
+                    for col in [
+                        "residential_sales",
+                        "small_or_commercial",
+                        "large_or_industrial",
+                        "public_street_and_highway_lighting",
+                        "other_sales_to_public_authorities",
+                        "sales_to_railroads_and_railways",
+                        "interdepartmental_sales",
+                        "sales_to_ultimate_consumers",
+                        "sales_for_resale",
+                        "sales_of_electricity",
+                        "provision_for_rate_refunds",
+                        "revenues_net_of_provision_for_refunds",
+                    ]
+                }
+                | {
+                    col: f"{col}_electric_operating_revenue"
+                    for col in [
+                        "residential_sales",
+                        # Note: the small_or_commercial/large_or_industrial columns are already prefixed
+                        "public_street_and_highway_lighting",
+                        "other_sales_to_public_authorities",
+                        "sales_to_railroads_and_railways",
+                        "interdepartmental_sales",
+                        "sales_to_ultimate_consumers",
+                        "sales_for_resale",
+                        "sales_of_electricity",
+                        "provision_for_rate_refunds",
+                        "revenues_net_of_provision_for_refunds",
+                        "forfeited_discounts",
+                        "miscellaneous_service_revenues",
+                        "sales_of_water_and_water_power",
+                        "rent_from_electric_property",
+                        "interdepartmental_rents",
+                        "other_electric_revenue",
+                        "revenues_from_transmission_of_electricity_of_others",
+                        "regional_transmission_service_revenues",
+                        "miscellaneous_revenue",
+                        "other_miscellaneous_operating_revenues",
+                        "other_operating_revenues",
+                        "electric_operating_revenues",
+                    ]
+                }
+            },
+            "xbrl": {
+                "columns": {
+                    "entity_id": "utility_id_ferc1_xbrl",
+                    "report_year": "report_year",
+                    "electric_operating_revenue": "revenue",
+                }
+            },
+            "dbf": {
+                "columns": {
+                    "respondent_id": "utility_id_ferc1_dbf",
+                    "report_year": "report_year",
+                    "spplmnt_num": "spplmnt_num",
+                    "row_number": "row_number",
+                    "row_seq": "row_seq",
+                    "row_prvlg": "row_prvlg",
+                    "report_prd": "report_prd",
+                    "xbrl_factoid": "revenue_type",
+                    "rev_amt_crnt_yr": "amount",
+                    "mwh_sold_crnt_yr": "sales_mwh",
+                    "avg_cstmr_crntyr": "avg_customers_per_month",
+                }
+            },
+        },
+        "wide_to_tidy": {
+            "xbrl": {
+                "idx_cols": [
+                    "entity_id",
+                    "report_year",
+                ],
+                "value_types": [
+                    "electric_operating_revenue",
+                    "sales_mwh",
+                    "avg_customers_per_month",
+                ],
+                "expected_drop_cols": 2,
+                "stacked_column_name": "revenue_type",
+            },
+        },
+        "align_row_numbers_dbf": {"dbf_table_names": ["f1_elctrc_oper_rev"]},
+        "select_dbf_rows_by_category": {
+            "column_name": "revenue_type",
+            "select_by_xbrl_categories": True,
+            "len_expected_categories_to_drop": 4,
+        },
+        "merge_xbrl_metadata": {
+            "rename_columns": {"xbrl_factoid": "revenue_type"},
+            "on": "revenue_type",
+        },
+        "drop_invalid_rows": [
+            {
+                "invalid_values": [pd.NA, np.nan, ""],
+                "required_valid_cols": [
+                    "amount",
+                    "sales_mwh",
+                    "avg_customers_per_month",
+                ],
+            },
+        ],
+    },
     "retained_earnings_ferc1": {
         "rename_columns_ferc1": {
             "duration_xbrl": {
@@ -4241,6 +4366,54 @@ TRANSFORM_PARAMS = {
             "rename_columns": {"xbrl_factoid": "expense_type"},
             "on": "expense_type",
         },
+    },
+    "other_regulatory_liabilities_ferc1": {
+        "rename_columns_ferc1": {
+            "dbf": {
+                "columns": {
+                    "respondent_id": "utility_id_ferc1_dbf",
+                    "report_year": "report_year",
+                    "spplmnt_num": "spplmnt_num",
+                    "row_number": "row_number",
+                    "row_seq": "row_seq",
+                    "row_prvlg": "row_prvlg",
+                    "report_prd": "report_prd",
+                    "beg_yr_bal": "ending_balance",
+                    "end_yr_bal": "starting_balance",
+                    "dr_acct_num": "account_detail",
+                    "dr_amount": "decrease_in_other_regulatory_liabilities",
+                    "credits": "increase_in_other_regulatory_liabilities",
+                    "dsc_purp": "description",
+                }
+            },
+            "xbrl": {
+                "columns": {
+                    "entity_id": "utility_id_ferc1_xbrl",
+                    "report_year": "report_year",
+                    "increase_in_other_regulatory_liabilities": "increase_in_other_regulatory_liabilities",
+                    "decrease_in_other_regulatory_liabilities": "decrease_in_other_regulatory_liabilities",
+                    "description_and_purpose_of_other_regulatory_liabilities": "description",
+                    "other_regulatory_liabilities_description_of_credited_account_number_for_debit_adjustment": "account_detail",
+                    "other_regulatory_liabilities_ending_balance": "ending_balance",
+                    "other_regulatory_liabilities_starting_balance": "starting_balance",
+                    "other_regulatory_liability_axis": "other_regulatory_liability_axis",
+                }
+            },
+        },
+        "unstack_balances_to_report_year_instant_xbrl": {
+            "unstack_balances_to_report_year": True,
+        },
+        "drop_invalid_rows": [
+            {
+                "invalid_values": [0, pd.NA, np.nan, ""],
+                "required_valid_cols": [
+                    "ending_balance",
+                    "starting_balance",
+                    "increase_in_other_regulatory_liabilities",
+                    "decrease_in_other_regulatory_liabilities",
+                ],
+            },
+        ],
     },
     "electricity_sales_by_rate_schedule_ferc1": {
         "rename_columns_ferc1": {

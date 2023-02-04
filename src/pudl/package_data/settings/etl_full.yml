@@ -569,8 +569,10 @@ datasets:
       - electric_plant_depreciation_changes_ferc1
       - electric_plant_depreciation_functional_ferc1
       - retained_earnings_ferc1
+      - electric_operating_revenues_ferc1
       - cash_flow_ferc1
       - electricity_sales_by_rate_schedule_ferc1
+      - other_regulatory_liabilities_ferc1
     years:
       [
         1994,

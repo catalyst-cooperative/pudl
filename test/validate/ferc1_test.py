@@ -33,6 +33,8 @@ non_unique_record_id_tables = [
     "electric_opex_ferc1",
     "cash_flow_ferc1",
     "retained_earnings_ferc1",
+    "electric_operating_revenues_ferc1",
+    "other_regulatory_liabilities_ferc1",
 ]
 unique_record_tables = [
     t
@@ -81,14 +83,14 @@ def test_no_null_cols_ferc1(pudl_out_ferc1, live_dbs, cols, df_name):
 @pytest.mark.parametrize(
     "df_name,expected_rows",
     [
-        ("fbp_ferc1", 25_414),
-        ("fuel_ferc1", 48_818),
-        ("plant_in_service_ferc1", 311_794),
-        ("plants_all_ferc1", 54_275),
+        ("fbp_ferc1", 25_421),
+        ("fuel_ferc1", 48_841),
+        ("plant_in_service_ferc1", 311_890),
+        ("plants_all_ferc1", 54_274),
         ("plants_hydro_ferc1", 6_796),
         ("plants_pumped_storage_ferc1", 544),
         ("plants_small_ferc1", 16_235),
-        ("plants_steam_ferc1", 30_700),
+        ("plants_steam_ferc1", 30_699),
         ("pu_ferc1", 7_425),
         ("purchased_power_ferc1", 197_523),
     ],
