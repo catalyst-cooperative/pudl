@@ -167,12 +167,18 @@ Some FERC 1 tables store different variables in different rows instead of or in 
 to using columns. In the Pre-2021 data (from the DBF files), rows are identified by
 ``row_number``, and the row number that corresponds to a given variable changes from
 year to year. We cataloged this correspondence, and the connection to the more well
-organized XBRL data, in the ``src/pudl/package_data/ferc1/dbf_to_xbrl_tables.csv`` and
-``src/pudl/package_data/ferc1/dbf_to_xbrl.csv`` files.
+organized XBRL data, in ``src/pudl/package_data/ferc1/dbf_to_xbrl.csv``.
+
+At the table level, the connection between XBRL DBF lives in
+``pudl/extract.ferc1.TABLE_NAME_MAP_FERC1`` and
+``src/pudl/package_data/ferc1/dbf_to_xbrl_tables.csv`` though the former is what's
+actually used in the extraction process.
 
 **4.B.1)** If there are any new tables or reason to believe that the xbrl taxonomy has
 changed, revisit the ``dbf_to_xbrl_tables.csv`` and ``dbf_to_xbrl.csv`` files and map
-the tables and records to one another.
+the tables and records to one another. For table changes, also update the
+``pudl/extract.ferc1.TABLE_NAME_MAP_FERC1`` dictionary where we associate pudl table
+names with raw XBRL and DBF tables.
 
 .. note::
 
