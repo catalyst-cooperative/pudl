@@ -13,6 +13,13 @@ directories see ``pudl_setup --help``.
 import argparse
 import sys
 
+from dagster import (
+    DagsterInstance,
+    Definitions,
+    define_asset_job,
+    execute_job,
+    reconstructable,
+)
 from dotenv import load_dotenv
 
 import pudl
@@ -60,6 +67,15 @@ def parse_command_line(argv):
     return arguments
 
 
+def get_etl_job():
+    """Module level func for creating an etl_job to be wrapped by reconstructable."""
+    return Definitions(
+        assets=etl.default_assets,
+        resources=etl.default_resources,
+        jobs=[define_asset_job("etl_job")],
+    ).get_job_def("etl_job")
+
+
 def main():
     """Parse command line and initialize PUDL DB."""
     load_dotenv()
@@ -70,8 +86,9 @@ def main():
         logfile=args.logfile, loglevel=args.loglevel
     )
 
-    etl_job = etl.defs.get_job_def("etl_full")
-    etl_job.execute_in_process(
+    execute_job(
+        reconstructable(get_etl_job),
+        instance=DagsterInstance.get(),
         run_config={
             "resources": {
                 "dataset_settings": {
@@ -95,7 +112,7 @@ def main():
                     },
                 },
             }
-        }
+        },
     )
 
 

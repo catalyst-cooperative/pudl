@@ -20,19 +20,18 @@ def ferc_to_sqlite():
     xbrl2sqlite()
 
 
+default_resources_defs = {
+    "ferc_to_sqlite_settings": ferc_to_sqlite_settings,
+    "datastore": datastore,
+}
+
 ferc_to_sqlite_full = ferc_to_sqlite.to_job(
-    resource_defs={
-        "ferc_to_sqlite_settings": ferc_to_sqlite_settings,
-        "datastore": datastore,
-    },
+    resource_defs=default_resources_defs,
     name="ferc_to_sqlite_full",
 )
 
 ferc_to_sqlite_fast = ferc_to_sqlite.to_job(
-    resource_defs={
-        "ferc_to_sqlite_settings": ferc_to_sqlite_settings,
-        "datastore": datastore,
-    },
+    resource_defs=default_resources_defs,
     name="ferc_to_sqlite_fast",
     config={
         "resources": {

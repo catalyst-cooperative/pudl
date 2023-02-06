@@ -24,7 +24,7 @@ from . import (  # noqa: F401
 
 logger = pudl.logging_helpers.get_logger(__name__)
 
-assets = (
+default_assets = (
     *load_assets_from_modules([output_assets], group_name="output_tables"),
     *load_assets_from_modules([epacems_assets], group_name="epacems"),
     *load_assets_from_modules([eia_api_assets], group_name="eia_api"),
@@ -36,17 +36,19 @@ assets = (
     *load_assets_from_modules([pudl.transform.ferc1], group_name="ferc_assets"),
 )
 
+default_resources = {
+    "datastore": datastore,
+    "pudl_sqlite_io_manager": pudl_sqlite_io_manager,
+    "ferc1_dbf_sqlite_io_manager": ferc1_dbf_sqlite_io_manager,
+    "ferc1_xbrl_sqlite_io_manager": ferc1_xbrl_sqlite_io_manager,
+    "dataset_settings": dataset_settings,
+    "ferc_to_sqlite_settings": ferc_to_sqlite_settings,
+    "epacems_io_manager": epacems_io_manager,
+}
+
 defs = Definitions(
-    assets=assets,
-    resources={
-        "datastore": datastore,
-        "pudl_sqlite_io_manager": pudl_sqlite_io_manager,
-        "ferc1_dbf_sqlite_io_manager": ferc1_dbf_sqlite_io_manager,
-        "ferc1_xbrl_sqlite_io_manager": ferc1_xbrl_sqlite_io_manager,
-        "dataset_settings": dataset_settings,
-        "ferc_to_sqlite_settings": ferc_to_sqlite_settings,
-        "epacems_io_manager": epacems_io_manager,
-    },
+    assets=default_assets,
+    resources=default_resources,
     jobs=[
         define_asset_job(name="etl_full"),
         define_asset_job(

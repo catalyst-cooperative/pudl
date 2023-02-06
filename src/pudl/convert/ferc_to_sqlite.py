@@ -8,6 +8,7 @@ main PUDL ETL process. The underlying work in the script is being done in
 import argparse
 import sys
 
+from dagster import DagsterInstance, execute_job, reconstructable
 from dotenv import load_dotenv
 
 import pudl
@@ -71,6 +72,14 @@ def parse_command_line(argv):
     return arguments
 
 
+def get_ferc_to_sqlite_job():
+    """Module level func for creating a job to be wrapped by reconstructable."""
+    return ferc_to_sqlite.ferc_to_sqlite.to_job(
+        resource_defs=ferc_to_sqlite.default_resources_defs,
+        name="ferc_to_sqlite_job",
+    )
+
+
 def main():  # noqa: C901
     """Clone the FERC Form 1 FoxPro database into SQLite."""
     load_dotenv()
@@ -81,8 +90,9 @@ def main():  # noqa: C901
         logfile=args.logfile, loglevel=args.loglevel
     )
 
-    ferc_to_sqlite_job = ferc_to_sqlite.defs.get_job_def("ferc_to_sqlite_fast")
-    ferc_to_sqlite_job.execute_in_process(
+    execute_job(
+        reconstructable(get_ferc_to_sqlite_job),
+        instance=DagsterInstance.get(),
         run_config={
             "resources": {
                 "ferc_to_sqlite_settings": {
@@ -116,7 +126,7 @@ def main():  # noqa: C901
                     },
                 },
             },
-        }
+        },
     )
 
 
