@@ -147,7 +147,7 @@ setup(
             "censusdp1tract_to_sqlite = pudl.convert.censusdp1tract_to_sqlite:main",
             "metadata_to_rst = pudl.convert.metadata_to_rst:main",
             "epacems_to_parquet = pudl.convert.epacems_to_parquet:main",
-            "ferc_to_sqlite = pudl.convert.ferc_to_sqlite:main",
+            "ferc_to_sqlite = pudl.ferc_to_sqlite.cli:main",
             "datasette_metadata_to_yml = pudl.convert.datasette_metadata_to_yml:main",
             "pudl_datastore = pudl.workspace.datastore:main",
             "pudl_etl = pudl.cli:main",
