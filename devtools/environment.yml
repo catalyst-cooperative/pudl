@@ -5,7 +5,7 @@ channels:
   - defaults
 dependencies:
   # Used to set up the environment
-  - pip>=21,<23
+  - pip>=21,<24
   - wheel
   - python>=3.10,<3.11
   - setuptools<66

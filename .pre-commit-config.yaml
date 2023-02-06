@@ -2,7 +2,7 @@
 repos:
   # Quick content checks based on grepping for python specific patterns:
   - repo: https://github.com/pre-commit/pygrep-hooks
-    rev: v1.9.0
+    rev: v1.10.0
     hooks:
       - id: python-check-blanket-noqa # Prohibit overly broad QA exclusions.
       - id: python-no-eval # Never use eval() it's dangerous.
@@ -32,7 +32,7 @@ repos:
   ####################################################################################
   # Make sure import statements are sorted uniformly.
   - repo: https://github.com/PyCQA/isort
-    rev: 5.11.4
+    rev: 5.12.0
     hooks:
       - id: isort
 
@@ -52,7 +52,7 @@ repos:
 
   # Remove f-string prefix when there's nothing in the string to format.
   - repo: https://github.com/dannysepler/rm_unneeded_f_str
-    rev: v0.1.0
+    rev: v0.2.0
     hooks:
       - id: rm-unneeded-f-str
 
@@ -106,7 +106,7 @@ repos:
 
   # Lint Dockerfiles for errors and to ensure best practices
   - repo: https://github.com/AleksaC/hadolint-py
-    rev: v2.10.0
+    rev: v2.12.0.2
     hooks:
       - id: hadolint
   # Check for errors in restructuredtext (.rst) files under the doc hierarchy

@@ -302,10 +302,10 @@ class Datastore:
                 self._cache.add_cache_layer(
                     resource_cache.GoogleCloudStorageCache(gcs_cache_path)
                 )
-            except DefaultCredentialsError:
+            except (DefaultCredentialsError, OSError) as e:
                 logger.info(
                     f"Unable to obtain credentials for GCS Cache at {gcs_cache_path}. "
-                    "Falling back to Zenodo if necessary."
+                    f"Falling back to Zenodo if necessary. Error was: {e}"
                 )
                 pass
 

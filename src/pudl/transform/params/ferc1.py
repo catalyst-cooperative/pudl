@@ -4324,6 +4324,54 @@ TRANSFORM_PARAMS = {
             "on": "expense_type",
         },
     },
+    "other_regulatory_liabilities_ferc1": {
+        "rename_columns_ferc1": {
+            "dbf": {
+                "columns": {
+                    "respondent_id": "utility_id_ferc1_dbf",
+                    "report_year": "report_year",
+                    "spplmnt_num": "spplmnt_num",
+                    "row_number": "row_number",
+                    "row_seq": "row_seq",
+                    "row_prvlg": "row_prvlg",
+                    "report_prd": "report_prd",
+                    "beg_yr_bal": "ending_balance",
+                    "end_yr_bal": "starting_balance",
+                    "dr_acct_num": "account_detail",
+                    "dr_amount": "decrease_in_other_regulatory_liabilities",
+                    "credits": "increase_in_other_regulatory_liabilities",
+                    "dsc_purp": "description",
+                }
+            },
+            "xbrl": {
+                "columns": {
+                    "entity_id": "utility_id_ferc1_xbrl",
+                    "report_year": "report_year",
+                    "increase_in_other_regulatory_liabilities": "increase_in_other_regulatory_liabilities",
+                    "decrease_in_other_regulatory_liabilities": "decrease_in_other_regulatory_liabilities",
+                    "description_and_purpose_of_other_regulatory_liabilities": "description",
+                    "other_regulatory_liabilities_description_of_credited_account_number_for_debit_adjustment": "account_detail",
+                    "other_regulatory_liabilities_ending_balance": "ending_balance",
+                    "other_regulatory_liabilities_starting_balance": "starting_balance",
+                    "other_regulatory_liability_axis": "other_regulatory_liability_axis",
+                }
+            },
+        },
+        "unstack_balances_to_report_year_instant_xbrl": {
+            "unstack_balances_to_report_year": True,
+        },
+        "drop_invalid_rows": [
+            {
+                "invalid_values": [0, pd.NA, np.nan, ""],
+                "required_valid_cols": [
+                    "ending_balance",
+                    "starting_balance",
+                    "increase_in_other_regulatory_liabilities",
+                    "decrease_in_other_regulatory_liabilities",
+                ],
+            },
+        ],
+    },
 }
 
 """The full set of parameters used to transform the FERC Form 1 data.
