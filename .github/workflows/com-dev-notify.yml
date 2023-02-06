@@ -1,0 +1,56 @@
+name: com-dev-notify
+
+on:
+  issues:
+    types: [opened]
+  discussion:
+    types: [created]
+
+env:
+  username: ${{ github.event.issue.user.login }}
+  url: ${{ github.event.issue.html_url }}
+  org: catalyst-cooperative
+
+jobs:
+  com-dev-notify:
+    name: Notify Catalyst of community activity
+    runs-on: ubuntu-latest
+    steps:
+      - name: Get username if a discussion was created
+        if: ${{ (github.event_name == 'discussion') }}
+        run: |
+          echo "username=${{ github.event.discussion.user.login }}" >> $GITHUB_ENV
+          echo "url=${{ github.event.discussion.html_url }}" >> $GITHUB_ENV
+
+      - name: Check if organization member
+        id: is_organization_member
+        uses: JamesSingleton/is-organization-member@1.0.0
+        with:
+          organization: ${{ env.org }}
+          username: ${{ env.username }}
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Post to a Slack channel user is not a part of Catalyst
+        if: ${{ steps.is_organization_member.outputs.result == 'false' }}
+        id: slack
+        uses: slackapi/slack-github-action@v1.23.0
+        with:
+          # Slack channel id, channel name, or user id to post message.
+          # See also: https://api.slack.com/methods/chat.postMessage#channels
+          # You can pass in multiple channels to post to by providing a comma-delimited list of channel IDs.
+          channel-id: "community-dev"
+          # For posting a markdown message
+          payload: |
+            {
+              "blocks": [
+                {
+                  "type": "section",
+                  "text": {
+                    "type": "mrkdwn",
+                    "text": "<https://github.com/${{ env.username }}|${{ env.username }}> created ${{ env.url }}"
+                  }
+                }
+              ]
+            }
+        env:
+          SLACK_BOT_TOKEN: ${{ secrets.COMMUNITY_DEV_SLACK_BOT_TOKEN }}
