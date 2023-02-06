@@ -1,24 +1,21 @@
 """Compile historical utility and balancing area territories.
 
 Use the mapping of utilities to counties, and balancing areas to utilities, available
-within the EIA 861, in conjunction with the US Census geometries for counties, to
-infer the historical spatial extent of utility and balancing area territories. Output
-the resulting geometries for use in other applications.
-
+within the EIA 861, in conjunction with the US Census geometries for counties, to infer
+the historical spatial extent of utility and balancing area territories. Output the
+resulting geometries for use in other applications.
 """
 import argparse
-import logging
 import math
 import sys
 
-import coloredlogs
 import pandas as pd
 import sqlalchemy as sa
 from matplotlib import pyplot as plt
 
 import pudl
 
-logger = logging.getLogger(__name__)
+logger = pudl.logging_helpers.get_logger(__name__)
 
 ################################################################################
 # Coordinate Reference Systems used in different contexts
@@ -41,7 +38,6 @@ def get_all_utils(pudl_out):
 
     Returns:
         pandas.DataFrame: Having 2 columns ``utility_id_eia`` and ``utility_name_eia``.
-
     """
     return (
         pd.concat(
@@ -86,7 +82,6 @@ def get_territory_fips(ids, assn, assn_col, st_eia861, limit_by_state=True):
         pandas.DataFrame: A table associating the entity IDs with a collection of
         counties annually, identifying counties both by name and county_id_fips
         (both state and state_id_fips are included for clarity).
-
     """
     # Limit the association table to only the relevant values:
     assn = assn.loc[assn[assn_col].isin(ids)]
@@ -133,7 +128,6 @@ def add_geometries(df, census_gdf, dissolve=False, dissolve_by=None):
 
     Returns:
         geopandas.GeoDataFrame
-
     """
     out_gdf = (
         census_gdf[["geoid10", "namelsad10", "dp0010001", "geometry"]]
@@ -223,7 +217,6 @@ def get_territory_geometries(
 
     Returns:
         geopandas.GeoDataFrame
-
     """
     return get_territory_fips(
         ids=ids,
@@ -267,7 +260,6 @@ def compile_geoms(
 
     Returns:
         geopandas.GeoDataFrame
-
     """
     logger.info(
         "Compiling %s geometries with dissolve=%s and limit_by_state=%s.",
@@ -348,7 +340,6 @@ def plot_historical_territory(gdf, id_col, id_val):
 
     Returns:
         None
-
     """
     if id_col not in gdf.columns:
         raise ValueError(f"The input id_col {id_col} doesn't exist in this GDF.")
@@ -415,7 +406,6 @@ def plot_all_territories(
 
     Returns:
         matplotlib.axes.Axes
-
     """
     unwanted_respondent_ids = (  # noqa: F841 variable is used, in df.query() below
         112,  # Alaska
@@ -453,7 +443,6 @@ def parse_command_line(argv):
 
     Returns:
         dict: A dictionary mapping command line arguments to their values.
-
     """
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument(
@@ -464,18 +453,29 @@ def parse_command_line(argv):
         default=False,
         help="Dissolve county level geometries to utility or balancing authorities",
     )
-
+    parser.add_argument(
+        "--logfile",
+        default=None,
+        type=str,
+        help="If specified, write logs to this file.",
+    )
+    parser.add_argument(
+        "--loglevel",
+        help="Set logging level (DEBUG, INFO, WARNING, ERROR, or CRITICAL).",
+        default="INFO",
+    )
     return parser.parse_args(argv[1:])
 
 
 def main():
     """Compile historical utility and balancing area territories."""
     # Display logged output from the PUDL package:
-    pudl_logger = logging.getLogger("pudl")
-    log_format = "%(asctime)s [%(levelname)8s] %(name)s:%(lineno)s %(message)s"
-    coloredlogs.install(fmt=log_format, level="INFO", logger=pudl_logger)
 
     args = parse_command_line(sys.argv)
+    pudl.logging_helpers.configure_root_logger(
+        logfile=args.logfile, loglevel=args.loglevel
+    )
+
     pudl_settings = pudl.workspace.setup.get_defaults()
     pudl_engine = sa.create_engine(pudl_settings["pudl_db"])
     pudl_out = pudl.output.pudltabl.PudlTabl(pudl_engine)

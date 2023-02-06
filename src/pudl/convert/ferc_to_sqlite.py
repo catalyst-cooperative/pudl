@@ -6,20 +6,18 @@ main PUDL ETL process. The underlying work in the script is being done in
 :mod:`pudl.extract.ferc1`.
 """
 import argparse
-import logging
 import pathlib
 import sys
 from pathlib import Path
 
-import coloredlogs
 import yaml
 
 import pudl
-from pudl.settings import Ferc1ToSqliteSettings
+from pudl.settings import FercToSqliteSettings
 from pudl.workspace.datastore import Datastore
 
 # Create a logger to output any messages we might have...
-logger = logging.getLogger(__name__)
+logger = pudl.logging_helpers.get_logger(__name__)
 
 
 def parse_command_line(argv):
@@ -30,7 +28,6 @@ def parse_command_line(argv):
 
     Returns:
         dict: Dictionary of command line arguments and their parsed values.
-
     """
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument(
@@ -58,6 +55,20 @@ def parse_command_line(argv):
         help="Use the Zenodo sandbox rather than production",
     )
     parser.add_argument(
+        "-b",
+        "--batch-size",
+        default=50,
+        type=int,
+        help="Specify number of XBRL instances to be processed at a time (defaults to 50)",
+    )
+    parser.add_argument(
+        "-w",
+        "--workers",
+        default=None,
+        type=int,
+        help="Specify number of worker processes for parsing XBRL filings.",
+    )
+    parser.add_argument(
         "--gcs-cache-path",
         type=str,
         help="Load datastore resources from Google Cloud Storage. Should be gs://bucket[/path_prefix]",
@@ -82,14 +93,10 @@ def main():  # noqa: C901
     args = parse_command_line(sys.argv)
 
     # Display logged output from the PUDL package:
-    pudl_logger = logging.getLogger("pudl")
-    log_format = "%(asctime)s [%(levelname)8s] %(name)s:%(lineno)s %(message)s"
-    coloredlogs.install(fmt=log_format, level=args.loglevel, logger=pudl_logger)
+    pudl.logging_helpers.configure_root_logger(
+        logfile=args.logfile, loglevel=args.loglevel
+    )
 
-    if args.logfile:
-        file_logger = logging.FileHandler(args.logfile)
-        file_logger.setFormatter(logging.Formatter(log_format))
-        pudl_logger.addHandler(file_logger)
     with pathlib.Path(args.settings_file).open() as f:
         script_settings = yaml.safe_load(f)
 
@@ -101,8 +108,8 @@ def main():  # noqa: C901
         pudl_in=pudl_in, pudl_out=pudl_out
     )
 
-    script_settings = Ferc1ToSqliteSettings().parse_obj(
-        script_settings["ferc1_to_sqlite_settings"]
+    parsed_settings = FercToSqliteSettings().parse_obj(
+        script_settings["ferc_to_sqlite_settings"]
     )
 
     # Configure how we want to obtain raw input data:
@@ -113,11 +120,22 @@ def main():  # noqa: C901
         ds_kwargs["local_cache_path"] = Path(pudl_settings["pudl_in"]) / "data"
 
     pudl_settings["sandbox"] = args.sandbox
-    pudl.extract.ferc1.dbf2sqlite(
-        ferc1_to_sqlite_settings=script_settings,
+
+    if parsed_settings.ferc1_dbf_to_sqlite_settings:
+        pudl.extract.ferc1.dbf2sqlite(
+            ferc1_to_sqlite_settings=parsed_settings.ferc1_dbf_to_sqlite_settings,
+            pudl_settings=pudl_settings,
+            clobber=args.clobber,
+            datastore=Datastore(**ds_kwargs),
+        )
+
+    pudl.extract.xbrl.xbrl2sqlite(
+        ferc_to_sqlite_settings=parsed_settings,
         pudl_settings=pudl_settings,
         clobber=args.clobber,
         datastore=Datastore(**ds_kwargs),
+        batch_size=args.batch_size,
+        workers=args.workers,
     )
 
 

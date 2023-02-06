@@ -41,7 +41,7 @@ class TestLocalFileCache(unittest.TestCase):
         shutil.rmtree(self.test_dir)
 
     def test_add_single_resource(self):
-        """Adding resource has the expected effect on subsequent get() and contains() calls."""
+        """Adding resource has expected effect on later get() and contains() calls."""
         res = PudlResourceKey("ds", "doi", "file.txt")
         self.assertFalse(self.cache.contains(res))
         self.cache.add(res, b"blah")
@@ -60,7 +60,7 @@ class TestLocalFileCache(unittest.TestCase):
         self.assertEqual(b"testContents", second_cache.get(res))
 
     def test_deletion(self):
-        """Deletion of resources has the expected effect on subsequent get()and contains() calls."""
+        """Deleting resources has expected effect on later get() / contains() calls."""
         res = PudlResourceKey("a", "b", "c")
         self.assertFalse(self.cache.contains(res))
         self.cache.add(res, b"sampleContents")
@@ -69,7 +69,7 @@ class TestLocalFileCache(unittest.TestCase):
         self.assertFalse(self.cache.contains(res))
 
     def test_read_only_add_and_delete_do_nothing(self):
-        """When cache is in read_only mode, add() and delete() calls should be ignored."""
+        """Test that in read_only mode, add() and delete() calls are ignored."""
         res = PudlResourceKey("a", "b", "c")
         ro_cache = resource_cache.LocalFileCache(Path(self.test_dir), read_only=True)
         self.assertTrue(ro_cache.is_read_only())
@@ -104,7 +104,7 @@ class TestLayeredCache(unittest.TestCase):
         shutil.rmtree(self.test_dir_2)
 
     def test_add_caching_layers(self):
-        """Adding layers has the expected effect on the subsequent num_layers() calls."""
+        """Adding layers has expected effect on the subsequent num_layers() calls."""
         self.assertEqual(0, self.layered_cache.num_layers())
         self.layered_cache.add_cache_layer(self.cache_1)
         self.assertEqual(1, self.layered_cache.num_layers())

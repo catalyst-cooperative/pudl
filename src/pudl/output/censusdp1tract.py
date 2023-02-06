@@ -1,6 +1,5 @@
 """Functions for reading data out of the Census DP1 SQLite Database."""
 
-import logging
 from pathlib import Path
 from typing import Literal
 
@@ -12,7 +11,7 @@ import pudl
 from pudl.convert.censusdp1tract_to_sqlite import censusdp1tract_to_sqlite
 from pudl.workspace.datastore import Datastore
 
-logger = logging.getLogger(__name__)
+logger = pudl.logging_helpers.get_logger(__name__)
 
 
 def get_layer(
@@ -34,7 +33,6 @@ def get_layer(
 
     Returns:
         geopandas.GeoDataFrame
-
     """
     if not isinstance(layer, str):
         raise TypeError(f"Argument 'layer' must be a string, got arg of type {layer}.")

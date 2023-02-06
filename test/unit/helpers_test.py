@@ -12,7 +12,8 @@ from pudl.helpers import (
     date_merge,
     expand_timeseries,
     fix_eia_na,
-    fix_leading_zero_gen_ids,
+    flatten_list,
+    remove_leading_zeros_from_numeric_strings,
     zero_pad_numeric_string,
 )
 
@@ -490,7 +491,7 @@ def test_fix_eia_na():
     assert_frame_equal(out_df, expected_df)
 
 
-def test_fix_leading_zero_gen_ids():
+def test_remove_leading_zeros_from_numeric_strings():
     """Test removal of leading zeroes from EIA generator IDs."""
     in_df = pd.DataFrame(
         {
@@ -516,7 +517,9 @@ def test_fix_leading_zero_gen_ids():
             ]
         }
     )
-    out_df = fix_leading_zero_gen_ids(in_df)
+    out_df = remove_leading_zeros_from_numeric_strings(
+        in_df.astype(str), "generator_id"
+    )
     assert_frame_equal(out_df, expected_df)
 
 
@@ -591,3 +594,21 @@ def test_zero_pad_numeric_string(df, n_digits):
     assert (output.str.len() == n_digits).all()
     # Make sure all outputs are entirely numeric
     assert output.str.match(f"^[\\d]{{{n_digits}}}$").all()
+
+
+def test_flatten_strings():
+    """Test if :func:`flatten_list` can flatten an arbitraty list of strings."""
+    lista = ["aa", "b", ["cc", ["d", "e"]], ["fff"]]
+    assert list(flatten_list(lista)) == ["aa", "b", "cc", "d", "e", "fff"]
+
+
+def test_flatten_ints():
+    """Test if :func:`flatten_list` can flatten an arbitraty list of ints."""
+    list1 = [1, 2, [3, [4, 5]], [[6]]]
+    assert list(flatten_list(list1)) == [1, 2, 3, 4, 5, 6]
+
+
+def test_flatten_mix_types():
+    """Test if :func:`flatten_list` can flatten an arbitraty list of ints."""
+    list1a = ["1", 22, ["333", [4, "5"]], [[666]]]
+    assert list(flatten_list(list1a)) == ["1", 22, "333", 4, "5", 666]

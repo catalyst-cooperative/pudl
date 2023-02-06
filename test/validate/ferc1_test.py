@@ -1,7 +1,7 @@
 """Validate post-ETL FERC Form 1 data and the associated derived outputs.
 
-These tests depend on a FERC Form 1 specific PudlTabl output object, which is
-a parameterized fixture that has session scope.
+These tests depend on a FERC Form 1 specific PudlTabl output object, which is a
+parameterized fixture that has session scope.
 """
 import logging
 
@@ -14,14 +14,32 @@ from pudl.metadata.classes import DataSource
 logger = logging.getLogger(__name__)
 
 # These are tables for which individual records have been sliced up and
-# turned into columns -- so there's no universally unique record ID:
-row_mapped_tables = [
+# turned into columns (except for the transmission table) -- so there's no universally
+# unique record ID. But we should parameterize the has_unique_record_ids class
+# attributes in the FERC classes.
+non_unique_record_id_tables = [
     "plant_in_service_ferc1",
+    "purchased_power_ferc1",
+    "electric_energy_sources_ferc1",
+    "electric_energy_dispositions_ferc1",
+    "utility_plant_summary_ferc1",
+    "transmission_statistics_ferc1",
+    "balance_sheet_liabilities_ferc1",
+    "balance_sheet_assets_ferc1",
+    "income_statement_ferc1",
+    "depreciation_amortization_summary_ferc1",
+    "electric_plant_depreciation_changes_ferc1",
+    "electric_plant_depreciation_functional_ferc1",
+    "electric_opex_ferc1",
+    "cash_flow_ferc1",
+    "retained_earnings_ferc1",
+    "electric_operating_revenues_ferc1",
+    "other_regulatory_liabilities_ferc1",
 ]
 unique_record_tables = [
     t
     for t in DataSource.from_id("ferc1").get_resource_ids()
-    if t not in row_mapped_tables
+    if t not in non_unique_record_id_tables
 ]
 
 
@@ -65,16 +83,16 @@ def test_no_null_cols_ferc1(pudl_out_ferc1, live_dbs, cols, df_name):
 @pytest.mark.parametrize(
     "df_name,expected_rows",
     [
-        ("fbp_ferc1", 20_573),
-        ("fuel_ferc1", 31_265),
-        ("plant_in_service_ferc1", 26_933),
-        ("plants_all_ferc1", 51_456),
-        ("plants_hydro_ferc1", 6_782),
-        ("plants_pumped_storage_ferc1", 710),
-        ("plants_small_ferc1", 15_584),
-        ("plants_steam_ferc1", 28_380),
-        ("pu_ferc1", 6_946),
-        ("purchased_power_ferc1", 190_228),
+        ("fbp_ferc1", 25_421),
+        ("fuel_ferc1", 48_841),
+        ("plant_in_service_ferc1", 311_890),
+        ("plants_all_ferc1", 54_274),
+        ("plants_hydro_ferc1", 6_796),
+        ("plants_pumped_storage_ferc1", 544),
+        ("plants_small_ferc1", 16_235),
+        ("plants_steam_ferc1", 30_699),
+        ("pu_ferc1", 7_425),
+        ("purchased_power_ferc1", 197_523),
     ],
 )
 def test_minmax_rows(pudl_out_ferc1, live_dbs, expected_rows, df_name):
@@ -88,7 +106,6 @@ def test_minmax_rows(pudl_out_ferc1, live_dbs, expected_rows, df_name):
         df_name (str): Shorthand name identifying the dataframe, corresponding
             to the name of the function used to pull it from the PudlTabl
             output object.
-
     """
     if not live_dbs:
         pytest.skip("Data validation only works with a live PUDL DB.")
@@ -126,7 +143,10 @@ def test_minmax_rows(pudl_out_ferc1, live_dbs, expected_rows, df_name):
                 "capacity_mw",  # Why does having capacity here make sense???
             ],
         ),
-        ("plant_in_service_ferc1", ["report_year", "utility_id_ferc1", "amount_type"]),
+        (
+            "plant_in_service_ferc1",
+            ["report_year", "utility_id_ferc1", "ferc_account_label"],
+        ),
     ],
 )
 def test_unique_rows_ferc1(pudl_out_ferc1, live_dbs, df_name, unique_subset):

@@ -43,18 +43,14 @@ Initially, the directories in the data store will be empty. The pudl_datastore o
 pudl_etl commands will download data from public sources and organize it for
 you there by source. The PUDL_OUT directories are organized by the type of
 file they contain.
-
 """
 import argparse
-import logging
 import pathlib
 import sys
 
-import coloredlogs
-
 import pudl
 
-logger = logging.getLogger(__name__)
+logger = pudl.logging_helpers.get_logger(__name__)
 
 
 def initialize_parser():
@@ -97,18 +93,29 @@ def initialize_parser():
         will also update your default PUDL workspace, if you have one.""",
         default=False,
     )
+    parser.add_argument(
+        "--logfile",
+        default=None,
+        type=str,
+        help="If specified, write logs to this file.",
+    )
+    parser.add_argument(
+        "--loglevel",
+        help="Set logging level (DEBUG, INFO, WARNING, ERROR, or CRITICAL).",
+        default="INFO",
+    )
     return parser
 
 
 def main():
     """Set up a new default PUDL workspace."""
     # Display logged output from the PUDL package:
-    pudl_logger = logging.getLogger("pudl")
-    log_format = "%(asctime)s [%(levelname)8s] %(name)s:%(lineno)s %(message)s"
-    coloredlogs.install(fmt=log_format, level="INFO", logger=pudl_logger)
 
     parser = initialize_parser()
     args = parser.parse_args(sys.argv[1:])
+    pudl.logging_helpers.configure_root_logger(
+        logfile=args.logfile, loglevel=args.loglevel
+    )
 
     if not args.pudl_in:
         args.pudl_in = args.pudl_dir

@@ -4,6 +4,18 @@ from typing import Any
 from pudl.metadata.codes import CODE_METADATA
 
 RESOURCE_METADATA: dict[str, dict[str, Any]] = {
+    "balancing_authorities_eia": {
+        "description": "A coding table describing balancing authorities in EIA-860 and EIA-923.",
+        "schema": {
+            "fields": ["code", "label", "description"],
+            "primary_key": ["code"],
+            "foreign_key_rules": {"fields": [["balancing_authority_code_eia"]]},
+        },
+        "encoder": CODE_METADATA["balancing_authorities_eia"],
+        "sources": ["eia860"],
+        "etl_group": "static_eia",
+        "field_namespace": "eia",
+    },
     "boilers_entity_eia": {
         "description": "Static boiler attributes compiled from the EIA-860 and EIA-923 data.",
         "schema": {
@@ -273,6 +285,57 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
         "etl_group": "entity_eia",
         "field_namespace": "eia",
     },
+    "plant_parts_eia": {
+        "description": "Output table with the aggregation of all EIA plant parts. For use with matching to FERC 1.",
+        "schema": {
+            "fields": [
+                "plant_id_eia",
+                "report_date",
+                "plant_part",
+                "generator_id",
+                "unit_id_pudl",
+                "prime_mover_code",
+                "energy_source_code_1",
+                "technology_description",
+                "ferc_acct_name",
+                "utility_id_eia",
+                "true_gran",
+                "appro_part_label",
+                "appro_record_id_eia",
+                "capacity_eoy_mw",
+                "capacity_factor",
+                "capacity_mw",
+                "construction_year",
+                "fraction_owned",
+                "fuel_cost_per_mmbtu",
+                "fuel_cost_per_mwh",
+                "fuel_type_code_pudl",
+                "heat_rate_mmbtu_mwh",
+                "installation_year",
+                "net_generation_mwh",
+                "operating_year",
+                "operational_status",
+                "operational_status_pudl",
+                "ownership_record_type",
+                "ownership_dupe",
+                "planned_retirement_date",
+                "plant_id_pudl",
+                "plant_name_eia",
+                "plant_name_ppe",
+                "plant_part_id_eia",
+                "record_count",
+                "retirement_date",
+                "total_fuel_cost",
+                "total_mmbtu",
+                "utility_id_pudl",
+                "report_year",
+                "plant_id_report_year",
+            ]
+        },
+        "sources": ["eia860", "eia923"],
+        "etl_group": "outputs",
+        "field_namespace": "ppe",
+    },
     "prime_movers_eia": {
         "description": "Long descriptions explaining the short prime mover codes reported in the EIA-860 and EIA-923.",
         "schema": {
@@ -338,8 +401,7 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
         "field_namespace": "eia",
     },
 }
-"""
-Generic EIA resource attributes organized by PUDL identifier (``resource.name``).
+"""Generic EIA resource attributes organized by PUDL identifier (``resource.name``).
 
 Keys are in alphabetical order.
 

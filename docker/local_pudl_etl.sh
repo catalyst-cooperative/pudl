@@ -13,7 +13,7 @@ function run_pudl_etl() {
     && pudl_setup \
         --pudl_in $CONTAINER_PUDL_IN \
         --pudl_out $CONTAINER_PUDL_OUT \
-    && ferc1_to_sqlite \
+    && ferc_to_sqlite \
         --clobber \
         --loglevel DEBUG \
         --gcs-cache-path gs://zenodo-cache.catalyst.coop \

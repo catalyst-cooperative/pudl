@@ -1,18 +1,17 @@
 """General utility functions that are used in a variety of contexts.
 
 The functions in this module are used in various stages of the ETL and post-etl
-processes. They are usually not dataset specific, but not always. If a function
-is designed to be used as a general purpose tool, applicable in multiple
-scenarios, it should probably live here. There are lost of transform type
-functions in here that help with cleaning and restructing dataframes.
-
+processes. They are usually not dataset specific, but not always. If a function is
+designed to be used as a general purpose tool, applicable in multiple scenarios, it
+should probably live here. There are lost of transform type functions in here that help
+with cleaning and restructing dataframes.
 """
 import itertools
-import logging
 import pathlib
 import re
 import shutil
 from collections import defaultdict
+from collections.abc import Generator, Iterable
 from functools import partial
 from importlib import resources
 from io import BytesIO
@@ -23,30 +22,30 @@ import numpy as np
 import pandas as pd
 import requests
 import sqlalchemy as sa
+from pandas._libs.missing import NAType
 
-from pudl.metadata.classes import DataSource, Package
+import pudl.logging_helpers
 from pudl.metadata.fields import get_pudl_dtypes
-
-logger = logging.getLogger(__name__)
 
 sum_na = partial(pd.Series.sum, skipna=False)
 """A sum function that returns NA if the Series includes any NA values.
 
-In many of our aggregations we need to override the default behavior of treating
-NA values as if they were zero. E.g. when calculating the heat rates of
-generation units, if there are some months where fuel consumption is reported
-as NA, but electricity generation is reported normally, then the fuel
-consumption for the year needs to be NA, otherwise we'll get unrealistic heat
-rates.
+In many of our aggregations we need to override the default behavior of treating NA
+values as if they were zero. E.g. when calculating the heat rates of generation units,
+if there are some months where fuel consumption is reported as NA, but electricity
+generation is reported normally, then the fuel consumption for the year needs to be NA,
+otherwise we'll get unrealistic heat rates.
 """
+
+logger = pudl.logging_helpers.get_logger(__name__)
 
 
 def label_map(
     df: pd.DataFrame,
     from_col: str = "code",
     to_col: str = "label",
-    null_value: str | type(pd.NA) = pd.NA,
-) -> defaultdict[str, str | type(pd.NA)]:
+    null_value: str | NAType = pd.NA,
+) -> defaultdict[str, str | NAType]:
     """Build a mapping dictionary from two columns of a labeling / coding dataframe.
 
     These dataframes document the meanings of the codes that show up in much of the
@@ -65,7 +64,6 @@ def label_map(
 
     Returns:
         A mapping dictionary suitable for use with :meth:`pandas.Series.map`.
-
     """
     return defaultdict(
         lambda: null_value,
@@ -93,7 +91,6 @@ def find_new_ferc1_strings(
     Returns:
         Any string found in the searched table + field that was not part of any of
         categories enumerated in strdict.
-
     """
     all_strings = set(
         pd.read_sql(f"SELECT {field} FROM {table};", ferc1_engine).pipe(  # nosec
@@ -119,9 +116,12 @@ def find_foreign_key_errors(dfs: dict[str, pd.DataFrame]) -> list[dict[str, Any]
         in which a foreign key constraint violation was found, and it includes
         the table name, foreign key definition, and the elements of the
         dataframe that violated the foreign key constraint.
-
     """
-    package = Package.from_resource_ids(resource_ids=tuple(sorted(dfs)))
+    import pudl.metadata.classes
+
+    package = pudl.metadata.classes.Package.from_resource_ids(
+        resource_ids=tuple(sorted(dfs))
+    )
     errors = []
     for resource in package.resources:
         for foreign_key in resource.schema.foreign_keys:
@@ -161,7 +161,6 @@ def download_zip_url(url, save_path, chunk_size=128):
 
     Returns:
         None
-
     """
     # This is a temporary hack to avoid being filtered as a bot:
     headers = {
@@ -270,7 +269,6 @@ def oob_to_nan(df, cols, lb=None, ub=None):
 
     Returns:
         pandas.DataFrame: The altered DataFrame.
-
     """
     out_df = df.copy()
     for col in cols:
@@ -298,7 +296,6 @@ def prep_dir(dir_path, clobber=False):
 
     Returns:
         pathlib.Path: Path to the created directory.
-
     """
     dir_path = pathlib.Path(dir_path)
     if dir_path.exists():
@@ -322,7 +319,6 @@ def is_doi(doi):
 
     Returns:
         bool: True if doi matches the regex for valid DOIs, False otherwise.
-
     """
     doi_regex = re.compile(
         r"(doi:\s*|(?:https?://)?(?:dx\.)?doi\.org/)?(10\.\d+(.\d+)*/.+)$",
@@ -471,20 +467,20 @@ def date_merge(
             respective input dataframes.
         ValueError: if any of the labels referenced in ``on`` are missing from either
             the left or right dataframes.
-
     """
 
     def separate_date_cols(df, date_col_name, date_on):
-        df[date_col_name] = pd.to_datetime(df[date_col_name])
+        out_df = df.copy()
+        out_df.loc[:, date_col_name] = pd.to_datetime(out_df[date_col_name])
         if "year_temp_for_merge" in date_on:
-            df.loc[:, "year_temp_for_merge"] = df[date_col_name].dt.year
+            out_df.loc[:, "year_temp_for_merge"] = out_df[date_col_name].dt.year
         if "quarter_temp_for_merge" in date_on:
-            df.loc[:, "quarter_temp_for_merge"] = df[date_col_name].dt.quarter
+            out_df.loc[:, "quarter_temp_for_merge"] = out_df[date_col_name].dt.quarter
         if "month_temp_for_merge" in date_on:
-            df.loc[:, "month_temp_for_merge"] = df[date_col_name].dt.month
+            out_df.loc[:, "month_temp_for_merge"] = out_df[date_col_name].dt.month
         if "day_temp_for_merge" in date_on:
-            df.loc[:, "day_temp_for_merge"] = df[date_col_name].dt.day
-        return df
+            out_df.loc[:, "day_temp_for_merge"] = out_df[date_col_name].dt.day
+        return out_df
 
     right = convert_col_to_datetime(right, right_date_col)
     left = convert_col_to_datetime(left, left_date_col)
@@ -614,7 +610,6 @@ def organize_cols(df, cols):
         pandas.DataFrame: A dataframe with the same columns as the input
         DataFrame df, but with cols first, in the same order as they
         were passed in, and the remaining columns sorted alphabetically.
-
     """
     # Generate a list of all the columns in the dataframe that are not
     # included in cols
@@ -640,7 +635,6 @@ def simplify_strings(df, columns):
     Returns:
         pandas.DataFrame: The whole DataFrame that was passed in, with
         the string columns cleaned up.
-
     """
     out_df = df.copy()
     for col in columns:
@@ -676,7 +670,6 @@ def cleanstrings_series(col, str_map, unmapped=None, simplify=True):
     Returns:
         pandas.Series: The cleaned up Series / column, suitable for
         replacing the original messy column in a :class:`pandas.DataFrame`.
-
     """
     if simplify:
         col = (
@@ -736,7 +729,6 @@ def cleanstrings(df, columns, stringmaps, unmapped=None, simplify=True):
     Returns:
         pandas.DataFrame: The function returns a new DataFrame containing the
         cleaned strings.
-
     """
     out_df = df.copy()
     for col, str_map in zip(columns, stringmaps):
@@ -779,7 +771,6 @@ def fix_int_na(df, columns, float_na=np.nan, int_na=-1, str_na=""):
         df (pandas.DataFrame): a new DataFrame, with the selected columns
         converted to strings that look like integers, compatible with
         the postgresql COPY FROM command.
-
     """
     return (
         df.replace({c: float_na for c in columns}, int_na)
@@ -814,7 +805,6 @@ def month_year_to_date(df):
     Returns:
         pandas.DataFrame: A DataFrame in which the year/month fields have been
         converted into Date fields.
-
     """
     df = df.copy()
     month_regex = "_month$"
@@ -867,39 +857,39 @@ def month_year_to_date(df):
     return df
 
 
-def fix_leading_zero_gen_ids(df):
-    """Remove leading zeros from EIA generator IDs which are numeric strings.
+def remove_leading_zeros_from_numeric_strings(
+    df: pd.DataFrame, col_name: str
+) -> pd.DataFrame:
+    """Remove leading zeros frame column values that are numeric strings.
 
-    If the DataFrame contains a column named ``generator_id`` then that column
-    will be cast to a string, and any all numeric value with leading zeroes
-    will have the leading zeroes removed. This is necessary because in some
-    but not all years of data, some of the generator IDs are treated as integers
-    in the Excel spreadsheets published by EIA, so the same generator may show
-    up with the ID "0001" and "1" in different years.
+    Sometimes an ID column (like generator_id or unit_id) will be reported with leading
+    zeros and sometimes it won't. For example, in the Excel spreadsheets published by
+    EIA, the same generator may show up with the ID "0001" and "1" in different years
+    This function strips the leading zeros from those numeric strings so the data can
+    be mapped accross years and datasets more reliably.
 
     Alphanumeric generator IDs with leadings zeroes are not affected, as we
-    found no instances in which an alphanumeric generator ID appeared both with
-    and without leading zeroes.
+    found no instances in which an alphanumeric ID appeared both with
+    and without leading zeroes. The ID "0A1" will stay "0A1".
 
     Args:
-        df (pandas.DataFrame): DataFrame, presumably containing a column named
-            generator_id (otherwise no action will be taken.)
+        df: A DataFrame containing the column you'd like to remove numeric leading zeros
+            from.
+        col_name: The name of the column you'd like to remove numeric leading zeros
+            from.
 
     Returns:
-        pandas.DataFrame
-
+        A DataFrame without leading zeros for numeric string values in the desired
+        column.
     """
-    if "generator_id" in df.columns:
-        fixed_generator_id = (
-            df["generator_id"]
-            .astype(str)
-            .apply(lambda x: re.sub(r"^0+(\d+$)", r"\1", x))
+    leading_zeros = df[col_name].str.contains(r"^0+\d+$").fillna(False)
+    if leading_zeros.any():
+        logger.debug(f"Fixing leading zeros in {col_name} column")
+        df.loc[leading_zeros, col_name] = df[col_name].str.replace(
+            r"^0+", "", regex=True
         )
-        num_fixes = len(df.loc[df["generator_id"].astype(str) != fixed_generator_id])
-        logger.debug("Fixed %s EIA generator IDs with leading zeros.", num_fixes)
-        df = df.drop("generator_id", axis="columns").assign(
-            generator_id=fixed_generator_id
-        )
+    else:
+        logger.debug(f"Found no numeric leading zeros in {col_name}")
     return df
 
 
@@ -934,7 +924,6 @@ def convert_to_date(
 
     Todo:
         Update docstring.
-
     """
     df = df.copy()
     if date_col in df.columns:
@@ -970,7 +959,6 @@ def fix_eia_na(df):
 
     Returns:
         pandas.DataFrame: The cleaned DataFrame.
-
     """
     return df.replace(
         to_replace=[
@@ -1000,7 +988,6 @@ def simplify_columns(df):
 
     Todo:
         Update docstring.
-
     """
     df.columns = (
         df.columns.str.replace(r"[^0-9a-zA-Z]+", " ", regex=True)
@@ -1012,7 +999,7 @@ def simplify_columns(df):
     return df
 
 
-def drop_tables(engine, clobber=False):
+def drop_tables(engine: sa.engine.Engine, clobber: bool = False):
     """Drops all tables from a SQLite database.
 
     Creates an sa.schema.MetaData object reflecting the structure of the
@@ -1023,12 +1010,15 @@ def drop_tables(engine, clobber=False):
         Treat DB connection as a context manager (with/as).
 
     Args:
-        engine (sa.engine.Engine): An SQL Alchemy SQLite database Engine
-            pointing at an exising SQLite database to be deleted.
+        engine: An SQL Alchemy SQLite database Engine pointing at an exising SQLite
+            database to be deleted.
+        clobber: Whether or not to allow a non-empty DB to be removed.
+
+    Raises:
+        AssertionError: if clobber is False and there are any tables in the database.
 
     Returns:
         None
-
     """
     md = sa.MetaData()
     md.reflect(engine)
@@ -1054,7 +1044,6 @@ def merge_dicts(list_of_dicts):
 
     Returns:
         dict
-
     """
     merge_dict = {}
     for dictionary in list_of_dicts:
@@ -1063,7 +1052,9 @@ def merge_dicts(list_of_dicts):
 
 
 def convert_cols_dtypes(
-    df: pd.DataFrame, data_source: str | None = None, name: str | None = None
+    df: pd.DataFrame,
+    data_source: str | None = None,
+    name: str | None = None,
 ) -> pd.DataFrame:
     """Convert a PUDL dataframe's columns to the correct data type.
 
@@ -1088,7 +1079,6 @@ def convert_cols_dtypes(
     Returns:
         Input dataframe, but with column types as specified by
         :py:const:`pudl.metadata.fields.FIELD_METADATA`
-
     """
     # get me all of the columns for the table in the constants dtype dict
     dtypes = {
@@ -1171,7 +1161,6 @@ def generate_rolling_avg(df, group_cols, data_col, window, **kwargs):
 
     Returns:
         pandas.DataFrame
-
     """
     df = df.astype({"report_date": "datetime64[ns]"})
     # create a full date range for this df
@@ -1225,7 +1214,6 @@ def fillna_w_rolling_avg(df_og, group_cols, data_col, window=12, **kwargs):
 
     Returns:
         pandas.DataFrame: dataframe with nulls filled in.
-
     """
     df_og = df_og.astype({"report_date": "datetime64[ns]"})
     df_roll = generate_rolling_avg(df_og, group_cols, data_col, window, **kwargs)
@@ -1252,7 +1240,6 @@ def count_records(df, cols, new_count_col_name):
     Returns:
         pandas.DataFrame: dataframe containing only ``cols`` and
         ``new_count_col_name``.
-
     """
     return (
         df.assign(count_me=1)
@@ -1269,7 +1256,6 @@ def cleanstrings_snake(df, cols):
     Args:
         df (panda.DataFrame) : original dataframe.
         cols (list): list of columns in `df` to apply snake case to.
-
     """
     for col in cols:
         df.loc[:, col] = (
@@ -1358,10 +1344,14 @@ def iterate_multivalue_dict(**kwargs):
         yield result
 
 
-def get_working_eia_dates():
-    """Get all working EIA dates as a DatetimeIndex."""
+def get_working_dates_by_datasource(datasource):
+    """Get all working dates of a datasource as a DatetimeIndex."""
+    import pudl.metadata.classes
+
     dates = pd.DatetimeIndex([])
-    for data_source in DataSource.from_field_namespace("eia"):
+    for data_source in pudl.metadata.classes.DataSource.from_field_namespace(
+        datasource
+    ):
         working_partitions = data_source.working_partitions
         if "years" in working_partitions:
             dates = dates.append(
@@ -1374,19 +1364,24 @@ def get_working_eia_dates():
     return dates
 
 
-def dedupe_on_category(dedup_df, base_cols, category_name, sorter):
+def dedupe_on_category(
+    dedup_df: pd.DataFrame, base_cols: list[str], category_name: str, sorter: list[str]
+) -> pd.DataFrame:
     """Deduplicate a df using a sorted category to retain prefered values.
 
     Use a sorted category column to retain your prefered values when a
     dataframe is deduplicated.
 
     Args:
-        dedup_df (pandas.DataFrame): the dataframe with the record
-        base_cols (list) : list of columns to use when dropping duplicates
-        category_name (string) : name of categorical column
-        sorter (list): sorted list of category options
+        dedup_df: the dataframe with the records to deduplicate.
+        base_cols: list of columns which must not be duplicated.
+        category_name: name of the categorical column to order values for deduplication.
+        sorter: sorted list of categorical values found in the ``category_name`` column.
+
+    Returns:
+        The deduplicated dataframe.
     """
-    dedup_df.loc[:, category_name] = dedup_df.loc[:, category_name].astype(
+    dedup_df[category_name] = dedup_df[category_name].astype(
         pd.CategoricalDtype(categories=sorter, ordered=True)
     )
 
@@ -1499,7 +1494,6 @@ def sum_and_weighted_average_agg(
     Returns:
         table with join of columns from ``by``, ``sum_cols`` and keys of
         ``wtavg_dict``. Primary key of table will be ``by``.
-
     """
     logger.debug(f"grouping by {by}")
     # we are keeping the index here for easy merging of the weighted cols below
@@ -1524,7 +1518,6 @@ def get_eia_ferc_acct_map():
             <https://www.ferc.gov/enforcement-legal/enforcement/accounting-matters>`__
             The output table has the following columns: `['technology_description',
             'prime_mover_code', 'ferc_acct_name']`
-
     """
     eia_ferc_acct_map = pd.read_csv(
         resources.open_text("pudl.package_data.glue", "ferc_acct_to_pm_tech_map.csv")
@@ -1535,6 +1528,19 @@ def get_eia_ferc_acct_map():
 def dedupe_n_flatten_list_of_lists(mega_list):
     """Flatten a list of lists and remove duplicates."""
     return list({item for sublist in mega_list for item in sublist})
+
+
+def flatten_list(xs: Iterable) -> Generator:
+    """Flatten an irregular (arbitrarily nested) list of lists (or sets).
+
+    Inspiration from `here
+    <https://stackoverflow.com/questions/2158395/flatten-an-irregular-arbitrarily-nested-list-of-lists>`__
+    """
+    for x in xs:
+        if isinstance(x, Iterable) and not isinstance(x, (str, bytes)):
+            yield from flatten_list(x)
+        else:
+            yield x
 
 
 def convert_df_to_excel_file(df: pd.DataFrame, **kwargs) -> pd.ExcelFile:

@@ -155,6 +155,7 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
                 "owner_name",
                 "owner_state",
                 "owner_city",
+                "owner_country",
                 "owner_street_address",
                 "owner_zip_code",
                 "fraction_owned",
@@ -288,8 +289,7 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
         "etl_group": "eia860",
     },
 }
-"""
-EIA-860 resource attributes organized by PUDL identifier (``resource.name``).
+"""EIA-860 resource attributes organized by PUDL identifier (``resource.name``).
 
 Keys are in alphabetical order.
 

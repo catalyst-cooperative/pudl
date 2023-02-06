@@ -12,7 +12,7 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
                 "eia_code",
             ],
             "primary_key": ["respondent_id_ferc714"],
-            "foreign_key_rules": {"fields": [["respodnent_id_ferc714"]]},
+            "foreign_key_rules": {"fields": [["respondent_id_ferc714"]]},
         },
         "sources": ["ferc714"],
         "field_namespace": "ferc714",
@@ -35,8 +35,7 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
         "etl_group": "ferc714",
     },
 }
-"""
-FERC Form 714 resource attributes by PUDL identifier (``resource.name``).
+"""FERC Form 714 resource attributes by PUDL identifier (``resource.name``).
 
 Keys are in alphabetical order.
 

@@ -1,0 +1,93 @@
+---
+name: zenodo-cache-sync
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: "0 6 * * 1-5" # Weekdays at midnight on MST
+
+env:
+  INTERNAL_ZENODO_CACHE_BUCKET: gs://internal-zenodo-cache.catalyst.coop
+  PUBLIC_ZENODO_CACHE_BUCKET: gs://zenodo-cache.catalyst.coop
+  GITHUB_REF: ${{ github.ref_name }} # This is changed to dev if running on a schedule
+
+jobs:
+  zenodo-cache-sync:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+    defaults:
+      run:
+        shell: bash -l {0}
+
+    steps:
+      - name: Use dev branch if running on a schedule
+        if: ${{ (github.event_name == 'schedule') }}
+        run: |
+          echo "This action was triggered by a schedule." && echo "GITHUB_REF=dev" >> $GITHUB_ENV
+
+      - name: Checkout desired branch branch
+        uses: actions/checkout@v3
+        with:
+          ref: ${{ env.GITHUB_REF }}
+
+      - name: Install Conda environment using mamba
+        uses: mamba-org/provision-with-micromamba@v15
+        with:
+          environment-file: test/test-environment.yml
+          cache-env: true
+          channels: conda-forge,defaults
+          channel-priority: strict
+
+      - name: Log environment details
+        run: |
+          conda info
+          conda list
+          conda config --show-sources
+          conda config --show
+          printenv | sort
+
+      - name: Install pudl package
+        run: |
+          pip install --editable ./
+
+      - name: Set default gcp credentials
+        id: gcloud-auth
+        uses: "google-github-actions/auth@v1"
+        with:
+          credentials_json: "${{ secrets.ZENODO_CACHE_MANAGER_SA_KEY }}"
+
+      - name: Set up Cloud SDK
+        uses: google-github-actions/setup-gcloud@v1
+
+      - name: Update GCS cache with any new Zenodo archives
+        run: |
+          pudl_datastore --gcs-cache-path ${{ env.INTERNAL_ZENODO_CACHE_BUCKET }} --bypass-local-cache --loglevel DEBUG
+
+      - name: Sync internal and public caches
+        run: |
+          gsutil -u catalyst-cooperative-pudl -m rsync -dr ${{ env.INTERNAL_ZENODO_CACHE_BUCKET }} ${{ env.PUBLIC_ZENODO_CACHE_BUCKET }}
+
+  zenodo-cache-sync-notify:
+    runs-on: ubuntu-latest
+    if: ${{ always() }}
+    needs: zenodo-cache-sync
+    steps:
+      - name: Inform the Codemonkeys
+        uses: 8398a7/action-slack@v3
+        with:
+          status: custom
+          fields: workflow,job,commit,repo,ref,author,took
+          custom_payload: |
+            {
+              username: 'action-slack',
+              icon_emoji: ':octocat:',
+              attachments: [{
+                color: '${{ needs.zenodo-cache-sync.result }}' === 'success' ? 'good' : '${{ needs.zenodo-cache-sync.result }}' === 'failure' ? 'danger' : 'warning',
+                text: `${process.env.AS_REPO}@${process.env.AS_REF}\n ${process.env.AS_WORKFLOW} (${process.env.AS_COMMIT})\n by ${process.env.AS_AUTHOR}\n Status: ${{ needs.zenodo-cache-sync.result }}`,
+              }]
+            }
+        env:
+          GITHUB_TOKEN: ${{ github.token }} # required
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }} # required
+          MATRIX_CONTEXT: ${{ toJson(matrix) }} # required

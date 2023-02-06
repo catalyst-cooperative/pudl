@@ -6,20 +6,16 @@ an Apache Parquet dataset partitioned by year and state.
 Processing the EPA CEMS data requires information that's stored in the main PUDL
 database, so to run this script, you must already have a PUDL database
 available on your system.
-
 """
 import argparse
-import logging
 import pathlib
 import sys
-
-import coloredlogs
 
 import pudl
 from pudl.metadata.classes import DataSource
 from pudl.settings import EpaCemsSettings
 
-logger = logging.getLogger(__name__)
+logger = pudl.logging_helpers.get_logger(__name__)
 
 
 def parse_command_line(argv):
@@ -30,7 +26,6 @@ def parse_command_line(argv):
 
     Returns:
         dict: Dictionary of command line arguments and their parsed values.
-
     """
     parser = argparse.ArgumentParser(description=__doc__)
 
@@ -87,6 +82,11 @@ def parse_command_line(argv):
         help="Set logging level (DEBUG, INFO, WARNING, ERROR, or CRITICAL).",
         default="INFO",
     )
+    parser.add_argument(
+        "--logfile",
+        default=None,
+        help="If specified, write logs to this file.",
+    )
     arguments = parser.parse_args(argv[1:])
     return arguments
 
@@ -96,9 +96,9 @@ def main():
     args = parse_command_line(sys.argv)
 
     # Display logged output from the PUDL package:
-    pudl_logger = logging.getLogger("pudl")
-    log_format = "%(asctime)s [%(levelname)8s] %(name)s:%(lineno)s %(message)s"
-    coloredlogs.install(fmt=log_format, level=args.loglevel, logger=pudl_logger)
+    pudl.logging_helpers.configure_root_logger(
+        logfile=args.logfile, loglevel=args.loglevel
+    )
 
     pudl_settings = pudl.workspace.setup.get_defaults()
     # This also validates the states / years we've been given:

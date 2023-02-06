@@ -10,15 +10,15 @@ on:
 env:
   GCP_BILLING_PROJECT: ${{ secrets.GCP_BILLING_PROJECT }}
   GITHUB_REF: ${{ github.ref_name }} # This is changed to dev if running on a schedule
-  GCE_INSTANCE: pudl-deployment-tag # This is changed to pudl-deployment-tag if running on a schedule
-  GCE_INSTANCE_ZONE: us-central1-a
+  GCE_INSTANCE: pudl-deployment-tag # This is changed to pudl-deployment-dev if running on a schedule
+  GCE_INSTANCE_ZONE: ${{ secrets.GCE_INSTANCE_ZONE }}
 
 jobs:
   build_and_deploy_pudl:
     name: Build Docker image, push to Docker Hub and deploy to a GCE VM
     runs-on: ubuntu-latest
     steps:
-      - name: Use pudl-deployment-dev vm and dev branch if running on a schedule or manually triggered
+      - name: Use pudl-deployment-dev vm and dev branch if running on a schedule
         if: ${{ (github.event_name == 'schedule') }}
         run: |
           echo "This action was triggered by a schedule." && echo "GCE_INSTANCE=pudl-deployment-dev" >> $GITHUB_ENV && echo "GITHUB_REF=dev" >> $GITHUB_ENV
@@ -40,7 +40,7 @@ jobs:
 
       - name: Docker Metadata
         id: docker_metadata
-        uses: docker/metadata-action@v4.0.1
+        uses: docker/metadata-action@v4.3.0
         with:
           images: catalystcoop/pudl-etl
           flavor: |
@@ -50,17 +50,17 @@ jobs:
             type=ref,event=tag
 
       - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v2.0.0
+        uses: docker/setup-buildx-action@v2.4.0
 
       - name: Login to DockerHub
         if: github.event_name != 'pull_request'
-        uses: docker/login-action@v2.0.0
+        uses: docker/login-action@v2.1.0
         with:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
 
       - name: Build image and push to Docker Hub
-        uses: docker/build-push-action@v3.1.1
+        uses: docker/build-push-action@v4.0.0
         with:
           context: .
           file: docker/Dockerfile
@@ -70,13 +70,13 @@ jobs:
 
       # Authentication via credentials json
       - id: "auth"
-        uses: "google-github-actions/auth@v0"
+        uses: "google-github-actions/auth@v1"
         with:
           credentials_json: "${{ secrets.DEPLOY_PUDL_SA_KEY }}"
 
       # Setup gcloud CLI
       - name: Set up Cloud SDK
-        uses: google-github-actions/setup-gcloud@v0
+        uses: google-github-actions/setup-gcloud@v1
 
       # Deploy PUDL image to GCE
       - name: Deploy
@@ -97,10 +97,13 @@ jobs:
             --container-env-file="./docker/.env" \
             --container-env ACTION_SHA=$ACTION_SHA \
             --container-env GITHUB_REF=${{ env.GITHUB_REF }} \
-            --container-env API_KEY_EIA=${{ secrets.API_KEY_EIA }} \
             --container-env SLACK_TOKEN=${{ secrets.PUDL_DEPLOY_SLACK_TOKEN }} \
             --container-env GCE_INSTANCE=${{ env.GCE_INSTANCE }} \
-            --container-env GCP_BILLING_PROJECT=${{ secrets.GCP_BILLING_PROJECT }}
+            --container-env GCE_INSTANCE_ZONE=${{ env.GCE_INSTANCE_ZONE }} \
+            --container-env GCP_BILLING_PROJECT=${{ secrets.GCP_BILLING_PROJECT }} \
+            --container-env AWS_ACCESS_KEY_ID=${{ secrets.AWS_ACCESS_KEY_ID }} \
+            --container-env AWS_SECRET_ACCESS_KEY=${{ secrets.AWS_SECRET_ACCESS_KEY }} \
+            --container-env AWS_DEFAULT_REGION=${{ secrets.AWS_DEFAULT_REGION }} \
 
       # Start the VM
       - name: Start the deploy-pudl-vm
@@ -108,7 +111,7 @@ jobs:
 
       - name: Post to a pudl-deployments channel
         id: slack
-        uses: slackapi/slack-github-action@v1.21.0
+        uses: slackapi/slack-github-action@v1.23.0
         with:
           channel-id: "C03FHB9N0PQ"
           slack-message: "build-deploy-pudl status: ${{ job.status }}\n${{ env.ACTION_SHA }}-${{ env.GITHUB_REF }}"

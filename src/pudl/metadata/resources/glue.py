@@ -2,43 +2,23 @@
 from typing import Any
 
 RESOURCE_METADATA: dict[str, dict[str, Any]] = {
-    "assn_gen_eia_unit_epa": {
+    "epacamd_eia": {
         "schema": {
             "fields": [
+                "plant_id_epa",
+                "emissions_unit_id_epa",
+                "generator_id_epa",
+                "plant_id_eia",
+                "boiler_id",
                 "generator_id",
-                "plant_id_eia",
-                "unit_id_epa",
             ],
         },
         "field_namespace": "glue",
         "etl_group": "glue",
-        "sources": ["eia_epa_crosswalk"],
-    },
-    "assn_plant_id_eia_epa": {
-        "schema": {
-            "fields": [
-                "plant_id_eia",
-                "plant_id_epa",
-            ],
-        },
-        "field_namespace": "glue",
-        "etl_group": "glue",
-        "sources": ["eia_epa_crosswalk"],
-    },
-    "plant_unit_epa": {
-        "schema": {
-            "fields": [
-                "plant_id_epa",
-                "unit_id_epa",
-            ],
-        },
-        "field_namespace": "glue",
-        "etl_group": "glue",
-        "sources": ["eia_epa_crosswalk"],
+        "sources": ["epacamd_eia"],
     },
 }
-"""
-PUDL-specifiic resource attributes by PUDL identifier (``resource.name``).
+"""PUDL-specifiic resource attributes by PUDL identifier (``resource.name``).
 
 Keys are in alphabetical order.
 

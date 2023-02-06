@@ -7,10 +7,10 @@ updates:
     labels:
       - dependencies
     schedule:
-      interval: daily
+      interval: weekly
 
   - package-ecosystem: github-actions
     directory: /
     target-branch: dev
     schedule:
-      interval: daily
+      interval: weekly

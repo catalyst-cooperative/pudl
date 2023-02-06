@@ -1,6 +1,6 @@
 {% extends "data_source_parent.rst.jinja" %}
 {% block extra_table_text %}
-We've also created the following tables mapping mannually assigned PUDL IDs to FERC
+We've also created the following tables mapping manually assigned PUDL IDs to FERC
 respondent IDs, enabling a connection between the FERC and EIA data sets.
 {% endblock %}
 
@@ -12,7 +12,7 @@ respondent IDs, enabling a connection between the FERC and EIA data sets.
 
 {% block downloadable_pdfs %}
 {% for filename in download_paths %}
-    * :download:`{{ filename.stem.replace("_", " ").title() }} (PDF) <{{ filename }}>`
+    * :download:`{{ filename.stem.replace("_", " ").title() }} <{{ filename }}>`
 {% endfor %}
 {% endblock %}
 
@@ -42,12 +42,13 @@ new data in October.
 {% block original_data %}
 .. seealso::
 
-    Explore the full FERC Form 1 dataset at: https://data.catalyst.coop/{{ source.name }}
+    Explore the raw FERC Form 1 data at: https://data.catalyst.coop/{{ source.name }}
+    (old DBF) and https://data.catalyst.coop/{{ source.name }}_xbrl (new XBRL)
 
-As of early 2021, the data is now published as a collection of XBRL filings. Previous data
-remains in Visual FoxPro databases. The new data remains
-difficult to access and we are in the process of understanding the underlying data and
-integrating this new format into PUDL.
+As of early 2021, the data is now published as a collection of XBRL filings. Previous
+data remains in Visual FoxPro databases. The new data remains difficult to access and we
+are in the process of understanding the underlying data and integrating this new format
+into PUDL.
 
 Previously the data was strutured as follows:
 
@@ -61,13 +62,12 @@ application which allowed this database to be used in Microsoft Access has been
 discontinued. FERC's use of this database format creates a significant
 barrier to data access.
 
-New data is released as a collection of XBRL filings and we are in the process of integrating
-this data into PUDL.
+New data is released as a collection of XBRL filings and we are in the process of
+integrating this data into PUDL.
 
-The FERC 1 database is poorly normalized and the data itself does not appear
-to be subject to much quality control. For more detailed context and
-documentation on a table-by-table basis, look at
-:doc:`/data_dictionaries/ferc1_db`.
+The FERC 1 database is poorly normalized and the data itself does not appear to be
+subject to much quality control. For more detailed context and documentation on a
+table-by-table basis, look at :doc:`/data_dictionaries/ferc1_db`.
 {% endblock %}
 
 {% block notable_irregularities %}

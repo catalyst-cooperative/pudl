@@ -1,5 +1,7 @@
 """Tests for settings validation."""
+
 import pytest
+from pandas import json_normalize
 from pydantic import ValidationError
 
 from pudl.metadata.classes import DataSource
@@ -9,10 +11,11 @@ from pudl.settings import (
     Eia923Settings,
     EiaSettings,
     EpaCemsSettings,
+    Ferc1DbfToSqliteSettings,
     Ferc1Settings,
-    Ferc1ToSqliteSettings,
     GenericDatasetSettings,
 )
+from pudl.workspace.datastore import Datastore
 
 
 class TestGenericDatasetSettings:
@@ -35,13 +38,13 @@ class TestGenericDatasetSettings:
             Test()
 
 
-class TestFerc1ToSqliteSettings:
-    """Test Ferc1ToSqliteSettings."""
+class TestFerc1DbfToSqliteSettings:
+    """Test Ferc1DbfToSqliteSettings."""
 
     def test_ref_year(self):
         """Test reference year is within working years."""
         with pytest.raises(ValidationError):
-            Ferc1ToSqliteSettings(ferc1_to_sqlite_refyear=1990)
+            Ferc1DbfToSqliteSettings(ferc1_to_sqlite_refyear=1990)
 
 
 class TestFerc1Settings:
@@ -68,6 +71,12 @@ class TestFerc1Settings:
 
         expected_years = DataSource.from_id("ferc1").working_partitions["years"]
         assert expected_years == returned_settings.years
+
+        dbf_expected_years = [year for year in expected_years if year <= 2020]
+        assert dbf_expected_years == returned_settings.dbf_years
+
+        xbrl_expected_years = [year for year in expected_years if year >= 2021]
+        assert xbrl_expected_years == returned_settings.xbrl_years
 
     def test_not_working_table(self):
         """Make sure a validation error is being thrown when given an invalid table."""
@@ -134,10 +143,12 @@ class TestEIA860Settings:
     def test_860m(self):
         """Test validation error is raised when eia860m date is within 860 years."""
         settings_cls = Eia860Settings
+        original_eia80m_date = settings_cls.eia860m_date
         settings_cls.eia860m_date = "2019-11"
 
         with pytest.raises(ValidationError):
             settings_cls(eia860m=True)
+        settings_cls.eia860m_date = original_eia80m_date
 
 
 class TestEiaSettings:
@@ -212,3 +223,34 @@ class TestGlobalConfig:
         with pytest.raises(TypeError):
             settings = EiaSettings()
             settings.eia860 = Eia860Settings()
+
+
+def test_partitions_with_json_normalize(pudl_etl_settings):
+    """Ensure the FERC1 and CEMS partitions normalize."""
+    datasets = pudl_etl_settings.get_datasets()
+
+    ferc_parts = json_normalize(datasets["ferc1"].partitions)
+    if list(ferc_parts.columns) != ["year"]:
+        raise AssertionError(
+            "FERC1 paritions should have year and state columns only, found:"
+            f"{ferc_parts}"
+        )
+
+    cems_parts = json_normalize(datasets["epacems"].partitions)
+    if list(cems_parts.columns) != ["year", "state"]:
+        raise AssertionError(
+            "CEMS paritions should have year and state columns only, found:"
+            f"{cems_parts}"
+        )
+
+
+def test_partitions_for_datasource_table(pudl_settings_fixture, pudl_etl_settings):
+    """Test whether or not we can make the datasource table."""
+    ds = Datastore(local_cache_path=pudl_settings_fixture["data_dir"])
+    datasource = pudl_etl_settings.make_datasources_table(ds)
+    datasets = pudl_etl_settings.get_datasets().keys()
+    if datasource.empty and datasets != 0:
+        raise AssertionError(
+            "Datasource table is empty with the following datasets in the settings: "
+            f"{datasets}"
+        )
