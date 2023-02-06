@@ -211,12 +211,8 @@ names with raw XBRL and DBF tables.
 
 **4.B.2)** Use the FERC 1 debugging notebook ``devtools/ferc1-etl-debug.ipynb`` to run
 the transforms for each table. Heed any errors or warnings that pop up in the
-logs. One of the most likely bugs will be uncategorized strings. Any column listed in
-:py:const:`pudl.transform.params.ferc1.TRANSFORM_PARAMS` under ``categorize_strings``
-gets cleaned according to varables defined in :mod:`pudl.transform.params.ferc1`.
-Uncategorized string values (think new, strange fuel type spellings) will throw an error
-and should be added to the appropriate dictionaries in
-:mod:`pudl.transform.params.ferc1`.
+logs. One of the most likely bugs will be uncategorized strings (think new, strange fuel
+type spellings.
 
 **4.B.3)** If there's a new column, add it to the transform process. At the very least,
 you'll need to include it in the ``rename_columns`` dictionary in
