@@ -37,8 +37,8 @@ fields such as ``source_format`` or ``path`` are still accurate.
 
 .. note::
 
-    EIA861 is not yet included in the ETL, so you can stop after 1.3 if you're updating
-    form 861. You can also skip all steps after 3.
+  If you're updating EIA861, you can skip the rest of the steps in this section and
+  all steps beyond step two because 861 is not yet included in the ETL.
 
 **1.4)** Update the years of data to be processed in the ``etl_full.yml`` and
 ``etl_fast.yml`` settings files stored under ``src/pudl/package_data/settings`` in the
