@@ -59,16 +59,7 @@ defs = Definitions(
                     "dataset_settings": {
                         "config": EtlSettings.from_yaml(
                             importlib.resources.path(settings, "etl_fast.yml")
-                        ).datasets.dict(
-                            exclude={
-                                "ferc1": {"tables"},
-                                "eia": {
-                                    "eia860": {"tables"},
-                                    "eia923": {"tables"},
-                                },
-                                "epacems": {"tables"},
-                            }
-                        )
+                        ).datasets.dict()
                     }
                 }
             },

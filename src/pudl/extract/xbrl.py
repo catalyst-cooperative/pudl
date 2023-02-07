@@ -185,7 +185,6 @@ def convert_form(
             sqlite_engine,
             raw_archive,
             form.value,
-            requested_tables=form_settings.tables,
             batch_size=batch_size,
             workers=workers,
             datapackage_path=datapackage_path,

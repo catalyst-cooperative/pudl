@@ -484,7 +484,7 @@ def define_sqlite_db(
     Returns:
         None: the effects of the function are stored inside sqlite_meta
     """
-    for table in ferc1_to_sqlite_settings.tables:
+    for table in DBF_TABLES_FILENAMES.keys():
         add_sqlite_table(
             table_name=table,
             sqlite_meta=sqlite_meta,
@@ -626,7 +626,7 @@ def dbf2sqlite(context) -> None:
         ferc1_to_sqlite_settings=ferc1_to_sqlite_settings,
     )
 
-    for table in ferc1_to_sqlite_settings.tables:
+    for table in DBF_TABLES_FILENAMES.keys():
         logger.info(f"Pandas: reading {table} into a DataFrame.")
         new_df = get_raw_df(
             ferc1_dbf_ds, table, dbc_map, years=ferc1_to_sqlite_settings.years
