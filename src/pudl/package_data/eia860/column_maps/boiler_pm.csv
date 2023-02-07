@@ -5,4 +5,4 @@ plant_id_eia,,,,,,,,,,,,,plant_code,plant_code,plant_code,plant_code,plant_code,
 plant_name_eia,,,,,,,,,,,,,plant_name,plant_name,plant_name,plant_name,plant_name,plant_name,plant_name,plant_name,plant_name
 boiler_id,,,,,,,,,,,,,boiler_id,boiler_id,boiler_id,boiler_id,boiler_id,boiler_id,boiler_id,boiler_id,boiler_id
 pm_control_id_eia,,,,,,,,,,,,,particulate_matter_control_id,particulate_matter_control_id,particulate_matter_control_id,particulate_matter_control_id,particulate_matter_control_id,particulate_matter_control_id,particulate_matter_control_id,particulate_matter_control_id,particulate_matter_control_id
-steam_plant_type,,,,,,,,,,,,,,steam_plant_type,steam_plant_type,steam_plant_type,steam_plant_type,steam_plant_type,steam_plant_type,steam_plant_type,steam_plant_type
+steam_plant_type_code,,,,,,,,,,,,,,steam_plant_type,steam_plant_type,steam_plant_type,steam_plant_type,steam_plant_type,steam_plant_type,steam_plant_type,steam_plant_type
