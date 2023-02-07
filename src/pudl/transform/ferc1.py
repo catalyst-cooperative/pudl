@@ -17,6 +17,7 @@ import numpy as np
 import pandas as pd
 import sqlalchemy as sa
 from pandas.core.groupby import DataFrameGroupBy
+from pydantic import validator
 
 import pudl
 from pudl.analysis.classify_plants_ferc1 import (
@@ -546,6 +547,16 @@ class CombineAxisColumnsXbrl(TransformParams):
 
     new_axis_column_name: str | None = None
     """The name of the combined axis column -- must end with the suffix ``_axis``!."""
+
+    @validator("new_axis_column_name")
+    def doesnt_end_with_axis(cls, v):
+        """Ensure that new axis column ends in _axis."""
+        if v is not None:
+            if not v.endswith("_axis"):
+                raise ValueError(
+                    "The new axis column name must end with the suffix '_axis'!"
+                )
+        return v
 
 
 def combine_axis_columns_xbrl(
