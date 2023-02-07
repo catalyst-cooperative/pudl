@@ -219,19 +219,21 @@ you'll need to include it in the ``rename_columns`` dictionary in
 :py:const:`pudl.transform.params.ferc1.TRANSFORM_PARAMS` for the appropriate table.
 
 * Consider whether the column could benefit from any of the standard transforms in
-  :mod:`pudl.transform.classes`. If so, add those transforms/the new column to
-  :py:const:`pudl.transform.params.ferc1.TRANSFORM_PARAMS`. If the standard transform
-  you're applying to the new column was not previously listed in
-  :py:const:`pudl.transform.params.ferc1.TRANSFORM_PARAMS` under the table you're
-  working on, you'll need to add it to ``transform_main()`` in
-  :mod:`pudl.transform.ferc1` under the cooresponding table transformer class or it
-  won't be executed.
+  :mod:`pudl.transform.classes` or :mod:`pudl.transform.ferc1`. If so, add them to
+  :py:const:`pudl.transform.params.ferc1.TRANSFORM_PARAMS`. Make sure that the
+  function you've added to ``TRANSFORM_PARAMS`` is getting called in one of the
+  high-level transform functions in
+  :class:`pudl.transform.ferc1.Ferc1AbstractTableTransformer` (``process_xbrl``,
+  ``process_dbf``, ``transform_start``, ``transform_main``) and/or any
+  table-specific overrides in the relevant table transformer class.
 
 * Consider whether the column could benefit from custom transformations. If it's
-  something that could be applicable to other columns, consider building it in
-  :mod:`pudl.tranform.classes`. If not, build it in the relevant table transformer
-  class in :mod:`pudl.transform.ferc1`. Make sure to write a unit test for any new
-  functions.
+  something that could be applicable to other tables from other sources, consider
+  building it in :mod:`pudl.tranform.classes`. If it's specific to FERC1, build it in
+  :mod:`pudl.transform.ferc1`. If it will only ever be relevant to one table in FERC1,
+  build it in the table-specific class in :mod:`pudl.transform.ferc1`, create an
+  override for one of the high-level transform functions, and call it there. Make sure
+  to write a unit test for any new functions.
 
 **4.B.4)** If there's a new table, add it to the transform process. You'll need to build
 or augment a table transformer in :mod:`pudl.transform.ferc1` and follow all
