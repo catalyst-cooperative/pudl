@@ -685,6 +685,10 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "type": "boolean",
         "description": "Indicatates whether or not a generator is a qualifying FERC cogeneation facility.",
     },
+    "fgd_id_eia": {
+        "type": "string",
+        "description": "EIA assigned alphanumeric ID for flue gas desulfurization unit.",
+    },
     "fluidized_bed_tech": {
         "type": "boolean",
         "description": "Indicates whether the generator uses fluidized bed technology",

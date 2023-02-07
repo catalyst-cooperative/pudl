@@ -26,6 +26,26 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
         "sources": ["eia860", "eia923"],
         "etl_group": "eia860",
     },
+    "boiler_fgd_eia860": {
+        "description": (
+            "WIP DESCRIPTION - FIX. Associations between boilers and flue gas "
+            "desulfurization equipment as reported in EIA-860 "
+            "Schedule 6, Part A."
+        ),
+        "schema": {
+            "fields": [
+                "utility_id_eia",
+                "report_date",
+                "plant_id_eia",
+                "boiler_id",
+                "fgd_id_eia",
+            ],
+            "primary_key": ["plant_id_eia", "report_date", "boiler_id"],
+        },
+        "field_namespace": "eia",
+        "sources": ["eia860", "eia923"],
+        "etl_group": "eia860",
+    },
     # "emission_control_equip_eia860": {
     #     "description": "Associations between boilers and emission control equipment as reported in EIA-860 Schedule 6, Part A.",
     #     "schema": {
