@@ -92,16 +92,7 @@ def main():
         run_config={
             "resources": {
                 "dataset_settings": {
-                    "config": EtlSettings.from_yaml(args.settings_file).datasets.dict(
-                        exclude={
-                            "ferc1": {"tables"},
-                            "eia": {
-                                "eia860": {"tables"},
-                                "eia923": {"tables"},
-                            },
-                            "epacems": {"tables"},
-                        }
-                    )
+                    "config": EtlSettings.from_yaml(args.settings_file).datasets.dict()
                 },
                 "datastore": {
                     "config": {

@@ -38,16 +38,7 @@ ferc_to_sqlite_fast = ferc_to_sqlite.to_job(
             "ferc_to_sqlite_settings": {
                 "config": EtlSettings.from_yaml(
                     importlib.resources.path(settings, "etl_fast.yml")
-                ).ferc_to_sqlite_settings.dict(
-                    exclude={
-                        "ferc1_dbf_to_sqlite_settings": {"tables"},
-                        "ferc1_xbrl_to_sqlite_settings": {"tables"},
-                        "ferc2_xbrl_to_sqlite_settings": {"tables"},
-                        "ferc6_xbrl_to_sqlite_settings": {"tables"},
-                        "ferc60_xbrl_to_sqlite_settings": {"tables"},
-                        "ferc714_xbrl_to_sqlite_settings": {"tables"},
-                    }
-                )
+                ).ferc_to_sqlite_settings.dict()
             }
         }
     },

@@ -15,7 +15,6 @@ from pydantic import BaseSettings, root_validator, validator
 import pudl
 import pudl.workspace.setup
 from pudl.metadata.classes import DataSource
-from pudl.metadata.constants import DBF_TABLES_FILENAMES, XBRL_TABLES
 from pudl.metadata.resources.eia861 import TABLE_DEPENDENCIES
 from pudl.workspace.datastore import Datastore
 
@@ -44,11 +43,9 @@ class BaseModel(PydanticBaseModel):
 class GenericDatasetSettings(BaseModel):
     """An abstract pydantic model for generic datasets.
 
-    Each dataset must specify working tables and partitions. A dataset can have an
-    arbitrary number of partitions.
+    Each dataset must specify working partitions. A dataset can have an arbitrary number
+    of partitions.
     """
-
-    tables: list[str]
 
     @root_validator
     def validate_partitions(cls, partitions):  # noqa: N805
@@ -77,14 +74,6 @@ class GenericDatasetSettings(BaseModel):
             partitions[name] = sorted(set(partition))
         return partitions
 
-    @validator("tables")
-    def validate_tables(cls, tables):  # noqa: N805
-        """Validate tables are available."""
-        tables_not_working = list(set(tables) - set(cls.data_source.get_resource_ids()))
-        if tables_not_working:
-            raise ValueError(f"'{tables_not_working}' tables are not available.")
-        return sorted(set(tables))
-
     @property
     def partitions(cls) -> list[None | dict[str, str]]:  # noqa: N805
         """Return list of dictionaries representing individual partitions.
@@ -110,21 +99,11 @@ class Ferc1Settings(GenericDatasetSettings):
     Args:
         data_source: DataSource metadata object
         years: list of years to validate.
-        tables: list of tables to validate.
     """
 
     data_source: ClassVar[DataSource] = DataSource.from_id("ferc1")
 
     years: list[int] = data_source.working_partitions["years"]
-    tables: list[str] = data_source.get_resource_ids()
-
-    @validator("tables")
-    def validate_tables(cls, tables):  # noqa: N805
-        """Validate tables are available."""
-        unavailable_tables = list(set(tables) - set(cls.data_source.get_resource_ids()))
-        if unavailable_tables:
-            raise ValueError(f"'{unavailable_tables}' tables are not available.")
-        return sorted(set(tables))
 
     @property
     def dbf_years(self):
@@ -142,7 +121,6 @@ class Ferc714Settings(GenericDatasetSettings):
 
     Args:
         data_source: DataSource metadata object
-        tables: list of tables to validate.
     """
 
     data_source: ClassVar[DataSource] = DataSource.from_id("ferc714")
@@ -160,7 +138,6 @@ class EpaCemsSettings(GenericDatasetSettings):
         data_source: DataSource metadata object
         years: list of years to validate.
         states: list of states to validate.
-        tables: list of tables to validate.
         partition: Whether to output year-state partitioned Parquet files. If True,
             all available threads / CPUs will be used in parallel.
     """
@@ -169,7 +146,6 @@ class EpaCemsSettings(GenericDatasetSettings):
 
     years: list[int] = data_source.working_partitions["years"]
     states: list[str] = data_source.working_partitions["states"]
-    tables: list[str] = data_source.get_resource_ids()
     partition: bool = False
 
     @validator("states")
@@ -186,13 +162,10 @@ class Eia923Settings(GenericDatasetSettings):
     Args:
         data_source: DataSource metadata object
         years: list of years to validate.
-        tables: list of tables to validate.
     """
 
     data_source: ClassVar[DataSource] = DataSource.from_id("eia923")
-
     years: list[int] = data_source.working_partitions["years"]
-    tables: list[str] = data_source.get_resource_ids()
 
 
 class Eia861Settings(GenericDatasetSettings):
@@ -201,7 +174,6 @@ class Eia861Settings(GenericDatasetSettings):
     Args:
         data_source: DataSource metadata object
         years: list of years to validate.
-        tables: list of tables to validate.
         transform_functions: list of transform functions to be applied to eia861
     """
 
@@ -250,7 +222,6 @@ class Eia860Settings(GenericDatasetSettings):
     Args:
         data_source: DataSource metadata object
         years: list of years to validate.
-        tables: list of tables to validate.
 
         eia860m_date ClassVar[str]: The 860m year to date.
     """
@@ -260,7 +231,6 @@ class Eia860Settings(GenericDatasetSettings):
     eia860m_date: ClassVar[str] = eia860m_data_source.working_partitions["year_month"]
 
     years: list[int] = data_source.working_partitions["years"]
-    tables: list[str] = data_source.get_resource_ids()
     eia860m: bool = True
 
     @validator("eia860m")
@@ -344,9 +314,7 @@ class EiaSettings(BaseModel):
         eia923 = values.get("eia923")
         eia860 = values.get("eia860")
         if not eia923 and eia860:
-            values["eia923"] = Eia923Settings(
-                tables=["boiler_fuel_eia923", "generation_eia923"], years=eia860.years
-            )
+            values["eia923"] = Eia923Settings(years=eia860.years)
 
         if eia923 and not eia860:
             values["eia860"] = Eia860Settings(years=eia923.years)
@@ -489,7 +457,6 @@ class Ferc1DbfToSqliteSettings(GenericDatasetSettings):
     """An immutable Pydantic model to validate FERC 1 to SQLite settings.
 
     Args:
-        tables: List of tables to validate.
         years: List of years to validate.
     """
 
@@ -497,18 +464,8 @@ class Ferc1DbfToSqliteSettings(GenericDatasetSettings):
     years: list[int] = [
         year for year in data_source.working_partitions["years"] if year <= 2020
     ]
-    tables: list[str] = sorted(list(DBF_TABLES_FILENAMES.keys()))
 
     refyear: ClassVar[int] = max(years)
-
-    @validator("tables")
-    def validate_tables(cls, tables):  # noqa: N805
-        """Validate tables."""
-        default_tables = sorted(list(DBF_TABLES_FILENAMES.keys()))
-        tables_not_working = list(set(tables) - set(default_tables))
-        if len(tables_not_working) > 0:
-            raise ValueError(f"'{tables_not_working}' tables are not available.")
-        return sorted(set(tables))
 
 
 class FercGenericXbrlToSqliteSettings(BaseSettings):
@@ -516,12 +473,10 @@ class FercGenericXbrlToSqliteSettings(BaseSettings):
 
     Args:
         taxonomy: URL of XBRL taxonomy used to create structure of SQLite DB.
-        tables: list of tables to validate.
         years: list of years to validate.
     """
 
     taxonomy: AnyHttpUrl
-    tables: list[int] | None = None
     years: list[int]
 
 
@@ -538,16 +493,6 @@ class Ferc1XbrlToSqliteSettings(FercGenericXbrlToSqliteSettings):
         year for year in data_source.working_partitions["years"] if year >= 2021
     ]
     taxonomy: AnyHttpUrl = "https://eCollection.ferc.gov/taxonomy/form1/2022-01-01/form/form1/form-1_2022-01-01.xsd"
-    tables: list[str] = XBRL_TABLES
-
-    @validator("tables")
-    def validate_tables(cls, tables):  # noqa: N805
-        """Validate tables."""
-        default_tables = sorted(list(XBRL_TABLES))
-        tables_not_working = list(set(tables) - set(default_tables))
-        if len(tables_not_working) > 0:
-            raise ValueError(f"'{tables_not_working}' tables are not available.")
-        return sorted(set(tables))
 
 
 class Ferc2XbrlToSqliteSettings(FercGenericXbrlToSqliteSettings):
@@ -701,8 +646,6 @@ def _convert_settings_to_dagster_config(d: dict) -> None:
     Args:
         d: dictionary of datasources and their parameters.
     """
-    # We do not want to configure tables so remove tables from the dict
-    d.pop("tables", None)
     for k, v in d.items():
         if isinstance(v, dict):
             _convert_settings_to_dagster_config(v)

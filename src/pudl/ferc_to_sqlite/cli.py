@@ -98,16 +98,7 @@ def main():  # noqa: C901
                 "ferc_to_sqlite_settings": {
                     "config": EtlSettings.from_yaml(
                         args.settings_file
-                    ).ferc_to_sqlite_settings.dict(
-                        exclude={
-                            "ferc1_dbf_to_sqlite_settings": {"tables"},
-                            "ferc1_xbrl_to_sqlite_settings": {"tables"},
-                            "ferc2_xbrl_to_sqlite_settings": {"tables"},
-                            "ferc6_xbrl_to_sqlite_settings": {"tables"},
-                            "ferc60_xbrl_to_sqlite_settings": {"tables"},
-                            "ferc714_xbrl_to_sqlite_settings": {"tables"},
-                        }
-                    )
+                    ).ferc_to_sqlite_settings.dict()
                 },
                 "datastore": {
                     "config": {
