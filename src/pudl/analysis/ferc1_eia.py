@@ -31,19 +31,16 @@ plant-parts.
 """
 
 import importlib.resources
-import statistics
 import warnings
-from copy import deepcopy
 from typing import Literal
 
 import numpy as np
 import pandas as pd
 import recordlinkage as rl
-import scipy
 from recordlinkage.compare import Exact, Numeric, String  # , Date
 from sklearn.linear_model import LogisticRegression
 from sklearn.metrics import precision_recall_fscore_support
-from sklearn.model_selection import GridSearchCV, KFold  # , cross_val_score
+from sklearn.model_selection import GridSearchCV  # , cross_val_score
 
 import pudl
 import pudl.helpers
@@ -83,10 +80,10 @@ def execute(
         features_all=features_all,
         train_df=inputs.train_df,
     )
-    best_match_df = overwrite_bad_predictions(match_df, inputs.train_df)
-    # tuner = ModelTuner(features_train, inputs.get_train_index(), n_splits=10)
-    # matcher = MatchManager(best=tuner.get_best_fit_model(), inputs=inputs)
-    # matches_best = matcher.get_best_matches(features_train, features_all)
+    best_match_df = remove_murky_matches(match_df).pipe(
+        overwrite_bad_predictions, inputs.train_df
+    )
+    # best_match_df = overwrite_bad_predictions(match_df, inputs.train_df)
     connects_ferc1_eia = prettyify_best_matches(
         best_match_df,
         train_df=inputs.get_train_df(),
@@ -167,14 +164,25 @@ def run_model(features_train, features_all, train_df):
     return match_df
 
 
+def remove_murky_matches(match_df, difference_threshold):
+    """Remove matches that are not clear winners."""
+    match_df = match_df.merge(
+        pudl.helpers.count_records(match_df, "record_id_ferc1", "count"), how="left"
+    ).sort_values(by=["record_id_ferc1", "prob_of_match"])
+    match_df["diff"] = match_df["prob_of_match"].diff()
+    match_df = match_df.groupby("record_id_ferc1").tail(1)
+    match_df = match_df[
+        (match_df["count"] == 1) | match_df["diff"] >= difference_threshold
+    ]
+    return match_df
+
+
 def overwrite_bad_predictions(match_df, train_df):
     """Overwrite incorrect predictions with correct match from training data."""
-    # TODO: use the more sophisticated version of this from MatchManager
-    match_df = (
-        match_df.reset_index().drop_duplicates(subset=["record_id_ferc1"], keep="first")
-        # .set_index(["record_id_ferc1", "record_id_eia"])
+    match_df = match_df.reset_index().drop_duplicates(
+        subset=["record_id_ferc1"], keep="first"
     )
-    train_df = train_df().reset_index()
+    train_df = train_df.reset_index()
     overwrite_df = pd.merge(
         match_df,
         train_df[["record_id_eia", "record_id_ferc1"]],
@@ -213,8 +221,8 @@ def overwrite_bad_predictions(match_df, train_df):
     ) / len(train_df)
     logger.info(
         "Matches stats:\n"
-        f"Percent of training data matches correctly predicted: {percent_correct}"
-        f"Percent of training data overwritten in matches: {percent_overwritten}"
+        f"Percent of training data matches correctly predicted: {percent_correct:.02}\n"
+        f"Percent of training data overwritten in matches: {percent_overwritten:.02}\n"
     )
     overwrite_df = overwrite_df.drop(
         columns=["_merge", "record_id_eia_train", "record_id_eia_pred"]
@@ -560,598 +568,6 @@ class Features:
         return self.features_df
 
 
-class ModelTuner:
-    """A class for tuning scikitlearn model."""
-
-    def __init__(
-        self, features_train: pd.DataFrame, train_index: pd.Index, n_splits: int = 10
-    ):
-        """Initialize model tuner; test hyperparameters with cross validation.
-
-        Initializing this object runs `test_model_parameters()` which runs
-        through many options for model hyperparameters and collects scores
-        from those model runs.
-
-        Args:
-            features_train: Table of training features contianing mutli-index with ferc1
-                and eia IDs and comparison vectors. Result of
-                :meth:`Features.get_features`
-            train_index: index of features_train. Result of
-                :meth:`InputManager.get_train_index`
-            n_splits: number of splits to employ in :meth:`kfold_cross_val`
-        """
-        self.features_train = features_train
-        self.train_index = train_index
-        self.n_splits = n_splits
-        self.results_options = None
-        self.best = None
-
-    @staticmethod
-    def kfold_cross_val(
-        n_splits: int,
-        features_known: pd.DataFrame,
-        known_index: pd.MultiIndex,
-        lrc: rl.LogisticRegressionClassifier,
-    ):
-        """K-fold cross validation for model.
-
-        Args:
-            n_splits: the number of splits for the cross validation. If 5, the known
-                data will be spilt 5 times into testing and training sets for example.
-            features_known: a dataframe of comparison features. This should be created
-                via `make_features`. This will contain all possible combinations of
-                matches between your records.
-            known_index: an index with the known matches. The index must be a
-                mutltiindex with record ids from both sets of records.
-            lrc: Logistic regression classifier.
-        """
-        kf = KFold(n_splits=n_splits)
-        fscore = []
-        precision = []
-        accuracy = []
-        result_lrc_complied = pd.DataFrame()
-        for train_index, test_index in kf.split(features_known):
-            x_train = features_known.iloc[train_index]
-            x_test = features_known.iloc[test_index]
-            y_train = x_train.index.intersection(known_index)
-            y_test = x_test.index.intersection(known_index)
-            # Train the classifier
-            lrc.fit(x_train, y_train)
-            # predict matches for the test
-            result_lrc = lrc.predict(x_test)
-            # generate and compile the scores and outcomes of the
-            # prediction
-            fscore.append(rl.fscore(y_test, links_pred=result_lrc))
-            precision.append(rl.precision(y_test, links_pred=result_lrc))
-            accuracy.append(
-                rl.accuracy(y_test, links_pred=result_lrc, total=result_lrc)
-            )
-            result_lrc_complied = pd.concat(
-                [result_lrc_complied, pd.DataFrame(index=result_lrc)]
-            )
-        return result_lrc_complied, fscore, precision, accuracy
-
-    def fit_predict_option(
-        self, solver, c, cw, p, l1, n_splits, multi_class, results_options
-    ):
-        """Test and cross validate with a set of model parameters.
-
-        In this method, we instantiate a model object with a given set of
-        hyperparameters (which are selected within `test_model_parameters`)
-        and then run k-fold cross vaidation with that model and our training
-        data.
-
-        Returns:
-            pandas.DataFrame
-        """
-        logger.debug(f"train: {solver}: c-{c}, cw-{cw}, p-{p}, l1-{l1}")
-        lrc = rl.LogisticRegressionClassifier(
-            solver=solver,
-            C=c,
-            class_weight=cw,
-            penalty=p,
-            l1_ratio=l1,
-            random_state=0,
-            multi_class=multi_class,
-        )
-        results, fscore, precision, accuracy = self.kfold_cross_val(
-            lrc=lrc,
-            n_splits=n_splits,
-            features_known=self.features_train,
-            known_index=self.train_index,
-        )
-
-        # we're going to want to choose the best model so we need to save the
-        # results of this model run...
-        results_options = pd.concat(
-            [
-                results_options,
-                pd.DataFrame(
-                    data={
-                        # result scores
-                        "precision": [statistics.mean(precision)],
-                        "f_score": [statistics.mean(fscore)],
-                        "accuracy": [statistics.mean(accuracy)],
-                        # info about results
-                        "coef": [lrc.coefficients],
-                        "interc": [lrc.intercept],
-                        "predictions": [len(results)],
-                        # info about which model hyperparameters we choose
-                        "solver": [solver],
-                        "c": [c],
-                        "cw": [cw],
-                        "penalty": [p],
-                        "l1": [l1],
-                        "multi_class": [multi_class],
-                    },
-                ),
-            ]
-        )
-        return results_options
-
-    @staticmethod
-    def get_hyperparameters_options():
-        """Generate a dictionary with sets of options for model hyperparameters.
-
-        Note: The looping over all of the hyperparameters options here feels..
-        messy. I investigated scikitlearn's documentaion for a cleaner way to
-        do this. I came up empty handed, but I'm still sure I just missed it.
-
-        Returns:
-            dictionary: dictionary with autogenerated integers (keys) for each
-            dictionary of model
-        """
-        # we are going to loop through the options for logistic regression
-        # hyperparameters
-        solvers = ["newton-cg", "lbfgs", "liblinear", "sag", "saga"]
-        cs = [1, 10, 100, 1000]
-        cws = ["balanced", None]
-        ps = {
-            "newton-cg": ["l2", "none"],
-            "lbfgs": ["l2", "none"],
-            "liblinear": ["l1", "l2"],
-            "sag": ["l2", "none"],
-            "saga": ["l1", "l2", "elasticnet", "none"],
-        }
-        hyper_options = []
-        # we set l1_ratios and multi_classes inside this loop land bc
-        for solver in solvers:
-            for c in cs:
-                for cw in cws:
-                    for p in ps[solver]:
-                        if p == "elasticnet":
-                            l1_ratios = [0.1, 0.3, 0.5, 0.7, 0.9]
-                        else:
-                            l1_ratios = [None]
-                        for l1 in l1_ratios:
-                            # liblinear solver doesnt allow multinomial
-                            # multi_class
-                            if solver == "liblinear":
-                                multi_classes = ["auto", "ovr"]
-                            else:
-                                multi_classes = ["auto", "ovr", "multinomial"]
-                            for multi_class in multi_classes:
-                                hyper_options.append(
-                                    {
-                                        "solver": solver,
-                                        "c": c,
-                                        "cw": cw,
-                                        "penalty": p,
-                                        "l1": l1,
-                                        "multi_class": multi_class,
-                                    }
-                                )
-        return hyper_options
-
-    def test_model_parameters(self, clobber: bool = False):
-        """Test and corss validate model parameters.
-
-        The method runs `fit_predict_option()` on many options for model
-        hyperparameters and saves info about the results for each model run so
-        we can later determine which set of hyperparameters works best on
-        predicting our training data.
-
-        Args:
-            clobber: If True, the result of the hyperparameter tuning will be
-                regenerated even if it has already been run. Default is False.
-
-        Returns:
-            pandas.DataFrame: dataframe in which each record correspondings to
-            one model run and contains info like scores of the run (how well
-            it predicted our training data).
-        """
-        if clobber or self.results_options is None:
-            logger.info(
-                "We are about to test hyper parameters of the model while "
-                "doing k-fold cross validation. This takes a few minutes...."
-            )
-            # it is testing an array of model hyper parameters and
-            # cross-vaildating with the training data. It returns a df with
-            # losts of result scores to be used to find the best resutls
-            hyper_options = self.get_hyperparameters_options()
-            # make an empty df to save the results into
-            self.results_options = pd.DataFrame()
-            for hyper in hyper_options:
-                self.results_options = self.fit_predict_option(
-                    solver=hyper["solver"],
-                    c=hyper["c"],
-                    cw=hyper["cw"],
-                    p=hyper["penalty"],
-                    l1=hyper["l1"],
-                    multi_class=hyper["multi_class"],
-                    n_splits=self.n_splits,
-                    results_options=self.results_options,
-                )
-        return self.results_options
-
-    def get_best_fit_model(self, clobber=False):
-        """Get the best fitting model hyperparameters."""
-        if clobber or self.best is None:
-            # grab the highest scoring model...the f_score is most encompassing
-            # score so we'll lead with that f_score
-            self.best = (
-                self.test_model_parameters()
-                .sort_values(["f_score", "precision", "accuracy"], ascending=False)
-                .head(1)
-            )
-            logger.info(
-                "Scores from the best model hyperparameters:\n"
-                f"    F-Score:   {self.best.loc[0,'f_score']:.02}\n"
-                f"    Precision: {self.best.loc[0,'precision']:.02}\n"
-                f"    Accuracy:  {self.best.loc[0,'accuracy']:.02}\n"
-            )
-        return self.best
-
-
-class MatchManager:
-    """Manages the results of ModelTuner and chooses best matches."""
-
-    def __init__(self, best, inputs):
-        """Initialize match manager.
-
-        Args:
-            best (pandas.DataFrame): one row table with details about the
-                hyperparameters of best model option. Result of
-                ``ModelTuner.get_best_fit_model()``.
-            inputs (instance of ``InputManager``): instance of ``InputManager``
-        """
-        self.best = best
-        self.train_df = inputs.get_train_df()
-        self.all_ferc1 = inputs.get_all_ferc1()
-        # get the # of ferc options within the available eia years.
-        self.ferc1_options_len = len(
-            self.all_ferc1[
-                self.all_ferc1.report_year.isin(
-                    inputs.get_plant_parts_true().report_date.dt.year.unique()
-                )
-            ]
-        )
-
-    def _apply_weights(self, features, coefs):
-        """Apply coefficient weights to each feature.
-
-        Args:
-            features (pandas.DataFrame): a dataframe containing features of
-                candidate or model matches. The order of the columns
-                matters! They must be in the same order as they were fed
-                into the model that produced the coefficients.
-            coefs (array): array of integers with the same length as the
-                columns in features.
-        """
-        if len(coefs) != len(features.columns):
-            raise AssertionError(
-                """The number of coeficients (the weight of the importance of the
-            columns) should be the same as the number of the columns in the
-            candiate matches coefficients."""
-            )
-        for coef_n in np.array(range(len(coefs))):
-            features[features.columns[coef_n]] = features[
-                features.columns[coef_n]
-            ].multiply(coefs[coef_n])
-        return features
-
-    def weight_features(self, features):
-        """Weight features of candidate (or model) matches with coefficients.
-
-        Args:
-            features (pandas.DataFrame): a dataframe containing features of
-                candidate or model matches. The order of the columns
-                matters! They must be in the same order as they were fed
-                into the model that produced the coefficients.
-            coefs (array): array of integers with the same length as the
-                columns in features.
-        """
-        df = deepcopy(features)
-        return (
-            df.pipe(self._apply_weights, self.get_coefs())
-            .assign(score=lambda x: x.sum(axis=1))
-            .pipe(pudl.helpers.organize_cols, ["score"])
-            .sort_values(["score"], ascending=False)
-            .sort_index(level="record_id_ferc1")
-        )
-
-    def calc_match_stats(self, df):
-        """Calculate stats needed to judge candidate matches.
-
-        rank: diffs: iqr:
-
-        Args:
-            df (pandas.DataFrame): Dataframe of comparison features with
-                MultiIndex containing the ferc and eia record ids.
-
-        Returns
-            pandas.DataFrame: the input df with the stats.
-        """
-        df = self.weight_features(df).reset_index()
-        gb = df.groupby("record_id_ferc1")[["score"]]
-
-        df = (
-            df.sort_values(["record_id_ferc1", "score"])
-            .assign(  # calculate differences between scores
-                diffs=lambda x: x["score"].diff()
-            )
-            .merge(  # count grouped records
-                pudl.helpers.count_records(df, ["record_id_ferc1"], "count"), how="left"
-            )
-            # calculate the iqr for each record_id_ferc1 group
-            # believe it or not this is faster than .transform(scipy.stats.iqr)
-            .merge(
-                gb.agg(scipy.stats.iqr).rename(columns={"score": "iqr"}),
-                left_on=["record_id_ferc1"],
-                right_index=True,
-            )
-        )
-        # rank the scores
-        df.loc[:, "rank"] = gb.transform("rank", ascending=0, method="average")
-        # assign the first diff of each ferc_id as a nan
-        df.loc[df.record_id_ferc1 != df.record_id_ferc1.shift(1), "diffs"] = np.nan
-
-        df = df.set_index(["record_id_ferc1", "record_id_eia"])
-        return df
-
-    def calc_murk(self, df, iqr_perc_diff):
-        """Calculate the murky model matches."""
-        distinction = df["iqr_all"] * iqr_perc_diff
-        matches_murk = df[(df["rank"] == 1) & (df["diffs"] < distinction)]
-        return matches_murk
-
-    def calc_best_matches(self, df, iqr_perc_diff):
-        """Find the highest scoring matches and report on match coverage.
-
-        With the matches resulting from a model run, generate "best" matches by
-        finding the highest ranking EIA match for each FERC record. If it is
-        either the only match or it is different enough from the #2 ranked
-        match, we consider it a winner. Also log stats about the coverage of
-        the best matches.
-
-        The matches are all of the results from the model prediction. The
-        best matches are all of the matches that are distinct enough from it’s
-        next closest match. The `murky_df` are the matches that are not
-        “distinct enough” from the closes match. Distinct enough means that
-        the best match isn’t one iqr away from the second best match.
-
-        Args:
-            df (pandas.DataFrame): dataframe with all of the model generate
-                matches. This df needs to have been run through
-                `calc_match_stats()`.
-            iqr_perc_diff (float):
-
-        Returns
-            pandas.DataFrame : winning matches. Matches that had the
-            highest rank in their record_id_ferc1, by a wide enough margin.
-        """
-        logger.info("Get the top scoring match for each FERC1 plant record.")
-        unique_f = df.reset_index().drop_duplicates(subset=["record_id_ferc1"])
-        distinction = df["iqr_all"] * iqr_perc_diff
-        # for the best matches, grab the top ranked model match if there is a
-        # big enough difference between it and the next highest ranked match
-        # diffs is a measure of the difference between each record and the next
-        # highest ranked model match
-        # the other option here is if a model match is the highest rank and
-        # there there is no other model matches
-        best_match = df[
-            ((df["rank"] == 1) & (df["diffs"] > distinction))
-            | ((df["rank"] == 1) & (df["diffs"].isnull()))
-        ].copy()
-        # we want to know how many of the
-        self.murk_df = self.calc_murk(df, iqr_perc_diff)
-        self.ties_df = df[df["rank"] == 1.5]
-
-        logger.info(
-            "Winning match stats:\n"
-            "    matches vs ferc:      "
-            f"{len(unique_f)/self.ferc1_options_len:.02%}\n"
-            "    best match v ferc:    "
-            f"{len(best_match)/self.ferc1_options_len:.02%}\n"
-            f"    best match vs matches:{len(best_match)/len(unique_f):.02%}\n"
-            f"    murk vs matches:      "
-            f"{len(self.murk_df)/len(unique_f):.02%}\n"
-            "    ties vs matches:      "
-            f"{len(self.ties_df)/2/len(unique_f):.02%}\n"
-        )
-
-        # Add a column to show it was a prediction
-        best_match.loc[:, "match_type"] = "prediction"
-
-        return best_match
-
-    def override_best_match_with_training_df(self, matches_best_df, train_df):
-        """Override winning matches with training data matches.
-
-        We want to ensure that all of the matches that we put in the
-        training data for the record linkage model actually end up in the
-        resutls from the record linkage model.
-
-        Args:
-            matches_best_df (pandas.DataFrame): best matches generated via
-                :meth:`calc_best_matches()`. Matches that had the highest rank in
-                their record_id_ferc1, by a wide enough margin.
-            train_df (pandas.DataFrame): training data/known matches
-                between ferc and the EIA plant-parts. Result of
-                :func:`prep_train_connections()`.
-
-        Returns:
-            pandas.DataFrame: overridden winning matches. Matches that show
-            up in the training data `train_df` or if there was no
-            corresponding training data, matches that had the highest rank
-            in their record_id_ferc1, by a wide enough margin.
-        """
-        # create an duplicate column to show exactly where there are and aren't
-        # overrides for ferc records. This is necessary because sometimes the
-        # override is a blank so we can't just depend on record_id_eia.notnull()
-        # when we merge on ferc id below.
-        train_df = train_df.reset_index()
-        train_df.loc[:, "record_id_ferc1_trn"] = train_df["record_id_ferc1"]
-
-        # we want to override the eia when the training id is
-        # different than the "winning" match from the record linkage
-        matches_best_df = pd.merge(
-            matches_best_df.reset_index(),
-            train_df[["record_id_eia", "record_id_ferc1", "record_id_ferc1_trn"]],
-            on=["record_id_ferc1"],
-            how="outer",
-            suffixes=("_rl", "_trn"),
-        ).assign(
-            record_id_eia=lambda x: np.where(
-                x.record_id_ferc1_trn.notnull(), x.record_id_eia_trn, x.record_id_eia_rl
-            )
-        )
-
-        overwrite_rules = (
-            (matches_best_df.record_id_ferc1_trn.notnull())
-            & (matches_best_df.record_id_eia_rl.notnull())
-            & (matches_best_df.record_id_eia_trn != matches_best_df.record_id_eia_rl)
-        )
-
-        correct_match_rules = (  # need to update this
-            (matches_best_df.record_id_ferc1_trn.notnull())
-            & (matches_best_df.record_id_eia_trn.notnull())
-            & (matches_best_df.record_id_eia_rl.notnull())
-            & (matches_best_df.record_id_eia_trn == matches_best_df.record_id_eia_rl)
-        )
-
-        fill_in_the_blank_rules = (matches_best_df.record_id_eia_trn.notnull()) & (
-            matches_best_df.record_id_eia_rl.isnull()
-        )
-
-        # check how many records were overridden
-        overridden = matches_best_df.loc[overwrite_rules]
-
-        # Add flag
-        matches_best_df.loc[overwrite_rules, "match_type"] = "overridden"
-        matches_best_df.loc[correct_match_rules, "match_type"] = "correct prediction"
-        matches_best_df.loc[
-            fill_in_the_blank_rules, "match_type"
-        ] = "no prediction; training"
-
-        logger.info(
-            f"Overridden records:       {len(overridden)/len(train_df):.01%}\n"
-            "New best match v ferc:    "
-            f"{len(matches_best_df)/self.ferc1_options_len:.02%}"
-        )
-        # we don't need these cols anymore...
-        matches_best_df = matches_best_df.drop(
-            columns=["record_id_eia_trn", "record_id_eia_rl", "record_id_ferc1_trn"]
-        )
-        return matches_best_df
-
-    @staticmethod
-    def fit_predict_lrc(best, features_train, features_all, train_df):
-        """Generate, fit and predict model.
-
-        Wahoo.
-        """
-        # prep the model with the hyperparameters
-        lrc = rl.LogisticRegressionClassifier(
-            solver=best["solver"].values[0],
-            C=best["c"].values[0],
-            class_weight=best["cw"].values[0],
-            penalty=best["penalty"].values[0],
-            l1_ratio=None if pd.isnull(best["l1"].values[0]) else best["l1"].values[0],
-            random_state=0,
-            multi_class=best["multi_class"].values[0],
-        )
-        # fit the model with all of the
-        lrc.fit(features_train, train_df.index)
-        # this step is getting preditions on all of the possible matches based
-        # on the last run model above
-        predict_all = lrc.predict(features_all)
-        predict_all_df = pd.merge(
-            pd.DataFrame(index=predict_all),
-            features_all,
-            left_index=True,
-            right_index=True,
-            how="left",
-        )
-        return predict_all_df
-
-    def get_coefs(self):
-        """Get the best models coeficients.
-
-        The coeficients are the measure of relative importance that the model determined
-        that each feature vector.
-        """
-        self.coefs = self.best.loc[0, "coef"]
-        return self.coefs
-
-    def get_best_matches(self, features_train, features_all):
-        """Run logistic regression model and choose highest scoring matches.
-
-        From :meth:`TuneModel.test_model_parameters()`, we get a dataframe in which each
-        record correspondings to one model run and contains info like scores of the run
-        (how well it predicted our training data). This method takes the result from
-        :meth:`TuneModel.test_model_parameters()` and choose the model hyperparameters
-        that scored the highest.
-
-        The logistic regression model this method employs returns all matches from the
-        candiate matches in ``features_all``. But we only want one match for each FERC1
-        plant record. So this method uses the coeficients from the model (which are a
-        measure of the importance of each of the features/columns in ``features_all``)
-        so weight the feature vecotrs. With the sum of the weighted feature vectors for
-        each model match, this method selects the hightest scoring match via
-        :meth:`calc_best_matches()`.
-
-        Args:
-            features_train (pandas.DataFrame): feature vectors between training
-                data from FERC plants and EIA plant-parts. Result of
-                :meth:`Features.make_features()`.
-            features_all (pandas.DataFrame): feature vectors between all data
-                from FERC plants and EIA plant-parts. Result of
-                :meth:`Features.make_features()`.
-
-        Returns:
-            pandas.DataFrame: the best matches between ferc1 plant records and
-            the EIA plant-parts. Each ferc1 plant record has a maximum of one
-            best match. The dataframe has a MultiIndex with `record_id_eia` and
-            `record_id_ferc1`.
-        """
-        # actually run a model using the "best" model!!
-        logger.info("Fit and predict a model w/ the highest scoring hyperparameters.")
-        # this returns all matches that the model deems good enough from the
-        # candidate matches in the `features_all`
-        matches_model = self.fit_predict_lrc(
-            best=self.best,
-            features_train=features_train,
-            features_all=features_all,
-            train_df=self.train_df,
-        )
-        # weight the features of model matches with the coeficients
-        # we need a metric of how different each match is
-        # merge in the IRQ of the full options
-        self.matches_model = pd.merge(
-            self.calc_match_stats(matches_model),
-            self.calc_match_stats(features_all)[["iqr"]],
-            left_index=True,
-            right_index=True,
-            how="left",
-            suffixes=("", "_all"),
-        )
-        matches_best_df = self.calc_best_matches(self.matches_model, 0.02).pipe(
-            self.override_best_match_with_training_df, self.train_df
-        )
-        return matches_best_df
-
-
 def restrict_train_connections_on_date_range(
     train_df, id_col: Literal["record_id_eia", "record_id_ferc1"], start_date, end_date
 ):
@@ -1296,9 +712,7 @@ def prettyify_best_matches(
     connects_ferc1_eia = (
         # first merge in the EIA plant-parts
         pd.merge(
-            matches_best.reset_index()[
-                ["record_id_ferc1", "record_id_eia", "match_type"]
-            ],
+            matches_best[["record_id_ferc1", "record_id_eia", "match_type"]],
             # we only want the identifying columns from the PPE
             plant_parts_true_df.reset_index()[ppe_cols_to_grab],
             how="left",
@@ -1359,11 +773,11 @@ def prettyify_best_matches(
             warnings.warn(message)
 
     _log_match_coverage(connects_ferc1_eia)
-    for match_type in ["all", "overrides"]:
+    for match_set in ["all", "overrides"]:
         check_match_consistency(
             connects_ferc1_eia,
             train_df,
-            match_type=match_type,
+            match_set=match_set,
         )
 
     return connects_ferc1_eia
@@ -1409,13 +823,13 @@ def _log_match_coverage(connects_ferc1_eia):
     )
 
 
-def check_match_consistency(connects_ferc1_eia, train_df, match_type="all"):
+def check_match_consistency(connects_ferc1_eia, train_df, match_set="all"):
     """Check how consistent matches are across time.
 
     Args:
         connects_ferc1_eia (pandas.DataFrame): Matches of FERC1 to EIA.
         train_df (pandas.DataFrame): training data.
-        match_type (string): either 'all' - to check all of the matches - or
+        match_set (string): either 'all' - to check all of the matches - or
             'overrides' - to check just the overrides. Default is 'all'.
     """
     # these are the default
@@ -1423,7 +837,7 @@ def check_match_consistency(connects_ferc1_eia, train_df, match_type="all"):
     consistency_one_cap_ferc = 0.85
     mask = connects_ferc1_eia.record_id_eia.notnull()
 
-    if match_type == "overrides":
+    if match_set == "overrides":
         consistency = 0.39
         consistency_one_cap_ferc = 0.75
         train_ferc1 = train_df.reset_index()
@@ -1460,12 +874,12 @@ def check_match_consistency(connects_ferc1_eia, train_df, match_type="all"):
     )
     consist = len(count[count.plant_part_id_eia == 1]) / len(count)
     logger.info(
-        f"Matches with consistency across years of {match_type} matches is "
+        f"Matches with consistency across years of {match_set} matches is "
         f"{consist:.1%}"
     )
     if consist < consistency:
         raise AssertionError(
-            f"Consistency of {match_type} matches across years dipped below "
+            f"Consistency of {match_set} matches across years dipped below "
             f"{consistency:.1%} to {consist:.1%}"
         )
     consist_one_cap_ferc = (
