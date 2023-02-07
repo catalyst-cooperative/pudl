@@ -12,12 +12,18 @@ directories see ``pudl_setup --help``.
 """
 import argparse
 import sys
-from sqlite3 import sqlite_version
 
-from packaging import version
+from dagster import (
+    DagsterInstance,
+    Definitions,
+    define_asset_job,
+    execute_job,
+    reconstructable,
+)
+from dotenv import load_dotenv
 
 import pudl
-from pudl.load import MINIMUM_SQLITE_VERSION
+from pudl import etl
 from pudl.settings import EtlSettings
 
 logger = pudl.logging_helpers.get_logger(__name__)
@@ -37,31 +43,6 @@ def parse_command_line(argv):
         dest="settings_file", type=str, default="", help="path to ETL settings file."
     )
     parser.add_argument(
-        "--ignore-foreign-key-constraints",
-        action="store_true",
-        default=False,
-        help="Ignore foreign key constraints when loading into SQLite.",
-    )
-    parser.add_argument(
-        "--ignore-type-constraints",
-        action="store_true",
-        default=False,
-        help="Ignore column data type constraints when loading into SQLite.",
-    )
-    parser.add_argument(
-        "--ignore-value-constraints",
-        action="store_true",
-        default=False,
-        help="Ignore column value constraints when loading into SQLite.",
-    )
-    parser.add_argument(
-        "-c",
-        "--clobber",
-        action="store_true",
-        default=False,
-        help="Clobber existing PUDL SQLite and Parquet outputs if they exist.",
-    )
-    parser.add_argument(
         "--sandbox",
         action="store_true",
         default=False,
@@ -78,12 +59,6 @@ def parse_command_line(argv):
         help="Load datastore resources from Google Cloud Storage. Should be gs://bucket[/path_prefix]",
     )
     parser.add_argument(
-        "--bypass-local-cache",
-        action="store_true",
-        default=False,
-        help="If enabled, the local file cache for datastore will not be used.",
-    )
-    parser.add_argument(
         "--loglevel",
         help="Set logging level (DEBUG, INFO, WARNING, ERROR, or CRITICAL).",
         default="INFO",
@@ -92,8 +67,18 @@ def parse_command_line(argv):
     return arguments
 
 
+def get_etl_job():
+    """Module level func for creating an etl_job to be wrapped by reconstructable."""
+    return Definitions(
+        assets=etl.default_assets,
+        resources=etl.default_resources,
+        jobs=[define_asset_job("etl_job")],
+    ).get_job_def("etl_job")
+
+
 def main():
     """Parse command line and initialize PUDL DB."""
+    load_dotenv()
     args = parse_command_line(sys.argv)
 
     # Display logged output from the PUDL package:
@@ -101,33 +86,33 @@ def main():
         logfile=args.logfile, loglevel=args.loglevel
     )
 
-    etl_settings = EtlSettings.from_yaml(args.settings_file)
-
-    pudl_settings = pudl.workspace.setup.derive_paths(
-        pudl_in=etl_settings.pudl_in, pudl_out=etl_settings.pudl_out
-    )
-    pudl_settings["sandbox"] = args.sandbox
-
-    bad_sqlite_version = version.parse(sqlite_version) < version.parse(
-        MINIMUM_SQLITE_VERSION
-    )
-    if bad_sqlite_version and not args.ignore_type_constraints:
-        args.ignore_type_constraints = False
-        logger.warning(
-            f"Found SQLite {sqlite_version} which is less than "
-            f"the minimum required version {MINIMUM_SQLITE_VERSION} "
-            "As a result, data type constraint checking will be disabled."
-        )
-
-    pudl.etl.etl(
-        etl_settings=etl_settings,
-        pudl_settings=pudl_settings,
-        clobber=args.clobber,
-        use_local_cache=not args.bypass_local_cache,
-        gcs_cache_path=args.gcs_cache_path,
-        check_foreign_keys=not args.ignore_foreign_key_constraints,
-        check_types=not args.ignore_type_constraints,
-        check_values=not args.ignore_value_constraints,
+    execute_job(
+        reconstructable(get_etl_job),
+        instance=DagsterInstance.get(),
+        run_config={
+            "resources": {
+                "dataset_settings": {
+                    "config": EtlSettings.from_yaml(args.settings_file).datasets.dict(
+                        exclude={
+                            "ferc1": {"tables"},
+                            "eia": {
+                                "eia860": {"tables"},
+                                "eia923": {"tables"},
+                            },
+                            "epacems": {"tables"},
+                        }
+                    )
+                },
+                "datastore": {
+                    "config": {
+                        "sandbox": args.sandbox,
+                        "gcs_cache_path": args.gcs_cache_path
+                        if args.gcs_cache_path
+                        else "",
+                    },
+                },
+            }
+        },
     )
 
 
