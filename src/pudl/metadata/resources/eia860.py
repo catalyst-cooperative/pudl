@@ -2,6 +2,24 @@
 from typing import Any
 
 RESOURCE_METADATA: dict[str, dict[str, Any]] = {
+    "boiler_cooling_eia860": {
+        "description": (
+            "WIP DESCRIPTION - FIX. Associations between boilers and cooling "
+            "equipment as reported in EIA-860 Schedule 6A."
+        ),
+        "schema": {
+            "fields": [
+                "utility_id_eia",
+                "report_date",
+                "plant_id_eia",
+                "boiler_id",
+            ],
+            "primary_key": ["plant_id_eia", "report_date", "boiler_id"],
+        },
+        "field_namespace": "eia",
+        "sources": ["eia860", "eia923"],
+        "etl_group": "eia860",
+    },
     "boiler_generator_assn_eia860": {
         "description": (
             "Associations between boilers and generators as reported in EIA-860 "
@@ -33,13 +51,7 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
             "Schedule 6."
         ),
         "schema": {
-            "fields": [
-                "utility_id_eia",
-                "report_date",
-                "plant_id_eia",
-                "boiler_id",
-                "fgd_id_eia",
-            ],
+            "fields": ["utility_id_eia", "report_date", "plant_id_eia", "boiler_id"],
             "primary_key": ["plant_id_eia", "report_date", "boiler_id"],
         },
         "field_namespace": "eia",
@@ -53,13 +65,7 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
             "Schedule 6."
         ),
         "schema": {
-            "fields": [
-                "utility_id_eia",
-                "report_date",
-                "plant_id_eia",
-                "boiler_id",
-                "fgp_id_eia",
-            ],
+            "fields": ["utility_id_eia", "report_date", "plant_id_eia", "boiler_id"],
             "primary_key": ["plant_id_eia", "report_date", "boiler_id"],
         },
         "field_namespace": "eia",
