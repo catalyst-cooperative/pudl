@@ -80,7 +80,7 @@ def execute(
         features_all=features_all,
         train_df=inputs.train_df,
     )
-    best_match_df = remove_murky_matches(match_df).pipe(
+    best_match_df = remove_murky_matches(match_df, 0.02).pipe(
         overwrite_bad_predictions, inputs.train_df
     )
     # best_match_df = overwrite_bad_predictions(match_df, inputs.train_df)
@@ -96,138 +96,6 @@ def execute(
     connects_ferc1_eia = add_null_overrides(connects_ferc1_eia)
 
     return connects_ferc1_eia
-
-
-# change name of this, make a module?
-def run_model(features_train, features_all, train_df):
-    """Train Linear Regression model using GridSearch.
-
-    Fit model for best parameters and make predictions of matches on all input features.
-    """
-    param_grid = [
-        {
-            "solver": ["newton-cg", "lbfgs", "sag"],
-            "C": [1000, 1, 10, 100],
-            "class_weight": [None, "balanced"],
-            "penalty": ["l2"],
-        },
-        {
-            "solver": ["liblinear", "saga"],
-            "C": [1000, 1, 10, 100],
-            "class_weight": [None, "balanced"],
-            "penalty": ["l1", "l2"],
-        },
-        {
-            "solver": ["saga"],
-            "C": [1000, 1, 10, 100],
-            "class_weight": [None, "balanced"],
-            "penalty": ["elasticnet"],
-            "l1_ratio": [0.1, 0.3, 0.5, 0.7, 0.9],
-        },
-    ]
-    x_train = features_train.to_numpy()
-    y_train = np.where(
-        features_train.merge(
-            train_df,
-            how="left",
-            left_index=True,
-            right_index=True,
-            indicator=True,
-        )["_merge"]
-        == "both",
-        1,
-        0,
-    )
-    lrc = LogisticRegression()
-    clf = GridSearchCV(estimator=lrc, param_grid=param_grid, verbose=True, n_jobs=-1)
-    clf.fit(X=x_train, y=y_train)
-    y_pred = clf.predict(x_train)
-    precision, recall, f_score, _ = precision_recall_fscore_support(
-        y_train, y_pred, average="binary"
-    )
-    accuracy = clf.best_score_
-    logger.info(
-        "Scores from the best model:\n"
-        f"    Accuracy:  {accuracy:.02}\n"
-        f"    F-Score:   {f_score:.02}\n"
-        f"    Precision: {precision:.02}\n"
-        f"    Recall:    {recall:.02}\n"
-    )
-    preds = clf.predict(features_all.to_numpy())
-    probs = clf.predict_proba(features_all.to_numpy())
-    final_df = pd.DataFrame(
-        index=features_all.index, data={"match": preds, "prob_of_match": probs[:, 1]}
-    )
-    match_df = final_df[final_df.match == 1].sort_values(
-        by="prob_of_match", ascending=False
-    )
-    return match_df
-
-
-def remove_murky_matches(match_df, difference_threshold):
-    """Remove matches that are not clear winners."""
-    match_df = match_df.merge(
-        pudl.helpers.count_records(match_df, "record_id_ferc1", "count"), how="left"
-    ).sort_values(by=["record_id_ferc1", "prob_of_match"])
-    match_df["diff"] = match_df["prob_of_match"].diff()
-    match_df = match_df.groupby("record_id_ferc1").tail(1)
-    match_df = match_df[
-        (match_df["count"] == 1) | match_df["diff"] >= difference_threshold
-    ]
-    return match_df
-
-
-def overwrite_bad_predictions(match_df, train_df):
-    """Overwrite incorrect predictions with correct match from training data."""
-    match_df = match_df.reset_index().drop_duplicates(
-        subset=["record_id_ferc1"], keep="first"
-    )
-    train_df = train_df.reset_index()
-    overwrite_df = pd.merge(
-        match_df,
-        train_df[["record_id_eia", "record_id_ferc1"]],
-        on="record_id_ferc1",
-        how="outer",
-        suffixes=("_pred", "_train"),
-        indicator=True,
-    )
-    # construct new record_id_eia column with incorrect preds overwritten
-    overwrite_df["record_id_eia"] = np.where(
-        overwrite_df["_merge"] == "left_only",
-        overwrite_df["record_id_eia_pred"],
-        overwrite_df["record_id_eia_train"],
-    )
-    # create a column indicating whether the match is good
-    # based on the training data
-    overwrite_rows = (overwrite_df._merge == "both") & (
-        overwrite_df.record_id_eia_train != overwrite_df.record_id_eia_pred
-    )
-    correct_rows = (overwrite_df._merge == "both") & (
-        overwrite_df.record_id_eia_train == overwrite_df.record_id_eia_pred
-    )
-    incorrect_rows = overwrite_df._merge == "right_only"
-    overwrite_df.loc[:, "match_type"] = "prediction; not in training data"
-    overwrite_df.loc[overwrite_rows, "match_type"] = "incorrect prediction; overwritten"
-    overwrite_df.loc[correct_rows, "match_type"] = "correct match"
-    overwrite_df.loc[
-        incorrect_rows, "match_type"
-    ] = "incorrect prediction; no predicted match"
-    # print out stats
-    percent_correct = len(
-        overwrite_df[overwrite_df.match_type == "correct match"]
-    ) / len(train_df)
-    percent_overwritten = len(
-        overwrite_df[overwrite_df.match_type == "incorrect prediction; overwritten"]
-    ) / len(train_df)
-    logger.info(
-        "Matches stats:\n"
-        f"Percent of training data matches correctly predicted: {percent_correct:.02}\n"
-        f"Percent of training data overwritten in matches: {percent_overwritten:.02}\n"
-    )
-    overwrite_df = overwrite_df.drop(
-        columns=["_merge", "record_id_eia_train", "record_id_eia_pred"]
-    )
-    return overwrite_df
 
 
 class InputManager:
@@ -566,6 +434,141 @@ class Features:
                 "candidate features."
             )
         return self.features_df
+
+
+def run_model(features_train, features_all, train_df):
+    """Train Linear Regression model using GridSearch.
+
+    Fit model for best parameters and make predictions of matches on all input features.
+    """
+    param_grid = [
+        {
+            "solver": ["newton-cg", "lbfgs", "sag"],
+            "C": [1000, 1, 10, 100],
+            "class_weight": [None, "balanced"],
+            "penalty": ["l2"],
+        },
+        {
+            "solver": ["liblinear", "saga"],
+            "C": [1000, 1, 10, 100],
+            "class_weight": [None, "balanced"],
+            "penalty": ["l1", "l2"],
+        },
+        {
+            "solver": ["saga"],
+            "C": [1000, 1, 10, 100],
+            "class_weight": [None, "balanced"],
+            "penalty": ["elasticnet"],
+            "l1_ratio": [0.1, 0.3, 0.5, 0.7, 0.9],
+        },
+    ]
+    x_train = features_train.to_numpy()
+    y_train = np.where(
+        features_train.merge(
+            train_df,
+            how="left",
+            left_index=True,
+            right_index=True,
+            indicator=True,
+        )["_merge"]
+        == "both",
+        1,
+        0,
+    )
+    lrc = LogisticRegression()
+    clf = GridSearchCV(estimator=lrc, param_grid=param_grid, verbose=True, n_jobs=-1)
+    clf.fit(X=x_train, y=y_train)
+    y_pred = clf.predict(x_train)
+    precision, recall, f_score, _ = precision_recall_fscore_support(
+        y_train, y_pred, average="binary"
+    )
+    accuracy = clf.best_score_
+    logger.info(
+        "Scores from the best model:\n"
+        f"    Accuracy:  {accuracy:.02}\n"
+        f"    F-Score:   {f_score:.02}\n"
+        f"    Precision: {precision:.02}\n"
+        f"    Recall:    {recall:.02}\n"
+    )
+    preds = clf.predict(features_all.to_numpy())
+    probs = clf.predict_proba(features_all.to_numpy())
+    final_df = pd.DataFrame(
+        index=features_all.index, data={"match": preds, "prob_of_match": probs[:, 1]}
+    )
+    match_df = final_df[final_df.match == 1].sort_values(
+        by="prob_of_match", ascending=False
+    )
+    return match_df
+
+
+def remove_murky_matches(match_df, difference_threshold):
+    """Remove matches that are not clear winners."""
+    match_df = (
+        match_df.reset_index()
+        .merge(
+            pudl.helpers.count_records(match_df, "record_id_ferc1", "count"), how="left"
+        )
+        .sort_values(by=["record_id_ferc1", "prob_of_match"])
+    )
+    match_df["diff"] = match_df["prob_of_match"].diff()
+    match_df = match_df.groupby("record_id_ferc1").tail(1)
+    match_df = match_df[
+        (match_df["count"] == 1) | match_df["diff"] >= difference_threshold
+    ]
+    return match_df
+
+
+def overwrite_bad_predictions(match_df, train_df):
+    """Overwrite incorrect predictions with correct match from training data."""
+    match_df = match_df.reset_index().drop_duplicates(
+        subset=["record_id_ferc1"], keep="first"
+    )
+    train_df = train_df.reset_index()
+    overwrite_df = pd.merge(
+        match_df,
+        train_df[["record_id_eia", "record_id_ferc1"]],
+        on="record_id_ferc1",
+        how="outer",
+        suffixes=("_pred", "_train"),
+        indicator=True,
+    )
+    # construct new record_id_eia column with incorrect preds overwritten
+    overwrite_df["record_id_eia"] = np.where(
+        overwrite_df["_merge"] == "left_only",
+        overwrite_df["record_id_eia_pred"],
+        overwrite_df["record_id_eia_train"],
+    )
+    # create a column indicating whether the match is good
+    # based on the training data
+    overwrite_rows = (overwrite_df._merge == "both") & (
+        overwrite_df.record_id_eia_train != overwrite_df.record_id_eia_pred
+    )
+    correct_rows = (overwrite_df._merge == "both") & (
+        overwrite_df.record_id_eia_train == overwrite_df.record_id_eia_pred
+    )
+    incorrect_rows = overwrite_df._merge == "right_only"
+    overwrite_df.loc[:, "match_type"] = "prediction; not in training data"
+    overwrite_df.loc[overwrite_rows, "match_type"] = "incorrect prediction; overwritten"
+    overwrite_df.loc[correct_rows, "match_type"] = "correct match"
+    overwrite_df.loc[
+        incorrect_rows, "match_type"
+    ] = "incorrect prediction; no predicted match"
+    # print out stats
+    percent_correct = len(
+        overwrite_df[overwrite_df.match_type == "correct match"]
+    ) / len(train_df)
+    percent_overwritten = len(
+        overwrite_df[overwrite_df.match_type == "incorrect prediction; overwritten"]
+    ) / len(train_df)
+    logger.info(
+        "Matches stats:\n"
+        f"Percent of training data matches correctly predicted: {percent_correct:.02}\n"
+        f"Percent of training data overwritten in matches: {percent_overwritten:.02}\n"
+    )
+    overwrite_df = overwrite_df.drop(
+        columns=["_merge", "record_id_eia_train", "record_id_eia_pred"]
+    )
+    return overwrite_df
 
 
 def restrict_train_connections_on_date_range(
