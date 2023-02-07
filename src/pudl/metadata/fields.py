@@ -687,7 +687,11 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     },
     "fgd_id_eia": {
         "type": "string",
-        "description": "EIA assigned alphanumeric ID for flue gas desulfurization unit.",
+        "description": "EIA assigned alphanumeric ID for flue gas desulfurization systems.",
+    },
+    "fgp_id_eia": {
+        "type": "string",
+        "description": "EIA assigned alphanumeric ID for flue gas particulate collectors.",
     },
     "fluidized_bed_tech": {
         "type": "boolean",

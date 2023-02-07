@@ -30,7 +30,7 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
         "description": (
             "WIP DESCRIPTION - FIX. Associations between boilers and flue gas "
             "desulfurization equipment as reported in EIA-860 "
-            "Schedule 6, Part A."
+            "Schedule 6."
         ),
         "schema": {
             "fields": [
@@ -39,6 +39,26 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
                 "plant_id_eia",
                 "boiler_id",
                 "fgd_id_eia",
+            ],
+            "primary_key": ["plant_id_eia", "report_date", "boiler_id"],
+        },
+        "field_namespace": "eia",
+        "sources": ["eia860", "eia923"],
+        "etl_group": "eia860",
+    },
+    "boiler_fgp_eia860": {
+        "description": (
+            "WIP DESCRIPTION - FIX. Associations between boilers and flue gas "
+            "particulate collector equipment as reported in EIA-860 "
+            "Schedule 6."
+        ),
+        "schema": {
+            "fields": [
+                "utility_id_eia",
+                "report_date",
+                "plant_id_eia",
+                "boiler_id",
+                "fgp_id_eia",
             ],
             "primary_key": ["plant_id_eia", "report_date", "boiler_id"],
         },
