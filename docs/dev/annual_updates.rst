@@ -38,7 +38,7 @@ fields such as ``source_format`` or ``path`` are still accurate.
 .. note::
 
   If you're updating EIA861, you can skip the rest of the steps in this section and
-  all steps beyond step two because 861 is not yet included in the ETL.
+  all steps after step two because 861 is not yet included in the ETL.
 
 **1.4)** Update the years of data to be processed in the ``etl_full.yml`` and
 ``etl_fast.yml`` settings files stored under ``src/pudl/package_data/settings`` in the
@@ -163,22 +163,20 @@ inspected for cleanup.
 
 B. FERC Form 1
 ^^^^^^^^^^^^^^
-Some FERC 1 tables store different variables in different rows instead of or in addition
-to using columns. In the Pre-2021 data (from the DBF files), rows are identified by
-``row_number``, and the row number that corresponds to a given variable changes from
-year to year. We cataloged this correspondence, and the connection to the more well
-organized XBRL data, in ``src/pudl/package_data/ferc1/dbf_to_xbrl.csv``.
+In the Pre-2021 data (from the DBF files), rows are identified by ``row_number``, and
+the row number that corresponds to a given variable changes from year to year. We
+cataloged this correspondence, and the connection to the post-2021 data (from XBRL),
+in ``src/pudl/package_data/ferc1/dbf_to_xbrl.csv``.
 
-At the table level, the connection between XBRL DBF lives in
-``pudl/extract.ferc1.TABLE_NAME_MAP_FERC1`` and
+At the table level, we connect XBRL and DBF tables in
+:py:const:`pudl/extract.ferc1.TABLE_NAME_MAP_FERC1` and
 ``src/pudl/package_data/ferc1/dbf_to_xbrl_tables.csv`` though the former is what's
 actually used in the extraction process.
 
 **4.B.1)** If there are any new tables or reason to believe that the xbrl taxonomy has
-changed, revisit the ``dbf_to_xbrl_tables.csv`` and ``dbf_to_xbrl.csv`` files and map
-the tables and records to one another. For table changes, also update the
-``pudl/extract.ferc1.TABLE_NAME_MAP_FERC1`` dictionary where we associate pudl table
-names with raw XBRL and DBF tables.
+changed, revisit ``dbf_to_xbrl.csv`` and map the tables and records to one another.
+For table changes, also update the :py:const:`pudl/extract.ferc1.TABLE_NAME_MAP_FERC1`
+dictionary and ``src/pudl/package_data/ferc1/dbf_to_xbrl_tables.csv`` file.
 
 .. note::
 
