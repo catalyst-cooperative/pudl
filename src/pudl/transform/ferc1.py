@@ -613,17 +613,6 @@ def combine_axis_columns_xbrl(
             df[col]
         )
     df = df.drop(columns=params.axis_columns_to_combine)
-
-    # This is bad, but somehow there are NA values in the sales_by_rate_schedule table
-    # axis columns, which this function is basically made for. Soooo in order for it not
-    # to break when it uses the axis columns as pk values, just fill them with blanks
-    # here. Yike.
-    if df[params.new_axis_column_name].isna().any():
-        logger.warning(
-            "Some of the newly combined axis column values are NA...we're blanking "
-            "them out now, but that's not ideal!"
-        )
-        df[params.new_axis_column_name] = df[params.new_axis_column_name].fillna("")
     return df
 
 
