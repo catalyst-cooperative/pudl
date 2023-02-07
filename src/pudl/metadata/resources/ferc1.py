@@ -238,7 +238,7 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
                 "report_year",
                 "rate_schedule_type",
                 "billing_status",
-                "description_of_number_and_title_of_rate_schedule",
+                "rate_schedule_description",
                 "sales_mwh",
                 "sales_revenue",
                 "avg_customers_per_month",

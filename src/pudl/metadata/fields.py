@@ -414,10 +414,6 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "type": "string",
         "description": "Long human-readable description of the meaning of a code/label.",
     },
-    "description_of_number_and_title_of_rate_schedule": {
-        "type": "string",
-        "description": "Free-form description of what the rate schedule name is. Not standardized.",
-    },
     "designed_voltage_kv": {
         "type": "number",
         "description": "Manufactured (Designed) voltage, expressed in kilo-volts, for three-phase 60 cycle alternative current transmission lines",
@@ -1555,6 +1551,10 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "unit": "MWh",
     },
     "pv_current_flow_type": {"type": "string", "constraints": {"enum": ["AC", "DC"]}},
+    "rate_schedule_description": {
+        "type": "string",
+        "description": "Free-form description of what the rate schedule name is. Not standardized. Often a sub-category of rate_schedule_type.",
+    },
     "rate_schedule_type": {
         "type": "string",
         "description": "Categorization of rate schedule type.",

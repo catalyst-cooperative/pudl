@@ -3677,7 +3677,7 @@ class ElectricitySalesByRateScheduleFerc1TableTransformer(
         df.loc[
             df["sched_table_name"]
             == "sales_of_electricity_by_rate_schedules_account_totals_304",
-            ["sales_axis", "description_of_number_and_title_of_rate_schedule"],
+            ["sales_axis", "rate_schedule_description"],
         ] = "total"
         return df
 
