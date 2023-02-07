@@ -640,9 +640,6 @@ def _convert_settings_to_dagster_config(d: dict) -> None:
     subclasses will default to include all working paritions if the partition value
     is None. Get the value type so dagster can do some basic type checking in the UI.
 
-    The `table` is not included in the dagster config because we are not supporting
-    processing a subset of tables.
-
     Args:
         d: dictionary of datasources and their parameters.
     """
