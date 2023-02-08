@@ -1,5 +1,6 @@
 """Unit tests for allocation of net generation."""
 
+from io import StringIO
 from typing import Literal
 
 import numpy as np
@@ -14,686 +15,125 @@ from pudl.metadata.fields import apply_pudl_dtypes
 # inputs for example 1:
 #  multi-generator-plant with one primary fuel type that fully reports to the
 #  generation_eia923 table
-GEN_1 = pd.DataFrame(
-    {
-        "plant_id_eia": [50307, 50307, 50307, 50307],
-        "generator_id": ["GEN1", "GEN2", "GEN3", "GEN4"],
-        "report_date": [
-            "2018-01-01",
-            "2018-01-01",
-            "2018-01-01",
-            "2018-01-01",
-        ],
-        "net_generation_mwh": [14.0, 1.0, 0.0, 0.0],
-    }
-).pipe(apply_pudl_dtypes, group="eia")
-
-GF_1 = pd.DataFrame(
-    {
-        "plant_id_eia": [50307, 50307, 50307, 50307],
-        "prime_mover_code": ["ST", "IC", "IC", "ST"],
-        "fuel_type": ["NG", "DFO", "RFO", "RFO"],
-        "report_date": [
-            "2018-01-01",
-            "2018-01-01",
-            "2018-01-01",
-            "2018-01-01",
-        ],
-        "net_generation_mwh": [15.0, 0.0, np.nan, np.nan],
-        "fuel_consumed_mmbtu": [100000.0, 0.0, np.nan, np.nan],
-    }
-).pipe(apply_pudl_dtypes, group="eia")
-
-GENS_1 = pd.DataFrame(
-    {
-        "plant_id_eia": [50307, 50307, 50307, 50307, 50307],
-        "generator_id": ["GEN1", "GEN2", "GEN3", "GEN4", "GEN5"],
-        "report_date": [
-            "2018-01-01",
-            "2018-01-01",
-            "2018-01-01",
-            "2018-01-01",
-            "2018-01-01",
-        ],
-        "prime_mover_code": ["ST", "ST", "ST", "ST", "IC"],
-        "capacity_mw": [7.5, 2.5, 2.5, 4.3, 1.8],
-        "fuel_type_count": [2, 2, 2, 2, 2],
-        "retirement_date": [pd.NA, pd.NA, "2069-10-31", pd.NA, pd.NA],
-        "operational_status": [
-            "existing",
-            "existing",
-            "existing",
-            "existing",
-            "existing",
-        ],
-        "energy_source_code_1": ["NG", "NG", "NG", "NG", "DFO"],
-        "energy_source_code_2": [pd.NA, pd.NA, pd.NA, pd.NA, pd.NA],
-        "energy_source_code_3": [pd.NA, pd.NA, pd.NA, pd.NA, pd.NA],
-        "energy_source_code_4": [pd.NA, pd.NA, pd.NA, pd.NA, pd.NA],
-        "energy_source_code_5": [pd.NA, pd.NA, pd.NA, pd.NA, pd.NA],
-        "energy_source_code_6": [pd.NA, pd.NA, pd.NA, pd.NA, pd.NA],
-        "planned_energy_source_code_1": [pd.NA, pd.NA, pd.NA, pd.NA, pd.NA],
-    }
-).pipe(apply_pudl_dtypes, group="eia")
-
-
-BF_1 = pd.DataFrame(
-    {
-        "plant_id_eia": [
-            41,
-            41,
-            41,
-            41,
-            41,
-            41,
-            41,
-            41,
-            41,
-            41,
-            41,
-            41,
-            41,
-            41,
-            41,
-            41,
-            41,
-            41,
-            41,
-            41,
-            41,
-            41,
-            41,
-            41,
-            200,
-            200,
-            200,
-            200,
-            200,
-            200,
-            200,
-            200,
-            200,
-            200,
-            200,
-            200,
-            200,
-            200,
-            200,
-            200,
-            200,
-            200,
-            200,
-            200,
-            200,
-            200,
-            200,
-            200,
-        ],
-        "report_date": [
-            "2021-01-01",
-            "2021-02-01",
-            "2021-03-01",
-            "2021-04-01",
-            "2021-05-01",
-            "2021-06-01",
-            "2021-07-01",
-            "2021-08-01",
-            "2021-09-01",
-            "2021-10-01",
-            "2021-11-01",
-            "2021-12-01",
-            "2020-01-01",
-            "2020-02-01",
-            "2020-03-01",
-            "2020-04-01",
-            "2020-05-01",
-            "2020-06-01",
-            "2020-07-01",
-            "2020-08-01",
-            "2020-09-01",
-            "2020-10-01",
-            "2020-11-01",
-            "2020-12-01",
-            "2021-01-01",
-            "2021-02-01",
-            "2021-03-01",
-            "2021-04-01",
-            "2021-05-01",
-            "2021-06-01",
-            "2021-07-01",
-            "2021-08-01",
-            "2021-09-01",
-            "2021-10-01",
-            "2021-11-01",
-            "2021-12-01",
-            "2020-01-01",
-            "2020-02-01",
-            "2020-03-01",
-            "2020-04-01",
-            "2020-05-01",
-            "2020-06-01",
-            "2020-07-01",
-            "2020-08-01",
-            "2020-09-01",
-            "2020-10-01",
-            "2020-11-01",
-            "2020-12-01",
-        ],
-        "boiler_id": [
-            "a",
-            "a",
-            "a",
-            "a",
-            "a",
-            "a",
-            "a",
-            "a",
-            "a",
-            "a",
-            "a",
-            "a",
-            "a",
-            "a",
-            "a",
-            "a",
-            "a",
-            "a",
-            "a",
-            "a",
-            "a",
-            "a",
-            "a",
-            "a",
-            "B1",
-            "B1",
-            "B1",
-            "B1",
-            "B1",
-            "B1",
-            "B1",
-            "B1",
-            "B1",
-            "B1",
-            "B1",
-            "B1",
-            "B1",  #
-            "B1",
-            "B1",
-            "B1",
-            "B1",
-            "B1",
-            "B1",
-            "B1",
-            "B1",
-            "B1",
-            "B1",
-            "B1",
-        ],
-        "energy_source_code": [
-            "gas",
-            "gas",
-            "gas",
-            "gas",
-            "gas",
-            "gas",
-            "gas",
-            "gas",
-            "gas",
-            "gas",
-            "gas",
-            "gas",
-            "gas",
-            "gas",
-            "gas",
-            "gas",
-            "gas",
-            "gas",
-            "gas",
-            "gas",
-            "gas",
-            "gas",
-            "gas",
-            "gas",
-            "coal",
-            "coal",
-            "coal",
-            "coal",
-            "coal",
-            "coal",
-            "coal",
-            "coal",
-            "coal",
-            "coal",
-            "coal",
-            "coal",
-            "coal",
-            "coal",
-            "coal",
-            "coal",
-            "coal",
-            "coal",
-            "coal",
-            "coal",
-            "coal",
-            "coal",
-            "coal",
-            "coal",
-        ],
-        "prime_mover_code": [
-            "GT",
-            "GT",
-            "GT",
-            "GT",
-            "GT",
-            "GT",
-            "GT",
-            "GT",
-            "GT",
-            "GT",
-            "GT",
-            "GT",
-            "GT",
-            "GT",
-            "GT",
-            "GT",
-            "GT",
-            "GT",
-            "GT",
-            "GT",
-            "GT",
-            "GT",
-            "GT",
-            "GT",
-            "ST",
-            "ST",
-            "ST",
-            "ST",
-            "ST",
-            "ST",
-            "ST",
-            "ST",
-            "ST",
-            "ST",
-            "ST",
-            "ST",
-            "ST",
-            "ST",
-            "ST",
-            "ST",
-            "ST",
-            "ST",
-            "ST",
-            "ST",
-            "ST",
-            "ST",
-            "ST",
-            "ST",
-        ],
-        "fuel_consumed_mmbtu": [
-            1,
-            2,
-            3,
-            4,
-            5,
-            6,
-            6,
-            5,
-            4,
-            3,
-            2,
-            1,
-            2,
-            3,
-            4,
-            5,
-            6,
-            7,
-            7,
-            6,
-            5,
-            4,
-            3,
-            2,
-            22222,
-            np.nan,
-            np.nan,
-            np.nan,
-            np.nan,
-            np.nan,
-            np.nan,
-            np.nan,
-            np.nan,
-            np.nan,
-            np.nan,
-            np.nan,
-            0,
-            0,
-            0,
-            0,
-            0,
-            0,
-            0,
-            0,
-            0,
-            0,
-            0,
-            20202,
-        ],
-    }
-).pipe(apply_pudl_dtypes, group="eia")
 
 
 def test_distribute_annually_reported_data_to_months_if_annual():
     """Test :func:`distribute_annually_reported_data_to_months_if_annual`."""
+    annual_2021 = 22_222.0
+    annual_2020 = 20_202.0
+    bf_with_monthly_annual_mix = pd.read_csv(
+        StringIO(
+            f"""plant_id_eia,report_date,boiler_id,energy_source_code,prime_mover_code,fuel_consumed_mmbtu
+    41,2021-01-01,a,NG,GT,1.0
+    41,2021-02-01,a,NG,GT,2.0
+    41,2021-03-01,a,NG,GT,3.0
+    41,2021-04-01,a,NG,GT,4.0
+    41,2021-05-01,a,NG,GT,5.0
+    41,2021-06-01,a,NG,GT,6.0
+    41,2021-07-01,a,NG,GT,6.0
+    41,2021-08-01,a,NG,GT,5.0
+    41,2021-09-01,a,NG,GT,4.0
+    41,2021-10-01,a,NG,GT,3.0
+    41,2021-11-01,a,NG,GT,2.0
+    41,2021-12-01,a,NG,GT,1.0
+    41,2020-01-01,a,NG,GT,2.0
+    41,2020-02-01,a,NG,GT,3.0
+    41,2020-03-01,a,NG,GT,4.0
+    41,2020-04-01,a,NG,GT,5.0
+    41,2020-05-01,a,NG,GT,6.0
+    41,2020-06-01,a,NG,GT,7.0
+    41,2020-07-01,a,NG,GT,7.0
+    41,2020-08-01,a,NG,GT,6.0
+    41,2020-09-01,a,NG,GT,5.0
+    41,2020-10-01,a,NG,GT,4.0
+    41,2020-11-01,a,NG,GT,3.0
+    41,2020-12-01,a,NG,GT,2.0
+    200,2021-01-01,B1,SUB,ST,{annual_2021}
+    200,2021-02-01,B1,SUB,ST,
+    200,2021-03-01,B1,SUB,ST,
+    200,2021-04-01,B1,SUB,ST,
+    200,2021-05-01,B1,SUB,ST,
+    200,2021-06-01,B1,SUB,ST,
+    200,2021-07-01,B1,SUB,ST,
+    200,2021-08-01,B1,SUB,ST,
+    200,2021-09-01,B1,SUB,ST,
+    200,2021-10-01,B1,SUB,ST,
+    200,2021-11-01,B1,SUB,ST,
+    200,2021-12-01,B1,SUB,ST,
+    200,2020-01-01,B1,BIT,ST,0.0
+    200,2020-02-01,B1,BIT,ST,0.0
+    200,2020-03-01,B1,BIT,ST,0.0
+    200,2020-04-01,B1,BIT,ST,0.0
+    200,2020-05-01,B1,BIT,ST,0.0
+    200,2020-06-01,B1,BIT,ST,0.0
+    200,2020-07-01,B1,BIT,ST,0.0
+    200,2020-08-01,B1,BIT,ST,0.0
+    200,2020-09-01,B1,BIT,ST,0.0
+    200,2020-10-01,B1,BIT,ST,0.0
+    200,2020-11-01,B1,BIT,ST,0.0
+    200,2020-12-01,B1,BIT,ST,{annual_2020}"""
+        )
+    ).pipe(apply_pudl_dtypes, group="eia")
+
     out = allocate_net_gen.distribute_annually_reported_data_to_months_if_annual(
-        df=BF_1,
+        df=bf_with_monthly_annual_mix,
         key_columns=allocate_net_gen.IDX_B_PM_ESC,
         data_column_name="fuel_consumed_mmbtu",
         freq="MS",
     )
-    expected = pd.DataFrame(
-        {
-            "plant_id_eia": [
-                41,
-                41,
-                41,
-                41,
-                41,
-                41,
-                41,
-                41,
-                41,
-                41,
-                41,
-                41,
-                41,
-                41,
-                41,
-                41,
-                41,
-                41,
-                41,
-                41,
-                41,
-                41,
-                41,
-                41,
-                200,
-                200,
-                200,
-                200,
-                200,
-                200,
-                200,
-                200,
-                200,
-                200,
-                200,
-                200,
-                200,
-                200,
-                200,
-                200,
-                200,
-                200,
-                200,
-                200,
-                200,
-                200,
-                200,
-                200,
-            ],
-            "report_date": [
-                "2021-01-01",
-                "2021-02-01",
-                "2021-03-01",
-                "2021-04-01",
-                "2021-05-01",
-                "2021-06-01",
-                "2021-07-01",
-                "2021-08-01",
-                "2021-09-01",
-                "2021-10-01",
-                "2021-11-01",
-                "2021-12-01",
-                "2020-01-01",
-                "2020-02-01",
-                "2020-03-01",
-                "2020-04-01",
-                "2020-05-01",
-                "2020-06-01",
-                "2020-07-01",
-                "2020-08-01",
-                "2020-09-01",
-                "2020-10-01",
-                "2020-11-01",
-                "2020-12-01",
-                "2021-01-01",
-                "2021-02-01",
-                "2021-03-01",
-                "2021-04-01",
-                "2021-05-01",
-                "2021-06-01",
-                "2021-07-01",
-                "2021-08-01",
-                "2021-09-01",
-                "2021-10-01",
-                "2021-11-01",
-                "2021-12-01",
-                "2020-01-01",
-                "2020-02-01",
-                "2020-03-01",
-                "2020-04-01",
-                "2020-05-01",
-                "2020-06-01",
-                "2020-07-01",
-                "2020-08-01",
-                "2020-09-01",
-                "2020-10-01",
-                "2020-11-01",
-                "2020-12-01",
-            ],
-            "boiler_id": [
-                "a",
-                "a",
-                "a",
-                "a",
-                "a",
-                "a",
-                "a",
-                "a",
-                "a",
-                "a",
-                "a",
-                "a",
-                "a",
-                "a",
-                "a",
-                "a",
-                "a",
-                "a",
-                "a",
-                "a",
-                "a",
-                "a",
-                "a",
-                "a",
-                "B1",
-                "B1",
-                "B1",
-                "B1",
-                "B1",
-                "B1",
-                "B1",
-                "B1",
-                "B1",
-                "B1",
-                "B1",
-                "B1",
-                "B1",
-                "B1",
-                "B1",
-                "B1",
-                "B1",
-                "B1",
-                "B1",
-                "B1",
-                "B1",
-                "B1",
-                "B1",
-                "B1",
-            ],
-            "energy_source_code": [
-                "gas",
-                "gas",
-                "gas",
-                "gas",
-                "gas",
-                "gas",
-                "gas",
-                "gas",
-                "gas",
-                "gas",
-                "gas",
-                "gas",
-                "gas",
-                "gas",
-                "gas",
-                "gas",
-                "gas",
-                "gas",
-                "gas",
-                "gas",
-                "gas",
-                "gas",
-                "gas",
-                "gas",
-                "coal",
-                "coal",
-                "coal",
-                "coal",
-                "coal",
-                "coal",
-                "coal",
-                "coal",
-                "coal",
-                "coal",
-                "coal",
-                "coal",
-                "coal",
-                "coal",
-                "coal",
-                "coal",
-                "coal",
-                "coal",
-                "coal",
-                "coal",
-                "coal",
-                "coal",
-                "coal",
-                "coal",
-            ],
-            "prime_mover_code": [
-                "GT",
-                "GT",
-                "GT",
-                "GT",
-                "GT",
-                "GT",
-                "GT",
-                "GT",
-                "GT",
-                "GT",
-                "GT",
-                "GT",
-                "GT",
-                "GT",
-                "GT",
-                "GT",
-                "GT",
-                "GT",
-                "GT",
-                "GT",
-                "GT",
-                "GT",
-                "GT",
-                "GT",
-                "ST",
-                "ST",
-                "ST",
-                "ST",
-                "ST",
-                "ST",
-                "ST",
-                "ST",
-                "ST",
-                "ST",
-                "ST",
-                "ST",
-                "ST",
-                "ST",
-                "ST",
-                "ST",
-                "ST",
-                "ST",
-                "ST",
-                "ST",
-                "ST",
-                "ST",
-                "ST",
-                "ST",
-            ],
-            "fuel_consumed_mmbtu": [
-                1,
-                2,
-                3,
-                4,
-                5,
-                6,
-                6,
-                5,
-                4,
-                3,
-                2,
-                1,
-                2,
-                3,
-                4,
-                5,
-                6,
-                7,
-                7,
-                6,
-                5,
-                4,
-                3,
-                2,
-                22222 / 12,
-                22222 / 12,
-                22222 / 12,
-                22222 / 12,
-                22222 / 12,
-                22222 / 12,
-                22222 / 12,
-                22222 / 12,
-                22222 / 12,
-                22222 / 12,
-                22222 / 12,
-                22222 / 12,
-                20202 / 12,
-                20202 / 12,
-                20202 / 12,
-                20202 / 12,
-                20202 / 12,
-                20202 / 12,
-                20202 / 12,
-                20202 / 12,
-                20202 / 12,
-                20202 / 12,
-                20202 / 12,
-                20202 / 12,
-            ],
-        }
+    expected = pd.read_csv(
+        StringIO(
+            f"""plant_id_eia,report_date,boiler_id,energy_source_code,prime_mover_code,fuel_consumed_mmbtu
+41,2021-01-01,a,NG,GT,1.0
+41,2021-02-01,a,NG,GT,2.0
+41,2021-03-01,a,NG,GT,3.0
+41,2021-04-01,a,NG,GT,4.0
+41,2021-05-01,a,NG,GT,5.0
+41,2021-06-01,a,NG,GT,6.0
+41,2021-07-01,a,NG,GT,6.0
+41,2021-08-01,a,NG,GT,5.0
+41,2021-09-01,a,NG,GT,4.0
+41,2021-10-01,a,NG,GT,3.0
+41,2021-11-01,a,NG,GT,2.0
+41,2021-12-01,a,NG,GT,1.0
+41,2020-01-01,a,NG,GT,2.0
+41,2020-02-01,a,NG,GT,3.0
+41,2020-03-01,a,NG,GT,4.0
+41,2020-04-01,a,NG,GT,5.0
+41,2020-05-01,a,NG,GT,6.0
+41,2020-06-01,a,NG,GT,7.0
+41,2020-07-01,a,NG,GT,7.0
+41,2020-08-01,a,NG,GT,6.0
+41,2020-09-01,a,NG,GT,5.0
+41,2020-10-01,a,NG,GT,4.0
+41,2020-11-01,a,NG,GT,3.0
+41,2020-12-01,a,NG,GT,2.0
+200,2021-01-01,B1,SUB,ST,{annual_2021 / 12}
+200,2021-02-01,B1,SUB,ST,{annual_2021 / 12}
+200,2021-03-01,B1,SUB,ST,{annual_2021 / 12}
+200,2021-04-01,B1,SUB,ST,{annual_2021 / 12}
+200,2021-05-01,B1,SUB,ST,{annual_2021 / 12}
+200,2021-06-01,B1,SUB,ST,{annual_2021 / 12}
+200,2021-07-01,B1,SUB,ST,{annual_2021 / 12}
+200,2021-08-01,B1,SUB,ST,{annual_2021 / 12}
+200,2021-09-01,B1,SUB,ST,{annual_2021 / 12}
+200,2021-10-01,B1,SUB,ST,{annual_2021 / 12}
+200,2021-11-01,B1,SUB,ST,{annual_2021 / 12}
+200,2021-12-01,B1,SUB,ST,{annual_2021 / 12}
+200,2020-01-01,B1,BIT,ST,{annual_2020 / 12}
+200,2020-02-01,B1,BIT,ST,{annual_2020 / 12}
+200,2020-03-01,B1,BIT,ST,{annual_2020 / 12}
+200,2020-04-01,B1,BIT,ST,{annual_2020 / 12}
+200,2020-05-01,B1,BIT,ST,{annual_2020 / 12}
+200,2020-06-01,B1,BIT,ST,{annual_2020 / 12}
+200,2020-07-01,B1,BIT,ST,{annual_2020 / 12}
+200,2020-08-01,B1,BIT,ST,{annual_2020 / 12}
+200,2020-09-01,B1,BIT,ST,{annual_2020 / 12}
+200,2020-10-01,B1,BIT,ST,{annual_2020 / 12}
+200,2020-11-01,B1,BIT,ST,{annual_2020 / 12}
+200,2020-12-01,B1,BIT,ST,{annual_2020 / 12}
+    """
+        )
     )
     out = out.sort_values(["plant_id_eia", "report_date"]).reset_index(drop=True)
     expected = (
@@ -709,91 +149,139 @@ class PudlTablMock:
 
     freq: Literal["AS", "MS"]
 
-    def gens_eia860():
+    def __init__(
+        self,
+        gens_eia860=None,
+        gen_eia923=None,
+        gen_original_eia923=None,
+        generation_fuel_eia923=None,
+        plants_eia860=None,
+        boiler_fuel_eia923=None,
+        boiler_generator_assn_eia860=None,
+        freq="AS",
+    ):
+        self._gens_eia860 = gens_eia860
+        self._gen_eia923 = gen_eia923
+        self._gen_original_eia923 = gen_original_eia923
+        self._generation_fuel_eia923 = generation_fuel_eia923
+        self._plants_eia860 = plants_eia860
+        self._boiler_fuel_eia923 = boiler_fuel_eia923
+        self._boiler_generator_assn_eia860 = boiler_generator_assn_eia860
+
+        self.freq = freq
+
+    def gens_eia860(self):
         """Access to generators_eia860 table."""
-        return GENS_1
+        return self._gens_eia860
 
-    def gen_eia923():
+    def gen_eia923(self):
         """Access to generation_eia923 table."""
-        return GEN_1
+        return self._gen_eia923
 
-    def gf_eia923():
+    def gen_original_eia923(self):
+        """Access to generation_eia923 table."""
+        return self._gen_original_eia923
+
+    def gf_eia923(self):
         """Access to generation_fuel_eia923 table."""
-        return GF_1
+        return self._generation_fuel_eia923
 
-    def plants_eia860():
+    def plants_eia860(self):
         """Access to plants_eia860 table."""
-        return  # PLANTS_1
+        return self._plants_eia860
 
-    def bf_eia923():
+    def bf_eia923(self):
         """Access to boiler_fuel_eia923 table."""
-        return  # BF_1
+        return self._boiler_fuel_eia923
 
-    def bga_eia860():
+    def bga_eia860(self):
         """Access to boiler_generators_assn_eia860 table."""
-        return  # BGA_1
+        return self._boiler_generator_assn_eia860
 
 
-@pytest.mark.xfail(
-    reason="Tests need to be updated. See https://github.com/catalyst-cooperative/pudl/issues/1371"
-)
 def test_associate_generator_tables_1():
     """Test associate_generator_tables function with example 1."""
-    gen_assoc_1_expected = pd.DataFrame(
-        {
-            "plant_id_eia": [50307, 50307, 50307, 50307, 50307, 50307, 50307],
-            "generator_id": ["GEN1", "GEN2", "GEN3", "GEN4", "GEN5", np.nan, np.nan],
-            "report_date": [
-                "2018-01-01",
-                "2018-01-01",
-                "2018-01-01",
-                "2018-01-01",
-                "2018-01-01",
-                "2018-01-01",
-                "2018-01-01",
-            ],
-            "prime_mover_code": ["ST", "ST", "ST", "ST", "IC", "IC", "ST"],
-            "capacity_mw": [7.5, 2.5, 2.5, 4.3, 1.8, np.nan, np.nan],
-            "fuel_type_count": [2.0, 2.0, 2.0, 2.0, 2.0, np.nan, np.nan],
-            "energy_source_code_num": [
-                "energy_source_code_1",
-                "energy_source_code_1",
-                "energy_source_code_1",
-                "energy_source_code_1",
-                "energy_source_code_1",
-                np.nan,
-                np.nan,
-            ],
-            "fuel_type": ["NG", "NG", "NG", "NG", "DFO", "RFO", "RFO"],
-            "net_generation_mwh_g_tbl": [14.0, 1.0, 0.0, 0.0, np.nan, np.nan, np.nan],
-            "net_generation_mwh_gf_tbl": [15.0, 15.0, 15.0, 15.0, 0.0, np.nan, np.nan],
-            "fuel_consumed_mmbtu": [
-                100000.0,
-                100000.0,
-                100000.0,
-                100000.0,
-                0.0,
-                np.nan,
-                np.nan,
-            ],
-            "capacity_mw_fuel": [16.8, 16.8, 16.8, 16.8, 1.8, np.nan, np.nan],
-            "net_generation_mwh_g_tbl_fuel": [
-                15.0,
-                15.0,
-                15.0,
-                15.0,
-                np.nan,
-                np.nan,
-                np.nan,
-            ],
-        }
+    gen = pd.read_csv(
+        StringIO(
+            """plant_id_eia,generator_id,report_date,net_generation_mwh
+    50307,GEN1,2018-01-01,14.0
+    50307,GEN2,2018-01-01,1.0
+    50307,GEN3,2018-01-01,0.0
+    50307,GEN4,2018-01-01,0.0
+    """
+        )
     ).pipe(apply_pudl_dtypes, group="eia")
 
-    gen_assoc_1_actual = allocate_net_gen.associate_generator_tables(
-        gf=GF_1, gen=GEN_1, gens=GENS_1
+    net_gen_ic_rfo = 101
+    net_gen_st_rfo = 102
+    gf = pd.read_csv(
+        StringIO(
+            f"""plant_id_eia,prime_mover_code,energy_source_code,report_date,net_generation_mwh,fuel_consumed_mmbtu,fuel_consumed_for_electricity_mmbtu
+    50307,ST,NG,2018-01-01,15.0,200000.0,100000.0
+    50307,IC,DFO,2018-01-01,0.0,0.0,0.0
+    50307,IC,RFO,2018-01-01,{net_gen_ic_rfo},100,50
+    50307,ST,RFO,2018-01-01,{net_gen_st_rfo},400,200
+    """
+        )
     ).pipe(apply_pudl_dtypes, group="eia")
 
-    pd.testing.assert_frame_equal(gen_assoc_1_expected, gen_assoc_1_actual)
+    gens = pd.read_csv(
+        StringIO(
+            """plant_id_eia,generator_id,report_date,prime_mover_code,capacity_mw,fuel_type_count,retirement_date,operational_status,energy_source_code_1,energy_source_code_2,energy_source_code_3,energy_source_code_4,energy_source_code_5,energy_source_code_6,planned_energy_source_code_1
+    50307,GEN1,2018-01-01,ST,7.5,2,,existing,NG,,,,,,
+    50307,GEN2,2018-01-01,ST,2.5,2,,existing,NG,,,,,,
+    50307,GEN3,2018-01-01,ST,2.5,2,2069-10-31,existing,NG,,,,,,
+    50307,GEN4,2018-01-01,ST,4.3,2,,existing,NG,,,,,,
+    50307,GEN5,2018-01-01,IC,1.8,2,,existing,DFO,,,,,,
+    """
+        )
+    ).pipe(apply_pudl_dtypes, group="eia")
+
+    bf = pd.read_csv(
+        StringIO(
+            """plant_id_eia,report_date,boiler_id,energy_source_code,prime_mover_code,fuel_consumed_mmbtu
+    50307,2018-01-01,a,NG,ST,1.0
+    50307,2018-01-01,b,NG,ST,2.0
+    50307,2018-01-01,12,DFO,IC,0.1
+    """
+        )
+    ).pipe(apply_pudl_dtypes, group="eia")
+
+    bga = pd.read_csv(
+        StringIO(
+            """plant_id_eia,boiler_id,generator_id,report_date
+        50307,a,GEN1,2018-01-01
+        50307,a,GEN2,2018-01-01
+        50307,b,GEN3,2018-01-01
+        50307,b,GEN4,2018-01-01
+        50307,12,GEN5,2018-01-01
+        """
+        )
+    ).pipe(apply_pudl_dtypes, group="eia")
+
+    # TODO (daz): if we tweak the tables to look more like the ones in db we can use PudlTablMock, which
+    # would be nice and consistent
+    allocated = allocate_net_gen.associate_generator_tables(
+        gf=gf, gen=gen, gens=gens, bf=bf, bga=bga
+    ).pipe(apply_pudl_dtypes, group="eia")
+
+    assert (
+        allocated["fuel_consumed_mmbtu_bf_tbl"].sum() == bf["fuel_consumed_mmbtu"].sum()
+    )
+
+    # TODO (daz): these assertions expose a bug in our unassociated allocations.
+    # assert (
+    #     allocated["net_generation_mwh_gf_tbl_unassociated"][
+    #         allocated["prime_mover_code"] == "IC"
+    #     ].sum()
+    #     == net_gen_ic_rfo
+    # )
+    # assert (
+    #     allocated["net_generation_mwh_gf_tbl_unassociated"][
+    #         allocated["prime_mover_code"] == "ST"
+    #     ].sum()
+    #     == net_gen_st_rfo
+    # )
 
 
 @pytest.mark.xfail(
@@ -805,7 +293,7 @@ def test_allocate_gen_fuel_by_gen_pm_fuel_1():
         {
             "plant_id_eia": [50307, 50307, 50307, 50307, 50307],
             "prime_mover_code": ["ST", "ST", "ST", "ST", "IC"],
-            "fuel_type": ["NG", "NG", "NG", "NG", "DFO"],
+            "energy_source_code": ["NG", "NG", "NG", "NG", "DFO"],
             "report_date": [
                 "2018-01-01",
                 "2018-01-01",
@@ -855,3 +343,76 @@ def test_allocate_gen_fuel_by_gen_pm_fuel_1():
     ).pipe(apply_pudl_dtypes, group="eia")
     gen_out_1_actual = allocate_net_gen.agg_by_generator(gen_pm_fuel_1_actual)
     pd.testing.assert_frame_equal(gen_out_1_expected, gen_out_1_actual)
+
+
+def test_missing_energy_source():
+    gens_eia860 = pd.read_csv(
+        StringIO(
+            """report_date,plant_id_eia,generator_id,prime_mover_code,unit_id_pudl,capacity_mw,fuel_type_count,operational_status,retirement_date,energy_source_code_1,energy_source_code_2,energy_source_code_3,energy_source_code_4,energy_source_code_5,energy_source_code_6,energy_source_code_7,planned_energy_source_code_1,startup_source_code_1,startup_source_code_2,startup_source_code_3,startup_source_code_4
+    2019-01-01,8023,1,ST,1,556.0,1,existing,nan,SUB,BIT,null,null,nan,nan,nan,nan,DFO,nan,nan,nan
+    2019-01-01,8023,2,ST,2,556.0,1,existing,nan,SUB,SUB,BIT,nan,nan,nan,nan,DFO,nan,nan,nan
+    """
+        ),
+    ).pipe(apply_pudl_dtypes, group="eia")
+
+    boiler_fuel_eia923 = pd.read_csv(
+        StringIO(
+            """report_date,plant_id_eia,boiler_id,energy_source_code,prime_mover_code,fuel_consumed_mmbtu
+    2019-01-01,8023,1,DFO,ST,17853.519999999997
+    2019-01-01,8023,1,RC,ST,27681065.276
+    2019-01-01,8023,1,SUB,ST,0.0
+    2019-01-01,8023,2,DFO,ST,17712.999999999996
+    2019-01-01,8023,2,RC,ST,29096935.279
+    2019-01-01,8023,2,SUB,ST,0.0
+    """
+        ),
+    ).pipe(apply_pudl_dtypes, group="eia")
+    # generation_eia923
+    gen_eia923 = pd.read_csv(
+        StringIO(
+            """report_date,plant_id_eia,generator_id,net_generation_mwh
+    2019-01-01,8023,1,2606737.0
+    2019-01-01,8023,2,2759826.0
+    """
+        ),
+    ).pipe(apply_pudl_dtypes, group="eia")
+
+    gen_original_eia923 = gen_eia923
+
+    # boiler_generator_association_eia860
+    boiler_generator_assn_eia860 = pd.read_csv(
+        StringIO(
+            """plant_id_eia,boiler_id,generator_id,report_date
+    8023,1,1,2019-01-01
+    8023,2,2,2019-01-01
+    """
+        ),
+    ).pipe(apply_pudl_dtypes, group="eia")
+
+    generation_fuel_eia923 = pd.read_csv(
+        StringIO(
+            """report_date,plant_id_eia,energy_source_code,prime_mover_code,net_generation_mwh,fuel_consumed_mmbtu,fuel_consumed_for_electricity_mmbtu
+    2019-01-01,8023,DFO,ST,3369.286,35566.0,35566.0
+    2019-01-01,8023,RC,ST,5363193.71,56777578.0,56777578.0
+    2019-01-01,8023,SUB,ST,0.0, 0.0,0.0
+    """
+        ),
+    ).pipe(apply_pudl_dtypes, group="eia")
+
+    mock_pudl_out = PudlTablMock(
+        gens_eia860=gens_eia860,
+        gen_eia923=gen_eia923,
+        gen_original_eia923=gen_original_eia923,
+        generation_fuel_eia923=generation_fuel_eia923,
+        boiler_fuel_eia923=boiler_fuel_eia923,
+        boiler_generator_assn_eia860=boiler_generator_assn_eia860,
+    )
+
+    with pytest.raises(AssertionError):
+        allocate_net_gen.allocate_gen_fuel_by_generator_energy_source(mock_pudl_out)
+
+    # TODO (daz): once the allocation is actually fixed, assert that the fuel consumed is the same
+    # assert (
+    #     generation_fuel_eia923.fuel_consumed_mmbtu.sum()
+    #     == allocated.fuel_consumed_mmbtu.sum()
+    # )

@@ -1828,6 +1828,7 @@ def test_original_gf_vs_the_allocated_by_gens_gf(
     gf_allocated: pd.DataFrame,
     data_columns: list[str] = DATA_COLUMNS,
     by: list[str] = ["year", "plant_id_eia"],
+    acceptance_threshold: float = 0.07,
 ) -> pd.DataFrame:
     """Test whether the allocated data and original data sum up to similar values.
 
@@ -1875,10 +1876,11 @@ def test_original_gf_vs_the_allocated_by_gens_gf(
             f"{data_col}: {off_by_5_perc:.1%} of allocated plant/year's are off by more"
             " than 5%"
         )
-        if off_by_5_perc > 0.07:
+        acceptance_threshold = 0.07
+        if off_by_5_perc > acceptance_threshold:
             raise AssertionError(
-                f"More than the expected number of plants' allocated {data_col} are off"
-                " the original data by more than 5%."
+                f"{len(col_test)} of {len(gf_test)} plants' ({off_by_5_perc:.1%}) allocated {data_col} are off"
+                " the original data by more than 5%. Expected < {acceptance_threshold:.1%}."
             )
         max_diff = round(gf_test[f"{data_col}_diff"].max(), 2)
         min_diff = round(gf_test[f"{data_col}_diff"].min(), 2)
