@@ -1037,8 +1037,12 @@ def add_null_overrides(connects_ferc1_eia):
     ).pipe(
         restrict_train_connections_on_date_range,
         id_col="record_id_ferc1",
-        start_date=min(connects_ferc1_eia.report_date),
-        end_date=max(connects_ferc1_eia.report_date),
+        start_date=min(
+            connects_ferc1_eia[~(connects_ferc1_eia.record_id_eia.isnull())].report_date
+        ),
+        end_date=max(
+            connects_ferc1_eia[~(connects_ferc1_eia.record_id_eia.isnull())].report_date
+        ),
     )
     # Make sure there is content!
     if null_overrides.empty:
