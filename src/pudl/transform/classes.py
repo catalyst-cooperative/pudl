@@ -859,11 +859,13 @@ replace_with_na_multicol = multicol_transform_factory(replace_with_na)
 class SpotFixes(TransformParams):
     """Parameters that replace certain values with a manual corrected value."""
 
-    record_col: str | None = None
-    """The column used to identify a record."""
-    record_id: str | None = None
-    """The value in that column used to identify 1+ records to spot fix."""
-    fixes: dict[str, str | int | float | bool]
+    idx_cols: list[str]
+    """The column(s) used to identify a record."""
+    fix_cols: list[str]
+    """The column(s) to be fixed."""
+    expect_unique: bool
+    """Set to True if each fix should correspond to only one row."""
+    spot_fixes: list[tuple[str | int | float | bool]]
     """A dictionary of the column to replace and the value to replace with."""
 
 
@@ -883,18 +885,30 @@ def spot_fix_values(self, df: pd.DataFrame, params: SpotFixes) -> pd.DataFrame:
     Returns:
         The same input DataFrame but with some spot fixes corrected.
     """
-    # The default SpotFixValues() instance has no effect:
-    if params.record_id is None or params.record_col is None:
-        return df
+    spot_fixes_df = pd.DataFrame(
+        params.spot_fixes, columns=params.idx_cols + params.fix_cols
+    )
 
-    elif params.record_col in list(df.columns):  # If record_col in df
-        for key in params.fixes:  # For each fix
-            if key in list(df.columns):
-                df.loc[df[params.record_col] == params.record_id, key] = params.fixes[
-                    key
-                ]  # Manually update value
+    if not (spot_fixes_df.dtypes == df[params.idx_cols + params.fix_cols].dtypes).all():
+        raise ValueError(
+            "Spot fix datatypes do not match existing dataframe datatypes."
+        )
+    """Check that the datatypes of the spot fixed values match the existing data types."""
 
-        return df
+    spot_fixes_df = spot_fixes_df.set_index(params.idx_cols)
+    df = df.set_index(params.idx_cols)
+
+    if params.expect_unique is True:
+        cols_list = ", ".join(params.idx_cols)
+        if not df.index.is_unique:
+            raise ValueError(
+                f"This spot fix expects a unique set of idx_col, but the idx_cols provided are not uniquely identifying: {cols_list}."
+            )
+
+    df.loc[spot_fixes_df.index, params.fix_cols] = spot_fixes_df
+    df = df.reset_index()
+
+    return df
 
 
 ################################################################################
