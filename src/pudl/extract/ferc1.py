@@ -958,7 +958,7 @@ def extract_xbrl_concat(
             ferc1_settings=ferc1_settings,
         )
         for raw_table_name in table_names
-     ]
+    ]
     for raw_table_name in table_names:
         tables.append(
             extract_xbrl_generic(
