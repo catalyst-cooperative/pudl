@@ -961,8 +961,6 @@ def extract_xbrl_concat(
     ]
 
     combined_table = pd.concat(tables)
-    if combined_table.empty:
-        combined_table = pd.DataFrame()
     if not len(combined_table) == sum([len(x) for x in tables]):
         raise AssertionError(
             "Something went wrong with the concatination and the table lengths don't "

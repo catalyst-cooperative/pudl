@@ -3565,6 +3565,7 @@ TRANSFORM_PARAMS = {
                 "idx_cols": [
                     "entity_id",
                     "report_year",
+                    "sched_table_name",
                 ],
                 "value_types": [
                     "electric_operating_revenue",
