@@ -4,8 +4,8 @@ from typing import Any
 RESOURCE_METADATA: dict[str, dict[str, Any]] = {
     "boiler_cooling_eia860": {
         "description": (
-            "WIP DESCRIPTION - FIX. Associations between boilers and cooling "
-            "equipment as reported in EIA-860 Schedule 6A."
+            "Associations between boilers and cooling equipment as reported in"
+            "EIA-860 Schedule 6A."
         ),
         "schema": {
             "fields": [
@@ -13,6 +13,7 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
                 "report_date",
                 "plant_id_eia",
                 "boiler_id",
+                "cooling_id_eia",
             ],
             "primary_key": ["plant_id_eia", "report_date", "boiler_id"],
         },
@@ -46,11 +47,36 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
     },
     "boiler_mercury_eia860": {
         "description": (
-            "WIP DESCRIPTION - FIX. Associations between boilers and mercury "
-            "control equipment as reported in EIA-860 Schedule 6A."
+            "Associations between boilers and mercury control equipment as reported"
+            "in EIA-860 Schedule 6A."
         ),
         "schema": {
-            "fields": ["utility_id_eia", "report_date", "plant_id_eia", "boiler_id"],
+            "fields": [
+                "utility_id_eia",
+                "report_date",
+                "plant_id_eia",
+                "boiler_id",
+                "mercury_control_id_eia",
+            ],
+            "primary_key": ["plant_id_eia", "report_date", "boiler_id"],
+        },
+        "field_namespace": "eia",
+        "sources": ["eia860", "eia923"],
+        "etl_group": "eia860",
+    },
+    "boiler_nox_eia860": {
+        "description": (
+            "Associations between boilers and NOx control equipment as reported"
+            "in EIA-860 Schedule 6A."
+        ),
+        "schema": {
+            "fields": [
+                "utility_id_eia",
+                "report_date",
+                "plant_id_eia",
+                "boiler_id",
+                "nox_control_id_eia",
+            ],
             "primary_key": ["plant_id_eia", "report_date", "boiler_id"],
         },
         "field_namespace": "eia",
@@ -73,19 +99,6 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
     "boiler_so2_eia860": {
         "description": (
             "WIP DESCRIPTION - FIX. Associations between boilers and SO2 control "
-            "equipment as reported in EIA-860 Schedule 6A."
-        ),
-        "schema": {
-            "fields": ["utility_id_eia", "report_date", "plant_id_eia", "boiler_id"],
-            "primary_key": ["plant_id_eia", "report_date", "boiler_id"],
-        },
-        "field_namespace": "eia",
-        "sources": ["eia860", "eia923"],
-        "etl_group": "eia860",
-    },
-    "boiler_nox_eia860": {
-        "description": (
-            "WIP DESCRIPTION - FIX. Associations between boilers and NOx control "
             "equipment as reported in EIA-860 Schedule 6A."
         ),
         "schema": {

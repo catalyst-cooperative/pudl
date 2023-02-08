@@ -317,6 +317,10 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "description": "Purchase type under which receipts occurred in the reporting month. C: Contract, NC: New Contract, S: Spot Purchase, T: Tolling Agreement.",
         "constraints": {"enum": ["S", "C", "NC", "T"]},
     },
+    "cooling_id_eia": {
+        "type": "string",
+        "description": "Cooling system identification number.",
+    },
     "county": {"type": "string", "description": "County name."},
     "county_id_fips": {
         "type": "string",
@@ -953,6 +957,10 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "description": "Mercury content in parts per million (ppm) to the nearest 0.001 ppm.",
         "unit": "ppm",
     },
+    "mercury_control_id_eia": {
+        "type": "string",
+        "description": "Mercury control unit identification number.",
+    },
     "merge_address": {"type": "string"},
     "merge_city": {"type": "string"},
     "merge_company": {"type": "string"},
@@ -1090,6 +1098,11 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "type": "number",
         "description": "Plant capacity in MW when not limited by condenser water.",
         "unit": "MW",
+    },
+    "nox_control_id_eia": {
+        "type": "string",
+        "description": "Nitrogen oxide control unit identification number.",
+        "unit": "lb",
     },
     "nox_mass_lbs": {
         "type": "number",
