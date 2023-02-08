@@ -958,16 +958,7 @@ def extract_xbrl_concat(
             ferc1_settings=ferc1_settings,
         )
         for raw_table_name in table_names
-     ]
-    for raw_table_name in table_names:
-        tables.append(
-            extract_xbrl_generic(
-                table_name=raw_table_name,
-                period=period,
-                ferc1_engine=ferc1_engine,
-                ferc1_settings=ferc1_settings,
-            )
-        )
+    ]
 
     combined_table = pd.concat(tables)
     if combined_table.empty:
