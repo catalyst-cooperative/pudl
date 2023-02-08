@@ -1320,14 +1320,8 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
                 )
                 out_df = pd.concat(
                     [
-                        instant.set_index(
-                            ["report_year", "entity_id", "sched_table_name"]
-                            + instant_axes
-                        ),
-                        duration.set_index(
-                            ["report_year", "entity_id", "sched_table_name"]
-                            + duration_axes
-                        ),
+                        instant.set_index(instant_merge_keys),
+                        duration.set_index(duration_merge_keys),
                     ],
                     axis="columns",
                 ).reset_index()
