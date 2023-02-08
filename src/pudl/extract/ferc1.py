@@ -982,24 +982,16 @@ def extract_dbf_concat(
     concatinates those tables into one. It is similar to the extract_xbr_concat
     except that this function doesn't have to deal with instant and duration tables.
     """
-    tables = []
-    for raw_table_name in table_names:
-        tables.append(
-            extract_dbf_generic(
-                ferc1_engine=sa.create_engine(pudl_settings["ferc1_db"]),
-                ferc1_settings=ferc1_settings,
-                table_name=raw_table_name,
-            )
+    tables = [
+        extract_dbf_generic(
+            ferc1_engine=sa.create_engine(pudl_settings["ferc1_db"]),
+            ferc1_settings=ferc1_settings,
+            table_name=raw_table_name,
         )
-    combined_table = pd.concat(tables)
-    if combined_table.empty:
-        combined_table = pd.DataFrame()
-    if not len(combined_table) == sum([len(x) for x in tables]):
-        raise AssertionError(
-            "Something went wrong with the concatination and the table lengths don't "
-            "match."
-        )
-    return combined_table
+        for raw_table_name in table_names
+    ]
+
+    return pd.concat(tables)
 
 
 def extract_xbrl_metadata(
