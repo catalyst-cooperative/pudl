@@ -865,22 +865,20 @@ class SpotFixes(TransformParams):
     """The column(s) to be fixed."""
     expect_unique: bool
     """Set to True if each fix should correspond to only one row."""
-    spot_fixes: list[tuple[str | int | float | bool]]
+    spot_fixes: list[tuple[str | int | float | bool, ...]]
     """A dictionary of the column to replace and the value to replace with."""
 
 
 def spot_fix_values(self, df: pd.DataFrame, params: SpotFixes) -> pd.DataFrame:
-    """Manually fix one-off singular missing values.
+    """Manually fix one-off singular missing values across a DataFrame.
 
-    A fair amount of records have "" or 0 as a plant name.
-    Most of these records have no other data points in them and thus can be dropped.
-    But some of them actually have some information. Manual investigation of some
-    of these records led to some pretty easy identification of plant names. This
-    function takes a dictionary of these fixes and applies them to the dataframe.
-
-    Params:
-        df: Pre-processed, concatenated XBRL and DBF data.
-        params: an instance of :class:`SpotFixes`
+    From an instance of :class:`SpotFixes`, this function takes a list of sets of
+    manual fixes and applies them to the specified records in a given dataframe. Each
+    set of fixes contains a list of identifying columns, a list of columns to be fixed,
+    and the values to be updated. A ValueError will be returned if spot-fixed datatypes
+    do not match those of the inputted dataframe. For each set of fixes, the
+    expect_unique parameter allows users to specify whether each fix should be applied
+    only to one row.
 
     Returns:
         The same input DataFrame but with some spot fixes corrected.
