@@ -959,14 +959,7 @@ def extract_xbrl_concat(
         )
         for raw_table_name in table_names
     ]
-
-    combined_table = pd.concat(tables)
-    if not len(combined_table) == sum([len(x) for x in tables]):
-        raise AssertionError(
-            "Something went wrong with the concatination and the table lengths don't "
-            "match."
-        )
-    return combined_table
+    return pd.concat(tables)
 
 
 def extract_dbf_concat(
