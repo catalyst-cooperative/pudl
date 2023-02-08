@@ -80,7 +80,7 @@ def execute(
         features_all=features_all,
         train_df=inputs.train_df,
     )
-    best_match_df = remove_murky_matches(match_df, 0.02).pipe(
+    best_match_df = find_best_matches(match_df, 0.02).pipe(
         overwrite_bad_predictions, inputs.train_df
     )
     # best_match_df = overwrite_bad_predictions(match_df, inputs.train_df)
@@ -501,8 +501,8 @@ def run_model(features_train, features_all, train_df):
     return match_df
 
 
-def remove_murky_matches(match_df, difference_threshold):
-    """Remove matches that are not clear winners."""
+def find_best_matches(match_df, difference_threshold):
+    """Only keep the best EIA match for each FERC record."""
     match_df = (
         match_df.reset_index()
         .merge(
