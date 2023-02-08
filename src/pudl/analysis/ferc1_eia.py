@@ -809,7 +809,7 @@ def _log_match_coverage(connects_ferc1_eia):
         return r_eia_years[r_eia_years.record_id_ferc1.str.contains(f"{table_name}")]
 
     def _get_match_pct(df):
-        return round(len(df[df["record_id_eia"].notna()]) / len(df))
+        return len(df[df["record_id_eia"].notna()]) / len(df)
 
     logger.info(
         "Coverage for matches during EIA working years:\n"
