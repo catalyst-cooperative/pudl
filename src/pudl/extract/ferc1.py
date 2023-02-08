@@ -950,7 +950,15 @@ def extract_xbrl_concat(
     that is a combination of several other instant tables, and a duration table that is
     the combination of several other instant tables (those listed in table_names).
     """
-    tables = []
+    tables = [
+        extract_xbrl_generic(
+            table_name=raw_table_name,
+            period=period,
+            ferc1_engine=ferc1_engine,
+            ferc1_settings=ferc1_settings,
+        )
+        for raw_table_name in table_names
+     ]
     for raw_table_name in table_names:
         tables.append(
             extract_xbrl_generic(
