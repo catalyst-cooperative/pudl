@@ -23,7 +23,7 @@ SOURCES: dict[str, Any] = {
     },
     "eia176": {
         "title": "EIA Form 176",
-        "path": "https://www.eia.gov/naturalgas/ngqs/all_ng_data.zip",
+        "path": "https://www.eia.gov/naturalgas/ngqs/",
         "description": (
             "The EIA Form 176, also known as the Annual Report of Natural and "
             "Supplemental Gas Supply and Disposition, describes the origins, suppliers, "
