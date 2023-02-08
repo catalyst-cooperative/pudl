@@ -41,7 +41,7 @@ SOURCES: dict[str, Any] = {
                 "across, or from a State border through field or gathering facilities; "
                 "liquefied natural gas (LNG) storage operators."
             ),
-            "source_format": "Microsoft Excel (.xls/.xlsx)",
+            "source_format": "Comma Separated Value (.csv)",
         },
         "field_namespace": "eia",
         "contributors": [CONTRIBUTORS["catalyst-cooperative"]],
