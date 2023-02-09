@@ -139,6 +139,9 @@ class GoogleCloudStorageCache(AbstractCache):
         self._bucket = storage.Client(credentials=credentials).bucket(
             parsed_url.netloc, user_project=project_id
         )
+        # need to store arguments passed to __init__ so an instance can be restored
+        # from a pickle
+        self._state = {"gcs_path": gcs_path, **kwargs}
 
     def _blob(self, resource: PudlResourceKey) -> Blob:
         """Retrieve Blob object associated with given resource."""
@@ -160,6 +163,34 @@ class GoogleCloudStorageCache(AbstractCache):
     def contains(self, resource: PudlResourceKey) -> bool:
         """Returns True if resource is present in the cache."""
         return self._blob(resource).exists(retry=gcs_retry)
+
+    def __getstate__(self):
+        """Get current object state for serializing.
+
+        Because some of this object's internals explicitly cannot be pickled, namely
+        :class:`google.cloud.storage.Client`, we only serialize the arguments passed to
+        :meth:`.GoogleCloudStorageCache.__init__`.
+        """
+        logger.warning(
+            "When serializing %s, only %s is preserved",
+            self.__class__.__qualname__,
+            self._state,
+        )
+        return self._state.copy()
+
+    def __setstate__(self, state):
+        """Restore the object's state from a dictionary.
+
+        :meth:`.GoogleCloudStorageCache.__init__` already does all the required setup,
+        so we call it with the arguments originally passed when the object we are
+        restoring was originally instantiated.
+        """
+        logger.warning(
+            "Restoring %s, from %s",
+            self.__class__.__qualname__,
+            state,
+        )
+        self.__init__(**state)
 
 
 class LayeredCache(AbstractCache):

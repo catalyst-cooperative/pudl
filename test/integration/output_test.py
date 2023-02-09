@@ -27,7 +27,7 @@ def fast_out(pudl_engine, pudl_datastore_fixture):
     )
 
 
-@pytest.fixture(scope="module")
+@pytest.fixture(scope="function")
 def fast_out_annual(pudl_engine, pudl_datastore_fixture):
     """A PUDL output object for use in CI."""
     return pudl.output.pudltabl.PudlTabl(
@@ -259,3 +259,64 @@ def test_mcoe_filled(fast_out_filled, df_name, expected_nuke_fraction, tolerance
         fast_out_filled.__getattribute__(df_name)()
     )
     assert abs(actual_nuke_fraction - expected_nuke_fraction) <= tolerance
+
+
+@pytest.mark.parametrize(
+    "variation, check",
+    [
+        ("test_local", "df_equal"),
+        ("test_invalid_engine_url", "df_equal"),
+        ("test_local", "same_keys"),
+        ("test_invalid_engine_url", "same_keys"),
+        ("test_local", "valid_db"),
+        ("test_invalid_engine_url", "valid_db"),
+    ],
+)
+def test_pudltabl_pickle(
+    fast_out_annual, pudl_settings_fixture, monkeypatch, variation, check
+):
+    """Test that PudlTabl is serializable with pickle.
+
+    Because pickle is insecure, bandit must be quieted for some lines of this test. This
+    test attempts to simulate the situation where PudlTabl is restored in the same
+    environment that created it 'test_local' and in a different environment from the one
+    that created it 'test_invalid_engine_url'.
+    """
+    import pickle  # nosec
+    from io import BytesIO
+
+    # need to monkeypatch `get_defaults` because it is used in PudlTabl.__setstate__
+    # and the real one does not work in GitHub actions because the settings file it
+    # uses does not exist
+    monkeypatch.setattr(
+        "pudl.workspace.setup.get_defaults", lambda: pudl_settings_fixture
+    )
+    # make sure there's a df to pickle
+    plants = fast_out_annual.plants_eia860()
+    if variation == "test_invalid_engine_url":
+        import sqlalchemy as sa
+
+        # need to change the pudl_engine to one with an invalid URL so that
+        # `PudlTabl.__setstate__` has to fall back on the local default
+        fast_out_annual.pudl_engine = sa.create_engine("sqlite:////wrong/url")
+
+        # confirm this engine won't work
+        with pytest.raises(sa.exc.OperationalError):
+            fast_out_annual.pudl_engine.connect()
+
+    # just to make sure we keep all the parts
+    keys = set(fast_out_annual.__dict__.keys())
+    # dump the object into a pickle stored in a buffer
+    pickle.dump(fast_out_annual, buffer := BytesIO())
+    # restore the object from the pickle in the buffer
+    restored = pickle.loads(buffer.getvalue())  # nosec
+
+    if check == "df_equal":
+        # make sure the df was properly restored
+        pd.testing.assert_frame_equal(restored._dfs["plants_eia860"], plants)
+    elif check == "same_keys":
+        # check that the restored version has all the correct attributes
+        assert set(restored.__dict__.keys()) == keys
+    elif check == "valid_db":
+        # check that the restored DB is valid
+        assert bool(restored.pudl_engine.connect())
