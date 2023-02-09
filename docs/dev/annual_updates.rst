@@ -219,8 +219,8 @@ you'll need to include it in the ``rename_columns`` dictionary in
 * Consider whether the column could benefit from any of the standard transforms in
   :mod:`pudl.transform.classes` or :mod:`pudl.transform.ferc1`. If so, add them to
   :py:const:`pudl.transform.params.ferc1.TRANSFORM_PARAMS`. Make sure that the
-  function you've added to ``TRANSFORM_PARAMS`` is getting called in one of the
-  high-level transform functions in
+  parameter you've added to ``TRANSFORM_PARAMS`` cooresponds to a method that gets
+  called in one of the high-level transform functions in
   :class:`pudl.transform.ferc1.Ferc1AbstractTableTransformer` (``process_xbrl``,
   ``process_dbf``, ``transform_start``, ``transform_main``) and/or any
   table-specific overrides in the relevant table transformer class.
