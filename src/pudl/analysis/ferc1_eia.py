@@ -8,26 +8,24 @@ in FERC1.
 EIA on the other hand is reported in a much cleaner way. The are generators
 with ids and plants with ids reported in *seperate* tables. What a joy. In
 `pudl.analysis.plant_parts_eia`, we've generated the EIA plant-parts. The EIA
-plant-parts(often referred to as `plant_parts_eia` in this module) generated records
-for various levels or granularies of plant parts.
+plant-parts (often referred to as `plant_parts_eia` in this module) generated
+records for various levels or granularities of plant parts.
 
 For each of the FERC1 plant records we want to figure out which EIA
 plant-parts record is the corresponding record. We do this with a record linkage/
-scikitlearn machine learning model. The recordlinkage package helps us create
+scikitlearn logistic regression model. The recordlinkage package helps us create
 feature vectors (via `make_features`) for each candidate match between FERC
-and EIA. Feature vectors are a number between 0 and 1 that indicates the
+and EIA. Feature vectors contain numbers between 0 and 1 that indicates the
 closeness for each value we want to compare.
 
-We use the feature vectors of our known-to-be-connected training data to cross
-validate and tune parameters to choose hyperparameters for scikitlearn models
-(via `test_model_parameters`). We choose the "best" model based on the cross
-validated results. This best scikitlearn model is then used to generate matches
-with the full dataset (`fit_predict_lrc`). The model can return multiple
-options for each FERC1 record, so we rank them and choose the best/winning
-match (`calc_wins`). We then ensure those connections cointain our training
-data (`override_winners_with_training_df`). These "best" results are the
-connections we keep as the matches between FERC1 plant records and the EIA
-plant-parts.
+We use the feature vectors of our known-to-be-connected training data and Grid
+Search cross validation to train the logistic regressoin model. This model is
+then used to predict matches on the full dataset (`run_model`). The model
+can return multiple EIA match options for each FERC1 record, so we rank the
+matches and choose the best/winning match (`calc_best_matches`). We then ensure
+those connections contain our training data (`overwrite_bad_predictions`). The
+final match results are the connections we keep as the matches between FERC1 plant
+records and the EIA plant-parts.
 """
 
 import importlib.resources
@@ -64,10 +62,6 @@ def execute(
         fbp_ferc1: Table of the fuel reported aggregated to the FERC1 plant-level.
         plant_parts_eia: The EIA plant parts list.
     """
-    # wanted to pass in the start/end date from pudl_out, but when you have a db w/
-    # restricted years, the start/end date don't correspong. Used EIA dates bc omigosh
-    # the ferc output tables are not actually being masked for start/end date (will be
-    # fixed in dagster/views transtion)
     inputs = InputManager(plants_all_ferc1, fbp_ferc1, plant_parts_eia)
     features_all = Features(feature_type="all", inputs=inputs).get_features(
         clobber=False
@@ -80,10 +74,11 @@ def execute(
         features_all=features_all,
         train_df=inputs.train_df,
     )
+    # choose one EIA match for each FERC record
     best_match_df = find_best_matches(match_df, 0.02).pipe(
         overwrite_bad_predictions, inputs.train_df
     )
-    # best_match_df = overwrite_bad_predictions(match_df, inputs.train_df)
+    # join EIA and FERC columns back on
     connects_ferc1_eia = prettyify_best_matches(
         best_match_df,
         train_df=inputs.get_train_df(),
@@ -285,7 +280,7 @@ class InputManager:
 
 
 class Features:
-    """Generate featrue vectors for connecting FERC and EIA."""
+    """Generate feature vectors for connecting FERC and EIA."""
 
     def __init__(self, feature_type, inputs):
         """Initialize feature generator.
@@ -437,9 +432,20 @@ class Features:
 
 
 def run_model(features_train, features_all, train_df):
-    """Train Linear Regression model using GridSearch.
+    """Train Logistic Regression model using GridSearch cross validation.
 
-    Fit model for best parameters and make predictions of matches on all input features.
+    Search over the parameter grid for the best fit parameters for the
+    Logistic Regression estimator on the training data. Predict matches
+    on all the input features.
+
+    Args:
+        features_train: Dataframe of the feature vectors for the training data.
+        features_all: Dataframe of the feature vectors for all the input data.
+        train_df: Dataframe of the training data.
+
+    Returns:
+        A dataframe of matches with record_id_ferc1 and record_id_eia as the
+        index and a column for the probability of a match.
     """
     param_grid = [
         {
@@ -502,7 +508,21 @@ def run_model(features_train, features_all, train_df):
 
 
 def find_best_matches(match_df, difference_threshold):
-    """Only keep the best EIA match for each FERC record."""
+    """Only keep the best EIA match for each FERC record.
+
+    We only want one EIA match for each FERC1 plant record. If there are multiple
+    predicted matches for a FERC1 record, the match with the highest
+    probability found by the model is chosen as long as the difference between
+    the highest and second highest probabilities is large enough.
+
+    Args:
+        match_df: A dataframe of matches with record_id_eia and record_id_ferc1
+            as the index and a column for the probability of the match.
+        difference_threshold: The minimum difference in probability of a match
+            between a winning match and the next best match for that FERC record.
+    """
+    # get the count of predicted matches for each FERC1
+    # and sort from lowest to highest probability of match
     match_df = (
         match_df.reset_index()
         .merge(
@@ -510,19 +530,34 @@ def find_best_matches(match_df, difference_threshold):
         )
         .sort_values(by=["record_id_ferc1", "prob_of_match"])
     )
+    # find the difference between each consecutive match probability
+    # keep the highest probability match for each FERC record
     match_df["diff"] = match_df["prob_of_match"].diff()
     match_df = match_df.groupby("record_id_ferc1").tail(1)
-    match_df = match_df[
+    # throw out "murky" matches that don't meet the difference threshold
+    murky_df = match_df[
+        (match_df["count"] != 1 & match_df["diff"] <= difference_threshold)
+    ]
+    best_match_df = match_df[
         (match_df["count"] == 1) | match_df["diff"] >= difference_threshold
     ]
-    return match_df
+    logger.info(
+        f"Percent of predicted matches that have a best match:"
+        f"{len(best_match_df)/len(match_df):.02%}\n"
+        f"Percent of matches not meeting match probability difference threshold:"
+        f"{len(murky_df)/len(match_df):.02%}\n"
+    )
+    return best_match_df
 
 
 def overwrite_bad_predictions(match_df, train_df):
-    """Overwrite incorrect predictions with correct match from training data."""
-    match_df = match_df.reset_index().drop_duplicates(
-        subset=["record_id_ferc1"], keep="first"
-    )
+    """Overwrite incorrect predictions with the correct match from training data.
+
+    Args:
+        match_df: A dataframe of the best matches with only one match for each
+            FERC1 record.
+        train_df: A dataframe of the training data.
+    """
     train_df = train_df.reset_index()
     overwrite_df = pd.merge(
         match_df,
@@ -538,7 +573,7 @@ def overwrite_bad_predictions(match_df, train_df):
         overwrite_df["record_id_eia_pred"],
         overwrite_df["record_id_eia_train"],
     )
-    # create a column indicating whether the match is good
+    # create a the column match_type which indicates whether the match is good
     # based on the training data
     overwrite_rows = (overwrite_df._merge == "both") & (
         overwrite_df.record_id_eia_train != overwrite_df.record_id_eia_pred
@@ -547,6 +582,7 @@ def overwrite_bad_predictions(match_df, train_df):
         overwrite_df.record_id_eia_train == overwrite_df.record_id_eia_pred
     )
     incorrect_rows = overwrite_df._merge == "right_only"
+
     overwrite_df.loc[:, "match_type"] = "prediction; not in training data"
     overwrite_df.loc[overwrite_rows, "match_type"] = "incorrect prediction; overwritten"
     overwrite_df.loc[correct_rows, "match_type"] = "correct match"
@@ -691,14 +727,11 @@ def prettyify_best_matches(
 ):
     """Make the EIA-FERC best matches usable.
 
-    Use the ID columns from the best matches to merge together both EIA
-    plant-parts data and FERC plant data. This removes the comparison vectors
-    (the floats between 0 and 1 that compare the two columns from each dataset).
-
-    If testing the model with only five years of FERC and EIA data then
-    consistency values are lower for checks as model does not perform as well.
+    Use the ID columns from the best matches to merge together both EIA plant-parts data
+    and FERC plant data. This removes the comparison vectors (the floats between 0 and 1
+    that compare the two columns from each dataset).
     """
-    # if utility_id_pudl is not in the `PPE_COLS`,  we need to in include it
+    # if utility_id_pudl is not in the `PPE_COLS`,  we need to include it
     ppe_cols_to_grab = pudl.analysis.plant_parts_eia.PPE_COLS + [
         "plant_id_pudl",
         "total_fuel_cost",
