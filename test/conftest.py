@@ -98,7 +98,6 @@ def pudl_env(request, tmpdir_factory):
         os.environ["PUDL_CACHE"] = str(tmpdir)
     # Otherwise, default to the user's existing datastore:
     else:
-        load_dotenv()
         if not os.getenv("PUDL_CACHE"):
             raise RuntimeError(
                 "Must set PUDL_CACHE environment variable or use `--tmp-data` option"
