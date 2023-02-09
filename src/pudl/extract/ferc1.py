@@ -1024,34 +1024,29 @@ def extract_xbrl_metadata(
     with open(pudl_settings["ferc1_xbrl_taxonomy_metadata"]) as f:
         xbrl_meta_all = json.load(f)
 
-    xbrl_meta_out = {}
-    for pudl_table in ferc1_settings.tables:
-        if pudl_table not in TABLE_NAME_MAP_FERC1:
-            raise ValueError(f"{pudl_table} not found in the list of known tables.")
-        if "xbrl" not in TABLE_NAME_MAP_FERC1[pudl_table]:
-            raise ValueError(f"No XBRL tables have been associated with {pudl_table}.")
+    valid_tables = {
+        table_name: xbrl_table
+        for table_name in ferc1_settings.tables
+        if (xbrl_table := TABLE_NAME_MAP_FERC1.get(table_name, {}).get("xbrl"))
+        is not None
+    }
 
-        logger.info(
-            f"Reading XBRL Taxonomy metadata for FERC Form 1 table {pudl_table}"
-        )
-        # Attempt to extract both duration and instant tables
-        xbrl_table = TABLE_NAME_MAP_FERC1[pudl_table]["xbrl"]
-        xbrl_meta_out[pudl_table] = {}
+    def squash_period(xbrl_table: str | list[str], period, xbrl_meta_all):
+        if type(xbrl_table) is str:
+            xbrl_table = [xbrl_table]
+        return [
+            metadata
+            for table in xbrl_table
+            for metadata in xbrl_meta_all.get(f"{table}_{period}", [])
+            if metadata
+        ]
 
-        for period in ["instant", "duration"]:
-            # If you're squashing more than one instant and duration table
-            # No need to worry about duplicates b/c they are handled in
-            # transform.ferc1.process_xbrl_metadata(). Here we treat all xbrl_tables
-            # list a list (even if there is just one table in them) to reduce the
-            # amount of code.
-            if type(xbrl_table) is str:
-                xbrl_table = [xbrl_table]
-            period_meta = []
-            for table in xbrl_table:
-                try:
-                    table_meta = xbrl_meta_all[f"{table}_{period}"]
-                except KeyError:
-                    table_meta = []
-                period_meta += table_meta
-            xbrl_meta_out[pudl_table][period] = period_meta
+    xbrl_meta_out = {
+        table_name: {
+            "instant": squash_period(xbrl_table, "instant", xbrl_meta_all),
+            "duration": squash_period(xbrl_table, "duration", xbrl_meta_all),
+        }
+        for table_name, xbrl_table in valid_tables.items()
+    }
+
     return xbrl_meta_out
