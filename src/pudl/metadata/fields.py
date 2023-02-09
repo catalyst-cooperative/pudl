@@ -11,7 +11,6 @@ from pudl.metadata.enums import (
     COUNTRY_CODES_ISO3166,
     CUSTOMER_CLASSES,
     DIVISION_CODES_US_CENSUS,
-    EIA860_EMISSION_CONTROL_EQUIPMENT_TYPE_CODES,
     EPACEMS_MEASUREMENT_CODES,
     EPACEMS_STATES,
     FUEL_CLASSES,
@@ -317,10 +316,6 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "description": "Purchase type under which receipts occurred in the reporting month. C: Contract, NC: New Contract, S: Spot Purchase, T: Tolling Agreement.",
         "constraints": {"enum": ["S", "C", "NC", "T"]},
     },
-    "cooling_id_eia": {
-        "type": "string",
-        "description": "Cooling system identification number.",
-    },
     "county": {"type": "string", "description": "County name."},
     "county_id_fips": {
         "type": "string",
@@ -508,17 +503,6 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     "end_point": {
         "type": "string",
         "description": "The end point of a transmission line.",
-    },
-    "emission_control_equipment_type": {
-        "type": "string",
-        "constraints": {"enum": EIA860_EMISSION_CONTROL_EQUIPMENT_TYPE_CODES},
-        "description": "Type of emissions control equipment as reported in EIA 860 (2013-).",
-    },
-    "emission_control_equipment_cost": {
-        "type": "number",
-        "description": "The nominal installed cost for the existing emissions control equipment or the anticipated cost to bring the planned piece of emissions control equipment into commercial operation. From EIA 860 (2013-).",
-        "unit": "USD",
-        # TODO this is reported in 1e3 USD need to convert
     },
     "energy_charges": {
         "type": "number",
@@ -957,10 +941,6 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "description": "Mercury content in parts per million (ppm) to the nearest 0.001 ppm.",
         "unit": "ppm",
     },
-    "mercury_control_id_eia": {
-        "type": "string",
-        "description": "Mercury control unit identification number.",
-    },
     "merge_address": {"type": "string"},
     "merge_city": {"type": "string"},
     "merge_company": {"type": "string"},
@@ -1098,11 +1078,6 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "type": "number",
         "description": "Plant capacity in MW when not limited by condenser water.",
         "unit": "MW",
-    },
-    "nox_control_id_eia": {
-        "type": "string",
-        "description": "Nitrogen oxide control unit identification number.",
-        "unit": "lb",
     },
     "nox_mass_lbs": {
         "type": "number",

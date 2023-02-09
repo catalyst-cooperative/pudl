@@ -2,25 +2,6 @@
 from typing import Any
 
 RESOURCE_METADATA: dict[str, dict[str, Any]] = {
-    "boiler_cooling_eia860": {
-        "description": (
-            "Associations between boilers and cooling equipment as reported in"
-            "EIA-860 Schedule 6A."
-        ),
-        "schema": {
-            "fields": [
-                "utility_id_eia",
-                "report_date",
-                "plant_id_eia",
-                "boiler_id",
-                "cooling_id_eia",
-            ],
-            "primary_key": ["plant_id_eia", "report_date", "boiler_id"],
-        },
-        "field_namespace": "eia",
-        "sources": ["eia860", "eia923"],
-        "etl_group": "eia860",
-    },
     "boiler_generator_assn_eia860": {
         "description": (
             "Associations between boilers and generators as reported in EIA-860 "
@@ -43,101 +24,6 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
         },
         "field_namespace": "eia",
         "sources": ["eia860", "eia923"],
-        "etl_group": "eia860",
-    },
-    "boiler_mercury_eia860": {
-        "description": (
-            "Associations between boilers and mercury control equipment as reported"
-            "in EIA-860 Schedule 6A."
-        ),
-        "schema": {
-            "fields": [
-                "utility_id_eia",
-                "report_date",
-                "plant_id_eia",
-                "boiler_id",
-                "mercury_control_id_eia",
-            ],
-            "primary_key": ["plant_id_eia", "report_date", "boiler_id"],
-        },
-        "field_namespace": "eia",
-        "sources": ["eia860", "eia923"],
-        "etl_group": "eia860",
-    },
-    "boiler_nox_eia860": {
-        "description": (
-            "Associations between boilers and NOx control equipment as reported"
-            "in EIA-860 Schedule 6A."
-        ),
-        "schema": {
-            "fields": [
-                "utility_id_eia",
-                "report_date",
-                "plant_id_eia",
-                "boiler_id",
-                "nox_control_id_eia",
-            ],
-            "primary_key": ["plant_id_eia", "report_date", "boiler_id"],
-        },
-        "field_namespace": "eia",
-        "sources": ["eia860", "eia923"],
-        "etl_group": "eia860",
-    },
-    "boiler_pm_eia860": {
-        "description": (
-            "WIP DESCRIPTION - FIX. Associations between boilers and particulate "
-            "control equipment as reported in EIA-860 Schedule 6A."
-        ),
-        "schema": {
-            "fields": ["utility_id_eia", "report_date", "plant_id_eia", "boiler_id"],
-            "primary_key": ["plant_id_eia", "report_date", "boiler_id"],
-        },
-        "field_namespace": "eia",
-        "sources": ["eia860", "eia923"],
-        "etl_group": "eia860",
-    },
-    "boiler_so2_eia860": {
-        "description": (
-            "WIP DESCRIPTION - FIX. Associations between boilers and SO2 control "
-            "equipment as reported in EIA-860 Schedule 6A."
-        ),
-        "schema": {
-            "fields": ["utility_id_eia", "report_date", "plant_id_eia", "boiler_id"],
-            "primary_key": ["plant_id_eia", "report_date", "boiler_id"],
-        },
-        "field_namespace": "eia",
-        "sources": ["eia860", "eia923"],
-        "etl_group": "eia860",
-    },
-    "boiler_stack_flue_eia860": {
-        "description": (
-            "WIP DESCRIPTION - FIX. Associations between boilers, stacks and flues "
-            "as reported in EIA-860 Schedule 6A."
-        ),
-        "schema": {
-            "fields": ["utility_id_eia", "report_date", "plant_id_eia", "boiler_id"],
-            "primary_key": ["plant_id_eia", "report_date", "boiler_id"],
-        },
-        "field_namespace": "eia",
-        "sources": ["eia860", "eia923"],
-        "etl_group": "eia860",
-    },
-    "emission_control_equip_eia860": {
-        "description": "Associations between boilers and emission control equipment as reported in EIA-860 Schedule 6, Part A.",
-        "schema": {
-            "fields": [
-                "plant_id_eia",
-                "report_date",
-                "generator_id",
-                "boiler_id",
-                # "unit_id_eia",
-                # "unit_id_pudl",
-                # "bga_source",
-            ],
-            "primary_key": ["plant_id_eia", "report_date", "boiler_id"],
-        },
-        "field_namespace": "eia",
-        "sources": ["eia860"],
         "etl_group": "eia860",
     },
     "generators_eia860": {
