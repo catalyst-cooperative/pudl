@@ -536,15 +536,15 @@ def find_best_matches(match_df, difference_threshold):
     match_df = match_df.groupby("record_id_ferc1").tail(1)
     # throw out "murky" matches that don't meet the difference threshold
     murky_df = match_df[
-        (match_df["count"] != 1 & match_df["diff"] <= difference_threshold)
+        (match_df["count"] != 1) & (match_df["diff"] < difference_threshold)
     ]
     best_match_df = match_df[
-        (match_df["count"] == 1) | match_df["diff"] >= difference_threshold
+        (match_df["count"] == 1) | (match_df["diff"] >= difference_threshold)
     ]
     logger.info(
-        f"Percent of predicted matches that have a best match:"
+        f"Percent of predicted matches that have a best match: "
         f"{len(best_match_df)/len(match_df):.02%}\n"
-        f"Percent of matches not meeting match probability difference threshold:"
+        f"Percent of matches not meeting match probability difference threshold: "
         f"{len(murky_df)/len(match_df):.02%}\n"
     )
     return best_match_df
@@ -637,8 +637,7 @@ def prep_train_connections(
     columns for both FERC and EIA. Those id columns serve as a connection
     between ferc1 plants and the EIA plant-parts. These connections
     indicate that a ferc1 plant records is reported at the same granularity
-    as the connected EIA plant-parts record. These records to train a
-    machine learning model.
+    as the connected EIA plant-parts record.
 
     Arguments:
         ppe: The EIA plant parts. Records from this dataframe will be connected to the
