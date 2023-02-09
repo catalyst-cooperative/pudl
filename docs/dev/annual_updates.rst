@@ -193,13 +193,16 @@ dictionary and ``src/pudl/package_data/ferc1/dbf_to_xbrl_tables.csv`` file.
     `view the XBRL taxonomy <https://xbrlview.ferc.gov/>`__ for the table in question.
 
     The ``row_literals`` may contain elements of the FERC 1 form such as
-    headers that don't map to an XBRL column. These can be marked as ``headers`` in the
-    ``row_type`` column. Other values are either marked as ``report_value`` or
-    ``calculated_value`` to indicate whether the XBRL data is original or can be
-    calculated from other fields. The way to check this is by looking at the online
-    taxonomy and clicking on the "Relationships" tab for a given field. If there are
-    relationships it's probably a ``calculated_value`` and if there are not, it's a
-    ``reported_value``
+    headers that don't map to an XBRL factoid. These can be marked as ``headers`` in the
+    ``row_type`` column. Other values are either marked as ``report_value``: a directly
+    reported value in the DBF data, meaning it is not calculated from other values in
+    that table (it may in fact correspond to some calculation derived from values
+    reported in other tables); or a ``calculated_value``: a value which is derived from
+    other values in that table -- typically a sum (Total rows) or a net value
+    (credit - debit) of some kind. Often there's an annotation in the row_literal field
+    that indicates (to humans) what other rows are used to calculate the value. These
+    values will typically also appear in XBRL, with a formula for their calculation
+    reported in the XBRL metadata.
 
     The ``dbf_only`` column is marked ``TRUE`` if the ``row_literal`` only shows up in
     the DBF files. An common example is when several fields are aggregated in the DBF
