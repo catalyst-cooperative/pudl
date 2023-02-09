@@ -288,8 +288,8 @@ inconsistencies in the harvested values. See: :doc:`run_the_etl` for more detail
 you'll need to use the ``--ignore-foreign-key-constraints`` argument because new plants
 and utilities probably need to be mapped (read on into next section).
 
-7. Integrate Datasets
----------------------
+7. Connect Datasets
+-------------------
 
 A. FERC 1 & EIA Plants & Utilities
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
