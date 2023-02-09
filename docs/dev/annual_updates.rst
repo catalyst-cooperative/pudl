@@ -174,7 +174,7 @@ At the table level, we connect XBRL and DBF tables in
 actually used in the extraction process.
 
 **4.B.1)** If there are any new tables or reason to believe that the xbrl taxonomy has
-changed, revisit ``dbf_to_xbrl.csv`` and map the tables and records to one another.
+changed, revisit ``dbf_to_xbrl.csv`` and map the records to one another.
 For table changes, also update the :py:const:`pudl/extract.ferc1.TABLE_NAME_MAP_FERC1`
 dictionary and ``src/pudl/package_data/ferc1/dbf_to_xbrl_tables.csv`` file.
 
