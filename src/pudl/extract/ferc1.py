@@ -937,7 +937,7 @@ def extract_xbrl_generic(
 
     There are some instances where multiple xbrl tables ought to be combined into
     a single table to best mesh with data from the other source. This function
-    concatinates those tables into one. It is similar to the extract_dbf_generic
+    concatenates those tables into one. It is similar to the extract_dbf_generic
     except that this function handles the instant and duration tables from xbrl.
 
     It does not combine instant and duration tables, rather, it creates an instant table
@@ -973,7 +973,7 @@ def extract_dbf_generic(
 
     There are some instances where multiple dbf tables ought to be combined into
     a single table to best mesh with data from the other source. This function
-    concatinates those tables into one. It is similar to the extract_xbr_concat
+    concatenates those tables into one. It is similar to the extract_xbr_concat
     except that this function doesn't have to deal with instant and duration tables.
     """
     tables = [
