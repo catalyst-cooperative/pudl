@@ -163,24 +163,26 @@ inspected for cleanup.
 
 B. FERC Form 1
 ^^^^^^^^^^^^^^
-In the Pre-2021 data (from the DBF files), rows are identified by ``row_number``, and
-the row number that corresponds to a given variable changes from year to year. We
-cataloged this correspondence, and the connection to the post-2021 data (from XBRL),
-in ``src/pudl/package_data/ferc1/dbf_to_xbrl.csv``.
 
-At the table level, we connect XBRL and DBF tables in
-:py:const:`pudl/extract.ferc1.TABLE_NAME_MAP_FERC1` and
-``src/pudl/package_data/ferc1/dbf_to_xbrl_tables.csv`` though the former is what's
-actually used in the extraction process.
+**4.B.1)** If you're mapping FERC tables that have not been included in the ETL yet,
+look at the ``src/pudl/package_data/ferc1/dbf_to_xbrl_tables.csv`` for our preliminary
+estimation of which DBF tables connect to which XBRL tables. Note that this spreadsheet
+is not referenced anywhere in the code and should only be used as a reference. Once
+you've verified that these tables are indeed a match, input them into the
+:py:const:`pudl/extract.ferc1.TABLE_NAME_MAP_FERC1` dictionary for extraction.
 
-**4.B.1)** If there are any new tables or reason to believe that the xbrl taxonomy has
-changed, revisit ``dbf_to_xbrl.csv`` and map the records to one another.
-For table changes, also update the :py:const:`pudl/extract.ferc1.TABLE_NAME_MAP_FERC1`
-dictionary and ``src/pudl/package_data/ferc1/dbf_to_xbrl_tables.csv`` file.
+**4.B.2)** For these new tables (or to address changes in xbrl taxonomy), add or update
+the relationship between DBF rows and XBRL rows in
+``src/pudl/package_data/ferc1/dbf_to_xbrl.csv``. See the note below for instructions.
 
 .. note::
 
     **How to use the mapping spreadsheets:**
+
+    In the Pre-2021 data (from the DBF files), rows are identified by ``row_number``,
+    and the row number that corresponds to a given variable changes from year to year.
+    We cataloged this correspondence, and the connection to the post-2021 data (from
+    XBRL), in ``src/pudl/package_data/ferc1/dbf_to_xbrl.csv``.
 
     The ``dbf_to_xbrl.csv`` maps row numbers from the DBF data with taxonomy factoids
     from the XBRL data therefore allowing us to merge the data into one continuous
@@ -210,12 +212,12 @@ dictionary and ``src/pudl/package_data/ferc1/dbf_to_xbrl_tables.csv`` file.
     reasoning and is intended for humans (vs. computers) to read.
 
 
-**4.B.2)** Use the FERC 1 debugging notebook ``devtools/ferc1-etl-debug.ipynb`` to run
+**4.B.3)** Use the FERC 1 debugging notebook ``devtools/ferc1-etl-debug.ipynb`` to run
 the transforms for each table. Heed any errors or warnings that pop up in the
 logs. One of the most likely bugs will be uncategorized strings (think new, strange fuel
 type spellings.
 
-**4.B.3)** If there's a new column, add it to the transform process. At the very least,
+**4.B.4)** If there's a new column, add it to the transform process. At the very least,
 you'll need to include it in the ``rename_columns`` dictionary in
 :py:const:`pudl.transform.params.ferc1.TRANSFORM_PARAMS` for the appropriate table.
 
@@ -236,11 +238,11 @@ you'll need to include it in the ``rename_columns`` dictionary in
   override for one of the high-level transform functions, and call it there. Make sure
   to write a unit test for any new functions.
 
-**4.B.4)** If there's a new table, add it to the transform process. You'll need to build
+**4.B.5)** If there's a new table, add it to the transform process. You'll need to build
 or augment a table transformer in :mod:`pudl.transform.ferc1` and follow all
 instructions applicable to new columns.
 
-**4.B.5)** To see if the transformations work, you can run the transform module as a
+**4.B.6)** To see if the transformations work, you can run the transform module as a
 script in the terminal. From within the pudl repo directory, run:
 
 .. code-block:: bash
