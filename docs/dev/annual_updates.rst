@@ -271,32 +271,18 @@ dataframes in the normalization and entity resolution process (and associated wi
 generator, boiler, plant, utility, or balancing authority entity), and those that should
 remain in the table where they are reported.
 
-
-6. Run a Siloed EIA ETL
------------------------
-.. note::
-
-    This section should probably be updated to include reference to the new ``tox`` test
-    called ``get_unmapped_ids`` that was implemented for the FERC1 XBRL integration. We
-    may be able to fully skip this step because ``get_unmapped_ids`` runs the ETL with
-    ``--ignore-foreign-key-constraints`` and saves the unmapped IDs.
-
-**6.1)** Before moving on you should ensure that the EIA ETL is fully functional by
-running it for all years and all EIA data sources. Create a temporary ETL settings file
-that includes only the EIA data and all available years of it. You may need to debug
-inconsistencies in the harvested values. See: :doc:`run_the_etl` for more details, but
-you'll need to use the ``--ignore-foreign-key-constraints`` argument because new plants
-and utilities probably need to be mapped (read on into next section).
-
-7. Connect Datasets
+6. Connect Datasets
 -------------------
 
 A. FERC 1 & EIA Plants & Utilities
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-**7.A.1)** Once you have a PUDL DB containing **ALL OF AND ONLY THE EIA DATA**
-(including the new year of data), and a cloned FERC 1 DB containing all years of
-available data, you should link the plant & utility entities that are reported in the
-two datasets. Refer to the :doc:`pudl_id_mapping` page for further instructions.
+**6.A.1)** Run the following command in the terminal, and refer to the
+:doc:`pudl_id_mapping` page for further instructions.
+
+
+.. code-block:: bash
+
+    tox -e get_unmapped_ids
 
 .. note::
 
@@ -310,7 +296,7 @@ two datasets. Refer to the :doc:`pudl_id_mapping` page for further instructions.
 
 B. Missing EIA Plant Locations from CEMS
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-**7.B.1)** If there are any plants that appear in the EPA CEMS dataset that do not
+**6.B.1)** If there are any plants that appear in the EPA CEMS dataset that do not
 appear in the ``plants_entity_eia`` table or that are missing latitute and longitude
 values, the missing information should be compiled and added to
 ``src/pudl/package_data/epacems/additional_epacems_plants.csv`` to enable accurate
@@ -321,36 +307,36 @@ In some cases you may need to resort to Google Maps. If no coordinates can be fo
 then at least the plant's state should be included so that an approximate timezone can
 be inferred.
 
-8. Run the ETL
+7. Run the ETL
 --------------
 Once the FERC 1 and EIA utilities and plants have been associated with each other, you
 can try and run the ETL with all datasets included. See: :doc:`run_the_etl`.
 
-**8.1)** First run the ETL for just the new year of data, using the ``etl_fast.yml``
+**7.1)** First run the ETL for just the new year of data, using the ``etl_fast.yml``
 settings file.
 
-**8.2)** Once the fast ETL works, run the full ETL using the ``etl_full.yml`` settings
+**7.2)** Once the fast ETL works, run the full ETL using the ``etl_full.yml`` settings
 to populate complete FERC 1 & PUDL DBs and EPA CEMS Parquet files.
 
-9. Update the Output Routines and Run Full Tests
+8. Update the Output Routines and Run Full Tests
 ------------------------------------------------
-**9.1)** With a full PUDL DB, update the denormalized table outputs and derived
+**8.1)** With a full PUDL DB, update the denormalized table outputs and derived
 analytical routines to accommodate the new data if necessary. These are generally
 called from within the :class:`pudl.output.pudltabl.PudlTabl` class.
 
 * Are there new columns that should incorporated into the output tables?
 * Are there new tables that need to have an output function defined for them?
 
-**9.2)** To ensure that you (more) fully exercise all of the possible output functions,
+**8.2)** To ensure that you (more) fully exercise all of the possible output functions,
 run the entire CI test suite against your live databases with:
 
 .. code-block:: bash
 
     tox -e full -- --live-dbs
 
-10. Run and Update Data Validations
+9. Run and Update Data Validations
 -----------------------------------
-**10.1)** When the CI tests are passing against all years of data, sanity check the data
+**9.1)** When the CI tests are passing against all years of data, sanity check the data
 in the database and the derived outputs by running
 
 .. code-block:: bash
@@ -360,26 +346,26 @@ in the database and the derived outputs by running
 We expect at least some of the validation tests to fail initially because we haven't
 updated the number of records we expect to see in each table.
 
-**10.2)** You may also need to update the expected distribution of fuel prices if they
+**9.2)** You may also need to update the expected distribution of fuel prices if they
 were particularly high or low in the new year of data. Other values like expected heat
 content per unit of fuel should be relatively stable. If the required adjustments are
 large, or there are other types of validations failing, they should be investigated.
 
-**10.3)** Update the expected number of rows in the minmax_row validation tests. Pay
+**9.3)** Update the expected number of rows in the minmax_row validation tests. Pay
 attention to how far off of previous expectations the new tables are. E.g. if there
 are already 20 years of data, and you're integrating 1 new year of data, probably the
 number of rows in the tables should be increasing by around 5% (since 1/20 = 0.05).
 
-11. Run Additional Standalone Analyses
+10. Run Additional Standalone Analyses
 --------------------------------------
-**11.1)** Run any important analyses that haven't been integrated into the CI
+**10.1)** Run any important analyses that haven't been integrated into the CI
 tests on the new year of data for sanity checking. For example the
 :mod:`pudl.analysis.state_demand` script or generating the EIA Plant Parts List for
 integration with FERC 1 data.
 
-12. Update the Documentation
+11. Update the Documentation
 ----------------------------
-**12.1)** Once the new year of data is integrated, update the documentation
+**11.1)** Once the new year of data is integrated, update the documentation
 to reflect the new state of affairs. This will include updating at least:
 
 * the top-level :doc:`README </index>`
