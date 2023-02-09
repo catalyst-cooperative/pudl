@@ -190,29 +190,3 @@ PLANT_PARTS: set[str] = {
 }
 
 """The plant parts in the EIA plant parts list."""
-
-EIA860_EMISSION_CONTROL_EQUIPMENT_TYPE_CODES: list[str] = [
-    "JB",  # Jet bubbling reactor (wet) scrubber
-    "MA",  # Mechanically aided type (wet) scrubber
-    "PA",  # Packed type (wet) scrubber
-    "SP",  # Spray type (wet) scrubber
-    "TR",  # Tray type (wet) scrubber
-    "VE",  # Venturi type (wet) scrubber
-    "BS",  # Baghouse (fabric filter), shake and deflate
-    "BP",  # Baghouse (fabric filter), pulse
-    "BR",  # Baghouse (fabric filter), reverse air
-    "EC",  # Electrostatic precipitator, cold side, with flue gas conditioning
-    "EH",  # Electrostatic precipitator, hot side, with flue gas conditioning
-    "EK",  # Electrostatic precipitator, cold side, without flue gas conditioning
-    "EW",  # Electrostatic precipitator, hot side, without flue gas conditioning
-    "MC",  # Multiple cyclone
-    "SC",  # Single cyclone
-    "CD",  # Circulating dry scrubber
-    "SD",  # Spray dryer type / dry FGD / semi-dry FGD
-    "DSI",  # Dry sorbent (powder) injection type (DSI)
-    "ACI",  # Activated carbon injection system
-    "SN",  # Selective noncatalytic reduction
-    "SR",  # Selective catalytic reduction
-    "OT ",  # Other equipment (Specify in SCHEDULE 7)
-]
-"""Valid equipment type codes for emission control equipment reported in EIA860."""
