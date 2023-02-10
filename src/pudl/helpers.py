@@ -1344,12 +1344,14 @@ def iterate_multivalue_dict(**kwargs):
         yield result
 
 
-def get_working_eia_dates():
-    """Get all working EIA dates as a DatetimeIndex."""
+def get_working_dates_by_datasource(datasource):
+    """Get all working dates of a datasource as a DatetimeIndex."""
     import pudl.metadata.classes
 
     dates = pd.DatetimeIndex([])
-    for data_source in pudl.metadata.classes.DataSource.from_field_namespace("eia"):
+    for data_source in pudl.metadata.classes.DataSource.from_field_namespace(
+        datasource
+    ):
         working_partitions = data_source.working_partitions
         if "years" in working_partitions:
             dates = dates.append(

@@ -116,15 +116,14 @@ class PudlTabl:
 
         # grab all working eia dates to use to set start and end dates if they
         # are not set
-        eia_dates = pudl.helpers.get_working_eia_dates()
         if start_date is None:
-            self.start_date = min(eia_dates)
+            self.start_date = min(pudl.helpers.get_working_dates_by_datasource("ferc1"))
         else:
             # Make sure it's a date... and not a string.
             self.start_date = pd.to_datetime(start_date)
 
         if end_date is None:
-            self.end_date = max(eia_dates)
+            self.end_date = max(pudl.helpers.get_working_dates_by_datasource("eia"))
         else:
             # Make sure it's a date... and not a string.
             self.end_date = pd.to_datetime(end_date)
@@ -829,7 +828,7 @@ class PudlTabl:
         """
         if update or self._dfs["plants_steam_ferc1"] is None:
             self._dfs["plants_steam_ferc1"] = pudl.output.ferc1.plants_steam_ferc1(
-                self.pudl_engine
+                self.pudl_engine, start_date=self.start_date, end_date=self.end_date
             )
         return self._dfs["plants_steam_ferc1"]
 
@@ -844,7 +843,9 @@ class PudlTabl:
             pandas.DataFrame: a denormalized table for interactive use.
         """
         if update or self._dfs["fuel_ferc1"] is None:
-            self._dfs["fuel_ferc1"] = pudl.output.ferc1.fuel_ferc1(self.pudl_engine)
+            self._dfs["fuel_ferc1"] = pudl.output.ferc1.fuel_ferc1(
+                self.pudl_engine, start_date=self.start_date, end_date=self.end_date
+            )
         return self._dfs["fuel_ferc1"]
 
     def fbp_ferc1(self, update=False):
@@ -859,7 +860,7 @@ class PudlTabl:
         """
         if update or self._dfs["fbp_ferc1"] is None:
             self._dfs["fbp_ferc1"] = pudl.output.ferc1.fuel_by_plant_ferc1(
-                self.pudl_engine
+                self.pudl_engine, start_date=self.start_date, end_date=self.end_date
             )
         return self._dfs["fbp_ferc1"]
 
@@ -875,7 +876,7 @@ class PudlTabl:
         """
         if update or self._dfs["plants_small_ferc1"] is None:
             self._dfs["plants_small_ferc1"] = pudl.output.ferc1.plants_small_ferc1(
-                self.pudl_engine
+                self.pudl_engine, start_date=self.start_date, end_date=self.end_date
             )
         return self._dfs["plants_small_ferc1"]
 
@@ -891,7 +892,7 @@ class PudlTabl:
         """
         if update or self._dfs["plants_hydro_ferc1"] is None:
             self._dfs["plants_hydro_ferc1"] = pudl.output.ferc1.plants_hydro_ferc1(
-                self.pudl_engine
+                self.pudl_engine, start_date=self.start_date, end_date=self.end_date
             )
         return self._dfs["plants_hydro_ferc1"]
 
@@ -908,7 +909,9 @@ class PudlTabl:
         if update or self._dfs["plants_pumped_storage_ferc1"] is None:
             self._dfs[
                 "plants_pumped_storage_ferc1"
-            ] = pudl.output.ferc1.plants_pumped_storage_ferc1(self.pudl_engine)
+            ] = pudl.output.ferc1.plants_pumped_storage_ferc1(
+                self.pudl_engine, start_date=self.start_date, end_date=self.end_date
+            )
         return self._dfs["plants_pumped_storage_ferc1"]
 
     def purchased_power_ferc1(self, update=False):
@@ -924,7 +927,9 @@ class PudlTabl:
         if update or self._dfs["purchased_power_ferc1"] is None:
             self._dfs[
                 "purchased_power_ferc1"
-            ] = pudl.output.ferc1.purchased_power_ferc1(self.pudl_engine)
+            ] = pudl.output.ferc1.purchased_power_ferc1(
+                self.pudl_engine, start_date=self.start_date, end_date=self.end_date
+            )
         return self._dfs["purchased_power_ferc1"]
 
     def plant_in_service_ferc1(self, update=False):
@@ -940,7 +945,9 @@ class PudlTabl:
         if update or self._dfs["plant_in_service_ferc1"] is None:
             self._dfs[
                 "plant_in_service_ferc1"
-            ] = pudl.output.ferc1.plant_in_service_ferc1(self.pudl_engine)
+            ] = pudl.output.ferc1.plant_in_service_ferc1(
+                self.pudl_engine, start_date=self.start_date, end_date=self.end_date
+            )
         return self._dfs["plant_in_service_ferc1"]
 
     def plants_all_ferc1(self, update=False):
@@ -955,7 +962,7 @@ class PudlTabl:
         """
         if update or self._dfs["plants_all_ferc1"] is None:
             self._dfs["plants_all_ferc1"] = pudl.output.ferc1.plants_all_ferc1(
-                self.pudl_engine
+                self.pudl_engine, start_date=self.start_date, end_date=self.end_date
             )
         return self._dfs["plants_all_ferc1"]
 
@@ -1225,6 +1232,63 @@ class PudlTabl:
         if update or self._dfs["epacamd_eia"] is None:
             self._dfs["epacamd_eia"] = pudl.output.epacems.epacamd_eia(self.pudl_engine)
         return self._dfs["epacamd_eia"]
+
+    ###########################################################################
+    # FOR PICKLING AND OTHER IO
+    ###########################################################################
+
+    def __getstate__(self) -> dict:
+        """Get current object state for serializing (pickling).
+
+        This method is run as part of pickling the object. It needs to return the
+        object's current state with any un-serializable objects converted to a form that
+        can be serialized. See :meth:`object.__getstate__` for further details on the
+        expected behavior of this method.
+        """
+        return self.__dict__.copy() | {
+            # defaultdict may be serializable but lambdas are not, so it must go
+            "_dfs": dict(self.__dict__["_dfs"]),
+            # sqlalchemy engines are also a problem here, saving the URL should
+            # provide enough of what is needed to recreate it, though that means the
+            # pickle is not portable, but any fix to that will happen when the object
+            # is restored
+            "pudl_engine": str(self.__dict__["pudl_engine"].url),
+        }
+
+    def __setstate__(self, state: dict) -> None:
+        """Restore the object's state from a dictionary.
+
+        This method is run when the object is restored from a pickle. Anything
+        that was changed in :meth:`pudl.output.pudltabl.PudlTabl.__getstate__` must be
+        undone here. Another important detail is that ``__init__`` is not run when an
+        object is de-serialized, so any setup there that alters external state might
+        need to happen here as well.
+
+        Args:
+            state: the object state to restore. This is effectively the output
+                of :meth:`pudl.output.pudltabl.PudlTabl.__getstate__`.
+        """
+        try:
+            pudl_engine = sa.create_engine(state["pudl_engine"])
+            # make sure that the URL for the engine from ``state`` is usable now
+            pudl_engine.connect()
+        except sa.exc.OperationalError:
+            # if the URL from ``state`` is not valid, e.g. because it is for a local
+            # DB on a different computer, create the engine from PUDL defaults
+            pudl_settings = pudl.workspace.setup.get_defaults()
+            logger.warning(
+                "Unable to connect to the restored pudl_db URL %s. "
+                "Will use the default pudl_db %s instead.",
+                state["pudl_engine"],
+                pudl_settings["pudl_db"],
+            )
+            pudl_engine = sa.create_engine(pudl_settings["pudl_db"])
+
+        self.__dict__ = state | {
+            # recreate the defaultdict from the vanilla one from ``state``
+            "_dfs": defaultdict(lambda: None, state["_dfs"]),
+            "pudl_engine": pudl_engine,
+        }
 
 
 def get_table_meta(pudl_engine):
