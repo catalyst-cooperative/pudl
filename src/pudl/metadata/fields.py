@@ -141,7 +141,12 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     },
     "billing_status": {
         "type": "string",
-        "description": "Whether an amount is billed, unbilled, or both.",
+        "description": (
+            "Whether an amount is billed, unbilled, or both. Billed amounts pertain to "
+            "the exchange of energy and unbilled amounts pertain to other sources of "
+            "revenue such as contracts with peaker plants to keep them on standby "
+            "or charging rent to host cell antennas on transmission towers."
+        ),
     },
     "boiler_generator_assn_type_code": {
         "type": "string",
