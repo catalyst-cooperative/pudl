@@ -234,7 +234,7 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
         "description": (
             """The pre-2021 data in this table (extracted from FoxProDB vs. XBRL) is
 extremely unstructured. Where the post-2020 data (from XBRL) sorts the data
-into rate scheule types: residential, industrial, commercial,
+into rate schedule types: residential, industrial, commercial,
 public_lighting, public_authorities, railroads, interdepartmental,
 provision_for_rate_refund, commercial_and_industrial, total, and billing
 status: billed, unbilled, total, the pre-2021 data stuffs all of that
@@ -248,11 +248,11 @@ structure type also embedded into the rate_schedule_description column. To
 all who dare, beware.
 
 This table is a combination of one pre-2021 (DBF) table and nine post-2020
-(XBRL) tables--one for each rate schedule type plus totals--hense increase
+(XBRL) tables--one for each rate schedule type plus totals--hence increase
 in data clarity post-2020. The rate_schedule_type and billing_status
 columns are only relevant for post-2020 data as they can be reliably parsed
 from each of the tables and incorporated into columns. The
-rate_schedule_description is supposed to contain sub-rate_scheule_type
+rate_schedule_description is supposed to contain sub-rate_schedule_type
 names for charges (Ex: Residential 1, Residential 2, etc.). However, the
 pre-2021 data contains a little bit of everything (or nothing) and the
 post-2020 has some totals or wonky data thrown in. That's to say, even when
@@ -261,8 +261,8 @@ the "total" rows are for.
 
 The values that come from from the totals table are marked with the string
 "total" in the rate_schedule_description column. The totals table is a
-product of the transition to XBRL, so these distinguisable totals are only
-avilable for data post-2020 (otherwise you could try keyword searching for
+product of the transition to XBRL, so these distinguishable totals are only
+available for data post-2020 (otherwise you could try keyword searching for
 "total" in rate_schedule_description). The total table contains two types of
 totals, the utility totals accross all rate schedules in a given year
 (marked with rate_schedule_description = "total" and rate_schedule_type =
