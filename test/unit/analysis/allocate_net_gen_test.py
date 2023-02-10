@@ -3,7 +3,6 @@
 from io import StringIO
 from typing import Literal
 
-import numpy as np
 import pandas as pd
 import pytest
 
@@ -81,67 +80,24 @@ def test_distribute_annually_reported_data_to_months_if_annual():
         data_column_name="fuel_consumed_mmbtu",
         freq="MS",
     )
-    expected = pd.read_csv(
-        StringIO(
-            f"""plant_id_eia,report_date,boiler_id,energy_source_code,prime_mover_code,fuel_consumed_mmbtu
-41,2021-01-01,a,NG,GT,1.0
-41,2021-02-01,a,NG,GT,2.0
-41,2021-03-01,a,NG,GT,3.0
-41,2021-04-01,a,NG,GT,4.0
-41,2021-05-01,a,NG,GT,5.0
-41,2021-06-01,a,NG,GT,6.0
-41,2021-07-01,a,NG,GT,6.0
-41,2021-08-01,a,NG,GT,5.0
-41,2021-09-01,a,NG,GT,4.0
-41,2021-10-01,a,NG,GT,3.0
-41,2021-11-01,a,NG,GT,2.0
-41,2021-12-01,a,NG,GT,1.0
-41,2020-01-01,a,NG,GT,2.0
-41,2020-02-01,a,NG,GT,3.0
-41,2020-03-01,a,NG,GT,4.0
-41,2020-04-01,a,NG,GT,5.0
-41,2020-05-01,a,NG,GT,6.0
-41,2020-06-01,a,NG,GT,7.0
-41,2020-07-01,a,NG,GT,7.0
-41,2020-08-01,a,NG,GT,6.0
-41,2020-09-01,a,NG,GT,5.0
-41,2020-10-01,a,NG,GT,4.0
-41,2020-11-01,a,NG,GT,3.0
-41,2020-12-01,a,NG,GT,2.0
-200,2021-01-01,B1,SUB,ST,{annual_2021 / 12}
-200,2021-02-01,B1,SUB,ST,{annual_2021 / 12}
-200,2021-03-01,B1,SUB,ST,{annual_2021 / 12}
-200,2021-04-01,B1,SUB,ST,{annual_2021 / 12}
-200,2021-05-01,B1,SUB,ST,{annual_2021 / 12}
-200,2021-06-01,B1,SUB,ST,{annual_2021 / 12}
-200,2021-07-01,B1,SUB,ST,{annual_2021 / 12}
-200,2021-08-01,B1,SUB,ST,{annual_2021 / 12}
-200,2021-09-01,B1,SUB,ST,{annual_2021 / 12}
-200,2021-10-01,B1,SUB,ST,{annual_2021 / 12}
-200,2021-11-01,B1,SUB,ST,{annual_2021 / 12}
-200,2021-12-01,B1,SUB,ST,{annual_2021 / 12}
-200,2020-01-01,B1,BIT,ST,{annual_2020 / 12}
-200,2020-02-01,B1,BIT,ST,{annual_2020 / 12}
-200,2020-03-01,B1,BIT,ST,{annual_2020 / 12}
-200,2020-04-01,B1,BIT,ST,{annual_2020 / 12}
-200,2020-05-01,B1,BIT,ST,{annual_2020 / 12}
-200,2020-06-01,B1,BIT,ST,{annual_2020 / 12}
-200,2020-07-01,B1,BIT,ST,{annual_2020 / 12}
-200,2020-08-01,B1,BIT,ST,{annual_2020 / 12}
-200,2020-09-01,B1,BIT,ST,{annual_2020 / 12}
-200,2020-10-01,B1,BIT,ST,{annual_2020 / 12}
-200,2020-11-01,B1,BIT,ST,{annual_2020 / 12}
-200,2020-12-01,B1,BIT,ST,{annual_2020 / 12}
-    """
-        )
-    )
+
     out = out.sort_values(["plant_id_eia", "report_date"]).reset_index(drop=True)
-    expected = (
-        expected.sort_values(["plant_id_eia", "report_date"])[out.columns]
-        .pipe(apply_pudl_dtypes, group="eia")
-        .reset_index(drop=True)
-    )
-    pd.testing.assert_frame_equal(out, expected, check_like=True)
+    yearly_out = out[out["plant_id_eia"] == 200]
+    fuel_2020 = yearly_out[yearly_out.report_date.dt.year == 2020][
+        "fuel_consumed_mmbtu"
+    ]
+    fuel_2021 = yearly_out[yearly_out.report_date.dt.year == 2021][
+        "fuel_consumed_mmbtu"
+    ]
+
+    assert (fuel_2020 == annual_2020 / 12).all()
+    assert (fuel_2021 == annual_2021 / 12).all()
+
+    monthly_in = bf_with_monthly_annual_mix[
+        bf_with_monthly_annual_mix["plant_id_eia"] == 41
+    ].sort_values("report_date", ignore_index=True)
+    monthly_out = out[out["plant_id_eia"] == 41]
+    pd.testing.assert_frame_equal(monthly_in, monthly_out)
 
 
 class PudlTablMock:
