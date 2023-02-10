@@ -74,10 +74,8 @@ def execute(
         features_all=features_all,
         train_df=inputs.train_df,
     )
-    # choose one EIA match for each FERC record
-    best_match_df = find_best_matches(match_df, 0.02).pipe(
-        overwrite_bad_predictions, inputs.train_df
-    )
+    # overwrite incorrect predictions with the match from the training data
+    best_match_df = overwrite_bad_predictions(match_df, inputs.train_df)
     # join EIA and FERC columns back on
     connects_ferc1_eia = prettyify_best_matches(
         best_match_df,
@@ -505,49 +503,6 @@ def run_model(features_train, features_all, train_df):
         by="prob_of_match", ascending=False
     )
     return match_df
-
-
-def find_best_matches(match_df, difference_threshold):
-    """Only keep the best EIA match for each FERC record.
-
-    We only want one EIA match for each FERC1 plant record. If there are multiple
-    predicted matches for a FERC1 record, the match with the highest
-    probability found by the model is chosen as long as the difference between
-    the highest and second highest probabilities is large enough.
-
-    Args:
-        match_df: A dataframe of matches with record_id_eia and record_id_ferc1
-            as the index and a column for the probability of the match.
-        difference_threshold: The minimum difference in probability of a match
-            between a winning match and the next best match for that FERC record.
-    """
-    # get the count of predicted matches for each FERC1
-    # and sort from lowest to highest probability of match
-    match_df = (
-        match_df.reset_index()
-        .merge(
-            pudl.helpers.count_records(match_df, "record_id_ferc1", "count"), how="left"
-        )
-        .sort_values(by=["record_id_ferc1", "prob_of_match"])
-    )
-    # find the difference between each consecutive match probability
-    # keep the highest probability match for each FERC record
-    match_df["diff"] = match_df["prob_of_match"].diff()
-    match_df = match_df.groupby("record_id_ferc1").tail(1)
-    # throw out "murky" matches that don't meet the difference threshold
-    murky_df = match_df[
-        (match_df["count"] != 1) & (match_df["diff"] < difference_threshold)
-    ]
-    best_match_df = match_df[
-        (match_df["count"] == 1) | (match_df["diff"] >= difference_threshold)
-    ]
-    logger.info(
-        f"Percent of predicted matches that have a best match: "
-        f"{len(best_match_df)/len(match_df):.02%}\n"
-        f"Percent of matches not meeting match probability difference threshold: "
-        f"{len(murky_df)/len(match_df):.02%}\n"
-    )
-    return best_match_df
 
 
 def overwrite_bad_predictions(match_df, train_df):
