@@ -74,8 +74,10 @@ def execute(
         features_all=features_all,
         train_df=inputs.train_df,
     )
-    # overwrite incorrect predictions with the match from the training data
-    best_match_df = overwrite_bad_predictions(match_df, inputs.train_df)
+    # choose one EIA match for each FERC record
+    best_match_df = find_best_matches(match_df).pipe(
+        overwrite_bad_predictions, inputs.train_df
+    )
     # join EIA and FERC columns back on
     connects_ferc1_eia = prettyify_best_matches(
         best_match_df,
@@ -503,6 +505,30 @@ def run_model(features_train, features_all, train_df):
         by="prob_of_match", ascending=False
     )
     return match_df
+
+
+def find_best_matches(match_df):
+    """Only keep the best EIA match for each FERC record.
+
+    We only want one EIA match for each FERC1 plant record. If there are multiple
+    predicted matches for a FERC1 record, the match with the highest
+    probability found by the model is chosen.
+
+    Args:
+        match_df: A dataframe of matches with record_id_eia and record_id_ferc1
+            as the index and a column for the probability of the match.
+
+    Returns:
+        Dataframe of matches with one EIA record for each FERC1 record.
+    """
+    # sort from lowest to highest probability of match
+    match_df = match_df.reset_index().sort_values(
+        by=["record_id_ferc1", "prob_of_match"]
+    )
+
+    best_match_df = match_df.groupby("record_id_ferc1").tail(1)
+
+    return best_match_df
 
 
 def overwrite_bad_predictions(match_df, train_df):
