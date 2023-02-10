@@ -263,7 +263,7 @@ The values that come from from the totals table are marked with the string
 "total" in the rate_schedule_description column. The totals table is a
 product of the transition to XBRL, so these distinguisable totals are only
 avilable for data post-2020 (otherwise you could try keyword searching for
-"total" inrate_schedule_description). The total table contains two types of
+"total" in rate_schedule_description). The total table contains two types of
 totals, the utility totals accross all rate schedules in a given year
 (marked with rate_schedule_description = "total" and rate_schedule_type =
 "total") and each of the utility's individual rate schedule totals in a
