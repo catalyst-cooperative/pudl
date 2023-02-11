@@ -230,6 +230,80 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
         "etl_group": "ferc1",
         "field_namespace": "ferc1",
     },
+    "electricity_sales_by_rate_schedule_ferc1": {
+        "description": (
+            """The pre-2021 data in this table (extracted from FoxProDB vs. XBRL) is
+extremely unstructured. Where the post-2020 data (from XBRL) sorts the data
+into rate schedule types: residential, industrial, commercial,
+public_lighting, public_authorities, railroads, interdepartmental,
+provision_for_rate_refund, commercial_and_industrial, total, and billing
+status: billed, unbilled, total, the pre-2021 data stuffs all of that
+information (if you're lucky) into the rate_schedule_description column.
+There's no point trying to parse through the pre 2021
+rate_schedule_description column en masse because it's just too messy. The
+contents of rate_schedule_description often contain numbers and acronyms
+that have little to no meaning out of context. The table is structured
+somewhat like the FERC1 small generators table with headings about rate
+structure type also embedded into the rate_schedule_description column. To
+all who dare, beware.
+
+This table is a combination of one pre-2021 (DBF) table and nine post-2020
+(XBRL) tables--one for each rate schedule type plus totals--hence increase
+in data clarity post-2020. The rate_schedule_type and billing_status
+columns are only relevant for post-2020 data as they can be reliably parsed
+from each of the tables and incorporated into columns. The
+rate_schedule_description is supposed to contain sub-rate_schedule_type
+names for charges (Ex: Residential 1, Residential 2, etc.). However, the
+pre-2021 data contains a little bit of everything (or nothing) and the
+post-2020 has some totals or wonky data thrown in. That's to say, even when
+working with post-2020 data, be wary of aggregating the data. That's what
+the "total" rows are for.
+
+The values that come from from the totals table are marked with the string
+"total" in the rate_schedule_description column. The totals table is a
+product of the transition to XBRL, so these distinguishable totals are only
+available for data post-2020 (otherwise you could try keyword searching for
+"total" in rate_schedule_description). The total table contains two types of
+totals, the utility totals accross all rate schedules in a given year
+(marked with rate_schedule_description = "total" and rate_schedule_type =
+"total") and each of the utility's individual rate schedule totals in a
+given year (marked with rate_schedule_description = "total" and
+rate_schdedule_type = "residential" or any other rate schdedule type).
+
+The rate schedule based XBRL tables only report billed values whereas the
+total tables report billed, unbilled, and total values. (See the column
+description for more info on the difference between billed and unbilled).
+This is important to consider if you're endeavoring to compare the subtotal
+values with the total values. We have not attempted to fix or verify any
+subtotals or totals that don't add up.
+
+Another important note is the possability of unit discrepancies in certain
+columns. The revenue_per_kwh column does not specify reporting units, and
+closer inspection of the data reveals two clear peaks approximate two orders
+of magnitude appart. This indicates that values may be reported in both
+dollars and cents. However, because the price of energy per kwh varies
+so much regionally, we cannot guarantee which is which and have not put
+any cleaning mechanisms in place to account for this."""
+        ),
+        "schema": {
+            "fields": [
+                "utility_id_ferc1",
+                "report_year",
+                "rate_schedule_type",
+                "billing_status",
+                "rate_schedule_description",
+                "sales_mwh",
+                "sales_revenue",
+                "avg_customers_per_month",
+                "kwh_per_customer",
+                "revenue_per_kwh",
+                "record_id",
+            ]
+        },
+        "sources": ["ferc1"],
+        "etl_group": "ferc1",
+        "field_namespace": "ferc1",
+    },
     "ferc_accounts": {
         "description": "Account numbers from the FERC Uniform System of Accounts for Electric Plant, which is defined in Code of Federal Regulations (CFR) Title 18, Chapter I, Subchapter C, Part 101. (See e.g. https://www.law.cornell.edu/cfr/text/18/part-101).",
         "schema": {
