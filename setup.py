@@ -66,6 +66,7 @@ setup(
         "pydantic[email]>=1.7,<2",
         "python-snappy>=0.6,<0.7",
         "pyyaml>=5,<6.1",
+        "recordlinkage>=0.14,<0.16",
         "scikit-learn>=1.0,<1.3",
         "scipy>=1.6,<1.11",
         "Shapely>=2.0,<2.1",
@@ -113,7 +114,6 @@ setup(
             "responses>=0.14,<0.23",
             "rstcheck[sphinx]>=5.0,<6.2",
             "tox>=3.20,<4.5",
-            "recordlinkage>=0.14,<0.16",
         ],
         "datasette": [
             "datasette>=0.60,<0.65",
