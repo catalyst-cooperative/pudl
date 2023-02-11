@@ -35,6 +35,7 @@ non_unique_record_id_tables = [
     "retained_earnings_ferc1",
     "electric_operating_revenues_ferc1",
     "other_regulatory_liabilities_ferc1",
+    "electricity_sales_by_rate_schedule_ferc1",
 ]
 unique_record_tables = [
     t
