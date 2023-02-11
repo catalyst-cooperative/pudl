@@ -1,31 +1,29 @@
-"""Connect FERC1 plants tables to EIA's plant-parts via record linkage.
+"""Connect FERC1 plant tables to EIA's plant-parts via record linkage.
 
-FERC plant records are reported... kind of messily. In the same table there are
-records that are reported as whole plants, generators, collections of prime
-movers. So we have this heterogeneously reported collection of parts of plants
-in FERC1.
+FERC plant records are reported... kind of messily. In the same table there are records
+that are reported as whole plants, generators, collections of prime movers. So we have
+this heterogeneously reported collection of parts of plants in FERC1.
 
-EIA on the other hand is reported in a much cleaner way. The are generators
-with ids and plants with ids reported in *seperate* tables. What a joy. In
-`pudl.analysis.plant_parts_eia`, we've generated the EIA plant-parts. The EIA
-plant-parts (often referred to as `plant_parts_eia` in this module) generated
-records for various levels or granularities of plant parts.
+EIA on the other hand is reported in a much cleaner way. The are generators with ids and
+plants with ids reported in *seperate* tables. What a joy. In
+:mod:`pudl.analysis.plant_parts_eia`, we've generated the EIA plant-parts. The EIA
+plant-parts (often referred to as ``plant_parts_eia`` in this module) generated records
+for various levels or granularities of plant parts.
 
-For each of the FERC1 plant records we want to figure out which EIA
-plant-parts record is the corresponding record. We do this with a record linkage/
-scikitlearn logistic regression model. The recordlinkage package helps us create
-feature vectors (via `make_features`) for each candidate match between FERC
-and EIA. Feature vectors contain numbers between 0 and 1 that indicates the
-closeness for each value we want to compare.
+For each of the FERC1 plant records we want to figure out which EIA plant-parts record
+is the corresponding record. We do this with a record linkage/ scikitlearn logistic
+regression model. The recordlinkage package helps us create feature vectors (via
+:meth:`Features.make_features`) for each candidate match between FERC and EIA. Feature
+vectors contain numbers between 0 and 1 that indicates the closeness for each value we
+want to compare.
 
-We use the feature vectors of our known-to-be-connected training data and Grid
-Search cross validation to train the logistic regressoin model. This model is
-then used to predict matches on the full dataset (`run_model`). The model
-can return multiple EIA match options for each FERC1 record, so we rank the
-matches and choose the best/winning match (`calc_best_matches`). We then ensure
-those connections contain our training data (`overwrite_bad_predictions`). The
-final match results are the connections we keep as the matches between FERC1 plant
-records and the EIA plant-parts.
+We use the feature vectors of our known-to-be-connected training data and Grid Search
+cross validation to train the logistic regression model. This model is then used to
+predict matches on the full dataset (:func:`run_model`). The model can return multiple
+EIA match options for each FERC1 record, so we rank the matches and choose the
+best/winning match (:func:`find_best_matches`). We then ensure those connections contain
+our training data (:func:`overwrite_bad_predictions`). The final match results are the
+connections we keep as the matches between FERC1 plant records and the EIA plant-parts.
 """
 
 import importlib.resources
