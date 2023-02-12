@@ -99,7 +99,7 @@ def parse_command_line(argv):
 
 
 def get_epacems_job():
-    """Module level func for creating an etl_job to be wrapped by reconstructable."""
+    """Create an epacems_job wrapped by to be wrapped by reconstructable."""
     return Definitions(
         assets=pudl.etl.default_assets,
         resources=pudl.etl.default_resources,
