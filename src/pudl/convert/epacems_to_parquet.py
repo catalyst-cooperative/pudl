@@ -78,13 +78,6 @@ def parse_command_line(argv):
         help="If enabled, the local file cache for datastore will not be used.",
     )
     parser.add_argument(
-        "--partition",
-        action="store_true",
-        default=False,
-        help="If set, output year-state partitioned Parquet files and process data "
-        "in parallel using all available threads / CPUs.",
-    )
-    parser.add_argument(
         "--loglevel",
         help="Set logging level (DEBUG, INFO, WARNING, ERROR, or CRITICAL).",
         default="INFO",
