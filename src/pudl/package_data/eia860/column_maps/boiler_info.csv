@@ -80,3 +80,6 @@ nox_control_existing_caaa_compliance_strategy_3,,,strategy_for_caaa3_nox,existin
 nox_control_planned_caaa_compliance_strategy_1,,,planned_for_caaa1_nox,planned_nox_strategy_clean_air_act_1,,,,,,,,,
 nox_control_planned_caaa_compliance_strategy_2,,,planned_for_caaa2_nox,planned_nox_strategy_clean_air_act_2,,,,,,,,,
 nox_control_planned_caaa_compliance_strategy_3,,,planned_for_caaa3_nox,planned_nox_strategy_clean_air_act_3,,,,,,,,,
+standard_particulate,,,standard_particulate,standard_particulate,,,,,,,,,
+standard_sulfur,,,standard_sulfur,standard_sulfur,,,,,,,,,
+standard_nitrogen,,,standard_nitrogen,standard_nitrogen,,,,,,,,,
