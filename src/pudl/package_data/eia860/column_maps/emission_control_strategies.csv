@@ -57,7 +57,7 @@ mercury_emission_baghouse,mercury_emission_bh,mercury_emission_bh,mercury_emissi
 mercury_emission_dry_scrubber,mercury_emission_ds,mercury_emission_ds,mercury_emission_ds,mercury_emission_dry_scrubber,,,,,,,,,
 mercury_emission_electrostatic_precipitator,mercury_emission_ep,mercury_emission_ep,mercury_emission_ep,mercury_emission_electrostatic_precipitator,,,,,,,,,
 mercury_emission_flue_gas_desulfurization,mercury_emission_fgd,mercury_emission_fgd,mercury_emission_fgd,mercury_emission_flue_gas_desulfurization,,,,,,,,,
-mercury_emission_lime_injecton,mercury_emission_li,mercury_emission_li,mercury_emission_li,mercury_emission_lime_injecton,,,,,,,,,
+mercury_emission_lime_injection,mercury_emission_li,mercury_emission_li,mercury_emission_li,mercury_emission_lime_injecton,,,,,,,,,
 mercury_emission_wet_scrubber,mercury_emission_ws,mercury_emission_ws,mercury_emission_ws,mercury_emission_wet_scrubber,,,,,,,,,
 mercury_emission_baghouse_shake_and_deflate,,,mercury_emission_bs,mercury_emission_baghouse_shake_and_deflate,,,,,,,,,
 mercury_emission_baghouse_pulse,,,mercury_emission_bp,mercury_emission_baghouse_pulse,,,,,,,,,

@@ -5,7 +5,7 @@ plant_id_eia,plant_code,plant_code,plant_code,plant_code,plant_code,plant_code,p
 plant_name_eia,plant_name,plant_name,plant_name,plant_name,plant_name,plant_name,plant_name,plant_name,plant_name,plant_name,plant_name,plant_name,plant_name
 state,state,state,state,state,state,state,state,state,state,state,state,state,state
 county,county,county,,,,,,,,,,,
-stack_or_flue_id_eia,,,,,stack_or_flue_id,stack_or_flue_id,stack_or_flue_id,stack_or_flue_id,stack_or_flue_id,stack_or_flue_id,stack_or_flue_id,stack_or_flue_id,stack_or_flue_id
+stack_flue_id_eia,,,,,stack_or_flue_id,stack_or_flue_id,stack_or_flue_id,stack_or_flue_id,stack_or_flue_id,stack_or_flue_id,stack_or_flue_id,stack_or_flue_id,stack_or_flue_id
 stack_id_eia,stack_id,stack_id,stack_id,stack_id,,,,,,,,,
 flue_id_eia,flue_id,flue_id,flue_id,flue_id,,,,,,,,,
 operating_month,inservice_mm,inservice_mm,inservice_mm,inservice_month,inservice_month,inservice_month,inservice_month,inservice_month,inservice_month,inservice_month,inservice_month,inservice_month,inservice_month
