@@ -8,7 +8,6 @@ import os
 from pathlib import Path
 
 import pytest
-import sqlalchemy as sa
 import yaml
 from dagster import (
     DagsterInstance,
@@ -24,6 +23,11 @@ from pudl import resources
 from pudl.cli import get_etl_job
 from pudl.extract.ferc1 import xbrl_metadata_json
 from pudl.ferc_to_sqlite.cli import get_ferc_to_sqlite_job
+from pudl.io_managers import (
+    ferc1_dbf_sqlite_io_manager,
+    ferc1_xbrl_sqlite_io_manager,
+    pudl_sqlite_io_manager,
+)
 from pudl.output.pudltabl import PudlTabl
 from pudl.settings import DatasetsSettings, EtlSettings
 
@@ -224,21 +228,23 @@ def ferc1_dbf_sql_engine(ferc_to_sqlite):
     If we are using the test database, we initialize it from scratch first. If we're
     using the live database, then we just yield a conneciton to it.
     """
-    engine = sa.create_engine(f"sqlite:///{os.getenv('PUDL_OUTPUT')}/ferc1.sqlite")
-    logger.info("FERC1 Engine: %s", engine)
-    return engine
+    context = build_init_resource_context(
+        resources={"dataset_settings": dataset_settings_config}
+    )
+    return ferc1_dbf_sqlite_io_manager(context).engine
 
 
 @pytest.fixture(scope="session", name="ferc1_engine_xbrl")
-def ferc1_xbrl_sql_engine(ferc_to_sqlite):
+def ferc1_xbrl_sql_engine(ferc_to_sqlite, dataset_settings_config):
     """Grab a connection to the FERC Form 1 DB clone.
 
     If we are using the test database, we initialize it from scratch first. If we're
     using the live database, then we just yield a conneciton to it.
     """
-    engine = sa.create_engine(f"sqlite:///{os.getenv('PUDL_OUTPUT')}/ferc1_xbrl.sqlite")
-    logger.info("FERC1 Engine: %s", engine)
-    return engine
+    context = build_init_resource_context(
+        resources={"dataset_settings": dataset_settings_config}
+    )
+    return ferc1_xbrl_sqlite_io_manager(context).engine
 
 
 @pytest.fixture(scope="session", name="ferc1_xbrl_taxonomy_metadata")
@@ -286,9 +292,8 @@ def pudl_sql_engine(
     # Grab a connection to the freshly populated PUDL DB, and hand it off.
     # All the hard work here is being done by the datapkg and
     # datapkg_to_sqlite fixtures, above.
-    engine = sa.create_engine(f"sqlite:///{os.getenv('PUDL_OUTPUT')}/pudl.sqlite")
-    logger.info("PUDL Engine: %s", engine)
-    return engine
+    context = build_init_resource_context()
+    return pudl_sqlite_io_manager(context).engine
 
 
 @pytest.fixture(scope="session", name="pudl_settings_fixture")
