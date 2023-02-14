@@ -2925,7 +2925,7 @@ def transform(
 
 
 def ferc1_transform_asset_factory(
-    table_name: str, ferc1_tfr_classes: dict[str:Ferc1AbstractTableTransformer]
+    table_name: str, ferc1_tfr_classes: dict[str, Ferc1AbstractTableTransformer]
 ) -> AssetsDefinition:
     """Create an asset that pulls in raw ferc Form 1 assets and applies transformations.
 
