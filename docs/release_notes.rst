@@ -36,6 +36,16 @@ Data Coverage
   * :ref:`electricity_sales_by_rate_schedule_ferc1`, see issue :issue:`1823` & PR
     :pr:`2205`
 
+Analysis
+^^^^^^^^
+
+* Added a method for attributing fuel consumption reported on the basis of boiler ID and
+  fuel to individual generators, analogous to the existing method for attributing net
+  generation reported on the basis of prime mover & fuel. This should allow much more
+  complete estimates of generator heat rates and thus fuel costs and emissions. Thanks
+  to :user:`grgmiller` for his contribution, which was integrated by :user:`cmgosnell`!
+  See PRs :pr:`1096,1608` and issues :issue:`1468,1478`.
+
 Deprecations
 ^^^^^^^^^^^^
 
