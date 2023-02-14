@@ -27,7 +27,6 @@ connections we keep as the matches between FERC1 plant records and the EIA plant
 """
 
 import importlib.resources
-import warnings
 from typing import Literal
 
 import numpy as np
@@ -45,8 +44,6 @@ from pudl.metadata.classes import DataSource
 logger = pudl.logging_helpers.get_logger(__name__)
 # Silence the recordlinkage logger, which is out of control
 
-IDX_STEAM = ["utility_id_ferc1", "plant_id_ferc1", "report_date"]
-
 
 def execute(
     plants_all_ferc1: pd.DataFrame,
@@ -61,6 +58,8 @@ def execute(
         plant_parts_eia: The EIA plant parts list.
     """
     inputs = InputManager(plants_all_ferc1, fbp_ferc1, plant_parts_eia)
+    # compile/cache inputs upfront. Hopefully we can catch any errors in inputs early.
+    inputs.execute()
     features_all = Features(feature_type="all", inputs=inputs).get_features(
         clobber=False
     )
@@ -80,13 +79,11 @@ def execute(
     connects_ferc1_eia = prettyify_best_matches(
         best_match_df,
         train_df=inputs.get_train_df(),
-        plant_parts_true_df=inputs.get_plant_parts_true(),
-        plants_ferc1_df=inputs.get_all_ferc1(),
-    )
-    # add capex (this should be moved into pudl_out.plants_steam_ferc1)
-    connects_ferc1_eia = calc_annual_capital_additions_ferc1(connects_ferc1_eia)
-    # Override specified record_id_ferc1 values with NA record_id_eia
-    connects_ferc1_eia = add_null_overrides(connects_ferc1_eia)
+        plant_parts_eia_true=inputs.get_plant_parts_eia_true(),
+        plants_ferc1=inputs.get_plants_ferc1(),
+    ).pipe(
+        add_null_overrides
+    )  # Override specified values with NA record_id_eia
 
     return connects_ferc1_eia
 
@@ -115,43 +112,52 @@ class InputManager:
 
         self.start_date = min(plant_parts_eia.report_date)
         self.end_date = max(plant_parts_eia.report_date)
+        if (
+            yrs_len := len(yrs_range := range(self.start_date.year, self.end_date.year))
+        ) < 3:
+            logger.warning(
+                f"Your attempting to fit a model with only {yrs_len} years "
+                f"({yrs_range}). This will probably result in overfitting. In order to"
+                " best judge the results, use more years of data."
+            )
 
         # generate empty versions of the inputs.. this let's this class check
         # whether or not the compiled inputs exist before compilnig
-        self.plant_parts_true_df = None
-        self.plants_ferc1_df = None
+        self.plant_parts_eia_true = None
+        self.plants_ferc1 = None
         self.train_df = None
         self.train_index = None
-        self.plant_parts_train_df = None
-        self.plants_ferc1_train_df = None
+        self.train_ferc1 = None
+        self.train_eia = None
 
-    def get_train_index(self):
+    def get_train_index(self) -> pd.MultiIndex:
         """Get the index for the training data."""
         self.train_index = self.get_train_df().index
         return self.train_index
 
-    def get_plant_parts_true(self, clobber=False):
+    def get_plant_parts_eia_true(self, clobber: bool = False) -> pd.DataFrame:
         """Get the EIA plant-parts with only the unique granularities."""
-        if self.plant_parts_true_df is None or clobber:
-            self.plant_parts_true_df = (
+        if self.plant_parts_eia_true is None or clobber:
+            self.plant_parts_eia_true = (
                 pudl.analysis.plant_parts_eia.plant_parts_eia_distinct(
                     self.plant_parts_eia
                 )
             )
-        return self.plant_parts_true_df
+        return self.plant_parts_eia_true
 
-    def get_all_ferc1(self, clobber=False):
+    def get_plants_ferc1(self, clobber: bool = False) -> pd.DataFrame:
         """Prepare FERC1 plants data for record linkage with EIA plant-parts.
 
-        This method grabs two tables from (`plants_all_ferc1` and `fuel_by_plant_ferc1`)
-        and ensures that the columns the same as their EIA counterparts, because the
-        output of this method will be used to link FERC and EIA.
+        This method grabs two tables (``plants_all_ferc1`` and ``fuel_by_plant_ferc1`` -
+        accessed originally via :meth:`pudl.output.pudltabl.PudlTabl.plants_all_ferc1`
+        and :meth:`pudl.output.pudltabl.PudlTabl.fbp_ferc1` respectively) and ensures
+        that the columns the same as their EIA counterparts, because the output of this
+        method will be used to link FERC and EIA.
 
         Returns:
-            pandas.DataFrame: a cleaned table of FERC1 plants plant records
-            with fuel cost data.
+            A cleaned table of FERC1 plants plant records with fuel cost data.
         """
-        if clobber or self.plants_ferc1_df is None:
+        if clobber or self.plants_ferc1 is None:
             fbp_cols_to_use = [
                 "report_year",
                 "utility_id_ferc1",
@@ -163,7 +169,7 @@ class InputManager:
             ]
 
             logger.info("Preparing the FERC1 tables.")
-            self.plants_ferc1_df = (
+            self.plants_ferc1 = (
                 self.plants_all_ferc1.merge(
                     self.fbp_ferc1[fbp_cols_to_use],
                     on=[
@@ -200,9 +206,9 @@ class InputManager:
                 )
                 .set_index("record_id_ferc1")
             )
-        return self.plants_ferc1_df
+        return self.plants_ferc1
 
-    def get_train_df(self):
+    def get_train_df(self) -> pd.DataFrame:
         """Get the training connections.
 
         Prepare them if the training data hasn't been connected to FERC data yet.
@@ -215,17 +221,21 @@ class InputManager:
             )
         return self.train_df
 
-    def get_train_records(self, dataset_df, dataset_id_col):
+    def get_train_records(
+        self,
+        dataset_df: pd.DataFrame,
+        dataset_id_col: Literal["record_id_eia", "record_id_ferc1"],
+    ) -> pd.DataFrame:
         """Generate a set of known connections from a dataset using training data.
 
         This method grabs only the records from the the datasets (EIA or FERC)
         that we have in our training data.
 
         Args:
-            dataset_df (pandas.DataFrame): either FERC1 plants table (result of
-                `get_all_ferc1()`) or EIA plant-parts (`self.plant_parts_true_df`).
-            dataset_id_col (string): either `record_id_eia` for
-                plant_parts_true_df or `record_id_ferc1` for plants_ferc1_df.
+            dataset_df: either FERC1 plants table (result of :meth:`get_plants_ferc1`) or
+                EIA plant-parts (result of :meth:`get_plant_parts_eia_true`).
+            dataset_id_col: Identifying column name. Either ``record_id_eia`` for
+                ``plant_parts_eia_true`` or ``record_id_ferc1`` for ``plants_ferc1``.
         """
         known_df = (
             pd.merge(
@@ -242,28 +252,34 @@ class InputManager:
 
     # Note: Is there a way to avoid these little shell methods? I need a
     # standard way to access
-    def get_train_eia(self, clobber=False):
+    def get_train_eia(self, clobber: bool = False) -> pd.DataFrame:
         """Get the known training data from EIA."""
-        if clobber or self.plant_parts_train_df is None:
-            self.plant_parts_train_df = self.get_train_records(
-                self.get_plant_parts_true(), dataset_id_col="record_id_eia"
+        if clobber or self.train_eia is None:
+            self.train_eia = self.get_train_records(
+                self.get_plant_parts_eia_true(), dataset_id_col="record_id_eia"
             )
-        return self.plant_parts_train_df
+        return self.train_eia
 
-    def get_train_ferc1(self, clobber=False):
+    def get_train_ferc1(self, clobber: bool = False) -> pd.DataFrame:
         """Get the known training data from FERC1."""
-        if clobber or self.plants_ferc1_train_df is None:
-            self.plants_ferc1_train_df = self.get_train_records(
-                self.get_all_ferc1(), dataset_id_col="record_id_ferc1"
+        if clobber or self.train_ferc1 is None:
+            self.train_ferc1 = self.get_train_records(
+                self.get_plants_ferc1(), dataset_id_col="record_id_ferc1"
             )
-        return self.plants_ferc1_train_df
+        return self.train_ferc1
 
-    def execute(self, clobber=False):
-        """Compile all the inputs."""
+    def execute(self, clobber: bool = False):
+        """Compile all the inputs.
+
+        This method is only run if/when you want to ensure all of the inputs are
+        generated all at once. While using :class:`InputManager`, it is preferred to
+        access each input dataframe or index via their ``get_`` method instead of
+        accessing the attribute.
+        """
         # grab the FERC table we are trying
-        # to connect to self.plant_parts_true_df
-        self.plants_ferc1_df = self.get_all_ferc1(clobber=clobber)
-        self.plant_parts_true_df = self.get_plant_parts_true(clobber=clobber)
+        # to connect to self.plant_parts_eia_true
+        self.plants_ferc1 = self.get_plants_ferc1(clobber=clobber)
+        self.plant_parts_eia_true = self.get_plant_parts_eia_true(clobber=clobber)
 
         # we want both the df version and just the index; skl uses just the
         # index and we use the df in merges and such
@@ -272,24 +288,23 @@ class InputManager:
 
         # generate the list of the records in the EIA and FERC records that
         # exist in the training data
-        self.plant_parts_train_df = self.get_train_eia(clobber=clobber)
-        self.plants_ferc1_train_df = self.get_train_ferc1(clobber=clobber)
+        self.train_eia = self.get_train_eia(clobber=clobber)
+        self.train_ferc1 = self.get_train_ferc1(clobber=clobber)
         return
 
 
 class Features:
     """Generate feature vectors for connecting FERC and EIA."""
 
-    def __init__(self, feature_type, inputs):
+    def __init__(self, feature_type: Literal["training", "all"], inputs: InputManager):
         """Initialize feature generator.
 
         Args:
-            feature_type (string): either 'training' or 'all'. Type of features
-                to compile.
-            inputs (instance of class): instance of :class:`Inputs`
+            feature_type: Type of features to compile. Either 'training' or 'all'.
+            inputs: Instance of :class:`InputManager`.
         """
-        self.inputs = inputs
-        self.features_df = None
+        self.inputs: InputManager = inputs
+        self.features_df: pd.DataFrame | None = None
 
         if feature_type not in ["all", "training"]:
             raise ValueError(
@@ -302,8 +317,8 @@ class Features:
         # know which dataframes to use as inputs for ``make_features()``
         self.input_dict = {
             "all": {
-                "ferc1_df": self.inputs.get_all_ferc1,
-                "eia_df": self.inputs.get_plant_parts_true,
+                "ferc1_df": self.inputs.get_plants_ferc1,
+                "eia_df": self.inputs.get_plant_parts_eia_true,
             },
             "training": {
                 "ferc1_df": self.inputs.get_train_ferc1,
@@ -311,35 +326,34 @@ class Features:
             },
         }
 
-    def make_features(self, ferc1_df, eia_df, block_col=None):
+    def make_features(
+        self, ferc1_df: pd.DataFrame, eia_df: pd.DataFrame, block_col: str | None = None
+    ) -> pd.DataFrame:
         """Generate comparison features based on defined features.
 
-        The recordlinkage package helps us create feature vectors.
-        For each column that we have in both datasets, this method generates
-        a column of feature vecotrs, which contain values between 0 and 1 that
-        are measures of the similarity between each datapoint the two datasets
-        (1 meaning the two datapoints were exactly the same and 0 meaning they
-        were not similar at all).
+        The recordlinkage package helps us create feature vectors. For each column that
+        we have in both datasets, this method generates a column of feature vecotrs,
+        which contain values between 0 and 1 that are measures of the similarity between
+        each datapoint the two datasets (1 meaning the two datapoints were exactly the
+        same and 0 meaning they were not similar at all).
 
         For more details see recordlinkage's documentaion:
         https://recordlinkage.readthedocs.io/en/latest/ref-compare.html
 
         Args:
-            ferc1_df (pandas.DataFrame): Either training or all records from
-                ferc plants table (`plants_ferc1_train_df` or
-                `plants_ferc1_df`).
-            eia_df (pandas.DataFrame): Either training or all records from the
-                EIA plant-parts (`plant_parts_train_df` or
-                `plant_parts_true_df`).
-            block_col (string):  If you want to restrict possible matches
+            ferc1_df: Either training or all records from ferc plants table
+                (via :meth:`InputManager.get_train_ferc1` or :meth:`InputManager.get_plants_ferc1`).
+            eia_df: Either training or all records from the
+                EIA plant-parts (:meth:`InputManager.get_train_eia` or
+                `plant_parts_eia_true`).
+            block_col:  If you want to restrict possible matches
                 between ferc_df and eia_df based on a particular column,
                 block_col is the column name of blocking column. Default is
                 None. If None, this method will generate features between all
                 possible matches.
 
         Returns:
-            pandas.DataFrame: a dataframe of feature vectors between FERC and
-            EIA.
+            a dataframe of feature vectors between FERC and EIA.
         """
         compare_cl = rl.Compare(
             features=[
@@ -429,7 +443,9 @@ class Features:
         return self.features_df
 
 
-def run_model(features_train, features_all, train_df):
+def run_model(
+    features_train: pd.DataFrame, features_all: pd.DataFrame, train_df: pd.DataFrame
+) -> pd.DataFrame:
     """Train Logistic Regression model using GridSearch cross validation.
 
     Search over the parameter grid for the best fit parameters for the
@@ -587,9 +603,24 @@ def overwrite_bad_predictions(match_df, train_df):
 
 
 def restrict_train_connections_on_date_range(
-    train_df, id_col: Literal["record_id_eia", "record_id_ferc1"], start_date, end_date
-):
-    """Restrict the training data based on the date ranges of the input tables."""
+    train_df: pd.DataFrame,
+    id_col: Literal["record_id_eia", "record_id_ferc1"],
+    start_date: pd.Timestamp,
+    end_date: pd.Timestamp,
+) -> pd.DataFrame:
+    """Restrict the training data based on the date ranges of the input tables.
+
+    The training data for this model spans the full PUDL date range. We don't want to
+    add training data from dates that are outside of the range of the FERC and EIA data
+    we are attempting to match. So this function restricts the training data based on
+    start and end dates.
+
+    The training data is only the record IDs, which contain the report year inside them.
+    This function compiles a regex using the date range to grab only training records
+    which contain the years in the date range followed by and preceeded by ``_`` - in
+    the format of ``record_id_eia``and ``record_id_ferc1``. We use that extracted year
+    to determine
+    """
     # filter training data by year range
     # first get list of all years to grab from training data
     date_range_years_str = "|".join(
@@ -604,12 +635,15 @@ def restrict_train_connections_on_date_range(
             r"_{1}" + f"({date_range_years_str})" + "_{1}"
         )
     )
-    return train_df.loc[train_df.year_in_date_range.notnull()].copy()
+    # pd.drop returns a copy, so no need to copy this portion of train_df
+    return train_df.loc[train_df.year_in_date_range.notnull()].drop(
+        columns=["year_in_date_range"]
+    )
 
 
 def prep_train_connections(
     ppe: pd.DataFrame, start_date: pd.Timestamp, end_date: pd.Timestamp
-):
+) -> pd.DataFrame:
     """Get and prepare the training connections.
 
     We have stored training data, which consists of records with ids
@@ -625,14 +659,13 @@ def prep_train_connections(
             non-distinct records and this function reassigns those to their distinct
             counterparts.
         start_date: Beginning date for records from the training data. Should match the
-            start date of `ppe`. Default is None and all the training data will be used.
-        end_date (pd.Timestamp): Ending date for records from the
-            training data. Should match the end date of `ppe`. Default is
-            None and all the training data will be used.
+            start date of ``ppe``. Default is None and all the training data will be used.
+        end_date: Ending date for records from the training data. Should match the end
+            date of ``ppe``. Default is None and all the training data will be used.
 
     Returns:
-        pandas.DataFrame: training connections. A dataframe with has a
-        MultiIndex with record_id_eia and record_id_ferc1.
+        A dataframe of training connections which has a MultiIndex of ``record_id_eia``
+        and ``record_id_ferc1``.
     """
     ppe_cols = [
         "true_gran",
@@ -697,12 +730,12 @@ def prep_train_connections(
 
 
 def prettyify_best_matches(
-    matches_best,
-    plant_parts_true_df,
-    plants_ferc1_df,
-    train_df,
-    debug=False,
-):
+    matches_best: pd.DataFrame,
+    plant_parts_eia_true: pd.DataFrame,
+    plants_ferc1: pd.DataFrame,
+    train_df: pd.DataFrame,
+    debug: bool = False,
+) -> pd.DataFrame:
     """Make the EIA-FERC best matches usable.
 
     Use the ID columns from the best matches to merge together both EIA plant-parts data
@@ -728,7 +761,7 @@ def prettyify_best_matches(
         pd.merge(
             matches_best[["record_id_ferc1", "record_id_eia", "match_type"]],
             # we only want the identifying columns from the PPE
-            plant_parts_true_df.reset_index()[ppe_cols_to_grab],
+            plant_parts_eia_true.reset_index()[ppe_cols_to_grab],
             how="left",
             on=["record_id_eia"],
             validate="m:1",  # multiple FERC records can have the same EIA match
@@ -747,7 +780,7 @@ def prettyify_best_matches(
         # the plant records so we have all possible FERC plant records, even
         # the unmapped ones
         .merge(
-            plants_ferc1_df,
+            plants_ferc1,
             how="outer",
             on=["record_id_ferc1", "report_year", "plant_id_pudl", "utility_id_pudl"],
             suffixes=("_eia", "_ferc1"),
@@ -776,15 +809,14 @@ def prettyify_best_matches(
             "prettyify_best_matches()"
         )
         if debug:
-            warnings.warn(message)
+            logger.warning(message)
             return no_ferc
         else:
             logger.info(
-                "jsuk there are some FERC-EIA matches that aren't in the steam \
+                "grrrr there are some FERC-EIA matches that aren't in the steam \
                 table but this is because they are linked to retired EIA generators."
             )
-            # raise AssertionError(message)
-            warnings.warn(message)
+            logger.warning(message)
 
     _log_match_coverage(connects_ferc1_eia)
     for match_set in ["all", "overrides"]:
@@ -800,24 +832,25 @@ def prettyify_best_matches(
 def _log_match_coverage(connects_ferc1_eia):
     eia_years = DataSource.from_id("eia860").working_partitions["years"]
     # get the matches from just the EIA working years
-    m_eia_years = connects_ferc1_eia[
+    matches = connects_ferc1_eia[
         (connects_ferc1_eia.report_date.dt.year.isin(eia_years))
         & (connects_ferc1_eia.record_id_eia.notnull())
     ]
     # get all records from just the EIA working years
-    r_eia_years = connects_ferc1_eia[
+    possible_records = connects_ferc1_eia[
         connects_ferc1_eia.report_date.dt.year.isin(eia_years)
     ]
-
-    fuel_type_coverage = len(
-        m_eia_years[m_eia_years.energy_source_code_1.notnull()]
-    ) / len(m_eia_years)
-    tech_type_coverage = len(
-        m_eia_years[m_eia_years.technology_description.notnull()]
-    ) / len(m_eia_years)
+    fuel_type_coverage = len(matches[matches.energy_source_code_1.notnull()]) / len(
+        matches
+    )
+    tech_type_coverage = len(matches[matches.technology_description.notnull()]) / len(
+        matches
+    )
 
     def _get_subtable(table_name):
-        return r_eia_years[r_eia_years.record_id_ferc1.str.contains(f"{table_name}")]
+        return possible_records[
+            possible_records.record_id_ferc1.str.contains(f"{table_name}")
+        ]
 
     def _get_match_pct(df):
         return len(df[df["record_id_eia"].notna()]) / len(df)
@@ -837,14 +870,20 @@ def _log_match_coverage(connects_ferc1_eia):
     )
 
 
-def check_match_consistency(connects_ferc1_eia, train_df, match_set="all"):
+def check_match_consistency(
+    connects_ferc1_eia: pd.DataFrame,
+    train_df: pd.DataFrame,
+    match_set: Literal["all", "overrides"] = "all",
+) -> pd.DataFrame:
     """Check how consistent matches are across time.
 
     Args:
-        connects_ferc1_eia (pandas.DataFrame): Matches of FERC1 to EIA.
-        train_df (pandas.DataFrame): training data.
-        match_set (string): either 'all' - to check all of the matches - or
-            'overrides' - to check just the overrides. Default is 'all'.
+        connects_ferc1_eia: Matches of FERC1 to EIA.
+        train_df: training data.
+        match_set: either ``all`` - to check all of the matches - or ``overrides`` - to
+            check just the overrides. Default is'``all``. The overrides are less
+            consistent than all of the data, so this argument changes the consistency
+            threshold for this check.
     """
     # these are the default
     consistency = 0.75
@@ -910,121 +949,6 @@ def check_match_consistency(connects_ferc1_eia, train_df, match_set="all"):
             f"{consistency_one_cap_ferc:.1%} to {consist_one_cap_ferc:.1%}"
         )
     return count
-
-
-def calc_annual_capital_additions_ferc1(steam_df, window=3):
-    """Calculate annual capital additions for FERC1 steam records.
-
-    Convert the capex_total column into annual capital additons the
-    `capex_total` column is the cumulative capital poured into the plant over
-    time. This function takes the annual difference should generate the annual
-    capial additions. It also want generates a rolling average, to smooth out
-    the big annual fluxuations.
-
-    Args:
-        steam_df (pandas.DataFrame): result of `prep_plants_ferc()`
-
-    Returns:
-        pandas.DataFrame: augemented version of steam_df with two additional
-        columns: `capex_annual_addition` and `capex_annual_addition_rolling`.
-    """
-    # we need to sort the df so it lines up w/ the groupby
-    steam_df = steam_df.sort_values(IDX_STEAM)
-
-    steam_df = steam_df.assign(
-        capex_wo_retirement_total=lambda x: x.capex_equipment.fillna(0)
-        + x.capex_land.fillna(0)
-        + x.capex_structures.fillna(0)
-    )
-    # we group on everything but the year so the groups are multi-year unique
-    # plants the shift happens within these multi-year plant groups
-    steam_df["capex_total_shifted"] = steam_df.groupby(
-        [x for x in IDX_STEAM if x != "report_date"]
-    )[["capex_wo_retirement_total"]].shift()
-    steam_df = steam_df.assign(
-        capex_annual_addition=lambda x: x.capex_wo_retirement_total
-        - x.capex_total_shifted
-    )
-
-    addts = pudl.helpers.generate_rolling_avg(
-        steam_df,
-        group_cols=[x for x in IDX_STEAM if x != "report_date"],
-        data_col="capex_annual_addition",
-        window=window,
-    ).pipe(pudl.helpers.convert_cols_dtypes, "ferc1")
-
-    steam_df_w_addts = pd.merge(
-        steam_df,
-        addts[
-            IDX_STEAM + ["capex_wo_retirement_total", "capex_annual_addition_rolling"]
-        ],
-        on=IDX_STEAM + ["capex_wo_retirement_total"],
-        how="left",
-    ).assign(
-        capex_annual_per_mwh=lambda x: x.capex_annual_addition
-        / x.net_generation_mwh_ferc1,
-        capex_annual_per_mw=lambda x: x.capex_annual_addition / x.capacity_mw_ferc1,
-        capex_annual_per_kw=lambda x: x.capex_annual_addition
-        / x.capacity_mw_ferc1
-        / 1000,
-        capex_annual_per_mwh_rolling=lambda x: x.capex_annual_addition_rolling
-        / x.net_generation_mwh_ferc1,
-        capex_annual_per_mw_rolling=lambda x: x.capex_annual_addition_rolling
-        / x.capacity_mw_ferc1,
-    )
-
-    steam_df_w_addts = add_mean_cap_additions(steam_df_w_addts)
-    # bb tests for volumne of negative annual capex
-    neg_cap_addts = len(
-        steam_df_w_addts[steam_df_w_addts.capex_annual_addition_rolling < 0]
-    ) / len(steam_df_w_addts)
-    neg_cap_addts_mw = (
-        steam_df_w_addts[
-            steam_df_w_addts.capex_annual_addition_rolling < 0
-        ].net_generation_mwh_ferc1.sum()
-        / steam_df_w_addts.net_generation_mwh_ferc1.sum()
-    )
-    message = (
-        f"{neg_cap_addts:.02%} records have negative capitial additions"
-        f": {neg_cap_addts_mw:.02%} of capacity"
-    )
-    if neg_cap_addts > 0.1:
-        warnings.warn(message)
-    else:
-        logger.info(message)
-    return steam_df_w_addts
-
-
-def add_mean_cap_additions(steam_df):
-    """Add mean capital additions over lifetime of plant (via `IDX_STEAM`)."""
-    idx_steam_no_date = [c for c in IDX_STEAM if c != "report_year"]
-    gb_cap_an = steam_df.groupby(idx_steam_no_date)[["capex_annual_addition"]]
-    # calcuate the standard deviatoin of each generator's capex over time
-    df = (
-        steam_df.merge(
-            gb_cap_an.std()
-            .add_suffix("_gen_std")
-            .reset_index()
-            .pipe(pudl.helpers.convert_cols_dtypes, "ferc1"),
-            how="left",
-            on=idx_steam_no_date,
-            validate="m:1",  # should this really be 1:1?
-        )
-        .merge(
-            gb_cap_an.mean()
-            .add_suffix("_gen_mean")
-            .reset_index()
-            .pipe(pudl.helpers.convert_cols_dtypes, "ferc1"),
-            how="left",
-            on=idx_steam_no_date,
-            validate="m:1",  # should this really be 1:1?
-        )
-        .assign(
-            capex_annual_addition_diff_mean=lambda x: x.capex_annual_addition
-            - x.capex_annual_addition_gen_mean,
-        )
-    )
-    return df
 
 
 def add_null_overrides(connects_ferc1_eia):
