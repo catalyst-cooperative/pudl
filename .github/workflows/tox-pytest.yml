@@ -3,6 +3,10 @@ name: tox-pytest
 
 on: [push, pull_request]
 
+env:
+  PUDL_OUTPUT: ~/pudl-work/
+  PUDL_CACHE: ~/pudl-work/data/
+
 jobs:
   ci-test:
     runs-on: ubuntu-latest
@@ -51,11 +55,6 @@ jobs:
         run: |
           mkdir -p ~/pudl-work/data/
           find ~/pudl-work/data/
-
-      - name: Set PUDL_OUTPUT and PUDL_CACHE environment variables
-        run: |
-          echo "PUDL_OUTPUT=~/pudl-work/" >> $GITHUB_ENV
-          echo "PUDL_CACHE=~/pudl-work/data/" >> $GITHUB_ENV
 
       - name: Log SQLite3 version
         run: |
