@@ -2643,7 +2643,6 @@ class PlantsSmallFerc1TableTransformer(Ferc1AbstractTableTransformer):
             # Shorten execution time by only looking at groups with discernable
             # footnotes
             if group.footnote.any():
-
                 # Make a df that combines notes and ferc license with the same footnote
                 footnote_df = (
                     group[has_note]
@@ -2925,7 +2924,7 @@ def transform(
 
 
 def ferc1_transform_asset_factory(
-    table_name: str, ferc1_tfr_classes: dict[str:Ferc1AbstractTableTransformer]
+    table_name: str, ferc1_tfr_classes: dict[str, Ferc1AbstractTableTransformer]
 ) -> AssetsDefinition:
     """Create an asset that pulls in raw ferc Form 1 assets and applies transformations.
 
