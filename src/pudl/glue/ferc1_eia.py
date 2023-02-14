@@ -33,11 +33,19 @@ from collections.abc import Iterable
 
 import pandas as pd
 import sqlalchemy as sa
+from dagster import AssetIn, Definitions, JobDefinition, asset, define_asset_job
 
 import pudl
+from pudl.extract.ferc1 import raw_ferc1_assets
+from pudl.io_managers import ferc1_dbf_sqlite_io_manager, ferc1_xbrl_sqlite_io_manager
 from pudl.metadata.fields import apply_pudl_dtypes
+from pudl.resources import dataset_settings
 from pudl.transform.classes import StringNormalization, normalize_strings_multicol
-from pudl.transform.ferc1 import Ferc1AbstractTableTransformer, TableIdFerc1
+from pudl.transform.ferc1 import (
+    Ferc1AbstractTableTransformer,
+    TableIdFerc1,
+    ferc1_transform_asset_factory,
+)
 from pudl.transform.params.ferc1 import FERC1_STRING_NORM
 
 logger = pudl.logging_helpers.get_logger(__name__)
@@ -230,6 +238,72 @@ class GenericPlantFerc1TableTransformer(Ferc1AbstractTableTransformer):
                 )
                 df.loc[:, missing_required_cols] = pd.NA
         return super().drop_invalid_rows(df)
+
+
+def get_plants_ferc1_raw_job() -> JobDefinition:
+    """Pull all plants in the FERC Form 1 DBF and XBRL DB for given years."""
+    plant_tables = [
+        "plants_hydro_ferc1",
+        "plants_small_ferc1",
+        "plants_pumped_storage_ferc1",
+        "plants_steam_ferc1",
+        "fuel_ferc1",  # bc it has plants/is associated w/ the steam table
+    ]
+
+    @asset(ins={table_name: AssetIn() for table_name in plant_tables})
+    def get_plants_ferc1_aggregator(**transformed_plant_tables):
+        plant_dfs = transformed_plant_tables.values()
+        all_plants = pd.concat(plant_dfs)
+        # add the utility_name_ferc1
+        util_map = get_utility_map_pudl()
+        unique_utils_ferc1 = util_map.loc[
+            util_map.utility_id_ferc1.notnull(),
+            ["utility_id_ferc1", "utility_name_ferc1"],
+        ].drop_duplicates(subset=["utility_id_ferc1"])
+        all_plants = all_plants.merge(
+            unique_utils_ferc1,
+            on=["utility_id_ferc1"],
+            how="left",
+            validate="m:1",
+        )
+        # grab the most recent plant record
+        all_plants = (
+            all_plants.sort_values(["report_year"], ascending=False)
+            .loc[
+                :,
+                [
+                    "utility_id_ferc1",
+                    "utility_name_ferc1",
+                    "plant_name_ferc1",
+                    "utility_id_ferc1_dbf",
+                    "utility_id_ferc1_xbrl",
+                    "capacity_mw",
+                    "report_year",
+                    "plant_table",
+                ],
+            ]
+            .drop_duplicates(["utility_id_ferc1", "plant_name_ferc1"])
+            .sort_values(["utility_id_ferc1", "plant_name_ferc1"])
+        )
+        return all_plants
+
+    tfr_mapping = {
+        table_name: GenericPlantFerc1TableTransformer for table_name in plant_tables
+    }
+    transform_assets = [
+        ferc1_transform_asset_factory(table_name, tfr_mapping)
+        for table_name in plant_tables
+    ]
+
+    return Definitions(
+        assets=transform_assets + raw_ferc1_assets + [get_plants_ferc1_aggregator],
+        resources={
+            "ferc1_dbf_sqlite_io_manager": ferc1_dbf_sqlite_io_manager,
+            "ferc1_xbrl_sqlite_io_manager": ferc1_xbrl_sqlite_io_manager,
+            "dataset_settings": dataset_settings,
+        },
+        jobs=[define_asset_job(name="get_plants_ferc1_raw")],
+    ).get_job_def("get_plants_ferc1_raw")
 
 
 def get_plants_ferc1_raw(

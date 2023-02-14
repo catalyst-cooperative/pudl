@@ -43,6 +43,7 @@ def glue_test_dfs(
     etl_settings,
 ) -> dict[str, pd.DataFrame]:
     """Make a dictionary of the dataframes required for this test module."""
+    # plants_ferc1_raw = execute_job(reconstructable(get_plants_ferc1_raw_job), **kwargs).output()
     glue_test_dfs = {
         "plants_eia_pudl_db": pudl_out.plants_eia860(),
         "util_ids_ferc1_raw_xbrl": get_util_ids_ferc1_raw_xbrl(ferc1_engine_xbrl),

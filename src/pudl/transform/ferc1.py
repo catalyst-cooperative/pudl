@@ -11,6 +11,7 @@ import enum
 import importlib.resources
 import re
 from collections import namedtuple
+from collections.abc import Mapping
 from typing import Any, Literal
 
 import numpy as np
@@ -2925,7 +2926,8 @@ def transform(
 
 
 def ferc1_transform_asset_factory(
-    table_name: str, ferc1_tfr_classes: dict[str, Ferc1AbstractTableTransformer]
+    table_name: str,
+    ferc1_tfr_classes: Mapping[str, type[Ferc1AbstractTableTransformer]],
 ) -> AssetsDefinition:
     """Create an asset that pulls in raw ferc Form 1 assets and applies transformations.
 
