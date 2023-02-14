@@ -52,6 +52,11 @@ jobs:
           mkdir -p ~/pudl-work/data/
           find ~/pudl-work/data/
 
+      - name: Set PUDL_OUTPUT and PUDL_CACHE environment variables
+        run: |
+          echo "PUDL_OUTPUT=~/pudl-work/" >> $GITHUB_ENV
+          echo "PUDL_CACHE=~/pudl-work/data/" >> $GITHUB_ENV
+
       - name: Log SQLite3 version
         run: |
           which sqlite3
