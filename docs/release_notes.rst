@@ -33,6 +33,8 @@ Data Coverage
   * :ref:`electric_opex_ferc1`, see issue :issue:`1817` & PR :pr:`2162`.
   * :ref:`retained_earnings_ferc1`, see issue :issue:`1811` & PR :pr:`2155`.
   * :ref:`cash_flow_ferc1`, see issue :issue:`1821` & PR :pr:`2184`
+  * :ref:`electricity_sales_by_rate_schedule_ferc1`, see issue :issue:`1823` & PR
+    :pr:`2205`
 
 Deprecations
 ^^^^^^^^^^^^

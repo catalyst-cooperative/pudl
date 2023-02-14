@@ -17,6 +17,7 @@ import numpy as np
 import pandas as pd
 import sqlalchemy as sa
 from pandas.core.groupby import DataFrameGroupBy
+from pydantic import validator
 
 import pudl
 from pudl.analysis.classify_plants_ferc1 import (
@@ -85,6 +86,9 @@ class TableIdFerc1(enum.Enum):
         "electric_plant_depreciation_functional_ferc1"
     )
     CASH_FLOW_FERC1 = "cash_flow_ferc1"
+    ELECTRICITY_SALES_BY_RATE_SCHEDULE_FERC1 = (
+        "electricity_sales_by_rate_schedule_ferc1"
+    )
     OTHER_REGULATORY_LIABILITIES_FERC1 = "other_regulatory_liabilities_ferc1"
 
 
@@ -160,8 +164,8 @@ class WideToTidy(TransformParams):
 class WideToTidySourceFerc1(TransformParams):
     """Parameters for converting either or both XBRL and DBF table from wide to tidy."""
 
-    xbrl: WideToTidy = WideToTidy()
-    dbf: WideToTidy = WideToTidy()
+    xbrl: WideToTidy | list[WideToTidy] = WideToTidy()
+    dbf: WideToTidy | list[WideToTidy] = WideToTidy()
 
 
 def wide_to_tidy(df: pd.DataFrame, params: WideToTidy) -> pd.DataFrame:
@@ -523,7 +527,7 @@ def unstack_balances_to_report_year_instant_xbrl(
             df = df[df["balance_type"].notna()].copy()
         df = (
             df.drop(["year", "date"], axis="columns")
-            .set_index(primary_key_cols + ["balance_type"])
+            .set_index(primary_key_cols + ["balance_type", "sched_table_name"])
             .unstack("balance_type")
         )
         # This turns a multi-index into a single-level index with tuples of strings
@@ -533,6 +537,94 @@ def unstack_balances_to_report_year_instant_xbrl(
         df.columns = ["_".join(items) for items in df.columns.to_flat_index()]
         df = df.reset_index()
         return df
+
+
+class CombineAxisColumnsXbrl(TransformParams):
+    """Parameters for :func:`combine_axis_columns_xbrl`."""
+
+    axis_columns_to_combine: list | None = None
+    """List of axis columns to combine."""
+
+    new_axis_column_name: str | None = None
+    """The name of the combined axis column -- must end with the suffix ``_axis``!."""
+
+    @validator("new_axis_column_name")
+    def doesnt_end_with_axis(cls, v):
+        """Ensure that new axis column ends in _axis."""
+        if v is not None:
+            if not v.endswith("_axis"):
+                raise ValueError(
+                    "The new axis column name must end with the suffix '_axis'!"
+                )
+        return v
+
+
+def combine_axis_columns_xbrl(
+    df: pd.DataFrame, params: CombineAxisColumnsXbrl
+) -> pd.DataFrame:
+    """Combine axis columns from squished XBRL tables into one column with no NAs.
+
+    Called in :meth:`Ferc1AbstractTableTransformer.process_xbrl`.
+
+    There are instances (ex: sales_by_rate_schedule_ferc1) where the DBF table is equal
+    to several concatenated XBRL tables. These XBRL tables are extracted together with
+    the function :func:`extract_xbrl_concat`. Once combined, we need to deal with their
+    axis columns.
+
+    We use the axis columns (the primary key for the raw XBRL tables) in the creation
+    of ``record_id``s for each of the rows. If each of the concatinated XBRL tables has
+    the same axis column name then there's no need to fret. However, if the columns have
+    slightly different names (ex: ``residential_sales_axis`` vs.
+    ``industrial_sales_axis``), we'll need to combine them. We combine them to get rid
+    of NA values which aren't allowed in primary keys. Otherwise it would look like
+    this:
+
+        +-------------------------+-------------------------+
+        | residential_sales_axis  | industrial_sales_axis   |
+        +=========================+=========================+
+        | value1                  | NA                      |
+        +-------------------------+-------------------------+
+        | value2                  | NA                      |
+        +-------------------------+-------------------------+
+        | NA                      | valueA                  |
+        +-------------------------+-------------------------+
+        | NA                      | valueB                  |
+        +-------------------------+-------------------------+
+
+    vs. this:
+
+        +-------------------------+
+        | sales_axis              |
+        +=========================+
+        | value1                  |
+        +-------------------------+
+        | value2                  |
+        +-------------------------+
+        | valueA                  |
+        +-------------------------+
+        | valueB                  |
+        +-------------------------+
+    """
+    # First, make sure that the new_axis_column_name param as the word axis in it
+    if not params.new_axis_column_name.endswith("_axis"):
+        raise ValueError(
+            "Your new_axis_column_name must end with the suffix _axis so that it gets "
+            "included in the record_id."
+        )
+    # Now, make sure there are no overlapping axis columns
+    if (df[params.axis_columns_to_combine].count(axis=1) > 1).any():
+        raise AssertionError(
+            "You're trying to combine axis columns, but there's more than one axis "
+            "column value per row."
+        )
+    # Now combine all of the columns into one and remove the old axis columns
+    df[params.new_axis_column_name] = pd.NA
+    for col in params.axis_columns_to_combine:
+        df[params.new_axis_column_name] = df[params.new_axis_column_name].fillna(
+            df[col]
+        )
+    df = df.drop(columns=params.axis_columns_to_combine)
+    return df
 
 
 class Ferc1TableTransformParams(TableTransformParams):
@@ -558,6 +650,7 @@ class Ferc1TableTransformParams(TableTransformParams):
     unstack_balances_to_report_year_instant_xbrl: UnstackBalancesToReportYearInstantXbrl = (
         UnstackBalancesToReportYearInstantXbrl()
     )
+    combine_axis_columns_xbrl: CombineAxisColumnsXbrl = CombineAxisColumnsXbrl()
 
 
 ################################################################################
@@ -1007,6 +1100,7 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
             )
             .pipe(self.wide_to_tidy, source_ferc1=SourceFerc1.XBRL)
             .pipe(self.rename_columns, rename_stage="xbrl")
+            .pipe(self.combine_axis_columns_xbrl)
             .pipe(self.assign_record_id, source_ferc1=SourceFerc1.XBRL)
             .pipe(self.assign_utility_id_ferc1, source_ferc1=SourceFerc1.XBRL)
         )
@@ -1090,11 +1184,33 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
         """
         if not params:
             params = self.params.wide_to_tidy.__getattribute__(source_ferc1.value)
-        if params.idx_cols or params.value_types:
+
+        if isinstance(params, WideToTidy):
+            multiple_params = [params]
+        else:
+            multiple_params = params
+        for single_params in multiple_params:
+            if single_params.idx_cols or single_params.value_types:
+                logger.info(
+                    f"{self.table_id.value}: applying wide_to_tidy for {source_ferc1.value}"
+                )
+                df = wide_to_tidy(df, single_params)
+        return df
+
+    def combine_axis_columns_xbrl(
+        self,
+        df: pd.DataFrame,
+        params: CombineAxisColumnsXbrl | None = None,
+    ) -> pd.DataFrame:
+        """Combine axis columns from squished XBRL tables into one column with no NA."""
+        if params is None:
+            params = self.params.combine_axis_columns_xbrl
+        if params.axis_columns_to_combine:
             logger.info(
-                f"{self.table_id.value}: applying wide_to_tidy for {source_ferc1.value}"
+                f"{self.table_id.value}: Combining axis columns: "
+                f"{params.axis_columns_to_combine} into {params.new_axis_column_name}"
             )
-            df = wide_to_tidy(df, params)
+            df = combine_axis_columns_xbrl(df, params=params)
         return df
 
     @cache_df(key="xbrl")
@@ -1165,8 +1281,16 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
             logger.info(
                 f"{self.table_id.value}: Both XBRL instant & duration tables found."
             )
-            instant_merge_keys = ["entity_id", "report_year"] + instant_axes
-            duration_merge_keys = ["entity_id", "report_year"] + duration_axes
+            instant_merge_keys = [
+                "entity_id",
+                "report_year",
+                "sched_table_name",
+            ] + instant_axes
+            duration_merge_keys = [
+                "entity_id",
+                "report_year",
+                "sched_table_name",
+            ] + duration_axes
             # See if there are any values in the instant table that don't show up in the
             # duration table.
             unique_instant_rows = instant.set_index(
@@ -1197,10 +1321,8 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
                 )
                 out_df = pd.concat(
                     [
-                        instant.set_index(["report_year", "entity_id"] + instant_axes),
-                        duration.set_index(
-                            ["report_year", "entity_id"] + duration_axes
-                        ),
+                        instant.set_index(instant_merge_keys),
+                        duration.set_index(duration_merge_keys),
                     ],
                     axis="columns",
                 ).reset_index()
@@ -1263,12 +1385,6 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
         """Drop DBF footnote reference columns, which all end with _f."""
         logger.debug(f"{self.table_id.value}: Dropping DBF footnote columns.")
         return df.drop(columns=df.filter(regex=r".*_f$").columns)
-
-    def source_table_id(self, source_ferc1: SourceFerc1, **kwargs) -> str:
-        """Look up the ID of the raw data source table."""
-        return pudl.extract.ferc1.TABLE_NAME_MAP_FERC1[self.table_id.value][
-            source_ferc1.value
-        ]
 
     def source_table_primary_key(self, source_ferc1: SourceFerc1) -> list[str]:
         """Look up the pre-renaming source table primary key columns."""
@@ -1368,16 +1484,13 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
                 f"{df[pk_cols].isnull().any()}"
             )
         df = df.assign(
-            # Include df=df as an argument here because it is needed for the income
-            # table. In all other instances, nothing will be done with df.
-            source_table_id=self.source_table_id(source_ferc1, df=df),
-            record_id=lambda x: x.source_table_id.str.cat(
+            record_id=lambda x: x.sched_table_name.str.cat(
                 x[pk_cols].astype(str), sep="_"
             ),
         )
-        if df.source_table_id.isnull().any():
+        if df.sched_table_name.isnull().any():
             raise ValueError(
-                f"{self.table_id.value}: Null source_table_id's were found where none "
+                f"{self.table_id.value}: Null sched_table_name's were found where none "
                 "were expected."
             )
         df.record_id = enforce_snake_case(df.record_id)
@@ -1388,7 +1501,8 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
                 f"{self.table_id.value}: Found {len(dupe_ids)} duplicate record_ids: \n"
                 f"{dupe_ids}."
             )
-        return df.drop(columns=["source_table_id"])
+        df = df.drop(columns="sched_table_name")
+        return df
 
     def assign_utility_id_ferc1(
         self, df: pd.DataFrame, source_ferc1: SourceFerc1
@@ -1647,7 +1761,9 @@ class FuelFerc1TableTransformer(Ferc1AbstractTableTransformer):
         self, fuel_xbrl: pd.DataFrame
     ) -> pd.DataFrame:
         """Aggregate the fuel records having duplicate primary keys."""
-        pk_cols = self.renamed_table_primary_key(source_ferc1=SourceFerc1.XBRL)
+        pk_cols = self.renamed_table_primary_key(source_ferc1=SourceFerc1.XBRL) + [
+            "sched_table_name"
+        ]
         fuel_xbrl.loc[:, "fuel_units_count"] = fuel_xbrl.groupby(pk_cols, dropna=False)[
             "fuel_units"
         ].transform("nunique")
@@ -3032,30 +3148,6 @@ class IncomeStatementFerc1TableTransformer(Ferc1AbstractTableTransformer):
         raw_dbf = super().process_dbf(raw_dbf)
         return raw_dbf
 
-    def source_table_id(
-        self, source_ferc1: SourceFerc1, df: pd.DataFrame | None = None
-    ) -> str | pd.Series:
-        """Look up the ID of the raw data source table.
-
-        Because the raw DBF data comes from two seperate tables, this table-specific
-        method generates a Series of tables names based on the ``sched_table_name``
-        columns which was assigned during the transform step. For the XBRL source, the
-        standard method is employed and a string is returned.
-        """
-        # assign the source_table_id column based on the source
-        if source_ferc1 == SourceFerc1.DBF:
-            # sched_table_name is a table name. was added in align_row_numbers_dbf
-            if df.sched_table_name.isnull().any():
-                raise ValueError(
-                    f"{self.table_id.value}: Null sched_table_name found in DBF to XBRL"
-                    " row map."
-                )
-            source_table = df.sched_table_name
-        else:
-            assert source_ferc1 == SourceFerc1.XBRL  # nosec: B101
-            source_table = super().source_table_id(source_ferc1=source_ferc1)
-        return source_table
-
 
 class RetainedEarningsFerc1TableTransformer(Ferc1AbstractTableTransformer):
     """Transformer class for :ref:`retained_earnings_ferc1` table."""
@@ -3552,6 +3644,64 @@ class CashFlowFerc1TableTransformer(Ferc1AbstractTableTransformer):
         return pd.concat([meta, ending_balance])
 
 
+class ElectricitySalesByRateScheduleFerc1TableTransformer(
+    Ferc1AbstractTableTransformer
+):
+    """Transform class for :ref:`electricity_sales_by_rate_schedule_ferc1` table."""
+
+    table_id: TableIdFerc1 = TableIdFerc1.ELECTRICITY_SALES_BY_RATE_SCHEDULE_FERC1
+    has_unique_record_ids: bool = False
+
+    def add_axis_to_total_table_rows(self, df: pd.DataFrame):
+        """Add total to the axis column for rows from the total table.
+
+        Because we're adding the
+        sales_of_electricity_by_rate_schedules_account_totals_304 table into the mix,
+        we have a bunch of total values that get mixed in with all the _billed columns
+        from the individual tables. If left alone, these totals aren't labeled in any
+        way becuse they don't have the same _axis columns explaining what each of the
+        values are. In order to distinguish them from the rest of the sub-total data we
+        use this function to create an _axis value for them noting that they are totals.
+
+        It's worth noting that there are also some total values in there already.
+        Those would be hard to clean. The idea is that if you want the actual totals,
+        don't try and sum the sub-components, look at the actual labeled total rows.
+
+        This function relies on the ``sched_table_name`` column, so it must be called
+        before that gets dropped.
+
+        Args:
+            df: The sales table with a ``sched_table_name`` column.
+        """
+        logger.info(f"{self.table_id.value}: Labeling total values.")
+        df.loc[
+            df["sched_table_name"]
+            == "sales_of_electricity_by_rate_schedules_account_totals_304",
+            ["sales_axis", "rate_schedule_description"],
+        ] = "total"
+        return df
+
+    @cache_df(key="xbrl")
+    def process_xbrl(
+        self,
+        raw_xbrl_instant: pd.DataFrame,
+        raw_xbrl_duration: pd.DataFrame,
+    ) -> pd.DataFrame:
+        """Rename columns before running wide_to_tidy."""
+        logger.info(f"{self.table_id.value}: Processing XBRL data pre-concatenation.")
+        return (
+            self.merge_instant_and_duration_tables_xbrl(
+                raw_xbrl_instant, raw_xbrl_duration
+            )
+            .pipe(self.rename_columns, rename_stage="xbrl")
+            .pipe(self.combine_axis_columns_xbrl)
+            .pipe(self.add_axis_to_total_table_rows)
+            .pipe(self.wide_to_tidy, source_ferc1=SourceFerc1.XBRL)
+            .pipe(self.assign_record_id, source_ferc1=SourceFerc1.XBRL)
+            .pipe(self.assign_utility_id_ferc1, source_ferc1=SourceFerc1.XBRL)
+        )
+
+
 class OtherRegulatoryLiabilitiesFerc1(Ferc1AbstractTableTransformer):
     """Transformer class for :ref:`other_regulatory_liabilities_ferc1` table."""
 
@@ -3603,6 +3753,7 @@ def transform(
         "retained_earnings_ferc1": RetainedEarningsFerc1TableTransformer,
         "electric_operating_revenues_ferc1": ElectricOperatingRevenuesFerc1TableTransformer,
         "cash_flow_ferc1": CashFlowFerc1TableTransformer,
+        "electricity_sales_by_rate_schedule_ferc1": ElectricitySalesByRateScheduleFerc1TableTransformer,
         "other_regulatory_liabilities_ferc1": OtherRegulatoryLiabilitiesFerc1,
     }
     ferc1_transformed_dfs = {}
