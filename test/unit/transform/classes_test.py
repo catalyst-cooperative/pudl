@@ -23,6 +23,7 @@ import pudl.logging_helpers
 from pudl.transform.classes import (
     AbstractTableTransformer,
     InvalidRows,
+    SpotFixes,
     StringCategories,
     StringNormalization,
     TableTransformParams,
@@ -39,6 +40,7 @@ from pudl.transform.classes import (
     multicol_transform_factory,
     normalize_strings,
     nullify_outliers,
+    spot_fix_values,
     strip_non_numeric_values,
 )
 from pudl.transform.params.ferc1 import (
@@ -235,6 +237,36 @@ NUMERIC_PARAMS = {
     }
 }
 
+SPOT_PARAMS = [
+    {
+        "idx_cols": ["id"],
+        "fix_cols": ["plant_name"],
+        "expect_unique": True,
+        "spot_fixes": [
+            (1, "a different planty"),
+            (10, "cat inc"),
+        ],
+    },
+    {
+        "idx_cols": ["year"],
+        "fix_cols": ["capacity_mw"],
+        "expect_unique": False,
+        "spot_fixes": [
+            (1976, 999.9),
+            (1850, 123.45),
+        ],
+    },
+    {
+        "idx_cols": ["year", "report_date"],
+        "fix_cols": ["capacity_mw"],
+        "expect_unique": False,
+        "spot_fixes": [
+            (1976, "1985-02-01", 332.15),
+            (2000, "2000-01-01", 459.62),
+        ],
+    },
+]
+
 STRING_DATA: pd.DataFrame = pd.DataFrame(
     columns=["raw", "norm", "cat"],
     data=[
@@ -300,6 +332,54 @@ NUMERIC_DATA: pd.DataFrame = pd.DataFrame(
         "valid_capacity_mw": float,
         "net_generation_kwh": float,
         "net_generation_mwh": float,
+    }
+)
+
+MIXED_TYPE_DATA: pd.DataFrame = pd.DataFrame(
+    columns=["id", "year", "report_date", "capacity_mw", "plant_name"],
+    data=[
+        (1, 1776, "2020-01-01T00:00:00.000000000", 132.1, "planty"),
+        (2, 1976, "2020-01-02", 2000.0, "genny"),
+        (3, 1976, date.today(), 123.1, "big burner"),
+        (4, 1976, "1985-02-01", 213.1, "sparky"),
+        (5, pd.NA, pd.NA, -5.0, "barry"),
+        (6, 2000, "2000-01-01", 231.1, "replace me"),
+        (7, pd.NA, pd.NA, 101.10, pd.NA),
+        (8, 2012, "01-01-2020", 899.98, "another plant name"),
+        (9, 1850, "2022-03-01T00:00:00.000000000", 543.21, np.nan),
+        (10, date.today().year, date.today(), 8.1, "cat corp"),
+    ],
+).astype(
+    {
+        "id": int,
+        "year": pd.Int64Dtype(),
+        "report_date": "datetime64[ns]",
+        "capacity_mw": float,
+        "plant_name": str,
+    }
+)
+
+SPOT_FIXED_MIXED_TYPE_DATA: pd.DataFrame = pd.DataFrame(
+    columns=["id", "year", "report_date", "capacity_mw", "plant_name"],
+    data=[
+        (1, 1776, "2020-01-01T00:00:00.000000000", 132.1, "a different planty"),
+        (2, 1976, "2020-01-02", 999.9, "genny"),
+        (3, 1976, date.today(), 999.9, "big burner"),
+        (4, 1976, "1985-02-01", 332.15, "sparky"),
+        (5, pd.NA, pd.NA, -5.0, "barry"),
+        (6, 2000, "2000-01-01", 459.62, "replace me"),
+        (7, pd.NA, pd.NA, 101.10, pd.NA),
+        (8, 2012, "01-01-2020", 899.98, "another plant name"),
+        (9, 1850, "2022-03-01T00:00:00.000000000", 123.45, np.nan),
+        (10, date.today().year, date.today(), 8.1, "cat inc"),
+    ],
+).astype(
+    {
+        "id": int,
+        "year": pd.Int64Dtype(),
+        "report_date": "datetime64[ns]",
+        "capacity_mw": float,
+        "plant_name": str,
     }
 )
 
@@ -826,6 +906,19 @@ def test_drop_invalid_rows(df, expected, params):
     invalid_row = InvalidRows(**params)
     actual = drop_invalid_rows(df, params=invalid_row)
     assert_frame_equal(actual, expected)
+
+
+@pytest.mark.parametrize(
+    "df,expected,params",
+    [pytest.param(MIXED_TYPE_DATA, SPOT_FIXED_MIXED_TYPE_DATA, SPOT_PARAMS)],
+)
+def test_spot_fix(df, expected, params):
+    """Test our ability to spot fix values."""
+    for param in params:
+        spot_fixes = SpotFixes(**param)
+        df = spot_fix_values(df, spot_fixes)
+    assert_frame_equal(df, expected, check_like=True)
+    # check_like ignores column order, which changes due to indexing.
 
 
 #####################################################################################

@@ -869,7 +869,7 @@ class SpotFixes(TransformParams):
     """A dictionary of the column to replace and the value to replace with."""
 
 
-def spot_fix_values(self, df: pd.DataFrame, params: SpotFixes) -> pd.DataFrame:
+def spot_fix_values(df: pd.DataFrame, params: SpotFixes) -> pd.DataFrame:
     """Manually fix one-off singular missing values across a DataFrame.
 
     From an instance of :class:`SpotFixes`, this function takes a list of sets of
@@ -887,21 +887,18 @@ def spot_fix_values(self, df: pd.DataFrame, params: SpotFixes) -> pd.DataFrame:
         params.spot_fixes, columns=params.idx_cols + params.fix_cols
     )
 
-    if not (spot_fixes_df.dtypes == df[params.idx_cols + params.fix_cols].dtypes).all():
-        raise ValueError(
-            "Spot fix datatypes do not match existing dataframe datatypes."
-        )
-    """Check that the datatypes of the spot fixed values match the existing data types."""
+    # Convert input datatypes to match corresponding df columns.
+    for x in spot_fixes_df.columns:
+        spot_fixes_df[x] = spot_fixes_df[x].astype(df[x].dtypes.name)
 
     spot_fixes_df = spot_fixes_df.set_index(params.idx_cols)
     df = df.set_index(params.idx_cols)
 
-    if params.expect_unique is True:
+    if params.expect_unique is True and not df.index.is_unique:
         cols_list = ", ".join(params.idx_cols)
-        if not df.index.is_unique:
-            raise ValueError(
-                f"This spot fix expects a unique set of idx_col, but the idx_cols provided are not uniquely identifying: {cols_list}."
-            )
+        raise ValueError(
+            f"This spot fix expects a unique set of idx_col, but the idx_cols provided are not uniquely identifying: {cols_list}."
+        )
 
     df.loc[spot_fixes_df.index, params.fix_cols] = spot_fixes_df
     df = df.reset_index()
