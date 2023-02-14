@@ -10,12 +10,19 @@ from pathlib import Path
 import pytest
 import sqlalchemy as sa
 import yaml
-from dagster import DagsterInstance, execute_job, reconstructable
+from dagster import (
+    DagsterInstance,
+    build_init_resource_context,
+    execute_job,
+    materialize_to_memory,
+    reconstructable,
+)
 from dotenv import load_dotenv
 
 import pudl
+from pudl import resources
 from pudl.cli import get_etl_job
-from pudl.extract.ferc1 import extract_xbrl_metadata
+from pudl.extract.ferc1 import xbrl_metadata_json
 from pudl.ferc_to_sqlite.cli import get_ferc_to_sqlite_job
 from pudl.output.pudltabl import PudlTabl
 from pudl.settings import DatasetsSettings, EtlSettings
@@ -84,6 +91,7 @@ def pytest_configure(config):
     load_dotenv()
 
 
+@pytest.fixture(scope="session")
 def pudl_env(request, tmpdir_factory):
     """Set PUDL_OUTPUT environment variable."""
     tmpdir = tmpdir_factory.mktemp("PUDL_OUTPUT")
@@ -234,14 +242,12 @@ def ferc1_xbrl_sql_engine(ferc_to_sqlite):
 
 
 @pytest.fixture(scope="session", name="ferc1_xbrl_taxonomy_metadata")
-def ferc1_xbrl_taxonomy_metadata(
-    pudl_settings_fixture, pudl_etl_settings: DatasetsSettings, ferc1_engine_xbrl
-):
+def ferc1_xbrl_taxonomy_metadata(ferc1_engine_xbrl):
     """Read the FERC 1 XBRL taxonomy metadata from JSON."""
-    return extract_xbrl_metadata(
-        ferc1_settings=pudl_etl_settings.ferc1,
-        pudl_settings=pudl_settings_fixture,
-    )
+    result = materialize_to_memory([xbrl_metadata_json])
+    assert result.success
+
+    return result.output_for_node("xbrl_metadata_json")
 
 
 @pytest.fixture(scope="session", name="pudl_engine")
@@ -366,6 +372,13 @@ def pudl_datastore_config(request):
         "use_local_cache": not request.config.getoption("--bypass-local-cache"),
         "sandbox": request.config.getoption("--sandbox"),
     }
+
+
+@pytest.fixture(scope="session")
+def pudl_datastore_fixture(pudl_datastore_config):
+    """Create pudl Datastore resource."""
+    init_context = build_init_resource_context(config=pudl_datastore_config)
+    return resources.datastore(init_context)
 
 
 def skip_table_if_null_freq_table(table_name, freq):
