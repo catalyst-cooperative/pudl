@@ -203,7 +203,12 @@ def pudl_out_orig(live_dbs, pudl_engine):
 
 @pytest.fixture(scope="session")
 def ferc_to_sqlite(live_dbs, pudl_datastore_config, etl_settings):
-    """Create raw FERC 1 SQLite DBs."""
+    """Create raw FERC 1 SQLite DBs.
+
+    If we are using the test database, we initialize it from scratch first. If we're
+    using the live database, then the sql engine fixtures will return connections to the
+    existing databases
+    """
     if not live_dbs:
         execute_job(
             reconstructable(get_ferc_to_sqlite_job),
@@ -223,11 +228,7 @@ def ferc_to_sqlite(live_dbs, pudl_datastore_config, etl_settings):
 
 @pytest.fixture(scope="session", name="ferc1_engine_dbf")
 def ferc1_dbf_sql_engine(ferc_to_sqlite):
-    """Grab a connection to the FERC Form 1 DB clone.
-
-    If we are using the test database, we initialize it from scratch first. If we're
-    using the live database, then we just yield a conneciton to it.
-    """
+    """Grab a connection to the FERC Form 1 DB clone."""
     context = build_init_resource_context(
         resources={"dataset_settings": dataset_settings_config}
     )
@@ -236,11 +237,7 @@ def ferc1_dbf_sql_engine(ferc_to_sqlite):
 
 @pytest.fixture(scope="session", name="ferc1_engine_xbrl")
 def ferc1_xbrl_sql_engine(ferc_to_sqlite, dataset_settings_config):
-    """Grab a connection to the FERC Form 1 DB clone.
-
-    If we are using the test database, we initialize it from scratch first. If we're
-    using the live database, then we just yield a conneciton to it.
-    """
+    """Grab a connection to the FERC Form 1 DB clone."""
     context = build_init_resource_context(
         resources={"dataset_settings": dataset_settings_config}
     )

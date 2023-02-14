@@ -1,7 +1,4 @@
 """tests for pudl/output/epacems.py loading functions."""
-import os
-from pathlib import Path
-
 import dask.dataframe as dd
 import pytest
 from dagster import build_init_resource_context
@@ -71,14 +68,13 @@ def test_epacems_subset_input_validation(epacems_year_and_state, epacems_parquet
             epacems(epacems_path=path, **combo)
 
 
-def test_epacems_parallel(pudl_engine):
+def test_epacems_parallel(pudl_engine, epacems_parquet_path):
     """Test that we can run the EPA CEMS ETL in parallel."""
     # We need a temporary output directory to avoid dropping the ID/ME 2019/2020
     # parallel outputs in the real output directory and interfering with the normal
     # monolithic outputs.
-    epacems_path = Path(os.getenv("PUDL_OUTPUT")) / "hourly_emissions_epacems"
     df = dd.read_parquet(
-        epacems_path,
+        epacems_parquet_path,
         filters=year_state_filter(years=[2019], states=["ME"]),
         index=False,
         engine="pyarrow",
