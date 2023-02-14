@@ -4,7 +4,9 @@ from pathlib import Path
 
 import dask.dataframe as dd
 import pytest
+from dagster import build_init_resource_context
 
+from pudl.io_managers import epacems_io_manager
 from pudl.output.epacems import epacems, year_state_filter
 
 
@@ -17,12 +19,12 @@ def epacems_year_and_state(etl_settings):
 
 @pytest.fixture(scope="session")
 def epacems_parquet_path(
-    pudl_settings_fixture,
+    pudl_env,
     pudl_engine,  # implicit dependency; ensures .parquet files exist
 ):
     """Get path to the directory of EPA CEMS .parquet data."""
-    out_dir = Path(pudl_settings_fixture["parquet_dir"], "epacems")
-    return out_dir
+    context = build_init_resource_context()
+    return epacems_io_manager(context)._base_path
 
 
 def test_epacems_subset(epacems_year_and_state, epacems_parquet_path):
