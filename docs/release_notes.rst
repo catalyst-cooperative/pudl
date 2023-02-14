@@ -9,22 +9,24 @@ v2023.XX.XX
 Dagster Adoption
 ^^^^^^^^^^^^^^^^
 * After comparing comparing python orchestration tools :issue:`1487`, we decided to
-  adopt Dagster. Dagster will allow us to parallize the ETL, persist datafarmes at
-  any step in the data cleaning process, visualize data depedencies and run subsets
-  of the ETL from upstream caches.
+  adopt `Dagster <https://dagster.io/>`__. Dagster will allow us to parallize the ETL,
+  persist datafarmes at any step in the data cleaning process, visualize data
+  depedencies and run subsets of the ETL from upstream caches.
 * We are converting PUDL code to use dagster concepts in two phases. The first phase
-  converts the ETL portion of the code base to use software defined assets
+  converts the ETL portion of the code base to use
+  `software defined assets <https://docs.dagster.io/concepts/assets/software-defined-assets>`__
   :issue:`1570`. We will convert the pandas computations cached in the
-  ``pudl.output.pudltabl.PudlTabl`` class to use software defined assets in
+  :mod:`pudl.output.pudltabl.PudlTabl` class to use software defined assets in
   phase 2 :issue:`1973`.
 * General changes:
 
-  * :mod:`pudl.etl` is now a subpackage that collects all pudl assets into a dagser
-    ``Definition``.
+  * :mod:`pudl.etl` is now a subpackage that collects all pudl assets into a dagster
+    `Definition <https://docs.dagster.io/concepts/code-locations>`__.
   * The ``pudl_settings``, ``Datastore`` and ``DatasetSettings`` are now dagster
     resources. See :mod:`pudl.resources`.
-  * IO to sqlite is now handled using the ``SQLiteIOManager``. Removes the need for
-    the ``pudl.load`` module.
+  * IO to sqlite is now handled using the
+    :mod:`pudl.io_managers.pudl_sqlite_io_manager`.
+    Removes the need for the ``pudl.load`` module.
   * The ``pudl_etl``  and ``ferc_to_sqlite`` commands no longer support loading
     specific tables. The commands run all of the tables. Use dagster assets to
     run subsets of the tables.
@@ -58,7 +60,22 @@ Dagster Adoption
     for each year/state partition.
   * Adds a Ohio plant that is in 2021 CEMS but missing from EIA since 2018 to
     the ``additional_epacems_plants.csv`` sheet.
+
 * FERC ETL changes:
+
+  * :mod:`pudl.extract.ferc1.dbf2sqlite()` and :mod:`pudl.extract.xbrl.xbrl2sqlite()`
+    are now configurable dagster ``@op``. These ops make up the
+    ``ferc_to_sqlite`` dagster graph in :mod:`pudl.ferc_to_sqlite.defs`.
+  * The functionality of ``pudl.extract.ferc1.extract_dbf`` and
+    ``pudl.extract.ferc1.extract_xbrl`` is now handled by the ``SourceAssets`` created
+    by the :mod:`pudl.extract.ferc1.create_raw_ferc1_assets()` function and the
+    :mod:`pudl.io_managers.ferc1_xbrl_sqlite_io_manager` and
+    :mod:`pudl.io_managers.ferc1_dbf_sqlite_io_manager` IO Managers.
+  * The :mod:`pudl.extract.xbrl_metadata_json` asset has replaced the functionality
+    of ``pudl.extract.ferc1.extract_xbrl_metadata()``.
+  * ``pudl.transform.ferc1.transform()`` has been removed. The ferc1 table
+    transformations are now being orchestrated with Dagster.
+
 
 .. _release-v2022.11.30:
 

@@ -72,7 +72,6 @@ autoapi_dirs = [
 ]
 autoapi_ignore = [
     "*_test.py",
-    # "*/package_data/*",
 ]
 
 # GitHub repo
