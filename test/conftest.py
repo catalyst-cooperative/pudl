@@ -256,8 +256,8 @@ def ferc1_xbrl_taxonomy_metadata(ferc1_engine_xbrl):
     return result.output_for_node("xbrl_metadata_json")
 
 
-@pytest.fixture(scope="session", name="pudl_engine")
-def pudl_sql_engine(
+@pytest.fixture(scope="session")
+def pudl_sql_io_manager(
     pudl_env,
     ferc1_engine_dbf,  # Implicit dependency
     ferc1_engine_xbrl,  # Implicit dependency
@@ -267,7 +267,7 @@ def pudl_sql_engine(
     check_foreign_keys,
     request,
 ):
-    """Grab a connection to the PUDL Database.
+    """Grab a connection to the PUDL IO manager.
 
     If we are using the test database, we initialize the PUDL DB from scratch. If we're
     using the live database, then we just make a conneciton to it.
@@ -293,7 +293,13 @@ def pudl_sql_engine(
     # All the hard work here is being done by the datapkg and
     # datapkg_to_sqlite fixtures, above.
     context = build_init_resource_context()
-    return pudl_sqlite_io_manager(context).engine
+    return pudl_sqlite_io_manager(context)
+
+
+@pytest.fixture(scope="session")
+def pudl_engine(pudl_sql_io_manager):
+    """Get PUDL SQL engine from io manager."""
+    return pudl_sql_io_manager.engine
 
 
 @pytest.fixture(scope="session", name="pudl_settings_fixture")

@@ -17,12 +17,16 @@ from pudl.extract.ferc1 import DBF_TABLES_FILENAMES, get_dbc_map, get_fields
 logger = logging.getLogger(__name__)
 
 
-def test_pudl_engine(pudl_engine):
+def test_pudl_engine(pudl_engine, pudl_sql_io_manager, check_foreign_keys):
     """Try creating a pudl_engine...."""
     assert isinstance(pudl_engine, sa.engine.Engine)  # nosec: B101
     insp = sa.inspect(pudl_engine)
     assert "plants_pudl" in insp.get_table_names()  # nosec: B101
     assert "utilities_pudl" in insp.get_table_names()  # nosec: B101
+
+    if check_foreign_keys:
+        # Raises ForeignKeyErrors if there are any
+        pudl_sql_io_manager.check_foreign_keys()
 
 
 def test_ferc1_xbrl2sqlite(ferc1_engine_xbrl, ferc1_xbrl_taxonomy_metadata):
