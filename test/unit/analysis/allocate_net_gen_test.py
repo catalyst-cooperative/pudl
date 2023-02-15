@@ -97,6 +97,8 @@ def test_distribute_annually_reported_data_to_months_if_annual():
         bf_with_monthly_annual_mix["plant_id_eia"] == 41
     ].sort_values("report_date", ignore_index=True)
     monthly_out = out[out["plant_id_eia"] == 41]
+    # the function we are testing spreads annual data into monthly data; the
+    # plant that reports monthly should have its data completely untouched.
     pd.testing.assert_frame_equal(monthly_in, monthly_out)
 
 

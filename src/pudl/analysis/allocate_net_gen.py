@@ -1876,7 +1876,6 @@ def test_original_gf_vs_the_allocated_by_gens_gf(
             f"{data_col}: {off_by_5_perc:.1%} of allocated plant/year's are off by more"
             " than 5%"
         )
-        acceptance_threshold = 0.07
         if off_by_5_perc > acceptance_threshold:
             raise AssertionError(
                 f"{len(col_test)} of {len(gf_test)} plants' ({off_by_5_perc:.1%}) allocated {data_col} are off"
