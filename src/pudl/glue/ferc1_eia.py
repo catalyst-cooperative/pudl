@@ -36,7 +36,7 @@ import sqlalchemy as sa
 from dagster import AssetIn, Definitions, JobDefinition, asset, define_asset_job
 
 import pudl
-from pudl.extract.ferc1 import raw_ferc1_assets
+from pudl.extract.ferc1 import raw_ferc1_assets, xbrl_metadata_json
 from pudl.io_managers import ferc1_dbf_sqlite_io_manager, ferc1_xbrl_sqlite_io_manager
 from pudl.metadata.fields import apply_pudl_dtypes
 from pudl.resources import dataset_settings
@@ -241,7 +241,10 @@ class GenericPlantFerc1TableTransformer(Ferc1AbstractTableTransformer):
 
 
 def get_plants_ferc1_raw_job() -> JobDefinition:
-    """Pull all plants in the FERC Form 1 DBF and XBRL DB for given years."""
+    """Pull all plants in the FERC Form 1 DBF and XBRL DB for given years.
+
+    This job expects ferc1.sqlite and ferc_xbrl.sqlite databases to be populated.
+    """
     plant_tables = [
         "plants_hydro_ferc1",
         "plants_small_ferc1",
@@ -251,7 +254,7 @@ def get_plants_ferc1_raw_job() -> JobDefinition:
     ]
 
     @asset(ins={table_name: AssetIn() for table_name in plant_tables})
-    def get_plants_ferc1_aggregator(**transformed_plant_tables):
+    def plants_ferc1_raw(**transformed_plant_tables):
         plant_dfs = transformed_plant_tables.values()
         all_plants = pd.concat(plant_dfs)
         # add the utility_name_ferc1
@@ -291,12 +294,17 @@ def get_plants_ferc1_raw_job() -> JobDefinition:
         table_name: GenericPlantFerc1TableTransformer for table_name in plant_tables
     }
     transform_assets = [
-        ferc1_transform_asset_factory(table_name, tfr_mapping)
+        ferc1_transform_asset_factory(
+            table_name, tfr_mapping, io_manager_key=None, convert_dtypes=False
+        )
         for table_name in plant_tables
     ]
 
     return Definitions(
-        assets=transform_assets + raw_ferc1_assets + [get_plants_ferc1_aggregator],
+        assets=transform_assets
+        + raw_ferc1_assets
+        + [plants_ferc1_raw]
+        + [xbrl_metadata_json],
         resources={
             "ferc1_dbf_sqlite_io_manager": ferc1_dbf_sqlite_io_manager,
             "ferc1_xbrl_sqlite_io_manager": ferc1_xbrl_sqlite_io_manager,
