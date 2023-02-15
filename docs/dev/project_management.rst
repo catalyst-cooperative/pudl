@@ -15,45 +15,65 @@ We merge code to ``dev`` continuously, but plan work in two-week sprints.
 
 We track work as items (GitHub issues and PRs) in a Catalyst-wide Github Project.
 
-During each sprint, people on each team pull from a team-specific list of
-prioritized & scoped items.
+During each sprint, people on each team pull from a list of prioritized & scoped
+items.
 
-We have 3 meetings per sprint:
+Each team has its own independent sprint process.
 
-- planning meeting: overall goal is "get a good idea of what work is coming up
+We have 2 or 3 meetings per sprint:
+
+- sprint planning: overall goal is "get a good idea of what work is coming up
   in the sprint"
 
-  - mark items with a new iteration
+  - mark items with a new sprint
 
     - enough that that we feel like there's enough work to do
 
     - few enough that we don't feel overwhelmed
 
-- mid-sprint check-in: overall goal is "given this sprint's status, prioritize
-  items for the next sprint"
+- (Inframundo only - other teams do this asynchronously): mid-sprint check-in:
+  overall goal is "given this sprint's status, prioritize items for the next
+  sprint"
 
-  - make sure item status is up-to-date
+  - make sure item status is up-to-date (this can be done asynchronously and
+    just confirmed in-meeting)
 
   - identify items that need clarification / re-scoping
 
-  - identify items that we'd like to pull into the backlog
+  - pull items from the icebox into the backlog
 
-- review: overall goal is "prepare prioritized items for the next sprint"
+- sprint review: overall goal is "prepare prioritized items for the next sprint"
 
-  - make sure item status is up-to-date
+  - make sure item status is up-to-date (this can be done asynchronously and
+    just confirmed in-meeting)
 
   - for item in backlog: if item is not ready for development, assign 1 or 2
     people to flesh it out
 
-An issue is considered "ready for development" if has:
+An item is considered "ready for development" if has:
 
-- an assigned team (via team label)
+- an assigned team (via GitHub label), so the issue will be picked up in
+  *someone*'s sprint process
 
-- a concrete set of criteria that define the scope in the issue description
+- a concrete set of criteria that define the scope in the issue description, so
+  we can stop when we want to and also discuss cutting scope productively
 
-- a priority
+- a priority field in the project (Urgent, High, Medium, Low), so we know which
+  things to work on first
 
-- a size
+- a size field in the project (X-Large, Large, Medium, Small, Tiny), so we know
+  how much time we think an item will take & how likely it is to grow beyond
+  our expectations.
+
+  - we aim for our items to be "Medium" at most - anything larger should
+    be broken into smaller pieces
+
+To focus our efforts and find bottlenecked issues, we impose a work-in-progress
+limit (WIP) of N + 1 open issues per each in-flight status ("in progress", "in
+review"). Here, N is "the number of people on the team" If we have too many
+issues in progress or in review, we try to move those issues along instead of
+starting work on a new issue. Otherwise, we try to work on the highest priority
+item that is ready for development.
 
 -------------------------------------------------------------------------------
 GitHub Workflow
