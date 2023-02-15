@@ -295,7 +295,11 @@ def get_plants_ferc1_raw_job() -> JobDefinition:
     }
     transform_assets = [
         ferc1_transform_asset_factory(
-            table_name, tfr_mapping, io_manager_key=None, convert_dtypes=False
+            table_name,
+            tfr_mapping,
+            io_manager_key=None,
+            convert_dtypes=False,
+            generic=True,
         )
         for table_name in plant_tables
     ]

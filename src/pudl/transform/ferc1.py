@@ -2929,6 +2929,7 @@ def ferc1_transform_asset_factory(
     ferc1_tfr_classes: Mapping[str, type[Ferc1AbstractTableTransformer]],
     io_manager_key: str = "pudl_sqlite_io_manager",
     convert_dtypes: bool = True,
+    generic: bool = False,
 ) -> AssetsDefinition:
     """Create an asset that pulls in raw ferc Form 1 assets and applies transformations.
 
@@ -2943,6 +2944,7 @@ def ferc1_transform_asset_factory(
         io_manager_key: the dagster io_manager key to use. None defaults
             to the fs_io_manager.
         convert_dtypes: convert dtypes of transformed dataframes.
+        generic: If using GenericPlantFerc1TableTransformer pass table_id to constructor.
 
     Return:
         An asset for the clean table.
@@ -2974,9 +2976,14 @@ def ferc1_transform_asset_factory(
         Returns:
             transformed FERC Form 1 table.
         """
-        df = tfr_class(
-            xbrl_metadata_json=xbrl_metadata_json[table_name], table_id=table_id
-        ).transform(
+        if generic:
+            transformer = tfr_class(
+                xbrl_metadata_json=xbrl_metadata_json[table_name], table_id=table_id
+            )
+        else:
+            transformer = tfr_class(xbrl_metadata_json=xbrl_metadata_json[table_name])
+
+        df = transformer.transform(
             raw_dbf=raw_dbf,
             raw_xbrl_instant=raw_xbrl_instant,
             raw_xbrl_duration=raw_xbrl_duration,
