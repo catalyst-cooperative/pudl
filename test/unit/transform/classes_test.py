@@ -245,6 +245,7 @@ SPOT_PARAMS = [
         "spot_fixes": [
             (1, "a different planty"),
             (10, "cat inc"),
+            (5, 321),
         ],
     },
     {
@@ -252,7 +253,7 @@ SPOT_PARAMS = [
         "fix_cols": ["capacity_mw"],
         "expect_unique": False,
         "spot_fixes": [
-            (1976, 999.9),
+            (1976, "999.9"),
             (1850, 123.45),
             (9999, 9999),
         ],
@@ -367,7 +368,7 @@ SPOT_FIXED_MIXED_TYPE_DATA: pd.DataFrame = pd.DataFrame(
         (2, 1976, "2020-01-02", 999.9, "genny"),
         (3, 1976, date.today(), 999.9, "big burner"),
         (4, 1976, "1985-02-01", 332.15, "sparky"),
-        (5, pd.NA, pd.NA, -5.0, "barry"),
+        (5, pd.NA, pd.NA, -5.0, "321"),
         (6, 2000, "2000-01-01", 459.0, "replace me"),
         (7, pd.NA, pd.NA, 101.10, pd.NA),
         (8, 2012, "01-01-2020", 899.98, "another plant name"),
