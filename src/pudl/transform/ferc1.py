@@ -3028,7 +3028,7 @@ def create_ferc1_transform_assets() -> list[AssetsDefinition]:
 ferc1_assets = create_ferc1_transform_assets()
 
 
-@asset
+@asset(io_manager_key="pudl_sqlite_io_manager")
 def plants_steam_ferc1(
     xbrl_metadata_json: dict[str, dict[str, list[dict[str, Any]]]],
     f1_steam: pd.DataFrame,
