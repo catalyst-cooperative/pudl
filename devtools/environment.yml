@@ -24,9 +24,6 @@ dependencies:
   - nodejs # Useful for Jupyter
   - pandoc # Useful for rendering RST files in Atom
 
-  # Packages related to current projects but not the core package
-  - recordlinkage>=0.14,<0.16 # Used for fuzzy merge between FERC/EIA for RMI
-
   # Jupyter notebook specific packages:
   - jupyter-resource-usage~=0.5.0
   - nbconvert>=6,<7
