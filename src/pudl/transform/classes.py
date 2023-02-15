@@ -857,7 +857,7 @@ replace_with_na_multicol = multicol_transform_factory(replace_with_na)
 
 
 class SpotFixes(TransformParams):
-    """Parameters that replace certain values with a manual corrected value."""
+    """Parameters that replace certain values with a manually corrected value."""
 
     idx_cols: list[str]
     """The column(s) used to identify a record."""
@@ -866,11 +866,15 @@ class SpotFixes(TransformParams):
     expect_unique: bool
     """Set to True if each fix should correspond to only one row."""
     spot_fixes: list[tuple[str | int | float | bool, ...]]
-    """A dictionary of the column to replace and the value to replace with."""
+    """A tuple containing the values of the idx_cols and fix_cols for each fix."""
 
 
 def spot_fix_values(df: pd.DataFrame, params: SpotFixes) -> pd.DataFrame:
-    """Manually fix one-off singular missing values across a DataFrame.
+    """Manually fix one-off singular missing values and typos across a DataFrame.
+
+    Use this function to correct typos, missing values that are easily manually
+    identified through manual investigation of records, consistent issues for a small
+    number of records (e.g. incorrectly entered capacity data for 2-3 plants).
 
     From an instance of :class:`SpotFixes`, this function takes a list of sets of
     manual fixes and applies them to the specified records in a given dataframe. Each
@@ -900,7 +904,12 @@ def spot_fix_values(df: pd.DataFrame, params: SpotFixes) -> pd.DataFrame:
             f"This spot fix expects a unique set of idx_col, but the idx_cols provided are not uniquely identifying: {cols_list}."
         )
 
-    df.loc[spot_fixes_df.index, params.fix_cols] = spot_fixes_df
+    # Only keep spot fix values found in the dataframe index.
+    spot_fixes_df = spot_fixes_df[spot_fixes_df.index.isin(df.index)]
+
+    if not spot_fixes_df.empty:
+        df.loc[spot_fixes_df.index, params.fix_cols] = spot_fixes_df
+
     df = df.reset_index()
 
     return df
@@ -1326,7 +1335,7 @@ class AbstractTableTransformer(ABC):
             params = self.params.spot_fix_values
         logger.info(f"{self.table_id.value}: Spot fixing missing values.")
         for param in params:
-            df = spot_fix_values(self, df, param)
+            df = spot_fix_values(df, param)
         return df
 
     def enforce_schema(self, df: pd.DataFrame) -> pd.DataFrame:

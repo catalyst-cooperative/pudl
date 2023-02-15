@@ -916,7 +916,7 @@ def test_spot_fix(df, expected, params):
     """Test our ability to spot fix values."""
     for param in params:
         spot_fixes = SpotFixes(**param)
-        df = spot_fix_values(df, spot_fixes)
+        df = spot_fix_values(df=df, params=spot_fixes)
     assert_frame_equal(df, expected, check_like=True)
     # check_like ignores column order, which changes due to indexing.
 
