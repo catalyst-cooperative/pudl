@@ -254,6 +254,7 @@ SPOT_PARAMS = [
         "spot_fixes": [
             (1976, 999.9),
             (1850, 123.45),
+            (9999, 9999),
         ],
     },
     {
@@ -262,7 +263,7 @@ SPOT_PARAMS = [
         "expect_unique": False,
         "spot_fixes": [
             (1976, "1985-02-01", 332.15),
-            (2000, "2000-01-01", 459.62),
+            (2000, "2000-01-01", 459),
         ],
     },
 ]
@@ -367,7 +368,7 @@ SPOT_FIXED_MIXED_TYPE_DATA: pd.DataFrame = pd.DataFrame(
         (3, 1976, date.today(), 999.9, "big burner"),
         (4, 1976, "1985-02-01", 332.15, "sparky"),
         (5, pd.NA, pd.NA, -5.0, "barry"),
-        (6, 2000, "2000-01-01", 459.62, "replace me"),
+        (6, 2000, "2000-01-01", 459.0, "replace me"),
         (7, pd.NA, pd.NA, 101.10, pd.NA),
         (8, 2012, "01-01-2020", 899.98, "another plant name"),
         (9, 1850, "2022-03-01T00:00:00.000000000", 123.45, np.nan),
@@ -909,16 +910,51 @@ def test_drop_invalid_rows(df, expected, params):
 
 
 @pytest.mark.parametrize(
-    "df,expected,params",
-    [pytest.param(MIXED_TYPE_DATA, SPOT_FIXED_MIXED_TYPE_DATA, SPOT_PARAMS)],
+    "df,expected,params,errors",
+    [
+        pytest.param(
+            MIXED_TYPE_DATA, SPOT_FIXED_MIXED_TYPE_DATA, SPOT_PARAMS, does_not_raise()
+        ),
+        pytest.param(
+            MIXED_TYPE_DATA,
+            SPOT_FIXED_MIXED_TYPE_DATA,
+            [
+                {
+                    "idx_cols": ["id"],
+                    "fix_cols": ["capacity_mw"],
+                    "expect_unique": True,
+                    "spot_fixes": [
+                        (1, "i'm not a capacity"),
+                    ],
+                },
+            ],
+            pytest.raises(ValueError),
+        ),
+        pytest.param(
+            MIXED_TYPE_DATA,
+            SPOT_FIXED_MIXED_TYPE_DATA,
+            [
+                {
+                    "idx_cols": ["year"],
+                    "fix_cols": ["capacity_mw"],
+                    "expect_unique": True,
+                    "spot_fixes": [
+                        (1976, 200),
+                    ],
+                },
+            ],
+            pytest.raises(ValueError),
+        ),
+    ],
 )
-def test_spot_fix(df, expected, params):
+def test_spot_fix(df, expected, params, errors):
     """Test our ability to spot fix values."""
-    for param in params:
-        spot_fixes = SpotFixes(**param)
-        df = spot_fix_values(df=df, params=spot_fixes)
-    assert_frame_equal(df, expected, check_like=True)
-    # check_like ignores column order, which changes due to indexing.
+    with errors:
+        for param in params:
+            spot_fixes = SpotFixes(**param)
+            df = spot_fix_values(df=df, params=spot_fixes)
+        assert_frame_equal(df, expected, check_like=True)
+        # check_like ignores column order, which changes due to indexing.
 
 
 #####################################################################################
