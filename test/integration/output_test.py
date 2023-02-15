@@ -27,7 +27,7 @@ def fast_out(pudl_engine, pudl_datastore_fixture):
     )
 
 
-@pytest.fixture(scope="function")
+@pytest.fixture(scope="module")
 def fast_out_annual(pudl_engine, pudl_datastore_fixture):
     """A PUDL output object for use in CI."""
     return pudl.output.pudltabl.PudlTabl(
@@ -273,7 +273,12 @@ def test_mcoe_filled(fast_out_filled, df_name, expected_nuke_fraction, tolerance
     ],
 )
 def test_pudltabl_pickle(
-    fast_out_annual, pudl_settings_fixture, monkeypatch, variation, check
+    pudl_engine,
+    pudl_datastore_fixture,
+    pudl_settings_fixture,
+    monkeypatch,
+    variation,
+    check,
 ):
     """Test that PudlTabl is serializable with pickle.
 
@@ -285,6 +290,15 @@ def test_pudltabl_pickle(
     import pickle  # nosec
     from io import BytesIO
 
+    pudl_out_pickle = pudl.output.pudltabl.PudlTabl(
+        pudl_engine,
+        ds=pudl_datastore_fixture,
+        freq="AS",
+        fill_fuel_cost=True,
+        roll_fuel_cost=True,
+        fill_net_gen=True,
+    )
+
     # need to monkeypatch `get_defaults` because it is used in PudlTabl.__setstate__
     # and the real one does not work in GitHub actions because the settings file it
     # uses does not exist
@@ -292,22 +306,22 @@ def test_pudltabl_pickle(
         "pudl.workspace.setup.get_defaults", lambda: pudl_settings_fixture
     )
     # make sure there's a df to pickle
-    plants = fast_out_annual.plants_eia860()
+    plants = pudl_out_pickle.plants_eia860()
     if variation == "test_invalid_engine_url":
         import sqlalchemy as sa
 
         # need to change the pudl_engine to one with an invalid URL so that
         # `PudlTabl.__setstate__` has to fall back on the local default
-        fast_out_annual.pudl_engine = sa.create_engine("sqlite:////wrong/url")
+        pudl_out_pickle.pudl_engine = sa.create_engine("sqlite:////wrong/url")
 
         # confirm this engine won't work
         with pytest.raises(sa.exc.OperationalError):
-            fast_out_annual.pudl_engine.connect()
+            pudl_out_pickle.pudl_engine.connect()
 
     # just to make sure we keep all the parts
-    keys = set(fast_out_annual.__dict__.keys())
+    keys = set(pudl_out_pickle.__dict__.keys())
     # dump the object into a pickle stored in a buffer
-    pickle.dump(fast_out_annual, buffer := BytesIO())
+    pickle.dump(pudl_out_pickle, buffer := BytesIO())
     # restore the object from the pickle in the buffer
     restored = pickle.loads(buffer.getvalue())  # nosec
 
