@@ -66,6 +66,7 @@ setup(
         "pydantic[email]>=1.7,<2",
         "python-snappy>=0.6,<0.7",
         "pyyaml>=5,<6.1",
+        "recordlinkage>=0.14,<0.16",
         "scikit-learn>=1.0,<1.3",
         "scipy>=1.6,<1.11",
         "Shapely>=2.0,<2.1",
