@@ -11,6 +11,7 @@ import enum
 import importlib.resources
 import re
 from collections import namedtuple
+from collections.abc import Mapping
 from typing import Any, Literal
 
 import numpy as np
@@ -2643,7 +2644,6 @@ class PlantsSmallFerc1TableTransformer(Ferc1AbstractTableTransformer):
             # Shorten execution time by only looking at groups with discernable
             # footnotes
             if group.footnote.any():
-
                 # Make a df that combines notes and ferc license with the same footnote
                 footnote_df = (
                     group[has_note]
@@ -2925,7 +2925,11 @@ def transform(
 
 
 def ferc1_transform_asset_factory(
-    table_name: str, ferc1_tfr_classes: dict[str:Ferc1AbstractTableTransformer]
+    table_name: str,
+    ferc1_tfr_classes: Mapping[str, type[Ferc1AbstractTableTransformer]],
+    io_manager_key: str = "pudl_sqlite_io_manager",
+    convert_dtypes: bool = True,
+    generic: bool = False,
 ) -> AssetsDefinition:
     """Create an asset that pulls in raw ferc Form 1 assets and applies transformations.
 
@@ -2937,6 +2941,10 @@ def ferc1_transform_asset_factory(
     Args:
         table_name: The name of the table to create an asset for.
         ferc1_tfr_classes: A dictionary of table names to the corresponding transformer class.
+        io_manager_key: the dagster io_manager key to use. None defaults
+            to the fs_io_manager.
+        convert_dtypes: convert dtypes of transformed dataframes.
+        generic: If using GenericPlantFerc1TableTransformer pass table_id to constructor.
 
     Return:
         An asset for the clean table.
@@ -2948,8 +2956,9 @@ def ferc1_transform_asset_factory(
     ins["xbrl_metadata_json"] = AssetIn("xbrl_metadata_json")
 
     tfr_class = ferc1_tfr_classes[table_name]
+    table_id = TableIdFerc1(table_name)
 
-    @asset(name=table_name, ins=ins, io_manager_key="pudl_sqlite_io_manager")
+    @asset(name=table_name, ins=ins, io_manager_key=io_manager_key)
     def ferc1_transform_asset(
         raw_dbf: pd.DataFrame,
         raw_xbrl_instant: pd.DataFrame,
@@ -2967,12 +2976,21 @@ def ferc1_transform_asset_factory(
         Returns:
             transformed FERC Form 1 table.
         """
-        df = tfr_class(xbrl_metadata_json=xbrl_metadata_json[table_name]).transform(
+        if generic:
+            transformer = tfr_class(
+                xbrl_metadata_json=xbrl_metadata_json[table_name], table_id=table_id
+            )
+        else:
+            transformer = tfr_class(xbrl_metadata_json=xbrl_metadata_json[table_name])
+
+        df = transformer.transform(
             raw_dbf=raw_dbf,
             raw_xbrl_instant=raw_xbrl_instant,
             raw_xbrl_duration=raw_xbrl_duration,
         )
-        return convert_cols_dtypes(df, data_source="ferc1")
+        if convert_dtypes:
+            df = convert_cols_dtypes(df, data_source="ferc1")
+        return df
 
     return ferc1_transform_asset
 
@@ -3010,7 +3028,7 @@ def create_ferc1_transform_assets() -> list[AssetsDefinition]:
 ferc1_assets = create_ferc1_transform_assets()
 
 
-@asset
+@asset(io_manager_key="pudl_sqlite_io_manager")
 def plants_steam_ferc1(
     xbrl_metadata_json: dict[str, dict[str, list[dict[str, Any]]]],
     f1_steam: pd.DataFrame,

@@ -8,11 +8,26 @@ import os
 from pathlib import Path
 
 import pytest
-import sqlalchemy as sa
 import yaml
+from dagster import (
+    DagsterInstance,
+    build_init_resource_context,
+    execute_job,
+    materialize_to_memory,
+    reconstructable,
+)
+from dotenv import load_dotenv
 
 import pudl
-from pudl.extract.ferc1 import extract_xbrl_metadata
+from pudl import resources
+from pudl.cli import get_etl_job
+from pudl.extract.ferc1 import xbrl_metadata_json
+from pudl.ferc_to_sqlite.cli import get_ferc_to_sqlite_job
+from pudl.io_managers import (
+    ferc1_dbf_sqlite_io_manager,
+    ferc1_xbrl_sqlite_io_manager,
+    pudl_sqlite_io_manager,
+)
 from pudl.output.pudltabl import PudlTabl
 from pudl.settings import DatasetsSettings, EtlSettings
 
@@ -73,6 +88,34 @@ def pytest_addoption(parser):
         default=False,
         help="If enabled, do not check the foreign keys.",
     )
+
+
+def pytest_configure(config):
+    """Load dotenv before tests are run to set PUDL_OUTPUT and PUDL_CACHE."""
+    load_dotenv()
+
+
+@pytest.fixture(scope="session")
+def pudl_env(request, tmpdir_factory):
+    """Set PUDL_OUTPUT environment variable."""
+    tmpdir = tmpdir_factory.mktemp("PUDL_OUTPUT")
+    os.environ["PUDL_OUTPUT"] = str(tmpdir)
+    os.environ["DAGSTER_HOME"] = str(tmpdir)
+
+    # In CI we want a hard-coded path for input caching purposes:
+    if os.environ.get("GITHUB_ACTIONS", False):
+        os.environ["PUDL_CACHE"] = str(Path(os.environ["HOME"]) / "pudl-work")
+    # If --tmp-data is set, create a disposable temporary datastore:
+    elif request.config.getoption("--tmp-data"):
+        os.environ["PUDL_CACHE"] = str(tmpdir)
+    # Otherwise, default to the user's existing datastore:
+    else:
+        if not os.getenv("PUDL_CACHE"):
+            raise RuntimeError(
+                "Must set PUDL_CACHE environment variable or use `--tmp-data` option"
+            )
+    logger.info(f"PUDL_OUTPUT path: {os.environ['PUDL_OUTPUT']}")
+    logger.info(f"PUDL_CACHE path: {os.environ['PUDL_CACHE']}")
 
 
 @pytest.fixture(scope="session", name="test_dir")
@@ -160,78 +203,70 @@ def pudl_out_orig(live_dbs, pudl_engine):
     return PudlTabl(pudl_engine=pudl_engine)
 
 
-@pytest.fixture(scope="session", name="ferc1_engine_dbf")
-def ferc1_dbf_sql_engine(
-    pudl_settings_fixture,
-    live_dbs,
-    ferc_to_sqlite_settings,
-    pudl_datastore_fixture,
-):
-    """Grab a connection to the FERC Form 1 DB clone.
+@pytest.fixture(scope="session")
+def ferc_to_sqlite(live_dbs, pudl_datastore_config, etl_settings):
+    """Create raw FERC 1 SQLite DBs.
 
     If we are using the test database, we initialize it from scratch first. If we're
-    using the live database, then we just yield a conneciton to it.
+    using the live database, then the sql engine fixtures will return connections to the
+    existing databases
     """
     if not live_dbs:
-        pudl.extract.ferc1.dbf2sqlite(
-            ferc1_to_sqlite_settings=ferc_to_sqlite_settings.ferc1_dbf_to_sqlite_settings,
-            pudl_settings=pudl_settings_fixture,
-            clobber=False,
-            datastore=pudl_datastore_fixture,
+        execute_job(
+            reconstructable(get_ferc_to_sqlite_job),
+            instance=DagsterInstance.get(),
+            run_config={
+                "resources": {
+                    "ferc_to_sqlite_settings": {
+                        "config": etl_settings.ferc_to_sqlite_settings.dict()
+                    },
+                    "datastore": {
+                        "config": pudl_datastore_config,
+                    },
+                },
+            },
         )
-    engine = sa.create_engine(pudl_settings_fixture["ferc1_db"])
-    logger.info("FERC1 Engine: %s", engine)
-    return engine
+
+
+@pytest.fixture(scope="session", name="ferc1_engine_dbf")
+def ferc1_dbf_sql_engine(ferc_to_sqlite):
+    """Grab a connection to the FERC Form 1 DB clone."""
+    context = build_init_resource_context(
+        resources={"dataset_settings": dataset_settings_config}
+    )
+    return ferc1_dbf_sqlite_io_manager(context).engine
 
 
 @pytest.fixture(scope="session", name="ferc1_engine_xbrl")
-def ferc1_xbrl_sql_engine(
-    pudl_settings_fixture,
-    live_dbs,
-    ferc_to_sqlite_settings,
-    pudl_datastore_fixture,
-):
-    """Grab a connection to the FERC Form 1 DB clone.
-
-    If we are using the test database, we initialize it from scratch first. If we're
-    using the live database, then we just yield a conneciton to it.
-    """
-    if not live_dbs:
-        pudl.extract.xbrl.xbrl2sqlite(
-            ferc_to_sqlite_settings=ferc_to_sqlite_settings,
-            pudl_settings=pudl_settings_fixture,
-            clobber=False,
-            datastore=pudl_datastore_fixture,
-            workers=5,
-            batch_size=20,
-        )
-    engine = sa.create_engine(pudl_settings_fixture["ferc1_xbrl_db"])
-    logger.info("FERC1 Engine: %s", engine)
-    return engine
+def ferc1_xbrl_sql_engine(ferc_to_sqlite, dataset_settings_config):
+    """Grab a connection to the FERC Form 1 DB clone."""
+    context = build_init_resource_context(
+        resources={"dataset_settings": dataset_settings_config}
+    )
+    return ferc1_xbrl_sqlite_io_manager(context).engine
 
 
 @pytest.fixture(scope="session", name="ferc1_xbrl_taxonomy_metadata")
-def ferc1_xbrl_taxonomy_metadata(
-    pudl_settings_fixture, pudl_etl_settings: DatasetsSettings, ferc1_engine_xbrl
-):
+def ferc1_xbrl_taxonomy_metadata(ferc1_engine_xbrl):
     """Read the FERC 1 XBRL taxonomy metadata from JSON."""
-    return extract_xbrl_metadata(
-        ferc1_settings=pudl_etl_settings.ferc1,
-        pudl_settings=pudl_settings_fixture,
-    )
+    result = materialize_to_memory([xbrl_metadata_json])
+    assert result.success
+
+    return result.output_for_node("xbrl_metadata_json")
 
 
-@pytest.fixture(scope="session", name="pudl_engine")
-def pudl_sql_engine(
+@pytest.fixture(scope="session")
+def pudl_sql_io_manager(
+    pudl_env,
     ferc1_engine_dbf,  # Implicit dependency
     ferc1_engine_xbrl,  # Implicit dependency
     live_dbs,
-    pudl_settings_fixture,
-    etl_settings,
+    pudl_datastore_config,
+    dataset_settings_config,
     check_foreign_keys,
     request,
 ):
-    """Grab a connection to the PUDL Database.
+    """Grab a connection to the PUDL IO manager.
 
     If we are using the test database, we initialize the PUDL DB from scratch. If we're
     using the live database, then we just make a conneciton to it.
@@ -239,22 +274,31 @@ def pudl_sql_engine(
     logger.info("setting up the pudl_engine fixture")
     if not live_dbs:
         # Run the ETL and generate a new PUDL SQLite DB for testing:
-        pudl.etl.etl(
-            etl_settings=etl_settings,
-            pudl_settings=pudl_settings_fixture,
-            clobber=False,
-            check_foreign_keys=check_foreign_keys,
-            check_types=True,
-            check_values=True,
-            use_local_cache=not request.config.getoption("--bypass-local-cache"),
-            gcs_cache_path=request.config.getoption("--gcs-cache-path"),
+        execute_job(
+            reconstructable(get_etl_job),
+            instance=DagsterInstance.get(),
+            run_config={
+                "resources": {
+                    "dataset_settings": {
+                        "config": dataset_settings_config,
+                    },
+                    "datastore": {
+                        "config": pudl_datastore_config,
+                    },
+                }
+            },
         )
     # Grab a connection to the freshly populated PUDL DB, and hand it off.
     # All the hard work here is being done by the datapkg and
     # datapkg_to_sqlite fixtures, above.
-    engine = sa.create_engine(pudl_settings_fixture["pudl_db"])
-    logger.info("PUDL Engine: %s", engine)
-    return engine
+    context = build_init_resource_context()
+    return pudl_sqlite_io_manager(context)
+
+
+@pytest.fixture(scope="session")
+def pudl_engine(pudl_sql_io_manager):
+    """Get PUDL SQL engine from io manager."""
+    return pudl_sql_io_manager.engine
 
 
 @pytest.fixture(scope="session", name="pudl_settings_fixture")
@@ -323,25 +367,28 @@ def ferc1_dbf_datastore_fixture(pudl_datastore_fixture):
     return pudl.extract.ferc1.Ferc1DbfDatastore(pudl_datastore_fixture)
 
 
-@pytest.fixture(scope="session", name="pudl_ds_kwargs")
-def ds_kwargs(pudl_settings_fixture, request):
-    """Return a dictionary of keyword args for creating a PUDL datastore."""
-    kwargs = dict(
-        gcs_cache_path=request.config.getoption("--gcs-cache-path"),
-        sandbox=pudl_settings_fixture["sandbox"],
-    )
-
-    use_local_cache = not request.config.getoption("--bypass-local-cache")
-    if use_local_cache:
-        kwargs["local_cache_path"] = Path(pudl_settings_fixture["pudl_in"]) / "data"
-
-    return kwargs
+@pytest.fixture(scope="session")
+def dataset_settings_config(request, etl_settings):
+    """Create dagster dataset_settings resource."""
+    return etl_settings.datasets.dict()
 
 
-@pytest.fixture(scope="session", name="pudl_datastore_fixture")  # noqa: C901
-def pudl_datastore(pudl_ds_kwargs):
+@pytest.fixture(scope="session")  # noqa: C901
+def pudl_datastore_config(request):
     """Produce a :class:pudl.workspace.datastore.Datastore."""
-    return pudl.workspace.datastore.Datastore(**pudl_ds_kwargs)
+    gcs_cache_path = request.config.getoption("--gcs-cache-path")
+    return {
+        "gcs_cache_path": gcs_cache_path if gcs_cache_path else "",
+        "use_local_cache": not request.config.getoption("--bypass-local-cache"),
+        "sandbox": request.config.getoption("--sandbox"),
+    }
+
+
+@pytest.fixture(scope="session")
+def pudl_datastore_fixture(pudl_datastore_config):
+    """Create pudl Datastore resource."""
+    init_context = build_init_resource_context(config=pudl_datastore_config)
+    return resources.datastore(init_context)
 
 
 def skip_table_if_null_freq_table(table_name, freq):
