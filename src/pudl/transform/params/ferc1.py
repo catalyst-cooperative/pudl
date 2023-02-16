@@ -2363,7 +2363,7 @@ TRANSFORM_PARAMS = {
             {
                 "idx_cols": ["record_id"],
                 "fix_cols": ["plant_name_ferc1"],
-                "expect_unique": False,
+                "expect_unique": True,
                 "spot_fixes": [
                     ("f1_steam_1999_12_72_0_1", "clifty creek"),
                     ("f1_steam_2010_12_306_0_1", "harrison county"),
