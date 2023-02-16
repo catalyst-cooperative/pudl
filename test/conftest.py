@@ -114,6 +114,8 @@ def pudl_env(request, tmpdir_factory):
             raise RuntimeError(
                 "Must set PUDL_CACHE environment variable or use `--tmp-data` option"
             )
+    logger.info(f"PUDL_OUTPUT path: {os.environ['PUDL_OUTPUT']}")
+    logger.info(f"PUDL_CACHE path: {os.environ['PUDL_CACHE']}")
 
 
 @pytest.fixture(scope="session", name="test_dir")
