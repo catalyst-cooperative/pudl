@@ -67,7 +67,6 @@ jobs:
         with:
           workload_identity_provider: "projects/345950277072/locations/global/workloadIdentityPools/gh-actions-pool/providers/gh-actions-provider"
           service_account: "tox-pytest-github-action@catalyst-cooperative-pudl.iam.gserviceaccount.com"
-          create_credentials_file: true
 
       - name: Run PyTest with Tox against GCS cache (internal PRs)
         run: |
