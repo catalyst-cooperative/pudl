@@ -7,11 +7,12 @@ documented in that module.
 See :mod:`pudl.transform.params.ferc1` for the values that parameterize many of these
 transformations.
 """
+from collections.abc import Mapping
 import enum
 import importlib.resources
 import re
 from collections import namedtuple
-from typing import Any, Literal, Mapping
+from typing import Any, Literal
 
 import numpy as np
 import pandas as pd
@@ -26,6 +27,7 @@ from pudl.analysis.classify_plants_ferc1 import (
     plants_steam_validate_ids,
 )
 from pudl.extract.ferc1 import TABLE_NAME_MAP_FERC1
+from pudl.helpers import convert_cols_dtypes
 from pudl.settings import Ferc1Settings
 from pudl.transform.classes import (
     AbstractTableTransformer,
@@ -3820,18 +3822,13 @@ def ferc1_transform_asset_factory(
     ins = {f"raw_dbf__{tn}": AssetIn(tn) for tn in dbf_tables}
     ins |= {f"raw_xbrl_instant__{tn}": AssetIn(f"{tn}_instant") for tn in xbrl_tables}
     ins |= {f"raw_xbrl_duration__{tn}": AssetIn(f"{tn}_duration") for tn in xbrl_tables}
+    ins["xbrl_metadata_json"] = AssetIn("xbrl_metadata_json")
 
     tfr_class = ferc1_tfr_classes[table_name]
     table_id = TableIdFerc1(table_name)
 
-    import pytest
-
-    pytest.set_trace()
-    # TODO: add the metadata back in
-    # loaded = {k: load(v) for k, v in ins}
-    # ferc1_transform_asset(**loaded)
     @asset(name=table_name, ins=ins, io_manager_key=io_manager_key)
-    def ferc1_transform_asset(**kwargs) -> pd.DataFrame:
+    def ferc1_transform_asset(**kwargs: dict[str, pd.DataFrame]) -> pd.DataFrame:
         """Transform a FERC Form 1 table.
 
         Args:
@@ -3844,20 +3841,28 @@ def ferc1_transform_asset_factory(
             transformed FERC Form 1 table.
         """
         # TODO: split the key by __, then groupby, then concatenate
-        # if generic:
-        #     transformer = tfr_class(
-        #         xbrl_metadata_json=xbrl_metadata_json[table_name], table_id=table_id
-        #     )
-        # else:
-        #     transformer = tfr_class(xbrl_metadata_json=xbrl_metadata_json[table_name])
+        xbrl_metadata_json = kwargs["xbrl_metadata_json"]
+        if generic:
+            transformer = tfr_class(
+                xbrl_metadata_json=xbrl_metadata_json[table_name], table_id=table_id
+            )
+        else:
+            transformer = tfr_class(xbrl_metadata_json=xbrl_metadata_json[table_name])
 
-        # df = transformer.transform(
-        #     raw_dbf=pd.concat(raw_dbfs),
-        #     raw_xbrl_instant=raw_xbrl_instant,
-        #     raw_xbrl_duration=raw_xbrl_duration,
-        # )
-        # if convert_dtypes:
-        #     df = convert_cols_dtypes(df, data_source="ferc1")
+        raw_dbf = pd.concat([df for key, df in kwargs if key.startswith("raw_dbf__")])
+        raw_xbrl_instant = pd.concat(
+            [df for key, df in kwargs if key.startswith("raw_xbrl_instant__")]
+        )
+        raw_xbrl_duration = pd.concat(
+            [df for key, df in kwargs if key.startswith("raw_xbrl_duration__")]
+        )
+        df = transformer.transform(
+            raw_dbf=raw_dbf,
+            raw_xbrl_instant=raw_xbrl_instant,
+            raw_xbrl_duration=raw_xbrl_duration,
+        )
+        if convert_dtypes:
+            df = convert_cols_dtypes(df, data_source="ferc1")
         return df
 
     return ferc1_transform_asset
