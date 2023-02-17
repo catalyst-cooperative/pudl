@@ -7,11 +7,11 @@ documented in that module.
 See :mod:`pudl.transform.params.ferc1` for the values that parameterize many of these
 transformations.
 """
-from collections.abc import Mapping
 import enum
 import importlib.resources
 import re
 from collections import namedtuple
+from collections.abc import Mapping
 from typing import Any, Literal
 
 import numpy as np
