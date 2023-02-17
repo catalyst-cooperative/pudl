@@ -68,10 +68,10 @@ https://data.catalyst.coop/ferc1
 """
 import csv
 import importlib
-from itertools import chain
 import io
 import json
 from collections.abc import Iterable
+from itertools import chain
 from pathlib import Path
 from typing import Any, Literal
 
