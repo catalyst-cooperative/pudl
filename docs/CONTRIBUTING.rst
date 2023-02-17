@@ -26,13 +26,18 @@ will serve the community better if other folks get involved.
 
 There are lots of ways to contribute -- it's not all about code!
 
-* Ask questions on Github using the `issue tracker <https://github.com/catalyst-cooperative/pudl/issues>`__.
+* If you need help, someone else might need it too - ask for help in `Github
+  Discussions
+  <https://github.com/orgs/catalyst-cooperative/discussions/categories/help-me>`__
+  and maybe the ensuing discussion will be useful to other people too!
 * `Suggest new data and features <https://github.com/catalyst-cooperative/pudl/issues/new?template=feature_request.md>`__ that would be useful.
 * `File bug reports <https://github.com/catalyst-cooperative/pudl/issues/new?template=bug_report.md>`__ on Github.
 * Help expand and improve the documentation, or create new
   `example notebooks <https://github.com/catalyst-cooperative/pudl-examples/>`__
 * Help us create more and better software :doc:`test cases <dev/testing>`.
-* Give us feedback on overall usability -- what's confusing?
+* Give us feedback on overall usability using `GitHub Discussions
+  <https://github.com/orgs/catalyst-cooperative/discussions/categories/ideas>`__
+  -- what's confusing?
 * Tell us a story about how you're using of the data.
 * Point us at interesting publications related to open energy data, open source energy
   system modeling, how energy policy can be affected by better data, or open source
@@ -72,8 +77,8 @@ support open-source software and stay sane
 <https://www.nature.com/articles/d41586-019-02046-0>`__, it's much more efficient to
 ask and answer questions in a public forum because then other users and contributors
 who are having the same problem can find answers without having to re-ask the same
-question. The forum we're using is our `Github issues
-<https://github.com/catalyst-cooperative/pudl/issues>`__.
+question. The forum we're using is our `Github discussions
+<https://github.com/catalyst-cooperative/discussions>`__.
 
 Even if you feel like you have a basic question, we want you to feel
 comfortable asking for help in public -- we (Catalyst) only recently came to
@@ -83,9 +88,25 @@ want people to use the software and data to do good things in the world. We
 want you to be able to access it. Using a public forum also enables the
 community of users to help each other!
 
-Don't hesitate to open an issue with a `feature request
-<https://github.com/catalyst-cooperative/pudl/issues/new?template=feature_request.md>`__,
+Don't hesitate to post a discussion with a `feature request
+<https://github.com/catalyst-cooperative/discussions/categories/ideas>`__,
 a pointer to energy data that needs liberating, or a reference to documentation
 that's out of date, unclear, or missing. Understanding how people are using the
 software, and how they would *like* to be using the software, is very valuable and
 will help us make it more useful and usable.
+
+-------------------------------------------------------------------------------
+Our design process
+-------------------------------------------------------------------------------
+
+We do our technical design out in the open, so that community members can weigh
+in. Here's the process we usually follow:
+
+1. Someone has a problem they'd like to solve. They post in the `Ideas
+   <https://github.com/orgs/catalyst-cooperative/discussions/categories/ideas>`__
+   forum with their problem and some context.
+
+2. Discussion ensues.
+
+3. When the open questions are answered, we create an issue from the discussion,
+   which holds the conclusions of the discussion.

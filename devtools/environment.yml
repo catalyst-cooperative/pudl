@@ -5,7 +5,7 @@ channels:
   - defaults
 dependencies:
   # Used to set up the environment
-  - pip>=21,<23
+  - pip>=21,<24
   - wheel
   - python>=3.10,<3.11
   - setuptools<66
@@ -23,9 +23,6 @@ dependencies:
     # These are not normal Python packages available on PyPI
   - nodejs # Useful for Jupyter
   - pandoc # Useful for rendering RST files in Atom
-
-  # Packages related to current projects but not the core package
-  - recordlinkage>=0.14,<0.16 # Used for fuzzy merge between FERC/EIA for RMI
 
   # Jupyter notebook specific packages:
   - jupyter-resource-usage~=0.5.0

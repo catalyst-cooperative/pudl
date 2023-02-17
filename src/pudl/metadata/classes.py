@@ -980,7 +980,10 @@ class DataSource(Base):
         data_source_dir = docs_dir / "data_sources"
         download_paths = [
             path.relative_to(data_source_dir)
-            for path in (data_source_dir / self.name).glob("*.pdf")
+            for path in (
+                list((data_source_dir / self.name).glob("*.pdf"))
+                + list((data_source_dir / self.name).glob("*.html"))
+            )
             if path.is_file()
         ]
         download_paths = sorted(download_paths)

@@ -3,8 +3,8 @@
 FERC1 and EIA report on many of the same plants and utilities, but have no embedded
 connection. We have combed through the FERC and EIA plants and utilities to generate
 id's which can connect these datasets. The resulting fields in the PUDL tables are
-`plant_id_pudl` and `utility_id_pudl`, respectively. This was done by hand in a
-spreadsheet which is in the `package_data/glue` directory. When mapping plants, we
+``plant_id_pudl`` and ``utility_id_pudl``, respectively. This was done by hand in a
+spreadsheet which is in the ``package_data/glue`` directory. When mapping plants, we
 considered a plant a co-located collection of electricity generation equipment. If a
 coal plant was converted to a natural gas unit, our aim was to consider this the same
 plant.  This module simply reads in the mapping spreadsheet and converts it to a
@@ -12,12 +12,12 @@ dictionary of dataframes.
 
 Because these mappings were done by hand and for every one of FERC Form 1's thousands of
 reported plants, we know there are probably some incorrect or incomplete mappings. If
-you see a `plant_id_pudl` or `utility_id_pudl` mapping that you think is incorrect,
+you see a ``plant_id_pudl`` or ``utility_id_pudl`` mapping that you think is incorrect,
 please open an issue on our Github!
 
 Note that the PUDL IDs may change over time. They are not guaranteed to be stable. If
 you need to find a particular plant or utility reliably, you should use its
-plant_id_eia, utility_id_eia, or utility_id_ferc1.
+``plant_id_eia``, ``utility_id_eia``, or ``utility_id_ferc1``.
 
 Another note about these id's: these id's map our definition of plants, which is not the
 most granular level of plant unit. The generators are typically the smaller, more

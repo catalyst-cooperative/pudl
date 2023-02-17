@@ -28,8 +28,13 @@ from pudl.io_managers import (
     ferc1_xbrl_sqlite_io_manager,
     pudl_sqlite_io_manager,
 )
+from ferc_xbrl_extractor import xbrl
+
+import pudl
+from pudl.extract.ferc1 import extract_xbrl_metadata
+from pudl.extract.xbrl import FercXbrlDatastore, _get_sqlite_engine
 from pudl.output.pudltabl import PudlTabl
-from pudl.settings import DatasetsSettings, EtlSettings
+from pudl.settings import DatasetsSettings, EtlSettings, XbrlFormNumber
 
 logger = logging.getLogger(__name__)
 
@@ -244,6 +249,53 @@ def ferc1_xbrl_sql_engine(ferc_to_sqlite, dataset_settings_config):
         resources={"dataset_settings": dataset_settings_config}
     )
     return ferc1_xbrl_sqlite_io_manager(context).engine
+
+
+@pytest.fixture(scope="session")
+def ferc_xbrl(
+    pudl_settings_fixture,
+    live_dbs,
+    ferc_to_sqlite_settings,
+    pudl_datastore_fixture,
+):
+    """Extract XBRL filings and produce raw DB+metadata files.
+
+    Extracts a subset of filings for each form for the year 2021.
+    """
+    if not live_dbs:
+        year = 2021
+
+        # Prep datastore
+        datastore = FercXbrlDatastore(pudl_datastore_fixture)
+
+        # Set step size for subsetting
+        step_size = 5
+
+        for form in XbrlFormNumber:
+            raw_archive, taxonomy_entry_point = datastore.get_taxonomy(year, form)
+
+            sqlite_engine = _get_sqlite_engine(form.value, pudl_settings_fixture, True)
+
+            form_settings = ferc_to_sqlite_settings.get_xbrl_dataset_settings(form)
+
+            # Extract every fifth filing
+            filings_subset = datastore.get_filings(year, form)[::step_size]
+            xbrl.extract(
+                filings_subset,
+                sqlite_engine,
+                raw_archive,
+                form.value,
+                requested_tables=form_settings.tables,
+                batch_size=len(filings_subset) // step_size + 1,
+                workers=step_size,
+                datapackage_path=pudl_settings_fixture[
+                    f"ferc{form.value}_xbrl_datapackage"
+                ],
+                metadata_path=pudl_settings_fixture[
+                    f"ferc{form.value}_xbrl_taxonomy_metadata"
+                ],
+                archive_file_path=taxonomy_entry_point,
+            )
 
 
 @pytest.fixture(scope="session", name="ferc1_xbrl_taxonomy_metadata")

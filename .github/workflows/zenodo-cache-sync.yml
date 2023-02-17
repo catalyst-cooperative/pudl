@@ -14,6 +14,9 @@ env:
 jobs:
   zenodo-cache-sync:
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      id-token: write
     strategy:
       fail-fast: false
     defaults:
@@ -32,7 +35,7 @@ jobs:
           ref: ${{ env.GITHUB_REF }}
 
       - name: Install Conda environment using mamba
-        uses: mamba-org/provision-with-micromamba@v14
+        uses: mamba-org/provision-with-micromamba@v15
         with:
           environment-file: test/test-environment.yml
           cache-env: true
@@ -55,7 +58,8 @@ jobs:
         id: gcloud-auth
         uses: "google-github-actions/auth@v1"
         with:
-          credentials_json: "${{ secrets.ZENODO_CACHE_MANAGER_SA_KEY }}"
+          workload_identity_provider: "projects/345950277072/locations/global/workloadIdentityPools/gh-actions-pool/providers/gh-actions-provider"
+          service_account: "zenodo-cache-manager@catalyst-cooperative-pudl.iam.gserviceaccount.com"
 
       - name: Set up Cloud SDK
         uses: google-github-actions/setup-gcloud@v1
