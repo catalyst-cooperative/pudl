@@ -6,7 +6,6 @@ from dagster import Definitions, graph
 import pudl
 from pudl.extract.ferc1 import dbf2sqlite
 from pudl.extract.xbrl import xbrl2sqlite
-from pudl.package_data import settings
 from pudl.resources import datastore, ferc_to_sqlite_settings
 from pudl.settings import EtlSettings
 
@@ -37,7 +36,9 @@ ferc_to_sqlite_fast = ferc_to_sqlite.to_job(
         "resources": {
             "ferc_to_sqlite_settings": {
                 "config": EtlSettings.from_yaml(
-                    importlib.resources.path(settings, "etl_fast.yml")
+                    importlib.resources.path(
+                        "pudl.package_data.settings", "etl_fast.yml"
+                    )
                 ).ferc_to_sqlite_settings.dict()
             }
         }

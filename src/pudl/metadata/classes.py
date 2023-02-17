@@ -1900,6 +1900,7 @@ class DatasetteMetadata(Base):
     @classmethod
     def from_data_source_ids(
         cls,
+        output_path: Path,
         data_source_ids: Iterable[str] = [
             "pudl",
             "ferc1",
@@ -1920,17 +1921,16 @@ class DatasetteMetadata(Base):
             "static_eia",
             "static_ferc1",
         ],
-        pudl_settings: dict = {},
     ) -> "DatasetteMetadata":
         """Construct a dictionary of DataSources from data source names.
 
         Create dictionary of first and last year or year-month for each source.
 
         Args:
+            output_path: PUDL_OUTPUT path.
             data_source_ids: ids of data sources currently included in Datasette
             xbrl_ids: ids of data converted XBRL data to be included in Datasette
             extra_etl_groups: ETL groups with resources that should be included
-            pudl_settings: Dictionary of settings.
         """
         # Compile a list of DataSource objects for use in the template
         data_sources = [
@@ -1950,7 +1950,7 @@ class DatasetteMetadata(Base):
         xbrl_resources = {}
         for xbrl_id in xbrl_ids:
             # Read JSON Package descriptor from file
-            with open(pudl_settings[f"{xbrl_id}_datapackage"]) as f:
+            with open(output_path / f"{xbrl_id}_datapackage.json") as f:
                 descriptor = json.load(f)
 
             # Use descriptor to create Package object
