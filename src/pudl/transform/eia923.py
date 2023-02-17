@@ -617,7 +617,6 @@ def generation_fuel(eia923_dfs, eia923_transformed_dfs):
     # Drop fields we're not inserting into the generation_fuel_eia923 table.
     cols_to_drop = [
         "combined_heat_power",
-        "plant_name_eia",
         "operator_name",
         "operator_id",
         "plant_state",
