@@ -3849,8 +3849,6 @@ def ferc1_transform_asset_factory(
         else:
             transformer = tfr_class(xbrl_metadata_json=xbrl_metadata_json[table_name])
 
-        logger.info(f"{table_name} kwargs key: {kwargs.keys()}")
-
         raw_dbf = pd.concat(
             [df for key, df in kwargs.items() if key.startswith("raw_dbf__")]
         )
