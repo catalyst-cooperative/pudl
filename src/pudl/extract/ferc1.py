@@ -1082,7 +1082,7 @@ def create_raw_ferc1_assets() -> list[SourceAsset]:
     # Create assets for the duration and instant tables
     xbrls = (v["xbrl"] for v in TABLE_NAME_MAP_FERC1.values())
     flattened_xbrls = chain.from_iterable(
-        x if isinstance(x, list) else [x] for x in dbfs
+        x if isinstance(x, list) else [x] for x in xbrls
     )
     xbrls_with_periods = chain.from_iterable(
         (f"{tn}_instant", f"{tn}_duration") for tn in flattened_xbrls

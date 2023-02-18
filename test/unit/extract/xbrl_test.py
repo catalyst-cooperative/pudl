@@ -206,7 +206,6 @@ def test_convert_form(mocker):
 
     settings = FercGenericXbrlToSqliteSettings(
         taxonomy="https://www.fake.taxonomy.url",
-        tables=["table1", "table2"],
         years=[2020, 2021],
     )
 

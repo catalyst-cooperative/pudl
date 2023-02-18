@@ -3,7 +3,7 @@ import itertools
 import json
 import pathlib
 from enum import Enum, unique
-from typing import ClassVar, Literal
+from typing import ClassVar
 
 import pandas as pd
 import yaml
@@ -14,7 +14,6 @@ from pydantic import BaseSettings, root_validator, validator
 
 import pudl
 import pudl.workspace.setup
-from pudl.helpers import flatten_list
 from pudl.metadata.classes import DataSource
 from pudl.metadata.resources.eia861 import TABLE_DEPENDENCIES
 from pudl.workspace.datastore import Datastore
@@ -617,103 +616,6 @@ class EtlSettings(BaseSettings):
 
     pudl_in: str = pudl.workspace.setup.get_defaults()["pudl_in"]
     pudl_out: str = pudl.workspace.setup.get_defaults()["pudl_out"]
-
-    @root_validator(pre=False)
-    def raw_table_validation_ferc1(cls, field_values):
-        """Ensure FERC to SQLite and PUDL ETL settings are internally self-consistent.
-
-        If FERC Form 1 tables are specified in both the :class:`FercToSqliteSettings`
-        and :class:`Ferc1Settings` within a single :class:`EtlSettings` object, ensure
-        that any FERC Form 1 tables required by the PUDL ETL will be produced by the
-        FERC to SQLite extraction. Otherwise raise a validation error.
-
-        To prevent this validation error, you can either remove one of the sets of
-        tables (if you aren't performing both steps of the ETL) or ensure that the
-        specified sets of tables are compatible.
-        """
-        # only check if we are actually loading any pudl tables. check for datasets
-        # first bc default null is None, which will have no ferc1 attribute
-        if (
-            not field_values["datasets"]
-            or (field_values["datasets"] and not field_values["datasets"].ferc1)
-            or not field_values["ferc_to_sqlite_settings"]
-        ):
-            return field_values
-        ferc1_settings = field_values["datasets"].ferc1
-        ferc1_xbrl_to_sqlite_settings = field_values[
-            "ferc_to_sqlite_settings"
-        ].ferc1_xbrl_to_sqlite_settings
-        ferc1_dbf_to_sqlite_settings = field_values[
-            "ferc_to_sqlite_settings"
-        ].ferc1_dbf_to_sqlite_settings
-
-        pudl_etl_tables = ferc1_settings.tables
-        table_map = {
-            pudl_table: raw_dict
-            for (
-                pudl_table,
-                raw_dict,
-            ) in pudl.extract.ferc1.TABLE_NAME_MAP_FERC1.items()
-            if pudl_table in pudl_etl_tables
-        }
-
-        def _get_tables_from_table_map_by_source(
-            table_map: dict[str, dict[Literal["dbf", "xbrl"], str | list[str]]],
-            source_ferc1: Literal["dbf", "xbrl"],
-        ) -> set:
-            """Convert the table_map into a set of source table names.
-
-            We grab all of the raw tables needed from the FERC1 sources from the
-            table_map. These raw tables are stored as either a string or a list of
-            strings, so we flatten them. The we add the respondent table because it is
-            always needed.
-            """
-            tables_needed = set(
-                flatten_list(
-                    [tbl_dict[source_ferc1] for tbl_dict in table_map.values()]
-                )
-            )
-            # add the respondent table bc its always needed
-            tables_needed.add(
-                "f1_respondent_id" if source_ferc1 == "dbf" else "identification_001"
-            )
-            return tables_needed
-
-        def missing_table_error_message(
-            missing_tables: list[str],
-            source_ferc1: Literal["dbf", "xbrl"],
-        ) -> str:
-            """Return error message for missing tables."""
-            return (
-                f"There are tables missing from ferc1_{source_ferc1}_to_sqlite_settings"
-                " that are needed to load FERC-derivative PUDL tables in these settings."
-                f"\nMissing Tables: {missing_tables}. \nNOTE: If you are not trying to "
-                "run ferc_to_sqlite, but your settings contain FERC-derivative PUDL "
-                "tables, you can EITHER provide NO ferc_to_sqlite_settings or provide "
-                "tables consistent with your PUDL table settings."
-            )
-
-        # DBF table check
-        if ferc1_dbf_to_sqlite_settings:
-            dbf_tables_needed = _get_tables_from_table_map_by_source(table_map, "dbf")
-            if dbf_missing := dbf_tables_needed.difference(
-                set(ferc1_dbf_to_sqlite_settings.tables)
-            ):
-                raise AssertionError(missing_table_error_message(dbf_missing, "dbf"))
-
-        # XBRL table check
-        # the XBRL extractor can take a list of none and extract everything so only
-        # do this check if there are any tables given.
-        if ferc1_xbrl_to_sqlite_settings and ferc1_xbrl_to_sqlite_settings.tables:
-            xbrl_tables_needed = _get_tables_from_table_map_by_source(table_map, "xbrl")
-            xbrl_tables_needed = {tbl + "_instant" for tbl in xbrl_tables_needed} | {
-                tbl + "_duration" for tbl in xbrl_tables_needed
-            }
-            if xbrl_missing := xbrl_tables_needed.difference(
-                set(ferc1_xbrl_to_sqlite_settings.tables)
-            ):
-                raise AssertionError(missing_table_error_message(xbrl_missing, "xbrl"))
-        return field_values
 
     @classmethod
     def from_yaml(cls, path: str) -> "EtlSettings":

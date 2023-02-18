@@ -462,7 +462,7 @@ class FercDBFSQLiteIOManager(FercSQLiteIOManager):
                     "min_year": min(ferc1_settings.dbf_years),
                     "max_year": max(ferc1_settings.dbf_years),
                 },
-            )
+            ).assign(sched_table_name=table_name)
 
 
 @io_manager(
@@ -532,7 +532,7 @@ class FercXBRLSQLiteIOManager(FercSQLiteIOManager):
                     "min_year": min(ferc1_settings.xbrl_years),
                     "max_year": max(ferc1_settings.xbrl_years),
                 },
-            )
+            ).assign(sched_table_name=table_name)
 
 
 @io_manager(
