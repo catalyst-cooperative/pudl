@@ -579,6 +579,54 @@ def utilities(eia860_dfs, eia860_transformed_dfs):
     return eia860_transformed_dfs
 
 
+def boilers(eia860_dfs, eia860_transformed_dfs):
+    """Pull and transform the boilers table.
+
+    Transformations include:
+
+    * Replace . values with NA.
+    * Convert Y/N/NA values to boolean True/False.
+    * Combine month and year columns into date columns.
+
+    Args:
+        eia860_dfs (dict): Each entry in this
+            dictionary of DataFrame objects corresponds to a page from the EIA860 form,
+            as reported in the Excel spreadsheets they distribute.
+        eia860_transformed_dfs (dict): A dictionary of DataFrame objects in which pages
+            from EIA860 form (keys) correspond to normalized DataFrames of values from
+            that page (values).
+
+    Returns:
+        dict: eia860_transformed_dfs, a dictionary of DataFrame objects in which pages
+        from EIA860 form (keys) correspond to normalized DataFrames of values from that
+        page (values).
+    """
+    # Populating the 'boilers_eia860' table
+    b_df = eia860_dfs["boiler_info"].copy()
+
+    # Replace empty strings, whitespace, and '.' fields with real NA values
+    b_df = pudl.helpers.fix_eia_na(b_df)
+
+    boolean_columns_to_fix = [
+        "hrsg",
+        "fly_ash_reinjection",
+        "new_source_review",
+    ]
+
+    for column in boolean_columns_to_fix:
+        b_df[column] = (
+            b_df[column]
+            .fillna("NaN")
+            .replace(to_replace=["Y", "N", "NaN"], value=[True, False, pd.NA])
+        )
+
+    b_df = b_df.pipe(pudl.helpers.month_year_to_date).pipe(pudl.helpers.convert_to_date)
+
+    eia860_transformed_dfs["boilers_eia860"] = b_df
+
+    return eia860_transformed_dfs
+
+
 def transform(eia860_raw_dfs, eia860_settings: Eia860Settings = Eia860Settings()):
     """Transform EIA 860 DataFrames.
 
@@ -600,6 +648,7 @@ def transform(eia860_raw_dfs, eia860_settings: Eia860Settings = Eia860Settings()
         "plants_eia860": plants,
         "boiler_generator_assn_eia860": boiler_generator_assn,
         "utilities_eia860": utilities,
+        "boilers_eia860": boilers,
     }
     eia860_transformed_dfs = {}
 
