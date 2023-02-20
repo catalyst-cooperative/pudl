@@ -69,7 +69,8 @@ Miscellaneous
   ``__setstate__`` methods have been added to :class:`pudl.output.pudltabl.PudlTabl` and
   :class:`pudl.workspace.resource_cache.GoogleCloudStorageCache` to accommodate elements
   of their internals that could not otherwise be serialized.
-
+* Add generic spot fix method to transform process, to manually rescue FERC1 records.
+  See :pr:`2254` & :issue:`1980`.
 
 .. _release-v2022.11.30:
 
