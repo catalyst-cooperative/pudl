@@ -278,6 +278,7 @@ ENTITIES: dict[str, dict[str, list[str]]] = {
             "nox_control_planned_caaa_compliance_strategy_3",
             "data_maturity",
         ],
+        "keep_cols": ["data_maturity"],
     },
 }
 """Columns kept for either entity or annual EIA tables in the harvesting process.

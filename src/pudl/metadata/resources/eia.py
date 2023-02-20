@@ -21,9 +21,9 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
         "schema": {
             "fields": [
                 "plant_id_eia",
-                "utility_id_eia",
                 "boiler_id",
                 "prime_mover_code",
+                # Uncommenting creates "extra field not permitted" pydantic errors!!
                 # "state",
                 # "county",
                 # "operating_date",
