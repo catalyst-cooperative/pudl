@@ -1084,7 +1084,6 @@ def fix_balancing_authority_codes_with_state(
 
     * reported PACE, but state is OR or CA, code should be PACW
     * reported PACW, but state is UT, code should be PACE
-    * reported ISNE, but state is NY, code should be NYIS
 
     Args:
         plants: annually harvested plant table with columns: ``plant_id_eia``,
@@ -1115,7 +1114,7 @@ def fix_balancing_authority_codes_with_state(
             "PACE",
             "PACW",
             ba_name_to_code_map.loc[
-                ba_name_to_code_map.balancing_authority_code_eia == "NYIS",
+                ba_name_to_code_map.balancing_authority_code_eia == "PACW",
                 "balancing_authority_name_eia",
             ].tolist()[0],
             ["OR", "CA"],
@@ -1124,19 +1123,10 @@ def fix_balancing_authority_codes_with_state(
             "PACW",
             "PACE",
             ba_name_to_code_map.loc[
-                ba_name_to_code_map.balancing_authority_code_eia == "NYIS",
+                ba_name_to_code_map.balancing_authority_code_eia == "PACE",
                 "balancing_authority_name_eia",
             ].tolist()[0],
             ["UT"],
-        ),
-        BACodeFix(
-            "ISNE",
-            "NYIS",
-            ba_name_to_code_map.loc[
-                ba_name_to_code_map.balancing_authority_code_eia == "NYIS",
-                "balancing_authority_name_eia",
-            ].tolist()[0],
-            ["NY"],
         ),
     ]
     for fix in fixes:
