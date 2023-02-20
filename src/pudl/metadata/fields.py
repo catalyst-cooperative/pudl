@@ -704,17 +704,17 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     },
     "firing_rate_using_coal_tons_per_hour": {
         "type": "number",
-        "units": "tons_per_hour",
+        "unit": "tons_per_hour",
         "description": "Design firing rate at maximum continuous steam flow for coal to the nearest 0.1 ton per hour.",
     },
     "firing_rate_using_gas_mcf_per_hour": {
         "type": "number",
-        "units": "mcf_per_hour",
+        "unit": "mcf_per_hour",
         "description": "Design firing rate at maximum continuous steam flow for gas to the nearest 0.1 cubic feet per hour.",
     },
     "firing_rate_using_oil_bbls_per_hour": {
         "type": "number",
-        "units": "bbls_per_hour",
+        "unit": "bbls_per_hour",
         "description": "Design firing rate at maximum continuous steam flow for pet coke to the nearest 0.1 barrels per hour.",
     },
     "firing_rate_using_other_fuels": {
@@ -756,21 +756,21 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     },
     "fuel_consumed_for_electricity_mmbtu": {
         "type": "number",
-        "description": "Total consumption of fuel to produce electricity, in physical units, year to date.",
+        "description": "Total consumption of fuel to produce electricity, in physical unit, year to date.",
         "unit": "MMBtu",
     },
     "fuel_consumed_for_electricity_units": {
         "type": "number",
-        "description": "Consumption for electric generation of the fuel type in physical units.",
+        "description": "Consumption for electric generation of the fuel type in physical unit.",
     },
     "fuel_consumed_mmbtu": {
         "type": "number",
-        "description": "Total consumption of fuel in physical units, year to date. Note: this is the total quantity consumed for both electricity and, in the case of combined heat and power plants, process steam production.",
+        "description": "Total consumption of fuel in physical unit, year to date. Note: this is the total quantity consumed for both electricity and, in the case of combined heat and power plants, process steam production.",
         "unit": "MMBtu",
     },
     "fuel_consumed_units": {
         "type": "number",
-        "description": "Consumption of the fuel type in physical units. Note: this is the total quantity consumed for both electricity and, in the case of combined heat and power plants, process steam production.",
+        "description": "Consumption of the fuel type in physical unit. Note: this is the total quantity consumed for both electricity and, in the case of combined heat and power plants, process steam production.",
     },
     "fuel_cost_per_mmbtu": {
         "type": "number",
@@ -861,7 +861,7 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     },
     "fuel_units": {
         "type": "string",
-        "description": "Reported units of measure for fuel.",
+        "description": "Reported unit of measure for fuel.",
         # Note: Different ENUM constraints are applied below on EIA vs. FERC1
     },
     "furnished_without_charge_mwh": {"type": "number", "unit": "MWh"},
@@ -2246,7 +2246,7 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     "virtual_customers": {"type": "integer"},
     "waste_heat_input_mmbtu_per_hour": {
         "type": "number",
-        "units": "MMBtu_per_hour",
+        "unit": "MMBtu_per_hour",
         "description": "Design waste-heat input rate at maximum continuous steam flow where a waste-heat boiler is a boiler that receives all or a substantial portion of its energy input from the noncumbustible exhaust gases of a separate fuel-burning process (MMBtu per hour).",
     },
     "water_heater": {"type": "integer"},
@@ -2262,7 +2262,7 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     "weighted_average_life_years": {"type": "number"},
     "wet_dry_bottom": {
         "type": "string",
-        "units": "MMBtu_per_hour",
+        "unit": "MMBtu_per_hour",
         "description": "Wet or Dry Bottom where Wet Bottom is defined as slag tanks that are installed at furnace throat to contain and remove molten ash from the furnace, and Dry Bottom is defined as having no slag tanks at furnace throat area, throat area is clear, and bottom ash drops through throat to bottom ash water hoppers.",
     },
     "wheeled_power_delivered_mwh": {"type": "number", "unit": "MWh"},
