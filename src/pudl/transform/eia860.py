@@ -233,8 +233,8 @@ def generators(eia860_dfs, eia860_transformed_dfs):
 
     # A subset of the columns have zero values, where NA is appropriate:
     columns_to_fix = [
-        "planned_retirement_month",
-        "planned_retirement_year",
+        "planned_generator_retirement_month",
+        "planned_generator_retirement_year",
         "planned_uprate_month",
         "planned_uprate_year",
         "other_modifications_month",

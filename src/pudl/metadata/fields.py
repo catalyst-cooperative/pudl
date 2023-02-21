@@ -386,7 +386,7 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     "credits_or_adjustments": {"type": "number"},
     "critical_peak_pricing": {"type": "boolean"},
     "critical_peak_rebate": {"type": "boolean"},
-    "current_planned_operating_date": {
+    "current_planned_generator_operating_date": {
         "type": "date",
         "description": "The most recently updated effective date on which the generator is scheduled to start operation",
     },
@@ -892,6 +892,10 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "type": "date",
         "description": "Date the generator began commercial operation.",
     },
+    "generator_operating_year": {
+        "type": "integer",
+        "description": "Year a generator went into service.",
+    },
     "generator_retirement_date": {
         "type": "date",
         "description": "Date of the scheduled or effected retirement of the generator.",
@@ -1262,10 +1266,6 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "description": "Length of time interval measured.",
         "unit": "hr",
     },
-    "operating_year": {
-        "type": "integer",
-        "description": "Year a generator went into service.",
-    },
     "operating_voltage_kv": {
         "type": "number",
         "description": "The operating voltage, expressed kilo-volts, for three-phase 60 cycle alternative current transmission lines.",
@@ -1412,7 +1412,7 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "description": "Production expenses: water for power (USD).",
         "unit": "USD",
     },
-    "original_planned_operating_date": {
+    "original_planned_generator_operating_date": {
         "type": "date",
         "description": "The date the generator was originally scheduled to be operational",
     },
@@ -1538,6 +1538,10 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "type": "string",
         "description": "New energy source code for the planned repowered generator.",
     },
+    "planned_generator_retirement_date": {
+        "type": "date",
+        "description": "Planned effective date of the scheduled retirement of the generator.",
+    },
     "planned_modifications": {
         "type": "boolean",
         "description": "Indicates whether there are any planned capacity uprates/derates, repowering, other modifications, or generator retirements scheduled for the next 5 years.",
@@ -1574,10 +1578,6 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     "planned_repower_date": {
         "type": "date",
         "description": "Planned effective date that the generator is scheduled to enter operation after the repowering is complete.",
-    },
-    "planned_retirement_date": {
-        "type": "date",
-        "description": "Planned effective date of the scheduled retirement of the generator.",
     },
     "planned_uprate_date": {
         "type": "date",
