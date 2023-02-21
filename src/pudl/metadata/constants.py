@@ -27,7 +27,7 @@ FIELD_DTYPES_PYARROW: dict[str, pa.lib.DataType] = {
     "year": pa.int32(),
 }
 
-FIELD_DTYPES_SQL: dict[str, sa.sql.visitors.VisitableType] = {
+FIELD_DTYPES_SQL: dict[str, type] = {
     "boolean": sa.Boolean,
     "date": sa.Date,
     "datetime": sa.DateTime,
