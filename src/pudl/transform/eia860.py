@@ -627,12 +627,18 @@ def boilers(eia860_dfs, eia860_transformed_dfs):
     # Convert month and year columns to date.
     b_df = b_df.pipe(pudl.helpers.month_year_to_date).pipe(pudl.helpers.convert_to_date)
 
+    b_df = (
+        pudl.metadata.classes.Package.from_resource_ids()
+        .get_resource("boilers_eia860")
+        .encode(b_df)
+    )
+
     # Add boiler manufacturer name to column
-    b_df["boiler_manufacturer"] = b_df.boiler_manufacturer_code.str.upper().map(
+    b_df["boiler_manufacturer"] = b_df.boiler_manufacturer_code.map(
         pudl.helpers.label_map(
             CODE_METADATA["envr_equipment_manufacturer_codes_eia"]["df"],
             from_col="code",
-            to_col="label",
+            to_col="description",
             null_value=pd.NA,
         )
     )
