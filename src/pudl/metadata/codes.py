@@ -64,8 +64,9 @@ CODE_METADATA: dict[str, dict[str, Any]] = {
             "re": "RE",
             "OA": "OP",
             "IP": "CN",
+            "R": "RE",
         },
-        "ignored_codes": [0, "OC"],
+        "ignored_codes": [0, "OC", "T"],
     },
     "boiler_type_codes_eia": {
         "df": pd.DataFrame(
@@ -2007,7 +2008,7 @@ CODE_METADATA: dict[str, dict[str, Any]] = {
         "df": pd.DataFrame(
             columns=["code", "label", "description"],
             data=[
-                ("BO", "out_of_serive", "Burner out of service."),
+                ("BO", "out_of_service", "Burner out of service."),
                 ("CF", "fluidized_bed_combustor", "Fluidized bed combustor."),
                 ("CU", "control_unit", "Control unit under Phase I extension plan."),
                 ("FR", "flue_gas_recirculation", "Flue gas recirculation."),

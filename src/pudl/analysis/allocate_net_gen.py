@@ -351,7 +351,7 @@ def extract_input_tables(pudl_out: "pudl.output.pudltabl.PudlTabl"):
             "capacity_mw",
             "fuel_type_count",
             "operational_status",
-            "retirement_date",
+            "generator_retirement_date",
         ]
         + list(pudl_out.gens_eia860().filter(like="energy_source_code"))
         + list(pudl_out.gens_eia860().filter(like="startup_source_code")),
@@ -738,7 +738,7 @@ def identify_retiring_generators(gen_assoc):
     retiring_generators = gen_assoc.loc[
         (gen_assoc.operational_status == "retired")
         & (
-            (gen_assoc.report_date <= gen_assoc.retirement_date)
+            (gen_assoc.report_date <= gen_assoc.generator_retirement_date)
             | (gen_assoc.net_generation_mwh_g_tbl.notnull())
         )
     ]
@@ -754,7 +754,7 @@ def identify_retired_plants(gen_assoc):
     retired_generators_with_reported_gf = list(
         gen_assoc.loc[
             (gen_assoc.operational_status == "retired")
-            & (gen_assoc.report_date > gen_assoc.retirement_date)
+            & (gen_assoc.report_date > gen_assoc.generator_retirement_date)
             & (gen_assoc.net_generation_mwh_gf_tbl.notnull())
             & (gen_assoc.net_generation_mwh_g_tbl.isnull())
             & (gen_assoc.net_generation_mwh_gf_tbl != 0),
@@ -765,7 +765,7 @@ def identify_retired_plants(gen_assoc):
     # create a table for all of these plants that identifies all of the unique operational statuses
     plants_with_any_retired_generators = gen_assoc.loc[
         gen_assoc["plant_id_eia"].isin(retired_generators_with_reported_gf),
-        ["plant_id_eia", "operational_status", "retirement_date"],
+        ["plant_id_eia", "operational_status", "generator_retirement_date"],
     ].drop_duplicates()
 
     # remove plants that have operational statuses other than retired
@@ -784,7 +784,7 @@ def identify_retired_plants(gen_assoc):
     # only keep the plants where all retirement dates are before the current year
     plants_retiring_after_start_date = list(
         plants_with_only_retired_generators.loc[
-            plants_with_only_retired_generators["retirement_date"]
+            plants_with_only_retired_generators["generator_retirement_date"]
             >= min(gen_assoc.report_date),
             "plant_id_eia",
         ].unique()

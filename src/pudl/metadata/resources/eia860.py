@@ -73,9 +73,16 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
                 "nox_control_planned_caaa_compliance_strategy_3",
             ],
             "primary_key": ["boiler_id", "plant_id_eia", "report_date"],
-            # "foreign_key_rules": {
-            #    "fields": [["boiler_id", "plant_id_eia", "report_date"]],
-            # },
+            "foreign_key_rules": {
+                "fields": [["boiler_id", "plant_id_eia", "report_date"]],
+                # TODO: Excluding monthly data tables since their report_date
+                # values don't match up with generators_eia860, which is annual,
+                # so non-january records violate the constraint.
+                # See: https://github.com/catalyst-cooperative/pudl/issues/1196
+                "exclude": [
+                    "boiler_fuel_eia923",
+                ],
+            },
         },
         "field_namespace": "eia",
         "sources": ["eia860", "eia923"],
@@ -176,7 +183,7 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
                 "current_planned_operating_date",
                 "summer_estimated_capability_mw",
                 "winter_estimated_capability_mw",
-                "retirement_date",
+                "generator_retirement_date",
                 "owned_by_non_utility",
                 "reactive_power_output_mvar",
                 "ferc_qualifying_facility",

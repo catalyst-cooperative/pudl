@@ -168,6 +168,14 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "type": "string",
         "description": "Categorization of boiler manufacturer.",
     },
+    "boiler_operating_date": {
+        "type": "date",
+        "description": "Date the boiler began commercial operation.",
+    },
+    "boiler_retirement_date": {
+        "type": "date",
+        "description": "Date of the scheduled or effected retirement of the boiler.",
+    },
     "boiler_status": {
         "type": "string",
         "description": "EIA short code identifying boiler operational status.",
@@ -884,6 +892,14 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     },
     "generators_num_less_1_mw": {"type": "number", "unit": "MW"},
     "generators_number": {"type": "number"},
+    "generator_operating_date": {
+        "type": "date",
+        "description": "Date the generator began commercial operation.",
+    },
+    "generator_retirement_date": {
+        "type": "date",
+        "description": "Date of the scheduled or effected retirement of the generator.",
+    },
     "geo_agg": {
         "type": "string",
         "description": "Category of geographic aggregation in EIA bulk electricity data.",
@@ -1237,10 +1253,6 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "description": "Number of circuits in a transmission line.",
     },
     "operates_generating_plant": {"type": "boolean"},
-    "operating_date": {
-        "type": "date",
-        "description": "Date the unit began commercial operation.",
-    },
     "operating_datetime_utc": {
         "type": "datetime",
         "description": "Date and time measurement began (UTC).",
@@ -1782,10 +1794,6 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     "retail_marketing_activity": {"type": "boolean"},
     "retail_sales": {"type": "number"},
     "retail_sales_mwh": {"type": "number", "unit": "MWh"},
-    "retirement_date": {
-        "type": "date",
-        "description": "Date of the scheduled or effected retirement of the unit.",
-    },
     "retirements": {
         "type": "number",
         "description": "Cost of disposal of items classified within the account.",
