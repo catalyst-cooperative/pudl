@@ -447,7 +447,7 @@ def plants(eia860_dfs, eia860_transformed_dfs):
 
 
 def boiler_generator_assn(eia860_dfs, eia860_transformed_dfs):
-    """Pull and transform the boilder generator association table.
+    """Pull and transform the boiler generator association table.
 
     Transformations include:
 

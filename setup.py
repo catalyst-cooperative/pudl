@@ -51,14 +51,14 @@ setup(
         "catalystcoop.dbfread>=3.0,<3.1",
         "catalystcoop.ferc-xbrl-extractor==0.8.1",
         "coloredlogs>=15.0,<15.1",
-        "dask>=2021.8,<2023.1.2",
+        "dask>=2021.8,<2023.2.1",
         "datapackage>=1.11,<1.16",  # Transition datastore to use frictionless.
         # "email-validator>=1.0.3",  # pydantic[email] dependency
         "fsspec>=2021.7,<2023.1.1",  # For caching datastore on GCS
         "gcsfs>=2021.7,<2023.1.1",  # For caching datastore on GCS
         "geopandas>=0.9,<0.13",
         "jinja2>=2,<3.2",
-        "matplotlib>=3.3,<3.7",  # Should make this optional with a "viz" extras
+        "matplotlib>=3.3,<3.8",  # Should make this optional with a "viz" extras
         "networkx>=2.2,<3.1",
         "numpy>=1.18.5,!=1.23.0,<1.25",
         "pandas>=1.4,<1.5.4",
@@ -66,6 +66,7 @@ setup(
         "pydantic[email]>=1.7,<2",
         "python-snappy>=0.6,<0.7",
         "pyyaml>=5,<6.1",
+        "recordlinkage>=0.14,<0.16",
         "scikit-learn>=1.0,<1.3",
         "scipy>=1.6,<1.11",
         "Shapely>=2.0,<2.1",

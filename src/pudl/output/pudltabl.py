@@ -1197,6 +1197,25 @@ class PudlTabl:
     # GLUE OUTPUTS
     ###########################################################################
 
+    def ferc1_eia(
+        self,
+        update: bool = False,
+        update_plant_parts_eia: bool = False,
+        update_plants_all_ferc1: bool = False,
+        update_fbp_ferc1: bool = False,
+    ) -> pd.DataFrame:
+        """Generate the connection between FERC1 and EIA."""
+        update_any = any(
+            [update, update_plant_parts_eia, update_plants_all_ferc1, update_fbp_ferc1]
+        )
+        if update_any or self._dfs["ferc1_eia"] is None:
+            self._dfs["ferc1_eia"] = pudl.analysis.ferc1_eia.execute(
+                plant_parts_eia=self.plant_parts_eia(update=update_plant_parts_eia),
+                plants_all_ferc1=self.plants_all_ferc1(update=update_plants_all_ferc1),
+                fbp_ferc1=self.fbp_ferc1(update=update_fbp_ferc1),
+            )
+        return self._dfs["ferc1_eia"]
+
     def epacamd_eia(
         self,
         update: bool = False,
