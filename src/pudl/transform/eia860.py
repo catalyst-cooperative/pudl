@@ -587,6 +587,9 @@ def boilers(eia860_dfs, eia860_transformed_dfs):
     * Replace . values with NA.
     * Convert Y/N/NA values to boolean True/False.
     * Combine month and year columns into date columns.
+    * Add boiler manufacturer name column.
+    * Convert pre-2012 efficiency percentages to proportions to match post-2012
+      reporting.
 
     Args:
         eia860_dfs (dict): Each entry in this
@@ -607,6 +610,7 @@ def boilers(eia860_dfs, eia860_transformed_dfs):
     # Replace empty strings, whitespace, and '.' fields with real NA values
     b_df = pudl.helpers.fix_eia_na(b_df)
 
+    # Convert boolean columns from Y/N to True/False.
     boolean_columns_to_fix = [
         "hrsg",
         "fly_ash_reinjection",
@@ -620,7 +624,27 @@ def boilers(eia860_dfs, eia860_transformed_dfs):
             .replace(to_replace=["Y", "N", "NaN"], value=[True, False, pd.NA])
         )
 
+    # Convert month and year columns to date.
     b_df = b_df.pipe(pudl.helpers.month_year_to_date).pipe(pudl.helpers.convert_to_date)
+
+    # Add boiler manufacturer name to column
+    b_df["boiler_manufacturer"] = b_df.boiler_manufacturer_code.str.upper().map(
+        pudl.helpers.label_map(
+            CODE_METADATA["envr_equipment_manufacturer_codes_eia"]["df"],
+            from_col="code",
+            to_col="label",
+            null_value=pd.NA,
+        )
+    )
+
+    # Prior to 2012, efficiency was reported as a percentage, rather than
+    # as a proportion, so we need to divide those values by 100.
+    b_df.loc[b_df.report_date.dt.year < 2012, "efficiency_100pct_load"] = (
+        b_df.loc[b_df.report_date.dt.year < 2012, "efficiency_100pct_load"] / 100
+    )
+    b_df.loc[b_df.report_date.dt.year < 2012, "efficiency_50pct_load"] = (
+        b_df.loc[b_df.report_date.dt.year < 2012, "efficiency_50pct_load"] / 100
+    )
 
     eia860_transformed_dfs["boilers_eia860"] = b_df
 

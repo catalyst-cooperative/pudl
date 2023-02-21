@@ -58,7 +58,7 @@ GENS_1 = pd.DataFrame(
         "prime_mover_code": ["ST", "ST", "ST", "ST", "IC"],
         "capacity_mw": [7.5, 2.5, 2.5, 4.3, 1.8],
         "fuel_type_count": [2, 2, 2, 2, 2],
-        "retirement_date": [pd.NA, pd.NA, "2069-10-31", pd.NA, pd.NA],
+        "generator_retirement_date": [pd.NA, pd.NA, "2069-10-31", pd.NA, pd.NA],
         "operational_status": [
             "existing",
             "existing",

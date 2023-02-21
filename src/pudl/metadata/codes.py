@@ -65,8 +65,11 @@ CODE_METADATA: dict[str, dict[str, Any]] = {
             "OA": "OP",
             "IP": "CN",
             "R": "RE",
+            "P": "PL",
+            "V": "CO",
+            "ts": "TS",
         },
-        "ignored_codes": [0, "OC", "T"],
+        "ignored_codes": [0, "OC", "T", "0"],
     },
     "boiler_type_codes_eia": {
         "df": pd.DataFrame(
@@ -431,7 +434,7 @@ CODE_METADATA: dict[str, dict[str, Any]] = {
                 ),
             ],
         ).convert_dtypes(),
-        "code_fixes": {"H2": "H2O", "NH": "NH3", "ST": "STM"},
+        "code_fixes": {"H2": "H2O", "NH": "NH3", "ST": "STM", "ln": "LN"},
         "ignored_codes": ["NA"],
     },
     "nox_unit_codes_eia": {
@@ -2056,8 +2059,8 @@ CODE_METADATA: dict[str, dict[str, Any]] = {
                 ("NP", "no_plans", "No plans to control."),
             ],
         ).convert_dtypes(),
-        "code_fixes": {"NC": "NP"},  # ADD SO MANY HERE!!
-        "ignored_codes": ["NA"],
+        "code_fixes": {"NC": "NP"},
+        "ignored_codes": ["NA", "DB"],
     },
     "so2_unit_codes_eia": {
         "df": pd.DataFrame(

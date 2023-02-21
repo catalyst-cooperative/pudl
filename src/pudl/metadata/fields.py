@@ -166,7 +166,11 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     },
     "boiler_manufacturer": {
         "type": "string",
-        "description": "Categorization of boiler manufacturer.",
+        "description": "Name of boiler manufacturer.",
+    },
+    "boiler_manufacturer_code": {
+        "type": "string",
+        "description": "EIA short code for boiler manufacturer.",
     },
     "boiler_operating_date": {
         "type": "date",
@@ -606,14 +610,6 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     "energy_source_code_6": {
         "type": "string",
         "description": "The code representing the sixth most predominant type of energy that fuels the generator",
-    },
-    "energy_source_code_7": {
-        "type": "string",
-        "description": "EIA short code for primary fuels used by this boiler in order of predominance.",
-    },
-    "energy_source_code_8": {
-        "type": "string",
-        "description": "EIA short code for primary fuels used by this boiler in order of predominance.",
     },
     "energy_source_type": {
         "type": "string",
@@ -1686,6 +1682,38 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     },
     "price_responsive_programs": {"type": "boolean"},
     "price_responsiveness_customers": {"type": "integer"},
+    "primary_fuel_code_1": {
+        "type": "string",
+        "description": "The code representing the most predominant type of energy that fuels the boiler.",
+    },
+    "primary_fuel_code_2": {
+        "type": "string",
+        "description": "The code representing the second most predominant type of energy that fuels the boiler.",
+    },
+    "primary_fuel_code_3": {
+        "type": "string",
+        "description": "The code representing the third most predominant type of energy that fuels the boiler.",
+    },
+    "primary_fuel_code_4": {
+        "type": "string",
+        "description": "The code representing the fourth most predominant type of energy that fuels the boiler.",
+    },
+    "primary_fuel_code_5": {
+        "type": "string",
+        "description": "The code representing the fifth most predominant type of energy that fuels the boiler.",
+    },
+    "primary_fuel_code_6": {
+        "type": "string",
+        "description": "The code representing the sixth most predominant type of energy that fuels the boiler.",
+    },
+    "primary_fuel_code_7": {
+        "type": "string",
+        "description": "The code representing the seventh most predominant type of energy that fuels the boiler.",
+    },
+    "primary_fuel_code_8": {
+        "type": "string",
+        "description": "The code representing the eighth most predominant type of energy that fuels the boiler.",
+    },
     "primary_purpose_id_naics": {
         "type": "integer",
         "description": "North American Industry Classification System (NAICS) code that best describes the primary purpose of the reporting plant",
