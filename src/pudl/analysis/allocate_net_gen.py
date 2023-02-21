@@ -1545,7 +1545,6 @@ def adjust_energy_source_codes(
     if replacement_codes != "MSW":
         # for each type of energy source column, we want to expand any "MSW" values
         for esc_type in ["energy_", "planned_energy_", "startup_"]:
-
             # create a column of all unique fuels in the order in which they appear (ESC 1-6, startup fuel 1-6)
             # this column will have each fuel code separated by a comma
             gens["unique_esc"] = [

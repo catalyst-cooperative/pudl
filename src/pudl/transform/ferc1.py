@@ -2977,7 +2977,6 @@ class PlantsSmallFerc1TableTransformer(Ferc1AbstractTableTransformer):
             # Shorten execution time by only looking at groups with discernable
             # footnotes
             if group.footnote.any():
-
                 # Make a df that combines notes and ferc license with the same footnote
                 footnote_df = (
                     group[has_note]
