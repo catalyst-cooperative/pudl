@@ -1100,6 +1100,20 @@ def fix_balancing_authority_codes_with_state(
     ba_name_to_code_map = map_balancing_authority_names_to_codes(plants)
     ba_name_to_code_map.reset_index(inplace=True)
 
+    if ba_name_to_code_map.empty:  # Prior to 2013
+        ba_name_fix = ["PacifiCorp - West", "PacifiCorp - East"]
+    else:
+        ba_name_fix = [
+            ba_name_to_code_map.loc[
+                ba_name_to_code_map.balancing_authority_code_eia == "PACW",
+                "balancing_authority_name_eia",
+            ].tolist()[0],
+            ba_name_to_code_map.loc[
+                ba_name_to_code_map.balancing_authority_code_eia == "PACE",
+                "balancing_authority_name_eia",
+            ].tolist()[0],
+        ]
+
     plants = plants.merge(
         plants_entity[["plant_id_eia", "state"]],  # only merge in state, drop later
         on=["plant_id_eia"],
@@ -1113,19 +1127,13 @@ def fix_balancing_authority_codes_with_state(
         BACodeFix(
             "PACE",
             "PACW",
-            ba_name_to_code_map.loc[
-                ba_name_to_code_map.balancing_authority_code_eia == "PACW",
-                "balancing_authority_name_eia",
-            ].tolist()[0],
+            ba_name_fix[0],
             ["OR", "CA"],
         ),
         BACodeFix(
             "PACW",
             "PACE",
-            ba_name_to_code_map.loc[
-                ba_name_to_code_map.balancing_authority_code_eia == "PACE",
-                "balancing_authority_name_eia",
-            ].tolist()[0],
+            ba_name_fix[1],
             ["UT"],
         ),
     ]
