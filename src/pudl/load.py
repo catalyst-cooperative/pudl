@@ -34,10 +34,14 @@ def dfs_to_sqlite(
         check_types: if True, enforce column data types.
         check_values: if True, enforce value constraints.
     """
-    # This magic makes SQLAlchemy tell SQLite to check foreign key constraints
-    # whenever we insert data into thd database, which it doesn't do by default
+
     @sa.event.listens_for(sa.engine.Engine, "connect")
     def _set_sqlite_pragma(dbapi_connection, connection_record):
+        """Have SQLAlchemy tell SQLite to check foreign key constraints.
+
+        SQLite doesn't check FK constraints by default, but with this pragma enabled it
+        will check on insert.
+        """
         if isinstance(dbapi_connection, SQLite3Connection):
             cursor = dbapi_connection.cursor()
             cursor.execute(
