@@ -1,4 +1,5 @@
 """Dagster IO Managers."""
+import re
 from pathlib import Path
 from sqlite3 import sqlite_version
 
@@ -520,6 +521,7 @@ class FercXBRLSQLiteIOManager(FercSQLiteIOManager):
 
         id_table = "identification_001_duration"
 
+        sched_table_name = re.sub("_instant|_duration", "", table_name)
         with engine.connect() as con:
             return pd.read_sql(
                 f"""
@@ -532,7 +534,7 @@ class FercXBRLSQLiteIOManager(FercSQLiteIOManager):
                     "min_year": min(ferc1_settings.xbrl_years),
                     "max_year": max(ferc1_settings.xbrl_years),
                 },
-            ).assign(sched_table_name=table_name)
+            ).assign(sched_table_name=sched_table_name)
 
 
 @io_manager(
