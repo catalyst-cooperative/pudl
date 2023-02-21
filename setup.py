@@ -49,7 +49,8 @@ setup(
     install_requires=[
         "addfips>=0.4,<0.5",
         "catalystcoop.dbfread>=3.0,<3.1",
-        "catalystcoop.ferc-xbrl-extractor==0.8.1",
+        # "catalystcoop.ferc-xbrl-extractor==0.8.1",
+        "catalystcoop-ferc_xbrl_extractor @ git+https://github.com/catalyst-cooperative/ferc-xbrl-extractor@pandas-2.0",
         "coloredlogs>=15.0,<15.1",
         "dask>=2021.8,<2023.2.1",
         "datapackage>=1.11,<1.16",  # Transition datastore to use frictionless.
