@@ -390,6 +390,10 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "type": "integer",
         "description": "Year boiler was or is expected to be in compliance with federal, state and/or local regulations for nitrogen oxide emissions.",
     },
+    "compliance_year_mercury": {
+        "type": "integer",
+        "description": "Year boiler was or is expected to be in compliance with federal, state and/or local regulations for mercury emissions.",
+    },
     "compliance_year_pm": {
         "type": "integer",
         "description": "Year boiler was or is expected to be in compliance with federal, state and/or local regulations for particulate matter emissions.",
@@ -1080,6 +1084,94 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "description": "Mercury content in parts per million (ppm) to the nearest 0.001 ppm.",
         "unit": "ppm",
     },
+    "mercury_control_existing_strategy_1": {
+        "type": "string",
+        "description": "Existing strategy to comply with the most stringent mercury regulation.",
+    },
+    "mercury_control_existing_strategy_2": {
+        "type": "string",
+        "description": "Existing strategy to comply with the most stringent mercury regulation.",
+    },
+    "mercury_control_existing_strategy_3": {
+        "type": "string",
+        "description": "Existing strategy to comply with the most stringent mercury regulation.",
+    },
+    "mercury_control_proposed_strategy_1": {
+        "type": "string",
+        "description": "Proposed strategy to comply with the most stringent mercury regulation.",
+    },
+    "mercury_control_proposed_strategy_2": {
+        "type": "string",
+        "description": "Proposed strategy to comply with the most stringent mercury regulation.",
+    },
+    "mercury_control_proposed_strategy_3": {
+        "type": "string",
+        "description": "Proposed strategy to comply with the most stringent mercury regulation.",
+    },
+    "mercury_emission_activated_carbon_injection": {
+        "type": "boolean",
+        "description": "Indicates whether the boiler has an activated carbon injection system.",
+    },
+    "mercury_emission_baghouse": {
+        "type": "boolean",
+        "description": "Indicates whether the boiler has a baghouse.",
+    },
+    "mercury_emission_baghouse_pulse": {
+        "type": "boolean",
+        "description": "Indicates whether the boiler has a baghouse, pulse.",
+    },
+    "mercury_emission_baghouse_reverse_air": {
+        "type": "boolean",
+        "description": "Indicates whether the boiler has a baghouse, reverse air.",
+    },
+    "mercury_emission_baghouse_shake_and_deflate": {
+        "type": "boolean",
+        "description": "Indicates whether the boiler has a baghouse, shake and deflate.",
+    },
+    "mercury_emission_control": {
+        "type": "boolean",
+        "description": "Indicates whether the boiler has mercury emission controls.",
+    },
+    "mercury_emission_dry_scrubber": {
+        "type": "boolean",
+        "description": "Indicates whether the boiler has a dry scrubber.",
+    },
+    "mercury_emission_electrostatic_precipitator": {
+        "type": "boolean",
+        "description": "Indicates whether the boiler has an electrostatic precipitator.",
+    },
+    "mercury_emission_electrostatic_precipitator_cold_side_with_flue_gas_conditioning": {
+        "type": "boolean",
+        "description": "Indicates whether the boiler has an electrostatic precipitator, cold side, with flue gas conditioning.",
+    },
+    "mercury_emission_electrostatic_precipitator_cold_side_without_flue_gas_conditioning": {
+        "type": "boolean",
+        "description": "Indicates whether the boiler has an electrostatic precipitator, cold side, without flue gas conditioning.",
+    },
+    "mercury_emission_electrostatic_precipitator_hot_side_with_flue_gas_conditioning": {
+        "type": "boolean",
+        "description": "Indicates whether the boiler has an electrostatic precipitator, hot side, with flue gas conditioning.",
+    },
+    "mercury_emission_electrostatic_precipitator_hot_side_without_flue_gas_conditioning": {
+        "type": "boolean",
+        "description": "Indicates whether the boiler has an electrostatic precipitator, hot side, without flue gas conditioning.",
+    },
+    "mercury_emission_flue_gas_desulfurization": {
+        "type": "boolean",
+        "description": "Indicates whether the boiler has a flue gas desulfurization system.",
+    },
+    "mercury_emission_lime_injection": {
+        "type": "boolean",
+        "description": "Indicates whether the boiler has a lime injection system.",
+    },
+    "mercury_emission_other": {
+        "type": "boolean",
+        "description": "Indicates whether the boiler has other mercury emission controls.",
+    },
+    "mercury_emission_wet_scrubber": {
+        "type": "boolean",
+        "description": "Indicates whether the boiler has a wet scrubber.",
+    },
     "merge_address": {"type": "string"},
     "merge_city": {"type": "string"},
     "merge_company": {"type": "string"},
@@ -1242,6 +1334,22 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "type": "string",
         "description": "Existing strategies to meet the nitrogen oxide requirements of Title IV of the Clean Air Act Amendment of 1990.",
     },
+    "nox_control_existing_strategy_1": {
+        "type": "string",
+        "description": "Existing strategy to comply with the most stringent nitrogen oxide regulation.",
+    },
+    "nox_control_existing_strategy_2": {
+        "type": "string",
+        "description": "Existing strategy to comply with the most stringent nitrogen oxide regulation.",
+    },
+    "nox_control_existing_strategy_3": {
+        "type": "string",
+        "description": "Existing strategy to comply with the most stringent nitrogen oxide regulation.",
+    },
+    "nox_control_manufacturer": {
+        "type": "string",
+        "description": "Code indicating the nitrogen oxide control burner manufacturer.",
+    },
     "nox_control_out_of_compliance_strategy_1": {
         "type": "string",
         "description": "If boiler is not in compliance with nitrogen oxide regulations, strategy for compliance.",
@@ -1265,6 +1373,22 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     "nox_control_planned_caaa_compliance_strategy_3": {
         "type": "string",
         "description": "Planned strategies to meet the nitrogen oxide requirements of Title IV of the Clean Air Act Amendment of 1990.",
+    },
+    "nox_control_proposed_strategy_1": {
+        "type": "string",
+        "description": "Proposed strategy to comply with the most stringent nitrogen oxide regulation.",
+    },
+    "nox_control_proposed_strategy_2": {
+        "type": "string",
+        "description": "Proposed strategy to comply with the most stringent nitrogen oxide regulation.",
+    },
+    "nox_control_proposed_strategy_3": {
+        "type": "string",
+        "description": "Proposed strategy to comply with the most stringent nitrogen oxide regulation.",
+    },
+    "nox_control_status": {
+        "type": "string",
+        "description": "Nitrogen oxide control status code.",
     },
     "nox_mass_lbs": {
         "type": "number",
@@ -1782,6 +1906,10 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "type": "string",
         "description": "Human-readable name of a US Census region.",
     },
+    "regulation_mercury": {
+        "type": "string",
+        "description": "Most stringent type of statute or regulation code under which the boiler is operating for mercury control standards.",
+    },
     "regulation_nox": {
         "type": "string",
         "description": "EIA short code for most stringent type of statute or regulation code under which the boiler is operating for nitrogen oxide control standards.",
@@ -1911,6 +2039,18 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "type": "string",
         "description": "Existing strategies to meet the sulfur dioxide requirements of Title IV of the Clean Air Act Amendment of 1990.",
     },
+    "so2_control_existing_strategy_1": {
+        "type": "string",
+        "description": "Existing strategy to comply with the most stringent sulfur dioxide regulation.",
+    },
+    "so2_control_existing_strategy_2": {
+        "type": "string",
+        "description": "Existing strategy to comply with the most stringent sulfur dioxide regulation.",
+    },
+    "so2_control_existing_strategy_3": {
+        "type": "string",
+        "description": "Existing strategy to comply with the most stringent sulfur dioxide regulation.",
+    },
     "so2_control_out_of_compliance_strategy_1": {
         "type": "string",
         "description": "If boiler is not in compliance with sulfur dioxide regulations, strategy for compliance.",
@@ -1934,6 +2074,18 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     "so2_control_planned_caaa_compliance_strategy_3": {
         "type": "string",
         "description": "Planned strategies to meet the sulfur dioxide requirements of Title IV of the Clean Air Act Amendment of 1990.",
+    },
+    "so2_control_proposed_strategy_1": {
+        "type": "string",
+        "description": "Proposed strategy to comply with the most stringent sulfur dioxide regulation.",
+    },
+    "so2_control_proposed_strategy_2": {
+        "type": "string",
+        "description": "Proposed strategy to comply with the most stringent sulfur dioxide regulation.",
+    },
+    "so2_control_proposed_strategy_3": {
+        "type": "string",
+        "description": "Proposed strategy to comply with the most stringent sulfur dioxide regulation.",
     },
     "so2_mass_lbs": {
         "type": "number",
@@ -1962,6 +2114,10 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     "standard_so2_rate": {
         "type": "number",
         "description": "Numeric value for the unit of measurement specified for sulfur dioxide.",
+    },
+    "standard_so2_percent_scrubbed": {
+        "type": "number",
+        "description": "The percent of sulfur dioxide to be scrubbed specified by the most stringent sulfur dioxide regulation.",
     },
     "start_point": {
         "type": "string",

@@ -606,9 +606,15 @@ def boilers(eia860_dfs, eia860_transformed_dfs):
     """
     # Populating the 'boilers_eia860' table
     b_df = eia860_dfs["boiler_info"].copy()
+    ecs = eia860_dfs["emission_control_strategies"].copy()
 
-    # Replace empty strings, whitespace, and '.' fields with real NA values
-    b_df = pudl.helpers.fix_eia_na(b_df)
+    # Combine and replace empty strings, whitespace, and '.' fields with real NA values
+
+    b_df = (
+        pd.concat([b_df, ecs], sort=True)
+        .dropna(subset=["boiler_id", "plant_id_eia"])
+        .pipe(pudl.helpers.fix_eia_na)
+    )
 
     # Replace 0's with NaN for certain columns.
     zero_columns_to_fix = [
