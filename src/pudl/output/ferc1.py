@@ -1,6 +1,4 @@
 """Functions for pulling FERC Form 1 data out of the PUDL DB."""
-from typing import Literal
-
 import numpy as np
 import pandas as pd
 import sqlalchemy as sa

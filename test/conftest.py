@@ -22,7 +22,7 @@ from ferc_xbrl_extractor import xbrl
 import pudl
 from pudl import resources
 from pudl.cli import get_etl_job
-from pudl.extract.ferc1 import extract_xbrl_metadata, xbrl_metadata_json
+from pudl.extract.ferc1 import xbrl_metadata_json
 from pudl.extract.xbrl import FercXbrlDatastore, _get_sqlite_engine
 from pudl.ferc_to_sqlite.cli import get_ferc_to_sqlite_job
 from pudl.io_managers import (
