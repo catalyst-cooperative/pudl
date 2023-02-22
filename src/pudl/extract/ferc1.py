@@ -1135,17 +1135,29 @@ def xbrl_metadata_json(context) -> dict[str, dict[str, list[dict[str, Any]]]]:
     with open(metadata_path) as f:
         xbrl_meta_all = json.load(f)
 
-    xbrl_meta_out = {}
-    for pudl_table in TABLE_NAME_MAP_FERC1:
-        xbrl_table = TABLE_NAME_MAP_FERC1[pudl_table]["xbrl"]
-        xbrl_meta_out[pudl_table] = {}
+    valid_tables = {
+        table_name: xbrl_table
+        for table_name in TABLE_NAME_MAP_FERC1
+        if (xbrl_table := TABLE_NAME_MAP_FERC1.get(table_name, {}).get("xbrl"))
+        is not None
+    }
 
-        for period in ["instant", "duration"]:
-            try:
-                xbrl_meta_out[pudl_table][period] = xbrl_meta_all[
-                    f"{xbrl_table}_{period}"
-                ]
-            except KeyError:
-                xbrl_meta_out[pudl_table][period] = []
+    def squash_period(xbrl_table: str | list[str], period, xbrl_meta_all):
+        if type(xbrl_table) is str:
+            xbrl_table = [xbrl_table]
+        return [
+            metadata
+            for table in xbrl_table
+            for metadata in xbrl_meta_all.get(f"{table}_{period}", [])
+            if metadata
+        ]
+
+    xbrl_meta_out = {
+        table_name: {
+            "instant": squash_period(xbrl_table, "instant", xbrl_meta_all),
+            "duration": squash_period(xbrl_table, "duration", xbrl_meta_all),
+        }
+        for table_name, xbrl_table in valid_tables.items()
+    }
 
     return xbrl_meta_out

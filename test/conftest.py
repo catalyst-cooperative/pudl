@@ -9,13 +9,7 @@ from pathlib import Path
 
 import pytest
 import yaml
-from dagster import (
-    DagsterInstance,
-    build_init_resource_context,
-    execute_job,
-    materialize_to_memory,
-    reconstructable,
-)
+from dagster import build_init_resource_context, materialize_to_memory
 from dotenv import load_dotenv
 from ferc_xbrl_extractor import xbrl
 
@@ -214,9 +208,7 @@ def ferc_to_sqlite(live_dbs, pudl_datastore_config, etl_settings):
     existing databases
     """
     if not live_dbs:
-        execute_job(
-            reconstructable(get_ferc_to_sqlite_job),
-            instance=DagsterInstance.get(),
+        get_ferc_to_sqlite_job().execute_in_process(
             run_config={
                 "resources": {
                     "ferc_to_sqlite_settings": {
@@ -323,9 +315,7 @@ def pudl_sql_io_manager(
     logger.info("setting up the pudl_engine fixture")
     if not live_dbs:
         # Run the ETL and generate a new PUDL SQLite DB for testing:
-        execute_job(
-            reconstructable(get_etl_job),
-            instance=DagsterInstance.get(),
+        get_etl_job().execute_in_process(
             run_config={
                 "resources": {
                     "dataset_settings": {
