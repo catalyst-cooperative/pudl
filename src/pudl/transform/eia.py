@@ -1100,42 +1100,52 @@ def fix_balancing_authority_codes_with_state(
     ba_name_to_code_map = map_balancing_authority_names_to_codes(plants)
     ba_name_to_code_map.reset_index(inplace=True)
 
-    plants = plants.merge(
-        plants_entity[["plant_id_eia", "state"]],  # only merge in state, drop later
-        on=["plant_id_eia"],
-        how="left",
-        validate="m:1",
-    )
-    BACodeFix = namedtuple(
-        "BACodeFix", ["ba_code_found", "ba_code_fix", "ba_name_fix", "states"]
-    )
-    fixes = [
-        BACodeFix(
-            "PACE",
-            "PACW",
-            ba_name_to_code_map.loc[
-                ba_name_to_code_map.balancing_authority_code_eia == "PACW",
-                "balancing_authority_name_eia",
-            ].tolist()[0],
-            ["OR", "CA"],
-        ),
-        BACodeFix(
-            "PACW",
-            "PACE",
-            ba_name_to_code_map.loc[
-                ba_name_to_code_map.balancing_authority_code_eia == "PACE",
-                "balancing_authority_name_eia",
-            ].tolist()[0],
-            ["UT"],
-        ),
-    ]
-    for fix in fixes:
-        plants.loc[
-            (plants.balancing_authority_code_eia == fix.ba_code_found)
-            & (plants.state.isin(fix.states)),
-            ["balancing_authority_code_eia", "balancing_authority_name_eia"],
-        ] = [fix.ba_code_fix, fix.ba_name_fix]
-    return plants.drop(columns=["state"])
+    # Prior to 2013, there are no BA codes or names. Running a pre-2013 subset of data
+    # through the transform will thus return an empty ba_name_to_code_map.
+    if (
+        not ba_name_to_code_map.empty
+        and plants.balancing_authority_code_eia.isin(["PACW", "PACE"]).any()
+    ):
+        logger.info("Spot fixing incorrect PACW/PACE BA codes and names.")
+
+        plants = plants.merge(
+            plants_entity[["plant_id_eia", "state"]],  # only merge in state, drop later
+            on=["plant_id_eia"],
+            how="left",
+            validate="m:1",
+        )
+        BACodeFix = namedtuple(
+            "BACodeFix", ["ba_code_found", "ba_code_fix", "ba_name_fix", "states"]
+        )
+        fixes = [
+            BACodeFix(
+                "PACE",
+                "PACW",
+                ba_name_to_code_map.loc[
+                    ba_name_to_code_map.balancing_authority_code_eia == "PACW",
+                    "balancing_authority_name_eia",
+                ].tolist()[0],
+                ["OR", "CA"],
+            ),
+            BACodeFix(
+                "PACW",
+                "PACE",
+                ba_name_to_code_map.loc[
+                    ba_name_to_code_map.balancing_authority_code_eia == "PACE",
+                    "balancing_authority_name_eia",
+                ].tolist()[0],
+                ["UT"],
+            ),
+        ]
+        for fix in fixes:
+            plants.loc[
+                (plants.balancing_authority_code_eia == fix.ba_code_found)
+                & (plants.state.isin(fix.states)),
+                ["balancing_authority_code_eia", "balancing_authority_name_eia"],
+            ] = [fix.ba_code_fix, fix.ba_name_fix]
+        plants = plants.drop(columns=["state"])
+
+    return plants
 
 
 def transform(
