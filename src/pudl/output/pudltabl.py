@@ -1130,12 +1130,12 @@ class PudlTabl:
                     "technology_description",
                     "energy_source_code_1",
                     "prime_mover_code",
-                    "operating_date",
-                    "retirement_date",
+                    "generator_operating_date",
+                    "generator_retirement_date",
                     "operational_status",
                     "capacity_mw",
                     "fuel_type_code_pudl",
-                    "planned_retirement_date",
+                    "planned_generator_retirement_date",
                 ]
                 gens_cols = list(set(gens_cols + default_cols))
             self._dfs[
