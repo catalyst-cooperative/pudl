@@ -72,7 +72,12 @@ Miscellaneous
   ``__setstate__`` methods have been added to :class:`pudl.output.pudltabl.PudlTabl` and
   :class:`pudl.workspace.resource_cache.GoogleCloudStorageCache` to accommodate elements
   of their internals that could not otherwise be serialized.
-
+* Add generic spot fix method to transform process, to manually rescue FERC1 records.
+  See :pr:`2254` & :issue:`1980`.
+* Reverted a fix made in :pr:`1909`, which mapped all plants located in NY state that
+  reported a balancing authority code of "ISONE" to "NYISO". These plants now retain
+  their original EIA codes. Plants with manual re-mapping of BA codes have also been
+  fixed to have correctly updated BA names. See :pr:`2312` and :issue:`2255`.
 
 .. _release-v2022.11.30:
 

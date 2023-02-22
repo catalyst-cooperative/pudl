@@ -924,7 +924,8 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
             derived from the raw DBF and/or XBRL inputs.
         """
         df = (
-            self.normalize_strings(df)
+            self.spot_fix_values(df)
+            .pipe(self.normalize_strings)
             .pipe(self.categorize_strings)
             .pipe(self.convert_units)
             .pipe(self.strip_non_numeric_values)
@@ -1606,7 +1607,11 @@ class FuelFerc1TableTransformer(Ferc1AbstractTableTransformer):
             A single transformed table concatenating multiple years of cleaned data
             derived from the raw DBF and/or XBRL inputs.
         """
-        return self.drop_invalid_rows(df).pipe(self.correct_units)
+        return (
+            self.spot_fix_values(df)
+            .pipe(self.drop_invalid_rows)
+            .pipe(self.correct_units)
+        )
 
     @cache_df(key="dbf")
     def process_dbf(self, raw_dbf: pd.DataFrame) -> pd.DataFrame:
@@ -2147,7 +2152,8 @@ class PlantsSmallFerc1TableTransformer(Ferc1AbstractTableTransformer):
             derived from the raw DBF and/or XBRL inputs.
         """
         df = (
-            self.normalize_strings(df)
+            self.spot_fix_values(df)
+            .pipe(self.normalize_strings)
             .pipe(self.nullify_outliers)
             .pipe(self.convert_units)
             .pipe(self.extract_ferc1_license)
@@ -2971,7 +2977,6 @@ class PlantsSmallFerc1TableTransformer(Ferc1AbstractTableTransformer):
             # Shorten execution time by only looking at groups with discernable
             # footnotes
             if group.footnote.any():
-
                 # Make a df that combines notes and ferc license with the same footnote
                 footnote_df = (
                     group[has_note]
