@@ -643,6 +643,7 @@ datasets:
         - plants_eia860
         - generators_eia860
         - ownership_eia860
+        - boilers_eia860
       years:
         [
           2001,
