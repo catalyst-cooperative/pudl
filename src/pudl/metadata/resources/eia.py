@@ -23,7 +23,6 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
                 "plant_id_eia",
                 "boiler_id",
                 "boiler_operating_date",
-                "boiler_retirement_date",
                 "boiler_manufacturer",
                 "boiler_manufacturer_code",
                 "firing_rate_using_coal_tons_per_hour",

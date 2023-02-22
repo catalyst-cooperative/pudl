@@ -203,7 +203,6 @@ ENTITIES: dict[str, dict[str, list[str]]] = {
         "id_cols": ["plant_id_eia", "boiler_id"],
         "static_cols": [
             "boiler_operating_date",
-            "boiler_retirement_date",
             "boiler_manufacturer",
             "boiler_manufacturer_code",
             "firing_rate_using_coal_tons_per_hour",
@@ -217,6 +216,7 @@ ENTITIES: dict[str, dict[str, list[str]]] = {
         "annual_cols": [
             "hrsg",
             "boiler_status",
+            "boiler_retirement_date",
             "boiler_type",
             "firing_type_1",
             "firing_type_2",
