@@ -1100,12 +1100,14 @@ def fix_balancing_authority_codes_with_state(
     ba_name_to_code_map = map_balancing_authority_names_to_codes(plants)
     ba_name_to_code_map.reset_index(inplace=True)
 
-    logger.info("Spot fixing incorrect PACW/PACE BA codes and names.")
-
+    # Prior to 2013, there are no BA codes or names. Running a pre-2013 subset of data
+    # through the transform will thus return an empty ba_name_to_code_map.
     if (
         not ba_name_to_code_map.empty
         and plants.balancing_authority_code_eia.isin(["PACW", "PACE"]).any()
     ):
+        logger.info("Spot fixing incorrect PACW/PACE BA codes and names.")
+
         plants = plants.merge(
             plants_entity[["plant_id_eia", "state"]],  # only merge in state, drop later
             on=["plant_id_eia"],
@@ -1141,10 +1143,9 @@ def fix_balancing_authority_codes_with_state(
                 & (plants.state.isin(fix.states)),
                 ["balancing_authority_code_eia", "balancing_authority_name_eia"],
             ] = [fix.ba_code_fix, fix.ba_name_fix]
-        return plants.drop(columns=["state"])
+        plants = plants.drop(columns=["state"])
 
-    else:  # If no fixes to be made
-        return plants
+    return plants
 
 
 def transform(
