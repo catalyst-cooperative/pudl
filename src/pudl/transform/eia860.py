@@ -610,6 +610,22 @@ def boilers(eia860_dfs, eia860_transformed_dfs):
     # Replace empty strings, whitespace, and '.' fields with real NA values
     b_df = pudl.helpers.fix_eia_na(b_df)
 
+    # Replace 0's with NaN for certain columns.
+    zero_columns_to_fix = [
+        "firing_rate_using_coal_tons_per_hour",
+        "firing_rate_using_gas_mcf_per_hour",
+        "firing_rate_using_oil_bbls_per_hour",
+        "firing_rate_using_other_fuels",
+        "fly_ash_reinjection",
+        "hrsg",
+        "new_source_review",
+        "turndown_ratio",
+        "waste_heat_input_mmbtu_per_hour",
+    ]
+
+    for column in zero_columns_to_fix:
+        b_df[column] = b_df[column].replace(to_replace=0, value=np.nan)
+
     # Convert boolean columns from Y/N to True/False.
     boolean_columns_to_fix = [
         "hrsg",
@@ -621,7 +637,9 @@ def boilers(eia860_dfs, eia860_transformed_dfs):
         b_df[column] = (
             b_df[column]
             .fillna("NaN")
-            .replace(to_replace=["Y", "N", "NaN"], value=[True, False, pd.NA])
+            .replace(
+                to_replace=["Y", "N", "NaN", "0"], value=[True, False, pd.NA, pd.NA]
+            )
         )
 
     # Convert month and year columns to date.
