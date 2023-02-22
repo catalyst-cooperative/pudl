@@ -229,11 +229,11 @@ class LayeredCache(AbstractCache):
         """Returns content of a given resource."""
         for i, cache in enumerate(self._caches):
             if cache.contains(resource):
-                logger.debug(
+                logger.info(
                     f"get:{resource} found in {i}-th layer ({cache.__class__.__name__})."
                 )
                 return cache.get(resource)
-        logger.debug(f"get:{resource} not found in the layered cache.")
+        logger.info(f"get:{resource} not found in the layered cache.")
         raise KeyError(f"{resource} not found in the layered cache")
 
     def add(self, resource: PudlResourceKey, value):
