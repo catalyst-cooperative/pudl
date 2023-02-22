@@ -32,6 +32,7 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
                 "waste_heat_input_mmbtu_per_hour",
                 "wet_dry_bottom",
                 "fly_ash_reinjection",
+                "prime_mover_code",
             ],
             "primary_key": ["plant_id_eia", "boiler_id"],
             "foreign_key_rules": {"fields": [["plant_id_eia", "boiler_id"]]},

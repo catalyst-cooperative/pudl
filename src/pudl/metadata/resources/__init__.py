@@ -180,6 +180,7 @@ ENTITIES: dict[str, dict[str, list[str]]] = {
             "waste_heat_input_mmbtu_per_hour",
             "wet_dry_bottom",
             "fly_ash_reinjection",
+            "prime_mover_code",
         ],
         "annual_cols": [
             "hrsg",
