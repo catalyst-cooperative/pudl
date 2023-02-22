@@ -70,7 +70,7 @@ def transform(
     for all fields. Be careful, and do some due diligence before eliminating columns.
 
     We talk more about the complexities regarding EPA "units" in our :doc:`Data Source
-    documentation page for EPACEMS </data_sources/epacems>`
+    documentation page for EPACEMS </data_sources/epacems>`.
 
     It's also important to note that the crosswalk is a static file: there is no year
     field. The plant_id_eia and generator_id fields, however, are foreign keys from an
