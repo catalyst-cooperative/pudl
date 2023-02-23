@@ -154,10 +154,12 @@ class SQLiteIOManager(IOManager):
             # Compare the new metadata with the existing metadata in the db.
             # If they are different, raise an error to clobber the database
             mc = MigrationContext.configure(engine.connect())
-            if compare_metadata(mc, self.md):
+            diff = compare_metadata(mc, self.md)
+            if diff:
                 raise MetadataDiffError(
                     "The database schema has changed. Delete the "
                     f"database at {db_path}"
+                    f"{diff}"
                 )
 
         return engine
