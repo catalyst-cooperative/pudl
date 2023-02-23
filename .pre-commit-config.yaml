@@ -2,7 +2,7 @@
 repos:
   # Quick content checks based on grepping for python specific patterns:
   - repo: https://github.com/pre-commit/pygrep-hooks
-    rev: v1.9.0
+    rev: v1.10.0
     hooks:
       - id: python-check-blanket-noqa # Prohibit overly broad QA exclusions.
       - id: python-no-eval # Never use eval() it's dangerous.
@@ -14,7 +14,7 @@ repos:
 
   # Other file formatting, plus common Git mistakes & text file standardization:
   - repo: https://github.com/pre-commit/pre-commit-hooks
-    rev: v4.3.0
+    rev: v4.4.0
     hooks:
       - id: check-added-large-files # Don't accidentally commit giant files.
       - id: check-merge-conflict # Watch for lingering merge markers.
@@ -22,7 +22,8 @@ repos:
       - id: check-case-conflict # Avoid case sensitivity in file names.
       - id: debug-statements # Watch for lingering debugger calls.
       - id: end-of-file-fixer # Ensure there's a newline at EOF.
-      - id: mixed-line-ending # Only newlines, no line-feeds.
+      - id: mixed-line-ending # Use Unix line-endings to avoid big no-op CSV diffs.
+        args: ["--fix=lf"]
       - id: trailing-whitespace # Remove trailing whitespace.
       - id: name-tests-test # Follow PyTest naming convention.
 
@@ -31,27 +32,27 @@ repos:
   ####################################################################################
   # Make sure import statements are sorted uniformly.
   - repo: https://github.com/PyCQA/isort
-    rev: 5.10.1
+    rev: 5.12.0
     hooks:
       - id: isort
 
   # Format the code
   - repo: https://github.com/psf/black
-    rev: 22.10.0
+    rev: 23.1.0
     hooks:
       - id: black
         language_version: python3.10
 
   # Format docstrings
   - repo: https://github.com/PyCQA/docformatter
-    rev: v1.5.0
+    rev: v1.5.1
     hooks:
       - id: docformatter
         args: ["--in-place", "--config", "tox.ini"]
 
   # Remove f-string prefix when there's nothing in the string to format.
   - repo: https://github.com/dannysepler/rm_unneeded_f_str
-    rev: v0.1.0
+    rev: v0.2.0
     hooks:
       - id: rm-unneeded-f-str
 
@@ -69,7 +70,7 @@ repos:
 
   # Update Python language constructs to modern standards
   - repo: https://github.com/asottile/pyupgrade
-    rev: v3.2.2
+    rev: v3.3.1
     hooks:
       - id: pyupgrade
         args: ["--py310-plus"]
@@ -80,7 +81,7 @@ repos:
 
   # Check for PEP8 non-compliance, code complexity, style, errors, etc:
   - repo: https://github.com/PyCQA/flake8
-    rev: 5.0.4
+    rev: 6.0.0
     hooks:
       - id: flake8
         args: [--config, tox.ini]
@@ -105,12 +106,12 @@ repos:
 
   # Lint Dockerfiles for errors and to ensure best practices
   - repo: https://github.com/AleksaC/hadolint-py
-    rev: v2.10.0
+    rev: v2.12.0.2
     hooks:
       - id: hadolint
   # Check for errors in restructuredtext (.rst) files under the doc hierarchy
   - repo: https://github.com/PyCQA/doc8
-    rev: v1.0.0
+    rev: v1.1.1
     hooks:
       - id: doc8
         args: [--config, tox.ini]

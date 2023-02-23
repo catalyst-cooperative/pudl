@@ -193,7 +193,6 @@ MISSING_SENTINEL = 0.00001
    sentinel value back to zero's. This is meant to find all instances of aggregated
    sentinel values. We avoid any negative values because there are instances of
    negative orignal values - especially negative net generation.
-
 """
 
 
@@ -1546,7 +1545,6 @@ def adjust_energy_source_codes(
     if replacement_codes != "MSW":
         # for each type of energy source column, we want to expand any "MSW" values
         for esc_type in ["energy_", "planned_energy_", "startup_"]:
-
             # create a column of all unique fuels in the order in which they appear (ESC 1-6, startup fuel 1-6)
             # this column will have each fuel code separated by a comma
             gens["unique_esc"] = [
@@ -1683,10 +1681,10 @@ def allocate_bf_data_to_gens(
 def warn_if_missing_pms(gens):
     """Log warning if there are too many null ``prime_mover_code`` s.
 
-    Warn if prime mover codes in gens do not match the codes in the gf table
-    this is something that should probably be fixed in the input data
-    see https://github.com/catalyst-cooperative/pudl/issues/1585
-    set a threshold and ignore 2001 bc most errors are 2001 errors.
+    Warn if prime mover codes in gens do not match the codes in the gf table this is
+    something that should probably be fixed in the input data see
+    https://github.com/catalyst-cooperative/pudl/issues/1585 set a threshold and ignore
+    2001 bc most errors are 2001 errors.
     """
     missing_pm = gens[
         gens["prime_mover_code"].isna() & (gens.report_date.dt.year != 2001)
@@ -1829,6 +1827,7 @@ def test_original_gf_vs_the_allocated_by_gens_gf(
     gf_allocated: pd.DataFrame,
     data_columns: list[str] = DATA_COLUMNS,
     by: list[str] = ["year", "plant_id_eia"],
+    acceptance_threshold: float = 0.07,
 ) -> pd.DataFrame:
     """Test whether the allocated data and original data sum up to similar values.
 
@@ -1876,10 +1875,10 @@ def test_original_gf_vs_the_allocated_by_gens_gf(
             f"{data_col}: {off_by_5_perc:.1%} of allocated plant/year's are off by more"
             " than 5%"
         )
-        if off_by_5_perc > 0.07:
+        if off_by_5_perc > acceptance_threshold:
             raise AssertionError(
-                f"More than the expected number of plants' allocated {data_col} are off"
-                " the original data by more than 5%."
+                f"{len(col_test)} of {len(gf_test)} plants' ({off_by_5_perc:.1%}) allocated {data_col} are off"
+                " the original data by more than 5%. Expected < {acceptance_threshold:.1%}."
             )
         max_diff = round(gf_test[f"{data_col}_diff"].max(), 2)
         min_diff = round(gf_test[f"{data_col}_diff"].min(), 2)

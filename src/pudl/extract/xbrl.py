@@ -25,7 +25,7 @@ class FercXbrlDatastore:
         """Instantiate datastore wrapper for ferc1 resources."""
         self.datastore = datastore
 
-    def get_taxonomy(self, year: int, form: XbrlFormNumber):
+    def get_taxonomy(self, year: int, form: XbrlFormNumber) -> tuple[io.BytesIO, str]:
         """Returns the path to the taxonomy entry point within the an archive."""
         raw_archive = self.datastore.get_unique_resource(
             f"ferc{form.value}", year=year, data_format="XBRL"
@@ -37,7 +37,7 @@ class FercXbrlDatastore:
 
         return io.BytesIO(raw_archive), taxonomy_entry_point
 
-    def get_filings(self, year: int, form: XbrlFormNumber):
+    def get_filings(self, year: int, form: XbrlFormNumber) -> list[InstanceBuilder]:
         """Return list of filings from archive."""
         archive = self.datastore.get_zipfile_resource(
             f"ferc{form.value}", year=year, data_format="XBRL"
@@ -57,12 +57,14 @@ class FercXbrlDatastore:
                     published = datetime.fromisoformat(info["published_parsed"])
 
                     if published > latest:
-                        latest_filing = f"{filing_id}.xbrl"
+                        latest = published
+                        latest_filing = filing_id
 
                 # Create in memory buffers with file data to be used in conversion
                 filings.append(
                     InstanceBuilder(
-                        io.BytesIO(archive.open(latest_filing).read()), filing_id
+                        io.BytesIO(archive.open(f"{latest_filing}.xbrl").read()),
+                        latest_filing,
                     )
                 )
 

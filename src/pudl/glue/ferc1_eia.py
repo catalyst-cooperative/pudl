@@ -3,8 +3,8 @@
 FERC1 and EIA report on many of the same plants and utilities, but have no embedded
 connection. We have combed through the FERC and EIA plants and utilities to generate
 id's which can connect these datasets. The resulting fields in the PUDL tables are
-`plant_id_pudl` and `utility_id_pudl`, respectively. This was done by hand in a
-spreadsheet which is in the `package_data/glue` directory. When mapping plants, we
+``plant_id_pudl`` and ``utility_id_pudl``, respectively. This was done by hand in a
+spreadsheet which is in the ``package_data/glue`` directory. When mapping plants, we
 considered a plant a co-located collection of electricity generation equipment. If a
 coal plant was converted to a natural gas unit, our aim was to consider this the same
 plant.  This module simply reads in the mapping spreadsheet and converts it to a
@@ -12,12 +12,12 @@ dictionary of dataframes.
 
 Because these mappings were done by hand and for every one of FERC Form 1's thousands of
 reported plants, we know there are probably some incorrect or incomplete mappings. If
-you see a `plant_id_pudl` or `utility_id_pudl` mapping that you think is incorrect,
+you see a ``plant_id_pudl`` or ``utility_id_pudl`` mapping that you think is incorrect,
 please open an issue on our Github!
 
 Note that the PUDL IDs may change over time. They are not guaranteed to be stable. If
 you need to find a particular plant or utility reliably, you should use its
-plant_id_eia, utility_id_eia, or utility_id_ferc1.
+``plant_id_eia``, ``utility_id_eia``, or ``utility_id_ferc1``.
 
 Another note about these id's: these id's map our definition of plants, which is not the
 most granular level of plant unit. The generators are typically the smaller, more
@@ -37,7 +37,7 @@ import sqlalchemy as sa
 import pudl
 from pudl.metadata.fields import apply_pudl_dtypes
 from pudl.transform.classes import StringNormalization, normalize_strings_multicol
-from pudl.transform.ferc1 import Ferc1AbstractTableTransformer, Ferc1TableId
+from pudl.transform.ferc1 import Ferc1AbstractTableTransformer, TableIdFerc1
 from pudl.transform.params.ferc1 import FERC1_STRING_NORM
 
 logger = pudl.logging_helpers.get_logger(__name__)
@@ -179,7 +179,7 @@ class GenericPlantFerc1TableTransformer(Ferc1AbstractTableTransformer):
     Intended for use in compiling all plant names for manual ID mapping.
     """
 
-    def __init__(self, table_id: Ferc1TableId, **kwargs):
+    def __init__(self, table_id: TableIdFerc1, **kwargs):
         """Initialize generic table transformer with table_id."""
         self.table_id = table_id
         super().__init__(**kwargs)
@@ -265,7 +265,7 @@ def get_plants_ferc1_raw(
     plant_dfs: list[pd.DataFrame] = []
     for table in plant_tables:
         plant_df = GenericPlantFerc1TableTransformer(
-            table_id=Ferc1TableId(table)
+            table_id=TableIdFerc1(table)
         ).transform(
             raw_dbf=ferc1_dbf_raw_dfs[table],
             raw_xbrl_instant=ferc1_xbrl_raw_dfs[table].get("instant", pd.DataFrame()),

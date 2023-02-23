@@ -17,6 +17,9 @@ jobs:
   build_and_deploy_pudl:
     name: Build Docker image, push to Docker Hub and deploy to a GCE VM
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      id-token: write
     steps:
       - name: Use pudl-deployment-dev vm and dev branch if running on a schedule
         if: ${{ (github.event_name == 'schedule') }}
@@ -40,7 +43,7 @@ jobs:
 
       - name: Docker Metadata
         id: docker_metadata
-        uses: docker/metadata-action@v4.1.1
+        uses: docker/metadata-action@v4.3.0
         with:
           images: catalystcoop/pudl-etl
           flavor: |
@@ -50,7 +53,7 @@ jobs:
             type=ref,event=tag
 
       - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v2.2.1
+        uses: docker/setup-buildx-action@v2.4.1
 
       - name: Login to DockerHub
         if: github.event_name != 'pull_request'
@@ -60,7 +63,7 @@ jobs:
           password: ${{ secrets.DOCKERHUB_TOKEN }}
 
       - name: Build image and push to Docker Hub
-        uses: docker/build-push-action@v3.2.0
+        uses: docker/build-push-action@v4.0.0
         with:
           context: .
           file: docker/Dockerfile
@@ -68,11 +71,11 @@ jobs:
           tags: ${{ steps.docker_metadata.outputs.tags }}
           labels: ${{ steps.docker_metadata.outputs.labels }}
 
-      # Authentication via credentials json
       - id: "auth"
         uses: "google-github-actions/auth@v1"
         with:
-          credentials_json: "${{ secrets.DEPLOY_PUDL_SA_KEY }}"
+          workload_identity_provider: "projects/345950277072/locations/global/workloadIdentityPools/gh-actions-pool/providers/gh-actions-provider"
+          service_account: "deploy-pudl-github-action@catalyst-cooperative-pudl.iam.gserviceaccount.com"
 
       # Setup gcloud CLI
       - name: Set up Cloud SDK
@@ -100,7 +103,10 @@ jobs:
             --container-env SLACK_TOKEN=${{ secrets.PUDL_DEPLOY_SLACK_TOKEN }} \
             --container-env GCE_INSTANCE=${{ env.GCE_INSTANCE }} \
             --container-env GCE_INSTANCE_ZONE=${{ env.GCE_INSTANCE_ZONE }} \
-            --container-env GCP_BILLING_PROJECT=${{ secrets.GCP_BILLING_PROJECT }}
+            --container-env GCP_BILLING_PROJECT=${{ secrets.GCP_BILLING_PROJECT }} \
+            --container-env AWS_ACCESS_KEY_ID=${{ secrets.AWS_ACCESS_KEY_ID }} \
+            --container-env AWS_SECRET_ACCESS_KEY=${{ secrets.AWS_SECRET_ACCESS_KEY }} \
+            --container-env AWS_DEFAULT_REGION=${{ secrets.AWS_DEFAULT_REGION }} \
 
       # Start the VM
       - name: Start the deploy-pudl-vm

@@ -272,7 +272,6 @@ class GenericExtractor:
                 ].index
                 expected_cols = page_cols.union(self.cols_added)
                 if set(newdata.columns) != set(expected_cols):
-
                     # TODO (bendnorman): Enforce canonical fields for all raw fields?
                     extra_raw_cols = set(newdata.columns).difference(expected_cols)
                     missing_raw_cols = set(expected_cols).difference(newdata.columns)

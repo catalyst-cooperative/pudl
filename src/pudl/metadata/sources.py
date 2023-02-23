@@ -21,6 +21,45 @@ SOURCES: dict[str, Any] = {
         "license_raw": LICENSES["us-govt"],
         "license_pudl": LICENSES["cc-by-4.0"],
     },
+    "eia176": {
+        "title": "EIA Form 176",
+        "path": "https://www.eia.gov/naturalgas/ngqs/",
+        "description": (
+            "The EIA Form 176, also known as the Annual Report of Natural and "
+            "Supplemental Gas Supply and Disposition, describes the origins, suppliers, "
+            "and disposition of natural gas on a yearly and state by state basis."
+        ),
+        "source_file_dict": {
+            "respondents": (
+                "Interstate natural gas pipeline companies; intrastate natural gas "
+                "pipeline companies; natural gas distribution companies; underground "
+                "natural gas storage (UNG) operators; synthetic natural gas plant "
+                "operators; field, well, or processing plant operators that deliver "
+                "natural gas directly to consumers (including their own industrial "
+                "facilities) other than for lease or plant use or processing; "
+                "field, well, or processing plant operators that transport gas to, "
+                "across, or from a State border through field or gathering facilities; "
+                "liquefied natural gas (LNG) storage operators."
+            ),
+            "source_format": "Comma Separated Value (.csv)",
+        },
+        "field_namespace": "eia",
+        "contributors": [CONTRIBUTORS["catalyst-cooperative"]],
+        "keywords": sorted(
+            set(
+                [
+                    "eia176",
+                    "form 176",
+                ]
+                + KEYWORDS["eia"]
+                + KEYWORDS["us_govt"]
+                + KEYWORDS["fuels"]
+                + KEYWORDS["environment"]
+            )
+        ),
+        "license_raw": LICENSES["us-govt"],
+        "license_pudl": LICENSES["cc-by-4.0"],
+    },
     "eia860": {
         "title": "EIA Form 860",
         "path": "https://www.eia.gov/electricity/data/eia860",
@@ -77,7 +116,7 @@ SOURCES: dict[str, Any] = {
         "field_namespace": "eia",
         "contributors": [],
         "working_partitions": {
-            "year_month": "2022-06",
+            "year_month": "2022-09",
         },
         "keywords": sorted(
             set(
@@ -530,6 +569,4 @@ SOURCES: dict[str, Any] = {
         "email": "pudl@catalyst.coop",
     },
 }
-"""
-Data source attributes by PUDL identifier.
-"""
+"""Data source attributes by PUDL identifier."""

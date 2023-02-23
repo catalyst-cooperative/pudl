@@ -96,6 +96,7 @@ class TransformParams(BaseModel):
         """Prevent parameters from changing part way through."""
 
         allow_mutation = False
+        extra = "forbid"
 
 
 class MultiColumnTransformParams(TransformParams):
@@ -794,9 +795,14 @@ def drop_invalid_rows(df: pd.DataFrame, params: InvalidRows) -> pd.DataFrame:
             params.required_valid_cols or [] + params.allowed_invalid_cols or []
         )
         missing_cols = [col for col in possible_cols if col not in df]
-        if missing_cols:
+        if missing_cols and params.allowed_invalid_cols:
             logger.warning(
                 "Columns used as drop_invalid_rows parameters do not appear in "
+                f"dataframe: {missing_cols}"
+            )
+        if missing_cols and params.required_valid_cols:
+            raise ValueError(
+                "Some required valid columns in drop_invalid_rows are missing from "
                 f"dataframe: {missing_cols}"
             )
         # set filter items using either required_valid_cols or allowed_invalid_cols
@@ -814,13 +820,99 @@ def drop_invalid_rows(df: pd.DataFrame, params: InvalidRows) -> pd.DataFrame:
     mask = ~cols_to_check.isin(params.invalid_values).all(axis="columns")
     # Mask the input dataframe and make a copy to avoid returning a slice.
     df_out = df[mask].copy()
-
     logger.info(
-        f"{1 - (len(df_out)/pre_drop_len):.1%} of records contain only "
-        f"{params.invalid_values} values in required columns. "
+        f"{1 - (len(df_out)/pre_drop_len):.1%} of records ({pre_drop_len-len(df_out)} "
+        f"rows) contain only {params.invalid_values} values in required columns. "
         "Dropped these 💩💩💩 records."
     )
     return df_out
+
+
+################################################################################
+# Replace values with NA
+################################################################################
+class ReplaceWithNa(TransformParams):
+    """Pameters that replace certain values with NA.
+
+    The categorize strings function replaces bad values, but it requires all the values
+    in the column to fall under a certain category. This function allows you to replace
+    certain specific values with NA without having to categorize the rest of the column.
+    """
+
+    replace_with_na: list[str]
+    """A list of values that should be replaced with NA."""
+
+
+def replace_with_na(col: pd.Series, params: ReplaceWithNa) -> pd.Series:
+    """Replace specified values with NA."""
+    return col.replace(params.replace_with_na, pd.NA)
+
+
+replace_with_na_multicol = multicol_transform_factory(replace_with_na)
+"""A multi-column version of the :func:`nullify_outliers` function."""
+
+################################################################################
+# Spot fix missing values
+################################################################################
+
+
+class SpotFixes(TransformParams):
+    """Parameters that replace certain values with a manually corrected value."""
+
+    idx_cols: list[str]
+    """The column(s) used to identify a record."""
+    fix_cols: list[str]
+    """The column(s) to be fixed."""
+    expect_unique: bool
+    """Set to True if each fix should correspond to only one row."""
+    spot_fixes: list[tuple[str | int | float | bool, ...]]
+    """A tuple containing the values of the idx_cols and fix_cols for each fix."""
+
+
+def spot_fix_values(df: pd.DataFrame, params: SpotFixes) -> pd.DataFrame:
+    """Manually fix one-off singular missing values and typos across a DataFrame.
+
+    Use this function to correct typos, missing values that are easily manually
+    identified through manual investigation of records, consistent issues for a small
+    number of records (e.g. incorrectly entered capacity data for 2-3 plants).
+
+    From an instance of :class:`SpotFixes`, this function takes a list of sets of
+    manual fixes and applies them to the specified records in a given dataframe. Each
+    set of fixes contains a list of identifying columns, a list of columns to be fixed,
+    and the values to be updated. A ValueError will be returned if spot-fixed datatypes
+    do not match those of the inputted dataframe. For each set of fixes, the
+    expect_unique parameter allows users to specify whether each fix should be applied
+    only to one row.
+
+    Returns:
+        The same input DataFrame but with some spot fixes corrected.
+    """
+    spot_fixes_df = pd.DataFrame(
+        params.spot_fixes, columns=params.idx_cols + params.fix_cols
+    )
+
+    # Convert input datatypes to match corresponding df columns.
+    for x in spot_fixes_df.columns:
+        spot_fixes_df[x] = spot_fixes_df[x].astype(df[x].dtypes.name)
+
+    spot_fixes_df = spot_fixes_df.set_index(params.idx_cols)
+    df = df.set_index(params.idx_cols)
+
+    if params.expect_unique is True and not df.index.is_unique:
+        cols_list = ", ".join(params.idx_cols)
+        raise ValueError(
+            f"This spot fix expects a unique set of idx_col, but the idx_cols provided are not uniquely identifying: {cols_list}."
+        )
+
+    # Only keep spot fix values found in the dataframe index.
+    spot_fixes_df = spot_fixes_df[spot_fixes_df.index.isin(df.index)]
+
+    if not spot_fixes_df.empty:
+        df.loc[spot_fixes_df.index, params.fix_cols] = spot_fixes_df
+
+    df = df.reset_index()
+
+    return df
 
 
 ################################################################################
@@ -846,6 +938,7 @@ class TableTransformParams(TransformParams):
     nullify_outliers: dict[str, ValidRange] = {}
     normalize_strings: dict[str, StringNormalization] = {}
     strip_non_numeric_values: dict[str, StripNonNumericValues] = {}
+    replace_with_na: dict[str, ReplaceWithNa] = {}
 
     # Transformations that apply to whole dataframes have to be treated individually,
     # with default initializations that result in no transformation taking place.
@@ -856,6 +949,9 @@ class TableTransformParams(TransformParams):
     rename_columns: RenameColumns = RenameColumns()
     # InvalidRows has a special case of all None parameters, where it does nothing:
     drop_invalid_rows: list[InvalidRows] = []
+    # This instantiates an empty list. The function iterates over a list,
+    # so does nothing.
+    spot_fix_values: list[SpotFixes] = []
 
     @classmethod
     def from_dict(cls, params: dict[str, Any]) -> "TableTransformParams":
@@ -1102,9 +1198,7 @@ class AbstractTableTransformer(ABC):
         return df
 
     def rename_columns(
-        self,
-        df: pd.DataFrame,
-        params: RenameColumns | None = None,
+        self, df: pd.DataFrame, params: RenameColumns | None = None, **kwargs
     ) -> pd.DataFrame:
         """Rename the whole collection of dataframe columns using input params.
 
@@ -1218,6 +1312,30 @@ class AbstractTableTransformer(ABC):
         logger.info(f"{self.table_id.value}: Dropping remaining invalid rows.")
         for param in params:
             df = drop_invalid_rows(df, param)
+        return df
+
+    def replace_with_na(
+        self,
+        df: pd.DataFrame,
+        params: dict[str, ReplaceWithNa] | None = None,
+    ) -> pd.DataFrame:
+        """Replace specified values with NA."""
+        if params is None:
+            params = self.params.replace_with_na
+        logger.info(f"{self.table_id.value}: Replacing specified values with NA.")
+        return replace_with_na_multicol(df, params)
+
+    def spot_fix_values(
+        self,
+        df: pd.DataFrame,
+        params: list[SpotFixes] | None = None,
+    ) -> pd.DataFrame:
+        """Replace specified values with specified values."""
+        if params is None:
+            params = self.params.spot_fix_values
+        logger.info(f"{self.table_id.value}: Spot fixing missing values.")
+        for param in params:
+            df = spot_fix_values(df, param)
         return df
 
     def enforce_schema(self, df: pd.DataFrame) -> pd.DataFrame:
