@@ -127,6 +127,22 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
         "etl_group": "static_eia",
         "field_namespace": "eia",
     },
+    "nox_control_status_codes_eia": {
+        "description": "A coding table describing the operational status of nitrogen oxide control units associated with boilers in the EIA-860 data.",
+        "schema": {
+            "fields": ["code", "label", "description"],
+            "primary_key": ["code"],
+            "foreign_key_rules": {
+                "fields": [
+                    ["nox_control_status"],
+                ]
+            },
+        },
+        "encoder": CODE_METADATA["nox_control_status_codes_eia"],
+        "sources": ["eia860"],
+        "etl_group": "static_eia",
+        "field_namespace": "eia",
+    },
     "nox_unit_codes_eia": {
         "description": "A coding table describing different units of measurement for nitrogen oxide in the EIA-860.",
         "schema": {
