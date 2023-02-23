@@ -437,6 +437,50 @@ CODE_METADATA: dict[str, dict[str, Any]] = {
         "code_fixes": {"H2": "H2O", "NH": "NH3", "ST": "STM", "ln": "LN"},
         "ignored_codes": ["NA"],
     },
+    "nox_control_status_codes_eia": {
+        "df": pd.DataFrame(
+            columns=["code", "label", "description"],
+            data=[
+                ("CN", "cancelled", "Cancelled (previously reported as “planned”)."),
+                ("CO", "under_construction", "A new unit under construction."),
+                (
+                    "OP",
+                    "operating",
+                    "In commercial service or out of service less than 365 days.",
+                ),
+                ("OS", "out_of_service", "Out of service for 365 days or longer."),
+                ("OZ", "ozone_season", "Operating during the ozone season."),
+                (
+                    "PL",
+                    "planned",
+                    "Planned.",
+                ),
+                (
+                    "RE",
+                    "retired",
+                    "No longer in service and not expected to be returned to service.",
+                ),
+                (
+                    "SB",
+                    "standby",
+                    "Standby or inactive reserve.",
+                ),
+                (
+                    "SC",
+                    "cold_standby",
+                    "Cold standby or reserve.",
+                ),
+                (
+                    "TS",
+                    "test",
+                    "Operating under test conditions.",
+                ),
+                ("NC", "no_plans", "No plans to control."),
+            ],
+        ).convert_dtypes(),
+        "code_fixes": {},
+        "ignored_codes": ["NA"],
+    },
     "nox_unit_codes_eia": {
         "df": pd.DataFrame(
             columns=["code", "label", "description"],
@@ -553,7 +597,7 @@ CODE_METADATA: dict[str, dict[str, Any]] = {
                 ("OT", "other", "Other: specify in schedule 7."),
             ],
         ).convert_dtypes(),
-        "code_fixes": {},
+        "code_fixes": {"DP": "PB"},
         "ignored_codes": [],
     },
     "power_purchase_types_ferc1": {
@@ -2005,9 +2049,9 @@ CODE_METADATA: dict[str, dict[str, Any]] = {
             ],
         ).convert_dtypes(),
         "code_fixes": {"St": "ST"},
-        "ignored_codes": ["NA"],
+        "ignored_codes": ["NA", "XX"],
     },
-    "so2_compliance_strategy_codes_eia": {  # TO DO: harmonize with 2021 data and equip data (most cols here should move to equip table.)
+    "so2_compliance_strategy_codes_eia": {  # TO DO: harmonize these columns with envr equip data when integrated.
         "df": pd.DataFrame(
             columns=["code", "label", "description"],
             data=[
@@ -2021,7 +2065,7 @@ CODE_METADATA: dict[str, dict[str, Any]] = {
                     "Use flue gas desulfurization unit or other SO2 control process (specify the specific type of equipment in Schedule 6A).",
                 ),
                 ("LA", "low_excess_air", "Low excess air."),
-                ("LN", "low_nitrogen_oxide_burner"),
+                ("LN", "low_nitrogen_oxide_burner", "Low nitrogen oxide burner."),
                 ("MS", "meeting_standard", "Currently meeting standard."),
                 ("RP", "repower_unit", "Repower unit."),
                 ("SS", "lower_sulfur_fuel", "Switch to lower sulfur fuel."),
@@ -2103,6 +2147,112 @@ CODE_METADATA: dict[str, dict[str, Any]] = {
         ).convert_dtypes(),
         "code_fixes": {},
         "ignored_codes": [],
+    },
+    "mercury_compliance_strategy_codes_eia": {  # TO DO: harmonize with 2021 data and equip data (most cols here should move to equip table.)
+        "df": pd.DataFrame(
+            columns=["code", "label", "description"],
+            data=[
+                (
+                    "BH",
+                    "baghouse",
+                    "Baghouse (fabric filter). After 2011, values use more specific columns BS, BP, BR.",
+                ),
+                (
+                    "BS",
+                    "baghouse_shake_deflate",
+                    "Baghouse (fabric filter), shake and deflate.",
+                ),
+                ("BP", "baghouse_pulse", "Baghouse (fabric filter), pulse."),
+                (
+                    "BR",
+                    "baghouse_reverse_air",
+                    "Baghouse (fabric filter), reverse air.",
+                ),
+                ("CD", "circulating_dry_scrubber", "Circulating dry scrubber."),
+                (
+                    "SD",
+                    "spray_dryer",
+                    "Spray dryer type / dry FGD / semi-dry FGD.",
+                ),
+                (
+                    "DS",
+                    "dry_scrubber",
+                    "Dry scrubber. Generic categorical column from pre-2013 data.",
+                ),
+                (
+                    "WS",
+                    "wet_scrubber",
+                    "Wet scrubber. Generic categorical column from pre-2013 data.",
+                ),
+                (
+                    "DSI",
+                    "dry_sorbent_injector",
+                    "Dry sorbent (powder) injection type.",
+                ),
+                (
+                    "ACI",
+                    "activated_carbon_injection",
+                    "Activated carbon injection system.",
+                ),
+                (
+                    "LIJ",
+                    "lime_injection",
+                    "Lime injection.",
+                ),
+                (
+                    "EP",
+                    "electrostatic_precipitator",
+                    "Electrostatic precipitator. After 2011, values use more specific columns EC, EH, EK, EW.",
+                ),
+                (
+                    "EC",
+                    "ec_cold_side_w_fg_cond",
+                    "Electrostatic precipitator, cold side, with flue gas conditioning.",
+                ),
+                (
+                    "EH",
+                    "ec_hot_side_w_fg_cond",
+                    "Electrostatic precipitator, hot side, with flue gas conditioning.",
+                ),
+                (
+                    "EK",
+                    "ec_cold_side_wo_fg_cond",
+                    "Electrostatic precipitator, cold side, without flue gas conditioning.",
+                ),
+                (
+                    "EW",
+                    "ec_hot_side_wo_fg_cond",
+                    "Electrostatic precipitator, hot side, without flue gas conditioning.",
+                ),
+                (
+                    "FGD",
+                    "flue_gas_desulfurization",
+                    "Flue gas desulfurization (pre-2013 only.)",
+                ),
+                ("JB", "jet_bubbling_reactor", "Jet bubbling reactor (wet) scrubber."),
+                (
+                    "MA",
+                    "mechanically_aided_scrubber",
+                    "Mechanically aided type (wet) scrubber.",
+                ),
+                (
+                    "PA",
+                    "packed_type_scrubber",
+                    "Packed type (wet) scrubber.",
+                ),
+                (
+                    "SP",
+                    "spray_type_scrubber",
+                    "Spray type (wet) scrubber.",
+                ),
+                ("TR", "tray_type_scrubber", "Tray type (wet) scrubber."),
+                ("VE", "venturi", "Venturi type (wet) scrubber."),
+                ("OT", "other", "Other: specify in schedule 7."),
+                ("ND", "not_determined", "Not determined at this time."),
+            ],
+        ).convert_dtypes(),
+        "code_fixes": {},
+        "ignored_codes": ["NA", "MC", "NP"],
     },
     "wet_dry_bottom_eia": {
         "df": pd.DataFrame(

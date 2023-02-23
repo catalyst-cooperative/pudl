@@ -139,6 +139,30 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
         "etl_group": "static_eia",
         "field_namespace": "eia",
     },
+    "mercury_compliance_strategy_codes_eia": {
+        "description": "A coding table describing different compliance strategies used to control mercury in the EIA-860.",
+        "schema": {
+            "fields": ["code", "label", "description"],
+            "primary_key": ["code"],
+            "foreign_key_rules": {
+                "fields": [
+                    ["mercury_control_proposed_strategy_1"],
+                    ["mercury_control_proposed_strategy_2"],
+                    ["mercury_control_proposed_strategy_3"],
+                    ["mercury_control_existing_strategy_1"],
+                    ["mercury_control_existing_strategy_2"],
+                    ["mercury_control_existing_strategy_3"],
+                    ["mercury_control_existing_strategy_4"],
+                    ["mercury_control_existing_strategy_5"],
+                    ["mercury_control_existing_strategy_6"],
+                ]
+            },
+        },
+        "encoder": CODE_METADATA["mercury_compliance_strategy_codes_eia"],
+        "sources": ["eia860"],
+        "etl_group": "static_eia",
+        "field_namespace": "eia",
+    },
     "period_codes_eia": {
         "description": "A coding table describing different units of time specified by statutes and regulation for particulate control in the EIA-860.",
         "schema": {
@@ -189,7 +213,12 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
             "fields": ["code", "label", "description"],
             "primary_key": ["code"],
             "foreign_key_rules": {
-                "fields": [["regulation_nox"], ["regulation_pm"], ["regulation_so2"]]
+                "fields": [
+                    ["regulation_nox"],
+                    ["regulation_pm"],
+                    ["regulation_so2"],
+                    ["regulation_mercury"],
+                ]
             },
         },
         "encoder": CODE_METADATA["regulation_codes_eia"],

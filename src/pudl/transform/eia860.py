@@ -632,11 +632,38 @@ def boilers(eia860_dfs, eia860_transformed_dfs):
     for column in zero_columns_to_fix:
         b_df[column] = b_df[column].replace(to_replace=0, value=np.nan)
 
+    # Fix unlikely year values for compliance year columns
+    year_cols_to_fix = [
+        "compliance_year_nox",
+        "compliance_year_so2",
+        "compliance_year_mercury",
+        "compliance_year_pm",
+    ]
+
+    for col in year_cols_to_fix:
+        b_df.loc[b_df[col] < 1900, col] = pd.NA
+
     # Convert boolean columns from Y/N to True/False.
     boolean_columns_to_fix = [
         "hrsg",
         "fly_ash_reinjection",
         "new_source_review",
+        "mercury_emission_control",
+        "ACI",
+        "BH",
+        "DS",
+        "EP",
+        "FGD",
+        "LIJ",
+        "WS",
+        "BS",
+        "BP",
+        "BR",
+        "EC",
+        "EH",
+        "EK",
+        "EW",
+        "OT",
     ]
 
     for column in boolean_columns_to_fix:
@@ -647,6 +674,57 @@ def boilers(eia860_dfs, eia860_transformed_dfs):
                 to_replace=["Y", "N", "NaN", "0"], value=[True, False, pd.NA, pd.NA]
             )
         )
+
+    # 2009-2012 data uses boolean columns for mercury equipment that
+    # later are converted to strategy codes. Here we convert them manually.
+
+    mercury_boolean_cols = [
+        "ACI",
+        "BH",
+        "DS",
+        "EP",
+        "FGD",
+        "LIJ",
+        "WS",
+        "BS",
+        "BP",
+        "BR",
+        "EC",
+        "EH",
+        "EK",
+        "EW",
+        "OT",
+    ]
+
+    # Get list of True columns
+    b_df["agg"] = b_df[mercury_boolean_cols].apply(
+        lambda row: row[row.__eq__(True)].index.to_list(), axis=1
+    )
+
+    # Split list into columns
+    b_df = pd.concat(
+        [
+            b_df.drop(columns="agg"),
+            pd.DataFrame(b_df["agg"].tolist(), index=b_df.index)
+            .add_prefix("mercury_strategy_")
+            .fillna(pd.NA),
+        ],
+        axis=1,
+    )
+
+    # Add three new mercury_strategy columns
+    (
+        b_df["mercury_control_existing_strategy_4"],
+        b_df["mercury_control_existing_strategy_5"],
+        b_df["mercury_control_existing_strategy_6"],
+    ) = [pd.NA, pd.NA, pd.NA]
+
+    for col in (col for col in b_df.columns if "mercury_strategy_" in col):
+        i = str(int(col[-1]) + 1)  # Get digit from column
+        # Fill strategy codes using columns
+        b_df[f"mercury_control_existing_strategy_{i}"] = b_df[
+            f"mercury_control_existing_strategy_{i}"
+        ].fillna(b_df[col])
 
     # Convert month and year columns to date.
     b_df = b_df.pipe(pudl.helpers.month_year_to_date).pipe(pudl.helpers.convert_to_date)
@@ -668,6 +746,12 @@ def boilers(eia860_dfs, eia860_transformed_dfs):
     )
     b_df.loc[b_df.report_date.dt.year < 2012, "efficiency_50pct_load"] = (
         b_df.loc[b_df.report_date.dt.year < 2012, "efficiency_50pct_load"] / 100
+    )
+
+    b_df = (
+        pudl.metadata.classes.Package.from_resource_ids()
+        .get_resource("boilers_eia860")
+        .encode(b_df)
     )
 
     eia860_transformed_dfs["boilers_eia860"] = b_df
@@ -712,4 +796,5 @@ def transform(eia860_raw_dfs, eia860_settings: Eia860Settings = Eia860Settings()
             )
             transform_func(eia860_raw_dfs, eia860_transformed_dfs)
 
+    return eia860_transformed_dfs
     return eia860_transformed_dfs

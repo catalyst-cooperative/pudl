@@ -1096,6 +1096,18 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "type": "string",
         "description": "Existing strategy to comply with the most stringent mercury regulation.",
     },
+    "mercury_control_existing_strategy_4": {
+        "type": "string",
+        "description": "Existing strategy to comply with the most stringent mercury regulation.",
+    },
+    "mercury_control_existing_strategy_5": {
+        "type": "string",
+        "description": "Existing strategy to comply with the most stringent mercury regulation.",
+    },
+    "mercury_control_existing_strategy_6": {
+        "type": "string",
+        "description": "Existing strategy to comply with the most stringent mercury regulation.",
+    },
     "mercury_control_proposed_strategy_1": {
         "type": "string",
         "description": "Proposed strategy to comply with the most stringent mercury regulation.",
@@ -1107,70 +1119,6 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     "mercury_control_proposed_strategy_3": {
         "type": "string",
         "description": "Proposed strategy to comply with the most stringent mercury regulation.",
-    },
-    "mercury_emission_activated_carbon_injection": {
-        "type": "boolean",
-        "description": "Indicates whether the boiler has an activated carbon injection system.",
-    },
-    "mercury_emission_baghouse": {
-        "type": "boolean",
-        "description": "Indicates whether the boiler has a baghouse.",
-    },
-    "mercury_emission_baghouse_pulse": {
-        "type": "boolean",
-        "description": "Indicates whether the boiler has a baghouse, pulse.",
-    },
-    "mercury_emission_baghouse_reverse_air": {
-        "type": "boolean",
-        "description": "Indicates whether the boiler has a baghouse, reverse air.",
-    },
-    "mercury_emission_baghouse_shake_and_deflate": {
-        "type": "boolean",
-        "description": "Indicates whether the boiler has a baghouse, shake and deflate.",
-    },
-    "mercury_emission_control": {
-        "type": "boolean",
-        "description": "Indicates whether the boiler has mercury emission controls.",
-    },
-    "mercury_emission_dry_scrubber": {
-        "type": "boolean",
-        "description": "Indicates whether the boiler has a dry scrubber.",
-    },
-    "mercury_emission_electrostatic_precipitator": {
-        "type": "boolean",
-        "description": "Indicates whether the boiler has an electrostatic precipitator.",
-    },
-    "mercury_emission_electrostatic_precipitator_cold_side_with_flue_gas_conditioning": {
-        "type": "boolean",
-        "description": "Indicates whether the boiler has an electrostatic precipitator, cold side, with flue gas conditioning.",
-    },
-    "mercury_emission_electrostatic_precipitator_cold_side_without_flue_gas_conditioning": {
-        "type": "boolean",
-        "description": "Indicates whether the boiler has an electrostatic precipitator, cold side, without flue gas conditioning.",
-    },
-    "mercury_emission_electrostatic_precipitator_hot_side_with_flue_gas_conditioning": {
-        "type": "boolean",
-        "description": "Indicates whether the boiler has an electrostatic precipitator, hot side, with flue gas conditioning.",
-    },
-    "mercury_emission_electrostatic_precipitator_hot_side_without_flue_gas_conditioning": {
-        "type": "boolean",
-        "description": "Indicates whether the boiler has an electrostatic precipitator, hot side, without flue gas conditioning.",
-    },
-    "mercury_emission_flue_gas_desulfurization": {
-        "type": "boolean",
-        "description": "Indicates whether the boiler has a flue gas desulfurization system.",
-    },
-    "mercury_emission_lime_injection": {
-        "type": "boolean",
-        "description": "Indicates whether the boiler has a lime injection system.",
-    },
-    "mercury_emission_other": {
-        "type": "boolean",
-        "description": "Indicates whether the boiler has other mercury emission controls.",
-    },
-    "mercury_emission_wet_scrubber": {
-        "type": "boolean",
-        "description": "Indicates whether the boiler has a wet scrubber.",
     },
     "merge_address": {"type": "string"},
     "merge_city": {"type": "string"},
