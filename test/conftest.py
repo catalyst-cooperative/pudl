@@ -88,8 +88,8 @@ def pytest_addoption(parser):
 def pytest_configure(config):
     """Make sure env vars are set before unit tests.
 
-    io_managers unit tests need these to be set, but they don't have to point top
-    anything meaningful.
+    io_managers unit tests need these to be set, but they don't have to point to
+    anything meaningful. They will be reset by the `pudl_env` fixture before being used.
     """
     os.environ["PUDL_OUTPUT"] = "~/"
     os.environ["DAGSTER_HOME"] = "~/"
