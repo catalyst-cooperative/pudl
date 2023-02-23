@@ -40,7 +40,7 @@ Data Coverage
     :pr:`2205`
 * The :ref:`boilers_eia860` table now includes annual boiler attributes from
   :doc:`data_sources/eia860` Schedule 6.1 Environmental Equipment data, and the new
-  :ref:`boiler_entity_eia` table now includes static boiler attributes. See issue
+  :ref:`boilers_entity_eia` table now includes static boiler attributes. See issue
   :issue:`1162` & PR :pr:`2319`.
 
 Analysis
