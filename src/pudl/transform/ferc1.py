@@ -3815,7 +3815,7 @@ def ferc1_transform_asset_factory(
     """
     ins: Mapping[str, AssetIn] = {}
 
-    listify = lambda x: x if isinstance(x, list) else [x]
+    listify = lambda x: x if isinstance(x, list) else [x]  # noqa: E731
     dbf_tables = listify(TABLE_NAME_MAP_FERC1[table_name]["dbf"])
     xbrl_tables = listify(TABLE_NAME_MAP_FERC1[table_name]["xbrl"])
 
@@ -3849,12 +3849,14 @@ def ferc1_transform_asset_factory(
         else:
             transformer = tfr_class(xbrl_metadata_json=xbrl_metadata_json[table_name])
 
-        raw_dbf = pd.concat([df for key, df in kwargs if key.startswith("raw_dbf__")])
+        raw_dbf = pd.concat(
+            [df for key, df in kwargs.items() if key.startswith("raw_dbf__")]
+        )
         raw_xbrl_instant = pd.concat(
-            [df for key, df in kwargs if key.startswith("raw_xbrl_instant__")]
+            [df for key, df in kwargs.items() if key.startswith("raw_xbrl_instant__")]
         )
         raw_xbrl_duration = pd.concat(
-            [df for key, df in kwargs if key.startswith("raw_xbrl_duration__")]
+            [df for key, df in kwargs.items() if key.startswith("raw_xbrl_duration__")]
         )
         df = transformer.transform(
             raw_dbf=raw_dbf,
@@ -3880,12 +3882,23 @@ def create_ferc1_transform_assets() -> list[AssetsDefinition]:
         "plants_hydro_ferc1": PlantsHydroFerc1TableTransformer,
         "plant_in_service_ferc1": PlantInServiceFerc1TableTransformer,
         "plants_pumped_storage_ferc1": PlantsPumpedStorageFerc1TableTransformer,
+        "transmission_statistics_ferc1": TransmissionStatisticsFerc1TableTransformer,
         "purchased_power_ferc1": PurchasedPowerFerc1TableTransformer,
         "electric_energy_sources_ferc1": ElectricEnergySourcesFerc1TableTransformer,
         "electric_energy_dispositions_ferc1": ElectricEnergyDispositionsFerc1TableTransformer,
         "utility_plant_summary_ferc1": UtilityPlantSummaryFerc1TableTransformer,
+        "electric_opex_ferc1": ElectricOpexFerc1TableTransformer,
+        "balance_sheet_liabilities_ferc1": BalanceSheetLiabilitiesFerc1TableTransformer,
         "depreciation_amortization_summary_ferc1": DepreciationAmortizationSummaryFerc1TableTransformer,
         "balance_sheet_assets_ferc1": BalanceSheetAssetsFerc1TableTransformer,
+        "income_statement_ferc1": IncomeStatementFerc1TableTransformer,
+        "electric_plant_depreciation_changes_ferc1": ElectricPlantDepreciationChangesFerc1TableTransformer,
+        "electric_plant_depreciation_functional_ferc1": ElectricPlantDepreciationFunctionalFerc1TableTransformer,
+        "retained_earnings_ferc1": RetainedEarningsFerc1TableTransformer,
+        "electric_operating_revenues_ferc1": ElectricOperatingRevenuesFerc1TableTransformer,
+        "cash_flow_ferc1": CashFlowFerc1TableTransformer,
+        "electricity_sales_by_rate_schedule_ferc1": ElectricitySalesByRateScheduleFerc1TableTransformer,
+        "other_regulatory_liabilities_ferc1": OtherRegulatoryLiabilitiesFerc1,
     }
 
     assets = []

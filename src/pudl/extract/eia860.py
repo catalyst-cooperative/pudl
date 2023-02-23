@@ -60,13 +60,28 @@ class Extractor(excel.GenericExtractor):
 
 # TODO (bendnorman): Add this information to the metadata
 raw_table_names = (
+    "raw_boiler_cooling_eia860",
     "raw_boiler_generator_assn_eia860",
+    "raw_boiler_info_eia860",
+    "raw_boiler_mercury_eia860",
+    "raw_boiler_nox_eia860",
+    "raw_boiler_pm_eia860",
+    "raw_boiler_so2_eia860",
+    "raw_boiler_stack_flue_eia860",
+    "raw_cooling_equipment_eia860",
+    "raw_emission_control_strategies_eia860",
+    "raw_emissions_control_equipment_eia860",
+    "raw_fgd_equipment_eia860",
+    "raw_fgp_equipment_eia860",
     "raw_generator_eia860",
     "raw_generator_existing_eia860",
     "raw_generator_proposed_eia860",
     "raw_generator_retired_eia860",
+    "raw_multifuel_existing_eia860",
+    "raw_multifuel_retired_eia860",
     "raw_ownership_eia860",
     "raw_plant_eia860",
+    "raw_stack_flue_equipment_eia860",
     "raw_utility_eia860",
 )
 
@@ -104,12 +119,9 @@ def extract_eia860(context):
     eia860_raw_dfs = {
         "raw_" + table_name + "_eia860": df for table_name, df in eia860_raw_dfs.items()
     }
-
-    eia_raw_dfs = {}
-    eia_raw_dfs.update(eia860_raw_dfs)
-    eia_raw_dfs = dict(sorted(eia_raw_dfs.items()))
+    eia860_raw_dfs = dict(sorted(eia860_raw_dfs.items()))
 
     return (
         Output(output_name=table_name, value=df)
-        for table_name, df in eia_raw_dfs.items()
+        for table_name, df in eia860_raw_dfs.items()
     )

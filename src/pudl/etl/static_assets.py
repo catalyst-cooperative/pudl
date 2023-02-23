@@ -6,11 +6,7 @@ from dagster import AssetOut, Output, multi_asset
 
 import pudl
 from pudl.metadata.classes import Package
-from pudl.metadata.dfs import (
-    FERC_ACCOUNTS,
-    FERC_DEPRECIATION_LINES,
-    POLITICAL_SUBDIVISIONS,
-)
+from pudl.metadata.dfs import FERC_ACCOUNTS, POLITICAL_SUBDIVISIONS
 
 logger = pudl.logging_helpers.get_logger(__name__)
 
@@ -86,17 +82,13 @@ def static_ferc1_tables():
     """Compile static tables for FERC1 for foriegn key constaints.
 
     This function grabs static encoded tables via :func:`_read_static_encoding_tables`
-    as well as two static tables that are non-encoded tables (``ferc_accounts`` and
-    ``ferc_depreciation_lines``).
+    as well as two static tables that are non-encoded tables (``ferc_accounts``).
     """
     static_table_dict = _read_static_encoding_tables("static_ferc1")
     static_table_dict.update(
         {
             "ferc_accounts": FERC_ACCOUNTS[
                 ["ferc_account_id", "ferc_account_description"]
-            ],
-            "ferc_depreciation_lines": FERC_DEPRECIATION_LINES[
-                ["line_id", "ferc_account_description"]
             ],
         }
     )
