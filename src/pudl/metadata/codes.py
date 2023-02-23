@@ -441,7 +441,7 @@ CODE_METADATA: dict[str, dict[str, Any]] = {
         "df": pd.DataFrame(
             columns=["code", "label", "description"],
             data=[
-                ("CN", "cancelled", "Cancelled (previously reported as “planned”)."),
+                ("CN", "cancelled", "Cancelled (previously reported as planned.)"),
                 ("CO", "under_construction", "A new unit under construction."),
                 (
                     "OP",
