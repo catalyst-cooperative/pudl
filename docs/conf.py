@@ -136,7 +136,16 @@ def data_dictionary_metadata_to_rst(app):
     # Sort fields within each resource by name:
     for resource in package.resources:
         resource.schema.fields = sorted(resource.schema.fields, key=lambda x: x.name)
-    package.to_rst(docs_dir=DOCS_DIR, path=DOCS_DIR / "data_dictionaries/pudl_db.rst")
+    package.to_rst(
+        docs_dir=DOCS_DIR,
+        path=DOCS_DIR / "data_dictionaries/pudl_db_fields.rst",
+        add_fields=True,
+    )
+    package.to_rst(
+        docs_dir=DOCS_DIR,
+        path=DOCS_DIR / "data_dictionaries/pudl_db.rst",
+        add_fields=False,
+    )
 
 
 def data_sources_metadata_to_rst(app):
@@ -183,6 +192,7 @@ def static_dfs_to_rst(app):
 def cleanup_rsts(app, exception):
     """Remove generated RST files when the build is finished."""
     (DOCS_DIR / "data_dictionaries/pudl_db.rst").unlink()
+    (DOCS_DIR / "data_dictionaries/pudl_db_fields.rst").unlink()
     (DOCS_DIR / "data_dictionaries/codes_and_labels.rst").unlink()
     (DOCS_DIR / "data_sources/eia860.rst").unlink()
     (DOCS_DIR / "data_sources/eia923.rst").unlink()
