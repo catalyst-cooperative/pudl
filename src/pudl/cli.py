@@ -11,6 +11,7 @@ The output SQLite and Parquet files will be stored in ``PUDL_OUT`` in directorie
 directories see ``pudl_setup --help``.
 """
 import argparse
+import os
 import sys
 
 from dagster import (
@@ -86,14 +87,23 @@ def main():
         logfile=args.logfile, loglevel=args.loglevel
     )
 
+    etl_settings = EtlSettings.from_yaml(args.settings_file)
+
+    if (not os.getenv("PUDL_OUT")) or (not os.getenv("PUDL_CACHE")):
+        pudl_settings = pudl.workspace.setup.derive_paths(
+            pudl_in=etl_settings.pudl_in, pudl_out=etl_settings.pudl_out
+        )
+
+        os.environ["PUDL_CACHE"] = pudl_settings["data_dir"]
+        os.environ["PUDL_OUTPUT"] = pudl_settings["pudl_out"]
+        os.environ["DAGSTER_HOME"] = pudl_settings["pudl_in"]
+
     execute_job(
         reconstructable(get_etl_job),
         instance=DagsterInstance.get(),
         run_config={
             "resources": {
-                "dataset_settings": {
-                    "config": EtlSettings.from_yaml(args.settings_file).datasets.dict()
-                },
+                "dataset_settings": {"config": etl_settings.datasets.dict()},
                 "datastore": {
                     "config": {
                         "sandbox": args.sandbox,

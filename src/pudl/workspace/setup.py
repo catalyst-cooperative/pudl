@@ -67,7 +67,9 @@ def get_defaults():
     # Ensure that no matter what the user has put in this file, we get fully
     # specified absolute paths out when we read it:
     pudl_in = pathlib.Path(default_workspace["pudl_in"]).expanduser().resolve()
-    pudl_out = pathlib.Path(default_workspace["pudl_out"]).expanduser().resolve()
+    pudl_out = (
+        pathlib.Path(default_workspace["pudl_out"]).expanduser().resolve() / "output"
+    )
     return derive_paths(pudl_in, pudl_out)
 
 
@@ -110,7 +112,7 @@ def derive_paths(pudl_in, pudl_out):
     pudl_settings["pudl_out"] = str(pudl_out)
     # One directory per output format:
     for fmt in ["sqlite", "parquet"]:
-        pudl_settings[f"{fmt}_dir"] = str(pudl_out / fmt)
+        pudl_settings[f"{fmt}_dir"] = str(pudl_out)
 
     ferc1_db_file = pathlib.Path(pudl_settings["sqlite_dir"], "ferc1.sqlite")
     pudl_settings["ferc1_db"] = "sqlite:///" + str(ferc1_db_file.resolve())
@@ -205,10 +207,9 @@ def init(pudl_in, pudl_out, clobber=False):
     settings_pkg = "pudl.package_data.settings"
     deploy(settings_pkg, settings_dir, ignore_files, clobber=clobber)
 
-    # Make several output directories:
-    for fmt in ["sqlite", "parquet"]:
-        format_dir = pathlib.Path(pudl_settings["pudl_out"], fmt)
-        format_dir.mkdir(parents=True, exist_ok=True)
+    # Make output directory:
+    pudl_out = pathlib.Path(pudl_settings["pudl_out"]) / "output"
+    pudl_out.mkdir(parents=True, exist_ok=True)
 
 
 def deploy(pkg_path, deploy_dir, ignore_files, clobber=False):
