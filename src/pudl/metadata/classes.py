@@ -1800,6 +1800,17 @@ class Package(Base):
         names = [resource.name for resource in self.resources]
         return self.resources[names.index(name)]
 
+    def get_resource_by_etl_group(self) -> dict[str, list[Resource]]:
+        """blah."""
+        resource_dict = {}
+        for etl_group in list(self.resources[0].__annotations__["etl_group"].__args__):
+            resource_dict[etl_group] = [
+                resource
+                for resource in self.resources
+                if resource.etl_group == etl_group
+            ]
+        return resource_dict
+
     def to_rst(self, docs_dir: DirectoryPath, path: str) -> None:
         """Output to an RST file."""
         template = _get_jinja_environment(docs_dir).get_template("package.rst.jinja")

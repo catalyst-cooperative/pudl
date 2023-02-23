@@ -4,8 +4,20 @@ PUDL Data Dictionary
 
 The following data tables have been cleaned and transformed by our ETL process.
 
-{% for resource in package.resources %}
+{% for group, resources in package.get_resource_by_etl_group().items() %}
+{{ group }}
+-------------------------------------------------------------------------------
+
+{% for resource in resources %}
+
 .. _{{ resource.name }}:
 
-{% include 'resource.rst.jinja' %}
+{{ resource.name }}
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+{{ resource.description | wordwrap(78) if resource.description else
+'No table description available.' }}
+`Browse or query this table in Datasette. <https://data.catalyst.coop/pudl/{{ resource.name }}>`__
+
+{% endfor %}
 {% endfor %}

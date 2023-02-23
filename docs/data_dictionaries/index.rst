@@ -5,7 +5,7 @@ Data Dictionaries
 
 .. toctree::
    :caption: Data Processed & Cleaned by PUDL
-   :maxdepth: 1
+   :maxdepth: 2
 
    pudl_db
 
