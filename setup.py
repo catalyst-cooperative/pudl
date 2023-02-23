@@ -95,7 +95,7 @@ setup(
         ],
         "test": [
             "bandit>=1.6,<1.8",
-            "coverage>=5.3,<7.2",
+            "coverage>=5.3,<7.3",
             "doc8>=0.9,<1.2",
             "flake8>=4.0,<6.1",
             "flake8-builtins>=1.5,<2.2",
@@ -105,7 +105,7 @@ setup(
             "mccabe>=0.6,<0.8",
             "nbval>=0.9,<0.11",
             "pep8-naming>=0.12,<0.14",
-            "pre-commit>=2.9,<3.1",
+            "pre-commit>=2.9,<3.2",
             "pydocstyle>=5.1,<6.4",
             "pytest>=6.2,<7.3",
             "pytest-console-scripts>=1.1,<1.4",
