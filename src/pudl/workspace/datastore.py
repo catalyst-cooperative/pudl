@@ -359,7 +359,11 @@ class Datastore:
                 continue
             if self._cache.contains(res):
                 logger.debug(f"Retrieved {res} from cache.")
-                yield (res, self._cache.get(res))
+                contents = self._cache.get(res)
+                if not self._cache.is_optimally_cached(res):
+                    logger.debug(f"{res} was not optimally cached yet, adding.")
+                    self._cache.add(res, contents)
+                yield (res, contents)
             elif not cached_only:
                 logger.debug(f"Retrieved {res} from zenodo.")
                 contents = self._zenodo_fetcher.get_resource(res)
