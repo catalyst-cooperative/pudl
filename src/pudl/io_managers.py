@@ -7,6 +7,8 @@ import dask.dataframe as dd
 import pandas as pd
 import pyarrow as pa
 import sqlalchemy as sa
+from alembic.autogenerate import compare_metadata
+from alembic.migration import MigrationContext
 from dagster import (
     Field,
     InitResourceContext,
@@ -78,6 +80,12 @@ class ForeignKeyErrors(SQLAlchemyError):
         return self.fk_errors[idx]
 
 
+class MetadataDiffError(ValueError):
+    """Raised when a sqlalchemy metadata object differs from a databases schema."""
+
+    pass
+
+
 class SQLiteIOManager(IOManager):
     """Dagster IO manager that stores and retrieves dataframes from a SQLite
     database."""  # noqa: D205, D209, D415
@@ -142,6 +150,15 @@ class SQLiteIOManager(IOManager):
         if not db_path.exists():
             db_path.touch()
             self.md.create_all(engine)
+        else:
+            # Compare the new metadata with the existing metadata in the db.
+            # If they are different, raise an error to clobber the database
+            mc = MigrationContext.configure(engine.connect())
+            if compare_metadata(mc, self.md):
+                raise MetadataDiffError(
+                    "The database schema has changed. Delete the "
+                    f"database at {db_path}"
+                )
 
         return engine
 
