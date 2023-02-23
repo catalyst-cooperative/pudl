@@ -48,6 +48,7 @@ setup(
     setup_requires=["setuptools_scm"],
     install_requires=[
         "addfips>=0.4,<0.5",
+        "alembic>=1.9.4<2",
         "catalystcoop.dbfread>=3.0,<3.1",
         "coloredlogs>=14.0,<15.1",  # Dagster requires 14.0
         "catalystcoop.ferc-xbrl-extractor==0.8.1",

@@ -7,6 +7,8 @@ import dask.dataframe as dd
 import pandas as pd
 import pyarrow as pa
 import sqlalchemy as sa
+from alembic.autogenerate import compare_metadata
+from alembic.migration import MigrationContext
 from dagster import (
     Field,
     InitResourceContext,
@@ -78,6 +80,12 @@ class ForeignKeyErrors(SQLAlchemyError):
         return self.fk_errors[idx]
 
 
+class MetadataDiffError(ValueError):
+    """Raised when a sqlalchemy metadata object differs from a databases schema."""
+
+    pass
+
+
 class SQLiteIOManager(IOManager):
     """Dagster IO manager that stores and retrieves dataframes from a SQLite
     database."""  # noqa: D205, D209, D415
@@ -142,6 +150,15 @@ class SQLiteIOManager(IOManager):
         if not db_path.exists():
             db_path.touch()
             self.md.create_all(engine)
+        else:
+            # Compare the new metadata with the existing metadata in the db.
+            # If they are different, raise an error to clobber the database
+            mc = MigrationContext.configure(engine.connect())
+            if compare_metadata(mc, self.md):
+                raise MetadataDiffError(
+                    "The database schema has changed. Delete the "
+                    f"database at {db_path}"
+                )
 
         return engine
 
@@ -202,16 +219,6 @@ class SQLiteIOManager(IOManager):
         constraints so we can't enable foreign key constraints. However, we can
         check for foreign key failures once all of the data has been loaded into
         the database using the `foreign_key_check` and `foreign_key_list` PRAGMAs.
-
-        Examples:
-        This method can be used in the test suite or a jupyter notebook for debugging.
-
-            >>> from pudl.io_managers import pudl_sqlite_io_manager
-            >>> from dagster import build_init_resource_context
-            ...
-            >>> init_context = build_init_resource_context()
-            >>> manager = pudl_sqlite_io_manager(init_context)
-            >>> manager.check_foreign_keys()
 
         Read about the PRAGMAs here: https://www.sqlite.org/pragma.html#pragma_foreign_key_check
 
