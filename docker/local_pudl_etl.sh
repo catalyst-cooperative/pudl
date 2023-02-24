@@ -8,11 +8,17 @@ function authenticate_gcp() {
     gcloud config set project ${GCP_BILLING_PROJECT:?err}
 }
 
+function bridge_settings() {
+    export PUDL_CACHE="${CONTAINER_PUDL_IN}/data"
+    export PUDL_OUTPUT=$CONTAINER_PUDL_OUT
+}
+
 function run_pudl_etl() {
     authenticate_gcp \
     && pudl_setup \
         --pudl_in $CONTAINER_PUDL_IN \
         --pudl_out $CONTAINER_PUDL_OUT \
+    && bridge_settings \
     && ferc_to_sqlite \
         --clobber \
         --loglevel DEBUG \

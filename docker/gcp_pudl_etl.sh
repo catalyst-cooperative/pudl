@@ -15,9 +15,15 @@ function authenticate_gcp() {
     gcloud config set project $GCP_BILLING_PROJECT
 }
 
+function bridge_settings() {
+    export PUDL_CACHE="${CONTAINER_PUDL_IN}/data"
+    export PUDL_OUTPUT=$CONTAINER_PUDL_OUT
+}
+
 function run_pudl_etl() {
     send_slack_msg ":large_yellow_circle: Deployment started for $ACTION_SHA-$GITHUB_REF :floppy_disk:"
     authenticate_gcp \
+    && bridge_settings \
     && pudl_setup \
         --pudl_in $CONTAINER_PUDL_IN \
         --pudl_out $CONTAINER_PUDL_OUT \
@@ -63,12 +69,10 @@ function shutdown_vm() {
 
 function copy_outputs_to_intake_bucket() {
     echo "Copying outputs to GCP intake bucket"
-    gsutil -m -u $GCP_BILLING_PROJECT cp -r "$CONTAINER_PUDL_OUT/sqlite/*" "gs://intake.catalyst.coop/$GITHUB_REF"
-    gsutil -m -u $GCP_BILLING_PROJECT cp -r "$CONTAINER_PUDL_OUT/parquet/epacems/*" "gs://intake.catalyst.coop/$GITHUB_REF"
+    gsutil -m -u $GCP_BILLING_PROJECT cp -r "$CONTAINER_PUDL_OUT/*" "gs://intake.catalyst.coop/$GITHUB_REF"
 
     echo "Copying outputs to AWS intake bucket"
-    aws s3 cp "$CONTAINER_PUDL_OUT/sqlite" "s3://intake.catalyst.coop/$GITHUB_REF" --recursive
-    aws s3 cp "$CONTAINER_PUDL_OUT/parquet/epacems" "s3://intake.catalyst.coop/$GITHUB_REF" --recursive
+    aws s3 cp "$CONTAINER_PUDL_OUT/" "s3://intake.catalyst.coop/$GITHUB_REF" --recursive
 }
 
 
