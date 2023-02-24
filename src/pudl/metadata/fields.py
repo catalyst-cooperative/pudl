@@ -1296,6 +1296,10 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     },
     "nox_control_manufacturer": {
         "type": "string",
+        "description": "Name of nitrogen oxide control manufacturer.",
+    },
+    "nox_control_manufacturer_code": {
+        "type": "string",
         "description": "Code indicating the nitrogen oxide control burner manufacturer.",
     },
     "nox_control_out_of_compliance_strategy_1": {
@@ -1334,7 +1338,7 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "type": "string",
         "description": "Proposed strategy to comply with the most stringent nitrogen oxide regulation.",
     },
-    "nox_control_status": {
+    "nox_control_status_code": {
         "type": "string",
         "description": "Nitrogen oxide control status code.",
     },

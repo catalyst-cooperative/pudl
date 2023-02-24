@@ -739,6 +739,15 @@ def boilers(eia860_dfs, eia860_transformed_dfs):
         )
     )
 
+    b_df["nox_control_manufacturer"] = b_df.nox_control_manufacturer_code.map(
+        pudl.helpers.label_map(
+            CODE_METADATA["envr_equipment_manufacturer_codes_eia"]["df"],
+            from_col="code",
+            to_col="description",
+            null_value=pd.NA,
+        )
+    )
+
     # Prior to 2012, efficiency was reported as a percentage, rather than
     # as a proportion, so we need to divide those values by 100.
     b_df.loc[b_df.report_date.dt.year < 2012, "efficiency_100pct_load"] = (

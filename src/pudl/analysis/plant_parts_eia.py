@@ -287,7 +287,7 @@ the weight column (values)
 
 CONSISTENT_ATTRIBUTE_COLS = [
     "fuel_type_code_pudl",
-    "planned_retirement_date",
+    "planned_generator_retirement_date",
     "generator_retirement_date",
     "generator_id",
     "unit_id_pudl",

@@ -82,7 +82,11 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
         "schema": {
             "fields": ["code", "label", "description"],
             "primary_key": ["code"],
-            "foreign_key_rules": {"fields": [["boiler_manufacturer_code"]]},
+            "foreign_key_rules": {
+                "fields": [
+                    ["boiler_manufacturer_code", "nox_control_manufacturer_code"]
+                ]
+            },
         },
         "encoder": CODE_METADATA["envr_equipment_manufacturer_codes_eia"],
         "sources": ["eia860"],
@@ -134,7 +138,7 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
             "primary_key": ["code"],
             "foreign_key_rules": {
                 "fields": [
-                    ["nox_control_status"],
+                    ["nox_control_status_code"],
                 ]
             },
         },
