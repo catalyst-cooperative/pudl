@@ -1590,7 +1590,10 @@ class EnvVar(Noneable):
         """
         if value is None:
             try:
-                return os.environ.get(self.env_var, get_defaults()[self.env_var])
+                value = os.environ.get(self.env_var)
+
+                if not value:
+                    value = get_defaults()[self.env_var]
             except KeyError:
                 raise PostProcessingError(
                     f"Config value could not be found. Set the {self.env_var} environment variable or specify a value in dagster config."
