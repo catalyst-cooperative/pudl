@@ -114,6 +114,10 @@ def derive_paths(pudl_in, pudl_out):
     for fmt in ["sqlite", "parquet"]:
         pudl_settings[f"{fmt}_dir"] = str(pudl_out)
 
+    # Mirror dagster env vars for ease of use
+    pudl_settings["PUDL_OUTPUT"] = pudl_settings["pudl_out"]
+    pudl_settings["PUDL_CACHE"] = pudl_settings["data_dir"]
+
     ferc1_db_file = pathlib.Path(pudl_settings["sqlite_dir"], "ferc1.sqlite")
     pudl_settings["ferc1_db"] = "sqlite:///" + str(ferc1_db_file.resolve())
 
