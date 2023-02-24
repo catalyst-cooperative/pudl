@@ -90,6 +90,12 @@ def main():
     etl_settings = EtlSettings.from_yaml(args.settings_file)
 
     if (not os.getenv("PUDL_OUT")) or (not os.getenv("PUDL_CACHE")):
+        logger.warning(
+            "PUDL will attempt to use legacy settings to derive paths."
+            "In the future this functionality will be deprecated in favor"
+            "of environment variables PUDL_OUT and PUDL_CACHE. For more"
+            "info see: https://catalystcoop-pudl.readthedocs.io/en/dev/dev/dev_setup.html"
+        )
         pudl_settings = pudl.workspace.setup.derive_paths(
             pudl_in=etl_settings.pudl_in, pudl_out=etl_settings.pudl_out
         )
