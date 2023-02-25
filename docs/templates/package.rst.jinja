@@ -7,30 +7,18 @@ PUDL Data Dictionary
 The following data tables have been cleaned and transformed by our ETL process.
 
 {% for group, resources in package.get_resource_by_etl_group().items() %}
-{{ package.get_etl_group()[group].title }}
--------------------------------------------------------------------------------
-
-{{ package.get_etl_group()[group].description }}
-
 {% for resource in resources %}
 
-{% if add_fields %}
 .. _{{ resource.name }}:
-{% endif %}
 
 {{ resource.name }}
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 {{ resource.description | wordwrap(78) if resource.description else
 'No table description available.' }}
-{% if not add_fields %}
-:ref:`View Columns <{{ resource.name }}>`
-{% endif %}
 `Browse or query this table in Datasette. <https://data.catalyst.coop/pudl/{{ resource.name }}>`__
 
-{% if add_fields %}
 {% include 'resource.rst.jinja' %}
-{% endif %}
 
 {% endfor %}
 {% endfor %}

@@ -154,20 +154,6 @@ CONTRIBUTORS: dict[str, dict[str, str]] = {
 """PUDL Contributors for attribution."""
 
 ETL_GROUPS: dict[str, dict[str, str]] = {
-    "eia860": {
-        "title": "EIA 860",
-        "description": """Tables derrived from the EIA Form 860. See our
-:doc:`../data_sources/eia860` page for more information.""",
-    },
-    "eia861": {
-        "title": "EIA 861",
-        "description": "Tables derrived from the EIA Form 861.",
-    },
-    "eia923": {
-        "title": "EIA 923",
-        "description": """Tables derrived from the EIA Form 923.  See our
-:doc:`../data_sources/eia923` page for more information.""",
-    },
     "entity_eia": {
         "title": "EIA Entity Tables",
         "description": """EIA entity tables combine information reported in multiple EIA
@@ -182,10 +168,42 @@ a master list of all entitiy types and their characteristics that are reported t
 given source. Read more about our harvesting process in :mod:`pudl.transform.eia`.
 """,
     },
+    "static_eia": {
+        "title": "EIA Static Tables",
+        "description": """Static EIA tables are like EIA entity tables in that they pull
+from multiple EIA tables, but their purpose is to elucidate encoded language. This is
+where acromyns are connected to their full spelling and descriptions.""",
+    },
+    "static_eia_disabled": {
+        "title": "EIA Static Tables (disabled)",
+        "description": "blah",
+    },
+    "eia860": {
+        "title": "EIA 860",
+        "description": """Tables derrived from the EIA Form 860. See our
+:doc:`../data_sources/eia860` page for more information.""",
+    },
+    "eia861": {
+        "title": "EIA 861",
+        "description": "Tables derrived from the EIA Form 861.",
+    },
+    "eia923": {
+        "title": "EIA 923",
+        "description": """Tables derrived from the EIA Form 923.  See our
+:doc:`../data_sources/eia923` page for more information.""",
+    },
+    "eia_bulk_elec": {
+        "title": "EIA Bulk Electricity Tables",
+        "description": "Blah",
+    },
     "epacems": {
         "title": "EPA CEMS",
         "description": """Tables derrived from the EPA CEMS data. See our
 :doc:`../data_sources/epacems` page for more information""",
+    },
+    "static_ferc1": {
+        "title": "FERC Form 1 Static Tables",
+        "description": "Blah",
     },
     "ferc1": {
         "title": "FERC Form 1",
@@ -206,24 +224,6 @@ given source. Read more about our harvesting process in :mod:`pudl.transform.eia
     },
     "outputs": {
         "title": "Output Tables",
-        "description": "Blah",
-    },
-    "static_ferc1": {
-        "title": "Static FERC 1 Tables",
-        "description": "Blah",
-    },
-    "static_eia": {
-        "title": "Static EIA Tables",
-        "description": """Static EIA tables are like EIA entity tables in that they pull
-from multiple EIA tables, but their purpose is to elucidate encoded language. This is
-where acromyns are connected to their full spelling and descriptions.""",
-    },
-    "static_eia_disabled": {
-        "title": "Static EIA Tables (disabled)",
-        "description": "blah",
-    },
-    "eia_bulk_elec": {
-        "title": "EIA Bulk Electricity Tables",
         "description": "Blah",
     },
     "static_pudl": {"title": "Static PUDL Tables", "description": "Blah"},

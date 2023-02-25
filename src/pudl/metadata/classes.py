@@ -1826,10 +1826,10 @@ class Package(Base):
             ]
         return resource_dict
 
-    def to_rst(self, docs_dir: DirectoryPath, path: str, add_fields: bool) -> None:
+    def to_rst(self, docs_dir: DirectoryPath, path: str, template: str) -> None:
         """Output to an RST file."""
-        template = _get_jinja_environment(docs_dir).get_template("package.rst.jinja")
-        rendered = template.render(package=self, add_fields=add_fields)
+        template = _get_jinja_environment(docs_dir).get_template(template)
+        rendered = template.render(package=self)
         if path:
             Path(path).write_text(rendered)
         else:
