@@ -547,6 +547,19 @@ def harvesting(  # noqa: C901
         entity_df = _add_additional_epacems_plants(entity_df)
         entity_df = _add_timezone(entity_df)
 
+    # Remove fields that came from input data but aren't in the
+    # corresponding SQLite tables. The data may still exist but has been
+    # moved elsewhere.
+    if entity == "utilities":
+        eia_transformed_dfs["generation_fuel_eia923"] = (
+                eia_transformed_dfs["generation_fuel_eia923"].
+                drop(columns=["utility_name_eia"])
+        )
+        eia_transformed_dfs["generation_fuel_nuclear_eia923"] = (
+                eia_transformed_dfs["generation_fuel_nuclear_eia923"].
+                drop(columns=["utility_name_eia"])
+        )
+
     eia_transformed_dfs[f"{entity}_annual_eia"] = annual_df
     entities_dfs[f"{entity}_entity_eia"] = entity_df
     if debug:
