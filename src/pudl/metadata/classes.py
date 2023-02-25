@@ -22,6 +22,7 @@ from pudl.metadata.codes import CODE_METADATA
 from pudl.metadata.constants import (
     CONSTRAINT_DTYPES,
     CONTRIBUTORS,
+    ETL_GROUPS,
     FIELD_DTYPES_PANDAS,
     FIELD_DTYPES_PYARROW,
     FIELD_DTYPES_SQL,
@@ -1021,6 +1022,24 @@ class DataSource(Base):
         return cls(**cls.dict_from_id(x))
 
 
+class ETLGroup(Base):
+    """Blah."""
+
+    # name: SnakeCase
+    title: String = None
+    description: String = None
+
+    @staticmethod
+    def dict_from_id(x: str) -> dict:
+        """Construct dictionary from PUDL identifier."""
+        return copy.deepcopy(ETL_GROUPS[x])
+
+    @classmethod
+    def from_id(cls, x: str) -> "ETLGroup":
+        """Construct Source by source name in the metadata."""
+        return cls(**cls.dict_from_id(x))
+
+
 class ResourceHarvest(Base):
     """Resource harvest parameters (`resource.harvest`)."""
 
@@ -1046,7 +1065,8 @@ class Resource(Base):
         >>> fields = [{'name': 'x', 'type': 'year'}, {'name': 'y', 'type': 'string'}]
         >>> fkeys = [{'fields': ['x', 'y'], 'reference': {'resource': 'b', 'fields': ['x', 'y']}}]
         >>> schema = {'fields': fields, 'primary_key': ['x'], 'foreign_keys': fkeys}
-        >>> resource = Resource(name='a', schema=schema)
+        >>> etl_group = ETLGroup(title='a', description='a')
+        >>> resource = Resource(name='a', schema=schema, etl_group=etl_group)
         >>> table = resource.to_sql()
         >>> table.columns.x
         Column('x', Integer(), ForeignKey('b.x'), CheckConstraint(...), table=<a>, primary_key=True, nullable=False)
@@ -1065,7 +1085,8 @@ class Resource(Base):
         >>> resource = Resource(**{
         ...     'name': 'a',
         ...     'harvest': {'harvest': True},
-        ...     'schema': {'fields': fields, 'primary_key': ['id']}
+        ...     'schema': {'fields': fields, 'primary_key': ['id']},
+        ...     'etl_group': ETLGroup(title='a', description='b')
         ... })
         >>> dfs = {
         ...     'a': pd.DataFrame({'id': [1, 1, 2, 2], 'x': [1, 1, 2, 2]}),
@@ -1143,7 +1164,8 @@ class Resource(Base):
         >>> fields = [{'name': 'report_year', 'type': 'year'}]
         >>> resource = Resource(**{
         ...     'name': 'table', 'harvest': {'harvest': True},
-        ...     'schema': {'fields': fields, 'primary_key': ['report_year']}
+        ...     'schema': {'fields': fields, 'primary_key': ['report_year']},
+        ...     'etl_group': ETLGroup(title='a', description='b')
         ... })
         >>> df = pd.DataFrame({'report_date': ['2000-02-02', '2000-03-03']})
         >>> resource.format_df(df)
@@ -1182,23 +1204,7 @@ class Resource(Base):
         "ppe",
         "eia_bulk_elec",
     ] = None
-    etl_group: Literal[
-        "eia860",
-        "eia861",
-        "eia923",
-        "entity_eia",
-        "epacems",
-        "ferc1",
-        "ferc1_disabled",
-        "ferc714",
-        "glue",
-        "outputs",
-        "static_ferc1",
-        "static_eia",
-        "static_eia_disabled",
-        "eia_bulk_elec",
-        "static_pudl",
-    ] = None
+    etl_group: ETLGroup
 
     _check_unique = _validator(
         "contributors", "keywords", "licenses", "sources", fn=_check_unique
@@ -1279,6 +1285,7 @@ class Resource(Base):
         # Delete foreign key rules
         if "foreign_key_rules" in schema:
             del schema["foreign_key_rules"]
+        obj["etl_group"] = ETLGroup.from_id(obj["etl_group"])
 
         # Add encoders to columns as appropriate, based on FKs.
         # Foreign key relationships determine the set of codes to use
@@ -1379,7 +1386,8 @@ class Resource(Base):
         Examples:
             >>> fields = [{'name': 'x_year', 'type': 'year'}]
             >>> schema = {'fields': fields, 'primary_key': ['x_year']}
-            >>> resource = Resource(name='r', schema=schema)
+            >>> etl_group = ETLGroup(title='r', description='r')
+            >>> resource = Resource(name='r', schema=schema, etl_group=etl_group)
 
             By default, when :attr:`harvest` .`harvest=False`,
             exact matches are required.
@@ -1691,8 +1699,9 @@ class Package(Base):
         >>> fields = [{'name': 'x', 'type': 'year'}, {'name': 'y', 'type': 'string'}]
         >>> fkey = {'fields': ['x', 'y'], 'reference': {'resource': 'b', 'fields': ['x', 'y']}}
         >>> schema = {'fields': fields, 'primary_key': ['x'], 'foreign_keys': [fkey]}
-        >>> a = Resource(name='a', schema=schema)
-        >>> b = Resource(name='b', schema=Schema(fields=fields, primary_key=['x']))
+        >>> etl_group = ETLGroup(title='a', description='b')
+        >>> a = Resource(name='a', schema=schema, etl_group=etl_group)
+        >>> b = Resource(name='b', schema=Schema(fields=fields, primary_key=['x']), etl_group=etl_group)
         >>> Package(name='ab', resources=[a, b])
         Traceback (most recent call last):
         ValidationError: ...
@@ -1792,7 +1801,6 @@ class Package(Base):
                 i = len(resources)
                 if len(names) > i:
                     resources += [Resource.dict_from_id(x) for x in names[i:]]
-
         return cls(name="pudl", resources=resources)
 
     def get_resource(self, name: str) -> Resource:
@@ -1800,14 +1808,21 @@ class Package(Base):
         names = [resource.name for resource in self.resources]
         return self.resources[names.index(name)]
 
+    def get_etl_group(self) -> dict[str, ETLGroup]:
+        """blah."""
+        etl_group_dict = {}
+        for etl_group in ETL_GROUPS.keys():
+            etl_group_dict[etl_group] = ETLGroup.from_id(etl_group)
+        return etl_group_dict
+
     def get_resource_by_etl_group(self) -> dict[str, list[Resource]]:
         """blah."""
         resource_dict = {}
-        for etl_group in list(self.resources[0].__annotations__["etl_group"].__args__):
+        for etl_group in ETL_GROUPS.keys():
             resource_dict[etl_group] = [
                 resource
                 for resource in self.resources
-                if resource.etl_group == etl_group
+                if resource.etl_group == ETLGroup.from_id(etl_group)
             ]
         return resource_dict
 

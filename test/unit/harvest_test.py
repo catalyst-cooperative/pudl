@@ -5,7 +5,7 @@ import numpy as np
 import pandas as pd
 import pytest
 
-from pudl.metadata.classes import Resource
+from pudl.metadata.classes import ETLGroup, Resource
 from pudl.metadata.helpers import most_frequent
 
 # ---- Helpers ---- #
@@ -35,6 +35,7 @@ STANDARD: dict[str, Any] = {
         ],
         "primary_key": ["i", "j"],
     },
+    "etl_group": ETLGroup.from_id("static_pudl"),
 }
 
 HARVEST: dict[str, Any] = {**STANDARD, "harvest": {"harvest": True}}
@@ -264,6 +265,7 @@ RESOURCES: list[dict[str, Any]] = [
             "fields": ["plant_id_eia", "state", "balancing_authority_code_eia"],
             "primary_key": ["plant_id_eia"],
         },
+        "etl_group": "eia860",
     },
     {
         "name": "generator_entity_eia860",
@@ -277,6 +279,7 @@ RESOURCES: list[dict[str, Any]] = [
             ],
             "primary_key": ["plant_id_eia", "generator_id"],
         },
+        "etl_group": "eia860",
     },
     {
         "name": "generators_eia860",
@@ -285,6 +288,7 @@ RESOURCES: list[dict[str, Any]] = [
             "fields": ["plant_id_eia", "generator_id", "report_year", "capacity_mw"],
             "primary_key": ["plant_id_eia", "generator_id", "report_year"],
         },
+        "etl_group": "eia860",
     },
     {
         "name": "utility_entity_eia",
@@ -293,6 +297,7 @@ RESOURCES: list[dict[str, Any]] = [
             "fields": ["utility_id_eia", "utility_name_eia"],
             "primary_key": ["utility_id_eia"],
         },
+        "etl_group": "entity_eia",
     },
     {
         "name": "utility_assn_eia",
@@ -301,6 +306,7 @@ RESOURCES: list[dict[str, Any]] = [
             "fields": ["utility_id_eia", "report_year", "state", "county"],
             "primary_key": ["utility_id_eia", "report_year", "state", "county"],
         },
+        "etl_group": "static_eia",
     },
     {
         "name": "generation_eia923",
@@ -314,6 +320,7 @@ RESOURCES: list[dict[str, Any]] = [
             ],
             "primary_key": ["plant_id_eia", "generator_id", "report_month"],
         },
+        "etl_group": "eia923",
     },
     {
         "name": "sales_eia861",
@@ -322,6 +329,7 @@ RESOURCES: list[dict[str, Any]] = [
             "fields": ["utility_id_eia", "report_year", "state", "county", "sales"],
             "primary_key": ["utility_id_eia", "report_year", "state", "county"],
         },
+        "etl_group": "eia861",
     },
     {
         "name": "boiler_generator_assn_eia860",
@@ -330,6 +338,7 @@ RESOURCES: list[dict[str, Any]] = [
             "fields": ["plant_id_eia", "generator_id", "report_year", "boiler_id"],
             "primary_key": ["plant_id_eia", "generator_id", "report_year", "boiler_id"],
         },
+        "etl_group": "eia860",
     },
 ]
 
@@ -338,6 +347,7 @@ for i, d in enumerate(RESOURCES):
     d["schema"]["fields"] = [
         {"name": name, "type": FIELD_DTYPES[name]} for name in d["schema"]["fields"]
     ]
+    d["etl_group"] = ETLGroup.from_id(d["etl_group"])
     RESOURCES[i] = Resource(**d)
 
 EXPECTED_DFS: dict[str, pd.DataFrame] = dict(

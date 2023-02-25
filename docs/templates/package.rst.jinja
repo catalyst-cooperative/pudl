@@ -7,8 +7,10 @@ PUDL Data Dictionary
 The following data tables have been cleaned and transformed by our ETL process.
 
 {% for group, resources in package.get_resource_by_etl_group().items() %}
-{{ group }}
+{{ package.get_etl_group()[group].title }}
 -------------------------------------------------------------------------------
+
+{{ package.get_etl_group()[group].description }}
 
 {% for resource in resources %}
 

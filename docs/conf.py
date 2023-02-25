@@ -14,7 +14,7 @@ from pathlib import Path
 
 import pkg_resources
 
-from pudl.metadata.classes import CodeMetadata, DataSource, Package
+from pudl.metadata.classes import CodeMetadata, DataSource, ETLGroup, Package
 from pudl.metadata.codes import CODE_METADATA
 from pudl.metadata.resources import RESOURCE_METADATA
 
@@ -153,10 +153,15 @@ def data_sources_metadata_to_rst(app):
     print("Exporting data source metadata to RST.")
     included_sources = ["eia860", "eia923", "ferc1", "epacems"]
     package = Package.from_resource_ids()
-    extra_etl_groups = {"eia860": ["entity_eia"], "ferc1": ["glue"]}
+    extra_etl_groups = {
+        "eia860": [ETLGroup.from_id("entity_eia")],
+        "ferc1": [ETLGroup.from_id("glue")],
+    }
     for name in included_sources:
         source = DataSource.from_id(name)
-        source_resources = [res for res in package.resources if res.etl_group == name]
+        source_resources = [
+            res for res in package.resources if res.etl_group == ETLGroup.from_id(name)
+        ]
         extra_resources = None
         if name in extra_etl_groups:
             # get resources for this source from extra etl groups
