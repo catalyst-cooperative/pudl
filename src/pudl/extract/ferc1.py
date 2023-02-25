@@ -71,6 +71,7 @@ import importlib
 import io
 import json
 from collections.abc import Iterable
+from itertools import chain
 from pathlib import Path
 from typing import Any, Literal
 
@@ -88,33 +89,7 @@ from pudl.workspace.datastore import Datastore
 
 logger = pudl.logging_helpers.get_logger(__name__)
 
-DBF_TYPES = {
-    "C": sa.String,
-    "D": sa.Date,
-    "F": sa.Float,
-    "I": sa.Integer,
-    "L": sa.Boolean,
-    "M": sa.Text,  # 10 digit .DBT block number, stored as a string...
-    "N": sa.Float,
-    "T": sa.DateTime,
-    "0": sa.Integer,  # based on dbf2sqlite mapping
-    "B": "XXX",  # .DBT block number, binary string
-    "@": "XXX",  # Timestamp... Date = Julian Day, Time is in milliseconds?
-    "+": "XXX",  # Autoincrement (e.g. for IDs)
-    "O": "XXX",  # Double, 8 bytes
-    "G": "XXX",  # OLE 10 digit/byte number of a .DBT block, stored as string
-}
-"""dict: A mapping of DBF field types to SQLAlchemy Column types.
-
-This dictionary maps the strings which are used to denote field types in the DBF objects
-to the corresponding generic SQLAlchemy Column types: These definitions come from a
-combination of the dbfread example program dbf2sqlite and this DBF file format
-documentation page: http://www.dbase.com/KnowledgeBase/int/db7_file_fmt.htm
-
-Unmapped types left as 'XXX' which should result in an error if encountered.
-"""
-
-TABLE_NAME_MAP: dict[str, dict[str, str]] = {
+TABLE_NAME_MAP_FERC1: dict[str, dict[str, str]] = {
     "fuel_ferc1": {
         "dbf": "f1_fuel",
         "xbrl": "steam_electric_generating_plant_statistics_large_plants_fuel_statistics_402",
@@ -143,10 +118,6 @@ TABLE_NAME_MAP: dict[str, dict[str, str]] = {
         "dbf": "f1_purchased_pwr",
         "xbrl": "purchased_power_326",
     },
-    "electric_oandm_ferc1": {
-        "dbf": "f1_324_elc_expns",
-        "xbrl": "electric_operations_and_maintenance_expenses_320",
-    },
     "electric_energy_sources_ferc1": {
         "dbf": "f1_elctrc_erg_acct",
         "xbrl": "electric_energy_account_401a",
@@ -159,20 +130,100 @@ TABLE_NAME_MAP: dict[str, dict[str, str]] = {
         "dbf": "f1_utltyplnt_smmry",
         "xbrl": "summary_of_utility_plant_and_accumulated_provisions_for_depreciation_amortization_and_depletion_200",
     },
-    "transmission_ferc1": {
+    "transmission_statistics_ferc1": {
         "dbf": "f1_xmssn_line",
         "xbrl": "transmission_line_statistics_422",
+    },
+    "electric_opex_ferc1": {
+        "dbf": "f1_elc_op_mnt_expn",
+        "xbrl": "electric_operations_and_maintenance_expenses_320",
+    },
+    "balance_sheet_liabilities_ferc1": {
+        "dbf": "f1_bal_sheet_cr",
+        "xbrl": "comparative_balance_sheet_liabilities_and_other_credits_110",
     },
     "balance_sheet_assets_ferc1": {
         "dbf": "f1_comp_balance_db",
         "xbrl": "comparative_balance_sheet_assets_and_other_debits_110",
     },
+    "income_statement_ferc1": {
+        "dbf": ["f1_income_stmnt", "f1_incm_stmnt_2"],
+        "xbrl": "statement_of_income_114",
+    },
+    "retained_earnings_ferc1": {
+        "dbf": "f1_retained_erng",
+        "xbrl": "retained_earnings_118",
+    },
+    "retained_earnings_appropriations_ferc1": {
+        "dbf": "f1_retained_erng",
+        "xbrl": "retained_earnings_appropriations_118",
+    },
     "depreciation_amortization_summary_ferc1": {
         "dbf": "f1_dacs_epda",
         "xbrl": "summary_of_depreciation_and_amortization_charges_section_a_336",
     },
+    "electric_plant_depreciation_changes_ferc1": {
+        "dbf": "f1_accumdepr_prvsn",
+        "xbrl": "accumulated_provision_for_depreciation_of_electric_utility_plant_changes_section_a_219",
+    },
+    "electric_plant_depreciation_functional_ferc1": {
+        "dbf": "f1_accumdepr_prvsn",
+        "xbrl": "accumulated_provision_for_depreciation_of_electric_utility_plant_functional_classification_section_b_219",
+    },
+    "electric_operating_revenues_ferc1": {
+        "dbf": "f1_elctrc_oper_rev",
+        "xbrl": "electric_operating_revenues_300",
+    },
+    "cash_flow_ferc1": {
+        "dbf": "f1_cash_flow",
+        "xbrl": "statement_of_cash_flows_120",
+    },
+    "electricity_sales_by_rate_schedule_ferc1": {
+        "dbf": "f1_sales_by_sched",
+        "xbrl": [
+            "sales_of_electricity_by_rate_schedules_account_440_residential_304",
+            "sales_of_electricity_by_rate_schedules_account_442_commercial_304",
+            "sales_of_electricity_by_rate_schedules_account_442_industrial_304",
+            "sales_of_electricity_by_rate_schedules_account_444_public_street_and_highway_lighting_304",
+            "sales_of_electricity_by_rate_schedules_account_445_other_sales_to_public_authorities_304",
+            "sales_of_electricity_by_rate_schedules_account_446_sales_to_railroads_and_railways_304",
+            "sales_of_electricity_by_rate_schedules_account_448_interdepartmental_sales_304",
+            "sales_of_electricity_by_rate_schedules_account_4491_provision_for_rate_refunds_304",
+            "sales_of_electricity_by_rate_schedules_account_totals_304",
+        ],
+    },
+    "other_regulatory_liabilities_ferc1": {
+        "dbf": "f1_othr_reg_liab",
+        "xbrl": "other_regulatory_liabilities_account_254_278",
+    },
 }
 """A mapping of PUDL DB table names to their XBRL and DBF source table names."""
+
+DBF_TYPES = {
+    "C": sa.String,
+    "D": sa.Date,
+    "F": sa.Float,
+    "I": sa.Integer,
+    "L": sa.Boolean,
+    "M": sa.Text,  # 10 digit .DBT block number, stored as a string...
+    "N": sa.Float,
+    "T": sa.DateTime,
+    "0": sa.Integer,  # based on dbf2sqlite mapping
+    "B": "XXX",  # .DBT block number, binary string
+    "@": "XXX",  # Timestamp... Date = Julian Day, Time is in milliseconds?
+    "+": "XXX",  # Autoincrement (e.g. for IDs)
+    "O": "XXX",  # Double, 8 bytes
+    "G": "XXX",  # OLE 10 digit/byte number of a .DBT block, stored as string
+}
+"""dict: A mapping of DBF field types to SQLAlchemy Column types.
+
+This dictionary maps the strings which are used to denote field types in the DBF objects
+to the corresponding generic SQLAlchemy Column types: These definitions come from a
+combination of the dbfread example program dbf2sqlite and this DBF file format
+documentation page: http://www.dbase.com/KnowledgeBase/int/db7_file_fmt.htm
+
+Unmapped types left as 'XXX' which should result in an error if encountered.
+"""
 
 PUDL_RIDS: dict[int, str] = {
     514: "AEP Texas",
@@ -727,19 +778,25 @@ def extract_dbf(
 
     ferc1_raw_dfs = {}
     for pudl_table in ferc1_settings.tables:
-        if pudl_table not in TABLE_NAME_MAP:
-            raise ValueError(
-                f"No extract function found for requested FERC Form 1 data "
-                f"table {pudl_table}!"
-            )
         logger.info(
             f"Converting extracted FERC Form 1 table {pudl_table} into a "
             f"pandas DataFrame from DBF table."
         )
+        if pudl_table not in TABLE_NAME_MAP_FERC1:
+            raise ValueError(
+                f"No extract function found for requested FERC Form 1 data "
+                f"table {pudl_table}!"
+            )
+        dbf_table_or_tables = TABLE_NAME_MAP_FERC1[pudl_table]["dbf"]
+        if not isinstance(dbf_table_or_tables, list):
+            dbf_tables = [dbf_table_or_tables]
+        else:
+            dbf_tables = dbf_table_or_tables
+
         ferc1_raw_dfs[pudl_table] = extract_dbf_generic(
-            ferc1_engine=sa.create_engine(pudl_settings["ferc1_db"]),
+            table_names=dbf_tables,
             ferc1_settings=ferc1_settings,
-            table_name=TABLE_NAME_MAP[pudl_table]["dbf"],
+            pudl_settings=pudl_settings,
         )
 
     return ferc1_raw_dfs
@@ -775,9 +832,9 @@ def extract_xbrl(
         return ferc1_raw_dfs
 
     for pudl_table in ferc1_settings.tables:
-        if pudl_table not in TABLE_NAME_MAP:
+        if pudl_table not in TABLE_NAME_MAP_FERC1:
             raise ValueError(f"{pudl_table} not found in the list of known tables.")
-        if "xbrl" not in TABLE_NAME_MAP[pudl_table]:
+        if "xbrl" not in TABLE_NAME_MAP_FERC1[pudl_table]:
             raise ValueError(f"No XBRL tables have been associated with {pudl_table}.")
 
         logger.info(
@@ -785,38 +842,51 @@ def extract_xbrl(
             f"pandas DataFrame from XBRL table."
         )
 
-        # Attempt to extract both duration and instant tables
-        xbrl_table = TABLE_NAME_MAP[pudl_table]["xbrl"]
-        ferc1_raw_dfs[pudl_table] = {}
-        for period_type in ["duration", "instant"]:
-            ferc1_raw_dfs[pudl_table][period_type] = extract_xbrl_generic(
-                ferc1_engine=sa.create_engine(pudl_settings["ferc1_xbrl_db"]),
+        xbrl_table_or_tables = TABLE_NAME_MAP_FERC1[pudl_table]["xbrl"]
+        if not isinstance(xbrl_table_or_tables, list):
+            xbrl_tables = [xbrl_table_or_tables]
+        else:
+            xbrl_tables = xbrl_table_or_tables
+
+        ferc1_xbrl_engine = sa.create_engine(pudl_settings["ferc1_xbrl_db"])
+
+        ferc1_raw_dfs[pudl_table] = {
+            period_type: extract_xbrl_generic(
+                table_names=xbrl_tables,
+                period=period_type,
+                ferc1_engine=ferc1_xbrl_engine,
                 ferc1_settings=ferc1_settings,
-                table_name=f"{xbrl_table}_{period_type}",
             )
+            for period_type in ["duration", "instant"]
+        }
 
     return ferc1_raw_dfs
 
 
-def extract_xbrl_generic(
+def extract_xbrl_single(
+    table_name: str,
+    period: str,
     ferc1_engine: sa.engine.Engine,
     ferc1_settings: Ferc1Settings,
-    table_name: str,
 ) -> pd.DataFrame:
     """Extract a single FERC Form 1 XBRL table by name.
 
     Args:
-        ferc1_engine: An SQL Alchemy connection engine for the FERC Form 1 database.
-        ferc1_settings: Object containing validated settings relevant to FERC Form 1.
         table_name: Name of the XBRL table to extract, as it appears in the original
             XBRL derived SQLite database.
+        period: Either duration or instant, specific to xbrl data.
+        ferc1_engine: An SQL Alchemy connection engine for the FERC Form 1 database.
+        ferc1_settings: Object containing validated settings relevant to FERC Form 1.
     """
+    # Create full table name with _instant or _duration suffix
+    table_name_full = f"{table_name}_{period}"
+
     # Get XBRL DB metadata
     ferc1_meta = get_ferc1_meta(ferc1_engine)
 
     # Not every table contains both instant and duration
     # Return empty dataframe if table doesn't exist
-    if table_name not in ferc1_meta.tables:
+    if table_name_full not in ferc1_meta.tables:
         return pd.DataFrame()
 
     # Identification table used to get the filing year
@@ -824,8 +894,8 @@ def extract_xbrl_generic(
 
     return pd.read_sql(
         f"""
-        SELECT {table_name}.*, {id_table}.report_year FROM {table_name}
-        JOIN {id_table} ON {id_table}.filing_name = {table_name}.filing_name
+        SELECT {table_name_full}.*, {id_table}.report_year FROM {table_name_full}
+        JOIN {id_table} ON {id_table}.filing_name = {table_name_full}.filing_name
         WHERE {id_table}.report_year BETWEEN :min_year AND :max_year;
         """,
         con=ferc1_engine,
@@ -833,10 +903,10 @@ def extract_xbrl_generic(
             "min_year": min(ferc1_settings.xbrl_years),
             "max_year": max(ferc1_settings.xbrl_years),
         },
-    )
+    ).assign(sched_table_name=table_name)
 
 
-def extract_dbf_generic(
+def extract_dbf_single(
     ferc1_engine: sa.engine.Engine,
     ferc1_settings: Ferc1Settings,
     table_name: str,
@@ -856,7 +926,76 @@ def extract_dbf_generic(
             "min_year": min(ferc1_settings.dbf_years),
             "max_year": max(ferc1_settings.dbf_years),
         },
-    )
+    ).assign(sched_table_name=table_name)
+
+
+def extract_xbrl_generic(
+    table_names: list[str],
+    period: Literal["duration", "instant"],
+    ferc1_engine: sa.engine.Engine,
+    ferc1_settings: Ferc1Settings,
+) -> pd.DataFrame:
+    """Combine multiple raw xbrl instant or duration tables into one.
+
+    Args:
+        table_names: The list of raw table names provided in TABLE_NAME_MAP_FERC1
+            under xbrl. These are the tables you want to combine.
+        period: Either duration or instant, specific to xbrl data.
+        ferc1_engine: An SQL Alchemy connection engine for the FERC Form 1 database.
+        ferc1_settings: Object containing validated settings relevant to FERC Form 1.
+            Contains the tables and years to be loaded into PUDL.
+
+    There are some instances where multiple xbrl tables ought to be combined into
+    a single table to best mesh with data from the other source. This function
+    concatenates those tables into one. It is similar to the extract_dbf_generic
+    except that this function handles the instant and duration tables from xbrl.
+
+    It does not combine instant and duration tables, rather, it creates an instant table
+    that is a combination of several other instant tables, and a duration table that is
+    the combination of several other instant tables (those listed in table_names).
+    """
+    tables = [
+        extract_xbrl_single(
+            table_name=raw_table_name,
+            period=period,
+            ferc1_engine=ferc1_engine,
+            ferc1_settings=ferc1_settings,
+        )
+        for raw_table_name in table_names
+    ]
+    return pd.concat(tables)
+
+
+def extract_dbf_generic(
+    table_names: list[str],
+    ferc1_settings: Ferc1Settings,
+    pudl_settings: dict[str, Any],
+) -> pd.DataFrame:
+    """Combine multiple raw dbf tables into one.
+
+    Args:
+        table_names: The name of the raw dbf tables you want to combine
+            under xbrl. These are the tables you want to combine.
+        ferc1_settings: Object containing validated settings relevant to FERC Form 1.
+            Contains the tables and years to be loaded into PUDL.
+        pudl_settings: A PUDL settings dictionary.
+        period: Either duration or instant.
+
+    There are some instances where multiple dbf tables ought to be combined into
+    a single table to best mesh with data from the other source. This function
+    concatenates those tables into one. It is similar to the extract_xbr_concat
+    except that this function doesn't have to deal with instant and duration tables.
+    """
+    tables = [
+        extract_dbf_single(
+            ferc1_engine=sa.create_engine(pudl_settings["ferc1_db"]),
+            ferc1_settings=ferc1_settings,
+            table_name=raw_table_name,
+        )
+        for raw_table_name in table_names
+    ]
+
+    return pd.concat(tables)
 
 
 def extract_xbrl_metadata(
@@ -889,27 +1028,30 @@ def extract_xbrl_metadata(
     with open(pudl_settings["ferc1_xbrl_taxonomy_metadata"]) as f:
         xbrl_meta_all = json.load(f)
 
-    xbrl_meta_out = {}
-    for pudl_table in ferc1_settings.tables:
-        if pudl_table not in TABLE_NAME_MAP:
-            raise ValueError(f"{pudl_table} not found in the list of known tables.")
-        if "xbrl" not in TABLE_NAME_MAP[pudl_table]:
-            raise ValueError(f"No XBRL tables have been associated with {pudl_table}.")
+    valid_tables = {
+        table_name: xbrl_table
+        for table_name in ferc1_settings.tables
+        if (xbrl_table := TABLE_NAME_MAP_FERC1.get(table_name, {}).get("xbrl"))
+        is not None
+    }
 
-        logger.info(
-            f"Reading XBRL Taxonomy metadata for FERC Form 1 table {pudl_table}"
-        )
-        # Attempt to extract both duration and instant tables
-        xbrl_table = TABLE_NAME_MAP[pudl_table]["xbrl"]
-        xbrl_meta_out[pudl_table] = {}
+    def squash_period(xbrl_table: str | list[str], period, xbrl_meta_all):
+        if type(xbrl_table) is str:
+            xbrl_table = [xbrl_table]
+        return [
+            metadata
+            for table in xbrl_table
+            for metadata in xbrl_meta_all.get(f"{table}_{period}", [])
+            if metadata
+        ]
 
-        for period in ["instant", "duration"]:
-            try:
-                xbrl_meta_out[pudl_table][period] = xbrl_meta_all[
-                    f"{xbrl_table}_{period}"
-                ]
-            except KeyError:
-                xbrl_meta_out[pudl_table][period] = []
+    xbrl_meta_out = {
+        table_name: {
+            "instant": squash_period(xbrl_table, "instant", xbrl_meta_all),
+            "duration": squash_period(xbrl_table, "duration", xbrl_meta_all),
+        }
+        for table_name, xbrl_table in valid_tables.items()
+    }
 
     return xbrl_meta_out
 
@@ -925,7 +1067,11 @@ def create_raw_ferc1_assets() -> list[SourceAsset]:
         A list of ferc1 SourceAssets.
     """
     # Deduplicate the table names because f1_elctrc_erg_acct feeds into multiple pudl tables.
-    dbf_table_names = tuple({v["dbf"] for v in TABLE_NAME_MAP.values()})
+    dbfs = (v["dbf"] for v in TABLE_NAME_MAP_FERC1.values())
+    flattened_dbfs = chain.from_iterable(
+        x if isinstance(x, list) else [x] for x in dbfs
+    )
+    dbf_table_names = tuple(set(flattened_dbfs))
     raw_ferc1_dbf_assets = [
         SourceAsset(
             key=AssetKey(table_name), io_manager_key="ferc1_dbf_sqlite_io_manager"
@@ -934,15 +1080,14 @@ def create_raw_ferc1_assets() -> list[SourceAsset]:
     ]
 
     # Create assets for the duration and instant tables
-    xbrl_table_names = tuple(
-        {
-            (v["xbrl"] + "_duration", v["xbrl"] + "_instant")
-            for v in TABLE_NAME_MAP.values()
-        }
+    xbrls = (v["xbrl"] for v in TABLE_NAME_MAP_FERC1.values())
+    flattened_xbrls = chain.from_iterable(
+        x if isinstance(x, list) else [x] for x in xbrls
     )
-    xbrl_table_names = (
-        table_name for id_names in xbrl_table_names for table_name in id_names
+    xbrls_with_periods = chain.from_iterable(
+        (f"{tn}_instant", f"{tn}_duration") for tn in flattened_xbrls
     )
+    xbrl_table_names = tuple(set(xbrls_with_periods))
     raw_ferc1_xbrl_assets = [
         SourceAsset(
             key=AssetKey(table_name), io_manager_key="ferc1_xbrl_sqlite_io_manager"
@@ -990,17 +1135,29 @@ def xbrl_metadata_json(context) -> dict[str, dict[str, list[dict[str, Any]]]]:
     with open(metadata_path) as f:
         xbrl_meta_all = json.load(f)
 
-    xbrl_meta_out = {}
-    for pudl_table in TABLE_NAME_MAP:
-        xbrl_table = TABLE_NAME_MAP[pudl_table]["xbrl"]
-        xbrl_meta_out[pudl_table] = {}
+    valid_tables = {
+        table_name: xbrl_table
+        for table_name in TABLE_NAME_MAP_FERC1
+        if (xbrl_table := TABLE_NAME_MAP_FERC1.get(table_name, {}).get("xbrl"))
+        is not None
+    }
 
-        for period in ["instant", "duration"]:
-            try:
-                xbrl_meta_out[pudl_table][period] = xbrl_meta_all[
-                    f"{xbrl_table}_{period}"
-                ]
-            except KeyError:
-                xbrl_meta_out[pudl_table][period] = []
+    def squash_period(xbrl_table: str | list[str], period, xbrl_meta_all):
+        if type(xbrl_table) is str:
+            xbrl_table = [xbrl_table]
+        return [
+            metadata
+            for table in xbrl_table
+            for metadata in xbrl_meta_all.get(f"{table}_{period}", [])
+            if metadata
+        ]
+
+    xbrl_meta_out = {
+        table_name: {
+            "instant": squash_period(xbrl_table, "instant", xbrl_meta_all),
+            "duration": squash_period(xbrl_table, "duration", xbrl_meta_all),
+        }
+        for table_name, xbrl_table in valid_tables.items()
+    }
 
     return xbrl_meta_out

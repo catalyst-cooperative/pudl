@@ -527,7 +527,7 @@ def plants_eia923(eia923_dfs, eia923_transformed_dfs):
             "plant_id_eia",
             "combined_heat_power",
             "plant_state",
-            "eia_sector",
+            "sector_id_eia",
             "naics_code",
             "reporting_frequency_code",
             "census_region",
@@ -630,8 +630,6 @@ def generation_fuel_eia923(raw_generation_fuel_eia923):
         "census_region",
         "nerc_region",
         "naics_code",
-        "eia_sector",
-        "sector_name",
         "fuel_unit",
         "total_fuel_consumption_quantity",
         "electric_fuel_consumption_quantity",
@@ -766,7 +764,12 @@ def _aggregate_duplicate_boiler_fuel_keys(boiler_fuel_df: pd.DataFrame) -> pd.Da
     relative_cols = ["ash_content_pct", "sulfur_content_pct", "fuel_mmbtu_per_unit"]
     key_cols = ["boiler_id", "energy_source_code", "plant_id_eia", "report_date"]
 
-    expected_cols = set(quantity_cols + relative_cols + key_cols + ["prime_mover_code"])
+    expected_cols = set(
+        quantity_cols
+        + relative_cols
+        + key_cols
+        + ["prime_mover_code", "sector_id_eia", "sector_name_eia"]
+    )
     actual_cols = set(boiler_fuel_df.columns)
     difference = actual_cols.symmetric_difference(expected_cols)
 
@@ -846,8 +849,6 @@ def clean_boiler_fuel_eia923(raw_boiler_fuel_eia923):
         "census_region",
         "nerc_region",
         "naics_code",
-        "eia_sector",
-        "sector_name",
         "fuel_unit",
         "total_fuel_consumption_quantity",
         "balancing_authority_code_eia",
@@ -922,8 +923,6 @@ def clean_generation_eia923(raw_generator_eia923):
                 "census_region",
                 "nerc_region",
                 "naics_code",
-                "eia_sector",
-                "sector_name",
                 "net_generation_mwh_year_to_date",
                 "early_release",
             ],

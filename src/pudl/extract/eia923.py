@@ -123,11 +123,9 @@ def extract_eia923(context):
         "raw_" + table_name + "_eia923": df for table_name, df in eia923_raw_dfs.items()
     }
 
-    eia_raw_dfs = {}
-    eia_raw_dfs.update(eia923_raw_dfs)
-    eia_raw_dfs = dict(sorted(eia_raw_dfs.items()))
+    eia923_raw_dfs = dict(sorted(eia923_raw_dfs.items()))
 
     return (
         Output(output_name=table_name, value=df)
-        for table_name, df in eia_raw_dfs.items()
+        for table_name, df in eia923_raw_dfs.items()
     )

@@ -1,4 +1,5 @@
 """Dagster IO Managers."""
+import re
 from pathlib import Path
 from sqlite3 import sqlite_version
 
@@ -340,9 +341,20 @@ class SQLiteIOManager(IOManager):
         engine = self.engine
 
         with engine.connect() as con:
-            return pudl.metadata.fields.apply_pudl_dtypes(
-                pd.read_sql_table(table_name, con)
-            )
+            try:
+                df = pd.read_sql_table(table_name, con)
+            except ValueError:
+                raise ValueError(
+                    f"{table_name} not found. Either the table was dropped "
+                    "or it doesn't exist in the pudl.metadata.resources."
+                    "Add the table to the metadata and recreate the database."
+                )
+            if df.empty:
+                raise AssertionError(
+                    f"The {table_name} table is empty. Materialize "
+                    "the {table_name} asset so it is available in the database."
+                )
+            return pudl.metadata.fields.apply_pudl_dtypes(df)
 
 
 @io_manager(
@@ -451,7 +463,7 @@ class FercDBFSQLiteIOManager(FercSQLiteIOManager):
                     "min_year": min(ferc1_settings.dbf_years),
                     "max_year": max(ferc1_settings.dbf_years),
                 },
-            )
+            ).assign(sched_table_name=table_name)
 
 
 @io_manager(
@@ -509,6 +521,7 @@ class FercXBRLSQLiteIOManager(FercSQLiteIOManager):
 
         id_table = "identification_001_duration"
 
+        sched_table_name = re.sub("_instant|_duration", "", table_name)
         with engine.connect() as con:
             return pd.read_sql(
                 f"""
@@ -521,7 +534,7 @@ class FercXBRLSQLiteIOManager(FercSQLiteIOManager):
                     "min_year": min(ferc1_settings.xbrl_years),
                     "max_year": max(ferc1_settings.xbrl_years),
                 },
-            )
+            ).assign(sched_table_name=sched_table_name)
 
 
 @io_manager(

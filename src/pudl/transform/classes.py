@@ -96,6 +96,7 @@ class TransformParams(BaseModel):
         """Prevent parameters from changing part way through."""
 
         allow_mutation = False
+        extra = "forbid"
 
 
 class MultiColumnTransformParams(TransformParams):

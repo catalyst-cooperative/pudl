@@ -12,6 +12,7 @@ import pathlib
 import re
 import shutil
 from collections import defaultdict
+from collections.abc import Generator, Iterable
 from functools import partial
 from importlib import resources
 from io import BytesIO
@@ -1346,12 +1347,14 @@ def iterate_multivalue_dict(**kwargs):
         yield result
 
 
-def get_working_eia_dates():
-    """Get all working EIA dates as a DatetimeIndex."""
+def get_working_dates_by_datasource(datasource):
+    """Get all working dates of a datasource as a DatetimeIndex."""
     import pudl.metadata.classes
 
     dates = pd.DatetimeIndex([])
-    for data_source in pudl.metadata.classes.DataSource.from_field_namespace("eia"):
+    for data_source in pudl.metadata.classes.DataSource.from_field_namespace(
+        datasource
+    ):
         working_partitions = data_source.working_partitions
         if "years" in working_partitions:
             dates = dates.append(
@@ -1528,6 +1531,19 @@ def get_eia_ferc_acct_map():
 def dedupe_n_flatten_list_of_lists(mega_list):
     """Flatten a list of lists and remove duplicates."""
     return list({item for sublist in mega_list for item in sublist})
+
+
+def flatten_list(xs: Iterable) -> Generator:
+    """Flatten an irregular (arbitrarily nested) list of lists (or sets).
+
+    Inspiration from `here
+    <https://stackoverflow.com/questions/2158395/flatten-an-irregular-arbitrarily-nested-list-of-lists>`__
+    """
+    for x in xs:
+        if isinstance(x, Iterable) and not isinstance(x, (str, bytes)):
+            yield from flatten_list(x)
+        else:
+            yield x
 
 
 def convert_df_to_excel_file(df: pd.DataFrame, **kwargs) -> pd.ExcelFile:

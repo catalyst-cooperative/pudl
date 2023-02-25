@@ -3,9 +3,16 @@ name: tox-pytest
 
 on: [push, pull_request]
 
+env:
+  PUDL_OUTPUT: ~/pudl-work/
+  PUDL_CACHE: ~/pudl-work/data/
+
 jobs:
   ci-test:
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      id-token: write
     strategy:
       fail-fast: false
     defaults:
@@ -18,7 +25,7 @@ jobs:
           fetch-depth: 2
 
       - name: Install Conda environment using mamba
-        uses: mamba-org/provision-with-micromamba@v14
+        uses: mamba-org/provision-with-micromamba@v15
         with:
           environment-file: test/test-environment.yml
           cache-env: true
@@ -59,13 +66,21 @@ jobs:
 
       - name: Set default gcp credentials
         id: gcloud-auth
+        continue-on-error: true
         uses: "google-github-actions/auth@v1"
         with:
-          credentials_json: "${{ secrets.TOX_PYTEST_SA_KEY }}"
+          workload_identity_provider: "projects/345950277072/locations/global/workloadIdentityPools/gh-actions-pool/providers/gh-actions-provider"
+          service_account: "tox-pytest-github-action@catalyst-cooperative-pudl.iam.gserviceaccount.com"
 
-      - name: Run PyTest with Tox
+      - name: Run PyTest with Tox against GCS cache (internal PRs)
         run: |
           tox -- --gcs-cache-path gs://zenodo-cache.catalyst.coop
+        if: ${{ steps.gcloud-auth.outcome == 'success' }}
+
+      - name: Run PyTest with Tox against Zenodo (external PRs)
+        run: |
+          tox
+        if: ${{ steps.gcloud-auth.outcome == 'failure' }}
 
       - name: Log post-test Zenodo datastore contents
         run: find ~/pudl-work/data/
@@ -80,6 +95,7 @@ jobs:
     steps:
       - name: Inform the Codemonkeys
         uses: 8398a7/action-slack@v3
+        continue-on-error: true
         with:
           status: custom
           fields: workflow,job,commit,repo,ref,author,took

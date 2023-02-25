@@ -10,7 +10,6 @@ from pudl.io_managers import (
     ferc1_xbrl_sqlite_io_manager,
     pudl_sqlite_io_manager,
 )
-from pudl.package_data import settings
 from pudl.resources import dataset_settings, datastore, ferc_to_sqlite_settings
 from pudl.settings import EtlSettings
 
@@ -58,7 +57,9 @@ defs = Definitions(
                 "resources": {
                     "dataset_settings": {
                         "config": EtlSettings.from_yaml(
-                            importlib.resources.path(settings, "etl_fast.yml")
+                            importlib.resources.path(
+                                "pudl.package_data.settings", "etl_fast.yml"
+                            )
                         ).datasets.dict()
                     }
                 }
