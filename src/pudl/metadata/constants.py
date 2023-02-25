@@ -172,11 +172,13 @@ given source. Read more about our harvesting process in :mod:`pudl.transform.eia
         "title": "EIA Static Tables",
         "description": """Static EIA tables are like EIA entity tables in that they pull
 from multiple EIA tables, but their purpose is to elucidate encoded language. This is
-where acromyns are connected to their full spelling and descriptions.""",
+where acromyns are connected to their full spelling and descriptions. These tables did
+not originate as raw EIA tables, rather they are created by us to link commonly used
+codes to important descriptors.""",
     },
     "static_eia_disabled": {
         "title": "EIA Static Tables (disabled)",
-        "description": "blah",
+        "description": "Disabled tables are no longer included in the PUDL DB.",
     },
     "eia860": {
         "title": "EIA 860",
@@ -203,7 +205,10 @@ where acromyns are connected to their full spelling and descriptions.""",
     },
     "static_ferc1": {
         "title": "FERC Form 1 Static Tables",
-        "description": "Blah",
+        "description": """Static FERC Form 1 tables elucidate encoded language. This is
+where acromyns are connected to their full spelling and descriptions. These tables did
+not originate as raw FERC Form 1 tables, rather they are created by us to link commonly
+used codes to important descriptors.""",
     },
     "ferc1": {
         "title": "FERC Form 1",
@@ -212,7 +217,7 @@ where acromyns are connected to their full spelling and descriptions.""",
     },
     "ferc1_disabled": {
         "title": "FERC Form 1 disabled",
-        "description": "BLAH",
+        "description": "Disabled tables are no longer included in the PUDL DB.",
     },
     "ferc714": {
         "title": "FERC Form 714",
@@ -226,7 +231,12 @@ where acromyns are connected to their full spelling and descriptions.""",
         "title": "Output Tables",
         "description": "Blah",
     },
-    "static_pudl": {"title": "Static PUDL Tables", "description": "Blah"},
+    "static_pudl": {
+        "title": "Static PUDL Tables",
+        "description": """Static PUDL tables elucidate encoded language. This is
+where acromyns are connected to their full spelling and descriptions. They're created
+to link commonly used codes to important descriptors.""",
+    },
 }
 """Table categorization by ETL group."""
 
