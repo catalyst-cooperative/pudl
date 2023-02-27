@@ -197,7 +197,7 @@ def static_dfs_to_rst(app):
 def cleanup_rsts(app, exception):
     """Remove generated RST files when the build is finished."""
     (DOCS_DIR / "data_dictionaries/pudl_db.rst").unlink()
-    # (DOCS_DIR / "data_dictionaries/pudl_db_fields.rst").unlink()
+    (DOCS_DIR / "data_dictionaries/pudl_db_fields.rst").unlink()
     (DOCS_DIR / "data_dictionaries/codes_and_labels.rst").unlink()
     (DOCS_DIR / "data_sources/eia860.rst").unlink()
     (DOCS_DIR / "data_sources/eia923.rst").unlink()
