@@ -33,6 +33,7 @@ ENV CONDA_RUN="conda run --no-capture-output --prefix ${CONDA_PREFIX}"
 ENV PYTHON_VERSION="3.10"
 ENV CONTAINER_PUDL_IN=${CONTAINER_HOME}/pudl_in
 ENV CONTAINER_PUDL_OUT=${CONTAINER_HOME}/pudl_out
+ENV DAGSTER_HOME=${CONTAINER_HOME}/DAGSTER_HOME
 
 # Create a conda environment based on the specification in the repo
 # We need information from .git to get version with setuptools_scm so we mount that
@@ -50,7 +51,8 @@ RUN --mount=type=bind,source=.git,target=${PUDL_REPO}/.git \
     # Run the PUDL setup script so we know where to read and write data
     ${CONDA_RUN} pudl_setup \
     --pudl_in ${CONTAINER_PUDL_IN} \
-    --pudl_out ${CONTAINER_PUDL_OUT}
+    --pudl_out ${CONTAINER_PUDL_OUT} && \
+    mkdir -p DAGSTER_HOME
 
 # Run the unit tests:
 CMD ["conda", "run", "--no-capture-output", "--prefix", "${CONDA_PREFIX}", "pytest", "test/unit"]
