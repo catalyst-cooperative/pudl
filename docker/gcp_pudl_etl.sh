@@ -39,7 +39,7 @@ function run_pudl_etl() {
         --loglevel DEBUG \
         --gcs-cache-path gs://internal-zenodo-cache.catalyst.coop \
         -y 2021 \
-        -s id
+        -s id \
     && pytest \
         --gcs-cache-path gs://internal-zenodo-cache.catalyst.coop \
         --etl-settings $PUDL_SETTINGS_YML \

@@ -52,7 +52,7 @@ RUN --mount=type=bind,source=.git,target=${PUDL_REPO}/.git \
     ${CONDA_RUN} pudl_setup \
     --pudl_in ${CONTAINER_PUDL_IN} \
     --pudl_out ${CONTAINER_PUDL_OUT} && \
-    mkdir -p DAGSTER_HOME
+    mkdir -p ${DAGSTER_HOME}
 
 # Run the unit tests:
 CMD ["conda", "run", "--no-capture-output", "--prefix", "${CONDA_PREFIX}", "pytest", "test/unit"]
