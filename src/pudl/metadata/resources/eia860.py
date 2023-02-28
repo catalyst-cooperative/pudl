@@ -16,8 +16,6 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
                 "boiler_status",
                 "boiler_retirement_date",
                 "boiler_type",
-                "boiler_manufacturer",
-                "boiler_manufacturer_code",
                 "firing_type_1",
                 "firing_type_2",
                 "firing_type_3",

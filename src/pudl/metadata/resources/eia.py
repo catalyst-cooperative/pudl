@@ -20,7 +20,12 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
         # Note: This table is currently empty but we keep it for use in the crosswalk.
         "description": "Static boiler attributes compiled from the EIA-860 and EIA-923 data.",
         "schema": {
-            "fields": ["plant_id_eia", "boiler_id"],
+            "fields": [
+                "plant_id_eia",
+                "boiler_id",
+                "boiler_manufacturer",
+                "boiler_manufacturer_code",
+            ],
             "primary_key": ["plant_id_eia", "boiler_id"],
             "foreign_key_rules": {"fields": [["plant_id_eia", "boiler_id"]]},
         },

@@ -562,9 +562,14 @@ def boilers_eia860(
         A DataFrame containing all the fields of the EIA 860 Boilers table.
     """
     pt = pudl.output.pudltabl.get_table_meta(pudl_engine)
-    # All the info we need will come from here, as the static table is currently empty.
+
+    # Most of the info we need will come from here.
     boilers_eia860_tbl = pt["boilers_eia860"]
     boilers_eia860_select = sa.sql.select(boilers_eia860_tbl)
+
+    # To get boiler manufacturer
+    boilers_entity_eia_tbl = pt["boilers_entity_eia"]
+    boilers_entity_eia_select = sa.sql.select(boilers_entity_eia_tbl)
 
     # To get the Lat/Lon coordinates
     plants_entity_eia_tbl = pt["plants_entity_eia"]
@@ -583,11 +588,16 @@ def boilers_eia860(
         )
 
     boilers_eia860 = pd.read_sql(boilers_eia860_select, pudl_engine)
+    boilers_entity_eia_df = pd.read_sql(boilers_entity_eia_select, pudl_engine)
 
     plants_entity_eia_df = pd.read_sql(plants_entity_eia_select, pudl_engine)
 
     out_df = pd.merge(
         boilers_eia860, plants_entity_eia_df, how="left", on=["plant_id_eia"]
+    )
+
+    out_df = pd.merge(
+        out_df, boilers_entity_eia_df, how="left", on=["plant_id_eia", "boiler_id"]
     )
 
     out_df.report_date = pd.to_datetime(out_df.report_date)

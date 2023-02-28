@@ -169,14 +169,15 @@ ENTITIES: dict[str, dict[str, list[str]]] = {
     },
     "boilers": {
         "id_cols": ["plant_id_eia", "boiler_id"],
-        "static_cols": [],
+        "static_cols": [
+            "boiler_manufacturer",
+            "boiler_manufacturer_code",
+        ],
         "annual_cols": [
             "boiler_operating_date",
             "boiler_status",
             "boiler_retirement_date",
             "boiler_type",
-            "boiler_manufacturer",
-            "boiler_manufacturer_code",
             "firing_type_1",
             "firing_type_2",
             "firing_type_3",
