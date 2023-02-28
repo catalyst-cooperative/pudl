@@ -23,7 +23,7 @@ import numpy as np
 import pandas as pd
 import requests
 import sqlalchemy as sa
-from dagster import Noneable
+from dagster import AssetKey, AssetsDefinition, Noneable, SourceAsset
 from dagster._config.errors import PostProcessingError
 from pandas._libs.missing import NAType
 
@@ -1599,3 +1599,27 @@ class EnvVar(Noneable):
                     f"Config value could not be found. Set the {self.env_var} environment variable or specify a value in dagster config."
                 )
         return value
+
+
+def get_asset_keys(
+    assets: list[AssetsDefinition], exclude_source_assets: bool = True
+) -> set[AssetKey]:
+    """Get a set of asset keys from a list of asset definitions.
+
+    Args:
+        assets: list of asset definitions.
+        exclude_source_assets: exclude SourceAssets in the returned list.
+                               Some selection operations don't require
+                               SourceAsset keys.
+
+    Returns:
+        A set of asset keys.
+    """
+    asset_keys = set()
+    for asset in assets:
+        if isinstance(asset, SourceAsset):
+            if not exclude_source_assets:
+                asset_keys = asset_keys.union(asset.key)
+        else:
+            asset_keys = asset_keys.union(asset.keys)
+    return asset_keys

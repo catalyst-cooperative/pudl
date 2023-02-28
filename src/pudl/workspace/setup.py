@@ -60,7 +60,7 @@ def get_defaults():
         the ``$HOME/.pudl.yml`` file does not exist, set these paths to None.
     """
     logger.warning(
-        "pudl_settings is being depcrated in favor of environment variables"
+        "pudl_settings is being depcrated in favor of environment variables "
         "PUDL_OUTPUT and PUDL_CACHE"
     )
     settings_file = pathlib.Path.home() / ".pudl.yml"
@@ -105,7 +105,7 @@ def derive_paths(pudl_in, pudl_out):
             read out of the YAML file. Mostly paths for inputs & outputs.
     """
     logger.warning(
-        "pudl_settings is being depcrated in favor of environment variables"
+        "pudl_settings is being depcrated in favor of environment variables "
         "PUDL_OUTPUT and PUDL_CACHE. For more info"
         "see: https://catalystcoop-pudl.readthedocs.io/en/dev/dev/dev_setup.html"
     )
