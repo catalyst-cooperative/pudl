@@ -54,7 +54,7 @@ default_resources = {
 }
 
 
-def create_non_cems_selection(all_asset: list[AssetsDefinition]) -> AssetSelection:
+def create_non_cems_selection(all_assets: list[AssetsDefinition]) -> AssetSelection:
     """Create a selection of assets excluding CEMS and all downstream assets.
 
     Args:
@@ -63,7 +63,7 @@ def create_non_cems_selection(all_asset: list[AssetsDefinition]) -> AssetSelecti
     Returns:
         An asset selection with all_assets assets excluding CEMS assets.
     """
-    all_asset_keys = pudl.helpers.get_asset_keys(all_asset)
+    all_asset_keys = pudl.helpers.get_asset_keys(all_assets)
     all_selection = AssetSelection.keys(*all_asset_keys)
 
     cems_selection = AssetSelection.keys(AssetKey("hourly_emissions_epacems"))
@@ -80,7 +80,9 @@ def load_dataset_settings_from_file(setting_filename: str) -> dict:
         Dictionary of dataset settings.
     """
     return EtlSettings.from_yaml(
-        importlib.resources.path("pudl.package_data.settings", setting_filename)
+        importlib.resources.path(
+            "pudl.package_data.settings", f"{setting_filename}.yml"
+        )
     ).datasets.dict()
 
 
@@ -102,7 +104,7 @@ defs = Definitions(
             config={
                 "resources": {
                     "dataset_settings": {
-                        "config": load_dataset_settings_from_file("etl_fast.yml")
+                        "config": load_dataset_settings_from_file("etl_fast")
                     }
                 }
             },
@@ -114,7 +116,7 @@ defs = Definitions(
             config={
                 "resources": {
                     "dataset_settings": {
-                        "config": load_dataset_settings_from_file("etl_fast.yml")
+                        "config": load_dataset_settings_from_file("etl_fast")
                     }
                 }
             },
