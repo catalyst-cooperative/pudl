@@ -22,6 +22,8 @@ function run_pudl_etl() {
         $PUDL_SETTINGS_YML \
     && epacems_to_parquet \
         --loglevel DEBUG \
+        -y 2021 \
+        -s id \
     && pytest \
         --etl-settings $PUDL_SETTINGS_YML \
         --live-dbs test

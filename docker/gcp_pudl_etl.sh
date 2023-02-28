@@ -23,31 +23,25 @@ function bridge_settings() {
 function run_pudl_etl() {
     send_slack_msg ":large_yellow_circle: Deployment started for $ACTION_SHA-$GITHUB_REF :floppy_disk:"
     authenticate_gcp \
-    && bridge_settings \
     && pudl_setup \
         --pudl_in $CONTAINER_PUDL_IN \
         --pudl_out $CONTAINER_PUDL_OUT \
+    && bridge_settings \
     && ferc_to_sqlite \
-        --clobber \
         --loglevel DEBUG \
         --gcs-cache-path gs://internal-zenodo-cache.catalyst.coop \
-        --bypass-local-cache \
         $PUDL_SETTINGS_YML \
     && pudl_etl \
-        --clobber \
         --loglevel DEBUG \
         --gcs-cache-path gs://internal-zenodo-cache.catalyst.coop \
-        --bypass-local-cache \
         $PUDL_SETTINGS_YML \
     && epacems_to_parquet \
-        --partition \
-        --clobber \
         --loglevel DEBUG \
         --gcs-cache-path gs://internal-zenodo-cache.catalyst.coop \
-        --bypass-local-cache \
+        -y 2021 \
+        -s id
     && pytest \
         --gcs-cache-path gs://internal-zenodo-cache.catalyst.coop \
-        --bypass-local-cache \
         --etl-settings $PUDL_SETTINGS_YML \
         --live-dbs test
 }
