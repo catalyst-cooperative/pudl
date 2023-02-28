@@ -65,7 +65,7 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
         "field_namespace": "eia",
     },
     "environmental_equipment_manufacturers_eia": {
-        "description": "A coding table describing different boiler manufacturers in the EIA-860.",
+        "description": "A coding table describing manufacturers of boilers and environmental control equipment in the EIA-860.",
         "schema": {
             "fields": ["code", "label", "description"],
             "primary_key": ["code"],

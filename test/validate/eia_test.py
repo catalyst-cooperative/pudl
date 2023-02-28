@@ -15,6 +15,7 @@ logger = logging.getLogger(__name__)
     [
         ("bf_eia923", "all"),
         ("bga_eia860", "all"),
+        ("boil_eia860", "all"),
         ("frc_eia923", "all"),
         ("gen_eia923", "all"),
         ("gens_eia860", "all"),
@@ -42,6 +43,7 @@ def test_no_null_cols_eia(pudl_out_eia, live_dbs, cols, df_name):
     [
         ("bf_eia923", 1_415_328, 1_415_328, 118_558),
         ("bga_eia860", 129_869, 129_869, 129_869),
+        ("boil_eia860", 74_146, 74_146, 74_146),
         ("frc_eia923", 597_000, 244_415, 24_065),
         ("gen_eia923", None, 5_171_497, 432_570),
         ("gens_eia860", 523_563, 523_563, 523_563),
@@ -109,6 +111,7 @@ def test_minmax_rows(
             ],
         ),
         ("bga_eia860", ["report_date", "plant_id_eia", "boiler_id", "generator_id"]),
+        ("boil_eia860", ["report_date", "plant_id_eia", "boiler_id"]),
         ("gen_eia923", ["report_date", "plant_id_eia", "generator_id"]),
         ("gens_eia860", ["report_date", "plant_id_eia", "generator_id"]),
         (

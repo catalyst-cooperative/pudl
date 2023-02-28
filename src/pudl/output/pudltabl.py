@@ -608,6 +608,24 @@ class PudlTabl:
 
         return self._dfs["gens_eia860"]
 
+    def boil_eia860(self, update=False):
+        """Pull a dataframe of boiler level info reported in EIA 860.
+
+        Args:
+            update (bool): If true, re-calculate the output dataframe, even if
+                a cached version exists.
+
+        Returns:
+            pandas.DataFrame: a denormalized table for interactive use.
+        """
+        if update or self._dfs["boil_eia860"] is None:
+            self._dfs["boil_eia860"] = pudl.output.eia860.boilers_eia860(
+                self.pudl_engine,
+                start_date=self.start_date,
+                end_date=self.end_date,
+            )
+        return self._dfs["boil_eia860"]
+
     def own_eia860(self, update=False):
         """Pull a dataframe of generator level ownership data from EIA 860.
 
