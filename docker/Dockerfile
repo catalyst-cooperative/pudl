@@ -31,7 +31,7 @@ ENV CONDA_RUN="conda run --no-capture-output --prefix ${CONDA_PREFIX}"
 ENV PYTHON_VERSION="3.10"
 ENV CONTAINER_PUDL_IN=${CONTAINER_HOME}/pudl_in
 ENV CONTAINER_PUDL_OUT=${CONTAINER_HOME}/pudl_out
-ENV DAGSTER_HOME=${CONTAINER_HOME}/DAGSTER_HOME
+ENV DAGSTER_HOME=${CONTAINER_HOME}/dagster_home
 
 # Create a conda environment based on the specification in the repo
 COPY test/test-environment.yml test/test-environment.yml
