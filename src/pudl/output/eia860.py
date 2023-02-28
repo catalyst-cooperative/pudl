@@ -547,11 +547,7 @@ def boilers_eia860(
     Fill in data for adjacent years if requested, but never fill in earlier
     than the earliest working year of data for EIA923, and never add more than
     one year on after the reported data (since there should at most be a one
-    year lag between EIA923 and EIA860 reporting)
-
-    This also fills the ``technology_description`` field according to matching
-    ``boiler_fuel_1`` values. It will only do so if the ``boiler_fuel_1``
-    is consistent throughout years for a given plant.
+    year lag between EIA923 and EIA860 reporting).
 
     Args:
         pudl_engine: SQLAlchemy connection engine for the PUDL DB.

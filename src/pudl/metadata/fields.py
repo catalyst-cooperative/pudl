@@ -206,7 +206,7 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     },
     "boiler_operating_date": {
         "type": "date",
-        "description": "Date the boiler began commercial operation.",
+        "description": "Date the boiler began or is planned to begin commercial operation.",
     },
     "boiler_retirement_date": {
         "type": "date",
