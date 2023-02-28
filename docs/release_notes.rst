@@ -68,7 +68,7 @@ Dagster Adoption
     ``ferc_to_sqlite`` dagster graph in :mod:`pudl.ferc_to_sqlite.defs`.
   * The functionality of ``pudl.extract.ferc1.extract_dbf`` and
     ``pudl.extract.ferc1.extract_xbrl`` is now handled by the ``SourceAssets`` created
-    by the :mod:`pudl.extract.ferc1.create_raw_ferc1_assets()` function and the
+    by the :func:`pudl.extract.ferc1.create_raw_ferc1_assets()` function and the
     :mod:`pudl.io_managers.ferc1_xbrl_sqlite_io_manager` and
     :mod:`pudl.io_managers.ferc1_dbf_sqlite_io_manager` IO Managers.
   * The :mod:`pudl.extract.xbrl_metadata_json` asset has replaced the functionality

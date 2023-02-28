@@ -49,13 +49,18 @@ try this example:
 
 This should create several outputs that you can find in your workspace at:
 
- * ``sqlite/ferc1.sqlite``: Data from 1994-2020 (FoxPro/DBF)
- * ``sqlite/ferc1_xbrl.sqlite``: Data from 2021 onward (XBRL)
- * ``sqlite/ferc1_xbrl_datapackage.json``: `Frictionless data package
+ * ``outputs/ferc1.sqlite``: Data from 1994-2020 (FoxPro/DBF)
+ * ``outputs/ferc1_xbrl.sqlite``: Data from 2021 onward (XBRL)
+ * ``outputs/ferc1_xbrl_datapackage.json``: `Frictionless data package
    <https://specs.frictionlessdata.io/data-package/>`__ descriptor for the XBRL derived
    database.
- * ``sqlite/ferc1_xbrl_taxonomy_metadata.json``: A JSON version of the XBRL Taxonomy,
+ * ``outputs/ferc1_xbrl_taxonomy_metadata.json``: A JSON version of the XBRL Taxonomy,
    containing additional metadata.
+
+.. note::
+
+    The FERC Form 1 data extraction process can also be executed with dagit.
+    (see: :ref:`run-dagit`)
 
 By default, the script pulls in all available years and tables of data. The output is
 roughly 1GB on disk.
