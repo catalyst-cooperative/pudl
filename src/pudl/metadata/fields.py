@@ -394,7 +394,7 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "type": "integer",
         "description": "Year boiler was or is expected to be in compliance with federal, state and/or local regulations for mercury emissions.",
     },
-    "compliance_year_pm": {
+    "compliance_year_particulate": {
         "type": "integer",
         "description": "Year boiler was or is expected to be in compliance with federal, state and/or local regulations for particulate matter emissions.",
     },
@@ -1593,6 +1593,18 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "type": "boolean",
         "description": "Whether a plant part record has a duplicate record with different ownership status.",
     },
+    "particulate_control_out_of_compliance_strategy_1": {
+        "type": "string",
+        "description": "If boiler is not in compliance with particulate matter regulations, strategy for compliance.",
+    },
+    "particulate_control_out_of_compliance_strategy_2": {
+        "type": "string",
+        "description": "If boiler is not in compliance with particulate matter regulations, strategy for compliance.",
+    },
+    "particulate_control_out_of_compliance_strategy_3": {
+        "type": "string",
+        "description": "If boiler is not in compliance with particulate matter regulations, strategy for compliance.",
+    },
     "partitions": {
         "type": "string",
         "description": "The data parititions used to generate this instance of the database.",
@@ -1610,7 +1622,7 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "type": "string",
         "description": "The time period specified by the most stringent nitrogen oxide regulation.",
     },
-    "period_pm": {
+    "period_particulate": {
         "type": "string",
         "description": "The time period specified by the most stringent particulate matter regulation.",
     },
@@ -1771,18 +1783,6 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "type": "boolean",
         "description": "Is the reporting entity an owner of power plants reported on Schedule 2 of the form?",
     },
-    "pm_control_out_of_compliance_strategy_1": {
-        "type": "string",
-        "description": "If boiler is not in compliance with particulate matter regulations, strategy for compliance.",
-    },
-    "pm_control_out_of_compliance_strategy_2": {
-        "type": "string",
-        "description": "If boiler is not in compliance with particulate matter regulations, strategy for compliance.",
-    },
-    "pm_control_out_of_compliance_strategy_3": {
-        "type": "string",
-        "description": "If boiler is not in compliance with particulate matter regulations, strategy for compliance.",
-    },
     "potential_peak_demand_savings_mw": {"type": "number", "unit": "MW"},
     "previously_canceled": {
         "type": "boolean",
@@ -1866,7 +1866,7 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "type": "string",
         "description": "EIA short code for most stringent type of statute or regulation code under which the boiler is operating for nitrogen oxide control standards.",
     },
-    "regulation_pm": {
+    "regulation_particulate": {
         "type": "string",
         "description": "EIA short code for most stringent type of statute or regulation code under which the boiler is operating for particulate matter control standards.",
     },
@@ -2059,7 +2059,7 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "type": "number",
         "description": "Numeric value for the unit of measurement specified for nitrogen oxide.",
     },
-    "standard_pm_rate": {
+    "standard_particulate_rate": {
         "type": "number",
         "description": "Numeric value for the unit of measurement specified for particulate matter.",
     },
@@ -2318,7 +2318,7 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "type": "string",
         "description": "Numeric value for the unit of measurement specified for nitrogen oxide.",
     },
-    "unit_pm": {
+    "unit_particulate": {
         "type": "string",
         "description": "Numeric value for the unit of measurement specified for particulate matter.",
     },

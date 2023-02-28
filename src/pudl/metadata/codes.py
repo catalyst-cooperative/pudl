@@ -20,7 +20,7 @@ import numpy as np
 import pandas as pd
 
 CODE_METADATA: dict[str, dict[str, Any]] = {
-    "boiler_status_codes_eia": {
+    "boiler_status_eia": {
         "df": pd.DataFrame(
             columns=["code", "label", "description"],
             data=[
@@ -71,7 +71,7 @@ CODE_METADATA: dict[str, dict[str, Any]] = {
         },
         "ignored_codes": [0, "OC", "T", "0"],
     },
-    "boiler_type_codes_eia": {
+    "boiler_types_eia": {
         "df": pd.DataFrame(
             columns=["code", "label", "description"],
             data=[
@@ -138,7 +138,7 @@ CODE_METADATA: dict[str, dict[str, Any]] = {
         },
         "ignored_codes": [],
     },
-    "envr_equipment_manufacturer_codes_eia": {
+    "environmental_equipment_manufacturers_eia": {
         "df": pd.DataFrame(
             columns=["code", "label", "description"],
             data=[
@@ -352,7 +352,7 @@ CODE_METADATA: dict[str, dict[str, Any]] = {
         "code_fixes": {},
         "ignored_codes": ["NA", "IN"],
     },
-    "firing_type_codes_eia": {
+    "firing_types_eia": {
         "df": pd.DataFrame(
             columns=["code", "label", "description"],
             data=[
@@ -393,7 +393,7 @@ CODE_METADATA: dict[str, dict[str, Any]] = {
         },
         "ignored_codes": [],
     },
-    "nox_compliance_strategy_codes_eia": {
+    "nox_compliance_strategies_eia": {
         "df": pd.DataFrame(
             columns=["code", "label", "description"],
             data=[
@@ -437,7 +437,7 @@ CODE_METADATA: dict[str, dict[str, Any]] = {
         "code_fixes": {"H2": "H2O", "NH": "NH3", "ST": "STM", "ln": "LN"},
         "ignored_codes": ["NA"],
     },
-    "nox_control_status_codes_eia": {
+    "nox_control_status_eia": {
         "df": pd.DataFrame(
             columns=["code", "label", "description"],
             data=[
@@ -481,7 +481,7 @@ CODE_METADATA: dict[str, dict[str, Any]] = {
         "code_fixes": {},
         "ignored_codes": ["NA"],
     },
-    "nox_unit_codes_eia": {
+    "nox_units_eia": {
         "df": pd.DataFrame(
             columns=["code", "label", "description"],
             data=[
@@ -512,7 +512,7 @@ CODE_METADATA: dict[str, dict[str, Any]] = {
         "code_fixes": {},
         "ignored_codes": [],
     },
-    "period_codes_eia": {
+    "averaging_periods_eia": {
         "df": pd.DataFrame(
             columns=["code", "label", "description"],
             data=[
@@ -538,7 +538,7 @@ CODE_METADATA: dict[str, dict[str, Any]] = {
         "code_fixes": {},
         "ignored_codes": [],
     },
-    "pm_compliance_strategy_codes_eia": {
+    "particulate_compliance_strategies_eia": {
         "df": pd.DataFrame(
             columns=["code", "label", "description"],
             data=[
@@ -560,7 +560,7 @@ CODE_METADATA: dict[str, dict[str, Any]] = {
         "code_fixes": {},
         "ignored_codes": [],
     },
-    "pm_unit_codes_eia": {
+    "particulate_units_eia": {
         "df": pd.DataFrame(
             columns=["code", "label", "description"],
             data=[
@@ -2027,7 +2027,7 @@ CODE_METADATA: dict[str, dict[str, Any]] = {
             "GRID",  # 2022 860m code for plant ID 55328 (code: CSTO for previous years)
         ],
     },
-    "regulation_codes_eia": {
+    "regulations_eia": {
         "df": pd.DataFrame(
             columns=["code", "label", "description"],
             data=[
@@ -2051,7 +2051,7 @@ CODE_METADATA: dict[str, dict[str, Any]] = {
         "code_fixes": {"St": "ST"},
         "ignored_codes": ["NA", "XX"],
     },
-    "so2_compliance_strategy_codes_eia": {  # TO DO: harmonize these columns with envr equip data when integrated.
+    "so2_compliance_strategies_eia": {  # TO DO: harmonize these columns with envr equip data when integrated.
         "df": pd.DataFrame(
             columns=["code", "label", "description"],
             data=[
@@ -2106,7 +2106,7 @@ CODE_METADATA: dict[str, dict[str, Any]] = {
         "code_fixes": {"NC": "NP"},
         "ignored_codes": ["NA", "DB"],
     },
-    "so2_unit_codes_eia": {
+    "so2_units_eia": {
         "df": pd.DataFrame(
             columns=["code", "label", "description"],
             data=[
@@ -2148,7 +2148,7 @@ CODE_METADATA: dict[str, dict[str, Any]] = {
         "code_fixes": {},
         "ignored_codes": [],
     },
-    "mercury_compliance_strategy_codes_eia": {  # TO DO: harmonize with 2021 data and equip data (most cols here should move to equip table.)
+    "mercury_compliance_strategies_eia": {  # TO DO: harmonize with 2021 data and equip data (most cols here should move to equip table.)
         "df": pd.DataFrame(
             columns=["code", "label", "description"],
             data=[

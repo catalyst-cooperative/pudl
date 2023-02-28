@@ -637,7 +637,7 @@ def boilers(eia860_dfs, eia860_transformed_dfs):
         "compliance_year_nox",
         "compliance_year_so2",
         "compliance_year_mercury",
-        "compliance_year_pm",
+        "compliance_year_particulate",
     ]
 
     for col in year_cols_to_fix:
@@ -732,7 +732,7 @@ def boilers(eia860_dfs, eia860_transformed_dfs):
     # Add boiler manufacturer name to column
     b_df["boiler_manufacturer"] = b_df.boiler_manufacturer_code.map(
         pudl.helpers.label_map(
-            CODE_METADATA["envr_equipment_manufacturer_codes_eia"]["df"],
+            CODE_METADATA["environmental_equipment_manufacturers_eia"]["df"],
             from_col="code",
             to_col="description",
             null_value=pd.NA,
@@ -741,7 +741,7 @@ def boilers(eia860_dfs, eia860_transformed_dfs):
 
     b_df["nox_control_manufacturer"] = b_df.nox_control_manufacturer_code.map(
         pudl.helpers.label_map(
-            CODE_METADATA["envr_equipment_manufacturer_codes_eia"]["df"],
+            CODE_METADATA["environmental_equipment_manufacturers_eia"]["df"],
             from_col="code",
             to_col="description",
             null_value=pd.NA,
