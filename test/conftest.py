@@ -10,7 +10,6 @@ from pathlib import Path
 import pytest
 import yaml
 from dagster import build_init_resource_context, materialize_to_memory
-from dotenv import load_dotenv
 from ferc_xbrl_extractor import xbrl
 
 import pudl
@@ -87,8 +86,14 @@ def pytest_addoption(parser):
 
 
 def pytest_configure(config):
-    """Load dotenv before tests are run to set PUDL_OUTPUT and PUDL_CACHE."""
-    load_dotenv()
+    """Make sure env vars are set before unit tests.
+
+    io_managers unit tests need these to be set, but they don't have to point to
+    anything meaningful. They will be reset by the `pudl_env` fixture before being used.
+    """
+    os.environ["PUDL_OUTPUT"] = "~/"
+    os.environ["DAGSTER_HOME"] = "~/"
+    os.environ["PUDL_CACHE"] = "~/"
 
 
 @pytest.fixture(scope="session")

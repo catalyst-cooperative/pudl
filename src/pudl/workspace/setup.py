@@ -30,6 +30,11 @@ def set_defaults(pudl_in, pudl_out, clobber=False):
     Returns:
         None
     """
+    logger.warning(
+        "pudl_settings is being depcrated in favor of environment"
+        "variables PUDL_OUTPUT and PUDL_CACHE. For more info"
+        "see: https://catalystcoop-pudl.readthedocs.io/en/dev/dev/dev_setup.html"
+    )
     settings_file = pathlib.Path.home() / ".pudl.yml"
     if settings_file.exists():
         if clobber:
@@ -54,6 +59,10 @@ def get_defaults():
         ``pudl_in`` and ``pudl_out`` defining their default PUDL workspace. If
         the ``$HOME/.pudl.yml`` file does not exist, set these paths to None.
     """
+    logger.warning(
+        "pudl_settings is being depcrated in favor of environment variables"
+        "PUDL_OUTPUT and PUDL_CACHE"
+    )
     settings_file = pathlib.Path.home() / ".pudl.yml"
 
     try:
@@ -67,7 +76,9 @@ def get_defaults():
     # Ensure that no matter what the user has put in this file, we get fully
     # specified absolute paths out when we read it:
     pudl_in = pathlib.Path(default_workspace["pudl_in"]).expanduser().resolve()
-    pudl_out = pathlib.Path(default_workspace["pudl_out"]).expanduser().resolve()
+    pudl_out = (
+        pathlib.Path(default_workspace["pudl_out"]).expanduser().resolve() / "output"
+    )
     return derive_paths(pudl_in, pudl_out)
 
 
@@ -93,6 +104,11 @@ def derive_paths(pudl_in, pudl_out):
         dict: A dictionary containing common PUDL settings, derived from those
             read out of the YAML file. Mostly paths for inputs & outputs.
     """
+    logger.warning(
+        "pudl_settings is being depcrated in favor of environment variables"
+        "PUDL_OUTPUT and PUDL_CACHE. For more info"
+        "see: https://catalystcoop-pudl.readthedocs.io/en/dev/dev/dev_setup.html"
+    )
     pudl_settings = {}
 
     # The only "inputs" are the datastore and example settings files:
@@ -109,8 +125,15 @@ def derive_paths(pudl_in, pudl_out):
     pudl_out = pathlib.Path(pudl_out).expanduser().resolve()
     pudl_settings["pudl_out"] = str(pudl_out)
     # One directory per output format:
+    logger.warning(
+        "sqlite and parquet directories are no longer being used. Make sure there is a single directory named 'output' at the root of your workspace. For more info see: https://catalystcoop-pudl.readthedocs.io/en/dev/dev/dev_setup.html"
+    )
     for fmt in ["sqlite", "parquet"]:
-        pudl_settings[f"{fmt}_dir"] = str(pudl_out / fmt)
+        pudl_settings[f"{fmt}_dir"] = str(pudl_out)
+
+    # Mirror dagster env vars for ease of use
+    pudl_settings["PUDL_OUTPUT"] = pudl_settings["pudl_out"]
+    pudl_settings["PUDL_CACHE"] = pudl_settings["data_dir"]
 
     ferc1_db_file = pathlib.Path(pudl_settings["sqlite_dir"], "ferc1.sqlite")
     pudl_settings["ferc1_db"] = "sqlite:///" + str(ferc1_db_file.resolve())
@@ -205,10 +228,9 @@ def init(pudl_in, pudl_out, clobber=False):
     settings_pkg = "pudl.package_data.settings"
     deploy(settings_pkg, settings_dir, ignore_files, clobber=clobber)
 
-    # Make several output directories:
-    for fmt in ["sqlite", "parquet"]:
-        format_dir = pathlib.Path(pudl_settings["pudl_out"], fmt)
-        format_dir.mkdir(parents=True, exist_ok=True)
+    # Make output directory:
+    pudl_out = pathlib.Path(pudl_settings["pudl_out"]) / "output"
+    pudl_out.mkdir(parents=True, exist_ok=True)
 
 
 def deploy(pkg_path, deploy_dir, ignore_files, clobber=False):

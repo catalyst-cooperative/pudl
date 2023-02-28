@@ -6,6 +6,7 @@ main PUDL ETL process. The underlying work in the script is being done in
 :mod:`pudl.extract.ferc1`.
 """
 import argparse
+import os
 import sys
 
 from dagster import DagsterInstance, execute_job, reconstructable
@@ -90,15 +91,24 @@ def main():  # noqa: C901
         logfile=args.logfile, loglevel=args.loglevel
     )
 
+    etl_settings = EtlSettings.from_yaml(args.settings_file)
+
+    if (not os.getenv("PUDL_OUT")) or (not os.getenv("PUDL_CACHE")):
+        pudl_settings = pudl.workspace.setup.derive_paths(
+            pudl_in=etl_settings.pudl_in, pudl_out=etl_settings.pudl_out
+        )
+
+        os.environ["PUDL_CACHE"] = pudl_settings["data_dir"]
+        os.environ["PUDL_OUTPUT"] = pudl_settings["pudl_out"]
+        os.environ["DAGSTER_HOME"] = pudl_settings["pudl_in"]
+
     execute_job(
         reconstructable(get_ferc_to_sqlite_job),
         instance=DagsterInstance.get(),
         run_config={
             "resources": {
                 "ferc_to_sqlite_settings": {
-                    "config": EtlSettings.from_yaml(
-                        args.settings_file
-                    ).ferc_to_sqlite_settings.dict()
+                    "config": etl_settings.ferc_to_sqlite_settings.dict()
                 },
                 "datastore": {
                     "config": {
