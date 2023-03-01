@@ -1174,12 +1174,8 @@ def transform(
     # corresponding SQLite tables. The data may still exist but has been
     # moved elsewhere.
     for cat in eia_transformed_dfs:
-        resource = (
-            pudl.metadata.classes.Package.from_resource_ids().
-            get_resource(cat)
-        )
-        eia_transformed_dfs[cat] = resource.enforce_schema(
-            eia_transformed_dfs[cat])
+        resource = pudl.metadata.classes.Package.from_resource_ids().get_resource(cat)
+        eia_transformed_dfs[cat] = resource.enforce_schema(eia_transformed_dfs[cat])
 
     eia_transformed_dfs["plants_eia860"] = fillna_balancing_authority_codes_via_names(
         df=eia_transformed_dfs["plants_eia860"]
