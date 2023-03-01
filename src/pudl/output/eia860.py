@@ -603,7 +603,7 @@ def boilers_eia860(
     # Bring in some generic plant & utility information:
     pu_eia = plants_utils_eia860(
         pudl_engine, start_date=start_date, end_date=end_date
-    ).drop(["plant_name_eia", "utility_id_eia"], axis="columns")
+    ).drop(["plant_name_eia"], axis="columns")
     out_df = pd.merge(out_df, pu_eia, on=["report_date", "plant_id_eia"], how="left")
 
     # Merge in the unit_id_pudl assigned to each boiler in the BGA process

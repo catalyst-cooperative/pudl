@@ -616,6 +616,21 @@ def boilers(eia860_dfs, eia860_transformed_dfs):
         .pipe(pudl.helpers.fix_eia_na)
     )
 
+    # Defensive check: if any values in boiler_fuel_code_5 - boiler_fuel_code_8,
+    # raise error.
+    cols_to_check = [
+        "boiler_fuel_code_5",
+        "boiler_fuel_code_6",
+        "boiler_fuel_code_7",
+        "boiler_fuel_code_8",
+    ]
+    if b_df[cols_to_check].notnull().sum().sum() > 0:
+        raise ValueError(
+            "There are non-null values in boiler_fuel_code #5-8."
+            "These are currently getting dropped from the final dataframe."
+            "Please revise the table schema to include these columns."
+        )
+
     # Replace 0's with NaN for certain columns.
     zero_columns_to_fix = [
         "firing_rate_using_coal_tons_per_hour",
