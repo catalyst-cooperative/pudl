@@ -1074,9 +1074,9 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "description": "Maximum heat content per physical unit of fuel in MMBtu.",
         "unit": "MMBtu",
     },
-    "max_steam_flow_thousand_pounds_per_hour": {
+    "max_steam_flow_1000_lbs_per_hour": {
         "type": "number",
-        "unit": "thousand_pounds_per_hour",
+        "unit": "1000_lbs_per_hour",
         "description": "Maximum continuous steam flow at 100 percent load.",
     },
     "mercury_content_ppm": {

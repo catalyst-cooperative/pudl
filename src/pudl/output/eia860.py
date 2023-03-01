@@ -534,8 +534,6 @@ def boilers_eia860(
     pudl_engine: sa.engine.Engine,
     start_date=None,
     end_date=None,
-    unit_ids: bool = False,
-    fill_tech_desc: bool = True,
 ) -> pd.DataFrame:
     """Pull all fields reported in the boilers_eia860 table.
 
