@@ -91,17 +91,18 @@ def pytest_configure(config):
     io_managers unit tests need these to be set, but they don't have to point to
     anything meaningful. They will be reset by the `pudl_env` fixture before being used.
     """
-    os.environ["PUDL_OUTPUT"] = "~/"
-    os.environ["DAGSTER_HOME"] = "~/"
-    os.environ["PUDL_CACHE"] = "~/"
+    os.environ["PUDL_OUTPUT"] = os.getenv("PUDL_OUTPUT", "~/")
+    os.environ["DAGSTER_HOME"] = os.getenv("DAGSTER_HOME", "~/")
+    os.environ["PUDL_CACHE"] = os.getenv("PUDL_CACHE", "~/")
 
 
 @pytest.fixture(scope="session")
-def pudl_env(request, tmpdir_factory):
+def pudl_env(request, tmpdir_factory, live_dbs):
     """Set PUDL_OUTPUT environment variable."""
-    tmpdir = tmpdir_factory.mktemp("PUDL_OUTPUT")
-    os.environ["PUDL_OUTPUT"] = str(tmpdir)
-    os.environ["DAGSTER_HOME"] = str(tmpdir)
+    if not live_dbs:
+        tmpdir = tmpdir_factory.mktemp("PUDL_OUTPUT")
+        os.environ["PUDL_OUTPUT"] = str(tmpdir)
+        os.environ["DAGSTER_HOME"] = str(tmpdir)
 
     # In CI we want a hard-coded path for input caching purposes:
     if os.environ.get("GITHUB_ACTIONS", False):
@@ -395,8 +396,8 @@ def pudl_settings_dict(request, live_dbs, tmpdir_factory):  # noqa: C901
             for (k, v) in pudl_settings.items()
         }
 
-        pudl_settings["parquet_dir"] = pudl_defaults["parquet_dir"]
-        pudl_settings["sqlite_dir"] = pudl_defaults["sqlite_dir"]
+        pudl_settings["pudl_out"] = pudl_defaults["parquet_dir"]
+        pudl_settings["pudl_out"] = pudl_defaults["sqlite_dir"]
 
     pretty_settings = json.dumps(
         {str(k): str(v) for k, v in pudl_settings.items()}, indent=2

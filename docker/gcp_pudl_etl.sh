@@ -1,6 +1,9 @@
 #!/usr/bin/bash
 # This script runs the entire ETL and validation tests in a docker container on a Google Compute Engine instance.
 # This script won't work locally because it needs adequate GCP permissions.
+
+set -x
+
 function send_slack_msg() {
     curl -X POST -H "Content-type: application/json" -H "Authorization: Bearer ${SLACK_TOKEN}" https://slack.com/api/chat.postMessage --data "{\"channel\": \"C03FHB9N0PQ\", \"text\": \"$1\"}"
 }
@@ -35,11 +38,6 @@ function run_pudl_etl() {
         --loglevel DEBUG \
         --gcs-cache-path gs://internal-zenodo-cache.catalyst.coop \
         $PUDL_SETTINGS_YML \
-    && epacems_to_parquet \
-        --loglevel DEBUG \
-        --gcs-cache-path gs://internal-zenodo-cache.catalyst.coop \
-        -y 2021 \
-        -s id \
     && pytest \
         --gcs-cache-path gs://internal-zenodo-cache.catalyst.coop \
         --etl-settings $PUDL_SETTINGS_YML \
@@ -74,6 +72,7 @@ function notify_slack() {
     # Notify pudl-builds slack channel of deployment status
     if [ $1 = "success" ]; then
         message=":large_green_circle: :sunglasses: :unicorn_face: :rainbow: The deployment succeeded!! :partygritty: :database_parrot: :blob-dance: :large_green_circle:\n\n "
+        message+="[Make a PR for ${GITHUB_REF} into `main`](https://github.com/catalyst-cooperative/pudl/compare/main...${GITHUB_REF})"
     elif [ $1 = "failure" ]; then
         message=":large_red_square: Oh bummer the deployment failed ::fiiiiine: :sob: :cry_spin:\n\n "
     else

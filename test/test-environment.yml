@@ -15,4 +15,3 @@ dependencies:
   - tox>=3.20,<4.1
   - google-cloud-sdk>=386.0.0,<413.0.0
   - sqlite-utils~=3.29
-  - pip-tools>=6.12.2

@@ -2,7 +2,7 @@
 # This script runs the entire ETL and validation tests in a docker container.
 # It is mostly used for local debugging of our docker deployment and the gcp_pudl_etl.sh script.
 
-set -eux
+set -x
 
 function bridge_settings() {
     export PUDL_CACHE="${CONTAINER_PUDL_IN}/data"
@@ -20,10 +20,6 @@ function run_pudl_etl() {
     && pudl_etl \
         --loglevel DEBUG \
         $PUDL_SETTINGS_YML \
-    && epacems_to_parquet \
-        --loglevel DEBUG \
-        -y 2021 \
-        -s id \
     && pytest \
         --etl-settings $PUDL_SETTINGS_YML \
         --live-dbs test
