@@ -1170,6 +1170,13 @@ def transform(
         "boilers_annual_eia",
     )
 
+    eia_transformed_dfs["plants_eia860"] = fillna_balancing_authority_codes_via_names(
+        df=eia_transformed_dfs["plants_eia860"]
+    ).pipe(
+        fix_balancing_authority_codes_with_state,
+        plants_entity=entities_dfs["plants_entity_eia"],
+    )
+
     # Remove fields that came from input data but aren't in the
     # corresponding SQLite tables. The data may still exist but has been
     # moved elsewhere.
@@ -1181,10 +1188,4 @@ def transform(
         eia_transformed_dfs[cat] = resource.enforce_schema(
             eia_transformed_dfs[cat])
 
-    eia_transformed_dfs["plants_eia860"] = fillna_balancing_authority_codes_via_names(
-        df=eia_transformed_dfs["plants_eia860"]
-    ).pipe(
-        fix_balancing_authority_codes_with_state,
-        plants_entity=entities_dfs["plants_entity_eia"],
-    )
     return entities_dfs, eia_transformed_dfs
