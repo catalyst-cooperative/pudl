@@ -1173,12 +1173,13 @@ def transform(
     # Remove fields that came from input data but aren't in the
     # corresponding SQLite tables. The data may still exist but has been
     # moved elsewhere.
-    eia_transformed_dfs["generation_fuel_eia923"] = eia_transformed_dfs[
-        "generation_fuel_eia923"
-    ].drop(columns=["utility_name_eia"])
-    eia_transformed_dfs["generation_fuel_nuclear_eia923"] = eia_transformed_dfs[
-        "generation_fuel_nuclear_eia923"
-    ].drop(columns=["utility_name_eia"])
+    for cat in eia_transformed_dfs:
+        resource = (
+            pudl.metadata.classes.Package.from_resource_ids().
+            get_resource(cat)
+        )
+        eia_transformed_dfs[cat] = resource.enforce_schema(
+            eia_transformed_dfs[cat])
 
     eia_transformed_dfs["plants_eia860"] = fillna_balancing_authority_codes_via_names(
         df=eia_transformed_dfs["plants_eia860"]
