@@ -570,10 +570,18 @@ class PandasParquetIOManager(UPathIOManager):
 
     def dump_to_path(self, context: OutputContext, obj: pd.DataFrame, path: UPath):
         """Write dataframe to parquet file."""
-        raise NotImplementedError("This IO Manager doesn't support writing data.")
+        logger.info(f"Write df to parquet at {path}")
+        schema = Resource.from_id("hourly_emissions_epacems").to_pyarrow()
+        # TODO (daz): this writes out to a directory; if we use path.open("wb")
+        # we end up with this weird "io.UnsupportedOperation.read" error.
+        # what is it trying to read?
+        return obj.to_parquet(
+            path, engine="pyarrow", schema=schema, compression="snappy"
+        )
 
     def load_from_path(self, context: InputContext, path: UPath) -> pd.DataFrame:
         """Load a directory of parquet files to a dask dataframe."""
+        logger.info(f"Reading parquet file from {path}")
         return dd.read_parquet(
             path.parent,
             use_nullable_dtypes=True,

@@ -43,14 +43,12 @@ def utility_analysis(utils_eia860):
 
 
 @asset(
-    io_manager_key="pudl_sqlite_io_manager",
+    io_manager_key="epacems_io_manager",
     ins={
         "hourly_emissions_epacems": AssetIn(input_manager_key="epacems_io_manager"),
     },
     compute_kind="Python",
 )
 def epacems_output(hourly_emissions_epacems):
-    """Example of how to create an asset that depends on CEMS."""
-    p_df = hourly_emissions_epacems[["state", "year"]].drop_duplicates().compute()
-    logger.info(p_df)
-    return p_df
+    """Consolidate partitioned hourly emissions data."""
+    return hourly_emissions_epacems
