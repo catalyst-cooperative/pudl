@@ -13,19 +13,19 @@ directories see ``pudl_setup --help``.
 import argparse
 import os
 import sys
+from collections.abc import Callable
 
 from dagster import (
     DagsterInstance,
     Definitions,
     JobDefinition,
+    build_reconstructable_job,
     define_asset_job,
     execute_job,
-    reconstructable,
 )
 from dotenv import load_dotenv
 
 import pudl
-from pudl import etl
 from pudl.settings import EtlSettings
 
 logger = pudl.logging_helpers.get_logger(__name__)
@@ -69,26 +69,40 @@ def parse_command_line(argv):
     return arguments
 
 
-def get_etl_job() -> JobDefinition:
-    """Module level func for creating an etl_job to be wrapped by reconstructable."""
-    return Definitions(
-        assets=etl.default_assets,
-        resources=etl.default_resources,
-        jobs=[define_asset_job("etl_job")],
-    ).get_job_def("etl_job")
+def pudl_etl_job_factory(
+    logfile: str | None = None, loglevel: str = "INFO", process_epacems: bool = True
+) -> Callable[[], JobDefinition]:
+    """Factory for parameterizing a reconstructable pudl_etl job.
 
+    Args:
+        loglevel: The log level for the job's execution.
+        logfile: Path to a log file for the job's execution.
+        process_epacems: Include EPA CEMS assets in the job execution.
 
-def get_etl_no_cems_job() -> JobDefinition:
-    """Module level func for creating an etl_job without CEMS assets."""
-    return Definitions(
-        assets=etl.default_assets,
-        resources=etl.default_resources,
-        jobs=[
-            define_asset_job(
-                "etl_job", selection=etl.create_non_cems_selection(etl.default_assets)
-            )
-        ],
-    ).get_job_def("etl_job")
+    Returns:
+        The job definition to be executed.
+    """
+
+    def get_pudl_etl_job():
+        """Create an pudl_etl_job wrapped by to be wrapped by reconstructable."""
+        pudl.logging_helpers.configure_root_logger(logfile=logfile, loglevel=loglevel)
+        jobs = [define_asset_job("etl_job")]
+        if not process_epacems:
+            jobs = [
+                define_asset_job(
+                    "etl_job",
+                    selection=pudl.etl.create_non_cems_selection(
+                        pudl.etl.default_assets
+                    ),
+                )
+            ]
+        return Definitions(
+            assets=pudl.etl.default_assets,
+            resources=pudl.etl.default_resources,
+            jobs=jobs,
+        ).get_job_def("etl_job")
+
+    return get_pudl_etl_job
 
 
 def main():
@@ -118,18 +132,27 @@ def main():
         os.environ["PUDL_OUTPUT"] = pudl_settings["pudl_out"]
         os.environ["DAGSTER_HOME"] = pudl_settings["pudl_in"]
 
-    job_func = get_etl_job
     dataset_settings_config = etl_settings.datasets.dict()
+    process_epacems = True
     if etl_settings.datasets.epacems is None:
-        job_func = get_etl_no_cems_job
+        process_epacems = False
         # Dagster config expects values for the epacems settings even though
         # the CEMS assets will not be executed. Fill in the config dictionary
         # with default cems values. Replace this workaround once dagster pydantic
         # config classes are available.
         dataset_settings_config["epacems"] = pudl.settings.EpaCemsSettings().dict()
 
+    pudl_etl_reconstructable_job = build_reconstructable_job(
+        "pudl.cli",
+        "pudl_etl_job_factory",
+        reconstructable_kwargs={
+            "loglevel": args.loglevel,
+            "logfile": args.logfile,
+            "process_epacems": process_epacems,
+        },
+    )
     execute_job(
-        reconstructable(job_func),
+        pudl_etl_reconstructable_job,
         instance=DagsterInstance.get(),
         run_config={
             "resources": {

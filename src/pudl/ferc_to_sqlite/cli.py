@@ -8,8 +8,14 @@ main PUDL ETL process. The underlying work in the script is being done in
 import argparse
 import os
 import sys
+from collections.abc import Callable
 
-from dagster import DagsterInstance, execute_job, reconstructable
+from dagster import (
+    DagsterInstance,
+    JobDefinition,
+    build_reconstructable_job,
+    execute_job,
+)
 from dotenv import load_dotenv
 
 import pudl
@@ -38,6 +44,15 @@ def parse_command_line(argv):
         default=None,
         type=str,
         help="If specified, write logs to this file.",
+    )
+    parser.add_argument(
+        "-c",
+        "--clobber",
+        action="store_true",
+        help="""Clobber existing sqlite database if it exists. If clobber is
+        not included but the sqlite databse already exists the _build will
+        fail.""",
+        default=False,
     )
     parser.add_argument(
         "--sandbox",
@@ -73,12 +88,27 @@ def parse_command_line(argv):
     return arguments
 
 
-def get_ferc_to_sqlite_job():
-    """Module level func for creating a job to be wrapped by reconstructable."""
-    return ferc_to_sqlite.ferc_to_sqlite.to_job(
-        resource_defs=ferc_to_sqlite.default_resources_defs,
-        name="ferc_to_sqlite_job",
-    )
+def ferc_to_sqlite_job_factory(
+    logfile: str | None = None, loglevel: str = "INFO"
+) -> Callable[[], JobDefinition]:
+    """Factory for parameterizing a reconstructable ferc_to_sqlite job.
+
+    Args:
+        loglevel: The log level for the job's execution.
+        logfile: Path to a log file for the job's execution.
+
+    Returns:
+        The job definition to be executed.
+    """
+
+    def get_ferc_to_sqlite_job():
+        """Module level func for creating a job to be wrapped by reconstructable."""
+        return ferc_to_sqlite.ferc_to_sqlite.to_job(
+            resource_defs=ferc_to_sqlite.default_resources_defs,
+            name="ferc_to_sqlite_job",
+        )
+
+    return get_ferc_to_sqlite_job
 
 
 def main():  # noqa: C901
@@ -102,8 +132,14 @@ def main():  # noqa: C901
         os.environ["PUDL_OUTPUT"] = pudl_settings["pudl_out"]
         os.environ["DAGSTER_HOME"] = pudl_settings["pudl_in"]
 
+    ferc_to_sqlite_reconstructable_job = build_reconstructable_job(
+        "pudl.ferc_to_sqlite.cli",
+        "ferc_to_sqlite_job_factory",
+        reconstructable_kwargs={"loglevel": args.loglevel, "logfile": args.logfile},
+    )
+
     execute_job(
-        reconstructable(get_ferc_to_sqlite_job),
+        ferc_to_sqlite_reconstructable_job,
         instance=DagsterInstance.get(),
         run_config={
             "resources": {
@@ -124,10 +160,15 @@ def main():  # noqa: C901
                     "config": {
                         "workers": args.workers,
                         "batch_size": args.batch_size,
+                        "clobber": args.clobber,
                     },
+                },
+                "dbf2sqlite": {
+                    "config": {"clobber": args.clobber},
                 },
             },
         },
+        raise_on_error=True,
     )
 
 
