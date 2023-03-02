@@ -138,7 +138,7 @@ def main():  # noqa: C901
         reconstructable_kwargs={"loglevel": args.loglevel, "logfile": args.logfile},
     )
 
-    execute_job(
+    result = execute_job(
         ferc_to_sqlite_reconstructable_job,
         instance=DagsterInstance.get(),
         run_config={
@@ -170,6 +170,12 @@ def main():  # noqa: C901
         },
         raise_on_error=True,
     )
+
+    # Workaround to reliably getting full stack trace
+    if not result.success:
+        for event in result.all_events:
+            if event.event_type_value == "STEP_FAILURE":
+                raise Exception(event.event_specific_data.error)
 
 
 if __name__ == "__main__":

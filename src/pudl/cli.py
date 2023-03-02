@@ -151,7 +151,7 @@ def main():
             "process_epacems": process_epacems,
         },
     )
-    execute_job(
+    result = execute_job(
         pudl_etl_reconstructable_job,
         instance=DagsterInstance.get(),
         run_config={
@@ -168,6 +168,12 @@ def main():
             }
         },
     )
+
+    # Workaround to reliably getting full stack trace
+    if not result.success:
+        for event in result.all_events:
+            if event.event_type_value == "STEP_FAILURE":
+                raise Exception(event.event_specific_data.error)
 
 
 if __name__ == "__main__":
