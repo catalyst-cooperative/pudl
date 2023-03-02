@@ -1183,5 +1183,8 @@ def transform(
     for cat in eia_transformed_dfs:
         resource = pudl.metadata.classes.Package.from_resource_ids().get_resource(cat)
         eia_transformed_dfs[cat] = resource.enforce_schema(eia_transformed_dfs[cat])
+    for cat in entities_dfs:
+        resource = pudl.metadata.classes.Package.from_resource_ids().get_resource(cat)
+        entities_dfs[cat] = resource.enforce_schema(entities_dfs[cat])
 
     return entities_dfs, eia_transformed_dfs
