@@ -2359,6 +2359,25 @@ TRANSFORM_PARAMS = {
             "opex_per_kwh": PERKWH_TO_PERMWH,
             "net_generation_kwh": KWH_TO_MWH,
         },
+        "spot_fix_values": [
+            {
+                "idx_cols": ["record_id"],
+                "fix_cols": ["plant_name_ferc1"],
+                "expect_unique": True,
+                "spot_fixes": [
+                    ("f1_steam_1999_12_72_0_1", "clifty creek"),
+                    ("f1_steam_2010_12_306_0_1", "harrison county"),
+                    ("f1_steam_1997_12_230_0_1", "hermiston generating"),
+                    ("f1_steam_1998_12_64_0_1", "hardee power station"),
+                    ("f1_steam_2015_12_276_0_1", "state line"),
+                    ("f1_steam_2014_12_276_0_1", "state line"),
+                    ("f1_steam_2003_12_62_2_3", "pea ridge"),
+                    ("f1_steam_2003_12_62_2_2", "smith"),
+                    ("f1_steam_2000_12_204_0_1", "seabrook"),
+                    ("f1_steam_2001_12_204_0_1", "seabrook"),
+                ],
+            },
+        ],
         "drop_invalid_rows": [
             {
                 "invalid_values": [0, "0", pd.NA, np.nan, "", "none"],

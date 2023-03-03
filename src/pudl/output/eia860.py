@@ -530,6 +530,122 @@ def generators_eia860(
     return out_df
 
 
+def boilers_eia860(
+    pudl_engine: sa.engine.Engine,
+    start_date=None,
+    end_date=None,
+) -> pd.DataFrame:
+    """Pull all fields reported in the boilers_eia860 table.
+
+    Merge in other useful fields including the latitude & longitude of the
+    plant that the boilers are part of, canonical plant & operator names and
+    the PUDL IDs of the plant and operator, for merging with other PUDL data
+    sources.
+
+    Fill in data for adjacent years if requested, but never fill in earlier
+    than the earliest working year of data for EIA923, and never add more than
+    one year on after the reported data (since there should at most be a one
+    year lag between EIA923 and EIA860 reporting).
+
+    Args:
+        pudl_engine: SQLAlchemy connection engine for the PUDL DB.
+        start_date (date-like): date-like object, including a string of the
+            form 'YYYY-MM-DD' which will be used to specify the date range of
+            records to be pulled.  Dates are inclusive.
+        end_date (date-like): date-like object, including a string of the
+            form 'YYYY-MM-DD' which will be used to specify the date range of
+            records to be pulled.  Dates are inclusive.
+
+    Returns:
+        A DataFrame containing all the fields of the EIA 860 Boilers table.
+    """
+    pt = pudl.output.pudltabl.get_table_meta(pudl_engine)
+
+    # Most of the info we need will come from here.
+    boilers_eia860_tbl = pt["boilers_eia860"]
+    boilers_eia860_select = sa.sql.select(boilers_eia860_tbl)
+
+    # To get boiler manufacturer
+    boilers_entity_eia_tbl = pt["boilers_entity_eia"]
+    boilers_entity_eia_select = sa.sql.select(boilers_entity_eia_tbl)
+
+    # To get the Lat/Lon coordinates
+    plants_entity_eia_tbl = pt["plants_entity_eia"]
+    plants_entity_eia_select = sa.sql.select(plants_entity_eia_tbl)
+
+    if start_date is not None:
+        start_date = pd.to_datetime(start_date)
+        boilers_eia860_select = boilers_eia860_select.where(
+            boilers_eia860_tbl.c.report_date >= start_date
+        )
+
+    if end_date is not None:
+        end_date = pd.to_datetime(end_date)
+        boilers_eia860_select = boilers_eia860_select.where(
+            boilers_eia860_tbl.c.report_date <= end_date
+        )
+
+    boilers_eia860 = pd.read_sql(boilers_eia860_select, pudl_engine)
+    boilers_entity_eia_df = pd.read_sql(boilers_entity_eia_select, pudl_engine)
+
+    plants_entity_eia_df = pd.read_sql(plants_entity_eia_select, pudl_engine)
+
+    out_df = pd.merge(
+        boilers_eia860, plants_entity_eia_df, how="left", on=["plant_id_eia"]
+    )
+
+    out_df = pd.merge(
+        out_df, boilers_entity_eia_df, how="left", on=["plant_id_eia", "boiler_id"]
+    )
+
+    out_df.report_date = pd.to_datetime(out_df.report_date)
+
+    # Bring in some generic plant & utility information:
+    pu_eia = plants_utils_eia860(
+        pudl_engine, start_date=start_date, end_date=end_date
+    ).drop(["plant_name_eia"], axis="columns")
+    out_df = pd.merge(out_df, pu_eia, on=["report_date", "plant_id_eia"], how="left")
+
+    # Merge in the unit_id_pudl assigned to each boiler in the BGA process
+    # Pull the BGA table and make it unit-boiler only:
+    out_df = pd.merge(
+        out_df,
+        boiler_generator_assn_eia860(
+            pudl_engine, start_date=start_date, end_date=end_date
+        )[
+            [
+                "report_date",
+                "plant_id_eia",
+                "boiler_id",
+                "unit_id_pudl",
+            ]
+        ].drop_duplicates(),
+        on=["report_date", "plant_id_eia", "boiler_id"],
+        how="left",
+        validate="m:1",
+    )
+
+    first_cols = [
+        "report_date",
+        "plant_id_eia",
+        "plant_id_pudl",
+        "plant_name_eia",
+        "utility_id_eia",
+        "utility_id_pudl",
+        "utility_name_eia",
+        "boiler_id",
+    ]
+
+    # Re-arrange the columns for easier readability:
+    out_df = (
+        pudl.helpers.organize_cols(out_df, first_cols)
+        .sort_values(["report_date", "plant_id_eia", "boiler_id"])
+        .pipe(apply_pudl_dtypes, group="eia")
+    )
+
+    return out_df
+
+
 def fill_generator_technology_description(gens_df: pd.DataFrame) -> pd.DataFrame:
     """Fill in missing ``technology_description`` based by unique mapping & backfilling.
 

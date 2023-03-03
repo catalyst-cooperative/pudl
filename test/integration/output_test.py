@@ -91,6 +91,7 @@ def test_ferc1_outputs(fast_out, df_name):
         ("gens_eia860", "gens_eia860", 1 / 1, {}),
         ("gens_eia860", "own_eia860", 1 / 1, {}),
         ("gens_eia860", "plants_eia860", 1 / 1, {}),
+        ("gens_eia860", "boil_eia860", 1 / 1, {}),
         ("gens_eia860", "pu_eia860", 1 / 1, {}),
         ("gens_eia860", "utils_eia860", 1 / 1, {}),
         ("gens_eia860", "bf_eia923", 12 / 1, {}),
