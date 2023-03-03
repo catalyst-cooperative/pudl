@@ -172,6 +172,7 @@ ENTITIES: dict[str, dict[str, list[str]]] = {
         "static_cols": [
             "boiler_manufacturer",
             "boiler_manufacturer_code",
+            "prime_mover_code",
         ],
         "annual_cols": [
             "boiler_operating_date",
