@@ -351,7 +351,7 @@ def extract_input_tables(pudl_out: "pudl.output.pudltabl.PudlTabl"):
             "capacity_mw",
             "fuel_type_count",
             "operational_status",
-            "retirement_date",
+            "generator_retirement_date",
         ]
         + list(pudl_out.gens_eia860().filter(like="energy_source_code"))
         + list(pudl_out.gens_eia860().filter(like="startup_source_code")),
@@ -738,7 +738,7 @@ def identify_retiring_generators(gen_assoc):
     retiring_generators = gen_assoc.loc[
         (gen_assoc.operational_status == "retired")
         & (
-            (gen_assoc.report_date <= gen_assoc.retirement_date)
+            (gen_assoc.report_date <= gen_assoc.generator_retirement_date)
             | (gen_assoc.net_generation_mwh_g_tbl.notnull())
         )
     ]
@@ -754,7 +754,7 @@ def identify_retired_plants(gen_assoc):
     retired_generators_with_reported_gf = list(
         gen_assoc.loc[
             (gen_assoc.operational_status == "retired")
-            & (gen_assoc.report_date > gen_assoc.retirement_date)
+            & (gen_assoc.report_date > gen_assoc.generator_retirement_date)
             & (gen_assoc.net_generation_mwh_gf_tbl.notnull())
             & (gen_assoc.net_generation_mwh_g_tbl.isnull())
             & (gen_assoc.net_generation_mwh_gf_tbl != 0),
@@ -765,7 +765,7 @@ def identify_retired_plants(gen_assoc):
     # create a table for all of these plants that identifies all of the unique operational statuses
     plants_with_any_retired_generators = gen_assoc.loc[
         gen_assoc["plant_id_eia"].isin(retired_generators_with_reported_gf),
-        ["plant_id_eia", "operational_status", "retirement_date"],
+        ["plant_id_eia", "operational_status", "generator_retirement_date"],
     ].drop_duplicates()
 
     # remove plants that have operational statuses other than retired
@@ -784,7 +784,7 @@ def identify_retired_plants(gen_assoc):
     # only keep the plants where all retirement dates are before the current year
     plants_retiring_after_start_date = list(
         plants_with_only_retired_generators.loc[
-            plants_with_only_retired_generators["retirement_date"]
+            plants_with_only_retired_generators["generator_retirement_date"]
             >= min(gen_assoc.report_date),
             "plant_id_eia",
         ].unique()
@@ -1545,7 +1545,6 @@ def adjust_energy_source_codes(
     if replacement_codes != "MSW":
         # for each type of energy source column, we want to expand any "MSW" values
         for esc_type in ["energy_", "planned_energy_", "startup_"]:
-
             # create a column of all unique fuels in the order in which they appear (ESC 1-6, startup fuel 1-6)
             # this column will have each fuel code separated by a comma
             gens["unique_esc"] = [
@@ -1828,6 +1827,7 @@ def test_original_gf_vs_the_allocated_by_gens_gf(
     gf_allocated: pd.DataFrame,
     data_columns: list[str] = DATA_COLUMNS,
     by: list[str] = ["year", "plant_id_eia"],
+    acceptance_threshold: float = 0.07,
 ) -> pd.DataFrame:
     """Test whether the allocated data and original data sum up to similar values.
 
@@ -1875,10 +1875,10 @@ def test_original_gf_vs_the_allocated_by_gens_gf(
             f"{data_col}: {off_by_5_perc:.1%} of allocated plant/year's are off by more"
             " than 5%"
         )
-        if off_by_5_perc > 0.07:
+        if off_by_5_perc > acceptance_threshold:
             raise AssertionError(
-                f"More than the expected number of plants' allocated {data_col} are off"
-                " the original data by more than 5%."
+                f"{len(col_test)} of {len(gf_test)} plants' ({off_by_5_perc:.1%}) allocated {data_col} are off"
+                " the original data by more than 5%. Expected < {acceptance_threshold:.1%}."
             )
         max_diff = round(gf_test[f"{data_col}_diff"].max(), 2)
         min_diff = round(gf_test[f"{data_col}_diff"].min(), 2)

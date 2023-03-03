@@ -220,7 +220,7 @@ PLANT_PARTS: OrderedDict[str, dict[str, list]] = OrderedDict(
             "id_cols": ["plant_id_eia", "ferc_acct_name"],
         },
         "plant_operating_year": {
-            "id_cols": ["plant_id_eia", "operating_year"],
+            "id_cols": ["plant_id_eia", "generator_operating_year"],
         },
         "plant_gen": {
             "id_cols": ["plant_id_eia", "generator_id"],
@@ -287,15 +287,15 @@ the weight column (values)
 
 CONSISTENT_ATTRIBUTE_COLS = [
     "fuel_type_code_pudl",
-    "planned_retirement_date",
-    "retirement_date",
+    "planned_generator_retirement_date",
+    "generator_retirement_date",
     "generator_id",
     "unit_id_pudl",
     "technology_description",
     "energy_source_code_1",
     "prime_mover_code",
     "ferc_acct_name",
-    "operating_year",
+    "generator_operating_year",
 ]
 """
 list: a list of column names to add as attributes when they are consistent into
@@ -309,12 +309,12 @@ PRIORITY_ATTRIBUTES_DICT = {
 
 MAX_MIN_ATTRIBUTES_DICT = {
     "installation_year": {
-        "assign_col": {"installation_year": lambda x: x.operating_year},
+        "assign_col": {"installation_year": lambda x: x.generator_operating_year},
         "dtype": "Int64",
         "keep": "first",
     },
     "construction_year": {
-        "assign_col": {"construction_year": lambda x: x.operating_year},
+        "assign_col": {"construction_year": lambda x: x.generator_operating_year},
         "dtype": "Int64",
         "keep": "last",
     },
@@ -333,6 +333,34 @@ FIRST_COLS = [
     "utility_id_eia",
     "true_gran",
     "appro_part_label",
+]
+
+PPE_COLS = [
+    "record_id_eia",
+    "plant_name_ppe",
+    "plant_part",
+    "report_year",
+    "report_date",
+    "ownership_record_type",
+    "plant_name_eia",
+    "plant_id_eia",
+    "generator_id",
+    "unit_id_pudl",
+    "prime_mover_code",
+    "energy_source_code_1",
+    "technology_description",
+    "ferc_acct_name",
+    "generator_operating_year",
+    "utility_id_eia",
+    "utility_id_pudl",
+    "true_gran",
+    "appro_part_label",
+    "appro_record_id_eia",
+    "record_count",
+    "fraction_owned",
+    "ownership_dupe",
+    "operational_status",
+    "operational_status_pudl",
 ]
 
 
@@ -357,14 +385,14 @@ class MakeMegaGenTbl:
     ...         'Natural Gas Fired Combined Cycle', 'Natural Gas Fired Combined Cycle', 'Natural Gas Fired Combined Cycle'
     ...     ],
     ...     'operational_status': ['existing', 'existing','existing'],
-    ...     'retirement_date': [pd.NA, pd.NA, pd.NA],
+    ...     'generator_retirement_date': [pd.NA, pd.NA, pd.NA],
     ...     'capacity_mw': [50, 50, 100],
     ... }).astype({
-    ...     'retirement_date': "datetime64[ns]",
+    ...     'generator_retirement_date': "datetime64[ns]",
     ...     'report_date': "datetime64[ns]",
     ... })
     >>> mcoe
-        plant_id_eia    report_date 	generator_id   utility_id_eia 	unit_id_pudl 	prime_mover_code              technology_description   operational_status  retirement_date 	capacity_mw
+        plant_id_eia    report_date 	generator_id   utility_id_eia 	unit_id_pudl 	prime_mover_code              technology_description   operational_status  generator_retirement_date 	capacity_mw
     0 	           1     2020-01-01 	           a              111 	           1 	              CT    Natural Gas Fired Combined Cycle             existing               NaT 	         50
     1 	           1     2020-01-01 	           b              111 	           1 	              CT    Natural Gas Fired Combined Cycle             existing               NaT 	         50
     2 	           1     2020-01-01 	           c              111 	           1 	              CA    Natural Gas Fired Combined Cycle             existing               NaT 	        100
@@ -467,8 +495,10 @@ class MakeMegaGenTbl:
             validate="m:1",
             how="left",
         )
-        all_gens.loc[:, "operating_year"] = all_gens["operating_date"].dt.year
-        all_gens = all_gens.astype({"operating_year": "Int64"})
+        all_gens.loc[:, "generator_operating_year"] = all_gens[
+            "generator_operating_date"
+        ].dt.year
+        all_gens = all_gens.astype({"generator_operating_year": "Int64"})
         return all_gens
 
     def label_operating_gens(self, gen_df: pd.DataFrame) -> pd.DataFrame:
@@ -497,7 +527,7 @@ class MakeMegaGenTbl:
             columns that are being assigned here via `.loc[:, col_to_assign]`.
         """
         mid_year_retiree_mask = (
-            gen_df.retirement_date.dt.year == gen_df.report_date.dt.year
+            gen_df.generator_retirement_date.dt.year == gen_df.report_date.dt.year
         )
         existing_mask = gen_df.operational_status == "existing"
         operating_mask = existing_mask | mid_year_retiree_mask
@@ -1430,7 +1460,7 @@ def make_parts_to_ids_dict():
     """
     parts_to_ids = {}
     for part, part_dict in PLANT_PARTS.items():
-        parts_to_ids[part] = PLANT_PARTS[part]["id_cols"][-1]
+        parts_to_ids[part] = part_dict["id_cols"][-1]
     return parts_to_ids
 
 
@@ -1562,3 +1592,62 @@ def match_to_single_plant_part(
     out_df = pd.concat(out_dfs)
 
     return out_df
+
+
+def plant_parts_eia_distinct(plant_parts_eia: pd.DataFrame) -> pd.DataFrame:
+    """Get the EIA plant_parts with only the unique granularities.
+
+    Read in the pickled dataframe or generate it from the full PPE. Get only
+    the records of the PPE that are "true granularities" and those which are not
+    duplicates based on their ownership so the FERC to EIA matching model
+    doesn't get confused as to which option to pick if there are many records
+    with duplicate data.
+
+    Arguments:
+        plant_parts_eia: EIA plant parts table.
+    """
+    plant_parts_eia = plant_parts_eia.assign(
+        plant_id_report_year_util_id=lambda x: x.plant_id_report_year
+        + "_"
+        + x.utility_id_pudl.map(str)
+    ).astype({"installation_year": "float"})
+    distinct_ppe = plant_parts_eia[
+        (plant_parts_eia["true_gran"]) & (~plant_parts_eia["ownership_dupe"])
+    ]
+    if distinct_ppe.index.name != "record_id_eia":
+        logger.error("Plant parts list index is not record_id_eia.")
+    return distinct_ppe
+
+
+def reassign_id_ownership_dupes(plant_parts_eia: pd.DataFrame) -> pd.DataFrame:
+    """Reassign the record_id for the records that are labeled ownership_dupe.
+
+    This function is used after the EIA plant-parts table is created.
+
+    Args:
+        plant_parts_eia: EIA plant parts table.
+    """
+    # the record_id_eia's need to be a column to mess with it and record_id_eia
+    # is typically the index of plant_parts_df, so we are going to reset index
+    # if record_id_eia is the index
+    og_index = False
+    if plant_parts_eia.index.name == "record_id_eia":
+        plant_parts_eia = plant_parts_eia.reset_index()
+        og_index = True
+    # reassign the record id and ownership col when the record is a dupe
+    plant_parts_eia = plant_parts_eia.assign(
+        record_id_eia=lambda x: np.where(
+            x.ownership_dupe,
+            x.record_id_eia.str.replace("owned", "total"),
+            x.record_id_eia,
+        )
+    )
+    if "ownership" in plant_parts_eia.columns:
+        plant_parts_eia = plant_parts_eia.assign(
+            ownership=lambda x: np.where(x.ownership_dupe, "total", x.ownership)
+        )
+    # then we reset the index so we return the dataframe in the same structure
+    # as we got it.
+    if og_index:
+        plant_parts_eia = plant_parts_eia.set_index("record_id_eia")
+    return plant_parts_eia

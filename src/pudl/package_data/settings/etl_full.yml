@@ -571,6 +571,8 @@ datasets:
       - retained_earnings_ferc1
       - electric_operating_revenues_ferc1
       - cash_flow_ferc1
+      - electricity_sales_by_rate_schedule_ferc1
+      - other_regulatory_liabilities_ferc1
     years:
       [
         1994,
@@ -641,6 +643,7 @@ datasets:
         - plants_eia860
         - generators_eia860
         - ownership_eia860
+        - boilers_eia860
       years:
         [
           2001,

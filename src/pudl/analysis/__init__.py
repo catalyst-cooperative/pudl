@@ -8,6 +8,7 @@ post-ETL derived database tables for distribution at some point.
 from . import (  # noqa: F401
     allocate_net_gen,
     epacamd_eia,
+    ferc1_eia,
     mcoe,
     plant_parts_eia,
     service_territory,
