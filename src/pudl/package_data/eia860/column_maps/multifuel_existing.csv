@@ -14,8 +14,8 @@ sector_id_eia,,,,,,,,sector,sector,sector,sector,sector,sector,sector,sector,sec
 capacity_mw,,,,,,,,,,nameplate_capacity_mw,nameplate_capacity_mw,nameplate_capacity_mw,nameplate_capacity_mw,nameplate_capacity_mw,nameplate_capacity_mw,nameplate_capacity_mw,nameplate_capacity_mw,nameplate_capacity_mw
 summer_capacity_mw,,,,,,,,,,summer_capacity_mw,summer_capacity_mw,summer_capacity_mw,summer_capacity_mw,summer_capacity_mw,summer_capacity_mw,summer_capacity_mw,summer_capacity_mw,summer_capacity_mw
 winter_capacity_mw,,,,,,,,,,winter_capacity_mw,winter_capacity_mw,winter_capacity_mw,winter_capacity_mw,winter_capacity_mw,winter_capacity_mw,winter_capacity_mw,winter_capacity_mw,winter_capacity_mw
-operating_month,,,,,,,,,,,,,,operating_month,operating_month,operating_month,operating_month,operating_month
-operating_year,,,,,,,,,,,,,,operating_year,operating_year,operating_year,operating_year,operating_year
+generator_operating_month,,,,,,,,,,,,,,operating_month,operating_month,operating_month,operating_month,operating_month
+generator_operating_year,,,,,,,,,,,,,,operating_year,operating_year,operating_year,operating_year,operating_year
 energy_source_code_1,,,,,,,,,,energy_source_1,energy_source_1,energy_source_1,energy_source_1,energy_source_1,energy_source_1,energy_source_1,energy_source_1,energy_source_1
 energy_source_code_2,,,,,,,,,,energy_source_2,energy_source_2,energy_source_2,energy_source_2,energy_source_2,energy_source_2,energy_source_2,energy_source_2,energy_source_2
 multiple_fuels,multiple_fuels,multiple_fuels,multiple_fuels,multiple_fuels,multiple_fuels,multiple_fuels,multiple_fuels,multiple_fuels,multiple_fuels,,,,multiple_fuels,multiple_fuels,multiple_fuels,multiple_fuels,multiple_fuels,multiple_fuels
