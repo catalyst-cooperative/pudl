@@ -98,7 +98,16 @@ Both definitions have two preconfigured jobs:
 
 Running the ETL with Dagit
 --------------------------
-To start Dagit, run:
+Dagster needs a directory to store run logs and some assets. Create a new directory
+outside of the pudl respository directory called ``dagster_home/``. Then set the
+``DAGSTER_HOME`` variable to the path of the new directory:
+
+.. code-block:: console
+
+    mamba env config vars set DAGSTER_HOME=</path/to/dagster_home/directory/>
+    mamba activate pudl-dev
+
+Once ``DAGSTER_HOME`` is set, launch Dagit by running:
 
 .. code-block::
 
@@ -257,8 +266,6 @@ settings:
   job.
 
 - EPA CEMS cannot be loaded without EIA data unless you have existing PUDL database.
-
-
 
 Now that your settings are configured, you're ready to run the scripts
 

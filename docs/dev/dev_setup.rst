@@ -203,6 +203,51 @@ with linters and other code analysis tools.
 Creating a Workspace
 -------------------------------------------------------------------------------
 
+PUDL Environment Variables
+^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+PUDL needs to know where to store its big piles of inputs and outputs.
+The ``PUDL_OUTPUT`` and ``PUDL_CACHE`` environment variables lets PUDL know where
+all this stuff should go. We call this a "PUDL workspace".
+
+First, create a directory to store local caches of raw PUDL data. Then set
+``PUDL_CACHE`` variable to the path of the new directory:
+
+.. code-block:: console
+
+    mamba env config vars set PUDL_CACHE=</path/to/cache/directory/>
+    mamba activate pudl-dev
+
+Next, create a directory to store the outputs of the PUDL ETL. Then set the
+``PUDL_OUTPUT`` variable to the path of the new directory:
+
+.. code-block:: console
+
+    mamba env config vars set PUDL_OUTPUT=</path/to/output/directory/>
+    mamba activate pudl-dev
+
+**Make sure you create separate directories for these environment variables!
+It is recommended you create these directories outside of the pudl repository
+directory so the inputs and outputs are not tracked in git.**
+
+PUDL Setup (old setup method)
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+In previous versions of PUDL, the ``pudl_setup`` script created workspace directories.
+PUDL is moving towards using the ``PUDL_OUTPUT`` and ``PUDL_CACHE`` environmen
+variables instead of the ``pudl_setup`` script because the environment variables are
+easier to reference in the codebase.
+
+.. note::
+
+    If you setup your workspace using ``pudl_setup`` you don't need to change
+    anything about your setup. A new directory called ``outputs/`` will be created
+    in your <PUDL_DIR>. The ETL outputs will be written to ``outputs/`` instead
+    of the ``parquet/`` and ``sqlite/`` directories.
+
+.. warning::
+
+    In a future release the ``pudl_setup`` command will be deprecated.
+
 PUDL needs to know where to store its big piles of inputs and outputs. It also comes
 with some example configuration files. The ``pudl_setup`` script lets PUDL know where
 all this stuff should go. We call this a "PUDL workspace". The script will not create
