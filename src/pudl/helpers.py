@@ -1609,7 +1609,7 @@ def get_asset_keys(
     Args:
         assets: list of asset definitions.
         exclude_source_assets: exclude SourceAssets in the returned list.
-                               Some selection operations don't require
+                               Some selection operations don't allow
                                SourceAsset keys.
 
     Returns:
