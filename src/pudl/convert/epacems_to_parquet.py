@@ -9,13 +9,15 @@ available on your system.
 """
 import argparse
 import sys
+from collections.abc import Callable
 
 from dagster import (
     DagsterInstance,
     Definitions,
+    JobDefinition,
+    build_reconstructable_job,
     define_asset_job,
     execute_job,
-    reconstructable,
 )
 from dotenv import load_dotenv
 
@@ -91,27 +93,47 @@ def parse_command_line(argv):
     return arguments
 
 
-def get_epacems_job():
-    """Create an epacems_job wrapped by to be wrapped by reconstructable."""
-    return Definitions(
-        assets=pudl.etl.default_assets,
-        resources=pudl.etl.default_resources,
-        jobs=[define_asset_job("epacems_job", selection="hourly_emissions_epacems")],
-    ).get_job_def("epacems_job")
+def epacems_job_factory(loglevel: str, logfile: str) -> Callable[[], JobDefinition]:
+    """Factory for parameterizing a reconstructable epacems job.
+
+    Args:
+        loglevel: The log level for the job's execution.
+        logfile: Path to a log file for the job's execution.
+
+    Returns:
+        The job definition to be executed.
+    """
+
+    def get_epacems_job():
+        """Create an epacems_job wrapped by to be wrapped by reconstructable."""
+        pudl.logging_helpers.configure_root_logger(logfile=logfile, loglevel=loglevel)
+        return Definitions(
+            assets=pudl.etl.default_assets,
+            resources=pudl.etl.default_resources,
+            jobs=[
+                define_asset_job("epacems_job", selection="hourly_emissions_epacems")
+            ],
+        ).get_job_def("epacems_job")
+
+    return get_epacems_job
 
 
 def main():
     """Convert zipped EPA CEMS Hourly data to Apache Parquet format."""
     load_dotenv()
     args = parse_command_line(sys.argv)
-
     # Display logged output from the PUDL package:
     pudl.logging_helpers.configure_root_logger(
         logfile=args.logfile, loglevel=args.loglevel
     )
 
-    execute_job(
-        reconstructable(get_epacems_job),
+    epacems_reconstructable_job = build_reconstructable_job(
+        "pudl.convert.epacems_to_parquet",
+        "epacems_job_factory",
+        reconstructable_kwargs={"loglevel": args.loglevel, "logfile": args.logfile},
+    )
+    result = execute_job(
+        epacems_reconstructable_job,
         instance=DagsterInstance.get(),
         run_config={
             "resources": {
@@ -128,6 +150,12 @@ def main():
             }
         },
     )
+
+    # Workaround to reliably getting full stack trace
+    if not result.success:
+        for event in result.all_events:
+            if event.event_type_value == "STEP_FAILURE":
+                raise Exception(event.event_specific_data.error)
 
 
 if __name__ == "__main__":

@@ -635,7 +635,7 @@ def get_raw_df(
             default_value=None,
         ),
         "clobber": Field(
-            bool, description="Clobber existing ferc1 database.", default_value=True
+            bool, description="Clobber existing ferc1 database.", default_value=False
         ),
     },
     required_resource_keys={"ferc_to_sqlite_settings", "datastore"},

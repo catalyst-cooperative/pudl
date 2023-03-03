@@ -106,7 +106,7 @@ def _get_sqlite_engine(
             default_value=None,
         ),
         "clobber": Field(
-            bool, description="Clobber existing ferc1 database.", default_value=True
+            bool, description="Clobber existing ferc1 database.", default_value=False
         ),
         "workers": Field(
             Noneable(int),
