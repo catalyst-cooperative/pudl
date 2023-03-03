@@ -1,7 +1,14 @@
 """Dagster definitions for the PUDL ETL and Output tables."""
 import importlib
 
-from dagster import Definitions, define_asset_job, load_assets_from_modules
+from dagster import (
+    AssetKey,
+    AssetsDefinition,
+    AssetSelection,
+    Definitions,
+    define_asset_job,
+    load_assets_from_modules,
+)
 
 import pudl
 from pudl.io_managers import (
@@ -46,24 +53,75 @@ default_resources = {
     "epacems_io_manager": epacems_io_manager,
 }
 
+
+def create_non_cems_selection(all_assets: list[AssetsDefinition]) -> AssetSelection:
+    """Create a selection of assets excluding CEMS and all downstream assets.
+
+    Args:
+        all_assets: A list of asset definitions to remove CEMS assets from.
+
+    Returns:
+        An asset selection with all_assets assets excluding CEMS assets.
+    """
+    all_asset_keys = pudl.helpers.get_asset_keys(all_assets)
+    all_selection = AssetSelection.keys(*all_asset_keys)
+
+    cems_selection = AssetSelection.keys(AssetKey("hourly_emissions_epacems"))
+    return all_selection - cems_selection.downstream()
+
+
+def load_dataset_settings_from_file(setting_filename: str) -> dict:
+    """Load dataset settings from a settings file in `pudl.package_data.settings`.
+
+    Args:
+        setting_filename: name of settings file.
+
+    Returns:
+        Dictionary of dataset settings.
+    """
+    return EtlSettings.from_yaml(
+        importlib.resources.path(
+            "pudl.package_data.settings", f"{setting_filename}.yml"
+        )
+    ).datasets.dict()
+
+
 defs = Definitions(
     assets=default_assets,
     resources=default_resources,
     jobs=[
-        define_asset_job(name="etl_full"),
+        define_asset_job(
+            name="etl_full", description="This job executes all years of all assets."
+        ),
+        define_asset_job(
+            name="etl_full_no_cems",
+            selection=create_non_cems_selection(default_assets),
+            description="This job executes all years of all assets except the "
+            "hourly_emissions_epacems asset and all assets downstream.",
+        ),
         define_asset_job(
             name="etl_fast",
             config={
                 "resources": {
                     "dataset_settings": {
-                        "config": EtlSettings.from_yaml(
-                            importlib.resources.path(
-                                "pudl.package_data.settings", "etl_fast.yml"
-                            )
-                        ).datasets.dict()
+                        "config": load_dataset_settings_from_file("etl_fast")
                     }
                 }
             },
+            description="This job executes the most recent year of each asset.",
+        ),
+        define_asset_job(
+            name="etl_fast_no_cems",
+            selection=create_non_cems_selection(default_assets),
+            config={
+                "resources": {
+                    "dataset_settings": {
+                        "config": load_dataset_settings_from_file("etl_fast")
+                    }
+                }
+            },
+            description="This job executes the most recent year of each asset except the "
+            "hourly_emissions_epacems asset and all assets downstream.",
         ),
     ],
 )

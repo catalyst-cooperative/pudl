@@ -17,6 +17,7 @@ import sys
 from dagster import (
     DagsterInstance,
     Definitions,
+    JobDefinition,
     define_asset_job,
     execute_job,
     reconstructable,
@@ -68,12 +69,25 @@ def parse_command_line(argv):
     return arguments
 
 
-def get_etl_job():
+def get_etl_job() -> JobDefinition:
     """Module level func for creating an etl_job to be wrapped by reconstructable."""
     return Definitions(
         assets=etl.default_assets,
         resources=etl.default_resources,
         jobs=[define_asset_job("etl_job")],
+    ).get_job_def("etl_job")
+
+
+def get_etl_no_cems_job() -> JobDefinition:
+    """Module level func for creating an etl_job without CEMS assets."""
+    return Definitions(
+        assets=etl.default_assets,
+        resources=etl.default_resources,
+        jobs=[
+            define_asset_job(
+                "etl_job", selection=etl.create_non_cems_selection(etl.default_assets)
+            )
+        ],
     ).get_job_def("etl_job")
 
 
@@ -104,12 +118,22 @@ def main():
         os.environ["PUDL_OUTPUT"] = pudl_settings["pudl_out"]
         os.environ["DAGSTER_HOME"] = pudl_settings["pudl_in"]
 
+    job_func = get_etl_job
+    dataset_settings_config = etl_settings.datasets.dict()
+    if etl_settings.datasets.epacems is None:
+        job_func = get_etl_no_cems_job
+        # Dagster config expects values for the epacems settings even though
+        # the CEMS assets will not be executed. Fill in the config dictionary
+        # with default cems values. Replace this workaround once dagster pydantic
+        # config classes are available.
+        dataset_settings_config["epacems"] = pudl.settings.EpaCemsSettings().dict()
+
     execute_job(
-        reconstructable(get_etl_job),
+        reconstructable(job_func),
         instance=DagsterInstance.get(),
         run_config={
             "resources": {
-                "dataset_settings": {"config": etl_settings.datasets.dict()},
+                "dataset_settings": {"config": dataset_settings_config},
                 "datastore": {
                     "config": {
                         "sandbox": args.sandbox,
