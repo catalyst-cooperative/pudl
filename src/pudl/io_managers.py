@@ -203,16 +203,6 @@ class SQLiteIOManager(IOManager):
         check for foreign key failures once all of the data has been loaded into
         the database using the `foreign_key_check` and `foreign_key_list` PRAGMAs.
 
-        Examples:
-        This method can be used in the test suite or a jupyter notebook for debugging.
-
-            >>> from pudl.io_managers import pudl_sqlite_io_manager
-            >>> from dagster import build_init_resource_context
-            ...
-            >>> init_context = build_init_resource_context()
-            >>> manager = pudl_sqlite_io_manager(init_context)
-            >>> manager.check_foreign_keys()
-
         Read about the PRAGMAs here: https://www.sqlite.org/pragma.html#pragma_foreign_key_check
 
         Raises:
@@ -252,6 +242,8 @@ class SQLiteIOManager(IOManager):
                     )
                 )
             raise ForeignKeyErrors(errors)
+
+        logger.info("Success! No foreign key constraint errors found.")
 
     def _handle_pandas_output(self, context: OutputContext, df: pd.DataFrame):
         """Write dataframe to the database.

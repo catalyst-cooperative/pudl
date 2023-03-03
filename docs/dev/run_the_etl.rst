@@ -17,7 +17,7 @@ PUDL uses `Dagster <https://dagster.io/>`__ to orchestrate data pipelines. Dagst
 makes it easy to manage data dependences, parallelize processes, cache results
 and handle IO. If you are planning on contributing to PUDL, it is recommended you
 read through the `Dagster Docs <https://docs.dagster.io/getting-started>`__ to
-familiarize yourself with the tools main concepts.
+familiarize yourself with the tool's main concepts.
 
 There are a handful of Dagster concepts worth understanding prior
 to interacting with the PUDL data processing pipeline:
@@ -39,7 +39,7 @@ Assets are linked together to form a direct acyclic graph (DAG) which can
 be execute to persist the data created by the assets. In PUDL, each asset
 is a dataframe written to SQLite or parquet files. Assets in PUDL can be
 raw extracted dataframes, partially cleaned tables or fully normalized
-clean tables.
+tables.
 
 SDAs are created by applying the ``@asset`` decorator to a function.
 
@@ -68,7 +68,8 @@ Generally, inputs to assets should either be other assets or
 python objects in Resources.
 
 **Jobs**:
-Jobs are preconfigured collections of assets, resources and IO Managers.
+`Jobs <https://docs.dagster.io/concepts/ops-jobs-graphs/jobs>`__
+are preconfigured collections of assets, resources and IO Managers.
 Jobs are the main unit of execution in Dagster.
 
 **Definitions**:
@@ -97,7 +98,7 @@ Both definitions have two preconfigured jobs:
 
 Running the ETL with Dagit
 --------------------------
-To start Dagit run:
+To start Dagit, run:
 
 .. code-block::
 
@@ -121,7 +122,17 @@ view logs from the ``pudl`` package in the CLI window the dagit process
 is running in.
 
 Once the raw FERC databases are created by a ``pudl.ferc_to_sqlite`` job,
-you can execute the main PUDL ETL. Select one of the ``pudl.etl`` jobs.
+you can execute the main PUDL ETL.
+
+.. note::
+
+  Make sure you've extracted the raw FERC years you are planning to process
+  with the main PUDL ETL. Jobs in the ``pudl.etl`` definition will fail if
+  the raw FERC database are missing requested years. For example, if you want
+  to process all years available in the ``pudl.etl`` definition make sure
+  you've extracted all years of the raw FERC data.
+
+Select one of the ``pudl.etl`` jobs.
 This will bring you to a window that displays all of the asset dependencies
 in the ``pudl.etl`` definition. Subsets of the ``pudl.etl`` asset graph
 are organized by asset groups. These groups are helfpul for visualizing and
@@ -243,15 +254,11 @@ There are a few notable dependencies to be wary of when fiddling with these
 settings:
 
 - The ``ferc_to_sqlite`` job must be executed prior to running ``pudl_etl``
-  job
+  job.
 
-.. warning::
+- EPA CEMS cannot be loaded without EIA data unless you have existing PUDL database.
 
-    If you are processing the EIA 860/923 data, we **strongly recommend**
-    including the same years in both datasets. We only test two combinations of
-    inputs, as specified by the ``etl_fast.yml`` and ``etl_full.yml`` settings
-    distributed with the package.  Other combinations of years may yield
-    unexpected results.
+
 
 Now that your settings are configured, you're ready to run the scripts
 
@@ -330,3 +337,20 @@ If you need to re-run ``ferc_to_sqlite`` and want to overwrite
 their previous outputs you can add ``--clobber`` (run ``ferc_to_sqlite --clobber``).
 All of the PUDL scripts also have help messages if you want additional information
 (run ``script_name --help``).
+
+.. note::
+
+  The ``pudl_etl`` command does not have a ``--clobber`` option because
+  each etl run uses the same database file to read and write tables.
+  This enables re-running portions of the ETL.
+
+Foreign Keys
+------------
+Assets are loaded into the ``pudl.sqlite`` in parallel so foreign key constraints
+can not be evaluated in real time. However, foreign key constraints can be evaluated
+after all of the data has been loaded into the database. To check the constraints,
+run:
+
+```
+check_pudl_fks
+```
