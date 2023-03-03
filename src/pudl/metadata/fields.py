@@ -169,22 +169,6 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "type": "string",
         "description": "The code representing the fourth most predominant type of energy that fuels the boiler.",
     },
-    # "boiler_fuel_code_5": {
-    #     "type": "string",
-    #     "description": "The code representing the fifth most predominant type of energy that fuels the boiler.",
-    # },
-    # "boiler_fuel_code_6": {
-    #     "type": "string",
-    #     "description": "The code representing the sixth most predominant type of energy that fuels the boiler.",
-    # },
-    # "boiler_fuel_code_7": {
-    #     "type": "string",
-    #     "description": "The code representing the seventh most predominant type of energy that fuels the boiler.",
-    # },
-    # "boiler_fuel_code_8": {
-    #     "type": "string",
-    #     "description": "The code representing the eighth most predominant type of energy that fuels the boiler.",
-    # },
     "boiler_generator_assn_type_code": {
         "type": "string",
         "description": (
