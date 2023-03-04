@@ -1124,8 +1124,6 @@ def fix_balancing_authority_codes_with_state(
     return plants.drop(columns=["state"])
 
 
-eia_assets = load_assets_from_modules([eia860, eia923])
-
 final_eia_table_names = (
     Package.get_etl_group_tables("entity_eia")
     + Package.get_etl_group_tables("eia860")
@@ -1136,7 +1134,7 @@ final_eia_table_names = (
 @multi_asset(
     ins={
         asset_key.to_python_identifier(): AssetIn()
-        for eia_asset in eia_assets
+        for eia_asset in load_assets_from_modules([eia860, eia923])
         for asset_key in eia_asset.keys
     },
     outs={

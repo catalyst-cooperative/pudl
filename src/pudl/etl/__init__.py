@@ -37,6 +37,12 @@ default_assets = (
     *load_assets_from_modules([glue_assets], group_name="glue"),
     *load_assets_from_modules([pudl.extract.eia860], group_name="eia860_raw_assets"),
     *load_assets_from_modules([pudl.extract.eia923], group_name="eia923_raw_assets"),
+    *load_assets_from_modules(
+        [pudl.transform.eia860], group_name="pre_harvested_eia860_assets"
+    ),
+    *load_assets_from_modules(
+        [pudl.transform.eia923], group_name="pre_harvested_eia923_assets"
+    ),
     *load_assets_from_modules([pudl.transform.eia], group_name="eia_harvested_assets"),
     *load_assets_from_modules([static_assets], group_name="static_assets"),
     *load_assets_from_modules([pudl.extract.ferc1], group_name="ferc_assets"),
