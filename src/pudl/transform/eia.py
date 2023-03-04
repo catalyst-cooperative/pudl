@@ -1144,7 +1144,11 @@ final_eia_table_names = (
         for table_name in sorted(final_eia_table_names)
     },
     config_schema={
-        "debug": Field(bool, default_value=False),
+        "debug": Field(
+            bool,
+            default_value=False,
+            description="If true, informational columns will be added into boiler_generator_assn",
+        ),
     },
     required_resource_keys={"dataset_settings"},
 )
@@ -1159,16 +1163,11 @@ def eia_transform(context, **eia_transformed_dfs):
     entity harvesting is finished.
 
     Args:
-        eia_transformed_dfs (dict): a dictionary of table names (kays) and
+        eia_transformed_dfs (dict): a dictionary of table names (keys) and
             transformed dataframes (values).
-        settings: Object containing validated settings
-            relevant to EIA datasets.
-        debug (bool): if true, informational columns will be added into
-            boiler_generator_assn
 
     Returns:
-        tuple: two dictionaries having table names as keys and
-        dataframes as values for the entity tables transformed EIA dataframes
+        Dataframes of entity tables transformed EIA tables.
     """
     # Do some final cleanup and assign appropriate types:
     eia_transformed_dfs = {
