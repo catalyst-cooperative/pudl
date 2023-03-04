@@ -327,13 +327,12 @@ def _compile_all_entity_records(entity, eia_transformed_dfs):
     logger.debug("    Casting harvested IDs to correct data types")
     # most columns become objects (ack!), so assign types
     compiled_df = apply_pudl_dtypes(compiled_df, group="eia")
-    # encode the compiled options! (except for the boilers bc there is no annual table)
-    if entity != "boilers":
-        compiled_df = (
-            pudl.metadata.classes.Package.from_resource_ids()
-            .get_resource(f"{entity}_eia860")
-            .encode(compiled_df)
-        )
+    # encode the compiled options!
+    compiled_df = (
+        pudl.metadata.classes.Package.from_resource_ids()
+        .get_resource(f"{entity}_eia860")
+        .encode(compiled_df)
+    )
     return compiled_df
 
 
@@ -1194,15 +1193,11 @@ def transform(
         debug=debug,
     )
     # get rid of the original annual dfs in the transformed dict
-    remove = ["generators", "plants", "utilities"]
+    remove = ["generators", "plants", "utilities", "boilers"]
     for entity in remove:
         eia_transformed_dfs[f"{entity}_eia860"] = eia_transformed_dfs.pop(
             f"{entity}_annual_eia", f"{entity}_annual_eia"
         )
-    # remove the boilers annual table bc it has no columns
-    eia_transformed_dfs.pop(
-        "boilers_annual_eia",
-    )
 
     eia_transformed_dfs["plants_eia860"] = fillna_balancing_authority_codes_via_names(
         df=eia_transformed_dfs["plants_eia860"]
