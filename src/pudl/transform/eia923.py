@@ -6,6 +6,7 @@ import pandas as pd
 import pudl
 from pudl.metadata.codes import CODE_METADATA
 from pudl.settings import Eia923Settings
+from pudl.transform.classes import InvalidRows, drop_invalid_rows
 
 logger = pudl.logging_helpers.get_logger(__name__)
 
@@ -788,6 +789,8 @@ def boiler_fuel(eia923_dfs, eia923_transformed_dfs):
     # Convert Year/Month columns into a single Date column...
     bf_df = pudl.helpers.convert_to_date(bf_df)
 
+    bf_df = remove_duplicate_pks_boiler_fuel_eia923(bf_df)
+
     bf_df = (
         pudl.metadata.classes.Package.from_resource_ids()
         .get_resource("boiler_fuel_eia923")
@@ -807,6 +810,42 @@ def boiler_fuel(eia923_dfs, eia923_transformed_dfs):
     eia923_transformed_dfs["boiler_fuel_eia923"] = bf_df
 
     return eia923_transformed_dfs
+
+
+def remove_duplicate_pks_boiler_fuel_eia923(bf: pd.DataFrame) -> pd.DataFrame:
+    """Deduplicate on primary keys for :ref:`boiler_fuel_eia923`.
+
+    There are a relatively small number of records ~5% from the boiler fuel table that
+    have duplicate records based on what we believe is this table's primary keys.
+    Fortunately, all of these duplicates have at least one records w/ only zeros and or
+    nulls. So this method drops only the records which have duplicate pks and only have
+    zeros or nulls in the non-primary key columns.
+    """
+    pk = (
+        pudl.metadata.classes.Package.from_resource_ids()
+        .get_resource("boiler_fuel_eia923")
+        .schema.primary_key
+    )
+    # make a mask to split bf into records w/ & w/o pk dupes
+    pk_dupe_mask = bf.duplicated(pk, keep=False)
+
+    params_pk_dupes = InvalidRows(
+        invalid_values=[pd.NA, np.nan, 0], allowed_invalid_cols=pk
+    )
+    bf_no_null_pks_dupes = drop_invalid_rows(
+        df=bf[pk_dupe_mask], params=params_pk_dupes
+    )
+
+    if not (
+        pk_dupes := bf_no_null_pks_dupes[
+            bf_no_null_pks_dupes.duplicated(pk, keep=False)
+        ]
+    ).empty:
+        raise AssertionError(
+            f"There are ({len(pk_dupes)}) boiler_fuel_eia923 records with "
+            "duplicate primary keys after cleaning - expected 0."
+        )
+    return pd.concat([bf[~pk_dupe_mask], bf_no_null_pks_dupes])
 
 
 def generation(eia923_dfs, eia923_transformed_dfs):
