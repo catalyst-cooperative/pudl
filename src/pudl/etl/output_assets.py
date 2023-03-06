@@ -1,5 +1,5 @@
 """Output table assets."""
-from dagster import AssetIn, asset
+from dagster import asset
 
 import pudl
 
@@ -40,15 +40,3 @@ def utility_analysis(utils_eia860):
     """
     # Do some analysis on utils_eia860
     return utils_eia860
-
-
-@asset(
-    io_manager_key="epacems_io_manager",
-    ins={
-        "hourly_emissions_epacems": AssetIn(input_manager_key="epacems_io_manager"),
-    },
-    compute_kind="Python",
-)
-def epacems_output(hourly_emissions_epacems):
-    """Consolidate partitioned hourly emissions data."""
-    return hourly_emissions_epacems
