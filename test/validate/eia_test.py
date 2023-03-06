@@ -15,6 +15,7 @@ logger = logging.getLogger(__name__)
     [
         ("bf_eia923", "all"),
         ("bga_eia860", "all"),
+        ("boil_eia860", "all"),
         ("frc_eia923", "all"),
         ("gen_eia923", "all"),
         ("gens_eia860", "all"),
@@ -40,18 +41,19 @@ def test_no_null_cols_eia(pudl_out_eia, live_dbs, cols, df_name):
 @pytest.mark.parametrize(
     "df_name,raw_rows,monthly_rows,annual_rows",
     [
-        ("bf_eia923", 1_415_232, 1_415_232, 118_550),
+        ("bf_eia923", 1_415_328, 1_415_328, 118_558),
         ("bga_eia860", 129_869, 129_869, 129_869),
-        ("frc_eia923", 596_855, 244_403, 24_064),
-        ("gen_eia923", None, 5_171_930, 432_657),
+        ("boil_eia860", 74_146, 74_146, 74_146),
+        ("frc_eia923", 597_000, 244_415, 24_065),
+        ("gen_eia923", None, 5_171_497, 432_570),
         ("gens_eia860", 523_563, 523_563, 523_563),
-        ("gf_eia923", 2_687_321, 2_687_321, 230_147),
-        ("gf_nonuclear_eia923", 2_671_268, 2_671_268, 228_804),
+        ("gf_eia923", 2_687_345, 2_687_345, 230_149),
+        ("gf_nonuclear_eia923", 2_671_292, 2_671_292, 228_806),
         ("gf_nuclear_eia923", 24_617, 24_617, 2_058),
         ("own_eia860", 84_440, 84_440, 84_440),
-        ("plants_eia860", 185_551, 185_551, 185_551),
-        ("pu_eia860", 184_740, 184_740, 184_740),
-        ("utils_eia860", 119_365, 119_365, 119_365),
+        ("plants_eia860", 185_553, 185_553, 185_553),
+        ("pu_eia860", 184_743, 184_743, 184_743),
+        ("utils_eia860", 119_366, 119_366, 119_366),
     ],
 )
 def test_minmax_rows(
@@ -109,6 +111,7 @@ def test_minmax_rows(
             ],
         ),
         ("bga_eia860", ["report_date", "plant_id_eia", "boiler_id", "generator_id"]),
+        ("boil_eia860", ["report_date", "plant_id_eia", "boiler_id"]),
         ("gen_eia923", ["report_date", "plant_id_eia", "generator_id"]),
         ("gens_eia860", ["report_date", "plant_id_eia", "generator_id"]),
         (

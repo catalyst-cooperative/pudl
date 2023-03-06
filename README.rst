@@ -172,40 +172,40 @@ data is produced by the `dev branch <https://github.com/catalyst-cooperative/pud
 of PUDL, and is updated most weekday mornings. It is also the data used to populate
 Datasette:
 
-* `PUDL SQLite DB <http://intake.catalyst.coop.s3.amazonaws.com/dev/pudl.sqlite>`__
-* `EPA CEMS Hourly Emissions Parquet (1995-2021) <http://intake.catalyst.coop.s3.amazonaws.com/dev/hourly_emissions_epacems.parquet>`__
-* `Census DP1 SQLite DB (2010) <http://intake.catalyst.coop.s3.amazonaws.com/dev/censusdp1tract.sqlite>`__
+* `PUDL SQLite DB <https://s3.us-west-2.amazonaws.com/intake.catalyst.coop/dev/pudl.sqlite>`__
+* `EPA CEMS Hourly Emissions Parquet (1995-2021) <https://s3.us-west-2.amazonaws.com/intake.catalyst.coop/dev/hourly_emissions_epacems.parquet>`__
+* `Census DP1 SQLite DB (2010) <https://s3.us-west-2.amazonaws.com/intake.catalyst.coop/dev/censusdp1tract.sqlite>`__
 
 * Raw FERC Form 1:
 
-  * `FERC-1 SQLite derived from DBF (1994-2020) <http://intake.catalyst.coop.s3.amazonaws.com/dev/ferc1.sqlite>`__
-  * `FERC-1 SQLite derived from XBRL (2021) <http://intake.catalyst.coop.s3.amazonaws.com/dev/ferc1_xbrl.sqlite>`__
-  * `FERC-1 Datapackage (JSON) describing SQLite derived from XBRL <http://intake.catalyst.coop.s3.amazonaws.com/dev/ferc1_xbrl_datapackage.json>`__
-  * `FERC-1 XBRL Taxonomy Metadata as JSON (2021) <http://intake.catalyst.coop.s3.amazonaws.com/dev/ferc1_xbrl_taxonomy_metadata.json>`__
+  * `FERC-1 SQLite derived from DBF (1994-2020) <https://s3.us-west-2.amazonaws.com/intake.catalyst.coop/dev/ferc1.sqlite>`__
+  * `FERC-1 SQLite derived from XBRL (2021) <https://s3.us-west-2.amazonaws.com/intake.catalyst.coop/dev/ferc1_xbrl.sqlite>`__
+  * `FERC-1 Datapackage (JSON) describing SQLite derived from XBRL <https://s3.us-west-2.amazonaws.com/intake.catalyst.coop/dev/ferc1_xbrl_datapackage.json>`__
+  * `FERC-1 XBRL Taxonomy Metadata as JSON (2021) <https://s3.us-west-2.amazonaws.com/intake.catalyst.coop/dev/ferc1_xbrl_taxonomy_metadata.json>`__
 
 * Raw FERC Form 2:
 
-  * `FERC-2 SQLite derived from XBRL (2021) <http://intake.catalyst.coop.s3.amazonaws.com/dev/ferc2_xbrl.sqlite>`__
-  * `FERC-2 Datapackage (JSON) describing SQLite derived from XBRL <http://intake.catalyst.coop.s3.amazonaws.com/dev/ferc2_xbrl_datapackage.json>`__
-  * `FERC-2 XBRL Taxonomy Metadata as JSON (2021) <http://intake.catalyst.coop.s3.amazonaws.com/dev/ferc2_xbrl_taxonomy_metadata.json>`__
+  * `FERC-2 SQLite derived from XBRL (2021) <https://s3.us-west-2.amazonaws.com/intake.catalyst.coop/dev/ferc2_xbrl.sqlite>`__
+  * `FERC-2 Datapackage (JSON) describing SQLite derived from XBRL <https://s3.us-west-2.amazonaws.com/intake.catalyst.coop/dev/ferc2_xbrl_datapackage.json>`__
+  * `FERC-2 XBRL Taxonomy Metadata as JSON (2021) <https://s3.us-west-2.amazonaws.com/intake.catalyst.coop/dev/ferc2_xbrl_taxonomy_metadata.json>`__
 
 * Raw FERC Form 6:
 
-  * `FERC-6 SQLite derived from XBRL (2021) <http://intake.catalyst.coop.s3.amazonaws.com/dev/ferc6_xbrl.sqlite>`__
-  * `FERC-6 Datapackage (JSON) describing SQLite derived from XBRL <http://intake.catalyst.coop.s3.amazonaws.com/dev/ferc6_xbrl_datapackage.json>`__
-  * `FERC-6 XBRL Taxonomy Metadata as JSON (2021) <http://intake.catalyst.coop.s3.amazonaws.com/dev/ferc6_xbrl_taxonomy_metadata.json>`__
+  * `FERC-6 SQLite derived from XBRL (2021) <https://s3.us-west-2.amazonaws.com/intake.catalyst.coop/dev/ferc6_xbrl.sqlite>`__
+  * `FERC-6 Datapackage (JSON) describing SQLite derived from XBRL <https://s3.us-west-2.amazonaws.com/intake.catalyst.coop/dev/ferc6_xbrl_datapackage.json>`__
+  * `FERC-6 XBRL Taxonomy Metadata as JSON (2021) <https://s3.us-west-2.amazonaws.com/intake.catalyst.coop/dev/ferc6_xbrl_taxonomy_metadata.json>`__
 
 * Raw FERC Form 60:
 
-  * `FERC-60 SQLite derived from XBRL (2021) <http://intake.catalyst.coop.s3.amazonaws.com/dev/ferc60_xbrl.sqlite>`__
-  * `FERC-60 Datapackage (JSON) describing SQLite derived from XBRL <http://intake.catalyst.coop.s3.amazonaws.com/dev/ferc60_xbrl_datapackage.json>`__
-  * `FERC-60 XBRL Taxonomy Metadata as JSON (2021) <http://intake.catalyst.coop.s3.amazonaws.com/dev/ferc60_xbrl_taxonomy_metadata.json>`__
+  * `FERC-60 SQLite derived from XBRL (2021) <https://s3.us-west-2.amazonaws.com/intake.catalyst.coop/dev/ferc60_xbrl.sqlite>`__
+  * `FERC-60 Datapackage (JSON) describing SQLite derived from XBRL <https://s3.us-west-2.amazonaws.com/intake.catalyst.coop/dev/ferc60_xbrl_datapackage.json>`__
+  * `FERC-60 XBRL Taxonomy Metadata as JSON (2021) <https://s3.us-west-2.amazonaws.com/intake.catalyst.coop/dev/ferc60_xbrl_taxonomy_metadata.json>`__
 
 * Raw FERC Form 714:
 
-  * `FERC-714 SQLite derived from XBRL (2021) <http://intake.catalyst.coop.s3.amazonaws.com/dev/ferc714_xbrl.sqlite>`__
-  * `FERC-714 Datapackage (JSON) describing SQLite derived from XBRL <http://intake.catalyst.coop.s3.amazonaws.com/dev/ferc714_xbrl_datapackage.json>`__
-  * `FERC-714 XBRL Taxonomy Metadata as JSON (2021) <http://intake.catalyst.coop.s3.amazonaws.com/dev/ferc714_xbrl_taxonomy_metadata.json>`__
+  * `FERC-714 SQLite derived from XBRL (2021) <https://s3.us-west-2.amazonaws.com/intake.catalyst.coop/dev/ferc714_xbrl.sqlite>`__
+  * `FERC-714 Datapackage (JSON) describing SQLite derived from XBRL <https://s3.us-west-2.amazonaws.com/intake.catalyst.coop/dev/ferc714_xbrl_datapackage.json>`__
+  * `FERC-714 XBRL Taxonomy Metadata as JSON (2021) <https://s3.us-west-2.amazonaws.com/intake.catalyst.coop/dev/ferc714_xbrl_taxonomy_metadata.json>`__
 
 Contributing to PUDL
 --------------------

@@ -220,7 +220,7 @@ PLANT_PARTS: OrderedDict[str, dict[str, list]] = OrderedDict(
             "id_cols": ["plant_id_eia", "ferc_acct_name"],
         },
         "plant_operating_year": {
-            "id_cols": ["plant_id_eia", "operating_year"],
+            "id_cols": ["plant_id_eia", "generator_operating_year"],
         },
         "plant_gen": {
             "id_cols": ["plant_id_eia", "generator_id"],
@@ -287,15 +287,15 @@ the weight column (values)
 
 CONSISTENT_ATTRIBUTE_COLS = [
     "fuel_type_code_pudl",
-    "planned_retirement_date",
-    "retirement_date",
+    "planned_generator_retirement_date",
+    "generator_retirement_date",
     "generator_id",
     "unit_id_pudl",
     "technology_description",
     "energy_source_code_1",
     "prime_mover_code",
     "ferc_acct_name",
-    "operating_year",
+    "generator_operating_year",
 ]
 """
 list: a list of column names to add as attributes when they are consistent into
@@ -309,12 +309,12 @@ PRIORITY_ATTRIBUTES_DICT = {
 
 MAX_MIN_ATTRIBUTES_DICT = {
     "installation_year": {
-        "assign_col": {"installation_year": lambda x: x.operating_year},
+        "assign_col": {"installation_year": lambda x: x.generator_operating_year},
         "dtype": "Int64",
         "keep": "first",
     },
     "construction_year": {
-        "assign_col": {"construction_year": lambda x: x.operating_year},
+        "assign_col": {"construction_year": lambda x: x.generator_operating_year},
         "dtype": "Int64",
         "keep": "last",
     },
@@ -350,7 +350,7 @@ PPE_COLS = [
     "energy_source_code_1",
     "technology_description",
     "ferc_acct_name",
-    "operating_year",
+    "generator_operating_year",
     "utility_id_eia",
     "utility_id_pudl",
     "true_gran",
@@ -385,14 +385,14 @@ class MakeMegaGenTbl:
     ...         'Natural Gas Fired Combined Cycle', 'Natural Gas Fired Combined Cycle', 'Natural Gas Fired Combined Cycle'
     ...     ],
     ...     'operational_status': ['existing', 'existing','existing'],
-    ...     'retirement_date': [pd.NA, pd.NA, pd.NA],
+    ...     'generator_retirement_date': [pd.NA, pd.NA, pd.NA],
     ...     'capacity_mw': [50, 50, 100],
     ... }).astype({
-    ...     'retirement_date': "datetime64[ns]",
+    ...     'generator_retirement_date': "datetime64[ns]",
     ...     'report_date': "datetime64[ns]",
     ... })
     >>> mcoe
-        plant_id_eia    report_date 	generator_id   utility_id_eia 	unit_id_pudl 	prime_mover_code              technology_description   operational_status  retirement_date 	capacity_mw
+        plant_id_eia    report_date 	generator_id   utility_id_eia 	unit_id_pudl 	prime_mover_code              technology_description   operational_status  generator_retirement_date 	capacity_mw
     0 	           1     2020-01-01 	           a              111 	           1 	              CT    Natural Gas Fired Combined Cycle             existing               NaT 	         50
     1 	           1     2020-01-01 	           b              111 	           1 	              CT    Natural Gas Fired Combined Cycle             existing               NaT 	         50
     2 	           1     2020-01-01 	           c              111 	           1 	              CA    Natural Gas Fired Combined Cycle             existing               NaT 	        100
@@ -495,8 +495,10 @@ class MakeMegaGenTbl:
             validate="m:1",
             how="left",
         )
-        all_gens.loc[:, "operating_year"] = all_gens["operating_date"].dt.year
-        all_gens = all_gens.astype({"operating_year": "Int64"})
+        all_gens.loc[:, "generator_operating_year"] = all_gens[
+            "generator_operating_date"
+        ].dt.year
+        all_gens = all_gens.astype({"generator_operating_year": "Int64"})
         return all_gens
 
     def label_operating_gens(self, gen_df: pd.DataFrame) -> pd.DataFrame:
@@ -525,7 +527,7 @@ class MakeMegaGenTbl:
             columns that are being assigned here via `.loc[:, col_to_assign]`.
         """
         mid_year_retiree_mask = (
-            gen_df.retirement_date.dt.year == gen_df.report_date.dt.year
+            gen_df.generator_retirement_date.dt.year == gen_df.report_date.dt.year
         )
         existing_mask = gen_df.operational_status == "existing"
         operating_mask = existing_mask | mid_year_retiree_mask

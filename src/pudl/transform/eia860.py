@@ -238,8 +238,8 @@ def clean_generators_eia860(
 
     # A subset of the columns have zero values, where NA is appropriate:
     columns_to_fix = [
-        "planned_retirement_month",
-        "planned_retirement_year",
+        "planned_generator_retirement_month",
+        "planned_generator_retirement_year",
         "planned_uprate_month",
         "planned_uprate_year",
         "other_modifications_month",
@@ -456,7 +456,7 @@ def clean_boiler_generator_assn_eia860(raw_boiler_generator_assn_eia860):
     * Drop duplicate rows.
 
     Args:
-        eia860_dfs (dict): Each entry in this dictionary of DataFrame objects
+        raw_boiler_generator_assn_eia860 (df): Each entry in this dictionary of DataFrame objects
             corresponds to a page from the EIA860 form, as reported in the Excel
             spreadsheets they distribute.
         eia860_transformed_dfs (dict): A dictionary of DataFrame objects in which pages
@@ -575,3 +575,204 @@ def clean_utilities_eia860(raw_utility_eia860):
     )
 
     return u_df
+
+
+@asset
+def clean_boilers_eia860(
+    raw_emission_control_strategies_eia860, raw_boiler_info_eia860
+):
+    """Pull and transform the boilers table.
+
+    Transformations include:
+
+    * Replace . values with NA.
+    * Convert Y/N/NA values to boolean True/False.
+    * Combine month and year columns into date columns.
+    * Add boiler manufacturer name column.
+    * Convert pre-2012 efficiency percentages to proportions to match post-2012
+      reporting.
+
+    Args:
+        raw_emission_control_strategies_eia860 (pandas.DataFrame):
+            DataFrame extracted from EIA forms earlier in the ETL process.
+        raw_boiler_info_eia860 (pandas.DataFrame):
+            DataFrame extracted from EIA forms earlier in the ETL process.
+
+    Returns:
+        pandas.DataFrame: the transformed boilers table
+    """
+    # Populating the 'boilers_eia860' table
+    b_df = raw_boiler_info_eia860
+    ecs = raw_emission_control_strategies_eia860
+
+    # Combine and replace empty strings, whitespace, and '.' fields with real NA values
+
+    b_df = (
+        pd.concat([b_df, ecs], sort=True)
+        .dropna(subset=["boiler_id", "plant_id_eia"])
+        .pipe(pudl.helpers.fix_eia_na)
+    )
+
+    # Defensive check: if any values in boiler_fuel_code_5 - boiler_fuel_code_8,
+    # raise error.
+    cols_to_check = [
+        "boiler_fuel_code_5",
+        "boiler_fuel_code_6",
+        "boiler_fuel_code_7",
+        "boiler_fuel_code_8",
+    ]
+    if b_df[cols_to_check].notnull().sum().sum() > 0:
+        raise ValueError(
+            "There are non-null values in boiler_fuel_code #5-8."
+            "These are currently getting dropped from the final dataframe."
+            "Please revise the table schema to include these columns."
+        )
+
+    # Replace 0's with NaN for certain columns.
+    zero_columns_to_fix = [
+        "firing_rate_using_coal_tons_per_hour",
+        "firing_rate_using_gas_mcf_per_hour",
+        "firing_rate_using_oil_bbls_per_hour",
+        "firing_rate_using_other_fuels",
+        "fly_ash_reinjection",
+        "hrsg",
+        "new_source_review",
+        "turndown_ratio",
+        "waste_heat_input_mmbtu_per_hour",
+    ]
+
+    for column in zero_columns_to_fix:
+        b_df[column] = b_df[column].replace(to_replace=0, value=np.nan)
+
+    # Fix unlikely year values for compliance year columns
+    year_cols_to_fix = [
+        "compliance_year_nox",
+        "compliance_year_so2",
+        "compliance_year_mercury",
+        "compliance_year_particulate",
+    ]
+
+    for col in year_cols_to_fix:
+        b_df.loc[b_df[col] < 1900, col] = pd.NA
+
+    # Convert boolean columns from Y/N to True/False.
+    boolean_columns_to_fix = [
+        "hrsg",
+        "fly_ash_reinjection",
+        "new_source_review",
+        "mercury_emission_control",
+        "ACI",
+        "BH",
+        "DS",
+        "EP",
+        "FGD",
+        "LIJ",
+        "WS",
+        "BS",
+        "BP",
+        "BR",
+        "EC",
+        "EH",
+        "EK",
+        "EW",
+        "OT",
+    ]
+
+    for column in boolean_columns_to_fix:
+        b_df[column] = (
+            b_df[column]
+            .fillna("NaN")
+            .replace(
+                to_replace=["Y", "N", "NaN", "0"], value=[True, False, pd.NA, pd.NA]
+            )
+        )
+
+    # 2009-2012 data uses boolean columns for mercury equipment that
+    # later are converted to strategy codes. Here we convert them manually.
+
+    mercury_boolean_cols = [
+        "ACI",
+        "BH",
+        "DS",
+        "EP",
+        "FGD",
+        "LIJ",
+        "WS",
+        "BS",
+        "BP",
+        "BR",
+        "EC",
+        "EH",
+        "EK",
+        "EW",
+        "OT",
+    ]
+
+    # Get list of True columns
+    b_df["agg"] = b_df[mercury_boolean_cols].apply(
+        lambda row: row[row.__eq__(True)].index.to_list(), axis=1
+    )
+
+    # Split list into columns
+    b_df = pd.concat(
+        [
+            b_df.drop(columns="agg"),
+            pd.DataFrame(b_df["agg"].tolist(), index=b_df.index)
+            .add_prefix("mercury_strategy_")
+            .fillna(pd.NA),
+        ],
+        axis=1,
+    )
+
+    # Add three new mercury_strategy columns
+    (
+        b_df["mercury_control_existing_strategy_4"],
+        b_df["mercury_control_existing_strategy_5"],
+        b_df["mercury_control_existing_strategy_6"],
+    ) = [pd.NA, pd.NA, pd.NA]
+
+    for col in (col for col in b_df.columns if "mercury_strategy_" in col):
+        i = str(int(col[-1]) + 1)  # Get digit from column
+        # Fill strategy codes using columns
+        b_df[f"mercury_control_existing_strategy_{i}"] = b_df[
+            f"mercury_control_existing_strategy_{i}"
+        ].fillna(b_df[col])
+
+    # Convert month and year columns to date.
+    b_df = b_df.pipe(pudl.helpers.month_year_to_date).pipe(pudl.helpers.convert_to_date)
+
+    # Add boiler manufacturer name to column
+    b_df["boiler_manufacturer"] = b_df.boiler_manufacturer_code.map(
+        pudl.helpers.label_map(
+            CODE_METADATA["environmental_equipment_manufacturers_eia"]["df"],
+            from_col="code",
+            to_col="description",
+            null_value=pd.NA,
+        )
+    )
+
+    b_df["nox_control_manufacturer"] = b_df.nox_control_manufacturer_code.map(
+        pudl.helpers.label_map(
+            CODE_METADATA["environmental_equipment_manufacturers_eia"]["df"],
+            from_col="code",
+            to_col="description",
+            null_value=pd.NA,
+        )
+    )
+
+    # Prior to 2012, efficiency was reported as a percentage, rather than
+    # as a proportion, so we need to divide those values by 100.
+    b_df.loc[b_df.report_date.dt.year < 2012, "efficiency_100pct_load"] = (
+        b_df.loc[b_df.report_date.dt.year < 2012, "efficiency_100pct_load"] / 100
+    )
+    b_df.loc[b_df.report_date.dt.year < 2012, "efficiency_50pct_load"] = (
+        b_df.loc[b_df.report_date.dt.year < 2012, "efficiency_50pct_load"] / 100
+    )
+
+    b_df = (
+        pudl.metadata.classes.Package.from_resource_ids()
+        .get_resource("boilers_eia860")
+        .encode(b_df)
+    )
+
+    return b_df
