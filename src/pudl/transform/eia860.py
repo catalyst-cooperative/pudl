@@ -578,7 +578,9 @@ def clean_utilities_eia860(raw_utility_eia860):
 
 
 @asset
-def boilers(raw_emission_control_strategies_eia860, raw_boiler_info_eia860):
+def clean_boilers_eia860(
+    raw_emission_control_strategies_eia860, raw_boiler_info_eia860
+):
     """Pull and transform the boilers table.
 
     Transformations include:
