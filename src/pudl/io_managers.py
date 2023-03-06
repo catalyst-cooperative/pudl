@@ -568,7 +568,7 @@ class PandasParquetIOManager(UPathIOManager):
         super().__init__(base_path=base_path)
         self.schema = schema
 
-    def dump_to_path(self, context: OutputContext, obj: pd.DataFrame, path: UPath):
+    def dump_to_path(self, context: OutputContext, obj: dd.DataFrame, path: UPath):
         """Write dataframe to parquet file."""
         logger.info(f"Write df to parquet at {path}")
         schema = Resource.from_id("hourly_emissions_epacems").to_pyarrow()
@@ -576,7 +576,7 @@ class PandasParquetIOManager(UPathIOManager):
             path, engine="pyarrow", schema=schema, compression="snappy"
         )
 
-    def load_from_path(self, context: InputContext, path: UPath) -> pd.DataFrame:
+    def load_from_path(self, context: InputContext, path: UPath) -> dd.DataFrame:
         """Load a directory of parquet files to a dask dataframe."""
         logger.info(f"Reading parquet file from {path}")
         return dd.read_parquet(
