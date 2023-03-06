@@ -733,75 +733,6 @@ def _map_prime_mover_sets(prime_mover_set: np.ndarray) -> str:
         )
 
 
-def _aggregate_duplicate_boiler_fuel_keys(boiler_fuel_df: pd.DataFrame) -> pd.DataFrame:
-    """Combine boiler_fuel rows with duplicate keys by aggregating them.
-
-    Boiler_fuel_eia923 contains a few records with duplicate keys, mostly caused by
-    CA and CT parts of combined cycle plants being mapped to the same boiler ID.
-    This is most likely a data entry error. See GitHub issue #852
-
-    One solution (implemented here) is to simply aggregate those records together.
-    This is cheap and easy compared to the more thorough solution of making
-    surrogate boiler IDs. Aggregation was preferred to purity due to the low volume of
-    affected records (4.5% of combined cycle plants).
-
-    Args:
-        boiler_fuel_df: the boiler_fuel dataframe
-
-    Returns:
-        A copy of boiler_fuel dataframe with duplicates removed and aggregates appended.
-    """
-    quantity_cols = [
-        "fuel_consumed_units",
-    ]
-    relative_cols = ["ash_content_pct", "sulfur_content_pct", "fuel_mmbtu_per_unit"]
-    key_cols = ["boiler_id", "energy_source_code", "plant_id_eia", "report_date"]
-
-    expected_cols = set(
-        quantity_cols
-        + relative_cols
-        + key_cols
-        + ["prime_mover_code", "sector_id_eia", "sector_name_eia"]
-    )
-    actual_cols = set(boiler_fuel_df.columns)
-    difference = actual_cols.symmetric_difference(expected_cols)
-
-    if difference:
-        raise AssertionError(
-            "Columns were expected to align, instead found this difference: "
-            f"{difference}"
-        )
-
-    is_duplicate = boiler_fuel_df.duplicated(subset=key_cols, keep=False)
-    # copying bc a slice of this copy will be reassigned later
-    duplicates: pd.DataFrame = boiler_fuel_df[is_duplicate].copy()
-    boiler_fuel_groups = duplicates.groupby(key_cols)
-
-    # For relative columns, take average weighted by fuel usage
-    total_fuel: pd.Series = boiler_fuel_groups["fuel_consumed_units"].transform("sum")
-    # division by zero -> NaN, so fill with 0 in those cases
-    fuel_fraction = (
-        duplicates["fuel_consumed_units"].div(total_fuel.to_numpy()).fillna(0.0)
-    )
-    # overwrite with weighted values
-    duplicates.loc[:, relative_cols] = duplicates.loc[:, relative_cols].mul(
-        fuel_fraction.to_numpy().reshape(-1, 1)
-    )
-
-    aggregates = boiler_fuel_groups[quantity_cols + relative_cols].sum()
-    # apply manual mapping to prime_mover_code
-    aggregates["prime_mover_code"] = (
-        boiler_fuel_groups["prime_mover_code"].unique().apply(_map_prime_mover_sets)
-    )
-
-    # NOTE: the following method changes the order of the data and resets the index
-    modified_boiler_fuel_df = pd.concat(
-        [boiler_fuel_df[~is_duplicate], aggregates.reset_index()], ignore_index=True
-    )
-
-    return modified_boiler_fuel_df
-
-
 def boiler_fuel(eia923_dfs, eia923_transformed_dfs):
     """Transforms the boiler_fuel_eia923 table.
 
@@ -862,8 +793,6 @@ def boiler_fuel(eia923_dfs, eia923_transformed_dfs):
         .get_resource("boiler_fuel_eia923")
         .encode(bf_df)
     )
-
-    bf_df = _aggregate_duplicate_boiler_fuel_keys(bf_df)
 
     # Add a simplified PUDL fuel type
     bf_df["fuel_type_code_pudl"] = bf_df.energy_source_code.map(
