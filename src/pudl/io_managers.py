@@ -572,10 +572,7 @@ class PandasParquetIOManager(UPathIOManager):
         """Write dataframe to parquet file."""
         logger.info(f"Write df to parquet at {path}")
         schema = Resource.from_id("hourly_emissions_epacems").to_pyarrow()
-        # TODO (daz): this writes out to a directory; if we use path.open("wb")
-        # we end up with this weird "io.UnsupportedOperation.read" error.
-        # what is it trying to read?
-        return obj.to_parquet(
+        obj.repartition(npartitions=1).to_parquet(
             path, engine="pyarrow", schema=schema, compression="snappy"
         )
 
