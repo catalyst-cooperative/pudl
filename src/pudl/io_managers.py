@@ -570,11 +570,7 @@ class PandasParquetIOManager(UPathIOManager):
 
     def dump_to_path(self, context: OutputContext, obj: dd.DataFrame, path: UPath):
         """Write dataframe to parquet file."""
-        logger.info(f"Write df to parquet at {path}")
-        schema = Resource.from_id("hourly_emissions_epacems").to_pyarrow()
-        obj.repartition(npartitions=1).to_parquet(
-            path, engine="pyarrow", schema=schema, compression="snappy"
-        )
+        raise NotImplementedError("This IO Manager doesn't support writing data.")
 
     def load_from_path(self, context: InputContext, path: UPath) -> dd.DataFrame:
         """Load a directory of parquet files to a dask dataframe."""
