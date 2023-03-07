@@ -65,7 +65,7 @@ raw_table_names = (
     "raw_boiler_info_eia860",
     "raw_boiler_mercury_eia860",
     "raw_boiler_nox_eia860",
-    "raw_boiler_pm_eia860",
+    "raw_boiler_particulate_eia860",
     "raw_boiler_so2_eia860",
     "raw_boiler_stack_flue_eia860",
     "raw_cooling_equipment_eia860",

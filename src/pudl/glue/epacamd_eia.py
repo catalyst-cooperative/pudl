@@ -40,28 +40,28 @@ def transform(
     database. We're primarily concerned with linking ids in this table, not including
     any other plant information.
 
-    The raw file contains several fields with the prefix `MOD`. These fields are used to
-    create a single ID for matches with different spelling. For example, `EIA_PLANT_ID`
-    (`plant_id_eia` in PUDL) has the generator ID `CTG5` in EPA and `GT5` in EIA. The
-    `MOD` columns for both of these generators (`MOD_CAMD_GENERATOR_ID`,
-    `MOD_EIA_GENERATOR_ID_GEN`) converts that value to 5. The `MATCH_TYPE_GEN`,
-    `MATCH_TYPE_BOILER`, and `PLANT_ID_CHANGE_FLAG` fields indicate whether these `MOD`
-    fields contain new information. Because we're not concerned with creating a new,
-    modified ID field for either EPA or EIA data, we don't need these `MOD` or
-    `MATCH_TYPE` columns in our final output. We just care which EPA value maps to which
-    EIA value.
+    The raw file contains several fields with the prefix ``MOD``. These fields are used
+    to create a single ID for matches with different spelling. For example,
+    ``EIA_PLANT_ID`` (``plant_id_eia`` in PUDL) has the generator ID ``CTG5`` in EPA and
+    ``GT5`` in EIA. The ``MOD`` columns for both of these generators
+    (``MOD_CAMD_GENERATOR_ID``, ``MOD_EIA_GENERATOR_ID_GEN``) converts that value to 5.
+    The ``MATCH_TYPE_GEN``, ``MATCH_TYPE_BOILER``, and ``PLANT_ID_CHANGE_FLAG`` fields
+    indicate whether these ``MOD`` fields contain new information. Because we're not
+    concerned with creating a new, modified ID field for either EPA or EIA data, we
+    don't need these ``MOD`` or ``MATCH_TYPE`` columns in our final output. We just care
+    which EPA value maps to which EIA value.
 
     In terms of cleaning, we implement the standard column name changes: lower-case, no
     special characters, and underscores instead of spaces. We also rename some of the
     columns for clarity and to match how they appear in the tables you will merge with.
     Besides standardizing datatypes (again for merge compatability) the only meaningful
     data alteration we employ here is removing leading zeros from numeric strings on
-    the `generator_id` and `emissions_unit_id_epa` fields. This is because the same
+    the ``generator_id`` and ``emissions_unit_id_epa`` fields. This is because the same
     function is used to clean those same fields in all the other tables in which they
     appear. In order to merge properly, we need to clean the values in the crosswalk the
-    same way. Lastly, we drop all rows without `EIA_PLANT_ID` (`plant_id_eia`) values
-    because that means that they are unmatched and do not provide any useful information
-    to users.
+    same way. Lastly, we drop all rows without ``EIA_PLANT_ID`` (``plant_id_eia``)
+    values because that means that they are unmatched and do not provide any useful
+    information to users.
 
     It's important to note that the crosswalk is kept intact (and not seperated into
     smaller reference tables) because the relationship between the ids is not 1:1. For
@@ -69,19 +69,19 @@ def transform(
     The plant discrepancies depend on which generator ids it's referring to. This goes
     for all fields. Be careful, and do some due diligence before eliminating columns.
 
-    We talk more about the complexities regarding EPA "units" in our Data Source
-    documentation page for EPACEMS:
-    https://catalystcoop-pudl.readthedocs.io/en/dev/data_sources/epacems.html
+    We talk more about the complexities regarding EPA "units" in our :doc:`Data Source
+    documentation page for EPACEMS </data_sources/epacems>`.
 
     It's also important to note that the crosswalk is a static file: there is no year
     field. The plant_id_eia and generator_id fields, however, are foreign keys from an
     annualized table. If the fast ETL is run (on one year of data) the test will break
-    because the crosswalk tables with plant_id_eia and generator_id contain values from
-    various years. To keep the crosswalk in alignment with the available eia data, we'll
-    restrict it based on the generator entity table which has plant_id_eia and
-    generator_id so long as it's not using the full suite of avilable years. If it is,
-    we don't want to restrict the crosswalk so we can get warnings and errors from any
-    foreign key discrepancies. This isn't an ideal solution, but it works for now.
+    because the crosswalk tables with ``plant_id_eia`` and ``generator_id`` contain
+    values from various years. To keep the crosswalk in alignment with the available eia
+    data, we'll restrict it based on the generator entity table which has
+    ``plant_id_eia`` and ``generator_id`` so long as it's not using the full suite of
+    avilable years. If it is, we don't want to restrict the crosswalk so we can get
+    warnings and errors from any foreign key discrepancies. This isn't an ideal
+    solution, but it works for now.
 
     Args:
         epacamd_eia: The result of running this module's extract() function.
