@@ -15,7 +15,7 @@ logger = pudl.logging_helpers.get_logger(__name__)
 
 
 @asset
-def clean_ownership_eia860(raw_ownership_eia860):
+def clean_ownership_eia860(raw_ownership_eia860: pd.DataFrame) -> pd.DataFrame:
     """Pull and transform the ownership table.
 
     Transformations include:
@@ -25,17 +25,10 @@ def clean_ownership_eia860(raw_ownership_eia860):
       reporting.
 
     Args:
-        eia860_dfs (dict): Each entry in this dictionary of DataFrame objects
-            corresponds to a page from the EIA860 form, as reported in the Excel
-            spreadsheets they distribute.
-        eia860_transformed_dfs (dict): A dictionary of DataFrame objects in which pages
-            from EIA860 form (keys) correspond to normalized DataFrames of values from
-            that page (values).
+        raw_ownership_eia860: The raw ``ownership_eia860`` dataframe.
 
     Returns:
-        dict: eia860_transformed_dfs, a dictionary of DataFrame objects in which
-        pages from EIA860 form (keys) correspond to normalized DataFrames of values
-        from that page (values).
+        Cleaned ``ownership_eia860`` dataframe ready for harvesting.
     """
     # Preiminary clean and get rid of unecessary 'year' column
     own_df = (
@@ -173,11 +166,11 @@ def clean_ownership_eia860(raw_ownership_eia860):
 
 @asset
 def clean_generators_eia860(
-    raw_generator_proposed_eia860,
-    raw_generator_existing_eia860,
-    raw_generator_retired_eia860,
-    raw_generator_eia860,
-):
+    raw_generator_proposed_eia860: pd.DataFrame,
+    raw_generator_existing_eia860: pd.DataFrame,
+    raw_generator_retired_eia860: pd.DataFrame,
+    raw_generator_eia860: pd.DataFrame,
+) -> pd.DataFrame:
     """Pull and transform the generators table.
 
     There are three tabs that the generator records come from (proposed, existing,
@@ -200,17 +193,13 @@ def clean_generators_eia860(
       clean, distinguishable categories.
 
     Args:
-        eia860_dfs (dict): Each entry in this
-            dictionary of DataFrame objects corresponds to a page from the EIA860 form,
-            as reported in the Excel spreadsheets they distribute.
-        eia860_transformed_dfs (dict): A dictionary of DataFrame objects in
-            which pages from EIA860 form (keys) correspond to a normalized DataFrame of
-            values from that page (values).
+        raw_generator_proposed_eia860: The raw ``raw_generator_proposed_eia860`` dataframe.
+        raw_generator_existing_eia860: The raw ``raw_generator_existing_eia860`` dataframe.
+        raw_generator_retired_eia860: The raw ``raw_generator_retired_eia860`` dataframe.
+        raw_generator_eia860: The raw ``raw_generator_eia860`` dataframe.
 
     Returns:
-        dict: eia860_transformed_dfs, a dictionary of DataFrame objects in which pages
-        from EIA860 form (keys) correspond to normalized DataFrames of values from that
-        page (values).
+        Cleaned ``generators_eia860`` dataframe ready for harvesting.
     """
     # Groupby objects were creating chained assignment warning that is N/A
     pd.options.mode.chained_assignment = None
@@ -355,7 +344,7 @@ def clean_generators_eia860(
 
 
 @asset
-def clean_plants_eia860(raw_plant_eia860):
+def clean_plants_eia860(raw_plant_eia860: pd.DataFrame) -> pd.DataFrame:
     """Pull and transform the plants table.
 
     Much of the static plant information is reported repeatedly, and scattered across
@@ -370,17 +359,10 @@ def clean_plants_eia860(raw_plant_eia860):
     * Convert Y/N/X values to boolean True/False.
 
     Args:
-        eia860_dfs (dict): Each entry in this dictionary of DataFrame objects
-            corresponds to a page from the EIA860 form, as reported in the Excel
-            spreadsheets they distribute.
-        eia860_transformed_dfs (dict): A dictionary of DataFrame objects in which pages
-            from EIA860 form (keys) correspond to normalized DataFrames of values from
-            that page (values).
+        raw_plant_eia860: The raw ``raw_plant_eia860`` dataframe.
 
     Returns:
-        dict: eia860_transformed_dfs, a dictionary of DataFrame objects in which pages
-        from EIA860 form (keys) correspond to normalized DataFrames of values from that
-        page (values).
+        Cleaned ``plants_eia860`` dataframe ready for harvesting.
     """
     # Populating the 'plants_eia860' table
     p_df = (
@@ -447,7 +429,9 @@ def clean_plants_eia860(raw_plant_eia860):
 
 
 @asset
-def clean_boiler_generator_assn_eia860(raw_boiler_generator_assn_eia860):
+def clean_boiler_generator_assn_eia860(
+    raw_boiler_generator_assn_eia860: pd.DataFrame,
+) -> pd.DataFrame:
     """Pull and transform the boilder generator association table.
 
     Transformations include:
@@ -459,14 +443,9 @@ def clean_boiler_generator_assn_eia860(raw_boiler_generator_assn_eia860):
         raw_boiler_generator_assn_eia860 (df): Each entry in this dictionary of DataFrame objects
             corresponds to a page from the EIA860 form, as reported in the Excel
             spreadsheets they distribute.
-        eia860_transformed_dfs (dict): A dictionary of DataFrame objects in which pages
-            from EIA860 form (keys) correspond to normalized DataFrames of values from
-            that page (values).
 
     Returns:
-        dict: eia860_transformed_dfs, a dictionary of DataFrame objects in which pages
-        from EIA860 form (keys) correspond to normalized DataFrames of values from that
-        page (values).
+        Cleaned ``boiler_generator_assn_eia860`` dataframe ready for harvesting.
     """
     # Populating the 'generators_eia860' table
     b_g_df = raw_boiler_generator_assn_eia860
@@ -485,7 +464,7 @@ def clean_boiler_generator_assn_eia860(raw_boiler_generator_assn_eia860):
 
 
 @asset
-def clean_utilities_eia860(raw_utility_eia860):
+def clean_utilities_eia860(raw_utility_eia860: pd.DataFrame) -> pd.DataFrame:
     """Pull and transform the utilities table.
 
     Transformations include:
@@ -499,17 +478,10 @@ def clean_utilities_eia860(raw_utility_eia860):
     * Map full spelling onto code values.
 
     Args:
-        eia860_dfs (dict): Each entry in this
-            dictionary of DataFrame objects corresponds to a page from the EIA860 form,
-            as reported in the Excel spreadsheets they distribute.
-        eia860_transformed_dfs (dict): A dictionary of DataFrame objects in which pages
-            from EIA860 form (keys) correspond to normalized DataFrames of values from
-            that page (values).
+        raw_utility_eia860: The raw ``raw_utility_eia860`` dataframe.
 
     Returns:
-        dict: eia860_transformed_dfs, a dictionary of DataFrame objects in which pages
-        from EIA860 form (keys) correspond to normalized DataFrames of values from that
-        page (values).
+        Cleaned ``utilities_eia860`` dataframe ready for harvesting.
     """
     # Populating the 'utilities_eia860' table
     u_df = raw_utility_eia860
