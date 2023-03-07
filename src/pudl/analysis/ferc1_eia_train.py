@@ -322,7 +322,9 @@ def _get_util_year_subsets(inputs_dict, util_id_eia_list, years) -> dict:
     return util_year_subset_dict
 
 
-def _output_override_spreadsheet(util_year_subset_dict, util_name) -> None:
+def _output_override_spreadsheet(
+    util_year_subset_dict, util_name, output_dir_path
+) -> None:
     """Output spreadsheet with tabs for ferc-eia, ppl, deprish for one utility.
 
     Args:
@@ -331,18 +333,22 @@ def _output_override_spreadsheet(util_year_subset_dict, util_name) -> None:
             creating an override sheet for. The string will be used as the suffix for
             the name of the excel file. Ex: for util_name = "BHE", the file name will be
             BHE_fix_FERC-EIA_overrides.xlsx.
+        output_dir_path (str): The relative path to the folder where you'd like to
+            output the override spreadsheets that this function creates.
     """
     # Enable unique file names and put all files in directory called overrides
-    new_output_path = f"{os.path.dirname(os.getcwd())}/ferc1-eia-glue/overrides/{util_name}_fix_FERC-EIA_overrides.xlsx"
+    new_output_path = f"{output_dir_path}/{util_name}_fix_FERC-EIA_overrides.xlsx"
     # Output file to a folder called overrides
-    logger.info("Outputing table subsets to tabs\n")
-    writer = pd.ExcelWriter(new_output_path, engine="xlsxwriter")
-    for df_name, df in util_year_subset_dict.items():
-        df.to_excel(writer, sheet_name=df_name, index=False)
-    writer.save()
+    logger.info(f"Outputing {util_name} subsets to tabs\n")
+    with pd.ExcelWriter(new_output_path) as writer:
+        # writer = pd.ExcelWriter(new_output_path, engine="xlsxwriter")
+        for df_name, df in util_year_subset_dict.items():
+            df.to_excel(writer, sheet_name=df_name, index=False)
 
 
-def generate_all_override_spreadsheets(pudl_out, util_dict, years) -> None:
+def generate_all_override_spreadsheets(
+    pudl_out, util_dict, years, output_dir_path
+) -> None:
     """Output override spreadsheets for all specified utilities and years.
 
     These manual override files will be output to a folder called "overrides" in the
@@ -355,13 +361,11 @@ def generate_all_override_spreadsheets(pudl_out, util_dict, years) -> None:
             values. EIA values are used instead of PUDL in this case because PUDL values
             are subject to change.
         years (list): A list of the years you'd like to add to the override sheets.
+        output_dir_path (str): The relative path to the folder where you'd like to
+            output the override spreadsheets that this function creates.
     """
     # Generate full input tables
     inputs_dict = _generate_input_dfs(pudl_out)
-
-    # Make sure overrides dir exists
-    if not os.path.isdir(os.path.dirname(os.getcwd()) + "/ferc1-eia-glue/overrides"):
-        os.mkdir(os.path.dirname(os.getcwd()) + "/ferc1-eia-glue/overrides")
 
     # For each utility, make an override sheet with the correct input table slices
     for util_name, util_id_eia_list in util_dict.items():
@@ -369,7 +373,7 @@ def generate_all_override_spreadsheets(pudl_out, util_dict, years) -> None:
         util_year_subset_dict = _get_util_year_subsets(
             inputs_dict, util_id_eia_list, years
         )
-        _output_override_spreadsheet(util_year_subset_dict, util_name)
+        _output_override_spreadsheet(util_year_subset_dict, util_name, output_dir_path)
 
 
 # --------------------------------------------------------------------------------------
@@ -625,6 +629,7 @@ def validate_and_add_to_training(
     utils_eia860,
     ppl,
     ferc1_eia,
+    input_dir_path,
     expect_override_overrides=False,
     allow_mismatched_utilities=True,
 ) -> None:
@@ -636,8 +641,12 @@ def validate_and_add_to_training(
     Args:
         pudl_out (PudlTabl): the pudl_out object generated in a notebook and passed in.
         rmi_out (Output): the rmi_out object generated in a notebook and passed in.
+        input_dir_path (str): The path to the place where the matched files that you
+            want to validate or integrate are.
         expect_override_overrides (bool): This value is explicitly assigned at the top
             of the notebook.
+        allow_mismatched_utilities (bool): Whether you are allowed to have FERC-EIA
+            matches from different utilities.
 
     Returns:
         pandas.DataFrame: A DataFrame with all of the new overrides combined.
@@ -645,8 +654,8 @@ def validate_and_add_to_training(
     path_to_old_training = importlib.resources.path(
         "pudl.package_data.glue", "ferc1_eia_train.csv"
     )
-    path_to_new_training = "../../src/pudl/package_data/glue/ferc1_eia_train.csv"
-    old_training = pd.read_csv(path_to_old_training)
+    path_to_new_training = input_dir_path
+    old_training_df = pd.read_csv(path_to_old_training)
     path_to_null_overrides = importlib.resources.path(
         "pudl.package_data.glue", "ferc1_eia_null.csv"
     )
@@ -675,7 +684,7 @@ def validate_and_add_to_training(
                 utils_eia860,
                 ppl,
                 ferc1_eia,
-                old_training,
+                old_training_df,
                 expect_override_overrides=expect_override_overrides,
                 allow_mismatched_utilities=allow_mismatched_utilities,
             )
