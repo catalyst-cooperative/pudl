@@ -51,7 +51,9 @@ SDAs are created by applying the ``@asset`` decorator to a function.
 Each asset has an `IO Manager  <https://docs.dagster.io/concepts/io-management/io-managers>`__
 that tells Dagster how to handle the objects returned by the software
 defined asset's underlying function. The IO Managers in PUDL read and
-write dataframes to and from databases and parquet files.
+write dataframes to and from sqlite, pickle and parquet files. For example,
+the :func:`pudl.io_managers.pudl_sqlite_io_manager` allows dagster to read
+and write dataframes and execute SQL statements.
 
 **Resources:**
 
@@ -61,8 +63,8 @@ write dataframes to and from databases and parquet files.
 
 `Resources <https://docs.dagster.io/concepts/resources>`__ are helpful
 for sharing python objects amongst assets.
-For example, PUDL uses a Datastore resource that multiple assets use
-to pull data from PUDL's raw data archives on Zenodo.
+For example, multiple PUDL assets use the :func:`pudl.resources.datastore`
+resource to pull data from PUDL's raw data archives on Zenodo.
 
 Generally, inputs to assets should either be other assets or
 python objects in Resources.
@@ -70,25 +72,30 @@ python objects in Resources.
 **Jobs**:
 `Jobs <https://docs.dagster.io/concepts/ops-jobs-graphs/jobs>`__
 are preconfigured collections of assets, resources and IO Managers.
-Jobs are the main unit of execution in Dagster.
+Jobs are the main unit of execution in Dagster. For example,
+the ``etl_fast`` job defined in :mod:`pudl.etl` executes the
+FERC, EIA and EPA CEMS pipelines for the most recent year.
 
 **Definitions**:
 `Definitions  <https://docs.dagster.io/concepts/code-locations>`__
 are collections of assets, resources, IO managers and jobs that can
-be loaded into dagit and executed.
+be loaded into dagit and executed. Definitions can have multiple
+preconfigured jobs. For example, the ``pudl.ferc_to_sqlite`` definition
+contains ``etl_fast`` and ``etl_full`` jobs.
 
 There are two main Definitions in the PUDL processing pipeline:
 
-1. ``pudl.ferc_to_sqlite`` :doc:`converts the FERC Form 1 DBF/XBRL files <clone_ferc1>`
-   into a single large `SQLite <https://sqlite.org>`__ database so that the data is
-   easier to extract, and so all of the raw FERC Form 1 data is available in a modern
-   format. You must run this script before you can run ``pudl_etl``.
-2. ``pudl.etl`` coordinates the "Extract, Transform, Load" process that processes
-   20+ years worth of data from the FERC Form 1 database, dozens of EIA spreadsheets,
-   and the thousands of CSV files that make up the EPA CEMS hourly emissions data into
-   a clean, well normalized SQLite database (for the FERC and EIA data), and an `Apache
-   Parquet <https://parquet.apache.org/>`__ dataset that is partitioned by state and
-   year (for the EPA CEMS).
+1. :func:`pudl.ferc_to_sqlite.defs` :doc:`converts the FERC Form 1, 2, 6, 60 and
+   714 DBF/XBRL files <clone_ferc1>` into `SQLite <https://sqlite.org>`__
+   databases so that the data are easier to extract, and so all of the raw FERC
+   data is available in a modern format. You must run a job in this definition
+   before you can execute a job in :func:`pudl.etl.defs`.
+2. :func:`pudl.etl.defs` coordinates the "Extract, Transform, Load" process that
+   processes 20+ years worth of data from the FERC Form 1 database, dozens of EIA
+   spreadsheets, and the thousands of CSV files that make up the EPA CEMS hourly
+   emissions data into a clean, well normalized SQLite database (for the FERC and
+   EIA data), and an `Apache Parquet <https://parquet.apache.org/>`__ dataset that
+   is partitioned by state and year (for the EPA CEMS).
 
 Both definitions have two preconfigured jobs:
   - ``etl_fast`` processes one year of data
@@ -112,6 +119,12 @@ Once ``DAGSTER_HOME`` is set, launch Dagit by running:
 .. code-block::
 
     make dagit
+
+.. note::
+
+    If ``DAGSTER_HOME`` is not set, you will still be able to execute jobs but
+    dagster logs and outputs of assets that use the default `fs_io_manager <https://docs.dagster.io/_apidocs/io-managers#dagster.fs_io_manager>`__
+    will be saved to a temporary directory that is deleted when dagit exits.
 
 This will launch Dagit at http://localhost:3000/. You should see
 a window that looks like this:
@@ -353,11 +366,11 @@ All of the PUDL scripts also have help messages if you want additional informati
 
 Foreign Keys
 ------------
-Assets are loaded into the ``pudl.sqlite`` in parallel so foreign key constraints
-can not be evaluated in real time. However, foreign key constraints can be evaluated
-after all of the data has been loaded into the database. To check the constraints,
-run:
+The order assets are loaded into ``pudl.sqlite`` is non deterministic so foreign
+key constraints can not be evaluated in real time. However, foreign key constraints
+can be evaluated after all of the data has been loaded into the database.
+To check the constraints, run:
 
-```
-check_pudl_fks
-```
+.. code-block:: console
+
+   $ check_pudl_fks

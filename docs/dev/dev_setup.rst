@@ -238,6 +238,12 @@ Next, create a directory to store the outputs of the PUDL ETL. Then set the
 It is recommended you create these directories outside of the pudl repository
 directory so the inputs and outputs are not tracked in git.**
 
+.. note::
+
+    These environment variables will be unset when you rebuild the environment.
+    To persist the env vars, you can set the env vars in your shell start up script
+    such as ``.bashrc`` or ``.zshrc``.
+
 PUDL Setup (old setup method)
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 In previous versions of PUDL, the ``pudl_setup`` script created workspace directories.

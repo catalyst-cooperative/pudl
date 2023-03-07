@@ -18,7 +18,7 @@ def dataset_settings(init_context) -> DatasetsSettings:
 
 @resource(config_schema=create_dagster_config(FercToSqliteSettings()))
 def ferc_to_sqlite_settings(init_context) -> FercToSqliteSettings:
-    """Dagster resource for parameterizing the ferc_to_sqlite graph.
+    """Dagster resource for parameterizing the ``ferc_to_sqlite`` graph.
 
     This resource allows us to specify the years we want to process for each datasource
     in the Dagit UI.
@@ -53,7 +53,7 @@ def ferc_to_sqlite_settings(init_context) -> FercToSqliteSettings:
     },
 )
 def datastore(init_context) -> Datastore:
-    """Dagster resource to handle to interact with Zenodo archives."""
+    """Dagster resource to interact with Zenodo archives."""
     ds_kwargs = {}
     ds_kwargs["gcs_cache_path"] = init_context.resource_config["gcs_cache_path"]
     ds_kwargs["sandbox"] = init_context.resource_config["sandbox"]
