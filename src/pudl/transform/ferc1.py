@@ -928,7 +928,8 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
             derived from the raw DBF and/or XBRL inputs.
         """
         df = (
-            self.normalize_strings(df)
+            self.spot_fix_values(df)
+            .pipe(self.normalize_strings)
             .pipe(self.categorize_strings)
             .pipe(self.convert_units)
             .pipe(self.strip_non_numeric_values)
@@ -1610,7 +1611,11 @@ class FuelFerc1TableTransformer(Ferc1AbstractTableTransformer):
             A single transformed table concatenating multiple years of cleaned data
             derived from the raw DBF and/or XBRL inputs.
         """
-        return self.drop_invalid_rows(df).pipe(self.correct_units)
+        return (
+            self.spot_fix_values(df)
+            .pipe(self.drop_invalid_rows)
+            .pipe(self.correct_units)
+        )
 
     @cache_df(key="dbf")
     def process_dbf(self, raw_dbf: pd.DataFrame) -> pd.DataFrame:
@@ -2151,7 +2156,8 @@ class PlantsSmallFerc1TableTransformer(Ferc1AbstractTableTransformer):
             derived from the raw DBF and/or XBRL inputs.
         """
         df = (
-            self.normalize_strings(df)
+            self.spot_fix_values(df)
+            .pipe(self.normalize_strings)
             .pipe(self.nullify_outliers)
             .pipe(self.convert_units)
             .pipe(self.extract_ferc1_license)
@@ -3706,88 +3712,6 @@ class OtherRegulatoryLiabilitiesFerc1(Ferc1AbstractTableTransformer):
     has_unique_record_ids = False
 
 
-def transform(
-    ferc1_dbf_raw_dfs: dict[str, pd.DataFrame],
-    ferc1_xbrl_raw_dfs: dict[str, dict[str, pd.DataFrame]],
-    xbrl_metadata_json: list[dict[Any]],
-    ferc1_settings: Ferc1Settings | None = None,
-) -> dict[str, pd.DataFrame]:
-    """Coordinate the transformation of all FERC Form 1 tables.
-
-    Args:
-        ferc1_dbf_raw_dfs: Dictionary mapping PUDL table names (keys) to raw DBF
-            dataframes (values).
-        ferc1_xbrl_raw_dfs: Nested dictionary containing both an instant and duration
-            table for each input XBRL table. Some of these are empty.
-        xbrl_metadata_json: FERC 1XBRL taxonomy metadata exported as an array of JSON
-            objects.
-        ferc1_settings: Validated FERC 1 ETL settings.
-
-    Returns:
-        A dictionary of transformed DataFrames.
-    """
-    if ferc1_settings is None:
-        ferc1_settings = Ferc1Settings()
-
-    ferc1_tfr_classes = {
-        "fuel_ferc1": FuelFerc1TableTransformer,
-        "plants_small_ferc1": PlantsSmallFerc1TableTransformer,
-        "plants_hydro_ferc1": PlantsHydroFerc1TableTransformer,
-        "plant_in_service_ferc1": PlantInServiceFerc1TableTransformer,
-        "plants_pumped_storage_ferc1": PlantsPumpedStorageFerc1TableTransformer,
-        "transmission_statistics_ferc1": TransmissionStatisticsFerc1TableTransformer,
-        "purchased_power_ferc1": PurchasedPowerFerc1TableTransformer,
-        "electric_energy_sources_ferc1": ElectricEnergySourcesFerc1TableTransformer,
-        "electric_energy_dispositions_ferc1": ElectricEnergyDispositionsFerc1TableTransformer,
-        "utility_plant_summary_ferc1": UtilityPlantSummaryFerc1TableTransformer,
-        "electric_opex_ferc1": ElectricOpexFerc1TableTransformer,
-        "balance_sheet_liabilities_ferc1": BalanceSheetLiabilitiesFerc1TableTransformer,
-        "depreciation_amortization_summary_ferc1": DepreciationAmortizationSummaryFerc1TableTransformer,
-        "balance_sheet_assets_ferc1": BalanceSheetAssetsFerc1TableTransformer,
-        "income_statement_ferc1": IncomeStatementFerc1TableTransformer,
-        "electric_plant_depreciation_changes_ferc1": ElectricPlantDepreciationChangesFerc1TableTransformer,
-        "electric_plant_depreciation_functional_ferc1": ElectricPlantDepreciationFunctionalFerc1TableTransformer,
-        "retained_earnings_ferc1": RetainedEarningsFerc1TableTransformer,
-        "electric_operating_revenues_ferc1": ElectricOperatingRevenuesFerc1TableTransformer,
-        "cash_flow_ferc1": CashFlowFerc1TableTransformer,
-        "electricity_sales_by_rate_schedule_ferc1": ElectricitySalesByRateScheduleFerc1TableTransformer,
-        "other_regulatory_liabilities_ferc1": OtherRegulatoryLiabilitiesFerc1,
-    }
-    ferc1_transformed_dfs = {}
-    for table in ferc1_settings.tables:
-        if table == "plants_steam_ferc1":  # Special case, see below.
-            continue
-        logger.info(f"Transforming raw FERC Form 1 dataframe for loading into {table}")
-
-        ferc1_transformed_dfs[table] = ferc1_tfr_classes[table](
-            xbrl_metadata_json=xbrl_metadata_json[table],
-        ).transform(
-            raw_dbf=ferc1_dbf_raw_dfs[table],
-            raw_xbrl_instant=ferc1_xbrl_raw_dfs[table].get("instant", pd.DataFrame()),
-            raw_xbrl_duration=ferc1_xbrl_raw_dfs[table].get("duration", pd.DataFrame()),
-        )
-    # Special case: fuel must come before steam because the fuel proportions are used
-    # in FERC plant ID assignment process, and sthe steam table has a different call
-    # signature so it can accommodate the fuel table as an input:
-    if "plants_steam_ferc1" in ferc1_settings.tables:
-        ferc1_transformed_dfs["plants_steam_ferc1"] = PlantsSteamFerc1TableTransformer(
-            xbrl_metadata_json=xbrl_metadata_json["plants_steam_ferc1"]
-        ).transform(
-            raw_dbf=ferc1_dbf_raw_dfs["plants_steam_ferc1"],
-            raw_xbrl_instant=ferc1_xbrl_raw_dfs["plants_steam_ferc1"].get(
-                "instant", pd.DataFrame()
-            ),
-            raw_xbrl_duration=ferc1_xbrl_raw_dfs["plants_steam_ferc1"].get(
-                "duration", pd.DataFrame()
-            ),
-            # use a copy of the fuel table because we *definitely* don't want it to
-            # be changed by the steam transform.
-            transformed_fuel=ferc1_transformed_dfs["fuel_ferc1"].copy(),
-        )
-
-    return ferc1_transformed_dfs
-
-
 def ferc1_transform_asset_factory(
     table_name: str,
     ferc1_tfr_classes: Mapping[str, type[Ferc1AbstractTableTransformer]],
@@ -3942,34 +3866,3 @@ def plants_steam_ferc1(
         transformed_fuel=fuel_ferc1,
     )
     return convert_cols_dtypes(df, data_source="ferc1")
-
-
-if __name__ == "__main__":
-    """Make the module runnable for iterative testing during development."""
-
-    ferc1_settings = Ferc1Settings(
-        # 1 year DBF + 1 year XBRL:
-        years=[2020, 2021],
-        # All the years (slow with plants_steam_ferc1 included)
-        # years=Ferc1Settings().years,
-        # Just test your new table:
-        # tables=["your_new_table_ferc1"],
-        # Run all the tables to make sure you haven't broken something!
-        tables=Ferc1Settings().tables,
-    )
-    pudl_settings = pudl.workspace.setup.get_defaults()
-    ferc1_dbf_raw_dfs = pudl.extract.ferc1.extract_dbf(
-        ferc1_settings=ferc1_settings, pudl_settings=pudl_settings
-    )
-    ferc1_xbrl_raw_dfs = pudl.extract.ferc1.extract_xbrl(
-        ferc1_settings=ferc1_settings, pudl_settings=pudl_settings
-    )
-    xbrl_metadata_json = pudl.extract.ferc1.extract_xbrl_metadata(
-        ferc1_settings=ferc1_settings, pudl_settings=pudl_settings
-    )
-    dfs = transform(
-        ferc1_dbf_raw_dfs=ferc1_dbf_raw_dfs,
-        ferc1_xbrl_raw_dfs=ferc1_xbrl_raw_dfs,
-        xbrl_metadata_json=xbrl_metadata_json,
-        ferc1_settings=ferc1_settings,
-    )

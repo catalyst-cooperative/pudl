@@ -80,6 +80,9 @@ Data Coverage
 ^^^^^^^^^^^^^
 
 * Updated :doc:`data_sources/eia860` to include data as of 2022-09.
+* New :ref:`epacamd_eia` crosswalk version v0.3, see issue :issue:`2317` and PR
+  :pr:`2316`. EPA's updates add manual matches and exclusions focusing on operating
+  units with a generator ID as of 2018.
 * New PUDL tables from :doc:`data_sources/ferc1`, integrating older DBF and newer XBRL
   data. See :issue:`1574` for an overview of our progress integrating FERC's XBRL data.
   To see which DBF and XBRL tables the following PUDL tables are derived from, refer to
@@ -103,6 +106,10 @@ Data Coverage
   * :ref:`cash_flow_ferc1`, see issue :issue:`1821` & PR :pr:`2184`
   * :ref:`electricity_sales_by_rate_schedule_ferc1`, see issue :issue:`1823` & PR
     :pr:`2205`
+* The :ref:`boilers_eia860` table now includes annual boiler attributes from
+  :doc:`data_sources/eia860` Schedule 6.2 Environmental Equipment data, and the new
+  :ref:`boilers_entity_eia` table now includes static boiler attributes. See issue
+  :issue:`1162` & PR :pr:`2319`.
 
 Analysis
 ^^^^^^^^
@@ -137,7 +144,12 @@ Miscellaneous
   ``__setstate__`` methods have been added to :class:`pudl.output.pudltabl.PudlTabl` and
   :class:`pudl.workspace.resource_cache.GoogleCloudStorageCache` to accommodate elements
   of their internals that could not otherwise be serialized.
-
+* Add generic spot fix method to transform process, to manually rescue FERC1 records.
+  See :pr:`2254` & :issue:`1980`.
+* Reverted a fix made in :pr:`1909`, which mapped all plants located in NY state that
+  reported a balancing authority code of "ISONE" to "NYISO". These plants now retain
+  their original EIA codes. Plants with manual re-mapping of BA codes have also been
+  fixed to have correctly updated BA names. See :pr:`2312` and :issue:`2255`.
 
 .. _release-v2022.11.30:
 

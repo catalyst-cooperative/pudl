@@ -1,6 +1,11 @@
 # To rebuild and run this container:
 # docker compose build && docker compose up -d && docker logs -f pudl_etl
 
+volumes:
+  pudl-in:
+  pudl-out:
+  dagster-home:
+
 services:
   pudl-etl:
     platform: linux/x86_64 # Need to specify x84 because M1 chips default to use ARM: https://stackoverflow.com/questions/68630526/lib64-ld-linux-x86-64-so-2-no-such-file-or-directory-error
@@ -12,19 +17,19 @@ services:
     build:
       context: ../
       dockerfile: docker/Dockerfile
-    image: catalystcoop/pudl-etl:hello-docker
+    image: catalystcoop/pudl-etl:local-dev
     volumes:
-      - type: bind
-        source: ${HOST_PUDL_IN}
+      - type: volume
+        source: pudl-in
         target: ${CONTAINER_PUDL_IN}
         consistency: delegated
-      - type: bind
-        source: ${HOST_PUDL_OUT}
+      - type: volume
+        source: pudl-out
         target: ${CONTAINER_PUDL_OUT}
         consistency: delegated
-      - type: bind
-        source: ${SA_KEY_PATH:?err}
-        target: /tmp/keys/service_account_key.json
+      - type: volume
+        source: dagster-home
+        target: ${CONTAINER_DAGSTER_HOME}
         consistency: delegated
     logging:
       driver: local

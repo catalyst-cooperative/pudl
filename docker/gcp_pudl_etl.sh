@@ -1,6 +1,9 @@
 #!/usr/bin/bash
 # This script runs the entire ETL and validation tests in a docker container on a Google Compute Engine instance.
 # This script won't work locally because it needs adequate GCP permissions.
+
+set -x
+
 function send_slack_msg() {
     curl -X POST -H "Content-type: application/json" -H "Authorization: Bearer ${SLACK_TOKEN}" https://slack.com/api/chat.postMessage --data "{\"channel\": \"C03FHB9N0PQ\", \"text\": \"$1\"}"
 }
@@ -15,33 +18,28 @@ function authenticate_gcp() {
     gcloud config set project $GCP_BILLING_PROJECT
 }
 
+function bridge_settings() {
+    export PUDL_CACHE="${CONTAINER_PUDL_IN}/data"
+    export PUDL_OUTPUT=$CONTAINER_PUDL_OUT
+}
+
 function run_pudl_etl() {
     send_slack_msg ":large_yellow_circle: Deployment started for $ACTION_SHA-$GITHUB_REF :floppy_disk:"
     authenticate_gcp \
     && pudl_setup \
         --pudl_in $CONTAINER_PUDL_IN \
         --pudl_out $CONTAINER_PUDL_OUT \
+    && bridge_settings \
     && ferc_to_sqlite \
-        --clobber \
         --loglevel DEBUG \
         --gcs-cache-path gs://internal-zenodo-cache.catalyst.coop \
-        --bypass-local-cache \
         $PUDL_SETTINGS_YML \
     && pudl_etl \
-        --clobber \
         --loglevel DEBUG \
         --gcs-cache-path gs://internal-zenodo-cache.catalyst.coop \
-        --bypass-local-cache \
         $PUDL_SETTINGS_YML \
-    && epacems_to_parquet \
-        --partition \
-        --clobber \
-        --loglevel DEBUG \
-        --gcs-cache-path gs://internal-zenodo-cache.catalyst.coop \
-        --bypass-local-cache \
     && pytest \
         --gcs-cache-path gs://internal-zenodo-cache.catalyst.coop \
-        --bypass-local-cache \
         --etl-settings $PUDL_SETTINGS_YML \
         --live-dbs test
 }
@@ -63,12 +61,10 @@ function shutdown_vm() {
 
 function copy_outputs_to_intake_bucket() {
     echo "Copying outputs to GCP intake bucket"
-    gsutil -m -u $GCP_BILLING_PROJECT cp -r "$CONTAINER_PUDL_OUT/sqlite/*" "gs://intake.catalyst.coop/$GITHUB_REF"
-    gsutil -m -u $GCP_BILLING_PROJECT cp -r "$CONTAINER_PUDL_OUT/parquet/epacems/*" "gs://intake.catalyst.coop/$GITHUB_REF"
+    gsutil -m -u $GCP_BILLING_PROJECT cp -r "$CONTAINER_PUDL_OUT/*" "gs://intake.catalyst.coop/$GITHUB_REF"
 
     echo "Copying outputs to AWS intake bucket"
-    aws s3 cp "$CONTAINER_PUDL_OUT/sqlite" "s3://intake.catalyst.coop/$GITHUB_REF" --recursive
-    aws s3 cp "$CONTAINER_PUDL_OUT/parquet/epacems" "s3://intake.catalyst.coop/$GITHUB_REF" --recursive
+    aws s3 cp "$CONTAINER_PUDL_OUT/" "s3://intake.catalyst.coop/$GITHUB_REF" --recursive
 }
 
 
@@ -76,6 +72,7 @@ function notify_slack() {
     # Notify pudl-builds slack channel of deployment status
     if [ $1 = "success" ]; then
         message=":large_green_circle: :sunglasses: :unicorn_face: :rainbow: The deployment succeeded!! :partygritty: :database_parrot: :blob-dance: :large_green_circle:\n\n "
+        message+='Make a PR for `${GITHUB_REF}` into `main`: https://github.com/catalyst-cooperative/pudl/compare/main...${GITHUB_REF}\n\n'
     elif [ $1 = "failure" ]; then
         message=":large_red_square: Oh bummer the deployment failed ::fiiiiine: :sob: :cry_spin:\n\n "
     else

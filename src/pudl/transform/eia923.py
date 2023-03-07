@@ -588,7 +588,7 @@ def gen_fuel_nuclear(gen_fuel_nuke: pd.DataFrame) -> pd.DataFrame:
         "clean_generation_fuel_nuclear_eia923": AssetOut(),
     }
 )
-def generation_fuel_eia923(raw_generation_fuel_eia923):
+def generation_fuel_eia923(raw_generation_fuel_eia923: pd.DataFrame):
     """Transforms the generation_fuel_eia923 table.
 
     Transformations include:
@@ -605,17 +605,11 @@ def generation_fuel_eia923(raw_generation_fuel_eia923):
     * Aggregate records with duplicate natural keys.
 
     Args:
-        eia923_dfs (dict): Each entry in this dictionary of DataFrame objects
-            corresponds to a page from the EIA923 form, as reported in the Excel
-            spreadsheets they distribute.
-        eia923_transformed_dfs (dict): A dictionary of DataFrame objects in which pages
-            from EIA923 form (keys) correspond to normalized DataFrames of values from
-            that page (values).
+        raw_generation_fuel_eia923: The raw ``raw_generation_fuel_eia923`` dataframe.
 
     Returns:
-        dict: eia923_transformed_dfs, a dictionary of DataFrame objects in which pages
-        from EIA923 form (keys) correspond to normalized DataFrames of values from that
-        page (values).
+        clean_generation_fuel_eia923: Cleaned ``generation_fuel_eia923`` dataframe ready for harvesting.
+        clean_generation_fuel_nuclear_eia923: Cleaned ``generation_fuel_nuclear_eia923`` dataframe ready for harvesting.
     """
     # This needs to be a copy of what we're passed in so we can edit it.
     gen_fuel = raw_generation_fuel_eia923
@@ -811,7 +805,7 @@ def _aggregate_duplicate_boiler_fuel_keys(boiler_fuel_df: pd.DataFrame) -> pd.Da
 
 
 @asset
-def clean_boiler_fuel_eia923(raw_boiler_fuel_eia923):
+def clean_boiler_fuel_eia923(raw_boiler_fuel_eia923: pd.DataFrame) -> pd.DataFrame:
     """Transforms the boiler_fuel_eia923 table.
 
     Transformations include:
@@ -824,17 +818,10 @@ def clean_boiler_fuel_eia923(raw_boiler_fuel_eia923):
     * Combine year and month columns into a single date column.
 
     Args:
-        eia923_dfs (dict): Each entry in this dictionary of DataFrame objects
-            corresponds to a page from the EIA923 form, as reported in the Excel
-            spreadsheets they distribute.
-        eia923_transformed_dfs (dict): A dictionary of DataFrame objects in which pages
-            from EIA923 form (keys) correspond to normalized DataFrames of values from
-            that page (values).
+        raw_boiler_fuel_eia923: The raw ``raw_boiler_fuel_eia923`` dataframe.
 
     Returns:
-        dict: eia923_transformed_dfs, a dictionary of DataFrame objects in which pages
-            from EIA923 form (keys) correspond to normalized DataFrames of values from
-            that page (values).
+        Cleaned ``boiler_fuel_eia923`` dataframe ready for harvesting.
     """
     bf_df = raw_boiler_fuel_eia923
 
@@ -888,7 +875,7 @@ def clean_boiler_fuel_eia923(raw_boiler_fuel_eia923):
 
 
 @asset
-def clean_generation_eia923(raw_generator_eia923):
+def clean_generation_eia923(raw_generator_eia923: pd.DataFrame) -> pd.DataFrame:
     """Transforms the generation_eia923 table.
 
     Transformations include:
@@ -899,17 +886,10 @@ def clean_generation_eia923(raw_generator_eia923):
     * Drop generator-date row duplicates (all have no data).
 
     Args:
-        eia923_dfs (dict): Each entry in this dictionary of DataFrame objects
-            corresponds to a page from the EIA923 form, as reported in the Excel
-            spreadsheets they distribute.
-        eia923_transformed_dfs (dict): A dictionary of DataFrame objects in which pages
-            from EIA923 form (keys) correspond to normalized DataFrames of values from
-            that page (values).
+        raw_generator_eia923: The raw ``raw_generator_eia923`` dataframe.
 
     Returns:
-        dict: eia923_transformed_dfs, a dictionary of DataFrame objects in which pages
-        from EIA923 form (keys) correspond to normalized DataFrames of values from that
-        page (values).
+        Cleaned ``generation_eia923`` dataframe ready for harvesting.
     """
     gen_df = (
         raw_generator_eia923.dropna(subset=["generator_id"])
@@ -961,7 +941,7 @@ def clean_generation_eia923(raw_generator_eia923):
 
 
 @asset
-def clean_coalmine_eia923(raw_fuel_receipts_costs_eia923):
+def clean_coalmine_eia923(raw_fuel_receipts_costs_eia923: pd.DataFrame) -> pd.DataFrame:
     """Transforms the coalmine_eia923 table.
 
     Transformations include:
@@ -970,17 +950,10 @@ def clean_coalmine_eia923(raw_fuel_receipts_costs_eia923):
     * Drop duplicates with MSHA ID.
 
     Args:
-        eia923_dfs (dict): Each entry in this dictionary of DataFrame objects
-            corresponds to a page from the EIA923 form, as reported in the Excel
-            spreadsheets they distribute.
-        eia923_transformed_dfs (dict): A dictionary of DataFrame objects in which pages
-            from EIA923 form (keys) correspond to normalized DataFrames of values from
-            that page (values).
+        raw_fuel_receipts_costs_eia923: The raw ``raw_fuel_receipts_costs_eia923`` dataframe.
 
     Returns:
-        dict: eia923_transformed_dfs, a dictionary of DataFrame objects in which pages
-        from EIA923 form (keys) correspond to normalized DataFrames of values from that
-        page (values).
+        Cleaned ``coalmine_eia923`` dataframe ready for harvesting.
     """
     # These are the columns that we want to keep from FRC for the
     # coal mine info table.
@@ -1047,8 +1020,8 @@ def clean_coalmine_eia923(raw_fuel_receipts_costs_eia923):
 
 @asset
 def clean_fuel_receipts_costs_eia923(
-    raw_fuel_receipts_costs_eia923, clean_coalmine_eia923
-):
+    raw_fuel_receipts_costs_eia923: pd.DataFrame, clean_coalmine_eia923: pd.DataFrame
+) -> pd.DataFrame:
     """Transforms the fuel_receipts_costs_eia923 dataframe.
 
     Transformations include:
@@ -1062,17 +1035,11 @@ def clean_fuel_receipts_costs_eia923(
     Fuel cost is reported in cents per mmbtu. Converts cents to dollars.
 
     Args:
-        eia923_dfs (dict): Each entry in this dictionary of DataFrame objects
-            corresponds to a page from the EIA923 form, as reported in the Excel
-            spreadsheets they distribute.
-        eia923_transformed_dfs (dict): A dictionary of DataFrame objects in which pages
-            from EIA923 form (keys) correspond to normalized DataFrames of values from
-            that page (values).
+        raw_fuel_receipts_costs_eia923: The raw ``raw_fuel_receipts_costs_eia923`` dataframe.
+        clean_coalmine_eia923: The cleaned pre-harvest ``coalmine_eia923`` dataframe.
 
     Returns:
-        dict: eia923_transformed_dfs, a dictionary of DataFrame objects in which pages
-        from EIA923 form (keys) correspond to normalized DataFrames of values from that
-        page (values).
+        Cleaned ``fuel_receipts_costs_eia923`` dataframe ready for harvesting.
     """
     frc_df = raw_fuel_receipts_costs_eia923
 

@@ -10,15 +10,14 @@ from pathlib import Path
 import pytest
 import yaml
 from dagster import build_init_resource_context, materialize_to_memory
-from dotenv import load_dotenv
 from ferc_xbrl_extractor import xbrl
 
 import pudl
 from pudl import resources
-from pudl.cli import get_etl_job
+from pudl.cli import pudl_etl_job_factory
 from pudl.extract.ferc1 import xbrl_metadata_json
 from pudl.extract.xbrl import FercXbrlDatastore, _get_sqlite_engine
-from pudl.ferc_to_sqlite.cli import get_ferc_to_sqlite_job
+from pudl.ferc_to_sqlite.cli import ferc_to_sqlite_job_factory
 from pudl.io_managers import (
     ferc1_dbf_sqlite_io_manager,
     ferc1_xbrl_sqlite_io_manager,
@@ -87,16 +86,23 @@ def pytest_addoption(parser):
 
 
 def pytest_configure(config):
-    """Load dotenv before tests are run to set PUDL_OUTPUT and PUDL_CACHE."""
-    load_dotenv()
+    """Make sure env vars are set before unit tests.
+
+    io_managers unit tests need these to be set, but they don't have to point to
+    anything meaningful. They will be reset by the `pudl_env` fixture before being used.
+    """
+    os.environ["PUDL_OUTPUT"] = os.getenv("PUDL_OUTPUT", "~/")
+    os.environ["DAGSTER_HOME"] = os.getenv("DAGSTER_HOME", "~/")
+    os.environ["PUDL_CACHE"] = os.getenv("PUDL_CACHE", "~/")
 
 
 @pytest.fixture(scope="session")
-def pudl_env(request, tmpdir_factory):
+def pudl_env(request, tmpdir_factory, live_dbs):
     """Set PUDL_OUTPUT environment variable."""
-    tmpdir = tmpdir_factory.mktemp("PUDL_OUTPUT")
-    os.environ["PUDL_OUTPUT"] = str(tmpdir)
-    os.environ["DAGSTER_HOME"] = str(tmpdir)
+    if not live_dbs:
+        tmpdir = tmpdir_factory.mktemp("PUDL_OUTPUT")
+        os.environ["PUDL_OUTPUT"] = str(tmpdir)
+        os.environ["DAGSTER_HOME"] = str(tmpdir)
 
     # In CI we want a hard-coded path for input caching purposes:
     if os.environ.get("GITHUB_ACTIONS", False):
@@ -208,7 +214,7 @@ def ferc_to_sqlite(live_dbs, pudl_datastore_config, etl_settings):
     existing databases
     """
     if not live_dbs:
-        get_ferc_to_sqlite_job().execute_in_process(
+        ferc_to_sqlite_job_factory()().execute_in_process(
             run_config={
                 "resources": {
                     "ferc_to_sqlite_settings": {
@@ -315,7 +321,7 @@ def pudl_sql_io_manager(
     logger.info("setting up the pudl_engine fixture")
     if not live_dbs:
         # Run the ETL and generate a new PUDL SQLite DB for testing:
-        get_etl_job().execute_in_process(
+        pudl_etl_job_factory()().execute_in_process(
             run_config={
                 "resources": {
                     "dataset_settings": {
@@ -390,8 +396,8 @@ def pudl_settings_dict(request, live_dbs, tmpdir_factory):  # noqa: C901
             for (k, v) in pudl_settings.items()
         }
 
-        pudl_settings["parquet_dir"] = pudl_defaults["parquet_dir"]
-        pudl_settings["sqlite_dir"] = pudl_defaults["sqlite_dir"]
+        pudl_settings["pudl_out"] = pudl_defaults["parquet_dir"]
+        pudl_settings["pudl_out"] = pudl_defaults["sqlite_dir"]
 
     pretty_settings = json.dumps(
         {str(k): str(v) for k, v in pudl_settings.items()}, indent=2

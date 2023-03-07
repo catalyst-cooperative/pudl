@@ -53,6 +53,11 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "unit": "USD",
     },
     "advanced_metering_infrastructure": {"type": "integer"},
+    "air_flow_100pct_load_cubic_feet_per_minute": {
+        "type": "number",
+        "unit": "cfm",
+        "description": "Total air flow including excess air at 100 percent load, reported at standard temperature and pressure (i.e. 68 F and one atmosphere pressure).",
+    },
     "alternative_fuel_vehicle_2_activity": {"type": "boolean"},
     "alternative_fuel_vehicle_activity": {"type": "boolean"},
     "annual_indirect_program_cost": {"type": "number", "unit": "USD"},
@@ -148,6 +153,22 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
             "or charging rent to host cell antennas on transmission towers."
         ),
     },
+    "boiler_fuel_code_1": {
+        "type": "string",
+        "description": "The code representing the most predominant type of energy that fuels the boiler.",
+    },
+    "boiler_fuel_code_2": {
+        "type": "string",
+        "description": "The code representing the second most predominant type of energy that fuels the boiler.",
+    },
+    "boiler_fuel_code_3": {
+        "type": "string",
+        "description": "The code representing the third most predominant type of energy that fuels the boiler.",
+    },
+    "boiler_fuel_code_4": {
+        "type": "string",
+        "description": "The code representing the fourth most predominant type of energy that fuels the boiler.",
+    },
     "boiler_generator_assn_type_code": {
         "type": "string",
         "description": (
@@ -158,6 +179,30 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     "boiler_id": {
         "type": "string",
         "description": "Alphanumeric boiler ID.",
+    },
+    "boiler_manufacturer": {
+        "type": "string",
+        "description": "Name of boiler manufacturer.",
+    },
+    "boiler_manufacturer_code": {
+        "type": "string",
+        "description": "EIA short code for boiler manufacturer.",
+    },
+    "boiler_operating_date": {
+        "type": "date",
+        "description": "Date the boiler began or is planned to begin commercial operation.",
+    },
+    "boiler_retirement_date": {
+        "type": "date",
+        "description": "Date of the scheduled or effected retirement of the boiler.",
+    },
+    "boiler_status": {
+        "type": "string",
+        "description": "EIA short code identifying boiler operational status.",
+    },
+    "boiler_type": {
+        "type": "string",
+        "description": "EIA short code indicating the standards under which the boiler is operating as described in the U.S. EPA regulation under 40 CFR.",
     },
     "bundled_activity": {"type": "boolean"},
     "business_model": {
@@ -325,6 +370,22 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "description": "Purchase type under which receipts occurred in the reporting month. C: Contract, NC: New Contract, S: Spot Purchase, T: Tolling Agreement.",
         "constraints": {"enum": ["S", "C", "NC", "T"]},
     },
+    "compliance_year_nox": {
+        "type": "integer",
+        "description": "Year boiler was or is expected to be in compliance with federal, state and/or local regulations for nitrogen oxide emissions.",
+    },
+    "compliance_year_mercury": {
+        "type": "integer",
+        "description": "Year boiler was or is expected to be in compliance with federal, state and/or local regulations for mercury emissions.",
+    },
+    "compliance_year_particulate": {
+        "type": "integer",
+        "description": "Year boiler was or is expected to be in compliance with federal, state and/or local regulations for particulate matter emissions.",
+    },
+    "compliance_year_so2": {
+        "type": "integer",
+        "description": "Year boiler was or is expected to be in compliance with federal, state and/or local regulations for sulfur dioxide emissions.",
+    },
     "county": {"type": "string", "description": "County name."},
     "county_id_fips": {
         "type": "string",
@@ -345,7 +406,7 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     "credits_or_adjustments": {"type": "number"},
     "critical_peak_pricing": {"type": "boolean"},
     "critical_peak_rebate": {"type": "boolean"},
-    "current_planned_operating_date": {
+    "current_planned_generator_operating_date": {
         "type": "date",
         "description": "The most recently updated effective date on which the generator is scheduled to start operation",
     },
@@ -424,54 +485,6 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "description": "Manufactured (Designed) voltage, expressed in kilo-volts, for three-phase 60 cycle alternative current transmission lines",
         "unit": "KV",
     },
-    "doi": {
-        "type": "string",
-        "description": "Unique digitial object identifier of Zenodo archive.",
-    },
-    "earnings_type": {
-        "type": "string",
-        "description": "Label describing types of earnings.",
-    },
-    "ending_balance": {
-        "type": "number",
-        "description": "Account balance at end of year.",
-        "unit": "USD",
-    },
-    "energy_mwh": {
-        "type": "number",
-        "unit": "MWh",
-        "description": "Sources and uses of energy in MWh.",
-    },
-    "energy_source_type": {
-        "type": "string",
-        "description": "Type of energy source reported in the electric_energy_sources_ferc1 table. There are three groups of energy sources: generation, power exchanges and transmission.",
-    },
-    "energy_disposition_type": {
-        "type": "string",
-        "description": "Type of energy disposition reported in the electric_energy_dispositions_ferc1. Dispositions include sales to customers, re-sales of energy, energy used internally, losses, etc.",
-    },
-    "ferc_account_description": {"type": "string"},
-    "fuel_agg": {
-        "type": "string",
-        "description": "Category of fuel aggregation in EIA bulk electricity data.",
-    },
-    "geo_agg": {
-        "type": "string",
-        "description": "Category of geographic aggregation in EIA bulk electricity data.",
-    },
-    "sector_agg": {
-        "type": "string",
-        "description": "Category of sectoral aggregation in EIA bulk electricity data.",
-    },
-    "temporal_agg": {
-        "type": "string",
-        "description": "Category of temporal aggregation in EIA bulk electricity data.",
-    },
-    "fuel_received_mmbtu": {
-        "type": "number",
-        "description": "Aggregated fuel receipts, in MMBtu, in EIA bulk electricity data.",
-        "unit": "MMBtu",
-    },
     "direct_load_control_customers": {"type": "integer"},
     "distributed_generation": {
         "type": "boolean",
@@ -495,9 +508,25 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "type": "string",
         "description": "Longer human readable name describing the US Census division.",
     },
+    "doi": {
+        "type": "string",
+        "description": "Unique digitial object identifier of Zenodo archive.",
+    },
     "duct_burners": {
         "type": "boolean",
         "description": "Indicates whether the unit has duct-burners for supplementary firing of the turbine exhaust gas",
+    },
+    "earnings_type": {
+        "type": "string",
+        "description": "Label describing types of earnings.",
+    },
+    "efficiency_100pct_load": {
+        "type": "number",
+        "description": "Boiler efficiency percentage when burning at 100 percent load to the nearest 0.1 percent.",
+    },
+    "efficiency_50pct_load": {
+        "type": "number",
+        "description": "Boiler efficiency percentage when burning at 50 percent load to the nearest 0.1 percent.",
     },
     "eia_code": {"type": "integer"},
     "electric_plant": {
@@ -513,12 +542,21 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "type": "string",
         "description": "The end point of a transmission line.",
     },
+    "ending_balance": {
+        "type": "number",
+        "description": "Account balance at end of year.",
+        "unit": "USD",
+    },
     "energy_charges": {
         "type": "number",
         "description": "Energy charges (USD).",
         "unit": "USD",
     },
     "energy_displaced_mwh": {"type": "number", "unit": "MWh"},
+    "energy_disposition_type": {
+        "type": "string",
+        "description": "Type of energy disposition reported in the electric_energy_dispositions_ferc1. Dispositions include sales to customers, re-sales of energy, energy used internally, losses, etc.",
+    },
     "energy_efficiency_annual_actual_peak_reduction_mw": {
         "type": "number",
         "unit": "MW",
@@ -531,6 +569,11 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "unit": "MW",
     },
     "energy_efficiency_incremental_effects_mwh": {"type": "number", "unit": "MWh"},
+    "energy_mwh": {
+        "type": "number",
+        "unit": "MWh",
+        "description": "Sources and uses of energy in MWh.",
+    },
     "energy_savings_estimates_independently_verified": {"type": "boolean"},
     "energy_savings_independently_verified": {"type": "boolean"},
     "energy_savings_mwh": {"type": "number", "unit": "MWh"},
@@ -588,6 +631,10 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "type": "string",
         "description": "The code representing the sixth most predominant type of energy that fuels the generator",
     },
+    "energy_source_type": {
+        "type": "string",
+        "description": "Type of energy source reported in the electric_energy_sources_ferc1 table. There are three groups of energy sources: generation, power exchanges and transmission.",
+    },
     "energy_storage": {
         "type": "boolean",
         "description": "Indicates if the facility has energy storage capabilities."
@@ -631,6 +678,7 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "type": "string",
         "description": "Actual FERC Account number (e.g. '359.1') if available, or a PUDL assigned ID when FERC accounts have been split or combined in reporting.",
     },
+    "ferc_account_description": {"type": "string"},
     "ferc_account_id": {
         "type": "string",
         "description": "Account identifier from FERC's Uniform System of Accounts for Electric Plant. Includes higher level labeled categories.",
@@ -662,10 +710,6 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "type": "string",
         "description": "The docket number relating to the FERC qualifying facility exempt wholesale generator status.",
     },
-    "license_id_ferc1": {
-        "type": "integer",
-        "description": "FERC issued operating license ID for the facility, if available. This value is extracted from the original plant name where possible.",
-    },
     "ferc_small_power_producer": {
         "type": "boolean",
         "description": "Indicates whether the plant has FERC qualifying facility small power producer status. See FERC Form 556.",
@@ -682,13 +726,52 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "type": "boolean",
         "description": "Indicatates whether or not a generator is a qualifying FERC cogeneation facility.",
     },
+    "firing_rate_using_coal_tons_per_hour": {
+        "type": "number",
+        "unit": "tons_per_hour",
+        "description": "Design firing rate at maximum continuous steam flow for coal to the nearest 0.1 ton per hour.",
+    },
+    "firing_rate_using_gas_mcf_per_hour": {
+        "type": "number",
+        "unit": "mcf_per_hour",
+        "description": "Design firing rate at maximum continuous steam flow for gas to the nearest 0.1 cubic feet per hour.",
+    },
+    "firing_rate_using_oil_bbls_per_hour": {
+        "type": "number",
+        "unit": "bbls_per_hour",
+        "description": "Design firing rate at maximum continuous steam flow for pet coke to the nearest 0.1 barrels per hour.",
+    },
+    "firing_rate_using_other_fuels": {
+        "type": "number",  # TO DO: unit not in layout files, how to ID?
+        "description": "Design firing rate at maximum continuous steam flow for energy sources other than coal, petroleum, or natural gas.",
+    },
+    "firing_type_1": {
+        "type": "string",
+        "description": "EIA short code indicating the type of firing used by this boiler.",
+    },
+    "firing_type_2": {
+        "type": "string",
+        "description": "EIA short code indicating the type of firing used by this boiler.",
+    },
+    "firing_type_3": {
+        "type": "string",
+        "description": "EIA short code indicating the type of firing used by this boiler.",
+    },
     "fluidized_bed_tech": {
         "type": "boolean",
         "description": "Indicates whether the generator uses fluidized bed technology",
     },
+    "fly_ash_reinjection": {
+        "type": "boolean",
+        "description": "Indicates whether the boiler is capable of re-injecting fly ash.",
+    },
     "fraction_owned": {
         "type": "number",
         "description": "Proportion of generator ownership.",
+    },
+    "fuel_agg": {
+        "type": "string",
+        "description": "Category of fuel aggregation in EIA bulk electricity data.",
     },
     "fuel_class": {
         "type": "string",
@@ -697,21 +780,21 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     },
     "fuel_consumed_for_electricity_mmbtu": {
         "type": "number",
-        "description": "Total consumption of fuel to produce electricity, in physical units, year to date.",
+        "description": "Total consumption of fuel to produce electricity, in physical unit, year to date.",
         "unit": "MMBtu",
     },
     "fuel_consumed_for_electricity_units": {
         "type": "number",
-        "description": "Consumption for electric generation of the fuel type in physical units.",
+        "description": "Consumption for electric generation of the fuel type in physical unit.",
     },
     "fuel_consumed_mmbtu": {
         "type": "number",
-        "description": "Total consumption of fuel in physical units, year to date. Note: this is the total quantity consumed for both electricity and, in the case of combined heat and power plants, process steam production.",
+        "description": "Total consumption of fuel in physical unit, year to date. Note: this is the total quantity consumed for both electricity and, in the case of combined heat and power plants, process steam production.",
         "unit": "MMBtu",
     },
     "fuel_consumed_units": {
         "type": "number",
-        "description": "Consumption of the fuel type in physical units. Note: this is the total quantity consumed for both electricity and, in the case of combined heat and power plants, process steam production.",
+        "description": "Consumption of the fuel type in physical unit. Note: this is the total quantity consumed for both electricity and, in the case of combined heat and power plants, process steam production.",
     },
     "fuel_cost_per_mmbtu": {
         "type": "number",
@@ -773,6 +856,11 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
             )
         },
     },
+    "fuel_received_mmbtu": {
+        "type": "number",
+        "description": "Aggregated fuel receipts, in MMBtu, in EIA bulk electricity data.",
+        "unit": "MMBtu",
+    },
     "fuel_received_units": {
         "type": "number",
         "description": "Quanity of fuel received in tons, barrel, or Mcf.",
@@ -797,7 +885,7 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     },
     "fuel_units": {
         "type": "string",
-        "description": "Reported units of measure for fuel.",
+        "description": "Reported unit of measure for fuel.",
         # Note: Different ENUM constraints are applied below on EIA vs. FERC1
     },
     "furnished_without_charge_mwh": {"type": "number", "unit": "MWh"},
@@ -820,6 +908,22 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     },
     "generators_num_less_1_mw": {"type": "number", "unit": "MW"},
     "generators_number": {"type": "number"},
+    "generator_operating_date": {
+        "type": "date",
+        "description": "Date the generator began commercial operation.",
+    },
+    "generator_operating_year": {
+        "type": "integer",
+        "description": "Year a generator went into service.",
+    },
+    "generator_retirement_date": {
+        "type": "date",
+        "description": "Date of the scheduled or effected retirement of the generator.",
+    },
+    "geo_agg": {
+        "type": "string",
+        "description": "Category of geographic aggregation in EIA bulk electricity data.",
+    },
     "green_pricing_revenue": {"type": "number", "unit": "USD"},
     "grid_voltage_1_kv": {
         "type": "number",
@@ -853,6 +957,10 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     },
     "highest_distribution_voltage_kv": {"type": "number", "unit": "kV"},
     "home_area_network": {"type": "integer"},
+    "hrsg": {
+        "type": "boolean",
+        "description": "indicates if the boiler is a heat recovery steam generator (HRSG).",
+    },
     "inactive_accounts_included": {"type": "boolean"},
     "income_type": {
         "type": "string",
@@ -909,6 +1017,10 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "type": "string",
         "description": "Type of liability being reported to the balance_sheet_liabilities_ferc1 table.",
     },
+    "license_id_ferc1": {
+        "type": "integer",
+        "description": "FERC issued operating license ID for the facility, if available. This value is extracted from the original plant name where possible.",
+    },
     "line_id": {
         "type": "string",
         "description": "A human readable string uniquely identifying the FERC depreciation account. Used in lieu of the actual line number, as those numbers are not guaranteed to be consistent from year to year.",
@@ -946,10 +1058,51 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "description": "Maximum heat content per physical unit of fuel in MMBtu.",
         "unit": "MMBtu",
     },
+    "max_steam_flow_1000_lbs_per_hour": {
+        "type": "number",
+        "unit": "1000_lbs_per_hour",
+        "description": "Maximum continuous steam flow at 100 percent load.",
+    },
     "mercury_content_ppm": {
         "type": "number",
         "description": "Mercury content in parts per million (ppm) to the nearest 0.001 ppm.",
         "unit": "ppm",
+    },
+    "mercury_control_existing_strategy_1": {
+        "type": "string",
+        "description": "Existing strategy to comply with the most stringent mercury regulation.",
+    },
+    "mercury_control_existing_strategy_2": {
+        "type": "string",
+        "description": "Existing strategy to comply with the most stringent mercury regulation.",
+    },
+    "mercury_control_existing_strategy_3": {
+        "type": "string",
+        "description": "Existing strategy to comply with the most stringent mercury regulation.",
+    },
+    "mercury_control_existing_strategy_4": {
+        "type": "string",
+        "description": "Existing strategy to comply with the most stringent mercury regulation.",
+    },
+    "mercury_control_existing_strategy_5": {
+        "type": "string",
+        "description": "Existing strategy to comply with the most stringent mercury regulation.",
+    },
+    "mercury_control_existing_strategy_6": {
+        "type": "string",
+        "description": "Existing strategy to comply with the most stringent mercury regulation.",
+    },
+    "mercury_control_proposed_strategy_1": {
+        "type": "string",
+        "description": "Proposed strategy to comply with the most stringent mercury regulation.",
+    },
+    "mercury_control_proposed_strategy_2": {
+        "type": "string",
+        "description": "Proposed strategy to comply with the most stringent mercury regulation.",
+    },
+    "mercury_control_proposed_strategy_3": {
+        "type": "string",
+        "description": "Proposed strategy to comply with the most stringent mercury regulation.",
     },
     "merge_address": {"type": "string"},
     "merge_city": {"type": "string"},
@@ -1074,6 +1227,18 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     "net_power_exchanged_mwh": {"type": "number", "unit": "MWh"},
     "net_wheeled_power_mwh": {"type": "number", "unit": "MWh"},
     "new_parent": {"type": "string"},
+    "new_source_review": {
+        "type": "boolean",
+        "description": "Indicates whether the boiler is subject to New Source Review requirements.",
+    },
+    "new_source_review_date": {
+        "type": "date",
+        "description": "Month of issued New Source Review permit.",
+    },
+    "new_source_review_permit": {
+        "type": "string",
+        "description": "New Source Review permit number.",
+    },
     "non_amr_ami": {"type": "integer"},
     "non_coincident_peak_demand_mw": {
         "type": "number",
@@ -1088,6 +1253,78 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "type": "number",
         "description": "Plant capacity in MW when not limited by condenser water.",
         "unit": "MW",
+    },
+    "nox_control_existing_caaa_compliance_strategy_1": {
+        "type": "string",
+        "description": "Existing strategies to meet the nitrogen oxide requirements of Title IV of the Clean Air Act Amendment of 1990.",
+    },
+    "nox_control_existing_caaa_compliance_strategy_2": {
+        "type": "string",
+        "description": "Existing strategies to meet the nitrogen oxide requirements of Title IV of the Clean Air Act Amendment of 1990.",
+    },
+    "nox_control_existing_caaa_compliance_strategy_3": {
+        "type": "string",
+        "description": "Existing strategies to meet the nitrogen oxide requirements of Title IV of the Clean Air Act Amendment of 1990.",
+    },
+    "nox_control_existing_strategy_1": {
+        "type": "string",
+        "description": "Existing strategy to comply with the most stringent nitrogen oxide regulation.",
+    },
+    "nox_control_existing_strategy_2": {
+        "type": "string",
+        "description": "Existing strategy to comply with the most stringent nitrogen oxide regulation.",
+    },
+    "nox_control_existing_strategy_3": {
+        "type": "string",
+        "description": "Existing strategy to comply with the most stringent nitrogen oxide regulation.",
+    },
+    "nox_control_manufacturer": {
+        "type": "string",
+        "description": "Name of nitrogen oxide control manufacturer.",
+    },
+    "nox_control_manufacturer_code": {
+        "type": "string",
+        "description": "Code indicating the nitrogen oxide control burner manufacturer.",
+    },
+    "nox_control_out_of_compliance_strategy_1": {
+        "type": "string",
+        "description": "If boiler is not in compliance with nitrogen oxide regulations, strategy for compliance.",
+    },
+    "nox_control_out_of_compliance_strategy_2": {
+        "type": "string",
+        "description": "If boiler is not in compliance with nitrogen oxide regulations, strategy for compliance.",
+    },
+    "nox_control_out_of_compliance_strategy_3": {
+        "type": "string",
+        "description": "If boiler is not in compliance with nitrogen oxide regulations, strategy for compliance.",
+    },
+    "nox_control_planned_caaa_compliance_strategy_1": {
+        "type": "string",
+        "description": "Planned strategies to meet the nitrogen oxide requirements of Title IV of the Clean Air Act Amendment of 1990.",
+    },
+    "nox_control_planned_caaa_compliance_strategy_2": {
+        "type": "string",
+        "description": "Planned strategies to meet the nitrogen oxide requirements of Title IV of the Clean Air Act Amendment of 1990.",
+    },
+    "nox_control_planned_caaa_compliance_strategy_3": {
+        "type": "string",
+        "description": "Planned strategies to meet the nitrogen oxide requirements of Title IV of the Clean Air Act Amendment of 1990.",
+    },
+    "nox_control_proposed_strategy_1": {
+        "type": "string",
+        "description": "Proposed strategy to comply with the most stringent nitrogen oxide regulation.",
+    },
+    "nox_control_proposed_strategy_2": {
+        "type": "string",
+        "description": "Proposed strategy to comply with the most stringent nitrogen oxide regulation.",
+    },
+    "nox_control_proposed_strategy_3": {
+        "type": "string",
+        "description": "Proposed strategy to comply with the most stringent nitrogen oxide regulation.",
+    },
+    "nox_control_status_code": {
+        "type": "string",
+        "description": "Nitrogen oxide control status code.",
     },
     "nox_mass_lbs": {
         "type": "number",
@@ -1108,10 +1345,6 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "description": "Number of circuits in a transmission line.",
     },
     "operates_generating_plant": {"type": "boolean"},
-    "operating_date": {
-        "type": "date",
-        "description": "Date the generator began commercial operation",
-    },
     "operating_datetime_utc": {
         "type": "datetime",
         "description": "Date and time measurement began (UTC).",
@@ -1124,10 +1357,6 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "type": "number",
         "description": "Length of time interval measured.",
         "unit": "hr",
-    },
-    "operating_year": {
-        "type": "integer",
-        "description": "Year a generator went into service.",
     },
     "operating_voltage_kv": {
         "type": "number",
@@ -1275,7 +1504,7 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "description": "Production expenses: water for power (USD).",
         "unit": "USD",
     },
-    "original_planned_operating_date": {
+    "original_planned_generator_operating_date": {
         "type": "date",
         "description": "The date the generator was originally scheduled to be operational",
     },
@@ -1348,6 +1577,18 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "type": "boolean",
         "description": "Whether a plant part record has a duplicate record with different ownership status.",
     },
+    "particulate_control_out_of_compliance_strategy_1": {
+        "type": "string",
+        "description": "If boiler is not in compliance with particulate matter regulations, strategy for compliance.",
+    },
+    "particulate_control_out_of_compliance_strategy_2": {
+        "type": "string",
+        "description": "If boiler is not in compliance with particulate matter regulations, strategy for compliance.",
+    },
+    "particulate_control_out_of_compliance_strategy_3": {
+        "type": "string",
+        "description": "If boiler is not in compliance with particulate matter regulations, strategy for compliance.",
+    },
     "partitions": {
         "type": "string",
         "description": "The data parititions used to generate this instance of the database.",
@@ -1361,6 +1602,18 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     },
     "peak_demand_summer_mw": {"type": "number", "unit": "MW"},
     "peak_demand_winter_mw": {"type": "number", "unit": "MW"},
+    "period_nox": {
+        "type": "string",
+        "description": "The time period specified by the most stringent nitrogen oxide regulation.",
+    },
+    "period_particulate": {
+        "type": "string",
+        "description": "The time period specified by the most stringent particulate matter regulation.",
+    },
+    "period_so2": {
+        "type": "string",
+        "description": "The time period specified by the most stringent sulfur dioxide regulation.",
+    },
     "phone_extension": {
         "type": "string",
         "description": "Phone extension for utility contact 1",
@@ -1388,6 +1641,10 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     "planned_energy_source_code_1": {
         "type": "string",
         "description": "New energy source code for the planned repowered generator.",
+    },
+    "planned_generator_retirement_date": {
+        "type": "date",
+        "description": "Planned effective date of the scheduled retirement of the generator.",
     },
     "planned_modifications": {
         "type": "boolean",
@@ -1425,10 +1682,6 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     "planned_repower_date": {
         "type": "date",
         "description": "Planned effective date that the generator is scheduled to enter operation after the repowering is complete.",
-    },
-    "planned_retirement_date": {
-        "type": "date",
-        "description": "Planned effective date of the scheduled retirement of the generator.",
     },
     "planned_uprate_date": {
         "type": "date",
@@ -1589,6 +1842,22 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "type": "string",
         "description": "Human-readable name of a US Census region.",
     },
+    "regulation_mercury": {
+        "type": "string",
+        "description": "Most stringent type of statute or regulation code under which the boiler is operating for mercury control standards.",
+    },
+    "regulation_nox": {
+        "type": "string",
+        "description": "EIA short code for most stringent type of statute or regulation code under which the boiler is operating for nitrogen oxide control standards.",
+    },
+    "regulation_particulate": {
+        "type": "string",
+        "description": "EIA short code for most stringent type of statute or regulation code under which the boiler is operating for particulate matter control standards.",
+    },
+    "regulation_so2": {
+        "type": "string",
+        "description": "EIA short code for most stringent type of statute or regulation code under which the boiler is operating for sulfur dioxide control standards.",
+    },
     "regulatory_status_code": {
         "type": "string",
         "description": "Indicates whether the plant is regulated or non-regulated.",
@@ -1617,10 +1886,6 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     "retail_marketing_activity": {"type": "boolean"},
     "retail_sales": {"type": "number"},
     "retail_sales_mwh": {"type": "number", "unit": "MWh"},
-    "retirement_date": {
-        "type": "date",
-        "description": "Date of the scheduled or effected retirement of the generator.",
-    },
     "retirements": {
         "type": "number",
         "description": "Cost of disposal of items classified within the account.",
@@ -1673,6 +1938,10 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "type": "string",
         "description": "Transportation mode for the second longest distance transported.",
     },
+    "sector_agg": {
+        "type": "string",
+        "description": "Category of sectoral aggregation in EIA bulk electricity data.",
+    },
     "sector_id_eia": {
         "type": "integer",
         "description": "EIA assigned sector ID, corresponding to high level NAICS sector, designated by the primary purpose, regulatory status and plant-level combined heat and power status",
@@ -1694,6 +1963,66 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "constraints": {"enum": ["bundled", "energy", "delivery"]},
     },
     "short_form": {"type": "boolean"},
+    "so2_control_existing_caaa_compliance_strategy_1": {
+        "type": "string",
+        "description": "Existing strategies to meet the sulfur dioxide requirements of Title IV of the Clean Air Act Amendment of 1990.",
+    },
+    "so2_control_existing_caaa_compliance_strategy_2": {
+        "type": "string",
+        "description": "Existing strategies to meet the sulfur dioxide requirements of Title IV of the Clean Air Act Amendment of 1990.",
+    },
+    "so2_control_existing_caaa_compliance_strategy_3": {
+        "type": "string",
+        "description": "Existing strategies to meet the sulfur dioxide requirements of Title IV of the Clean Air Act Amendment of 1990.",
+    },
+    "so2_control_existing_strategy_1": {
+        "type": "string",
+        "description": "Existing strategy to comply with the most stringent sulfur dioxide regulation.",
+    },
+    "so2_control_existing_strategy_2": {
+        "type": "string",
+        "description": "Existing strategy to comply with the most stringent sulfur dioxide regulation.",
+    },
+    "so2_control_existing_strategy_3": {
+        "type": "string",
+        "description": "Existing strategy to comply with the most stringent sulfur dioxide regulation.",
+    },
+    "so2_control_out_of_compliance_strategy_1": {
+        "type": "string",
+        "description": "If boiler is not in compliance with sulfur dioxide regulations, strategy for compliance.",
+    },
+    "so2_control_out_of_compliance_strategy_2": {
+        "type": "string",
+        "description": "If boiler is not in compliance with sulfur dioxide regulations, strategy for compliance.",
+    },
+    "so2_control_out_of_compliance_strategy_3": {
+        "type": "string",
+        "description": "If boiler is not in compliance with sulfur dioxide regulations, strategy for compliance.",
+    },
+    "so2_control_planned_caaa_compliance_strategy_1": {
+        "type": "string",
+        "description": "Planned strategies to meet the sulfur dioxide requirements of Title IV of the Clean Air Act Amendment of 1990.",
+    },
+    "so2_control_planned_caaa_compliance_strategy_2": {
+        "type": "string",
+        "description": "Planned strategies to meet the sulfur dioxide requirements of Title IV of the Clean Air Act Amendment of 1990.",
+    },
+    "so2_control_planned_caaa_compliance_strategy_3": {
+        "type": "string",
+        "description": "Planned strategies to meet the sulfur dioxide requirements of Title IV of the Clean Air Act Amendment of 1990.",
+    },
+    "so2_control_proposed_strategy_1": {
+        "type": "string",
+        "description": "Proposed strategy to comply with the most stringent sulfur dioxide regulation.",
+    },
+    "so2_control_proposed_strategy_2": {
+        "type": "string",
+        "description": "Proposed strategy to comply with the most stringent sulfur dioxide regulation.",
+    },
+    "so2_control_proposed_strategy_3": {
+        "type": "string",
+        "description": "Proposed strategy to comply with the most stringent sulfur dioxide regulation.",
+    },
     "so2_mass_lbs": {
         "type": "number",
         "description": "Sulfur dioxide emissions in pounds.",
@@ -1710,6 +2039,22 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "description": "Indicates whether the generator is part of a solid fuel gasification system",
     },
     "standard": {"type": "string", "constraints": {"enum": RELIABILITY_STANDARDS}},
+    "standard_nox_rate": {
+        "type": "number",
+        "description": "Numeric value for the unit of measurement specified for nitrogen oxide.",
+    },
+    "standard_particulate_rate": {
+        "type": "number",
+        "description": "Numeric value for the unit of measurement specified for particulate matter.",
+    },
+    "standard_so2_rate": {
+        "type": "number",
+        "description": "Numeric value for the unit of measurement specified for sulfur dioxide.",
+    },
+    "standard_so2_percent_scrubbed": {
+        "type": "number",
+        "description": "The percent of sulfur dioxide to be scrubbed specified by the most stringent sulfur dioxide regulation.",
+    },
     "start_point": {
         "type": "string",
         "description": "The starting point of a transmission line.",
@@ -1845,6 +2190,10 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "type": "string",
         "description": "High level description of the technology used by the generator to produce electricity.",
     },
+    "temporal_agg": {
+        "type": "string",
+        "description": "Category of temporal aggregation in EIA bulk electricity data.",
+    },
     "time_cold_shutdown_full_load_code": {
         "type": "string",
         "description": "The minimum amount of time required to bring the unit to full load from shutdown.",
@@ -1932,6 +2281,10 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "type": "integer",
         "description": "Number of wind turbines, or hydrokinetic buoys.",
     },
+    "turndown_ratio": {
+        "type": "number",
+        "description": "The turndown ratio for the boiler.",
+    },
     "ultrasupercritical_tech": {
         "type": "boolean",
         "description": "Indicates whether the generator uses ultra-supercritical technology",
@@ -1944,6 +2297,18 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     "unit_id_pudl": {
         "type": "integer",
         "description": "Dynamically assigned PUDL unit id. WARNING: This ID is not guaranteed to be static long term as the input data and algorithm may evolve over time.",
+    },
+    "unit_nox": {
+        "type": "string",
+        "description": "Numeric value for the unit of measurement specified for nitrogen oxide.",
+    },
+    "unit_particulate": {
+        "type": "string",
+        "description": "Numeric value for the unit of measurement specified for particulate matter.",
+    },
+    "unit_so2": {
+        "type": "string",
+        "description": "Numeric value for the unit of measurement specified for sulfur dioxide.",
     },
     "uprate_derate_completed_date": {
         "type": "date",
@@ -2007,6 +2372,11 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     "variable_peak_pricing": {"type": "boolean"},
     "virtual_capacity_mw": {"type": "number", "unit": "MW"},
     "virtual_customers": {"type": "integer"},
+    "waste_heat_input_mmbtu_per_hour": {
+        "type": "number",
+        "unit": "MMBtu_per_hour",
+        "description": "Design waste-heat input rate at maximum continuous steam flow where a waste-heat boiler is a boiler that receives all or a substantial portion of its energy input from the noncumbustible exhaust gases of a separate fuel-burning process (MMBtu per hour).",
+    },
     "water_heater": {"type": "integer"},
     "water_limited_capacity_mw": {
         "type": "number",
@@ -2018,6 +2388,11 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "description": "Name of water source associated with the plant.",
     },
     "weighted_average_life_years": {"type": "number"},
+    "wet_dry_bottom": {
+        "type": "string",
+        "unit": "MMBtu_per_hour",
+        "description": "Wet or Dry Bottom where Wet Bottom is defined as slag tanks that are installed at furnace throat to contain and remove molten ash from the furnace, and Dry Bottom is defined as having no slag tanks at furnace throat area, throat area is clear, and bottom ash drops through throat to bottom ash water hoppers.",
+    },
     "wheeled_power_delivered_mwh": {"type": "number", "unit": "MWh"},
     "wheeled_power_received_mwh": {"type": "number", "unit": "MWh"},
     "wholesale_marketing_activity": {"type": "boolean"},

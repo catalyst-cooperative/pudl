@@ -168,7 +168,7 @@ class ZenodoFetcher:
             "eia861": "10.5281/zenodo.7191809",
             "eia923": "10.5281/zenodo.7236677",
             "eia_bulk_elec": "10.5281/zenodo.7067367",
-            "epacamd_eia": "10.5281/zenodo.7063255",
+            "epacamd_eia": "10.5281/zenodo.7650939",
             "epacems": "10.5281/zenodo.6910058",
             "ferc1": "10.5281/zenodo.7314437",
             "ferc2": "10.5281/zenodo.7130128",
@@ -359,7 +359,11 @@ class Datastore:
                 continue
             if self._cache.contains(res):
                 logger.debug(f"Retrieved {res} from cache.")
-                yield (res, self._cache.get(res))
+                contents = self._cache.get(res)
+                if not self._cache.is_optimally_cached(res):
+                    logger.debug(f"{res} was not optimally cached yet, adding.")
+                    self._cache.add(res, contents)
+                yield (res, contents)
             elif not cached_only:
                 logger.debug(f"Retrieved {res} from zenodo.")
                 contents = self._zenodo_fetcher.get_resource(res)

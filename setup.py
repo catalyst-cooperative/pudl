@@ -51,13 +51,13 @@ setup(
         "catalystcoop.dbfread>=3.0,<3.1",
         "coloredlogs>=14.0,<15.1",  # Dagster requires 14.0
         "catalystcoop.ferc-xbrl-extractor==0.8.1",
-        "dask>=2021.8,<2023.2.1",
+        "dask>=2021.8,<2023.3.1",
         "datapackage>=1.11,<1.16",  # Transition datastore to use frictionless.
         "dagster~=1.1.13",
         "dagit~=1.1.13",
         # "email-validator>=1.0.3",  # pydantic[email] dependency
-        "fsspec>=2021.7,<2023.1.1",  # For caching datastore on GCS
-        "gcsfs>=2021.7,<2023.1.1",  # For caching datastore on GCS
+        "fsspec>=2021.7,<2023.3.1",  # For caching datastore on GCS
+        "gcsfs>=2021.7,<2023.3.1",  # For caching datastore on GCS
         "geopandas>=0.9,<0.13",
         "jinja2>=2,<3.2",
         "matplotlib>=3.3,<3.8",  # Should make this optional with a "viz" extras
@@ -99,7 +99,7 @@ setup(
         ],
         "test": [
             "bandit>=1.6,<1.8",
-            "coverage>=5.3,<7.2",
+            "coverage>=5.3,<7.3",
             "doc8>=0.9,<1.2",
             "flake8>=4.0,<6.1",
             "flake8-builtins>=1.5,<2.2",
@@ -109,7 +109,7 @@ setup(
             "mccabe>=0.6,<0.8",
             "nbval>=0.9,<0.11",
             "pep8-naming>=0.12,<0.14",
-            "pre-commit>=2.9,<3.1",
+            "pre-commit>=2.9,<3.2",
             "pydocstyle>=5.1,<6.4",
             "pytest>=6.2,<7.3",
             "pytest-console-scripts>=1.1,<1.4",
