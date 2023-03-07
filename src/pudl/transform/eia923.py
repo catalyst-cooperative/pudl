@@ -826,11 +826,19 @@ def remove_duplicate_pks_boiler_fuel_eia923(bf: pd.DataFrame) -> pd.DataFrame:
         .get_resource("boiler_fuel_eia923")
         .schema.primary_key
     )
+
+    # Drop nulls
+    required_valid_cols = [
+        "ash_content_pct",
+        "fuel_consumed_units",
+        "fuel_mmbtu_per_unit",
+        "sulfur_content_pct",
+    ]
     # make a mask to split bf into records w/ & w/o pk dupes
     pk_dupe_mask = bf.duplicated(pk, keep=False)
 
     params_pk_dupes = InvalidRows(
-        invalid_values=[pd.NA, np.nan, 0], allowed_invalid_cols=pk
+        invalid_values=[pd.NA, np.nan, 0], required_valid_cols=required_valid_cols
     )
     bf_no_null_pks_dupes = drop_invalid_rows(
         df=bf[pk_dupe_mask], params=params_pk_dupes
