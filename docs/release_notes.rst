@@ -24,16 +24,13 @@ Dagster Adoption
     `Definition <https://docs.dagster.io/concepts/code-locations>`__.
   * The ``pudl_settings``, ``Datastore`` and ``DatasetSettings`` are now dagster
     resources. See :mod:`pudl.resources`.
-  * IO to sqlite is now handled using the
-    :mod:`pudl.io_managers.pudl_sqlite_io_manager`.
-    Removes the need for the ``pudl.load`` module.
   * The ``pudl_etl``  and ``ferc_to_sqlite`` commands no longer support loading
     specific tables. The commands run all of the tables. Use dagster assets to
     run subsets of the tables.
   * The ``--clobber`` argument has been removed from the ``pudl_etl`` command.
   * New static method :mod:`pudl.metadata.classes.Package.get_etl_group_tables`
     returns the resources ids for a given etl group.
-  * :mod:`pudl.settings.Ferc2XbrlToSqliteSettings` class now loads all FERC
+  * :mod:`pudl.settings.FercToSqliteSettings` class now loads all FERC
     datasources if no datasets are specified.
 
 * EIA ETL changes:
@@ -41,40 +38,26 @@ Dagster Adoption
   * EIA extract methods are now ``@multi_asset`` that return an asset for each
     raw table. 860 and 923 are separate ``@multi_asset`` which allows this data
     to be extracted in parallel.
-  * ``pudl.transform.eia860.transform()`` and ``pudl.transform.eia923.transform()``
-    functions have been deprecated. The EIA table level cleaning functions are now
-    dagster ``@asset``. The table level cleaning assets now have a "clean\_" prefix
+  * The EIA table level cleaning functions are now
+    dagster assets. The table level cleaning assets now have a "clean\_" prefix
     and a "_{datasource}" suffix to distinguish them from the final harvested tables.
   * ``pudl.transform.eia.transform()`` is now a ``@multi_asset`` that depends
     on all of the EIA table level cleaning functions / assets.
 
 * EPA CEMS ETL changes:
 
-  * :mod:`pudl.transform.epacems.transform()` now loads the ``epacamd_eia`` and
+  * :func:`pudl.transform.epacems.transform()` now loads the ``epacamd_eia`` and
     ``plants_entity_eia`` tables as dataframes using the
     :mod:`pudl.io_manager.pudl_sqlite_io_manager` instead of reading the tables
     using a ``pudl_engine``.
-  * The :mod:`pudl.convert.epacems_to_parquet` command now executes the
-    ``hourly_emissions_epacems`` asset as a dagster job. The ``—partition`` option
-    is no longer supported. Now only creates a directory of parquet files
-    for each year/state partition.
   * Adds a Ohio plant that is in 2021 CEMS but missing from EIA since 2018 to
     the ``additional_epacems_plants.csv`` sheet.
 
 * FERC ETL changes:
 
   * :mod:`pudl.extract.ferc1.dbf2sqlite()` and :mod:`pudl.extract.xbrl.xbrl2sqlite()`
-    are now configurable dagster ``@op``. These ops make up the
+    are now configurable dagster ops. These ops make up the
     ``ferc_to_sqlite`` dagster graph in :mod:`pudl.ferc_to_sqlite.defs`.
-  * The functionality of ``pudl.extract.ferc1.extract_dbf`` and
-    ``pudl.extract.ferc1.extract_xbrl`` is now handled by the ``SourceAssets`` created
-    by the :func:`pudl.extract.ferc1.create_raw_ferc1_assets()` function and the
-    :mod:`pudl.io_managers.ferc1_xbrl_sqlite_io_manager` and
-    :mod:`pudl.io_managers.ferc1_dbf_sqlite_io_manager` IO Managers.
-  * The :mod:`pudl.extract.xbrl_metadata_json` asset has replaced the functionality
-    of ``pudl.extract.ferc1.extract_xbrl_metadata()``.
-  * ``pudl.transform.ferc1.transform()`` has been removed. The ferc1 table
-    transformations are now being orchestrated with Dagster.
 
 Data Coverage
 ^^^^^^^^^^^^^
@@ -133,6 +116,40 @@ Deprecations
   ``pudl-zenodo-datastore`` repositories with references to `pudl-archiver
   <https://www.github.com/catalyst-cooperative/pudl-archiver>`__ repository in
   :doc:`intro`, :doc:`dev/datastore`, and :doc:`dev/annual_updates`. See :pr:`2190`.
+* :mod:`pudl.etl` is now a subpackage that collects all pudl assets into a dagster
+  `Definition <https://docs.dagster.io/concepts/code-locations>`__. All
+  ``pudl.etl._etl_{datasource}`` functions have been deprecated. The coordination
+  of ETL steps is being handled by dagster.
+* The ``pudl.load`` module has been removed in favor of using the
+  :mod:`pudl.io_managers.pudl_sqlite_io_manager`.
+* The ``pudl_etl``  and ``ferc_to_sqlite`` commands no longer support loading
+  specific tables. The commands run all of the tables. Use dagster assets to
+  run subsets of the tables.
+* The ``--clobber`` argument has been removed from the ``pudl_etl`` command.
+* ``pudl.transform.eia860.transform()`` and ``pudl.transform.eia923.transform()``
+  functions have been deprecated. The table level EIA cleaning funtions are now
+  coordinated using dagster.
+* The :mod:`pudl.convert.epacems_to_parquet` command now executes the
+  ``hourly_emissions_epacems`` asset as a dagster job. The ``—partition`` option
+  is no longer supported. Now only creates a directory of parquet files
+  for each year/state partition.
+* ``pudl.transform.ferc1.transform()`` has been removed. The ferc1 table
+    transformations are now being orchestrated with Dagster.
+* ``pudl.transform.ferc1.transform`` can no longer be executed as a script.
+  Use dagit to execute just the FERC Form 1 pipeline.
+* ``pudl.extract.ferc1.extract_dbf``, ``pudl.extract.ferc1.extract_xbrl``
+  ``pudl.extract.ferc1.extract_xbrl_single``,
+  ``pudl.extract.ferc1.extract_dbf_single``,
+  ``pudl.extract.ferc1.extract_xbrl_generic``,
+  ``pudl.extract.ferc1.extract_dbf_generic`` have all been deprecated. The extraction
+  logic is now covered by the :mod:`pudl.io_managers.ferc1_xbrl_sqlite_io_manager` and
+  :mod:`pudl.io_managers.ferc1_dbf_sqlite_io_manager` IO Managers.
+* ``pudl.extract.ferc1.extract_xbrl_metadata`` has been replaced by the
+  :func:`pudl.extract.ferc1.xbrl_metadata_json` asset.
+* All sub classes of :func:`pudl.settings.GenericDatasetSettings` in
+  :mod:`pudl.settings` no longer have table attributes because the ETL no longer
+  supports loading specific tables via settings. Use dagster to select subsets of
+  tables to process.
 
 Miscellaneous
 ^^^^^^^^^^^^^
