@@ -38,6 +38,10 @@ Data Coverage
   * :ref:`cash_flow_ferc1`, see issue :issue:`1821` & PR :pr:`2184`
   * :ref:`electricity_sales_by_rate_schedule_ferc1`, see issue :issue:`1823` & PR
     :pr:`2205`
+* The :ref:`boilers_eia860` table now includes annual boiler attributes from
+  :doc:`data_sources/eia860` Schedule 6.2 Environmental Equipment data, and the new
+  :ref:`boilers_entity_eia` table now includes static boiler attributes. See issue
+  :issue:`1162` & PR :pr:`2319`.
 
 Analysis
 ^^^^^^^^
