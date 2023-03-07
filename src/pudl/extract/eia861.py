@@ -46,10 +46,9 @@ class Extractor(excel.GenericExtractor):
         )
         self.cols_added = []
         # Eventually we should probably make this a transform
-        if "generator_id" in df.columns:
-            df = remove_leading_zeros_from_numeric_strings(
-                df=df, col_name="generator_id"
-            )
+        for col in ["generator_id", "boiler_id"]:
+            if col in df.columns:
+                df = remove_leading_zeros_from_numeric_strings(df=df, col_name=col)
         df = self.add_data_maturity(df, page, **partition)
         return df
 
