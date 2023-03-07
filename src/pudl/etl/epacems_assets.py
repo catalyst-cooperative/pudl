@@ -49,7 +49,7 @@ def hourly_emissions_epacems(
     )
     partitioned_path.mkdir(exist_ok=True)
     monolithic_path = (
-        Path(context.op_config["pudl_output_path"]) / "epacems_output.parquet"
+        Path(context.op_config["pudl_output_path"]) / "hourly_emissions_epacems.parquet"
     )
 
     with pq.ParquetWriter(
