@@ -600,13 +600,10 @@ def _add_to_training(new_overrides, current_training_data_path) -> None:
     )
     logger.debug(f"Found {len(new_training)} new overrides")
     # Combine new and old training data; drop old data in favor or new overrides
-    pd.concat([current_training, new_training]).drop_duplicates(
+    training_data_out = pd.concat([current_training, new_training]).drop_duplicates(
         subset=["record_id_ferc1"], keep="last"
     )
 
-    training_data_out = current_training.append(new_training).drop_duplicates(
-        subset=["record_id_eia", "record_id_ferc1"]
-    )
     # Output combined training data
     training_data_out.to_csv(current_training_data_path, index=False)
 
@@ -620,7 +617,9 @@ def _add_to_null_overrides(null_matches, current_null_overrides_path) -> None:
     # Get current null matches
     current_null_matches = pd.read_csv(current_null_overrides_path)
     # Combine new and current record_id_ferc1 values that have no EIA match
-    out_null_matches = current_null_matches.append(new_null_matches).drop_duplicates()
+    out_null_matches = pd.concat(
+        [current_null_matches, new_null_matches]
+    ).drop_duplicates()
     # Write the combined values out to the same location as before
     out_null_matches.to_csv(current_null_overrides_path, index=False)
 
