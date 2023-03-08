@@ -475,12 +475,8 @@ def boiler_fuel_eia923(pudl_engine, freq=None, start_date=None, end_date=None):
     )
 
     # Create a date index for grouping based on freq
-    by = [
-        "plant_id_eia",
-        "boiler_id",
-        "energy_source_code",
-        "fuel_type_code_pudl",
-    ]
+    by = ["plant_id_eia", "boiler_id", "energy_source_code", "fuel_type_code_pudl"]
+
     if freq is not None:
         # In order to calculate the weighted average sulfur
         # content and ash content we need to calculate these totals.

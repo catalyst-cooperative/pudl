@@ -198,7 +198,7 @@ def example_1_pudl_tabl():
 
     gens = pd.read_csv(
         StringIO(
-            """plant_id_eia,generator_id,report_date,prime_mover_code,unit_id_pudl,capacity_mw,fuel_type_count,retirement_date,operational_status,energy_source_code_1,energy_source_code_2,energy_source_code_3,energy_source_code_4,energy_source_code_5,energy_source_code_6,planned_energy_source_code_1
+            """plant_id_eia,generator_id,report_date,prime_mover_code,unit_id_pudl,capacity_mw,fuel_type_count,generator_retirement_date,operational_status,energy_source_code_1,energy_source_code_2,energy_source_code_3,energy_source_code_4,energy_source_code_5,energy_source_code_6,planned_energy_source_code_1
     50307,GEN1,2018-01-01,ST,1,7.5,2,,existing,NG,,,,,,
     50307,GEN2,2018-01-01,ST,2,2.5,2,,existing,NG,,,,,,
     50307,GEN3,2018-01-01,ST,3,2.5,2,2069-10-31,existing,NG,,,,,,
@@ -274,7 +274,7 @@ def test_allocated_sums_match(example_1_pudl_tabl):
 def test_missing_energy_source():
     gens_eia860 = pd.read_csv(
         StringIO(
-            """report_date,plant_id_eia,generator_id,prime_mover_code,unit_id_pudl,capacity_mw,fuel_type_count,operational_status,retirement_date,energy_source_code_1,energy_source_code_2,energy_source_code_3,energy_source_code_4,energy_source_code_5,energy_source_code_6,energy_source_code_7,planned_energy_source_code_1,startup_source_code_1,startup_source_code_2,startup_source_code_3,startup_source_code_4
+            """report_date,plant_id_eia,generator_id,prime_mover_code,unit_id_pudl,capacity_mw,fuel_type_count,operational_status,generator_retirement_date,energy_source_code_1,energy_source_code_2,energy_source_code_3,energy_source_code_4,energy_source_code_5,energy_source_code_6,energy_source_code_7,planned_energy_source_code_1,startup_source_code_1,startup_source_code_2,startup_source_code_3,startup_source_code_4
     2019-01-01,8023,1,ST,1,556.0,1,existing,nan,SUB,BIT,null,null,nan,nan,nan,nan,DFO,nan,nan,nan
     2019-01-01,8023,2,ST,2,556.0,1,existing,nan,SUB,SUB,BIT,nan,nan,nan,nan,DFO,nan,nan,nan
     """
