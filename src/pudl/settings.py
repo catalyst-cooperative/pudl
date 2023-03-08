@@ -428,7 +428,7 @@ class DatasetsSettings(BaseModel):
         datasets_in_datastore_format = {
             name: setting
             for (name, setting) in datasets_settings.items()
-            if name in ds.get_known_datasets()
+            if name in ds.get_known_datasets() and setting is not None
         }
         # add the eia datasets that are nested inside of the eia settings
         if datasets_settings.get("eia", False):
