@@ -601,6 +601,7 @@ def epacems_io_manager(
     """IO Manager that writes EPA CEMS partitions to individual parquet files."""
     schema = Resource.from_id("hourly_emissions_epacems").to_pyarrow()
     base_path = (
-        UPath(init_context.resource_config["base_path"]) / "hourly_emissions_epacems"
+        UPath(init_context.resource_config["base_path"])
+        / "hourly_emissions_epacems.parquet"
     )
     return PandasParquetIOManager(base_path=base_path, schema=schema)
