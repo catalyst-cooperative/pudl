@@ -85,7 +85,10 @@ def _get_sqlite_engine(
         f"Dropping the old FERC Form {form_number} XBRL derived SQLite DB if it exists."
     )
     db_path = output_path / f"ferc{form_number}_xbrl.sqlite"
+
+    logger.info(f"Connecting to SQLite at {db_path}...")
     sqlite_engine = sa.create_engine(f"sqlite:///{db_path}")
+    logger.info(f"Connected to SQLite at {db_path}!")
     try:
         # So that we can wipe it out
         pudl.helpers.drop_tables(sqlite_engine, clobber=clobber)
@@ -95,7 +98,6 @@ def _get_sqlite_engine(
     return sqlite_engine
 
 
-# TODO (bendnorman): set clobber default to False
 @op(
     config_schema={
         "pudl_output_path": Field(
@@ -158,10 +160,10 @@ def convert_form(
     form: XbrlFormNumber,
     datastore: FercXbrlDatastore,
     sqlite_engine: sa.engine.Engine,
-    output_path: Path = None,
+    output_path: Path,
     batch_size: int | None = None,
     workers: int | None = None,
-):
+) -> None:
     """Clone a single FERC XBRL form to SQLite.
 
     Args:
