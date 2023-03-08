@@ -330,7 +330,14 @@ def pudl_sql_io_manager(
                     "datastore": {
                         "config": pudl_datastore_config,
                     },
-                }
+                },
+                "ops": {
+                    "hourly_emissions_epacems": {
+                        "config": {
+                            "partition": True,
+                        }
+                    }
+                },
             },
         )
     # Grab a connection to the freshly populated PUDL DB, and hand it off.
