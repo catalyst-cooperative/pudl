@@ -13,7 +13,7 @@ These instructions assume you have already gone through the :ref:`dev_setup`.
 
 Dagster
 -------
-PUDL uses `Dagster <https://dagster.io/>`__ to orchestrate data pipelines. Dagster
+PUDL uses `Dagster <https://dagster.io/>`__ to orchestrate its data pipelines. Dagster
 makes it easy to manage data dependences, parallelize processes, cache results
 and handle IO. If you are planning on contributing to PUDL, it is recommended you
 read through the `Dagster Docs <https://docs.dagster.io/getting-started>`__ to
@@ -34,7 +34,7 @@ UI for monitoring and executing ETL runs.
     its contents.*
 
 `SDAs <https://docs.dagster.io/concepts/assets/software-defined-assets>`__
-are the computation building blocks in a Dagster project.
+or "assets", are the computation building blocks in a Dagster project.
 Assets are linked together to form a direct acyclic graph (DAG) which can
 be execute to persist the data created by the assets. In PUDL, each asset
 is a dataframe written to SQLite or parquet files. Assets in PUDL can be
@@ -52,17 +52,12 @@ Each asset has an `IO Manager  <https://docs.dagster.io/concepts/io-management/i
 that tells Dagster how to handle the objects returned by the software
 defined asset's underlying function. The IO Managers in PUDL read and
 write dataframes to and from sqlite, pickle and parquet files. For example,
-the :func:`pudl.io_managers.pudl_sqlite_io_manager` allows dagster to read
+the :func:`pudl.io_managers.pudl_sqlite_io_manager` allows assets to read
 and write dataframes and execute SQL statements.
 
 **Resources:**
-
-   *Resources are objects that are shared across the implementations of
-   multiple software-defined assets and that can be plugged in
-   after defining those assets.*
-
-`Resources <https://docs.dagster.io/concepts/resources>`__ are helpful
-for sharing python objects amongst assets.
+`Resources <https://docs.dagster.io/concepts/resources>`__ are objects
+that can be shared across multiple software-defined assets.
 For example, multiple PUDL assets use the :func:`pudl.resources.datastore`
 resource to pull data from PUDL's raw data archives on Zenodo.
 
@@ -107,18 +102,18 @@ Running the ETL with Dagit
 --------------------------
 Dagster needs a directory to store run logs and some assets. Create a new directory
 outside of the pudl respository directory called ``dagster_home/``. Then set the
-``DAGSTER_HOME`` variable to the path of the new directory:
+``DAGSTER_HOME`` environment variable to the path of the new directory:
 
 .. code-block:: console
 
-    mamba env config vars set DAGSTER_HOME=</path/to/dagster_home/directory/>
-    mamba activate pudl-dev
+    $ mamba env config vars set DAGSTER_HOME=</path/to/dagster_home/directory/>
+    $ mamba activate pudl-dev
 
 Once ``DAGSTER_HOME`` is set, launch Dagit by running:
 
-.. code-block::
+.. code-block:: console
 
-    make dagit
+    $ make dagit
 
 .. note::
 
@@ -134,7 +129,9 @@ a window that looks like this:
   :alt: Dagit home
 
 Click the hamburger button in the upper left to view the definitions,
-assets and jobs. First, you'll need to create the raw FERC databases by
+assets and jobs.
+
+To run the data pipelines, you'll first need to create the raw FERC databases by
 clicking on one of the ``pudl.ferc_to_sqlite`` jobs. Then select "Launchpad"
 where you can adjust the years to extract for each dataset. Then click
 "Launch Run" in the lower right hand corner of the window. Dagit will
@@ -366,10 +363,10 @@ All of the PUDL scripts also have help messages if you want additional informati
 
 Foreign Keys
 ------------
-The order assets are loaded into ``pudl.sqlite`` is non deterministic so foreign
-key constraints can not be evaluated in real time. However, foreign key constraints
-can be evaluated after all of the data has been loaded into the database.
-To check the constraints, run:
+The order assets are loaded into ``pudl.sqlite`` is non deterministic because the
+assets are executed in parallel so foreign key constraints can not be evaluated in
+real time. However, foreign key constraints can be evaluated after all of the data
+has been loaded into the database. To check the constraints, run:
 
 .. code-block:: console
 

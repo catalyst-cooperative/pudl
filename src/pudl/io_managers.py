@@ -203,7 +203,8 @@ class SQLiteIOManager(IOManager):
         check for foreign key failures once all of the data has been loaded into
         the database using the `foreign_key_check` and `foreign_key_list` PRAGMAs.
 
-        Read about the PRAGMAs here: https://www.sqlite.org/pragma.html#pragma_foreign_key_check
+        You can learn more about the PRAGMAs in the `SQLite docs
+        <https://www.sqlite.org/pragma.html#pragma_foreign_key_check>`__.
 
         Raises:
             ForeignKeyErrors: if data in the database violate foreign key constraints.
@@ -247,6 +248,12 @@ class SQLiteIOManager(IOManager):
 
     def _handle_pandas_output(self, context: OutputContext, df: pd.DataFrame):
         """Write dataframe to the database.
+
+        SQLite does not support concurrent writes to the database. Instead,
+        SQLite queues write transactions and executes them one at a time.
+        This allows the assets to be processed in parallel. See the `SQLAlchemy
+        docs <https://docs.sqlalchemy.org/en/14/dialects/sqlite.html#database-
+        locking-behavior-concurrency>`__ to learn more about SQLite concurrency.
 
         Args:
             context: dagster keyword that provides access output information like asset name.
