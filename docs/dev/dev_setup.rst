@@ -203,25 +203,27 @@ with linters and other code analysis tools.
 Creating a Workspace
 -------------------------------------------------------------------------------
 
-PUDL Workspace Setup (new method)
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+PUDL Workspace Setup
+^^^^^^^^^^^^^^^^^^^^
 
 .. note::
 
-    If you used ``pudl_setup`` to setup your pudl workspace,
-    skip ahead to :ref:`Old PUDL Setup`
+    If you used ``pudl_setup`` to set up your pudl workspace already,
+    skip ahead to :ref:`Legacy PUDL Setup`
 
 PUDL needs to know where to store its big piles of inputs and outputs.
 The ``PUDL_OUTPUT`` and ``PUDL_CACHE`` environment variables lets PUDL know where
 all this stuff should go. We call this a "PUDL workspace".
 
-First, create a directory to store local caches of raw PUDL data. Then set
-``PUDL_CACHE`` variable to the path of the new directory:
+First, create a directory to store local caches of raw PUDL data. Typically we
+put this in ``~/pudl-work/data``. Then create a ``PUDL_CACHE`` environment
+variable to store the path of the new directory:
 
 .. code-block:: console
 
-    $ mamba env config vars set PUDL_CACHE=</path/to/cache/directory/>
-    $ mamba activate pudl-dev
+    $ echo "export PUDL_CACHE=/path/to/cache/dir" >> ~/.zshrc # zsh
+    $ echo "export PUDL_CACHE=/path/to/cache/dir" >> ~/.bashrc # bash
+    $ set -Ux PUDL_CACHE /path/to/cache/dir # fish
 
 The directory stored in ``PUDL_CACHE`` contains versions of PUDL's
 raw data archives on Zenodo for each datasource:
@@ -250,13 +252,15 @@ raw data archives on Zenodo for each datasource:
     directory. To slim down the size you can always delete
     out of date archives the code no longer depends on.
 
-Next, create a directory to store the outputs of the PUDL ETL. Then set the
-``PUDL_OUTPUT`` variable to the directory of the new directory:
+Next, create a directory to store the outputs of the PUDL ETL. Typically this
+is ``~/pudl-work/output``. Then, as with ``PUDL_CACHE``, set the
+``PUDL_OUTPUT`` variable:
 
 .. code-block:: console
 
-    $ mamba env config vars set PUDL_OUTPUT=</path/to/output/directory/>
-    $ mamba activate pudl-dev
+    $ echo "export PUDL_OUTPUT=/path/to/output/dir" >> ~/.zshrc # zsh
+    $ echo "export PUDL_OUTPUT=/path/to/output/dir" >> ~/.bashrc # bash
+    $ set -Ux PUDL_OUTPUT /path/to/output/dir # fish
 
 The path stored in ``PUDL_OUTPUT`` contains all ETL outputs like
 ``pudl.sqlite`` and ``hourly_emissions_epacems.parquet``.
@@ -265,13 +269,7 @@ The path stored in ``PUDL_OUTPUT`` contains all ETL outputs like
 It is recommended you create these directories outside of the pudl repository
 directory so the inputs and outputs are not tracked in git.**
 
-.. note::
-
-    These environment variables will be unset when you rebuild the environment.
-    To persist the env vars, you can set the env vars in your shell start up script
-    such as ``.bashrc`` or ``.zshrc``.
-
-.. _Old PUDL Setup:
+.. _Legacy PUDL Setup:
 
 PUDL Workspace Setup (old setup method)
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -282,14 +280,15 @@ easier to reference in the codebase.
 
 .. note::
 
-    If you setup your workspace using ``pudl_setup`` you don't need to change
-    anything about your setup. A new directory called ``outputs/`` will be created
-    in your <PUDL_DIR>. The ETL outputs will be written to ``outputs/`` instead
-    of the ``parquet/`` and ``sqlite/`` directories.
+    If you set up your workspace using ``pudl_setup`` you don't need to change
+    anything about your setup. Just re-run ``pudl_setup`` and a new directory
+    called ``outputs/`` will be created in your <PUDL_DIR>. The ETL outputs
+    will be written to ``outputs/`` instead of the ``parquet/`` and ``sqlite/``
+    directories.
 
 .. warning::
 
-    In a future release the ``pudl_setup`` command will be deprecated.
+    In a future release the ``pudl_setup`` command will be removed.
 
 The ``pudl_setup`` script lets PUDL know where to store inputs and outputs.
 The script will not create a new directory based on your arguemnts, so make
