@@ -43,6 +43,15 @@ Data Coverage
   :ref:`boilers_entity_eia` table now includes static boiler attributes. See issue
   :issue:`1162` & PR :pr:`2319`.
 
+Data Cleaning
+^^^^^^^^^^^^^
+
+* Removed inconsistently reported leading zeroes from numeric ``boiler_id`` values. This
+  affected a small number of records in any table referring to boilers, including
+  :ref:`boilers_entity_eia`, :ref:`boilers_eia860`, :ref:`boiler_fuel_eia923`,
+  :ref:`boiler_generator_assn_eia860` and the :ref:`epacamd_eia` crosswalk. It also had
+  some minor downstream effects on the MCOE outputs. See :issue:`2366` and :pr:`2367`.
+
 Analysis
 ^^^^^^^^
 

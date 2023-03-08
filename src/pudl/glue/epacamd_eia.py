@@ -112,6 +112,7 @@ def transform(
         .rename(columns=column_rename)
         .filter(list(column_rename.values()))
         .pipe(remove_leading_zeros_from_numeric_strings, col_name="generator_id")
+        .pipe(remove_leading_zeros_from_numeric_strings, col_name="boiler_id")
         .pipe(
             remove_leading_zeros_from_numeric_strings, col_name="emissions_unit_id_epa"
         )
