@@ -22,7 +22,12 @@ logger = pudl.logging_helpers.get_logger(__name__)
             ),
             description="Path of directory to store the database in.",
             default_value=None,
-        )
+        ),
+        "partition": Field(
+            bool,
+            description="Flag indicating whether the partitioned EPACEMS output should be created",
+            default_value=False,
+        ),
     },
 )
 def hourly_emissions_epacems(
@@ -66,11 +71,12 @@ def hourly_emissions_epacems(
             # Write to one monolithic parquet file
             monolithic_writer.write_table(table)
 
-            # Write to a directory of partitioned parquet files
-            with pq.ParquetWriter(
-                where=partitioned_path / f"epacems-{year}-{state}.parquet",
-                schema=schema,
-                compression="snappy",
-                version="2.6",
-            ) as partitioned_writer:
-                partitioned_writer.write_table(table)
+            if context.op_config["partition"]:
+                # Write to a directory of partitioned parquet files
+                with pq.ParquetWriter(
+                    where=partitioned_path / f"epacems-{year}-{state}.parquet",
+                    schema=schema,
+                    compression="snappy",
+                    version="2.6",
+                ) as partitioned_writer:
+                    partitioned_writer.write_table(table)
