@@ -125,14 +125,24 @@ variable to the path of the new directory:
 
 .. code-block:: console
 
-    $ mamba env config vars set DAGSTER_HOME=</path/to/dagster_home/directory/>
-    $ mamba activate pudl-dev
+    $ echo "export DAGSTER_HOME=/path/to/dagster_home/dir" >> ~/.zshrc # zsh
+    $ echo "export DAGSTER_HOME=/path/to/dagster_home/dir" >> ~/.bashrc # bash
+    $ set -Ux PUDL_CACHE /path/to/dagster_home/dir # fish
 
 Once ``DAGSTER_HOME`` is set, launch Dagit by running:
 
 .. code-block:: console
 
-    $ make dagit
+    $ dagit -m pudl.etl -m pudl.ferc_to_sqlite
+
+To avoid typing out the dagit command each time you want to launch it,
+you can create an alias for the command in your shell:
+
+.. code-block:: console
+
+    $ echo "alias launch_dagit='dagit -m pudl.etl -m pudl.ferc_to_sqlite'" >> ~/.zshrc # zsh
+    $ echo "alias launch_dagit='dagit -m pudl.etl -m pudl.ferc_to_sqlite'" >> ~/.bashrc # bash
+    $ alias launch_dagit="dagit -m pudl.etl -m pudl.ferc_to_sqlite" # fish
 
 .. note::
 
