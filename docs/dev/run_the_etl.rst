@@ -43,17 +43,33 @@ tables.
 
 SDAs are created by applying the ``@asset`` decorator to a function.
 
+The main PUDL ETL is composed of assets. Assets can be "materialized", which
+means running the associated functions and writing the output to disk
+somewhere. When you are running the main PUDL ETL, you are **materializing
+assets**.
+
+**Operations (Ops):**
+
+`Ops <https://docs.dagster.io/concepts/ops-jobs-graphs/ops>`__ are functions
+that are run in a graph. They are not linked to assets, and are a lower-level
+building block for orchestrating data processing pipelines.
+
+Due to some limitations of the asset model, we need to use bare ops for the
+FERC-to-SQLite workflow. When you are running that phase, you are **launching a
+job run**.
+
 **IO Managers:**
 
     *IO Managers are user-provided objects that store asset outputs
     and load them as inputs to downstream assets.*
 
-Each asset has an `IO Manager  <https://docs.dagster.io/concepts/io-management/io-managers>`__
-that tells Dagster how to handle the objects returned by the software
-defined asset's underlying function. The IO Managers in PUDL read and
-write dataframes to and from sqlite, pickle and parquet files. For example,
-the :func:`pudl.io_managers.pudl_sqlite_io_manager` allows assets to read
-and write dataframes and execute SQL statements.
+Each asset has an `IO Manager
+<https://docs.dagster.io/concepts/io-management/io-managers>`__ that tells
+Dagster how to handle the objects returned by the software defined asset's
+underlying function. The IO Managers in PUDL read and write dataframes to and
+from sqlite, pickle and parquet files. For example, the
+:func:`pudl.io_managers.pudl_sqlite_io_manager` allows assets to read and write
+dataframes and execute SQL statements.
 
 **Resources:**
 `Resources <https://docs.dagster.io/concepts/resources>`__ are objects
@@ -100,9 +116,12 @@ Both definitions have two preconfigured jobs:
 
 Running the ETL with Dagit
 --------------------------
-Dagster needs a directory to store run logs and some assets. Create a new directory
-outside of the pudl respository directory called ``dagster_home/``. Then set the
-``DAGSTER_HOME`` environment variable to the path of the new directory:
+
+Dagster needs a directory to store run logs and some interim assets. We don't
+distribute these outputs, so we want to store them separately from
+``PUDL_OUTPUT``. Create a new directory outside of the pudl respository
+directory called ``dagster_home/``. Then set the ``DAGSTER_HOME`` environment
+variable to the path of the new directory:
 
 .. code-block:: console
 
@@ -141,6 +160,17 @@ the job. The bottom part of the window contains dagster logs. You can
 view logs from the ``pudl`` package in the CLI window the dagit process
 is running in.
 
+If you need to set op configurations, such as the ``clobber`` setting, you can
+add them in the Launchpad tab of the job like so::
+
+  ops:
+  dbf2sqlite:
+    config:
+      clobber: true
+  xbrl2sqlite:
+    config:
+      clobber: true
+
 **Running the PUDL ETL**
 Once the raw FERC databases are created by a ``pudl.ferc_to_sqlite`` job,
 you can execute the main PUDL ETL.
@@ -149,7 +179,7 @@ you can execute the main PUDL ETL.
 
   Make sure you've extracted the raw FERC years you are planning to process
   with the main PUDL ETL. Jobs in the ``pudl.etl`` definition will fail if
-  the raw FERC database are missing requested years. For example, if you want
+  the raw FERC databases are missing requested years. For example, if you want
   to process all years available in the ``pudl.etl`` definition make sure
   you've extracted all years of the raw FERC data.
 
@@ -182,7 +212,8 @@ want to rerun the entire ETL.
 
 Running the ETL with CLI Commands
 ---------------------------------
-You can also execute the ETL jobs using CLI commands.
+You can also execute the ETL jobs using CLI commands. These are thin wrappers around
+Dagster's job execution API.
 
 .. note::
 
