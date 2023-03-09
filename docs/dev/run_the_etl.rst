@@ -127,7 +127,7 @@ variable to the path of the new directory:
 
     $ echo "export DAGSTER_HOME=/path/to/dagster_home/dir" >> ~/.zshrc # zsh
     $ echo "export DAGSTER_HOME=/path/to/dagster_home/dir" >> ~/.bashrc # bash
-    $ set -Ux PUDL_CACHE /path/to/dagster_home/dir # fish
+    $ set -Ux DAGSTER_HOME /path/to/dagster_home/dir # fish
 
 Once ``DAGSTER_HOME`` is set, launch Dagit by running:
 
