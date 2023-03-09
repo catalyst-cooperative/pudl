@@ -209,15 +209,16 @@ PUDL Workspace Setup
 .. note::
 
     If you used ``pudl_setup`` to set up your pudl workspace already,
-    skip ahead to :ref:`Legacy PUDL Setup`
+    skip ahead to :ref:`Legacy PUDL Setup`. If you haven't setup
+    a PUDL workspace before, read the remainder of this section.
 
 PUDL needs to know where to store its big piles of inputs and outputs.
-The ``PUDL_OUTPUT`` and ``PUDL_CACHE`` environment variables lets PUDL know where
+The ``PUDL_OUTPUT`` and ``PUDL_CACHE`` environment variables let PUDL know where
 all this stuff should go. We call this a "PUDL workspace".
 
 First, create a directory to store local caches of raw PUDL data. Typically we
-put this in ``~/pudl-work/data``. Then create a ``PUDL_CACHE`` environment
-variable to store the path of the new directory:
+put this in ``~/pudl-work/data``. Then create an environment variable
+called ``PUDL_CACHE`` to store the path to this new directory:
 
 .. code-block:: console
 
@@ -247,14 +248,14 @@ raw data archives on Zenodo for each datasource:
 .. warning::
 
     The data stored at the ``PUDL_CACHE`` directory can grow to be dozens
-    of gigabytes in size. This is because when the raw data is updated,
+    of gigabytes in size. This is because when the raw data are updated,
     a new version of the archive is downloaded to the ``PUDL_CACHE``
     directory. To slim down the size you can always delete
     out of date archives the code no longer depends on.
 
 Next, create a directory to store the outputs of the PUDL ETL. Typically this
-is ``~/pudl-work/output``. Then, as with ``PUDL_CACHE``, set the
-``PUDL_OUTPUT`` variable:
+is ``~/pudl-work/output``. Then, as with ``PUDL_CACHE``, create an environment
+variable called ``PUDL_OUTPUT`` to store the path to this new directory:
 
 .. code-block:: console
 
@@ -271,7 +272,7 @@ directory so the inputs and outputs are not tracked in git.**
 
 .. _Legacy PUDL Setup:
 
-PUDL Workspace Setup (old setup method)
+PUDL Workspace Setup (legacy method)
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 In previous versions of PUDL, the ``pudl_setup`` script created workspace directories.
 PUDL is moving towards using the ``PUDL_OUTPUT`` and ``PUDL_CACHE`` environment

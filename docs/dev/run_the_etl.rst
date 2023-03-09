@@ -36,7 +36,7 @@ UI for monitoring and executing ETL runs.
 `SDAs <https://docs.dagster.io/concepts/assets/software-defined-assets>`__
 or "assets", are the computation building blocks in a Dagster project.
 Assets are linked together to form a direct acyclic graph (DAG) which can
-be execute to persist the data created by the assets. In PUDL, each asset
+be executed to persist the data created by the assets. In PUDL, each asset
 is a dataframe written to SQLite or parquet files. Assets in PUDL can be
 raw extracted dataframes, partially cleaned tables or fully normalized
 tables.
