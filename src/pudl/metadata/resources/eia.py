@@ -19,7 +19,13 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
     "boilers_entity_eia": {
         "description": "Static boiler attributes compiled from the EIA-860 and EIA-923 data.",
         "schema": {
-            "fields": ["plant_id_eia", "boiler_id", "prime_mover_code"],
+            "fields": [
+                "plant_id_eia",
+                "boiler_id",
+                "boiler_manufacturer",
+                "boiler_manufacturer_code",
+                "prime_mover_code",
+            ],
             "primary_key": ["plant_id_eia", "boiler_id"],
             "foreign_key_rules": {"fields": [["plant_id_eia", "boiler_id"]]},
         },
@@ -35,6 +41,248 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
             "foreign_key_rules": {"fields": [["boiler_generator_assn_type_code"]]},
         },
         "encoder": CODE_METADATA["boiler_generator_assn_types_eia"],
+        "sources": ["eia860"],
+        "etl_group": "static_eia",
+        "field_namespace": "eia",
+    },
+    "boiler_status_eia": {
+        "description": "A coding table describing different types of boiler status in the EIA-860.",
+        "schema": {
+            "fields": ["code", "label", "description"],
+            "primary_key": ["code"],
+            "foreign_key_rules": {"fields": [["boiler_status"]]},
+        },
+        "encoder": CODE_METADATA["boiler_status_eia"],
+        "sources": ["eia860"],
+        "etl_group": "static_eia",
+        "field_namespace": "eia",
+    },
+    "boiler_types_eia": {
+        "description": "A coding table describing different types of boiler regulatory types in the EIA-860.",
+        "schema": {
+            "fields": ["code", "label", "description"],
+            "primary_key": ["code"],
+            "foreign_key_rules": {"fields": [["boiler_type"]]},
+        },
+        "encoder": CODE_METADATA["boiler_types_eia"],
+        "sources": ["eia860"],
+        "etl_group": "static_eia",
+        "field_namespace": "eia",
+    },
+    "environmental_equipment_manufacturers_eia": {
+        "description": "A coding table describing manufacturers of boilers and environmental control equipment in the EIA-860.",
+        "schema": {
+            "fields": ["code", "label", "description"],
+            "primary_key": ["code"],
+            "foreign_key_rules": {
+                "fields": [
+                    ["boiler_manufacturer_code"],
+                    ["nox_control_manufacturer_code"],
+                ]
+            },
+        },
+        "encoder": CODE_METADATA["environmental_equipment_manufacturers_eia"],
+        "sources": ["eia860"],
+        "etl_group": "static_eia",
+        "field_namespace": "eia",
+    },
+    "firing_types_eia": {
+        "description": "A coding table describing different boiler firing types in the EIA-860.",
+        "schema": {
+            "fields": ["code", "label", "description"],
+            "primary_key": ["code"],
+            "foreign_key_rules": {
+                "fields": [["firing_type_1"], ["firing_type_2"], ["firing_type_3"]]
+            },
+        },
+        "encoder": CODE_METADATA["firing_types_eia"],
+        "sources": ["eia860"],
+        "etl_group": "static_eia",
+        "field_namespace": "eia",
+    },
+    "nox_compliance_strategies_eia": {
+        "description": "A coding table describing different compliance strategies used to control nitrogen oxide in the EIA-860.",
+        "schema": {
+            "fields": ["code", "label", "description"],
+            "primary_key": ["code"],
+            "foreign_key_rules": {
+                "fields": [
+                    ["nox_control_existing_caaa_compliance_strategy_1"],
+                    ["nox_control_existing_caaa_compliance_strategy_2"],
+                    ["nox_control_existing_caaa_compliance_strategy_3"],
+                    ["nox_control_out_of_compliance_strategy_1"],
+                    ["nox_control_out_of_compliance_strategy_2"],
+                    ["nox_control_out_of_compliance_strategy_3"],
+                    ["nox_control_planned_caaa_compliance_strategy_1"],
+                    ["nox_control_planned_caaa_compliance_strategy_2"],
+                    ["nox_control_planned_caaa_compliance_strategy_3"],
+                ]
+            },
+        },
+        "encoder": CODE_METADATA["nox_compliance_strategies_eia"],
+        "sources": ["eia860"],
+        "etl_group": "static_eia",
+        "field_namespace": "eia",
+    },
+    "nox_control_status_eia": {
+        "description": "A coding table describing the operational status of nitrogen oxide control units associated with boilers in the EIA-860 data.",
+        "schema": {
+            "fields": ["code", "label", "description"],
+            "primary_key": ["code"],
+            "foreign_key_rules": {
+                "fields": [
+                    ["nox_control_status_code"],
+                ]
+            },
+        },
+        "encoder": CODE_METADATA["nox_control_status_eia"],
+        "sources": ["eia860"],
+        "etl_group": "static_eia",
+        "field_namespace": "eia",
+    },
+    "nox_units_eia": {
+        "description": "A coding table describing different units of measurement for nitrogen oxide in the EIA-860.",
+        "schema": {
+            "fields": ["code", "label", "description"],
+            "primary_key": ["code"],
+            "foreign_key_rules": {"fields": [["unit_nox"]]},
+        },
+        "encoder": CODE_METADATA["nox_units_eia"],
+        "sources": ["eia860"],
+        "etl_group": "static_eia",
+        "field_namespace": "eia",
+    },
+    "mercury_compliance_strategies_eia": {
+        "description": "A coding table describing different compliance strategies used to control mercury in the EIA-860.",
+        "schema": {
+            "fields": ["code", "label", "description"],
+            "primary_key": ["code"],
+            "foreign_key_rules": {
+                "fields": [
+                    ["mercury_control_proposed_strategy_1"],
+                    ["mercury_control_proposed_strategy_2"],
+                    ["mercury_control_proposed_strategy_3"],
+                    ["mercury_control_existing_strategy_1"],
+                    ["mercury_control_existing_strategy_2"],
+                    ["mercury_control_existing_strategy_3"],
+                    ["mercury_control_existing_strategy_4"],
+                    ["mercury_control_existing_strategy_5"],
+                    ["mercury_control_existing_strategy_6"],
+                ]
+            },
+        },
+        "encoder": CODE_METADATA["mercury_compliance_strategies_eia"],
+        "sources": ["eia860"],
+        "etl_group": "static_eia",
+        "field_namespace": "eia",
+    },
+    "averaging_periods_eia": {
+        "description": "A coding table describing the averaging period specified by emissions statutes and regulation for in the EIA-860.",
+        "schema": {
+            "fields": ["code", "label", "description"],
+            "primary_key": ["code"],
+            "foreign_key_rules": {
+                "fields": [["period_nox"], ["period_particulate"], ["period_so2"]]
+            },
+        },
+        "encoder": CODE_METADATA["averaging_periods_eia"],
+        "sources": ["eia860"],
+        "etl_group": "static_eia",
+        "field_namespace": "eia",
+    },
+    "particulate_compliance_strategies_eia": {
+        "description": "A coding table describing different compliance strategies used to control particulate matter in the EIA-860.",
+        "schema": {
+            "fields": ["code", "label", "description"],
+            "primary_key": ["code"],
+            "foreign_key_rules": {
+                "fields": [
+                    ["particulate_control_out_of_compliance_strategy_1"],
+                    ["particulate_control_out_of_compliance_strategy_2"],
+                    ["particulate_control_out_of_compliance_strategy_3"],
+                ]
+            },
+        },
+        "encoder": CODE_METADATA["particulate_compliance_strategies_eia"],
+        "sources": ["eia860"],
+        "etl_group": "static_eia",
+        "field_namespace": "eia",
+    },
+    "particulate_units_eia": {
+        "description": "A coding table describing different units of measurement for particulate matter in the EIA-860.",
+        "schema": {
+            "fields": ["code", "label", "description"],
+            "primary_key": ["code"],
+            "foreign_key_rules": {"fields": [["unit_particulate"]]},
+        },
+        "encoder": CODE_METADATA["particulate_units_eia"],
+        "sources": ["eia860"],
+        "etl_group": "static_eia",
+        "field_namespace": "eia",
+    },
+    "regulations_eia": {
+        "description": "A coding table describing the different levels of statutes and codes under which boilers operate in the EIA-860.",
+        "schema": {
+            "fields": ["code", "label", "description"],
+            "primary_key": ["code"],
+            "foreign_key_rules": {
+                "fields": [
+                    ["regulation_nox"],
+                    ["regulation_particulate"],
+                    ["regulation_so2"],
+                    ["regulation_mercury"],
+                ]
+            },
+        },
+        "encoder": CODE_METADATA["regulations_eia"],
+        "sources": ["eia860"],
+        "etl_group": "static_eia",
+        "field_namespace": "eia",
+    },
+    "so2_compliance_strategies_eia": {
+        "description": "A coding table describing different compliance strategies used to control sulfur dioxide in the EIA-860.",
+        "schema": {
+            "fields": ["code", "label", "description"],
+            "primary_key": ["code"],
+            "foreign_key_rules": {
+                "fields": [
+                    ["so2_control_existing_caaa_compliance_strategy_1"],
+                    ["so2_control_existing_caaa_compliance_strategy_2"],
+                    ["so2_control_existing_caaa_compliance_strategy_3"],
+                    ["so2_control_out_of_compliance_strategy_1"],
+                    ["so2_control_out_of_compliance_strategy_2"],
+                    ["so2_control_out_of_compliance_strategy_3"],
+                    ["so2_control_planned_caaa_compliance_strategy_1"],
+                    ["so2_control_planned_caaa_compliance_strategy_2"],
+                    ["so2_control_planned_caaa_compliance_strategy_3"],
+                ]
+            },
+        },
+        "encoder": CODE_METADATA["so2_compliance_strategies_eia"],
+        "sources": ["eia860"],
+        "etl_group": "static_eia",
+        "field_namespace": "eia",
+    },
+    "wet_dry_bottom_eia": {
+        "description": "A coding table describing whether boiler has a wet or dry bottom in the EIA-860.",
+        "schema": {
+            "fields": ["code", "label", "description"],
+            "primary_key": ["code"],
+            "foreign_key_rules": {"fields": [["wet_dry_bottom"]]},
+        },
+        "encoder": CODE_METADATA["wet_dry_bottom_eia"],
+        "sources": ["eia860"],
+        "etl_group": "static_eia",
+        "field_namespace": "eia",
+    },
+    "so2_units_eia": {
+        "description": "A coding table describing different units of measurement for sulfur dioxide in the EIA-860.",
+        "schema": {
+            "fields": ["code", "label", "description"],
+            "primary_key": ["code"],
+            "foreign_key_rules": {"fields": [["unit_so2"]]},
+        },
+        "encoder": CODE_METADATA["so2_units_eia"],
         "sources": ["eia860"],
         "etl_group": "static_eia",
         "field_namespace": "eia",
@@ -150,6 +398,10 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
                     ["startup_source_code_3"],
                     ["startup_source_code_4"],
                     ["planned_energy_source_code_1"],
+                    ["boiler_fuel_code_1"],
+                    ["boiler_fuel_code_2"],
+                    ["boiler_fuel_code_3"],
+                    ["boiler_fuel_code_4"],
                 ],
             },
         },
@@ -208,7 +460,7 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
                 "plant_id_eia",
                 "generator_id",
                 "duct_burners",
-                "operating_date",
+                "generator_operating_date",
                 "topping_bottoming_code",
                 "solid_fuel_gasification",
                 "pulverized_coal_tech",
@@ -222,7 +474,7 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
                 "rto_iso_lmp_node_id",
                 "rto_iso_location_wholesale_reporting_id",
                 "associated_combined_heat_power",
-                "original_planned_operating_date",
+                "original_planned_generator_operating_date",
                 "operating_switch",
                 "previously_canceled",
             ],
@@ -310,21 +562,21 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
                 "fuel_cost_per_mmbtu",
                 "fuel_cost_per_mwh",
                 "fuel_type_code_pudl",
+                "generator_retirement_date",
                 "heat_rate_mmbtu_mwh",
                 "installation_year",
                 "net_generation_mwh",
-                "operating_year",
+                "generator_operating_year",
                 "operational_status",
                 "operational_status_pudl",
                 "ownership_record_type",
                 "ownership_dupe",
-                "planned_retirement_date",
+                "planned_generator_retirement_date",
                 "plant_id_pudl",
                 "plant_name_eia",
                 "plant_name_ppe",
                 "plant_part_id_eia",
                 "record_count",
-                "retirement_date",
                 "total_fuel_cost",
                 "total_mmbtu",
                 "utility_id_pudl",

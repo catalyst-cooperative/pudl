@@ -38,6 +38,19 @@ Data Coverage
   * :ref:`cash_flow_ferc1`, see issue :issue:`1821` & PR :pr:`2184`
   * :ref:`electricity_sales_by_rate_schedule_ferc1`, see issue :issue:`1823` & PR
     :pr:`2205`
+* The :ref:`boilers_eia860` table now includes annual boiler attributes from
+  :doc:`data_sources/eia860` Schedule 6.2 Environmental Equipment data, and the new
+  :ref:`boilers_entity_eia` table now includes static boiler attributes. See issue
+  :issue:`1162` & PR :pr:`2319`.
+
+Data Cleaning
+^^^^^^^^^^^^^
+
+* Removed inconsistently reported leading zeroes from numeric ``boiler_id`` values. This
+  affected a small number of records in any table referring to boilers, including
+  :ref:`boilers_entity_eia`, :ref:`boilers_eia860`, :ref:`boiler_fuel_eia923`,
+  :ref:`boiler_generator_assn_eia860` and the :ref:`epacamd_eia` crosswalk. It also had
+  some minor downstream effects on the MCOE outputs. See :issue:`2366` and :pr:`2367`.
 
 Analysis
 ^^^^^^^^
