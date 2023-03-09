@@ -25,8 +25,6 @@ codecov.sh
 dask-worker-space*
 devtools/user-requirements.txt
 devtools/user-environment.yml
-devtools/ferc1-eia-glue/training_data/add_to_training/*.xlsx
-devtools/ferc1-eia-glue/training_data/manual_mapping_spreadsheets/*.xlsx
 .vscode/*
 commit.txt
 devtools/profiles/
