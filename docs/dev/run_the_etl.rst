@@ -131,6 +131,7 @@ a window that looks like this:
 Click the hamburger button in the upper left to view the definitions,
 assets and jobs.
 
+**Cloning the FERC databases**
 To run the data pipelines, you'll first need to create the raw FERC databases by
 clicking on one of the ``pudl.ferc_to_sqlite`` jobs. Then select "Launchpad"
 where you can adjust the years to extract for each dataset. Then click
@@ -140,6 +141,7 @@ the job. The bottom part of the window contains dagster logs. You can
 view logs from the ``pudl`` package in the CLI window the dagit process
 is running in.
 
+**Running the PUDL ETL**
 Once the raw FERC databases are created by a ``pudl.ferc_to_sqlite`` job,
 you can execute the main PUDL ETL.
 
@@ -176,6 +178,7 @@ want to rerun the entire ETL.
   re-execute a subset of assets produced by a single function. This can
   be resolved by re-materializing the asset group of the desired asset.
 
+.. _run-cli:
 
 Running the ETL with CLI Commands
 ---------------------------------
