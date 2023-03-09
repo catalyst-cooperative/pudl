@@ -22,7 +22,12 @@ logger = pudl.logging_helpers.get_logger(__name__)
             ),
             description="Path of directory to store the database in.",
             default_value=None,
-        )
+        ),
+        "partition": Field(
+            bool,
+            description="Flag indicating whether the partitioned EPACEMS output should be created",
+            default_value=False,
+        ),
     },
 )
 def hourly_emissions_epacems(
@@ -44,23 +49,34 @@ def hourly_emissions_epacems(
     epacems_settings = context.resources.dataset_settings.epacems
 
     schema = Resource.from_id("hourly_emissions_epacems").to_pyarrow()
-    epacems_path = (
+    partitioned_path = (
         Path(context.op_config["pudl_output_path"]) / "hourly_emissions_epacems"
     )
-    epacems_path.mkdir(exist_ok=True)
+    partitioned_path.mkdir(exist_ok=True)
+    monolithic_path = (
+        Path(context.op_config["pudl_output_path"]) / "hourly_emissions_epacems.parquet"
+    )
 
-    for part in epacems_settings.partitions:
-        year = part["year"]
-        state = part["state"]
-        logger.info(f"Processing EPA CEMS hourly data for {year}-{state}")
-        df = pudl.extract.epacems.extract(year=year, state=state, ds=ds)
-        df = pudl.transform.epacems.transform(df, epacamd_eia, plants_entity_eia)
-        with pq.ParquetWriter(
-            where=epacems_path / f"epacems-{year}-{state}.parquet",
-            schema=schema,
-            compression="snappy",
-            version="2.6",
-        ) as pqwriter:
-            pqwriter.write_table(
-                pa.Table.from_pandas(df, schema=schema, preserve_index=False)
-            )
+    with pq.ParquetWriter(
+        where=monolithic_path, schema=schema, compression="snappy", version="2.6"
+    ) as monolithic_writer:
+        for part in epacems_settings.partitions:
+            year = part["year"]
+            state = part["state"]
+            logger.info(f"Processing EPA CEMS hourly data for {year}-{state}")
+            df = pudl.extract.epacems.extract(year=year, state=state, ds=ds)
+            df = pudl.transform.epacems.transform(df, epacamd_eia, plants_entity_eia)
+            table = pa.Table.from_pandas(df, schema=schema, preserve_index=False)
+
+            # Write to one monolithic parquet file
+            monolithic_writer.write_table(table)
+
+            if context.op_config["partition"]:
+                # Write to a directory of partitioned parquet files
+                with pq.ParquetWriter(
+                    where=partitioned_path / f"epacems-{year}-{state}.parquet",
+                    schema=schema,
+                    compression="snappy",
+                    version="2.6",
+                ) as partitioned_writer:
+                    partitioned_writer.write_table(table)

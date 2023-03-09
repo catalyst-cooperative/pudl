@@ -568,14 +568,15 @@ class PandasParquetIOManager(UPathIOManager):
         super().__init__(base_path=base_path)
         self.schema = schema
 
-    def dump_to_path(self, context: OutputContext, obj: pd.DataFrame, path: UPath):
+    def dump_to_path(self, context: OutputContext, obj: dd.DataFrame, path: UPath):
         """Write dataframe to parquet file."""
         raise NotImplementedError("This IO Manager doesn't support writing data.")
 
-    def load_from_path(self, context: InputContext, path: UPath) -> pd.DataFrame:
+    def load_from_path(self, context: InputContext, path: UPath) -> dd.DataFrame:
         """Load a directory of parquet files to a dask dataframe."""
+        logger.info(f"Reading parquet file from {path}")
         return dd.read_parquet(
-            path.parent,
+            path,
             use_nullable_dtypes=True,
             engine="pyarrow",
             index=False,
@@ -599,7 +600,5 @@ def epacems_io_manager(
 ) -> PandasParquetIOManager:
     """IO Manager that writes EPA CEMS partitions to individual parquet files."""
     schema = Resource.from_id("hourly_emissions_epacems").to_pyarrow()
-    base_path = (
-        UPath(init_context.resource_config["base_path"]) / "hourly_emissions_epacems"
-    )
+    base_path = UPath(init_context.resource_config["base_path"])
     return PandasParquetIOManager(base_path=base_path, schema=schema)

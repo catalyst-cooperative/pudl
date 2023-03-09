@@ -21,7 +21,7 @@ def epacems_parquet_path(
 ):
     """Get path to the directory of EPA CEMS .parquet data."""
     context = build_init_resource_context()
-    return epacems_io_manager(context)._base_path
+    return epacems_io_manager(context)._base_path / "hourly_emissions_epacems.parquet"
 
 
 def test_epacems_subset(epacems_year_and_state, epacems_parquet_path):
