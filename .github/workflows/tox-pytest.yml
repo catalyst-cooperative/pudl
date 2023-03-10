@@ -180,8 +180,13 @@ jobs:
         uses: actions/download-artifact@v3
         with:
           name: coverage-integration
+      - name: List downloaded files
+        run: |
+          ls -R
       - name: Print coverage file info
         run: |
+          echo ${{steps.download-unit.outputs.download-path}}
+          echo ${{steps.download-integration.outputs.download-path}}
           stat ${{steps.download-unit.outputs.download-path}}
           head ${{steps.download-unit.outputs.download-path}}
           stat ${{steps.download-integration.outputs.download-path}}
