@@ -406,17 +406,25 @@ def _check_id_consistency(
     ), f"{id_col} {error_message}: {bad_ids}"
 
 
-def already_in_training(training_data, validated_connections):
-    """Blah."""
-    logger.info("checking if already in validation or not")
+def check_if_already_in_training(training_data, validated_connections):
+    """Check whether any manually mapped records aren't yet in the training data.
+
+    This function is useful for instances where you've started the manual mapping
+    process, taken an extended break, and need to check whether the data you've mapped
+    has been integrated into the training data or not.
+    """
+    logger.info(
+        """Checking to see if any of the manual matches aren't in the training data."""
+    )
     training_vals = training_data.record_id_eia.dropna().unique().tolist()
     val_vals = validated_connections.record_id_eia_override_1.dropna().unique().tolist()
 
     not_in_training = [x for x in val_vals if x not in training_vals]
     print(f"Total records: {len(val_vals)}")
-    print(f"Records not in training data: {len(not_in_training)}")
-    print(not_in_training)
-    print("")
+    print(f"Number of records not in training data: {len(not_in_training)}")
+    print(
+        f"Number of records already in training data: {len(val_vals - not_in_training)}"
+    )
 
 
 def validate_override_fixes(
