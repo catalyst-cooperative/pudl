@@ -94,7 +94,7 @@ class SQLiteIOManager(IOManager):
         self,
         base_dir: str,
         db_name: str,
-        md: sa.MetaData = None,
+        md: sa.MetaData | None = None,
     ):
         """Init a SQLiteIOmanager.
 
@@ -119,9 +119,9 @@ class SQLiteIOManager(IOManager):
             )
 
         # If no metadata is specified, create an empty sqlalchemy metadata object.
+        if md is None:
+            md = sa.MetaData()
         self.md = md
-        if not self.md:
-            self.md = sa.MetaData()
 
         self.engine = self._setup_database()
 
