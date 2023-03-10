@@ -533,10 +533,10 @@ class FercXBRLSQLiteIOManager(FercSQLiteIOManager):
         with engine.connect() as con:
             return pd.read_sql(
                 f"""
-                    SELECT {table_name}.*, {id_table}.report_year FROM {table_name}
-                    JOIN {id_table} ON {id_table}.filing_name = {table_name}.filing_name
-                    WHERE {id_table}.report_year BETWEEN :min_year AND :max_year;
-                    """,
+                SELECT {table_name}.*, {id_table}.report_year FROM {table_name}
+                JOIN {id_table} ON {id_table}.filing_name = {table_name}.filing_name
+                WHERE {id_table}.report_year BETWEEN :min_year AND :max_year;
+                """,  # nosec: B608 - table names not supplied by user
                 con=con,
                 params={
                     "min_year": min(ferc1_settings.xbrl_years),
