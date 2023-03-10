@@ -1,210 +1,6 @@
 record_id_eia,record_id_ferc1,signature_1,signature_2,notes
-2707_hy_2018_plant_prime_mover_total_3046,f1_hydro_2018_12_17_0_1,OIU,,
-2707_hy_2019_plant_prime_mover_total_3046,f1_hydro_2019_12_17_0_1,OIU,,
-3266_2019_plant_total_5416_retired,f1_hydro_2019_12_45_2_1,OIU,,
-6113_2018_plant_owned_15470,f1_steam_2018_12_144_0_3,OIU,,
-1001_gt_2018_plant_prime_mover_total_15470,f1_steam_2018_12_144_0_4,OIU,,
-1001_ic_2018_plant_prime_mover_total_15470,f1_steam_2018_12_144_0_5,OIU,,
-1008_2_2018_plant_unit_total_15470,f1_steam_2018_12_144_1_3,OIU,,FERC capacities and generation are from R Gallagher generators 2 & 4.
-1001_st_2018_plant_prime_mover_total_15470,f1_steam_2018_12_144_1_4,OIU,,
-7763_2018_plant_total_15470,f1_steam_2018_12_144_1_5,OIU,,
-1002_2018_plant_total_15470,f1_steam_2018_12_144_2_3,OIU,,
-6018_2018_plant_total_55729,f1_steam_2018_12_178_0_1,OIU,,
-2706_st_2018_plant_prime_mover_total_3046,f1_steam_2018_12_17_0_1,OIU,,
-6014_2018_plant_total_3046,f1_steam_2018_12_17_1_4,OIU,,
-2706_gt_2018_plant_prime_mover_total_3046,f1_steam_2018_12_17_2_2,OIU,,
-2707_gt_2018_plant_prime_mover_total_3046,f1_steam_2018_12_17_2_3,OIU,,
-8042_2018_plant_total_5416,f1_steam_2018_12_45_0_1,OIU,,
-2718_2018_plant_total_5416,f1_steam_2018_12_45_0_3,OIU,,
-2723_st_2018_plant_prime_mover_owned_5416_retired,f1_steam_2018_12_45_1_1,OIU,,
-2723_gt_2018_plant_prime_mover_owned_5416_retired,f1_steam_2018_12_45_1_2,OIU,,
-6036_2018_plant_owned_5416,f1_steam_2018_12_45_3_2,OIU,,
-2720_ca_2018_plant_prime_mover_total_5416,f1_steam_2018_12_45_3_5,OIU,,
-2723_ct8_2018_plant_gen_total_5416,f1_steam_2018_12_45_4_1,OIU,,
-8048_2018_plant_total_6455,f1_steam_2018_12_55_0_1,OIU,,
-624_2018_plant_total_6455,f1_steam_2018_12_55_1_4,OIU,,
-627_2018_plant_total_6455,f1_steam_2018_12_55_2_1,OIU,,
-6046_10_2018_plant_gen_total_6455,f1_steam_2018_12_55_2_2,OIU,,
-6113_2019_plant_owned_15470,f1_steam_2019_12_144_0_3,OIU,,
-1001_gt_2019_plant_prime_mover_total_15470,f1_steam_2019_12_144_0_4,OIU,,
-1001_ic_2019_plant_prime_mover_total_15470,f1_steam_2019_12_144_0_5,OIU,,
-1008_2_2019_plant_unit_total_15470,f1_steam_2019_12_144_1_3,OIU,,
-1001_st_2019_plant_prime_mover_total_15470,f1_steam_2019_12_144_1_4,OIU,,
-7763_2019_plant_total_15470,f1_steam_2019_12_144_1_5,OIU,,
-1002_2019_plant_total_15470_retired,f1_steam_2019_12_144_2_3,OIU,,
-1004_ca_2019_plant_prime_mover_total_15470,f1_steam_2019_12_144_3_1,OIU,,
-6018_2019_plant_total_55729,f1_steam_2019_12_178_0_1,OIU,,
-2706_st_2019_plant_prime_mover_total_3046,f1_steam_2019_12_17_0_1,OIU,,
-6014_2019_plant_total_3046,f1_steam_2019_12_17_1_4,OIU,,
-2706_gt_2019_plant_prime_mover_total_3046,f1_steam_2019_12_17_2_2,OIU,,
-2707_gt_2019_plant_prime_mover_total_3046,f1_steam_2019_12_17_2_3,OIU,,
-3250_1_2019_plant_gen_total_3046,f1_steam_2019_12_17_3_3,OIU,,
-8042_2019_plant_total_5416,f1_steam_2019_12_45_0_1,OIU,,
-2718_2019_plant_total_5416,f1_steam_2019_12_45_0_3,OIU,,
-2723_6_2019_plant_gen_total_5416_retired,f1_steam_2019_12_45_1_2,OIU,,
-6036_2019_plant_owned_5416,f1_steam_2019_12_45_3_2,OIU,,
-2720_ca_2019_plant_prime_mover_total_5416,f1_steam_2019_12_45_3_5,OIU,,
-2723_ct8_2019_plant_gen_total_5416,f1_steam_2019_12_45_4_1,OIU,,
-624_2019_plant_total_6455,f1_steam_2019_12_55_1_1,OIU,,
-627_2019_plant_total_6455,f1_steam_2019_12_55_1_3,OIU,,
-6046_10_2019_plant_gen_total_6455,f1_steam_2019_12_55_1_4,OIU,,
-8048_2019_plant_total_6455,f1_steam_2019_12_55_2_4,OIU,,
-628_3_2019_plant_unit_total_6455,f1_steam_2019_12_55_2_5,OIU,,generation and installation years match. But not capacities.
-1005_2018_plant_total_15470,f1_hydro_2018_12_144_0_1,OIU,,
-2720_gt_2018_plant_prime_mover_total_5416_retired,f1_steam_2018_12_45_2_2,OIU,,Not much to compare. Goof enough match because of name and installation year
-2720_st_2018_plant_prime_mover_total_5416_retired,f1_steam_2018_12_45_2_1,OIU,,Not much to compare. Goof enough match because of name and installation year
-2727_2018_plant_total_5416,f1_steam_2018_12_45_0_2,OIU,,
-2732_gt_2018_plant_prime_mover_total_5416_retired,f1_steam_2018_12_45_1_5,OIU,,Not much to compare. Goof enough match because of name and installation year
-2732_st_2018_plant_prime_mover_total_5416_retired,f1_steam_2018_12_45_1_4,OIU,,Not much to compare. Goof enough match because of name and installation year
-3264_GT_2018_plant_prime_mover_total_5416,f1_steam_2018_12_45_0_5,OIU,,
-3264_4_2018_plant_unit_total_5416,f1_steam_2018_12_45_4_2,OIU,,Best guess
-3265_2018_plant_total_5416,f1_steam_2018_12_45_2_5,OIU,,
-55116_2018_plant_total_5416,f1_steam_2018_12_45_3_4,OIU,,
-55412_2018_plant_total_6455,f1_steam_2018_12_55_1_2,OIU,,
-6038_2018_plant_total_5416,f1_steam_2018_12_45_3_1,OIU,,
-628_3_2018_plant_unit_total_6455,f1_steam_2018_12_55_0_3,OIU,,Looks like unit 4+5 works to match.
-628_natural_gas_fired_combined_cycle_2018_plant_technology_total_6455,f1_steam_2018_12_55_0_5,OIU,,Looks like Crystal River units 6+7 work to match.
-630_2018_plant_total_6455,f1_steam_2018_12_55_2_3,OIU,,
-638_GT_2018_plant_prime_mover_total_6455,f1_steam_2018_12_55_2_5,OIU,,
-7277_2018_plant_total_5416,f1_steam_2018_12_45_2_4,OIU,,
-7302_ca_2018_plant_prime_mover_total_6455,f1_steam_2018_12_55_1_1,OIU,,
-7345_2018_plant_total_6455,f1_steam_2018_12_55_3_1,OIU,,
-7699_2018_plant_total_6455,f1_steam_2018_12_55_1_3,OIU,,
-7981_2018_plant_total_5416,f1_steam_2018_12_45_3_3,OIU,,
-8049_2018_plant_owned_6455,f1_steam_2018_12_55_2_4,OIU,,
-2708_st_2018_plant_prime_mover_total_3046_retired,f1_steam_2018_12_17_0_2,OIU,,Best guess using name and installation year
-2708_ct_2018_plant_prime_mover_total_3046_retired,f1_steam_2018_12_17_3_2,OIU,,Best guess using name and installation year
-2708_st_2019_plant_prime_mover_total_3046_retired,f1_steam_2019_12_17_0_2,OIU,,Best guess using name and installation year
-2708_ct_2019_plant_prime_mover_total_3046_retired,f1_steam_2019_12_17_3_2,OIU,,Best guess using name and installation year
-2716_st_2018_plant_prime_mover_owned_3046_retired,f1_steam_2018_12_17_1_3,OIU,,Best guess using name and installation year
-2716_gt_2018_plant_prime_mover_total_3046,f1_steam_2018_12_17_3_5,OIU,,Best guess using name and installation year
-2716_st_2019_plant_prime_mover_owned_3046_retired,f1_steam_2019_12_17_1_3,OIU,,Best guess using name and installation year
-2716_gt_2019_plant_prime_mover_total_3046,f1_steam_2019_12_17_3_5,OIU,,Best guess using name and installation year
-2706_2019_plant_total_3046,f1_steam_2019_12_17_4_3,OIU,,Not much to compare other than plant name
-2712_st_2018_plant_prime_mover_total_3046,f1_steam_2018_12_17_1_1,OIU,,
-2712_st_2019_plant_prime_mover_total_3046,f1_steam_2019_12_17_1_1,OIU,,
-6250_2018_plant_total_3046,f1_steam_2018_12_17_0_4,OIU,,
-6250_2019_plant_total_3046,f1_steam_2019_12_17_0_4,OIU,,
-2711_2018_plant_total_3046_retired,f1_steam_2018_12_17_3_1,OIU,,
-2711_2019_plant_total_3046_retired,f1_steam_2019_12_17_3_1,OIU,,
-6015_2018_plant_total_3046,f1_steam_2018_12_17_1_5,OIU,,
-6015_2019_plant_total_3046,f1_steam_2019_12_17_1_5,OIU,,
-1004_st_2018_plant_prime_mover_total_15470_retired,f1_steam_2018_12_144_0_1,OIU,,Best guess using name and installation year
-1004_st_2019_plant_prime_mover_total_15470_retired,f1_steam_2019_12_144_0_1,OIU,,Best guess using name and installation year
-1007_2018_plant_total_15470,f1_steam_2018_12_144_0_2,OIU,,
-1007_2019_plant_total_15470,f1_steam_2019_12_144_0_2,OIU,,
-1010_2_2018_plant_gen_total_15470_retired,f1_steam_2018_12_144_1_2,OIU,,Best guess using capacity
 1010_2018_plant_total_15470_retired,f1_steam_2018_12_144_2_1,OIU,,No extra information. Just the name.
-1010_2_2019_plant_gen_total_15470_retired,f1_steam_2019_12_144_1_2,OIU,,
 1010_2019_plant_total_15470_retired,f1_steam_2019_12_144_2_1,OIU,,
-2727_2019_plant_total_5416,f1_steam_2019_12_45_0_2,OIU,,
-3264_3_2018_plant_unit_total_5416,f1_steam_2018_12_45_0_4,OIU,,No extra information. Just the name.
-3264_3_2019_plant_unit_total_5416,f1_steam_2019_12_45_0_4,OIU,,No extra information. Just the name.
-3264_7_2019_plant_gen_total_5416,f1_steam_2019_12_45_0_5,OIU,,
-2732_st_2019_plant_prime_mover_total_5416_retired,f1_steam_2019_12_45_1_4,OIU,,Best guess using name and installation year
-2732_gt_2019_plant_prime_mover_total_5416_retired,f1_steam_2019_12_45_1_5,OIU,,Best guess using name and installation year
-2720_st_2019_plant_prime_mover_total_5416_retired,f1_steam_2019_12_45_2_1,OIU,,Best guess using name and installation year
-2720_gt_2019_plant_prime_mover_total_5416_retired,f1_steam_2019_12_45_2_2,OIU,,Best guess using name and installation year
-3265_2019_plant_total_5416,f1_steam_2019_12_45_2_5,OIU,,
-6038_2019_plant_total_5416,f1_steam_2019_12_45_3_1,OIU,,
-628_1_2018_plant_unit_total_6455,f1_steam_2018_12_55_0_2,OIU,,
-7277_2019_plant_total_5416,f1_steam_2019_12_45_2_4,OIU,,Best match. Though better matches 2018 value.
-3251_conventional_steam_coal_2018_plant_technology_owned_3046_retired,f1_steam_2018_12_17_0_5,OIU,,Match based on name and installation year. No capacity info from FERC.
-3251_nuclear_2018_plant_technology_total_3046,f1_steam_2018_12_17_2_1,OIU,,0
-3251_gt_2018_plant_prime_mover_total_3046_retired,f1_steam_2018_12_17_2_4,OIU,,Best guess using name and installation year
-3251_conventional_steam_coal_2019_plant_technology_total_3046_retired,f1_steam_2019_12_17_0_5,OIU,,
-3251_nuclear_2019_plant_technology_total_3046,f1_steam_2019_12_17_2_1,OIU,,
-3251_gt_2019_plant_prime_mover_total_3046_retired,f1_steam_2019_12_17_2_4,OIU,,Best guess using name and installation year
-58212_2018_plant_total_5416_retired,f1_steam_2018_12_45_2_3,OIU,,
-58212_2019_plant_total_5416_retired,f1_steam_2019_12_45_2_3,OIU,,
-7538_2018_plant_total_3046,f1_steam_2018_12_17_4_1,OIU,,
-7538_2019_plant_total_3046,f1_steam_2019_12_17_4_1,OIU,,
-55110_2018_plant_total_15470,f1_steam_2018_12_144_2_2,OIU,,
-55110_2019_plant_total_15470,f1_steam_2019_12_144_2_2,OIU,,
-7981_2019_plant_total_5416,f1_steam_2019_12_45_3_3,OIU,,
-58215_2019_plant_total_3046,f1_steam_2019_12_17_3_4,OIU,,
-2713_2018_plant_total_3046_retired,f1_steam_2018_12_17_1_2,OIU,,
-58697_2018_plant_total_3046,f1_steam_2018_12_17_2_5,OIU,,
-2713_2019_plant_total_3046_retired,f1_steam_2019_12_17_1_2,OIU,,
-58697_2019_plant_total_3046,f1_steam_2019_12_17_2_5,OIU,,
-55224_2018_plant_total_15470,f1_steam_2018_12_144_1_1,OIU,,
-55224_2019_plant_total_15470,f1_steam_2019_12_144_1_1,OIU,,
-2832_6_2018_plant_gen_total_3542_retired,f1_steam_2018_12_178_0_2,OIU,,
-2832_6_2019_plant_gen_total_3542_retired,f1_steam_2019_12_178_0_2,OIU,,
-7158_2018_plant_total_55729,f1_steam_2018_12_178_0_3,OIU,,
-7158_2019_plant_total_55729,f1_steam_2019_12_178_0_3,OIU,,
-55116_2019_plant_total_5416,f1_steam_2019_12_45_3_4,OIU,,
-7805_2018_plant_total_3046,f1_steam_2018_12_17_4_2,OIU,,
-7805_2019_plant_total_3046,f1_steam_2019_12_17_4_2,OIU,,
-634_2018_plant_total_6455,f1_steam_2018_12_55_0_4,OIU,,
-634_2019_plant_total_6455,f1_steam_2019_12_55_0_1,OIU,,
-55111_2018_plant_owned_15470,f1_steam_2018_12_144_2_5,OIU,,
-55111_2019_plant_owned_15470,f1_steam_2019_12_144_2_5,OIU,,
-638_gt_2019_plant_prime_mover_total_6455,f1_steam_2019_12_55_2_2,OIU,,
-7699_2019_plant_total_6455,f1_steam_2019_12_55_0_5,OIU,,
-55412_2019_plant_total_6455,f1_steam_2019_12_55_0_4,OIU,,
-628_6_2019_plant_unit_owned_6455,f1_steam_2019_12_55_0_2,OIU,,Looks like Crystal River units 6+7 work to match.
-7302_ca_2019_plant_prime_mover_total_6455,f1_steam_2019_12_55_0_3,OIU,,
-630_2019_plant_total_6455,f1_steam_2019_12_55_1_5,OIU,,
-8049_2019_plant_total_6455,f1_steam_2019_12_55_2_1,OIU,,
-7345_2019_plant_total_6455,f1_steam_2019_12_55_2_3,OIU,,
-3264_4_2019_plant_unit_total_5416,f1_steam_2019_12_45_4_2,OIU,,Best guess
-63063_2019_plant_total_5416,f1_steam_2019_12_45_4_3,OIU,,
-2710_2018_plant_total_3046,f1_gnrt_plant_2018_12_17_0_1,OIU,,
-2710_2019_plant_total_3046,f1_gnrt_plant_2019_12_17_0_1,OIU,,
-2736_2018_plant_total_5416,f1_gnrt_plant_2018_12_45_0_10,OIU,,
-2741_2018_plant_total_5416,f1_gnrt_plant_2018_12_45_0_2,OIU,,
-2741_2019_plant_total_5416,f1_gnrt_plant_2019_12_45_0_2,OIU,,
-2743_2018_plant_total_5416,f1_gnrt_plant_2018_12_45_0_4,OIU,,
-2743_2019_plant_total_5416,f1_gnrt_plant_2019_12_45_0_3,OIU,,
-2745_2018_plant_total_5416,f1_gnrt_plant_2018_12_45_0_5,OIU,,
-6438_2018_plant_total_5416,f1_gnrt_plant_2018_12_45_0_8,OIU,,
-6438_2019_plant_total_5416,f1_gnrt_plant_2019_12_45_0_4,OIU,,
-3258_4_2018_plant_gen_total_5416,f1_gnrt_plant_2018_12_45_0_6,OIU,,Best guess. Seems like it's a combination of Gaston Shoals 6 (2.5MW) and 2 other 1.4 MW Gaston Shoals plants
-2751_2018_plant_total_5416,f1_gnrt_plant_2018_12_45_0_9,OIU,,
-2751_2019_plant_total_5416,f1_gnrt_plant_2019_12_45_0_5,OIU,,
-2746_2018_plant_total_5416,f1_gnrt_plant_2018_12_45_0_7,OIU,,
-2719_2018_plant_total_5416,f1_hydro_2018_12_45_0_1,OIU,,
-2719_2019_plant_total_5416,f1_hydro_2019_12_45_0_1,OIU,,
-2730_2018_plant_total_5416,f1_hydro_2018_12_45_0_2,OIU,,Best guess. Names match but capacities don't
-2730_2019_plant_total_5416,f1_hydro_2019_12_45_0_2,OIU,,
-2729_2018_plant_total_5416,f1_hydro_2018_12_45_0_3,OIU,,
-2729_2019_plant_total_5416,f1_hydro_2019_12_45_0_3,OIU,,
-2726_2018_plant_total_5416,f1_hydro_2018_12_45_0_4,OIU,,
-2726_2019_plant_total_5416,f1_hydro_2019_12_45_0_4,OIU,,
-2728_2018_plant_total_5416,f1_hydro_2018_12_45_0_5,OIU,,
-2728_2019_plant_total_5416,f1_hydro_2019_12_45_0_5,OIU,,
-2722_2018_plant_total_5416,f1_hydro_2018_12_45_1_1,OIU,,
-2722_2019_plant_total_5416,f1_hydro_2019_12_45_1_1,OIU,,
-3271_2018_plant_total_5416,f1_hydro_2018_12_45_1_2,OIU,,
-3271_2019_plant_total_5416,f1_hydro_2019_12_45_1_2,OIU,,
-3257_2018_plant_total_5416,f1_hydro_2018_12_45_1_3,OIU,,"Best guess. Capacities don't match, but names and generation do."
-3257_2019_plant_total_5416,f1_hydro_2019_12_45_1_3,OIU,,
-3259_2018_plant_total_5416,f1_hydro_2018_12_45_1_4,OIU,,
-3259_2019_plant_total_5416,f1_hydro_2019_12_45_1_4,OIU,,
-3256_2018_plant_total_5416,f1_hydro_2018_12_45_1_5,OIU,,
-3256_2019_plant_total_5416,f1_hydro_2019_12_45_1_5,OIU,,
-3266_2018_plant_total_5416,f1_hydro_2018_12_45_2_1,OIU,,
-3255_2018_plant_total_5416,f1_hydro_2018_12_45_2_2,OIU,,
-3255_2019_plant_total_5416,f1_hydro_2019_12_45_2_2,OIU,,
-3272_2018_plant_total_5416,f1_hydro_2018_12_45_2_4,OIU,,
-3272_2019_plant_total_5416,f1_hydro_2019_12_45_2_4,OIU,,
-6517_2018_plant_total_5416,f1_hydro_2018_12_45_3_1,OIU,,
-6517_2019_plant_total_5416,f1_hydro_2019_12_45_3_1,OIU,,
-2750_2018_plant_total_5416,f1_hydro_2018_12_45_3_2,OIU,,
-2750_2019_plant_total_5416,f1_hydro_2019_12_45_3_2,OIU,,
-2747_2018_plant_total_5416,f1_hydro_2018_12_45_3_3,OIU,,
-2747_2019_plant_total_5416,f1_hydro_2019_12_45_3_3,OIU,,
-2749_2018_plant_total_5416,f1_hydro_2018_12_45_3_4,OIU,,
-2749_2019_plant_total_5416,f1_hydro_2019_12_45_3_4,OIU,,
-2714_2018_plant_total_3046,f1_hydro_2018_12_17_0_2,OIU,,
-2714_2019_plant_total_3046,f1_hydro_2019_12_17_0_2,OIU,,
-2715_2018_plant_total_3046,f1_hydro_2018_12_17_0_3,OIU,,
-2715_2019_plant_total_3046,f1_hydro_2019_12_17_0_3,OIU,,
-3262_2018_plant_total_5416,f1_pumped_storage_2018_12_45_0_1,OIU,,"Capacities not exact match, but names and installation years do."
-3262_2019_plant_total_5416,f1_pumped_storage_2019_12_45_0_1,OIU,,"Capacities not exact match, but names and installation years do."
-7125_2018_plant_total_5416,f1_pumped_storage_2018_12_45_0_2,OIU,,"Capacities not exact match, but names and installation years do."
-7125_2019_plant_total_5416,f1_pumped_storage_2019_12_45_0_2,OIU,,"Capacities not exact match, but names and installation years do."
 10773_2018_plant_owned_19876,f1_steam_2018_12_186_0_1,,,
 10774_2018_plant_owned_19876,f1_steam_2018_12_186_3_2,,,
 1109_2018_plant_owned_19436,f1_hydro_2018_12_177_0_2,,,
@@ -494,14 +290,6 @@ record_id_eia,record_id_ferc1,signature_1,signature_2,notes
 1740_3_2016_plant_unit_owned_5109,f1_steam_2016_12_44_1_1,,,
 1743_11_2015_plant_gen_owned_5109,f1_steam_2015_12_44_5_4,,,
 1743_st_2015_plant_prime_mover_owned_5109,f1_steam_2015_12_44_2_4,,,
-2706_st_2016_plant_prime_mover_owned_3046,f1_steam_2016_12_17_0_1,,,
-6014_2016_plant_total_3046,f1_steam_2016_12_17_1_4,,,
-6015_2016_plant_total_3046,f1_steam_2016_12_17_1_5,,,
-3251_2_2016_plant_gen_total_3046,f1_steam_2016_12_17_2_1,,,
-2706_gt_2016_plant_prime_mover_owned_3046,f1_steam_2016_12_17_2_2,,,
-58215_2016_plant_owned_3046,f1_steam_2016_12_17_3_4,,,
-58697_2016_plant_owned_3046,f1_steam_2016_12_17_2_5,,,
-2716_gt_2016_plant_prime_mover_total_3046,f1_steam_2016_12_17_3_5,,,
 58562_2016_plant_total_5701,f1_steam_2016_12_49_1_2,,,
 58562_2017_plant_total_5701,f1_steam_2017_12_49_0_4,,,
 3456_2016_plant_total_5701,f1_steam_2016_12_49_0_3,,,
@@ -620,13 +408,6 @@ record_id_eia,record_id_ferc1,signature_1,signature_2,notes
 6126_2019_plant_total_17539,f1_pumped_storage_2019_12_159_0_1,CF,,
 2079_gt_2004_plant_prime_mover_owned_10000,f1_steam_2004_12_79_0_5,CG,,
 6065_1_2018_plant_unit_owned_5860,f1_steam_2018_12_51_0_5,,,
-58697_2017_plant_owned_3046,f1_steam_2017_12_17_2_5,CG,,capacity in FERC unexpectedly high this year
-2713_2014_plant_owned_3046,f1_steam_2014_12_17_2_4,CG,,
-2713_gt_2013_plant_prime_mover_owned_3046,f1_steam_2013_12_17_2_4,CG,,
-2713_gt_2012_plant_prime_mover_owned_3046,f1_steam_2012_12_17_3_4,CG,,
-2713_gt_2011_plant_prime_mover_owned_3046,f1_steam_2011_12_17_2_4,CG,,
-2713_gt_2010_plant_prime_mover_owned_3046,f1_steam_2010_12_17_2_4,CG,,
-2713_gt_2009_plant_prime_mover_owned_3046,f1_steam_2009_12_17_2_4,CG,,
 6482_2005_plant_total_14354,f1_gnrt_plant_2005_12_134_0_7,,AS,ferc mwh vs kwh issue with net gen
 3035_2005_plant_total_14354,f1_gnrt_plant_2005_12_134_0_22,,AS,ferc mwh vs kwh issue with net gen
 3659_2005_plant_total_14354,f1_gnrt_plant_2005_12_134_0_25,,AS,ferc mwh vs kwh issue with net gen
@@ -4945,3 +4726,1878 @@ record_id_eia,record_id_ferc1,signature_1,signature_2,notes
 818_2020_plant_total_9191,f1_hydro_2020_12_70_2_2,AS,,
 816_2020_plant_total_9191,f1_hydro_2020_12_70_2_4,AS,,
 7190_2020_plant_total_9191,f1_hydro_2020_12_70_2_5,AS,,
+2718_2005_plant_total_5416,f1_steam_2005_12_45_0_3,AS,CG,
+2718_2006_plant_total_5416,f1_steam_2006_12_45_0_3,AS,CG,
+2718_2007_plant_total_5416,f1_steam_2007_12_45_0_3,AS,CG,
+2718_2008_plant_total_5416,f1_steam_2008_12_45_0_3,AS,CG,
+2718_2009_plant_total_5416,f1_steam_2009_12_45_0_3,AS,CG,
+2718_2010_plant_total_5416,f1_steam_2010_12_45_0_3,AS,CG,
+2718_2011_plant_total_5416,f1_steam_2011_12_45_0_3,AS,CG,
+2718_2012_plant_total_5416,f1_steam_2012_12_45_0_3,AS,CG,
+2718_2013_plant_total_5416,f1_steam_2013_12_45_0_3,AS,CG,
+2718_2014_plant_total_5416,f1_steam_2014_12_45_0_3,AS,CG,
+2718_2015_plant_total_5416,f1_steam_2015_12_45_0_3,AS,CG,
+2718_2016_plant_total_5416,f1_steam_2016_12_45_0_3,AS,CG,
+2718_2017_plant_total_5416,f1_steam_2017_12_45_0_3,AS,CG,
+2718_2018_plant_total_5416,f1_steam_2018_12_45_0_3,AS,CG,
+2718_2019_plant_total_5416,f1_steam_2019_12_45_0_3,AS,CG,
+2718_2020_plant_total_5416,f1_steam_2020_12_45_0_3,AS,CG,
+8048_2005_plant_total_6455,f1_steam_2005_12_55_0_1,RF,CG,
+8048_2006_plant_total_6455,f1_steam_2006_12_55_0_1,RF,CG,
+8048_2007_plant_total_6455,f1_steam_2007_12_55_0_1,RF,CG,
+8048_2008_plant_total_6455,f1_steam_2008_12_55_0_1,RF,CG,
+8048_2009_plant_total_6455,f1_steam_2009_12_55_0_1,RF,CG,
+8048_2010_plant_total_6455,f1_steam_2010_12_55_0_1,RF,CG,
+8048_2011_plant_total_6455,f1_steam_2011_12_55_0_1,RF,CG,
+8048_2012_plant_total_6455,f1_steam_2012_12_55_0_1,RF,CG,
+8048_2013_plant_total_6455,f1_steam_2013_12_55_0_1,RF,CG,
+8048_2014_plant_total_6455,f1_steam_2014_12_55_0_1,RF,CG,
+8048_2015_plant_total_6455,f1_steam_2015_12_55_0_1,AS,CG,
+8048_2016_plant_total_6455,f1_steam_2016_12_55_0_1,RF,CG,
+8048_2017_plant_total_6455,f1_steam_2017_12_55_0_1,RF,CG,
+8048_2018_plant_total_6455,f1_steam_2018_12_55_0_1,RF,CG,
+8048_2019_plant_total_6455,f1_steam_2019_12_55_2_4,RF,CG,
+8048_2020_plant_total_6455,f1_steam_2020_12_55_0_1,AS,CG,
+2706_gt_2005_plant_prime_mover_total_3046,f1_steam_2005_12_17_4_1,RF,CG,Capacity doesn't match - but other number do. Seems best fit.
+2706_st_2005_plant_prime_mover_total_3046,f1_steam_2005_12_17_2_1,RF,CG,
+2706_gt_2006_plant_prime_mover_total_3046,f1_steam_2006_12_17_4_1,RF,CG,Capacity doesn't match - but other number do. Seems best fit.
+2706_st_2006_plant_prime_mover_total_3046,f1_steam_2006_12_17_2_1,RF,CG,
+2706_gt_2007_plant_prime_mover_total_3046,f1_steam_2007_12_17_4_1,RF,CG,Capacity doesn't match - but other number do. Seems best fit.
+2706_st_2007_plant_prime_mover_total_3046,f1_steam_2007_12_17_2_1,RF,CG,
+2706_st_2008_plant_prime_mover_total_3046,f1_steam_2008_12_17_2_1,RF,CG,
+2706_gt_2008_plant_prime_mover_total_3046,f1_steam_2008_12_17_4_1,RF,CG,
+2706_gt_2009_plant_prime_mover_total_3046,f1_steam_2009_12_17_4_1,RF,CG,Capacity doesn't match - but other number do. Seems best fit.
+2706_st_2009_plant_prime_mover_total_3046,f1_steam_2009_12_17_2_1,RF,CG,
+2706_gt_2010_plant_prime_mover_total_3046,f1_steam_2010_12_17_4_1,RF,CG,Capacity doesn't match - but other number do. Seems best fit.
+2706_st_2010_plant_prime_mover_total_3046,f1_steam_2010_12_17_2_1,RF,CG,
+2706_gt_2011_plant_prime_mover_total_3046,f1_steam_2011_12_17_4_1,RF,CG,Capacity doesn't match - but other number do. Seems best fit.
+2706_st_2011_plant_prime_mover_total_3046,f1_steam_2011_12_17_2_1,RF,CG,
+2706_gt_2012_plant_prime_mover_total_3046,f1_steam_2012_12_17_2_1,RF,CG,Capacity doesn't match - but other number do. Seems best fit.
+2706_st_2012_plant_prime_mover_total_3046,f1_steam_2012_12_17_0_1,RF,CG,
+2706_gt_2013_plant_prime_mover_total_3046,f1_steam_2013_12_17_2_1,RF,CG,Capacity doesn't match - but other number do. Seems best fit.
+2706_st_2013_plant_prime_mover_total_3046,f1_steam_2013_12_17_0_1,RF,CG,
+2706_gt_2014_plant_prime_mover_total_3046,f1_steam_2014_12_17_2_1,RF,CG,Capacity doesn't match - but other number do. Seems best fit.
+2706_st_2014_plant_prime_mover_total_3046,f1_steam_2014_12_17_0_1,RF,CG,
+2706_st_2015_plant_prime_mover_total_3046,f1_steam_2015_12_17_0_1,RF,CG,
+2706_gt_2015_plant_prime_mover_total_3046,f1_steam_2015_12_17_2_2,RF,CG,
+2706_st_2016_plant_prime_mover_total_3046,f1_steam_2016_12_17_0_1,AS,CG,
+2706_gt_2016_plant_prime_mover_total_3046,f1_steam_2016_12_17_2_2,AS,CG,
+2706_st_2017_plant_prime_mover_total_3046,f1_steam_2017_12_17_0_1,RF,CG,
+2706_gt_2017_plant_prime_mover_total_3046,f1_steam_2017_12_17_2_2,RF,CG,
+2706_st_2018_plant_prime_mover_total_3046,f1_steam_2018_12_17_0_1,RF,CG,
+2706_gt_2018_plant_prime_mover_total_3046,f1_steam_2018_12_17_2_2,RF,CG,
+2706_ct_2019_plant_prime_mover_total_3046_proposed,f1_steam_2019_12_17_4_3,RF,CG,proposed plant. Partial data in both FERC and EIA
+2706_st_2019_plant_prime_mover_total_3046,f1_steam_2019_12_17_0_1,RF,CG,
+2706_gt_2019_plant_prime_mover_total_3046,f1_steam_2019_12_17_2_2,RF,CG,
+2706_st_2020_plant_prime_mover_total_3046,f1_steam_2020_12_17_0_1,AS,CG,
+2706_gt_2020_plant_prime_mover_total_3046,f1_steam_2020_12_17_2_2,AS,CG,
+2706_natural_gas_fired_combined_cycle_2020_plant_technology_total_3046,f1_steam_2020_12_17_4_3,AS,CG,
+624_2005_plant_total_6455,f1_steam_2005_12_55_2_3,RF,CG,
+624_2006_plant_total_6455,f1_steam_2006_12_55_2_3,RF,CG,
+624_2007_plant_total_6455,f1_steam_2007_12_55_2_3,RF,CG,
+624_2008_plant_total_6455,f1_steam_2008_12_55_2_3,RF,CG,
+624_2009_plant_total_6455,f1_steam_2009_12_55_2_3,RF,CG,
+624_2010_plant_total_6455,f1_steam_2010_12_55_2_3,RF,CG,
+624_2011_plant_total_6455,f1_steam_2011_12_55_1_4,RF,CG,ferc cap off by 1000
+624_2012_plant_total_6455,f1_steam_2012_12_55_1_4,RF,CG,
+624_2013_plant_total_6455,f1_steam_2013_12_55_1_4,RF,CG,
+624_2014_plant_total_6455,f1_steam_2014_12_55_1_4,RF,CG,
+624_2015_plant_total_6455,f1_steam_2015_12_55_1_4,RF,CG,
+624_2016_plant_total_6455,f1_steam_2016_12_55_1_4,RF,CG,
+624_2017_plant_total_6455,f1_steam_2017_12_55_1_4,RF,CG,
+624_2018_plant_total_6455,f1_steam_2018_12_55_1_4,RF,CG,
+624_2019_plant_total_6455,f1_steam_2019_12_55_1_1,RF,CG,
+624_2020_plant_total_6455,f1_steam_2020_12_55_1_3,AS,CG,
+627_2005_plant_total_6455,f1_steam_2005_12_55_1_2,RF,CG,
+627_2006_plant_total_6455,f1_steam_2006_12_55_1_2,RF,CG,
+627_2007_plant_total_6455,f1_steam_2007_12_55_1_2,RF,CG,
+627_2008_plant_total_6455,f1_steam_2008_12_55_1_2,RF,CG,
+627_2009_plant_total_6455,f1_steam_2009_12_55_1_2,RF,CG,
+627_2010_plant_total_6455,f1_steam_2010_12_55_1_2,RF,CG,
+627_2011_plant_total_6455,f1_steam_2011_12_55_2_1,AS,CG,
+627_2012_plant_total_6455,f1_steam_2012_12_55_2_1,AS,CG,
+627_2013_plant_total_6455,f1_steam_2013_12_55_2_1,RF,CG,
+627_2014_plant_total_6455,f1_steam_2014_12_55_2_1,RF,CG,
+627_2015_plant_total_6455,f1_steam_2015_12_55_2_1,AS,CG,
+627_2016_plant_total_6455,f1_steam_2016_12_55_2_1,RF,CG,
+627_2017_plant_total_6455,f1_steam_2017_12_55_2_1,RF,CG,
+627_2018_plant_total_6455,f1_steam_2018_12_55_2_1,RF,CG,
+627_2019_plant_total_6455,f1_steam_2019_12_55_1_3,RF,CG,
+627_2020_plant_total_6455,f1_steam_2020_12_55_1_5,AS,CG,
+634_gt_2005_plant_prime_mover_total_6455,f1_steam_2005_12_55_2_1,RF,CG,
+634_st_2005_plant_prime_mover_total_6455,f1_steam_2005_12_55_0_2,RF,CG,
+634_gt_2006_plant_prime_mover_total_6455,f1_steam_2006_12_55_2_1,RF,CG,
+634_st_2006_plant_prime_mover_total_6455,f1_steam_2006_12_55_0_2,RF,CG,
+634_gt_2007_plant_prime_mover_total_6455,f1_steam_2007_12_55_2_1,RF,CG,
+634_st_2007_plant_prime_mover_total_6455,f1_steam_2007_12_55_0_2,RF,CG,
+634_gt_2008_plant_prime_mover_total_6455,f1_steam_2008_12_55_2_1,RF,CG,
+634_st_2008_plant_prime_mover_total_6455,f1_steam_2008_12_55_0_2,RF,CG,
+634_gt_2009_plant_prime_mover_total_6455,f1_steam_2009_12_55_2_1,RF,CG,
+634_st_2009_plant_prime_mover_total_6455,f1_steam_2009_12_55_0_2,RF,CG,
+634_natural_gas_fired_combined_cycle_2009_plant_technology_total_6455,f1_steam_2009_12_55_3_4,RF,CG,
+634_st_2010_plant_prime_mover_total_6455_retired,f1_steam_2010_12_55_0_2,RF,CG,retired this year
+634_gt_2010_plant_prime_mover_total_6455,f1_steam_2010_12_55_2_1,RF,CG,
+634_natural_gas_fired_combined_cycle_2010_plant_technology_total_6455,f1_steam_2010_12_55_3_4,RF,CG,
+634_st_2011_plant_prime_mover_total_6455_retired,f1_steam_2011_12_55_3_4,RF,CG,retired last year
+634_gt_2011_plant_prime_mover_total_6455,f1_steam_2011_12_55_1_5,AS,CG,
+634_natural_gas_fired_combined_cycle_2011_plant_technology_total_6455,f1_steam_2011_12_55_1_1,RF,CG,
+634_gt_2012_plant_prime_mover_total_6455,f1_steam_2012_12_55_1_5,AS,CG,
+634_natural_gas_fired_combined_cycle_2012_plant_technology_total_6455,f1_steam_2012_12_55_1_1,RF,CG,
+634_gt_2013_plant_prime_mover_total_6455,f1_steam_2013_12_55_1_5,AS,CG,
+634_natural_gas_fired_combined_cycle_2013_plant_technology_total_6455,f1_steam_2013_12_55_1_1,RF,CG,
+634_gt_2014_plant_prime_mover_total_6455,f1_steam_2014_12_55_1_5,AS,CG,
+634_4_2014_plant_unit_total_6455,f1_steam_2014_12_55_1_1,AS,CG,
+634_gt_2015_plant_prime_mover_total_6455,f1_steam_2015_12_55_1_5,RF,CG,
+634_4_2015_plant_unit_total_6455,f1_steam_2015_12_55_1_1,AS,CG,
+634_gt_2016_plant_prime_mover_total_6455,f1_steam_2016_12_55_1_5,RF,CG,
+634_4_2016_plant_unit_total_6455,f1_steam_2016_12_55_1_1,AS,CG,
+634_gt_2017_plant_prime_mover_total_6455,f1_steam_2017_12_55_1_5,RF,CG,
+634_4_2017_plant_unit_total_6455,f1_steam_2017_12_55_1_1,AS,CG,
+634_gt_2018_plant_prime_mover_total_6455,f1_steam_2018_12_55_1_5,AS,CG,cap off but same net gen and same record over time
+634_4_2018_plant_unit_total_6455,f1_steam_2018_12_55_0_4,AS,CG,cap off but same net gen and same record over time
+634_gt_2019_plant_prime_mover_total_6455,f1_steam_2019_12_55_1_2,AS,CG,cap off but same net gen and same record over time
+634_4_2019_plant_unit_total_6455,f1_steam_2019_12_55_0_1,AS,CG,cap off but same net gen and same record over time
+634_gt_2020_plant_prime_mover_total_6455,f1_steam_2020_12_55_1_4,AS,CG,
+2830_6_2005_plant_gen_owned_3542,f1_steam_2005_12_27_0_4,AS,CG,
+2830_gt_2005_plant_prime_mover_total_3542,f1_steam_2005_12_27_1_3,AS,CG,
+2830_1952_2005_plant_operating_year_total_3542,f1_steam_2005_12_27_0_3,AS,CG,"Combo of gens 1-5 based on FERC plant name. Cap close, net gen way off"
+2830_1969_2006_plant_operating_year_owned_3542,f1_steam_2006_12_27_0_4,AS,CG,cap close-ish and net gen close-ish and inst year good. Gen id matches FERC plant name.
+2830_gt_2006_plant_prime_mover_total_3542,f1_steam_2006_12_27_1_3,AS,CG,
+2830_1952_2006_plant_operating_year_total_3542,f1_steam_2006_12_27_0_3,AS,CG,"Combo of gens 1-5 based on FERC plant name. Cap close, net gen way off"
+2830_1969_2007_plant_operating_year_owned_3542,f1_steam_2007_12_27_0_4,AS,CG,cap close-ish and net gen close-ish and inst year good. Gen id matches FERC plant name.
+2830_gt_2007_plant_prime_mover_total_3542,f1_steam_2007_12_27_1_3,AS,CG,
+2830_1952_2007_plant_operating_year_total_3542,f1_steam_2007_12_27_0_3,AS,CG,"Combo of gens 1-5 based on FERC plant name. Cap close, net gen way off"
+2830_1969_2008_plant_operating_year_owned_3542,f1_steam_2008_12_27_0_4,AS,CG,cap close-ish and net gen close-ish and inst year good. Gen id matches FERC plant name.
+2830_gt_2008_plant_prime_mover_total_3542,f1_steam_2008_12_27_1_3,AS,CG,
+2830_1_2008_plant_unit_total_3542,f1_steam_2008_12_27_0_3,AS,CG,"Combo of gens 1-5 based on FERC plant name. Cap close, net gen way off"
+2830_6_2009_plant_unit_owned_3542,f1_steam_2009_12_27_0_3,AS,CG,cap close-ish and net gen close-ish and inst year good. Gen id matches FERC plant name.
+2830_gt_2009_plant_prime_mover_total_3542,f1_steam_2009_12_27_1_4,AS,CG,
+2830_1_2009_plant_unit_total_3542,f1_steam_2009_12_27_0_2,AS,CG,"Combo of gens 1-5 based on FERC plant name. Cap close, net gen way off"
+2830_6_2010_plant_unit_owned_3542,f1_steam_2010_12_27_0_3,AS,CG,cap close-ish and net gen close-ish and inst year good. Gen id matches FERC plant name.
+2830_gt_2010_plant_prime_mover_total_3542,f1_steam_2010_12_27_1_4,AS,CG,net gen a little off but it's in the ballpark and the same record over time
+2830_1_2010_plant_unit_total_3542,f1_steam_2010_12_27_0_2,AS,CG,"Combo of gens 1-5 based on FERC plant name. Cap close, net gen way off"
+2830_6_2011_plant_unit_owned_3542,f1_steam_2011_12_27_0_3,AS,CG,cap close-ish and net gen close-ish and inst year good. Gen id matches FERC plant name.
+2830_gt_2011_plant_prime_mover_total_3542,f1_steam_2011_12_27_1_4,AS,CG,
+2830_1_2011_plant_unit_total_3542,f1_steam_2011_12_27_0_2,AS,CG,"Combo of gens 1-5 based on FERC plant name. Cap close, net gen way off"
+2830_2012_plant_owned_3542,f1_steam_2012_12_27_0_3,AS,CG,cap close-ish and net gen close-ish and inst year good. Gen id matches FERC plant name.
+2830_gt_2012_plant_prime_mover_total_3542,f1_steam_2012_12_27_1_4,AS,CG,
+2830_1_2012_plant_unit_total_3542,f1_steam_2012_12_27_0_2,AS,CG,"Combo of gens 1-5 based on FERC plant name. Cap close, net gen way off"
+2830_6_2013_plant_unit_owned_3542,f1_steam_2013_12_27_0_3,AS,CG,cap close-ish and net gen close-ish and inst year good. Gen id matches FERC plant name.
+2830_gt_2013_plant_prime_mover_total_3542,f1_steam_2013_12_27_1_4,AS,CG,
+2830_2013_plant_total_3542_retired,f1_steam_2013_12_27_0_2,AS,CG,"Cap very off, despite this being the pattern for prior years."
+2830_1_2014_plant_unit_total_3542_retired,f1_steam_2014_12_27_0_2,AS,CG,"Cap very off, despite this being the pattern for prior years."
+2830_6_2014_plant_unit_owned_3542,f1_steam_2014_12_27_0_3,AS,CG,"Cap very off, despite this being the pattern for prior years."
+2830_gt_2014_plant_prime_mover_total_3542,f1_steam_2014_12_27_1_4,AS,CG,
+2830_1952_2015_plant_operating_year_total_3542_retired,f1_steam_2015_12_27_0_2,AS,CG,"Cap very off, despite this being the pattern for prior years."
+2830_1969_2015_plant_operating_year_owned_3542_retired,f1_steam_2015_12_27_0_3,AS,CG,"Cap very off, despite this being the pattern for prior years."
+2830_gt_2015_plant_prime_mover_total_3542_retired,f1_steam_2015_12_27_1_4,AS,CG,
+8042_2005_plant_total_5416,f1_steam_2005_12_45_0_1,AS,CG,
+8042_2006_plant_total_5416,f1_steam_2006_12_45_0_1,AS,CG,
+8042_2007_plant_total_5416,f1_steam_2007_12_45_0_1,AS,CG,
+8042_2008_plant_total_5416,f1_steam_2008_12_45_0_1,AS,CG,
+8042_2009_plant_total_5416,f1_steam_2009_12_45_0_1,AS,CG,
+8042_2010_plant_total_5416,f1_steam_2010_12_45_0_1,AS,CG,cap close-ish and net gen close-ish and inst year good. Gen id matches FERC plant name.
+8042_2011_plant_total_5416,f1_steam_2011_12_45_0_1,AS,CG,
+8042_2012_plant_total_5416,f1_steam_2012_12_45_0_1,AS,CG,
+8042_2013_plant_total_5416,f1_steam_2013_12_45_0_1,AS,CG,
+8042_2014_plant_total_5416,f1_steam_2014_12_45_0_1,AS,CG,
+8042_2015_plant_total_5416,f1_steam_2015_12_45_0_1,AS,CG,
+8042_2016_plant_total_5416,f1_steam_2016_12_45_0_1,AS,CG,
+8042_2017_plant_total_5416,f1_steam_2017_12_45_0_1,AS,CG,
+8042_2018_plant_total_5416,f1_steam_2018_12_45_0_1,AS,CG,
+8042_2019_plant_total_5416,f1_steam_2019_12_45_0_1,AS,CG,
+8042_2020_plant_total_5416,f1_steam_2020_12_45_0_1,AS,CG,
+2707_hy_2005_plant_prime_mover_total_3046,f1_hydro_2005_12_17_0_3,RF,CG,
+2707_gt_2005_plant_prime_mover_total_3046,f1_steam_2005_12_17_3_3,RF,CG,
+2707_hy_2006_plant_prime_mover_total_3046,f1_hydro_2006_12_17_0_3,RF,CG,
+2707_gt_2006_plant_prime_mover_total_3046,f1_steam_2006_12_17_3_3,RF,CG,
+2707_hy_2007_plant_prime_mover_total_3046,f1_hydro_2007_12_17_0_3,RF,CG,
+2707_gt_2007_plant_prime_mover_total_3046,f1_steam_2007_12_17_3_3,RF,CG,
+2707_hy_2008_plant_prime_mover_total_3046,f1_hydro_2008_12_17_0_3,RF,CG,
+2707_gt_2008_plant_prime_mover_total_3046,f1_steam_2008_12_17_3_3,RF,CG,
+2707_hy_2009_plant_prime_mover_total_3046,f1_hydro_2009_12_17_0_3,RF,CG,
+2707_gt_2009_plant_prime_mover_total_3046,f1_steam_2009_12_17_3_3,RF,CG,
+2707_hy_2010_plant_prime_mover_total_3046,f1_hydro_2010_12_17_0_3,RF,CG,
+2707_gt_2010_plant_prime_mover_total_3046,f1_steam_2010_12_17_3_3,RF,CG,
+2707_hy_2011_plant_prime_mover_total_3046,f1_hydro_2011_12_17_0_3,RF,CG,
+2707_gt_2011_plant_prime_mover_total_3046,f1_steam_2011_12_17_3_3,RF,CG,
+2707_hy_2012_plant_prime_mover_total_3046,f1_hydro_2012_12_17_0_1,RF,CG,
+2707_gt_2012_plant_prime_mover_total_3046,f1_steam_2012_12_17_2_2,RF,CG,
+2707_hy_2013_plant_prime_mover_total_3046,f1_hydro_2013_12_17_0_1,RF,CG,
+2707_gt_2013_plant_prime_mover_total_3046,f1_steam_2013_12_17_2_2,RF,CG,
+2707_hy_2014_plant_prime_mover_total_3046,f1_hydro_2014_12_17_0_1,RF,CG,
+2707_gt_2014_plant_prime_mover_total_3046,f1_steam_2014_12_17_2_2,RF,CG,
+2707_hy_2015_plant_prime_mover_total_3046,f1_hydro_2015_12_17_0_1,RF,CG,
+2707_gt_2015_plant_prime_mover_total_3046,f1_steam_2015_12_17_2_3,RF,CG,
+2707_hy_2016_plant_prime_mover_total_3046,f1_hydro_2016_12_17_0_1,RF,CG,
+2707_gt_2016_plant_prime_mover_total_3046,f1_steam_2016_12_17_2_3,RF,CG,
+2707_hy_2017_plant_prime_mover_total_3046,f1_hydro_2017_12_17_0_1,RF,CG,
+2707_gt_2017_plant_prime_mover_total_3046,f1_steam_2017_12_17_2_3,RF,CG,
+2707_hy_2018_plant_prime_mover_total_3046,f1_hydro_2018_12_17_0_1,RF,CG,
+2707_gt_2018_plant_prime_mover_total_3046,f1_steam_2018_12_17_2_3,RF,CG,
+2707_hy_2019_plant_prime_mover_total_3046,f1_hydro_2019_12_17_0_1,RF,CG,
+2707_gt_2019_plant_prime_mover_total_3046,f1_steam_2019_12_17_2_3,RF,CG,
+2707_hy_2020_plant_prime_mover_total_3046,f1_hydro_2020_12_17_0_1,AS,CG,
+2707_gt_2020_plant_prime_mover_total_3046,f1_steam_2020_12_17_2_3,AS,CG,
+6014_2005_plant_owned_3046,f1_steam_2005_12_17_3_1,RF,CG,cap is 100% ownership. Net get is duke’s portion.
+6014_2006_plant_owned_3046,f1_steam_2006_12_17_3_1,AS,CG,cap is 100% ownership. Net get is duke’s portion.
+6014_2007_plant_owned_3046,f1_steam_2007_12_17_3_1,RF,CG,cap is 100% ownership. Net get is duke’s portion.
+6014_2008_plant_owned_3046,f1_steam_2008_12_17_3_1,RF,CG,cap is 100% ownership. Net get is duke’s portion.
+6014_2009_plant_owned_3046,f1_steam_2009_12_17_3_1,RF,CG,
+6014_2010_plant_owned_3046,f1_steam_2010_12_17_3_1,RF,CG,
+6014_2011_plant_owned_3046,f1_steam_2011_12_17_3_1,RF,CG,
+6014_2012_plant_owned_3046,f1_steam_2012_12_17_1_3,RF,CG,
+6014_2013_plant_owned_3046,f1_steam_2013_12_17_1_3,RF,CG,
+6014_2014_plant_owned_3046,f1_steam_2014_12_17_1_3,RF,CG,
+6014_2015_plant_total_3046,f1_steam_2015_12_17_1_4,RF,CG,
+6014_2016_plant_total_3046,f1_steam_2016_12_17_1_4,RF,CG,
+6014_2017_plant_total_3046,f1_steam_2017_12_17_1_4,RF,CG,
+6014_2018_plant_total_3046,f1_steam_2018_12_17_1_4,RF,CG,
+6014_2019_plant_total_3046,f1_steam_2019_12_17_1_4,RF,CG,
+6014_2020_plant_total_3046,f1_steam_2020_12_17_1_4,AS,CG,
+2720_gt_2005_plant_prime_mover_total_5416,f1_steam_2005_12_45_2_2,AS,CG,
+2720_st_2005_plant_prime_mover_total_5416,f1_steam_2005_12_45_2_1,AS,CG,
+2720_gt_2006_plant_prime_mover_total_5416,f1_steam_2006_12_45_2_2,AS,CG,
+2720_st_2006_plant_prime_mover_total_5416,f1_steam_2006_12_45_2_1,AS,CG,
+2720_gt_2007_plant_prime_mover_total_5416,f1_steam_2007_12_45_2_2,AS,CG,
+2720_st_2007_plant_prime_mover_total_5416,f1_steam_2007_12_45_2_1,AS,CG,
+2720_gt_2008_plant_prime_mover_total_5416,f1_steam_2008_12_45_2_2,AS,CG,
+2720_st_2008_plant_prime_mover_total_5416,f1_steam_2008_12_45_2_1,AS,CG,
+2720_gt_2009_plant_prime_mover_total_5416,f1_steam_2009_12_45_2_2,AS,CG,
+2720_st_2009_plant_prime_mover_total_5416,f1_steam_2009_12_45_2_1,AS,CG,
+2720_gt_2010_plant_prime_mover_total_5416,f1_steam_2010_12_45_2_2,AS,CG,
+2720_st_2010_plant_prime_mover_total_5416,f1_steam_2010_12_45_2_1,AS,CG,
+2720_gt_2011_plant_prime_mover_total_5416,f1_steam_2011_12_45_2_2,AS,CG,
+2720_1953_2011_plant_operating_year_total_5416,f1_steam_2011_12_45_2_1,AS,CG,
+2720_natural_gas_fired_combined_cycle_2011_plant_technology_total_5416,f1_steam_2011_12_45_3_5,AS,CG,
+2720_gt_2012_plant_prime_mover_total_5416,f1_steam_2012_12_45_2_2,AS,CG,
+2720_st_2012_plant_prime_mover_total_5416,f1_steam_2012_12_45_2_1,AS,CG,
+2720_natural_gas_fired_combined_cycle_2012_plant_technology_total_5416,f1_steam_2012_12_45_3_5,AS,CG,
+2720_gt_2013_plant_prime_mover_total_5416_retired,f1_steam_2013_12_45_2_2,AS,CG,
+2720_st_2013_plant_prime_mover_total_5416,f1_steam_2013_12_45_2_1,AS,CG,
+2720_natural_gas_fired_combined_cycle_2013_plant_technology_total_5416,f1_steam_2013_12_45_3_5,AS,CG,
+2720_st_2014_plant_prime_mover_total_5416_retired,f1_steam_2014_12_45_2_1,AS,CG,"retired this year. Cap wrong, but matches prior years"
+2720_gt_2014_plant_prime_mover_total_5416_retired,f1_steam_2014_12_45_2_2,AS,CG,"retired this year. Cap wrong, but matches prior years"
+2720_2014_plant_total_5416,f1_steam_2014_12_45_3_5,AS,CG,
+2720_st_2015_plant_prime_mover_total_5416_retired,f1_steam_2015_12_45_2_1,AS,CG,"cap wrong, but matches prior years"
+2720_gt_2015_plant_prime_mover_total_5416_retired,f1_steam_2015_12_45_2_2,AS,Cg,"cap wrong, but matches prior years"
+2720_2015_plant_total_5416,f1_steam_2015_12_45_3_5,AS,CG,
+2720_st_2016_plant_prime_mover_total_5416_retired,f1_steam_2016_12_45_2_1,AS,CG,"cap wrong, but matches prior years"
+2720_gt_2016_plant_prime_mover_total_5416_retired,f1_steam_2016_12_45_2_2,AS,CG,"cap wrong, but matches prior years"
+2720_2016_plant_total_5416,f1_steam_2016_12_45_3_5,AS,CG,
+2720_st_2017_plant_prime_mover_total_5416_retired,f1_steam_2017_12_45_2_1,AS,CG,"cap wrong, but matches prior years"
+2720_gt_2017_plant_prime_mover_total_5416_retired,f1_steam_2017_12_45_2_2,AS,CG,"cap wrong, but matches prior years"
+2720_2017_plant_total_5416,f1_steam_2017_12_45_3_5,AS,CG,
+2720_st_2018_plant_prime_mover_total_5416_retired,f1_steam_2018_12_45_2_1,AS,CG,"cap wrong, but matches prior years"
+2720_gt_2018_plant_prime_mover_total_5416_retired,f1_steam_2018_12_45_2_2,AS,CG,"cap wrong, but matches prior years"
+2720_2018_plant_total_5416,f1_steam_2018_12_45_3_5,AS,CG,
+2720_st_2019_plant_prime_mover_total_5416_retired,f1_steam_2019_12_45_2_1,AS,CG,
+2720_gt_2019_plant_prime_mover_total_5416_retired,f1_steam_2019_12_45_2_2,AS,CG,
+2720_2019_plant_total_5416,f1_steam_2019_12_45_3_5,AS,CG,
+2720_gt_2020_plant_prime_mover_total_5416_retired,f1_steam_2020_12_45_2_2,AS,CG,
+2720_st_2020_plant_prime_mover_total_5416_retired,f1_steam_2020_12_45_2_1,AS,CG,
+2720_2020_plant_total_5416,f1_steam_2020_12_45_3_5,AS,CG,
+3254_hy_2005_plant_prime_mover_total_5416,f1_hydro_2005_12_45_2_5,AS,CG,
+3254_gt_2005_plant_prime_mover_total_5416,f1_steam_2005_12_45_2_3,AS,CG,
+3254_hy_2006_plant_prime_mover_total_5416,f1_hydro_2006_12_45_2_5,AS,CG,
+3254_gt_2006_plant_prime_mover_total_5416,f1_steam_2006_12_45_2_3,AS,cg,
+3254_hy_2007_plant_prime_mover_total_5416,f1_hydro_2007_12_45_2_5,AS,CG,
+3254_gt_2007_plant_prime_mover_total_5416,f1_steam_2007_12_45_2_3,AS,CG,
+3254_hy_2008_plant_prime_mover_total_5416,f1_hydro_2008_12_45_2_5,AS,CG,
+3254_gt_2008_plant_prime_mover_total_5416,f1_steam_2008_12_45_2_3,AS,CG,
+3254_hy_2009_plant_prime_mover_total_5416,f1_hydro_2009_12_45_2_5,AS,CG,cap off but correct
+3254_gt_2009_plant_prime_mover_total_5416,f1_steam_2009_12_45_2_3,AS,CG,
+3254_hy_2010_plant_prime_mover_total_5416,f1_hydro_2010_12_45_2_5,AS,CG,cap off but correct
+3254_gt_2010_plant_prime_mover_total_5416,f1_steam_2010_12_45_2_3,AS,CG,
+3254_gt_2011_plant_prime_mover_total_5416,f1_steam_2011_12_45_2_3,AS,CG,
+58212_2012_plant_total_5416,f1_steam_2012_12_45_2_3,AS,CG,
+58212_2013_plant_total_5416_retired,f1_steam_2013_12_45_2_3,AS,CG,
+58212_2014_plant_total_5416_retired,f1_steam_2014_12_45_2_3,AS,CG,hard to tell if plant total or plant owned because it's all 0
+58212_2015_plant_total_5416_retired,f1_steam_2015_12_45_2_3,AS,CG,hard to tell if plant total or plant owned because it's all 0
+58212_2016_plant_total_5416_retired,f1_steam_2016_12_45_2_3,AS,CG,hard to tell if plant total or plant owned because it's all 0
+58212_2017_plant_total_5416_retired,f1_steam_2017_12_45_2_3,AS,CG,hard to tell if plant total or plant owned because it's all 0
+58212_2018_plant_total_5416_retired,f1_steam_2018_12_45_2_3,AS,CG,hard to tell if plant total or plant owned because it's all 0
+58212_2019_plant_total_5416_retired,f1_steam_2019_12_45_2_3,AS,CG,hard to tell if plant total or plant owned because it's all 0
+7763_2005_plant_total_3561,f1_steam_2005_12_144_1_5,AS,CG,different utility
+7763_2006_plant_total_3561,f1_steam_2006_12_144_1_5,AS,CG,different utility
+7763_2007_plant_total_3561,f1_steam_2007_12_144_1_4,AS,CG,different utility
+7763_2008_plant_total_3561,f1_steam_2008_12_144_1_3,AS,CG,different utility
+7763_2009_plant_total_3561,f1_steam_2009_12_144_1_3,AS,CG,different utility
+7763_2010_plant_total_3561,f1_steam_2010_12_144_1_3,AS,CG,different utility
+7763_2011_plant_total_3561,f1_steam_2011_12_144_1_5,AS,CG,different utility
+7763_2012_plant_total_3561,f1_steam_2012_12_144_1_5,AS,CG,different utility
+7763_2013_plant_total_3561,f1_steam_2013_12_144_1_5,AS,CG,different utility
+7763_2014_plant_total_3561,f1_steam_2014_12_144_1_5,AS,CG,different utility
+7763_2015_plant_total_15470,f1_steam_2015_12_144_1_5,RF,CG,different utility
+7763_2016_plant_total_15470,f1_steam_2016_12_144_1_5,RF,CG,different utility
+7763_2017_plant_total_15470,f1_steam_2017_12_144_1_5,RF,CG,different utility
+7763_2018_plant_total_15470,f1_steam_2018_12_144_1_5,RF,CG,different utility
+7763_2019_plant_total_15470,f1_steam_2019_12_144_1_5,RF,CG,different utility
+7763_2020_plant_total_15470,f1_steam_2020_12_144_1_5,AS,CG,different utility
+2708_petroleum_liquids_2005_plant_technology_total_3046,f1_steam_2005_12_17_0_2,AS,CG,
+2708_st_2005_plant_prime_mover_total_3046,f1_steam_2005_12_17_0_1,AS,CG,cap doesn't catch up until 2008
+2708_petroleum_liquids_2006_plant_technology_total_3046,f1_steam_2006_12_17_0_2,AS,CG,
+2708_st_2006_plant_prime_mover_total_3046,f1_steam_2006_12_17_0_1,AS,CG,cap doesn't catch up until 2008
+2708_petroleum_liquids_2007_plant_technology_total_3046,f1_steam_2007_12_17_0_2,AS,CG,
+2708_st_2007_plant_prime_mover_total_3046,f1_steam_2007_12_17_0_1,AS,CG,cap doesn't catch up until 2008
+2708_petroleum_liquids_2008_plant_technology_total_3046,f1_steam_2008_12_17_0_2,AS,CG,
+2708_st_2008_plant_prime_mover_total_3046,f1_steam_2008_12_17_0_1,AS,CG,
+2708_petroleum_liquids_2009_plant_technology_total_3046,f1_steam_2009_12_17_0_2,AS,CG,
+2708_st_2009_plant_prime_mover_total_3046,f1_steam_2009_12_17_0_1,AS,CG,
+2708_petroleum_liquids_2010_plant_technology_total_3046,f1_steam_2010_12_17_0_2,AS,CG,
+2708_st_2010_plant_prime_mover_total_3046,f1_steam_2010_12_17_0_1,AS,CG,
+2708_petroleum_liquids_2011_plant_technology_total_3046,f1_steam_2011_12_17_0_2,AS,CG,
+2708_st_2011_plant_prime_mover_total_3046,f1_steam_2011_12_17_0_1,AS,CG,
+2708_ct_2012_plant_prime_mover_total_3046,f1_steam_2012_12_17_2_3,AS,CG,
+2708_st_2012_plant_prime_mover_total_3046,f1_steam_2012_12_17_0_2,AS,CG,
+2708_st_2013_plant_prime_mover_total_3046_retired,f1_steam_2013_12_17_0_2,AS,CG,guess based on prior years
+2708_ct_2013_plant_prime_mover_total_3046,f1_steam_2013_12_17_3_3,AS,CG,guess based on prior years
+2708_st_2014_plant_prime_mover_total_3046_retired,f1_steam_2014_12_17_0_2,AS,CG,guess based on prior years
+2708_ct_2014_plant_prime_mover_total_3046_retired,f1_steam_2014_12_17_3_3,AS,CG,guess based on prior years
+2708_st_2015_plant_prime_mover_total_3046_retired,f1_steam_2015_12_17_0_2,AS,CG,guess based on prior years
+2708_ct_2015_plant_prime_mover_total_3046_retired,f1_steam_2015_12_17_3_2,AS,CG,guess based on prior years
+2708_st_2016_plant_prime_mover_total_3046_retired,f1_steam_2016_12_17_0_2,AS,CG,guess based on prior years
+2708_ct_2016_plant_prime_mover_total_3046_retired,f1_steam_2016_12_17_3_2,AS,CG,guess based on prior years
+2708_st_2017_plant_prime_mover_total_3046_retired,f1_steam_2017_12_17_0_2,AS,CG,guess based on prior years
+2708_ct_2017_plant_prime_mover_total_3046_retired,f1_steam_2017_12_17_3_2,AS,CG,guess based on prior years
+2708_st_2018_plant_prime_mover_total_3046_retired,f1_steam_2018_12_17_0_2,AS,CG,guess based on prior years
+2708_ct_2018_plant_prime_mover_total_3046_retired,f1_steam_2018_12_17_3_2,AS,CG,guess based on prior years
+2708_st_2019_plant_prime_mover_total_3046_retired,f1_steam_2019_12_17_0_2,AS,CG,guess based on prior years
+2708_ct_2019_plant_prime_mover_total_3046_retired,f1_steam_2019_12_17_3_2,AS,CG,guess based on prior years
+6036_2005_plant_owned_5416,f1_steam_2005_12_45_3_2,AS,CG,
+6036_2006_plant_owned_5416,f1_steam_2006_12_45_3_2,AS,CG,
+6036_2007_plant_owned_5416,f1_steam_2007_12_45_3_2,AS,CG,
+6036_2008_plant_owned_5416,f1_steam_2008_12_45_3_2,AS,CG,cap in EIA reflects FERC pre 2008
+6036_2009_plant_owned_5416,f1_steam_2009_12_45_3_2,AS,CG,cap in EIA reflects FERC pre 2008
+6036_2010_plant_owned_5416,f1_steam_2010_12_45_3_2,AS,CG,cap in EIA reflects FERC pre 2008
+6036_2011_plant_owned_5416,f1_steam_2011_12_45_3_2,AS,CG,cap in EIA reflects FERC pre 2008
+6036_2012_plant_owned_5416,f1_steam_2012_12_45_3_2,AS,CG,cap in EIA reflects FERC pre 2008
+6036_2013_plant_owned_5416,f1_steam_2013_12_45_3_2,AS,CG,cap in EIA reflects FERC pre 2008
+6036_2014_plant_owned_5416,f1_steam_2014_12_45_3_2,AS,CG,cap off but same record
+6036_2015_plant_owned_5416,f1_steam_2015_12_45_3_2,AS,CG,
+6036_2016_plant_owned_5416,f1_steam_2016_12_45_3_2,AS,CG,
+6036_2017_plant_owned_5416,f1_steam_2017_12_45_3_2,AS,CG,
+6036_2018_plant_owned_5416,f1_steam_2018_12_45_3_2,AS,CG,
+6036_2019_plant_owned_5416,f1_steam_2019_12_45_3_2,AS,CG,
+6036_2020_plant_owned_5416,f1_steam_2020_12_45_3_2,AS,CG,
+1001_ic_2005_plant_prime_mover_total_15470,f1_steam_2005_12_144_1_4,RF,CG,
+1001_gt_2005_plant_prime_mover_total_15470,f1_steam_2005_12_144_1_2,RF,CG,
+1001_st_2005_plant_prime_mover_total_15470,f1_steam_2005_12_144_0_5,RF,CG,
+1001_ic_2006_plant_prime_mover_total_15470,f1_steam_2006_12_144_1_4,RF,CG,
+1001_gt_2006_plant_prime_mover_total_15470,f1_steam_2006_12_144_1_2,RF,CG,
+1001_st_2006_plant_prime_mover_total_15470,f1_steam_2006_12_144_0_5,RF,CG,
+1001_ic_2007_plant_prime_mover_total_15470,f1_steam_2007_12_144_2_3,RF,CG,
+1001_gt_2007_plant_prime_mover_total_15470,f1_steam_2007_12_144_1_2,RF,CG,
+1001_st_2007_plant_prime_mover_total_15470,f1_steam_2007_12_144_0_5,RF,CG,
+1001_ic_2008_plant_prime_mover_total_15470,f1_steam_2008_12_144_2_2,RF,CG,
+1001_gt_2008_plant_prime_mover_total_15470,f1_steam_2008_12_144_1_2,RF,CG,
+1001_st_2008_plant_prime_mover_total_15470,f1_steam_2008_12_144_0_5,RF,CG,
+1001_ic_2009_plant_prime_mover_total_15470,f1_steam_2009_12_144_2_1,RF,CG,
+1001_gt_2009_plant_prime_mover_total_15470,f1_steam_2009_12_144_1_2,RF,CG,
+1001_st_2009_plant_prime_mover_total_15470,f1_steam_2009_12_144_0_5,RF,CG,
+1001_ic_2010_plant_prime_mover_total_15470,f1_steam_2010_12_144_2_1,RF,CG,
+1001_gt_2010_plant_prime_mover_total_15470,f1_steam_2010_12_144_1_2,RF,CG,
+1001_st_2010_plant_prime_mover_total_15470,f1_steam_2010_12_144_0_5,RF,CG,
+1001_ic_2011_plant_prime_mover_total_15470,f1_steam_2011_12_144_0_5,RF,CG,
+1001_gt_2011_plant_prime_mover_total_15470,f1_steam_2011_12_144_0_4,RF,CG,
+1001_st_2011_plant_prime_mover_total_15470,f1_steam_2011_12_144_1_4,RF,CG,
+1001_ic_2012_plant_prime_mover_total_15470,f1_steam_2012_12_144_0_5,RF,CG,
+1001_gt_2012_plant_prime_mover_total_15470,f1_steam_2012_12_144_0_4,RF,CG,
+1001_st_2012_plant_prime_mover_total_15470,f1_steam_2012_12_144_1_4,RF,CG,
+1001_ic_2013_plant_prime_mover_total_15470,f1_steam_2013_12_144_0_5,RF,CG,
+1001_gt_2013_plant_prime_mover_total_15470,f1_steam_2013_12_144_0_4,RF,CG,
+1001_st_2013_plant_prime_mover_total_15470,f1_steam_2013_12_144_1_4,RF,CG,
+1001_ic_2014_plant_prime_mover_total_15470,f1_steam_2014_12_144_0_5,RF,CG,
+1001_gt_2014_plant_prime_mover_total_15470,f1_steam_2014_12_144_0_4,RF,CG,
+1001_st_2014_plant_prime_mover_total_15470,f1_steam_2014_12_144_1_4,RF,CG,
+1001_ic_2015_plant_prime_mover_total_15470,f1_steam_2015_12_144_0_5,RF,CG,
+1001_gt_2015_plant_prime_mover_total_15470,f1_steam_2015_12_144_0_4,RF,CG,
+1001_st_2015_plant_prime_mover_total_15470,f1_steam_2015_12_144_1_4,RF,CG,
+1001_ic_2016_plant_prime_mover_total_15470,f1_steam_2016_12_144_0_5,RF,CG,
+1001_gt_2016_plant_prime_mover_total_15470,f1_steam_2016_12_144_0_4,RF,CG,
+1001_st_2016_plant_prime_mover_total_15470,f1_steam_2016_12_144_1_4,RF,CG,
+1001_ic_2017_plant_prime_mover_total_15470,f1_steam_2017_12_144_0_5,RF,CG,
+1001_gt_2017_plant_prime_mover_total_15470,f1_steam_2017_12_144_0_4,RF,CG,
+1001_st_2017_plant_prime_mover_total_15470,f1_steam_2017_12_144_1_4,RF,CG,
+1001_ic_2018_plant_prime_mover_total_15470,f1_steam_2018_12_144_0_5,RF,CG,
+1001_gt_2018_plant_prime_mover_total_15470,f1_steam_2018_12_144_0_4,RF,CG,
+1001_st_2018_plant_prime_mover_total_15470,f1_steam_2018_12_144_1_4,RF,CG,
+1001_ic_2019_plant_prime_mover_total_15470,f1_steam_2019_12_144_0_5,RF,CG,
+1001_gt_2019_plant_prime_mover_total_15470,f1_steam_2019_12_144_0_4,RF,CG,
+1001_st_2019_plant_prime_mover_total_15470,f1_steam_2019_12_144_1_4,AS,CG,
+1001_ic_2020_plant_prime_mover_total_15470,f1_steam_2020_12_144_0_5,AS,CG,
+1001_gt_2020_plant_prime_mover_total_15470,f1_steam_2020_12_144_0_4,AS,CG,
+1001_st_2020_plant_prime_mover_total_15470,f1_steam_2020_12_144_1_4,AS,CG,
+2721_2005_plant_total_5416,f1_steam_2005_12_45_1_3,AS,CG,
+2721_2006_plant_total_5416,f1_steam_2006_12_45_1_3,AS,CG,
+2721_2007_plant_total_5416,f1_steam_2007_12_45_1_3,AS,CG,
+2721_2008_plant_total_5416,f1_steam_2008_12_45_1_3,AS,CG,
+2721_2009_plant_total_5416,f1_steam_2009_12_45_1_3,AS,CG,
+2721_2010_plant_total_5416,f1_steam_2010_12_45_1_3,AS,CG,
+2721_2011_plant_total_5416,f1_steam_2011_12_45_1_3,AS,CG,
+2721_2012_plant_total_5416,f1_steam_2012_12_45_1_3,AS,CG,
+2721_2013_plant_total_5416,f1_steam_2013_12_45_1_3,AS,CG,
+2721_2014_plant_total_5416,f1_steam_2014_12_45_1_3,AS,CG,
+2721_2015_plant_total_5416,f1_steam_2015_12_45_1_3,AS,CG,
+2721_2016_plant_total_5416,f1_steam_2016_12_45_1_3,AS,CG,
+2721_2017_plant_total_5416,f1_steam_2017_12_45_1_3,AS,CG,
+2721_2018_plant_total_5416,f1_steam_2018_12_45_1_3,AS,CG,
+2721_2019_plant_total_5416,f1_steam_2019_12_45_1_3,AS,CG,
+2721_2020_plant_total_5416,f1_steam_2020_12_45_1_3,AS,CG,
+2840_1973_2005_plant_operating_year_owned_4062,f1_steam_2005_12_27_2_3,AS,CG,
+2840_1973_2006_plant_operating_year_owned_4062,f1_steam_2006_12_27_2_3,AS,CG,
+2840_1973_2007_plant_operating_year_owned_4062,f1_steam_2007_12_27_2_3,AS,CG,
+2840_2_2008_plant_unit_owned_4062,f1_steam_2008_12_27_2_3,AS,CG,
+2840_2_2009_plant_unit_owned_4062,f1_steam_2009_12_27_1_2,AS,CG,
+2840_2_2010_plant_unit_owned_4062,f1_steam_2010_12_27_1_2,AS,CG,
+2840_2_2011_plant_unit_owned_4062,f1_steam_2011_12_27_1_2,AS,CG,
+2840_2_2012_plant_unit_owned_4062,f1_steam_2012_12_27_1_2,AS,CG,
+2840_2_2013_plant_unit_owned_4062,f1_steam_2013_12_27_1_2,AS,CG,
+2840_2_2014_plant_unit_owned_58620,f1_steam_2014_12_27_1_2,AS,CG,Unit changed ownership
+2840_2_2015_plant_unit_owned_58620,f1_steam_2015_12_27_1_2,AS,CG,
+1002_2005_plant_total_15470,f1_steam_2005_12_144_2_3,RF,CG,
+1002_2006_plant_total_15470,f1_steam_2006_12_144_2_3,RF,CG,
+1002_2007_plant_total_15470,f1_steam_2007_12_144_2_2,RF,CG,
+1002_2008_plant_total_15470,f1_steam_2008_12_144_2_1,RF,CG,
+1002_2009_plant_total_15470,f1_steam_2009_12_144_2_3,RF,CG,
+1002_2010_plant_total_15470,f1_steam_2010_12_144_2_3,RF,CG,
+1002_2011_plant_total_15470,f1_steam_2011_12_144_2_3,RF,CG,
+1002_2012_plant_total_15470,f1_steam_2012_12_144_2_3,RF,CG,
+1002_2013_plant_total_15470,f1_steam_2013_12_144_2_3,RF,CG,
+1002_2014_plant_total_15470,f1_steam_2014_12_144_2_3,RF,CG,
+1002_2015_plant_total_15470,f1_steam_2015_12_144_2_3,RF,CG,
+1002_2016_plant_total_15470,f1_steam_2016_12_144_2_3,RF,CG,
+1002_2017_plant_total_15470,f1_steam_2017_12_144_2_3,RF,CG,
+1002_2018_plant_total_15470,f1_steam_2018_12_144_2_3,AS,CG,
+1002_2019_plant_total_15470_retired,f1_steam_2019_12_144_2_3,RF,CG,
+2723_gt_2005_plant_prime_mover_total_5416,f1_steam_2005_12_45_1_2,AS,CG,
+2723_st_2005_plant_prime_mover_total_5416,f1_steam_2005_12_45_1_1,AS,CG,
+2723_gt_2006_plant_prime_mover_total_5416,f1_steam_2006_12_45_1_2,AS,CG,
+2723_st_2006_plant_prime_mover_total_5416,f1_steam_2006_12_45_1_1,AS,CG,
+2723_gt_2007_plant_prime_mover_total_5416,f1_steam_2007_12_45_1_2,AS,CG,
+2723_st_2007_plant_prime_mover_total_5416,f1_steam_2007_12_45_1_1,AS,CG,
+2723_gt_2008_plant_prime_mover_total_5416,f1_steam_2008_12_45_1_2,AS,CG,
+2723_st_2008_plant_prime_mover_total_5416,f1_steam_2008_12_45_1_1,AS,CG,
+2723_gt_2009_plant_prime_mover_total_5416,f1_steam_2009_12_45_1_2,AS,CG,
+2723_st_2009_plant_prime_mover_total_5416,f1_steam_2009_12_45_1_1,AS,CG,
+2723_gt_2010_plant_prime_mover_total_5416,f1_steam_2010_12_45_1_2,AS,CG,cap matches another but net gen and inst year plus prior years match this one
+2723_st_2010_plant_prime_mover_total_5416,f1_steam_2010_12_45_1_1,AS,CG,
+2723_gt_2011_plant_prime_mover_total_5416,f1_steam_2011_12_45_1_2,AS,CG,cap matches another but net gen and inst year plus prior years match this one
+2723_st_2011_plant_prime_mover_total_5416,f1_steam_2011_12_45_1_1,AS,CG,
+2723_gt_2012_plant_prime_mover_total_5416,f1_steam_2012_12_45_1_2,AS,CG,cap matches another but inst year plus prior years match this one
+2723_st_2012_plant_prime_mover_total_5416,f1_steam_2012_12_45_1_1,AS,CG,
+2723_natural_gas_fired_combined_cycle_2012_plant_technology_total_5416,f1_steam_2012_12_45_4_1,AS,CG,
+2723_gt_2013_plant_prime_mover_total_5416_retired,f1_steam_2013_12_45_1_2,AS,CG,cap matches another but inst year plus prior years match this one
+2723_st_2013_plant_prime_mover_total_5416_retired,f1_steam_2013_12_45_1_1,AS,CG,
+2723_2013_plant_total_5416,f1_steam_2013_12_45_4_1,AS,CG,
+2723_gt_2014_plant_prime_mover_total_5416_retired,f1_steam_2014_12_45_1_1,AS,CG,cap matches another but inst year plus prior years match this one
+2723_st_2014_plant_prime_mover_total_5416_retired,f1_steam_2014_12_45_1_2,AS,CG,
+2723_2014_plant_total_5416,f1_steam_2014_12_45_4_1,AS,CG,
+2723_gt_2015_plant_prime_mover_total_5416_retired,f1_steam_2015_12_45_1_1,AS,CG,cap matches another but inst year plus prior years match this one
+2723_st_2015_plant_prime_mover_total_5416_retired,f1_steam_2015_12_45_1_2,AS,CG,
+2723_2015_plant_total_5416,f1_steam_2015_12_45_4_1,AS,CG,
+2723_gt_2016_plant_prime_mover_total_5416_retired,f1_steam_2016_12_45_1_1,AS,CG,cap matches another but inst year plus prior years match this one
+2723_st_2016_plant_prime_mover_total_5416_retired,f1_steam_2016_12_45_1_2,AS,CG,
+2723_2016_plant_total_5416,f1_steam_2016_12_45_4_1,AS,CG,
+2723_gt_2017_plant_prime_mover_total_5416_retired,f1_steam_2017_12_45_1_1,AS,CG,cap matches another but inst year plus prior years match this one
+2723_st_2017_plant_prime_mover_total_5416_retired,f1_steam_2017_12_45_1_2,AS,CG,
+2723_2017_plant_total_5416,f1_steam_2017_12_45_4_1,AS,CG,
+2723_gt_2018_plant_prime_mover_total_5416_retired,f1_steam_2018_12_45_1_2,AS,CG,cap matches another but inst year plus prior years match this one
+2723_st_2018_plant_prime_mover_total_5416_retired,f1_steam_2018_12_45_1_1,AS,CG,
+2723_2018_plant_total_5416,f1_steam_2018_12_45_4_1,AS,CG,
+2723_gt_2019_plant_prime_mover_total_5416_retired,f1_steam_2019_12_45_1_1,AS,CG,cap matches another but inst year plus prior years match this one
+2723_st_2019_plant_prime_mover_total_5416_retired,f1_steam_2019_12_45_1_2,AS,CG,
+2723_2019_plant_total_5416,f1_steam_2019_12_45_4_1,AS,CG,
+2723_gt_2020_plant_prime_mover_total_5416_retired,f1_steam_2020_12_45_1_2,AS,CG,
+2723_st_2020_plant_prime_mover_total_5416_retired,f1_steam_2020_12_45_1_1,AS,CG,
+2723_2020_plant_total_5416,f1_steam_2020_12_45_4_1,AS,CG,
+628_nuclear_2005_plant_technology_total_6455,f1_steam_2005_12_55_0_5,RF,CG,
+628_1969_2005_plant_operating_year_total_6455,f1_steam_2005_12_55_0_3,AS,CG,combo of plants from 66 and 69
+628_1984_2005_plant_operating_year_total_6455,f1_steam_2005_12_55_0_4,AS,CG,combo of plants from 82 and 84
+628_nuclear_2006_plant_technology_total_6455,f1_steam_2006_12_55_0_5,RF,CG,
+628_1969_2006_plant_operating_year_total_6455,f1_steam_2006_12_55_0_3,AS,CG,combo of plants from 66 and 69
+628_1984_2006_plant_operating_year_total_6455,f1_steam_2006_12_55_0_4,AS,CG,combo of plants from 82 and 84
+628_nuclear_2007_plant_technology_total_6455,f1_steam_2007_12_55_0_5,RF,CG,
+628_1969_2007_plant_operating_year_total_6455,f1_steam_2007_12_55_0_3,AS,CG,combo of plants from 66 and 69
+628_1984_2007_plant_operating_year_total_6455,f1_steam_2007_12_55_0_4,AS,CG,combo of plants from 82 and 84
+628_nuclear_2008_plant_technology_total_6455,f1_steam_2008_12_55_0_5,RF,CG,
+628_1969_2008_plant_operating_year_total_6455,f1_steam_2008_12_55_0_3,AS,CG,combo of plants from 66 and 69
+628_1984_2008_plant_operating_year_total_6455,f1_steam_2008_12_55_0_4,AS,CG,combo of plants from 82 and 84
+628_nuclear_2009_plant_technology_total_6455,f1_steam_2009_12_55_0_5,RF,CG,
+628_2_2009_plant_unit_total_6455,f1_steam_2009_12_55_0_3,AS,CG,combo of plants from 66 and 69
+628_4_2009_plant_unit_total_6455,f1_steam_2009_12_55_0_4,AS,CG,combo of plants from 82 and 84
+628_nuclear_2010_plant_technology_total_6455,f1_steam_2010_12_55_0_5,RF,CG,
+628_2_2010_plant_unit_total_6455,f1_steam_2010_12_55_0_3,AS,CG,combo of plants from 66 and 69
+628_4_2010_plant_unit_total_6455,f1_steam_2010_12_55_0_4,AS,CG,combo of plants from 82 and 84
+628_nuclear_2011_plant_technology_total_6455,f1_steam_2011_12_55_0_5,RF,CG,
+628_2_2011_plant_unit_total_6455,f1_steam_2011_12_55_0_2,AS,CG,combo of plants from 66 and 69
+628_4_2011_plant_unit_total_6455,f1_steam_2011_12_55_0_3,AS,CG,combo of plants from 82 and 84
+628_nuclear_2012_plant_technology_total_6455,f1_steam_2012_12_55_0_5,RF,CG,
+628_2_2012_plant_unit_total_6455,f1_steam_2012_12_55_0_2,AS,CG,combo of plants from 66 and 69
+628_4_2012_plant_unit_total_6455,f1_steam_2012_12_55_0_3,AS,CG,combo of plants from 82 and 84
+628_nuclear_2013_plant_technology_total_6455,f1_steam_2013_12_55_0_5,RF,CG,
+628_2_2013_plant_unit_total_6455,f1_steam_2013_12_55_0_2,AS,CG,combo of plants from 66 and 69
+628_4_2013_plant_unit_total_6455,f1_steam_2013_12_55_0_3,AS,CG,combo of plants from 82 and 84
+628_2014_plant_total_6455_retired,f1_steam_2014_12_55_0_5,RF,CG,
+628_2_2014_plant_unit_total_6455,f1_steam_2014_12_55_0_2,AS,CG,combo of plants from 66 and 69
+628_4_2014_plant_unit_total_6455,f1_steam_2014_12_55_0_3,AS,CG,combo of plants from 82 and 84
+628_2015_plant_total_6455_retired,f1_steam_2015_12_55_0_5,RF,CG,
+628_2_2015_plant_unit_total_6455,f1_steam_2015_12_55_0_2,AS,CG,combo of plants from 66 and 69
+628_4_2015_plant_unit_total_6455,f1_steam_2015_12_55_0_3,AS,CG,combo of plants from 82 and 84
+628_2016_plant_total_6455_retired,f1_steam_2016_12_55_0_5,RF,CG,
+628_2_2016_plant_unit_total_6455,f1_steam_2016_12_55_0_2,AS,CG,combo of plants from 66 and 69
+628_4_2016_plant_unit_total_6455,f1_steam_2016_12_55_0_3,AS,CG,combo of plants from 82 and 84
+628_2017_plant_total_6455_retired,f1_steam_2017_12_55_0_5,RF,CG,
+628_2_2017_plant_unit_total_6455,f1_steam_2017_12_55_0_2,AS,CG,combo of plants from 66 and 69
+628_4_2017_plant_unit_total_6455,f1_steam_2017_12_55_0_3,AS,CG,combo of plants from 82 and 84
+628_2_2018_plant_unit_total_6455,f1_steam_2018_12_55_0_2,AS,CG,combo of plants from 66 and 69
+628_4_2018_plant_unit_total_6455,f1_steam_2018_12_55_0_3,AS,CG,combo of plants from 82 and 84
+628_st_2019_plant_prime_mover_total_6455,f1_steam_2019_12_55_2_5,RF,CG,
+628_st_2020_plant_prime_mover_total_6455,f1_steam_2020_12_55_0_2,AS,CG,
+3250_2005_plant_total_3046,f1_steam_2005_12_17_3_4,RF,CG,
+3250_2006_plant_total_3046,f1_steam_2006_12_17_3_4,RF,CG,
+3250_2007_plant_total_3046,f1_steam_2007_12_17_3_4,RF,CG,
+3250_2008_plant_total_3046,f1_steam_2008_12_17_3_4,RF,CG,
+3250_2009_plant_total_3046,f1_steam_2009_12_17_3_4,RF,CG,
+3250_2010_plant_total_3046,f1_steam_2010_12_17_3_4,RF,CG,
+3250_2011_plant_total_3046,f1_steam_2011_12_17_3_4,RF,CG,
+3250_2012_plant_total_3046,f1_steam_2012_12_17_2_4,RF,CG,
+3250_2013_plant_total_3046,f1_steam_2013_12_17_3_4,RF,CG,
+3250_2014_plant_total_3046,f1_steam_2014_12_17_3_4,RF,CG,
+3250_2015_plant_total_3046,f1_steam_2015_12_17_3_3,RF,CG,
+3250_2016_plant_total_3046,f1_steam_2016_12_17_3_3,RF,CG,
+3250_2017_plant_total_3046,f1_steam_2017_12_17_3_3,RF,CG,
+3250_2018_plant_total_3046,f1_steam_2018_12_17_3_3,RF,CG,
+3250_2019_plant_total_3046,f1_steam_2019_12_17_3_3,RF,CG,
+3250_2020_plant_total_3046,f1_steam_2020_12_17_3_3,AS,CG,
+6046_2005_plant_total_6455,f1_steam_2005_12_55_1_3,RF,CG,
+6046_2006_plant_total_6455,f1_steam_2006_12_55_1_3,RF,CG,
+6046_2007_plant_total_6455,f1_steam_2007_12_55_1_3,AS,CG,
+6046_2008_plant_total_6455,f1_steam_2008_12_55_1_3,RF,CG,
+6046_2009_plant_total_6455,f1_steam_2009_12_55_1_3,RF,CG,
+6046_2010_plant_total_6455,f1_steam_2010_12_55_1_3,RF,CG,
+6046_2011_plant_total_6455,f1_steam_2011_12_55_2_2,AS,CG,
+6046_2012_plant_total_6455,f1_steam_2012_12_55_2_2,RF,CG,
+6046_2013_plant_total_6455,f1_steam_2013_12_55_2_2,RF,CG,
+6046_2014_plant_total_6455,f1_steam_2014_12_55_2_2,RF,CG,
+6046_2015_plant_total_6455,f1_steam_2015_12_55_2_2,AS,CG,
+6046_2016_plant_total_6455,f1_steam_2016_12_55_2_2,AS,CG,
+6046_2017_plant_total_6455,f1_steam_2017_12_55_2_2,RF,CG,
+6046_2018_plant_total_6455,f1_steam_2018_12_55_2_2,RF,CG,
+6046_2019_plant_total_6455,f1_steam_2019_12_55_1_4,RF,CG,
+6046_2020_plant_total_6455,f1_steam_2020_12_55_2_1,AS,CG,
+6018_2005_plant_owned_3542,f1_steam_2005_12_27_0_5,AS,CG,
+6018_2006_plant_owned_3542,f1_steam_2006_12_178_0_1,AS,CG,
+6018_2007_plant_owned_3542,f1_steam_2007_12_178_0_1,AS,CG,
+6018_2008_plant_owned_3542,f1_steam_2008_12_178_0_1,AS,CG,
+6018_2009_plant_owned_3542,f1_steam_2009_12_178_0_1,AS,CG,
+6018_2010_plant_owned_3542,f1_steam_2010_12_178_0_1,AS,CG,
+6018_2011_plant_owned_3542,f1_steam_2011_12_178_0_1,AS,CG,
+6018_2012_plant_owned_3542,f1_steam_2012_12_178_0_1,AS,CG,
+6018_2013_plant_owned_3542,f1_steam_2013_12_178_0_1,AS,CG,
+6018_2014_plant_owned_3542,f1_steam_2014_12_178_0_1,AS,CG,"cap off, net gen good match. Year is transition between owned and total reporting"
+6018_2015_plant_total_55729,f1_steam_2015_12_178_0_1,AS,CG,
+6018_2016_plant_total_55729,f1_steam_2016_12_178_0_1,AS,CG,
+6018_2017_plant_total_55729,f1_steam_2017_12_178_0_1,AS,CG,
+6018_2018_plant_total_55729,f1_steam_2018_12_178_0_1,AS,CG,
+6018_2019_plant_total_55729,f1_steam_2019_12_178_0_1,AS,CG,
+6018_2020_plant_total_55729,f1_steam_2020_12_178_0_1,AS,CG,
+2831_2005_plant_total_3542,f1_steam_2005_12_27_1_4,AS,CG,
+2831_2006_plant_total_3542,f1_steam_2006_12_27_1_4,AS,CG,
+2831_2007_plant_total_3542,f1_steam_2007_12_27_1_4,AS,CG,
+2831_2008_plant_total_3542,f1_steam_2008_12_27_1_4,AS,CG,
+2831_2009_plant_total_3542,f1_steam_2009_12_27_1_5,AS,CG,
+2831_2010_plant_total_3542,f1_steam_2010_12_27_1_5,AS,CG,
+2831_2011_plant_total_57393,f1_steam_2011_12_27_1_5,AS,CG,
+2831_2012_plant_total_57393,f1_steam_2012_12_27_1_5,AS,CG,
+2831_2013_plant_total_57393,f1_steam_2013_12_27_1_5,AS,CG,
+2831_2014_plant_total_57393,f1_steam_2014_12_27_1_5,AS,CG,
+2831_2015_plant_total_59917,f1_steam_2015_12_27_1_5,AS,CG,cap not zero in EIA
+1004_2005_plant_total_15470,f1_steam_2005_12_144_0_1,RF,CG,
+1004_2006_plant_total_15470,f1_steam_2006_12_144_0_1,RF,CG,
+1004_2007_plant_total_15470,f1_steam_2007_12_144_0_1,RF,CG,
+1004_2008_plant_total_15470,f1_steam_2008_12_144_0_1,RF,CG,
+1004_2009_plant_total_15470,f1_steam_2009_12_144_0_1,RF,CG,
+1004_2010_plant_total_15470,f1_steam_2010_12_144_0_1,RF,CG,
+1004_2011_plant_total_15470,f1_steam_2011_12_144_0_1,RF,CG,
+1004_petroleum_liquids_2012_plant_technology_total_15470_retired,f1_steam_2012_12_144_0_1,RF,CG,
+1004_1_2013_plant_unit_total_15470_retired,f1_steam_2013_12_144_0_1,RF,CG,
+1004_2013_plant_total_15470,f1_steam_2013_12_144_3_1,RF,CG,
+1004_petroleum_liquids_2014_plant_technology_total_15470_retired,f1_steam_2014_12_144_0_1,RF,CG,
+1004_2014_plant_total_15470,f1_steam_2014_12_144_3_1,RF,CG,
+1004_petroleum_liquids_2015_plant_technology_total_15470_retired,f1_steam_2015_12_144_0_1,RF,CG,
+1004_2015_plant_total_15470,f1_steam_2015_12_144_3_1,RF,CG,
+1004_petroleum_liquids_2016_plant_technology_total_15470_retired,f1_steam_2016_12_144_0_1,RF,CG,
+1004_2016_plant_total_15470,f1_steam_2016_12_144_3_1,RF,CG,
+1004_petroleum_liquids_2017_plant_technology_total_15470_retired,f1_steam_2017_12_144_0_1,RF,CG,
+1004_2017_plant_total_15470,f1_steam_2017_12_144_3_1,RF,CG,
+1004_petroleum_liquids_2018_plant_technology_total_15470_retired,f1_steam_2018_12_144_0_1,RF,CG,
+1004_2018_plant_total_15470,f1_steam_2018_12_144_3_1,RF,CG,
+1004_petroleum_liquids_2019_plant_technology_total_15470_retired,f1_steam_2019_12_144_0_1,RF,CG,
+1004_2019_plant_total_15470,f1_steam_2019_12_144_3_1,RF,CG,
+1004_2020_plant_total_15470,f1_steam_2020_12_144_3_1,AS,CG,
+1008_2005_plant_total_15470,f1_steam_2005_12_144_0_4,RF,CG,
+1008_2006_plant_total_15470,f1_steam_2006_12_144_0_4,RF,CG,
+1008_2007_plant_total_15470,f1_steam_2007_12_144_0_4,RF,CG,
+1008_2008_plant_total_15470,f1_steam_2008_12_144_0_4,RF,CG,
+1008_2009_plant_total_15470,f1_steam_2009_12_144_0_4,RF,CG,
+1008_2010_plant_total_15470,f1_steam_2010_12_144_0_4,RF,CG,
+1008_2011_plant_total_15470,f1_steam_2011_12_144_1_3,RF,CG,
+1008_2012_plant_total_15470,f1_steam_2012_12_144_1_3,AS,CG,
+1008_2013_plant_total_15470,f1_steam_2013_12_144_1_3,RF,CG,
+1008_2014_plant_total_15470,f1_steam_2014_12_144_1_3,RF,CG,
+1008_2015_plant_total_15470,f1_steam_2015_12_144_1_3,RF,CG,
+1008_2016_plant_total_15470,f1_steam_2016_12_144_1_3,RF,CG,
+1008_2017_plant_total_15470,f1_steam_2017_12_144_1_3,RF,CG,
+1008_2018_plant_total_15470,f1_steam_2018_12_144_1_3,RF,CG,
+1008_2019_plant_total_15470,f1_steam_2019_12_144_1_3,AS,CG,
+1008_2020_plant_total_15470,f1_steam_2020_12_144_1_3,AS,CG,
+6113_2005_plant_owned_15470,f1_steam_2005_12_144_1_1,RF,CG,
+6113_2006_plant_owned_15470,f1_steam_2006_12_144_1_1,RF,CG,
+6113_2007_plant_owned_15470,f1_steam_2007_12_144_1_1,RF,CG,
+6113_2008_plant_owned_15470,f1_steam_2008_12_144_1_1,RF,CG,
+6113_2009_plant_owned_15470,f1_steam_2009_12_144_1_1,RF,CG,
+6113_2010_plant_owned_15470,f1_steam_2010_12_144_1_1,RF,CG,
+6113_2011_plant_owned_15470,f1_steam_2011_12_144_0_3,RF,CG,
+6113_2012_plant_owned_15470,f1_steam_2012_12_144_0_3,RF,CG,
+6113_2013_plant_owned_15470,f1_steam_2013_12_144_0_3,RF,CG,
+6113_2014_plant_owned_15470,f1_steam_2014_12_144_0_3,RF,CG,
+6113_2015_plant_owned_15470,f1_steam_2015_12_144_0_3,RF,CG,
+6113_2016_plant_owned_15470,f1_steam_2016_12_144_0_3,RF,CG,
+6113_2017_plant_owned_15470,f1_steam_2017_12_144_0_3,RF,CG,
+6113_2018_plant_owned_15470,f1_steam_2018_12_144_0_3,RF,CG,
+6113_2019_plant_owned_15470,f1_steam_2019_12_144_0_3,RF,CG,
+6113_2020_plant_owned_15470,f1_steam_2020_12_144_0_3,AS,CG,
+3251_gt_2005_plant_prime_mover_total_3046,f1_steam_2005_12_17_1_5,RF,CG,
+3251_conventional_steam_coal_2005_plant_technology_total_3046,f1_steam_2005_12_17_1_4,RF,CG,
+3251_nuclear_2005_plant_technology_total_3046,f1_steam_2005_12_17_2_5,RF,CG,
+3251_gt_2006_plant_prime_mover_total_3046,f1_steam_2006_12_17_1_5,RF,CG,
+3251_conventional_steam_coal_2006_plant_technology_total_3046,f1_steam_2006_12_17_1_4,RF,CG,
+3251_nuclear_2006_plant_technology_total_3046,f1_steam_2006_12_17_2_5,RF,CG,
+3251_gt_2007_plant_prime_mover_total_3046,f1_steam_2007_12_17_1_5,AS,CG,
+3251_conventional_steam_coal_2007_plant_technology_total_3046,f1_steam_2007_12_17_1_4,RF,CG,
+3251_nuclear_2007_plant_technology_total_3046,f1_steam_2007_12_17_2_5,RF,CG,
+3251_gt_2008_plant_prime_mover_total_3046,f1_steam_2008_12_17_1_5,RF,CG,
+3251_conventional_steam_coal_2008_plant_technology_total_3046,f1_steam_2008_12_17_1_4,AS,CG,
+3251_nuclear_2008_plant_technology_total_3046,f1_steam_2008_12_17_2_5,RF,CG,
+3251_gt_2009_plant_prime_mover_total_3046,f1_steam_2009_12_17_1_5,RF,CG,
+3251_conventional_steam_coal_2009_plant_technology_total_3046,f1_steam_2009_12_17_1_4,AS,CG,"cap off, net gen good"
+3251_nuclear_2009_plant_technology_total_3046,f1_steam_2009_12_17_2_5,RF,CG,
+3251_gt_2010_plant_prime_mover_total_3046,f1_steam_2010_12_17_1_5,RF,CG,
+3251_1_2010_plant_unit_total_3046,f1_steam_2010_12_17_1_4,AS,CG,"cap off, net gen good"
+3251_nuclear_2010_plant_technology_total_3046,f1_steam_2010_12_17_2_5,RF,CG,
+3251_gt_2011_plant_prime_mover_total_3046,f1_steam_2011_12_17_1_5,RF,CG,
+3251_1_2011_plant_unit_total_3046,f1_steam_2011_12_17_1_4,AS,CG,"cap off, net gen good"
+3251_nuclear_2011_plant_technology_total_3046,f1_steam_2011_12_17_2_5,RF,CG,
+3251_gt_2012_plant_prime_mover_total_3046,f1_steam_2012_12_17_3_3,RF,CG,
+3251_1_2012_plant_unit_total_3046,f1_steam_2012_12_17_0_5,AS,CG,"cap off, net gen good"
+3251_nuclear_2012_plant_technology_total_3046,f1_steam_2012_12_17_1_5,AS,CG,"cap off, net gen good"
+3251_2013_plant_total_3046_retired,f1_steam_2013_12_17_0_5,AS,CG,linked based on year
+3251_gt_2013_plant_prime_mover_total_3046,f1_steam_2013_12_17_2_3,AS,CG,
+3251_st_2013_plant_prime_mover_total_3046,f1_steam_2013_12_17_1_5,AS,CG,
+3251_st_2014_plant_prime_mover_total_3046_retired,f1_steam_2014_12_17_0_5,AS,CG,linked based on year
+3251_gt_2014_plant_prime_mover_total_3046_retired,f1_steam_2014_12_17_2_3,RF,CG,linked based on year
+3251_2014_plant_total_3046,f1_steam_2014_12_17_1_5,AS,CG,
+3251_st_2015_plant_prime_mover_total_3046_retired,f1_steam_2015_12_17_0_5,RF,CG,linked based on year
+3251_gt_2015_plant_prime_mover_total_3046_retired,f1_steam_2015_12_17_2_4,RF,CG,linked based on year
+3251_2015_plant_total_3046,f1_steam_2015_12_17_2_1,RF,CG,
+3251_st_2016_plant_prime_mover_total_3046_retired,f1_steam_2016_12_17_0_5,AS,CG,linked based on year
+3251_gt_2016_plant_prime_mover_total_3046_retired,f1_steam_2016_12_17_2_4,RF,CG,linked based on year
+3251_2016_plant_total_3046,f1_steam_2016_12_17_2_1,RF,CG,
+3251_st_2017_plant_prime_mover_total_3046_retired,f1_steam_2017_12_17_0_5,AS,CG,linked based on year
+3251_gt_2017_plant_prime_mover_total_3046_retired,f1_steam_2017_12_17_2_4,RF,CG,linked based on year
+3251_2017_plant_total_3046,f1_steam_2017_12_17_2_1,RF,CG,
+3251_st_2018_plant_prime_mover_total_3046_retired,f1_steam_2018_12_17_0_5,RF,CG,linked based on year
+3251_gt_2018_plant_prime_mover_total_3046_retired,f1_steam_2018_12_17_2_4,RF,CG,linked based on year
+3251_2018_plant_total_3046,f1_steam_2018_12_17_2_1,RF,CG,
+3251_st_2019_plant_prime_mover_total_3046_retired,f1_steam_2019_12_17_0_5,RF,CG,linked based on year
+3251_gt_2019_plant_prime_mover_total_3046_retired,f1_steam_2019_12_17_2_4,RF,CG,linked based on year
+3251_2019_plant_total_3046,f1_steam_2019_12_17_2_1,RF,CG,
+3251_2020_plant_total_3046,f1_steam_2020_12_17_2_1,AS,CG,
+58215_2013_plant_total_3046,f1_steam_2013_12_17_3_5,AS,CG,"capacity off, net gen match"
+58215_2014_plant_total_3046,f1_steam_2014_12_17_3_5,AS,CG,"capacity off, net gen match"
+58215_2015_plant_total_3046,f1_steam_2015_12_17_3_4,AS,CG,"capacity off, net gen match"
+58215_2016_plant_total_3046,f1_steam_2016_12_17_3_4,RF,CG,"capacity off, net gen match"
+58215_2017_plant_total_3046,f1_steam_2017_12_17_3_4,AS,CG,"capacity off, net gen match"
+58215_2018_plant_total_3046,f1_steam_2018_12_17_3_4,AS,CG,"capacity off, net gen match"
+58215_2019_plant_total_3046,f1_steam_2019_12_17_3_4,RF,CG,
+58215_2020_plant_total_3046,f1_steam_2020_12_17_3_4,AS,CG,
+6015_2005_plant_owned_3046,f1_steam_2005_12_17_3_5,RF,CG,
+6015_2006_plant_owned_3046,f1_steam_2006_12_17_3_5,RF,Cg,
+6015_2007_plant_owned_3046,f1_steam_2007_12_17_3_5,RF,CG,
+6015_2008_plant_owned_3046,f1_steam_2008_12_17_3_5,RF,CG,
+6015_2009_plant_owned_3046,f1_steam_2009_12_17_3_5,RF,CG,
+6015_2010_plant_owned_3046,f1_steam_2010_12_17_3_5,RF,CG,
+6015_2011_plant_owned_3046,f1_steam_2011_12_17_3_5,RF,CG,
+6015_2012_plant_owned_3046,f1_steam_2012_12_17_1_4,AS,CG,cap off but gen close
+6015_2013_plant_owned_3046,f1_steam_2013_12_17_1_4,AS,CG,cap off but gen close
+6015_2014_plant_owned_3046,f1_steam_2014_12_17_1_4,RF,CG,
+6015_2015_plant_total_3046,f1_steam_2015_12_17_1_5,RF,CG,
+6015_2016_plant_total_3046,f1_steam_2016_12_17_1_5,RF,CG,
+6015_2017_plant_total_3046,f1_steam_2017_12_17_1_5,RF,CG,
+6015_2018_plant_total_3046,f1_steam_2018_12_17_1_5,RF,CG,
+6015_2019_plant_total_3046,f1_steam_2019_12_17_1_5,RF,CG,
+6015_2020_plant_total_3046,f1_steam_2020_12_17_1_5,AS,CG,
+7302_2005_plant_total_6455,f1_steam_2005_12_55_3_3,AS,CG,
+7302_2006_plant_total_6455,f1_steam_2006_12_55_3_3,RF,CG,
+7302_2007_plant_total_6455,f1_steam_2007_12_55_3_3,RF,CG,
+7302_2008_plant_total_6455,f1_steam_2008_12_55_3_3,RF,CG,
+7302_2009_plant_total_6455,f1_steam_2009_12_55_3_3,RF,CG,
+7302_2010_plant_total_6455,f1_steam_2010_12_55_3_3,RF,CG,
+7302_2011_plant_total_6455,f1_steam_2011_12_55_1_2,AS,CG,
+7302_2012_plant_total_6455,f1_steam_2012_12_55_1_2,RF,CG,
+7302_2013_plant_total_6455,f1_steam_2013_12_55_1_2,RF,CG,
+7302_2014_plant_total_6455,f1_steam_2014_12_55_1_2,RF,CG,
+7302_2015_plant_total_6455,f1_steam_2015_12_55_1_2,RF,CG,
+7302_2016_plant_total_6455,f1_steam_2016_12_55_1_2,RF,CG,
+7302_2017_plant_total_6455,f1_steam_2017_12_55_1_2,RF,CG,
+7302_2018_plant_total_6455,f1_steam_2018_12_55_1_1,RF,CG,
+7302_2019_plant_total_6455,f1_steam_2019_12_55_0_3,RF,CG,
+7302_2020_plant_total_6455,f1_steam_2020_12_55_0_5,AS,CG,
+630_2005_plant_total_6455,f1_steam_2005_12_55_2_4,RF,CG,
+630_2006_plant_total_6455,f1_steam_2006_12_55_2_4,RF,CG,
+630_2007_plant_total_6455,f1_steam_2007_12_55_2_4,RF,CG,
+630_2008_plant_total_6455,f1_steam_2008_12_55_2_4,RF,CG,
+630_2009_plant_total_6455,f1_steam_2009_12_55_2_4,RF,CG,
+630_2010_plant_total_6455,f1_steam_2010_12_55_2_4,RF,CG,
+630_2011_plant_total_6455,f1_steam_2011_12_55_2_3,RF,CG,
+630_2012_plant_total_6455,f1_steam_2012_12_55_2_3,RF,CG,
+630_2013_plant_total_6455,f1_steam_2013_12_55_2_3,RF,CG,
+630_2014_plant_total_6455,f1_steam_2014_12_55_2_3,RF,CG,
+630_2015_plant_total_6455,f1_steam_2015_12_55_2_3,RF,CG,
+630_2016_plant_total_6455,f1_steam_2016_12_55_2_3,RF,CG,
+630_2017_plant_total_6455,f1_steam_2017_12_55_2_3,RF,CG,
+630_2018_plant_total_6455,f1_steam_2018_12_55_2_3,RF,CG,
+630_2019_plant_total_6455,f1_steam_2019_12_55_1_5,AS,CG,
+8049_2005_plant_total_6455,f1_steam_2005_12_55_1_4,RF,CG,
+8049_2006_plant_total_6455,f1_steam_2006_12_55_1_4,RF,CG,
+8049_2007_plant_total_6455,f1_steam_2007_12_55_1_4,RF,CG,
+8049_2008_plant_total_6455,f1_steam_2008_12_55_1_4,RF,CG,
+8049_2009_plant_total_6455,f1_steam_2009_12_55_1_4,RF,CG,
+8049_2010_plant_total_6455,f1_steam_2010_12_55_1_4,RF,CG,
+8049_2011_plant_total_6455,f1_steam_2011_12_55_2_4,AS,CG,
+8049_2012_plant_total_6455,f1_steam_2012_12_55_2_4,RF,CG,
+8049_2013_plant_total_6455,f1_steam_2013_12_55_2_4,RF,CG,
+8049_2014_plant_total_6455,f1_steam_2014_12_55_2_4,RF,CG,
+8049_2015_plant_total_6455,f1_steam_2015_12_55_2_4,RF,CG,
+8049_2016_plant_total_6455,f1_steam_2016_12_55_2_4,RF,CG,
+8049_2017_plant_total_6455,f1_steam_2017_12_55_2_4,RF,CG,
+8049_2018_plant_total_6455,f1_steam_2018_12_55_2_4,RF,CG,
+8049_2019_plant_total_6455,f1_steam_2019_12_55_2_1,RF,CG,
+8049_2020_plant_total_6455,f1_steam_2020_12_55_2_2,AS,CG,
+2850_2005_plant_owned_3542,f1_steam_2005_12_27_2_1,,CG,
+2850_2006_plant_owned_3542,f1_steam_2006_12_27_2_1,,CG,
+2850_2007_plant_owned_3542,f1_steam_2007_12_27_2_1,,CG,
+2850_2008_plant_owned_3542,f1_steam_2008_12_27_2_1,,CG,
+2850_2009_plant_owned_3542,f1_steam_2009_12_27_0_5,,CG,
+2850_2010_plant_owned_3542,f1_steam_2010_12_27_0_5,,CG,
+2850_2011_plant_owned_3542,f1_steam_2011_12_27_0_5,,CG,
+2850_2012_plant_owned_3542,f1_steam_2012_12_27_0_5,,CG,
+2850_2013_plant_owned_3542,f1_steam_2013_12_27_0_5,,CG,
+2850_2014_plant_owned_3542,f1_steam_2014_12_27_0_5,,CG,
+2850_2015_plant_owned_3542,f1_steam_2015_12_27_0_5,,CG,
+6031_st_2005_plant_prime_mover_owned_3542,f1_steam_2005_12_27_2_2,AS,CG,
+6031_st_2006_plant_prime_mover_owned_3542,f1_steam_2006_12_27_2_2,AS,CG,
+6031_st_2007_plant_prime_mover_owned_3542,f1_steam_2007_12_27_2_2,AS,CG,
+6031_2_2008_plant_gen_owned_3542,f1_steam_2008_12_27_2_2,AS,CG,
+6031_2_2009_plant_gen_owned_3542,f1_steam_2009_12_27_1_1,AS,CG,
+6031_2_2010_plant_gen_owned_3542,f1_steam_2010_12_27_1_1,AS,CG,
+6031_2_2011_plant_gen_owned_3542,f1_steam_2011_12_27_1_1,AS,CG,
+6031_2_2012_plant_gen_owned_3542,f1_steam_2012_12_27_1_1,AS,CG,
+6031_2_2013_plant_gen_owned_3542,f1_steam_2013_12_27_1_1,AS,CG,
+6031_2_2014_plant_gen_owned_3542,f1_steam_2014_12_27_1_1,AS,CG,
+6031_2_2015_plant_gen_owned_3542,f1_steam_2015_12_27_1_1,AS,CG,
+3264_gt_2005_plant_prime_mover_total_5416,f1_steam_2005_12_45_0_5,AS,CG,
+3264_st_2005_plant_prime_mover_total_5416,f1_steam_2005_12_45_0_4,AS,CG,
+3264_gt_2006_plant_prime_mover_total_5416,f1_steam_2006_12_45_0_5,AS,CG,
+3264_st_2006_plant_prime_mover_total_5416,f1_steam_2006_12_45_0_4,AS,CG,
+3264_gt_2007_plant_prime_mover_total_5416,f1_steam_2007_12_45_0_5,AS,CG,"cap off, net gen close"
+3264_st_2007_plant_prime_mover_total_5416,f1_steam_2007_12_45_0_4,AS,CG,
+3264_gt_2008_plant_prime_mover_total_5416,f1_steam_2008_12_45_0_5,AS,CG,"cap off, net gen good"
+3264_st_2008_plant_prime_mover_total_5416,f1_steam_2008_12_45_0_4,AS,CG,
+3264_gt_2009_plant_prime_mover_total_5416,f1_steam_2009_12_45_0_5,AS,CG,"cap off, net gen good"
+3264_st_2009_plant_prime_mover_total_5416,f1_steam_2009_12_45_0_4,AS,CG,
+3264_gt_2010_plant_prime_mover_total_5416,f1_steam_2010_12_45_0_5,AS,CG,"cap off, net gen good"
+3264_st_2010_plant_prime_mover_total_5416,f1_steam_2010_12_45_0_4,AS,CG,
+3264_gt_2011_plant_prime_mover_total_5416,f1_steam_2011_12_45_0_5,AS,CG,"cap off, net gen good"
+3264_st_2011_plant_prime_mover_total_5416,f1_steam_2011_12_45_0_4,AS,CG,
+3264_gt_2012_plant_prime_mover_total_5416,f1_steam_2012_12_45_0_5,AS,CG,
+3264_st_2012_plant_prime_mover_total_5416,f1_steam_2012_12_45_0_4,AS,CG,
+3264_gt_2013_plant_prime_mover_total_5416,f1_steam_2013_12_45_0_5,AS,CG,
+3264_st_2013_plant_prime_mover_total_5416,f1_steam_2013_12_45_0_4,AS,CG,
+3264_gt_2014_plant_prime_mover_total_5416,f1_steam_2014_12_45_0_5,AS,CG,
+3264_st_2014_plant_prime_mover_total_5416,f1_steam_2014_12_45_0_4,AS,CG,
+3264_gt_2015_plant_prime_mover_total_5416,f1_steam_2015_12_45_0_5,AS,CG,
+3264_st_2015_plant_prime_mover_total_5416,f1_steam_2015_12_45_0_4,AS,CG,
+3264_gt_2016_plant_prime_mover_total_5416,f1_steam_2016_12_45_0_5,AS,CG,
+3264_st_2016_plant_prime_mover_total_5416,f1_steam_2016_12_45_0_4,AS,CG,
+3264_gt_2017_plant_prime_mover_total_5416,f1_steam_2017_12_45_0_5,AS,CG,
+3264_st_2017_plant_prime_mover_total_5416,f1_steam_2017_12_45_0_4,AS,CG,
+3264_st_2018_plant_prime_mover_total_5416,f1_steam_2018_12_45_0_4,AS,CG,based on net gen
+3264_gt_2018_plant_prime_mover_total_5416,f1_steam_2018_12_45_0_5,AS,CG,
+3264_4_2018_plant_unit_total_5416,f1_steam_2018_12_45_4_2,AS,CG,cap and net gen off
+3264_3_2019_plant_unit_total_5416,f1_steam_2019_12_45_0_4,AS,CG,based on net gen
+3264_gt_2019_plant_prime_mover_total_5416,f1_steam_2019_12_45_0_5,AS,CG,
+3264_4_2019_plant_unit_total_5416,f1_steam_2019_12_45_4_2,AS,CG,cap and net gen off
+3264_gt_2020_plant_prime_mover_total_5416,f1_steam_2020_12_45_0_5,AS,CG,
+3264_3_2020_plant_unit_total_5416,f1_steam_2020_12_45_0_4,AS,CG,
+3264_4_2020_plant_unit_total_5416,f1_steam_2020_12_45_4_2,AS,CG,based on net gen
+7277_2005_plant_total_5416,f1_steam_2005_12_45_2_4,AS,CG,"cap off, net gen good"
+7277_2006_plant_total_5416,f1_steam_2006_12_45_2_4,AS,CG,"cap off, net gen good"
+7277_2007_plant_total_5416,f1_steam_2007_12_45_2_4,AS,CG,"cap off, net gen good"
+7277_2008_plant_total_5416,f1_steam_2008_12_45_2_4,AS,CG,"cap off, net gen good"
+7277_2009_plant_total_5416,f1_steam_2009_12_45_2_4,AS,CG,"cap off, net gen good"
+7277_2010_plant_total_5416,f1_steam_2010_12_45_2_4,AS,CG,"cap off, net gen good"
+7277_2011_plant_total_5416,f1_steam_2011_12_45_2_4,AS,CG,"cap off, net gen good"
+7277_2012_plant_total_5416,f1_steam_2012_12_45_2_4,AS,CG,
+7277_2013_plant_total_5416,f1_steam_2013_12_45_2_4,AS,CG,
+7277_2014_plant_total_5416,f1_steam_2014_12_45_2_4,AS,CG,
+7277_2015_plant_total_5416,f1_steam_2015_12_45_2_4,AS,CG,
+7277_2016_plant_total_5416,f1_steam_2016_12_45_2_4,AS,CG,
+7277_2017_plant_total_5416,f1_steam_2017_12_45_2_4,AS,CG,
+7277_2018_plant_total_5416,f1_steam_2018_12_45_2_4,AS,CG,
+7277_2019_plant_total_5416,f1_steam_2019_12_45_2_4,AS,CG,
+7277_2020_plant_total_5416,f1_steam_2020_12_45_2_4,AS,CG,
+2713_gt_2005_plant_prime_mover_total_3046,f1_steam_2005_12_17_1_3,RF,CG,
+2713_st_2005_plant_prime_mover_total_3046,f1_steam_2005_12_17_1_2,RF,CG,
+2713_gt_2006_plant_prime_mover_total_3046,f1_steam_2006_12_17_1_3,RF,CG,
+2713_st_2006_plant_prime_mover_total_3046,f1_steam_2006_12_17_1_2,RF,CG,
+2713_gt_2007_plant_prime_mover_total_3046,f1_steam_2007_12_17_1_3,RF,CG,
+2713_st_2007_plant_prime_mover_total_3046,f1_steam_2007_12_17_1_2,RF,CG,
+2713_gt_2008_plant_prime_mover_total_3046,f1_steam_2008_12_17_1_3,RF,CG,
+2713_st_2008_plant_prime_mover_total_3046,f1_steam_2008_12_17_1_2,RF,CG,
+2713_gt_2009_plant_prime_mover_total_3046,f1_steam_2009_12_17_1_3,RF,CG,
+2713_st_2009_plant_prime_mover_total_3046,f1_steam_2009_12_17_1_2,RF,CG,
+2713_gt_2010_plant_prime_mover_total_3046,f1_steam_2010_12_17_1_3,RF,CG,
+2713_st_2010_plant_prime_mover_total_3046,f1_steam_2010_12_17_1_2,RF,CG,
+2713_gt_2011_plant_prime_mover_total_3046,f1_steam_2011_12_17_1_3,RF,CG,
+2713_st_2011_plant_prime_mover_total_3046,f1_steam_2011_12_17_1_2,RF,CG,
+2713_gt_2012_plant_prime_mover_total_3046,f1_steam_2012_12_17_3_4,RF,CG,
+2713_st_2012_plant_prime_mover_total_3046,f1_steam_2012_12_17_1_2,RF,CG,
+2713_st_2013_plant_prime_mover_total_3046,f1_steam_2013_12_17_1_2,RF,CG,
+58697_2013_plant_total_3046,f1_steam_2013_12_17_2_4,,CG,
+2713_2014_plant_total_3046,f1_steam_2014_12_17_1_2,,CG,
+58697_2014_plant_total_3046,f1_steam_2014_12_17_2_4,,CG,
+2713_2015_plant_total_3046,f1_steam_2015_12_17_1_2,,CG,
+58697_2015_plant_total_3046,f1_steam_2015_12_17_2_5,,CG,
+2713_2016_plant_total_3046,f1_steam_2016_12_17_1_2,,CG,
+58697_2016_plant_total_3046,f1_steam_2016_12_17_2_5,,CG,
+2713_2017_plant_total_3046,f1_steam_2017_12_17_1_2,RF,CG,
+58697_2017_plant_total_3046,f1_steam_2017_12_17_2_5,,CG,
+2713_2018_plant_total_3046_retired,f1_steam_2018_12_17_1_2,RF,CG,
+58697_2018_plant_total_3046,f1_steam_2018_12_17_2_5,RF,CG,
+2713_2019_plant_total_3046_retired,f1_steam_2019_12_17_1_2,RF,CG,
+58697_2019_plant_total_3046,f1_steam_2019_12_17_2_5,RF,CG,
+58697_2020_plant_total_3046,f1_steam_2020_12_17_2_5,,CG,
+55110_2005_plant_total_15470,f1_steam_2005_12_144_2_1,RF,CG,
+55110_2006_plant_total_15470,f1_steam_2006_12_144_2_1,RF,CG,
+55110_2007_plant_total_15470,f1_steam_2007_12_144_1_5,RF,CG,
+55110_2008_plant_total_15470,f1_steam_2008_12_144_1_4,RF,CG,
+55110_2009_plant_total_15470,f1_steam_2009_12_144_1_5,RF,CG,
+55110_2010_plant_total_15470,f1_steam_2010_12_144_1_5,RF,CG,
+55110_2011_plant_total_15470,f1_steam_2011_12_144_2_2,RF,CG,
+55110_2012_plant_total_15470,f1_steam_2012_12_144_2_2,RF,CG,
+55110_2013_plant_total_15470,f1_steam_2013_12_144_2_2,RF,CG,
+55110_2014_plant_total_15470,f1_steam_2014_12_144_2_2,RF,CG,
+55110_2015_plant_total_15470,f1_steam_2015_12_144_2_2,RF,CG,
+55110_2016_plant_total_15470,f1_steam_2016_12_144_2_2,RF,CG,
+55110_2017_plant_total_15470,f1_steam_2017_12_144_2_2,RF,CG,
+55110_2018_plant_total_15470,f1_steam_2018_12_144_2_2,RF,CG,
+55110_2019_plant_total_15470,f1_steam_2019_12_144_2_2,RF,CG,
+55110_2020_plant_total_15470,f1_steam_2020_12_144_2_2,AS,CG,
+2727_2005_plant_total_5416,f1_steam_2005_12_45_0_2,AS,CG,
+2727_2006_plant_total_5416,f1_steam_2006_12_45_0_2,AS,CG,
+2727_2007_plant_total_5416,f1_steam_2007_12_45_0_2,AS,CG,
+2727_2008_plant_total_5416,f1_steam_2008_12_45_0_2,AS,CG,
+2727_2009_plant_total_5416,f1_steam_2009_12_45_0_2,AS,CG,
+2727_2010_plant_total_5416,f1_steam_2010_12_45_0_2,AS,CG,
+2727_2011_plant_total_5416,f1_steam_2011_12_45_0_2,AS,CG,
+2727_2012_plant_total_5416,f1_steam_2012_12_45_0_2,AS,CG,
+2727_2013_plant_total_5416,f1_steam_2013_12_45_0_2,AS,CG,
+2727_2014_plant_total_5416,f1_steam_2014_12_45_0_2,AS,CG,
+2727_2015_plant_total_5416,f1_steam_2015_12_45_0_2,AS,CG,
+2727_2016_plant_total_5416,f1_steam_2016_12_45_0_2,AS,CG,
+2727_2017_plant_total_5416,f1_steam_2017_12_45_0_2,AS,CG,
+2727_2018_plant_total_5416,f1_steam_2018_12_45_0_2,AS,CG,
+2727_2019_plant_total_5416,f1_steam_2019_12_45_0_2,AS,CG,
+2727_2020_plant_total_5416,f1_steam_2020_12_45_0_2,AS,CG,
+6250_2005_plant_owned_3046,f1_steam_2005_12_17_2_4,RF,CG,
+6250_2006_plant_owned_3046,f1_steam_2006_12_17_2_4,RF,CG,
+6250_2007_plant_owned_3046,f1_steam_2007_12_17_2_4,RF,CG,
+6250_2008_plant_owned_3046,f1_steam_2008_12_17_2_4,RF,CG,
+6250_2009_plant_owned_3046,f1_steam_2009_12_17_2_4,RF,CG,
+6250_2010_plant_owned_3046,f1_steam_2010_12_17_2_4,RF,CG,
+6250_2011_plant_owned_3046,f1_steam_2011_12_17_2_4,RF,CG,
+6250_2012_plant_owned_3046,f1_steam_2012_12_17_0_4,RF,CG,
+6250_2013_plant_owned_3046,f1_steam_2013_12_17_0_4,RF,CG,
+6250_2014_plant_owned_3046,f1_steam_2014_12_17_0_4,RF,CG,
+6250_2015_plant_total_3046,f1_steam_2015_12_17_0_4,RF,CG,
+6250_2016_plant_total_3046,f1_steam_2016_12_17_0_4,RF,CG,
+6250_2017_plant_total_3046,f1_steam_2017_12_17_0_4,RF,CG,
+6250_2018_plant_total_3046,f1_steam_2018_12_17_0_4,RF,CG,
+6250_2019_plant_total_3046,f1_steam_2019_12_17_0_4,RF,CG,
+6250_2020_plant_total_3046,f1_steam_2020_12_17_0_4,AS,CG,
+6038_2005_plant_total_5416,f1_steam_2005_12_45_3_1,AS,CG,
+6038_2006_plant_total_5416,f1_steam_2006_12_45_3_1,AS,CG,
+6038_2007_plant_total_5416,f1_steam_2007_12_45_3_1,AS,CG,
+6038_2008_plant_total_5416,f1_steam_2008_12_45_3_1,AS,CG,
+6038_2009_plant_total_5416,f1_steam_2009_12_45_3_1,AS,CG,
+6038_2010_plant_total_5416,f1_steam_2010_12_45_3_1,AS,CG,
+6038_2011_plant_total_5416,f1_steam_2011_12_45_3_1,AS,CG,
+6038_2012_plant_total_5416,f1_steam_2012_12_45_3_1,AS,CG,
+6038_2013_plant_total_5416,f1_steam_2013_12_45_3_1,AS,CG,
+6038_2014_plant_total_5416,f1_steam_2014_12_45_3_1,AS,CG,
+6038_2015_plant_total_5416,f1_steam_2015_12_45_3_1,AS,CG,
+6038_2016_plant_total_5416,f1_steam_2016_12_45_3_1,AS,CG,
+6038_2017_plant_total_5416,f1_steam_2017_12_45_3_1,AS,CG,
+6038_2018_plant_total_5416,f1_steam_2018_12_45_3_1,AS,CG,
+6038_2019_plant_total_5416,f1_steam_2019_12_45_3_1,AS,CG,
+6038_2020_plant_total_5416,f1_steam_2020_12_45_3_1,AS,CG,
+1006_2005_plant_total_15470,f1_steam_2005_12_144_2_2,RF,CG,
+1006_2006_plant_total_15470,f1_steam_2006_12_144_2_2,RF,CG,
+1006_2007_plant_total_15470,f1_steam_2007_12_144_2_1,RF,CG,
+1006_2008_plant_total_15470,f1_steam_2008_12_144_1_5,RF,CG,
+1006_2009_plant_total_15470,f1_steam_2009_12_144_2_4,RF,CG,
+1006_2010_plant_total_15470,f1_steam_2010_12_144_2_4,RF,CG,
+1006_2011_plant_total_15470,f1_steam_2011_12_144_2_4,RF,CG,
+1006_2012_plant_total_15470,f1_steam_2012_12_144_2_4,RF,CG,
+1006_2013_plant_total_15470,f1_steam_2013_12_144_2_4,RF,CG,
+1006_2014_plant_total_15470,f1_steam_2014_12_144_2_4,RF,CG,
+1006_2015_plant_total_15470,f1_steam_2015_12_144_2_4,RF,CG,
+1006_2016_plant_total_15470,f1_steam_2016_12_144_2_4,RF,CG,
+1006_2017_plant_total_15470,f1_steam_2017_12_144_2_4,RF,CG,
+1006_2018_plant_total_15470,f1_steam_2018_12_144_2_4,RF,CG,
+1006_2019_plant_total_15470_retired,f1_steam_2019_12_144_2_4,RF,CG,cap off but same record over time
+7981_2005_plant_total_5416,f1_steam_2005_12_45_3_3,AS,CG,capacity doesn match until 2012 but net gen matches
+7981_2006_plant_total_5416,f1_steam_2006_12_45_3_3,AS,CG,capacity doesn match until 2012 but net gen matches
+7981_2007_plant_total_5416,f1_steam_2007_12_45_3_3,AS,CG,capacity doesn match until 2012 but net gen matches
+7981_2008_plant_total_5416,f1_steam_2008_12_45_3_3,AS,CG,capacity doesn match until 2012 but net gen matches
+7981_2009_plant_total_5416,f1_steam_2009_12_45_3_3,AS,CG,capacity doesn match until 2012 but net gen matches
+7981_2010_plant_total_5416,f1_steam_2010_12_45_3_3,AS,CG,capacity doesn match until 2012 but net gen matches
+7981_2011_plant_total_5416,f1_steam_2011_12_45_3_3,AS,CG,capacity doesn match until 2012 but net gen matches
+7981_2012_plant_total_5416,f1_steam_2012_12_45_3_3,AS,CG,
+7981_2013_plant_total_5416,f1_steam_2013_12_45_3_3,AS,CG,
+7981_2014_plant_total_5416,f1_steam_2014_12_45_3_3,AS,CG,
+7981_2015_plant_total_5416,f1_steam_2015_12_45_3_3,AS,CG,
+7981_2016_plant_total_5416,f1_steam_2016_12_45_3_3,AS,CG,
+7981_2017_plant_total_5416,f1_steam_2017_12_45_3_3,AS,CG,
+7981_2018_plant_total_5416,f1_steam_2018_12_45_3_3,AS,CG,
+7981_2019_plant_total_5416,f1_steam_2019_12_45_3_3,AS,CG,
+7981_2020_plant_total_5416,f1_steam_2020_12_45_3_3,AS,CG,
+2711_2005_plant_total_3046,f1_steam_2005_12_17_3_2,AS,CG,wrong plant_id_pudl in ferc1!
+2711_2006_plant_total_3046,f1_steam_2006_12_17_3_2,AS,CG,wrong plant_id_pudl in ferc1!
+2711_2007_plant_total_3046,f1_steam_2007_12_17_3_2,AS,CG,wrong plant_id_pudl in ferc1!
+2711_2008_plant_total_3046,f1_steam_2008_12_17_3_2,AS,CG,wrong plant_id_pudl in ferc1!
+2711_2009_plant_total_3046,f1_steam_2009_12_17_3_2,AS,CG,wrong plant_id_pudl in ferc1!
+2711_2010_plant_total_3046,f1_steam_2010_12_17_3_2,AS,CG,wrong plant_id_pudl in ferc1!
+2711_2011_plant_total_3046,f1_steam_2011_12_17_3_2,AS,CG,wrong plant_id_pudl in ferc1!
+2711_2012_plant_total_3046,f1_steam_2012_12_17_3_1,AS,CG,wrong plant_id_pudl in ferc1!
+2711_2013_plant_total_3046_retired,f1_steam_2013_12_17_3_1,RF,CG,wrong plant_id_pudl in ferc1!
+2711_2014_plant_total_3046_retired,f1_steam_2014_12_17_3_1,RF,CG,wrong plant_id_pudl in ferc1!
+2711_2015_plant_total_3046_retired,f1_steam_2015_12_17_3_1,RF,CG,wrong plant_id_pudl in ferc1!
+2711_2016_plant_total_3046_retired,f1_steam_2016_12_17_3_1,RF,CG,wrong plant_id_pudl in ferc1!
+2711_2017_plant_total_3046_retired,f1_steam_2017_12_17_3_1,RF,CG,wrong plant_id_pudl in ferc1!
+2711_2018_plant_total_3046_retired,f1_steam_2018_12_17_3_1,RF,CG,wrong plant_id_pudl in ferc1!
+2711_2019_plant_total_3046_retired,f1_steam_2019_12_17_3_1,RF,CG,wrong plant_id_pudl in ferc1!
+2832_gt_2005_plant_prime_mover_total_3542,f1_steam_2005_12_27_1_2,CG,,
+2832_5_2005_plant_gen_total_3542,f1_steam_2005_12_27_0_1,CG,,
+2832_7_2005_plant_gen_owned_3542,f1_steam_2005_12_27_0_2,CG,,
+2832_gt_2006_plant_prime_mover_total_3542,f1_steam_2006_12_27_1_2,CG,,
+2832_5_2006_plant_gen_total_3542,f1_steam_2006_12_27_0_1,CG,,
+2832_6_2006_plant_gen_total_3542,f1_steam_2006_12_178_0_2,CG,,
+2832_7_2006_plant_gen_owned_3542,f1_steam_2006_12_27_0_2,CG,,
+2832_gt_2007_plant_prime_mover_total_3542,f1_steam_2007_12_27_1_2,CG,,
+2832_5_2007_plant_gen_total_3542,f1_steam_2007_12_27_0_1,CG,,
+2832_6_2007_plant_gen_total_3542,f1_steam_2007_12_178_0_2,CG,,
+2832_7_2007_plant_gen_owned_3542,f1_steam_2007_12_27_0_2,CG,,
+2832_gt_2008_plant_prime_mover_total_3542,f1_steam_2008_12_27_1_2,CG,,
+2832_5_2008_plant_gen_total_3542,f1_steam_2008_12_27_0_1,CG,,
+2832_6_2008_plant_gen_total_3542,f1_steam_2008_12_178_0_2,CG,,
+2832_7_2008_plant_gen_owned_3542,f1_steam_2008_12_27_0_2,CG,,
+2832_5_2009_plant_gen_total_3542_retired,f1_steam_2009_12_27_3_1,CG,,
+2832_gt_2009_plant_prime_mover_total_3542,f1_steam_2009_12_27_1_3,CG,,
+2832_6_2009_plant_gen_total_3542,f1_steam_2009_12_178_0_2,CG,,
+2832_7_2009_plant_gen_owned_3542,f1_steam_2009_12_27_0_1,CG,,
+2832_5_2010_plant_gen_total_3542_retired,f1_steam_2010_12_27_3_1,CG,,
+2832_gt_2010_plant_prime_mover_total_3542,f1_steam_2010_12_27_1_3,CG,,
+2832_6_2010_plant_gen_total_3542,f1_steam_2010_12_178_0_2,CG,,
+2832_7_2010_plant_gen_owned_3542,f1_steam_2010_12_27_0_1,CG,,
+2832_5_2011_plant_gen_total_3542_retired,f1_steam_2011_12_27_3_1,CG,,
+2832_gt_2011_plant_prime_mover_total_3542,f1_steam_2011_12_27_1_3,CG,,
+2832_6_2011_plant_gen_total_3542,f1_steam_2011_12_178_0_2,CG,,
+2832_7_2011_plant_gen_owned_3542,f1_steam_2011_12_27_0_1,CG,,
+2832_5_2012_plant_gen_total_3542_retired,f1_steam_2012_12_27_3_1,CG,,
+2832_gt_2012_plant_prime_mover_total_3542,f1_steam_2012_12_27_1_3,CG,,
+2832_6_2012_plant_gen_total_3542,f1_steam_2012_12_178_0_2,CG,,
+2832_7_2012_plant_gen_owned_3542,f1_steam_2012_12_27_0_1,CG,,
+2832_5_2013_plant_gen_total_3542_retired,f1_steam_2013_12_27_3_1,CG,,
+2832_gt_2013_plant_prime_mover_total_3542,f1_steam_2013_12_27_1_3,CG,,
+2832_6_2013_plant_gen_total_3542,f1_steam_2013_12_178_0_2,CG,,
+2832_7_2013_plant_gen_owned_3542,f1_steam_2013_12_27_0_1,CG,,
+2832_5_2014_plant_gen_total_3542_retired,f1_steam_2014_12_27_3_1,CG,,
+2832_gt_2014_plant_prime_mover_total_3542,f1_steam_2014_12_27_1_3,CG,,
+2832_6_2014_plant_gen_total_3542,f1_steam_2014_12_178_0_2,CG,,
+2832_7_2014_plant_gen_owned_3542,f1_steam_2014_12_27_0_1,CG,,
+2832_5_2015_plant_gen_total_59919_retired,f1_steam_2015_12_27_2_1,CG,,
+2832_7_2015_plant_gen_owned_4922,f1_steam_2015_12_27_0_1,CG,,
+2832_gt_2015_plant_prime_mover_total_59919,f1_steam_2015_12_27_1_3,CG,,
+2832_6_2015_plant_gen_total_3542,f1_steam_2015_12_178_0_2,CG,,
+2832_6_2016_plant_gen_total_3542_retired,f1_steam_2016_12_178_0_2,CG,,
+2832_6_2017_plant_gen_total_3542_retired,f1_steam_2017_12_178_0_2,CG,,
+2832_6_2018_plant_gen_total_3542_retired,f1_steam_2018_12_178_0_2,CG,,
+2832_6_2019_plant_gen_total_3542_retired,f1_steam_2019_12_178_0_2,CG,,
+1007_2005_plant_total_15470,f1_steam_2005_12_144_0_2,RF,CG,
+1007_2006_plant_total_15470,f1_steam_2006_12_144_0_2,RF,CG,Capacity doesn't match - but other number do. Seems best fit.
+1007_2007_plant_total_15470,f1_steam_2007_12_144_0_2,RF,CG,Capacity doesn't match - but other number do. Seems best fit.
+1007_2008_plant_total_15470,f1_steam_2008_12_144_0_2,RF,CG,Capacity doesn't match - but other number do. Seems best fit.
+1007_2009_plant_total_15470,f1_steam_2009_12_144_0_2,RF,CG,Capacity doesn't match - but other number do. Seems best fit.
+1007_2010_plant_total_15470,f1_steam_2010_12_144_0_2,RF,CG,Capacity doesn't match - but other number do. Seems best fit.
+1007_2011_plant_total_15470,f1_steam_2011_12_144_0_2,RF,CG,Capacity doesn't match - but other number do. Seems best fit.
+1007_2012_plant_total_15470,f1_steam_2012_12_144_0_2,RF,CG,Capacity doesn't match - but other number do. Seems best fit.
+1007_2013_plant_total_15470,f1_steam_2013_12_144_0_2,RF,CG,Capacity doesn't match - but other number do. Seems best fit.
+1007_2014_plant_total_15470,f1_steam_2014_12_144_0_2,RF,CG,Capacity doesn't match - but other number do. Seems best fit.
+1007_2015_plant_total_15470,f1_steam_2015_12_144_0_2,RF,CG,Capacity doesn't match - but other number do. Seems best fit.
+1007_2016_plant_total_15470,f1_steam_2016_12_144_0_2,RF,CG,
+1007_2017_plant_total_15470,f1_steam_2017_12_144_0_2,RF,CG,
+1007_2018_plant_total_15470,f1_steam_2018_12_144_0_2,RF,CG,
+1007_2019_plant_total_15470,f1_steam_2019_12_144_0_2,RF,CG,
+1007_2020_plant_total_15470,f1_steam_2020_12_144_0_2,AS,CG,
+3265_2020_plant_total_5416,f1_steam_2020_12_45_2_5,AS,CG,
+3265_2005_plant_total_5416,f1_steam_2005_12_45_2_5,AS,CG,
+3265_2006_plant_total_5416,f1_steam_2006_12_45_2_5,AS,CG,
+3265_2007_plant_total_5416,f1_steam_2007_12_45_2_5,AS,CG,
+3265_2008_plant_total_5416,f1_steam_2008_12_45_2_5,AS,CG,
+3265_2009_plant_total_5416,f1_steam_2009_12_45_2_5,AS,CG,
+3265_2010_plant_total_5416,f1_steam_2010_12_45_2_5,AS,CG,
+3265_2011_plant_total_5416,f1_steam_2011_12_45_2_5,AS,CG,
+3265_2012_plant_total_5416,f1_steam_2012_12_45_2_5,AS,CG,
+3265_2013_plant_total_5416,f1_steam_2013_12_45_2_5,AS,CG,
+3265_2014_plant_total_5416,f1_steam_2014_12_45_2_5,AS,CG,
+3265_2015_plant_total_5416,f1_steam_2015_12_45_2_5,AS,CG,
+3265_2016_plant_total_5416,f1_steam_2016_12_45_2_5,AS,CG,
+3265_2017_plant_total_5416,f1_steam_2017_12_45_2_5,AS,CG,
+3265_2018_plant_total_5416,f1_steam_2018_12_45_2_5,AS,CG,
+3265_2019_plant_total_5416,f1_steam_2019_12_45_2_5,AS,CG,
+637_2005_plant_total_6455,f1_steam_2005_12_55_3_1,RF,CG,
+637_2006_plant_total_6455,f1_steam_2006_12_55_3_1,RF,CG,
+637_2007_plant_total_6455,f1_steam_2007_12_55_3_1,RF,CG,
+637_2008_plant_total_6455,f1_steam_2008_12_55_3_1,RF,CG,
+637_2009_plant_total_6455,f1_steam_2009_12_55_3_1,RF,CG,
+637_2010_plant_total_6455,f1_steam_2010_12_55_3_1,RF,CG,
+637_2011_plant_total_6455,f1_steam_2011_12_55_2_5,RF,CG,
+637_2012_plant_total_6455,f1_steam_2012_12_55_2_5,RF,CG,
+637_2013_plant_total_6455,f1_steam_2013_12_55_2_5,RF,CG,
+637_2014_plant_total_6455,f1_steam_2014_12_55_2_5,RF,CG,
+637_2015_plant_total_6455,f1_steam_2015_12_55_2_5,RF,CG,
+2732_gt_2005_plant_prime_mover_total_5416,f1_steam_2005_12_45_1_5,CG,,plant_id_pudl is incorrect!
+2732_st_2005_plant_prime_mover_total_5416,f1_steam_2005_12_45_1_4,CG,,plant_id_pudl is incorrect!
+2732_gt_2006_plant_prime_mover_total_5416,f1_steam_2006_12_45_1_5,CG,,plant_id_pudl is incorrect!
+2732_st_2006_plant_prime_mover_total_5416,f1_steam_2006_12_45_1_4,CG,,plant_id_pudl is incorrect!
+2732_gt_2007_plant_prime_mover_total_5416,f1_steam_2007_12_45_1_5,CG,,plant_id_pudl is incorrect!
+2732_st_2007_plant_prime_mover_total_5416,f1_steam_2007_12_45_1_4,CG,,plant_id_pudl is incorrect!
+2732_gt_2008_plant_prime_mover_total_5416,f1_steam_2008_12_45_1_5,CG,,plant_id_pudl is incorrect!
+2732_st_2008_plant_prime_mover_total_5416,f1_steam_2008_12_45_1_4,CG,,plant_id_pudl is incorrect!
+2732_gt_2009_plant_prime_mover_total_5416,f1_steam_2009_12_45_1_5,CG,,plant_id_pudl is incorrect!
+2732_st_2009_plant_prime_mover_total_5416,f1_steam_2009_12_45_1_4,CG,,plant_id_pudl is incorrect!
+2732_gt_2010_plant_prime_mover_total_5416,f1_steam_2010_12_45_1_5,CG,,"ferc cap drops, eia stays the same"
+2732_st_2010_plant_prime_mover_total_5416,f1_steam_2010_12_45_1_4,CG,,
+2732_gt_2011_plant_prime_mover_total_5416,f1_steam_2011_12_45_1_5,CG,,"ferc cap drops, eia stays the same"
+2732_st_2011_plant_prime_mover_total_5416,f1_steam_2011_12_45_1_4,CG,,
+2732_gt_2012_plant_prime_mover_total_5416,f1_steam_2012_12_45_1_5,CG,,"ferc cap drops, eia stays the same"
+2732_st_2012_plant_prime_mover_total_5416,f1_steam_2012_12_45_1_4,CG,,
+2732_2013_plant_total_5416_retired,f1_steam_2013_12_45_1_5,CG,,"ferc cap drops, eia stays the same"
+2732_2013_plant_total_5416,f1_steam_2013_12_45_1_4,CG,,
+2732_gt_2014_plant_prime_mover_total_5416_retired,f1_steam_2014_12_45_1_4,CG,,guess based on prior years
+2732_st_2014_plant_prime_mover_total_5416_retired,f1_steam_2014_12_45_1_5,CG,,guess based on prior years
+2732_gt_2015_plant_prime_mover_total_5416_retired,f1_steam_2015_12_45_1_4,CG,,guess based on prior years
+2732_st_2015_plant_prime_mover_total_5416_retired,f1_steam_2015_12_45_1_5,CG,,guess based on prior years
+2732_gt_2016_plant_prime_mover_total_5416_retired,f1_steam_2016_12_45_1_4,CG,,guess based on prior years
+2732_st_2016_plant_prime_mover_total_5416_retired,f1_steam_2016_12_45_1_5,CG,,guess based on prior years
+2732_gt_2017_plant_prime_mover_total_5416_retired,f1_steam_2017_12_45_1_4,CG,,guess based on prior years
+2732_st_2017_plant_prime_mover_total_5416_retired,f1_steam_2017_12_45_1_5,CG,,guess based on prior years
+2732_gt_2018_plant_prime_mover_total_5416_retired,f1_steam_2018_12_45_1_5,CG,,guess based on prior years
+2732_st_2018_plant_prime_mover_total_5416_retired,f1_steam_2018_12_45_1_4,CG,,guess based on prior years
+2732_gt_2019_plant_prime_mover_total_5416_retired,f1_steam_2019_12_45_1_4,CG,,guess based on prior years
+2732_st_2019_plant_prime_mover_total_5416_retired,f1_steam_2019_12_45_1_5,CG,,guess based on prior years
+55116_2020_plant_total_5416,f1_steam_2020_12_45_3_4,AS,CG,
+55116_2006_plant_total_5416,f1_steam_2006_12_45_3_4,AS,CG,
+55116_2007_plant_total_5416,f1_steam_2007_12_45_3_4,AS,CG,
+55116_2008_plant_total_5416,f1_steam_2008_12_45_3_4,AS,CG,
+55116_2009_plant_total_5416,f1_steam_2009_12_45_3_4,AS,CG,
+55116_2010_plant_total_5416,f1_steam_2010_12_45_3_4,AS,CG,
+55116_2011_plant_total_5416,f1_steam_2011_12_45_3_4,AS,CG,
+55116_2012_plant_total_5416,f1_steam_2012_12_45_3_4,AS,CG,
+55116_2013_plant_total_5416,f1_steam_2013_12_45_3_4,AS,CG,
+55116_2014_plant_total_5416,f1_steam_2014_12_45_3_4,AS,CG,
+55116_2015_plant_total_5416,f1_steam_2015_12_45_3_4,AS,CG,
+55116_2016_plant_total_5416,f1_steam_2016_12_45_3_4,AS,CG,
+55116_2017_plant_total_5416,f1_steam_2017_12_45_3_4,AS,CG,
+55116_2018_plant_total_5416,f1_steam_2018_12_45_3_4,AS,CG,
+55116_2019_plant_total_5416,f1_steam_2019_12_45_3_4,AS,CG,
+2712_2020_plant_total_3046,f1_steam_2020_12_17_1_1,AS,CG,
+2712_gt_2005_plant_prime_mover_total_3046,f1_steam_2005_12_17_2_3,RF,CG,
+2712_st_2005_plant_prime_mover_owned_3046,f1_steam_2005_12_17_2_2,RF,CG,
+2712_gt_2006_plant_prime_mover_total_3046,f1_steam_2006_12_17_2_3,RF,CG,
+2712_st_2006_plant_prime_mover_owned_3046,f1_steam_2006_12_17_2_2,RF,CG,
+2712_gt_2007_plant_prime_mover_total_3046,f1_steam_2007_12_17_2_3,RF,CG,
+2712_st_2007_plant_prime_mover_owned_3046,f1_steam_2007_12_17_2_2,RF,CG,
+2712_2008_plant_total_3046_retired,f1_steam_2008_12_17_2_3,RF,CG,
+2712_2008_plant_owned_3046,f1_steam_2008_12_17_2_2,RF,CG,Capacity doesn't match - but other number do. Seems best fit.
+2712_2009_plant_total_3046_retired,f1_steam_2009_12_17_2_3,RF,CG,
+2712_2009_plant_owned_3046,f1_steam_2009_12_17_2_2,RF,CG,Capacity doesn't match - but other number do. Seems best fit.
+2712_2010_plant_total_3046_retired,f1_steam_2010_12_17_2_3,RF,CG,
+2712_2010_plant_owned_3046,f1_steam_2010_12_17_2_2,RF,CG,Capacity doesn't match - but other number do. Seems best fit.
+2712_2011_plant_owned_3046,f1_steam_2011_12_17_2_2,RF,CG,Capacity doesn't match - but other number do. Seems best fit.
+2712_2012_plant_owned_3046,f1_steam_2012_12_17_1_1,RF,CG,Capacity doesn't match - but other number do. Seems best fit.
+2712_2013_plant_owned_3046,f1_steam_2013_12_17_1_1,RF,CG,Capacity doesn't match - but other number do. Seems best fit.
+2712_2014_plant_owned_3046,f1_steam_2014_12_17_1_1,RF,CG,Capacity doesn't match - but other number do. Seems best fit.
+2712_2015_plant_total_3046,f1_steam_2015_12_17_1_1,RF,CG,
+2712_2016_plant_total_3046,f1_steam_2016_12_17_1_1,RF,CG,
+2712_2017_plant_total_3046,f1_steam_2017_12_17_1_1,RF,CG,
+2712_2018_plant_total_3046,f1_steam_2018_12_17_1_1,RF,CG,
+2712_2019_plant_total_3046,f1_steam_2019_12_17_1_1,RF,CG,
+7805_2020_plant_total_3046,f1_steam_2020_12_17_4_2,AS,CG,
+7805_2011_plant_total_3046,f1_steam_2011_12_17_2_3,AS,CG,
+7805_2012_plant_total_3046,f1_steam_2012_12_17_3_2,RF,CG,
+7805_2013_plant_total_3046,f1_steam_2013_12_17_3_2,RF,CG,
+7805_2014_plant_total_3046,f1_steam_2014_12_17_3_2,RF,CG,
+7805_2015_plant_total_3046,f1_steam_2015_12_17_4_2,AS,CG,
+7805_2016_plant_total_3046,f1_steam_2016_12_17_4_2,AS,CG,
+7805_2017_plant_total_3046,f1_steam_2017_12_17_4_2,RF,CG,
+7805_2018_plant_total_3046,f1_steam_2018_12_17_4_2,RF,CG,
+7805_2019_plant_total_3046,f1_steam_2019_12_17_4_2,RF,CG,
+7699_2020_plant_total_6455,f1_steam_2020_12_55_1_2,AS,CG,
+7699_2005_plant_total_6455,f1_steam_2005_12_55_2_5,RF,CG,
+7699_2006_plant_total_6455,f1_steam_2006_12_55_2_5,RF,CG,
+7699_2007_plant_total_6455,f1_steam_2007_12_55_2_5,RF,CG,
+7699_2008_plant_total_6455,f1_steam_2008_12_55_2_5,RF,CG,
+7699_2009_plant_total_6455,f1_steam_2009_12_55_2_5,RF,CG,
+7699_2010_plant_total_6455,f1_steam_2010_12_55_2_5,RF,CG,
+7699_2011_plant_total_6455,f1_steam_2011_12_55_1_3,RF,CG,
+7699_2012_plant_total_6455,f1_steam_2012_12_55_1_3,RF,CG,
+7699_2013_plant_total_6455,f1_steam_2013_12_55_1_3,RF,CG,
+7699_2014_plant_total_6455,f1_steam_2014_12_55_1_3,RF,CG,
+7699_2015_plant_total_6455,f1_steam_2015_12_55_1_3,RF,CG,
+7699_2016_plant_total_6455,f1_steam_2016_12_55_1_3,RF,CG,
+7699_2017_plant_total_6455,f1_steam_2017_12_55_1_3,RF,CG,
+7699_2018_plant_total_6455,f1_steam_2018_12_55_1_3,RF,CG,
+7699_2019_plant_total_6455,f1_steam_2019_12_55_0_5,RF,CG,
+7345_2020_plant_total_6455,f1_steam_2020_12_55_2_4,AS,CG,
+629_2005_plant_total_6455,f1_steam_2005_12_55_2_2,RF,CG,
+629_2006_plant_total_6455,f1_steam_2006_12_55_2_2,RF,CG,
+629_2007_plant_total_6455,f1_steam_2007_12_55_2_2,RF,CG,
+629_2008_plant_total_6455,f1_steam_2008_12_55_2_2,RF,CG,
+629_2009_plant_total_6455,f1_steam_2009_12_55_2_2,RF,CG,
+629_2010_plant_total_6455,f1_steam_2010_12_55_2_2,RF,CG,
+629_2011_plant_total_6455,f1_steam_2011_12_55_3_2,RF,CG,
+629_2012_plant_total_6455,f1_steam_2012_12_55_3_2,RF,CG,
+629_2013_plant_total_6455,f1_steam_2013_12_55_3_2,RF,CG,
+629_2014_plant_total_6455,f1_steam_2014_12_55_3_2,RF,CG,
+629_2015_plant_total_6455,f1_steam_2015_12_55_3_2,RF,CG,
+7345_2005_plant_total_6455,f1_steam_2005_12_55_3_2,RF,CG,
+7345_2006_plant_total_6455,f1_steam_2006_12_55_3_2,RF,CG,
+7345_2007_plant_total_6455,f1_steam_2007_12_55_3_2,RF,CG,
+7345_2008_plant_total_6455,f1_steam_2008_12_55_3_2,RF,CG,
+7345_2009_plant_total_6455,f1_steam_2009_12_55_3_2,RF,CG,
+7345_2010_plant_total_6455,f1_steam_2010_12_55_3_2,RF,CG,
+7345_2011_plant_total_6455,f1_steam_2011_12_55_3_3,RF,CG,
+7345_2012_plant_total_6455,f1_steam_2012_12_55_3_3,RF,CG,
+7345_2013_plant_total_6455,f1_steam_2013_12_55_3_3,RF,CG,
+7345_2014_plant_total_6455,f1_steam_2014_12_55_3_3,RF,CG,
+7345_2015_plant_total_6455,f1_steam_2015_12_55_3_3,RF,CG,
+7345_2016_plant_total_6455,f1_steam_2016_12_55_3_3,AS,CG,
+7345_2017_plant_total_6455,f1_steam_2017_12_55_3_3,RF,CG,
+7345_2018_plant_total_6455,f1_steam_2018_12_55_3_1,RF,CG,
+7345_2019_plant_total_6455,f1_steam_2019_12_55_2_3,RF,CG,
+638_2020_plant_total_6455,f1_steam_2020_12_55_2_3,AS,CG,
+55111_2020_plant_owned_15470,f1_steam_2020_12_144_2_5,AS,CG,
+638_gt_2012_plant_prime_mover_total_6455,f1_steam_2012_12_55_3_1,RF,CG,
+638_gt_2013_plant_prime_mover_total_6455,f1_steam_2013_12_55_3_1,RF,CG,
+638_st_2014_plant_prime_mover_total_6455,f1_steam_2014_12_55_0_4,RF,CG,
+638_gt_2014_plant_prime_mover_total_6455,f1_steam_2014_12_55_3_1,RF,CG,
+638_st_2015_plant_prime_mover_total_6455,f1_steam_2015_12_55_0_4,RF,CG,
+638_gt_2015_plant_prime_mover_total_6455,f1_steam_2015_12_55_3_1,RF,CG,
+638_st_2016_plant_prime_mover_total_6455,f1_steam_2016_12_55_0_4,RF,CG,
+638_gt_2016_plant_prime_mover_total_6455,f1_steam_2016_12_55_3_1,RF,CG,
+638_2017_plant_total_6455,f1_steam_2017_12_55_3_1,RF,CG,
+638_2018_plant_total_6455,f1_steam_2018_12_55_2_5,RF,CG,
+638_2019_plant_total_6455,f1_steam_2019_12_55_2_2,AS,CG,
+55111_2012_plant_total_15470,f1_steam_2012_12_144_2_5,AS,CG,
+55111_2013_plant_total_15470,f1_steam_2013_12_144_2_5,AS,CG,
+55111_2014_plant_total_15470,f1_steam_2014_12_144_2_5,AS,CG,
+55111_2015_plant_owned_15470,f1_steam_2015_12_144_2_5,RF,CG,
+55111_2016_plant_owned_15470,f1_steam_2016_12_144_2_5,RF,CG,
+55111_2017_plant_owned_15470,f1_steam_2017_12_144_2_5,RF,CG,
+55111_2018_plant_owned_15470,f1_steam_2018_12_144_2_5,RF,CG,
+55111_2019_plant_owned_15470,f1_steam_2019_12_144_2_5,RF,CG,
+1010_ic_2005_plant_prime_mover_total_15470,f1_gnrt_plant_2005_12_144_0_3,AS,CG,
+1010_ic_2006_plant_prime_mover_total_15470,f1_gnrt_plant_2006_12_144_0_3,AS,CG,
+1010_ic_2007_plant_prime_mover_total_15470,f1_gnrt_plant_2007_12_144_0_3,AS,CG,
+1010_ic_2008_plant_prime_mover_total_15470,f1_gnrt_plant_2008_12_144_0_3,AS,CG,
+1010_ic_2009_plant_prime_mover_total_15470,f1_gnrt_plant_2009_12_144_0_1,AS,CG,
+1010_ic_2010_plant_prime_mover_total_15470,f1_gnrt_plant_2010_12_144_0_1,AS,CG,
+1010_ic_2011_plant_prime_mover_total_15470,f1_gnrt_plant_2011_12_144_0_1,AS,CG,
+1010_ic_2012_plant_prime_mover_total_15470,f1_gnrt_plant_2012_12_144_0_1,AS,CG,
+1010_ic_2013_plant_prime_mover_total_15470,f1_gnrt_plant_2013_12_144_0_1,AS,CG,
+1010_ic_2014_plant_prime_mover_total_15470,f1_gnrt_plant_2014_12_144_0_1,AS,CG,
+1010_ic_2015_plant_prime_mover_total_15470,f1_gnrt_plant_2015_12_144_0_1,AS,CG,
+1010_ic_2016_plant_prime_mover_total_15470,f1_gnrt_plant_2016_12_144_0_1,AS,CG,
+6019_2005_plant_owned_3542,f1_steam_2005_12_27_1_1,AS,CG,
+6019_2006_plant_owned_3542,f1_steam_2006_12_27_1_1,AS,CG,
+6019_2007_plant_owned_3542,f1_steam_2007_12_27_1_1,AS,CG,
+6019_2008_plant_owned_3542,f1_steam_2008_12_27_1_1,AS,CG,
+6019_2009_plant_owned_3542,f1_steam_2009_12_27_0_4,AS,CG,
+6019_2010_plant_owned_3542,f1_steam_2010_12_27_0_4,AS,CG,
+6019_2011_plant_owned_3542,f1_steam_2011_12_27_0_4,AS,CG,
+6019_2012_plant_owned_3542,f1_steam_2012_12_27_0_4,AS,CG,
+6019_2013_plant_owned_3542,f1_steam_2013_12_27_0_4,AS,CG,
+6019_2014_plant_owned_3542,f1_steam_2014_12_27_0_4,AS,CG,
+6019_2015_plant_owned_59920,f1_steam_2015_12_27_0_4,AS,CG,transferred owners this year
+2716_st_2005_plant_prime_mover_total_3046,f1_steam_2005_12_17_0_3,RF,CG,
+2716_gt_2005_plant_prime_mover_total_3046,f1_steam_2005_12_17_0_4,RF,CG,
+2716_st_2006_plant_prime_mover_total_3046,f1_steam_2006_12_17_0_3,RF,CG,
+2716_gt_2006_plant_prime_mover_total_3046,f1_steam_2006_12_17_0_4,RF,CG,
+2716_st_2007_plant_prime_mover_total_3046,f1_steam_2007_12_17_0_3,RF,CG,
+2716_gt_2007_plant_prime_mover_total_3046,f1_steam_2007_12_17_0_4,AS,CG,
+2716_st_2008_plant_prime_mover_total_3046,f1_steam_2008_12_17_0_3,RF,CG,
+2716_gt_2008_plant_prime_mover_total_3046,f1_steam_2008_12_17_0_4,RF,CG,
+2716_st_2009_plant_prime_mover_total_3046,f1_steam_2009_12_17_0_3,RF,CG,
+2716_gt_2009_plant_prime_mover_total_3046,f1_steam_2009_12_17_0_4,RF,CG,
+2716_gt_2010_plant_prime_mover_total_3046,f1_steam_2010_12_17_0_4,AS,CG,
+2716_st_2010_plant_prime_mover_total_3046,f1_steam_2010_12_17_0_3,RF,CG,
+2716_gt_2011_plant_prime_mover_total_3046,f1_steam_2011_12_17_0_4,AS,CG,
+2716_st_2011_plant_prime_mover_total_3046,f1_steam_2011_12_17_0_3,AS,CG,
+2716_2012_plant_total_3046_retired,f1_steam_2012_12_17_4_2,AS,CG,based on previous records and inst year
+2716_2012_plant_total_3046,f1_steam_2012_12_17_4_1,AS,CG,
+2716_2013_plant_total_3046_retired,f1_steam_2013_12_17_4_2,RF,CG,based on previous records and inst year
+2716_2013_plant_total_3046,f1_steam_2013_12_17_4_1,AS,CG,
+2716_2014_plant_total_3046_retired,f1_steam_2014_12_17_4_2,RF,CG,based on previous records and inst year
+2716_2014_plant_total_3046,f1_steam_2014_12_17_4_1,AS,CG,
+2716_2015_plant_total_3046_retired,f1_steam_2015_12_17_1_3,RF,CG,based on previous records and inst year
+2716_2015_plant_total_3046,f1_steam_2015_12_17_3_5,AS,CG,
+2716_2016_plant_total_3046_retired,f1_steam_2016_12_17_1_3,RF,CG,based on previous records and inst year
+2716_2016_plant_total_3046,f1_steam_2016_12_17_3_5,AS,CG,
+2716_2017_plant_total_3046_retired,f1_steam_2017_12_17_1_3,RF,CG,based on previous records and inst year
+2716_2017_plant_total_3046,f1_steam_2017_12_17_3_5,RF,CG,
+2716_2018_plant_total_3046_retired,f1_steam_2018_12_17_1_3,RF,CG,based on previous records and inst year
+2716_2018_plant_total_3046,f1_steam_2018_12_17_3_5,RF,CG,
+2716_2019_plant_total_3046_retired,f1_steam_2019_12_17_1_3,RF,CG,based on previous records and inst year
+2716_2019_plant_total_3046,f1_steam_2019_12_17_3_5,RF,CG,
+1010_ct_2005_plant_prime_mover_total_15470,f1_steam_2005_12_144_1_3,AS,CG,net gen off…
+1010_st_2005_plant_prime_mover_total_15470,f1_steam_2005_12_144_0_3,RF,CG,
+1010_ct_2006_plant_prime_mover_total_15470,f1_steam_2006_12_144_1_3,RF,CG,Combination of these two plants 1 & 1A fixes capacity mismatch.
+1010_st_2006_plant_prime_mover_total_15470,f1_steam_2006_12_144_0_3,RF,CG,
+1010_ct_2007_plant_prime_mover_total_40211,f1_steam_2007_12_144_1_3,AS,CG,net gen off…
+1010_st_2007_plant_prime_mover_total_15470,f1_steam_2007_12_144_0_3,RF,CG,
+1010_st_2008_plant_prime_mover_total_15470,f1_steam_2008_12_144_0_3,RF,CG,
+1010_st_2009_plant_prime_mover_total_15470,f1_steam_2009_12_144_0_3,RF,CG,
+1010_st_2010_plant_prime_mover_total_15470,f1_steam_2010_12_144_0_3,RF,CG,
+1010_st_2011_plant_prime_mover_total_15470,f1_steam_2011_12_144_1_2,RF,CG,
+1010_st_2012_plant_prime_mover_total_15470,f1_steam_2012_12_144_1_2,RF,CG,
+1010_st_2013_plant_prime_mover_total_15470,f1_steam_2013_12_144_1_2,RF,CG,
+1010_st_2014_plant_prime_mover_total_15470,f1_steam_2014_12_144_1_2,RF,CG,
+1010_st_2015_plant_prime_mover_total_15470,f1_steam_2015_12_144_1_2,AS,CG,cap off but seems right what with other years
+1010_st_2016_plant_prime_mover_total_15470,f1_steam_2016_12_144_1_2,AS,CG,cap off but seems right what with other years
+1010_st_2017_plant_prime_mover_total_15470_retired,f1_steam_2017_12_144_1_2,AS,CG,cap off but seems right what with other years
+1010_st_2018_plant_prime_mover_total_15470_retired,f1_steam_2018_12_144_1_2,AS,CG,cap off but seems right what with other years
+1010_st_2019_plant_prime_mover_total_15470_retired,f1_steam_2019_12_144_1_2,AS,CG,cap off but seems right what with other years
+7538_2020_plant_total_3046,f1_steam_2020_12_17_4_1,AS,CG,
+7538_2005_plant_total_3046,f1_steam_2005_12_17_4_2,AS,CG,"cap off, net gen good"
+7538_2006_plant_total_3046,f1_steam_2006_12_17_4_2,AS,CG,"cap off, net gen good"
+7538_2007_plant_total_3046,f1_steam_2007_12_17_4_2,RF,CG,
+7538_2008_plant_total_3046,f1_steam_2008_12_17_4_2,RF,CG,
+7538_2009_plant_total_3046,f1_steam_2009_12_17_4_2,RF,CG,
+7538_2010_plant_total_3046,f1_steam_2010_12_17_4_2,RF,CG,
+7538_2011_plant_total_3046,f1_steam_2011_12_17_4_2,RF,CG,
+7538_2015_plant_total_3046,f1_steam_2015_12_17_4_1,RF,CG,
+7538_2016_plant_total_3046,f1_steam_2016_12_17_4_1,RF,CG,
+7538_2017_plant_total_3046,f1_steam_2017_12_17_4_1,RF,CG,
+7538_2018_plant_total_3046,f1_steam_2018_12_17_4_1,RF,CG,
+7538_2019_plant_total_3046,f1_steam_2019_12_17_4_1,RF,CG,
+55224_2020_plant_total_15470,f1_steam_2020_12_144_1_1,AS,CG,
+55224_2005_plant_total_3542,f1_steam_2005_12_144_2_5,AS,CG,cap off and net gen off but other years match!
+55224_2006_plant_total_15470,f1_steam_2006_12_144_2_5,RF,CG,Capacity doesn't match - but other number do. Seems best fit.
+55224_2007_plant_total_15470,f1_steam_2007_12_144_2_4,RF,CG,Capacity doesn't match - but other number do. Seems best fit.
+55224_2008_plant_total_15470,f1_steam_2008_12_144_2_3,RF,CG,Capacity doesn't match - but other number do. Seems best fit.
+55224_2009_plant_total_15470,f1_steam_2009_12_144_2_2,RF,CG,Capacity doesn't match - but other number do. Seems best fit.
+55224_2010_plant_total_15470,f1_steam_2010_12_144_2_2,RF,CG,Capacity doesn't match - but other number do. Seems best fit.
+55224_2011_plant_total_15470,f1_steam_2011_12_144_1_1,RF,CG,Capacity doesn't match - but other number do. Seems best fit.
+55224_2012_plant_total_15470,f1_steam_2012_12_144_1_1,RF,CG,Capacity doesn't match - but other number do. Seems best fit.
+55224_2013_plant_total_15470,f1_steam_2013_12_144_1_1,RF,CG,Capacity doesn't match - but other number do. Seems best fit.
+55224_2014_plant_total_15470,f1_steam_2014_12_144_1_1,RF,CG,Capacity doesn't match - but other number do. Seems best fit.
+55224_2015_plant_total_15470,f1_steam_2015_12_144_1_1,RF,CG,
+55224_2016_plant_total_15470,f1_steam_2016_12_144_1_1,RF,CG,
+55224_2017_plant_total_15470,f1_steam_2017_12_144_1_1,RF,CG,
+55224_2018_plant_total_15470,f1_steam_2018_12_144_1_1,RF,CG,
+55224_2019_plant_total_15470,f1_steam_2019_12_144_1_1,RF,CG,
+7158_2020_plant_total_55729,f1_steam_2020_12_178_0_2,AS,CG,
+7158_2005_plant_total_3542,f1_steam_2005_12_27_1_5,AS,CG,
+7158_2006_plant_total_55729,f1_steam_2006_12_178_0_3,AS,CG,
+7158_2007_plant_total_55729,f1_steam_2007_12_178_0_3,AS,CG,
+7158_2008_plant_total_55729,f1_steam_2008_12_178_0_3,AS,CG,
+7158_2009_plant_total_55729,f1_steam_2009_12_178_0_3,AS,CG,
+7158_2010_plant_total_55729,f1_steam_2010_12_178_0_3,AS,CG,
+7158_2011_plant_total_55729,f1_steam_2011_12_178_0_3,AS,CG,
+7158_2012_plant_total_55729,f1_steam_2012_12_178_0_3,AS,CG,
+7158_2013_plant_total_55729,f1_steam_2013_12_178_0_3,AS,CG,
+7158_2014_plant_total_55729,f1_steam_2014_12_178_0_3,AS,CG,
+7158_2015_plant_total_55729,f1_steam_2015_12_178_0_3,AS,CG,
+7158_2016_plant_total_55729,f1_steam_2016_12_178_0_3,AS,CG,
+7158_2017_plant_total_55729,f1_steam_2017_12_178_0_3,AS,CG,
+7158_2018_plant_total_55729,f1_steam_2018_12_178_0_3,AS,CG,
+7158_2019_plant_total_55729,f1_steam_2019_12_178_0_3,AS,CG,
+2741_2020_plant_total_5416,f1_gnrt_plant_2020_12_45_0_2,AS,CG,
+2741_2005_plant_total_5416,f1_gnrt_plant_2005_12_45_0_2,AS,CG,
+2741_2006_plant_total_5416,f1_gnrt_plant_2006_12_45_0_2,AS,CG,
+2741_2007_plant_total_5416,f1_gnrt_plant_2007_12_45_0_2,AS,CG,
+2741_2008_plant_total_5416,f1_gnrt_plant_2008_12_45_0_2,AS,CG,
+2741_2009_plant_total_5416,f1_gnrt_plant_2009_12_45_0_2,AS,CG,
+2741_2010_plant_total_5416,f1_gnrt_plant_2010_12_45_0_2,AS,CG,
+2741_2011_plant_total_5416,f1_gnrt_plant_2011_12_45_0_2,AS,CG,
+2741_2012_plant_total_5416,f1_gnrt_plant_2012_12_45_0_2,AS,CG,
+2741_2013_plant_total_5416,f1_gnrt_plant_2013_12_45_0_2,AS,CG,
+2741_2014_plant_total_5416,f1_gnrt_plant_2014_12_45_0_2,AS,CG,
+2741_2015_plant_total_5416,f1_gnrt_plant_2015_12_45_0_2,AS,CG,
+2741_2016_plant_total_5416,f1_gnrt_plant_2016_12_45_0_2,AS,CG,
+2741_2017_plant_total_5416,f1_gnrt_plant_2017_12_45_0_2,AS,CG,
+2741_2018_plant_total_5416,f1_gnrt_plant_2018_12_45_0_2,AS,CG,
+2741_2019_plant_total_5416,f1_gnrt_plant_2019_12_45_0_2,AS,CG,
+2743_2020_plant_total_5416,f1_gnrt_plant_2020_12_45_0_3,AS,CG,
+2743_2005_plant_total_5416,f1_gnrt_plant_2005_12_45_0_4,AS,CG,
+2743_2006_plant_total_5416,f1_gnrt_plant_2006_12_45_0_4,AS,CG,
+2743_2007_plant_total_5416,f1_gnrt_plant_2007_12_45_0_4,AS,CG,
+2743_2008_plant_total_5416,f1_gnrt_plant_2008_12_45_0_4,AS,CG,
+2743_2009_plant_total_5416,f1_gnrt_plant_2009_12_45_0_4,AS,CG,
+2743_2010_plant_total_5416,f1_gnrt_plant_2010_12_45_0_4,AS,CG,
+2743_2011_plant_total_5416,f1_gnrt_plant_2011_12_45_0_4,AS,CG,
+2743_2012_plant_total_5416,f1_gnrt_plant_2012_12_45_0_4,AS,CG,
+2743_2013_plant_total_5416,f1_gnrt_plant_2013_12_45_0_4,AS,CG,
+2743_2014_plant_total_5416,f1_gnrt_plant_2014_12_45_0_4,AS,CG,
+2743_2015_plant_total_5416,f1_gnrt_plant_2015_12_45_0_4,AS,CG,
+2743_2016_plant_total_5416,f1_gnrt_plant_2016_12_45_0_4,AS,CG,
+2743_2017_plant_total_5416,f1_gnrt_plant_2017_12_45_0_4,AS,CG,
+2743_2018_plant_total_5416,f1_gnrt_plant_2018_12_45_0_4,AS,CG,
+2743_2019_plant_total_5416,f1_gnrt_plant_2019_12_45_0_3,AS,CG,
+3258_2005_plant_total_5416,f1_gnrt_plant_2005_12_45_0_7,AS,CG,ferc wrong units
+3258_2006_plant_total_5416,f1_gnrt_plant_2006_12_45_0_7,AS,CG,ferc wrong units
+3258_2007_plant_total_5416,f1_gnrt_plant_2007_12_45_0_7,AS,CG,ferc wrong units
+3258_2008_plant_total_5416,f1_gnrt_plant_2008_12_45_0_7,AS,CG,ferc wrong units
+3258_2009_plant_total_5416,f1_gnrt_plant_2009_12_45_0_7,AS,CG,ferc wrong units
+3258_2010_plant_total_5416,f1_gnrt_plant_2010_12_45_0_7,AS,CG,ferc wrong units
+3258_2011_plant_total_5416,f1_gnrt_plant_2011_12_45_0_7,AS,CG,ferc wrong units
+3258_2012_plant_total_5416,f1_gnrt_plant_2012_12_45_0_6,AS,CG,ferc wrong units
+3258_2013_plant_total_5416,f1_gnrt_plant_2013_12_45_0_6,AS,CG,ferc wrong units
+3258_2014_plant_total_5416,f1_gnrt_plant_2014_12_45_0_6,AS,CG,ferc wrong units
+3258_2015_plant_total_5416,f1_gnrt_plant_2015_12_45_0_6,AS,CG,ferc wrong units
+3258_2016_plant_total_5416,f1_gnrt_plant_2016_12_45_0_6,AS,CG,ferc wrong units
+3258_2017_plant_total_5416,f1_gnrt_plant_2017_12_45_0_6,AS,CG,ferc wrong units
+3258_2018_plant_total_5416,f1_gnrt_plant_2018_12_45_0_6,AS,CG,ferc wrong units
+3256_2020_plant_total_5416,f1_hydro_2020_12_45_1_5,AS,CG,
+3255_2020_plant_total_5416,f1_hydro_2020_12_45_2_2,AS,CG,
+6517_2020_plant_total_5416,f1_hydro_2020_12_45_3_1,AS,CG,
+2719_2020_plant_total_5416,f1_hydro_2020_12_45_0_1,AS,CG,
+3256_2005_plant_total_5416,f1_hydro_2005_12_45_1_5,AS,CG,
+3256_2006_plant_total_5416,f1_hydro_2006_12_45_1_5,AS,CG,
+3256_2007_plant_total_5416,f1_hydro_2007_12_45_1_5,AS,CG,
+3256_2008_plant_total_5416,f1_hydro_2008_12_45_1_5,AS,CG,
+3256_2009_plant_total_5416,f1_hydro_2009_12_45_1_5,AS,CG,
+3256_2010_plant_total_5416,f1_hydro_2010_12_45_1_5,AS,CG,
+3256_2011_plant_total_5416,f1_hydro_2011_12_45_1_5,AS,CG,
+3256_2012_plant_total_5416,f1_hydro_2012_12_45_1_5,AS,CG,
+3256_2013_plant_total_5416,f1_hydro_2013_12_45_1_5,AS,CG,
+3256_2014_plant_total_5416,f1_hydro_2014_12_45_1_5,AS,CG,
+3256_2015_plant_total_5416,f1_hydro_2015_12_45_1_5,AS,CG,
+3256_2016_plant_total_5416,f1_hydro_2016_12_45_1_5,AS,CG,
+3256_2017_plant_total_5416,f1_hydro_2017_12_45_1_5,AS,CG,
+3256_2018_plant_total_5416,f1_hydro_2018_12_45_1_5,AS,CG,
+3256_2019_plant_total_5416,f1_hydro_2019_12_45_1_5,AS,CG,
+2749_2020_plant_total_5416,f1_hydro_2020_12_45_3_4,AS,CG,
+3255_2005_plant_total_5416,f1_hydro_2005_12_45_2_2,AS,CG,
+3255_2006_plant_total_5416,f1_hydro_2006_12_45_2_2,AS,CG,
+3255_2007_plant_total_5416,f1_hydro_2007_12_45_2_2,AS,CG,
+3255_2008_plant_total_5416,f1_hydro_2008_12_45_2_2,AS,CG,
+3255_2009_plant_total_5416,f1_hydro_2009_12_45_2_2,AS,CG,
+3255_2010_plant_total_5416,f1_hydro_2010_12_45_2_2,AS,CG,
+3255_2011_plant_total_5416,f1_hydro_2011_12_45_2_2,AS,CG,
+3255_2012_plant_total_5416,f1_hydro_2012_12_45_2_2,AS,CG,
+3255_2013_plant_total_5416,f1_hydro_2013_12_45_2_2,AS,CG,
+3255_2014_plant_total_5416,f1_hydro_2014_12_45_2_2,AS,CG,
+3255_2015_plant_total_5416,f1_hydro_2015_12_45_2_2,AS,CG,
+3255_2016_plant_total_5416,f1_hydro_2016_12_45_2_2,AS,CG,
+3255_2017_plant_total_5416,f1_hydro_2017_12_45_2_2,AS,CG,
+3255_2018_plant_total_5416,f1_hydro_2018_12_45_2_2,AS,CG,
+3255_2019_plant_total_5416,f1_hydro_2019_12_45_2_2,AS,CG,
+3271_2020_plant_total_5416,f1_hydro_2020_12_45_1_2,AS,CG,"cap off, net gen good"
+2729_2005_plant_total_5416,f1_hydro_2005_12_45_0_3,AS,CG,
+2729_2006_plant_total_5416,f1_hydro_2006_12_45_0_3,AS,CG,
+2729_2007_plant_total_5416,f1_hydro_2007_12_45_0_3,AS,CG,
+2729_2008_plant_total_5416,f1_hydro_2008_12_45_0_3,AS,CG,
+2729_2009_plant_total_5416,f1_hydro_2009_12_45_0_3,AS,CG,
+2729_2010_plant_total_5416,f1_hydro_2010_12_45_0_3,AS,CG,
+2729_2011_plant_total_5416,f1_hydro_2011_12_45_0_3,AS,CG,
+2729_2012_plant_total_5416,f1_hydro_2012_12_45_0_3,AS,CG,
+2729_2013_plant_total_5416,f1_hydro_2013_12_45_0_3,AS,CG,
+2729_2014_plant_total_5416,f1_hydro_2014_12_45_0_3,AS,CG,
+2729_2015_plant_total_5416,f1_hydro_2015_12_45_0_3,AS,CG,
+2729_2016_plant_total_5416,f1_hydro_2016_12_45_0_3,AS,CG,
+2729_2017_plant_total_5416,f1_hydro_2017_12_45_0_3,AS,CG,
+2729_2018_plant_total_5416,f1_hydro_2018_12_45_0_3,AS,CG,
+2729_2019_plant_total_5416,f1_hydro_2019_12_45_0_3,AS,CG,
+3270_2020_plant_total_5416,f1_hydro_2020_12_45_2_3,AS,CG,
+6517_2005_plant_total_5416,f1_hydro_2005_12_45_3_1,AS,CG,
+6517_2006_plant_total_5416,f1_hydro_2006_12_45_3_1,AS,CG,
+6517_2007_plant_total_5416,f1_hydro_2007_12_45_3_1,AS,CG,
+6517_2008_plant_total_5416,f1_hydro_2008_12_45_3_1,AS,CG,
+6517_2009_plant_total_5416,f1_hydro_2009_12_45_3_1,AS,CG,
+6517_2010_plant_total_5416,f1_hydro_2010_12_45_3_1,AS,CG,
+6517_2011_plant_total_5416,f1_hydro_2011_12_45_3_1,AS,CG,
+6517_2012_plant_total_5416,f1_hydro_2012_12_45_3_1,AS,CG,
+6517_2013_plant_total_5416,f1_hydro_2013_12_45_3_1,AS,CG,
+6517_2014_plant_total_5416,f1_hydro_2014_12_45_3_1,AS,CG,
+6517_2015_plant_total_5416,f1_hydro_2015_12_45_3_1,AS,CG,
+6517_2016_plant_total_5416,f1_hydro_2016_12_45_3_1,AS,CG,
+6517_2017_plant_total_5416,f1_hydro_2017_12_45_3_1,AS,CG,
+6517_2018_plant_total_5416,f1_hydro_2018_12_45_3_1,AS,CG,
+6517_2019_plant_total_5416,f1_hydro_2019_12_45_3_1,AS,CG,
+3272_2020_plant_total_5416,f1_hydro_2020_12_45_2_4,AS,CG,"cap off, net gen good"
+2719_2005_plant_total_5416,f1_hydro_2005_12_45_0_1,AS,CG,
+2719_2006_plant_total_5416,f1_hydro_2006_12_45_0_1,AS,CG,
+2719_2007_plant_total_5416,f1_hydro_2007_12_45_0_1,AS,CG,
+2719_2008_plant_total_5416,f1_hydro_2008_12_45_0_1,AS,CG,
+2719_2009_plant_total_5416,f1_hydro_2009_12_45_0_1,AS,CG,
+2719_2010_plant_total_5416,f1_hydro_2010_12_45_0_1,AS,CG,
+2719_2011_plant_total_5416,f1_hydro_2011_12_45_0_1,AS,CG,
+2719_2012_plant_total_5416,f1_hydro_2012_12_45_0_1,AS,CG,
+2719_2013_plant_total_5416,f1_hydro_2013_12_45_0_1,AS,CG,
+2719_2014_plant_total_5416,f1_hydro_2014_12_45_0_1,AS,CG,
+2719_2015_plant_total_5416,f1_hydro_2015_12_45_0_1,AS,CG,
+2719_2016_plant_total_5416,f1_hydro_2016_12_45_0_1,AS,CG,
+2719_2017_plant_total_5416,f1_hydro_2017_12_45_0_1,AS,CG,
+2719_2018_plant_total_5416,f1_hydro_2018_12_45_0_1,AS,CG,
+2719_2019_plant_total_5416,f1_hydro_2019_12_45_0_1,AS,CG,
+2722_2020_plant_total_5416,f1_hydro_2020_12_45_1_1,AS,CG,
+3266_2005_plant_total_5416,f1_hydro_2005_12_45_2_1,AS,CG,
+3266_2006_plant_total_5416,f1_hydro_2006_12_45_2_1,AS,CG,
+3266_2007_plant_total_5416,f1_hydro_2007_12_45_2_1,AS,CG,
+3266_2008_plant_total_5416,f1_hydro_2008_12_45_2_1,AS,CG,
+3266_2009_plant_total_5416,f1_hydro_2009_12_45_2_1,AS,CG,
+3266_2010_plant_total_5416,f1_hydro_2010_12_45_2_1,AS,CG,
+3266_2011_plant_total_5416,f1_hydro_2011_12_45_2_1,AS,CG,
+3266_2012_plant_total_5416,f1_hydro_2012_12_45_2_1,AS,CG,
+3266_2013_plant_total_5416,f1_hydro_2013_12_45_2_1,AS,CG,
+3266_2014_plant_total_5416,f1_hydro_2014_12_45_2_1,AS,CG,
+3266_2015_plant_total_5416,f1_hydro_2015_12_45_2_1,AS,CG,
+3266_2016_plant_total_5416,f1_hydro_2016_12_45_2_1,AS,CG,
+3266_2017_plant_total_5416,f1_hydro_2017_12_45_2_1,AS,CG,
+3266_2018_plant_total_5416,f1_hydro_2018_12_45_2_1,AS,CG,
+3266_2019_plant_total_5416_retired,f1_hydro_2019_12_45_2_1,AS,CG,
+2749_2005_plant_total_5416,f1_hydro_2005_12_45_3_4,AS,CG,
+2749_2006_plant_total_5416,f1_hydro_2006_12_45_3_4,AS,CG,
+2749_2007_plant_total_5416,f1_hydro_2007_12_45_3_4,AS,CG,
+2749_2008_plant_total_5416,f1_hydro_2008_12_45_3_4,AS,CG,
+2749_2009_plant_total_5416,f1_hydro_2009_12_45_3_4,AS,CG,
+2749_2010_plant_total_5416,f1_hydro_2010_12_45_3_4,AS,CG,
+2749_2011_plant_total_5416,f1_hydro_2011_12_45_3_4,AS,CG,
+2749_2012_plant_total_5416,f1_hydro_2012_12_45_3_4,AS,CG,
+2749_2013_plant_total_5416,f1_hydro_2013_12_45_3_4,AS,CG,
+2749_2014_plant_total_5416,f1_hydro_2014_12_45_3_4,AS,CG,
+2749_2015_plant_total_5416,f1_hydro_2015_12_45_3_4,AS,CG,
+2749_2016_plant_total_5416,f1_hydro_2016_12_45_3_4,AS,CG,
+2749_2017_plant_total_5416,f1_hydro_2017_12_45_3_4,AS,CG,
+2749_2018_plant_total_5416,f1_hydro_2018_12_45_3_4,AS,CG,
+2749_2019_plant_total_5416,f1_hydro_2019_12_45_3_4,AS,CG,
+3257_2020_plant_total_5416,f1_hydro_2020_12_45_1_3,AS,CG,
+3271_2005_plant_total_5416,f1_hydro_2005_12_45_1_2,AS,CG,
+3271_2006_plant_total_5416,f1_hydro_2006_12_45_1_2,AS,CG,
+3271_2007_plant_total_5416,f1_hydro_2007_12_45_1_2,AS,CG,
+3271_2008_plant_total_5416,f1_hydro_2008_12_45_1_2,AS,CG,
+3271_2009_plant_total_5416,f1_hydro_2009_12_45_1_2,AS,CG,
+3271_2010_plant_total_5416,f1_hydro_2010_12_45_1_2,AS,CG,
+3271_2011_plant_total_5416,f1_hydro_2011_12_45_1_2,AS,CG,
+3271_2012_plant_total_5416,f1_hydro_2012_12_45_1_2,AS,CG,
+3271_2013_plant_total_5416,f1_hydro_2013_12_45_1_2,AS,CG,
+3271_2014_plant_total_5416,f1_hydro_2014_12_45_1_2,AS,CG,
+3271_2015_plant_total_5416,f1_hydro_2015_12_45_1_2,AS,CG,
+3271_2016_plant_total_5416,f1_hydro_2016_12_45_1_2,AS,CG,
+3271_2017_plant_total_5416,f1_hydro_2017_12_45_1_2,AS,CG,
+3271_2018_plant_total_5416,f1_hydro_2018_12_45_1_2,AS,CG,
+3271_2019_plant_total_5416,f1_hydro_2019_12_45_1_2,AS,CG,
+2750_2020_plant_total_5416,f1_hydro_2020_12_45_3_2,AS,CG,
+3270_2005_plant_total_5416,f1_hydro_2005_12_45_2_3,AS,CG,
+3270_2006_plant_total_5416,f1_hydro_2006_12_45_2_3,AS,CG,
+3270_2007_plant_total_5416,f1_hydro_2007_12_45_2_3,AS,CG,
+3270_2008_plant_total_5416,f1_hydro_2008_12_45_2_3,AS,CG,
+3270_2009_plant_total_5416,f1_hydro_2009_12_45_2_3,AS,CG,
+3270_2010_plant_total_5416,f1_hydro_2010_12_45_2_3,AS,CG,
+3270_2011_plant_total_5416,f1_hydro_2011_12_45_2_3,AS,CG,
+3270_2012_plant_total_5416,f1_hydro_2012_12_45_2_3,AS,CG,
+3270_2013_plant_total_5416,f1_hydro_2013_12_45_2_3,AS,CG,
+3270_2014_plant_total_5416,f1_hydro_2014_12_45_2_3,AS,CG,
+3270_2015_plant_total_5416,f1_hydro_2015_12_45_2_3,AS,CG,
+3270_2016_plant_total_5416,f1_hydro_2016_12_45_2_3,AS,CG,cap off but seems right what with other years
+3270_2017_plant_total_5416,f1_hydro_2017_12_45_2_3,AS,CG,cap off but seems right what with other years
+3270_2018_plant_total_5416,f1_hydro_2018_12_45_2_3,AS,CG,cap off but seems right what with other years
+3270_2019_plant_total_5416,f1_hydro_2019_12_45_2_3,AS,CG,cap off but seems right what with other years
+3272_2005_plant_total_5416,f1_hydro_2005_12_45_2_4,AS,CG,
+3272_2006_plant_total_5416,f1_hydro_2006_12_45_2_4,AS,CG,
+3272_2007_plant_total_5416,f1_hydro_2007_12_45_2_4,AS,CG,
+3272_2008_plant_total_5416,f1_hydro_2008_12_45_2_4,AS,CG,
+3272_2009_plant_total_5416,f1_hydro_2009_12_45_2_4,AS,CG,
+3272_2010_plant_total_5416,f1_hydro_2010_12_45_2_4,AS,CG,
+3272_2011_plant_total_5416,f1_hydro_2011_12_45_2_4,AS,CG,
+3272_2012_plant_total_5416,f1_hydro_2012_12_45_2_4,AS,CG,
+3272_2013_plant_total_5416,f1_hydro_2013_12_45_2_4,AS,CG,
+3272_2014_plant_total_5416,f1_hydro_2014_12_45_2_4,AS,CG,
+3272_2015_plant_total_5416,f1_hydro_2015_12_45_2_4,AS,CG,
+3272_2016_plant_total_5416,f1_hydro_2016_12_45_2_4,AS,CG,
+3272_2017_plant_total_5416,f1_hydro_2017_12_45_2_4,AS,CG,
+3272_2018_plant_total_5416,f1_hydro_2018_12_45_2_4,AS,CG,
+3272_2019_plant_total_5416,f1_hydro_2019_12_45_2_4,AS,CG,
+2747_2020_plant_total_5416,f1_hydro_2020_12_45_3_3,AS,CG,
+2722_2005_plant_total_5416,f1_hydro_2005_12_45_1_1,AS,CG,
+2722_2006_plant_total_5416,f1_hydro_2006_12_45_1_1,AS,CG,
+2722_2007_plant_total_5416,f1_hydro_2007_12_45_1_1,AS,CG,
+2722_2008_plant_total_5416,f1_hydro_2008_12_45_1_1,AS,CG,
+2722_2009_plant_total_5416,f1_hydro_2009_12_45_1_1,AS,CG,
+2722_2010_plant_total_5416,f1_hydro_2010_12_45_1_1,AS,CG,
+2722_2011_plant_total_5416,f1_hydro_2011_12_45_1_1,AS,CG,
+2722_2012_plant_total_5416,f1_hydro_2012_12_45_1_1,AS,CG,
+2722_2013_plant_total_5416,f1_hydro_2013_12_45_1_1,AS,CG,
+2722_2014_plant_total_5416,f1_hydro_2014_12_45_1_1,AS,CG,
+2722_2015_plant_total_5416,f1_hydro_2015_12_45_1_1,AS,CG,
+2722_2016_plant_total_5416,f1_hydro_2016_12_45_1_1,AS,CG,
+2722_2017_plant_total_5416,f1_hydro_2017_12_45_1_1,AS,CG,
+2722_2018_plant_total_5416,f1_hydro_2018_12_45_1_1,AS,CG,
+2722_2019_plant_total_5416,f1_hydro_2019_12_45_1_1,AS,CG,
+2728_2020_plant_total_5416,f1_hydro_2020_12_45_0_5,AS,CG,
+2726_2005_plant_total_5416,f1_hydro_2005_12_45_0_4,AS,CG,
+2726_2006_plant_total_5416,f1_hydro_2006_12_45_0_4,AS,CG,
+2726_2007_plant_total_5416,f1_hydro_2007_12_45_0_4,AS,CG,
+2726_2008_plant_total_5416,f1_hydro_2008_12_45_0_4,AS,CG,
+2726_2009_plant_total_5416,f1_hydro_2009_12_45_0_4,AS,CG,
+2726_2010_plant_total_5416,f1_hydro_2010_12_45_0_4,AS,CG,
+2726_2011_plant_total_5416,f1_hydro_2011_12_45_0_4,AS,CG,
+2726_2012_plant_total_5416,f1_hydro_2012_12_45_0_4,AS,CG,
+2726_2013_plant_total_5416,f1_hydro_2013_12_45_0_4,AS,CG,
+2726_2014_plant_total_5416,f1_hydro_2014_12_45_0_4,AS,CG,
+2726_2015_plant_total_5416,f1_hydro_2015_12_45_0_4,AS,CG,
+2726_2016_plant_total_5416,f1_hydro_2016_12_45_0_4,AS,CG,
+2726_2017_plant_total_5416,f1_hydro_2017_12_45_0_4,AS,CG,
+2726_2018_plant_total_5416,f1_hydro_2018_12_45_0_4,AS,CG,
+2726_2019_plant_total_5416,f1_hydro_2019_12_45_0_4,AS,CG,
+3257_2005_plant_total_5416,f1_hydro_2005_12_45_1_3,AS,CG,
+3257_2006_plant_total_5416,f1_hydro_2006_12_45_1_3,AS,CG,
+3257_2007_plant_total_5416,f1_hydro_2007_12_45_1_3,AS,CG,
+3257_2008_plant_total_5416,f1_hydro_2008_12_45_1_3,AS,CG,
+3257_2009_plant_total_5416,f1_hydro_2009_12_45_1_3,AS,CG,
+3257_2010_plant_total_5416,f1_hydro_2010_12_45_1_3,AS,CG,
+3257_2011_plant_total_5416,f1_hydro_2011_12_45_1_3,AS,CG,
+3257_2012_plant_total_5416,f1_hydro_2012_12_45_1_3,AS,CG,
+3257_2013_plant_total_5416,f1_hydro_2013_12_45_1_3,AS,CG,
+3257_2014_plant_total_5416,f1_hydro_2014_12_45_1_3,AS,CG,
+3257_2015_plant_total_5416,f1_hydro_2015_12_45_1_3,AS,CG,
+3257_2016_plant_total_5416,f1_hydro_2016_12_45_1_3,AS,CG,
+3257_2017_plant_total_5416,f1_hydro_2017_12_45_1_3,AS,CG,
+3257_2018_plant_total_5416,f1_hydro_2018_12_45_1_3,AS,CG,
+3257_2019_plant_total_5416,f1_hydro_2019_12_45_1_3,AS,CG,
+7125_2020_plant_total_5416,f1_pumped_storage_2020_12_45_0_2,AS,CG,
+2750_2005_plant_total_5416,f1_hydro_2005_12_45_3_2,AS,CG,
+2750_2006_plant_total_5416,f1_hydro_2006_12_45_3_2,AS,CG,
+2750_2007_plant_total_5416,f1_hydro_2007_12_45_3_2,AS,CG,
+2750_2008_plant_total_5416,f1_hydro_2008_12_45_3_2,AS,CG,
+2750_2009_plant_total_5416,f1_hydro_2009_12_45_3_2,AS,CG,
+2750_2010_plant_total_5416,f1_hydro_2010_12_45_3_2,AS,CG,
+2750_2011_plant_total_5416,f1_hydro_2011_12_45_3_2,AS,CG,
+2750_2012_plant_total_5416,f1_hydro_2012_12_45_3_2,AS,CG,
+2750_2013_plant_total_5416,f1_hydro_2013_12_45_3_2,AS,CG,
+2750_2014_plant_total_5416,f1_hydro_2014_12_45_3_2,AS,CG,
+2750_2015_plant_total_5416,f1_hydro_2015_12_45_3_2,AS,CG,
+2750_2016_plant_total_5416,f1_hydro_2016_12_45_3_2,AS,CG,
+2750_2017_plant_total_5416,f1_hydro_2017_12_45_3_2,AS,CG,
+2750_2018_plant_total_5416,f1_hydro_2018_12_45_3_2,AS,CG,
+2750_2019_plant_total_5416,f1_hydro_2019_12_45_3_2,AS,CG,
+3262_2020_plant_total_5416,f1_pumped_storage_2020_12_45_0_1,AS,CG,
+3259_2005_plant_total_5416,f1_hydro_2005_12_45_1_4,AS,CG,
+3259_2006_plant_total_5416,f1_hydro_2006_12_45_1_4,AS,CG,
+3259_2007_plant_total_5416,f1_hydro_2007_12_45_1_4,AS,CG,
+3259_2008_plant_total_5416,f1_hydro_2008_12_45_1_4,AS,CG,
+3259_2009_plant_total_5416,f1_hydro_2009_12_45_1_4,AS,CG,
+3259_2010_plant_total_5416,f1_hydro_2010_12_45_1_4,AS,CG,
+3259_2011_plant_total_5416,f1_hydro_2011_12_45_1_4,AS,CG,
+3259_2012_plant_total_5416,f1_hydro_2012_12_45_1_4,AS,CG,
+3259_2013_plant_total_5416,f1_hydro_2013_12_45_1_4,AS,CG,
+3259_2014_plant_total_5416,f1_hydro_2014_12_45_1_4,AS,CG,
+3259_2015_plant_total_5416,f1_hydro_2015_12_45_1_4,AS,CG,
+3259_2016_plant_total_5416,f1_hydro_2016_12_45_1_4,AS,CG,
+3259_2017_plant_total_5416,f1_hydro_2017_12_45_1_4,AS,CG,
+3259_2018_plant_total_5416,f1_hydro_2018_12_45_1_4,AS,CG,
+3259_2019_plant_total_5416,f1_hydro_2019_12_45_1_4,AS,CG,
+1005_2020_plant_total_15470,f1_hydro_2020_12_144_0_1,AS,CG,
+2747_2005_plant_total_5416,f1_hydro_2005_12_45_3_3,AS,CG,
+2747_2006_plant_total_5416,f1_hydro_2006_12_45_3_3,AS,CG,
+2747_2007_plant_total_5416,f1_hydro_2007_12_45_3_3,AS,CG,
+2747_2008_plant_total_5416,f1_hydro_2008_12_45_3_3,AS,CG,
+2747_2009_plant_total_5416,f1_hydro_2009_12_45_3_3,AS,CG,
+2747_2010_plant_total_5416,f1_hydro_2010_12_45_3_3,AS,CG,
+2747_2011_plant_total_5416,f1_hydro_2011_12_45_3_3,AS,CG,
+2747_2012_plant_total_5416,f1_hydro_2012_12_45_3_3,AS,CG,
+2747_2013_plant_total_5416,f1_hydro_2013_12_45_3_3,AS,CG,
+2747_2014_plant_total_5416,f1_hydro_2014_12_45_3_3,AS,CG,
+2747_2015_plant_total_5416,f1_hydro_2015_12_45_3_3,AS,CG,
+2747_2016_plant_total_5416,f1_hydro_2016_12_45_3_3,AS,CG,
+2747_2017_plant_total_5416,f1_hydro_2017_12_45_3_3,AS,CG,
+2747_2018_plant_total_5416,f1_hydro_2018_12_45_3_3,AS,CG,
+2747_2019_plant_total_5416,f1_hydro_2019_12_45_3_3,AS,CG,
+2714_2020_plant_total_3046,f1_hydro_2020_12_17_0_2,AS,CG,
+2728_2005_plant_total_5416,f1_hydro_2005_12_45_0_5,AS,CG,
+2728_2006_plant_total_5416,f1_hydro_2006_12_45_0_5,AS,CG,
+2728_2007_plant_total_5416,f1_hydro_2007_12_45_0_5,AS,CG,
+2728_2008_plant_total_5416,f1_hydro_2008_12_45_0_5,AS,CG,
+2728_2009_plant_total_5416,f1_hydro_2009_12_45_0_5,AS,CG,
+2728_2010_plant_total_5416,f1_hydro_2010_12_45_0_5,AS,CG,
+2728_2011_plant_total_5416,f1_hydro_2011_12_45_0_5,AS,CG,
+2728_2012_plant_total_5416,f1_hydro_2012_12_45_0_5,AS,CG,
+2728_2013_plant_total_5416,f1_hydro_2013_12_45_0_5,AS,CG,
+2728_2014_plant_total_5416,f1_hydro_2014_12_45_0_5,AS,CG,
+2728_2015_plant_total_5416,f1_hydro_2015_12_45_0_5,AS,CG,
+2728_2016_plant_total_5416,f1_hydro_2016_12_45_0_5,AS,CG,
+2728_2017_plant_total_5416,f1_hydro_2017_12_45_0_5,AS,CG,
+2728_2018_plant_total_5416,f1_hydro_2018_12_45_0_5,AS,CG,
+2728_2019_plant_total_5416,f1_hydro_2019_12_45_0_5,AS,CG,
+2715_2020_plant_total_3046,f1_hydro_2020_12_17_0_3,AS,CG,
+2730_2005_plant_total_5416,f1_hydro_2005_12_45_0_2,AS,CG,
+2730_2006_plant_total_5416,f1_hydro_2006_12_45_0_2,AS,CG,
+2730_2007_plant_total_5416,f1_hydro_2007_12_45_0_2,AS,CG,
+2730_2008_plant_total_5416,f1_hydro_2008_12_45_0_2,AS,CG,
+2730_2009_plant_total_5416,f1_hydro_2009_12_45_0_2,AS,CG,
+2730_2010_plant_total_5416,f1_hydro_2010_12_45_0_2,AS,CG,
+2730_2011_plant_total_5416,f1_hydro_2011_12_45_0_2,AS,CG,
+2730_2012_plant_total_5416,f1_hydro_2012_12_45_0_2,AS,CG,
+2730_2013_plant_total_5416,f1_hydro_2013_12_45_0_2,AS,CG,
+2730_2014_plant_total_5416,f1_hydro_2014_12_45_0_2,AS,CG,
+2730_2015_plant_total_5416,f1_hydro_2015_12_45_0_2,AS,CG,
+2730_2016_plant_total_5416,f1_hydro_2016_12_45_0_2,AS,CG,
+2730_2017_plant_total_5416,f1_hydro_2017_12_45_0_2,AS,CG,
+2730_2018_plant_total_5416,f1_hydro_2018_12_45_0_2,AS,CG,
+2730_2019_plant_total_5416,f1_hydro_2019_12_45_0_2,AS,CG,
+7125_2005_plant_total_5416,f1_pumped_storage_2005_12_45_0_2,AS,CG,
+7125_2006_plant_total_5416,f1_pumped_storage_2006_12_45_0_2,AS,CG,
+7125_2007_plant_total_5416,f1_pumped_storage_2007_12_45_0_2,AS,CG,
+7125_2008_plant_total_5416,f1_pumped_storage_2008_12_45_0_2,AS,CG,
+7125_2009_plant_total_5416,f1_pumped_storage_2009_12_45_0_2,AS,CG,
+7125_2010_plant_total_5416,f1_pumped_storage_2010_12_45_0_2,AS,CG,
+7125_2011_plant_total_5416,f1_pumped_storage_2011_12_45_0_2,AS,CG,
+7125_2012_plant_total_5416,f1_pumped_storage_2012_12_45_0_2,AS,CG,
+7125_2013_plant_total_5416,f1_pumped_storage_2013_12_45_0_2,AS,CG,
+7125_2014_plant_total_5416,f1_pumped_storage_2014_12_45_0_2,AS,CG,
+7125_2015_plant_total_5416,f1_pumped_storage_2015_12_45_0_2,AS,CG,
+7125_2016_plant_total_5416,f1_pumped_storage_2016_12_45_0_2,AS,CG,matches cap from 2014
+7125_2017_plant_total_5416,f1_pumped_storage_2017_12_45_0_2,AS,CG,matches cap from 2014
+7125_2018_plant_total_5416,f1_pumped_storage_2018_12_45_0_2,AS,CG,matches cap from 2014
+7125_2019_plant_total_5416,f1_pumped_storage_2019_12_45_0_2,AS,CG,matches cap from 2014
+3262_2005_plant_total_5416,f1_pumped_storage_2005_12_45_0_1,AS,CG,
+3262_2006_plant_total_5416,f1_pumped_storage_2006_12_45_0_1,AS,CG,
+3262_2007_plant_total_5416,f1_pumped_storage_2007_12_45_0_1,AS,CG,
+3262_2008_plant_total_5416,f1_pumped_storage_2008_12_45_0_1,AS,CG,
+3262_2009_plant_total_5416,f1_pumped_storage_2009_12_45_0_1,AS,CG,
+3262_2010_plant_total_5416,f1_pumped_storage_2010_12_45_0_1,AS,CG,
+3262_2011_plant_total_5416,f1_pumped_storage_2011_12_45_0_1,AS,CG,
+3262_2012_plant_total_5416,f1_pumped_storage_2012_12_45_0_1,AS,CG,
+3262_2013_plant_total_5416,f1_pumped_storage_2013_12_45_0_1,AS,CG,
+3262_2014_plant_total_5416,f1_pumped_storage_2014_12_45_0_1,AS,CG,
+3262_2015_plant_total_5416,f1_pumped_storage_2015_12_45_0_1,AS,CG,
+3262_2016_plant_total_5416,f1_pumped_storage_2016_12_45_0_1,AS,CG,
+3262_2017_plant_total_5416,f1_pumped_storage_2017_12_45_0_1,AS,CG,
+3262_2018_plant_total_5416,f1_pumped_storage_2018_12_45_0_1,AS,CG,
+3262_2019_plant_total_5416,f1_pumped_storage_2019_12_45_0_1,AS,CG,
+1005_2005_plant_total_15470,f1_hydro_2005_12_144_0_1,RF,CG,
+1005_2006_plant_total_15470,f1_hydro_2006_12_144_0_1,RF,CG,
+1005_2007_plant_total_15470,f1_hydro_2007_12_144_0_1,RF,CG,
+1005_2008_plant_total_15470,f1_hydro_2008_12_144_0_1,RF,CG,
+1005_2009_plant_total_15470,f1_hydro_2009_12_144_0_1,RF,CG,
+1005_2010_plant_total_15470,f1_hydro_2010_12_144_0_1,RF,CG,
+1005_2011_plant_total_15470,f1_hydro_2011_12_144_0_1,RF,CG,
+1005_2012_plant_total_15470,f1_hydro_2012_12_144_0_1,RF,CG,
+1005_2013_plant_total_15470,f1_hydro_2013_12_144_0_1,RF,CG,
+1005_2014_plant_total_15470,f1_hydro_2014_12_144_0_1,RF,CG,
+1005_2015_plant_total_15470,f1_hydro_2015_12_144_0_1,RF,CG,
+1005_2016_plant_total_15470,f1_hydro_2016_12_144_0_1,RF,CG,
+1005_2017_plant_total_15470,f1_hydro_2017_12_144_0_1,RF,CG,
+1005_2018_plant_total_15470,f1_hydro_2018_12_144_0_1,RF,CG,
+1005_2019_plant_total_15470,f1_hydro_2019_12_144_0_1,RF,CG,
+2714_2005_plant_total_3046,f1_hydro_2005_12_17_0_2,RF,CG,
+2714_2006_plant_total_3046,f1_hydro_2006_12_17_0_2,RF,CG,
+2714_2007_plant_total_3046,f1_hydro_2007_12_17_0_2,RF,CG,
+2714_2008_plant_total_3046,f1_hydro_2008_12_17_0_2,RF,CG,
+2714_2009_plant_total_3046,f1_hydro_2009_12_17_0_2,RF,CG,
+2714_2010_plant_total_3046,f1_hydro_2010_12_17_0_2,RF,CG,
+2714_2011_plant_total_3046,f1_hydro_2011_12_17_0_2,RF,CG,
+2714_2012_plant_total_3046,f1_hydro_2012_12_17_0_2,RF,CG,
+2714_2013_plant_total_3046,f1_hydro_2013_12_17_0_2,RF,CG,
+2714_2014_plant_total_3046,f1_hydro_2014_12_17_0_2,RF,CG,
+2714_2015_plant_total_3046,f1_hydro_2015_12_17_0_2,RF,CG,
+2714_2016_plant_total_3046,f1_hydro_2016_12_17_0_2,RF,CG,
+2714_2017_plant_total_3046,f1_hydro_2017_12_17_0_2,RF,CG,
+2714_2018_plant_total_3046,f1_hydro_2018_12_17_0_2,RF,CG,
+2714_2019_plant_total_3046,f1_hydro_2019_12_17_0_2,RF,CG,
+2715_2005_plant_total_3046,f1_hydro_2005_12_17_0_1,RF,CG,
+2715_2006_plant_total_3046,f1_hydro_2006_12_17_0_1,RF,CG,
+2715_2007_plant_total_3046,f1_hydro_2007_12_17_0_1,RF,CG,
+2715_2008_plant_total_3046,f1_hydro_2008_12_17_0_1,RF,CG,
+2715_2009_plant_total_3046,f1_hydro_2009_12_17_0_1,RF,CG,
+2715_2010_plant_total_3046,f1_hydro_2010_12_17_0_1,RF,CG,
+2715_2011_plant_total_3046,f1_hydro_2011_12_17_0_1,RF,CG,
+2715_2012_plant_total_3046,f1_hydro_2012_12_17_0_3,RF,CG,
+2715_2013_plant_total_3046,f1_hydro_2013_12_17_0_3,RF,CG,
+2715_2014_plant_total_3046,f1_hydro_2014_12_17_0_3,RF,CG,
+2715_2015_plant_total_3046,f1_hydro_2015_12_17_0_3,RF,CG,
+2715_2016_plant_total_3046,f1_hydro_2016_12_17_0_3,RF,CG,
+2715_2017_plant_total_3046,f1_hydro_2017_12_17_0_3,RF,CG,
+2715_2018_plant_total_3046,f1_hydro_2018_12_17_0_3,RF,CG,
+2715_2019_plant_total_3046,f1_hydro_2019_12_17_0_3,RF,CG,
+55516_2006_plant_total_3542,f1_steam_2006_12_27_2_4,AS,CG,"closest match, cap matches in 2010"
+55516_2007_plant_total_3542,f1_steam_2007_12_27_2_4,AS,CG,"closest match, cap matches in 2010"
+55516_2008_plant_total_3542,f1_steam_2008_12_27_2_4,AS,CG,"closest match, cap matches in 2010"
+55516_2009_plant_total_3542,f1_steam_2009_12_27_2_1,AS,CG,"closest match, cap matches in 2010"
+55516_2010_plant_total_3542,f1_steam_2010_12_27_2_1,AS,CG,
+55516_2011_plant_total_57393,f1_steam_2011_12_27_2_1,AS,CG,plant switched owners
+55736_2006_plant_total_3542,f1_steam_2006_12_27_3_3,AS,CG,closet match
+55736_2007_plant_total_3542,f1_steam_2007_12_27_3_3,AS,CG,"cap off, net gen close"
+55736_2008_plant_total_3542,f1_steam_2008_12_27_3_3,AS,CG,"cap off, net gen close"
+55736_2009_plant_total_3542,f1_steam_2009_12_27_2_3,AS,CG,"cap off, net gen close"
+55736_2010_plant_total_3542,f1_steam_2010_12_27_2_3,AS,CG,
+55736_2011_plant_total_57393,f1_steam_2011_12_27_2_3,AS,CG,plant switched owners
+7805_2005_plant_total_3046,f1_steam_2005_12_17_4_3,AS,CG,found plant id match!
+7805_2006_plant_total_3046,f1_steam_2006_12_17_4_3,AS,CG,found plant id match!
+7805_2007_plant_total_3046,f1_steam_2007_12_17_4_3,AS,CG,found plant id match!
+7805_2008_plant_total_3046,f1_steam_2008_12_17_4_3,AS,CG,found plant id match!
+7805_2009_plant_total_3046,f1_steam_2009_12_17_4_3,AS,CG,found plant id match!
+7805_2010_plant_total_3046,f1_steam_2010_12_17_4_3,AS,CG,found plant id match!
+638_st_2005_plant_prime_mover_total_6455,f1_steam_2005_12_55_1_1,AS,CG,
+638_gt_2005_plant_prime_mover_total_6455,f1_steam_2005_12_55_1_5,AS,CG,
+638_st_2006_plant_prime_mover_total_6455,f1_steam_2006_12_55_1_1,AS,CG,
+638_gt_2006_plant_prime_mover_total_6455,f1_steam_2006_12_55_1_5,AS,CG,
+638_st_2007_plant_prime_mover_total_6455,f1_steam_2007_12_55_1_1,AS,CG,
+638_gt_2007_plant_prime_mover_total_6455,f1_steam_2007_12_55_1_5,AS,CG,
+638_st_2008_plant_prime_mover_total_6455,f1_steam_2008_12_55_1_1,AS,CG,
+638_gt_2008_plant_prime_mover_total_6455,f1_steam_2008_12_55_1_5,AS,CG,
+638_st_2009_plant_prime_mover_total_6455,f1_steam_2009_12_55_1_1,AS,CG,
+638_gt_2009_plant_prime_mover_total_6455,f1_steam_2009_12_55_1_5,AS,CG,
+638_st_2010_plant_prime_mover_total_6455,f1_steam_2010_12_55_1_1,AS,CG,
+638_gt_2010_plant_prime_mover_total_6455,f1_steam_2010_12_55_1_5,AS,CG,
+638_st_2011_plant_prime_mover_total_6455,f1_steam_2011_12_55_0_4,AS,CG,
+638_gt_2011_plant_prime_mover_total_6455,f1_steam_2011_12_55_3_1,AS,CG,
+638_st_2012_plant_prime_mover_total_6455,f1_steam_2012_12_55_0_4,AS,CG,
+638_st_2013_plant_prime_mover_total_6455,f1_steam_2013_12_55_0_4,AS,CG,
+55111_2006_plant_total_31396,f1_steam_2006_12_27_3_2,AS,CG,
+55111_2007_plant_total_31396,f1_steam_2007_12_27_3_2,AS,CG,
+55111_2008_plant_total_31396,f1_steam_2008_12_27_3_2,AS,CG,
+55111_2009_plant_total_31396,f1_steam_2009_12_27_2_5,AS,CG,
+55111_2010_plant_total_31396,f1_steam_2010_12_27_2_5,AS,CG,
+55111_2011_plant_total_31396,f1_steam_2011_12_27_2_5,AS,CG,
+55397_2006_plant_total_3542,f1_steam_2006_12_27_3_1,AS,CG,"cap off, net gen good"
+55397_2007_plant_total_3542,f1_steam_2007_12_27_3_1,AS,CG,"cap off, net gen good"
+55397_2008_plant_total_3542,f1_steam_2008_12_27_3_1,AS,CG,"cap off, net gen good"
+55397_2009_plant_total_3542,f1_steam_2009_12_27_2_4,AS,CG,"cap off, net gen good"
+55397_2010_plant_total_3542,f1_steam_2010_12_27_2_4,AS,CG,
+55397_2011_plant_total_57393,f1_steam_2011_12_27_2_4,AS,CG,
+7538_2012_plant_total_3046,f1_steam_2012_12_17_3_5,AS,CG,cap off but gen good
+7538_2013_plant_total_3046,f1_steam_2013_12_17_2_5,AS,CG,cap off but gen good
+7538_2014_plant_total_3046,f1_steam_2014_12_17_2_5,AS,CG,cap off but gen good
+2751_2020_plant_total_5416,f1_gnrt_plant_2020_12_45_0_5,AS,CG,ferc units off
+2745_2005_plant_total_5416,f1_gnrt_plant_2005_12_45_0_6,AS,CG,ferc units off
+2745_2006_plant_total_5416,f1_gnrt_plant_2006_12_45_0_6,AS,CG,ferc units off
+2745_2007_plant_total_5416,f1_gnrt_plant_2007_12_45_0_6,AS,CG,ferc units off
+2745_2008_plant_total_5416,f1_gnrt_plant_2008_12_45_0_6,AS,CG,ferc units off
+2745_2009_plant_total_5416,f1_gnrt_plant_2009_12_45_0_6,AS,CG,ferc units off
+2745_2010_plant_total_5416,f1_gnrt_plant_2010_12_45_0_6,AS,CG,ferc units off
+2745_2011_plant_total_5416,f1_gnrt_plant_2011_12_45_0_6,AS,CG,ferc units off
+2745_2012_plant_total_5416,f1_gnrt_plant_2012_12_45_0_5,AS,CG,ferc units off
+2745_2013_plant_total_5416,f1_gnrt_plant_2013_12_45_0_5,AS,CG,ferc units off
+2745_2014_plant_total_5416,f1_gnrt_plant_2014_12_45_0_5,AS,CG,ferc units off
+2745_2015_plant_total_5416,f1_gnrt_plant_2015_12_45_0_5,AS,CG,ferc units off
+2745_2016_plant_total_5416,f1_gnrt_plant_2016_12_45_0_5,AS,CG,ferc units off
+2745_2017_plant_total_5416,f1_gnrt_plant_2017_12_45_0_5,AS,CG,ferc units off
+2745_2018_plant_total_5416,f1_gnrt_plant_2018_12_45_0_5,AS,CG,ferc units off
+2746_2005_plant_total_5416,f1_gnrt_plant_2005_12_45_0_8,AS,CG,ferc units off
+2746_2006_plant_total_5416,f1_gnrt_plant_2006_12_45_0_8,AS,CG,ferc units off
+2746_2007_plant_total_5416,f1_gnrt_plant_2007_12_45_0_8,AS,CG,ferc units off
+2746_2008_plant_total_5416,f1_gnrt_plant_2008_12_45_0_8,AS,CG,ferc units off
+2746_2009_plant_total_5416,f1_gnrt_plant_2009_12_45_0_8,AS,CG,ferc units off
+2746_2010_plant_total_5416,f1_gnrt_plant_2010_12_45_0_8,AS,CG,ferc units off
+2746_2011_plant_total_5416,f1_gnrt_plant_2011_12_45_0_8,AS,CG,ferc units off
+2746_2012_plant_total_5416,f1_gnrt_plant_2012_12_45_0_7,AS,CG,ferc units off
+2746_2013_plant_total_5416,f1_gnrt_plant_2013_12_45_0_7,AS,CG,ferc units off
+2746_2014_plant_total_5416,f1_gnrt_plant_2014_12_45_0_7,AS,CG,ferc units off
+2746_2015_plant_total_5416,f1_gnrt_plant_2015_12_45_0_7,AS,CG,ferc units off
+2746_2016_plant_total_5416,f1_gnrt_plant_2016_12_45_0_7,AS,CG,ferc units off
+2746_2017_plant_total_5416,f1_gnrt_plant_2017_12_45_0_7,AS,CG,ferc units off
+2746_2018_plant_total_5416,f1_gnrt_plant_2018_12_45_0_7,AS,CG,ferc units off
+2751_2005_plant_total_5416,f1_gnrt_plant_2005_12_45_0_10,AS,CG,ferc units off
+2751_2006_plant_total_5416,f1_gnrt_plant_2006_12_45_0_10,AS,CG,ferc units off
+2751_2007_plant_total_5416,f1_gnrt_plant_2007_12_45_0_10,AS,CG,ferc units off
+2751_2008_plant_total_5416,f1_gnrt_plant_2008_12_45_0_10,AS,CG,ferc units off
+2751_2009_plant_total_5416,f1_gnrt_plant_2009_12_45_0_10,AS,CG,ferc units off
+2751_2010_plant_total_5416,f1_gnrt_plant_2010_12_45_0_10,AS,CG,ferc units off
+2751_2011_plant_total_5416,f1_gnrt_plant_2011_12_45_0_10,AS,CG,ferc units off
+2751_2012_plant_total_5416,f1_gnrt_plant_2012_12_45_0_9,AS,CG,ferc units off
+2751_2013_plant_total_5416,f1_gnrt_plant_2013_12_45_0_9,AS,CG,ferc units off
+2751_2014_plant_total_5416,f1_gnrt_plant_2014_12_45_0_9,AS,CG,ferc units off
+2751_2015_plant_total_5416,f1_gnrt_plant_2015_12_45_0_9,AS,CG,ferc units off
+2751_2016_plant_total_5416,f1_gnrt_plant_2016_12_45_0_9,AS,CG,ferc units off
+2751_2017_plant_total_5416,f1_gnrt_plant_2017_12_45_0_9,AS,CG,ferc units off
+2751_2018_plant_total_5416,f1_gnrt_plant_2018_12_45_0_9,AS,CG,ferc units off
+2751_2019_plant_total_5416,f1_gnrt_plant_2019_12_45_0_5,AS,CG,ferc units off
+2736_2005_plant_total_5416,f1_gnrt_plant_2005_12_45_0_11,AS,CG,ferc units off
+2736_2006_plant_total_5416,f1_gnrt_plant_2006_12_45_0_11,AS,CG,ferc units off
+2736_2007_plant_total_5416,f1_gnrt_plant_2007_12_45_0_11,AS,CG,ferc units off
+2736_2008_plant_total_5416,f1_gnrt_plant_2008_12_45_0_11,AS,CG,ferc units off
+2736_2009_plant_total_5416,f1_gnrt_plant_2009_12_45_0_11,AS,CG,ferc units off
+2736_2010_plant_total_5416,f1_gnrt_plant_2010_12_45_0_11,AS,CG,ferc units off
+2736_2011_plant_total_5416,f1_gnrt_plant_2011_12_45_0_11,AS,CG,ferc units off
+2736_2012_plant_total_5416,f1_gnrt_plant_2012_12_45_0_10,AS,CG,ferc units off
+2736_2013_plant_total_5416,f1_gnrt_plant_2013_12_45_0_10,AS,CG,ferc units off
+2736_2014_plant_total_5416,f1_gnrt_plant_2014_12_45_0_10,AS,CG,ferc units off
+2736_2015_plant_total_5416,f1_gnrt_plant_2015_12_45_0_10,AS,CG,ferc units off
+2736_2016_plant_total_5416,f1_gnrt_plant_2016_12_45_0_10,AS,CG,ferc units off
+2736_2017_plant_total_5416,f1_gnrt_plant_2017_12_45_0_10,AS,CG,ferc units off
+2736_2018_plant_total_5416,f1_gnrt_plant_2018_12_45_0_10,AS,CG,ferc units off
+6438_2020_plant_total_5416,f1_gnrt_plant_2020_12_45_0_4,AS,CG,ferc units off
+6438_2005_plant_total_5416,f1_gnrt_plant_2005_12_45_0_9,AS,CG,ferc units off
+6438_2006_plant_total_5416,f1_gnrt_plant_2006_12_45_0_9,AS,CG,ferc units off
+6438_2007_plant_total_5416,f1_gnrt_plant_2007_12_45_0_9,AS,CG,ferc units off
+6438_2008_plant_total_5416,f1_gnrt_plant_2008_12_45_0_9,AS,CG,ferc units off
+6438_2009_plant_total_5416,f1_gnrt_plant_2009_12_45_0_9,AS,CG,ferc units off
+6438_2010_plant_total_5416,f1_gnrt_plant_2010_12_45_0_9,AS,CG,ferc units off
+6438_2011_plant_total_5416,f1_gnrt_plant_2011_12_45_0_9,AS,CG,ferc units off
+6438_2012_plant_total_5416,f1_gnrt_plant_2012_12_45_0_8,AS,CG,ferc units off
+6438_2013_plant_total_5416,f1_gnrt_plant_2013_12_45_0_8,AS,CG,ferc units off
+6438_2014_plant_total_5416,f1_gnrt_plant_2014_12_45_0_8,AS,CG,ferc units off
+6438_2015_plant_total_5416,f1_gnrt_plant_2015_12_45_0_8,AS,CG,ferc units off
+6438_2016_plant_total_5416,f1_gnrt_plant_2016_12_45_0_8,AS,CG,ferc units off
+6438_2017_plant_total_5416,f1_gnrt_plant_2017_12_45_0_8,AS,CG,ferc units off
+6438_2018_plant_total_5416,f1_gnrt_plant_2018_12_45_0_8,AS,CG,ferc units off
+6438_2019_plant_total_5416,f1_gnrt_plant_2019_12_45_0_4,AS,CG,ferc units off
+55412_2020_plant_total_6455,f1_steam_2020_12_55_1_1,AS,CG,
+55412_2017_plant_total_6455,f1_steam_2017_12_55_2_5,AS,CG,
+55412_2018_plant_total_6455,f1_steam_2018_12_55_1_2,RF,CG,
+55412_2019_plant_total_6455,f1_steam_2019_12_55_0_4,RF,CG,
+2710_2005_plant_total_3046,f1_gnrt_plant_2005_12_17_0_1,AS,CG,ferc units off
+2710_2006_plant_total_3046,f1_gnrt_plant_2006_12_17_0_1,AS,CG,ferc units off
+2710_2007_plant_total_3046,f1_gnrt_plant_2007_12_17_0_1,AS,CG,ferc units off
+2710_2008_plant_total_3046,f1_gnrt_plant_2008_12_17_0_1,AS,CG,ferc units off
+2710_2009_plant_total_3046,f1_gnrt_plant_2009_12_17_0_1,AS,CG,ferc units off
+2710_2010_plant_total_3046,f1_gnrt_plant_2010_12_17_0_1,AS,CG,ferc units off
+2710_2011_plant_total_3046,f1_gnrt_plant_2011_12_17_0_1,AS,CG,ferc units off
+2710_2012_plant_total_3046,f1_gnrt_plant_2012_12_17_0_1,AS,CG,ferc units off
+2710_2013_plant_total_3046,f1_gnrt_plant_2013_12_17_0_1,AS,CG,ferc units off
+2710_2014_plant_total_3046,f1_gnrt_plant_2014_12_17_0_1,AS,CG,ferc units off
+2710_2015_plant_total_3046,f1_gnrt_plant_2015_12_17_0_1,AS,CG,ferc units off
+2710_2016_plant_total_3046,f1_gnrt_plant_2016_12_17_0_1,AS,CG,ferc units off
+2710_2017_plant_total_3046,f1_gnrt_plant_2017_12_17_0_1,AS,CG,ferc units off
+2710_2018_plant_total_3046,f1_gnrt_plant_2018_12_17_0_1,AS,CG,ferc units off
+2710_2019_plant_total_3046,f1_gnrt_plant_2019_12_17_0_1,AS,CG,ferc units off
+62879_2018_plant_total_62715,f1_gnrt_plant_2018_12_45_0_3,AS,CG,
+628_natural_gas_fired_combined_cycle_2018_plant_technology_total_6455,f1_steam_2018_12_55_0_5,AS,CG,
+628_natural_gas_fired_combined_cycle_2019_plant_technology_total_6455,f1_steam_2019_12_55_0_2,AS,CG,
+63063_2019_plant_total_5416,f1_steam_2019_12_45_4_3,AS,CG,
