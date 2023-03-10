@@ -71,6 +71,12 @@ def parse_command_line(argv):
         default=False,
         help="If set, output epacems year-state partitioned Parquet files",
     )
+    parser.add_argument(
+        "--clobber",
+        action="store_true",
+        default=False,
+        help="Remove the existing pudl.sqlite DB if the schema is different from what we expect.",
+    )
     arguments = parser.parse_args(argv[1:])
     return arguments
 
@@ -171,6 +177,7 @@ def main():
                         else "",
                     },
                 },
+                "pudl_sqlite_io_manager": {"config": {"clobber": args.clobber}},
             },
             "ops": {
                 "hourly_emissions_epacems": {

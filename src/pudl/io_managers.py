@@ -95,6 +95,7 @@ class SQLiteIOManager(IOManager):
         base_dir: str,
         db_name: str,
         md: sa.MetaData | None = None,
+        clobber: bool = False,
     ):
         """Init a SQLiteIOmanager.
 
@@ -104,6 +105,8 @@ class SQLiteIOManager(IOManager):
             db_name: the name of sqlite database.
             md: database metadata described as a SQLAlchemy MetaData object. If not specified,
                 default to metadata stored in the pudl.metadata subpackage.
+            clobber: drop tables in db if the live schema and the resource
+                schema do not match.
         """
         self.base_dir = Path(base_dir)
         self.db_name = db_name
@@ -123,7 +126,7 @@ class SQLiteIOManager(IOManager):
             md = sa.MetaData()
         self.md = md
 
-        self.engine = self._setup_database()
+        self.engine = self._setup_database(clobber)
 
     def _get_table_name(self, context) -> str:
         """Get asset name from dagster context object."""
@@ -133,8 +136,12 @@ class SQLiteIOManager(IOManager):
             table_name = context.get_identifier()
         return table_name
 
-    def _setup_database(self) -> sa.engine.Engine:
+    def _setup_database(self, clobber: bool = False) -> sa.engine.Engine:
         """Create database and metadata if they don't exist.
+
+        Args:
+            clobber: drop all tables in the database if the live schema does not
+                match the resource-based schema.
 
         Returns:
             engine: SQL Alchemy engine that connects to a database in the base_dir.
@@ -144,22 +151,57 @@ class SQLiteIOManager(IOManager):
             self.base_dir.mkdir(parents=True)
         db_path = self.base_dir / f"{self.db_name}.sqlite"
 
-        engine = sa.create_engine(f"sqlite:///{db_path}")
-
         # Create the database and schemas
         if not db_path.exists():
+            logger.info(f"Creating DB at {db_path}")
             db_path.touch()
-            self.md.create_all(engine)
-        else:
-            # Compare the new metadata with the existing metadata in the db.
-            # If they are different, raise an error to clobber the database
-            mc = MigrationContext.configure(engine.connect())
-            if compare_metadata(mc, self.md):
-                raise MetadataDiffError(
-                    "The database schema has changed. Delete the "
-                    f"database at {db_path}"
-                )
 
+        # The following is to implement proper SQLite3 transactions:
+        # https://docs.sqlalchemy.org/en/20/dialects/sqlite.html#serializable-isolation-savepoints-transactional-ddl
+        engine = sa.create_engine(f"sqlite:///{db_path}")
+
+        @sa.event.listens_for(engine, "connect")
+        def do_connect(dbapi_connection, connection_record):
+            # disable pysqlite's emitting of the BEGIN statement entirely.
+            # also stops it from emitting COMMIT before any DDL.
+            dbapi_connection.isolation_level = None
+
+        @sa.event.listens_for(engine, "begin")
+        def do_begin(conn):
+            conn.exec_driver_sql("BEGIN IMMEDIATE")
+
+        with engine.begin() as conn:
+            live_metadata = sa.MetaData()
+            live_metadata.reflect(conn)
+            num_tables = len(live_metadata.tables)
+            logger.info(f"Found {num_tables} tables in {db_path}.")
+            if num_tables == 0:
+                logger.info("Creating all tables from resource metadata.")
+                self.md.create_all(conn)
+            else:
+                logger.info(
+                    f"Comparing resource metadata with live metadata from {db_path}."
+                )
+                logger.info(
+                    f"Resource metadata tables: {[t.name for t in self.md.sorted_tables]}"
+                )
+                logger.info(
+                    f"Live metadata tables: {[t.name for t in live_metadata.sorted_tables]}"
+                )
+                mc = MigrationContext.configure(conn)
+                if compare_metadata(mc, self.md):
+                    if clobber:
+                        logger.info(
+                            "The database schema has changed. Dropping all tables "
+                            f"from {db_path} and recreating."
+                        )
+                        live_metadata.drop_all(conn)
+                        self.md.create_all(conn)
+                    raise MetadataDiffError(
+                        "The database schema has changed. Delete the "
+                        f"database at {db_path}"
+                    )
+            conn.exec_driver_sql("COMMIT")
         return engine
 
     def _get_sqlalchemy_table(self, table_name: str) -> sa.Table:
@@ -373,13 +415,23 @@ class SQLiteIOManager(IOManager):
             description="Path of directory to store the database in.",
             default_value=None,
         ),
+        "clobber": Field(
+            bool,
+            default_value=False,
+            description="Automatically remove the database if the schema has diverged from our code.",
+        ),
     }
 )
 def pudl_sqlite_io_manager(init_context) -> SQLiteIOManager:
     """Create a SQLiteManager dagster resource for the pudl database."""
     base_dir = init_context.resource_config["pudl_output_path"]
     md = Package.from_resource_ids().to_sql()
-    return SQLiteIOManager(base_dir=base_dir, db_name="pudl", md=md)
+    return SQLiteIOManager(
+        base_dir=base_dir,
+        db_name="pudl",
+        md=md,
+        clobber=init_context.resource_config["clobber"],
+    )
 
 
 class FercSQLiteIOManager(SQLiteIOManager):
@@ -397,8 +449,12 @@ class FercSQLiteIOManager(SQLiteIOManager):
         """Initialize FercSQLiteIOManager."""
         super().__init__(base_dir, db_name, md)
 
-    def _setup_database(self) -> sa.engine.Engine:
+    def _setup_database(self, clobber: bool = False) -> sa.engine.Engine:
         """Create database engine and read the metadata.
+
+        Args:
+            clobber: delete existing database if there is conflict. Currently
+                does nothing.
 
         Returns:
             engine: SQL Alchemy engine that connects to a database in the base_dir.
