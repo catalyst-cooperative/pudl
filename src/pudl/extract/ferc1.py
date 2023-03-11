@@ -887,7 +887,7 @@ def extract_xbrl_single(
         SELECT {table_name_full}.*, {id_table}.report_year FROM {table_name_full}
         JOIN {id_table} ON {id_table}.filing_name = {table_name_full}.filing_name
         WHERE {id_table}.report_year BETWEEN :min_year AND :max_year;
-        """,
+        """,  # nosec: B608
         con=ferc1_engine,
         params={
             "min_year": min(ferc1_settings.xbrl_years),
