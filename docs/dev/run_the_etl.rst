@@ -174,12 +174,12 @@ If you need to set op configurations, such as the ``clobber`` setting, you can
 add them in the Launchpad tab of the job like so::
 
   ops:
-  dbf2sqlite:
-    config:
-      clobber: true
-  xbrl2sqlite:
-    config:
-      clobber: true
+    dbf2sqlite:
+      config:
+        clobber: true
+    xbrl2sqlite:
+      config:
+        clobber: true
 
 **Running the PUDL ETL**
 Once the raw FERC databases are created by a ``pudl.ferc_to_sqlite`` job,
