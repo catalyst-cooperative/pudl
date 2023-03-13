@@ -52,6 +52,7 @@ setup(
         "coloredlogs>=14.0,<15.1",  # Dagster requires 14.0
         "catalystcoop.ferc-xbrl-extractor==0.8.1",
         "dask>=2021.8,<2023.3.1",
+        "dask>=2021.8,<2023.3.2",
         "datapackage>=1.11,<1.16",  # Transition datastore to use frictionless.
         "dagster>=1.1,<1.3",
         "dagit>=1.1,<1.3",
@@ -115,7 +116,7 @@ setup(
             "pytest-console-scripts>=1.1,<1.4",
             "pytest-cov>=2.10,<4.1",
             "pytest-mock>=3.0,<3.11",
-            "responses>=0.14,<0.23",
+            "responses>=0.14,<0.24",
             "rstcheck[sphinx]>=5.0,<6.2",
             "tox>=3.20,<4.5",
         ],

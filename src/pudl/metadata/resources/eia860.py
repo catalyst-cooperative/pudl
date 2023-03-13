@@ -8,8 +8,8 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
         ),
         "schema": {
             "fields": [
-                "boiler_id",
                 "plant_id_eia",
+                "boiler_id",
                 "report_date",
                 "boiler_operating_date",
                 "boiler_status",
@@ -100,9 +100,9 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
                 "standard_so2_percent_scrubbed",
                 "data_maturity",
             ],
-            "primary_key": ["boiler_id", "plant_id_eia", "report_date"],
+            "primary_key": ["plant_id_eia", "boiler_id", "report_date"],
             "foreign_key_rules": {
-                "fields": [["boiler_id", "plant_id_eia", "report_date"]],
+                "fields": [["plant_id_eia", "boiler_id", "report_date"]],
                 # TODO: Excluding monthly data tables since their report_date
                 # values don't match up with generators_eia860, which is annual,
                 # so non-january records violate the constraint.
