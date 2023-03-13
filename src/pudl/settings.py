@@ -146,7 +146,6 @@ class EpaCemsSettings(GenericDatasetSettings):
 
     years: list[int] = data_source.working_partitions["years"]
     states: list[str] = data_source.working_partitions["states"]
-    partition: bool = False
 
     @validator("states")
     def allow_all_keyword(cls, states):  # noqa: N805
