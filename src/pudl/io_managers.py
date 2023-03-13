@@ -531,7 +531,7 @@ class FercXBRLSQLiteIOManager(FercSQLiteIOManager):
 
         sched_table_name = re.sub("_instant|_duration", "", table_name)
         with engine.connect() as con:
-            return pd.read_sql(  # nosec B608:hardcoded_sql_expressions
+            return pd.read_sql(
                 f"""
                 SELECT {table_name}.*, {id_table}.report_year FROM {table_name}
                 JOIN {id_table} ON {id_table}.filing_name = {table_name}.filing_name
