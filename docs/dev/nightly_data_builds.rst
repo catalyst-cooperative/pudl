@@ -178,14 +178,14 @@ the Unix ``cp`` command:
 
 .. code::
 
-   aws s3 cp --no-sign-request s3://intake.catalyst.coop/dev/pudl.sqlite ./
+   aws s3 cp s3://intake.catalyst.coop/dev/pudl.sqlite ./ --no-sign-request
 
 If you wanted to download all of the build outputs (more than 10GB!) you could use ``cp
 --recursive`` flag on the whole directory:
 
 .. code::
 
-   aws s3 cp --no-sign-request --recursive s3://intake.catalyst.coop/dev/ ./
+   aws s3 cp --recursive s3://intake.catalyst.coop/dev/ ./ --no-sign-request
 
 For more details on how to use ``aws`` in general see the
 `online documentation <https://docs.aws.amazon.com/cli/latest/reference/s3/>`__ or run:
