@@ -111,7 +111,7 @@ setup(
             "pytest-console-scripts>=1.1,<1.4",
             "pytest-cov>=2.10,<4.1",
             "pytest-mock>=3.0,<3.11",
-            "responses>=0.14,<0.23",
+            "responses>=0.14,<0.24",
             "rstcheck[sphinx]>=5.0,<6.2",
             "tox>=3.20,<4.5",
         ],
