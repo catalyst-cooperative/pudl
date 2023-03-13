@@ -371,7 +371,15 @@ class SQLiteIOManager(IOManager):
 def pudl_sqlite_io_manager(init_context) -> SQLiteIOManager:
     """Create a SQLiteManager dagster resource for the pudl database."""
     base_dir = init_context.resource_config["pudl_output_path"]
-    md = Package.from_resource_ids().to_sql()
+    md = Package.from_resource_ids(
+        excluded_etl_groups=(
+            "ferc714",
+            "static_eia_disabled",
+            "epacems",
+            "outputs",
+            "ferc1_disabled",
+        )
+    ).to_sql()
     return SQLiteIOManager(base_dir=base_dir, db_name="pudl", md=md)
 
 
