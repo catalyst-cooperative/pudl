@@ -1761,7 +1761,7 @@ class Package(Base):
         cls,
         resource_ids: tuple[str] = tuple(sorted(RESOURCE_METADATA)),
         resolve_foreign_keys: bool = False,
-        excluded_etl_groups: tuple[str] = None,
+        excluded_etl_groups: tuple[str] = (),
     ) -> "Package":
         """Construct a collection of Resources from PUDL identifiers (`resource.name`).
 
