@@ -123,12 +123,12 @@ def main():  # noqa: C901
 
     etl_settings = EtlSettings.from_yaml(args.settings_file)
 
-    if (not os.getenv("PUDL_OUT")) or (not os.getenv("PUDL_CACHE")):
+    if (not os.getenv("PUDL_OUT")) or (not os.getenv("PUDL_INPUT")):
         pudl_settings = pudl.workspace.setup.derive_paths(
             pudl_in=etl_settings.pudl_in, pudl_out=etl_settings.pudl_out
         )
 
-        os.environ["PUDL_CACHE"] = pudl_settings["data_dir"]
+        os.environ["PUDL_INPUT"] = pudl_settings["data_dir"]
         os.environ["PUDL_OUTPUT"] = pudl_settings["pudl_out"]
         os.environ["DAGSTER_HOME"] = pudl_settings["pudl_in"]
 

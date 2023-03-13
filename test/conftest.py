@@ -93,7 +93,7 @@ def pytest_configure(config):
     """
     os.environ["PUDL_OUTPUT"] = os.getenv("PUDL_OUTPUT", "~/")
     os.environ["DAGSTER_HOME"] = os.getenv("DAGSTER_HOME", "~/")
-    os.environ["PUDL_CACHE"] = os.getenv("PUDL_CACHE", "~/")
+    os.environ["PUDL_INPUT"] = os.getenv("PUDL_INPUT", "~/")
 
 
 @pytest.fixture(scope="session")
@@ -106,18 +106,18 @@ def pudl_env(request, tmpdir_factory, live_dbs):
 
     # In CI we want a hard-coded path for input caching purposes:
     if os.environ.get("GITHUB_ACTIONS", False):
-        os.environ["PUDL_CACHE"] = str(Path(os.environ["HOME"]) / "pudl-work")
+        os.environ["PUDL_INPUT"] = str(Path(os.environ["HOME"]) / "pudl-work")
     # If --tmp-data is set, create a disposable temporary datastore:
     elif request.config.getoption("--tmp-data"):
-        os.environ["PUDL_CACHE"] = str(tmpdir)
+        os.environ["PUDL_INPUT"] = str(tmpdir)
     # Otherwise, default to the user's existing datastore:
     else:
-        if not os.getenv("PUDL_CACHE"):
+        if not os.getenv("PUDL_INPUT"):
             raise RuntimeError(
-                "Must set PUDL_CACHE environment variable or use `--tmp-data` option"
+                "Must set PUDL_INPUT environment variable or use `--tmp-data` option"
             )
     logger.info(f"PUDL_OUTPUT path: {os.environ['PUDL_OUTPUT']}")
-    logger.info(f"PUDL_CACHE path: {os.environ['PUDL_CACHE']}")
+    logger.info(f"PUDL_INPUT path: {os.environ['PUDL_INPUT']}")
 
 
 @pytest.fixture(scope="session", name="test_dir")
