@@ -216,15 +216,16 @@ PUDL needs to know where to store its big piles of inputs and outputs.
 The ``PUDL_OUTPUT`` and ``PUDL_CACHE`` environment variables let PUDL know where
 all this stuff should go. We call this a "PUDL workspace".
 
-First, create a directory to store local caches of raw PUDL data. Typically we
-put this in ``~/pudl-work/data``. Then create an environment variable
-called ``PUDL_CACHE`` to store the path to this new directory:
+First, create a directory to store local caches of raw PUDL data. You can put
+this anywhere, but we put this in ``~/pudl-work/data`` in the documentation.
+Then create an environment variable called ``PUDL_CACHE`` to store the path to
+this new directory:
 
 .. code-block:: console
 
-    $ echo "export PUDL_CACHE=/path/to/cache/dir" >> ~/.zshrc # zsh
-    $ echo "export PUDL_CACHE=/path/to/cache/dir" >> ~/.bashrc # bash
-    $ set -Ux PUDL_CACHE /path/to/cache/dir # fish
+    $ echo "export PUDL_CACHE=/absolute/path/to/cache/dir" >> ~/.zshrc # if you are using zsh
+    $ echo "export PUDL_CACHE=/absolute/path/to/cache/dir" >> ~/.bashrc # if you are using bash
+    $ set -Ux PUDL_CACHE /absolute/path/to/cache/dir # if you are using fish shell
 
 The directory stored in ``PUDL_CACHE`` contains versions of PUDL's
 raw data archives on Zenodo for each datasource:
@@ -253,15 +254,16 @@ raw data archives on Zenodo for each datasource:
     directory. To slim down the size you can always delete
     out of date archives the code no longer depends on.
 
-Next, create a directory to store the outputs of the PUDL ETL. Typically this
-is ``~/pudl-work/output``. Then, as with ``PUDL_CACHE``, create an environment
-variable called ``PUDL_OUTPUT`` to store the path to this new directory:
+Next, create a directory to store the outputs of the PUDL ETL. As above, you
+can put this anywhere, but typically this is ``~/pudl-work/output``. Then, as
+with ``PUDL_CACHE``, create an environment variable called ``PUDL_OUTPUT`` to
+store the path to this new directory:
 
 .. code-block:: console
 
-    $ echo "export PUDL_OUTPUT=/path/to/output/dir" >> ~/.zshrc # zsh
-    $ echo "export PUDL_OUTPUT=/path/to/output/dir" >> ~/.bashrc # bash
-    $ set -Ux PUDL_OUTPUT /path/to/output/dir # fish
+    $ echo "export PUDL_OUTPUT=/absolute/path/to/output/dir" >> ~/.zshrc # zsh
+    $ echo "export PUDL_OUTPUT=/absolute/path/to/output/dir" >> ~/.bashrc # bash
+    $ set -Ux PUDL_OUTPUT /absolute/path/to/output/dir # fish
 
 The path stored in ``PUDL_OUTPUT`` contains all ETL outputs like
 ``pudl.sqlite`` and ``hourly_emissions_epacems.parquet``.

@@ -388,10 +388,10 @@ years.
 Additional Notes
 ----------------
 The commands above should result in a bunch of Python :mod:`logging` output
-describing what the script is doing, and file outputs in the ``outputs``
+describing what the script is doing, and file outputs in the ``output``
 directory within your workspace. When the ETL is complete, you
-should see new files at ``outputs/ferc1.sqlite`` and ``outputs/pudl.sqlite`` as
-well as a new directory at ``outputs/hourly_emissions_epacems`` containing
+should see new files at ``output/ferc1.sqlite`` and ``output/pudl.sqlite`` as
+well as a new directory at ``output/hourly_emissions_epacems`` containing
 nested directories named by year and state.
 
 If you need to re-run ``ferc_to_sqlite`` and want to overwrite
