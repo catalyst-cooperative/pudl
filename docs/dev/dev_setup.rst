@@ -213,26 +213,26 @@ PUDL Workspace Setup
     a PUDL workspace before, read the remainder of this section.
 
 PUDL needs to know where to store its big piles of inputs and outputs.
-The ``PUDL_OUTPUT`` and ``PUDL_CACHE`` environment variables let PUDL know where
+The ``PUDL_OUTPUT`` and ``PUDL_INPUT`` environment variables let PUDL know where
 all this stuff should go. We call this a "PUDL workspace".
 
 First, create a directory to store local caches of raw PUDL data. You can put
-this anywhere, but we put this in ``~/pudl-work/data`` in the documentation.
-Then create an environment variable called ``PUDL_CACHE`` to store the path to
+this anywhere, but we put this in ``~/pudl_input`` in the documentation.
+Then create an environment variable called ``PUDL_INPUT`` to store the path to
 this new directory:
 
 .. code-block:: console
 
-    $ echo "export PUDL_CACHE=/absolute/path/to/cache/dir" >> ~/.zshrc # if you are using zsh
-    $ echo "export PUDL_CACHE=/absolute/path/to/cache/dir" >> ~/.bashrc # if you are using bash
-    $ set -Ux PUDL_CACHE /absolute/path/to/cache/dir # if you are using fish shell
+    $ echo "export PUDL_INPUT=/absolute/path/to/pudl_input" >> ~/.zshrc # if you are using zsh
+    $ echo "export PUDL_INPUT=/absolute/path/to/pudl_input" >> ~/.bashrc # if you are using bash
+    $ set -Ux PUDL_INPUT /absolute/path/to/pudl_input # if you are using fish shell
 
-The directory stored in ``PUDL_CACHE`` contains versions of PUDL's
+The directory stored in ``PUDL_INPUT`` contains versions of PUDL's
 raw data archives on Zenodo for each datasource:
 
 .. code-block::
 
-    pudl_cache/
+    pudl_input/
     ├── ferc1/
     │   ├── 10.5281-zenodo.5534788/
     │   │   ├── datapackage.json
@@ -248,22 +248,22 @@ raw data archives on Zenodo for each datasource:
 
 .. warning::
 
-    The data stored at the ``PUDL_CACHE`` directory can grow to be dozens
+    The data stored at the ``PUDL_INPUT`` directory can grow to be dozens
     of gigabytes in size. This is because when the raw data are updated,
-    a new version of the archive is downloaded to the ``PUDL_CACHE``
+    a new version of the archive is downloaded to the ``PUDL_INPUT``
     directory. To slim down the size you can always delete
     out of date archives the code no longer depends on.
 
 Next, create a directory to store the outputs of the PUDL ETL. As above, you
-can put this anywhere, but typically this is ``~/pudl-work/output``. Then, as
-with ``PUDL_CACHE``, create an environment variable called ``PUDL_OUTPUT`` to
+can put this anywhere, but typically this is ``~/pudl_output``. Then, as
+with ``PUDL_INPUT``, create an environment variable called ``PUDL_OUTPUT`` to
 store the path to this new directory:
 
 .. code-block:: console
 
-    $ echo "export PUDL_OUTPUT=/absolute/path/to/output/dir" >> ~/.zshrc # zsh
-    $ echo "export PUDL_OUTPUT=/absolute/path/to/output/dir" >> ~/.bashrc # bash
-    $ set -Ux PUDL_OUTPUT /absolute/path/to/output/dir # fish
+    $ echo "export PUDL_OUTPUT=/absolute/path/to/pudl_output" >> ~/.zshrc # zsh
+    $ echo "export PUDL_OUTPUT=/absolute/path/to/pudl_output" >> ~/.bashrc # bash
+    $ set -Ux PUDL_OUTPUT /absolute/path/to/pudl_output # fish
 
 The path stored in ``PUDL_OUTPUT`` contains all ETL outputs like
 ``pudl.sqlite`` and ``hourly_emissions_epacems.parquet``.
@@ -277,7 +277,7 @@ directory so the inputs and outputs are not tracked in git.**
 PUDL Workspace Setup (legacy method)
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 In previous versions of PUDL, the ``pudl_setup`` script created workspace directories.
-PUDL is moving towards using the ``PUDL_OUTPUT`` and ``PUDL_CACHE`` environment
+PUDL is moving towards using the ``PUDL_OUTPUT`` and ``PUDL_INPUT`` environment
 variables instead of the ``pudl_setup`` script because the environment variables are
 easier to reference in the codebase.
 
@@ -285,9 +285,9 @@ easier to reference in the codebase.
 
     If you set up your workspace using ``pudl_setup`` you don't need to change
     anything about your setup. Just re-run ``pudl_setup`` and a new directory
-    called ``outputs/`` will be created in your <PUDL_DIR>. The ETL outputs
-    will be written to ``outputs/`` instead of the ``parquet/`` and ``sqlite/``
-    directories.
+    called ``output/`` will be created in your <PUDL_DIR>. You will need to
+    point ``PUDL_OUTPUT`` at this new directory and ``PUDL_INPUT`` at the
+    ``data/`` directory in <PUDL_DIR>.
 
 .. warning::
 
@@ -314,7 +314,7 @@ The workspace is laid out like this:
 **Directory / File** **Contents**
 -------------------- ----------------------------------------------------------
 ``data/``            Raw data, automatically organized by source, year, etc.
-                     This is the path ``PUDL_CACHE`` can point to.
+                     This is the path ``PUDL_INPUT`` can point to.
 -------------------- ----------------------------------------------------------
 ``parquet/``         `Apache Parquet <https://parquet.apache.org/>`__ files
                      generated by PUDL.
