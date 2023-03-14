@@ -35,6 +35,8 @@ datasets:
     eia860:
       years: [2020, 2021]
       eia860m: true
+    eia861:
+      years: [2020, 2021]
   epacems:
     # Note that the CEMS data relies on EIA 860 data for plant locations,
     # so if you're loading CEMS data for a particular year, you should

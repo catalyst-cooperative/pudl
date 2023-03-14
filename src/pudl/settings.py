@@ -15,7 +15,6 @@ from pydantic import BaseSettings, root_validator, validator
 import pudl
 import pudl.workspace.setup
 from pudl.metadata.classes import DataSource
-from pudl.metadata.resources.eia861 import TABLE_DEPENDENCIES
 from pudl.workspace.datastore import Datastore
 
 
@@ -177,40 +176,7 @@ class Eia861Settings(GenericDatasetSettings):
     """
 
     data_source: ClassVar[DataSource] = DataSource.from_id("eia861")
-
     years: list[int] = data_source.working_partitions["years"]
-    tables: list[str] = data_source.get_resource_ids()
-    transform_functions: list[str]
-
-    @root_validator(pre=True)
-    def generate_transform_functions(cls, values):  # noqa: N805
-        """Map tables to transform functions.
-
-        Args:
-            values: eia861 settings.
-
-        Returns:
-            values: eia861 settings.
-        """
-        # balancing_authority_eia861 is always processed
-        transform_functions = ["balancing_authority_eia861"]
-
-        # Defaults to all transformation functions
-        if not values.get("tables"):
-            transform_functions.extend(list(TABLE_DEPENDENCIES))
-        else:
-            for table in values["tables"]:
-                transform_functions.extend(
-                    [
-                        tf_func
-                        for tf_func, tables in TABLE_DEPENDENCIES.items()
-                        if table in tables
-                    ]
-                )
-
-        values["transform_functions"] = sorted(set(transform_functions))
-
-        return values
 
 
 class Eia860Settings(GenericDatasetSettings):
@@ -278,6 +244,7 @@ class EiaSettings(BaseModel):
     """
 
     eia860: Eia860Settings = None
+    eia861: Eia861Settings = None
     eia923: Eia923Settings = None
 
     @root_validator(pre=True)
@@ -292,6 +259,7 @@ class EiaSettings(BaseModel):
         """
         if not any(values.values()):
             values["eia860"] = Eia860Settings()
+            values["eia861"] = Eia861Settings()
             values["eia923"] = Eia923Settings()
 
         return values
