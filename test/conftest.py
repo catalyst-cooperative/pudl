@@ -373,15 +373,15 @@ def pudl_settings_dict(request, live_dbs, tmpdir_factory):  # noqa: C901
         try:
             defaults = pudl.workspace.setup.get_defaults()
         except FileNotFoundError as err:
-            logger.critical("Could not identify PUDL_IN / PUDL_OUT.")
+            logger.critical("Could not identify PUDL_INPUT / PUDL_OUTPUT.")
             raise err
         pudl_in = defaults["pudl_in"]
 
     # Set these environment variables for future reference...
-    logger.info("Using PUDL_IN=%s", pudl_in)
-    os.environ["PUDL_IN"] = str(pudl_in)
-    logger.info("Using PUDL_OUT=%s", pudl_out)
-    os.environ["PUDL_OUT"] = str(pudl_out)
+    logger.info("Using PUDL_INPUT=%s", pudl_in)
+    os.environ["PUDL_INPUT"] = str(pudl_in)
+    logger.info("Using PUDL_OUTPUT=%s", pudl_out)
+    os.environ["PUDL_OUTPUT"] = str(pudl_out)
 
     # Build all the pudl_settings paths:
     pudl_settings = pudl.workspace.setup.derive_paths(

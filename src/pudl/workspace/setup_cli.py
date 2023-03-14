@@ -22,22 +22,23 @@ default PUDL workspace) use the --clobber option.
 
 The directory structure set up for PUDL looks like this:
 
-PUDL_IN
-  └── data
-      ├── censusdp1tract
-      ├── eia860
-      ├── eia860m
-      ├── eia861
-      ├── eia923
-      ├── epacems
-      ├── ferc1
-      ├── ferc714
-      └── tmp
+PUDL_DIR
+  └── settings
 
-PUDL_OUT
-  ├── parquet
-  ├── settings
-  └── sqlite
+PUDL_INPUT
+  ├── censusdp1tract
+  ├── eia860
+  ├── eia860m
+  ├── eia861
+  ├── eia923
+  ...
+  ├── epacems
+  ├── ferc1
+  ├── ferc714
+  └── tmp
+
+PUDL_OUTPUT
+  └── hourly_emissions_cems
 
 Initially, the directories in the data store will be empty. The pudl_datastore or
 pudl_etl commands will download data from public sources and organize it for

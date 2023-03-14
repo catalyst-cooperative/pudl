@@ -6,10 +6,11 @@ settings file.
 If the settings for a dataset has empty parameters (meaning there are no years or tables
 included), no outputs will be generated. See :doc:`/dev/run_the_etl` for details.
 
-The output SQLite and Parquet files will be stored in ``PUDL_OUT`` in directories named
-``sqlite`` and ``parquet``.  To setup your default ``PUDL_IN`` and ``PUDL_OUT``
-directories see ``pudl_setup --help``.
+The output SQLite and Parquet files will be stored in ``PUDL_OUTPUT``.  To
+setup your default ``PUDL_INPUT`` and ``PUDL_OUTPUT`` directories see
+``pudl_setup --help``.
 """
+
 import argparse
 import os
 import sys
@@ -127,7 +128,7 @@ def main():
         logger.warning(
             "PUDL will attempt to use legacy settings to derive paths."
             "In the future this functionality will be deprecated in favor"
-            "of environment variables PUDL_OUT and PUDL_INPUT. For more"
+            "of environment variables PUDL_OUTPUT and PUDL_INPUT. For more"
             "info see: https://catalystcoop-pudl.readthedocs.io/en/dev/dev/dev_setup.html"
         )
         pudl_settings = pudl.workspace.setup.derive_paths(
