@@ -162,6 +162,8 @@ def download_zip_url(url, save_path, chunk_size=128, timeout=9.05):
         url (str): The URL from which to download the Zipfile
         save_path (pathlib.Path): The location to save the file.
         chunk_size (int): Data chunk in bytes to use while downloading.
+        timeout (float): the amount of time we wait for the server to open a
+            connection. See https://requests.readthedocs.io/en/latest/user/advanced/#timeouts
 
     Returns:
         None
