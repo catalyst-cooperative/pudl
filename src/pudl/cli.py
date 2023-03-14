@@ -123,7 +123,7 @@ def main():
 
     etl_settings = EtlSettings.from_yaml(args.settings_file)
 
-    if (not os.getenv("PUDL_OUT")) or (not os.getenv("PUDL_CACHE")):
+    if (not os.getenv("PUDL_OUTPUT")) or (not os.getenv("PUDL_CACHE")):
         logger.warning(
             "PUDL will attempt to use legacy settings to derive paths."
             "In the future this functionality will be deprecated in favor"

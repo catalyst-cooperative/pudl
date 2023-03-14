@@ -1761,6 +1761,7 @@ class Package(Base):
         cls,
         resource_ids: tuple[str] = tuple(sorted(RESOURCE_METADATA)),
         resolve_foreign_keys: bool = False,
+        excluded_etl_groups: tuple[str] = (),
     ) -> "Package":
         """Construct a collection of Resources from PUDL identifiers (`resource.name`).
 
@@ -1777,6 +1778,8 @@ class Package(Base):
                 return value caching through lru_cache.
             resolve_foreign_keys: Whether to add resources as needed based on
                 foreign keys.
+            excluded_etl_groups: Collection of ETL groups used to filter resources
+                out of Package.
         """
         resources = [Resource.dict_from_id(x) for x in resource_ids]
         if resolve_foreign_keys:
@@ -1792,6 +1795,13 @@ class Package(Base):
                 i = len(resources)
                 if len(names) > i:
                     resources += [Resource.dict_from_id(x) for x in names[i:]]
+
+        if excluded_etl_groups:
+            resources = [
+                resource
+                for resource in resources
+                if resource["etl_group"] not in excluded_etl_groups
+            ]
 
         return cls(name="pudl", resources=resources)
 
