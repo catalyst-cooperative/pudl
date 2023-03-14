@@ -921,7 +921,7 @@ def clean_balancing_authority_eia861(
     return df
 
 
-@asset(group_name="eia860_clean_assets")
+@asset(group_name="eia861_clean_assets")
 def clean_sales_eia861(preclean_sales_eia861: pd.DataFrame) -> pd.DataFrame:
     """Transform the EIA 861 Sales table.
 
