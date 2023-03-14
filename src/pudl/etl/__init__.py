@@ -39,6 +39,7 @@ default_assets = (
     *load_assets_from_modules([pudl.extract.eia861], group_name="eia861_raw_assets"),
     *load_assets_from_modules([pudl.extract.eia923], group_name="eia923_raw_assets"),
     *load_assets_from_modules([pudl.transform.eia], group_name="eia_harvested_assets"),
+    *load_assets_from_modules([pudl.transform.eia861]),
     *load_assets_from_modules([static_assets], group_name="static_assets"),
     *load_assets_from_modules([pudl.extract.ferc1], group_name="ferc_assets"),
     *load_assets_from_modules([pudl.transform.ferc1], group_name="ferc_assets"),

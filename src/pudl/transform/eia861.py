@@ -4,11 +4,20 @@ All transformations include:
 - Replace . values with NA.
 """
 import pandas as pd
-from dagster import AssetOut, Output, asset, multi_asset
+from dagster import (
+    AssetIn,
+    AssetOut,
+    AssetsDefinition,
+    Output,
+    asset,
+    load_assets_from_current_module,
+    load_assets_from_modules,
+    multi_asset,
+)
 
 import pudl
-
-# from pudl.helpers import convert_cols_dtypes
+import pudl.extract.eia861 as extract_eia861
+from pudl.helpers import convert_cols_dtypes
 from pudl.metadata.enums import (
     CUSTOMER_CLASSES,
     FUEL_CLASSES,
@@ -576,13 +585,6 @@ def _check_for_dupes(df, df_name, subset):
         )
 
 
-def _early_transform(df):
-    """Fix EIA na values and convert year column to date."""
-    df = pudl.helpers.fix_eia_na(df)
-    df = pudl.helpers.convert_to_date(df)
-    return df
-
-
 def _compare_totals(data_cols, idx_cols, class_type, df_name):
     """Compare reported totals with sum of component columns.
 
@@ -596,7 +598,7 @@ def _compare_totals(data_cols, idx_cols, class_type, df_name):
         df_name (str): The name of the dataframe.
     """
     # Convert column dtypes so that numeric cols can be adequately summed
-    data_cols = pudl.helpers.convert_cols_dtypes(data_cols, data_source="eia")
+    data_cols = convert_cols_dtypes(data_cols, data_source="eia")
     # Drop data cols that are non numeric (preserve primary keys)
     logger.debug(f"{idx_cols}, {class_type}")
     data_cols = (
@@ -794,14 +796,42 @@ def _thousand_to_one(df_object):
     return df_object * 1000
 
 
+def _harvest_associations(dfs: list[pd.DataFrame], cols: list[str]) -> pd.DataFrame:
+    """Compile all unique, non-null combinations of values ``cols`` within ``dfs``.
+
+    Find all unique, non-null combinations of the columns ``cols`` in the dataframes
+    ``dfs`` within records that are selected by ``query``. All of ``cols`` must be
+    present in each of the ``dfs``.
+
+    Args:
+        dfs: DataFrames to search for unique combinations of values.
+        cols: Columns within which to find unique, non-null combinations of values.
+
+    Raises:
+        ValueError: if no associations for cols are found in dfs.
+
+    Returns:
+        A dataframe containing all the unique, non-null combinations of values found in
+        ``cols``.
+    """
+    assn = pd.DataFrame()
+    for df in dfs:
+        if set(df.columns).issuperset(set(cols)):
+            assn = pd.concat([assn, df[cols]])
+    assn = assn.dropna().drop_duplicates()
+    if assn.empty:
+        raise ValueError(
+            f"These dataframes contain no associations for the columns: {cols}"
+        )
+    return assn
+
+
 ###############################################################################
 # EIA Form 861 Table Transform Functions
 ###############################################################################
-
-
-@asset
+@asset(group_name="eia861_clean_assets")
 def clean_service_territory_eia861(
-    raw_service_territory_eia861: pd.DataFrame,
+    preclean_service_territory_eia861: pd.DataFrame,
 ) -> pd.DataFrame:
     """Transform the EIA 861 utility service territory table.
 
@@ -819,7 +849,7 @@ def clean_service_territory_eia861(
     # No data tidying required
     # There are a few NA values in the county column which get interpreted
     # as floats, which messes up the parsing of counties by addfips.
-    type_compatible_df = raw_service_territory_eia861.astype({"county": "string"})
+    type_compatible_df = preclean_service_territory_eia861.astype({"county": "string"})
     # Transform values:
     # * Add state and county fips IDs
     transformed_df = (
@@ -833,9 +863,9 @@ def clean_service_territory_eia861(
     return transformed_df
 
 
-@asset
+@asset(group_name="eia861_clean_assets")
 def clean_balancing_authority_eia861(
-    raw_balancing_authority_eia861: pd.DataFrame,
+    preclean_balancing_authority_eia861: pd.DataFrame,
 ) -> pd.DataFrame:
     """Transform the EIA 861 Balancing Authority table.
 
@@ -850,7 +880,7 @@ def clean_balancing_authority_eia861(
     # Value transformations:
     # * Backfill BA codes on a per BA ID basis
     # * Fix data entry errors
-    df = raw_balancing_authority_eia861.pipe(apply_pudl_dtypes, "eia").set_index(
+    df = preclean_balancing_authority_eia861.pipe(apply_pudl_dtypes, "eia").set_index(
         ["report_date", "balancing_authority_name_eia", "utility_id_eia"]
     )
 
@@ -891,198 +921,8 @@ def clean_balancing_authority_eia861(
     return df
 
 
-@asset
-def clean_balancing_authority_assn_eia861(tfr_dfs):
-    """Compile a balancing authority, utility, state association table.
-
-    For the years up through 2012, the only BA-Util information that's available comes
-    from the balancing_authority_eia861 table, and it does not include any state-level
-    information. However, there is utility-state association information in the
-    sales_eia861 and other data tables.
-
-    For the years from 2013 onward, there's explicit BA-Util-State information in the
-    data tables (e.g. sales_eia861). These observed associations can be compiled to give
-    us a picture of which BA-Util-State associations exist. However, we need to merge in
-    the balancing authority IDs since the data tables only contain the balancing
-    authority codes.
-
-    Args:
-        tfr_dfs (dict): A dictionary of transformed EIA 861 dataframes. This must
-            include any dataframes from which we want to compile BA-Util-State
-            associations, which means this function has to be called after all the basic
-            transformfunctions that depend on only a single raw table.
-
-    Returns:
-        dict: a dictionary of transformed dataframes. This function both compiles the
-        association table, and finishes the normalization of the balancing authority
-        table. It may be that once the harvesting process incorporates the EIA 861, some
-        or all of this functionality should be pulled into the phase-2 transform
-        functions.
-    """
-    # These aren't really "data" tables, and should not be searched for associations
-    non_data_dfs = [
-        "balancing_authority_eia861",
-        "service_territory_eia861",
-    ]
-
-    # The dataframes from which to compile BA-Util-State associations
-    data_dfs = [tfr_dfs[table] for table in tfr_dfs if table not in non_data_dfs]
-
-    logger.info("Building an EIA 861 BA-Util-State association table.")
-
-    # Helpful shorthand query strings....
-    early_years = "report_date<='2012-12-31'"
-    late_years = "report_date>='2013-01-01'"
-    early_dfs = [df.query(early_years) for df in data_dfs]
-    late_dfs = [df.query(late_years) for df in data_dfs]
-
-    # The old BA table lists utilities directly, but has no state information.
-    early_date_ba_util = _harvest_associations(
-        dfs=[
-            tfr_dfs["balancing_authority_eia861"].query(early_years),
-        ],
-        cols=["report_date", "balancing_authority_id_eia", "utility_id_eia"],
-    )
-    # State-utility associations are brought in from observations in data_dfs
-    early_date_util_state = _harvest_associations(
-        dfs=early_dfs,
-        cols=["report_date", "utility_id_eia", "state"],
-    )
-    early_date_ba_util_state = early_date_ba_util.merge(
-        early_date_util_state, how="outer"
-    ).drop_duplicates()
-
-    # New BA table has no utility information, but has BA Codes...
-    late_ba_code_id = _harvest_associations(
-        dfs=[
-            tfr_dfs["balancing_authority_eia861"].query(late_years),
-        ],
-        cols=[
-            "report_date",
-            "balancing_authority_code_eia",
-            "balancing_authority_id_eia",
-        ],
-    )
-    # BA Code allows us to bring in utility+state data from data_dfs:
-    late_date_ba_code_util_state = _harvest_associations(
-        dfs=late_dfs,
-        cols=["report_date", "balancing_authority_code_eia", "utility_id_eia", "state"],
-    )
-    # We merge on ba_code then drop it, b/c only BA ID exists in all years consistently:
-    late_date_ba_util_state = (
-        late_date_ba_code_util_state.merge(late_ba_code_id, how="outer")
-        .drop("balancing_authority_code_eia", axis="columns")
-        .drop_duplicates()
-    )
-
-    tfr_dfs["balancing_authority_assn_eia861"] = (
-        pd.concat([early_date_ba_util_state, late_date_ba_util_state])
-        .dropna(
-            subset=[
-                "balancing_authority_id_eia",
-            ]
-        )
-        .pipe(apply_pudl_dtypes, group="eia")
-    )
-    return tfr_dfs
-
-
-@asset
-def clean_utility_assn_eia861(tfr_dfs) -> pd.DataFrame:
-    """Harvest a Utility-Date-State Association Table."""
-    # These aren't really "data" tables, and should not be searched for associations
-    non_data_dfs = [
-        "balancing_authority_eia861",
-        "service_territory_eia861",
-    ]
-    # The dataframes from which to compile BA-Util-State associations
-    data_dfs = [tfr_dfs[table] for table in tfr_dfs if table not in non_data_dfs]
-
-    logger.info("Building an EIA 861 Util-State-Date association table.")
-    tfr_dfs["utility_assn_eia861"] = _harvest_associations(
-        data_dfs, ["report_date", "utility_id_eia", "state"]
-    )
-    return tfr_dfs
-
-
-def _harvest_associations(dfs, cols):
-    """Compile all unique, non-null combinations of values ``cols`` within ``dfs``.
-
-    Find all unique, non-null combinations of the columns ``cols`` in the dataframes
-    ``dfs`` within records that are selected by ``query``. All of ``cols`` must be
-    present in each of the ``dfs``.
-
-    Args:
-        dfs (iterable of pandas.DataFrame): The DataFrames in which to search for
-        cols (iterable of str): Labels of columns for which to find unique, non-null
-            combinations of values.
-
-    Raises:
-        ValueError: if no associations for cols are found in dfs.
-
-    Returns:
-        pandas.DataFrame: A dataframe containing all the unique, non-null combinations
-        of values found in ``cols``.
-    """
-    assn = pd.DataFrame()
-    for df in dfs:
-        if set(df.columns).issuperset(set(cols)):
-            assn = pd.concat([assn, df[cols]])
-    assn = assn.dropna().drop_duplicates()
-    if assn.empty:
-        raise ValueError(
-            f"These dataframes contain no associations for the columns: {cols}"
-        )
-    return assn
-
-
-@asset
-def normalized_balancing_authority_eia861(
-    clean_balancing_authority_eia861: pd.DataFrame,
-) -> pd.DataFrame:
-    """Finish the normalization of the balancing_authority_eia861 table.
-
-    The balancing_authority_assn_eia861 table depends on information that is only
-    available in the UN-normalized form of the balancing_authority_eia861 table, so and
-    also on having access to a bunch of transformed data tables, so it can compile the
-    observed combinations of report dates, balancing authorities, states, and utilities.
-    This means that we have to hold off on the final normalization of the
-    balancing_authority_eia861 table until the rest of the transform process is over.
-    """
-    logger.info("Completing normalization of balancing_authority_eia861.")
-    ba_eia861_normed = clean_balancing_authority_eia861.loc[
-        :,
-        [
-            "report_date",
-            "balancing_authority_id_eia",
-            "balancing_authority_code_eia",
-            "balancing_authority_name_eia",
-        ],
-    ].drop_duplicates(subset=["report_date", "balancing_authority_id_eia"])
-
-    # Make sure that there aren't any more BA IDs we can recover from later years:
-    ba_ids_missing_codes = (
-        ba_eia861_normed.loc[
-            ba_eia861_normed.balancing_authority_code_eia.isnull(),
-            "balancing_authority_id_eia",
-        ]
-        .drop_duplicates()
-        .dropna()
-    )
-    fillable_ba_codes = ba_eia861_normed[
-        (ba_eia861_normed.balancing_authority_id_eia.isin(ba_ids_missing_codes))
-        & (ba_eia861_normed.balancing_authority_code_eia.notnull())
-    ]
-    if len(fillable_ba_codes) != 0:
-        raise ValueError(
-            f"Found {len(fillable_ba_codes)} unfilled but fillable BA Codes!"
-        )
-
-    return ba_eia861_normed
-
-
-@asset
-def clean_sales_eia861(raw_sales_eia861: pd.DataFrame) -> pd.DataFrame:
+@asset(group_name="eia860_clean_assets")
+def clean_sales_eia861(preclean_sales_eia861: pd.DataFrame) -> pd.DataFrame:
     """Transform the EIA 861 Sales table.
 
     Transformations include:
@@ -1102,12 +942,11 @@ def clean_sales_eia861(raw_sales_eia861: pd.DataFrame) -> pd.DataFrame:
     ]
 
     # Pre-tidy clean specific to sales table
-    raw_sales = raw_sales_eia861.query("utility_id_eia not in (88888, 99999)")
+    raw_sales = preclean_sales_eia861.query("utility_id_eia not in (88888, 99999)")
 
     ###########################################################################
     # Tidy Data:
     ###########################################################################
-
     logger.info("Tidying the EIA 861 Sales table.")
     tidy_sales, idx_cols = _tidy_class_dfs(
         raw_sales,
@@ -1159,9 +998,9 @@ def clean_sales_eia861(raw_sales_eia861: pd.DataFrame) -> pd.DataFrame:
     return transformed_sales
 
 
-@asset
+@asset(group_name="eia861_clean_assets")
 def clean_advanced_metering_infrastructure_eia861(
-    raw_advanced_metering_infrastructure_eia861: pd.DataFrame,
+    preclean_advanced_metering_infrastructure_eia861: pd.DataFrame,
 ) -> pd.DataFrame:
     """Transform the EIA 861 Advanced Metering Infrastructure table.
 
@@ -1182,7 +1021,7 @@ def clean_advanced_metering_infrastructure_eia861(
     ###########################################################################
     logger.info("Tidying the EIA 861 Advanced Metering Infrastructure table.")
     tidy_ami, idx_cols = _tidy_class_dfs(
-        raw_advanced_metering_infrastructure_eia861,
+        preclean_advanced_metering_infrastructure_eia861,
         df_name="Advanced Metering Infrastructure",
         idx_cols=idx_cols,
         class_list=CUSTOMER_CLASSES,
@@ -1204,9 +1043,10 @@ def clean_advanced_metering_infrastructure_eia861(
     outs={
         "clean_demand_response_eia861": AssetOut(),
         "clean_demand_response_water_heater_eia861": AssetOut(),
-    }
+    },
+    group_name="eia861_clean_assets",
 )
-def clean_demand_response_eia861(raw_demand_response_eia861: pd.DataFrame):
+def clean_demand_response_eia861(preclean_demand_response_eia861: pd.DataFrame):
     """Transform the EIA 861 Demand Response table.
 
     Transformations include:
@@ -1224,7 +1064,7 @@ def clean_demand_response_eia861(raw_demand_response_eia861: pd.DataFrame):
         "report_date",
     ]
 
-    raw_dr = raw_demand_response_eia861
+    raw_dr = preclean_demand_response_eia861
     # fill na BA values with 'UNK'
     raw_dr["balancing_authority_code_eia"] = raw_dr[
         "balancing_authority_code_eia"
@@ -1280,10 +1120,11 @@ def clean_demand_response_eia861(raw_demand_response_eia861: pd.DataFrame):
         "clean_demand_side_management_sales_eia861": AssetOut(),
         "clean_demand_side_management_ee_dr_eia861": AssetOut(),
         "clean_demand_side_management_misc_eia861": AssetOut(),
-    }
+    },
+    group_name="eia861_clean_assets",
 )
 def clean_demand_side_management_eia861(
-    raw_demand_side_management_eia861: pd.DataFrame,
+    preclean_demand_side_management_eia861: pd.DataFrame,
 ):
     """Transform the EIA 861 Demand Side Management table.
 
@@ -1341,7 +1182,7 @@ def clean_demand_side_management_eia861(
     # * Drop data_status and demand_side_management cols (they don't contain anything)
     ###########################################################################
     transformed_dsm1 = (
-        clean_nerc(raw_demand_side_management_eia861, idx_cols)
+        clean_nerc(preclean_demand_side_management_eia861, idx_cols)
         .drop(["demand_side_management", "data_status"], axis=1)
         .query("utility_id_eia not in [88888]")
     )
@@ -1424,10 +1265,11 @@ def clean_demand_side_management_eia861(
         "clean_distributed_generation_tech_eia861": AssetOut(),
         "clean_distributed_generation_fuel_eia861": AssetOut(),
         "clean_distributed_generation_misc_eia861": AssetOut(),
-    }
+    },
+    group_name="eia861_clean_assets",
 )
 def clean_distributed_generation_eia861(
-    raw_distributed_generation_eia861: pd.DataFrame,
+    preclean_distributed_generation_eia861: pd.DataFrame,
 ):
     """Transform the EIA 861 Distributed Generation table.
 
@@ -1489,7 +1331,7 @@ def clean_distributed_generation_eia861(
     ]
 
     # Pre-tidy transform: set estimated or actual A/E values to 'Acutal'/'Estimated'
-    raw_dg = raw_distributed_generation_eia861.assign(
+    raw_dg = preclean_distributed_generation_eia861.assign(
         estimated_or_actual_capacity_data=lambda x: (
             x.estimated_or_actual_capacity_data.map(ESTIMATED_OR_ACTUAL)
         ),
@@ -1589,38 +1431,42 @@ def clean_distributed_generation_eia861(
     )
 
     return (
-        Output("clean_distributed_generation_tech_eia861", value=tidy_dg_tech),
-        Output("clean_distributed_generation_fuel_eia861", value=tidy_dg_fuel),
-        Output("clean_distributed_generation_misc_eia861", value=dg_misc),
+        Output(
+            output_name="clean_distributed_generation_tech_eia861", value=tidy_dg_tech
+        ),
+        Output(
+            output_name="clean_distributed_generation_fuel_eia861", value=tidy_dg_fuel
+        ),
+        Output(output_name="clean_distributed_generation_misc_eia861", value=dg_misc),
     )
 
 
-@asset
+@asset(group_name="eia861_clean_assets")
 def clean_distribution_systems_eia861(
-    raw_distribution_systems_eia861: pd.DataFrame,
+    preclean_distribution_systems_eia861: pd.DataFrame,
 ) -> pd.DataFrame:
     """Transform the EIA 861 Distribution Systems table.
 
     * No additional transformations.
     """
     # No data tidying or transformation required
-    raw_distribution_systems_eia861["short_form"] = _make_yn_bool(
-        raw_distribution_systems_eia861.short_form
+    preclean_distribution_systems_eia861["short_form"] = _make_yn_bool(
+        preclean_distribution_systems_eia861.short_form
     )
 
     # No duplicates to speak of but take measures to check just in case
     _check_for_dupes(
-        raw_distribution_systems_eia861,
+        preclean_distribution_systems_eia861,
         "Distribution Systems",
         ["utility_id_eia", "state", "report_date"],
     )
 
-    return raw_distribution_systems_eia861
+    return preclean_distribution_systems_eia861
 
 
-@asset
+@asset(group_name="eia861_clean_assets")
 def clean_dynamic_pricing_eia861(
-    raw_dynamic_pricing_eia861: pd.DataFrame,
+    preclean_dynamic_pricing_eia861: pd.DataFrame,
 ) -> pd.DataFrame:
     """Transform the EIA 861 Dynamic Pricing table.
 
@@ -1644,7 +1490,7 @@ def clean_dynamic_pricing_eia861(
         "variable_peak_pricing",
     ]
 
-    raw_dp = raw_dynamic_pricing_eia861.query("utility_id_eia not in [88888]")
+    raw_dp = preclean_dynamic_pricing_eia861.query("utility_id_eia not in [88888]")
     raw_dp["short_form"] = _make_yn_bool(raw_dp.short_form)
 
     ###########################################################################
@@ -1679,9 +1525,9 @@ def clean_dynamic_pricing_eia861(
     return tidy_dp
 
 
-@asset
+@asset(group_name="eia861_clean_assets")
 def clean_energy_efficiency_eia861(
-    raw_energy_efficiency_eia861: pd.DataFrame,
+    preclean_energy_efficiency_eia861: pd.DataFrame,
 ) -> pd.DataFrame:
     """Transform the EIA 861 Energy Efficiency table.
 
@@ -1698,7 +1544,7 @@ def clean_energy_efficiency_eia861(
         "report_date",
     ]
 
-    raw_ee = raw_energy_efficiency_eia861
+    raw_ee = preclean_energy_efficiency_eia861
 
     raw_ee["short_form"] = _make_yn_bool(raw_ee.short_form)
 
@@ -1747,8 +1593,10 @@ def clean_energy_efficiency_eia861(
     return transformed_ee
 
 
-@asset
-def clean_green_pricing_eia861(raw_green_pricing_eia861: pd.DataFrame) -> pd.DataFrame:
+@asset(group_name="eia861_clean_assets")
+def clean_green_pricing_eia861(
+    preclean_green_pricing_eia861: pd.DataFrame,
+) -> pd.DataFrame:
     """Transform the EIA 861 Green Pricing table.
 
     Transformations include:
@@ -1767,7 +1615,7 @@ def clean_green_pricing_eia861(raw_green_pricing_eia861: pd.DataFrame) -> pd.Dat
     ###########################################################################
     logger.info("Tidying the EIA 861 Green Pricing table.")
     tidy_gp, idx_cols = _tidy_class_dfs(
-        raw_green_pricing_eia861,
+        preclean_green_pricing_eia861,
         df_name="Green Pricing",
         idx_cols=idx_cols,
         class_list=CUSTOMER_CLASSES,
@@ -1789,24 +1637,25 @@ def clean_green_pricing_eia861(raw_green_pricing_eia861: pd.DataFrame) -> pd.Dat
     return transformed_gp
 
 
-@asset
-def clean_mergers_eia861(raw_mergers_eia861: pd.DataFrame) -> pd.DataFrame:
+@asset(group_name="eia861_clean_assets")
+def clean_mergers_eia861(preclean_mergers_eia861: pd.DataFrame) -> pd.DataFrame:
     """Transform the EIA 861 Mergers table."""
     # No duplicates to speak of but take measures to check just in case
     _check_for_dupes(
-        raw_mergers_eia861, "Mergers", ["utility_id_eia", "state", "report_date"]
+        preclean_mergers_eia861, "Mergers", ["utility_id_eia", "state", "report_date"]
     )
 
-    return raw_mergers_eia861
+    return preclean_mergers_eia861
 
 
 @multi_asset(
     outs={
         "clean_net_metering_customer_fuel_class_eia861": AssetOut(),
         "clean_net_metering_misc_eia861": AssetOut(),
-    }
+    },
+    group_name="eia861_clean_assets",
 )
-def clean_net_metering_eia861(raw_net_metering_eia861: pd.DataFrame):
+def clean_net_metering_eia861(preclean_net_metering_eia861: pd.DataFrame):
     """Transform the EIA 861 Net Metering table.
 
     Transformations include:
@@ -1825,7 +1674,7 @@ def clean_net_metering_eia861(raw_net_metering_eia861: pd.DataFrame):
     misc_cols = ["pv_current_flow_type"]
 
     # Pre-tidy clean specific to net_metering table
-    raw_nm = raw_net_metering_eia861.query("utility_id_eia not in [99999]")
+    raw_nm = preclean_net_metering_eia861.query("utility_id_eia not in [99999]")
     raw_nm["short_form"] = _make_yn_bool(raw_nm.short_form)
 
     # Separate customer class data from misc data (in this case just one col: current flow)
@@ -1867,10 +1716,10 @@ def clean_net_metering_eia861(raw_net_metering_eia861: pd.DataFrame):
 
     return (
         Output(
-            output_name="net_metering_customer_fuel_class_eia861",
+            output_name="clean_net_metering_customer_fuel_class_eia861",
             value=tidy_nm_customer_fuel_class,
         ),
-        Output(output_name="net_metering_misc_eia861", value=raw_nm_misc),
+        Output(output_name="clean_net_metering_misc_eia861", value=raw_nm_misc),
     )
 
 
@@ -1878,9 +1727,10 @@ def clean_net_metering_eia861(raw_net_metering_eia861: pd.DataFrame):
     outs={
         "clean_non_net_metering_customer_fuel_class_eia861": AssetOut(),
         "clean_non_net_metering_misc_eia861": AssetOut(),
-    }
+    },
+    group_name="eia861_clean_assets",
 )
-def clean_non_net_metering_eia861(raw_non_net_metering_eia861: pd.DataFrame):
+def clean_non_net_metering_eia861(preclean_non_net_metering_eia861: pd.DataFrame):
     """Transform the EIA 861 Non-Net Metering table.
 
     Transformations include:
@@ -1905,7 +1755,7 @@ def clean_non_net_metering_eia861(raw_non_net_metering_eia861: pd.DataFrame):
     ]
 
     # Pre-tidy clean specific to non_net_metering table
-    raw_nnm = raw_non_net_metering_eia861.query("utility_id_eia not in '99999'")
+    raw_nnm = preclean_non_net_metering_eia861.query("utility_id_eia not in '99999'")
 
     # there are ~80 fully duplicate records in the 2018 table. We need to
     # remove those duplicates
@@ -1975,9 +1825,10 @@ def clean_non_net_metering_eia861(raw_non_net_metering_eia861: pd.DataFrame):
     outs={
         "clean_operational_data_revenue_eia861": AssetOut(),
         "clean_operational_data_misc_eia861": AssetOut(),
-    }
+    },
+    group_name="eia861_clean_assets",
 )
-def clean_operational_data_eia861(raw_operational_data_eia861: pd.DataFrame):
+def clean_operational_data_eia861(preclean_operational_data_eia861: pd.DataFrame):
     """Transform the EIA 861 Operational Data table.
 
     Transformations include:
@@ -1997,9 +1848,9 @@ def clean_operational_data_eia861(raw_operational_data_eia861: pd.DataFrame):
     ]
 
     # Pre-tidy clean specific to operational data table
-    raw_od = raw_operational_data_eia861[
-        (raw_operational_data_eia861["utility_id_eia"] != 88888)
-        & (raw_operational_data_eia861["utility_id_eia"].notnull())
+    raw_od = preclean_operational_data_eia861[
+        (preclean_operational_data_eia861["utility_id_eia"] != 88888)
+        & (preclean_operational_data_eia861["utility_id_eia"].notnull())
     ]
 
     ###########################################################################
@@ -2056,8 +1907,8 @@ def clean_operational_data_eia861(raw_operational_data_eia861: pd.DataFrame):
     )
 
 
-@asset
-def clean_reliability_eia861(raw_reliability_eia861: pd.DataFrame) -> pd.DataFrame:
+@asset(group_name="eia861_clean_assets")
+def clean_reliability_eia861(preclean_reliability_eia861: pd.DataFrame) -> pd.DataFrame:
     """Transform the EIA 861 Reliability table.
 
     Transformations include:
@@ -2077,7 +1928,7 @@ def clean_reliability_eia861(raw_reliability_eia861: pd.DataFrame) -> pd.DataFra
 
     # wide-to-tall by standards
     tidy_r, idx_cols = _tidy_class_dfs(
-        df=raw_reliability_eia861,
+        df=preclean_reliability_eia861,
         df_name="Reliability",
         idx_cols=idx_cols,
         class_list=RELIABILITY_STANDARDS,
@@ -2125,9 +1976,10 @@ def clean_reliability_eia861(raw_reliability_eia861: pd.DataFrame) -> pd.DataFra
         "clean_utility_data_nerc_eia861": AssetOut(),
         "clean_utility_data_rto_eia861": AssetOut(),
         "clean_utility_data_misc_eia861": AssetOut(),
-    }
+    },
+    group_name="eia861_clean_assets",
 )
-def clean_utility_data_eia861(raw_utility_data_eia861: pd.DataFrame):
+def clean_utility_data_eia861(preclean_utility_data_eia861: pd.DataFrame):
     """Transform the EIA 861 Utility Data table.
 
     Transformations include:
@@ -2141,7 +1993,7 @@ def clean_utility_data_eia861(raw_utility_data_eia861: pd.DataFrame):
     idx_cols = ["utility_id_eia", "state", "report_date", "nerc_region"]
 
     # Pre-tidy clean specific to operational data table
-    raw_ud = raw_utility_data_eia861.query("utility_id_eia not in [88888]")
+    raw_ud = preclean_utility_data_eia861.query("utility_id_eia not in [88888]")
 
     ##############################################################################
     # Transform Data Round 1 (must be done to avoid issues with nerc_region col in
@@ -2237,28 +2089,285 @@ def clean_utility_data_eia861(raw_utility_data_eia861: pd.DataFrame):
     )
 
     return (
-        Output(output_name="utility_data_nerc_eia861", value=transformed_ud_nerc),
-        Output(output_name="utility_data_rto_eia861", value=transformed_ud_rto),
-        Output(output_name="utility_data_misc_eia861", value=transformed_ud_misc),
+        Output(output_name="clean_utility_data_nerc_eia861", value=transformed_ud_nerc),
+        Output(output_name="clean_utility_data_rto_eia861", value=transformed_ud_rto),
+        Output(output_name="clean_utility_data_misc_eia861", value=transformed_ud_misc),
     )
 
 
 ##############################################################################
-# Coordinating Transform Function
+# Secondary Transformations
 ##############################################################################
-# Apply early transform to all tables
-# tfr_dfs[tfr_func] = _early_transform(raw_dfs[tfr_func])
+@asset(
+    ins={
+        "clean_advanced_metering_infrastructure_eia861": AssetIn(),
+        "clean_demand_response_eia861": AssetIn(),
+        "clean_demand_response_water_heater_eia861": AssetIn(),
+        "clean_demand_side_management_ee_dr_eia861": AssetIn(),
+        "clean_demand_side_management_misc_eia861": AssetIn(),
+        "clean_demand_side_management_sales_eia861": AssetIn(),
+        "clean_distributed_generation_fuel_eia861": AssetIn(),
+        "clean_distributed_generation_misc_eia861": AssetIn(),
+        "clean_distributed_generation_tech_eia861": AssetIn(),
+        "clean_distribution_systems_eia861": AssetIn(),
+        "clean_dynamic_pricing_eia861": AssetIn(),
+        "clean_energy_efficiency_eia861": AssetIn(),
+        "clean_green_pricing_eia861": AssetIn(),
+        "clean_mergers_eia861": AssetIn(),
+        "clean_net_metering_customer_fuel_class_eia861": AssetIn(),
+        "clean_net_metering_misc_eia861": AssetIn(),
+        "clean_non_net_metering_customer_fuel_class_eia861": AssetIn(),
+        "clean_non_net_metering_misc_eia861": AssetIn(),
+        "clean_operational_data_misc_eia861": AssetIn(),
+        "clean_operational_data_revenue_eia861": AssetIn(),
+        "clean_reliability_eia861": AssetIn(),
+        "clean_sales_eia861": AssetIn(),
+        "clean_utility_data_misc_eia861": AssetIn(),
+        "clean_utility_data_nerc_eia861": AssetIn(),
+        "clean_utility_data_rto_eia861": AssetIn(),
+    },
+    group_name="eia861_clean_assets",
+)
+def clean_utility_assn_eia861(**data_dfs: dict[str, pd.DataFrame]) -> pd.DataFrame:
+    """Harvest a Utility-Date-State Association Table."""
+    logger.info("Building an EIA 861 Util-State-Date association table.")
+    return _harvest_associations(
+        list(data_dfs.values()), ["report_date", "utility_id_eia", "state"]
+    )
 
-# Phase-2 transforms that are more involved...
 
-# Building these association tables requires almost all DFs as input:
-# tfr_dfs = balancing_authority_assn(tfr_dfs)
-# tfr_dfs = utility_assn(tfr_dfs)
+@asset(
+    ins={
+        "clean_advanced_metering_infrastructure_eia861": AssetIn(),
+        "clean_balancing_authority_eia861": AssetIn(),
+        "clean_demand_response_eia861": AssetIn(),
+        "clean_demand_response_water_heater_eia861": AssetIn(),
+        "clean_demand_side_management_ee_dr_eia861": AssetIn(),
+        "clean_demand_side_management_misc_eia861": AssetIn(),
+        "clean_demand_side_management_sales_eia861": AssetIn(),
+        "clean_distributed_generation_fuel_eia861": AssetIn(),
+        "clean_distributed_generation_misc_eia861": AssetIn(),
+        "clean_distributed_generation_tech_eia861": AssetIn(),
+        "clean_distribution_systems_eia861": AssetIn(),
+        "clean_dynamic_pricing_eia861": AssetIn(),
+        "clean_energy_efficiency_eia861": AssetIn(),
+        "clean_green_pricing_eia861": AssetIn(),
+        "clean_mergers_eia861": AssetIn(),
+        "clean_net_metering_customer_fuel_class_eia861": AssetIn(),
+        "clean_net_metering_misc_eia861": AssetIn(),
+        "clean_non_net_metering_customer_fuel_class_eia861": AssetIn(),
+        "clean_non_net_metering_misc_eia861": AssetIn(),
+        "clean_operational_data_misc_eia861": AssetIn(),
+        "clean_operational_data_revenue_eia861": AssetIn(),
+        "clean_reliability_eia861": AssetIn(),
+        "clean_sales_eia861": AssetIn(),
+        "clean_utility_data_misc_eia861": AssetIn(),
+        "clean_utility_data_nerc_eia861": AssetIn(),
+        "clean_utility_data_rto_eia861": AssetIn(),
+    },
+    group_name="eia861_clean_assets",
+)
+def clean_balancing_authority_assn_eia861(
+    **tfr_dfs: dict[str, pd.DataFrame]
+) -> pd.DataFrame:
+    """Compile a balancing authority, utility, state association table.
 
-# Another layer of transformation on the balancing authority table...
-# tfr_dfs = normalize_balancing_authority(tfr_dfs)
+    For the years up through 2012, the only BA-Util information that's available comes
+    from the balancing_authority_eia861 table, and it does not include any state-level
+    information. However, there is utility-state association information in the
+    sales_eia861 and other data tables.
 
-# Do some final cleanup and assign types.
-#    return {
-#        name: convert_cols_dtypes(df, data_source="eia") for name, df in tfr_dfs.items()
-#    }
+    For the years from 2013 onward, there's explicit BA-Util-State information in the
+    data tables (e.g. sales_eia861). These observed associations can be compiled to give
+    us a picture of which BA-Util-State associations exist. However, we need to merge in
+    the balancing authority IDs since the data tables only contain the balancing
+    authority codes.
+
+    Args:
+        tfr_dfs: A dictionary of transformed EIA 861 dataframes. This must
+            include any dataframes from which we want to compile BA-Util-State
+            associations, which means this function has to be called after all the basic
+            transformfunctions that depend on only a single raw table.
+
+    Returns:
+        dict: a dictionary of transformed dataframes. This function both compiles the
+        association table, and finishes the normalization of the balancing authority
+        table. It may be that once the harvesting process incorporates the EIA 861, some
+        or all of this functionality should be pulled into the phase-2 transform
+        functions.
+    """
+    # The dataframes from which to compile BA-Util-State associations
+    ba_eia861 = tfr_dfs.pop("clean_balancing_authority_eia861")
+    data_dfs = list(tfr_dfs.values())
+
+    logger.info("Building an EIA 861 BA-Util-State association table.")
+
+    # Helpful shorthand query strings....
+    early_years = "report_date<='2012-12-31'"
+    late_years = "report_date>='2013-01-01'"
+    early_dfs = [df.query(early_years) for df in data_dfs]
+    late_dfs = [df.query(late_years) for df in data_dfs]
+
+    # The old BA table lists utilities directly, but has no state information.
+    early_date_ba_util = _harvest_associations(
+        dfs=[
+            ba_eia861.query(early_years),
+        ],
+        cols=["report_date", "balancing_authority_id_eia", "utility_id_eia"],
+    )
+    # State-utility associations are brought in from observations in data_dfs
+    early_date_util_state = _harvest_associations(
+        dfs=early_dfs,
+        cols=["report_date", "utility_id_eia", "state"],
+    )
+    early_date_ba_util_state = early_date_ba_util.merge(
+        early_date_util_state, how="outer"
+    ).drop_duplicates()
+
+    # New BA table has no utility information, but has BA Codes...
+    late_ba_code_id = _harvest_associations(
+        dfs=[
+            ba_eia861.query(late_years),
+        ],
+        cols=[
+            "report_date",
+            "balancing_authority_code_eia",
+            "balancing_authority_id_eia",
+        ],
+    )
+    # BA Code allows us to bring in utility+state data from data_dfs:
+    late_date_ba_code_util_state = _harvest_associations(
+        dfs=late_dfs,
+        cols=["report_date", "balancing_authority_code_eia", "utility_id_eia", "state"],
+    )
+    # We merge on ba_code then drop it, b/c only BA ID exists in all years consistently:
+    late_date_ba_util_state = (
+        late_date_ba_code_util_state.merge(late_ba_code_id, how="outer")
+        .drop("balancing_authority_code_eia", axis="columns")
+        .drop_duplicates()
+    )
+
+    ba_assn_eia861 = (
+        pd.concat([early_date_ba_util_state, late_date_ba_util_state])
+        .dropna(subset=["balancing_authority_id_eia"])
+        .pipe(apply_pudl_dtypes, group="eia")
+    )
+    return ba_assn_eia861
+
+
+@asset(group_name="eia861_clean_assets")
+def normalized_balancing_authority_eia861(
+    clean_balancing_authority_eia861: pd.DataFrame,
+) -> pd.DataFrame:
+    """Finish the normalization of the balancing_authority_eia861 table.
+
+    The balancing_authority_assn_eia861 table depends on information that is only
+    available in the UN-normalized form of the balancing_authority_eia861 table, so and
+    also on having access to a bunch of transformed data tables, so it can compile the
+    observed combinations of report dates, balancing authorities, states, and utilities.
+    This means that we have to hold off on the final normalization of the
+    balancing_authority_eia861 table until the rest of the transform process is over.
+    """
+    logger.info("Completing normalization of balancing_authority_eia861.")
+    ba_eia861_normed = clean_balancing_authority_eia861.loc[
+        :,
+        [
+            "report_date",
+            "balancing_authority_id_eia",
+            "balancing_authority_code_eia",
+            "balancing_authority_name_eia",
+        ],
+    ].drop_duplicates(subset=["report_date", "balancing_authority_id_eia"])
+
+    # Make sure that there aren't any more BA IDs we can recover from later years:
+    ba_ids_missing_codes = (
+        ba_eia861_normed.loc[
+            ba_eia861_normed.balancing_authority_code_eia.isnull(),
+            "balancing_authority_id_eia",
+        ]
+        .drop_duplicates()
+        .dropna()
+    )
+    fillable_ba_codes = ba_eia861_normed[
+        (ba_eia861_normed.balancing_authority_id_eia.isin(ba_ids_missing_codes))
+        & (ba_eia861_normed.balancing_authority_code_eia.notnull())
+    ]
+    if len(fillable_ba_codes) != 0:
+        raise ValueError(
+            f"Found {len(fillable_ba_codes)} unfilled but fillable BA Codes!"
+        )
+
+    return ba_eia861_normed
+
+
+def preclean_eia861_asset_factory(table_name: str) -> AssetsDefinition:
+    """An asset factory to apply uniform pre-processing to all raw EIA-861 assets."""
+    preclean_table_name = table_name.replace("raw_", "preclean_")
+
+    @asset(
+        ins={table_name: AssetIn()},
+        name=preclean_table_name,
+        group_name="eia861_preclean_assets",
+    )
+    def eia861_preclean_asset(**kwargs: dict[str, pd.DataFrame]) -> pd.DataFrame:
+        """Apply uniform pre-processing to all raw EIA-861 assets."""
+        return pudl.helpers.fix_eia_na(kwargs[table_name]).pipe(
+            pudl.helpers.convert_to_date
+        )
+
+    return eia861_preclean_asset
+
+
+def create_preclean_eia861_assets() -> list[AssetsDefinition]:
+    """Use the asset factory to generate all required preclean EIA-861 assets."""
+    table_names = [
+        asset_key.to_python_identifier()
+        for eia861_raw_asset in load_assets_from_modules([extract_eia861])
+        for asset_key in eia861_raw_asset.keys
+    ]
+    assets = []
+    for table_name in table_names:
+        assets.append(preclean_eia861_asset_factory(table_name))
+    return assets
+
+
+eia861_preclean_assets = create_preclean_eia861_assets()
+
+
+def finished_eia861_asset_factory(table_name: str) -> AssetsDefinition:
+    """An asset factory to apply post-transform processing all EIA-861 assets."""
+    if table_name.startswith("clean_"):
+        finished_table_name = table_name.replace("clean_", "")
+
+    if table_name.startswith("normalized_"):
+        finished_table_name = table_name.replace("normalized_", "")
+
+    @asset(
+        ins={table_name: AssetIn()},
+        name=finished_table_name,
+        group_name="eia861_finished_assets",
+    )
+    def eia861_finished_asset(**kwargs: dict[str, pd.DataFrame]) -> pd.DataFrame:
+        """Apply uniform post-processing to all EIA-861 assets."""
+        return convert_cols_dtypes(kwargs[table_name], data_source="eia")
+
+    return eia861_finished_asset
+
+
+def create_finished_eia861_assets() -> list[AssetsDefinition]:
+    """Use the asset factory to generate all finished EIA-861 assets."""
+    table_names = [
+        asset_key.to_python_identifier()
+        for eia861_clean_asset in load_assets_from_current_module()
+        for asset_key in eia861_clean_asset.keys
+        if asset_key.to_python_identifier().startswith("clean_")
+    ]
+    table_names.remove("clean_balancing_authority_eia861")
+    table_names.append("normalized_balancing_authority_eia861")
+    assets = []
+    for table_name in table_names:
+        assets.append(finished_eia861_asset_factory(table_name))
+    return assets
+
+
+eia861_finished_assets = create_finished_eia861_assets()
