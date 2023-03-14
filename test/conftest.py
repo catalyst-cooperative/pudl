@@ -97,10 +97,10 @@ def pytest_configure(config):
 
 
 @pytest.fixture(scope="session")
-def pudl_env(request, tmpdir_factory, live_dbs):
+def pudl_env(request, pudl_out_tmpdir, live_dbs):
     """Set PUDL_OUTPUT environment variable."""
     if not live_dbs:
-        tmpdir = tmpdir_factory.mktemp("PUDL_OUTPUT")
+        tmpdir = pudl_out_tmpdir
         os.environ["PUDL_OUTPUT"] = str(tmpdir)
         os.environ["DAGSTER_HOME"] = str(tmpdir)
 
@@ -214,6 +214,10 @@ def ferc_to_sqlite(live_dbs, pudl_datastore_config, etl_settings):
     existing databases
     """
     if not live_dbs:
+        logger.info(
+            f"ferc_to_sqlite_settings: {etl_settings.ferc_to_sqlite_settings.dict()}"
+        )
+        logger.info(f"ferc_to_sqlite PUDL_OUTPUT: {os.getenv('PUDL_OUTPUT')}")
         ferc_to_sqlite_job_factory()().execute_in_process(
             run_config={
                 "resources": {
@@ -353,21 +357,27 @@ def pudl_engine(pudl_sql_io_manager):
     return pudl_sql_io_manager.engine
 
 
+@pytest.fixture(scope="session")
+def pudl_out_tmpdir(tmpdir_factory):
+    # Create a session scoped temporary directory.
+    tmpdir = tmpdir_factory.mktemp("pudl_output")
+    # Outputs are always written to a temporary directory:
+    return tmpdir
+
+
 @pytest.fixture(scope="session", name="pudl_settings_fixture")
-def pudl_settings_dict(request, live_dbs, tmpdir_factory):  # noqa: C901
+def pudl_settings_dict(request, live_dbs, pudl_out_tmpdir):  # noqa: C901
     """Determine some settings (mostly paths) for the test session."""
     logger.info("setting up the pudl_settings_fixture")
-    # Create a session scoped temporary directory.
-    tmpdir = tmpdir_factory.mktemp("pudl")
     # Outputs are always written to a temporary directory:
-    pudl_out = tmpdir
+    pudl_out = pudl_out_tmpdir
 
     # In CI we want a hard-coded path for input caching purposes:
     if os.environ.get("GITHUB_ACTIONS", False):
         pudl_in = Path(os.environ["HOME"]) / "pudl-work"
     # If --tmp-data is set, create a disposable temporary datastore:
     elif request.config.getoption("--tmp-data"):
-        pudl_in = tmpdir
+        pudl_in = pudl_out_tmpdir
     # Otherwise, default to the user's existing datastore:
     else:
         try:

@@ -38,12 +38,14 @@ PUDL_INPUT
   └── tmp
 
 PUDL_OUTPUT
+  ├── ferc1.sqlite
+  ...
+  ├── pudl.sqlite
   └── hourly_emissions_cems
 
 Initially, the directories in the data store will be empty. The pudl_datastore or
 pudl_etl commands will download data from public sources and organize it for
-you there by source. The PUDL_OUT directories are organized by the type of
-file they contain.
+you there by source.
 """
 import argparse
 import pathlib
