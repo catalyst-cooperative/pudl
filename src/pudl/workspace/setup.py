@@ -31,7 +31,7 @@ def set_defaults(pudl_in, pudl_out, clobber=False):
         None
     """
     logger.warning(
-        "pudl_settings is being depcrated in favor of environment"
+        "pudl_settings is being deprecated in favor of environment"
         "variables PUDL_OUTPUT and PUDL_CACHE. For more info"
         "see: https://catalystcoop-pudl.readthedocs.io/en/dev/dev/dev_setup.html"
     )
@@ -60,7 +60,7 @@ def get_defaults():
         the ``$HOME/.pudl.yml`` file does not exist, set these paths to None.
     """
     logger.warning(
-        "pudl_settings is being depcrated in favor of environment variables "
+        "pudl_settings is being deprecated in favor of environment variables "
         "PUDL_OUTPUT and PUDL_CACHE"
     )
     settings_file = pathlib.Path.home() / ".pudl.yml"
@@ -103,7 +103,7 @@ def derive_paths(pudl_in, pudl_out):
             read out of the YAML file. Mostly paths for inputs & outputs.
     """
     logger.warning(
-        "pudl_settings is being depcrated in favor of environment variables "
+        "pudl_settings is being deprecated in favor of environment variables "
         "PUDL_OUTPUT and PUDL_CACHE. For more info"
         "see: https://catalystcoop-pudl.readthedocs.io/en/dev/dev/dev_setup.html"
     )
@@ -121,7 +121,7 @@ def derive_paths(pudl_in, pudl_out):
 
     # Everything else goes into outputs, generally organized by type of file:
     pudl_out = pathlib.Path(pudl_out).expanduser().resolve()
-    pudl_settings["pudl_out"] = str(pudl_out)
+    pudl_settings["pudl_out"] = f"{str(pudl_out)}/output"
     # One directory per output format:
     logger.warning(
         "sqlite and parquet directories are no longer being used. Make sure there is a single directory named 'output' at the root of your workspace. For more info see: https://catalystcoop-pudl.readthedocs.io/en/dev/dev/dev_setup.html"
