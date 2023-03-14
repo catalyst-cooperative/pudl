@@ -687,7 +687,7 @@ def generation_fuel_eia923(raw_generation_fuel_eia923: pd.DataFrame):
         gen_fuel.nuclear_unit_id.notna() | gen_fuel.energy_source_code.eq("NUC")
     ].copy()
 
-    generation_fuel_nuclear_eia923 = gen_fuel_nuclear(nukes)
+    gen_fuel_nuke = gen_fuel_nuclear(nukes)
 
     gen_fuel = gen_fuel[
         gen_fuel.nuclear_unit_id.isna() & gen_fuel.energy_source_code.ne("NUC")
@@ -700,9 +700,9 @@ def generation_fuel_eia923(raw_generation_fuel_eia923: pd.DataFrame):
     # Aggregate any remaining duplicates.
     gen_fuel = _aggregate_generation_fuel_duplicates(gen_fuel)
 
-    return Output(output_name="clean_generation_fuel_eia923", value=gen_fuel), Output(
-        output_name="clean_generation_fuel_nuclear_eia923",
-        value=generation_fuel_nuclear_eia923,
+    return (
+        Output(output_name="clean_generation_fuel_eia923", value=gen_fuel),
+        Output(output_name="clean_generation_fuel_nuclear_eia923", value=gen_fuel_nuke),
     )
 
 

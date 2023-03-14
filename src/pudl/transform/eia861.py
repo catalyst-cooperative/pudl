@@ -3,12 +3,12 @@
 All transformations include:
 - Replace . values with NA.
 """
-
-
 import pandas as pd
+from dagster import AssetOut, Output, asset, multi_asset
 
 import pudl
-from pudl.helpers import convert_cols_dtypes
+
+# from pudl.helpers import convert_cols_dtypes
 from pudl.metadata.enums import (
     CUSTOMER_CLASSES,
     FUEL_CLASSES,
@@ -20,7 +20,6 @@ from pudl.metadata.enums import (
 )
 from pudl.metadata.fields import apply_pudl_dtypes
 from pudl.metadata.labels import ESTIMATED_OR_ACTUAL, MOMENTARY_INTERRUPTIONS
-from pudl.settings import Eia861Settings
 
 logger = pudl.logging_helpers.get_logger(__name__)
 
@@ -638,7 +637,7 @@ def _compare_totals(data_cols, idx_cols, class_type, df_name):
             logger.debug(f"{df_name}: for column {col} all total values are NaN")
 
 
-def clean_nerc(df, idx_cols):
+def clean_nerc(df: pd.DataFrame, idx_cols: list[str]) -> pd.DataFrame:
     """Clean NERC region entries and make new rows for multiple nercs.
 
     This function examines reported NERC regions and makes sure the output column of the
@@ -648,11 +647,11 @@ def clean_nerc(df, idx_cols):
     also converts non-recognized reported nerc regions to 'UNK'.
 
     Args:
-        df (pandas.DataFrame): A DataFrame with the column 'nerc_region' to be cleaned.
-        idx_cols (list): A list of the primary keys and `nerc_region`.
+        df: A DataFrame with the column 'nerc_region' to be cleaned.
+        idx_cols: A list of the primary keys and `nerc_region`.
 
     Returns:
-        pandas.DataFrame: A DataFrame with correct and clean nerc regions.
+        A DataFrame with correct and clean nerc regions.
     """
     idx_no_nerc = idx_cols.copy()
     if "nerc_region" in idx_no_nerc:
@@ -733,13 +732,11 @@ def _compare_nerc_physical_w_nerc_operational(df: pd.DataFrame) -> pd.DataFrame:
     year where there is a match between the cols.
 
     Args:
-        df: The utility_data_nerc_eia861 table output from the
-            utility_data() function.
+        df: utility_data_nerc_eia861 table from :func:`clean_utility_data_eia861`
 
     Returns:
-        A DataFrame with rows for utilities where NO listed operating
-        nerc region matches the "physical location" nerc region column that's a part of
-        the index.
+        A DataFrame with rows for utilities where NO listed operating nerc region
+        matches the "physical location" nerc region column that's a part of the index.
     """
     # Set NA states to UNK
     df["state"] = df["state"].fillna("UNK")
@@ -802,7 +799,10 @@ def _thousand_to_one(df_object):
 ###############################################################################
 
 
-def service_territory(tfr_dfs):
+@asset
+def clean_service_territory_eia861(
+    raw_service_territory_eia861: pd.DataFrame,
+) -> pd.DataFrame:
     """Transform the EIA 861 utility service territory table.
 
     Transformations include:
@@ -811,21 +811,15 @@ def service_territory(tfr_dfs):
     * Add field for state/county FIPS code.
 
     Args:
-        tfr_dfs (dict): A dictionary of DataFrame objects in which pages from EIA861
-            form (keys) correspond to normalized DataFrames of values from that page
-            (values).
+        raw_service_territory_eia861: Raw EIA-861 utility service territory dataframe.
 
     Returns:
-        dict: a dictionary of pandas.DataFrame objects in which pages from EIA861 form
-            (keys) correspond to normalized DataFrames of values from that page
-            (values).
+        The cleaned utility service territory dataframe.
     """
     # No data tidying required
     # There are a few NA values in the county column which get interpreted
     # as floats, which messes up the parsing of counties by addfips.
-    type_compatible_df = tfr_dfs["service_territory_eia861"].astype(
-        {"county": "string"}
-    )
+    type_compatible_df = raw_service_territory_eia861.astype({"county": "string"})
     # Transform values:
     # * Add state and county fips IDs
     transformed_df = (
@@ -835,11 +829,14 @@ def service_territory(tfr_dfs):
         .pipe(pudl.helpers.add_fips_ids)
     )
     transformed_df["short_form"] = _make_yn_bool(transformed_df.short_form)
-    tfr_dfs["service_territory_eia861"] = transformed_df
-    return tfr_dfs
+
+    return transformed_df
 
 
-def balancing_authority(tfr_dfs):
+@asset
+def clean_balancing_authority_eia861(
+    raw_balancing_authority_eia861: pd.DataFrame,
+) -> pd.DataFrame:
     """Transform the EIA 861 Balancing Authority table.
 
     Transformations include:
@@ -847,23 +844,14 @@ def balancing_authority(tfr_dfs):
     * Fill in balancing authrority IDs based on date, utility ID, and BA Name.
     * Backfill balancing authority codes based on BA ID.
     * Fix BA code and ID typos.
-
-    Args:
-        tfr_dfs (dict): A dictionary of transformed EIA 861 DataFrames, keyed by table
-            name. It will be mutated by this function.
-
-    Returns:
-        dict: A dictionary of transformed EIA 861 dataframes, keyed by table name.
     """
     # No data tidying required
     # All columns are already type compatible.
     # Value transformations:
     # * Backfill BA codes on a per BA ID basis
     # * Fix data entry errors
-    df = (
-        tfr_dfs["balancing_authority_eia861"]
-        .pipe(apply_pudl_dtypes, "eia")
-        .set_index(["report_date", "balancing_authority_name_eia", "utility_id_eia"])
+    df = raw_balancing_authority_eia861.pipe(apply_pudl_dtypes, "eia").set_index(
+        ["report_date", "balancing_authority_name_eia", "utility_id_eia"]
     )
 
     # Fill in BA IDs based on date, utility ID, and BA Name:
@@ -900,11 +888,11 @@ def balancing_authority(tfr_dfs):
         "balancing_authority_code_eia",
     ] = "TIDC"
 
-    tfr_dfs["balancing_authority_eia861"] = df
-    return tfr_dfs
+    return df
 
 
-def balancing_authority_assn(tfr_dfs):
+@asset
+def clean_balancing_authority_assn_eia861(tfr_dfs):
     """Compile a balancing authority, utility, state association table.
 
     For the years up through 2012, the only BA-Util information that's available comes
@@ -999,7 +987,8 @@ def balancing_authority_assn(tfr_dfs):
     return tfr_dfs
 
 
-def utility_assn(tfr_dfs):
+@asset
+def clean_utility_assn_eia861(tfr_dfs) -> pd.DataFrame:
     """Harvest a Utility-Date-State Association Table."""
     # These aren't really "data" tables, and should not be searched for associations
     non_data_dfs = [
@@ -1047,7 +1036,10 @@ def _harvest_associations(dfs, cols):
     return assn
 
 
-def normalize_balancing_authority(tfr_dfs):
+@asset
+def normalized_balancing_authority_eia861(
+    clean_balancing_authority_eia861: pd.DataFrame,
+) -> pd.DataFrame:
     """Finish the normalization of the balancing_authority_eia861 table.
 
     The balancing_authority_assn_eia861 table depends on information that is only
@@ -1058,19 +1050,15 @@ def normalize_balancing_authority(tfr_dfs):
     balancing_authority_eia861 table until the rest of the transform process is over.
     """
     logger.info("Completing normalization of balancing_authority_eia861.")
-    ba_eia861_normed = (
-        tfr_dfs["balancing_authority_eia861"]
-        .loc[
-            :,
-            [
-                "report_date",
-                "balancing_authority_id_eia",
-                "balancing_authority_code_eia",
-                "balancing_authority_name_eia",
-            ],
-        ]
-        .drop_duplicates(subset=["report_date", "balancing_authority_id_eia"])
-    )
+    ba_eia861_normed = clean_balancing_authority_eia861.loc[
+        :,
+        [
+            "report_date",
+            "balancing_authority_id_eia",
+            "balancing_authority_code_eia",
+            "balancing_authority_name_eia",
+        ],
+    ].drop_duplicates(subset=["report_date", "balancing_authority_id_eia"])
 
     # Make sure that there aren't any more BA IDs we can recover from later years:
     ba_ids_missing_codes = (
@@ -1090,11 +1078,11 @@ def normalize_balancing_authority(tfr_dfs):
             f"Found {len(fillable_ba_codes)} unfilled but fillable BA Codes!"
         )
 
-    tfr_dfs["balancing_authority_eia861"] = ba_eia861_normed
-    return tfr_dfs
+    return ba_eia861_normed
 
 
-def sales(tfr_dfs):
+@asset
+def clean_sales_eia861(raw_sales_eia861: pd.DataFrame) -> pd.DataFrame:
     """Transform the EIA 861 Sales table.
 
     Transformations include:
@@ -1114,9 +1102,7 @@ def sales(tfr_dfs):
     ]
 
     # Pre-tidy clean specific to sales table
-    raw_sales = (
-        tfr_dfs["sales_eia861"].copy().query("utility_id_eia not in (88888, 99999)")
-    )
+    raw_sales = raw_sales_eia861.query("utility_id_eia not in (88888, 99999)")
 
     ###########################################################################
     # Tidy Data:
@@ -1170,24 +1156,19 @@ def sales(tfr_dfs):
         short_form=lambda x: _make_yn_bool(x.short_form),
     )
 
-    tfr_dfs["sales_eia861"] = transformed_sales
-    return tfr_dfs
+    return transformed_sales
 
 
-def advanced_metering_infrastructure(tfr_dfs):
+@asset
+def clean_advanced_metering_infrastructure_eia861(
+    raw_advanced_metering_infrastructure_eia861: pd.DataFrame,
+) -> pd.DataFrame:
     """Transform the EIA 861 Advanced Metering Infrastructure table.
 
     Transformations include:
 
     * Tidy data by customer class.
     * Drop total_meters columns (it's calculable with other fields).
-
-    Args:
-        tfr_dfs (dict): A dictionary of transformed EIA 861 DataFrames, keyed by table
-            name. It will be mutated by this function.
-
-    Returns:
-        dict: A dictionary of transformed EIA 861 dataframes, keyed by table name.
     """
     idx_cols = [
         "utility_id_eia",
@@ -1196,15 +1177,12 @@ def advanced_metering_infrastructure(tfr_dfs):
         "report_date",
     ]
 
-    raw_ami = tfr_dfs["advanced_metering_infrastructure_eia861"].copy()
-
     ###########################################################################
     # Tidy Data:
     ###########################################################################
-
     logger.info("Tidying the EIA 861 Advanced Metering Infrastructure table.")
     tidy_ami, idx_cols = _tidy_class_dfs(
-        raw_ami,
+        raw_advanced_metering_infrastructure_eia861,
         df_name="Advanced Metering Infrastructure",
         idx_cols=idx_cols,
         class_list=CUSTOMER_CLASSES,
@@ -1219,11 +1197,16 @@ def advanced_metering_infrastructure(tfr_dfs):
     # Drop total_meters col
     tidy_ami = tidy_ami.drop(["total_meters"], axis=1)
 
-    tfr_dfs["advanced_metering_infrastructure_eia861"] = tidy_ami
-    return tfr_dfs
+    return tidy_ami
 
 
-def demand_response(tfr_dfs):
+@multi_asset(
+    outs={
+        "clean_demand_response_eia861": AssetOut(),
+        "clean_demand_response_water_heater_eia861": AssetOut(),
+    }
+)
+def clean_demand_response_eia861(raw_demand_response_eia861: pd.DataFrame):
     """Transform the EIA 861 Demand Response table.
 
     Transformations include:
@@ -1233,13 +1216,6 @@ def demand_response(tfr_dfs):
     * Tidy subset of the data by customer class.
     * Drop duplicate rows based on primary keys.
     * Convert 1000s of dollars into dollars.
-
-    Args:
-        tfr_dfs (dict): A dictionary of transformed EIA 861 DataFrames, keyed by table
-            name. It will be mutated by this function.
-
-    Returns:
-        dict: A dictionary of transformed EIA 861 dataframes, keyed by table name.
     """
     idx_cols = [
         "utility_id_eia",
@@ -1248,7 +1224,7 @@ def demand_response(tfr_dfs):
         "report_date",
     ]
 
-    raw_dr = tfr_dfs["demand_response_eia861"].copy()
+    raw_dr = raw_demand_response_eia861
     # fill na BA values with 'UNK'
     raw_dr["balancing_authority_code_eia"] = raw_dr[
         "balancing_authority_code_eia"
@@ -1257,7 +1233,7 @@ def demand_response(tfr_dfs):
 
     # Split data into tidy-able and not
     raw_dr_water_heater = raw_dr[idx_cols + ["water_heater"]].copy()
-    raw_dr_water_heater = _drop_dupes(
+    dr_water = _drop_dupes(
         df=raw_dr_water_heater, df_name="Demand Response Water Heater", subset=idx_cols
     )
     raw_dr = raw_dr.drop(["water_heater"], axis=1)
@@ -1293,13 +1269,22 @@ def demand_response(tfr_dfs):
         other_costs=lambda x: (_thousand_to_one(x.other_costs)),
     )
 
-    tfr_dfs["demand_response_eia861"] = transformed_dr
-    tfr_dfs["demand_response_water_heater_eia861"] = raw_dr_water_heater
+    return (
+        Output(output_name="clean_demand_response_eia861", value=transformed_dr),
+        Output(output_name="clean_demand_response_water_heater_eia861", value=dr_water),
+    )
 
-    return tfr_dfs
 
-
-def demand_side_management(tfr_dfs):
+@multi_asset(
+    outs={
+        "clean_demand_side_management_sales_eia861": AssetOut(),
+        "clean_demand_side_management_ee_dr_eia861": AssetOut(),
+        "clean_demand_side_management_misc_eia861": AssetOut(),
+    }
+)
+def clean_demand_side_management_eia861(
+    raw_demand_side_management_eia861: pd.DataFrame,
+):
     """Transform the EIA 861 Demand Side Management table.
 
     In 2013, the EIA changed the contents of the 861 form so that information pertaining
@@ -1321,13 +1306,6 @@ def demand_side_management(tfr_dfs):
     * Tidy subset of the data by customer class.
     * Convert Y/N columns to booleans.
     * Convert 1000s of dollars into dollars.
-
-    Args:
-        tfr_dfs (dict): A dictionary of transformed EIA 861 DataFrames, keyed by table
-            name. It will be mutated by this function.
-
-    Returns:
-        dict: A dictionary of transformed EIA 861 dataframes, keyed by table name.
     """
     idx_cols = [
         "utility_id_eia",
@@ -1356,17 +1334,14 @@ def demand_side_management(tfr_dfs):
         "load_management_annual_incentive_payment",
     ]
 
-    raw_dsm = tfr_dfs["demand_side_management_eia861"].copy()
-
     ###########################################################################
     # Transform Data Round 1 (must be done to avoid issues with nerc_region col in
     # _tidy_class_dfs())
     # * Clean NERC region col
     # * Drop data_status and demand_side_management cols (they don't contain anything)
     ###########################################################################
-
     transformed_dsm1 = (
-        clean_nerc(raw_dsm, idx_cols)
+        clean_nerc(raw_demand_side_management_eia861, idx_cols)
         .drop(["demand_side_management", "data_status"], axis=1)
         .query("utility_id_eia not in [88888]")
     )
@@ -1433,16 +1408,27 @@ def demand_side_management(tfr_dfs):
         subset=["utility_id_eia", "state", "nerc_region", "report_date"],
     )
 
-    del tfr_dfs["demand_side_management_eia861"]
+    return (
+        Output(
+            output_name="clean_demand_side_management_sales_eia861", value=dsm_sales
+        ),
+        Output(
+            output_name="clean_demand_side_management_ee_dr_eia861", value=dsm_ee_dr
+        ),
+        Output(output_name="clean_demand_side_management_misc_eia861", value=dsm_misc),
+    )
 
-    tfr_dfs["demand_side_management_sales_eia861"] = dsm_sales
-    tfr_dfs["demand_side_management_ee_dr_eia861"] = dsm_ee_dr
-    tfr_dfs["demand_side_management_misc_eia861"] = dsm_misc
 
-    return tfr_dfs
-
-
-def distributed_generation(tfr_dfs):
+@multi_asset(
+    outs={
+        "clean_distributed_generation_tech_eia861": AssetOut(),
+        "clean_distributed_generation_fuel_eia861": AssetOut(),
+        "clean_distributed_generation_misc_eia861": AssetOut(),
+    }
+)
+def clean_distributed_generation_eia861(
+    raw_distributed_generation_eia861: pd.DataFrame,
+):
     """Transform the EIA 861 Distributed Generation table.
 
     Transformations include:
@@ -1452,13 +1438,6 @@ def distributed_generation(tfr_dfs):
     * Remove total columns calculable with other fields.
     * Tidy subset of the data by tech class.
     * Tidy subset of the data by fuel class.
-
-    Args:
-        tfr_dfs (dict): A dictionary of transformed EIA 861 DataFrames, keyed by table
-            name. It will be mutated by this function.
-
-    Returns:
-        dict: A dictionary of transformed EIA 861 dataframes, keyed by table name.
     """
     idx_cols = [
         "utility_id_eia",
@@ -1510,20 +1489,16 @@ def distributed_generation(tfr_dfs):
     ]
 
     # Pre-tidy transform: set estimated or actual A/E values to 'Acutal'/'Estimated'
-    raw_dg = (
-        tfr_dfs["distributed_generation_eia861"]
-        .copy()
-        .assign(
-            estimated_or_actual_capacity_data=lambda x: (
-                x.estimated_or_actual_capacity_data.map(ESTIMATED_OR_ACTUAL)
-            ),
-            estimated_or_actual_fuel_data=lambda x: (
-                x.estimated_or_actual_fuel_data.map(ESTIMATED_OR_ACTUAL)
-            ),
-            estimated_or_actual_tech_data=lambda x: (
-                x.estimated_or_actual_tech_data.map(ESTIMATED_OR_ACTUAL)
-            ),
-        )
+    raw_dg = raw_distributed_generation_eia861.assign(
+        estimated_or_actual_capacity_data=lambda x: (
+            x.estimated_or_actual_capacity_data.map(ESTIMATED_OR_ACTUAL)
+        ),
+        estimated_or_actual_fuel_data=lambda x: (
+            x.estimated_or_actual_fuel_data.map(ESTIMATED_OR_ACTUAL)
+        ),
+        estimated_or_actual_tech_data=lambda x: (
+            x.estimated_or_actual_tech_data.map(ESTIMATED_OR_ACTUAL)
+        ),
     )
 
     # Split into three tables: Capacity/tech-related, fuel-related, and misc.
@@ -1613,59 +1588,46 @@ def distributed_generation(tfr_dfs):
         class_type="fuel_class",
     )
 
-    # Drop original distributed generation table from tfr_dfs
-    del tfr_dfs["distributed_generation_eia861"]
-
-    tfr_dfs["distributed_generation_tech_eia861"] = tidy_dg_tech
-    tfr_dfs["distributed_generation_fuel_eia861"] = tidy_dg_fuel
-    tfr_dfs["distributed_generation_misc_eia861"] = dg_misc
-
-    return tfr_dfs
+    return (
+        Output("clean_distributed_generation_tech_eia861", value=tidy_dg_tech),
+        Output("clean_distributed_generation_fuel_eia861", value=tidy_dg_fuel),
+        Output("clean_distributed_generation_misc_eia861", value=dg_misc),
+    )
 
 
-def distribution_systems(tfr_dfs):
+@asset
+def clean_distribution_systems_eia861(
+    raw_distribution_systems_eia861: pd.DataFrame,
+) -> pd.DataFrame:
     """Transform the EIA 861 Distribution Systems table.
 
-    Transformations include:
-
     * No additional transformations.
-
-    Args:
-        tfr_dfs (dict): A dictionary of transformed EIA 861 DataFrames, keyed by table
-            name. It will be mutated by this function.
-
-    Returns:
-        dict: A dictionary of transformed EIA 861 dataframes, keyed by table name.
     """
     # No data tidying or transformation required
-
-    raw_ds = tfr_dfs["distribution_systems_eia861"].copy()
-    raw_ds["short_form"] = _make_yn_bool(raw_ds.short_form)
+    raw_distribution_systems_eia861["short_form"] = _make_yn_bool(
+        raw_distribution_systems_eia861.short_form
+    )
 
     # No duplicates to speak of but take measures to check just in case
     _check_for_dupes(
-        raw_ds, "Distribution Systems", ["utility_id_eia", "state", "report_date"]
+        raw_distribution_systems_eia861,
+        "Distribution Systems",
+        ["utility_id_eia", "state", "report_date"],
     )
 
-    tfr_dfs["distribution_systems_eia861"] = raw_ds
-
-    return tfr_dfs
+    return raw_distribution_systems_eia861
 
 
-def dynamic_pricing(tfr_dfs):
+@asset
+def clean_dynamic_pricing_eia861(
+    raw_dynamic_pricing_eia861: pd.DataFrame,
+) -> pd.DataFrame:
     """Transform the EIA 861 Dynamic Pricing table.
 
     Transformations include:
 
     * Tidy subset of the data by customer class.
     * Convert Y/N columns to booleans.
-
-    Args:
-        tfr_dfs (dict): A dictionary of transformed EIA 861 DataFrames, keyed by table
-            name. It will be mutated by this function.
-
-    Returns:
-        dict: A dictionary of transformed EIA 861 dataframes, keyed by table name.
     """
     idx_cols = [
         "utility_id_eia",
@@ -1682,9 +1644,7 @@ def dynamic_pricing(tfr_dfs):
         "variable_peak_pricing",
     ]
 
-    raw_dp = (
-        tfr_dfs["dynamic_pricing_eia861"].copy().query("utility_id_eia not in [88888]")
-    )
+    raw_dp = raw_dynamic_pricing_eia861.query("utility_id_eia not in [88888]")
     raw_dp["short_form"] = _make_yn_bool(raw_dp.short_form)
 
     ###########################################################################
@@ -1716,11 +1676,13 @@ def dynamic_pricing(tfr_dfs):
             .apply(lambda x: x if x in [True, False] else pd.NA)
         )
 
-    tfr_dfs["dynamic_pricing_eia861"] = tidy_dp
-    return tfr_dfs
+    return tidy_dp
 
 
-def energy_efficiency(tfr_dfs):
+@asset
+def clean_energy_efficiency_eia861(
+    raw_energy_efficiency_eia861: pd.DataFrame,
+) -> pd.DataFrame:
     """Transform the EIA 861 Energy Efficiency table.
 
     Transformations include:
@@ -1728,13 +1690,6 @@ def energy_efficiency(tfr_dfs):
     * Tidy subset of the data by customer class.
     * Drop website column (almost no valid information).
     * Convert 1000s of dollars into dollars.
-
-    Args:
-        tfr_dfs (dict): A dictionary of transformed EIA 861 DataFrames, keyed by table
-            name. It will be mutated by this function.
-
-    Returns:
-        dict: A dictionary of transformed EIA 861 dataframes, keyed by table name.
     """
     idx_cols = [
         "utility_id_eia",
@@ -1743,7 +1698,7 @@ def energy_efficiency(tfr_dfs):
         "report_date",
     ]
 
-    raw_ee = tfr_dfs["energy_efficiency_eia861"].copy()
+    raw_ee = raw_energy_efficiency_eia861
 
     raw_ee["short_form"] = _make_yn_bool(raw_ee.short_form)
 
@@ -1789,24 +1744,17 @@ def energy_efficiency(tfr_dfs):
         ),
     ).drop(["website"], axis=1)
 
-    tfr_dfs["energy_efficiency_eia861"] = transformed_ee
-    return tfr_dfs
+    return transformed_ee
 
 
-def green_pricing(tfr_dfs):
+@asset
+def clean_green_pricing_eia861(raw_green_pricing_eia861: pd.DataFrame) -> pd.DataFrame:
     """Transform the EIA 861 Green Pricing table.
 
     Transformations include:
 
     * Tidy subset of the data by customer class.
     * Convert 1000s of dollars into dollars.
-
-    Args:
-        tfr_dfs (dict): A dictionary of transformed EIA 861 DataFrames, keyed by table
-            name. It will be mutated by this function.
-
-    Returns:
-        dict: A dictionary of transformed EIA 861 dataframes, keyed by table name.
     """
     idx_cols = [
         "utility_id_eia",
@@ -1814,15 +1762,12 @@ def green_pricing(tfr_dfs):
         "report_date",
     ]
 
-    raw_gp = tfr_dfs["green_pricing_eia861"].copy()
-
     ###########################################################################
     # Tidy Data:
     ###########################################################################
-
     logger.info("Tidying the EIA 861 Green Pricing table.")
     tidy_gp, idx_cols = _tidy_class_dfs(
-        raw_gp,
+        raw_green_pricing_eia861,
         df_name="Green Pricing",
         idx_cols=idx_cols,
         class_list=CUSTOMER_CLASSES,
@@ -1841,33 +1786,27 @@ def green_pricing(tfr_dfs):
         rec_revenue=lambda x: (_thousand_to_one(x.rec_revenue)),
     )
 
-    tfr_dfs["green_pricing_eia861"] = transformed_gp
-
-    return tfr_dfs
+    return transformed_gp
 
 
-def mergers(tfr_dfs):
-    """Transform the EIA 861 Mergers table.
-
-    Args:
-        tfr_dfs (dict): A dictionary of transformed EIA 861 DataFrames, keyed by table
-            name. It will be mutated by this function.
-
-    Returns:
-        dict: A dictionary of transformed EIA 861 dataframes, keyed by table name.
-    """
-    transformed_mergers = tfr_dfs["mergers_eia861"].copy()
-
+@asset
+def clean_mergers_eia861(raw_mergers_eia861: pd.DataFrame) -> pd.DataFrame:
+    """Transform the EIA 861 Mergers table."""
     # No duplicates to speak of but take measures to check just in case
     _check_for_dupes(
-        transformed_mergers, "Mergers", ["utility_id_eia", "state", "report_date"]
+        raw_mergers_eia861, "Mergers", ["utility_id_eia", "state", "report_date"]
     )
 
-    tfr_dfs["mergers_eia861"] = transformed_mergers
-    return tfr_dfs
+    return raw_mergers_eia861
 
 
-def net_metering(tfr_dfs):
+@multi_asset(
+    outs={
+        "clean_net_metering_customer_fuel_class_eia861": AssetOut(),
+        "clean_net_metering_misc_eia861": AssetOut(),
+    }
+)
+def clean_net_metering_eia861(raw_net_metering_eia861: pd.DataFrame):
     """Transform the EIA 861 Net Metering table.
 
     Transformations include:
@@ -1875,13 +1814,6 @@ def net_metering(tfr_dfs):
     * Remove rows with utility ids 99999.
     * Tidy subset of the data by customer class.
     * Tidy subset of the data by tech class.
-
-    Args:
-        tfr_dfs (dict): A dictionary of transformed EIA 861 DataFrames, keyed by table
-            name. It will be mutated by this function.
-
-    Returns:
-        dict: A dictionary of transformed EIA 861 dataframes, keyed by table name.
     """
     idx_cols = [
         "utility_id_eia",
@@ -1893,9 +1825,7 @@ def net_metering(tfr_dfs):
     misc_cols = ["pv_current_flow_type"]
 
     # Pre-tidy clean specific to net_metering table
-    raw_nm = (
-        tfr_dfs["net_metering_eia861"].copy().query("utility_id_eia not in [99999]")
-    )
+    raw_nm = raw_net_metering_eia861.query("utility_id_eia not in [99999]")
     raw_nm["short_form"] = _make_yn_bool(raw_nm.short_form)
 
     # Separate customer class data from misc data (in this case just one col: current flow)
@@ -1935,18 +1865,22 @@ def net_metering(tfr_dfs):
         tidy_nm_customer_fuel_class, "Net Metering Customer & Fuel Class", idx_cols
     )
 
-    # No transformation needed
-
-    # Drop original net_metering_eia861 table from tfr_dfs
-    del tfr_dfs["net_metering_eia861"]
-
-    tfr_dfs["net_metering_customer_fuel_class_eia861"] = tidy_nm_customer_fuel_class
-    tfr_dfs["net_metering_misc_eia861"] = raw_nm_misc
-
-    return tfr_dfs
+    return (
+        Output(
+            output_name="net_metering_customer_fuel_class_eia861",
+            value=tidy_nm_customer_fuel_class,
+        ),
+        Output(output_name="net_metering_misc_eia861", value=raw_nm_misc),
+    )
 
 
-def non_net_metering(tfr_dfs):
+@multi_asset(
+    outs={
+        "clean_non_net_metering_customer_fuel_class_eia861": AssetOut(),
+        "clean_non_net_metering_misc_eia861": AssetOut(),
+    }
+)
+def clean_non_net_metering_eia861(raw_non_net_metering_eia861: pd.DataFrame):
     """Transform the EIA 861 Non-Net Metering table.
 
     Transformations include:
@@ -1955,13 +1889,6 @@ def non_net_metering(tfr_dfs):
     * Drop duplicate rows.
     * Tidy subset of the data by customer class.
     * Tidy subset of the data by tech class.
-
-    Args:
-        tfr_dfs (dict): A dictionary of transformed EIA 861 DataFrames, keyed by table
-            name. It will be mutated by this function.
-
-    Returns:
-        dict: A dictionary of transformed EIA 861 dataframes, keyed by table name.
     """
     idx_cols = [
         "utility_id_eia",
@@ -1978,9 +1905,7 @@ def non_net_metering(tfr_dfs):
     ]
 
     # Pre-tidy clean specific to non_net_metering table
-    raw_nnm = (
-        tfr_dfs["non_net_metering_eia861"].copy().query("utility_id_eia not in '99999'")
-    )
+    raw_nnm = raw_non_net_metering_eia861.query("utility_id_eia not in '99999'")
 
     # there are ~80 fully duplicate records in the 2018 table. We need to
     # remove those duplicates
@@ -2037,20 +1962,22 @@ def non_net_metering(tfr_dfs):
         columns="capacity_mw_x"
     ).rename(columns={"capacity_mw_y": "capacity_mw"})
 
-    # No transformation needed
-
-    # Drop original net_metering_eia861 table from tfr_dfs
-    del tfr_dfs["non_net_metering_eia861"]
-
-    tfr_dfs[
-        "non_net_metering_customer_fuel_class_eia861"
-    ] = tidy_nnm_customer_fuel_class
-    tfr_dfs["non_net_metering_misc_eia861"] = raw_nnm_misc
-
-    return tfr_dfs
+    return (
+        Output(
+            output_name="clean_non_net_metering_customer_fuel_class_eia861",
+            value=tidy_nnm_customer_fuel_class,
+        ),
+        Output(output_name="clean_non_net_metering_misc_eia861", value=raw_nnm_misc),
+    )
 
 
-def operational_data(tfr_dfs):
+@multi_asset(
+    outs={
+        "clean_operational_data_revenue_eia861": AssetOut(),
+        "clean_operational_data_misc_eia861": AssetOut(),
+    }
+)
+def clean_operational_data_eia861(raw_operational_data_eia861: pd.DataFrame):
     """Transform the EIA 861 Operational Data table.
 
     Transformations include:
@@ -2061,13 +1988,6 @@ def operational_data(tfr_dfs):
     * Convert data_observed field I/O into boolean.
     * Tidy subset of the data by revenue class.
     * Convert 1000s of dollars into dollars.
-
-    Args:
-        tfr_dfs (dict): A dictionary of transformed EIA 861 DataFrames, keyed by table
-            name. It will be mutated by this function.
-
-    Returns:
-        dict: A dictionary of transformed EIA 861 dataframes, keyed by table name.
     """
     idx_cols = [
         "utility_id_eia",
@@ -2077,9 +1997,9 @@ def operational_data(tfr_dfs):
     ]
 
     # Pre-tidy clean specific to operational data table
-    raw_od = tfr_dfs["operational_data_eia861"].copy()
-    raw_od = raw_od[  # removed (raw_od['utility_id_eia'].notnull()) for RMI
-        (raw_od["utility_id_eia"] != 88888) & (raw_od["utility_id_eia"].notnull())
+    raw_od = raw_operational_data_eia861[
+        (raw_operational_data_eia861["utility_id_eia"] != 88888)
+        & (raw_operational_data_eia861["utility_id_eia"].notnull())
     ]
 
     ###########################################################################
@@ -2125,16 +2045,19 @@ def operational_data(tfr_dfs):
         revenue=lambda x: (_thousand_to_one(x.revenue))
     )
 
-    # Drop original operational_data_eia861 table from tfr_dfs
-    del tfr_dfs["operational_data_eia861"]
+    return (
+        Output(
+            output_name="clean_operational_data_revenue_eia861",
+            value=transformed_od_rev,
+        ),
+        Output(
+            output_name="clean_operational_data_misc_eia861", value=transformed_od_misc
+        ),
+    )
 
-    tfr_dfs["operational_data_revenue_eia861"] = transformed_od_rev
-    tfr_dfs["operational_data_misc_eia861"] = transformed_od_misc
 
-    return tfr_dfs
-
-
-def reliability(tfr_dfs):
+@asset
+def clean_reliability_eia861(raw_reliability_eia861: pd.DataFrame) -> pd.DataFrame:
     """Transform the EIA 861 Reliability table.
 
     Transformations include:
@@ -2143,18 +2066,8 @@ def reliability(tfr_dfs):
     * Convert Y/N columns to booleans.
     * Map full spelling onto code values.
     * Drop duplicate rows.
-
-    Args:
-        tfr_dfs (dict): A dictionary of transformed EIA 861 DataFrames, keyed by table
-            name. It will be mutated by this function.
-
-    Returns:
-        dict: A dictionary of transformed EIA 861 dataframes, keyed by table name.
     """
     idx_cols = ["utility_id_eia", "state", "report_date"]
-
-    # Pre-tidy clean specific to operational data table
-    raw_r = tfr_dfs["reliability_eia861"].copy()
 
     ###########################################################################
     # Tidy Data:
@@ -2164,7 +2077,7 @@ def reliability(tfr_dfs):
 
     # wide-to-tall by standards
     tidy_r, idx_cols = _tidy_class_dfs(
-        df=raw_r,
+        df=raw_reliability_eia861,
         df_name="Reliability",
         idx_cols=idx_cols,
         class_list=RELIABILITY_STANDARDS,
@@ -2204,12 +2117,17 @@ def reliability(tfr_dfs):
         df=transformed_r, df_name="Reliability", subset=idx_cols
     )
 
-    tfr_dfs["reliability_eia861"] = transformed_r
-
-    return tfr_dfs
+    return transformed_r
 
 
-def utility_data(tfr_dfs):
+@multi_asset(
+    outs={
+        "clean_utility_data_nerc_eia861": AssetOut(),
+        "clean_utility_data_rto_eia861": AssetOut(),
+        "clean_utility_data_misc_eia861": AssetOut(),
+    }
+)
+def clean_utility_data_eia861(raw_utility_data_eia861: pd.DataFrame):
     """Transform the EIA 861 Utility Data table.
 
     Transformations include:
@@ -2219,20 +2137,11 @@ def utility_data(tfr_dfs):
     * Tidy subset of the data by NERC region.
     * Tidy subset of the data by RTO.
     * Convert Y/N columns to booleans.
-
-    Args:
-        tfr_dfs (dict): A dictionary of transformed EIA 861 DataFrames, keyed by table
-            name. It will be mutated by this function.
-
-    Returns:
-        dict: A dictionary of transformed EIA 861 dataframes, keyed by table name.
     """
     idx_cols = ["utility_id_eia", "state", "report_date", "nerc_region"]
 
     # Pre-tidy clean specific to operational data table
-    raw_ud = (
-        tfr_dfs["utility_data_eia861"].copy().query("utility_id_eia not in [88888]")
-    )
+    raw_ud = raw_utility_data_eia861.query("utility_id_eia not in [88888]")
 
     ##############################################################################
     # Transform Data Round 1 (must be done to avoid issues with nerc_region col in
@@ -2327,76 +2236,29 @@ def utility_data(tfr_dfs):
         how="outer",
     )
 
-    # Drop original operational_data_eia861 table from tfr_dfs
-    del tfr_dfs["utility_data_eia861"]
-
-    tfr_dfs["utility_data_nerc_eia861"] = transformed_ud_nerc
-    tfr_dfs["utility_data_rto_eia861"] = transformed_ud_rto
-    tfr_dfs["utility_data_misc_eia861"] = transformed_ud_misc
-
-    return tfr_dfs
+    return (
+        Output(output_name="utility_data_nerc_eia861", value=transformed_ud_nerc),
+        Output(output_name="utility_data_rto_eia861", value=transformed_ud_rto),
+        Output(output_name="utility_data_misc_eia861", value=transformed_ud_misc),
+    )
 
 
 ##############################################################################
 # Coordinating Transform Function
 ##############################################################################
+# Apply early transform to all tables
+# tfr_dfs[tfr_func] = _early_transform(raw_dfs[tfr_func])
 
+# Phase-2 transforms that are more involved...
 
-def transform(raw_dfs, eia861_settings: Eia861Settings = Eia861Settings()):
-    """Transform EIA 861 DataFrames.
+# Building these association tables requires almost all DFs as input:
+# tfr_dfs = balancing_authority_assn(tfr_dfs)
+# tfr_dfs = utility_assn(tfr_dfs)
 
-    Args:
-        raw_dfs (dict): a dictionary of tab names (keys) and DataFrames (values). This
-            can be generated by pudl.
-        eia861_settings: Object containing validated settings
-            relevant to EIA 861.
+# Another layer of transformation on the balancing authority table...
+# tfr_dfs = normalize_balancing_authority(tfr_dfs)
 
-    Returns:
-        dict: A dictionary of DataFrame objects in which pages from EIA 861 form (keys)
-        corresponds to a normalized DataFrame of values from that page (values).
-    """
-    # these are the tables that we have transform functions for...
-    tfr_funcs = {
-        "balancing_authority_eia861": balancing_authority,
-        "service_territory_eia861": service_territory,
-        "sales_eia861": sales,
-        "advanced_metering_infrastructure_eia861": advanced_metering_infrastructure,
-        "demand_response_eia861": demand_response,
-        "demand_side_management_eia861": demand_side_management,
-        "distributed_generation_eia861": distributed_generation,
-        "distribution_systems_eia861": distribution_systems,
-        "dynamic_pricing_eia861": dynamic_pricing,
-        "energy_efficiency_eia861": energy_efficiency,
-        "green_pricing_eia861": green_pricing,
-        "mergers_eia861": mergers,
-        "net_metering_eia861": net_metering,
-        "non_net_metering_eia861": non_net_metering,
-        "operational_data_eia861": operational_data,
-        "reliability_eia861": reliability,
-        "utility_data_eia861": utility_data,
-    }
-
-    # Dictionary for transformed dataframes and pre-transformed dataframes.
-    # Pre-transformed dataframes may be split into two or more output dataframes.
-    tfr_dfs = {}
-
-    if not raw_dfs:
-        logger.info("No raw EIA 861 dataframes found. Not transforming EIA 861.")
-        return tfr_dfs
-    # Run each of the requested transform funtctions
-    for tfr_func in eia861_settings.transform_functions:
-        logger.info(
-            f"Transforming raw EIA 861 DataFrames for {tfr_func} "
-            f"concatenated across all years."
-        )
-        tfr_dfs[tfr_func] = _early_transform(raw_dfs[tfr_func])
-        tfr_dfs = tfr_funcs[tfr_func](tfr_dfs)
-
-    # This is more like harvesting stuff, and should probably be relocated:
-    tfr_dfs = balancing_authority_assn(tfr_dfs)
-    tfr_dfs = utility_assn(tfr_dfs)
-    tfr_dfs = normalize_balancing_authority(tfr_dfs)
-    # Do some final cleanup and assign types.
-    return {
-        name: convert_cols_dtypes(df, data_source="eia") for name, df in tfr_dfs.items()
-    }
+# Do some final cleanup and assign types.
+#    return {
+#        name: convert_cols_dtypes(df, data_source="eia") for name, df in tfr_dfs.items()
+#    }
