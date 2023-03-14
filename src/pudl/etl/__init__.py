@@ -88,7 +88,7 @@ def load_dataset_settings_from_file(setting_filename: str) -> dict:
     ).datasets.dict()
 
 
-defs = Definitions(
+defs: Definitions = Definitions(
     assets=default_assets,
     resources=default_resources,
     jobs=[
@@ -127,3 +127,4 @@ defs = Definitions(
         ),
     ],
 )
+"""A collection of dagster assets, resources, IO managers, and jobs for the PUDL ETL."""

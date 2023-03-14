@@ -123,7 +123,7 @@ def _get_sqlite_engine(
     },
     required_resource_keys={"ferc_to_sqlite_settings", "datastore"},
 )
-def xbrl2sqlite(context):
+def xbrl2sqlite(context) -> None:
     """Clone the FERC Form 1 XBRL Databsae to SQLite."""
     output_path = Path(context.op_config["pudl_output_path"])
     clobber = context.op_config["clobber"]

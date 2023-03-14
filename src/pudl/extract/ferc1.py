@@ -624,7 +624,6 @@ def get_raw_df(
         )
 
 
-# TODO (bendnorman): set clobber default to False
 @op(
     config_schema={
         "pudl_output_path": Field(
