@@ -30,7 +30,7 @@ non_unique_record_id_tables = [
     "depreciation_amortization_summary_ferc1",
     "electric_plant_depreciation_changes_ferc1",
     "electric_plant_depreciation_functional_ferc1",
-    "electric_opex_ferc1",
+    "electric_operating_expenses_ferc1",
     "cash_flow_ferc1",
     "retained_earnings_ferc1",
     "electric_operating_revenues_ferc1",

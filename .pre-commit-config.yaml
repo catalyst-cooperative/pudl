@@ -119,7 +119,7 @@ repos:
 
   # Lint any RST files and embedded code blocks for syntax / formatting errors
   - repo: https://github.com/rstcheck/rstcheck
-    rev: v6.1.1
+    rev: v6.1.2
     hooks:
       - id: rstcheck
         additional_dependencies: [sphinx]
