@@ -820,6 +820,14 @@ def remove_duplicate_pks_boiler_fuel_eia923(bf: pd.DataFrame) -> pd.DataFrame:
     Fortunately, all of these duplicates have at least one records w/ only zeros and or
     nulls. So this method drops only the records which have duplicate pks and only have
     zeros or nulls in the non-primary key columns.
+
+    Note: There are 4 boilers in 2021 that are being dropped entirely during this
+    cleaning. They have BOTH duplicate pks and only have zeros or nulls in the
+    non-primary key columns. We could choose to preserve all instances of the pks even
+    after :func:`drop_invalid_rows` or only dropping one when there are two. We chose to
+    leave this be because it was minor and these boilers show up in other years.
+    See `comment <https://github.com/catalyst-cooperative/pudl/pull/2362#issuecomment-1470012538>`_
+    for more details.
     """
     pk = (
         pudl.metadata.classes.Package.from_resource_ids()
