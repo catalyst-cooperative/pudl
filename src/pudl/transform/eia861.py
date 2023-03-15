@@ -17,7 +17,13 @@ from dagster import (
 
 import pudl
 import pudl.extract.eia861 as extract_eia861
-from pudl.helpers import convert_cols_dtypes
+from pudl.helpers import (
+    add_fips_ids,
+    clean_eia_counties,
+    convert_cols_dtypes,
+    convert_to_date,
+    fix_eia_na,
+)
 from pudl.metadata.enums import (
     CUSTOMER_CLASSES,
     FUEL_CLASSES,
@@ -436,6 +442,20 @@ NERC_SPELLCHECK: dict[str, str] = {
 ###############################################################################
 # EIA Form 861 Transform Helper functions
 ###############################################################################
+def _pre_process(df: pd.DataFrame) -> pd.DataFrame:
+    """Pre-processing applied to all EIA-861 dataframes.
+
+    * Standardize common NA values found in EIA spreadsheets.
+    * Convert report_year column to report_date.
+    """
+    return fix_eia_na(df).pipe(convert_to_date)
+
+
+def _post_process(df: pd.DataFrame) -> pd.DataFrame:
+    """Post-processing applied to all EIA-861 dataframes."""
+    return convert_cols_dtypes(df, data_source="eia")
+
+
 def _filter_class_cols(df, class_list):
     regex = f"^({'_|'.join(class_list)}).*$"
     return df.filter(regex=regex)
@@ -576,13 +596,14 @@ def _drop_dupes(df, df_name, subset):
     return deduped_df
 
 
-def _check_for_dupes(df, df_name, subset):
+def _check_for_dupes(df: pd.DataFrame, df_name: str, subset: list[str]) -> pd.DataFrame:
     dupes = df.duplicated(subset=subset, keep=False)
     if dupes.any():
         raise AssertionError(
             f"Found {len(df[dupes])} duplicate rows in the {df_name} table, "
             f"when zero were expected!"
         )
+    return df
 
 
 def _compare_totals(data_cols, idx_cols, class_type, df_name):
@@ -829,9 +850,9 @@ def _harvest_associations(dfs: list[pd.DataFrame], cols: list[str]) -> pd.DataFr
 ###############################################################################
 # EIA Form 861 Table Transform Functions
 ###############################################################################
-@asset(group_name="eia861_clean_assets")
-def clean_service_territory_eia861(
-    preclean_service_territory_eia861: pd.DataFrame,
+@asset
+def service_territory_eia861(
+    raw_service_territory_eia861: pd.DataFrame,
 ) -> pd.DataFrame:
     """Transform the EIA 861 utility service territory table.
 
@@ -846,26 +867,24 @@ def clean_service_territory_eia861(
     Returns:
         The cleaned utility service territory dataframe.
     """
-    # No data tidying required
-    # There are a few NA values in the county column which get interpreted
-    # as floats, which messes up the parsing of counties by addfips.
-    type_compatible_df = preclean_service_territory_eia861.astype({"county": "string"})
-    # Transform values:
-    # * Add state and county fips IDs
-    transformed_df = (
+    df = (
+        _pre_process(raw_service_territory_eia861)
+        # There are a few NA values in the county column which get interpreted
+        # as floats, which messes up the parsing of counties by addfips.
+        .astype({"county": "string"})
         # Ensure that we have the canonical US Census county names:
-        pudl.helpers.clean_eia_counties(type_compatible_df, fixes=EIA_FIPS_COUNTY_FIXES)
+        .pipe(clean_eia_counties, fixes=EIA_FIPS_COUNTY_FIXES)
         # Add FIPS IDs based on county & state names:
-        .pipe(pudl.helpers.add_fips_ids)
+        .pipe(add_fips_ids)
+        .assign(short_form=lambda x: _make_yn_bool(x.short_form))
+        .pipe(_post_process)
     )
-    transformed_df["short_form"] = _make_yn_bool(transformed_df.short_form)
-
-    return transformed_df
+    return df
 
 
-@asset(group_name="eia861_clean_assets")
+@asset
 def clean_balancing_authority_eia861(
-    preclean_balancing_authority_eia861: pd.DataFrame,
+    raw_balancing_authority_eia861: pd.DataFrame,
 ) -> pd.DataFrame:
     """Transform the EIA 861 Balancing Authority table.
 
@@ -880,10 +899,11 @@ def clean_balancing_authority_eia861(
     # Value transformations:
     # * Backfill BA codes on a per BA ID basis
     # * Fix data entry errors
-    df = preclean_balancing_authority_eia861.pipe(apply_pudl_dtypes, "eia").set_index(
-        ["report_date", "balancing_authority_name_eia", "utility_id_eia"]
+    df = (
+        _pre_process(raw_balancing_authority_eia861)
+        .pipe(apply_pudl_dtypes, "eia")
+        .set_index(["report_date", "balancing_authority_name_eia", "utility_id_eia"])
     )
-
     # Fill in BA IDs based on date, utility ID, and BA Name:
     # using merge and then reverse backfilling balancing_authority_id_eia means
     # that this will work even if not all years are requested
@@ -918,11 +938,11 @@ def clean_balancing_authority_eia861(
         "balancing_authority_code_eia",
     ] = "TIDC"
 
-    return df
+    return _post_process(df)
 
 
-@asset(group_name="eia861_clean_assets")
-def clean_sales_eia861(preclean_sales_eia861: pd.DataFrame) -> pd.DataFrame:
+@asset
+def sales_eia861(raw_sales_eia861: pd.DataFrame) -> pd.DataFrame:
     """Transform the EIA 861 Sales table.
 
     Transformations include:
@@ -942,7 +962,9 @@ def clean_sales_eia861(preclean_sales_eia861: pd.DataFrame) -> pd.DataFrame:
     ]
 
     # Pre-tidy clean specific to sales table
-    raw_sales = preclean_sales_eia861.query("utility_id_eia not in (88888, 99999)")
+    raw_sales = _pre_process(raw_sales_eia861).query(
+        "utility_id_eia not in (88888, 99999)"
+    )
 
     ###########################################################################
     # Tidy Data:
@@ -995,12 +1017,12 @@ def clean_sales_eia861(preclean_sales_eia861: pd.DataFrame) -> pd.DataFrame:
         short_form=lambda x: _make_yn_bool(x.short_form),
     )
 
-    return transformed_sales
+    return _post_process(transformed_sales)
 
 
-@asset(group_name="eia861_clean_assets")
-def clean_advanced_metering_infrastructure_eia861(
-    preclean_advanced_metering_infrastructure_eia861: pd.DataFrame,
+@asset
+def advanced_metering_infrastructure_eia861(
+    raw_advanced_metering_infrastructure_eia861: pd.DataFrame,
 ) -> pd.DataFrame:
     """Transform the EIA 861 Advanced Metering Infrastructure table.
 
@@ -1015,38 +1037,40 @@ def clean_advanced_metering_infrastructure_eia861(
         "balancing_authority_code_eia",
         "report_date",
     ]
-
     ###########################################################################
     # Tidy Data:
     ###########################################################################
     logger.info("Tidying the EIA 861 Advanced Metering Infrastructure table.")
     tidy_ami, idx_cols = _tidy_class_dfs(
-        preclean_advanced_metering_infrastructure_eia861,
+        _pre_process(raw_advanced_metering_infrastructure_eia861),
         df_name="Advanced Metering Infrastructure",
         idx_cols=idx_cols,
         class_list=CUSTOMER_CLASSES,
         class_type="customer_class",
     )
 
-    tidy_ami["short_form"] = _make_yn_bool(tidy_ami.short_form)
+    df = (
+        tidy_ami.assign(short_form=lambda x: _make_yn_bool(x.short_form))
+        # No duplicates to speak of but take measures to check just in case
+        .pipe(
+            _check_for_dupes,
+            df_name="Advanced Metering Infrastructure",
+            subset=idx_cols,
+        )
+        .drop(["total_meters"], axis=1)
+        .pipe(_post_process)
+    )
 
-    # No duplicates to speak of but take measures to check just in case
-    _check_for_dupes(tidy_ami, "Advanced Metering Infrastructure", idx_cols)
-
-    # Drop total_meters col
-    tidy_ami = tidy_ami.drop(["total_meters"], axis=1)
-
-    return tidy_ami
+    return df
 
 
 @multi_asset(
     outs={
-        "clean_demand_response_eia861": AssetOut(),
-        "clean_demand_response_water_heater_eia861": AssetOut(),
-    },
-    group_name="eia861_clean_assets",
+        "demand_response_eia861": AssetOut(),
+        "demand_response_water_heater_eia861": AssetOut(),
+    }
 )
-def clean_demand_response_eia861(preclean_demand_response_eia861: pd.DataFrame):
+def demand_response_eia861(raw_demand_response_eia861: pd.DataFrame):
     """Transform the EIA 861 Demand Response table.
 
     Transformations include:
@@ -1064,7 +1088,7 @@ def clean_demand_response_eia861(preclean_demand_response_eia861: pd.DataFrame):
         "report_date",
     ]
 
-    raw_dr = preclean_demand_response_eia861
+    raw_dr = _pre_process(raw_demand_response_eia861)
     # fill na BA values with 'UNK'
     raw_dr["balancing_authority_code_eia"] = raw_dr[
         "balancing_authority_code_eia"
@@ -1110,21 +1134,26 @@ def clean_demand_response_eia861(preclean_demand_response_eia861: pd.DataFrame):
     )
 
     return (
-        Output(output_name="clean_demand_response_eia861", value=transformed_dr),
-        Output(output_name="clean_demand_response_water_heater_eia861", value=dr_water),
+        Output(
+            output_name="demand_response_eia861",
+            value=_post_process(transformed_dr),
+        ),
+        Output(
+            output_name="demand_response_water_heater_eia861",
+            value=_post_process(dr_water),
+        ),
     )
 
 
 @multi_asset(
     outs={
-        "clean_demand_side_management_sales_eia861": AssetOut(),
-        "clean_demand_side_management_ee_dr_eia861": AssetOut(),
-        "clean_demand_side_management_misc_eia861": AssetOut(),
+        "demand_side_management_sales_eia861": AssetOut(),
+        "demand_side_management_ee_dr_eia861": AssetOut(),
+        "demand_side_management_misc_eia861": AssetOut(),
     },
-    group_name="eia861_clean_assets",
 )
-def clean_demand_side_management_eia861(
-    preclean_demand_side_management_eia861: pd.DataFrame,
+def demand_side_management_eia861(
+    raw_demand_side_management_eia861: pd.DataFrame,
 ):
     """Transform the EIA 861 Demand Side Management table.
 
@@ -1182,7 +1211,7 @@ def clean_demand_side_management_eia861(
     # * Drop data_status and demand_side_management cols (they don't contain anything)
     ###########################################################################
     transformed_dsm1 = (
-        clean_nerc(preclean_demand_side_management_eia861, idx_cols)
+        clean_nerc(_pre_process(raw_demand_side_management_eia861), idx_cols)
         .drop(["demand_side_management", "data_status"], axis=1)
         .query("utility_id_eia not in [88888]")
     )
@@ -1251,25 +1280,29 @@ def clean_demand_side_management_eia861(
 
     return (
         Output(
-            output_name="clean_demand_side_management_sales_eia861", value=dsm_sales
+            output_name="demand_side_management_sales_eia861",
+            value=_post_process(dsm_sales),
         ),
         Output(
-            output_name="clean_demand_side_management_ee_dr_eia861", value=dsm_ee_dr
+            output_name="demand_side_management_ee_dr_eia861",
+            value=_post_process(dsm_ee_dr),
         ),
-        Output(output_name="clean_demand_side_management_misc_eia861", value=dsm_misc),
+        Output(
+            output_name="demand_side_management_misc_eia861",
+            value=_post_process(dsm_misc),
+        ),
     )
 
 
 @multi_asset(
     outs={
-        "clean_distributed_generation_tech_eia861": AssetOut(),
-        "clean_distributed_generation_fuel_eia861": AssetOut(),
-        "clean_distributed_generation_misc_eia861": AssetOut(),
+        "distributed_generation_tech_eia861": AssetOut(),
+        "distributed_generation_fuel_eia861": AssetOut(),
+        "distributed_generation_misc_eia861": AssetOut(),
     },
-    group_name="eia861_clean_assets",
 )
-def clean_distributed_generation_eia861(
-    preclean_distributed_generation_eia861: pd.DataFrame,
+def distributed_generation_eia861(
+    raw_distributed_generation_eia861: pd.DataFrame,
 ):
     """Transform the EIA 861 Distributed Generation table.
 
@@ -1331,7 +1364,7 @@ def clean_distributed_generation_eia861(
     ]
 
     # Pre-tidy transform: set estimated or actual A/E values to 'Acutal'/'Estimated'
-    raw_dg = preclean_distributed_generation_eia861.assign(
+    raw_dg = _pre_process(raw_distributed_generation_eia861).assign(
         estimated_or_actual_capacity_data=lambda x: (
             x.estimated_or_actual_capacity_data.map(ESTIMATED_OR_ACTUAL)
         ),
@@ -1432,42 +1465,44 @@ def clean_distributed_generation_eia861(
 
     return (
         Output(
-            output_name="clean_distributed_generation_tech_eia861", value=tidy_dg_tech
+            output_name="distributed_generation_tech_eia861",
+            value=_post_process(tidy_dg_tech),
         ),
         Output(
-            output_name="clean_distributed_generation_fuel_eia861", value=tidy_dg_fuel
+            output_name="distributed_generation_fuel_eia861",
+            value=_post_process(tidy_dg_fuel),
         ),
-        Output(output_name="clean_distributed_generation_misc_eia861", value=dg_misc),
+        Output(
+            output_name="distributed_generation_misc_eia861",
+            value=_post_process(dg_misc),
+        ),
     )
 
 
-@asset(group_name="eia861_clean_assets")
-def clean_distribution_systems_eia861(
-    preclean_distribution_systems_eia861: pd.DataFrame,
+@asset
+def distribution_systems_eia861(
+    raw_distribution_systems_eia861: pd.DataFrame,
 ) -> pd.DataFrame:
     """Transform the EIA 861 Distribution Systems table.
 
     * No additional transformations.
     """
-    # No data tidying or transformation required
-    preclean_distribution_systems_eia861["short_form"] = _make_yn_bool(
-        preclean_distribution_systems_eia861.short_form
+    df = (
+        _pre_process(raw_distribution_systems_eia861)
+        .assign(short_form=lambda x: _make_yn_bool(x.short_form))
+        # No duplicates to speak of but take measures to check just in case
+        .pipe(
+            _check_for_dupes,
+            df_name="Distribution Systems",
+            subset=["utility_id_eia", "state", "report_date"],
+        )
+        .pipe(_post_process)
     )
-
-    # No duplicates to speak of but take measures to check just in case
-    _check_for_dupes(
-        preclean_distribution_systems_eia861,
-        "Distribution Systems",
-        ["utility_id_eia", "state", "report_date"],
-    )
-
-    return preclean_distribution_systems_eia861
+    return df
 
 
-@asset(group_name="eia861_clean_assets")
-def clean_dynamic_pricing_eia861(
-    preclean_dynamic_pricing_eia861: pd.DataFrame,
-) -> pd.DataFrame:
+@asset
+def dynamic_pricing_eia861(raw_dynamic_pricing_eia861: pd.DataFrame) -> pd.DataFrame:
     """Transform the EIA 861 Dynamic Pricing table.
 
     Transformations include:
@@ -1490,8 +1525,11 @@ def clean_dynamic_pricing_eia861(
         "variable_peak_pricing",
     ]
 
-    raw_dp = preclean_dynamic_pricing_eia861.query("utility_id_eia not in [88888]")
-    raw_dp["short_form"] = _make_yn_bool(raw_dp.short_form)
+    raw_dp = _pre_process(
+        raw_dynamic_pricing_eia861.query("utility_id_eia not in [88888]").assign(
+            short_form=lambda x: _make_yn_bool(x.short_form)
+        )
+    )
 
     ###########################################################################
     # Tidy Data:
@@ -1522,12 +1560,12 @@ def clean_dynamic_pricing_eia861(
             .apply(lambda x: x if x in [True, False] else pd.NA)
         )
 
-    return tidy_dp
+    return _post_process(tidy_dp)
 
 
-@asset(group_name="eia861_clean_assets")
-def clean_energy_efficiency_eia861(
-    preclean_energy_efficiency_eia861: pd.DataFrame,
+@asset
+def energy_efficiency_eia861(
+    raw_energy_efficiency_eia861: pd.DataFrame,
 ) -> pd.DataFrame:
     """Transform the EIA 861 Energy Efficiency table.
 
@@ -1544,21 +1582,21 @@ def clean_energy_efficiency_eia861(
         "report_date",
     ]
 
-    raw_ee = preclean_energy_efficiency_eia861
-
-    raw_ee["short_form"] = _make_yn_bool(raw_ee.short_form)
-
-    # No duplicates to speak of but take measures to check just in case
-    _check_for_dupes(raw_ee, "Energy Efficiency", idx_cols)
+    raw_ee = (
+        _pre_process(raw_energy_efficiency_eia861).assign(
+            short_form=lambda x: _make_yn_bool(x.short_form)
+        )
+        # No duplicates to speak of but take measures to check just in case
+        .pipe(_check_for_dupes, df_name="Energy Efficiency", subset=idx_cols)
+    )
 
     ###########################################################################
     # Tidy Data:
     ###########################################################################
-
     logger.info("Tidying the EIA 861 Energy Efficiency table.")
 
     # wide-to-tall by customer class (must be done before wide-to-tall by fuel class)
-    tidy_ee, _ = pudl.transform.eia861._tidy_class_dfs(
+    tidy_ee, _ = _tidy_class_dfs(
         raw_ee,
         df_name="Energy Efficiency",
         idx_cols=idx_cols,
@@ -1590,12 +1628,12 @@ def clean_energy_efficiency_eia861(
         ),
     ).drop(["website"], axis=1)
 
-    return transformed_ee
+    return _post_process(transformed_ee)
 
 
-@asset(group_name="eia861_clean_assets")
-def clean_green_pricing_eia861(
-    preclean_green_pricing_eia861: pd.DataFrame,
+@asset
+def green_pricing_eia861(
+    raw_green_pricing_eia861: pd.DataFrame,
 ) -> pd.DataFrame:
     """Transform the EIA 861 Green Pricing table.
 
@@ -1615,7 +1653,7 @@ def clean_green_pricing_eia861(
     ###########################################################################
     logger.info("Tidying the EIA 861 Green Pricing table.")
     tidy_gp, idx_cols = _tidy_class_dfs(
-        preclean_green_pricing_eia861,
+        _pre_process(raw_green_pricing_eia861),
         df_name="Green Pricing",
         idx_cols=idx_cols,
         class_list=CUSTOMER_CLASSES,
@@ -1634,28 +1672,32 @@ def clean_green_pricing_eia861(
         rec_revenue=lambda x: (_thousand_to_one(x.rec_revenue)),
     )
 
-    return transformed_gp
+    return _post_process(transformed_gp)
 
 
-@asset(group_name="eia861_clean_assets")
-def clean_mergers_eia861(preclean_mergers_eia861: pd.DataFrame) -> pd.DataFrame:
+@asset
+def mergers_eia861(raw_mergers_eia861: pd.DataFrame) -> pd.DataFrame:
     """Transform the EIA 861 Mergers table."""
     # No duplicates to speak of but take measures to check just in case
-    _check_for_dupes(
-        preclean_mergers_eia861, "Mergers", ["utility_id_eia", "state", "report_date"]
+    df = (
+        _pre_process(raw_mergers_eia861)
+        .pipe(
+            _check_for_dupes,
+            df_name="Mergers",
+            subset=["utility_id_eia", "state", "report_date"],
+        )
+        .pipe(_post_process)
     )
-
-    return preclean_mergers_eia861
+    return df
 
 
 @multi_asset(
     outs={
-        "clean_net_metering_customer_fuel_class_eia861": AssetOut(),
-        "clean_net_metering_misc_eia861": AssetOut(),
-    },
-    group_name="eia861_clean_assets",
+        "net_metering_customer_fuel_class_eia861": AssetOut(),
+        "net_metering_misc_eia861": AssetOut(),
+    }
 )
-def clean_net_metering_eia861(preclean_net_metering_eia861: pd.DataFrame):
+def net_metering_eia861(raw_net_metering_eia861: pd.DataFrame):
     """Transform the EIA 861 Net Metering table.
 
     Transformations include:
@@ -1674,8 +1716,11 @@ def clean_net_metering_eia861(preclean_net_metering_eia861: pd.DataFrame):
     misc_cols = ["pv_current_flow_type"]
 
     # Pre-tidy clean specific to net_metering table
-    raw_nm = preclean_net_metering_eia861.query("utility_id_eia not in [99999]")
-    raw_nm["short_form"] = _make_yn_bool(raw_nm.short_form)
+    raw_nm = (
+        _pre_process(raw_net_metering_eia861)
+        .query("utility_id_eia not in [99999]")
+        .assign(short_form=lambda x: _make_yn_bool(x.short_form))
+    )
 
     # Separate customer class data from misc data (in this case just one col: current flow)
     # Could easily add this to tech_class if desired.
@@ -1683,7 +1728,7 @@ def clean_net_metering_eia861(preclean_net_metering_eia861: pd.DataFrame):
     raw_nm_misc = raw_nm[idx_cols + misc_cols].copy()
 
     # Check for duplicates before idx cols get changed
-    _check_for_dupes(raw_nm_misc, "Net Metering Current Flow Type PV", idx_cols)
+    _ = _check_for_dupes(raw_nm_misc, "Net Metering Current Flow Type PV", idx_cols)
 
     ###########################################################################
     # Tidy Data:
@@ -1710,27 +1755,31 @@ def clean_net_metering_eia861(preclean_net_metering_eia861: pd.DataFrame):
     )
 
     # No duplicates to speak of but take measures to check just in case
-    _check_for_dupes(
-        tidy_nm_customer_fuel_class, "Net Metering Customer & Fuel Class", idx_cols
+    _ = _check_for_dupes(
+        tidy_nm_customer_fuel_class,
+        df_name="Net Metering Customer & Fuel Class",
+        subset=idx_cols,
     )
 
     return (
         Output(
-            output_name="clean_net_metering_customer_fuel_class_eia861",
-            value=tidy_nm_customer_fuel_class,
+            output_name="net_metering_customer_fuel_class_eia861",
+            value=_post_process(tidy_nm_customer_fuel_class),
         ),
-        Output(output_name="clean_net_metering_misc_eia861", value=raw_nm_misc),
+        Output(
+            output_name="net_metering_misc_eia861",
+            value=_post_process(raw_nm_misc),
+        ),
     )
 
 
 @multi_asset(
     outs={
-        "clean_non_net_metering_customer_fuel_class_eia861": AssetOut(),
-        "clean_non_net_metering_misc_eia861": AssetOut(),
+        "non_net_metering_customer_fuel_class_eia861": AssetOut(),
+        "non_net_metering_misc_eia861": AssetOut(),
     },
-    group_name="eia861_clean_assets",
 )
-def clean_non_net_metering_eia861(preclean_non_net_metering_eia861: pd.DataFrame):
+def non_net_metering_eia861(raw_non_net_metering_eia861: pd.DataFrame):
     """Transform the EIA 861 Non-Net Metering table.
 
     Transformations include:
@@ -1755,7 +1804,9 @@ def clean_non_net_metering_eia861(preclean_non_net_metering_eia861: pd.DataFrame
     ]
 
     # Pre-tidy clean specific to non_net_metering table
-    raw_nnm = preclean_non_net_metering_eia861.query("utility_id_eia not in '99999'")
+    raw_nnm = _pre_process(raw_non_net_metering_eia861).query(
+        "utility_id_eia not in '99999'"
+    )
 
     # there are ~80 fully duplicate records in the 2018 table. We need to
     # remove those duplicates
@@ -1773,7 +1824,9 @@ def clean_non_net_metering_eia861(preclean_non_net_metering_eia861: pd.DataFrame
     raw_nnm_misc = (raw_nnm[idx_cols + misc_cols]).copy()
 
     # Check for duplicates before idx cols get changed
-    _check_for_dupes(raw_nnm_misc, "Non Net Metering Misc.", idx_cols)
+    _ = _check_for_dupes(
+        raw_nnm_misc, df_name="Non Net Metering Misc.", subset=idx_cols
+    )
 
     ###########################################################################
     # Tidy Data:
@@ -1803,8 +1856,10 @@ def clean_non_net_metering_eia861(preclean_non_net_metering_eia861: pd.DataFrame
 
     # No duplicates to speak of (deleted 2018 duplicates above) but take measures to
     # check just in case
-    _check_for_dupes(
-        tidy_nnm_customer_fuel_class, "Non Net Metering Customer & Fuel Class", idx_cols
+    _ = _check_for_dupes(
+        tidy_nnm_customer_fuel_class,
+        df_name="Non Net Metering Customer & Fuel Class",
+        subset=idx_cols,
     )
 
     # Delete total_capacity_mw col for redundancy (must delete x not y)
@@ -1814,21 +1869,23 @@ def clean_non_net_metering_eia861(preclean_non_net_metering_eia861: pd.DataFrame
 
     return (
         Output(
-            output_name="clean_non_net_metering_customer_fuel_class_eia861",
-            value=tidy_nnm_customer_fuel_class,
+            output_name="non_net_metering_customer_fuel_class_eia861",
+            value=_post_process(tidy_nnm_customer_fuel_class),
         ),
-        Output(output_name="clean_non_net_metering_misc_eia861", value=raw_nnm_misc),
+        Output(
+            output_name="non_net_metering_misc_eia861",
+            value=_post_process(raw_nnm_misc),
+        ),
     )
 
 
 @multi_asset(
     outs={
-        "clean_operational_data_revenue_eia861": AssetOut(),
-        "clean_operational_data_misc_eia861": AssetOut(),
+        "operational_data_revenue_eia861": AssetOut(),
+        "operational_data_misc_eia861": AssetOut(),
     },
-    group_name="eia861_clean_assets",
 )
-def clean_operational_data_eia861(preclean_operational_data_eia861: pd.DataFrame):
+def operational_data_eia861(raw_operational_data_eia861: pd.DataFrame):
     """Transform the EIA 861 Operational Data table.
 
     Transformations include:
@@ -1848,9 +1905,9 @@ def clean_operational_data_eia861(preclean_operational_data_eia861: pd.DataFrame
     ]
 
     # Pre-tidy clean specific to operational data table
-    raw_od = preclean_operational_data_eia861[
-        (preclean_operational_data_eia861["utility_id_eia"] != 88888)
-        & (preclean_operational_data_eia861["utility_id_eia"].notnull())
+    raw_od = _pre_process(raw_operational_data_eia861)
+    raw_od = raw_od[
+        (raw_od["utility_id_eia"] != 88888) & (raw_od["utility_id_eia"].notnull())
     ]
 
     ###########################################################################
@@ -1898,17 +1955,18 @@ def clean_operational_data_eia861(preclean_operational_data_eia861: pd.DataFrame
 
     return (
         Output(
-            output_name="clean_operational_data_revenue_eia861",
-            value=transformed_od_rev,
+            output_name="operational_data_revenue_eia861",
+            value=_post_process(transformed_od_rev),
         ),
         Output(
-            output_name="clean_operational_data_misc_eia861", value=transformed_od_misc
+            output_name="operational_data_misc_eia861",
+            value=_post_process(transformed_od_misc),
         ),
     )
 
 
-@asset(group_name="eia861_clean_assets")
-def clean_reliability_eia861(preclean_reliability_eia861: pd.DataFrame) -> pd.DataFrame:
+@asset
+def reliability_eia861(raw_reliability_eia861: pd.DataFrame) -> pd.DataFrame:
     """Transform the EIA 861 Reliability table.
 
     Transformations include:
@@ -1928,7 +1986,7 @@ def clean_reliability_eia861(preclean_reliability_eia861: pd.DataFrame) -> pd.Da
 
     # wide-to-tall by standards
     tidy_r, idx_cols = _tidy_class_dfs(
-        df=preclean_reliability_eia861,
+        df=_pre_process(raw_reliability_eia861),
         df_name="Reliability",
         idx_cols=idx_cols,
         class_list=RELIABILITY_STANDARDS,
@@ -1948,24 +2006,23 @@ def clean_reliability_eia861(preclean_reliability_eia861: pd.DataFrame) -> pd.Da
     #   * 'O' => 'Other'
     ###########################################################################
 
-    transformed_r = tidy_r.assign(
-        outages_recorded_automatically=lambda x: (
-            _make_yn_bool(x.outages_recorded_automatically)
-        ),
-        inactive_accounts_included=lambda x: (
-            _make_yn_bool(x.inactive_accounts_included)
-        ),
-        short_form=lambda x: _make_yn_bool(x.short_form),
-        # This field should be encoded using momentary_interruptions_eia
-        # But the EIA 861 tables aren't fully integrated yet.
-        momentary_interruption_definition=lambda x: (
-            x.momentary_interruption_definition.map(MOMENTARY_INTERRUPTIONS)
-        ),
-    )
-
-    # Drop duplicate entries for utilities 13027, 3408 and 9697
-    transformed_r = _drop_dupes(
-        df=transformed_r, df_name="Reliability", subset=idx_cols
+    transformed_r = (
+        tidy_r.assign(
+            outages_recorded_automatically=lambda x: (
+                _make_yn_bool(x.outages_recorded_automatically)
+            ),
+            inactive_accounts_included=lambda x: (
+                _make_yn_bool(x.inactive_accounts_included)
+            ),
+            short_form=lambda x: _make_yn_bool(x.short_form),
+            # This field should be encoded using momentary_interruptions_eia
+            # But the EIA 861 tables aren't fully integrated yet.
+            momentary_interruption_definition=lambda x: (
+                x.momentary_interruption_definition.map(MOMENTARY_INTERRUPTIONS)
+            ),
+        )
+        # Drop duplicate entries for utilities 13027, 3408 and 9697
+        .pipe(_drop_dupes, df_name="Reliability", subset=idx_cols).pipe(_post_process)
     )
 
     return transformed_r
@@ -1973,13 +2030,12 @@ def clean_reliability_eia861(preclean_reliability_eia861: pd.DataFrame) -> pd.Da
 
 @multi_asset(
     outs={
-        "clean_utility_data_nerc_eia861": AssetOut(),
-        "clean_utility_data_rto_eia861": AssetOut(),
-        "clean_utility_data_misc_eia861": AssetOut(),
+        "utility_data_nerc_eia861": AssetOut(),
+        "utility_data_rto_eia861": AssetOut(),
+        "utility_data_misc_eia861": AssetOut(),
     },
-    group_name="eia861_clean_assets",
 )
-def clean_utility_data_eia861(preclean_utility_data_eia861: pd.DataFrame):
+def utility_data_eia861(raw_utility_data_eia861: pd.DataFrame):
     """Transform the EIA 861 Utility Data table.
 
     Transformations include:
@@ -1993,7 +2049,9 @@ def clean_utility_data_eia861(preclean_utility_data_eia861: pd.DataFrame):
     idx_cols = ["utility_id_eia", "state", "report_date", "nerc_region"]
 
     # Pre-tidy clean specific to operational data table
-    raw_ud = preclean_utility_data_eia861.query("utility_id_eia not in [88888]")
+    raw_ud = _pre_process(raw_utility_data_eia861).query(
+        "utility_id_eia not in [88888]"
+    )
 
     ##############################################################################
     # Transform Data Round 1 (must be done to avoid issues with nerc_region col in
@@ -2089,9 +2147,18 @@ def clean_utility_data_eia861(preclean_utility_data_eia861: pd.DataFrame):
     )
 
     return (
-        Output(output_name="clean_utility_data_nerc_eia861", value=transformed_ud_nerc),
-        Output(output_name="clean_utility_data_rto_eia861", value=transformed_ud_rto),
-        Output(output_name="clean_utility_data_misc_eia861", value=transformed_ud_misc),
+        Output(
+            output_name="utility_data_nerc_eia861",
+            value=_post_process(transformed_ud_nerc),
+        ),
+        Output(
+            output_name="utility_data_rto_eia861",
+            value=_post_process(transformed_ud_rto),
+        ),
+        Output(
+            output_name="utility_data_misc_eia861",
+            value=_post_process(transformed_ud_misc),
+        ),
     )
 
 
@@ -2100,76 +2167,73 @@ def clean_utility_data_eia861(preclean_utility_data_eia861: pd.DataFrame):
 ##############################################################################
 @asset(
     ins={
-        "clean_advanced_metering_infrastructure_eia861": AssetIn(),
-        "clean_demand_response_eia861": AssetIn(),
-        "clean_demand_response_water_heater_eia861": AssetIn(),
-        "clean_demand_side_management_ee_dr_eia861": AssetIn(),
-        "clean_demand_side_management_misc_eia861": AssetIn(),
-        "clean_demand_side_management_sales_eia861": AssetIn(),
-        "clean_distributed_generation_fuel_eia861": AssetIn(),
-        "clean_distributed_generation_misc_eia861": AssetIn(),
-        "clean_distributed_generation_tech_eia861": AssetIn(),
-        "clean_distribution_systems_eia861": AssetIn(),
-        "clean_dynamic_pricing_eia861": AssetIn(),
-        "clean_energy_efficiency_eia861": AssetIn(),
-        "clean_green_pricing_eia861": AssetIn(),
-        "clean_mergers_eia861": AssetIn(),
-        "clean_net_metering_customer_fuel_class_eia861": AssetIn(),
-        "clean_net_metering_misc_eia861": AssetIn(),
-        "clean_non_net_metering_customer_fuel_class_eia861": AssetIn(),
-        "clean_non_net_metering_misc_eia861": AssetIn(),
-        "clean_operational_data_misc_eia861": AssetIn(),
-        "clean_operational_data_revenue_eia861": AssetIn(),
-        "clean_reliability_eia861": AssetIn(),
-        "clean_sales_eia861": AssetIn(),
-        "clean_utility_data_misc_eia861": AssetIn(),
-        "clean_utility_data_nerc_eia861": AssetIn(),
-        "clean_utility_data_rto_eia861": AssetIn(),
+        "advanced_metering_infrastructure_eia861": AssetIn(),
+        "demand_response_eia861": AssetIn(),
+        "demand_response_water_heater_eia861": AssetIn(),
+        "demand_side_management_ee_dr_eia861": AssetIn(),
+        "demand_side_management_misc_eia861": AssetIn(),
+        "demand_side_management_sales_eia861": AssetIn(),
+        "distributed_generation_fuel_eia861": AssetIn(),
+        "distributed_generation_misc_eia861": AssetIn(),
+        "distributed_generation_tech_eia861": AssetIn(),
+        "distribution_systems_eia861": AssetIn(),
+        "dynamic_pricing_eia861": AssetIn(),
+        "energy_efficiency_eia861": AssetIn(),
+        "green_pricing_eia861": AssetIn(),
+        "mergers_eia861": AssetIn(),
+        "net_metering_customer_fuel_class_eia861": AssetIn(),
+        "net_metering_misc_eia861": AssetIn(),
+        "non_net_metering_customer_fuel_class_eia861": AssetIn(),
+        "non_net_metering_misc_eia861": AssetIn(),
+        "operational_data_misc_eia861": AssetIn(),
+        "operational_data_revenue_eia861": AssetIn(),
+        "reliability_eia861": AssetIn(),
+        "sales_eia861": AssetIn(),
+        "utility_data_misc_eia861": AssetIn(),
+        "utility_data_nerc_eia861": AssetIn(),
+        "utility_data_rto_eia861": AssetIn(),
     },
-    group_name="eia861_clean_assets",
 )
-def clean_utility_assn_eia861(**data_dfs: dict[str, pd.DataFrame]) -> pd.DataFrame:
+def utility_assn_eia861(**data_dfs: dict[str, pd.DataFrame]) -> pd.DataFrame:
     """Harvest a Utility-Date-State Association Table."""
     logger.info("Building an EIA 861 Util-State-Date association table.")
-    return _harvest_associations(
-        list(data_dfs.values()), ["report_date", "utility_id_eia", "state"]
-    )
+    df = _harvest_associations(
+        dfs=list(data_dfs.values()), cols=["report_date", "utility_id_eia", "state"]
+    ).pipe(_post_process)
+    return df
 
 
 @asset(
     ins={
-        "clean_advanced_metering_infrastructure_eia861": AssetIn(),
+        "advanced_metering_infrastructure_eia861": AssetIn(),
         "clean_balancing_authority_eia861": AssetIn(),
-        "clean_demand_response_eia861": AssetIn(),
-        "clean_demand_response_water_heater_eia861": AssetIn(),
-        "clean_demand_side_management_ee_dr_eia861": AssetIn(),
-        "clean_demand_side_management_misc_eia861": AssetIn(),
-        "clean_demand_side_management_sales_eia861": AssetIn(),
-        "clean_distributed_generation_fuel_eia861": AssetIn(),
-        "clean_distributed_generation_misc_eia861": AssetIn(),
-        "clean_distributed_generation_tech_eia861": AssetIn(),
-        "clean_distribution_systems_eia861": AssetIn(),
-        "clean_dynamic_pricing_eia861": AssetIn(),
-        "clean_energy_efficiency_eia861": AssetIn(),
-        "clean_green_pricing_eia861": AssetIn(),
-        "clean_mergers_eia861": AssetIn(),
-        "clean_net_metering_customer_fuel_class_eia861": AssetIn(),
-        "clean_net_metering_misc_eia861": AssetIn(),
-        "clean_non_net_metering_customer_fuel_class_eia861": AssetIn(),
-        "clean_non_net_metering_misc_eia861": AssetIn(),
-        "clean_operational_data_misc_eia861": AssetIn(),
-        "clean_operational_data_revenue_eia861": AssetIn(),
-        "clean_reliability_eia861": AssetIn(),
-        "clean_sales_eia861": AssetIn(),
-        "clean_utility_data_misc_eia861": AssetIn(),
-        "clean_utility_data_nerc_eia861": AssetIn(),
-        "clean_utility_data_rto_eia861": AssetIn(),
+        "demand_response_eia861": AssetIn(),
+        "demand_response_water_heater_eia861": AssetIn(),
+        "demand_side_management_ee_dr_eia861": AssetIn(),
+        "demand_side_management_misc_eia861": AssetIn(),
+        "demand_side_management_sales_eia861": AssetIn(),
+        "distributed_generation_fuel_eia861": AssetIn(),
+        "distributed_generation_misc_eia861": AssetIn(),
+        "distributed_generation_tech_eia861": AssetIn(),
+        "distribution_systems_eia861": AssetIn(),
+        "dynamic_pricing_eia861": AssetIn(),
+        "energy_efficiency_eia861": AssetIn(),
+        "green_pricing_eia861": AssetIn(),
+        "mergers_eia861": AssetIn(),
+        "net_metering_customer_fuel_class_eia861": AssetIn(),
+        "net_metering_misc_eia861": AssetIn(),
+        "non_net_metering_customer_fuel_class_eia861": AssetIn(),
+        "non_net_metering_misc_eia861": AssetIn(),
+        "operational_data_misc_eia861": AssetIn(),
+        "operational_data_revenue_eia861": AssetIn(),
+        "reliability_eia861": AssetIn(),
+        "sales_eia861": AssetIn(),
+        "utility_data_misc_eia861": AssetIn(),
+        "utility_data_nerc_eia861": AssetIn(),
+        "utility_data_rto_eia861": AssetIn(),
     },
-    group_name="eia861_clean_assets",
 )
-def clean_balancing_authority_assn_eia861(
-    **tfr_dfs: dict[str, pd.DataFrame]
-) -> pd.DataFrame:
+def balancing_authority_assn_eia861(**dfs: dict[str, pd.DataFrame]) -> pd.DataFrame:
     """Compile a balancing authority, utility, state association table.
 
     For the years up through 2012, the only BA-Util information that's available comes
@@ -2197,8 +2261,8 @@ def clean_balancing_authority_assn_eia861(
         functions.
     """
     # The dataframes from which to compile BA-Util-State associations
-    ba_eia861 = tfr_dfs.pop("clean_balancing_authority_eia861")
-    data_dfs = list(tfr_dfs.values())
+    ba_eia861 = dfs.pop("clean_balancing_authority_eia861")
+    data_dfs = list(dfs.values())
 
     logger.info("Building an EIA 861 BA-Util-State association table.")
 
@@ -2255,8 +2319,8 @@ def clean_balancing_authority_assn_eia861(
     return ba_assn_eia861
 
 
-@asset(group_name="eia861_clean_assets")
-def normalized_balancing_authority_eia861(
+@asset
+def balancing_authority_eia861(
     clean_balancing_authority_eia861: pd.DataFrame,
 ) -> pd.DataFrame:
     """Finish the normalization of the balancing_authority_eia861 table.
@@ -2297,7 +2361,7 @@ def normalized_balancing_authority_eia861(
             f"Found {len(fillable_ba_codes)} unfilled but fillable BA Codes!"
         )
 
-    return ba_eia861_normed
+    return _post_process(ba_eia861_normed)
 
 
 def preclean_eia861_asset_factory(table_name: str) -> AssetsDefinition:
@@ -2311,9 +2375,7 @@ def preclean_eia861_asset_factory(table_name: str) -> AssetsDefinition:
     )
     def eia861_preclean_asset(**kwargs: dict[str, pd.DataFrame]) -> pd.DataFrame:
         """Apply uniform pre-processing to all raw EIA-861 assets."""
-        return pudl.helpers.fix_eia_na(kwargs[table_name]).pipe(
-            pudl.helpers.convert_to_date
-        )
+        return _pre_process(kwargs[table_name])
 
     return eia861_preclean_asset
 
@@ -2331,7 +2393,7 @@ def create_preclean_eia861_assets() -> list[AssetsDefinition]:
     return assets
 
 
-eia861_preclean_assets = create_preclean_eia861_assets()
+# eia861_preclean_assets = create_preclean_eia861_assets()
 
 
 def finished_eia861_asset_factory(table_name: str) -> AssetsDefinition:
@@ -2349,7 +2411,7 @@ def finished_eia861_asset_factory(table_name: str) -> AssetsDefinition:
     )
     def eia861_finished_asset(**kwargs: dict[str, pd.DataFrame]) -> pd.DataFrame:
         """Apply uniform post-processing to all EIA-861 assets."""
-        return convert_cols_dtypes(kwargs[table_name], data_source="eia")
+        return _post_process(kwargs[table_name])
 
     return eia861_finished_asset
 
@@ -2370,4 +2432,4 @@ def create_finished_eia861_assets() -> list[AssetsDefinition]:
     return assets
 
 
-eia861_finished_assets = create_finished_eia861_assets()
+# eia861_finished_assets = create_finished_eia861_assets()
