@@ -19,7 +19,7 @@ function authenticate_gcp() {
 }
 
 function bridge_settings() {
-    export PUDL_CACHE="${CONTAINER_PUDL_IN}/data"
+    export PUDL_INPUT="${CONTAINER_PUDL_IN}/data"
     export PUDL_OUTPUT=$CONTAINER_PUDL_OUT
 }
 

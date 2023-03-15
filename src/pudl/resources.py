@@ -30,7 +30,7 @@ def ferc_to_sqlite_settings(init_context) -> FercToSqliteSettings:
     config_schema={
         "local_cache_path": Field(
             EnvVar(
-                env_var="PUDL_CACHE",
+                env_var="PUDL_INPUT",
             ),
             description="Path to local cache of raw data.",
             default_value=None,

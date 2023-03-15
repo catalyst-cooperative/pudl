@@ -407,7 +407,7 @@ class FercSQLiteIOManager(SQLiteIOManager):
         db_path = self.base_dir / f"{self.db_name}.sqlite"
         if not db_path.exists():
             raise ValueError(
-                f"No {self.db_name}.sqlite found. Run the job that creates the {self.db_name} database."
+                f"No DB found at {db_path}. Run the job that creates the {self.db_name} database."
             )
 
         engine = sa.create_engine(f"sqlite:///{db_path}")
