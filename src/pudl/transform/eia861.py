@@ -2242,23 +2242,21 @@ def balancing_authority_assn_eia861(**dfs: dict[str, pd.DataFrame]) -> pd.DataFr
     sales_eia861 and other data tables.
 
     For the years from 2013 onward, there's explicit BA-Util-State information in the
-    data tables (e.g. sales_eia861). These observed associations can be compiled to give
-    us a picture of which BA-Util-State associations exist. However, we need to merge in
-    the balancing authority IDs since the data tables only contain the balancing
-    authority codes.
+    data tables (e.g. :ref:`sales_eia861`). These observed associations can be compiled
+    to give us a picture of which BA-Util-State associations exist. However, we need to
+    merge in the balancing authority IDs since the data tables only contain the
+    balancing authority codes.
 
     Args:
-        tfr_dfs: A dictionary of transformed EIA 861 dataframes. This must
-            include any dataframes from which we want to compile BA-Util-State
-            associations, which means this function has to be called after all the basic
-            transformfunctions that depend on only a single raw table.
+        dfs: A dictionary of transformed EIA 861 dataframes. This must include any
+            dataframes from which we want to compile BA-Util-State associations, which
+            means this function has to be called after all the basic transform functions
+            that depend on only a single raw table.
 
     Returns:
-        dict: a dictionary of transformed dataframes. This function both compiles the
-        association table, and finishes the normalization of the balancing authority
-        table. It may be that once the harvesting process incorporates the EIA 861, some
-        or all of this functionality should be pulled into the phase-2 transform
-        functions.
+        An association table describing the annual linkages between balancing
+        authorities, states, and utilities. Becomes
+        :ref:`balancing_authority_assn_eia861`.
     """
     # The dataframes from which to compile BA-Util-State associations
     ba_eia861 = dfs.pop("clean_balancing_authority_eia861")
@@ -2325,12 +2323,23 @@ def balancing_authority_eia861(
 ) -> pd.DataFrame:
     """Finish the normalization of the balancing_authority_eia861 table.
 
-    The balancing_authority_assn_eia861 table depends on information that is only
-    available in the UN-normalized form of the balancing_authority_eia861 table, so and
-    also on having access to a bunch of transformed data tables, so it can compile the
-    observed combinations of report dates, balancing authorities, states, and utilities.
-    This means that we have to hold off on the final normalization of the
-    balancing_authority_eia861 table until the rest of the transform process is over.
+    The :ref:`balancing_authority_assn_eia861` table depends on information that is only
+    available in the UN-normalized form of the :ref:`balancing_authority_eia861` table,
+    and also on having access to a bunch of transformed data tables, so it can compile
+    the observed combinations of report dates, balancing authorities, states, and
+    utilities.  This means that we have to hold off on the final normalization of the
+    :ref:`balancing_authority_eia861` table until the rest of the transform process is
+    over.
+
+    Args:
+        clean_balancing_authority_eia861: A cleaned up version of the originally
+            reported balancing authority table.
+
+    Returns:
+        The final, normalized version of the :ref:`balancing_authority_eia861` table,
+        linking together balancing authorities and utility IDs by year, but without
+        information about what states they were operating in (which is captured in
+        :ref:`balancing_authority_assn_eia861`).
     """
     logger.info("Completing normalization of balancing_authority_eia861.")
     ba_eia861_normed = clean_balancing_authority_eia861.loc[
@@ -2364,6 +2373,11 @@ def balancing_authority_eia861(
     return _post_process(ba_eia861_normed)
 
 
+################################################################################
+# Asset factories for constructing pre- & post-processing steps.
+# NO LONGER BEING USED (for discussion purposes only)
+# TODO (@zaneselvans) remove before merging PR.
+################################################################################
 def preclean_eia861_asset_factory(table_name: str) -> AssetsDefinition:
     """An asset factory to apply uniform pre-processing to all raw EIA-861 assets."""
     preclean_table_name = table_name.replace("raw_", "preclean_")
