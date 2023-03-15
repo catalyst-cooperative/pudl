@@ -24,7 +24,6 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
                 "boiler_id",
                 "boiler_manufacturer",
                 "boiler_manufacturer_code",
-                "prime_mover_code",
             ],
             "primary_key": ["plant_id_eia", "boiler_id"],
             "foreign_key_rules": {"fields": [["plant_id_eia", "boiler_id"]]},
