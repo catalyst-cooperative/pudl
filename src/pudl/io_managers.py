@@ -203,17 +203,8 @@ class SQLiteIOManager(IOManager):
         check for foreign key failures once all of the data has been loaded into
         the database using the `foreign_key_check` and `foreign_key_list` PRAGMAs.
 
-        Examples:
-        This method can be used in the test suite or a jupyter notebook for debugging.
-
-            >>> from pudl.io_managers import pudl_sqlite_io_manager
-            >>> from dagster import build_init_resource_context
-            ...
-            >>> init_context = build_init_resource_context()
-            >>> manager = pudl_sqlite_io_manager(init_context)
-            >>> manager.check_foreign_keys()
-
-        Read about the PRAGMAs here: https://www.sqlite.org/pragma.html#pragma_foreign_key_check
+        You can learn more about the PRAGMAs in the `SQLite docs
+        <https://www.sqlite.org/pragma.html#pragma_foreign_key_check>`__.
 
         Raises:
             ForeignKeyErrors: if data in the database violate foreign key constraints.
@@ -253,8 +244,16 @@ class SQLiteIOManager(IOManager):
                 )
             raise ForeignKeyErrors(errors)
 
+        logger.info("Success! No foreign key constraint errors found.")
+
     def _handle_pandas_output(self, context: OutputContext, df: pd.DataFrame):
         """Write dataframe to the database.
+
+        SQLite does not support concurrent writes to the database. Instead,
+        SQLite queues write transactions and executes them one at a time.
+        This allows the assets to be processed in parallel. See the `SQLAlchemy
+        docs <https://docs.sqlalchemy.org/en/14/dialects/sqlite.html#database-
+        locking-behavior-concurrency>`__ to learn more about SQLite concurrency.
 
         Args:
             context: dagster keyword that provides access output information like asset name.
@@ -371,7 +370,15 @@ class SQLiteIOManager(IOManager):
 def pudl_sqlite_io_manager(init_context) -> SQLiteIOManager:
     """Create a SQLiteManager dagster resource for the pudl database."""
     base_dir = init_context.resource_config["pudl_output_path"]
-    md = Package.from_resource_ids().to_sql()
+    md = Package.from_resource_ids(
+        excluded_etl_groups=(
+            "ferc714",
+            "static_eia_disabled",
+            "epacems",
+            "outputs",
+            "ferc1_disabled",
+        )
+    ).to_sql()
     return SQLiteIOManager(base_dir=base_dir, db_name="pudl", md=md)
 
 
@@ -400,7 +407,7 @@ class FercSQLiteIOManager(SQLiteIOManager):
         db_path = self.base_dir / f"{self.db_name}.sqlite"
         if not db_path.exists():
             raise ValueError(
-                f"No {self.db_name}.sqlite found. Run the job that creates the {self.db_name} database."
+                f"No DB found at {db_path}. Run the job that creates the {self.db_name} database."
             )
 
         engine = sa.create_engine(f"sqlite:///{db_path}")
@@ -525,10 +532,10 @@ class FercXBRLSQLiteIOManager(FercSQLiteIOManager):
         with engine.connect() as con:
             return pd.read_sql(
                 f"""
-                    SELECT {table_name}.*, {id_table}.report_year FROM {table_name}
-                    JOIN {id_table} ON {id_table}.filing_name = {table_name}.filing_name
-                    WHERE {id_table}.report_year BETWEEN :min_year AND :max_year;
-                    """,
+                SELECT {table_name}.*, {id_table}.report_year FROM {table_name}
+                JOIN {id_table} ON {id_table}.filing_name = {table_name}.filing_name
+                WHERE {id_table}.report_year BETWEEN :min_year AND :max_year;
+                """,  # nosec: B608 - table names not supplied by user
                 con=con,
                 params={
                     "min_year": min(ferc1_settings.xbrl_years),
@@ -568,14 +575,15 @@ class PandasParquetIOManager(UPathIOManager):
         super().__init__(base_path=base_path)
         self.schema = schema
 
-    def dump_to_path(self, context: OutputContext, obj: pd.DataFrame, path: UPath):
+    def dump_to_path(self, context: OutputContext, obj: dd.DataFrame, path: UPath):
         """Write dataframe to parquet file."""
         raise NotImplementedError("This IO Manager doesn't support writing data.")
 
-    def load_from_path(self, context: InputContext, path: UPath) -> pd.DataFrame:
+    def load_from_path(self, context: InputContext, path: UPath) -> dd.DataFrame:
         """Load a directory of parquet files to a dask dataframe."""
+        logger.info(f"Reading parquet file from {path}")
         return dd.read_parquet(
-            path.parent,
+            path,
             use_nullable_dtypes=True,
             engine="pyarrow",
             index=False,
@@ -599,7 +607,5 @@ def epacems_io_manager(
 ) -> PandasParquetIOManager:
     """IO Manager that writes EPA CEMS partitions to individual parquet files."""
     schema = Resource.from_id("hourly_emissions_epacems").to_pyarrow()
-    base_path = (
-        UPath(init_context.resource_config["base_path"]) / "hourly_emissions_epacems"
-    )
+    base_path = UPath(init_context.resource_config["base_path"])
     return PandasParquetIOManager(base_path=base_path, schema=schema)

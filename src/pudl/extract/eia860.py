@@ -42,10 +42,9 @@ class Extractor(excel.GenericExtractor):
             df["report_year"] = list(partition.values())[0]
         self.cols_added = ["report_year"]
         # Eventually we should probably make this a transform
-        if "generator_id" in df.columns:
-            df = remove_leading_zeros_from_numeric_strings(
-                df=df, col_name="generator_id"
-            )
+        for col in ["generator_id", "boiler_id"]:
+            if col in df.columns:
+                df = remove_leading_zeros_from_numeric_strings(df=df, col_name=col)
         df = self.add_data_maturity(df, page, **partition)
         return df
 
@@ -65,7 +64,7 @@ raw_table_names = (
     "raw_boiler_info_eia860",
     "raw_boiler_mercury_eia860",
     "raw_boiler_nox_eia860",
-    "raw_boiler_pm_eia860",
+    "raw_boiler_particulate_eia860",
     "raw_boiler_so2_eia860",
     "raw_boiler_stack_flue_eia860",
     "raw_cooling_equipment_eia860",

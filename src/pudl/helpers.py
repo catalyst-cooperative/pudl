@@ -153,7 +153,7 @@ def find_foreign_key_errors(dfs: dict[str, pd.DataFrame]) -> list[dict[str, Any]
     return errors
 
 
-def download_zip_url(url, save_path, chunk_size=128):
+def download_zip_url(url, save_path, chunk_size=128, timeout=9.05):
     """Download and save a Zipfile locally.
 
     Useful for acquiring and storing non-PUDL data locally.
@@ -162,6 +162,8 @@ def download_zip_url(url, save_path, chunk_size=128):
         url (str): The URL from which to download the Zipfile
         save_path (pathlib.Path): The location to save the file.
         chunk_size (int): Data chunk in bytes to use while downloading.
+        timeout (float): Time to wait for the server to accept a connection.
+            See https://requests.readthedocs.io/en/latest/user/advanced/#timeouts
 
     Returns:
         None
@@ -175,7 +177,7 @@ def download_zip_url(url, save_path, chunk_size=128):
         "Connection": "keep-alive",
         "Upgrade-Insecure-Requests": "1",
     }
-    r = requests.get(url, stream=True, headers=headers)
+    r = requests.get(url, stream=True, headers=headers, timeout=timeout)
     with save_path.open(mode="wb") as fd:
         for chunk in r.iter_content(chunk_size=chunk_size):
             fd.write(chunk)
@@ -1029,7 +1031,7 @@ def drop_tables(engine: sa.engine.Engine, clobber: bool = False):
     insp = sa.inspect(engine)
     if len(insp.get_table_names()) > 0 and not clobber:
         raise AssertionError(
-            f"You are attempting to drop your database without setting clobber to {clobber}"
+            f"You are attempting to drop your database while clobber is set to {clobber}"
         )
     md.drop_all(engine)
     conn = engine.connect()

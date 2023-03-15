@@ -19,7 +19,7 @@ function authenticate_gcp() {
 }
 
 function bridge_settings() {
-    export PUDL_CACHE="${CONTAINER_PUDL_IN}/data"
+    export PUDL_INPUT="${CONTAINER_PUDL_IN}/data"
     export PUDL_OUTPUT=$CONTAINER_PUDL_OUT
 }
 
@@ -37,6 +37,7 @@ function run_pudl_etl() {
     && pudl_etl \
         --loglevel DEBUG \
         --gcs-cache-path gs://internal-zenodo-cache.catalyst.coop \
+        --partition-epacems \
         $PUDL_SETTINGS_YML \
     && pytest \
         --gcs-cache-path gs://internal-zenodo-cache.catalyst.coop \
@@ -72,7 +73,7 @@ function notify_slack() {
     # Notify pudl-builds slack channel of deployment status
     if [ $1 = "success" ]; then
         message=":large_green_circle: :sunglasses: :unicorn_face: :rainbow: The deployment succeeded!! :partygritty: :database_parrot: :blob-dance: :large_green_circle:\n\n "
-        message+="[Make a PR for ${GITHUB_REF} into `main`](https://github.com/catalyst-cooperative/pudl/compare/main...${GITHUB_REF})"
+        message+='Make a PR for `${GITHUB_REF}` into `main`: https://github.com/catalyst-cooperative/pudl/compare/main...${GITHUB_REF}\n\n'
     elif [ $1 = "failure" ]; then
         message=":large_red_square: Oh bummer the deployment failed ::fiiiiine: :sob: :cry_spin:\n\n "
     else

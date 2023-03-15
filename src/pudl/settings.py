@@ -146,7 +146,6 @@ class EpaCemsSettings(GenericDatasetSettings):
 
     years: list[int] = data_source.working_partitions["years"]
     states: list[str] = data_source.working_partitions["states"]
-    partition: bool = False
 
     @validator("states")
     def allow_all_keyword(cls, states):  # noqa: N805
@@ -400,7 +399,7 @@ class DatasetsSettings(BaseModel):
         datasets_in_datastore_format = {
             name: setting
             for (name, setting) in datasets_settings.items()
-            if name in ds.get_known_datasets()
+            if name in ds.get_known_datasets() and setting is not None
         }
         # add the eia datasets that are nested inside of the eia settings
         if datasets_settings.get("eia", False):

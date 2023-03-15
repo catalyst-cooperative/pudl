@@ -76,7 +76,7 @@ class TableIdFerc1(enum.Enum):
     ELECTRIC_ENERGY_SOURCES_FERC1 = "electric_energy_sources_ferc1"
     ELECTRIC_ENERGY_DISPOSITIONS_FERC1 = "electric_energy_dispositions_ferc1"
     UTILITY_PLANT_SUMMARY_FERC1 = "utility_plant_summary_ferc1"
-    ELECTRIC_OPEX_FERC1 = "electric_opex_ferc1"
+    ELECTRIC_OPERATING_EXPENSES_FERC1 = "electric_operating_expenses_ferc1"
     BALANCE_SHEET_LIABILITIES = "balance_sheet_liabilities_ferc1"
     DEPRECIATION_AMORTIZATION_SUMMARY_FERC1 = "depreciation_amortization_summary_ferc1"
     BALANCE_SHEET_ASSETS_FERC1 = "balance_sheet_assets_ferc1"
@@ -928,7 +928,8 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
             derived from the raw DBF and/or XBRL inputs.
         """
         df = (
-            self.normalize_strings(df)
+            self.spot_fix_values(df)
+            .pipe(self.normalize_strings)
             .pipe(self.categorize_strings)
             .pipe(self.convert_units)
             .pipe(self.strip_non_numeric_values)
@@ -1610,7 +1611,11 @@ class FuelFerc1TableTransformer(Ferc1AbstractTableTransformer):
             A single transformed table concatenating multiple years of cleaned data
             derived from the raw DBF and/or XBRL inputs.
         """
-        return self.drop_invalid_rows(df).pipe(self.correct_units)
+        return (
+            self.spot_fix_values(df)
+            .pipe(self.drop_invalid_rows)
+            .pipe(self.correct_units)
+        )
 
     @cache_df(key="dbf")
     def process_dbf(self, raw_dbf: pd.DataFrame) -> pd.DataFrame:
@@ -2151,7 +2156,8 @@ class PlantsSmallFerc1TableTransformer(Ferc1AbstractTableTransformer):
             derived from the raw DBF and/or XBRL inputs.
         """
         df = (
-            self.normalize_strings(df)
+            self.spot_fix_values(df)
+            .pipe(self.normalize_strings)
             .pipe(self.nullify_outliers)
             .pipe(self.convert_units)
             .pipe(self.extract_ferc1_license)
@@ -3478,10 +3484,10 @@ class ElectricPlantDepreciationFunctionalFerc1TableTransformer(
         return df
 
 
-class ElectricOpexFerc1TableTransformer(Ferc1AbstractTableTransformer):
-    """Transformer class for :ref:`electric_opex_ferc1` table."""
+class ElectricOperatingExpensesFerc1TableTransformer(Ferc1AbstractTableTransformer):
+    """Transformer class for :ref:`electric_operating_expenses_ferc1` table."""
 
-    table_id: TableIdFerc1 = TableIdFerc1.ELECTRIC_OPEX_FERC1
+    table_id: TableIdFerc1 = TableIdFerc1.ELECTRIC_OPERATING_EXPENSES_FERC1
     has_unique_record_ids: bool = False
 
     def targeted_drop_duplicates_dbf(self, raw_df: pd.DataFrame) -> pd.DataFrame:
@@ -3805,7 +3811,7 @@ def create_ferc1_transform_assets() -> list[AssetsDefinition]:
         "electric_energy_sources_ferc1": ElectricEnergySourcesFerc1TableTransformer,
         "electric_energy_dispositions_ferc1": ElectricEnergyDispositionsFerc1TableTransformer,
         "utility_plant_summary_ferc1": UtilityPlantSummaryFerc1TableTransformer,
-        "electric_opex_ferc1": ElectricOpexFerc1TableTransformer,
+        "electric_operating_expenses_ferc1": ElectricOperatingExpensesFerc1TableTransformer,
         "balance_sheet_liabilities_ferc1": BalanceSheetLiabilitiesFerc1TableTransformer,
         "depreciation_amortization_summary_ferc1": DepreciationAmortizationSummaryFerc1TableTransformer,
         "balance_sheet_assets_ferc1": BalanceSheetAssetsFerc1TableTransformer,

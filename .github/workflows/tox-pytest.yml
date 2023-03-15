@@ -4,8 +4,8 @@ name: tox-pytest
 on: [push, pull_request]
 
 env:
-  PUDL_OUTPUT: ~/pudl-work/
-  PUDL_CACHE: ~/pudl-work/data/
+  PUDL_OUTPUT: ~/pudl-work/output
+  PUDL_INPUT: ~/pudl-work/data/
 
 jobs:
   ci-test:

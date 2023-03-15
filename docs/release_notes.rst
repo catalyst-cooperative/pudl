@@ -2,16 +2,70 @@
 PUDL Release Notes
 =======================================================================================
 
-.. _release-v2023.XX.XX:
-
 ---------------------------------------------------------------------------------------
 v2023.XX.XX
 ---------------------------------------------------------------------------------------
+
+Dagster Adoption
+^^^^^^^^^^^^^^^^
+* After comparing comparing python orchestration tools :issue:`1487`, we decided to
+  adopt `Dagster <https://dagster.io/>`__. Dagster will allow us to parallize the ETL,
+  persist datafarmes at any step in the data cleaning process, visualize data
+  depedencies and run subsets of the ETL from upstream caches.
+* We are converting PUDL code to use dagster concepts in two phases. The first phase
+  converts the ETL portion of the code base to use
+  `software defined assets <https://docs.dagster.io/concepts/assets/software-defined-assets>`__
+  :issue:`1570`. We will convert the pandas computations cached in the
+  :mod:`pudl.output.pudltabl.PudlTabl` class to use software defined assets in
+  phase 2 :issue:`1973`.
+* General changes:
+
+  * :mod:`pudl.etl` is now a subpackage that collects all pudl assets into a dagster
+    `Definition <https://docs.dagster.io/concepts/code-locations>`__.
+  * The ``pudl_settings``, ``Datastore`` and ``DatasetSettings`` are now dagster
+    resources. See :mod:`pudl.resources`.
+  * The ``pudl_etl``  and ``ferc_to_sqlite`` commands no longer support loading
+    specific tables. The commands run all of the tables. Use dagster assets to
+    run subsets of the tables.
+  * The ``--clobber`` argument has been removed from the ``pudl_etl`` command.
+  * New static method :mod:`pudl.metadata.classes.Package.get_etl_group_tables`
+    returns the resources ids for a given etl group.
+  * :mod:`pudl.settings.FercToSqliteSettings` class now loads all FERC
+    datasources if no datasets are specified.
+
+* EIA ETL changes:
+
+  * EIA extract methods are now ``@multi_asset`` that return an asset for each
+    raw table. 860 and 923 are separate ``@multi_asset`` which allows this data
+    to be extracted in parallel.
+  * The EIA table level cleaning functions are now
+    dagster assets. The table level cleaning assets now have a "clean\_" prefix
+    and a "_{datasource}" suffix to distinguish them from the final harvested tables.
+  * ``pudl.transform.eia.transform()`` is now a ``@multi_asset`` that depends
+    on all of the EIA table level cleaning functions / assets.
+
+* EPA CEMS ETL changes:
+
+  * :func:`pudl.transform.epacems.transform()` now loads the ``epacamd_eia`` and
+    ``plants_entity_eia`` tables as dataframes using the
+    :mod:`pudl.io_manager.pudl_sqlite_io_manager` instead of reading the tables
+    using a ``pudl_engine``.
+  * Adds a Ohio plant that is in 2021 CEMS but missing from EIA since 2018 to
+    the ``additional_epacems_plants.csv`` sheet.
+
+* FERC ETL changes:
+
+  * :mod:`pudl.extract.ferc1.dbf2sqlite()` and :mod:`pudl.extract.xbrl.xbrl2sqlite()`
+    are now configurable dagster ops. These ops make up the
+    ``ferc_to_sqlite`` dagster graph in :mod:`pudl.ferc_to_sqlite.defs`.
 
 Data Coverage
 ^^^^^^^^^^^^^
 
 * Updated :doc:`data_sources/eia860` to include data as of 2022-09.
+* New :ref:`epacamd_eia` crosswalk version v0.3, see issue :issue:`2317` and PR
+  :pr:`2316`. EPA's updates add manual matches and exclusions focusing on operating
+  units with a generator ID as of 2018.
 * New PUDL tables from :doc:`data_sources/ferc1`, integrating older DBF and newer XBRL
   data. See :issue:`1574` for an overview of our progress integrating FERC's XBRL data.
   To see which DBF and XBRL tables the following PUDL tables are derived from, refer to
@@ -30,11 +84,27 @@ Data Coverage
     :pr:`2119`.
   * :ref:`electric_plant_depreciation_functional_ferc1` see issue :issue:`1808` & PR
     :pr:`2183`
-  * :ref:`electric_opex_ferc1`, see issue :issue:`1817` & PR :pr:`2162`.
+  * :ref:`electric_operating_expenses_ferc1`, see issue :issue:`1817` & PR :pr:`2162`.
   * :ref:`retained_earnings_ferc1`, see issue :issue:`1811` & PR :pr:`2155`.
   * :ref:`cash_flow_ferc1`, see issue :issue:`1821` & PR :pr:`2184`
   * :ref:`electricity_sales_by_rate_schedule_ferc1`, see issue :issue:`1823` & PR
     :pr:`2205`
+* The :ref:`boilers_eia860` table now includes annual boiler attributes from
+  :doc:`data_sources/eia860` Schedule 6.2 Environmental Equipment data, and the new
+  :ref:`boilers_entity_eia` table now includes static boiler attributes. See issue
+  :issue:`1162` & PR :pr:`2319`.
+
+Data Cleaning
+^^^^^^^^^^^^^
+
+* Removed inconsistently reported leading zeroes from numeric ``boiler_id`` values. This
+  affected a small number of records in any table referring to boilers, including
+  :ref:`boilers_entity_eia`, :ref:`boilers_eia860`, :ref:`boiler_fuel_eia923`,
+  :ref:`boiler_generator_assn_eia860` and the :ref:`epacamd_eia` crosswalk. It also had
+  some minor downstream effects on the MCOE outputs. See :issue:`2366` and :pr:`2367`.
+* The :ref:`boiler_fuel_eia923` table now includes the ``prime_mover_code`` column. This
+  column was previously incorrectly being associated with boilers in the
+  :ref:`boilers_entity_eia` table. See issue :issue:`2349` & PR :pr:`2362`.
 
 Analysis
 ^^^^^^^^
@@ -58,6 +128,40 @@ Deprecations
   ``pudl-zenodo-datastore`` repositories with references to `pudl-archiver
   <https://www.github.com/catalyst-cooperative/pudl-archiver>`__ repository in
   :doc:`intro`, :doc:`dev/datastore`, and :doc:`dev/annual_updates`. See :pr:`2190`.
+* :mod:`pudl.etl` is now a subpackage that collects all pudl assets into a dagster
+  `Definition <https://docs.dagster.io/concepts/code-locations>`__. All
+  ``pudl.etl._etl_{datasource}`` functions have been deprecated. The coordination
+  of ETL steps is being handled by dagster.
+* The ``pudl.load`` module has been removed in favor of using the
+  :mod:`pudl.io_managers.pudl_sqlite_io_manager`.
+* The ``pudl_etl``  and ``ferc_to_sqlite`` commands no longer support loading
+  specific tables. The commands run all of the tables. Use dagster assets to
+  run subsets of the tables.
+* The ``--clobber`` argument has been removed from the ``pudl_etl`` command.
+* ``pudl.transform.eia860.transform()`` and ``pudl.transform.eia923.transform()``
+  functions have been deprecated. The table level EIA cleaning funtions are now
+  coordinated using dagster.
+* The :mod:`pudl.convert.epacems_to_parquet` command now executes the
+  ``hourly_emissions_epacems`` asset as a dagster job. The ``—partition`` option
+  is no longer supported. Now only creates a directory of parquet files
+  for each year/state partition.
+* ``pudl.transform.ferc1.transform()`` has been removed. The ferc1 table
+    transformations are now being orchestrated with Dagster.
+* ``pudl.transform.ferc1.transform`` can no longer be executed as a script.
+  Use dagit to execute just the FERC Form 1 pipeline.
+* ``pudl.extract.ferc1.extract_dbf``, ``pudl.extract.ferc1.extract_xbrl``
+  ``pudl.extract.ferc1.extract_xbrl_single``,
+  ``pudl.extract.ferc1.extract_dbf_single``,
+  ``pudl.extract.ferc1.extract_xbrl_generic``,
+  ``pudl.extract.ferc1.extract_dbf_generic`` have all been deprecated. The extraction
+  logic is now covered by the :mod:`pudl.io_managers.ferc1_xbrl_sqlite_io_manager` and
+  :mod:`pudl.io_managers.ferc1_dbf_sqlite_io_manager` IO Managers.
+* ``pudl.extract.ferc1.extract_xbrl_metadata`` has been replaced by the
+  :func:`pudl.extract.ferc1.xbrl_metadata_json` asset.
+* All sub classes of :func:`pudl.settings.GenericDatasetSettings` in
+  :mod:`pudl.settings` no longer have table attributes because the ETL no longer
+  supports loading specific tables via settings. Use dagster to select subsets of
+  tables to process.
 
 Miscellaneous
 ^^^^^^^^^^^^^
@@ -69,7 +173,12 @@ Miscellaneous
   ``__setstate__`` methods have been added to :class:`pudl.output.pudltabl.PudlTabl` and
   :class:`pudl.workspace.resource_cache.GoogleCloudStorageCache` to accommodate elements
   of their internals that could not otherwise be serialized.
-
+* Add generic spot fix method to transform process, to manually rescue FERC1 records.
+  See :pr:`2254` & :issue:`1980`.
+* Reverted a fix made in :pr:`1909`, which mapped all plants located in NY state that
+  reported a balancing authority code of "ISONE" to "NYISO". These plants now retain
+  their original EIA codes. Plants with manual re-mapping of BA codes have also been
+  fixed to have correctly updated BA names. See :pr:`2312` and :issue:`2255`.
 
 .. _release-v2022.11.30:
 

@@ -480,7 +480,9 @@ def boiler_fuel_eia923(pudl_engine, freq=None, start_date=None, end_date=None):
         "boiler_id",
         "energy_source_code",
         "fuel_type_code_pudl",
+        "prime_mover_code",
     ]
+
     if freq is not None:
         # In order to calculate the weighted average sulfur
         # content and ash content we need to calculate these totals.

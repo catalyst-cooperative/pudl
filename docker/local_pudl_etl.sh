@@ -5,7 +5,7 @@
 set -x
 
 function bridge_settings() {
-    export PUDL_CACHE="${CONTAINER_PUDL_IN}/data"
+    export PUDL_INPUT="${CONTAINER_PUDL_IN}/data"
     export PUDL_OUTPUT=$CONTAINER_PUDL_OUT
 }
 
@@ -19,6 +19,7 @@ function run_pudl_etl() {
         $PUDL_SETTINGS_YML \
     && pudl_etl \
         --loglevel DEBUG \
+        --partition-epacems \
         $PUDL_SETTINGS_YML \
     && pytest \
         --etl-settings $PUDL_SETTINGS_YML \
