@@ -31,8 +31,8 @@ def set_defaults(pudl_in, pudl_out, clobber=False):
         None
     """
     logger.warning(
-        "pudl_settings is being deprecated in favor of environment"
-        "variables PUDL_OUTPUT and PUDL_CACHE. For more info"
+        "pudl_settings is being deprecated in favor of environment "
+        "variables PUDL_OUTPUT and PUDL_INPUT. For more info "
         "see: https://catalystcoop-pudl.readthedocs.io/en/dev/dev/dev_setup.html"
     )
     settings_file = pathlib.Path.home() / ".pudl.yml"
@@ -61,7 +61,8 @@ def get_defaults():
     """
     logger.warning(
         "pudl_settings is being deprecated in favor of environment variables "
-        "PUDL_OUTPUT and PUDL_CACHE"
+        "variables PUDL_OUTPUT and PUDL_INPUT. For more info "
+        "see: https://catalystcoop-pudl.readthedocs.io/en/dev/dev/dev_setup.html"
     )
     settings_file = pathlib.Path.home() / ".pudl.yml"
 
@@ -104,7 +105,7 @@ def derive_paths(pudl_in, pudl_out):
     """
     logger.warning(
         "pudl_settings is being deprecated in favor of environment variables "
-        "PUDL_OUTPUT and PUDL_CACHE. For more info"
+        "PUDL_OUTPUT and PUDL_INPUT. For more info "
         "see: https://catalystcoop-pudl.readthedocs.io/en/dev/dev/dev_setup.html"
     )
     pudl_settings = {}
@@ -131,7 +132,7 @@ def derive_paths(pudl_in, pudl_out):
 
     # Mirror dagster env vars for ease of use
     pudl_settings["PUDL_OUTPUT"] = pudl_settings["pudl_out"]
-    pudl_settings["PUDL_CACHE"] = pudl_settings["data_dir"]
+    pudl_settings["PUDL_INPUT"] = pudl_settings["data_dir"]
 
     ferc1_db_file = pathlib.Path(pudl_settings["pudl_out"], "ferc1.sqlite")
     pudl_settings["ferc1_db"] = "sqlite:///" + str(ferc1_db_file.resolve())
