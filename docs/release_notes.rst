@@ -33,7 +33,7 @@ Data Coverage
     :pr:`2119`.
   * :ref:`electric_plant_depreciation_functional_ferc1` see issue :issue:`1808` & PR
     :pr:`2183`
-  * :ref:`electric_opex_ferc1`, see issue :issue:`1817` & PR :pr:`2162`.
+  * :ref:`electric_operating_expenses_ferc1`, see issue :issue:`1817` & PR :pr:`2162`.
   * :ref:`retained_earnings_ferc1`, see issue :issue:`1811` & PR :pr:`2155`.
   * :ref:`cash_flow_ferc1`, see issue :issue:`1821` & PR :pr:`2184`
   * :ref:`electricity_sales_by_rate_schedule_ferc1`, see issue :issue:`1823` & PR
@@ -51,6 +51,9 @@ Data Cleaning
   :ref:`boilers_entity_eia`, :ref:`boilers_eia860`, :ref:`boiler_fuel_eia923`,
   :ref:`boiler_generator_assn_eia860` and the :ref:`epacamd_eia` crosswalk. It also had
   some minor downstream effects on the MCOE outputs. See :issue:`2366` and :pr:`2367`.
+* The :ref:`boiler_fuel_eia923` table now includes the ``prime_mover_code`` column. This
+  column was previously incorrectly being associated with boilers in the
+  :ref:`boilers_entity_eia` table. See issue :issue:`2349` & PR :pr:`2362`.
 
 Analysis
 ^^^^^^^^
