@@ -396,6 +396,7 @@ def standardize_input_frequency(
             "plant_id_eia",
             "boiler_id",
             "energy_source_code",
+            "prime_mover_code",
             "report_date",
         ],
         data_column_name="fuel_consumed_mmbtu",

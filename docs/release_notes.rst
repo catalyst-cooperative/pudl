@@ -51,6 +51,9 @@ Data Cleaning
   :ref:`boilers_entity_eia`, :ref:`boilers_eia860`, :ref:`boiler_fuel_eia923`,
   :ref:`boiler_generator_assn_eia860` and the :ref:`epacamd_eia` crosswalk. It also had
   some minor downstream effects on the MCOE outputs. See :issue:`2366` and :pr:`2367`.
+* The :ref:`boiler_fuel_eia923` table now includes the ``prime_mover_code`` column. This
+  column was previously incorrectly being associated with boilers in the
+  :ref:`boilers_entity_eia` table. See issue :issue:`2349` & PR :pr:`2362`.
 
 Analysis
 ^^^^^^^^
