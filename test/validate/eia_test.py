@@ -5,6 +5,7 @@ from test.conftest import skip_table_if_null_freq_table
 import pytest
 
 from pudl import validate as pv
+from pudl.metadata.classes import Package
 from pudl.output.pudltabl import PudlTabl
 
 logger = logging.getLogger(__name__)
@@ -41,9 +42,9 @@ def test_no_null_cols_eia(pudl_out_eia, live_dbs, cols, df_name):
 @pytest.mark.parametrize(
     "df_name,raw_rows,monthly_rows,annual_rows",
     [
-        ("bf_eia923", 1_415_040, 1_415_040, 118_534),
+        ("bf_eia923", 1_427_692, 1_427_692, 119_611),
         ("bga_eia860", 130_326, 130_326, 130_326),
-        ("boil_eia860", 74_090, 74_090, 74_090),
+        ("boil_eia860", 74_086, 74_086, 74_086),
         ("frc_eia923", 597_000, 244_415, 24_065),
         ("gen_eia923", None, 5_171_497, 432_570),
         ("gens_eia860", 523_563, 523_563, 523_563),
@@ -103,42 +104,89 @@ def test_minmax_rows(
     [
         (
             "bf_eia923",
-            [
-                "report_date",
-                "plant_id_eia",
-                "boiler_id",
-                "energy_source_code",
-            ],
+            (
+                Package.from_resource_ids()
+                .get_resource("boiler_fuel_eia923")
+                .schema.primary_key
+            ),
         ),
-        ("bga_eia860", ["report_date", "plant_id_eia", "boiler_id", "generator_id"]),
-        ("boil_eia860", ["report_date", "plant_id_eia", "boiler_id"]),
-        ("gen_eia923", ["report_date", "plant_id_eia", "generator_id"]),
-        ("gens_eia860", ["report_date", "plant_id_eia", "generator_id"]),
+        (
+            "bga_eia860",
+            (
+                Package.from_resource_ids()
+                .get_resource("boiler_generator_assn_eia860")
+                .schema.primary_key
+            ),
+        ),
+        (
+            "boil_eia860",
+            (
+                Package.from_resource_ids()
+                .get_resource("boilers_eia860")
+                .schema.primary_key
+            ),
+        ),
+        (
+            "gen_eia923",
+            (
+                Package.from_resource_ids()
+                .get_resource("generation_eia923")
+                .schema.primary_key
+            ),
+        ),
+        (
+            "gens_eia860",
+            (
+                Package.from_resource_ids()
+                .get_resource("generators_eia860")
+                .schema.primary_key
+            ),
+        ),
         (
             "gf_eia923",
             ["report_date", "plant_id_eia", "prime_mover_code", "energy_source_code"],
         ),
         (
             "gf_nonuclear_eia923",
-            ["report_date", "plant_id_eia", "prime_mover_code", "energy_source_code"],
+            (
+                Package.from_resource_ids()
+                .get_resource("generation_fuel_eia923")
+                .schema.primary_key
+            ),
         ),
         (
             "gf_nuclear_eia923",
-            [
-                "report_date",
-                "plant_id_eia",
-                "nuclear_unit_id",
-                "prime_mover_code",
-                "energy_source_code",
-            ],
+            (
+                Package.from_resource_ids()
+                .get_resource("generation_fuel_nuclear_eia923")
+                .schema.primary_key
+            ),
         ),
         (
             "own_eia860",
-            ["report_date", "plant_id_eia", "generator_id", "owner_utility_id_eia"],
+            (
+                Package.from_resource_ids()
+                .get_resource("ownership_eia860")
+                .schema.primary_key
+            ),
         ),
-        ("plants_eia860", ["report_date", "plant_id_eia"]),
+        (
+            "plants_eia860",
+            (
+                Package.from_resource_ids()
+                .get_resource("plants_eia860")
+                .schema.primary_key
+            ),
+        ),
         ("pu_eia860", ["report_date", "plant_id_eia"]),
-        ("utils_eia860", ["report_date", "utility_id_eia"]),
+        (
+            "utils_eia860",
+            (
+                Package.from_resource_ids()
+                .get_resource("utilities_eia860")
+                .schema.primary_key
+            ),
+        ),
     ],
 )
 def test_unique_rows_eia(pudl_out_eia, live_dbs, unique_subset, df_name):
