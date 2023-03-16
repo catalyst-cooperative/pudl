@@ -1,5 +1,5 @@
 """Tools for setting up and managing PUDL workspaces."""
-import importlib.resources as ir
+import importlib.resources
 import pathlib
 import shutil
 
@@ -251,17 +251,18 @@ def deploy(pkg_path, deploy_dir, ignore_files, clobber=False):
     """
     files = [
         file
-        for file in ir.contents(pkg_path)
-        if ir.is_resource(pkg_path, file) and file not in ignore_files
+        for file in importlib.resources.contents(pkg_path)
+        if importlib.resources.is_resource(pkg_path, file) and file not in ignore_files
     ]
     for file in files:
-        pkg_source = ir.files(pkg_path).joinpath(file)
-        with ir.as_file(pkg_source) as f:
-            dest_file = pathlib.Path(deploy_dir, file)
-            if pathlib.Path.exists(dest_file):
-                if clobber:
-                    logger.info(f"CLOBBERING existing file at {dest_file}.")
-                else:
-                    logger.info(f"Skipping existing file at {dest_file}")
-                    continue
-            shutil.copy(f, dest_file)
+        dest_file = pathlib.Path(deploy_dir, file)
+        if pathlib.Path.exists(dest_file):
+            if clobber:
+                logger.info(f"CLOBBERING existing file at {dest_file}.")
+            else:
+                logger.info(f"Skipping existing file at {dest_file}")
+                continue
+
+            pkg_source = importlib.resources.files(pkg_path).joinpath(file)
+            with importlib.resources.as_file(pkg_source) as f:
+                shutil.copy(f, dest_file)
