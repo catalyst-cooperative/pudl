@@ -31,7 +31,7 @@ ferc_to_sqlite_full = ferc_to_sqlite.to_job(
 
 pkg_source = files("pudl.package_data.settings").joinpath("etl_fast.yml")
 with as_file(pkg_source) as etl_fast_yml:
-    ferc_to_sqlite_settings = EtlSettings.from_yaml(
+    ferc_to_sqlite_fast_settings = EtlSettings.from_yaml(
         etl_fast_yml
     ).ferc_to_sqlite_settings.dict()
 ferc_to_sqlite_fast = ferc_to_sqlite.to_job(
@@ -40,7 +40,7 @@ ferc_to_sqlite_fast = ferc_to_sqlite.to_job(
     config={
         "resources": {
             "ferc_to_sqlite_settings": {
-                "config": ferc_to_sqlite_settings,
+                "config": ferc_to_sqlite_fast_settings,
             }
         }
     },
