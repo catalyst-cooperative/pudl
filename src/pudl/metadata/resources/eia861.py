@@ -187,6 +187,7 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
                 "sales_to_ultimate_consumers_mwh",
                 "state",
                 "utility_id_eia",
+                "data_maturity",
             ],
         },
         "field_namespace": "eia",
@@ -544,6 +545,7 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
                 "report_date",
                 "state_id_fips",
                 "county_id_fips",
+                "data_maturity",
             ],
             "primary_key": [
                 "utility_id_eia",
