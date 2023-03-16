@@ -2193,6 +2193,7 @@ def utility_data_eia861(raw_utility_data_eia861: pd.DataFrame):
         "utility_data_nerc_eia861": AssetIn(),
         "utility_data_rto_eia861": AssetIn(),
     },
+    io_manager_key="pudl_sqlite_io_manager",
 )
 def utility_assn_eia861(**data_dfs: dict[str, pd.DataFrame]) -> pd.DataFrame:
     """Harvest a Utility-Date-State Association Table."""
@@ -2232,6 +2233,8 @@ def utility_assn_eia861(**data_dfs: dict[str, pd.DataFrame]) -> pd.DataFrame:
         "utility_data_nerc_eia861": AssetIn(),
         "utility_data_rto_eia861": AssetIn(),
     },
+    # Null values in `state` column violate PK NOT NULL constraint
+    # io_manager_key="pudl_sqlite_io_manager",
 )
 def balancing_authority_assn_eia861(**dfs: dict[str, pd.DataFrame]) -> pd.DataFrame:
     """Compile a balancing authority, utility, state association table.

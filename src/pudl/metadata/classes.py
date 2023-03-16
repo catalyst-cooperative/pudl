@@ -1185,6 +1185,7 @@ class Resource(Base):
     etl_group: Literal[
         "eia860",
         "eia861",
+        "eia861_disabled",
         "eia923",
         "entity_eia",
         "epacems",

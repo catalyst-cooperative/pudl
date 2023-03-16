@@ -32,7 +32,7 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
         },
         "field_namespace": "eia",
         "sources": ["eia861"],
-        "etl_group": "eia861",
+        "etl_group": "eia861_disabled",
     },
     "balancing_authority_assn_eia861": {
         "description": "Association table showing which combinations of state, balancing authority, and utilities were observed in the data each year.",
@@ -100,7 +100,7 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
         },
         "field_namespace": "eia",
         "sources": ["eia861"],
-        "etl_group": "eia861",
+        "etl_group": "eia861_disabled",
     },
     "demand_response_water_heater_eia861": {
         "description": "The number of grid connected water heaters enrolled in demand response programs.",
@@ -121,7 +121,7 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
         },
         "field_namespace": "eia",
         "sources": ["eia861"],
-        "etl_group": "eia861",
+        "etl_group": "eia861_disabled",
     },
     "demand_side_management_ee_dr_eia861": {
         "description": "The data contain energy efficiency incremental data, energy efficiency annual data, load management incremental data, load management annual data, annual costs, and the customer counts of price response and time response programs by sector.",
@@ -154,7 +154,7 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
         },
         "field_namespace": "eia",
         "sources": ["eia861"],
-        "etl_group": "eia861",
+        "etl_group": "eia861_disabled",
     },
     "demand_side_management_misc_eia861": {
         "schema": {
@@ -176,7 +176,7 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
         },
         "field_namespace": "eia",
         "sources": ["eia861"],
-        "etl_group": "eia861",
+        "etl_group": "eia861_disabled",
     },
     "demand_side_management_sales_eia861": {
         "schema": {
@@ -191,7 +191,7 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
         },
         "field_namespace": "eia",
         "sources": ["eia861"],
-        "etl_group": "eia861",
+        "etl_group": "eia861_disabled",
     },
     "distributed_generation_fuel_eia861": {
         "schema": {
@@ -206,7 +206,7 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
         },
         "field_namespace": "eia",
         "sources": ["eia861"],
-        "etl_group": "eia861",
+        "etl_group": "eia861_disabled",
     },
     "distributed_generation_misc_eia861": {
         "schema": {
@@ -225,7 +225,7 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
         },
         "field_namespace": "eia",
         "sources": ["eia861"],
-        "etl_group": "eia861",
+        "etl_group": "eia861_disabled",
     },
     "distributed_generation_tech_eia861": {
         "schema": {
@@ -240,7 +240,7 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
         },
         "field_namespace": "eia",
         "sources": ["eia861"],
-        "etl_group": "eia861",
+        "etl_group": "eia861_disabled",
     },
     "distribution_systems_eia861": {
         "description": "The number of distribution circuits and circuits with voltage optimization by state.",
@@ -257,7 +257,7 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
         },
         "field_namespace": "eia",
         "sources": ["eia861"],
-        "etl_group": "eia861",
+        "etl_group": "eia861_disabled",
     },
     "dynamic_pricing_eia861": {
         "description": "The number of customers enrolled in dynamic pricing programs by state, sector, and balancing authority. Respondents check if one or more customers are enrolled in time-of-use pricing, real time pricing, variable peak pricing, critical peak pricing, and critical peak rebates.",
@@ -280,7 +280,7 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
         },
         "field_namespace": "eia",
         "sources": ["eia861"],
-        "etl_group": "eia861",
+        "etl_group": "eia861_disabled",
     },
     "energy_efficiency_eia861": {
         "description": "Incremental energy savings, peak demand savings, weighted average life cycle, and associated costs for the reporting year and life cycle of energy efficiency programs.",
@@ -306,7 +306,7 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
         },
         "field_namespace": "eia",
         "sources": ["eia861"],
-        "etl_group": "eia861",
+        "etl_group": "eia861_disabled",
     },
     "green_pricing_eia861": {
         "description": "Green pricing program revenue, sales, and customer count by sector and state.",
@@ -326,7 +326,7 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
         },
         "field_namespace": "eia",
         "sources": ["eia861"],
-        "etl_group": "eia861",
+        "etl_group": "eia861_disabled",
     },
     "mergers_eia861": {
         "description": "Information about utility mergers and acquisitions.",
@@ -349,7 +349,7 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
         },
         "field_namespace": "eia",
         "sources": ["eia861"],
-        "etl_group": "eia861",
+        "etl_group": "eia861_disabled",
     },
     "net_metering_customer_fuel_class_eia861": {
         "schema": {
@@ -370,7 +370,7 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
         },
         "field_namespace": "eia",
         "sources": ["eia861"],
-        "etl_group": "eia861",
+        "etl_group": "eia861_disabled",
     },
     "net_metering_misc_eia861": {
         "schema": {
@@ -384,7 +384,7 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
         },
         "field_namespace": "eia",
         "sources": ["eia861"],
-        "etl_group": "eia861",
+        "etl_group": "eia861_disabled",
     },
     "non_net_metering_customer_fuel_class_eia861": {
         "schema": {
@@ -401,7 +401,7 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
         },
         "field_namespace": "eia",
         "sources": ["eia861"],
-        "etl_group": "eia861",
+        "etl_group": "eia861_disabled",
     },
     "non_net_metering_misc_eia861": {
         "schema": {
@@ -418,7 +418,7 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
         },
         "field_namespace": "eia",
         "sources": ["eia861"],
-        "etl_group": "eia861",
+        "etl_group": "eia861_disabled",
     },
     "operational_data_misc_eia861": {
         "schema": {
@@ -454,7 +454,7 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
         },
         "field_namespace": "eia",
         "sources": ["eia861"],
-        "etl_group": "eia861",
+        "etl_group": "eia861_disabled",
     },
     "operational_data_revenue_eia861": {
         "schema": {
@@ -469,7 +469,7 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
         },
         "field_namespace": "eia",
         "sources": ["eia861"],
-        "etl_group": "eia861",
+        "etl_group": "eia861_disabled",
     },
     "reliability_eia861": {
         "schema": {
@@ -499,7 +499,7 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
         },
         "field_namespace": "eia",
         "sources": ["eia861"],
-        "etl_group": "eia861",
+        "etl_group": "eia861_disabled",
     },
     "sales_eia861": {
         "description": "Annual electricity sales to ultimate customers broken down by utility, balancing authority, state, and customer class.",
@@ -598,7 +598,7 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
         },
         "field_namespace": "eia",
         "sources": ["eia861"],
-        "etl_group": "eia861",
+        "etl_group": "eia861_disabled",
     },
     "utility_data_nerc_eia861": {
         "schema": {
@@ -612,7 +612,7 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
         },
         "field_namespace": "eia",
         "sources": ["eia861"],
-        "etl_group": "eia861",
+        "etl_group": "eia861_disabled",
     },
     "utility_data_rto_eia861": {
         "schema": {
@@ -626,72 +626,6 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
         },
         "field_namespace": "eia",
         "sources": ["eia861"],
-        "etl_group": "eia861",
+        "etl_group": "eia861_disabled",
     },
-}
-
-# Tables that always get processed:
-#  - 'balancing_authority_eia861',
-# Association tables that are always generated from the other tables:
-#  - 'balancing_authority_assn_eia861',
-#  - 'utility_assn_eia861',
-TABLE_DEPENDENCIES: dict[str, list[str]] = {
-    "advanced_metering_infrastructure_eia861": [
-        "advanced_metering_infrastructure_eia861"
-    ],
-    "demand_response_eia861": [
-        "demand_response_eia861",
-        "demand_response_water_heater_eia861",
-    ],
-    "demand_side_management_eia861": [
-        "demand_side_management_ee_dr_eia861",
-        "demand_side_management_misc_eia861",
-        "demand_side_management_sales_eia861",
-    ],
-    "distributed_generation_eia861": [
-        "distributed_generation_fuel_eia861",
-        "distributed_generation_misc_eia861",
-        "distributed_generation_tech_eia861",
-    ],
-    "distribution_systems_eia861": [
-        "distribution_systems_eia861",
-    ],
-    "dynamic_pricing_eia861": [
-        "dynamic_pricing_eia861",
-    ],
-    "energy_efficiency_eia861": [
-        "energy_efficiency_eia861",
-    ],
-    "green_pricing_eia861": [
-        "green_pricing_eia861",
-    ],
-    "mergers_eia861": [
-        "mergers_eia861",
-    ],
-    "net_metering_eia861": [
-        "net_metering_customer_fuel_class_eia861",
-        "net_metering_misc_eia861",
-    ],
-    "non_net_metering_eia861": [
-        "non_net_metering_customer_fuel_class_eia861",
-        "non_net_metering_misc_eia861",
-    ],
-    "operational_data_eia861": [
-        "operational_data_misc_eia861",
-        "operational_data_revenue_eia861",
-    ],
-    "reliability_eia861": [
-        "reliability_eia861",
-    ],
-    "sales_eia861": [
-        "sales_eia861",
-    ],
-    "service_territory_eia861": [
-        "service_territory_eia861",
-    ],
-    "utility_data_eia861": [
-        "utility_data_misc_eia861",
-        "utility_data_nerc_eia861",
-        "utility_data_rto_eia861",
-    ],
 }

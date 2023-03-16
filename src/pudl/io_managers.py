@@ -377,6 +377,7 @@ def pudl_sqlite_io_manager(init_context) -> SQLiteIOManager:
             "epacems",
             "outputs",
             "ferc1_disabled",
+            "eia861_disabled",
         )
     ).to_sql()
     return SQLiteIOManager(base_dir=base_dir, db_name="pudl", md=md)
