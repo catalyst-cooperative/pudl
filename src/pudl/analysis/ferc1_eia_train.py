@@ -595,6 +595,38 @@ def validate_override_fixes(
     return verified_connections
 
 
+def get_multi_match_df(training_data) -> pd.DataFrame:
+    """Process the verified and/or fixed matches and generate a list of 1:m matches.
+
+    Filter the dataframe to only include FERC records with more than one EIA match.
+    Melt this dataframe to report all matched EIA records in the
+    `record_id_eia_override_1` column.
+
+    Args:
+        training_data (pd.DataFrame): A dataframe in the add_to_training directory that
+            is ready to be validated and subsumed into the training data.
+
+    Returns:
+        pd.DataFrame: A dataframe of 1:m matches formatted to fit into the existing
+            validation framework.
+    """
+    multi_match_cols = [f"record_id_eia_override_{i}" for i in range(2, 4)]
+    match_cols = [
+        col for col in training_data.columns if "record_id_eia_override_" in col
+    ]
+    id_cols = [col for col in training_data.columns if col not in match_cols]
+    multimatch_df = training_data[training_data[multi_match_cols].notnull().any(axis=1)]
+    multimatch_df = multimatch_df.melt(
+        id_vars=id_cols, var_name="match_number", value_name="record_id_eia_override"
+    ).dropna(subset=["record_id_eia_override"])
+    multimatch_df = (
+        multimatch_df.rename(  # To match existing validation function format
+            columns={"record_id_eia_override": "record_id_eia_override_1"}
+        )
+    )
+    return multimatch_df
+
+
 def _add_to_training(new_overrides, current_training_data_path) -> None:
     """Add the new overrides to the old override sheet."""
     logger.info("Combining all new overrides with existing training data")
@@ -632,6 +664,30 @@ def _add_to_null_overrides(null_matches, current_null_overrides_path) -> None:
     out_null_matches.to_csv(current_null_overrides_path, index=False)
 
 
+def _add_to_one_to_many_overrides(one_to_many, current_one_to_many_path) -> None:
+    """Add record_id_ferc1 values verified to have multiple EIA matches to csv."""
+    logger.info(
+        "Adding record_id_ferc1 values with multiple EIA matches to one_to_many_overrides csv"
+    )
+    current_one_to_many = pd.read_csv(current_one_to_many_path)
+    new_one_to_many = (
+        one_to_many[
+            ["record_id_eia", "record_id_ferc1", "signature_1", "signature_2", "notes"]
+        ]
+        .copy()
+        .drop_duplicates(subset=["record_id_eia", "record_id_ferc1"])
+    )
+    logger.debug(
+        f"Found {len(new_one_to_many.record_id_ferc1.unique())} new plants with multiple EIA matches."
+    )
+    # Combine new and old training data; drop old data in favor or new overrides
+    one_to_many = pd.concat([current_one_to_many, new_one_to_many]).drop_duplicates(
+        subset=["record_id_ferc1", "record_id_eia"], keep="last"
+    )
+    # Write the combined values out to the same location as before
+    one_to_many.to_csv(current_one_to_many_path, index=False)
+
+
 def validate_and_add_to_training(
     utils_eia860,
     ppl,
@@ -639,6 +695,7 @@ def validate_and_add_to_training(
     input_dir_path,
     expect_override_overrides=False,
     allow_mismatched_utilities=True,
+    one_to_many=False,
 ) -> None:
     """Validate, combine, and add overrides to the training data.
 
@@ -654,6 +711,7 @@ def validate_and_add_to_training(
             of the notebook.
         allow_mismatched_utilities (bool): Whether you are allowed to have FERC-EIA
             matches from different utilities.
+        one_to_many (bool): If True, will also validate and save csv of 1:m matches.
 
     Returns:
         pandas.DataFrame: A DataFrame with all of the new overrides combined.
@@ -666,6 +724,11 @@ def validate_and_add_to_training(
     path_to_null_overrides = importlib.resources.path(
         "pudl.package_data.glue", "ferc1_eia_null.csv"
     )
+    if one_to_many:
+        path_to_one_to_many = importlib.resources.path(
+            "pudl.package_data.glue", "ferc1_eia_one_to_many.csv"
+        )
+
     override_cols = [
         "record_id_eia",
         "record_id_ferc1",
@@ -676,6 +739,8 @@ def validate_and_add_to_training(
     null_match_cols = ["record_id_ferc1"]
     all_overrides_list = []
     all_null_matches_list = []
+    if one_to_many:
+        all_multi_matches_list = []
 
     # Loop through all the files, validate, and combine them.
     all_files = os.listdir(path_to_new_training)
@@ -684,24 +749,22 @@ def validate_and_add_to_training(
         raise AssertionError("Found no override files in the add_to_training directory")
     for file in excel_files:
         logger.info(f"Processing fixes in {file}")
-        file_df = (
-            pd.read_excel(path_to_new_training + file)
-            .pipe(
-                validate_override_fixes,
-                utils_eia860,
-                ppl,
-                ferc1_eia,
-                old_training_df,
-                expect_override_overrides=expect_override_overrides,
-                allow_mismatched_utilities=allow_mismatched_utilities,
-            )
-            .rename(
-                columns={
-                    "record_id_eia": "record_id_eia_old",
-                    "record_id_eia_override_1": "record_id_eia",
-                }
-            )
+        file_raw = pd.read_excel(path_to_new_training + file)
+        file_df = file_raw.pipe(
+            validate_override_fixes,
+            utils_eia860,
+            ppl,
+            ferc1_eia,
+            old_training_df,
+            expect_override_overrides=expect_override_overrides,
+            allow_mismatched_utilities=allow_mismatched_utilities,
+        ).rename(
+            columns={
+                "record_id_eia": "record_id_eia_old",
+                "record_id_eia_override_1": "record_id_eia",
+            }
         )
+
         # Get just the overrides and combine them to full list of overrides
         only_overrides = file_df[file_df["record_id_eia"].notna()][override_cols].copy()
         all_overrides_list.append(only_overrides)
@@ -711,6 +774,28 @@ def validate_and_add_to_training(
         ].copy()
         all_null_matches_list.append(only_null_matches)
 
+        if one_to_many:
+            multi_df = file_raw.pipe(get_multi_match_df)
+            multi_file_df = multi_df.pipe(
+                validate_override_fixes,
+                utils_eia860,
+                ppl,
+                ferc1_eia,
+                old_training_df,
+                expect_override_overrides=expect_override_overrides,
+                allow_mismatched_utilities=allow_mismatched_utilities,
+            ).rename(
+                columns={
+                    "record_id_eia": "record_id_eia_old",
+                    "record_id_eia_override_1": "record_id_eia",
+                }
+            )
+
+            only_multi = multi_file_df[multi_file_df["record_id_eia"].notna()][
+                override_cols
+            ].copy()
+            all_multi_matches_list.append(only_multi)
+
     # Combine all training data and null matches
     all_overrides_df = pd.concat(all_overrides_list)
     all_null_matches_df = pd.concat(all_null_matches_list)
@@ -718,3 +803,7 @@ def validate_and_add_to_training(
     # Add the records to the training data and null overrides
     _add_to_training(all_overrides_df, path_to_old_training)
     _add_to_null_overrides(all_null_matches_df, path_to_null_overrides)
+
+    if one_to_many:
+        all_multi_matches_df = pd.concat(all_multi_matches_list)
+        _add_to_one_to_many_overrides(all_multi_matches_df, path_to_one_to_many)
