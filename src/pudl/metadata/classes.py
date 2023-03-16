@@ -1496,6 +1496,23 @@ class Resource(Base):
                 df[key] = PERIODS[period](df[key])
         return df
 
+    def enforce_schema(self, df: pd.DataFrame) -> pd.DataFrame:
+        """Drop columns not in the DB schema and enforce specified types."""
+        expected_cols = pd.Index(self.get_field_names())
+        missing_cols = list(expected_cols.difference(df.columns))
+        if missing_cols:
+            raise ValueError(
+                f"{self.name}: Missing columns found when enforcing table "
+                f"schema: {missing_cols}"
+            )
+        df = self.format_df(df)
+        pk = self.schema.primary_key
+        if pk and not df[df.duplicated(subset=pk)].empty:
+            raise ValueError(
+                f"{self.name} Duplicate primary keys when enforcing schema."
+            )
+        return df
+
     def aggregate_df(
         self, df: pd.DataFrame, raised: bool = False, error: Callable = None
     ) -> tuple[pd.DataFrame, dict]:
