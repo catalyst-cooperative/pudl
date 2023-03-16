@@ -166,6 +166,7 @@ Deprecations
 Miscellaneous
 ^^^^^^^^^^^^^
 
+* Updated PUDL to use Python 3.11. See :pr:`2408` & :issue:`2383`
 * Apply start and end dates to ferc1 data in :class:`pudl.output.pudltabl.PudlTabl`.
   See :pr:`2238` & :issue:`274`.
 * Added the ability to serialize :class:`pudl.output.pudltabl.PudlTabl` using
