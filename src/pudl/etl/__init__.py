@@ -1,5 +1,5 @@
 """Dagster definitions for the PUDL ETL and Output tables."""
-import importlib
+from importlib.resources import as_file, files
 
 from dagster import (
     AssetKey,
@@ -79,11 +79,10 @@ def load_dataset_settings_from_file(setting_filename: str) -> dict:
     Returns:
         Dictionary of dataset settings.
     """
-    return EtlSettings.from_yaml(
-        importlib.resources.path(
-            "pudl.package_data.settings", f"{setting_filename}.yml"
-        )
-    ).datasets.dict()
+    pkg_source = files("pudl.package_data.settings").joinpath(f"{setting_filename}.yml")
+    with as_file(pkg_source) as yaml_file:
+        dataset_settings = EtlSettings.from_yaml(yaml_file).datasets.dict()
+    return dataset_settings
 
 
 defs: Definitions = Definitions(

@@ -44,7 +44,7 @@ setup(
         "eia 861",
         "ferc 714",
     ],
-    python_requires=">=3.10,<3.11",
+    python_requires=">=3.11,<3.12",
     setup_requires=["setuptools_scm"],
     install_requires=[
         "addfips>=0.4,<0.5",
@@ -85,7 +85,7 @@ setup(
             "isort>=5.0,<5.13",
             "jedi>=0.18,<0.19",
             "lxml>=4.6,<4.10",
-            "tox>=3.20,<4.5",
+            "tox>=4,<4.5",
             "twine>=3.3,<4.1",
         ],
         "doc": [
@@ -133,7 +133,7 @@ setup(
         "Programming Language :: Python",
         "Programming Language :: Python :: 3",
         "Programming Language :: Python :: 3 :: Only",
-        "Programming Language :: Python :: 3.10",
+        "Programming Language :: Python :: 3.11",
         "Topic :: Scientific/Engineering",
     ],
     packages=find_packages("src"),
