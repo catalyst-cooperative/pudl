@@ -2320,7 +2320,7 @@ def balancing_authority_assn_eia861(**dfs: dict[str, pd.DataFrame]) -> pd.DataFr
     return ba_assn_eia861
 
 
-@asset
+@asset(io_manager_key="pudl_sqlite_io_manager")
 def balancing_authority_eia861(
     clean_balancing_authority_eia861: pd.DataFrame,
 ) -> pd.DataFrame:
@@ -2371,6 +2371,18 @@ def balancing_authority_eia861(
     if len(fillable_ba_codes) != 0:
         raise ValueError(
             f"Found {len(fillable_ba_codes)} unfilled but fillable BA Codes!"
+        )
+    len_before = len(ba_eia861_normed)
+    ba_eia861_normed = ba_eia861_normed.dropna(
+        subset=["report_date", "balancing_authority_id_eia"]
+    )
+    len_after = len(ba_eia861_normed)
+    delta = len_before - len_after
+    if delta > 3:
+        logger.warning(
+            "Unexpectedly large number of rows with NULL PK values found in "
+            f"balancing_authority_eia861. Expected 3, found {delta} (out of "
+            f"{len_before} total)."
         )
 
     return _post_process(ba_eia861_normed)
