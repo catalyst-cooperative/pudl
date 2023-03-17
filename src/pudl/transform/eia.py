@@ -1166,6 +1166,13 @@ def fix_balancing_authority_codes_with_state(
             "clean_plants_eia860",
             "clean_utilities_eia860",
         ]
+        # This would be better, but currently results in a circular import error due to
+        # the use of occurrence_consistency in pudl.output.eia860. Need to untangle.
+        # asset_key.to_python_identifier(): AssetIn()
+        # for eia_asset in load_assets_from_modules(
+        #     [pudl.transform.eia860, pudl.transform.eia923]
+        # )
+        # for asset_key in eia_asset.keys
     },
     outs={
         table_name: AssetOut(io_manager_key="pudl_sqlite_io_manager")
@@ -1179,7 +1186,10 @@ def fix_balancing_authority_codes_with_state(
         "debug": Field(
             bool,
             default_value=False,
-            description="If true, informational columns will be added into boiler_generator_assn",
+            description=(
+                "If True, informational columns will be added into "
+                "boiler_generator_assn"
+            ),
         ),
     },
     required_resource_keys={"dataset_settings"},
