@@ -21,8 +21,6 @@ from pudl.resources import dataset_settings, datastore, ferc_to_sqlite_settings
 from pudl.settings import EtlSettings
 
 from . import (  # noqa: F401
-    analysis_assets,
-    denormalized_assets,
     eia_bulk_elec_assets,
     epacems_assets,
     glue_assets,
@@ -32,8 +30,6 @@ from . import (  # noqa: F401
 logger = pudl.logging_helpers.get_logger(__name__)
 
 default_assets = (
-    *load_assets_from_modules([denormalized_assets], group_name="denormalized"),
-    *load_assets_from_modules([analysis_assets], group_name="analysis"),
     *load_assets_from_modules([epacems_assets], group_name="epacems"),
     *load_assets_from_modules([eia_bulk_elec_assets], group_name="eia_bulk_elec"),
     *load_assets_from_modules([glue_assets], group_name="glue"),
