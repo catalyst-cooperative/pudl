@@ -3,6 +3,7 @@ import pandas as pd
 import pytest
 from dagster import AssetKey, build_input_context, build_output_context
 from sqlalchemy import Column, ForeignKey, Integer, MetaData, String, Table
+from sqlalchemy.exc import IntegrityError, OperationalError
 
 from pudl.io_managers import ForeignKeyError, ForeignKeyErrors, SQLiteIOManager
 
@@ -33,7 +34,7 @@ def test_sqlite_io_manager_delete_stmt(sqlite_io_manager_fixture):
     manager = sqlite_io_manager_fixture
 
     asset_key = "artist"
-    artist = pd.DataFrame({"artistid": [1], "artistname": "Co-op Mop"})
+    artist = pd.DataFrame({"artistid": [1], "artistname": ["Co-op Mop"]})
     output_context = build_output_context(asset_key=AssetKey(asset_key))
     manager.handle_output(output_context, artist)
 
@@ -58,7 +59,7 @@ def test_foreign_key_failure(sqlite_io_manager_fixture):
     manager = sqlite_io_manager_fixture
 
     asset_key = "artist"
-    artist = pd.DataFrame({"artistid": [1], "artistname": "Co-op Mop"})
+    artist = pd.DataFrame({"artistid": [1], "artistname": ["Co-op Mop"]})
     output_context = build_output_context(asset_key=AssetKey(asset_key))
     manager.handle_output(output_context, artist)
 
@@ -78,3 +79,91 @@ def test_foreign_key_failure(sqlite_io_manager_fixture):
         foreign_key="(artistid)",
         rowids=[1],
     )
+
+
+def test_extra_column_error(sqlite_io_manager_fixture):
+    """Ensure an error is thrown when there is an extra column in the dataframe."""
+    manager = sqlite_io_manager_fixture
+
+    asset_key = "artist"
+    artist = pd.DataFrame(
+        {"artistid": [1], "artistname": ["Co-op Mop"], "artistmanager": [1]}
+    )
+    output_context = build_output_context(asset_key=AssetKey(asset_key))
+    with pytest.raises(OperationalError):
+        manager.handle_output(output_context, artist)
+
+
+def test_missing_column_error(sqlite_io_manager_fixture):
+    """Ensure an error is thrown when a dataframe is missing a column in the schema."""
+    manager = sqlite_io_manager_fixture
+
+    asset_key = "artist"
+    artist = pd.DataFrame(
+        {
+            "artistid": [1],
+        }
+    )
+    output_context = build_output_context(asset_key=AssetKey(asset_key))
+    with pytest.raises(RuntimeError):
+        manager.handle_output(output_context, artist)
+
+
+def test_nullable_column_error(sqlite_io_manager_fixture):
+    """Ensure an error is thrown when a non nullable column is missing data."""
+    manager = sqlite_io_manager_fixture
+
+    asset_key = "artist"
+    artist = pd.DataFrame({"artistid": [1, 2], "artistname": ["Co-op Mop", pd.NA]})
+    output_context = build_output_context(asset_key=AssetKey(asset_key))
+
+    with pytest.raises(IntegrityError):
+        manager.handle_output(output_context, artist)
+
+
+@pytest.mark.xfail(reason="SQLite autoincrement behvior is breaking this test.")
+def test_null_primary_key_column_error(sqlite_io_manager_fixture):
+    """Ensure an error is thrown when a primary key contains a nullable value."""
+    manager = sqlite_io_manager_fixture
+
+    asset_key = "artist"
+    artist = pd.DataFrame(
+        {"artistid": [1, pd.NA], "artistname": ["Co-op Mop", "Cxtxlyst"]}
+    )
+    output_context = build_output_context(asset_key=AssetKey(asset_key))
+    with pytest.raises(IntegrityError):
+        manager.handle_output(output_context, artist)
+
+
+def test_primary_key_column_error(sqlite_io_manager_fixture):
+    """Ensure an error is thrown when a primary key is violated."""
+    manager = sqlite_io_manager_fixture
+
+    asset_key = "artist"
+    artist = pd.DataFrame({"artistid": [1, 1], "artistname": ["Co-op Mop", "Cxtxlyst"]})
+    output_context = build_output_context(asset_key=AssetKey(asset_key))
+    with pytest.raises(IntegrityError):
+        manager.handle_output(output_context, artist)
+
+
+def test_incorrect_type_error(sqlite_io_manager_fixture):
+    """Ensure an error is thrown when a dataframe's type doesn't match the table
+    schema."""
+    manager = sqlite_io_manager_fixture
+
+    asset_key = "artist"
+    artist = pd.DataFrame({"artistid": ["abc"], "artistname": ["Co-op Mop"]})
+    output_context = build_output_context(asset_key=AssetKey(asset_key))
+    with pytest.raises(IntegrityError):
+        manager.handle_output(output_context, artist)
+
+
+def test_missing_schema_error(sqlite_io_manager_fixture):
+    """Test a RuntimeError is raised when a table without a schema is loaded."""
+    manager = sqlite_io_manager_fixture
+
+    asset_key = "venues"
+    venue = pd.DataFrame({"venueid": [1], "venuename": "Vans Dive Bar"})
+    output_context = build_output_context(asset_key=AssetKey(asset_key))
+    with pytest.raises(RuntimeError):
+        manager.handle_output(output_context, venue)

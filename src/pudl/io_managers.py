@@ -159,12 +159,8 @@ class SQLiteIOManager(IOManager):
         """
         sa_table = self.md.tables.get(table_name, None)
         if sa_table is None:
-            # TODO (bendnorman): Logging a warning for now so the analysis example can run but we could raise an error.
-            # raise RuntimeError(
-            #     f"{sa_table} not found in database metadata. Either add the table to the metadata or use a different IO Manager."
-            # )
-            logger.warning(
-                f"{table_name} not found in database metadata. Dtypes of returned DataFrame might be incorrect."
+            raise RuntimeError(
+                f"{sa_table} not found in database metadata. Either add the table to the metadata or use a different IO Manager."
             )
         return sa_table
 
@@ -262,30 +258,25 @@ class SQLiteIOManager(IOManager):
         table_name = self._get_table_name(context)
 
         sa_table = self._get_sqlalchemy_table(table_name)
+
+        column_difference = set(sa_table.columns.keys()) - set(df.columns)
+        if column_difference:
+            raise RuntimeError(
+                f"{table_name} dataframe is missing columns: {column_difference}"
+            )
+
         engine = self.engine
+        with engine.connect() as con:
+            # Remove old table records before loading to db
+            con.execute(sa_table.delete())
 
-        # TODO (bendnorman): I included this if else statement for the analysis table example.
-        if sa_table is None:
-            with engine.connect() as con:
-                # Remove old table records before loading to db
-                df.to_sql(
-                    table_name,
-                    con,
-                    if_exists="replace",
-                    index=False,
-                )
-        else:
-            with engine.connect() as con:
-                # Remove old table records before loading to db
-                con.execute(sa_table.delete())
-
-                df.to_sql(
-                    table_name,
-                    con,
-                    if_exists="append",
-                    index=False,
-                    dtype={c.name: c.type for c in sa_table.columns},
-                )
+            df.to_sql(
+                table_name,
+                con,
+                if_exists="append",
+                index=False,
+                dtype={c.name: c.type for c in sa_table.columns},
+            )
 
     # TODO (bendnorman): Create a SQLQuery type so it's clearer what this method expects
     def _handle_str_output(self, context: OutputContext, query: str):
@@ -515,16 +506,14 @@ class FercXBRLSQLiteIOManager(FercSQLiteIOManager):
         ferc1_settings = context.resources.dataset_settings.ferc1
 
         table_name = self._get_table_name(context)
-        _ = self._get_sqlalchemy_table(table_name)
-
-        engine = self.engine
-
         # TODO (bendnorman): Figure out a better to handle tables that
         # don't have duration and instant
         # Not every table contains both instant and duration
         # Return empty dataframe if table doesn't exist
         if table_name not in self.md.tables:
             return pd.DataFrame()
+
+        engine = self.engine
 
         id_table = "identification_001_duration"
 
