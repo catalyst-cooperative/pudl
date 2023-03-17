@@ -31,7 +31,6 @@ from . import (  # noqa: F401
 logger = pudl.logging_helpers.get_logger(__name__)
 
 default_assets = (
-    *load_assets_from_modules([output_assets], group_name="output_tables"),
     *load_assets_from_modules([epacems_assets], group_name="epacems"),
     *load_assets_from_modules([eia_api_assets], group_name="eia_api"),
     *load_assets_from_modules([glue_assets], group_name="glue"),
