@@ -760,6 +760,7 @@ def _aggregate_duplicate_boiler_fuel_keys(boiler_fuel_df: pd.DataFrame) -> pd.Da
         + relative_cols
         + key_cols
         + ["prime_mover_code", "sector_id_eia", "sector_name_eia"]
+        + ["associated_combined_heat_power"]
     )
     actual_cols = set(boiler_fuel_df.columns)
     difference = actual_cols.symmetric_difference(expected_cols)
@@ -830,7 +831,6 @@ def boiler_fuel(eia923_dfs, eia923_transformed_dfs):
     # Need to stop dropping fields that contain harvestable entity attributes.
     # See https://github.com/catalyst-cooperative/pudl/issues/509
     cols_to_drop = [
-        "combined_heat_power",
         "plant_name_eia",
         "operator_name",
         "operator_id",
