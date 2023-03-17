@@ -258,8 +258,14 @@ class SQLiteIOManager(IOManager):
         table_name = self._get_table_name(context)
 
         sa_table = self._get_sqlalchemy_table(table_name)
-        engine = self.engine
 
+        column_difference = set(sa_table.columns.keys()) - set(df.columns)
+        if column_difference:
+            raise RuntimeError(
+                f"{table_name} dataframe is missing columns: {column_difference}"
+            )
+
+        engine = self.engine
         with engine.connect() as con:
             # Remove old table records before loading to db
             con.execute(sa_table.delete())

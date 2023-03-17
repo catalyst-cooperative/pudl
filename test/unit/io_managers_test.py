@@ -94,12 +94,53 @@ def test_extra_column_error(sqlite_io_manager_fixture):
         manager.handle_output(output_context, artist)
 
 
+def test_missing_column_error(sqlite_io_manager_fixture):
+    """Ensure an error is thrown when a dataframe is missing a column in the schema."""
+    manager = sqlite_io_manager_fixture
+
+    asset_key = "artist"
+    artist = pd.DataFrame(
+        {
+            "artistid": [1],
+        }
+    )
+    output_context = build_output_context(asset_key=AssetKey(asset_key))
+    with pytest.raises(RuntimeError):
+        manager.handle_output(output_context, artist)
+
+
 def test_nullable_column_error(sqlite_io_manager_fixture):
     """Ensure an error is thrown when a non nullable column is missing data."""
     manager = sqlite_io_manager_fixture
 
     asset_key = "artist"
     artist = pd.DataFrame({"artistid": [1, 2], "artistname": ["Co-op Mop", pd.NA]})
+    output_context = build_output_context(asset_key=AssetKey(asset_key))
+
+    with pytest.raises(IntegrityError):
+        manager.handle_output(output_context, artist)
+
+
+@pytest.mark.xfail(reason="SQLite autoincrement behvior is breaking this test.")
+def test_null_primary_key_column_error(sqlite_io_manager_fixture):
+    """Ensure an error is thrown when a primary key contains a nullable value."""
+    manager = sqlite_io_manager_fixture
+
+    asset_key = "artist"
+    artist = pd.DataFrame(
+        {"artistid": [1, pd.NA], "artistname": ["Co-op Mop", "Cxtxlyst"]}
+    )
+    output_context = build_output_context(asset_key=AssetKey(asset_key))
+    with pytest.raises(IntegrityError):
+        manager.handle_output(output_context, artist)
+
+
+def test_primary_key_column_error(sqlite_io_manager_fixture):
+    """Ensure an error is thrown when a primary key is violated."""
+    manager = sqlite_io_manager_fixture
+
+    asset_key = "artist"
+    artist = pd.DataFrame({"artistid": [1, 1], "artistname": ["Co-op Mop", "Cxtxlyst"]})
     output_context = build_output_context(asset_key=AssetKey(asset_key))
     with pytest.raises(IntegrityError):
         manager.handle_output(output_context, artist)
