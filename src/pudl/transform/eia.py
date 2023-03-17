@@ -23,14 +23,7 @@ import networkx as nx
 import numpy as np
 import pandas as pd
 import timezonefinder
-from dagster import (
-    AssetIn,
-    AssetOut,
-    Field,
-    Output,
-    load_assets_from_modules,
-    multi_asset,
-)
+from dagster import AssetIn, AssetOut, Field, Output, multi_asset
 
 import pudl
 from pudl.helpers import convert_cols_dtypes
@@ -38,7 +31,6 @@ from pudl.metadata.classes import DataSource, Package
 from pudl.metadata.enums import APPROXIMATE_TIMEZONES
 from pudl.metadata.fields import apply_pudl_dtypes, get_pudl_dtypes
 from pudl.metadata.resources import ENTITIES
-from pudl.transform import eia860, eia923
 
 logger = pudl.logging_helpers.get_logger(__name__)
 
@@ -1157,24 +1149,31 @@ def fix_balancing_authority_codes_with_state(
     return plants
 
 
-eia_assets = load_assets_from_modules([eia860, eia923])
-
-final_eia_table_names = (
-    Package.get_etl_group_tables("entity_eia")
-    + Package.get_etl_group_tables("eia860")
-    + Package.get_etl_group_tables("eia923")
-)
-
-
 @multi_asset(
     ins={
-        asset_key.to_python_identifier(): AssetIn()
-        for eia_asset in eia_assets
-        for asset_key in eia_asset.keys
+        asset_id: AssetIn()
+        for asset_id in [
+            "clean_boiler_fuel_eia923",
+            "clean_boiler_generator_assn_eia860",
+            "clean_boilers_eia860",
+            "clean_coalmine_eia923",
+            "clean_fuel_receipts_costs_eia923",
+            "clean_generation_eia923",
+            "clean_generation_fuel_eia923",
+            "clean_generation_fuel_nuclear_eia923",
+            "clean_generators_eia860",
+            "clean_ownership_eia860",
+            "clean_plants_eia860",
+            "clean_utilities_eia860",
+        ]
     },
     outs={
         table_name: AssetOut(io_manager_key="pudl_sqlite_io_manager")
-        for table_name in sorted(final_eia_table_names)
+        for table_name in sorted(
+            Package.get_etl_group_tables("entity_eia")
+            + Package.get_etl_group_tables("eia860")
+            + Package.get_etl_group_tables("eia923")
+        )
     },
     config_schema={
         "debug": Field(
