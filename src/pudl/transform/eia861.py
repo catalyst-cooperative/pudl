@@ -446,9 +446,16 @@ def _pre_process(df: pd.DataFrame) -> pd.DataFrame:
     """Pre-processing applied to all EIA-861 dataframes.
 
     * Standardize common NA values found in EIA spreadsheets.
+    * Drop the ``early_release`` column, which only contains non-null values when the
+      data is an early release, and we extract this information from the filenames, as
+      it's uniform across the whole dataset.
     * Convert report_year column to report_date.
     """
-    return fix_eia_na(df).pipe(convert_to_date)
+    return (
+        fix_eia_na(df)
+        .drop(columns=["early_release"], errors="ignore")
+        .pipe(convert_to_date)
+    )
 
 
 def _post_process(df: pd.DataFrame) -> pd.DataFrame:
@@ -850,6 +857,12 @@ def _harvest_associations(dfs: list[pd.DataFrame], cols: list[str]) -> pd.DataFr
 ###############################################################################
 # EIA Form 861 Table Transform Functions
 ###############################################################################
+# Null FIPS IDs violate PK NOT NULL constraint.
+# - Some county names look like they are recoverable w/ some massaging
+# - Some rows look like they're actually NA and should be dropped.
+# - 550 of 779 NA records are from Guam, Alaska, or the Virgin Islands.
+# - Most of the others look like misspellings of county names we could maybe add.
+# @asset(io_manager_key="pudl_sqlite_io_manager")
 @asset
 def service_territory_eia861(
     raw_service_territory_eia861: pd.DataFrame,
@@ -941,7 +954,7 @@ def clean_balancing_authority_eia861(
     return _post_process(df)
 
 
-@asset
+@asset(io_manager_key="pudl_sqlite_io_manager")
 def sales_eia861(raw_sales_eia861: pd.DataFrame) -> pd.DataFrame:
     """Transform the EIA 861 Sales table.
 
@@ -1013,7 +1026,9 @@ def sales_eia861(raw_sales_eia861: pd.DataFrame) -> pd.DataFrame:
                 "D": "energy_services",
             }
         ),
-        service_type=lambda x: x.service_type.str.lower(),
+        service_type=lambda x: x.service_type.str.lower().replace(
+            {"bundle": "bundled"}
+        ),
         short_form=lambda x: _make_yn_bool(x.short_form),
     )
 

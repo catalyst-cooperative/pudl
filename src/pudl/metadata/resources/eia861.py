@@ -520,6 +520,7 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
                 "customers",
                 "sales_mwh",
                 "sales_revenue",
+                "data_maturity",
             ],
             "primary_key": [
                 "utility_id_eia",
