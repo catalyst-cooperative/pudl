@@ -549,8 +549,8 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
                 "data_maturity",
             ],
             "primary_key": [
-                "utility_id_eia",
                 "report_date",
+                "utility_id_eia",
                 "county_id_fips",
             ],
         },
