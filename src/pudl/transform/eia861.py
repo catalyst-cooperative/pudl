@@ -639,7 +639,7 @@ def backfill_ba_codes_by_ba_id(df: pd.DataFrame) -> pd.DataFrame:
         .assign(
             balancing_authority_code_eia=lambda x: x.balancing_authority_code_eia_bfilled
         )
-        .drop("balancing_authority_code_eia_bfilled", axis="columns")
+        .drop(columns="balancing_authority_code_eia_bfilled")
     )
     return ba_eia861_filled
 
@@ -788,7 +788,7 @@ def clean_nerc(df: pd.DataFrame, idx_cols: list[str]) -> pd.DataFrame:
 
     # Split raw df into primary keys plus nerc region and other value cols
     nerc_df = df[idx_cols].copy()
-    other_df = df.drop("nerc_region", axis=1).set_index(idx_no_nerc)
+    other_df = df.drop(columns="nerc_region").set_index(idx_no_nerc)
 
     # Make all values upper-case
     # Replace all NA values with UNK
@@ -956,11 +956,6 @@ def _harvest_associations(dfs: list[pd.DataFrame], cols: list[str]) -> pd.DataFr
 ###############################################################################
 # EIA Form 861 Table Transform Functions
 ###############################################################################
-# Null FIPS IDs violate PK NOT NULL constraint.
-# - Some county names look like they are recoverable w/ some massaging
-# - Some rows look like they're actually NA and should be dropped.
-# - 550 of 779 NA records are from Guam, Alaska, or the Virgin Islands.
-# - Most of the others look like misspellings of county names we could maybe add.
 @asset(io_manager_key="pudl_sqlite_io_manager")
 def service_territory_eia861(
     raw_service_territory_eia861: pd.DataFrame,
@@ -1155,7 +1150,7 @@ def sales_eia861(raw_sales_eia861: pd.DataFrame) -> pd.DataFrame:
     return _post_process(transformed_sales)
 
 
-@asset
+@asset(io_manager_key="pudl_sqlite_io_manager")
 def advanced_metering_infrastructure_eia861(
     raw_advanced_metering_infrastructure_eia861: pd.DataFrame,
 ) -> pd.DataFrame:
@@ -1192,7 +1187,7 @@ def advanced_metering_infrastructure_eia861(
             df_name="Advanced Metering Infrastructure",
             subset=idx_cols,
         )
-        .drop(["total_meters"], axis=1)
+        .drop(columns=["total_meters"])
         .pipe(_post_process)
     )
 
@@ -1201,9 +1196,11 @@ def advanced_metering_infrastructure_eia861(
 
 @multi_asset(
     outs={
-        "demand_response_eia861": AssetOut(),
-        "demand_response_water_heater_eia861": AssetOut(),
-    }
+        "demand_response_eia861": AssetOut(io_manager_key="pudl_sqlite_io_manager"),
+        "demand_response_water_heater_eia861": AssetOut(
+            io_manager_key="pudl_sqlite_io_manager"
+        ),
+    },
 )
 def demand_response_eia861(raw_demand_response_eia861: pd.DataFrame):
     """Transform the EIA 861 Demand Response table.
@@ -1231,11 +1228,11 @@ def demand_response_eia861(raw_demand_response_eia861: pd.DataFrame):
     raw_dr["short_form"] = _make_yn_bool(raw_dr.short_form)
 
     # Split data into tidy-able and not
-    raw_dr_water_heater = raw_dr[idx_cols + ["water_heater"]].copy()
+    raw_dr_water_heater = raw_dr[idx_cols + ["water_heater", "data_maturity"]].copy()
     dr_water = _drop_dupes(
         df=raw_dr_water_heater, df_name="Demand Response Water Heater", subset=idx_cols
     )
-    raw_dr = raw_dr.drop(["water_heater"], axis=1)
+    raw_dr = raw_dr.drop(columns=["water_heater"])
 
     ###########################################################################
     # Tidy Data:
@@ -1282,9 +1279,15 @@ def demand_response_eia861(raw_demand_response_eia861: pd.DataFrame):
 
 @multi_asset(
     outs={
-        "demand_side_management_sales_eia861": AssetOut(),
-        "demand_side_management_ee_dr_eia861": AssetOut(),
-        "demand_side_management_misc_eia861": AssetOut(),
+        "demand_side_management_sales_eia861": AssetOut(
+            io_manager_key="pudl_sqlite_io_manager"
+        ),
+        "demand_side_management_ee_dr_eia861": AssetOut(
+            io_manager_key="pudl_sqlite_io_manager"
+        ),
+        "demand_side_management_misc_eia861": AssetOut(
+            io_manager_key="pudl_sqlite_io_manager"
+        ),
     },
 )
 def demand_side_management_eia861(
@@ -1319,7 +1322,11 @@ def demand_side_management_eia861(
         "report_date",
     ]
 
-    sales_cols = ["sales_for_resale_mwh", "sales_to_ultimate_consumers_mwh"]
+    sales_cols = [
+        "sales_for_resale_mwh",
+        "sales_to_ultimate_consumers_mwh",
+        "data_maturity",
+    ]
 
     bool_cols = [
         "energy_savings_estimates_independently_verified",
@@ -1347,13 +1354,15 @@ def demand_side_management_eia861(
     ###########################################################################
     transformed_dsm1 = (
         clean_nerc(_pre_process(raw_demand_side_management_eia861), idx_cols)
-        .drop(["demand_side_management", "data_status"], axis=1)
+        .drop(columns=["demand_side_management", "data_status"])
         .query("utility_id_eia not in [88888]")
     )
 
     # Separate dsm data into sales vs. other table (the latter of which can be tidied)
     dsm_sales = transformed_dsm1[idx_cols + sales_cols].copy()
-    dsm_ee_dr = transformed_dsm1.drop(sales_cols, axis=1)
+    dsm_ee_dr = transformed_dsm1.drop(
+        columns=[x for x in sales_cols if x != "data_maturity"]
+    )
 
     ###########################################################################
     # Tidy Data:
@@ -1377,7 +1386,7 @@ def demand_side_management_eia861(
     # Split tidy dsm data into transformable chunks
     tidy_dsm_bool = tidy_dsm[dsm_idx_cols + bool_cols].copy().set_index(dsm_idx_cols)
     tidy_dsm_cost = tidy_dsm[dsm_idx_cols + cost_cols].copy().set_index(dsm_idx_cols)
-    tidy_dsm_ee_dr = tidy_dsm.drop(bool_cols + cost_cols, axis=1)
+    tidy_dsm_ee_dr = tidy_dsm.drop(columns=bool_cols + cost_cols)
 
     # Calculate transformations for each chunk
     transformed_dsm2_bool = (
@@ -1402,10 +1411,15 @@ def demand_side_management_eia861(
     total_cost_cols = ["annual_indirect_program_cost", "annual_total_cost"]
 
     dsm_ee_dr = transformed_dsm2[
-        dsm_idx_cols + ee_cols + dr_cols + program_cols + total_cost_cols
+        dsm_idx_cols
+        + ee_cols
+        + dr_cols
+        + program_cols
+        + total_cost_cols
+        + ["data_maturity"]
     ].copy()
     dsm_misc = transformed_dsm2.drop(
-        ee_cols + dr_cols + program_cols + total_cost_cols + ["customer_class"], axis=1
+        columns=ee_cols + dr_cols + program_cols + total_cost_cols + ["customer_class"]
     )
     dsm_misc = _drop_dupes(
         df=dsm_misc,
@@ -1431,9 +1445,15 @@ def demand_side_management_eia861(
 
 @multi_asset(
     outs={
-        "distributed_generation_tech_eia861": AssetOut(),
-        "distributed_generation_fuel_eia861": AssetOut(),
-        "distributed_generation_misc_eia861": AssetOut(),
+        "distributed_generation_tech_eia861": AssetOut(
+            io_manager_key="pudl_sqlite_io_manager"
+        ),
+        "distributed_generation_fuel_eia861": AssetOut(
+            io_manager_key="pudl_sqlite_io_manager"
+        ),
+        "distributed_generation_misc_eia861": AssetOut(
+            io_manager_key="pudl_sqlite_io_manager"
+        ),
     },
 )
 def distributed_generation_eia861(
@@ -1466,6 +1486,7 @@ def distributed_generation_eia861(
         "total_capacity_mw",
         "total_capacity_less_1_mw",
         "utility_name_eia",
+        "data_maturity",
     ]
 
     tech_cols = [
@@ -1485,6 +1506,7 @@ def distributed_generation_eia861(
         "total_capacity_mw",
         "wind_capacity_mw",
         "wind_capacity_pct",
+        "data_maturity",
     ]
 
     fuel_cols = [
@@ -1496,6 +1518,7 @@ def distributed_generation_eia861(
         "water_fuel_pct",
         "wind_fuel_pct",
         "wood_fuel_pct",
+        "data_maturity",
     ]
 
     # Pre-tidy transform: set estimated or actual A/E values to 'Acutal'/'Estimated'
@@ -1541,12 +1564,11 @@ def distributed_generation_eia861(
     )
     dg_misc = pd.concat([dg_misc_early, dg_misc_late])
     dg_misc = dg_misc.drop(
-        [
+        columns=[
             "distributed_generation_owned_capacity_pct",
             "backup_capacity_pct",
             "total_capacity_mw",
         ],
-        axis="columns",
     )
 
     logger.info("Converting pct into MW for distributed generation tech table")
@@ -1564,7 +1586,7 @@ def distributed_generation_eia861(
     )
     dg_tech = pd.concat([dg_tech_early, dg_tech_late])
     dg_tech = dg_tech.drop(
-        [
+        columns=[
             "combustion_turbine_capacity_pct",
             "hydro_capacity_pct",
             "internal_combustion_capacity_pct",
@@ -1573,13 +1595,11 @@ def distributed_generation_eia861(
             "wind_capacity_pct",
             "total_capacity_mw",
         ],
-        axis="columns",
     )
 
     ###########################################################################
     # Tidy Data
     ###########################################################################
-
     logger.info("Tidying Distributed Generation Tech Table")
     tidy_dg_tech, tech_idx_cols = _tidy_class_dfs(
         df=dg_tech,
@@ -1614,7 +1634,7 @@ def distributed_generation_eia861(
     )
 
 
-@asset
+@asset(io_manager_key="pudl_sqlite_io_manager")
 def distribution_systems_eia861(
     raw_distribution_systems_eia861: pd.DataFrame,
 ) -> pd.DataFrame:
@@ -1636,7 +1656,7 @@ def distribution_systems_eia861(
     return df
 
 
-@asset
+@asset(io_manager_key="pudl_sqlite_io_manager")
 def dynamic_pricing_eia861(raw_dynamic_pricing_eia861: pd.DataFrame) -> pd.DataFrame:
     """Transform the EIA 861 Dynamic Pricing table.
 
@@ -1698,7 +1718,7 @@ def dynamic_pricing_eia861(raw_dynamic_pricing_eia861: pd.DataFrame) -> pd.DataF
     return _post_process(tidy_dp)
 
 
-@asset
+@asset(io_manager_key="pudl_sqlite_io_manager")
 def energy_efficiency_eia861(
     raw_energy_efficiency_eia861: pd.DataFrame,
 ) -> pd.DataFrame:
@@ -1761,12 +1781,12 @@ def energy_efficiency_eia861(
         other_costs_incremental_cost=lambda x: (
             _thousand_to_one(x.other_costs_incremental_cost)
         ),
-    ).drop(["website"], axis=1)
+    ).drop(columns=["website"])
 
     return _post_process(transformed_ee)
 
 
-@asset
+@asset(io_manager_key="pudl_sqlite_io_manager")
 def green_pricing_eia861(
     raw_green_pricing_eia861: pd.DataFrame,
 ) -> pd.DataFrame:
@@ -1810,7 +1830,7 @@ def green_pricing_eia861(
     return _post_process(transformed_gp)
 
 
-@asset
+@asset(io_manager_key="pudl_sqlite_io_manager")
 def mergers_eia861(raw_mergers_eia861: pd.DataFrame) -> pd.DataFrame:
     """Transform the EIA 861 Mergers table."""
     # No duplicates to speak of but take measures to check just in case
@@ -1828,9 +1848,11 @@ def mergers_eia861(raw_mergers_eia861: pd.DataFrame) -> pd.DataFrame:
 
 @multi_asset(
     outs={
-        "net_metering_customer_fuel_class_eia861": AssetOut(),
-        "net_metering_misc_eia861": AssetOut(),
-    }
+        "net_metering_customer_fuel_class_eia861": AssetOut(
+            io_manager_key="pudl_sqlite_io_manager"
+        ),
+        "net_metering_misc_eia861": AssetOut(io_manager_key="pudl_sqlite_io_manager"),
+    },
 )
 def net_metering_eia861(raw_net_metering_eia861: pd.DataFrame):
     """Transform the EIA 861 Net Metering table.
@@ -1859,8 +1881,8 @@ def net_metering_eia861(raw_net_metering_eia861: pd.DataFrame):
 
     # Separate customer class data from misc data (in this case just one col: current flow)
     # Could easily add this to tech_class if desired.
-    raw_nm_customer_fuel_class = raw_nm.drop(misc_cols, axis=1).copy()
-    raw_nm_misc = raw_nm[idx_cols + misc_cols].copy()
+    raw_nm_customer_fuel_class = raw_nm.drop(columns=misc_cols).copy()
+    raw_nm_misc = raw_nm[idx_cols + misc_cols + ["data_maturity"]].copy()
 
     # Check for duplicates before idx cols get changed
     _ = _check_for_dupes(raw_nm_misc, "Net Metering Current Flow Type PV", idx_cols)
@@ -1910,8 +1932,12 @@ def net_metering_eia861(raw_net_metering_eia861: pd.DataFrame):
 
 @multi_asset(
     outs={
-        "non_net_metering_customer_fuel_class_eia861": AssetOut(),
-        "non_net_metering_misc_eia861": AssetOut(),
+        "non_net_metering_customer_fuel_class_eia861": AssetOut(
+            io_manager_key="pudl_sqlite_io_manager"
+        ),
+        "non_net_metering_misc_eia861": AssetOut(
+            io_manager_key="pudl_sqlite_io_manager"
+        ),
     },
 )
 def non_net_metering_eia861(raw_non_net_metering_eia861: pd.DataFrame):
@@ -1955,8 +1981,8 @@ def non_net_metering_eia861(raw_non_net_metering_eia861: pd.DataFrame):
         )
 
     # Separate customer class data from misc data
-    raw_nnm_customer_fuel_class = raw_nnm.drop(misc_cols, axis=1).copy()
-    raw_nnm_misc = (raw_nnm[idx_cols + misc_cols]).copy()
+    raw_nnm_customer_fuel_class = raw_nnm.drop(columns=misc_cols).copy()
+    raw_nnm_misc = (raw_nnm[idx_cols + misc_cols + ["data_maturity"]]).copy()
 
     # Check for duplicates before idx cols get changed
     _ = _check_for_dupes(
@@ -2016,8 +2042,12 @@ def non_net_metering_eia861(raw_non_net_metering_eia861: pd.DataFrame):
 
 @multi_asset(
     outs={
-        "operational_data_revenue_eia861": AssetOut(),
-        "operational_data_misc_eia861": AssetOut(),
+        "operational_data_revenue_eia861": AssetOut(
+            io_manager_key="pudl_sqlite_io_manager"
+        ),
+        "operational_data_misc_eia861": AssetOut(
+            io_manager_key="pudl_sqlite_io_manager"
+        ),
     },
 )
 def operational_data_eia861(raw_operational_data_eia861: pd.DataFrame):
@@ -2066,8 +2096,10 @@ def operational_data_eia861(raw_operational_data_eia861: pd.DataFrame):
     #  * Revenue (wide-to-tall)
     #  * Misc. (other)
     revenue_cols = [col for col in transformed_od if "revenue" in col]
-    transformed_od_misc = transformed_od.drop(revenue_cols, axis=1)
-    transformed_od_rev = transformed_od[idx_cols + revenue_cols].copy()
+    transformed_od_misc = transformed_od.drop(columns=revenue_cols)
+    transformed_od_rev = transformed_od[
+        idx_cols + revenue_cols + ["data_maturity"]
+    ].copy()
 
     # Wide-to-tall revenue columns
     tidy_od_rev, idx_cols = _tidy_class_dfs(
@@ -2100,7 +2132,7 @@ def operational_data_eia861(raw_operational_data_eia861: pd.DataFrame):
     )
 
 
-@asset
+@asset(io_manager_key="pudl_sqlite_io_manager")
 def reliability_eia861(raw_reliability_eia861: pd.DataFrame) -> pd.DataFrame:
     """Transform the EIA 861 Reliability table.
 
@@ -2165,9 +2197,9 @@ def reliability_eia861(raw_reliability_eia861: pd.DataFrame) -> pd.DataFrame:
 
 @multi_asset(
     outs={
-        "utility_data_nerc_eia861": AssetOut(),
-        "utility_data_rto_eia861": AssetOut(),
-        "utility_data_misc_eia861": AssetOut(),
+        "utility_data_nerc_eia861": AssetOut(io_manager_key="pudl_sqlite_io_manager"),
+        "utility_data_rto_eia861": AssetOut(io_manager_key="pudl_sqlite_io_manager"),
+        "utility_data_misc_eia861": AssetOut(io_manager_key="pudl_sqlite_io_manager"),
     },
 )
 def utility_data_eia861(raw_utility_data_eia861: pd.DataFrame):
@@ -2199,13 +2231,22 @@ def utility_data_eia861(raw_utility_data_eia861: pd.DataFrame):
     )
 
     # Establish columns that are nerc regions vs. rtos
-    nerc_cols = [col for col in raw_ud if "nerc_region_operation" in col]
-    rto_cols = [col for col in raw_ud if "rto_operation" in col]
-
+    nerc_cols = [col for col in raw_ud if "nerc_region_operation" in col] + [
+        "data_maturity"
+    ]
+    logger.info(f"{nerc_cols=}")
+    rto_cols = [col for col in raw_ud if "rto_operation" in col] + ["data_maturity"]
+    logger.info(f"{rto_cols=}")
+    misc_cols = [
+        col
+        for col in raw_ud
+        if "nerc_region_operation" not in col and "rto_operation" not in col
+    ]
+    logger.info(f"{misc_cols=}")
     # Make separate tables for nerc vs. rto vs. misc data
     raw_ud_nerc = transformed_ud[idx_cols + nerc_cols].copy()
     raw_ud_rto = transformed_ud[idx_cols + rto_cols].copy()
-    raw_ud_misc = transformed_ud.drop(nerc_cols + rto_cols, axis=1).copy()
+    raw_ud_misc = transformed_ud[misc_cols].copy()
 
     ###########################################################################
     # Tidy Data:
@@ -2249,25 +2290,25 @@ def utility_data_eia861(raw_utility_data_eia861: pd.DataFrame):
     # Only keep true values and drop bool col
     transformed_ud_nerc = transformed_ud_nerc[
         transformed_ud_nerc.nerc_region_operation
-    ].drop(["nerc_region_operation"], axis=1)
+    ].drop(columns=["nerc_region_operation"])
 
     # Transform RTO table
     transformed_ud_rto = tidy_ud_rto.assign(
         rto_operation=lambda x: (
             x.rto_operation.fillna(False).replace({"N": False, "Y": True})
         ),
-        rtos_of_operation=lambda x: (x.rtos_of_operation.str.upper()),
+        # rtos_of_operation=lambda x: (x.rtos_of_operation.str.upper()),
     )
 
     # Only keep true values and drop bool col
     transformed_ud_rto = transformed_ud_rto[transformed_ud_rto.rto_operation].drop(
-        ["rto_operation"], axis=1
+        columns=["rto_operation"]
     )
 
     # Transform MISC table by first separating bool cols from non bool cols
     # and then making them into boolean values.
     transformed_ud_misc_bool = (
-        raw_ud_misc.drop(["entity_type", "utility_name_eia"], axis=1)
+        raw_ud_misc.drop(columns=["entity_type", "utility_name_eia", "data_maturity"])
         .set_index(idx_cols)
         .fillna(False)
         .replace({"N": False, "Y": True})
@@ -2275,7 +2316,7 @@ def utility_data_eia861(raw_utility_data_eia861: pd.DataFrame):
 
     # Merge misc. bool cols back together with misc. non bool cols
     transformed_ud_misc = pd.merge(
-        raw_ud_misc[idx_cols + ["entity_type", "utility_name_eia"]],
+        raw_ud_misc[idx_cols + ["entity_type", "utility_name_eia", "data_maturity"]],
         transformed_ud_misc_bool,
         on=idx_cols,
         how="outer",
@@ -2442,7 +2483,7 @@ def balancing_authority_assn_eia861(**dfs: dict[str, pd.DataFrame]) -> pd.DataFr
     # We merge on ba_code then drop it, b/c only BA ID exists in all years consistently:
     late_date_ba_util_state = (
         late_date_ba_code_util_state.merge(late_ba_code_id, how="outer")
-        .drop("balancing_authority_code_eia", axis="columns")
+        .drop(columns="balancing_authority_code_eia")
         .drop_duplicates()
     )
 

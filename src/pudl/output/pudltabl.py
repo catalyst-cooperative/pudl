@@ -33,7 +33,8 @@ from pudl.analysis.allocate_net_gen import (
     allocate_gen_fuel_by_generator_energy_source,
     scale_allocated_net_gen_by_ownership,
 )
-from pudl.settings import Eia861Settings, Ferc714Settings
+from pudl.metadata.fields import apply_pudl_dtypes
+from pudl.settings import Ferc714Settings
 from pudl.workspace.datastore import Datastore
 
 logger = pudl.logging_helpers.get_logger(__name__)
@@ -169,255 +170,237 @@ class PudlTabl:
             )
         return self._dfs["pu_ferc1"]
 
-    ###########################################################################
-    # EIA 861 Interim Outputs (awaiting full DB integration)
-    ###########################################################################
-    def etl_eia861(
-        self, eia861_settings: Eia861Settings = Eia861Settings(), update: bool = False
-    ):
-        """A single function that runs the temporary EIA 861 ETL and sets all DFs.
-
-        This is an interim solution that provides a (somewhat) standard way of accessing
-        the EIA 861 data prior to its being fully integrated into the PUDL database. If
-        any of the dataframes is attempted to be accessed, all of them are set. Only
-        the tables that have actual transform functions are included, and as new
-        transform functions are completed, they would need to be added to the list
-        below. Surely there is a way to do this automatically / magically but that's
-        beyond my knowledge right now.
-
-        Args:
-            eia861_settings: Object containing validated settings relevant to EIA 861.
-            update: Whether to overwrite the existing dataframes if they exist.
-        """
-        if isinstance(self.ds, Datastore):
-            pass
-        elif self.ds is None:
-            pudl_settings = pudl.workspace.setup.get_defaults()
-            if pudl_settings["pudl_in"] is None:
-                raise FileNotFoundError(
-                    "In order to run the ad-hoc EIA-861 ETL PUDL needs a valid "
-                    "Datastore, but none was found. Run 'pudl_setup --help' "
-                    "to see how to create one."
-                )
-            self.ds = Datastore(local_cache_path=pudl_settings["data_dir"])
-        else:
-            raise TypeError(
-                "PudlTabl needs a PUDL Datastore object, but we got "
-                f"a {type(self.ds)}."
-            )
-
-        if update or self._dfs["balancing_authority_eia861"] is None:
-            logger.warning("Running the interim EIA 861 ETL process!")
-
-            eia861_raw_dfs = pudl.extract.eia861.Extractor(self.ds).extract(
-                settings=eia861_settings
-            )
-            self._dfs.update(
-                pudl.transform.eia861.transform(eia861_raw_dfs, eia861_settings)
-            )
-
-    def advanced_metering_infrastructure_eia861(
-        self, eia861_settings: Eia861Settings = Eia861Settings(), update=False
-    ):
+    def advanced_metering_infrastructure_eia861(self) -> pd.DataFrame:
         """An interim EIA 861 output function."""
-        self.etl_eia861(update=update)
-        return self._dfs["advanced_metering_infrastructure_eia861"]
+        return (
+            pd.read_sql("advanced_metering_infrastructure_eia861", self.pudl_engine)
+            .convert_dtypes(convert_floating=False)
+            .pipe(apply_pudl_dtypes, group="eia")
+        )
 
-    def balancing_authority_eia861(
-        self, eia861_settings: Eia861Settings = Eia861Settings(), update=False
-    ):
+    def balancing_authority_eia861(self) -> pd.DataFrame:
         """An interim EIA 861 output function."""
-        self.etl_eia861(update=update)
-        return self._dfs["balancing_authority_eia861"]
+        return (
+            pd.read_sql("balancing_authority_eia861", self.pudl_engine)
+            .convert_dtypes(convert_floating=False)
+            .pipe(apply_pudl_dtypes, group="eia")
+        )
 
-    def balancing_authority_assn_eia861(
-        self, eia861_settings: Eia861Settings = Eia861Settings(), update=False
-    ):
+    def balancing_authority_assn_eia861(self) -> pd.DataFrame:
         """An interim EIA 861 output function."""
-        self.etl_eia861(update=update)
-        return self._dfs["balancing_authority_assn_eia861"]
+        return (
+            pd.read_sql("balancing_authority_assn_eia861", self.pudl_engine)
+            .convert_dtypes(convert_floating=False)
+            .pipe(apply_pudl_dtypes, group="eia")
+        )
 
-    def demand_response_eia861(
-        self, eia861_settings: Eia861Settings = Eia861Settings(), update=False
-    ):
+    def demand_response_eia861(self) -> pd.DataFrame:
         """An interim EIA 861 output function."""
-        self.etl_eia861(update=update)
-        return self._dfs["demand_response_eia861"]
+        return (
+            pd.read_sql("demand_response_eia861", self.pudl_engine)
+            .convert_dtypes(convert_floating=False)
+            .pipe(apply_pudl_dtypes, group="eia")
+        )
 
-    def demand_response_water_heater_eia861(
-        self, eia861_settings: Eia861Settings = Eia861Settings(), update=False
-    ):
+    def demand_response_water_heater_eia861(self) -> pd.DataFrame:
         """An interim EIA 861 output function."""
-        self.etl_eia861(update=update)
-        return self._dfs["demand_response_water_heater_eia861"]
+        return (
+            pd.read_sql("demand_response_water_heater_eia861", self.pudl_engine)
+            .convert_dtypes(convert_floating=False)
+            .pipe(apply_pudl_dtypes, group="eia")
+        )
 
-    def demand_side_management_sales_eia861(
-        self, eia861_settings: Eia861Settings = Eia861Settings(), update=False
-    ):
+    def demand_side_management_sales_eia861(self) -> pd.DataFrame:
         """An interim EIA 861 output function."""
-        self.etl_eia861(update=update)
-        return self._dfs["demand_side_management_sales_eia861"]
+        return (
+            pd.read_sql("demand_side_management_sales_eia861", self.pudl_engine)
+            .convert_dtypes(convert_floating=False)
+            .pipe(apply_pudl_dtypes, group="eia")
+        )
 
-    def demand_side_management_ee_dr_eia861(
-        self, eia861_settings: Eia861Settings = Eia861Settings(), update=False
-    ):
+    def demand_side_management_ee_dr_eia861(self) -> pd.DataFrame:
         """An interim EIA 861 output function."""
-        self.etl_eia861(update=update)
-        return self._dfs["demand_side_management_ee_dr_eia861"]
+        return (
+            pd.read_sql("demand_side_management_ee_dr_eia861", self.pudl_engine)
+            .convert_dtypes(convert_floating=False)
+            .pipe(apply_pudl_dtypes, group="eia")
+        )
 
-    def demand_side_management_misc_eia861(
-        self, eia861_settings: Eia861Settings = Eia861Settings(), update=False
-    ):
+    def demand_side_management_misc_eia861(self) -> pd.DataFrame:
         """An interim EIA 861 output function."""
-        self.etl_eia861(update=update)
-        return self._dfs["demand_side_management_misc_eia861"]
+        return (
+            pd.read_sql("demand_side_management_misc_eia861", self.pudl_engine)
+            .convert_dtypes(convert_floating=False)
+            .pipe(apply_pudl_dtypes, group="eia")
+        )
 
-    def distributed_generation_tech_eia861(
-        self, eia861_settings: Eia861Settings = Eia861Settings(), update=False
-    ):
+    def distributed_generation_tech_eia861(self) -> pd.DataFrame:
         """An interim EIA 861 output function."""
-        self.etl_eia861(update=update)
-        return self._dfs["distributed_generation_tech_eia861"]
+        return (
+            pd.read_sql("distributed_generation_tech_eia861", self.pudl_engine)
+            .convert_dtypes(convert_floating=False)
+            .pipe(apply_pudl_dtypes, group="eia")
+        )
 
-    def distributed_generation_fuel_eia861(
-        self, eia861_settings: Eia861Settings = Eia861Settings(), update=False
-    ):
+    def distributed_generation_fuel_eia861(self) -> pd.DataFrame:
         """An interim EIA 861 output function."""
-        self.etl_eia861(update=update)
-        return self._dfs["distributed_generation_fuel_eia861"]
+        return (
+            pd.read_sql("distributed_generation_fuel_eia861", self.pudl_engine)
+            .convert_dtypes(convert_floating=False)
+            .pipe(apply_pudl_dtypes, group="eia")
+        )
 
-    def distributed_generation_misc_eia861(
-        self, eia861_settings: Eia861Settings = Eia861Settings(), update=False
-    ):
+    def distributed_generation_misc_eia861(self) -> pd.DataFrame:
         """An interim EIA 861 output function."""
-        self.etl_eia861(update=update)
-        return self._dfs["distributed_generation_misc_eia861"]
+        return (
+            pd.read_sql("distributed_generation_misc_eia861", self.pudl_engine)
+            .convert_dtypes(convert_floating=False)
+            .pipe(apply_pudl_dtypes, group="eia")
+        )
 
-    def distribution_systems_eia861(
-        self, eia861_settings: Eia861Settings = Eia861Settings(), update=False
-    ):
+    def distribution_systems_eia861(self) -> pd.DataFrame:
         """An interim EIA 861 output function."""
-        self.etl_eia861(update=update)
-        return self._dfs["distribution_systems_eia861"]
+        return (
+            pd.read_sql("distribution_systems_eia861", self.pudl_engine)
+            .convert_dtypes(convert_floating=False)
+            .pipe(apply_pudl_dtypes, group="eia")
+        )
 
-    def dynamic_pricing_eia861(
-        self, eia861_settings: Eia861Settings = Eia861Settings(), update=False
-    ):
+    def dynamic_pricing_eia861(self) -> pd.DataFrame:
         """An interim EIA 861 output function."""
-        self.etl_eia861(update=update)
-        return self._dfs["dynamic_pricing_eia861"]
+        return (
+            pd.read_sql("dynamic_pricing_eia861", self.pudl_engine)
+            .convert_dtypes(convert_floating=False)
+            .pipe(apply_pudl_dtypes, group="eia")
+        )
 
-    def energy_efficiency_eia861(
-        self, eia861_settings: Eia861Settings = Eia861Settings(), update=False
-    ):
+    def energy_efficiency_eia861(self) -> pd.DataFrame:
         """An interim EIA 861 output function."""
-        self.etl_eia861(update=update)
-        return self._dfs["energy_efficiency_eia861"]
+        return (
+            pd.read_sql("energy_efficiency_eia861", self.pudl_engine)
+            .convert_dtypes(convert_floating=False)
+            .pipe(apply_pudl_dtypes, group="eia")
+        )
 
-    def green_pricing_eia861(
-        self, eia861_settings: Eia861Settings = Eia861Settings(), update=False
-    ):
+    def green_pricing_eia861(self) -> pd.DataFrame:
         """An interim EIA 861 output function."""
-        self.etl_eia861(update=update)
-        return self._dfs["green_pricing_eia861"]
+        return (
+            pd.read_sql("green_pricing_eia861", self.pudl_engine)
+            .convert_dtypes(convert_floating=False)
+            .pipe(apply_pudl_dtypes, group="eia")
+        )
 
-    def mergers_eia861(
-        self, eia861_settings: Eia861Settings = Eia861Settings(), update=False
-    ):
+    def mergers_eia861(self) -> pd.DataFrame:
         """An interim EIA 861 output function."""
-        self.etl_eia861(update=update)
-        return self._dfs["mergers_eia861"]
+        return (
+            pd.read_sql("mergers_eia861", self.pudl_engine)
+            .convert_dtypes(convert_floating=False)
+            .pipe(apply_pudl_dtypes, group="eia")
+        )
 
-    def net_metering_customer_fuel_class_eia861(
-        self, eia861_settings: Eia861Settings = Eia861Settings(), update=False
-    ):
+    def net_metering_customer_fuel_class_eia861(self) -> pd.DataFrame:
         """An interim EIA 861 output function."""
-        self.etl_eia861(update=update)
-        return self._dfs["net_metering_customer_fuel_class_eia861"]
+        return (
+            pd.read_sql("net_metering_customer_fuel_class_eia861", self.pudl_engine)
+            .convert_dtypes(convert_floating=False)
+            .pipe(apply_pudl_dtypes, group="eia")
+        )
 
-    def net_metering_misc_eia861(
-        self, eia861_settings: Eia861Settings = Eia861Settings(), update=False
-    ):
+    def net_metering_misc_eia861(self) -> pd.DataFrame:
         """An interim EIA 861 output function."""
-        self.etl_eia861(update=update)
-        return self._dfs["net_metering_misc_eia861"]
+        return (
+            pd.read_sql("net_metering_misc_eia861", self.pudl_engine)
+            .convert_dtypes(convert_floating=False)
+            .pipe(apply_pudl_dtypes, group="eia")
+        )
 
-    def non_net_metering_customer_fuel_class_eia861(
-        self, eia861_settings: Eia861Settings = Eia861Settings(), update=False
-    ):
+    def non_net_metering_customer_fuel_class_eia861(self) -> pd.DataFrame:
         """An interim EIA 861 output function."""
-        self.etl_eia861(update=update)
-        return self._dfs["non_net_metering_customer_fuel_class_eia861"]
+        return (
+            pd.read_sql("non_net_metering_customer_fuel_class_eia861", self.pudl_engine)
+            .convert_dtypes(convert_floating=False)
+            .pipe(apply_pudl_dtypes, group="eia")
+        )
 
-    def non_net_metering_misc_eia861(
-        self, eia861_settings: Eia861Settings = Eia861Settings(), update=False
-    ):
+    def non_net_metering_misc_eia861(self) -> pd.DataFrame:
         """An interim EIA 861 output function."""
-        self.etl_eia861(update=update)
-        return self._dfs["non_net_metering_misc_eia861"]
+        return (
+            pd.read_sql("non_net_metering_misc_eia861", self.pudl_engine)
+            .convert_dtypes(convert_floating=False)
+            .pipe(apply_pudl_dtypes, group="eia")
+        )
 
-    def operational_data_revenue_eia861(
-        self, eia861_settings: Eia861Settings = Eia861Settings(), update=False
-    ):
+    def operational_data_revenue_eia861(self) -> pd.DataFrame:
         """An interim EIA 861 output function."""
-        self.etl_eia861(update=update)
-        return self._dfs["operational_data_revenue_eia861"]
+        return (
+            pd.read_sql("operational_data_revenue_eia861", self.pudl_engine)
+            .convert_dtypes(convert_floating=False)
+            .pipe(apply_pudl_dtypes, group="eia")
+        )
 
-    def operational_data_misc_eia861(
-        self, eia861_settings: Eia861Settings = Eia861Settings(), update=False
-    ):
+    def operational_data_misc_eia861(self) -> pd.DataFrame:
         """An interim EIA 861 output function."""
-        self.etl_eia861(update=update)
-        return self._dfs["operational_data_misc_eia861"]
+        return (
+            pd.read_sql("operational_data_misc_eia861", self.pudl_engine)
+            .convert_dtypes(convert_floating=False)
+            .pipe(apply_pudl_dtypes, group="eia")
+        )
 
-    def reliability_eia861(
-        self, eia861_settings: Eia861Settings = Eia861Settings(), update=False
-    ):
+    def reliability_eia861(self) -> pd.DataFrame:
         """An interim EIA 861 output function."""
-        self.etl_eia861(update=update)
-        return self._dfs["reliability_eia861"]
+        return (
+            pd.read_sql("reliability_eia861", self.pudl_engine)
+            .convert_dtypes(convert_floating=False)
+            .pipe(apply_pudl_dtypes, group="eia")
+        )
 
-    def sales_eia861(
-        self, eia861_settings: Eia861Settings = Eia861Settings(), update=False
-    ):
+    def sales_eia861(self) -> pd.DataFrame:
         """An interim EIA 861 output function."""
-        self.etl_eia861(update=update)
-        return self._dfs["sales_eia861"]
+        return (
+            pd.read_sql("sales_eia861", self.pudl_engine)
+            .convert_dtypes(convert_floating=False)
+            .pipe(apply_pudl_dtypes, group="eia")
+        )
 
-    def service_territory_eia861(
-        self, eia861_settings: Eia861Settings = Eia861Settings(), update=False
-    ):
+    def service_territory_eia861(self) -> pd.DataFrame:
         """An interim EIA 861 output function."""
-        self.etl_eia861(update=update)
-        return self._dfs["service_territory_eia861"]
+        return (
+            pd.read_sql("service_territory_eia861", self.pudl_engine)
+            .convert_dtypes(convert_floating=False)
+            .pipe(apply_pudl_dtypes, group="eia")
+        )
 
-    def utility_assn_eia861(
-        self, eia861_settings: Eia861Settings = Eia861Settings(), update=False
-    ):
+    def utility_assn_eia861(self) -> pd.DataFrame:
         """An interim EIA 861 output function."""
-        self.etl_eia861(update=update)
-        return self._dfs["utility_assn_eia861"]
+        return (
+            pd.read_sql("utility_assn_eia861", self.pudl_engine)
+            .convert_dtypes(convert_floating=False)
+            .pipe(apply_pudl_dtypes, group="eia")
+        )
 
-    def utility_data_nerc_eia861(
-        self, eia861_settings: Eia861Settings = Eia861Settings(), update=False
-    ):
+    def utility_data_nerc_eia861(self) -> pd.DataFrame:
         """An interim EIA 861 output function."""
-        self.etl_eia861(update=update)
-        return self._dfs["utility_data_nerc_eia861"]
+        return (
+            pd.read_sql("utility_data_nerc_eia861", self.pudl_engine)
+            .convert_dtypes(convert_floating=False)
+            .pipe(apply_pudl_dtypes, group="eia")
+        )
 
-    def utility_data_rto_eia861(
-        self, eia861_settings: Eia861Settings = Eia861Settings(), update=False
-    ):
+    def utility_data_rto_eia861(self) -> pd.DataFrame:
         """An interim EIA 861 output function."""
-        self.etl_eia861(update=update)
-        return self._dfs["utility_data_rto_eia861"]
+        return (
+            pd.read_sql("utility_data_rto_eia861", self.pudl_engine)
+            .convert_dtypes(convert_floating=False)
+            .pipe(apply_pudl_dtypes, group="eia")
+        )
 
-    def utility_data_misc_eia861(
-        self, eia861_settings: Eia861Settings = Eia861Settings(), update=False
-    ):
+    def utility_data_misc_eia861(self) -> pd.DataFrame:
         """An interim EIA 861 output function."""
-        self.etl_eia861(update=update)
-        return self._dfs["utility_data_misc_eia861"]
+        return (
+            pd.read_sql("utility_data_misc_eia861", self.pudl_engine)
+            .convert_dtypes(convert_floating=False)
+            .pipe(apply_pudl_dtypes, group="eia")
+        )
 
     ###########################################################################
     # FERC 714 Interim Outputs (awaiting full DB integration)
