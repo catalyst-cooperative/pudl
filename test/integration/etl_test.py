@@ -10,6 +10,7 @@ from pathlib import Path
 import pandas as pd
 import sqlalchemy as sa
 import yaml
+from dagster import build_init_resource_context
 
 import pudl
 from pudl.extract.ferc1 import DBF_TABLES_FILENAMES, get_dbc_map, get_fields
@@ -251,3 +252,50 @@ class TestExcelExtractor:
             not in extractor.load_excel_file(page=page, year=year).sheet_names
         ):
             raise AssertionError(f"page {page} not found in datastore for {year}")
+
+
+class TestFercExtractDebugFunctions:
+    """Verify the ferc extraction debug functions are working properly."""
+
+    def test_extract_dbf(self, ferc1_engine_dbf, pudl_env):
+        """Test extract_dbf."""
+        years = [2020, 2021]  # add desired years here
+        configured_dataset_settings = {"ferc1": {"years": years}}
+
+        dataset_init_context = build_init_resource_context(
+            config=configured_dataset_settings
+        )
+        configured_dataset_settings = pudl.resources.dataset_settings(
+            dataset_init_context
+        )
+
+        ferc1_dbf_raw_dfs = pudl.extract.ferc1.extract_dbf(configured_dataset_settings)
+
+        for table_name, df in ferc1_dbf_raw_dfs.items():
+            assert (df.report_year >= 2020).all() and (
+                df.report_year < 2022
+            ).all(), f"Unexpected years found in table: {table_name}"
+
+    def test_extract_xbrl(self, ferc1_engine_dbf, pudl_env):
+        """Test extract_xbrl."""
+        years = [2021]  # add desired years here
+        configured_dataset_settings = {"ferc1": {"years": years}}
+
+        dataset_init_context = build_init_resource_context(
+            config=configured_dataset_settings
+        )
+        configured_dataset_settings = pudl.resources.dataset_settings(
+            dataset_init_context
+        )
+
+        ferc1_xbrl_raw_dfs = pudl.extract.ferc1.extract_xbrl(
+            configured_dataset_settings
+        )
+
+        for table_name, xbrl_tables in ferc1_xbrl_raw_dfs.items():
+            for table_type, df in xbrl_tables.items():
+                # Some raw xbrl tables are empty
+                if not df.empty and table_type == "duration":
+                    assert (df.report_year >= 2021).all() and (
+                        df.report_year < 2022
+                    ).all(), f"Unexpected years found in table: {table_name}"

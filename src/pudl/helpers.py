@@ -1031,7 +1031,7 @@ def drop_tables(engine: sa.engine.Engine, clobber: bool = False):
     insp = sa.inspect(engine)
     if len(insp.get_table_names()) > 0 and not clobber:
         raise AssertionError(
-            f"You are attempting to drop your database while clobber is set to {clobber}"
+            f"You are attempting to drop your database at {engine} while clobber is set to {clobber}"
         )
     md.drop_all(engine)
     conn = engine.connect()

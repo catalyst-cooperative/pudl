@@ -73,18 +73,32 @@ import json
 from collections.abc import Iterable
 from itertools import chain
 from pathlib import Path
-from typing import Any
+from typing import Any, Literal
 
 import pandas as pd
 import sqlalchemy as sa
-from dagster import AssetKey, Field, SourceAsset, asset, op
+from dagster import (
+    AssetKey,
+    Field,
+    SourceAsset,
+    asset,
+    build_init_resource_context,
+    build_input_context,
+    op,
+)
 from dbfread import DBF, FieldParser
 
 import pudl
 from pudl.helpers import EnvVar
+from pudl.io_managers import (
+    FercDBFSQLiteIOManager,
+    FercXBRLSQLiteIOManager,
+    ferc1_dbf_sqlite_io_manager,
+    ferc1_xbrl_sqlite_io_manager,
+)
 from pudl.metadata.classes import DataSource
 from pudl.metadata.constants import DBF_TABLES_FILENAMES
-from pudl.settings import Ferc1DbfToSqliteSettings
+from pudl.settings import DatasetsSettings, Ferc1DbfToSqliteSettings
 from pudl.workspace.datastore import Datastore
 
 logger = pudl.logging_helpers.get_logger(__name__)
@@ -854,3 +868,135 @@ def xbrl_metadata_json(context) -> dict[str, dict[str, list[dict[str, Any]]]]:
     }
 
     return xbrl_meta_out
+
+
+# Ferc extraction functions for devtool notebook testing
+def extract_dbf_generic(
+    table_names: list[str],
+    io_manager: FercDBFSQLiteIOManager,
+    dataset_settings: DatasetsSettings,
+) -> pd.DataFrame:
+    """Combine multiple raw dbf tables into one.
+
+    Args:
+        table_names: The name of the raw dbf tables you want to combine
+            under dbf. These are the tables you want to combine.
+        io_manager: IO Manager that extracts tables from ferc1.sqlite as dataframes.
+        dataset_settings: object containing desired years to extract.
+
+    Return:
+        Concatenation of all tables in table_names as a dataframe.
+    """
+    tables = []
+    for table_name in table_names:
+        context = build_input_context(
+            asset_key=AssetKey(table_name),
+            upstream_output=None,
+            resources={"dataset_settings": dataset_settings},
+        )
+        tables.append(io_manager.load_input(context))
+    return pd.concat(tables)
+
+
+def extract_xbrl_generic(
+    table_names: list[str],
+    io_manager: FercXBRLSQLiteIOManager,
+    dataset_settings: DatasetsSettings,
+    period: Literal["duration", "instant"],
+) -> pd.DataFrame:
+    """Combine multiple raw dbf tables into one.
+
+    Args:
+        table_names: The name of the raw dbf tables you want to combine
+            under xbrl. These are the tables you want to combine.
+        io_manager: IO Manager that extracts tables from ferc1.sqlite as dataframes.
+        dataset_settings: object containing desired years to extract.
+        period: Either duration or instant, specific to xbrl data.
+
+    Return:
+        Concatenation of all tables in table_names as a dataframe.
+    """
+    tables = []
+    for table_name in table_names:
+        full_xbrl_table_name = f"{table_name}_{period}"
+        context = build_input_context(
+            asset_key=AssetKey(full_xbrl_table_name),
+            upstream_output=None,
+            resources={"dataset_settings": dataset_settings},
+        )
+        tables.append(io_manager.load_input(context))
+    return pd.concat(tables)
+
+
+def extract_dbf(dataset_settings: DatasetsSettings) -> dict[str, pd.DataFrame]:
+    """Coordinates the extraction of all FERC Form 1 tables into PUDL.
+
+    This function is not used in the dagster ETL and is only intended
+    to be used in notebooks for debugging the FERC Form 1 transforms.
+
+    Args:
+        dataset_settigns: object containing desired years to extract.
+
+    Returns:
+        A dictionary of DataFrames, with the names of PUDL database tables as the keys.
+        These are the raw unprocessed dataframes, reflecting the data as it is in the
+        FERC Form 1 DB, for passing off to the data tidying and cleaning functions found
+        in the :mod:`pudl.transform.ferc1` module.
+    """
+    ferc1_dbf_raw_dfs = {}
+
+    io_manager_init_context = build_init_resource_context(
+        resources={"dataset_settings": dataset_settings}
+    )
+    io_manager = ferc1_dbf_sqlite_io_manager(io_manager_init_context)
+
+    for table_name, raw_table_mapping in TABLE_NAME_MAP_FERC1.items():
+        dbf_table_or_tables = raw_table_mapping["dbf"]
+        if not isinstance(dbf_table_or_tables, list):
+            dbf_tables = [dbf_table_or_tables]
+        else:
+            dbf_tables = dbf_table_or_tables
+
+        ferc1_dbf_raw_dfs[table_name] = extract_dbf_generic(
+            dbf_tables, io_manager, dataset_settings
+        )
+    return ferc1_dbf_raw_dfs
+
+
+def extract_xbrl(
+    dataset_settings: DatasetsSettings,
+) -> dict[str, dict[Literal["duration", "instant"], pd.DataFrame]]:
+    """Coordinates the extraction of all FERC Form 1 tables into PUDL from XBRL data.
+
+    This function is not used in the dagster ETL and is only intended
+    to be used in notebooks for debugging the FERC Form 1 transforms.
+
+    Args:
+        dataset_settigns: object containing desired years to extract.
+
+    Returns:
+        A dictionary where keys are the names of the PUDL database tables, values are
+        dictionaries of DataFrames coresponding to the instant and duration tables from
+        the XBRL derived FERC 1 database.
+    """
+    ferc1_xbrl_raw_dfs = {}
+
+    io_manager_init_context = build_init_resource_context(
+        resources={"dataset_settings": dataset_settings}
+    )
+    io_manager = ferc1_xbrl_sqlite_io_manager(io_manager_init_context)
+
+    for table_name, raw_table_mapping in TABLE_NAME_MAP_FERC1.items():
+        xbrl_table_or_tables = raw_table_mapping["xbrl"]
+        if not isinstance(xbrl_table_or_tables, list):
+            xbrl_tables = [xbrl_table_or_tables]
+        else:
+            xbrl_tables = xbrl_table_or_tables
+
+        ferc1_xbrl_raw_dfs[table_name] = {}
+
+        for period in ("duration", "instant"):
+            ferc1_xbrl_raw_dfs[table_name][period] = extract_xbrl_generic(
+                xbrl_tables, io_manager, dataset_settings, period
+            )
+    return ferc1_xbrl_raw_dfs
