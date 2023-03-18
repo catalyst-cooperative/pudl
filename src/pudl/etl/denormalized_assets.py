@@ -1,4 +1,13 @@
-"""Output table assets."""
+"""Denormalized tables, based on other simple normalized tables.
+
+Right now these will mostly be tables defined in `pudl.output`. Ultimately it would
+also include any tables built by joining and aggregating normalized and analysis
+tables. These are probably data warehouse style tables with a lot of duplicated
+information, ready for analysts to use.
+
+Initially we'll probably just wrap existing output functions, but these tables should
+also be amenable to construction using SQL, database views, dbt, or other similar tools.
+"""
 from dagster import asset
 
 import pudl
@@ -30,13 +39,3 @@ def utils_eia860() -> str:
         FROM utilities_eia
     ) USING (utility_id_eia);"""
     return query
-
-
-@asset(io_manager_key="pudl_sqlite_io_manager", compute_kind="Python")
-def utility_analysis(utils_eia860):
-    """Example of how to create an analysis table that depends on an output view.
-
-    This final dataframe will be written to the database (without a schema).
-    """
-    # Do some analysis on utils_eia860
-    return utils_eia860
