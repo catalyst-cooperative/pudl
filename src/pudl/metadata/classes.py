@@ -1511,6 +1511,8 @@ class Resource(Base):
             raise ValueError(
                 f"{self.name} Duplicate primary keys when enforcing schema."
             )
+        if pk and df.loc[:, pk].isna().any(axis=None):
+            raise ValueError(f"{self.name} Null values found in primary key columns.")
         return df
 
     def aggregate_df(
