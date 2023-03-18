@@ -290,6 +290,99 @@ EIA_FIPS_COUNTY_FIXES: pd.DataFrame = pd.DataFrame(
         ("AK", "Kodiak Islan", "Kodiak Island"),
         ("AK", "Kenai Penins", "Kenai Peninsula"),
         ("AK", "NW Arctic Borough", "Northwest Arctic"),
+        ("AK", "LARSEN BAY", "Kodiak Island Borough"),
+        ("AK", "Larsen Bay", "Kodiak Island Borough"),
+        ("AK", "Galena", "Yukon-Koyukuk Census Area"),
+        ("AK", "Tenakee Springs", "Hoonah-Angoon Census Area"),
+        ("AK", "Ketchikan Ga", "Ketchikan Gateway Borough"),
+        ("AK", "Kodiak Island Boroug", "Kodiak Island Borough"),
+        ("AK", "Northwest Ar", "Northwest Arctic Borough"),
+        ("AK", "Matanuska Su", "Matanuska-Susitna Borough"),
+        ("AK", "Aleutians We", "Aleutians West Census Area"),
+        ("AK", "Southeast Fa", "Southeast Fairbanks Census Area"),
+        ("AK", "Prince of Wa", "Prince of Wales-Hyder Census Area"),
+        ("AK", "Notin", "Hoonah-Angoon Census Area"),  # Gustavus, AK
+        (
+            "AK",
+            "FRBS North Star",
+            "Fairbanks North Star Borough",
+        ),
+        ("AK", "Lake & Peninsula Bor", "Lake and Peninsula Borough"),
+        (
+            "AK",
+            "Northwest Arctic Bor",
+            "Northwest Arctic Borough",
+        ),
+        ("AK", "Kodiak Isla", "Kodiak Island Borough"),
+        ("AK", "Aleutians West (unorganized)", "Aleutians West Census Area"),
+        ("AK", "Prince of Wales-Outer Ketchika", "Prince of Wales-Hyder Census Area"),
+        ("AK", "Skagway-Hoonah-Angoon", "Hoonah-Angoon Census Area"),
+        ("AK", "Prince of Wales", "Prince of Wales-Hyder Census Area"),
+        ("AK", "Wrangell-Petersburg", "Petersburg Census Area"),
+        ("AK", "Kwigillingok", "Bethel Census Area"),
+        (
+            "AK",
+            "Akiachak",
+            "Bethel Census Area",
+        ),
+        (
+            "AK",
+            "Chilkat Vall",
+            "Hoonah-Angoon Census Area",
+        ),
+        (
+            "AK",
+            "Chilkat Valley",
+            "Hoonah-Angoon Census Area",
+        ),
+        (
+            "AK",
+            "Klukwan",
+            "Hoonah-Angoon Census Area",
+        ),
+        ("AK", "Nenana", "Yukon-Koyukuk Census Area"),
+        ("AK", "Nenena - No County", "Yukon-Koyukuk Census Area"),
+        ("AK", "Nenana - No County", "Yukon-Koyukuk Census Area"),
+        ("AK", "Chuathbaluk", "Bethel Census Area"),
+        ("AK", "Tanana", "Yukon-Koyukuk Census Area"),
+        ("AK", "Kuskokwim Bay", "Bethel Census Area"),
+        ("AK", "Kasaan", "Prince of Wales-Hyder Census Area"),
+        (
+            "AK",
+            "Kake",
+            "Prince of Wales-Hyder Census Area",
+        ),
+        (
+            "AK",
+            "Delta - No County",
+            "Southeast Fairbanks Census Area",
+        ),
+        (
+            "AK",
+            "Crooked Creek",
+            "Bethel Census Area",
+        ),
+        (
+            "AK",
+            "Red Devil",
+            "Bethel Census Area",
+        ),
+        (
+            "AK",
+            "Sleetmute",
+            "Bethel Census Area",
+        ),
+        (
+            "AK",
+            "Stony River",
+            "Bethel Census Area",
+        ),
+        (
+            "AK",
+            "Elfin Cove",
+            "Hoonah-Angoon Census Area",
+        ),
+        ("AK", "Copper Basin", "Valdez-Cordova Census Area"),
         ("AL", "De Kalb", "DeKalb"),
         ("AR", "Saint Franci", "St. Francis"),
         ("CA", "San Bernadino", "San Bernardino"),
@@ -2248,8 +2341,7 @@ def utility_assn_eia861(**data_dfs: dict[str, pd.DataFrame]) -> pd.DataFrame:
         "utility_data_nerc_eia861": AssetIn(),
         "utility_data_rto_eia861": AssetIn(),
     },
-    # Null values in `state` column violate PK NOT NULL constraint
-    # io_manager_key="pudl_sqlite_io_manager",
+    io_manager_key="pudl_sqlite_io_manager",
 )
 def balancing_authority_assn_eia861(**dfs: dict[str, pd.DataFrame]) -> pd.DataFrame:
     """Compile a balancing authority, utility, state association table.
@@ -2329,9 +2421,19 @@ def balancing_authority_assn_eia861(**dfs: dict[str, pd.DataFrame]) -> pd.DataFr
 
     ba_assn_eia861 = (
         pd.concat([early_date_ba_util_state, late_date_ba_util_state])
-        .dropna(subset=["balancing_authority_id_eia"])
-        .pipe(apply_pudl_dtypes, group="eia")
+        # If there's no BA ID, the record is not useful:
+        .dropna(subset=["balancing_authority_id_eia"]).pipe(
+            apply_pudl_dtypes, group="eia"
+        )
     )
+    ba_assn_eia861 = ba_assn_eia861[
+        # Without both Utility ID and State, there's no association information:
+        (ba_assn_eia861.state.notna() | ba_assn_eia861.utility_id_eia.notna())
+        # 99999 & 88888 are special placeholder IDs.
+        & (~ba_assn_eia861.balancing_authority_id_eia.isin([99999, 88888]))
+        & (~ba_assn_eia861.utility_id_eia.isin([88888, 99999]))
+    ]
+    ba_assn_eia861["state"] = ba_assn_eia861.state.fillna("UNK")
     return ba_assn_eia861
 
 
