@@ -162,15 +162,17 @@ def test_null_rows(fast_out, df_name, thresh):
     )
 
 
-def test_eia861_etl(fast_out):
-    """Make sure that the EIA 861 Extract-Transform steps work."""
-    fast_out.etl_eia861()
-    eia861_tables = [tbl for tbl in fast_out._dfs if "_eia861" in tbl]
+def test_eia861_output(fast_out):
+    """Make sure that all EIA-861 output tables are present and non-empty."""
+    eia861_tables = [t for t in fast_out.__dir__() if t.endswith("_eia861")]
     for df_name in eia861_tables:
-        logger.info(f"Checking that {df_name} is a non-empty DataFrame")
+        logger.info(f"Checking that {df_name} is a DataFrame with no null columns.")
         df = fast_out.__getattribute__(df_name)()
         assert isinstance(df, pd.DataFrame), f"{df_name} is {type(df)}, not DataFrame!"
         assert not df.empty, f"{df_name} is empty!"
+        for col in df.columns:
+            if df[col].isna().all():
+                raise ValueError(f"Found null column: {df_name}.{col}")
 
 
 def test_ferc714_etl(fast_out):
