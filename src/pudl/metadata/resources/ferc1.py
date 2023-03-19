@@ -149,7 +149,7 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
         "etl_group": "ferc1",
         "field_namespace": "ferc1",
     },
-    "electric_opex_ferc1": {
+    "electric_operating_expenses_ferc1": {
         "description": (
             "Operating and maintenance costs associated with producing electricty, "
             "reported in Schedule 320 of FERC Form 1."

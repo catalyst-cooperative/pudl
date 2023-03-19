@@ -72,7 +72,7 @@ class TableIdFerc1(enum.Enum):
     ELECTRIC_ENERGY_SOURCES_FERC1 = "electric_energy_sources_ferc1"
     ELECTRIC_ENERGY_DISPOSITIONS_FERC1 = "electric_energy_dispositions_ferc1"
     UTILITY_PLANT_SUMMARY_FERC1 = "utility_plant_summary_ferc1"
-    ELECTRIC_OPEX_FERC1 = "electric_opex_ferc1"
+    ELECTRIC_OPERATING_EXPENSES_FERC1 = "electric_operating_expenses_ferc1"
     BALANCE_SHEET_LIABILITIES = "balance_sheet_liabilities_ferc1"
     DEPRECIATION_AMORTIZATION_SUMMARY_FERC1 = "depreciation_amortization_summary_ferc1"
     BALANCE_SHEET_ASSETS_FERC1 = "balance_sheet_assets_ferc1"
@@ -3480,10 +3480,10 @@ class ElectricPlantDepreciationFunctionalFerc1TableTransformer(
         return df
 
 
-class ElectricOpexFerc1TableTransformer(Ferc1AbstractTableTransformer):
-    """Transformer class for :ref:`electric_opex_ferc1` table."""
+class ElectricOperatingExpensesFerc1TableTransformer(Ferc1AbstractTableTransformer):
+    """Transformer class for :ref:`electric_operating_expenses_ferc1` table."""
 
-    table_id: TableIdFerc1 = TableIdFerc1.ELECTRIC_OPEX_FERC1
+    table_id: TableIdFerc1 = TableIdFerc1.ELECTRIC_OPERATING_EXPENSES_FERC1
     has_unique_record_ids: bool = False
 
     def targeted_drop_duplicates_dbf(self, raw_df: pd.DataFrame) -> pd.DataFrame:
@@ -3742,7 +3742,7 @@ def transform(
         "electric_energy_sources_ferc1": ElectricEnergySourcesFerc1TableTransformer,
         "electric_energy_dispositions_ferc1": ElectricEnergyDispositionsFerc1TableTransformer,
         "utility_plant_summary_ferc1": UtilityPlantSummaryFerc1TableTransformer,
-        "electric_opex_ferc1": ElectricOpexFerc1TableTransformer,
+        "electric_operating_expenses_ferc1": ElectricOperatingExpensesFerc1TableTransformer,
         "balance_sheet_liabilities_ferc1": BalanceSheetLiabilitiesFerc1TableTransformer,
         "depreciation_amortization_summary_ferc1": DepreciationAmortizationSummaryFerc1TableTransformer,
         "balance_sheet_assets_ferc1": BalanceSheetAssetsFerc1TableTransformer,

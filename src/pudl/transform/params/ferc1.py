@@ -4162,7 +4162,7 @@ TRANSFORM_PARAMS = {
             "on": "amount_type",
         },
     },
-    "electric_opex_ferc1": {
+    "electric_operating_expenses_ferc1": {
         "rename_columns_ferc1": {
             "dbf": {
                 "columns": {
@@ -4380,7 +4380,7 @@ TRANSFORM_PARAMS = {
         },
         "drop_duplicate_rows_dbf": {
             "data_columns": ["expense"],
-            "table_name": "electric_opex_ferc1",
+            "table_name": "electric_operating_expenses_ferc1",
         },
         "merge_xbrl_metadata": {
             "rename_columns": {"xbrl_factoid": "expense_type"},

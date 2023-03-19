@@ -131,7 +131,7 @@ TABLE_NAME_MAP_FERC1: dict[str, dict[str, str]] = {
         "dbf": "f1_xmssn_line",
         "xbrl": "transmission_line_statistics_422",
     },
-    "electric_opex_ferc1": {
+    "electric_operating_expenses_ferc1": {
         "dbf": "f1_elc_op_mnt_expn",
         "xbrl": "electric_operations_and_maintenance_expenses_320",
     },
@@ -887,7 +887,7 @@ def extract_xbrl_single(
         SELECT {table_name_full}.*, {id_table}.report_year FROM {table_name_full}
         JOIN {id_table} ON {id_table}.filing_name = {table_name_full}.filing_name
         WHERE {id_table}.report_year BETWEEN :min_year AND :max_year;
-        """,
+        """,  # nosec: B608
         con=ferc1_engine,
         params={
             "min_year": min(ferc1_settings.xbrl_years),
