@@ -93,12 +93,12 @@ Data Coverage
   :doc:`data_sources/eia860` Schedule 6.2 Environmental Equipment data, and the new
   :ref:`boilers_entity_eia` table now includes static boiler attributes. See issue
   :issue:`1162` & PR :pr:`2319`.
-* All :ref:`data_sources/eia861` tables are now being loaded into the PUDL DB, rather
-  than only being available via an ad-hoc ETL process that was only accessible through
-  the :class:`pudl.output.pudltabl.PudlTabl` class. Note that most of these tables have
-  not been normalized, and the ``utility_id_eia`` and ``balancing_authority_id_eia``
-  values in them haven't been harvested, so these tables have very few valid foreign
-  key relationships with the rest of the database right now -- but at least the data is
+* All EIA-861 tables are now being loaded into the PUDL DB, rather than only being
+  available via an ad-hoc ETL process that was only accessible through the
+  :class:`pudl.output.pudltabl.PudlTabl` class. Note that most of these tables have not
+  been normalized, and the ``utility_id_eia`` and ``balancing_authority_id_eia`` values
+  in them haven't been harvested, so these tables have very few valid foreign key
+  relationships with the rest of the database right now -- but at least the data is
   available in the database! Existing methods for accessing these tables have been
   preserved. The ``PudlTabl`` methods just read directly from the DB and apply uniform
   data types, rather than actually doing the ETL. See :issue:`2265` & :pr:`2403`. The
