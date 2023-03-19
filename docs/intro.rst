@@ -16,7 +16,7 @@ Available Data
 Currently, PUDL has cleaned and integrated data from:
 
 * :doc:`data_sources/eia860` (including EIA 860m)
-* :ref:`data-eia861` (preliminary)
+* :doc:`data_sources/eia861` (preliminary)
 * :doc:`data_sources/eia923`
 * :doc:`data_sources/ferc1`
 * :ref:`data-ferc714` (preliminary)

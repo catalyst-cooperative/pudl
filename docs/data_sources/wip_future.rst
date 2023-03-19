@@ -10,7 +10,7 @@ Work in Progress
 
 Thanks to a grant from the `Alfred P. Sloan Foundation Energy & Environment Program
 <https://sloan.org/programs/research/energy-and-environment>`__, we have support to
-integrate the following new datasets between April 2021 and March 2023.
+integrate the following new datasets between April 2021 and March 2024.
 
 There's a huge variety and quantity of data about the US electric utility system
 available to the public. The data we have integrated is just the beginning! Other data
@@ -30,27 +30,6 @@ provides Census tract, county, and state-level demographic information, along wi
 geometries defining those areas. We use this information in generating historical
 utility and balancing authority service territories based on FERC 714 and EIA 861 data.
 Currently, we are distributing the Census DP1 data as a standalone SQLite DB.
-
-.. _data-eia861:
-
-EIA Form 861
-^^^^^^^^^^^^
-The `EIA Form 861 <https://www.eia.gov/electricity/data/eia861/>`__, also known as the
-**Annual Electric Power Industry Report**, compiles information on load, generation,
-capacity, sales, revenues, programs, and more. Right now we've got all of 861
-integrated and are building out our testing and data validation before publishing the
-data officially.
-
-* :download:`EIA-861 Instructions (PDF, to 2013-10-31)
-  <eia861/eia861_instructions_2013-10-31.pdf>`
-* :download:`EIA-861 Instructions (PDF, to 2015-12-31)
-  <eia861/eia861_instructions_2015-12-31.pdf>`
-* :download:`EIA-861 Instructions (PDF, to 2017-05-31)
-  <eia861/eia861_instructions_2017-05-31.pdf>`
-* :download:`EIA-861 Instructions (PDF, to 2020-03-31)
-  <eia861/eia861_instructions_2020-03-31.pdf>`
-* :download:`EIA-861 Instructions (PDF, to 2023-05-31)
-  <eia861/eia861_instructions_2023-05-31.pdf>`
 
 .. _data-eia176:
 

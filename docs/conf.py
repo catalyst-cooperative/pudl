@@ -141,7 +141,7 @@ def data_dictionary_metadata_to_rst(app):
 def data_sources_metadata_to_rst(app):
     """Export data source metadata to RST for inclusion in the documentation."""
     print("Exporting data source metadata to RST.")
-    included_sources = ["eia860", "eia923", "ferc1", "epacems"]
+    included_sources = ["eia860", "eia861", "eia923", "ferc1", "epacems"]
     package = Package.from_resource_ids()
     extra_etl_groups = {"eia860": ["entity_eia"], "ferc1": ["glue"]}
     for name in included_sources:
@@ -184,6 +184,7 @@ def cleanup_rsts(app, exception):
     (DOCS_DIR / "data_dictionaries/pudl_db.rst").unlink()
     (DOCS_DIR / "data_dictionaries/codes_and_labels.rst").unlink()
     (DOCS_DIR / "data_sources/eia860.rst").unlink()
+    (DOCS_DIR / "data_sources/eia861.rst").unlink()
     (DOCS_DIR / "data_sources/eia923.rst").unlink()
     (DOCS_DIR / "data_sources/ferc1.rst").unlink()
     (DOCS_DIR / "data_sources/epacems.rst").unlink()
