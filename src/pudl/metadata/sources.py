@@ -6,7 +6,7 @@ from pudl.metadata.enums import EPACEMS_STATES
 
 SOURCES: dict[str, Any] = {
     "censusdp1tract": {
-        "title": "Census DP1: Profile of General Demographic Characteristics",
+        "title": "Census DP1 -- Profile of General Demographic Characteristics",
         "path": "https://www.census.gov/geographies/mapping-files/2010/geo/tiger-data.html",
         "description": (
             "US Census Demographic Profile 1 (DP1) County and Tract GeoDatabase."
@@ -22,7 +22,7 @@ SOURCES: dict[str, Any] = {
         "license_pudl": LICENSES["cc-by-4.0"],
     },
     "eia176": {
-        "title": "EIA Form 176: Annual Report of Natural and Supplemental Gas Supply and Disposition",
+        "title": "EIA Form 176 -- Annual Report of Natural and Supplemental Gas Supply and Disposition",
         "path": "https://www.eia.gov/naturalgas/ngqs/",
         "description": (
             "The EIA Form 176, also known as the Annual Report of Natural and "
@@ -61,7 +61,7 @@ SOURCES: dict[str, Any] = {
         "license_pudl": LICENSES["cc-by-4.0"],
     },
     "eia860": {
-        "title": "EIA Form 860: Annual Electric Generator Report",
+        "title": "EIA Form 860 -- Annual Electric Generator Report",
         "path": "https://www.eia.gov/electricity/data/eia860",
         "description": (
             "US Energy Information Administration (EIA) Form 860 data for "
@@ -105,7 +105,7 @@ SOURCES: dict[str, Any] = {
         "license_pudl": LICENSES["cc-by-4.0"],
     },
     "eia860m": {
-        "title": "EIA Form 860M: Monthly Update to the Annual Electric Generator Report",
+        "title": "EIA Form 860M -- Monthly Update to the Annual Electric Generator Report",
         "path": "https://www.eia.gov/electricity/data/eia860m",
         "description": (
             "US Energy Information Administration (EIA) Form 860 M data for "
@@ -137,7 +137,7 @@ SOURCES: dict[str, Any] = {
         "license_pudl": LICENSES["cc-by-4.0"],
     },
     "eia861": {
-        "title": "EIA Form 861: Annual Electric Power Industry Report",
+        "title": "EIA Form 861 -- Annual Electric Power Industry Report",
         "path": "https://www.eia.gov/electricity/data/eia861",
         "description": (
             "EIA Form 861 Annual Electric Power Industry Report, detailed "
@@ -175,7 +175,7 @@ SOURCES: dict[str, Any] = {
         "license_pudl": LICENSES["cc-by-4.0"],
     },
     "eia923": {
-        "title": "EIA Form 923: Power Plant Operations Report",
+        "title": "EIA Form 923 -- Power Plant Operations Report",
         "path": "https://www.eia.gov/electricity/data/eia923",
         "description": (
             "The EIA Form 923 collects detailed monthly and annual electric "
@@ -348,7 +348,7 @@ SOURCES: dict[str, Any] = {
         "license_pudl": LICENSES["cc-by-4.0"],
     },
     "ferc1": {
-        "title": "FERC Form 1: Annual Report of Major Electric Utilities",
+        "title": "FERC Form 1 -- Annual Report of Major Electric Utilities",
         "path": "https://www.ferc.gov/industries-data/electric/general-information/electric-industry-forms/form-1-electric-utility-annual",
         "description": (
             "The Federal Energy Regulatory Commission (FERC) Form 1 is a "
@@ -391,7 +391,7 @@ SOURCES: dict[str, Any] = {
         "license_pudl": LICENSES["cc-by-4.0"],
     },
     "ferc2": {
-        "title": "FERC Form 2: Annual Report of Major Natural Gas Companies",
+        "title": "FERC Form 2 -- Annual Report of Major Natural Gas Companies",
         "path": "https://www.ferc.gov/industries-data/natural-gas/industry-forms/form-2-2a-3-q-gas-historical-vfp-data",
         "description": (
             "The Federal Energy Regulatory Commission (FERC) Form 2 is a "
@@ -419,7 +419,7 @@ SOURCES: dict[str, Any] = {
         "license_pudl": LICENSES["cc-by-4.0"],
     },
     "ferc6": {
-        "title": "FERC Form 6: Annual Report of Oil Pipeline Companies",
+        "title": "FERC Form 6 -- Annual Report of Oil Pipeline Companies",
         "path": "https://www.ferc.gov/industries-data/electric/general-information/electric-industry-forms/form-66-q-overview-orders",
         "description": (
             "The Federal Energy Regulatory Commission (FERC) Form 6 is a "
@@ -447,7 +447,7 @@ SOURCES: dict[str, Any] = {
         "license_pudl": LICENSES["cc-by-4.0"],
     },
     "ferc60": {
-        "title": "FERC Form 60: Annual Report of Centralized Service Companies",
+        "title": "FERC Form 60 -- Annual Report of Centralized Service Companies",
         "path": "https://www.ferc.gov/ferc-online/ferc-online/filing-forms/service-companies-filing-forms/form-60-annual-report",
         "description": (
             "The Federal Energy Regulatory Commission (FERC) Form 60 is a "
@@ -475,7 +475,7 @@ SOURCES: dict[str, Any] = {
         "license_pudl": LICENSES["cc-by-4.0"],
     },
     "ferc714": {
-        "title": "FERC Form 714: Annual Electric Balancing Authority Area and Planning Area Report",
+        "title": "FERC Form 714 -- Annual Electric Balancing Authority Area and Planning Area Report",
         "path": "https://www.ferc.gov/industries-data/electric/general-information/electric-industry-forms/form-no-714-annual-electric",
         "description": (
             "Electric transmitting utilities operating balancing authority "
@@ -507,7 +507,7 @@ SOURCES: dict[str, Any] = {
         "license_pudl": LICENSES["cc-by-4.0"],
     },
     "ferceqr": {
-        "title": "FERC Form 920: Electric Quarterly Report (EQR)",
+        "title": "FERC Form 920 -- Electric Quarterly Report (EQR)",
         "path": "https://www.ferc.gov/industries-data/electric/power-sales-and-markets/electric-quarterly-reports-eqr",
         "description": (
             "The EQR contains Seller-provided data summarizing contractual terms and "
