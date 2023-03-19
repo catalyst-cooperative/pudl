@@ -35,7 +35,7 @@ from pudl.metadata.enums import (
     TECH_CLASSES,
 )
 from pudl.metadata.fields import apply_pudl_dtypes
-from pudl.metadata.labels import ESTIMATED_OR_ACTUAL, MOMENTARY_INTERRUPTIONS
+from pudl.metadata.labels import ESTIMATED_OR_ACTUAL
 
 logger = pudl.logging_helpers.get_logger(__name__)
 
@@ -2182,11 +2182,6 @@ def reliability_eia861(raw_reliability_eia861: pd.DataFrame) -> pd.DataFrame:
                 _make_yn_bool(x.inactive_accounts_included)
             ),
             short_form=lambda x: _make_yn_bool(x.short_form),
-            # This field should be encoded using momentary_interruptions_eia
-            # But the EIA 861 tables aren't fully integrated yet.
-            momentary_interruption_definition=lambda x: (
-                x.momentary_interruption_definition.map(MOMENTARY_INTERRUPTIONS)
-            ),
         )
         # Drop duplicate entries for utilities 13027, 3408 and 9697
         .pipe(_drop_dupes, df_name="Reliability", subset=idx_cols).pipe(_post_process)

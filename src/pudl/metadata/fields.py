@@ -23,11 +23,7 @@ from pudl.metadata.enums import (
     TECH_CLASSES,
     TECH_DESCRIPTIONS,
 )
-from pudl.metadata.labels import (
-    ESTIMATED_OR_ACTUAL,
-    FUEL_UNITS_EIA,
-    MOMENTARY_INTERRUPTIONS,
-)
+from pudl.metadata.labels import ESTIMATED_OR_ACTUAL, FUEL_UNITS_EIA
 from pudl.metadata.sources import SOURCES
 
 # from pudl.transform.params.ferc1 import (
@@ -1137,7 +1133,6 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     "moisture_content_pct": {"type": "number"},
     "momentary_interruption_definition": {
         "type": "string",
-        "constraints": {"enum": list(MOMENTARY_INTERRUPTIONS.values())},
     },
     "month": {"type": "integer", "description": "Month of the year"},
     "multiple_fuels": {

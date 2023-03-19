@@ -245,14 +245,15 @@ class SQLiteIOManager(IOManager):
     def _handle_pandas_output(self, context: OutputContext, df: pd.DataFrame):
         """Write dataframe to the database.
 
-        SQLite does not support concurrent writes to the database. Instead,
-        SQLite queues write transactions and executes them one at a time.
-        This allows the assets to be processed in parallel. See the `SQLAlchemy
-        docs <https://docs.sqlalchemy.org/en/14/dialects/sqlite.html#database-
+        SQLite does not support concurrent writes to the database. Instead, SQLite
+        queues write transactions and executes them one at a time.  This allows the
+        assets to be processed in parallel. See the `SQLAlchemy docs
+        <https://docs.sqlalchemy.org/en/14/dialects/sqlite.html#database-
         locking-behavior-concurrency>`__ to learn more about SQLite concurrency.
 
         Args:
-            context: dagster keyword that provides access output information like asset name.
+            context: dagster keyword that provides access output information like asset
+                name.
             df: dataframe to write to the database.
         """
         table_name = self._get_table_name(context)
