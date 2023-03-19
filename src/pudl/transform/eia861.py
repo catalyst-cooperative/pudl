@@ -4,19 +4,9 @@ All transformations include:
 - Replace . values with NA.
 """
 import pandas as pd
-from dagster import (
-    AssetIn,
-    AssetOut,
-    AssetsDefinition,
-    Output,
-    asset,
-    load_assets_from_current_module,
-    load_assets_from_modules,
-    multi_asset,
-)
+from dagster import AssetIn, AssetOut, Output, asset, multi_asset
 
 import pudl
-import pudl.extract.eia861 as extract_eia861
 from pudl.helpers import (
     add_fips_ids,
     clean_eia_counties,
@@ -2566,79 +2556,3 @@ def balancing_authority_eia861(
         )
 
     return _post_process(ba_eia861_normed)
-
-
-################################################################################
-# Asset factories for constructing pre- & post-processing steps.
-# NO LONGER BEING USED (for discussion purposes only)
-# TODO (@zaneselvans) remove before merging PR.
-################################################################################
-def preclean_eia861_asset_factory(table_name: str) -> AssetsDefinition:
-    """An asset factory to apply uniform pre-processing to all raw EIA-861 assets."""
-    preclean_table_name = table_name.replace("raw_", "preclean_")
-
-    @asset(
-        ins={table_name: AssetIn()},
-        name=preclean_table_name,
-        group_name="eia861_preclean_assets",
-    )
-    def eia861_preclean_asset(**kwargs: dict[str, pd.DataFrame]) -> pd.DataFrame:
-        """Apply uniform pre-processing to all raw EIA-861 assets."""
-        return _pre_process(kwargs[table_name])
-
-    return eia861_preclean_asset
-
-
-def create_preclean_eia861_assets() -> list[AssetsDefinition]:
-    """Use the asset factory to generate all required preclean EIA-861 assets."""
-    table_names = [
-        asset_key.to_python_identifier()
-        for eia861_raw_asset in load_assets_from_modules([extract_eia861])
-        for asset_key in eia861_raw_asset.keys
-    ]
-    assets = []
-    for table_name in table_names:
-        assets.append(preclean_eia861_asset_factory(table_name))
-    return assets
-
-
-# eia861_preclean_assets = create_preclean_eia861_assets()
-
-
-def finished_eia861_asset_factory(table_name: str) -> AssetsDefinition:
-    """An asset factory to apply post-transform processing all EIA-861 assets."""
-    if table_name.startswith("clean_"):
-        finished_table_name = table_name.replace("clean_", "")
-
-    if table_name.startswith("normalized_"):
-        finished_table_name = table_name.replace("normalized_", "")
-
-    @asset(
-        ins={table_name: AssetIn()},
-        name=finished_table_name,
-        group_name="eia861_finished_assets",
-    )
-    def eia861_finished_asset(**kwargs: dict[str, pd.DataFrame]) -> pd.DataFrame:
-        """Apply uniform post-processing to all EIA-861 assets."""
-        return _post_process(kwargs[table_name])
-
-    return eia861_finished_asset
-
-
-def create_finished_eia861_assets() -> list[AssetsDefinition]:
-    """Use the asset factory to generate all finished EIA-861 assets."""
-    table_names = [
-        asset_key.to_python_identifier()
-        for eia861_clean_asset in load_assets_from_current_module()
-        for asset_key in eia861_clean_asset.keys
-        if asset_key.to_python_identifier().startswith("clean_")
-    ]
-    table_names.remove("clean_balancing_authority_eia861")
-    table_names.append("normalized_balancing_authority_eia861")
-    assets = []
-    for table_name in table_names:
-        assets.append(finished_eia861_asset_factory(table_name))
-    return assets
-
-
-# eia861_finished_assets = create_finished_eia861_assets()
