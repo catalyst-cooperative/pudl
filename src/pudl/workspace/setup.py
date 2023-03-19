@@ -125,10 +125,12 @@ def derive_paths(pudl_in, pudl_out):
     pudl_settings["pudl_out"] = f"{str(pudl_out)}/output"
     # One directory per output format:
     logger.warning(
-        "sqlite and parquet directories are no longer being used. Make sure there is a single directory named 'output' at the root of your workspace. For more info see: https://catalystcoop-pudl.readthedocs.io/en/dev/dev/dev_setup.html"
+        "sqlite and parquet directories are no longer being used. Make sure there is a "
+        "single directory named 'output' at the root of your workspace. For more info "
+        "see: https://catalystcoop-pudl.readthedocs.io/en/dev/dev/dev_setup.html"
     )
     for fmt in ["sqlite", "parquet"]:
-        pudl_settings[f"{fmt}_dir"] = str(pudl_out)
+        pudl_settings[f"{fmt}_dir"] = pudl_settings["pudl_out"]
 
     # Mirror dagster env vars for ease of use
     pudl_settings["PUDL_OUTPUT"] = pudl_settings["pudl_out"]
