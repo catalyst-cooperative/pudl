@@ -91,9 +91,9 @@ def pytest_configure(config):
     io_managers unit tests need these to be set, but they don't have to point to
     anything meaningful. They will be reset by the `pudl_env` fixture before being used.
     """
-    os.environ["PUDL_OUTPUT"] = os.getenv("PUDL_OUTPUT", "~/")
-    os.environ["DAGSTER_HOME"] = os.getenv("DAGSTER_HOME", "~/")
-    os.environ["PUDL_INPUT"] = os.getenv("PUDL_INPUT", "~/")
+    os.environ["PUDL_OUTPUT"] = os.getenv("PUDL_OUTPUT", "/tmp")  # nosec: B108
+    os.environ["DAGSTER_HOME"] = os.getenv("DAGSTER_HOME", "/tmp")  # nosec: B108
+    os.environ["PUDL_INPUT"] = os.getenv("PUDL_INPUT", "/tmp")  # nosec: B108
 
 
 @pytest.fixture(scope="session")
