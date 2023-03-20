@@ -364,7 +364,6 @@ def pudl_sqlite_io_manager(init_context) -> SQLiteIOManager:
     base_dir = init_context.resource_config["pudl_output_path"]
     md = Package.from_resource_ids(
         excluded_etl_groups=(
-            "ferc714",
             "static_eia_disabled",
             "epacems",
             "outputs",
