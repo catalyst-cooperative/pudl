@@ -39,19 +39,26 @@ def test_get_settings_in_test_environment_no_env_vars():
     assert os.getenv("PUDL_INPUT") == f"{default_settings['pudl_in']}/data"
 
 
-def test_get_settings_in_test_environment_use_env_vars():
+@pytest.mark.parametrize(
+    "settings_yaml",
+    [
+        None,
+        StringIO(
+            yaml.dump(
+                {
+                    "pudl_in": "/test/workspace",
+                    "pudl_out": "/test/workspace",
+                }
+            )
+        ),
+    ],
+)
+def test_get_settings_in_test_environment_use_env_vars(settings_yaml):
     workspace = "/test/whatever/from/env"
     os.environ |= {
         "PUDL_OUTPUT": f"{workspace}/output",
         "PUDL_INPUT": f"{workspace}/data",
     }
-
-    default_settings = {
-        "pudl_in": "/test/workspace",
-        "pudl_out": "/test/workspace",
-    }
-
-    settings_yaml = StringIO(yaml.dump(default_settings))
 
     settings = get_settings(env="test", yaml_file=settings_yaml, live_dbs=False)
 
