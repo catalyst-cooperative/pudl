@@ -8,7 +8,7 @@ foreign key constraints.
 Foreign key constraings on ``pudl.sqlite`` are disabled so dagster can load tables
 into the database without a foreign key error being raised. However, foreign key
 constraints can be evaluated after all of the data has been loaded into the database.
-To check the constraints, run the ``check_pudl_fks`` cli command once the data
+To check the constraints, run the ``pudl_check_fks`` cli command once the data
 has been loaded into ``pudl.sqlite``.
 """
 import argparse
