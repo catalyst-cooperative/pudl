@@ -414,4 +414,4 @@ has been loaded into the database. To check the constraints, run:
 
 .. code-block:: console
 
-   $ check_pudl_fks
+   $ pudl_check_fks

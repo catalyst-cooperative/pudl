@@ -156,7 +156,7 @@ setup(
             # See https://github.com/catalyst-cooperative/pudl/issues/1174
             # "pudl_territories = pudl.analysis.service_territory:main",
             "state_demand = pudl.analysis.state_demand:main",
-            "check_pudl_fks = pudl.etl.check_foreign_keys:main",
+            "pudl_check_fks = pudl.etl.check_foreign_keys:main",
         ]
     },
 )
