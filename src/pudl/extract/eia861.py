@@ -69,33 +69,34 @@ class Extractor(excel.GenericExtractor):
         }
 
 
-# TODO: This list of table names should be generated programmatically.
-RAW_TABLE_NAMES_EIA861 = (
-    "raw_advanced_metering_infrastructure_eia861",
-    "raw_balancing_authority_eia861",
-    "raw_delivery_companies_eia861",
-    "raw_demand_response_eia861",
-    "raw_demand_side_management_eia861",
-    "raw_distributed_generation_eia861",
-    "raw_distribution_systems_eia861",
-    "raw_dynamic_pricing_eia861",
-    "raw_energy_efficiency_eia861",
-    "raw_frame_eia861",
-    "raw_green_pricing_eia861",
-    "raw_mergers_eia861",
-    "raw_net_metering_eia861",
-    "raw_non_net_metering_eia861",
-    "raw_operational_data_eia861",
-    "raw_reliability_eia861",
-    "raw_sales_eia861",
-    "raw_service_territory_eia861",
-    "raw_short_form_eia861",
-    "raw_utility_data_eia861",
-)
-
-
 @multi_asset(
-    outs={table_name: AssetOut() for table_name in sorted(RAW_TABLE_NAMES_EIA861)},
+    outs={
+        table_name: AssetOut()
+        for table_name in sorted(
+            (  # is there some way to programmatically generate this list?
+                "raw_advanced_metering_infrastructure_eia861",
+                "raw_balancing_authority_eia861",
+                "raw_delivery_companies_eia861",
+                "raw_demand_response_eia861",
+                "raw_demand_side_management_eia861",
+                "raw_distributed_generation_eia861",
+                "raw_distribution_systems_eia861",
+                "raw_dynamic_pricing_eia861",
+                "raw_energy_efficiency_eia861",
+                "raw_frame_eia861",
+                "raw_green_pricing_eia861",
+                "raw_mergers_eia861",
+                "raw_net_metering_eia861",
+                "raw_non_net_metering_eia861",
+                "raw_operational_data_eia861",
+                "raw_reliability_eia861",
+                "raw_sales_eia861",
+                "raw_service_territory_eia861",
+                "raw_short_form_eia861",
+                "raw_utility_data_eia861",
+            )
+        )
+    },
     required_resource_keys={"datastore", "dataset_settings"},
 )
 def extract_eia861(context):
