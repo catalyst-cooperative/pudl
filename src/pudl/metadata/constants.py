@@ -153,6 +153,93 @@ CONTRIBUTORS: dict[str, dict[str, str]] = {
 }
 """PUDL Contributors for attribution."""
 
+ETL_GROUPS: dict[str, dict[str, str]] = {
+    "entity_eia": {
+        "title": "EIA Entity Tables",
+        "description": """EIA entity tables combine information reported in multiple EIA
+tables into a single source of truth. "Entities" (boilers, generators, plants and
+utilities) are referred to repeatedly throughout EIA resulting in data duplication and
+human-error. For example, one year a plant's latitude is ``55.339722`` and
+another year it's ``55.339725`` or in 860 a plant is called ``Barry`` but in 923 it's
+once referred to as ``Bary``. We use a "harvesting" process to extract this static (not
+changing on an annual basis) information, determine the true value, and rehome it in our
+entity tables. This reduces the amount of data we have to store and provides users with
+a master list of all entitiy types and their characteristics that are reported to a
+given source. Read more about our harvesting process in :mod:`pudl.transform.eia`.
+""",
+    },
+    "static_eia": {
+        "title": "EIA Static Tables",
+        "description": """Static EIA tables are like EIA entity tables in that they pull
+from multiple EIA tables, but their purpose is to elucidate encoded language. This is
+where acromyns are connected to their full spelling and descriptions. These tables did
+not originate as raw EIA tables, rather they are created by us to link commonly used
+codes to important descriptors.""",
+    },
+    "static_eia_disabled": {
+        "title": "EIA Static Tables (disabled)",
+        "description": "Disabled tables are no longer included in the PUDL DB.",
+    },
+    "eia860": {
+        "title": "EIA 860",
+        "description": """Tables derrived from the EIA Form 860. See our
+:doc:`../data_sources/eia860` page for more information.""",
+    },
+    "eia861": {
+        "title": "EIA 861",
+        "description": "Tables derrived from the EIA Form 861.",
+    },
+    "eia923": {
+        "title": "EIA 923",
+        "description": """Tables derrived from the EIA Form 923.  See our
+:doc:`../data_sources/eia923` page for more information.""",
+    },
+    "eia_bulk_elec": {
+        "title": "EIA Bulk Electricity Tables",
+        "description": "Blah",
+    },
+    "epacems": {
+        "title": "EPA CEMS",
+        "description": """Tables derrived from the EPA CEMS data. See our
+:doc:`../data_sources/epacems` page for more information""",
+    },
+    "static_ferc1": {
+        "title": "FERC Form 1 Static Tables",
+        "description": """Static FERC Form 1 tables elucidate encoded language. This is
+where acromyns are connected to their full spelling and descriptions. These tables did
+not originate as raw FERC Form 1 tables, rather they are created by us to link commonly
+used codes to important descriptors.""",
+    },
+    "ferc1": {
+        "title": "FERC Form 1",
+        "description": """Tables derrived from the FERC Form 1 tables. See our
+:doc:`../data_sources/ferc1` page for more information""",
+    },
+    "ferc1_disabled": {
+        "title": "FERC Form 1 disabled",
+        "description": "Disabled tables are no longer included in the PUDL DB.",
+    },
+    "ferc714": {
+        "title": "FERC Form 714",
+        "description": "Tables derrived from the FERC Form 714 tables",
+    },
+    "glue": {
+        "title": "Glue Tables",
+        "description": "Tables connecting information from multiple sources",
+    },
+    "outputs": {
+        "title": "Output Tables",
+        "description": "Blah",
+    },
+    "static_pudl": {
+        "title": "Static PUDL Tables",
+        "description": """Static PUDL tables elucidate encoded language. This is
+where acromyns are connected to their full spelling and descriptions. They're created
+to link commonly used codes to important descriptors.""",
+    },
+}
+"""Table categorization by ETL group."""
+
 KEYWORDS: dict[str, list[str]] = {
     "electricity": [
         "electricity",

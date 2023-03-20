@@ -1,11 +1,3 @@
--------------------------------------------------------------------------------
-{{ resource.name }}
--------------------------------------------------------------------------------
-
-{{ resource.description | wordwrap(78) if resource.description else
-'No table description available.' }}
-`Browse or query this table in Datasette. <https://data.catalyst.coop/pudl/{{ resource.name }}>`__
-
 .. list-table::
   :widths: auto
   :header-rows: 1
@@ -17,4 +9,5 @@
   * - {{ field.name }}
     - {{ field.type }}
     - {{ field.description if field.description else "N/A" }}
+
 {%- endfor %}

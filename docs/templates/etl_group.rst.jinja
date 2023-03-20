@@ -1,0 +1,19 @@
+===============================================================================
+PUDL Data Dictionary
+===============================================================================
+
+The following data tables have been cleaned and transformed by our ETL process.
+They're seperated into categories based on their original source and the type of
+content they contain.
+
+{% for group, resources in package.get_resource_by_etl_group().items() %}
+{{ package.get_etl_group()[group].title }}
+-------------------------------------------------------------------------------
+
+{{ package.get_etl_group()[group].description }}
+
+{% for resource in resources %}
+- :ref:`{{ resource.name }}`
+
+{% endfor %}
+{% endfor %}
