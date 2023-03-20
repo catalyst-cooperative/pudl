@@ -4,7 +4,7 @@ import os
 import pathlib
 import shutil
 from pathlib import Path
-from typing import IO, Literal
+from typing import IO
 
 import yaml
 
@@ -14,7 +14,7 @@ logger = pudl.logging_helpers.get_logger(__name__)
 
 
 def get_settings(
-    env: Literal["test", "live"], yaml_file: IO | None, live_dbs: bool = False
+    yaml_file: IO | None, tmp_dir: str | None = None, live_dbs: bool = False
 ) -> dict[str, str]:
     """Handle PUDL settings and env vars."""
     if yaml_file is not None:
@@ -23,20 +23,30 @@ def get_settings(
         settings = {}
 
     if (pudl_out := os.getenv("PUDL_OUTPUT")) and (pudl_in := os.getenv("PUDL_INPUT")):
-        settings = derive_paths(Path(pudl_in).parent, Path(pudl_out).parent)
+        derive_paths_in = Path(pudl_in).parent
+        derive_paths_out = Path(pudl_out).parent
     elif settings:
-        settings = derive_paths(settings["pudl_in"], settings["pudl_out"])
+        derive_paths_in = settings["pudl_in"]
+        derive_paths_out = settings["pudl_out"]
+    else:
+        raise RuntimeError(
+            "Must set 'PUDL_OUTPUT'/'PUDL_INPUT' environment variables or provide valid yaml config file."
+        )
+
+    if tmp_dir and not live_dbs:
+        derive_paths_out = tmp_dir
+
+        # Overwrite env var to point to tmp_dir if it exist
+        if os.getenv("PUDL_OUTPUT"):
+            os.environ["PUDL_OUTPUT"] = f"{derive_paths_out}/output"
+
+    settings = derive_paths(derive_paths_in, derive_paths_out)
 
     if (pudl_out := settings.get("pudl_out")) and (pudl_in := settings.get("data_dir")):
         if "PUDL_OUTPUT" not in os.environ:
             os.environ["PUDL_OUTPUT"] = pudl_out
         if "PUDL_INPUT" not in os.environ:
             os.environ["PUDL_INPUT"] = pudl_in
-
-    if not (os.getenv("PUDL_OUTPUT") and os.getenv("PUDL_INPUT")):
-        raise RuntimeError(
-            "Must set 'PUDL_OUTPUT'/'PUDL_INPUT' environment variables or provide valid yaml config file."
-        )
 
     # if env vars exist:
     # override settings

@@ -24,7 +24,7 @@ def test_get_settings_in_test_environment_no_env_vars():
 
     settings_yaml = StringIO(yaml.dump(default_settings))
 
-    settings = get_settings(env="test", yaml_file=settings_yaml, live_dbs=False)
+    settings = get_settings(yaml_file=settings_yaml, live_dbs=False)
 
     expected_values = {
         "pudl_in": f"{workspace}",
@@ -35,7 +35,39 @@ def test_get_settings_in_test_environment_no_env_vars():
     for key, value in expected_values.items():
         assert (key, settings[key]) == (key, value)
 
-    assert os.getenv("PUDL_OUTPUT") == f"{default_settings['pudl_in']}/output"
+    assert os.getenv("PUDL_OUTPUT") == f"{default_settings['pudl_out']}/output"
+    assert os.getenv("PUDL_INPUT") == f"{default_settings['pudl_in']}/data"
+
+
+def test_get_settings_in_test_environment_no_env_vars_tmpdir(pudl_out_tmpdir):
+    if os.getenv("PUDL_OUTPUT"):
+        del os.environ["PUDL_OUTPUT"]
+    if os.getenv("PUDL_INPUT"):
+        del os.environ["PUDL_INPUT"]
+
+    workspace = "/test/whatever"
+    default_settings = {
+        "pudl_in": workspace,
+        "pudl_out": workspace,
+    }
+
+    settings_yaml = StringIO(yaml.dump(default_settings))
+
+    settings = get_settings(
+        yaml_file=settings_yaml, live_dbs=False, tmp_dir=pudl_out_tmpdir
+    )
+
+    expected_values = {
+        "pudl_in": f"{workspace}",
+        "pudl_out": f"{pudl_out_tmpdir}/output",
+        "data_dir": f"{workspace}/data",
+    }
+
+    print(settings)
+    for key, value in expected_values.items():
+        assert (key, settings[key]) == (key, value)
+
+    assert os.getenv("PUDL_OUTPUT") == f"{pudl_out_tmpdir}/output"
     assert os.getenv("PUDL_INPUT") == f"{default_settings['pudl_in']}/data"
 
 
@@ -60,7 +92,7 @@ def test_get_settings_in_test_environment_use_env_vars(settings_yaml):
         "PUDL_INPUT": f"{workspace}/data",
     }
 
-    settings = get_settings(env="test", yaml_file=settings_yaml, live_dbs=False)
+    settings = get_settings(yaml_file=settings_yaml, live_dbs=False)
 
     expected_values = {
         "pudl_in": f"{workspace}",
@@ -75,6 +107,46 @@ def test_get_settings_in_test_environment_use_env_vars(settings_yaml):
     assert os.getenv("PUDL_INPUT") == f"{workspace}/data"
 
 
+@pytest.mark.parametrize(
+    "settings_yaml",
+    [
+        None,
+        StringIO(
+            yaml.dump(
+                {
+                    "pudl_in": "/test/workspace",
+                    "pudl_out": "/test/workspace",
+                }
+            )
+        ),
+    ],
+)
+def test_get_settings_in_test_environment_use_env_vars_tmpdir(
+    settings_yaml, pudl_out_tmpdir
+):
+    workspace = "/test/whatever/from/env"
+    os.environ |= {
+        "PUDL_OUTPUT": f"{workspace}/output",
+        "PUDL_INPUT": f"{workspace}/data",
+    }
+
+    settings = get_settings(
+        yaml_file=settings_yaml, live_dbs=False, tmp_dir=pudl_out_tmpdir
+    )
+
+    expected_values = {
+        "pudl_in": f"{workspace}",
+        "pudl_out": f"{pudl_out_tmpdir}/output",
+        "data_dir": f"{workspace}/data",
+    }
+
+    for key, value in expected_values.items():
+        assert (key, settings[key]) == (key, value)
+
+    assert os.getenv("PUDL_OUTPUT") == f"{pudl_out_tmpdir}/output"
+    assert os.getenv("PUDL_INPUT") == f"{workspace}/data"
+
+
 def test_get_settings_in_test_environment_no_env_vars_no_config():
     if os.getenv("PUDL_OUTPUT"):
         del os.environ["PUDL_OUTPUT"]
@@ -82,4 +154,4 @@ def test_get_settings_in_test_environment_no_env_vars_no_config():
         del os.environ["PUDL_INPUT"]
 
     with pytest.raises(RuntimeError):
-        get_settings(env="test", yaml_file=None, live_dbs=True)
+        get_settings(yaml_file=None, live_dbs=True)
