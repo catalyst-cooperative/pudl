@@ -5401,7 +5401,7 @@ record_id_eia,record_id_ferc1,signature_1,signature_2,notes
 3264_gt_2019_plant_prime_mover_total_5416,f1_steam_2019_12_45_0_5,AS,CG,
 3264_4_2019_plant_unit_total_5416,f1_steam_2019_12_45_4_2,AS,CG,cap and net gen off
 3264_gt_2020_plant_prime_mover_total_5416,f1_steam_2020_12_45_0_5,AS,CG,
-3264_3_2020_plant_unit_total_5416,f1_steam_2020_12_45_0_4,AS,CG,
+3264_st_2020_plant_prime_mover_total_5416,f1_steam_2020_12_45_0_4,AS,CG,
 3264_4_2020_plant_unit_total_5416,f1_steam_2020_12_45_4_2,AS,CG,based on net gen
 7277_2005_plant_total_5416,f1_steam_2005_12_45_2_4,AS,CG,"cap off, net gen good"
 7277_2006_plant_total_5416,f1_steam_2006_12_45_2_4,AS,CG,"cap off, net gen good"
