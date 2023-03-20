@@ -3,6 +3,7 @@ import importlib
 import os
 import pathlib
 import shutil
+from pathlib import Path
 from typing import IO, Literal
 
 import yaml
@@ -15,24 +16,27 @@ logger = pudl.logging_helpers.get_logger(__name__)
 def get_settings(
     env: Literal["test", "live"], yaml_file: IO | None, live_dbs: bool = False
 ) -> dict[str, str]:
+    """Handle PUDL settings and env vars."""
     if yaml_file is not None:
         settings = yaml.safe_load(yaml_file)
     else:
         settings = {}
 
     if (pudl_out := os.getenv("PUDL_OUTPUT")) and (pudl_in := os.getenv("PUDL_INPUT")):
-        settings["pudl_out"] = pudl_out
-        settings[
-            "pudl_in"
-        ] = pudl_in  # TODO: get the parent directory of PUDL_INPUT to be "pudl_in"
-
-    settings = derive_paths(settings["pudl_in"], settings["pudl_out"])
+        settings = derive_paths(Path(pudl_in).parent, Path(pudl_out).parent)
+    elif settings:
+        settings = derive_paths(settings["pudl_in"], settings["pudl_out"])
 
     if (pudl_out := settings.get("pudl_out")) and (pudl_in := settings.get("data_dir")):
         if "PUDL_OUTPUT" not in os.environ:
             os.environ["PUDL_OUTPUT"] = pudl_out
         if "PUDL_INPUT" not in os.environ:
             os.environ["PUDL_INPUT"] = pudl_in
+
+    if not (os.getenv("PUDL_OUTPUT") and os.getenv("PUDL_INPUT")):
+        raise RuntimeError(
+            "Must set 'PUDL_OUTPUT'/'PUDL_INPUT' environment variables or provide valid yaml config file."
+        )
 
     # if env vars exist:
     # override settings

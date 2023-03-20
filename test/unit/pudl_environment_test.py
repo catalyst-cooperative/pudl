@@ -1,9 +1,10 @@
-"""Test to see if our environment (PUDL_INPUT/OUTPUT, pudl_settings) is set up
-properly in a variety of situations."""
+"""Test to see if our environment (PUDL_INPUT/OUTPUT, pudl_settings) is set up properly
+in a variety of situations."""
 
-from io import StringIO
 import os
+from io import StringIO
 
+import pytest
 import yaml
 
 from pudl.workspace.setup import get_settings
@@ -65,3 +66,13 @@ def test_get_settings_in_test_environment_use_env_vars():
 
     assert os.getenv("PUDL_OUTPUT") == f"{workspace}/output"
     assert os.getenv("PUDL_INPUT") == f"{workspace}/data"
+
+
+def test_get_settings_in_test_environment_no_env_vars_no_config():
+    if os.getenv("PUDL_OUTPUT"):
+        del os.environ["PUDL_OUTPUT"]
+    if os.getenv("PUDL_INPUT"):
+        del os.environ["PUDL_INPUT"]
+
+    with pytest.raises(RuntimeError):
+        get_settings(env="test", yaml_file=None, live_dbs=True)
