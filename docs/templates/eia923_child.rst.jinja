@@ -22,17 +22,22 @@ As of 2019, the EIA-923 Form is organized into the following schedules:
 {% block downloadable_pdfs %}
 {% for filename in download_paths %}
 * :download:`{{ filename.stem.replace("_", " ").title() }} (PDF) <{{ filename }}>`
+
 {% endfor %}
 {% endblock %}
 
 {% block accessible %}
-EIA-923 data stretches back to 1970, and PUDL currently covers all years starting from
-2009. Due to a difference in reporting between the older and newer years, the older data
-will require more time to integrate. Monthly and year to date releases are not yet
-integrated.
+Some form of EIA-923 data stretches all the way back to 1970. PUDL coverage starts in
+2001. Before 2001, the data like that contained in the EIA-923 was collected via
+EIA-867, EIA-906, and EIA-920. Prior to 2008 fuel receipts and costs data were reported
+in `EIA Form 423
+<https: //www.eia.gov/electricity/data/eia423 />`__ (which in turn
+replaced the earlier FERC Form 423). If you're interested in this earlier data, get in
+touch with us!
 
-In addition, We have not yet integrated tables reporting fuel stocks, data from Puerto
-Rico, or EIA-923 schedules 6, 7, and 8.
+Monthly interim EIA-923 data releases are not yet integrated into PUDL. In addition, We
+have not yet integrated tables reporting fuel stocks, data from Puerto Rico, or EIA-923
+schedules 6, 7, and 8.
 {% endblock %}
 
 {% block fill_out_form %}
@@ -51,9 +56,9 @@ entirety once a year.
 Once the respondents have submitted their responses, the EIA creates a series of
 spreadsheets that reflect themes within the form. These spreadsheets have changed over
 the years as the form itself evolves. They are accessible on the `EIA website <{{
-source.path }}>`__ as downloadable ZIP files categorized by year. The internal data
-are organized into excel spreadsheets. To gain greater insight into year-to-year nuances
-of the form, we recommend downloading multiple years of EIA-923 ZIP files and comparing
+source.path }}>`__ as downloadable ZIP files categorized by year. The internal data are
+organized into excel spreadsheets. To gain greater insight into year-to-year nuances of
+the form, we recommend downloading multiple years of EIA-923 ZIP files and comparing
 both the Form and the Form Instructions files.
 
 {% endblock %}
