@@ -267,7 +267,6 @@ def test_mcoe_filled(fast_out_filled, df_name, expected_nuke_fraction, tolerance
 )
 def test_pudltabl_pickle(
     pudl_engine,
-    pudl_datastore_fixture,
     pudl_settings_fixture,
     monkeypatch,
     variation,
@@ -285,7 +284,6 @@ def test_pudltabl_pickle(
 
     pudl_out_pickle = pudl.output.pudltabl.PudlTabl(
         pudl_engine,
-        ds=pudl_datastore_fixture,
         freq="AS",
         fill_fuel_cost=True,
         roll_fuel_cost=True,
