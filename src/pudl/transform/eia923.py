@@ -760,7 +760,8 @@ def _aggregate_duplicate_boiler_fuel_keys(boiler_fuel_df: pd.DataFrame) -> pd.Da
     ]
     other_cols = [
         "prime_mover_code", "sector_id_eia", "sector_name_eia",
-        "associated_combined_heat_power", "plant_name_eia"
+        "associated_combined_heat_power", "plant_name_eia",
+        "plant_state", "census_region", "nerc_region", "naics_code"
     ]
 
     expected_cols = set(
@@ -837,10 +838,6 @@ def boiler_fuel(eia923_dfs, eia923_transformed_dfs):
     cols_to_drop = [
         "operator_name",
         "operator_id",
-        "plant_state",
-        "census_region",
-        "nerc_region",
-        "naics_code",
         "fuel_unit",
         "total_fuel_consumption_quantity",
         "balancing_authority_code_eia",
