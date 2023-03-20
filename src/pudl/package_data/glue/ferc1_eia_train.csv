@@ -354,14 +354,9 @@ record_id_eia,record_id_ferc1,signature_1,signature_2,notes
 55718_2018_plant_owned_5109,f1_steam_2018_12_44_2_2,,,
 55856_2018_plant_total_40211,f1_gnrt_plant_2018_12_294_0_1,,,
 56031_2018_plant_owned_20860,f1_steam_2018_12_195_4_1,,,
-56407_1_2018_plant_unit_owned_6452,f1_steam_2018_12_56_0_2,,,
 56456_2018_plant_owned_5860,f1_steam_2018_12_51_1_4,,,
-56929_2018_plant_owned_6452,f1_steam_2018_12_56_4_4,,,
-56930_2018_plant_owned_6452,f1_steam_2018_12_56_4_1,,,
 57703_1_2018_plant_unit_owned_19545,f1_steam_2018_12_12_1_1,,,
 6000_2018_plant_owned_9324,f1_steam_2018_12_73_0_5,,,
-60014_PV_2018_plant_prime_mover_owned_6452,f1_steam_2018_12_56_5_3,,,
-60061_PV_2018_plant_prime_mover_owned_6452,f1_steam_2018_12_56_5_2,,,
 6008_1_2018_plant_gen_owned_803,f1_steam_2018_12_7_5_5,,,
 6008_2_2018_plant_gen_owned_803,f1_steam_2018_12_7_6_1,,,
 6008_3_2018_plant_gen_owned_803,f1_steam_2018_12_7_6_2,,,
@@ -372,38 +367,15 @@ record_id_eia,record_id_ferc1,signature_1,signature_2,notes
 6034_1_2018_plant_unit_total_5109,f1_steam_2018_12_44_0_1,,,
 6035_GT_2018_plant_prime_mover_owned_5109,f1_steam_2018_12_44_2_5,,,
 6035_1_2018_plant_unit_owned_5109,f1_steam_2018_12_44_0_5,,,
-6042_1_2018_plant_unit_owned_6452,f1_steam_2018_12_56_1_1,,,
-6042_3_2018_plant_unit_owned_6452,f1_steam_2018_12_56_3_1,,,
-6043_1_2018_plant_unit_owned_6452,f1_steam_2018_12_56_4_3,,,
-6043_3_2018_plant_unit_owned_6452,f1_steam_2018_12_56_3_3,,,
-6043_5_2018_plant_unit_owned_6452,f1_steam_2018_12_56_1_2,,,
-6045_2018_plant_owned_6452,f1_steam_2018_12_56_2_4,,,
 6088_2018_plant_owned_24211,f1_steam_2018_12_176_1_3,,,
-609_2018_plant_owned_6452,f1_steam_2018_12_56_0_1,,,
 6101_2018_plant_owned_19545,f1_steam_2018_12_12_0_4,,,
-61020_2018_plant_owned_6452,f1_steam_2018_12_56_6_1,,,
-61021_2018_plant_owned_6452,f1_steam_2018_12_56_6_5,,,
-61022_2018_plant_owned_6452,f1_steam_2018_12_56_5_5,,,
-61024_2018_plant_owned_6452,f1_steam_2018_12_56_7_4,,,
-61029_2018_plant_owned_6452,f1_steam_2018_12_56_6_4,,,
-61050_2018_plant_owned_6452,f1_steam_2018_12_56_6_2,,,
-61051_2018_plant_owned_6452,f1_steam_2018_12_56_6_3,,,
-61052_2018_plant_owned_6452,f1_steam_2018_12_56_7_5,,,
 6113_2018_plant_total_40211,f1_gnrt_plant_2018_12_294_0_4,,,
-612_1_2018_plant_unit_total_6452,f1_steam_2018_12_56_3_4,,,
-613_1_2018_plant_unit_owned_6452,f1_steam_2018_12_56_3_5,,,
 6153_2018_plant_owned_19436,f1_steam_2018_12_177_1_1,,,
 6155_2018_plant_owned_19436,f1_steam_2018_12_177_0_3,,,
 6166_1_2018_plant_unit_owned_9324,f1_steam_2018_12_73_0_1,,,
 6166_2_2018_plant_unit_owned_9324,f1_steam_2018_12_73_0_2,,,
 6166_2018_plant_total_9324,f1_steam_2018_12_73_0_4,,,
 6170_1_2018_plant_unit_owned_20847,f1_steam_2018_12_193_0_5,,,
-617_2018_plant_owned_6452,f1_steam_2018_12_56_3_2,,,
-617_GT_2018_plant_prime_mover_owned_6452_retired,f1_steam_2018_12_56_2_3,,,
-619_2018_plant_owned_6452,f1_steam_2018_12_56_0_4,,,
-620_1_2018_plant_unit_owned_6452,f1_steam_2018_12_56_0_5,,,
-621_5_2018_plant_unit_total_6452,f1_steam_2018_12_56_0_3,,,
-621_Nuclear_2018_plant_technology_owned_6452,f1_steam_2018_12_56_2_5,,,
 6223_2018_plant_owned_5860,f1_steam_2018_12_51_0_4,,,
 6253_2018_plant_owned_20847,f1_steam_2018_12_193_0_3,,,
 6264_2018_plant_owned_733,f1_steam_2018_12_6_0_3,,,
@@ -449,7 +421,6 @@ record_id_eia,record_id_ferc1,signature_1,signature_2,notes
 990_3_2018_plant_unit_owned_9273,f1_steam_2018_12_74_0_2,,,
 991_2018_plant_owned_9273,f1_steam_2018_12_74_0_5,,,
 994_IC_2018_plant_prime_mover_owned_9273,f1_gnrt_plant_2018_12_74_0_1,,,
-6073_2016_plant_owned_7801,f1_steam_2016_12_62_0_3,,,
 118_ge1_2015_plant_gen_owned_803,f1_steam_2015_12_7_5_1,,,
 118_gt1_2015_plant_gen_owned_803,f1_steam_2015_12_7_4_4,,,
 118_gt2_2015_plant_gen_owned_803,f1_steam_2015_12_7_4_5,,,
@@ -6899,3 +6870,557 @@ Azalea is a subsidiary of Dominion: https://www.sec.gov/Archives/edgar/data/1036
 3809_2018_plant_total_19876,f1_steam_2018_12_186_3_4,CG,SW,
 3809_2019_plant_total_19876,f1_steam_2019_12_186_3_4,CG,SW,
 3809_2020_plant_total_19876,f1_steam_2020_12_186_3_4,SW,EB,
+609_2005_plant_total_6452,f1_steam_2005_12_56_0_1,EB,SW,
+641_2005_plant_total_7801,f1_steam_2005_12_62_0_1,EB,SW,Override SB decision to keep record. This has a better capacity match.
+613_gt_2005_plant_prime_mover_total_6452,f1_steam_2005_12_56_2_5,EB,SW,
+613_natural_gas_fired_combined_cycle_2005_plant_technology_total_6452,f1_steam_2005_12_56_3_4,EB,SW,
+6042_st_2005_plant_prime_mover_total_6452,f1_steam_2005_12_56_1_3,SW,SW,
+6043_st_2005_plant_prime_mover_total_6452,f1_steam_2005_12_56_1_4,SW,AS,"cap off, net gen and year good"
+617_st_2005_plant_prime_mover_total_6452,f1_steam_2005_12_56_0_3,SW,SW,
+617_gt_2005_plant_prime_mover_total_6452,f1_steam_2005_12_56_3_1,EB,SW,
+619_2005_plant_total_6452,f1_steam_2005_12_56_0_4,EB,SW,
+620_st_2005_plant_prime_mover_total_6452,f1_steam_2005_12_56_0_5,EB,SW,
+6257_4_2005_plant_gen_owned_6452,f1_steam_2005_12_56_1_5,CG,SW,
+6257_2005_plant_owned_7801,f1_steam_2005_12_62_0_5,EB,SW,
+642_2005_plant_total_7801,f1_steam_2005_12_62_0_3,EB,SW,
+643_st_2005_plant_prime_mover_total_7801,f1_steam_2005_12_62_0_2,EB,SW,
+643_natural_gas_fired_combined_cycle_2005_plant_technology_total_7801,f1_steam_2005_12_62_1_1,EB,SW,
+643_gt_2005_plant_prime_mover_owned_7801,f1_steam_2005_12_62_1_2,EB,SW,better gen matching
+621_rfo_2005_plant_prime_fuel_total_6452,f1_steam_2005_12_56_1_1,EB,SW,
+621_ic_2005_plant_prime_mover_total_6452,f1_steam_2005_12_56_1_2,EB,SW,
+610_2005_plant_total_6452,f1_steam_2005_12_56_0_2,EB,SW,
+6246_2005_plant_total_6452,f1_steam_2005_12_56_4_1,EB,SW,EB changed from 6246_2005_plant_owned_6452 to 6246_2005_plant_total_6452
+207_2005_plant_owned_6452,f1_steam_2005_12_56_2_1,SW,,ownership fraction of .5 vs .2 in later years makes FERC reported cap and gen lower than EIA
+6045_2005_plant_owned_6452,f1_steam_2005_12_56_2_2,SW,,"capacity matches total, the generation is closer to owned"
+621_nuc_2005_plant_prime_fuel_total_6452,f1_steam_2005_12_56_2_3,SW,SW,
+612_petroleum_liquids_2005_plant_technology_total_6452,f1_steam_2005_12_56_2_4,EB,SW,"net gen off, cap and year good"
+6043_2005_2005_plant_operating_year_total_6452,f1_steam_2005_12_56_3_2,SW,AS,"net gen off, cap and year good"
+612_natural_gas_fired_combined_cycle_2005_plant_technology_total_6452,f1_steam_2005_12_56_3_3,SW,SW,"Cap becomes more accurate in 2009, best fit even though net gen not great"
+6043_1994_2005_plant_operating_year_total_6452,f1_steam_2005_12_56_3_5,SW,AS,"net gen off, cap and year good"
+620_ng_2005_plant_prime_fuel_owned_6452,f1_steam_2005_12_56_4_2,SW,EB,
+612_natural_gas_fired_combustion_turbine_2005_plant_technology_total_6452,f1_steam_2005_12_56_4_3,EB,AS,"cap close, no eia net gen, inst year match"
+6042_ng_2005_plant_prime_fuel_total_6452,f1_steam_2005_12_56_4_4,SW,SW,
+6073_st_2005_plant_prime_mover_owned_7801,f1_steam_2005_12_62_0_4,EB,SW,
+7715_2005_plant_total_7801,f1_steam_2005_12_62_1_3,EB,SW,
+609_2006_plant_total_6452,f1_steam_2006_12_56_0_1,EB,SW,
+641_2006_plant_total_7801,f1_steam_2006_12_62_0_1,,SW,small gas unit of plant retired this year.
+612_petroleum_liquids_2006_plant_technology_total_6452,f1_steam_2006_12_56_2_4,SW,SW,"net gen off, cap and year good"
+613_gt_2006_plant_prime_mover_total_6452,f1_steam_2006_12_56_2_5,SW,SW,
+613_natural_gas_fired_combined_cycle_2006_plant_technology_total_6452,f1_steam_2006_12_56_3_4,SW,SW,
+6042_st_2006_plant_prime_mover_total_6452,f1_steam_2006_12_56_1_3,SW,SW,Gen is off
+6042_ng_2006_plant_prime_fuel_total_6452,f1_steam_2006_12_56_4_4,SW,SW,
+6043_st_2006_plant_prime_mover_total_6452,f1_steam_2006_12_56_1_4,SW,AS,"cap off, net gen and year good"
+7715_2006_plant_total_7801,f1_steam_2006_12_62_1_3,SW,SW,
+617_st_2006_plant_prime_mover_total_6452,f1_steam_2006_12_56_0_3,EB,SW,
+617_gt_2006_plant_prime_mover_total_6452,f1_steam_2006_12_56_3_1,SW,SW,
+619_2006_plant_total_6452,f1_steam_2006_12_56_0_4,SW,SW,
+6257_4_2006_plant_gen_owned_6452,f1_steam_2006_12_56_1_5,SW,SW,
+6257_2006_plant_owned_7801,f1_steam_2006_12_62_0_5,EB,SW,
+642_2006_plant_total_7801,f1_steam_2006_12_62_0_3,EB,SW,
+643_st_2006_plant_prime_mover_total_7801,f1_steam_2006_12_62_0_2,SW,SW,
+643_natural_gas_fired_combined_cycle_2006_plant_technology_total_7801,f1_steam_2006_12_62_1_1,EB,SW,
+643_gt_2006_plant_prime_mover_total_7801,f1_steam_2006_12_62_1_2,EB,SW,
+621_rfo_2006_plant_prime_fuel_total_6452,f1_steam_2006_12_56_1_1,SW,SW,
+621_ic_2006_plant_prime_mover_total_6452,f1_steam_2006_12_56_1_2,SW,SW,
+610_2006_plant_total_6452,f1_steam_2006_12_56_0_2,EB,SW,
+6246_2006_plant_total_6452,f1_steam_2006_12_56_4_1,SW,SW,EB changed from 6246_2006_plant_owned_6452 to 6246_2006_plant_total_6452
+620_st_2006_plant_prime_mover_total_6452,f1_steam_2006_12_56_0_5,SW,SW,
+207_2006_plant_owned_6452,f1_steam_2006_12_56_2_1,,,ownership fraction of .5 vs .2 in later years makes FERC reported cap and gen lower than EIA
+6045_2006_plant_owned_6452,f1_steam_2006_12_56_2_2,SW,,"capacity matches total, the generation is closer to owned"
+621_nuc_2006_plant_prime_fuel_total_6452,f1_steam_2006_12_56_2_3,SW,SW,
+6043_2005_2006_plant_operating_year_total_6452,f1_steam_2006_12_56_3_2,SW,AS,"net gen off, cap and year good"
+612_natural_gas_fired_combined_cycle_2006_plant_technology_total_6452,f1_steam_2006_12_56_3_3,EB,SW,"Cap becomes more accurate in 2009, best fit even though net gen not great"
+6043_1994_2006_plant_operating_year_total_6452,f1_steam_2006_12_56_3_5,SW,AS,"net gen off, cap and year good"
+620_ng_2006_plant_prime_fuel_owned_6452,f1_steam_2006_12_56_4_2,SW,SW,Steve changed from “620_2006_plant_total_6452”
+612_natural_gas_fired_combustion_turbine_2006_plant_technology_total_6452,f1_steam_2006_12_56_4_3,EB,AS,"cap close, no eia net gen, inst year match"
+6073_st_2006_plant_prime_mover_owned_7801,f1_steam_2006_12_62_0_4,SW,SW,
+609_2007_plant_total_6452,f1_steam_2007_12_56_0_1,EB,SW,
+641_2007_plant_total_7801,f1_steam_2007_12_62_0_1,EB,SW,
+613_gt_2007_plant_prime_mover_total_6452,f1_steam_2007_12_56_2_5,EB,SW,
+613_natural_gas_fired_combined_cycle_2007_plant_technology_total_6452,f1_steam_2007_12_56_3_4,EB,SW,
+6042_st_2007_plant_prime_mover_total_6452,f1_steam_2007_12_56_1_3,EB,SW,
+6042_ng_2007_plant_prime_fuel_total_6452,f1_steam_2007_12_56_4_4,EB,SW,
+6043_st_2007_plant_prime_mover_total_6452,f1_steam_2007_12_56_1_4,SW,AS,"cap off, net gen and year good"
+7715_2007_plant_total_7801,f1_steam_2007_12_62_1_3,EB,SW,
+617_st_2007_plant_prime_mover_total_6452,f1_steam_2007_12_56_0_3,EB,SW,
+617_gt_2007_plant_prime_mover_total_6452,f1_steam_2007_12_56_3_1,SW,SW,
+619_2007_plant_total_6452,f1_steam_2007_12_56_0_4,EB,SW,
+6257_4_2007_plant_gen_owned_6452,f1_steam_2007_12_56_1_5,CG,SW,
+6257_2007_plant_owned_7801,f1_steam_2007_12_62_0_5,EB,SW,
+642_2007_plant_total_7801,f1_steam_2007_12_62_0_3,SW,SW,
+643_st_2007_plant_prime_mover_total_7801,f1_steam_2007_12_62_0_2,EB,SW,
+643_natural_gas_fired_combined_cycle_2007_plant_technology_total_7801,f1_steam_2007_12_62_1_1,EB,SW,
+643_gt_2007_plant_prime_mover_total_7801,f1_steam_2007_12_62_1_2,SW,SW,
+621_rfo_2007_plant_prime_fuel_total_6452,f1_steam_2007_12_56_1_1,EB,SW,"Net gen is super off but is also very inconsistent to the year before and after, probably a data error."
+621_ic_2007_plant_prime_mover_total_6452,f1_steam_2007_12_56_1_2,SW,SW,
+621_nuc_2007_plant_prime_fuel_total_6452,f1_steam_2007_12_56_2_3,EB,SW,fuel type for EIA is nuclear and oil for FERC
+621_ng_2007_plant_prime_fuel_total_6452,f1_steam_2007_12_56_4_5,EB,SW,
+610_2007_plant_total_6452,f1_steam_2007_12_56_0_2,SW,SW,
+6246_2007_plant_total_6452,f1_steam_2007_12_56_4_1,EB,SW,EB changed from 6246_2007_plant_owned_6452 to 6246_2007_plant_total_6452
+620_st_2007_plant_prime_mover_total_6452,f1_steam_2007_12_56_0_5,SW,SW,
+207_2007_plant_owned_6452,f1_steam_2007_12_56_2_1,SW,,ownership fraction of .5 vs .2 in later years makes FERC reported cap and gen lower than EIA
+6045_2007_plant_owned_6452,f1_steam_2007_12_56_2_2,SW,,"capacity matches total, the generation is closer to owned"
+612_petroleum_liquids_2007_plant_technology_total_6452,f1_steam_2007_12_56_2_4,EB,SW,"net gen off, cap and year good"
+6043_2005_2007_plant_operating_year_total_6452,f1_steam_2007_12_56_3_2,SW,AS,"net gen off, cap and year good"
+612_natural_gas_fired_combined_cycle_2007_plant_technology_total_6452,f1_steam_2007_12_56_3_3,EB,SW,"Cap becomes more accurate in 2009, best fit even though net gen not great"
+6043_1994_2007_plant_operating_year_total_6452,f1_steam_2007_12_56_3_5,SW,AS,"net gen off, cap and year good"
+620_ng_2007_plant_prime_fuel_owned_6452,f1_steam_2007_12_56_4_2,EB,SW,Steve changed from “620_2007_plant_total_6452”
+612_natural_gas_fired_combustion_turbine_2007_plant_technology_total_6452,f1_steam_2007_12_56_4_3,EB,AS,"cap close, no eia net gen, inst year match"
+6073_st_2007_plant_prime_mover_owned_7801,f1_steam_2007_12_62_0_4,SW,SW,
+609_2008_plant_total_6452,f1_steam_2008_12_56_0_1,EB,SW,
+641_2008_plant_total_7801,f1_steam_2008_12_62_0_1,EB,SW,
+6073_st_2008_plant_prime_mover_owned_7801,f1_steam_2008_12_62_0_4,EB,SW,
+612_petroleum_liquids_2008_plant_technology_total_6452,f1_steam_2008_12_56_2_4,EB,SW,
+613_gt_2008_plant_prime_mover_total_6452,f1_steam_2008_12_56_2_5,EB,SW,
+613_natural_gas_fired_combined_cycle_2008_plant_technology_total_6452,f1_steam_2008_12_56_3_4,EB,SW,
+6042_st_2008_plant_prime_mover_total_6452,f1_steam_2008_12_56_1_3,EB,SW,
+6042_ng_2008_plant_prime_fuel_total_6452,f1_steam_2008_12_56_4_4,EB,SW,
+6043_st_2008_plant_prime_mover_total_6452,f1_steam_2008_12_56_1_4,SW,AS,"cap off, net gen and year good"
+617_st_2008_plant_prime_mover_total_6452,f1_steam_2008_12_56_0_3,EB,SW,
+617_gt_2008_plant_prime_mover_total_6452,f1_steam_2008_12_56_3_1,EB,SW,
+620_st_2008_plant_prime_mover_total_6452,f1_steam_2008_12_56_0_5,EB,SW,
+620_ng_2008_plant_prime_fuel_owned_6452,f1_steam_2008_12_56_4_2,EB,SW,Steve changed from “620_2008_plant_total_6452”. Capacity is off but this better fits prior / following years.
+6257_4_2008_plant_unit_owned_6452,f1_steam_2008_12_56_1_5,CG,SW,
+6257_2008_plant_owned_7801,f1_steam_2008_12_62_0_5,EB,SW,
+642_2008_plant_total_7801,f1_steam_2008_12_62_0_3,EB,SW,
+643_st_2008_plant_prime_mover_total_7801,f1_steam_2008_12_62_0_2,EB,SW,
+643_natural_gas_fired_combined_cycle_2008_plant_technology_total_7801,f1_steam_2008_12_62_1_1,EB,SW,
+643_gt_2008_plant_prime_mover_total_7801,f1_steam_2008_12_62_1_2,EB,SW,
+621_rfo_2008_plant_prime_fuel_total_6452,f1_steam_2008_12_56_1_1,EB,SW,
+621_ic_2008_plant_prime_mover_total_6452,f1_steam_2008_12_56_1_2,EB,SW,Capacity and install year match.
+621_nuc_2008_plant_prime_fuel_total_6452,f1_steam_2008_12_56_2_3,EB,SW,
+621_ng_2008_plant_prime_fuel_total_6452,f1_steam_2008_12_56_4_5,EB,SW,
+610_2008_plant_total_6452,f1_steam_2008_12_56_0_2,EB,SW,Better capacity match.
+6246_2008_plant_total_6452,f1_steam_2008_12_56_4_1,EB,SW,EB changed from 6246_2008_plant_owned_6452 to 6246_2008_plant_total_6452
+619_2008_plant_total_6452,f1_steam_2008_12_56_0_4,EB,SW,
+207_2008_plant_owned_6452,f1_steam_2008_12_56_2_1,SW,,ownership fraction of .5 vs .2 in later years makes FERC reported cap and gen lower than EIA
+6045_2008_plant_owned_6452,f1_steam_2008_12_56_2_2,SW,,"capacity matches total, the generation is closer to owned"
+6043_2005_2008_plant_operating_year_total_6452,f1_steam_2008_12_56_3_2,SW,AS,"net gen off, cap and year good"
+612_natural_gas_fired_combined_cycle_2008_plant_technology_total_6452,f1_steam_2008_12_56_3_3,EB,SW,"Cap becomes more accurate in 2009, best fit even though net gen not great"
+6043_1994_2008_plant_operating_year_total_6452,f1_steam_2008_12_56_3_5,SW,AS,"net gen off, cap and year good"
+612_natural_gas_fired_combustion_turbine_2008_plant_technology_total_6452,f1_steam_2008_12_56_4_3,EB,AS,"cap close, no eia net gen, inst year match"
+7715_2008_plant_total_7801,f1_steam_2008_12_62_1_3,EB,SW,
+609_2009_plant_total_6452,f1_steam_2009_12_56_0_1,EB,SW,
+641_2009_plant_total_7801,f1_steam_2009_12_62_0_1,EB,SW,
+6073_st_2009_plant_prime_mover_owned_7801,f1_steam_2009_12_62_0_4,EB,SW,
+612_petroleum_liquids_2009_plant_technology_total_6452,f1_steam_2009_12_56_2_4,EB,SW,"net gen off, cap and year good"
+613_gt_2009_plant_prime_mover_total_6452,f1_steam_2009_12_56_2_5,EB,SW,
+613_natural_gas_fired_combined_cycle_2009_plant_technology_total_6452,f1_steam_2009_12_56_3_4,EB,SW,
+6042_st_2009_plant_prime_mover_total_6452,f1_steam_2009_12_56_1_3,EB,SW,
+6042_natural_gas_fired_combined_cycle_2009_plant_technology_total_6452,f1_steam_2009_12_56_4_4,EB,SW,EB replaced 6042_ct_2009_plant_prime_mover_total_6452  with 6042_natural_gas_fired_combined_cycle_2009_plant_technology_total_6452
+6043_2005_2009_plant_operating_year_total_6452,f1_steam_2009_12_56_3_2,SW,AS,"net gen off, cap and year good"
+6043_1994_2009_plant_operating_year_total_6452,f1_steam_2009_12_56_3_5,SW,AS,
+617_st_2009_plant_prime_mover_total_6452,f1_steam_2009_12_56_0_3,EB,SW,Better match for cap and net gen.
+617_gt_2009_plant_prime_mover_total_6452,f1_steam_2009_12_56_3_1,EB,SW,
+619_2009_plant_total_6452,f1_steam_2009_12_56_0_4,EB,SW,
+620_st_2009_plant_prime_mover_total_6452,f1_steam_2009_12_56_0_5,EB,SW,
+620_ng_2009_plant_prime_fuel_owned_6452,f1_steam_2009_12_56_4_2,EB,SW,Steve changed from “620_2009_plant_total_6452”
+6257_4_2009_plant_unit_owned_6452,f1_steam_2009_12_56_1_5,CG,SW,
+6257_2009_plant_owned_7801,f1_steam_2009_12_62_0_5,EB,SW,
+642_2009_plant_total_7801,f1_steam_2009_12_62_0_3,EB,SW,
+643_st_2009_plant_prime_mover_total_7801,f1_steam_2009_12_62_0_2,EB,SW,
+643_natural_gas_fired_combined_cycle_2009_plant_technology_total_7801,f1_steam_2009_12_62_1_1,EB,SW,
+643_gt_2009_plant_prime_mover_total_7801,f1_steam_2009_12_62_1_2,EB,SW,
+621_rfo_2009_plant_prime_fuel_total_6452,f1_steam_2009_12_56_1_1,EB,SW,
+621_ic_2009_plant_prime_mover_total_6452,f1_steam_2009_12_56_1_2,EB,SW,Same as above.
+621_nuc_2009_plant_prime_fuel_total_6452,f1_steam_2009_12_56_2_3,EB,SW,
+621_ng_2009_plant_prime_fuel_total_6452,f1_steam_2009_12_56_4_5,EB,SW,
+610_2009_plant_total_6452,f1_steam_2009_12_56_0_2,EB,SW,Better capacity match.
+6043_petroleum_liquids_2009_plant_technology_total_6452,f1_steam_2009_12_56_1_4,SW,AS,"In time, this record went from right net gen and year to right cap wrong gen"
+207_2009_plant_owned_6452,f1_steam_2009_12_56_2_1,SW,,ownership fraction of .5 vs .2 in later years makes FERC reported cap and gen lower than EIA
+6045_2009_plant_owned_6452,f1_steam_2009_12_56_2_2,SW,,"capacity matches total, the generation is closer to owned"
+612_natural_gas_fired_combined_cycle_2009_plant_technology_total_6452,f1_steam_2009_12_56_3_3,EB,SW,Best fit even though net gen not great
+6246_2009_plant_total_6452,f1_steam_2009_12_56_4_1,EB,SW,
+612_natural_gas_fired_combustion_turbine_2009_plant_technology_total_6452,f1_steam_2009_12_56_4_3,EB,AS,"cap close, no eia net gen, inst year match"
+56407_2009_plant_total_6452,f1_steam_2009_12_56_5_1,EB,SW,Steve changed from “56407_2009_plant_total_6452_proposed”
+56929_2009_plant_total_6452,f1_steam_2009_12_56_5_2,EB,SW,
+7715_2009_plant_total_7801,f1_steam_2009_12_62_1_3,EB,SW,
+609_2010_plant_total_6452,f1_steam_2010_12_56_0_1,EB,SW,
+641_2010_plant_total_7801,f1_steam_2010_12_62_0_1,EB,SW,
+6073_st_2010_plant_prime_mover_owned_7801,f1_steam_2010_12_62_0_4,EB,SW,
+56929_2010_plant_total_6452,f1_steam_2010_12_56_5_1,EB,SW,
+612_petroleum_liquids_2010_plant_technology_total_6452,f1_steam_2010_12_56_2_3,EB,SW,
+613_gt_2010_plant_prime_mover_total_6452,f1_steam_2010_12_56_2_4,EB,SW,
+613_natural_gas_fired_combined_cycle_2010_plant_technology_total_6452,f1_steam_2010_12_56_3_3,EB,SW,
+6042_st_2010_plant_prime_mover_total_6452,f1_steam_2010_12_56_1_2,EB,SW,
+6042_natural_gas_fired_combined_cycle_2010_plant_technology_total_6452,f1_steam_2010_12_56_4_3,EB,SW,EB replaced 6042_ct_2010_plant_prime_mover_total_6452  with 6042_natural_gas_fired_combined_cycle_2010_plant_technology_total_6452
+6043_st_2010_plant_prime_mover_total_6452,f1_steam_2010_12_56_1_3,SW,AS,
+6043_2005_2010_plant_operating_year_total_6452,f1_steam_2010_12_56_3_1,SW,AS,net gen matches 6043_3_2010_plant_unit_total_6452 but cap matches the 2005 and 2001 inst. Year sums. Using the later for consistency with other years
+6043_1994_2010_plant_operating_year_total_6452,f1_steam_2010_12_56_3_4,SW,AS,net gen matches 6043_ct_2010_plant_prime_mover_total_6452 but cap matches 6043_1994_2010_plant_operating_year_total_6452. Used the later for consistency with other years. Year also matches the later.
+617_st_2010_plant_prime_mover_total_6452,f1_steam_2010_12_56_0_3,EB,SW,
+617_gt_2010_plant_prime_mover_total_6452,f1_steam_2010_12_56_2_5,EB,SW,
+619_2010_plant_total_6452,f1_steam_2010_12_56_0_4,EB,SW,
+620_st_2010_plant_prime_mover_total_6452,f1_steam_2010_12_56_0_5,EB,SW,
+620_natural_gas_fired_combined_cycle_2010_plant_technology_total_6452,f1_steam_2010_12_56_4_1,,SW,NG matches capacity more closely.
+6257_4_2010_plant_unit_owned_6452,f1_steam_2010_12_56_1_4,CG,SW,
+6257_2010_plant_owned_7801,f1_steam_2010_12_62_0_5,EB,SW,
+642_2010_plant_total_7801,f1_steam_2010_12_62_0_3,EB,SW,
+56930_2010_plant_total_6452,f1_steam_2010_12_56_5_3,EB,SW,
+643_st_2010_plant_prime_mover_total_7801,f1_steam_2010_12_62_0_2,EB,SW,
+643_natural_gas_fired_combined_cycle_2010_plant_technology_total_7801,f1_steam_2010_12_62_1_1,EB,SW,
+643_gt_2010_plant_prime_mover_total_7801,f1_steam_2010_12_62_1_2,EB,SW,
+621_rfo_2010_plant_prime_fuel_total_6452,f1_steam_2010_12_56_1_1,EB,SW,
+621_nuc_2010_plant_prime_fuel_total_6452,f1_steam_2010_12_56_2_2,EB,SW,
+621_ng_2010_plant_prime_fuel_total_6452,f1_steam_2010_12_56_4_4,EB,SW,
+610_2010_plant_total_6452,f1_steam_2010_12_56_0_2,EB,SW,"doesn't have gen so unsure if good match, but install year and capacity match."
+207_2010_plant_owned_6452,f1_steam_2010_12_56_1_5,SW,,ownership fraction of .5 vs .2 in later years makes FERC reported cap and gen lower than EIA
+6045_2010_plant_owned_6452,f1_steam_2010_12_56_2_1,SW,,"capacity matches total, the generation is closer to owned"
+612_natural_gas_fired_combined_cycle_2010_plant_technology_total_6452,f1_steam_2010_12_56_3_2,EB,SW,Best fit even though net gen not great
+6246_2010_plant_total_6452,f1_steam_2010_12_56_3_5,EB,SW,
+612_natural_gas_fired_combustion_turbine_2010_plant_technology_total_6452,f1_steam_2010_12_56_4_2,EB,AS,"cap close, no eia net gen, inst year match"
+56407_2010_plant_total_6452,f1_steam_2010_12_56_4_5,EB,SW,"Steve changed from “56407_2010_plant_total_6452_proposed”. EB changed from plant_owned to plant_total, identical record w/o owner dupes."
+7715_2010_plant_total_7801,f1_steam_2010_12_62_1_3,EB,SW,
+641_2011_plant_total_7801,f1_steam_2011_12_62_0_1,EB,SW,
+6073_st_2011_plant_prime_mover_owned_7801,f1_steam_2011_12_62_0_4,EB,SW,
+56929_2011_plant_total_6452,f1_steam_2011_12_56_5_1,EB,SW,
+612_petroleum_liquids_2011_plant_technology_total_6452,f1_steam_2011_12_56_2_3,EB,SW,
+613_gt_2011_plant_prime_mover_total_6452,f1_steam_2011_12_56_2_4,EB,SW,
+6042_st_2011_plant_prime_mover_total_6452,f1_steam_2011_12_56_1_2,EB,SW,
+6043_st_2011_plant_prime_mover_total_6452,f1_steam_2011_12_56_1_3,SW,AS,
+6043_1994_2011_plant_operating_year_total_6452,f1_steam_2011_12_56_3_4,SW,AS,"net gen off, cap and year good"
+7715_2011_plant_total_7801,f1_steam_2011_12_62_1_3,EB,SW,
+617_gt_2011_plant_prime_mover_total_6452,f1_steam_2011_12_56_2_5,EB,SW,
+620_st_2011_plant_prime_mover_total_6452,f1_steam_2011_12_56_0_5,EB,SW,
+620_natural_gas_fired_combined_cycle_2011_plant_technology_total_6452,f1_steam_2011_12_56_4_1,,SW,NG matches capacity more closely.
+6257_4_2011_plant_unit_owned_6452,f1_steam_2011_12_56_1_4,CG,SW,
+6257_2011_plant_owned_7801,f1_steam_2011_12_62_0_5,EB,SW,
+642_2011_plant_total_7801,f1_steam_2011_12_62_0_3,EB,SW,
+56930_2011_plant_total_6452,f1_steam_2011_12_56_5_3,EB,SW,
+643_st_2011_plant_prime_mover_total_7801,f1_steam_2011_12_62_0_2,EB,SW,
+643_natural_gas_fired_combined_cycle_2011_plant_technology_total_7801,f1_steam_2011_12_62_1_1,EB,SW,
+643_gt_2011_plant_prime_mover_total_7801,f1_steam_2011_12_62_1_2,EB,SW,
+621_rfo_2011_plant_prime_fuel_total_6452,f1_steam_2011_12_56_1_1,EB,SW,
+621_ng_2011_plant_prime_fuel_total_6452,f1_steam_2011_12_56_4_4,EB,SW,
+56407_2011_plant_total_6452,f1_steam_2011_12_56_4_5,EB,SW,"Inst year matches, capacity and net gen closer."
+610_2011_plant_total_6452,f1_steam_2011_12_56_0_2,EB,SW,"doesn't have gen so unsure if good match, but install year and capacity match."
+6246_2011_plant_total_6452,f1_steam_2011_12_56_3_5,EB,SW,
+617_st_2011_plant_prime_mover_total_6452,f1_steam_2011_12_56_0_3,EB,SW,
+207_2011_plant_owned_6452,f1_steam_2011_12_56_1_5,SW,,ownership fraction of .5 vs .2 in later years makes FERC reported cap and gen lower than EIA
+6045_2011_plant_owned_6452,f1_steam_2011_12_56_2_1,SW,,"capacity matches total, the generation is closer to owned"
+621_nuc_2011_plant_prime_fuel_total_6452,f1_steam_2011_12_56_2_2,EB,SW,
+6043_2005_2011_plant_operating_year_total_6452,f1_steam_2011_12_56_3_1,SW,AS,"net gen off, cap and year good"
+612_natural_gas_fired_combined_cycle_2011_plant_technology_total_6452,f1_steam_2011_12_56_3_2,EB,SW,Best fit even though net gen not great
+613_natural_gas_fired_combined_cycle_2011_plant_technology_total_6452,f1_steam_2011_12_56_3_3,EB,SW,net gen matches 613_ct_2011_plant_prime_mover_owned_6452 but cap closer to the override used. Also used this record in prior years
+612_natural_gas_fired_combustion_turbine_2011_plant_technology_total_6452,f1_steam_2011_12_56_4_2,EB,AS,"cap close, no eia net gen, inst year match"
+6042_natural_gas_fired_combined_cycle_2011_plant_technology_total_6452,f1_steam_2011_12_56_4_3,EB,SW,"net gen off, cap and year good"
+641_2012_plant_total_7801,f1_steam_2012_12_62_0_1,EB,SW,
+6073_st_2012_plant_prime_mover_owned_7801,f1_steam_2012_12_62_0_4,EB,SW,
+56929_2012_plant_total_6452,f1_steam_2012_12_56_5_1,EB,SW,
+612_petroleum_liquids_2012_plant_technology_total_6452,f1_steam_2012_12_56_2_3,EB,SW,"cap and inst date match, net gen very off"
+613_gt_2012_plant_prime_mover_total_6452,f1_steam_2012_12_56_2_4,EB,SW,
+6042_st_2012_plant_prime_mover_total_6452,f1_steam_2012_12_56_1_2,EB,SW,
+6043_st_2012_plant_prime_mover_total_6452,f1_steam_2012_12_56_1_3,SW,AS,
+7715_2012_plant_total_7801,f1_steam_2012_12_62_1_3,EB,SW,
+617_st_2012_plant_prime_mover_total_6452,f1_steam_2012_12_56_0_3,CG,SW,
+617_gt_2012_plant_prime_mover_total_6452,f1_steam_2012_12_56_2_5,EB,SW,
+620_natural_gas_fired_combined_cycle_2012_plant_technology_total_6452,f1_steam_2012_12_56_4_1,,SW,NG matches capacity more closely.
+6257_4_2012_plant_unit_owned_6452,f1_steam_2012_12_56_1_4,CG,SW,
+642_2012_plant_total_7801,f1_steam_2012_12_62_0_3,EB,SW,
+56930_2012_plant_total_6452,f1_steam_2012_12_56_5_3,EB,SW,
+643_st_2012_plant_prime_mover_total_7801,f1_steam_2012_12_62_0_2,EB,SW,
+643_natural_gas_fired_combined_cycle_2012_plant_technology_total_7801,f1_steam_2012_12_62_1_1,EB,SW,
+643_gt_2012_plant_prime_mover_total_7801,f1_steam_2012_12_62_1_2,EB,SW,
+621_rfo_2012_plant_prime_fuel_total_6452,f1_steam_2012_12_56_1_1,EB,SW,
+621_ng_2012_plant_prime_fuel_total_6452,f1_steam_2012_12_56_4_4,EB,SW,
+6246_2012_plant_total_6452,f1_steam_2012_12_56_3_5,EB,SW,
+207_2012_plant_owned_6452,f1_steam_2012_12_56_1_5,SW,,ownership fraction of .5 vs .2 in later years makes FERC reported cap and gen lower than EIA
+6045_2012_plant_owned_6452,f1_steam_2012_12_56_2_1,SW,,"capacity matches total, the generation is closer to owned"
+621_nuc_2012_plant_prime_fuel_total_6452,f1_steam_2012_12_56_2_2,EB,SW,Steve changed from “621_st_2012_plant_prime_mover_total_6452”
+6043_2005_2012_plant_operating_year_total_6452,f1_steam_2012_12_56_3_1,SW,AS,"net gen off, cap and year good"
+612_natural_gas_fired_combined_cycle_2012_plant_technology_total_6452,f1_steam_2012_12_56_3_2,EB,SW,Best fit even though net gen not great
+613_natural_gas_fired_combined_cycle_2012_plant_technology_total_6452,f1_steam_2012_12_56_3_3,EB,SW,"net gen close, cap and year good"
+6043_1994_2012_plant_operating_year_total_6452,f1_steam_2012_12_56_3_4,SW,AS,"net gen off, cap and year good"
+612_natural_gas_fired_combustion_turbine_2012_plant_technology_total_6452,f1_steam_2012_12_56_4_2,EB,AS,"cap close, net gen close (finally!), inst year match"
+6042_natural_gas_fired_combined_cycle_2012_plant_technology_total_6452,f1_steam_2012_12_56_4_3,EB,SW,"net gen off, cap and year good"
+56407_2012_plant_total_6452,f1_steam_2012_12_56_4_5,EB,SW,
+6257_2012_plant_owned_7801,f1_steam_2012_12_62_0_5,EB,SW,
+609_2013_plant_total_6452,f1_steam_2013_12_56_0_1,EB,SW,better matched capacity and gen
+641_2013_plant_total_7801,f1_steam_2013_12_62_0_1,EB,SW,
+6073_st_2013_plant_prime_mover_owned_7801,f1_steam_2013_12_62_0_4,EB,SW,
+56929_2013_plant_total_6452,f1_steam_2013_12_56_5_1,EB,SW,
+613_gt_2013_plant_prime_mover_total_6452,f1_steam_2013_12_56_2_4,EB,SW,
+6042_st_2013_plant_prime_mover_total_6452,f1_steam_2013_12_56_1_2,EB,SW,
+6043_st_2013_plant_prime_mover_total_6452,f1_steam_2013_12_56_1_3,SW,AS,
+7715_2013_plant_total_7801,f1_steam_2013_12_62_1_3,EB,SW,
+617_st_2013_plant_prime_mover_owned_6452,f1_steam_2013_12_56_0_3,EB,SW,
+617_gt_2013_plant_prime_mover_total_6452,f1_steam_2013_12_56_2_5,EB,SW,
+620_2013_plant_total_6452,f1_steam_2013_12_56_4_1,EB,SW,
+6257_4_2013_plant_unit_owned_6452,f1_steam_2013_12_56_1_4,CG,SW,
+6257_2013_plant_owned_7801,f1_steam_2013_12_62_0_5,EB,SW,
+642_2013_plant_total_7801,f1_steam_2013_12_62_0_3,EB,SW,
+56930_2013_plant_total_6452,f1_steam_2013_12_56_5_3,EB,SW,
+643_st_2013_plant_prime_mover_total_7801,f1_steam_2013_12_62_0_2,EB,SW,
+643_natural_gas_fired_combined_cycle_2013_plant_technology_total_7801,f1_steam_2013_12_62_1_1,EB,SW,
+643_gt_2013_plant_prime_mover_total_7801,f1_steam_2013_12_62_1_2,EB,SW,
+621_nuc_2013_plant_prime_fuel_total_6452,f1_steam_2013_12_56_2_2,EB,SW,Steve changed from “621_st_2013_plant_prime_mover_total_6452”
+621_ng_2013_plant_prime_fuel_total_6452,f1_steam_2013_12_56_4_4,EB,SW,
+56407_2013_plant_total_6452,f1_steam_2013_12_56_4_5,EB,SW,
+6246_2013_plant_total_6452,f1_steam_2013_12_56_3_5,EB,SW,
+621_rfo_2013_plant_prime_fuel_total_6452,f1_steam_2013_12_56_1_1,,SW,"Capacity off by half, net gen and inst year accurate"
+207_2013_plant_owned_6452,f1_steam_2013_12_56_1_5,SW,,ownership fraction of .35 vs .2 in later years makes FERC reported cap and gen lower than EIA
+6045_2013_plant_owned_6452,f1_steam_2013_12_56_2_1,SW,,"capacity matches total, the generation is closer to owned"
+612_petroleum_liquids_2013_plant_technology_total_6452,f1_steam_2013_12_56_2_3,EB,SW,"net gen off, cap and year good"
+6043_2005_2013_plant_operating_year_total_6452,f1_steam_2013_12_56_3_1,SW,AS,"net gen off, cap and year good"
+612_natural_gas_fired_combined_cycle_2013_plant_technology_total_6452,f1_steam_2013_12_56_3_2,EB,SW,Best fit even though net gen not great
+613_natural_gas_fired_combined_cycle_2013_plant_technology_total_6452,f1_steam_2013_12_56_3_3,EB,SW,
+6043_1994_2013_plant_operating_year_total_6452,f1_steam_2013_12_56_3_4,SW,AS,"net gen off, cap and year good"
+612_natural_gas_fired_combustion_turbine_2013_plant_technology_total_6452,f1_steam_2013_12_56_4_2,EB,AS,"cap close, net gen close (finally!), inst year match"
+6042_natural_gas_fired_combined_cycle_2013_plant_technology_total_6452,f1_steam_2013_12_56_4_3,EB,SW,
+609_2014_plant_total_6452,f1_steam_2014_12_56_0_1,EB,SW,
+641_2014_plant_total_7801,f1_steam_2014_12_62_0_1,EB,SW,
+6073_st_2014_plant_prime_mover_owned_7801,f1_steam_2014_12_62_0_4,EB,SW,
+612_petroleum_liquids_2014_plant_technology_total_6452,f1_steam_2014_12_56_2_3,EB,SW,
+613_gt_2014_plant_prime_mover_total_6452,f1_steam_2014_12_56_2_4,EB,SW,
+6042_st_2014_plant_prime_mover_total_6452,f1_steam_2014_12_56_1_2,EB,SW,
+6042_3_2014_plant_unit_total_6452,f1_steam_2014_12_56_3_4,EB,SW,
+6043_3_2014_plant_unit_total_6452,f1_steam_2014_12_56_1_3,SW,AS,"net gen off, cap and year good"
+6043_1994_2014_plant_operating_year_total_6452,f1_steam_2014_12_56_3_1,SW,AS,"net gen off, cap and year good"
+6043_st_2014_plant_prime_mover_total_6452,f1_steam_2014_12_56_4_2,SW,AS,
+7715_2014_plant_total_7801,f1_steam_2014_12_62_1_3,EB,SW,
+617_2014_plant_total_6452,f1_steam_2014_12_56_2_5,EB,SW,Also an inst year match.
+619_2014_plant_total_6452,f1_steam_2014_12_56_0_4,EB,SW,
+620_2014_plant_total_6452,f1_steam_2014_12_56_0_5,EB,SW,
+6257_4_2014_plant_unit_owned_6452,f1_steam_2014_12_56_1_4,CG,SW,
+6257_2014_plant_owned_7801,f1_steam_2014_12_62_0_5,EB,SW,
+642_2014_plant_total_7801,f1_steam_2014_12_62_0_3,EB,SW,
+56930_2014_plant_total_6452,f1_steam_2014_12_56_4_5,EB,SW,
+207_2014_plant_owned_6452,f1_steam_2014_12_56_1_5,SW,CG,ownership fraction of .35 vs .2 in later years makes FERC reported cap and gen lower than EIA
+643_st_2014_plant_prime_mover_total_7801,f1_steam_2014_12_62_0_2,EB,SW,Steve changed from “6246_ct_2006_plant_prime_mover_owned_6452”
+643_3_2014_plant_unit_total_7801,f1_steam_2014_12_62_1_1,EB,SW,
+643_gt_2014_plant_prime_mover_total_7801,f1_steam_2014_12_62_1_2,EB,SW,
+621_5_2014_plant_unit_total_6452,f1_steam_2014_12_56_0_3,EB,SW,
+621_rfo_2014_plant_prime_fuel_total_6452,f1_steam_2014_12_56_1_1,,SW,
+621_nuclear_2014_plant_technology_total_6452,f1_steam_2014_12_56_2_2,EB,SW,Steve changed from “621_st_2014_plant_prime_mover_total_6452”
+56407_2014_plant_total_6452,f1_steam_2014_12_56_0_2,EB,SW,
+6045_2014_plant_owned_6452,f1_steam_2014_12_56_2_1,SW,,"capacity matches total, the generation is closer to owned"
+612_1_2014_plant_unit_total_6452,f1_steam_2014_12_56_3_2,EB,SW,Best fit even though net gen not great
+613_natural_gas_fired_combined_cycle_2014_plant_technology_total_6452,f1_steam_2014_12_56_3_3,EB,SW,
+6246_2014_plant_total_6452,f1_steam_2014_12_56_3_5,EB,SW,
+612_natural_gas_fired_combustion_turbine_2014_plant_technology_total_6452,f1_steam_2014_12_56_4_1,EB,SW,"Steve changed from “612_gt_2014_plant_prime_mover_total_6452”; while net gen is further off, capacity is much closer"
+56929_2014_plant_total_6452,f1_steam_2014_12_56_4_3,EB,SW,
+609_2015_plant_total_6452,f1_steam_2015_12_56_0_1,EB,SW,
+641_2015_plant_total_7801,f1_steam_2015_12_62_0_1,EB,SW,better matched capacity and gen
+6073_st_2015_plant_prime_mover_owned_7801,f1_steam_2015_12_62_0_4,EB,SW,
+56929_2015_plant_total_6452,f1_steam_2015_12_56_4_3,EB,SW,
+612_natural_gas_fired_combustion_turbine_2015_plant_technology_total_6452,f1_steam_2015_12_56_4_1,EB,SW,"Steve changed from “612_gt_2015_plant_prime_mover_total_6452”; while net gen is further off, capacity is much closer"
+613_gt_2015_plant_prime_mover_total_6452,f1_steam_2015_12_56_2_4,EB,SW,
+613_natural_gas_fired_combined_cycle_2015_plant_technology_total_6452,f1_steam_2015_12_56_3_3,EB,SW,
+6042_st_2015_plant_prime_mover_total_6452,f1_steam_2015_12_56_1_2,EB,SW,
+6042_3_2015_plant_unit_total_6452,f1_steam_2015_12_56_3_4,EB,SW,
+6043_3_2015_plant_unit_total_6452,f1_steam_2015_12_56_1_3,SW,AS,"net gen close, cap and year good"
+6043_1994_2015_plant_operating_year_total_6452,f1_steam_2015_12_56_3_1,SW,AS,"net gen close, cap and year good"
+6043_st_2015_plant_prime_mover_total_6452,f1_steam_2015_12_56_4_2,SW,AS,
+617_2015_plant_total_6452,f1_steam_2015_12_56_2_5,EB,SW,
+619_2015_plant_total_6452,f1_steam_2015_12_56_0_4,EB,SW,
+620_2015_plant_total_6452,f1_steam_2015_12_56_0_5,EB,SW,
+6257_4_2015_plant_unit_owned_6452,f1_steam_2015_12_56_1_4,CG,SW,
+6257_2015_plant_owned_7801,f1_steam_2015_12_62_0_5,EB,SW,
+642_2015_plant_total_7801,f1_steam_2015_12_62_0_3,EB,SW,
+56930_2015_plant_total_6452,f1_steam_2015_12_56_4_5,EB,SW,
+207_2015_plant_owned_6452,f1_steam_2015_12_56_1_5,SW,SW,
+643_st_2015_plant_prime_mover_total_7801,f1_steam_2015_12_62_0_2,EB,SW,Steve changed from “6246_ct_2013_plant_prime_mover_owned_6452”
+643_3_2015_plant_unit_total_7801,f1_steam_2015_12_62_1_1,EB,SW,
+643_gt_2015_plant_prime_mover_total_7801,f1_steam_2015_12_62_1_2,EB,SW,
+621_5_2015_plant_unit_total_6452,f1_steam_2015_12_56_0_3,EB,SW,
+621_nuclear_2015_plant_technology_total_6452,f1_steam_2015_12_56_2_2,EB,SW,Steve changed from “621_st_2015_plant_prime_mover_total_6452”
+56407_2015_plant_total_6452,f1_steam_2015_12_56_0_2,EB,SW,
+621_rfo_2015_plant_prime_fuel_total_6452,f1_steam_2015_12_56_1_1,,SW,
+6045_2015_plant_owned_6452,f1_steam_2015_12_56_2_1,SW,,"capacity matches total, the generation is closer to owned"
+612_petroleum_liquids_2015_plant_technology_total_6452,f1_steam_2015_12_56_2_3,EB,SW,Steve changed from “612_ca_2015_plant_prime_mover_owned_6452”
+612_1_2015_plant_unit_total_6452,f1_steam_2015_12_56_3_2,EB,SW,Best fit even though net gen not great
+7715_2015_plant_total_7801,f1_steam_2015_12_62_1_3,EB,SW,
+609_2016_plant_total_6452,f1_steam_2016_12_56_0_1,EB,SW,
+641_2016_plant_total_7801,f1_steam_2016_12_62_0_1,EB,SW,
+6073_st_2016_plant_prime_mover_owned_7801,f1_steam_2016_12_62_0_3,EB,SW,
+56929_2016_plant_total_6452,f1_steam_2016_12_56_4_3,EB,SW,
+613_natural_gas_fired_combined_cycle_2016_plant_technology_total_6452,f1_steam_2016_12_56_3_3,EB,SW,
+6042_st_2016_plant_prime_mover_total_6452,f1_steam_2016_12_56_1_2,EB,SW,
+6042_3_2016_plant_unit_total_6452,f1_steam_2016_12_56_3_4,EB,SW,
+6043_3_2016_plant_unit_total_6452,f1_steam_2016_12_56_1_3,SW,AS,"net gen close, cap and year good"
+6043_1994_2016_plant_operating_year_total_6452,f1_steam_2016_12_56_3_1,SW,AS,"net gen close, cap and year good"
+6043_st_2016_plant_prime_mover_total_6452,f1_steam_2016_12_56_4_2,SW,AS,
+7715_2016_plant_total_7801,f1_steam_2016_12_62_1_2,EB,SW,
+617_5_2016_plant_unit_total_6452,f1_steam_2016_12_56_3_5,EB,SW,The remaining generators were retired this year. Capacity and net gen match more with this last-standing generator
+619_2016_plant_total_6452,f1_steam_2016_12_56_0_4,EB,SW,
+620_2016_plant_total_6452,f1_steam_2016_12_56_0_5,EB,SW,
+6257_4_2016_plant_unit_owned_6452,f1_steam_2016_12_56_1_4,CG,SW,
+6257_2016_plant_owned_7801,f1_steam_2016_12_62_0_4,EB,SW,
+642_2016_plant_total_7801_retired,f1_steam_2016_12_62_0_2,EB,SW,Steve changed from “6257_4_2016_plant_gen_owned_6452”
+56930_2016_plant_total_6452,f1_steam_2016_12_56_4_5,EB,SW,
+643_3_2016_plant_unit_total_7801,f1_steam_2016_12_62_0_5,EB,SW,
+643_gt_2016_plant_prime_mover_total_7801,f1_steam_2016_12_62_1_1,EB,SW,
+643_st_2016_plant_prime_mover_total_7801,f1_steam_2016_12_62_1_3,EB,SW,"gen not in record but in dataset, and spot on."
+621_5_2016_plant_unit_total_6452,f1_steam_2016_12_56_0_3,EB,SW,
+59993_2016_plant_total_6452,f1_steam_2016_12_56_5_1,EB,SW,
+60061_2016_plant_total_6452,f1_steam_2016_12_56_5_2,EB,SW,
+60014_2016_plant_total_6452,f1_steam_2016_12_56_5_3,EB,SW,
+56407_2016_plant_total_6452,f1_steam_2016_12_56_0_2,EB,SW,
+207_2016_plant_owned_6452,f1_steam_2016_12_56_1_5,SW,SW,
+6045_2016_plant_owned_6452,f1_steam_2016_12_56_2_1,SW,,"capacity matches total, the generation is closer to owned"
+621_nuclear_2016_plant_technology_total_6452,f1_steam_2016_12_56_2_2,EB,SW,Steve changed from “621_st_2016_plant_prime_mover_total_6452”
+612_petroleum_liquids_2016_plant_technology_total_6452,f1_steam_2016_12_56_2_3,EB,AS,cap off but it matches in 2017 and consistent record name
+613_1970_2016_plant_operating_year_total_6452,f1_steam_2016_12_56_2_4,,AS,
+612_1_2016_plant_unit_total_6452,f1_steam_2016_12_56_3_2,EB,SW,Best fit even though net gen not great
+612_natural_gas_fired_combustion_turbine_2016_plant_technology_total_6452,f1_steam_2016_12_56_4_1,EB,SW,
+613_2016_2016_plant_operating_year_total_6452,f1_steam_2016_12_56_5_4,EB,SW,
+609_2017_plant_total_6452,f1_steam_2017_12_56_0_1,EB,SW,
+641_2017_plant_total_7801,f1_steam_2017_12_62_0_1,EB,SW,
+6073_st_2017_plant_prime_mover_owned_7801,f1_steam_2017_12_62_0_3,EB,SW,
+56929_2017_plant_total_6452,f1_steam_2017_12_56_4_3,EB,SW,
+612_natural_gas_fired_combustion_turbine_2017_plant_technology_total_6452,f1_steam_2017_12_56_4_1,EB,SW,
+613_natural_gas_fired_combined_cycle_2017_plant_technology_total_6452,f1_steam_2017_12_56_3_3,EB,SW,
+613_gt_2017_plant_prime_mover_total_6452,f1_steam_2017_12_56_5_4,EB,SW,
+6042_st_2017_plant_prime_mover_total_6452,f1_steam_2017_12_56_1_2,EB,SW,
+6042_3_2017_plant_unit_total_6452,f1_steam_2017_12_56_3_4,EB,SW,
+6043_st_2017_plant_prime_mover_total_6452,f1_steam_2017_12_56_4_2,SW,AS,
+7715_2017_plant_total_7801,f1_steam_2017_12_62_1_2,EB,SW,
+617_2017_plant_total_6452,f1_steam_2017_12_56_3_5,EB,SW,
+619_2017_plant_total_6452,f1_steam_2017_12_56_0_4,EB,SW,
+620_2017_plant_total_6452,f1_steam_2017_12_56_0_5,EB,SW,
+6257_4_2017_plant_unit_owned_6452,f1_steam_2017_12_56_1_4,CG,SW,
+6257_2017_plant_owned_7801,f1_steam_2017_12_62_0_4,EB,SW,
+56930_2017_plant_total_6452,f1_steam_2017_12_56_4_5,EB,SW,
+207_2017_plant_owned_6452,f1_steam_2017_12_56_1_5,SW,SW,
+643_3_2017_plant_unit_total_7801,f1_steam_2017_12_62_0_5,EB,SW,
+643_gt_2017_plant_prime_mover_total_7801,f1_steam_2017_12_62_1_1,EB,SW,
+621_st_2017_plant_prime_mover_total_6452,f1_steam_2017_12_56_2_2,EB,SW,
+59993_2017_plant_total_6452,f1_steam_2017_12_56_5_1,EB,SW,
+60061_2017_plant_total_6452,f1_steam_2017_12_56_5_2,EB,SW,
+60014_2017_plant_total_6452,f1_steam_2017_12_56_5_3,EB,SW,
+56407_2017_plant_total_6452,f1_steam_2017_12_56_0_2,EB,SW,
+621_5_2017_plant_unit_total_6452,f1_steam_2017_12_56_0_3,EB,SW,Steve changed from “621_2017_plant_total_6452”
+6043_3_2017_plant_unit_total_6452,f1_steam_2017_12_56_1_3,SW,AS,net gen and cap off but consistent with other years
+6045_2017_plant_owned_6452,f1_steam_2017_12_56_2_1,SW,,"capacity matches total, the generation is closer to owned"
+612_petroleum_liquids_2017_plant_technology_total_6452,f1_steam_2017_12_56_2_3,EB,SW,"cap good, net gen off, but consistent with other years"
+613_1970_2017_plant_operating_year_total_6452,f1_steam_2017_12_56_2_4,,AS,generation off by 1000x? Or some combination of the many 1972 gens with no net gen?
+6043_1994_2017_plant_operating_year_total_6452,f1_steam_2017_12_56_3_1,SW,AS,"net gen close, cap and year good"
+612_1_2017_plant_unit_total_6452,f1_steam_2017_12_56_3_2,EB,SW,Best fit even though net gen not great
+609_2018_plant_total_6452,f1_steam_2018_12_56_0_1,EB,SW,
+641_2018_plant_total_7801,f1_steam_2018_12_62_0_1,EB,SW,
+6073_st_2018_plant_prime_mover_owned_7801,f1_steam_2018_12_62_0_4,EB,SW,
+56929_2018_plant_total_6452,f1_steam_2018_12_56_4_4,EB,SW,
+612_petroleum_liquids_2018_plant_technology_total_6452,f1_steam_2018_12_56_2_1,EB,SW,Best fit even though net gen not great
+612_1_2018_plant_unit_total_6452,f1_steam_2018_12_56_3_4,EB,SW,equal net gen and better capacity
+612_natural_gas_fired_combustion_turbine_2018_plant_technology_total_6452,f1_steam_2018_12_56_4_2,EB,SW,
+613_natural_gas_fired_combined_cycle_2018_plant_technology_owned_6452,f1_steam_2018_12_56_3_5,EB,SW,
+613_gt_2018_plant_prime_mover_total_6452,f1_steam_2018_12_56_5_4,EB,SW,
+6042_st_2018_plant_prime_mover_total_6452,f1_steam_2018_12_56_1_1,EB,SW,
+6042_3_2018_plant_unit_total_6452,f1_steam_2018_12_56_3_1,EB,SW,
+6043_3_2018_plant_unit_total_6452,f1_steam_2018_12_56_1_2,SW,AS,net gen and cap off but consistent with other years
+6043_1994_2018_plant_operating_year_total_6452,f1_steam_2018_12_56_3_3,SW,AS,
+6043_st_2018_plant_prime_mover_total_6452,f1_steam_2018_12_56_4_3,SW,AS,"net gen off, cap and year good"
+617_gt_2018_plant_prime_mover_total_6452_retired,f1_steam_2018_12_56_2_3,CG,SW,retired
+617_2018_plant_total_6452,f1_steam_2018_12_56_3_2,EB,SW,
+619_2018_plant_total_6452,f1_steam_2018_12_56_0_4,EB,SW,
+620_2018_plant_total_6452,f1_steam_2018_12_56_0_5,EB,SW,
+6257_2018_plant_owned_7801,f1_steam_2018_12_62_0_5,EB,SW,
+56930_2018_plant_total_6452,f1_steam_2018_12_56_4_1,EB,SW,
+6045_2018_plant_owned_6452,f1_steam_2018_12_56_2_4,SW,CG,"capacity matches total, the generation is closer to owned"
+643_gt_2018_plant_prime_mover_total_7801,f1_steam_2018_12_62_0_2,EB,SW,
+621_5_2018_plant_unit_total_6452,f1_steam_2018_12_56_0_3,EB,SW,Steve changed from “621_2018_plant_total_6452”
+621_st_2018_plant_prime_mover_total_6452,f1_steam_2018_12_56_2_5,EB,SW,
+56407_2018_plant_total_6452,f1_steam_2018_12_56_0_2,EB,SW,
+59993_pv_2018_plant_prime_mover_total_6452,f1_steam_2018_12_56_5_1,EB,SW,
+60061_pv_2018_plant_prime_mover_total_6452,f1_steam_2018_12_56_5_2,EB,SW,
+60014_2018_plant_total_6452,f1_steam_2018_12_56_5_3,EB,SW,
+61020_2018_plant_total_6452,f1_steam_2018_12_56_6_1,EB,SW,
+61021_2018_plant_total_6452,f1_steam_2018_12_56_6_5,EB,SW,
+61022_2018_plant_total_6452,f1_steam_2018_12_56_5_5,EB,SW,
+61024_2018_plant_total_6452,f1_steam_2018_12_56_7_4,EB,SW,"generation is very off but matches the year following, inst year matches"
+61029_2018_plant_total_6452,f1_steam_2018_12_56_6_4,EB,SW,"generation is off, inst year and capacity match"
+61050_2018_plant_total_6452,f1_steam_2018_12_56_6_2,EB,SW,
+61051_2018_plant_total_6452,f1_steam_2018_12_56_6_3,EB,SW,generation is off
+61052_2018_plant_total_6452,f1_steam_2018_12_56_7_5,EB,SW,gen is off
+6257_2018_plant_owned_6452,f1_steam_2018_12_56_1_3,CG,SW,
+613_1970_2018_plant_operating_year_total_6452,f1_steam_2018_12_56_2_2,,AS,net gen off but cap good and record consistent with other years
+7715_2018_plant_total_7801,f1_steam_2018_12_62_0_3,EB,SW,
+643_3_2018_plant_unit_total_7801,f1_steam_2018_12_62_1_1,EB,SW,
+609_2019_plant_total_6452,f1_steam_2019_12_56_1_1,EB,SW,
+641_2019_plant_total_7801,f1_steam_2019_12_62_0_1,EB,SW,
+6073_st_2019_plant_prime_mover_owned_7801,f1_steam_2019_12_62_1_1,EB,SW,
+56929_2019_plant_total_6452,f1_steam_2019_12_56_2_2,EB,SW,
+612_petroleum_liquids_2019_plant_technology_total_6452,f1_steam_2019_12_56_2_5,EB,SW,net gen a little off
+612_natural_gas_fired_combustion_turbine_2019_plant_technology_total_6452,f1_steam_2019_12_56_3_1,EB,SW,
+613_2019_plant_total_6452,f1_steam_2019_12_56_7_5,EB,SW,
+6042_st_2019_plant_prime_mover_total_6452,f1_steam_2019_12_56_0_4,EB,SW,
+7715_2019_plant_total_7801,f1_steam_2019_12_62_0_5,EB,SW,
+617_2019_plant_total_6452,f1_steam_2019_12_56_6_2,EB,SW,
+619_2019_plant_total_6452,f1_steam_2019_12_56_6_3,EB,SW,
+620_2019_plant_total_6452,f1_steam_2019_12_56_6_4,EB,SW,
+56930_2019_plant_total_6452,f1_steam_2019_12_56_6_5,EB,SW,
+643_gt_2019_plant_prime_mover_total_7801,f1_steam_2019_12_62_0_2,EB,SW,looks like 2018
+621_st_2019_plant_prime_mover_total_6452,f1_steam_2019_12_56_0_2,EB,SW,
+56407_2019_plant_total_6452,f1_steam_2019_12_56_7_3,EB,SW,
+59993_pv_2019_plant_prime_mover_total_6452,f1_steam_2019_12_56_1_2,EB,SW,
+60061_pv_2019_plant_prime_mover_total_6452,f1_steam_2019_12_56_1_5,EB,SW,
+61020_2019_plant_total_6452,f1_steam_2019_12_56_3_5,EB,SW,
+61021_2019_plant_total_6452,f1_steam_2019_12_56_3_3,EB,SW,
+61022_2019_plant_total_6452,f1_steam_2019_12_56_2_1,EB,SW,
+61024_2019_plant_total_6452,f1_steam_2019_12_56_3_2,EB,SW,
+61029_2019_plant_total_6452,f1_steam_2019_12_56_1_4,EB,SW,
+61050_2019_plant_total_6452,f1_steam_2019_12_56_6_1,EB,SW,
+61051_2019_plant_total_6452,f1_steam_2019_12_56_1_3,EB,SW,
+61052_2019_plant_total_6452,f1_steam_2019_12_56_4_3,EB,SW,
+61768_2019_plant_total_6452,f1_steam_2019_12_56_4_1,EB,SW,
+6045_2019_plant_owned_6452,f1_steam_2019_12_56_0_1,SW,,"capacity matches total, the generation is closer to owned"
+6257_2019_plant_owned_6452,f1_steam_2019_12_56_0_3,CG,SW,
+613_1970_2019_plant_operating_year_total_6452,f1_steam_2019_12_56_2_3,,AS,net gen off but cap good and record consistent with other years
+612_1_2019_plant_unit_total_6452,f1_steam_2019_12_56_2_4,EB,SW,
+61767_2019_plant_total_6452,f1_steam_2019_12_56_3_4,EB,SW,Changed from SB to use non-false dupe record.
+61766_2019_plant_total_6452,f1_steam_2019_12_56_4_2,EB,SW,
+60014_2019_plant_total_6452,f1_steam_2019_12_56_4_4,EB,SW,
+6042_3_2019_plant_unit_total_6452,f1_steam_2019_12_56_4_5,EB,SW,
+6043_1994_2019_plant_operating_year_total_6452,f1_steam_2019_12_56_5_1,SW,AS,"net gen close, cap and year good"
+6043_3_2019_plant_unit_total_6452,f1_steam_2019_12_56_5_4,SW,AS,net gen and cap off but consistent with other years
+60345_2019_plant_total_6452,f1_steam_2019_12_56_5_5,EB,SW,closest capacity. changed from SW choice to same record without ownership dupe.
+61763_2019_plant_owned_6452,f1_steam_2019_12_56_7_1,EB,SW,
+621_5_2019_plant_unit_total_6452,f1_steam_2019_12_56_7_2,EB,SW,Steve changed from “621_2019_plant_total_6452”
+643_3_2019_plant_unit_total_7801,f1_steam_2019_12_62_0_3,EB,SW,
+6257_2019_plant_owned_7801,f1_steam_2019_12_62_1_2,EB,SW,
+609_2020_plant_total_6452,f1_steam_2020_12_56_1_1,SW,EB,
+641_2020_plant_total_7801,f1_steam_2020_12_62_0_1,SW,EB,better matched capacity and gen
+6073_st_2020_plant_prime_mover_owned_7801,f1_steam_2020_12_62_0_5,SW,EB,
+56929_2020_plant_total_6452,f1_steam_2020_12_56_2_2,SW,EB,
+612_1_2020_plant_unit_total_6452,f1_steam_2020_12_56_2_4,SW,EB,
+612_petroleum_liquids_2020_plant_technology_total_6452,f1_steam_2020_12_56_2_5,SW,EB,
+612_natural_gas_fired_combustion_turbine_2020_plant_technology_total_6452,f1_steam_2020_12_56_3_1,SW,EB,
+6042_st_2020_plant_prime_mover_total_6452,f1_steam_2020_12_56_0_4,SW,EB,
+6042_3_2020_plant_unit_total_6452,f1_steam_2020_12_56_4_5,SW,EB,
+6043_1994_2020_plant_operating_year_total_6452,f1_steam_2020_12_56_5_1,SW,AS,
+619_2020_plant_total_6452,f1_steam_2020_12_56_6_3,SW,EB,"EB changed from plant_owned to plant_total, same data, cap and net gen and inst year match."
+620_2020_plant_total_6452,f1_steam_2020_12_56_6_4,SW,EB,
+6257_4_2020_plant_unit_owned_6452,f1_steam_2020_12_56_0_3,SW,,
+6257_2020_plant_owned_7801,f1_steam_2020_12_62_1_1,SW,EB,
+56930_2020_plant_total_6452,f1_steam_2020_12_56_6_5,SW,EB,
+6045_2020_plant_owned_6452,f1_steam_2020_12_56_0_1,SW,CG,"capacity matches total, the generation is closer to owned"
+643_gt_2020_plant_prime_mover_total_7801,f1_steam_2020_12_62_0_2,SW,EB,
+643_3_2020_plant_unit_total_7801,f1_steam_2020_12_62_0_3,SW,AS,cap off but net gen spot on
+621_st_2020_plant_prime_mover_total_6452,f1_steam_2020_12_56_0_2,SW,EB,
+62634_2020_plant_total_6452,f1_steam_2020_12_56_8_1,SW,EB,
+60061_pv_2020_plant_prime_mover_total_6452,f1_steam_2020_12_56_1_5,SW,EB,
+61020_2020_plant_total_6452,f1_steam_2020_12_56_3_5,SW,EB,
+61021_2020_plant_total_6452,f1_steam_2020_12_56_3_3,SW,EB,
+61022_2020_plant_total_6452,f1_steam_2020_12_56_2_1,SW,EB,
+61024_2020_plant_total_6452,f1_steam_2020_12_56_3_2,SW,EB,
+61029_2020_plant_total_6452,f1_steam_2020_12_56_1_4,SW,EB,
+61050_2020_plant_total_6452,f1_steam_2020_12_56_6_1,SW,EB,
+61051_2020_plant_total_6452,f1_steam_2020_12_56_1_3,SW,EB,
+61052_2020_plant_total_6452,f1_steam_2020_12_56_4_3,SW,EB,
+61763_2020_plant_total_6452,f1_steam_2020_12_56_7_1,SW,EB,
+61766_2020_plant_total_6452,f1_steam_2020_12_56_4_2,SW,EB,
+61767_2020_plant_total_6452,f1_steam_2020_12_56_3_4,SW,EB,
+61768_2020_plant_total_6452,f1_steam_2020_12_56_4_1,SW,EB,
+62206_2020_plant_total_6452,f1_steam_2020_12_56_9_3,SW,EB,
+62394_2020_plant_total_6452,f1_steam_2020_12_56_8_5,SW,EB,
+62490_2020_plant_total_6452,f1_steam_2020_12_56_9_2,SW,EB,
+62491_2020_plant_total_6452,f1_steam_2020_12_56_9_4,SW,,
+62493_2020_plant_total_6452,f1_steam_2020_12_56_9_5,SW,EB,
+62631_2020_plant_total_6452,f1_steam_2020_12_56_8_2,SW,EB,
+62632_2020_plant_total_6452,f1_steam_2020_12_56_8_3,SW,EB,
+62633_2020_plant_total_6452,f1_steam_2020_12_56_9_1,SW,EB,
+62645_2020_plant_total_6452,f1_steam_2020_12_56_8_4,SW,EB,
+62914_2020_plant_total_6452,f1_steam_2020_12_56_10_3,SW,EB,Gen is off.
+62916_2020_plant_total_6452,f1_steam_2020_12_56_10_4,SW,EB,
+62922_2020_plant_total_6452,f1_steam_2020_12_56_10_1,SW,EB,
+62923_2020_plant_total_6452,f1_steam_2020_12_56_10_5,SW,EB,
+62925_2020_plant_total_6452,f1_steam_2020_12_56_10_2,SW,EB,
