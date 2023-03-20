@@ -11,9 +11,9 @@ FIELD_DTYPES_PANDAS: dict[str, str] = {
     "number": "float64",
     "integer": "Int64",
     "boolean": "boolean",
-    "date": "datetime64[ns]",
-    "datetime": "datetime64[ns]",
-    "year": "datetime64[ns]",
+    "date": "datetime64[s]",
+    "datetime": "datetime64[s]",
+    "year": "datetime64[s]",
 }
 """Pandas data type by PUDL field type (Data Package `field.type`)."""
 

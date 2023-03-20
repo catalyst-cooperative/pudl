@@ -34,8 +34,6 @@ from pudl.analysis.allocate_net_gen import (
     scale_allocated_net_gen_by_ownership,
 )
 from pudl.metadata.fields import apply_pudl_dtypes
-from pudl.settings import Ferc714Settings
-from pudl.workspace.datastore import Datastore
 
 logger = pudl.logging_helpers.get_logger(__name__)
 
@@ -51,7 +49,6 @@ class PudlTabl:
     def __init__(
         self,
         pudl_engine: sa.engine.Engine,
-        ds: Datastore | None = None,
         freq: Literal["AS", "MS", None] = None,
         start_date: str | date | datetime | pd.Timestamp = None,
         end_date: str | date | datetime | pd.Timestamp = None,
@@ -75,10 +72,6 @@ class PudlTabl:
             freq: A string indicating the time frequency at which to aggregate
                 reported data. ``MS`` is monththly and ``AS`` is annually. If
                 None, the data will not be aggregated.
-            ds: A PUDL Datastore from which raw input data can be obtained.
-                Required because the ``ferc714`` and ``eia861`` datasets are
-                not yet integrated into the database outputs, and are instead
-                processed from their raw form upon request.
             start_date: Beginning date for data to pull from the PUDL DB. If
                 a string, it should use the ISO 8601 ``YYYY-MM-DD`` format.
             end_date: End date for data to pull from the PUDL DB. If a string,
@@ -99,9 +92,6 @@ class PudlTabl:
             unit_ids: If True, use several heuristics to assign
                 individual generators to functional units. EXPERIMENTAL.
         """
-        # Validating ds is deferred to the etl_eia861 & etl_ferc714 methods
-        # because those are the only places a datastore is required.
-        self.ds: Datastore | None = ds
         if not isinstance(pudl_engine, sa.engine.base.Engine):
             raise TypeError(
                 "PudlTabl needs pudl_engine to be a SQLAlchemy Engine, but we "
@@ -403,120 +393,27 @@ class PudlTabl:
         )
 
     ###########################################################################
-    # FERC 714 Interim Outputs (awaiting full DB integration)
+    # FERC 714 Outputs
     ###########################################################################
-    def etl_ferc714(
-        self,
-        ferc714_settings: Ferc714Settings = Ferc714Settings(),
-        update: bool = False,
-    ):
-        """A single function that runs the temporary FERC 714 ETL and sets all DFs.
-
-        This is an interim solution, so that we can have a (relatively) standard way of
-        accessing the FERC 714 data prior to getting it integrated into the PUDL DB.
-        Some of these are not yet cleaned up, but there are dummy transform functions
-        which pass through the raw DFs with some minor alterations, so all the data is
-        available as it exists right now.
-
-        An attempt to access *any* of the dataframes results in all of them being
-        populated, since generating all of them is almost the same amount of work as
-        generating one of them.
-
-        Args:
-            ferc714_settings: An ETL Settings object for FERC 714.
-            update: Whether to overwrite the existing dataframes if they exist.
-        """
-        if isinstance(self.ds, Datastore):
-            pass
-        elif self.ds is None:
-            pudl_settings = pudl.workspace.setup.get_defaults()
-            if pudl_settings["pudl_in"] is None:
-                raise FileNotFoundError(
-                    "In order to run the ad-hoc FERC-714 ETL PUDL needs a valid "
-                    "Datastore, but none was found. Run 'pudl_setup --help' "
-                    "to see how to create one."
-                )
-            self.ds = Datastore(local_cache_path=pudl_settings["data_dir"])
-        else:
-            raise TypeError(
-                "PudlTabl needs a PUDL Datastore object, but we got "
-                f"a {type(self.ds)}."
-            )
-
-        if update or self._dfs["respondent_id_ferc714"] is None:
-            logger.warning("Running the interim FERC 714 ETL process!")
-            ferc714_raw_dfs = pudl.extract.ferc714.extract(
-                ferc714_settings=ferc714_settings, ds=self.ds
-            )
-            ferc714_tfr_dfs = pudl.transform.ferc714.transform(
-                ferc714_raw_dfs, ferc714_settings=ferc714_settings
-            )
-            self._dfs.update(ferc714_tfr_dfs)
-
-    def respondent_id_ferc714(self, update=False):
+    def respondent_id_ferc714(self) -> pd.DataFrame:
         """An interim FERC 714 output function."""
-        self.etl_ferc714(update=update)
-        return self._dfs["respondent_id_ferc714"]
+        return (
+            pd.read_sql("respondent_id_ferc714", self.pudl_engine)
+            .convert_dtypes(convert_floating=False)
+            .pipe(apply_pudl_dtypes, group="eia")
+        )
 
-    def demand_hourly_pa_ferc714(self, update=False):
+    def demand_hourly_pa_ferc714(self) -> pd.DataFrame:
         """An interim FERC 714 output function."""
-        self.etl_ferc714(update=update)
-        return self._dfs["demand_hourly_pa_ferc714"]
-
-    def description_pa_ferc714(self, update=False):
-        """An interim FERC 714 output function."""
-        self.etl_ferc714(update=update)
-        return self._dfs["description_pa_ferc714"]
-
-    def id_certification_ferc714(self, update=False):
-        """An interim FERC 714 output function."""
-        self.etl_ferc714(update=update)
-        return self._dfs["id_certification_ferc714"]
-
-    def gen_plants_ba_ferc714(self, update=False):
-        """An interim FERC 714 output function."""
-        self.etl_ferc714(update=update)
-        return self._dfs["gen_plants_ba_ferc714"]
-
-    def demand_monthly_ba_ferc714(self, update=False):
-        """An interim FERC 714 output function."""
-        self.etl_ferc714(update=update)
-        return self._dfs["demand_monthly_ba_ferc714"]
-
-    def net_energy_load_ba_ferc714(self, update=False):
-        """An interim FERC 714 output function."""
-        self.etl_ferc714(update=update)
-        return self._dfs["net_energy_load_ba_ferc714"]
-
-    def adjacency_ba_ferc714(self, update=False):
-        """An interim FERC 714 output function."""
-        self.etl_ferc714(update=update)
-        return self._dfs["adjacency_ba_ferc714"]
-
-    def interchange_ba_ferc714(self, update=False):
-        """An interim FERC 714 output function."""
-        self.etl_ferc714(update=update)
-        return self._dfs["interchange_ba_ferc714"]
-
-    def lambda_hourly_ba_ferc714(self, update=False):
-        """An interim FERC 714 output function."""
-        self.etl_ferc714(update=update)
-        return self._dfs["lambda_hourly_ba_ferc714"]
-
-    def lambda_description_ferc714(self, update=False):
-        """An interim FERC 714 output function."""
-        self.etl_ferc714(update=update)
-        return self._dfs["lambda_description_ferc714"]
-
-    def demand_forecast_pa_ferc714(self, update=False):
-        """An interim FERC 714 output function."""
-        self.etl_ferc714(update=update)
-        return self._dfs["demand_forecast_pa_ferc714"]
+        return (
+            pd.read_sql("demand_hourly_pa_ferc714", self.pudl_engine)
+            .convert_dtypes(convert_floating=False)
+            .pipe(apply_pudl_dtypes, group="eia")
+        )
 
     ###########################################################################
     # EIA 860/923 OUTPUTS
     ###########################################################################
-
     def utils_eia860(self, update=False):
         """Pull a dataframe describing utilities reported in EIA 860.
 
@@ -1293,7 +1190,7 @@ class PudlTabl:
 
 
 def get_table_meta(pudl_engine):
-    """Grab the pudl sqlitie database table metadata."""
+    """Grab the pudl SQLite database table metadata."""
     md = sa.MetaData()
     md.reflect(pudl_engine)
     return md.tables

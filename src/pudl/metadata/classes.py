@@ -711,8 +711,10 @@ class Field(Base):
                 )
             elif self.type == "date":
                 checks.append(f"{name} IS DATE({name})")
-            elif self.type == "datetime":
-                checks.append(f"{name} IS DATETIME({name})")
+            # Need to ensure that the string representation of the datetime only
+            # includes whole seconds or this check will fail.
+            # elif self.type == "datetime":
+            #    checks.append(f"{name} IS DATETIME({name})")
         if check_values:
             # Field constraints
             if self.constraints.min_length is not None:

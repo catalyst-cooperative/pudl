@@ -296,7 +296,7 @@ def _pre_process(df: pd.DataFrame, table_name: str) -> pd.DataFrame:
     * Drops report_prd, spplmnt_num, and row_num columns
     * Excludes records which pertain to bad (test) respondents.
     """
-    logger.debug("Removing unneeded columns and dropping bad respondents.")
+    logger.info("Removing unneeded columns and dropping bad respondents.")
 
     out_df = (
         df.rename(columns=RENAME_COLS[table_name])
@@ -356,7 +356,7 @@ def _standardize_offset_codes(df: pd.DataFrame, offset_fixes) -> pd.DataFrame:
     Returns:
         Standardized UTC offset codes.
     """
-    logger.debug("Standardizing UTC offset codes.")
+    logger.info("Standardizing UTC offset codes.")
     # We only need a couple of columns here:
     codes = df[["respondent_id_ferc714", "utc_offset_code"]].copy()
     # Set all blank "" missing UTC codes to np.nan
@@ -392,7 +392,7 @@ def respondent_id_ferc714(raw_respondent_id_ferc714: pd.DataFrame) -> pd.DataFra
     return _post_process(df, table_name="respondent_id_ferc714")
 
 
-@asset
+@asset(io_manager_key="pudl_sqlite_io_manager")
 def demand_hourly_pa_ferc714(
     raw_demand_hourly_pa_ferc714: pd.DataFrame,
 ) -> pd.DataFrame:
@@ -414,7 +414,7 @@ def demand_hourly_pa_ferc714(
     Returns:
         Clean(er) version of the hourly demand time series by Planning Area.
     """
-    logger.debug("Converting dates into pandas Datetime types.")
+    logger.info("Converting dates into pandas Datetime types.")
     df = _pre_process(
         raw_demand_hourly_pa_ferc714, table_name="demand_hourly_pa_ferc714"
     )
@@ -457,7 +457,7 @@ def demand_hourly_pa_ferc714(
     df.drop(columns="hour25", inplace=True)
 
     # Melt daily rows with 24 demands to hourly rows with single demand
-    logger.debug("Melting daily FERC 714 records into hourly records.")
+    logger.info("Melting daily FERC 714 records into hourly records.")
     df.rename(
         columns=lambda x: int(re.sub(r"^hour", "", x)) - 1 if "hour" in x else x,
         inplace=True,
@@ -482,7 +482,7 @@ def demand_hourly_pa_ferc714(
     df.query("~@missing_offset", inplace=True)
 
     # Construct UTC datetime
-    logger.debug("Converting local time + offset code to UTC + timezone.")
+    logger.info("Converting local time + offset code to UTC + timezone.")
     hour_timedeltas = {i: pd.to_timedelta(i, unit="h") for i in range(24)}
     df["report_date"] += df["hour"].map(hour_timedeltas)
     df["utc_datetime"] = df["report_date"] - df["utc_offset"]
@@ -492,7 +492,7 @@ def demand_hourly_pa_ferc714(
     # There should be less than 10 of these,
     # resulting from changes to a planning area's reporting timezone.
     duplicated = df.duplicated(["respondent_id_ferc714", "utc_datetime"])
-    logger.debug(f"Found {np.count_nonzero(duplicated)} duplicate UTC datetimes.")
+    logger.info(f"Found {np.count_nonzero(duplicated)} duplicate UTC datetimes.")
     df.query("~@duplicated", inplace=True)
 
     # Flip the sign on sections of demand which were reported as negative
@@ -519,4 +519,5 @@ def demand_hourly_pa_ferc714(
         "demand_mwh",
     ]
     df.drop(columns=set(df.columns) - set(columns), inplace=True)
-    return _post_process(df[columns], table_name="demand_hourly_pa_ferc714")
+    df = _post_process(df[columns], table_name="demand_hourly_pa_ferc714")
+    return df

@@ -276,6 +276,7 @@ class SQLiteIOManager(IOManager):
                 con,
                 if_exists="append",
                 index=False,
+                chunksize=1_000_000,
                 dtype={c.name: c.type for c in sa_table.columns},
             )
 
