@@ -2282,7 +2282,6 @@ def utility_data_eia861(raw_utility_data_eia861: pd.DataFrame):
         rto_operation=lambda x: (
             x.rto_operation.fillna(False).replace({"N": False, "Y": True})
         ),
-        # rtos_of_operation=lambda x: (x.rtos_of_operation.str.upper()),
     )
 
     # Only keep true values and drop bool col
