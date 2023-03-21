@@ -19,9 +19,8 @@ Currently, PUDL has cleaned and integrated data from:
 * :doc:`data_sources/eia861` (preliminary)
 * :doc:`data_sources/eia923`
 * :doc:`data_sources/ferc1`
-* :ref:`data-ferc714` (preliminary)
+* :doc:`data_sources/ferc714` (preliminary)
 * :doc:`data_sources/epacems`
-
 
 In addition, we distribute a SQLite database containing all available years of the
 `raw FERC Form 1 data <https://doi.org/10.5281/zenodo.3677547>`__ and an SQLite

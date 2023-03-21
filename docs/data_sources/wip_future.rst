@@ -41,20 +41,6 @@ known as the **Annual Report of Natural and Supplemental Gas Supply and Disposit
 describes the origins, suppliers, and disposition of natural gas on a yearly and state
 by state basis.
 
-.. _data-ferc714:
-
-FERC Form 714
-^^^^^^^^^^^^^
-`FERC Form 714 <https://www.ferc.gov/industries-data/electric/general-information/electric-industry-forms/form-no-714-annual-electric/data>`__
-includes hourly loads reported by load balancing authorities annually. This is a
-modestly sized dataset, in the 100s of MB, distributed as CSV files exported from a
-Visual FoxPro database prior to publication. All of the raw tables are being
-extracted, and a couple of them have been integrated into the transform process. None
-are in the PUDL DB yet.
-
-* :download:`FERC-714 Instructions (PDF, as of 2021-04-16)
-  <ferc714/ferc714_instructions_2021-04-16.pdf>`
-
 .. _data-ferceqr:
 
 FERC EQR

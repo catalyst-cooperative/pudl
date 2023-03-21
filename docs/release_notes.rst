@@ -135,6 +135,14 @@ Data Coverage
   * :ref:`utility_data_rto_eia861`
   * :ref:`utility_data_misc_eia861`
 
+* A couple of tables from :doc:`data_sources/ferc714` have been added to the PUDL DB.
+  These tables contain data from 2006-2020 (2021 is distributed by FERC in XBRL format
+  and we have not yet integrated it). See :issue:`2266` & :pr:`2421`. The newly
+  accessible tables include:
+
+  * :ref:`respondent_id_ferc714` (linking FERC-714 respondents to EIA utilities)
+  * :ref:`demand_hourly_pa_ferc714` (hourly electricity demand by planning area)
+
 Data Cleaning
 ^^^^^^^^^^^^^
 
@@ -606,7 +614,7 @@ Data Coverage Changes
   * :doc:`data_sources/eia923` for 2020.
   * :doc:`data_sources/ferc1` for 2020.
   * :doc:`data_sources/eia861` data for 2020.
-  * :ref:`data-ferc714` data for 2020.
+  * :doc:`data_sources/ferc714` for 2020.
   * Note: the 2020 :doc:`data_sources/epacems` data was already available in v0.4.0.
 
 * **EPA IPM / NEEDS** data has been removed from PUDL as we didn't have the internal
@@ -747,7 +755,7 @@ New Data Coverage
 * :doc:`data_sources/epacems` for 2019-2020
 * :doc:`data_sources/ferc1` for 2019
 * :ref:`US Census Demographic Profile (DP1) <data-censusdp1tract>` for 2010
-* :ref:`data-ferc714` for 2006-2019 (experimental)
+* :doc:`data_sources/ferc714` for 2006-2019 (experimental)
 * :doc:`data_sources/eia861` for 2001-2019 (experimental)
 
 Documentation & Data Accessibility

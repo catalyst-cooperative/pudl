@@ -14,7 +14,7 @@ As of spring 2023 the annual updates include:
 * :doc:`/data_sources/eia923`
 * :doc:`/data_sources/epacems`
 * :doc:`/data_sources/ferc1`
-* :ref:`data-ferc714`
+* :doc:`/data_sources/ferc714`
 
 This document outlines all the tasks required to complete the annual update based on
 our experience in 2022.
