@@ -30,6 +30,11 @@ def set_defaults(pudl_in, pudl_out, clobber=False):
     Returns:
         None
     """
+    logger.warning(
+        "pudl_settings is being deprecated in favor of environment "
+        "variables PUDL_OUTPUT and PUDL_INPUT. For more info "
+        "see: https://catalystcoop-pudl.readthedocs.io/en/dev/dev/dev_setup.html"
+    )
     settings_file = pathlib.Path.home() / ".pudl.yml"
     if settings_file.exists():
         if clobber:
@@ -54,6 +59,11 @@ def get_defaults():
         ``pudl_in`` and ``pudl_out`` defining their default PUDL workspace. If
         the ``$HOME/.pudl.yml`` file does not exist, set these paths to None.
     """
+    logger.warning(
+        "pudl_settings is being deprecated in favor of environment variables "
+        "variables PUDL_OUTPUT and PUDL_INPUT. For more info "
+        "see: https://catalystcoop-pudl.readthedocs.io/en/dev/dev/dev_setup.html"
+    )
     settings_file = pathlib.Path.home() / ".pudl.yml"
 
     try:
@@ -93,6 +103,11 @@ def derive_paths(pudl_in, pudl_out):
         dict: A dictionary containing common PUDL settings, derived from those
             read out of the YAML file. Mostly paths for inputs & outputs.
     """
+    logger.warning(
+        "pudl_settings is being deprecated in favor of environment variables "
+        "PUDL_OUTPUT and PUDL_INPUT. For more info "
+        "see: https://catalystcoop-pudl.readthedocs.io/en/dev/dev/dev_setup.html"
+    )
     pudl_settings = {}
 
     # The only "inputs" are the datastore and example settings files:
@@ -107,65 +122,72 @@ def derive_paths(pudl_in, pudl_out):
 
     # Everything else goes into outputs, generally organized by type of file:
     pudl_out = pathlib.Path(pudl_out).expanduser().resolve()
-    pudl_settings["pudl_out"] = str(pudl_out)
+    pudl_settings["pudl_out"] = f"{str(pudl_out)}/output"
     # One directory per output format:
+    logger.warning(
+        "sqlite and parquet directories are no longer being used. Make sure there is a single directory named 'output' at the root of your workspace. For more info see: https://catalystcoop-pudl.readthedocs.io/en/dev/dev/dev_setup.html"
+    )
     for fmt in ["sqlite", "parquet"]:
-        pudl_settings[f"{fmt}_dir"] = str(pudl_out / fmt)
+        pudl_settings[f"{fmt}_dir"] = str(pudl_out)
 
-    ferc1_db_file = pathlib.Path(pudl_settings["sqlite_dir"], "ferc1.sqlite")
+    # Mirror dagster env vars for ease of use
+    pudl_settings["PUDL_OUTPUT"] = pudl_settings["pudl_out"]
+    pudl_settings["PUDL_INPUT"] = pudl_settings["data_dir"]
+
+    ferc1_db_file = pathlib.Path(pudl_settings["pudl_out"], "ferc1.sqlite")
     pudl_settings["ferc1_db"] = "sqlite:///" + str(ferc1_db_file.resolve())
 
-    ferc1_db_file = pathlib.Path(pudl_settings["sqlite_dir"], "ferc1_xbrl.sqlite")
+    ferc1_db_file = pathlib.Path(pudl_settings["pudl_out"], "ferc1_xbrl.sqlite")
     pudl_settings["ferc1_xbrl_db"] = "sqlite:///" + str(ferc1_db_file.resolve())
     pudl_settings["ferc1_xbrl_datapackage"] = pathlib.Path(
-        pudl_settings["sqlite_dir"], "ferc1_xbrl_datapackage.json"
+        pudl_settings["pudl_out"], "ferc1_xbrl_datapackage.json"
     )
     pudl_settings["ferc1_xbrl_taxonomy_metadata"] = pathlib.Path(
-        pudl_settings["sqlite_dir"], "ferc1_xbrl_taxonomy_metadata.json"
+        pudl_settings["pudl_out"], "ferc1_xbrl_taxonomy_metadata.json"
     )
 
-    ferc2_db_file = pathlib.Path(pudl_settings["sqlite_dir"], "ferc2_xbrl.sqlite")
+    ferc2_db_file = pathlib.Path(pudl_settings["pudl_out"], "ferc2_xbrl.sqlite")
     pudl_settings["ferc2_xbrl_db"] = "sqlite:///" + str(ferc2_db_file.resolve())
     pudl_settings["ferc2_xbrl_datapackage"] = pathlib.Path(
-        pudl_settings["sqlite_dir"], "ferc2_xbrl_datapackage.json"
+        pudl_settings["pudl_out"], "ferc2_xbrl_datapackage.json"
     )
     pudl_settings["ferc2_xbrl_taxonomy_metadata"] = pathlib.Path(
-        pudl_settings["sqlite_dir"], "ferc2_xbrl_taxonomy_metadata.json"
+        pudl_settings["pudl_out"], "ferc2_xbrl_taxonomy_metadata.json"
     )
 
-    ferc6_db_file = pathlib.Path(pudl_settings["sqlite_dir"], "ferc6_xbrl.sqlite")
+    ferc6_db_file = pathlib.Path(pudl_settings["pudl_out"], "ferc6_xbrl.sqlite")
     pudl_settings["ferc6_xbrl_db"] = "sqlite:///" + str(ferc6_db_file.resolve())
     pudl_settings["ferc6_xbrl_datapackage"] = pathlib.Path(
-        pudl_settings["sqlite_dir"], "ferc6_xbrl_datapackage.json"
+        pudl_settings["pudl_out"], "ferc6_xbrl_datapackage.json"
     )
     pudl_settings["ferc6_xbrl_taxonomy_metadata"] = pathlib.Path(
-        pudl_settings["sqlite_dir"], "ferc6_xbrl_taxonomy_metadata.json"
+        pudl_settings["pudl_out"], "ferc6_xbrl_taxonomy_metadata.json"
     )
 
-    ferc60_db_file = pathlib.Path(pudl_settings["sqlite_dir"], "ferc60_xbrl.sqlite")
+    ferc60_db_file = pathlib.Path(pudl_settings["pudl_out"], "ferc60_xbrl.sqlite")
     pudl_settings["ferc60_xbrl_db"] = "sqlite:///" + str(ferc60_db_file.resolve())
     pudl_settings["ferc60_xbrl_datapackage"] = pathlib.Path(
-        pudl_settings["sqlite_dir"], "ferc60_xbrl_datapackage.json"
+        pudl_settings["pudl_out"], "ferc60_xbrl_datapackage.json"
     )
     pudl_settings["ferc60_xbrl_taxonomy_metadata"] = pathlib.Path(
-        pudl_settings["sqlite_dir"], "ferc60_xbrl_taxonomy_metadata.json"
+        pudl_settings["pudl_out"], "ferc60_xbrl_taxonomy_metadata.json"
     )
 
-    ferc714_db_file = pathlib.Path(pudl_settings["sqlite_dir"], "ferc714_xbrl.sqlite")
+    ferc714_db_file = pathlib.Path(pudl_settings["pudl_out"], "ferc714_xbrl.sqlite")
     pudl_settings["ferc714_xbrl_db"] = "sqlite:///" + str(ferc714_db_file.resolve())
     pudl_settings["ferc714_xbrl_datapackage"] = pathlib.Path(
-        pudl_settings["sqlite_dir"], "ferc714_xbrl_datapackage.json"
+        pudl_settings["pudl_out"], "ferc714_xbrl_datapackage.json"
     )
     pudl_settings["ferc714_xbrl_taxonomy_metadata"] = pathlib.Path(
-        pudl_settings["sqlite_dir"], "ferc714_xbrl_taxonomy_metadata.json"
+        pudl_settings["pudl_out"], "ferc714_xbrl_taxonomy_metadata.json"
     )
 
     pudl_settings["pudl_db"] = "sqlite:///" + str(
-        pathlib.Path(pudl_settings["sqlite_dir"], "pudl.sqlite")
+        pathlib.Path(pudl_settings["pudl_out"], "pudl.sqlite")
     )
 
     pudl_settings["censusdp1tract_db"] = "sqlite:///" + str(
-        pathlib.Path(pudl_settings["sqlite_dir"], "censusdp1tract.sqlite")
+        pathlib.Path(pudl_settings["pudl_out"], "censusdp1tract.sqlite")
     )
     return pudl_settings
 
@@ -205,10 +227,9 @@ def init(pudl_in, pudl_out, clobber=False):
     settings_pkg = "pudl.package_data.settings"
     deploy(settings_pkg, settings_dir, ignore_files, clobber=clobber)
 
-    # Make several output directories:
-    for fmt in ["sqlite", "parquet"]:
-        format_dir = pathlib.Path(pudl_settings["pudl_out"], fmt)
-        format_dir.mkdir(parents=True, exist_ok=True)
+    # Make output directory:
+    pudl_out = pathlib.Path(pudl_settings["pudl_out"])
+    pudl_out.mkdir(parents=True, exist_ok=True)
 
 
 def deploy(pkg_path, deploy_dir, ignore_files, clobber=False):
