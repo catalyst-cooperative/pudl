@@ -1,6 +1,5 @@
 """Dagster definitions for the PUDL ETL and Output tables."""
 import importlib
-from pathlib import Path
 
 from dagster import (
     AssetKey,
@@ -87,9 +86,8 @@ def load_dataset_settings_from_file(setting_filename: str) -> dict:
     ).datasets.dict()
 
 
-# Configure PUDL environment
-with (Path.home() / ".pudl.yml").open() as f:
-    pudl.workspace.setup.get_settings(yaml_file=f)
+# Set env vars from .pudl.yml if not already set
+pudl.workspace.setup.get_defaults()
 
 defs: Definitions = Definitions(
     assets=default_assets,

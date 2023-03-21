@@ -14,63 +14,80 @@ import pudl.logging_helpers
 logger = pudl.logging_helpers.get_logger(__name__)
 
 
-def get_settings(
+def get_defaults(
     input_dir: str | None = None,
     output_dir: str | None = None,
     yaml_file: IO | None = None,
+    default_pudl_yaml: Path | None = Path.home() / ".pudl.yml",
 ) -> dict[str, str]:
-    """Handle PUDL settings and env vars."""
+    """Derive PUDL workspace paths from specified input/output directories.
+
+    Determines input/output directory locations from YAML, then overrides with
+    env vars, then overrides with keywords passed in.
+
+    Input/output workspace roots can be the same directories.
+
+    Note: will update PUDL_OUTPUT and PUDL_INPUT env vars if they are
+    overridden by kwargs, so that Dagster configurations in child processes see
+    the updated configs when they read from env vars.
+
+    Args:
+        input_dir: equivalent to PUDL_INPUT environment variable, but overrides
+            that value. Derived paths treat the parent directory as the input
+            workspace root.
+        output_dir: equivalent to PUDL_OUTPUT environment variable, but
+            overrides that value. Derived paths treat the parent directory as
+            the output workspace root.
+        yaml_file: a buffer including the YAML configuration. The `pudl_in` and
+            `pudl_out` keys within this file correspond to the input/output
+            workspace roots directly, instead of through parents.
+
+    Returns:
+        dictionary with a variety of different paths where inputs/outputs are
+        to be found.
+    """
     load_dotenv()
 
-    # Track whether env vars should be set/overriden
-    override_pudl_input = False
-    override_pudl_output = False
-
-    if input_dir is None:
-        input_dir = os.getenv("PUDL_INPUT")
-    else:
-        # If input_dir arg is explicitly set override environment
-        override_pudl_input = True
-
-    if output_dir is None:
-        output_dir = os.getenv("PUDL_OUTPUT")
-    else:
-        # If output_dir arg is explicitly set override environment
-        override_pudl_output = True
-
+    # read from available settings sources
     if yaml_file is not None:
-        settings = yaml.safe_load(yaml_file)
-        derive_paths_in = settings["pudl_in"]
-        derive_paths_out = settings["pudl_out"]
+        yaml_settings = yaml.safe_load(yaml_file)
+    elif default_pudl_yaml and default_pudl_yaml.exists():
+        with default_pudl_yaml.open() as f:
+            yaml_settings = yaml.safe_load(f)
     else:
-        derive_paths_in = None
-        derive_paths_out = None
+        yaml_settings = {}
 
-    derive_paths_in = Path(input_dir).parent if input_dir else derive_paths_in
-    derive_paths_out = Path(output_dir).parent if output_dir else derive_paths_out
+    env_var_mapping = {"PUDL_INPUT": "pudl_in", "PUDL_OUTPUT": "pudl_out"}
+    env_settings = {
+        env_var_mapping[key]: str(Path(value).parent)
+        for key, value in os.environ.items()
+        if key in env_var_mapping and value is not None
+    }
 
-    if not (derive_paths_in and derive_paths_out):
+    local_var_mapping = {"input_dir": "pudl_in", "output_dir": "pudl_out"}
+    kwarg_settings = {
+        local_var_mapping[key]: str(Path(value).parent)
+        for key, value in locals().items()
+        if key in local_var_mapping and value is not None
+    }
+
+    # Start with an empty settings, then override in order of precedence.
+    settings: dict[str, str] = {}
+    for settings_source in [yaml_settings, env_settings, kwarg_settings]:
+        settings |= settings_source
+
+    if not ("pudl_in" in settings and "pudl_out" in settings):
         raise RuntimeError(
             "Must set 'PUDL_OUTPUT'/'PUDL_INPUT' environment variables or provide valid yaml config file."
         )
 
-    settings = derive_paths(derive_paths_in, derive_paths_out)
+    settings = derive_paths(settings["pudl_in"], settings["pudl_out"])
 
-    if override_pudl_output or "PUDL_OUTPUT" not in os.environ:
+    # override env vars so Dagster can see the most up-to-date configs
+    if output_dir or "PUDL_OUTPUT" not in os.environ:
         os.environ["PUDL_OUTPUT"] = settings["pudl_out"]
-    if override_pudl_input or "PUDL_INPUT" not in os.environ:
+    if input_dir or "PUDL_INPUT" not in os.environ:
         os.environ["PUDL_INPUT"] = settings["data_dir"]
-
-    # if env vars exist:
-    # override settings
-
-    # if test and not live_dbs:
-    # override output directory to temp dir
-
-    # if env vars don't exist:
-    # set env vars
-
-    # raise an error
 
     return settings
 
@@ -111,39 +128,6 @@ def set_defaults(pudl_in, pudl_out, clobber=False):
     with settings_file.open(mode="w") as f:
         f.write(f"pudl_in: {pudl_in.expanduser().resolve()}\n")
         f.write(f"pudl_out: {pudl_out.expanduser().resolve()}\n")
-
-
-def get_defaults():
-    """Read paths to default PUDL input/output dirs from user's $HOME/.pudl.yml.
-
-    Args:
-        None
-
-    Returns:
-        dict: The contents of the user's PUDL settings file, with keys
-        ``pudl_in`` and ``pudl_out`` defining their default PUDL workspace. If
-        the ``$HOME/.pudl.yml`` file does not exist, set these paths to None.
-    """
-    logger.warning(
-        "pudl_settings is being deprecated in favor of environment variables "
-        "variables PUDL_OUTPUT and PUDL_INPUT. For more info "
-        "see: https://catalystcoop-pudl.readthedocs.io/en/dev/dev/dev_setup.html"
-    )
-    settings_file = pathlib.Path.home() / ".pudl.yml"
-
-    try:
-        with pathlib.Path(settings_file).open(encoding="utf8") as f:
-            default_workspace = yaml.safe_load(f)
-    except FileNotFoundError:
-        logger.info("PUDL user settings file .pudl.yml not found.")
-        default_workspace = {"pudl_in": None, "pudl_out": None}
-        return default_workspace
-
-    # Ensure that no matter what the user has put in this file, we get fully
-    # specified absolute paths out when we read it:
-    pudl_in = pathlib.Path(default_workspace["pudl_in"]).expanduser().resolve()
-    pudl_out = pathlib.Path(default_workspace["pudl_out"]).expanduser().resolve()
-    return derive_paths(pudl_in, pudl_out)
 
 
 def derive_paths(pudl_in, pudl_out):

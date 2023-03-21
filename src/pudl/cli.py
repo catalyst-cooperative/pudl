@@ -14,7 +14,6 @@ setup your default ``PUDL_INPUT`` and ``PUDL_OUTPUT`` directories see
 import argparse
 import sys
 from collections.abc import Callable
-from pathlib import Path
 
 from dagster import (
     DagsterInstance,
@@ -122,9 +121,8 @@ def main():
 
     etl_settings = EtlSettings.from_yaml(args.settings_file)
 
-    # Make sure environment is properly configured
-    with (Path.home() / ".pudl.yml").open() as f:
-        _ = pudl.workspace.setup.get_settings(yaml_file=f)
+    # Set PUDL_INPUT/PUDL_OUTPUT env vars from .pudl.yml if not set already!
+    pudl.workspace.setup.get_defaults()
 
     dataset_settings_config = etl_settings.datasets.dict()
     process_epacems = True
