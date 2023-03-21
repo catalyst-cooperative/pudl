@@ -48,7 +48,17 @@ def get_defaults(
     """
     load_dotenv()
 
-    # read from available settings sources
+    # Workaround for not having PUDL_* env vars in ReadTheDocs builds.
+    #
+    # They don't let you set env var through config files, and I'd rather
+    # have this in source control than go through some sort of web UI
+    #
+    # I don't like this any more than you do.
+    if os.getenv("READTHEDOCS"):
+        os.environ["PUDL_OUTPUT"] = str(Path("~/pudl-work/output").expanduser())
+        os.environ["PUDL_INPUT"] = str(Path("~/pudl-work/data").expanduser())
+
+    # read from YAML source
     if yaml_file is not None:
         yaml_settings = yaml.safe_load(yaml_file)
     elif default_pudl_yaml and default_pudl_yaml.exists():
@@ -57,6 +67,7 @@ def get_defaults(
     else:
         yaml_settings = {}
 
+    # read from env vars
     env_var_mapping = {
         "pudl_in": os.getenv("PUDL_INPUT"),
         "pudl_out": os.getenv("PUDL_OUTPUT"),
@@ -67,10 +78,11 @@ def get_defaults(
         if value is not None
     }
 
-    local_var_mapping = {"pudl_in": input_dir, "pudl_out": output_dir}
+    # read from params
+    kwarg_mapping = {"pudl_in": input_dir, "pudl_out": output_dir}
     kwarg_settings = {
         key: str(Path(value).parent)
-        for key, value in local_var_mapping.items()
+        for key, value in kwarg_mapping.items()
         if value is not None
     }
 
