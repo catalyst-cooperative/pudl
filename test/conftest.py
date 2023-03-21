@@ -85,17 +85,6 @@ def pytest_addoption(parser):
     )
 
 
-def pytest_configure(config):
-    """Make sure env vars are set before unit tests.
-
-    io_managers unit tests need these to be set, but they don't have to point to
-    anything meaningful. They will be reset by the `pudl_env` fixture before being used.
-    """
-    os.environ["PUDL_OUTPUT"] = os.getenv("PUDL_OUTPUT", "~/")
-    os.environ["DAGSTER_HOME"] = os.getenv("DAGSTER_HOME", "~/")
-    os.environ["PUDL_INPUT"] = os.getenv("PUDL_INPUT", "~/")
-
-
 @pytest.fixture(scope="session")
 def pudl_env(request, pudl_out_tmpdir, live_dbs):
     """Set PUDL_OUTPUT environment variable."""
@@ -206,7 +195,7 @@ def pudl_out_orig(live_dbs, pudl_engine):
 
 
 @pytest.fixture(scope="session")
-def ferc_to_sqlite(live_dbs, pudl_datastore_config, etl_settings):
+def ferc_to_sqlite(live_dbs, pudl_datastore_config, etl_settings, pudl_env):
     """Create raw FERC 1 SQLite DBs.
 
     If we are using the test database, we initialize it from scratch first. If we're
