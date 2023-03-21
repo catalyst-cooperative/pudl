@@ -39,7 +39,7 @@ def test_get_defaults_in_test_environment_no_env_vars():
     assert os.getenv("PUDL_INPUT") == f"{default_settings['pudl_in']}/data"
 
 
-def test_get_defaults_in_test_environment_no_env_vars_tmpdir(pudl_out_tmpdir):
+def test_get_defaults_in_test_environment_no_env_vars_tmpdir(pudl_output_tmpdir):
     if os.getenv("PUDL_OUTPUT"):
         del os.environ["PUDL_OUTPUT"]
     if os.getenv("PUDL_INPUT"):
@@ -54,19 +54,19 @@ def test_get_defaults_in_test_environment_no_env_vars_tmpdir(pudl_out_tmpdir):
     settings_yaml = StringIO(yaml.dump(default_settings))
 
     settings = get_defaults(
-        yaml_file=settings_yaml, output_dir=pudl_out_tmpdir / "output"
+        yaml_file=settings_yaml, output_dir=pudl_output_tmpdir / "output"
     )
 
     expected_values = {
         "pudl_in": f"{workspace}",
-        "pudl_out": f"{pudl_out_tmpdir}/output",
+        "pudl_out": f"{pudl_output_tmpdir}/output",
         "data_dir": f"{workspace}/data",
     }
 
     for key, value in expected_values.items():
         assert (key, settings[key]) == (key, value)
 
-    assert os.getenv("PUDL_OUTPUT") == f"{pudl_out_tmpdir}/output"
+    assert os.getenv("PUDL_OUTPUT") == f"{pudl_output_tmpdir}/output"
     assert os.getenv("PUDL_INPUT") == f"{default_settings['pudl_in']}/data"
 
 
@@ -121,7 +121,7 @@ def test_get_defaults_in_test_environment_use_env_vars(settings_yaml):
     ],
 )
 def test_get_defaults_in_test_environment_use_env_vars_tmpdir(
-    settings_yaml, pudl_out_tmpdir
+    settings_yaml, pudl_output_tmpdir
 ):
     workspace = "/test/whatever/from/env"
     os.environ |= {
@@ -130,19 +130,19 @@ def test_get_defaults_in_test_environment_use_env_vars_tmpdir(
     }
 
     settings = get_defaults(
-        yaml_file=settings_yaml, output_dir=pudl_out_tmpdir / "output"
+        yaml_file=settings_yaml, output_dir=pudl_output_tmpdir / "output"
     )
 
     expected_values = {
         "pudl_in": f"{workspace}",
-        "pudl_out": f"{pudl_out_tmpdir}/output",
+        "pudl_out": f"{pudl_output_tmpdir}/output",
         "data_dir": f"{workspace}/data",
     }
 
     for key, value in expected_values.items():
         assert (key, settings[key]) == (key, value)
 
-    assert os.getenv("PUDL_OUTPUT") == f"{pudl_out_tmpdir}/output"
+    assert os.getenv("PUDL_OUTPUT") == f"{pudl_output_tmpdir}/output"
     assert os.getenv("PUDL_INPUT") == f"{workspace}/data"
 
 

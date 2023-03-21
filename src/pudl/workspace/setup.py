@@ -57,18 +57,21 @@ def get_defaults(
     else:
         yaml_settings = {}
 
-    env_var_mapping = {"PUDL_INPUT": "pudl_in", "PUDL_OUTPUT": "pudl_out"}
+    env_var_mapping = {
+        "pudl_in": os.getenv("PUDL_INPUT"),
+        "pudl_out": os.getenv("PUDL_OUTPUT"),
+    }
     env_settings = {
-        env_var_mapping[key]: str(Path(value).parent)
-        for key, value in os.environ.items()
-        if key in env_var_mapping and value is not None
+        key: str(Path(value).parent)
+        for key, value in env_var_mapping.items()
+        if value is not None
     }
 
-    local_var_mapping = {"input_dir": "pudl_in", "output_dir": "pudl_out"}
+    local_var_mapping = {"pudl_in": input_dir, "pudl_out": output_dir}
     kwarg_settings = {
-        local_var_mapping[key]: str(Path(value).parent)
-        for key, value in locals().items()
-        if key in local_var_mapping and value is not None
+        key: str(Path(value).parent)
+        for key, value in local_var_mapping.items()
+        if value is not None
     }
 
     # Start with an empty settings, then override in order of precedence.
@@ -88,6 +91,8 @@ def get_defaults(
         os.environ["PUDL_OUTPUT"] = settings["pudl_out"]
     if input_dir or "PUDL_INPUT" not in os.environ:
         os.environ["PUDL_INPUT"] = settings["data_dir"]
+    if "DAGSTER_HOME" not in os.environ:
+        os.environ["DAGSTER_HOME"] = str(Path(settings["pudl_in"]) / "dagster_home")
 
     return settings
 
@@ -171,7 +176,7 @@ def derive_paths(pudl_in, pudl_out):
 
     # Everything else goes into outputs, generally organized by type of file:
     pudl_out = pathlib.Path(pudl_out).expanduser().resolve()
-    pudl_settings["pudl_out"] = f"{str(pudl_out)}/output"
+    pudl_settings["pudl_out"] = str(pudl_out / "output")
     # One directory per output format:
     logger.warning(
         "sqlite and parquet directories are no longer being used. Make sure there is a single directory named 'output' at the root of your workspace. For more info see: https://catalystcoop-pudl.readthedocs.io/en/dev/dev/dev_setup.html"
@@ -241,27 +246,18 @@ def derive_paths(pudl_in, pudl_out):
     return pudl_settings
 
 
-def init(pudl_in, pudl_out, clobber=False):
+def init(pudl_settings: dict[str, str], clobber=False):
     """Set up a new PUDL working environment based on the user settings.
 
     Args:
-        pudl_in (os.PathLike): Path to the directory containing the PUDL input
-            files, most notably the ``data`` directory which houses the raw
-            data downloaded from public agencies by the
-            :mod:`pudl.workspace.datastore` tools. ``pudl_in`` may be the same
-            directory as ``pudl_out``.
-        pudl_out (os.PathLike): Path to the directory where PUDL should write
-            the outputs it generates. These will be organized into directories
-            according to the output format (sqlite, parquet, etc.).
+        pudl_settings (os.PathLike): Paths to data inputs & outputs. See
+            get_defaults() for how to get these.
         clobber (bool): if True, replace existing files. If False (the default)
             do not replace existing files.
 
     Returns:
         None
     """
-    # Generate paths for the workspace:
-    pudl_settings = derive_paths(pudl_in, pudl_out)
-
     # Create tmp directory
     tmp_dir = pathlib.Path(pudl_settings["data_dir"], "tmp")
     tmp_dir.mkdir(parents=True, exist_ok=True)
