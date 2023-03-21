@@ -7,6 +7,7 @@ from pathlib import Path
 from typing import IO
 
 import yaml
+from dotenv import load_dotenv
 
 import pudl.logging_helpers
 
@@ -19,6 +20,8 @@ def get_settings(
     yaml_file: IO | None = None,
 ) -> dict[str, str]:
     """Handle PUDL settings and env vars."""
+    load_dotenv()
+
     # Track whether env vars should be set/overriden
     override_pudl_input = False
     override_pudl_output = False
