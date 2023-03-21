@@ -935,7 +935,7 @@ def extract_dbf(dataset_settings: DatasetsSettings) -> dict[str, pd.DataFrame]:
     to be used in notebooks for debugging the FERC Form 1 transforms.
 
     Args:
-        dataset_settigns: object containing desired years to extract.
+        dataset_settings: object containing desired years to extract.
 
     Returns:
         A dictionary of DataFrames, with the names of PUDL database tables as the keys.
@@ -972,7 +972,7 @@ def extract_xbrl(
     to be used in notebooks for debugging the FERC Form 1 transforms.
 
     Args:
-        dataset_settigns: object containing desired years to extract.
+        dataset_settings: object containing desired years to extract.
 
     Returns:
         A dictionary where keys are the names of the PUDL database tables, values are

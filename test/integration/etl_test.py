@@ -254,8 +254,8 @@ class TestExcelExtractor:
             raise AssertionError(f"page {page} not found in datastore for {year}")
 
 
-class TestFercExtractDebugFunctions:
-    """Verify the ferc extraction debug functions are working properly."""
+class TestFerc1ExtractDebugFunctions:
+    """Verify the ferc1 extraction debug functions are working properly."""
 
     def test_extract_dbf(self, ferc1_engine_dbf, pudl_env):
         """Test extract_dbf."""
