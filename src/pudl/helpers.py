@@ -23,7 +23,7 @@ import numpy as np
 import pandas as pd
 import requests
 import sqlalchemy as sa
-from dagster import AssetKey, AssetsDefinition, Noneable, SourceAsset
+from dagster import AssetKey, AssetsDefinition, AssetSelection, Noneable, SourceAsset
 from dagster._config.errors import PostProcessingError
 from pandas._libs.missing import NAType
 
@@ -1031,7 +1031,7 @@ def drop_tables(engine: sa.engine.Engine, clobber: bool = False):
     insp = sa.inspect(engine)
     if len(insp.get_table_names()) > 0 and not clobber:
         raise AssertionError(
-            f"You are attempting to drop your database while clobber is set to {clobber}"
+            f"You are attempting to drop your database at {engine} while clobber is set to {clobber}"
         )
     md.drop_all(engine)
     conn = engine.connect()
@@ -1624,3 +1624,19 @@ def get_asset_keys(
         else:
             asset_keys = asset_keys.union(asset.keys)
     return asset_keys
+
+
+def get_asset_group_keys(
+    asset_group: str, all_assets: list[AssetsDefinition]
+) -> list[str]:
+    """Get a list of asset names in a given asset group.
+
+    Args:
+        asset_group: the name of the asset group.
+        all_assets: the collection of assets to select the group from.
+
+    Return:
+        A list of asset names in the asset_group.
+    """
+    asset_keys = AssetSelection.groups(asset_group).resolve(all_assets)
+    return [asset.to_python_identifier() for asset in list(asset_keys)]

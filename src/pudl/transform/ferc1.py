@@ -3705,7 +3705,7 @@ class ElectricitySalesByRateScheduleFerc1TableTransformer(
         )
 
 
-class OtherRegulatoryLiabilitiesFerc1(Ferc1AbstractTableTransformer):
+class OtherRegulatoryLiabilitiesFerc1TableTransformer(Ferc1AbstractTableTransformer):
     """Transformer class for :ref:`other_regulatory_liabilities_ferc1` table."""
 
     table_id: TableIdFerc1 = TableIdFerc1.OTHER_REGULATORY_LIABILITIES_FERC1
@@ -3822,7 +3822,7 @@ def create_ferc1_transform_assets() -> list[AssetsDefinition]:
         "electric_operating_revenues_ferc1": ElectricOperatingRevenuesFerc1TableTransformer,
         "cash_flow_ferc1": CashFlowFerc1TableTransformer,
         "electricity_sales_by_rate_schedule_ferc1": ElectricitySalesByRateScheduleFerc1TableTransformer,
-        "other_regulatory_liabilities_ferc1": OtherRegulatoryLiabilitiesFerc1,
+        "other_regulatory_liabilities_ferc1": OtherRegulatoryLiabilitiesFerc1TableTransformer,
     }
 
     assets = []
