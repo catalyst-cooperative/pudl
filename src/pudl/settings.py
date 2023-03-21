@@ -124,10 +124,10 @@ class Ferc714Settings(GenericDatasetSettings):
 
     data_source: ClassVar[DataSource] = DataSource.from_id("ferc714")
 
-    tables: list[str] = data_source.get_resource_ids()
-    years: list[int] = data_source.working_partitions[
-        "years"
-    ]  # Years only apply to XBRL
+    # Note: Only older data is currently supported. Starting in 2021 FERC-714 is being
+    # published as XBRL, and we haven't integrated it. The older data is published as
+    # monolithic CSV files, so asking for any year processes all of them.
+    years: list[int] = data_source.working_partitions["years"]
 
 
 class EpaCemsSettings(GenericDatasetSettings):
@@ -298,10 +298,11 @@ class DatasetsSettings(BaseModel):
         epacems: Immutable pydantic model to validate epacems settings.
     """
 
-    ferc1: Ferc1Settings = None
     eia: EiaSettings = None
-    glue: GlueSettings = None
     epacems: EpaCemsSettings = None
+    ferc1: Ferc1Settings = None
+    ferc714: Ferc714Settings = None
+    glue: GlueSettings = None
 
     @root_validator(pre=True)
     def default_load_all(cls, values):  # noqa: N805
@@ -314,10 +315,11 @@ class DatasetsSettings(BaseModel):
             values (Dict[str, BaseModel]): dataset settings.
         """
         if not any(values.values()):
-            values["ferc1"] = Ferc1Settings()
             values["eia"] = EiaSettings()
-            values["glue"] = GlueSettings()
             values["epacems"] = EpaCemsSettings()
+            values["ferc1"] = Ferc1Settings()
+            values["ferc714"] = Ferc714Settings()
+            values["glue"] = GlueSettings()
 
         return values
 
@@ -373,8 +375,9 @@ class DatasetsSettings(BaseModel):
         if datasets_settings.get("eia", False):
             datasets_in_datastore_format.update(
                 {
-                    "eia923": datasets_settings["eia"].eia923,
                     "eia860": datasets_settings["eia"].eia860,
+                    "eia861": datasets_settings["eia"].eia861,
+                    "eia923": datasets_settings["eia"].eia923,
                 }
             )
 
