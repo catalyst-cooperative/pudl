@@ -762,8 +762,6 @@ def boiler_fuel(eia923_dfs, eia923_transformed_dfs):
     # Need to stop dropping fields that contain harvestable entity attributes.
     # See https://github.com/catalyst-cooperative/pudl/issues/509
     cols_to_drop = [
-        "operator_name",
-        "operator_id",
         "fuel_unit",
         "total_fuel_consumption_quantity",
         "balancing_authority_code_eia",
