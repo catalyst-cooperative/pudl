@@ -212,6 +212,8 @@ def ferc714_out(fast_out, pudl_settings_fixture, pudl_datastore_fixture):
 )
 def test_ferc714_outputs(ferc714_out, df_name):
     """Test FERC 714 derived output methods."""
+    if os.environ.get("GITHUB_ACTIONS", False):
+        pytest.skip("Skipping FERC 714 output tests on GitHub due to memory limits.")
     logger.info(f"Running ferc714_out.{df_name}()")
     df = ferc714_out.__getattribute__(df_name)()
     assert isinstance(df, pd.DataFrame), f"{df_name} is {type(df)} not DataFrame!"
@@ -231,6 +233,8 @@ def test_ferc714_respondents_georef_counties(ferc714_out):
     but is more challenging on Windows and MacOS, so this test is marked xfail
     conditionally if the user is neither using conda, nor is on Linux.
     """
+    if os.environ.get("GITHUB_ACTIONS", False):
+        pytest.skip("Skipping FERC 714 output tests on GitHub due to memory limits.")
     ferc714_gdf = ferc714_out.georef_counties()
     assert isinstance(ferc714_gdf, gpd.GeoDataFrame), "ferc714_gdf not a GeoDataFrame!"
     assert not ferc714_gdf.empty, "ferc714_gdf is empty!"
