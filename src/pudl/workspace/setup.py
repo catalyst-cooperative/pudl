@@ -14,39 +14,49 @@ logger = pudl.logging_helpers.get_logger(__name__)
 
 
 def get_settings(
-    yaml_file: IO | None, tmp_dir: str | None = None, live_dbs: bool = False
+    input_dir: str | None = None,
+    output_dir: str | None = None,
+    yaml_file: IO | None = None,
 ) -> dict[str, str]:
     """Handle PUDL settings and env vars."""
+    # Track whether env vars should be set/overriden
+    override_pudl_input = False
+    override_pudl_output = False
+
+    if input_dir is None:
+        input_dir = os.getenv("PUDL_INPUT")
+    else:
+        # If input_dir arg is explicitly set override environment
+        override_pudl_input = True
+
+    if output_dir is None:
+        output_dir = os.getenv("PUDL_OUTPUT")
+    else:
+        # If output_dir arg is explicitly set override environment
+        override_pudl_output = True
+
     if yaml_file is not None:
         settings = yaml.safe_load(yaml_file)
-    else:
-        settings = {}
-
-    if (pudl_out := os.getenv("PUDL_OUTPUT")) and (pudl_in := os.getenv("PUDL_INPUT")):
-        derive_paths_in = Path(pudl_in).parent
-        derive_paths_out = Path(pudl_out).parent
-    elif settings:
         derive_paths_in = settings["pudl_in"]
         derive_paths_out = settings["pudl_out"]
     else:
+        derive_paths_in = None
+        derive_paths_out = None
+
+    derive_paths_in = Path(input_dir).parent if input_dir else derive_paths_in
+    derive_paths_out = Path(output_dir).parent if output_dir else derive_paths_out
+
+    if not (derive_paths_in and derive_paths_out):
         raise RuntimeError(
             "Must set 'PUDL_OUTPUT'/'PUDL_INPUT' environment variables or provide valid yaml config file."
         )
 
-    if tmp_dir and not live_dbs:
-        derive_paths_out = tmp_dir
-
-        # Overwrite env var to point to tmp_dir if it exist
-        if os.getenv("PUDL_OUTPUT"):
-            os.environ["PUDL_OUTPUT"] = f"{derive_paths_out}/output"
-
     settings = derive_paths(derive_paths_in, derive_paths_out)
 
-    if (pudl_out := settings.get("pudl_out")) and (pudl_in := settings.get("data_dir")):
-        if "PUDL_OUTPUT" not in os.environ:
-            os.environ["PUDL_OUTPUT"] = pudl_out
-        if "PUDL_INPUT" not in os.environ:
-            os.environ["PUDL_INPUT"] = pudl_in
+    if override_pudl_output or "PUDL_OUTPUT" not in os.environ:
+        os.environ["PUDL_OUTPUT"] = settings["pudl_out"]
+    if override_pudl_input or "PUDL_INPUT" not in os.environ:
+        os.environ["PUDL_INPUT"] = settings["data_dir"]
 
     # if env vars exist:
     # override settings

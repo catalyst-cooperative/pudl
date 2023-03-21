@@ -24,7 +24,7 @@ def test_get_settings_in_test_environment_no_env_vars():
 
     settings_yaml = StringIO(yaml.dump(default_settings))
 
-    settings = get_settings(yaml_file=settings_yaml, live_dbs=False)
+    settings = get_settings(yaml_file=settings_yaml)
 
     expected_values = {
         "pudl_in": f"{workspace}",
@@ -54,7 +54,7 @@ def test_get_settings_in_test_environment_no_env_vars_tmpdir(pudl_out_tmpdir):
     settings_yaml = StringIO(yaml.dump(default_settings))
 
     settings = get_settings(
-        yaml_file=settings_yaml, live_dbs=False, tmp_dir=pudl_out_tmpdir
+        yaml_file=settings_yaml, output_dir=pudl_out_tmpdir / "output"
     )
 
     expected_values = {
@@ -63,7 +63,6 @@ def test_get_settings_in_test_environment_no_env_vars_tmpdir(pudl_out_tmpdir):
         "data_dir": f"{workspace}/data",
     }
 
-    print(settings)
     for key, value in expected_values.items():
         assert (key, settings[key]) == (key, value)
 
@@ -92,7 +91,7 @@ def test_get_settings_in_test_environment_use_env_vars(settings_yaml):
         "PUDL_INPUT": f"{workspace}/data",
     }
 
-    settings = get_settings(yaml_file=settings_yaml, live_dbs=False)
+    settings = get_settings(yaml_file=settings_yaml)
 
     expected_values = {
         "pudl_in": f"{workspace}",
@@ -131,7 +130,7 @@ def test_get_settings_in_test_environment_use_env_vars_tmpdir(
     }
 
     settings = get_settings(
-        yaml_file=settings_yaml, live_dbs=False, tmp_dir=pudl_out_tmpdir
+        yaml_file=settings_yaml, output_dir=pudl_out_tmpdir / "output"
     )
 
     expected_values = {
@@ -154,4 +153,4 @@ def test_get_settings_in_test_environment_no_env_vars_no_config():
         del os.environ["PUDL_INPUT"]
 
     with pytest.raises(RuntimeError):
-        get_settings(yaml_file=None, live_dbs=True)
+        get_settings(yaml_file=None)
