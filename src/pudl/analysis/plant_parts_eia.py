@@ -180,6 +180,8 @@ OR make the table via objects in this module:
 import warnings
 from collections import OrderedDict
 from copy import deepcopy
+from importlib import resources
+from pathlib import Path
 from typing import Literal
 
 import numpy as np
@@ -703,10 +705,18 @@ class MakePlantParts:
             }.issubset(part_df.columns)
             part_dfs.append(part_df)
         plant_parts_eia = pd.concat(part_dfs)
-        plant_parts_eia = TrueGranLabeler().execute(plant_parts_eia)
+        # Add in 1:m matches.
+        self.plant_parts_eia = self.add_one_to_many(
+            plant_parts_eia=plant_parts_eia,
+            part_name="match_ferc1",
+            path_to_one_to_many=resources.path(
+                "pudl.package_data.glue", "ferc1_eia_one_to_many.csv"
+            ),
+        )
+        self.plant_parts_eia = TrueGranLabeler().execute(self.plant_parts_eia)
         # clean up, add additional columns
         self.plant_parts_eia = (
-            self.add_additonal_cols(plant_parts_eia)
+            self.add_additonal_cols(self.plant_parts_eia)
             .pipe(pudl.helpers.organize_cols, FIRST_COLS)
             .pipe(self._clean_plant_parts)
             .pipe(Resource.from_id("plant_parts_eia").format_df)
@@ -719,6 +729,102 @@ class MakePlantParts:
     #######################################
     # Add Entity Columns and Final Cleaning
     #######################################
+
+    def add_one_to_many(
+        self,
+        plant_parts_eia: pd.DataFrame,
+        part_name: Literal["match_ferc1"],
+        path_to_one_to_many: Path,
+    ) -> pd.DataFrame:
+        """Integrate 1:m FERC-EIA matches into the plant part list.
+
+        In the FERC:EIA manual match, more than one EIA record may be matched to a
+        FERC record. This method reads in a .csv of one to many matches generated during
+        the validation stage of.
+
+        Args:
+            plant_parts_eia (pandas.DataFrame): the master unit list table.
+            part_name: should always be "match_ferc1".
+            path_to_one_to_many: a Path to the one_to_many csv
+            file in `pudl.package_data.glue`.
+
+        Returns
+            pandas.DataFrame: master unit list table with one-to-many matches aggregated
+            as plant parts.
+        """
+        # Read in csv.
+        try:
+            one_to_many = pd.read_csv(path_to_one_to_many)
+        except FileNotFoundError:
+            return plant_parts_eia
+
+        logger.info("Aggregate 1:m FERC-EIA match records.")
+        # Filter plant part list to records in 1:m
+        plant_parts_eia_filt = plant_parts_eia.loc[
+            plant_parts_eia.record_id_eia.isin(one_to_many.record_id_eia)
+        ]
+
+        # Get the 'm' generator IDs 1:m
+        one_to_many_single = match_to_single_plant_part(
+            multi_gran_df=plant_parts_eia_filt,
+            ppl=plant_parts_eia,
+            part_name="plant_gen",
+            cols_to_keep=["plant_part"],
+        )[["record_id_eia_og", "record_id_eia", "plant_part_og"]].rename(
+            columns={
+                "record_id_eia": "gen_id",
+                "record_id_eia_og": "record_id_eia",
+                "plant_part_og": "plant_part",
+            }
+        )
+
+        # If any 'duplicate records' actually match to the same generator, these aren't 1:m matches. Drop them and any corresponding non-matches.
+        one_to_many = one_to_many.merge(
+            one_to_many_single, on="record_id_eia", validate="1:m"
+        ).drop_duplicates("gen_id")
+        one_to_many = one_to_many.loc[
+            one_to_many.duplicated(subset="record_id_ferc1", keep=False), :
+        ]
+
+        # For each FERC ID, group and add a unique ferc1_generator_agg_id.
+        # To fix: pandas returns "Cannot interpret 'Int64Dtype()' as a data type"
+        # if we try to make this column and the field an integer
+        one_to_many["ferc1_generator_agg_id"] = (
+            one_to_many.groupby(["record_id_ferc1"]).ngroup().astype(str)
+        )
+
+        # Add this column back to the main plant part table to enable later identification of grouped records.
+        plant_parts_eia = plant_parts_eia.merge(
+            one_to_many[["gen_id", "ferc1_generator_agg_id"]],
+            left_on="record_id_eia",
+            right_on="gen_id",
+            how="left",
+            validate="1:1",
+        )
+
+        # Aggregate these records into "plant parts" and concatenate onto plant_part table
+        part_df = PlantPart(part_name).execute(plant_parts_eia)
+        # add in the attributes!
+        for attribute_col in CONSISTENT_ATTRIBUTE_COLS:
+            part_df = AddConsistentAttributes(attribute_col, part_name).execute(
+                part_df, plant_parts_eia
+            )
+        for attribute_col in PRIORITY_ATTRIBUTES_DICT.keys():
+            part_df = AddPriorityAttribute(attribute_col, part_name).execute(
+                part_df, plant_parts_eia
+            )
+        for attribute_col in MAX_MIN_ATTRIBUTES_DICT.keys():
+            part_df = AddMaxMinAttribute(
+                attribute_col,
+                part_name,
+                assign_col_dict=MAX_MIN_ATTRIBUTES_DICT[attribute_col]["assign_col"],
+            ).execute(
+                part_df,
+                plant_parts_eia,
+                att_dtype=MAX_MIN_ATTRIBUTES_DICT[attribute_col]["dtype"],
+                keep=MAX_MIN_ATTRIBUTES_DICT[attribute_col]["keep"],
+            )
+        return pd.concat([plant_parts_eia, part_df])
 
     def add_additonal_cols(self, plant_parts_eia):
         """Add additonal data and id columns.
@@ -868,7 +974,7 @@ class PlantPart:
     ``plant_prime_mover``, or ``plant_gen``.
     """
 
-    def __init__(self, part_name: PLANT_PARTS_LITERAL):
+    def __init__(self, part_name: Literal[PLANT_PARTS_LITERAL, "match_ferc1"]):
         """Initialize an object which makes a tbl for a specific plant-part.
 
         Args:
@@ -876,7 +982,10 @@ class PlantPart:
                 only those in :py:const:`PLANT_PARTS`
         """
         self.part_name = part_name
-        self.id_cols = PLANT_PARTS[part_name]["id_cols"]
+        if self.part_name == "match_ferc1":
+            self.id_cols = ["plant_id_eia", "ferc1_generator_agg_id"]
+        else:
+            self.id_cols = PLANT_PARTS[part_name]["id_cols"]
 
     def execute(
         self,
@@ -1178,7 +1287,7 @@ class AddAttribute:
                 :py:const:`PRIORITY_ATTRIBUTES_DICT`
                 or :py:const:`MAX_MIN_ATTRIBUTES_DICT`.
             part_name (str): the name of the part to aggregate to. Names can be
-                only those in :py:const:`PLANT_PARTS`
+                only those in :py:const:`PLANT_PARTS` or `match_ferc1`
         """  # noqa: D417
         assert attribute_col in CONSISTENT_ATTRIBUTE_COLS + list(
             PRIORITY_ATTRIBUTES_DICT.keys()
@@ -1186,7 +1295,10 @@ class AddAttribute:
         self.attribute_col = attribute_col
         # the base columns will be the id columns, plus the other two main ids
         self.part_name = part_name
-        self.id_cols = PLANT_PARTS[part_name]["id_cols"]
+        if self.part_name == "match_ferc1":
+            self.id_cols = ["plant_id_eia", "ferc1_generator_agg_id"]
+        else:
+            self.id_cols = PLANT_PARTS[part_name]["id_cols"]
         self.base_cols = self.id_cols + IDX_TO_ADD
         self.assign_col_dict = assign_col_dict
 

@@ -553,6 +553,7 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
                 "true_gran",
                 "appro_part_label",
                 "appro_record_id_eia",
+                "ferc1_generator_agg_id",
                 "capacity_eoy_mw",
                 "capacity_factor",
                 "capacity_mw",
