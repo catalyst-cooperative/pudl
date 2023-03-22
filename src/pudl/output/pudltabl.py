@@ -33,6 +33,7 @@ from pudl.analysis.allocate_net_gen import (
     allocate_gen_fuel_by_generator_energy_source,
     scale_allocated_net_gen_by_ownership,
 )
+from pudl.metadata.classes import Package
 from pudl.metadata.fields import apply_pudl_dtypes
 
 logger = pudl.logging_helpers.get_logger(__name__)
@@ -162,234 +163,176 @@ class PudlTabl:
 
     def advanced_metering_infrastructure_eia861(self) -> pd.DataFrame:
         """An interim EIA 861 output function."""
-        return (
-            pd.read_sql("advanced_metering_infrastructure_eia861", self.pudl_engine)
-            .convert_dtypes(convert_floating=False)
-            .pipe(apply_pudl_dtypes, group="eia")
-        )
+        return pd.read_sql(
+            "advanced_metering_infrastructure_eia861", self.pudl_engine
+        ).pipe(apply_pudl_dtypes, group="eia")
 
     def balancing_authority_eia861(self) -> pd.DataFrame:
         """An interim EIA 861 output function."""
-        return (
-            pd.read_sql("balancing_authority_eia861", self.pudl_engine)
-            .convert_dtypes(convert_floating=False)
-            .pipe(apply_pudl_dtypes, group="eia")
+        return pd.read_sql("balancing_authority_eia861", self.pudl_engine).pipe(
+            apply_pudl_dtypes, group="eia"
         )
 
     def balancing_authority_assn_eia861(self) -> pd.DataFrame:
         """An interim EIA 861 output function."""
-        return (
-            pd.read_sql("balancing_authority_assn_eia861", self.pudl_engine)
-            .convert_dtypes(convert_floating=False)
-            .pipe(apply_pudl_dtypes, group="eia")
+        return pd.read_sql("balancing_authority_assn_eia861", self.pudl_engine).pipe(
+            apply_pudl_dtypes, group="eia"
         )
 
     def demand_response_eia861(self) -> pd.DataFrame:
         """An interim EIA 861 output function."""
-        return (
-            pd.read_sql("demand_response_eia861", self.pudl_engine)
-            .convert_dtypes(convert_floating=False)
-            .pipe(apply_pudl_dtypes, group="eia")
+        return pd.read_sql("demand_response_eia861", self.pudl_engine).pipe(
+            apply_pudl_dtypes, group="eia"
         )
 
     def demand_response_water_heater_eia861(self) -> pd.DataFrame:
         """An interim EIA 861 output function."""
-        return (
-            pd.read_sql("demand_response_water_heater_eia861", self.pudl_engine)
-            .convert_dtypes(convert_floating=False)
-            .pipe(apply_pudl_dtypes, group="eia")
-        )
+        return pd.read_sql(
+            "demand_response_water_heater_eia861", self.pudl_engine
+        ).pipe(apply_pudl_dtypes, group="eia")
 
     def demand_side_management_sales_eia861(self) -> pd.DataFrame:
         """An interim EIA 861 output function."""
-        return (
-            pd.read_sql("demand_side_management_sales_eia861", self.pudl_engine)
-            .convert_dtypes(convert_floating=False)
-            .pipe(apply_pudl_dtypes, group="eia")
-        )
+        return pd.read_sql(
+            "demand_side_management_sales_eia861", self.pudl_engine
+        ).pipe(apply_pudl_dtypes, group="eia")
 
     def demand_side_management_ee_dr_eia861(self) -> pd.DataFrame:
         """An interim EIA 861 output function."""
-        return (
-            pd.read_sql("demand_side_management_ee_dr_eia861", self.pudl_engine)
-            .convert_dtypes(convert_floating=False)
-            .pipe(apply_pudl_dtypes, group="eia")
-        )
+        return pd.read_sql(
+            "demand_side_management_ee_dr_eia861", self.pudl_engine
+        ).pipe(apply_pudl_dtypes, group="eia")
 
     def demand_side_management_misc_eia861(self) -> pd.DataFrame:
         """An interim EIA 861 output function."""
-        return (
-            pd.read_sql("demand_side_management_misc_eia861", self.pudl_engine)
-            .convert_dtypes(convert_floating=False)
-            .pipe(apply_pudl_dtypes, group="eia")
+        return pd.read_sql("demand_side_management_misc_eia861", self.pudl_engine).pipe(
+            apply_pudl_dtypes, group="eia"
         )
 
     def distributed_generation_tech_eia861(self) -> pd.DataFrame:
         """An interim EIA 861 output function."""
-        return (
-            pd.read_sql("distributed_generation_tech_eia861", self.pudl_engine)
-            .convert_dtypes(convert_floating=False)
-            .pipe(apply_pudl_dtypes, group="eia")
+        return pd.read_sql("distributed_generation_tech_eia861", self.pudl_engine).pipe(
+            apply_pudl_dtypes, group="eia"
         )
 
     def distributed_generation_fuel_eia861(self) -> pd.DataFrame:
         """An interim EIA 861 output function."""
-        return (
-            pd.read_sql("distributed_generation_fuel_eia861", self.pudl_engine)
-            .convert_dtypes(convert_floating=False)
-            .pipe(apply_pudl_dtypes, group="eia")
+        return pd.read_sql("distributed_generation_fuel_eia861", self.pudl_engine).pipe(
+            apply_pudl_dtypes, group="eia"
         )
 
     def distributed_generation_misc_eia861(self) -> pd.DataFrame:
         """An interim EIA 861 output function."""
-        return (
-            pd.read_sql("distributed_generation_misc_eia861", self.pudl_engine)
-            .convert_dtypes(convert_floating=False)
-            .pipe(apply_pudl_dtypes, group="eia")
+        return pd.read_sql("distributed_generation_misc_eia861", self.pudl_engine).pipe(
+            apply_pudl_dtypes, group="eia"
         )
 
     def distribution_systems_eia861(self) -> pd.DataFrame:
         """An interim EIA 861 output function."""
-        return (
-            pd.read_sql("distribution_systems_eia861", self.pudl_engine)
-            .convert_dtypes(convert_floating=False)
-            .pipe(apply_pudl_dtypes, group="eia")
+        return pd.read_sql("distribution_systems_eia861", self.pudl_engine).pipe(
+            apply_pudl_dtypes, group="eia"
         )
 
     def dynamic_pricing_eia861(self) -> pd.DataFrame:
         """An interim EIA 861 output function."""
-        return (
-            pd.read_sql("dynamic_pricing_eia861", self.pudl_engine)
-            .convert_dtypes(convert_floating=False)
-            .pipe(apply_pudl_dtypes, group="eia")
+        return pd.read_sql("dynamic_pricing_eia861", self.pudl_engine).pipe(
+            apply_pudl_dtypes, group="eia"
         )
 
     def energy_efficiency_eia861(self) -> pd.DataFrame:
         """An interim EIA 861 output function."""
-        return (
-            pd.read_sql("energy_efficiency_eia861", self.pudl_engine)
-            .convert_dtypes(convert_floating=False)
-            .pipe(apply_pudl_dtypes, group="eia")
+        return pd.read_sql("energy_efficiency_eia861", self.pudl_engine).pipe(
+            apply_pudl_dtypes, group="eia"
         )
 
     def green_pricing_eia861(self) -> pd.DataFrame:
         """An interim EIA 861 output function."""
-        return (
-            pd.read_sql("green_pricing_eia861", self.pudl_engine)
-            .convert_dtypes(convert_floating=False)
-            .pipe(apply_pudl_dtypes, group="eia")
+        return pd.read_sql("green_pricing_eia861", self.pudl_engine).pipe(
+            apply_pudl_dtypes, group="eia"
         )
 
     def mergers_eia861(self) -> pd.DataFrame:
         """An interim EIA 861 output function."""
-        return (
-            pd.read_sql("mergers_eia861", self.pudl_engine)
-            .convert_dtypes(convert_floating=False)
-            .pipe(apply_pudl_dtypes, group="eia")
+        return pd.read_sql("mergers_eia861", self.pudl_engine).pipe(
+            apply_pudl_dtypes, group="eia"
         )
 
     def net_metering_customer_fuel_class_eia861(self) -> pd.DataFrame:
         """An interim EIA 861 output function."""
-        return (
-            pd.read_sql("net_metering_customer_fuel_class_eia861", self.pudl_engine)
-            .convert_dtypes(convert_floating=False)
-            .pipe(apply_pudl_dtypes, group="eia")
-        )
+        return pd.read_sql(
+            "net_metering_customer_fuel_class_eia861", self.pudl_engine
+        ).pipe(apply_pudl_dtypes, group="eia")
 
     def net_metering_misc_eia861(self) -> pd.DataFrame:
         """An interim EIA 861 output function."""
-        return (
-            pd.read_sql("net_metering_misc_eia861", self.pudl_engine)
-            .convert_dtypes(convert_floating=False)
-            .pipe(apply_pudl_dtypes, group="eia")
+        return pd.read_sql("net_metering_misc_eia861", self.pudl_engine).pipe(
+            apply_pudl_dtypes, group="eia"
         )
 
     def non_net_metering_customer_fuel_class_eia861(self) -> pd.DataFrame:
         """An interim EIA 861 output function."""
-        return (
-            pd.read_sql("non_net_metering_customer_fuel_class_eia861", self.pudl_engine)
-            .convert_dtypes(convert_floating=False)
-            .pipe(apply_pudl_dtypes, group="eia")
-        )
+        return pd.read_sql(
+            "non_net_metering_customer_fuel_class_eia861", self.pudl_engine
+        ).pipe(apply_pudl_dtypes, group="eia")
 
     def non_net_metering_misc_eia861(self) -> pd.DataFrame:
         """An interim EIA 861 output function."""
-        return (
-            pd.read_sql("non_net_metering_misc_eia861", self.pudl_engine)
-            .convert_dtypes(convert_floating=False)
-            .pipe(apply_pudl_dtypes, group="eia")
+        return pd.read_sql("non_net_metering_misc_eia861", self.pudl_engine).pipe(
+            apply_pudl_dtypes, group="eia"
         )
 
     def operational_data_revenue_eia861(self) -> pd.DataFrame:
         """An interim EIA 861 output function."""
-        return (
-            pd.read_sql("operational_data_revenue_eia861", self.pudl_engine)
-            .convert_dtypes(convert_floating=False)
-            .pipe(apply_pudl_dtypes, group="eia")
+        return pd.read_sql("operational_data_revenue_eia861", self.pudl_engine).pipe(
+            apply_pudl_dtypes, group="eia"
         )
 
     def operational_data_misc_eia861(self) -> pd.DataFrame:
         """An interim EIA 861 output function."""
-        return (
-            pd.read_sql("operational_data_misc_eia861", self.pudl_engine)
-            .convert_dtypes(convert_floating=False)
-            .pipe(apply_pudl_dtypes, group="eia")
+        return pd.read_sql("operational_data_misc_eia861", self.pudl_engine).pipe(
+            apply_pudl_dtypes, group="eia"
         )
 
     def reliability_eia861(self) -> pd.DataFrame:
         """An interim EIA 861 output function."""
-        return (
-            pd.read_sql("reliability_eia861", self.pudl_engine)
-            .convert_dtypes(convert_floating=False)
-            .pipe(apply_pudl_dtypes, group="eia")
+        return pd.read_sql("reliability_eia861", self.pudl_engine).pipe(
+            apply_pudl_dtypes, group="eia"
         )
 
     def sales_eia861(self) -> pd.DataFrame:
         """An interim EIA 861 output function."""
-        return (
-            pd.read_sql("sales_eia861", self.pudl_engine)
-            .convert_dtypes(convert_floating=False)
-            .pipe(apply_pudl_dtypes, group="eia")
+        return pd.read_sql("sales_eia861", self.pudl_engine).pipe(
+            apply_pudl_dtypes, group="eia"
         )
 
     def service_territory_eia861(self) -> pd.DataFrame:
         """An interim EIA 861 output function."""
-        return (
-            pd.read_sql("service_territory_eia861", self.pudl_engine)
-            .convert_dtypes(convert_floating=False)
-            .pipe(apply_pudl_dtypes, group="eia")
+        return pd.read_sql("service_territory_eia861", self.pudl_engine).pipe(
+            apply_pudl_dtypes, group="eia"
         )
 
     def utility_assn_eia861(self) -> pd.DataFrame:
         """An interim EIA 861 output function."""
-        return (
-            pd.read_sql("utility_assn_eia861", self.pudl_engine)
-            .convert_dtypes(convert_floating=False)
-            .pipe(apply_pudl_dtypes, group="eia")
+        return pd.read_sql("utility_assn_eia861", self.pudl_engine).pipe(
+            apply_pudl_dtypes, group="eia"
         )
 
     def utility_data_nerc_eia861(self) -> pd.DataFrame:
         """An interim EIA 861 output function."""
-        return (
-            pd.read_sql("utility_data_nerc_eia861", self.pudl_engine)
-            .convert_dtypes(convert_floating=False)
-            .pipe(apply_pudl_dtypes, group="eia")
+        return pd.read_sql("utility_data_nerc_eia861", self.pudl_engine).pipe(
+            apply_pudl_dtypes, group="eia"
         )
 
     def utility_data_rto_eia861(self) -> pd.DataFrame:
         """An interim EIA 861 output function."""
-        return (
-            pd.read_sql("utility_data_rto_eia861", self.pudl_engine)
-            .convert_dtypes(convert_floating=False)
-            .pipe(apply_pudl_dtypes, group="eia")
+        return pd.read_sql("utility_data_rto_eia861", self.pudl_engine).pipe(
+            apply_pudl_dtypes, group="eia"
         )
 
     def utility_data_misc_eia861(self) -> pd.DataFrame:
         """An interim EIA 861 output function."""
-        return (
-            pd.read_sql("utility_data_misc_eia861", self.pudl_engine)
-            .convert_dtypes(convert_floating=False)
-            .pipe(apply_pudl_dtypes, group="eia")
+        return pd.read_sql("utility_data_misc_eia861", self.pudl_engine).pipe(
+            apply_pudl_dtypes, group="eia"
         )
 
     ###########################################################################
@@ -397,18 +340,25 @@ class PudlTabl:
     ###########################################################################
     def respondent_id_ferc714(self) -> pd.DataFrame:
         """An interim FERC 714 output function."""
-        return (
-            pd.read_sql("respondent_id_ferc714", self.pudl_engine)
-            .convert_dtypes(convert_floating=False)
-            .pipe(apply_pudl_dtypes, group="eia")
+        return pd.read_sql("respondent_id_ferc714", self.pudl_engine).pipe(
+            apply_pudl_dtypes, group="ferc714"
         )
 
     def demand_hourly_pa_ferc714(self) -> pd.DataFrame:
         """An interim FERC 714 output function."""
-        return (
-            pd.read_sql("demand_hourly_pa_ferc714", self.pudl_engine)
-            .convert_dtypes(convert_floating=False)
-            .pipe(apply_pudl_dtypes, group="eia")
+        dhpa_res = Package.from_resource_ids().get_resource("demand_hourly_pa_ferc714")
+        # Concatenating a bunch of smaller chunks reduces peak memory usage drastically
+        # and doesn't seem to take any longer.
+        return pd.concat(
+            [
+                # enforce_schema() cuts memory use by ~70% b/c of categorical tzones
+                dhpa_res.enforce_schema(df)
+                for df in pd.read_sql(
+                    "demand_hourly_pa_ferc714",
+                    self.pudl_engine,
+                    chunksize=100_000,
+                )
+            ]
         )
 
     ###########################################################################

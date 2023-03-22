@@ -9,7 +9,6 @@ import pytest
 
 import pudl
 import pudl.validate as pv
-from pudl.metadata.fields import apply_pudl_dtypes
 
 logger = logging.getLogger(__name__)
 
@@ -168,29 +167,15 @@ def test_null_rows(fast_out, df_name, thresh):
 def test_outputs_by_table_suffix(fast_out, table_suffix):
     """Check that all EIA-861 & FERC-714 output tables are present and non-empty."""
     tables = [t for t in fast_out.__dir__() if t.endswith(table_suffix)]
-    for table_name in tables:
-        logger.info(f"Checking that {table_name} is a DataFrame with no null columns.")
+    for table in tables:
+        logger.info(f"Checking that {table} is a DataFrame with no null columns.")
+        df = fast_out.__getattribute__(table)()
 
-        # Avoid running out of memory on the puny GitHub Actions VMs:
-        if table_name == "demand_hourly_pa_ferc714" and os.environ.get(
-            "GITHUB_ACTIONS", False
-        ):
-            query = f"SELECT * FROM {table_name} LIMIT 1000000;"  # nosec: B608
-            df = (
-                pd.read_sql(query, fast_out.pudl_engine)
-                .convert_dtypes()
-                .pipe(apply_pudl_dtypes, group="ferc714")
-            )
-        else:
-            df = fast_out.__getattribute__(table_name)()
-
-        assert isinstance(
-            df, pd.DataFrame
-        ), f"{table_name} is {type(df)}, not DataFrame!"
-        assert not df.empty, f"{table_name} is empty!"
+        assert isinstance(df, pd.DataFrame), f"{table } is {type(df)}, not DataFrame!"
+        assert not df.empty, f"{table} is empty!"
         for col in df.columns:
             if df[col].isna().all():
-                raise ValueError(f"Found null column: {table_name}.{col}")
+                raise ValueError(f"Found null column: {table}.{col}")
 
 
 @pytest.fixture(scope="module")
@@ -212,8 +197,6 @@ def ferc714_out(fast_out, pudl_settings_fixture, pudl_datastore_fixture):
 )
 def test_ferc714_outputs(ferc714_out, df_name):
     """Test FERC 714 derived output methods."""
-    if os.environ.get("GITHUB_ACTIONS", False):
-        pytest.skip("Skipping FERC 714 output tests on GitHub due to memory limits.")
     logger.info(f"Running ferc714_out.{df_name}()")
     df = ferc714_out.__getattribute__(df_name)()
     assert isinstance(df, pd.DataFrame), f"{df_name} is {type(df)} not DataFrame!"
