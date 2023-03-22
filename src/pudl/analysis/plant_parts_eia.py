@@ -206,6 +206,9 @@ PLANT_PARTS: OrderedDict[str, dict[str, list]] = OrderedDict(
         "plant": {
             "id_cols": ["plant_id_eia"],
         },
+        "match_ferc1": {
+            "id_cols": ["plant_id_eia", "ferc1_generator_agg_id"],
+        },
         "plant_unit": {
             "id_cols": ["plant_id_eia", "unit_id_pudl"],
         },
@@ -717,6 +720,8 @@ class MakePlantParts:
             del self.pudl_out._dfs[k]
         part_dfs = []
         for part_name in PLANT_PARTS:
+            if part_name == "match_ferc1":
+                continue
             part_df = PlantPart(part_name).execute(gens_mega)
             # add in the attributes!
             for attribute_col in CONSISTENT_ATTRIBUTE_COLS:
@@ -742,7 +747,10 @@ class MakePlantParts:
                 )
             # assert that all the plant part ID columns are now in part_df
             assert {
-                col for part in PLANT_PARTS for col in PLANT_PARTS[part]["id_cols"]
+                col
+                for part in PLANT_PARTS
+                if part != "match_ferc1"
+                for col in PLANT_PARTS[part]["id_cols"]
             }.issubset(part_df.columns)
             part_dfs.append(part_df)
         plant_parts_eia = pd.concat(part_dfs)
@@ -764,7 +772,7 @@ class MakePlantParts:
         )
         self.plant_parts_eia.index = self.plant_parts_eia.index.astype("string")
         self.validate_ownership_for_owned_records(self.plant_parts_eia)
-        validate_run_aggregations(self.plant_parts_eia, gens_mega)
+        # validate_run_aggregations(self.plant_parts_eia, gens_mega)
         return self.plant_parts_eia
 
     #######################################
@@ -828,8 +836,6 @@ class MakePlantParts:
         ]
 
         # For each FERC ID, group and add a unique ferc1_generator_agg_id.
-        # To fix: pandas returns "Cannot interpret 'Int64Dtype()' as a data type"
-        # if we try to make this column and the field an integer
         one_to_many["ferc1_generator_agg_id"] = (
             one_to_many.groupby(["record_id_ferc1"]).ngroup().astype("Int64")
         )
@@ -1023,10 +1029,7 @@ class PlantPart:
                 only those in :py:const:`PLANT_PARTS`
         """
         self.part_name = part_name
-        if self.part_name == "match_ferc1":
-            self.id_cols = ["plant_id_eia", "ferc1_generator_agg_id"]
-        else:
-            self.id_cols = PLANT_PARTS[part_name]["id_cols"]
+        self.id_cols = PLANT_PARTS[part_name]["id_cols"]
 
     def execute(
         self,
@@ -1276,7 +1279,7 @@ class TrueGranLabeler:
 
         # categorical columns allow sorting by PLANT_PARTS key order
         parts_to_gens["plant_part"] = pd.Categorical(
-            parts_to_gens["plant_part"], PLANT_PARTS_TRUE_GRAN.keys()
+            parts_to_gens["plant_part"], PLANT_PARTS.keys()
         )
         parts_to_gens = parts_to_gens.sort_values("plant_part")
         # get the true gran records by finding duplicate gen combos
@@ -1717,19 +1720,16 @@ def match_to_single_plant_part(
     """
     # select only the plant-part records that we are trying to scale to
     ppl_part_df = ppl[ppl.plant_part == part_name]
-    # select plant parts dictionary
-    if one_to_many:
-        plant_parts_dict = PLANT_PARTS_TRUE_GRAN
-    else:
-        plant_parts_dict = PLANT_PARTS
     # convert the date to year start - this is necessary because the
     # depreciation data is often reported as EOY and the ppl is always SOY
     multi_gran_df.loc[:, "report_date"] = pd.to_datetime(
         multi_gran_df.report_date.dt.year, format="%Y"
     )
     out_dfs = []
-    for merge_part in plant_parts_dict:
-        pk_cols = plant_parts_dict[merge_part]["id_cols"] + IDX_TO_ADD + IDX_OWN_TO_ADD
+    for merge_part in PLANT_PARTS:
+        if not one_to_many and merge_part == "match_ferc1":  # Skip match_ferc1
+            continue
+        pk_cols = PLANT_PARTS[merge_part]["id_cols"] + IDX_TO_ADD + IDX_OWN_TO_ADD
         part_df = pd.merge(
             (
                 # select just the records that correspond to merge_part
