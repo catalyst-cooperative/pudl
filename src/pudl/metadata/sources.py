@@ -487,7 +487,9 @@ SOURCES: dict[str, Any] = {
         ),
         "field_namespace": "ferc714",
         "working_partitions": {
-            "years": sorted(set(range(2021, 2022))),  # Pre-XBRL data is monolithic
+            # 2021 and later data is in XBRL and not yet supported.
+            # 2006-2020 data is in monolithic CSV files, so any year means all years.
+            "years": sorted(set(range(2006, 2021))),
         },
         "contributors": [
             CONTRIBUTORS["catalyst-cooperative"],

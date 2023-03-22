@@ -2543,6 +2543,20 @@ FIELD_METADATA_BY_RESOURCE: dict[str, dict[str, Any]] = {
         "opex_rents": {"description": "Rent expenses for the transmission line."},
         "opex_total": {"description": "Overall expenses for the transmission line."},
     },
+    "demand_hourly_pa_ferc714": {
+        "timezone": {
+            "constraints": {
+                "enum": [
+                    "America/New_York",
+                    "America/Chicago",
+                    "America/Denver",
+                    "America/Los_Angeles",
+                    "America/Anchorage",
+                    "Pacific/Honolulu",
+                ]
+            }
+        }
+    },
 }
 
 

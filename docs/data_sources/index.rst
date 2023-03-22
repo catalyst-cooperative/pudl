@@ -12,6 +12,7 @@ Data Sources
    eia923
    epacems
    ferc1
+   ferc714
 
 .. toctree::
    :caption: Work in Progress & Future Datasets

@@ -30,10 +30,8 @@ from . import (  # noqa: F401
 logger = pudl.logging_helpers.get_logger(__name__)
 
 default_assets = (
-    *load_assets_from_modules([static_assets], group_name="static"),
     *load_assets_from_modules([eia_bulk_elec_assets], group_name="eia_bulk_elec"),
-    *load_assets_from_modules([pudl.extract.ferc1], group_name="ferc1"),
-    *load_assets_from_modules([pudl.transform.ferc1], group_name="ferc1"),
+    *load_assets_from_modules([epacems_assets], group_name="epacems"),
     *load_assets_from_modules([pudl.extract.eia860], group_name="raw_eia860"),
     *load_assets_from_modules([pudl.transform.eia860], group_name="clean_eia860"),
     *load_assets_from_modules([pudl.extract.eia861], group_name="raw_eia861"),
@@ -41,8 +39,12 @@ default_assets = (
     *load_assets_from_modules([pudl.extract.eia923], group_name="raw_eia923"),
     *load_assets_from_modules([pudl.transform.eia923], group_name="clean_eia923"),
     *load_assets_from_modules([pudl.transform.eia], group_name="norm_eia"),
+    *load_assets_from_modules([pudl.extract.ferc1], group_name="ferc1"),
+    *load_assets_from_modules([pudl.transform.ferc1], group_name="ferc1"),
+    *load_assets_from_modules([pudl.extract.ferc714], group_name="raw_ferc714"),
+    *load_assets_from_modules([pudl.transform.ferc714], group_name="clean_ferc714"),
     *load_assets_from_modules([glue_assets], group_name="glue"),
-    *load_assets_from_modules([epacems_assets], group_name="epacems"),
+    *load_assets_from_modules([static_assets], group_name="static"),
 )
 
 default_resources = {
