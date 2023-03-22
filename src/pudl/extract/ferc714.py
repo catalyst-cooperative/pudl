@@ -1,5 +1,4 @@
 """Routines used for extracting the raw FERC 714 data."""
-import warnings
 from collections import OrderedDict
 
 import pandas as pd
@@ -77,9 +76,9 @@ def extract_ferc714(context):
     Returns:
         A tuple of extracted FERC-714 dataframes.
     """
-    warnings.warn(
-        "Integration of FERC 714 into PUDL is still experimental and incomplete.\n"
-        "The data has not yet been validated, and the structure may change."
+    logger.warning(
+        "Note that all years of FERC-714 data are lumped together and will be "
+        "processed together regardless of what years are requested."
     )
     ds = context.resources.datastore
     raw_dfs: OrderedDict[str, pd.DataFrame] = OrderedDict({})
