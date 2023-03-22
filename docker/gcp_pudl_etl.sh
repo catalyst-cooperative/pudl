@@ -23,8 +23,9 @@ function run_pudl_etl() {
     authenticate_gcp \
     && pudl_setup \
     && ferc_to_sqlite \
-        --loglevel DEBUG \
-        --gcs-cache-path gs://internal-zenodo-cache.catalyst.coop \
+        --loglevel=DEBUG \
+        --gcs-cache-path=gs://internal-zenodo-cache.catalyst.coop \
+        --workers=8 \
         $PUDL_SETTINGS_YML \
     && pudl_etl \
         --loglevel DEBUG \
