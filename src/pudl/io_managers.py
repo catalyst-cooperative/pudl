@@ -79,8 +79,7 @@ class ForeignKeyErrors(SQLAlchemyError):
 
 
 class SQLiteIOManager(IOManager):
-    """Dagster IO manager that stores and retrieves dataframes from a SQLite
-    database."""  # noqa: D205, D209, D415
+    """IO Manager that writes and retrieves dataframes from a SQLite database."""
 
     def __init__(
         self,
@@ -98,9 +97,9 @@ class SQLiteIOManager(IOManager):
             md: database metadata described as a SQLAlchemy MetaData object. If not specified,
                 default to metadata stored in the pudl.metadata subpackage.
             timeout: How many seconds the connection should wait before raising
-                     an exception, if the database is locked by another connection.
-                     If another connection opens a transaction to modify the database,
-                     it will be locked until that transaction is committed.
+              an exception, if the database is locked by another connection.
+              If another connection opens a transaction to modify the database,
+              it will be locked until that transaction is committed.
         """
         self.base_dir = Path(base_dir)
         self.db_name = db_name
@@ -135,9 +134,9 @@ class SQLiteIOManager(IOManager):
 
         Args:
             timeout: How many seconds the connection should wait before raising
-                     an exception, if the database is locked by another connection.
-                     If another connection opens a transaction to modify the database,
-                     it will be locked until that transaction is committed.
+              an exception, if the database is locked by another connection.
+              If another connection opens a transaction to modify the database,
+              it will be locked until that transaction is committed.
 
         Returns:
             engine: SQL Alchemy engine that connects to a database in the base_dir.
@@ -413,9 +412,9 @@ class FercSQLiteIOManager(SQLiteIOManager):
             md: database metadata described as a SQLAlchemy MetaData object. If not specified,
                 default to metadata stored in the pudl.metadata subpackage.
             timeout: How many seconds the connection should wait before raising
-                     an exception, if the database is locked by another connection.
-                     If another connection opens a transaction to modify the database,
-                     it will be locked until that transaction is committed.
+              an exception, if the database is locked by another connection.
+              If another connection opens a transaction to modify the database,
+              it will be locked until that transaction is committed.
         """
         super().__init__(base_dir, db_name, md, timeout)
 
@@ -424,9 +423,9 @@ class FercSQLiteIOManager(SQLiteIOManager):
 
         Args:
             timeout: How many seconds the connection should wait before raising
-                     an exception, if the database is locked by another connection.
-                     If another connection opens a transaction to modify the database,
-                     it will be locked until that transaction is committed.
+              an exception, if the database is locked by another connection.
+              If another connection opens a transaction to modify the database,
+              it will be locked until that transaction is committed.
 
         Returns:
             engine: SQL Alchemy engine that connects to a database in the base_dir.
