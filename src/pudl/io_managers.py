@@ -43,7 +43,10 @@ class ForeignKeyError(SQLAlchemyError):
 
     def __str__(self):
         """Create string representation of ForeignKeyError object."""
-        return f"Foreign key error for table: {self.child_table} -- {self.parent_table} {self.foreign_key} -- on rows {self.rowids}\n"
+        return (
+            f"Foreign key error for table: {self.child_table} -- {self.parent_table} "
+            "{self.foreign_key} -- on rows {self.rowids}\n"
+        )
 
     def __eq__(self, other):
         """Compare a ForeignKeyError with another object."""
@@ -94,12 +97,12 @@ class SQLiteIOManager(IOManager):
             base_dir: base directory where all the step outputs which use this object
                 manager will be stored in.
             db_name: the name of sqlite database.
-            md: database metadata described as a SQLAlchemy MetaData object. If not specified,
-                default to metadata stored in the pudl.metadata subpackage.
+            md: database metadata described as a SQLAlchemy MetaData object. If not
+                specified, default to metadata stored in the pudl.metadata subpackage.
             timeout: How many seconds the connection should wait before raising
-              an exception, if the database is locked by another connection.
-              If another connection opens a transaction to modify the database,
-              it will be locked until that transaction is committed.
+                an exception, if the database is locked by another connection.
+                If another connection opens a transaction to modify the database,
+                it will be locked until that transaction is committed.
         """
         self.base_dir = Path(base_dir)
         self.db_name = db_name
@@ -133,10 +136,10 @@ class SQLiteIOManager(IOManager):
         """Create database and metadata if they don't exist.
 
         Args:
-            timeout: How many seconds the connection should wait before raising
-              an exception, if the database is locked by another connection.
-              If another connection opens a transaction to modify the database,
-              it will be locked until that transaction is committed.
+            timeout: How many seconds the connection should wait before raising an
+                exception, if the database is locked by another connection.  If another
+                connection opens a transaction to modify the database, it will be locked
+                until that transaction is committed.
 
         Returns:
             engine: SQL Alchemy engine that connects to a database in the base_dir.
@@ -172,7 +175,8 @@ class SQLiteIOManager(IOManager):
         sa_table = self.md.tables.get(table_name, None)
         if sa_table is None:
             raise RuntimeError(
-                f"{sa_table} not found in database metadata. Either add the table to the metadata or use a different IO Manager."
+                f"{sa_table} not found in database metadata. Either add the table to "
+                "the metadata or use a different IO Manager."
             )
         return sa_table
 
@@ -181,7 +185,8 @@ class SQLiteIOManager(IOManager):
 
         Description from the SQLite Docs:
         'This pragma returns one row for each foreign key constraint
-        created by a REFERENCES clause in the CREATE TABLE statement of table "table-name".'
+        created by a REFERENCES clause in the CREATE TABLE statement of table
+        "table-name".'
 
         The PRAGMA returns one row for each field in a foreign key constraint.
         This method collapses foreign keys with multiple fields into one record
@@ -264,8 +269,8 @@ class SQLiteIOManager(IOManager):
         locking-behavior-concurrency>`__ to learn more about SQLite concurrency.
 
         Args:
-            context: dagster keyword that provides access output information like asset
-                name.
+            context: dagster keyword that provides access to output information like
+                asset name.
             df: dataframe to write to the database.
         """
         table_name = self._get_table_name(context)
@@ -299,7 +304,8 @@ class SQLiteIOManager(IOManager):
         This is used for creating output views in the database.
 
         Args:
-            context: dagster keyword that provides access output information like asset name.
+            context: dagster keyword that provides access output information like asset
+                name.
             query: sql query to execute in the database.
         """
         engine = self.engine
@@ -318,7 +324,8 @@ class SQLiteIOManager(IOManager):
         execute it as a SQL query.
 
         Args:
-            context: dagster keyword that provides access output information like asset name.
+            context: dagster keyword that provides access output information like asset
+                name.
             obj: a sql query or dataframe to add to the database.
 
         Raises:
@@ -330,14 +337,16 @@ class SQLiteIOManager(IOManager):
             self._handle_str_output(context, obj)
         else:
             raise Exception(
-                "SQLiteIOManager only supports pandas DataFrames and strings of SQL queries."
+                "SQLiteIOManager only supports pandas DataFrames and strings of SQL "
+                "queries."
             )
 
     def load_input(self, context: InputContext) -> pd.DataFrame:
         """Load a dataframe from a sqlite database.
 
         Args:
-            context: dagster keyword that provides access output information like asset name.
+            context: dagster keyword that provides access output information like asset
+                name.
         """
         table_name = self._get_table_name(context)
         _ = self._get_sqlalchemy_table(table_name)
@@ -409,12 +418,12 @@ class FercSQLiteIOManager(SQLiteIOManager):
             base_dir: base directory where all the step outputs which use this object
                 manager will be stored in.
             db_name: the name of sqlite database.
-            md: database metadata described as a SQLAlchemy MetaData object. If not specified,
-                default to metadata stored in the pudl.metadata subpackage.
-            timeout: How many seconds the connection should wait before raising
-              an exception, if the database is locked by another connection.
-              If another connection opens a transaction to modify the database,
-              it will be locked until that transaction is committed.
+            md: database metadata described as a SQLAlchemy MetaData object. If not
+                specified, default to metadata stored in the pudl.metadata subpackage.
+            timeout: How many seconds the connection should wait before raising an
+                exception, if the database is locked by another connection.  If another
+                connection opens a transaction to modify the database, it will be locked
+                until that transaction is committed.
         """
         super().__init__(base_dir, db_name, md, timeout)
 
@@ -422,10 +431,10 @@ class FercSQLiteIOManager(SQLiteIOManager):
         """Create database engine and read the metadata.
 
         Args:
-            timeout: How many seconds the connection should wait before raising
-              an exception, if the database is locked by another connection.
-              If another connection opens a transaction to modify the database,
-              it will be locked until that transaction is committed.
+            timeout: How many seconds the connection should wait before raising an
+                exception, if the database is locked by another connection.  If another
+                connection opens a transaction to modify the database, it will be locked
+                until that transaction is committed.
 
         Returns:
             engine: SQL Alchemy engine that connects to a database in the base_dir.
@@ -452,17 +461,20 @@ class FercSQLiteIOManager(SQLiteIOManager):
     def handle_output(self, context: OutputContext, obj):
         """Handle an op or asset output."""
         raise NotImplementedError(
-            "FercSQLiteIOManager can't write outputs. Subclass FercSQLiteIOManager and implement the handle_output method."
+            "FercSQLiteIOManager can't write outputs. Subclass FercSQLiteIOManager and "
+            "implement the handle_output method."
         )
 
     def load_input(self, context: InputContext) -> pd.DataFrame:
         """Load a dataframe from a sqlite database.
 
         Args:
-            context: dagster keyword that provides access output information like asset name.
+            context: dagster keyword that provides access output information like asset
+                name.
         """
         raise NotImplementedError(
-            "FercSQLiteIOManager can't load inputs. Subclass FercSQLiteIOManager and implement the load_input method."
+            "FercSQLiteIOManager can't load inputs. Subclass FercSQLiteIOManager and "
+            "implement the load_input method."
         )
 
 
@@ -482,7 +494,8 @@ class FercDBFSQLiteIOManager(FercSQLiteIOManager):
         """Load a dataframe from a sqlite database.
 
         Args:
-            context: dagster keyword that provides access output information like asset name.
+            context: dagster keyword that provides access output information like asset
+                name.
         """
         ferc1_settings = context.resources.dataset_settings.ferc1
 
@@ -540,7 +553,8 @@ class FercXBRLSQLiteIOManager(FercSQLiteIOManager):
         """Load a dataframe from a sqlite database.
 
         Args:
-            context: dagster keyword that provides access output information like asset name.
+            context: dagster keyword that provides access output information like asset
+                name.
         """
         ferc1_settings = context.resources.dataset_settings.ferc1
 
