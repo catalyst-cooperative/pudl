@@ -386,7 +386,7 @@ def test_label_true_grans():
     """Test the labeling of true granularities in the plant part list."""
     plant_part_list_input = pd.DataFrame(
         {
-            "report_date": ["2020-01-01"] * 7,
+            "report_date": ["2020-01-01"] * 9,
             "record_id_eia": [
                 "plant_3",
                 "unit_a",
@@ -394,9 +394,11 @@ def test_label_true_grans():
                 "gen_1",
                 "gen_2",
                 "gen_3",
+                "gen_4",
                 "tech_nat_gas",
+                "match_gen2_4",
             ],
-            "plant_id_eia": [3] * 7,
+            "plant_id_eia": [3] * 9,
             "plant_part": [
                 "plant",
                 "plant_unit",
@@ -404,26 +406,29 @@ def test_label_true_grans():
                 "plant_gen",
                 "plant_gen",
                 "plant_gen",
+                "plant_gen",
                 "plant_technology",
+                "match_ferc1",
             ],
-            "generator_id": [None, None, None, 1, 2, 3, None],
-            "unit_id_pudl": [None, "A", "B", "A", "B", "B", None],
-            "technology_description": ["nat_gas"] * 7,
-            "operational_status_pudl": [None] * 7,
-            "utility_id_eia": [None] * 7,
-            "ownership_record_type": [None] * 7,
-            "prime_mover_code": [None] * 7,
-            "ferc_acct_name": [None] * 7,
-            "energy_source_code_1": [None] * 7,
-            "generator_operating_year": [None] * 7,
-            "installation_year": [None] * 7,
-            "construction_year": [None] * 7,
+            "generator_id": [None, None, None, 1, 2, 3, 4, None, None],
+            "unit_id_pudl": [None, "A", "B", "A", "B", "B", "B", None, None],
+            "technology_description": ["nat_gas"] * 9,
+            "operational_status_pudl": [None] * 9,
+            "utility_id_eia": [None] * 9,
+            "ownership_record_type": [None] * 9,
+            "prime_mover_code": [None] * 9,
+            "ferc_acct_name": [None] * 9,
+            "energy_source_code_1": [None] * 9,
+            "generator_operating_year": [None] * 9,
+            "installation_year": [None] * 9,
+            "construction_year": [None] * 9,
+            "ferc1_generator_agg_id": [None, None, None, None, 0, None, 0, None, 0],
         }
     ).astype({"report_date": "datetime64[ns]"})
 
     true_grans = pd.DataFrame(
         {
-            "true_gran": [True, True, True, False, True, True, False],
+            "true_gran": [True, True, True, False, True, True, True, False, True],
             "appro_record_id_eia": [
                 "plant_3",
                 "unit_a",
@@ -431,7 +436,9 @@ def test_label_true_grans():
                 "unit_a",
                 "gen_2",
                 "gen_3",
+                "gen_4",
                 "plant_3",
+                "match_gen2_4",
             ],
             "appro_part_label": [
                 "plant",
@@ -440,7 +447,9 @@ def test_label_true_grans():
                 "plant_unit",
                 "plant_gen",
                 "plant_gen",
+                "plant_gen",
                 "plant",
+                "match_ferc1",
             ],
         }
     ).astype({"appro_part_label": "string"})

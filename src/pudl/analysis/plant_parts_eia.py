@@ -239,6 +239,47 @@ dictionary, which contains keys:
 
 """
 
+PLANT_PARTS_TRUE_GRAN: OrderedDict[str, dict[str, list]] = OrderedDict(
+    {
+        "plant": {
+            "id_cols": ["plant_id_eia"],
+        },
+        "match_ferc1": {
+            "id_cols": ["plant_id_eia", "ferc1_generator_agg_id"],
+        },
+        "plant_unit": {
+            "id_cols": ["plant_id_eia", "unit_id_pudl"],
+        },
+        "plant_prime_mover": {
+            "id_cols": ["plant_id_eia", "prime_mover_code"],
+        },
+        "plant_technology": {
+            "id_cols": ["plant_id_eia", "technology_description"],
+        },
+        "plant_prime_fuel": {  # 'plant_primary_fuel': {
+            "id_cols": ["plant_id_eia", "energy_source_code_1"],
+        },
+        "plant_ferc_acct": {
+            "id_cols": ["plant_id_eia", "ferc_acct_name"],
+        },
+        "plant_operating_year": {
+            "id_cols": ["plant_id_eia", "generator_operating_year"],
+        },
+        "plant_gen": {
+            "id_cols": ["plant_id_eia", "generator_id"],
+        },
+    }
+)
+"""
+dict: this dictionary contains a key for each of the 'plant parts' that should
+end up in the plant parts list, including the faked 1:m plant parts.
+The top-level value for each key is another dictionary, which contains keys:
+
+* id_cols (the primary key type id columns for this plant part). The
+  plant_id_eia column must come first.
+
+"""
+
 PLANT_PARTS_LITERAL = Literal[
     "plant",
     "plant_unit",
@@ -790,7 +831,7 @@ class MakePlantParts:
         # To fix: pandas returns "Cannot interpret 'Int64Dtype()' as a data type"
         # if we try to make this column and the field an integer
         one_to_many["ferc1_generator_agg_id"] = (
-            one_to_many.groupby(["record_id_ferc1"]).ngroup().astype(str)
+            one_to_many.groupby(["record_id_ferc1"]).ngroup().astype("Int64")
         )
 
         # Add this column back to the main plant part table to enable later identification of grouped records.
@@ -1214,12 +1255,13 @@ class TrueGranLabeler:
             ppl=ppl,
             part_name="plant_gen",
             cols_to_keep=["plant_part"],
+            one_to_many=True,
         )[["record_id_eia_og", "record_id_eia", "plant_part_og"]].rename(
             columns={
                 "record_id_eia": "gen_id",
                 "record_id_eia_og": "record_id_eia",
                 "plant_part_og": "plant_part",
-            }
+            },
         )
         # concatenate the gen id's to get the combo of gens for each record
         combos = (
@@ -1234,7 +1276,7 @@ class TrueGranLabeler:
 
         # categorical columns allow sorting by PLANT_PARTS key order
         parts_to_gens["plant_part"] = pd.Categorical(
-            parts_to_gens["plant_part"], PLANT_PARTS.keys()
+            parts_to_gens["plant_part"], PLANT_PARTS_TRUE_GRAN.keys()
         )
         parts_to_gens = parts_to_gens.sort_values("plant_part")
         # get the true gran records by finding duplicate gen combos
@@ -1627,6 +1669,7 @@ def match_to_single_plant_part(
     ppl: pd.DataFrame,
     part_name: PLANT_PARTS_LITERAL = "plant_gen",
     cols_to_keep: list[str] = [],
+    one_to_many: bool = False,
 ) -> pd.DataFrame:
     """Match data with a variety of granularities to a single plant-part.
 
@@ -1662,6 +1705,8 @@ def match_to_single_plant_part(
         cols_to_keep: columns from the original data ``multi_gran_df`` that
             you want to show up in the output. These should not be columns
             that show up in the ``ppl``.
+        one_to_many: boolean (False by default). If True, add `match_ferc1` into plant
+            parts list.
 
     Returns:
         A dataframe in which records correspond to :attr:`part_name` (in
@@ -1672,14 +1717,19 @@ def match_to_single_plant_part(
     """
     # select only the plant-part records that we are trying to scale to
     ppl_part_df = ppl[ppl.plant_part == part_name]
+    # select plant parts dictionary
+    if one_to_many:
+        plant_parts_dict = PLANT_PARTS_TRUE_GRAN
+    else:
+        plant_parts_dict = PLANT_PARTS
     # convert the date to year start - this is necessary because the
     # depreciation data is often reported as EOY and the ppl is always SOY
     multi_gran_df.loc[:, "report_date"] = pd.to_datetime(
         multi_gran_df.report_date.dt.year, format="%Y"
     )
     out_dfs = []
-    for merge_part in PLANT_PARTS:
-        pk_cols = PLANT_PARTS[merge_part]["id_cols"] + IDX_TO_ADD + IDX_OWN_TO_ADD
+    for merge_part in plant_parts_dict:
+        pk_cols = plant_parts_dict[merge_part]["id_cols"] + IDX_TO_ADD + IDX_OWN_TO_ADD
         part_df = pd.merge(
             (
                 # select just the records that correspond to merge_part
