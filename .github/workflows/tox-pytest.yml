@@ -45,6 +45,13 @@ jobs:
         run: |
           tox -e ${{ matrix.tox-env }}
 
+      - name: Upload coverage
+        uses: actions/upload-artifact@v3
+        if: ${{ matrix.tox-env == 'docs' }}
+        with:
+          name: coverage-docs
+          path: coverage.xml
+
   ci-unit:
     runs-on: ubuntu-latest
     strategy:
@@ -83,7 +90,7 @@ jobs:
         run: |
           tox -e unit -- --durations 0
 
-      - name: upload coverage
+      - name: Upload coverage
         uses: actions/upload-artifact@v3
         with:
           name: coverage-unit
@@ -142,7 +149,7 @@ jobs:
         run: mkdir -p ${{ env.PUDL_OUTPUT }} ${{ env.PUDL_INPUT}}
 
       - name: List workspace contents
-        run: find ~/pudl-work
+        run: find /home/runner/pudl-work
 
       - name: Set default GCP credentials
         id: gcloud-auth
@@ -161,6 +168,7 @@ jobs:
         with:
           name: coverage-integration
           path: coverage.xml
+
       - name: Log post-test Zenodo datastore contents
         run: find ${{ env.PUDL_INPUT }}
 
@@ -169,38 +177,26 @@ jobs:
     needs:
       - ci-unit
       - ci-integration
+      - ci-static
     steps:
-      - name: Download unit coverage
+      - uses: actions/checkout@v3
+      - name: Download coverage
         id: download-unit
         uses: actions/download-artifact@v3
         with:
-          name: coverage-unit
-      - name: Download integration coverage
-        id: download-integration
-        uses: actions/download-artifact@v3
-        with:
-          name: coverage-integration
+          path: coverage
       - name: List downloaded files
         run: |
           ls -R
-      - name: Print coverage file info
-        run: |
-          echo ${{steps.download-unit.outputs.download-path}}
-          echo ${{steps.download-integration.outputs.download-path}}
-          stat ${{steps.download-unit.outputs.download-path}}
-          head ${{steps.download-unit.outputs.download-path}}
-          stat ${{steps.download-integration.outputs.download-path}}
-          head ${{steps.download-integration.outputs.download-path}}
       - name: Upload test coverage report to CodeCov
         uses: codecov/codecov-action@v3
         with:
-          files: ${{steps.download-unit.outputs.download-path}},${{steps.download-integration.outputs.download-path}}
+          directory: coverage
 
   ci-notify:
     runs-on: ubuntu-latest
     if: ${{ always() }}
     needs:
-      - ci-static
       - ci-unit
       - ci-integration
     steps:
