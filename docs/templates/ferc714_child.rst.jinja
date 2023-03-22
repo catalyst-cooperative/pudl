@@ -11,20 +11,26 @@
 {% endblock %}
 
 {% block accessible %}
-The data we've integrated from FERC Form 714 records hourly electricity demand by
-utility or balancing authority from 2006-2020, and provides a small crosswalk table that
-allows those utilities and balancing authorities to be linked to their EIA IDs.
+The data we've integrated from FERC Form 714 includes:
+
+* hourly electricity demand by utility or balancing authority from 2006-2020
+* a table identifying the form respondents including their EIA utility or balancing
+  authority ID, which allows us to link the FERC-714 data to other information
+  reported in :doc:`eia860` and :doc:`eia861`.
 
 The hourly demand data for 2006-2020 is about 15 million records. There are about 200
-respondents that show up in the "Respondent ID" crosswalk table.
+respondents that show up in the respondents table.
 
-Given the EIA IDs, we can link the hourly electricity demand to a particular
-georgraphic region at the county level, because utilities and balancing authorities
-report their service territories in :doc:`eia861`, and from that information we can
-estimate historical hourly electricity demand by state.
+WIth the EIA IDs, we link the hourly electricity demand to a particular georgraphic
+region at the county level, because utilities and balancing authorities report their
+service territories in :ref:`service_territory_eia861`, and from that information we
+can estimate historical hourly electricity demand by state.
 
-It could also be interesting to combine this hourly demand data with the hourly
-emissions and unit-level generation data from :doc:`epacems`.
+Plant operators reported in :ref:`plants_eia860` and generator ownership information
+reported in :ref:`ownership_eia860` are linked to :ref:`utilities_eia860` and
+:ref:`balancing_authority_eia861` and so can also be linked to the
+:ref:`respondent_id_ferc714` table, as well as the :ref:`emissions_hourly_epacems`
+unit-level emissions and generation data reported in :doc:`epacems`.
 
 {% endblock %}
 
@@ -39,8 +45,8 @@ formats:
 
 * **1993-1999**: Data collected by NERC regions without standardized electronic filing.
 * **1999-2004**: Data collected by FERC without standardized electronic filing.
-* **2005**: Data collected by FERC without standardized electronic filing, but not posted on
-  their website, and only available through the regulatory filing eLibrary.
+* **2005**: Data collected by FERC without standardized electronic filing but not
+  posted on their website and only available through the regulatory filing eLibrary.
 * **2006-2020**: Standardized electronic filing. ASCII encoded CSV files exported from
   a VisualFoxPro database.
 * **2021-present**: Standardized electronic filing using the XBRL (eXtensible Business
