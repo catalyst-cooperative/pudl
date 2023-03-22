@@ -16,7 +16,8 @@ function run_pudl_etl() {
         --gcs-cache-path gs://internal-zenodo-cache.catalyst.coop \
         $PUDL_SETTINGS_YML \
     && pytest \
-        --etl-settings $PUDL_SETTINGS_YML \
+        --gcs-cache-path=gs://internal-zenodo-cache.catalyst.coop \
+        --etl-settings=$PUDL_SETTINGS_YML \
         --live-dbs test
 }
 

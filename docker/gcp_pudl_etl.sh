@@ -32,8 +32,8 @@ function run_pudl_etl() {
         --partition-epacems \
         $PUDL_SETTINGS_YML \
     && pytest \
-        --gcs-cache-path gs://internal-zenodo-cache.catalyst.coop \
-        --etl-settings $PUDL_SETTINGS_YML \
+        --gcs-cache-path=gs://internal-zenodo-cache.catalyst.coop \
+        --etl-settings=$PUDL_SETTINGS_YML \
         --live-dbs test
 }
 
