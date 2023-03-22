@@ -1,7 +1,7 @@
 ---
 name: tox-pytest
 
-on: [push, pull_request]
+on: [pull_request]
 
 env:
   PUDL_OUTPUT: /home/runner/pudl-work/output
