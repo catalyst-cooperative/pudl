@@ -54,10 +54,10 @@ function shutdown_vm() {
 
 function copy_outputs_to_intake_bucket() {
     echo "Copying outputs to GCP intake bucket"
-    gsutil -m -u $GCP_BILLING_PROJECT cp -r "$CONTAINER_PUDL_OUT/*" "gs://intake.catalyst.coop/$GITHUB_REF"
+    gsutil -m -u $GCP_BILLING_PROJECT cp -r "$PUDL_OUTPUT/*" "gs://intake.catalyst.coop/$GITHUB_REF"
 
     echo "Copying outputs to AWS intake bucket"
-    aws s3 cp "$CONTAINER_PUDL_OUT/" "s3://intake.catalyst.coop/$GITHUB_REF" --recursive
+    aws s3 cp "$PUDL_OUTPUT/" "s3://intake.catalyst.coop/$GITHUB_REF" --recursive
 }
 
 
