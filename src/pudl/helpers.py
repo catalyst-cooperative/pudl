@@ -29,7 +29,6 @@ from pandas._libs.missing import NAType
 
 import pudl.logging_helpers
 from pudl.metadata.fields import get_pudl_dtypes
-from pudl.workspace.setup import get_defaults
 
 sum_na = partial(pd.Series.sum, skipna=False)
 """A sum function that returns NA if the Series includes any NA values.
@@ -1593,9 +1592,6 @@ class EnvVar(Noneable):
         if value is None:
             try:
                 value = os.environ.get(self.env_var)
-
-                if not value:
-                    value = get_defaults()[self.env_var]
             except KeyError:
                 raise PostProcessingError(
                     f"Config value could not be found. Set the {self.env_var} environment variable or specify a value in dagster config."

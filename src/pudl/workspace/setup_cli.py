@@ -146,7 +146,8 @@ def main():
         )
         pudl.workspace.setup.set_defaults(pudl_in, pudl_out, clobber=args.clobber)
 
-    pudl.workspace.setup.init(pudl_in=pudl_in, pudl_out=pudl_out, clobber=args.clobber)
+    settings = pudl.workspace.setup.get_defaults()
+    pudl.workspace.setup.init(settings, clobber=args.clobber)
 
 
 if __name__ == "__main__":
