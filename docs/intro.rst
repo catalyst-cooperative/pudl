@@ -15,7 +15,7 @@ Available Data
 
 We focus primarily on poorly curated data published by the US government in
 semi-structured but machine readable formats. For details on exactly what data is
-available from these :doc:`data_sources` and what state it is in, see the the individual
+available from these data sources and what state it is in, see the the individual
 pages for each source:
 
 * :doc:`data_sources/eia860`
