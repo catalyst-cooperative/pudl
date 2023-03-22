@@ -216,8 +216,6 @@ def test_ferc714_respondents_georef_counties(ferc714_out):
     but is more challenging on Windows and MacOS, so this test is marked xfail
     conditionally if the user is neither using conda, nor is on Linux.
     """
-    if os.environ.get("GITHUB_ACTIONS", False):
-        pytest.skip("Skipping FERC 714 output tests on GitHub due to memory limits.")
     ferc714_gdf = ferc714_out.georef_counties()
     assert isinstance(ferc714_gdf, gpd.GeoDataFrame), "ferc714_gdf not a GeoDataFrame!"
     assert not ferc714_gdf.empty, "ferc714_gdf is empty!"
