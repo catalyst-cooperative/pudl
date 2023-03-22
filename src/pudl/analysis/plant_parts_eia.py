@@ -712,7 +712,7 @@ class MakePlantParts:
             path_to_one_to_many=resources.path(
                 "pudl.package_data.glue", "ferc1_eia_one_to_many.csv"
             ),
-        )
+        ).reset_index()
         self.plant_parts_eia = TrueGranLabeler().execute(self.plant_parts_eia)
         # clean up, add additional columns
         self.plant_parts_eia = (
