@@ -18,18 +18,10 @@ function authenticate_gcp() {
     gcloud config set project $GCP_BILLING_PROJECT
 }
 
-function bridge_settings() {
-    export PUDL_INPUT="${CONTAINER_PUDL_IN}/data"
-    export PUDL_OUTPUT=$CONTAINER_PUDL_OUT
-}
-
 function run_pudl_etl() {
     send_slack_msg ":large_yellow_circle: Deployment started for $ACTION_SHA-$GITHUB_REF :floppy_disk:"
     authenticate_gcp \
     && pudl_setup \
-        --pudl_in $CONTAINER_PUDL_IN \
-        --pudl_out $CONTAINER_PUDL_OUT \
-    && bridge_settings \
     && ferc_to_sqlite \
         --loglevel DEBUG \
         --gcs-cache-path gs://internal-zenodo-cache.catalyst.coop \

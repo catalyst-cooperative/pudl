@@ -4,16 +4,8 @@
 
 set -x
 
-function bridge_settings() {
-    export PUDL_INPUT="${CONTAINER_PUDL_IN}/data"
-    export PUDL_OUTPUT=$CONTAINER_PUDL_OUT
-}
-
 function run_pudl_etl() {
     pudl_setup \
-        --pudl_in $CONTAINER_PUDL_IN \
-        --pudl_out $CONTAINER_PUDL_OUT \
-    && bridge_settings \
     && ferc_to_sqlite \
         --loglevel DEBUG \
         $PUDL_SETTINGS_YML \

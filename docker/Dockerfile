@@ -20,7 +20,6 @@ RUN useradd -Ums /bin/bash catalyst
 
 ENV CONTAINER_HOME=/home/catalyst
 
-
 # Switch to being the catalyst user and go into the copied repo
 USER catalyst
 WORKDIR ${CONTAINER_HOME}
@@ -29,9 +28,11 @@ ENV CONDA_PREFIX=${CONTAINER_HOME}/env
 ENV PUDL_REPO=${CONTAINER_HOME}/pudl
 ENV CONDA_RUN="conda run --no-capture-output --prefix ${CONDA_PREFIX}"
 ENV PYTHON_VERSION="3.10"
-ENV CONTAINER_PUDL_IN=${CONTAINER_HOME}/pudl_in
-ENV CONTAINER_PUDL_OUT=${CONTAINER_HOME}/pudl_out
-ENV DAGSTER_HOME=${CONTAINER_HOME}/dagster_home
+
+ENV CONTAINER_PUDL_WORKSPACE=${CONTAINER_HOME}/pudl_work
+ENV PUDL_INPUT=${CONTAINER_PUDL_WORKSPACE}}/data
+ENV PUDL_OUTPUT=${CONTAINER_PUDL_WORKSPACE}}/output
+ENV DAGSTER_HOME=${CONTAINER_PUDL_WORKSPACE}}/dagster_home
 
 # Create a conda environment based on the specification in the repo
 COPY test/test-environment.yml test/test-environment.yml
@@ -48,11 +49,9 @@ COPY --chown=catalyst:catalyst . ${CONTAINER_HOME}
 RUN --mount=type=bind,source=.git,target=${PUDL_REPO}/.git \
     ${CONDA_RUN} pip install --no-cache-dir -e './[dev,doc,test,datasette]' && \
     # Create data input/output directories
-    mkdir ${CONTAINER_PUDL_IN} && mkdir ${CONTAINER_PUDL_OUT} && mkdir -p ${DAGSTER_HOME} && \
+    mkdir -p ${PUDL_INPUT} ${PUDL_OUTPUT} ${DAGSTER_HOME} && \
     # Run the PUDL setup script so we know where to read and write data
-    ${CONDA_RUN} pudl_setup \
-    --pudl_in ${CONTAINER_PUDL_IN} \
-    --pudl_out ${CONTAINER_PUDL_OUT}
+    ${CONDA_RUN} pudl_setup
 
 
 # Run the unit tests:
