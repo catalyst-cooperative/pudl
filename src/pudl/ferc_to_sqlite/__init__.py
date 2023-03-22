@@ -45,9 +45,6 @@ ferc_to_sqlite_fast = ferc_to_sqlite.to_job(
     },
 )
 
-# Set env vars from .pudl.yml if not already set
-pudl.workspace.setup.get_defaults()
-
 defs: Definitions = Definitions(jobs=[ferc_to_sqlite_full, ferc_to_sqlite_fast])
 """A collection of dagster assets, resources, IO managers, and jobs for the FERC to
 SQLite ETL."""

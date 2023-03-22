@@ -86,9 +86,6 @@ def load_dataset_settings_from_file(setting_filename: str) -> dict:
     ).datasets.dict()
 
 
-# Set env vars from .pudl.yml if not already set
-pudl.workspace.setup.get_defaults()
-
 defs: Definitions = Definitions(
     assets=default_assets,
     resources=default_resources,
