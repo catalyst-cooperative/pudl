@@ -59,6 +59,7 @@ setup(
         "fsspec>=2021.7,<2023.3.1",  # For caching datastore on GCS
         "gcsfs>=2021.7,<2023.3.1",  # For caching datastore on GCS
         "geopandas>=0.9,<0.13",
+        "grpcio==1.46.1",  # dagster dependency with finnicky Mac support
         "jinja2>=2,<3.2",
         "matplotlib>=3.3,<3.8",  # Should make this optional with a "viz" extras
         "networkx>=2.2,<3.1",
@@ -109,7 +110,7 @@ setup(
             "mccabe>=0.6,<0.8",
             "nbval>=0.9,<0.11",
             "pep8-naming>=0.12,<0.14",
-            "pre-commit>=2.9,<3.2",
+            "pre-commit>=2.9,<3.3",
             "pydocstyle>=5.1,<6.4",
             "pytest>=6.2,<7.3",
             "pytest-console-scripts>=1.1,<1.4",
@@ -156,7 +157,7 @@ setup(
             # See https://github.com/catalyst-cooperative/pudl/issues/1174
             # "pudl_territories = pudl.analysis.service_territory:main",
             "state_demand = pudl.analysis.state_demand:main",
-            "check_pudl_fks = pudl.etl.check_foreign_keys:main",
+            "pudl_check_fks = pudl.etl.check_foreign_keys:main",
         ]
     },
 )
