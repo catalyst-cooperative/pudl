@@ -87,6 +87,7 @@ class SQLiteIOManager(IOManager):
         base_dir: str,
         db_name: str,
         md: sa.MetaData = None,
+        timeout: float = 1_000.0,
     ):
         """Init a SQLiteIOmanager.
 
@@ -96,6 +97,10 @@ class SQLiteIOManager(IOManager):
             db_name: the name of sqlite database.
             md: database metadata described as a SQLAlchemy MetaData object. If not specified,
                 default to metadata stored in the pudl.metadata subpackage.
+            timeout: How many seconds the connection should wait before raising
+                     an exception, if the database is locked by another connection.
+                     If another connection opens a transaction to modify the database,
+                     it will be locked until that transaction is committed.
         """
         self.base_dir = Path(base_dir)
         self.db_name = db_name
@@ -115,7 +120,7 @@ class SQLiteIOManager(IOManager):
         if not self.md:
             self.md = sa.MetaData()
 
-        self.engine = self._setup_database()
+        self.engine = self._setup_database(timeout=timeout)
 
     def _get_table_name(self, context) -> str:
         """Get asset name from dagster context object."""
@@ -125,8 +130,14 @@ class SQLiteIOManager(IOManager):
             table_name = context.get_identifier()
         return table_name
 
-    def _setup_database(self) -> sa.engine.Engine:
+    def _setup_database(self, timeout: float = 1_000.0) -> sa.engine.Engine:
         """Create database and metadata if they don't exist.
+
+        Args:
+            timeout: How many seconds the connection should wait before raising
+                     an exception, if the database is locked by another connection.
+                     If another connection opens a transaction to modify the database,
+                     it will be locked until that transaction is committed.
 
         Returns:
             engine: SQL Alchemy engine that connects to a database in the base_dir.
@@ -136,7 +147,9 @@ class SQLiteIOManager(IOManager):
             self.base_dir.mkdir(parents=True)
         db_path = self.base_dir / f"{self.db_name}.sqlite"
 
-        engine = sa.create_engine(f"sqlite:///{db_path}")
+        engine = sa.create_engine(
+            f"sqlite:///{db_path}", connect_args={"timeout": timeout}
+        )
 
         # Create the database and schemas
         if not db_path.exists():
@@ -276,7 +289,7 @@ class SQLiteIOManager(IOManager):
                 con,
                 if_exists="append",
                 index=False,
-                chunksize=1_000_000,
+                chunksize=100_000,
                 dtype={c.name: c.type for c in sa_table.columns},
             )
 
@@ -385,13 +398,35 @@ class FercSQLiteIOManager(SQLiteIOManager):
     """
 
     def __init__(
-        self, base_dir: str = None, db_name: str = None, md: sa.MetaData = None
+        self,
+        base_dir: str = None,
+        db_name: str = None,
+        md: sa.MetaData = None,
+        timeout: float = 1_000.0,
     ):
-        """Initialize FercSQLiteIOManager."""
-        super().__init__(base_dir, db_name, md)
+        """Initialize FercSQLiteIOManager.
 
-    def _setup_database(self) -> sa.engine.Engine:
+        Args:
+            base_dir: base directory where all the step outputs which use this object
+                manager will be stored in.
+            db_name: the name of sqlite database.
+            md: database metadata described as a SQLAlchemy MetaData object. If not specified,
+                default to metadata stored in the pudl.metadata subpackage.
+            timeout: How many seconds the connection should wait before raising
+                     an exception, if the database is locked by another connection.
+                     If another connection opens a transaction to modify the database,
+                     it will be locked until that transaction is committed.
+        """
+        super().__init__(base_dir, db_name, md, timeout)
+
+    def _setup_database(self, timeout: float = 1_000.0) -> sa.engine.Engine:
         """Create database engine and read the metadata.
+
+        Args:
+            timeout: How many seconds the connection should wait before raising
+                     an exception, if the database is locked by another connection.
+                     If another connection opens a transaction to modify the database,
+                     it will be locked until that transaction is committed.
 
         Returns:
             engine: SQL Alchemy engine that connects to a database in the base_dir.
@@ -404,7 +439,9 @@ class FercSQLiteIOManager(SQLiteIOManager):
                 f"{self.db_name} database."
             )
 
-        engine = sa.create_engine(f"sqlite:///{db_path}")
+        engine = sa.create_engine(
+            f"sqlite:///{db_path}", connect_args={"timeout": timeout}
+        )
 
         # Connect to the local SQLite DB and read its structure.
         ferc1_meta = sa.MetaData()
