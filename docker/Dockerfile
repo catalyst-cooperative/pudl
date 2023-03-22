@@ -30,9 +30,12 @@ ENV CONDA_RUN="conda run --no-capture-output --prefix ${CONDA_PREFIX}"
 ENV PYTHON_VERSION="3.10"
 
 ENV CONTAINER_PUDL_WORKSPACE=${CONTAINER_HOME}/pudl_work
-ENV PUDL_INPUT=${CONTAINER_PUDL_WORKSPACE}}/data
-ENV PUDL_OUTPUT=${CONTAINER_PUDL_WORKSPACE}}/output
-ENV DAGSTER_HOME=${CONTAINER_PUDL_WORKSPACE}}/dagster_home
+ENV PUDL_INPUT=${CONTAINER_PUDL_WORKSPACE}/data
+ENV PUDL_OUTPUT=${CONTAINER_PUDL_WORKSPACE}/output
+ENV DAGSTER_HOME=${CONTAINER_PUDL_WORKSPACE}/dagster_home
+
+# Create data input/output directories
+RUN mkdir -p ${PUDL_INPUT} ${PUDL_OUTPUT} ${DAGSTER_HOME}
 
 # Create a conda environment based on the specification in the repo
 COPY test/test-environment.yml test/test-environment.yml
@@ -41,6 +44,7 @@ RUN mamba create --copy --prefix ${CONDA_PREFIX} --yes python=${PYTHON_VERSION} 
     mamba env update --prefix ${CONDA_PREFIX} --file test/test-environment.yml && \
     conda clean -afy
 
+
 # Copy the cloned pudl repository into the user's home directory
 COPY --chown=catalyst:catalyst . ${CONTAINER_HOME}
 
@@ -48,8 +52,6 @@ COPY --chown=catalyst:catalyst . ${CONTAINER_HOME}
 # directory without copying it into the image.
 RUN --mount=type=bind,source=.git,target=${PUDL_REPO}/.git \
     ${CONDA_RUN} pip install --no-cache-dir -e './[dev,doc,test,datasette]' && \
-    # Create data input/output directories
-    mkdir -p ${PUDL_INPUT} ${PUDL_OUTPUT} ${DAGSTER_HOME} && \
     # Run the PUDL setup script so we know where to read and write data
     ${CONDA_RUN} pudl_setup
 
