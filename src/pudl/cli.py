@@ -12,7 +12,6 @@ setup your default ``PUDL_INPUT`` and ``PUDL_OUTPUT`` directories see
 """
 
 import argparse
-import os
 import sys
 from collections.abc import Callable
 
@@ -24,7 +23,6 @@ from dagster import (
     define_asset_job,
     execute_job,
 )
-from dotenv import load_dotenv
 
 import pudl
 from pudl.settings import EtlSettings
@@ -114,7 +112,6 @@ def pudl_etl_job_factory(
 
 def main():
     """Parse command line and initialize PUDL DB."""
-    load_dotenv()
     args = parse_command_line(sys.argv)
 
     # Display logged output from the PUDL package:
@@ -124,20 +121,8 @@ def main():
 
     etl_settings = EtlSettings.from_yaml(args.settings_file)
 
-    if not (os.getenv("PUDL_OUTPUT") and os.getenv("PUDL_INPUT")):
-        logger.warning(
-            "PUDL will attempt to use legacy settings to derive paths."
-            "In the future this functionality will be deprecated in favor"
-            "of environment variables PUDL_OUTPUT and PUDL_INPUT. For more"
-            "info see: https://catalystcoop-pudl.readthedocs.io/en/dev/dev/dev_setup.html"
-        )
-        pudl_settings = pudl.workspace.setup.derive_paths(
-            pudl_in=etl_settings.pudl_in, pudl_out=etl_settings.pudl_out
-        )
-
-        os.environ["PUDL_INPUT"] = pudl_settings["data_dir"]
-        os.environ["PUDL_OUTPUT"] = pudl_settings["pudl_out"]
-        os.environ["DAGSTER_HOME"] = pudl_settings["pudl_in"]
+    # Set PUDL_INPUT/PUDL_OUTPUT env vars from .pudl.yml if not set already!
+    pudl.workspace.setup.get_defaults()
 
     dataset_settings_config = etl_settings.datasets.dict()
     process_epacems = True
