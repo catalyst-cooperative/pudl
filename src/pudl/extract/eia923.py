@@ -96,6 +96,7 @@ eia_raw_table_names = (
     "raw_generation_fuel_eia923",
     "raw_generator_eia923",
     "raw_stocks_eia923",
+    "raw_emissions_control_eia923",
 )
 
 
