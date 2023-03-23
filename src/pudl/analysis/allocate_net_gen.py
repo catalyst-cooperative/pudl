@@ -232,8 +232,9 @@ def allocate_gen_fuel_by_generator_energy_source(
     )
 
     # add any startup energy source codes to the list of energy source codes
-    # fix MSW codes
-    gens_at_freq = adjust_energy_source_codes(gens_at_freq, gf, bf)
+    # fix MSW codes and add missing codes from gf to gens_at_freq
+    gens_at_freq = adjust_msw_energy_source_codes(gens_at_freq, gf, bf)
+    gens_at_freq = add_missing_energy_source_codes_to_gens(gens_at_freq, gf)
     # do the association!
     gen_assoc = associate_generator_tables(
         gens=gens_at_freq, gf=gf, gen=gen, bf=bf, bga=bga
@@ -646,7 +647,7 @@ def associate_generator_tables(
 
     # replace zeros with small number to avoid div by zero errors when calculating allocation fraction
     data_columns = [
-        # "net_generation_mwh_g_tbl",
+        "net_generation_mwh_g_tbl",
         "fuel_consumed_mmbtu_gf_tbl",
         "fuel_consumed_for_electricity_mmbtu_gf_tbl",
         "net_generation_mwh_gf_tbl",
@@ -1153,8 +1154,11 @@ def allocate_net_gen_by_gen_esc(gen_pm_fuel: pd.DataFrame) -> pd.DataFrame:
     some_gen = some_gen.assign(
         # fraction of the generation that should go to the generators that
         # report in the generation table
-        frac_from_g_tbl=lambda x: x.net_generation_mwh_g_tbl_pm_fuel
-        / x.net_generation_mwh_gf_tbl,
+        frac_from_g_tbl=lambda x: np.where(
+            (x.net_generation_mwh_g_tbl_pm_fuel / x.net_generation_mwh_gf_tbl) < 1,
+            (x.net_generation_mwh_g_tbl_pm_fuel / x.net_generation_mwh_gf_tbl),
+            1,
+        ),
         # for records within these mix groups that do have net gen in the
         # generation table..
         frac_net_gen=lambda x: x.net_generation_mwh_g_tbl
@@ -1256,8 +1260,11 @@ def allocate_fuel_by_gen_esc(gen_pm_fuel: pd.DataFrame) -> pd.DataFrame:
     some_bf = some_bf.assign(
         # fraction of the fuel consumption that should go to the generators that
         # report in the boiler fuel table
-        frac_from_bf_tbl=lambda x: x.fuel_consumed_mmbtu_bf_tbl_pm_fuel
-        / x.fuel_consumed_mmbtu_gf_tbl,
+        frac_from_bf_tbl=lambda x: np.where(
+            (x.fuel_consumed_mmbtu_bf_tbl_pm_fuel / x.fuel_consumed_mmbtu_gf_tbl) < 1,
+            (x.fuel_consumed_mmbtu_bf_tbl_pm_fuel / x.fuel_consumed_mmbtu_gf_tbl),
+            1,
+        ),
         # for records within these mix groups that do have fuel consumption in the
         # bf table..
         frac_fuel=lambda x: x.fuel_consumed_mmbtu_bf_tbl
@@ -1285,7 +1292,7 @@ def allocate_fuel_by_gen_esc(gen_pm_fuel: pd.DataFrame) -> pd.DataFrame:
     # Calculate what fraction of the total capacity is associated with each of
     # the generators in the grouping.
     gf_only = gf_only.assign(
-        frac_cap=lambda x: x.capacity_mw / x.capacity_mw_unit_fuel,
+        frac_cap=lambda x: x.capacity_mw / x.capacity_mw_pm_fuel,
         frac=lambda x: x.frac_cap,
     )
     # _ = _test_frac(gf_only)
@@ -1505,7 +1512,7 @@ def manually_fix_energy_source_codes(gf: pd.DataFrame) -> pd.DataFrame:
     return gf
 
 
-def adjust_energy_source_codes(
+def adjust_msw_energy_source_codes(
     gens: pd.DataFrame, gf: pd.DataFrame, bf_by_gens: pd.DataFrame
 ) -> pd.DataFrame:
     """Adjusts MSW codes.
@@ -1596,6 +1603,85 @@ def adjust_energy_source_codes(
             gens = gens.drop(columns=["unique_esc"])
 
     return gens
+
+
+def add_missing_energy_source_codes_to_gens(gens_at_freq, gf):
+    """Adds energy_source_codes that appear in the `gf` table but not `gens` to `gens`.
+
+    In some cases, non-zero fuel consumption and net generation is reported in the
+    EIA-923 generation and fuel table that is associated with an energy_source_code that
+    is not associated with that plant-prime mover in the gens table, which would cause
+    these data to get dropped when these two tables are merged. To fix this, for each
+    plant-pm, this function identifies such esc, and adds them to the `gens_at_freq`
+    table as new energy_source_code columns.
+    """
+
+    missing_gf_escs_from_gens = identify_missing_gf_escs_in_gens(gens_at_freq, gf)
+
+    # pivot these data to become new numbered energy_source_code_n columns starting at 7
+    missing_gf_escs_from_gens["num"] = (
+        missing_gf_escs_from_gens.groupby(
+            ["plant_id_eia", "prime_mover_code"]
+        ).cumcount()
+        + 7
+    )
+    missing_gf_escs_from_gens["num"] = missing_gf_escs_from_gens["num"].astype(str)
+    missing_gf_escs_from_gens = missing_gf_escs_from_gens.pivot(
+        index=["plant_id_eia", "prime_mover_code"], columns="num"
+    )[["energy_source_code"]]
+    missing_gf_escs_from_gens.columns = [
+        "_".join(col) for col in missing_gf_escs_from_gens.columns.values
+    ]
+    missing_gf_escs_from_gens = missing_gf_escs_from_gens.reset_index()
+
+    # merge these missing fuel columns into the gens data
+    gens_at_freq = gens_at_freq.merge(
+        missing_gf_escs_from_gens,
+        how="left",
+        on=["plant_id_eia", "prime_mover_code"],
+        validate="m:m",
+    )
+
+    return gens_at_freq
+
+
+def identify_missing_gf_escs_in_gens(gens_at_freq, gf):
+    """For each plant, identifies energy_source_codes that exist in gf but not gens."""
+    # create a version of gf that identifies all of the unique energy source codes
+    # with non-zero data associated with each plant-pm
+    # create a filtered version of gf that only includes rows with non-zero data
+    gf_escs = (
+        gf.loc[
+            ((gf["fuel_consumed_mmbtu"] > 0) | (gf["net_generation_mwh"] != 0)),
+            ["plant_id_eia", "prime_mover_code", "energy_source_code"],
+        ]
+        .copy()
+        .drop_duplicates()
+    )
+    # create a version that identifies all of the unique energy source codes
+    # associated with each plant-pm for gens with non-retired generation
+    esc_columns = list(gens_at_freq.filter(like="_source_code").columns)
+    gens_escs = gens_at_freq.loc[
+        ~(gens_at_freq["retirement_date"] < gens_at_freq["report_date"]),
+        ["plant_id_eia", "prime_mover_code"] + esc_columns,
+    ].drop_duplicates()
+    gens_escs = gens_escs.melt(
+        id_vars=["plant_id_eia", "prime_mover_code"], value_name="energy_source_code"
+    ).drop(columns=["variable"])
+    gens_escs = gens_escs[~gens_escs["energy_source_code"].isna()]
+
+    # create a dataframe that identifies all plant-pm ESCs that only exist in gf
+    missing_gf_escs_from_gens = gens_escs.merge(
+        gf_escs,
+        how="outer",
+        on=["plant_id_eia", "prime_mover_code", "energy_source_code"],
+        indicator="source",
+    )
+    missing_gf_escs_from_gens = missing_gf_escs_from_gens[
+        missing_gf_escs_from_gens["source"] == "right_only"
+    ].drop(columns="source")
+
+    return missing_gf_escs_from_gens
 
 
 def allocate_bf_data_to_gens(
