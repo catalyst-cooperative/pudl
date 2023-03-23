@@ -40,9 +40,9 @@ function run_pudl_etl() {
 
 function shutdown_vm() {
     # Copy the outputs to the GCS bucket
-    gsutil -m cp -r $CONTAINER_PUDL_OUT "gs://nightly-build-outputs.catalyst.coop/$ACTION_SHA-$GITHUB_REF"
+    gsutil -m cp -r $PUDL_OUTPUT "gs://nightly-build-outputs.catalyst.coop/$ACTION_SHA-$GITHUB_REF"
 
-    upload_file_to_slack "${CONTAINER_PUDL_OUT}/pudl-etl.log" "Logs for $ACTION_SHA-$GITHUB_REF:"
+    upload_file_to_slack "${PUDL_OUTPUT}/pudl-etl.log" "Logs for $ACTION_SHA-$GITHUB_REF:"
 
     echo "Shutting down VM."
     # # Shut down the vm instance when the etl is done.
