@@ -177,7 +177,6 @@ OR make the table via objects in this module:
     parts_compiler = MakePlantParts(pudl_out)
     plant_parts_eia = parts_compiler.execute(gens_mega=gens_mega)
 """
-import warnings
 from collections import OrderedDict
 from copy import deepcopy
 from importlib import resources
@@ -206,7 +205,7 @@ PLANT_PARTS: OrderedDict[str, dict[str, list]] = OrderedDict(
         "plant": {
             "id_cols": ["plant_id_eia"],
         },
-        "match_ferc1": {
+        "plant_match_ferc1": {
             "id_cols": ["plant_id_eia", "ferc1_generator_agg_id"],
         },
         "plant_unit": {
@@ -236,47 +235,6 @@ PLANT_PARTS: OrderedDict[str, dict[str, list]] = OrderedDict(
 dict: this dictionary contains a key for each of the 'plant parts' that should
 end up in the plant parts list. The top-level value for each key is another
 dictionary, which contains keys:
-
-* id_cols (the primary key type id columns for this plant part). The
-  plant_id_eia column must come first.
-
-"""
-
-PLANT_PARTS_TRUE_GRAN: OrderedDict[str, dict[str, list]] = OrderedDict(
-    {
-        "plant": {
-            "id_cols": ["plant_id_eia"],
-        },
-        "match_ferc1": {
-            "id_cols": ["plant_id_eia", "ferc1_generator_agg_id"],
-        },
-        "plant_unit": {
-            "id_cols": ["plant_id_eia", "unit_id_pudl"],
-        },
-        "plant_prime_mover": {
-            "id_cols": ["plant_id_eia", "prime_mover_code"],
-        },
-        "plant_technology": {
-            "id_cols": ["plant_id_eia", "technology_description"],
-        },
-        "plant_prime_fuel": {  # 'plant_primary_fuel': {
-            "id_cols": ["plant_id_eia", "energy_source_code_1"],
-        },
-        "plant_ferc_acct": {
-            "id_cols": ["plant_id_eia", "ferc_acct_name"],
-        },
-        "plant_operating_year": {
-            "id_cols": ["plant_id_eia", "generator_operating_year"],
-        },
-        "plant_gen": {
-            "id_cols": ["plant_id_eia", "generator_id"],
-        },
-    }
-)
-"""
-dict: this dictionary contains a key for each of the 'plant parts' that should
-end up in the plant parts list, including the faked 1:m plant parts.
-The top-level value for each key is another dictionary, which contains keys:
 
 * id_cols (the primary key type id columns for this plant part). The
   plant_id_eia column must come first.
@@ -720,36 +678,16 @@ class MakePlantParts:
             del self.pudl_out._dfs[k]
         part_dfs = []
         for part_name in PLANT_PARTS:
-            if part_name == "match_ferc1":
+            if part_name == "plant_match_ferc1":
                 continue
             part_df = PlantPart(part_name).execute(gens_mega)
             # add in the attributes!
-            for attribute_col in CONSISTENT_ATTRIBUTE_COLS:
-                part_df = AddConsistentAttributes(attribute_col, part_name).execute(
-                    part_df, gens_mega
-                )
-            for attribute_col in PRIORITY_ATTRIBUTES_DICT.keys():
-                part_df = AddPriorityAttribute(attribute_col, part_name).execute(
-                    part_df, gens_mega
-                )
-            for attribute_col in MAX_MIN_ATTRIBUTES_DICT.keys():
-                part_df = AddMaxMinAttribute(
-                    attribute_col,
-                    part_name,
-                    assign_col_dict=MAX_MIN_ATTRIBUTES_DICT[attribute_col][
-                        "assign_col"
-                    ],
-                ).execute(
-                    part_df,
-                    gens_mega,
-                    att_dtype=MAX_MIN_ATTRIBUTES_DICT[attribute_col]["dtype"],
-                    keep=MAX_MIN_ATTRIBUTES_DICT[attribute_col]["keep"],
-                )
+            part_df = self.add_attributes(part_df, gens_mega, part_name)
             # assert that all the plant part ID columns are now in part_df
             assert {
                 col
                 for part in PLANT_PARTS
-                if part != "match_ferc1"
+                if part != "plant_match_ferc1"
                 for col in PLANT_PARTS[part]["id_cols"]
             }.issubset(part_df.columns)
             part_dfs.append(part_df)
@@ -757,7 +695,7 @@ class MakePlantParts:
         # Add in 1:m matches.
         self.plant_parts_eia = self.add_one_to_many(
             plant_parts_eia=plant_parts_eia,
-            part_name="match_ferc1",
+            part_name="plant_match_ferc1",
             path_to_one_to_many=resources.path(
                 "pudl.package_data.glue", "ferc1_eia_one_to_many.csv"
             ),
@@ -771,8 +709,6 @@ class MakePlantParts:
             .pipe(Resource.from_id("plant_parts_eia").format_df)
         )
         self.plant_parts_eia.index = self.plant_parts_eia.index.astype("string")
-        self.validate_ownership_for_owned_records(self.plant_parts_eia)
-        # validate_run_aggregations(self.plant_parts_eia, gens_mega)
         return self.plant_parts_eia
 
     #######################################
@@ -782,7 +718,7 @@ class MakePlantParts:
     def add_one_to_many(
         self,
         plant_parts_eia: pd.DataFrame,
-        part_name: Literal["match_ferc1"],
+        part_name: Literal["plant_match_ferc1"],
         path_to_one_to_many: Path,
     ) -> pd.DataFrame:
         """Integrate 1:m FERC-EIA matches into the plant part list.
@@ -793,7 +729,7 @@ class MakePlantParts:
 
         Args:
             plant_parts_eia (pandas.DataFrame): the master unit list table.
-            part_name: should always be "match_ferc1".
+            part_name: should always be "plant_match_ferc1".
             path_to_one_to_many: a Path to the one_to_many csv
             file in `pudl.package_data.glue`.
 
@@ -852,25 +788,8 @@ class MakePlantParts:
         # Aggregate these records into "plant parts" and concatenate onto plant_part table
         part_df = PlantPart(part_name).execute(plant_parts_eia)
         # add in the attributes!
-        for attribute_col in CONSISTENT_ATTRIBUTE_COLS:
-            part_df = AddConsistentAttributes(attribute_col, part_name).execute(
-                part_df, plant_parts_eia
-            )
-        for attribute_col in PRIORITY_ATTRIBUTES_DICT.keys():
-            part_df = AddPriorityAttribute(attribute_col, part_name).execute(
-                part_df, plant_parts_eia
-            )
-        for attribute_col in MAX_MIN_ATTRIBUTES_DICT.keys():
-            part_df = AddMaxMinAttribute(
-                attribute_col,
-                part_name,
-                assign_col_dict=MAX_MIN_ATTRIBUTES_DICT[attribute_col]["assign_col"],
-            ).execute(
-                part_df,
-                plant_parts_eia,
-                att_dtype=MAX_MIN_ATTRIBUTES_DICT[attribute_col]["dtype"],
-                keep=MAX_MIN_ATTRIBUTES_DICT[attribute_col]["keep"],
-            )
+        part_df = self.add_attributes(part_df, plant_parts_eia, part_name)
+
         return pd.concat([plant_parts_eia, part_df])
 
     def add_additonal_cols(self, plant_parts_eia):
@@ -934,56 +853,28 @@ class MakePlantParts:
         )
         return plant_parts_eia[~plant_parts_eia.index.duplicated(keep="first")]
 
-    #################
-    # Testing Methods
-    #################
-
-    def validate_ownership_for_owned_records(self, plant_parts_eia):
-        """Test ownership - fraction owned for owned records.
-
-        This test can be run at the end of or with the result of
-        :meth:`MakePlantParts.execute`. It tests a few aspects of the the
-        fraction_owned column and raises assertions if the tests fail.
-        """
-        test_own_df = (
-            plant_parts_eia.groupby(
-                by=self.id_cols_list + ["plant_part", "ownership_record_type"],
-                dropna=False,
-                observed=True,
-            )[["fraction_owned", "capacity_mw"]]
-            .sum(min_count=1)
-            .reset_index()
-        )
-
-        owned_one_frac = test_own_df[
-            (~np.isclose(test_own_df.fraction_owned, 1))
-            & (test_own_df.capacity_mw != 0)
-            & (test_own_df.capacity_mw.notnull())
-            & (test_own_df.ownership_record_type == "owned")
-        ]
-
-        if not owned_one_frac.empty:
-            self.test_own_df = test_own_df
-            self.owned_one_frac = owned_one_frac
-            raise AssertionError(
-                "Hello friend, you did a bad. It happens... There are "
-                f"{len(owned_one_frac)} rows where fraction_owned does not sum "
-                "to 100% for the owned records. "
-                "Check cached `owned_one_frac` & `test_own_df` and `scale_by_ownership()`"
+    def add_attributes(self, part_df, attribute_df, part_name):
+        """Add constant and min/max attributes to plant parts."""
+        for attribute_col in CONSISTENT_ATTRIBUTE_COLS:
+            part_df = AddConsistentAttributes(attribute_col, part_name).execute(
+                part_df, attribute_df
             )
-
-        no_frac_n_cap = test_own_df[
-            (test_own_df.capacity_mw == 0) & (test_own_df.fraction_owned == 0)
-        ]
-        self.no_frac_n_cap = no_frac_n_cap
-        if len(no_frac_n_cap) > 60:
-            self.no_frac_n_cap = no_frac_n_cap
-            warnings.warn(
-                f"""Too many nothings, you nothing. There shouldn't been much
-                more than 60 instances of records with zero capacity_mw (and
-                therefor zero fraction_owned) and you got {len(no_frac_n_cap)}.
-                """
+        for attribute_col in PRIORITY_ATTRIBUTES_DICT.keys():
+            part_df = AddPriorityAttribute(attribute_col, part_name).execute(
+                part_df, attribute_df
             )
+        for attribute_col in MAX_MIN_ATTRIBUTES_DICT.keys():
+            part_df = AddMaxMinAttribute(
+                attribute_col,
+                part_name,
+                assign_col_dict=MAX_MIN_ATTRIBUTES_DICT[attribute_col]["assign_col"],
+            ).execute(
+                part_df,
+                attribute_df,
+                att_dtype=MAX_MIN_ATTRIBUTES_DICT[attribute_col]["dtype"],
+                keep=MAX_MIN_ATTRIBUTES_DICT[attribute_col]["keep"],
+            )
+        return part_df
 
 
 class PlantPart:
@@ -1021,7 +912,7 @@ class PlantPart:
     ``plant_prime_mover``, or ``plant_gen``.
     """
 
-    def __init__(self, part_name: Literal[PLANT_PARTS_LITERAL, "match_ferc1"]):
+    def __init__(self, part_name: Literal[PLANT_PARTS_LITERAL, "plant_match_ferc1"]):
         """Initialize an object which makes a tbl for a specific plant-part.
 
         Args:
@@ -1091,7 +982,7 @@ class PlantPart:
             part_name
         """
         logger.info(f"begin aggregation for: {self.part_name}")
-        # id_cols = PLANT_PARTS[self.part_name]['id_cols']
+        # id_cols = PLANT_PARTS[self.part_name]["id_cols"]
         # split up the 'owned' slices from the 'total' slices.
         # this is because the aggregations are different
         part_own = gens_mega.loc[gens_mega.ownership_record_type == "owned"].copy()
@@ -1332,7 +1223,7 @@ class AddAttribute:
                 :py:const:`PRIORITY_ATTRIBUTES_DICT`
                 or :py:const:`MAX_MIN_ATTRIBUTES_DICT`.
             part_name (str): the name of the part to aggregate to. Names can be
-                only those in :py:const:`PLANT_PARTS` or `match_ferc1`
+                only those in :py:const:`PLANT_PARTS` or `plant_match_ferc1`
         """  # noqa: D417
         assert attribute_col in CONSISTENT_ATTRIBUTE_COLS + list(
             PRIORITY_ATTRIBUTES_DICT.keys()
@@ -1340,7 +1231,7 @@ class AddAttribute:
         self.attribute_col = attribute_col
         # the base columns will be the id columns, plus the other two main ids
         self.part_name = part_name
-        if self.part_name == "match_ferc1":
+        if self.part_name == "plant_match_ferc1":
             self.id_cols = ["plant_id_eia", "ferc1_generator_agg_id"]
         else:
             self.id_cols = PLANT_PARTS[part_name]["id_cols"]
@@ -1531,62 +1422,6 @@ class AddMaxMinAttribute(AddAttribute):
         return part_df
 
 
-#################
-# Data Validation
-#################
-
-
-def validate_run_aggregations(plant_parts_eia, gens_mega):
-    """Run a test of the aggregated columns.
-
-    This test will used the plant_parts_eia, re-run groubys and check similarity.
-    """
-    for part_name in PLANT_PARTS:
-        logger.info(f"Begining tests for {part_name}:")
-        test_merge = _test_prep_merge(part_name, plant_parts_eia, gens_mega)
-        for test_col in SUM_COLS:
-            # Check if test aggregation is the same as generated aggreation
-            # Apply a boolean column to the test df.
-            test_merge[f"test_{test_col}"] = (
-                (test_merge[f"{test_col}_test"] == test_merge[f"{test_col}"])
-                | (
-                    test_merge[f"{test_col}_test"].isnull()
-                    & test_merge[f"{test_col}"].isnull()
-                )
-                | (test_merge.ownership_record_type == "total")
-            )
-            result = list(test_merge[f"test_{test_col}"].unique())
-            logger.info(f"  Results for {test_col}: {result}")
-            if not all(result):
-                warnings.warn(f"{test_col} done fucked up.")
-                return test_merge
-                # raise AssertionError(
-                #    f"{test_col}'s '"
-                # )
-
-
-def _test_prep_merge(part_name, plant_parts_eia, gens_mega):
-    """Run the test groupby and merge with the aggregations."""
-    id_cols = PLANT_PARTS[part_name]["id_cols"]
-    plant_cap = (
-        gens_mega[gens_mega.ownership_record_type == "owned"]
-        .pipe(pudl.helpers.convert_cols_dtypes, "eia")
-        .groupby(by=id_cols + IDX_TO_ADD + IDX_OWN_TO_ADD, observed=True)[SUM_COLS]
-        .sum(min_count=1)
-        .reset_index()
-        .pipe(pudl.helpers.convert_cols_dtypes, "eia")
-    )
-    test_merge = pd.merge(
-        plant_parts_eia[plant_parts_eia.plant_part == part_name],
-        plant_cap,
-        on=id_cols + IDX_TO_ADD + IDX_OWN_TO_ADD,
-        how="outer",
-        indicator=True,
-        suffixes=("", "_test"),
-    )
-    return test_merge
-
-
 #########################
 # Module Helper Functions
 #########################
@@ -1708,7 +1543,7 @@ def match_to_single_plant_part(
         cols_to_keep: columns from the original data ``multi_gran_df`` that
             you want to show up in the output. These should not be columns
             that show up in the ``ppl``.
-        one_to_many: boolean (False by default). If True, add `match_ferc1` into plant
+        one_to_many: boolean (False by default). If True, add `plant_match_ferc1` into plant
             parts list.
 
     Returns:
@@ -1727,7 +1562,9 @@ def match_to_single_plant_part(
     )
     out_dfs = []
     for merge_part in PLANT_PARTS:
-        if not one_to_many and merge_part == "match_ferc1":  # Skip match_ferc1
+        if (
+            not one_to_many and merge_part == "plant_match_ferc1"
+        ):  # Skip plant_match_ferc1
             continue
         pk_cols = PLANT_PARTS[merge_part]["id_cols"] + IDX_TO_ADD + IDX_OWN_TO_ADD
         part_df = pd.merge(

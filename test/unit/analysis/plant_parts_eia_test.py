@@ -408,7 +408,7 @@ def test_label_true_grans():
                 "plant_gen",
                 "plant_gen",
                 "plant_technology",
-                "match_ferc1",
+                "plant_match_ferc1",
             ],
             "generator_id": [None, None, None, 1, 2, 3, 4, None, None],
             "unit_id_pudl": [None, "A", "B", "A", "B", "B", "B", None, None],
@@ -449,7 +449,7 @@ def test_label_true_grans():
                 "plant_gen",
                 "plant_gen",
                 "plant",
-                "match_ferc1",
+                "plant_match_ferc1",
             ],
         }
     ).astype({"appro_part_label": "string"})
