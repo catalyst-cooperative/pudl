@@ -822,6 +822,21 @@ any cleaning mechanisms in place to account for this."""
         "etl_group": "ferc1",
         "field_namespace": "ferc1",
     },
+    "plants_utils_ferc1": {
+        "description": "Output table that contains FERC plant and utility information.",
+        "schema": {
+            "fields": [
+                "utility_id_ferc1",
+                "plant_name_ferc1",
+                "plant_id_pudl",
+                "utility_name_ferc1",
+                "utility_id_pudl",
+            ],
+        },
+        "field_namespace": "ferc1",
+        "etl_group": "outputs",
+        "sources": ["ferc1"],
+    },
 }
 """FERC Form 1 resource attributes by PUDL identifier (``resource.name``).
 

@@ -8,6 +8,7 @@ from dagster import (
     Definitions,
     define_asset_job,
     load_assets_from_modules,
+    load_assets_from_package_module,
 )
 
 import pudl
@@ -45,6 +46,7 @@ default_assets = (
     *load_assets_from_modules([pudl.transform.ferc714], group_name="clean_ferc714"),
     *load_assets_from_modules([glue_assets], group_name="glue"),
     *load_assets_from_modules([static_assets], group_name="static"),
+    *load_assets_from_package_module(pudl.output, group_name="outputs"),
 )
 
 default_resources = {

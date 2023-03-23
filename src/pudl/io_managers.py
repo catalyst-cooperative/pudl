@@ -388,7 +388,6 @@ def pudl_sqlite_io_manager(init_context) -> SQLiteIOManager:
         excluded_etl_groups=(
             "static_eia_disabled",
             "epacems",
-            "outputs",
             "ferc1_disabled",
             "eia861_disabled",
         )

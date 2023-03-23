@@ -5,6 +5,7 @@ import sqlalchemy as sa
 
 import pudl
 from pudl.metadata.fields import apply_pudl_dtypes
+from pudl.output.helpers import sql_asset_factory
 
 logger = pudl.logging_helpers.get_logger(__name__)
 
@@ -36,6 +37,11 @@ def read_table_with_start_end_dates(
     return pd.read_sql(table_select, pudl_engine)
 
 
+plants_utils_ferc1_asset = sql_asset_factory(
+    "plants_utils_ferc1", {"plants_ferc1", "utilities_ferc1"}
+)
+
+
 def plants_utils_ferc1(pudl_engine):
     """Build a dataframe of useful FERC Plant & Utility information.
 
@@ -47,6 +53,11 @@ def plants_utils_ferc1(pudl_engine):
         pandas.DataFrame: A DataFrame containing useful FERC Form 1 Plant and
         Utility information.
     """
+    logger.warning(
+        "pudl.output.ferc1.plants_utils_ferc1() will be deprecated in a future version of PUDL."
+        " In the future, call the PudlTabl.pu_ferc1() method or pull the plants_utils_ferc1 table"
+        "directly from the pudl.sqlite database."
+    )
     pu_df = pd.merge(
         pd.read_sql("plants_ferc1", pudl_engine),
         pd.read_sql("utilities_ferc1", pudl_engine),
