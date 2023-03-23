@@ -650,6 +650,10 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "type": "string",
         "description": "Entity type of principal owner.",
     },
+    "environmental_equipment_name": {
+        "type": "string",
+        "description": "Name of environmental equipment or technology type used to control air emissions",
+    },
     "estimated_or_actual_capacity_data": {
         "type": "string",
         "constraints": {"enum": list(ESTIMATED_OR_ACTUAL.values())},
@@ -1762,6 +1766,10 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "type": "boolean",
         "description": "Is the reporting entity an owner of power plants reported on Schedule 2 of the form?",
     },
+    "pm_control_id_eia": {
+        "type": "string",
+        "description": "Alphanumeric particulate matter control ID.",
+    },
     "potential_peak_demand_savings_mw": {"type": "number", "unit": "MW"},
     "previously_canceled": {
         "type": "boolean",
@@ -2017,6 +2025,10 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     "so2_control_proposed_strategy_3": {
         "type": "string",
         "description": "Proposed strategy to comply with the most stringent sulfur dioxide regulation.",
+    },
+    "so2_control_id_eia": {
+        "type": "string",
+        "description": "Alphanumeric so2 control ID.",
     },
     "so2_mass_lbs": {
         "type": "number",
