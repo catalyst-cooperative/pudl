@@ -7,7 +7,7 @@ import pytest
 
 from pudl.glue.ferc1_eia import (
     get_missing_ids,
-    get_plants_ferc1_raw,
+    get_plants_ferc1_raw_job,
     get_util_ids_eia_unmapped,
     get_util_ids_ferc1_raw_dbf,
     get_util_ids_ferc1_raw_xbrl,
@@ -23,34 +23,53 @@ logger = logging.getLogger(__name__)
 
 
 @pytest.fixture(scope="module")
-def pudl_out(pudl_engine, pudl_datastore_fixture):
+def pudl_out(pudl_engine):
     """A PUDL output object for use in CI."""
     return PudlTabl(
         pudl_engine,
-        ds=pudl_datastore_fixture,
         freq=None,
         fill_tech_desc=False,
         fill_net_gen=False,
     )
 
 
+def plants_ferc1_raw(dataset_settings_config) -> pd.DataFrame:
+    """Execute the partial ETL of FERC plant tables.
+
+    Args:
+        dataset_settings_config: dataset settings for the given pytest run.
+
+    Returns:
+        plants_ferc1_raw: all plants in the FERC Form 1 DBF and XBRL DB for given years.
+    """
+    result = get_plants_ferc1_raw_job().execute_in_process(
+        run_config={
+            "resources": {
+                "dataset_settings": {
+                    "config": dataset_settings_config,
+                },
+            }
+        }
+    )
+    return result.output_for_node("plants_ferc1_raw")
+
+
 @pytest.fixture(scope="module")
 def glue_test_dfs(
+    pudl_env,
     pudl_out,
     ferc1_engine_xbrl,
     ferc1_engine_dbf,
     pudl_settings_fixture,
     etl_settings,
+    dataset_settings_config,
 ) -> dict[str, pd.DataFrame]:
     """Make a dictionary of the dataframes required for this test module."""
     glue_test_dfs = {
         "plants_eia_pudl_db": pudl_out.plants_eia860(),
         "util_ids_ferc1_raw_xbrl": get_util_ids_ferc1_raw_xbrl(ferc1_engine_xbrl),
         "util_ids_ferc1_raw_dbf": get_util_ids_ferc1_raw_dbf(ferc1_engine_dbf),
-        "plants_ferc1_raw": get_plants_ferc1_raw(
-            pudl_settings=pudl_settings_fixture,
-            years=etl_settings.datasets.ferc1.years,
-        ),
+        "plants_ferc1_raw": plants_ferc1_raw(dataset_settings_config),
         "plants_eia_labeled": label_plants_eia(pudl_out),
     }
     glue_test_dfs.update(glue(eia=True, ferc1=True))

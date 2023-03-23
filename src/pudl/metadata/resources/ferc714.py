@@ -19,7 +19,10 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
         "etl_group": "ferc714",
     },
     "demand_hourly_pa_ferc714": {
-        "description": "Hourly electricity demand by plannting area. FERC Form 714, Part III, Schedule 2a.",
+        "description": (
+            "Hourly electricity demand by planning area. FERC Form 714, Part III, "
+            "Schedule 2a."
+        ),
         "schema": {
             "fields": [
                 "respondent_id_ferc714",
