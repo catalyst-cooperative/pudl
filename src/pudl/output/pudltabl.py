@@ -155,11 +155,9 @@ class PudlTabl:
         Returns:
             pandas.DataFrame: a denormalized table for interactive use.
         """
-        if update or self._dfs["pu_ferc1"] is None:
-            self._dfs["pu_ferc1"] = pudl.output.ferc1.plants_utils_ferc1(
-                self.pudl_engine
-            )
-        return self._dfs["pu_ferc1"]
+        return pd.read_sql("denorm_plants_utils_ferc1", self.pudl_engine).pipe(
+            apply_pudl_dtypes, group="eia"
+        )
 
     def advanced_metering_infrastructure_eia861(self) -> pd.DataFrame:
         """An interim EIA 861 output function."""

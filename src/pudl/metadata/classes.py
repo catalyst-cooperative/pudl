@@ -1196,6 +1196,7 @@ class Resource(Base):
         "ferc714",
         "glue",
         "outputs",
+        "output_views",
         "static_ferc1",
         "static_eia",
         "static_eia_disabled",

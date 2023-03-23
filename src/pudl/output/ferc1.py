@@ -37,8 +37,8 @@ def read_table_with_start_end_dates(
     return pd.read_sql(table_select, pudl_engine)
 
 
-plants_utils_ferc1_asset = sql_asset_factory(
-    "plants_utils_ferc1", {"plants_ferc1", "utilities_ferc1"}
+denorm_plants_utils_ferc1_asset = sql_asset_factory(
+    "denorm_plants_utils_ferc1", {"plants_ferc1", "utilities_ferc1"}
 )
 
 

@@ -822,8 +822,8 @@ any cleaning mechanisms in place to account for this."""
         "etl_group": "ferc1",
         "field_namespace": "ferc1",
     },
-    "plants_utils_ferc1": {
-        "description": "Output table that contains FERC plant and utility information.",
+    "denorm_plants_utils_ferc1": {
+        "description": "Denormalized table that contains FERC plant and utility information.",
         "schema": {
             "fields": [
                 "utility_id_ferc1",
@@ -834,7 +834,7 @@ any cleaning mechanisms in place to account for this."""
             ],
         },
         "field_namespace": "ferc1",
-        "etl_group": "outputs",
+        "etl_group": "output_views",
         "sources": ["ferc1"],
     },
 }
