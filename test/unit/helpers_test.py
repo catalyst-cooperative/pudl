@@ -3,9 +3,11 @@
 import numpy as np
 import pandas as pd
 import pytest
+from dagster import AssetKey
 from pandas.testing import assert_frame_equal, assert_series_equal
 from pandas.tseries.offsets import BYearEnd
 
+import pudl
 from pudl.helpers import (
     convert_df_to_excel_file,
     convert_to_date,
@@ -612,3 +614,11 @@ def test_flatten_mix_types():
     """Test if :func:`flatten_list` can flatten an arbitraty list of ints."""
     list1a = ["1", 22, ["333", [4, "5"]], [[666]]]
     assert list(flatten_list(list1a)) == ["1", 22, "333", 4, "5", 666]
+
+
+def test_cems_selection():
+    """Test CEMS asset selection remove cems assets."""
+    cems_selection = pudl.etl.create_non_cems_selection(pudl.etl.default_assets)
+    assert AssetKey("hourly_emissions_epacems") not in cems_selection.resolve(
+        pudl.etl.default_assets
+    ), "hourly_emissions_epacems or downstream asset present in selection."

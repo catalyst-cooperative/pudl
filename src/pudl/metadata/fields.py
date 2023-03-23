@@ -23,11 +23,7 @@ from pudl.metadata.enums import (
     TECH_CLASSES,
     TECH_DESCRIPTIONS,
 )
-from pudl.metadata.labels import (
-    ESTIMATED_OR_ACTUAL,
-    FUEL_UNITS_EIA,
-    MOMENTARY_INTERRUPTIONS,
-)
+from pudl.metadata.labels import ESTIMATED_OR_ACTUAL, FUEL_UNITS_EIA
 from pudl.metadata.sources import SOURCES
 
 # from pudl.transform.params.ferc1 import (
@@ -1137,7 +1133,6 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     "moisture_content_pct": {"type": "number"},
     "momentary_interruption_definition": {
         "type": "string",
-        "constraints": {"enum": list(MOMENTARY_INTERRUPTIONS.values())},
     },
     "month": {"type": "integer", "description": "Month of the year"},
     "multiple_fuels": {
@@ -2548,6 +2543,20 @@ FIELD_METADATA_BY_RESOURCE: dict[str, dict[str, Any]] = {
         "opex_rents": {"description": "Rent expenses for the transmission line."},
         "opex_total": {"description": "Overall expenses for the transmission line."},
     },
+    "demand_hourly_pa_ferc714": {
+        "timezone": {
+            "constraints": {
+                "enum": [
+                    "America/New_York",
+                    "America/Chicago",
+                    "America/Denver",
+                    "America/Los_Angeles",
+                    "America/Anchorage",
+                    "Pacific/Honolulu",
+                ]
+            }
+        }
+    },
 }
 
 
@@ -2591,7 +2600,7 @@ def apply_pudl_dtypes(
     """Apply dtypes to those columns in a dataframe that have PUDL types defined.
 
     Note at ad-hoc column dtypes can be defined and merged with default PUDL field
-    metadata before it's passed in as `field_meta` if you have module specific column
+    metadata before it's passed in as ``field_meta`` if you have module specific column
     types you need to apply alongside the standard PUDL field types.
 
     Args:

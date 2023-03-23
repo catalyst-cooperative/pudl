@@ -37,498 +37,10 @@ ferc_to_sqlite_settings:
       ]
       # A list of tables to be loaded into the local SQLite database. These are
       # the table names as they appear in the 2015 FERC Form 1 database.
-    tables:
-      - f1_respondent_id
-      - f1_acb_epda
-      - f1_accumdepr_prvsn
-      - f1_accumdfrrdtaxcr
-      - f1_adit_190_detail
-      - f1_adit_190_notes
-      - f1_adit_amrt_prop
-      - f1_adit_other
-      - f1_adit_other_prop
-      - f1_allowances
-      - f1_bal_sheet_cr
-      - f1_capital_stock
-      - f1_cash_flow
-      - f1_cmmn_utlty_p_e
-      - f1_comp_balance_db
-      - f1_construction
-      - f1_control_respdnt
-      - f1_co_directors
-      - f1_cptl_stk_expns
-      - f1_csscslc_pcsircs
-      - f1_dacs_epda
-      - f1_dscnt_cptl_stk
-      - f1_edcfu_epda
-      - f1_elctrc_erg_acct
-      - f1_elctrc_oper_rev
-      - f1_elc_oper_rev_nb
-      - f1_elc_op_mnt_expn
-      - f1_electric
-      - f1_envrnmntl_expns
-      - f1_envrnmntl_fclty
-      - f1_fuel
-      - f1_general_info
-      - f1_gnrt_plant
-      - f1_important_chg
-      - f1_incm_stmnt_2
-      - f1_income_stmnt
-      - f1_miscgen_expnelc
-      - f1_misc_dfrrd_dr
-      - f1_mthly_peak_otpt
-      - f1_mtrl_spply
-      - f1_nbr_elc_deptemp
-      - f1_nonutility_prop
-      - f1_nuclear_fuel
-      - f1_officers_co
-      - f1_othr_dfrrd_cr
-      - f1_othr_pd_in_cptl
-      - f1_othr_reg_assets
-      - f1_othr_reg_liab
-      - f1_overhead
-      - f1_pccidica
-      - f1_plant_in_srvce
-      - f1_pumped_storage
-      - f1_purchased_pwr
-      - f1_reconrpt_netinc
-      - f1_reg_comm_expn
-      - f1_respdnt_control
-      - f1_retained_erng
-      - f1_r_d_demo_actvty
-      - f1_sales_by_sched
-      - f1_sale_for_resale
-      - f1_sbsdry_totals
-      - f1_schedules_list
-      - f1_security_holder
-      - f1_slry_wg_dstrbtn
-      - f1_substations
-      - f1_taxacc_ppchrgyr
-      - f1_unrcvrd_cost
-      - f1_utltyplnt_smmry
-      - f1_work
-      - f1_xmssn_adds
-      - f1_xmssn_elc_bothr
-      - f1_xmssn_elc_fothr
-      - f1_xmssn_line
-      - f1_xtraordnry_loss
-      - f1_codes_val
-      - f1_sched_lit_tbl
-      - f1_audit_log
-      - f1_col_lit_tbl
-      - f1_load_file_names
-      - f1_privilege
-      - f1_sys_error_log
-      - f1_unique_num_val
-      - f1_row_lit_tbl
-      - f1_hydro
-      - f1_ident_attsttn
-      - f1_steam
-      - f1_leased
-      - f1_sbsdry_detail
-      - f1_plant
-      - f1_long_term_debt
-      - f1_106_2009
-      - f1_106a_2009
-      - f1_106b_2009
-      - f1_208_elc_dep
-      - f1_231_trn_stdycst
-      - f1_324_elc_expns
-      - f1_325_elc_cust
-      - f1_331_transiso
-      - f1_338_dep_depl
-      - f1_397_isorto_stl
-      - f1_398_ancl_ps
-      - f1_399_mth_peak
-      - f1_400_sys_peak
-      - f1_400a_iso_peak
-      - f1_429_trans_aff
-      - f1_allowances_nox
-      - f1_cmpinc_hedge_a
-      - f1_cmpinc_hedge
-      - f1_email
-      - f1_rg_trn_srv_rev
-      - f1_s0_checks
-      - f1_s0_filing_log
-      - f1_security
-      # - f1_note_fin_stmnt  # Huge junk table, 52% of the data by MB
-      # - f1_footnote_tbl    # Huge junk table, 37% of DB
-      # - f1_footnote_data   # Only useful with f1_footnote_tbl
-      # - f1_pins     # private database table, not publicly distributed
-      # - f1_freeze   # private database table, not publicly distributed
-
   ferc1_xbrl_to_sqlite_settings:
     years: [2021]
     # A list of tables to be loaded into the local SQLite database. These are
     # the table names as created from the 2022 XBRL taxonomy.
-    tables:
-      - corporate_officer_certification_001_duration
-      - corporate_officer_certification_001_instant
-      - identification_001_duration
-      - identification_001_instant
-      - list_of_schedules_002_duration
-      - list_of_schedules_002_instant
-      - general_information_101_duration
-      - general_information_101_instant
-      - control_over_respondent_102_duration
-      - control_over_respondent_102_instant
-      - corporations_controlled_by_respondent_103_duration
-      - corporations_controlled_by_respondent_103_instant
-      - officers_104_duration
-      - officers_104_instant
-      - directors_105_duration
-      - directors_105_instant
-      - information_on_formula_rates_106_duration
-      - information_on_formula_rates_106_instant
-      - information_on_formula_rates_106a_duration
-      - information_on_formula_rates_106a_instant
-      - information_on_formula_rates_106b_duration
-      - information_on_formula_rates_106b_instant
-      - important_changes_during_the_quarter_year_108_duration
-      - important_changes_during_the_quarter_year_108_instant
-      - comparative_balance_sheet_assets_and_other_debits_110_duration
-      - comparative_balance_sheet_assets_and_other_debits_110_instant
-      - comparative_balance_sheet_liabilities_and_other_credits_110_duration
-      - comparative_balance_sheet_liabilities_and_other_credits_110_instant
-      - statement_of_income_114_duration
-      - statement_of_income_114_instant
-      - retained_earnings_118_duration
-      - retained_earnings_118_instant
-      - retained_earnings_appropriated_118_duration
-      - retained_earnings_appropriated_118_instant
-      - retained_earnings_appropriations_118_duration
-      - retained_earnings_appropriations_118_instant
-      - retained_earnings_common_stock_118_duration
-      - retained_earnings_common_stock_118_instant
-      - retained_earnings_credit_118_duration
-      - retained_earnings_credit_118_instant
-      - retained_earnings_debit_118_duration
-      - retained_earnings_debit_118_instant
-      - retained_earnings_preferred_stock_118_duration
-      - retained_earnings_preferred_stock_118_instant
-      - retained_earnings_unappropriated_undistributed_subsidiary_earnings_118_duration
-      - retained_earnings_unappropriated_undistributed_subsidiary_earnings_118_instant
-      - statement_of_cash_flows_120_duration
-      - statement_of_cash_flows_120_instant
-      - statement_of_cash_flows_other_payment_for_retirement_to_financing_acitivities_120_duration
-      - statement_of_cash_flows_other_payment_for_retirement_to_financing_acitivities_120_instant
-      - statement_of_cash_flows_sequence_other_adjustments_by_outside_forces_to_financing_cash_flows_120_duration
-      - statement_of_cash_flows_sequence_other_adjustments_by_outside_forces_to_financing_cash_flows_120_instant
-      - statement_of_cash_flows_sequence_other_adjustments_to_financing_cash_flows_120_duration
-      - statement_of_cash_flows_sequence_other_adjustments_to_financing_cash_flows_120_instant
-      - statement_of_cash_flows_sequence_other_adjustments_to_investing_cash_flows_120_duration
-      - statement_of_cash_flows_sequence_other_adjustments_to_investing_cash_flows_120_instant
-      - statement_of_cash_flows_sequence_other_adjustments_to_operating_cash_flows_120_duration
-      - statement_of_cash_flows_sequence_other_adjustments_to_operating_cash_flows_120_instant
-      - statement_of_cash_flows_sequence_other_items_for_investing_cash_flows_120_duration
-      - statement_of_cash_flows_sequence_other_items_for_investing_cash_flows_120_instant
-      - statement_of_cash_flows_sequence_other_operating_cash_flows_120_duration
-      - statement_of_cash_flows_sequence_other_operating_cash_flows_120_instant
-      - notes_to_financial_statements_122_duration
-      - notes_to_financial_statements_122_instant
-      - statement_of_accumulated_other_comprehensive_income_comprehensive_income_and_hedging_activities_122a_duration
-      - statement_of_accumulated_other_comprehensive_income_comprehensive_income_and_hedging_activities_122a_instant
-      - summary_of_utility_plant_and_accumulated_provisions_for_depreciation_amortization_and_depletion_200_duration
-      - summary_of_utility_plant_and_accumulated_provisions_for_depreciation_amortization_and_depletion_200_instant
-      - nuclear_fuel_materials_202_duration
-      - nuclear_fuel_materials_202_instant
-      - electric_plant_in_service_204_duration
-      - electric_plant_in_service_204_instant
-      - electric_plant_leased_to_others_213_duration
-      - electric_plant_leased_to_others_213_instant
-      - electric_plant_leased_to_others_totals_213_duration
-      - electric_plant_leased_to_others_totals_213_instant
-      - electric_plant_held_for_future_use_214_duration
-      - electric_plant_held_for_future_use_214_instant
-      - electric_plant_held_for_future_use_totals_214_duration
-      - electric_plant_held_for_future_use_totals_214_instant
-      - construction_work_in_progress_electric_216_duration
-      - construction_work_in_progress_electric_216_instant
-      - construction_work_in_progress_electric_total_216_duration
-      - construction_work_in_progress_electric_total_216_instant
-      - accumulated_provision_for_depreciation_of_electric_utility_plant_changes_section_a_219_duration
-      - accumulated_provision_for_depreciation_of_electric_utility_plant_changes_section_a_219_instant
-      - accumulated_provision_for_depreciation_of_electric_utility_plant_changes_section_a_sequence_other_accounts_219_duration
-      - accumulated_provision_for_depreciation_of_electric_utility_plant_changes_section_a_sequence_other_accounts_219_instant
-      - accumulated_provision_for_depreciation_of_electric_utility_plant_changes_section_a_sequence_other_items_219_duration
-      - accumulated_provision_for_depreciation_of_electric_utility_plant_changes_section_a_sequence_other_items_219_instant
-      - accumulated_provision_for_depreciation_of_electric_utility_plant_functional_classification_section_b_219_duration
-      - accumulated_provision_for_depreciation_of_electric_utility_plant_functional_classification_section_b_219_instant
-      - investments_in_subsidiary_companies_224_duration
-      - investments_in_subsidiary_companies_224_instant
-      - investments_in_subsidiary_companies_totals_224_duration
-      - investments_in_subsidiary_companies_totals_224_instant
-      - materials_and_supplies_227_duration
-      - materials_and_supplies_227_instant
-      - materials_and_supplies_other_classes_227_duration
-      - materials_and_supplies_other_classes_227_instant
-      - allowances_accounts_1581_and_1582_228a_duration
-      - allowances_accounts_1581_and_1582_228a_instant
-      - allowances_accounts_1581_and_1582_cost_of_sales_and_transfers_228a_duration
-      - allowances_accounts_1581_and_1582_cost_of_sales_and_transfers_228a_instant
-      - allowances_accounts_1581_and_1582_other_relinquished_228a_duration
-      - allowances_accounts_1581_and_1582_other_relinquished_228a_instant
-      - allowances_accounts_1581_and_1582_purchases_and_transfers_228a_duration
-      - allowances_accounts_1581_and_1582_purchases_and_transfers_228a_instant
-      - allowances_accounts_1581_and_1582_cost_of_sales_and_transfers_section_b_228b_duration
-      - allowances_accounts_1581_and_1582_cost_of_sales_and_transfers_section_b_228b_instant
-      - allowances_accounts_1581_and_1582_other_relinquished_section_b_228b_duration
-      - allowances_accounts_1581_and_1582_other_relinquished_section_b_228b_instant
-      - allowances_accounts_1581_and_1582_purchases_and_transfers_section_b_228b_duration
-      - allowances_accounts_1581_and_1582_purchases_and_transfers_section_b_228b_instant
-      - allowances_accounts_1581_and_1582_section_b_228b_duration
-      - allowances_accounts_1581_and_1582_section_b_228b_instant
-      - extraordinary_property_losses_230a_duration
-      - extraordinary_property_losses_230a_instant
-      - extraordinary_property_losses_totals_230a_duration
-      - extraordinary_property_losses_totals_230a_instant
-      - unrecovered_plant_and_regulatory_study_costs_230b_duration
-      - unrecovered_plant_and_regulatory_study_costs_230b_instant
-      - unrecovered_plant_and_regulatory_study_costs_totals_230b_duration
-      - unrecovered_plant_and_regulatory_study_costs_totals_230b_instant
-      - transmission_service_and_generation_interconnection_study_costs_231_duration
-      - transmission_service_and_generation_interconnection_study_costs_231_instant
-      - transmission_service_and_generation_interconnection_study_costs_totals_231_duration
-      - transmission_service_and_generation_interconnection_study_costs_totals_231_instant
-      - other_regulatory_assets_account_1823_232_duration
-      - other_regulatory_assets_account_1823_232_instant
-      - other_regulatory_assets_account_1823_totals_232_duration
-      - other_regulatory_assets_account_1823_totals_232_instant
-      - miscellaneous_deferred_debits_account_186_233_duration
-      - miscellaneous_deferred_debits_account_186_233_instant
-      - miscellaneous_deferred_debits_account_186_totals_233_duration
-      - miscellaneous_deferred_debits_account_186_totals_233_instant
-      - accumulated_deferred_income_taxes_account_190_234_duration
-      - accumulated_deferred_income_taxes_account_190_234_instant
-      - accumulated_deferred_income_taxes_account_190_electric_234_duration
-      - accumulated_deferred_income_taxes_account_190_electric_234_instant
-      - accumulated_deferred_income_taxes_account_190_gas_234_duration
-      - accumulated_deferred_income_taxes_account_190_gas_234_instant
-      - accumulated_deferred_income_taxes_account_190_notes_234_duration
-      - accumulated_deferred_income_taxes_account_190_notes_234_instant
-      - accumulated_deferred_income_taxes_account_190_other_234_duration
-      - accumulated_deferred_income_taxes_account_190_other_234_instant
-      - capital_stock_account_201_and_204_250_duration
-      - capital_stock_account_201_and_204_250_instant
-      - capital_stock_account_201_and_204_totals_250_duration
-      - capital_stock_account_201_and_204_totals_250_instant
-      - capital_stock_common_stock_account_201_250_duration
-      - capital_stock_common_stock_account_201_250_instant
-      - capital_stock_common_stock_account_201_totals_250_duration
-      - capital_stock_common_stock_account_201_totals_250_instant
-      - capital_stock_preferred_stock_account_204_250_duration
-      - capital_stock_preferred_stock_account_204_250_instant
-      - capital_stock_preferred_stock_account_204_totals_250_duration
-      - capital_stock_preferred_stock_account_204_totals_250_instant
-      - other_paid_in_capital_accounts_208211_253_duration
-      - other_paid_in_capital_accounts_208211_253_instant
-      - other_paid_in_capital_accounts_208211_donations_received_from_stockholders_253_duration
-      - other_paid_in_capital_accounts_208211_donations_received_from_stockholders_253_instant
-      - other_paid_in_capital_accounts_208211_miscellaneous_paid_in_capital_253_duration
-      - other_paid_in_capital_accounts_208211_miscellaneous_paid_in_capital_253_instant
-      - other_paid_in_capital_accounts_208211_reduction_in_par_or_stated_value_of_capital_stock_253_duration
-      - other_paid_in_capital_accounts_208211_reduction_in_par_or_stated_value_of_capital_stock_253_instant
-      - other_paid_in_capital_accounts_208211_required_capital_stock_253_duration
-      - other_paid_in_capital_accounts_208211_required_capital_stock_253_instant
-      - other_paid_in_capital_accounts_208211_total_253_duration
-      - other_paid_in_capital_accounts_208211_total_253_instant
-      - capital_stock_expense_account_214_254b_duration
-      - capital_stock_expense_account_214_254b_instant
-      - capital_stock_expense_account_214_totals_254b_duration
-      - capital_stock_expense_account_214_totals_254b_instant
-      - long_term_debt_account_221_222_223_and_224_256_duration
-      - long_term_debt_account_221_222_223_and_224_256_instant
-      - long_term_debt_account_221_222_223_and_224_subtotals_256_duration
-      - long_term_debt_account_221_222_223_and_224_subtotals_256_instant
-      - long_term_debt_account_221_222_223_and_224_totals_256_duration
-      - long_term_debt_account_221_222_223_and_224_totals_256_instant
-      - long_term_debt_advances_from_associated_companies_223_256_duration
-      - long_term_debt_advances_from_associated_companies_223_256_instant
-      - long_term_debt_bonds_221_256_duration
-      - long_term_debt_bonds_221_256_instant
-      - long_term_debt_other_long_term_debt_224_256_duration
-      - long_term_debt_other_long_term_debt_224_256_instant
-      - long_term_debt_reacquired_bonds_222_256_duration
-      - long_term_debt_reacquired_bonds_222_256_instant
-      - reconciliation_of_reported_net_income_with_taxable_income_for_federal_income_taxes_261_duration
-      - reconciliation_of_reported_net_income_with_taxable_income_for_federal_income_taxes_261_instant
-      - reconciliation_of_reported_net_income_with_taxable_income_for_federal_income_taxes_deductions_recorded_on_books_not_deducted_for_return_261_duration
-      - reconciliation_of_reported_net_income_with_taxable_income_for_federal_income_taxes_deductions_recorded_on_books_not_deducted_for_return_261_instant
-      - reconciliation_of_reported_net_income_with_taxable_income_for_federal_income_taxes_deductions_on_return_not_charged_against_book_income_261_duration
-      - reconciliation_of_reported_net_income_with_taxable_income_for_federal_income_taxes_deductions_on_return_not_charged_against_book_income_261_instant
-      - reconciliation_of_reported_net_income_with_taxable_income_for_federal_income_taxes_income_recorded_on_books_not_included_in_return_261_duration
-      - reconciliation_of_reported_net_income_with_taxable_income_for_federal_income_taxes_income_recorded_on_books_not_included_in_return_261_instant
-      - reconciliation_of_reported_net_income_with_taxable_income_for_federal_income_taxes_show_computation_of_tax_261_duration
-      - reconciliation_of_reported_net_income_with_taxable_income_for_federal_income_taxes_show_computation_of_tax_261_instant
-      - reconciliation_of_reported_net_income_with_taxable_income_for_federal_income_taxes_taxable_income_not_reported_on_books_261_duration
-      - reconciliation_of_reported_net_income_with_taxable_income_for_federal_income_taxes_taxable_income_not_reported_on_books_261_instant
-      - taxes_accrued_prepaid_and_charged_during_year_262_duration
-      - taxes_accrued_prepaid_and_charged_during_year_262_instant
-      - taxes_accrued_prepaid_and_charged_during_year_totals_262_duration
-      - taxes_accrued_prepaid_and_charged_during_year_totals_262_instant
-      - accumulated_deferred_investment_tax_credits_account_255_266_duration
-      - accumulated_deferred_investment_tax_credits_account_255_266_instant
-      - accumulated_deferred_investment_tax_credits_account_255_total_266_duration
-      - accumulated_deferred_investment_tax_credits_account_255_total_266_instant
-      - other_deferred_credits_account_253_269_duration
-      - other_deferred_credits_account_253_269_instant
-      - other_deferred_credits_account_253_totals_269_duration
-      - other_deferred_credits_account_253_totals_269_instant
-      - accumulated_deferred_income_taxes_accelerated_amortization_property_account_281_classified_by_tax_types_272_duration
-      - accumulated_deferred_income_taxes_accelerated_amortization_property_account_281_classified_by_tax_types_272_instant
-      - accumulated_deferred_income_taxes_accelerated_amortization_property_account_281_classified_by_utility_types_272_duration
-      - accumulated_deferred_income_taxes_accelerated_amortization_property_account_281_classified_by_utility_types_272_instant
-      - accumulated_deferred_income_taxes_accelerated_amortization_property_account_281_other_272_duration
-      - accumulated_deferred_income_taxes_accelerated_amortization_property_account_281_other_272_instant
-      - accumulated_deferred_income_taxes_accelerated_amortization_property_account_281_other_electric_272_duration
-      - accumulated_deferred_income_taxes_accelerated_amortization_property_account_281_other_electric_272_instant
-      - accumulated_deferred_income_taxes_accelerated_amortization_property_account_281_other_gas_272_duration
-      - accumulated_deferred_income_taxes_accelerated_amortization_property_account_281_other_gas_272_instant
-      - accumulated_deferred_income_taxes_other_property_account_282_classified_by_business_activities_274_duration
-      - accumulated_deferred_income_taxes_other_property_account_282_classified_by_business_activities_274_instant
-      - accumulated_deferred_income_taxes_other_property_account_282_classified_by_tax_types_274_duration
-      - accumulated_deferred_income_taxes_other_property_account_282_classified_by_tax_types_274_instant
-      - accumulated_deferred_income_taxes_other_property_account_282_non_utility_details_274_duration
-      - accumulated_deferred_income_taxes_other_property_account_282_non_utility_details_274_instant
-      - accumulated_deferred_income_taxes_other_account_283_classified_by_business_activities_276_duration
-      - accumulated_deferred_income_taxes_other_account_283_classified_by_business_activities_276_instant
-      - accumulated_deferred_income_taxes_other_account_283_classified_by_business_activities_total_276_duration
-      - accumulated_deferred_income_taxes_other_account_283_classified_by_business_activities_total_276_instant
-      - accumulated_deferred_income_taxes_other_account_283_classified_by_tax_types_276_duration
-      - accumulated_deferred_income_taxes_other_account_283_classified_by_tax_types_276_instant
-      - accumulated_deferred_income_taxes_other_account_283_classified_by_tax_types_notes_276_duration
-      - accumulated_deferred_income_taxes_other_account_283_classified_by_tax_types_notes_276_instant
-      - accumulated_deferred_income_taxes_other_account_283_electric_276_duration
-      - accumulated_deferred_income_taxes_other_account_283_electric_276_instant
-      - accumulated_deferred_income_taxes_other_account_283_gas_276_duration
-      - accumulated_deferred_income_taxes_other_account_283_gas_276_instant
-      - other_regulatory_liabilities_account_254_278_duration
-      - other_regulatory_liabilities_account_254_278_instant
-      - other_regulatory_liabilities_account_254_totals_278_duration
-      - other_regulatory_liabilities_account_254_totals_278_instant
-      - electric_operating_revenues_300_duration
-      - electric_operating_revenues_300_instant
-      - electric_operating_revenues_other_300_duration
-      - electric_operating_revenues_other_300_instant
-      - electric_operating_revenues_unbilled_revenues_300_duration
-      - electric_operating_revenues_unbilled_revenues_300_instant
-      - regional_transmission_service_revenues_account_4571_302_duration
-      - regional_transmission_service_revenues_account_4571_302_instant
-      - regional_transmission_service_revenues_account_4571_totals_302_duration
-      - regional_transmission_service_revenues_account_4571_totals_302_instant
-      - sales_of_electricity_by_rate_schedules_account_440_residential_304_duration
-      - sales_of_electricity_by_rate_schedules_account_440_residential_304_instant
-      - sales_of_electricity_by_rate_schedules_account_442_commercial_304_duration
-      - sales_of_electricity_by_rate_schedules_account_442_commercial_304_instant
-      - sales_of_electricity_by_rate_schedules_account_442_industrial_304_duration
-      - sales_of_electricity_by_rate_schedules_account_442_industrial_304_instant
-      - sales_of_electricity_by_rate_schedules_account_442_total_commercial_and_industrial_304_duration
-      - sales_of_electricity_by_rate_schedules_account_442_total_commercial_and_industrial_304_instant
-      - sales_of_electricity_by_rate_schedules_account_444_public_street_and_highway_lighting_304_duration
-      - sales_of_electricity_by_rate_schedules_account_444_public_street_and_highway_lighting_304_instant
-      - sales_of_electricity_by_rate_schedules_account_445_other_sales_to_public_authorities_304_duration
-      - sales_of_electricity_by_rate_schedules_account_445_other_sales_to_public_authorities_304_instant
-      - sales_of_electricity_by_rate_schedules_account_446_sales_to_railroads_and_railways_304_duration
-      - sales_of_electricity_by_rate_schedules_account_446_sales_to_railroads_and_railways_304_instant
-      - sales_of_electricity_by_rate_schedules_account_448_interdepartmental_sales_304_duration
-      - sales_of_electricity_by_rate_schedules_account_448_interdepartmental_sales_304_instant
-      - sales_of_electricity_by_rate_schedules_account_4491_provision_for_rate_refunds_304_duration
-      - sales_of_electricity_by_rate_schedules_account_4491_provision_for_rate_refunds_304_instant
-      - sales_of_electricity_by_rate_schedules_account_totals_304_duration
-      - sales_of_electricity_by_rate_schedules_account_totals_304_instant
-      - sales_of_electricity_by_rate_schedules_historical_data_304_duration
-      - sales_of_electricity_by_rate_schedules_historical_data_304_instant
-      - sales_of_electricity_by_rate_schedules_historical_data_totals_304_duration
-      - sales_of_electricity_by_rate_schedules_historical_data_totals_304_instant
-      - sales_for_resale_account_447_310_duration
-      - sales_for_resale_account_447_310_instant
-      - sales_for_resale_account_447_total_310_duration
-      - sales_for_resale_account_447_total_310_instant
-      - electric_operations_and_maintenance_expenses_320_duration
-      - electric_operations_and_maintenance_expenses_320_instant
-      - purchased_power_326_duration
-      - purchased_power_326_instant
-      - purchased_power_totals_326_duration
-      - purchased_power_totals_326_instant
-      - transmission_of_electricity_for_others_328_duration
-      - transmission_of_electricity_for_others_328_instant
-      - transmission_of_electricity_for_others_totals_328_duration
-      - transmission_of_electricity_for_others_totals_328_instant
-      - transmission_of_electricity_by_iso_rtos_331_duration
-      - transmission_of_electricity_by_iso_rtos_331_instant
-      - transmission_of_electricity_by_iso_rtos_totals_331_duration
-      - transmission_of_electricity_by_iso_rtos_totals_331_instant
-      - transmission_of_electricity_by_others_332_duration
-      - transmission_of_electricity_by_others_332_instant
-      - transmission_of_electricity_by_others_totals_332_duration
-      - transmission_of_electricity_by_others_totals_332_instant
-      - miscellaneous_general_expenses_335_duration
-      - miscellaneous_general_expenses_335_instant
-      - miscellaneous_general_expenses_totals_335_duration
-      - miscellaneous_general_expenses_totals_335_instant
-      - basis_for_amortization_changes_section_b_336_duration
-      - basis_for_amortization_changes_section_b_336_instant
-      - factors_used_in_estimating_depreciation_charges_section_c_336_duration
-      - factors_used_in_estimating_depreciation_charges_section_c_336_instant
-      - summary_of_depreciation_and_amortization_charges_section_a_336_duration
-      - summary_of_depreciation_and_amortization_charges_section_a_336_instant
-      - regulatory_commission_expenses_350_duration
-      - regulatory_commission_expenses_350_instant
-      - regulatory_commission_expenses_total_350_duration
-      - regulatory_commission_expenses_total_350_instant
-      - research_development_and_demonstration_activities_352_duration
-      - research_development_and_demonstration_activities_352_instant
-      - distribution_of_salaries_and_wages_354_duration
-      - distribution_of_salaries_and_wages_354_instant
-      - distribution_of_salaries_and_wages_other_accounts_354_duration
-      - distribution_of_salaries_and_wages_other_accounts_354_instant
-      - common_utility_plant_and_expenses_356_duration
-      - common_utility_plant_and_expenses_356_instant
-      - amounts_included_in_iso_rto_settlement_statements_397_duration
-      - amounts_included_in_iso_rto_settlement_statements_397_instant
-      - amounts_included_in_iso_rto_settlement_statements_other_397_duration
-      - amounts_included_in_iso_rto_settlement_statements_other_397_instant
-      - purchases_and_sales_of_ancillary_services_398_duration
-      - purchases_and_sales_of_ancillary_services_398_instant
-      - monthly_transmission_system_peak_load_400_duration
-      - monthly_transmission_system_peak_load_400_instant
-      - monthly_iso_rto_transmission_system_peak_load_400a_duration
-      - monthly_iso_rto_transmission_system_peak_load_400a_instant
-      - electric_energy_account_401a_duration
-      - electric_energy_account_401a_instant
-      - monthly_peaks_and_output_401b_duration
-      - monthly_peaks_and_output_401b_instant
-      - steam_electric_generating_plant_statistics_large_plants_402_duration
-      - steam_electric_generating_plant_statistics_large_plants_402_instant
-      - steam_electric_generating_plant_statistics_large_plants_fuel_statistics_402_duration
-      - steam_electric_generating_plant_statistics_large_plants_fuel_statistics_402_instant
-      - hydroelectric_generating_plant_statistics_large_plants_406_duration
-      - hydroelectric_generating_plant_statistics_large_plants_406_instant
-      - pumped_storage_generating_plant_statistics_large_plants_408_duration
-      - pumped_storage_generating_plant_statistics_large_plants_408_instant
-      - generating_plant_statistics_410_duration
-      - generating_plant_statistics_410_instant
-      - energy_storage_operations_large_plants_414_duration
-      - energy_storage_operations_large_plants_414_instant
-      - energy_storage_operations_large_plants_totals_414_duration
-      - energy_storage_operations_large_plants_totals_414_instant
-      - transmission_line_statistics_422_duration
-      - transmission_line_statistics_422_instant
-      - transmission_line_statistics_totals_422_duration
-      - transmission_line_statistics_totals_422_instant
-      - transmission_lines_added_during_year_424_duration
-      - transmission_lines_added_during_year_424_instant
-      - transmission_lines_added_during_year_total_424_duration
-      - transmission_lines_added_during_year_total_424_instant
-      - substations_426_duration
-      - substations_426_instant
-      - substations_total_426_duration
-      - substations_total_426_instant
-      - transactions_with_associated_affiliated_companies_provided_by_429_duration
-      - transactions_with_associated_affiliated_companies_provided_by_429_instant
-      - transactions_with_associated_affiliated_companies_provided_for_429_duration
-      - transactions_with_associated_affiliated_companies_provided_for_429_instant
-
   ferc2_xbrl_to_sqlite_settings:
     years: [2021]
   ferc6_xbrl_to_sqlite_settings:
@@ -549,30 +61,6 @@ description: >
 version: 0.1.0
 datasets:
   ferc1:
-    tables:
-      - fuel_ferc1 # requires plants_steam_ferc1 to load properly
-      - plants_steam_ferc1
-      - plants_small_ferc1
-      - plants_hydro_ferc1
-      - plants_pumped_storage_ferc1
-      - plant_in_service_ferc1
-      - purchased_power_ferc1
-      - transmission_statistics_ferc1
-      - electric_energy_sources_ferc1
-      - electric_energy_dispositions_ferc1
-      - utility_plant_summary_ferc1
-      - electric_operating_expenses_ferc1
-      - balance_sheet_liabilities_ferc1
-      - depreciation_amortization_summary_ferc1
-      - balance_sheet_assets_ferc1
-      - income_statement_ferc1
-      - electric_plant_depreciation_changes_ferc1
-      - electric_plant_depreciation_functional_ferc1
-      - retained_earnings_ferc1
-      - electric_operating_revenues_ferc1
-      - cash_flow_ferc1
-      - electricity_sales_by_rate_schedule_ferc1
-      - other_regulatory_liabilities_ferc1
     years:
       [
         1994,
@@ -604,14 +92,27 @@ datasets:
         2020,
         2021,
       ]
+  ferc714:
+    years:
+      [
+        2006,
+        2007,
+        2008,
+        2009,
+        2010,
+        2011,
+        2012,
+        2013,
+        2014,
+        2015,
+        2016,
+        2017,
+        2018,
+        2019,
+        2020,
+      ]
   eia:
     eia923:
-      tables:
-        - generation_fuel_eia923
-        - boiler_fuel_eia923
-        - generation_eia923
-        - coalmine_eia923 # REQUIRES fuel_receipts_costs_eia923
-        - fuel_receipts_costs_eia923
       years:
         [
           2001,
@@ -637,13 +138,6 @@ datasets:
           2021,
         ]
     eia860:
-      tables:
-        - boiler_generator_assn_eia860
-        - utilities_eia860
-        - plants_eia860
-        - generators_eia860
-        - ownership_eia860
-        - boilers_eia860
       years:
         [
           2001,
@@ -669,6 +163,31 @@ datasets:
           2021,
         ]
       eia860m: true
+    eia861:
+      years:
+        [
+          2001,
+          2002,
+          2003,
+          2004,
+          2005,
+          2006,
+          2007,
+          2008,
+          2009,
+          2010,
+          2011,
+          2012,
+          2013,
+          2014,
+          2015,
+          2016,
+          2017,
+          2018,
+          2019,
+          2020,
+          2021,
+        ]
   epacems:
     # Note that the CEMS data relies on EIA 860 data for plant locations,
     # so if you're loading CEMS data for a particular year, you should

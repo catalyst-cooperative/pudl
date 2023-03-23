@@ -4,7 +4,6 @@ import datetime
 
 import pandas as pd
 import pytz
-import sqlalchemy as sa
 
 import pudl.logging_helpers
 from pudl.helpers import remove_leading_zeros_from_numeric_strings
@@ -129,10 +128,10 @@ def convert_to_utc(df: pd.DataFrame, plant_utc_offset: pd.DataFrame) -> pd.DataF
     return df
 
 
-def _load_plant_utc_offset(pudl_engine: sa.engine.Engine) -> pd.DataFrame:
+def _load_plant_utc_offset(plants_entity_eia: pd.DataFrame) -> pd.DataFrame:
     """Load the UTC offset each EIA plant.
 
-    CEMS times don't change for DST, so we get get the UTC offset by using the
+    CEMS times don't change for DST, so we get the UTC offset by using the
     offset for the plants' timezones in January.
 
     Args:
@@ -142,16 +141,7 @@ def _load_plant_utc_offset(pudl_engine: sa.engine.Engine) -> pd.DataFrame:
     Returns:
         Dataframe of applicable timezones taken from the plants_entity_eia table.
     """
-    # Verify that we have a PUDL DB with plant attributes:
-    inspector = sa.inspect(pudl_engine)
-    if "plants_entity_eia" not in inspector.get_table_names():
-        raise RuntimeError(
-            "No plants_entity_eia available in the PUDL DB! Have you run the ETL? "
-            f"Trying to access PUDL DB: {pudl_engine}"
-        )
-    timezones = pd.read_sql(
-        sql="SELECT plant_id_eia, timezone FROM plants_entity_eia", con=pudl_engine
-    ).dropna()
+    timezones = plants_entity_eia[["plant_id_eia", "timezone"]].copy().dropna()
     jan1 = datetime.datetime(2011, 1, 1)  # year doesn't matter
     timezones["utc_offset"] = timezones["timezone"].apply(
         lambda tz: pytz.timezone(tz).localize(jan1).utcoffset()
@@ -183,7 +173,8 @@ def correct_gross_load_mw(df: pd.DataFrame) -> pd.DataFrame:
 
 def transform(
     raw_df: pd.DataFrame,
-    pudl_engine: sa.engine.Engine,
+    epacamd_eia: pd.DataFrame,
+    plants_entity_eia: pd.DataFrame,
 ) -> pd.DataFrame:
     """Transform EPA CEMS hourly data and ready it for export to Parquet.
 
@@ -195,13 +186,14 @@ def transform(
         A single year-state of EPA CEMS data
     """
     # Create all the table inputs used for the subtransform functions below
-    crosswalk_df = pd.read_sql("epacamd_eia", con=pudl_engine)
 
     return (
         raw_df.pipe(apply_pudl_dtypes, group="epacems")
         .pipe(remove_leading_zeros_from_numeric_strings, "emissions_unit_id_epa")
-        .pipe(harmonize_eia_epa_orispl, crosswalk_df)
-        .pipe(convert_to_utc, plant_utc_offset=_load_plant_utc_offset(pudl_engine))
+        .pipe(harmonize_eia_epa_orispl, epacamd_eia)
+        .pipe(
+            convert_to_utc, plant_utc_offset=_load_plant_utc_offset(plants_entity_eia)
+        )
         .pipe(correct_gross_load_mw)
         .pipe(apply_pudl_dtypes, group="epacems")
     )

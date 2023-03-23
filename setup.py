@@ -44,16 +44,18 @@ setup(
         "eia 861",
         "ferc 714",
     ],
-    python_requires=">=3.10,<3.11",
+    python_requires=">=3.11,<3.12",
     setup_requires=["setuptools_scm"],
     install_requires=[
         "addfips>=0.4,<0.5",
         "catalystcoop.dbfread>=3.0,<3.1",
         # "catalystcoop.ferc-xbrl-extractor==0.8.1",
         "catalystcoop-ferc_xbrl_extractor @ git+https://github.com/catalyst-cooperative/ferc-xbrl-extractor@pandas-2.0",
-        "coloredlogs>=15.0,<15.1",
+        "coloredlogs>=14.0,<15.1",  # Dagster requires 14.0
         "dask>=2021.8,<2023.3.2",
         "datapackage>=1.11,<1.16",  # Transition datastore to use frictionless.
+        "dagster>=1.2.2,<1.3",  # 1.2.2 is first version to support Python 3.11
+        "dagit>=1.2.2,<1.3",  # 1.2.2 is first version to support Python 3.11
         # "email-validator>=1.0.3",  # pydantic[email] dependency
         "fsspec>=2021.7,<2023.3.1",  # For caching datastore on GCS
         "gcsfs>=2021.7,<2023.3.1",  # For caching datastore on GCS
@@ -65,6 +67,7 @@ setup(
         "pandas==2.0.0rc1",
         "pyarrow>=5,<11.1",
         "pydantic[email]>=1.7,<2",
+        "python-dotenv~=0.21.0",
         "python-snappy>=0.6,<0.7",
         "pyyaml>=5,<6.1",
         "recordlinkage>=0.14,<0.16",
@@ -79,10 +82,11 @@ setup(
         "dev": [
             "black>=22.0,<23.2",
             "docformatter>=1.5,<1.6",
+            "ipdb>=0.13,<0.14",
             "isort>=5.0,<5.13",
             "jedi>=0.18,<0.19",
             "lxml>=4.6,<4.10",
-            "tox>=3.20,<4.5",
+            "tox>=4,<4.5",
             "twine>=3.3,<4.1",
         ],
         "doc": [
@@ -130,7 +134,7 @@ setup(
         "Programming Language :: Python",
         "Programming Language :: Python :: 3",
         "Programming Language :: Python :: 3 :: Only",
-        "Programming Language :: Python :: 3.10",
+        "Programming Language :: Python :: 3.11",
         "Topic :: Scientific/Engineering",
     ],
     packages=find_packages("src"),
@@ -144,7 +148,7 @@ setup(
             "censusdp1tract_to_sqlite = pudl.convert.censusdp1tract_to_sqlite:main",
             "metadata_to_rst = pudl.convert.metadata_to_rst:main",
             "epacems_to_parquet = pudl.convert.epacems_to_parquet:main",
-            "ferc_to_sqlite = pudl.convert.ferc_to_sqlite:main",
+            "ferc_to_sqlite = pudl.ferc_to_sqlite.cli:main",
             "datasette_metadata_to_yml = pudl.convert.datasette_metadata_to_yml:main",
             "pudl_datastore = pudl.workspace.datastore:main",
             "pudl_etl = pudl.cli:main",
@@ -153,6 +157,7 @@ setup(
             # See https://github.com/catalyst-cooperative/pudl/issues/1174
             # "pudl_territories = pudl.analysis.service_territory:main",
             "state_demand = pudl.analysis.state_demand:main",
+            "pudl_check_fks = pudl.etl.check_foreign_keys:main",
         ]
     },
 )

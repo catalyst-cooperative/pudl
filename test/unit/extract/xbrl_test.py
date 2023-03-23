@@ -1,12 +1,16 @@
 """Tests for xbrl extraction module."""
 import io
 import json
+import os
 from datetime import datetime, timedelta
+from pathlib import Path
 
 import pytest
+from dagster import build_op_context
 
 from pudl.extract.xbrl import FercXbrlDatastore, convert_form, xbrl2sqlite
 from pudl.settings import (
+    Ferc1DbfToSqliteSettings,
     Ferc1XbrlToSqliteSettings,
     Ferc2XbrlToSqliteSettings,
     Ferc6XbrlToSqliteSettings,
@@ -154,7 +158,17 @@ def test_ferc_xbrl_datastore_get_filings(mocker, file_map, selected_filings):
             ),
             [form for form in XbrlFormNumber if form != XbrlFormNumber.FORM1],
         ),
-        (FercToSqliteSettings(), []),
+        (
+            FercToSqliteSettings(
+                ferc1_dbf_to_sqlite_settings=Ferc1DbfToSqliteSettings(),
+                ferc1_xbrl_to_sqlite_settings=None,
+                ferc2_xbrl_to_sqlite_settings=None,
+                ferc6_xbrl_to_sqlite_settings=None,
+                ferc60_xbrl_to_sqlite_settings=None,
+                ferc714_xbrl_to_sqlite_settings=None,
+            ),
+            [],
+        ),
     ],
 )
 def test_xbrl2sqlite(settings, forms, mocker):
@@ -167,14 +181,20 @@ def test_xbrl2sqlite(settings, forms, mocker):
     # Mock datastore object to allow comparison
     mocker.patch("pudl.extract.xbrl.FercXbrlDatastore", return_value="datastore")
 
-    xbrl2sqlite(
-        ferc_to_sqlite_settings=settings,
-        pudl_settings="pudl_settings",
-        clobber=True,
-        datastore="datastore",
-        batch_size=20,
-        workers=10,
+    # Construct xbrl2sqlite op context
+    context = build_op_context(
+        resources={
+            "ferc_to_sqlite_settings": settings,
+            "datastore": "datastore",
+        },
+        config={
+            "workers": 10,
+            "batch_size": 20,
+            "clobber": True,
+        },
     )
+
+    xbrl2sqlite(context)
 
     if len(forms) == 0:
         convert_form_mock.assert_not_called()
@@ -185,7 +205,7 @@ def test_xbrl2sqlite(settings, forms, mocker):
             form,
             "datastore",
             "sqlite_engine",
-            pudl_settings="pudl_settings",
+            output_path=Path(os.getenv("PUDL_OUTPUT")),
             batch_size=20,
             workers=10,
         )
@@ -206,23 +226,19 @@ def test_convert_form(mocker):
 
     settings = FercGenericXbrlToSqliteSettings(
         taxonomy="https://www.fake.taxonomy.url",
-        tables=["table1", "table2"],
         years=[2020, 2021],
     )
 
+    output_path = Path("/output/path/")
+
     # Test convert_form for every form number
     for form in XbrlFormNumber:
-        pudl_settings = {
-            f"ferc{form.value}_xbrl_datapackage": "datapackage_path",
-            f"ferc{form.value}_xbrl_taxonomy_metadata": "metadata_path",
-        }
-
         convert_form(
             settings,
             form,
             FakeDatastore(),
             "sqlite_engine",
-            pudl_settings=pudl_settings,
+            output_path=output_path,
             batch_size=10,
             workers=5,
         )
@@ -234,10 +250,13 @@ def test_convert_form(mocker):
                 "sqlite_engine",
                 f"raw_archive_{year}_{form}",
                 form.value,
-                requested_tables=settings.tables,
                 batch_size=10,
                 workers=5,
-                datapackage_path="datapackage_path",
-                metadata_path="metadata_path",
+                datapackage_path=str(
+                    output_path / f"ferc{form.value}_xbrl_datapackage.json"
+                ),
+                metadata_path=str(
+                    output_path / f"ferc{form.value}_xbrl_taxonomy_metadata.json"
+                ),
                 archive_file_path=f"taxonomy_entry_point_{year}_{form}",
             )

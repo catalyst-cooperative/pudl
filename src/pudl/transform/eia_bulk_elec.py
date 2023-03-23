@@ -125,7 +125,8 @@ def _transform_timeseries(raw_ts: pd.DataFrame) -> pd.DataFrame:
     return ts
 
 
-def transform(raw_dfs: dict[str, pd.DataFrame]) -> dict[str, pd.DataFrame]:
+# TODO (bendnorman): Are we planning on extracting multiple dataframes from the EIA API?
+def transform(raw_dfs: dict[str, pd.DataFrame]) -> pd.DataFrame:
     """Transform raw EIA bulk electricity aggregates.
 
     Args:
@@ -139,6 +140,4 @@ def transform(raw_dfs: dict[str, pd.DataFrame]) -> dict[str, pd.DataFrame]:
     ts = _transform_timeseries(raw_dfs["timeseries"])
     # raw_dfs["metadata"] is mostly useless after joining the keys into the timeseries,
     # so don't return it
-    return {
-        "fuel_receipts_costs_aggs_eia": ts,
-    }
+    return ts

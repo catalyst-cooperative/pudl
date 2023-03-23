@@ -41,7 +41,7 @@ repos:
     rev: 23.1.0
     hooks:
       - id: black
-        language_version: python3.10
+        language_version: python3.11
 
   # Format docstrings
   - repo: https://github.com/PyCQA/docformatter
@@ -73,7 +73,7 @@ repos:
     rev: v3.3.1
     hooks:
       - id: pyupgrade
-        args: ["--py310-plus"]
+        args: ["--py311-plus"]
 
   ####################################################################################
   # Linters: hooks that check but don't alter Python and documentation files
@@ -102,6 +102,7 @@ repos:
     rev: 1.7.5
     hooks:
       - id: bandit
+        additional_dependencies: ["bandit[toml]"]
         args: ["--configfile", ".bandit.yml"]
 
   # Lint Dockerfiles for errors and to ensure best practices

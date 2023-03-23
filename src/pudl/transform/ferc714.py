@@ -3,12 +3,10 @@ import re
 
 import numpy as np
 import pandas as pd
+from dagster import asset
 
 import pudl.logging_helpers
-from pudl.metadata.classes import Resource
-from pudl.metadata.fields import apply_pudl_dtypes
-from pudl.metadata.resources import RESOURCE_METADATA
-from pudl.settings import Ferc714Settings
+from pudl.metadata.classes import Package
 
 logger = pudl.logging_helpers.get_logger(__name__)
 
@@ -287,12 +285,45 @@ RENAME_COLS = {
     },
 }
 
+
 ##############################################################################
 # Internal helper functions.
 ##############################################################################
+def _pre_process(df: pd.DataFrame, table_name: str) -> pd.DataFrame:
+    """A simple transform function for until the real ones are written.
+
+    * Removes footnotes columns ending with _f
+    * Drops report_prd, spplmnt_num, and row_num columns
+    * Excludes records which pertain to bad (test) respondents.
+    """
+    logger.info("Removing unneeded columns and dropping bad respondents.")
+
+    out_df = (
+        df.rename(columns=RENAME_COLS[table_name])
+        .filter(regex=r"^(?!.*_f$).*")
+        .drop(["report_prd", "spplmnt_num", "row_num"], axis="columns", errors="ignore")
+    )
+    # Exclude fake Test IDs -- not real respondents
+    out_df = out_df[~out_df.respondent_id_ferc714.isin(BAD_RESPONDENTS)]
+    return out_df
 
 
-def _standardize_offset_codes(df, offset_fixes):
+def _post_process(df: pd.DataFrame, table_name: str) -> pd.DataFrame:
+    """Uniform post-processing of FERC 714 tables.
+
+    Applies standard data types and ensures that the tables generally conform to the
+    schemas we have defined for them.
+
+    Args:
+        df: A dataframe to be post-processed.
+
+    Returns:
+        The post-processed dataframe.
+    """
+    return Package.from_resource_ids().get_resource(table_name).enforce_schema(df)
+
+
+def _standardize_offset_codes(df: pd.DataFrame, offset_fixes) -> pd.DataFrame:
     """Convert to standardized UTC offset abbreviations.
 
     This function ensures that all of the 3-4 letter abbreviations used to indicate a
@@ -325,7 +356,7 @@ def _standardize_offset_codes(df, offset_fixes):
     Returns:
         Standardized UTC offset codes.
     """
-    logger.debug("Standardizing UTC offset codes.")
+    logger.info("Standardizing UTC offset codes.")
     # We only need a couple of columns here:
     codes = df[["respondent_id_ferc714", "utc_offset_code"]].copy()
     # Set all blank "" missing UTC codes to np.nan
@@ -337,41 +368,34 @@ def _standardize_offset_codes(df, offset_fixes):
     return codes
 
 
-def _log_dupes(df, dupe_cols):
-    """A macro to report the number of duplicate hours found."""
-    n_dupes = len(df[df.duplicated(dupe_cols)])
-    logger.debug(f"Found {n_dupes} duplicated hours.")
-
-
-def respondent_id(tfr_dfs):
+@asset(io_manager_key="pudl_sqlite_io_manager")
+def respondent_id_ferc714(raw_respondent_id_ferc714: pd.DataFrame) -> pd.DataFrame:
     """Transform the FERC 714 respondent IDs, names, and EIA utility IDs.
 
-    This consists primarily of dropping test respondents and manually assigning EIA
-    utility IDs to a few FERC Form 714 respondents that report planning area demand, but
-    which don't have their corresponding EIA utility IDs provided by FERC for some
-    reason (including PacifiCorp).
+    Clean up FERC-714 respondent names and manually assign EIA utility IDs to a few FERC
+    Form 714 respondents that report planning area demand, but which don't have their
+    corresponding EIA utility IDs provided by FERC for some reason (including
+    PacifiCorp).
 
     Args:
-        tfr_dfs (dict): A dictionary of (partially) transformed dataframes, to be
-            cleaned up.
+        raw_respondent_id_ferc714: Raw table describing the FERC 714 Respondents.
 
     Returns:
-        dict: The input dictionary of dataframes, but with a finished
-        respondent_id_ferc714 dataframe.
+        A clean(er) version of the FERC-714 respondents table.
     """
-    df = tfr_dfs["respondent_id_ferc714"]
+    df = _pre_process(raw_respondent_id_ferc714, table_name="respondent_id_ferc714")
     df["respondent_name_ferc714"] = df.respondent_name_ferc714.str.strip()
     df.loc[df.eia_code == 0, "eia_code"] = pd.NA
-    # These excludes fake Test IDs -- not real planning areas
-    df = df[~df.respondent_id_ferc714.isin(BAD_RESPONDENTS)]
     # There are a few utilities that seem mappable, but missing:
     for rid in EIA_CODE_FIXES:
         df.loc[df.respondent_id_ferc714 == rid, "eia_code"] = EIA_CODE_FIXES[rid]
-    tfr_dfs["respondent_id_ferc714"] = df
-    return tfr_dfs
+    return _post_process(df, table_name="respondent_id_ferc714")
 
 
-def demand_hourly_pa(tfr_dfs):
+@asset(io_manager_key="pudl_sqlite_io_manager")
+def demand_hourly_pa_ferc714(
+    raw_demand_hourly_pa_ferc714: pd.DataFrame,
+) -> pd.DataFrame:
     """Transform the hourly demand time series by Planning Area.
 
     Transformations include:
@@ -384,15 +408,16 @@ def demand_hourly_pa(tfr_dfs):
     - Flip negative signs for reported demand.
 
     Args:
-        tfr_dfs (dict): A dictionary of (partially) transformed dataframes, to be
-            cleaned up.
+        raw_demand_hourly_pa_ferc714: Raw table containing hourly demand time series by
+            Planning Area.
 
     Returns:
-        dict: The input dictionary of dataframes, but with a finished
-        pa_demand_hourly_ferc714 dataframe.
+        Clean(er) version of the hourly demand time series by Planning Area.
     """
-    logger.debug("Converting dates into pandas Datetime types.")
-    df = tfr_dfs["demand_hourly_pa_ferc714"].copy()
+    logger.info("Converting dates into pandas Datetime types.")
+    df = _pre_process(
+        raw_demand_hourly_pa_ferc714, table_name="demand_hourly_pa_ferc714"
+    )
 
     # Parse date strings
     # NOTE: Faster to ignore trailing 00:00:00 and use exact=False
@@ -432,7 +457,7 @@ def demand_hourly_pa(tfr_dfs):
     df.drop(columns="hour25", inplace=True)
 
     # Melt daily rows with 24 demands to hourly rows with single demand
-    logger.debug("Melting daily FERC 714 records into hourly records.")
+    logger.info("Melting daily FERC 714 records into hourly records.")
     df.rename(
         columns=lambda x: int(re.sub(r"^hour", "", x)) - 1 if "hour" in x else x,
         inplace=True,
@@ -457,7 +482,7 @@ def demand_hourly_pa(tfr_dfs):
     df.query("~@missing_offset", inplace=True)
 
     # Construct UTC datetime
-    logger.debug("Converting local time + offset code to UTC + timezone.")
+    logger.info("Converting local time + offset code to UTC + timezone.")
     hour_timedeltas = {i: pd.to_timedelta(i, unit="h") for i in range(24)}
     df["report_date"] += df["hour"].map(hour_timedeltas)
     df["utc_datetime"] = df["report_date"] - df["utc_offset"]
@@ -467,7 +492,7 @@ def demand_hourly_pa(tfr_dfs):
     # There should be less than 10 of these,
     # resulting from changes to a planning area's reporting timezone.
     duplicated = df.duplicated(["respondent_id_ferc714", "utc_datetime"])
-    logger.debug(f"Found {np.count_nonzero(duplicated)} duplicate UTC datetimes.")
+    logger.info(f"Found {np.count_nonzero(duplicated)} duplicate UTC datetimes.")
     df.query("~@duplicated", inplace=True)
 
     # Flip the sign on sections of demand which were reported as negative
@@ -494,116 +519,5 @@ def demand_hourly_pa(tfr_dfs):
         "demand_mwh",
     ]
     df.drop(columns=set(df.columns) - set(columns), inplace=True)
-    tfr_dfs["demand_hourly_pa_ferc714"] = df[columns]
-    return tfr_dfs
-
-
-def id_certification(tfr_dfs):
-    """A stub transform function."""
-    return tfr_dfs
-
-
-def gen_plants_ba(tfr_dfs):
-    """A stub transform function."""
-    return tfr_dfs
-
-
-def demand_monthly_ba(tfr_dfs):
-    """A stub transform function."""
-    return tfr_dfs
-
-
-def net_energy_load_ba(tfr_dfs):
-    """A stub transform function."""
-    return tfr_dfs
-
-
-def adjacency_ba(tfr_dfs):
-    """A stub transform function."""
-    return tfr_dfs
-
-
-def interchange_ba(tfr_dfs):
-    """A stub transform function."""
-    return tfr_dfs
-
-
-def lambda_hourly_ba(tfr_dfs):
-    """A stub transform function."""
-    return tfr_dfs
-
-
-def lambda_description(tfr_dfs):
-    """A stub transform function."""
-    return tfr_dfs
-
-
-def description_pa(tfr_dfs):
-    """A stub transform function."""
-    return tfr_dfs
-
-
-def demand_forecast_pa(tfr_dfs):
-    """A stub transform function."""
-    return tfr_dfs
-
-
-def _early_transform(raw_df):
-    """A simple transform function for until the real ones are written.
-
-    * Removes footnotes columns ending with _f
-    * Drops report_prd, spplmnt_num, and row_num columns
-    * Excludes records which pertain to bad (test) respondents.
-    """
-    logger.debug("Removing unneeded columns and dropping bad respondents.")
-
-    out_df = (
-        raw_df.filter(regex=r"^(?!.*_f$).*")
-        .drop(["report_prd", "spplmnt_num", "row_num"], axis="columns", errors="ignore")
-        .query("respondent_id_ferc714 not in @BAD_RESPONDENTS")
-    )
-    return out_df
-
-
-def transform(raw_dfs, ferc714_settings: Ferc714Settings = Ferc714Settings()):
-    """Prepare the raw FERC 714 dataframes for loading into the PUDL database.
-
-    Args:
-        raw_dfs (dict): A dictionary of raw pandas.DataFrame objects, as read out of
-            the original FERC 714 CSV files. Generated by the
-            `pudl.extract.ferc714.extract()` function.
-        tables (iterable): The set of PUDL tables within FERC 714 that we should
-            process. Typically set to all of them, unless
-
-    Returns:
-        dict: A dictionary of pandas.DataFrame objects that are ready to be output in a
-        data package / database table.
-    """
-    tfr_funcs = {
-        "respondent_id_ferc714": respondent_id,
-        "demand_hourly_pa_ferc714": demand_hourly_pa,
-        # These tables have yet to be fully transformed:
-        "description_pa_ferc714": description_pa,
-        "id_certification_ferc714": id_certification,
-        "gen_plants_ba_ferc714": gen_plants_ba,
-        "demand_monthly_ba_ferc714": demand_monthly_ba,
-        "net_energy_load_ba_ferc714": net_energy_load_ba,
-        "adjacency_ba_ferc714": adjacency_ba,
-        "interchange_ba_ferc714": interchange_ba,
-        "lambda_hourly_ba_ferc714": lambda_hourly_ba,
-        "lambda_description_ferc714": lambda_description,
-        "demand_forecast_pa_ferc714": demand_forecast_pa,
-    }
-    tfr_dfs = {}
-    for table in ferc714_settings.tables:
-        logger.info(f"Transforming {table}.")
-        tfr_dfs[table] = (
-            raw_dfs[table].rename(columns=RENAME_COLS[table]).pipe(_early_transform)
-        )
-        tfr_dfs = tfr_funcs[table](tfr_dfs)
-        if table in RESOURCE_METADATA:
-            tfr_dfs[table] = Resource.from_id(table).format_df(tfr_dfs[table])
-        else:
-            tfr_dfs[table] = apply_pudl_dtypes(tfr_dfs[table], group="ferc714")
-
-    return tfr_dfs
+    df = _post_process(df[columns], table_name="demand_hourly_pa_ferc714")
+    return df

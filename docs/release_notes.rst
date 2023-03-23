@@ -2,11 +2,62 @@
 PUDL Release Notes
 =======================================================================================
 
-.. _release-v2023.XX.XX:
-
 ---------------------------------------------------------------------------------------
 v2023.XX.XX
 ---------------------------------------------------------------------------------------
+
+Dagster Adoption
+^^^^^^^^^^^^^^^^
+* After comparing comparing python orchestration tools :issue:`1487`, we decided to
+  adopt `Dagster <https://dagster.io/>`__. Dagster will allow us to parallize the ETL,
+  persist datafarmes at any step in the data cleaning process, visualize data
+  depedencies and run subsets of the ETL from upstream caches.
+* We are converting PUDL code to use dagster concepts in two phases. The first phase
+  converts the ETL portion of the code base to use
+  `software defined assets <https://docs.dagster.io/concepts/assets/software-defined-assets>`__
+  :issue:`1570`. We will convert the pandas computations cached in the
+  :mod:`pudl.output.pudltabl.PudlTabl` class to use software defined assets in
+  phase 2 :issue:`1973`.
+* General changes:
+
+  * :mod:`pudl.etl` is now a subpackage that collects all pudl assets into a dagster
+    `Definition <https://docs.dagster.io/concepts/code-locations>`__.
+  * The ``pudl_settings``, ``Datastore`` and ``DatasetSettings`` are now dagster
+    resources. See :mod:`pudl.resources`.
+  * The ``pudl_etl``  and ``ferc_to_sqlite`` commands no longer support loading
+    specific tables. The commands run all of the tables. Use dagster assets to
+    run subsets of the tables.
+  * The ``--clobber`` argument has been removed from the ``pudl_etl`` command.
+  * New static method :mod:`pudl.metadata.classes.Package.get_etl_group_tables`
+    returns the resources ids for a given etl group.
+  * :mod:`pudl.settings.FercToSqliteSettings` class now loads all FERC
+    datasources if no datasets are specified.
+
+* EIA ETL changes:
+
+  * EIA extract methods are now ``@multi_asset`` that return an asset for each
+    raw table. 860 and 923 are separate ``@multi_asset`` which allows this data
+    to be extracted in parallel.
+  * The EIA table level cleaning functions are now
+    dagster assets. The table level cleaning assets now have a "clean\_" prefix
+    and a "_{datasource}" suffix to distinguish them from the final harvested tables.
+  * ``pudl.transform.eia.transform()`` is now a ``@multi_asset`` that depends
+    on all of the EIA table level cleaning functions / assets.
+
+* EPA CEMS ETL changes:
+
+  * :func:`pudl.transform.epacems.transform()` now loads the ``epacamd_eia`` and
+    ``plants_entity_eia`` tables as dataframes using the
+    :mod:`pudl.io_manager.pudl_sqlite_io_manager` instead of reading the tables
+    using a ``pudl_engine``.
+  * Adds a Ohio plant that is in 2021 CEMS but missing from EIA since 2018 to
+    the ``additional_epacems_plants.csv`` sheet.
+
+* FERC ETL changes:
+
+  * :mod:`pudl.extract.ferc1.dbf2sqlite()` and :mod:`pudl.extract.xbrl.xbrl2sqlite()`
+    are now configurable dagster ops. These ops make up the
+    ``ferc_to_sqlite`` dagster graph in :mod:`pudl.ferc_to_sqlite.defs`.
 
 Data Coverage
 ^^^^^^^^^^^^^
@@ -38,10 +89,59 @@ Data Coverage
   * :ref:`cash_flow_ferc1`, see issue :issue:`1821` & PR :pr:`2184`
   * :ref:`electricity_sales_by_rate_schedule_ferc1`, see issue :issue:`1823` & PR
     :pr:`2205`
+
 * The :ref:`boilers_eia860` table now includes annual boiler attributes from
   :doc:`data_sources/eia860` Schedule 6.2 Environmental Equipment data, and the new
   :ref:`boilers_entity_eia` table now includes static boiler attributes. See issue
   :issue:`1162` & PR :pr:`2319`.
+* All :doc:`data_sources/eia861` tables are now being loaded into the PUDL DB, rather
+  than only being available via an ad-hoc ETL process that was only accessible through
+  the :class:`pudl.output.pudltabl.PudlTabl` class. Note that most of these tables have
+  not been normalized, and the ``utility_id_eia`` and ``balancing_authority_id_eia``
+  values in them haven't been harvested, so these tables have very few valid foreign key
+  relationships with the rest of the database right now -- but at least the data is
+  available in the database! Existing methods for accessing these tables have been
+  preserved. The ``PudlTabl`` methods just read directly from the DB and apply uniform
+  data types, rather than actually doing the ETL. See :issue:`2265` & :pr:`2403`. The
+  newly accessible tables contain data from 2001-2021 and include:
+
+  * :ref:`advanced_metering_infrastructure_eia861`
+  * :ref:`balancing_authority_eia861`
+  * :ref:`balancing_authority_assn_eia861`
+  * :ref:`demand_response_eia861`
+  * :ref:`demand_response_water_heater_eia861`
+  * :ref:`demand_side_management_sales_eia861`
+  * :ref:`demand_side_management_ee_dr_eia861`
+  * :ref:`demand_side_management_misc_eia861`
+  * :ref:`distributed_generation_tech_eia861`
+  * :ref:`distributed_generation_fuel_eia861`
+  * :ref:`distributed_generation_misc_eia861`
+  * :ref:`distribution_systems_eia861`
+  * :ref:`dynamic_pricing_eia861`
+  * :ref:`energy_efficiency_eia861`
+  * :ref:`green_pricing_eia861`
+  * :ref:`mergers_eia861`
+  * :ref:`net_metering_customer_fuel_class_eia861`
+  * :ref:`net_metering_misc_eia861`
+  * :ref:`non_net_metering_customer_fuel_class_eia861`
+  * :ref:`non_net_metering_misc_eia861`
+  * :ref:`operational_data_revenue_eia861`
+  * :ref:`operational_data_misc_eia861`
+  * :ref:`reliability_eia861`
+  * :ref:`sales_eia861`
+  * :ref:`service_territory_eia861`
+  * :ref:`utility_assn_eia861`
+  * :ref:`utility_data_nerc_eia861`
+  * :ref:`utility_data_rto_eia861`
+  * :ref:`utility_data_misc_eia861`
+
+* A couple of tables from :doc:`data_sources/ferc714` have been added to the PUDL DB.
+  These tables contain data from 2006-2020 (2021 is distributed by FERC in XBRL format
+  and we have not yet integrated it). See :issue:`2266` & :pr:`2421`. The newly
+  accessible tables include:
+
+  * :ref:`respondent_id_ferc714` (linking FERC-714 respondents to EIA utilities)
+  * :ref:`demand_hourly_pa_ferc714` (hourly electricity demand by planning area)
 
 Data Cleaning
 ^^^^^^^^^^^^^
@@ -77,10 +177,45 @@ Deprecations
   ``pudl-zenodo-datastore`` repositories with references to `pudl-archiver
   <https://www.github.com/catalyst-cooperative/pudl-archiver>`__ repository in
   :doc:`intro`, :doc:`dev/datastore`, and :doc:`dev/annual_updates`. See :pr:`2190`.
+* :mod:`pudl.etl` is now a subpackage that collects all pudl assets into a dagster
+  `Definition <https://docs.dagster.io/concepts/code-locations>`__. All
+  ``pudl.etl._etl_{datasource}`` functions have been deprecated. The coordination
+  of ETL steps is being handled by dagster.
+* The ``pudl.load`` module has been removed in favor of using the
+  :mod:`pudl.io_managers.pudl_sqlite_io_manager`.
+* The ``pudl_etl``  and ``ferc_to_sqlite`` commands no longer support loading
+  specific tables. The commands run all of the tables. Use dagster assets to
+  run subsets of the tables.
+* The ``--clobber`` argument has been removed from the ``pudl_etl`` command.
+* ``pudl.transform.eia860.transform()`` and ``pudl.transform.eia923.transform()``
+  functions have been deprecated. The table level EIA cleaning funtions are now
+  coordinated using dagster.
+* The :mod:`pudl.convert.epacems_to_parquet` command now executes the
+  ``hourly_emissions_epacems`` asset as a dagster job. The ``—partition`` option
+  is no longer supported. Now only creates a directory of parquet files
+  for each year/state partition.
+* ``pudl.transform.ferc1.transform()`` has been removed. The ferc1 table
+    transformations are now being orchestrated with Dagster.
+* ``pudl.transform.ferc1.transform`` can no longer be executed as a script.
+  Use dagit to execute just the FERC Form 1 pipeline.
+* ``pudl.extract.ferc1.extract_dbf``, ``pudl.extract.ferc1.extract_xbrl``
+  ``pudl.extract.ferc1.extract_xbrl_single``,
+  ``pudl.extract.ferc1.extract_dbf_single``,
+  ``pudl.extract.ferc1.extract_xbrl_generic``,
+  ``pudl.extract.ferc1.extract_dbf_generic`` have all been deprecated. The extraction
+  logic is now covered by the :mod:`pudl.io_managers.ferc1_xbrl_sqlite_io_manager` and
+  :mod:`pudl.io_managers.ferc1_dbf_sqlite_io_manager` IO Managers.
+* ``pudl.extract.ferc1.extract_xbrl_metadata`` has been replaced by the
+  :func:`pudl.extract.ferc1.xbrl_metadata_json` asset.
+* All sub classes of :func:`pudl.settings.GenericDatasetSettings` in
+  :mod:`pudl.settings` no longer have table attributes because the ETL no longer
+  supports loading specific tables via settings. Use dagster to select subsets of
+  tables to process.
 
 Miscellaneous
 ^^^^^^^^^^^^^
 
+* Updated PUDL to use Python 3.11. See :pr:`2408` & :issue:`2383`
 * Apply start and end dates to ferc1 data in :class:`pudl.output.pudltabl.PudlTabl`.
   See :pr:`2238` & :issue:`274`.
 * Added the ability to serialize :class:`pudl.output.pudltabl.PudlTabl` using
@@ -115,7 +250,7 @@ Data Coverage
   repositories. See issue :issue:`catalyst-cooperative/pudl-zenodo-storage#29`.
 * Incorporated 2021 data from the :doc:`data_sources/epacems` dataset. See :pr:`1778`
 * Incorporated Final Release 2021 data from the :doc:`data_sources/eia860`,
-  :ref:`data-eia861`, and :doc:`data_sources/eia923`. We also integrated a
+  :doc:`data_sources/eia861`, and :doc:`data_sources/eia923`. We also integrated a
   ``data_maturity`` column and related ``data_maturities`` table into most of the EIA
   data tables in order to alter users to the level of finality of the data. See
   :pr:`1834,1855,1915,1921`.
@@ -479,8 +614,8 @@ Data Coverage Changes
   * EIA Form 860m through 2021-08.
   * :doc:`data_sources/eia923` for 2020.
   * :doc:`data_sources/ferc1` for 2020.
-  * :ref:`data-eia861` data for 2020.
-  * :ref:`data-ferc714` data for 2020.
+  * :doc:`data_sources/eia861` data for 2020.
+  * :doc:`data_sources/ferc714` for 2020.
   * Note: the 2020 :doc:`data_sources/epacems` data was already available in v0.4.0.
 
 * **EPA IPM / NEEDS** data has been removed from PUDL as we didn't have the internal
@@ -621,8 +756,8 @@ New Data Coverage
 * :doc:`data_sources/epacems` for 2019-2020
 * :doc:`data_sources/ferc1` for 2019
 * :ref:`US Census Demographic Profile (DP1) <data-censusdp1tract>` for 2010
-* :ref:`data-ferc714` for 2006-2019 (experimental)
-* :ref:`data-eia861` for 2001-2019 (experimental)
+* :doc:`data_sources/ferc714` for 2006-2019 (experimental)
+* :doc:`data_sources/eia861` for 2001-2019 (experimental)
 
 Documentation & Data Accessibility
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
