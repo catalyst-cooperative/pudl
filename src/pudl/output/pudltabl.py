@@ -155,7 +155,7 @@ class PudlTabl:
         Returns:
             pandas.DataFrame: a denormalized table for interactive use.
         """
-        return pd.read_sql("denorm_plants_utils_ferc1", self.pudl_engine).pipe(
+        return pd.read_sql_table("denorm_plants_utils_ferc1", self.pudl_engine).pipe(
             apply_pudl_dtypes, group="eia"
         )
 
