@@ -1368,7 +1368,7 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
         have an end_date at the end of the report_year.
         """
         len_og = len(df)
-        df = df.astype({"start_date": "datetime64", "end_date": "datetime64"})
+        df = df.astype({"start_date": "datetime64[s]", "end_date": "datetime64[s]"})
         df = df[
             (df.start_date.dt.year == df.report_year)
             & (df.start_date.dt.month == 1)
