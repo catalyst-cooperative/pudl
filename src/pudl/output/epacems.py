@@ -5,27 +5,19 @@ from pathlib import Path
 
 import dask.dataframe as dd
 import pandas as pd
+import sqlalchemy as sa
 
 import pudl
 from pudl.settings import EpaCemsSettings
 
-# TODO: hardcoded data version doesn't belong here, but will defer fixing it until
-# the crosswalk is formally integrated into PUDL. See Issue #1123
-EPA_CROSSWALK_RELEASE = (
-    "https://github.com/USEPA/camd-eia-crosswalk/releases/download/v0.2.1/"
-)
 
-
-def epa_crosswalk() -> pd.DataFrame:
-    # TODO: formally integrate this into PUDL. See Issue #1123
-    """Read EPA/EIA crosswalk from EPA github repo.
-
-    See https://github.com/USEPA/camd-eia-crosswalk for details and data dictionary
-
-    Returns:
-        pd.Dataframe: EPA/EIA crosswalk
-    """
-    return pd.read_csv(EPA_CROSSWALK_RELEASE + "epa_eia_crosswalk.csv")
+def epacamd_eia(pudl_engine: sa.engine.Engine) -> pd.DataFrame:
+    """Pull the EPACAMD-EIA Crosswalk table."""
+    pt = pudl.output.pudltabl.get_table_meta(pudl_engine)
+    crosswalk_tbl = pt["epacamd_eia"]
+    crosswalk_select = sa.sql.select(crosswalk_tbl)
+    crosswalk_df = pd.read_sql(crosswalk_select, pudl_engine)
+    return crosswalk_df
 
 
 def year_state_filter(
@@ -58,7 +50,6 @@ def year_state_filter(
     Returns:
         A list of lists of tuples, suitable for use as a filter in the
         read_parquet() method of pandas and dask dataframes.
-
     """
     if years is not None:
         year_filters = [("year", "=", year) for year in years]
@@ -93,7 +84,6 @@ def get_plant_states(plant_ids, pudl_out):
     Returns:
         list: A list containing the 2-letter state abbreviations for any state that was
         found in association with one or more of the plant_ids.
-
     """
     return list(
         pudl_out.plants_eia860().query("plant_id_eia in @plant_ids").state.unique()
@@ -120,7 +110,6 @@ def get_plant_years(plant_ids, pudl_out):
     Returns:
         list: A list containing the 4-digit integer years found in association with one
         or more of the plant_ids.
-
     """
     return list(
         pudl_out.plants_eia860()
@@ -146,7 +135,6 @@ def epacems(
 
     Returns:
         The requested epacems data
-
     """
     epacems_settings = EpaCemsSettings(states=states, years=years)
 

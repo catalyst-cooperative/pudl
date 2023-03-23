@@ -13,9 +13,10 @@ These instructions assume you have already gone through the :ref:`dev_setup`.
 
 There are two main scripts involved in the PUDL processing pipeline:
 
-1. ``ferc1_to_sqlite`` :doc:`converts the FERC Form 1 DBF files <clone_ferc1>` into a
-   single large `SQLite <https://sqlite.org>`__ database so that the data is easier
-   to extract, and so all of the raw FERC Form 1 data is available in a modern format.
+1. ``ferc_to_sqlite`` :doc:`converts the FERC Form 1 DBF/XBRL files <clone_ferc1>` into
+   a single large `SQLite <https://sqlite.org>`__ database so that the data is easier to
+   extract, and so all of the raw FERC Form 1 data is available in a modern format. You
+   must run this script before you can run ``pudl_etl``.
 2. ``pudl_etl`` coordinates the "Extract, Transform, Load" process that processes
    20+ years worth of data from the FERC Form 1 database, dozens of EIA spreadsheets,
    and the thousands of CSV files that make up the EPA CEMS hourly emissions data into
@@ -34,18 +35,23 @@ you run ``pudl_setup``. (see: :ref:`install-workspace`).
 - ``etl_fast.yml`` processes one year of data
 - ``etl_full.yml`` processes all years of data
 
-Each file contains instructions for how to process the data under
-"full" or "fast" conditions. You can copy, rename, and modify these files to suit your
-needs. Updating the ``name``, ``title``, and ``description`` fields will
-ensure that new ``pudl-etl`` script outputs won't override old ones. The layout of
-these files is depicted below:
+Each file contains instructions for how to process the data under "full" or "fast"
+conditions respectively. You can copy, rename, and modify these files to suit your
+needs. The layout of these files is depicted below:
 
 .. code-block::
 
       # FERC1 to SQLite settings
-      ferc1_to_sqlite_settings:
-        ├── dataset f2s parameter (e.g. tables) : editable list of tables
-        ├── dataset f2s parameter (e.g. years) : editable list of years
+      ferc_to_sqlite_settings:
+        ├── ferc1_dbf_to_sqlite_settings
+        │   ├── years
+        |   └── tables
+        ├── ferc1_xbrl_to_sqlite_settings
+        │   ├── years
+        |   └── tables
+        ├── ferc2_xbrl_to_sqlite_settings
+        │   ├── years
+        |   └── tables
 
       # PUDL ETL settings
       name : unique name identifying the etl outputs
@@ -110,7 +116,7 @@ There are a few notable dependencies to be wary of when fiddling with these
 settings:
 
 - EPA CEMS cannot be loaded without EIA data unless you have existing PUDL database
-  containing EIA. This is because CEMS relies on IDs from EIA860
+  containing EIA. This is because CEMS relies on plant IDs from EIA860.
 
 - EIA Forms 860 and 923 are very tightly related. You can load only EIA 860, but the
   settings verification will automatically add in a few 923 tables that are needed
@@ -137,7 +143,7 @@ it should take around 15 minutes total.
 
 .. code-block:: console
 
-    $ ferc1_to_sqlite settings/etl_fast.yml
+    $ ferc_to_sqlite settings/etl_fast.yml
     $ pudl_etl settings/etl_fast.yml
 
 The Full ETL
@@ -150,7 +156,7 @@ CEMS should take around 2 hours.
 
 .. code-block:: console
 
-    $ ferc1_to_sqlite settings/etl_full.yml
+    $ ferc_to_sqlite settings/etl_full.yml
     $ pudl_etl settings/etl_full.yml
 
 Custom ETL
@@ -159,9 +165,11 @@ You've changed the settings and renamed the file to CUSTOM_ETL.yml
 
 .. code-block:: console
 
-    $ ferc1_to_sqlite settings/CUSTOM_ETL.yml
+    $ ferc_to_sqlite settings/CUSTOM_ETL.yml
     $ pudl_etl settings/CUSTOM_ETL.yml
 
+
+.. _add-cems-later:
 
 Processing EPA CEMS Separately
 ------------------------------
@@ -179,6 +187,8 @@ PUDL DB with the appropriate EIA files in order for the script to work.
 This script does not have a YAML settings file, so you must specify which years and
 states to include via command line arguments. Run ``epacems_to_parquet --help`` to
 verify your options. Changing CEMS settings in a YAML file will not inform this script!
+Running the script without any arguments will automatically process all states and
+years.
 
 .. warning::
 
@@ -196,7 +206,7 @@ should see new files at ``sqlite/ferc1.sqlite`` and ``sqlite/pudl.sqlite`` as
 well as a new directory at ``parquet/epacems`` containing nested directories
 named by year and state.
 
-If you need to re-run ``ferc1_to_sqlite`` or ``pudl_etl`` and want to overwrite
+If you need to re-run ``ferc_to_sqlite`` or ``pudl_etl`` and want to overwrite
 their previous outputs you can add ``--clobber`` (run ``script_name --clobber``).
 All of the PUDL scripts also have help messages if you want additional information
 (run ``script_name --help``).

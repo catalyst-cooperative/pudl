@@ -1,6 +1,5 @@
 """Load excel metadata CSV files form a python data package."""
 import importlib.resources
-import logging
 import pathlib
 
 import dbfread
@@ -8,7 +7,7 @@ import pandas as pd
 
 import pudl
 
-logger = logging.getLogger(__name__)
+logger = pudl.logging_helpers.get_logger(__name__)
 
 
 class Metadata:
@@ -46,7 +45,6 @@ class Metadata:
         Args:
             dataset_name: Name of the package/dataset to load the metadata from.
             Files will be loaded from pudl.package_data.${dataset_name}
-
         """
         pkg = f"pudl.package_data.{dataset_name}"
         self._dataset_name = dataset_name
@@ -69,15 +67,15 @@ class Metadata:
         return self._dataset_name
 
     def get_sheet_name(self, page, **partition):
-        """Returns name of the excel sheet that contains the data for given partition and page."""
+        """Return name of Excel sheet containing data for given partition and page."""
         return self._sheet_name.at[page, str(self._get_partition_key(partition))]
 
     def get_skiprows(self, page, **partition):
-        """Returns number of initial rows to skip when loading given partition and page."""
+        """Return number of header rows to skip when loading a partition and page."""
         return self._skiprows.at[page, str(self._get_partition_key(partition))]
 
     def get_skipfooter(self, page, **partition):
-        """Returns number of bottom rows to skip when loading given partition and page."""
+        """Return number of footer rows to skip when loading a partition and page."""
         return self._skipfooter.at[page, str(self._get_partition_key(partition))]
 
     def get_file_name(self, page, **partition):
@@ -85,7 +83,7 @@ class Metadata:
         return self._file_name.at[page, str(self._get_partition_key(partition))]
 
     def get_column_map(self, page, **partition):
-        """Returns the dictionary mapping input columns to pudl columns for given partition and page."""
+        """Return dictionary for renaming columns in a given partition and page."""
         return {
             v: k
             for k, v in self._column_map[page]
@@ -96,7 +94,7 @@ class Metadata:
         }
 
     def get_all_columns(self, page):
-        """Returns list of all pudl (standardized) columns for a given page (across all partition)."""
+        """Returns list of all pudl columns for a given page across all partitions."""
         return sorted(self._column_map[page].T.columns)
 
     def get_all_pages(self):
@@ -121,7 +119,7 @@ class Metadata:
 
 
 class GenericExtractor:
-    """Contains logic for extracting panda.DataFrames from excel spreadsheets.
+    """Logic for extracting :class:`pd.DataFrame` from Excel spreadsheets.
 
     This class implements the generic dataset agnostic logic to load data
     from excel spreadsheet simply by using excel Metadata for given dataset.
@@ -182,7 +180,7 @@ class GenericExtractor:
         return df.rename(columns=self._metadata.get_column_map(page, **partition))
 
     def add_data_maturity(self, df: pd.DataFrame, page, **partition) -> pd.DataFrame:
-        """Add a data_maturity column to indicate the level of finality of the partition.
+        """Add data_maturity column to indicate the maturity of partition data.
 
         The three options enumerated here are ``final``, ``provisional`` or
         ``monthly_update`` (``incremental_ytd`` is not currently implemented). We
@@ -191,7 +189,8 @@ class GenericExtractor:
         determine if a df should be labeled as ``monthly_update`` by checking if the
         ``self.dataset_name`` is ``eia860m``.
 
-        This method adds a column and thus adds ``data_maturity`` to ``self.cols_added``.
+        This method adds a column and thus adds ``data_maturity`` to
+        ``self.cols_added``.
         """
         maturity = "final"
         if "early_release" in self.excel_filename(page, **partition).lower():
@@ -231,7 +230,8 @@ class GenericExtractor:
         raw_dfs = {}
         if not partitions:
             logger.warning(
-                f"No partitions were given. Not extracting {self._dataset_name} spreadsheet data."
+                f"No partitions were given. Not extracting {self._dataset_name} "
+                "spreadsheet data."
             )
             return raw_dfs
         logger.info(f"Extracting {self._dataset_name} spreadsheet data.")
@@ -266,10 +266,12 @@ class GenericExtractor:
                 # check if there are any missing or extra columns
                 str_part = str(list(partition.values())[0])
                 col_map = self.METADATA._column_map[page]
-                page_cols = col_map.loc[col_map[str_part].notnull(), [str_part]].index
+                page_cols = col_map.loc[
+                    (col_map[str_part].notnull()) & (col_map[str_part] != -1),
+                    [str_part],
+                ].index
                 expected_cols = page_cols.union(self.cols_added)
                 if set(newdata.columns) != set(expected_cols):
-
                     # TODO (bendnorman): Enforce canonical fields for all raw fields?
                     extra_raw_cols = set(newdata.columns).difference(expected_cols)
                     missing_raw_cols = set(expected_cols).difference(newdata.columns)
@@ -280,15 +282,15 @@ class GenericExtractor:
                         )
                     if missing_raw_cols:
                         logger.warning(
-                            "Expected columns not found in extracted table of"
+                            "Expected columns not found in extracted table of "
                             f"{page}/{str_part}: {missing_raw_cols}"
                         )
             df = pd.concat(dfs, sort=True, ignore_index=True)
 
             # After all years are loaded, add empty columns that could appear
             # in other years so that df matches the database schema
-            missing_cols = set(self._metadata.get_all_columns(page)).difference(
-                df.columns
+            missing_cols = list(
+                set(self._metadata.get_all_columns(page)).difference(df.columns)
             )
             df = pd.concat([df, pd.DataFrame(columns=missing_cols)], sort=True)
 

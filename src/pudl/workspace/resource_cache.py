@@ -1,6 +1,5 @@
 """Implementations of datastore resource caches."""
 
-import logging
 from abc import ABC, abstractmethod
 from pathlib import Path
 from typing import Any, NamedTuple
@@ -13,7 +12,9 @@ from google.cloud import storage
 from google.cloud.storage.blob import Blob
 from google.cloud.storage.retry import _should_retry
 
-logger = logging.getLogger(__name__)
+import pudl.logging_helpers
+
+logger = pudl.logging_helpers.get_logger(__name__)
 
 
 def extend_gcp_retry_predicate(predicate, *exception_types):
@@ -138,6 +139,9 @@ class GoogleCloudStorageCache(AbstractCache):
         self._bucket = storage.Client(credentials=credentials).bucket(
             parsed_url.netloc, user_project=project_id
         )
+        # need to store arguments passed to __init__ so an instance can be restored
+        # from a pickle
+        self._state = {"gcs_path": gcs_path, **kwargs}
 
     def _blob(self, resource: PudlResourceKey) -> Blob:
         """Retrieve Blob object associated with given resource."""
@@ -159,6 +163,34 @@ class GoogleCloudStorageCache(AbstractCache):
     def contains(self, resource: PudlResourceKey) -> bool:
         """Returns True if resource is present in the cache."""
         return self._blob(resource).exists(retry=gcs_retry)
+
+    def __getstate__(self):
+        """Get current object state for serializing.
+
+        Because some of this object's internals explicitly cannot be pickled, namely
+        :class:`google.cloud.storage.Client`, we only serialize the arguments passed to
+        :meth:`.GoogleCloudStorageCache.__init__`.
+        """
+        logger.warning(
+            "When serializing %s, only %s is preserved",
+            self.__class__.__qualname__,
+            self._state,
+        )
+        return self._state.copy()
+
+    def __setstate__(self, state):
+        """Restore the object's state from a dictionary.
+
+        :meth:`.GoogleCloudStorageCache.__init__` already does all the required setup,
+        so we call it with the arguments originally passed when the object we are
+        restoring was originally instantiated.
+        """
+        logger.warning(
+            "Restoring %s, from %s",
+            self.__class__.__qualname__,
+            state,
+        )
+        self.__init__(**state)
 
 
 class LayeredCache(AbstractCache):
@@ -183,7 +215,10 @@ class LayeredCache(AbstractCache):
         self._caches: list[AbstractCache] = list(caches)
 
     def add_cache_layer(self, cache: AbstractCache):
-        """Adds caching layer. The priority is below all other."""
+        """Adds caching layer.
+
+        The priority is below all other.
+        """
         self._caches.append(cache)
 
     def num_layers(self):
@@ -237,7 +272,7 @@ class LayeredCache(AbstractCache):
         logger.debug(f"contains: {resource} not found in layered cache.")
 
     def is_optimally_cached(self, resource: PudlResourceKey) -> bool:
-        """Returns true if the resource is contained in the closest write-enabled layer."""
+        """Return True if resource is contained in the closest write-enabled layer."""
         for cache_layer in self._caches:
             if cache_layer.is_read_only():
                 continue

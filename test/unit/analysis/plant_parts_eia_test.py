@@ -11,7 +11,7 @@ GENS_MEGA = pd.DataFrame(
         "generator_id": ["a", "b", "c", "d"],
         "prime_mover_code": ["ST", "GT", "CT", "CA"],
         "energy_source_code_1": ["BIT", "NG", "NG", "NG"],
-        "ownership": [
+        "ownership_record_type": [
             "total",
             "total",
             "total",
@@ -42,7 +42,7 @@ def test_plant_ag():
                 "report_date": ["2020-01-01"],
                 "operational_status_pudl": ["operating"],
                 "utility_id_eia": [111],
-                "ownership": ["total"],
+                "ownership_record_type": ["total"],
                 "capacity_mw": [650.0],
             }
         )
@@ -73,7 +73,7 @@ def test_prime_fuel_ag():
                 "report_date": "2020-01-01",
                 "operational_status_pudl": "operating",
                 "utility_id_eia": 111,
-                "ownership": "total",
+                "ownership_record_type": "total",
                 "capacity_mw": [400.0, 250.0],
             }
         )
@@ -106,7 +106,7 @@ def test_prime_mover_ag():
                 "report_date": "2020-01-01",
                 "operational_status_pudl": "operating",
                 "utility_id_eia": 111,
-                "ownership": "total",
+                "ownership_record_type": "total",
                 "capacity_mw": [75.0, 125.0, 50.0, 400.0],
             }
         )
@@ -139,7 +139,7 @@ def test_plant_gen_ag():
                 "report_date": "2020-01-01",
                 "operational_status_pudl": "operating",
                 "utility_id_eia": 111,
-                "ownership": "total",
+                "ownership_record_type": "total",
                 "capacity_mw": [400.0, 50.0, 125.0, 75.0],
             }
         )
@@ -166,15 +166,15 @@ def test_make_mega_gen_tbl():
             "prime_mover_code": ["CT", "CT", "CA"],
             "technology_description": "Natural Gas Fired Combined Cycle",
             "operational_status": "existing",
-            "retirement_date": pd.NA,
+            "generator_retirement_date": pd.NA,
             "capacity_mw": [50, 50, 100],
-            "operating_date": "2001-12-01",
+            "generator_operating_date": "2001-12-01",
         }
     ).astype(
         {
-            "retirement_date": "datetime64[ns]",
+            "generator_retirement_date": "datetime64[ns]",
             "report_date": "datetime64[ns]",
-            "operating_date": "datetime64[ns]",
+            "generator_operating_date": "datetime64[ns]",
         }
     )
     # one record for every owner of each generator
@@ -203,16 +203,16 @@ def test_make_mega_gen_tbl():
                 "prime_mover_code": ["CT", "CT", "CA", "CA", "CT", "CT", "CA", "CA"],
                 "technology_description": "Natural Gas Fired Combined Cycle",
                 "operational_status": "existing",
-                "retirement_date": pd.NaT,
+                "generator_retirement_date": pd.NaT,
                 "capacity_mw": [50.0, 50.0, 75.0, 25.0, 50.0, 50.0, 100.0, 100.0],
-                "operating_date": "2001-12-01",
+                "generator_operating_date": "2001-12-01",
                 "ferc_acct_name": "Other",
-                "operating_year": 2001,
+                "generator_operating_year": 2001,
                 "operational_status_pudl": "operating",
                 "capacity_eoy_mw": [50, 50, 100, 100, 50, 50, 100, 100],
                 "fraction_owned": [1.00, 1.00, 0.75, 0.25, 1.00, 1.00, 1.00, 1.00],
                 "utility_id_eia": [111, 111, 111, 888, 111, 111, 111, 888],
-                "ownership": [
+                "ownership_record_type": [
                     "owned",
                     "owned",
                     "owned",
@@ -226,10 +226,10 @@ def test_make_mega_gen_tbl():
         )
         .astype(
             {
-                "retirement_date": "datetime64[ns]",
+                "generator_retirement_date": "datetime64[ns]",
                 "report_date": "datetime64[ns]",
-                "operating_date": "datetime64[ns]",
-                "operating_year": "Int64",
+                "generator_operating_date": "datetime64[ns]",
+                "generator_operating_year": "Int64",
                 "utility_id_eia": "Int64",  # convert to pandas Int64 instead of numpy int64
             }
         )
@@ -360,7 +360,7 @@ def test_scale_by_ownership():
             ],
             "fraction_owned": [0.7, 0.3, 0.1, 0.9, 1, 1, 1, 1],
             "utility_id_eia": [3, 4, 3, 4, 3, 4, 3, 4],
-            "ownership": [
+            "ownership_record_type": [
                 "owned",
                 "owned",
                 "owned",
@@ -411,11 +411,11 @@ def test_label_true_grans():
             "technology_description": ["nat_gas"] * 7,
             "operational_status_pudl": [None] * 7,
             "utility_id_eia": [None] * 7,
-            "ownership": [None] * 7,
+            "ownership_record_type": [None] * 7,
             "prime_mover_code": [None] * 7,
             "ferc_acct_name": [None] * 7,
             "energy_source_code_1": [None] * 7,
-            "operating_year": [None] * 7,
+            "generator_operating_year": [None] * 7,
             "installation_year": [None] * 7,
             "construction_year": [None] * 7,
         }

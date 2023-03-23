@@ -166,7 +166,7 @@ def data_sources_metadata_to_rst(app):
 
 
 def static_dfs_to_rst(app):
-    """Export static code labeling dataframes to RST for inclusion in the documentation."""
+    """Export static code labeling dataframes to RST for inclusion in documentation."""
     # Sphinx csv-table directive wants an absolute path relative to source directory,
     # but pandas to_csv wants a true absolute path
     csv_subdir = "data_dictionaries/code_csvs"

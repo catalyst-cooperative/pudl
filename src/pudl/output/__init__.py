@@ -9,5 +9,13 @@ readability. Sometimes you want the useful derived values.
 This subpackage compiles a bunch of outputs we found we were commonly generating, so
 that they can be done automatically and uniformly. They are encapsulated within the
 :class:`pudl.output.pudltabl.PudlTabl` class.
-
 """
+from . import (  # noqa: F401
+    censusdp1tract,
+    eia860,
+    eia923,
+    epacems,
+    ferc1,
+    ferc714,
+    pudltabl,
+)

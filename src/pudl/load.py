@@ -1,6 +1,5 @@
 """Routines for loading PUDL data into various storage formats."""
 
-import logging
 import sys
 from sqlite3 import Connection as SQLite3Connection
 from sqlite3 import sqlite_version
@@ -10,10 +9,11 @@ import sqlalchemy as sa
 from packaging import version
 from sqlalchemy.exc import IntegrityError
 
+import pudl.logging_helpers
 from pudl.helpers import find_foreign_key_errors
 from pudl.metadata.classes import Package
 
-logger = logging.getLogger(__name__)
+logger = pudl.logging_helpers.get_logger(__name__)
 
 MINIMUM_SQLITE_VERSION = "3.32.0"
 
@@ -33,12 +33,15 @@ def dfs_to_sqlite(
         check_foreign_keys: if True, enforce foreign key constraints.
         check_types: if True, enforce column data types.
         check_values: if True, enforce value constraints.
-
     """
-    # This magic makes SQLAlchemy tell SQLite to check foreign key constraints
-    # whenever we insert data into thd database, which it doesn't do by default
+
     @sa.event.listens_for(sa.engine.Engine, "connect")
     def _set_sqlite_pragma(dbapi_connection, connection_record):
+        """Have SQLAlchemy tell SQLite to check foreign key constraints.
+
+        SQLite doesn't check FK constraints by default, but with this pragma enabled it
+        will check on insert.
+        """
         if isinstance(dbapi_connection, SQLite3Connection):
             cursor = dbapi_connection.cursor()
             cursor.execute(

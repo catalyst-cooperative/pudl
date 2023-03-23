@@ -27,6 +27,7 @@ it is reported in December.
                 "plant_id_eia",
                 "boiler_id",
                 "energy_source_code",
+                "prime_mover_code",
                 "fuel_type_code_pudl",
                 "report_date",
                 "fuel_consumed_units",
@@ -38,6 +39,7 @@ it is reported in December.
                 "plant_id_eia",
                 "boiler_id",
                 "energy_source_code",
+                "prime_mover_code",
                 "report_date",
             ],
         },
@@ -265,8 +267,7 @@ different primary key.
         "etl_group": "eia923",
     },
 }
-"""
-EIA-923 resource attributes organized by PUDL identifier (``resource.name``).
+"""EIA-923 resource attributes organized by PUDL identifier (``resource.name``).
 
 Keys are in alphabetical order.
 

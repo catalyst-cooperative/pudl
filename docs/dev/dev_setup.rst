@@ -82,23 +82,6 @@ for working with interactive Jupyter Notebooks, and a few Python packages that h
 binary dependencies which can be easier to satisfy through ``conda`` packages.
 
 -------------------------------------------------------------------------------
-Getting and Storing an EIA API Key
--------------------------------------------------------------------------------
-PUDL accesses Energy Information Agency (EIA) datasets via an API, which requires
-permission from the EIA. New users must `register for an API key
-<https://www.eia.gov/opendata/>`__, which is free, nearly instantaneous,
-and only requires you give an email address.
-
-To make this key accessible to pudl, store it in an environment variable and
-reactivate the environment:
-
-.. code-block:: console
-
-    $ mamba activate pudl-dev
-    $ mamba env config vars set API_KEY_EIA='your_api_key_here'
-    $ mamba activate pudl-dev
-
--------------------------------------------------------------------------------
 Updating the PUDL Dev Environment
 -------------------------------------------------------------------------------
 You will need to periodically update your development (``pudl-dev``) conda
@@ -222,13 +205,15 @@ Creating a Workspace
 
 PUDL needs to know where to store its big piles of inputs and outputs. It also comes
 with some example configuration files. The ``pudl_setup`` script lets PUDL know where
-all this stuff should go. We call this a "PUDL workspace":
+all this stuff should go. We call this a "PUDL workspace". The script will not create
+a new directory based on your arguemnts, so make sure whatever directory path you
+pass as <PUDL_DIR> already exists.
 
 .. code-block:: console
 
     $ pudl_setup <PUDL_DIR>
 
-Here <PUDL_DIR> is the path to the directory where you want PUDL to do its
+<PUDL_DIR> is the path to the directory where you want PUDL to do its
 business -- this is where the datastore will be located and where any outputs
 that are generated end up. The script will also put a configuration file called
 ``.pudl.yml`` in your home directory that records the location of this

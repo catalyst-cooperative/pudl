@@ -3,7 +3,6 @@ import argparse
 import hashlib
 import io
 import json
-import logging
 import re
 import sys
 import zipfile
@@ -12,7 +11,6 @@ from collections.abc import Iterator
 from pathlib import Path
 from typing import Any
 
-import coloredlogs
 import datapackage
 import requests
 from google.auth.exceptions import DefaultCredentialsError
@@ -23,12 +21,11 @@ import pudl
 from pudl.workspace import resource_cache
 from pudl.workspace.resource_cache import PudlResourceKey
 
-logger = logging.getLogger(__name__)
+logger = pudl.logging_helpers.get_logger(__name__)
 
 # The Zenodo tokens recorded here should have read-only access to our archives.
 # Including them here is correct in order to allow public use of this tool, so
 # long as we stick to read-only keys.
-
 
 PUDL_YML = Path.home() / ".pudl.yml"
 
@@ -110,7 +107,7 @@ class DatapackageDescriptor:
                 )
 
     def get_partitions(self, name: str = None) -> dict[str, set[str]]:
-        """Returns mapping of all known partition keys to the set of its known values."""
+        """Return mapping of known partition keys to their allowed known values."""
         partitions: dict[str, set[str]] = defaultdict(set)
         for res in self.datapackage_json["resources"]:
             if name and res["name"] != name:
@@ -120,7 +117,10 @@ class DatapackageDescriptor:
         return partitions
 
     def _validate_datapackage(self, datapackage_json: dict):
-        """Checks the correctness of datapackage.json metadata. Throws ValueError if invalid."""
+        """Checks the correctness of datapackage.json metadata.
+
+        Throws ValueError if invalid.
+        """
         dp = datapackage.Package(datapackage_json)
         if not dp.valid:
             msg = f"Found {len(dp.errors)} datapackage validation errors:\n"
@@ -150,21 +150,31 @@ class ZenodoFetcher:
             "censusdp1tract": "10.5072/zenodo.674992",
             "eia860": "10.5072/zenodo.926292",
             "eia860m": "10.5072/zenodo.926659",
-            "eia861": "10.5072/zenodo.687052",
+            "eia861": "10.5072/zenodo.1103262",
             "eia923": "10.5072/zenodo.1090056",
+            "eia_bulk_elec": "10.5072/zenodo.1103572",
+            "epacamd_eia": "10.5072/zenodo.1103224",
             "epacems": "10.5072/zenodo.672963",
-            "ferc1": "10.5072/zenodo.926302",
-            "ferc714": "10.5072/zenodo.926660",
+            "ferc1": "10.5072/zenodo.1070868",
+            "ferc2": "10.5072/zenodo.1096047",
+            "ferc6": "10.5072/zenodo.1098088",
+            "ferc60": "10.5072/zenodo.1098089",
+            "ferc714": "10.5072/zenodo.1098302",
         },
         "production": {
             "censusdp1tract": "10.5281/zenodo.4127049",
-            "eia860": "10.5281/zenodo.6954131",
-            "eia860m": "10.5281/zenodo.6929086",
-            "eia861": "10.5281/zenodo.5602102",
-            "eia923": "10.5281/zenodo.7003886",
+            "eia860": "10.5281/zenodo.7113854",
+            "eia860m": "10.5281/zenodo.7320218",
+            "eia861": "10.5281/zenodo.7191809",
+            "eia923": "10.5281/zenodo.7236677",
+            "eia_bulk_elec": "10.5281/zenodo.7067367",
+            "epacamd_eia": "10.5281/zenodo.7650939",
             "epacems": "10.5281/zenodo.6910058",
-            "ferc1": "10.5281/zenodo.5534788",
-            "ferc714": "10.5281/zenodo.5076672",
+            "ferc1": "10.5281/zenodo.7314437",
+            "ferc2": "10.5281/zenodo.7130128",
+            "ferc6": "10.5281/zenodo.7130141",
+            "ferc60": "10.5281/zenodo.7130146",
+            "ferc714": "10.5281/zenodo.7139875",
         },
     }
     API_ROOT = {
@@ -281,7 +291,6 @@ class Datastore:
               as well as dois used for each dataset.
             timeout (floaTR): connection timeouts (in seconds) to use when connecting
               to Zenodo servers.
-
         """
         self._cache = resource_cache.LayeredCache()
         self._datapackage_descriptors: dict[str, DatapackageDescriptor] = {}
@@ -293,10 +302,10 @@ class Datastore:
                 self._cache.add_cache_layer(
                     resource_cache.GoogleCloudStorageCache(gcs_cache_path)
                 )
-            except DefaultCredentialsError:
+            except (DefaultCredentialsError, OSError) as e:
                 logger.info(
                     f"Unable to obtain credentials for GCS Cache at {gcs_cache_path}. "
-                    "Falling back to Zenodo if necessary."
+                    f"Falling back to Zenodo if necessary. Error was: {e}"
                 )
                 pass
 
@@ -350,7 +359,11 @@ class Datastore:
                 continue
             if self._cache.contains(res):
                 logger.debug(f"Retrieved {res} from cache.")
-                yield (res, self._cache.get(res))
+                contents = self._cache.get(res)
+                if not self._cache.is_optimally_cached(res):
+                    logger.debug(f"{res} was not optimally cached yet, adding.")
+                    self._cache.add(res, contents)
+                yield (res, contents)
             elif not cached_only:
                 logger.debug(f"Retrieved {res} from zenodo.")
                 contents = self._zenodo_fetcher.get_resource(res)
@@ -380,7 +393,10 @@ class Datastore:
 
 
 class ParseKeyValues(argparse.Action):
-    """Transforms k1=v1,k2=v2,... into dict(k1=v1, k2=v2, ...)."""
+    """Transforms k1=v1,k2=v2,...
+
+    into dict(k1=v1, k2=v2, ...).
+    """
 
     def __call__(self, parser, namespace, values, option_string=None):
         """Parses the argument value into dict."""
@@ -442,6 +458,12 @@ Available Sandbox Datasets:
         default="INFO",
     )
     parser.add_argument(
+        "--logfile",
+        default=None,
+        type=str,
+        help="If specified, write logs to this file.",
+    )
+    parser.add_argument(
         "--quiet",
         help="Do not send logging messages to stdout.",
         action="store_true",
@@ -486,7 +508,7 @@ def _get_pudl_in(args: dict) -> Path:
         return Path(pudl.workspace.setup.get_defaults()["pudl_in"])
 
 
-def _create_datastore(args: dict) -> Datastore:
+def _create_datastore(args: argparse.Namespace) -> Datastore:
     """Constructs datastore instance."""
     # Configure how we want to obtain raw input data:
     ds_kwargs = dict(gcs_cache_path=args.gcs_cache_path, sandbox=args.sandbox)
@@ -510,7 +532,10 @@ def print_partitions(dstore: Datastore, datasets: list[str]) -> None:
 def validate_cache(
     dstore: Datastore, datasets: list[str], args: argparse.Namespace
 ) -> None:
-    """Validate elements in the datastore cache. Delete invalid entires from cache."""
+    """Validate elements in the datastore cache.
+
+    Delete invalid entires from cache.
+    """
     for single_ds in datasets:
         num_total = 0
         num_invalid = 0
@@ -551,9 +576,9 @@ def main():
     """Cache datasets."""
     args = parse_command_line()
 
-    pudl_logger = logging.getLogger("pudl")
-    log_format = "%(asctime)s [%(levelname)8s] %(name)s:%(lineno)s %(message)s"
-    coloredlogs.install(fmt=log_format, level=args.loglevel, logger=pudl_logger)
+    pudl.logging_helpers.configure_root_logger(
+        logfile=args.logfile, loglevel=args.loglevel
+    )
 
     dstore = _create_datastore(args)
 

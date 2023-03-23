@@ -29,3 +29,8 @@ devtools/user-environment.yml
 commit.txt
 devtools/profiles/
 notebooks/*.pkl.gz
+**/.~lock*#
+
+**.tfstate
+**.tfstate.*
+terraform/.terraform/*

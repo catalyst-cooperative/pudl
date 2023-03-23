@@ -2,8 +2,10 @@
 Annual Updates
 ===============================================================================
 Much of the data we work with is released in a "final" state annually. We typically
-integrate the new year of data over 2-4 weeks in October of each year, since by that
-time the final release for the previous year have been published by EIA and FERC.
+integrate the new year of data over 2-4 weeks in October since, by that
+time, the final release for the previous year have been published by EIA and FERC. We
+also integrate EIA early release data when available. The ``data_maturity`` field will
+indicate whether the data is final or provisional.
 
 As of fall 2021 the annual updates include:
 
@@ -14,46 +16,46 @@ As of fall 2021 the annual updates include:
 * :doc:`/data_sources/ferc1`
 * :ref:`data-ferc714`
 
-This document outlines all the tasks required to complete the annual update, based on
-our experience in 2021. You can look at :issue:`1255` to see all the commits that went
-into integrating the 2020 data.
+This document outlines all the tasks required to complete the annual update based on
+our experience in 2022.
 
-Obtain fresh data
------------------
-Scrape a new copy of the raw PUDL inputs from agency websites using the tools in the
-`pudl-scrapers repository <https://github.com/catalyst-cooperative/pudl-scrapers>`__.
+1. Obtain Fresh Data
+--------------------
+**1.1)** Add a new copy of the raw PUDL inputs from agency websites using the tools
+in the
+`pudl-archiver repository <https://github.com/catalyst-cooperative/pudl-archiver>`__.
 If the structure of the web pages or the URLs have changed, you may need to update the
-scrapers themselves.
+archivers themselves.
 
-Use the newly scraped files and the tools in the `pudl-zenodo-storage repository
-<https://github.com/catalyst-cooperative/pudl-zenodo-storage>`__ to create new raw input
-achives on Zenodo. If we've previously archived the dataset this will add a new version
-to an existing archive.
+**1.2)** Update the dictionary of production DOIs in :mod:`pudl.workspace.datastore` to
+refer to the new raw input archives.
+
+**1.3)** In :py:const:`pudl.metadata.sources.SOURCES`, update the ``working_partitions``
+to reflect the years of data that are available within each dataset and the
+``records_liberated`` to show how many records are available. Check to make sure other
+fields such as ``source_format`` or ``path`` are still accurate.
 
 .. note::
 
-    It is useful to run the ``zenodo_store.py`` script using the ``--noop`` option first
-    to see what actions will be taken. Take note of any older years of data that have
-    been changed, so that you can keep an eye out for those changes later in the data
-    integration process.
+  If you're updating EIA861, you can skip the rest of the steps in this section and
+  all steps after step two because 861 is not yet included in the ETL.
 
-Update the dictionary of production DOIs in :mod:`pudl.workspace.datastore` to refer to
-the new raw input archives and update the :py:const:`pudl.constants.WORKING_PARTITIONS`
-dictionary to reflect the data that is now available within each dataset.
+**1.4)** Update the years of data to be processed in the ``etl_full.yml`` and
+``etl_fast.yml`` settings files stored under ``src/pudl/package_data/settings`` in the
+PUDL repo.
 
-Update the years of data to be processed in the ``etl_full.yml`` and ``etl_fast.yml``
-settings files stored under ``src/pudl/package_data/settings`` in the PUDL repo.  Note
-that you will also need to have your own working copies of the settings files that you
-edit throughout the process of integrating the new year of data.
+**1.5)** Update the settings files in your PUDL workspace to reflect the new
+years by running ``pudl_setup {path to your pudl_work directory} -c``. Don't worry, it
+won't remove any custom settings files you've added under a diffrent name.
 
-Use the ``pudl_datastore`` script to download the new raw data archives in bulk so that
-network hiccups don't cause issues during ETL.
+**1.6)** Use the ``pudl_datastore`` script (see :doc:`datastore`) to download the new
+raw data archives in bulk so that network hiccups don't cause issues during the ETL.
 
-Mapping the Structure of New Data
----------------------------------
+2. Map the Structure of the New Data
+------------------------------------
 
-EIA Forms 860/860m/861/923
-^^^^^^^^^^^^^^^^^^^^^^^^^^
+A. EIA Forms
+^^^^^^^^^^^^
 EIA often alters the structure of their published spreadsheets from year to year. This
 includes changing file names; adding, removing, or re-ordering spreadsheet pages;
 changing the number of header and footer rows; and adding, removing, re-ordering, or
@@ -80,140 +82,212 @@ the years (e.g. ``boiler_fuel``). However ``page_name`` does not necessarily cor
 directly to PUDL database table names because we don't load the data from all pages, and
 some pages result in more than one database table after normalization.
 
+**2.A.1)** Add a column for the new year of data to each of the aforementioned files. If
+there are any changes to prior years, make sure to address those too. (See note above).
+If you are updating early release data with final release data, replace the values in
+the appropriate year column.
+
 .. note::
 
-    As mentioned above, sometimes EIA will change files published several years ago
-    without providing any explanation. When creating new raw input archives for Zenodo,
-    note which years of data have been altered so you can be particularly alert to
-    changes in those files.
+   If you are adding EIA's early release data, make sure the raw files have
+   ``Early_Release`` at the end of the file name. This is how the excel extractor knows
+   to label the data as provisional vs. final.
 
-If files, spreadsheet pages, or individual columns with new semantic meanings have
-appeared -- meaning they don’t correspond to any of the previously mapped files, pages,
-or columns, then new mappings analogous to the above need to be created to track that
-information over time.
+   Early release files also tend to have one extra row at the top and one extra column
+   on the right of each file indicating that it is early release. This means that the
+   skiprows and column map values will probably be off by 1 when you update from early
+   release to final release.
 
-In all of the the above CSV files we use a value of ``-1`` to indicate that the data
-does not exist in a given year.
+**2.A.2)** If there are files, spreadsheet pages, or individual columns with new
+semantic meaning (i.e. they don't correspond to any of the previously mapped files,
+pages, or columns) then create new mappings to track that information over time.
 
-FERC Form 1
-^^^^^^^^^^^
-The path to the directory containing the database files stored within the annual FERC 1
-zipfiles changes from year to year, and will need to be updated for the new year of
-data. We store this information in ``src/pudl/package_data/ferc1/file_map.csv``
+.. note::
 
-The process we use for :doc:`clone_ferc1` uses the most recent annual database to
-define the schema for our multi-year FERC 1 DB. This only works because historically the
-FERC 1 DB has only added tables and columns over time. To check whether the new year of
-data continues this pattern, you can run:
+    In all of the the above CSV files we use a value of ``-1`` to indicate that the data
+    does not exist in a given year.
 
-.. code-block:: bash
+B. FERC Form 714
+^^^^^^^^^^^^^^^^
+FERC Form 714 is distributed as an archive of CSV files, each of which spans
+all available years of data. This means there's much less structure to keep track of.
+The main thing that changes from year to year is the names of the CSV files within the
+ZIP archive.
 
-  pytest --etl_settings src/pudl/package_data/settings/etl_full.yml \
-    test/integration/etl_test.py::test_ferc1_schema
+**2.B.1)** Update the mapping between extracted dataframes and those filenames in the
+:py:const:`pudl.extract.ferc714.TABLE_FNAME` dictionary.
 
-FERC Form 714
-^^^^^^^^^^^^^
-FERC Form 714 is distributed as an archive of CSV files, each of which spans all
-available years of data. This means there's much less structure to keep track of. The
-main thing that changes from year to year is the names of the CSV files within the ZIP
-archive. The mapping between extracted dataframes and those filenames is currently
-stored in the :py:const:`pudl.extract.ferc714.TABLE_FNAME` dictionary.
+**2.B.2)** The character encodings of these CSV files may vary with some of them using
+``iso-8859-1`` (Latin) rather than ``utf-8`` (Unicode). Note the per-file encoding
+in :py:const:`pudl.extract.ferc714.TABLE_ENCODING` and that it may change over time.
 
-The character encodings of these CSV files vary, with some of them using ``iso-8859-1``
-(Latin) rather than ``utf-8`` (Unicode). The per-file encoding is stored in
-:py:const:`pudl.extract.ferc714.TABLE_ENCODING` and could change over time.
-
-Initial Data Extraction
+3. Test Data Extraction
 -----------------------
 
-EIA Forms 860/860m/861/923
-^^^^^^^^^^^^^^^^^^^^^^^^^^
-It should also be possible to extract all years of data from the EIA 860/861/923
-spreadsheets to generate raw dataframes. The Jupyter notebook
-``devtools/eia-etl-debug.ipynb`` will let you run one step of the process at a time,
-independently for each dataset. This makes debugging issues easier. Given that there are
-hundreds of columns mapped across all the different EIA spreadsheets, you'll almost
-certainly find some typos or errors in the extract process and need to revise your work.
+A. EIA Forms
+^^^^^^^^^^^^
+**3.A.1)** Use the Jupyter notebook ``devtools/eia-etl-debug.ipynb`` to run the extract
+process independently for each dataset. Given that there are hundreds of columns mapped
+across all the different EIA spreadsheets, you'll almost certainly find some typos or
+errors in the extract process and need to revise your work from step 2.
 
-FERC Form 1
-^^^^^^^^^^^
-At this point it should be possible to clone the all of the FERC 1 data (including the
-new year) into SQLite with:
+B. FERC Form 1
+^^^^^^^^^^^^^^
+**3.B.1)** Clone the all of the FERC 1 data (including the new year) into SQLite with:
 
 .. code-block:: bash
 
-    ferc1_to_sqlite src/pudl/package_data/settings/etl_full.yml
+    ferc_to_sqlite src/pudl/package_data/settings/etl_full.yml
 
 This is necessary to enable mapping associations between the FERC 1 and EIA plants and
 utilities later.
 
-Update table & column transformations
--------------------------------------
+**3.B.2)** You can use the ``devtools/ferc1-etl-debug.ipynb`` notebook to run the
+extract process for each table.
 
-EIA Forms 860/860m/861/923
-^^^^^^^^^^^^^^^^^^^^^^^^^^
-Using the EIA ETL Debugging notebook you can attempt to run the initial transform step
-on all tables of the new year of data and debug any failures. If any new tables were
-added in the new year of data you will need to add a new transform function for the
-corresponding dataframe. If new columns have been added, they should also be inspected
-for cleanup.
+4. Update Table & Column Transformations
+----------------------------------------
+Currently, our FERC and EIA tables utilize different transform processes.
 
-FERC Form 1
-^^^^^^^^^^^
-Some FERC 1 tables store different variables in different rows instead of or in addition
-to using columns. Rows are identified by ``row_number``. What row number corresponds to
-which variable changes from year to year.  We catalog this correspondence in the FERC 1
-row maps, a collection of CSV files stored under
-``src/pudl/package_data/ferc1/row_maps`` and organized by original FERC 1 DB table name.
-The easiest way to check whether the data associated with a given row number has changed
-is to look at the table's entries in the ``f1_row_lit_tbl`` table. This table stores the
-descriptive strings associated with each row in the FERC Form 1, and also indicates the
-last year that the string was changed in the ``row_chg_yr`` column. The
-``devtools/ferc1/ferc1-new-year.ipynb`` notebook can make this process less tedious.
+A. EIA Forms
+^^^^^^^^^^^^
+**4.A.1)** Use the EIA ETL Debugging notebook mentioned above to run the initial
+transform step on all tables of the new year of data and debug any failures. If any new
+tables were added in the new year of data you will need to add a new transform function
+for the corresponding dataframe. If new columns have been added, they should also be
+inspected for cleanup.
 
-The ``plant_kind`` and ``construction_type`` fields in the ``plants_steam_ferc1`` table
-and the ``fuel_type`` and ``fuel_unit`` fields in the ``fuel_ferc1`` table are reported
-as freeform strings and need to be converted to simple categorical values to be useful.
-If the new year of data contains strings that have never been encountered before, they
-need to be added to the string cleaning dictionaries defined in
-:mod:`pudl.transform.ferc1`. The ``devtools/ferc1/ferc1-new-year.ipynb`` notebook and
-:func:`pudl.helpers.find_new_ferc1_strings` will help with this process. Every string
-observed in these fileds should ultimately be mapped to one of the defined categories.
+.. note::
 
-Update the PUDL DB schema
--------------------------
-If new columns or tables have been added, you will probably need to update the PUDL DB
-schema, defining column types, giving them meaningful descriptions, applying appropriate
-ENUM constraints, etc. This happens in the :mod:`pudl.metadata` subpackage. Otherwise
-when the system tries to write dataframes into SQLite, it will fail.
+    The next time we update EIA we should probably do so in the new transform framework.
 
-You will need to differentiate between columns which should be harvested from the
-transformed dataframes in the normalization and entity resolution process (and
-associated with a generator, boiler, plant, utility, or balancing authority entity), and
-those that should remain in the table where they are reported.
+B. FERC Form 1
+^^^^^^^^^^^^^^
 
-You may also need to define new coding/labeling tables, or add new codes  or code fixes
-to the existing coding tables.
+**4.B.1)** If you're mapping FERC tables that have not been included in the ETL yet,
+look at the ``src/pudl/package_data/ferc1/dbf_to_xbrl_tables.csv`` for our preliminary
+estimation of which DBF tables connect to which XBRL tables. Note that this spreadsheet
+is not referenced anywhere in the code and should only be used as a reference. Once
+you've verified that these tables are indeed a match, input them into the
+:py:const:`pudl/extract.ferc1.TABLE_NAME_MAP_FERC1` dictionary for extraction.
 
-Run a Siloed EIA ETL
---------------------
-Before moving on you should ensure that the EIA ETL is fully functional by running it
-for all years and all EIA data sources. You'll need to create a temporary ETL settings
-file that includes only the EIA data, and all available years of it. You may need to
-debug inconsistencies in the harvested values. See: :doc:`run_the_etl` for more details,
-but you'll need to use the ``--ignore-foreign-key-constraints`` argument because new
-plants and utilities probably need to be mapped (read on into next section).
+**4.B.2)** For these new tables (or to address changes in xbrl taxonomy), add or update
+the relationship between DBF rows and XBRL rows in
+``src/pudl/package_data/ferc1/dbf_to_xbrl.csv``. See the note below for instructions.
 
-Integration between datasets
+.. note::
+
+    **How to use the mapping spreadsheets:**
+
+    In the Pre-2021 data (from the DBF files), rows are identified by ``row_number``,
+    and the row number that corresponds to a given variable changes from year to year.
+    We cataloged this correspondence, and the connection to the post-2021 data (from
+    XBRL), in ``src/pudl/package_data/ferc1/dbf_to_xbrl.csv``.
+
+    The ``dbf_to_xbrl.csv`` maps row numbers from the DBF data with taxonomy factoids
+    from the XBRL data therefore allowing us to merge the data into one continuous
+    timeseries. The ``row_literal`` column is the DBF label for the ``row_number`` in
+    question. This ``row_literal`` must be mapped to an ``xbrl_factoid`` from the XBRL
+    data. These ``xbrl_factoid`` entires are the value columns from the raw XBRL data.
+
+    Look at the ``row_literal`` values for a given table and see which XBRL columns they
+    coorespond to. It's helpful to
+    `view the XBRL taxonomy <https://xbrlview.ferc.gov/>`__ for the table in question.
+
+    The ``row_literals`` may contain elements of the FERC 1 form such as
+    headers that don't map to an XBRL factoid. These can be marked as ``headers`` in the
+    ``row_type`` column. Other values are either marked as ``report_value``: a directly
+    reported value in the DBF data, meaning it is not calculated from other values in
+    that table (it may in fact correspond to some calculation derived from values
+    reported in other tables); or a ``calculated_value``: a value which is derived from
+    other values in that table -- typically a sum (Total rows) or a net value
+    (credit - debit) of some kind. Often there's an annotation in the row_literal field
+    that indicates (to humans) what other rows are used to calculate the value. These
+    values will typically also appear in XBRL, with a formula for their calculation
+    reported in the XBRL metadata.
+
+    The ``dbf_only`` column is marked ``TRUE`` if the ``row_literal`` only shows up in
+    the DBF files. An common example is when several fields are aggregated in the DBF
+    data but not in XBRL. The ``notes`` column is a place to indicate complexity or
+    reasoning and is intended for humans (vs. computers) to read.
+
+
+**4.B.3)** Use the FERC 1 debugging notebook ``devtools/ferc1-etl-debug.ipynb`` to run
+the transforms for each table. Heed any errors or warnings that pop up in the
+logs. One of the most likely bugs will be uncategorized strings (think new, strange fuel
+type spellings.
+
+**4.B.4)** If there's a new column, add it to the transform process. At the very least,
+you'll need to include it in the ``rename_columns`` dictionary in
+:py:const:`pudl.transform.params.ferc1.TRANSFORM_PARAMS` for the appropriate table.
+
+* Consider whether the column could benefit from any of the standard transforms in
+  :mod:`pudl.transform.classes` or :mod:`pudl.transform.ferc1`. If so, add them to
+  :py:const:`pudl.transform.params.ferc1.TRANSFORM_PARAMS`. Make sure that the
+  parameter you've added to ``TRANSFORM_PARAMS`` cooresponds to a method that gets
+  called in one of the high-level transform functions in
+  :class:`pudl.transform.ferc1.Ferc1AbstractTableTransformer` (``process_xbrl``,
+  ``process_dbf``, ``transform_start``, ``transform_main``) and/or any
+  table-specific overrides in the relevant table transformer class.
+
+* Consider whether the column could benefit from custom transformations. If it's
+  something that could be applicable to other tables from other sources, consider
+  building it in :mod:`pudl.tranform.classes`. If it's specific to FERC1, build it in
+  :mod:`pudl.transform.ferc1`. If it will only ever be relevant to one table in FERC1,
+  build it in the table-specific class in :mod:`pudl.transform.ferc1`, create an
+  override for one of the high-level transform functions, and call it there. Make sure
+  to write a unit test for any new functions.
+
+**4.B.5)** If there's a new table, add it to the transform process. You'll need to build
+or augment a table transformer in :mod:`pudl.transform.ferc1` and follow all
+instructions applicable to new columns.
+
+**4.B.6)** To see if the transformations work, you can run the transform module as a
+script in the terminal. From within the pudl repo directory, run:
+
+.. code-block:: bash
+
+    python src/pudl/transform/ferc1.py
+
+
+5. Update the PUDL DB Schema
 ----------------------------
+If new columns or tables have been added, you must also update the PUDL DB schema,
+define column types, give them meaningful descriptions, apply appropriate ENUM
+constraints, etc. This happens in the :mod:`pudl.metadata` subpackage. Otherwise when
+the system tries to write dataframes into SQLite, it will fail or simply exclude any new
+columns.
 
-FERC 1 & EIA Plants & Utilities
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-Once you have a PUDL DB containing **ALL OF AND ONLY THE EIA DATA** (including the new
-year of data), and a cloned FERC 1 DB containing all years of available data, you can
-start associating the plant & utility entities that are reported in the two datasets.
+**5.1)** Check whether new columns exist in
+:py:const:`pudl.metadata.fields.FIELD_METADATA`. If they do, make sure the descriptions
+and data types match. If the descriptions don't match, you may need to define that
+column by source: :py:const:`pudl.metadata.fields.FIELD_METADATA_BY_GROUP` or by table:
+:py:const:`pudl.metadata.fields.FIELD_METADATA_BY_RESOURCE`. If the column is not in
+:py:const:`pudl.metadata.fields.FIELD_METADATA`, add it.
 
-Refer to the :doc:`pudl_id_mapping` page for further instructions.
+**5.2)** Add new columns and tables to the ``RESOURCE_METADATA`` dictionaries in the
+appropriate :mod:`pudl.metadata.resources` modules.
+
+**5.3)** Update any :mod:`pudl.metadata.codes`, :mod:`pudl.metadata.labels`, or
+:mod:`pudl.metadata.enums` pertaining to new or existing columns with novel content.
+
+**5.4)** Differentiate between columns which should be harvested from the transformed
+dataframes in the normalization and entity resolution process (and associated with a
+generator, boiler, plant, utility, or balancing authority entity), and those that should
+remain in the table where they are reported.
+
+6. Connect Datasets
+-------------------
+
+A. FERC 1 & EIA Plants & Utilities
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+**6.A.1)** Run the following command in the terminal, and refer to the
+:doc:`pudl_id_mapping` page for further instructions.
+
+
+.. code-block:: bash
+
+    tox -e get_unmapped_ids
 
 .. note::
 
@@ -225,80 +299,79 @@ Refer to the :doc:`pudl_id_mapping` page for further instructions.
     counterparts. All FERC 1 plants and utilities should be linked to their EIA
     counterparts (there are far fewer of them).
 
-Update missing EIA plant locations
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-If there are any plants that appear in the EPA CEMS dataset that do not appear in the
-``plants_entity_eia`` table or that are missing latitute and longitude values, the
-missing information should be compiled and added to
+B. Missing EIA Plant Locations from CEMS
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+**6.B.1)** If there are any plants that appear in the EPA CEMS dataset that do not
+appear in the ``plants_entity_eia`` table or that are missing latitute and longitude
+values, the missing information should be compiled and added to
 ``src/pudl/package_data/epacems/additional_epacems_plants.csv`` to enable accurate
 adjustment of the EPA CEMS timestamps to UTC. This information can usually be obtained
 with the ``plant_id_eia`` and the
-`EPA's FACT API <https://www.epa.gov/airmarkets/field-audit-checklist-tool-fact-api>`__
-but in some cases you may need to resort to Google Maps. If no coordinates can be found
-then at least the plant's state should be included, so that an approximate timezone can
+`EPA's FACT API <https://www.epa.gov/airmarkets/field-audit-checklist-tool-fact-api>`__.
+In some cases you may need to resort to Google Maps. If no coordinates can be found
+then at least the plant's state should be included so that an approximate timezone can
 be inferred.
 
-Run the ETL
------------
+7. Run the ETL
+--------------
 Once the FERC 1 and EIA utilities and plants have been associated with each other, you
 can try and run the ETL with all datasets included. See: :doc:`run_the_etl`.
 
-* First run the ETL for just the new year of data, using the ``etl_fast.yml`` settings
-  file.
-* Once the fast ETL works, run the full ETL using the ``etl_full.yml`` settings to
-  populate complete FERC 1 & PUDL DBs and EPA CEMS Parquet files.
+**7.1)** First run the ETL for just the new year of data, using the ``etl_fast.yml``
+settings file.
 
-Update the output routines and run full tests
----------------------------------------------
-With a full PUDL DB update the denormalized table outputs and derived analytical
-routines to accommodate the new data if necessary. These are generally called from
-within the :class:`pudl.output.pudltabl.PudlTabl` class.
+**7.2)** Once the fast ETL works, run the full ETL using the ``etl_full.yml`` settings
+to populate complete FERC 1 & PUDL DBs and EPA CEMS Parquet files.
+
+8. Update the Output Routines and Run Full Tests
+------------------------------------------------
+**8.1)** With a full PUDL DB, update the denormalized table outputs and derived
+analytical routines to accommodate the new data if necessary. These are generally
+called from within the :class:`pudl.output.pudltabl.PudlTabl` class.
 
 * Are there new columns that should incorporated into the output tables?
 * Are there new tables that need to have an output function defined for them?
 
-To ensure that you (more) fully exercise all of the possible output functions, you
-should run the entire CI test suite against your live databases with:
+**8.2)** To ensure that you (more) fully exercise all of the possible output functions,
+run the entire CI test suite against your live databases with:
 
 .. code-block:: bash
 
     tox -e full -- --live-dbs
 
-Run and update data validations
--------------------------------
-When the CI tests are passing against all years of data, sanity check the data in the
-database and the derived outputs by running
+9. Run and Update Data Validations
+-----------------------------------
+**9.1)** When the CI tests are passing against all years of data, sanity check the data
+in the database and the derived outputs by running
 
 .. code-block:: bash
 
     tox -e validate
 
-We expect at least some of the validation tests to fail initially, because we haven't
-updated the number of records we expect to see in each table. Updating the expected
-number of records should be the last thing you do, as any other changes to the ETL
-process are likely to affect those numbers.
+We expect at least some of the validation tests to fail initially because we haven't
+updated the number of records we expect to see in each table.
 
-You may also need to update the expected distribution of fuel prices if they were
-particularly high or low in the new year of data. Other values like expected heat
+**9.2)** You may also need to update the expected distribution of fuel prices if they
+were particularly high or low in the new year of data. Other values like expected heat
 content per unit of fuel should be relatively stable. If the required adjustments are
 large, or there are other types of validations failing, they should be investigated.
 
-When updating the expected number of rows in the minmax_row validation tests you should
-pay attention to how far off of previous expectations the new tables are. E.g. if there
+**9.3)** Update the expected number of rows in the minmax_row validation tests. Pay
+attention to how far off of previous expectations the new tables are. E.g. if there
 are already 20 years of data, and you're integrating 1 new year of data, probably the
 number of rows in the tables should be increasing by around 5% (since 1/20 = 0.05).
 
-Run additional standalone analyses
-----------------------------------
-If there are any important analyses that haven't been integrated into the CI tests yet
-they should be run including the new year of data for sanity checking. For example
-the :mod:`pudl.analysis.state_demand` script or generating the EIA Plant Parts List
-for integration with FERC 1 data.
+10. Run Additional Standalone Analyses
+--------------------------------------
+**10.1)** Run any important analyses that haven't been integrated into the CI
+tests on the new year of data for sanity checking. For example the
+:mod:`pudl.analysis.state_demand` script or generating the EIA Plant Parts List for
+integration with FERC 1 data.
 
-Update the documentation
-------------------------
-Once the new year of data is integrated, the documentation should be updated to reflect
-the new state of affairs. This will include updating at least:
+11. Update the Documentation
+----------------------------
+**11.1)** Once the new year of data is integrated, update the documentation
+to reflect the new state of affairs. This will include updating at least:
 
 * the top-level :doc:`README </index>`
 * the :doc:`/release_notes`
