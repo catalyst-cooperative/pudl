@@ -59,7 +59,6 @@ setup(
         "fsspec>=2021.7,<2023.3.1",  # For caching datastore on GCS
         "gcsfs>=2021.7,<2023.3.1",  # For caching datastore on GCS
         "geopandas>=0.9,<0.13",
-        "grpcio==1.46.1",  # dagster dependency with finnicky Mac support
         "jinja2>=2,<3.2",
         "matplotlib>=3.3,<3.8",  # Should make this optional with a "viz" extras
         "networkx>=2.2,<3.1",

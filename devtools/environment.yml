@@ -28,7 +28,6 @@ dependencies:
   - jupyter-resource-usage~=0.5.0
   - nbconvert>=6,<7
   - jupyterlab~=3.2
-  - grpcio
 
   # Use pip to install the main PUDL repo / package for development:
   - pip:
