@@ -247,6 +247,14 @@ you run ``pudl_setup``. (see: :ref:`install-workspace`).
 - ``etl_fast.yml`` processes one year of data
 - ``etl_full.yml`` processes all years of data
 
+.. warning::
+
+  In previous versions of PUDL, you could specify which datasources to process
+  using the settings file. With the migration to dagster, all datasources are
+  processed no matter what datasources are included in the settings file.
+  If you want to process a single datasource, materialize the appropriate assets
+  in dagit. (see :ref:`run-dagit`).
+
 Each file contains instructions for how to process the data under "full" or "fast"
 conditions respectively. You can copy, rename, and modify these files to suit your
 needs. The layout of these files is depicted below:
