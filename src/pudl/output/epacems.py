@@ -145,7 +145,7 @@ def epacems(
 
     if epacems_path is None:
         pudl_settings = pudl.workspace.setup.get_defaults()
-        epacems_path = Path(pudl_settings["parquet_dir"]) / "epacems"
+        epacems_path = Path(pudl_settings["pudl_out"]) / "epacems"
 
     epacems = dd.read_parquet(
         epacems_path,

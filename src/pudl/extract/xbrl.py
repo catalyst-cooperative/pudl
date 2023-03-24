@@ -2,17 +2,16 @@
 import io
 import json
 from datetime import date, datetime
+from pathlib import Path
 
 import sqlalchemy as sa
+from dagster import Field, Noneable, op
 from ferc_xbrl_extractor import xbrl
 from ferc_xbrl_extractor.instance import InstanceBuilder
 
 import pudl
-from pudl.settings import (
-    FercGenericXbrlToSqliteSettings,
-    FercToSqliteSettings,
-    XbrlFormNumber,
-)
+from pudl.helpers import EnvVar
+from pudl.settings import FercGenericXbrlToSqliteSettings, XbrlFormNumber
 from pudl.workspace.datastore import Datastore
 
 logger = pudl.logging_helpers.get_logger(__name__)
@@ -72,20 +71,24 @@ class FercXbrlDatastore:
 
 
 def _get_sqlite_engine(
-    form_number: int, pudl_settings: dict, clobber: bool
+    form_number: int, output_path: Path, clobber: bool
 ) -> sa.engine.Engine:
     """Create SQLite engine for specified form and drop tables.
 
     Args:
         form_number: FERC form number.
-        pudl_settings: Dictionary of settings.
+        output_path: path to PUDL outputs.
         clobber: Flag indicating whether or not to drop tables.
     """
     # Read in the structure of the DB, if it exists
     logger.info(
         f"Dropping the old FERC Form {form_number} XBRL derived SQLite DB if it exists."
     )
-    sqlite_engine = sa.create_engine(pudl_settings[f"ferc{form_number}_xbrl_db"])
+    db_path = output_path / f"ferc{form_number}_xbrl.sqlite"
+
+    logger.info(f"Connecting to SQLite at {db_path}...")
+    sqlite_engine = sa.create_engine(f"sqlite:///{db_path}")
+    logger.info(f"Connected to SQLite at {db_path}!")
     try:
         # So that we can wipe it out
         pudl.helpers.drop_tables(sqlite_engine, clobber=clobber)
@@ -95,29 +98,39 @@ def _get_sqlite_engine(
     return sqlite_engine
 
 
-def xbrl2sqlite(
-    ferc_to_sqlite_settings: FercToSqliteSettings = FercToSqliteSettings(),
-    pudl_settings: dict = None,
-    clobber: bool = False,
-    datastore: Datastore = None,
-    batch_size: int | None = None,
-    workers: int | None = None,
-):
-    """Clone the FERC Form 1 XBRL Databsae to SQLite.
-
-    Args:
-        ferc_to_sqlite_settings: Object containing Ferc to SQLite validated
-            settings.
-        pudl_settings: Dictionary containing paths and database URLs
-            used by PUDL.
-        clobber: Flag indicating whether or not to drop tables.
-        datastore: Instance of a datastore to access the resources.
-        batch_size: Number of XBRL filings to process in a single CPU process.
-        workers: Number of CPU processes to create for processing XBRL filings.
-
-    Returns:
-        None
-    """
+@op(
+    config_schema={
+        "pudl_output_path": Field(
+            EnvVar(
+                env_var="PUDL_OUTPUT",
+            ),
+            description="Path of directory to store the database in.",
+            default_value=None,
+        ),
+        "clobber": Field(
+            bool, description="Clobber existing ferc1 database.", default_value=False
+        ),
+        "workers": Field(
+            Noneable(int),
+            description="Specify number of worker processes for parsing XBRL filings.",
+            default_value=None,
+        ),
+        "batch_size": Field(
+            int,
+            description="Specify number of XBRL instances to be processed at a time (defaults to 50)",
+            default_value=50,
+        ),
+    },
+    required_resource_keys={"ferc_to_sqlite_settings", "datastore"},
+)
+def xbrl2sqlite(context) -> None:
+    """Clone the FERC Form 1 XBRL Databsae to SQLite."""
+    output_path = Path(context.op_config["pudl_output_path"])
+    clobber = context.op_config["clobber"]
+    batch_size = context.op_config["batch_size"]
+    workers = context.op_config["workers"]
+    ferc_to_sqlite_settings = context.resources.ferc_to_sqlite_settings
+    datastore = datastore = context.resources.datastore
     datastore = FercXbrlDatastore(datastore)
 
     # Loop through all other forms and perform conversion
@@ -129,14 +142,14 @@ def xbrl2sqlite(
         if settings is None:
             continue
 
-        sqlite_engine = _get_sqlite_engine(form.value, pudl_settings, clobber)
+        sqlite_engine = _get_sqlite_engine(form.value, output_path, clobber)
 
         convert_form(
             settings,
             form,
             datastore,
             sqlite_engine,
-            pudl_settings=pudl_settings,
+            output_path=output_path,
             batch_size=batch_size,
             workers=workers,
         )
@@ -147,10 +160,10 @@ def convert_form(
     form: XbrlFormNumber,
     datastore: FercXbrlDatastore,
     sqlite_engine: sa.engine.Engine,
-    pudl_settings: dict = None,
+    output_path: Path,
     batch_size: int | None = None,
     workers: int | None = None,
-):
+) -> None:
     """Clone a single FERC XBRL form to SQLite.
 
     Args:
@@ -166,6 +179,8 @@ def convert_form(
     Returns:
         None
     """
+    datapackage_path = str(output_path / f"ferc{form.value}_xbrl_datapackage.json")
+    metadata_path = str(output_path / f"ferc{form.value}_xbrl_taxonomy_metadata.json")
     # Process XBRL filings for each year requested
     for year in form_settings.years:
         raw_archive, taxonomy_entry_point = datastore.get_taxonomy(year, form)
@@ -174,10 +189,9 @@ def convert_form(
             sqlite_engine,
             raw_archive,
             form.value,
-            requested_tables=form_settings.tables,
             batch_size=batch_size,
             workers=workers,
-            datapackage_path=pudl_settings[f"ferc{form.value}_xbrl_datapackage"],
-            metadata_path=pudl_settings[f"ferc{form.value}_xbrl_taxonomy_metadata"],
+            datapackage_path=datapackage_path,
+            metadata_path=metadata_path,
             archive_file_path=taxonomy_entry_point,
         )

@@ -33,3 +33,9 @@ def test_all_excluded_resources_exist() -> None:
                 *errors, title="Invalid resources in foreign_key_rules.exclude"
             )
         )
+
+
+def test_get_etl_group_tables() -> None:
+    """Test that a Value error is raised for non existent etl group."""
+    with pytest.raises(ValueError):
+        Package.get_etl_group_tables("not_an_etl_group")
