@@ -1593,8 +1593,7 @@ class EnvVar(Noneable):
         if value is None:
             try:
                 value = os.environ.get(self.env_var)
-
-                if not value:
+                if value is None:
                     value = get_defaults()[self.env_var]
             except KeyError:
                 raise PostProcessingError(
