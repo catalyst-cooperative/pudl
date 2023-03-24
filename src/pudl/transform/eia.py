@@ -547,11 +547,30 @@ def harvesting(  # noqa: C901
     return entity_df, annual_df, col_dfs
 
 
-def _boiler_generator_assn(  # noqa: C901
-    eia_transformed_dfs: dict[str, pd.DataFrame],
-    eia923_years: list[int] | None = None,
-    eia860_years: list[int] | None = None,
-    debug: bool = False,
+@asset(
+    ins={
+        table_name: AssetIn()
+        for table_name in [
+            "clean_boiler_generator_assn_eia860",
+            "clean_generation_eia923",
+            "clean_generators_eia860",
+            "clean_boiler_fuel_eia923",
+        ]
+    },
+    config_schema={
+        "debug": Field(
+            bool,
+            default_value=False,
+            description=(
+                "If True, debugging columns will be added to boiler_generator_assn."
+            ),
+        ),
+    },
+    required_resource_keys={"dataset_settings"},
+    io_manager_key="pudl_sqlite_io_manager",
+)
+def boiler_generator_assn_eia860(  # noqa: C901
+    context, **eia_transformed_dfs
 ) -> pd.DataFrame:
     """Creates a set of more complete boiler generator associations.
 
@@ -575,47 +594,47 @@ def _boiler_generator_assn(  # noqa: C901
     Args:
         eia_transformed_dfs: a dictionary of post-transform dataframes
             representing the EIA database tables.
-        eia923_years: a list of the years of EIA 923 data that
-            should be used to infer the boiler-generator associations. By
-            default it is all the working years of data.
-        eia860_years: a list of the years of EIA 860 data that
-            should be used to infer the boiler-generator associations. By
-            default it is all the working years of data.
-        debug: If True, include columns in the returned dataframe
-            indicating by what method the individual boiler generator
-            associations were inferred.
 
     Returns:
-        eia_transformed_dfs (dict): Returns the same dictionary of dataframes
-        that was passed in, and adds a new dataframe to it representing
-        the boiler-generator associations as records containing
-        plant_id_eia, generator_id, boiler_id, and unit_id_pudl
+        A dataframe containing the boiler generator associations.
 
     Raises:
-        AssertionError: If the boiler - generator association graphs are not
-            bi-partite, meaning generators only connect to boilers, and boilers
-            only connect to generators.
-        AssertionError: If all the boilers do not end up with the same unit_id
-            each year.
-        AssertionError: If all the generators do not end up with the same
-            unit_id each year.
+        AssertionError: If the boiler - generator association graphs are not bi-partite,
+            meaning generators only connect to boilers, and boilers only connect to
+            generators.
+        AssertionError: If all the boilers do not end up with the same unit_id each
+            year.
+        AssertionError: If all the generators do not end up with the same unit_id each
+            year.
     """
+    debug = context.op_config["debug"]
+    eia_settings = context.resources.dataset_settings.eia
+    eia923_years = eia_settings.eia923.years
+    eia860_years = eia_settings.eia860.years
+
     if eia923_years is None:
         eia923_years = DataSource.from_id("eia923").working_partitions["years"]
     if eia860_years is None:
         eia860_years = DataSource.from_id("eia860").working_partitions["years"]
 
-    # if eia860_years or eia923_years are still empty, we can't compile the BGA.
-    # Return the unaltered input dictionary of dataframes instead.
     if not (eia860_years and eia923_years):
-        return eia_transformed_dfs
+        logger.warning("No EIA-860 or EIA-923 years specified. Returning input BGA.")
+        return eia_transformed_dfs["clean_boiler_generator_assn_eia860"]
+
+    # Do some final data formatting and assign appropriate types:
+    eia_transformed_dfs = {
+        table_name: convert_cols_dtypes(df, data_source="eia")
+        for table_name, df in eia_transformed_dfs.items()
+    }
+
     # compile and scrub all the parts
     logger.info("Inferring complete EIA boiler-generator associations.")
-    logger.info(f"{eia_transformed_dfs.keys()=}")
+    logger.debug(f"{eia_transformed_dfs.keys()=}")
     bga_eia860 = (
-        eia_transformed_dfs["boiler_generator_assn_eia860"]
-        .copy()
-        .pipe(_restrict_years, eia923_years, eia860_years)
+        eia_transformed_dfs["clean_boiler_generator_assn_eia860"].pipe(
+            _restrict_years, eia923_years, eia860_years
+        )
+        # TODO (@zaneselvans): Can I get rid of this? Should already have good types.
         .astype(
             {
                 "generator_id": pd.StringDtype(),
@@ -625,10 +644,11 @@ def _boiler_generator_assn(  # noqa: C901
         )
     )
     # grab the generation_eia923 table, group annually, generate a new tag
-    gen_eia923 = eia_transformed_dfs["generation_eia923"].copy()
+    gen_eia923 = eia_transformed_dfs["clean_generation_eia923"]
     gen_eia923 = gen_eia923.set_index(pd.DatetimeIndex(gen_eia923.report_date))
     gen_eia923 = (
         _restrict_years(gen_eia923, eia923_years, eia860_years)
+        # TODO (@zaneselvans): Can I get rid of this? Should already have good types.
         .astype(
             {
                 "generator_id": pd.StringDtype(),
@@ -643,9 +663,10 @@ def _boiler_generator_assn(  # noqa: C901
 
     # compile all of the generators
     gens_eia860 = (
-        eia_transformed_dfs["generators_eia860"]
-        .copy()
-        .pipe(_restrict_years, eia923_years, eia860_years)
+        eia_transformed_dfs["clean_generators_eia860"].pipe(
+            _restrict_years, eia923_years, eia860_years
+        )
+        # TODO (@zaneselvans): Can I get rid of this? Should already have good types.
         .astype(
             {
                 "generator_id": pd.StringDtype(),
@@ -670,8 +691,8 @@ def _boiler_generator_assn(  # noqa: C901
                 "net_generation_mwh",
                 "missing_from_923",
             ]
-        ]
-        .drop_duplicates()
+        ].drop_duplicates()
+        # TODO (@zaneselvans): Can I get rid of this? Should already have good types.
         .astype(
             {
                 "generator_id": pd.StringDtype(),
@@ -702,9 +723,9 @@ def _boiler_generator_assn(  # noqa: C901
     # bga_compiled_1[bga_compiled_1['og_tag'].isnull()]
 
     bf_eia923 = (
-        eia_transformed_dfs["boiler_fuel_eia923"]
-        .copy()
+        eia_transformed_dfs["clean_boiler_fuel_eia923"]
         .pipe(_restrict_years, eia923_years, eia860_years)
+        # TODO (@zaneselvans): Can I get rid of this? Should already have good types.
         .astype(
             {
                 "boiler_id": pd.StringDtype(),
@@ -948,6 +969,7 @@ def _boiler_generator_assn(  # noqa: C901
         on=["plant_id_eia", "generator_id", "boiler_id"],
     ).astype({"unit_id_pudl": pd.Int64Dtype()})
 
+    # If we're NOT debugging, drop additional forensic information and bad BGAs
     if not debug:
         bga_out = (
             bga_out[
@@ -1138,49 +1160,6 @@ def fix_balancing_authority_codes_with_state(
         plants = plants.drop(columns=["state"])
 
     return plants
-
-
-@asset(
-    ins={
-        table_name: AssetIn()
-        for table_name in [
-            "clean_boiler_generator_assn_eia860",
-            "clean_generation_eia923",
-            "clean_generators_eia860",
-            "clean_boiler_fuel_eia923",
-        ]
-    },
-    config_schema={
-        "debug": Field(
-            bool,
-            default_value=False,
-            description=(
-                "If True, debugging columns will be added to boiler_generator_assn."
-            ),
-        ),
-    },
-    required_resource_keys={"dataset_settings"},
-    io_manager_key="pudl_sqlite_io_manager",
-)
-def boiler_generator_assn_eia860(context, **eia_transformed_dfs) -> pd.DataFrame:
-    """Create boiler generator association table."""
-    eia_settings = context.resources.dataset_settings.eia
-    # Do some final cleanup and assign appropriate types:
-    eia_transformed_dfs = {
-        name: convert_cols_dtypes(df, data_source="eia")
-        for name, df in eia_transformed_dfs.items()
-    }
-    # Remove the clean_ prefix from the table names... temporary compatibility
-    eia_transformed_dfs = {
-        table_name.replace("clean_", ""): df
-        for table_name, df in eia_transformed_dfs.items()
-    }
-    return _boiler_generator_assn(
-        eia_transformed_dfs,
-        eia923_years=eia_settings.eia923.years,
-        eia860_years=eia_settings.eia860.years,
-        debug=context.op_config["debug"],
-    )
 
 
 def harvested_entity_asset_factory(entity: str) -> AssetsDefinition:
