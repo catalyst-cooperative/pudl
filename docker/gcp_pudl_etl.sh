@@ -66,7 +66,7 @@ function notify_slack() {
     # Notify pudl-builds slack channel of deployment status
     if [ $1 = "success" ]; then
         message=":large_green_circle: :sunglasses: :unicorn_face: :rainbow: The deployment succeeded!! :partygritty: :database_parrot: :blob-dance: :large_green_circle:\n\n "
-        message+='Make a PR for `${GITHUB_REF}` into `main`: https://github.com/catalyst-cooperative/pudl/compare/main...${GITHUB_REF}\n\n'
+        message+="Make a PR for \`${GITHUB_REF}\` into \`main\`: https://github.com/catalyst-cooperative/pudl/compare/main...${GITHUB_REF}\n\n"
     elif [ $1 = "failure" ]; then
         message=":large_red_square: Oh bummer the deployment failed ::fiiiiine: :sob: :cry_spin:\n\n "
     else
