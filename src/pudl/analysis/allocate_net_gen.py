@@ -1606,7 +1606,7 @@ def adjust_msw_energy_source_codes(
 
 
 def add_missing_energy_source_codes_to_gens(gens_at_freq, gf):
-    """Adds energy_source_codes that appear in the `gf` table but not `gens` to `gens`.
+    """Add energy_source_codes that appear in the `gf` table but not `gens` to `gens`.
 
     In some cases, non-zero fuel consumption and net generation is reported in the
     EIA-923 generation and fuel table that is associated with an energy_source_code that
@@ -1615,19 +1615,18 @@ def add_missing_energy_source_codes_to_gens(gens_at_freq, gf):
     plant-pm, this function identifies such esc, and adds them to the `gens_at_freq`
     table as new energy_source_code columns.
     """
-
     missing_gf_escs_from_gens = identify_missing_gf_escs_in_gens(gens_at_freq, gf)
-
+    if missing_gf_escs_from_gens.empty:
+        return gens_at_freq
+    idx = ["plant_id_eia", "prime_mover_code", "report_date"]
     # pivot these data to become new numbered energy_source_code_n columns starting at 7
     missing_gf_escs_from_gens["num"] = (
-        missing_gf_escs_from_gens.groupby(
-            ["plant_id_eia", "prime_mover_code"]
-        ).cumcount()
-        + 7
+        missing_gf_escs_from_gens.groupby(idx).cumcount() + 7
     )
     missing_gf_escs_from_gens["num"] = missing_gf_escs_from_gens["num"].astype(str)
+    logger.info(missing_gf_escs_from_gens.columns)
     missing_gf_escs_from_gens = missing_gf_escs_from_gens.pivot(
-        index=["plant_id_eia", "prime_mover_code"], columns="num"
+        index=idx, columns="num"
     )[["energy_source_code"]]
     missing_gf_escs_from_gens.columns = [
         "_".join(col) for col in missing_gf_escs_from_gens.columns.values
@@ -1638,7 +1637,7 @@ def add_missing_energy_source_codes_to_gens(gens_at_freq, gf):
     gens_at_freq = gens_at_freq.merge(
         missing_gf_escs_from_gens,
         how="left",
-        on=["plant_id_eia", "prime_mover_code"],
+        on=idx,
         validate="m:m",
     )
 
@@ -1646,14 +1645,14 @@ def add_missing_energy_source_codes_to_gens(gens_at_freq, gf):
 
 
 def identify_missing_gf_escs_in_gens(gens_at_freq, gf):
-    """For each plant, identifies energy_source_codes that exist in gf but not gens."""
+    """Identify energy_source_codes that exist in gf but not gens for each plant."""
     # create a version of gf that identifies all of the unique energy source codes
     # with non-zero data associated with each plant-pm
     # create a filtered version of gf that only includes rows with non-zero data
     gf_escs = (
         gf.loc[
             ((gf["fuel_consumed_mmbtu"] > 0) | (gf["net_generation_mwh"] != 0)),
-            ["plant_id_eia", "prime_mover_code", "energy_source_code"],
+            ["plant_id_eia", "prime_mover_code", "energy_source_code", "report_date"],
         ]
         .copy()
         .drop_duplicates()
@@ -1662,11 +1661,12 @@ def identify_missing_gf_escs_in_gens(gens_at_freq, gf):
     # associated with each plant-pm for gens with non-retired generation
     esc_columns = list(gens_at_freq.filter(like="_source_code").columns)
     gens_escs = gens_at_freq.loc[
-        ~(gens_at_freq["retirement_date"] < gens_at_freq["report_date"]),
-        ["plant_id_eia", "prime_mover_code"] + esc_columns,
+        ~(gens_at_freq["generator_retirement_date"] < gens_at_freq["report_date"]),
+        ["plant_id_eia", "report_date", "prime_mover_code"] + esc_columns,
     ].drop_duplicates()
     gens_escs = gens_escs.melt(
-        id_vars=["plant_id_eia", "prime_mover_code"], value_name="energy_source_code"
+        id_vars=["plant_id_eia", "report_date", "prime_mover_code"],
+        value_name="energy_source_code",
     ).drop(columns=["variable"])
     gens_escs = gens_escs[~gens_escs["energy_source_code"].isna()]
 
@@ -1674,7 +1674,7 @@ def identify_missing_gf_escs_in_gens(gens_at_freq, gf):
     missing_gf_escs_from_gens = gens_escs.merge(
         gf_escs,
         how="outer",
-        on=["plant_id_eia", "prime_mover_code", "energy_source_code"],
+        on=["plant_id_eia", "prime_mover_code", "energy_source_code", "report_date"],
         indicator="source",
     )
     missing_gf_escs_from_gens = missing_gf_escs_from_gens[

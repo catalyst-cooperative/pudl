@@ -242,6 +242,8 @@ def example_1_pudl_tabl():
 
 def test_allocated_sums_match(example_1_pudl_tabl):
     """Test associate_generator_tables function with example 1."""
+    assert not example_1_pudl_tabl.bf_eia923().empty
+    assert not example_1_pudl_tabl.gens_eia860().empty
     allocated = allocate_net_gen.allocate_gen_fuel_by_generator_energy_source(
         example_1_pudl_tabl
     )
@@ -334,11 +336,11 @@ def test_missing_energy_source():
         boiler_generator_assn_eia860=boiler_generator_assn_eia860,
     )
 
-    with pytest.raises(AssertionError):
-        allocate_net_gen.allocate_gen_fuel_by_generator_energy_source(mock_pudl_out)
+    allocated = allocate_net_gen.allocate_gen_fuel_by_generator_energy_source(
+        mock_pudl_out
+    )
 
-    # TODO (daz): once the allocation is actually fixed, assert that the fuel consumed is the same
-    # assert (
-    #     generation_fuel_eia923.fuel_consumed_mmbtu.sum()
-    #     == allocated.fuel_consumed_mmbtu.sum()
-    # )
+    assert (
+        generation_fuel_eia923.fuel_consumed_mmbtu.sum()
+        == allocated.fuel_consumed_mmbtu.sum()
+    )
