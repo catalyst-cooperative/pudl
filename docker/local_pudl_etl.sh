@@ -4,25 +4,20 @@
 
 set -x
 
-function bridge_settings() {
-    export PUDL_INPUT="${CONTAINER_PUDL_IN}/data"
-    export PUDL_OUTPUT=$CONTAINER_PUDL_OUT
-}
-
 function run_pudl_etl() {
     pudl_setup \
-        --pudl_in $CONTAINER_PUDL_IN \
-        --pudl_out $CONTAINER_PUDL_OUT \
-    && bridge_settings \
     && ferc_to_sqlite \
         --loglevel DEBUG \
+        --gcs-cache-path gs://internal-zenodo-cache.catalyst.coop \
         $PUDL_SETTINGS_YML \
     && pudl_etl \
         --loglevel DEBUG \
         --partition-epacems \
+        --gcs-cache-path gs://internal-zenodo-cache.catalyst.coop \
         $PUDL_SETTINGS_YML \
     && pytest \
-        --etl-settings $PUDL_SETTINGS_YML \
+        --gcs-cache-path=gs://internal-zenodo-cache.catalyst.coop \
+        --etl-settings=$PUDL_SETTINGS_YML \
         --live-dbs test
 }
 
