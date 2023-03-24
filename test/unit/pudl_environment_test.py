@@ -10,6 +10,13 @@ import yaml
 from pudl.workspace.setup import get_defaults
 
 
+def setup():
+    if os.getenv("PUDL_OUTPUT"):
+        os.environ["PUDL_OUTPUT_OLD"] = os.getenv("PUDL_OUTPUT")
+    if os.getenv("PUDL_INPUT"):
+        os.environ["PUDL_INPUT_OLD"] = os.getenv("PUDL_INPUT")
+
+
 def test_get_defaults_in_test_environment_no_env_vars():
     if os.getenv("PUDL_OUTPUT"):
         del os.environ["PUDL_OUTPUT"]
@@ -154,3 +161,12 @@ def test_get_defaults_in_test_environment_no_env_vars_no_config():
 
     with pytest.raises(RuntimeError):
         get_defaults(yaml_file=None, default_pudl_yaml=None)
+
+
+def teardown():
+    if os.getenv("PUDL_OUTPUT_OLD"):
+        os.environ["PUDL_OUTPUT"] = os.getenv("PUDL_OUTPUT_OLD")
+        del os.environ["PUDL_OUTPUT_OLD"]
+    if os.getenv("PUDL_INPUT_OLD"):
+        os.environ["PUDL_INPUT"] = os.getenv("PUDL_INPUT_OLD")
+        del os.environ["PUDL_INPUT_OLD"]
