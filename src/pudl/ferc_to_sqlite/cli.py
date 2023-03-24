@@ -6,7 +6,6 @@ main PUDL ETL process. The underlying work in the script is being done in
 :mod:`pudl.extract.ferc1`.
 """
 import argparse
-import os
 import sys
 from collections.abc import Callable
 
@@ -16,7 +15,6 @@ from dagster import (
     build_reconstructable_job,
     execute_job,
 )
-from dotenv import load_dotenv
 
 import pudl
 from pudl import ferc_to_sqlite
@@ -113,7 +111,6 @@ def ferc_to_sqlite_job_factory(
 
 def main():  # noqa: C901
     """Clone the FERC Form 1 FoxPro database into SQLite."""
-    load_dotenv()
     args = parse_command_line(sys.argv)
 
     # Display logged output from the PUDL package:
@@ -123,14 +120,8 @@ def main():  # noqa: C901
 
     etl_settings = EtlSettings.from_yaml(args.settings_file)
 
-    if (not os.getenv("PUDL_OUTPUT")) or (not os.getenv("PUDL_INPUT")):
-        pudl_settings = pudl.workspace.setup.derive_paths(
-            pudl_in=etl_settings.pudl_in, pudl_out=etl_settings.pudl_out
-        )
-
-        os.environ["PUDL_INPUT"] = pudl_settings["data_dir"]
-        os.environ["PUDL_OUTPUT"] = pudl_settings["pudl_out"]
-        os.environ["DAGSTER_HOME"] = pudl_settings["pudl_in"]
+    # Set PUDL_INPUT/PUDL_OUTPUT env vars from .pudl.yml if not set already!
+    pudl.workspace.setup.get_defaults()
 
     ferc_to_sqlite_reconstructable_job = build_reconstructable_job(
         "pudl.ferc_to_sqlite.cli",

@@ -21,15 +21,15 @@ services:
     volumes:
       - type: volume
         source: pudl-in
-        target: ${CONTAINER_PUDL_IN}
+        target: ${PUDL_INPUT}
         consistency: delegated
       - type: volume
         source: pudl-out
-        target: ${CONTAINER_PUDL_OUT}
+        target: ${PUDL_OUTPUT}
         consistency: delegated
       - type: volume
         source: dagster-home
-        target: ${CONTAINER_DAGSTER_HOME}
+        target: ${DAGSTER_HOME}
         consistency: delegated
     logging:
       driver: local
