@@ -1195,6 +1195,8 @@ def harvested_entity_asset_factory(entity: str) -> AssetsDefinition:
                 fix_balancing_authority_codes_with_state, plants_entity=entity_df
             )
 
+        entity_df = entity_res.enforce_schema(entity_df)
+        annual_df = annual_res.enforce_schema(annual_df)
         # Need to figure out how to return the col_dfs if debug is True
         return (
             Output(output_name=f"{entity}_entity_eia", value=entity_df),
