@@ -1278,7 +1278,7 @@ harvested_entities = [harvested_entity_asset_factory(entity) for entity in ENTIT
 
 
 def finished_eia_asset_factory(
-    table_name: str, io_manager_key: str
+    table_name: str, io_manager_key: str | None = None
 ) -> AssetsDefinition:
     """An asset factory for finished EIA tables."""
     clean_table_name = "clean_" + table_name
@@ -1290,8 +1290,9 @@ def finished_eia_asset_factory(
     )
     def finished_eia_asset(**kwargs) -> pd.DataFrame:
         """Enforce PUDL DB schema on a cleaned EIA dataframe."""
+        df = convert_cols_dtypes(kwargs[clean_table_name], data_source="eia")
         res = Package.from_resource_ids().get_resource(table_name)
-        return res.enforce_schema(kwargs[clean_table_name])
+        return res.enforce_schema(df)
 
     return finished_eia_asset
 
