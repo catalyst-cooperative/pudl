@@ -96,6 +96,10 @@ eia_raw_table_names = (
     "raw_generation_fuel_eia923",
     "raw_generator_eia923",
     "raw_stocks_eia923",
+    # We have emissions_control metadata to extract the spreadsheet, but weirdly the
+    # archived spreadsheets from 2018 don't include Schedule 8. See comments on:
+    # https://github.com/catalyst-cooperative/pudl/issues/2448
+    # "raw_emissions_control_eia923",
 )
 
 
