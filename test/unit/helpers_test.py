@@ -18,6 +18,7 @@ from pudl.helpers import (
     remove_leading_zeros_from_numeric_strings,
     zero_pad_numeric_string,
 )
+from pudl.output.helpers import sql_asset_factory
 
 MONTHLY_GEN_FUEL = pd.DataFrame(
     {
@@ -622,3 +623,10 @@ def test_cems_selection():
     assert AssetKey("hourly_emissions_epacems") not in cems_selection.resolve(
         pudl.etl.default_assets
     ), "hourly_emissions_epacems or downstream asset present in selection."
+
+
+def test_sql_asset_factory_missing_file():
+    """Test sql_asset_factory throws a file not found error if file doesn't exist for an
+    asset name."""
+    with pytest.raises(FileNotFoundError):
+        sql_asset_factory(name="fake_view")()

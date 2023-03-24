@@ -65,6 +65,11 @@ def utilities_eia860(pudl_engine, start_date=None, end_date=None):
         pandas.DataFrame: A DataFrame containing all the fields of the EIA 860
         Utilities table.
     """
+    logger.warning(
+        "pudl.output.eia860.utilities_eia860() will be deprecated in a future version of PUDL."
+        " In the future, call the PudlTabl.utils_eia860() method or pull the denorm_utilities_eia860 table"
+        "directly from the pudl.sqlite database."
+    )
     pt = pudl.output.pudltabl.get_table_meta(pudl_engine)
     # grab the entity table
     utils_eia_tbl = pt["utilities_entity_eia"]
