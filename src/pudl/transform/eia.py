@@ -630,31 +630,14 @@ def boiler_generator_assn_eia860(  # noqa: C901
     # compile and scrub all the parts
     logger.info("Inferring complete EIA boiler-generator associations.")
     logger.debug(f"{eia_transformed_dfs.keys()=}")
-    bga_eia860 = (
-        eia_transformed_dfs["clean_boiler_generator_assn_eia860"].pipe(
-            _restrict_years, eia923_years, eia860_years
-        )
-        # TODO (@zaneselvans): Can I get rid of this? Should already have good types.
-        .astype(
-            {
-                "generator_id": pd.StringDtype(),
-                "boiler_id": pd.StringDtype(),
-                "plant_id_eia": int,
-            }
-        )
+    bga_eia860 = eia_transformed_dfs["clean_boiler_generator_assn_eia860"].pipe(
+        _restrict_years, eia923_years, eia860_years
     )
     # grab the generation_eia923 table, group annually, generate a new tag
     gen_eia923 = eia_transformed_dfs["clean_generation_eia923"]
     gen_eia923 = gen_eia923.set_index(pd.DatetimeIndex(gen_eia923.report_date))
     gen_eia923 = (
         _restrict_years(gen_eia923, eia923_years, eia860_years)
-        # TODO (@zaneselvans): Can I get rid of this? Should already have good types.
-        .astype(
-            {
-                "generator_id": pd.StringDtype(),
-                "plant_id_eia": int,
-            }
-        )
         .groupby([pd.Grouper(freq="AS"), "plant_id_eia", "generator_id"])
         .net_generation_mwh.sum()
         .reset_index()
@@ -662,17 +645,8 @@ def boiler_generator_assn_eia860(  # noqa: C901
     )
 
     # compile all of the generators
-    gens_eia860 = (
-        eia_transformed_dfs["clean_generators_eia860"].pipe(
-            _restrict_years, eia923_years, eia860_years
-        )
-        # TODO (@zaneselvans): Can I get rid of this? Should already have good types.
-        .astype(
-            {
-                "generator_id": pd.StringDtype(),
-                "plant_id_eia": int,
-            }
-        )
+    gens_eia860 = eia_transformed_dfs["clean_generators_eia860"].pipe(
+        _restrict_years, eia923_years, eia860_years
     )
     gens = pd.merge(
         gen_eia923,
@@ -681,25 +655,16 @@ def boiler_generator_assn_eia860(  # noqa: C901
         how="outer",
     )
 
-    gens = (
-        gens[
-            [
-                "plant_id_eia",
-                "report_date",
-                "generator_id",
-                "unit_id_eia",
-                "net_generation_mwh",
-                "missing_from_923",
-            ]
-        ].drop_duplicates()
-        # TODO (@zaneselvans): Can I get rid of this? Should already have good types.
-        .astype(
-            {
-                "generator_id": pd.StringDtype(),
-                "plant_id_eia": int,
-            }
-        )
-    )
+    gens = gens[
+        [
+            "plant_id_eia",
+            "report_date",
+            "generator_id",
+            "unit_id_eia",
+            "net_generation_mwh",
+            "missing_from_923",
+        ]
+    ].drop_duplicates()
 
     # create the beginning of a bga compilation w/ the generators as the
     # background
@@ -725,13 +690,6 @@ def boiler_generator_assn_eia860(  # noqa: C901
     bf_eia923 = (
         eia_transformed_dfs["clean_boiler_fuel_eia923"]
         .pipe(_restrict_years, eia923_years, eia860_years)
-        # TODO (@zaneselvans): Can I get rid of this? Should already have good types.
-        .astype(
-            {
-                "boiler_id": pd.StringDtype(),
-                "plant_id_eia": int,
-            }
-        )
         .assign(
             total_heat_content_mmbtu=lambda x: x.fuel_consumed_units
             * x.fuel_mmbtu_per_unit
