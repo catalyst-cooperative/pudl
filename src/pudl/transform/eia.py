@@ -292,7 +292,6 @@ def _compile_all_entity_records(entity, eia_transformed_dfs):
     static_cols = ENTITIES[entity]["static_cols"]
     annual_cols = ENTITIES[entity]["annual_cols"]
     base_cols = id_cols + ["report_date"]
-    keep_cols = ENTITIES[entity].get("keep_cols", [])
 
     # empty list for dfs to be added to for each table below
     dfs = []
@@ -318,12 +317,6 @@ def _compile_all_entity_records(entity, eia_transformed_dfs):
                 # add a column with the table name so we know its origin
                 df["table"] = table_name
                 dfs.append(df)
-
-                # remove the static columns, except the explicitly non-dropped cols
-                transformed_df = transformed_df.drop(
-                    columns=[c for c in cols if c not in keep_cols]
-                )
-                eia_transformed_dfs[table_name] = transformed_df
 
     # add those records to the compliation
     compiled_df = pd.concat(dfs, axis=0, ignore_index=True, sort=True)
