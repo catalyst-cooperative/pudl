@@ -1,4 +1,4 @@
-.. _run-the-etl:
+.. _run_the_etl:
 
 ===============================================================================
 Running the ETL Pipeline
@@ -160,7 +160,8 @@ a window that looks like this:
 Click the hamburger button in the upper left to view the definitions,
 assets and jobs.
 
-**Cloning the FERC databases**
+**Cloning the FERC databases:**
+
 To run the data pipelines, you'll first need to create the raw FERC databases by
 clicking on one of the ``pudl.ferc_to_sqlite`` jobs. Then select "Launchpad"
 where you can adjust the years to extract for each dataset. Then click
@@ -181,7 +182,36 @@ add them in the Launchpad tab of the job like so::
       config:
         clobber: true
 
-**Running the PUDL ETL**
+You can also adjust the years to process for each dataset using the Launchpad
+tab::
+
+  resources:
+    ferc_to_sqlite_settings:
+      config:
+        ferc1_dbf_to_sqlite_settings:
+          years:
+          - 2020
+          - 2019
+          - 2018
+        ferc1_xbrl_to_sqlite_settings:
+          years:
+          - 2021
+        ferc2_xbrl_to_sqlite_settings:
+          years:
+          - 2021
+        ferc60_xbrl_to_sqlite_settings:
+          years:
+          - 2021
+        ferc6_xbrl_to_sqlite_settings:
+          years:
+          - 2021
+        ferc714_xbrl_to_sqlite_settings:
+          years:
+          - 2021
+
+
+**Running the PUDL ETL:**
+
 Once the raw FERC databases are created by a ``pudl.ferc_to_sqlite`` job,
 you can execute the main PUDL ETL.
 
@@ -217,6 +247,9 @@ want to rerun the entire ETL.
   Dagster will throw an ``DagsterInvalidSubsetError`` if you try to
   re-execute a subset of assets produced by a single function. This can
   be resolved by re-materializing the asset group of the desired asset.
+
+Read the :ref:`dev_dagster` documentation page to learn more about working
+with dagster.
 
 .. _run-cli:
 
