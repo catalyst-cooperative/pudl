@@ -63,93 +63,27 @@ record_id_eia,record_id_ferc1,signature_1,signature_2,notes
 3291_gt4_2018_plant_gen_total_17539,f1_steam_2018_12_159_1_3,CG,SW,
 3291_gt4_2019_plant_gen_total_17539,f1_steam_2019_12_159_1_3,CG,SW,
 3291_gt4_2020_plant_gen_total_17539,f1_steam_2020_12_159_1_3,SW,EB,
-815_2005_plant_total_9191,f1_hydro_2005_12_70_1_2,JER,SW,upper + lower malad in EIA match malad in FERC
-815_2006_plant_total_9191,f1_hydro_2006_12_70_1_2,JER,SW,upper + lower malad in EIA match malad in FERC
-815_2007_plant_total_9191,f1_hydro_2007_12_70_1_2,JER,SW,upper + lower malad in EIA match malad in FERC
-815_2008_plant_total_9191,f1_hydro_2008_12_70_1_2,JER,SW,upper + lower malad in EIA match malad in FERC
-815_2009_plant_total_9191,f1_hydro_2009_12_70_1_2,JER,SW,upper + lower malad in EIA match malad in FERC
-815_2010_plant_total_9191,f1_hydro_2010_12_70_1_2,JER,SW,upper + lower malad in EIA match malad in FERC
-815_2011_plant_total_9191,f1_hydro_2011_12_70_1_2,JER,SW,upper + lower malad in EIA match malad in FERC
-815_2012_plant_total_9191,f1_hydro_2012_12_70_1_2,JER,SW,upper + lower malad in EIA match malad in FERC
-815_2013_plant_total_9191,f1_hydro_2013_12_70_1_2,JER,SW,upper + lower malad in EIA match malad in FERC
-815_2014_plant_total_9191,f1_hydro_2014_12_70_1_2,JER,SW,upper + lower malad in EIA match malad in FERC
-815_2015_plant_total_9191,f1_hydro_2015_12_70_1_2,JER,SW,upper + lower malad in EIA match malad in FERC
-815_2016_plant_total_9191,f1_hydro_2016_12_70_1_2,JER,SW,upper + lower malad in EIA match malad in FERC
-815_2017_plant_total_9191,f1_hydro_2017_12_70_1_2,JER,SW,upper + lower malad in EIA match malad in FERC
-815_2018_plant_total_9191,f1_hydro_2018_12_70_1_2,JER,SW,upper + lower malad in EIA match malad in FERC
-815_2019_plant_total_9191,f1_hydro_2019_12_70_1_2,JER,SW,upper + lower malad in EIA match malad in FERC
-822_2005_plant_total_9191,f1_hydro_2005_12_70_2_1,JER,SW,upper salmon in FERC = upper salmon A + upper salmon B in EIA
-822_2006_plant_total_9191,f1_hydro_2006_12_70_2_1,JER,SW,upper salmon in FERC = upper salmon A + upper salmon B in EIA
-822_2007_plant_total_9191,f1_hydro_2007_12_70_2_1,JER,SW,upper salmon in FERC = upper salmon A + upper salmon B in EIA
-822_2008_plant_total_9191,f1_hydro_2008_12_70_2_1,JER,SW,upper salmon in FERC = upper salmon A + upper salmon B in EIA
-822_2009_plant_total_9191,f1_hydro_2009_12_70_2_1,JER,SW,upper salmon in FERC = upper salmon A + upper salmon B in EIA
-822_2010_plant_total_9191,f1_hydro_2010_12_70_2_1,JER,SW,upper salmon in FERC = upper salmon A + upper salmon B in EIA
-822_2011_plant_total_9191,f1_hydro_2011_12_70_2_1,JER,SW,upper salmon in FERC = upper salmon A + upper salmon B in EIA
-822_2012_plant_total_9191,f1_hydro_2012_12_70_2_1,JER,SW,upper salmon in FERC = upper salmon A + upper salmon B in EIA
-822_2013_plant_total_9191,f1_hydro_2013_12_70_2_1,JER,SW,upper salmon in FERC = upper salmon A + upper salmon B in EIA
-822_2014_plant_total_9191,f1_hydro_2014_12_70_2_1,JER,SW,upper salmon in FERC = upper salmon A + upper salmon B in EIA
-822_2015_plant_total_9191,f1_hydro_2015_12_70_2_1,JER,SW,upper salmon in FERC = upper salmon A + upper salmon B in EIA
-822_2016_plant_total_9191,f1_hydro_2016_12_70_2_1,JER,SW,upper salmon in FERC = upper salmon A + upper salmon B in EIA
-822_2017_plant_total_9191,f1_hydro_2017_12_70_2_1,JER,SW,upper salmon in FERC = upper salmon A + upper salmon B in EIA
-822_2018_plant_total_9191,f1_hydro_2018_12_70_2_1,JER,SW,upper salmon in FERC = upper salmon A + upper salmon B in EIA
-822_2019_plant_total_9191,f1_hydro_2019_12_70_2_1,JER,SW,upper salmon in FERC = upper salmon A + upper salmon B in EIA
-823_2005_plant_total_9191,f1_hydro_2005_12_70_1_2,JER,SW,upper + lower malad in EIA match malad in FERC
-823_2006_plant_total_9191,f1_hydro_2006_12_70_1_2,JER,SW,upper + lower malad in EIA match malad in FERC
-823_2007_plant_total_9191,f1_hydro_2007_12_70_1_2,JER,SW,upper + lower malad in EIA match malad in FERC
-823_2008_plant_total_9191,f1_hydro_2008_12_70_1_2,JER,SW,upper + lower malad in EIA match malad in FERC
-823_2009_plant_total_9191,f1_hydro_2009_12_70_1_2,JER,SW,upper + lower malad in EIA match malad in FERC
-823_2010_plant_total_9191,f1_hydro_2010_12_70_1_2,JER,SW,upper + lower malad in EIA match malad in FERC
-823_2011_plant_total_9191,f1_hydro_2011_12_70_1_2,JER,SW,upper + lower malad in EIA match malad in FERC
-823_2012_plant_total_9191,f1_hydro_2012_12_70_1_2,JER,SW,upper + lower malad in EIA match malad in FERC
-823_2013_plant_total_9191,f1_hydro_2013_12_70_1_2,JER,SW,upper + lower malad in EIA match malad in FERC
-823_2014_plant_total_9191,f1_hydro_2014_12_70_1_2,JER,SW,upper + lower malad in EIA match malad in FERC
-823_2015_plant_total_9191,f1_hydro_2015_12_70_1_2,JER,SW,upper + lower malad in EIA match malad in FERC
-823_2016_plant_total_9191,f1_hydro_2016_12_70_1_2,JER,SW,upper + lower malad in EIA match malad in FERC
-823_2017_plant_total_9191,f1_hydro_2017_12_70_1_2,JER,SW,upper + lower malad in EIA match malad in FERC
-823_2018_plant_total_9191,f1_hydro_2018_12_70_1_2,JER,SW,upper + lower malad in EIA match malad in FERC
-823_2019_plant_total_9191,f1_hydro_2019_12_70_1_2,JER,SW,upper + lower malad in EIA match malad in FERC
-7079_2005_plant_total_9191,f1_hydro_2005_12_70_2_1,JER,SW,upper salmon in FERC = upper salmon A + upper salmon B in EIA
-7079_2006_plant_total_9191,f1_hydro_2006_12_70_2_1,JER,SW,upper salmon in FERC = upper salmon A + upper salmon B in EIA
-7079_2007_plant_total_9191,f1_hydro_2007_12_70_2_1,JER,SW,upper salmon in FERC = upper salmon A + upper salmon B in EIA
-7079_2008_plant_total_9191,f1_hydro_2008_12_70_2_1,JER,SW,upper salmon in FERC = upper salmon A + upper salmon B in EIA
-7079_2009_plant_total_9191,f1_hydro_2009_12_70_2_1,JER,SW,upper salmon in FERC = upper salmon A + upper salmon B in EIA
-7079_2010_plant_total_9191,f1_hydro_2010_12_70_2_1,JER,SW,upper salmon in FERC = upper salmon A + upper salmon B in EIA
-7079_2011_plant_total_9191,f1_hydro_2011_12_70_2_1,JER,SW,upper salmon in FERC = upper salmon A + upper salmon B in EIA
-7079_2012_plant_total_9191,f1_hydro_2012_12_70_2_1,JER,SW,upper salmon in FERC = upper salmon A + upper salmon B in EIA
-7079_2013_plant_total_9191,f1_hydro_2013_12_70_2_1,JER,SW,upper salmon in FERC = upper salmon A + upper salmon B in EIA
-7079_2014_plant_total_9191,f1_hydro_2014_12_70_2_1,JER,SW,upper salmon in FERC = upper salmon A + upper salmon B in EIA
-7079_2015_plant_total_9191,f1_hydro_2015_12_70_2_1,JER,SW,upper salmon in FERC = upper salmon A + upper salmon B in EIA
-7079_2016_plant_total_9191,f1_hydro_2016_12_70_2_1,JER,SW,upper salmon in FERC = upper salmon A + upper salmon B in EIA
-7079_2017_plant_total_9191,f1_hydro_2017_12_70_2_1,JER,SW,upper salmon in FERC = upper salmon A + upper salmon B in EIA
-7079_2018_plant_total_9191,f1_hydro_2018_12_70_2_1,JER,SW,upper salmon in FERC = upper salmon A + upper salmon B in EIA
-7079_2019_plant_total_9191,f1_hydro_2019_12_70_2_1,JER,SW,upper salmon in FERC = upper salmon A + upper salmon B in EIA
 2324_1_2005_plant_gen_total_13407,f1_steam_2005_12_108_0_3,,AS,
 2322_ct_2005_plant_prime_mover_total_13407,f1_steam_2005_12_108_1_5,,AS,
-1091_2005_plant_owned_12341,f1_steam_2005_12_210_0_2,,AS,uses records from two plants
 2336_ca_2006_plant_prime_mover_total_17166,f1_steam_2006_12_157_1_1,,AS,cap doesn't jump up till 2008
 2324_1_2006_plant_gen_total_13407,f1_steam_2006_12_108_0_3,,AS,
 2322_ct_2006_plant_prime_mover_total_13407,f1_steam_2006_12_108_1_5,,AS,
-1091_2006_plant_owned_12341,f1_steam_2006_12_210_0_2,,AS,uses records from two plants
 2336_ca_2007_plant_prime_mover_total_17166,f1_steam_2007_12_157_1_1,,AS,cap doesn't jump up till 2008
 2324_1_2007_plant_gen_total_13407,f1_steam_2007_12_108_0_3,,AS,
 2322_ct_2007_plant_prime_mover_total_13407,f1_steam_2007_12_108_1_5,,AS,capacity went up in eia but not in ferc
-1091_2007_plant_owned_12341,f1_steam_2007_12_210_0_2,,AS,uses records from two plants
 6518_kb1_2008_plant_gen_total_17166,f1_steam_2008_12_157_0_5,,AS,For some reason this year only reports a total of the 16.2 and 15 combined so we have to add up the individual components
 2336_5_2008_plant_gen_total_17166,f1_steam_2008_12_157_1_1,,AS,poor generation match
 2324_1_2008_plant_gen_total_13407,f1_steam_2008_12_108_0_3,,AS,
 2322_ct_2008_plant_prime_mover_total_13407,f1_steam_2008_12_108_1_5,,AS,
 2336_8_2008_plant_gen_total_17166,f1_steam_2008_12_157_1_3,,AS,"8, 9, and 10"
-1091_2008_plant_owned_12341,f1_steam_2008_12_210_0_2,,AS,uses records from two plants
 2336_5_2009_plant_unit_total_17166,f1_steam_2009_12_157_1_1,,AS,poor generation match
 2324_1_2009_plant_gen_total_13407,f1_steam_2009_12_108_0_3,,AS,
 2322_ct_2009_plant_prime_mover_total_13407,f1_steam_2009_12_108_1_5,,AS,
 2336_8_2009_plant_gen_total_17166,f1_steam_2009_12_157_1_3,,AS,
-1091_2009_plant_owned_12341,f1_steam_2009_12_210_0_2,,AS,uses records from two plants
 2336_5_2010_plant_unit_total_17166,f1_steam_2010_12_157_1_1,,AS,poor generation match
 2324_1_2010_plant_gen_total_13407,f1_steam_2010_12_108_0_3,,AS,
 2322_ct_2010_plant_prime_mover_total_13407,f1_steam_2010_12_108_1_5,,AS,
 2336_8_2010_plant_gen_total_17166,f1_steam_2010_12_157_1_2,,AS,
-1091_2010_plant_owned_12341,f1_steam_2010_12_210_0_2,,AS,uses records from two plants
 2336_5_2011_plant_unit_total_17166,f1_steam_2011_12_157_1_1,,AS,poor generation match
 2324_1_2011_plant_gen_total_13407,f1_steam_2011_12_108_0_3,,AS,
 2322_ct_2011_plant_prime_mover_total_13407,f1_steam_2011_12_108_1_5,,AS,
@@ -177,31 +111,25 @@ record_id_eia,record_id_ferc1,signature_1,signature_2,notes
 2322_ct_2019_plant_prime_mover_total_13407,f1_steam_2019_12_108_1_5,,AS,
 2324_2_2005_plant_gen_total_13407,f1_steam_2005_12_108_0_3,,AS,
 2322_ca_2005_plant_prime_mover_total_13407,f1_steam_2005_12_108_1_5,,AS,
-7343_2005_plant_owned_12341,f1_steam_2005_12_210_0_2,,AS,uses records from two plants
 2336_ct_2006_plant_prime_mover_total_17166,f1_steam_2006_12_157_1_1,,AS,cap doesn't jump up till 2008
 2324_2_2006_plant_gen_total_13407,f1_steam_2006_12_108_0_3,,AS,
 2322_ca_2006_plant_prime_mover_total_13407,f1_steam_2006_12_108_1_5,,AS,
-7343_2006_plant_owned_12341,f1_steam_2006_12_210_0_2,,AS,uses records from two plants
 2336_ct_2007_plant_prime_mover_total_17166,f1_steam_2007_12_157_1_1,,AS,cap doesn't jump up till 2008
 2324_2_2007_plant_gen_total_13407,f1_steam_2007_12_108_0_3,,AS,
 2322_ca_2007_plant_prime_mover_total_13407,f1_steam_2007_12_108_1_5,,AS,capacity went up in eia but not in ferc
-7343_2007_plant_owned_12341,f1_steam_2007_12_210_0_2,,AS,uses records from two plants
 6518_kb2_2008_plant_gen_total_17166,f1_steam_2008_12_157_0_5,,AS,For some reason this year only reports a total of the 16.2 and 15 combined so we have to add up the individual components
 2336_4_2008_plant_gen_total_17166,f1_steam_2008_12_157_1_1,,AS,poor generation match
 2324_2_2008_plant_gen_total_13407,f1_steam_2008_12_108_0_3,,AS,
 2322_ca_2008_plant_prime_mover_total_13407,f1_steam_2008_12_108_1_5,,AS,
 2336_9_2008_plant_gen_total_17166,f1_steam_2008_12_157_1_3,,AS,"8, 9, and 10"
-7343_2008_plant_owned_12341,f1_steam_2008_12_210_0_2,,AS,uses records from two plants
 2336_4_2009_plant_gen_total_17166,f1_steam_2009_12_157_1_1,,AS,poor generation match
 2324_2_2009_plant_gen_total_13407,f1_steam_2009_12_108_0_3,,AS,
 2322_ca_2009_plant_prime_mover_total_13407,f1_steam_2009_12_108_1_5,,AS,
 2336_9_2009_plant_gen_total_17166,f1_steam_2009_12_157_1_3,,AS,
-7343_2009_plant_owned_12341,f1_steam_2009_12_210_0_2,,AS,uses records from two plants
 2336_4_2010_plant_gen_total_17166,f1_steam_2010_12_157_1_1,,AS,poor generation match
 2324_2_2010_plant_gen_total_13407,f1_steam_2010_12_108_0_3,,AS,
 2322_ca_2010_plant_prime_mover_total_13407,f1_steam_2010_12_108_1_5,,AS,
 2336_9_2010_plant_gen_total_17166,f1_steam_2010_12_157_1_2,,AS,
-7343_2010_plant_owned_12341,f1_steam_2010_12_210_0_2,,AS,uses records from two plants
 2336_4_2011_plant_gen_total_17166,f1_steam_2011_12_157_1_1,,AS,poor generation match
 2324_2_2011_plant_gen_total_13407,f1_steam_2011_12_108_0_3,,AS,
 2322_ca_2011_plant_prime_mover_total_13407,f1_steam_2011_12_108_1_5,,AS,
@@ -281,9 +209,5 @@ record_id_eia,record_id_ferc1,signature_1,signature_2,notes
 2079_9_2012_plant_gen_total_10000,f1_steam_2012_12_79_0_3,AS,SW,
 2079_9_2013_plant_gen_total_10000,f1_steam_2013_12_79_0_3,AS,SW,
 2080_3_2019_plant_unit_total_10000_retired,f1_steam_2019_12_79_0_1,AS,SW,previous years reported the clump but not 2019
-709_2014_plant_total_7140,f1_steam_2014_12_57_1_4,CO,GT,
-709_2015_plant_total_7140,f1_steam_2015_12_57_1_4,CO,GT,
 649_1_2019_plant_gen_owned_7140,f1_steam_2019_12_57_1_3,CO,GT,
-709_2014_plant_total_7140_retired,f1_steam_2014_12_57_1_4,CO,GT,
-709_2015_plant_total_7140_retired,f1_steam_2015_12_57_1_4,CO,GT,
 649_2_2019_plant_gen_owned_7140,f1_steam_2019_12_57_1_3,CO,GT,
