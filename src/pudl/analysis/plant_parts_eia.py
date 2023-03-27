@@ -790,6 +790,24 @@ class MakePlantParts:
         # add in the attributes!
         part_df = self.add_attributes(part_df, plant_parts_eia, part_name)
 
+        # Assert that each 'ferc1_generator_agg_id' only contains one faked record
+        double_df = part_df[
+            part_df.groupby("ferc1_generator_agg_id")[
+                "ferc1_generator_agg_id"
+            ].transform("size")
+            > 1
+        ]
+        orig_ids = plant_parts_eia.loc[
+            plant_parts_eia.ferc1_generator_agg_id.isin(
+                double_df.ferc1_generator_agg_id
+            ),
+            "record_id_eia",
+        ]
+
+        assert (
+            double_df.empty
+        ), f"The following record ids have >1 faked part. Double-check these records or move them to the ferc1_eia_null.csv: {one_to_many.loc[one_to_many.record_id_eia.isin(orig_ids.record_id_eia), 'record_id_ferc1'].tolist()}"
+
         return pd.concat([plant_parts_eia, part_df])
 
     def add_additonal_cols(self, plant_parts_eia):
