@@ -3,13 +3,6 @@
 ESTIMATED_OR_ACTUAL: dict[str, str] = {"E": "estimated", "A": "actual"}
 """Descriptive labels for EIA estimated or actual codes."""
 
-MOMENTARY_INTERRUPTIONS: dict[str, str] = {
-    "L": "less_than_1_minute",
-    "F": "less_than_5_minutes",
-    "O": "other",
-}
-"""Descriptive labels for EIA momentary interruption codes."""
-
 POWER_PURCHASE_TYPES_FERC1: dict[str, str] = {
     "RQ": "requirement",
     "LF": "long_firm",

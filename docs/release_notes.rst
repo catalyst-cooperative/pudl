@@ -89,10 +89,59 @@ Data Coverage
   * :ref:`cash_flow_ferc1`, see issue :issue:`1821` & PR :pr:`2184`
   * :ref:`electricity_sales_by_rate_schedule_ferc1`, see issue :issue:`1823` & PR
     :pr:`2205`
+
 * The :ref:`boilers_eia860` table now includes annual boiler attributes from
   :doc:`data_sources/eia860` Schedule 6.2 Environmental Equipment data, and the new
   :ref:`boilers_entity_eia` table now includes static boiler attributes. See issue
   :issue:`1162` & PR :pr:`2319`.
+* All :doc:`data_sources/eia861` tables are now being loaded into the PUDL DB, rather
+  than only being available via an ad-hoc ETL process that was only accessible through
+  the :class:`pudl.output.pudltabl.PudlTabl` class. Note that most of these tables have
+  not been normalized, and the ``utility_id_eia`` and ``balancing_authority_id_eia``
+  values in them haven't been harvested, so these tables have very few valid foreign key
+  relationships with the rest of the database right now -- but at least the data is
+  available in the database! Existing methods for accessing these tables have been
+  preserved. The ``PudlTabl`` methods just read directly from the DB and apply uniform
+  data types, rather than actually doing the ETL. See :issue:`2265` & :pr:`2403`. The
+  newly accessible tables contain data from 2001-2021 and include:
+
+  * :ref:`advanced_metering_infrastructure_eia861`
+  * :ref:`balancing_authority_eia861`
+  * :ref:`balancing_authority_assn_eia861`
+  * :ref:`demand_response_eia861`
+  * :ref:`demand_response_water_heater_eia861`
+  * :ref:`demand_side_management_sales_eia861`
+  * :ref:`demand_side_management_ee_dr_eia861`
+  * :ref:`demand_side_management_misc_eia861`
+  * :ref:`distributed_generation_tech_eia861`
+  * :ref:`distributed_generation_fuel_eia861`
+  * :ref:`distributed_generation_misc_eia861`
+  * :ref:`distribution_systems_eia861`
+  * :ref:`dynamic_pricing_eia861`
+  * :ref:`energy_efficiency_eia861`
+  * :ref:`green_pricing_eia861`
+  * :ref:`mergers_eia861`
+  * :ref:`net_metering_customer_fuel_class_eia861`
+  * :ref:`net_metering_misc_eia861`
+  * :ref:`non_net_metering_customer_fuel_class_eia861`
+  * :ref:`non_net_metering_misc_eia861`
+  * :ref:`operational_data_revenue_eia861`
+  * :ref:`operational_data_misc_eia861`
+  * :ref:`reliability_eia861`
+  * :ref:`sales_eia861`
+  * :ref:`service_territory_eia861`
+  * :ref:`utility_assn_eia861`
+  * :ref:`utility_data_nerc_eia861`
+  * :ref:`utility_data_rto_eia861`
+  * :ref:`utility_data_misc_eia861`
+
+* A couple of tables from :doc:`data_sources/ferc714` have been added to the PUDL DB.
+  These tables contain data from 2006-2020 (2021 is distributed by FERC in XBRL format
+  and we have not yet integrated it). See :issue:`2266` & :pr:`2421`. The newly
+  accessible tables include:
+
+  * :ref:`respondent_id_ferc714` (linking FERC-714 respondents to EIA utilities)
+  * :ref:`demand_hourly_pa_ferc714` (hourly electricity demand by planning area)
 
 Data Cleaning
 ^^^^^^^^^^^^^
@@ -200,7 +249,7 @@ Data Coverage
   repositories. See issue :issue:`catalyst-cooperative/pudl-zenodo-storage#29`.
 * Incorporated 2021 data from the :doc:`data_sources/epacems` dataset. See :pr:`1778`
 * Incorporated Final Release 2021 data from the :doc:`data_sources/eia860`,
-  :ref:`data-eia861`, and :doc:`data_sources/eia923`. We also integrated a
+  :doc:`data_sources/eia861`, and :doc:`data_sources/eia923`. We also integrated a
   ``data_maturity`` column and related ``data_maturities`` table into most of the EIA
   data tables in order to alter users to the level of finality of the data. See
   :pr:`1834,1855,1915,1921`.
@@ -564,8 +613,8 @@ Data Coverage Changes
   * EIA Form 860m through 2021-08.
   * :doc:`data_sources/eia923` for 2020.
   * :doc:`data_sources/ferc1` for 2020.
-  * :ref:`data-eia861` data for 2020.
-  * :ref:`data-ferc714` data for 2020.
+  * :doc:`data_sources/eia861` data for 2020.
+  * :doc:`data_sources/ferc714` for 2020.
   * Note: the 2020 :doc:`data_sources/epacems` data was already available in v0.4.0.
 
 * **EPA IPM / NEEDS** data has been removed from PUDL as we didn't have the internal
@@ -706,8 +755,8 @@ New Data Coverage
 * :doc:`data_sources/epacems` for 2019-2020
 * :doc:`data_sources/ferc1` for 2019
 * :ref:`US Census Demographic Profile (DP1) <data-censusdp1tract>` for 2010
-* :ref:`data-ferc714` for 2006-2019 (experimental)
-* :ref:`data-eia861` for 2001-2019 (experimental)
+* :doc:`data_sources/ferc714` for 2006-2019 (experimental)
+* :doc:`data_sources/eia861` for 2001-2019 (experimental)
 
 Documentation & Data Accessibility
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^

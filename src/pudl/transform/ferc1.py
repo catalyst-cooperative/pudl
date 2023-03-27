@@ -3756,7 +3756,7 @@ def ferc1_transform_asset_factory(
         """Transform a FERC Form 1 table.
 
         Args:
-            raw_dbf: raw dbf table.d
+            raw_dbf: raw dbf table.
             raw_xbrl_instant: raw XBRL instant table.
             raw_xbrl_duration: raw XBRL duration table.
             xbrl_metadata_json: XBRL metadata json for all tables.

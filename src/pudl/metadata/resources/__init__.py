@@ -8,8 +8,6 @@ from pudl.metadata.helpers import build_foreign_keys
 RESOURCE_METADATA = {}
 for module_info in pkgutil.iter_modules(__path__):
     module = importlib.import_module(f"{__name__}.{module_info.name}")
-    if module.__name__ == "pudl.metadata.resources.eia861":
-        continue
     resources = module.RESOURCE_METADATA
     RESOURCE_METADATA.update(resources)
 

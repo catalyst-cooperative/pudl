@@ -1,0 +1,39 @@
+{% extends "data_source_parent.rst.jinja" %}
+
+{% block background %}
+EIA Form EIA-861 (and the short form EIA-861S) make up the Annual Electric Power
+Industry Report, collecting data from distribution utilities and power marketers.
+It is a census of all United States electric utilities. As of 2023 PUDL
+only incorporates the annual data, but there's also a less detailed monthly `Form
+EIA-861M <https: //www.eia.gov/electricity/data/eia861m />`__.
+
+There are more than 20 different spreadsheets included in the annual zipfiles. For
+details, see the `official EIA-861 page <{{ source.path }}>`__
+{% endblock %}
+
+{% block downloadable_pdfs %}
+{% for filename in download_paths %}
+* :download:`{{ filename.stem.replace("_", " ").title() }} (PDF) <{{ filename }}>`
+{% endfor %}
+{% endblock %}
+
+{% block accessible %}
+{% endblock %}
+
+{% block fill_out_form %}
+{% endblock %}
+
+{% block original_data %}
+{% endblock %}
+
+{% block notable_irregularities %}
+* In 2012-2013 the EIA-861 was overhauled. Several tables were discontinued, and many
+  more were added. Similar kinds of information reported in the two regimes may not be
+  directly comparable.
+* Most of the EIA-861 data that's available in the PUDL DB has not yet been fully
+  normalized, meaning it contains many duplicate copies of the same information, which
+  may not always be internally consistent.
+* We also have not yet integrated the Balancing Authority and Utility IDs reported in
+  the EIA-861 into our entity tables, so for the moment we don't have any foreign key
+  constraints enabled on the EIA-861 tables.
+{% endblock %}

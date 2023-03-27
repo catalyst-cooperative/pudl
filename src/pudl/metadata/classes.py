@@ -711,8 +711,10 @@ class Field(Base):
                 )
             elif self.type == "date":
                 checks.append(f"{name} IS DATE({name})")
-            elif self.type == "datetime":
-                checks.append(f"{name} IS DATETIME({name})")
+            # Need to ensure that the string representation of the datetime only
+            # includes whole seconds or this check will fail.
+            # elif self.type == "datetime":
+            #    checks.append(f"{name} IS DATETIME({name})")
         if check_values:
             # Field constraints
             if self.constraints.min_length is not None:
@@ -1185,6 +1187,7 @@ class Resource(Base):
     etl_group: Literal[
         "eia860",
         "eia861",
+        "eia861_disabled",
         "eia923",
         "entity_eia",
         "epacems",
@@ -1493,6 +1496,25 @@ class Resource(Base):
             _, period = split_period(key)
             if period and df_key != key:
                 df[key] = PERIODS[period](df[key])
+        return df
+
+    def enforce_schema(self, df: pd.DataFrame) -> pd.DataFrame:
+        """Drop columns not in the DB schema and enforce specified types."""
+        expected_cols = pd.Index(self.get_field_names())
+        missing_cols = list(expected_cols.difference(df.columns))
+        if missing_cols:
+            raise ValueError(
+                f"{self.name}: Missing columns found when enforcing table "
+                f"schema: {missing_cols}"
+            )
+        df = self.format_df(df)
+        pk = self.schema.primary_key
+        if pk and not df[df.duplicated(subset=pk)].empty:
+            raise ValueError(
+                f"{self.name} Duplicate primary keys when enforcing schema."
+            )
+        if pk and df.loc[:, pk].isna().any(axis=None):
+            raise ValueError(f"{self.name} Null values found in primary key columns.")
         return df
 
     def aggregate_df(
@@ -1918,6 +1940,7 @@ class DatasetteMetadata(Base):
             "pudl",
             "ferc1",
             "eia860",
+            "eia861",
             "eia860m",
             "eia923",
         ],
@@ -1963,7 +1986,7 @@ class DatasetteMetadata(Base):
         xbrl_resources = {}
         for xbrl_id in xbrl_ids:
             # Read JSON Package descriptor from file
-            with open(output_path / f"{xbrl_id}_datapackage.json") as f:
+            with open(Path(output_path) / f"{xbrl_id}_datapackage.json") as f:
                 descriptor = json.load(f)
 
             # Use descriptor to create Package object
