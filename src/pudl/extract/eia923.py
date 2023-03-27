@@ -25,6 +25,10 @@ class Extractor(excel.GenericExtractor):
             ds (:class:datastore.Datastore): Initialized datastore.
         """
         self.METADATA = excel.Metadata("eia923")
+        # There's an issue with the EIA-923 archive for 2018 which prevents this table
+        # from being extracted currently. When we update to a new DOI this problem will
+        # probably fix itself. See comments on this issue:
+        # https://github.com/catalyst-cooperative/pudl/issues/2448
         self.BLACKLISTED_PAGES = ["plant_frame", "emissions_control"]
         self.cols_added = []
         super().__init__(*args, **kwargs)
