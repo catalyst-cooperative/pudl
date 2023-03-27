@@ -1,5 +1,5 @@
 """Tools for setting up and managing PUDL workspaces."""
-import importlib
+import importlib.resources
 import os
 import pathlib
 import shutil
