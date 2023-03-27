@@ -51,7 +51,7 @@ setup(
         "catalystcoop.dbfread>=3.0,<3.1",
         "coloredlogs>=14.0,<15.1",  # Dagster requires 14.0
         "catalystcoop.ferc-xbrl-extractor==0.8.1",
-        "dask>=2021.8,<2023.3.2",
+        "dask>=2021.8,<2023.3.3",
         "datapackage>=1.11,<1.16",  # Transition datastore to use frictionless.
         "dagster>=1.1,<1.3",
         "dagit>=1.1,<1.3",
