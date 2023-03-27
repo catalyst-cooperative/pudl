@@ -63,8 +63,8 @@ def ferc1_eia_training_data():
         # This param fails for the wrong reason -- because the 2019 data isn't available.
         pytest.param(
             ["True"],
-            [2020],
-            ["4270_2019_plant_total_11241"],
+            [2019],
+            ["4270_2020_plant_total_11241"],
             ["f1_steam_2020_12_454_0_3"],
             marks=pytest.mark.xfail(
                 reason="EIA record year doesn't match FERC record year"
