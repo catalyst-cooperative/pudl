@@ -2,7 +2,6 @@
 
 import importlib.resources
 import logging
-from io import StringIO
 
 import pandas as pd
 import pytest
@@ -56,11 +55,28 @@ def ferc1_eia_training_data():
     "verified,report_year,record_id_eia_override_1,record_id_ferc1",
     [
         pytest.param(
-            "True",
-            2020,
-            "4270_2020_plant_total_11241",
-            "f1_steam_2020_12_454_0_3",
-        )
+            ["True"],
+            [2020],
+            ["4270_2020_plant_total_11241"],
+            ["f1_steam_2020_12_454_0_3"],
+        ),
+        # This param fails for the wrong reason -- because the 2019 data isn't available.
+        pytest.param(
+            ["True"],
+            [2020],
+            ["4270_2019_plant_total_11241"],
+            ["f1_steam_2020_12_454_0_3"],
+            marks=pytest.mark.xfail(
+                reason="EIA record year doesn't match FERC record year"
+            ),
+        ),
+        pytest.param(
+            ["True", "True"],
+            [2020, 2020],
+            ["4270_2020_plant_total_11241", "4270_2020_plant_total_11241"],
+            ["f1_steam_2020_12_454_0_3", "f1_steam_2020_12_159_0_3"],
+            marks=pytest.mark.xfail(reason="Duplicate EIA ids in training data"),
+        ),
     ],
 )
 def test_validate_override_fixes(
@@ -73,15 +89,15 @@ def test_validate_override_fixes(
     record_id_eia_override_1,
     record_id_ferc1,
 ):
-    """Test."""
-    test_df = pd.read_csv(
-        StringIO(
-            f"""verified,report_year,record_id_eia_override_1,record_id_ferc1
-    {verified},{report_year},{record_id_eia_override_1},{record_id_ferc1}
-    """
-        ),
+    """Test the validate override fixes function."""
+    test_df = pd.DataFrame(
+        {
+            "verified": verified,
+            "report_year": report_year,
+            "record_id_eia_override_1": record_id_eia_override_1,
+            "record_id_ferc1": record_id_ferc1,
+        }
     ).assign(verified=lambda x: x.verified.astype("bool"))
-    # Restrict training data
     ferc1_eia_training_data_restricted = restrict_train_connections_on_date_range(
         train_df=ferc1_eia_training_data,
         id_col="record_id_ferc1",
