@@ -126,9 +126,9 @@ class SQLiteIOManager(IOManager):
             )
 
         # If no metadata is specified, create an empty sqlalchemy metadata object.
+        if md is None:
+            md = sa.MetaData()
         self.md = md
-        if not self.md:
-            self.md = sa.MetaData()
 
         self.engine = self._setup_database(timeout=timeout)
 
@@ -169,12 +169,12 @@ class SQLiteIOManager(IOManager):
             # Compare the new metadata with the existing metadata in the db.
             # If they are different, raise an error to clobber the database
             mc = MigrationContext.configure(engine.connect())
-            diff = compare_metadata(mc, self.md)
-            if diff:
+            metadata_diff = compare_metadata(mc, self.md)
+            if metadata_diff:
+                logger.info("Metadata diff:\n\n{metadata_diff}")
                 raise MetadataDiffError(
                     "The database schema has changed. Delete the "
                     f"database at {db_path}"
-                    f"{diff}"
                 )
 
         return engine
