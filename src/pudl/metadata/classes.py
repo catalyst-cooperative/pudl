@@ -711,8 +711,10 @@ class Field(Base):
                 )
             elif self.type == "date":
                 checks.append(f"{name} IS DATE({name})")
-            elif self.type == "datetime":
-                checks.append(f"{name} IS DATETIME({name})")
+            # Need to ensure that the string representation of the datetime only
+            # includes whole seconds or this check will fail.
+            # elif self.type == "datetime":
+            #    checks.append(f"{name} IS DATETIME({name})")
         if check_values:
             # Field constraints
             if self.constraints.min_length is not None:
@@ -1185,6 +1187,7 @@ class Resource(Base):
     etl_group: Literal[
         "eia860",
         "eia861",
+        "eia861_disabled",
         "eia923",
         "entity_eia",
         "epacems",
@@ -1495,6 +1498,25 @@ class Resource(Base):
                 df[key] = PERIODS[period](df[key])
         return df
 
+    def enforce_schema(self, df: pd.DataFrame) -> pd.DataFrame:
+        """Drop columns not in the DB schema and enforce specified types."""
+        expected_cols = pd.Index(self.get_field_names())
+        missing_cols = list(expected_cols.difference(df.columns))
+        if missing_cols:
+            raise ValueError(
+                f"{self.name}: Missing columns found when enforcing table "
+                f"schema: {missing_cols}"
+            )
+        df = self.format_df(df)
+        pk = self.schema.primary_key
+        if pk and not df[df.duplicated(subset=pk)].empty:
+            raise ValueError(
+                f"{self.name} Duplicate primary keys when enforcing schema."
+            )
+        if pk and df.loc[:, pk].isna().any(axis=None):
+            raise ValueError(f"{self.name} Null values found in primary key columns.")
+        return df
+
     def aggregate_df(
         self, df: pd.DataFrame, raised: bool = False, error: Callable = None
     ) -> tuple[pd.DataFrame, dict]:
@@ -1761,6 +1783,7 @@ class Package(Base):
         cls,
         resource_ids: tuple[str] = tuple(sorted(RESOURCE_METADATA)),
         resolve_foreign_keys: bool = False,
+        excluded_etl_groups: tuple[str] = (),
     ) -> "Package":
         """Construct a collection of Resources from PUDL identifiers (`resource.name`).
 
@@ -1777,6 +1800,8 @@ class Package(Base):
                 return value caching through lru_cache.
             resolve_foreign_keys: Whether to add resources as needed based on
                 foreign keys.
+            excluded_etl_groups: Collection of ETL groups used to filter resources
+                out of Package.
         """
         resources = [Resource.dict_from_id(x) for x in resource_ids]
         if resolve_foreign_keys:
@@ -1792,6 +1817,13 @@ class Package(Base):
                 i = len(resources)
                 if len(names) > i:
                     resources += [Resource.dict_from_id(x) for x in names[i:]]
+
+        if excluded_etl_groups:
+            resources = [
+                resource
+                for resource in resources
+                if resource["etl_group"] not in excluded_etl_groups
+            ]
 
         return cls(name="pudl", resources=resources)
 
@@ -1908,6 +1940,7 @@ class DatasetteMetadata(Base):
             "pudl",
             "ferc1",
             "eia860",
+            "eia861",
             "eia860m",
             "eia923",
         ],
@@ -1953,7 +1986,7 @@ class DatasetteMetadata(Base):
         xbrl_resources = {}
         for xbrl_id in xbrl_ids:
             # Read JSON Package descriptor from file
-            with open(output_path / f"{xbrl_id}_datapackage.json") as f:
+            with open(Path(output_path) / f"{xbrl_id}_datapackage.json") as f:
                 descriptor = json.load(f)
 
             # Use descriptor to create Package object

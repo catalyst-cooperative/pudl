@@ -1,6 +1,7 @@
 {% extends "data_source_parent.rst.jinja" %}
 {% block extra_table_text %}
-We’ve also created the following entity tables modeled after EIA data collected from multiple tables.
+We’ve also created the following entity tables modeled after EIA data collected from
+multiple tables.
 {% endblock %}
 
 {% block background %}
@@ -9,29 +10,40 @@ and planned entities with one or more megawatt of capacity. The form also contai
 information regarding environmental control equipment and construction cost data from
 2013-2018.
 
-As of 2019, the EIA-860 Form is organized into the following schedules:
+As of 2023, the EIA-860 Form is organized into the following schedules:
 
-    * **Schedule 1:** Identification
-    * **Schedule 2:** Power plant data
-    * **Schedule 3:** Generator information
-    * **Schedule 4:** Ownership of generators
-    * **Schedule 6:** Boiler information
+* **Schedule 1:** Identification
+* **Schedule 2:** Power plant data
+* **Schedule 3:** Generator information
+* **Schedule 4:** Ownership of generators
+* **Schedule 6:** Information on Boilers and Associated Equipment
 
 (Schedule 5 contained generator construction cost information)
 {% endblock %}
 
 {% block downloadable_pdfs %}
+
 {% for filename in download_paths %}
-    * :download:`{{ filename.stem.replace("_", " ").title() }} (PDF) <{{ filename }}>`
+* :download:`{{ filename.stem.replace("_", " ").title() }} (PDF) <{{ filename }}>`
+
 {% endfor %}
 {% endblock %}
 
 {% block accessible %}
-EIA-860 data stretches back to 2001, and PUDL currently covers all years starting from 2004. The prior years are published as DBF files and need a special process to read and
-extract. We intend to include these older years as soon as we can.
+EIA-860 data goes back to 2001, and PUDL incorporates most of the data from all those
+years. From 2001-2003 the data was distributed as VisualFoxPro DBF files. Starting in
+2004 the data is distributed as Microsoft Excel spreadsheets.
 
-PUDL does not currently include the files pertaining to specific renewable energy
-resources or interconnection.
+Earlier data from the EIA-860A (utility) and EIA-860B (non-utility) forms exists for the
+years 1990-2000, but is not yet included in PUDL.
+
+PUDL does not yet include the EIA-860 data reporting:
+
+* Wind and Solar generators (Schedules 3.2 and 3.3)
+* Energy storage (Schedule 3.4)
+* Multi-fuel generators (Schedule 3.5)
+* Environmental Control Equipment (Schedule 6) has been partially incorporated.
+
 {% endblock %}
 
 {% block fill_out_form %}
@@ -44,32 +56,33 @@ Jointly owned plants must be reported only once by their operator or planned ope
 {% endblock %}
 
 {% block original_data %}
-Approximately a year after respondents submit their form, the EIA publishes the data in
-a series of spreadsheets that reflect the thematic contents of the form. These
-spreadsheets can change year-to-year as the questions in the form are updated or as EIA
-adopts new formatting standards for their outputs. They are accessible on the `EIA website <{{ source.path }}>`\_\_ as downloadable ZIP files
-categorized by year. To gain greater insight into year-to-year nuances of the form, we
-recommend downloading multiple years of EIA-860 ZIP files and comparing both the Form
-and the Form Instructions files. See below for our description of notable irregularities
-in the data.
+EIA typically publishes finally Form 860 data in the fall of the year after it was
+collected as a collection of spreadsheets with multiple tabs. The content of
+the spreadsheets varies from year to year as the questions in the form are updated.
+EIA also periodically changes the naming and structure of the spreadsheets without
+warning. Older "final" data may also be revised several years after it was published.
+To ensure reproducible analyses, we archive `versioned snapshots of the
+EIA-860 data on Zenodo <https://doi.org/10.5281/zenodo.4127026>`__. These archives are
+periodically refreshed with new data from the `EIA website <{{ source.path }}>`__.
+
+To understand the details of how the form and data have evolved over time, we recommend
+reading the Form Instructions from different years, linked above.
 {% endblock %}
 
 {% block notable_irregularities %}
-In 2012 and 2013, the Form was updated to include specific information about renewable
-generators. These new data are not included in PUDL.
 
-Prior to 2009, the Generators table was split into two spreadsheets: one for operating
-and one for proposed generation. In 2007 and before, there was an additional file for
-proposed changes to existing generation. The latter is excluded from PUDL while the
-former is combined into a single table during the transformation process.
+* Prior to 2009, the Generators table was split into two spreadsheets: one for operating
+  and one for proposed generation.
+* In 2007 and before, there was an additional file for proposed changes to existing
+  generation. The latter is excluded from PUDL while the former is combined into a
+  single table during the transformation process.
+* The Boiler Generator tab of Schedule 6.1 describes the associations between boilers and
+  generators. These associations are important for calculating generation unit heat rates and
+  thus fuel costs, because in EIA 923 net generation is reported by generators and fuel
+  consumption is reported by boilers.
 
-EIA 860 includes a table in “Schedule 6: Boiler Information” which is an association
-table between boilers and generators. This association is important because in EIA 923
-the net generation is reported by generators and the fuel consumption is reported by
-boilers - so a good boiler generator association is crucial for understanding heat
-rates. Unfortunately, the reported associations are incomplete. We have implemented a
-methodology fills in many of the missing links 2014 and later that covers more than 95%
-net generation reported in the :ref:`generation_eia923` table. See
-`this blog post <https://catalyst.coop/2018/08/07/boiler-generator-associations/>`__ and
-:mod:`pudl.transform.eia` for more information.
+Unfortunately, the reported associations are incomplete. We've been able to infer many
+more associations than those reported directly by EIA, and currently cover more than 95%
+of the generation reported in the :ref:`generation_eia923` table. The associations
+themselves are found in the :ref:`boiler_generator_assn_eia860` table.
 {% endblock %}

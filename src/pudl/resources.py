@@ -7,27 +7,21 @@ from pudl.workspace.datastore import Datastore
 
 
 @resource(config_schema=create_dagster_config(DatasetsSettings()))
-def dataset_settings(init_context):
-    """Dagster resource for parameterizing assets.
+def dataset_settings(init_context) -> DatasetsSettings:
+    """Dagster resource for parameterizing PUDL ETL assets.
 
     This resource allows us to specify the years we want to process for each datasource
     in the Dagit UI.
-
-    We configure the assets using a resource instead of op configs so the settings can
-    be accesible by any op.
     """
     return DatasetsSettings(**init_context.resource_config)
 
 
 @resource(config_schema=create_dagster_config(FercToSqliteSettings()))
-def ferc_to_sqlite_settings(init_context):
-    """Dagster resource for parameterizing assets.
+def ferc_to_sqlite_settings(init_context) -> FercToSqliteSettings:
+    """Dagster resource for parameterizing the ``ferc_to_sqlite`` graph.
 
     This resource allows us to specify the years we want to process for each datasource
     in the Dagit UI.
-
-    We configure the assets using a resource instead of op configs so the settings can
-    be accesible by any op.
     """
     return FercToSqliteSettings(**init_context.resource_config)
 
@@ -36,7 +30,7 @@ def ferc_to_sqlite_settings(init_context):
     config_schema={
         "local_cache_path": Field(
             EnvVar(
-                env_var="PUDL_CACHE",
+                env_var="PUDL_INPUT",
             ),
             description="Path to local cache of raw data.",
             default_value=None,
@@ -58,11 +52,8 @@ def ferc_to_sqlite_settings(init_context):
         ),
     },
 )
-def datastore(init_context):
-    """Datastore resource.
-
-    This can be configured in the dagit UI.
-    """
+def datastore(init_context) -> Datastore:
+    """Dagster resource to interact with Zenodo archives."""
     ds_kwargs = {}
     ds_kwargs["gcs_cache_path"] = init_context.resource_config["gcs_cache_path"]
     ds_kwargs["sandbox"] = init_context.resource_config["sandbox"]

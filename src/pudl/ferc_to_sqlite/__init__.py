@@ -45,4 +45,6 @@ ferc_to_sqlite_fast = ferc_to_sqlite.to_job(
     },
 )
 
-defs = Definitions(jobs=[ferc_to_sqlite_full, ferc_to_sqlite_fast])
+defs: Definitions = Definitions(jobs=[ferc_to_sqlite_full, ferc_to_sqlite_fast])
+"""A collection of dagster assets, resources, IO managers, and jobs for the FERC to
+SQLite ETL."""

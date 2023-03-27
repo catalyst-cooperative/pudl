@@ -14,11 +14,10 @@ logger = logging.getLogger(__name__)
 
 
 @pytest.fixture(scope="module")
-def fast_out(pudl_engine, pudl_datastore_fixture):
+def fast_out(pudl_engine):
     """A PUDL output object for use in CI."""
     return pudl.output.pudltabl.PudlTabl(
         pudl_engine,
-        ds=pudl_datastore_fixture,
         freq="MS",
         fill_fuel_cost=True,
         roll_fuel_cost=True,
@@ -28,11 +27,10 @@ def fast_out(pudl_engine, pudl_datastore_fixture):
 
 
 @pytest.fixture(scope="module")
-def fast_out_annual(pudl_engine, pudl_datastore_fixture):
+def fast_out_annual(pudl_engine):
     """A PUDL output object for use in CI."""
     return pudl.output.pudltabl.PudlTabl(
         pudl_engine,
-        ds=pudl_datastore_fixture,
         freq="AS",
         fill_fuel_cost=True,
         roll_fuel_cost=True,
@@ -91,6 +89,7 @@ def test_ferc1_outputs(fast_out, df_name):
         ("gens_eia860", "gens_eia860", 1 / 1, {}),
         ("gens_eia860", "own_eia860", 1 / 1, {}),
         ("gens_eia860", "plants_eia860", 1 / 1, {}),
+        ("gens_eia860", "boil_eia860", 1 / 1, {}),
         ("gens_eia860", "pu_eia860", 1 / 1, {}),
         ("gens_eia860", "utils_eia860", 1 / 1, {}),
         ("gens_eia860", "bf_eia923", 12 / 1, {}),
@@ -161,26 +160,22 @@ def test_null_rows(fast_out, df_name, thresh):
     )
 
 
-def test_eia861_etl(fast_out):
-    """Make sure that the EIA 861 Extract-Transform steps work."""
-    fast_out.etl_eia861()
-    eia861_tables = [tbl for tbl in fast_out._dfs if "_eia861" in tbl]
-    for df_name in eia861_tables:
-        logger.info(f"Checking that {df_name} is a non-empty DataFrame")
-        df = fast_out.__getattribute__(df_name)()
-        assert isinstance(df, pd.DataFrame), f"{df_name} is {type(df)}, not DataFrame!"
-        assert not df.empty, f"{df_name} is empty!"
+@pytest.mark.parametrize(
+    "table_suffix",
+    ["eia861", "ferc714"],
+)
+def test_outputs_by_table_suffix(fast_out, table_suffix):
+    """Check that all EIA-861 & FERC-714 output tables are present and non-empty."""
+    tables = [t for t in fast_out.__dir__() if t.endswith(table_suffix)]
+    for table in tables:
+        logger.info(f"Checking that {table} is a DataFrame with no null columns.")
+        df = fast_out.__getattribute__(table)()
 
-
-def test_ferc714_etl(fast_out):
-    """Make sure that the FERC 714 Extract-Transform steps work."""
-    fast_out.etl_ferc714()
-    ferc714_tables = [tbl for tbl in fast_out._dfs if "_ferc714" in tbl]
-    for df_name in ferc714_tables:
-        logger.info(f"Checking that {df_name} is a non-empty DataFrame")
-        df = fast_out.__getattribute__(df_name)()
-        assert isinstance(df, pd.DataFrame), f"{df_name} is {type(df)} not DataFrame!"
-        assert not df.empty, f"{df_name} is empty!"
+        assert isinstance(df, pd.DataFrame), f"{table } is {type(df)}, not DataFrame!"
+        assert not df.empty, f"{table} is empty!"
+        for col in df.columns:
+            if df[col].isna().all():
+                raise ValueError(f"Found null column: {table}.{col}")
 
 
 @pytest.fixture(scope="module")
@@ -227,11 +222,10 @@ def test_ferc714_respondents_georef_counties(ferc714_out):
 
 
 @pytest.fixture(scope="module")
-def fast_out_filled(pudl_engine, pudl_datastore_fixture):
+def fast_out_filled(pudl_engine):
     """A PUDL output object for use in CI with net generation filled."""
     return pudl.output.pudltabl.PudlTabl(
         pudl_engine,
-        ds=pudl_datastore_fixture,
         freq="MS",
         fill_fuel_cost=True,
         roll_fuel_cost=True,
@@ -274,7 +268,6 @@ def test_mcoe_filled(fast_out_filled, df_name, expected_nuke_fraction, tolerance
 )
 def test_pudltabl_pickle(
     pudl_engine,
-    pudl_datastore_fixture,
     pudl_settings_fixture,
     monkeypatch,
     variation,
@@ -292,7 +285,6 @@ def test_pudltabl_pickle(
 
     pudl_out_pickle = pudl.output.pudltabl.PudlTabl(
         pudl_engine,
-        ds=pudl_datastore_fixture,
         freq="AS",
         fill_fuel_cost=True,
         roll_fuel_cost=True,

@@ -15,7 +15,6 @@ from pydantic import BaseSettings, root_validator, validator
 import pudl
 import pudl.workspace.setup
 from pudl.metadata.classes import DataSource
-from pudl.metadata.resources.eia861 import TABLE_DEPENDENCIES
 from pudl.workspace.datastore import Datastore
 
 
@@ -125,10 +124,10 @@ class Ferc714Settings(GenericDatasetSettings):
 
     data_source: ClassVar[DataSource] = DataSource.from_id("ferc714")
 
-    tables: list[str] = data_source.get_resource_ids()
-    years: list[int] = data_source.working_partitions[
-        "years"
-    ]  # Years only apply to XBRL
+    # Note: Only older data is currently supported. Starting in 2021 FERC-714 is being
+    # published as XBRL, and we haven't integrated it. The older data is published as
+    # monolithic CSV files, so asking for any year processes all of them.
+    years: list[int] = data_source.working_partitions["years"]
 
 
 class EpaCemsSettings(GenericDatasetSettings):
@@ -146,7 +145,6 @@ class EpaCemsSettings(GenericDatasetSettings):
 
     years: list[int] = data_source.working_partitions["years"]
     states: list[str] = data_source.working_partitions["states"]
-    partition: bool = False
 
     @validator("states")
     def allow_all_keyword(cls, states):  # noqa: N805
@@ -178,40 +176,7 @@ class Eia861Settings(GenericDatasetSettings):
     """
 
     data_source: ClassVar[DataSource] = DataSource.from_id("eia861")
-
     years: list[int] = data_source.working_partitions["years"]
-    tables: list[str] = data_source.get_resource_ids()
-    transform_functions: list[str]
-
-    @root_validator(pre=True)
-    def generate_transform_functions(cls, values):  # noqa: N805
-        """Map tables to transform functions.
-
-        Args:
-            values: eia861 settings.
-
-        Returns:
-            values: eia861 settings.
-        """
-        # balancing_authority_eia861 is always processed
-        transform_functions = ["balancing_authority_eia861"]
-
-        # Defaults to all transformation functions
-        if not values.get("tables"):
-            transform_functions.extend(list(TABLE_DEPENDENCIES))
-        else:
-            for table in values["tables"]:
-                transform_functions.extend(
-                    [
-                        tf_func
-                        for tf_func, tables in TABLE_DEPENDENCIES.items()
-                        if table in tables
-                    ]
-                )
-
-        values["transform_functions"] = sorted(set(transform_functions))
-
-        return values
 
 
 class Eia860Settings(GenericDatasetSettings):
@@ -279,6 +244,7 @@ class EiaSettings(BaseModel):
     """
 
     eia860: Eia860Settings = None
+    eia861: Eia861Settings = None
     eia923: Eia923Settings = None
 
     @root_validator(pre=True)
@@ -293,6 +259,7 @@ class EiaSettings(BaseModel):
         """
         if not any(values.values()):
             values["eia860"] = Eia860Settings()
+            values["eia861"] = Eia861Settings()
             values["eia923"] = Eia923Settings()
 
         return values
@@ -331,10 +298,11 @@ class DatasetsSettings(BaseModel):
         epacems: Immutable pydantic model to validate epacems settings.
     """
 
-    ferc1: Ferc1Settings = None
     eia: EiaSettings = None
-    glue: GlueSettings = None
     epacems: EpaCemsSettings = None
+    ferc1: Ferc1Settings = None
+    ferc714: Ferc714Settings = None
+    glue: GlueSettings = None
 
     @root_validator(pre=True)
     def default_load_all(cls, values):  # noqa: N805
@@ -347,10 +315,11 @@ class DatasetsSettings(BaseModel):
             values (Dict[str, BaseModel]): dataset settings.
         """
         if not any(values.values()):
-            values["ferc1"] = Ferc1Settings()
             values["eia"] = EiaSettings()
-            values["glue"] = GlueSettings()
             values["epacems"] = EpaCemsSettings()
+            values["ferc1"] = Ferc1Settings()
+            values["ferc714"] = Ferc714Settings()
+            values["glue"] = GlueSettings()
 
         return values
 
@@ -400,14 +369,15 @@ class DatasetsSettings(BaseModel):
         datasets_in_datastore_format = {
             name: setting
             for (name, setting) in datasets_settings.items()
-            if name in ds.get_known_datasets()
+            if name in ds.get_known_datasets() and setting is not None
         }
         # add the eia datasets that are nested inside of the eia settings
         if datasets_settings.get("eia", False):
             datasets_in_datastore_format.update(
                 {
-                    "eia923": datasets_settings["eia"].eia923,
                     "eia860": datasets_settings["eia"].eia860,
+                    "eia861": datasets_settings["eia"].eia861,
+                    "eia923": datasets_settings["eia"].eia923,
                 }
             )
 

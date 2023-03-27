@@ -10,15 +10,14 @@ from pathlib import Path
 import pytest
 import yaml
 from dagster import build_init_resource_context, materialize_to_memory
-from dotenv import load_dotenv
 from ferc_xbrl_extractor import xbrl
 
 import pudl
 from pudl import resources
-from pudl.cli import get_etl_job
+from pudl.cli import pudl_etl_job_factory
 from pudl.extract.ferc1 import xbrl_metadata_json
 from pudl.extract.xbrl import FercXbrlDatastore, _get_sqlite_engine
-from pudl.ferc_to_sqlite.cli import get_ferc_to_sqlite_job
+from pudl.ferc_to_sqlite.cli import ferc_to_sqlite_job_factory
 from pudl.io_managers import (
     ferc1_dbf_sqlite_io_manager,
     ferc1_xbrl_sqlite_io_manager,
@@ -86,32 +85,14 @@ def pytest_addoption(parser):
     )
 
 
-def pytest_configure(config):
-    """Load dotenv before tests are run to set PUDL_OUTPUT and PUDL_CACHE."""
-    load_dotenv()
-
-
 @pytest.fixture(scope="session")
-def pudl_env(request, tmpdir_factory):
-    """Set PUDL_OUTPUT environment variable."""
-    tmpdir = tmpdir_factory.mktemp("PUDL_OUTPUT")
-    os.environ["PUDL_OUTPUT"] = str(tmpdir)
-    os.environ["DAGSTER_HOME"] = str(tmpdir)
+def pudl_env(pudl_input_output_dirs):
+    """Set PUDL_OUTPUT/PUDL_INPUT/DAGSTER_HOME environment variables."""
 
-    # In CI we want a hard-coded path for input caching purposes:
-    if os.environ.get("GITHUB_ACTIONS", False):
-        os.environ["PUDL_CACHE"] = str(Path(os.environ["HOME"]) / "pudl-work")
-    # If --tmp-data is set, create a disposable temporary datastore:
-    elif request.config.getoption("--tmp-data"):
-        os.environ["PUDL_CACHE"] = str(tmpdir)
-    # Otherwise, default to the user's existing datastore:
-    else:
-        if not os.getenv("PUDL_CACHE"):
-            raise RuntimeError(
-                "Must set PUDL_CACHE environment variable or use `--tmp-data` option"
-            )
+    pudl.workspace.setup.get_defaults(**pudl_input_output_dirs)
+
     logger.info(f"PUDL_OUTPUT path: {os.environ['PUDL_OUTPUT']}")
-    logger.info(f"PUDL_CACHE path: {os.environ['PUDL_CACHE']}")
+    logger.info(f"PUDL_INPUT path: {os.environ['PUDL_INPUT']}")
 
 
 @pytest.fixture(scope="session", name="test_dir")
@@ -200,7 +181,7 @@ def pudl_out_orig(live_dbs, pudl_engine):
 
 
 @pytest.fixture(scope="session")
-def ferc_to_sqlite(live_dbs, pudl_datastore_config, etl_settings):
+def ferc_to_sqlite(live_dbs, pudl_datastore_config, etl_settings, pudl_env):
     """Create raw FERC 1 SQLite DBs.
 
     If we are using the test database, we initialize it from scratch first. If we're
@@ -208,7 +189,11 @@ def ferc_to_sqlite(live_dbs, pudl_datastore_config, etl_settings):
     existing databases
     """
     if not live_dbs:
-        get_ferc_to_sqlite_job().execute_in_process(
+        logger.info(
+            f"ferc_to_sqlite_settings: {etl_settings.ferc_to_sqlite_settings.dict()}"
+        )
+        logger.info(f"ferc_to_sqlite PUDL_OUTPUT: {os.getenv('PUDL_OUTPUT')}")
+        ferc_to_sqlite_job_factory()().execute_in_process(
             run_config={
                 "resources": {
                     "ferc_to_sqlite_settings": {
@@ -315,7 +300,7 @@ def pudl_sql_io_manager(
     logger.info("setting up the pudl_engine fixture")
     if not live_dbs:
         # Run the ETL and generate a new PUDL SQLite DB for testing:
-        get_etl_job().execute_in_process(
+        pudl_etl_job_factory()().execute_in_process(
             run_config={
                 "resources": {
                     "dataset_settings": {
@@ -324,7 +309,14 @@ def pudl_sql_io_manager(
                     "datastore": {
                         "config": pudl_datastore_config,
                     },
-                }
+                },
+                "ops": {
+                    "hourly_emissions_epacems": {
+                        "config": {
+                            "partition": True,
+                        }
+                    }
+                },
             },
         )
     # Grab a connection to the freshly populated PUDL DB, and hand it off.
@@ -340,58 +332,54 @@ def pudl_engine(pudl_sql_io_manager):
     return pudl_sql_io_manager.engine
 
 
+@pytest.fixture(scope="session")
+def pudl_tmpdir(tmp_path_factory):
+    # Base temporary directory for all other tmp dirs.
+    tmpdir = tmp_path_factory.mktemp("pudl")
+    return tmpdir
+
+
+@pytest.fixture(scope="session")
+def pudl_output_tmpdir(pudl_tmpdir):
+    tmpdir = pudl_tmpdir / "output"
+    tmpdir.mkdir()
+    return tmpdir
+
+
+@pytest.fixture(scope="session")
+def pudl_input_tmpdir(pudl_tmpdir):
+    tmpdir = pudl_tmpdir / "data"
+    tmpdir.mkdir()
+    return tmpdir
+
+
+@pytest.fixture(scope="session")
+def pudl_input_output_dirs(request, live_dbs, pudl_input_tmpdir, pudl_output_tmpdir):
+    """Determine where the PUDL input/output dirs should be."""
+    input_override = None
+    output_override = None
+
+    if os.environ.get("GITHUB_ACTIONS", False):
+        # hard-code input dir for CI caching
+        input_override = Path(os.environ["HOME"]) / "pudl-work"
+    elif request.config.getoption("--tmp-data"):
+        # use tmpdir for inputs if we ask for it
+        input_override = pudl_input_tmpdir
+    if not live_dbs:
+        # use tmpdir for outputs if we haven't passed --live-db
+        output_override = pudl_output_tmpdir
+
+    return {"input_dir": input_override, "output_dir": output_override}
+
+
 @pytest.fixture(scope="session", name="pudl_settings_fixture")
-def pudl_settings_dict(request, live_dbs, tmpdir_factory):  # noqa: C901
+def pudl_settings_dict(request, pudl_input_output_dirs):  # noqa: C901
     """Determine some settings (mostly paths) for the test session."""
     logger.info("setting up the pudl_settings_fixture")
-    # Create a session scoped temporary directory.
-    tmpdir = tmpdir_factory.mktemp("pudl")
-    # Outputs are always written to a temporary directory:
-    pudl_out = tmpdir
+    pudl_settings = pudl.workspace.setup.get_defaults(**pudl_input_output_dirs)
+    pudl.workspace.setup.init(pudl_settings)
 
-    # In CI we want a hard-coded path for input caching purposes:
-    if os.environ.get("GITHUB_ACTIONS", False):
-        pudl_in = Path(os.environ["HOME"]) / "pudl-work"
-    # If --tmp-data is set, create a disposable temporary datastore:
-    elif request.config.getoption("--tmp-data"):
-        pudl_in = tmpdir
-    # Otherwise, default to the user's existing datastore:
-    else:
-        try:
-            defaults = pudl.workspace.setup.get_defaults()
-        except FileNotFoundError as err:
-            logger.critical("Could not identify PUDL_IN / PUDL_OUT.")
-            raise err
-        pudl_in = defaults["pudl_in"]
-
-    # Set these environment variables for future reference...
-    logger.info("Using PUDL_IN=%s", pudl_in)
-    os.environ["PUDL_IN"] = str(pudl_in)
-    logger.info("Using PUDL_OUT=%s", pudl_out)
-    os.environ["PUDL_OUT"] = str(pudl_out)
-
-    # Build all the pudl_settings paths:
-    pudl_settings = pudl.workspace.setup.derive_paths(
-        pudl_in=pudl_in, pudl_out=pudl_out
-    )
     pudl_settings["sandbox"] = request.config.getoption("--sandbox")
-    # Set up the pudl workspace:
-    pudl.workspace.setup.init(pudl_in=pudl_in, pudl_out=pudl_out)
-
-    if live_dbs:
-        pudl_defaults = pudl.workspace.setup.get_defaults()
-        # everything with the following suffixes should use the defaults as opposed to
-        # the generated settings. We should overhaul using temp_dir's for pudl_out at
-        # all while using `live_dbs` and perhaps change the name of `live_dbs` bc it
-        # now encompasses more than just dbs
-        overwrite_suffixes = ("_db", "_datapackage", "_xbrl_taxonomy_metadata")
-        pudl_settings = {
-            k: pudl_defaults[k] if k.endswith(overwrite_suffixes) else v
-            for (k, v) in pudl_settings.items()
-        }
-
-        pudl_settings["parquet_dir"] = pudl_defaults["parquet_dir"]
-        pudl_settings["sqlite_dir"] = pudl_defaults["sqlite_dir"]
 
     pretty_settings = json.dumps(
         {str(k): str(v) for k, v in pudl_settings.items()}, indent=2

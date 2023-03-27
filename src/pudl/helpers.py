@@ -23,12 +23,13 @@ import numpy as np
 import pandas as pd
 import requests
 import sqlalchemy as sa
-from dagster import Noneable
+from dagster import AssetKey, AssetsDefinition, AssetSelection, Noneable, SourceAsset
 from dagster._config.errors import PostProcessingError
 from pandas._libs.missing import NAType
 
 import pudl.logging_helpers
 from pudl.metadata.fields import get_pudl_dtypes
+from pudl.workspace.setup import get_defaults
 
 sum_na = partial(pd.Series.sum, skipna=False)
 """A sum function that returns NA if the Series includes any NA values.
@@ -152,7 +153,7 @@ def find_foreign_key_errors(dfs: dict[str, pd.DataFrame]) -> list[dict[str, Any]
     return errors
 
 
-def download_zip_url(url, save_path, chunk_size=128):
+def download_zip_url(url, save_path, chunk_size=128, timeout=9.05):
     """Download and save a Zipfile locally.
 
     Useful for acquiring and storing non-PUDL data locally.
@@ -161,6 +162,8 @@ def download_zip_url(url, save_path, chunk_size=128):
         url (str): The URL from which to download the Zipfile
         save_path (pathlib.Path): The location to save the file.
         chunk_size (int): Data chunk in bytes to use while downloading.
+        timeout (float): Time to wait for the server to accept a connection.
+            See https://requests.readthedocs.io/en/latest/user/advanced/#timeouts
 
     Returns:
         None
@@ -174,7 +177,7 @@ def download_zip_url(url, save_path, chunk_size=128):
         "Connection": "keep-alive",
         "Upgrade-Insecure-Requests": "1",
     }
-    r = requests.get(url, stream=True, headers=headers)
+    r = requests.get(url, stream=True, headers=headers, timeout=timeout)
     with save_path.open(mode="wb") as fd:
         for chunk in r.iter_content(chunk_size=chunk_size):
             fd.write(chunk)
@@ -1028,7 +1031,7 @@ def drop_tables(engine: sa.engine.Engine, clobber: bool = False):
     insp = sa.inspect(engine)
     if len(insp.get_table_names()) > 0 and not clobber:
         raise AssertionError(
-            f"You are attempting to drop your database without setting clobber to {clobber}"
+            f"You are attempting to drop your database at {engine} while clobber is set to {clobber}"
         )
     md.drop_all(engine)
     conn = engine.connect()
@@ -1589,9 +1592,50 @@ class EnvVar(Noneable):
         """
         if value is None:
             try:
-                return os.environ[self.env_var]
+                value = os.environ.get(self.env_var)
+                if value is None:
+                    value = get_defaults()[self.env_var]
             except KeyError:
                 raise PostProcessingError(
                     f"Config value could not be found. Set the {self.env_var} environment variable or specify a value in dagster config."
                 )
         return value
+
+
+def get_asset_keys(
+    assets: list[AssetsDefinition], exclude_source_assets: bool = True
+) -> set[AssetKey]:
+    """Get a set of asset keys from a list of asset definitions.
+
+    Args:
+        assets: list of asset definitions.
+        exclude_source_assets: exclude SourceAssets in the returned list.
+            Some selection operations don't allow SourceAsset keys.
+
+    Returns:
+        A set of asset keys.
+    """
+    asset_keys = set()
+    for asset in assets:
+        if isinstance(asset, SourceAsset):
+            if not exclude_source_assets:
+                asset_keys = asset_keys.union(asset.key)
+        else:
+            asset_keys = asset_keys.union(asset.keys)
+    return asset_keys
+
+
+def get_asset_group_keys(
+    asset_group: str, all_assets: list[AssetsDefinition]
+) -> list[str]:
+    """Get a list of asset names in a given asset group.
+
+    Args:
+        asset_group: the name of the asset group.
+        all_assets: the collection of assets to select the group from.
+
+    Return:
+        A list of asset names in the asset_group.
+    """
+    asset_keys = AssetSelection.groups(asset_group).resolve(all_assets)
+    return [asset.to_python_identifier() for asset in list(asset_keys)]

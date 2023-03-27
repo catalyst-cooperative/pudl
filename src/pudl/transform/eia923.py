@@ -6,6 +6,7 @@ from dagster import AssetOut, Output, asset, multi_asset
 
 import pudl
 from pudl.metadata.codes import CODE_METADATA
+from pudl.transform.classes import InvalidRows, drop_invalid_rows
 
 logger = pudl.logging_helpers.get_logger(__name__)
 
@@ -588,7 +589,7 @@ def gen_fuel_nuclear(gen_fuel_nuke: pd.DataFrame) -> pd.DataFrame:
         "clean_generation_fuel_nuclear_eia923": AssetOut(),
     }
 )
-def generation_fuel_eia923(raw_generation_fuel_eia923):
+def generation_fuel_eia923(raw_generation_fuel_eia923: pd.DataFrame):
     """Transforms the generation_fuel_eia923 table.
 
     Transformations include:
@@ -605,17 +606,11 @@ def generation_fuel_eia923(raw_generation_fuel_eia923):
     * Aggregate records with duplicate natural keys.
 
     Args:
-        eia923_dfs (dict): Each entry in this dictionary of DataFrame objects
-            corresponds to a page from the EIA923 form, as reported in the Excel
-            spreadsheets they distribute.
-        eia923_transformed_dfs (dict): A dictionary of DataFrame objects in which pages
-            from EIA923 form (keys) correspond to normalized DataFrames of values from
-            that page (values).
+        raw_generation_fuel_eia923: The raw ``raw_generation_fuel_eia923`` dataframe.
 
     Returns:
-        dict: eia923_transformed_dfs, a dictionary of DataFrame objects in which pages
-        from EIA923 form (keys) correspond to normalized DataFrames of values from that
-        page (values).
+        clean_generation_fuel_eia923: Cleaned ``generation_fuel_eia923`` dataframe ready for harvesting.
+        clean_generation_fuel_nuclear_eia923: Cleaned ``generation_fuel_nuclear_eia923`` dataframe ready for harvesting.
     """
     # This needs to be a copy of what we're passed in so we can edit it.
     gen_fuel = raw_generation_fuel_eia923
@@ -693,7 +688,7 @@ def generation_fuel_eia923(raw_generation_fuel_eia923):
         gen_fuel.nuclear_unit_id.notna() | gen_fuel.energy_source_code.eq("NUC")
     ].copy()
 
-    generation_fuel_nuclear_eia923 = gen_fuel_nuclear(nukes)
+    gen_fuel_nuke = gen_fuel_nuclear(nukes)
 
     gen_fuel = gen_fuel[
         gen_fuel.nuclear_unit_id.isna() & gen_fuel.energy_source_code.ne("NUC")
@@ -706,9 +701,9 @@ def generation_fuel_eia923(raw_generation_fuel_eia923):
     # Aggregate any remaining duplicates.
     gen_fuel = _aggregate_generation_fuel_duplicates(gen_fuel)
 
-    return Output(output_name="clean_generation_fuel_eia923", value=gen_fuel), Output(
-        output_name="clean_generation_fuel_nuclear_eia923",
-        value=generation_fuel_nuclear_eia923,
+    return (
+        Output(output_name="clean_generation_fuel_eia923", value=gen_fuel),
+        Output(output_name="clean_generation_fuel_nuclear_eia923", value=gen_fuel_nuke),
     )
 
 
@@ -811,7 +806,7 @@ def _aggregate_duplicate_boiler_fuel_keys(boiler_fuel_df: pd.DataFrame) -> pd.Da
 
 
 @asset
-def clean_boiler_fuel_eia923(raw_boiler_fuel_eia923):
+def clean_boiler_fuel_eia923(raw_boiler_fuel_eia923: pd.DataFrame) -> pd.DataFrame:
     """Transforms the boiler_fuel_eia923 table.
 
     Transformations include:
@@ -824,17 +819,10 @@ def clean_boiler_fuel_eia923(raw_boiler_fuel_eia923):
     * Combine year and month columns into a single date column.
 
     Args:
-        eia923_dfs (dict): Each entry in this dictionary of DataFrame objects
-            corresponds to a page from the EIA923 form, as reported in the Excel
-            spreadsheets they distribute.
-        eia923_transformed_dfs (dict): A dictionary of DataFrame objects in which pages
-            from EIA923 form (keys) correspond to normalized DataFrames of values from
-            that page (values).
+        raw_boiler_fuel_eia923: The raw ``raw_boiler_fuel_eia923`` dataframe.
 
     Returns:
-        dict: eia923_transformed_dfs, a dictionary of DataFrame objects in which pages
-            from EIA923 form (keys) correspond to normalized DataFrames of values from
-            that page (values).
+        Cleaned ``boiler_fuel_eia923`` dataframe ready for harvesting.
     """
     bf_df = raw_boiler_fuel_eia923
 
@@ -866,13 +854,13 @@ def clean_boiler_fuel_eia923(raw_boiler_fuel_eia923):
     # Convert Year/Month columns into a single Date column...
     bf_df = pudl.helpers.convert_to_date(bf_df)
 
+    bf_df = remove_duplicate_pks_boiler_fuel_eia923(bf_df)
+
     bf_df = (
         pudl.metadata.classes.Package.from_resource_ids()
         .get_resource("boiler_fuel_eia923")
         .encode(bf_df)
     )
-
-    bf_df = _aggregate_duplicate_boiler_fuel_keys(bf_df)
 
     # Add a simplified PUDL fuel type
     bf_df["fuel_type_code_pudl"] = bf_df.energy_source_code.map(
@@ -887,8 +875,60 @@ def clean_boiler_fuel_eia923(raw_boiler_fuel_eia923):
     return bf_df
 
 
+def remove_duplicate_pks_boiler_fuel_eia923(bf: pd.DataFrame) -> pd.DataFrame:
+    """Deduplicate on primary keys for :ref:`boiler_fuel_eia923`.
+
+    There are a relatively small number of records ~5% from the boiler fuel table that
+    have duplicate records based on what we believe is this table's primary keys.
+    Fortunately, all of these duplicates have at least one records w/ only zeros and or
+    nulls. So this method drops only the records which have duplicate pks and only have
+    zeros or nulls in the non-primary key columns.
+
+    Note: There are 4 boilers in 2021 that are being dropped entirely during this
+    cleaning. They have BOTH duplicate pks and only have zeros or nulls in the
+    non-primary key columns. We could choose to preserve all instances of the pks even
+    after :func:`drop_invalid_rows` or only dropping one when there are two. We chose to
+    leave this be because it was minor and these boilers show up in other years.
+    See `comment <https://github.com/catalyst-cooperative/pudl/pull/2362#issuecomment-1470012538>`_
+    for more details.
+    """
+    pk = (
+        pudl.metadata.classes.Package.from_resource_ids()
+        .get_resource("boiler_fuel_eia923")
+        .schema.primary_key
+    )
+
+    # Drop nulls
+    required_valid_cols = [
+        "ash_content_pct",
+        "fuel_consumed_units",
+        "fuel_mmbtu_per_unit",
+        "sulfur_content_pct",
+    ]
+    # make a mask to split bf into records w/ & w/o pk dupes
+    pk_dupe_mask = bf.duplicated(pk, keep=False)
+
+    params_pk_dupes = InvalidRows(
+        invalid_values=[pd.NA, np.nan, 0], required_valid_cols=required_valid_cols
+    )
+    bf_no_null_pks_dupes = drop_invalid_rows(
+        df=bf[pk_dupe_mask], params=params_pk_dupes
+    )
+
+    if not (
+        pk_dupes := bf_no_null_pks_dupes[
+            bf_no_null_pks_dupes.duplicated(pk, keep=False)
+        ]
+    ).empty:
+        raise AssertionError(
+            f"There are ({len(pk_dupes)}) boiler_fuel_eia923 records with "
+            "duplicate primary keys after cleaning - expected 0."
+        )
+    return pd.concat([bf[~pk_dupe_mask], bf_no_null_pks_dupes])
+
+
 @asset
-def clean_generation_eia923(raw_generator_eia923):
+def clean_generation_eia923(raw_generator_eia923: pd.DataFrame) -> pd.DataFrame:
     """Transforms the generation_eia923 table.
 
     Transformations include:
@@ -899,17 +939,10 @@ def clean_generation_eia923(raw_generator_eia923):
     * Drop generator-date row duplicates (all have no data).
 
     Args:
-        eia923_dfs (dict): Each entry in this dictionary of DataFrame objects
-            corresponds to a page from the EIA923 form, as reported in the Excel
-            spreadsheets they distribute.
-        eia923_transformed_dfs (dict): A dictionary of DataFrame objects in which pages
-            from EIA923 form (keys) correspond to normalized DataFrames of values from
-            that page (values).
+        raw_generator_eia923: The raw ``raw_generator_eia923`` dataframe.
 
     Returns:
-        dict: eia923_transformed_dfs, a dictionary of DataFrame objects in which pages
-        from EIA923 form (keys) correspond to normalized DataFrames of values from that
-        page (values).
+        Cleaned ``generation_eia923`` dataframe ready for harvesting.
     """
     gen_df = (
         raw_generator_eia923.dropna(subset=["generator_id"])
@@ -961,7 +994,7 @@ def clean_generation_eia923(raw_generator_eia923):
 
 
 @asset
-def clean_coalmine_eia923(raw_fuel_receipts_costs_eia923):
+def clean_coalmine_eia923(raw_fuel_receipts_costs_eia923: pd.DataFrame) -> pd.DataFrame:
     """Transforms the coalmine_eia923 table.
 
     Transformations include:
@@ -970,17 +1003,10 @@ def clean_coalmine_eia923(raw_fuel_receipts_costs_eia923):
     * Drop duplicates with MSHA ID.
 
     Args:
-        eia923_dfs (dict): Each entry in this dictionary of DataFrame objects
-            corresponds to a page from the EIA923 form, as reported in the Excel
-            spreadsheets they distribute.
-        eia923_transformed_dfs (dict): A dictionary of DataFrame objects in which pages
-            from EIA923 form (keys) correspond to normalized DataFrames of values from
-            that page (values).
+        raw_fuel_receipts_costs_eia923: The raw ``raw_fuel_receipts_costs_eia923`` dataframe.
 
     Returns:
-        dict: eia923_transformed_dfs, a dictionary of DataFrame objects in which pages
-        from EIA923 form (keys) correspond to normalized DataFrames of values from that
-        page (values).
+        Cleaned ``coalmine_eia923`` dataframe ready for harvesting.
     """
     # These are the columns that we want to keep from FRC for the
     # coal mine info table.
@@ -1047,8 +1073,8 @@ def clean_coalmine_eia923(raw_fuel_receipts_costs_eia923):
 
 @asset
 def clean_fuel_receipts_costs_eia923(
-    raw_fuel_receipts_costs_eia923, clean_coalmine_eia923
-):
+    raw_fuel_receipts_costs_eia923: pd.DataFrame, clean_coalmine_eia923: pd.DataFrame
+) -> pd.DataFrame:
     """Transforms the fuel_receipts_costs_eia923 dataframe.
 
     Transformations include:
@@ -1062,17 +1088,11 @@ def clean_fuel_receipts_costs_eia923(
     Fuel cost is reported in cents per mmbtu. Converts cents to dollars.
 
     Args:
-        eia923_dfs (dict): Each entry in this dictionary of DataFrame objects
-            corresponds to a page from the EIA923 form, as reported in the Excel
-            spreadsheets they distribute.
-        eia923_transformed_dfs (dict): A dictionary of DataFrame objects in which pages
-            from EIA923 form (keys) correspond to normalized DataFrames of values from
-            that page (values).
+        raw_fuel_receipts_costs_eia923: The raw ``raw_fuel_receipts_costs_eia923`` dataframe.
+        clean_coalmine_eia923: The cleaned pre-harvest ``coalmine_eia923`` dataframe.
 
     Returns:
-        dict: eia923_transformed_dfs, a dictionary of DataFrame objects in which pages
-        from EIA923 form (keys) correspond to normalized DataFrames of values from that
-        page (values).
+        Cleaned ``fuel_receipts_costs_eia923`` dataframe ready for harvesting.
     """
     frc_df = raw_fuel_receipts_costs_eia923
 

@@ -1,12 +1,18 @@
 """Unit tests for the :mod:`pudl.helpers` module."""
 
+import os
+
 import numpy as np
 import pandas as pd
 import pytest
+from dagster import AssetKey
+from dagster._config.errors import PostProcessingError
 from pandas.testing import assert_frame_equal, assert_series_equal
 from pandas.tseries.offsets import BYearEnd
 
+import pudl
 from pudl.helpers import (
+    EnvVar,
     convert_df_to_excel_file,
     convert_to_date,
     date_merge,
@@ -612,3 +618,32 @@ def test_flatten_mix_types():
     """Test if :func:`flatten_list` can flatten an arbitraty list of ints."""
     list1a = ["1", 22, ["333", [4, "5"]], [[666]]]
     assert list(flatten_list(list1a)) == ["1", 22, "333", 4, "5", 666]
+
+
+def test_cems_selection():
+    """Test CEMS asset selection remove cems assets."""
+    cems_selection = pudl.etl.create_non_cems_selection(pudl.etl.default_assets)
+    assert AssetKey("hourly_emissions_epacems") not in cems_selection.resolve(
+        pudl.etl.default_assets
+    ), "hourly_emissions_epacems or downstream asset present in selection."
+
+
+def test_env_var():
+    os.environ["_PUDL_TEST"] = "test value"
+    env_var = EnvVar(env_var="_PUDL_TEST")
+    assert env_var.post_process(None) == "test value"
+    del os.environ["_PUDL_TEST"]
+
+
+def test_env_var_reads_defaults(mocker):
+    mocker.patch(
+        "pudl.helpers.get_defaults",
+        lambda: {"_PUDL_TEST": "test value default"},
+    )
+    env_var = EnvVar(env_var="_PUDL_TEST")
+    assert env_var.post_process(None) == "test value default"
+
+
+def test_env_var_missing_completely():
+    with pytest.raises(PostProcessingError):
+        EnvVar(env_var="_PUDL_BOGUS").post_process(None)

@@ -11,27 +11,33 @@ the information previously recorded in EIA-906, EIA-920, FERC 423, and EIA-423 b
 
 As of 2019, the EIA-923 Form is organized into the following schedules:
 
-    * **Schedule 2:** fuel receipts and costs
-    * **Schedules 3A & 5A:** generator data including generation, fuel consumption and stocks
-    * **Schedule 4:** fossil fuel stocks
-    * **Schedules 6 & 7:** non-utility source and disposition of electricity
-    * **Schedules 8A-F:** environmental data
+* **Schedule 2:** fuel receipts and costs
+* **Schedules 3A & 5A:** generator data including generation, fuel consumption and stocks
+* **Schedule 4:** fossil fuel stocks
+* **Schedules 6 & 7:** non-utility source and disposition of electricity
+* **Schedules 8A-F:** environmental data
 
 {% endblock %}
 
 {% block downloadable_pdfs %}
 {% for filename in download_paths %}
-    * :download:`{{ filename.stem.replace("_", " ").title() }} (PDF) <{{ filename }}>`
+* :download:`{{ filename.stem.replace("_", " ").title() }} (PDF) <{{ filename }}>`
+
 {% endfor %}
 {% endblock %}
 
 {% block accessible %}
-EIA-923 data stretches back to 1970, and PUDL currently covers all years starting from 2009. Due to a difference in reporting between the older and newer years, the older data
-will require more time to integrate. Monthly and year to date releases are not yet
-integrated.
+Some form of EIA-923 data stretches all the way back to 1970. PUDL coverage starts in
+2001. Before 2001, the data like that contained in the EIA-923 was collected via
+EIA-867, EIA-906, and EIA-920. Prior to 2008 fuel receipts and costs data were reported
+in `EIA Form 423
+<https: //www.eia.gov/electricity/data/eia423 />`__ (which in turn
+replaced the earlier FERC Form 423). If you're interested in this earlier data, get in
+touch with us!
 
-In addition, We have not yet integrated tables reporting fuel stocks, data from Puerto
-Rico, or EIA-923 schedules 6, 7, and 8.
+Monthly interim EIA-923 data releases are not yet integrated into PUDL. In addition, We
+have not yet integrated tables reporting fuel stocks, data from Puerto Rico, or EIA-923
+schedules 6, 7, and 8.
 {% endblock %}
 
 {% block fill_out_form %}
@@ -46,15 +52,19 @@ entirety once a year.
 {% endblock %}
 
 {% block original_data %}
+
 Once the respondents have submitted their responses, the EIA creates a series of
 spreadsheets that reflect themes within the form. These spreadsheets have changed over
-the years as the form itself evolves. They are accessible on the `EIA website <{{ source.path }}>`\_\_ as downloadable ZIP files categorized
-by year. The internal data are organized into excel spreadsheets. To gain greater
-insight into year-to-year nuances of the form, we recommend downloading multiple years
-of EIA-923 ZIP files and comparing both the Form and the Form Instructions files.
+the years as the form itself evolves. They are accessible on the `EIA website <{{
+source.path }}>`__ as downloadable ZIP files categorized by year. The internal data are
+organized into excel spreadsheets. To gain greater insight into year-to-year nuances of
+the form, we recommend downloading multiple years of EIA-923 ZIP files and comparing
+both the Form and the Form Instructions files.
+
 {% endblock %}
 
 {% block notable_irregularities %}
+
 **File Naming Conventions**
 The naming conventions for the raw files are confusing and difficult to trace year to
 year. Subtle and not so subtle changes to the form and published spreadsheets make
@@ -68,11 +78,11 @@ delivered cost of coal, natural gas, and petroleum received at non-utility power
 and the commodity cost information for all plants (Schedule 2).
 
 **Net generation & fuel consumed reported in two separate tables**
-Net generation and fuel consumption are reported in two separate tables in EIA-923:
-in the :ref:`generation_eia923` and :ref:`generation_fuel_eia923` tables. The
-:ref:`generation_fuel_eia923` table is more complete (the :ref:`generation_eia923`
-table includes only ~55% of the reported MWh), but the :ref:`generation_eia923` table
-is more granular (it is reported at the generator level).
+Net generation and fuel consumption are reported in two separate tables in EIA-923: in
+the :ref:`generation_eia923` and :ref:`generation_fuel_eia923` tables. The
+:ref:`generation_fuel_eia923` table is more complete (the :ref:`generation_eia923` table
+includes only ~55% of the reported MWh), but the :ref:`generation_eia923` table is more
+granular (it is reported at the generator level).
 
 **Data Estimates**
 Plants that did not respond or reported unverified data were recorded as estimates

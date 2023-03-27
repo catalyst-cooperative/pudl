@@ -7,9 +7,14 @@ main PUDL ETL process. The underlying work in the script is being done in
 """
 import argparse
 import sys
+from collections.abc import Callable
 
-from dagster import DagsterInstance, execute_job, reconstructable
-from dotenv import load_dotenv
+from dagster import (
+    DagsterInstance,
+    JobDefinition,
+    build_reconstructable_job,
+    execute_job,
+)
 
 import pudl
 from pudl import ferc_to_sqlite
@@ -37,6 +42,15 @@ def parse_command_line(argv):
         default=None,
         type=str,
         help="If specified, write logs to this file.",
+    )
+    parser.add_argument(
+        "-c",
+        "--clobber",
+        action="store_true",
+        help="""Clobber existing sqlite database if it exists. If clobber is
+        not included but the sqlite databse already exists the _build will
+        fail.""",
+        default=False,
     )
     parser.add_argument(
         "--sandbox",
@@ -72,17 +86,31 @@ def parse_command_line(argv):
     return arguments
 
 
-def get_ferc_to_sqlite_job():
-    """Module level func for creating a job to be wrapped by reconstructable."""
-    return ferc_to_sqlite.ferc_to_sqlite.to_job(
-        resource_defs=ferc_to_sqlite.default_resources_defs,
-        name="ferc_to_sqlite_job",
-    )
+def ferc_to_sqlite_job_factory(
+    logfile: str | None = None, loglevel: str = "INFO"
+) -> Callable[[], JobDefinition]:
+    """Factory for parameterizing a reconstructable ferc_to_sqlite job.
+
+    Args:
+        loglevel: The log level for the job's execution.
+        logfile: Path to a log file for the job's execution.
+
+    Returns:
+        The job definition to be executed.
+    """
+
+    def get_ferc_to_sqlite_job():
+        """Module level func for creating a job to be wrapped by reconstructable."""
+        return ferc_to_sqlite.ferc_to_sqlite.to_job(
+            resource_defs=ferc_to_sqlite.default_resources_defs,
+            name="ferc_to_sqlite_job",
+        )
+
+    return get_ferc_to_sqlite_job
 
 
 def main():  # noqa: C901
     """Clone the FERC Form 1 FoxPro database into SQLite."""
-    load_dotenv()
     args = parse_command_line(sys.argv)
 
     # Display logged output from the PUDL package:
@@ -90,15 +118,24 @@ def main():  # noqa: C901
         logfile=args.logfile, loglevel=args.loglevel
     )
 
-    execute_job(
-        reconstructable(get_ferc_to_sqlite_job),
+    etl_settings = EtlSettings.from_yaml(args.settings_file)
+
+    # Set PUDL_INPUT/PUDL_OUTPUT env vars from .pudl.yml if not set already!
+    pudl.workspace.setup.get_defaults()
+
+    ferc_to_sqlite_reconstructable_job = build_reconstructable_job(
+        "pudl.ferc_to_sqlite.cli",
+        "ferc_to_sqlite_job_factory",
+        reconstructable_kwargs={"loglevel": args.loglevel, "logfile": args.logfile},
+    )
+
+    result = execute_job(
+        ferc_to_sqlite_reconstructable_job,
         instance=DagsterInstance.get(),
         run_config={
             "resources": {
                 "ferc_to_sqlite_settings": {
-                    "config": EtlSettings.from_yaml(
-                        args.settings_file
-                    ).ferc_to_sqlite_settings.dict()
+                    "config": etl_settings.ferc_to_sqlite_settings.dict()
                 },
                 "datastore": {
                     "config": {
@@ -114,11 +151,22 @@ def main():  # noqa: C901
                     "config": {
                         "workers": args.workers,
                         "batch_size": args.batch_size,
+                        "clobber": args.clobber,
                     },
+                },
+                "dbf2sqlite": {
+                    "config": {"clobber": args.clobber},
                 },
             },
         },
+        raise_on_error=True,
     )
+
+    # Workaround to reliably getting full stack trace
+    if not result.success:
+        for event in result.all_events:
+            if event.event_type_value == "STEP_FAILURE":
+                raise Exception(event.event_specific_data.error)
 
 
 if __name__ == "__main__":
