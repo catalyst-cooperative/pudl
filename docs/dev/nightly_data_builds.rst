@@ -55,6 +55,59 @@ occurred:
     process. If the "transient" problem persists, bring it up with the person
     managing the builds.
 
+Debugging a Broken Build
+------------------------
+
+If a build has failed, usually the VM will have shut down. You'll have to figure out
+which VM it was running on and then restart it before you can do anything else.
+
+To find the VM name, go into the `Github Action listing
+<https://github.com/catalyst-cooperative/pudl/actions/workflows/build-deploy-pudl.yml>`__
+and click on your run. The ``GCE_INSTANCE_NAME`` that gets printed in "Print
+action vars" is what you're after.
+
+Then you can go to the `Google Compute Engine
+<https://console.cloud.google.com/compute/instances?project=catalyst-cooperative-pudl>`__
+page and restart it.
+
+Once that's started, you should be able to SSH to the VM via ``gcloud ssh
+vm-name``. You may run into some permissions issues here, in which case you
+probably need the ``Service Account User`` role on your gcloud user.
+
+Now you want to get some logs about what's failing.
+
+First, try ``docker ps`` - this should show two images, one ``pudl``-ey one and
+one that's the Google ``stackdriver-agent`` which handles monitoring::
+
+   CONTAINER ID   IMAGE                     <snip>  NAMES
+   d678f709d1f5   catalystcoop/pudl-etl...  <snip>  klt-pudl-deployment-tag-luui
+   aa3163671da4   gcr.io/stackdriver-ag...  <snip>  stackdriver-logging-agent
+
+If the image is running, great! You can get logs via ``docker logs
+<container ID or name>`` (use ``docker logs -f`` if the process is still
+going and you want to stream logs from the container.)
+
+You can also attach a shell to the container and poke around with ``docker exec
+-it <ID or name> bash``. This is really helpful if something has failed and you
+want to try to fix the code & re-run, without having to re-run everything
+before the failed task.
+
+.. Warning::
+
+   If you use ``docker attach`` as recommended by the login message, and then
+   hit Ctrl-C, you will interrupt the running build!
+
+Sometimes you'll see two containers running, but neither of them are PUDL.
+That's because the VM first spins up a "loader" container that downloads the
+PUDL image, then exits the loader and starts the PUDL image.
+
+If you don't see two containers running, then there's probably some issue with
+the PUDL container startup itself. To find logs about that, run ``sudo
+journalctl -u konlet-startup | tail -n 1000 | less``. You should be able to see
+any errors that occurred during container startup, and also the container ID,
+which you can then boot into via ``docker run -it <ID> bash``.
+
+
 The GitHub Action
 -----------------
 The ``build-deploy-pudl`` GitHub action contains the main coordination logic for
@@ -133,7 +186,6 @@ from the ``pudl`` directory:
 
     docker compose -f docker/docker-compose.yml build
     docker compose -f docker/docker-compose.yml up
-
 
 How to access the nightly build outputs from AWS
 ------------------------------------------------

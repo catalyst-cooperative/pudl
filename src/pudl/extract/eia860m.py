@@ -19,7 +19,6 @@ import pandas as pd
 import pudl.logging_helpers
 from pudl.extract import excel
 from pudl.helpers import remove_leading_zeros_from_numeric_strings
-from pudl.settings import Eia860Settings
 
 logger = pudl.logging_helpers.get_logger(__name__)
 
@@ -51,19 +50,6 @@ class Extractor(excel.GenericExtractor):
             if col in df.columns:
                 df = remove_leading_zeros_from_numeric_strings(df=df, col_name=col)
         return df
-
-    def extract(self, settings: Eia860Settings = Eia860Settings()):
-        """Extracts dataframes.
-
-        Returns dict where keys are page names and values are
-        DataFrames containing data across given years.
-
-        Args:
-            settings: Object containing validated settings
-                relevant to EIA 860m. Contains the tables and date to be loaded
-                into PUDL.
-        """
-        return super().extract(year_month=settings.eia860m_date)
 
     @staticmethod
     def get_dtypes(page, **partition):

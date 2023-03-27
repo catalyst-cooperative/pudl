@@ -2,6 +2,7 @@
 
 import json
 import logging
+import os
 from pathlib import Path
 
 import datasette.utils
@@ -12,12 +13,13 @@ from pudl.metadata.classes import DatasetteMetadata
 logger = logging.getLogger(__name__)
 
 
-def test_datasette_metadata_to_yml(pudl_settings_fixture, ferc_xbrl):
+def test_datasette_metadata_to_yml(pudl_env, ferc1_engine_xbrl):
     """Test the ability to export metadata as YML for use with Datasette."""
-    metadata_yml = Path(pudl_settings_fixture["pudl_out"], "metadata.yml")
+    pudl_output = Path(os.getenv("PUDL_OUTPUT"))
+    metadata_yml = pudl_output / "metadata.yml"
     logger.info(f"Writing Datasette Metadata to {metadata_yml}")
 
-    dm = DatasetteMetadata.from_data_source_ids(pudl_settings=pudl_settings_fixture)
+    dm = DatasetteMetadata.from_data_source_ids(pudl_output)
     dm.to_yaml(path=metadata_yml)
 
     logger.info("Parsing generated metadata using datasette utils.")

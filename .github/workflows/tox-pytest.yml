@@ -3,6 +3,10 @@ name: tox-pytest
 
 on: [push, pull_request]
 
+env:
+  PUDL_OUTPUT: ~/pudl-work/output
+  PUDL_INPUT: ~/pudl-work/data/
+
 jobs:
   ci-test:
     runs-on: ubuntu-latest

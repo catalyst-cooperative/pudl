@@ -47,7 +47,7 @@ def get_layer(
     if ds is None:
         ds = Datastore()
     # Check if we have the Census DP1 database. If not, create it.
-    if not Path(pudl_settings["sqlite_dir"], "censusdp1tract.sqlite").exists():
+    if not Path(pudl_settings["pudl_out"], "censusdp1tract.sqlite").exists():
         logger.info("Census DP1 SQLite DB is missing. Creating it.")
         censusdp1tract_to_sqlite(pudl_settings=pudl_settings, ds=ds)
 

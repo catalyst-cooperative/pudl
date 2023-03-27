@@ -6,11 +6,11 @@ This code is for use analyzing EIA Form 923 data. Currenly only
 years 2009-2016 work, as they share nearly identical file formatting.
 """
 import pandas as pd
+from dagster import AssetOut, Output, multi_asset
 
 import pudl.logging_helpers
 from pudl.extract import excel
 from pudl.helpers import remove_leading_zeros_from_numeric_strings
-from pudl.settings import Eia923Settings
 
 logger = pudl.logging_helpers.get_logger(__name__)
 
@@ -56,19 +56,6 @@ class Extractor(excel.GenericExtractor):
         df = self.add_data_maturity(df, page, **partition)
         return df
 
-    def extract(self, settings: Eia923Settings = Eia923Settings()):
-        """Extracts dataframes.
-
-        Returns dict where keys are page names and values are
-        DataFrames containing data across given years.
-
-        Args:
-            settings: Object containing validated settings
-                relevant to EIA 923. Contains the tables and years to be loaded
-                into PUDL.
-        """
-        return super().extract(year=settings.years)
-
     @staticmethod
     def process_renamed(df, page, **partition):
         """Cleans up unnamed_0 column in stocks page, drops invalid plan_id_eia rows."""
@@ -100,3 +87,45 @@ class Extractor(excel.GenericExtractor):
             "CoalMine_County": pd.StringDtype(),
             "Coalmine\nCounty": pd.StringDtype(),
         }
+
+
+# TODO (bendnorman): Add this information to the metadata
+eia_raw_table_names = (
+    "raw_boiler_fuel_eia923",
+    "raw_fuel_receipts_costs_eia923",
+    "raw_generation_fuel_eia923",
+    "raw_generator_eia923",
+    "raw_stocks_eia923",
+)
+
+
+# TODO (bendnorman): Figure out type hint for context keyword and mutli_asset return
+@multi_asset(
+    outs={table_name: AssetOut() for table_name in sorted(eia_raw_table_names)},
+    required_resource_keys={"datastore", "dataset_settings"},
+)
+def extract_eia923(context):
+    """Extract raw EIA data from excel sheets into dataframes.
+
+    Args:
+        context: dagster keyword that provides access to resources and config.
+
+    Returns:
+        A tuple of extracted EIA dataframes.
+    """
+    eia_settings = context.resources.dataset_settings.eia
+
+    ds = context.resources.datastore
+    eia923_raw_dfs = Extractor(ds).extract(year=eia_settings.eia923.years)
+
+    # create descriptive table_names
+    eia923_raw_dfs = {
+        "raw_" + table_name + "_eia923": df for table_name, df in eia923_raw_dfs.items()
+    }
+
+    eia923_raw_dfs = dict(sorted(eia923_raw_dfs.items()))
+
+    return (
+        Output(output_name=table_name, value=df)
+        for table_name, df in eia923_raw_dfs.items()
+    )

@@ -1,12 +1,10 @@
 """tests for pudl/output/epacems.py loading functions."""
-from pathlib import Path
-
 import dask.dataframe as dd
 import pytest
+from dagster import build_init_resource_context
 
-from pudl.etl import etl_epacems
+from pudl.io_managers import epacems_io_manager
 from pudl.output.epacems import epacems, year_state_filter
-from pudl.settings import EpaCemsSettings
 
 
 @pytest.fixture(scope="module")
@@ -18,12 +16,12 @@ def epacems_year_and_state(etl_settings):
 
 @pytest.fixture(scope="session")
 def epacems_parquet_path(
-    pudl_settings_fixture,
+    pudl_env,
     pudl_engine,  # implicit dependency; ensures .parquet files exist
 ):
     """Get path to the directory of EPA CEMS .parquet data."""
-    out_dir = Path(pudl_settings_fixture["parquet_dir"], "epacems")
-    return out_dir
+    context = build_init_resource_context()
+    return epacems_io_manager(context)._base_path / "hourly_emissions_epacems.parquet"
 
 
 def test_epacems_subset(epacems_year_and_state, epacems_parquet_path):
@@ -70,22 +68,13 @@ def test_epacems_subset_input_validation(epacems_year_and_state, epacems_parquet
             epacems(epacems_path=path, **combo)
 
 
-def test_epacems_parallel(pudl_settings_fixture, pudl_ds_kwargs, tmpdir_factory):
+def test_epacems_parallel(pudl_engine, epacems_parquet_path):
     """Test that we can run the EPA CEMS ETL in parallel."""
-    epacems_settings = EpaCemsSettings(
-        years=[2019, 2020, 2021], states=["ID", "ME"], partition=True
-    )
     # We need a temporary output directory to avoid dropping the ID/ME 2019/2020
     # parallel outputs in the real output directory and interfering with the normal
     # monolithic outputs.
-    parquet_tmp = tmpdir_factory.mktemp("parquet_tmp")
-    epacems_tmp = Path(parquet_tmp, "epacems")
-    epacems_tmp.mkdir()
-    settings_tmp = {k: v for k, v in pudl_settings_fixture.items()}
-    settings_tmp["parquet_dir"] = parquet_tmp
-    etl_epacems(epacems_settings, settings_tmp, pudl_ds_kwargs)
     df = dd.read_parquet(
-        epacems_tmp,
+        epacems_parquet_path,
         filters=year_state_filter(years=[2019], states=["ME"]),
         index=False,
         engine="pyarrow",
