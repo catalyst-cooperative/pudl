@@ -1766,7 +1766,7 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "type": "boolean",
         "description": "Is the reporting entity an owner of power plants reported on Schedule 2 of the form?",
     },
-    "pm_control_id_eia": {
+    "particulate_control_id_eia": {
         "type": "string",
         "description": "Alphanumeric particulate matter control ID.",
     },
