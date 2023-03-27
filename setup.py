@@ -67,7 +67,7 @@ setup(
         "pandas>=1.4,<1.5.4",
         "pyarrow>=5,<11.1",
         "pydantic[email]>=1.7,<2",
-        "python-dotenv~=0.21.0",
+        "python-dotenv>=0.21,<1.1",
         "python-snappy>=0.6,<0.7",
         "pyyaml>=5,<6.1",
         "recordlinkage>=0.14,<0.16",
