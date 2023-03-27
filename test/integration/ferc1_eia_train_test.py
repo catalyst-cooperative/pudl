@@ -7,6 +7,7 @@ from io import StringIO
 import pandas as pd
 import pytest
 
+from pudl.analysis.ferc1_eia import restrict_train_connections_on_date_range
 from pudl.analysis.ferc1_eia_train import validate_override_fixes
 from pudl.output.pudltabl import PudlTabl
 
@@ -52,8 +53,15 @@ def ferc1_eia_training_data():
 
 
 @pytest.mark.parametrize(
-    "verified,record_id_eia_override_1,record_id_ferc1",
-    [pytest.param("True", "10773_2005_plant_total_19876", "f1_steam_2005_12_186_0_1")],
+    "verified,report_year,record_id_eia_override_1,record_id_ferc1",
+    [
+        pytest.param(
+            "True",
+            2020,
+            "4270_2020_plant_total_11241",
+            "f1_steam_2020_12_454_0_3",
+        )
+    ],
 )
 def test_validate_override_fixes(
     utils_eia860,
@@ -61,24 +69,32 @@ def test_validate_override_fixes(
     ferc1_eia,
     ferc1_eia_training_data,
     verified,
+    report_year,
     record_id_eia_override_1,
     record_id_ferc1,
 ):
     """Test."""
     test_df = pd.read_csv(
         StringIO(
-            f"""verified,record_id_eia_override_1,record_id_ferc1
-    {verified},{record_id_eia_override_1},{record_id_ferc1}
+            f"""verified,report_year,record_id_eia_override_1,record_id_ferc1
+    {verified},{report_year},{record_id_eia_override_1},{record_id_ferc1}
     """
         ),
     ).assign(verified=lambda x: x.verified.astype("bool"))
-    # pytest.set_trace()
+    # Restrict training data
+    ferc1_eia_training_data_restricted = restrict_train_connections_on_date_range(
+        train_df=ferc1_eia_training_data,
+        id_col="record_id_ferc1",
+        start_date=min(ferc1_eia.report_date),
+        end_date=max(ferc1_eia.report_date),
+    )
+    pytest.set_trace()
     validate_override_fixes(
         validated_connections=test_df,
         utils_eia860=utils_eia860,
         ppl=plant_part_list,
         ferc1_eia=ferc1_eia,
-        training_data=ferc1_eia_training_data,
+        training_data=ferc1_eia_training_data_restricted,
         expect_override_overrides=True,
         allow_mismatched_utilities=True,
     )
