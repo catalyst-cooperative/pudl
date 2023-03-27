@@ -160,8 +160,8 @@ def extract(year: int, state: str, ds: Datastore):
 
     Args:
         year: report year of the data to extract
+        state: report state of the data to extract
         ds: Initialized datastore
-
     Yields:
         pandas.DataFrame: A single state-year of EPA CEMS hourly emissions data.
     """

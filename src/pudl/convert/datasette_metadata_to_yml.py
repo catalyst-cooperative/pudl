@@ -1,7 +1,10 @@
 """Export metadata to YAML for Datasette."""
 
 import argparse
+import os
 import sys
+
+from dotenv import load_dotenv
 
 import pudl
 from pudl.metadata.classes import DatasetteMetadata
@@ -42,6 +45,7 @@ def parse_command_line(argv):
 
 def main():
     """Convert metadata to YAML."""
+    load_dotenv()
     args = parse_command_line(sys.argv)
 
     pudl.logging_helpers.configure_root_logger(
@@ -50,12 +54,7 @@ def main():
 
     logger.info(f"Exporting Datasette metadata to: {args.output}")
 
-    defaults = pudl.workspace.setup.get_defaults()
-    pudl_settings = pudl.workspace.setup.derive_paths(
-        pudl_in=defaults["pudl_in"], pudl_out=defaults["pudl_out"]
-    )
-
-    dm = DatasetteMetadata.from_data_source_ids(pudl_settings=pudl_settings)
+    dm = DatasetteMetadata.from_data_source_ids(os.getenv("PUDL_OUTPUT"))
     dm.to_yaml(path=args.output)
 
 

@@ -35,30 +35,29 @@ database cloning and connect directly to the resulting database. This has become
 especially useful since Microsoft recently discontinued the database driver that until
 late 2018 had allowed users to load the FoxPro database files into Microsoft Access.
 
-In any case, cloning the original FERC database is the first step in the PUDL
-ETL process. This can be done with the ``ferc_to_sqlite`` script (which is an
-entrypoint into the :mod:`pudl.convert.ferc_to_sqlite` module) which is
-installed as part of the PUDL Python package. It takes its instructions from a
-YAML file, an example of which is included in the ``settings`` directory in
-your PUDL workspace. Once you've :ref:`created a datastore <datastore>`, you can
-try this example:
+Cloning the original FERC database is the first step in the PUDL
+ETL process. This can be done using the dagster UI (see :ref:`run-dagit`)
+or with the ``ferc_to_sqlite`` script (see :ref:`run-cli`).
 
-.. code-block:: console
+.. note::
 
-   $ ferc_to_sqlite settings/etl_full.yml
+  We recommend using Dagit to execute the ETL as it provides additional
+  functionality for re-execution and viewing dependences.
 
-This should create several outputs that you can find in your workspace at:
+Executing a ``ferc_to_sqlite`` job will create several outputs that you can
+find in your workspace at:
 
- * ``sqlite/ferc1.sqlite``: Data from 1994-2020 (FoxPro/DBF)
- * ``sqlite/ferc1_xbrl.sqlite``: Data from 2021 onward (XBRL)
- * ``sqlite/ferc1_xbrl_datapackage.json``: `Frictionless data package
+ * ``pudl_output/ferc1.sqlite``: Data from 1994-2020 (FoxPro/DBF)
+ * ``pudl_output/ferc1_xbrl.sqlite``: Data from 2021 onward (XBRL)
+ * ``pudl_output/ferc1_xbrl_datapackage.json``: `Frictionless data package
    <https://specs.frictionlessdata.io/data-package/>`__ descriptor for the XBRL derived
    database.
- * ``sqlite/ferc1_xbrl_taxonomy_metadata.json``: A JSON version of the XBRL Taxonomy,
-   containing additional metadata.
+ * ``pudl_output/ferc1_xbrl_taxonomy_metadata.json``: A JSON version of the
+   XBRL Taxonomy, containing additional metadata.
 
 By default, the script pulls in all available years and tables of data. The output is
-roughly 1GB on disk.
+roughly 1GB on disk. The ``ferc_to_sqlite`` jobs also extracts the XBRL data for FERC
+Form 1, 2, 6, 60 and 714.
 
 .. note::
 

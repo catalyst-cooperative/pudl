@@ -1,7 +1,7 @@
 #!/bin/sh
 
 PUDL_OUT=`grep "^pudl_out" $HOME/.pudl.yml | sed -e "s/^pudl_out: //"`
-SQLITE_DIR="$PUDL_OUT/sqlite"
+SQLITE_DIR="$PUDL_OUTPUT"
 
 # make metadata.yml
 datasette_metadata_to_yml -o "metadata.yml"
