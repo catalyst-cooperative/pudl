@@ -276,6 +276,11 @@ class SQLiteIOManager(IOManager):
         table_name = self._get_table_name(context)
 
         sa_table = self._get_sqlalchemy_table(table_name)
+        pkg = Package.from_resource_ids()
+        all_resources = [resource.name for resource in pkg.resources]
+        if table_name in all_resources:
+            res = pkg.get_resource(table_name)
+            df = res.enforce_schema(df)
 
         column_difference = set(sa_table.columns.keys()) - set(df.columns)
         if column_difference:
@@ -349,13 +354,24 @@ class SQLiteIOManager(IOManager):
                 name.
         """
         table_name = self._get_table_name(context)
+        pkg = Package.from_resource_ids()
+        all_resources = [resource.name for resource in pkg.resources]
+        res = None
+        if table_name in all_resources:
+            res = pkg.get_resource(table_name)
+
         _ = self._get_sqlalchemy_table(table_name)
 
         engine = self.engine
 
         with engine.connect() as con:
             try:
-                df = pd.read_sql_table(table_name, con)
+                dfs = []
+                for chunk_df in pd.read_sql_table(table_name, con, chunksize=100_000):
+                    if res:
+                        chunk_df = res.enforce_schema(chunk_df)
+                    dfs.append(chunk_df)
+                df = pd.concat(dfs)
             except ValueError:
                 raise ValueError(
                     f"{table_name} not found. Either the table was dropped "
@@ -367,7 +383,7 @@ class SQLiteIOManager(IOManager):
                     f"The {table_name} table is empty. Materialize "
                     "the {table_name} asset so it is available in the database."
                 )
-            return pudl.metadata.fields.apply_pudl_dtypes(df)
+        return df
 
 
 @io_manager(
