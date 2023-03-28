@@ -25,7 +25,11 @@ class Extractor(excel.GenericExtractor):
             ds (:class:datastore.Datastore): Initialized datastore.
         """
         self.METADATA = excel.Metadata("eia923")
-        self.BLACKLISTED_PAGES = ["plant_frame"]
+        # There's an issue with the EIA-923 archive for 2018 which prevents this table
+        # from being extracted currently. When we update to a new DOI this problem will
+        # probably fix itself. See comments on this issue:
+        # https://github.com/catalyst-cooperative/pudl/issues/2448
+        self.BLACKLISTED_PAGES = ["plant_frame", "emissions_control"]
         self.cols_added = []
         super().__init__(*args, **kwargs)
 
@@ -96,6 +100,11 @@ eia_raw_table_names = (
     "raw_generation_fuel_eia923",
     "raw_generator_eia923",
     "raw_stocks_eia923",
+    # There's an issue with the EIA-923 archive for 2018 which prevents this table
+    # from being extracted currently. When we update to a new DOI this problem will
+    # probably fix itself. See comments on this issue:
+    # https://github.com/catalyst-cooperative/pudl/issues/2448
+    # "raw_emissions_control_eia923",
 )
 
 
@@ -128,4 +137,9 @@ def extract_eia923(context):
     return (
         Output(output_name=table_name, value=df)
         for table_name, df in eia923_raw_dfs.items()
+        # There's an issue with the EIA-923 archive for 2018 which prevents this table
+        # from being extracted currently. When we update to a new DOI this problem will
+        # probably fix itself. See comments on this issue:
+        # https://github.com/catalyst-cooperative/pudl/issues/2448
+        if table_name != "raw_emissions_control_eia923"
     )

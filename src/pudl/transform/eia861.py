@@ -3,12 +3,18 @@
 All transformations include:
 - Replace . values with NA.
 """
-
-
 import pandas as pd
+from dagster import AssetIn, AssetOut, Output, asset, multi_asset
 
 import pudl
-from pudl.helpers import convert_cols_dtypes
+from pudl.helpers import (
+    add_fips_ids,
+    clean_eia_counties,
+    convert_cols_dtypes,
+    convert_to_date,
+    fix_eia_na,
+)
+from pudl.metadata.classes import Package
 from pudl.metadata.enums import (
     CUSTOMER_CLASSES,
     FUEL_CLASSES,
@@ -19,8 +25,7 @@ from pudl.metadata.enums import (
     TECH_CLASSES,
 )
 from pudl.metadata.fields import apply_pudl_dtypes
-from pudl.metadata.labels import ESTIMATED_OR_ACTUAL, MOMENTARY_INTERRUPTIONS
-from pudl.settings import Eia861Settings
+from pudl.metadata.labels import ESTIMATED_OR_ACTUAL
 
 logger = pudl.logging_helpers.get_logger(__name__)
 
@@ -51,6 +56,8 @@ BA_ID_NAME_FIXES: pd.DataFrame = (
             ("2002-01-01", 9699, pd.NA, "Tri-State G&T"),
             ("2002-01-01", 10040, 13781, "Xcel Energy"),
             ("2002-01-01", 10171, 56669, "Midwest Indep System Operator"),
+            # This might also be MISO's BA ID... need to investigate more.
+            # ("2002-01-01", 10171, 12524, "Midwest Indep System Operator"),
             ("2002-01-01", 11053, 9417, "INTERSTATE POWER & LIGHT"),
             ("2002-01-01", 11148, 2775, "California ISO"),
             ("2002-01-01", 11522, 1, "Maritimes-Canada"),
@@ -248,105 +255,195 @@ BA_ID_NAME_FIXES: pd.DataFrame = (
 
 EIA_FIPS_COUNTY_FIXES: pd.DataFrame = pd.DataFrame(
     [
-        ("AK", "Aleutians Ea", "Aleutians East"),
+        ("AK", "Akiachak", "Bethel Census Area"),
         ("AK", "Aleutian Islands", "Aleutians East"),
+        ("AK", "Aleutians Ea", "Aleutians East"),
         ("AK", "Aleutians East Boro", "Aleutians East Borough"),
-        ("AK", "Prince of Wales Ketchikan", "Prince of Wales-Hyder"),
-        ("AK", "Prince Wales", "Prince of Wales-Hyder"),
-        ("AK", "Ketchikan Gateway Bo", "Ketchikan Gateway Borough"),
-        ("AK", "Prince of Wale", "Prince of Wales-Hyder"),
-        ("AK", "Wrangell Petersburg", "Wrangell"),
-        ("AK", "Wrangell Pet", "Wrangell"),
-        ("AK", "Borough, Kodiak Island", "Kodiak Island Borough"),
-        ("AK", "Matanuska Susitna Borough", "Matanuska-Susitna"),
-        ("AK", "Matanuska Susitna", "Matanuska-Susitna"),
-        ("AK", "Skagway-Yakutat", "Skagway"),
-        ("AK", "Skagway Yaku", "Skagway"),
-        ("AK", "Skagway Hoonah Angoon", "Hoonah-Angoon"),
+        ("AK", "Aleutians We", "Aleutians West Census Area"),
+        ("AK", "Aleutians West (unorganized)", "Aleutians West Census Area"),
         ("AK", "Angoon", "Hoonah-Angoon"),
-        ("AK", "Hoonah", "Hoonah-Angoon"),
-        ("AK", "Yukon Koyukuk", "Yukon-Koyukuk"),
-        ("AK", "Yukon Koyuku", "Yukon-Koyukuk"),
-        ("AK", "Yukon-Koyuku", "Yukon-Koyukuk"),
-        ("AK", "Valdez Cordova", "Valdez-Cordova"),
+        ("AK", "Borough, Kodiak Island", "Kodiak Island Borough"),
+        ("AK", "Chilkat Vall", "Hoonah-Angoon Census Area"),
+        ("AK", "Chilkat Valley", "Hoonah-Angoon Census Area"),
+        ("AK", "Chuathbaluk", "Bethel Census Area"),
+        ("AK", "Copper Basin", "Valdez-Cordova Census Area"),
         ("AK", "Cordova", "Valdez-Cordova"),
-        ("AK", "Valdez Cordo", "Valdez-Cordova"),
-        ("AK", "Lake and Pen", "Lake and Peninsula"),
-        ("AK", "Lake & Peninsula Borough", "Lake and Peninsula"),
-        ("AK", "Kodiak Islan", "Kodiak Island"),
+        ("AK", "Crooked Creek", "Bethel Census Area"),
+        ("AK", "Delta - No County", "Southeast Fairbanks Census Area"),
+        ("AK", "Elfin Cove", "Hoonah-Angoon Census Area"),
+        ("AK", "FRBS North Star", "Fairbanks North Star Borough"),
+        ("AK", "Galena", "Yukon-Koyukuk Census Area"),
+        ("AK", "Hoonah", "Hoonah-Angoon"),
+        ("AK", "Kake", "Prince of Wales-Hyder Census Area"),
+        ("AK", "Kasaan", "Prince of Wales-Hyder Census Area"),
         ("AK", "Kenai Penins", "Kenai Peninsula"),
+        ("AK", "Ketchikan Ga", "Ketchikan Gateway Borough"),
+        ("AK", "Ketchikan Gateway Bo", "Ketchikan Gateway Borough"),
+        ("AK", "Klukwan", "Hoonah-Angoon Census Area"),
+        ("AK", "Kodiak Isla", "Kodiak Island Borough"),
+        ("AK", "Kodiak Islan", "Kodiak Island"),
+        ("AK", "Kodiak Island Boroug", "Kodiak Island Borough"),
+        ("AK", "Kuskokwim Bay", "Bethel Census Area"),
+        ("AK", "Kwigillingok", "Bethel Census Area"),
+        ("AK", "LARSEN BAY", "Kodiak Island Borough"),
+        ("AK", "Lake & Peninsula Bor", "Lake and Peninsula Borough"),
+        ("AK", "Lake & Peninsula Borough", "Lake and Peninsula"),
+        ("AK", "Lake and Pen", "Lake and Peninsula"),
+        ("AK", "Larsen Bay", "Kodiak Island Borough"),
+        ("AK", "Matanuska Su", "Matanuska-Susitna Borough"),
+        ("AK", "Matanuska Susitna", "Matanuska-Susitna"),
+        ("AK", "Matanuska Susitna Borough", "Matanuska-Susitna"),
         ("AK", "NW Arctic Borough", "Northwest Arctic"),
+        ("AK", "Nenana", "Yukon-Koyukuk Census Area"),
+        ("AK", "Nenana - No County", "Yukon-Koyukuk Census Area"),
+        ("AK", "Nenena - No County", "Yukon-Koyukuk Census Area"),
+        ("AK", "Northwest Ar", "Northwest Arctic Borough"),
+        ("AK", "Northwest Arctic Bor", "Northwest Arctic Borough"),
+        ("AK", "Notin", "Hoonah-Angoon Census Area"),
+        ("AK", "Prince Wales", "Prince of Wales-Hyder"),
+        ("AK", "Prince of Wa", "Prince of Wales-Hyder Census Area"),
+        ("AK", "Prince of Wale", "Prince of Wales-Hyder"),
+        ("AK", "Prince of Wales", "Prince of Wales-Hyder Census Area"),
+        ("AK", "Prince of Wales Ketchikan", "Prince of Wales-Hyder"),
+        ("AK", "Prince of Wales-Outer Ketchika", "Prince of Wales-Hyder Census Area"),
+        ("AK", "Red Devil", "Bethel Census Area"),
+        ("AK", "Skagway Hoonah Angoon", "Hoonah-Angoon"),
+        ("AK", "Skagway Yaku", "Skagway"),
+        ("AK", "Skagway-Hoonah-Angoon", "Hoonah-Angoon Census Area"),
+        ("AK", "Skagway-Yakutat", "Skagway"),
+        ("AK", "Sleetmute", "Bethel Census Area"),
+        ("AK", "Southeast Fa", "Southeast Fairbanks Census Area"),
+        ("AK", "Stony River", "Bethel Census Area"),
+        ("AK", "Tanana", "Yukon-Koyukuk Census Area"),
+        ("AK", "Tenakee Springs", "Hoonah-Angoon Census Area"),
+        ("AK", "Valdez Cordo", "Valdez-Cordova"),
+        ("AK", "Valdez Cordova", "Valdez-Cordova"),
+        ("AK", "Wrangell Pet", "Wrangell"),
+        ("AK", "Wrangell Petersburg", "Wrangell"),
+        ("AK", "Wrangell-Petersburg", "Petersburg Census Area"),
+        ("AK", "Yukon Koyuku", "Yukon-Koyukuk"),
+        ("AK", "Yukon Koyukuk", "Yukon-Koyukuk"),
+        ("AK", "Yukon-Koyuku", "Yukon-Koyukuk"),
         ("AL", "De Kalb", "DeKalb"),
+        ("AR", "Hot Springs", "Hot Spring County"),
         ("AR", "Saint Franci", "St. Francis"),
+        ("AZ", "Maricopa (see footnote)", "Maricopa"),
+        ("AZ", "Nogales", "Santa Cruz"),
         ("CA", "San Bernadino", "San Bernardino"),
         ("CA", "San Bernardi", "San Bernardino"),
+        ("CA", "San Francisc", "San Francisco County"),
+        ("CA", "San Luis Obi", "San Luis Obispo County"),
+        ("CA", "Santa Barbar", "Santa Barbara County"),
         ("CT", "Shelton", "Fairfield"),
+        ("DC", "District of", "District of Columbia"),
+        ("FL", "Dade", "Miami-Dade"),
         ("FL", "De Soto", "DeSoto"),
         ("FL", "Miami Dade", "Miami-Dade"),
-        ("FL", "Dade", "Miami-Dade"),
-        ("FL", "St. Lucic", "St. Lucie"),
         ("FL", "St. Loucie", "St. Lucie"),
-        ("GA", "De Kalb", "DeKalb"),
+        ("FL", "St. Lucic", "St. Lucie"),
         ("GA", "Chattahooche", "Chattahoochee"),
-        ("IA", "Pottawattami", "Pottawattamie"),
-        ("IA", "Kossuh", "Kossuth"),
-        ("IA", "Lousia", "Louisa"),
-        ("IA", "Poweshick", "Poweshiek"),
-        ("IA", "Humbolt", "Humboldt"),
+        ("GA", "De Kalb", "DeKalb"),
+        ("GA", "Glasscock", "Glascock County"),
+        ("IA", "Hardin -remove", "Hardin County"),
         ("IA", "Harris", "Harrison"),
+        ("IA", "Humbolt", "Humboldt"),
+        ("IA", "Kossuh", "Kossuth"),
+        ("IA", "Louisa-remove", "Louisa County"),
+        ("IA", "Lousia", "Louisa"),
         ("IA", "O Brien", "O'Brien"),
-        ("IL", "JoDavies", "Jo Daviess"),
-        ("IL", "La Salle", "LaSalle"),
-        ("IL", "Green", "Greene"),
+        ("IA", "Pottawattami", "Pottawattamie"),
+        ("IA", "Poweshick", "Poweshiek"),
+        ("IA", "Union-remove", "Union County"),
+        ("ID", "Marshall", "Custer County"),
+        ("IL", "Burke", "Christian"),
+        ("IL", "Carol", "DuPage County"),
+        ("IL", "De Kalb", "DeKalb County"),
         ("IL", "DeWitt", "De Witt"),
         ("IL", "Dewitt", "De Witt"),
         ("IL", "Du Page", "DuPage"),
-        ("IL", "Burke", "Christian"),
+        ("IL", "Green", "Greene"),
+        ("IL", "JoDavies", "Jo Daviess"),
+        ("IL", "La Salle", "LaSalle"),
         ("IL", "McCoupin", "Macoupin"),
-        ("IN", "De Kalb County", "DeKalb County"),
         ("IN", "De Kalb", "DeKalb County"),
+        ("IN", "De Kalb County", "DeKalb County"),
         ("IN", "La Porte", "LaPorte"),
         ("IN", "Putman", "Putnam"),
         ("IN", "Pyke", "Pike"),
         ("IN", "Sulliva", "Sullivan"),
         ("KS", "Leaveworth", "Leavenworth"),
+        ("KY", "Hawkins", "Hopkins County"),
+        ("KY", "LAURE", "Larue County"),
         ("KY", "Spenser", "Spencer"),
-        ("LA", "Jefferson Da", "Jefferson Davis"),
-        ("LA", "Pointe Coupe", "Pointe Coupee"),
-        ("LA", "West Baton R", "West Baton Rouge"),
-        ("LA", "DeSoto", "De Soto"),
+        ("KY", "Sullivan", "Union County"),
+        ("KY", "WOLE", "Wolfe County"),
         ("LA", "Burke", "Iberia"),
+        ("LA", "DeSoto", "De Soto"),
+        ("LA", "East Baton R", "East Baton Rouge Parish"),
+        ("LA", "East Felicia", "East Feliciana Parish"),
+        ("LA", "Jefferson Da", "Jefferson Davis"),
+        ("LA", "Morehouse Pa", "Morehouse Parish"),
+        ("LA", "Pointe Coupe", "Pointe Coupee"),
+        ("LA", "Saint Helina", "St. Helena Parish"),
+        ("LA", "Saint Tamman", "St. Tammany Parish"),
+        ("LA", "West Baton R", "West Baton Rouge"),
         ("LA", "West Feleciana", "West Feliciana"),
+        ("LA", "West Felicia", "West Feliciana Parish"),
         ("MA", "North Essex", "Essex"),
-        ("MI", "Grand Traver", "Grand Traverse"),
-        ("MI", "Antim", "Antrim"),
+        ("MD", "Baltimore Ci", "Baltimore City"),
         ("MD", "Balto. City", "Baltimore City"),
         ("MD", "Prince Georg", "Prince George's County"),
         ("MD", "Worchester", "Worcester"),
+        ("MI", "Antim", "Antrim"),
+        ("MI", "Graitiot", "Gratiot County"),
+        ("MI", "Grand Traver", "Grand Traverse"),
+        ("MI", "Missauke", "Missaukee County"),
         ("MN", "Fairbault", "Faribault"),
+        ("MN", "La Qui Parle", "Lac qui Parle County"),
         ("MN", "Lac Qui Parl", "Lac Qui Parle"),
         ("MN", "Lake of The", "Lake of the Woods"),
+        ("MN", "Olmstead", "Olmsted County"),
         ("MN", "Ottertail", "Otter Tail"),
         ("MN", "Yellow Medic", "Yellow Medicine"),
-        ("MO", "De Kalb", "DeKalb"),
         ("MO", "Cape Girarde", "Cape Girardeau"),
+        ("MO", "De Kalb", "DeKalb"),
+        ("MO", "Paris", "Monroe County"),
+        ("MO", "Saint Charle", "St. Charles County"),
+        ("MO", "Saint Franco", "St. Francois County"),
+        ("MO", "Sainte Genev", "Ste. Genevieve County"),
         ("MS", "Clark", "Clarke"),
         ("MS", "Clark", "Clarke"),
         ("MS", "De Soto", "DeSoto"),
-        ("MS", "Jefferson Da", "Jefferson Davis"),
         ("MS", "Homoshitto", "Amite"),
+        ("MS", "Jefferson Da", "Jefferson Davis"),
         ("MT", "Anaconda-Dee", "Deer Lodge"),
         ("MT", "Butte-Silver", "Silver Bow"),
         ("MT", "Golden Valle", "Golden Valley"),
         ("MT", "Lewis and Cl", "Lewis and Clark"),
-        ("NC", "Hartford", "Hertford"),
+        ("NC", "Cherokee (NP&L)", "Cherokee County"),
+        ("NC", "Clay (NP&L)", "Clay County"),
         ("NC", "Gilford", "Guilford"),
+        ("NC", "Graham (NP&L)", "Graham County"),
+        ("NC", "Hartford", "Hertford"),
+        ("NC", "Jackson (NP&L)", "Jackson County"),
+        ("NC", "Macon (NP&L)", "Macon County"),
         ("NC", "North Hampton", "Northampton"),
+        ("NC", "Stanley", "Stanly County"),
+        ("NC", "Swain (NP&L)", "Swain County"),
+        ("ND", "Golden Valle", "Golden Valley County"),
         ("ND", "La Moure", "LaMoure"),
-        ("NH", "Plaquemines", "Coos"),
+        ("ND", "Remsey", "Ramsey County"),
+        ("NH", "Hillsboro", "Hillsborough County"),
         ("NH", "New Hampshire", "Coos"),
-        ("OK", "Cimmaron", "Cimarron"),
+        ("NH", "Plaquemines", "Coos"),
+        ("NV", "Carson City city", "Carson City"),
+        ("NY", "Saint Lawren", "St. Lawrence County"),
         ("NY", "Westcherster", "Westchester"),
+        ("OH", "Cochocton", "Coshocton County"),
+        ("OH", "Columbian", "Columbiana County"),
+        ("OH", "Tuscarawa", "Tuscarawas County"),
+        ("OK", "Cimmaron", "Cimarron"),
+        ("OK", "MuCurtain", "McCurtain County"),
         ("OR", "Unioin", "Union"),
         ("PA", "Northumberla", "Northumberland"),
         ("PR", "Aquadilla", "Aguadilla"),
@@ -354,16 +451,21 @@ EIA_FIPS_COUNTY_FIXES: pd.DataFrame = pd.DataFrame(
         ("PR", "San Sebastia", "San Sebastian"),
         ("PR", "Trujillo Alt", "Trujillo Alto"),
         ("RI", "Portsmouth", "Newport"),
+        ("SD", "Pierce", "Hughes County"),
+        ("SD", "Valley Springs", "Minnehaha County"),
         ("TX", "Collingswort", "Collingsworth"),
         ("TX", "De Witt", "DeWitt"),
         ("TX", "Hayes", "Hays"),
         ("TX", "San Augustin", "San Augustine"),
+        ("VA", "Albermarle", "Albemarle County"),
         ("VA", "Alexandria C", "Alexandria City"),
-        ("VA", "City of Suff", "Suffolk City"),
-        ("VA", "City of Manassas", "Manassas City"),
         ("VA", "Charlottesvi", "Charlottesville City"),
         ("VA", "Chesapeake C", "Chesapeake City"),
+        ("VA", "City of Manassas", "Manassas City"),
+        ("VA", "City of Suff", "Suffolk City"),
+        ("VA", "City of Suffolk", "Suffolk city"),
         ("VA", "Clifton Forg", "Alleghany"),
+        ("VA", "Clifton Forge", "Alleghany"),
         ("VA", "Colonial Hei", "Colonial Heights City"),
         ("VA", "Covington Ci", "Covington City"),
         ("VA", "Fredericksbu", "Fredericksburg City"),
@@ -371,6 +473,7 @@ EIA_FIPS_COUNTY_FIXES: pd.DataFrame = pd.DataFrame(
         ("VA", "Isle of Wigh", "Isle of Wight"),
         ("VA", "King and Que", "King and Queen"),
         ("VA", "Lexington Ci", "Lexington City"),
+        ("VA", "Manasas Park", "Manassas Park city"),
         ("VA", "Manassas Cit", "Manassas City"),
         ("VA", "Manassas Par", "Manassas Park City"),
         ("VA", "Northumberla", "Northumberland"),
@@ -382,10 +485,12 @@ EIA_FIPS_COUNTY_FIXES: pd.DataFrame = pd.DataFrame(
         ("VA", "Prince Willi", "Prince William"),
         ("VA", "Richmond Cit", "Richmond City"),
         ("VA", "Staunton Cit", "Staunton City"),
+        ("VA", "Virginia", "Virginia Beach city"),
         ("VA", "Virginia Bea", "Virginia Beach City"),
         ("VA", "Waynesboro C", "Waynesboro City"),
         ("VA", "Winchester C", "Winchester City"),
         ("WA", "Wahkiakurn", "Wahkiakum"),
+        ("WV", "Greenbriar", "Greenbrier County"),
     ],
     columns=["state", "eia_county", "fips_county"],
 )
@@ -428,6 +533,27 @@ NERC_SPELLCHECK: dict[str, str] = {
 ###############################################################################
 # EIA Form 861 Transform Helper functions
 ###############################################################################
+def _pre_process(df: pd.DataFrame) -> pd.DataFrame:
+    """Pre-processing applied to all EIA-861 dataframes.
+
+    * Standardize common NA values found in EIA spreadsheets.
+    * Drop the ``early_release`` column, which only contains non-null values when the
+      data is an early release, and we extract this information from the filenames, as
+      it's uniform across the whole dataset.
+    * Convert report_year column to report_date.
+    """
+    return (
+        fix_eia_na(df)
+        .drop(columns=["early_release"], errors="ignore")
+        .pipe(convert_to_date)
+    )
+
+
+def _post_process(df: pd.DataFrame) -> pd.DataFrame:
+    """Post-processing applied to all EIA-861 dataframes."""
+    return convert_cols_dtypes(df, data_source="eia")
+
+
 def _filter_class_cols(df, class_list):
     regex = f"^({'_|'.join(class_list)}).*$"
     return df.filter(regex=regex)
@@ -505,7 +631,7 @@ def backfill_ba_codes_by_ba_id(df: pd.DataFrame) -> pd.DataFrame:
         .assign(
             balancing_authority_code_eia=lambda x: x.balancing_authority_code_eia_bfilled
         )
-        .drop("balancing_authority_code_eia_bfilled", axis="columns")
+        .drop(columns="balancing_authority_code_eia_bfilled")
     )
     return ba_eia861_filled
 
@@ -568,19 +694,13 @@ def _drop_dupes(df, df_name, subset):
     return deduped_df
 
 
-def _check_for_dupes(df, df_name, subset):
+def _check_for_dupes(df: pd.DataFrame, df_name: str, subset: list[str]) -> pd.DataFrame:
     dupes = df.duplicated(subset=subset, keep=False)
     if dupes.any():
         raise AssertionError(
             f"Found {len(df[dupes])} duplicate rows in the {df_name} table, "
             f"when zero were expected!"
         )
-
-
-def _early_transform(df):
-    """Fix EIA na values and convert year column to date."""
-    df = pudl.helpers.fix_eia_na(df)
-    df = pudl.helpers.convert_to_date(df)
     return df
 
 
@@ -597,7 +717,7 @@ def _compare_totals(data_cols, idx_cols, class_type, df_name):
         df_name (str): The name of the dataframe.
     """
     # Convert column dtypes so that numeric cols can be adequately summed
-    data_cols = pudl.helpers.convert_cols_dtypes(data_cols, data_source="eia")
+    data_cols = convert_cols_dtypes(data_cols, data_source="eia")
     # Drop data cols that are non numeric (preserve primary keys)
     logger.debug(f"{idx_cols}, {class_type}")
     data_cols = (
@@ -638,7 +758,7 @@ def _compare_totals(data_cols, idx_cols, class_type, df_name):
             logger.debug(f"{df_name}: for column {col} all total values are NaN")
 
 
-def clean_nerc(df, idx_cols):
+def clean_nerc(df: pd.DataFrame, idx_cols: list[str]) -> pd.DataFrame:
     """Clean NERC region entries and make new rows for multiple nercs.
 
     This function examines reported NERC regions and makes sure the output column of the
@@ -648,11 +768,11 @@ def clean_nerc(df, idx_cols):
     also converts non-recognized reported nerc regions to 'UNK'.
 
     Args:
-        df (pandas.DataFrame): A DataFrame with the column 'nerc_region' to be cleaned.
-        idx_cols (list): A list of the primary keys and `nerc_region`.
+        df: A DataFrame with the column 'nerc_region' to be cleaned.
+        idx_cols: A list of the primary keys and `nerc_region`.
 
     Returns:
-        pandas.DataFrame: A DataFrame with correct and clean nerc regions.
+        A DataFrame with correct and clean nerc regions.
     """
     idx_no_nerc = idx_cols.copy()
     if "nerc_region" in idx_no_nerc:
@@ -660,7 +780,7 @@ def clean_nerc(df, idx_cols):
 
     # Split raw df into primary keys plus nerc region and other value cols
     nerc_df = df[idx_cols].copy()
-    other_df = df.drop("nerc_region", axis=1).set_index(idx_no_nerc)
+    other_df = df.drop(columns="nerc_region").set_index(idx_no_nerc)
 
     # Make all values upper-case
     # Replace all NA values with UNK
@@ -733,13 +853,11 @@ def _compare_nerc_physical_w_nerc_operational(df: pd.DataFrame) -> pd.DataFrame:
     year where there is a match between the cols.
 
     Args:
-        df: The utility_data_nerc_eia861 table output from the
-            utility_data() function.
+        df: utility_data_nerc_eia861 table from :func:`clean_utility_data_eia861`
 
     Returns:
-        A DataFrame with rows for utilities where NO listed operating
-        nerc region matches the "physical location" nerc region column that's a part of
-        the index.
+        A DataFrame with rows for utilities where NO listed operating nerc region
+        matches the "physical location" nerc region column that's a part of the index.
     """
     # Set NA states to UNK
     df["state"] = df["state"].fillna("UNK")
@@ -797,12 +915,43 @@ def _thousand_to_one(df_object):
     return df_object * 1000
 
 
+def _harvest_associations(dfs: list[pd.DataFrame], cols: list[str]) -> pd.DataFrame:
+    """Compile all unique, non-null combinations of values ``cols`` within ``dfs``.
+
+    Find all unique, non-null combinations of the columns ``cols`` in the dataframes
+    ``dfs`` within records that are selected by ``query``. All of ``cols`` must be
+    present in each of the ``dfs``.
+
+    Args:
+        dfs: DataFrames to search for unique combinations of values.
+        cols: Columns within which to find unique, non-null combinations of values.
+
+    Raises:
+        ValueError: if no associations for cols are found in dfs.
+
+    Returns:
+        A dataframe containing all the unique, non-null combinations of values found in
+        ``cols``.
+    """
+    assn = pd.DataFrame()
+    for df in dfs:
+        if set(df.columns).issuperset(set(cols)):
+            assn = pd.concat([assn, df[cols]])
+    assn = assn.dropna().drop_duplicates()
+    if assn.empty:
+        raise ValueError(
+            f"These dataframes contain no associations for the columns: {cols}"
+        )
+    return assn
+
+
 ###############################################################################
 # EIA Form 861 Table Transform Functions
 ###############################################################################
-
-
-def service_territory(tfr_dfs):
+@asset(io_manager_key="pudl_sqlite_io_manager")
+def service_territory_eia861(
+    raw_service_territory_eia861: pd.DataFrame,
+) -> pd.DataFrame:
     """Transform the EIA 861 utility service territory table.
 
     Transformations include:
@@ -811,35 +960,52 @@ def service_territory(tfr_dfs):
     * Add field for state/county FIPS code.
 
     Args:
-        tfr_dfs (dict): A dictionary of DataFrame objects in which pages from EIA861
-            form (keys) correspond to normalized DataFrames of values from that page
-            (values).
+        raw_service_territory_eia861: Raw EIA-861 utility service territory dataframe.
 
     Returns:
-        dict: a dictionary of pandas.DataFrame objects in which pages from EIA861 form
-            (keys) correspond to normalized DataFrames of values from that page
-            (values).
+        The cleaned utility service territory dataframe.
     """
-    # No data tidying required
-    # There are a few NA values in the county column which get interpreted
-    # as floats, which messes up the parsing of counties by addfips.
-    type_compatible_df = tfr_dfs["service_territory_eia861"].astype(
-        {"county": "string"}
-    )
-    # Transform values:
-    # * Add state and county fips IDs
-    transformed_df = (
+    df = _pre_process(raw_service_territory_eia861)
+    # A little WV county sandwiched between OH & PA, got miscategorized a few times:
+    df.loc[(df.state == "OH") & (df.county == "Brooke"), "state"] = "WV"
+    df = (
+        # There are a few NA values in the county column which get interpreted
+        # as floats, which messes up the parsing of counties by addfips.
+        df.astype({"county": "string"})
         # Ensure that we have the canonical US Census county names:
-        pudl.helpers.clean_eia_counties(type_compatible_df, fixes=EIA_FIPS_COUNTY_FIXES)
+        .pipe(clean_eia_counties, fixes=EIA_FIPS_COUNTY_FIXES)
         # Add FIPS IDs based on county & state names:
-        .pipe(pudl.helpers.add_fips_ids)
+        .pipe(add_fips_ids)
+        .assign(short_form=lambda x: _make_yn_bool(x.short_form))
+        .pipe(_post_process)
     )
-    transformed_df["short_form"] = _make_yn_bool(transformed_df.short_form)
-    tfr_dfs["service_territory_eia861"] = transformed_df
-    return tfr_dfs
+    # The Virgin Islands and Guam aren't covered by addfips but they have FIPS:
+    st_croix = (df.state == "VI") & (df.county.isin(["St. Croix", "Saint Croix"]))
+    df.loc[st_croix, "county_id_fips"] = "78010"
+    st_john = (df.state == "VI") & (df.county.isin(["St. John", "Saint John"]))
+    df.loc[st_john, "county_id_fips"] = "78020"
+    st_thomas = (df.state == "VI") & (df.county.isin(["St. Thomas", "Saint Thomas"]))
+    df.loc[st_thomas, "county_id_fips"] = "78030"
+    df.loc[df.state == "GU", "county_id_fips"] = "66010"
+
+    pk = (
+        Package.from_resource_ids()
+        .get_resource("service_territory_eia861")
+        .schema.primary_key
+    )
+    # We've fixed all we can fix! ~99.84% FIPS coverage.
+    df = (
+        df.dropna(subset=["county_id_fips"])
+        .sort_values(pk + ["county"])
+        .drop_duplicates(pk)  # Several hundred duplicates w/ different county names.
+    )
+    return df
 
 
-def balancing_authority(tfr_dfs):
+@asset
+def clean_balancing_authority_eia861(
+    raw_balancing_authority_eia861: pd.DataFrame,
+) -> pd.DataFrame:
     """Transform the EIA 861 Balancing Authority table.
 
     Transformations include:
@@ -847,13 +1013,6 @@ def balancing_authority(tfr_dfs):
     * Fill in balancing authrority IDs based on date, utility ID, and BA Name.
     * Backfill balancing authority codes based on BA ID.
     * Fix BA code and ID typos.
-
-    Args:
-        tfr_dfs (dict): A dictionary of transformed EIA 861 DataFrames, keyed by table
-            name. It will be mutated by this function.
-
-    Returns:
-        dict: A dictionary of transformed EIA 861 dataframes, keyed by table name.
     """
     # No data tidying required
     # All columns are already type compatible.
@@ -861,11 +1020,10 @@ def balancing_authority(tfr_dfs):
     # * Backfill BA codes on a per BA ID basis
     # * Fix data entry errors
     df = (
-        tfr_dfs["balancing_authority_eia861"]
+        _pre_process(raw_balancing_authority_eia861)
         .pipe(apply_pudl_dtypes, "eia")
         .set_index(["report_date", "balancing_authority_name_eia", "utility_id_eia"])
     )
-
     # Fill in BA IDs based on date, utility ID, and BA Name:
     # using merge and then reverse backfilling balancing_authority_id_eia means
     # that this will work even if not all years are requested
@@ -900,201 +1058,11 @@ def balancing_authority(tfr_dfs):
         "balancing_authority_code_eia",
     ] = "TIDC"
 
-    tfr_dfs["balancing_authority_eia861"] = df
-    return tfr_dfs
+    return _post_process(df)
 
 
-def balancing_authority_assn(tfr_dfs):
-    """Compile a balancing authority, utility, state association table.
-
-    For the years up through 2012, the only BA-Util information that's available comes
-    from the balancing_authority_eia861 table, and it does not include any state-level
-    information. However, there is utility-state association information in the
-    sales_eia861 and other data tables.
-
-    For the years from 2013 onward, there's explicit BA-Util-State information in the
-    data tables (e.g. sales_eia861). These observed associations can be compiled to give
-    us a picture of which BA-Util-State associations exist. However, we need to merge in
-    the balancing authority IDs since the data tables only contain the balancing
-    authority codes.
-
-    Args:
-        tfr_dfs (dict): A dictionary of transformed EIA 861 dataframes. This must
-            include any dataframes from which we want to compile BA-Util-State
-            associations, which means this function has to be called after all the basic
-            transformfunctions that depend on only a single raw table.
-
-    Returns:
-        dict: a dictionary of transformed dataframes. This function both compiles the
-        association table, and finishes the normalization of the balancing authority
-        table. It may be that once the harvesting process incorporates the EIA 861, some
-        or all of this functionality should be pulled into the phase-2 transform
-        functions.
-    """
-    # These aren't really "data" tables, and should not be searched for associations
-    non_data_dfs = [
-        "balancing_authority_eia861",
-        "service_territory_eia861",
-    ]
-
-    # The dataframes from which to compile BA-Util-State associations
-    data_dfs = [tfr_dfs[table] for table in tfr_dfs if table not in non_data_dfs]
-
-    logger.info("Building an EIA 861 BA-Util-State association table.")
-
-    # Helpful shorthand query strings....
-    early_years = "report_date<='2012-12-31'"
-    late_years = "report_date>='2013-01-01'"
-    early_dfs = [df.query(early_years) for df in data_dfs]
-    late_dfs = [df.query(late_years) for df in data_dfs]
-
-    # The old BA table lists utilities directly, but has no state information.
-    early_date_ba_util = _harvest_associations(
-        dfs=[
-            tfr_dfs["balancing_authority_eia861"].query(early_years),
-        ],
-        cols=["report_date", "balancing_authority_id_eia", "utility_id_eia"],
-    )
-    # State-utility associations are brought in from observations in data_dfs
-    early_date_util_state = _harvest_associations(
-        dfs=early_dfs,
-        cols=["report_date", "utility_id_eia", "state"],
-    )
-    early_date_ba_util_state = early_date_ba_util.merge(
-        early_date_util_state, how="outer"
-    ).drop_duplicates()
-
-    # New BA table has no utility information, but has BA Codes...
-    late_ba_code_id = _harvest_associations(
-        dfs=[
-            tfr_dfs["balancing_authority_eia861"].query(late_years),
-        ],
-        cols=[
-            "report_date",
-            "balancing_authority_code_eia",
-            "balancing_authority_id_eia",
-        ],
-    )
-    # BA Code allows us to bring in utility+state data from data_dfs:
-    late_date_ba_code_util_state = _harvest_associations(
-        dfs=late_dfs,
-        cols=["report_date", "balancing_authority_code_eia", "utility_id_eia", "state"],
-    )
-    # We merge on ba_code then drop it, b/c only BA ID exists in all years consistently:
-    late_date_ba_util_state = (
-        late_date_ba_code_util_state.merge(late_ba_code_id, how="outer")
-        .drop("balancing_authority_code_eia", axis="columns")
-        .drop_duplicates()
-    )
-
-    tfr_dfs["balancing_authority_assn_eia861"] = (
-        pd.concat([early_date_ba_util_state, late_date_ba_util_state])
-        .dropna(
-            subset=[
-                "balancing_authority_id_eia",
-            ]
-        )
-        .pipe(apply_pudl_dtypes, group="eia")
-    )
-    return tfr_dfs
-
-
-def utility_assn(tfr_dfs):
-    """Harvest a Utility-Date-State Association Table."""
-    # These aren't really "data" tables, and should not be searched for associations
-    non_data_dfs = [
-        "balancing_authority_eia861",
-        "service_territory_eia861",
-    ]
-    # The dataframes from which to compile BA-Util-State associations
-    data_dfs = [tfr_dfs[table] for table in tfr_dfs if table not in non_data_dfs]
-
-    logger.info("Building an EIA 861 Util-State-Date association table.")
-    tfr_dfs["utility_assn_eia861"] = _harvest_associations(
-        data_dfs, ["report_date", "utility_id_eia", "state"]
-    )
-    return tfr_dfs
-
-
-def _harvest_associations(dfs, cols):
-    """Compile all unique, non-null combinations of values ``cols`` within ``dfs``.
-
-    Find all unique, non-null combinations of the columns ``cols`` in the dataframes
-    ``dfs`` within records that are selected by ``query``. All of ``cols`` must be
-    present in each of the ``dfs``.
-
-    Args:
-        dfs (iterable of pandas.DataFrame): The DataFrames in which to search for
-        cols (iterable of str): Labels of columns for which to find unique, non-null
-            combinations of values.
-
-    Raises:
-        ValueError: if no associations for cols are found in dfs.
-
-    Returns:
-        pandas.DataFrame: A dataframe containing all the unique, non-null combinations
-        of values found in ``cols``.
-    """
-    assn = pd.DataFrame()
-    for df in dfs:
-        if set(df.columns).issuperset(set(cols)):
-            assn = pd.concat([assn, df[cols]])
-    assn = assn.dropna().drop_duplicates()
-    if assn.empty:
-        raise ValueError(
-            f"These dataframes contain no associations for the columns: {cols}"
-        )
-    return assn
-
-
-def normalize_balancing_authority(tfr_dfs):
-    """Finish the normalization of the balancing_authority_eia861 table.
-
-    The balancing_authority_assn_eia861 table depends on information that is only
-    available in the UN-normalized form of the balancing_authority_eia861 table, so and
-    also on having access to a bunch of transformed data tables, so it can compile the
-    observed combinations of report dates, balancing authorities, states, and utilities.
-    This means that we have to hold off on the final normalization of the
-    balancing_authority_eia861 table until the rest of the transform process is over.
-    """
-    logger.info("Completing normalization of balancing_authority_eia861.")
-    ba_eia861_normed = (
-        tfr_dfs["balancing_authority_eia861"]
-        .loc[
-            :,
-            [
-                "report_date",
-                "balancing_authority_id_eia",
-                "balancing_authority_code_eia",
-                "balancing_authority_name_eia",
-            ],
-        ]
-        .drop_duplicates(subset=["report_date", "balancing_authority_id_eia"])
-    )
-
-    # Make sure that there aren't any more BA IDs we can recover from later years:
-    ba_ids_missing_codes = (
-        ba_eia861_normed.loc[
-            ba_eia861_normed.balancing_authority_code_eia.isnull(),
-            "balancing_authority_id_eia",
-        ]
-        .drop_duplicates()
-        .dropna()
-    )
-    fillable_ba_codes = ba_eia861_normed[
-        (ba_eia861_normed.balancing_authority_id_eia.isin(ba_ids_missing_codes))
-        & (ba_eia861_normed.balancing_authority_code_eia.notnull())
-    ]
-    if len(fillable_ba_codes) != 0:
-        raise ValueError(
-            f"Found {len(fillable_ba_codes)} unfilled but fillable BA Codes!"
-        )
-
-    tfr_dfs["balancing_authority_eia861"] = ba_eia861_normed
-    return tfr_dfs
-
-
-def sales(tfr_dfs):
+@asset(io_manager_key="pudl_sqlite_io_manager")
+def sales_eia861(raw_sales_eia861: pd.DataFrame) -> pd.DataFrame:
     """Transform the EIA 861 Sales table.
 
     Transformations include:
@@ -1114,14 +1082,13 @@ def sales(tfr_dfs):
     ]
 
     # Pre-tidy clean specific to sales table
-    raw_sales = (
-        tfr_dfs["sales_eia861"].copy().query("utility_id_eia not in (88888, 99999)")
+    raw_sales = _pre_process(raw_sales_eia861).query(
+        "utility_id_eia not in (88888, 99999)"
     )
 
     ###########################################################################
     # Tidy Data:
     ###########################################################################
-
     logger.info("Tidying the EIA 861 Sales table.")
     tidy_sales, idx_cols = _tidy_class_dfs(
         raw_sales,
@@ -1166,28 +1133,25 @@ def sales(tfr_dfs):
                 "D": "energy_services",
             }
         ),
-        service_type=lambda x: x.service_type.str.lower(),
+        service_type=lambda x: x.service_type.str.lower().replace(
+            {"bundle": "bundled"}
+        ),
         short_form=lambda x: _make_yn_bool(x.short_form),
     )
 
-    tfr_dfs["sales_eia861"] = transformed_sales
-    return tfr_dfs
+    return _post_process(transformed_sales)
 
 
-def advanced_metering_infrastructure(tfr_dfs):
+@asset(io_manager_key="pudl_sqlite_io_manager")
+def advanced_metering_infrastructure_eia861(
+    raw_advanced_metering_infrastructure_eia861: pd.DataFrame,
+) -> pd.DataFrame:
     """Transform the EIA 861 Advanced Metering Infrastructure table.
 
     Transformations include:
 
     * Tidy data by customer class.
     * Drop total_meters columns (it's calculable with other fields).
-
-    Args:
-        tfr_dfs (dict): A dictionary of transformed EIA 861 DataFrames, keyed by table
-            name. It will be mutated by this function.
-
-    Returns:
-        dict: A dictionary of transformed EIA 861 dataframes, keyed by table name.
     """
     idx_cols = [
         "utility_id_eia",
@@ -1195,35 +1159,42 @@ def advanced_metering_infrastructure(tfr_dfs):
         "balancing_authority_code_eia",
         "report_date",
     ]
-
-    raw_ami = tfr_dfs["advanced_metering_infrastructure_eia861"].copy()
-
     ###########################################################################
     # Tidy Data:
     ###########################################################################
-
     logger.info("Tidying the EIA 861 Advanced Metering Infrastructure table.")
     tidy_ami, idx_cols = _tidy_class_dfs(
-        raw_ami,
+        _pre_process(raw_advanced_metering_infrastructure_eia861),
         df_name="Advanced Metering Infrastructure",
         idx_cols=idx_cols,
         class_list=CUSTOMER_CLASSES,
         class_type="customer_class",
     )
 
-    tidy_ami["short_form"] = _make_yn_bool(tidy_ami.short_form)
+    df = (
+        tidy_ami.assign(short_form=lambda x: _make_yn_bool(x.short_form))
+        # No duplicates to speak of but take measures to check just in case
+        .pipe(
+            _check_for_dupes,
+            df_name="Advanced Metering Infrastructure",
+            subset=idx_cols,
+        )
+        .drop(columns=["total_meters"])
+        .pipe(_post_process)
+    )
 
-    # No duplicates to speak of but take measures to check just in case
-    _check_for_dupes(tidy_ami, "Advanced Metering Infrastructure", idx_cols)
-
-    # Drop total_meters col
-    tidy_ami = tidy_ami.drop(["total_meters"], axis=1)
-
-    tfr_dfs["advanced_metering_infrastructure_eia861"] = tidy_ami
-    return tfr_dfs
+    return df
 
 
-def demand_response(tfr_dfs):
+@multi_asset(
+    outs={
+        "demand_response_eia861": AssetOut(io_manager_key="pudl_sqlite_io_manager"),
+        "demand_response_water_heater_eia861": AssetOut(
+            io_manager_key="pudl_sqlite_io_manager"
+        ),
+    },
+)
+def demand_response_eia861(raw_demand_response_eia861: pd.DataFrame):
     """Transform the EIA 861 Demand Response table.
 
     Transformations include:
@@ -1233,13 +1204,6 @@ def demand_response(tfr_dfs):
     * Tidy subset of the data by customer class.
     * Drop duplicate rows based on primary keys.
     * Convert 1000s of dollars into dollars.
-
-    Args:
-        tfr_dfs (dict): A dictionary of transformed EIA 861 DataFrames, keyed by table
-            name. It will be mutated by this function.
-
-    Returns:
-        dict: A dictionary of transformed EIA 861 dataframes, keyed by table name.
     """
     idx_cols = [
         "utility_id_eia",
@@ -1248,7 +1212,7 @@ def demand_response(tfr_dfs):
         "report_date",
     ]
 
-    raw_dr = tfr_dfs["demand_response_eia861"].copy()
+    raw_dr = _pre_process(raw_demand_response_eia861)
     # fill na BA values with 'UNK'
     raw_dr["balancing_authority_code_eia"] = raw_dr[
         "balancing_authority_code_eia"
@@ -1256,11 +1220,11 @@ def demand_response(tfr_dfs):
     raw_dr["short_form"] = _make_yn_bool(raw_dr.short_form)
 
     # Split data into tidy-able and not
-    raw_dr_water_heater = raw_dr[idx_cols + ["water_heater"]].copy()
-    raw_dr_water_heater = _drop_dupes(
+    raw_dr_water_heater = raw_dr[idx_cols + ["water_heater", "data_maturity"]].copy()
+    dr_water = _drop_dupes(
         df=raw_dr_water_heater, df_name="Demand Response Water Heater", subset=idx_cols
     )
-    raw_dr = raw_dr.drop(["water_heater"], axis=1)
+    raw_dr = raw_dr.drop(columns=["water_heater"])
 
     ###########################################################################
     # Tidy Data:
@@ -1293,13 +1257,34 @@ def demand_response(tfr_dfs):
         other_costs=lambda x: (_thousand_to_one(x.other_costs)),
     )
 
-    tfr_dfs["demand_response_eia861"] = transformed_dr
-    tfr_dfs["demand_response_water_heater_eia861"] = raw_dr_water_heater
+    return (
+        Output(
+            output_name="demand_response_eia861",
+            value=_post_process(transformed_dr),
+        ),
+        Output(
+            output_name="demand_response_water_heater_eia861",
+            value=_post_process(dr_water),
+        ),
+    )
 
-    return tfr_dfs
 
-
-def demand_side_management(tfr_dfs):
+@multi_asset(
+    outs={
+        "demand_side_management_sales_eia861": AssetOut(
+            io_manager_key="pudl_sqlite_io_manager"
+        ),
+        "demand_side_management_ee_dr_eia861": AssetOut(
+            io_manager_key="pudl_sqlite_io_manager"
+        ),
+        "demand_side_management_misc_eia861": AssetOut(
+            io_manager_key="pudl_sqlite_io_manager"
+        ),
+    },
+)
+def demand_side_management_eia861(
+    raw_demand_side_management_eia861: pd.DataFrame,
+):
     """Transform the EIA 861 Demand Side Management table.
 
     In 2013, the EIA changed the contents of the 861 form so that information pertaining
@@ -1321,13 +1306,6 @@ def demand_side_management(tfr_dfs):
     * Tidy subset of the data by customer class.
     * Convert Y/N columns to booleans.
     * Convert 1000s of dollars into dollars.
-
-    Args:
-        tfr_dfs (dict): A dictionary of transformed EIA 861 DataFrames, keyed by table
-            name. It will be mutated by this function.
-
-    Returns:
-        dict: A dictionary of transformed EIA 861 dataframes, keyed by table name.
     """
     idx_cols = [
         "utility_id_eia",
@@ -1336,7 +1314,11 @@ def demand_side_management(tfr_dfs):
         "report_date",
     ]
 
-    sales_cols = ["sales_for_resale_mwh", "sales_to_ultimate_consumers_mwh"]
+    sales_cols = [
+        "sales_for_resale_mwh",
+        "sales_to_ultimate_consumers_mwh",
+        "data_maturity",
+    ]
 
     bool_cols = [
         "energy_savings_estimates_independently_verified",
@@ -1356,24 +1338,23 @@ def demand_side_management(tfr_dfs):
         "load_management_annual_incentive_payment",
     ]
 
-    raw_dsm = tfr_dfs["demand_side_management_eia861"].copy()
-
     ###########################################################################
     # Transform Data Round 1 (must be done to avoid issues with nerc_region col in
     # _tidy_class_dfs())
     # * Clean NERC region col
     # * Drop data_status and demand_side_management cols (they don't contain anything)
     ###########################################################################
-
     transformed_dsm1 = (
-        clean_nerc(raw_dsm, idx_cols)
-        .drop(["demand_side_management", "data_status"], axis=1)
+        clean_nerc(_pre_process(raw_demand_side_management_eia861), idx_cols)
+        .drop(columns=["demand_side_management", "data_status"])
         .query("utility_id_eia not in [88888]")
     )
 
     # Separate dsm data into sales vs. other table (the latter of which can be tidied)
     dsm_sales = transformed_dsm1[idx_cols + sales_cols].copy()
-    dsm_ee_dr = transformed_dsm1.drop(sales_cols, axis=1)
+    dsm_ee_dr = transformed_dsm1.drop(
+        columns=[x for x in sales_cols if x != "data_maturity"]
+    )
 
     ###########################################################################
     # Tidy Data:
@@ -1397,7 +1378,7 @@ def demand_side_management(tfr_dfs):
     # Split tidy dsm data into transformable chunks
     tidy_dsm_bool = tidy_dsm[dsm_idx_cols + bool_cols].copy().set_index(dsm_idx_cols)
     tidy_dsm_cost = tidy_dsm[dsm_idx_cols + cost_cols].copy().set_index(dsm_idx_cols)
-    tidy_dsm_ee_dr = tidy_dsm.drop(bool_cols + cost_cols, axis=1)
+    tidy_dsm_ee_dr = tidy_dsm.drop(columns=bool_cols + cost_cols)
 
     # Calculate transformations for each chunk
     transformed_dsm2_bool = (
@@ -1422,10 +1403,15 @@ def demand_side_management(tfr_dfs):
     total_cost_cols = ["annual_indirect_program_cost", "annual_total_cost"]
 
     dsm_ee_dr = transformed_dsm2[
-        dsm_idx_cols + ee_cols + dr_cols + program_cols + total_cost_cols
+        dsm_idx_cols
+        + ee_cols
+        + dr_cols
+        + program_cols
+        + total_cost_cols
+        + ["data_maturity"]
     ].copy()
     dsm_misc = transformed_dsm2.drop(
-        ee_cols + dr_cols + program_cols + total_cost_cols + ["customer_class"], axis=1
+        columns=ee_cols + dr_cols + program_cols + total_cost_cols + ["customer_class"]
     )
     dsm_misc = _drop_dupes(
         df=dsm_misc,
@@ -1433,16 +1419,38 @@ def demand_side_management(tfr_dfs):
         subset=["utility_id_eia", "state", "nerc_region", "report_date"],
     )
 
-    del tfr_dfs["demand_side_management_eia861"]
+    return (
+        Output(
+            output_name="demand_side_management_sales_eia861",
+            value=_post_process(dsm_sales),
+        ),
+        Output(
+            output_name="demand_side_management_ee_dr_eia861",
+            value=_post_process(dsm_ee_dr),
+        ),
+        Output(
+            output_name="demand_side_management_misc_eia861",
+            value=_post_process(dsm_misc),
+        ),
+    )
 
-    tfr_dfs["demand_side_management_sales_eia861"] = dsm_sales
-    tfr_dfs["demand_side_management_ee_dr_eia861"] = dsm_ee_dr
-    tfr_dfs["demand_side_management_misc_eia861"] = dsm_misc
 
-    return tfr_dfs
-
-
-def distributed_generation(tfr_dfs):
+@multi_asset(
+    outs={
+        "distributed_generation_tech_eia861": AssetOut(
+            io_manager_key="pudl_sqlite_io_manager"
+        ),
+        "distributed_generation_fuel_eia861": AssetOut(
+            io_manager_key="pudl_sqlite_io_manager"
+        ),
+        "distributed_generation_misc_eia861": AssetOut(
+            io_manager_key="pudl_sqlite_io_manager"
+        ),
+    },
+)
+def distributed_generation_eia861(
+    raw_distributed_generation_eia861: pd.DataFrame,
+):
     """Transform the EIA 861 Distributed Generation table.
 
     Transformations include:
@@ -1452,13 +1460,6 @@ def distributed_generation(tfr_dfs):
     * Remove total columns calculable with other fields.
     * Tidy subset of the data by tech class.
     * Tidy subset of the data by fuel class.
-
-    Args:
-        tfr_dfs (dict): A dictionary of transformed EIA 861 DataFrames, keyed by table
-            name. It will be mutated by this function.
-
-    Returns:
-        dict: A dictionary of transformed EIA 861 dataframes, keyed by table name.
     """
     idx_cols = [
         "utility_id_eia",
@@ -1477,6 +1478,7 @@ def distributed_generation(tfr_dfs):
         "total_capacity_mw",
         "total_capacity_less_1_mw",
         "utility_name_eia",
+        "data_maturity",
     ]
 
     tech_cols = [
@@ -1496,6 +1498,7 @@ def distributed_generation(tfr_dfs):
         "total_capacity_mw",
         "wind_capacity_mw",
         "wind_capacity_pct",
+        "data_maturity",
     ]
 
     fuel_cols = [
@@ -1507,23 +1510,20 @@ def distributed_generation(tfr_dfs):
         "water_fuel_pct",
         "wind_fuel_pct",
         "wood_fuel_pct",
+        "data_maturity",
     ]
 
     # Pre-tidy transform: set estimated or actual A/E values to 'Acutal'/'Estimated'
-    raw_dg = (
-        tfr_dfs["distributed_generation_eia861"]
-        .copy()
-        .assign(
-            estimated_or_actual_capacity_data=lambda x: (
-                x.estimated_or_actual_capacity_data.map(ESTIMATED_OR_ACTUAL)
-            ),
-            estimated_or_actual_fuel_data=lambda x: (
-                x.estimated_or_actual_fuel_data.map(ESTIMATED_OR_ACTUAL)
-            ),
-            estimated_or_actual_tech_data=lambda x: (
-                x.estimated_or_actual_tech_data.map(ESTIMATED_OR_ACTUAL)
-            ),
-        )
+    raw_dg = _pre_process(raw_distributed_generation_eia861).assign(
+        estimated_or_actual_capacity_data=lambda x: (
+            x.estimated_or_actual_capacity_data.map(ESTIMATED_OR_ACTUAL)
+        ),
+        estimated_or_actual_fuel_data=lambda x: (
+            x.estimated_or_actual_fuel_data.map(ESTIMATED_OR_ACTUAL)
+        ),
+        estimated_or_actual_tech_data=lambda x: (
+            x.estimated_or_actual_tech_data.map(ESTIMATED_OR_ACTUAL)
+        ),
     )
 
     # Split into three tables: Capacity/tech-related, fuel-related, and misc.
@@ -1556,12 +1556,11 @@ def distributed_generation(tfr_dfs):
     )
     dg_misc = pd.concat([dg_misc_early, dg_misc_late])
     dg_misc = dg_misc.drop(
-        [
+        columns=[
             "distributed_generation_owned_capacity_pct",
             "backup_capacity_pct",
             "total_capacity_mw",
         ],
-        axis="columns",
     )
 
     logger.info("Converting pct into MW for distributed generation tech table")
@@ -1579,7 +1578,7 @@ def distributed_generation(tfr_dfs):
     )
     dg_tech = pd.concat([dg_tech_early, dg_tech_late])
     dg_tech = dg_tech.drop(
-        [
+        columns=[
             "combustion_turbine_capacity_pct",
             "hydro_capacity_pct",
             "internal_combustion_capacity_pct",
@@ -1588,13 +1587,11 @@ def distributed_generation(tfr_dfs):
             "wind_capacity_pct",
             "total_capacity_mw",
         ],
-        axis="columns",
     )
 
     ###########################################################################
     # Tidy Data
     ###########################################################################
-
     logger.info("Tidying Distributed Generation Tech Table")
     tidy_dg_tech, tech_idx_cols = _tidy_class_dfs(
         df=dg_tech,
@@ -1613,59 +1610,52 @@ def distributed_generation(tfr_dfs):
         class_type="fuel_class",
     )
 
-    # Drop original distributed generation table from tfr_dfs
-    del tfr_dfs["distributed_generation_eia861"]
-
-    tfr_dfs["distributed_generation_tech_eia861"] = tidy_dg_tech
-    tfr_dfs["distributed_generation_fuel_eia861"] = tidy_dg_fuel
-    tfr_dfs["distributed_generation_misc_eia861"] = dg_misc
-
-    return tfr_dfs
-
-
-def distribution_systems(tfr_dfs):
-    """Transform the EIA 861 Distribution Systems table.
-
-    Transformations include:
-
-    * No additional transformations.
-
-    Args:
-        tfr_dfs (dict): A dictionary of transformed EIA 861 DataFrames, keyed by table
-            name. It will be mutated by this function.
-
-    Returns:
-        dict: A dictionary of transformed EIA 861 dataframes, keyed by table name.
-    """
-    # No data tidying or transformation required
-
-    raw_ds = tfr_dfs["distribution_systems_eia861"].copy()
-    raw_ds["short_form"] = _make_yn_bool(raw_ds.short_form)
-
-    # No duplicates to speak of but take measures to check just in case
-    _check_for_dupes(
-        raw_ds, "Distribution Systems", ["utility_id_eia", "state", "report_date"]
+    return (
+        Output(
+            output_name="distributed_generation_tech_eia861",
+            value=_post_process(tidy_dg_tech),
+        ),
+        Output(
+            output_name="distributed_generation_fuel_eia861",
+            value=_post_process(tidy_dg_fuel),
+        ),
+        Output(
+            output_name="distributed_generation_misc_eia861",
+            value=_post_process(dg_misc),
+        ),
     )
 
-    tfr_dfs["distribution_systems_eia861"] = raw_ds
 
-    return tfr_dfs
+@asset(io_manager_key="pudl_sqlite_io_manager")
+def distribution_systems_eia861(
+    raw_distribution_systems_eia861: pd.DataFrame,
+) -> pd.DataFrame:
+    """Transform the EIA 861 Distribution Systems table.
+
+    * No additional transformations.
+    """
+    df = (
+        _pre_process(raw_distribution_systems_eia861)
+        .assign(short_form=lambda x: _make_yn_bool(x.short_form))
+        # No duplicates to speak of but take measures to check just in case
+        .pipe(
+            _check_for_dupes,
+            df_name="Distribution Systems",
+            subset=["utility_id_eia", "state", "report_date"],
+        )
+        .pipe(_post_process)
+    )
+    return df
 
 
-def dynamic_pricing(tfr_dfs):
+@asset(io_manager_key="pudl_sqlite_io_manager")
+def dynamic_pricing_eia861(raw_dynamic_pricing_eia861: pd.DataFrame) -> pd.DataFrame:
     """Transform the EIA 861 Dynamic Pricing table.
 
     Transformations include:
 
     * Tidy subset of the data by customer class.
     * Convert Y/N columns to booleans.
-
-    Args:
-        tfr_dfs (dict): A dictionary of transformed EIA 861 DataFrames, keyed by table
-            name. It will be mutated by this function.
-
-    Returns:
-        dict: A dictionary of transformed EIA 861 dataframes, keyed by table name.
     """
     idx_cols = [
         "utility_id_eia",
@@ -1682,10 +1672,11 @@ def dynamic_pricing(tfr_dfs):
         "variable_peak_pricing",
     ]
 
-    raw_dp = (
-        tfr_dfs["dynamic_pricing_eia861"].copy().query("utility_id_eia not in [88888]")
+    raw_dp = _pre_process(
+        raw_dynamic_pricing_eia861.query("utility_id_eia not in [88888]").assign(
+            short_form=lambda x: _make_yn_bool(x.short_form)
+        )
     )
-    raw_dp["short_form"] = _make_yn_bool(raw_dp.short_form)
 
     ###########################################################################
     # Tidy Data:
@@ -1716,11 +1707,13 @@ def dynamic_pricing(tfr_dfs):
             .apply(lambda x: x if x in [True, False] else pd.NA)
         )
 
-    tfr_dfs["dynamic_pricing_eia861"] = tidy_dp
-    return tfr_dfs
+    return _post_process(tidy_dp)
 
 
-def energy_efficiency(tfr_dfs):
+@asset(io_manager_key="pudl_sqlite_io_manager")
+def energy_efficiency_eia861(
+    raw_energy_efficiency_eia861: pd.DataFrame,
+) -> pd.DataFrame:
     """Transform the EIA 861 Energy Efficiency table.
 
     Transformations include:
@@ -1728,13 +1721,6 @@ def energy_efficiency(tfr_dfs):
     * Tidy subset of the data by customer class.
     * Drop website column (almost no valid information).
     * Convert 1000s of dollars into dollars.
-
-    Args:
-        tfr_dfs (dict): A dictionary of transformed EIA 861 DataFrames, keyed by table
-            name. It will be mutated by this function.
-
-    Returns:
-        dict: A dictionary of transformed EIA 861 dataframes, keyed by table name.
     """
     idx_cols = [
         "utility_id_eia",
@@ -1743,21 +1729,21 @@ def energy_efficiency(tfr_dfs):
         "report_date",
     ]
 
-    raw_ee = tfr_dfs["energy_efficiency_eia861"].copy()
-
-    raw_ee["short_form"] = _make_yn_bool(raw_ee.short_form)
-
-    # No duplicates to speak of but take measures to check just in case
-    _check_for_dupes(raw_ee, "Energy Efficiency", idx_cols)
+    raw_ee = (
+        _pre_process(raw_energy_efficiency_eia861).assign(
+            short_form=lambda x: _make_yn_bool(x.short_form)
+        )
+        # No duplicates to speak of but take measures to check just in case
+        .pipe(_check_for_dupes, df_name="Energy Efficiency", subset=idx_cols)
+    )
 
     ###########################################################################
     # Tidy Data:
     ###########################################################################
-
     logger.info("Tidying the EIA 861 Energy Efficiency table.")
 
     # wide-to-tall by customer class (must be done before wide-to-tall by fuel class)
-    tidy_ee, _ = pudl.transform.eia861._tidy_class_dfs(
+    tidy_ee, _ = _tidy_class_dfs(
         raw_ee,
         df_name="Energy Efficiency",
         idx_cols=idx_cols,
@@ -1787,26 +1773,21 @@ def energy_efficiency(tfr_dfs):
         other_costs_incremental_cost=lambda x: (
             _thousand_to_one(x.other_costs_incremental_cost)
         ),
-    ).drop(["website"], axis=1)
+    ).drop(columns=["website"])
 
-    tfr_dfs["energy_efficiency_eia861"] = transformed_ee
-    return tfr_dfs
+    return _post_process(transformed_ee)
 
 
-def green_pricing(tfr_dfs):
+@asset(io_manager_key="pudl_sqlite_io_manager")
+def green_pricing_eia861(
+    raw_green_pricing_eia861: pd.DataFrame,
+) -> pd.DataFrame:
     """Transform the EIA 861 Green Pricing table.
 
     Transformations include:
 
     * Tidy subset of the data by customer class.
     * Convert 1000s of dollars into dollars.
-
-    Args:
-        tfr_dfs (dict): A dictionary of transformed EIA 861 DataFrames, keyed by table
-            name. It will be mutated by this function.
-
-    Returns:
-        dict: A dictionary of transformed EIA 861 dataframes, keyed by table name.
     """
     idx_cols = [
         "utility_id_eia",
@@ -1814,15 +1795,12 @@ def green_pricing(tfr_dfs):
         "report_date",
     ]
 
-    raw_gp = tfr_dfs["green_pricing_eia861"].copy()
-
     ###########################################################################
     # Tidy Data:
     ###########################################################################
-
     logger.info("Tidying the EIA 861 Green Pricing table.")
     tidy_gp, idx_cols = _tidy_class_dfs(
-        raw_gp,
+        _pre_process(raw_green_pricing_eia861),
         df_name="Green Pricing",
         idx_cols=idx_cols,
         class_list=CUSTOMER_CLASSES,
@@ -1841,33 +1819,34 @@ def green_pricing(tfr_dfs):
         rec_revenue=lambda x: (_thousand_to_one(x.rec_revenue)),
     )
 
-    tfr_dfs["green_pricing_eia861"] = transformed_gp
-
-    return tfr_dfs
+    return _post_process(transformed_gp)
 
 
-def mergers(tfr_dfs):
-    """Transform the EIA 861 Mergers table.
-
-    Args:
-        tfr_dfs (dict): A dictionary of transformed EIA 861 DataFrames, keyed by table
-            name. It will be mutated by this function.
-
-    Returns:
-        dict: A dictionary of transformed EIA 861 dataframes, keyed by table name.
-    """
-    transformed_mergers = tfr_dfs["mergers_eia861"].copy()
-
+@asset(io_manager_key="pudl_sqlite_io_manager")
+def mergers_eia861(raw_mergers_eia861: pd.DataFrame) -> pd.DataFrame:
+    """Transform the EIA 861 Mergers table."""
     # No duplicates to speak of but take measures to check just in case
-    _check_for_dupes(
-        transformed_mergers, "Mergers", ["utility_id_eia", "state", "report_date"]
+    df = (
+        _pre_process(raw_mergers_eia861)
+        .pipe(
+            _check_for_dupes,
+            df_name="Mergers",
+            subset=["utility_id_eia", "state", "report_date"],
+        )
+        .pipe(_post_process)
     )
-
-    tfr_dfs["mergers_eia861"] = transformed_mergers
-    return tfr_dfs
+    return df
 
 
-def net_metering(tfr_dfs):
+@multi_asset(
+    outs={
+        "net_metering_customer_fuel_class_eia861": AssetOut(
+            io_manager_key="pudl_sqlite_io_manager"
+        ),
+        "net_metering_misc_eia861": AssetOut(io_manager_key="pudl_sqlite_io_manager"),
+    },
+)
+def net_metering_eia861(raw_net_metering_eia861: pd.DataFrame):
     """Transform the EIA 861 Net Metering table.
 
     Transformations include:
@@ -1875,13 +1854,6 @@ def net_metering(tfr_dfs):
     * Remove rows with utility ids 99999.
     * Tidy subset of the data by customer class.
     * Tidy subset of the data by tech class.
-
-    Args:
-        tfr_dfs (dict): A dictionary of transformed EIA 861 DataFrames, keyed by table
-            name. It will be mutated by this function.
-
-    Returns:
-        dict: A dictionary of transformed EIA 861 dataframes, keyed by table name.
     """
     idx_cols = [
         "utility_id_eia",
@@ -1894,17 +1866,18 @@ def net_metering(tfr_dfs):
 
     # Pre-tidy clean specific to net_metering table
     raw_nm = (
-        tfr_dfs["net_metering_eia861"].copy().query("utility_id_eia not in [99999]")
+        _pre_process(raw_net_metering_eia861)
+        .query("utility_id_eia not in [99999]")
+        .assign(short_form=lambda x: _make_yn_bool(x.short_form))
     )
-    raw_nm["short_form"] = _make_yn_bool(raw_nm.short_form)
 
     # Separate customer class data from misc data (in this case just one col: current flow)
     # Could easily add this to tech_class if desired.
-    raw_nm_customer_fuel_class = raw_nm.drop(misc_cols, axis=1).copy()
-    raw_nm_misc = raw_nm[idx_cols + misc_cols].copy()
+    raw_nm_customer_fuel_class = raw_nm.drop(columns=misc_cols).copy()
+    raw_nm_misc = raw_nm[idx_cols + misc_cols + ["data_maturity"]].copy()
 
     # Check for duplicates before idx cols get changed
-    _check_for_dupes(raw_nm_misc, "Net Metering Current Flow Type PV", idx_cols)
+    _ = _check_for_dupes(raw_nm_misc, "Net Metering Current Flow Type PV", idx_cols)
 
     ###########################################################################
     # Tidy Data:
@@ -1931,22 +1904,35 @@ def net_metering(tfr_dfs):
     )
 
     # No duplicates to speak of but take measures to check just in case
-    _check_for_dupes(
-        tidy_nm_customer_fuel_class, "Net Metering Customer & Fuel Class", idx_cols
+    _ = _check_for_dupes(
+        tidy_nm_customer_fuel_class,
+        df_name="Net Metering Customer & Fuel Class",
+        subset=idx_cols,
     )
 
-    # No transformation needed
+    return (
+        Output(
+            output_name="net_metering_customer_fuel_class_eia861",
+            value=_post_process(tidy_nm_customer_fuel_class),
+        ),
+        Output(
+            output_name="net_metering_misc_eia861",
+            value=_post_process(raw_nm_misc),
+        ),
+    )
 
-    # Drop original net_metering_eia861 table from tfr_dfs
-    del tfr_dfs["net_metering_eia861"]
 
-    tfr_dfs["net_metering_customer_fuel_class_eia861"] = tidy_nm_customer_fuel_class
-    tfr_dfs["net_metering_misc_eia861"] = raw_nm_misc
-
-    return tfr_dfs
-
-
-def non_net_metering(tfr_dfs):
+@multi_asset(
+    outs={
+        "non_net_metering_customer_fuel_class_eia861": AssetOut(
+            io_manager_key="pudl_sqlite_io_manager"
+        ),
+        "non_net_metering_misc_eia861": AssetOut(
+            io_manager_key="pudl_sqlite_io_manager"
+        ),
+    },
+)
+def non_net_metering_eia861(raw_non_net_metering_eia861: pd.DataFrame):
     """Transform the EIA 861 Non-Net Metering table.
 
     Transformations include:
@@ -1955,13 +1941,6 @@ def non_net_metering(tfr_dfs):
     * Drop duplicate rows.
     * Tidy subset of the data by customer class.
     * Tidy subset of the data by tech class.
-
-    Args:
-        tfr_dfs (dict): A dictionary of transformed EIA 861 DataFrames, keyed by table
-            name. It will be mutated by this function.
-
-    Returns:
-        dict: A dictionary of transformed EIA 861 dataframes, keyed by table name.
     """
     idx_cols = [
         "utility_id_eia",
@@ -1978,8 +1957,8 @@ def non_net_metering(tfr_dfs):
     ]
 
     # Pre-tidy clean specific to non_net_metering table
-    raw_nnm = (
-        tfr_dfs["non_net_metering_eia861"].copy().query("utility_id_eia not in '99999'")
+    raw_nnm = _pre_process(raw_non_net_metering_eia861).query(
+        "utility_id_eia not in '99999'"
     )
 
     # there are ~80 fully duplicate records in the 2018 table. We need to
@@ -1994,11 +1973,13 @@ def non_net_metering(tfr_dfs):
         )
 
     # Separate customer class data from misc data
-    raw_nnm_customer_fuel_class = raw_nnm.drop(misc_cols, axis=1).copy()
-    raw_nnm_misc = (raw_nnm[idx_cols + misc_cols]).copy()
+    raw_nnm_customer_fuel_class = raw_nnm.drop(columns=misc_cols).copy()
+    raw_nnm_misc = (raw_nnm[idx_cols + misc_cols + ["data_maturity"]]).copy()
 
     # Check for duplicates before idx cols get changed
-    _check_for_dupes(raw_nnm_misc, "Non Net Metering Misc.", idx_cols)
+    _ = _check_for_dupes(
+        raw_nnm_misc, df_name="Non Net Metering Misc.", subset=idx_cols
+    )
 
     ###########################################################################
     # Tidy Data:
@@ -2028,8 +2009,10 @@ def non_net_metering(tfr_dfs):
 
     # No duplicates to speak of (deleted 2018 duplicates above) but take measures to
     # check just in case
-    _check_for_dupes(
-        tidy_nnm_customer_fuel_class, "Non Net Metering Customer & Fuel Class", idx_cols
+    _ = _check_for_dupes(
+        tidy_nnm_customer_fuel_class,
+        df_name="Non Net Metering Customer & Fuel Class",
+        subset=idx_cols,
     )
 
     # Delete total_capacity_mw col for redundancy (must delete x not y)
@@ -2037,20 +2020,29 @@ def non_net_metering(tfr_dfs):
         columns="capacity_mw_x"
     ).rename(columns={"capacity_mw_y": "capacity_mw"})
 
-    # No transformation needed
+    return (
+        Output(
+            output_name="non_net_metering_customer_fuel_class_eia861",
+            value=_post_process(tidy_nnm_customer_fuel_class),
+        ),
+        Output(
+            output_name="non_net_metering_misc_eia861",
+            value=_post_process(raw_nnm_misc),
+        ),
+    )
 
-    # Drop original net_metering_eia861 table from tfr_dfs
-    del tfr_dfs["non_net_metering_eia861"]
 
-    tfr_dfs[
-        "non_net_metering_customer_fuel_class_eia861"
-    ] = tidy_nnm_customer_fuel_class
-    tfr_dfs["non_net_metering_misc_eia861"] = raw_nnm_misc
-
-    return tfr_dfs
-
-
-def operational_data(tfr_dfs):
+@multi_asset(
+    outs={
+        "operational_data_revenue_eia861": AssetOut(
+            io_manager_key="pudl_sqlite_io_manager"
+        ),
+        "operational_data_misc_eia861": AssetOut(
+            io_manager_key="pudl_sqlite_io_manager"
+        ),
+    },
+)
+def operational_data_eia861(raw_operational_data_eia861: pd.DataFrame):
     """Transform the EIA 861 Operational Data table.
 
     Transformations include:
@@ -2061,13 +2053,6 @@ def operational_data(tfr_dfs):
     * Convert data_observed field I/O into boolean.
     * Tidy subset of the data by revenue class.
     * Convert 1000s of dollars into dollars.
-
-    Args:
-        tfr_dfs (dict): A dictionary of transformed EIA 861 DataFrames, keyed by table
-            name. It will be mutated by this function.
-
-    Returns:
-        dict: A dictionary of transformed EIA 861 dataframes, keyed by table name.
     """
     idx_cols = [
         "utility_id_eia",
@@ -2077,8 +2062,8 @@ def operational_data(tfr_dfs):
     ]
 
     # Pre-tidy clean specific to operational data table
-    raw_od = tfr_dfs["operational_data_eia861"].copy()
-    raw_od = raw_od[  # removed (raw_od['utility_id_eia'].notnull()) for RMI
+    raw_od = _pre_process(raw_operational_data_eia861)
+    raw_od = raw_od[
         (raw_od["utility_id_eia"] != 88888) & (raw_od["utility_id_eia"].notnull())
     ]
 
@@ -2103,8 +2088,10 @@ def operational_data(tfr_dfs):
     #  * Revenue (wide-to-tall)
     #  * Misc. (other)
     revenue_cols = [col for col in transformed_od if "revenue" in col]
-    transformed_od_misc = transformed_od.drop(revenue_cols, axis=1)
-    transformed_od_rev = transformed_od[idx_cols + revenue_cols].copy()
+    transformed_od_misc = transformed_od.drop(columns=revenue_cols)
+    transformed_od_rev = transformed_od[
+        idx_cols + revenue_cols + ["data_maturity"]
+    ].copy()
 
     # Wide-to-tall revenue columns
     tidy_od_rev, idx_cols = _tidy_class_dfs(
@@ -2125,16 +2112,20 @@ def operational_data(tfr_dfs):
         revenue=lambda x: (_thousand_to_one(x.revenue))
     )
 
-    # Drop original operational_data_eia861 table from tfr_dfs
-    del tfr_dfs["operational_data_eia861"]
+    return (
+        Output(
+            output_name="operational_data_revenue_eia861",
+            value=_post_process(transformed_od_rev),
+        ),
+        Output(
+            output_name="operational_data_misc_eia861",
+            value=_post_process(transformed_od_misc),
+        ),
+    )
 
-    tfr_dfs["operational_data_revenue_eia861"] = transformed_od_rev
-    tfr_dfs["operational_data_misc_eia861"] = transformed_od_misc
 
-    return tfr_dfs
-
-
-def reliability(tfr_dfs):
+@asset(io_manager_key="pudl_sqlite_io_manager")
+def reliability_eia861(raw_reliability_eia861: pd.DataFrame) -> pd.DataFrame:
     """Transform the EIA 861 Reliability table.
 
     Transformations include:
@@ -2143,18 +2134,8 @@ def reliability(tfr_dfs):
     * Convert Y/N columns to booleans.
     * Map full spelling onto code values.
     * Drop duplicate rows.
-
-    Args:
-        tfr_dfs (dict): A dictionary of transformed EIA 861 DataFrames, keyed by table
-            name. It will be mutated by this function.
-
-    Returns:
-        dict: A dictionary of transformed EIA 861 dataframes, keyed by table name.
     """
     idx_cols = ["utility_id_eia", "state", "report_date"]
-
-    # Pre-tidy clean specific to operational data table
-    raw_r = tfr_dfs["reliability_eia861"].copy()
 
     ###########################################################################
     # Tidy Data:
@@ -2164,7 +2145,7 @@ def reliability(tfr_dfs):
 
     # wide-to-tall by standards
     tidy_r, idx_cols = _tidy_class_dfs(
-        df=raw_r,
+        df=_pre_process(raw_reliability_eia861),
         df_name="Reliability",
         idx_cols=idx_cols,
         class_list=RELIABILITY_STANDARDS,
@@ -2184,32 +2165,31 @@ def reliability(tfr_dfs):
     #   * 'O' => 'Other'
     ###########################################################################
 
-    transformed_r = tidy_r.assign(
-        outages_recorded_automatically=lambda x: (
-            _make_yn_bool(x.outages_recorded_automatically)
-        ),
-        inactive_accounts_included=lambda x: (
-            _make_yn_bool(x.inactive_accounts_included)
-        ),
-        short_form=lambda x: _make_yn_bool(x.short_form),
-        # This field should be encoded using momentary_interruptions_eia
-        # But the EIA 861 tables aren't fully integrated yet.
-        momentary_interruption_definition=lambda x: (
-            x.momentary_interruption_definition.map(MOMENTARY_INTERRUPTIONS)
-        ),
+    transformed_r = (
+        tidy_r.assign(
+            outages_recorded_automatically=lambda x: (
+                _make_yn_bool(x.outages_recorded_automatically)
+            ),
+            inactive_accounts_included=lambda x: (
+                _make_yn_bool(x.inactive_accounts_included)
+            ),
+            short_form=lambda x: _make_yn_bool(x.short_form),
+        )
+        # Drop duplicate entries for utilities 13027, 3408 and 9697
+        .pipe(_drop_dupes, df_name="Reliability", subset=idx_cols).pipe(_post_process)
     )
 
-    # Drop duplicate entries for utilities 13027, 3408 and 9697
-    transformed_r = _drop_dupes(
-        df=transformed_r, df_name="Reliability", subset=idx_cols
-    )
-
-    tfr_dfs["reliability_eia861"] = transformed_r
-
-    return tfr_dfs
+    return transformed_r
 
 
-def utility_data(tfr_dfs):
+@multi_asset(
+    outs={
+        "utility_data_nerc_eia861": AssetOut(io_manager_key="pudl_sqlite_io_manager"),
+        "utility_data_rto_eia861": AssetOut(io_manager_key="pudl_sqlite_io_manager"),
+        "utility_data_misc_eia861": AssetOut(io_manager_key="pudl_sqlite_io_manager"),
+    },
+)
+def utility_data_eia861(raw_utility_data_eia861: pd.DataFrame):
     """Transform the EIA 861 Utility Data table.
 
     Transformations include:
@@ -2219,19 +2199,12 @@ def utility_data(tfr_dfs):
     * Tidy subset of the data by NERC region.
     * Tidy subset of the data by RTO.
     * Convert Y/N columns to booleans.
-
-    Args:
-        tfr_dfs (dict): A dictionary of transformed EIA 861 DataFrames, keyed by table
-            name. It will be mutated by this function.
-
-    Returns:
-        dict: A dictionary of transformed EIA 861 dataframes, keyed by table name.
     """
     idx_cols = ["utility_id_eia", "state", "report_date", "nerc_region"]
 
     # Pre-tidy clean specific to operational data table
-    raw_ud = (
-        tfr_dfs["utility_data_eia861"].copy().query("utility_id_eia not in [88888]")
+    raw_ud = _pre_process(raw_utility_data_eia861).query(
+        "utility_id_eia not in [88888]"
     )
 
     ##############################################################################
@@ -2245,13 +2218,22 @@ def utility_data(tfr_dfs):
     )
 
     # Establish columns that are nerc regions vs. rtos
-    nerc_cols = [col for col in raw_ud if "nerc_region_operation" in col]
-    rto_cols = [col for col in raw_ud if "rto_operation" in col]
-
+    nerc_cols = [col for col in raw_ud if "nerc_region_operation" in col] + [
+        "data_maturity"
+    ]
+    logger.info(f"{nerc_cols=}")
+    rto_cols = [col for col in raw_ud if "rto_operation" in col] + ["data_maturity"]
+    logger.info(f"{rto_cols=}")
+    misc_cols = [
+        col
+        for col in raw_ud
+        if "nerc_region_operation" not in col and "rto_operation" not in col
+    ]
+    logger.info(f"{misc_cols=}")
     # Make separate tables for nerc vs. rto vs. misc data
     raw_ud_nerc = transformed_ud[idx_cols + nerc_cols].copy()
     raw_ud_rto = transformed_ud[idx_cols + rto_cols].copy()
-    raw_ud_misc = transformed_ud.drop(nerc_cols + rto_cols, axis=1).copy()
+    raw_ud_misc = transformed_ud[misc_cols].copy()
 
     ###########################################################################
     # Tidy Data:
@@ -2295,25 +2277,24 @@ def utility_data(tfr_dfs):
     # Only keep true values and drop bool col
     transformed_ud_nerc = transformed_ud_nerc[
         transformed_ud_nerc.nerc_region_operation
-    ].drop(["nerc_region_operation"], axis=1)
+    ].drop(columns=["nerc_region_operation"])
 
     # Transform RTO table
     transformed_ud_rto = tidy_ud_rto.assign(
         rto_operation=lambda x: (
             x.rto_operation.fillna(False).replace({"N": False, "Y": True})
         ),
-        rtos_of_operation=lambda x: (x.rtos_of_operation.str.upper()),
     )
 
     # Only keep true values and drop bool col
     transformed_ud_rto = transformed_ud_rto[transformed_ud_rto.rto_operation].drop(
-        ["rto_operation"], axis=1
+        columns=["rto_operation"]
     )
 
     # Transform MISC table by first separating bool cols from non bool cols
     # and then making them into boolean values.
     transformed_ud_misc_bool = (
-        raw_ud_misc.drop(["entity_type", "utility_name_eia"], axis=1)
+        raw_ud_misc.drop(columns=["entity_type", "utility_name_eia", "data_maturity"])
         .set_index(idx_cols)
         .fillna(False)
         .replace({"N": False, "Y": True})
@@ -2321,82 +2302,258 @@ def utility_data(tfr_dfs):
 
     # Merge misc. bool cols back together with misc. non bool cols
     transformed_ud_misc = pd.merge(
-        raw_ud_misc[idx_cols + ["entity_type", "utility_name_eia"]],
+        raw_ud_misc[idx_cols + ["entity_type", "utility_name_eia", "data_maturity"]],
         transformed_ud_misc_bool,
         on=idx_cols,
         how="outer",
     )
 
-    # Drop original operational_data_eia861 table from tfr_dfs
-    del tfr_dfs["utility_data_eia861"]
-
-    tfr_dfs["utility_data_nerc_eia861"] = transformed_ud_nerc
-    tfr_dfs["utility_data_rto_eia861"] = transformed_ud_rto
-    tfr_dfs["utility_data_misc_eia861"] = transformed_ud_misc
-
-    return tfr_dfs
+    return (
+        Output(
+            output_name="utility_data_nerc_eia861",
+            value=_post_process(transformed_ud_nerc),
+        ),
+        Output(
+            output_name="utility_data_rto_eia861",
+            value=_post_process(transformed_ud_rto),
+        ),
+        Output(
+            output_name="utility_data_misc_eia861",
+            value=_post_process(transformed_ud_misc),
+        ),
+    )
 
 
 ##############################################################################
-# Coordinating Transform Function
+# Secondary Transformations
 ##############################################################################
+@asset(
+    ins={
+        "advanced_metering_infrastructure_eia861": AssetIn(),
+        "demand_response_eia861": AssetIn(),
+        "demand_response_water_heater_eia861": AssetIn(),
+        "demand_side_management_ee_dr_eia861": AssetIn(),
+        "demand_side_management_misc_eia861": AssetIn(),
+        "demand_side_management_sales_eia861": AssetIn(),
+        "distributed_generation_fuel_eia861": AssetIn(),
+        "distributed_generation_misc_eia861": AssetIn(),
+        "distributed_generation_tech_eia861": AssetIn(),
+        "distribution_systems_eia861": AssetIn(),
+        "dynamic_pricing_eia861": AssetIn(),
+        "energy_efficiency_eia861": AssetIn(),
+        "green_pricing_eia861": AssetIn(),
+        "mergers_eia861": AssetIn(),
+        "net_metering_customer_fuel_class_eia861": AssetIn(),
+        "net_metering_misc_eia861": AssetIn(),
+        "non_net_metering_customer_fuel_class_eia861": AssetIn(),
+        "non_net_metering_misc_eia861": AssetIn(),
+        "operational_data_misc_eia861": AssetIn(),
+        "operational_data_revenue_eia861": AssetIn(),
+        "reliability_eia861": AssetIn(),
+        "sales_eia861": AssetIn(),
+        "utility_data_misc_eia861": AssetIn(),
+        "utility_data_nerc_eia861": AssetIn(),
+        "utility_data_rto_eia861": AssetIn(),
+    },
+    io_manager_key="pudl_sqlite_io_manager",
+)
+def utility_assn_eia861(**data_dfs: dict[str, pd.DataFrame]) -> pd.DataFrame:
+    """Harvest a Utility-Date-State Association Table."""
+    logger.info("Building an EIA 861 Util-State-Date association table.")
+    df = _harvest_associations(
+        dfs=list(data_dfs.values()), cols=["report_date", "utility_id_eia", "state"]
+    ).pipe(_post_process)
+    return df
 
 
-def transform(raw_dfs, eia861_settings: Eia861Settings = Eia861Settings()):
-    """Transform EIA 861 DataFrames.
+@asset(
+    ins={
+        "advanced_metering_infrastructure_eia861": AssetIn(),
+        "clean_balancing_authority_eia861": AssetIn(),
+        "demand_response_eia861": AssetIn(),
+        "demand_response_water_heater_eia861": AssetIn(),
+        "demand_side_management_ee_dr_eia861": AssetIn(),
+        "demand_side_management_misc_eia861": AssetIn(),
+        "demand_side_management_sales_eia861": AssetIn(),
+        "distributed_generation_fuel_eia861": AssetIn(),
+        "distributed_generation_misc_eia861": AssetIn(),
+        "distributed_generation_tech_eia861": AssetIn(),
+        "distribution_systems_eia861": AssetIn(),
+        "dynamic_pricing_eia861": AssetIn(),
+        "energy_efficiency_eia861": AssetIn(),
+        "green_pricing_eia861": AssetIn(),
+        "mergers_eia861": AssetIn(),
+        "net_metering_customer_fuel_class_eia861": AssetIn(),
+        "net_metering_misc_eia861": AssetIn(),
+        "non_net_metering_customer_fuel_class_eia861": AssetIn(),
+        "non_net_metering_misc_eia861": AssetIn(),
+        "operational_data_misc_eia861": AssetIn(),
+        "operational_data_revenue_eia861": AssetIn(),
+        "reliability_eia861": AssetIn(),
+        "sales_eia861": AssetIn(),
+        "utility_data_misc_eia861": AssetIn(),
+        "utility_data_nerc_eia861": AssetIn(),
+        "utility_data_rto_eia861": AssetIn(),
+    },
+    io_manager_key="pudl_sqlite_io_manager",
+)
+def balancing_authority_assn_eia861(**dfs: dict[str, pd.DataFrame]) -> pd.DataFrame:
+    """Compile a balancing authority, utility, state association table.
+
+    For the years up through 2012, the only BA-Util information that's available comes
+    from the balancing_authority_eia861 table, and it does not include any state-level
+    information. However, there is utility-state association information in the
+    sales_eia861 and other data tables.
+
+    For the years from 2013 onward, there's explicit BA-Util-State information in the
+    data tables (e.g. :ref:`sales_eia861`). These observed associations can be compiled
+    to give us a picture of which BA-Util-State associations exist. However, we need to
+    merge in the balancing authority IDs since the data tables only contain the
+    balancing authority codes.
 
     Args:
-        raw_dfs (dict): a dictionary of tab names (keys) and DataFrames (values). This
-            can be generated by pudl.
-        eia861_settings: Object containing validated settings
-            relevant to EIA 861.
+        dfs: A dictionary of transformed EIA 861 dataframes. This must include any
+            dataframes from which we want to compile BA-Util-State associations, which
+            means this function has to be called after all the basic transform functions
+            that depend on only a single raw table.
 
     Returns:
-        dict: A dictionary of DataFrame objects in which pages from EIA 861 form (keys)
-        corresponds to a normalized DataFrame of values from that page (values).
+        An association table describing the annual linkages between balancing
+        authorities, states, and utilities. Becomes
+        :ref:`balancing_authority_assn_eia861`.
     """
-    # these are the tables that we have transform functions for...
-    tfr_funcs = {
-        "balancing_authority_eia861": balancing_authority,
-        "service_territory_eia861": service_territory,
-        "sales_eia861": sales,
-        "advanced_metering_infrastructure_eia861": advanced_metering_infrastructure,
-        "demand_response_eia861": demand_response,
-        "demand_side_management_eia861": demand_side_management,
-        "distributed_generation_eia861": distributed_generation,
-        "distribution_systems_eia861": distribution_systems,
-        "dynamic_pricing_eia861": dynamic_pricing,
-        "energy_efficiency_eia861": energy_efficiency,
-        "green_pricing_eia861": green_pricing,
-        "mergers_eia861": mergers,
-        "net_metering_eia861": net_metering,
-        "non_net_metering_eia861": non_net_metering,
-        "operational_data_eia861": operational_data,
-        "reliability_eia861": reliability,
-        "utility_data_eia861": utility_data,
-    }
+    # The dataframes from which to compile BA-Util-State associations
+    ba_eia861 = dfs.pop("clean_balancing_authority_eia861")
+    data_dfs = list(dfs.values())
 
-    # Dictionary for transformed dataframes and pre-transformed dataframes.
-    # Pre-transformed dataframes may be split into two or more output dataframes.
-    tfr_dfs = {}
+    logger.info("Building an EIA 861 BA-Util-State association table.")
 
-    if not raw_dfs:
-        logger.info("No raw EIA 861 dataframes found. Not transforming EIA 861.")
-        return tfr_dfs
-    # Run each of the requested transform funtctions
-    for tfr_func in eia861_settings.transform_functions:
-        logger.info(
-            f"Transforming raw EIA 861 DataFrames for {tfr_func} "
-            f"concatenated across all years."
+    # Helpful shorthand query strings....
+    early_years = "report_date<='2012-12-31'"
+    late_years = "report_date>='2013-01-01'"
+    early_dfs = [df.query(early_years) for df in data_dfs]
+    late_dfs = [df.query(late_years) for df in data_dfs]
+
+    # The old BA table lists utilities directly, but has no state information.
+    early_date_ba_util = _harvest_associations(
+        dfs=[
+            ba_eia861.query(early_years),
+        ],
+        cols=["report_date", "balancing_authority_id_eia", "utility_id_eia"],
+    )
+    # State-utility associations are brought in from observations in data_dfs
+    early_date_util_state = _harvest_associations(
+        dfs=early_dfs,
+        cols=["report_date", "utility_id_eia", "state"],
+    )
+    early_date_ba_util_state = early_date_ba_util.merge(
+        early_date_util_state, how="outer"
+    ).drop_duplicates()
+
+    # New BA table has no utility information, but has BA Codes...
+    late_ba_code_id = _harvest_associations(
+        dfs=[
+            ba_eia861.query(late_years),
+        ],
+        cols=[
+            "report_date",
+            "balancing_authority_code_eia",
+            "balancing_authority_id_eia",
+        ],
+    )
+    # BA Code allows us to bring in utility+state data from data_dfs:
+    late_date_ba_code_util_state = _harvest_associations(
+        dfs=late_dfs,
+        cols=["report_date", "balancing_authority_code_eia", "utility_id_eia", "state"],
+    )
+    # We merge on ba_code then drop it, b/c only BA ID exists in all years consistently:
+    late_date_ba_util_state = (
+        late_date_ba_code_util_state.merge(late_ba_code_id, how="outer")
+        .drop(columns="balancing_authority_code_eia")
+        .drop_duplicates()
+    )
+
+    ba_assn_eia861 = (
+        pd.concat([early_date_ba_util_state, late_date_ba_util_state])
+        # If there's no BA ID, the record is not useful:
+        .dropna(subset=["balancing_authority_id_eia"]).pipe(
+            apply_pudl_dtypes, group="eia"
         )
-        tfr_dfs[tfr_func] = _early_transform(raw_dfs[tfr_func])
-        tfr_dfs = tfr_funcs[tfr_func](tfr_dfs)
+    )
+    ba_assn_eia861 = ba_assn_eia861[
+        # Without both Utility ID and State, there's no association information:
+        (ba_assn_eia861.state.notna() | ba_assn_eia861.utility_id_eia.notna())
+        # 99999 & 88888 are special placeholder IDs.
+        & (~ba_assn_eia861.balancing_authority_id_eia.isin([99999, 88888]))
+        & (~ba_assn_eia861.utility_id_eia.isin([88888, 99999]))
+    ]
+    ba_assn_eia861["state"] = ba_assn_eia861.state.fillna("UNK")
+    return ba_assn_eia861
 
-    # This is more like harvesting stuff, and should probably be relocated:
-    tfr_dfs = balancing_authority_assn(tfr_dfs)
-    tfr_dfs = utility_assn(tfr_dfs)
-    tfr_dfs = normalize_balancing_authority(tfr_dfs)
-    # Do some final cleanup and assign types.
-    return {
-        name: convert_cols_dtypes(df, data_source="eia") for name, df in tfr_dfs.items()
-    }
+
+@asset(io_manager_key="pudl_sqlite_io_manager")
+def balancing_authority_eia861(
+    clean_balancing_authority_eia861: pd.DataFrame,
+) -> pd.DataFrame:
+    """Finish the normalization of the balancing_authority_eia861 table.
+
+    The :ref:`balancing_authority_assn_eia861` table depends on information that is only
+    available in the UN-normalized form of the :ref:`balancing_authority_eia861` table,
+    and also on having access to a bunch of transformed data tables, so it can compile
+    the observed combinations of report dates, balancing authorities, states, and
+    utilities.  This means that we have to hold off on the final normalization of the
+    :ref:`balancing_authority_eia861` table until the rest of the transform process is
+    over.
+
+    Args:
+        clean_balancing_authority_eia861: A cleaned up version of the originally
+            reported balancing authority table.
+
+    Returns:
+        The final, normalized version of the :ref:`balancing_authority_eia861` table,
+        linking together balancing authorities and utility IDs by year, but without
+        information about what states they were operating in (which is captured in
+        :ref:`balancing_authority_assn_eia861`).
+    """
+    logger.info("Completing normalization of balancing_authority_eia861.")
+    ba_eia861_normed = clean_balancing_authority_eia861.loc[
+        :,
+        [
+            "report_date",
+            "balancing_authority_id_eia",
+            "balancing_authority_code_eia",
+            "balancing_authority_name_eia",
+        ],
+    ].drop_duplicates(subset=["report_date", "balancing_authority_id_eia"])
+
+    # Make sure that there aren't any more BA IDs we can recover from later years:
+    ba_ids_missing_codes = (
+        ba_eia861_normed.loc[
+            ba_eia861_normed.balancing_authority_code_eia.isnull(),
+            "balancing_authority_id_eia",
+        ]
+        .drop_duplicates()
+        .dropna()
+    )
+    fillable_ba_codes = ba_eia861_normed[
+        (ba_eia861_normed.balancing_authority_id_eia.isin(ba_ids_missing_codes))
+        & (ba_eia861_normed.balancing_authority_code_eia.notnull())
+    ]
+    if len(fillable_ba_codes) != 0:
+        raise ValueError(
+            f"Found {len(fillable_ba_codes)} unfilled but fillable BA Codes!"
+        )
+    len_before = len(ba_eia861_normed)
+    ba_eia861_normed = ba_eia861_normed.dropna(
+        subset=["report_date", "balancing_authority_id_eia"]
+    )
+    len_after = len(ba_eia861_normed)
+    delta = len_before - len_after
+    if delta > 3:
+        logger.warning(
+            "Unexpectedly large number of rows with NULL PK values found in "
+            f"balancing_authority_eia861. Expected 3, found {delta} (out of "
+            f"{len_before} total)."
+        )
+
+    return _post_process(ba_eia861_normed)

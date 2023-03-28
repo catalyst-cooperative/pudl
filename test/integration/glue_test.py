@@ -23,11 +23,10 @@ logger = logging.getLogger(__name__)
 
 
 @pytest.fixture(scope="module")
-def pudl_out(pudl_engine, pudl_datastore_fixture):
+def pudl_out(pudl_engine):
     """A PUDL output object for use in CI."""
     return PudlTabl(
         pudl_engine,
-        ds=pudl_datastore_fixture,
         freq=None,
         fill_tech_desc=False,
         fill_net_gen=False,
