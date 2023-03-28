@@ -15,9 +15,9 @@ The boiler generator association inferrence (bga) takes the associations
 provided by the EIA 860, and expands on it using several methods which can be
 found in :func:`pudl.transform.eia._boiler_generator_assn`.
 """
-
 import importlib.resources
 from collections import namedtuple
+from enum import Enum
 
 import networkx as nx
 import numpy as np
@@ -45,6 +45,17 @@ logger = pudl.logging_helpers.get_logger(__name__)
 
 TZ_FINDER = timezonefinder.TimezoneFinder()
 """A global TimezoneFinder to cache geographies in memory for faster access."""
+
+
+class EiaEntity(Enum):
+    """Enum for the different types of EIA entities."""
+
+    # Switch to StrEnum in Python 3.11...
+
+    PLANTS = "plants"
+    UTILITIES = "utilities"
+    BOILERS = "boilers"
+    GENERATORS = "generators"
 
 
 def find_timezone(*, lng=None, lat=None, state=None, strict=True):
@@ -119,9 +130,8 @@ def occurrence_consistency(
             consistent in order to accept harvesting the record).
 
     Returns:
-        pandas.DataFrame: this dataframe will be a transformed version of
-        compiled_df with NaNs removed and with new columns with information
-        about the consistency of the reported values.
+        A transformed version of compiled_df with NaNs removed and with new columns with
+        information about the consistency of the reported values.
     """
     # select only the colums you want and drop the NaNs
     # we want to drop the NaNs because
@@ -281,7 +291,7 @@ def _add_additional_epacems_plants(plants_entity: pd.DataFrame) -> pd.DataFrame:
 
 
 def _compile_all_entity_records(
-    entity: str, clean_dfs: dict[str, pd.DataFrame]
+    entity: EiaEntity, clean_dfs: dict[str, pd.DataFrame]
 ) -> pd.DataFrame:
     """Compile all of the entity records from each table they appear in.
 
@@ -289,9 +299,9 @@ def _compile_all_entity_records(
     entity id.
     """
     # we know these columns must be in the dfs
-    id_cols = ENTITIES[entity]["id_cols"]
-    static_cols = ENTITIES[entity]["static_cols"]
-    annual_cols = ENTITIES[entity]["annual_cols"]
+    id_cols = ENTITIES[entity.value]["id_cols"]
+    static_cols = ENTITIES[entity.value]["static_cols"]
+    annual_cols = ENTITIES[entity.value]["annual_cols"]
     base_cols = id_cols + ["report_date"]
 
     # empty list for dfs to be added to for each table below
@@ -333,7 +343,7 @@ def _compile_all_entity_records(
     # encode the compiled options!
     compiled_df = (
         pudl.metadata.classes.Package.from_resource_ids()
-        .get_resource(f"{entity}_eia860")
+        .get_resource(f"{entity.value}_eia860")
         .encode(compiled_df)
     )
     return compiled_df
@@ -359,7 +369,7 @@ def _manage_strictness(col: str, eia860m: bool) -> float:
 
 
 def harvesting(  # noqa: C901
-    entity: str,
+    entity: EiaEntity,
     clean_dfs: dict[str, pd.DataFrame],
     eia860m: bool = False,
     debug: bool = False,
@@ -391,7 +401,7 @@ def harvesting(  # noqa: C901
     the real world.
 
     Args:
-        entity: plants, generators, boilers, or utilties
+        entity: One of: plants, generators, boilers, or utilties
         clean_dfs: A dictionary of table names (keys) and clean dfs (values).
         entities_dfs: A dictionary of entity table names (keys) and entity dfs (values)
         eia860m: if True, the etl run is attempting to include year-to-date updated from
@@ -413,9 +423,9 @@ def harvesting(  # noqa: C901
         * Determine how to treat mostly static records
     """
     # we know these columns must be in the dfs
-    id_cols = ENTITIES[entity]["id_cols"]
-    static_cols = ENTITIES[entity]["static_cols"]
-    annual_cols = ENTITIES[entity]["annual_cols"]
+    id_cols = ENTITIES[entity.value]["id_cols"]
+    static_cols = ENTITIES[entity.value]["static_cols"]
+    annual_cols = ENTITIES[entity.value]["annual_cols"]
 
     logger.debug("    compiling plants for entity tables from:")
 
@@ -535,7 +545,7 @@ def harvesting(  # noqa: C901
             ignore_index=True,
         )
     mcs = consistency["consistent_ratio"].mean()
-    logger.info(f"Average consistency of static {entity} values is {mcs:.2%}")
+    logger.info(f"Average consistency of static {entity.value} values is {mcs:.2%}")
 
     return entity_df, annual_df, col_dfs
 
@@ -1088,7 +1098,7 @@ def fix_balancing_authority_codes_with_state(
     return plants
 
 
-def harvested_entity_asset_factory(entity: str) -> AssetsDefinition:
+def harvested_entity_asset_factory(entity: EiaEntity) -> AssetsDefinition:
     """Create an asset definition for the harvested entity tables."""
     harvestable_assets = (
         "clean_boiler_fuel_eia923",
@@ -1108,8 +1118,10 @@ def harvested_entity_asset_factory(entity: str) -> AssetsDefinition:
     @multi_asset(
         ins={table_name: AssetIn() for table_name in harvestable_assets},
         outs={
-            f"{entity}_entity_eia": AssetOut(io_manager_key="pudl_sqlite_io_manager"),
-            f"{entity}_eia860": AssetOut(io_manager_key="pudl_sqlite_io_manager"),
+            f"{entity.value}_entity_eia": AssetOut(
+                io_manager_key="pudl_sqlite_io_manager"
+            ),
+            f"{entity.value}_eia860": AssetOut(io_manager_key="pudl_sqlite_io_manager"),
         },
         config_schema={
             "debug": Field(
@@ -1122,7 +1134,7 @@ def harvested_entity_asset_factory(entity: str) -> AssetsDefinition:
             ),
         },
         required_resource_keys={"dataset_settings"},
-        name=f"harvested_{entity}_eia",
+        name=f"harvested_{entity.value}_eia",
     )
     def harvested_entity(context, **clean_dfs):
         """Harvesting IDs & consistent static attributes for EIA entity."""
@@ -1135,7 +1147,7 @@ def harvested_entity_asset_factory(entity: str) -> AssetsDefinition:
             for name, df in clean_dfs.items()
         }
 
-        if entity == "utilities":
+        if entity == EiaEntity.UTILITIES:
             # Remove location columns that are associated with plants, not utilities:
             for table, df in clean_dfs.items():
                 if "plant_id_eia" in df.columns:
@@ -1156,12 +1168,12 @@ def harvested_entity_asset_factory(entity: str) -> AssetsDefinition:
 
         # Apply standard PUDL data types to the new entity tables:
         pkg = Package.from_resource_ids()
-        entity_res = pkg.get_resource(f"{entity}_entity_eia")
+        entity_res = pkg.get_resource(f"{entity.value}_entity_eia")
         entity_df = apply_pudl_dtypes(entity_df, group="eia").pipe(entity_res.encode)
-        annual_res = pkg.get_resource(f"{entity}_eia860")
+        annual_res = pkg.get_resource(f"{entity.value}_eia860")
         annual_df = apply_pudl_dtypes(annual_df, group="eia").pipe(annual_res.encode)
 
-        if entity == "plants":
+        if entity == EiaEntity.PLANTS:
             # Post-processing specific to the plants entity tables
             entity_df = _add_additional_epacems_plants(entity_df).pipe(_add_timezone)
             annual_df = fillna_balancing_authority_codes_via_names(annual_df).pipe(
@@ -1172,14 +1184,14 @@ def harvested_entity_asset_factory(entity: str) -> AssetsDefinition:
         annual_df = annual_res.enforce_schema(annual_df)
         # Need to figure out how to return the col_dfs if debug is True
         return (
-            Output(output_name=f"{entity}_entity_eia", value=entity_df),
-            Output(output_name=f"{entity}_eia860", value=annual_df),
+            Output(output_name=f"{entity.value}_entity_eia", value=entity_df),
+            Output(output_name=f"{entity.value}_eia860", value=annual_df),
         )
 
     return harvested_entity
 
 
-harvested_entities = [harvested_entity_asset_factory(entity) for entity in ENTITIES]
+harvested_entities = [harvested_entity_asset_factory(entity) for entity in EiaEntity]
 
 
 def finished_eia_asset_factory(
