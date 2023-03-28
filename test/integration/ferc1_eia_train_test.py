@@ -2,17 +2,16 @@
 
 import importlib.resources
 import logging
+import os
 
 import pandas as pd
 import pytest
 
 from pudl.analysis.ferc1_eia import restrict_train_connections_on_date_range
-from pudl.analysis.ferc1_eia_train import (  # generate_all_override_spreadsheets,
+from pudl.analysis.ferc1_eia_train import (
+    generate_all_override_spreadsheets,
     validate_override_fixes,
 )
-
-# import os
-
 
 logger = logging.getLogger(__name__)
 
@@ -108,3 +107,23 @@ def test_validate_override_fixes(
         expect_override_overrides=True,
         allow_mismatched_utilities=True,
     )
+
+
+def test_generate_all_override_spreadsheets(fast_out_annual):
+    """Test the genation of the override spreadsheet for mapping FERC-EIA records."""
+    # Create the test spreadsheet
+    generate_all_override_spreadsheets(
+        fast_out_annual,
+        util_dict={"NextEra": [6452, 7801]},
+        years=[2020],
+        output_dir_path=f"{os.getcwd()}",
+    )
+    # Make sure there is something there
+    mapping_spreadsheet = pd.read_excel(
+        f"{os.getcwd()}/NextEra_fix_FERC-EIA_overrides.xlsx"
+    )
+    if mapping_spreadsheet.empty:
+        raise AssertionError("Mapping spreadsheet has no contents")
+
+    # Remove this test file
+    os.remove(f"{os.getcwd()}/NextEra_fix_FERC-EIA_overrides.xlsx")
