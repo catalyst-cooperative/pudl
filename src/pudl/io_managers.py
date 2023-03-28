@@ -367,7 +367,7 @@ class SQLiteIOManager(IOManager):
                     f"The {table_name} table is empty. Materialize "
                     "the {table_name} asset so it is available in the database."
                 )
-            return pudl.metadata.fields.apply_pudl_dtypes(df)
+            return df
 
 
 class PudlSQLiteIOManager(SQLiteIOManager):
@@ -403,6 +403,34 @@ class PudlSQLiteIOManager(SQLiteIOManager):
         self.package = package
         md = self.package.to_sql()
         super().__init__(base_dir, db_name, md, timeout)
+
+    def load_input(self, context: InputContext) -> pd.DataFrame:
+        """Load a dataframe from a sqlite database.
+
+        Args:
+            context: dagster keyword that provides access output information like asset
+                name.
+        """
+        table_name = self._get_table_name(context)
+        _ = self._get_sqlalchemy_table(table_name)
+
+        engine = self.engine
+
+        with engine.connect() as con:
+            try:
+                df = pd.read_sql_table(table_name, con)
+            except ValueError:
+                raise ValueError(
+                    f"{table_name} not found. Either the table was dropped "
+                    "or it doesn't exist in the pudl.metadata.resources."
+                    "Add the table to the metadata and recreate the database."
+                )
+            if df.empty:
+                raise AssertionError(
+                    f"The {table_name} table is empty. Materialize "
+                    "the {table_name} asset so it is available in the database."
+                )
+            return pudl.metadata.fields.apply_pudl_dtypes(df)
 
 
 @io_manager(
