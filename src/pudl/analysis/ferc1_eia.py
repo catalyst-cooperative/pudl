@@ -716,12 +716,14 @@ def prep_train_connections(
         # once the true_gran is dealt with, we also need to convert the
         # records which are ownership dupes to reflect their "total"
         # ownership counterparts
-        train_df.pipe(
+        train_df.reset_index()
+        .pipe(
             restrict_train_connections_on_date_range,
             id_col="record_id_eia",
             start_date=start_date,
             end_date=end_date,
-        ).merge(
+        )
+        .merge(
             ppe[ppe_cols].reset_index(),
             how="left",
             on=["record_id_eia"],
