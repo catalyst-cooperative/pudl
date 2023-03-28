@@ -109,11 +109,13 @@ def test_validate_override_fixes(
     )
 
 
-def test_generate_all_override_spreadsheets(fast_out_annual):
+def test_generate_all_override_spreadsheets(plant_part_list, ferc1_eia, utils_eia860):
     """Test the genation of the override spreadsheet for mapping FERC-EIA records."""
     # Create the test spreadsheet
     generate_all_override_spreadsheets(
-        fast_out_annual,
+        ferc1_eia,
+        plant_part_list,
+        utils_eia860,
         util_dict={"NextEra": [6452, 7801]},
         years=[2020],
         output_dir_path=f"{os.getcwd()}",
