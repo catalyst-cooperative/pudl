@@ -1,8 +1,6 @@
 record_id_eia,record_id_ferc1,signature_1,signature_2,notes
 1010_2018_plant_total_15470_retired,f1_steam_2018_12_144_2_1,OIU,,No extra information. Just the name.
 1010_2019_plant_total_15470_retired,f1_steam_2019_12_144_2_1,OIU,,
-10773_2018_plant_owned_19876,f1_steam_2018_12_186_0_1,,,
-10774_2018_plant_owned_19876,f1_steam_2018_12_186_3_2,,,
 1109_2018_plant_owned_19436,f1_hydro_2018_12_177_0_2,,,
 113_1_2018_plant_unit_owned_803,f1_steam_2018_12_7_0_1,,,
 113_3_2018_plant_unit_owned_803,f1_steam_2018_12_7_0_2,,,
@@ -234,13 +232,6 @@ record_id_eia,record_id_ferc1,signature_1,signature_2,notes
 58562_2017_plant_total_5701,f1_steam_2017_12_49_0_4,,,
 3456_2016_plant_total_5701,f1_steam_2016_12_49_0_3,,,
 3992_2018_plant_owned_11479,f1_steam_2018_12_89_0_1,,,
-6168_2019_plant_owned_19876,f1_steam_2019_12_186_2_3,CF,,Capacity better matches OWNED over TOTAL
-3954_2019_plant_total_19876,f1_steam_2019_12_186_2_2,CF,,
-55927_2010_plant_owned_17539,f1_steam_2010_12_159_5_4,CG,,
-55927_2007_plant_owned_17539,f1_steam_2007_12_159_5_5,,,
-55927_2006_plant_owned_17539,f1_steam_2006_12_159_6_1,CG,,
-55927_2005_plant_owned_17539,f1_steam_2005_12_159_6_1,CG,,Capacity off but still seems like right map
-6112_2018_plant_total_15466,f1_steam_2018_12_145_2_4,,,
 55927_2004_plant_owned_17539,f1_steam_2004_12_159_6_1,CG,,Capacity off but still seems like right map
 2079_gt_2004_plant_prime_mover_owned_10000,f1_steam_2004_12_79_0_5,CG,,
 6065_1_2018_plant_unit_owned_5860,f1_steam_2018_12_51_0_5,,,
