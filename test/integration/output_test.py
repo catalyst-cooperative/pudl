@@ -27,19 +27,6 @@ def fast_out(pudl_engine, pudl_datastore_fixture):
     )
 
 
-@pytest.fixture(scope="module")
-def fast_out_annual(pudl_engine, pudl_datastore_fixture):
-    """A PUDL output object for use in CI."""
-    return pudl.output.pudltabl.PudlTabl(
-        pudl_engine,
-        ds=pudl_datastore_fixture,
-        freq="AS",
-        fill_fuel_cost=True,
-        roll_fuel_cost=True,
-        fill_net_gen=True,
-    )
-
-
 def nuke_gen_fraction(df):
     """Calculate the nuclear fraction of net generation."""
     total_gen = df.net_generation_mwh.sum()

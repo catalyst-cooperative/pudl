@@ -7,40 +7,32 @@ import pandas as pd
 import pytest
 
 from pudl.analysis.ferc1_eia import restrict_train_connections_on_date_range
-from pudl.analysis.ferc1_eia_train import validate_override_fixes
-from pudl.output.pudltabl import PudlTabl
+from pudl.analysis.ferc1_eia_train import (  # generate_all_override_spreadsheets,
+    validate_override_fixes,
+)
+
+# import os
+
 
 logger = logging.getLogger(__name__)
 
 
 @pytest.fixture(scope="module")
-def pudl_out(pudl_engine, pudl_datastore_fixture):
-    """A PUDL output object for use in CI."""
-    return PudlTabl(
-        pudl_engine,
-        ds=pudl_datastore_fixture,
-        freq="AS",
-        fill_tech_desc=False,
-        fill_net_gen=False,
-    )
-
-
-@pytest.fixture(scope="module")
-def utils_eia860(pudl_out):
+def utils_eia860(fast_out_annual):
     """The utils_eia860 output table."""
-    return pudl_out.utils_eia860()
+    return fast_out_annual.utils_eia860()
 
 
 @pytest.fixture(scope="module")
-def plant_part_list(pudl_out):
+def plant_part_list(fast_out_annual):
     """The plant_parts_eia output table."""
-    return pudl_out.plant_parts_eia().reset_index()
+    return fast_out_annual.plant_parts_eia().reset_index()
 
 
 @pytest.fixture(scope="module")
-def ferc1_eia(pudl_out):
+def ferc1_eia(fast_out_annual):
     """The ferc1_eia output table."""
-    return pudl_out.ferc1_eia()
+    return fast_out_annual.ferc1_eia()
 
 
 @pytest.fixture(scope="module")
@@ -67,7 +59,8 @@ def ferc1_eia_training_data():
             ["4270_2020_plant_total_11241"],
             ["f1_steam_2020_12_454_0_3"],
             marks=pytest.mark.xfail(
-                reason="EIA record year doesn't match FERC record year"
+                reason="EIA record year doesn't match FERC record year",
+                raises=AssertionError,
             ),
         ),
         pytest.param(
@@ -75,7 +68,9 @@ def ferc1_eia_training_data():
             [2020, 2020],
             ["4270_2020_plant_total_11241", "4270_2020_plant_total_11241"],
             ["f1_steam_2020_12_454_0_3", "f1_steam_2020_12_159_0_3"],
-            marks=pytest.mark.xfail(reason="Duplicate EIA ids in training data"),
+            marks=pytest.mark.xfail(
+                reason="Duplicate EIA ids in training data", raises=AssertionError
+            ),
         ),
     ],
 )
@@ -104,7 +99,6 @@ def test_validate_override_fixes(
         start_date=min(ferc1_eia.report_date),
         end_date=max(ferc1_eia.report_date),
     )
-    pytest.set_trace()
     validate_override_fixes(
         validated_connections=test_df,
         utils_eia860=utils_eia860,
