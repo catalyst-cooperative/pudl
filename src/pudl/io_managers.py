@@ -370,6 +370,41 @@ class SQLiteIOManager(IOManager):
             return pudl.metadata.fields.apply_pudl_dtypes(df)
 
 
+class PudlSQLiteIOManager(SQLiteIOManager):
+    """IO Manager that writes and retrieves dataframes from a SQLite database.
+
+    This class extends the SQLiteIOManager class to manage database metadata and dtypes
+    using the :func:`pudl.metadata.classes.Package` class.
+    """
+
+    def __init__(
+        self,
+        base_dir: str = None,
+        db_name: str = None,
+        package: Package = None,
+        timeout: float = 1_000.0,
+    ):
+        """Initialize PudlSQLiteIOManager.
+
+        Args:
+            base_dir: base directory where all the step outputs which use this object
+                manager will be stored in.
+            db_name: the name of sqlite database.
+            package: Tabular datapackage used to create sqlalchemy metadata and check
+                datatypes. If not specified, defaults to metadata stored in the
+                pudl.metadata subpackage.
+            timeout: How many seconds the connection should wait before raising an
+                exception, if the database is locked by another connection.  If another
+                connection opens a transaction to modify the database, it will be locked
+                until that transaction is committed.
+        """
+        if not package:
+            package = Package.from_resource_ids()
+        self.package = package
+        md = self.package.to_sql()
+        super().__init__(base_dir, db_name, md, timeout)
+
+
 @io_manager(
     config_schema={
         "pudl_output_path": Field(
@@ -381,19 +416,10 @@ class SQLiteIOManager(IOManager):
         ),
     }
 )
-def pudl_sqlite_io_manager(init_context) -> SQLiteIOManager:
+def pudl_sqlite_io_manager(init_context) -> PudlSQLiteIOManager:
     """Create a SQLiteManager dagster resource for the pudl database."""
     base_dir = init_context.resource_config["pudl_output_path"]
-    md = Package.from_resource_ids(
-        excluded_etl_groups=(
-            "static_eia_disabled",
-            "epacems",
-            "outputs",
-            "ferc1_disabled",
-            "eia861_disabled",
-        )
-    ).to_sql()
-    return SQLiteIOManager(base_dir=base_dir, db_name="pudl", md=md)
+    return PudlSQLiteIOManager(base_dir=base_dir, db_name="pudl")
 
 
 class FercSQLiteIOManager(SQLiteIOManager):
