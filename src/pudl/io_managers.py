@@ -281,6 +281,8 @@ class SQLiteIOManager(IOManager):
         if table_name in all_resources:
             res = pkg.get_resource(table_name)
             df = res.enforce_schema(df)
+        else:
+            df = pudl.metadata.fields.apply_pudl_dtypes(df)
 
         column_difference = set(sa_table.columns.keys()) - set(df.columns)
         if column_difference:
@@ -370,6 +372,8 @@ class SQLiteIOManager(IOManager):
                 for chunk_df in pd.read_sql_table(table_name, con, chunksize=100_000):
                     if res:
                         chunk_df = res.enforce_schema(chunk_df)
+                    else:
+                        chunk_df = pudl.metadata.fields.apply_pudl_dtypes(chunk_df)
                     dfs.append(chunk_df)
                 df = pd.concat(dfs)
             except ValueError:
