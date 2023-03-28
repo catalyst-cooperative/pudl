@@ -35,10 +35,11 @@ from dagster import (
 
 import pudl
 from pudl.helpers import convert_cols_dtypes
-from pudl.metadata.classes import DataSource, Package
+from pudl.metadata.classes import Package
 from pudl.metadata.enums import APPROXIMATE_TIMEZONES
 from pudl.metadata.fields import apply_pudl_dtypes, get_pudl_dtypes
 from pudl.metadata.resources import ENTITIES
+from pudl.settings import EiaSettings
 
 logger = pudl.logging_helpers.get_logger(__name__)
 
@@ -602,35 +603,23 @@ def boiler_generator_assn_eia860(  # noqa: C901
     """
     debug = context.op_config["debug"]
     eia_settings = context.resources.dataset_settings.eia
-    eia923_years = eia_settings.eia923.years
-    eia860_years = eia_settings.eia860.years
-
-    if eia923_years is None:
-        eia923_years = DataSource.from_id("eia923").working_partitions["years"]
-    if eia860_years is None:
-        eia860_years = DataSource.from_id("eia860").working_partitions["years"]
-
-    if not (eia860_years and eia923_years):
-        logger.warning("No EIA-860 or EIA-923 years specified. Returning input BGA.")
-        return eia_transformed_dfs["clean_boiler_generator_assn_eia860"]
 
     # Do some final data formatting and assign appropriate types:
     eia_transformed_dfs = {
-        table_name: convert_cols_dtypes(df, data_source="eia")
+        table_name: convert_cols_dtypes(df, data_source="eia").pipe(
+            _restrict_years, eia_settings
+        )
         for table_name, df in eia_transformed_dfs.items()
     }
 
     # compile and scrub all the parts
     logger.info("Inferring complete EIA boiler-generator associations.")
     logger.debug(f"{eia_transformed_dfs.keys()=}")
-    bga_eia860 = eia_transformed_dfs["clean_boiler_generator_assn_eia860"].pipe(
-        _restrict_years, eia923_years, eia860_years
-    )
+
     # grab the generation_eia923 table, group annually, generate a new tag
     gen_eia923 = eia_transformed_dfs["clean_generation_eia923"]
-    gen_eia923 = gen_eia923.set_index(pd.DatetimeIndex(gen_eia923.report_date))
     gen_eia923 = (
-        _restrict_years(gen_eia923, eia923_years, eia860_years)
+        gen_eia923.set_index(pd.DatetimeIndex(gen_eia923.report_date))
         .groupby([pd.Grouper(freq="AS"), "plant_id_eia", "generator_id"])
         .net_generation_mwh.sum()
         .reset_index()
@@ -638,12 +627,9 @@ def boiler_generator_assn_eia860(  # noqa: C901
     )
 
     # compile all of the generators
-    gens_eia860 = eia_transformed_dfs["clean_generators_eia860"].pipe(
-        _restrict_years, eia923_years, eia860_years
-    )
     gens = pd.merge(
         gen_eia923,
-        gens_eia860,
+        eia_transformed_dfs["clean_generators_eia860"],
         on=["plant_id_eia", "report_date", "generator_id"],
         how="outer",
     )
@@ -663,7 +649,7 @@ def boiler_generator_assn_eia860(  # noqa: C901
     # background
     bga_compiled_1 = pd.merge(
         gens,
-        bga_eia860,
+        eia_transformed_dfs["clean_boiler_generator_assn_eia860"],
         on=["plant_id_eia", "generator_id", "report_date"],
         how="outer",
     )
@@ -680,13 +666,8 @@ def boiler_generator_assn_eia860(  # noqa: C901
     # apear in gens9 or gens8 (must uncomment-out the og_tag creation above)
     # bga_compiled_1[bga_compiled_1['og_tag'].isnull()]
 
-    bf_eia923 = (
-        eia_transformed_dfs["clean_boiler_fuel_eia923"]
-        .pipe(_restrict_years, eia923_years, eia860_years)
-        .assign(
-            total_heat_content_mmbtu=lambda x: x.fuel_consumed_units
-            * x.fuel_mmbtu_per_unit
-        )
+    bf_eia923 = eia_transformed_dfs["clean_boiler_fuel_eia923"].assign(
+        total_heat_content_mmbtu=lambda x: x.fuel_consumed_units * x.fuel_mmbtu_per_unit
     )
     bf_eia923 = (
         bf_eia923.set_index(pd.DatetimeIndex(bf_eia923.report_date))
@@ -949,16 +930,13 @@ def boiler_generator_assn_eia860(  # noqa: C901
 
 def _restrict_years(
     df: pd.DataFrame,
-    eia923_years: list[int] | None = None,
-    eia860_years: list[int] | None = None,
+    eia_settings: EiaSettings | None = None,
 ) -> pd.DataFrame:
     """Restricts eia years for boiler generator association."""
-    if eia923_years is None:
-        eia923_years = DataSource.from_id("eia923").working_partitions["years"]
-    if eia860_years is None:
-        eia860_years = DataSource.from_id("eia860").working_partitions["years"]
+    if eia_settings is None:
+        eia_settings = EiaSettings()
 
-    bga_years = set(eia860_years) & set(eia923_years)
+    bga_years = set(eia_settings.eia860.years) & set(eia_settings.eia923.years)
     df = df[df.report_date.dt.year.isin(bga_years)]
     return df
 
