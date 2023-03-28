@@ -166,12 +166,10 @@ def _prep_ferc1_eia(ferc1_eia, utils_eia860) -> pd.DataFrame:
 
     # Add utility_name_eia - this must happen before renaming the cols or else there
     # will be duplicate utility_name_eia columns.
-    utils_specific_year = utils_eia860.loc[
-        :, "report_year"
-    ] = utils_eia860.report_date.dt.year
+    utils_eia860.loc[:, "report_year"] = utils_eia860.report_date.dt.year
     ferc1_eia_prep = pd.merge(
         ferc1_eia_prep,
-        utils_specific_year[["utility_id_eia", "utility_name_eia", "report_year"]],
+        utils_eia860[["utility_id_eia", "utility_name_eia", "report_year"]].copy(),
         on=["utility_id_eia", "report_year"],
         how="left",
         validate="m:1",
