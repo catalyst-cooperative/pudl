@@ -1098,7 +1098,9 @@ def fix_balancing_authority_codes_with_state(
     return plants
 
 
-def harvested_entity_asset_factory(entity: EiaEntity) -> AssetsDefinition:
+def harvested_entity_asset_factory(
+    entity: EiaEntity, io_manager_key: str | None = None
+) -> AssetsDefinition:
     """Create an asset definition for the harvested entity tables."""
     harvestable_assets = (
         "clean_boiler_fuel_eia923",
@@ -1118,10 +1120,8 @@ def harvested_entity_asset_factory(entity: EiaEntity) -> AssetsDefinition:
     @multi_asset(
         ins={table_name: AssetIn() for table_name in harvestable_assets},
         outs={
-            f"{entity.value}_entity_eia": AssetOut(
-                io_manager_key="pudl_sqlite_io_manager"
-            ),
-            f"{entity.value}_eia860": AssetOut(io_manager_key="pudl_sqlite_io_manager"),
+            f"{entity.value}_entity_eia": AssetOut(io_manager_key=io_manager_key),
+            f"{entity.value}_eia860": AssetOut(io_manager_key=io_manager_key),
         },
         config_schema={
             "debug": Field(
@@ -1191,7 +1191,10 @@ def harvested_entity_asset_factory(entity: EiaEntity) -> AssetsDefinition:
     return harvested_entity
 
 
-harvested_entities = [harvested_entity_asset_factory(entity) for entity in EiaEntity]
+harvested_entities = [
+    harvested_entity_asset_factory(entity, io_manager_key="pudl_sqlite_io_manager")
+    for entity in EiaEntity
+]
 
 
 def finished_eia_asset_factory(
