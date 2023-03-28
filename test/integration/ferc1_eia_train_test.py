@@ -23,7 +23,7 @@ def utils_eia860(fast_out_annual):
 
 
 @pytest.fixture(scope="module")
-def plant_part_list(fast_out_annual):
+def plant_parts_eia(fast_out_annual):
     """The plant_parts_eia output table."""
     return fast_out_annual.plant_parts_eia().reset_index()
 
@@ -75,7 +75,7 @@ def ferc1_eia_training_data():
 )
 def test_validate_override_fixes(
     utils_eia860,
-    plant_part_list,
+    plant_parts_eia,
     ferc1_eia,
     ferc1_eia_training_data,
     verified,
@@ -101,7 +101,7 @@ def test_validate_override_fixes(
     validate_override_fixes(
         validated_connections=test_df,
         utils_eia860=utils_eia860,
-        ppl=plant_part_list,
+        ppe=plant_parts_eia,
         ferc1_eia=ferc1_eia,
         training_data=ferc1_eia_training_data_restricted,
         expect_override_overrides=True,
@@ -109,12 +109,12 @@ def test_validate_override_fixes(
     )
 
 
-def test_generate_all_override_spreadsheets(plant_part_list, ferc1_eia, utils_eia860):
+def test_generate_all_override_spreadsheets(plant_parts_eia, ferc1_eia, utils_eia860):
     """Test the genation of the override spreadsheet for mapping FERC-EIA records."""
     # Create the test spreadsheet
     generate_all_override_spreadsheets(
         ferc1_eia,
-        plant_part_list,
+        plant_parts_eia,
         utils_eia860,
         util_dict={"NextEra": [6452, 7801]},
         years=[2020],
