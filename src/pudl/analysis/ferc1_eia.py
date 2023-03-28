@@ -674,6 +674,40 @@ def prep_train_connections(
         "plant_part",
         "ownership_dupe",
     ]
+    # Read in one_to_many csv and join corresponding plant_match_ferc1 parts to FERC IDs
+    one_to_many = (
+        (
+            pd.read_csv(
+                importlib.resources.path(
+                    "pudl.package_data.glue", "ferc1_eia_one_to_many.csv"
+                ),
+            )
+            .pipe(pudl.helpers.cleanstrings_snake, ["record_id_eia"])
+            .drop_duplicates(subset=["record_id_ferc1", "record_id_eia"])
+        )
+        .merge(ppe[["record_id_eia", "ferc1_generator_agg_id"]])
+        .dropna(subset=["ferc1_generator_agg_id"])
+        .drop(["record_id_eia"], axis=1)
+        .merge(
+            ppe.loc[
+                ppe.plant_part == "plant_match_ferc1",
+                ["record_id_eia", "ferc1_generator_agg_id"],
+            ],
+            on="ferc1_generator_agg_id",
+        )
+        .drop(["ferc1_generator_agg_id"], axis=1)
+        .drop_duplicates(subset=["record_id_ferc1", "record_id_eia"])
+        .set_index("record_id_ferc1")
+    )
+    train_df = (
+        pd.read_csv(
+            importlib.resources.path("pudl.package_data.glue", "ferc1_eia_train.csv"),
+        )
+        .pipe(pudl.helpers.cleanstrings_snake, ["record_id_eia"])
+        .drop_duplicates(subset=["record_id_ferc1", "record_id_eia"])
+        .set_index("record_id_ferc1")
+    )
+    train_df.update(one_to_many)  # Overwrite FERC records with faked 1:m parts.
     train_df = (
         # we want to ensure that the records are associated with a
         # "true granularity" - which is a way we filter out whether or
@@ -682,18 +716,12 @@ def prep_train_connections(
         # once the true_gran is dealt with, we also need to convert the
         # records which are ownership dupes to reflect their "total"
         # ownership counterparts
-        pd.read_csv(
-            importlib.resources.path("pudl.package_data.glue", "ferc1_eia_train.csv"),
-        )
-        .pipe(pudl.helpers.cleanstrings_snake, ["record_id_eia"])
-        .drop_duplicates(subset=["record_id_ferc1", "record_id_eia"])
-        .pipe(
+        train_df.pipe(
             restrict_train_connections_on_date_range,
             id_col="record_id_eia",
             start_date=start_date,
             end_date=end_date,
-        )
-        .merge(
+        ).merge(
             ppe[ppe_cols].reset_index(),
             how="left",
             on=["record_id_eia"],
