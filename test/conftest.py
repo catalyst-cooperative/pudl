@@ -177,7 +177,6 @@ def fast_out_annual(pudl_engine, pudl_datastore_fixture):
     """A PUDL output object for use in CI."""
     return pudl.output.pudltabl.PudlTabl(
         pudl_engine,
-        ds=pudl_datastore_fixture,
         freq="AS",
         fill_fuel_cost=True,
         roll_fuel_cost=True,
