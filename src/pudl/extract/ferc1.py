@@ -71,17 +71,34 @@ import importlib
 import io
 import json
 from collections.abc import Iterable
+from itertools import chain
 from pathlib import Path
 from typing import Any, Literal
 
 import pandas as pd
 import sqlalchemy as sa
+from dagster import (
+    AssetKey,
+    Field,
+    SourceAsset,
+    asset,
+    build_init_resource_context,
+    build_input_context,
+    op,
+)
 from dbfread import DBF, FieldParser
 
 import pudl
+from pudl.helpers import EnvVar
+from pudl.io_managers import (
+    FercDBFSQLiteIOManager,
+    FercXBRLSQLiteIOManager,
+    ferc1_dbf_sqlite_io_manager,
+    ferc1_xbrl_sqlite_io_manager,
+)
 from pudl.metadata.classes import DataSource
 from pudl.metadata.constants import DBF_TABLES_FILENAMES
-from pudl.settings import Ferc1DbfToSqliteSettings, Ferc1Settings
+from pudl.settings import DatasetsSettings, Ferc1DbfToSqliteSettings
 from pudl.workspace.datastore import Datastore
 
 logger = pudl.logging_helpers.get_logger(__name__)
@@ -532,7 +549,7 @@ def define_sqlite_db(
     Returns:
         None: the effects of the function are stored inside sqlite_meta
     """
-    for table in ferc1_to_sqlite_settings.tables:
+    for table in DBF_TABLES_FILENAMES.keys():
         add_sqlite_table(
             table_name=table,
             sqlite_meta=sqlite_meta,
@@ -621,27 +638,33 @@ def get_raw_df(
         )
 
 
-def dbf2sqlite(
-    ferc1_to_sqlite_settings: Ferc1DbfToSqliteSettings | None = None,
-    pudl_settings: dict[str, Any] | None = None,
-    clobber: bool = False,
-    datastore: Datastore | None = None,
-) -> None:
-    """Clone the FERC Form 1 Visual FoxPro databases into SQLite.
+@op(
+    config_schema={
+        "pudl_output_path": Field(
+            EnvVar(
+                env_var="PUDL_OUTPUT",
+            ),
+            description="Path of directory to store the database in.",
+            default_value=None,
+        ),
+        "clobber": Field(
+            bool, description="Clobber existing ferc1 database.", default_value=False
+        ),
+    },
+    required_resource_keys={"ferc_to_sqlite_settings", "datastore"},
+)
+def dbf2sqlite(context) -> None:
+    """Clone the FERC Form 1 Visual FoxPro databases into SQLite."""
+    ferc1_to_sqlite_settings = (
+        context.resources.ferc_to_sqlite_settings.ferc1_dbf_to_sqlite_settings
+    )
+    datastore = context.resources.datastore
+    db_path = str(Path(context.op_config["pudl_output_path"]) / "ferc1.sqlite")
+    clobber = context.op_config["clobber"]
 
-    Args:
-        ferc1_to_sqlite_settings: Object containing Ferc1 to SQLite validated settings.
-            If None (the default) then a default :class:`Ferc1DbfToSqliteSettings`
-            object will be used.
-        pudl_settings: Dictionary containing paths and database URLs used by PUDL.
-        clobber: Whether to clobber an existing FERC 1 database.
-        datastore: instance of a datastore providing access to raw resources.
-    """
-    if not ferc1_to_sqlite_settings:
-        ferc1_to_sqlite_settings = Ferc1DbfToSqliteSettings()
     # Read in the structure of the DB, if it exists
     logger.info("Dropping the old FERC Form 1 SQLite DB if it exists.")
-    sqlite_engine = sa.create_engine(pudl_settings["ferc1_db"])
+    sqlite_engine = sa.create_engine(f"sqlite:///{db_path}")
     try:
         # So that we can wipe it out
         pudl.helpers.drop_tables(sqlite_engine, clobber=clobber)
@@ -649,7 +672,7 @@ def dbf2sqlite(
         pass
 
     # And start anew
-    sqlite_engine = sa.create_engine(pudl_settings["ferc1_db"])
+    sqlite_engine = sa.create_engine(f"sqlite:///{db_path}")
     sqlite_meta = sa.MetaData()
     sqlite_meta.reflect(sqlite_engine)
 
@@ -667,7 +690,7 @@ def dbf2sqlite(
         ferc1_to_sqlite_settings=ferc1_to_sqlite_settings,
     )
 
-    for table in ferc1_to_sqlite_settings.tables:
+    for table in DBF_TABLES_FILENAMES.keys():
         logger.info(f"Pandas: reading {table} into a DataFrame.")
         new_df = get_raw_df(
             ferc1_dbf_ds, table, dbc_map, years=ferc1_to_sqlite_settings.years
@@ -740,265 +763,68 @@ def get_ferc1_meta(ferc1_engine: sa.engine.Engine) -> sa.MetaData:
     return ferc1_meta
 
 
-def extract_dbf(
-    ferc1_settings: Ferc1Settings | None = None,
-    pudl_settings: dict[str, Any] | None = None,
-) -> dict[str, pd.DataFrame]:
-    """Coordinates the extraction of all FERC Form 1 tables into PUDL.
+# DAGSTER ASSETS
+def create_raw_ferc1_assets() -> list[SourceAsset]:
+    """Create SourceAssets for raw ferc1 tables.
 
-    Args:
-        ferc1_settings: Object containing validated settings relevant to FERC Form 1.
-            Contains the tables and years to be loaded into PUDL.
-        pudl_settings: A PUDL settings dictionary.
+    SourceAssets allow you to access assets that are generated elsewhere.
+    In our case, the xbrl and dbf database are created in a separate dagster Definition.
 
     Returns:
-        A dictionary of DataFrames, with the names of PUDL database tables as the keys.
-        These are the raw unprocessed dataframes, reflecting the data as it is in the
-        FERC Form 1 DB, for passing off to the data tidying and cleaning fuctions found
-        in the :mod:`pudl.transform.ferc1` module.
-
-    Raises:
-        ValueError: If the FERC table requested is not integrated into PUDL
+        A list of ferc1 SourceAssets.
     """
-    if pudl_settings is None:
-        pudl_settings = pudl.workspace.setup.get_defaults()
-
-    if ferc1_settings is None:
-        ferc1_settings = Ferc1Settings()
-
-    ferc1_raw_dfs = {}
-    for pudl_table in ferc1_settings.tables:
-        logger.info(
-            f"Converting extracted FERC Form 1 table {pudl_table} into a "
-            f"pandas DataFrame from DBF table."
+    # Deduplicate the table names because f1_elctrc_erg_acct feeds into multiple pudl tables.
+    dbfs = (v["dbf"] for v in TABLE_NAME_MAP_FERC1.values())
+    flattened_dbfs = chain.from_iterable(
+        x if isinstance(x, list) else [x] for x in dbfs
+    )
+    dbf_table_names = tuple(set(flattened_dbfs))
+    raw_ferc1_dbf_assets = [
+        SourceAsset(
+            key=AssetKey(table_name), io_manager_key="ferc1_dbf_sqlite_io_manager"
         )
-        if pudl_table not in TABLE_NAME_MAP_FERC1:
-            raise ValueError(
-                f"No extract function found for requested FERC Form 1 data "
-                f"table {pudl_table}!"
-            )
-        dbf_table_or_tables = TABLE_NAME_MAP_FERC1[pudl_table]["dbf"]
-        if not isinstance(dbf_table_or_tables, list):
-            dbf_tables = [dbf_table_or_tables]
-        else:
-            dbf_tables = dbf_table_or_tables
-
-        ferc1_raw_dfs[pudl_table] = extract_dbf_generic(
-            table_names=dbf_tables,
-            ferc1_settings=ferc1_settings,
-            pudl_settings=pudl_settings,
-        )
-
-    return ferc1_raw_dfs
-
-
-def extract_xbrl(
-    ferc1_settings: Ferc1Settings | None = None,
-    pudl_settings: dict[str, Any] | None = None,
-) -> dict[str, dict[Literal["duration", "instant"], pd.DataFrame]]:
-    """Coordinates the extraction of all FERC Form 1 tables into PUDL from XBRL data.
-
-    Args:
-        ferc1_settings: Object containing validated settings relevant to FERC Form 1.
-            Contains the tables and years to be loaded into PUDL.
-        pudl_settings: A PUDL settings dictionary.
-
-    Returns:
-        A dictionary where keys are the names of the PUDL database tables, values are
-        dictionaries of DataFrames coresponding to the instant and duration tables from
-        the XBRL derived FERC 1 database.
-
-    Raises:
-        ValueError: If the FERC table requested is not yet integrated into PUDL.
-    """
-    if pudl_settings is None:
-        pudl_settings = pudl.workspace.setup.get_defaults()
-
-    if ferc1_settings is None:
-        ferc1_settings = Ferc1Settings()
-
-    ferc1_raw_dfs = {}
-    if not ferc1_settings.xbrl_years:
-        return ferc1_raw_dfs
-
-    for pudl_table in ferc1_settings.tables:
-        if pudl_table not in TABLE_NAME_MAP_FERC1:
-            raise ValueError(f"{pudl_table} not found in the list of known tables.")
-        if "xbrl" not in TABLE_NAME_MAP_FERC1[pudl_table]:
-            raise ValueError(f"No XBRL tables have been associated with {pudl_table}.")
-
-        logger.info(
-            f"Converting extracted FERC Form 1 table {pudl_table} into a "
-            f"pandas DataFrame from XBRL table."
-        )
-
-        xbrl_table_or_tables = TABLE_NAME_MAP_FERC1[pudl_table]["xbrl"]
-        if not isinstance(xbrl_table_or_tables, list):
-            xbrl_tables = [xbrl_table_or_tables]
-        else:
-            xbrl_tables = xbrl_table_or_tables
-
-        ferc1_xbrl_engine = sa.create_engine(pudl_settings["ferc1_xbrl_db"])
-
-        ferc1_raw_dfs[pudl_table] = {
-            period_type: extract_xbrl_generic(
-                table_names=xbrl_tables,
-                period=period_type,
-                ferc1_engine=ferc1_xbrl_engine,
-                ferc1_settings=ferc1_settings,
-            )
-            for period_type in ["duration", "instant"]
-        }
-
-    return ferc1_raw_dfs
-
-
-def extract_xbrl_single(
-    table_name: str,
-    period: str,
-    ferc1_engine: sa.engine.Engine,
-    ferc1_settings: Ferc1Settings,
-) -> pd.DataFrame:
-    """Extract a single FERC Form 1 XBRL table by name.
-
-    Args:
-        table_name: Name of the XBRL table to extract, as it appears in the original
-            XBRL derived SQLite database.
-        period: Either duration or instant, specific to xbrl data.
-        ferc1_engine: An SQL Alchemy connection engine for the FERC Form 1 database.
-        ferc1_settings: Object containing validated settings relevant to FERC Form 1.
-    """
-    # Create full table name with _instant or _duration suffix
-    table_name_full = f"{table_name}_{period}"
-
-    # Get XBRL DB metadata
-    ferc1_meta = get_ferc1_meta(ferc1_engine)
-
-    # Not every table contains both instant and duration
-    # Return empty dataframe if table doesn't exist
-    if table_name_full not in ferc1_meta.tables:
-        return pd.DataFrame()
-
-    # Identification table used to get the filing year
-    id_table = "identification_001_duration"
-
-    return pd.read_sql(
-        f"""
-        SELECT {table_name_full}.*, {id_table}.report_year FROM {table_name_full}
-        JOIN {id_table} ON {id_table}.filing_name = {table_name_full}.filing_name
-        WHERE {id_table}.report_year BETWEEN :min_year AND :max_year;
-        """,  # nosec: B608
-        con=ferc1_engine,
-        params={
-            "min_year": min(ferc1_settings.xbrl_years),
-            "max_year": max(ferc1_settings.xbrl_years),
-        },
-    ).assign(sched_table_name=table_name)
-
-
-def extract_dbf_single(
-    ferc1_engine: sa.engine.Engine,
-    ferc1_settings: Ferc1Settings,
-    table_name: str,
-) -> pd.DataFrame:
-    """Extract a single FERC Form 1 DBF table by name.
-
-    Args:
-        ferc1_engine: An SQL Alchemy connection engine for the FERC Form 1 database.
-        ferc1_settings: Object containing validated settings relevant to FERC Form 1.
-        table_name: Name of desired output table to produce.
-    """
-    return pd.read_sql_query(
-        f"SELECT * FROM {table_name} "  # nosec: B608
-        "WHERE report_year BETWEEN :min_year AND :max_year;",
-        con=ferc1_engine,
-        params={
-            "min_year": min(ferc1_settings.dbf_years),
-            "max_year": max(ferc1_settings.dbf_years),
-        },
-    ).assign(sched_table_name=table_name)
-
-
-def extract_xbrl_generic(
-    table_names: list[str],
-    period: Literal["duration", "instant"],
-    ferc1_engine: sa.engine.Engine,
-    ferc1_settings: Ferc1Settings,
-) -> pd.DataFrame:
-    """Combine multiple raw xbrl instant or duration tables into one.
-
-    Args:
-        table_names: The list of raw table names provided in TABLE_NAME_MAP_FERC1
-            under xbrl. These are the tables you want to combine.
-        period: Either duration or instant, specific to xbrl data.
-        ferc1_engine: An SQL Alchemy connection engine for the FERC Form 1 database.
-        ferc1_settings: Object containing validated settings relevant to FERC Form 1.
-            Contains the tables and years to be loaded into PUDL.
-
-    There are some instances where multiple xbrl tables ought to be combined into
-    a single table to best mesh with data from the other source. This function
-    concatenates those tables into one. It is similar to the extract_dbf_generic
-    except that this function handles the instant and duration tables from xbrl.
-
-    It does not combine instant and duration tables, rather, it creates an instant table
-    that is a combination of several other instant tables, and a duration table that is
-    the combination of several other instant tables (those listed in table_names).
-    """
-    tables = [
-        extract_xbrl_single(
-            table_name=raw_table_name,
-            period=period,
-            ferc1_engine=ferc1_engine,
-            ferc1_settings=ferc1_settings,
-        )
-        for raw_table_name in table_names
-    ]
-    return pd.concat(tables)
-
-
-def extract_dbf_generic(
-    table_names: list[str],
-    ferc1_settings: Ferc1Settings,
-    pudl_settings: dict[str, Any],
-) -> pd.DataFrame:
-    """Combine multiple raw dbf tables into one.
-
-    Args:
-        table_names: The name of the raw dbf tables you want to combine
-            under xbrl. These are the tables you want to combine.
-        ferc1_settings: Object containing validated settings relevant to FERC Form 1.
-            Contains the tables and years to be loaded into PUDL.
-        pudl_settings: A PUDL settings dictionary.
-        period: Either duration or instant.
-
-    There are some instances where multiple dbf tables ought to be combined into
-    a single table to best mesh with data from the other source. This function
-    concatenates those tables into one. It is similar to the extract_xbr_concat
-    except that this function doesn't have to deal with instant and duration tables.
-    """
-    tables = [
-        extract_dbf_single(
-            ferc1_engine=sa.create_engine(pudl_settings["ferc1_db"]),
-            ferc1_settings=ferc1_settings,
-            table_name=raw_table_name,
-        )
-        for raw_table_name in table_names
+        for table_name in dbf_table_names
     ]
 
-    return pd.concat(tables)
+    # Create assets for the duration and instant tables
+    xbrls = (v["xbrl"] for v in TABLE_NAME_MAP_FERC1.values())
+    flattened_xbrls = chain.from_iterable(
+        x if isinstance(x, list) else [x] for x in xbrls
+    )
+    xbrls_with_periods = chain.from_iterable(
+        (f"{tn}_instant", f"{tn}_duration") for tn in flattened_xbrls
+    )
+    xbrl_table_names = tuple(set(xbrls_with_periods))
+    raw_ferc1_xbrl_assets = [
+        SourceAsset(
+            key=AssetKey(table_name), io_manager_key="ferc1_xbrl_sqlite_io_manager"
+        )
+        for table_name in xbrl_table_names
+    ]
+    return raw_ferc1_dbf_assets + raw_ferc1_xbrl_assets
 
 
-def extract_xbrl_metadata(
-    ferc1_settings: Ferc1Settings | None = None,
-    pudl_settings: dict[Any] | None = None,
-) -> dict[str, dict[str, list[dict[str, Any]]]]:
+raw_ferc1_assets = create_raw_ferc1_assets()
+
+# TODO (bendnorman): The metadata asset could be improved.
+# Select the subset of metadata entries that pudl is actually processing.
+# Could also create an IO manager that pulls from the metadata based on the
+# asset name.
+
+
+@asset(
+    config_schema={
+        "pudl_output_path": Field(
+            EnvVar(
+                env_var="PUDL_OUTPUT",
+            ),
+            description="Path of directory to store the database in.",
+            default_value=None,
+        ),
+    },
+)
+def xbrl_metadata_json(context) -> dict[str, dict[str, list[dict[str, Any]]]]:
     """Extract the FERC 1 XBRL Taxonomy metadata we've stored as JSON.
-
-    Args:
-        ferc1_settings: Settings object used to identify which tables metadata should
-            be extracted for.
-        pudl_settings: PUDL settings dictionary used to look up the location of the
-            XBRL metadata.
 
     Returns:
         A dictionary keyed by PUDL table name, with an instant and a duration entry
@@ -1009,18 +835,16 @@ def extract_xbrl_metadata(
         filings. If there is no instant/duration table, an empty list is returned
         instead.
     """
-    if pudl_settings is None:
-        pudl_settings = pudl.workspace.setup.get_defaults()
-
-    if ferc1_settings is None:
-        ferc1_settings = Ferc1Settings()
-
-    with open(pudl_settings["ferc1_xbrl_taxonomy_metadata"]) as f:
+    metadata_path = (
+        Path(context.op_config["pudl_output_path"])
+        / "ferc1_xbrl_taxonomy_metadata.json"
+    )
+    with open(metadata_path) as f:
         xbrl_meta_all = json.load(f)
 
     valid_tables = {
         table_name: xbrl_table
-        for table_name in ferc1_settings.tables
+        for table_name in TABLE_NAME_MAP_FERC1
         if (xbrl_table := TABLE_NAME_MAP_FERC1.get(table_name, {}).get("xbrl"))
         is not None
     }
@@ -1044,3 +868,135 @@ def extract_xbrl_metadata(
     }
 
     return xbrl_meta_out
+
+
+# Ferc extraction functions for devtool notebook testing
+def extract_dbf_generic(
+    table_names: list[str],
+    io_manager: FercDBFSQLiteIOManager,
+    dataset_settings: DatasetsSettings,
+) -> pd.DataFrame:
+    """Combine multiple raw dbf tables into one.
+
+    Args:
+        table_names: The name of the raw dbf tables you want to combine
+            under dbf. These are the tables you want to combine.
+        io_manager: IO Manager that extracts tables from ferc1.sqlite as dataframes.
+        dataset_settings: object containing desired years to extract.
+
+    Return:
+        Concatenation of all tables in table_names as a dataframe.
+    """
+    tables = []
+    for table_name in table_names:
+        context = build_input_context(
+            asset_key=AssetKey(table_name),
+            upstream_output=None,
+            resources={"dataset_settings": dataset_settings},
+        )
+        tables.append(io_manager.load_input(context))
+    return pd.concat(tables)
+
+
+def extract_xbrl_generic(
+    table_names: list[str],
+    io_manager: FercXBRLSQLiteIOManager,
+    dataset_settings: DatasetsSettings,
+    period: Literal["duration", "instant"],
+) -> pd.DataFrame:
+    """Combine multiple raw dbf tables into one.
+
+    Args:
+        table_names: The name of the raw dbf tables you want to combine
+            under xbrl. These are the tables you want to combine.
+        io_manager: IO Manager that extracts tables from ferc1.sqlite as dataframes.
+        dataset_settings: object containing desired years to extract.
+        period: Either duration or instant, specific to xbrl data.
+
+    Return:
+        Concatenation of all tables in table_names as a dataframe.
+    """
+    tables = []
+    for table_name in table_names:
+        full_xbrl_table_name = f"{table_name}_{period}"
+        context = build_input_context(
+            asset_key=AssetKey(full_xbrl_table_name),
+            upstream_output=None,
+            resources={"dataset_settings": dataset_settings},
+        )
+        tables.append(io_manager.load_input(context))
+    return pd.concat(tables)
+
+
+def extract_dbf(dataset_settings: DatasetsSettings) -> dict[str, pd.DataFrame]:
+    """Coordinates the extraction of all FERC Form 1 tables into PUDL.
+
+    This function is not used in the dagster ETL and is only intended
+    to be used in notebooks for debugging the FERC Form 1 transforms.
+
+    Args:
+        dataset_settings: object containing desired years to extract.
+
+    Returns:
+        A dictionary of DataFrames, with the names of PUDL database tables as the keys.
+        These are the raw unprocessed dataframes, reflecting the data as it is in the
+        FERC Form 1 DB, for passing off to the data tidying and cleaning functions found
+        in the :mod:`pudl.transform.ferc1` module.
+    """
+    ferc1_dbf_raw_dfs = {}
+
+    io_manager_init_context = build_init_resource_context(
+        resources={"dataset_settings": dataset_settings}
+    )
+    io_manager = ferc1_dbf_sqlite_io_manager(io_manager_init_context)
+
+    for table_name, raw_table_mapping in TABLE_NAME_MAP_FERC1.items():
+        dbf_table_or_tables = raw_table_mapping["dbf"]
+        if not isinstance(dbf_table_or_tables, list):
+            dbf_tables = [dbf_table_or_tables]
+        else:
+            dbf_tables = dbf_table_or_tables
+
+        ferc1_dbf_raw_dfs[table_name] = extract_dbf_generic(
+            dbf_tables, io_manager, dataset_settings
+        )
+    return ferc1_dbf_raw_dfs
+
+
+def extract_xbrl(
+    dataset_settings: DatasetsSettings,
+) -> dict[str, dict[Literal["duration", "instant"], pd.DataFrame]]:
+    """Coordinates the extraction of all FERC Form 1 tables into PUDL from XBRL data.
+
+    This function is not used in the dagster ETL and is only intended
+    to be used in notebooks for debugging the FERC Form 1 transforms.
+
+    Args:
+        dataset_settings: object containing desired years to extract.
+
+    Returns:
+        A dictionary where keys are the names of the PUDL database tables, values are
+        dictionaries of DataFrames coresponding to the instant and duration tables from
+        the XBRL derived FERC 1 database.
+    """
+    ferc1_xbrl_raw_dfs = {}
+
+    io_manager_init_context = build_init_resource_context(
+        resources={"dataset_settings": dataset_settings}
+    )
+    io_manager = ferc1_xbrl_sqlite_io_manager(io_manager_init_context)
+
+    for table_name, raw_table_mapping in TABLE_NAME_MAP_FERC1.items():
+        xbrl_table_or_tables = raw_table_mapping["xbrl"]
+        if not isinstance(xbrl_table_or_tables, list):
+            xbrl_tables = [xbrl_table_or_tables]
+        else:
+            xbrl_tables = xbrl_table_or_tables
+
+        ferc1_xbrl_raw_dfs[table_name] = {}
+
+        for period in ("duration", "instant"):
+            ferc1_xbrl_raw_dfs[table_name][period] = extract_xbrl_generic(
+                xbrl_tables, io_manager, dataset_settings, period
+            )
+    return ferc1_xbrl_raw_dfs

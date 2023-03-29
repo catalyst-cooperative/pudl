@@ -6,18 +6,25 @@ settings file.
 If the settings for a dataset has empty parameters (meaning there are no years or tables
 included), no outputs will be generated. See :doc:`/dev/run_the_etl` for details.
 
-The output SQLite and Parquet files will be stored in ``PUDL_OUT`` in directories named
-``sqlite`` and ``parquet``.  To setup your default ``PUDL_IN`` and ``PUDL_OUT``
-directories see ``pudl_setup --help``.
+The output SQLite and Parquet files will be stored in ``PUDL_OUTPUT``.  To
+setup your default ``PUDL_INPUT`` and ``PUDL_OUTPUT`` directories see
+``pudl_setup --help``.
 """
+
 import argparse
 import sys
-from sqlite3 import sqlite_version
+from collections.abc import Callable
 
-from packaging import version
+from dagster import (
+    DagsterInstance,
+    Definitions,
+    JobDefinition,
+    build_reconstructable_job,
+    define_asset_job,
+    execute_job,
+)
 
 import pudl
-from pudl.load import MINIMUM_SQLITE_VERSION
 from pudl.settings import EtlSettings
 
 logger = pudl.logging_helpers.get_logger(__name__)
@@ -37,31 +44,6 @@ def parse_command_line(argv):
         dest="settings_file", type=str, default="", help="path to ETL settings file."
     )
     parser.add_argument(
-        "--ignore-foreign-key-constraints",
-        action="store_true",
-        default=False,
-        help="Ignore foreign key constraints when loading into SQLite.",
-    )
-    parser.add_argument(
-        "--ignore-type-constraints",
-        action="store_true",
-        default=False,
-        help="Ignore column data type constraints when loading into SQLite.",
-    )
-    parser.add_argument(
-        "--ignore-value-constraints",
-        action="store_true",
-        default=False,
-        help="Ignore column value constraints when loading into SQLite.",
-    )
-    parser.add_argument(
-        "-c",
-        "--clobber",
-        action="store_true",
-        default=False,
-        help="Clobber existing PUDL SQLite and Parquet outputs if they exist.",
-    )
-    parser.add_argument(
         "--sandbox",
         action="store_true",
         default=False,
@@ -78,18 +60,54 @@ def parse_command_line(argv):
         help="Load datastore resources from Google Cloud Storage. Should be gs://bucket[/path_prefix]",
     )
     parser.add_argument(
-        "--bypass-local-cache",
-        action="store_true",
-        default=False,
-        help="If enabled, the local file cache for datastore will not be used.",
-    )
-    parser.add_argument(
         "--loglevel",
         help="Set logging level (DEBUG, INFO, WARNING, ERROR, or CRITICAL).",
         default="INFO",
     )
+    parser.add_argument(
+        "--partition-epacems",
+        action="store_true",
+        default=False,
+        help="If set, output epacems year-state partitioned Parquet files",
+    )
     arguments = parser.parse_args(argv[1:])
     return arguments
+
+
+def pudl_etl_job_factory(
+    logfile: str | None = None, loglevel: str = "INFO", process_epacems: bool = True
+) -> Callable[[], JobDefinition]:
+    """Factory for parameterizing a reconstructable pudl_etl job.
+
+    Args:
+        loglevel: The log level for the job's execution.
+        logfile: Path to a log file for the job's execution.
+        process_epacems: Include EPA CEMS assets in the job execution.
+
+    Returns:
+        The job definition to be executed.
+    """
+
+    def get_pudl_etl_job():
+        """Create an pudl_etl_job wrapped by to be wrapped by reconstructable."""
+        pudl.logging_helpers.configure_root_logger(logfile=logfile, loglevel=loglevel)
+        jobs = [define_asset_job("etl_job")]
+        if not process_epacems:
+            jobs = [
+                define_asset_job(
+                    "etl_job",
+                    selection=pudl.etl.create_non_cems_selection(
+                        pudl.etl.default_assets
+                    ),
+                )
+            ]
+        return Definitions(
+            assets=pudl.etl.default_assets,
+            resources=pudl.etl.default_resources,
+            jobs=jobs,
+        ).get_job_def("etl_job")
+
+    return get_pudl_etl_job
 
 
 def main():
@@ -103,32 +121,58 @@ def main():
 
     etl_settings = EtlSettings.from_yaml(args.settings_file)
 
-    pudl_settings = pudl.workspace.setup.derive_paths(
-        pudl_in=etl_settings.pudl_in, pudl_out=etl_settings.pudl_out
-    )
-    pudl_settings["sandbox"] = args.sandbox
+    # Set PUDL_INPUT/PUDL_OUTPUT env vars from .pudl.yml if not set already!
+    pudl.workspace.setup.get_defaults()
 
-    bad_sqlite_version = version.parse(sqlite_version) < version.parse(
-        MINIMUM_SQLITE_VERSION
-    )
-    if bad_sqlite_version and not args.ignore_type_constraints:
-        args.ignore_type_constraints = False
-        logger.warning(
-            f"Found SQLite {sqlite_version} which is less than "
-            f"the minimum required version {MINIMUM_SQLITE_VERSION} "
-            "As a result, data type constraint checking will be disabled."
-        )
+    dataset_settings_config = etl_settings.datasets.dict()
+    process_epacems = True
+    if etl_settings.datasets.epacems is None:
+        process_epacems = False
+        # Dagster config expects values for the epacems settings even though
+        # the CEMS assets will not be executed. Fill in the config dictionary
+        # with default cems values. Replace this workaround once dagster pydantic
+        # config classes are available.
+        dataset_settings_config["epacems"] = pudl.settings.EpaCemsSettings().dict()
 
-    pudl.etl.etl(
-        etl_settings=etl_settings,
-        pudl_settings=pudl_settings,
-        clobber=args.clobber,
-        use_local_cache=not args.bypass_local_cache,
-        gcs_cache_path=args.gcs_cache_path,
-        check_foreign_keys=not args.ignore_foreign_key_constraints,
-        check_types=not args.ignore_type_constraints,
-        check_values=not args.ignore_value_constraints,
+    pudl_etl_reconstructable_job = build_reconstructable_job(
+        "pudl.cli",
+        "pudl_etl_job_factory",
+        reconstructable_kwargs={
+            "loglevel": args.loglevel,
+            "logfile": args.logfile,
+            "process_epacems": process_epacems,
+        },
     )
+    result = execute_job(
+        pudl_etl_reconstructable_job,
+        instance=DagsterInstance.get(),
+        run_config={
+            "resources": {
+                "dataset_settings": {"config": dataset_settings_config},
+                "datastore": {
+                    "config": {
+                        "sandbox": args.sandbox,
+                        "gcs_cache_path": args.gcs_cache_path
+                        if args.gcs_cache_path
+                        else "",
+                    },
+                },
+            },
+            "ops": {
+                "hourly_emissions_epacems": {
+                    "config": {
+                        "partition": args.partition_epacems,
+                    }
+                }
+            },
+        },
+    )
+
+    # Workaround to reliably getting full stack trace
+    if not result.success:
+        for event in result.all_events:
+            if event.event_type_value == "STEP_FAILURE":
+                raise Exception(event.event_specific_data.error)
 
 
 if __name__ == "__main__":

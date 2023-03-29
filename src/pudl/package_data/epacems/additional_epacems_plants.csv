@@ -128,3 +128,4 @@ plant_id_eia,plant_name_eia,last_date,state,latitude,longitude,fill_data_source_
 880109,"Pratt Paper (OH), LLC",2020-10-13,OH,40.5379994,-84.1909398,Not found in EPA CAMD Avg OH Lat
 55098,Frontera Energy Center,2016-01-01,TX,26.208000,-98.399200,In CEMS in 2019 but missing from EIA since 2016
 55120,SRW Cogen LP,2014-01-01,TX,30.054478,-93.757435,In CEMS in 2019 but missing from EIA since 2014
+55248,Tait,2018-01-01,OH,39.727679,-84.209489,In CEMS in 2021 but missing from EIA since 2018

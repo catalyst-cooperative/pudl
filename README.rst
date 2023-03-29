@@ -214,20 +214,20 @@ Find PUDL useful? Want to help make it better? There are lots of ways to help!
 * First, be sure to read our `Code of Conduct <https://catalystcoop-pudl.readthedocs.io/en/latest/code_of_conduct.html>`__.
 * You can file a bug report, make a feature request, or ask questions in the
   `Github issue tracker <https://github.com/catalyst-cooperative/pudl/issues>`__.
-* Feel free to fork the project and make a pull request with new code,
-  better documentation, or example notebooks.
-* `Make a recurring financial contribution <https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=PZBZDFNKBJW5E&source=url>`__ to support
-  our work liberating public energy data.
-* `Hire us to do some custom analysis <https://catalyst.coop/hire-catalyst/>`__
-  and allow us to integrate the resulting code into PUDL.
+* Feel free to fork the project and make a pull request with new code, better
+  documentation, or example notebooks.
+* `Make a recurring financial contribution <https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=PZBZDFNKBJW5E&source=url>`__
+  to support our work liberating public energy data.
+* `Hire us to do some custom analysis <https://catalyst.coop/hire-catalyst/>`__ and
+  allow us to integrate the resulting code into PUDL.
 * For more information check out the Contributing section of the
   `PUDL Documentation <https://catalystcoop-pudl.readthedocs.io>`__
 
 Licensing
 ---------
 
-In general, our code, data, and other work are permissively licensed for use by
-anybody, for any purpose, so long as you give us credit for the work we've done.
+In general, our code, data, and other work are permissively licensed for use by anybody,
+for any purpose, so long as you give us credit for the work we've done.
 
 * The PUDL software is released under
   `the MIT License <https://opensource.org/licenses/MIT>`__.

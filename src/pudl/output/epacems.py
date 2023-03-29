@@ -4,20 +4,9 @@ from itertools import product
 from pathlib import Path
 
 import dask.dataframe as dd
-import pandas as pd
-import sqlalchemy as sa
 
 import pudl
 from pudl.settings import EpaCemsSettings
-
-
-def epacamd_eia(pudl_engine: sa.engine.Engine) -> pd.DataFrame:
-    """Pull the EPACAMD-EIA Crosswalk table."""
-    pt = pudl.output.pudltabl.get_table_meta(pudl_engine)
-    crosswalk_tbl = pt["epacamd_eia"]
-    crosswalk_select = sa.sql.select(crosswalk_tbl)
-    crosswalk_df = pd.read_sql(crosswalk_select, pudl_engine)
-    return crosswalk_df
 
 
 def year_state_filter(
@@ -145,7 +134,7 @@ def epacems(
 
     if epacems_path is None:
         pudl_settings = pudl.workspace.setup.get_defaults()
-        epacems_path = Path(pudl_settings["parquet_dir"]) / "epacems"
+        epacems_path = Path(pudl_settings["pudl_out"]) / "epacems"
 
     epacems = dd.read_parquet(
         epacems_path,

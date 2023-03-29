@@ -23,11 +23,7 @@ from pudl.metadata.enums import (
     TECH_CLASSES,
     TECH_DESCRIPTIONS,
 )
-from pudl.metadata.labels import (
-    ESTIMATED_OR_ACTUAL,
-    FUEL_UNITS_EIA,
-    MOMENTARY_INTERRUPTIONS,
-)
+from pudl.metadata.labels import ESTIMATED_OR_ACTUAL, FUEL_UNITS_EIA
 from pudl.metadata.sources import SOURCES
 
 # from pudl.transform.params.ferc1 import (
@@ -654,6 +650,10 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "type": "string",
         "description": "Entity type of principal owner.",
     },
+    "environmental_equipment_name": {
+        "type": "string",
+        "description": "Name of environmental equipment or technology type used to control air emissions",
+    },
     "estimated_or_actual_capacity_data": {
         "type": "string",
         "constraints": {"enum": list(ESTIMATED_OR_ACTUAL.values())},
@@ -1137,7 +1137,6 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     "moisture_content_pct": {"type": "number"},
     "momentary_interruption_definition": {
         "type": "string",
-        "constraints": {"enum": list(MOMENTARY_INTERRUPTIONS.values())},
     },
     "month": {"type": "integer", "description": "Month of the year"},
     "multiple_fuels": {
@@ -1767,6 +1766,10 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "type": "boolean",
         "description": "Is the reporting entity an owner of power plants reported on Schedule 2 of the form?",
     },
+    "particulate_control_id_eia": {
+        "type": "string",
+        "description": "Alphanumeric particulate matter control ID.",
+    },
     "potential_peak_demand_savings_mw": {"type": "number", "unit": "MW"},
     "previously_canceled": {
         "type": "boolean",
@@ -2022,6 +2025,10 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     "so2_control_proposed_strategy_3": {
         "type": "string",
         "description": "Proposed strategy to comply with the most stringent sulfur dioxide regulation.",
+    },
+    "so2_control_id_eia": {
+        "type": "string",
+        "description": "Alphanumeric so2 control ID.",
     },
     "so2_mass_lbs": {
         "type": "number",
@@ -2548,6 +2555,20 @@ FIELD_METADATA_BY_RESOURCE: dict[str, dict[str, Any]] = {
         "opex_rents": {"description": "Rent expenses for the transmission line."},
         "opex_total": {"description": "Overall expenses for the transmission line."},
     },
+    "demand_hourly_pa_ferc714": {
+        "timezone": {
+            "constraints": {
+                "enum": [
+                    "America/New_York",
+                    "America/Chicago",
+                    "America/Denver",
+                    "America/Los_Angeles",
+                    "America/Anchorage",
+                    "Pacific/Honolulu",
+                ]
+            }
+        }
+    },
 }
 
 
@@ -2591,7 +2612,7 @@ def apply_pudl_dtypes(
     """Apply dtypes to those columns in a dataframe that have PUDL types defined.
 
     Note at ad-hoc column dtypes can be defined and merged with default PUDL field
-    metadata before it's passed in as `field_meta` if you have module specific column
+    metadata before it's passed in as ``field_meta`` if you have module specific column
     types you need to apply alongside the standard PUDL field types.
 
     Args:

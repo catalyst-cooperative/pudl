@@ -1342,17 +1342,5 @@ class AbstractTableTransformer(ABC):
         """Drop columns not in the DB schema and enforce specified types."""
         logger.info(f"{self.table_id.value}: Enforcing database schema on dataframe.")
         resource = Package.from_resource_ids().get_resource(self.table_id.value)
-        expected_cols = pd.Index(resource.get_field_names())
-        missing_cols = list(expected_cols.difference(df.columns))
-        if missing_cols:
-            raise ValueError(
-                f"{self.table_id.value}: Missing columns found when enforcing table "
-                f"schema: {missing_cols}"
-            )
-        df = resource.format_df(df)
-        pk = resource.schema.primary_key
-        if pk and not df[df.duplicated(subset=pk)].empty:
-            raise ValueError(
-                f"{self.table_id.value} Duplicate primary keys when enforcing schema."
-            )
+        df = resource.enforce_schema(df)
         return df

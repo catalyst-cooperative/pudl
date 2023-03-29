@@ -11,11 +11,13 @@ import enum
 import importlib.resources
 import re
 from collections import namedtuple
+from collections.abc import Mapping
 from typing import Any, Literal
 
 import numpy as np
 import pandas as pd
 import sqlalchemy as sa
+from dagster import AssetIn, AssetsDefinition, asset
 from pandas.core.groupby import DataFrameGroupBy
 from pydantic import validator
 
@@ -24,6 +26,8 @@ from pudl.analysis.classify_plants_ferc1 import (
     plants_steam_assign_plant_ids,
     plants_steam_validate_ids,
 )
+from pudl.extract.ferc1 import TABLE_NAME_MAP_FERC1
+from pudl.helpers import convert_cols_dtypes
 from pudl.settings import Ferc1Settings
 from pudl.transform.classes import (
     AbstractTableTransformer,
@@ -3701,36 +3705,101 @@ class ElectricitySalesByRateScheduleFerc1TableTransformer(
         )
 
 
-class OtherRegulatoryLiabilitiesFerc1(Ferc1AbstractTableTransformer):
+class OtherRegulatoryLiabilitiesFerc1TableTransformer(Ferc1AbstractTableTransformer):
     """Transformer class for :ref:`other_regulatory_liabilities_ferc1` table."""
 
     table_id: TableIdFerc1 = TableIdFerc1.OTHER_REGULATORY_LIABILITIES_FERC1
     has_unique_record_ids = False
 
 
-def transform(
-    ferc1_dbf_raw_dfs: dict[str, pd.DataFrame],
-    ferc1_xbrl_raw_dfs: dict[str, dict[str, pd.DataFrame]],
-    xbrl_metadata_json: list[dict[Any]],
-    ferc1_settings: Ferc1Settings | None = None,
-) -> dict[str, pd.DataFrame]:
-    """Coordinate the transformation of all FERC Form 1 tables.
+def ferc1_transform_asset_factory(
+    table_name: str,
+    ferc1_tfr_classes: Mapping[str, type[Ferc1AbstractTableTransformer]],
+    io_manager_key: str = "pudl_sqlite_io_manager",
+    convert_dtypes: bool = True,
+    generic: bool = False,
+) -> AssetsDefinition:
+    """Create an asset that pulls in raw ferc Form 1 assets and applies transformations.
+
+    This is a convenient way to create assets for tables that only depend on raw dbf,
+    raw xbrl instant and duration tables and xbrl metadata. For tables with additional
+    upstream dependencies, create a stand alone asset using an asset decorator. See
+    the plants_steam_ferc1 asset.
 
     Args:
-        ferc1_dbf_raw_dfs: Dictionary mapping PUDL table names (keys) to raw DBF
-            dataframes (values).
-        ferc1_xbrl_raw_dfs: Nested dictionary containing both an instant and duration
-            table for each input XBRL table. Some of these are empty.
-        xbrl_metadata_json: FERC 1XBRL taxonomy metadata exported as an array of JSON
-            objects.
-        ferc1_settings: Validated FERC 1 ETL settings.
+        table_name: The name of the table to create an asset for.
+        ferc1_tfr_classes: A dictionary of table names to the corresponding transformer class.
+        io_manager_key: the dagster io_manager key to use. None defaults
+            to the fs_io_manager.
+        convert_dtypes: convert dtypes of transformed dataframes.
+        generic: If using GenericPlantFerc1TableTransformer pass table_id to constructor.
+
+    Return:
+        An asset for the clean table.
+    """
+    ins: Mapping[str, AssetIn] = {}
+
+    listify = lambda x: x if isinstance(x, list) else [x]  # noqa: E731
+    dbf_tables = listify(TABLE_NAME_MAP_FERC1[table_name]["dbf"])
+    xbrl_tables = listify(TABLE_NAME_MAP_FERC1[table_name]["xbrl"])
+
+    ins = {f"raw_dbf__{tn}": AssetIn(tn) for tn in dbf_tables}
+    ins |= {f"raw_xbrl_instant__{tn}": AssetIn(f"{tn}_instant") for tn in xbrl_tables}
+    ins |= {f"raw_xbrl_duration__{tn}": AssetIn(f"{tn}_duration") for tn in xbrl_tables}
+    ins["xbrl_metadata_json"] = AssetIn("xbrl_metadata_json")
+
+    tfr_class = ferc1_tfr_classes[table_name]
+    table_id = TableIdFerc1(table_name)
+
+    @asset(name=table_name, ins=ins, io_manager_key=io_manager_key)
+    def ferc1_transform_asset(**kwargs: dict[str, pd.DataFrame]) -> pd.DataFrame:
+        """Transform a FERC Form 1 table.
+
+        Args:
+            raw_dbf: raw dbf table.
+            raw_xbrl_instant: raw XBRL instant table.
+            raw_xbrl_duration: raw XBRL duration table.
+            xbrl_metadata_json: XBRL metadata json for all tables.
+
+        Returns:
+            transformed FERC Form 1 table.
+        """
+        # TODO: split the key by __, then groupby, then concatenate
+        xbrl_metadata_json = kwargs["xbrl_metadata_json"]
+        if generic:
+            transformer = tfr_class(
+                xbrl_metadata_json=xbrl_metadata_json[table_name], table_id=table_id
+            )
+        else:
+            transformer = tfr_class(xbrl_metadata_json=xbrl_metadata_json[table_name])
+
+        raw_dbf = pd.concat(
+            [df for key, df in kwargs.items() if key.startswith("raw_dbf__")]
+        )
+        raw_xbrl_instant = pd.concat(
+            [df for key, df in kwargs.items() if key.startswith("raw_xbrl_instant__")]
+        )
+        raw_xbrl_duration = pd.concat(
+            [df for key, df in kwargs.items() if key.startswith("raw_xbrl_duration__")]
+        )
+        df = transformer.transform(
+            raw_dbf=raw_dbf,
+            raw_xbrl_instant=raw_xbrl_instant,
+            raw_xbrl_duration=raw_xbrl_duration,
+        )
+        if convert_dtypes:
+            df = convert_cols_dtypes(df, data_source="ferc1")
+        return df
+
+    return ferc1_transform_asset
+
+
+def create_ferc1_transform_assets() -> list[AssetsDefinition]:
+    """Create a list of transformed FERC Form 1 assets.
 
     Returns:
-        A dictionary of transformed DataFrames.
+        A list of AssetsDefinitions where each asset is a clean ferc form 1 table.
     """
-    if ferc1_settings is None:
-        ferc1_settings = Ferc1Settings()
-
     ferc1_tfr_classes = {
         "fuel_ferc1": FuelFerc1TableTransformer,
         "plants_small_ferc1": PlantsSmallFerc1TableTransformer,
@@ -3753,69 +3822,47 @@ def transform(
         "electric_operating_revenues_ferc1": ElectricOperatingRevenuesFerc1TableTransformer,
         "cash_flow_ferc1": CashFlowFerc1TableTransformer,
         "electricity_sales_by_rate_schedule_ferc1": ElectricitySalesByRateScheduleFerc1TableTransformer,
-        "other_regulatory_liabilities_ferc1": OtherRegulatoryLiabilitiesFerc1,
+        "other_regulatory_liabilities_ferc1": OtherRegulatoryLiabilitiesFerc1TableTransformer,
     }
-    ferc1_transformed_dfs = {}
-    for table in ferc1_settings.tables:
-        if table == "plants_steam_ferc1":  # Special case, see below.
-            continue
-        logger.info(f"Transforming raw FERC Form 1 dataframe for loading into {table}")
 
-        ferc1_transformed_dfs[table] = ferc1_tfr_classes[table](
-            xbrl_metadata_json=xbrl_metadata_json[table],
-        ).transform(
-            raw_dbf=ferc1_dbf_raw_dfs[table],
-            raw_xbrl_instant=ferc1_xbrl_raw_dfs[table].get("instant", pd.DataFrame()),
-            raw_xbrl_duration=ferc1_xbrl_raw_dfs[table].get("duration", pd.DataFrame()),
-        )
-    # Special case: fuel must come before steam because the fuel proportions are used
-    # in FERC plant ID assignment process, and sthe steam table has a different call
-    # signature so it can accommodate the fuel table as an input:
-    if "plants_steam_ferc1" in ferc1_settings.tables:
-        ferc1_transformed_dfs["plants_steam_ferc1"] = PlantsSteamFerc1TableTransformer(
-            xbrl_metadata_json=xbrl_metadata_json["plants_steam_ferc1"]
-        ).transform(
-            raw_dbf=ferc1_dbf_raw_dfs["plants_steam_ferc1"],
-            raw_xbrl_instant=ferc1_xbrl_raw_dfs["plants_steam_ferc1"].get(
-                "instant", pd.DataFrame()
-            ),
-            raw_xbrl_duration=ferc1_xbrl_raw_dfs["plants_steam_ferc1"].get(
-                "duration", pd.DataFrame()
-            ),
-            # use a copy of the fuel table because we *definitely* don't want it to
-            # be changed by the steam transform.
-            transformed_fuel=ferc1_transformed_dfs["fuel_ferc1"].copy(),
-        )
-
-    return ferc1_transformed_dfs
+    assets = []
+    for table_name in ferc1_tfr_classes:
+        # Bespoke exception. fuel must come before steam b/c fuel proportions are used to
+        # aid in FERC plant ID assignment.
+        if table_name != "plants_steam_ferc1":
+            assets.append(ferc1_transform_asset_factory(table_name, ferc1_tfr_classes))
+    return assets
 
 
-if __name__ == "__main__":
-    """Make the module runnable for iterative testing during development."""
+ferc1_assets = create_ferc1_transform_assets()
 
-    ferc1_settings = Ferc1Settings(
-        # 1 year DBF + 1 year XBRL:
-        years=[2020, 2021],
-        # All the years (slow with plants_steam_ferc1 included)
-        # years=Ferc1Settings().years,
-        # Just test your new table:
-        # tables=["your_new_table_ferc1"],
-        # Run all the tables to make sure you haven't broken something!
-        tables=Ferc1Settings().tables,
+
+@asset(io_manager_key="pudl_sqlite_io_manager")
+def plants_steam_ferc1(
+    xbrl_metadata_json: dict[str, dict[str, list[dict[str, Any]]]],
+    f1_steam: pd.DataFrame,
+    steam_electric_generating_plant_statistics_large_plants_402_duration: pd.DataFrame,
+    steam_electric_generating_plant_statistics_large_plants_402_instant: pd.DataFrame,
+    fuel_ferc1: pd.DataFrame,
+) -> pd.DataFrame:
+    """Create the clean plants_steam_ferc1 table.
+
+    Args:
+            xbrl_metadata_json: XBRL metadata json for all tables.
+            f1_steam: Raw f1_steam table.
+            steam_electric_generating_plant_statistics_large_plants_402_duration: raw XBRL duration table.
+            steam_electric_generating_plant_statistics_large_plants_402_instant: raw XBRL instant table.
+            fuel_ferc1: Transformed fuel_ferc1 table.
+
+    Returns:
+        Clean plants_steam_ferc1 table.
+    """
+    df = PlantsSteamFerc1TableTransformer(
+        xbrl_metadata_json=xbrl_metadata_json["plants_steam_ferc1"]
+    ).transform(
+        raw_dbf=f1_steam,
+        raw_xbrl_instant=steam_electric_generating_plant_statistics_large_plants_402_instant,
+        raw_xbrl_duration=steam_electric_generating_plant_statistics_large_plants_402_duration,
+        transformed_fuel=fuel_ferc1,
     )
-    pudl_settings = pudl.workspace.setup.get_defaults()
-    ferc1_dbf_raw_dfs = pudl.extract.ferc1.extract_dbf(
-        ferc1_settings=ferc1_settings, pudl_settings=pudl_settings
-    )
-    ferc1_xbrl_raw_dfs = pudl.extract.ferc1.extract_xbrl(
-        ferc1_settings=ferc1_settings, pudl_settings=pudl_settings
-    )
-    xbrl_metadata_json = pudl.extract.ferc1.extract_xbrl_metadata(
-        ferc1_settings=ferc1_settings, pudl_settings=pudl_settings
-    )
-    dfs = transform(
-        ferc1_dbf_raw_dfs=ferc1_dbf_raw_dfs,
-        ferc1_xbrl_raw_dfs=ferc1_xbrl_raw_dfs,
-        xbrl_metadata_json=xbrl_metadata_json,
-        ferc1_settings=ferc1_settings,
-    )
+    return convert_cols_dtypes(df, data_source="ferc1")

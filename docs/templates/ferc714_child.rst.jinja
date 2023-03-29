@@ -1,0 +1,92 @@
+{% extends "data_source_parent.rst.jinja" %}
+
+{% block background %}
+
+{% endblock %}
+
+{% block downloadable_pdfs %}
+{% for filename in download_paths %}
+* :download:`{{ filename.stem.replace("_", " ").title() }} (PDF) <{{ filename }}>`
+{% endfor %}
+{% endblock %}
+
+{% block accessible %}
+The data we've integrated from FERC Form 714 includes:
+
+* hourly electricity demand by utility or balancing authority from 2006-2020
+* a table identifying the form respondents including their EIA utility or balancing
+  authority ID, which allows us to link the FERC-714 data to other information
+  reported in :doc:`eia860` and :doc:`eia861`.
+
+The hourly demand data for 2006-2020 is about 15 million records. There are about 200
+respondents that show up in the respondents table.
+
+WIth the EIA IDs, we link the hourly electricity demand to a particular georgraphic
+region at the county level, because utilities and balancing authorities report their
+service territories in :ref:`service_territory_eia861`, and from that information we
+can estimate historical hourly electricity demand by state.
+
+Plant operators reported in :ref:`plants_eia860` and generator ownership information
+reported in :ref:`ownership_eia860` are linked to :ref:`utilities_eia860` and
+:ref:`balancing_authority_eia861` and so can also be linked to the
+:ref:`respondent_id_ferc714` table, as well as the :ref:`hourly_emissions_epacems`
+unit-level emissions and generation data reported in :doc:`epacems`.
+
+{% endblock %}
+
+{% block fill_out_form %}
+Electric utilities operating balancing authority areas and planning areas with annual
+peak demand over 200MW are required to file FERC Form 714.
+{% endblock %}
+
+{% block original_data %}
+There are several epochs of FERC-714 and its predecessor data, published in various
+formats:
+
+* **1993-1999**: Data collected by NERC regions without standardized electronic filing.
+* **1999-2004**: Data collected by FERC without standardized electronic filing.
+* **2005**: Data collected by FERC without standardized electronic filing but not
+  posted on their website and only available through the regulatory filing eLibrary.
+* **2006-2020**: Standardized electronic filing. ASCII encoded CSV files exported from
+  a VisualFoxPro database.
+* **2021-present**: Standardized electronic filing using the XBRL (eXtensible Business
+  Reporting Language) dialect of XML.
+
+We only have plans to integrate the data from the standardized electronic reporting era
+since the format of the earlier data varies for each reporting balancing authority and
+utility, and would be very labor intensive to parse and reconcile.
+
+{% endblock %}
+
+{% block notable_irregularities %}
+
+The original hourly electricity demand time series is plagued with timezone and daylight
+savings vs. standard time irregularities, which we have done our best to clean up. The
+timestamps in the clean data are all in UTC, with a timezone code stored in a separate
+column, so that the times can be easily localized or converted. It's certainly not
+perfect, but its much better than the original data and it's easy to work with!
+
+Not all respondents use the same sign convention for reporting "demand." The vast
+majority consider demand / load that they serve to be a positive number, and so we've
+standardized the data to use that convention.
+
+There are a lot of reporting gaps, especially for smaller respondents. Sometimes these
+are brief, and sometimes they are entire years. There are also a number of outliers and
+suspicious values (e.g. a long series of identical consecutive values). We have some
+tools that we've built to clean up these outliers in
+:mod:`pudl.analysis.timeseries_cleaning`.
+
+Because utilities and balancing authorities occasionally change their service
+territories or merge, the demand reproted by any individual "respondent" may correspond
+to wildly different consumers in different years. To make it at least somewhat possible
+to compare the reported data across time, we've also compiled historical service
+territory maps for the respondents based on data reported in :doc:`eia861`. However,
+it's not always easy to identify which EIA utility or balancing authority corresponds to
+a FERC-714 respondent. See the :class:`pudl.output.ferc714.Respondent` class for some
+tooling that we've built to address this issue. Other code that underlies this work can
+be found in :mod:`pudl.analysis.service_territory` and :mod:`pudl.analysis.spatial`.
+
+The :mod:`pudl.analysis.state_demand` script brings together all of the above to
+estimate historical hourly electricity demand by state for 2006-2020.
+
+{% endblock %}
