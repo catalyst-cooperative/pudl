@@ -692,6 +692,7 @@ class MakePlantParts:
             }.issubset(part_df.columns)
             part_dfs.append(part_df)
         plant_parts_eia = pd.concat(part_dfs)
+
         # Add in 1:m matches.
         self.plant_parts_eia = self.add_one_to_many(
             plant_parts_eia=plant_parts_eia,
@@ -743,11 +744,15 @@ class MakePlantParts:
         except FileNotFoundError:
             return plant_parts_eia
 
-        logger.info("Aggregate 1:m FERC-EIA match records.")
+        logger.info("Aggregate any 1:m FERC-EIA match records.")
         # Filter plant part list to records in 1:m
         plant_parts_eia_filt = plant_parts_eia.loc[
             plant_parts_eia.record_id_eia.isin(one_to_many.record_id_eia)
         ]
+
+        if plant_parts_eia_filt.empty:  # If 1:m matches not in plant_part subset
+            PLANT_PARTS.pop("plant_match_ferc1")  # Remove from rest of workflow
+            return plant_parts_eia
 
         # Get the 'm' generator IDs 1:m
         one_to_many_single = match_to_single_plant_part(
