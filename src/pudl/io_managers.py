@@ -171,7 +171,7 @@ class SQLiteIOManager(IOManager):
             mc = MigrationContext.configure(engine.connect())
             metadata_diff = compare_metadata(mc, self.md)
             if metadata_diff:
-                logger.info("Metadata diff:\n\n{metadata_diff}")
+                logger.info(f"Metadata diff:\n\n{metadata_diff}")
                 raise MetadataDiffError(
                     "The database schema has changed. Delete the "
                     f"database at {db_path}"
