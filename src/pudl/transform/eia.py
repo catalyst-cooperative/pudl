@@ -1191,6 +1191,60 @@ def harvested_entity_asset_factory(
     return harvested_entity
 
 
+def debug_harvesting(
+    entity: EiaEntity, clean_dfs: dict[str, pd.DataFrame], eia_settings: EiaSettings
+) -> tuple:
+    """A function for debugging the harvesting process in a notebook.
+
+    Replicates the functionality of the inner function of
+    :func:`harvested_entity_asset_factory`. It seems less likely to get out of sync with
+    the asset factory if it's here than if it's in the notebook.
+    """
+    clean_dfs = {
+        name: convert_cols_dtypes(df, data_source="eia")
+        for name, df in clean_dfs.items()
+    }
+
+    if entity == EiaEntity.UTILITIES:
+        # Remove location columns that are associated with plants, not utilities:
+        for table, df in clean_dfs.items():
+            if "plant_id_eia" in df.columns:
+                plant_location_cols = [
+                    "street_address",
+                    "city",
+                    "state",
+                    "zip_code",
+                ]
+                logger.info(f"Removing {plant_location_cols} from {table} table.")
+                clean_dfs[table] = df.drop(columns=plant_location_cols, errors="ignore")
+
+    entity_df, annual_df, col_dfs = harvesting(
+        entity,
+        clean_dfs,
+        debug=True,
+        eia860m=eia_settings.eia860.eia860m,
+    )
+
+    # Apply standard PUDL data types to the new entity tables:
+    pkg = Package.from_resource_ids()
+    entity_res = pkg.get_resource(f"{entity.value}_entity_eia")
+    entity_df = apply_pudl_dtypes(entity_df, group="eia").pipe(entity_res.encode)
+    annual_res = pkg.get_resource(f"{entity.value}_eia860")
+    annual_df = apply_pudl_dtypes(annual_df, group="eia").pipe(annual_res.encode)
+
+    if entity == EiaEntity.PLANTS:
+        # Post-processing specific to the plants entity tables
+        entity_df = _add_additional_epacems_plants(entity_df).pipe(_add_timezone)
+        annual_df = fillna_balancing_authority_codes_via_names(annual_df).pipe(
+            fix_balancing_authority_codes_with_state, plants_entity=entity_df
+        )
+
+    entity_df = entity_res.enforce_schema(entity_df)
+    annual_df = annual_res.enforce_schema(annual_df)
+
+    return entity_df, annual_df, col_dfs
+
+
 harvested_entities = [
     harvested_entity_asset_factory(entity, io_manager_key="pudl_sqlite_io_manager")
     for entity in EiaEntity
