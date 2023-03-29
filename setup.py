@@ -108,6 +108,7 @@ setup(
             "flake8-docstrings>=1.5,<1.8",
             "flake8-rst-docstrings>=0.2,<0.4",
             "flake8-use-fstring>=1.0,<1.5",
+            "jupyter",
             "mccabe>=0.6,<0.8",
             "nbconvert>=7,<8",
             "nbformat>=5,<6",
