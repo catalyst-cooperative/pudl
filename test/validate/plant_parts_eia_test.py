@@ -1,6 +1,5 @@
 """Validate post-ETL Generators data from EIA 860."""
 import logging
-import warnings
 
 import numpy as np
 import pandas as pd
@@ -69,7 +68,7 @@ def test_ownership_for_owned_records(pudl_out_eia, live_dbs):
             (test_own_df.capacity_mw == 0) & (test_own_df.fraction_owned == 0)
         ]
         if len(no_frac_n_cap) > 60:
-            warnings.warn(
+            logger.warning(
                 f"""Too many nothings, you nothing. There shouldn't been much
                 more than 60 instances of records with zero capacity_mw (and
                 therefor zero fraction_owned) and you got {len(no_frac_n_cap)}.
@@ -128,8 +127,9 @@ def test_run_aggregations(pudl_out_eia, live_dbs):
                 result = list(test_merge[f"test_{test_col}"].unique())
                 logger.info(f"  Results for {test_col}: {result}")
                 if not all(result):
-                    warnings.warn(f"{test_col} done fucked up.")
-                    return test_merge
+                    logger.warning(
+                        f"{test_col} has {len([val for val in result if val == False])} non-unique values when aggregating for {part_name}."
+                    )
                     # raise AssertionError(
                     #    f"{test_col}'s '"
                     # )
