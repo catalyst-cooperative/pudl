@@ -234,7 +234,7 @@ def allocate_gen_fuel_by_generator_energy_source(
     # add any startup energy source codes to the list of energy source codes
     # fix MSW codes and add missing codes from gf to gens_at_freq
     gens_at_freq = adjust_msw_energy_source_codes(gens_at_freq, gf, bf)
-    gens_at_freq = add_missing_energy_source_codes_to_gens(gens_at_freq, gf)
+    gens_at_freq = add_missing_energy_source_codes_to_gens(gens_at_freq, gf, bf)
     # do the association!
     gen_assoc = associate_generator_tables(
         gens=gens_at_freq, gf=gf, gen=gen, bf=bf, bga=bga
@@ -623,26 +623,29 @@ def associate_generator_tables(
             on=IDX_PM_ESC,
             how="outer",
             validate="m:1",
-            indicator=True,  # used in _allocate_unassociated_records to find unassocited
+            # indicator=True,  # used in _allocate_unassociated_records to find unassocited
         )
         .pipe(remove_inactive_generators)
-        .pipe(
-            _allocate_unassociated_records,
-            idx_cols=IDX_PM_ESC,
-            col_w_unexpected_codes="prime_mover_code",
-            data_columns=[f"{col}_gf_tbl" for col in DATA_COLUMNS],
-        )
-        .drop(columns=["_merge"])  # drop do we can do this again in the bf_summed merge
+        # .pipe(
+        #     _allocate_unassociated_records,
+        #     idx_cols=IDX_PM_ESC,
+        #     col_w_unexpected_codes="prime_mover_code",
+        #     data_columns=[f"{col}_gf_tbl" for col in DATA_COLUMNS],
+        # )
+        # .drop(columns=["_merge"])  # drop so we can do this again in the bf_summed merge
         .merge(
-            bf_by_gens, on=IDX_GENS_PM_ESC, how="outer", validate="m:1", indicator=True
+            bf_by_gens,
+            on=IDX_GENS_PM_ESC,
+            how="outer",
+            validate="m:1",  # indicator=True
         )
-        .pipe(
-            _allocate_unassociated_records,
-            idx_cols=IDX_GENS_PM_ESC,
-            col_w_unexpected_codes="energy_source_code",
-            data_columns=["fuel_consumed_mmbtu_bf_tbl"],
-        )
-        .drop(columns=["_merge"])
+        # .pipe(
+        #     _allocate_unassociated_records,
+        #     idx_cols=IDX_GENS_PM_ESC,
+        #     col_w_unexpected_codes="energy_source_code",
+        #     data_columns=["fuel_consumed_mmbtu_bf_tbl"],
+        # )
+        # .drop(columns=["_merge"])
     )
 
     # replace zeros with small number to avoid div by zero errors when calculating allocation fraction
@@ -1605,7 +1608,7 @@ def adjust_msw_energy_source_codes(
     return gens
 
 
-def add_missing_energy_source_codes_to_gens(gens_at_freq, gf):
+def add_missing_energy_source_codes_to_gens(gens_at_freq, gf, bf):
     """Add energy_source_codes that appear in the `gf` table but not `gens` to `gens`.
 
     In some cases, non-zero fuel consumption and net generation is reported in the
@@ -1615,13 +1618,13 @@ def add_missing_energy_source_codes_to_gens(gens_at_freq, gf):
     plant-pm, this function identifies such esc, and adds them to the `gens_at_freq`
     table as new energy_source_code columns.
     """
-    missing_gf_escs_from_gens = identify_missing_gf_escs_in_gens(gens_at_freq, gf)
+    missing_gf_escs_from_gens = identify_missing_gf_escs_in_gens(gens_at_freq, gf, bf)
     if missing_gf_escs_from_gens.empty:
         return gens_at_freq
     idx = ["plant_id_eia", "prime_mover_code", "report_date"]
     # pivot these data to become new numbered energy_source_code_n columns starting at 7
     missing_gf_escs_from_gens["num"] = (
-        missing_gf_escs_from_gens.groupby(idx).cumcount() + 7
+        missing_gf_escs_from_gens.groupby(idx).cumcount() + 8
     )
     missing_gf_escs_from_gens["num"] = missing_gf_escs_from_gens["num"].astype(str)
     logger.info(missing_gf_escs_from_gens.columns)
@@ -1644,19 +1647,14 @@ def add_missing_energy_source_codes_to_gens(gens_at_freq, gf):
     return gens_at_freq
 
 
-def identify_missing_gf_escs_in_gens(gens_at_freq, gf):
+def identify_missing_gf_escs_in_gens(gens_at_freq, gf, bf):
     """Identify energy_source_codes that exist in gf but not gens for each plant."""
     # create a version of gf that identifies all of the unique energy source codes
     # with non-zero data associated with each plant-pm
     # create a filtered version of gf that only includes rows with non-zero data
-    gf_escs = (
-        gf.loc[
-            ((gf["fuel_consumed_mmbtu"] > 0) | (gf["net_generation_mwh"] != 0)),
-            ["plant_id_eia", "prime_mover_code", "energy_source_code", "report_date"],
-        ]
-        .copy()
-        .drop_duplicates()
-    )
+    # gf_escs = gf.loc[:, IDX_PM_ESC].copy()
+    # bf_escs = bf.loc[:, IDX_PM_ESC].copy()
+    escs = pd.concat([gf.loc[:, IDX_PM_ESC], bf.loc[:, IDX_PM_ESC]]).drop_duplicates()
     # create a version that identifies all of the unique energy source codes
     # associated with each plant-pm for gens with non-retired generation
     esc_columns = list(gens_at_freq.filter(like="_source_code").columns)
@@ -1672,7 +1670,7 @@ def identify_missing_gf_escs_in_gens(gens_at_freq, gf):
 
     # create a dataframe that identifies all plant-pm ESCs that only exist in gf
     missing_gf_escs_from_gens = gens_escs.merge(
-        gf_escs,
+        escs,
         how="outer",
         on=["plant_id_eia", "prime_mover_code", "energy_source_code", "report_date"],
         indicator="source",

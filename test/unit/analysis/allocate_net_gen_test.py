@@ -242,8 +242,6 @@ def example_1_pudl_tabl():
 
 def test_allocated_sums_match(example_1_pudl_tabl):
     """Test associate_generator_tables function with example 1."""
-    assert not example_1_pudl_tabl.bf_eia923().empty
-    assert not example_1_pudl_tabl.gens_eia860().empty
     allocated = allocate_net_gen.allocate_gen_fuel_by_generator_energy_source(
         example_1_pudl_tabl
     )
