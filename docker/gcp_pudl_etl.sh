@@ -24,17 +24,20 @@ function run_pudl_etl() {
     && pudl_setup \
     && ferc_to_sqlite \
         --loglevel=DEBUG \
+        --logfile=${PUDL_OUTPUT}/ferc-to-sqlite.log \
         --gcs-cache-path=gs://internal-zenodo-cache.catalyst.coop \
         --workers=8 \
         $PUDL_SETTINGS_YML \
     && pudl_etl \
         --loglevel DEBUG \
+        --logfile=${PUDL_OUTPUT}/pudl-etl.log \
         --gcs-cache-path gs://internal-zenodo-cache.catalyst.coop \
         --partition-epacems \
         $PUDL_SETTINGS_YML \
     && pytest \
         --gcs-cache-path=gs://internal-zenodo-cache.catalyst.coop \
         --etl-settings=$PUDL_SETTINGS_YML \
+        --log-file=${PUDL_OUTPUT}/pytest.log \
         --live-dbs test
 }
 
@@ -42,7 +45,9 @@ function shutdown_vm() {
     # Copy the outputs to the GCS bucket
     gsutil -m cp -r $PUDL_OUTPUT "gs://nightly-build-outputs.catalyst.coop/$ACTION_SHA-$GITHUB_REF"
 
-    upload_file_to_slack "${PUDL_OUTPUT}/pudl-etl.log" "Logs for $ACTION_SHA-$GITHUB_REF:"
+    upload_file_to_slack "${PUDL_OUTPUT}/ferc-to-sqlite.log" "ferc_to_sqlite logs for $ACTION_SHA-$GITHUB_REF:"
+    upload_file_to_slack "${PUDL_OUTPUT}/pudl-etl.log" "pudl_etl logs for $ACTION_SHA-$GITHUB_REF:"
+    upload_file_to_slack "${PUDL_OUTPUT}/pytest.log" "pytest logs for $ACTION_SHA-$GITHUB_REF:"
 
     echo "Shutting down VM."
     # # Shut down the vm instance when the etl is done.
