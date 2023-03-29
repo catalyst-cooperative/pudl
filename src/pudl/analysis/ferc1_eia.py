@@ -685,15 +685,22 @@ def prep_train_connections(
             .pipe(pudl.helpers.cleanstrings_snake, ["record_id_eia"])
             .drop_duplicates(subset=["record_id_ferc1", "record_id_eia"])
         )
-        .merge(ppe[["record_id_eia", "ferc1_generator_agg_id"]])
+        .merge(
+            ppe["ferc1_generator_agg_id"].reset_index(),
+            on="record_id_eia",
+            how="left",
+            validate="1:1",
+        )
         .dropna(subset=["ferc1_generator_agg_id"])
         .drop(["record_id_eia"], axis=1)
         .merge(
             ppe.loc[
                 ppe.plant_part == "plant_match_ferc1",
-                ["record_id_eia", "ferc1_generator_agg_id"],
-            ],
+                ["ferc1_generator_agg_id"],
+            ].reset_index(),
             on="ferc1_generator_agg_id",
+            how="left",
+            validate="m:1",
         )
         .drop(["ferc1_generator_agg_id"], axis=1)
         .drop_duplicates(subset=["record_id_ferc1", "record_id_eia"])
