@@ -6,6 +6,11 @@ from nbconvert.preprocessors import ExecutePreprocessor
 from sqlalchemy.engine import Engine
 
 
+@pytest.mark.skip(
+    "Notebooks can't access in-memory assets from dagster's execute_in_process() method. "
+    "If we switch to writing those assets out to disk in a test-oriented $DAGSTER_HOME "
+    "then we can re-activate these tests."
+)
 @pytest.mark.parametrize(
     "notebook",
     [
