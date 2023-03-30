@@ -71,7 +71,6 @@ ENTITIES: dict[str, dict[str, list[str]]] = {
             "water_source",
             "data_maturity",
         ],
-        "keep_cols": ["data_maturity", "utility_id_eia"],
     },
     "generators": {
         "id_cols": ["plant_id_eia", "generator_id"],
@@ -163,7 +162,6 @@ ENTITIES: dict[str, dict[str, list[str]]] = {
             "energy_storage_capacity_mwh",
             "net_capacity_mwdc",
         ],
-        "keep_cols": ["utility_id_eia", "data_maturity"],
     },
     "boilers": {
         "id_cols": ["plant_id_eia", "boiler_id"],
@@ -261,10 +259,7 @@ ENTITIES: dict[str, dict[str, list[str]]] = {
             "standard_so2_percent_scrubbed",
             "data_maturity",
         ],
-        "keep_cols": ["data_maturity"],
     },
-    # utilities must come after plants. plant location needs to be
-    # removed before the utility locations are compiled
     "utilities": {
         "id_cols": ["utility_id_eia"],
         "static_cols": ["utility_name_eia"],
@@ -293,7 +288,6 @@ ENTITIES: dict[str, dict[str, list[str]]] = {
             "phone_number_2",
             "data_maturity",
         ],
-        "keep_cols": ["data_maturity"],
     },
 }
 """Columns kept for either entity or annual EIA tables in the harvesting process.
