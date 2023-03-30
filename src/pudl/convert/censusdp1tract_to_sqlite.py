@@ -62,7 +62,7 @@ def censusdp1tract_to_sqlite(pudl_settings=None, year=2010, ds=None, clobber=Fal
         tmpdir_path = Path(tmpdir)
         zip_ref = ds.get_zipfile_resource("censusdp1tract", year=year)
         extract_root = tmpdir_path / Path(zip_ref.filelist[0].filename)
-        out_path = Path(pudl_settings["sqlite_dir"]) / "censusdp1tract.sqlite"
+        out_path = Path(pudl_settings["pudl_out"]) / "censusdp1tract.sqlite"
 
         if out_path.exists():
             if clobber:

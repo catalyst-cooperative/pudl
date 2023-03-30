@@ -28,7 +28,7 @@ import pudl
 logger = pudl.logging_helpers.get_logger(__name__)
 
 
-RENAME_COLS_FERC_EIA: dict = {
+RENAME_COLS_FERC1_EIA: dict = {
     "new_1": "verified",
     "new_2": "used_match_record",
     "new_3": "signature_1",
@@ -80,7 +80,7 @@ RENAME_COLS_FERC_EIA: dict = {
     "new_17": "installation_year_diff",
 }
 
-RELEVANT_COLS_PPL: list = [
+RELEVANT_COLS_PPE: list = [
     "record_id_eia",
     "report_year",
     "utility_id_pudl",
@@ -149,35 +149,43 @@ def _is_best_match(
     return df
 
 
-def _prep_ferc1_eia(ferc1_eia, pudl_out) -> pd.DataFrame:
-    """Prep FERC-EIA for use in override output sheet pre-utility subgroups."""
+def _prep_ferc1_eia(ferc1_eia, utils_eia860) -> pd.DataFrame:
+    """Prep FERC-EIA for use in override output sheet pre-utility subgroups.
+
+    Args:
+        ferc1_eia (pd.DataFrame): The dataframe resulting from pudl_out.ferc1_eia().
+        utils_eia860 (pd.DataFrame): The dataframe resulting from pudl_out.utils_eia860.
+
+    Returns:
+        pd.DataFrame: A version of the ferc1_eia table that's been modified for
+            the purposes of creating an manual mapping spreadsheet.
+    """
     logger.debug("Prepping FERC-EIA table")
     # Only want to keep the plant_name_ppe field which replaces plant_name_eia
     ferc1_eia_prep = ferc1_eia.copy().drop(columns="plant_name_eia")
 
     # Add utility_name_eia - this must happen before renaming the cols or else there
     # will be duplicate utility_name_eia columns.
-    utils = pudl_out.utils_eia860().copy()
-    utils.loc[:, "report_year"] = utils.report_date.dt.year
+    utils_eia860.loc[:, "report_year"] = utils_eia860.report_date.dt.year
     ferc1_eia_prep = pd.merge(
         ferc1_eia_prep,
-        utils[["utility_id_eia", "utility_name_eia", "report_year"]],
+        utils_eia860[["utility_id_eia", "utility_name_eia", "report_year"]].copy(),
         on=["utility_id_eia", "report_year"],
         how="left",
         validate="m:1",
     )
 
     # Add the new columns to the df
-    for new_col in [x for x in RENAME_COLS_FERC_EIA.keys() if "new_" in x]:
+    for new_col in [x for x in RENAME_COLS_FERC1_EIA.keys() if "new_" in x]:
         ferc1_eia_prep.loc[:, new_col] = pd.NA
 
     # Rename the columns, and remove unwanted columns from ferc-eia table
-    ferc1_eia_prep = ferc1_eia_prep.rename(columns=RENAME_COLS_FERC_EIA)[
-        list(RENAME_COLS_FERC_EIA.values())
+    ferc1_eia_prep = ferc1_eia_prep.rename(columns=RENAME_COLS_FERC1_EIA)[
+        list(RENAME_COLS_FERC1_EIA.values())
     ]
 
     # Add in pct diff values
-    for pct_diff_col in [x for x in RENAME_COLS_FERC_EIA.values() if "_pct_diff" in x]:
+    for pct_diff_col in [x for x in RENAME_COLS_FERC1_EIA.values() if "_pct_diff" in x]:
         ferc1_eia_prep = _pct_diff(ferc1_eia_prep, pct_diff_col)
 
     # Add in fuel_type_code_pudl diff (qualitative bool)
@@ -208,61 +216,45 @@ def _prep_ferc1_eia(ferc1_eia, pudl_out) -> pd.DataFrame:
     return ferc1_eia_prep
 
 
-def _prep_ppl(ppl, pudl_out) -> pd.DataFrame:
-    """Prep PPL table for use in override output sheet pre-utility subgroups."""
+def _prep_ppe(ppe, utils_eia860) -> pd.DataFrame:
+    """Prep PPE table for use in override output sheet pre-utility subgroups.
+
+    Args:
+        ppe (pd.DataFrame): The dataframe resulting from pudl_out.plant_parts_eia
+        utils_eia860 (pd.DataFrame): The dataframe resulting from pudl_out.utils_eia860.
+
+    Returns:
+        pd.DataFrame: A version of the plant_parts_eia table that's been modified for
+            the purposes of creating an manual mapping spreadsheet.
+    """
     logger.debug("Prepping Plant Parts Table")
 
     # Add utilty name eia and only take relevant columns
-    ppl_out = (
-        ppl.reset_index()
+    ppe_out = (
+        ppe.reset_index()
         .merge(
-            pudl_out.utils_eia860()[
-                ["utility_id_eia", "utility_name_eia", "report_date"]
-            ].copy(),
+            utils_eia860[["utility_id_eia", "utility_name_eia", "report_date"]].copy(),
             on=["utility_id_eia", "report_date"],
             how="left",
             validate="m:1",
-        )[RELEVANT_COLS_PPL]
+        )[RELEVANT_COLS_PPE]
         .copy()
     )
 
-    return ppl_out
+    return ppe_out
 
 
-def _prep_deprish(deprish, pudl_out) -> pd.DataFrame:
+def _prep_deprish(deprish, utils_eia860) -> pd.DataFrame:
     """Prep depreciation data for use in override output sheet pre-utility subgroups."""
+    # Not using this function ATM.
     logger.debug("Prepping Deprish Data")
 
     # Get utility_id_eia from EIA
-    util_df = pudl_out.utils_eia860()[
-        ["utility_id_pudl", "utility_id_eia"]
-    ].drop_duplicates()
+    util_df = utils_eia860()[["utility_id_pudl", "utility_id_eia"]].drop_duplicates()
     deprish.loc[:, "report_year"] = deprish.report_date.dt.year.astype("Int64")
     deprish = deprish.merge(util_df, on=["utility_id_pudl"], how="left")
 
     return deprish
-
-
-def _generate_input_dfs(pudl_out) -> dict:
-    """Load ferc_eia, ppl, and deprish tables into a dictionary.
-
-    Loading all of these tables once is much faster than loading then repreatedly for
-    every utility/year iteration. These tables will be segmented by utility and year
-    in _get_util_year_subsets() and loaded as seperate tabs in a spreadsheet in
-    _output_override_sheet().
-
-    Returns:
-        dict: A dictionary where keys are string names for ferc_eia, ppl, and deprish
-            tables and values are the actual tables in full.
-    """
-    logger.debug("Generating inputs")
-    inputs_dict = {
-        "ferc_eia": pudl_out.ferc1_eia().pipe(_prep_ferc1_eia, pudl_out),
-        "ppl": pudl_out.plant_parts_eia().pipe(_prep_ppl, pudl_out),
-        # "deprish": rmi_out.deprish().pipe(_prep_deprish, pudl_out),
-    }
-
-    return inputs_dict
 
 
 def _get_util_year_subsets(inputs_dict, util_id_eia_list, years) -> dict:
@@ -287,8 +279,8 @@ def _get_util_year_subsets(inputs_dict, util_id_eia_list, years) -> dict:
             years.
     """
     util_year_subset_dict = {}
+    logger.debug("Getting utility-year subsets")
     for df_name, df in inputs_dict.items():
-        logger.debug(f"Getting utility-year subset for {df_name}")
         subset_df = df[
             df["report_year"].isin(years) & df["utility_id_eia"].isin(util_id_eia_list)
         ].copy()
@@ -300,9 +292,9 @@ def _get_util_year_subsets(inputs_dict, util_id_eia_list, years) -> dict:
                 or year subset"
             )
 
-        if df_name == "ferc_eia":
+        if df_name == "ferc1_eia":
             # Add column with excel formula to check if the override record id is the
-            # same as the AI assigend id. Doing this here instead of prep_ferc_eia
+            # same as the AI assigend id. Doing this here instead of prep_ferc1_eia
             # because it is based on row index number which is changes when you take a
             # subset of the data.
             subset_df = subset_df.reset_index(drop=True)
@@ -325,7 +317,7 @@ def _get_util_year_subsets(inputs_dict, util_id_eia_list, years) -> dict:
 def _output_override_spreadsheet(
     util_year_subset_dict, util_name, output_dir_path
 ) -> None:
-    """Output spreadsheet with tabs for ferc-eia, ppl, deprish for one utility.
+    """Output spreadsheet with tabs for ferc-eia, ppe, deprish for one utility.
 
     Args:
         util_year_subset_dict (dict): The output from _get_util_year_subsets()
@@ -347,7 +339,7 @@ def _output_override_spreadsheet(
 
 
 def generate_all_override_spreadsheets(
-    pudl_out, util_dict, years, output_dir_path
+    ferc1_eia, ppe, utils_eia860, util_dict, years, output_dir_path
 ) -> None:
     """Output override spreadsheets for all specified utilities and years.
 
@@ -355,7 +347,9 @@ def generate_all_override_spreadsheets(
     output directory.
 
     Args:
-        pudl_out (PudlTabl): the pudl_out object generated in a notebook and passed in.
+        ferc1_eia (pd.DataFrame): The dataframe resulting from pudl_out.ferc1_eia().
+        ppe (pd.DataFrame): The dataframe resulting from pudl_out.plant_parts_eia
+        utils_eia860 (pd.DataFrame): The dataframe resulting from pudl_out.utils_eia860.
         util_dict (dict): A dictionary with keys that are the names of utility
             parent companies and values that are lists of subsidiary utility_id_eia
             values. EIA values are used instead of PUDL in this case because PUDL values
@@ -365,7 +359,11 @@ def generate_all_override_spreadsheets(
             output the override spreadsheets that this function creates.
     """
     # Generate full input tables
-    inputs_dict = _generate_input_dfs(pudl_out)
+    # inputs_dict = _generate_input_dfs(pudl_out)
+    inputs_dict = {
+        "ferc1_eia": _prep_ferc1_eia(ferc1_eia, utils_eia860),
+        "ppe": _prep_ppe(ppe, utils_eia860),
+    }
 
     # For each utility, make an override sheet with the correct input table slices
     for util_name, util_id_eia_list in util_dict.items():
@@ -394,7 +392,7 @@ def _check_id_consistency(
             the eia record override column: record_id_eia_override_1.
         df (pd.DataFrame): A dataframe of intended overrides.
         actual_ids (list): A list of the ferc or eia ids that are valid and come from
-            either the ppl or official ferc-eia record linkage.
+            either the ppe or official ferc-eia record linkage.
         error_message (str): A short string to indicate the type of error you're
             checking for. This could be looking for values that aren't in the official
             list or values that are already in the training data.
@@ -430,7 +428,7 @@ def check_if_already_in_training(training_data, validated_connections):
 def validate_override_fixes(
     validated_connections,
     utils_eia860,
-    ppl,
+    ppe,
     ferc1_eia,
     training_data,
     expect_override_overrides=False,
@@ -487,7 +485,7 @@ def validate_override_fixes(
 
     # Make sure that the override EIA ids actually match those in the original FERC-EIA
     # record linkage.
-    actual_eia_ids = ppl.record_id_eia.unique()
+    actual_eia_ids = ppe.record_id_eia.unique()
     _check_id_consistency(
         "record_id_eia_override_1",
         only_overrides,
@@ -515,21 +513,21 @@ def validate_override_fixes(
 
     if not allow_mismatched_utilities:
         # Make sure the EIA utility id from the override matches the PUDL id from the FERC
-        # record. Start by mapping utility_id_eia from PPL onto each
+        # record. Start by mapping utility_id_eia from PPE onto each
         # record_id_eia_override_1.
         logger.debug("Checking for mismatched utility ids")
         only_overrides = only_overrides.merge(
-            ppl[["record_id_eia", "utility_id_eia"]].drop_duplicates(),
+            ppe[["record_id_eia", "utility_id_eia"]].drop_duplicates(),
             left_on="record_id_eia_override_1",
             right_on="record_id_eia",
             how="left",
-            suffixes=("", "_ppl"),
+            suffixes=("", "_ppe"),
         )
         # Now merge the utility_id_pudl from EIA in so that you can compare it with the
         # utility_id_pudl from FERC that's already in the overrides
         only_overrides = only_overrides.merge(
             utils_eia860[["utility_id_eia", "utility_id_pudl"]].drop_duplicates(),
-            left_on="utility_id_eia_ppl",
+            left_on="utility_id_eia_ppe",
             right_on="utility_id_eia",
             how="left",
             suffixes=("", "_utils"),
@@ -549,16 +547,16 @@ def validate_override_fixes(
     # column.
     logger.debug("Checking that year in override id matches report year")
     only_overrides = only_overrides.merge(
-        ppl[["record_id_eia", "report_year"]].drop_duplicates(),
+        ppe[["record_id_eia", "report_year"]].drop_duplicates(),
         left_on="record_id_eia_override_1",
         right_on="record_id_eia",
         how="left",
-        suffixes=("", "_ppl"),
+        suffixes=("", "_ppe"),
     )
     if (
         len(
             bad_eia_year := only_overrides["report_year"].compare(
-                only_overrides["report_year_ppl"]
+                only_overrides["report_year_ppe"]
             )
         )
         > 0
@@ -690,7 +688,7 @@ def _add_to_one_to_many_overrides(one_to_many, current_one_to_many_path) -> None
 
 def validate_and_add_to_training(
     utils_eia860,
-    ppl,
+    ppe,
     ferc1_eia,
     input_dir_path,
     expect_override_overrides=False,
@@ -779,7 +777,7 @@ def validate_and_add_to_training(
             multi_file_df = multi_df.pipe(
                 validate_override_fixes,
                 utils_eia860,
-                ppl,
+                ppe,
                 ferc1_eia,
                 old_training_df,
                 expect_override_overrides=expect_override_overrides,

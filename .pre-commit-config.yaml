@@ -102,6 +102,7 @@ repos:
     rev: 1.7.5
     hooks:
       - id: bandit
+        additional_dependencies: ["bandit[toml]"]
         args: ["--configfile", ".bandit.yml"]
 
   # Lint Dockerfiles for errors and to ensure best practices

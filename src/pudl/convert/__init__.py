@@ -15,6 +15,5 @@ from . import (  # noqa: F401
     censusdp1tract_to_sqlite,
     datasette_metadata_to_yml,
     epacems_to_parquet,
-    ferc_to_sqlite,
     metadata_to_rst,
 )

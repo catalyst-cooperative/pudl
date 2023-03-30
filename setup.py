@@ -48,15 +48,19 @@ setup(
     setup_requires=["setuptools_scm"],
     install_requires=[
         "addfips>=0.4,<0.5",
+        "alembic>=1.9.4,<2",
         "catalystcoop.dbfread>=3.0,<3.1",
+        "coloredlogs>=14.0,<15.1",  # Dagster requires 14.0
         "catalystcoop.ferc-xbrl-extractor==0.8.1",
-        "coloredlogs>=15.0,<15.1",
-        "dask>=2021.8,<2023.3.2",
+        "dask>=2021.8,<2023.3.3",
         "datapackage>=1.11,<1.16",  # Transition datastore to use frictionless.
+        "dagster>=1.1,<1.3",
+        "dagit>=1.1,<1.3",
         # "email-validator>=1.0.3",  # pydantic[email] dependency
         "fsspec>=2021.7,<2023.3.1",  # For caching datastore on GCS
         "gcsfs>=2021.7,<2023.3.1",  # For caching datastore on GCS
         "geopandas>=0.9,<0.13",
+        "grpcio==1.46.1",  # dagster dependency with finnicky Mac support
         "jinja2>=2,<3.2",
         "matplotlib>=3.3,<3.8",  # Should make this optional with a "viz" extras
         "networkx>=2.2,<3.1",
@@ -64,6 +68,7 @@ setup(
         "pandas>=1.4,<1.5.4",
         "pyarrow>=5,<11.1",
         "pydantic[email]>=1.7,<2",
+        "python-dotenv>=0.21,<1.1",
         "python-snappy>=0.6,<0.7",
         "pyyaml>=5,<6.1",
         "recordlinkage>=0.14,<0.16",
@@ -78,6 +83,7 @@ setup(
         "dev": [
             "black>=22.0,<23.2",
             "docformatter>=1.5,<1.6",
+            "ipdb>=0.13,<0.14",
             "isort>=5.0,<5.13",
             "jedi>=0.18,<0.19",
             "lxml>=4.6,<4.10",
@@ -105,7 +111,7 @@ setup(
             "mccabe>=0.6,<0.8",
             "nbval>=0.9,<0.11",
             "pep8-naming>=0.12,<0.14",
-            "pre-commit>=2.9,<3.2",
+            "pre-commit>=2.9,<3.3",
             "pydocstyle>=5.1,<6.4",
             "pytest>=6.2,<7.3",
             "pytest-console-scripts>=1.1,<1.4",
@@ -143,7 +149,7 @@ setup(
             "censusdp1tract_to_sqlite = pudl.convert.censusdp1tract_to_sqlite:main",
             "metadata_to_rst = pudl.convert.metadata_to_rst:main",
             "epacems_to_parquet = pudl.convert.epacems_to_parquet:main",
-            "ferc_to_sqlite = pudl.convert.ferc_to_sqlite:main",
+            "ferc_to_sqlite = pudl.ferc_to_sqlite.cli:main",
             "datasette_metadata_to_yml = pudl.convert.datasette_metadata_to_yml:main",
             "pudl_datastore = pudl.workspace.datastore:main",
             "pudl_etl = pudl.cli:main",
@@ -152,6 +158,7 @@ setup(
             # See https://github.com/catalyst-cooperative/pudl/issues/1174
             # "pudl_territories = pudl.analysis.service_territory:main",
             "state_demand = pudl.analysis.state_demand:main",
+            "pudl_check_fks = pudl.etl.check_foreign_keys:main",
         ]
     },
 )

@@ -23,13 +23,14 @@ import networkx as nx
 import numpy as np
 import pandas as pd
 import timezonefinder
+from dagster import AssetIn, AssetOut, Field, Output, multi_asset
 
 import pudl
-from pudl.metadata.classes import DataSource
+from pudl.helpers import convert_cols_dtypes
+from pudl.metadata.classes import DataSource, Package
 from pudl.metadata.enums import APPROXIMATE_TIMEZONES
 from pudl.metadata.fields import apply_pudl_dtypes, get_pudl_dtypes
 from pudl.metadata.resources import ENTITIES
-from pudl.settings import EiaSettings
 
 logger = pudl.logging_helpers.get_logger(__name__)
 
@@ -553,6 +554,7 @@ def harvesting(  # noqa: C901
     return (entities_dfs, eia_transformed_dfs)
 
 
+# TODO (bendnorman): Can this and harvesting() be separate assets?
 def _boiler_generator_assn(  # noqa: C901
     eia_transformed_dfs: dict[str, pd.DataFrame],
     eia923_years: list[int] | None = None,
@@ -1147,9 +1149,52 @@ def fix_balancing_authority_codes_with_state(
     return plants
 
 
-def transform(
-    eia_transformed_dfs, eia_settings: EiaSettings = EiaSettings(), debug=False
-):
+@multi_asset(
+    ins={
+        asset_id: AssetIn()
+        for asset_id in [
+            "clean_boiler_fuel_eia923",
+            "clean_boiler_generator_assn_eia860",
+            "clean_boilers_eia860",
+            "clean_coalmine_eia923",
+            "clean_fuel_receipts_costs_eia923",
+            "clean_generation_eia923",
+            "clean_generation_fuel_eia923",
+            "clean_generation_fuel_nuclear_eia923",
+            "clean_generators_eia860",
+            "clean_ownership_eia860",
+            "clean_plants_eia860",
+            "clean_utilities_eia860",
+        ]
+        # This would be better, but currently results in a circular import error due to
+        # the use of occurrence_consistency in pudl.output.eia860. Need to untangle.
+        # asset_key.to_python_identifier(): AssetIn()
+        # for eia_asset in load_assets_from_modules(
+        #     [pudl.transform.eia860, pudl.transform.eia923]
+        # )
+        # for asset_key in eia_asset.keys
+    },
+    outs={
+        table_name: AssetOut(io_manager_key="pudl_sqlite_io_manager")
+        for table_name in sorted(
+            Package.get_etl_group_tables("entity_eia")
+            + Package.get_etl_group_tables("eia860")
+            + Package.get_etl_group_tables("eia923")
+        )
+    },
+    config_schema={
+        "debug": Field(
+            bool,
+            default_value=False,
+            description=(
+                "If True, informational columns will be added into "
+                "boiler_generator_assn"
+            ),
+        ),
+    },
+    required_resource_keys={"dataset_settings"},
+)
+def eia_transform(context, **eia_transformed_dfs):
     """Creates DataFrames for EIA Entity tables and modifies EIA tables.
 
     This function coordinates two main actions: generating the entity tables
@@ -1160,22 +1205,32 @@ def transform(
     entity harvesting is finished.
 
     Args:
-        eia_transformed_dfs (dict): a dictionary of table names (kays) and
+        eia_transformed_dfs (dict): a dictionary of table names (keys) and
             transformed dataframes (values).
-        settings: Object containing validated settings
-            relevant to EIA datasets.
-        debug (bool): if true, informational columns will be added into
-            boiler_generator_assn
 
     Returns:
-        tuple: two dictionaries having table names as keys and
-        dataframes as values for the entity tables transformed EIA dataframes
+        Dataframes of entity tables transformed EIA tables.
     """
+    # Do some final cleanup and assign appropriate types:
+    eia_transformed_dfs = {
+        name: convert_cols_dtypes(df, data_source="eia")
+        for name, df in eia_transformed_dfs.items()
+    }
+
+    # Remove the clean_ prefix from the table names.
+    eia_transformed_dfs = {
+        table_name.replace("clean_", ""): df
+        for table_name, df in eia_transformed_dfs.items()
+    }
+
+    eia_settings = context.resources.dataset_settings.eia
+
     # create the empty entities df to fill up
     entities_dfs = {}
 
     # for each of the entities, harvest the static and annual columns.
     # the order of the entities matter! the
+
     for entity in ENTITIES:
         logger.info(f"Harvesting IDs & consistently static attributes for EIA {entity}")
 
@@ -1183,14 +1238,14 @@ def transform(
             entity,
             eia_transformed_dfs,
             entities_dfs,
-            debug=debug,
+            debug=context.op_config["debug"],
             eia860m=eia_settings.eia860.eia860m,
         )
     _boiler_generator_assn(
         eia_transformed_dfs,
         eia923_years=eia_settings.eia923.years,
         eia860_years=eia_settings.eia860.years,
-        debug=debug,
+        debug=context.op_config["debug"],
     )
     # get rid of the original annual dfs in the transformed dict
     remove = ["generators", "plants", "utilities", "boilers"]
@@ -1205,4 +1260,22 @@ def transform(
         fix_balancing_authority_codes_with_state,
         plants_entity=entities_dfs["plants_entity_eia"],
     )
-    return entities_dfs, eia_transformed_dfs
+
+    # Assign appropriate types to new entity tables:
+    entities_dfs = {
+        name: apply_pudl_dtypes(df, group="eia") for name, df in entities_dfs.items()
+    }
+
+    for table in entities_dfs:
+        entities_dfs[table] = (
+            Package.from_resource_ids().get_resource(table).encode(entities_dfs[table])
+        )
+
+    final_dfs = entities_dfs | eia_transformed_dfs
+
+    # Ensure they are sorted so they match up with the asset outs
+    final_dfs = dict(sorted(final_dfs.items()))
+
+    return (
+        Output(output_name=table_name, value=df) for table_name, df in final_dfs.items()
+    )

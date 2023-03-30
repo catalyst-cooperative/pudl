@@ -1,6 +1,9 @@
 #!/usr/bin/bash
 # This script runs the entire ETL and validation tests in a docker container on a Google Compute Engine instance.
 # This script won't work locally because it needs adequate GCP permissions.
+
+set -x
+
 function send_slack_msg() {
     curl -X POST -H "Content-type: application/json" -H "Authorization: Bearer ${SLACK_TOKEN}" https://slack.com/api/chat.postMessage --data "{\"channel\": \"C03FHB9N0PQ\", \"text\": \"$1\"}"
 }
@@ -19,38 +22,27 @@ function run_pudl_etl() {
     send_slack_msg ":large_yellow_circle: Deployment started for $ACTION_SHA-$GITHUB_REF :floppy_disk:"
     authenticate_gcp \
     && pudl_setup \
-        --pudl_in $CONTAINER_PUDL_IN \
-        --pudl_out $CONTAINER_PUDL_OUT \
     && ferc_to_sqlite \
-        --clobber \
-        --loglevel DEBUG \
-        --gcs-cache-path gs://internal-zenodo-cache.catalyst.coop \
-        --bypass-local-cache \
+        --loglevel=DEBUG \
+        --gcs-cache-path=gs://internal-zenodo-cache.catalyst.coop \
+        --workers=8 \
         $PUDL_SETTINGS_YML \
     && pudl_etl \
-        --clobber \
         --loglevel DEBUG \
         --gcs-cache-path gs://internal-zenodo-cache.catalyst.coop \
-        --bypass-local-cache \
+        --partition-epacems \
         $PUDL_SETTINGS_YML \
-    && epacems_to_parquet \
-        --partition \
-        --clobber \
-        --loglevel DEBUG \
-        --gcs-cache-path gs://internal-zenodo-cache.catalyst.coop \
-        --bypass-local-cache \
     && pytest \
-        --gcs-cache-path gs://internal-zenodo-cache.catalyst.coop \
-        --bypass-local-cache \
-        --etl-settings $PUDL_SETTINGS_YML \
+        --gcs-cache-path=gs://internal-zenodo-cache.catalyst.coop \
+        --etl-settings=$PUDL_SETTINGS_YML \
         --live-dbs test
 }
 
 function shutdown_vm() {
     # Copy the outputs to the GCS bucket
-    gsutil -m cp -r $CONTAINER_PUDL_OUT "gs://nightly-build-outputs.catalyst.coop/$ACTION_SHA-$GITHUB_REF"
+    gsutil -m cp -r $PUDL_OUTPUT "gs://nightly-build-outputs.catalyst.coop/$ACTION_SHA-$GITHUB_REF"
 
-    upload_file_to_slack "${CONTAINER_PUDL_OUT}/pudl-etl.log" "Logs for $ACTION_SHA-$GITHUB_REF:"
+    upload_file_to_slack "${PUDL_OUTPUT}/pudl-etl.log" "Logs for $ACTION_SHA-$GITHUB_REF:"
 
     echo "Shutting down VM."
     # # Shut down the vm instance when the etl is done.
@@ -63,12 +55,10 @@ function shutdown_vm() {
 
 function copy_outputs_to_intake_bucket() {
     echo "Copying outputs to GCP intake bucket"
-    gsutil -m -u $GCP_BILLING_PROJECT cp -r "$CONTAINER_PUDL_OUT/sqlite/*" "gs://intake.catalyst.coop/$GITHUB_REF"
-    gsutil -m -u $GCP_BILLING_PROJECT cp -r "$CONTAINER_PUDL_OUT/parquet/epacems/*" "gs://intake.catalyst.coop/$GITHUB_REF"
+    gsutil -m -u $GCP_BILLING_PROJECT cp -r "$PUDL_OUTPUT/*" "gs://intake.catalyst.coop/$GITHUB_REF"
 
     echo "Copying outputs to AWS intake bucket"
-    aws s3 cp "$CONTAINER_PUDL_OUT/sqlite" "s3://intake.catalyst.coop/$GITHUB_REF" --recursive
-    aws s3 cp "$CONTAINER_PUDL_OUT/parquet/epacems" "s3://intake.catalyst.coop/$GITHUB_REF" --recursive
+    aws s3 cp "$PUDL_OUTPUT/" "s3://intake.catalyst.coop/$GITHUB_REF" --recursive
 }
 
 
@@ -76,6 +66,7 @@ function notify_slack() {
     # Notify pudl-builds slack channel of deployment status
     if [ $1 = "success" ]; then
         message=":large_green_circle: :sunglasses: :unicorn_face: :rainbow: The deployment succeeded!! :partygritty: :database_parrot: :blob-dance: :large_green_circle:\n\n "
+        message+="<https://github.com/catalyst-cooperative/pudl/compare/main...${GITHUB_REF}|Make a PR for \`${GITHUB_REF}\` into \`main\`!>\n\n"
     elif [ $1 = "failure" ]; then
         message=":large_red_square: Oh bummer the deployment failed ::fiiiiine: :sob: :cry_spin:\n\n "
     else

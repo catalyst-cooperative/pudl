@@ -7,6 +7,7 @@ should probably live here. There are lost of transform type functions in here th
 with cleaning and restructing dataframes.
 """
 import itertools
+import os
 import pathlib
 import re
 import shutil
@@ -22,10 +23,13 @@ import numpy as np
 import pandas as pd
 import requests
 import sqlalchemy as sa
+from dagster import AssetKey, AssetsDefinition, AssetSelection, Noneable, SourceAsset
+from dagster._config.errors import PostProcessingError
 from pandas._libs.missing import NAType
 
 import pudl.logging_helpers
 from pudl.metadata.fields import get_pudl_dtypes
+from pudl.workspace.setup import get_defaults
 
 sum_na = partial(pd.Series.sum, skipna=False)
 """A sum function that returns NA if the Series includes any NA values.
@@ -1027,7 +1031,7 @@ def drop_tables(engine: sa.engine.Engine, clobber: bool = False):
     insp = sa.inspect(engine)
     if len(insp.get_table_names()) > 0 and not clobber:
         raise AssertionError(
-            f"You are attempting to drop your database without setting clobber to {clobber}"
+            f"You are attempting to drop your database at {engine} while clobber is set to {clobber}"
         )
     md.drop_all(engine)
     conn = engine.connect()
@@ -1561,3 +1565,77 @@ def convert_df_to_excel_file(df: pd.DataFrame, **kwargs) -> pd.ExcelFile:
     workbook = bio.read()
 
     return pd.ExcelFile(workbook)
+
+
+class EnvVar(Noneable):
+    """A dagster config type for env vars."""
+
+    def __init__(self, env_var: str) -> None:
+        """Initialize EnvVarField."""
+        super().__init__(inner_type=str)
+        self.env_var = env_var
+
+    def post_process(self, value: str) -> str:
+        """Validate an EnvVar config value.
+
+        Returns the value of the object environment variable if the
+        config value is not specified is not specified with dagster.
+
+        Args:
+            value: config value to validate.
+
+        Returns:
+            validated config value.
+
+        Raises:
+            PostProcessingError: if the value is not specified in the env var or config.
+        """
+        if value is None:
+            try:
+                value = os.environ.get(self.env_var)
+                if value is None:
+                    value = get_defaults()[self.env_var]
+            except KeyError:
+                raise PostProcessingError(
+                    f"Config value could not be found. Set the {self.env_var} environment variable or specify a value in dagster config."
+                )
+        return value
+
+
+def get_asset_keys(
+    assets: list[AssetsDefinition], exclude_source_assets: bool = True
+) -> set[AssetKey]:
+    """Get a set of asset keys from a list of asset definitions.
+
+    Args:
+        assets: list of asset definitions.
+        exclude_source_assets: exclude SourceAssets in the returned list.
+            Some selection operations don't allow SourceAsset keys.
+
+    Returns:
+        A set of asset keys.
+    """
+    asset_keys = set()
+    for asset in assets:
+        if isinstance(asset, SourceAsset):
+            if not exclude_source_assets:
+                asset_keys = asset_keys.union(asset.key)
+        else:
+            asset_keys = asset_keys.union(asset.keys)
+    return asset_keys
+
+
+def get_asset_group_keys(
+    asset_group: str, all_assets: list[AssetsDefinition]
+) -> list[str]:
+    """Get a list of asset names in a given asset group.
+
+    Args:
+        asset_group: the name of the asset group.
+        all_assets: the collection of assets to select the group from.
+
+    Return:
+        A list of asset names in the asset_group.
+    """
+    asset_keys = AssetSelection.groups(asset_group).resolve(all_assets)
+    return [asset.to_python_identifier() for asset in list(asset_keys)]

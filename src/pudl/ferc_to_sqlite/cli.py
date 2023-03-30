@@ -6,15 +6,19 @@ main PUDL ETL process. The underlying work in the script is being done in
 :mod:`pudl.extract.ferc1`.
 """
 import argparse
-import pathlib
 import sys
-from pathlib import Path
+from collections.abc import Callable
 
-import yaml
+from dagster import (
+    DagsterInstance,
+    JobDefinition,
+    build_reconstructable_job,
+    execute_job,
+)
 
 import pudl
-from pudl.settings import FercToSqliteSettings
-from pudl.workspace.datastore import Datastore
+from pudl import ferc_to_sqlite
+from pudl.settings import EtlSettings
 
 # Create a logger to output any messages we might have...
 logger = pudl.logging_helpers.get_logger(__name__)
@@ -74,18 +78,35 @@ def parse_command_line(argv):
         help="Load datastore resources from Google Cloud Storage. Should be gs://bucket[/path_prefix]",
     )
     parser.add_argument(
-        "--bypass-local-cache",
-        action="store_true",
-        default=False,
-        help="If enabled, the local file cache for datastore will not be used.",
-    )
-    parser.add_argument(
         "--loglevel",
         help="Set logging level (DEBUG, INFO, WARNING, ERROR, or CRITICAL).",
         default="INFO",
     )
     arguments = parser.parse_args(argv[1:])
     return arguments
+
+
+def ferc_to_sqlite_job_factory(
+    logfile: str | None = None, loglevel: str = "INFO"
+) -> Callable[[], JobDefinition]:
+    """Factory for parameterizing a reconstructable ferc_to_sqlite job.
+
+    Args:
+        loglevel: The log level for the job's execution.
+        logfile: Path to a log file for the job's execution.
+
+    Returns:
+        The job definition to be executed.
+    """
+
+    def get_ferc_to_sqlite_job():
+        """Module level func for creating a job to be wrapped by reconstructable."""
+        return ferc_to_sqlite.ferc_to_sqlite.to_job(
+            resource_defs=ferc_to_sqlite.default_resources_defs,
+            name="ferc_to_sqlite_job",
+        )
+
+    return get_ferc_to_sqlite_job
 
 
 def main():  # noqa: C901
@@ -97,46 +118,55 @@ def main():  # noqa: C901
         logfile=args.logfile, loglevel=args.loglevel
     )
 
-    with pathlib.Path(args.settings_file).open() as f:
-        script_settings = yaml.safe_load(f)
+    etl_settings = EtlSettings.from_yaml(args.settings_file)
 
-    defaults = pudl.workspace.setup.get_defaults()
-    pudl_in = script_settings.get("pudl_in", defaults["pudl_in"])
-    pudl_out = script_settings.get("pudl_out", defaults["pudl_out"])
+    # Set PUDL_INPUT/PUDL_OUTPUT env vars from .pudl.yml if not set already!
+    pudl.workspace.setup.get_defaults()
 
-    pudl_settings = pudl.workspace.setup.derive_paths(
-        pudl_in=pudl_in, pudl_out=pudl_out
+    ferc_to_sqlite_reconstructable_job = build_reconstructable_job(
+        "pudl.ferc_to_sqlite.cli",
+        "ferc_to_sqlite_job_factory",
+        reconstructable_kwargs={"loglevel": args.loglevel, "logfile": args.logfile},
     )
 
-    parsed_settings = FercToSqliteSettings().parse_obj(
-        script_settings["ferc_to_sqlite_settings"]
+    result = execute_job(
+        ferc_to_sqlite_reconstructable_job,
+        instance=DagsterInstance.get(),
+        run_config={
+            "resources": {
+                "ferc_to_sqlite_settings": {
+                    "config": etl_settings.ferc_to_sqlite_settings.dict()
+                },
+                "datastore": {
+                    "config": {
+                        "sandbox": args.sandbox,
+                        "gcs_cache_path": args.gcs_cache_path
+                        if args.gcs_cache_path
+                        else "",
+                    },
+                },
+            },
+            "ops": {
+                "xbrl2sqlite": {
+                    "config": {
+                        "workers": args.workers,
+                        "batch_size": args.batch_size,
+                        "clobber": args.clobber,
+                    },
+                },
+                "dbf2sqlite": {
+                    "config": {"clobber": args.clobber},
+                },
+            },
+        },
+        raise_on_error=True,
     )
 
-    # Configure how we want to obtain raw input data:
-    ds_kwargs = dict(
-        gcs_cache_path=args.gcs_cache_path, sandbox=pudl_settings.get("sandbox", False)
-    )
-    if not args.bypass_local_cache:
-        ds_kwargs["local_cache_path"] = Path(pudl_settings["pudl_in"]) / "data"
-
-    pudl_settings["sandbox"] = args.sandbox
-
-    if parsed_settings.ferc1_dbf_to_sqlite_settings:
-        pudl.extract.ferc1.dbf2sqlite(
-            ferc1_to_sqlite_settings=parsed_settings.ferc1_dbf_to_sqlite_settings,
-            pudl_settings=pudl_settings,
-            clobber=args.clobber,
-            datastore=Datastore(**ds_kwargs),
-        )
-
-    pudl.extract.xbrl.xbrl2sqlite(
-        ferc_to_sqlite_settings=parsed_settings,
-        pudl_settings=pudl_settings,
-        clobber=args.clobber,
-        datastore=Datastore(**ds_kwargs),
-        batch_size=args.batch_size,
-        workers=args.workers,
-    )
+    # Workaround to reliably getting full stack trace
+    if not result.success:
+        for event in result.all_events:
+            if event.event_type_value == "STEP_FAILURE":
+                raise Exception(event.event_specific_data.error)
 
 
 if __name__ == "__main__":
