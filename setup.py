@@ -44,7 +44,7 @@ setup(
         "eia 861",
         "ferc 714",
     ],
-    python_requires=">=3.10,<3.11",
+    python_requires=">=3.11,<3.12",
     setup_requires=["setuptools_scm"],
     install_requires=[
         "addfips>=0.4,<0.5",
@@ -53,13 +53,12 @@ setup(
         "catalystcoop.ferc-xbrl-extractor==0.8.1",
         "dask>=2021.8,<2023.3.3",
         "datapackage>=1.11,<1.16",  # Transition datastore to use frictionless.
-        "dagster>=1.1,<1.3",
-        "dagit>=1.1,<1.3",
+        "dagster>=1.2.2,<1.3",  # 1.2.2 is first version to support Python 3.11
+        "dagit>=1.2.2,<1.3",  # 1.2.2 is first version to support Python 3.11
         # "email-validator>=1.0.3",  # pydantic[email] dependency
         "fsspec>=2021.7,<2023.3.1",  # For caching datastore on GCS
         "gcsfs>=2021.7,<2023.3.1",  # For caching datastore on GCS
         "geopandas>=0.9,<0.13",
-        "grpcio==1.46.1",  # dagster dependency with finnicky Mac support
         "jinja2>=2,<3.2",
         "matplotlib>=3.3,<3.8",  # Should make this optional with a "viz" extras
         "networkx>=2.2,<3.1",
@@ -86,7 +85,7 @@ setup(
             "isort>=5.0,<5.13",
             "jedi>=0.18,<0.19",
             "lxml>=4.6,<4.10",
-            "tox>=3.20,<4.5",
+            "tox>=4,<4.5",
             "twine>=3.3,<4.1",
         ],
         "doc": [
@@ -136,7 +135,7 @@ setup(
         "Programming Language :: Python",
         "Programming Language :: Python :: 3",
         "Programming Language :: Python :: 3 :: Only",
-        "Programming Language :: Python :: 3.10",
+        "Programming Language :: Python :: 3.11",
         "Topic :: Scientific/Engineering",
     ],
     packages=find_packages("src"),
