@@ -1202,6 +1202,7 @@ class Resource(Base):
         "eia_bulk_elec",
         "static_pudl",
     ] = None
+    include_in_database: bool = True
 
     _check_unique = _validator(
         "contributors", "keywords", "licenses", "sources", fn=_check_unique
@@ -1871,11 +1872,12 @@ class Package(Base):
         """Return equivalent SQL MetaData."""
         metadata = sa.MetaData()
         for resource in self.resources:
-            _ = resource.to_sql(
-                metadata,
-                check_types=check_types,
-                check_values=check_values,
-            )
+            if resource.include_in_database:
+                _ = resource.to_sql(
+                    metadata,
+                    check_types=check_types,
+                    check_values=check_values,
+                )
         return metadata
 
 

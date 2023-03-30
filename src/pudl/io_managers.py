@@ -349,6 +349,76 @@ class SQLiteIOManager(IOManager):
                 name.
         """
         table_name = self._get_table_name(context)
+
+        # Check if the table_name exists in the self.md object
+        _ = self._get_sqlalchemy_table(table_name)
+
+        engine = self.engine
+
+        with engine.connect() as con:
+            try:
+                df = pd.read_sql_table(table_name, con)
+            except ValueError:
+                raise ValueError(
+                    f"{table_name} not found. Either the table was dropped "
+                    "or it doesn't exist in the pudl.metadata.resources."
+                    "Add the table to the metadata and recreate the database."
+                )
+            if df.empty:
+                raise AssertionError(
+                    f"The {table_name} table is empty. Materialize "
+                    "the {table_name} asset so it is available in the database."
+                )
+            return df
+
+
+class PudlSQLiteIOManager(SQLiteIOManager):
+    """IO Manager that writes and retrieves dataframes from a SQLite database.
+
+    This class extends the SQLiteIOManager class to manage database metadata and dtypes
+    using the :class:`pudl.metadata.classes.Package` class.
+    """
+
+    def __init__(
+        self,
+        base_dir: str = None,
+        db_name: str = None,
+        package: Package = None,
+        timeout: float = 1_000.0,
+    ):
+        """Initialize PudlSQLiteIOManager.
+
+        Args:
+            base_dir: base directory where all the step outputs which use this object
+                manager will be stored in.
+            db_name: the name of sqlite database.
+            package: Package object that contains collections of
+                :class:`pudl.metadata.classes.Resources` objects and methods
+                for validating and creating table metadata. It is used in this class
+                to create sqlalchemy metadata and check datatypes of dataframes. If not
+                specified, defaults to a Package with all metadata stored in the
+                :mod:`pudl.metadata.resources` subpackage.
+            timeout: How many seconds the connection should wait before raising an
+                exception, if the database is locked by another connection.  If another
+                connection opens a transaction to modify the database, it will be locked
+                until that transaction is committed.
+        """
+        if not package:
+            package = Package.from_resource_ids()
+        self.package = package
+        md = self.package.to_sql()
+        super().__init__(base_dir, db_name, md, timeout)
+
+    def load_input(self, context: InputContext) -> pd.DataFrame:
+        """Load a dataframe from a sqlite database.
+
+        Args:
+            context: dagster keyword that provides access output information like asset
+                name.
+        """
+        table_name = self._get_table_name(context)
+
+        # Check if the table_name exists in the self.md object
         _ = self._get_sqlalchemy_table(table_name)
 
         engine = self.engine
@@ -381,19 +451,10 @@ class SQLiteIOManager(IOManager):
         ),
     }
 )
-def pudl_sqlite_io_manager(init_context) -> SQLiteIOManager:
+def pudl_sqlite_io_manager(init_context) -> PudlSQLiteIOManager:
     """Create a SQLiteManager dagster resource for the pudl database."""
     base_dir = init_context.resource_config["pudl_output_path"]
-    md = Package.from_resource_ids(
-        excluded_etl_groups=(
-            "static_eia_disabled",
-            "epacems",
-            "outputs",
-            "ferc1_disabled",
-            "eia861_disabled",
-        )
-    ).to_sql()
-    return SQLiteIOManager(base_dir=base_dir, db_name="pudl", md=md)
+    return PudlSQLiteIOManager(base_dir=base_dir, db_name="pudl")
 
 
 class FercSQLiteIOManager(SQLiteIOManager):
@@ -500,6 +561,8 @@ class FercDBFSQLiteIOManager(FercSQLiteIOManager):
         ferc1_settings = context.resources.dataset_settings.ferc1
 
         table_name = self._get_table_name(context)
+
+        # Check if the table_name exists in the self.md object
         _ = self._get_sqlalchemy_table(table_name)
 
         engine = self.engine

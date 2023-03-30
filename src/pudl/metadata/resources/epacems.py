@@ -32,6 +32,7 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
         "sources": ["eia860", "epacems"],
         "field_namespace": "epacems",
         "etl_group": "epacems",
+        "include_in_database": False,
     },
 }
 """EPA CEMS resource attributes by PUDL identifier (``resource.name``).
