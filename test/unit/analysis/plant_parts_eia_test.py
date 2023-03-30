@@ -1,6 +1,10 @@
 """Tests for timeseries anomalies detection and imputation."""
+from importlib import resources
+from typing import Literal
+
 import pandas as pd
 
+import pudl
 import pudl.analysis.plant_parts_eia
 
 GENS_MEGA = pd.DataFrame(
@@ -459,3 +463,197 @@ def test_label_true_grans():
     out = pudl.analysis.plant_parts_eia.TrueGranLabeler().execute(plant_part_list_input)
 
     pd.testing.assert_frame_equal(expected_out, out)
+
+
+class PudlTablMock:
+    """Mock ``pudl_out`` object."""
+
+    freq: Literal["AS", "MS"]
+
+    def __init__(
+        self,
+        freq="AS",
+    ):
+        self.freq = freq
+
+    def execute(self):
+        return self
+
+
+def test_one_to_many():
+    plant_part_list_input = pd.DataFrame(
+        {
+            "report_date": ["2020-01-01"] * 8,
+            "record_id_eia": [
+                "plant_3",
+                "unit_a",
+                "unit_b",
+                "gen_1",
+                "gen_2",
+                "gen_3",
+                "gen_4",
+                "tech_nat_gas",
+            ],
+            "plant_id_eia": [3] * 8,
+            "plant_name_eia": ["sparky"] * 8,
+            "plant_part": [
+                "plant",
+                "plant_unit",
+                "plant_unit",
+                "plant_gen",
+                "plant_gen",
+                "plant_gen",
+                "plant_gen",
+                "plant_technology",
+            ],
+            "generator_id": [None, None, None, 1, 2, 3, 4, None],
+            "unit_id_pudl": [1, 1, 2, 1, 2, 2, 2, 2],
+            "technology_description": ["nat_gas"] * 8,
+            "operational_status": ["operating"] * 8,
+            "operational_status_pudl": ["operating"] * 8,
+            "utility_id_eia": [1] * 8,
+            "ownership_record_type": ["total"] * 8,
+            "prime_mover_code": ["ch"] * 8,
+            "ferc_acct_name": ["test"] * 8,
+            "energy_source_code_1": ["source"] * 8,
+            "generator_operating_year": [1979] * 8,
+            "installation_year": [1979] * 8,
+            "construction_year": [1979] * 8,
+            "capacity_mw": [300] * 8,
+            "capacity_eoy_mw": [300] * 8,
+            "total_mmbtu": [10] * 8,
+            "net_generation_mwh": [100] * 8,
+            "total_fuel_cost": [100] * 8,
+            "fuel_cost_per_mwh": [1] * 8,
+            "heat_rate_mmbtu_mwh": [1] * 8,
+            "fuel_cost_per_mmbtu": [1] * 8,
+            "fuel_type_code_pudl": ["test"] * 8,
+            "planned_generator_retirement_date": [2076] * 8,
+            "generator_retirement_date": [2076] * 8,
+        }
+    ).astype(
+        {
+            "report_date": "datetime64[ns]",
+            "generator_retirement_date": "datetime64[ns]",
+            "planned_generator_retirement_date": "datetime64[ns]",
+        }
+    )
+
+    path_to_one_to_many = resources.path(
+        "pudl.package_data.test", "test_one_to_many.csv"
+    )
+
+    pudl_out = PudlTablMock()
+    parts_compiler = pudl.analysis.plant_parts_eia.MakePlantParts(pudl_out)
+
+    one_to_many_df = (
+        parts_compiler.add_one_to_many(
+            plant_parts_eia=plant_part_list_input,
+            part_name="plant_match_ferc1",
+            path_to_one_to_many=path_to_one_to_many,
+        )
+        .convert_dtypes()
+        .set_index("record_id_eia")
+    )
+
+    plant_gen_one_to_many_expected = (
+        pd.DataFrame(
+            {
+                "report_date": ["2020-01-01"] * 9,
+                "record_id_eia": [
+                    "plant_3",
+                    "unit_a",
+                    "unit_b",
+                    "gen_1",
+                    "gen_2",
+                    "gen_3",
+                    "gen_4",
+                    "tech_nat_gas",
+                    "3_0_2020_plant_match_ferc1_total_1",
+                ],
+                "plant_id_eia": [3] * 9,
+                "plant_name_eia": ["sparky"] * 9,
+                "plant_part": [
+                    "plant",
+                    "plant_unit",
+                    "plant_unit",
+                    "plant_gen",
+                    "plant_gen",
+                    "plant_gen",
+                    "plant_gen",
+                    "plant_technology",
+                    "plant_match_ferc1",
+                ],
+                "generator_id": [None, None, None, 1, 2, 3, 4, None, None],
+                "unit_id_pudl": [1, 1, 2, 1, 2, 2, 2, 2, 2],
+                "technology_description": ["nat_gas"] * 9,
+                "operational_status": [
+                    "operating",
+                    "operating",
+                    "operating",
+                    "operating",
+                    "operating",
+                    "operating",
+                    "operating",
+                    "operating",
+                    None,
+                ],
+                "operational_status_pudl": ["operating"] * 9,
+                "utility_id_eia": [1] * 9,
+                "ownership_record_type": ["total"] * 9,
+                "prime_mover_code": ["ch"] * 9,
+                "ferc_acct_name": ["test"] * 9,
+                "energy_source_code_1": ["source"] * 9,
+                "generator_operating_year": [1979] * 9,
+                "installation_year": [1979] * 9,
+                "construction_year": [1979] * 9,
+                "capacity_mw": [300, 300, 300, 300, 300, 300, 300, 300, 600],
+                "capacity_eoy_mw": [300, 300, 300, 300, 300, 300, 300, 300, 600],
+                "total_mmbtu": [10, 10, 10, 10, 10, 10, 10, 10, 20],
+                "net_generation_mwh": [100, 100, 100, 100, 100, 100, 100, 100, 200],
+                "total_fuel_cost": [100, 100, 100, 100, 100, 100, 100, 100, 200],
+                "fuel_cost_per_mwh": [1] * 9,
+                "heat_rate_mmbtu_mwh": [1] * 9,
+                "fuel_cost_per_mmbtu": [1] * 9,
+                "fuel_type_code_pudl": ["test"] * 9,
+                "planned_generator_retirement_date": [2076] * 9,
+                "generator_retirement_date": [2076] * 9,
+                "gen_id": [None, None, None, None, "gen_2", "gen_3", None, None, None],
+                "ferc1_generator_agg_id": [None, None, None, None, 0, 0, None, None, 0],
+                "fraction_owned": [None, None, None, None, None, None, None, None, 1],
+                "plant_part_id_eia": [
+                    None,
+                    None,
+                    None,
+                    None,
+                    None,
+                    None,
+                    None,
+                    None,
+                    "3_0_plant_match_ferc1_total_1",
+                ],
+                "plant_name_ppe": [
+                    None,
+                    None,
+                    None,
+                    None,
+                    None,
+                    None,
+                    None,
+                    None,
+                    "sparky 0",
+                ],
+                "record_count": [None, None, None, None, None, None, None, None, 1],
+            }
+        )
+        .astype(
+            {
+                "report_date": "datetime64[ns]",
+                "generator_retirement_date": "datetime64[ns]",
+                "planned_generator_retirement_date": "datetime64[ns]",
+            }
+        )
+        .convert_dtypes()
+        .set_index("record_id_eia")
+    )
+    pd.testing.assert_frame_equal(one_to_many_df, plant_gen_one_to_many_expected)
