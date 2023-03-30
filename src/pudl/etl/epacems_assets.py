@@ -3,6 +3,7 @@ from pathlib import Path
 
 import pandas as pd
 import pyarrow as pa
+import pyarrow.parquet as pq
 from dagster import DynamicOut, DynamicOutput, Field, graph_asset, op
 
 import pudl
@@ -33,6 +34,11 @@ def get_year(context):
             description="Path of directory to store the database in.",
             default_value=None,
         ),
+        "partition": Field(
+            bool,
+            description="Flag indicating whether the partitioned EPACEMS output should be created",
+            default_value=False,
+        ),
     },
 )
 def process_single_year(
@@ -60,6 +66,16 @@ def process_single_year(
 
         # Write to one monolithic parquet file
         monolithic_writer.write_table(table)
+
+        if context.op_config["parition"]:
+            # Write to a directory of partitioned parquet files
+            with pq.ParquetWriter(
+                where=partitioned_path / f"epacems-{year}-{state}.parquet",
+                schema=schema,
+                compression="snappy",
+                version="2.6",
+            ) as partitioned_writer:
+                partitioned_writer.write_table(table)
 
 
 @graph_asset
