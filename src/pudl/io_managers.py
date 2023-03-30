@@ -274,15 +274,7 @@ class SQLiteIOManager(IOManager):
             df: dataframe to write to the database.
         """
         table_name = self._get_table_name(context)
-
         sa_table = self._get_sqlalchemy_table(table_name)
-        pkg = Package.from_resource_ids()
-        all_resources = [resource.name for resource in pkg.resources]
-        if table_name in all_resources:
-            res = pkg.get_resource(table_name)
-            df = res.enforce_schema(df)
-        else:
-            df = pudl.metadata.fields.apply_pudl_dtypes(df)
 
         column_difference = set(sa_table.columns.keys()) - set(df.columns)
         if column_difference:
@@ -414,6 +406,37 @@ class PudlSQLiteIOManager(SQLiteIOManager):
         self.package = package
         md = self.package.to_sql()
         super().__init__(base_dir, db_name, md, timeout)
+
+    def _handle_pandas_output(self, context: OutputContext, df: pd.DataFrame):
+        """Enforce PUDL DB schema and write dataframe to SQLite."""
+        table_name = self._get_table_name(context)
+        # If table_name doesn't show up in the self.md object, this will raise an error
+        sa_table = self._get_sqlalchemy_table(table_name)
+        try:
+            res = self.package.get_resource(table_name)
+        except ValueError:
+            raise ValueError(
+                f"{table_name} does not appear in pudl.metadata.resources. "
+                "Check for typos, or add the table to the metadata and recreate the "
+                f"PUDL SQlite database. It's also possible that {table_name} is one of "
+                "the tables that does not get loaded into the PUDL SQLite DB because "
+                "it's a work in progress or is distributed in Apache Parquet format."
+            )
+
+        df = res.enforce_schema(df)
+
+        with self.engine.connect() as con:
+            # Remove old table records before loading to db
+            con.execute(sa_table.delete())
+
+            df.to_sql(
+                table_name,
+                con,
+                if_exists="append",
+                index=False,
+                chunksize=100_000,
+                dtype={c.name: c.type for c in sa_table.columns},
+            )
 
     def load_input(self, context: InputContext) -> pd.DataFrame:
         """Load a dataframe from a sqlite database.
