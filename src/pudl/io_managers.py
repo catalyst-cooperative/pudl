@@ -45,7 +45,7 @@ class ForeignKeyError(SQLAlchemyError):
         """Create string representation of ForeignKeyError object."""
         return (
             f"Foreign key error for table: {self.child_table} -- {self.parent_table} "
-            "{self.foreign_key} -- on rows {self.rowids}\n"
+            f"{self.foreign_key} -- on rows {self.rowids}\n"
         )
 
     def __eq__(self, other):
