@@ -1,14 +1,18 @@
 """Unit tests for the :mod:`pudl.helpers` module."""
 
+import os
+
 import numpy as np
 import pandas as pd
 import pytest
 from dagster import AssetKey
+from dagster._config.errors import PostProcessingError
 from pandas.testing import assert_frame_equal, assert_series_equal
 from pandas.tseries.offsets import BYearEnd
 
 import pudl
 from pudl.helpers import (
+    EnvVar,
     convert_df_to_excel_file,
     convert_to_date,
     date_merge,
@@ -630,3 +634,24 @@ def test_sql_asset_factory_missing_file():
     asset name."""
     with pytest.raises(FileNotFoundError):
         sql_asset_factory(name="fake_view")()
+
+
+def test_env_var():
+    os.environ["_PUDL_TEST"] = "test value"
+    env_var = EnvVar(env_var="_PUDL_TEST")
+    assert env_var.post_process(None) == "test value"
+    del os.environ["_PUDL_TEST"]
+
+
+def test_env_var_reads_defaults(mocker):
+    mocker.patch(
+        "pudl.helpers.get_defaults",
+        lambda: {"_PUDL_TEST": "test value default"},
+    )
+    env_var = EnvVar(env_var="_PUDL_TEST")
+    assert env_var.post_process(None) == "test value default"
+
+
+def test_env_var_missing_completely():
+    with pytest.raises(PostProcessingError):
+        EnvVar(env_var="_PUDL_BOGUS").post_process(None)

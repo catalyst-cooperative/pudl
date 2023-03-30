@@ -1052,22 +1052,11 @@ class PudlTabl:
             )
         return self._dfs["ferc1_eia"]
 
-    def epacamd_eia(
-        self,
-        update: bool = False,
-    ) -> pd.DataFrame:
-        """Pull the EPACAMD-EIA Crosswalk Table.
-
-        Args:
-            update: If true, re-calculate the output dataframe, even if
-                a cached version exists.
-
-        Returns:
-            A denormalized table for interactive use.
-        """
-        if update or self._dfs["epacamd_eia"] is None:
-            self._dfs["epacamd_eia"] = pudl.output.epacems.epacamd_eia(self.pudl_engine)
-        return self._dfs["epacamd_eia"]
+    def epacamd_eia(self) -> pd.DataFrame:
+        """Read the EPACAMD-EIA Crosswalk from the PUDL DB."""
+        return pd.read_sql("epacamd_eia", self.pudl_engine).pipe(
+            apply_pudl_dtypes, group="glue"
+        )
 
     ###########################################################################
     # FOR PICKLING AND OTHER IO
