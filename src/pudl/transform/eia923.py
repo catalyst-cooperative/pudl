@@ -587,9 +587,9 @@ def gen_fuel_nuclear(gen_fuel_nuke: pd.DataFrame) -> pd.DataFrame:
     outs={
         "clean_generation_fuel_eia923": AssetOut(),
         "clean_generation_fuel_nuclear_eia923": AssetOut(),
-    }
+    },
 )
-def generation_fuel_eia923(raw_generation_fuel_eia923: pd.DataFrame):
+def clean_generation_fuel_eia923(raw_generation_fuel_eia923: pd.DataFrame):
     """Transforms the generation_fuel_eia923 table.
 
     Transformations include:
