@@ -4,7 +4,7 @@ from pathlib import Path
 import pandas as pd
 import pyarrow as pa
 import pyarrow.parquet as pq
-from dagster import Field, asset, MultiPartitionsDefinition, StaticPartitionsDefinition
+from dagster import Field, MultiPartitionsDefinition, StaticPartitionsDefinition, asset
 
 import pudl
 from pudl.helpers import EnvVar

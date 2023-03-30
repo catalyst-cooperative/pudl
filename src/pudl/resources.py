@@ -1,13 +1,13 @@
 """Collection of Dagster resources for PUDL."""
-from dagster import Field, resource
 from pathlib import Path
 
 import pyarrow.parquet as pq
+from dagster import Field, resource
 
 from pudl.helpers import EnvVar
+from pudl.metadata.classes import Resource
 from pudl.settings import DatasetsSettings, FercToSqliteSettings, create_dagster_config
 from pudl.workspace.datastore import Datastore
-from pudl.metadata.classes import Resource
 
 
 @resource(config_schema=create_dagster_config(DatasetsSettings()))
@@ -43,7 +43,10 @@ def ferc_to_sqlite_settings(init_context) -> FercToSqliteSettings:
 )
 def pq_writer(init_context) -> pq.ParquetWriter:
     """Get monolithic parquet writer."""
-    monolithic_path = Path(init_context.resource_config["pudl_output_path"]) / "hourly_emissions_epacems.parquet"
+    monolithic_path = (
+        Path(init_context.resource_config["pudl_output_path"])
+        / "hourly_emissions_epacems.parquet"
+    )
     schema = Resource.from_id("hourly_emissions_epacems").to_pyarrow()
 
     with pq.ParquetWriter(
