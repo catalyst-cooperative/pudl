@@ -2,7 +2,7 @@
 """Materialize one asset & its upstream deps in-process so you can debug."""
 
 import argparse
-import importlib
+import importlib.resources
 
 from dagster import AssetSelection, Definitions, define_asset_job
 
@@ -23,6 +23,12 @@ def main(asset_id):
 
     Then creates a job with asset selection.
     """
+    pkg_source = importlib.resources.files("pudl.package_data.settings").joinpath(
+        "etl_fast.yml"
+    )
+    with importlib.resources.as_file(pkg_source) as yf:
+        etl_fast_settings = EtlSettings.from_yaml(yf).datasets
+
     # TODO (daz/zach): maybe there's a way to do this directly with dagster cli?
     defs = Definitions(
         assets=etl.default_assets,
@@ -34,13 +40,9 @@ def main(asset_id):
                 config={
                     "resources": {
                         "dataset_settings": {
-                            "config": EtlSettings.from_yaml(
-                                importlib.resources.path(
-                                    "pudl.package_data.settings", "etl_fast.yml"
-                                )
-                            ).datasets.dict()
-                        }
-                    }
+                            "config": etl_fast_settings.dict(),
+                        },
+                    },
                 },
             ),
         ],
