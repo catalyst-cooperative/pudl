@@ -169,6 +169,12 @@ Analysis
   perfect, this baseline model utilizes the manually created training data and plant IDs
   to perform record linkage on the FERC1 data and EIA plant parts list created in
   :mod:`pudl.analysis.plant_parts_eia`. See issue :issue:`1064` & PR :pr:`2224`.
+* Refined how we are associating generation and fuel data in
+  :mod:`pudl.analysis.allocate_net_gen`. Includes several bug fixes and a major
+  refinement in how we are associated records from :ref:`generation_eia923` and
+  :ref:`boiler_fuel_eia923` when the energy source code does not match with what is
+  reported in :ref:`generators_eia860`. Thanks to :user:`grgmiller` for his
+  contribution, which was integrated by :user:`cmgosnell`! See PRs :pr:`2235,2446`.
 
 Deprecations
 ^^^^^^^^^^^^
