@@ -874,8 +874,9 @@ def _allocate_unassociated_bf_records(
     """
     # we're going to only associate these unassociated fuel records w/
     # the primary fuel so we don't have to deal w/ double counting
-    connected_mask = gen_assoc.generator_id.notnull()
-    # if everything is connected, skip this
+    connected_mask = gen_assoc._merge != "right_only"
+    # if everything is connected, skip this. (this is mostly for unit tests!
+    #  drop_invalid_rows will fail if there are not unassociated records)
     if gen_assoc[~connected_mask].empty:
         logger.info(
             "No unassociated boiler_fuel_eia923 records. Skipping _allocate_unassociated_bf_records"
@@ -1609,7 +1610,8 @@ def add_missing_energy_source_codes_to_gens(gens_at_freq, gf, bf):
     if missing_gf_escs_from_gens.empty:
         return gens_at_freq
     idx = ["plant_id_eia", "prime_mover_code", "report_date"]
-    # pivot these data to become new numbered energy_source_code_n columns starting at 7
+    # pivot these data to become new numbered energy_source_code_n columns starting at 8
+    # the native table ends at 6, but we add one more in adjust_msw_energy_source_codes
     missing_gf_escs_from_gens["num"] = (
         missing_gf_escs_from_gens.groupby(idx).cumcount() + 8
     )
