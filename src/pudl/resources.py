@@ -1,4 +1,5 @@
 """Collection of Dagster resources for PUDL."""
+from multiprocessing import Lock
 from pathlib import Path
 
 import pyarrow.parquet as pq
@@ -30,6 +31,23 @@ def ferc_to_sqlite_settings(init_context) -> FercToSqliteSettings:
     return FercToSqliteSettings(**init_context.resource_config)
 
 
+class ParquetWriter(pq.ParquetWriter):
+    """Subclass of ParquetWriter to provide synchronization around writes."""
+
+    def __init__(self, *args, **kwargs):
+        """Initialize base class and create lock."""
+        super().__init__(*args, **kwargs)
+        self.lock = Lock()
+
+    def write_table(self, *args, **kwargs):
+        """Acquire lock, then write table."""
+        self.lock.acquire()
+        try:
+            super().write_table(*args, **kwargs)
+        finally:
+            self.lock.release()
+
+
 @resource(
     config_schema={
         "pudl_output_path": Field(
@@ -41,7 +59,7 @@ def ferc_to_sqlite_settings(init_context) -> FercToSqliteSettings:
         ),
     }
 )
-def pq_writer(init_context) -> pq.ParquetWriter:
+def pq_writer(init_context) -> ParquetWriter:
     """Get monolithic parquet writer."""
     monolithic_path = (
         Path(init_context.resource_config["pudl_output_path"])
@@ -49,7 +67,7 @@ def pq_writer(init_context) -> pq.ParquetWriter:
     )
     schema = Resource.from_id("hourly_emissions_epacems").to_pyarrow()
 
-    with pq.ParquetWriter(
+    with ParquetWriter(
         where=monolithic_path, schema=schema, compression="snappy", version="2.6"
     ) as monolithic_writer:
         yield monolithic_writer
