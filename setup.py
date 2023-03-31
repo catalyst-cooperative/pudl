@@ -52,12 +52,7 @@ setup(
         # "catalystcoop.ferc-xbrl-extractor==0.8.1",
         "catalystcoop-ferc_xbrl_extractor @ git+https://github.com/catalyst-cooperative/ferc-xbrl-extractor@pandas-2.0",
         "coloredlogs>=14.0,<15.1",  # Dagster requires 14.0
-<<<<<<< HEAD
-        "dask>=2021.8,<2023.3.2",
-=======
-        "catalystcoop.ferc-xbrl-extractor==0.8.1",
         "dask>=2021.8,<2023.3.3",
->>>>>>> dev
         "datapackage>=1.11,<1.16",  # Transition datastore to use frictionless.
         "dagster>=1.2.2,<1.3",  # 1.2.2 is first version to support Python 3.11
         "dagit>=1.2.2,<1.3",  # 1.2.2 is first version to support Python 3.11
