@@ -312,8 +312,12 @@ def pudl_sql_io_manager(
                 },
                 "ops": {
                     "hourly_emissions_epacems": {
-                        "config": {
-                            "partition": True,
+                        "ops": {
+                            "process_single_year": {
+                                "config": {
+                                    "partition": True,
+                                }
+                            }
                         }
                     }
                 },

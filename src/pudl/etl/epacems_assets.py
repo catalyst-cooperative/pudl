@@ -67,7 +67,7 @@ def process_single_year(
         # Write to one monolithic parquet file
         monolithic_writer.write_table(table)
 
-        if context.op_config["parition"]:
+        if context.op_config["partition"]:
             # Write to a directory of partitioned parquet files
             with pq.ParquetWriter(
                 where=partitioned_path / f"epacems-{year}-{state}.parquet",
