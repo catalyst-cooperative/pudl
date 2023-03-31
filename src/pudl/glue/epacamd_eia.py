@@ -116,6 +116,7 @@ def transform(
         .pipe(
             remove_leading_zeros_from_numeric_strings, col_name="emissions_unit_id_epa"
         )
+        .pipe(manually_update_subplant_id)
         .pipe(apply_pudl_dtypes, "eia")
         .dropna(subset=["plant_id_eia"])
     )
@@ -140,3 +141,14 @@ def transform(
         )
 
     return {"epacamd_eia": crosswalk_clean}
+
+
+def manually_update_subplant_id(epacamd_eia: pd.DataFrame) -> pd.DataFrame:
+    """
+    This function corrects subplant mappings not caught by update_subplant_id.
+    This is temporary until the pudl subplant crosswalk includes boiler-generator id matches.
+    """
+    # set all generators in plant 1391 to the same subplant
+    epacamd_eia.loc[epacamd_eia["plant_id_eia"] == 1391, "subplant_id"] = 0
+
+    return epacamd_eia
