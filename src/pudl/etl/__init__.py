@@ -17,12 +17,7 @@ from pudl.io_managers import (
     ferc1_xbrl_sqlite_io_manager,
     pudl_sqlite_io_manager,
 )
-from pudl.resources import (
-    dataset_settings,
-    datastore,
-    ferc_to_sqlite_settings,
-    pq_writer,
-)
+from pudl.resources import dataset_settings, datastore, ferc_to_sqlite_settings
 from pudl.settings import EtlSettings
 
 from . import (  # noqa: F401
@@ -54,7 +49,6 @@ default_assets = (
 
 default_resources = {
     "datastore": datastore,
-    "pq_writer": pq_writer,
     "pudl_sqlite_io_manager": pudl_sqlite_io_manager,
     "ferc1_dbf_sqlite_io_manager": ferc1_dbf_sqlite_io_manager,
     "ferc1_xbrl_sqlite_io_manager": ferc1_xbrl_sqlite_io_manager,
@@ -76,7 +70,9 @@ def create_non_cems_selection(all_assets: list[AssetsDefinition]) -> AssetSelect
     all_asset_keys = pudl.helpers.get_asset_keys(all_assets)
     all_selection = AssetSelection.keys(*all_asset_keys)
 
-    cems_selection = AssetSelection.keys(AssetKey("hourly_emissions_epacems"))
+    cems_selection = AssetSelection.keys(
+        AssetKey("hourly_emissions_epacems_monolithic")
+    )
     return all_selection - cems_selection.downstream()
 
 
@@ -104,7 +100,7 @@ defs: Definitions = Definitions(
             name="etl_full", description="This job executes all years of all assets."
         ),
         define_asset_job(
-            name="etl_full_no_cems",
+            name="etl_full_no_cems_monolithic",
             selection=create_non_cems_selection(default_assets),
             description="This job executes all years of all assets except the "
             "hourly_emissions_epacems asset and all assets downstream.",
@@ -121,7 +117,7 @@ defs: Definitions = Definitions(
             description="This job executes the most recent year of each asset.",
         ),
         define_asset_job(
-            name="etl_fast_no_cems",
+            name="etl_fast_no_cems_monolithic",
             selection=create_non_cems_selection(default_assets),
             config={
                 "resources": {

@@ -1,10 +1,11 @@
 """EPA CEMS Hourly Emissions assets."""
 from pathlib import Path
 
+import dask.dataframe as dd
 import pandas as pd
 import pyarrow as pa
 import pyarrow.parquet as pq
-from dagster import DynamicOut, DynamicOutput, Field, graph_asset, op
+from dagster import DynamicOut, DynamicOutput, Field, asset, graph_asset, op
 
 import pudl
 from pudl.helpers import EnvVar
@@ -25,7 +26,7 @@ def get_year(context):
 
 
 @op(
-    required_resource_keys={"datastore", "dataset_settings", "pq_writer"},
+    required_resource_keys={"datastore", "dataset_settings"},
     config_schema={
         "pudl_output_path": Field(
             EnvVar(
@@ -56,16 +57,12 @@ def process_single_year(
         Path(context.op_config["pudl_output_path"]) / "hourly_emissions_epacems"
     )
     partitioned_path.mkdir(exist_ok=True)
-    monolithic_writer = context.resources.pq_writer
 
     for state in epacems_settings.states:
         logger.info(f"Processing EPA CEMS hourly data for {year}-{state}")
         df = pudl.extract.epacems.extract(year=year, state=state, ds=ds)
         df = pudl.transform.epacems.transform(df, epacamd_eia, plants_entity_eia)
         table = pa.Table.from_pandas(df, schema=schema, preserve_index=False)
-
-        # Write to one monolithic parquet file
-        monolithic_writer.write_table(table)
 
         if context.op_config["partition"]:
             # Write to a directory of partitioned parquet files
@@ -102,3 +99,38 @@ def hourly_emissions_epacems(
             plants_entity_eia,
         )
     )
+
+
+@asset(
+    config_schema={
+        "pudl_output_path": Field(
+            EnvVar(
+                env_var="PUDL_OUTPUT",
+            ),
+            description="Path of directory to store the database in.",
+            default_value=None,
+        ),
+    },
+    io_manager_key="epacems_io_manager",
+    required_resource_keys={"dataset_settings"},
+)
+def hourly_emissions_epacems_monolithic(
+    context, hourly_emissions_epacems: dd.DataFrame
+):
+    """Read partitioned output and create monolithic version."""
+    epacems_settings = context.resources.dataset_settings.epacems
+
+    schema = Resource.from_id("hourly_emissions_epacems").to_pyarrow()
+    monolithic_path = (
+        Path(context.op_config["pudl_output_path"]) / "hourly_emissions_epacems.parquet"
+    )
+
+    with pq.ParquetWriter(
+        where=monolithic_path, schema=schema, compression="snappy", version="2.6"
+    ) as monolithic_writer:
+        for year in epacems_settings.years:
+            df = hourly_emissions_epacems[hourly_emissions_epacems == year].compute()
+            table = pa.Table.from_pandas(df, schema=schema, preserve_index=False)
+
+            # Write to one monolithic parquet file
+            monolithic_writer.write_table(table)
