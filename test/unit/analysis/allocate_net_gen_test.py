@@ -286,10 +286,8 @@ def test_missing_energy_source():
             """report_date,plant_id_eia,boiler_id,energy_source_code,prime_mover_code,fuel_consumed_mmbtu
     2019-01-01,8023,1,DFO,ST,17853.519999999997
     2019-01-01,8023,1,RC,ST,27681065.276
-    2019-01-01,8023,1,SUB,ST,0.0
     2019-01-01,8023,2,DFO,ST,17712.999999999996
     2019-01-01,8023,2,RC,ST,29096935.279
-    2019-01-01,8023,2,SUB,ST,0.0
     """
         ),
     ).pipe(apply_pudl_dtypes, group="eia")
@@ -320,7 +318,7 @@ def test_missing_energy_source():
             """report_date,plant_id_eia,energy_source_code,prime_mover_code,net_generation_mwh,fuel_consumed_mmbtu,fuel_consumed_for_electricity_mmbtu
     2019-01-01,8023,DFO,ST,3369.286,35566.0,35566.0
     2019-01-01,8023,RC,ST,5363193.71,56777578.0,56777578.0
-    2019-01-01,8023,SUB,ST,0.0, 0.0,0.0
+    2019-01-01,8023,SUB,ST,10000.0, 100000.0,100000.0
     """
         ),
     ).pipe(apply_pudl_dtypes, group="eia")
@@ -333,6 +331,11 @@ def test_missing_energy_source():
         boiler_fuel_eia923=boiler_fuel_eia923,
         boiler_generator_assn_eia860=boiler_generator_assn_eia860,
     )
+
+    gf, bf, _, gens, _ = allocate_net_gen.extract_input_tables(mock_pudl_out)
+    gens = allocate_net_gen.add_missing_energy_source_codes_to_gens(gens, gf, bf)
+    # assert that the missing energy source code is RC
+    assert gens.energy_source_code_8.unique() == "RC"
 
     allocated = allocate_net_gen.allocate_gen_fuel_by_generator_energy_source(
         mock_pudl_out
