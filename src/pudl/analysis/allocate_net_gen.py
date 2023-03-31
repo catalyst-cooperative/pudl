@@ -629,7 +629,7 @@ def associate_generator_tables(
         .pipe(
             _allocate_unassociated_bf_records,
             idx_cols=IDX_GENS_PM_ESC,
-            col_w_unexpected_codes="energy_source_code",
+            col_w_unexpected_codes="prime_mover_code",
             data_columns=["fuel_consumed_mmbtu_bf_tbl"],
         )
         .drop(columns=["_merge"])
@@ -885,11 +885,13 @@ def _allocate_unassociated_bf_records(
     # we're associating these unassociated records but we only want to associate
     # them w/ the standard id columns minus the  the unassociated data and
     # merge on that column
-    idx_minus_one = [col for col in idx_cols if col != col_w_unexpected_codes]
+    idx_minus_one = [col for col in idx_cols if col != col_w_unexpected_codes] + [
+        "energy_source_code_num"
+    ]
     eia_generators_connected = gen_assoc.loc[connected_mask].assign(
-        capacity_mw_minus_one=lambda x: x.groupby(
-            idx_minus_one + ["energy_source_code_num"]
-        )["capacity_mw"].transform(sum),
+        capacity_mw_minus_one=lambda x: x.groupby(idx_minus_one)[
+            "capacity_mw"
+        ].transform(sum),
         frac_cap_minus_one=lambda x: x.capacity_mw / x.capacity_mw_minus_one,
     )
 
@@ -901,6 +903,7 @@ def _allocate_unassociated_bf_records(
                 required_valid_cols=data_columns, invalid_values=[pd.NA, np.nan, 0.0]
             ),
         )
+        .assign(energy_source_code_num="energy_source_code_1")
         .groupby(by=idx_minus_one)
         .sum(min_count=1, numeric_only=True)
         .reset_index()
@@ -1639,9 +1642,7 @@ def identify_missing_gf_escs_in_gens(gens_at_freq, gf, bf):
     """Identify energy_source_codes that exist in gf but not gens for each plant."""
     # create a version of gf that identifies all of the unique energy source codes
     # with non-zero data associated with each plant-pm
-    # create a filtered version of gf that only includes rows with non-zero data
-    # gf_escs = gf.loc[:, IDX_PM_ESC].copy()
-    # bf_escs = bf.loc[:, IDX_PM_ESC].copy()
+    # create a filtered version of gf and bf data
     escs = pd.concat([gf.loc[:, IDX_PM_ESC], bf.loc[:, IDX_PM_ESC]]).drop_duplicates()
     # create a version that identifies all of the unique energy source codes
     # associated with each plant-pm for gens with non-retired generation
