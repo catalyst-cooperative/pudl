@@ -89,7 +89,6 @@ class SQLiteIOManager(IOManager):
         base_dir: str,
         db_name: str,
         md: sa.MetaData = None,
-        exclude_tables: tuple[str] = None,
         timeout: float = 1_000.0,
     ):
         """Init a SQLiteIOmanager.
@@ -100,11 +99,6 @@ class SQLiteIOManager(IOManager):
             db_name: the name of sqlite database.
             md: database metadata described as a SQLAlchemy MetaData object. If not
                 specified, default to metadata stored in the pudl.metadata subpackage.
-            exclude_tables: Tuple of table names whose schemas should not be created
-                in the database. For example, views defined in pudl.metadata.resources
-                should be excluded because they should not have database schemas but
-                the SQLiteIOManager needs a way to check if the resource metadata
-                has been created for a view.
             timeout: How many seconds the connection should wait before raising
                 an exception, if the database is locked by another connection.
                 If another connection opens a transaction to modify the database,
@@ -128,9 +122,7 @@ class SQLiteIOManager(IOManager):
         if not self.md:
             self.md = sa.MetaData()
 
-        self.engine = self._setup_database(
-            timeout=timeout, exclude_tables=exclude_tables
-        )
+        self.engine = self._setup_database(timeout=timeout)
 
     def _get_table_name(self, context) -> str:
         """Get asset name from dagster context object."""
@@ -140,9 +132,7 @@ class SQLiteIOManager(IOManager):
             table_name = context.get_identifier()
         return table_name
 
-    def _setup_database(
-        self, timeout: float = 1_000.0, exclude_tables: tuple[str] = None
-    ) -> sa.engine.Engine:
+    def _setup_database(self, timeout: float = 1_000.0) -> sa.engine.Engine:
         """Create database and metadata if they don't exist.
 
         Args:
@@ -150,11 +140,6 @@ class SQLiteIOManager(IOManager):
                 exception, if the database is locked by another connection.  If another
                 connection opens a transaction to modify the database, it will be locked
                 until that transaction is committed.
-            exclude_tables: Tuple of table names whose schemas should not be created
-                in the database. For example, views defined in pudl.metadata.resources
-                should be excluded because they should not have database schemas but
-                the SQLiteIOManager needs a way to check if the resource metadata
-                has been created for a view.
 
         Returns:
             engine: SQL Alchemy engine that connects to a database in the base_dir.
@@ -171,15 +156,8 @@ class SQLiteIOManager(IOManager):
         # Create the database and schemas
         if not db_path.exists():
             db_path.touch()
-            if exclude_tables:
-                # Get sql alchemy table objects that should not be excluded
-                table_names = {table_name for table_name in self.md.tables} - set(
-                    exclude_tables
-                )
-                tables = tuple(self.md.tables[table_name] for table_name in table_names)
-                self.md.create_all(engine, tables=tables)
-            else:
-                self.md.create_all(engine)
+            self.md.create_all(engine)
+
         return engine
 
     def _get_sqlalchemy_table(self, table_name: str) -> sa.Table:
@@ -192,11 +170,11 @@ class SQLiteIOManager(IOManager):
             table: Corresponding SQL Alchemy Table in SQLiteIOManager metadata.
 
         Raises:
-            RuntimeError: if table_name does not exist in the SQLiteIOManager metadata.
+            ValueError: if table_name does not exist in the SQLiteIOManager metadata.
         """
         sa_table = self.md.tables.get(table_name, None)
         if sa_table is None:
-            raise RuntimeError(
+            raise ValueError(
                 f"{sa_table} not found in database metadata. Either add the table to "
                 "the metadata or use a different IO Manager."
             )
@@ -296,12 +274,11 @@ class SQLiteIOManager(IOManager):
             df: dataframe to write to the database.
         """
         table_name = self._get_table_name(context)
-
         sa_table = self._get_sqlalchemy_table(table_name)
 
         column_difference = set(sa_table.columns.keys()) - set(df.columns)
         if column_difference:
-            raise RuntimeError(
+            raise ValueError(
                 f"{table_name} dataframe is missing columns: {column_difference}"
             )
 
@@ -374,7 +351,6 @@ class SQLiteIOManager(IOManager):
                 name.
         """
         table_name = self._get_table_name(context)
-
         # Check if the table_name exists in the self.md object
         _ = self._get_sqlalchemy_table(table_name)
 
@@ -423,6 +399,15 @@ class PudlSQLiteIOManager(SQLiteIOManager):
                 to create sqlalchemy metadata and check datatypes of dataframes. If not
                 specified, defaults to a Package with all metadata stored in the
                 :mod:`pudl.metadata.resources` subpackage.
+
+                Every table that appears in `self.md` is sepcified in `self.package`
+                as a :class:`pudl.metadata.classes.Resources`. However, not every
+                :class:`pudl.metadata.classes.Resources` in `self.package` is included
+                in `self.md` as a table. This is because `self.package` is used to ensure
+                datatypes of dataframes loaded from database views are correct. However,
+                the metadata for views in `self.package` should not be used to create
+                table schemas in the database because views are just stored sql statements
+                and do not require a schema.
             timeout: How many seconds the connection should wait before raising an
                 exception, if the database is locked by another connection.  If another
                 connection opens a transaction to modify the database, it will be locked
@@ -434,6 +419,60 @@ class PudlSQLiteIOManager(SQLiteIOManager):
         md = self.package.to_sql()
         super().__init__(base_dir, db_name, md, timeout)
 
+    def _handle_str_output(self, context: OutputContext, query: str):
+        """Execute a sql query on the database.
+
+        This is used for creating output views in the database.
+
+        Args:
+            context: dagster keyword that provides access output information like asset
+                name.
+            query: sql query to execute in the database.
+        """
+        engine = self.engine
+        table_name = self._get_table_name(context)
+
+        # Check if there is a Resource in self.package for table_name.
+        # We don't want folks creating views without adding package metadata.
+        try:
+            _ = self.package.get_resource(table_name)
+        except ValueError:
+            raise ValueError(
+                f"{table_name} does not appear in pudl.metadata.resources. "
+                "Check for typos, or add the table to the metadata and recreate the "
+                f"PUDL SQlite database. It's also possible that {table_name} is one of "
+                "the tables that does not get loaded into the PUDL SQLite DB because "
+                "it's a work in progress or is distributed in Apache Parquet format."
+            )
+
+        with engine.connect() as con:
+            # Drop the existing view if it exists and create the new view.
+            # TODO (bendnorman): parameterize this safely.
+            con.execute(f"DROP VIEW IF EXISTS {table_name}")
+            con.execute(query)
+
+    def _handle_pandas_output(self, context: OutputContext, df: pd.DataFrame):
+        """Enforce PUDL DB schema and write dataframe to SQLite."""
+        table_name = self._get_table_name(context)
+        # If table_name doesn't show up in the self.md object, this will raise an error
+        sa_table = self._get_sqlalchemy_table(table_name)
+        res = self.package.get_resource(table_name)
+
+        df = res.enforce_schema(df)
+
+        with self.engine.connect() as con:
+            # Remove old table records before loading to db
+            con.execute(sa_table.delete())
+
+            df.to_sql(
+                table_name,
+                con,
+                if_exists="append",
+                index=False,
+                chunksize=100_000,
+                dtype={c.name: c.type for c in sa_table.columns},
+            )
+
     def load_input(self, context: InputContext) -> pd.DataFrame:
         """Load a dataframe from a sqlite database.
 
@@ -443,14 +482,28 @@ class PudlSQLiteIOManager(SQLiteIOManager):
         """
         table_name = self._get_table_name(context)
 
-        # Check if the table_name exists in the self.md object
-        _ = self._get_sqlalchemy_table(table_name)
+        # Check if there is a Resource in self.package for table_name
+        try:
+            res = self.package.get_resource(table_name)
+        except ValueError:
+            raise ValueError(
+                f"{table_name} does not appear in pudl.metadata.resources. "
+                "Check for typos, or add the table to the metadata and recreate the "
+                f"PUDL SQlite database. It's also possible that {table_name} is one of "
+                "the tables that does not get loaded into the PUDL SQLite DB because "
+                "it's a work in progress or is distributed in Apache Parquet format."
+            )
 
-        engine = self.engine
-
-        with engine.connect() as con:
+        with self.engine.connect() as con:
             try:
-                df = pd.read_sql_table(table_name, con)
+                df = pd.concat(
+                    [
+                        res.enforce_schema(chunk_df)
+                        for chunk_df in pd.read_sql_table(
+                            table_name, con, chunksize=100_000
+                        )
+                    ]
+                )
             except ValueError:
                 raise ValueError(
                     f"{table_name} not found. Either the table was dropped "
@@ -459,10 +512,10 @@ class PudlSQLiteIOManager(SQLiteIOManager):
                 )
             if df.empty:
                 raise AssertionError(
-                    f"The {table_name} table is empty. Materialize "
-                    "the {table_name} asset so it is available in the database."
+                    f"The {table_name} table is empty. Materialize the {table_name} "
+                    "asset so it is available in the database."
                 )
-            return pudl.metadata.fields.apply_pudl_dtypes(df)
+        return df
 
 
 @io_manager(
@@ -496,7 +549,6 @@ class FercSQLiteIOManager(SQLiteIOManager):
         base_dir: str = None,
         db_name: str = None,
         md: sa.MetaData = None,
-        exclude_tables: tuple[str] = None,
         timeout: float = 1_000.0,
     ):
         """Initialize FercSQLiteIOManager.
@@ -507,22 +559,16 @@ class FercSQLiteIOManager(SQLiteIOManager):
             db_name: the name of sqlite database.
             md: database metadata described as a SQLAlchemy MetaData object. If not
                 specified, default to metadata stored in the pudl.metadata subpackage.
-            exclude_tables: Tuple of table names whose schemas should not be created
-                in the database. For example, views defined in pudl.metadata.resources
-                should be excluded because they should not have database schemas but
-                the SQLiteIOManager needs a way to check if the resource metadata
-                has been created for a view.
             timeout: How many seconds the connection should wait before raising an
                 exception, if the database is locked by another connection.  If another
                 connection opens a transaction to modify the database, it will be locked
                 until that transaction is committed.
         """
-        super().__init__(base_dir, db_name, md, exclude_tables, timeout)
+        super().__init__(base_dir, db_name, md, timeout)
 
     def _setup_database(
         self,
         timeout: float = 1_000.0,
-        exclude_tables: tuple[str] = None,
     ) -> sa.engine.Engine:
         """Create database engine and read the metadata.
 

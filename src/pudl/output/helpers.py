@@ -20,10 +20,13 @@ def sql_asset_factory(
     )
     def sql_view_asset() -> str:
         """Asset that creates sql view in a database."""
-        sql_path = importlib.resources.path("pudl.output.sql", f"{name}.sql")
+        sql_path_traversable = importlib.resources.files("pudl.output.sql").joinpath(
+            f"{name}.sql"
+        )
         try:
-            with open(sql_path) as reader:
-                return reader.read()
+            with importlib.resources.as_file(sql_path_traversable) as sql_path:
+                with open(sql_path) as sql_file:
+                    return sql_file.read()
         # Raise a helpful error here if a sql file doesn't exist
         except FileNotFoundError:
             raise FileNotFoundError(

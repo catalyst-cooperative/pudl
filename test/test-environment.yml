@@ -4,14 +4,13 @@ channels:
   - conda-forge
   - defaults
 dependencies:
-  - python>=3.10,<3.11
+  - python>=3.11,<3.12
   - geopandas>=0.9,<0.13
-  - numba>=0.55.1,<0.57
   - pip>=22,<24
   - shapely>=2,<3
   - python-snappy>=0.6,<1
   - setuptools<66
   - sqlite>=3.36,<4
-  - tox>=3.20,<4.1
+  - tox>=4,<5
   - google-cloud-sdk>=386.0.0,<413.0.0
   - sqlite-utils~=3.29
