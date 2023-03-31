@@ -52,7 +52,12 @@ setup(
         # "catalystcoop.ferc-xbrl-extractor==0.8.1",
         "catalystcoop-ferc_xbrl_extractor @ git+https://github.com/catalyst-cooperative/ferc-xbrl-extractor@pandas-2.0",
         "coloredlogs>=14.0,<15.1",  # Dagster requires 14.0
+<<<<<<< HEAD
         "dask>=2021.8,<2023.3.2",
+=======
+        "catalystcoop.ferc-xbrl-extractor==0.8.1",
+        "dask>=2021.8,<2023.3.3",
+>>>>>>> dev
         "datapackage>=1.11,<1.16",  # Transition datastore to use frictionless.
         "dagster>=1.2.2,<1.3",  # 1.2.2 is first version to support Python 3.11
         "dagit>=1.2.2,<1.3",  # 1.2.2 is first version to support Python 3.11
@@ -67,7 +72,7 @@ setup(
         "pandas==2.0.0rc1",
         "pyarrow>=5,<11.1",
         "pydantic[email]>=1.7,<2",
-        "python-dotenv~=0.21.0",
+        "python-dotenv>=0.21,<1.1",
         "python-snappy>=0.6,<0.7",
         "pyyaml>=5,<6.1",
         "recordlinkage>=0.14,<0.16",
@@ -107,8 +112,10 @@ setup(
             "flake8-docstrings>=1.5,<1.8",
             "flake8-rst-docstrings>=0.2,<0.4",
             "flake8-use-fstring>=1.0,<1.5",
+            "jupyter",
             "mccabe>=0.6,<0.8",
-            "nbval>=0.9,<0.11",
+            "nbconvert>=7,<8",
+            "nbformat>=5,<6",
             "pep8-naming>=0.12,<0.14",
             "pre-commit>=2.9,<3.3",
             "pydocstyle>=5.1,<6.4",
@@ -118,7 +125,7 @@ setup(
             "pytest-mock>=3.0,<3.11",
             "responses>=0.14,<0.24",
             "rstcheck[sphinx]>=5.0,<6.2",
-            "tox>=3.20,<4.5",
+            "tox>=4.0,<4.5",
         ],
         "datasette": [
             "datasette>=0.60,<0.65",

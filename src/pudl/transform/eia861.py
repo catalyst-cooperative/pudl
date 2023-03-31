@@ -56,6 +56,8 @@ BA_ID_NAME_FIXES: pd.DataFrame = (
             ("2002-01-01", 9699, pd.NA, "Tri-State G&T"),
             ("2002-01-01", 10040, 13781, "Xcel Energy"),
             ("2002-01-01", 10171, 56669, "Midwest Indep System Operator"),
+            # This might also be MISO's BA ID... need to investigate more.
+            # ("2002-01-01", 10171, 12524, "Midwest Indep System Operator"),
             ("2002-01-01", 11053, 9417, "INTERSTATE POWER & LIGHT"),
             ("2002-01-01", 11148, 2775, "California ISO"),
             ("2002-01-01", 11522, 1, "Maritimes-Canada"),
