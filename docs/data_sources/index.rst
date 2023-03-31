@@ -8,9 +8,11 @@ Data Sources
    :maxdepth: 1
 
    eia860
+   eia861
    eia923
    epacems
    ferc1
+   ferc714
 
 .. toctree::
    :caption: Work in Progress & Future Datasets

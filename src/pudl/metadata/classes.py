@@ -1185,6 +1185,7 @@ class Resource(Base):
     etl_group: Literal[
         "eia860",
         "eia861",
+        "eia861_disabled",
         "eia923",
         "entity_eia",
         "epacems",
@@ -1199,6 +1200,7 @@ class Resource(Base):
         "eia_bulk_elec",
         "static_pudl",
     ] = None
+    include_in_database: bool = True
 
     _check_unique = _validator(
         "contributors", "keywords", "licenses", "sources", fn=_check_unique
@@ -1493,6 +1495,25 @@ class Resource(Base):
             _, period = split_period(key)
             if period and df_key != key:
                 df[key] = PERIODS[period](df[key])
+        return df
+
+    def enforce_schema(self, df: pd.DataFrame) -> pd.DataFrame:
+        """Drop columns not in the DB schema and enforce specified types."""
+        expected_cols = pd.Index(self.get_field_names())
+        missing_cols = list(expected_cols.difference(df.columns))
+        if missing_cols:
+            raise ValueError(
+                f"{self.name}: Missing columns found when enforcing table "
+                f"schema: {missing_cols}"
+            )
+        df = self.format_df(df)
+        pk = self.schema.primary_key
+        if pk and not df[df.duplicated(subset=pk)].empty:
+            raise ValueError(
+                f"{self.name} Duplicate primary keys when enforcing schema."
+            )
+        if pk and df.loc[:, pk].isna().any(axis=None):
+            raise ValueError(f"{self.name} Null values found in primary key columns.")
         return df
 
     def aggregate_df(
@@ -1849,11 +1870,12 @@ class Package(Base):
         """Return equivalent SQL MetaData."""
         metadata = sa.MetaData()
         for resource in self.resources:
-            _ = resource.to_sql(
-                metadata,
-                check_types=check_types,
-                check_values=check_values,
-            )
+            if resource.include_in_database:
+                _ = resource.to_sql(
+                    metadata,
+                    check_types=check_types,
+                    check_values=check_values,
+                )
         return metadata
 
 
@@ -1918,6 +1940,7 @@ class DatasetteMetadata(Base):
             "pudl",
             "ferc1",
             "eia860",
+            "eia861",
             "eia860m",
             "eia923",
         ],
@@ -1963,7 +1986,7 @@ class DatasetteMetadata(Base):
         xbrl_resources = {}
         for xbrl_id in xbrl_ids:
             # Read JSON Package descriptor from file
-            with open(output_path / f"{xbrl_id}_datapackage.json") as f:
+            with open(Path(output_path) / f"{xbrl_id}_datapackage.json") as f:
                 descriptor = json.load(f)
 
             # Use descriptor to create Package object

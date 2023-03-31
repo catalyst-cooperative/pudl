@@ -10,7 +10,7 @@ Work in Progress
 
 Thanks to a grant from the `Alfred P. Sloan Foundation Energy & Environment Program
 <https://sloan.org/programs/research/energy-and-environment>`__, we have support to
-integrate the following new datasets between April 2021 and March 2023.
+integrate the following new datasets between April 2021 and March 2024.
 
 There's a huge variety and quantity of data about the US electric utility system
 available to the public. The data we have integrated is just the beginning! Other data
@@ -31,27 +31,6 @@ geometries defining those areas. We use this information in generating historica
 utility and balancing authority service territories based on FERC 714 and EIA 861 data.
 Currently, we are distributing the Census DP1 data as a standalone SQLite DB.
 
-.. _data-eia861:
-
-EIA Form 861
-^^^^^^^^^^^^
-The `EIA Form 861 <https://www.eia.gov/electricity/data/eia861/>`__, also known as the
-**Annual Electric Power Industry Report**, compiles information on load, generation,
-capacity, sales, revenues, programs, and more. Right now we've got all of 861
-integrated and are building out our testing and data validation before publishing the
-data officially.
-
-* :download:`EIA-861 Instructions (PDF, to 2013-10-31)
-  <eia861/eia861_instructions_2013-10-31.pdf>`
-* :download:`EIA-861 Instructions (PDF, to 2015-12-31)
-  <eia861/eia861_instructions_2015-12-31.pdf>`
-* :download:`EIA-861 Instructions (PDF, to 2017-05-31)
-  <eia861/eia861_instructions_2017-05-31.pdf>`
-* :download:`EIA-861 Instructions (PDF, to 2020-03-31)
-  <eia861/eia861_instructions_2020-03-31.pdf>`
-* :download:`EIA-861 Instructions (PDF, to 2023-05-31)
-  <eia861/eia861_instructions_2023-05-31.pdf>`
-
 .. _data-eia176:
 
 EIA Form 176
@@ -61,20 +40,6 @@ EIA `Form 176 <https://www.eia.gov/dnav/ng/TblDefs/NG_DataSources.html#s176>`__,
 known as the **Annual Report of Natural and Supplemental Gas Supply and Disposition**,
 describes the origins, suppliers, and disposition of natural gas on a yearly and state
 by state basis.
-
-.. _data-ferc714:
-
-FERC Form 714
-^^^^^^^^^^^^^
-`FERC Form 714 <https://www.ferc.gov/industries-data/electric/general-information/electric-industry-forms/form-no-714-annual-electric/data>`__
-includes hourly loads reported by load balancing authorities annually. This is a
-modestly sized dataset, in the 100s of MB, distributed as CSV files exported from a
-Visual FoxPro database prior to publication. All of the raw tables are being
-extracted, and a couple of them have been integrated into the transform process. None
-are in the PUDL DB yet.
-
-* :download:`FERC-714 Instructions (PDF, as of 2021-04-16)
-  <ferc714/ferc714_instructions_2021-04-16.pdf>`
 
 .. _data-ferceqr:
 

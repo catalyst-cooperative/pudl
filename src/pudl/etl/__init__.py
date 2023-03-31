@@ -1,5 +1,5 @@
 """Dagster definitions for the PUDL ETL and Output tables."""
-import importlib
+import importlib.resources
 
 from dagster import (
     AssetKey,
@@ -30,17 +30,21 @@ from . import (  # noqa: F401
 logger = pudl.logging_helpers.get_logger(__name__)
 
 default_assets = (
-    *load_assets_from_modules([epacems_assets], group_name="epacems"),
     *load_assets_from_modules([eia_bulk_elec_assets], group_name="eia_bulk_elec"),
-    *load_assets_from_modules([glue_assets], group_name="glue"),
+    *load_assets_from_modules([epacems_assets], group_name="epacems"),
     *load_assets_from_modules([pudl.extract.eia860], group_name="raw_eia860"),
-    *load_assets_from_modules([pudl.extract.eia923], group_name="raw_eia923"),
     *load_assets_from_modules([pudl.transform.eia860], group_name="clean_eia860"),
+    *load_assets_from_modules([pudl.extract.eia861], group_name="raw_eia861"),
+    *load_assets_from_modules([pudl.transform.eia861], group_name="clean_eia861"),
+    *load_assets_from_modules([pudl.extract.eia923], group_name="raw_eia923"),
     *load_assets_from_modules([pudl.transform.eia923], group_name="clean_eia923"),
     *load_assets_from_modules([pudl.transform.eia], group_name="norm_eia"),
-    *load_assets_from_modules([static_assets], group_name="static"),
     *load_assets_from_modules([pudl.extract.ferc1], group_name="ferc1"),
     *load_assets_from_modules([pudl.transform.ferc1], group_name="ferc1"),
+    *load_assets_from_modules([pudl.extract.ferc714], group_name="raw_ferc714"),
+    *load_assets_from_modules([pudl.transform.ferc714], group_name="clean_ferc714"),
+    *load_assets_from_modules([glue_assets], group_name="glue"),
+    *load_assets_from_modules([static_assets], group_name="static"),
 )
 
 default_resources = {
@@ -79,11 +83,12 @@ def load_dataset_settings_from_file(setting_filename: str) -> dict:
     Returns:
         Dictionary of dataset settings.
     """
-    return EtlSettings.from_yaml(
-        importlib.resources.path(
-            "pudl.package_data.settings", f"{setting_filename}.yml"
-        )
-    ).datasets.dict()
+    pkg_source = importlib.resources.files("pudl.package_data.settings").joinpath(
+        f"{setting_filename}.yml"
+    )
+    with importlib.resources.as_file(pkg_source) as yaml_file:
+        dataset_settings = EtlSettings.from_yaml(yaml_file).datasets.dict()
+    return dataset_settings
 
 
 defs: Definitions = Definitions(
