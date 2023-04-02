@@ -1,0 +1,15 @@
+---
+version: 2
+
+models:
+  - name: fuel_receipts_costs_eia923
+    columns:
+      - name: report_date
+        tests:
+          - not_null
+      - name: plant_id_eia
+        tests:
+          - not_null
+          - relationships:
+              to: source('pudl', 'plants_entity_eia')
+              field: plant_id_eia

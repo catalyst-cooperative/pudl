@@ -1,0 +1,11 @@
+---
+name: "pudl"
+
+config-version: 2
+version: "0.1"
+require-dbt-version: [">=1.4.0", "<2.0.0"]
+
+profile: "pudl_sqlite"
+
+model-paths: ["sources", "models"]
+test-paths: ["tests"]

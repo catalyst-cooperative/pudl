@@ -1,0 +1,23 @@
+---
+pudl_sqlite:
+  target: dev
+  outputs:
+    dev:
+      type: sqlite
+      threads: 1
+      database: "pudl"
+      schema: "main"
+      schemas_and_paths:
+        main: "{{ env_var('PUDL_OUTPUT') }}/pudl.sqlite"
+      schema_directory: "{{ env_var('PUDL_OUTPUT') }}"
+
+pudl_duckdb:
+  target: dev
+  outputs:
+    dev:
+      type: duckdb
+      threads: 8
+      path: "{{ env_var('PUDL_OUTPUT') }}/pudl.duckdb"
+      extensions:
+        - sqlite
+        - parquet

@@ -1,0 +1,8 @@
+---
+version: 2
+
+sources:
+  - name: pudl
+    tables:
+      - name: fuel_receipts_costs_eia923
+      - name: plants_entity_eia
