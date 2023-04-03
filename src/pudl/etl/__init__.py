@@ -70,9 +70,7 @@ def create_non_cems_selection(all_assets: list[AssetsDefinition]) -> AssetSelect
     all_asset_keys = pudl.helpers.get_asset_keys(all_assets)
     all_selection = AssetSelection.keys(*all_asset_keys)
 
-    cems_selection = AssetSelection.keys(
-        AssetKey("hourly_emissions_epacems_monolithic")
-    )
+    cems_selection = AssetSelection.keys(AssetKey("hourly_emissions_epacems"))
     return all_selection - cems_selection.downstream()
 
 
@@ -100,7 +98,7 @@ defs: Definitions = Definitions(
             name="etl_full", description="This job executes all years of all assets."
         ),
         define_asset_job(
-            name="etl_full_no_cems_monolithic",
+            name="etl_full_no_cems",
             selection=create_non_cems_selection(default_assets),
             description="This job executes all years of all assets except the "
             "hourly_emissions_epacems asset and all assets downstream.",
@@ -117,7 +115,7 @@ defs: Definitions = Definitions(
             description="This job executes the most recent year of each asset.",
         ),
         define_asset_job(
-            name="etl_fast_no_cems_monolithic",
+            name="etl_fast_no_cems",
             selection=create_non_cems_selection(default_assets),
             config={
                 "resources": {
