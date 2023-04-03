@@ -92,7 +92,7 @@ setup(
             "doc8>=0.9,<1.2",
             "furo>=2022.4.7",
             "sphinx>=4,!=5.1.0,<6.1.4",
-            "sphinx-autoapi>=1.8,<2.1",
+            "sphinx-autoapi>=1.8,<2.2",
             "sphinx-issues>=1.2,<3.1",
             "sphinx-reredirects",
             "sphinxcontrib_bibtex>=2.4,<2.6",
