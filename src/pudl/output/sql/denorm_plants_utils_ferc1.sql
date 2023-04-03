@@ -1,4 +1,4 @@
--- Build a dataframe of useful FERC Plant & Utility information.
+-- Build a view of useful FERC Plant & Utility information.
 CREATE VIEW denorm_plants_utils_ferc1 AS
 SELECT *
 FROM plants_ferc1

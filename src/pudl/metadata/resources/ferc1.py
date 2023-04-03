@@ -835,7 +835,7 @@ any cleaning mechanisms in place to account for this."""
             ],
         },
         "field_namespace": "ferc1",
-        "etl_group": "output_views",
+        "etl_group": "outputs",
         "sources": ["ferc1"],
         "include_in_database": False,
     },

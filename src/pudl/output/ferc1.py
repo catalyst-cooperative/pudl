@@ -5,7 +5,7 @@ import sqlalchemy as sa
 
 import pudl
 from pudl.metadata.fields import apply_pudl_dtypes
-from pudl.output.helpers import sql_asset_factory
+from pudl.output.sql.helpers import sql_asset_factory
 
 logger = pudl.logging_helpers.get_logger(__name__)
 

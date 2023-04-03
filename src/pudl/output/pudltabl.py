@@ -145,11 +145,11 @@ class PudlTabl:
             )
         return self._dfs["pu_eia"]
 
-    def pu_ferc1(self):
+    def pu_ferc1(self) -> pd.DataFrame:
         """Pull a dataframe of FERC plant-utility associations.
 
         Returns:
-            pandas.DataFrame: a denormalized table for interactive use.
+            A denormalized table for interactive use.
         """
         return pd.read_sql_table("denorm_plants_utils_ferc1", self.pudl_engine).pipe(
             apply_pudl_dtypes, group="ferc1"
@@ -358,11 +358,11 @@ class PudlTabl:
     ###########################################################################
     # EIA 860/923 OUTPUTS
     ###########################################################################
-    def utils_eia860(self, update=False):
+    def utils_eia860(self, update=False) -> pd.DataFrame:
         """Pull a dataframe describing utilities reported in EIA 860.
 
         Returns:
-            pandas.DataFrame: a denormalized table for interactive use.
+            A denormalized table for interactive use.
         """
         return pd.read_sql("denorm_utilities_eia860", self.pudl_engine).pipe(
             apply_pudl_dtypes, group="eia"
