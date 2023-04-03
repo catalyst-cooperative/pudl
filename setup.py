@@ -64,7 +64,7 @@ setup(
         "matplotlib>=3.3,<3.8",  # Should make this optional with a "viz" extras
         "networkx>=2.2,<3.1",
         "numpy>=1.18.5,!=1.23.0,<1.25",
-        "pandas==2.0.0rc1",
+        "pandas>=2.0.0",
         "pyarrow>=5,<11.1",
         "pydantic[email]>=1.7,<2",
         "python-dotenv>=0.21,<1.1",
