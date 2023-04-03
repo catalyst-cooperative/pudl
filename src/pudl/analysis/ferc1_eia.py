@@ -674,6 +674,11 @@ def prep_train_connections(
         "plant_part",
         "ownership_dupe",
     ]
+    pkg_source = importlib.resources.files("pudl.package_data.glue").joinpath(
+        "ferc1_eia_train.csv"
+    )
+    with importlib.resources.as_file(pkg_source) as ferc1_eia_train:
+        train_df = pd.read_csv(ferc1_eia_train)
     train_df = (
         # we want to ensure that the records are associated with a
         # "true granularity" - which is a way we filter out whether or
@@ -682,10 +687,7 @@ def prep_train_connections(
         # once the true_gran is dealt with, we also need to convert the
         # records which are ownership dupes to reflect their "total"
         # ownership counterparts
-        pd.read_csv(
-            importlib.resources.path("pudl.package_data.glue", "ferc1_eia_train.csv"),
-        )
-        .pipe(pudl.helpers.cleanstrings_snake, ["record_id_eia"])
+        train_df.pipe(pudl.helpers.cleanstrings_snake, ["record_id_eia"])
         .drop_duplicates(subset=["record_id_ferc1", "record_id_eia"])
         .pipe(
             restrict_train_connections_on_date_range,

@@ -711,10 +711,8 @@ class Field(Base):
                 )
             elif self.type == "date":
                 checks.append(f"{name} IS DATE({name})")
-            # Need to ensure that the string representation of the datetime only
-            # includes whole seconds or this check will fail.
-            # elif self.type == "datetime":
-            #    checks.append(f"{name} IS DATETIME({name})")
+            elif self.type == "datetime":
+                checks.append(f"{name} IS DATETIME({name})")
         if check_values:
             # Field constraints
             if self.constraints.min_length is not None:
@@ -1202,6 +1200,7 @@ class Resource(Base):
         "eia_bulk_elec",
         "static_pudl",
     ] = None
+    include_in_database: bool = True
 
     _check_unique = _validator(
         "contributors", "keywords", "licenses", "sources", fn=_check_unique
@@ -1871,11 +1870,12 @@ class Package(Base):
         """Return equivalent SQL MetaData."""
         metadata = sa.MetaData()
         for resource in self.resources:
-            _ = resource.to_sql(
-                metadata,
-                check_types=check_types,
-                check_values=check_values,
-            )
+            if resource.include_in_database:
+                _ = resource.to_sql(
+                    metadata,
+                    check_types=check_types,
+                    check_values=check_values,
+                )
         return metadata
 
 

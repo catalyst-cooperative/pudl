@@ -44,23 +44,21 @@ setup(
         "eia 861",
         "ferc 714",
     ],
-    python_requires=">=3.10,<3.11",
+    python_requires=">=3.11,<3.12",
     setup_requires=["setuptools_scm"],
     install_requires=[
         "addfips>=0.4,<0.5",
-        "alembic>=1.9.4,<2",
         "catalystcoop.dbfread>=3.0,<3.1",
         "coloredlogs>=14.0,<15.1",  # Dagster requires 14.0
         "catalystcoop.ferc-xbrl-extractor==0.8.1",
         "dask>=2021.8,<2023.3.3",
         "datapackage>=1.11,<1.16",  # Transition datastore to use frictionless.
-        "dagster>=1.1,<1.3",
-        "dagit>=1.1,<1.3",
+        "dagster>=1.2.2,<1.3",  # 1.2.2 is first version to support Python 3.11
+        "dagit>=1.2.2,<1.3",  # 1.2.2 is first version to support Python 3.11
         # "email-validator>=1.0.3",  # pydantic[email] dependency
         "fsspec>=2021.7,<2023.3.1",  # For caching datastore on GCS
         "gcsfs>=2021.7,<2023.3.1",  # For caching datastore on GCS
         "geopandas>=0.9,<0.13",
-        "grpcio==1.46.1",  # dagster dependency with finnicky Mac support
         "jinja2>=2,<3.2",
         "matplotlib>=3.3,<3.8",  # Should make this optional with a "viz" extras
         "networkx>=2.2,<3.1",
@@ -76,25 +74,25 @@ setup(
         "scipy>=1.6,<1.11",
         "Shapely>=2.0,<2.1",
         "sqlalchemy>=1.4,<2",
-        "timezonefinder>=5,<6.2",
+        "timezonefinder>=5,<6.3",
         "xlsxwriter>=3,<3.1",
     ],
     extras_require={
         "dev": [
-            "black>=22.0,<23.2",
+            "black>=22.0,<23.4",
             "docformatter>=1.5,<1.6",
             "ipdb>=0.13,<0.14",
             "isort>=5.0,<5.13",
             "jedi>=0.18,<0.19",
             "lxml>=4.6,<4.10",
-            "tox>=3.20,<4.5",
+            "tox>=4,<4.5",
             "twine>=3.3,<4.1",
         ],
         "doc": [
             "doc8>=0.9,<1.2",
             "furo>=2022.4.7",
             "sphinx>=4,!=5.1.0,<6.1.4",
-            "sphinx-autoapi>=1.8,<2.1",
+            "sphinx-autoapi>=1.8,<2.2",
             "sphinx-issues>=1.2,<3.1",
             "sphinx-reredirects",
             "sphinxcontrib_bibtex>=2.4,<2.6",
@@ -108,8 +106,10 @@ setup(
             "flake8-docstrings>=1.5,<1.8",
             "flake8-rst-docstrings>=0.2,<0.4",
             "flake8-use-fstring>=1.0,<1.5",
+            "jupyter",
             "mccabe>=0.6,<0.8",
-            "nbval>=0.9,<0.11",
+            "nbconvert>=7,<8",
+            "nbformat>=5,<6",
             "pep8-naming>=0.12,<0.14",
             "pre-commit>=2.9,<3.3",
             "pydocstyle>=5.1,<6.4",
@@ -119,7 +119,7 @@ setup(
             "pytest-mock>=3.0,<3.11",
             "responses>=0.14,<0.24",
             "rstcheck[sphinx]>=5.0,<6.2",
-            "tox>=3.20,<4.5",
+            "tox>=4.0,<4.5",
         ],
         "datasette": [
             "datasette>=0.60,<0.65",
@@ -135,7 +135,7 @@ setup(
         "Programming Language :: Python",
         "Programming Language :: Python :: 3",
         "Programming Language :: Python :: 3 :: Only",
-        "Programming Language :: Python :: 3.10",
+        "Programming Language :: Python :: 3.11",
         "Topic :: Scientific/Engineering",
     ],
     packages=find_packages("src"),
