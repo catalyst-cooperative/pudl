@@ -43,7 +43,7 @@ dependencies = [
     "scipy>=1.6,<1.11",
     "Shapely>=2.0,<2.1",
     "sqlalchemy>=1.4,<2",
-    "timezonefinder>=5,<6.3",
+    "timezonefinder>=5,<6.2",
     "xlsxwriter>=3,<3.1",
 ]
 classifiers = [
@@ -64,6 +64,7 @@ keywords = [
     "climate change",
     "coal",
     "data",
+    "economics",
     "eia 860",
     "eia 861",
     "eia 923",
@@ -78,7 +79,10 @@ keywords = [
     "ferc form 60",
     "ferc form 714",
     "finance",
+    "fossil fuel",
     "natural gas",
+    "oil",
+    "policy",
     "utility",
 ]
 
@@ -106,7 +110,7 @@ pudl_check_fks = "pudl.etl.check_foreign_keys:main"
 
 [project.optional-dependencies]
 dev = [
-    "black>=22.0,<23.4",
+    "black>=22.0,<23.2",
     "build>=0.10,<0.11",
     "docformatter>=1.5,<1.6",
     "ipdb>=0.13,<0.14",
@@ -119,7 +123,7 @@ dev = [
 doc = [
     "doc8>=0.9,<1.2",
     "furo>=2022.4.7",
-    "sphinx-autoapi>=2.0,<2.2",
+    "sphinx-autoapi>=1.8,<2.1",
     "sphinx-issues>=1.2,<3.1",
     "sphinx-reredirects",
     "sphinx>=4,!=5.1.0,<6.1.4",
