@@ -623,9 +623,7 @@ def test_flatten_mix_types():
 def test_cems_selection():
     """Test CEMS asset selection remove cems assets."""
     cems_selection = pudl.etl.create_non_cems_selection(pudl.etl.default_assets)
-    assert AssetKey(
-        "hourly_emissions_epacems_monolithic"
-    ) not in cems_selection.resolve(
+    assert AssetKey("hourly_emissions_epacems") not in cems_selection.resolve(
         pudl.etl.default_assets
     ), "hourly_emissions_epacems or downstream asset present in selection."
 
