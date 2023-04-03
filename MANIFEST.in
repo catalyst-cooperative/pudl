@@ -1,13 +1,8 @@
 graft src/pudl/package_data
 graft src/pudl/metadata/templates
 
-prune ci
-prune data
-prune docs/ferc
 prune .github
-prune results
-prune scripts
 prune test/data
 global-exclude .gitignore __pycache__ *.py[cod] *checkpoint.ipynb
-global-exclude .gitattributes .readthedocs.yml .travis.yml
+global-exclude .gitattributes .readthedocs.yml
 global-exclude *_test.py
