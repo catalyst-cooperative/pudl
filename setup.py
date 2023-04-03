@@ -74,7 +74,7 @@ setup(
         "scipy>=1.6,<1.11",
         "Shapely>=2.0,<2.1",
         "sqlalchemy>=1.4,<2",
-        "timezonefinder>=5,<6.2",
+        "timezonefinder>=5,<6.3",
         "xlsxwriter>=3,<3.1",
     ],
     extras_require={
