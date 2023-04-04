@@ -24,13 +24,16 @@ COALMINE_COUNTRY_CODES: dict[str, str] = {
 }
 """A mapping of EIA foreign coal mine country codes to 3-letter ISO-3166-1 codes.
 
-The EIA-923 lists the US state of origin for coal deliveries using standard
-2-letter US state abbreviations. However, foreign countries are also included
-as "states" in this category and because some of them have 2-letter abbreviation
-collisions with US states, their coding is non-standard.
+The EIA-923 lists the US state of origin for coal deliveries using standard 2-letter US
+state abbreviations. However, foreign countries are also included as "states" in this
+category and because some of them have 2-letter abbreviation collisions with US states,
+their coding is non-standard.
 
-Instead of using the provided non-standard codes, we convert to the ISO-3166-1
-three letter country codes: https://en.wikipedia.org/wiki/ISO_3166-1_alpha-3
+Instead of using the provided non-standard codes, we convert to the ISO-3166-1 three
+letter country codes:
+
+
+https://en.wikipedia.org/wiki/ISO_3166-1_alpha-3
 """
 
 ###############################################################################

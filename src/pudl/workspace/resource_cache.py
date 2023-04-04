@@ -196,12 +196,12 @@ class GoogleCloudStorageCache(AbstractCache):
 class LayeredCache(AbstractCache):
     """Implements multi-layered system of caches.
 
-    This allows building multi-layered system of caches. The idea is that you can
-    have faster local caches with fall-back to the more remote or expensive caches
-    that can be acessed in case of missing content.
+    This allows building multi-layered system of caches. The idea is that you can have
+    faster local caches with fall-back to the more remote or expensive caches that can
+    be acessed in case of missing content.
 
-    Only the closest layer is being written to (set, delete), while all remaining
-    layers are read-only (get).
+    Only the closest layer is being written to (set, delete), while all remaining layers
+    are read-only (get).
     """
 
     def __init__(self, *caches: list[AbstractCache], **kwargs: Any):
