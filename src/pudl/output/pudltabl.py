@@ -359,12 +359,12 @@ class PudlTabl:
     # EIA 860/923 OUTPUTS
     ###########################################################################
     def utils_eia860(self, update=False) -> pd.DataFrame:
-        """Pull a dataframe describing utilities reported in EIA 860.
+        """Pull a dataframe describing utilities reported in EIA.
 
         Returns:
             A denormalized table for interactive use.
         """
-        return pd.read_sql("denorm_utilities_eia860", self.pudl_engine).pipe(
+        return pd.read_sql("denorm_utilities_eia", self.pudl_engine).pipe(
             apply_pudl_dtypes, group="eia"
         )
 

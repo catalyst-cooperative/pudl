@@ -7,12 +7,12 @@ from pudl.metadata.fields import apply_pudl_dtypes
 
 
 @asset(io_manager_key="pudl_sqlite_io_manager", compute_kind="Python")
-def denorm_utilities_eia860(
+def denorm_utilities_eia(
     utilities_entity_eia: pd.DataFrame,
     utilities_eia860: pd.DataFrame,
     utilities_eia: pd.DataFrame,
 ):
-    """Pull all fields from the EIA860 Utilities table.
+    """Pull all fields from the EIA Utilities table.
 
     Args:
         utilities_entity_eia: EIA utility entity table.

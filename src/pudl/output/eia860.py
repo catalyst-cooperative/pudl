@@ -30,7 +30,7 @@ def utilities_eia860(pudl_engine, start_date=None, end_date=None):
     """
     logger.warning(
         "pudl.output.eia860.utilities_eia860() will be deprecated in a future version of PUDL."
-        " In the future, call the PudlTabl.utils_eia860() method or pull the denorm_utilities_eia860 table"
+        " In the future, call the PudlTabl.utils_eia860() method or pull the denorm_utilities_eia table"
         "directly from the pudl.sqlite database."
     )
     pt = pudl.output.pudltabl.get_table_meta(pudl_engine)

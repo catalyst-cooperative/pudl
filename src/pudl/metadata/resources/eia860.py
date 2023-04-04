@@ -415,8 +415,8 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
         "sources": ["eia860", "eia923"],
         "etl_group": "eia860",
     },
-    "denorm_utilities_eia860": {
-        "description": ("Denoramlized table containing all eia860 utility attributes."),
+    "denorm_utilities_eia": {
+        "description": ("Denoramlized table containing all EIA utility attributes."),
         "schema": {
             "fields": [
                 "utility_id_eia",
