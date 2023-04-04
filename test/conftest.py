@@ -353,7 +353,8 @@ def pudl_input_output_dirs(request, live_dbs, pudl_input_tmpdir, pudl_output_tmp
 
     if os.environ.get("GITHUB_ACTIONS", False):
         # hard-code input dir for CI caching
-        input_override = Path(os.environ["HOME"]) / "pudl-work"
+        input_override = Path(os.environ["HOME"]) / "pudl-work" / "data"
+        output_override = Path(os.environ["HOME"]) / "pudl-work" / "output"
     elif request.config.getoption("--tmp-data"):
         # use tmpdir for inputs if we ask for it
         input_override = pudl_input_tmpdir
