@@ -11,6 +11,7 @@ from google.api_core.retry import Retry
 from google.cloud import storage
 from google.cloud.storage.blob import Blob
 from google.cloud.storage.retry import _should_retry
+from google.resumable_media.common import DataCorruption
 
 import pudl.logging_helpers
 
@@ -30,7 +31,9 @@ def extend_gcp_retry_predicate(predicate, *exception_types):
 # Add BadRequest to default predicate _should_retry.
 # GCS get requests occasionally fail because of BadRequest errors.
 # See issue #1734.
-gcs_retry = Retry(predicate=extend_gcp_retry_predicate(_should_retry, BadRequest))
+gcs_retry = Retry(
+    predicate=extend_gcp_retry_predicate(_should_retry, BadRequest, DataCorruption)
+)
 
 
 class PudlResourceKey(NamedTuple):
