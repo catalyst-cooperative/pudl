@@ -88,7 +88,6 @@ def pytest_addoption(parser):
 @pytest.fixture(scope="session")
 def pudl_env(pudl_input_output_dirs):
     """Set PUDL_OUTPUT/PUDL_INPUT/DAGSTER_HOME environment variables."""
-
     pudl.workspace.setup.get_defaults(**pudl_input_output_dirs)
 
     logger.info(f"PUDL_OUTPUT path: {os.environ['PUDL_OUTPUT']}")
