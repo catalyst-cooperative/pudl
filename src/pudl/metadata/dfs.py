@@ -387,6 +387,5 @@ YT,Yukon Territory,CAN,Canada,territory,America/Whitehorse,,,,,0
 """Static attributes of sub-national political jurisdictions.
 
 Note AK and PR have incomplete EPA CEMS data, and so are excluded from is_epacems_state:
-See
-https://github.com/catalyst-cooperative/pudl/issues/1264
+See https://github.com/catalyst-cooperative/pudl/issues/1264
 """

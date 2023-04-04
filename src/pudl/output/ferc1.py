@@ -305,6 +305,7 @@ def fuel_by_plant_ferc1(pudl_engine, start_date, end_date, thresh=0.5):
     Returns:
         pandas.DataFrame: A DataFrame with fuel use summarized by plant.
     """
+
     def drop_other_fuel_types(df):
         """Internal function to drop other fuel type.
 

@@ -19,6 +19,7 @@ logger = pudl.logging_helpers.get_logger(__name__)
 
 def extend_gcp_retry_predicate(predicate, *exception_types):
     """Extend a GCS predicate function with additional exception_types."""
+
     def new_predicate(erc):
         """Predicate for checking an exception type."""
         return predicate(erc) or isinstance(erc, exception_types)

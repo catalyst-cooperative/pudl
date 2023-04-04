@@ -109,6 +109,7 @@ def epacems_job_factory(loglevel: str, logfile: str) -> Callable[[], JobDefiniti
     Returns:
         The job definition to be executed.
     """
+
     def get_epacems_job():
         """Create an epacems_job wrapped by to be wrapped by reconstructable."""
         pudl.logging_helpers.configure_root_logger(logfile=logfile, loglevel=loglevel)
