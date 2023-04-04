@@ -183,14 +183,13 @@ class SQLiteIOManager(IOManager):
     def _get_fk_list(self, table: str) -> pd.DataFrame:
         """Retrieve a dataframe of foreign keys for a table.
 
-        Description from the SQLite Docs:
-        'This pragma returns one row for each foreign key constraint
-        created by a REFERENCES clause in the CREATE TABLE statement of table
-        "table-name".'
+        Description from the SQLite Docs: 'This pragma returns one row for each foreign
+        key constraint created by a REFERENCES clause in the CREATE TABLE statement of
+        table "table-name".'
 
-        The PRAGMA returns one row for each field in a foreign key constraint.
-        This method collapses foreign keys with multiple fields into one record
-        for readability.
+        The PRAGMA returns one row for each field in a foreign key constraint. This
+        method collapses foreign keys with multiple fields into one record for
+        readability.
         """
         with self.engine.connect() as con:
             table_fks = pd.read_sql_query(f"PRAGMA foreign_key_list({table});", con)
@@ -535,8 +534,8 @@ def pudl_sqlite_io_manager(init_context) -> PudlSQLiteIOManager:
 class FercSQLiteIOManager(SQLiteIOManager):
     """IO Manager for reading tables from FERC databases.
 
-    This class should be subclassed and the load_input and handle_output
-    methods should be implemented.
+    This class should be subclassed and the load_input and handle_output methods should
+    be implemented.
 
     This IOManager exepcts the database to already exist.
     """
