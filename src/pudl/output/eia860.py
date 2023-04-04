@@ -214,7 +214,6 @@ def fill_in_missing_ba_codes(plants: pd.DataFrame) -> pd.DataFrame:
         plants: table of annual plant attributes, including
             ``balancing_authority_code_eia``
     """
-
     def log_current_ba_code_nulls(plants: pd.DataFrame, method_str: str) -> None:
         """Internal function to log progress on fillin in BA codes.
 
