@@ -12,6 +12,8 @@ that they can be done automatically and uniformly. They are encapsulated within 
 """
 from . import (  # noqa: F401
     censusdp1tract,
+    denorm_eia,
+    denorm_ferc,
     eia860,
     eia923,
     epacems,
