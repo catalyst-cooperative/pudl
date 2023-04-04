@@ -6,6 +6,8 @@ prune docker
 prune docs
 prune notebooks
 prune terraform
-prune test
 
 global-exclude .gitignore .gitattributes .git-blame-ignore-revs
+global-exclude .bandit.yml .codecov.yml .coveragerc .mypy.ini
+global-exclude .pre-commit-config.yaml .readthedocs.yaml
+global-exclude docker-compose.yml
