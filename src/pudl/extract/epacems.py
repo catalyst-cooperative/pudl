@@ -1,14 +1,14 @@
 """Retrieve data from EPA CEMS hourly zipped CSVs.
 
-Presently, this module is where the CEMS columns are renamed and dropped.
-Any columns in the IGNORE_COLS dictionary are excluded from the final output. All of
-these columns are calculable rates, measurement flags, or descriptors (like facility
-name) that can be accessed by merging this data with the EIA860 plants entity table.
-We also remove the `FACILITY_ID` field because it is internal to the EPA's business
-accounting database and `UNIT_ID` field because it's a unique (calculable) identifier
-for plant_id and emissions_unit_id (previously `UNITID`) groupings. It took a minute to
-verify the difference between the `UNITID` and `UNIT_ID` fields, but coorespondance with
-the EPA's CAMD team cleared this up.
+Presently, this module is where the CEMS columns are renamed and dropped. Any columns in
+the IGNORE_COLS dictionary are excluded from the final output. All of these columns are
+calculable rates, measurement flags, or descriptors (like facility name) that can be
+accessed by merging this data with the EIA860 plants entity table. We also remove the
+`FACILITY_ID` field because it is internal to the EPA's business accounting database and
+`UNIT_ID` field because it's a unique (calculable) identifier for plant_id and
+emissions_unit_id (previously `UNITID`) groupings. It took a minute to verify the
+difference between the `UNITID` and `UNIT_ID` fields, but coorespondance with the EPA's
+CAMD team cleared this up.
 
 Pre-transform, the `plant_id_epa` field is a close but not perfect indicator for
 `plant_id_eia`. In the raw data it's called `ORISPL_CODE` but that's not entirely

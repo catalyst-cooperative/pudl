@@ -1,9 +1,9 @@
 """Denormalized tables, based on other simple normalized tables.
 
-Right now these will mostly be tables defined in `pudl.output`. Ultimately it would
-also include any tables built by joining and aggregating normalized and analysis
-tables. These are probably data warehouse style tables with a lot of duplicated
-information, ready for analysts to use.
+Right now these will mostly be tables defined in `pudl.output`. Ultimately it would also
+include any tables built by joining and aggregating normalized and analysis tables.
+These are probably data warehouse style tables with a lot of duplicated information,
+ready for analysts to use.
 
 Initially we'll probably just wrap existing output functions, but these tables should
 also be amenable to construction using SQL, database views, dbt, or other similar tools.

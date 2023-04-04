@@ -91,12 +91,11 @@ DAILY_DATA = pd.DataFrame(
 def test_annual_attribute_merge():
     """Test merging annual attributes onto monthly data with a sparse report date.
 
-    The left and right merges in this case is a one to many merge and should
-    yield an output table with the exact same data records as the
-    input data table.
+    The left and right merges in this case is a one to many merge and should yield an
+    output table with the exact same data records as the input data table.
 
-    The inner merge case loses records. The outer merge case creates extra
-    records with NA values.
+    The inner merge case loses records. The outer merge case creates extra records with
+    NA values.
     """
     out_expected_left = pd.DataFrame(
         {
