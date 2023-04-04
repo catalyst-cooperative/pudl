@@ -38,14 +38,14 @@ repos:
 
   # Format the code
   - repo: https://github.com/psf/black
-    rev: 23.1.0
+    rev: 23.3.0
     hooks:
       - id: black
         language_version: python3.11
 
   # Format docstrings
   - repo: https://github.com/PyCQA/docformatter
-    rev: v1.5.1
+    rev: v1.6.0
     hooks:
       - id: docformatter
         args: ["--in-place", "--config", "tox.ini"]
