@@ -269,7 +269,6 @@ class EiaSettings(BaseModel):
         """Make sure the dependencies between the eia datasets are satisfied.
 
         Dependencies:
-        * eia860 requires eia923.boiler_fuel_eia923 and eia923.generation_eia923.
         * eia923 requires eia860 for harvesting purposes.
 
         Args:
