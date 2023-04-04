@@ -171,6 +171,17 @@ def correct_gross_load_mw(df: pd.DataFrame) -> pd.DataFrame:
     return df
 
 
+def correct_epa_eia_plant_id_mapping(df: pd.DataFrame) -> pd.DataFrame:
+    """Mannually correct one plant ID.
+
+    The EPA's power sector data crosswalk incorrectly maps plant_id_epa 55248 to
+    plant_id_eia 55248, when it should be mapped to id 2847.
+    """
+    df.loc[df["plant_id_eia"] == 55248, "plant_id_eia"] = 2847
+
+    return df
+
+
 def transform(
     raw_df: pd.DataFrame,
     epacamd_eia: pd.DataFrame,
@@ -195,5 +206,6 @@ def transform(
             convert_to_utc, plant_utc_offset=_load_plant_utc_offset(plants_entity_eia)
         )
         .pipe(correct_gross_load_mw)
+        .pipe(correct_epa_eia_plant_id_mapping)
         .pipe(apply_pudl_dtypes, group="epacems")
     )
