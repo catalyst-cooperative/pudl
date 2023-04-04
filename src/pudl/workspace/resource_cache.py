@@ -11,6 +11,7 @@ from google.api_core.retry import Retry
 from google.cloud import storage
 from google.cloud.storage.blob import Blob
 from google.cloud.storage.retry import _should_retry
+from google.resumable_media.common import DataCorruption
 
 import pudl.logging_helpers
 
@@ -30,7 +31,9 @@ def extend_gcp_retry_predicate(predicate, *exception_types):
 # Add BadRequest to default predicate _should_retry.
 # GCS get requests occasionally fail because of BadRequest errors.
 # See issue #1734.
-gcs_retry = Retry(predicate=extend_gcp_retry_predicate(_should_retry, BadRequest))
+gcs_retry = Retry(
+    predicate=extend_gcp_retry_predicate(_should_retry, BadRequest, DataCorruption)
+)
 
 
 class PudlResourceKey(NamedTuple):
@@ -196,12 +199,12 @@ class GoogleCloudStorageCache(AbstractCache):
 class LayeredCache(AbstractCache):
     """Implements multi-layered system of caches.
 
-    This allows building multi-layered system of caches. The idea is that you can
-    have faster local caches with fall-back to the more remote or expensive caches
-    that can be acessed in case of missing content.
+    This allows building multi-layered system of caches. The idea is that you can have
+    faster local caches with fall-back to the more remote or expensive caches that can
+    be acessed in case of missing content.
 
-    Only the closest layer is being written to (set, delete), while all remaining
-    layers are read-only (get).
+    Only the closest layer is being written to (set, delete), while all remaining layers
+    are read-only (get).
     """
 
     def __init__(self, *caches: list[AbstractCache], **kwargs: Any):

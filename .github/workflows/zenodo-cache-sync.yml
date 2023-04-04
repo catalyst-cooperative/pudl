@@ -10,6 +10,8 @@ env:
   INTERNAL_ZENODO_CACHE_BUCKET: gs://internal-zenodo-cache.catalyst.coop
   PUBLIC_ZENODO_CACHE_BUCKET: gs://zenodo-cache.catalyst.coop
   GITHUB_REF: ${{ github.ref_name }} # This is changed to dev if running on a schedule
+  PUDL_OUTPUT: ~/pudl-work/output
+  PUDL_INPUT: ~/pudl-work/data/
 
 jobs:
   zenodo-cache-sync:

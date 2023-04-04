@@ -88,7 +88,6 @@ def pytest_addoption(parser):
 @pytest.fixture(scope="session")
 def pudl_env(pudl_input_output_dirs):
     """Set PUDL_OUTPUT/PUDL_INPUT/DAGSTER_HOME environment variables."""
-
     pudl.workspace.setup.get_defaults(**pudl_input_output_dirs)
 
     logger.info(f"PUDL_OUTPUT path: {os.environ['PUDL_OUTPUT']}")
@@ -310,13 +309,6 @@ def pudl_sql_io_manager(
                         "config": pudl_datastore_config,
                     },
                 },
-                "ops": {
-                    "hourly_emissions_epacems": {
-                        "config": {
-                            "partition": True,
-                        }
-                    }
-                },
             },
         )
     # Grab a connection to the freshly populated PUDL DB, and hand it off.
@@ -361,7 +353,8 @@ def pudl_input_output_dirs(request, live_dbs, pudl_input_tmpdir, pudl_output_tmp
 
     if os.environ.get("GITHUB_ACTIONS", False):
         # hard-code input dir for CI caching
-        input_override = Path(os.environ["HOME"]) / "pudl-work"
+        input_override = Path(os.environ["HOME"]) / "pudl-work" / "data"
+        output_override = Path(os.environ["HOME"]) / "pudl-work" / "output"
     elif request.config.getoption("--tmp-data"):
         # use tmpdir for inputs if we ask for it
         input_override = pudl_input_tmpdir
