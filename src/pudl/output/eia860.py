@@ -569,6 +569,11 @@ def boilers_eia860(
     Returns:
         A DataFrame containing all the fields of the EIA 860 Boilers table.
     """
+    logger.warning(
+        "pudl.output.eia860.boilers_eia860() will be deprecated in a future version of PUDL."
+        " In the future, call the PudlTabl.boil_eia860() method or pull the denorm_boilers_eia table"
+        "directly from the pudl.sqlite database."
+    )
     pt = pudl.output.pudltabl.get_table_meta(pudl_engine)
 
     # Most of the info we need will come from here.

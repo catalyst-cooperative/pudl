@@ -129,7 +129,7 @@ class PudlTabl:
         # Used to persist the output tables. Returns None if they don't exist.
         self._dfs = defaultdict(lambda: None)
 
-    def pu_eia860(self, update=False):
+    def pu_eia860(self):
         """Pull a dataframe of EIA plant-utility associations.
 
         Args:
@@ -139,11 +139,11 @@ class PudlTabl:
         Returns:
             pandas.DataFrame: a denormalized table for interactive use.
         """
-        if update or self._dfs["pu_eia"] is None:
-            self._dfs["pu_eia"] = pudl.output.eia860.plants_utils_eia860(
-                self.pudl_engine, start_date=self.start_date, end_date=self.end_date
-            )
-        return self._dfs["pu_eia"]
+        schema = pudl.metadata.classes.Package.from_resource_ids().get_resource(
+            "pu_eia"
+        )
+
+        return schema.enforce_schema(pd.read_sql("pu_eia", self.pudl_engine))
 
     def pu_ferc1(self, update=False):
         """Pull a dataframe of FERC plant-utility associations.
@@ -429,7 +429,7 @@ class PudlTabl:
 
         return self._dfs["gens_eia860"]
 
-    def boil_eia860(self, update=False):
+    def boil_eia860(self):
         """Pull a dataframe of boiler level info reported in EIA 860.
 
         Args:
@@ -439,13 +439,13 @@ class PudlTabl:
         Returns:
             pandas.DataFrame: a denormalized table for interactive use.
         """
-        if update or self._dfs["boil_eia860"] is None:
-            self._dfs["boil_eia860"] = pudl.output.eia860.boilers_eia860(
-                self.pudl_engine,
-                start_date=self.start_date,
-                end_date=self.end_date,
-            )
-        return self._dfs["boil_eia860"]
+        schema = pudl.metadata.classes.Package.from_resource_ids().get_resource(
+            "denorm_boilers_eia"
+        )
+
+        return schema.enforce_schema(
+            pd.read_sql("denorm_boilers_eia", self.pudl_engine)
+        )
 
     def own_eia860(self, update=False):
         """Pull a dataframe of generator level ownership data from EIA 860.
