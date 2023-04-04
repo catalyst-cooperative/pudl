@@ -98,6 +98,11 @@ def plants_eia860(pudl_engine, start_date=None, end_date=None):
         pandas.DataFrame: A DataFrame containing all the fields of the EIA 860
         Plants table.
     """
+    logger.warning(
+        "pudl.output.eia860.plants_eia860() will be deprecated in a future version of PUDL."
+        " In the future, call the PudlTabl.plants_eia860() method or pull the denorm_plants_eia table"
+        "directly from the pudl.sqlite database."
+    )
     pt = pudl.output.pudltabl.get_table_meta(pudl_engine)
     # grab the entity table
     plants_eia_tbl = pt["plants_entity_eia"]

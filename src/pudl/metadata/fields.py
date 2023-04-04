@@ -123,6 +123,10 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "type": "string",
         "description": "EIA short code identifying a balancing authority.",
     },
+    "balancing_authority_code_eia_consistent_rate": {
+        "type": "number",
+        "description": "Percentage consistency of balancing authority code across entity records.",
+    },
     "balancing_authority_id_eia": {
         "type": "integer",
         "description": "EIA balancing authority ID. This is often (but not always!) the same as the utility ID associated with the same legal entity.",
