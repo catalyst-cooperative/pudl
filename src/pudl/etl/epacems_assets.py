@@ -1,4 +1,12 @@
-"""EPA CEMS Hourly Emissions assets."""
+"""EPA CEMS Hourly Emissions assets.
+
+The :func:`hourly_emissions_epacems` asset defined in this module uses a dagster pattern
+that is unique from other PUDL assets. Specifically, it is creating a `dynamic graph
+<https://docs.dagster.io/concepts/ops-jobs-graphs/dynamic-graphs>`__ of ops wrapped by a
+`graph backed <https://docs.dagster.io/concepts/assets/graph-backed-assets>`__ asset.
+The dynamic graph will allow dagster to dynamically generate an op for processing each
+year of EPA CEMS data and execute these ops in parallel.
+"""
 from collections import namedtuple
 from pathlib import Path
 
