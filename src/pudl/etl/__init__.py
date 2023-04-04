@@ -46,7 +46,7 @@ default_assets = (
     *load_assets_from_modules([glue_assets], group_name="glue"),
     *load_assets_from_modules([static_assets], group_name="static"),
     *load_assets_from_modules([pudl.output.denorm_eia], group_name="denorm_eia"),
-    *load_assets_from_modules([pudl.output.denorm_ferc], group_name="denorm_ferc"),
+    *load_assets_from_modules([pudl.output.denorm_ferc1], group_name="denorm_ferc1"),
 )
 
 default_resources = {
