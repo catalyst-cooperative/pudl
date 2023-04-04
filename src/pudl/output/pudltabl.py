@@ -145,15 +145,21 @@ class PudlTabl:
             )
         return self._dfs["pu_eia"]
 
-    def pu_ferc1(self) -> pd.DataFrame:
+    def pu_ferc1(self, update=False):
         """Pull a dataframe of FERC plant-utility associations.
 
+        Args:
+            update (bool): If true, re-calculate the output dataframe, even if
+                a cached version exists.
+
         Returns:
-            A denormalized table for interactive use.
+            pandas.DataFrame: a denormalized table for interactive use.
         """
-        return pd.read_sql_table("denorm_plants_utils_ferc1", self.pudl_engine).pipe(
-            apply_pudl_dtypes, group="ferc1"
-        )
+        if update or self._dfs["pu_ferc1"] is None:
+            self._dfs["pu_ferc1"] = pudl.output.ferc1.plants_utils_ferc1(
+                self.pudl_engine
+            )
+        return self._dfs["pu_ferc1"]
 
     def advanced_metering_infrastructure_eia861(self) -> pd.DataFrame:
         """An interim EIA 861 output function."""
@@ -364,8 +370,11 @@ class PudlTabl:
         Returns:
             A denormalized table for interactive use.
         """
-        return pd.read_sql("denorm_utilities_eia", self.pudl_engine).pipe(
-            apply_pudl_dtypes, group="eia"
+        schema = pudl.metadata.classes.Package.from_resource_ids().get_resource(
+            "denorm_utilities_eia"
+        )
+        return schema.enforce_schema(
+            pd.read_sql("denorm_utilities_eia", self.pudl_engine)
         )
 
     def bga_eia860(self, update=False):
@@ -384,23 +393,17 @@ class PudlTabl:
             )
         return self._dfs["bga_eia860"]
 
-    def plants_eia860(self, update=False):
+    def plants_eia860(self) -> pd.DataFrame:
         """Pull a dataframe of plant level info reported in EIA 860.
 
-        Args:
-            update (bool): If true, re-calculate the output dataframe, even if
-                a cached version exists.
-
         Returns:
-            pandas.DataFrame: a denormalized table for interactive use.
+            A denormalized table for interactive use.
         """
-        if update or self._dfs["plants_eia860"] is None:
-            self._dfs["plants_eia860"] = pudl.output.eia860.plants_eia860(
-                self.pudl_engine,
-                start_date=self.start_date,
-                end_date=self.end_date,
-            )
-        return self._dfs["plants_eia860"]
+        schema = pudl.metadata.classes.Package.from_resource_ids().get_resource(
+            "denorm_plants_eia"
+        )
+
+        return schema.enforce_schema(pd.read_sql("denorm_plants_eia", self.pudl_engine))
 
     def gens_eia860(self, update=False):
         """Pull a dataframe describing generators, as reported in EIA 860.
