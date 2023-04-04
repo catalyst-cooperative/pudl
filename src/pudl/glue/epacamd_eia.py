@@ -152,13 +152,23 @@ def transform(
 ##################
 
 
+# @asset
 def identify_subplants_epacamd_eia(
-    crosswalk_clean: pd.DataFrame, years=None, states=None
+    crosswalk_clean: pd.DataFrame,
+    generators_eia860: pd.DataFrame,
+    years=None,
+    states=None,
 ) -> pd.DataFrame:
-    """Identify sub-plant IDs, GTN regressions, and GTN ratios."""
+    """Identify sub-plant IDs, GTN regressions, and GTN ratios.
+
+    TODO: convert to use dagster directly... I believe i need to convert transform above
+    into an asset that returns just crosswalk_clean (not {"epacamd_eia": crosswalk_clean})
+    """
     cems_ids = unique_plant_ids_epacems(years, states)
     # add subplant ids to the data
-    crosswalk_w_subplant_ids = generate_subplant_ids(years, cems_ids, crosswalk_clean)
+    crosswalk_w_subplant_ids = generate_subplant_ids(
+        cems_ids, crosswalk_clean, generators_eia860
+    )
     return crosswalk_w_subplant_ids
 
 
@@ -168,6 +178,8 @@ def unique_plant_ids_epacems(
     states: list[str] | None = None,
 ) -> pd.DataFrame:
     """Make unique annual plant_id_eia and emissions_unit_id_epa.
+
+    TODO: grab cems directly from its asset?
 
     Returns:
         dataframe with unique set of: "plant_id_eia", "report_year" and
@@ -179,7 +191,7 @@ def unique_plant_ids_epacems(
         epacems_path = (
             Path(pudl_settings["parquet_dir"]) / "hourly_emissions_epacems.parquet"
         )
-    annual_id_cols = ["plant_id_eia", "report_year", "emissions_unit_id_epa"]
+    annual_id_cols = ["plant_id_eia", "year", "emissions_unit_id_epa"]
     epacems_dd = dd.read_parquet(
         epacems_path,
         use_nullable_dtypes=True,
@@ -189,9 +201,11 @@ def unique_plant_ids_epacems(
         filters=year_state_filter(years, states),
         columns=annual_id_cols,
     )
-    epacems_df = epacems_dd.compute().drop_duplicates()
+    epacems_ids = (
+        epacems_dd.compute().drop_duplicates().rename(columns={"year": "report_year"})
+    )
 
-    return epacems_df
+    return epacems_ids
 
 
 def augement_crosswalk_with_eia860(
@@ -204,9 +218,9 @@ def augement_crosswalk_with_eia860(
         generators_eia860: EIA860 generators table
     """
     crosswalk_clean = crosswalk_clean.merge(
-        generators_eia860[["plant_id_eia", "generator_id", "report_date"]],
+        generators_eia860[["plant_id_eia", "generator_id"]].drop_duplicates(),
         how="outer",
-        on=["plant_id_eia", "generator_id", "report_date"],
+        on=["plant_id_eia", "generator_id"],
         validate="m:1",
     )
     crosswalk_clean["plant_id_epa"] = crosswalk_clean["plant_id_epa"].fillna(
@@ -215,7 +229,9 @@ def augement_crosswalk_with_eia860(
     return crosswalk_clean
 
 
-def generate_subplant_ids(cems_ids, crosswalk_clean, generators_eia860):
+def generate_subplant_ids(
+    cems_ids, crosswalk_clean, generators_eia860, boiler_generator_assn_eia860
+):
     """Groups units and generators into unique subplant groups.
 
     This function consists of three primary parts:
@@ -234,11 +250,11 @@ def generate_subplant_ids(cems_ids, crosswalk_clean, generators_eia860):
 
     crosswalk_clean = augement_crosswalk_with_eia860(crosswalk_clean, generators_eia860)
     # filter the crosswalk to drop any units that don't exist in CEMS
-    filtered_crosswalk = pudl.analysis.epacamd.filter_crosswalk(
+    filtered_crosswalk = pudl.analysis.epacamd_eia.filter_crosswalk(
         crosswalk_clean, cems_ids
     )
     # use graph analysis to identify subplants
-    crosswalk_with_subplant_ids = pudl.analysis.epacamd.make_subplant_ids(
+    crosswalk_with_subplant_ids = pudl.analysis.epacamd_eia.make_subplant_ids(
         filtered_crosswalk
     )
 
@@ -261,15 +277,15 @@ def generate_subplant_ids(cems_ids, crosswalk_clean, generators_eia860):
     # update the subplant_crosswalk to ensure completeness
     # prepare the subplant crosswalk by adding a complete list of generators and adding the unit_id_pudl column
 
-    # TODO: Is this actually the right table here? Should we migrate the unit_id_pudl
-    # complete fleshing out from outputs -> transform? Is the unit_id_pudl annually varying?
-    complete_generator_ids = generators_eia860[
-        ["plant_id_eia", "generator_id", "unit_id_pudl", "report_date"]
+    # TODO: Should we migrate the unit_id_pudl complete fleshing out from outputs
+    # -> transform? The unit_id_pudl is NOT annually varying.
+    complete_generator_ids = boiler_generator_assn_eia860[
+        ["plant_id_eia", "generator_id", "unit_id_pudl"]
     ].drop_duplicates()
     subplant_crosswalk_complete = crosswalk_with_subplant_ids.merge(
         complete_generator_ids,
         how="outer",
-        on=["plant_id_eia", "generator_id", "report_date"],
+        on=["plant_id_eia", "generator_id"],
         validate="m:1",
     )
     # also add a complete list of cems emissions_unit_id_epa
@@ -278,12 +294,12 @@ def generate_subplant_ids(cems_ids, crosswalk_clean, generators_eia860):
             ["plant_id_eia", "report_date", "emissions_unit_id_epa"]
         ].drop_duplicates(),
         how="outer",
-        on=["plant_id_eia", "report_date", "emissions_unit_id_epa"],
-        validate="m:1",
+        on=["plant_id_eia", "emissions_unit_id_epa"],
+        validate="m:m",
     )
     # update the subplant ids for each plant
     subplant_crosswalk_complete = subplant_crosswalk_complete.groupby(
-        "plant_id_eia", "report_date"
+        ["plant_id_eia", "report_date"]
     ).apply(update_subplant_ids)
 
     # remove the intermediate columns created by update_subplant_ids
@@ -298,6 +314,7 @@ def generate_subplant_ids(cems_ids, crosswalk_clean, generators_eia860):
             "generator_id",
             "subplant_id",
             "unit_id_pudl",
+            "report_date",
         ]
     ]
 
@@ -312,6 +329,7 @@ def generate_subplant_ids(cems_ids, crosswalk_clean, generators_eia860):
             "plant_id_eia",
             "generator_id",
             "subplant_id",
+            "report_date",
         ],
         keep="last",
     )
@@ -387,7 +405,7 @@ def update_subplant_ids(subplant_crosswalk):
 
     Args:
         subplant_crosswalk: a dataframe containing the output of
-            :func:`pudl.analysis.epacamd.make_subplant_ids`
+            :func:`pudl.analysis.epacamd_eia.make_subplant_ids`
     """
     # Step 1: Create corrected versions of subplant_id and unit_id_pudl
     # if multiple unit_id_pudl are connected by a single subplant_id, unit_id_pudl_connected groups these unit_id_pudl together
@@ -406,7 +424,7 @@ def update_subplant_ids(subplant_crosswalk):
     # create a numeric version of each generator_id
     # ngroup() creates a unique number for each element in the group
     subplant_crosswalk["numeric_generator_id"] = subplant_crosswalk.groupby(
-        ["plant_id_eia", "report_date" "generator_id"], dropna=False
+        ["plant_id_eia", "report_date", "generator_id"], dropna=False
     ).ngroup()
     # when filling in missing unit_id_pudl, we don't want these numeric_generator_id to overlap existing unit_id
     # to ensure this, we will add 1000 to each of these numeric generator ids to ensure they are unique
@@ -482,17 +500,16 @@ def add_operating_and_retirement_dates(df, generators_eia860):
             "generator_id",
             "report_date",
             "operational_status",
-            "current_planned_operating_date",
-            "retirement_date",
+            "generator_retirement_date",
+            "current_planned_generator_operating_date",
         ],
     ]
     # only keep values that have a planned operating date or retirement date
     generator_status = generator_status[
-        (~generator_status["current_planned_operating_date"].isna())
-        | (~generator_status["retirement_date"].isna())
+        (~generator_status["generator_retirement_date"].isna())
+        | (~generator_status["current_planned_generator_operating_date"].isna())
     ]
     # drop any duplicate entries
-    logger.info(f"TEMP: len of generator_status pre dupe drop: {len(generator_status)}")
     generator_status = generator_status.sort_values(
         by=["plant_id_eia", "generator_id", "report_date"]
     ).drop_duplicates(
@@ -500,13 +517,10 @@ def add_operating_and_retirement_dates(df, generators_eia860):
             "plant_id_eia",
             "generator_id",
             "report_date",  # added by cbz
-            "current_planned_operating_date",
-            "retirement_date",
+            "generator_retirement_date",
+            "current_planned_generator_operating_date",
         ],
         keep="last",
-    )
-    logger.info(
-        f"TEMP: len of generator_status post dupe drop: {len(generator_status)}"
     )
 
     # merge the dates into the crosswalk
@@ -516,8 +530,8 @@ def add_operating_and_retirement_dates(df, generators_eia860):
                 "plant_id_eia",
                 "generator_id",
                 "report_date",
-                "current_planned_operating_date",
-                "retirement_date",
+                "generator_retirement_date",
+                "current_planned_generator_operating_date",
             ]
         ],
         how="left",
