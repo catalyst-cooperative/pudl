@@ -152,7 +152,6 @@ def transform(
 ##################
 
 
-# @asset
 def identify_subplants_epacamd_eia(
     crosswalk_clean: pd.DataFrame,
     generators_eia860: pd.DataFrame,
@@ -214,8 +213,8 @@ def augement_crosswalk_with_eia860(
     """Merge any plants that are missing from the EPA crosswalk but appear in EIA-860.
 
     Args:
-        crosswalk_clean: transformed EPA CEMS-EIA crosswalk
-        generators_eia860: EIA860 generators table
+        crosswalk_clean: transformed EPA CEMS-EIA crosswalk.
+        generators_eia860: EIA860 generators table.
     """
     crosswalk_clean = crosswalk_clean.merge(
         generators_eia860[["plant_id_eia", "generator_id"]].drop_duplicates(),
@@ -231,20 +230,21 @@ def augement_crosswalk_with_eia860(
 
 def generate_subplant_ids(
     cems_ids, crosswalk_clean, generators_eia860, boiler_generator_assn_eia860
-):
+) -> pd.DataFrame:
     """Groups units and generators into unique subplant groups.
 
     This function consists of three primary parts:
-    1. Identify a list of all unique plant-units that exist in the CEMS data
+
+    #.  Identify a list of all unique plant-units that exist in the CEMS data
         for the years in question. This will be used to filter the crosswalk.
-    2. Load the EPA-EIA crosswalk and filter it based on the units that exist
+    #.  Load the EPA-EIA crosswalk and filter it based on the units that exist
         in the CEMS data for the years in question
-    3. Use graph analysis to identify distinct groupings of EPA units and EIA
+    #.  Use graph analysis to identify distinct groupings of EPA units and EIA
         generators based on 1:1, 1:m, m:1, or m:m relationships.
 
     Returns:
-        exports the subplant crosswalk to a csv file
-        cems_ids and gen_fuel_allocated with subplant_id added
+        exports the subplant crosswalk to a csv file cems_ids and gen_fuel_allocated
+        with subplant_id added
     """
     logger.info("Identify unique subplants within the EPA CEMS crosswalk")
 
@@ -363,45 +363,57 @@ def update_subplant_ids(subplant_crosswalk):
     ``plant_id_eia`` at a time.
 
     Data Preparation
-        Because the existing subplant_id crosswalk was only meant to map CAMD units to
-        EIA generators, it is missing a large number of subplant_ids for generators that
-        do not report to CEMS. Before applying this function to the subplant crosswalk,
-        the crosswalk must be completed with all generators by outer merging in the
-        complete list of generators from EIA-860 (specifically the gens_eia860 table
-        from pudl). This dataframe also contains the complete list of ``unit_id_pudl``
-        mappings that will be necessary.
+    ================
+
+    Because the existing subplant_id crosswalk was only meant to map CAMD units to EIA
+    generators, it is missing a large number of subplant_ids for generators that do not
+    report to CEMS. Before applying this function to the subplant crosswalk, the
+    crosswalk must be completed with all generators by outer merging in the complete
+    list of generators from EIA-860 (specifically the gens_eia860 table from pudl). This
+    dataframe also contains the complete list of ``unit_id_pudl`` mappings that will be
+    necessary.
 
     High-level overview of method:
-        1. Use the PUDL subplant_id if available. In the case where a unit_id_pudl
-           groups several subplants, we overwrite these multiple existing subplant_id
-           with a single subplant_id.
-        2. Where there is no PUDL subplant_id, we use the unit_id_pudl to assign a
-           unique subplant_id
-        3. Where there is neither a pudl subplant_id nor unit_id_pudl, we use the
-           generator ID to assign a unique subplant_id
-        4. All of the new unique ids are renumbered in consecutive ascending order
+    ==============================
+
+    #.  Use the PUDL subplant_id if available. In the case where a unit_id_pudl groups
+        several subplants, we overwrite these multiple existing subplant_id with a single
+        subplant_id.
+    #. Where there is no PUDL subplant_id, we use the unit_id_pudl to assign a unique
+        subplant_id
+    #.  Where there is neither a pudl subplant_id nor unit_id_pudl, we use the generator
+        ID to assign a unique subplant_id.
+    #.  All of the new unique ids are renumbered in consecutive ascending order
 
     Detailed explanation of steps:
-        1. Because the current subplant_id code does not take boiler-generator associations into account,
-           there may be instances where the code assigns generators to different subplants when in fact, according
-           to the boiler-generator association table, these generators are grouped into a single unit based on their
-           boiler associations. The first step of this function is thus to identify if multiple subplant_id have
-           been assigned to a single unit_id_pudl. If so, we replace the existing subplant_ids with a single subplant_id.
-           For example, if a generator A was assigned subplant_id 0 and generator B was assigned subplant_id 1, but
-           both generators A and B are part of unit_id_pudl 1, we would re-assign the subplant_id to both generators to
-           0 (we always use the lowest number subplant_id in each unit_id_pudl group). This may result in some subplant_id
-           being skipped, but this is okay because we will later renumber all subplant ids (i.e. if there were also a
-           generator C with subplant_id 2, there would no be no subplant_id 1 at the plant)
-           Likewise, sometimes multiple unit_id_pudl are connected to a single subplant_id, so we also correct the
-           unit_id_pudl basedon these connections.
-        2. The second issue is that there are many NA subplant_id that we should fill. To do this, we first look at
-           unit_id_pudl. If a group of generators are assigned a unit_id_pudl but have NA subplant_ids, we assign a single
-           new subplant_id to this group of generators. If there are still generators at a plant that have both NA subplant_id
-           and NA unit_id_pudl, we for now assume that each of these generators consitutes its own subplant. We thus assign a unique
-           subplant_id to each generator that is unique from any existing subplant_id already at the plant.
-           In the case that there are multiple emissions_unit_id_epa at a plant that are not matched to any other identifiers (generator_id,
-           unit_id_pudl, or subplant_id), as is the case when there are units that report to CEMS but which do not exist in the EIA
-           data, we assign these units to a single subplant.
+    ==============================
+
+    #.  Because the current subplant_id code does not take boiler-generator associations
+        into account, there may be instances where the code assigns generators to
+        different subplants when in fact, according to the boiler-generator association
+        table, these generators are grouped into a single unit based on their boiler
+        associations. The first step of this function is thus to identify if multiple
+        subplant_id have been assigned to a single unit_id_pudl. If so, we replace the
+        existing subplant_ids with a single subplant_id. For example, if a generator A
+        was assigned subplant_id 0 and generator B was assigned subplant_id 1, but both
+        generators A and B are part of unit_id_pudl 1, we would re-assign the subplant_id
+        to both generators to 0 (we always use the lowest number subplant_id in each
+        unit_id_pudl group). This may result in some subplant_id being skipped, but this
+        is okay because we will later renumber all subplant ids (i.e. if there were also
+        a generator C with subplant_id 2, there would no be no subplant_id 1 at the
+        plant). Likewise, sometimes multiple unit_id_pudl are connected to a single
+        subplant_id, so we also correct the unit_id_pudl basedon these connections.
+    #.  The second issue is that there are many NA subplant_id that we should fill. To
+        do this, we first look at unit_id_pudl. If a group of generators are assigned a
+        unit_id_pudl but have NA subplant_ids, we assign a single new subplant_id to this
+        group of generators. If there are still generators at a plant that have both NA
+        subplant_id and NA unit_id_pudl, we for now assume that each of these generators
+        consitutes its own subplant. We thus assign a unique subplant_id to each
+        generator that is unique from any existing subplant_id already at the plant. In
+        the case that there are multiple emissions_unit_id_epa at a plant that are not
+        matched to any other identifiers (generator_id, unit_id_pudl, or subplant_id), as
+        is the case when there are units that report to CEMS but which do not exist in
+        the EIA data, we assign these units to a single subplant.
 
     Args:
         subplant_crosswalk: a dataframe containing the output of
