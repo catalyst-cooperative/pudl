@@ -1,8 +1,11 @@
-graft src/pudl/package_data
 graft src/pudl/metadata/templates
 
 prune .github
-prune test/data
-global-exclude .gitignore __pycache__ *.py[cod] *checkpoint.ipynb
-global-exclude .gitattributes .readthedocs.yml
-global-exclude *_test.py
+prune devtools
+prune docker
+prune docs
+prune notebooks
+prune terraform
+prune test
+
+global-exclude .gitignore .gitattributes .git-blame-ignore-revs
