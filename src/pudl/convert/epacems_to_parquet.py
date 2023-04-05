@@ -1,11 +1,11 @@
 """Process raw EPA CEMS data into a Parquet dataset outside of the PUDL ETL.
 
-This script transforms the raw EPA CEMS data from Zip compressed CSV files into
-an Apache Parquet dataset partitioned by year and state.
+This script transforms the raw EPA CEMS data from Zip compressed CSV files into an
+Apache Parquet dataset partitioned by year and state.
 
 Processing the EPA CEMS data requires information that's stored in the main PUDL
-database, so to run this script, you must already have a PUDL database
-available on your system.
+database, so to run this script, you must already have a PUDL database available on your
+system.
 """
 import argparse
 import sys
@@ -89,12 +89,6 @@ def parse_command_line(argv):
         default=None,
         help="If specified, write logs to this file.",
     )
-    parser.add_argument(
-        "--partition",
-        action="store_true",
-        default=False,
-        help="If set, output year-state partitioned Parquet files",
-    )
     arguments = parser.parse_args(argv[1:])
     return arguments
 
@@ -153,13 +147,6 @@ def main():
                         else "",
                     },
                 },
-            },
-            "ops": {
-                "hourly_emissions_epacems": {
-                    "config": {
-                        "partition": args.partition,
-                    }
-                }
             },
         },
     )

@@ -181,25 +181,23 @@ def heat_rate_by_gen(pudl_out):
 def fuel_cost(pudl_out):
     """Calculate fuel costs per MWh on a per generator basis for MCOE.
 
-    Fuel costs are reported on a per-plant basis, but we want to estimate them
-    at the generator level. This is complicated by the fact that some plants
-    have several different types of generators, using different fuels. We have
-    fuel costs broken out by type of fuel (coal, oil, gas), and we know which
-    generators use which fuel based on their energy_source_code and reported
-    prime_mover. Coal plants use a little bit of natural gas or diesel to get
-    started, but based on our analysis of the "pure" coal plants, this amounts
-    to only a fraction of a percent of their overal fuel consumption on a
-    heat content basis, so we're ignoring it for now.
+    Fuel costs are reported on a per-plant basis, but we want to estimate them at the
+    generator level. This is complicated by the fact that some plants have several
+    different types of generators, using different fuels. We have fuel costs broken out
+    by type of fuel (coal, oil, gas), and we know which generators use which fuel based
+    on their energy_source_code and reported prime_mover. Coal plants use a little bit
+    of natural gas or diesel to get started, but based on our analysis of the "pure"
+    coal plants, this amounts to only a fraction of a percent of their overal fuel
+    consumption on a heat content basis, so we're ignoring it for now.
 
-    For plants whose generators all rely on the same fuel source, we simply
-    attribute the fuel costs proportional to the fuel heat content consumption
-    associated with each generator.
+    For plants whose generators all rely on the same fuel source, we simply attribute
+    the fuel costs proportional to the fuel heat content consumption associated with
+    each generator.
 
-    For plants with more than one type of generator energy source, we need to
-    split out the fuel costs according to fuel type -- so the gas fuel costs
-    are associated with generators that have energy_source_code gas, and the
-    coal fuel costs are associated with the generators that have
-    energy_source_code coal.
+    For plants with more than one type of generator energy source, we need to split out
+    the fuel costs according to fuel type -- so the gas fuel costs are associated with
+    generators that have energy_source_code gas, and the coal fuel costs are associated
+    with the generators that have energy_source_code coal.
     """
     # pudl_out must have a freq, otherwise capacity factor will fail and merges
     # between tables with different frequencies will fail
