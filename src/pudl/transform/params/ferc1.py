@@ -114,6 +114,7 @@ VALID_COAL_MMBTU_PER_TON = {
 
 Lower bound is for waste coal. Upper bound is for bituminous coal.
 
+
 https://www.eia.gov/survey/form/eia_923/instructions.pdf
 """
 
@@ -132,6 +133,7 @@ VALID_GAS_MMBTU_PER_MCF = {
 Lower bound is for landfill gas. Upper bound is for "other gas".  Blast furnace gas
 (which has very low heat content) is effectively excluded.
 
+
 https://www.eia.gov/survey/form/eia_923/instructions.pdf
 """
 
@@ -148,6 +150,7 @@ VALID_OIL_MMBTU_PER_BBL = {
 """Valid range for petroleum fuels heat content, taken from the EIA-923 instructions.
 
 Lower bound is for waste oil. Upper bound is for residual fuel oil.
+
 
 https://www.eia.gov/survey/form/eia_923/instructions.pdf
 """

@@ -1,14 +1,102 @@
 ---
 name: tox-pytest
 
-on: [push, pull_request]
+on: [pull_request]
 
 env:
-  PUDL_OUTPUT: ~/pudl-work/output
-  PUDL_INPUT: ~/pudl-work/data/
+  PUDL_OUTPUT: /home/runner/pudl-work/output
+  PUDL_INPUT: /home/runner/pudl-work/data/
 
 jobs:
-  ci-test:
+  ci-static:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        tox-env:
+          - linters
+          - docs
+    defaults:
+      run:
+        shell: bash -l {0}
+
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          fetch-depth: 2
+
+      - name: Install Conda environment using mamba
+        uses: mamba-org/provision-with-micromamba@v15
+        with:
+          environment-file: test/test-environment.yml
+          cache-env: true
+          channels: conda-forge,defaults
+          channel-priority: strict
+
+      - name: Log environment details
+        run: |
+          conda info
+          conda list
+          conda config --show-sources
+          conda config --show
+          printenv | sort
+
+      - name: Build ${{ matrix.tox-env}} with Tox
+        run: |
+          tox -e ${{ matrix.tox-env }}
+
+      - name: Upload coverage
+        uses: actions/upload-artifact@v3
+        if: ${{ matrix.tox-env == 'docs' }}
+        with:
+          name: coverage-docs
+          path: coverage.xml
+
+  ci-unit:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+    defaults:
+      run:
+        shell: bash -l {0}
+
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          fetch-depth: 2
+
+      - name: Install Conda environment using mamba
+        uses: mamba-org/provision-with-micromamba@v15
+        with:
+          environment-file: test/test-environment.yml
+          cache-env: true
+          channels: conda-forge,defaults
+          channel-priority: strict
+
+      - name: Log environment details
+        run: |
+          conda info
+          conda list
+          conda config --show-sources
+          conda config --show
+          printenv | sort
+
+      - name: Log SQLite3 version
+        run: |
+          which sqlite3
+          sqlite3 --version
+
+      - name: Run unit tests with Tox
+        run: |
+          tox -e unit -- --durations 0
+
+      - name: Upload coverage
+        uses: actions/upload-artifact@v3
+        with:
+          name: coverage-unit
+          path: coverage.xml
+
+  ci-integration:
     runs-on: ubuntu-latest
     permissions:
       contents: read
@@ -40,6 +128,11 @@ jobs:
           conda config --show
           printenv | sort
 
+      - name: Log SQLite3 version
+        run: |
+          which sqlite3
+          sqlite3 --version
+
       - name: Compile Zenodo datastore DOIs for cache invalidation
         run:
           grep -e '.*10\.\(5281\|5072\)/zenodo\..*' src/pudl/workspace/datastore.py
@@ -49,22 +142,16 @@ jobs:
         uses: actions/cache@v3
         id: cache-zenodo-datastore
         with:
-          path: ~/pudl-work/data/
+          path: ${{ env.PUDL_INPUT }}
           key: zenodo-datastore-${{ hashFiles('datastore-dois.txt') }}
-          restore-keys: |
-            zenodo-datastore-
 
-      - name: Log pre-test Zenodo datastore contents
-        run: |
-          mkdir -p ~/pudl-work/data/
-          find ~/pudl-work/data/
+      - name: Make cache/output dirs
+        run: mkdir -p ${{ env.PUDL_OUTPUT }} ${{ env.PUDL_INPUT}}
 
-      - name: Log SQLite3 version
-        run: |
-          which sqlite3
-          sqlite3 --version
+      - name: List workspace contents
+        run: find /home/runner/pudl-work
 
-      - name: Set default gcp credentials
+      - name: Set default GCP credentials
         id: gcloud-auth
         continue-on-error: true
         uses: "google-github-actions/auth@v1"
@@ -72,26 +159,46 @@ jobs:
           workload_identity_provider: "projects/345950277072/locations/global/workloadIdentityPools/gh-actions-pool/providers/gh-actions-provider"
           service_account: "tox-pytest-github-action@catalyst-cooperative-pudl.iam.gserviceaccount.com"
 
-      - name: Run PyTest with Tox against GCS cache (internal PRs)
+      - name: Run integration tests, trying to use GCS cache if possible
         run: |
-          tox -- --gcs-cache-path gs://zenodo-cache.catalyst.coop
-        if: ${{ steps.gcloud-auth.outcome == 'success' }}
+          tox -e integration -- --gcs-cache-path=gs://zenodo-cache.catalyst.coop --durations 0
 
-      - name: Run PyTest with Tox against Zenodo (external PRs)
-        run: |
-          tox
-        if: ${{ steps.gcloud-auth.outcome == 'failure' }}
+      - name: Upload coverage
+        uses: actions/upload-artifact@v3
+        with:
+          name: coverage-integration
+          path: coverage.xml
 
       - name: Log post-test Zenodo datastore contents
-        run: find ~/pudl-work/data/
+        run: find ${{ env.PUDL_INPUT }}
 
+  ci-coverage:
+    runs-on: ubuntu-latest
+    needs:
+      - ci-unit
+      - ci-integration
+      - ci-static
+    steps:
+      - uses: actions/checkout@v3
+      - name: Download coverage
+        id: download-unit
+        uses: actions/download-artifact@v3
+        with:
+          path: coverage
+      - name: List downloaded files
+        run: |
+          ls -R
       - name: Upload test coverage report to CodeCov
         uses: codecov/codecov-action@v3
+        with:
+          directory: coverage
 
   ci-notify:
     runs-on: ubuntu-latest
     if: ${{ always() }}
-    needs: ci-test
+    needs:
+      - ci-unit
+      - ci-integration
     steps:
       - name: Inform the Codemonkeys
         uses: 8398a7/action-slack@v3

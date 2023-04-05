@@ -13,7 +13,7 @@ that they can be done automatically and uniformly. They are encapsulated within 
 from . import (  # noqa: F401
     censusdp1tract,
     denorm_eia,
-    denorm_ferc,
+    denorm_ferc1,
     eia860,
     eia923,
     epacems,
