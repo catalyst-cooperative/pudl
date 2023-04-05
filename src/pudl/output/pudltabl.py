@@ -21,11 +21,13 @@ data products that we might want to be able to provide to users a la carte.
 
 from collections import defaultdict
 from datetime import date, datetime
+from functools import partial
 from typing import Any, Literal
 
 # Useful high-level external modules.
 import pandas as pd
 import sqlalchemy as sa
+from dagster import load_assets_from_modules
 
 import pudl
 from pudl.analysis.allocate_net_gen import (
@@ -128,6 +130,35 @@ class PudlTabl:
 
         # Used to persist the output tables. Returns None if they don't exist.
         self._dfs = defaultdict(lambda: None)
+
+        self._register_output_methods()
+
+    def _register_output_methods(self):
+        """Load denorm assets and register methods for retrieving each asset."""
+        denorm_assets = {
+            "ferc1": load_assets_from_modules(
+                [pudl.output.denorm_ferc1], group_name="ferc1"
+            ),
+            "eia": load_assets_from_modules([pudl.output.denorm_eia], group_name="eia"),
+        }
+
+        for group, assets in denorm_assets.items():
+            for key in pudl.helpers.get_asset_keys(assets):
+                asset_name = key.path[0]
+                self.__dict__[asset_name] = partial(
+                    self.get_table_from_db, table_name=asset_name, group=group
+                )
+
+    def get_table_from_db(self, table_name: str, group: str) -> pd.DataFrame:
+        """Grab output table from PUDL DB.
+
+        Args:
+            table_name: Name of table to get.
+            group: The data group to use for overrides, if any. E.g. "eia", "ferc1".
+        """
+        return pd.read_sql_table(table_name, self.pudl_engine).pipe(
+            apply_pudl_dtypes, group=group
+        )
 
     def pu_eia860(self, update=False):
         """Pull a dataframe of EIA plant-utility associations.
