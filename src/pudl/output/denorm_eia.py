@@ -329,3 +329,203 @@ def denorm_boilers_eia(
     )
 
     return out_df
+
+
+@asset(io_manager_key="pudl_sqlite_io_manager", compute_kind="Python")
+def denorm_ownership_eia860(ownership_eia860, pu_eia) -> pd.DataFrame:
+    """Pull a useful set of fields related to ownership_eia860 table.
+
+    Args:
+        ownership_eia860: Normalized EIA 860 ownership table.
+        pu_eia: Denormalized plant_utility EIA ID table.
+
+    Returns:
+        A DataFrame containing a useful set of fields related
+        to the EIA 860 Ownership table.
+    """
+    own_eia860_df = ownership_eia860.assign(
+        report_date=lambda x: pd.to_datetime(x["report_date"])
+    )
+
+    pu_eia = pu_eia.loc[
+        :,
+        [
+            "plant_id_eia",
+            "plant_id_pudl",
+            "plant_name_eia",
+            "utility_name_eia",
+            "utility_id_pudl",
+            "report_date",
+        ],
+    ]
+
+    out_df = (
+        pd.merge(own_eia860_df, pu_eia, how="left", on=["report_date", "plant_id_eia"])
+        .dropna(
+            subset=[
+                "report_date",
+                "plant_id_eia",
+                "generator_id",
+                "owner_utility_id_eia",
+            ]
+        )
+        .pipe(apply_pudl_dtypes, group="eia")
+    )
+
+    first_cols = [
+        "report_date",
+        "plant_id_eia",
+        "plant_id_pudl",
+        "plant_name_eia",
+        "utility_id_eia",
+        "utility_id_pudl",
+        "utility_name_eia",
+        "generator_id",
+        "owner_utility_id_eia",
+        "owner_name",
+    ]
+
+    # Re-arrange the columns for easier readability:
+    out_df = pudl.helpers.organize_cols(out_df, first_cols)
+
+    return out_df
+
+
+# def denorm_boiler_fuel_eia923(
+#     boiler_fuel923: pd.DataFrame,
+#     pu_eia: pd.DataFrame,
+#     boiler_generator_assn_eia860: pd.DataFrame,
+# ) -> pd.DataFrame:
+#     """Pull records from the boiler_fuel_eia923 table in a given data range.
+
+#     This returns a non-aggregated record. All of the database fields are
+#     available. In addition, plant and utility names and IDs are pulled in from the EIA
+#     860 tables.
+
+#     Args:
+#         pudl_engine (sqlalchemy.engine.Engine): SQLAlchemy connection engine
+#             for the PUDL DB.
+#         freq (str): a pandas timeseries offset alias. The original data is
+#             reported monthly, so the best time frequencies to use here are
+#             probably month start (freq='MS') and year start (freq='YS').
+
+#     Returns:
+#         A denormalized DataFrame containing all records from the EIA 923 Boiler Fuel
+#         table.
+#     """
+#     pt = pudl.output.pudltabl.get_table_meta(pudl_engine)
+#     bf_eia923_tbl = pt["boiler_fuel_eia923"]
+#     bf_eia923_select = sa.sql.select(bf_eia923_tbl)
+#     if start_date is not None:
+#         bf_eia923_select = bf_eia923_select.where(
+#             bf_eia923_tbl.c.report_date >= start_date
+#         )
+#     if end_date is not None:
+#         bf_eia923_select = bf_eia923_select.where(
+#             bf_eia923_tbl.c.report_date <= end_date
+#         )
+#     bf_df = pd.read_sql(bf_eia923_select, pudl_engine)
+
+#     # The total heat content is also useful in its own right, and we'll keep it
+#     # around.  Also needed to calculate average heat content per unit of fuel.
+#     bf_df["fuel_consumed_mmbtu"] = (
+#         bf_df["fuel_consumed_units"] * bf_df["fuel_mmbtu_per_unit"]
+#     )
+
+#     # Create a date index for grouping based on freq
+#     by = [
+#         "plant_id_eia",
+#         "boiler_id",
+#         "energy_source_code",
+#         "fuel_type_code_pudl",
+#         "prime_mover_code",
+#     ]
+
+#     if freq is not None:
+#         # In order to calculate the weighted average sulfur
+#         # content and ash content we need to calculate these totals.
+#         bf_df["total_sulfur_content"] = (
+#             bf_df["fuel_consumed_units"] * bf_df["sulfur_content_pct"]
+#         )
+#         bf_df["total_ash_content"] = (
+#             bf_df["fuel_consumed_units"] * bf_df["ash_content_pct"]
+#         )
+#         bf_df = bf_df.set_index(pd.DatetimeIndex(bf_df.report_date))
+#         by = by + [pd.Grouper(freq=freq)]
+#         bf_gb = bf_df.groupby(by=by)
+
+#         # Sum up these totals within each group, and recalculate the per-unit
+#         # values (weighted in this case by fuel_consumed_units)
+#         bf_df = bf_gb.agg(
+#             {
+#                 "fuel_consumed_mmbtu": pudl.helpers.sum_na,
+#                 "fuel_consumed_units": pudl.helpers.sum_na,
+#                 "total_sulfur_content": pudl.helpers.sum_na,
+#                 "total_ash_content": pudl.helpers.sum_na,
+#             }
+#         )
+
+#         bf_df["fuel_mmbtu_per_unit"] = (
+#             bf_df["fuel_consumed_mmbtu"] / bf_df["fuel_consumed_units"]
+#         )
+#         bf_df["sulfur_content_pct"] = (
+#             bf_df["total_sulfur_content"] / bf_df["fuel_consumed_units"]
+#         )
+#         bf_df["ash_content_pct"] = (
+#             bf_df["total_ash_content"] / bf_df["fuel_consumed_units"]
+#         )
+#         bf_df = bf_df.reset_index()
+#         bf_df = bf_df.drop(["total_ash_content", "total_sulfur_content"], axis=1)
+
+#     # Grab some basic plant & utility information to add.
+#     pu_eia = pudl.output.eia860.plants_utils_eia860(
+#         pudl_engine, start_date=start_date, end_date=end_date
+#     )
+
+#     out_df = pudl.helpers.date_merge(
+#         left=bf_df,
+#         right=pu_eia,
+#         on=["plant_id_eia"],
+#         date_on=["year"],
+#         how="left",
+#     ).dropna(subset=["plant_id_eia", "utility_id_eia", "boiler_id"])
+#     # Merge in the unit_id_pudl assigned to each generator in the BGA process
+#     # Pull the BGA table and make it unit-boiler only:
+#     bga_boilers = (
+#         pudl.output.eia860.boiler_generator_assn_eia860(
+#             pudl_engine, start_date=start_date, end_date=end_date
+#         )
+#         .loc[:, ["report_date", "plant_id_eia", "boiler_id", "unit_id_pudl"]]
+#         .drop_duplicates()
+#     )
+
+#     out_df = pudl.helpers.date_merge(
+#         left=out_df,
+#         right=bga_boilers,
+#         on=["plant_id_eia", "boiler_id"],
+#         date_on=["year"],
+#         how="left",
+#     )
+#     # merge in the static entity columns
+#     # don't need to deal with time (freq/end or start dates bc this table is static)
+#     out_df = out_df.merge(
+#         pd.read_sql("boilers_entity_eia", pudl_engine),
+#         how="left",
+#         on=["plant_id_eia", "boiler_id"],
+#     )
+#     out_df = pudl.helpers.organize_cols(
+#         out_df,
+#         cols=[
+#             "report_date",
+#             "plant_id_eia",
+#             "plant_id_pudl",
+#             "plant_name_eia",
+#             "utility_id_eia",
+#             "utility_id_pudl",
+#             "utility_name_eia",
+#             "boiler_id",
+#             "unit_id_pudl",
+#         ],
+#     ).pipe(apply_pudl_dtypes, group="eia")
+
+#     return out_df

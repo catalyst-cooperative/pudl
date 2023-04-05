@@ -415,6 +415,39 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
         "sources": ["eia860", "eia923"],
         "etl_group": "eia860",
     },
+    "denorm_ownership_eia": {
+        "description": ("Denormalized table containing EIA 860 ownership attributes."),
+        "schema": {
+            "fields": [
+                "report_date",
+                "plant_id_eia",
+                "plant_id_pudl",
+                "plant_name_eia",
+                "utility_id_eia",
+                "utility_id_pudl",
+                "utility_name_eia",
+                "generator_id",
+                "owner_utility_id_eia",
+                "owner_name",
+                "data_maturity",
+                "fraction_owned",
+                "owner_city",
+                "owner_country",
+                "owner_state",
+                "owner_street_address",
+                "owner_zip_code",
+            ],
+            "primary_key": [
+                "report_date",
+                "plant_id_eia",
+                "generator_id",
+                "owner_utility_id_eia",
+            ],
+        },
+        "field_namespace": "eia",
+        "sources": ["eia860"],
+        "etl_group": "outputs",
+    },
 }
 """EIA-860 resource attributes organized by PUDL identifier (``resource.name``).
 
