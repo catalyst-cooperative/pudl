@@ -1,0 +1,9 @@
+name: pudl
+channels:
+  - conda-forge
+dependencies: 
+  - python=3.10
+  - pip
+  - pip:
+    - h3==3.7.6  # h3-py 3.7.4 on conda-forge fails, see https://github.com/scikit-build/scikit-build/pull/901
+  - catalystcoop.pudl

@@ -173,3 +173,8 @@ include = "\\.pyi?$"
 [tool.isort]
 profile = "black"
 known_first_party = "pudl"
+
+[tool.conda-lock]
+platforms = [
+    'osx-arm64', 'linux-64', 'osx-64', 'win-64',
+]
