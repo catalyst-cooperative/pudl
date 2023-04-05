@@ -141,15 +141,11 @@ class PudlTabl:
 
         return schema.enforce_schema(pd.read_sql("pu_eia", self.pudl_engine))
 
-    def pu_ferc1(self, update=False):
+    def pu_ferc1(self) -> pd.DataFrame:
         """Pull a dataframe of FERC plant-utility associations.
 
-        Args:
-            update (bool): If true, re-calculate the output dataframe, even if
-                a cached version exists.
-
         Returns:
-            pandas.DataFrame: a denormalized table for interactive use.
+            A denormalized table for interactive use.
         """
         return pd.read_sql_table("denorm_plants_utils_ferc1", self.pudl_engine).pipe(
             apply_pudl_dtypes, group="ferc1"
