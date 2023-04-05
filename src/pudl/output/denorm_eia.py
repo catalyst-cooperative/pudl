@@ -127,6 +127,7 @@ def denorm_plants_eia(
         plants_entity_eia: EIA plant entity table.
         plants_eia860: EIA 860 annual plant attribute table.
         plants_eia: Associations between EIA plants and pudl utility IDs.
+        utilities_eia: EIA utility ID table.
 
     Returns:
         pandas.DataFrame: A DataFrame containing all the fields of the EIA 860
@@ -160,9 +161,11 @@ def denorm_generators_eia(
     """Pull all fields from the EIA Utilities table.
 
     Args:
-        utilities_entity_eia: EIA utility entity table.
-        utilities_eia860: EIA 860 annual utility table.
-        utilities_eia: Associations between EIA utilities and pudl utility IDs.
+        generators_eia860: EIA 860 annual generator table.
+        generators_entity_eia: EIA plant entity table.
+        plants_entity_eia: EIA plant entity table.
+        pu_eia: Denormalized plant_utility EIA ID table.
+        boiler_generator_assn_eia860: Associations between EIA boiler and generator IDs.
 
     Returns:
         A DataFrame containing all the fields of the EIA 860 Utilities table.
@@ -261,6 +264,13 @@ def denorm_boilers_eia(
     plant that the boilers are part of, canonical plant & operator names and
     the PUDL IDs of the plant and operator, for merging with other PUDL data
     sources.
+
+    Arguments:
+        boilers_eia860: EIA 860 annual boiler table.
+        boilers_entity_eia: EIA boiler entity table.
+        plants_entity_eia: EIA plant entity table.
+        pu_eia: Denormalized plant_utility EIA ID table.
+        boiler_generator_assn_eia860: Associations between EIA boiler and generator IDs.
 
     Returns:
         A DataFrame containing boiler attributes from EIA 860.
