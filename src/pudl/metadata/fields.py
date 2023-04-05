@@ -887,6 +887,10 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
             )
         },
     },
+    "fuel_type_count": {
+        "type": "integer",
+        "description": "A count of how many different simple energy sources there are associated with a generator.",
+    },
     "fuel_units": {
         "type": "string",
         "description": "Reported unit of measure for fuel.",

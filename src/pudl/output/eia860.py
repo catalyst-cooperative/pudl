@@ -425,6 +425,11 @@ def generators_eia860(
     Returns:
         A DataFrame containing all the fields of the EIA 860 Generators table.
     """
+    logger.warning(
+        "pudl.output.eia860.generators_eia860() will be deprecated in a future version of PUDL."
+        " In the future, call the PudlTabl.gens_eia860() method or pull the denorm_generators_eia table"
+        "directly from the pudl.sqlite database."
+    )
     pt = pudl.output.pudltabl.get_table_meta(pudl_engine)
     # Almost all the info we need will come from here.
     gens_eia860_tbl = pt["generators_eia860"]

@@ -4,7 +4,10 @@ from dagster import asset
 
 import pudl
 from pudl.metadata.fields import apply_pudl_dtypes
-from pudl.output.eia860 import fill_in_missing_ba_codes
+from pudl.output.eia860 import (
+    fill_generator_technology_description,
+    fill_in_missing_ba_codes,
+)
 
 logger = pudl.logging_helpers.get_logger(__name__)
 
@@ -26,14 +29,8 @@ def pu_eia(
     - utility_id_pudl
 
     Args:
-        pudl_engine (sqlalchemy.engine.Engine): SQLAlchemy connection engine
-            for the PUDL DB.
-        start_date (date-like): date-like object, including a string of the
-            form 'YYYY-MM-DD' which will be used to specify the date range of
-            records to be pulled.  Dates are inclusive.
-        end_date (date-like): date-like object, including a string of the
-            form 'YYYY-MM-DD' which will be used to specify the date range of
-            records to be pulled.  Dates are inclusive.
+        denorm_plants_eia: Denormalized EIA plants table.
+        denorm_utilities_eia: Denormalized EIA utilities table.
 
     Returns:
         pandas.DataFrame: A DataFrame containing plant and utility IDs and
@@ -152,109 +149,102 @@ def denorm_plants_eia(
     return out_df
 
 
-# @asset(compute_kind="Python")
-# def denorm_generators_eia(
-#     generators_eia860: pd.DataFrame,
-#     generators_entity_eia: pd.DataFrame,
-#     plants_entity_eia: pd.DataFrame,
-#     pu_eia: pd.DataFrame,
-#     boiler_generator_assn_eia860: pd.DataFrame,
-#     unit_ids: bool = False,
-#     fill_tech_desc: bool = True,
-# ):
-#     """Pull all fields from the EIA Utilities table.
+@asset(io_manager_key="pudl_sqlite_io_manager", compute_kind="Python")
+def denorm_generators_eia(
+    generators_eia860: pd.DataFrame,
+    generators_entity_eia: pd.DataFrame,
+    plants_entity_eia: pd.DataFrame,
+    pu_eia: pd.DataFrame,
+    boiler_generator_assn_eia860: pd.DataFrame,
+):
+    """Pull all fields from the EIA Utilities table.
 
-#     Args:
-#         utilities_entity_eia: EIA utility entity table.
-#         utilities_eia860: EIA 860 annual utility table.
-#         utilities_eia: Associations between EIA utilities and pudl utility IDs.
+    Args:
+        utilities_entity_eia: EIA utility entity table.
+        utilities_eia860: EIA 860 annual utility table.
+        utilities_eia: Associations between EIA utilities and pudl utility IDs.
 
-#     Returns:
-#         A DataFrame containing all the fields of the EIA 860 Utilities table.
-#     """
-#     # Almost all the info we need will come from here.
+    Returns:
+        A DataFrame containing all the fields of the EIA 860 Utilities table.
+    """
+    # Almost all the info we need will come from here.
 
-#     out_df = pd.merge(
-#         generators_eia860, plants_entity_eia, how="left", on=["plant_id_eia"]
-#     )
-#     out_df = pd.merge(
-#         out_df,
-#         generators_entity_eia,
-#         how="left",
-#         on=["plant_id_eia", "generator_id"],
-#     )
+    out_df = pd.merge(
+        generators_eia860, plants_entity_eia, how="left", on=["plant_id_eia"]
+    )
+    out_df = pd.merge(
+        out_df,
+        generators_entity_eia,
+        how="left",
+        on=["plant_id_eia", "generator_id"],
+    )
 
-#     out_df.report_date = pd.to_datetime(out_df.report_date)
+    out_df.report_date = pd.to_datetime(out_df.report_date)
 
-#     # Bring in some generic plant & utility information:
-#     pu_eia = pu_eia.drop(["plant_name_eia", "utility_id_eia"], axis="columns")
-#     out_df = pd.merge(out_df, pu_eia, on=["report_date", "plant_id_eia"], how="left")
+    # Bring in some generic plant & utility information:
+    pu_eia = pu_eia.drop(["plant_name_eia", "utility_id_eia"], axis="columns")
+    out_df = pd.merge(out_df, pu_eia, on=["report_date", "plant_id_eia"], how="left")
 
-#     # Merge in the unit_id_pudl assigned to each generator in the BGA process
-#     # Pull the BGA table and make it unit-generator only:
-#     out_df = pd.merge(
-#         out_df,
-#         boiler_generator_assn_eia860[
-#             [
-#                 "report_date",
-#                 "plant_id_eia",
-#                 "generator_id",
-#                 "unit_id_pudl",
-#                 "bga_source",
-#             ]
-#         ].drop_duplicates(),
-#         on=["report_date", "plant_id_eia", "generator_id"],
-#         how="left",
-#         validate="m:1",
-#     )
+    # Merge in the unit_id_pudl assigned to each generator in the BGA process
+    # Pull the BGA table and make it unit-generator only:
+    out_df = pd.merge(
+        out_df,
+        boiler_generator_assn_eia860[
+            [
+                "report_date",
+                "plant_id_eia",
+                "generator_id",
+                "unit_id_pudl",
+                "bga_source",
+            ]
+        ].drop_duplicates(),
+        on=["report_date", "plant_id_eia", "generator_id"],
+        how="left",
+        validate="m:1",
+    )
 
-#     # In order to be able to differentiate between single and multi-fuel
-#     # plants, we need to count how many different simple energy sources there
-#     # are associated with plant's generators. This allows us to do the simple
-#     # lumping of an entire plant's fuel & generation if its primary fuels
-#     # are homogeneous, and split out fuel & generation by fuel if it is
-#     # hetereogeneous.
-#     ft_count = (
-#         out_df[["plant_id_eia", "fuel_type_code_pudl", "report_date"]]
-#         .drop_duplicates()
-#         .groupby(["plant_id_eia", "report_date"])
-#         .count()
-#     )
-#     ft_count = ft_count.reset_index()
-#     ft_count = ft_count.rename(columns={"fuel_type_code_pudl": "fuel_type_count"})
-#     out_df = (
-#         pd.merge(out_df, ft_count, how="left", on=["plant_id_eia", "report_date"])
-#         .dropna(subset=["report_date", "plant_id_eia", "generator_id"])
-#         .pipe(apply_pudl_dtypes, group="eia")
-#     )
-#     # Augment those base unit_id_pudl values using heuristics, see below.
-#     if unit_ids:
-#         logger.info("Assigning pudl unit ids")
-#         out_df = assign_unit_ids(out_df)
+    # In order to be able to differentiate between single and multi-fuel
+    # plants, we need to count how many different simple energy sources there
+    # are associated with plant's generators. This allows us to do the simple
+    # lumping of an entire plant's fuel & generation if its primary fuels
+    # are homogeneous, and split out fuel & generation by fuel if it is
+    # hetereogeneous.
+    ft_count = (
+        out_df[["plant_id_eia", "fuel_type_code_pudl", "report_date"]]
+        .drop_duplicates()
+        .groupby(["plant_id_eia", "report_date"])
+        .count()
+    )
+    ft_count = ft_count.reset_index()
+    ft_count = ft_count.rename(columns={"fuel_type_code_pudl": "fuel_type_count"})
+    out_df = (
+        pd.merge(out_df, ft_count, how="left", on=["plant_id_eia", "report_date"])
+        .dropna(subset=["report_date", "plant_id_eia", "generator_id"])
+        .pipe(apply_pudl_dtypes, group="eia")
+    )
 
-#     if fill_tech_desc:
-#         logger.info("Filling technology type")
-#         out_df = fill_generator_technology_description(out_df)
+    logger.info("Filling technology type")
+    out_df = fill_generator_technology_description(out_df)
 
-#     first_cols = [
-#         "report_date",
-#         "plant_id_eia",
-#         "plant_id_pudl",
-#         "plant_name_eia",
-#         "utility_id_eia",
-#         "utility_id_pudl",
-#         "utility_name_eia",
-#         "generator_id",
-#     ]
+    first_cols = [
+        "report_date",
+        "plant_id_eia",
+        "plant_id_pudl",
+        "plant_name_eia",
+        "utility_id_eia",
+        "utility_id_pudl",
+        "utility_name_eia",
+        "generator_id",
+    ]
 
-#     # Re-arrange the columns for easier readability:
-#     out_df = (
-#         pudl.helpers.organize_cols(out_df, first_cols)
-#         .sort_values(["report_date", "plant_id_eia", "generator_id"])
-#         .pipe(apply_pudl_dtypes, group="eia")
-#     )
+    # Re-arrange the columns for easier readability:
+    out_df = (
+        pudl.helpers.organize_cols(out_df, first_cols)
+        .sort_values(["report_date", "plant_id_eia", "generator_id"])
+        .pipe(apply_pudl_dtypes, group="eia")
+    )
 
-#     return out_df
+    return out_df
 
 
 @asset(io_manager_key="pudl_sqlite_io_manager", compute_kind="Python")

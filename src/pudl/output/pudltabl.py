@@ -129,15 +129,11 @@ class PudlTabl:
         # Used to persist the output tables. Returns None if they don't exist.
         self._dfs = defaultdict(lambda: None)
 
-    def pu_eia860(self):
+    def pu_eia860(self) -> pd.DataFrame:
         """Pull a dataframe of EIA plant-utility associations.
 
-        Args:
-            update (bool): If true, re-calculate the output dataframe, even if
-                a cached version exists.
-
         Returns:
-            pandas.DataFrame: a denormalized table for interactive use.
+            A denormalized table for interactive use.
         """
         schema = pudl.metadata.classes.Package.from_resource_ids().get_resource(
             "pu_eia"
@@ -364,7 +360,7 @@ class PudlTabl:
     ###########################################################################
     # EIA 860/923 OUTPUTS
     ###########################################################################
-    def utils_eia860(self, update=False) -> pd.DataFrame:
+    def utils_eia860(self) -> pd.DataFrame:
         """Pull a dataframe describing utilities reported in EIA.
 
         Returns:
@@ -394,7 +390,7 @@ class PudlTabl:
         return self._dfs["bga_eia860"]
 
     def plants_eia860(self) -> pd.DataFrame:
-        """Pull a dataframe of plant level info reported in EIA 860.
+        """Pull a dataframe of plant level info reported in EIA.
 
         Returns:
             A denormalized table for interactive use.
@@ -405,39 +401,27 @@ class PudlTabl:
 
         return schema.enforce_schema(pd.read_sql("denorm_plants_eia", self.pudl_engine))
 
-    def gens_eia860(self, update=False):
-        """Pull a dataframe describing generators, as reported in EIA 860.
+    def gens_eia860(self) -> pd.DataFrame:
+        """Pull a dataframe describing generators, as reported in EIA.
 
-        If you want to fill the technology_description field, recreate
-        the pudl_out object with the parameter fill_tech_desc = True.
-
-        Args:
-            update (bool): If true, re-calculate the output dataframe, even if
-                a cached version exists.
+        This output table backfills the technology_description field.
 
         Returns:
-            pandas.DataFrame: a denormalized table for interactive use.
+            A denormalized table for interactive use.
         """
-        if update or self._dfs["gens_eia860"] is None:
-            self._dfs["gens_eia860"] = pudl.output.eia860.generators_eia860(
-                self.pudl_engine,
-                start_date=self.start_date,
-                end_date=self.end_date,
-                unit_ids=self.unit_ids,
-                fill_tech_desc=self.fill_tech_desc,
-            )
+        schema = pudl.metadata.classes.Package.from_resource_ids().get_resource(
+            "denorm_generators_eia"
+        )
 
-        return self._dfs["gens_eia860"]
+        return schema.enforce_schema(
+            pd.read_sql("denorm_generators_eia", self.pudl_engine)
+        )
 
-    def boil_eia860(self):
-        """Pull a dataframe of boiler level info reported in EIA 860.
-
-        Args:
-            update (bool): If true, re-calculate the output dataframe, even if
-                a cached version exists.
+    def boil_eia860(self) -> pd.DataFrame:
+        """Pull a dataframe of boiler level info reported in EIA.
 
         Returns:
-            pandas.DataFrame: a denormalized table for interactive use.
+            A denormalized table for interactive use.
         """
         schema = pudl.metadata.classes.Package.from_resource_ids().get_resource(
             "denorm_boilers_eia"
