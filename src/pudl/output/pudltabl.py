@@ -129,6 +129,28 @@ class PudlTabl:
         # Used to persist the output tables. Returns None if they don't exist.
         self._dfs = defaultdict(lambda: None)
 
+    def filter_query(self, table: str):
+        """For a given table, returns an SQL query that filters by date, if specified.
+
+        Method depends on provided start_date and end_date parameters to PudlTabl.
+
+        Arguments:
+            table: name of table to be called in SQL query.
+
+        Returns:
+            A SQL query for use in  interactive use.
+        """
+        pt = pudl.output.pudltabl.get_table_meta(self.pudl_engine)
+        tbl = pt[f"{table}"]
+        tbl_select = sa.sql.select(tbl)
+        if self.start_date is not None:
+            start_date = pd.to_datetime(self.start_date)
+            tbl_select = tbl_select.where(tbl.c.report_date >= start_date)
+        if self.end_date is not None:
+            end_date = pd.to_datetime(self.end_date)
+            tbl_select = tbl_select.where(tbl.c.report_date <= end_date)
+        return tbl_select
+
     def pu_eia860(self) -> pd.DataFrame:
         """Pull a dataframe of EIA plant-utility associations.
 
@@ -138,8 +160,8 @@ class PudlTabl:
         schema = pudl.metadata.classes.Package.from_resource_ids().get_resource(
             "pu_eia"
         )
-
-        return schema.enforce_schema(pd.read_sql("pu_eia", self.pudl_engine))
+        tbl_select = self.filter_query(table="pu_eia")
+        return schema.enforce_schema(pd.read_sql(tbl_select, self.pudl_engine))
 
     def pu_ferc1(self) -> pd.DataFrame:
         """Pull a dataframe of FERC plant-utility associations.
@@ -363,9 +385,8 @@ class PudlTabl:
         schema = pudl.metadata.classes.Package.from_resource_ids().get_resource(
             "denorm_utilities_eia"
         )
-        return schema.enforce_schema(
-            pd.read_sql("denorm_utilities_eia", self.pudl_engine)
-        )
+        tbl_select = self.filter_query(table="denorm_utilities_eia")
+        return schema.enforce_schema(pd.read_sql(tbl_select, self.pudl_engine))
 
     def bga_eia860(self, update=False):
         """Pull a dataframe of boiler-generator associations from EIA 860.
@@ -392,8 +413,8 @@ class PudlTabl:
         schema = pudl.metadata.classes.Package.from_resource_ids().get_resource(
             "denorm_plants_eia"
         )
-
-        return schema.enforce_schema(pd.read_sql("denorm_plants_eia", self.pudl_engine))
+        tbl_select = self.filter_query(table="denorm_plants_eia")
+        return schema.enforce_schema(pd.read_sql(tbl_select, self.pudl_engine))
 
     def gens_eia860(self) -> pd.DataFrame:
         """Pull a dataframe describing generators, as reported in EIA.
@@ -406,10 +427,8 @@ class PudlTabl:
         schema = pudl.metadata.classes.Package.from_resource_ids().get_resource(
             "denorm_generators_eia"
         )
-
-        return schema.enforce_schema(
-            pd.read_sql("denorm_generators_eia", self.pudl_engine)
-        )
+        tbl_select = self.filter_query(table="denorm_generators_eia")
+        return schema.enforce_schema(pd.read_sql(tbl_select, self.pudl_engine))
 
     def boil_eia860(self) -> pd.DataFrame:
         """Pull a dataframe of boiler level info reported in EIA.
@@ -420,10 +439,8 @@ class PudlTabl:
         schema = pudl.metadata.classes.Package.from_resource_ids().get_resource(
             "denorm_boilers_eia"
         )
-
-        return schema.enforce_schema(
-            pd.read_sql("denorm_boilers_eia", self.pudl_engine)
-        )
+        tbl_select = self.filter_query(table="denorm_boilers_eia")
+        return schema.enforce_schema(pd.read_sql(tbl_select, self.pudl_engine))
 
     def own_eia860(self, update=False):
         """Pull a dataframe of generator level ownership data from EIA 860.
