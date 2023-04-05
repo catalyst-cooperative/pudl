@@ -158,13 +158,6 @@ def main():
                     },
                 },
             },
-            "ops": {
-                "hourly_emissions_epacems": {
-                    "config": {
-                        "partition": args.partition_epacems,
-                    }
-                }
-            },
         },
     )
 

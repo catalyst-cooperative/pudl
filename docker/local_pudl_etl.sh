@@ -12,7 +12,6 @@ function run_pudl_etl() {
         $PUDL_SETTINGS_YML \
     && pudl_etl \
         --loglevel DEBUG \
-        --partition-epacems \
         --gcs-cache-path gs://internal-zenodo-cache.catalyst.coop \
         $PUDL_SETTINGS_YML \
     && pytest \

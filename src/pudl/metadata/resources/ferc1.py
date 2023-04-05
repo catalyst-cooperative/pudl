@@ -794,6 +794,7 @@ any cleaning mechanisms in place to account for this."""
         "sources": ["ferc1"],
         "etl_group": "ferc1_disabled",
         "field_namespace": "ferc1",
+        "include_in_database": False,
     },
     "electric_operating_revenues_ferc1": {
         "description": (
