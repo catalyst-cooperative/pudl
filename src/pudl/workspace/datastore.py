@@ -296,9 +296,11 @@ class Datastore:
         self._datapackage_descriptors: dict[str, DatapackageDescriptor] = {}
 
         if local_cache_path:
+            logger.info(f"Adding local cache layer at {local_cache_path}")
             self._cache.add_cache_layer(resource_cache.LocalFileCache(local_cache_path))
         if gcs_cache_path:
             try:
+                logger.info(f"Adding GCS cache layer at {gcs_cache_path}")
                 self._cache.add_cache_layer(
                     resource_cache.GoogleCloudStorageCache(gcs_cache_path)
                 )
@@ -355,17 +357,17 @@ class Datastore:
         desc = self.get_datapackage_descriptor(dataset)
         for res in desc.get_resources(**filters):
             if self._cache.is_optimally_cached(res) and skip_optimally_cached:
-                logger.debug(f"{res} is already optimally cached.")
+                logger.info(f"{res} is already optimally cached.")
                 continue
             if self._cache.contains(res):
-                logger.debug(f"Retrieved {res} from cache.")
+                logger.info(f"Retrieved {res} from cache.")
                 contents = self._cache.get(res)
                 if not self._cache.is_optimally_cached(res):
-                    logger.debug(f"{res} was not optimally cached yet, adding.")
+                    logger.info(f"{res} was not optimally cached yet, adding.")
                     self._cache.add(res, contents)
                 yield (res, contents)
             elif not cached_only:
-                logger.debug(f"Retrieved {res} from zenodo.")
+                logger.info(f"Retrieved {res} from zenodo.")
                 contents = self._zenodo_fetcher.get_resource(res)
                 self._cache.add(res, contents)
                 yield (res, contents)

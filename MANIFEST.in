@@ -1,13 +1,13 @@
-graft src/pudl/package_data
 graft src/pudl/metadata/templates
 
-prune ci
-prune data
-prune docs/ferc
 prune .github
-prune results
-prune scripts
-prune test/data
-global-exclude .gitignore __pycache__ *.py[cod] *checkpoint.ipynb
-global-exclude .gitattributes .readthedocs.yml .travis.yml
-global-exclude *_test.py
+prune devtools
+prune docker
+prune docs
+prune notebooks
+prune terraform
+
+global-exclude .gitignore .gitattributes .git-blame-ignore-revs
+global-exclude .bandit.yml .codecov.yml .coveragerc .mypy.ini
+global-exclude .pre-commit-config.yaml .readthedocs.yaml
+global-exclude docker-compose.yml
