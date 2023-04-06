@@ -73,6 +73,7 @@ setup(
         "sqlalchemy>=1.4,<1.4.45",
         "timezonefinder>=5,<6.2",
         "xlsxwriter>=3,<3.1",
+        "h3>=3.7.6,<3.8",  # Incompatibility for Apple Mac ARMx64 in <=3.7.4
     ],
     extras_require={
         "dev": [
