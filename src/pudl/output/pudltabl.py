@@ -35,7 +35,7 @@ from pudl.analysis.allocate_net_gen import (
     allocate_gen_fuel_by_generator_energy_source,
     scale_allocated_net_gen_by_ownership,
 )
-from pudl.metadata.classes import Package
+from pudl.metadata.classes import Package, Resource
 from pudl.metadata.fields import apply_pudl_dtypes
 
 logger = pudl.logging_helpers.get_logger(__name__)
@@ -134,30 +134,34 @@ class PudlTabl:
         self._register_output_methods()
 
     def _register_output_methods(self):
-        """Load denorm assets and register methods for retrieving each asset."""
-        denorm_assets = {
-            "ferc1": load_assets_from_modules(
-                [pudl.output.denorm_ferc1], group_name="ferc1"
-            ),
-            "eia": load_assets_from_modules([pudl.output.denorm_eia], group_name="eia"),
-        }
+        """Load output assets and register a class method for retrieving each one."""
+        output_assets = (
+            *load_assets_from_modules([pudl.output.denorm_ferc1]),
+            *load_assets_from_modules([pudl.output.denorm_eia]),
+            *load_assets_from_modules([pudl.transform.ferc714]),
+            *load_assets_from_modules([pudl.transform.eia861]),
+        )
 
-        for group, assets in denorm_assets.items():
-            for key in pudl.helpers.get_asset_keys(assets):
-                asset_name = key.to_python_identifier()
-                self.__dict__[asset_name] = partial(
-                    self.get_table_from_db, table_name=asset_name, group=group
-                )
+        package = Package.from_resource_ids()
+        for key in pudl.helpers.get_asset_keys(output_assets):
+            asset_name = key.to_python_identifier()
 
-    def get_table_from_db(self, table_name: str, group: str) -> pd.DataFrame:
+            # Create method called asset_name that will read the asset from DB
+            self.__dict__[asset_name] = partial(
+                self.get_table_from_db,
+                table_name=asset_name,
+                resource=package.get_resource(asset_name),
+            )
+
+    def get_table_from_db(self, table_name: str, resource: Resource) -> pd.DataFrame:
         """Grab output table from PUDL DB.
 
         Args:
             table_name: Name of table to get.
-            group: The data group to use for overrides, if any. E.g. "eia", "ferc1".
+            resource: Resource metadata used to enforce schema on table.
         """
         return pd.read_sql_table(table_name, self.pudl_engine).pipe(
-            apply_pudl_dtypes, group=group
+            resource.enforce_schema
         )
 
     def pu_eia860(self, update=False):
