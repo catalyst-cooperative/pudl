@@ -145,21 +145,15 @@ class PudlTabl:
             )
         return self._dfs["pu_eia"]
 
-    def pu_ferc1(self, update=False):
+    def pu_ferc1(self) -> pd.DataFrame:
         """Pull a dataframe of FERC plant-utility associations.
 
-        Args:
-            update (bool): If true, re-calculate the output dataframe, even if
-                a cached version exists.
-
         Returns:
-            pandas.DataFrame: a denormalized table for interactive use.
+            A denormalized table for interactive use.
         """
-        if update or self._dfs["pu_ferc1"] is None:
-            self._dfs["pu_ferc1"] = pudl.output.ferc1.plants_utils_ferc1(
-                self.pudl_engine
-            )
-        return self._dfs["pu_ferc1"]
+        return pd.read_sql_table(
+            "denorm_plants_utilities_ferc1", self.pudl_engine
+        ).pipe(apply_pudl_dtypes, group="ferc1")
 
     def advanced_metering_infrastructure_eia861(self) -> pd.DataFrame:
         """An interim EIA 861 output function."""
@@ -364,21 +358,15 @@ class PudlTabl:
     ###########################################################################
     # EIA 860/923 OUTPUTS
     ###########################################################################
-    def utils_eia860(self, update=False):
-        """Pull a dataframe describing utilities reported in EIA 860.
-
-        Args:
-            update (bool): If true, re-calculate the output dataframe, even if
-                a cached version exists.
+    def utils_eia860(self, update=False) -> pd.DataFrame:
+        """Pull a dataframe describing utilities reported in EIA.
 
         Returns:
-            pandas.DataFrame: a denormalized table for interactive use.
+            A denormalized table for interactive use.
         """
-        if update or self._dfs["utils_eia860"] is None:
-            self._dfs["utils_eia860"] = pudl.output.eia860.utilities_eia860(
-                self.pudl_engine, start_date=self.start_date, end_date=self.end_date
-            )
-        return self._dfs["utils_eia860"]
+        return pd.read_sql("denorm_utilities_eia", self.pudl_engine).pipe(
+            apply_pudl_dtypes, group="eia"
+        )
 
     def bga_eia860(self, update=False):
         """Pull a dataframe of boiler-generator associations from EIA 860.

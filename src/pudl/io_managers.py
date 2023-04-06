@@ -309,6 +309,9 @@ class SQLiteIOManager(IOManager):
         engine = self.engine
         table_name = self._get_table_name(context)
 
+        # Make sure the metadata has been created for the view
+        _ = self._get_sqlalchemy_table(table_name)
+
         with engine.connect() as con:
             # Drop the existing view if it exists and create the new view.
             # TODO (bendnorman): parameterize this safely.
@@ -562,7 +565,10 @@ class FercSQLiteIOManager(SQLiteIOManager):
         """
         super().__init__(base_dir, db_name, md, timeout)
 
-    def _setup_database(self, timeout: float = 1_000.0) -> sa.engine.Engine:
+    def _setup_database(
+        self,
+        timeout: float = 1_000.0,
+    ) -> sa.engine.Engine:
         """Create database engine and read the metadata.
 
         Args:
