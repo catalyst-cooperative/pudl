@@ -148,12 +148,12 @@ class PudlTabl:
 
             # Create method called asset_name that will read the asset from DB
             self.__dict__[asset_name] = partial(
-                self.get_table_from_db,
+                self._get_table_from_db,
                 table_name=asset_name,
                 resource=package.get_resource(asset_name),
             )
 
-    def get_table_from_db(self, table_name: str, resource: Resource) -> pd.DataFrame:
+    def _get_table_from_db(self, table_name: str, resource: Resource) -> pd.DataFrame:
         """Grab output table from PUDL DB.
 
         Args:
