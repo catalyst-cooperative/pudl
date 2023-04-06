@@ -144,7 +144,7 @@ class PudlTabl:
 
         for group, assets in denorm_assets.items():
             for key in pudl.helpers.get_asset_keys(assets):
-                asset_name = key.path[0]
+                asset_name = key.to_python_identifier()
                 self.__dict__[asset_name] = partial(
                     self.get_table_from_db, table_name=asset_name, group=group
                 )
