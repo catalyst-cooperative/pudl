@@ -151,9 +151,9 @@ class PudlTabl:
         Returns:
             A denormalized table for interactive use.
         """
-        return pd.read_sql_table("denorm_plants_utils_ferc1", self.pudl_engine).pipe(
-            apply_pudl_dtypes, group="ferc1"
-        )
+        return pd.read_sql_table(
+            "denorm_plants_utilities_ferc1", self.pudl_engine
+        ).pipe(apply_pudl_dtypes, group="ferc1")
 
     def advanced_metering_infrastructure_eia861(self) -> pd.DataFrame:
         """An interim EIA 861 output function."""
