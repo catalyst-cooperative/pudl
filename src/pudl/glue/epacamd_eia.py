@@ -7,21 +7,19 @@ The crosswalk file was a joint effort on behalf on EPA and EIA and is published 
 EPA's github account at www.github.com/USEPA/camd-eia-crosswalk". It's a work in
 progress and worth noting that, at present, only pulls from 2018 data.
 """
-from pathlib import Path
-
 import dask.dataframe as dd
 import pandas as pd
+from dagster import AssetIn, asset
 
+import pudl
 import pudl.logging_helpers
-from pudl.helpers import remove_leading_zeros_from_numeric_strings, simplify_columns
-from pudl.metadata.fields import apply_pudl_dtypes
-from pudl.output.epacems import year_state_filter
 from pudl.workspace.datastore import Datastore
 
 logger = pudl.logging_helpers.get_logger(__name__)
 
 
-def extract(ds: Datastore) -> pd.DataFrame:
+@asset
+def raw_epacamd_eia(ds: Datastore) -> pd.DataFrame:
     """Extract the EPACAMD-EIA Crosswalk from the Datastore."""
     logger.info("Extracting the EPACAMD-EIA crosswalk from Zenodo")
     with ds.get_zipfile_resource("epacamd_eia", name="epacamd_eia.zip").open(
@@ -30,12 +28,13 @@ def extract(ds: Datastore) -> pd.DataFrame:
         return pd.read_csv(f)
 
 
-def transform(
-    epacamd_eia: pd.DataFrame,
+@asset
+def clean_epacamd_eia(
+    context,
+    raw_epacamd_eia: pd.DataFrame,
     generators_entity_eia: pd.DataFrame,
     boilers_entity_eia: pd.DataFrame,
-    processing_all_eia_years: bool,
-) -> dict[str, pd.DataFrame]:
+) -> pd.DataFrame:
     """Clean up the EPACAMD-EIA Crosswalk file.
 
     In its raw form, the crosswalk contains many fields. The transform process removes
@@ -88,6 +87,8 @@ def transform(
     solution, but it works for now.
 
     Args:
+        context: dagster keyword that provides access to resources and config. This
+            determines whether
         epacamd_eia: The result of running this module's extract() function.
         generators_entity_eia: The generators_entity_eia table.
         boilers_entity_eia: The boilers_entitiy_eia table.
@@ -112,19 +113,29 @@ def transform(
 
     # Basic column rename, selection, and dtype alignment.
     crosswalk_clean = (
-        epacamd_eia.pipe(simplify_columns)
+        raw_epacamd_eia.pipe(pudl.helpers.simplify_columns)
         .rename(columns=column_rename)
         .filter(list(column_rename.values()))
-        .pipe(remove_leading_zeros_from_numeric_strings, col_name="generator_id")
-        .pipe(remove_leading_zeros_from_numeric_strings, col_name="boiler_id")
         .pipe(
-            remove_leading_zeros_from_numeric_strings, col_name="emissions_unit_id_epa"
+            pudl.helpers.remove_leading_zeros_from_numeric_strings,
+            col_name="generator_id",
+        )
+        .pipe(
+            pudl.helpers.remove_leading_zeros_from_numeric_strings, col_name="boiler_id"
+        )
+        .pipe(
+            pudl.helpers.remove_leading_zeros_from_numeric_strings,
+            col_name="emissions_unit_id_epa",
         )
         .pipe(manually_update_subplant_id)
-        .pipe(apply_pudl_dtypes, "eia")
+        .pipe(pudl.metadata.fields.apply_pudl_dtypes, "eia")
         .dropna(subset=["plant_id_eia"])
     )
-
+    dataset_settings = context.resources.dataset_settings
+    processing_all_eia_years = (
+        dataset_settings.eia.eia860.years
+        == dataset_settings.eia.eia860.data_source.working_partitions["years"]
+    )
     # Restrict crosswalk for tests if running fast etl
     if not processing_all_eia_years:
         logger.info(
@@ -144,7 +155,7 @@ def transform(
             how="inner",
         )
     # TODO: Add mannual crosswalk
-    return {"epacamd_eia": crosswalk_clean}
+    return crosswalk_clean
 
 
 ##################
@@ -152,56 +163,26 @@ def transform(
 ##################
 
 
-def identify_subplants_epacamd_eia(
-    crosswalk_clean: pd.DataFrame,
-    generators_eia860: pd.DataFrame,
-    years=None,
-    states=None,
-) -> pd.DataFrame:
-    """Identify sub-plant IDs, GTN regressions, and GTN ratios.
-
-    TODO: convert to use dagster directly... I believe i need to convert transform above
-    into an asset that returns just crosswalk_clean (not {"epacamd_eia": crosswalk_clean})
-    """
-    cems_ids = unique_plant_ids_epacems(years, states)
-    # add subplant ids to the data
-    crosswalk_w_subplant_ids = generate_subplant_ids(
-        cems_ids, crosswalk_clean, generators_eia860
-    )
-    return crosswalk_w_subplant_ids
-
-
-def unique_plant_ids_epacems(
-    epacems_path: Path | None = None,
-    years: list[int] | None = None,
-    states: list[str] | None = None,
+@asset(
+    ins={
+        "first_asset": AssetIn(input_manager_key="epacems_io_manager"),
+    }
+)
+def emissions_unit_ids_epacems(
+    hourly_emissions_epacems: dd.DataFrame,
 ) -> pd.DataFrame:
     """Make unique annual plant_id_eia and emissions_unit_id_epa.
 
-    TODO: grab cems directly from its asset?
+    TODO: is there a better/faster way to do this?
 
     Returns:
         dataframe with unique set of: "plant_id_eia", "report_year" and
         "emissions_unit_id_epa"
     """
-    logger.info("loading CEMS ids")
-    if epacems_path is None:
-        pudl_settings = pudl.workspace.setup.get_defaults()
-        epacems_path = (
-            Path(pudl_settings["parquet_dir"]) / "hourly_emissions_epacems.parquet"
-        )
-    annual_id_cols = ["plant_id_eia", "year", "emissions_unit_id_epa"]
-    epacems_dd = dd.read_parquet(
-        epacems_path,
-        use_nullable_dtypes=True,
-        engine="pyarrow",
-        index=False,
-        split_row_groups=True,
-        filters=year_state_filter(years, states),
-        columns=annual_id_cols,
-    )
     epacems_ids = (
-        epacems_dd.compute().drop_duplicates().rename(columns={"year": "report_year"})
+        hourly_emissions_epacems[["plant_id_eia", "year", "emissions_unit_id_epa"]]
+        .drop_duplicates()
+        .rename(columns={"year": "report_year"})
     )
 
     return epacems_ids
@@ -228,8 +209,12 @@ def augement_crosswalk_with_eia860(
     return crosswalk_clean
 
 
-def generate_subplant_ids(
-    cems_ids, crosswalk_clean, generators_eia860, boiler_generator_assn_eia860
+@asset
+def subplant_ids_epacamd_eia(
+    clean_epacamd_eia: pd.DataFrame,
+    generators_eia860: pd.DataFrame,
+    emissions_unit_ids_epacems: dd.DataFrame,
+    boiler_generator_assn_eia860: pd.DataFrame,
 ) -> pd.DataFrame:
     """Groups units and generators into unique subplant groups.
 
@@ -248,20 +233,18 @@ def generate_subplant_ids(
     """
     logger.info("Identify unique subplants within the EPA CEMS crosswalk")
 
-    crosswalk_clean = augement_crosswalk_with_eia860(crosswalk_clean, generators_eia860)
+    clean_epacamd_eia = augement_crosswalk_with_eia860(
+        clean_epacamd_eia, generators_eia860
+    )
     # filter the crosswalk to drop any units that don't exist in CEMS
+    # TODO: Remove this step so we are making subplant-ids for all EIA plants
     filtered_crosswalk = pudl.analysis.epacamd_eia.filter_crosswalk(
-        crosswalk_clean, cems_ids
+        clean_epacamd_eia, emissions_unit_ids_epacems
     )
     # use graph analysis to identify subplants
     crosswalk_with_subplant_ids = pudl.analysis.epacamd_eia.make_subplant_ids(
         filtered_crosswalk
-    )
-
-    # change the eia plant id to int
-    crosswalk_with_subplant_ids["plant_id_eia"] = crosswalk_with_subplant_ids[
-        "plant_id_eia"
-    ].astype("Int64")
+    ).pipe(pudl.metadata.fields.apply_pudl_dtypes, "eia")
 
     # change the order of the columns
     crosswalk_with_subplant_ids = crosswalk_with_subplant_ids[
@@ -290,7 +273,7 @@ def generate_subplant_ids(
     )
     # also add a complete list of cems emissions_unit_id_epa
     subplant_crosswalk_complete = subplant_crosswalk_complete.merge(
-        cems_ids[
+        emissions_unit_ids_epacems[
             ["plant_id_eia", "report_date", "emissions_unit_id_epa"]
         ].drop_duplicates(),
         how="outer",

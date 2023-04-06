@@ -1,5 +1,4 @@
 """FERC and EIA glue assets."""
-import pandas as pd
 from dagster import AssetOut, Output, multi_asset
 
 import pudl
@@ -18,11 +17,14 @@ logger = pudl.logging_helpers.get_logger(__name__)
     outs={
         table_name: AssetOut(io_manager_key="pudl_sqlite_io_manager")
         for table_name in Package.get_etl_group_tables("glue")
+        # there may be a better way to restructure how we are making the glue post
+        # converting epacamd_eia -> an asset
+        if table_name != "epacamd_eia"
     },
     required_resource_keys={"datastore", "dataset_settings"},
 )
 def create_glue_tables(
-    context, generators_entity_eia: pd.DataFrame, boilers_entity_eia: pd.DataFrame
+    context,  # generators_entity_eia: pd.DataFrame, boilers_entity_eia: pd.DataFrame
 ):
     """Extract, transform and load CSVs for the Glue tables.
 
@@ -44,22 +46,22 @@ def create_glue_tables(
 
     # Add the EPA to EIA crosswalk, but only if the eia data is being processed.
     # Otherwise the foreign key references will have nothing to point at:
-    ds = context.resources.datastore
-    if dataset_settings.glue.eia:
-        # Check to see whether the settings file indicates the processing of all
-        # available EIA years.
-        processing_all_eia_years = (
-            dataset_settings.eia.eia860.years
-            == dataset_settings.eia.eia860.data_source.working_partitions["years"]
-        )
-        glue_raw_dfs = pudl.glue.epacamd_eia.extract(ds)
-        glue_transformed_dfs = pudl.glue.epacamd_eia.transform(
-            glue_raw_dfs,
-            generators_entity_eia,
-            boilers_entity_eia,
-            processing_all_eia_years,
-        )
-        glue_dfs.update(glue_transformed_dfs)
+    # ds = context.resources.datastore
+    # if dataset_settings.glue.eia:
+    #     # Check to see whether the settings file indicates the processing of all
+    #     # available EIA years.
+    #     processing_all_eia_years = (
+    #         dataset_settings.eia.eia860.years
+    #         == dataset_settings.eia.eia860.data_source.working_partitions["years"]
+    #     )
+    #     glue_raw_dfs = pudl.glue.epacamd_eia.extract(ds)
+    #     glue_transformed_dfs = pudl.glue.epacamd_eia.transform(
+    #         glue_raw_dfs,
+    #         generators_entity_eia,
+    #         boilers_entity_eia,
+    #         processing_all_eia_years,
+    #     )
+    #     glue_dfs.update(glue_transformed_dfs)
 
     # Ensure they are sorted so they match up with the asset outs
     glue_dfs = dict(sorted(glue_dfs.items()))

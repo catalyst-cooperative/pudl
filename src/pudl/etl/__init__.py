@@ -43,6 +43,7 @@ default_assets = (
     *load_assets_from_modules([pudl.transform.ferc1], group_name="ferc1"),
     *load_assets_from_modules([pudl.extract.ferc714], group_name="raw_ferc714"),
     *load_assets_from_modules([pudl.transform.ferc714], group_name="clean_ferc714"),
+    *load_assets_from_modules([pudl.glue.epacamd_eia], group_name="epacamd_eia"),
     *load_assets_from_modules([glue_assets], group_name="glue"),
     *load_assets_from_modules([static_assets], group_name="static"),
 )
