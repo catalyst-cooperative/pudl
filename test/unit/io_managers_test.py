@@ -29,7 +29,7 @@ def test_pkg() -> Package:
     ]
     schema = {"fields": fields, "primary_key": ["artistid"]}
     view_resource = Resource(
-        name="artist_view", schema=schema, include_in_database=False
+        name="artist_view", schema=schema, create_database_schema=False
     )
 
     fields = [
