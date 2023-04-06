@@ -49,7 +49,7 @@ setup(
     install_requires=[
         "addfips>=0.4,<0.5",
         "catalystcoop.dbfread>=3.0,<3.1",
-        "catalystcoop.ferc-xbrl-extractor==0.6.1",
+        "catalystcoop.ferc-xbrl-extractor==0.8.2",
         "coloredlogs>=15.0,<15.1",
         "dask>=2021.8,<2022.11.2",
         "datapackage>=1.11,<1.16",  # Transition datastore to use frictionless.
@@ -73,6 +73,7 @@ setup(
         "sqlalchemy>=1.4,<1.4.45",
         "timezonefinder>=5,<6.2",
         "xlsxwriter>=3,<3.1",
+        "h3>=3.7.6,<3.8",  # Incompatibility for Apple Mac ARMx64 in <=3.7.4
     ],
     extras_require={
         "dev": [
