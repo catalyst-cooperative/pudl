@@ -142,7 +142,6 @@ class PudlTabl:
             *load_assets_from_modules([pudl.transform.eia861]),
         )
 
-        package = Package.from_resource_ids()
         for key in pudl.helpers.get_asset_keys(output_assets):
             asset_name = key.to_python_identifier()
 
@@ -150,7 +149,7 @@ class PudlTabl:
             self.__dict__[asset_name] = partial(
                 self._get_table_from_db,
                 table_name=asset_name,
-                resource=package.get_resource(asset_name),
+                resource=Resource.from_id(asset_name),
             )
 
     def _get_table_from_db(self, table_name: str, resource: Resource) -> pd.DataFrame:
