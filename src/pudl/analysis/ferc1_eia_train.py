@@ -15,7 +15,7 @@ functions that will read those new/updated/validated matches from the spreadshee
 validate them, and incorporate them into the existing training data.
 """
 
-import importlib
+import importlib.resources
 import os
 from typing import Literal
 
@@ -597,10 +597,10 @@ The following FERC 1 records area already in the training data: {ferc_overrides}
     return verified_connections
 
 
-def _add_to_training(new_overrides, current_training_data_path) -> None:
+def _add_to_training(new_overrides, path_to_current_training) -> None:
     """Add the new overrides to the old override sheet."""
     logger.info("Combining all new overrides with existing training data")
-    current_training = pd.read_csv(current_training_data_path)
+    current_training_df = pd.read_csv(path_to_current_training)
     new_training = (
         new_overrides[
             ["record_id_eia", "record_id_ferc1", "signature_1", "signature_2", "notes"]
@@ -610,12 +610,11 @@ def _add_to_training(new_overrides, current_training_data_path) -> None:
     )
     logger.debug(f"Found {len(new_training)} new overrides")
     # Combine new and old training data; drop old data in favor or new overrides
-    training_data_out = pd.concat([current_training, new_training]).drop_duplicates(
+    training_data_out = pd.concat([current_training_df, new_training]).drop_duplicates(
         subset=["record_id_ferc1"], keep="last"
     )
-
     # Output combined training data
-    training_data_out.to_csv(current_training_data_path, index=False)
+    training_data_out.to_csv(path_to_current_training, index=False)
 
 
 def _add_to_null_overrides(null_matches, current_null_overrides_path) -> None:
@@ -660,14 +659,14 @@ def validate_and_add_to_training(
     Returns:
         pandas.DataFrame: A DataFrame with all of the new overrides combined.
     """
-    path_to_old_training = importlib.resources.path(
-        "pudl.package_data.glue", "ferc1_eia_train.csv"
-    )
+    path_to_current_training = importlib.resources.files(
+        "pudl.package_data.glue"
+    ).joinpath("ferc1_eia_train.csv")
     path_to_new_training = input_dir_path
-    old_training_df = pd.read_csv(path_to_old_training)
-    path_to_null_overrides = importlib.resources.path(
-        "pudl.package_data.glue", "ferc1_eia_null.csv"
-    )
+    current_training_df = pd.read_csv(path_to_current_training)
+    path_to_null_overrides = importlib.resources.files(
+        "pudl.package_data.glue"
+    ).joinpath("ferc1_eia_null.csv")
     override_cols = [
         "record_id_eia",
         "record_id_ferc1",
@@ -693,7 +692,7 @@ def validate_and_add_to_training(
                 utils_eia860,
                 ppe,
                 ferc1_eia,
-                old_training_df,
+                current_training_df,
                 expect_override_overrides=expect_override_overrides,
                 allow_mismatched_utilities=allow_mismatched_utilities,
             )
@@ -718,5 +717,5 @@ def validate_and_add_to_training(
     all_null_matches_df = pd.concat(all_null_matches_list)
 
     # Add the records to the training data and null overrides
-    _add_to_training(all_overrides_df, path_to_old_training)
+    _add_to_training(all_overrides_df, path_to_current_training)
     _add_to_null_overrides(all_null_matches_df, path_to_null_overrides)
