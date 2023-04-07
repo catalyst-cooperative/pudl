@@ -18,6 +18,7 @@ dynamic = ["version"]
 license = {file = "LICENSE.txt"}
 dependencies = [
     "addfips>=0.4,<0.5",
+    "alembic >=1.10.3,<1.11",
     "catalystcoop.dbfread>=3.0,<3.1",
     "catalystcoop.ferc-xbrl-extractor==0.8.2",
     "coloredlogs>=14.0,<15.1",  # Dagster requires 14.0

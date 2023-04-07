@@ -3,6 +3,8 @@ import re
 from pathlib import Path
 from sqlite3 import sqlite_version
 
+from alembic.autogenerate import compare_metadata
+from alembic.migration import MigrationContext
 import dask.dataframe as dd
 import pandas as pd
 import pyarrow as pa
@@ -416,7 +418,20 @@ class PudlSQLiteIOManager(SQLiteIOManager):
             package = Package.from_resource_ids()
         self.package = package
         md = self.package.to_sql()
+        db_path = base_dir / f"{db_name}.sqlite"
+        if not db_path.exists():
+            raise RuntimeError(f"Expected {db_path} to be initialized. Try `alembic upgrade`.")
+
         super().__init__(base_dir, db_name, md, timeout)
+
+        existing_schema_context = MigrationContext.configure(self.engine.connect())
+        metadata_diff = compare_metadata(existing_schema_context, self.md)
+        if metadata_diff:
+            logger.info(f"Metadata diff:\n\n{metadata_diff}")
+            raise RuntimeError(
+                "Database schema has changed, try running `alembic revision "
+                "--autogenerate -m 'Your change message'` then `alembic "
+                "upgrade`.")
 
     def _handle_str_output(self, context: OutputContext, query: str):
         """Execute a sql query on the database.
