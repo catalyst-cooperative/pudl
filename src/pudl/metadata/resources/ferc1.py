@@ -855,6 +855,11 @@ any cleaning mechanisms in place to account for this."""
                 "row_type_xbrl",
                 "starting_balance",
             ],
+            "primary_key": [
+                "utility_id_ferc1",
+                "report_year",
+                "asset_type",
+            ],
         },
         "field_namespace": "ferc1",
         "etl_group": "outputs",
