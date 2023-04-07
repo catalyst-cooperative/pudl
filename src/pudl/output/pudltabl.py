@@ -196,8 +196,11 @@ class PudlTabl:
             table_name: Name of table to get.
             resource: Resource metadata used to enforce schema on table.
         """
-        return pd.read_sql_table(table_name, self.pudl_engine).pipe(
-            resource.enforce_schema
+        return pd.concat(
+            [
+                resource.enforce_schema(df)
+                for df in pd.read_sql(table_name, self.pudl_engine, chunksize=100_000)
+            ]
         )
 
     def pu_eia860(self, update=False):
