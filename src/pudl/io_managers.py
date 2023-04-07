@@ -3,12 +3,12 @@ import re
 from pathlib import Path
 from sqlite3 import sqlite_version
 
-from alembic.autogenerate import compare_metadata
-from alembic.migration import MigrationContext
 import dask.dataframe as dd
 import pandas as pd
 import pyarrow as pa
 import sqlalchemy as sa
+from alembic.autogenerate import compare_metadata
+from alembic.migration import MigrationContext
 from dagster import (
     Field,
     InitResourceContext,
@@ -420,7 +420,9 @@ class PudlSQLiteIOManager(SQLiteIOManager):
         md = self.package.to_sql()
         db_path = base_dir / f"{db_name}.sqlite"
         if not db_path.exists():
-            raise RuntimeError(f"Expected {db_path} to be initialized. Try `alembic upgrade`.")
+            raise RuntimeError(
+                f"Expected {db_path} to be initialized. Try `alembic upgrade`."
+            )
 
         super().__init__(base_dir, db_name, md, timeout)
 
@@ -431,7 +433,8 @@ class PudlSQLiteIOManager(SQLiteIOManager):
             raise RuntimeError(
                 "Database schema has changed, try running `alembic revision "
                 "--autogenerate -m 'Your change message'` then `alembic "
-                "upgrade`.")
+                "upgrade`."
+            )
 
     def _handle_str_output(self, context: OutputContext, query: str):
         """Execute a sql query on the database.
