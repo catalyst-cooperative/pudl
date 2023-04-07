@@ -571,19 +571,23 @@ def validate_override_fixes(
     # sure the ids you fixed aren't already in the training data.
     if not expect_override_overrides:
         existing_training_eia_ids = training_data.record_id_eia.dropna().unique()
-        _check_id_consistency(
-            "record_id_eia_override_1",
-            only_overrides,
-            existing_training_eia_ids,
-            "already in training",
-        )
-        existing_training_ferc_ids = training_data.record_id_ferc1.dropna().unique()
-        _check_id_consistency(
-            "record_id_ferc1",
-            only_overrides,
-            existing_training_ferc_ids,
-            "already in training",
-        )
+        new_training_eia_ids = only_overrides["record_id_eia_override_1"].unique()
+        if eia_overrides := [
+            x for x in new_training_eia_ids if x in existing_training_eia_ids
+        ]:
+            raise AssertionError(
+                f"""
+The following EIA records area already in the training data: {eia_overrides}"""
+            )
+        existing_training_ferc1_ids = training_data.record_id_ferc1.dropna().unique()
+        new_training_ferc1_ids = only_overrides["record_id_ferc1"].unique()
+        if ferc_overrides := [
+            x for x in new_training_ferc1_ids if x in existing_training_ferc1_ids
+        ]:
+            raise AssertionError(
+                f"""
+The following FERC 1 records area already in the training data: {ferc_overrides}"""
+            )
 
     # Only return the results that have been verified
     verified_connections = validated_connections[
