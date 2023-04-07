@@ -932,63 +932,6 @@ class PudlTabl:
             apply_pudl_dtypes, group="glue"
         )
 
-    ###########################################################################
-    # FOR PICKLING AND OTHER IO
-    ###########################################################################
-
-    def __getstate__(self) -> dict:
-        """Get current object state for serializing (pickling).
-
-        This method is run as part of pickling the object. It needs to return the
-        object's current state with any un-serializable objects converted to a form that
-        can be serialized. See :meth:`object.__getstate__` for further details on the
-        expected behavior of this method.
-        """
-        return self.__dict__.copy() | {
-            # defaultdict may be serializable but lambdas are not, so it must go
-            "_dfs": dict(self.__dict__["_dfs"]),
-            # sqlalchemy engines are also a problem here, saving the URL should
-            # provide enough of what is needed to recreate it, though that means the
-            # pickle is not portable, but any fix to that will happen when the object
-            # is restored
-            "pudl_engine": str(self.__dict__["pudl_engine"].url),
-        }
-
-    def __setstate__(self, state: dict) -> None:
-        """Restore the object's state from a dictionary.
-
-        This method is run when the object is restored from a pickle. Anything
-        that was changed in :meth:`pudl.output.pudltabl.PudlTabl.__getstate__` must be
-        undone here. Another important detail is that ``__init__`` is not run when an
-        object is de-serialized, so any setup there that alters external state might
-        need to happen here as well.
-
-        Args:
-            state: the object state to restore. This is effectively the output
-                of :meth:`pudl.output.pudltabl.PudlTabl.__getstate__`.
-        """
-        try:
-            pudl_engine = sa.create_engine(state["pudl_engine"])
-            # make sure that the URL for the engine from ``state`` is usable now
-            pudl_engine.connect()
-        except sa.exc.OperationalError:
-            # if the URL from ``state`` is not valid, e.g. because it is for a local
-            # DB on a different computer, create the engine from PUDL defaults
-            pudl_settings = pudl.workspace.setup.get_defaults()
-            logger.warning(
-                "Unable to connect to the restored pudl_db URL %s. "
-                "Will use the default pudl_db %s instead.",
-                state["pudl_engine"],
-                pudl_settings["pudl_db"],
-            )
-            pudl_engine = sa.create_engine(pudl_settings["pudl_db"])
-
-        self.__dict__ = state | {
-            # recreate the defaultdict from the vanilla one from ``state``
-            "_dfs": defaultdict(lambda: None, state["_dfs"]),
-            "pudl_engine": pudl_engine,
-        }
-
 
 def get_table_meta(pudl_engine):
     """Grab the pudl SQLite database table metadata."""
