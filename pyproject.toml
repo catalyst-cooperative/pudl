@@ -105,8 +105,10 @@ pudl_check_fks = "pudl.etl.check_foreign_keys:main"
 "Homepage" = "https://catalyst.coop/pudl/"
 "Source" = "https://github.com/catalyst-cooperative/pudl"
 "Documentation" = "https://catalystcoop-pudl.readthedocs.io"
-"Bug Tracker" = "https://github.com/catalyst-cooperative/pudl/issues"
+"Release Notes" = "https://catalystcoop-pudl.readthedocs.io/en/latest/release_notes.html"
+"Issue Tracker" = "https://github.com/catalyst-cooperative/pudl/issues"
 "Support" = "https://github.com/catalyst-cooperative/pudl/discussions"
+"Funding" = "https://catalyst.coop/support-the-pudl-project/"
 
 [project.optional-dependencies]
 dev = [
