@@ -7,6 +7,8 @@ import dask.dataframe as dd
 import pandas as pd
 import pyarrow as pa
 import sqlalchemy as sa
+from alembic.autogenerate import compare_metadata
+from alembic.migration import MigrationContext
 from dagster import (
     Field,
     InitResourceContext,
@@ -416,7 +418,21 @@ class PudlSQLiteIOManager(SQLiteIOManager):
             package = Package.from_resource_ids()
         self.package = package
         md = self.package.to_sql()
+        sqlite_path = Path(base_dir) / f"{db_name}.sqlite"
+        if not sqlite_path.exists():
+            raise RuntimeError(f"{sqlite_path} not initialized! Run pudl_reset_db.")
+
         super().__init__(base_dir, db_name, md, timeout)
+
+        existing_schema_context = MigrationContext.configure(self.engine.connect())
+        metadata_diff = compare_metadata(existing_schema_context, self.md)
+        if metadata_diff:
+            logger.info(f"Metadata diff:\n\n{metadata_diff}")
+            raise RuntimeError(
+                "Database schema has changed, try running `alembic revision "
+                "--autogenerate -m 'Your change message'` then `alembic "
+                "upgrade`."
+            )
 
     def _handle_str_output(self, context: OutputContext, query: str):
         """Execute a sql query on the database.

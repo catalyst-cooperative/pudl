@@ -14,7 +14,7 @@ from ferc_xbrl_extractor import xbrl
 
 import pudl
 from pudl import resources
-from pudl.cli import pudl_etl_job_factory
+from pudl.cli.etl import pudl_etl_job_factory
 from pudl.extract.ferc1 import xbrl_metadata_json
 from pudl.extract.xbrl import FercXbrlDatastore, _get_sqlite_engine
 from pudl.ferc_to_sqlite.cli import ferc_to_sqlite_job_factory
