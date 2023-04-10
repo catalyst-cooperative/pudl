@@ -47,6 +47,11 @@ def plants_utils_ferc1(pudl_engine):
         pandas.DataFrame: A DataFrame containing useful FERC Form 1 Plant and
         Utility information.
     """
+    logger.warning(
+        "pudl.output.ferc1.plants_utils_ferc1() will be deprecated in a future version of PUDL."
+        " In the future, call the PudlTabl.pu_ferc1() method or pull the plants_utils_ferc1 table"
+        "directly from the pudl.sqlite database."
+    )
     pu_df = pd.merge(
         pd.read_sql("plants_ferc1", pudl_engine),
         pd.read_sql("utilities_ferc1", pudl_engine),

@@ -170,11 +170,11 @@ class SQLiteIOManager(IOManager):
             table: Corresponding SQL Alchemy Table in SQLiteIOManager metadata.
 
         Raises:
-            RuntimeError: if table_name does not exist in the SQLiteIOManager metadata.
+            ValueError: if table_name does not exist in the SQLiteIOManager metadata.
         """
         sa_table = self.md.tables.get(table_name, None)
         if sa_table is None:
-            raise RuntimeError(
+            raise ValueError(
                 f"{sa_table} not found in database metadata. Either add the table to "
                 "the metadata or use a different IO Manager."
             )
@@ -183,14 +183,13 @@ class SQLiteIOManager(IOManager):
     def _get_fk_list(self, table: str) -> pd.DataFrame:
         """Retrieve a dataframe of foreign keys for a table.
 
-        Description from the SQLite Docs:
-        'This pragma returns one row for each foreign key constraint
-        created by a REFERENCES clause in the CREATE TABLE statement of table
-        "table-name".'
+        Description from the SQLite Docs: 'This pragma returns one row for each foreign
+        key constraint created by a REFERENCES clause in the CREATE TABLE statement of
+        table "table-name".'
 
-        The PRAGMA returns one row for each field in a foreign key constraint.
-        This method collapses foreign keys with multiple fields into one record
-        for readability.
+        The PRAGMA returns one row for each field in a foreign key constraint. This
+        method collapses foreign keys with multiple fields into one record for
+        readability.
         """
         with self.engine.connect() as con:
             table_fks = pd.read_sql_query(f"PRAGMA foreign_key_list({table});", con)
@@ -274,12 +273,11 @@ class SQLiteIOManager(IOManager):
             df: dataframe to write to the database.
         """
         table_name = self._get_table_name(context)
-
         sa_table = self._get_sqlalchemy_table(table_name)
 
         column_difference = set(sa_table.columns.keys()) - set(df.columns)
         if column_difference:
-            raise RuntimeError(
+            raise ValueError(
                 f"{table_name} dataframe is missing columns: {column_difference}"
             )
 
@@ -310,6 +308,9 @@ class SQLiteIOManager(IOManager):
         """
         engine = self.engine
         table_name = self._get_table_name(context)
+
+        # Make sure the metadata has been created for the view
+        _ = self._get_sqlalchemy_table(table_name)
 
         with engine.connect() as con:
             # Drop the existing view if it exists and create the new view.
@@ -349,6 +350,7 @@ class SQLiteIOManager(IOManager):
                 name.
         """
         table_name = self._get_table_name(context)
+        # Check if the table_name exists in the self.md object
         _ = self._get_sqlalchemy_table(table_name)
 
         engine = self.engine
@@ -367,7 +369,152 @@ class SQLiteIOManager(IOManager):
                     f"The {table_name} table is empty. Materialize "
                     "the {table_name} asset so it is available in the database."
                 )
-            return pudl.metadata.fields.apply_pudl_dtypes(df)
+            return df
+
+
+class PudlSQLiteIOManager(SQLiteIOManager):
+    """IO Manager that writes and retrieves dataframes from a SQLite database.
+
+    This class extends the SQLiteIOManager class to manage database metadata and dtypes
+    using the :class:`pudl.metadata.classes.Package` class.
+    """
+
+    def __init__(
+        self,
+        base_dir: str = None,
+        db_name: str = None,
+        package: Package = None,
+        timeout: float = 1_000.0,
+    ):
+        """Initialize PudlSQLiteIOManager.
+
+        Args:
+            base_dir: base directory where all the step outputs which use this object
+                manager will be stored in.
+            db_name: the name of sqlite database.
+            package: Package object that contains collections of
+                :class:`pudl.metadata.classes.Resources` objects and methods
+                for validating and creating table metadata. It is used in this class
+                to create sqlalchemy metadata and check datatypes of dataframes. If not
+                specified, defaults to a Package with all metadata stored in the
+                :mod:`pudl.metadata.resources` subpackage.
+
+                Every table that appears in `self.md` is sepcified in `self.package`
+                as a :class:`pudl.metadata.classes.Resources`. However, not every
+                :class:`pudl.metadata.classes.Resources` in `self.package` is included
+                in `self.md` as a table. This is because `self.package` is used to ensure
+                datatypes of dataframes loaded from database views are correct. However,
+                the metadata for views in `self.package` should not be used to create
+                table schemas in the database because views are just stored sql statements
+                and do not require a schema.
+            timeout: How many seconds the connection should wait before raising an
+                exception, if the database is locked by another connection.  If another
+                connection opens a transaction to modify the database, it will be locked
+                until that transaction is committed.
+        """
+        if not package:
+            package = Package.from_resource_ids()
+        self.package = package
+        md = self.package.to_sql()
+        super().__init__(base_dir, db_name, md, timeout)
+
+    def _handle_str_output(self, context: OutputContext, query: str):
+        """Execute a sql query on the database.
+
+        This is used for creating output views in the database.
+
+        Args:
+            context: dagster keyword that provides access output information like asset
+                name.
+            query: sql query to execute in the database.
+        """
+        engine = self.engine
+        table_name = self._get_table_name(context)
+
+        # Check if there is a Resource in self.package for table_name.
+        # We don't want folks creating views without adding package metadata.
+        try:
+            _ = self.package.get_resource(table_name)
+        except ValueError:
+            raise ValueError(
+                f"{table_name} does not appear in pudl.metadata.resources. "
+                "Check for typos, or add the table to the metadata and recreate the "
+                f"PUDL SQlite database. It's also possible that {table_name} is one of "
+                "the tables that does not get loaded into the PUDL SQLite DB because "
+                "it's a work in progress or is distributed in Apache Parquet format."
+            )
+
+        with engine.connect() as con:
+            # Drop the existing view if it exists and create the new view.
+            # TODO (bendnorman): parameterize this safely.
+            con.execute(f"DROP VIEW IF EXISTS {table_name}")
+            con.execute(query)
+
+    def _handle_pandas_output(self, context: OutputContext, df: pd.DataFrame):
+        """Enforce PUDL DB schema and write dataframe to SQLite."""
+        table_name = self._get_table_name(context)
+        # If table_name doesn't show up in the self.md object, this will raise an error
+        sa_table = self._get_sqlalchemy_table(table_name)
+        res = self.package.get_resource(table_name)
+
+        df = res.enforce_schema(df)
+
+        with self.engine.connect() as con:
+            # Remove old table records before loading to db
+            con.execute(sa_table.delete())
+
+            df.to_sql(
+                table_name,
+                con,
+                if_exists="append",
+                index=False,
+                chunksize=100_000,
+                dtype={c.name: c.type for c in sa_table.columns},
+            )
+
+    def load_input(self, context: InputContext) -> pd.DataFrame:
+        """Load a dataframe from a sqlite database.
+
+        Args:
+            context: dagster keyword that provides access output information like asset
+                name.
+        """
+        table_name = self._get_table_name(context)
+
+        # Check if there is a Resource in self.package for table_name
+        try:
+            res = self.package.get_resource(table_name)
+        except ValueError:
+            raise ValueError(
+                f"{table_name} does not appear in pudl.metadata.resources. "
+                "Check for typos, or add the table to the metadata and recreate the "
+                f"PUDL SQlite database. It's also possible that {table_name} is one of "
+                "the tables that does not get loaded into the PUDL SQLite DB because "
+                "it's a work in progress or is distributed in Apache Parquet format."
+            )
+
+        with self.engine.connect() as con:
+            try:
+                df = pd.concat(
+                    [
+                        res.enforce_schema(chunk_df)
+                        for chunk_df in pd.read_sql_table(
+                            table_name, con, chunksize=100_000
+                        )
+                    ]
+                )
+            except ValueError:
+                raise ValueError(
+                    f"{table_name} not found. Either the table was dropped "
+                    "or it doesn't exist in the pudl.metadata.resources."
+                    "Add the table to the metadata and recreate the database."
+                )
+            if df.empty:
+                raise AssertionError(
+                    f"The {table_name} table is empty. Materialize the {table_name} "
+                    "asset so it is available in the database."
+                )
+        return df
 
 
 @io_manager(
@@ -381,26 +528,17 @@ class SQLiteIOManager(IOManager):
         ),
     }
 )
-def pudl_sqlite_io_manager(init_context) -> SQLiteIOManager:
+def pudl_sqlite_io_manager(init_context) -> PudlSQLiteIOManager:
     """Create a SQLiteManager dagster resource for the pudl database."""
     base_dir = init_context.resource_config["pudl_output_path"]
-    md = Package.from_resource_ids(
-        excluded_etl_groups=(
-            "static_eia_disabled",
-            "epacems",
-            "outputs",
-            "ferc1_disabled",
-            "eia861_disabled",
-        )
-    ).to_sql()
-    return SQLiteIOManager(base_dir=base_dir, db_name="pudl", md=md)
+    return PudlSQLiteIOManager(base_dir=base_dir, db_name="pudl")
 
 
 class FercSQLiteIOManager(SQLiteIOManager):
     """IO Manager for reading tables from FERC databases.
 
-    This class should be subclassed and the load_input and handle_output
-    methods should be implemented.
+    This class should be subclassed and the load_input and handle_output methods should
+    be implemented.
 
     This IOManager exepcts the database to already exist.
     """
@@ -427,7 +565,10 @@ class FercSQLiteIOManager(SQLiteIOManager):
         """
         super().__init__(base_dir, db_name, md, timeout)
 
-    def _setup_database(self, timeout: float = 1_000.0) -> sa.engine.Engine:
+    def _setup_database(
+        self,
+        timeout: float = 1_000.0,
+    ) -> sa.engine.Engine:
         """Create database engine and read the metadata.
 
         Args:
@@ -500,6 +641,8 @@ class FercDBFSQLiteIOManager(FercSQLiteIOManager):
         ferc1_settings = context.resources.dataset_settings.ferc1
 
         table_name = self._get_table_name(context)
+
+        # Check if the table_name exists in the self.md object
         _ = self._get_sqlalchemy_table(table_name)
 
         engine = self.engine
