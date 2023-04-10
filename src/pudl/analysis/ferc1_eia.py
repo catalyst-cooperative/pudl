@@ -675,45 +675,47 @@ def prep_train_connections(
         "ownership_dupe",
     ]
     # Read in one_to_many csv and join corresponding plant_match_ferc1 parts to FERC IDs
-    one_to_many = (
-        (
-            pd.read_csv(
-                importlib.resources.path(
-                    "pudl.package_data.glue", "ferc1_eia_one_to_many.csv"
-                ),
+    otm_pkg_source = importlib.resources.files("pudl.package_data.glue").joinpath(
+        "ferc1_eia_one_to_many.csv"
+    )
+    with importlib.resources.as_file(otm_pkg_source) as one_to_many:
+        one_to_many = (
+            (
+                pd.read_csv(one_to_many)
+                .pipe(pudl.helpers.cleanstrings_snake, ["record_id_eia"])
+                .drop_duplicates(subset=["record_id_ferc1", "record_id_eia"])
             )
+            .merge(
+                ppe["ferc1_generator_agg_id"].reset_index(),
+                on="record_id_eia",
+                how="left",
+                validate="1:1",
+            )
+            .dropna(subset=["ferc1_generator_agg_id"])
+            .drop(["record_id_eia"], axis=1)
+            .merge(
+                ppe.loc[
+                    ppe.plant_part == "plant_match_ferc1",
+                    ["ferc1_generator_agg_id"],
+                ].reset_index(),
+                on="ferc1_generator_agg_id",
+                how="left",
+                validate="m:1",
+            )
+            .drop(["ferc1_generator_agg_id"], axis=1)
+            .drop_duplicates(subset=["record_id_ferc1", "record_id_eia"])
+            .set_index("record_id_ferc1")
+        )
+    train_pkg_source = importlib.resources.files("pudl.package_data.glue").joinpath(
+        "ferc1_eia_train.csv"
+    )
+    with importlib.resources.as_file(train_pkg_source) as ferc1_eia_train:
+        train_df = (
+            pd.read_csv(ferc1_eia_train)
             .pipe(pudl.helpers.cleanstrings_snake, ["record_id_eia"])
             .drop_duplicates(subset=["record_id_ferc1", "record_id_eia"])
+            .set_index("record_id_ferc1")
         )
-        .merge(
-            ppe["ferc1_generator_agg_id"].reset_index(),
-            on="record_id_eia",
-            how="left",
-            validate="1:1",
-        )
-        .dropna(subset=["ferc1_generator_agg_id"])
-        .drop(["record_id_eia"], axis=1)
-        .merge(
-            ppe.loc[
-                ppe.plant_part == "plant_match_ferc1",
-                ["ferc1_generator_agg_id"],
-            ].reset_index(),
-            on="ferc1_generator_agg_id",
-            how="left",
-            validate="m:1",
-        )
-        .drop(["ferc1_generator_agg_id"], axis=1)
-        .drop_duplicates(subset=["record_id_ferc1", "record_id_eia"])
-        .set_index("record_id_ferc1")
-    )
-    train_df = (
-        pd.read_csv(
-            importlib.resources.path("pudl.package_data.glue", "ferc1_eia_train.csv"),
-        )
-        .pipe(pudl.helpers.cleanstrings_snake, ["record_id_eia"])
-        .drop_duplicates(subset=["record_id_ferc1", "record_id_eia"])
-        .set_index("record_id_ferc1")
-    )
     train_df.update(one_to_many)  # Overwrite FERC records with faked 1:m parts.
     train_df = (
         # we want to ensure that the records are associated with a

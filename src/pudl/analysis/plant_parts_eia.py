@@ -697,8 +697,8 @@ class MakePlantParts:
         self.plant_parts_eia = self.add_one_to_many(
             plant_parts_eia=plant_parts_eia,
             part_name="plant_match_ferc1",
-            path_to_one_to_many=resources.path(
-                "pudl.package_data.glue", "ferc1_eia_one_to_many.csv"
+            path_to_one_to_many=resources.files("pudl.package_data.glue").joinpath(
+                "ferc1_eia_one_to_many.csv",
             ),
         )
         self.plant_parts_eia = TrueGranLabeler().execute(self.plant_parts_eia)
@@ -740,7 +740,8 @@ class MakePlantParts:
         """
         # Read in csv.
         try:
-            one_to_many = pd.read_csv(path_to_one_to_many)
+            with resources.as_file(path_to_one_to_many) as override_source:
+                one_to_many = pd.read_csv(override_source)
         except FileNotFoundError:
             return plant_parts_eia
 
