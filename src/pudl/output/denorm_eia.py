@@ -250,186 +250,177 @@ def denorm_generators_eia(
     return out_df
 
 
-@asset(io_manager_key="pudl_sqlite_io_manager", compute_kind="Python")
-def denorm_boilers_eia(
-    boilers_eia860: pd.DataFrame,
-    boilers_entity_eia: pd.DataFrame,
-    plants_entity_eia: pd.DataFrame,
-    pu_eia: pd.DataFrame,
-    boiler_generator_assn_eia860: pd.DataFrame,
-) -> pd.DataFrame:
-    """Pull all fields reported in the EIA boilers tables.
-
-    Merge in other useful fields including the latitude & longitude of the
-    plant that the boilers are part of, canonical plant & operator names and
-    the PUDL IDs of the plant and operator, for merging with other PUDL data
-    sources.
-
-    Arguments:
-        boilers_eia860: EIA 860 annual boiler table.
-        boilers_entity_eia: EIA boiler entity table.
-        plants_entity_eia: EIA plant entity table.
-        pu_eia: Denormalized plant_utility EIA ID table.
-        boiler_generator_assn_eia860: Associations between EIA boiler and generator IDs.
-
-    Returns:
-        A DataFrame containing boiler attributes from EIA 860.
-    """
-    out_df = pd.merge(
-        boilers_eia860, plants_entity_eia, how="left", on=["plant_id_eia"]
-    )
-
-    out_df = pd.merge(
-        out_df, boilers_entity_eia, how="left", on=["plant_id_eia", "boiler_id"]
-    )
-
-    out_df.report_date = pd.to_datetime(out_df.report_date)
-
-    # Bring in some generic plant & utility information:
-    out_df = pd.merge(
-        out_df,
-        pu_eia.drop(["plant_name_eia"], axis="columns"),
-        on=["report_date", "plant_id_eia"],
-        how="left",
-    )
-
-    # Merge in the unit_id_pudl assigned to each boiler in the BGA process
-    # Pull the BGA table and make it unit-boiler only:
-    out_df = pd.merge(
-        out_df,
-        boiler_generator_assn_eia860[
-            [
-                "report_date",
-                "plant_id_eia",
-                "boiler_id",
-                "unit_id_pudl",
-            ]
-        ].drop_duplicates(),
-        on=["report_date", "plant_id_eia", "boiler_id"],
-        how="left",
-        validate="m:1",
-    )
-
-    first_cols = [
-        "report_date",
-        "plant_id_eia",
-        "plant_id_pudl",
-        "plant_name_eia",
-        "utility_id_eia",
-        "utility_id_pudl",
-        "utility_name_eia",
-        "boiler_id",
-    ]
-
-    # Re-arrange the columns for easier readability:
-    out_df = (
-        pudl.helpers.organize_cols(out_df, first_cols)
-        .sort_values(["report_date", "plant_id_eia", "boiler_id"])
-        .pipe(apply_pudl_dtypes, group="eia")
-    )
-
-    return out_df
-
-
-@asset(io_manager_key="pudl_sqlite_io_manager", compute_kind="Python")
-def denorm_ownership_eia860(ownership_eia860, pu_eia) -> pd.DataFrame:
-    """Pull a useful set of fields related to ownership_eia860 table.
-
-    Args:
-        ownership_eia860: Normalized EIA 860 ownership table.
-        pu_eia: Denormalized plant_utility EIA ID table.
-
-    Returns:
-        A DataFrame containing a useful set of fields related
-        to the EIA 860 Ownership table.
-    """
-    own_eia860_df = ownership_eia860.assign(
-        report_date=lambda x: pd.to_datetime(x["report_date"])
-    )
-
-    pu_eia = pu_eia.loc[
-        :,
-        [
-            "plant_id_eia",
-            "plant_id_pudl",
-            "plant_name_eia",
-            "utility_name_eia",
-            "utility_id_pudl",
-            "report_date",
-        ],
-    ]
-
-    out_df = (
-        pd.merge(own_eia860_df, pu_eia, how="left", on=["report_date", "plant_id_eia"])
-        .dropna(
-            subset=[
-                "report_date",
-                "plant_id_eia",
-                "generator_id",
-                "owner_utility_id_eia",
-            ]
-        )
-        .pipe(apply_pudl_dtypes, group="eia")
-    )
-
-    first_cols = [
-        "report_date",
-        "plant_id_eia",
-        "plant_id_pudl",
-        "plant_name_eia",
-        "utility_id_eia",
-        "utility_id_pudl",
-        "utility_name_eia",
-        "generator_id",
-        "owner_utility_id_eia",
-        "owner_name",
-    ]
-
-    # Re-arrange the columns for easier readability:
-    out_df = pudl.helpers.organize_cols(out_df, first_cols)
-
-    return out_df
-
-
-# def denorm_boiler_fuel_eia923(
-#     boiler_fuel923: pd.DataFrame,
+# @asset(io_manager_key="pudl_sqlite_io_manager", compute_kind="Python")
+# def denorm_boilers_eia(
+#     boilers_eia860: pd.DataFrame,
+#     boilers_entity_eia: pd.DataFrame,
+#     plants_entity_eia: pd.DataFrame,
 #     pu_eia: pd.DataFrame,
 #     boiler_generator_assn_eia860: pd.DataFrame,
 # ) -> pd.DataFrame:
-#     """Pull records from the boiler_fuel_eia923 table in a given data range.
+#     """Pull all fields reported in the EIA boilers tables.
+
+#     Merge in other useful fields including the latitude & longitude of the
+#     plant that the boilers are part of, canonical plant & operator names and
+#     the PUDL IDs of the plant and operator, for merging with other PUDL data
+#     sources.
+
+#     Arguments:
+#         boilers_eia860: EIA 860 annual boiler table.
+#         boilers_entity_eia: EIA boiler entity table.
+#         plants_entity_eia: EIA plant entity table.
+#         pu_eia: Denormalized plant_utility EIA ID table.
+#         boiler_generator_assn_eia860: Associations between EIA boiler and generator IDs.
+
+#     Returns:
+#         A DataFrame containing boiler attributes from EIA 860.
+#     """
+#     out_df = pd.merge(
+#         boilers_eia860, plants_entity_eia, how="left", on=["plant_id_eia"]
+#     )
+
+#     out_df = pd.merge(
+#         out_df, boilers_entity_eia, how="left", on=["plant_id_eia", "boiler_id"]
+#     )
+
+#     out_df.report_date = pd.to_datetime(out_df.report_date)
+
+#     # Bring in some generic plant & utility information:
+#     out_df = pd.merge(
+#         out_df,
+#         pu_eia.drop(["plant_name_eia"], axis="columns"),
+#         on=["report_date", "plant_id_eia"],
+#         how="left",
+#     )
+
+#     # Merge in the unit_id_pudl assigned to each boiler in the BGA process
+#     # Pull the BGA table and make it unit-boiler only:
+#     out_df = pd.merge(
+#         out_df,
+#         boiler_generator_assn_eia860[
+#             [
+#                 "report_date",
+#                 "plant_id_eia",
+#                 "boiler_id",
+#                 "unit_id_pudl",
+#             ]
+#         ].drop_duplicates(),
+#         on=["report_date", "plant_id_eia", "boiler_id"],
+#         how="left",
+#         validate="m:1",
+#     )
+
+#     first_cols = [
+#         "report_date",
+#         "plant_id_eia",
+#         "plant_id_pudl",
+#         "plant_name_eia",
+#         "utility_id_eia",
+#         "utility_id_pudl",
+#         "utility_name_eia",
+#         "boiler_id",
+#     ]
+
+#     # Re-arrange the columns for easier readability:
+#     out_df = (
+#         pudl.helpers.organize_cols(out_df, first_cols)
+#         .sort_values(["report_date", "plant_id_eia", "boiler_id"])
+#         .pipe(apply_pudl_dtypes, group="eia")
+#     )
+
+#     return out_df
+
+
+# @asset(io_manager_key="pudl_sqlite_io_manager", compute_kind="Python")
+# def denorm_ownership_eia860(ownership_eia860, pu_eia) -> pd.DataFrame:
+#     """Pull a useful set of fields related to ownership_eia860 table.
+
+#     Args:
+#         ownership_eia860: Normalized EIA 860 ownership table.
+#         pu_eia: Denormalized plant_utility EIA ID table.
+
+#     Returns:
+#         A DataFrame containing a useful set of fields related
+#         to the EIA 860 Ownership table.
+#     """
+#     own_eia860_df = ownership_eia860.assign(
+#         report_date=lambda x: pd.to_datetime(x["report_date"])
+#     )
+
+#     pu_eia = pu_eia.loc[
+#         :,
+#         [
+#             "plant_id_eia",
+#             "plant_id_pudl",
+#             "plant_name_eia",
+#             "utility_name_eia",
+#             "utility_id_pudl",
+#             "report_date",
+#         ],
+#     ]
+
+#     out_df = (
+#         pd.merge(own_eia860_df, pu_eia, how="left", on=["report_date", "plant_id_eia"])
+#         .dropna(
+#             subset=[
+#                 "report_date",
+#                 "plant_id_eia",
+#                 "generator_id",
+#                 "owner_utility_id_eia",
+#             ]
+#         )
+#         .pipe(apply_pudl_dtypes, group="eia")
+#     )
+
+#     first_cols = [
+#         "report_date",
+#         "plant_id_eia",
+#         "plant_id_pudl",
+#         "plant_name_eia",
+#         "utility_id_eia",
+#         "utility_id_pudl",
+#         "utility_name_eia",
+#         "generator_id",
+#         "owner_utility_id_eia",
+#         "owner_name",
+#     ]
+
+#     # Re-arrange the columns for easier readability:
+#     out_df = pudl.helpers.organize_cols(out_df, first_cols)
+
+#     return out_df
+
+
+# @asset(compute_kind="Python")
+# def denorm_boiler_fuel_eia923(
+#     boiler_fuel_eia923: pd.DataFrame,
+#     pu_eia: pd.DataFrame,
+#     boiler_generator_assn_eia860: pd.DataFrame,
+#     boilers_entity_eia: pd.DataFrame,
+#     freq=None,
+# ) -> pd.DataFrame:
+#     """Pull records from the boiler_fuel_eia923 table.
 
 #     This returns a non-aggregated record. All of the database fields are
 #     available. In addition, plant and utility names and IDs are pulled in from the EIA
 #     860 tables.
 
 #     Args:
-#         pudl_engine (sqlalchemy.engine.Engine): SQLAlchemy connection engine
-#             for the PUDL DB.
-#         freq (str): a pandas timeseries offset alias. The original data is
-#             reported monthly, so the best time frequencies to use here are
-#             probably month start (freq='MS') and year start (freq='YS').
+#         boiler_fuel_eia923: EIA 923 boiler fuel table.
+#         pu_eia: Denormalized plant_utility EIA ID table.
+#         boiler_generator_assn_eia860: Associations between EIA boiler and generator IDs.
+#         boilers_entity_eia: EIA boiler entity table.
 
 #     Returns:
 #         A denormalized DataFrame containing all records from the EIA 923 Boiler Fuel
 #         table.
 #     """
-#     pt = pudl.output.pudltabl.get_table_meta(pudl_engine)
-#     bf_eia923_tbl = pt["boiler_fuel_eia923"]
-#     bf_eia923_select = sa.sql.select(bf_eia923_tbl)
-#     if start_date is not None:
-#         bf_eia923_select = bf_eia923_select.where(
-#             bf_eia923_tbl.c.report_date >= start_date
-#         )
-#     if end_date is not None:
-#         bf_eia923_select = bf_eia923_select.where(
-#             bf_eia923_tbl.c.report_date <= end_date
-#         )
-#     bf_df = pd.read_sql(bf_eia923_select, pudl_engine)
 
 #     # The total heat content is also useful in its own right, and we'll keep it
 #     # around.  Also needed to calculate average heat content per unit of fuel.
-#     bf_df["fuel_consumed_mmbtu"] = (
-#         bf_df["fuel_consumed_units"] * bf_df["fuel_mmbtu_per_unit"]
+#     boiler_fuel_eia923["fuel_consumed_mmbtu"] = (
+#         boiler_fuel_eia923["fuel_consumed_units"]
+#         * boiler_fuel_eia923["fuel_mmbtu_per_unit"]
 #     )
 
 #     # Create a date index for grouping based on freq
@@ -478,12 +469,8 @@ def denorm_ownership_eia860(ownership_eia860, pu_eia) -> pd.DataFrame:
 #         bf_df = bf_df.drop(["total_ash_content", "total_sulfur_content"], axis=1)
 
 #     # Grab some basic plant & utility information to add.
-#     pu_eia = pudl.output.eia860.plants_utils_eia860(
-#         pudl_engine, start_date=start_date, end_date=end_date
-#     )
-
 #     out_df = pudl.helpers.date_merge(
-#         left=bf_df,
+#         left=boiler_fuel_eia923,
 #         right=pu_eia,
 #         on=["plant_id_eia"],
 #         date_on=["year"],
@@ -491,13 +478,10 @@ def denorm_ownership_eia860(ownership_eia860, pu_eia) -> pd.DataFrame:
 #     ).dropna(subset=["plant_id_eia", "utility_id_eia", "boiler_id"])
 #     # Merge in the unit_id_pudl assigned to each generator in the BGA process
 #     # Pull the BGA table and make it unit-boiler only:
-#     bga_boilers = (
-#         pudl.output.eia860.boiler_generator_assn_eia860(
-#             pudl_engine, start_date=start_date, end_date=end_date
-#         )
-#         .loc[:, ["report_date", "plant_id_eia", "boiler_id", "unit_id_pudl"]]
-#         .drop_duplicates()
-#     )
+
+#     bga_boilers = boiler_generator_assn_eia860.loc[
+#         :, ["report_date", "plant_id_eia", "boiler_id", "unit_id_pudl"]
+#     ].drop_duplicates()
 
 #     out_df = pudl.helpers.date_merge(
 #         left=out_df,
@@ -509,7 +493,7 @@ def denorm_ownership_eia860(ownership_eia860, pu_eia) -> pd.DataFrame:
 #     # merge in the static entity columns
 #     # don't need to deal with time (freq/end or start dates bc this table is static)
 #     out_df = out_df.merge(
-#         pd.read_sql("boilers_entity_eia", pudl_engine),
+#         boilers_entity_eia,
 #         how="left",
 #         on=["plant_id_eia", "boiler_id"],
 #     )
@@ -529,3 +513,89 @@ def denorm_ownership_eia860(ownership_eia860, pu_eia) -> pd.DataFrame:
 #     ).pipe(apply_pudl_dtypes, group="eia")
 
 #     return out_df
+
+
+# @asset(compute_kind="Python")
+# def denorm_boiler_fuel_eia923_monthly(
+#     boiler_fuel_eia923: pd.DataFrame,
+#     pu_eia: pd.DataFrame,
+#     boiler_generator_assn_eia860: pd.DataFrame,
+#     boilers_entity_eia: pd.DataFrame,
+# ) -> pd.DataFrame:
+#     """Pull records from the boiler_fuel_eia923 table and aggregate monthly.
+
+#     Aggregate monthly, as well as by fuel type within a plant. We preserve the following
+#     fields. Per-unit values are re-calculated based on the aggregated totals.
+#     Totals are summed across whatever time range is being used, within a
+#     given plant and fuel type.
+
+#     * ``fuel_consumed_units`` (sum)
+#     * ``fuel_mmbtu_per_unit`` (weighted average)
+#     * ``fuel_consumed_mmbtu`` (sum)
+#     * ``sulfur_content_pct`` (weighted average)
+#     * ``ash_content_pct`` (weighted average)
+
+#     In addition, plant and utility names and IDs are pulled in from the EIA
+#     860 tables.
+
+#     Args:
+#         boiler_fuel_eia923: EIA 923 boiler fuel table.
+#         pu_eia: Denormalized plant_utility EIA ID table.
+#         boiler_generator_assn_eia860: Associations between EIA boiler and generator IDs.
+#         boilers_entity_eia: EIA boiler entity table.
+
+#     Returns:
+#         A denormalized DataFrame containing all records from the EIA 923 Boiler Fuel
+#         table, aggregated monthly.
+#     """
+
+#     return denorm_boiler_fuel_eia923(
+#         boiler_fuel_eia923,
+#         pu_eia,
+#         boiler_generator_assn_eia860,
+#         boilers_entity_eia,
+#         freq="MS",
+#     )
+
+
+# @asset(compute_kind="Python")
+# def denorm_boiler_fuel_eia923_annual(
+#     boiler_fuel_eia923: pd.DataFrame,
+#     pu_eia: pd.DataFrame,
+#     boiler_generator_assn_eia860: pd.DataFrame,
+#     boilers_entity_eia: pd.DataFrame,
+# ) -> pd.DataFrame:
+#     """Pull records from the boiler_fuel_eia923 table and aggregate annually.
+
+#     Aggregate annually, as well as by fuel type within a plant. We preserve the following
+#     fields. Per-unit values are re-calculated based on the aggregated totals.
+#     Totals are summed across whatever time range is being used, within a
+#     given plant and fuel type.
+
+#     * ``fuel_consumed_units`` (sum)
+#     * ``fuel_mmbtu_per_unit`` (weighted average)
+#     * ``fuel_consumed_mmbtu`` (sum)
+#     * ``sulfur_content_pct`` (weighted average)
+#     * ``ash_content_pct`` (weighted average)
+
+#     In addition, plant and utility names and IDs are pulled in from the EIA
+#     860 tables.
+
+#     Args:
+#         boiler_fuel_eia923: EIA 923 boiler fuel table.
+#         pu_eia: Denormalized plant_utility EIA ID table.
+#         boiler_generator_assn_eia860: Associations between EIA boiler and generator IDs.
+#         boilers_entity_eia: EIA boiler entity table.
+
+#     Returns:
+#         A denormalized DataFrame containing all records from the EIA 923 Boiler Fuel
+#         table, aggregated monthly.
+#     """
+
+#     return denorm_boiler_fuel_eia923(
+#         boiler_fuel_eia923,
+#         pu_eia,
+#         boiler_generator_assn_eia860,
+#         boilers_entity_eia,
+#         freq="YS",
+#     )
