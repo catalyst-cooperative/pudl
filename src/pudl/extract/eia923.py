@@ -2,8 +2,8 @@
 
 This modules pulls data from EIA's published Excel spreadsheets.
 
-This code is for use analyzing EIA Form 923 data. Currenly only
-years 2009-2016 work, as they share nearly identical file formatting.
+This code is for use analyzing EIA Form 923 data. Currenly only years 2009-2016 work, as
+they share nearly identical file formatting.
 """
 import pandas as pd
 from dagster import AssetOut, Output, multi_asset

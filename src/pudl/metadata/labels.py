@@ -67,9 +67,9 @@ FUEL_UNITS_EIA: dict[str, str] = {
 }
 """Descriptive labels for the units of measure EIA uses for fuels.
 
-The physical units fuel consumption is reported in.  All consumption is reported
-in either short tons for solids, thousands of cubic feet for gases, and barrels
-for liquids.
+The physical units fuel consumption is reported in.  All consumption is reported in
+either short tons for solids, thousands of cubic feet for gases, and barrels for
+liquids.
 
 Not currently being used.
 """
