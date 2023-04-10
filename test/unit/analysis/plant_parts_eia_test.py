@@ -539,8 +539,8 @@ def test_one_to_many():
         }
     )
 
-    path_to_one_to_many = resources.path(
-        "pudl.package_data.test", "test_one_to_many.csv"
+    path_to_one_to_many = resources.files("pudl.package_data.test").joinpath(
+        "test_one_to_many.csv",
     )
 
     pudl_out = PudlTablMock()
