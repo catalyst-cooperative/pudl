@@ -294,6 +294,6 @@ ENTITIES: dict[str, dict[str, list[str]]] = {
 
 For each entity type (key), the ID columns, static columns, and annual columns,
 
-The order of the entities matters. Plants must be harvested before utilities,
-since plant location must be removed before the utility locations are harvested.
+The order of the entities matters. Plants must be harvested before utilities, since
+plant location must be removed before the utility locations are harvested.
 """

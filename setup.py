@@ -74,12 +74,12 @@ setup(
         "scipy>=1.6,<1.11",
         "Shapely>=2.0,<2.1",
         "sqlalchemy>=1.4,<2",
-        "timezonefinder>=5,<6.2",
+        "timezonefinder>=5,<6.3",
         "xlsxwriter>=3,<3.1",
     ],
     extras_require={
         "dev": [
-            "black>=22.0,<23.2",
+            "black>=22.0,<23.4",
             "docformatter>=1.5,<1.6",
             "ipdb>=0.13,<0.14",
             "isort>=5.0,<5.13",
@@ -92,7 +92,7 @@ setup(
             "doc8>=0.9,<1.2",
             "furo>=2022.4.7",
             "sphinx>=4,!=5.1.0,<6.1.4",
-            "sphinx-autoapi>=1.8,<2.1",
+            "sphinx-autoapi>=1.8,<2.2",
             "sphinx-issues>=1.2,<3.1",
             "sphinx-reredirects",
             "sphinxcontrib_bibtex>=2.4,<2.6",
