@@ -1,11 +1,14 @@
 """Reset the PUDL output DB to match the schema in pudl.metadata."""
 import argparse
+import logging
 import pathlib
 
 import sqlalchemy as sa
 
 from pudl.metadata.classes import Package
 from pudl.workspace.setup import get_defaults
+
+logger = logging.getLogger(f"catalystcoop.{__name__}")
 
 
 def _parse_args():
@@ -32,17 +35,17 @@ def reset_db(
     if metadata is None:
         metadata = Package.from_resource_ids().to_sql()
 
-    # Check if a SQLite file already exists at the given path, and delete it if it does
     if sqlite_path.exists():
+        logger.info(f"Removing existing DB at {sqlite_path}...")
         sqlite_path.unlink()
 
-    # Use SQLAlchemy to create a new SQLite database at the given path
+    logger.info(f"Creating DB at {sqlite_path}...")
     engine = sa.create_engine(f"sqlite:///{sqlite_path}")
-    conn = engine.connect()
 
     # Use the metadata to initialize the table schema in the new database
-    metadata.create_all(conn)
-    conn.close()
+    with engine.connect() as conn:
+        logger.info(f"Writing schema to DB at {sqlite_path}...")
+        metadata.create_all(conn)
 
 
 def main():

@@ -428,11 +428,7 @@ class PudlSQLiteIOManager(SQLiteIOManager):
         metadata_diff = compare_metadata(existing_schema_context, self.md)
         if metadata_diff:
             logger.info(f"Metadata diff:\n\n{metadata_diff}")
-            raise RuntimeError(
-                "Database schema has changed, try running `alembic revision "
-                "--autogenerate -m 'Your change message'` then `alembic "
-                "upgrade`."
-            )
+            raise RuntimeError("Database schema has changed, run `pudl_reset_db`.")
 
     def _handle_str_output(self, context: OutputContext, query: str):
         """Execute a sql query on the database.
