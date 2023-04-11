@@ -139,6 +139,21 @@ class PudlTabl:
         table_method_map = {
             # denorm_ferc1
             "denorm_balance_sheet_assets_ferc1": "denorm_balance_sheet_assets_ferc1",
+            "denorm_balance_sheet_liabilities_ferc1": "denorm_balance_sheet_liabilities_ferc1",
+            "denorm_cash_flow_ferc1": "denorm_cash_flow_ferc1",
+            "denorm_depreciation_amortization_summary_ferc1": "denorm_depreciation_amortization_summary_ferc1",
+            "denorm_electric_energy_dispositions_ferc1": "denorm_electric_energy_dispositions_ferc1",
+            "denorm_electric_energy_sources_ferc1": "denorm_electric_energy_sources_ferc1",
+            "denorm_electric_operating_expenses_ferc1": "denorm_electric_operating_expenses_ferc1",
+            "denorm_electric_operating_revenues_ferc1": "denorm_electric_operating_revenues_ferc1",
+            "denorm_electric_plant_depreciation_changes_ferc1": "denorm_electric_plant_depreciation_changes_ferc1",
+            "denorm_electric_plant_depreciation_functional_ferc1": "denorm_electric_plant_depreciation_functional_ferc1",
+            "denorm_electricity_sales_by_rate_schedule_ferc1": "denorm_electricity_sales_by_rate_schedule_ferc1",
+            "denorm_income_statement_ferc1": "denorm_income_statement_ferc1",
+            "denorm_other_regulatory_liabilities_ferc1": "denorm_other_regulatory_liabilities_ferc1",
+            "denorm_retained_earnings_ferc1": "denorm_retained_earnings_ferc1",
+            "denorm_transmission_statistics_ferc1": "denorm_transmission_statistics_ferc1",
+            "denorm_utility_plant_summary_ferc1": "denorm_utility_plant_summary_ferc1",
             # denorm_eia
             "denorm_utilities_eia": "denorm_utilities_eia",
             # eia861
