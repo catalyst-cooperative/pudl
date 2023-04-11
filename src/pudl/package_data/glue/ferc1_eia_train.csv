@@ -2997,7 +2997,7 @@ record_id_eia,record_id_ferc1,signature_1,signature_2,notes
 1393_5_2019_plant_unit_owned_11241,f1_steam_2019_12_454_2_1,EB,AS,Not a great match other than cap.
 1393_2020_plant_owned_55937,f1_steam_2020_12_315_0_1,EB,AS,
 1393_4_2020_plant_unit_total_11241,f1_steam_2020_12_454_2_1,EB,AS,
-1393_5_2020_plant_unit_total_11241,f1_steam_2020_12_454_2_2,EB,AS,
+1393_6_2020_plant_gen_total_11241,f1_steam_2020_12_454_2_2,EB,AS,switched from 1393_5_2020_plant_unit_total_11241 due to issues with unit total records
 3459_2008_plant_total_55937,f1_steam_2008_12_315_0_4,EB,AS,
 3459_2009_plant_total_55937,f1_steam_2009_12_315_0_4,EB,AS,
 3459_2010_plant_total_55937,f1_steam_2010_12_315_0_4,EB,AS,
