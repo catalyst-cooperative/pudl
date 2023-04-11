@@ -143,7 +143,7 @@ class PudlTabl:
             # denorm_eia (data comes from multiple EIA forms)
             "denorm_plants_eia": "plants_eia860",
             "denorm_utilities_eia": "utils_eia860",
-            "denorm_boilers_eia": "boilers_eia860",
+            "denorm_boilers_eia": "boil_eia860",
             "denorm_generators_eia": "gens_eia860",
             "denorm_plants_utilities_eia": "pu_eia860",
             # eia860 (denormalized, data primarily from EIA-860)
