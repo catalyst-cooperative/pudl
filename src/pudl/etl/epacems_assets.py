@@ -142,7 +142,8 @@ def hourly_emissions_epacems(
 
     This asset creates a dynamic graph of ops to process EPA CEMS data in parallel. It
     will create both a partitioned and single monolithic parquet output. For more
-    information see: https://docs.dagster.io/concepts/ops-jobs-graphs/dynamic-graphs.
+    information see:
+    https://docs.dagster.io/concepts/ops-jobs-graphs/dynamic-graphs.
     """
     years = get_years_from_settings()
     partitions = years.map(
