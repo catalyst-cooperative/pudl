@@ -268,6 +268,43 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
         "sources": ["eia860"],
         "etl_group": "eia860",
     },
+    "denorm_ownership_eia860": {
+        "description": (
+            "Generator Ownership, reported in EIA-860 Schedule 4. Includes only "
+            "jointly or third-party owned generators. Denormalized to include plant "
+            "and utility names and other associated IDs."
+        ),
+        "schema": {
+            "fields": [
+                "report_date",
+                "plant_id_eia",
+                "plant_id_pudl",
+                "plant_name_eia",
+                "utility_id_eia",
+                "utility_id_pudl",
+                "utility_name_eia",
+                "generator_id",
+                "owner_utility_id_eia",
+                "owner_name",
+                "owner_state",
+                "owner_city",
+                "owner_country",
+                "owner_street_address",
+                "owner_zip_code",
+                "fraction_owned",
+                "data_maturity",
+            ],
+            "primary_key": [
+                "report_date",
+                "plant_id_eia",
+                "generator_id",
+                "owner_utility_id_eia",
+            ],
+        },
+        "field_namespace": "eia",
+        "sources": ["eia860"],
+        "etl_group": "outputs",
+    },
     "plants_eia860": {
         "description": (
             "Annually varying plant attributes, compiled from across all EIA-860 and "
