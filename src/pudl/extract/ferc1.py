@@ -214,32 +214,6 @@ TABLE_NAME_MAP_FERC1: dict[str, dict[str, str]] = {
 }
 """A mapping of PUDL DB table names to their XBRL and DBF source table names."""
 
-DBF_TYPES = {
-    "C": sa.String,
-    "D": sa.Date,
-    "F": sa.Float,
-    "I": sa.Integer,
-    "L": sa.Boolean,
-    "M": sa.Text,  # 10 digit .DBT block number, stored as a string...
-    "N": sa.Float,
-    "T": sa.DateTime,
-    "0": sa.Integer,  # based on dbf2sqlite mapping
-    "B": "XXX",  # .DBT block number, binary string
-    "@": "XXX",  # Timestamp... Date = Julian Day, Time is in milliseconds?
-    "+": "XXX",  # Autoincrement (e.g. for IDs)
-    "O": "XXX",  # Double, 8 bytes
-    "G": "XXX",  # OLE 10 digit/byte number of a .DBT block, stored as string
-}
-"""dict: A mapping of DBF field types to SQLAlchemy Column types.
-
-This dictionary maps the strings which are used to denote field types in the DBF objects
-to the corresponding generic SQLAlchemy Column types: These definitions come from a
-combination of the dbfread example program dbf2sqlite and this DBF file format
-documentation page: http://www.dbase.com/KnowledgeBase/int/db7_file_fmt.htm
-
-Unmapped types left as 'XXX' which should result in an error if encountered.
-"""
-
 PUDL_RIDS: dict[int, str] = {
     514: "AEP Texas",
     519: "Upper Michigan Energy Resources Company",
@@ -526,12 +500,11 @@ def add_sqlite_table(
     # return dbc_map
 
 
-def define_sqlite_db(
-    sqlite_engine: sa.engine.Engine,
-    sqlite_meta: sa.MetaData,
-    dbc_map: dict[str, dict[str, str]],
-    ferc1_dbf_ds: Ferc1DbfDatastore,
-    ferc1_to_sqlite_settings: Ferc1DbfToSqliteSettings = Ferc1DbfToSqliteSettings(),
+def create_sqlite_tables(
+        sqlite_engine: sa.engine.Engine,
+        sqlite_meta: sa.MetaData,
+        foxpro_datastore: FercFoxProDatastore, # Generalize the expected interface
+        ferc1_to_sqlite_settings: Ferc1DbfToSqliteSettings = Ferc1DbfToSqliteSettings(),
 ):
     """Defines a FERC Form 1 DB structure in a given SQLAlchemy MetaData object.
 
@@ -553,67 +526,15 @@ def define_sqlite_db(
     Returns:
         None: the effects of the function are stored inside sqlite_meta
     """
-    for table in DBF_TABLES_FILENAMES.keys():
-        add_sqlite_table(
-            table_name=table,
-            sqlite_meta=sqlite_meta,
-            dbc_map=dbc_map,
-            ferc1_dbf_ds=ferc1_dbf_ds,
-            refyear=ferc1_to_sqlite_settings.refyear,
+    # TODO(rousik): perhaps it would be better to set this default in the settings directly.
+    refyear = ferc1_to_sqlite_settings.refyear
+    if refyear is None:
+        refyear = max(
+            DataSource.from_id(foxpro_datastore.get_dataset()).working_partitions["years"]
         )
-
+    for table in foxpro_datastore.get_tables():
+        table.to_sqlite_schema(refyear, sqlite_meta)
     sqlite_meta.create_all(sqlite_engine)
-
-def get_raw_df(
-    ferc1_dbf_ds: Ferc1DbfDatastore,
-    table: str,
-    dbc_map: dict[str, dict[str, str]],
-    years: list[int] = DataSource.from_id("ferc1").working_partitions["years"],
-) -> pd.DataFrame:
-    """Combine several years of a given FERC Form 1 DBF table into a dataframe.
-
-    Args:
-        ferc1_dbf_ds: Initialized FERC 1 DBF datastore
-        table: The name of the FERC Form 1 table from which data is read.
-        dbc_map: A dictionary returned by :func:`get_dbc_map`, describing the table and
-            column names stored within the FERC Form 1 FoxPro database files.
-        years: List of years to be combined into a single DataFrame.
-
-    Returns:
-        A DataFrame containing multiple years of FERC Form 1 data for the requested
-        table.
-    """
-    dbf_filename = DBF_TABLES_FILENAMES[table]
-
-    raw_dfs = []
-    for yr in years:
-        try:
-            filedata = ferc1_dbf_ds.get_file(yr, dbf_filename)
-        except KeyError:
-            continue
-
-        new_df = pd.DataFrame(
-            iter(
-                DBF(
-                    dbf_filename,
-                    encoding="latin1",
-                    parserclass=FERC1FieldParser,
-                    ignore_missing_memofile=True,
-                    filedata=filedata,
-                )
-            )
-        )
-        raw_dfs = raw_dfs + [
-            new_df,
-        ]
-
-    if raw_dfs:
-        return (
-            pd.concat(raw_dfs, sort=True)
-            .drop("_NullFlags", axis=1, errors="ignore")
-            .rename(dbc_map[table], axis=1)
-        )
-
 
 @op(
     config_schema={
@@ -633,10 +554,13 @@ def get_raw_df(
 def dbf2sqlite(context) -> None:
     """Clone the FERC Form 1 Visual FoxPro databases into SQLite."""
     ferc1_to_sqlite_settings = (
+        # TODO(rousik): generalize
         context.resources.ferc_to_sqlite_settings.ferc1_dbf_to_sqlite_settings
     )
     datastore = context.resources.datastore
-    db_path = str(Path(context.op_config["pudl_output_path"]) / "ferc1.sqlite")
+    # NOTE(rousik): there's one sql database per dataset, so there's no need to worry
+    # about which tables to drop
+    db_path = str(Path(context.op_config["pudl_output_path"]) / "ferc1.sqlite") # TODO(rousik): generalize
     clobber = context.op_config["clobber"]
 
     # Read in the structure of the DB, if it exists
@@ -653,31 +577,27 @@ def dbf2sqlite(context) -> None:
     sqlite_meta = sa.MetaData()
     sqlite_meta.reflect(sqlite_engine)
 
-    # Get the mapping of filenames to table names and fields
+    # TODO(rousik): generalize; datastore should be retrieved based on the dataset name (?)
+    ferc1_ds = Ferc1FoxProDatastore(datastore)
+
     logger.info(
         f"Creating a new database schema based on {ferc1_to_sqlite_settings.refyear}."
     )
-
-    ferc1_ds = Ferc1FoxProDatastore(datastore)
-
-    #ferc1_dbf_ds = Ferc1DbfDatastore(datastore)
-    #dbc_map = get_dbc_map(ferc1_dbf_ds, ferc1_to_sqlite_settings.refyear)
-    define_sqlite_db(
+    create_sqlite_tables(
         sqlite_engine=sqlite_engine,
         sqlite_meta=sqlite_meta,
-        ferc1_foxpro_ds=ferc1_ds,  # TODO: replace logic to pull out relevant pieces.
-#        dbc_map=dbc_map,
-#        ferc1_dbf_ds=fe rc1_dbf_ds,
+        foxpro_datastore=ferc1_ds,
         ferc1_to_sqlite_settings=ferc1_to_sqlite_settings,
     )
+    # TODO: PK/FK constraints are missing!! Need to put them back.
 
-    for table in DBF_TABLES_FILENAMES.keys():
+    for table in ferc1_ds.get_table_names():
         logger.info(f"Pandas: reading {table} into a DataFrame.")
-        new_df = get_raw_df(
-            ferc1_dbf_ds, table, dbc_map, years=ferc1_to_sqlite_settings.years
-        )
+        new_df = ferc1_ds.load_years(years=ferc1_to_sqlite_settings.years)
+
         # Because this table has no year in it, there would be multiple
         # definitions of respondents if we didn't drop duplicates.
+        # TODO: this is dataset specific business logic!
         if table == "f1_respondent_id":
             new_df = new_df.drop_duplicates(subset="respondent_id", keep="last")
         n_recs = len(new_df)

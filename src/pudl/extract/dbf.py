@@ -2,9 +2,11 @@
 from ast import Tuple
 from collections import defaultdict
 import csv
+from functools import lru_cache
 import importlib
 from pathlib import Path
-from typing import Iterator, List
+from pickle import MEMOIZE
+from typing import Any, Dict, Iterator, List, Optional
 
 import pandas as pd
 from pudl.workspace.datastore import Datastore
@@ -13,30 +15,82 @@ import sqlalchemy as sa
 from pudl.metadata.classes import DataSource
 from typing import Protocol
 
+class TableSchema:
+    """Simple data-wrapper for the fox-pro table schema."""
+    def __init__(self, table_name: str):
+        self.name = table_name
+        self._columns = []
+        self._column_types = {}
+        self._short_name_map = {} # short_name_map[short_name] -> long_name
+
+    def add_column(self, col_name: str, col_type: sa.types.TypeEngine, short_name: Optional[str] = None):
+        assert col_name not in self._columns
+        self._columns.append(col_name)
+        self._column_types[col_name] = col_type
+        if short_name is not None:
+            self._short_name_map[short_name] = col_name
+
+    def get_columns(self) -> Iterator[Tuple[str, sa.types.TypeEngine]]:
+        for col_name in self._columns:
+            yield col_name, self._column_types[col_name]
+
+    def get_column_rename_map(self) -> Dict[str, str]:
+        return dict(self._short_name_map)
+
+    def to_sqlite_table(self, sqlite_meta: sa.MetaData) -> sa.Table:
+        table = sa.Table(self.name,  sqlite_meta)
+        for col_name, col_type in self.get_columns():
+            table.append_column(sa.Column(col_name, col_type))
+        return table
+
 
 class AbstractFoxProDatastore(Protocol):
-    def get_table_dbf(self, table_name: str, year: int) -> DBF:
-        ...
-
+    """This is the interface definition for dealing with fox-pro datastores."""
     def get_dataset(self) -> str:
+        """Returns name of the dataset that this datastore provides access to."""
         ...
 
-    def get_all_schemas(self, year: int) -> dict[str, list[str]]:
+    def get_table_names(self) -> List[str]:
+        """Returns list of all available table names."""
         ...
 
-    def get_table_schema(self, table: str, year: int) -> list[str]:
+    def get_table_schema(self, table_name: str, year: int) -> TableSchema:
+        """Returns schema for a given table and a given year."""
         ...
 
-    def get_table_column_map(self, table: str, year: int) -> dict[str, str]:
-        """Returns mapping from short-column names to long column names."""
+    def load_table_dfs(self, table_name: str, years: List[int]) -> Optional[pd.DataFrame]:
+        """Returns dataframe that contains data for a given table across given years."""
+        ...
 
-# class TableSchema:
-#     def __init__(self, name: str):
-#         self.name = name
-#         self.columns = {}  # maps long names to truncated names
 
-#     def add_column(self, long_name: str, short_name: str):
-#         self.columns[long_name] = short_name
+class FoxProTable:
+    def __init__(
+            self,
+            datastore: AbstractFoxProDatastore,
+            table_name: str):
+        self.table_name = table_name
+        self.datastore = datastore
+    
+    def _load_single_df(self, year: int) -> pd.DataFrame:
+        """Loads single year worth of data into pd.DataFrame."""
+        df = pd.DataFrame(iter(self.datastore.get_table_dbf(self.table_name, year)))
+        df.drop("_NullFlags", axis=1, errors="ignore").rename(
+            self.datastore.get_table_column_map(self.table_name, year),
+            axis=1,
+        )
+        return df
+    
+    def load_years(self, years: List[int]) -> Optional[pd.DataFrame]:
+        """Loads table into single pd.DataFrame containing data from specified years."""
+        yearly_dfs = []
+        for yr in years:
+            try:
+                yearly_dfs.append(self._load_single_df(yr))
+            except KeyError:
+                pass
+        if yearly_dfs:
+            return pd.concat(yearly_dfs, sort=True)
+        return None
 
 
 class FercFieldParser(FieldParser):
@@ -62,6 +116,7 @@ class FercFieldParser(FieldParser):
         if data == b".":
             data = b"0"
         return super().parseN(field, data)
+
 
 DBF_TYPES = {
     "C": sa.String,
@@ -91,58 +146,7 @@ Unmapped types left as 'XXX' which should result in an error if encountered.
 
 # TODO(rousik): circular dependency between FercFoxProDatastore and FoxProTable,
 # could be addressed through interfaces/ABCs
-class FoxProTable:
-    def __init__(
-            self,
-            datastore: AbstractFoxProDatastore,
-            table_name: str):
-        self.table_name = table_name
-        self.datastore = datastore
 
-    # This is an abstraction for dealing with fox-pro tables. Each table
-    # is derived from FercFoxProDatastore, and has name and methods for:
-    # 1. loading dataframes for a year (or collection of years)
-    # 2. exporting table to Sqlite alchemy tables
-    def to_sqlite_schema(self, refyear: int | None = None) -> sa.Table:
-        if refyear is None:
-            refyear = max(
-                DataSource.from_id(self.datstore.get_dataset()).working_partitions["years"]
-            )
-        dbf = self.datastore.get_table_dbf(self.table_name, refyear)
-        
-        new_table = sa.Table(self.table_name)
-        col_map = self.datastore.get_table_column_map(self.table_name, refyear)
-
-        for field in dbf.fields:
-            if field.name == "_NullFlags":
-                continue
-            # TODO(rousik): remap column to long-form name
-            col_name = col_map[field.name]
-            col_type = DBF_TYPES[field.type]
-            new_table.append_column(sa.Column(col_name, col_type))
-        # TODO: respondent_id PK/FK constraints are dataset specific business logic
-        return new_table       
-    
-    def load_single_df(self, year: int) -> pd.DataFrame:
-        """Loads single year worth of data into pd.DataFrame."""
-        df = pd.DataFrame(iter(self.datastore.get_table_dbf(self.table_name, year)))
-        df.drop("_NullFlags", axis=1, errors="ignore").rename(
-            self.datastore.get_table_column_map(self.table_name, year),
-            axis=1,
-        )
-        return df
-    
-    def load_df(self, years: List[int]):
-        """Loads table into single pd.DataFrame containing data from specified years."""
-        yearly_dfs = []
-        for yr in years:
-            try:
-                yearly_dfs.append(self.load_single_df(yr))
-            except KeyError:
-                pass
-        if yearly_dfs:
-            return pd.concat(yearly_dfs, sort=True)
-        return None
 
 class FercFoxProDatastore:
     """Wrapper to provide standardized access to FoxPro FERC databases."""
@@ -164,6 +168,7 @@ class FercFoxProDatastore:
         assert(self.DATASET is not None)
         assert(self.DBF_FILENAME is not None)
 
+
         # file_map contains root-path where all DBC and DBF files are stored.
         # This can vary over the years.
         self._root_path = {}
@@ -176,6 +181,9 @@ class FercFoxProDatastore:
         for row in self._open_csv_resource("table_file_map.csv"):
             self._table_file_map[row["table"]] = row["filename"]
 
+    def get_dataset(self):
+        return self.DATASET
+
     def _open_csv_resource(self, base_filename:str) -> csv.DictReader:
         """Opens the given resource file as csv.DictReader."""
         pkg_path = "pudl.package_data.{self.DATASET}"
@@ -187,7 +195,7 @@ class FercFoxProDatastore:
         except KeyError:
             raise ValueError(f"No {self.DATASET} data for year {year}")
 
-    def get_file(self, year:int, filename: str):
+    def get_file(self, year: int, filename: str) -> Any:
         if year not in self._cache:
             self._cache[year] = self.datastore.get_zipfile_resource(
                 self.DATASET, year=year, data_format="dbf"
@@ -198,8 +206,8 @@ class FercFoxProDatastore:
         except KeyError:
             raise KeyError(f"{filename} not available for year {year} in {self.DATASET}.")
         
-    def get_table_dbf(self, table_name: str, year: int):
-        fname = self.get_table_file(table_name)
+    def get_table_dbf(self, table_name: str, year: int) -> DBF:
+        fname = self._table_file_map[table_name]
         fd = self.get_file(year, fname)
         return DBF(
             fname,
@@ -208,107 +216,73 @@ class FercFoxProDatastore:
             ignore_missing_memofile=True,
             filedata=fd,
         )
-
-    @Memoize
-    def get_schema(self, year: int) -> dict[str, list[str]]:
-        """Returns dict mapping from table name to list of columns/fields."""
+    
+    def get_table_names(self) -> List[str]:
+        return list(self._table_file_map)
+    
+    @lru_cache
+    def get_db_schema(self, year: int) -> Dict[str, List[str]]:
+        """Returns dict with table names as keys, and list of column names as values."""
         dbf = DBF(
             "", 
             ignore_missing_memofile=True,
             filedata=self.get_file(year, self.DBC_FILENAME)
         )
-        table_names = {}
-        table_cols = defaultdict(list)
+        table_names : Dict[Any, str] = {}
+        table_columns = defaultdict(list)
         for row in dbf:
-            if row.get("OBJECTTYPE", None) == "Table":
-                table_names[row["OBJECTID"]] = row["OBJECTNAME"]
-            elif row.get("OBJECTTYPE", None) == "Field":
-                table_cols[row["PARENTID"]].append(row["OBJECTNAME"])
+            obj_id = row.get("OBJECTID")
+            obj_name = row.get("OBJECTNAME")
+            obj_type = row.get("OBJECTTYPE", None)
+            if obj_type == "Table":
+                table_names[obj_id] = obj_name
+            elif obj_type == "Field":
+                parent_id = row.get("PARENTID")
+                table_columns[parent_id].append(obj_name)
+        # Remap table ids to table names.
+        return {table_names[tid]: cols for tid, cols in table_columns.items()} 
 
-        return {
-            tname: table_cols[tid]
-            for tid, tname in table_names.items()
-        }
+    # TODO(rousik): table column map should be remapping short names (in dbf) to long names found in db schema (DBC).
+    # This is kind of annoying transformation but we can't do without it.
 
-    def get_table_file(self, table_name: str) -> str:
-        """Returns the base filename for a given table."""
-        return self._table_file_map[table_name]
-        # TODO: do we need to map KeyErrors to something?
-
-    def get_table_names(self): -> list[str]:
-        return list(self._table_file_map)
-
-    def get_all_tables(self, year: int) -> Iterator[Tuple[str, DBF]]:
-        """Iterate over all tables available for a given year."""
-        for table_name in self._table_file_map:
-            try:
-                yield (table_name, self.get_table_dbf(table_name, year))
-            except KeyError:
-                pass        
-            
-    def get_column_map(self, table_name: str, year: int) -> dict[str, dict[str, str]]:
-        """Returns mapping from short column names to long column names for all tables.
-        
-        The result is two-tier dictionary:
-           result[table_name][short_col_name] -> long_col_name
-        """
-        # TODO: ideally, we would verify that column map remains stable YoY. This is
-        # assumed, but probably not necessarily guaranteed. Order also matters.
-        column_map = defaultdict(dict)
-        schema = self.get_schema(year)
-        for table_name, table_dbf in self.get_all_tables(year):
-            table_schema = schema[table_name]
-            fields = [col for col in table_dbf.field_names if col != "_NullFlags"]
-            if len(fields) != len(table_schema):
-                return ValueError(                
-                    f"Number of DBF fields in {table_name} does not match what was "
-                    f"found in the DBC index file for {year}."
+    @lru_cache
+    def get_table_schema(self, table_name: str, year: int) -> TableSchema:
+        table_columns = self.get_db_schema(year)[table_name]
+        dbf = self.get_table_dbf(table_name, year)
+        dbf_fields = [field for field in dbf.fields if field.name != "_NullFlags"]
+        if len(table_columns) != len(table_columns):
+            return ValueError(                
+                f"Number of DBF fields in {table_name} does not match what was "
+                f"found in the DBC index file for {year}."
+            )
+        schema = TableSchema(table_name)
+        for long_name, dbf_col in zip(table_columns, dbf_fields):
+            if long_name[:8] != dbf_col.name.lower()[:8]:
+                raise ValueError(
+                    f"DBF field name mismatch: {dbf_col.name} != {long_name}"
                 )
-            column_map[table_name] = dict(zip(fields, table_schema))
-        
-        # Validate that column prefixes match!
-        for tname, col_map in column_map:
-            for sn, ln in col_map.items():
-                if ln[:8] != sn.lower()[:8]:
-                    raise ValueError(
-                        f"DBF field name mismatch '{ln}' != '{sn}' for table {tname}"
-                    )              
-        return column_map
-    
-    def load_table_df(self, table_name: str, years: list[int]) -> pd.DataFrame:
-        """Retrieve DataFrame for a given table and given list of years."""
+            col_type = DBF_TYPES[dbf_col.type]
+            if col_type == sa.String:
+                col_type = sa.String(length=dbf_col.length)
+            schema.add_column(long_name, col_type, short_name=dbf_col.name)
+        return schema  
+
+    def _load_single_year(self, table_name: str, year: int) -> pd.DataFrame:
+        sch = self.get_table_schema(table_name, year)
+        df = pd.DataFrame(iter(self.datastore.get_table_dbf(self.table_name, year)))
+        df.drop("_NullFlags", axis=1, errors="ignore").rename(
+            sch.get_column_rename_map(),
+            axis=1
+        )
+        return df
+
+    def load_table_dfs(self, table_name: str, years: List[int]) -> Optional[pd.DataFrame]:
         yearly_dfs = []
         for yr in years:
             try:
-                yearly_dfs.append(
-                    pd.DataFrame(iter(self.get_table_dbf(table_name)))
-                )
+                yearly_dfs.append(self._load_single_year(table_name, yr))
             except KeyError:
-                # TODO: should we emit warning here (?)
-                pass
-        if yearly_dfs: 
-            return (
-                pd.concat(yearly_dfs, sort=True)
-                .drop("_NullFlags", axis=1, errors="ignore")
-                .rename(self.get_column_map(table_name), axis=1)
-            )    
-
-    # TODO: replace pd.DataFrame with thin wrapper that will also hold metadata such as 
-    # year and table_name.
-    # Note that in the original approach, the files are processed in slightly different
-    # order. Rather than loading everything for a single year, all years for a single 
-    # table are concatenanted into data-frame that is fed into the sqlite.
-    # We should figure out if this is necessary, or whether we could feed data into sqlite
-    # in an incremental fashion (in one year increments).
-    def load_tables(self, year: int) -> Iterator[pd.DataFrame]:
-        """Loads all tables available for a given year."""
-        table_schema = self.get_schema(year)
-        for dbf_path in self.get_dir(year).glob("*.DBF"):
-            dbf = DBF(
-                dbf_path.name,
-                encoding="latin1",
-                # TODO: add parserclass=FERC1FieldParser generalization here 
-                ignore_missing_memofile=True,
-                filedata=self.get_file(year, dbf_path.name)
-            )
-            # TODO: extract type information
+                continue
+        if yearly_dfs:
+            return pd.concat(yearly_dfs, sort=True)
+        return None
