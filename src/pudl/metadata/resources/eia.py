@@ -803,7 +803,7 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
         "sources": ["eia860", "eia923"],
         "etl_group": "outputs",
     },
-    "pu_eia": {
+    "denorm_plants_utilities_eia": {
         "description": (
             "Denormalized table containing all plant and utility IDs and names from EIA."
         ),
@@ -817,7 +817,7 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
                 "utility_name_eia",
                 "utility_id_pudl",
             ],
-            "primary_key": ["plant_id_eia", "report_date"],
+            "primary_key": ["report_date", "plant_id_eia", "utility_id_eia"],
         },
         "field_namespace": "eia",
         "sources": ["eia860", "eia923"],
