@@ -136,12 +136,20 @@ class PudlTabl:
         """Load output assets and register a class method for retrieving each one."""
         # Map table name to PudlTabl method.
         # PudlTabl will generate a method to read each table from the DB with the given method name
-        table_method_map = {
+        table_method_map = {  # table_name: method_name
             # denorm_ferc1
             "denorm_balance_sheet_assets_ferc1": "denorm_balance_sheet_assets_ferc1",
-            # denorm_eia
-            "denorm_utilities_eia": "denorm_utilities_eia",
-            # eia861
+            "denorm_plants_utilities_ferc1": "pu_ferc1",
+            # denorm_eia (data comes from multiple EIA forms)
+            "denorm_plants_eia": "plants_eia860",
+            "denorm_utilities_eia": "utils_eia860",
+            "denorm_boilers_eia": "boilers_eia860",
+            "denorm_generators_eia": "gens_eia860",
+            "denorm_plants_utilities_eia": "pu_eia860",
+            # eia860 (denormalized, data primarily from EIA-860)
+            "denorm_ownership_eia860": "own_eia860",
+            "boiler_generator_assn_eia860": "bga_eia860",
+            # eia861 (clean)
             "service_territory_eia861": "service_territory_eia861",
             "sales_eia861": "sales_eia861",
             "advanced_metering_infrastructure_eia861": "advanced_metering_infrastructure_eia861",
@@ -179,7 +187,8 @@ class PudlTabl:
         for table_name, method_name in table_method_map.items():
             if hasattr(PudlTabl, method_name):
                 logger.warning(
-                    f"Automatically generated PudlTabl method {method_name} overrides explicitly defined class method. One of these should be deleted."
+                    f"Automatically generated PudlTabl method {method_name} overrides "
+                    "explicitly defined class method. One of these should be deleted."
                 )
 
             # Create method called asset_name that will read the asset from DB
@@ -203,16 +212,17 @@ class PudlTabl:
             ]
         )
 
-    def filter_query(self, table: str):
+    def _select_between_dates(self, table: str) -> sa.sql.expression.Select:
         """For a given table, returns an SQL query that filters by date, if specified.
 
-        Method depends on provided start_date and end_date parameters to PudlTabl.
+        Method uses the PudlTabl ``start_date`` and ``end_date`` attributes.
 
         Arguments:
             table: name of table to be called in SQL query.
 
         Returns:
-            A SQL query for use in  interactive use.
+            A SQLAlchemy select object restricting ``report_date`` to lie between
+            ``self.start_date`` and ``self.end_date`` (inclusive).
         """
         pt = pudl.output.pudltabl.get_table_meta(self.pudl_engine)
         tbl = pt[f"{table}"]
@@ -225,113 +235,9 @@ class PudlTabl:
             tbl_select = tbl_select.where(tbl.c.report_date <= end_date)
         return tbl_select
 
-    def pu_eia860(self) -> pd.DataFrame:
-        """Pull a dataframe of EIA plant-utility associations.
-
-        Returns:
-            A denormalized table for interactive use.
-        """
-        schema = pudl.metadata.classes.Package.from_resource_ids().get_resource(
-            "pu_eia"
-        )
-        tbl_select = self.filter_query(table="pu_eia")
-        return schema.enforce_schema(pd.read_sql(tbl_select, self.pudl_engine))
-
-    def pu_ferc1(self) -> pd.DataFrame:
-        """Pull a dataframe of FERC plant-utility associations.
-
-        Returns:
-            A denormalized table for interactive use.
-        """
-        return pd.read_sql_table(
-            "denorm_plants_utilities_ferc1", self.pudl_engine
-        ).pipe(apply_pudl_dtypes, group="ferc1")
-
     ###########################################################################
     # EIA 860/923 OUTPUTS
     ###########################################################################
-    def utils_eia860(self) -> pd.DataFrame:
-        """Pull a dataframe describing utilities reported in EIA.
-
-        Returns:
-            A denormalized table for interactive use.
-        """
-        schema = pudl.metadata.classes.Package.from_resource_ids().get_resource(
-            "denorm_utilities_eia"
-        )
-        tbl_select = self.filter_query(table="denorm_utilities_eia")
-        return schema.enforce_schema(pd.read_sql(tbl_select, self.pudl_engine))
-
-    def bga_eia860(self, update=False):
-        """Pull a dataframe of boiler-generator associations from EIA 860.
-
-        Args:
-            update (bool): If true, re-calculate the output dataframe, even if
-                a cached version exists.
-
-        Returns:
-            pandas.DataFrame: a denormalized table for interactive use.
-        """
-        if update or self._dfs["bga_eia860"] is None:
-            self._dfs["bga_eia860"] = pudl.output.eia860.boiler_generator_assn_eia860(
-                self.pudl_engine, start_date=self.start_date, end_date=self.end_date
-            )
-        return self._dfs["bga_eia860"]
-
-    def plants_eia860(self) -> pd.DataFrame:
-        """Pull a dataframe of plant level info reported in EIA.
-
-        Returns:
-            A denormalized table for interactive use.
-        """
-        schema = pudl.metadata.classes.Package.from_resource_ids().get_resource(
-            "denorm_plants_eia"
-        )
-        tbl_select = self.filter_query(table="denorm_plants_eia")
-        return schema.enforce_schema(pd.read_sql(tbl_select, self.pudl_engine))
-
-    def gens_eia860(self) -> pd.DataFrame:
-        """Pull a dataframe describing generators, as reported in EIA.
-
-        This output table backfills the technology_description field.
-
-        Returns:
-            A denormalized table for interactive use.
-        """
-        schema = pudl.metadata.classes.Package.from_resource_ids().get_resource(
-            "denorm_generators_eia"
-        )
-        tbl_select = self.filter_query(table="denorm_generators_eia")
-        return schema.enforce_schema(pd.read_sql(tbl_select, self.pudl_engine))
-
-    def boil_eia860(self) -> pd.DataFrame:
-        """Pull a dataframe of boiler level info reported in EIA.
-
-        Returns:
-            A denormalized table for interactive use.
-        """
-        schema = pudl.metadata.classes.Package.from_resource_ids().get_resource(
-            "denorm_boilers_eia"
-        )
-        tbl_select = self.filter_query(table="denorm_boilers_eia")
-        return schema.enforce_schema(pd.read_sql(tbl_select, self.pudl_engine))
-
-    def own_eia860(self, update=False):
-        """Pull a dataframe of generator level ownership data from EIA 860.
-
-        Args:
-            update (bool): If true, re-calculate the output dataframe, even if
-                a cached version exists.
-
-        Returns:
-            pandas.DataFrame: a denormalized table for interactive use.
-        """
-        if update or self._dfs["own_eia860"] is None:
-            self._dfs["own_eia860"] = pudl.output.eia860.ownership_eia860(
-                self.pudl_engine, start_date=self.start_date, end_date=self.end_date
-            )
-        return self._dfs["own_eia860"]
-
     def gf_eia923(self, update: bool = False) -> pd.DataFrame:
         """Pull combined nuclear and non-nuclear generation fuel data.
 
