@@ -219,24 +219,34 @@ class PudlTabl:
     def _select_between_dates(self, table: str) -> sa.sql.expression.Select:
         """For a given table, returns an SQL query that filters by date, if specified.
 
-        Method uses the PudlTabl ``start_date`` and ``end_date`` attributes.
+        Method uses the PudlTabl ``start_date`` and ``end_date`` attributes.  For EIA
+        and most other tables, it compares ``report_date`` column against start and end
+        dates.  For FERC1 ``report_year`` is used.  If neither ``report_date`` nor
+        ``report_year`` are present, no date filtering is done.
 
         Arguments:
             table: name of table to be called in SQL query.
 
         Returns:
-            A SQLAlchemy select object restricting ``report_date`` to lie between
-            ``self.start_date`` and ``self.end_date`` (inclusive).
+            A SQLAlchemy select object restricting the date column (either
+            ``report_date`` or ``report_year``) to lie between ``self.start_date`` and
+            ``self.end_date`` (inclusive).
         """
         pt = pudl.output.pudltabl.get_table_meta(self.pudl_engine)
         tbl = pt[f"{table}"]
+        if "report_date" in tbl.columns:
+            date_col = tbl.c.report_date
+        elif "report_year" in tbl.columns:
+            date_col = tbl.c.report_year
+        else:
+            date_col = None
         tbl_select = sa.sql.select(tbl)
-        if self.start_date is not None:
+        if self.start_date and date_col is not None:
             start_date = pd.to_datetime(self.start_date)
-            tbl_select = tbl_select.where(tbl.c.report_date >= start_date)
-        if self.end_date is not None:
+            tbl_select = tbl_select.where(date_col >= start_date)
+        if self.end_date and date_col is not None:
             end_date = pd.to_datetime(self.end_date)
-            tbl_select = tbl_select.where(tbl.c.report_date <= end_date)
+            tbl_select = tbl_select.where(date_col <= end_date)
         return tbl_select
 
     ###########################################################################
