@@ -208,7 +208,11 @@ class PudlTabl:
         return pd.concat(
             [
                 resource.enforce_schema(df)
-                for df in pd.read_sql(table_name, self.pudl_engine, chunksize=100_000)
+                for df in pd.read_sql(
+                    self._select_between_dates(table_name),
+                    self.pudl_engine,
+                    chunksize=100_000,
+                )
             ]
         )
 
