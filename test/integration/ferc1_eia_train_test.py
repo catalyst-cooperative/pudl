@@ -29,6 +29,12 @@ logger = logging.getLogger(__name__)
 
 
 @pytest.fixture(scope="module")
+def utils_eia860(fast_out_annual):
+    """The utils_eia860 output table."""
+    return fast_out_annual.utils_eia860()
+
+
+@pytest.fixture(scope="module")
 def plant_parts_eia(fast_out_annual):
     """The plant_parts_eia output table."""
     return fast_out_annual.plant_parts_eia().reset_index()
