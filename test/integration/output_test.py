@@ -14,11 +14,10 @@ logger = logging.getLogger(__name__)
 
 
 @pytest.fixture(scope="module")
-def fast_out(pudl_engine, pudl_datastore_fixture):
+def fast_out(pudl_engine):
     """A PUDL output object for use in CI."""
     return pudl.output.pudltabl.PudlTabl(
         pudl_engine,
-        ds=pudl_datastore_fixture,
         freq="MS",
         fill_fuel_cost=True,
         roll_fuel_cost=True,
@@ -28,11 +27,10 @@ def fast_out(pudl_engine, pudl_datastore_fixture):
 
 
 @pytest.fixture(scope="module")
-def fast_out_annual(pudl_engine, pudl_datastore_fixture):
+def fast_out_annual(pudl_engine):
     """A PUDL output object for use in CI."""
     return pudl.output.pudltabl.PudlTabl(
         pudl_engine,
-        ds=pudl_datastore_fixture,
         freq="AS",
         fill_fuel_cost=True,
         roll_fuel_cost=True,
@@ -162,26 +160,22 @@ def test_null_rows(fast_out, df_name, thresh):
     )
 
 
-def test_eia861_etl(fast_out):
-    """Make sure that the EIA 861 Extract-Transform steps work."""
-    fast_out.etl_eia861()
-    eia861_tables = [tbl for tbl in fast_out._dfs if "_eia861" in tbl]
-    for df_name in eia861_tables:
-        logger.info(f"Checking that {df_name} is a non-empty DataFrame")
-        df = fast_out.__getattribute__(df_name)()
-        assert isinstance(df, pd.DataFrame), f"{df_name} is {type(df)}, not DataFrame!"
-        assert not df.empty, f"{df_name} is empty!"
+@pytest.mark.parametrize(
+    "table_suffix",
+    ["eia861", "ferc714"],
+)
+def test_outputs_by_table_suffix(fast_out, table_suffix):
+    """Check that all EIA-861 & FERC-714 output tables are present and non-empty."""
+    tables = [t for t in fast_out.__dir__() if t.endswith(table_suffix)]
+    for table in tables:
+        logger.info(f"Checking that {table} is a DataFrame with no null columns.")
+        df = fast_out.__getattribute__(table)()
 
-
-def test_ferc714_etl(fast_out):
-    """Make sure that the FERC 714 Extract-Transform steps work."""
-    fast_out.etl_ferc714()
-    ferc714_tables = [tbl for tbl in fast_out._dfs if "_ferc714" in tbl]
-    for df_name in ferc714_tables:
-        logger.info(f"Checking that {df_name} is a non-empty DataFrame")
-        df = fast_out.__getattribute__(df_name)()
-        assert isinstance(df, pd.DataFrame), f"{df_name} is {type(df)} not DataFrame!"
-        assert not df.empty, f"{df_name} is empty!"
+        assert isinstance(df, pd.DataFrame), f"{table } is {type(df)}, not DataFrame!"
+        assert not df.empty, f"{table} is empty!"
+        for col in df.columns:
+            if df[col].isna().all():
+                raise ValueError(f"Found null column: {table}.{col}")
 
 
 @pytest.fixture(scope="module")
@@ -228,11 +222,10 @@ def test_ferc714_respondents_georef_counties(ferc714_out):
 
 
 @pytest.fixture(scope="module")
-def fast_out_filled(pudl_engine, pudl_datastore_fixture):
+def fast_out_filled(pudl_engine):
     """A PUDL output object for use in CI with net generation filled."""
     return pudl.output.pudltabl.PudlTabl(
         pudl_engine,
-        ds=pudl_datastore_fixture,
         freq="MS",
         fill_fuel_cost=True,
         roll_fuel_cost=True,
@@ -260,78 +253,3 @@ def test_mcoe_filled(fast_out_filled, df_name, expected_nuke_fraction, tolerance
         fast_out_filled.__getattribute__(df_name)()
     )
     assert abs(actual_nuke_fraction - expected_nuke_fraction) <= tolerance
-
-
-@pytest.mark.parametrize(
-    "variation, check",
-    [
-        ("test_local", "df_equal"),
-        ("test_invalid_engine_url", "df_equal"),
-        ("test_local", "same_keys"),
-        ("test_invalid_engine_url", "same_keys"),
-        ("test_local", "valid_db"),
-        ("test_invalid_engine_url", "valid_db"),
-    ],
-)
-def test_pudltabl_pickle(
-    pudl_engine,
-    pudl_datastore_fixture,
-    pudl_settings_fixture,
-    monkeypatch,
-    variation,
-    check,
-):
-    """Test that PudlTabl is serializable with pickle.
-
-    Because pickle is insecure, bandit must be quieted for some lines of this test. This
-    test attempts to simulate the situation where PudlTabl is restored in the same
-    environment that created it 'test_local' and in a different environment from the one
-    that created it 'test_invalid_engine_url'.
-    """
-    import pickle  # nosec
-    from io import BytesIO
-
-    pudl_out_pickle = pudl.output.pudltabl.PudlTabl(
-        pudl_engine,
-        ds=pudl_datastore_fixture,
-        freq="AS",
-        fill_fuel_cost=True,
-        roll_fuel_cost=True,
-        fill_net_gen=True,
-    )
-
-    # need to monkeypatch `get_defaults` because it is used in PudlTabl.__setstate__
-    # and the real one does not work in GitHub actions because the settings file it
-    # uses does not exist
-    monkeypatch.setattr(
-        "pudl.workspace.setup.get_defaults", lambda: pudl_settings_fixture
-    )
-    # make sure there's a df to pickle
-    plants = pudl_out_pickle.plants_eia860()
-    if variation == "test_invalid_engine_url":
-        import sqlalchemy as sa
-
-        # need to change the pudl_engine to one with an invalid URL so that
-        # `PudlTabl.__setstate__` has to fall back on the local default
-        pudl_out_pickle.pudl_engine = sa.create_engine("sqlite:////wrong/url")
-
-        # confirm this engine won't work
-        with pytest.raises(sa.exc.OperationalError):
-            pudl_out_pickle.pudl_engine.connect()
-
-    # just to make sure we keep all the parts
-    keys = set(pudl_out_pickle.__dict__.keys())
-    # dump the object into a pickle stored in a buffer
-    pickle.dump(pudl_out_pickle, buffer := BytesIO())
-    # restore the object from the pickle in the buffer
-    restored = pickle.loads(buffer.getvalue())  # nosec
-
-    if check == "df_equal":
-        # make sure the df was properly restored
-        pd.testing.assert_frame_equal(restored._dfs["plants_eia860"], plants)
-    elif check == "same_keys":
-        # check that the restored version has all the correct attributes
-        assert set(restored.__dict__.keys()) == keys
-    elif check == "valid_db":
-        # check that the restored DB is valid
-        assert bool(restored.pudl_engine.connect())

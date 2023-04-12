@@ -6,20 +6,18 @@ aggregation, from individual plants to national averages.
 
 The data is formatted as a single 1.1GB text file of line-delimited JSON with one line
 per timeseries. Each JSON structure has two nested levels: the top level contains
-metadata describing the series and the second level (under the "data" heading)
-contains an array of timestamp/value pairs. This structure leads to a natural
-normalization into two tables: one of metadata and one of timeseries. That is the
-format delivered by the extract module.
+metadata describing the series and the second level (under the "data" heading) contains
+an array of timestamp/value pairs. This structure leads to a natural normalization into
+two tables: one of metadata and one of timeseries. That is the format delivered by the
+extract module.
 
-The transform module parses a compound primary key out of long string IDs
-("series_id"). The rest of the metadata is not very valuable so is not transformed
-or returned.
+The transform module parses a compound primary key out of long string IDs ("series_id").
+The rest of the metadata is not very valuable so is not transformed or returned.
 
 The EIA aggregates are related to their component categories via a set of association
 tables defined in pudl.metadata.dfs. For example, the "all_coal" fuel aggregate is
-linked to all the coal-related energy_source_code values: BIT, SUB, LIG, and WC.
-Similar relationships are defined for aggregates over fuel, sector, geography, and
-time.
+linked to all the coal-related energy_source_code values: BIT, SUB, LIG, and WC. Similar
+relationships are defined for aggregates over fuel, sector, geography, and time.
 """
 
 import pandas as pd
@@ -125,7 +123,8 @@ def _transform_timeseries(raw_ts: pd.DataFrame) -> pd.DataFrame:
     return ts
 
 
-def transform(raw_dfs: dict[str, pd.DataFrame]) -> dict[str, pd.DataFrame]:
+# TODO (bendnorman): Are we planning on extracting multiple dataframes from the EIA API?
+def transform(raw_dfs: dict[str, pd.DataFrame]) -> pd.DataFrame:
     """Transform raw EIA bulk electricity aggregates.
 
     Args:
@@ -139,6 +138,4 @@ def transform(raw_dfs: dict[str, pd.DataFrame]) -> dict[str, pd.DataFrame]:
     ts = _transform_timeseries(raw_dfs["timeseries"])
     # raw_dfs["metadata"] is mostly useless after joining the keys into the timeseries,
     # so don't return it
-    return {
-        "fuel_receipts_costs_aggs_eia": ts,
-    }
+    return ts

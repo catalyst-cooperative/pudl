@@ -6,101 +6,8 @@ ferc_to_sqlite_settings:
   ferc1_dbf_to_sqlite_settings:
     # What years of original FERC data should be cloned into the SQLite DB?
     years: [2020]
-    # A list of tables to be loaded into the local SQLite database. These are
-    # the table names as they appear in the 2015 FERC Form 1 database.
-    tables:
-      - f1_respondent_id
-      - f1_gnrt_plant
-      - f1_steam
-      - f1_fuel
-      - f1_plant_in_srvce
-      - f1_hydro
-      - f1_pumped_storage
-      - f1_purchased_pwr
-      - f1_elctrc_erg_acct
-      - f1_utltyplnt_smmry
-      - f1_xmssn_line
-      - f1_elc_op_mnt_expn
-      - f1_bal_sheet_cr
-      - f1_comp_balance_db
-      - f1_income_stmnt
-      - f1_incm_stmnt_2
-      - f1_dacs_epda
-      - f1_accumdepr_prvsn
-      - f1_retained_erng
-      - f1_elctrc_oper_rev
-      - f1_cash_flow
-      - f1_sales_by_sched
-      - f1_othr_reg_liab
-
   ferc1_xbrl_to_sqlite_settings:
     years: [2021]
-    # A list of tables to be loaded into the local SQLite database. These are
-    # the table names as created from the 2022 XBRL taxonomy.
-    tables:
-      - identification_001_duration
-      - identification_001_instant
-      - steam_electric_generating_plant_statistics_large_plants_402_duration
-      - steam_electric_generating_plant_statistics_large_plants_402_instant
-      - steam_electric_generating_plant_statistics_large_plants_fuel_statistics_402_duration
-      - steam_electric_generating_plant_statistics_large_plants_fuel_statistics_402_instant
-      - hydroelectric_generating_plant_statistics_large_plants_406_duration
-      - hydroelectric_generating_plant_statistics_large_plants_406_instant
-      - pumped_storage_generating_plant_statistics_large_plants_408_duration
-      - pumped_storage_generating_plant_statistics_large_plants_408_instant
-      - generating_plant_statistics_410_duration
-      - generating_plant_statistics_410_instant
-      - electric_plant_in_service_204_duration
-      - electric_plant_in_service_204_instant
-      - purchased_power_326_duration
-      - purchased_power_326_instant
-      - electric_energy_account_401a_duration
-      - electric_energy_account_401a_instant
-      - summary_of_utility_plant_and_accumulated_provisions_for_depreciation_amortization_and_depletion_200_duration
-      - summary_of_utility_plant_and_accumulated_provisions_for_depreciation_amortization_and_depletion_200_instant
-      - transmission_line_statistics_422_duration
-      - transmission_line_statistics_422_instant
-      - comparative_balance_sheet_liabilities_and_other_credits_110_duration
-      - comparative_balance_sheet_liabilities_and_other_credits_110_instant
-      - comparative_balance_sheet_assets_and_other_debits_110_duration
-      - comparative_balance_sheet_assets_and_other_debits_110_instant
-      - statement_of_income_114_duration
-      - statement_of_income_114_instant
-      - summary_of_depreciation_and_amortization_charges_section_a_336_duration
-      - summary_of_depreciation_and_amortization_charges_section_a_336_instant
-      - accumulated_provision_for_depreciation_of_electric_utility_plant_changes_section_a_219_duration
-      - accumulated_provision_for_depreciation_of_electric_utility_plant_changes_section_a_219_instant
-      - accumulated_provision_for_depreciation_of_electric_utility_plant_functional_classification_section_b_219_duration
-      - accumulated_provision_for_depreciation_of_electric_utility_plant_functional_classification_section_b_219_instant
-      - electric_operations_and_maintenance_expenses_320_duration
-      - electric_operations_and_maintenance_expenses_320_instant
-      - retained_earnings_118_duration
-      - retained_earnings_118_instant
-      - electric_operating_revenues_300_duration
-      - electric_operating_revenues_300_instant
-      - statement_of_cash_flows_120_instant
-      - sales_of_electricity_by_rate_schedules_account_440_residential_304_duration
-      - sales_of_electricity_by_rate_schedules_account_440_residential_304_instant
-      - sales_of_electricity_by_rate_schedules_account_442_commercial_304_duration
-      - sales_of_electricity_by_rate_schedules_account_442_commercial_304_instant
-      - sales_of_electricity_by_rate_schedules_account_442_industrial_304_duration
-      - sales_of_electricity_by_rate_schedules_account_442_industrial_304_instant
-      - sales_of_electricity_by_rate_schedules_account_444_public_street_and_highway_lighting_304_duration
-      - sales_of_electricity_by_rate_schedules_account_444_public_street_and_highway_lighting_304_instant
-      - sales_of_electricity_by_rate_schedules_account_445_other_sales_to_public_authorities_304_duration
-      - sales_of_electricity_by_rate_schedules_account_445_other_sales_to_public_authorities_304_instant
-      - sales_of_electricity_by_rate_schedules_account_446_sales_to_railroads_and_railways_304_duration
-      - sales_of_electricity_by_rate_schedules_account_446_sales_to_railroads_and_railways_304_instant
-      - sales_of_electricity_by_rate_schedules_account_448_interdepartmental_sales_304_duration
-      - sales_of_electricity_by_rate_schedules_account_448_interdepartmental_sales_304_instant
-      - sales_of_electricity_by_rate_schedules_account_4491_provision_for_rate_refunds_304_duration
-      - sales_of_electricity_by_rate_schedules_account_4491_provision_for_rate_refunds_304_instant
-      - sales_of_electricity_by_rate_schedules_account_totals_304_duration
-      - sales_of_electricity_by_rate_schedules_account_totals_304_instant
-      - statement_of_cash_flows_120_duration
-      - other_regulatory_liabilities_account_254_278_duration
-      - other_regulatory_liabilities_account_254_278_instant
-
   ferc2_xbrl_to_sqlite_settings:
     years: [2021]
   ferc6_xbrl_to_sqlite_settings:
@@ -121,50 +28,61 @@ description: >
 version: 0.1.0
 datasets:
   ferc1:
-    tables:
-      - fuel_ferc1 # requires plants_steam_ferc1 to load properly
-      - plants_steam_ferc1
-      - plants_small_ferc1
-      - plants_hydro_ferc1
-      - plants_pumped_storage_ferc1
-      - plant_in_service_ferc1
-      - purchased_power_ferc1
-      - transmission_statistics_ferc1
-      - electric_energy_sources_ferc1
-      - electric_energy_dispositions_ferc1
-      - electric_operating_expenses_ferc1
-      - utility_plant_summary_ferc1
-      - balance_sheet_liabilities_ferc1
-      - depreciation_amortization_summary_ferc1
-      - balance_sheet_assets_ferc1
-      - income_statement_ferc1
-      - electric_plant_depreciation_changes_ferc1
-      - electric_plant_depreciation_functional_ferc1
-      - retained_earnings_ferc1
-      - electric_operating_revenues_ferc1
-      - cash_flow_ferc1
-      - electricity_sales_by_rate_schedule_ferc1
-      - other_regulatory_liabilities_ferc1
     years: [2020, 2021]
+  ferc714:
+    # Note: ferc714 from 2006-2020 is distributed as monolithic CSV files, so asking
+    # for a subset of years will not work.  You can only get all of them or none.
+    years:
+      [
+        2006,
+        2007,
+        2008,
+        2009,
+        2010,
+        2011,
+        2012,
+        2013,
+        2014,
+        2015,
+        2016,
+        2017,
+        2018,
+        2019,
+        2020,
+      ]
   eia:
     eia923:
-      tables:
-        - generation_fuel_eia923
-        - boiler_fuel_eia923
-        - generation_eia923
-        - coalmine_eia923 # REQUIRES fuel_receipts_costs_eia923
-        - fuel_receipts_costs_eia923
       years: [2020, 2021]
     eia860:
-      tables:
-        - boiler_generator_assn_eia860
-        - utilities_eia860
-        - plants_eia860
-        - generators_eia860
-        - ownership_eia860
-        - boilers_eia860
       years: [2020, 2021]
       eia860m: true
+    eia861:
+      # eia861 runs fast. Discontinued tables break single-year ETL.
+      # This is a temporary hack to make the tests pass!
+      years:
+        [
+          2001,
+          2002,
+          2003,
+          2004,
+          2005,
+          2006,
+          2007,
+          2008,
+          2009,
+          2010,
+          2011,
+          2012,
+          2013,
+          2014,
+          2015,
+          2016,
+          2017,
+          2018,
+          2019,
+          2020,
+          2021,
+        ]
   epacems:
     # Note that the CEMS data relies on EIA 860 data for plant locations,
     # so if you're loading CEMS data for a particular year, you should

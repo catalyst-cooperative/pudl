@@ -10,7 +10,7 @@ from . import (  # noqa: F401
     extract,
     glue,
     helpers,
-    load,
+    io_managers,
     logging_helpers,
     metadata,
     output,

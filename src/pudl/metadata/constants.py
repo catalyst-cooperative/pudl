@@ -5,15 +5,16 @@ from collections.abc import Callable
 import pandas as pd
 import pyarrow as pa
 import sqlalchemy as sa
+from sqlalchemy.dialects.sqlite import DATETIME as SQLITE_DATETIME
 
 FIELD_DTYPES_PANDAS: dict[str, str] = {
     "string": "string",
     "number": "float64",
     "integer": "Int64",
     "boolean": "boolean",
-    "date": "datetime64[ns]",
-    "datetime": "datetime64[ns]",
-    "year": "datetime64[ns]",
+    "date": "datetime64[s]",
+    "datetime": "datetime64[s]",
+    "year": "datetime64[s]",
 }
 """Pandas data type by PUDL field type (Data Package `field.type`)."""
 
@@ -30,7 +31,10 @@ FIELD_DTYPES_PYARROW: dict[str, pa.lib.DataType] = {
 FIELD_DTYPES_SQL: dict[str, sa.sql.visitors.VisitableType] = {
     "boolean": sa.Boolean,
     "date": sa.Date,
-    "datetime": sa.DateTime,
+    # Ensure SQLite's string representation of datetime uses only whole seconds:
+    "datetime": SQLITE_DATETIME(
+        storage_format="%(year)04d-%(month)02d-%(day)02d %(hour)02d:%(minute)02d:%(second)02d"
+    ),
     "integer": sa.Integer,
     "number": sa.Float,
     "string": sa.Text,

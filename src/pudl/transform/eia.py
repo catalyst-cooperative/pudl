@@ -15,17 +15,27 @@ The boiler generator association inferrence (bga) takes the associations
 provided by the EIA 860, and expands on it using several methods which can be
 found in :func:`pudl.transform.eia._boiler_generator_assn`.
 """
-
 import importlib.resources
 from collections import namedtuple
+from enum import Enum
 
 import networkx as nx
 import numpy as np
 import pandas as pd
 import timezonefinder
+from dagster import (
+    AssetIn,
+    AssetOut,
+    AssetsDefinition,
+    Field,
+    Output,
+    asset,
+    multi_asset,
+)
 
 import pudl
-from pudl.metadata.classes import DataSource
+from pudl.helpers import convert_cols_dtypes
+from pudl.metadata.classes import Package
 from pudl.metadata.enums import APPROXIMATE_TIMEZONES
 from pudl.metadata.fields import apply_pudl_dtypes, get_pudl_dtypes
 from pudl.metadata.resources import ENTITIES
@@ -35,6 +45,17 @@ logger = pudl.logging_helpers.get_logger(__name__)
 
 TZ_FINDER = timezonefinder.TimezoneFinder()
 """A global TimezoneFinder to cache geographies in memory for faster access."""
+
+
+class EiaEntity(Enum):
+    """Enum for the different types of EIA entities."""
+
+    # Switch to StrEnum in Python 3.11...
+
+    PLANTS = "plants"
+    UTILITIES = "utilities"
+    BOILERS = "boilers"
+    GENERATORS = "generators"
 
 
 def find_timezone(*, lng=None, lat=None, state=None, strict=True):
@@ -109,9 +130,8 @@ def occurrence_consistency(
             consistent in order to accept harvesting the record).
 
     Returns:
-        pandas.DataFrame: this dataframe will be a transformed version of
-        compiled_df with NaNs removed and with new columns with information
-        about the consistency of the reported values.
+        A transformed version of compiled_df with NaNs removed and with new columns with
+        information about the consistency of the reported values.
     """
     # select only the colums you want and drop the NaNs
     # we want to drop the NaNs because
@@ -229,7 +249,7 @@ def _add_timezone(plants_entity: pd.DataFrame) -> pd.DataFrame:
     return plants_entity
 
 
-def _add_additional_epacems_plants(plants_entity):
+def _add_additional_epacems_plants(plants_entity: pd.DataFrame) -> pd.DataFrame:
     """Adds the info for plants that have IDs in the CEMS data but not EIA data.
 
     The columns loaded are plant_id_eia, plant_name, state, latitude, and
@@ -245,12 +265,10 @@ def _add_additional_epacems_plants(plants_entity):
     for EIA 923, 2011-2017 for EIA 860).
 
     Args:
-        plants_entity (pandas.DataFrame) The plant entity table that will be
-            appended to
+        plants_entity: The plant entity table to which we will append additional plants.
 
     Returns:
-        pandas.DataFrame: The same plants_entity table, with the addition of
-        some missing EPA CEMS plants.
+        The same plants_entity table, with the addition of some missing EPA CEMS plants.
     """
     # Add the plant IDs that are missing and update the values for the others
     # The data we're reading is a CSV in pudl/metadata/
@@ -272,25 +290,26 @@ def _add_additional_epacems_plants(plants_entity):
     return pd.concat([plants_entity, cems_unmatched]).reset_index()
 
 
-def _compile_all_entity_records(entity, eia_transformed_dfs):
+def _compile_all_entity_records(
+    entity: EiaEntity, clean_dfs: dict[str, pd.DataFrame]
+) -> pd.DataFrame:
     """Compile all of the entity records from each table they appear in.
 
-    Comb through each of the dataframes in the eia_transformed_dfs dictionary to pull
-    out every instance of the entity id.
+    Comb through each of the dataframes in clean_dfs to pull out every instance of the
+    entity id.
     """
     # we know these columns must be in the dfs
-    id_cols = ENTITIES[entity]["id_cols"]
-    static_cols = ENTITIES[entity]["static_cols"]
-    annual_cols = ENTITIES[entity]["annual_cols"]
+    id_cols = ENTITIES[entity.value]["id_cols"]
+    static_cols = ENTITIES[entity.value]["static_cols"]
+    annual_cols = ENTITIES[entity.value]["annual_cols"]
     base_cols = id_cols + ["report_date"]
-    keep_cols = ENTITIES[entity].get("keep_cols", [])
 
     # empty list for dfs to be added to for each table below
     dfs = []
     # for each df in the dict of transformed dfs
-    for table_name, transformed_df in eia_transformed_dfs.items():
+    for table_name, transformed_df in clean_dfs.items():
         # inside of main() we are going to be adding items into
-        # eia_transformed_dfs with the name 'annual'. We don't want to harvest
+        # clean_dfs with the name 'annual'. We don't want to harvest
         # from our newly harvested tables.
         if "annual" not in table_name:
             # if the df contains the desired columns the grab those columns
@@ -310,12 +329,6 @@ def _compile_all_entity_records(entity, eia_transformed_dfs):
                 df["table"] = table_name
                 dfs.append(df)
 
-                # remove the static columns, except the explicitly non-dropped cols
-                transformed_df = transformed_df.drop(
-                    columns=[c for c in cols if c not in keep_cols]
-                )
-                eia_transformed_dfs[table_name] = transformed_df
-
     # add those records to the compliation
     compiled_df = pd.concat(dfs, axis=0, ignore_index=True, sort=True)
     # strip the month and day from the date so we can have annual records
@@ -330,19 +343,18 @@ def _compile_all_entity_records(entity, eia_transformed_dfs):
     # encode the compiled options!
     compiled_df = (
         pudl.metadata.classes.Package.from_resource_ids()
-        .get_resource(f"{entity}_eia860")
+        .get_resource(f"{entity.value}_eia860")
         .encode(compiled_df)
     )
     return compiled_df
 
 
-def _manage_strictness(col, eia860m):
+def _manage_strictness(col: str, eia860m: bool) -> float:
     """Manage the strictness level for each column.
 
     Args:
-        col (str): name of column
-        eia860m (boolean): if True, the etl run is attempting to include
-            year-to-date updated from EIA 860M.
+        col: name of column
+        eia860m: if True, ETL is attempting to include year-to-date EIA 860M data.
     """
     strictness_default = 0.7
     # the longitude column is very different in the ytd 860M data (it appears
@@ -356,11 +368,10 @@ def _manage_strictness(col, eia860m):
     return strictness_cols.get(col, strictness_default)
 
 
-def harvesting(  # noqa: C901
-    entity: str,
-    eia_transformed_dfs: dict[str, pd.DataFrame],
-    entities_dfs: dict[str, pd.DataFrame],
-    eia860m: bool = False,
+def harvest_entity_tables(  # noqa: C901
+    entity: EiaEntity,
+    clean_dfs: dict[str, pd.DataFrame],
+    eia_settings: EiaSettings,
     debug: bool = False,
 ) -> tuple:
     """Compile consistent records for various entities.
@@ -390,41 +401,54 @@ def harvesting(  # noqa: C901
     the real world.
 
     Args:
-        entity: plants, generators, boilers, utilties
-        eia_transformed_dfs: A dictionary of tbl names (keys) and
-            transformed dfs (values)
-        entities_dfs: A dictionary of entity table names (keys) and
-            entity dfs (values)
-        eia860m: if True, the etl run is attempting to include
-            year-to-date updated from EIA 860M.
-        debug: If True, this function will also return an additional
-            dictionary of dataframes that includes the pre-deduplicated
-            compiled records with the number of occurances of the entity and
-            the record to see consistency of reported values.
+        entity: One of: plants, generators, boilers, or utilties
+        clean_dfs: A dictionary of table names (keys) and clean dfs (values).
+        entities_dfs: A dictionary of entity table names (keys) and entity dfs (values)
+        eia860m: if True, the etl run is attempting to include year-to-date updated from
+            EIA 860M.
+        debug: if True, log when columns are inconsistent, but don't raise an error.
 
     Returns:
-        tuple: A tuple containing:
-            eia_transformed_dfs (dict): dictionary of tbl names (keys) and
-            transformed dfs (values)
-            entity_dfs (dict): dictionary of entity table names (keys) and
-            entity dfs (values)
+        entity_df (the harvested entity table), annual_df (the annual entity table),
+        col_dfs (a dictionary of dataframes, one per harvested column, with information)
+        about their consistency and the values which were harvested)
 
     Raises:
-        AssertionError: If the consistency of any record value is <90%.
+        AssertionError: If the consistency of any record value is <90% (when
+        debug=False)
 
     Todo:
         * Return to role of debug.
         * Determine what to do with null records
         * Determine how to treat mostly static records
     """
+    # Do some final cleanup and assign appropriate types:
+    clean_dfs = {
+        name: convert_cols_dtypes(df, data_source="eia")
+        for name, df in clean_dfs.items()
+    }
+
+    if entity == EiaEntity.UTILITIES:
+        # Remove location columns that are associated with plants, not utilities:
+        for table, df in clean_dfs.items():
+            if "plant_id_eia" in df.columns:
+                plant_location_cols = [
+                    "street_address",
+                    "city",
+                    "state",
+                    "zip_code",
+                ]
+                logger.info(f"Removing {plant_location_cols} from {table} table.")
+                clean_dfs[table] = df.drop(columns=plant_location_cols, errors="ignore")
+
     # we know these columns must be in the dfs
-    id_cols = ENTITIES[entity]["id_cols"]
-    static_cols = ENTITIES[entity]["static_cols"]
-    annual_cols = ENTITIES[entity]["annual_cols"]
+    id_cols = ENTITIES[entity.value]["id_cols"]
+    static_cols = ENTITIES[entity.value]["static_cols"]
+    annual_cols = ENTITIES[entity.value]["annual_cols"]
 
     logger.debug("    compiling plants for entity tables from:")
 
-    compiled_df = _compile_all_entity_records(entity, eia_transformed_dfs)
+    compiled_df = _compile_all_entity_records(entity, clean_dfs)
 
     # compile annual ids
     annual_id_df = compiled_df[["report_date"] + id_cols].copy().drop_duplicates()
@@ -449,7 +473,7 @@ def harvesting(  # noqa: C901
         if col in static_cols:
             cols_to_consit = id_cols
 
-        strictness = _manage_strictness(col, eia860m)
+        strictness = _manage_strictness(col, eia_settings.eia860.eia860m)
         col_df = occurrence_consistency(
             id_cols, compiled_df, col, cols_to_consit, strictness=strictness
         )
@@ -540,25 +564,51 @@ def harvesting(  # noqa: C901
             ignore_index=True,
         )
     mcs = consistency["consistent_ratio"].mean()
-    logger.info(f"Average consistency of static {entity} values is {mcs:.2%}")
+    logger.info(f"Average consistency of static {entity.value} values is {mcs:.2%}")
 
-    if entity == "plants":
-        entity_df = _add_additional_epacems_plants(entity_df)
-        entity_df = _add_timezone(entity_df)
+    # Apply standard PUDL data types to the new entity tables:
+    pkg = Package.from_resource_ids()
+    entity_res = pkg.get_resource(f"{entity.value}_entity_eia")
+    entity_df = apply_pudl_dtypes(entity_df, group="eia").pipe(entity_res.encode)
+    annual_res = pkg.get_resource(f"{entity.value}_eia860")
+    annual_df = apply_pudl_dtypes(annual_df, group="eia").pipe(annual_res.encode)
 
-    eia_transformed_dfs[f"{entity}_annual_eia"] = annual_df
-    entities_dfs[f"{entity}_entity_eia"] = entity_df
-    if debug:
-        return entities_dfs, eia_transformed_dfs, col_dfs
-    return (entities_dfs, eia_transformed_dfs)
+    if entity == EiaEntity.PLANTS:
+        # Post-processing specific to the plants entity tables
+        entity_df = _add_additional_epacems_plants(entity_df).pipe(_add_timezone)
+        annual_df = fillna_balancing_authority_codes_via_names(annual_df).pipe(
+            fix_balancing_authority_codes_with_state, plants_entity=entity_df
+        )
+
+    entity_df = entity_res.enforce_schema(entity_df)
+    annual_df = annual_res.enforce_schema(annual_df)
+
+    return entity_df, annual_df, col_dfs
 
 
-def _boiler_generator_assn(  # noqa: C901
-    eia_transformed_dfs: dict[str, pd.DataFrame],
-    eia923_years: list[int] | None = None,
-    eia860_years: list[int] | None = None,
-    debug: bool = False,
-) -> dict[str, pd.DataFrame]:
+@asset(
+    ins={
+        table_name: AssetIn()
+        for table_name in [
+            "clean_boiler_generator_assn_eia860",
+            "clean_generation_eia923",
+            "clean_generators_eia860",
+            "clean_boiler_fuel_eia923",
+        ]
+    },
+    config_schema={
+        "debug": Field(
+            bool,
+            default_value=False,
+            description=(
+                "If True, debugging columns will be added to boiler_generator_assn."
+            ),
+        ),
+    },
+    required_resource_keys={"dataset_settings"},
+    io_manager_key="pudl_sqlite_io_manager",
+)
+def boiler_generator_assn_eia860(context, **clean_dfs) -> pd.DataFrame:  # noqa: C901
     """Creates a set of more complete boiler generator associations.
 
     Creates a unique unit_id_pudl for each collection of boilers and generators
@@ -579,67 +629,40 @@ def _boiler_generator_assn(  # noqa: C901
     the generation units, at least for 2014 and later.
 
     Args:
-        eia_transformed_dfs: a dictionary of post-transform dataframes
-            representing the EIA database tables.
-        eia923_years: a list of the years of EIA 923 data that
-            should be used to infer the boiler-generator associations. By
-            default it is all the working years of data.
-        eia860_years: a list of the years of EIA 860 data that
-            should be used to infer the boiler-generator associations. By
-            default it is all the working years of data.
-        debug: If True, include columns in the returned dataframe
-            indicating by what method the individual boiler generator
-            associations were inferred.
+        clean_dfs: a dictionary of clean EIA dataframes that have passed through the
+            early transform steps.
 
     Returns:
-        eia_transformed_dfs (dict): Returns the same dictionary of dataframes
-        that was passed in, and adds a new dataframe to it representing
-        the boiler-generator associations as records containing
-        plant_id_eia, generator_id, boiler_id, and unit_id_pudl
+        A dataframe containing the boiler generator associations.
 
     Raises:
-        AssertionError: If the boiler - generator association graphs are not
-            bi-partite, meaning generators only connect to boilers, and boilers
-            only connect to generators.
-        AssertionError: If all the boilers do not end up with the same unit_id
-            each year.
-        AssertionError: If all the generators do not end up with the same
-            unit_id each year.
+        AssertionError: If the boiler - generator association graphs are not bi-partite,
+            meaning generators only connect to boilers, and boilers only connect to
+            generators.
+        AssertionError: If all the boilers do not end up with the same unit_id each
+            year.
+        AssertionError: If all the generators do not end up with the same unit_id each
+            year.
     """
-    if eia923_years is None:
-        eia923_years = DataSource.from_id("eia923").working_partitions["years"]
-    if eia860_years is None:
-        eia860_years = DataSource.from_id("eia860").working_partitions["years"]
+    debug = context.op_config["debug"]
+    eia_settings = context.resources.dataset_settings.eia
 
-    # if eia860_years or eia923_years are still empty, we can't compile the BGA.
-    # Return the unaltered input dictionary of dataframes instead.
-    if not (eia860_years and eia923_years):
-        return eia_transformed_dfs
+    # Do some final data formatting and assign appropriate types:
+    clean_dfs = {
+        table_name: convert_cols_dtypes(df, data_source="eia").pipe(
+            _restrict_years, eia_settings
+        )
+        for table_name, df in clean_dfs.items()
+    }
+
     # compile and scrub all the parts
     logger.info("Inferring complete EIA boiler-generator associations.")
-    bga_eia860 = (
-        eia_transformed_dfs["boiler_generator_assn_eia860"]
-        .copy()
-        .pipe(_restrict_years, eia923_years, eia860_years)
-        .astype(
-            {
-                "generator_id": pd.StringDtype(),
-                "boiler_id": pd.StringDtype(),
-                "plant_id_eia": int,
-            }
-        )
-    )
+    logger.debug(f"{clean_dfs.keys()=}")
+
     # grab the generation_eia923 table, group annually, generate a new tag
-    gen_eia923 = eia_transformed_dfs["generation_eia923"].copy()
-    gen_eia923 = gen_eia923.set_index(pd.DatetimeIndex(gen_eia923.report_date))
+    gen_eia923 = clean_dfs["clean_generation_eia923"]
     gen_eia923 = (
-        _restrict_years(gen_eia923, eia923_years, eia860_years)
-        .astype(
-            {
-                "generator_id": pd.StringDtype(),
-                "plant_id_eia": int,
-            }
-        )
+        gen_eia923.set_index(pd.DatetimeIndex(gen_eia923.report_date))
         .groupby([pd.Grouper(freq="AS"), "plant_id_eia", "generator_id"])
         .net_generation_mwh.sum()
         .reset_index()
@@ -647,49 +670,29 @@ def _boiler_generator_assn(  # noqa: C901
     )
 
     # compile all of the generators
-    gens_eia860 = (
-        eia_transformed_dfs["generators_eia860"]
-        .copy()
-        .pipe(_restrict_years, eia923_years, eia860_years)
-        .astype(
-            {
-                "generator_id": pd.StringDtype(),
-                "plant_id_eia": int,
-            }
-        )
-    )
     gens = pd.merge(
         gen_eia923,
-        gens_eia860,
+        clean_dfs["clean_generators_eia860"],
         on=["plant_id_eia", "report_date", "generator_id"],
         how="outer",
     )
 
-    gens = (
-        gens[
-            [
-                "plant_id_eia",
-                "report_date",
-                "generator_id",
-                "unit_id_eia",
-                "net_generation_mwh",
-                "missing_from_923",
-            ]
+    gens = gens[
+        [
+            "plant_id_eia",
+            "report_date",
+            "generator_id",
+            "unit_id_eia",
+            "net_generation_mwh",
+            "missing_from_923",
         ]
-        .drop_duplicates()
-        .astype(
-            {
-                "generator_id": pd.StringDtype(),
-                "plant_id_eia": int,
-            }
-        )
-    )
+    ].drop_duplicates()
 
     # create the beginning of a bga compilation w/ the generators as the
     # background
     bga_compiled_1 = pd.merge(
         gens,
-        bga_eia860,
+        clean_dfs["clean_boiler_generator_assn_eia860"],
         on=["plant_id_eia", "generator_id", "report_date"],
         how="outer",
     )
@@ -706,20 +709,8 @@ def _boiler_generator_assn(  # noqa: C901
     # apear in gens9 or gens8 (must uncomment-out the og_tag creation above)
     # bga_compiled_1[bga_compiled_1['og_tag'].isnull()]
 
-    bf_eia923 = (
-        eia_transformed_dfs["boiler_fuel_eia923"]
-        .copy()
-        .pipe(_restrict_years, eia923_years, eia860_years)
-        .astype(
-            {
-                "boiler_id": pd.StringDtype(),
-                "plant_id_eia": int,
-            }
-        )
-        .assign(
-            total_heat_content_mmbtu=lambda x: x.fuel_consumed_units
-            * x.fuel_mmbtu_per_unit
-        )
+    bf_eia923 = clean_dfs["clean_boiler_fuel_eia923"].assign(
+        total_heat_content_mmbtu=lambda x: x.fuel_consumed_units * x.fuel_mmbtu_per_unit
     )
     bf_eia923 = (
         bf_eia923.set_index(pd.DatetimeIndex(bf_eia923.report_date))
@@ -953,6 +944,7 @@ def _boiler_generator_assn(  # noqa: C901
         on=["plant_id_eia", "generator_id", "boiler_id"],
     ).astype({"unit_id_pudl": pd.Int64Dtype()})
 
+    # If we're NOT debugging, drop additional forensic information and bad BGAs
     if not debug:
         bga_out = (
             bga_out[
@@ -976,23 +968,18 @@ def _boiler_generator_assn(  # noqa: C901
         )
 
     bga_out = apply_pudl_dtypes(bga_out, group="eia")
-    eia_transformed_dfs["boiler_generator_assn_eia860"] = bga_out
-
-    return eia_transformed_dfs
+    return bga_out
 
 
 def _restrict_years(
     df: pd.DataFrame,
-    eia923_years: list[int] | None = None,
-    eia860_years: list[int] | None = None,
+    eia_settings: EiaSettings | None = None,
 ) -> pd.DataFrame:
     """Restricts eia years for boiler generator association."""
-    if eia923_years is None:
-        eia923_years = DataSource.from_id("eia923").working_partitions["years"]
-    if eia860_years is None:
-        eia860_years = DataSource.from_id("eia860").working_partitions["years"]
+    if eia_settings is None:
+        eia_settings = EiaSettings()
 
-    bga_years = set(eia860_years) & set(eia923_years)
+    bga_years = set(eia_settings.eia860.years) & set(eia_settings.eia923.years)
     df = df[df.report_date.dt.year.isin(bga_years)]
     return df
 
@@ -1077,9 +1064,10 @@ def fix_balancing_authority_codes_with_state(
     ``balancing_authority_name_eia`` column using the name generated by
     :func:`map_balancing_authority_names_to_codes`.
 
-    This function should only be applied post-:func:`harvesting`. The ``state`` column
-    is a "static" entity column so the first step in this function is merging the static
-    and annually varying plants together. Then we fix known errors in the BA codes:
+    This function should only be applied post-:func:`harvest_entity_tables`. The
+    ``state`` column is a "static" entity column so the first step in this function is
+    merging the static and annually varying plants together. Then we fix known errors in
+    the BA codes:
 
     * reported PACE, but state is OR or CA, code should be PACW
     * reported PACW, but state is UT, code should be PACE
@@ -1147,64 +1135,80 @@ def fix_balancing_authority_codes_with_state(
     return plants
 
 
-def transform(
-    eia_transformed_dfs, eia_settings: EiaSettings = EiaSettings(), debug=False
-):
-    """Creates DataFrames for EIA Entity tables and modifies EIA tables.
-
-    This function coordinates two main actions: generating the entity tables
-    via ``harvesting()`` and generating the boiler generator associations via
-    ``_boiler_generator_assn()``.
-
-    There is also some removal of tables that are no longer needed after the
-    entity harvesting is finished.
-
-    Args:
-        eia_transformed_dfs (dict): a dictionary of table names (kays) and
-            transformed dataframes (values).
-        settings: Object containing validated settings
-            relevant to EIA datasets.
-        debug (bool): if true, informational columns will be added into
-            boiler_generator_assn
-
-    Returns:
-        tuple: two dictionaries having table names as keys and
-        dataframes as values for the entity tables transformed EIA dataframes
-    """
-    # create the empty entities df to fill up
-    entities_dfs = {}
-
-    # for each of the entities, harvest the static and annual columns.
-    # the order of the entities matter! the
-    for entity in ENTITIES:
-        logger.info(f"Harvesting IDs & consistently static attributes for EIA {entity}")
-
-        harvesting(
-            entity,
-            eia_transformed_dfs,
-            entities_dfs,
-            debug=debug,
-            eia860m=eia_settings.eia860.eia860m,
-        )
-    _boiler_generator_assn(
-        eia_transformed_dfs,
-        eia923_years=eia_settings.eia923.years,
-        eia860_years=eia_settings.eia860.years,
-        debug=debug,
+def harvested_entity_asset_factory(
+    entity: EiaEntity, io_manager_key: str | None = None
+) -> AssetsDefinition:
+    """Create an asset definition for the harvested entity tables."""
+    harvestable_assets = (
+        "clean_boiler_fuel_eia923",
+        "clean_boiler_generator_assn_eia860",
+        "clean_boilers_eia860",
+        "clean_coalmine_eia923",
+        "clean_fuel_receipts_costs_eia923",
+        "clean_generation_eia923",
+        "clean_generation_fuel_eia923",
+        "clean_generation_fuel_nuclear_eia923",
+        "clean_generators_eia860",
+        "clean_ownership_eia860",
+        "clean_plants_eia860",
+        "clean_utilities_eia860",
     )
-    # get rid of the original annual dfs in the transformed dict
-    remove = ["generators", "plants", "utilities", "boilers"]
-    for entity in remove:
-        eia_transformed_dfs[f"{entity}_eia860"] = eia_transformed_dfs.pop(
-            f"{entity}_annual_eia", f"{entity}_annual_eia"
+
+    @multi_asset(
+        ins={table_name: AssetIn() for table_name in harvestable_assets},
+        outs={
+            f"{entity.value}_entity_eia": AssetOut(io_manager_key=io_manager_key),
+            f"{entity.value}_eia860": AssetOut(io_manager_key=io_manager_key),
+        },
+        config_schema={
+            "debug": Field(
+                bool,
+                default_value=False,
+                description=(
+                    "If True, allow inconsistent values in harvested columns and "
+                    "produce additional debugging output."
+                ),
+            ),
+        },
+        required_resource_keys={"dataset_settings"},
+        name=f"harvested_{entity.value}_eia",
+    )
+    def harvested_entity(context, **clean_dfs):
+        """Harvesting IDs & consistent static attributes for EIA entity."""
+        logger.info(f"Harvesting IDs & consistent static attributes for EIA {entity}")
+        eia_settings = context.resources.dataset_settings.eia
+        debug = context.op_config["debug"]
+
+        entity_df, annual_df, col_dfs = harvest_entity_tables(
+            entity, clean_dfs, debug=debug, eia_settings=eia_settings
         )
 
-    eia_transformed_dfs["plants_eia860"] = fillna_balancing_authority_codes_via_names(
-        df=eia_transformed_dfs["plants_eia860"]
-    ).pipe(
-        fix_balancing_authority_codes_with_state,
-        plants_entity=entities_dfs["plants_entity_eia"],
+        return (
+            Output(output_name=f"{entity.value}_entity_eia", value=entity_df),
+            Output(output_name=f"{entity.value}_eia860", value=annual_df),
+        )
+
+    return harvested_entity
+
+
+harvested_entities = [
+    harvested_entity_asset_factory(entity, io_manager_key="pudl_sqlite_io_manager")
+    for entity in EiaEntity
+]
+
+
+def finished_eia_asset_factory(
+    table_name: str, io_manager_key: str | None = None
+) -> AssetsDefinition:
+    """An asset factory for finished EIA tables."""
+    clean_table_name = "clean_" + table_name
+
+    @asset(
+        ins={clean_table_name: AssetIn()},
+        name=table_name,
+        io_manager_key=io_manager_key,
     )
+"""
 
     # Remove fields that came from input data but aren't in the
     # corresponding SQLite tables. The data may still exist but has been
@@ -1217,3 +1221,25 @@ def transform(
         entities_dfs[cat] = resource.enforce_schema(entities_dfs[cat])
 
     return entities_dfs, eia_transformed_dfs
+"""
+    def finished_eia_asset(**kwargs) -> pd.DataFrame:
+        """Enforce PUDL DB schema on a cleaned EIA dataframe."""
+        df = convert_cols_dtypes(kwargs[clean_table_name], data_source="eia")
+        res = Package.from_resource_ids().get_resource(table_name)
+        return res.enforce_schema(df)
+
+    return finished_eia_asset
+
+
+finished_eia_assets = [
+    finished_eia_asset_factory(table_name, io_manager_key="pudl_sqlite_io_manager")
+    for table_name in [
+        "boiler_fuel_eia923",
+        "coalmine_eia923",
+        "fuel_receipts_costs_eia923",
+        "generation_eia923",
+        "generation_fuel_eia923",
+        "generation_fuel_nuclear_eia923",
+        "ownership_eia860",
+    ]
+]

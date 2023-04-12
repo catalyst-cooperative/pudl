@@ -5,11 +5,11 @@ These timeseries contain a variety of measures (fuel amount and cost are just tw
 across multiple levels of aggregation from individual plants to national averages.
 
 The data is formatted as a single 1.1GB text file of line-delimited JSON with one line
-per object. Each JSON structure has two nested levels: the top level contains
-metadata describing the series and the second level (under the "data" heading)
-contains an array of timestamp/value pairs. This structure leads to a natural
-normalization into two tables: one of metadata and one of timeseries. That is the
-format delivered by this module.
+per object. Each JSON structure has two nested levels: the top level contains metadata
+describing the series and the second level (under the "data" heading) contains an array
+of timestamp/value pairs. This structure leads to a natural normalization into two
+tables: one of metadata and one of timeseries. That is the format delivered by this
+module.
 """
 from io import BytesIO
 from pathlib import Path

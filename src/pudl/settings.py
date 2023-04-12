@@ -3,20 +3,18 @@ import itertools
 import json
 import pathlib
 from enum import Enum, unique
-from typing import ClassVar, Literal
+from typing import ClassVar
 
 import pandas as pd
 import yaml
+from dagster import Any, DagsterInvalidDefinitionError, Field
 from pydantic import AnyHttpUrl
 from pydantic import BaseModel as PydanticBaseModel
 from pydantic import BaseSettings, root_validator, validator
 
 import pudl
 import pudl.workspace.setup
-from pudl.helpers import flatten_list
 from pudl.metadata.classes import DataSource
-from pudl.metadata.constants import DBF_TABLES_FILENAMES, XBRL_TABLES
-from pudl.metadata.resources.eia861 import TABLE_DEPENDENCIES
 from pudl.workspace.datastore import Datastore
 
 
@@ -44,11 +42,9 @@ class BaseModel(PydanticBaseModel):
 class GenericDatasetSettings(BaseModel):
     """An abstract pydantic model for generic datasets.
 
-    Each dataset must specify working tables and partitions. A dataset can have an
-    arbitrary number of partitions.
+    Each dataset must specify working partitions. A dataset can have an arbitrary number
+    of partitions.
     """
-
-    tables: list[str]
 
     @root_validator
     def validate_partitions(cls, partitions):  # noqa: N805
@@ -65,6 +61,10 @@ class GenericDatasetSettings(BaseModel):
             except KeyError:
                 raise ValueError(f"{cls.__name__} is missing required '{name}' field.")
 
+            # If partition is None, default to working_partitions
+            if not partitions[name]:
+                partition = working_partitions
+
             partitions_not_working = list(set(partition) - set(working_partitions))
             if partitions_not_working:
                 raise ValueError(
@@ -72,14 +72,6 @@ class GenericDatasetSettings(BaseModel):
                 )
             partitions[name] = sorted(set(partition))
         return partitions
-
-    @validator("tables")
-    def validate_tables(cls, tables):  # noqa: N805
-        """Validate tables are available."""
-        tables_not_working = list(set(tables) - set(cls.data_source.get_resource_ids()))
-        if tables_not_working:
-            raise ValueError(f"'{tables_not_working}' tables are not available.")
-        return sorted(set(tables))
 
     @property
     def partitions(cls) -> list[None | dict[str, str]]:  # noqa: N805
@@ -106,21 +98,11 @@ class Ferc1Settings(GenericDatasetSettings):
     Args:
         data_source: DataSource metadata object
         years: list of years to validate.
-        tables: list of tables to validate.
     """
 
     data_source: ClassVar[DataSource] = DataSource.from_id("ferc1")
 
     years: list[int] = data_source.working_partitions["years"]
-    tables: list[str] = data_source.get_resource_ids()
-
-    @validator("tables")
-    def validate_tables(cls, tables):  # noqa: N805
-        """Validate tables are available."""
-        unavailable_tables = list(set(tables) - set(cls.data_source.get_resource_ids()))
-        if unavailable_tables:
-            raise ValueError(f"'{unavailable_tables}' tables are not available.")
-        return sorted(set(tables))
 
     @property
     def dbf_years(self):
@@ -138,15 +120,14 @@ class Ferc714Settings(GenericDatasetSettings):
 
     Args:
         data_source: DataSource metadata object
-        tables: list of tables to validate.
     """
 
     data_source: ClassVar[DataSource] = DataSource.from_id("ferc714")
 
-    tables: list[str] = data_source.get_resource_ids()
-    years: list[int] = data_source.working_partitions[
-        "years"
-    ]  # Years only apply to XBRL
+    # Note: Only older data is currently supported. Starting in 2021 FERC-714 is being
+    # published as XBRL, and we haven't integrated it. The older data is published as
+    # monolithic CSV files, so asking for any year processes all of them.
+    years: list[int] = data_source.working_partitions["years"]
 
 
 class EpaCemsSettings(GenericDatasetSettings):
@@ -156,7 +137,6 @@ class EpaCemsSettings(GenericDatasetSettings):
         data_source: DataSource metadata object
         years: list of years to validate.
         states: list of states to validate.
-        tables: list of tables to validate.
         partition: Whether to output year-state partitioned Parquet files. If True,
             all available threads / CPUs will be used in parallel.
     """
@@ -165,8 +145,6 @@ class EpaCemsSettings(GenericDatasetSettings):
 
     years: list[int] = data_source.working_partitions["years"]
     states: list[str] = data_source.working_partitions["states"]
-    tables: list[str] = data_source.get_resource_ids()
-    partition: bool = False
 
     @validator("states")
     def allow_all_keyword(cls, states):  # noqa: N805
@@ -182,13 +160,10 @@ class Eia923Settings(GenericDatasetSettings):
     Args:
         data_source: DataSource metadata object
         years: list of years to validate.
-        tables: list of tables to validate.
     """
 
     data_source: ClassVar[DataSource] = DataSource.from_id("eia923")
-
     years: list[int] = data_source.working_partitions["years"]
-    tables: list[str] = data_source.get_resource_ids()
 
 
 class Eia861Settings(GenericDatasetSettings):
@@ -197,45 +172,11 @@ class Eia861Settings(GenericDatasetSettings):
     Args:
         data_source: DataSource metadata object
         years: list of years to validate.
-        tables: list of tables to validate.
         transform_functions: list of transform functions to be applied to eia861
     """
 
     data_source: ClassVar[DataSource] = DataSource.from_id("eia861")
-
     years: list[int] = data_source.working_partitions["years"]
-    tables: list[str] = data_source.get_resource_ids()
-    transform_functions: list[str]
-
-    @root_validator(pre=True)
-    def generate_transform_functions(cls, values):  # noqa: N805
-        """Map tables to transform functions.
-
-        Args:
-            values: eia861 settings.
-
-        Returns:
-            values: eia861 settings.
-        """
-        # balancing_authority_eia861 is always processed
-        transform_functions = ["balancing_authority_eia861"]
-
-        # Defaults to all transformation functions
-        if not values.get("tables"):
-            transform_functions.extend(list(TABLE_DEPENDENCIES))
-        else:
-            for table in values["tables"]:
-                transform_functions.extend(
-                    [
-                        tf_func
-                        for tf_func, tables in TABLE_DEPENDENCIES.items()
-                        if table in tables
-                    ]
-                )
-
-        values["transform_functions"] = sorted(set(transform_functions))
-
-        return values
 
 
 class Eia860Settings(GenericDatasetSettings):
@@ -246,7 +187,6 @@ class Eia860Settings(GenericDatasetSettings):
     Args:
         data_source: DataSource metadata object
         years: list of years to validate.
-        tables: list of tables to validate.
 
         eia860m_date ClassVar[str]: The 860m year to date.
     """
@@ -256,7 +196,6 @@ class Eia860Settings(GenericDatasetSettings):
     eia860m_date: ClassVar[str] = eia860m_data_source.working_partitions["year_month"]
 
     years: list[int] = data_source.working_partitions["years"]
-    tables: list[str] = data_source.get_resource_ids()
     eia860m: bool = True
 
     @validator("eia860m")
@@ -305,6 +244,7 @@ class EiaSettings(BaseModel):
     """
 
     eia860: Eia860Settings = None
+    eia861: Eia861Settings = None
     eia923: Eia923Settings = None
 
     @root_validator(pre=True)
@@ -319,6 +259,7 @@ class EiaSettings(BaseModel):
         """
         if not any(values.values()):
             values["eia860"] = Eia860Settings()
+            values["eia861"] = Eia861Settings()
             values["eia923"] = Eia923Settings()
 
         return values
@@ -328,7 +269,6 @@ class EiaSettings(BaseModel):
         """Make sure the dependencies between the eia datasets are satisfied.
 
         Dependencies:
-        * eia860 requires eia923.boiler_fuel_eia923 and eia923.generation_eia923.
         * eia923 requires eia860 for harvesting purposes.
 
         Args:
@@ -340,9 +280,7 @@ class EiaSettings(BaseModel):
         eia923 = values.get("eia923")
         eia860 = values.get("eia860")
         if not eia923 and eia860:
-            values["eia923"] = Eia923Settings(
-                tables=["boiler_fuel_eia923", "generation_eia923"], years=eia860.years
-            )
+            values["eia923"] = Eia923Settings(years=eia860.years)
 
         if eia923 and not eia860:
             values["eia860"] = Eia860Settings(years=eia923.years)
@@ -359,10 +297,11 @@ class DatasetsSettings(BaseModel):
         epacems: Immutable pydantic model to validate epacems settings.
     """
 
-    ferc1: Ferc1Settings = None
     eia: EiaSettings = None
-    glue: GlueSettings = None
     epacems: EpaCemsSettings = None
+    ferc1: Ferc1Settings = None
+    ferc714: Ferc714Settings = None
+    glue: GlueSettings = None
 
     @root_validator(pre=True)
     def default_load_all(cls, values):  # noqa: N805
@@ -375,10 +314,11 @@ class DatasetsSettings(BaseModel):
             values (Dict[str, BaseModel]): dataset settings.
         """
         if not any(values.values()):
-            values["ferc1"] = Ferc1Settings()
             values["eia"] = EiaSettings()
-            values["glue"] = GlueSettings()
             values["epacems"] = EpaCemsSettings()
+            values["ferc1"] = Ferc1Settings()
+            values["ferc714"] = Ferc714Settings()
+            values["glue"] = GlueSettings()
 
         return values
 
@@ -434,8 +374,9 @@ class DatasetsSettings(BaseModel):
         if datasets_settings.get("eia", False):
             datasets_in_datastore_format.update(
                 {
-                    "eia923": datasets_settings["eia"].eia923,
                     "eia860": datasets_settings["eia"].eia860,
+                    "eia861": datasets_settings["eia"].eia861,
+                    "eia923": datasets_settings["eia"].eia923,
                 }
             )
 
@@ -485,7 +426,6 @@ class Ferc1DbfToSqliteSettings(GenericDatasetSettings):
     """An immutable Pydantic model to validate FERC 1 to SQLite settings.
 
     Args:
-        tables: List of tables to validate.
         years: List of years to validate.
     """
 
@@ -493,18 +433,8 @@ class Ferc1DbfToSqliteSettings(GenericDatasetSettings):
     years: list[int] = [
         year for year in data_source.working_partitions["years"] if year <= 2020
     ]
-    tables: list[str] = sorted(list(DBF_TABLES_FILENAMES.keys()))
 
     refyear: ClassVar[int] = max(years)
-
-    @validator("tables")
-    def validate_tables(cls, tables):  # noqa: N805
-        """Validate tables."""
-        default_tables = sorted(list(DBF_TABLES_FILENAMES.keys()))
-        tables_not_working = list(set(tables) - set(default_tables))
-        if len(tables_not_working) > 0:
-            raise ValueError(f"'{tables_not_working}' tables are not available.")
-        return sorted(set(tables))
 
 
 class FercGenericXbrlToSqliteSettings(BaseSettings):
@@ -512,12 +442,10 @@ class FercGenericXbrlToSqliteSettings(BaseSettings):
 
     Args:
         taxonomy: URL of XBRL taxonomy used to create structure of SQLite DB.
-        tables: list of tables to validate.
         years: list of years to validate.
     """
 
     taxonomy: AnyHttpUrl
-    tables: list[str] | None = None
     years: list[int]
 
 
@@ -534,16 +462,6 @@ class Ferc1XbrlToSqliteSettings(FercGenericXbrlToSqliteSettings):
         year for year in data_source.working_partitions["years"] if year >= 2021
     ]
     taxonomy: AnyHttpUrl = "https://eCollection.ferc.gov/taxonomy/form1/2022-01-01/form/form1/form-1_2022-01-01.xsd"
-    tables: list[str] = XBRL_TABLES
-
-    @validator("tables")
-    def validate_tables(cls, tables):  # noqa: N805
-        """Validate tables."""
-        default_tables = sorted(list(XBRL_TABLES))
-        tables_not_working = list(set(tables) - set(default_tables))
-        if len(tables_not_working) > 0:
-            raise ValueError(f"'{tables_not_working}' tables are not available.")
-        return sorted(set(tables))
 
 
 class Ferc2XbrlToSqliteSettings(FercGenericXbrlToSqliteSettings):
@@ -610,6 +528,26 @@ class FercToSqliteSettings(BaseSettings):
     ferc60_xbrl_to_sqlite_settings: Ferc60XbrlToSqliteSettings = None
     ferc714_xbrl_to_sqlite_settings: Ferc714XbrlToSqliteSettings = None
 
+    @root_validator(pre=True)
+    def default_load_all(cls, values):  # noqa: N805
+        """If no datasets are specified default to all.
+
+        Args:
+            values (Dict[str, BaseModel]): dataset settings.
+
+        Returns:
+            values (Dict[str, BaseModel]): dataset settings.
+        """
+        if not any(values.values()):
+            values["ferc1_dbf_to_sqlite_settings"] = Ferc1DbfToSqliteSettings()
+            values["ferc1_xbrl_to_sqlite_settings"] = Ferc1XbrlToSqliteSettings()
+            values["ferc2_xbrl_to_sqlite_settings"] = Ferc2XbrlToSqliteSettings()
+            values["ferc6_xbrl_to_sqlite_settings"] = Ferc6XbrlToSqliteSettings()
+            values["ferc60_xbrl_to_sqlite_settings"] = Ferc60XbrlToSqliteSettings()
+            values["ferc714_xbrl_to_sqlite_settings"] = Ferc714XbrlToSqliteSettings()
+
+        return values
+
     def get_xbrl_dataset_settings(
         self, form_number: XbrlFormNumber
     ) -> FercGenericXbrlToSqliteSettings:
@@ -648,103 +586,6 @@ class EtlSettings(BaseSettings):
     pudl_in: str = pudl.workspace.setup.get_defaults()["pudl_in"]
     pudl_out: str = pudl.workspace.setup.get_defaults()["pudl_out"]
 
-    @root_validator(pre=False)
-    def raw_table_validation_ferc1(cls, field_values):
-        """Ensure FERC to SQLite and PUDL ETL settings are internally self-consistent.
-
-        If FERC Form 1 tables are specified in both the :class:`FercToSqliteSettings`
-        and :class:`Ferc1Settings` within a single :class:`EtlSettings` object, ensure
-        that any FERC Form 1 tables required by the PUDL ETL will be produced by the
-        FERC to SQLite extraction. Otherwise raise a validation error.
-
-        To prevent this validation error, you can either remove one of the sets of
-        tables (if you aren't performing both steps of the ETL) or ensure that the
-        specified sets of tables are compatible.
-        """
-        # only check if we are actually loading any pudl tables. check for datasets
-        # first bc default null is None, which will have no ferc1 attribute
-        if (
-            not field_values["datasets"]
-            or (field_values["datasets"] and not field_values["datasets"].ferc1)
-            or not field_values["ferc_to_sqlite_settings"]
-        ):
-            return field_values
-        ferc1_settings = field_values["datasets"].ferc1
-        ferc1_xbrl_to_sqlite_settings = field_values[
-            "ferc_to_sqlite_settings"
-        ].ferc1_xbrl_to_sqlite_settings
-        ferc1_dbf_to_sqlite_settings = field_values[
-            "ferc_to_sqlite_settings"
-        ].ferc1_dbf_to_sqlite_settings
-
-        pudl_etl_tables = ferc1_settings.tables
-        table_map = {
-            pudl_table: raw_dict
-            for (
-                pudl_table,
-                raw_dict,
-            ) in pudl.extract.ferc1.TABLE_NAME_MAP_FERC1.items()
-            if pudl_table in pudl_etl_tables
-        }
-
-        def _get_tables_from_table_map_by_source(
-            table_map: dict[str, dict[Literal["dbf", "xbrl"], str | list[str]]],
-            source_ferc1: Literal["dbf", "xbrl"],
-        ) -> set:
-            """Convert the table_map into a set of source table names.
-
-            We grab all of the raw tables needed from the FERC1 sources from the
-            table_map. These raw tables are stored as either a string or a list of
-            strings, so we flatten them. The we add the respondent table because it is
-            always needed.
-            """
-            tables_needed = set(
-                flatten_list(
-                    [tbl_dict[source_ferc1] for tbl_dict in table_map.values()]
-                )
-            )
-            # add the respondent table bc its always needed
-            tables_needed.add(
-                "f1_respondent_id" if source_ferc1 == "dbf" else "identification_001"
-            )
-            return tables_needed
-
-        def missing_table_error_message(
-            missing_tables: list[str],
-            source_ferc1: Literal["dbf", "xbrl"],
-        ) -> str:
-            """Return error message for missing tables."""
-            return (
-                f"There are tables missing from ferc1_{source_ferc1}_to_sqlite_settings"
-                " that are needed to load FERC-derivative PUDL tables in these settings."
-                f"\nMissing Tables: {missing_tables}. \nNOTE: If you are not trying to "
-                "run ferc_to_sqlite, but your settings contain FERC-derivative PUDL "
-                "tables, you can EITHER provide NO ferc_to_sqlite_settings or provide "
-                "tables consistent with your PUDL table settings."
-            )
-
-        # DBF table check
-        if ferc1_dbf_to_sqlite_settings:
-            dbf_tables_needed = _get_tables_from_table_map_by_source(table_map, "dbf")
-            if dbf_missing := dbf_tables_needed.difference(
-                set(ferc1_dbf_to_sqlite_settings.tables)
-            ):
-                raise AssertionError(missing_table_error_message(dbf_missing, "dbf"))
-
-        # XBRL table check
-        # the XBRL extractor can take a list of none and extract everything so only
-        # do this check if there are any tables given.
-        if ferc1_xbrl_to_sqlite_settings and ferc1_xbrl_to_sqlite_settings.tables:
-            xbrl_tables_needed = _get_tables_from_table_map_by_source(table_map, "xbrl")
-            xbrl_tables_needed = {tbl + "_instant" for tbl in xbrl_tables_needed} | {
-                tbl + "_duration" for tbl in xbrl_tables_needed
-            }
-            if xbrl_missing := xbrl_tables_needed.difference(
-                set(ferc1_xbrl_to_sqlite_settings.tables)
-            ):
-                raise AssertionError(missing_table_error_message(xbrl_missing, "xbrl"))
-        return field_values
-
     @classmethod
     def from_yaml(cls, path: str) -> "EtlSettings":
         """Create an EtlSettings instance from a yaml_file path.
@@ -758,6 +599,41 @@ class EtlSettings(BaseSettings):
         with pathlib.Path(path).open() as f:
             yaml_file = yaml.safe_load(f)
         return cls.parse_obj(yaml_file)
+
+
+def _convert_settings_to_dagster_config(d: dict) -> None:
+    """Convert dictionary of dataset settings to dagster config.
+
+    For each partition parameter in a GenericDatasetSettings subclass, create a Noneable
+    Dagster field with a default value of None. The GenericDatasetSettings
+    subclasses will default to include all working paritions if the partition value
+    is None. Get the value type so dagster can do some basic type checking in the UI.
+
+    Args:
+        d: dictionary of datasources and their parameters.
+    """
+    for k, v in d.items():
+        if isinstance(v, dict):
+            _convert_settings_to_dagster_config(v)
+        else:
+            try:
+                d[k] = Field(type(v), default_value=v)
+            except DagsterInvalidDefinitionError:
+                # Dagster config accepts a valid dagster types.
+                # Most of our settings object properties are valid types
+                # except for fields like taxonomy which are the AnyHttpUrl type.
+                d[k] = Field(Any, default_value=v)
+
+
+def create_dagster_config(settings: BaseModel) -> dict:
+    """Create a dictionary of dagster config for the DatasetsSettings Class.
+
+    Returns:
+        A dictionary of dagster configuration.
+    """
+    ds = settings.dict()
+    _convert_settings_to_dagster_config(ds)
+    return ds
 
 
 def _make_doi_clickable(link):
