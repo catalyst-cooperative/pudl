@@ -39,6 +39,7 @@ from sklearn.model_selection import GridSearchCV  # , cross_val_score
 
 import pudl
 import pudl.helpers
+from pudl.analysis.plant_parts_eia import match_to_single_plant_part
 from pudl.metadata.classes import DataSource
 
 logger = pudl.logging_helpers.get_logger(__name__)
@@ -644,7 +645,7 @@ def restrict_train_connections_on_date_range(
 def prep_train_connections(
     ppe: pd.DataFrame, start_date: pd.Timestamp, end_date: pd.Timestamp
 ) -> pd.DataFrame:
-    """Get and prepare the training connections.
+    """Get and prepare the training connections for the model.
 
     We have stored training data, which consists of records with ids
     columns for both FERC and EIA. Those id columns serve as a connection
@@ -680,32 +681,51 @@ def prep_train_connections(
     )
     with importlib.resources.as_file(otm_pkg_source) as one_to_many:
         one_to_many = (
-            (
-                pd.read_csv(one_to_many)
-                .pipe(pudl.helpers.cleanstrings_snake, ["record_id_eia"])
-                .drop_duplicates(subset=["record_id_ferc1", "record_id_eia"])
-            )
-            .merge(
-                ppe["ferc1_generator_agg_id"].reset_index(),
-                on="record_id_eia",
-                how="left",
-                validate="1:1",
-            )
-            .dropna(subset=["ferc1_generator_agg_id"])
-            .drop(["record_id_eia"], axis=1)
-            .merge(
-                ppe.loc[
-                    ppe.plant_part == "plant_match_ferc1",
-                    ["ferc1_generator_agg_id"],
-                ].reset_index(),
-                on="ferc1_generator_agg_id",
-                how="left",
-                validate="m:1",
-            )
-            .drop(["ferc1_generator_agg_id"], axis=1)
+            pd.read_csv(one_to_many)
+            .pipe(pudl.helpers.cleanstrings_snake, ["record_id_eia"])
             .drop_duplicates(subset=["record_id_ferc1", "record_id_eia"])
-            .set_index("record_id_ferc1")
         )
+
+    # Get the 'm' generator IDs 1:m
+    one_to_many_single = match_to_single_plant_part(
+        multi_gran_df=ppe.loc[ppe.index.isin(one_to_many.record_id_eia)].reset_index(),
+        ppl=ppe.reset_index(),
+        part_name="plant_gen",
+        cols_to_keep=["plant_part"],
+    )[["record_id_eia_og", "record_id_eia"]].rename(
+        columns={"record_id_eia": "gen_id", "record_id_eia_og": "record_id_eia"}
+    )
+    one_to_many = (
+        one_to_many.merge(
+            one_to_many_single,  # Match plant parts to generators
+            on="record_id_eia",
+            how="left",
+            validate="1:m",
+        )
+        .drop_duplicates("gen_id")
+        .merge(  # Match generators to ferc1_generator_agg_id
+            ppe["ferc1_generator_agg_id"].reset_index(),
+            left_on="gen_id",
+            right_on="record_id_eia",
+            how="left",
+            validate="1:1",
+        )
+        .dropna(subset=["ferc1_generator_agg_id"])
+        .drop(["record_id_eia_x", "record_id_eia_y"], axis=1)
+        .merge(  # Match ferc1_generator_agg_id to new faked plant part record_id_eia
+            ppe.loc[
+                ppe.plant_part == "plant_match_ferc1",
+                ["ferc1_generator_agg_id"],
+            ].reset_index(),
+            on="ferc1_generator_agg_id",
+            how="left",
+            validate="m:1",
+        )
+        .drop(["ferc1_generator_agg_id", "gen_id"], axis=1)
+        .drop_duplicates(subset=["record_id_ferc1", "record_id_eia"])
+        .set_index("record_id_ferc1")
+    )
+
     train_pkg_source = importlib.resources.files("pudl.package_data.glue").joinpath(
         "ferc1_eia_train.csv"
     )
@@ -716,6 +736,7 @@ def prep_train_connections(
             .drop_duplicates(subset=["record_id_ferc1", "record_id_eia"])
             .set_index("record_id_ferc1")
         )
+    logger.info(f"Updating {len(one_to_many)} training records with 1:m plant parts.")
     train_df.update(one_to_many)  # Overwrite FERC records with faked 1:m parts.
     train_df = (
         # we want to ensure that the records are associated with a
