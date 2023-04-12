@@ -334,7 +334,7 @@ def extract_input_tables(pudl_out: "pudl.output.pudltabl.PudlTabl"):
             :,
             IDX_PM_ESC + DATA_COLUMNS,
         ]
-        .pipe(manually_fix_energy_source_codes)
+        .pipe(manually_fix_energy_source_codes)  # TODO: move to a transform step
     )
     bf = pudl_out.bf_eia923().loc[:, IDX_B_PM_ESC + ["fuel_consumed_mmbtu"]]
     # load boiler generator associations

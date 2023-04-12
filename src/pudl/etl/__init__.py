@@ -47,13 +47,13 @@ default_assets = (
     *load_assets_from_modules([static_assets], group_name="static"),
     *load_assets_from_modules(
         [
-            pudl.output.denorm_eia,
-            pudl.output.denorm_eia860,
-            pudl.output.denorm_eia923,
+            pudl.output.new_eia,
+            pudl.output.new_eia860,
+            pudl.output.new_eia923,
         ],
-        group_name="denorm_eia",
+        group_name="new_eia",
     ),
-    *load_assets_from_modules([pudl.output.denorm_ferc1], group_name="denorm_ferc1"),
+    *load_assets_from_modules([pudl.output.new_ferc1], group_name="new_ferc1"),
 )
 
 default_resources = {

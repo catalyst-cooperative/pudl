@@ -178,7 +178,8 @@ def generation_fuel_all_eia923(gf: pd.DataFrame, gfn: pd.DataFrame) -> pd.DataFr
     # Ensure that all non-data columns are homogeneous within groups
     if not (gfn_gb[non_data_cols].nunique() == 1).all(axis=None):
         raise ValueError(
-            "Found inhomogeneous non-data cols while aggregating nuclear generation."
+            "Found inhomogeneous non-data cols while aggregating nuclear generation. "
+            f"Non-data cols: {non_data_cols}"
         )
     gfn_agg = pd.concat(
         [
