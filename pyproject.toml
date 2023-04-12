@@ -18,6 +18,7 @@ dynamic = ["version"]
 license = {file = "LICENSE.txt"}
 dependencies = [
     "addfips>=0.4,<0.5",
+    "alembic>=1.10.3,<1.11",
     "catalystcoop.dbfread>=3.0,<3.1",
     "catalystcoop.ferc-xbrl-extractor==0.8.2",
     "coloredlogs>=14.0,<15.1",  # Dagster requires 14.0
@@ -93,10 +94,11 @@ epacems_to_parquet = "pudl.convert.epacems_to_parquet:main"
 ferc_to_sqlite = "pudl.ferc_to_sqlite.cli:main"
 datasette_metadata_to_yml = "pudl.convert.datasette_metadata_to_yml:main"
 pudl_datastore = "pudl.workspace.datastore:main"
-pudl_etl = "pudl.cli:main"
+pudl_etl = "pudl.cli.etl:main"
 pudl_setup = "pudl.workspace.setup_cli:main"
 state_demand = "pudl.analysis.state_demand:main"
 pudl_check_fks = "pudl.etl.check_foreign_keys:main"
+pudl_reset_db = "pudl.cli.reset_db:main"
 # pudl_territories currently blows up memory usage to 100+ GB.
 # See https://github.com/catalyst-cooperative/pudl/issues/1174
 # pudl_territories = "pudl.analysis.service_territory:main"
@@ -105,8 +107,10 @@ pudl_check_fks = "pudl.etl.check_foreign_keys:main"
 "Homepage" = "https://catalyst.coop/pudl/"
 "Source" = "https://github.com/catalyst-cooperative/pudl"
 "Documentation" = "https://catalystcoop-pudl.readthedocs.io"
-"Bug Tracker" = "https://github.com/catalyst-cooperative/pudl/issues"
+"Release Notes" = "https://catalystcoop-pudl.readthedocs.io/en/latest/release_notes.html"
+"Issue Tracker" = "https://github.com/catalyst-cooperative/pudl/issues"
 "Support" = "https://github.com/catalyst-cooperative/pudl/discussions"
+"Funding" = "https://catalyst.coop/support-the-pudl-project/"
 
 [project.optional-dependencies]
 dev = [
