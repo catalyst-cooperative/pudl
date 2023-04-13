@@ -1,32 +1,4 @@
-"""Denormalized, aggregated, and filled versions of the EIA 923 tables.
-
-Basic Denormalized EIA-923 assets
-* denorm_generation_eia923 (temporal aggregation)
-* denorm_fuel_receipts_costs_eia923 (temporal aggregation + coalmine)
-* denorm_boiler_fuel_eia923 (temporal aggregation)
-* denorm_generation_fuel_eia923 (temporal aggregation + nuke vs. non-nuke)
-
-More complex denormalized EIA-923 assets:
-* denorm_generation_fuel_all_eia923 (combined nuke and non-nuke assets)
-
-
-Generation Fuel:
-* could also use a nuke vs. non-nuke asset factory
-* Generation Fuel All is derived from nuclear and non-nuclear (separate asset)
-
-Generation:
-* Needs to be able to use allocated net generation from generation fuel table. Should
-  this be the default output?
-
-* Aggregations can be separated from denormalization.
-* Aggregations should only be performed on the normalized tables.
-* Denormalization process is identical on raw, monthly, or annual aggregates.
-* Aggregation asset factory specific to each output table.
-* Hand off aggregated table to denormalization asset / function?
-
-PudlTabl integration considerations:
-* PudlTabl.freq will control what table is pulled from the DB.
-"""
+"""Denormalized, aggregated, and filled versions of the basic EIA-923 tables."""
 from typing import Literal
 
 import pandas as pd
@@ -477,24 +449,11 @@ def time_aggregated_eia923_asset_factory(
             .reset_index()
         )
 
-    def generation_fuel_by_generator_energy_source_code_agg_eia923():
-        pass
-
-    def generation_fuel_by_generator_agg_eia923():
-        pass
-
-    def generation_fuel_by_generator_energy_source_code_owner_agg_eia923():
-        pass
-
-    # Return all of the assets that have been constructed above:
     return [
         boiler_fuel_agg_eia923,
         fuel_receipts_costs_agg_eia923,
         generation_agg_eia923,
         generation_fuel_combined_agg_eia923,
-        # generation_fuel_by_generator_agg_eia923,
-        # generation_fuel_by_generator_energy_source_code_agg_eia923,
-        # generation_fuel_by_generator_energy_source_code_owner_agg_eia923,
     ]
 
 
