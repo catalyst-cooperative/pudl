@@ -678,6 +678,10 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "description": "The amount of a given expense in USD.",
     },
     "expense_type": {"type": "string", "description": "The type of expense."},
+    "ferc1_generator_agg_id": {
+        "type": "integer",
+        "description": "ID dynamically assigned by PUDL to EIA records with multiple matches to a single FERC ID in the FERC-EIA manual matching process.",
+    },
     "ferc_account": {
         "type": "string",
         "description": "Actual FERC Account number (e.g. '359.1') if available, or a PUDL assigned ID when FERC accounts have been split or combined in reporting.",
