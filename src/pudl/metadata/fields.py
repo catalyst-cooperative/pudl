@@ -1406,6 +1406,11 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "description": "Production expenses: fuel (USD).",
         "unit": "USD",
     },
+    "opex_fuel_per_mwh": {
+        "type": "number",
+        "description": "Production expenses: fuel (USD) per megawatt-hour (mwh).",
+        "unit": "USD/mwh",
+    },
     "opex_generation_misc": {
         "type": "number",
         "description": "Production expenses: miscellaneous power generation expenses (USD).",

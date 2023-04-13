@@ -236,7 +236,7 @@ def denorm_purchased_power_ferc1(
     return purchased_power_df
 
 
-@asset(io_manager_key="pudl_sqlite_io_manager", compute_kind="Python")
+@asset(compute_kind="Python")
 def denorm_plant_in_service_ferc1(
     plant_in_service_ferc1: pd.DataFrame, utilities_ferc1: pd.DataFrame
 ) -> pd.DataFrame:
@@ -607,7 +607,7 @@ def denorm_utility_plant_summary_ferc1(
     return denorm_utility_plant_summary_ferc1
 
 
-@asset(compute_kind="Python")
+@asset(io_manager_key="pudl_sqlite_io_manager", compute_kind="Python")
 def denorm_plants_all_ferc1(
     denorm_plants_steam_ferc1: pd.DataFrame,
     denorm_plants_small_ferc1: pd.DataFrame,
