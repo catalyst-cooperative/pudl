@@ -109,6 +109,7 @@ def _fill_fuel_costs_by_state(
     frc_df: pd.DataFrame,
     fuel_costs: pd.DataFrame,
 ) -> pd.DataFrame:
+    """Fill in missing fuel costs with state-level averages."""
     out_df = frc_df.merge(
         fuel_costs,
         left_on=["report_date", "plant_state", "fuel_type_code_pudl"],
@@ -216,7 +217,7 @@ def denorm_fuel_receipts_costs_eia923(
     state_average_fuel_costs_eia: pd.DataFrame,
     plants_entity_eia: pd.DataFrame,
 ) -> pd.DataFrame:
-    """Denormalize the fuel_receipts_costs_eia923 table."""
+    """Denormalize the :ref:`fuel_receipts_costs_eia923` table."""
     coalmine_eia923 = coalmine_eia923.drop(columns=["data_maturity"])
     plant_states = plants_entity_eia[["plant_id_eia", "state"]].rename(
         columns={"state": "plant_state"}
@@ -274,13 +275,7 @@ def time_aggregated_eia923_asset_factory(
     freq: Literal["AS", "MS"],
     io_manager_key: str | None = None,
 ) -> list[AssetsDefinition]:
-    """A factory that builds aggregated generation_eia923 assets.
-
-    There are a large number of assets derived from the :ref:`generation_fuel_eia923`
-    table, all of which need to have original, monthly, and yearly versions. This
-    factory generates the monthly and yearly aggregations, and assumes that the raw
-    original version is already available in the database.
-    """
+    """Build EIA-923 asset definitions, aggregated by year or month."""
 
     @asset(
         name=f"denorm_generation_{AGG_FREQS[freq]}_eia923",
@@ -288,14 +283,16 @@ def time_aggregated_eia923_asset_factory(
         compute_kind="Python",
     )
     def generation_agg_eia923(denorm_generation_eia923: pd.DataFrame) -> pd.DataFrame:
-        f"""A version of the generation_eia923 table aggregated {AGG_FREQS[freq]}."""
-        by = ["plant_id_eia", "generator_id", pd.Grouper(freq=freq)]
+        """Aggregate :ref:`generation_eia923` monthly or annually."""
         return (
             # Create a date index for grouping based on freq
             denorm_generation_eia923.set_index(
                 pd.DatetimeIndex(denorm_generation_eia923.report_date)
             )
-            .groupby(by=by, observed=True)
+            .groupby(
+                by=["plant_id_eia", "generator_id", pd.Grouper(freq=freq)],
+                observed=True,
+            )
             .agg({"net_generation_mwh": pudl.helpers.sum_na})
             .reset_index()
         )
@@ -308,19 +305,22 @@ def time_aggregated_eia923_asset_factory(
     def generation_fuel_combined_agg_eia923(
         denorm_generation_fuel_combined_eia923,
     ) -> pd.DataFrame:
-        by = [
-            "plant_id_eia",
-            "fuel_type_code_pudl",
-            "energy_source_code",
-            "prime_mover_code",
-            pd.Grouper(freq=freq),
-        ]
+        """Aggregate :ref:`generation_fuel_combined_eia923` monthly or annually."""
         return (
             # Create a date index for temporal resampling:
             denorm_generation_fuel_combined_eia923.set_index(
                 pd.DatetimeIndex(denorm_generation_fuel_combined_eia923.report_date)
             )
-            .groupby(by=by, observed=True)
+            .groupby(
+                by=[
+                    "plant_id_eia",
+                    "fuel_type_code_pudl",
+                    "energy_source_code",
+                    "prime_mover_code",
+                    pd.Grouper(freq=freq),
+                ],
+                observed=True,
+            )
             .agg(
                 {
                     # Sum up these values so we can calculate quantity weighted averages
@@ -344,7 +344,7 @@ def time_aggregated_eia923_asset_factory(
         compute_kind="Python",
     )
     def boiler_fuel_agg_eia923(denorm_boiler_fuel_eia923: pd.DataFrame) -> pd.DataFrame:
-        f"""A version of the boiler_fuel_eia923 table aggregated {AGG_FREQS[freq]}."""
+        """Aggregate :ref:`generation_fuel_combined_eia923` monthly or annually."""
         # In order to calculate the weighted average sulfur
         # content and ash content we need to calculate these totals.
         return (
@@ -393,7 +393,7 @@ def time_aggregated_eia923_asset_factory(
     def fuel_receipts_costs_agg_eia923(
         denorm_fuel_receipts_costs_eia923: pd.DataFrame,
     ) -> pd.DataFrame:
-        f"""The fuel_receipts_costs_eia923 table aggregated by {AGG_FREQS[freq]}."""
+        """Aggregate the :ref:`fuel_receipts_costs_eia923` table monthly or annually."""
         return (
             denorm_fuel_receipts_costs_eia923.set_index(
                 pd.DatetimeIndex(denorm_fuel_receipts_costs_eia923.report_date)
