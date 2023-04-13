@@ -837,7 +837,7 @@ any cleaning mechanisms in place to account for this."""
         "field_namespace": "ferc1",
         "etl_group": "outputs",
         "sources": ["ferc1"],
-        "create_database_schema": False,
+        "create_database_schema": True,
     },
     "denorm_balance_sheet_assets_ferc1": {
         "description": "Denormalized table that contains FERC balance sheet asset information.",
