@@ -50,6 +50,7 @@ default_assets = (
             pudl.output.new_eia,
             pudl.output.new_eia860,
             pudl.output.new_eia923,
+            pudl.output.eia_bulk_elec,
         ],
         group_name="new_eia",
     ),
