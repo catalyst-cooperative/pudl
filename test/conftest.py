@@ -14,7 +14,8 @@ from ferc_xbrl_extractor import xbrl
 
 import pudl
 from pudl import resources
-from pudl.cli import pudl_etl_job_factory
+from pudl.cli.etl import pudl_etl_job_factory
+from pudl.cli.reset_db import reset_db
 from pudl.extract.ferc1 import xbrl_metadata_json
 from pudl.extract.xbrl import FercXbrlDatastore, _get_sqlite_engine
 from pudl.ferc_to_sqlite.cli import ferc_to_sqlite_job_factory
@@ -310,6 +311,7 @@ def pudl_sql_io_manager(
     """
     logger.info("setting up the pudl_engine fixture")
     if not live_dbs:
+        reset_db()
         # Run the ETL and generate a new PUDL SQLite DB for testing:
         pudl_etl_job_factory()().execute_in_process(
             run_config={

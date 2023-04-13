@@ -432,7 +432,7 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
         "sources": ["eia861"],
         "etl_group": "static_eia_disabled",  # currently not being loaded into the db
         "field_namespace": "eia",
-        "include_in_database": False,
+        "create_database_schema": False,
     },
     "fuel_transportation_modes_eia": {
         "description": "Long descriptions of the fuel transportation modes reported in the EIA-860 and EIA-923.",
@@ -570,6 +570,7 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
                 "true_gran",
                 "appro_part_label",
                 "appro_record_id_eia",
+                "ferc1_generator_agg_id",
                 "capacity_eoy_mw",
                 "capacity_factor",
                 "capacity_mw",
@@ -603,7 +604,7 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
         "sources": ["eia860", "eia923"],
         "etl_group": "outputs",
         "field_namespace": "ppe",
-        "include_in_database": False,
+        "create_database_schema": False,
     },
     "prime_movers_eia": {
         "description": "Long descriptions explaining the short prime mover codes reported in the EIA-860 and EIA-923.",

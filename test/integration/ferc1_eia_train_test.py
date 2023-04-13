@@ -55,20 +55,25 @@ def ferc1_eia_training_data():
 
 
 @pytest.mark.parametrize(
-    "verified,report_year,record_id_eia_override_1,record_id_ferc1",
+    "verified,report_year,record_id_eia_override_1,record_id_ferc1,utility_id_pudl_ferc1",
     [
+        # This param will need to be upated with data from new years in order to pass
+        # xfail parameters will fail for the wrong reasons if not updated with new year.
+        # Non of these parameters represent real matches. They mimic real matches by
+        # coming from the same year and utility.
         pytest.param(
             ["True"],
             [2020],
-            ["4270_2020_plant_total_11241"],
-            ["f1_steam_2020_12_454_0_3"],
+            ["2_2020_plant_owned_195"],
+            ["f1_steam_2020_12_2_0_1"],
+            [18],
         ),
-        # This param will need to be upated with data from new years
         pytest.param(
             ["True"],
             [2019],
-            ["4270_2020_plant_total_11241"],
-            ["f1_steam_2020_12_454_0_3"],
+            ["2_2020_plant_owned_195"],
+            ["f1_steam_2020_12_2_0_1"],
+            [18],
             marks=pytest.mark.xfail(
                 reason="EIA record year doesn't match FERC record year",
                 raises=AssertionError,
@@ -77,25 +82,50 @@ def ferc1_eia_training_data():
         pytest.param(
             ["True", "True"],
             [2020, 2020],
-            ["4270_2020_plant_total_11241", "4270_2020_plant_total_11241"],
-            ["f1_steam_2020_12_454_0_3", "f1_steam_2020_12_159_0_3"],
+            ["2_2020_plant_owned_195", "2_2020_plant_owned_195"],
+            ["f1_steam_2020_12_2_0_1", "f1_steam_2020_12_2_0_2"],
+            [18, 18],
             marks=pytest.mark.xfail(
-                reason="Duplicate EIA ids in training data", raises=AssertionError
+                reason="Duplicate EIA ids in overrides", raises=AssertionError
             ),
         ),
         pytest.param(
             ["True", "True"],
             [2020, 2020],
-            ["4270_2020_plant_total_11241", "4271_2020_plant_total_11241"],
-            ["f1_steam_2020_12_454_0_3", "f1_steam_2020_12_454_0_3"],
+            ["2_2020_plant_owned_195", "3_2020_plant_owned_195"],
+            ["f1_steam_2020_12_2_0_1", "f1_steam_2020_12_2_0_1"],
+            [18, 18],
             marks=pytest.mark.xfail(
-                reason="Duplicate FERC1 ids in training data", raises=AssertionError
+                reason="Duplicate FERC1 ids in overrides", raises=AssertionError
             ),
+        ),
+        pytest.param(
+            ["True"],
+            [2020],
+            ["299_2020_plant_total_14354"],  # EIA id already in training data
+            ["f1_steam_2020_12_134_2_2"],  # FERC1 id NOT in training data
+            [246],
+            marks=pytest.mark.xfail(reason="EIA id already in training data."),
+        ),
+        pytest.param(
+            ["True"],
+            [2020],
+            ["294_2020_plant_owned_14354"],  # EIA id NOT in training data
+            ["f1_steam_2020_12_134_3_1"],  # FERC1 id already in training data
+            [246],
+            marks=pytest.mark.xfail(reason="FERC1 id already in training data."),
+        ),
+        pytest.param(
+            ["True"],
+            [2020],
+            ["1_2020_plant_owned_63560"],
+            ["f1_steam_2020_12_161_0_1"],
+            [1],
+            marks=pytest.mark.xfail(reason="Utilities don't match"),
         ),
     ],
 )
 def test_validate_override_fixes(
-    utils_eia860,
     plant_parts_eia,
     ferc1_eia,
     ferc1_eia_training_data,
@@ -103,6 +133,7 @@ def test_validate_override_fixes(
     report_year,
     record_id_eia_override_1,
     record_id_ferc1,
+    utility_id_pudl_ferc1,
 ):
     """Test the validate override fixes function."""
     test_df = pd.DataFrame(
@@ -111,6 +142,7 @@ def test_validate_override_fixes(
             "report_year": report_year,
             "record_id_eia_override_1": record_id_eia_override_1,
             "record_id_ferc1": record_id_ferc1,
+            "utility_id_pudl_ferc1": utility_id_pudl_ferc1,
         }
     ).assign(verified=lambda x: x.verified.astype("bool"))
     ferc1_eia_training_data_restricted = restrict_train_connections_on_date_range(
@@ -121,152 +153,11 @@ def test_validate_override_fixes(
     )
     validate_override_fixes(
         validated_connections=test_df,
-        utils_eia860=utils_eia860,
         ppe=plant_parts_eia,
         ferc1_eia=ferc1_eia,
         training_data=ferc1_eia_training_data_restricted,
         expect_override_overrides=True,
         allow_mismatched_utilities=True,
-    )
-
-
-@pytest.mark.parametrize(
-    "verified,report_year,record_id_eia_override_1,record_id_ferc1",
-    [
-        pytest.param(
-            ["True"],
-            [2020],
-            # NOTE: These are not matches, just test examples
-            ["1_2020_plant_owned_63560"],  # EIA id NOT in training data.
-            ["f1_steam_2020_12_161_0_1"],  # FERC1 id NOT in training data.
-        ),
-        pytest.param(
-            ["True"],
-            [2020],
-            ["299_2020_plant_total_14354"],
-            ["f1_steam_2020_12_134_3_1"],
-            marks=pytest.mark.xfail(
-                reason="FERC1 and EIA ids already in training data."
-            ),
-        ),
-        pytest.param(
-            ["True"],
-            [2020],
-            # NOTE: These are not matches, just test examples
-            ["299_2020_plant_total_14354"],  # EIA id already in training data
-            ["f1_steam_2020_12_161_0_1"],  # FERC1 id NOT in training data
-            marks=pytest.mark.xfail(reason="EIA id already in training data."),
-        ),
-        pytest.param(
-            ["True"],
-            [2020],
-            # NOTE: These are not matches, just test examples
-            ["1_2020_plant_owned_63560"],  # EIA id NOT in training data
-            ["f1_steam_2020_12_134_3_1"],  # FERC1 id already in training data
-            marks=pytest.mark.xfail(reason="FERC1 id already in training data."),
-        ),
-    ],
-)
-def test_validate_override_fixes_no_overrides(
-    utils_eia860,
-    plant_parts_eia,
-    ferc1_eia,
-    ferc1_eia_training_data,
-    verified,
-    report_year,
-    record_id_eia_override_1,
-    record_id_ferc1,
-):
-    """Test validate override fixes function where expect_override_overrides=False."""
-    test_df = pd.DataFrame(
-        {
-            "verified": verified,
-            "report_year": report_year,
-            "record_id_eia_override_1": record_id_eia_override_1,
-            "record_id_ferc1": record_id_ferc1,
-        }
-    ).assign(verified=lambda x: x.verified.astype("bool"))
-    ferc1_eia_training_data_restricted = restrict_train_connections_on_date_range(
-        train_df=ferc1_eia_training_data,
-        id_col="record_id_ferc1",
-        start_date=min(ferc1_eia.report_date),
-        end_date=max(ferc1_eia.report_date),
-    )
-    validate_override_fixes(
-        validated_connections=test_df,
-        utils_eia860=utils_eia860,
-        ppe=plant_parts_eia,
-        ferc1_eia=ferc1_eia,
-        training_data=ferc1_eia_training_data_restricted,
-        expect_override_overrides=False,
-        allow_mismatched_utilities=True,
-    )
-
-
-@pytest.mark.parametrize(
-    "verified,report_year,record_id_eia_override_1,record_id_ferc1,utility_id_eia,utility_id_pudl",
-    [
-        pytest.param(
-            ["True"],
-            [2020],
-            # NOTE: These are not matches, just test examples
-            ["1_2020_plant_owned_63560"],
-            ["f1_steam_2020_12_161_0_1"],
-            [63560],
-            [1],
-            marks=pytest.mark.xfail(reason="Utilities don't match"),
-        ),
-        pytest.param(
-            ["True"],
-            [2020],
-            ["8055_2020_plant_total_814"],
-            ["f1_steam_2020_12_8_0_5"],
-            [814],
-            [106],
-        ),
-    ],
-)
-def test_validate_override_fixes_no_mismatched_utilities(
-    utils_eia860,
-    plant_parts_eia,
-    ferc1_eia,
-    ferc1_eia_training_data,
-    verified,
-    report_year,
-    record_id_eia_override_1,
-    record_id_ferc1,
-    utility_id_eia,
-    utility_id_pudl,
-):
-    """Test validate override fixes function where mismatched_utilities=False.
-
-    The parameters have a field for utility_id_eia and utility_id_pudl because the
-    override spreadsheets also have that field. As written, the
-    """
-    test_df = pd.DataFrame(
-        {
-            "verified": verified,
-            "report_year": report_year,
-            "record_id_eia_override_1": record_id_eia_override_1,
-            "record_id_ferc1": record_id_ferc1,
-            "utility_id_eia": utility_id_eia,
-            "utility_id_pudl": utility_id_pudl,
-        }
-    ).assign(verified=lambda x: x.verified.astype("bool"))
-    ferc1_eia_training_data_restricted = restrict_train_connections_on_date_range(
-        train_df=ferc1_eia_training_data,
-        id_col="record_id_ferc1",
-        start_date=min(ferc1_eia.report_date),
-        end_date=max(ferc1_eia.report_date),
-    )
-    validate_override_fixes(
-        validated_connections=test_df,
-        utils_eia860=utils_eia860,
-        ppe=plant_parts_eia,
-        ferc1_eia=ferc1_eia,
-        training_data=ferc1_eia_training_data_restricted,
-        expect_override_overrides=True,
-        allow_mismatched_utilities=False,
     )
 
 

@@ -46,10 +46,10 @@ RENAME_COLS_FERC1_EIA: dict = {
     "plant_part": "plant_part",
     "ownership_record_type": "ownership_record_type",
     "utility_id_eia": "utility_id_eia",
-    "utility_id_pudl_ferc1": "utility_id_pudl",
+    "utility_id_pudl": "utility_id_pudl_ferc1",
     "utility_name_ferc1": "utility_name_ferc1",
     "utility_name_eia": "utility_name_eia",
-    "plant_id_pudl_ferc1": "plant_id_pudl",
+    "plant_id_pudl": "plant_id_pudl_ferc1",
     "unit_id_pudl": "unit_id_pudl",
     "generator_id": "generator_id",
     "plant_name_ferc1": "plant_name_ferc1",
@@ -427,7 +427,6 @@ def check_if_already_in_training(training_data, validated_connections):
 
 def validate_override_fixes(
     validated_connections,
-    utils_eia860,
     ppe,
     ferc1_eia,
     training_data,
@@ -440,11 +439,13 @@ def validate_override_fixes(
         validated_connections (pd.DataFrame): A dataframe in the add_to_training
             directory that is ready to be added to be validated and subsumed into the
             training data.
-        utils_eia860 (pd.DataFrame): A dataframe resulting from the
-            pudl_out.utils_eia860() function.
-        ferc1_eia (pd.DataFrame): The current FERC-EIA table
+        ppe (pd.DataFrame): The dataframe resulting from pudl_out.plant_parts_eia
+        ferc1_eia (pd.DataFrame): The dataframe resulting from pudl_out.ferc1_eia
+        training_data (pd.DataFrame): The current FERC-EIA training data
         expect_override_overrides (boolean): Whether you expect the tables to have
             overridden matches already in the training data.
+        allow_mismatched_utilities (boolean): Whether you want to allow FERC and EIA
+            record ids to come from different utilities.
 
     Raises:
         AssertionError: If there are EIA override id records that aren't in the original
@@ -473,7 +474,9 @@ def validate_override_fixes(
     )
     # Make sure the verified column doesn't contain non-boolean outliers. This will fail
     # if there are bad values.
-    validated_connections.astype({"verified": pd.BooleanDtype()})
+    validated_connections = validated_connections.astype(
+        {"verified": pd.BooleanDtype()}
+    )
 
     # From validated records, get only records with an override
     only_overrides = (
@@ -512,31 +515,22 @@ def validate_override_fixes(
     {override_dups.record_id_eia_override_1.unique()}"
 
     if not allow_mismatched_utilities:
-        # Make sure the EIA utility id from the override matches the PUDL id from the FERC
-        # record. Start by mapping utility_id_eia from PPE onto each
-        # record_id_eia_override_1.
+        # Make sure the EIA utility id from the override matches the PUDL id from the
+        # FERC record. Start by mapping utility_id_pudl from PPE onto each
+        # record_id_eia_override_1 and then compare to the existing
+        # utility_id_pudl_ferc1 record.
         logger.debug("Checking for mismatched utility ids")
         only_overrides = only_overrides.merge(
-            ppe[["record_id_eia", "utility_id_eia"]].drop_duplicates(),
+            ppe[["record_id_eia", "utility_id_pudl"]].drop_duplicates(),
             left_on="record_id_eia_override_1",
             right_on="record_id_eia",
             how="left",
-            suffixes=("", "_ppe"),
         )
-        # Now merge the utility_id_pudl from EIA in so that you can compare it with the
-        # utility_id_pudl from FERC that's already in the overrides
-        only_overrides = only_overrides.merge(
-            utils_eia860[["utility_id_eia", "utility_id_pudl"]].drop_duplicates(),
-            left_on="utility_id_eia_ppe",
-            right_on="utility_id_eia",
-            how="left",
-            suffixes=("", "_utils"),
-        )
-        # Now we can actually compare the two columns
+        # Now we compare the two utlity_id_pudl columns
         if (
             len(
                 bad_utils := only_overrides["utility_id_pudl"].compare(
-                    only_overrides["utility_id_pudl_utils"]
+                    only_overrides["utility_id_pudl_ferc1"]
                 )
             )
             > 0
@@ -544,7 +538,7 @@ def validate_override_fixes(
             raise AssertionError(f"Found mismatched utilities: {bad_utils}")
 
     # Make sure the year in the EIA id overrides match the year in the report_year
-    # column.
+    # column (which comes from FERC)
     logger.debug("Checking that year in override id matches report year")
     only_overrides = only_overrides.merge(
         ppe[["record_id_eia", "report_year"]].drop_duplicates(),
@@ -752,7 +746,6 @@ def validate_and_add_to_training(
         file_raw = pd.read_excel(path_to_new_training + file)
         file_df = file_raw.pipe(
             validate_override_fixes,
-            utils_eia860,
             ppe,
             ferc1_eia,
             current_training_df,
@@ -764,7 +757,6 @@ def validate_and_add_to_training(
                 "record_id_eia_override_1": "record_id_eia",
             }
         )
-
         # Get just the overrides and combine them to full list of overrides
         only_overrides = file_df[file_df["record_id_eia"].notna()][override_cols].copy()
         all_overrides_list.append(only_overrides)
