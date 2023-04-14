@@ -110,10 +110,10 @@ def _fill_fuel_costs_by_state(
     fuel_costs: pd.DataFrame,
 ) -> pd.DataFrame:
     """Fill in missing fuel costs with state-level averages."""
-    out_df = frc_df.merge(
+    out_df = pd.merge(
+        frc_df,
         fuel_costs,
-        left_on=["report_date", "plant_state", "fuel_type_code_pudl"],
-        right_on=["report_date", "state", "fuel_type_code_pudl"],
+        on=["report_date", "state", "fuel_type_code_pudl"],
         how="left",
     )
 
@@ -219,22 +219,22 @@ def denorm_fuel_receipts_costs_eia923(
 ) -> pd.DataFrame:
     """Denormalize the :ref:`fuel_receipts_costs_eia923` table."""
     coalmine_eia923 = coalmine_eia923.drop(columns=["data_maturity"])
-    plant_states = plants_entity_eia[["plant_id_eia", "state"]].rename(
-        columns={"state": "plant_state"}
-    )
+    plant_states = plants_entity_eia[["plant_id_eia", "state"]]
     frc_df = (
         pd.merge(
-            fuel_receipts_costs_eia923, coalmine_eia923, how="left", on="mine_id_pudl"
+            fuel_receipts_costs_eia923,
+            coalmine_eia923.rename(
+                columns={
+                    "state": "mine_state",
+                    "county_id_fips": "coalmine_county_id_fips",
+                }
+            ),
+            how="left",
+            on="mine_id_pudl",
         )
         .merge(plant_states, how="left", on="plant_id_eia")
         .drop(columns=["mine_id_pudl"])
         .pipe(apply_pudl_dtypes, group="eia")
-        .rename(  # Rename after applying dtypes so renamed cols get types
-            columns={
-                "state": "mine_state",
-                "county_id_fips": "coalmine_county_id_fips",
-            }
-        )
     )
     if context.op_config["fill"]:
         logger.info("filling in fuel cost NaNs")
