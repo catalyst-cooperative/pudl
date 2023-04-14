@@ -192,7 +192,7 @@ def denorm_boiler_fuel_eia923(
 
 
 @asset(
-    io_manager_key=None,
+    io_manager_key="pudl_sqlite_io_manager",
     config_schema={
         "fill": Field(
             bool,
