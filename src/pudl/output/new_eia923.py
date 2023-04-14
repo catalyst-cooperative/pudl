@@ -1,6 +1,7 @@
 """Denormalized, aggregated, and filled versions of the basic EIA-923 tables."""
 from typing import Literal
 
+import numpy as np
 import pandas as pd
 from dagster import AssetsDefinition, Field, asset
 
@@ -146,7 +147,7 @@ def denorm_generation_eia923(
     )
 
 
-@asset(io_manager_key=None, compute_kind="Python")
+@asset(io_manager_key="pudl_sqlite_io_manager", compute_kind="Python")
 def denorm_generation_fuel_combined_eia923(
     generation_fuel_eia923: pd.DataFrame,
     generation_fuel_nuclear_eia923: pd.DataFrame,
@@ -279,7 +280,7 @@ def time_aggregated_eia923_asset_factory(
 
     @asset(
         name=f"denorm_generation_{AGG_FREQS[freq]}_eia923",
-        io_manager_key="pudl_sqlite_io_manager",
+        io_manager_key=io_manager_key,
         compute_kind="Python",
     )
     def generation_agg_eia923(
@@ -316,7 +317,7 @@ def time_aggregated_eia923_asset_factory(
         denorm_plants_utilities_eia: pd.DataFrame,
     ) -> pd.DataFrame:
         """Aggregate :ref:`generation_fuel_combined_eia923` monthly or annually."""
-        return (
+        gf_both = (
             # Create a date index for temporal resampling:
             denorm_generation_fuel_combined_eia923.set_index(
                 pd.DatetimeIndex(denorm_generation_fuel_combined_eia923.report_date)
@@ -341,17 +342,41 @@ def time_aggregated_eia923_asset_factory(
                     "net_generation_mwh": pudl.helpers.sum_na,
                 }
             )
-            .assign(
-                fuel_mmbtu_per_unit=lambda x: x.fuel_consumed_mmbtu
-                / x.fuel_consumed_units
+        ).reset_index()
+        # Nuclear plants don't report units of fuel consumed, so fuel heat content ends
+        # up being calculated as infinite. However, some nuclear plants report using
+        # small amounts of DFO. Ensure infinte heat contents are set to NA instead:
+        # Duplicates pudl.output.eia923.generation_fuel_all_eia923(). Should figure out
+        # how to consolidate.
+        gf = gf_both.loc[gf_both.energy_source_code != "NUC"]
+        gfn = gf_both.loc[gf_both.energy_source_code == "NUC"]
+
+        gf["fuel_mmbtu_per_unit"] = gf.fuel_consumed_mmbtu / gf.fuel_consumed_units
+
+        gfn.assign(
+            fuel_mmbtu_per_unit=np.where(
+                gfn.fuel_consumed_units != 0,
+                gfn.fuel_consumed_mmbtu / gfn.fuel_consumed_units,
+                np.nan,
             )
-            .reset_index()
+        )
+        return (
+            pd.concat([gf, gfn])
+            .sort_values(
+                [
+                    "report_date",
+                    "plant_id_eia",
+                    "prime_mover_code",
+                    "energy_source_code",
+                ]
+            )
+            .reset_index(drop=True)
             .pipe(denorm_by_plant, pu=denorm_plants_utilities_eia)
         )
 
     @asset(
         name=f"denorm_boiler_fuel_{AGG_FREQS[freq]}_eia923",
-        io_manager_key="pudl_sqlite_io_manager",
+        io_manager_key=io_manager_key,
         compute_kind="Python",
     )
     def boiler_fuel_agg_eia923(
@@ -408,7 +433,7 @@ def time_aggregated_eia923_asset_factory(
 
     @asset(
         name=f"denorm_fuel_receipts_costs_{AGG_FREQS[freq]}_eia923",
-        io_manager_key="pudl_sqlite_io_manager",
+        io_manager_key=io_manager_key,
         compute_kind="Python",
     )
     def fuel_receipts_costs_agg_eia923(
@@ -486,6 +511,8 @@ def time_aggregated_eia923_asset_factory(
 
 generation_fuel_agg_eia923_assets = [
     ass
-    for freak in list(AGG_FREQS)
-    for ass in time_aggregated_eia923_asset_factory(freq=freak, io_manager_key=None)
+    for freq in list(AGG_FREQS)
+    for ass in time_aggregated_eia923_asset_factory(
+        freq=freq, io_manager_key="pudl_sqlite_io_manager"
+    )
 ]
