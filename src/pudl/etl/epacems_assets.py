@@ -348,8 +348,8 @@ def emissions_unit_ids_epacems(
     return epacems_ids
 
 
-@asset
-def subplant_ids_epacamd_eia(
+@asset(io_manager_key="pudl_sqlite_io_manager")
+def epacamd_eia_subplant_ids(
     clean_epacamd_eia: pd.DataFrame,
     generators_eia860: pd.DataFrame,
     emissions_unit_ids_epacems: pd.DataFrame,
