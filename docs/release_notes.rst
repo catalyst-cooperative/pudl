@@ -168,7 +168,9 @@ Analysis
   logistic regression to match FERC1 plants data to EIA 860 records. While far from
   perfect, this baseline model utilizes the manually created training data and plant IDs
   to perform record linkage on the FERC1 data and EIA plant parts list created in
-  :mod:`pudl.analysis.plant_parts_eia`. See issue :issue:`1064` & PR :pr:`2224`.
+  :mod:`pudl.analysis.plant_parts_eia`. See issue :issue:`1064` & PR :pr:`2224`. To
+  account for 1:m matches in the manual data, we added ``plant_match_ferc1`` as a plant
+  part in :mod:`pudl.analysis.plant_parts_eia`.
 
 Deprecations
 ^^^^^^^^^^^^
@@ -218,11 +220,6 @@ Miscellaneous
 * Updated PUDL to use Python 3.11. See :pr:`2408` & :issue:`2383`
 * Apply start and end dates to ferc1 data in :class:`pudl.output.pudltabl.PudlTabl`.
   See :pr:`2238` & :issue:`274`.
-* Added the ability to serialize :class:`pudl.output.pudltabl.PudlTabl` using
-  :mod:`pickle`. To implement this functionality new ``__getstate__`` and
-  ``__setstate__`` methods have been added to :class:`pudl.output.pudltabl.PudlTabl` and
-  :class:`pudl.workspace.resource_cache.GoogleCloudStorageCache` to accommodate elements
-  of their internals that could not otherwise be serialized.
 * Add generic spot fix method to transform process, to manually rescue FERC1 records.
   See :pr:`2254` & :issue:`1980`.
 * Reverted a fix made in :pr:`1909`, which mapped all plants located in NY state that
