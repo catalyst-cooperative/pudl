@@ -446,6 +446,7 @@ def time_aggregated_eia923_asset_factory(
                     "total_moisture_content": pudl.helpers.sum_na,
                     "total_chlorine_content": pudl.helpers.sum_na,
                     "fuel_cost_from_eiaapi": "any",
+                    "state": "first",
                 }
             )
             .assign(

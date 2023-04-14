@@ -181,7 +181,7 @@ class PudlTabl:
             "balancing_authority_assn_eia861": "balancing_authority_assn_eia861",
             # eia923 (denormalized, data primarily from EIA-923)
             "denorm_boiler_fuel_AGG_eia923": "bf_eia923",
-            # "denorm_fuel_receipts_costs_AGG_eia923": "frc_eia923",
+            "denorm_fuel_receipts_costs_AGG_eia923": "frc_eia923",
             # "denorm_generation_AGG_eia923": "gen_eia923",
             # "denorm_generation_fuel_combined_AGG_eia923": "gf_eia923",
             # ferc714
@@ -330,27 +330,6 @@ class PudlTabl:
                 nuclear=True,
             )
         return self._dfs["gf_nuclear_eia923"]
-
-    def frc_eia923(self, update=False):
-        """Pull EIA 923 fuel receipts and costs data.
-
-        Args:
-            update (bool): If true, re-calculate the output dataframe, even if
-                a cached version exists.
-
-        Returns:
-            pandas.DataFrame: a denormalized table for interactive use.
-        """
-        if update or self._dfs["frc_eia923"] is None:
-            self._dfs["frc_eia923"] = pudl.output.eia923.fuel_receipts_costs_eia923(
-                self.pudl_engine,
-                freq=self.freq,
-                start_date=self.start_date,
-                end_date=self.end_date,
-                fill=self.fill_fuel_cost,
-                roll=self.roll_fuel_cost,
-            )
-        return self._dfs["frc_eia923"]
 
     def gen_eia923(self, update=False):
         """Pull EIA 923 net generation data by generator.

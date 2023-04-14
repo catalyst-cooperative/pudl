@@ -1,10 +1,9 @@
 """Definitions of data tables primarily coming from EIA-923."""
 from typing import Any
 
-RESOURCE_METADATA: dict[str, dict[str, Any]] = {
-    "boiler_fuel_eia923": {
-        "description": (
-            """EIA-923 Monthly Boiler Fuel Consumption and Emissions, from EIA-923 Schedule 3.
+TABLE_DESCRIPTIONS: dict[str, str] = {
+    "boiler_fuel_eia923": (
+        """EIA-923 Monthly Boiler Fuel Consumption and Emissions, from EIA-923 Schedule 3.
 
 Reports the quantity of each type of fuel consumed by each boiler on a monthly basis, as
 well as the sulfur and ash content of those fuels. Fuel quantity is reported in standard
@@ -21,7 +20,38 @@ complex.
 Note that a small number of respondents only report annual fuel consumption, and all of
 it is reported in December.
 """
-        ),
+    ),
+    "fuel_receipts_costs_eia923": (
+        """Data describing fuel deliveries to power plants, reported in EIA-923 Schedule 2, Part A.
+
+Each record describes an individual fuel delivery. There can be multiple deliveries of
+the same type of fuel from the same supplier to the same plant in a single month, so the
+table has no natural primary key.
+
+There can be a significant delay between the receipt of fuel and its consumption, so
+using this table to infer monthly attributes associated with power generation may not be
+entirely accurate. However, this is the most granular data we have describing fuel
+costs, and we use it in calculating the marginal cost of electricity for individual
+generation units.
+
+Under some circumstances utilities are allowed to treat the price of fuel as proprietary
+business data, meaning it is redacted from the publicly available spreadsheets. It's
+still reported to EIA and influences the aggregated (state, region, annual, etc.) fuel
+prices they publish. From 2009-2021 about 1/3 of all prices are redacted. The missing
+data is not randomly distributed. Deregulated markets dominated by merchant generators
+(independent power producers) redact much more data, and natural gas is by far the most
+likely fuel to have its price redacted. This means, for instance, that the entire
+Northeastern US reports essentially no fine-grained data about its natural gas prices.
+
+Additional data which we haven't yet integrated is available in a similar format from
+2002-2008 via the EIA-423, and going back as far as 1972 from the FERC-423.
+"""
+    ),
+}
+
+RESOURCE_METADATA: dict[str, dict[str, Any]] = {
+    "boiler_fuel_eia923": {
+        "description": TABLE_DESCRIPTIONS["boiler_fuel_eia923"],
         "schema": {
             "fields": [
                 "plant_id_eia",
@@ -50,25 +80,7 @@ it is reported in December.
         "etl_group": "eia923",
     },
     "denorm_boiler_fuel_eia923": {
-        "description": (
-            """EIA-923 Monthly Boiler Fuel Consumption and Emissions, from EIA-923 Schedule 3.
-
-Reports the quantity of each type of fuel consumed by each boiler on a monthly basis, as
-well as the sulfur and ash content of those fuels. Fuel quantity is reported in standard
-EIA fuel units (tons, barrels, Mcf). Heat content per unit of fuel is also reported,
-making this table useful for calculating the thermal efficiency (heat rate) of various
-generation units.
-
-This table provides better coverage of the entire fleet of generators than the
-``generation_fuel_eia923`` table, but the fuel consumption reported here is not directly
-associated with a generator. This complicates the heat rate calculation, since the
-associations between individual boilers and generators are incomplete and can be
-complex.
-
-Note that a small number of respondents only report annual fuel consumption, and all of
-it is reported in December.
-"""
-        ),
+        "description": TABLE_DESCRIPTIONS["boiler_fuel_eia923"],
         "schema": {
             "fields": [
                 "report_date",
@@ -104,25 +116,7 @@ it is reported in December.
         "etl_group": "eia923",
     },
     "denorm_boiler_fuel_yearly_eia923": {
-        "description": (
-            """EIA-923 Monthly Boiler Fuel Consumption and Emissions, from EIA-923 Schedule 3.
-
-Reports the quantity of each type of fuel consumed by each boiler on a monthly basis, as
-well as the sulfur and ash content of those fuels. Fuel quantity is reported in standard
-EIA fuel units (tons, barrels, Mcf). Heat content per unit of fuel is also reported,
-making this table useful for calculating the thermal efficiency (heat rate) of various
-generation units.
-
-This table provides better coverage of the entire fleet of generators than the
-``generation_fuel_eia923`` table, but the fuel consumption reported here is not directly
-associated with a generator. This complicates the heat rate calculation, since the
-associations between individual boilers and generators are incomplete and can be
-complex.
-
-Note that a small number of respondents only report annual fuel consumption, and all of
-it is reported in December.
-"""
-        ),
+        "description": TABLE_DESCRIPTIONS["boiler_fuel_eia923"],
         "schema": {
             "fields": [
                 "report_date",
@@ -158,25 +152,7 @@ it is reported in December.
         "etl_group": "eia923",
     },
     "denorm_boiler_fuel_monthly_eia923": {
-        "description": (
-            """EIA-923 Monthly Boiler Fuel Consumption and Emissions, from EIA-923 Schedule 3.
-
-Reports the quantity of each type of fuel consumed by each boiler on a monthly basis, as
-well as the sulfur and ash content of those fuels. Fuel quantity is reported in standard
-EIA fuel units (tons, barrels, Mcf). Heat content per unit of fuel is also reported,
-making this table useful for calculating the thermal efficiency (heat rate) of various
-generation units.
-
-This table provides better coverage of the entire fleet of generators than the
-``generation_fuel_eia923`` table, but the fuel consumption reported here is not directly
-associated with a generator. This complicates the heat rate calculation, since the
-associations between individual boilers and generators are incomplete and can be
-complex.
-
-Note that a small number of respondents only report annual fuel consumption, and all of
-it is reported in December.
-"""
-        ),
+        "description": TABLE_DESCRIPTIONS["boiler_fuel_eia923"],
         "schema": {
             "fields": [
                 "report_date",
@@ -247,32 +223,7 @@ is for those supplies.
         "etl_group": "eia923",
     },
     "fuel_receipts_costs_eia923": {
-        "description": (
-            """Data describing fuel deliveries to power plants, reported in EIA-923 Schedule 2, Part A.
-
-Each record describes an individual fuel delivery. There can be multiple deliveries of
-the same type of fuel from the same supplier to the same plant in a single month, so the
-table has no natural primary key.
-
-There can be a significant delay between the receipt of fuel and its consumption, so
-using this table to infer monthly attributes associated with power generation may not be
-entirely accurate. However, this is the most granular data we have describing fuel
-costs, and we use it in calculating the marginal cost of electricity for individual
-generation units.
-
-Under some circumstances utilities are allowed to treat the price of fuel as proprietary
-business data, meaning it is redacted from the publicly available spreadsheets. It's
-still reported to EIA and influences the aggregated (state, region, annual, etc.) fuel
-prices they publish. From 2009-2021 about 1/3 of all prices are redacted. The missing
-data is not randomly distributed. Deregulated markets dominated by merchant generators
-(independent power producers) redact much more data, and natural gas is by far the most
-likely fuel to have its price redacted. This means, for instance, that the entire
-Northeastern US reports essentially no fine-grained data about its natural gas prices.
-
-Additional data which we haven't yet integrated is available in a similar format from
-2002-2008 via the EIA-423, and going back as far as 1972 from the FERC-423.
-"""
-        ),
+        "description": TABLE_DESCRIPTIONS["fuel_receipts_costs_eia923"],
         "schema": {
             "fields": [
                 "plant_id_eia",
@@ -297,6 +248,112 @@ Additional data which we haven't yet integrated is available in a similar format
                 "moisture_content_pct",
                 "chlorine_content_ppm",
                 "data_maturity",
+            ],
+        },
+        "field_namespace": "eia",
+        "sources": ["eia923"],
+        "etl_group": "eia923",
+    },
+    "denorm_fuel_receipts_costs_eia923": {
+        "description": TABLE_DESCRIPTIONS["fuel_receipts_costs_eia923"],
+        "schema": {
+            "fields": [
+                "report_date",
+                "plant_id_eia",
+                "plant_id_pudl",
+                "plant_name_eia",
+                "utility_id_eia",
+                "utility_id_pudl",
+                "utility_name_eia",
+                "state",
+                "contract_type_code",
+                "contract_expiration_date",
+                "energy_source_code",
+                "fuel_type_code_pudl",
+                "fuel_group_code",
+                "supplier_name",
+                "fuel_received_units",
+                "fuel_mmbtu_per_unit",
+                "fuel_cost_per_mmbtu",
+                "bulk_agg_fuel_cost_per_mmbtu",
+                "fuel_consumed_mmbtu",
+                "total_fuel_cost",
+                "fuel_cost_from_eiaapi",
+                "sulfur_content_pct",
+                "ash_content_pct",
+                "mercury_content_ppm",
+                "primary_transportation_mode_code",
+                "secondary_transportation_mode_code",
+                "natural_gas_transport_code",
+                "natural_gas_delivery_contract_type_code",
+                "moisture_content_pct",
+                "chlorine_content_ppm",
+                "data_maturity",
+                "mine_id_msha",
+                "mine_name",
+                "mine_state",
+                "coalmine_county_id_fips",
+                "mine_type_code",
+            ],
+        },
+        "field_namespace": "eia",
+        "sources": ["eia923"],
+        "etl_group": "eia923",
+    },
+    "denorm_fuel_receipts_costs_yearly_eia923": {
+        "description": TABLE_DESCRIPTIONS["fuel_receipts_costs_eia923"],
+        "schema": {
+            "fields": [
+                "report_date",
+                "plant_id_eia",
+                "plant_id_pudl",
+                "plant_name_eia",
+                "utility_id_eia",
+                "utility_id_pudl",
+                "utility_name_eia",
+                "state",
+                "fuel_type_code_pudl",
+                "fuel_received_units",
+                "fuel_mmbtu_per_unit",
+                "fuel_cost_per_mmbtu",
+                "fuel_consumed_mmbtu",
+                "total_fuel_cost",
+                "fuel_cost_from_eiaapi",
+                "sulfur_content_pct",
+                "ash_content_pct",
+                "mercury_content_ppm",
+                "moisture_content_pct",
+                "chlorine_content_ppm",
+            ],
+        },
+        "field_namespace": "eia",
+        "sources": ["eia923"],
+        "etl_group": "eia923",
+    },
+    "denorm_fuel_receipts_costs_monthly_eia923": {
+        "description": TABLE_DESCRIPTIONS["fuel_receipts_costs_eia923"],
+        "schema": {
+            "fields": [
+                "report_date",
+                "plant_id_eia",
+                "plant_id_pudl",
+                "plant_name_eia",
+                "utility_id_eia",
+                "utility_id_pudl",
+                "utility_name_eia",
+                "state",
+                "fuel_type_code_pudl",
+                "fuel_received_units",
+                "fuel_mmbtu_per_unit",
+                "fuel_cost_per_mmbtu",
+                "fuel_consumed_mmbtu",
+                "total_fuel_cost",
+                "fuel_cost_from_eiaapi",
+                "sulfur_content_pct",
+                "ash_content_pct",
+                "mercury_content_ppm",
+                "moisture_content_pct",
+                "chlorine_content_ppm",
             ],
         },
         "field_namespace": "eia",
