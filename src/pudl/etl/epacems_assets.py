@@ -235,13 +235,9 @@ def clean_epacamd_eia(
     Args:
         context: dagster keyword that provides access to resources and config. This
             determines whether
-        epacamd_eia: The result of running this module's extract() function.
+        raw_epacamd_eia: The result of running this module's extract() function.
         generators_entity_eia: The generators_entity_eia table.
         boilers_entity_eia: The boilers_entitiy_eia table.
-        processing_all_years: A boolean indicating whether the years from the
-            Eia860Settings object match the EIA860 working partitions. This indicates
-            whether or not to restrict the crosswalk data so the tests don't fail on
-            foreign key restraints.
 
     Returns:
         A dictionary containing the cleaned EPACAMD-EIA crosswalk DataFrame.
@@ -359,108 +355,56 @@ def epacamd_eia_subplant_ids(
 
     This function consists of three primary parts:
 
-    #.  Identify a list of all unique plant-units that exist in the CEMS data
-        for the years in question. This will be used to filter the crosswalk.
-    #.  Load the EPA-EIA crosswalk and filter it based on the units that exist
-        in the CEMS data for the years in question
+    #.  Augement the EPA CADM:EIA crosswalk with all IDs from
     #.  Use graph analysis to identify distinct groupings of EPA units and EIA
         generators based on 1:1, 1:m, m:1, or m:m relationships.
 
-    Returns:
-        exports the subplant crosswalk to a csv file cems_ids and gen_fuel_allocated
-        with subplant_id added
-    """
-    emissions_unit_ids_epacems = emissions_unit_ids_epacems.assign(
-        report_date=lambda x: pd.to_datetime(x.year, format="%Y")
-    )
 
-    clean_epacamd_eia = augement_crosswalk_with_eia860(
-        clean_epacamd_eia, generators_eia860
+    Returns:
+        table of cems_ids and with subplant_id added
+    """
+    # emissions_unit_ids_epacems = emissions_unit_ids_epacems.assign(
+    #     report_date=lambda x: pd.to_datetime(x.year, format="%Y")
+    # )
+
+    clean_epacamd_eia = (
+        augement_crosswalk_with_eia860(clean_epacamd_eia, generators_eia860)
+        .pipe(augement_crosswalk_with_epacamd_ids, emissions_unit_ids_epacems)
+        .pipe(augement_crosswalk_with_bga_eia860, boiler_generator_assn_eia860)
     )
     # filter the crosswalk to drop any units that don't exist in CEMS
-    # TODO: Remove this step so we are making subplant-ids for all EIA plants
-    # filtered_crosswalk = pudl.analysis.epacamd_eia.filter_crosswalk(
-    #     clean_epacamd_eia, emissions_unit_ids_epacems
-    # )
     # use graph analysis to identify subplants
-    crosswalk_with_subplant_ids = pudl.analysis.epacamd_eia.make_subplant_ids(
+    subplant_crosswalk_complete = pudl.analysis.epacamd_eia.make_subplant_ids(
         clean_epacamd_eia
     ).pipe(pudl.metadata.fields.apply_pudl_dtypes, "eia")
-
-    # change the order of the columns
-    crosswalk_with_subplant_ids = crosswalk_with_subplant_ids[
-        [
-            "plant_id_epa",
-            "emissions_unit_id_epa",
-            "plant_id_eia",
-            "generator_id",
-            "subplant_id",
-        ]
-    ]
-
     # update the subplant_crosswalk to ensure completeness
     # prepare the subplant crosswalk by adding a complete list of generators and adding the unit_id_pudl column
 
     # TODO: Should we migrate the unit_id_pudl complete fleshing out from outputs
     # -> transform? The unit_id_pudl is NOT annually varying.
-    complete_generator_ids = boiler_generator_assn_eia860[
-        ["plant_id_eia", "generator_id", "unit_id_pudl"]
-    ].drop_duplicates()
-    subplant_crosswalk_complete = crosswalk_with_subplant_ids.merge(
-        complete_generator_ids,
-        how="outer",
-        on=["plant_id_eia", "generator_id"],
-        validate="m:1",
-    )
-    # also add a complete list of cems emissions_unit_id_epa
-    subplant_crosswalk_complete = subplant_crosswalk_complete.merge(
-        emissions_unit_ids_epacems[
-            ["plant_id_eia", "report_date", "emissions_unit_id_epa"]
-        ].drop_duplicates(),
-        how="outer",
-        on=["plant_id_eia", "emissions_unit_id_epa"],
-        validate="m:m",
-    )
+
     # update the subplant ids for each plant
     subplant_crosswalk_complete = subplant_crosswalk_complete.groupby(
-        ["plant_id_eia", "report_date"]
+        ["plant_id_eia"]
     ).apply(update_subplant_ids)
-
     # remove the intermediate columns created by update_subplant_ids
     subplant_crosswalk_complete["subplant_id"].update(
         subplant_crosswalk_complete["new_subplant"]
     )
-    subplant_crosswalk_complete = subplant_crosswalk_complete.reset_index(drop=True)[
-        [
-            "plant_id_epa",
-            "emissions_unit_id_epa",
-            "plant_id_eia",
-            "generator_id",
-            "subplant_id",
-            "unit_id_pudl",
-            "report_date",
-        ]
-    ]
-    len_pre = len(subplant_crosswalk_complete)
-    subplant_crosswalk_complete = subplant_crosswalk_complete.drop_duplicates(
+    subplant_crosswalk_complete = subplant_crosswalk_complete.reset_index(
+        drop=True
+    ).drop_duplicates(
         subset=[
             "plant_id_epa",
             "emissions_unit_id_epa",
             "plant_id_eia",
             "generator_id",
             "subplant_id",
-            "report_date",
         ],
         keep="last",
     )
-    len_post = len(subplant_crosswalk_complete)
-    logger.info(f"{len_pre=} and {len_post}")
-
-    # add proposed operating dates and retirements to the subplant id crosswalk
-    crosswalk_with_subplant_ids = add_operating_and_retirement_dates(
-        subplant_crosswalk_complete, generators_eia860
-    )
-    return crosswalk_with_subplant_ids
+    # TODO: remove. temp report_date fake out so i don't have to regen the db yet
+    return subplant_crosswalk_complete.assign(report_date="2035-01-01")
 
 
 def augement_crosswalk_with_eia860(
@@ -482,6 +426,37 @@ def augement_crosswalk_with_eia860(
         crosswalk_clean["plant_id_eia"]
     )
     return crosswalk_clean
+
+
+def augement_crosswalk_with_epacamd_ids(
+    crosswalk_clean: pd.DataFrame, emissions_unit_ids_epacems: pd.DataFrame
+) -> pd.DataFrame:
+    """Merge all EPA CAMD IDs into the crosswalk."""
+    return crosswalk_clean.assign(
+        emissions_unit_id_epa=lambda x: x.emissions_unit_id_epa.fillna(x.generator_id)
+    ).merge(
+        emissions_unit_ids_epacems[
+            ["plant_id_eia", "emissions_unit_id_epa"]
+        ].drop_duplicates(),
+        how="outer",
+        on=["plant_id_eia", "emissions_unit_id_epa"],
+        validate="m:m",
+        indicator=True,
+    )
+
+
+def augement_crosswalk_with_bga_eia860(
+    crosswalk_clean: pd.DataFrame, boiler_generator_assn_eia860: pd.DataFrame
+) -> pd.DataFrame:
+    """Merge all EIA Unit IDs into the crosswalk."""
+    return crosswalk_clean.merge(
+        boiler_generator_assn_eia860[
+            ["plant_id_eia", "generator_id", "unit_id_pudl"]
+        ].drop_duplicates(),
+        how="outer",
+        on=["plant_id_eia", "generator_id"],
+        validate="m:1",
+    )
 
 
 def update_subplant_ids(subplant_crosswalk):
@@ -565,7 +540,7 @@ def update_subplant_ids(subplant_crosswalk):
     # create a numeric version of each generator_id
     # ngroup() creates a unique number for each element in the group
     subplant_crosswalk["numeric_generator_id"] = subplant_crosswalk.groupby(
-        ["plant_id_eia", "report_date", "generator_id"], dropna=False
+        ["plant_id_eia", "generator_id"], dropna=False
     ).ngroup()
     # when filling in missing unit_id_pudl, we don't want these numeric_generator_id to overlap existing unit_id
     # to ensure this, we will add 1000 to each of these numeric generator ids to ensure they are unique
@@ -581,7 +556,7 @@ def update_subplant_ids(subplant_crosswalk):
     )
     # create a new unique subplant_id based on the connected subplant ids and the filled unit_id
     subplant_crosswalk["new_subplant"] = subplant_crosswalk.groupby(
-        ["plant_id_eia", "report_date", "subplant_id_connected", "unit_id_pudl_filled"],
+        ["plant_id_eia", "subplant_id_connected", "unit_id_pudl_filled"],
         dropna=False,
     ).ngroup()
 
@@ -629,55 +604,4 @@ def connect_ids(df, id_to_update, connecting_id):
             validate="m:1",
         )
         df[f"{connecting_id}_connected"].update(df[f"{connecting_id}_to_replace"])
-    return df
-
-
-def add_operating_and_retirement_dates(df, generators_eia860):
-    """Adds generators' planned operating date and/or retirement date."""
-    generator_status = generators_eia860.loc[
-        :,
-        [
-            "plant_id_eia",
-            "generator_id",
-            "report_date",
-            "operational_status",
-            "generator_retirement_date",
-            "current_planned_generator_operating_date",
-        ],
-    ]
-    # only keep values that have a planned operating date or retirement date
-    generator_status = generator_status[
-        (~generator_status["generator_retirement_date"].isna())
-        | (~generator_status["current_planned_generator_operating_date"].isna())
-    ]
-    # drop any duplicate entries
-    generator_status = generator_status.sort_values(
-        by=["plant_id_eia", "generator_id", "report_date"]
-    ).drop_duplicates(
-        subset=[
-            "plant_id_eia",
-            "generator_id",
-            "report_date",  # added by cbz
-            "generator_retirement_date",
-            "current_planned_generator_operating_date",
-        ],
-        keep="last",
-    )
-
-    # merge the dates into the crosswalk
-    df = df.merge(
-        generator_status[
-            [
-                "plant_id_eia",
-                "generator_id",
-                "report_date",
-                "generator_retirement_date",
-                "current_planned_generator_operating_date",
-            ]
-        ],
-        how="left",
-        on=["plant_id_eia", "generator_id", "report_date"],
-        validate="m:1",
-    )
-
     return df

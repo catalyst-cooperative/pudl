@@ -48,8 +48,8 @@ table addition ensures there is also complete coverage of those units as well.
 
 This table does not have primary keys because the primary keys would have been:
 plant_id_eia, generator_id, subplant_id and emissions_unit_id_epa, but there are some
-null records in the generator_id column because not all EPA CAMD plants are successfully
-mapped to EIA generators.
+null records in the generator_id column because ~2 percent of all EPA CAMD records are not
+successfully mapped to EIA generators.
 """,
         "schema": {
             "fields": [
@@ -59,9 +59,8 @@ mapped to EIA generators.
                 "unit_id_pudl",
                 "emissions_unit_id_epa",
                 "generator_id",
-                "report_date",
             ],
-            # "primary_key": ["plant_id_eia", "subplant_id", "report_date"],
+            # "primary_key": ["plant_id_eia", "subplant_id", "generator_id"],
         },
         "field_namespace": "glue",
         "etl_group": "epacems",
