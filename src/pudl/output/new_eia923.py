@@ -408,7 +408,7 @@ def time_aggregated_eia923_asset_factory(
 
     @asset(
         name=f"denorm_fuel_receipts_costs_{AGG_FREQS[freq]}_eia923",
-        io_manager_key=io_manager_key,
+        io_manager_key="pudl_sqlite_io_manager",
         compute_kind="Python",
     )
     def fuel_receipts_costs_agg_eia923(
