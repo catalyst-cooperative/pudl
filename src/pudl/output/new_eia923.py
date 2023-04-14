@@ -163,9 +163,58 @@ def denorm_generation_fuel_combined_eia923(
     This table contians the records at their originally reported temporal resolution,
     so it's outside of :func:`time_aggregated_eia923_asset_factory`.
     """
-    gf = pudl.output.eia923.generation_fuel_all_eia923(
-        gf=generation_fuel_eia923,
-        gfn=generation_fuel_nuclear_eia923,
+    primary_key = [
+        "report_date",
+        "plant_id_eia",
+        "prime_mover_code",
+        "energy_source_code",
+    ]
+    sum_cols = [
+        "fuel_consumed_for_electricity_mmbtu",
+        "fuel_consumed_for_electricity_units",
+        "fuel_consumed_mmbtu",
+        "fuel_consumed_units",
+        "net_generation_mwh",
+    ]
+    other_cols = [
+        "nuclear_unit_id",  # dropped in the groupby / aggregation.
+        "fuel_mmbtu_per_unit",  # recalculated based on aggregated sum_cols.
+    ]
+    # Rather than enumerating all of the non-data columns, identify them by process of
+    # elimination, in case they change in the future.
+    non_data_cols = list(
+        set(generation_fuel_nuclear_eia923.columns)
+        - set(primary_key + sum_cols + other_cols)
+    )
+
+    gfn_gb = generation_fuel_nuclear_eia923.groupby(primary_key)
+    # Ensure that all non-data columns are homogeneous within groups
+    if not (gfn_gb[non_data_cols].nunique() == 1).all(axis=None):
+        raise ValueError(
+            "Found inhomogeneous non-data cols while aggregating nuclear generation. "
+            f"Non-data cols: {non_data_cols}"
+        )
+    gfn_agg = pd.concat(
+        [
+            gfn_gb[non_data_cols].first(),
+            gfn_gb[sum_cols].sum(min_count=1),
+        ],
+        axis="columns",
+    )
+    # Nuclear plants don't report units of fuel consumed, so fuel heat content ends up
+    # being calculated as infinite. However, some nuclear plants report using small
+    # amounts of DFO. Ensure infite heat contents are set to NA instead:
+    gfn_agg = gfn_agg.assign(
+        fuel_mmbtu_per_unit=np.where(
+            gfn_agg.fuel_consumed_units != 0,
+            gfn_agg.fuel_consumed_mmbtu / gfn_agg.fuel_consumed_units,
+            np.nan,
+        )
+    ).reset_index()
+    gf = (
+        pd.concat([gfn_agg, generation_fuel_eia923])
+        .sort_values(primary_key)
+        .reset_index(drop=True)
     )
     return denorm_by_plant(gf, pu=denorm_plants_utilities_eia)
 
