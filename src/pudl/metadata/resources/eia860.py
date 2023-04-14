@@ -109,6 +109,8 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
                 # See: https://github.com/catalyst-cooperative/pudl/issues/1196
                 "exclude": [
                     "boiler_fuel_eia923",
+                    "denorm_boiler_fuel_eia923",
+                    "denorm_boiler_fuel_monthly_eia923",
                 ],
             },
         },
@@ -364,6 +366,8 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
                 "exclude": [
                     "boiler_fuel_eia923",
                     "fuel_receipts_costs_eia923",
+                    "denorm_fuel_receipts_costs_eia923",
+                    "denorm_fuel_receipts_costs_monthly_eia923",
                     "generation_eia923",
                     "generation_fuel_eia923",
                     "generation_fuel_nuclear_eia923",
