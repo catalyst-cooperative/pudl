@@ -770,10 +770,9 @@ def validate_and_add_to_training(
             multi_df = file_raw.pipe(get_multi_match_df)
             multi_file_df = multi_df.pipe(
                 validate_override_fixes,
-                utils_eia860,
-                ppe,
-                ferc1_eia,
-                current_training_df,
+                ppe=ppe,
+                ferc1_eia=ferc1_eia,
+                training_data=current_training_df,
                 expect_override_overrides=expect_override_overrides,
                 allow_mismatched_utilities=allow_mismatched_utilities,
             ).rename(

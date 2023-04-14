@@ -1,492 +1,266 @@
-record_id_eia,record_id_ferc1,signature_1,signature_2,notes
-2830_1952_2005_plant_operating_year_total_3542,f1_steam_2005_12_27_0_3,AS,CG,"Combo of gens 1-5 based on FERC plant name. Cap close, net gen way off"
-2830_1952_2006_plant_operating_year_total_3542,f1_steam_2006_12_27_0_3,AS,CG,"Combo of gens 1-5 based on FERC plant name. Cap close, net gen way off"
-2830_1952_2007_plant_operating_year_total_3542,f1_steam_2007_12_27_0_3,AS,CG,"Combo of gens 1-5 based on FERC plant name. Cap close, net gen way off"
-2830_1_2008_plant_unit_total_3542,f1_steam_2008_12_27_0_3,AS,CG,"Combo of gens 1-5 based on FERC plant name. Cap close, net gen way off"
-2830_1_2009_plant_unit_total_3542,f1_steam_2009_12_27_0_2,AS,CG,"Combo of gens 1-5 based on FERC plant name. Cap close, net gen way off"
-2830_1_2010_plant_unit_total_3542,f1_steam_2010_12_27_0_2,AS,CG,"Combo of gens 1-5 based on FERC plant name. Cap close, net gen way off"
-2830_1_2011_plant_unit_total_3542,f1_steam_2011_12_27_0_2,AS,CG,"Combo of gens 1-5 based on FERC plant name. Cap close, net gen way off"
-2830_1_2012_plant_unit_total_3542,f1_steam_2012_12_27_0_2,AS,CG,"Combo of gens 1-5 based on FERC plant name. Cap close, net gen way off"
-2830_2013_plant_total_3542_retired,f1_steam_2013_12_27_0_2,AS,CG,"Cap very off, despite this being the pattern for prior years."
-2830_1_2014_plant_unit_total_3542_retired,f1_steam_2014_12_27_0_2,AS,CG,"Cap very off, despite this being the pattern for prior years."
-2830_1952_2015_plant_operating_year_total_3542_retired,f1_steam_2015_12_27_0_2,AS,CG,"Cap very off, despite this being the pattern for prior years."
-628_1969_2005_plant_operating_year_total_6455,f1_steam_2005_12_55_0_3,AS,CG,combo of plants from 66 and 69
-628_1984_2005_plant_operating_year_total_6455,f1_steam_2005_12_55_0_4,AS,CG,combo of plants from 82 and 84
-628_1969_2006_plant_operating_year_total_6455,f1_steam_2006_12_55_0_3,AS,CG,combo of plants from 66 and 69
-628_1984_2006_plant_operating_year_total_6455,f1_steam_2006_12_55_0_4,AS,CG,combo of plants from 82 and 84
-628_1969_2007_plant_operating_year_total_6455,f1_steam_2007_12_55_0_3,AS,CG,combo of plants from 66 and 69
-628_1984_2007_plant_operating_year_total_6455,f1_steam_2007_12_55_0_4,AS,CG,combo of plants from 82 and 84
-628_1969_2008_plant_operating_year_total_6455,f1_steam_2008_12_55_0_3,AS,CG,combo of plants from 66 and 69
-628_1984_2008_plant_operating_year_total_6455,f1_steam_2008_12_55_0_4,AS,CG,combo of plants from 82 and 84
-628_2_2009_plant_unit_total_6455,f1_steam_2009_12_55_0_3,AS,CG,combo of plants from 66 and 69
-628_4_2009_plant_unit_total_6455,f1_steam_2009_12_55_0_4,AS,CG,combo of plants from 82 and 84
-628_2_2010_plant_unit_total_6455,f1_steam_2010_12_55_0_3,AS,CG,combo of plants from 66 and 69
-628_4_2010_plant_unit_total_6455,f1_steam_2010_12_55_0_4,AS,CG,combo of plants from 82 and 84
-628_2_2011_plant_unit_total_6455,f1_steam_2011_12_55_0_2,AS,CG,combo of plants from 66 and 69
-628_4_2011_plant_unit_total_6455,f1_steam_2011_12_55_0_3,AS,CG,combo of plants from 82 and 84
-628_2_2012_plant_unit_total_6455,f1_steam_2012_12_55_0_2,AS,CG,combo of plants from 66 and 69
-628_4_2012_plant_unit_total_6455,f1_steam_2012_12_55_0_3,AS,CG,combo of plants from 82 and 84
-628_2_2013_plant_unit_total_6455,f1_steam_2013_12_55_0_2,AS,CG,combo of plants from 66 and 69
-628_4_2013_plant_unit_total_6455,f1_steam_2013_12_55_0_3,AS,CG,combo of plants from 82 and 84
-628_2_2014_plant_unit_total_6455,f1_steam_2014_12_55_0_2,AS,CG,combo of plants from 66 and 69
-628_4_2014_plant_unit_total_6455,f1_steam_2014_12_55_0_3,AS,CG,combo of plants from 82 and 84
-628_2_2015_plant_unit_total_6455,f1_steam_2015_12_55_0_2,AS,CG,combo of plants from 66 and 69
-628_4_2015_plant_unit_total_6455,f1_steam_2015_12_55_0_3,AS,CG,combo of plants from 82 and 84
-628_2_2016_plant_unit_total_6455,f1_steam_2016_12_55_0_2,AS,CG,combo of plants from 66 and 69
-628_4_2016_plant_unit_total_6455,f1_steam_2016_12_55_0_3,AS,CG,combo of plants from 82 and 84
-628_2_2017_plant_unit_total_6455,f1_steam_2017_12_55_0_2,AS,CG,combo of plants from 66 and 69
-628_4_2017_plant_unit_total_6455,f1_steam_2017_12_55_0_3,AS,CG,combo of plants from 82 and 84
-628_2_2018_plant_unit_total_6455,f1_steam_2018_12_55_0_2,AS,CG,combo of plants from 66 and 69
-628_4_2018_plant_unit_total_6455,f1_steam_2018_12_55_0_3,AS,CG,combo of plants from 82 and 84
-2832_5_2005_plant_gen_total_3542,f1_steam_2005_12_27_0_1,CG,,
-2832_7_2005_plant_gen_owned_3542,f1_steam_2005_12_27_0_2,CG,,
-2832_7_2006_plant_gen_owned_3542,f1_steam_2006_12_27_0_2,CG,,
-2832_7_2007_plant_gen_owned_3542,f1_steam_2007_12_27_0_2,CG,,
-2832_7_2008_plant_gen_owned_3542,f1_steam_2008_12_27_0_2,CG,,
-2832_7_2009_plant_gen_owned_3542,f1_steam_2009_12_27_0_1,CG,,
-2832_7_2010_plant_gen_owned_3542,f1_steam_2010_12_27_0_1,CG,,
-2832_7_2011_plant_gen_owned_3542,f1_steam_2011_12_27_0_1,CG,,
-2832_7_2012_plant_gen_owned_3542,f1_steam_2012_12_27_0_1,CG,,
-2832_7_2013_plant_gen_owned_3542,f1_steam_2013_12_27_0_1,CG,,
-2832_7_2014_plant_gen_owned_3542,f1_steam_2014_12_27_0_1,CG,,
-2832_7_2015_plant_gen_owned_4922,f1_steam_2015_12_27_0_1,CG,,
-1010_ct_2005_plant_prime_mover_total_15470,f1_steam_2005_12_144_1_3,AS,CG,net gen off…
-1010_ct_2006_plant_prime_mover_total_15470,f1_steam_2006_12_144_1_3,RF,CG,Combination of these two plants 1 & 1A fixes capacity mismatch.
-1010_ct_2007_plant_prime_mover_total_40211,f1_steam_2007_12_144_1_3,AS,CG,net gen off…
-2830_1953_2005_plant_operating_year_total_3542,f1_steam_2005_12_27_0_3,AS,CG,"Combo of gens 1-5 based on FERC plant name. Cap close, net gen way off"
-2830_1953_2006_plant_operating_year_total_3542,f1_steam_2006_12_27_0_3,AS,CG,"Combo of gens 1-5 based on FERC plant name. Cap close, net gen way off"
-2830_1953_2007_plant_operating_year_total_3542,f1_steam_2007_12_27_0_3,AS,CG,"Combo of gens 1-5 based on FERC plant name. Cap close, net gen way off"
-2830_2_2008_plant_unit_total_3542,f1_steam_2008_12_27_0_3,AS,CG,"Combo of gens 1-5 based on FERC plant name. Cap close, net gen way off"
-2830_2_2009_plant_unit_total_3542,f1_steam_2009_12_27_0_2,AS,CG,"Combo of gens 1-5 based on FERC plant name. Cap close, net gen way off"
-2830_2_2010_plant_unit_total_3542,f1_steam_2010_12_27_0_2,AS,CG,"Combo of gens 1-5 based on FERC plant name. Cap close, net gen way off"
-2830_2_2011_plant_unit_total_3542,f1_steam_2011_12_27_0_2,AS,CG,"Combo of gens 1-5 based on FERC plant name. Cap close, net gen way off"
-2830_2_2012_plant_unit_total_3542,f1_steam_2012_12_27_0_2,AS,CG,"Combo of gens 1-5 based on FERC plant name. Cap close, net gen way off"
-2830_2_2013_plant_unit_total_3542,f1_steam_2013_12_27_0_2,AS,CG,"Cap very off, despite this being the pattern for prior years."
-2830_2_2014_plant_unit_total_3542_retired,f1_steam_2014_12_27_0_2,AS,CG,"Cap very off, despite this being the pattern for prior years."
-2830_1953_2015_plant_operating_year_total_3542_retired,f1_steam_2015_12_27_0_2,AS,CG,"Cap very off, despite this being the pattern for prior years."
-628_1966_2005_plant_operating_year_total_6455,f1_steam_2005_12_55_0_3,AS,CG,combo of plants from 66 and 69
-628_1982_2005_plant_operating_year_total_6455,f1_steam_2005_12_55_0_4,AS,CG,combo of plants from 82 and 84
-628_1966_2006_plant_operating_year_total_6455,f1_steam_2006_12_55_0_3,AS,CG,combo of plants from 66 and 69
-628_1982_2006_plant_operating_year_total_6455,f1_steam_2006_12_55_0_4,AS,CG,combo of plants from 82 and 84
-628_1966_2007_plant_operating_year_total_6455,f1_steam_2007_12_55_0_3,AS,CG,combo of plants from 66 and 69
-628_1982_2007_plant_operating_year_total_6455,f1_steam_2007_12_55_0_4,AS,CG,combo of plants from 82 and 84
-628_1966_2008_plant_operating_year_total_6455,f1_steam_2008_12_55_0_3,AS,CG,combo of plants from 66 and 69
-628_1982_2008_plant_operating_year_total_6455,f1_steam_2008_12_55_0_4,AS,CG,combo of plants from 82 and 84
-628_1_2009_plant_unit_total_6455,f1_steam_2009_12_55_0_3,AS,CG,combo of plants from 66 and 69
-628_3_2009_plant_unit_total_6455,f1_steam_2009_12_55_0_4,AS,CG,combo of plants from 82 and 84
-628_1_2010_plant_unit_total_6455,f1_steam_2010_12_55_0_3,AS,CG,combo of plants from 66 and 69
-628_3_2010_plant_unit_total_6455,f1_steam_2010_12_55_0_4,AS,CG,combo of plants from 82 and 84
-628_1_2011_plant_unit_total_6455,f1_steam_2011_12_55_0_2,AS,CG,combo of plants from 66 and 69
-628_3_2011_plant_unit_total_6455,f1_steam_2011_12_55_0_3,AS,CG,combo of plants from 82 and 84
-628_1_2012_plant_unit_total_6455,f1_steam_2012_12_55_0_2,AS,CG,combo of plants from 66 and 69
-628_3_2012_plant_unit_total_6455,f1_steam_2012_12_55_0_3,AS,CG,combo of plants from 82 and 84
-628_1_2013_plant_unit_total_6455,f1_steam_2013_12_55_0_2,AS,CG,combo of plants from 66 and 69
-628_3_2013_plant_unit_total_6455,f1_steam_2013_12_55_0_3,AS,CG,combo of plants from 82 and 84
-628_1_2014_plant_unit_total_6455,f1_steam_2014_12_55_0_2,AS,CG,combo of plants from 66 and 69
-628_3_2014_plant_unit_total_6455,f1_steam_2014_12_55_0_3,AS,CG,combo of plants from 82 and 84
-628_1_2015_plant_unit_total_6455,f1_steam_2015_12_55_0_2,AS,CG,combo of plants from 66 and 69
-628_3_2015_plant_unit_total_6455,f1_steam_2015_12_55_0_3,AS,CG,combo of plants from 82 and 84
-628_1_2016_plant_unit_total_6455,f1_steam_2016_12_55_0_2,AS,CG,combo of plants from 66 and 69
-628_3_2016_plant_unit_total_6455,f1_steam_2016_12_55_0_3,AS,CG,combo of plants from 82 and 84
-628_1_2017_plant_unit_total_6455,f1_steam_2017_12_55_0_2,AS,CG,combo of plants from 66 and 69
-628_3_2017_plant_unit_total_6455,f1_steam_2017_12_55_0_3,AS,CG,combo of plants from 82 and 84
-628_1_2018_plant_unit_total_6455,f1_steam_2018_12_55_0_2,AS,CG,combo of plants from 66 and 69
-628_3_2018_plant_unit_total_6455,f1_steam_2018_12_55_0_3,AS,CG,combo of plants from 82 and 84
-2832_6_2005_plant_gen_total_3542,f1_steam_2005_12_27_0_1,CG,,
-2832_8_2005_plant_gen_owned_3542,f1_steam_2005_12_27_0_2,CG,,
-2832_8_2006_plant_gen_owned_3542,f1_steam_2006_12_27_0_2,CG,,
-2832_8_2007_plant_gen_owned_3542,f1_steam_2007_12_27_0_2,CG,,
-2832_8_2008_plant_gen_owned_3542,f1_steam_2008_12_27_0_2,CG,,
-2832_8_2009_plant_gen_owned_3542,f1_steam_2009_12_27_0_1,CG,,
-2832_8_2010_plant_gen_owned_3542,f1_steam_2010_12_27_0_1,CG,,
-2832_8_2011_plant_gen_owned_3542,f1_steam_2011_12_27_0_1,CG,,
-2832_8_2012_plant_gen_owned_3542,f1_steam_2012_12_27_0_1,CG,,
-2832_8_2013_plant_gen_owned_3542,f1_steam_2013_12_27_0_1,CG,,
-2832_8_2014_plant_gen_owned_3542,f1_steam_2014_12_27_0_1,CG,,
-2832_8_2015_plant_gen_owned_4922,f1_steam_2015_12_27_0_1,CG,,
-1010_ca_2005_plant_prime_mover_total_15470,f1_steam_2005_12_144_1_3,AS,CG,net gen off…
-1010_ca_2006_plant_prime_mover_owned_15470,f1_steam_2006_12_144_1_3,RF,CG,Combination of these two plants 1 & 1A fixes capacity mismatch.
-1010_ca_2007_plant_prime_mover_total_40211,f1_steam_2007_12_144_1_3,AS,CG,net gen off…
-2830_1954_2005_plant_operating_year_total_3542,f1_steam_2005_12_27_0_3,AS,CG,"Combo of gens 1-5 based on FERC plant name. Cap close, net gen way off"
-2830_1954_2006_plant_operating_year_total_3542,f1_steam_2006_12_27_0_3,AS,CG,"Combo of gens 1-5 based on FERC plant name. Cap close, net gen way off"
-2830_1954_2007_plant_operating_year_total_3542,f1_steam_2007_12_27_0_3,AS,CG,"Combo of gens 1-5 based on FERC plant name. Cap close, net gen way off"
-2830_3_2008_plant_unit_total_3542,f1_steam_2008_12_27_0_3,AS,CG,"Combo of gens 1-5 based on FERC plant name. Cap close, net gen way off"
-2830_3_2009_plant_unit_total_3542,f1_steam_2009_12_27_0_2,AS,CG,"Combo of gens 1-5 based on FERC plant name. Cap close, net gen way off"
-2830_3_2010_plant_unit_total_3542,f1_steam_2010_12_27_0_2,AS,CG,"Combo of gens 1-5 based on FERC plant name. Cap close, net gen way off"
-2830_3_2011_plant_unit_total_3542,f1_steam_2011_12_27_0_2,AS,CG,"Combo of gens 1-5 based on FERC plant name. Cap close, net gen way off"
-2830_3_2012_plant_unit_total_3542,f1_steam_2012_12_27_0_2,AS,CG,"Combo of gens 1-5 based on FERC plant name. Cap close, net gen way off"
-2830_3_2013_plant_unit_total_3542,f1_steam_2013_12_27_0_2,AS,CG,"Cap very off, despite this being the pattern for prior years."
-2830_3_2014_plant_unit_total_3542_retired,f1_steam_2014_12_27_0_2,AS,CG,"Cap very off, despite this being the pattern for prior years."
-2830_1954_2015_plant_operating_year_total_3542_retired,f1_steam_2015_12_27_0_2,AS,CG,"Cap very off, despite this being the pattern for prior years."
-2830_1958_2005_plant_operating_year_total_3542,f1_steam_2005_12_27_0_3,AS,CG,"Combo of gens 1-5 based on FERC plant name. Cap close, net gen way off"
-2830_1958_2006_plant_operating_year_total_3542,f1_steam_2006_12_27_0_3,AS,CG,"Combo of gens 1-5 based on FERC plant name. Cap close, net gen way off"
-2830_1958_2007_plant_operating_year_total_3542,f1_steam_2007_12_27_0_3,AS,CG,"Combo of gens 1-5 based on FERC plant name. Cap close, net gen way off"
-2830_4_2008_plant_unit_total_3542,f1_steam_2008_12_27_0_3,AS,CG,"Combo of gens 1-5 based on FERC plant name. Cap close, net gen way off"
-2830_4_2009_plant_unit_total_3542,f1_steam_2009_12_27_0_2,AS,CG,"Combo of gens 1-5 based on FERC plant name. Cap close, net gen way off"
-2830_4_2010_plant_unit_total_3542,f1_steam_2010_12_27_0_2,AS,CG,"Combo of gens 1-5 based on FERC plant name. Cap close, net gen way off"
-2830_4_2011_plant_unit_total_3542,f1_steam_2011_12_27_0_2,AS,CG,"Combo of gens 1-5 based on FERC plant name. Cap close, net gen way off"
-2830_4_2012_plant_unit_total_3542,f1_steam_2012_12_27_0_2,AS,CG,"Combo of gens 1-5 based on FERC plant name. Cap close, net gen way off"
-2830_4_2013_plant_unit_total_3542,f1_steam_2013_12_27_0_2,AS,CG,"Cap very off, despite this being the pattern for prior years."
-2830_4_2014_plant_unit_total_3542,f1_steam_2014_12_27_0_2,AS,CG,"Cap very off, despite this being the pattern for prior years."
-2830_1958_2015_plant_operating_year_total_3542_retired,f1_steam_2015_12_27_0_2,AS,CG,"Cap very off, despite this being the pattern for prior years."
-2830_1962_2005_plant_operating_year_total_3542,f1_steam_2005_12_27_0_3,AS,CG,"Combo of gens 1-5 based on FERC plant name. Cap close, net gen way off"
-2830_1962_2006_plant_operating_year_total_3542,f1_steam_2006_12_27_0_3,AS,CG,"Combo of gens 1-5 based on FERC plant name. Cap close, net gen way off"
-2830_1962_2007_plant_operating_year_total_3542,f1_steam_2007_12_27_0_3,AS,CG,"Combo of gens 1-5 based on FERC plant name. Cap close, net gen way off"
-2830_5_2008_plant_unit_total_3542,f1_steam_2008_12_27_0_3,AS,CG,"Combo of gens 1-5 based on FERC plant name. Cap close, net gen way off"
-2830_5_2009_plant_unit_total_3542,f1_steam_2009_12_27_0_2,AS,CG,"Combo of gens 1-5 based on FERC plant name. Cap close, net gen way off"
-2830_5_2010_plant_unit_total_3542,f1_steam_2010_12_27_0_2,AS,CG,"Combo of gens 1-5 based on FERC plant name. Cap close, net gen way off"
-2830_5_2011_plant_unit_total_3542,f1_steam_2011_12_27_0_2,AS,CG,"Combo of gens 1-5 based on FERC plant name. Cap close, net gen way off"
-2830_5_2012_plant_unit_total_3542,f1_steam_2012_12_27_0_2,AS,CG,"Combo of gens 1-5 based on FERC plant name. Cap close, net gen way off"
-2830_5_2013_plant_unit_total_3542,f1_steam_2013_12_27_0_2,AS,CG,"Cap very off, despite this being the pattern for prior years."
-2830_5_2014_plant_unit_total_3542,f1_steam_2014_12_27_0_2,AS,CG,"Cap very off, despite this being the pattern for prior years."
-2830_1962_2015_plant_operating_year_total_3542_retired,f1_steam_2015_12_27_0_2,AS,CG,"Cap very off, despite this being the pattern for prior years."
-469_2005_plant_total_15466,f1_steam_2005_12_145_0_3,AS,SW,
-469_2006_plant_total_15466,f1_steam_2006_12_145_0_3,AS,SW,
-469_2007_plant_total_15466,f1_steam_2007_12_145_0_3,AS,SW,
-2469_2007_plant_total_17718_retired,f1_steam_2007_12_166_2_5,AS,SW,Steve added plant_total to retired portion; this is closer to reported FERC capacity
-469_2008_plant_total_15466,f1_steam_2008_12_145_0_3,AS,SW,
-2469_2008_plant_total_17718_retired,f1_steam_2008_12_166_2_5,AS,SW,Steve added plant_total to retired portion; this is closer to reported FERC capacity
-1904_ng_2009_plant_prime_fuel_total_13781,f1_steam_2009_12_120_3_1,AS,SW,Steve changed from 1904_st_2009_plant_prime_mover_owned_13781
-2469_2009_plant_total_17718_retired,f1_steam_2009_12_166_2_5,AS,SW,Steve added plant_total to retired portion; this is closer to reported FERC capacity
-2469_2010_plant_total_17718_retired,f1_steam_2010_12_166_2_5,AS,SW,Steve added plant_total to retired portion; this is closer to reported FERC capacity
-469_st_2005_plant_prime_mover_total_15466,f1_steam_2005_12_145_0_3,AS,SW,
-469_st_2006_plant_prime_mover_total_15466,f1_steam_2006_12_145_0_3,AS,SW,
-469_st_2007_plant_prime_mover_total_15466,f1_steam_2007_12_145_0_3,AS,SW,
-2469_2007_plant_total_17718,f1_steam_2007_12_166_2_5,AS,SW,Steve added plant_total to retired portion; this is closer to reported FERC capacity
-469_st_2008_plant_prime_mover_total_15466,f1_steam_2008_12_145_0_3,AS,SW,
-2469_2008_plant_total_17718,f1_steam_2008_12_166_2_5,AS,SW,Steve added plant_total to retired portion; this is closer to reported FERC capacity
-1904_5_2009_plant_gen_total_13781,f1_steam_2009_12_120_3_1,AS,SW,Steve changed from 1904_st_2009_plant_prime_mover_owned_13781
-2469_2009_plant_total_17718,f1_steam_2009_12_166_2_5,AS,SW,Steve added plant_total to retired portion; this is closer to reported FERC capacity
-2469_2010_plant_total_17718,f1_steam_2010_12_166_2_5,AS,SW,Steve added plant_total to retired portion; this is closer to reported FERC capacity
-709_2014_plant_total_7140,f1_steam_2014_12_57_1_4,CO,GT,
-709_2015_plant_total_7140,f1_steam_2015_12_57_1_4,CO,GT,
-649_1_2019_plant_gen_owned_7140,f1_steam_2019_12_57_1_3,CO,GT,
-709_2014_plant_total_7140_retired,f1_steam_2014_12_57_1_4,CO,GT,
-709_2015_plant_total_7140_retired,f1_steam_2015_12_57_1_4,CO,GT,
-649_2_2019_plant_gen_owned_7140,f1_steam_2019_12_57_1_3,CO,GT,
-6043_2005_2005_plant_operating_year_total_6452,f1_steam_2005_12_56_3_2,SW,AS,"net gen off, cap and year good"
-6043_2005_2006_plant_operating_year_total_6452,f1_steam_2006_12_56_3_2,SW,AS,"net gen off, cap and year good"
-6043_2005_2007_plant_operating_year_total_6452,f1_steam_2007_12_56_3_2,SW,AS,"net gen off, cap and year good"
-6043_2005_2008_plant_operating_year_total_6452,f1_steam_2008_12_56_3_2,SW,AS,"net gen off, cap and year good"
-6043_2005_2009_plant_operating_year_total_6452,f1_steam_2009_12_56_3_2,SW,AS,"net gen off, cap and year good"
-6043_2005_2010_plant_operating_year_total_6452,f1_steam_2010_12_56_3_1,SW,AS,net gen matches 6043_3_2010_plant_unit_total_6452 but cap matches the 2005 and 2001 inst. Year sums. Using the later for consistency with other years
-6043_2005_2011_plant_operating_year_total_6452,f1_steam_2011_12_56_3_1,SW,AS,"net gen off, cap and year good"
-6043_2005_2012_plant_operating_year_total_6452,f1_steam_2012_12_56_3_1,SW,AS,"net gen off, cap and year good"
-6043_2005_2013_plant_operating_year_total_6452,f1_steam_2013_12_56_3_1,SW,AS,"net gen off, cap and year good"
-613_3_2016_plant_gen_total_6452,f1_steam_2016_12_56_2_4,,AS,"Could be any combination of generators, but these are the only generators that have the FERC capacity and report generation. In other years this record is combined into one, but for some reason not this year.
+Unnamed: 0.1,Unnamed: 0,record_id_eia,record_id_ferc1,signature_1,signature_2,notes
+0,,2830_1952_2005_plant_operating_year_total_3542,f1_steam_2005_12_27_0_3,AS,CG,"Combo of gens 1-5 based on FERC plant name. Cap close, net gen way off"
+1,,2830_1952_2006_plant_operating_year_total_3542,f1_steam_2006_12_27_0_3,AS,CG,"Combo of gens 1-5 based on FERC plant name. Cap close, net gen way off"
+2,,2830_1952_2007_plant_operating_year_total_3542,f1_steam_2007_12_27_0_3,AS,CG,"Combo of gens 1-5 based on FERC plant name. Cap close, net gen way off"
+3,,2830_1_2008_plant_unit_total_3542,f1_steam_2008_12_27_0_3,AS,CG,"Combo of gens 1-5 based on FERC plant name. Cap close, net gen way off"
+4,,2830_1_2009_plant_unit_total_3542,f1_steam_2009_12_27_0_2,AS,CG,"Combo of gens 1-5 based on FERC plant name. Cap close, net gen way off"
+5,,2830_1_2010_plant_unit_total_3542,f1_steam_2010_12_27_0_2,AS,CG,"Combo of gens 1-5 based on FERC plant name. Cap close, net gen way off"
+6,,2830_1_2011_plant_unit_total_3542,f1_steam_2011_12_27_0_2,AS,CG,"Combo of gens 1-5 based on FERC plant name. Cap close, net gen way off"
+7,,2830_1_2012_plant_unit_total_3542,f1_steam_2012_12_27_0_2,AS,CG,"Combo of gens 1-5 based on FERC plant name. Cap close, net gen way off"
+10,,2830_1952_2015_plant_operating_year_total_3542_retired,f1_steam_2015_12_27_0_2,AS,CG,"Cap very off, despite this being the pattern for prior years."
+11,,628_1969_2005_plant_operating_year_total_6455,f1_steam_2005_12_55_0_3,AS,CG,combo of plants from 66 and 69
+12,,628_1984_2005_plant_operating_year_total_6455,f1_steam_2005_12_55_0_4,AS,CG,combo of plants from 82 and 84
+13,,628_1969_2006_plant_operating_year_total_6455,f1_steam_2006_12_55_0_3,AS,CG,combo of plants from 66 and 69
+14,,628_1984_2006_plant_operating_year_total_6455,f1_steam_2006_12_55_0_4,AS,CG,combo of plants from 82 and 84
+15,,628_1969_2007_plant_operating_year_total_6455,f1_steam_2007_12_55_0_3,AS,CG,combo of plants from 66 and 69
+16,,628_1984_2007_plant_operating_year_total_6455,f1_steam_2007_12_55_0_4,AS,CG,combo of plants from 82 and 84
+17,,628_1969_2008_plant_operating_year_total_6455,f1_steam_2008_12_55_0_3,AS,CG,combo of plants from 66 and 69
+18,,628_1984_2008_plant_operating_year_total_6455,f1_steam_2008_12_55_0_4,AS,CG,combo of plants from 82 and 84
+19,,628_2_2009_plant_unit_total_6455,f1_steam_2009_12_55_0_3,AS,CG,combo of plants from 66 and 69
+20,,628_4_2009_plant_unit_total_6455,f1_steam_2009_12_55_0_4,AS,CG,combo of plants from 82 and 84
+21,,628_2_2010_plant_unit_total_6455,f1_steam_2010_12_55_0_3,AS,CG,combo of plants from 66 and 69
+22,,628_4_2010_plant_unit_total_6455,f1_steam_2010_12_55_0_4,AS,CG,combo of plants from 82 and 84
+23,,628_2_2011_plant_unit_total_6455,f1_steam_2011_12_55_0_2,AS,CG,combo of plants from 66 and 69
+24,,628_4_2011_plant_unit_total_6455,f1_steam_2011_12_55_0_3,AS,CG,combo of plants from 82 and 84
+25,,628_2_2012_plant_unit_total_6455,f1_steam_2012_12_55_0_2,AS,CG,combo of plants from 66 and 69
+26,,628_4_2012_plant_unit_total_6455,f1_steam_2012_12_55_0_3,AS,CG,combo of plants from 82 and 84
+27,,628_2_2013_plant_unit_total_6455,f1_steam_2013_12_55_0_2,AS,CG,combo of plants from 66 and 69
+28,,628_4_2013_plant_unit_total_6455,f1_steam_2013_12_55_0_3,AS,CG,combo of plants from 82 and 84
+29,,628_2_2014_plant_unit_total_6455,f1_steam_2014_12_55_0_2,AS,CG,combo of plants from 66 and 69
+30,,628_4_2014_plant_unit_total_6455,f1_steam_2014_12_55_0_3,AS,CG,combo of plants from 82 and 84
+31,,628_2_2015_plant_unit_total_6455,f1_steam_2015_12_55_0_2,AS,CG,combo of plants from 66 and 69
+32,,628_4_2015_plant_unit_total_6455,f1_steam_2015_12_55_0_3,AS,CG,combo of plants from 82 and 84
+33,,628_2_2016_plant_unit_total_6455,f1_steam_2016_12_55_0_2,AS,CG,combo of plants from 66 and 69
+34,,628_4_2016_plant_unit_total_6455,f1_steam_2016_12_55_0_3,AS,CG,combo of plants from 82 and 84
+35,,628_2_2017_plant_unit_total_6455,f1_steam_2017_12_55_0_2,AS,CG,combo of plants from 66 and 69
+36,,628_4_2017_plant_unit_total_6455,f1_steam_2017_12_55_0_3,AS,CG,combo of plants from 82 and 84
+37,,628_2_2018_plant_unit_total_6455,f1_steam_2018_12_55_0_2,AS,CG,combo of plants from 66 and 69
+38,,628_4_2018_plant_unit_total_6455,f1_steam_2018_12_55_0_3,AS,CG,combo of plants from 82 and 84
+39,,2832_5_2005_plant_gen_total_3542,f1_steam_2005_12_27_0_1,CG,,
+40,,2832_7_2005_plant_gen_owned_3542,f1_steam_2005_12_27_0_2,CG,,
+41,,2832_7_2006_plant_gen_owned_3542,f1_steam_2006_12_27_0_2,CG,,
+42,,2832_7_2007_plant_gen_owned_3542,f1_steam_2007_12_27_0_2,CG,,
+43,,2832_7_2008_plant_gen_owned_3542,f1_steam_2008_12_27_0_2,CG,,
+44,,2832_7_2009_plant_gen_owned_3542,f1_steam_2009_12_27_0_1,CG,,
+45,,2832_7_2010_plant_gen_owned_3542,f1_steam_2010_12_27_0_1,CG,,
+46,,2832_7_2011_plant_gen_owned_3542,f1_steam_2011_12_27_0_1,CG,,
+47,,2832_7_2012_plant_gen_owned_3542,f1_steam_2012_12_27_0_1,CG,,
+48,,2832_7_2013_plant_gen_owned_3542,f1_steam_2013_12_27_0_1,CG,,
+49,,2832_7_2014_plant_gen_owned_3542,f1_steam_2014_12_27_0_1,CG,,
+50,,2832_7_2015_plant_gen_owned_4922,f1_steam_2015_12_27_0_1,CG,,
+51,,1010_ct_2005_plant_prime_mover_total_15470,f1_steam_2005_12_144_1_3,AS,CG,net gen off…
+52,,1010_ct_2006_plant_prime_mover_total_15470,f1_steam_2006_12_144_1_3,RF,CG,Combination of these two plants 1 & 1A fixes capacity mismatch.
+53,,1010_ct_2007_plant_prime_mover_total_40211,f1_steam_2007_12_144_1_3,AS,CG,net gen off…
+54,,2830_1953_2005_plant_operating_year_total_3542,f1_steam_2005_12_27_0_3,AS,CG,"Combo of gens 1-5 based on FERC plant name. Cap close, net gen way off"
+55,,2830_1953_2006_plant_operating_year_total_3542,f1_steam_2006_12_27_0_3,AS,CG,"Combo of gens 1-5 based on FERC plant name. Cap close, net gen way off"
+56,,2830_1953_2007_plant_operating_year_total_3542,f1_steam_2007_12_27_0_3,AS,CG,"Combo of gens 1-5 based on FERC plant name. Cap close, net gen way off"
+57,,2830_2_2008_plant_unit_total_3542,f1_steam_2008_12_27_0_3,AS,CG,"Combo of gens 1-5 based on FERC plant name. Cap close, net gen way off"
+58,,2830_2_2009_plant_unit_total_3542,f1_steam_2009_12_27_0_2,AS,CG,"Combo of gens 1-5 based on FERC plant name. Cap close, net gen way off"
+59,,2830_2_2010_plant_unit_total_3542,f1_steam_2010_12_27_0_2,AS,CG,"Combo of gens 1-5 based on FERC plant name. Cap close, net gen way off"
+60,,2830_2_2011_plant_unit_total_3542,f1_steam_2011_12_27_0_2,AS,CG,"Combo of gens 1-5 based on FERC plant name. Cap close, net gen way off"
+61,,2830_2_2012_plant_unit_total_3542,f1_steam_2012_12_27_0_2,AS,CG,"Combo of gens 1-5 based on FERC plant name. Cap close, net gen way off"
+64,,2830_1953_2015_plant_operating_year_total_3542_retired,f1_steam_2015_12_27_0_2,AS,CG,"Cap very off, despite this being the pattern for prior years."
+65,,628_1966_2005_plant_operating_year_total_6455,f1_steam_2005_12_55_0_3,AS,CG,combo of plants from 66 and 69
+66,,628_1982_2005_plant_operating_year_total_6455,f1_steam_2005_12_55_0_4,AS,CG,combo of plants from 82 and 84
+67,,628_1966_2006_plant_operating_year_total_6455,f1_steam_2006_12_55_0_3,AS,CG,combo of plants from 66 and 69
+68,,628_1982_2006_plant_operating_year_total_6455,f1_steam_2006_12_55_0_4,AS,CG,combo of plants from 82 and 84
+69,,628_1966_2007_plant_operating_year_total_6455,f1_steam_2007_12_55_0_3,AS,CG,combo of plants from 66 and 69
+70,,628_1982_2007_plant_operating_year_total_6455,f1_steam_2007_12_55_0_4,AS,CG,combo of plants from 82 and 84
+71,,628_1966_2008_plant_operating_year_total_6455,f1_steam_2008_12_55_0_3,AS,CG,combo of plants from 66 and 69
+72,,628_1982_2008_plant_operating_year_total_6455,f1_steam_2008_12_55_0_4,AS,CG,combo of plants from 82 and 84
+73,,628_1_2009_plant_unit_total_6455,f1_steam_2009_12_55_0_3,AS,CG,combo of plants from 66 and 69
+74,,628_3_2009_plant_unit_total_6455,f1_steam_2009_12_55_0_4,AS,CG,combo of plants from 82 and 84
+75,,628_1_2010_plant_unit_total_6455,f1_steam_2010_12_55_0_3,AS,CG,combo of plants from 66 and 69
+76,,628_3_2010_plant_unit_total_6455,f1_steam_2010_12_55_0_4,AS,CG,combo of plants from 82 and 84
+77,,628_1_2011_plant_unit_total_6455,f1_steam_2011_12_55_0_2,AS,CG,combo of plants from 66 and 69
+78,,628_3_2011_plant_unit_total_6455,f1_steam_2011_12_55_0_3,AS,CG,combo of plants from 82 and 84
+79,,628_1_2012_plant_unit_total_6455,f1_steam_2012_12_55_0_2,AS,CG,combo of plants from 66 and 69
+80,,628_3_2012_plant_unit_total_6455,f1_steam_2012_12_55_0_3,AS,CG,combo of plants from 82 and 84
+81,,628_1_2013_plant_unit_total_6455,f1_steam_2013_12_55_0_2,AS,CG,combo of plants from 66 and 69
+82,,628_3_2013_plant_unit_total_6455,f1_steam_2013_12_55_0_3,AS,CG,combo of plants from 82 and 84
+83,,628_1_2014_plant_unit_total_6455,f1_steam_2014_12_55_0_2,AS,CG,combo of plants from 66 and 69
+84,,628_3_2014_plant_unit_total_6455,f1_steam_2014_12_55_0_3,AS,CG,combo of plants from 82 and 84
+85,,628_1_2015_plant_unit_total_6455,f1_steam_2015_12_55_0_2,AS,CG,combo of plants from 66 and 69
+86,,628_3_2015_plant_unit_total_6455,f1_steam_2015_12_55_0_3,AS,CG,combo of plants from 82 and 84
+87,,628_1_2016_plant_unit_total_6455,f1_steam_2016_12_55_0_2,AS,CG,combo of plants from 66 and 69
+88,,628_3_2016_plant_unit_total_6455,f1_steam_2016_12_55_0_3,AS,CG,combo of plants from 82 and 84
+89,,628_1_2017_plant_unit_total_6455,f1_steam_2017_12_55_0_2,AS,CG,combo of plants from 66 and 69
+90,,628_3_2017_plant_unit_total_6455,f1_steam_2017_12_55_0_3,AS,CG,combo of plants from 82 and 84
+91,,628_1_2018_plant_unit_total_6455,f1_steam_2018_12_55_0_2,AS,CG,combo of plants from 66 and 69
+92,,628_3_2018_plant_unit_total_6455,f1_steam_2018_12_55_0_3,AS,CG,combo of plants from 82 and 84
+93,,2832_6_2005_plant_gen_total_3542,f1_steam_2005_12_27_0_1,CG,,
+94,,2832_8_2005_plant_gen_owned_3542,f1_steam_2005_12_27_0_2,CG,,
+95,,2832_8_2006_plant_gen_owned_3542,f1_steam_2006_12_27_0_2,CG,,
+96,,2832_8_2007_plant_gen_owned_3542,f1_steam_2007_12_27_0_2,CG,,
+97,,2832_8_2008_plant_gen_owned_3542,f1_steam_2008_12_27_0_2,CG,,
+98,,2832_8_2009_plant_gen_owned_3542,f1_steam_2009_12_27_0_1,CG,,
+99,,2832_8_2010_plant_gen_owned_3542,f1_steam_2010_12_27_0_1,CG,,
+100,,2832_8_2011_plant_gen_owned_3542,f1_steam_2011_12_27_0_1,CG,,
+101,,2832_8_2012_plant_gen_owned_3542,f1_steam_2012_12_27_0_1,CG,,
+102,,2832_8_2013_plant_gen_owned_3542,f1_steam_2013_12_27_0_1,CG,,
+103,,2832_8_2014_plant_gen_owned_3542,f1_steam_2014_12_27_0_1,CG,,
+104,,2832_8_2015_plant_gen_owned_4922,f1_steam_2015_12_27_0_1,CG,,
+105,,1010_ca_2005_plant_prime_mover_total_15470,f1_steam_2005_12_144_1_3,AS,CG,net gen off…
+106,,1010_ca_2006_plant_prime_mover_owned_15470,f1_steam_2006_12_144_1_3,RF,CG,Combination of these two plants 1 & 1A fixes capacity mismatch.
+107,,1010_ca_2007_plant_prime_mover_total_40211,f1_steam_2007_12_144_1_3,AS,CG,net gen off…
+108,,2830_1954_2005_plant_operating_year_total_3542,f1_steam_2005_12_27_0_3,AS,CG,"Combo of gens 1-5 based on FERC plant name. Cap close, net gen way off"
+109,,2830_1954_2006_plant_operating_year_total_3542,f1_steam_2006_12_27_0_3,AS,CG,"Combo of gens 1-5 based on FERC plant name. Cap close, net gen way off"
+110,,2830_1954_2007_plant_operating_year_total_3542,f1_steam_2007_12_27_0_3,AS,CG,"Combo of gens 1-5 based on FERC plant name. Cap close, net gen way off"
+111,,2830_3_2008_plant_unit_total_3542,f1_steam_2008_12_27_0_3,AS,CG,"Combo of gens 1-5 based on FERC plant name. Cap close, net gen way off"
+112,,2830_3_2009_plant_unit_total_3542,f1_steam_2009_12_27_0_2,AS,CG,"Combo of gens 1-5 based on FERC plant name. Cap close, net gen way off"
+113,,2830_3_2010_plant_unit_total_3542,f1_steam_2010_12_27_0_2,AS,CG,"Combo of gens 1-5 based on FERC plant name. Cap close, net gen way off"
+114,,2830_3_2011_plant_unit_total_3542,f1_steam_2011_12_27_0_2,AS,CG,"Combo of gens 1-5 based on FERC plant name. Cap close, net gen way off"
+115,,2830_3_2012_plant_unit_total_3542,f1_steam_2012_12_27_0_2,AS,CG,"Combo of gens 1-5 based on FERC plant name. Cap close, net gen way off"
+118,,2830_1954_2015_plant_operating_year_total_3542_retired,f1_steam_2015_12_27_0_2,AS,CG,"Cap very off, despite this being the pattern for prior years."
+119,,2830_1958_2005_plant_operating_year_total_3542,f1_steam_2005_12_27_0_3,AS,CG,"Combo of gens 1-5 based on FERC plant name. Cap close, net gen way off"
+120,,2830_1958_2006_plant_operating_year_total_3542,f1_steam_2006_12_27_0_3,AS,CG,"Combo of gens 1-5 based on FERC plant name. Cap close, net gen way off"
+121,,2830_1958_2007_plant_operating_year_total_3542,f1_steam_2007_12_27_0_3,AS,CG,"Combo of gens 1-5 based on FERC plant name. Cap close, net gen way off"
+122,,2830_4_2008_plant_unit_total_3542,f1_steam_2008_12_27_0_3,AS,CG,"Combo of gens 1-5 based on FERC plant name. Cap close, net gen way off"
+123,,2830_4_2009_plant_unit_total_3542,f1_steam_2009_12_27_0_2,AS,CG,"Combo of gens 1-5 based on FERC plant name. Cap close, net gen way off"
+124,,2830_4_2010_plant_unit_total_3542,f1_steam_2010_12_27_0_2,AS,CG,"Combo of gens 1-5 based on FERC plant name. Cap close, net gen way off"
+125,,2830_4_2011_plant_unit_total_3542,f1_steam_2011_12_27_0_2,AS,CG,"Combo of gens 1-5 based on FERC plant name. Cap close, net gen way off"
+126,,2830_4_2012_plant_unit_total_3542,f1_steam_2012_12_27_0_2,AS,CG,"Combo of gens 1-5 based on FERC plant name. Cap close, net gen way off"
+129,,2830_1958_2015_plant_operating_year_total_3542_retired,f1_steam_2015_12_27_0_2,AS,CG,"Cap very off, despite this being the pattern for prior years."
+130,,2830_1962_2005_plant_operating_year_total_3542,f1_steam_2005_12_27_0_3,AS,CG,"Combo of gens 1-5 based on FERC plant name. Cap close, net gen way off"
+131,,2830_1962_2006_plant_operating_year_total_3542,f1_steam_2006_12_27_0_3,AS,CG,"Combo of gens 1-5 based on FERC plant name. Cap close, net gen way off"
+132,,2830_1962_2007_plant_operating_year_total_3542,f1_steam_2007_12_27_0_3,AS,CG,"Combo of gens 1-5 based on FERC plant name. Cap close, net gen way off"
+133,,2830_5_2008_plant_unit_total_3542,f1_steam_2008_12_27_0_3,AS,CG,"Combo of gens 1-5 based on FERC plant name. Cap close, net gen way off"
+134,,2830_5_2009_plant_unit_total_3542,f1_steam_2009_12_27_0_2,AS,CG,"Combo of gens 1-5 based on FERC plant name. Cap close, net gen way off"
+135,,2830_5_2010_plant_unit_total_3542,f1_steam_2010_12_27_0_2,AS,CG,"Combo of gens 1-5 based on FERC plant name. Cap close, net gen way off"
+136,,2830_5_2011_plant_unit_total_3542,f1_steam_2011_12_27_0_2,AS,CG,"Combo of gens 1-5 based on FERC plant name. Cap close, net gen way off"
+137,,2830_5_2012_plant_unit_total_3542,f1_steam_2012_12_27_0_2,AS,CG,"Combo of gens 1-5 based on FERC plant name. Cap close, net gen way off"
+140,,2830_1962_2015_plant_operating_year_total_3542_retired,f1_steam_2015_12_27_0_2,AS,CG,"Cap very off, despite this being the pattern for prior years."
+141,,469_2005_plant_total_15466,f1_steam_2005_12_145_0_3,AS,SW,
+142,,469_2006_plant_total_15466,f1_steam_2006_12_145_0_3,AS,SW,
+143,,469_2007_plant_total_15466,f1_steam_2007_12_145_0_3,AS,SW,
+145,,469_2008_plant_total_15466,f1_steam_2008_12_145_0_3,AS,SW,
+147,,1904_ng_2009_plant_prime_fuel_total_13781,f1_steam_2009_12_120_3_1,AS,SW,Steve changed from 1904_st_2009_plant_prime_mover_owned_13781
+150,,469_st_2005_plant_prime_mover_total_15466,f1_steam_2005_12_145_0_3,AS,SW,
+151,,469_st_2006_plant_prime_mover_total_15466,f1_steam_2006_12_145_0_3,AS,SW,
+152,,469_st_2007_plant_prime_mover_total_15466,f1_steam_2007_12_145_0_3,AS,SW,
+154,,469_st_2008_plant_prime_mover_total_15466,f1_steam_2008_12_145_0_3,AS,SW,
+156,,1904_5_2009_plant_gen_total_13781,f1_steam_2009_12_120_3_1,AS,SW,Steve changed from 1904_st_2009_plant_prime_mover_owned_13781
+161,,649_1_2019_plant_gen_owned_7140,f1_steam_2019_12_57_1_3,CO,GT,
+164,,649_2_2019_plant_gen_owned_7140,f1_steam_2019_12_57_1_3,CO,GT,
+165,,6043_2005_2005_plant_operating_year_total_6452,f1_steam_2005_12_56_3_2,SW,AS,"net gen off, cap and year good"
+166,,6043_2005_2006_plant_operating_year_total_6452,f1_steam_2006_12_56_3_2,SW,AS,"net gen off, cap and year good"
+167,,6043_2005_2007_plant_operating_year_total_6452,f1_steam_2007_12_56_3_2,SW,AS,"net gen off, cap and year good"
+168,,6043_2005_2008_plant_operating_year_total_6452,f1_steam_2008_12_56_3_2,SW,AS,"net gen off, cap and year good"
+169,,6043_2005_2009_plant_operating_year_total_6452,f1_steam_2009_12_56_3_2,SW,AS,"net gen off, cap and year good"
+170,,6043_2005_2010_plant_operating_year_total_6452,f1_steam_2010_12_56_3_1,SW,AS,net gen matches 6043_3_2010_plant_unit_total_6452 but cap matches the 2005 and 2001 inst. Year sums. Using the later for consistency with other years
+171,,6043_2005_2011_plant_operating_year_total_6452,f1_steam_2011_12_56_3_1,SW,AS,"net gen off, cap and year good"
+172,,6043_2005_2012_plant_operating_year_total_6452,f1_steam_2012_12_56_3_1,SW,AS,"net gen off, cap and year good"
+173,,6043_2005_2013_plant_operating_year_total_6452,f1_steam_2013_12_56_3_1,SW,AS,"net gen off, cap and year good"
+174,,613_3_2016_plant_gen_total_6452,f1_steam_2016_12_56_2_4,,AS,"Could be any combination of generators, but these are the only generators that have the FERC capacity and report generation. In other years this record is combined into one, but for some reason not this year.
 EB: other ones match year, e.g. 23 and 24?"
-6043_2001_2005_plant_operating_year_total_6452,f1_steam_2005_12_56_3_2,SW,AS,"net gen off, cap and year good"
-6043_2001_2006_plant_operating_year_total_6452,f1_steam_2006_12_56_3_2,SW,AS,"net gen off, cap and year good"
-6043_2001_2007_plant_operating_year_total_6452,f1_steam_2007_12_56_3_2,SW,AS,"net gen off, cap and year good"
-6043_2001_2008_plant_operating_year_total_6452,f1_steam_2008_12_56_3_2,SW,AS,"net gen off, cap and year good"
-6043_2001_2009_plant_operating_year_total_6452,f1_steam_2009_12_56_3_2,SW,AS,"net gen off, cap and year good"
-6043_2001_2010_plant_operating_year_total_6452,f1_steam_2010_12_56_3_1,SW,AS,net gen matches 6043_3_2010_plant_unit_total_6452 but cap matches the 2005 and 2001 inst. Year sums. Using the later for consistency with other years
-6043_2001_2011_plant_operating_year_total_6452,f1_steam_2011_12_56_3_1,SW,AS,"net gen off, cap and year good"
-6043_2001_2012_plant_operating_year_total_6452,f1_steam_2012_12_56_3_1,SW,AS,"net gen off, cap and year good"
-6043_2001_2013_plant_operating_year_total_6452,f1_steam_2013_12_56_3_1,SW,AS,"net gen off, cap and year good"
-613_5_2016_plant_gen_total_6452,f1_steam_2016_12_56_2_4,,AS,"Could be any combination of generators, but these are the only generators that have the FERC capacity and report generation. In other years this record is combined into one, but for some reason not this year.
+175,,6043_2001_2005_plant_operating_year_total_6452,f1_steam_2005_12_56_3_2,SW,AS,"net gen off, cap and year good"
+176,,6043_2001_2006_plant_operating_year_total_6452,f1_steam_2006_12_56_3_2,SW,AS,"net gen off, cap and year good"
+177,,6043_2001_2007_plant_operating_year_total_6452,f1_steam_2007_12_56_3_2,SW,AS,"net gen off, cap and year good"
+178,,6043_2001_2008_plant_operating_year_total_6452,f1_steam_2008_12_56_3_2,SW,AS,"net gen off, cap and year good"
+179,,6043_2001_2009_plant_operating_year_total_6452,f1_steam_2009_12_56_3_2,SW,AS,"net gen off, cap and year good"
+180,,6043_2001_2010_plant_operating_year_total_6452,f1_steam_2010_12_56_3_1,SW,AS,net gen matches 6043_3_2010_plant_unit_total_6452 but cap matches the 2005 and 2001 inst. Year sums. Using the later for consistency with other years
+181,,6043_2001_2011_plant_operating_year_total_6452,f1_steam_2011_12_56_3_1,SW,AS,"net gen off, cap and year good"
+182,,6043_2001_2012_plant_operating_year_total_6452,f1_steam_2012_12_56_3_1,SW,AS,"net gen off, cap and year good"
+183,,6043_2001_2013_plant_operating_year_total_6452,f1_steam_2013_12_56_3_1,SW,AS,"net gen off, cap and year good"
+184,,613_5_2016_plant_gen_total_6452,f1_steam_2016_12_56_2_4,,AS,"Could be any combination of generators, but these are the only generators that have the FERC capacity and report generation. In other years this record is combined into one, but for some reason not this year.
 EB: other ones match year, e.g. 23 and 24?"
-2324_1_2005_plant_gen_total_13407,f1_steam_2005_12_108_0_3,,AS,
-2322_ct_2005_plant_prime_mover_total_13407,f1_steam_2005_12_108_1_5,,AS,
-1091_2005_plant_owned_12341,f1_steam_2005_12_210_0_2,,AS,uses records from two plants
-2336_ca_2006_plant_prime_mover_total_17166,f1_steam_2006_12_157_1_1,,AS,cap doesn't jump up till 2008
-2324_1_2006_plant_gen_total_13407,f1_steam_2006_12_108_0_3,,AS,
-2322_ct_2006_plant_prime_mover_total_13407,f1_steam_2006_12_108_1_5,,AS,
-1091_2006_plant_owned_12341,f1_steam_2006_12_210_0_2,,AS,uses records from two plants
-2336_ca_2007_plant_prime_mover_total_17166,f1_steam_2007_12_157_1_1,,AS,cap doesn't jump up till 2008
-2324_1_2007_plant_gen_total_13407,f1_steam_2007_12_108_0_3,,AS,
-2322_ct_2007_plant_prime_mover_total_13407,f1_steam_2007_12_108_1_5,,AS,capacity went up in eia but not in ferc
-1091_2007_plant_owned_12341,f1_steam_2007_12_210_0_2,,AS,uses records from two plants
-6518_kb1_2008_plant_gen_total_17166,f1_steam_2008_12_157_0_5,,AS,For some reason this year only reports a total of the 16.2 and 15 combined so we have to add up the individual components
-2336_5_2008_plant_gen_total_17166,f1_steam_2008_12_157_1_1,,AS,poor generation match
-2324_1_2008_plant_gen_total_13407,f1_steam_2008_12_108_0_3,,AS,
-2322_ct_2008_plant_prime_mover_total_13407,f1_steam_2008_12_108_1_5,,AS,
-2336_8_2008_plant_gen_total_17166,f1_steam_2008_12_157_1_3,,AS,"8, 9, and 10"
-1091_2008_plant_owned_12341,f1_steam_2008_12_210_0_2,,AS,uses records from two plants
-2336_5_2009_plant_unit_total_17166,f1_steam_2009_12_157_1_1,,AS,poor generation match
-2324_1_2009_plant_gen_total_13407,f1_steam_2009_12_108_0_3,,AS,
-2322_ct_2009_plant_prime_mover_total_13407,f1_steam_2009_12_108_1_5,,AS,
-2336_8_2009_plant_gen_total_17166,f1_steam_2009_12_157_1_3,,AS,
-1091_2009_plant_owned_12341,f1_steam_2009_12_210_0_2,,AS,uses records from two plants
-2336_5_2010_plant_unit_total_17166,f1_steam_2010_12_157_1_1,,AS,poor generation match
-2324_1_2010_plant_gen_total_13407,f1_steam_2010_12_108_0_3,,AS,
-2322_ct_2010_plant_prime_mover_total_13407,f1_steam_2010_12_108_1_5,,AS,
-2336_8_2010_plant_gen_total_17166,f1_steam_2010_12_157_1_2,,AS,
-1091_2010_plant_owned_12341,f1_steam_2010_12_210_0_2,,AS,uses records from two plants
-2336_5_2011_plant_unit_total_17166,f1_steam_2011_12_157_1_1,,AS,poor generation match
-2324_1_2011_plant_gen_total_13407,f1_steam_2011_12_108_0_3,,AS,
-2322_ct_2011_plant_prime_mover_total_13407,f1_steam_2011_12_108_1_5,,AS,
-2336_8_2011_plant_gen_total_17166,f1_steam_2011_12_157_1_2,,AS,
-2336_5_2012_plant_unit_total_17166,f1_steam_2012_12_157_1_1,,AS,poor generation match
-2324_1_2012_plant_gen_total_13407,f1_steam_2012_12_108_0_3,,AS,
-2322_ct_2012_plant_prime_mover_total_13407,f1_steam_2012_12_108_1_5,,AS,
-2336_8_2012_plant_gen_total_17166,f1_steam_2012_12_157_1_2,,AS,
-2336_5_2013_plant_unit_total_17166,f1_steam_2013_12_157_1_1,,AS,poor generation match
-2324_1_2013_plant_gen_total_13407,f1_steam_2013_12_108_0_3,,AS,
-2322_ct_2013_plant_prime_mover_total_13407,f1_steam_2013_12_108_1_5,,AS,
-2336_8_2013_plant_gen_total_17166,f1_steam_2013_12_157_1_2,,AS,
-2336_5_2014_plant_gen_total_17166,f1_steam_2014_12_157_1_1,,AS,poor generation match
-2324_1_2014_plant_gen_total_13407,f1_steam_2014_12_108_0_3,,AS,
-2322_ct_2014_plant_prime_mover_total_13407,f1_steam_2014_12_108_1_5,,AS,
-2336_5_2015_plant_gen_total_17166,f1_steam_2015_12_157_1_1,,AS,poor generation match
-2322_ct_2015_plant_prime_mover_total_13407,f1_steam_2015_12_108_1_5,GT,AS,
-2336_5_2016_plant_gen_total_17166,f1_steam_2016_12_157_1_1,,AS,poor generation match
-2322_ct_2016_plant_prime_mover_total_13407,f1_steam_2016_12_108_1_5,GT,AS,
-2336_5_2017_plant_gen_total_17166,f1_steam_2017_12_157_1_1,,AS,poor generation match
-2322_ct_2017_plant_prime_mover_total_13407,f1_steam_2017_12_108_1_5,,AS,
-2336_5_2018_plant_gen_total_17166,f1_steam_2018_12_157_1_1,,AS,poor generation match
-2322_ct_2018_plant_prime_mover_total_13407,f1_steam_2018_12_108_1_5,GT,AS,
-2336_5_2019_plant_gen_total_17166,f1_steam_2019_12_157_1_1,,AS,poor generation match
-2322_ct_2019_plant_prime_mover_total_13407,f1_steam_2019_12_108_1_5,,AS,
-2324_2_2005_plant_gen_total_13407,f1_steam_2005_12_108_0_3,,AS,
-2322_ca_2005_plant_prime_mover_total_13407,f1_steam_2005_12_108_1_5,,AS,
-7343_2005_plant_owned_12341,f1_steam_2005_12_210_0_2,,AS,uses records from two plants
-2336_ct_2006_plant_prime_mover_total_17166,f1_steam_2006_12_157_1_1,,AS,cap doesn't jump up till 2008
-2324_2_2006_plant_gen_total_13407,f1_steam_2006_12_108_0_3,,AS,
-2322_ca_2006_plant_prime_mover_total_13407,f1_steam_2006_12_108_1_5,,AS,
-7343_2006_plant_owned_12341,f1_steam_2006_12_210_0_2,,AS,uses records from two plants
-2336_ct_2007_plant_prime_mover_total_17166,f1_steam_2007_12_157_1_1,,AS,cap doesn't jump up till 2008
-2324_2_2007_plant_gen_total_13407,f1_steam_2007_12_108_0_3,,AS,
-2322_ca_2007_plant_prime_mover_total_13407,f1_steam_2007_12_108_1_5,,AS,capacity went up in eia but not in ferc
-7343_2007_plant_owned_12341,f1_steam_2007_12_210_0_2,,AS,uses records from two plants
-6518_kb2_2008_plant_gen_total_17166,f1_steam_2008_12_157_0_5,,AS,For some reason this year only reports a total of the 16.2 and 15 combined so we have to add up the individual components
-2336_4_2008_plant_gen_total_17166,f1_steam_2008_12_157_1_1,,AS,poor generation match
-2324_2_2008_plant_gen_total_13407,f1_steam_2008_12_108_0_3,,AS,
-2322_ca_2008_plant_prime_mover_total_13407,f1_steam_2008_12_108_1_5,,AS,
-2336_9_2008_plant_gen_total_17166,f1_steam_2008_12_157_1_3,,AS,"8, 9, and 10"
-7343_2008_plant_owned_12341,f1_steam_2008_12_210_0_2,,AS,uses records from two plants
-2336_4_2009_plant_gen_total_17166,f1_steam_2009_12_157_1_1,,AS,poor generation match
-2324_2_2009_plant_gen_total_13407,f1_steam_2009_12_108_0_3,,AS,
-2322_ca_2009_plant_prime_mover_total_13407,f1_steam_2009_12_108_1_5,,AS,
-2336_9_2009_plant_gen_total_17166,f1_steam_2009_12_157_1_3,,AS,
-7343_2009_plant_owned_12341,f1_steam_2009_12_210_0_2,,AS,uses records from two plants
-2336_4_2010_plant_gen_total_17166,f1_steam_2010_12_157_1_1,,AS,poor generation match
-2324_2_2010_plant_gen_total_13407,f1_steam_2010_12_108_0_3,,AS,
-2322_ca_2010_plant_prime_mover_total_13407,f1_steam_2010_12_108_1_5,,AS,
-2336_9_2010_plant_gen_total_17166,f1_steam_2010_12_157_1_2,,AS,
-7343_2010_plant_owned_12341,f1_steam_2010_12_210_0_2,,AS,uses records from two plants
-2336_4_2011_plant_gen_total_17166,f1_steam_2011_12_157_1_1,,AS,poor generation match
-2324_2_2011_plant_gen_total_13407,f1_steam_2011_12_108_0_3,,AS,
-2322_ca_2011_plant_prime_mover_total_13407,f1_steam_2011_12_108_1_5,,AS,
-2336_9_2011_plant_gen_total_17166,f1_steam_2011_12_157_1_2,,AS,
-2336_4_2012_plant_gen_total_17166,f1_steam_2012_12_157_1_1,,AS,poor generation match
-2324_2_2012_plant_gen_total_13407,f1_steam_2012_12_108_0_3,,AS,
-2322_ca_2012_plant_prime_mover_total_13407,f1_steam_2012_12_108_1_5,,AS,
-2336_9_2012_plant_gen_total_17166,f1_steam_2012_12_157_1_2,,AS,
-2336_4_2013_plant_gen_total_17166,f1_steam_2013_12_157_1_1,,AS,poor generation match
-2324_2_2013_plant_gen_total_13407,f1_steam_2013_12_108_0_3,,AS,
-2322_ca_2013_plant_prime_mover_total_13407,f1_steam_2013_12_108_1_5,,AS,
-2336_9_2013_plant_gen_total_17166,f1_steam_2013_12_157_1_2,,AS,
-2336_4_2014_plant_gen_total_17166,f1_steam_2014_12_157_1_1,,AS,poor generation match
-2324_2_2014_plant_gen_total_13407,f1_steam_2014_12_108_0_3,,AS,
-2322_ca_2014_plant_prime_mover_total_13407,f1_steam_2014_12_108_1_5,,AS,
-2336_4_2015_plant_gen_total_17166,f1_steam_2015_12_157_1_1,,AS,poor generation match
-2322_ca_2015_plant_prime_mover_total_13407,f1_steam_2015_12_108_1_5,GT,AS,
-2336_4_2016_plant_gen_total_17166,f1_steam_2016_12_157_1_1,,AS,poor generation match
-2322_ca_2016_plant_prime_mover_total_13407,f1_steam_2016_12_108_1_5,GT,AS,
-2336_4_2017_plant_gen_total_17166,f1_steam_2017_12_157_1_1,,AS,poor generation match
-2322_ca_2017_plant_prime_mover_total_13407,f1_steam_2017_12_108_1_5,,AS,
-2336_4_2018_plant_gen_total_17166,f1_steam_2018_12_157_1_1,,AS,poor generation match
-2322_ca_2018_plant_prime_mover_total_13407,f1_steam_2018_12_108_1_5,GT,AS,
-2336_4_2019_plant_gen_total_17166,f1_steam_2019_12_157_1_1,,AS,poor generation match
-2322_ca_2019_plant_prime_mover_total_13407,f1_steam_2019_12_108_1_5,,AS,
-2324_3_2005_plant_gen_total_13407,f1_steam_2005_12_108_0_3,,AS,
-2324_3_2006_plant_gen_total_13407,f1_steam_2006_12_108_0_3,,AS,
-2324_3_2007_plant_gen_total_13407,f1_steam_2007_12_108_0_3,,AS,
-6518_kb3_2008_plant_gen_total_17166,f1_steam_2008_12_157_0_5,,AS,For some reason this year only reports a total of the 16.2 and 15 combined so we have to add up the individual components
-2324_3_2008_plant_gen_total_13407,f1_steam_2008_12_108_0_3,,AS,
-2336_10_2008_plant_gen_total_17166,f1_steam_2008_12_157_1_3,,AS,"8, 9, and 10"
-2324_3_2009_plant_gen_total_13407,f1_steam_2009_12_108_0_3,,AS,
-2336_10_2009_plant_gen_total_17166,f1_steam_2009_12_157_1_3,,AS,
-2324_3_2010_plant_gen_total_13407,f1_steam_2010_12_108_0_3,,AS,
-2336_10_2010_plant_gen_total_17166,f1_steam_2010_12_157_1_2,,AS,
-2324_3_2011_plant_gen_total_13407,f1_steam_2011_12_108_0_3,,AS,
-2336_10_2011_plant_gen_total_17166,f1_steam_2011_12_157_1_2,,AS,
-2324_3_2012_plant_gen_total_13407,f1_steam_2012_12_108_0_3,,AS,
-2336_10_2012_plant_gen_total_17166,f1_steam_2012_12_157_1_2,,AS,
-2324_3_2013_plant_gen_total_13407,f1_steam_2013_12_108_0_3,,AS,
-2336_10_2013_plant_gen_total_17166,f1_steam_2013_12_157_1_2,,AS,
-2324_3_2014_plant_gen_total_13407,f1_steam_2014_12_108_0_3,,AS,
-6518_kb4_2008_plant_gen_total_17166,f1_steam_2008_12_157_0_5,,AS,For some reason this year only reports a total of the 16.2 and 15 combined so we have to add up the individual components
-6518_kb5_2008_plant_gen_total_17166,f1_steam_2008_12_157_0_5,,AS,For some reason this year only reports a total of the 16.2 and 15 combined so we have to add up the individual components
-6518_kb6_2008_plant_gen_total_17166,f1_steam_2008_12_157_0_5,,AS,For some reason this year only reports a total of the 16.2 and 15 combined so we have to add up the individual components
-815_2005_plant_total_9191,f1_hydro_2005_12_70_1_2,JER,SW,upper + lower malad in EIA match malad in FERC
-815_2006_plant_total_9191,f1_hydro_2006_12_70_1_2,JER,SW,upper + lower malad in EIA match malad in FERC
-815_2007_plant_total_9191,f1_hydro_2007_12_70_1_2,JER,SW,upper + lower malad in EIA match malad in FERC
-815_2008_plant_total_9191,f1_hydro_2008_12_70_1_2,JER,SW,upper + lower malad in EIA match malad in FERC
-815_2009_plant_total_9191,f1_hydro_2009_12_70_1_2,JER,SW,upper + lower malad in EIA match malad in FERC
-815_2010_plant_total_9191,f1_hydro_2010_12_70_1_2,JER,SW,upper + lower malad in EIA match malad in FERC
-815_2011_plant_total_9191,f1_hydro_2011_12_70_1_2,JER,SW,upper + lower malad in EIA match malad in FERC
-815_2012_plant_total_9191,f1_hydro_2012_12_70_1_2,JER,SW,upper + lower malad in EIA match malad in FERC
-815_2013_plant_total_9191,f1_hydro_2013_12_70_1_2,JER,SW,upper + lower malad in EIA match malad in FERC
-815_2014_plant_total_9191,f1_hydro_2014_12_70_1_2,JER,SW,upper + lower malad in EIA match malad in FERC
-815_2015_plant_total_9191,f1_hydro_2015_12_70_1_2,JER,SW,upper + lower malad in EIA match malad in FERC
-815_2016_plant_total_9191,f1_hydro_2016_12_70_1_2,JER,SW,upper + lower malad in EIA match malad in FERC
-815_2017_plant_total_9191,f1_hydro_2017_12_70_1_2,JER,SW,upper + lower malad in EIA match malad in FERC
-815_2018_plant_total_9191,f1_hydro_2018_12_70_1_2,JER,SW,upper + lower malad in EIA match malad in FERC
-815_2019_plant_total_9191,f1_hydro_2019_12_70_1_2,JER,SW,upper + lower malad in EIA match malad in FERC
-822_2005_plant_total_9191,f1_hydro_2005_12_70_2_1,JER,SW,upper salmon in FERC = upper salmon A + upper salmon B in EIA
-822_2006_plant_total_9191,f1_hydro_2006_12_70_2_1,JER,SW,upper salmon in FERC = upper salmon A + upper salmon B in EIA
-822_2007_plant_total_9191,f1_hydro_2007_12_70_2_1,JER,SW,upper salmon in FERC = upper salmon A + upper salmon B in EIA
-822_2008_plant_total_9191,f1_hydro_2008_12_70_2_1,JER,SW,upper salmon in FERC = upper salmon A + upper salmon B in EIA
-822_2009_plant_total_9191,f1_hydro_2009_12_70_2_1,JER,SW,upper salmon in FERC = upper salmon A + upper salmon B in EIA
-822_2010_plant_total_9191,f1_hydro_2010_12_70_2_1,JER,SW,upper salmon in FERC = upper salmon A + upper salmon B in EIA
-822_2011_plant_total_9191,f1_hydro_2011_12_70_2_1,JER,SW,upper salmon in FERC = upper salmon A + upper salmon B in EIA
-822_2012_plant_total_9191,f1_hydro_2012_12_70_2_1,JER,SW,upper salmon in FERC = upper salmon A + upper salmon B in EIA
-822_2013_plant_total_9191,f1_hydro_2013_12_70_2_1,JER,SW,upper salmon in FERC = upper salmon A + upper salmon B in EIA
-822_2014_plant_total_9191,f1_hydro_2014_12_70_2_1,JER,SW,upper salmon in FERC = upper salmon A + upper salmon B in EIA
-822_2015_plant_total_9191,f1_hydro_2015_12_70_2_1,JER,SW,upper salmon in FERC = upper salmon A + upper salmon B in EIA
-822_2016_plant_total_9191,f1_hydro_2016_12_70_2_1,JER,SW,upper salmon in FERC = upper salmon A + upper salmon B in EIA
-822_2017_plant_total_9191,f1_hydro_2017_12_70_2_1,JER,SW,upper salmon in FERC = upper salmon A + upper salmon B in EIA
-822_2018_plant_total_9191,f1_hydro_2018_12_70_2_1,JER,SW,upper salmon in FERC = upper salmon A + upper salmon B in EIA
-822_2019_plant_total_9191,f1_hydro_2019_12_70_2_1,JER,SW,upper salmon in FERC = upper salmon A + upper salmon B in EIA
-823_2005_plant_total_9191,f1_hydro_2005_12_70_1_2,JER,SW,upper + lower malad in EIA match malad in FERC
-823_2006_plant_total_9191,f1_hydro_2006_12_70_1_2,JER,SW,upper + lower malad in EIA match malad in FERC
-823_2007_plant_total_9191,f1_hydro_2007_12_70_1_2,JER,SW,upper + lower malad in EIA match malad in FERC
-823_2008_plant_total_9191,f1_hydro_2008_12_70_1_2,JER,SW,upper + lower malad in EIA match malad in FERC
-823_2009_plant_total_9191,f1_hydro_2009_12_70_1_2,JER,SW,upper + lower malad in EIA match malad in FERC
-823_2010_plant_total_9191,f1_hydro_2010_12_70_1_2,JER,SW,upper + lower malad in EIA match malad in FERC
-823_2011_plant_total_9191,f1_hydro_2011_12_70_1_2,JER,SW,upper + lower malad in EIA match malad in FERC
-823_2012_plant_total_9191,f1_hydro_2012_12_70_1_2,JER,SW,upper + lower malad in EIA match malad in FERC
-823_2013_plant_total_9191,f1_hydro_2013_12_70_1_2,JER,SW,upper + lower malad in EIA match malad in FERC
-823_2014_plant_total_9191,f1_hydro_2014_12_70_1_2,JER,SW,upper + lower malad in EIA match malad in FERC
-823_2015_plant_total_9191,f1_hydro_2015_12_70_1_2,JER,SW,upper + lower malad in EIA match malad in FERC
-823_2016_plant_total_9191,f1_hydro_2016_12_70_1_2,JER,SW,upper + lower malad in EIA match malad in FERC
-823_2017_plant_total_9191,f1_hydro_2017_12_70_1_2,JER,SW,upper + lower malad in EIA match malad in FERC
-823_2018_plant_total_9191,f1_hydro_2018_12_70_1_2,JER,SW,upper + lower malad in EIA match malad in FERC
-823_2019_plant_total_9191,f1_hydro_2019_12_70_1_2,JER,SW,upper + lower malad in EIA match malad in FERC
-7079_2005_plant_total_9191,f1_hydro_2005_12_70_2_1,JER,SW,upper salmon in FERC = upper salmon A + upper salmon B in EIA
-7079_2006_plant_total_9191,f1_hydro_2006_12_70_2_1,JER,SW,upper salmon in FERC = upper salmon A + upper salmon B in EIA
-7079_2007_plant_total_9191,f1_hydro_2007_12_70_2_1,JER,SW,upper salmon in FERC = upper salmon A + upper salmon B in EIA
-7079_2008_plant_total_9191,f1_hydro_2008_12_70_2_1,JER,SW,upper salmon in FERC = upper salmon A + upper salmon B in EIA
-7079_2009_plant_total_9191,f1_hydro_2009_12_70_2_1,JER,SW,upper salmon in FERC = upper salmon A + upper salmon B in EIA
-7079_2010_plant_total_9191,f1_hydro_2010_12_70_2_1,JER,SW,upper salmon in FERC = upper salmon A + upper salmon B in EIA
-7079_2011_plant_total_9191,f1_hydro_2011_12_70_2_1,JER,SW,upper salmon in FERC = upper salmon A + upper salmon B in EIA
-7079_2012_plant_total_9191,f1_hydro_2012_12_70_2_1,JER,SW,upper salmon in FERC = upper salmon A + upper salmon B in EIA
-7079_2013_plant_total_9191,f1_hydro_2013_12_70_2_1,JER,SW,upper salmon in FERC = upper salmon A + upper salmon B in EIA
-7079_2014_plant_total_9191,f1_hydro_2014_12_70_2_1,JER,SW,upper salmon in FERC = upper salmon A + upper salmon B in EIA
-7079_2015_plant_total_9191,f1_hydro_2015_12_70_2_1,JER,SW,upper salmon in FERC = upper salmon A + upper salmon B in EIA
-7079_2016_plant_total_9191,f1_hydro_2016_12_70_2_1,JER,SW,upper salmon in FERC = upper salmon A + upper salmon B in EIA
-7079_2017_plant_total_9191,f1_hydro_2017_12_70_2_1,JER,SW,upper salmon in FERC = upper salmon A + upper salmon B in EIA
-7079_2018_plant_total_9191,f1_hydro_2018_12_70_2_1,JER,SW,upper salmon in FERC = upper salmon A + upper salmon B in EIA
-7079_2019_plant_total_9191,f1_hydro_2019_12_70_2_1,JER,SW,upper salmon in FERC = upper salmon A + upper salmon B in EIA
-3291_gt1_2005_plant_gen_total_17539,f1_steam_2005_12_159_1_3,CG,SW,
-3291_gt1_2006_plant_gen_total_17539,f1_steam_2006_12_159_1_3,CG,SW,
-3291_gt1_2007_plant_gen_total_17539,f1_steam_2007_12_159_1_2,CG,SW,
-3291_gt1_2008_plant_gen_total_17539,f1_steam_2008_12_159_1_2,CG,SW,
-3291_gt1_2009_plant_gen_total_17539,f1_steam_2009_12_159_1_2,CG,SW,
-3291_gt1_2010_plant_gen_total_17539,f1_steam_2010_12_159_1_2,CG,SW,
-3291_gt1_2011_plant_gen_total_17539,f1_steam_2011_12_159_1_2,CG,SW,
-3291_gt1_2012_plant_gen_total_17539,f1_steam_2012_12_159_1_2,CG,SW,
-3291_gt1_2013_plant_gen_total_17539,f1_steam_2013_12_159_1_2,CG,SW,
-3291_gt2_2014_plant_gen_total_17539,f1_steam_2014_12_159_1_2,CG,SW,
-3291_gt1_2015_plant_gen_total_17539,f1_steam_2015_12_159_1_2,CG,SW,
-3291_gt1_2016_plant_gen_total_17539,f1_steam_2016_12_159_1_2,CG,SW,
-3291_gt1_2017_plant_gen_total_17539,f1_steam_2017_12_159_1_2,CG,SW,
-3291_gt1_2018_plant_gen_total_17539,f1_steam_2018_12_159_1_2,CG,SW,
-3291_gt1_2019_plant_gen_total_17539,f1_steam_2019_12_159_1_2,CG,SW,
-3291_gt1_2020_plant_gen_total_17539,f1_steam_2020_12_159_1_2,SW,EB,
-3291_gt3_2005_plant_gen_total_17539,f1_steam_2005_12_159_1_4,CG,SW,
-3291_gt3_2006_plant_gen_total_17539,f1_steam_2006_12_159_1_4,CG,SW,
-3291_gt3_2007_plant_gen_total_17539,f1_steam_2007_12_159_1_3,CG,SW,
-3291_gt3_2008_plant_gen_total_17539,f1_steam_2008_12_159_1_3,CG,SW,
-3291_gt3_2009_plant_gen_total_17539,f1_steam_2009_12_159_1_3,CG,SW,
-3291_gt3_2010_plant_gen_total_17539,f1_steam_2010_12_159_1_3,CG,SW,
-3291_gt3_2011_plant_gen_total_17539,f1_steam_2011_12_159_1_3,CG,SW,
-3291_gt3_2012_plant_gen_total_17539,f1_steam_2012_12_159_1_3,CG,SW,
-3291_gt3_2013_plant_gen_total_17539,f1_steam_2013_12_159_1_3,CG,SW,
-3291_gt3_2014_plant_gen_total_17539,f1_steam_2014_12_159_1_3,CG,SW,
-3291_gt3_2015_plant_gen_total_17539,f1_steam_2015_12_159_1_3,CG,SW,
-3291_gt3_2016_plant_gen_total_17539,f1_steam_2016_12_159_1_3,CG,SW,
-3291_gt3_2017_plant_gen_total_17539,f1_steam_2017_12_159_1_3,CG,SW,
-3291_gt3_2018_plant_gen_total_17539,f1_steam_2018_12_159_1_3,CG,SW,
-3291_gt3_2019_plant_gen_total_17539,f1_steam_2019_12_159_1_3,CG,SW,
-3291_gt3_2020_plant_gen_total_17539,f1_steam_2020_12_159_1_3,SW,EB,
-3291_gt2_2005_plant_gen_total_17539,f1_steam_2005_12_159_1_3,CG,SW,
-3291_gt2_2006_plant_gen_total_17539,f1_steam_2006_12_159_1_3,CG,SW,
-3291_gt2_2007_plant_gen_total_17539,f1_steam_2007_12_159_1_2,CG,SW,
-3291_gt2_2008_plant_gen_total_17539,f1_steam_2008_12_159_1_2,CG,SW,
-3291_gt2_2009_plant_gen_total_17539,f1_steam_2009_12_159_1_2,CG,SW,
-3291_gt2_2010_plant_gen_total_17539,f1_steam_2010_12_159_1_2,CG,SW,
-3291_gt2_2011_plant_gen_total_17539,f1_steam_2011_12_159_1_2,CG,SW,
-3291_gt2_2012_plant_gen_total_17539,f1_steam_2012_12_159_1_2,CG,SW,
-3291_gt2_2013_plant_gen_total_17539,f1_steam_2013_12_159_1_2,CG,SW,
-3291_gt1_2014_plant_gen_total_17539,f1_steam_2014_12_159_1_2,CG,SW,
-3291_gt2_2015_plant_gen_total_17539,f1_steam_2015_12_159_1_2,CG,SW,
-3291_gt2_2016_plant_gen_total_17539,f1_steam_2016_12_159_1_2,CG,SW,
-3291_gt2_2017_plant_gen_total_17539,f1_steam_2017_12_159_1_2,CG,SW,
-3291_gt2_2018_plant_gen_total_17539,f1_steam_2018_12_159_1_2,CG,SW,
-3291_gt2_2019_plant_gen_total_17539,f1_steam_2019_12_159_1_2,CG,SW,
-3291_gt2_2020_plant_gen_total_17539,f1_steam_2020_12_159_1_2,SW,EB,
-3291_gt4_2005_plant_gen_total_17539,f1_steam_2005_12_159_1_4,CG,SW,
-3291_gt4_2006_plant_gen_total_17539,f1_steam_2006_12_159_1_4,CG,SW,
-3291_gt4_2007_plant_gen_total_17539,f1_steam_2007_12_159_1_3,CG,SW,
-3291_gt4_2008_plant_gen_total_17539,f1_steam_2008_12_159_1_3,CG,SW,
-3291_gt4_2009_plant_gen_total_17539,f1_steam_2009_12_159_1_3,CG,SW,
-3291_gt4_2010_plant_gen_total_17539,f1_steam_2010_12_159_1_3,CG,SW,
-3291_gt4_2011_plant_gen_total_17539,f1_steam_2011_12_159_1_3,CG,SW,
-3291_gt4_2012_plant_gen_total_17539,f1_steam_2012_12_159_1_3,CG,SW,
-3291_gt4_2013_plant_gen_total_17539,f1_steam_2013_12_159_1_3,CG,SW,
-3291_gt4_2014_plant_gen_total_17539,f1_steam_2014_12_159_1_3,CG,SW,
-3291_gt4_2015_plant_gen_total_17539,f1_steam_2015_12_159_1_3,CG,SW,
-3291_gt4_2016_plant_gen_total_17539,f1_steam_2016_12_159_1_3,CG,SW,
-3291_gt4_2017_plant_gen_total_17539,f1_steam_2017_12_159_1_3,CG,SW,
-3291_gt4_2018_plant_gen_total_17539,f1_steam_2018_12_159_1_3,CG,SW,
-3291_gt4_2019_plant_gen_total_17539,f1_steam_2019_12_159_1_3,CG,SW,
-3291_gt4_2020_plant_gen_total_17539,f1_steam_2020_12_159_1_3,SW,EB,
-6068_1983_2006_plant_operating_year_owned_12698,f1_steam_2006_12_182_0_3,AS,,The 172.8 cap value exists for this utility but it's split between two records and isn't the right utility (or technically the right cap value)
-1248_4_2010_plant_unit_total_22500,f1_steam_2010_12_191_0_4,AS,SW,Steve added diesel as override 2. This makes sense b/c installation year and name!
-1248_4_2011_plant_unit_total_22500,f1_steam_2011_12_191_0_4,AS,SW,Steve added diesel as override 2. This makes sense b/c installation year and name!
-1242_3_2019_plant_gen_total_10005_retired,f1_steam_2019_12_80_0_1,AS,SW,I think it's a combo of generating units 3 and 4
-1248_4_2012_plant_unit_total_22500,f1_steam_2012_12_191_0_4,AS,SW,Steve added diesel as override 2. This makes sense b/c installation year and name!
-1248_4_2013_plant_unit_total_22500,f1_steam_2013_12_191_1_2,AS,SW,Steve added diesel as override 2. This makes sense b/c installation year and name!
-1248_4_2014_plant_unit_total_22500,f1_steam_2014_12_191_1_2,AS,SW,Steve added diesel as override 2. This makes sense b/c installation year and name!
-2079_6_2005_plant_gen_total_10000,f1_steam_2005_12_79_1_3,AS,SW,
-2079_6_2006_plant_gen_total_10000,f1_steam_2006_12_79_1_3,AS,SW,
-2079_6_2007_plant_gen_total_10000,f1_steam_2007_12_79_1_3,AS,SW,
-2079_6_2008_plant_gen_total_10000,f1_steam_2008_12_79_1_3,AS,SW,
-2079_6_2009_plant_gen_total_10000,f1_steam_2009_12_79_0_3,AS,SW,
-2079_6_2010_plant_gen_total_10000,f1_steam_2010_12_79_0_3,AS,SW,
-2079_6_2011_plant_gen_total_10000,f1_steam_2011_12_79_0_3,AS,SW,
-2079_6_2012_plant_gen_total_10000,f1_steam_2012_12_79_0_3,AS,SW,
-2079_6_2013_plant_gen_total_10000,f1_steam_2013_12_79_0_3,AS,SW,
-2080_2_2019_plant_unit_total_10000_retired,f1_steam_2019_12_79_0_1,AS,SW,previous years reported the clump but not 2019
-6068_2006_plant_owned_12698,f1_steam_2006_12_182_0_3,AS,,The 172.8 cap value exists for this utility but it's split between two records and isn't the right utility (or technically the right cap value)
-1248_h1dg_2010_plant_gen_total_22500,f1_steam_2010_12_191_0_4,AS,SW,Steve added diesel as override 2. This makes sense b/c installation year and name!
-1248_h1dg_2011_plant_gen_total_22500,f1_steam_2011_12_191_0_4,AS,SW,Steve added diesel as override 2. This makes sense b/c installation year and name!
-1242_4_2019_plant_gen_total_10005_retired,f1_steam_2019_12_80_0_1,AS,SW,I think it's a combo of generating units 3 and 4
-1248_h1dg_2012_plant_gen_total_22500,f1_steam_2012_12_191_0_4,AS,SW,Steve added diesel as override 2. This makes sense b/c installation year and name!
-1248_h1dg_2013_plant_gen_total_22500,f1_steam_2013_12_191_1_2,AS,SW,Steve added diesel as override 2. This makes sense b/c installation year and name!
-1248_h1dg_2014_plant_gen_total_22500,f1_steam_2014_12_191_1_2,AS,SW,Steve added diesel as override 2. This makes sense b/c installation year and name!
-2079_9_2005_plant_gen_total_10000,f1_steam_2005_12_79_1_3,AS,SW,
-2079_9_2006_plant_gen_total_10000,f1_steam_2006_12_79_1_3,AS,SW,
-2079_9_2007_plant_gen_total_10000,f1_steam_2007_12_79_1_3,AS,SW,
-2079_9_2008_plant_gen_total_10000,f1_steam_2008_12_79_1_3,AS,SW,
-2079_9_2009_plant_gen_total_10000,f1_steam_2009_12_79_0_3,AS,SW,
-2079_9_2010_plant_gen_total_10000,f1_steam_2010_12_79_0_3,AS,SW,
-2079_9_2011_plant_gen_total_10000,f1_steam_2011_12_79_0_3,AS,SW,
-2079_9_2012_plant_gen_total_10000,f1_steam_2012_12_79_0_3,AS,SW,
-2079_9_2013_plant_gen_total_10000,f1_steam_2013_12_79_0_3,AS,SW,
-2080_3_2019_plant_unit_total_10000_retired,f1_steam_2019_12_79_0_1,AS,SW,previous years reported the clump but not 2019
-171_2014_plant_total_814,f1_steam_2014_12_8_0_4,EB,AS,Could also link retired portion of plant.
-171_2015_plant_total_814,f1_steam_2015_12_8_0_4,EB,AS,Could also link retired portion of plant.
-1402_3_2015_plant_unit_total_11241,f1_steam_2015_12_87_0_2,EB,AS,Based on net gen.
-1404_2013_plant_total_11241,f1_steam_2013_12_87_0_5,EB,AS,Capacity is a poor match because EIA reports retirement and FERC does not. Net gen and inst year closest match.
-1404_2014_plant_total_11241,f1_steam_2014_12_87_0_5,EB,AS,Capacity is a poor match because EIA reports retirement and FERC does not. Net gen and inst year closest match.
-1404_2016_plant_total_11241,f1_steam_2016_12_454_2_4,,AS,
-1404_2017_plant_total_11241,f1_steam_2017_12_454_2_3,,AS,
-1404_2018_plant_total_11241,f1_steam_2018_12_454_2_3,EB,AS,"Exact capacity match, bad net gen match but so are all other records."
-1404_2019_plant_total_11241,f1_steam_2019_12_454_2_3,,AS,Capacity very off but jumps in this year so not sure what is happening. Picked for consistency
-1394_2017_plant_total_11241,f1_steam_2017_12_454_3_1,,AS,"Could be capacity of plant total and retired summed in EIA, or just total (with FERC lag in data)"
-1394_2018_plant_total_11241,f1_steam_2018_12_454_3_1,,AS,"Could be capacity of plant total and retired summed in EIA, or just total (with FERC lag in data)"
-171_2014_plant_total_814_retired,f1_steam_2014_12_8_0_4,EB,AS,Could also link retired portion of plant.
-171_2015_plant_total_814_retired,f1_steam_2015_12_8_0_4,EB,AS,Could also link retired portion of plant.
-1402_1_2015_plant_unit_total_11241,f1_steam_2015_12_87_0_2,EB,AS,Based on net gen.
-1404_2013_plant_total_11241_retired,f1_steam_2013_12_87_0_5,EB,AS,Capacity is a poor match because EIA reports retirement and FERC does not. Net gen and inst year closest match.
-1404_2014_plant_total_11241_retired,f1_steam_2014_12_87_0_5,EB,AS,Capacity is a poor match because EIA reports retirement and FERC does not. Net gen and inst year closest match.
-1404_2016_plant_total_11241_retired,f1_steam_2016_12_454_2_4,,AS,
-1404_2017_plant_total_11241_retired,f1_steam_2017_12_454_2_3,,AS,
-1404_2018_plant_total_11241_retired,f1_steam_2018_12_454_2_3,EB,AS,"Exact capacity match, bad net gen match but so are all other records."
-1404_2019_plant_total_11241_retired,f1_steam_2019_12_454_2_3,,AS,Capacity very off but jumps in this year so not sure what is happening. Picked for consistency
-1394_2017_plant_total_11241_retired,f1_steam_2017_12_454_3_1,,AS,"Could be capacity of plant total and retired summed in EIA, or just total (with FERC lag in data)"
-1394_2018_plant_total_11241_retired,f1_steam_2018_12_454_3_1,,AS,"Could be capacity of plant total and retired summed in EIA, or just total (with FERC lag in data)"
+369,,3291_gt1_2005_plant_gen_total_17539,f1_steam_2005_12_159_1_3,CG,SW,
+370,,3291_gt1_2006_plant_gen_total_17539,f1_steam_2006_12_159_1_3,CG,SW,
+371,,3291_gt1_2007_plant_gen_total_17539,f1_steam_2007_12_159_1_2,CG,SW,
+372,,3291_gt1_2008_plant_gen_total_17539,f1_steam_2008_12_159_1_2,CG,SW,
+373,,3291_gt1_2009_plant_gen_total_17539,f1_steam_2009_12_159_1_2,CG,SW,
+374,,3291_gt1_2010_plant_gen_total_17539,f1_steam_2010_12_159_1_2,CG,SW,
+375,,3291_gt1_2011_plant_gen_total_17539,f1_steam_2011_12_159_1_2,CG,SW,
+376,,3291_gt1_2012_plant_gen_total_17539,f1_steam_2012_12_159_1_2,CG,SW,
+377,,3291_gt1_2013_plant_gen_total_17539,f1_steam_2013_12_159_1_2,CG,SW,
+378,,3291_gt2_2014_plant_gen_total_17539,f1_steam_2014_12_159_1_2,CG,SW,
+379,,3291_gt1_2015_plant_gen_total_17539,f1_steam_2015_12_159_1_2,CG,SW,
+380,,3291_gt1_2016_plant_gen_total_17539,f1_steam_2016_12_159_1_2,CG,SW,
+381,,3291_gt1_2017_plant_gen_total_17539,f1_steam_2017_12_159_1_2,CG,SW,
+382,,3291_gt1_2018_plant_gen_total_17539,f1_steam_2018_12_159_1_2,CG,SW,
+383,,3291_gt1_2019_plant_gen_total_17539,f1_steam_2019_12_159_1_2,CG,SW,
+384,,3291_gt1_2020_plant_gen_total_17539,f1_steam_2020_12_159_1_2,SW,EB,
+385,,3291_gt3_2005_plant_gen_total_17539,f1_steam_2005_12_159_1_4,CG,SW,
+386,,3291_gt3_2006_plant_gen_total_17539,f1_steam_2006_12_159_1_4,CG,SW,
+387,,3291_gt3_2007_plant_gen_total_17539,f1_steam_2007_12_159_1_3,CG,SW,
+388,,3291_gt3_2008_plant_gen_total_17539,f1_steam_2008_12_159_1_3,CG,SW,
+389,,3291_gt3_2009_plant_gen_total_17539,f1_steam_2009_12_159_1_3,CG,SW,
+390,,3291_gt3_2010_plant_gen_total_17539,f1_steam_2010_12_159_1_3,CG,SW,
+391,,3291_gt3_2011_plant_gen_total_17539,f1_steam_2011_12_159_1_3,CG,SW,
+392,,3291_gt3_2012_plant_gen_total_17539,f1_steam_2012_12_159_1_3,CG,SW,
+393,,3291_gt3_2013_plant_gen_total_17539,f1_steam_2013_12_159_1_3,CG,SW,
+394,,3291_gt3_2014_plant_gen_total_17539,f1_steam_2014_12_159_1_3,CG,SW,
+395,,3291_gt3_2015_plant_gen_total_17539,f1_steam_2015_12_159_1_3,CG,SW,
+396,,3291_gt3_2016_plant_gen_total_17539,f1_steam_2016_12_159_1_3,CG,SW,
+397,,3291_gt3_2017_plant_gen_total_17539,f1_steam_2017_12_159_1_3,CG,SW,
+398,,3291_gt3_2018_plant_gen_total_17539,f1_steam_2018_12_159_1_3,CG,SW,
+399,,3291_gt3_2019_plant_gen_total_17539,f1_steam_2019_12_159_1_3,CG,SW,
+400,,3291_gt3_2020_plant_gen_total_17539,f1_steam_2020_12_159_1_3,SW,EB,
+401,,3291_gt2_2005_plant_gen_total_17539,f1_steam_2005_12_159_1_3,CG,SW,
+402,,3291_gt2_2006_plant_gen_total_17539,f1_steam_2006_12_159_1_3,CG,SW,
+403,,3291_gt2_2007_plant_gen_total_17539,f1_steam_2007_12_159_1_2,CG,SW,
+404,,3291_gt2_2008_plant_gen_total_17539,f1_steam_2008_12_159_1_2,CG,SW,
+405,,3291_gt2_2009_plant_gen_total_17539,f1_steam_2009_12_159_1_2,CG,SW,
+406,,3291_gt2_2010_plant_gen_total_17539,f1_steam_2010_12_159_1_2,CG,SW,
+407,,3291_gt2_2011_plant_gen_total_17539,f1_steam_2011_12_159_1_2,CG,SW,
+408,,3291_gt2_2012_plant_gen_total_17539,f1_steam_2012_12_159_1_2,CG,SW,
+409,,3291_gt2_2013_plant_gen_total_17539,f1_steam_2013_12_159_1_2,CG,SW,
+410,,3291_gt1_2014_plant_gen_total_17539,f1_steam_2014_12_159_1_2,CG,SW,
+411,,3291_gt2_2015_plant_gen_total_17539,f1_steam_2015_12_159_1_2,CG,SW,
+412,,3291_gt2_2016_plant_gen_total_17539,f1_steam_2016_12_159_1_2,CG,SW,
+413,,3291_gt2_2017_plant_gen_total_17539,f1_steam_2017_12_159_1_2,CG,SW,
+414,,3291_gt2_2018_plant_gen_total_17539,f1_steam_2018_12_159_1_2,CG,SW,
+415,,3291_gt2_2019_plant_gen_total_17539,f1_steam_2019_12_159_1_2,CG,SW,
+416,,3291_gt2_2020_plant_gen_total_17539,f1_steam_2020_12_159_1_2,SW,EB,
+417,,3291_gt4_2005_plant_gen_total_17539,f1_steam_2005_12_159_1_4,CG,SW,
+418,,3291_gt4_2006_plant_gen_total_17539,f1_steam_2006_12_159_1_4,CG,SW,
+419,,3291_gt4_2007_plant_gen_total_17539,f1_steam_2007_12_159_1_3,CG,SW,
+420,,3291_gt4_2008_plant_gen_total_17539,f1_steam_2008_12_159_1_3,CG,SW,
+421,,3291_gt4_2009_plant_gen_total_17539,f1_steam_2009_12_159_1_3,CG,SW,
+422,,3291_gt4_2010_plant_gen_total_17539,f1_steam_2010_12_159_1_3,CG,SW,
+423,,3291_gt4_2011_plant_gen_total_17539,f1_steam_2011_12_159_1_3,CG,SW,
+424,,3291_gt4_2012_plant_gen_total_17539,f1_steam_2012_12_159_1_3,CG,SW,
+425,,3291_gt4_2013_plant_gen_total_17539,f1_steam_2013_12_159_1_3,CG,SW,
+426,,3291_gt4_2014_plant_gen_total_17539,f1_steam_2014_12_159_1_3,CG,SW,
+427,,3291_gt4_2015_plant_gen_total_17539,f1_steam_2015_12_159_1_3,CG,SW,
+428,,3291_gt4_2016_plant_gen_total_17539,f1_steam_2016_12_159_1_3,CG,SW,
+429,,3291_gt4_2017_plant_gen_total_17539,f1_steam_2017_12_159_1_3,CG,SW,
+430,,3291_gt4_2018_plant_gen_total_17539,f1_steam_2018_12_159_1_3,CG,SW,
+431,,3291_gt4_2019_plant_gen_total_17539,f1_steam_2019_12_159_1_3,CG,SW,
+432,,3291_gt4_2020_plant_gen_total_17539,f1_steam_2020_12_159_1_3,SW,EB,
+433,,6068_1983_2006_plant_operating_year_owned_12698,f1_steam_2006_12_182_0_3,AS,,The 172.8 cap value exists for this utility but it's split between two records and isn't the right utility (or technically the right cap value)
+434,,1248_4_2010_plant_unit_total_22500,f1_steam_2010_12_191_0_4,AS,SW,Steve added diesel as override 2. This makes sense b/c installation year and name!
+435,,1248_4_2011_plant_unit_total_22500,f1_steam_2011_12_191_0_4,AS,SW,Steve added diesel as override 2. This makes sense b/c installation year and name!
+436,,1242_3_2019_plant_gen_total_10005_retired,f1_steam_2019_12_80_0_1,AS,SW,I think it's a combo of generating units 3 and 4
+437,,1248_4_2012_plant_unit_total_22500,f1_steam_2012_12_191_0_4,AS,SW,Steve added diesel as override 2. This makes sense b/c installation year and name!
+438,,1248_4_2013_plant_unit_total_22500,f1_steam_2013_12_191_1_2,AS,SW,Steve added diesel as override 2. This makes sense b/c installation year and name!
+439,,1248_4_2014_plant_unit_total_22500,f1_steam_2014_12_191_1_2,AS,SW,Steve added diesel as override 2. This makes sense b/c installation year and name!
+440,,2079_6_2005_plant_gen_total_10000,f1_steam_2005_12_79_1_3,AS,SW,
+441,,2079_6_2006_plant_gen_total_10000,f1_steam_2006_12_79_1_3,AS,SW,
+442,,2079_6_2007_plant_gen_total_10000,f1_steam_2007_12_79_1_3,AS,SW,
+443,,2079_6_2008_plant_gen_total_10000,f1_steam_2008_12_79_1_3,AS,SW,
+444,,2079_6_2009_plant_gen_total_10000,f1_steam_2009_12_79_0_3,AS,SW,
+445,,2079_6_2010_plant_gen_total_10000,f1_steam_2010_12_79_0_3,AS,SW,
+446,,2079_6_2011_plant_gen_total_10000,f1_steam_2011_12_79_0_3,AS,SW,
+447,,2079_6_2012_plant_gen_total_10000,f1_steam_2012_12_79_0_3,AS,SW,
+448,,2079_6_2013_plant_gen_total_10000,f1_steam_2013_12_79_0_3,AS,SW,
+449,,2080_2_2019_plant_unit_total_10000_retired,f1_steam_2019_12_79_0_1,AS,SW,previous years reported the clump but not 2019
+450,,6068_2006_plant_owned_12698,f1_steam_2006_12_182_0_3,AS,,The 172.8 cap value exists for this utility but it's split between two records and isn't the right utility (or technically the right cap value)
+451,,1248_h1dg_2010_plant_gen_total_22500,f1_steam_2010_12_191_0_4,AS,SW,Steve added diesel as override 2. This makes sense b/c installation year and name!
+452,,1248_h1dg_2011_plant_gen_total_22500,f1_steam_2011_12_191_0_4,AS,SW,Steve added diesel as override 2. This makes sense b/c installation year and name!
+453,,1242_4_2019_plant_gen_total_10005_retired,f1_steam_2019_12_80_0_1,AS,SW,I think it's a combo of generating units 3 and 4
+454,,1248_h1dg_2012_plant_gen_total_22500,f1_steam_2012_12_191_0_4,AS,SW,Steve added diesel as override 2. This makes sense b/c installation year and name!
+455,,1248_h1dg_2013_plant_gen_total_22500,f1_steam_2013_12_191_1_2,AS,SW,Steve added diesel as override 2. This makes sense b/c installation year and name!
+456,,1248_h1dg_2014_plant_gen_total_22500,f1_steam_2014_12_191_1_2,AS,SW,Steve added diesel as override 2. This makes sense b/c installation year and name!
+457,,2079_9_2005_plant_gen_total_10000,f1_steam_2005_12_79_1_3,AS,SW,
+458,,2079_9_2006_plant_gen_total_10000,f1_steam_2006_12_79_1_3,AS,SW,
+459,,2079_9_2007_plant_gen_total_10000,f1_steam_2007_12_79_1_3,AS,SW,
+460,,2079_9_2008_plant_gen_total_10000,f1_steam_2008_12_79_1_3,AS,SW,
+461,,2079_9_2009_plant_gen_total_10000,f1_steam_2009_12_79_0_3,AS,SW,
+462,,2079_9_2010_plant_gen_total_10000,f1_steam_2010_12_79_0_3,AS,SW,
+463,,2079_9_2011_plant_gen_total_10000,f1_steam_2011_12_79_0_3,AS,SW,
+464,,2079_9_2012_plant_gen_total_10000,f1_steam_2012_12_79_0_3,AS,SW,
+465,,2079_9_2013_plant_gen_total_10000,f1_steam_2013_12_79_0_3,AS,SW,
+466,,2080_3_2019_plant_unit_total_10000_retired,f1_steam_2019_12_79_0_1,AS,SW,previous years reported the clump but not 2019
+469,,1402_3_2015_plant_unit_total_11241,f1_steam_2015_12_87_0_2,EB,AS,Based on net gen.
+480,,1402_1_2015_plant_unit_total_11241,f1_steam_2015_12_87_0_2,EB,AS,Based on net gen.
