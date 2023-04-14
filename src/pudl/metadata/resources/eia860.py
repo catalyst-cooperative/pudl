@@ -230,6 +230,8 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
                     "boiler_fuel_eia923",
                     "fuel_receipts_costs_eia923",
                     "generation_eia923",
+                    "denorm_generation_eia923",
+                    "denorm_generation_monthly_eia923",
                     "generation_fuel_eia923",
                 ],
             },
@@ -369,6 +371,8 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
                     "denorm_boiler_fuel_monthly_eia923",
                     "denorm_fuel_receipts_costs_eia923",
                     "denorm_fuel_receipts_costs_monthly_eia923",
+                    "denorm_generation_eia923",
+                    "denorm_generation_monthly_eia923",
                     "fuel_receipts_costs_eia923",
                     "generation_eia923",
                     "generation_fuel_eia923",
@@ -421,7 +425,11 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
                     # https://github.com/catalyst-cooperative/pudl/issues/1196
                     # ["owner_utility_id_eia", "report_date"],
                 ],
-                # EIA-861 has not gone through harvesting / normalization yet.
+                # TODO: Excluding monthly data tables since their report_date
+                # values don't match up with plants_eia860, which is annual, so
+                # non-january records fail.
+                # See: https://github.com/catalyst-cooperative/pudl/issues/1196
+                # NOTE: EIA-861 has not gone through harvesting / normalization yet.
                 "exclude": [
                     "advanced_metering_infrastructure_eia861",
                     "balancing_authority_assn_eia861",
@@ -434,6 +442,8 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
                     "denorm_boiler_fuel_monthly_eia923",
                     "denorm_fuel_receipts_costs_eia923",
                     "denorm_fuel_receipts_costs_monthly_eia923",
+                    "denorm_generation_eia923",
+                    "denorm_generation_monthly_eia923",
                     "distributed_generation_fuel_eia861",
                     "distributed_generation_misc_eia861",
                     "distributed_generation_tech_eia861",

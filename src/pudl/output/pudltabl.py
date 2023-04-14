@@ -182,7 +182,7 @@ class PudlTabl:
             # eia923 (denormalized, data primarily from EIA-923)
             "denorm_boiler_fuel_AGG_eia923": "bf_eia923",
             "denorm_fuel_receipts_costs_AGG_eia923": "frc_eia923",
-            # "denorm_generation_AGG_eia923": "gen_eia923",
+            "denorm_generation_AGG_eia923": "gen_original_eia923",
             # "denorm_generation_fuel_combined_AGG_eia923": "gf_eia923",
             # ferc714
             "respondent_id_ferc714": "respondent_id_ferc714",
@@ -368,19 +368,8 @@ class PudlTabl:
                     update=update
                 ).loc[:, list(self.gen_original_eia923().columns)]
             else:
-                self._dfs["gen_eia923"] = self.gen_original_eia923(update=update)
+                self._dfs["gen_eia923"] = self.gen_original_eia923()
         return self._dfs["gen_eia923"]
-
-    def gen_original_eia923(self, update=False):
-        """Pull the original EIA 923 net generation data by generator."""
-        if update or self._dfs["gen_og_eia923"] is None:
-            self._dfs["gen_og_eia923"] = pudl.output.eia923.generation_eia923(
-                self.pudl_engine,
-                freq=self.freq,
-                start_date=self.start_date,
-                end_date=self.end_date,
-            )
-        return self._dfs["gen_og_eia923"]
 
     def gen_fuel_by_generator_energy_source_eia923(self, update=False):
         """Net generation and fuel data allocated to generator/energy_source_code.

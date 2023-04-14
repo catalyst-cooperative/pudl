@@ -132,7 +132,7 @@ def _fill_fuel_costs_by_state(
 #####################################################################################
 # Simple Denormalized Assets
 #####################################################################################
-@asset(io_manager_key=None, compute_kind="Python")
+@asset(io_manager_key="pudl_sqlite_io_manager", compute_kind="Python")
 def denorm_generation_eia923(
     generation_eia923: pd.DataFrame,
     denorm_plants_utilities_eia: pd.DataFrame,
@@ -279,7 +279,7 @@ def time_aggregated_eia923_asset_factory(
 
     @asset(
         name=f"denorm_generation_{AGG_FREQS[freq]}_eia923",
-        io_manager_key=io_manager_key,
+        io_manager_key="pudl_sqlite_io_manager",
         compute_kind="Python",
     )
     def generation_agg_eia923(
