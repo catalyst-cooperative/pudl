@@ -179,6 +179,11 @@ class PudlTabl:
             "utility_assn_eia861": "utility_assn_eia861",
             "balancing_authority_eia861": "balancing_authority_eia861",
             "balancing_authority_assn_eia861": "balancing_authority_assn_eia861",
+            # eia923 (denormalized, data primarily from EIA-923)
+            "denorm_boiler_fuel_AGG_eia923": "bf_eia923",
+            # "denorm_fuel_receipts_costs_AGG_eia923": "frc_eia923",
+            # "denorm_generation_AGG_eia923": "gen_eia923",
+            # "denorm_generation_fuel_combined_AGG_eia923": "gf_eia923",
             # ferc714
             "respondent_id_ferc714": "respondent_id_ferc714",
             "demand_hourly_pa_ferc714": "demand_hourly_pa_ferc714",
@@ -191,12 +196,26 @@ class PudlTabl:
                     "explicitly defined class method. One of these should be deleted."
                 )
 
+            table_name = self._agg_table_name(table_name)
             # Create method called asset_name that will read the asset from DB
             self.__dict__[method_name] = partial(
                 self._get_table_from_db,
                 table_name=table_name,
                 resource=Resource.from_id(table_name),
             )
+
+    def _agg_table_name(self, table_name: str) -> str:
+        """Substitute appropriate frequency in aggregated table names."""
+        agg_freqs = {
+            "AS": "yearly",
+            "MS": "monthly",
+        }
+        if "_AGG" in table_name:
+            if self.freq is not None:
+                table_name = table_name.replace("AGG", agg_freqs[self.freq])
+            else:
+                table_name = table_name.replace("_AGG", "")
+        return table_name
 
     def _get_table_from_db(self, table_name: str, resource: Resource) -> pd.DataFrame:
         """Grab output table from PUDL DB.
@@ -205,6 +224,7 @@ class PudlTabl:
             table_name: Name of table to get.
             resource: Resource metadata used to enforce schema on table.
         """
+        table_name = self._agg_table_name(table_name)
         return pd.concat(
             [
                 resource.enforce_schema(df)
@@ -331,25 +351,6 @@ class PudlTabl:
                 roll=self.roll_fuel_cost,
             )
         return self._dfs["frc_eia923"]
-
-    def bf_eia923(self, update=False):
-        """Pull EIA 923 boiler fuel consumption data.
-
-        Args:
-            update (bool): If true, re-calculate the output dataframe, even if
-                a cached version exists.
-
-        Returns:
-            pandas.DataFrame: a denormalized table for interactive use.
-        """
-        if update or self._dfs["bf_eia923"] is None:
-            self._dfs["bf_eia923"] = pudl.output.eia923.boiler_fuel_eia923(
-                self.pudl_engine,
-                freq=self.freq,
-                start_date=self.start_date,
-                end_date=self.end_date,
-            )
-        return self._dfs["bf_eia923"]
 
     def gen_eia923(self, update=False):
         """Pull EIA 923 net generation data by generator.

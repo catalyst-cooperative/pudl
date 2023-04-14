@@ -169,7 +169,7 @@ def denorm_generation_fuel_combined_eia923(
     return denorm_by_plant(gf, pu=denorm_plants_utilities_eia)
 
 
-@asset(io_manager_key=None, compute_kind="Python")
+@asset(io_manager_key="pudl_sqlite_io_manager", compute_kind="Python")
 def denorm_boiler_fuel_eia923(
     boiler_fuel_eia923: pd.DataFrame,
     denorm_plants_utilities_eia: pd.DataFrame,
@@ -282,7 +282,11 @@ def time_aggregated_eia923_asset_factory(
         io_manager_key=io_manager_key,
         compute_kind="Python",
     )
-    def generation_agg_eia923(denorm_generation_eia923: pd.DataFrame) -> pd.DataFrame:
+    def generation_agg_eia923(
+        denorm_generation_eia923: pd.DataFrame,
+        denorm_plants_utilities_eia: pd.DataFrame,
+        boiler_generator_assn_eia860: pd.DataFrame,
+    ) -> pd.DataFrame:
         """Aggregate :ref:`generation_eia923` monthly or annually."""
         return (
             # Create a date index for grouping based on freq
@@ -295,6 +299,11 @@ def time_aggregated_eia923_asset_factory(
             )
             .agg({"net_generation_mwh": pudl.helpers.sum_na})
             .reset_index()
+            .pipe(
+                denorm_by_gen,
+                pu=denorm_plants_utilities_eia,
+                bga=boiler_generator_assn_eia860,
+            )
         )
 
     @asset(
@@ -303,7 +312,8 @@ def time_aggregated_eia923_asset_factory(
         compute_kind="Python",
     )
     def generation_fuel_combined_agg_eia923(
-        denorm_generation_fuel_combined_eia923,
+        denorm_generation_fuel_combined_eia923: pd.DataFrame,
+        denorm_plants_utilities_eia: pd.DataFrame,
     ) -> pd.DataFrame:
         """Aggregate :ref:`generation_fuel_combined_eia923` monthly or annually."""
         return (
@@ -336,14 +346,19 @@ def time_aggregated_eia923_asset_factory(
                 / x.fuel_consumed_units
             )
             .reset_index()
+            .pipe(denorm_by_plant, pu=denorm_plants_utilities_eia)
         )
 
     @asset(
         name=f"denorm_boiler_fuel_{AGG_FREQS[freq]}_eia923",
-        io_manager_key=io_manager_key,
+        io_manager_key="pudl_sqlite_io_manager",
         compute_kind="Python",
     )
-    def boiler_fuel_agg_eia923(denorm_boiler_fuel_eia923: pd.DataFrame) -> pd.DataFrame:
+    def boiler_fuel_agg_eia923(
+        denorm_boiler_fuel_eia923: pd.DataFrame,
+        denorm_plants_utilities_eia: pd.DataFrame,
+        boiler_generator_assn_eia860: pd.DataFrame,
+    ) -> pd.DataFrame:
         """Aggregate :ref:`generation_fuel_combined_eia923` monthly or annually."""
         # In order to calculate the weighted average sulfur
         # content and ash content we need to calculate these totals.
@@ -362,7 +377,8 @@ def time_aggregated_eia923_asset_factory(
                     "fuel_type_code_pudl",
                     "prime_mover_code",
                     pd.Grouper(freq=freq),
-                ]
+                ],
+                observed=True,
             )
             # Sum up these totals within each group, and recalculate the per-unit
             # values (weighted in this case by fuel_consumed_units)
@@ -383,6 +399,11 @@ def time_aggregated_eia923_asset_factory(
             )
             .drop(columns=["total_ash_content", "total_sulfur_content"])
             .reset_index()
+            .pipe(
+                denorm_by_boil,
+                pu=denorm_plants_utilities_eia,
+                bga=boiler_generator_assn_eia860,
+            )
         )
 
     @asset(
@@ -392,6 +413,7 @@ def time_aggregated_eia923_asset_factory(
     )
     def fuel_receipts_costs_agg_eia923(
         denorm_fuel_receipts_costs_eia923: pd.DataFrame,
+        denorm_plants_utilities_eia: pd.DataFrame,
     ) -> pd.DataFrame:
         """Aggregate the :ref:`fuel_receipts_costs_eia923` table monthly or annually."""
         return (
@@ -409,7 +431,10 @@ def time_aggregated_eia923_asset_factory(
                 total_chlorine_content=lambda x: x.chlorine_content_ppm
                 * x.fuel_received_units,
             )
-            .groupby(by=["plant_id_eia", "fuel_type_code_pudl", pd.Grouper(freq=freq)])
+            .groupby(
+                by=["plant_id_eia", "fuel_type_code_pudl", pd.Grouper(freq=freq)],
+                observed=True,
+            )
             .agg(
                 {
                     "fuel_received_units": pudl.helpers.sum_na,
@@ -447,6 +472,7 @@ def time_aggregated_eia923_asset_factory(
                 ]
             )
             .reset_index()
+            .pipe(denorm_by_plant, pu=denorm_plants_utilities_eia)
         )
 
     return [

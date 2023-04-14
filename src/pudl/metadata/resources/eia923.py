@@ -34,6 +34,170 @@ it is reported in December.
                 "fuel_mmbtu_per_unit",
                 "sulfur_content_pct",
                 "ash_content_pct",
+                # No data_maturity field
+                # see: https://github.com/catalyst-cooperative/pudl/issues/1847
+            ],
+            "primary_key": [
+                "plant_id_eia",
+                "boiler_id",
+                "energy_source_code",
+                "prime_mover_code",
+                "report_date",
+            ],
+        },
+        "field_namespace": "eia",
+        "sources": ["eia923"],
+        "etl_group": "eia923",
+    },
+    "denorm_boiler_fuel_eia923": {
+        "description": (
+            """EIA-923 Monthly Boiler Fuel Consumption and Emissions, from EIA-923 Schedule 3.
+
+Reports the quantity of each type of fuel consumed by each boiler on a monthly basis, as
+well as the sulfur and ash content of those fuels. Fuel quantity is reported in standard
+EIA fuel units (tons, barrels, Mcf). Heat content per unit of fuel is also reported,
+making this table useful for calculating the thermal efficiency (heat rate) of various
+generation units.
+
+This table provides better coverage of the entire fleet of generators than the
+``generation_fuel_eia923`` table, but the fuel consumption reported here is not directly
+associated with a generator. This complicates the heat rate calculation, since the
+associations between individual boilers and generators are incomplete and can be
+complex.
+
+Note that a small number of respondents only report annual fuel consumption, and all of
+it is reported in December.
+"""
+        ),
+        "schema": {
+            "fields": [
+                "report_date",
+                "plant_id_eia",
+                "plant_id_pudl",
+                "plant_name_eia",
+                "utility_id_eia",
+                "utility_id_pudl",
+                "utility_name_eia",
+                "boiler_id",
+                "unit_id_pudl",
+                "energy_source_code",
+                "prime_mover_code",
+                "fuel_type_code_pudl",
+                "fuel_consumed_units",
+                "fuel_mmbtu_per_unit",
+                "fuel_consumed_mmbtu",
+                "sulfur_content_pct",
+                "ash_content_pct",
+                # No data_maturity field
+                # see: https://github.com/catalyst-cooperative/pudl/issues/1847
+            ],
+            "primary_key": [
+                "plant_id_eia",
+                "boiler_id",
+                "energy_source_code",
+                "prime_mover_code",
+                "report_date",
+            ],
+        },
+        "field_namespace": "eia",
+        "sources": ["eia923"],
+        "etl_group": "eia923",
+    },
+    "denorm_boiler_fuel_yearly_eia923": {
+        "description": (
+            """EIA-923 Monthly Boiler Fuel Consumption and Emissions, from EIA-923 Schedule 3.
+
+Reports the quantity of each type of fuel consumed by each boiler on a monthly basis, as
+well as the sulfur and ash content of those fuels. Fuel quantity is reported in standard
+EIA fuel units (tons, barrels, Mcf). Heat content per unit of fuel is also reported,
+making this table useful for calculating the thermal efficiency (heat rate) of various
+generation units.
+
+This table provides better coverage of the entire fleet of generators than the
+``generation_fuel_eia923`` table, but the fuel consumption reported here is not directly
+associated with a generator. This complicates the heat rate calculation, since the
+associations between individual boilers and generators are incomplete and can be
+complex.
+
+Note that a small number of respondents only report annual fuel consumption, and all of
+it is reported in December.
+"""
+        ),
+        "schema": {
+            "fields": [
+                "report_date",
+                "plant_id_eia",
+                "plant_id_pudl",
+                "plant_name_eia",
+                "utility_id_eia",
+                "utility_id_pudl",
+                "utility_name_eia",
+                "boiler_id",
+                "unit_id_pudl",
+                "energy_source_code",
+                "prime_mover_code",
+                "fuel_type_code_pudl",
+                "fuel_consumed_units",
+                "fuel_mmbtu_per_unit",
+                "fuel_consumed_mmbtu",
+                "sulfur_content_pct",
+                "ash_content_pct",
+                # No data_maturity field
+                # see: https://github.com/catalyst-cooperative/pudl/issues/1847
+            ],
+            "primary_key": [
+                "plant_id_eia",
+                "boiler_id",
+                "energy_source_code",
+                "prime_mover_code",
+                "report_date",
+            ],
+        },
+        "field_namespace": "eia",
+        "sources": ["eia923"],
+        "etl_group": "eia923",
+    },
+    "denorm_boiler_fuel_monthly_eia923": {
+        "description": (
+            """EIA-923 Monthly Boiler Fuel Consumption and Emissions, from EIA-923 Schedule 3.
+
+Reports the quantity of each type of fuel consumed by each boiler on a monthly basis, as
+well as the sulfur and ash content of those fuels. Fuel quantity is reported in standard
+EIA fuel units (tons, barrels, Mcf). Heat content per unit of fuel is also reported,
+making this table useful for calculating the thermal efficiency (heat rate) of various
+generation units.
+
+This table provides better coverage of the entire fleet of generators than the
+``generation_fuel_eia923`` table, but the fuel consumption reported here is not directly
+associated with a generator. This complicates the heat rate calculation, since the
+associations between individual boilers and generators are incomplete and can be
+complex.
+
+Note that a small number of respondents only report annual fuel consumption, and all of
+it is reported in December.
+"""
+        ),
+        "schema": {
+            "fields": [
+                "report_date",
+                "plant_id_eia",
+                "plant_id_pudl",
+                "plant_name_eia",
+                "utility_id_eia",
+                "utility_id_pudl",
+                "utility_name_eia",
+                "boiler_id",
+                "unit_id_pudl",
+                "energy_source_code",
+                "prime_mover_code",
+                "fuel_type_code_pudl",
+                "fuel_consumed_units",
+                "fuel_mmbtu_per_unit",
+                "fuel_consumed_mmbtu",
+                "sulfur_content_pct",
+                "ash_content_pct",
+                # No data_maturity field
+                # see: https://github.com/catalyst-cooperative/pudl/issues/1847
             ],
             "primary_key": [
                 "plant_id_eia",
