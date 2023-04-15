@@ -326,6 +326,13 @@ def allocate_net_gen_asset_factory(
         _ = test_original_gf_vs_the_allocated_by_gens_gf(
             gf=gf, gf_allocated=net_gen_fuel_alloc
         )
+        # There are a tiny number of records that have NaNs in the prime mover code
+        # and for which the correct prime mover is unclear. Prime mover code is part
+        # of the primary key for this table, so we have to drop them.
+        len_before = net_gen_fuel_alloc.shape[0]
+        net_gen_fuel_alloc = net_gen_fuel_alloc.dropna(subset=["prime_mover_code"])
+        len_after = net_gen_fuel_alloc.shape[0]
+        assert (len_before - len_after) / len_before < (5e-5)
         if not debug:
             net_gen_fuel_alloc = net_gen_fuel_alloc.loc[
                 :,
@@ -402,7 +409,8 @@ allocate_net_gen_assets = [
     ass
     for freq in ["AS", "MS"]
     for ass in allocate_net_gen_asset_factory(
-        freq=freq, io_manager_key="pudl_sqlite_io_manager"
+        freq=freq,
+        io_manager_key="pudl_sqlite_io_manager",
     )
 ]
 
