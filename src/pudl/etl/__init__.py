@@ -55,6 +55,9 @@ default_assets = (
         group_name="denorm_eia",
     ),
     *load_assets_from_modules([pudl.output.new_ferc1], group_name="new_ferc1"),
+    *load_assets_from_modules(
+        [pudl.analysis.allocate_net_gen], group_name="allocate_net_gen"
+    ),
 )
 
 default_resources = {
