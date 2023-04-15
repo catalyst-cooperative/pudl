@@ -12,13 +12,13 @@ that they can be done automatically and uniformly. They are encapsulated within 
 """
 from . import (  # noqa: F401
     censusdp1tract,
+    eia,
+    eia860,
+    eia923,
     eia_bulk_elec,
     epacems,
     ferc1,
     ferc714,
-    new_eia,
-    new_eia860,
-    new_eia923,
     new_ferc1,
     pudltabl,
 )
