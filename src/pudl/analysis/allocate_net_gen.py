@@ -196,14 +196,13 @@ MISSING_SENTINEL = 0.00001
    negative orignal values - especially negative net generation.
 """
 
-AGG_FREQS = {"AS": "yearly", "MS": "monthly"}
-
 
 def allocate_net_gen_asset_factory(
     freq: Literal["AS", "MS"],
     io_manager_key: str | None = None,
 ) -> list[AssetsDefinition]:
     """Build net gen allocation assets at yearly and monthly frequencies."""
+    agg_freqs = {"AS": "yearly", "MS": "monthly"}
 
     def select_input_data(
         gf: pd.DataFrame,
@@ -213,13 +212,7 @@ def allocate_net_gen_asset_factory(
         gens: pd.DataFrame,
     ) -> tuple:
         """Select only the subset of input data needed for the allocation."""
-        gf = gf.loc[
-            :,
-            IDX_PM_ESC + DATA_COLUMNS,
-        ].pipe(
-            manually_fix_energy_source_codes
-        )  # TODO: move to a transform step
-
+        gf = gf.loc[:, IDX_PM_ESC + DATA_COLUMNS]
         bf = bf.loc[:, IDX_B_PM_ESC + ["fuel_consumed_mmbtu"]]
         # load boiler generator associations
         bga = bga.loc[
@@ -260,11 +253,11 @@ def allocate_net_gen_asset_factory(
         return gf, bf, gen, bga, gens
 
     @asset(
-        name=f"generation_fuel_by_generator_energy_source_{AGG_FREQS[freq]}_eia923",
+        name=f"generation_fuel_by_generator_energy_source_{agg_freqs[freq]}_eia923",
         ins={
-            f"denorm_generation_fuel_combined_{AGG_FREQS[freq]}_eia923": AssetIn(),
-            f"denorm_boiler_fuel_{AGG_FREQS[freq]}_eia923": AssetIn(),
-            f"denorm_generation_{AGG_FREQS[freq]}_eia923": AssetIn(),
+            f"denorm_generation_fuel_combined_{agg_freqs[freq]}_eia923": AssetIn(),
+            f"denorm_boiler_fuel_{agg_freqs[freq]}_eia923": AssetIn(),
+            f"denorm_generation_{agg_freqs[freq]}_eia923": AssetIn(),
             "boiler_generator_assn_eia860": AssetIn(),
             "denorm_generators_eia": AssetIn(),
         },
@@ -287,9 +280,9 @@ def allocate_net_gen_asset_factory(
         """Allocate net gen from gen_fuel to generator/energy_source_code level."""
         debug = context.op_config["debug"]
         gf, bf, gen, bga, gens = select_input_data(
-            gf=dfs[f"denorm_generation_fuel_combined_{AGG_FREQS[freq]}_eia923"],
-            bf=dfs[f"denorm_boiler_fuel_{AGG_FREQS[freq]}_eia923"],
-            gen=dfs[f"denorm_generation_{AGG_FREQS[freq]}_eia923"],
+            gf=dfs[f"denorm_generation_fuel_combined_{agg_freqs[freq]}_eia923"],
+            bf=dfs[f"denorm_boiler_fuel_{agg_freqs[freq]}_eia923"],
+            gen=dfs[f"denorm_generation_{agg_freqs[freq]}_eia923"],
             bga=dfs["boiler_generator_assn_eia860"],
             gens=dfs["denorm_generators_eia"],
         )
@@ -341,9 +334,9 @@ def allocate_net_gen_asset_factory(
         return net_gen_fuel_alloc
 
     @asset(
-        name=f"generation_fuel_by_generator_{AGG_FREQS[freq]}_eia923",
+        name=f"generation_fuel_by_generator_{agg_freqs[freq]}_eia923",
         ins={
-            f"generation_fuel_by_generator_energy_source_{AGG_FREQS[freq]}_eia923": AssetIn(),
+            f"generation_fuel_by_generator_energy_source_{agg_freqs[freq]}_eia923": AssetIn(),
             "denorm_plants_utilities_eia": AssetIn(),
             "boiler_generator_assn_eia860": AssetIn(),
         },
@@ -356,7 +349,7 @@ def allocate_net_gen_asset_factory(
             # aggregate the gen/pm/fuel records back to generator records
             agg_by_generator(
                 net_gen_fuel_alloc=dfs[
-                    f"generation_fuel_by_generator_energy_source_{AGG_FREQS[freq]}_eia923"
+                    f"generation_fuel_by_generator_energy_source_{agg_freqs[freq]}_eia923"
                 ],
                 sum_cols=DATA_COLUMNS,
             )
@@ -369,9 +362,9 @@ def allocate_net_gen_asset_factory(
         )
 
     @asset(
-        name=f"generation_fuel_by_generator_energy_source_owner_{AGG_FREQS[freq]}_eia923",
+        name=f"generation_fuel_by_generator_energy_source_owner_{agg_freqs[freq]}_eia923",
         ins={
-            f"generation_fuel_by_generator_energy_source_{AGG_FREQS[freq]}_eia923": AssetIn(),
+            f"generation_fuel_by_generator_energy_source_{agg_freqs[freq]}_eia923": AssetIn(),
             "denorm_generators_eia": AssetIn(),
             "denorm_ownership_eia860": AssetIn(),
         },
@@ -383,7 +376,7 @@ def allocate_net_gen_asset_factory(
         return pudl.analysis.plant_parts_eia.MakeMegaGenTbl().scale_by_ownership(
             gens_mega=pd.merge(
                 dfs[
-                    f"generation_fuel_by_generator_energy_source_{AGG_FREQS[freq]}_eia923"
+                    f"generation_fuel_by_generator_energy_source_{agg_freqs[freq]}_eia923"
                 ],
                 dfs["denorm_generators_eia"][
                     IDX_GENS + ["utility_id_eia", "capacity_mw"]
@@ -402,7 +395,7 @@ def allocate_net_gen_asset_factory(
 
 allocate_net_gen_assets = [
     ass
-    for freq in list(AGG_FREQS)
+    for freq in ["AS", "MS"]
     for ass in allocate_net_gen_asset_factory(freq=freq, io_manager_key=None)
 ]
 
@@ -538,14 +531,7 @@ def extract_input_tables(pudl_out: "pudl.output.pudltabl.PudlTabl") -> tuple:
     Args:
         pudl_out: instantiated pudl output object.
     """
-    gf = (
-        pudl_out.gf_eia923()
-        .loc[
-            :,
-            IDX_PM_ESC + DATA_COLUMNS,
-        ]
-        .pipe(manually_fix_energy_source_codes)  # TODO: move to a transform step
-    )
+    gf = pudl_out.gf_eia923().loc[:, IDX_PM_ESC + DATA_COLUMNS]
     bf = pudl_out.bf_eia923().loc[:, IDX_B_PM_ESC + ["fuel_consumed_mmbtu"]]
     # load boiler generator associations
     bga = pudl_out.bga_eia860().loc[
@@ -1700,17 +1686,6 @@ def distribute_annually_reported_data_to_months_if_annual(
     else:
         raise AssertionError(f"Frequency must be either `AS` or `MS`. Got {freq}")
     return df_out
-
-
-def manually_fix_energy_source_codes(gf: pd.DataFrame) -> pd.DataFrame:
-    """Patch: reassigns fuel codes in the gf table that don't match the fuel code in the gens table."""
-    # plant 10204 should be waste heat instead of other
-    gf.loc[
-        (gf["plant_id_eia"] == 10204) & (gf["energy_source_code"] == "OTH"),
-        "energy_source_code",
-    ] = "WH"
-
-    return gf
 
 
 def adjust_energy_source_codes(
