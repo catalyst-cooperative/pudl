@@ -121,42 +121,42 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
         "sources": ["eia923", "eia860"],
         "etl_group": "outputs",
     },
-    "generation_fuel_by_generator_energy_source_owner_monthly_eia923": {
-        "description": (
-            "Monthly estimated net generation and fuel consumption for each generator, "
-            "broken down by energy source, prime mover, and owner. Based on data "
-            "reported in the EIA-923 generation and generation_fuel tables."
-        ),
-        "schema": {
-            "fields": [
-                "report_date",
-                "plant_id_eia",
-                "generator_id",
-                "prime_mover_code",
-                "energy_source_code",
-                "utility_id_eia",
-                "ownership_record_type",
-                "fraction_owned",
-                "capacity_mw",
-                "energy_source_code_num",
-                "net_generation_mwh",
-                "fuel_consumed_mmbtu",
-                "fuel_consumed_for_electricity_mmbtu",
-            ],
-            "primary_key": [
-                "report_date",
-                "plant_id_eia",
-                "generator_id",
-                "prime_mover_code",
-                "energy_source_code",
-                "utility_id_eia",  # This is the OWNER not the operator.
-                "ownership_record_type",
-            ],
-        },
-        "field_namespace": "eia",
-        "sources": ["eia923", "eia860"],
-        "etl_group": "outputs",
-    },
+    # "generation_fuel_by_generator_energy_source_owner_monthly_eia923": {
+    #     "description": (
+    #         "Monthly estimated net generation and fuel consumption for each generator, "
+    #         "broken down by energy source, prime mover, and owner. Based on data "
+    #         "reported in the EIA-923 generation and generation_fuel tables."
+    #     ),
+    #     "schema": {
+    #         "fields": [
+    #             "report_date",
+    #             "plant_id_eia",
+    #             "generator_id",
+    #             "prime_mover_code",
+    #             "energy_source_code",
+    #             "utility_id_eia",
+    #             "ownership_record_type",
+    #             "fraction_owned",
+    #             "capacity_mw",
+    #             "energy_source_code_num",
+    #             "net_generation_mwh",
+    #             "fuel_consumed_mmbtu",
+    #             "fuel_consumed_for_electricity_mmbtu",
+    #         ],
+    #         "primary_key": [
+    #             "report_date",
+    #             "plant_id_eia",
+    #             "generator_id",
+    #             "prime_mover_code",
+    #             "energy_source_code",
+    #             "utility_id_eia",  # This is the OWNER not the operator.
+    #             "ownership_record_type",
+    #         ],
+    #     },
+    #     "field_namespace": "eia",
+    #     "sources": ["eia923", "eia860"],
+    #     "etl_group": "outputs",
+    # },
     "generation_fuel_by_generator_energy_source_owner_yearly_eia923": {
         "description": (
             "Yearly estimated net generation and fuel consumption for each generator, "
