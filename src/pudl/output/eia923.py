@@ -10,10 +10,6 @@ from pudl.metadata.fields import apply_pudl_dtypes
 
 logger = pudl.logging_helpers.get_logger(__name__)
 
-AGG_FREQS = {
-    "AS": "yearly",
-    "MS": "monthly",
-}
 
 FIRST_COLS = [
     "report_date",
@@ -326,9 +322,10 @@ def time_aggregated_eia923_asset_factory(
     io_manager_key: str | None = None,
 ) -> list[AssetsDefinition]:
     """Build EIA-923 asset definitions, aggregated by year or month."""
+    agg_freqs = {"AS": "yearly", "MS": "monthly"}
 
     @asset(
-        name=f"denorm_generation_{AGG_FREQS[freq]}_eia923",
+        name=f"denorm_generation_{agg_freqs[freq]}_eia923",
         io_manager_key=io_manager_key,
         compute_kind="Python",
     )
@@ -357,7 +354,7 @@ def time_aggregated_eia923_asset_factory(
         )
 
     @asset(
-        name=f"denorm_generation_fuel_combined_{AGG_FREQS[freq]}_eia923",
+        name=f"denorm_generation_fuel_combined_{agg_freqs[freq]}_eia923",
         io_manager_key=io_manager_key,
         compute_kind="Python",
     )
@@ -424,7 +421,7 @@ def time_aggregated_eia923_asset_factory(
         )
 
     @asset(
-        name=f"denorm_boiler_fuel_{AGG_FREQS[freq]}_eia923",
+        name=f"denorm_boiler_fuel_{agg_freqs[freq]}_eia923",
         io_manager_key=io_manager_key,
         compute_kind="Python",
     )
@@ -481,7 +478,7 @@ def time_aggregated_eia923_asset_factory(
         )
 
     @asset(
-        name=f"denorm_fuel_receipts_costs_{AGG_FREQS[freq]}_eia923",
+        name=f"denorm_fuel_receipts_costs_{agg_freqs[freq]}_eia923",
         io_manager_key=io_manager_key,
         compute_kind="Python",
     )
@@ -560,7 +557,7 @@ def time_aggregated_eia923_asset_factory(
 
 generation_fuel_agg_eia923_assets = [
     ass
-    for freq in list(AGG_FREQS)
+    for freq in ["AS", "MS"]
     for ass in time_aggregated_eia923_asset_factory(
         freq=freq, io_manager_key="pudl_sqlite_io_manager"
     )
