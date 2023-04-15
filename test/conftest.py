@@ -172,6 +172,18 @@ def pudl_out_eia(live_dbs, pudl_engine, request):
     )
 
 
+@pytest.fixture(scope="session", name="fast_out_annual")
+def fast_out_annual(pudl_engine, pudl_datastore_fixture):
+    """A PUDL output object for use in CI."""
+    return pudl.output.pudltabl.PudlTabl(
+        pudl_engine,
+        freq="AS",
+        fill_fuel_cost=True,
+        roll_fuel_cost=True,
+        fill_net_gen=True,
+    )
+
+
 @pytest.fixture(scope="session")
 def pudl_out_orig(live_dbs, pudl_engine):
     """Create an unaggregated PUDL output object for checking raw data."""
