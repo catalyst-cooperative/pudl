@@ -390,13 +390,20 @@ def allocate_net_gen_asset_factory(
             validate="m:m",  # m:m because there are multiple generators in gen_pm_fuel
         )
 
-    return [gen_fuel_by_gen_esc, gen_fuel_by_gen, gen_fuel_by_gen_esc_owner]
+    assets = [gen_fuel_by_gen_esc, gen_fuel_by_gen]
+    if freq == "AS":
+        # This table currently only makes sense for annual data:
+        assets += [gen_fuel_by_gen_esc_owner]
+
+    return assets
 
 
 allocate_net_gen_assets = [
     ass
     for freq in ["AS", "MS"]
-    for ass in allocate_net_gen_asset_factory(freq=freq, io_manager_key=None)
+    for ass in allocate_net_gen_asset_factory(
+        freq=freq, io_manager_key="pudl_sqlite_io_manager"
+    )
 ]
 
 

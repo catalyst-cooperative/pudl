@@ -171,7 +171,7 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
         },
         "field_namespace": "eia",
         "sources": ["eia923"],
-        "etl_group": "eia923",
+        "etl_group": "outputs",
     },
     "denorm_boiler_fuel_yearly_eia923": {
         "description": TABLE_DESCRIPTIONS["boiler_fuel_eia923"],
@@ -207,7 +207,7 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
         },
         "field_namespace": "eia",
         "sources": ["eia923"],
-        "etl_group": "eia923",
+        "etl_group": "outputs",
     },
     "denorm_boiler_fuel_monthly_eia923": {
         "description": TABLE_DESCRIPTIONS["boiler_fuel_eia923"],
@@ -243,7 +243,7 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
         },
         "field_namespace": "eia",
         "sources": ["eia923"],
-        "etl_group": "eia923",
+        "etl_group": "outputs",
     },
     "coalmine_eia923": {
         "description": (
@@ -356,7 +356,7 @@ is for those supplies.
         },
         "field_namespace": "eia",
         "sources": ["eia923"],
-        "etl_group": "eia923",
+        "etl_group": "outputs",
     },
     "denorm_fuel_receipts_costs_yearly_eia923": {
         "description": TABLE_DESCRIPTIONS["fuel_receipts_costs_eia923"],
@@ -386,7 +386,7 @@ is for those supplies.
         },
         "field_namespace": "eia",
         "sources": ["eia923"],
-        "etl_group": "eia923",
+        "etl_group": "outputs",
     },
     "denorm_fuel_receipts_costs_monthly_eia923": {
         "description": TABLE_DESCRIPTIONS["fuel_receipts_costs_eia923"],
@@ -416,7 +416,7 @@ is for those supplies.
         },
         "field_namespace": "eia",
         "sources": ["eia923"],
-        "etl_group": "eia923",
+        "etl_group": "outputs",
     },
     "generation_eia923": {
         "description": TABLE_DESCRIPTIONS["generation_eia923"],
@@ -454,7 +454,7 @@ is for those supplies.
         },
         "field_namespace": "eia",
         "sources": ["eia923"],
-        "etl_group": "eia923",
+        "etl_group": "outputs",
     },
     "denorm_generation_monthly_eia923": {
         "description": TABLE_DESCRIPTIONS["generation_eia923"],
@@ -475,7 +475,7 @@ is for those supplies.
         },
         "field_namespace": "eia",
         "sources": ["eia923"],
-        "etl_group": "eia923",
+        "etl_group": "outputs",
     },
     "denorm_generation_yearly_eia923": {
         "description": TABLE_DESCRIPTIONS["generation_eia923"],
@@ -496,7 +496,7 @@ is for those supplies.
         },
         "field_namespace": "eia",
         "sources": ["eia923"],
-        "etl_group": "eia923",
+        "etl_group": "outputs",
     },
     "generation_fuel_eia923": {
         "description": TABLE_DESCRIPTIONS["generation_fuel_eia923"],
@@ -559,7 +559,7 @@ is for those supplies.
         },
         "field_namespace": "eia",
         "sources": ["eia923"],
-        "etl_group": "eia923",
+        "etl_group": "outputs",
     },
     "denorm_generation_fuel_combined_yearly_eia923": {
         "description": TABLE_DESCRIPTIONS["generation_fuel_combined_eia923"],
@@ -591,7 +591,7 @@ is for those supplies.
         },
         "field_namespace": "eia",
         "sources": ["eia923"],
-        "etl_group": "eia923",
+        "etl_group": "outputs",
     },
     "denorm_generation_fuel_combined_monthly_eia923": {
         "description": TABLE_DESCRIPTIONS["generation_fuel_combined_eia923"],
@@ -623,7 +623,7 @@ is for those supplies.
         },
         "field_namespace": "eia",
         "sources": ["eia923"],
-        "etl_group": "eia923",
+        "etl_group": "outputs",
     },
     "generation_fuel_nuclear_eia923": {
         "description": TABLE_DESCRIPTIONS["generation_fuel_nuclear_eia923"],
