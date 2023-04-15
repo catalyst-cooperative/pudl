@@ -296,27 +296,27 @@ def aggregate_gen_fuel_by_generator(
         pudl_out: An object used to create the tables for EIA and FERC Form 1
             analysis.
         net_gen_fuel_alloc: table of allocated generation at the generator/prime mover/
-            energy source. Result of :func:`allocate_gen_fuel_by_generator_energy_source`
+            energy source. From :func:`allocate_gen_fuel_by_generator_energy_source`
         sum_cols: Data columns from that are being aggregated via a
-            ``pandas.groupby.sum()`` in agg_by_generator
+            :meth:`pandas.groupby.sum` in :func:`agg_by_generator`
 
     Returns:
         table with columns :py:const:`IDX_GENS` and net generation and fuel
         consumption scaled to the level of the :py:const:`IDX_GENS`.
     """
-    # aggregate the gen/pm/fuel records back to generator records
-    gen_allocated = agg_by_generator(
-        net_gen_fuel_alloc=net_gen_fuel_alloc, sum_cols=sum_cols
+    return (
+        # aggregate the gen/pm/fuel records back to generator records
+        agg_by_generator(
+            net_gen_fuel_alloc=net_gen_fuel_alloc,
+            sum_cols=sum_cols,
+        )
+        # make the output resemble denorm_generation_eia923:
+        .pipe(
+            pudl.output.eia923.denorm_by_gen,
+            pu=pudl_out.pu_eia860(),
+            bga=pudl_out.bga_eia860(),
+        )
     )
-    # make the output mirror the gen_original_eia923()
-
-    gen_allocated = pudl.output.eia923.denorm_generation_eia923(
-        g_df=gen_allocated,
-        pudl_engine=pudl_out.pudl_engine,
-        start_date=pudl_out.start_date,
-        end_date=pudl_out.end_date,
-    )
-    return gen_allocated
 
 
 def extract_input_tables(pudl_out: "pudl.output.pudltabl.PudlTabl") -> tuple:
@@ -468,8 +468,6 @@ def scale_allocated_net_gen_by_ownership(
 
 
 # Internal functions for allocate_gen_fuel_by_generator_energy_source
-
-
 def agg_by_generator(
     net_gen_fuel_alloc: pd.DataFrame,
     by_cols: list[str] = IDX_GENS,
