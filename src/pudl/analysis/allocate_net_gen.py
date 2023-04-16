@@ -332,7 +332,12 @@ def allocate_net_gen_asset_factory(
         len_before = net_gen_fuel_alloc.shape[0]
         net_gen_fuel_alloc = net_gen_fuel_alloc.dropna(subset=["prime_mover_code"])
         len_after = net_gen_fuel_alloc.shape[0]
-        assert (len_before - len_after) / len_before < (5e-5)
+        fraction_dropped = (len_before - len_after) / len_before
+        if fraction_dropped > 5e-5:
+            raise ValueError(
+                "Too many records were found to have a NULL prime_mover_code and "
+                f"dropped. Expected less than 5e-5, but found {fraction_dropped:.1%}."
+            )
         if not debug:
             net_gen_fuel_alloc = net_gen_fuel_alloc.loc[
                 :,

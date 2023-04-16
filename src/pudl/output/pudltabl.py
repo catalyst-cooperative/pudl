@@ -29,11 +29,6 @@ import pandas as pd
 import sqlalchemy as sa
 
 import pudl
-from pudl.analysis.allocate_net_gen import (
-    aggregate_gen_fuel_by_generator,
-    allocate_gen_fuel_by_generator_energy_source,
-    scale_allocated_net_gen_by_ownership,
-)
 from pudl.metadata.classes import Resource
 from pudl.metadata.fields import apply_pudl_dtypes
 
@@ -292,64 +287,45 @@ class PudlTabl:
         Returns:
             pandas.DataFrame: a denormalized table for interactive use.
         """
-        if update or self._dfs["gen_eia923"] is None:
-            if self.fill_net_gen:
-                if self.freq not in ["AS", "MS"]:
-                    raise AssertionError(
-                        "Frequency must be either `AS` or `MS` to allocate net "
-                        f"generation. Got {self.freq}"
-                    )
-                logger.info(
-                    "Allocating net generation from the generation_fuel_eia923 "
-                    "to the generator level instead of using the less complete "
-                    "generation_eia923 table."
+        if self.fill_net_gen:
+            if self.freq not in ["AS", "MS"]:
+                raise AssertionError(
+                    "Allocated net generation requires frequency of `AS` or `MS`, "
+                    f"got {self.freq}"
                 )
-
-                self._dfs["gen_eia923"] = self.gen_fuel_by_generator_eia923(
-                    update=update
-                ).loc[:, list(self.gen_original_eia923().columns)]
-            else:
-                self._dfs["gen_eia923"] = self.gen_original_eia923()
-        return self._dfs["gen_eia923"]
-
-    def gen_fuel_by_generator_energy_source_eia923(self, update=False):
-        """Net generation and fuel data allocated to generator/energy_source_code.
-
-        Net generation and fuel data originally reported in the gen fuel table
-        """
-        if update or self._dfs["gen_fuel_by_genid_esc_eia923"] is None:
-            self._dfs[
-                "gen_fuel_by_genid_esc_eia923"
-            ] = allocate_gen_fuel_by_generator_energy_source(pudl_out=self)
-        return self._dfs["gen_fuel_by_genid_esc_eia923"]
+            table_name = self._agg_table_name("generation_fuel_by_generator_AGG_eia923")
+            resource = Resource.from_id(table_name)
+            gen_df = self._get_table_from_db(table_name, resource=resource)
+            gen_df = gen_df.loc[:, resource.get_field_names()]
+        else:
+            table_name = self._agg_table_name("denorm_generation_AGG_eia923")
+            resource = Resource.from_id(table_name)
+            gen_df = self._get_table_from_db(table_name, resource=resource)
+        return gen_df
 
     def gen_fuel_by_generator_eia923(self, update=False):
         """Net generation from gen fuel table allocated to generators."""
-        if update or self._dfs["gen_fuel_allocated_eia923"] is None:
-            if self.freq not in ["AS", "MS"]:
-                raise AssertionError(
-                    "Frequency must be either `AS` or `MS` to allocate net "
-                    f"generation. Got {self.freq}"
-                )
-            self._dfs["gen_fuel_allocated_eia923"] = aggregate_gen_fuel_by_generator(
-                pudl_out=self,
-                net_gen_fuel_alloc=self.gen_fuel_by_generator_energy_source_eia923(
-                    update=update
-                ),
+        if self.freq not in ["AS", "MS"]:
+            raise AssertionError(
+                "Allocated net generation requires frequency of `AS` or `MS`, "
+                f"got {self.freq}"
             )
-        return self._dfs["gen_fuel_allocated_eia923"]
+        table_name = self._agg_table_name(
+            "generation_fuel_by_generator_energy_source_AGG_eia923"
+        )
+        resource = Resource.from_id(table_name)
+        return self._get_table_from_db(table_name, resource=resource)
 
     def gen_fuel_by_generator_energy_source_owner_eia923(self, update=False):
         """Generation and fuel consumption by generator/energy_source_code/owner."""
-        if update or self._dfs["gen_fuel_by_genid_esc_own"] is None:
-            self._dfs[
-                "gen_fuel_by_genid_esc_own"
-            ] = scale_allocated_net_gen_by_ownership(
-                gen_pm_fuel=self.gen_fuel_by_generator_energy_source_eia923(),
-                gens=self.gens_eia860(),
-                own_eia860=self.own_eia860(),
+        if self.freq != "AS":
+            raise AssertionError(
+                "Allocated net generation by owner can only be calculated annually. "
+                f"Got a frequency of: {self.freq}"
             )
-        return self._dfs["gen_fuel_by_genid_esc_own"]
+        table_name = "generation_fuel_by_generator_energy_source_owner_yearly_eia923"
+        resource = Resource.from_id(table_name)
+        return self._get_table_from_db(table_name, resource=resource)
 
     ###########################################################################
     # FERC FORM 1 OUTPUTS
