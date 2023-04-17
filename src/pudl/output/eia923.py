@@ -156,7 +156,7 @@ def denorm_generation_fuel_combined_eia923(
     key (consolidating multiple nuclear unit IDs into a single plant record) and then
     denormalizes it by merging in some addition plant and utility level columns.
 
-    This table contians the records at their originally reported temporal resolution,
+    This table contains the records at their originally reported temporal resolution,
     so it's outside of :func:`time_aggregated_eia923_asset_factory`.
     """
     primary_key = [
@@ -280,7 +280,6 @@ def denorm_fuel_receipts_costs_eia923(
         )
         .merge(plant_states, how="left", on="plant_id_eia")
         .drop(columns=["mine_id_pudl"])
-        .pipe(apply_pudl_dtypes, group="eia")
     )
     if context.op_config["fill"]:
         logger.info("filling in fuel cost NaNs")
