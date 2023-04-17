@@ -16,7 +16,6 @@ import sqlalchemy as sa
 from pudl.metadata.classes import DataSource
 from typing import Protocol
 
-logger = pudl.logging_helpers.get_logger(__name__)
 
 class TableSchema:
     """Simple data-wrapper for the fox-pro table schema."""
@@ -38,7 +37,6 @@ class TableSchema:
             yield (col_name, self._column_types[col_name])
 
     def get_column_rename_map(self) -> Dict[str, str]:
-        logger.warn(f"Column map: {self._short_name_map}")
         return dict(self._short_name_map)
 
     def to_sqlite_table(self, sqlite_meta: sa.MetaData) -> sa.Table:

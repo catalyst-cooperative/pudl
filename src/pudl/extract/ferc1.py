@@ -399,7 +399,6 @@ def dbf2sqlite(context) -> None:
         # definitions of respondents if we didn't drop duplicates.
         # TODO: this is dataset specific business logic!
         if table == "f1_respondent_id":
-            logger.info(f"Columns: {new_df.columns}")
             new_df = new_df.drop_duplicates(subset="respondent_id", keep="last")
         n_recs = len(new_df)
         logger.debug(f"    {table}: N = {n_recs}")
