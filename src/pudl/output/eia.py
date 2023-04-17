@@ -1,4 +1,6 @@
 """A collection of denormalized EIA assets."""
+
+import numpy as np
 import pandas as pd
 from dagster import Field, asset
 
@@ -744,7 +746,7 @@ def assign_unit_ids(gens_df: pd.DataFrame) -> pd.DataFrame:
     return gens_df.reset_index()
 
 
-def fill_unit_ids(gens_df):
+def fill_unit_ids(gens_df: pd.DataFrame) -> pd.DataFrame:
     """Back and forward fill Unit IDs for each plant / gen combination.
 
     This routine assumes that the mapping of generators to units is constant
@@ -771,12 +773,12 @@ def fill_unit_ids(gens_df):
     too, which seems like too much deep muddling.
 
     Args:
-        gens_df (pandas.DataFrame): An generators_eia860 dataframe, which must
+        gens_df: An generators_eia860 dataframe, which must
             contain columns: report_date, plant_id_eia, generator_id,
             unit_id_pudl, bga_source.
 
     Returns:
-        pandas.DataFrame: with the same columns as the input dataframe, but
+        A DataFrame with the same columns as the input dataframe, but
         having some NA values filled in for both the unit_id_pudl and bga_source
         columns.
     """
@@ -798,7 +800,7 @@ def fill_unit_ids(gens_df):
     return gens_df
 
 
-def max_unit_id_by_plant(gens_df):
+def max_unit_id_by_plant(gens_df: pd.DataFrame) -> pd.DataFrame:
     """Identify the largest unit ID associated with each plant so we don't overlap.
 
     The PUDL Unit IDs are sequentially assigned integers. To assign a new ID, we
@@ -810,11 +812,11 @@ def max_unit_id_by_plant(gens_df):
     generators and units still available in the dataframe!
 
     Args:
-        gens_df (pandas.DataFrame): A generators_eia860 dataframe containing at
+        gens_df: A generators_eia860 dataframe containing at
             least the columns plant_id_eia and unit_id_pudl.
 
     Returns:
-        pandas.DataFrame: Having two columns: plant_id_eia and max_unit_id_pudl
+        A DataFrame having two columns: plant_id_eia and max_unit_id_pudl
         in which each row should be unique.
     """
     return (
@@ -828,7 +830,12 @@ def max_unit_id_by_plant(gens_df):
     )
 
 
-def _append_masked_units(gens_df, row_mask, unit_ids, on):
+def _append_masked_units(
+    gens_df: pd.DataFrame,
+    row_mask: np.ndarray,
+    unit_ids: pd.DataFrame,
+    on: str | list[str],
+) -> pd.DataFrame:
     """Replace rows with new PUDL Unit IDs in the original dataframe.
 
     Merges the newly assigned Unit IDs found in ``unit_ids`` into the
@@ -840,15 +847,15 @@ def _append_masked_units(gens_df, row_mask, unit_ids, on):
     this to work.
 
     Args:
-        gens_df (pandas.DataFrame): a gens_eia860 based dataframe.
+        gens_df: a gens_eia860 based dataframe.
         row_mask (boolean mask): A boolean array indicating which records
             in ``gens_df`` should be replaced using values from ``unit_ids``.
-        unit_ids (pandas.DataFrame): A dataframe containing newly assigned
+        unit_ids : A dataframe containing newly assigned
             ``unit_id_pudl`` values to be integrated into ``gens_df``.
-        on (str or list): Column or list of columns to merge on.
+        on: Column or list of columns to merge on.
 
     Returns:
-        pandas.DataFrame:
+        A DataFrame with unit IDs.
     """
     return gens_df.loc[~row_mask].append(
         gens_df.loc[row_mask]
@@ -863,8 +870,11 @@ def _append_masked_units(gens_df, row_mask, unit_ids, on):
 
 
 def assign_single_gen_unit_ids(
-    gens_df, prime_mover_codes, fuel_type_code_pudl=None, label_prefix="single"
-):
+    gens_df: pd.DataFrame,
+    prime_mover_codes: list[str],
+    fuel_type_code_pudl: str = None,
+    label_prefix: str = "single",
+) -> pd.DataFrame:
     """Assign a unique PUDL Unit ID to each generator of a given prime mover type.
 
     Calculate the maximum pre-existing PUDL Unit ID within each plant, and
@@ -880,20 +890,20 @@ def assign_single_gen_unit_ids(
     Only generators having NA unit_id_pudl will be assigned a new ID.
 
     Args:
-        gens_df (pandas.DataFrame): A collection of EIA generator records.
+        gens_df: A collection of EIA generator records.
             Must include the ``plant_id_eia``, ``generator_id`` and
             ``prime_mover_code`` and ``unit_id_pudl`` columns.
-        prime_mover_codes (list): List of prime mover codes for which we are
+        prime_mover_codes: List of prime mover codes for which we are
             attempting to assign simple Unit IDs.
-        fuel_type_code_pudl (str, None): If not None, then limit the records
+        fuel_type_code_pudl: If not None, then limit the records
             assigned a unit_id to those that have the specified
             fuel_type_code_pudl (e.g. "coal", "gas", "oil", "nuclear")
-        label_prefix (str): String to use in labeling records as to how their
+        label_prefix: String to use in labeling records as to how their
             unit_id_pudl was set. Will be concatenated with the prime mover
             code.
 
     Returns:
-        pandas.DataFrame: A new dataframe with the same rows and columns as
+        A new dataframe with the same rows and columns as
         were passed in, but with the unit_id_pudl and bga_source columns updated
         to reflect the newly assigned Unit IDs.
     """
@@ -946,7 +956,7 @@ def assign_single_gen_unit_ids(
     )
 
 
-def assign_cc_unit_ids(gens_df):
+def assign_cc_unit_ids(gens_df: pd.DataFrame) -> pd.DataFrame:
     """Assign PUDL Unit IDs for combined cycle generation units.
 
     This applies only to combined cycle units reported as a combination of CT
@@ -970,7 +980,7 @@ def assign_cc_unit_ids(gens_df):
     part of the same inferred unit.
 
     Returns:
-        pandas.DataFrame
+        A dataframe with assigned PUDL unit IDs.
     """
     # Calculate the largest preexisting unit_id_pudl within each plant
     max_unit_ids = max_unit_id_by_plant(gens_df)
@@ -1041,7 +1051,9 @@ def assign_cc_unit_ids(gens_df):
     return out_df.reset_index()
 
 
-def assign_prime_fuel_unit_ids(gens_df, prime_mover_code, fuel_type_code_pudl):
+def assign_prime_fuel_unit_ids(
+    gens_df: pd.DataFrame, prime_mover_code: str, fuel_type_code_pudl: str
+) -> pd.DataFrame:
     """Assign a PUDL Unit ID to all generators with a given prime mover and fuel.
 
     Within each plant, assign a Unit ID to all generators that don't have one,
@@ -1072,7 +1084,8 @@ def assign_prime_fuel_unit_ids(gens_df, prime_mover_code, fuel_type_code_pudl):
             fuel_type_code_pudl (e.g. "coal", "gas", "oil", "nuclear")
 
     Returns:
-        pandas.DataFrame:
+        A DataFrame where generators without a unit ID are assigned one based on
+        `fuel_type_code_pudl`.
     """
     # Find generators with a consistent fuel_type_code_pudl across all years.
     consistent_fuel = (
