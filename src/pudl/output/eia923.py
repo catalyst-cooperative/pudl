@@ -284,7 +284,6 @@ def denorm_fuel_receipts_costs_eia923(
         )
         .merge(plant_states, how="left", on="plant_id_eia")
         .drop(columns=["mine_id_pudl"])
-        .pipe(apply_pudl_dtypes, group="eia")
     )
     if context.op_config["fill"]:
         logger.info("filling in fuel cost NaNs")

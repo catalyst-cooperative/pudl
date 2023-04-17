@@ -3,7 +3,6 @@ import pandas as pd
 from dagster import Field, asset
 
 import pudl
-from pudl.metadata.fields import apply_pudl_dtypes
 from pudl.transform.eia import occurrence_consistency
 from pudl.transform.eia861 import add_backfilled_ba_code_column
 
@@ -24,17 +23,15 @@ def denorm_utilities_eia(
         utilities_eia: Associations between EIA utilities and pudl utility IDs.
 
     Returns:
-        A DataFrame containing all the fields of the EIA 860 Utilities table.
+        A DataFrame containing utility attributes from EIA Forms 860 and 923.
     """
     utilities_eia = utilities_eia[["utility_id_eia", "utility_id_pudl"]]
     out_df = pd.merge(
         utilities_entity_eia, utilities_eia860, how="left", on=["utility_id_eia"]
     )
     out_df = pd.merge(out_df, utilities_eia, how="left", on=["utility_id_eia"])
-    out_df = (
-        out_df.assign(report_date=lambda x: pd.to_datetime(x.report_date))
-        .dropna(subset=["report_date", "utility_id_eia"])
-        .pipe(apply_pudl_dtypes, group="eia")
+    out_df = out_df.assign(report_date=lambda x: pd.to_datetime(x.report_date)).dropna(
+        subset=["report_date", "utility_id_eia"]
     )
     first_cols = [
         "report_date",
@@ -62,8 +59,7 @@ def denorm_plants_eia(
         utilities_eia: EIA utility ID table.
 
     Returns:
-        pandas.DataFrame: A DataFrame containing all the fields of the EIA 860
-        Plants table.
+        A DataFrame containing plant attributes from EIA Forms 860 and 923
     """
     plants_eia860 = plants_eia860.assign(
         report_date=lambda x: pd.to_datetime(x.report_date)
@@ -77,7 +73,6 @@ def denorm_plants_eia(
         .merge(utilities_eia, how="left", on=["utility_id_eia"])
         .dropna(subset=["report_date", "plant_id_eia"])
         .pipe(fill_in_missing_ba_codes)
-        .pipe(apply_pudl_dtypes, group="eia")
     )
     return out_df
 
@@ -114,6 +109,7 @@ def denorm_generators_eia(
     """Pull all fields from the EIA Utilities table.
 
     Args:
+        context: A Dagster context object.
         generators_eia860: EIA 860 annual generator table.
         generators_entity_eia: EIA generators entity table.
         plants_entity_eia: EIA plant entity table.
@@ -175,11 +171,9 @@ def denorm_generators_eia(
     )
     ft_count = ft_count.reset_index()
     ft_count = ft_count.rename(columns={"fuel_type_code_pudl": "fuel_type_count"})
-    out_df = (
-        pd.merge(out_df, ft_count, how="left", on=["plant_id_eia", "report_date"])
-        .dropna(subset=["report_date", "plant_id_eia", "generator_id"])
-        .pipe(apply_pudl_dtypes, group="eia")
-    )
+    out_df = pd.merge(
+        out_df, ft_count, how="left", on=["plant_id_eia", "report_date"]
+    ).dropna(subset=["report_date", "plant_id_eia", "generator_id"])
 
     if context.op_config["unit_ids"]:
         logger.info("Assigning generation unit IDs using experimental methods.")
@@ -201,10 +195,8 @@ def denorm_generators_eia(
     ]
 
     # Re-arrange the columns for easier readability:
-    out_df = (
-        pudl.helpers.organize_cols(out_df, first_cols)
-        .sort_values(["report_date", "plant_id_eia", "generator_id"])
-        .pipe(apply_pudl_dtypes, group="eia")
+    out_df = pudl.helpers.organize_cols(out_df, first_cols).sort_values(
+        ["report_date", "plant_id_eia", "generator_id"]
     )
 
     return out_df
@@ -282,10 +274,8 @@ def denorm_boilers_eia(
     ]
 
     # Re-arrange the columns for easier readability:
-    out_df = (
-        pudl.helpers.organize_cols(out_df, first_cols)
-        .sort_values(["report_date", "plant_id_eia", "boiler_id"])
-        .pipe(apply_pudl_dtypes, group="eia")
+    out_df = pudl.helpers.organize_cols(out_df, first_cols).sort_values(
+        ["report_date", "plant_id_eia", "boiler_id"]
     )
 
     return out_df
@@ -337,22 +327,18 @@ def denorm_plants_utilities_eia(
         on=["report_date", "utility_id_eia"],
     )
 
-    out_df = (
-        out_df.loc[
-            :,
-            [
-                "report_date",
-                "plant_id_eia",
-                "plant_name_eia",
-                "plant_id_pudl",
-                "utility_id_eia",
-                "utility_name_eia",
-                "utility_id_pudl",
-            ],
-        ]
-        .dropna(subset=["report_date", "plant_id_eia", "utility_id_eia"])
-        .pipe(apply_pudl_dtypes, group="eia")
-    )
+    out_df = out_df.loc[
+        :,
+        [
+            "report_date",
+            "plant_id_eia",
+            "plant_name_eia",
+            "plant_id_pudl",
+            "utility_id_eia",
+            "utility_name_eia",
+            "utility_id_pudl",
+        ],
+    ].dropna(subset=["report_date", "plant_id_eia", "utility_id_eia"])
     return out_df
 
 
