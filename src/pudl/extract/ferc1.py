@@ -293,211 +293,11 @@ def observed_respondents(ferc1_engine: sa.engine.Engine) -> set[int]:
             )
     return observed
 
+
 class Ferc1FoxProDatastore(FercFoxProDatastore):
     """Implements data loading logic for FERC 1 dataset."""
-    DATASET = "ferc1":
+    DATASET = "ferc1"
     DBC_FILENAME = "F1_PUB.DBC"
-
-# class Ferc1DbfDatastore:
-#     """A wrapper to standardize access to FERC 1 resources by year and filename.
-
-#     The internal directory structure of the published zipfiles containing FERC Form 1
-#     data changes from year to year unpredictably, but the names of the individual
-#     database files which we parse is consistent. This wrapper encapsulates the annual
-#     directory structure variation and lets us request a particular filename by year
-#     without needing to understand the directory structure.
-#     """
-
-#     PACKAGE_PATH = "pudl.package_data.ferc1"
-
-#     def __init__(self, datastore: Datastore):
-#         """Instantiate datastore wrapper for ferc1 resources."""
-#         self.datastore = datastore
-#         self._cache: dict[int, io.BytesIO] = {}
-#         self.dbc_path: dict[int, Path] = {}
-
-#         with importlib.resources.open_text(self.PACKAGE_PATH, "file_map.csv") as f:
-#             for row in csv.DictReader(f):
-#                 year = int(row["year"])
-#                 path = Path(row["path"])
-#                 self.dbc_path[year] = path
-
-#     def get_dir(self, year: int) -> Path:
-#         """Get path to directory containing DBF files for an annual archive."""
-#         if year not in self.dbc_path:
-#             raise ValueError(f"No ferc1 data for year {year}")
-#         return self.dbc_path[year]
-
-#     def get_file(self, year: int, filename: str):
-#         """Opens given ferc1 file from the corresponding archive."""
-#         if year not in self._cache:
-#             self._cache[year] = self.datastore.get_zipfile_resource(
-#                 "ferc1", year=year, data_format="dbf"
-#             )
-#         archive = self._cache[year]
-#         try:
-#             return archive.open((self.get_dir(year) / filename).as_posix())
-#         except KeyError:
-#             raise KeyError(f"{filename} not available for year {year} in ferc1.")
-
-
-def add_sqlite_table(
-    table_name: str,
-    sqlite_meta: sa.schema.MetaData,
-    dbc_map: dict[str, dict[str, str]],
-    ferc1_dbf_ds: Ferc1DbfDatastore,
-    refyear: int | None = None,
-) -> None:
-    """Add a new Table to the FERC Form 1 database schema.
-
-    Creates a new sa.Table object named ``table_name`` and add it to the database schema
-    contained in ``sqlite_meta``. Use the information in the dictionary ``dbc_map`` to
-    translate between the DBF filenames in the datastore (e.g. ``F1_31.DBF``), and the
-    full name of the table in the FoxPro database (e.g. ``f1_fuel``) and also between
-    truncated column names extracted from that DBF file, and the full column names
-    extracted from the DBC file. Read the column datatypes out of each DBF file and use
-    them to define the columns in the new Table object.
-
-    Args:
-        table_name: The name of the new table to be added to the database schema.
-        sqlite_meta: The database schema to which the newly defined
-            :class:`sqlalchemy.Table` will be added.
-        dbc_map: A dictionary of dictionaries
-        ferc1_dbf_ds: Initialized FERC1 DBF datastore.
-        refyear: Reference year to use as a template for the database schema.
-    """
-    if refyear is None:
-        refyear = max(DataSource.from_id("ferc1").working_partitions["years"])
-
-    new_table = sa.Table(table_name, sqlite_meta)
-
-    dbf_filename = DBF_TABLES_FILENAMES[table_name]
-    filedata = ferc1_dbf_ds.get_file(refyear, dbf_filename)
-
-    ferc1_dbf = DBF(dbf_filename, ignore_missing_memofile=True, filedata=filedata)
-
-    # Add Columns to the table
-    for field in ferc1_dbf.fields:
-        if field.name == "_NullFlags":
-            continue
-        col_name = dbc_map[table_name][field.name]
-        col_type = DBF_TYPES[field.type]
-        if col_type == sa.String:
-            col_type = sa.String(length=field.length)
-        new_table.append_column(sa.Column(col_name, col_type))
-
-    col_names = [c.name for c in new_table.columns]
-
-    if table_name == "f1_respondent_id":
-        new_table.append_constraint(
-            sa.PrimaryKeyConstraint("respondent_id", sqlite_on_conflict="REPLACE")
-        )
-
-    if ("respondent_id" in col_names) and (table_name != "f1_respondent_id"):
-        new_table.append_constraint(
-            sa.ForeignKeyConstraint(
-                columns=[
-                    "respondent_id",
-                ],
-                refcolumns=["f1_respondent_id.respondent_id"],
-            )
-        )
-
-
-# def get_fields(filedata) -> dict[str, list[str]]:
-#     """Produce the expected table names and fields from a DBC file.
-
-#     Args:
-#         filedata: Contents of the DBC file from which to extract.
-
-#     Returns:
-#         Dictionary mapping table names to the list of fields contained in that table.
-#     """
-#     dbf = DBF("", ignore_missing_memofile=True, filedata=filedata)
-#     table_ids = {}
-#     table_cols = {}
-
-#     for r in dbf:
-#         if r.get("OBJECTTYPE", None) == "Table":
-#             tname = r["OBJECTNAME"]
-#             tid = r["OBJECTID"]
-
-#             if tid not in table_ids:
-#                 table_ids[tid] = tname
-
-#         elif r.get("OBJECTTYPE", None) == "Field":
-#             tid = r["PARENTID"]
-#             colname = r["OBJECTNAME"]
-
-#             if tid in table_cols:
-#                 table_cols[tid].append(colname)
-#             else:
-#                 table_cols[tid] = [colname]
-
-#     tables = {}
-
-#     for tid, tname in table_ids.items():
-#         if tid in table_cols:
-#             tables[tname] = table_cols[tid]
-#         else:
-#             logger.warning(f"Missing cols on {tname}")
-
-#     return tables
-
-# def get_dbc_map(
-#     ferc1_dbf_ds: Ferc1DbfDatastore,
-#     year: int,
-# ) -> dict[str, dict[str, str]]:
-#     """Extract names of all tables and fields from a FERC Form 1 DBC file.
-
-#     Read the DBC file associated with the FERC Form 1 database for the given ``year``,
-#     and extract all embedded table and column names.
-
-#     Args:
-#         ferc1_dbf_ds: Initialized FERC 1 datastore.
-#         year: The year of data from which the database table and column names are to be
-#             extracted. Typically this is expected to be the most recently available year
-#             of FERC Form 1 DBF data.
-
-#     Returns:
-#         A dictionary whose keys are the long table names extracted from the DBC file,
-#         and whose values are dictionaries mapping the first of which is the full name of
-#         each field in the table with the same name as the key, and the second of which
-#         is the truncated (<=10 character) long name of that field as found in the DBF
-#         file.
-#     """
-#     dbc = ferc1_dbf_ds.get_file(year, "F1_PUB.DBC")
-#     tf_dict = get_fields(dbc)
-
-#     dbc_map = {}
-#     for table, dbf_filename in DBF_TABLES_FILENAMES.items():
-#         try:
-#             dbc = ferc1_dbf_ds.get_file(year, dbf_filename)
-#         except KeyError:
-#             # Not all tables exist in all years, so this is acceptable
-#             dbc = None
-
-#         if dbc is None:
-#             continue
-
-#         dbf_fields = DBF("", filedata=dbc, ignore_missing_memofile=True).field_names
-#         dbf_fields = [f for f in dbf_fields if f != "_NullFlags"]
-#         dbc_map[table] = dict(zip(dbf_fields, tf_dict[table]))
-#         if len(tf_dict[table]) != len(dbf_fields):
-#             raise ValueError(
-#                 f"Number of DBF fields in {table} does not match what was "
-#                 f"found in the FERC Form 1 DBC index file for {year}."
-#             )
-
-    # # Insofar as we are able, make sure that the fields match each other
-    # for k in dbc_map:
-    #     for sn, ln in zip(dbc_map[k].keys(), dbc_map[k].values()):
-    #         if ln[:8] != sn.lower()[:8]:
-    #             raise ValueError(
-    #                 f"DBF field name mismatch: {ln[:8]} != {sn.lower()[:8]}"
-    #             )
-
-    # return dbc_map
 
 
 def create_sqlite_tables(
@@ -532,8 +332,8 @@ def create_sqlite_tables(
         refyear = max(
             DataSource.from_id(foxpro_datastore.get_dataset()).working_partitions["years"]
         )
-    for table in foxpro_datastore.get_tables():
-        table.to_sqlite_schema(refyear, sqlite_meta)
+    for tn in foxpro_datastore.get_table_names():
+        foxpro_datastore.get_table_schema(tn, refyear).to_sqlite_table(sqlite_meta)
     sqlite_meta.create_all(sqlite_engine)
 
 @op(
@@ -593,12 +393,13 @@ def dbf2sqlite(context) -> None:
 
     for table in ferc1_ds.get_table_names():
         logger.info(f"Pandas: reading {table} into a DataFrame.")
-        new_df = ferc1_ds.load_years(years=ferc1_to_sqlite_settings.years)
+        new_df = ferc1_ds.load_table_dfs(table, ferc1_to_sqlite_settings.years)
 
         # Because this table has no year in it, there would be multiple
         # definitions of respondents if we didn't drop duplicates.
         # TODO: this is dataset specific business logic!
         if table == "f1_respondent_id":
+            logger.info(f"Columns: {new_df.columns}")
             new_df = new_df.drop_duplicates(subset="respondent_id", keep="last")
         n_recs = len(new_df)
         logger.debug(f"    {table}: N = {n_recs}")

@@ -8,12 +8,15 @@ from pathlib import Path
 from pickle import MEMOIZE
 from typing import Any, Dict, Iterator, List, Optional
 
+import pudl
 import pandas as pd
 from pudl.workspace.datastore import Datastore
 from dbfread import DBF, FieldParser
 import sqlalchemy as sa
 from pudl.metadata.classes import DataSource
 from typing import Protocol
+
+logger = pudl.logging_helpers.get_logger(__name__)
 
 class TableSchema:
     """Simple data-wrapper for the fox-pro table schema."""
@@ -30,11 +33,12 @@ class TableSchema:
         if short_name is not None:
             self._short_name_map[short_name] = col_name
 
-    def get_columns(self) -> Iterator[Tuple[str, sa.types.TypeEngine]]:
+    def get_columns(self) -> Iterator[tuple[str, sa.types.TypeEngine]]:
         for col_name in self._columns:
-            yield col_name, self._column_types[col_name]
+            yield (col_name, self._column_types[col_name])
 
     def get_column_rename_map(self) -> Dict[str, str]:
+        logger.warn(f"Column map: {self._short_name_map}")
         return dict(self._short_name_map)
 
     def to_sqlite_table(self, sqlite_meta: sa.MetaData) -> sa.Table:
@@ -61,36 +65,6 @@ class AbstractFoxProDatastore(Protocol):
     def load_table_dfs(self, table_name: str, years: List[int]) -> Optional[pd.DataFrame]:
         """Returns dataframe that contains data for a given table across given years."""
         ...
-
-
-class FoxProTable:
-    def __init__(
-            self,
-            datastore: AbstractFoxProDatastore,
-            table_name: str):
-        self.table_name = table_name
-        self.datastore = datastore
-    
-    def _load_single_df(self, year: int) -> pd.DataFrame:
-        """Loads single year worth of data into pd.DataFrame."""
-        df = pd.DataFrame(iter(self.datastore.get_table_dbf(self.table_name, year)))
-        df.drop("_NullFlags", axis=1, errors="ignore").rename(
-            self.datastore.get_table_column_map(self.table_name, year),
-            axis=1,
-        )
-        return df
-    
-    def load_years(self, years: List[int]) -> Optional[pd.DataFrame]:
-        """Loads table into single pd.DataFrame containing data from specified years."""
-        yearly_dfs = []
-        for yr in years:
-            try:
-                yearly_dfs.append(self._load_single_df(yr))
-            except KeyError:
-                pass
-        if yearly_dfs:
-            return pd.concat(yearly_dfs, sort=True)
-        return None
 
 
 class FercFieldParser(FieldParser):
@@ -164,9 +138,10 @@ class FercFoxProDatastore:
         Args:
             datastore: provides access to raw files on disk
         """
+        self._cache = {}
         self.datastore = datastore
         assert(self.DATASET is not None)
-        assert(self.DBF_FILENAME is not None)
+        assert(self.DBC_FILENAME is not None)
 
 
         # file_map contains root-path where all DBC and DBF files are stored.
@@ -186,7 +161,7 @@ class FercFoxProDatastore:
 
     def _open_csv_resource(self, base_filename:str) -> csv.DictReader:
         """Opens the given resource file as csv.DictReader."""
-        pkg_path = "pudl.package_data.{self.DATASET}"
+        pkg_path = f"pudl.package_data.{self.DATASET}"
         return csv.DictReader(importlib.resources.open_text(pkg_path, base_filename))
 
     def get_dir(self, year: int) -> Path:
@@ -269,8 +244,8 @@ class FercFoxProDatastore:
 
     def _load_single_year(self, table_name: str, year: int) -> pd.DataFrame:
         sch = self.get_table_schema(table_name, year)
-        df = pd.DataFrame(iter(self.datastore.get_table_dbf(self.table_name, year)))
-        df.drop("_NullFlags", axis=1, errors="ignore").rename(
+        df = pd.DataFrame(iter(self.get_table_dbf(table_name, year)))
+        df = df.drop("_NullFlags", axis=1, errors="ignore").rename(
             sch.get_column_rename_map(),
             axis=1
         )
