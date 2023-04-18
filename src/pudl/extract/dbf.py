@@ -120,6 +120,9 @@ Unmapped types left as 'XXX' which should result in an error if encountered.
 # could be addressed through interfaces/ABCs
 
 
+# TODO(rousik): instead of using class-level constants, we could pass the params in the constructor, which should 
+# allow us to instantiate these dataset-specific datastores in the extractor code.
+# That may make the manipulations little easier.
 class FercFoxProDatastore:
     """Wrapper to provide standardized access to FoxPro FERC databases."""
 

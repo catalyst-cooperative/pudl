@@ -351,91 +351,114 @@ def create_sqlite_tables(
     },
     required_resource_keys={"ferc_to_sqlite_settings", "datastore"},
 )
-def dbf2sqlite(context) -> None:
-    """Clone the FERC Form 1 Visual FoxPro databases into SQLite."""
-    ferc1_to_sqlite_settings = (
-        # TODO(rousik): generalize
-        context.resources.ferc_to_sqlite_settings.ferc1_dbf_to_sqlite_settings
-    )
-    datastore = context.resources.datastore
-    # NOTE(rousik): there's one sql database per dataset, so there's no need to worry
-    # about which tables to drop
-    db_path = str(Path(context.op_config["pudl_output_path"]) / "ferc1.sqlite") # TODO(rousik): generalize
-    clobber = context.op_config["clobber"]
 
-    # Read in the structure of the DB, if it exists
-    logger.info("Dropping the old FERC Form 1 SQLite DB if it exists.")
-    sqlite_engine = sa.create_engine(f"sqlite:///{db_path}")
-    try:
-        # So that we can wipe it out
-        pudl.helpers.drop_tables(sqlite_engine, clobber=clobber)
-    except sa.exc.OperationalError:
+
+class FoxProExtractor:
+    """Generalized class for loading data from foxpro databases into sqlite."""
+    DATABASE_NAME = None
+
+    def __init__(self, context):
+        self.context = context
+        self.datastore = self.get_datastore()
+        self.sqlite_engine = sa.create_engine(self.get_db_path())
+        self.sqlite_meta = sa.MetaData()
+        self.sqlite_meta.reflect(self.sqlite_engine)
+        
+    def get_db_path(self) -> str:
+        db_path = str(Path(self.context.op_config["pudl_output_path"]) / self.DATABASE_NAME)
+        return f"sqlite:///{db_path}"
+
+    def execute(self, context):
+        self.delete_schema()
+        self.create_sqlite_tables()
+        self.load_table_data()
+        self.postprocess()
+
+    def delete_schema(self):
+        try: 
+            pudl.helpers.drop_tables(self.sqlite_engine, clobber=self.context.op_config["clobber"])
+        except sa.exc.OperationalError:
+            pass
+        self.sqlite_engine = sa.create_engine(self.get_db_path())
+        self.sqlite_meta = sa.MetaData()
+        self.sqlite_meta.reflect(self.sqlite_engine)
+
+    def create_sqlite_tables(self):
+        refyear = self.get_settings().refyear
+        if refyear is None:
+            refyear = max(
+                DataSource.from_id(self.datastore.get_dataset()).working_partitions["years"]
+            ) 
+        for tn in self.datastore.get_table_names():
+            self.datastore.get_table_schema(tn, refyear).to_sqlite_table(self.sqlite_meta)
+        self.sqlite_meta.create_all(self.sqlite_engine)
+
+    def transform_table(self, table_name: str, in_df: pd.DataFrame) -> pd.DataFrame:
+        return in_df
+
+    def load_table_data(self):
+        for table in self.datastore.get_table_names():
+            logger.info(f"Pandas: reading {table} into a DataFrame.")
+            new_df = self.datastore.load_table_dfs(table, self.get_settings().years)
+            new_df = self.transform_table(new_df)
+
+            logger.debug(f"    {table}: N = {len(new_df)}")
+            if len(new_df) <= 0:
+                continue
+
+            coltypes = {col.name: col.type for col in self.sqlite_meta.tables[table].c}
+            logger.info(f"SQLite: loading {len(new_df)} rows into {table}.")
+            new_df.to_sql(
+                table,
+                self.sqlite_engine,
+                if_exists="append",
+                chunksize=100000,
+                dtype=coltypes,
+                index=False,
+            )
+
+    def postprocess(self):
         pass
 
-    # And start anew
-    sqlite_engine = sa.create_engine(f"sqlite:///{db_path}")
-    sqlite_meta = sa.MetaData()
-    sqlite_meta.reflect(sqlite_engine)
+class Ferc1FoxProExtractor(FoxProExtractor):
+    """Wrapper for running the foxpro to sqlite conversion of FERC1 dataset"""
+    DATABASE_NAME = "ferc1.sqlite"
 
-    # TODO(rousik): generalize; datastore should be retrieved based on the dataset name (?)
-    ferc1_ds = Ferc1FoxProDatastore(datastore)
+    def get_datastore(self):
+        return Ferc1FoxProDatastore(self.context.resources.datastore)
 
-    logger.info(
-        f"Creating a new database schema based on {ferc1_to_sqlite_settings.refyear}."
-    )
-    create_sqlite_tables(
-        sqlite_engine=sqlite_engine,
-        sqlite_meta=sqlite_meta,
-        foxpro_datastore=ferc1_ds,
-        ferc1_to_sqlite_settings=ferc1_to_sqlite_settings,
-    )
-    # TODO: PK/FK constraints are missing!! Need to put them back.
+    def get_settings(self) -> Any:
+        return self.context.resources.ferc_to_sqlite_settings.ferc1_dbf_to_sqlite_settings
 
-    for table in ferc1_ds.get_table_names():
-        logger.info(f"Pandas: reading {table} into a DataFrame.")
-        new_df = ferc1_ds.load_table_dfs(table, ferc1_to_sqlite_settings.years)
+    def transform_table(self, table_name: str, in_df: pd.DataFrame) -> pd.DataFrame:
+        # TODO(rousik): this should be replaced with registry of pd.DataFrame -> pd.DataFrame transformations
+        # for each table and dict that looks those up.
+        if table_name == "f1_respondent_id":
+            return in_df.drop_duplicates(subset="respondent_id", keep="last")
+        else:
+            return in_df
 
-        # Because this table has no year in it, there would be multiple
-        # definitions of respondents if we didn't drop duplicates.
-        # TODO: this is dataset specific business logic!
-        if table == "f1_respondent_id":
-            new_df = new_df.drop_duplicates(subset="respondent_id", keep="last")
-        n_recs = len(new_df)
-        logger.debug(f"    {table}: N = {n_recs}")
-        # Only try and load the table if there are some actual records:
-        if n_recs <= 0:
-            continue
+    def postprocess(self):
+        # TODO(rousik): add PK/FK constraints
 
-        # Write the records out to the SQLite database, and make sure that
-        # the inferred data types are being enforced during loading.
-        # if_exists='append' is being used because we defined the tables
-        # above, but left them empty. Becaue the DB is reset at the beginning
-        # of the function, this shouldn't ever result in duplicate records.
-        coltypes = {col.name: col.type for col in sqlite_meta.tables[table].c}
-        logger.info(f"SQLite: loading {n_recs} rows into {table}.")
-        new_df.to_sql(
-            table,
-            sqlite_engine,
-            if_exists="append",
-            chunksize=100000,
-            dtype=coltypes,
-            index=False,
+        # add the missing respondents into the respondent_id table.
+        reported_ids = pd.read_sql_table(
+            "f1_respondent_id", self.sqlite_engine,
+        ).respondent_id.unique()
+        observed_ids = observed_respondents(self.sqlite_engine)
+        missing = missing_respondents(
+            reported=reported_ids,
+            observed=observed_ids,
+           identified=PUDL_RIDS,
         )
+        logger.info(f"Inserting {len(missing)} missing IDs into f1_respondent_id table.")
+        with self.sqlite_engine.begin() as conn:
+            conn.execute(self.sqlite_meta.tables["f1_respondent_id"].insert().values(missing))
 
-    # add the missing respondents into the respondent_id table.
-    reported_ids = pd.read_sql_table(
-        "f1_respondent_id", sqlite_engine
-    ).respondent_id.unique()
-    observed_ids = observed_respondents(sqlite_engine)
-    missing = missing_respondents(
-        reported=reported_ids,
-        observed=observed_ids,
-        identified=PUDL_RIDS,
-    )
-    logger.info(f"Inserting {len(missing)} missing IDs into f1_respondent_id table.")
-    with sqlite_engine.begin() as conn:
-        conn.execute(sqlite_meta.tables["f1_respondent_id"].insert().values(missing))
 
+def dbf2sqlite(context) -> None:
+    """Clone the FERC Form 1 Visual FoxPro databases into SQLite."""
+    Ferc1FoxProExtractor(context).execute()
 
 ###########################################################################
 # Functions for extracting ferc1 tables from SQLite to PUDL
