@@ -3,16 +3,21 @@ import pandas as pd
 from dagster import asset
 
 import pudl
-from pudl.output.sql.helpers import sql_asset_factory
 
-denorm_plants_utilities_ferc1_asset = sql_asset_factory(
-    "denorm_plants_utilities_ferc1", {"plants_ferc1", "utilities_ferc1"}
-)
+
+@asset(io_manager_key="pudl_sqlite_io_manager", compute_kind="Python")
+def denorm_plants_utilities_ferc1(
+    plants_ferc1: pd.DataFrame,
+    utilities_ferc1: pd.DataFrame,
+) -> pd.DataFrame:
+    """A denormalized table containing FERC plant and utility names and IDs."""
+    return pd.merge(plants_ferc1, utilities_ferc1, on="utility_id_ferc1")
 
 
 @asset(io_manager_key="pudl_sqlite_io_manager", compute_kind="Python")
 def denorm_balance_sheet_assets_ferc1(
-    balance_sheet_assets_ferc1: pd.DataFrame, utilities_ferc1: pd.DataFrame
+    balance_sheet_assets_ferc1: pd.DataFrame,
+    utilities_ferc1: pd.DataFrame,
 ) -> pd.DataFrame:
     """Pull a useful dataframe of FERC Form 1 Purchased Power data."""
     denorm_balance_sheet_assets_ferc1 = balance_sheet_assets_ferc1.merge(
