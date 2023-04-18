@@ -606,10 +606,11 @@ def get_multi_match_df(training_data) -> pd.DataFrame:
         pd.DataFrame: A dataframe of 1:m matches formatted to fit into the existing
             validation framework.
     """
-    multi_match_cols = [f"record_id_eia_override_{i}" for i in range(2, 4)]
     match_cols = [
         col for col in training_data.columns if "record_id_eia_override_" in col
     ]
+    multi_match_cols = [col for col in match_cols if col != "record_id_eia_override_1"]
+
     id_cols = [col for col in training_data.columns if col not in match_cols]
     multimatch_df = training_data[training_data[multi_match_cols].notnull().any(axis=1)]
     multimatch_df = multimatch_df.melt(
@@ -673,7 +674,7 @@ def _add_to_one_to_many_overrides(one_to_many, current_one_to_many_path) -> None
         .drop_duplicates(subset=["record_id_eia", "record_id_ferc1"])
     )
     logger.debug(
-        f"Found {len(new_one_to_many.record_id_ferc1.unique())} new plants with multiple EIA matches."
+        f"Found {len(new_one_to_many.record_id_ferc1.unique())} new FERC1 records with multiple EIA matches."
     )
     # Combine new and old training data; drop old data in favor or new overrides
     one_to_many = pd.concat([current_one_to_many, new_one_to_many]).drop_duplicates(
@@ -690,7 +691,7 @@ def validate_and_add_to_training(
     input_dir_path,
     expect_override_overrides=False,
     allow_mismatched_utilities=True,
-    one_to_many=False,
+    one_to_many=True,
 ) -> None:
     """Validate, combine, and add overrides to the training data.
 
