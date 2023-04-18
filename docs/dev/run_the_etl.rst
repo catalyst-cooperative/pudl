@@ -14,10 +14,27 @@ These instructions assume you have already gone through the :ref:`dev_setup`.
 Database initialization
 -----------------------
 
-Before we run anything (and after we make changes to the database schema), we'll
-need to make sure that the schema in the database actually matches the schema
-in the code - run ``pudl_reset_db`` to delete whatever is already there and
-recreate the database with the right schema.
+Before we run anything, we'll need to make sure that the schema in the database
+actually matches the schema in the code - run ``alembic upgrade head`` to create
+the database with the right schema.
+
+Database schema migration
+-------------------------
+
+If you've changed the database schema, you'll need to make a migration for that
+change and apply that migration to the database to keep the database schema up-
+to-date:
+
+
+.. code-block:: bash
+
+    $ alembic revision --autogenerate -m "Add my cool table"
+    $ alembic upgrade head
+    $ git add migrations
+    $ git commit -m "Migration: added my cool table"
+
+More information can be found in the `Alembic docs
+<https://alembic.sqlalchemy.org/en/latest/tutorial.html>`__.
 
 Dagster
 -------

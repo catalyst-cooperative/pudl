@@ -1,10 +1,10 @@
 """Test Dagster IO Managers."""
 import pandas as pd
 import pytest
+import sqlalchemy as sa
 from dagster import AssetKey, build_input_context, build_output_context
 from sqlalchemy.exc import IntegrityError, OperationalError
 
-from pudl.cli.reset_db import reset_db
 from pudl.io_managers import (
     ForeignKeyError,
     ForeignKeyErrors,
@@ -200,7 +200,12 @@ def test_missing_schema_error(sqlite_io_manager_fixture):
 @pytest.fixture
 def pudl_sqlite_io_manager_fixture(tmp_path, test_pkg):
     """Create a SQLiteIOManager fixture with a PUDL database schema."""
-    reset_db(tmp_path / "pudl.sqlite", test_pkg.to_sql())
+    db_path = tmp_path / "pudl.sqlite"
+
+    # Create the database and schemas
+    engine = sa.create_engine(f"sqlite:///{db_path}")
+    md = test_pkg.to_sql()
+    md.create_all(engine)
     return PudlSQLiteIOManager(base_dir=tmp_path, db_name="pudl", package=test_pkg)
 
 
