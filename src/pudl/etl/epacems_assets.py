@@ -269,7 +269,6 @@ def clean_epacamd_eia(
             pudl.helpers.remove_leading_zeros_from_numeric_strings,
             col_name="emissions_unit_id_epa",
         )
-        .pipe(manually_update_subplant_id)
         .pipe(pudl.metadata.fields.apply_pudl_dtypes, "eia")
         .dropna(subset=["plant_id_eia"])
     )
@@ -298,20 +297,6 @@ def clean_epacamd_eia(
         )
     # TODO: Add manual crosswalk
     return crosswalk_clean
-
-
-def manually_update_subplant_id(subplant_crosswalk):
-    """Correct subplant mappings not caught by update_subplant_id.
-
-    This is temporary until the pudl subplant crosswalk includes boiler-generator id
-    matches.
-    """
-    # set all generators in plant 1391 to the same subplant
-    subplant_crosswalk.loc[
-        subplant_crosswalk["plant_id_eia"] == 1391, "subplant_id"
-    ] = 0
-
-    return subplant_crosswalk
 
 
 ##################
@@ -363,10 +348,6 @@ def epacamd_eia_subplant_ids(
     Returns:
         table of cems_ids and with subplant_id added
     """
-    # emissions_unit_ids_epacems = emissions_unit_ids_epacems.assign(
-    #     report_date=lambda x: pd.to_datetime(x.year, format="%Y")
-    # )
-
     clean_epacamd_eia = (
         augement_crosswalk_with_eia860(clean_epacamd_eia, generators_eia860)
         .pipe(augement_crosswalk_with_epacamd_ids, emissions_unit_ids_epacems)
@@ -385,7 +366,7 @@ def epacamd_eia_subplant_ids(
 
     # update the subplant ids for each plant
     subplant_crosswalk_complete = subplant_crosswalk_complete.groupby(
-        ["plant_id_eia"]
+        by=["plant_id_eia"], group_keys=False
     ).apply(update_subplant_ids)
     # remove the intermediate columns created by update_subplant_ids
     subplant_crosswalk_complete["subplant_id"].update(
@@ -403,8 +384,7 @@ def epacamd_eia_subplant_ids(
         ],
         keep="last",
     )
-    # TODO: remove. temp report_date fake out so i don't have to regen the db yet
-    return subplant_crosswalk_complete.assign(report_date="2035-01-01")
+    return subplant_crosswalk_complete
 
 
 def augement_crosswalk_with_eia860(
@@ -441,7 +421,6 @@ def augement_crosswalk_with_epacamd_ids(
         how="outer",
         on=["plant_id_eia", "emissions_unit_id_epa"],
         validate="m:m",
-        indicator=True,
     )
 
 

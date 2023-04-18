@@ -1,7 +1,11 @@
 """Unit tests for the pudl.transform.epacems module."""
+from io import StringIO
+
 import pandas as pd
 
+import pudl.etl.epacems_assets as epacems_assets
 import pudl.transform.epacems as epacems
+from pudl.helpers import convert_cols_dtypes
 
 
 def test_harmonize_eia_epa_orispl():
@@ -37,3 +41,85 @@ def test_harmonize_eia_epa_orispl():
     )
     actual_df = epacems.harmonize_eia_epa_orispl(cems_test_df, crosswalk_test_df)
     pd.testing.assert_frame_equal(expected_df, actual_df, check_dtype=False)
+
+
+def test_epacamd_eia_subplant_ids():
+    """Ensure subplant_id gets applied appropriately to example plants."""
+    clean_epacamd_eia_test = pd.read_csv(
+        StringIO(
+            """
+plant_id_epa,emissions_unit_id_epa,generator_id_epa,plant_id_eia,boiler_id,generator_id
+1391,1A,1A,1391,1A,1A
+1391,2A,2A,1391,2A,2A
+1391,3A,3A,1391,3A,3A
+1391,4A,4A,1391,,4A
+1391,5A,5A,1391,,5A
+1,A,A,1,,A
+"""
+        )
+    )
+
+    emissions_unit_ids_epacems_test = pd.read_csv(
+        StringIO(
+            """
+plant_id_eia,emissions_unit_id_epa
+1391,1A
+1391,2A
+1391,3A
+1391,4A
+1391,5A
+1,A
+"""
+        )
+    )
+
+    boiler_generator_assn_eia860_test = pd.read_csv(
+        StringIO(
+            """
+plant_id_eia,generator_id,unit_id_pudl
+1391,1A,1
+1391,2A,1
+1391,3A,1
+1,A,1
+"""
+        )
+    )
+
+    generators_entity_eia_test = pd.read_csv(
+        StringIO(
+            """
+plant_id_eia,generator_id
+1391,1A
+1391,2A
+1391,3A
+1391,4A
+1391,5A
+1,A
+"""
+        )
+    )
+    epacamd_eia_subplant_ids_expected = pd.read_csv(
+        StringIO(
+            """
+plant_id_eia,plant_id_epa,unit_id_pudl,emissions_unit_id_epa,generator_id,subplant_id
+1391,1391,1,1A,1A,0
+1391,1391,1,2A,2A,0
+1391,1391,1,3A,3A,0
+1391,1391,,4A,4A,1
+1391,1391,,5A,5A,2
+1,1,1,A,A,0
+"""
+        )
+    ).pipe(convert_cols_dtypes, "eia")
+
+    epacamd_eia_subplant_ids_got = epacems_assets.epacamd_eia_subplant_ids(
+        clean_epacamd_eia=clean_epacamd_eia_test,
+        generators_eia860=generators_entity_eia_test,
+        emissions_unit_ids_epacems=emissions_unit_ids_epacems_test,
+        boiler_generator_assn_eia860=boiler_generator_assn_eia860_test,
+    )
+
+    pd.testing.assert_frame_equal(
+        epacamd_eia_subplant_ids_expected,
+        epacamd_eia_subplant_ids_got[epacamd_eia_subplant_ids_expected.columns],
+    )
