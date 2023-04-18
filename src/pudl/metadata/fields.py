@@ -245,6 +245,26 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         # TODO: Disambiguate if necessary. Does this mean different things in
         # different tables? It shows up in a lot of places.
     },
+    "capex_annual_addition": {
+        "type": "number",
+        "description": "Annual capital addition into `capex_total`.",
+        "unit": "USD",
+    },
+    "capex_annual_per_kw": {
+        "type": "number",
+        "description": "Annual capital addition into `capex_total` per kw.",
+        "unit": "USD/kw",
+    },
+    "capex_annual_per_mw": {
+        "type": "number",
+        "description": "Annual capital addition into `capex_total` per mw.",
+        "unit": "USD/mw",
+    },
+    "capex_annual_per_mwh": {
+        "type": "number",
+        "description": "Annual capital addition into `capex_total` per mwh.",
+        "unit": "USD/mwh",
+    },
     "capex_equipment": {
         "type": "number",
         "description": "Cost of plant: equipment (USD).",
@@ -300,6 +320,11 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "description": "Cost of plant: water wheels, turbines, and generators (USD).",
         "unit": "USD",
     },
+    "capex_wo_retirement_total": {
+        "type": "number",
+        "description": "Total cost of plant (USD) without retirements.",
+        "unit": "USD",
+    },
     "carbon_capture": {
         "type": "boolean",
         "description": "Indicates whether the generator uses carbon capture technology.",
@@ -319,6 +344,14 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "type": "number",
         "description": "Carbon dioxide emissions in short tons.",
         "unit": "short_ton",
+    },
+    "coal_fraction_cost": {
+        "type": "number",
+        "description": "Coal cost as a percentage of overall fuel cost.",
+    },
+    "coal_fraction_mmbtu": {
+        "type": "number",
+        "description": "Coal heat content as a percentage of overall fuel heat content (mmBTU).",
     },
     "coalmine_county_id_fips": {
         "type": "string",
@@ -736,6 +769,10 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "type": "string",
         "description": "The docket number relating to the FERC qualifying facility exempt wholesale generator status.",
     },
+    "ferc_license_id": {
+        "type": "string",
+        "description": "The FERC license ID of a project.",
+    },
     "ferc_small_power_producer": {
         "type": "boolean",
         "description": "Indicates whether the plant has FERC qualifying facility small power producer status. See FERC Form 556.",
@@ -818,13 +855,28 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "description": "Total consumption of fuel in physical unit, year to date. Note: this is the total quantity consumed for both electricity and, in the case of combined heat and power plants, process steam production.",
         "unit": "MMBtu",
     },
+    "fuel_consumed_total_cost": {
+        "type": "number",
+        "description": "Total cost of consumed fuel.",
+        "unit": "USD",
+    },
     "fuel_consumed_units": {
         "type": "number",
         "description": "Consumption of the fuel type in physical unit. Note: this is the total quantity consumed for both electricity and, in the case of combined heat and power plants, process steam production.",
     },
+    "fuel_cost": {
+        "type": "number",
+        "description": "Total fuel cost for plant (in $USD).",
+        "unit": "USD",
+    },
     "fuel_cost_from_eiaapi": {
         "type": "boolean",
         "description": "Indicates whether the fuel cost was derived from the EIA API.",
+    },
+    "fuel_mmbtu": {
+        "type": "number",
+        "description": "Total heat content for plant (in mmBTU).",
+        "unit": "mmbtu",
     },
     "fuel_cost_per_mmbtu": {
         "type": "number",
@@ -928,6 +980,14 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "description": "Electric Plant Held for Future Use (USD).",
         "unit": "USD",
     },
+    "gas_fraction_cost": {
+        "type": "number",
+        "description": "Natural gas cost as a percentage of overall fuel cost.",
+    },
+    "gas_fraction_mmbtu": {
+        "type": "number",
+        "description": "Natural gas heat content as a percentage of overall fuel heat content (mmBTU).",
+    },
     "generation_activity": {"type": "boolean"},
     "generator_id": {
         "type": "string",
@@ -994,6 +1054,14 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     "hrsg": {
         "type": "boolean",
         "description": "indicates if the boiler is a heat recovery steam generator (HRSG).",
+    },
+    "hydro_fraction_cost": {
+        "type": "number",
+        "description": "Hydropower cost as a percentage of overall fuel cost.",
+    },
+    "hydro_fraction_mmbtu": {
+        "type": "number",
+        "description": "Hydropower heat content as a percentage of overall fuel heat content (mmBTU).",
     },
     "inactive_accounts_included": {"type": "boolean"},
     "income_type": {
@@ -1373,6 +1441,14 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "description": "Identifies whether the reported value of emissions was measured, calculated, or measured and substitute.",
         "constraints": {"enum": EPACEMS_MEASUREMENT_CODES},
     },
+    "nuclear_fraction_cost": {
+        "type": "number",
+        "description": "Nuclear cost as a percentage of overall fuel cost.",
+    },
+    "nuclear_fraction_mmbtu": {
+        "type": "number",
+        "description": "Nuclear heat content as a percentage of overall fuel heat content (mmBTU).",
+    },
     "nuclear_unit_id": {
         "type": "string",
         "description": "For nuclear plants only, the unit number .One digit numeric. Nuclear plants are the only type of plants for which data are shown explicitly at the generating unit level.",
@@ -1380,6 +1456,14 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     "num_transmission_circuits": {
         "type": "integer",
         "description": "Number of circuits in a transmission line.",
+    },
+    "oil_fraction_cost": {
+        "type": "number",
+        "description": "Oil cost as a percentage of overall fuel cost.",
+    },
+    "oil_fraction_mmbtu": {
+        "type": "number",
+        "description": "Oil heat content as a percentage of overall fuel heat content (mmBTU).",
     },
     "operates_generating_plant": {"type": "boolean"},
     "operating_datetime_utc": {
@@ -1479,6 +1563,11 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "description": "Maintenance of miscellaneous steam (or nuclear) plant.",
         "unit": "USD",
     },
+    "opex_nonfuel_per_mwh": {
+        "type": "number",
+        "description": "Investments in non-fuel production expenses per mwh.",
+        "unit": "USD/mwh",
+    },
     "opex_operations": {
         "type": "number",
         "description": "Production expenses: operations, supervision, and engineering (USD).",
@@ -1540,6 +1629,11 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "description": "Total production expenses, excluding fuel (USD).",
         "unit": "USD",
     },
+    "opex_total_nonfuel": {  # To do: if identical to `opex_total`, rename column.
+        "type": "number",
+        "description": "Total production expenses, excluding fuel (USD).",
+        "unit": "USD",
+    },
     "opex_transfer": {"type": "number", "description": "Steam transferred (Credit)."},
     "opex_water_for_power": {
         "type": "number",
@@ -1562,6 +1656,14 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     },
     "other_costs": {"type": "number", "unit": "USD"},
     "other_costs_incremental_cost": {"type": "number", "unit": "USD"},
+    "other_fraction_cost": {
+        "type": "number",
+        "description": "Misc. fuels cost as a percentage of overall fuel cost.",
+    },
+    "other_fraction_mmbtu": {
+        "type": "number",
+        "description": "Misc. fuels heat content as a percentage of overall fuel heat content (mmBTU).",
+    },
     "other_modifications_date": {
         "type": "date",
         "description": "Planned effective date that the generator is scheduled to enter commercial operation after any other planned modification is complete.",
@@ -1820,6 +1922,14 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     },
     "price_responsive_programs": {"type": "boolean"},
     "price_responsiveness_customers": {"type": "integer"},
+    "primary_fuel_by_cost": {
+        "type": "string",
+        "description": "Primary fuel for plant as a percentage of cost.",
+    },
+    "primary_fuel_by_mmbtu": {
+        "type": "string",
+        "description": "Primary fuel for plant as a percentage of heat content.",
+    },
     "primary_purpose_id_naics": {
         "type": "integer",
         "description": "North American Industry Classification System (NAICS) code that best describes the primary purpose of the reporting plant",
@@ -2082,6 +2192,14 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "type": "string",
         "description": "Identifies whether the reported value of emissions was measured, calculated, or measured and substitute.",
         "constraints": {"enum": EPACEMS_MEASUREMENT_CODES},
+    },
+    "solar_fraction_cost": {
+        "type": "number",
+        "description": "Solar cost as a percentage of overall fuel cost.",
+    },
+    "solar_fraction_mmbtu": {
+        "type": "number",
+        "description": "Solar heat content as a percentage of overall fuel heat content (mmBTU).",
     },
     "sold_to_utility_mwh": {"type": "number", "unit": "MWh"},
     "solid_fuel_gasification": {
@@ -2422,6 +2540,14 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     "variable_peak_pricing": {"type": "boolean"},
     "virtual_capacity_mw": {"type": "number", "unit": "MW"},
     "virtual_customers": {"type": "integer"},
+    "waste_fraction_cost": {
+        "type": "number",
+        "description": "Waste-heat cost as a percentage of overall fuel cost.",
+    },
+    "waste_fraction_mmbtu": {
+        "type": "number",
+        "description": "Waste-heat heat content as a percentage of overall fuel heat content (mmBTU).",
+    },
     "waste_heat_input_mmbtu_per_hour": {
         "type": "number",
         "unit": "MMBtu_per_hour",
@@ -2447,6 +2573,14 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     "wheeled_power_received_mwh": {"type": "number", "unit": "MWh"},
     "wholesale_marketing_activity": {"type": "boolean"},
     "wholesale_power_purchases_mwh": {"type": "number", "unit": "MWh"},
+    "wind_fraction_cost": {
+        "type": "number",
+        "description": "Wind power cost as a percentage of overall fuel cost.",
+    },
+    "wind_fraction_mmbtu": {
+        "type": "number",
+        "description": "Wind power heat content as a percentage of overall fuel heat content (mmBTU).",
+    },
     "winter_capacity_estimate": {
         "type": "boolean",
         "description": "Whether the winter capacity value was an estimate",

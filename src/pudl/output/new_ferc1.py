@@ -1,7 +1,7 @@
 """A collection of denormalized FERC assets."""
 import numpy as np
 import pandas as pd
-from dagster import asset
+from dagster import Field, asset
 
 import pudl
 from pudl.output.ferc1 import calc_annual_capital_additions_ferc1
@@ -237,7 +237,7 @@ def denorm_purchased_power_ferc1(
     return purchased_power_df
 
 
-@asset(compute_kind="Python")
+@asset(io_manager_key="pudl_sqlite_io_manager", compute_kind="Python")
 def denorm_plant_in_service_ferc1(
     plant_in_service_ferc1: pd.DataFrame, utilities_ferc1: pd.DataFrame
 ) -> pd.DataFrame:
@@ -657,65 +657,81 @@ def denorm_plants_all_ferc1(
     return all_df
 
 
-# TO DO: address 'thresh' parameter
-# @asset(io_manager_key="pudl_sqlite_io_manager", compute_kind="Python")
-# def denorm_fuel_by_plant_ferc1(
-#     denorm_fuel_ferc1, denorm_plants_utilities_ferc1, thresh=0.5
-# ):
-#     """Summarize FERC fuel data by plant for output.
+@asset(
+    io_manager_key="pudl_sqlite_io_manager",
+    config_schema={
+        "thresh": Field(
+            float,
+            default_value=0.5,
+            description=(
+                "Minimum fraction of fuel (cost and mmbtu) required in order for a "
+                "plant to be assigned a primary fuel. Must be between 0.5 and 1.0. "
+                "Default value is 0.5."
+            ),
+        )
+    },
+    compute_kind="Python",
+)
+def denorm_fuel_by_plant_ferc1(
+    context,
+    denorm_fuel_ferc1: pd.DataFrame,
+    denorm_plants_utilities_ferc1: pd.DataFrame,
+) -> pd.DataFrame:
+    """Summarize FERC fuel data by plant for output.
 
-#     This is mostly a wrapper around
-#     :func:`pudl.analysis.classify_plants_ferc1.fuel_by_plant_ferc1`
-#     which calculates some summary values on a per-plant basis (as indicated
-#     by ``utility_id_ferc1`` and ``plant_name_ferc1``) related to fuel
-#     consumption.
+    This is mostly a wrapper around
+    :func:`pudl.analysis.classify_plants_ferc1.fuel_by_plant_ferc1`
+    which calculates some summary values on a per-plant basis (as indicated
+    by ``utility_id_ferc1`` and ``plant_name_ferc1``) related to fuel
+    consumption.
 
-#     Args:
-#         pudl_engine (sqlalchemy.engine.Engine): Engine for connecting to the
-#             PUDL database.
-#         thresh (float): Minimum fraction of fuel (cost and mmbtu) required in
-#             order for a plant to be assigned a primary fuel. Must be between
-#             0.5 and 1.0. default value is 0.5.
+    Args:
+        context: Dagster context object
+        denorm_fuel_ferc1: Denormalized FERC fuel table.
+        denorm_plants_utilities_ferc1: Denormalized table of FERC1 plant & utility IDs.
 
-#     Returns:
-#         pandas.DataFrame: A DataFrame with fuel use summarized by plant.
-#     """
+    Returns:
+        A DataFrame with fuel use summarized by plant.
+    """
 
-#     def drop_other_fuel_types(df):
-#         """Internal function to drop other fuel type.
+    def drop_other_fuel_types(df):
+        """Internal function to drop other fuel type.
 
-#         Fuel type other indicates we didn't know how to categorize the reported fuel
-#         type, which leads to records with incomplete and unsable data.
-#         """
-#         return df[df.fuel_type_code_pudl != "other"].copy()
+        Fuel type other indicates we didn't know how to categorize the reported fuel
+        type, which leads to records with incomplete and unsable data.
+        """
+        return df[df.fuel_type_code_pudl != "other"].copy()
 
-#     fuel_categories = list(
-#         pudl.transform.ferc1.FuelFerc1TableTransformer()
-#         .params.categorize_strings["fuel_type_code_pudl"]
-#         .categories.keys()
-#     )
-#     fbp_df = (
-#         denorm_fuel_ferc1.pipe(drop_other_fuel_types)
-#         .pipe(
-#             pudl.analysis.classify_plants_ferc1.fuel_by_plant_ferc1,
-#             fuel_categories=fuel_categories,
-#             thresh=thresh,
-#         )
-#         .pipe(pudl.analysis.classify_plants_ferc1.revert_filled_in_float_nulls)
-#         .pipe(pudl.analysis.classify_plants_ferc1.revert_filled_in_string_nulls)
-#         .merge(
-#             denorm_plants_utilities_ferc1, on=["utility_id_ferc1", "plant_name_ferc1"]
-#         )
-#         .pipe(
-#             pudl.helpers.organize_cols,
-#             [
-#                 "report_year",
-#                 "utility_id_ferc1",
-#                 "utility_id_pudl",
-#                 "utility_name_ferc1",
-#                 "plant_id_pudl",
-#                 "plant_name_ferc1",
-#             ],
-#         )
-#     )
-#     return fbp_df
+    thresh = context.op_config["thresh"]
+
+    fuel_categories = list(
+        pudl.transform.ferc1.FuelFerc1TableTransformer()
+        .params.categorize_strings["fuel_type_code_pudl"]
+        .categories.keys()
+    )
+
+    fbp_df = (
+        denorm_fuel_ferc1.pipe(drop_other_fuel_types)
+        .pipe(
+            pudl.analysis.classify_plants_ferc1.fuel_by_plant_ferc1,
+            fuel_categories=fuel_categories,
+            thresh=thresh,
+        )
+        .pipe(pudl.analysis.classify_plants_ferc1.revert_filled_in_float_nulls)
+        .pipe(pudl.analysis.classify_plants_ferc1.revert_filled_in_string_nulls)
+        .merge(
+            denorm_plants_utilities_ferc1, on=["utility_id_ferc1", "plant_name_ferc1"]
+        )
+        .pipe(
+            pudl.helpers.organize_cols,
+            [
+                "report_year",
+                "utility_id_ferc1",
+                "utility_id_pudl",
+                "utility_name_ferc1",
+                "plant_id_pudl",
+                "plant_name_ferc1",
+            ],
+        )
+    )
+    return fbp_df
