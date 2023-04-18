@@ -123,6 +123,10 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "type": "string",
         "description": "EIA short code identifying a balancing authority.",
     },
+    "balancing_authority_code_eia_consistent_rate": {
+        "type": "number",
+        "description": "Percentage consistency of balancing authority code across entity records.",
+    },
     "balancing_authority_id_eia": {
         "type": "integer",
         "description": "EIA balancing authority ID. This is often (but not always!) the same as the utility ID associated with the same legal entity.",
@@ -199,6 +203,14 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     "boiler_type": {
         "type": "string",
         "description": "EIA short code indicating the standards under which the boiler is operating as described in the U.S. EPA regulation under 40 CFR.",
+    },
+    "bulk_agg_fuel_cost_per_mmbtu": {
+        "type": "number",
+        "description": (
+            "Fuel cost per mmbtu reported in the EIA bulk electricity data. This is an "
+            "aggregate average fuel price for a whole state, region, month, sector, "
+            "etc. Used to fill in missing fuel prices."
+        ),
     },
     "bundled_activity": {"type": "boolean"},
     "business_model": {
@@ -307,6 +319,16 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "type": "number",
         "description": "Carbon dioxide emissions in short tons.",
         "unit": "short_ton",
+    },
+    "coalmine_county_id_fips": {
+        "type": "string",
+        "description": (
+            "County ID from the Federal Information Processing Standard Publication "
+            "6-4. This is the county where the coal mine is located."
+        ),
+        "constraints": {
+            "pattern": r"^\d{5}$",
+        },
     },
     "code": {
         "type": "string",
@@ -800,6 +822,10 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "type": "number",
         "description": "Consumption of the fuel type in physical unit. Note: this is the total quantity consumed for both electricity and, in the case of combined heat and power plants, process steam production.",
     },
+    "fuel_cost_from_eiaapi": {
+        "type": "boolean",
+        "description": "Indicates whether the fuel cost was derived from the EIA API.",
+    },
     "fuel_cost_per_mmbtu": {
         "type": "number",
         "description": "Average fuel cost per mmBTU of heat content in nominal USD.",
@@ -886,6 +912,10 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
                 set(CODE_METADATA["energy_sources_eia"]["df"].fuel_type_code_pudl)
             )
         },
+    },
+    "fuel_type_count": {
+        "type": "integer",
+        "description": "A count of how many different simple energy sources there are associated with a generator.",
     },
     "fuel_units": {
         "type": "string",
@@ -1128,6 +1158,10 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "description": "Dynamically assigned PUDL mine identifier.",
     },
     "mine_name": {"type": "string", "description": "Coal mine name."},
+    "mine_state": {
+        "type": "string",
+        "description": "State where the coal mine is located. Two letter abbreviation.",
+    },
     "mine_type_code": {
         "type": "string",
         "description": "Type of coal mine.",

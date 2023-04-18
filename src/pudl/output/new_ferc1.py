@@ -5,13 +5,17 @@ from dagster import asset
 
 import pudl
 from pudl.output.ferc1 import calc_annual_capital_additions_ferc1
-from pudl.output.sql.helpers import sql_asset_factory
 
 logger = pudl.logging_helpers.get_logger(__name__)
 
-denorm_plants_utilities_ferc1_asset = sql_asset_factory(
-    "denorm_plants_utilities_ferc1", {"plants_ferc1", "utilities_ferc1"}
-)
+
+@asset(io_manager_key="pudl_sqlite_io_manager", compute_kind="Python")
+def denorm_plants_utilities_ferc1(
+    plants_ferc1: pd.DataFrame,
+    utilities_ferc1: pd.DataFrame,
+) -> pd.DataFrame:
+    """A denormalized table containing FERC plant and utility names and IDs."""
+    return pd.merge(plants_ferc1, utilities_ferc1, on="utility_id_ferc1")
 
 
 @asset(io_manager_key="pudl_sqlite_io_manager", compute_kind="Python")
@@ -23,7 +27,6 @@ def denorm_plants_steam_ferc1(
     Select the FERC Form 1 steam plant table entries, add in the reporting
     utility's name, and the PUDL ID for the plant and utility for readability
     and integration with other tables that have PUDL IDs.
-
     Also calculates ``capacity_factor`` (based on ``net_generation_mwh`` &
     ``capacity_mw``)
 
@@ -173,10 +176,8 @@ def denorm_fuel_ferc1(
     """Pull a useful dataframe related to FERC Form 1 fuel information.
 
     This function pulls the FERC Form 1 fuel data, and joins in the name of the
-    reporting utility, as well as the PUDL IDs for that utility and the plant,
-    allowing integration with other PUDL tables.
-
-    Useful derived values include:
+    reporting utility, as well as the PUDL IDs for that utility and the plant, allowing
+    integration with other PUDL tables. Useful derived values include:
 
     * ``fuel_consumed_mmbtu`` (total fuel heat content consumed)
     * ``fuel_consumed_total_cost`` (total cost of that fuel)
@@ -186,7 +187,7 @@ def denorm_fuel_ferc1(
             PUDL database.
 
     Returns:
-        pandas.DataFrame: A DataFrame containing useful FERC Form 1 fuel
+        A DataFrame containing useful FERC Form 1 fuel
         information.
     """
     fuel_df = (
@@ -256,7 +257,8 @@ def denorm_plant_in_service_ferc1(
 
 @asset(io_manager_key="pudl_sqlite_io_manager", compute_kind="Python")
 def denorm_balance_sheet_assets_ferc1(
-    balance_sheet_assets_ferc1: pd.DataFrame, utilities_ferc1: pd.DataFrame
+    balance_sheet_assets_ferc1: pd.DataFrame,
+    utilities_ferc1: pd.DataFrame,
 ) -> pd.DataFrame:
     """Pull a useful dataframe of FERC Form 1 balance sheet assets data."""
     denorm_balance_sheet_assets_ferc1 = balance_sheet_assets_ferc1.merge(
