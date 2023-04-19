@@ -66,11 +66,7 @@ database online at:
 
 https://data.catalyst.coop/ferc1
 """
-import csv
-import importlib
-import io
 import json
-from collections.abc import Iterable
 from itertools import chain
 from pathlib import Path
 from typing import Any, Literal
@@ -86,9 +82,9 @@ from dagster import (
     build_input_context,
     op,
 )
-from dbfread import DBF, FieldParser
 
 import pudl
+from pudl.extract.dbf import FercFoxProDatastore
 from pudl.helpers import EnvVar
 from pudl.io_managers import (
     FercDBFSQLiteIOManager,
@@ -97,10 +93,8 @@ from pudl.io_managers import (
     ferc1_xbrl_sqlite_io_manager,
 )
 from pudl.metadata.classes import DataSource
-from pudl.metadata.constants import DBF_TABLES_FILENAMES
-from pudl.settings import DatasetsSettings, Ferc1DbfToSqliteSettings
+from pudl.settings import DatasetsSettings
 from pudl.workspace.datastore import Datastore
-from pudl.extract.dbf import FercFoxProDatastore
 
 logger = pudl.logging_helpers.get_logger(__name__)
 
@@ -217,13 +211,13 @@ TABLE_NAME_MAP_FERC1: dict[str, dict[str, str]] = {
 
 class FoxProExtractor:
     """Generalized class for loading data from foxpro databases into sqlite.
-    
+
     When subclassing from this generic extractor, one should implement dataset specific
     logic in the following manner:
-    1. set DATABASE_NAME. This is going to be used as the file for the resulting sqlite 
+    1. set DATABASE_NAME. This is going to be used as the file for the resulting sqlite
        database.
     2. Overrride get_datastore() method to return the right kind of dataset specific datastore.
-    
+
     Dataset specific logic and transformations can be injected by overriding:
     1. finalize_schema() in order to modify sqlite schema. This is called just before the
        schema is written into the sqlite database. This is good place for adding primary and/or
@@ -232,30 +226,56 @@ class FoxProExtractor:
        database and before it's written to sqlite. This is good place for table-specific
        preprocessing and/or cleanup.
     2. postprocess() is called after data is written to sqlite. This can be used for database
-       level final cleanup and transformations (e.g. injecting missing respondent_ids)    
+       level final cleanup and transformations (e.g. injecting missing respondent_ids)
+
+    The extraction logic is invoked by calling execute() method of this class.
     """
+
     DATABASE_NAME = None
 
-    def __init__(self, context):
-        self.context = context
-        self.datastore = self.get_datastore()
+    def __init__(
+        self,
+        datastore: Datastore,
+        settings: Any,
+        output_path: Path,
+        clobber: bool = False,
+    ):
+        """Constructs new instance of FercFoxProExtractor.
+
+        Args:
+            datastore: top-level datastore instance for accessing raw data files.
+            settings: generic settings object for this extrctor.
+            output_path: directory where the output databases should be stored.
+            clobber: if True, existing databases should be replaced.
+        """
+        self.settings = settings
+        self.clobber = clobber
+        self.output_path = output_path
+        self.datastore = self.get_datastore(datastore)
         self.sqlite_engine = sa.create_engine(self.get_db_path())
         self.sqlite_meta = sa.MetaData()
         self.sqlite_meta.reflect(self.sqlite_engine)
-        
+
     def get_db_path(self) -> str:
-        db_path = str(Path(self.context.op_config["pudl_output_path"]) / self.DATABASE_NAME)
+        """Returns the connection string for the sqlite database."""
+        db_path = str(Path(self.output_path) / self.DATABASE_NAME)
         return f"sqlite:///{db_path}"
 
     def execute(self):
+        """Runs the extraction of the data from dbf to sqlite."""
+        # TODO(rousik): perhaps we should check clobber here before starting anything.
         self.delete_schema()
         self.create_sqlite_tables()
         self.load_table_data()
         self.postprocess()
 
     def delete_schema(self):
-        try: 
-            pudl.helpers.drop_tables(self.sqlite_engine, clobber=self.context.op_config["clobber"])
+        """Drops all tables from the existing sqlite database."""
+        try:
+            pudl.helpers.drop_tables(
+                self.sqlite_engine,
+                clobber=self.clobber,
+            )
         except sa.exc.OperationalError:
             pass
         self.sqlite_engine = sa.create_engine(self.get_db_path())
@@ -263,23 +283,38 @@ class FoxProExtractor:
         self.sqlite_meta.reflect(self.sqlite_engine)
 
     def create_sqlite_tables(self):
-        refyear = self.get_settings().refyear
+        """Creates database schema based on the input tables."""
+        refyear = self.settings.refyear
         if refyear is None:
             refyear = max(
-                DataSource.from_id(self.datastore.get_dataset()).working_partitions["years"]
-            ) 
+                DataSource.from_id(self.datastore.get_dataset()).working_partitions[
+                    "years"
+                ]
+            )
         for tn in self.datastore.get_table_names():
-            self.datastore.get_table_schema(tn, refyear).to_sqlite_table(self.sqlite_meta)
+            self.datastore.get_table_schema(tn, refyear).to_sqlite_table(
+                self.sqlite_meta
+            )
         self.finalize_schema(self.sqlite_meta)
         self.sqlite_meta.create_all(self.sqlite_engine)
 
     def transform_table(self, table_name: str, in_df: pd.DataFrame) -> pd.DataFrame:
+        """Transforms the content of a single table.
+
+        This method can be used to modify contents of the dataframe after it has
+        been loaded from fox pro database and before it's written to sqlite database.
+
+        Args:
+            table_name: name of the table that the dataframe is associated with
+            in_df: dataframe that holds all records.
+        """
         return in_df
 
     def load_table_data(self):
+        """Loads all tables from fox pro database and writes them to sqlite."""
         for table in self.datastore.get_table_names():
             logger.info(f"Pandas: reading {table} into a DataFrame.")
-            new_df = self.datastore.load_table_dfs(table, self.get_settings().years)
+            new_df = self.datastore.load_table_dfs(table, self.settings.years)
             new_df = self.transform_table(table, new_df)
 
             logger.debug(f"    {table}: N = {len(new_df)}")
@@ -299,9 +334,9 @@ class FoxProExtractor:
 
     def finalize_schema(self, meta: sa.MetaData) -> sa.MetaData:
         """This method is called just before the schema is written to sqlite.
-        
-        You can use this method to apply dataset specific alterations to the schema, such as
-        adding primary and foreign key constraints. 
+
+        You can use this method to apply dataset specific alterations to the schema,
+        such as adding primary and foreign key constraints.
         """
         return meta
 
@@ -309,19 +344,30 @@ class FoxProExtractor:
         """This metod is called after all the data is loaded into sqlite."""
         pass
 
+
 class Ferc1FoxProExtractor(FoxProExtractor):
-    """Wrapper for running the foxpro to sqlite conversion of FERC1 dataset"""
+    """Wrapper for running the foxpro to sqlite conversion of FERC1 dataset."""
+
     DATABASE_NAME = "ferc1.sqlite"
 
-    def get_datastore(self):
+    def get_datastore(self, base_datastore: Datastore) -> FercFoxProDatastore:
+        """Returns the instace of FoxProDatastore.
+
+        This wraps the generic base_datastore and constructs instance of
+        FercFoxProDatastore.
+        """
         # TODO(rousik): mapping from dataset name to dbc_filename may be moved to constants or kept somerwhere with the rest
         # of dataset configuration, e.g. package_data file of some sorts?
-        return FercFoxProDatastore(self.context.resources.datastore, dataset="ferc1", dbc_filename="F1_PUB.DBC")
-
-    def get_settings(self) -> Any:
-        return self.context.resources.ferc_to_sqlite_settings.ferc1_dbf_to_sqlite_settings
+        return FercFoxProDatastore(
+            base_datastore, dataset="ferc1", dbc_filename="F1_PUB.DBC"
+        )
 
     def transform_table(self, table_name: str, in_df: pd.DataFrame) -> pd.DataFrame:
+        """FERC Form 1 specific table transformations.
+
+        This method removes duplicates from the f1_respondent_id table, and leaves all
+        other tables intact.
+        """
         # TODO(rousik): this should be replaced with registry of pd.DataFrame -> pd.DataFrame transformations
         # for each table and dict that looks those up.
         if table_name == "f1_respondent_id":
@@ -330,10 +376,17 @@ class Ferc1FoxProExtractor(FoxProExtractor):
             return in_df
 
     def finalize_schema(self, meta: sa.MetaData) -> sa.MetaData:
+        """Modifies schema before it's written to sqlite database.
+
+        This marks f1_responent_id.respondent_id as a primary key and adds foreign key
+        constraints on all tables with respondent_id column.
+        """
         for table in meta.tables.values():
             if table.name == "f1_respondent_id":
                 table.append_constraint(
-                    sa.PrimaryKeyConstraint("respondent_id", sqlite_on_conflict="REPLACE")
+                    sa.PrimaryKeyConstraint(
+                        "respondent_id", sqlite_on_conflict="REPLACE"
+                    )
                 )
             elif "respondent_id" in table.columns:
                 table.append_constraint(
@@ -343,9 +396,14 @@ class Ferc1FoxProExtractor(FoxProExtractor):
                     )
                 )
         return meta
-    
+
     def postprocess(self):
-        # TODO(rousik): add PK/FK constraints
+        """Applies final transformations on the data in sqlite database.
+
+        This identifies respondents that are referenced by other tables but that are not
+        in the f1_respondent_id tables. These missing respondents are inserted back into
+        f1_respondent_id table.
+        """
         self.add_missing_respondents()
 
     PUDL_RIDS: dict[int, str] = {
@@ -359,19 +417,22 @@ class Ferc1FoxProExtractor(FoxProExtractor):
 
     def add_missing_respondents(self):
         """Add missing respondents to f1_respondent_id table.
-        
+
         Some respondent_ids are referenced by other tables, but are not listed in the
-        f1_respondent_id table. This function finds all of these missing respondents
-        and backfills them into the f1_respondent_id table.
+        f1_respondent_id table. This function finds all of these missing respondents and
+        backfills them into the f1_respondent_id table.
         """
         # add the missing respondents into the respondent_id table.
-        reported_ids = set(pd.read_sql_table(
-            "f1_respondent_id", self.sqlite_engine,
-        ).respondent_id.unique())
+        reported_ids = set(
+            pd.read_sql_table(
+                "f1_respondent_id",
+                self.sqlite_engine,
+            ).respondent_id.unique()
+        )
         missing_ids = self.get_observed_respondents().difference(reported_ids)
 
         # Construct minimal records of the observed unknown respondents. Some of these
-        # are identified in the PUDL_RIDS map, others are still unknown. 
+        # are identified in the PUDL_RIDS map, others are still unknown.
         records = []
         for rid in missing_ids:
             entry = {"respondent_id": rid}
@@ -381,11 +442,13 @@ class Ferc1FoxProExtractor(FoxProExtractor):
             else:
                 entry["respondent_name"] = f"Missing Respondent {rid}"
             records.append(entry)
-        
+
         # Write missing respondents back into SQLite.
         with self.sqlite_engine.begin() as conn:
-            conn.execute(self.sqlite_meta.tables["f1_respondent_id"].insert().values(records))
-    
+            conn.execute(
+                self.sqlite_meta.tables["f1_respondent_id"].insert().values(records)
+            )
+
     def get_observed_respondents(self) -> set[int]:
         """Compile the set of all observed respondent IDs found in the FERC 1 database.
 
@@ -432,33 +495,18 @@ def dbf2sqlite(context) -> None:
     """Clone the FERC Form 1 Visual FoxPro databases into SQLite."""
     # TODO(rousik): this thin wrapper seems to be somewhat quirky. Maybe there's a way to make the integration
     # between the class and dagster a little better? Investigate.
-    Ferc1FoxProExtractor(context).execute()
+
+    Ferc1FoxProExtractor(
+        datastore=context.resources.datastore,
+        settings=context.resources.ferc_to_sqlite_settings.ferc1_dbf_to_sqlite_settings,
+        clobber=context.op_config["clobber"],
+        output_path=context.op_config["pudl_output_path"],
+    ).execute()
+
 
 ###########################################################################
 # Functions for extracting ferc1 tables from SQLite to PUDL
 ###########################################################################
-def get_ferc1_meta(ferc1_engine: sa.engine.Engine) -> sa.MetaData:
-    """Grab the FERC Form 1 DB metadata and check that tables exist.
-
-    Connects to the FERC Form 1 SQLite database and reads in its metadata
-    (table schemas, types, etc.) by reflecting the database. Checks to make
-    sure the DB is not empty, and returns the metadata object.
-
-    Args:
-        ferc1_engine: SQL Alchemy database connection engine for the PUDL FERC 1 DB.
-
-    Returns:
-        A SQL Alchemy metadata object, containing the definition of the DB structure.
-
-    Raises:
-        ValueError: If there are no tables in the SQLite Database.
-    """
-    # Connect to the local SQLite DB and read its structure.
-    ferc1_meta = sa.MetaData()
-    ferc1_meta.reflect(ferc1_engine)
-    if not ferc1_meta.tables:
-        raise ValueError("No FERC Form 1 tables found. Is the SQLite DB initialized?")
-    return ferc1_meta
 
 
 # DAGSTER ASSETS
