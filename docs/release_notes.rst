@@ -15,7 +15,7 @@ Dagster Adoption
 * We are converting PUDL code to use dagster concepts in two phases. The first phase
   converts the ETL portion of the code base to use
   `software defined assets <https://docs.dagster.io/concepts/assets/software-defined-assets>`__
-  :issue:`1570`. We will convert the pandas computations cached in the
+  :issue:`1570`. The second phase converts the output and analysis tables in the
   :mod:`pudl.output.pudltabl.PudlTabl` class to use software defined assets in
   phase 2 :issue:`1973`.
 * General changes:

@@ -626,9 +626,7 @@ def denorm_plants_all_ferc1(
     """
     # Prep steam table
     logger.debug("prepping steam table")
-    steam_df = denorm_plants_steam_ferc1.rename(
-        columns={"opex_plants": "opex_plant"}
-    )  # .pipe(apply_pudl_dtypes, group="ferc1") # TEST
+    steam_df = denorm_plants_steam_ferc1.rename(columns={"opex_plants": "opex_plant"})
 
     # Prep hydro tables (Add this to the meta data later)
     logger.debug("prepping hydro tables")
@@ -674,7 +672,7 @@ def denorm_plants_all_ferc1(
 )
 def denorm_fuel_by_plant_ferc1(
     context,
-    denorm_fuel_ferc1: pd.DataFrame,
+    fuel_ferc1: pd.DataFrame,
     denorm_plants_utilities_ferc1: pd.DataFrame,
 ) -> pd.DataFrame:
     """Summarize FERC fuel data by plant for output.
@@ -687,7 +685,7 @@ def denorm_fuel_by_plant_ferc1(
 
     Args:
         context: Dagster context object
-        denorm_fuel_ferc1: Denormalized FERC fuel table.
+        fuel_ferc1: Denormalized FERC fuel table.
         denorm_plants_utilities_ferc1: Denormalized table of FERC1 plant & utility IDs.
 
     Returns:
@@ -711,7 +709,7 @@ def denorm_fuel_by_plant_ferc1(
     )
 
     fbp_df = (
-        denorm_fuel_ferc1.pipe(drop_other_fuel_types)
+        fuel_ferc1.pipe(drop_other_fuel_types)
         .pipe(
             pudl.analysis.classify_plants_ferc1.fuel_by_plant_ferc1,
             fuel_categories=fuel_categories,

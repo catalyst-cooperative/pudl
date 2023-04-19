@@ -155,14 +155,14 @@ class PudlTabl:
             "denorm_transmission_statistics_ferc1": "denorm_transmission_statistics_ferc1",
             "denorm_utility_plant_summary_ferc1": "denorm_utility_plant_summary_ferc1",
             "denorm_plants_utilities_ferc1": "pu_ferc1",
-            # "denorm_plants_steam_ferc1": "plants_steam_ferc1",
-            # "denorm_fuel_ferc1": "fuel_ferc1",
+            "denorm_plants_steam_ferc1": "plants_steam_ferc1",
+            "denorm_fuel_ferc1": "fuel_ferc1",
             # "denorm_fuel_by_plant_ferc1": "fbp_ferc1",
-            # "denorm_plants_small_ferc1": "plants_small_ferc1",
-            # "denorm_plants_hydro_ferc1": "plants_hydro_ferc1",
-            # "denorm_plants_pumped_storage_ferc1": "plants_pumped_storage_ferc1",
-            # "denorm_purchased_power_ferc1": "purchased_power_ferc1",
-            # "denorm_plants_in_service_ferc1": "plants_in_service_ferc1",
+            "denorm_plants_small_ferc1": "plants_small_ferc1",
+            "denorm_plants_hydro_ferc1": "plants_hydro_ferc1",
+            "denorm_plants_pumped_storage_ferc1": "plants_pumped_storage_ferc1",
+            "denorm_purchased_power_ferc1": "purchased_power_ferc1",
+            "denorm_plant_in_service_ferc1": "plant_in_service_ferc1",
             # "denorm_plants_all_ferc1": "plants_all_ferc1",
             # denorm_eia (data comes from multiple EIA forms)
             "denorm_plants_eia": "plants_eia860",
@@ -378,37 +378,6 @@ class PudlTabl:
     ###########################################################################
     # FERC FORM 1 OUTPUTS
     ###########################################################################
-    def plants_steam_ferc1(self, update=False):
-        """Pull the FERC Form 1 steam plants data.
-
-        Args:
-            update (bool): If true, re-calculate the output dataframe, even if
-                a cached version exists.
-
-        Returns:
-            pandas.DataFrame: a denormalized table for interactive use.
-        """
-        if update or self._dfs["plants_steam_ferc1"] is None:
-            self._dfs["plants_steam_ferc1"] = pudl.output.ferc1.plants_steam_ferc1(
-                self.pudl_engine, start_date=self.start_date, end_date=self.end_date
-            )
-        return self._dfs["plants_steam_ferc1"]
-
-    def fuel_ferc1(self, update=False):
-        """Pull the FERC Form 1 steam plants fuel consumption data.
-
-        Args:
-            update (bool): If true, re-calculate the output dataframe, even if
-                a cached version exists.
-
-        Returns:
-            pandas.DataFrame: a denormalized table for interactive use.
-        """
-        if update or self._dfs["fuel_ferc1"] is None:
-            self._dfs["fuel_ferc1"] = pudl.output.ferc1.fuel_ferc1(
-                self.pudl_engine, start_date=self.start_date, end_date=self.end_date
-            )
-        return self._dfs["fuel_ferc1"]
 
     def fbp_ferc1(self, update=False):
         """Summarize FERC Form 1 fuel usage by plant.
@@ -425,92 +394,6 @@ class PudlTabl:
                 self.pudl_engine, start_date=self.start_date, end_date=self.end_date
             )
         return self._dfs["fbp_ferc1"]
-
-    def plants_small_ferc1(self, update=False):
-        """Pull the FERC Form 1 Small Plants Table.
-
-        Args:
-            update (bool): If true, re-calculate the output dataframe, even if
-                a cached version exists.
-
-        Returns:
-            pandas.DataFrame: a denormalized table for interactive use.
-        """
-        if update or self._dfs["plants_small_ferc1"] is None:
-            self._dfs["plants_small_ferc1"] = pudl.output.ferc1.plants_small_ferc1(
-                self.pudl_engine, start_date=self.start_date, end_date=self.end_date
-            )
-        return self._dfs["plants_small_ferc1"]
-
-    def plants_hydro_ferc1(self, update=False):
-        """Pull the FERC Form 1 Hydro Plants Table.
-
-        Args:
-            update (bool): If true, re-calculate the output dataframe, even if
-                a cached version exists.
-
-        Returns:
-            pandas.DataFrame: a denormalized table for interactive use.
-        """
-        if update or self._dfs["plants_hydro_ferc1"] is None:
-            self._dfs["plants_hydro_ferc1"] = pudl.output.ferc1.plants_hydro_ferc1(
-                self.pudl_engine, start_date=self.start_date, end_date=self.end_date
-            )
-        return self._dfs["plants_hydro_ferc1"]
-
-    def plants_pumped_storage_ferc1(self, update=False):
-        """Pull the FERC Form 1 Pumped Storage Table.
-
-        Args:
-            update (bool): If true, re-calculate the output dataframe, even if
-                a cached version exists.
-
-        Returns:
-            pandas.DataFrame: a denormalized table for interactive use.
-        """
-        if update or self._dfs["plants_pumped_storage_ferc1"] is None:
-            self._dfs[
-                "plants_pumped_storage_ferc1"
-            ] = pudl.output.ferc1.plants_pumped_storage_ferc1(
-                self.pudl_engine, start_date=self.start_date, end_date=self.end_date
-            )
-        return self._dfs["plants_pumped_storage_ferc1"]
-
-    def purchased_power_ferc1(self, update=False):
-        """Pull the FERC Form 1 Purchased Power Table.
-
-        Args:
-            update (bool): If true, re-calculate the output dataframe, even if
-                a cached version exists.
-
-        Returns:
-            pandas.DataFrame: a denormalized table for interactive use.
-        """
-        if update or self._dfs["purchased_power_ferc1"] is None:
-            self._dfs[
-                "purchased_power_ferc1"
-            ] = pudl.output.ferc1.purchased_power_ferc1(
-                self.pudl_engine, start_date=self.start_date, end_date=self.end_date
-            )
-        return self._dfs["purchased_power_ferc1"]
-
-    def plant_in_service_ferc1(self, update=False):
-        """Pull the FERC Form 1 Plant in Service Table.
-
-        Args:
-            update (bool): If true, re-calculate the output dataframe, even if
-                a cached version exists.
-
-        Returns:
-            pandas.DataFrame: a denormalized table for interactive use.
-        """
-        if update or self._dfs["plant_in_service_ferc1"] is None:
-            self._dfs[
-                "plant_in_service_ferc1"
-            ] = pudl.output.ferc1.plant_in_service_ferc1(
-                self.pudl_engine, start_date=self.start_date, end_date=self.end_date
-            )
-        return self._dfs["plant_in_service_ferc1"]
 
     def plants_all_ferc1(self, update=False):
         """Pull the FERC Form 1 all plants table.

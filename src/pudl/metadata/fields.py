@@ -250,6 +250,11 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "description": "Annual capital addition into `capex_total`.",
         "unit": "USD",
     },
+    "capex_annual_addition_rolling": {
+        "type": "number",
+        "description": "Year-to-date capital addition into `capex_total`.",
+        "unit": "USD",
+    },
     "capex_annual_per_kw": {
         "type": "number",
         "description": "Annual capital addition into `capex_total` per kw.",
@@ -260,9 +265,19 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "description": "Annual capital addition into `capex_total` per mw.",
         "unit": "USD/mw",
     },
+    "capex_annual_per_mw_rolling": {
+        "type": "number",
+        "description": "Year-to-date capital addition into `capex_total` per mw.",
+        "unit": "USD/mw",
+    },
     "capex_annual_per_mwh": {
         "type": "number",
         "description": "Annual capital addition into `capex_total` per mwh.",
+        "unit": "USD/mwh",
+    },
+    "capex_annual_per_mwh_rolling": {
+        "type": "number",
+        "description": "Year-to-date capital addition into `capex_total` per mwh.",
         "unit": "USD/mwh",
     },
     "capex_equipment": {
@@ -1055,14 +1070,6 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "type": "boolean",
         "description": "indicates if the boiler is a heat recovery steam generator (HRSG).",
     },
-    "hydro_fraction_cost": {
-        "type": "number",
-        "description": "Hydropower cost as a percentage of overall fuel cost.",
-    },
-    "hydro_fraction_mmbtu": {
-        "type": "number",
-        "description": "Hydropower heat content as a percentage of overall fuel heat content (mmBTU).",
-    },
     "inactive_accounts_included": {"type": "boolean"},
     "income_type": {
         "type": "string",
@@ -1656,14 +1663,6 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     },
     "other_costs": {"type": "number", "unit": "USD"},
     "other_costs_incremental_cost": {"type": "number", "unit": "USD"},
-    "other_fraction_cost": {
-        "type": "number",
-        "description": "Misc. fuels cost as a percentage of overall fuel cost.",
-    },
-    "other_fraction_mmbtu": {
-        "type": "number",
-        "description": "Misc. fuels heat content as a percentage of overall fuel heat content (mmBTU).",
-    },
     "other_modifications_date": {
         "type": "date",
         "description": "Planned effective date that the generator is scheduled to enter commercial operation after any other planned modification is complete.",
@@ -2193,14 +2192,6 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "description": "Identifies whether the reported value of emissions was measured, calculated, or measured and substitute.",
         "constraints": {"enum": EPACEMS_MEASUREMENT_CODES},
     },
-    "solar_fraction_cost": {
-        "type": "number",
-        "description": "Solar cost as a percentage of overall fuel cost.",
-    },
-    "solar_fraction_mmbtu": {
-        "type": "number",
-        "description": "Solar heat content as a percentage of overall fuel heat content (mmBTU).",
-    },
     "sold_to_utility_mwh": {"type": "number", "unit": "MWh"},
     "solid_fuel_gasification": {
         "type": "boolean",
@@ -2573,14 +2564,6 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     "wheeled_power_received_mwh": {"type": "number", "unit": "MWh"},
     "wholesale_marketing_activity": {"type": "boolean"},
     "wholesale_power_purchases_mwh": {"type": "number", "unit": "MWh"},
-    "wind_fraction_cost": {
-        "type": "number",
-        "description": "Wind power cost as a percentage of overall fuel cost.",
-    },
-    "wind_fraction_mmbtu": {
-        "type": "number",
-        "description": "Wind power heat content as a percentage of overall fuel heat content (mmBTU).",
-    },
     "winter_capacity_estimate": {
         "type": "boolean",
         "description": "Whether the winter capacity value was an estimate",
