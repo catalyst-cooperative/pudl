@@ -330,7 +330,7 @@ class Ferc1FoxProExtractor(FoxProExtractor):
             return in_df
 
     def finalize_schema(self, meta: sa.MetaData) -> sa.MetaData:
-        for table in meta.tables:
+        for table in meta.tables.values():
             if table.name == "f1_respondent_id":
                 table.append_constraint(
                     sa.PrimaryKeyConstraint("respondent_id", sqlite_on_conflict="REPLACE")
