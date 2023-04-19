@@ -14,7 +14,8 @@ from ferc_xbrl_extractor import xbrl
 
 import pudl
 from pudl import resources
-from pudl.cli import pudl_etl_job_factory
+from pudl.cli.etl import pudl_etl_job_factory
+from pudl.cli.reset_db import reset_db
 from pudl.extract.ferc1 import xbrl_metadata_json
 from pudl.extract.xbrl import FercXbrlDatastore, _get_sqlite_engine
 from pudl.ferc_to_sqlite.cli import ferc_to_sqlite_job_factory
@@ -171,6 +172,18 @@ def pudl_out_eia(live_dbs, pudl_engine, request):
     )
 
 
+@pytest.fixture(scope="session", name="fast_out_annual")
+def fast_out_annual(pudl_engine, pudl_datastore_fixture):
+    """A PUDL output object for use in CI."""
+    return pudl.output.pudltabl.PudlTabl(
+        pudl_engine,
+        freq="AS",
+        fill_fuel_cost=True,
+        roll_fuel_cost=True,
+        fill_net_gen=True,
+    )
+
+
 @pytest.fixture(scope="session")
 def pudl_out_orig(live_dbs, pudl_engine):
     """Create an unaggregated PUDL output object for checking raw data."""
@@ -298,6 +311,7 @@ def pudl_sql_io_manager(
     """
     logger.info("setting up the pudl_engine fixture")
     if not live_dbs:
+        reset_db()
         # Run the ETL and generate a new PUDL SQLite DB for testing:
         pudl_etl_job_factory()().execute_in_process(
             run_config={

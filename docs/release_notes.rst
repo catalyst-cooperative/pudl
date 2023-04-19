@@ -168,7 +168,9 @@ Analysis
   logistic regression to match FERC1 plants data to EIA 860 records. While far from
   perfect, this baseline model utilizes the manually created training data and plant IDs
   to perform record linkage on the FERC1 data and EIA plant parts list created in
-  :mod:`pudl.analysis.plant_parts_eia`. See issue :issue:`1064` & PR :pr:`2224`.
+  :mod:`pudl.analysis.plant_parts_eia`. See issue :issue:`1064` & PR :pr:`2224`. To
+  account for 1:m matches in the manual data, we added ``plant_match_ferc1`` as a plant
+  part in :mod:`pudl.analysis.plant_parts_eia`.
 
 Deprecations
 ^^^^^^^^^^^^
