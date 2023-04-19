@@ -1,3 +1,4 @@
+import logging
 from logging.config import fileConfig
 
 from alembic import context
@@ -15,6 +16,8 @@ config = context.config
 if config.config_file_name is not None:
     fileConfig(config.config_file_name)
 
+logger = logging.getLogger("root")
+
 # add your model's MetaData object here
 # for 'autogenerate' support
 # from myapp import mymodel
@@ -26,6 +29,7 @@ target_metadata = Package.from_resource_ids().to_sql()
 # ... etc.
 
 db_location = get_defaults()["pudl_db"]
+logger.info(f"alembic config.sqlalchemy.url: {db_location}")
 config.set_main_option("sqlalchemy.url", db_location)
 
 
