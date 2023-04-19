@@ -215,46 +215,25 @@ TABLE_NAME_MAP_FERC1: dict[str, dict[str, str]] = {
 """A mapping of PUDL DB table names to their XBRL and DBF source table names."""
 
 
-
-def create_sqlite_tables(
-        sqlite_engine: sa.engine.Engine,
-        sqlite_meta: sa.MetaData,
-        foxpro_datastore: FercFoxProDatastore, # Generalize the expected interface
-        ferc1_to_sqlite_settings: Ferc1DbfToSqliteSettings = Ferc1DbfToSqliteSettings(),
-):
-    """Defines a FERC Form 1 DB structure in a given SQLAlchemy MetaData object.
-
-    Given a template from an existing year of FERC data, and a list of target
-    tables to be cloned, convert that information into table and column names,
-    and data types, stored within a SQLAlchemy MetaData object. Use that
-    MetaData object (which is bound to the SQLite database) to create all the
-    tables to be populated later.
-
-    Args:
-        sqlite_engine: A connection engine for an existing FERC 1 DB.
-        sqlite_meta: A SQLAlchemy MetaData object which is bound to the FERC Form 1
-            SQLite database.
-        dbc_map: A dictionary of dictionaries, from :func:`get_dbc_map`, describing the
-            table and column names stored within the FERC Form 1 FoxPro database files.
-        ferc1_dbf_ds: Initialized FERC 1 Datastore.
-        ferc1_to_sqlite_settings: Object containing Ferc1 to SQLite validated settings.
-
-    Returns:
-        None: the effects of the function are stored inside sqlite_meta
-    """
-    # TODO(rousik): perhaps it would be better to set this default in the settings directly.
-    refyear = ferc1_to_sqlite_settings.refyear
-    if refyear is None:
-        refyear = max(
-            DataSource.from_id(foxpro_datastore.get_dataset()).working_partitions["years"]
-        )
-    for tn in foxpro_datastore.get_table_names():
-        foxpro_datastore.get_table_schema(tn, refyear).to_sqlite_table(sqlite_meta)
-    sqlite_meta.create_all(sqlite_engine)
-
-
 class FoxProExtractor:
-    """Generalized class for loading data from foxpro databases into sqlite."""
+    """Generalized class for loading data from foxpro databases into sqlite.
+    
+    When subclassing from this generic extractor, one should implement dataset specific
+    logic in the following manner:
+    1. set DATABASE_NAME. This is going to be used as the file for the resulting sqlite 
+       database.
+    2. Overrride get_datastore() method to return the right kind of dataset specific datastore.
+    
+    Dataset specific logic and transformations can be injected by overriding:
+    1. finalize_schema() in order to modify sqlite schema. This is called just before the
+       schema is written into the sqlite database. This is good place for adding primary and/or
+       foreign key constraints to tables.
+    2. transform_table(table_name, df) will be invoked after dataframe is loaded from the foxpro
+       database and before it's written to sqlite. This is good place for table-specific
+       preprocessing and/or cleanup.
+    2. postprocess() is called after data is written to sqlite. This can be used for database
+       level final cleanup and transformations (e.g. injecting missing respondent_ids)    
+    """
     DATABASE_NAME = None
 
     def __init__(self, context):
@@ -291,6 +270,7 @@ class FoxProExtractor:
             ) 
         for tn in self.datastore.get_table_names():
             self.datastore.get_table_schema(tn, refyear).to_sqlite_table(self.sqlite_meta)
+        self.finalize_schema(self.sqlite_meta)
         self.sqlite_meta.create_all(self.sqlite_engine)
 
     def transform_table(self, table_name: str, in_df: pd.DataFrame) -> pd.DataFrame:
@@ -300,7 +280,7 @@ class FoxProExtractor:
         for table in self.datastore.get_table_names():
             logger.info(f"Pandas: reading {table} into a DataFrame.")
             new_df = self.datastore.load_table_dfs(table, self.get_settings().years)
-            new_df = self.transform_table(new_df)
+            new_df = self.transform_table(table, new_df)
 
             logger.debug(f"    {table}: N = {len(new_df)}")
             if len(new_df) <= 0:
@@ -317,7 +297,16 @@ class FoxProExtractor:
                 index=False,
             )
 
+    def finalize_schema(self, meta: sa.MetaData) -> sa.MetaData:
+        """This method is called just before the schema is written to sqlite.
+        
+        You can use this method to apply dataset specific alterations to the schema, such as
+        adding primary and foreign key constraints. 
+        """
+        return meta
+
     def postprocess(self):
+        """This metod is called after all the data is loaded into sqlite."""
         pass
 
 class Ferc1FoxProExtractor(FoxProExtractor):
@@ -340,6 +329,21 @@ class Ferc1FoxProExtractor(FoxProExtractor):
         else:
             return in_df
 
+    def finalize_schema(self, meta: sa.MetaData) -> sa.MetaData:
+        for table in meta.tables:
+            if table.name == "f1_respondent_id":
+                table.append_constraint(
+                    sa.PrimaryKeyConstraint("respondent_id", sqlite_on_conflict="REPLACE")
+                )
+            elif "respondent_id" in table.columns:
+                table.append_constraint(
+                    sa.ForeignKeyConstraint(
+                        columns=["respondent_id"],
+                        refcolumns=["f1_respondent_id.respondent_id"],
+                    )
+                )
+        return meta
+    
     def postprocess(self):
         # TODO(rousik): add PK/FK constraints
         self.add_missing_respondents()
