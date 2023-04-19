@@ -316,7 +316,7 @@ def pudl_sql_io_manager(
         db_path = pudl_settings_fixture["pudl_db"]
 
         # Create the database and schemas
-        engine = sa.create_engine(f"sqlite:///{db_path}")
+        engine = sa.create_engine(db_path)
         md = Package.from_resource_ids().to_sql()
         md.create_all(engine)
         # Run the ETL and generate a new PUDL SQLite DB for testing:
