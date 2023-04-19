@@ -278,18 +278,24 @@ class PudlTabl:
         """
         pt = pudl.output.pudltabl.get_table_meta(self.pudl_engine)
         tbl = pt[f"{table}"]
-        if "report_date" in tbl.columns:
+        tbl_select = sa.sql.select(tbl)
+
+        start_date = pd.to_datetime(self.start_date)
+        end_date = pd.to_datetime(self.end_date)
+
+        if "report_date" in tbl.columns:  # Date format
             date_col = tbl.c.report_date
-        elif "report_year" in tbl.columns:
+        elif "report_year" in tbl.columns:  # Integer format
             date_col = tbl.c.report_year
+            if self.start_date is not None:
+                start_date = pd.to_datetime(self.start_date).year
+            if self.end_date is not None:
+                end_date = pd.to_datetime(self.end_date).year
         else:
             date_col = None
-        tbl_select = sa.sql.select(tbl)
         if self.start_date and date_col is not None:
-            start_date = pd.to_datetime(self.start_date)
             tbl_select = tbl_select.where(date_col >= start_date)
         if self.end_date and date_col is not None:
-            end_date = pd.to_datetime(self.end_date)
             tbl_select = tbl_select.where(date_col <= end_date)
         return tbl_select
 

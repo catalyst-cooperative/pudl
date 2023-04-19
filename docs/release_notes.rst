@@ -16,8 +16,8 @@ Dagster Adoption
   converts the ETL portion of the code base to use
   `software defined assets <https://docs.dagster.io/concepts/assets/software-defined-assets>`__
   :issue:`1570`. The second phase converts the output and analysis tables in the
-  :mod:`pudl.output.pudltabl.PudlTabl` class to use software defined assets in
-  phase 2 :issue:`1973`.
+  :mod:`pudl.output.pudltabl.PudlTabl` class to use software defined assets, replacing
+  the existing ``pudl_out`` output functions.
 * General changes:
 
   * :mod:`pudl.etl` is now a subpackage that collects all pudl assets into a dagster
