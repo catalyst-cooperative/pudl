@@ -268,7 +268,7 @@ class FoxProExtractor:
         db_path = str(Path(self.context.op_config["pudl_output_path"]) / self.DATABASE_NAME)
         return f"sqlite:///{db_path}"
 
-    def execute(self, context):
+    def execute(self):
         self.delete_schema()
         self.create_sqlite_tables()
         self.load_table_data()
