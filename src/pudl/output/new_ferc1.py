@@ -685,7 +685,7 @@ def denorm_fuel_by_plant_ferc1(
 
     Args:
         context: Dagster context object
-        fuel_ferc1: Denormalized FERC fuel table.
+        fuel_ferc1: Normalized FERC fuel table.
         denorm_plants_utilities_ferc1: Denormalized table of FERC1 plant & utility IDs.
 
     Returns:

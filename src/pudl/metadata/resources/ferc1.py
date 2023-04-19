@@ -833,6 +833,7 @@ any cleaning mechanisms in place to account for this."""
                 "utility_name_ferc1",
                 "utility_id_pudl",
             ],
+            "primary_key": ["utility_id_ferc1", "plant_name_ferc1"],
         },
         "field_namespace": "ferc1",
         "etl_group": "outputs",
@@ -1301,9 +1302,6 @@ any cleaning mechanisms in place to account for this."""
                 "record_id",
                 "water_limited_capacity_mw",
             ],
-            "primary_key": [
-                "record_id",
-            ],
         },
         "sources": ["ferc1"],
         "etl_group": "outputs",
@@ -1335,9 +1333,6 @@ any cleaning mechanisms in place to account for this."""
                 "opex_total_nonfuel",
                 "peak_demand_mw",
                 "plant_type",
-            ],
-            "primary_key": [
-                "record_id",
             ],
         },
         "sources": ["ferc1"],
@@ -1390,9 +1385,6 @@ any cleaning mechanisms in place to account for this."""
                 "plant_id_pudl",
                 "plant_type",
                 "project_num",
-            ],
-            "primary_key": [
-                "record_id",
             ],
         },
         "sources": ["ferc1"],
@@ -1450,9 +1442,6 @@ any cleaning mechanisms in place to account for this."""
                 "plant_id_pudl",
                 "project_num",
             ],
-            "primary_key": [
-                "record_id",
-            ],
         },
         "sources": ["ferc1"],
         "etl_group": "outputs",
@@ -1477,9 +1466,6 @@ any cleaning mechanisms in place to account for this."""
                 "fuel_mmbtu_per_unit",
                 "fuel_type_code_pudl",
                 "fuel_units",
-                "record_id",
-            ],
-            "primary_key": [
                 "record_id",
             ],
         },
@@ -1510,8 +1496,6 @@ any cleaning mechanisms in place to account for this."""
                 "tariff",
                 "total_settlement",
             ],
-            # Flag for review - there are null values in this combination.
-            # "primary_key": ["report_year", "record_id", "total_settlement"],
         },
         "sources": ["ferc1"],
         "etl_group": "outputs",
@@ -1536,8 +1520,7 @@ any cleaning mechanisms in place to account for this."""
                 "starting_balance",
                 "transfers",
             ],
-            # Revisit
-            # "primary_key": [],
+            "primary_key": ["report_year", "utility_id_ferc1", "ferc_account_label"],
         },
         "sources": ["ferc1"],
         "etl_group": "outputs",
@@ -1658,8 +1641,7 @@ any cleaning mechanisms in place to account for this."""
                 "waste_fraction_cost",
                 "waste_fraction_mmbtu",
             ],
-            # TO DO
-            # "primary_key": [],
+            "primary_key": ["report_year", "utility_id_ferc1", "plant_name_ferc1"],
         },
         "sources": ["ferc1"],
         "etl_group": "outputs",

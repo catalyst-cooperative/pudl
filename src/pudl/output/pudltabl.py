@@ -163,7 +163,7 @@ class PudlTabl:
             "denorm_plants_pumped_storage_ferc1": "plants_pumped_storage_ferc1",
             "denorm_purchased_power_ferc1": "purchased_power_ferc1",
             "denorm_plant_in_service_ferc1": "plant_in_service_ferc1",
-            # "denorm_plants_all_ferc1": "plants_all_ferc1",
+            "denorm_plants_all_ferc1": "plants_all_ferc1",
             # denorm_eia (data comes from multiple EIA forms)
             "denorm_plants_eia": "plants_eia860",
             "denorm_utilities_eia": "utils_eia860",
@@ -400,22 +400,6 @@ class PudlTabl:
                 self.pudl_engine, start_date=self.start_date, end_date=self.end_date
             )
         return self._dfs["fbp_ferc1"]
-
-    def plants_all_ferc1(self, update=False):
-        """Pull the FERC Form 1 all plants table.
-
-        Args:
-            update (bool): If true, re-calculate the output dataframe, even if
-                a cached version exists.
-
-        Returns:
-            pandas.DataFrame: a denormalized table for interactive use.
-        """
-        if update or self._dfs["plants_all_ferc1"] is None:
-            self._dfs["plants_all_ferc1"] = pudl.output.ferc1.plants_all_ferc1(
-                self.pudl_engine, start_date=self.start_date, end_date=self.end_date
-            )
-        return self._dfs["plants_all_ferc1"]
 
     ###########################################################################
     # EIA MCOE OUTPUTS
