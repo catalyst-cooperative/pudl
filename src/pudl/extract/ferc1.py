@@ -214,90 +214,6 @@ TABLE_NAME_MAP_FERC1: dict[str, dict[str, str]] = {
 }
 """A mapping of PUDL DB table names to their XBRL and DBF source table names."""
 
-PUDL_RIDS: dict[int, str] = {
-    514: "AEP Texas",
-    519: "Upper Michigan Energy Resources Company",
-    522: "Luning Energy Holdings LLC, Invenergy Investments",
-    529: "Tri-State Generation and Transmission Association",
-    531: "Basin Electric Power Cooperative",
-}
-"""Missing FERC 1 Respondent IDs for which we have identified the respondent."""
-
-
-def missing_respondents(
-    reported: Iterable[int],
-    observed: Iterable[int],
-    identified: dict[int, str],
-) -> list[dict[str, int | str]]:
-    """Fill in missing respondents for the f1_respondent_id table.
-
-    Args:
-        reported: Respondent IDs appearing in the f1_respondent_id table.
-        observed: Respondent IDs appearing anywhere in the FERC 1 DB.
-        identified: A dictionary mapping respondent_id: to respondent_name for those
-            observed but unreported respondent IDs we've been able to identify based on
-            circumstantial evidence. See :py:const:`pudl.extract.ferc1.PUDL_RIDS`.
-
-    Returns:
-        A list of dictionaries representing minimal f1_respondent_id table
-        records, of the form {"respondent_id": ID, "respondent_name": NAME}. These
-        records are generated only for unreported respondents. Identified respondents
-        get the values passed in through ``identified`` and the other observed but
-        unidentified respondents are named "Missing Respondent ID"
-    """
-    records = []
-    for rid in observed:
-        if rid in reported:
-            continue
-        elif rid in identified:
-            records.append(
-                {
-                    "respondent_id": rid,
-                    "respondent_name": f"{identified[rid]} (PUDL determined)",
-                },
-            )
-        else:
-            records.append(
-                {
-                    "respondent_id": rid,
-                    "respondent_name": f"Missing Respondent {rid}",
-                },
-            )
-    return records
-
-
-def observed_respondents(ferc1_engine: sa.engine.Engine) -> set[int]:
-    """Compile the set of all observed respondent IDs found in the FERC 1 database.
-
-    A significant number of FERC 1 respondent IDs appear in the data tables, but not
-    in the f1_respondent_id table. In order to construct a self-consistent database with
-    we need to find all of those missing respondent IDs and inject them into the table
-    when we clone the database.
-
-    Args:
-        ferc1_engine: An engine for connecting to the FERC 1 database.
-
-    Returns:
-        Every respondent ID reported in any of the FERC 1 DB tables.
-    """
-    f1_table_meta = pudl.output.pudltabl.get_table_meta(ferc1_engine)
-    observed = set()
-    for table in f1_table_meta.values():
-        if "respondent_id" in table.columns:
-            observed = observed.union(
-                set(
-                    pd.read_sql_table(
-                        table.name, ferc1_engine, columns=["respondent_id"]
-                    ).respondent_id
-                )
-            )
-    return observed
-
-
-class Ferc1FoxProDatastore(FercFoxProDatastore):
-    """Implements data loading logic for FERC 1 dataset."""
-    DATASET = "ferc1"
-    DBC_FILENAME = "F1_PUB.DBC"
 
 
 def create_sqlite_tables(
@@ -335,22 +251,6 @@ def create_sqlite_tables(
     for tn in foxpro_datastore.get_table_names():
         foxpro_datastore.get_table_schema(tn, refyear).to_sqlite_table(sqlite_meta)
     sqlite_meta.create_all(sqlite_engine)
-
-@op(
-    config_schema={
-        "pudl_output_path": Field(
-            EnvVar(
-                env_var="PUDL_OUTPUT",
-            ),
-            description="Path of directory to store the database in.",
-            default_value=None,
-        ),
-        "clobber": Field(
-            bool, description="Clobber existing ferc1 database.", default_value=False
-        ),
-    },
-    required_resource_keys={"ferc_to_sqlite_settings", "datastore"},
-)
 
 
 class FoxProExtractor:
@@ -425,7 +325,9 @@ class Ferc1FoxProExtractor(FoxProExtractor):
     DATABASE_NAME = "ferc1.sqlite"
 
     def get_datastore(self):
-        return Ferc1FoxProDatastore(self.context.resources.datastore)
+        # TODO(rousik): mapping from dataset name to dbc_filename may be moved to constants or kept somerwhere with the rest
+        # of dataset configuration, e.g. package_data file of some sorts?
+        return FercFoxProDatastore(self.context.resources.datastore, dataset="ferc1", dbc_filename="F1_PUB.DBC")
 
     def get_settings(self) -> Any:
         return self.context.resources.ferc_to_sqlite_settings.ferc1_dbf_to_sqlite_settings
@@ -440,24 +342,92 @@ class Ferc1FoxProExtractor(FoxProExtractor):
 
     def postprocess(self):
         # TODO(rousik): add PK/FK constraints
+        self.add_missing_respondents()
 
+    PUDL_RIDS: dict[int, str] = {
+        514: "AEP Texas",
+        519: "Upper Michigan Energy Resources Company",
+        522: "Luning Energy Holdings LLC, Invenergy Investments",
+        529: "Tri-State Generation and Transmission Association",
+        531: "Basin Electric Power Cooperative",
+    }
+    """Missing FERC 1 Respondent IDs for which we have identified the respondent."""
+
+    def add_missing_respondents(self):
+        """Add missing respondents to f1_respondent_id table.
+        
+        Some respondent_ids are referenced by other tables, but are not listed in the
+        f1_respondent_id table. This function finds all of these missing respondents
+        and backfills them into the f1_respondent_id table.
+        """
         # add the missing respondents into the respondent_id table.
-        reported_ids = pd.read_sql_table(
+        reported_ids = set(pd.read_sql_table(
             "f1_respondent_id", self.sqlite_engine,
-        ).respondent_id.unique()
-        observed_ids = observed_respondents(self.sqlite_engine)
-        missing = missing_respondents(
-            reported=reported_ids,
-            observed=observed_ids,
-           identified=PUDL_RIDS,
-        )
-        logger.info(f"Inserting {len(missing)} missing IDs into f1_respondent_id table.")
+        ).respondent_id.unique())
+        missing_ids = self.get_observed_respondents().difference(reported_ids)
+
+        # Construct minimal records of the observed unknown respondents. Some of these
+        # are identified in the PUDL_RIDS map, others are still unknown. 
+        records = []
+        for rid in missing_ids:
+            entry = {"respondent_id": rid}
+            known_name = self.PUDL_RIDS.get(rid, None)
+            if known_name:
+                entry["respondent_name"] = f"{known_name} (PUDL determined)"
+            else:
+                entry["respondent_name"] = f"Missing Respondent {rid}"
+            records.append(entry)
+        
+        # Write missing respondents back into SQLite.
         with self.sqlite_engine.begin() as conn:
-            conn.execute(self.sqlite_meta.tables["f1_respondent_id"].insert().values(missing))
+            conn.execute(self.sqlite_meta.tables["f1_respondent_id"].insert().values(records))
+    
+    def get_observed_respondents(self) -> set[int]:
+        """Compile the set of all observed respondent IDs found in the FERC 1 database.
+
+        A significant number of FERC 1 respondent IDs appear in the data tables, but not
+        in the f1_respondent_id table. In order to construct a self-consistent database with
+        we need to find all of those missing respondent IDs and inject them into the table
+        when we clone the database.
+
+        Args:
+            ferc1_engine: An engine for connecting to the FERC 1 database.
+
+        Returns:
+            Every respondent ID reported in any of the FERC 1 DB tables.
+        """
+        observed = set()
+        for table in self.sqlite_meta.tables.values():
+            if "respondent_id" in table.columns:
+                observed = observed.union(
+                    set(
+                        pd.read_sql_table(
+                            table.name, self.sqlite_engine, columns=["respondent_id"]
+                        ).respondent_id
+                    )
+                )
+        return observed
 
 
+@op(
+    config_schema={
+        "pudl_output_path": Field(
+            EnvVar(
+                env_var="PUDL_OUTPUT",
+            ),
+            description="Path of directory to store the database in.",
+            default_value=None,
+        ),
+        "clobber": Field(
+            bool, description="Clobber existing ferc1 database.", default_value=False
+        ),
+    },
+    required_resource_keys={"ferc_to_sqlite_settings", "datastore"},
+)
 def dbf2sqlite(context) -> None:
     """Clone the FERC Form 1 Visual FoxPro databases into SQLite."""
+    # TODO(rousik): this thin wrapper seems to be somewhat quirky. Maybe there's a way to make the integration
+    # between the class and dagster a little better? Investigate.
     Ferc1FoxProExtractor(context).execute()
 
 ###########################################################################

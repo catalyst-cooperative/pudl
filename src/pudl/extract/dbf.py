@@ -125,25 +125,16 @@ Unmapped types left as 'XXX' which should result in an error if encountered.
 # That may make the manipulations little easier.
 class FercFoxProDatastore:
     """Wrapper to provide standardized access to FoxPro FERC databases."""
-
-    # Name of this dataset, e.g. ferc1
-    DATASET = None
-
-    # Name of the dbc file that contains the schema, e.g. F1_PUB.DBC
-    DBC_FILENAME = None
-
-    FIELD_PARSER = FercFieldParser
-
-    def __init__(self, datastore: Datastore):
+    def __init__(self, datastore: Datastore, dataset:str, dbc_filename:str, field_parser:FieldParser=FercFieldParser):
         """
         Args:
             datastore: provides access to raw files on disk
         """
         self._cache = {}
         self.datastore = datastore
-        assert(self.DATASET is not None)
-        assert(self.DBC_FILENAME is not None)
-
+        self.dataset = dataset
+        self.dbc_filename = dbc_filename
+        self.field_parser = field_parser
 
         # file_map contains root-path where all DBC and DBF files are stored.
         # This can vary over the years.
@@ -158,29 +149,29 @@ class FercFoxProDatastore:
             self._table_file_map[row["table"]] = row["filename"]
 
     def get_dataset(self):
-        return self.DATASET
+        return self.dataset
 
     def _open_csv_resource(self, base_filename:str) -> csv.DictReader:
         """Opens the given resource file as csv.DictReader."""
-        pkg_path = f"pudl.package_data.{self.DATASET}"
+        pkg_path = f"pudl.package_data.{self.dataset}"
         return csv.DictReader(importlib.resources.open_text(pkg_path, base_filename))
 
     def get_dir(self, year: int) -> Path:
         try:
             return self._root_path[year]
         except KeyError:
-            raise ValueError(f"No {self.DATASET} data for year {year}")
+            raise ValueError(f"No {self.dataset} data for year {year}")
 
     def get_file(self, year: int, filename: str) -> Any:
         if year not in self._cache:
             self._cache[year] = self.datastore.get_zipfile_resource(
-                self.DATASET, year=year, data_format="dbf"
+                self.dataset, year=year, data_format="dbf"
             )
         archive = self._cache[year]
         try:
             return archive.open((self.get_dir(year) / filename).as_posix())
         except KeyError:
-            raise KeyError(f"{filename} not available for year {year} in {self.DATASET}.")
+            raise KeyError(f"{filename} not available for year {year} in {self.dataset}.")
         
     def get_table_dbf(self, table_name: str, year: int) -> DBF:
         fname = self._table_file_map[table_name]
@@ -188,7 +179,7 @@ class FercFoxProDatastore:
         return DBF(
             fname,
             encoding="latin1",
-            parserclass=self.FIELD_PARSER,
+            parserclass=self.field_parser,
             ignore_missing_memofile=True,
             filedata=fd,
         )
@@ -202,7 +193,7 @@ class FercFoxProDatastore:
         dbf = DBF(
             "", 
             ignore_missing_memofile=True,
-            filedata=self.get_file(year, self.DBC_FILENAME)
+            filedata=self.get_file(year, self.dbc_filename)
         )
         table_names : Dict[Any, str] = {}
         table_columns = defaultdict(list)
