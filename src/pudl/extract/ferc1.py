@@ -225,8 +225,8 @@ class FoxProExtractor:
     2. transform_table(table_name, df) will be invoked after dataframe is loaded from the foxpro
        database and before it's written to sqlite. This is good place for table-specific
        preprocessing and/or cleanup.
-    2. postprocess() is called after data is written to sqlite. This can be used for database
-       level final cleanup and transformations (e.g. injecting missing respondent_ids)
+    3. postprocess() is called after data is written to sqlite. This can be used for database
+       level final cleanup and transformations (e.g. injecting missing respondent_ids).
 
     The extraction logic is invoked by calling execute() method of this class.
     """
