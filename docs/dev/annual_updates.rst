@@ -7,14 +7,14 @@ time, the final release for the previous year have been published by EIA and FER
 also integrate EIA early release data when available. The ``data_maturity`` field will
 indicate whether the data is final or provisional.
 
-As of fall 2021 the annual updates include:
+As of spring 2023 the annual updates include:
 
 * :doc:`/data_sources/eia860` (and eia860m)
-* :ref:`data-eia861`
+* :doc:`/data_sources/eia861`
 * :doc:`/data_sources/eia923`
 * :doc:`/data_sources/epacems`
 * :doc:`/data_sources/ferc1`
-* :ref:`data-ferc714`
+* :doc:`/data_sources/ferc714`
 
 This document outlines all the tasks required to complete the annual update based on
 our experience in 2022.

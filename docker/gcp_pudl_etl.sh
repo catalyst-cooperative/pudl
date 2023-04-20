@@ -21,6 +21,7 @@ function authenticate_gcp() {
 function run_pudl_etl() {
     send_slack_msg ":large_yellow_circle: Deployment started for $ACTION_SHA-$GITHUB_REF :floppy_disk:"
     authenticate_gcp \
+    && pudl_reset_db \
     && pudl_setup \
     && ferc_to_sqlite \
         --loglevel=DEBUG \
@@ -30,7 +31,6 @@ function run_pudl_etl() {
     && pudl_etl \
         --loglevel DEBUG \
         --gcs-cache-path gs://internal-zenodo-cache.catalyst.coop \
-        --partition-epacems \
         $PUDL_SETTINGS_YML \
     && pytest \
         --gcs-cache-path=gs://internal-zenodo-cache.catalyst.coop \
@@ -42,7 +42,7 @@ function shutdown_vm() {
     # Copy the outputs to the GCS bucket
     gsutil -m cp -r $PUDL_OUTPUT "gs://nightly-build-outputs.catalyst.coop/$ACTION_SHA-$GITHUB_REF"
 
-    upload_file_to_slack "${PUDL_OUTPUT}/pudl-etl.log" "Logs for $ACTION_SHA-$GITHUB_REF:"
+    upload_file_to_slack $LOGFILE "pudl_etl logs for $ACTION_SHA-$GITHUB_REF:"
 
     echo "Shutting down VM."
     # # Shut down the vm instance when the etl is done.

@@ -24,13 +24,16 @@ COALMINE_COUNTRY_CODES: dict[str, str] = {
 }
 """A mapping of EIA foreign coal mine country codes to 3-letter ISO-3166-1 codes.
 
-The EIA-923 lists the US state of origin for coal deliveries using standard
-2-letter US state abbreviations. However, foreign countries are also included
-as "states" in this category and because some of them have 2-letter abbreviation
-collisions with US states, their coding is non-standard.
+The EIA-923 lists the US state of origin for coal deliveries using standard 2-letter US
+state abbreviations. However, foreign countries are also included as "states" in this
+category and because some of them have 2-letter abbreviation collisions with US states,
+their coding is non-standard.
 
-Instead of using the provided non-standard codes, we convert to the ISO-3166-1
-three letter country codes: https://en.wikipedia.org/wiki/ISO_3166-1_alpha-3
+Instead of using the provided non-standard codes, we convert to the ISO-3166-1 three
+letter country codes:
+
+
+https://en.wikipedia.org/wiki/ISO_3166-1_alpha-3
 """
 
 ###############################################################################
@@ -587,9 +590,9 @@ def gen_fuel_nuclear(gen_fuel_nuke: pd.DataFrame) -> pd.DataFrame:
     outs={
         "clean_generation_fuel_eia923": AssetOut(),
         "clean_generation_fuel_nuclear_eia923": AssetOut(),
-    }
+    },
 )
-def generation_fuel_eia923(raw_generation_fuel_eia923: pd.DataFrame):
+def clean_generation_fuel_eia923(raw_generation_fuel_eia923: pd.DataFrame):
     """Transforms the generation_fuel_eia923 table.
 
     Transformations include:
@@ -688,7 +691,7 @@ def generation_fuel_eia923(raw_generation_fuel_eia923: pd.DataFrame):
         gen_fuel.nuclear_unit_id.notna() | gen_fuel.energy_source_code.eq("NUC")
     ].copy()
 
-    generation_fuel_nuclear_eia923 = gen_fuel_nuclear(nukes)
+    gen_fuel_nuke = gen_fuel_nuclear(nukes)
 
     gen_fuel = gen_fuel[
         gen_fuel.nuclear_unit_id.isna() & gen_fuel.energy_source_code.ne("NUC")
@@ -701,9 +704,9 @@ def generation_fuel_eia923(raw_generation_fuel_eia923: pd.DataFrame):
     # Aggregate any remaining duplicates.
     gen_fuel = _aggregate_generation_fuel_duplicates(gen_fuel)
 
-    return Output(output_name="clean_generation_fuel_eia923", value=gen_fuel), Output(
-        output_name="clean_generation_fuel_nuclear_eia923",
-        value=generation_fuel_nuclear_eia923,
+    return (
+        Output(output_name="clean_generation_fuel_eia923", value=gen_fuel),
+        Output(output_name="clean_generation_fuel_nuclear_eia923", value=gen_fuel_nuke),
     )
 
 

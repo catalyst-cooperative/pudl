@@ -794,6 +794,7 @@ any cleaning mechanisms in place to account for this."""
         "sources": ["ferc1"],
         "etl_group": "ferc1_disabled",
         "field_namespace": "ferc1",
+        "create_database_schema": False,
     },
     "electric_operating_revenues_ferc1": {
         "description": (
@@ -821,6 +822,48 @@ any cleaning mechanisms in place to account for this."""
         "sources": ["ferc1"],
         "etl_group": "ferc1",
         "field_namespace": "ferc1",
+    },
+    "denorm_plants_utilities_ferc1": {
+        "description": "Denormalized table that contains FERC plant and utility information.",
+        "schema": {
+            "fields": [
+                "utility_id_ferc1",
+                "plant_name_ferc1",
+                "plant_id_pudl",
+                "utility_name_ferc1",
+                "utility_id_pudl",
+            ],
+        },
+        "field_namespace": "ferc1",
+        "etl_group": "outputs",
+        "sources": ["ferc1"],
+        "create_database_schema": False,
+    },
+    "denorm_balance_sheet_assets_ferc1": {
+        "description": "Denormalized table that contains FERC balance sheet asset information.",
+        "schema": {
+            "fields": [
+                "report_year",
+                "utility_id_ferc1",
+                "utility_id_pudl",
+                "utility_name_ferc1",
+                "record_id",
+                "asset_type",
+                "balance",
+                "ending_balance",
+                "ferc_account",
+                "row_type_xbrl",
+                "starting_balance",
+            ],
+            "primary_key": [
+                "utility_id_ferc1",
+                "report_year",
+                "asset_type",
+            ],
+        },
+        "field_namespace": "ferc1",
+        "etl_group": "outputs",
+        "sources": ["ferc1"],
     },
 }
 """FERC Form 1 resource attributes by PUDL identifier (``resource.name``).

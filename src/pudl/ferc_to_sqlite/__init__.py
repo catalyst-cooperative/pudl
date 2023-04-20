@@ -1,5 +1,5 @@
 """Dagster definitions for the FERC to SQLite process."""
-import importlib
+import importlib.resources
 
 from dagster import Definitions, graph
 
@@ -29,17 +29,19 @@ ferc_to_sqlite_full = ferc_to_sqlite.to_job(
     name="ferc_to_sqlite_full",
 )
 
+pkg_source = importlib.resources.files("pudl.package_data.settings").joinpath(
+    "etl_fast.yml"
+)
+with importlib.resources.as_file(pkg_source) as yf:
+    ferc_to_sqlite_fast_settings = EtlSettings.from_yaml(yf).ferc_to_sqlite_settings
+
 ferc_to_sqlite_fast = ferc_to_sqlite.to_job(
     resource_defs=default_resources_defs,
     name="ferc_to_sqlite_fast",
     config={
         "resources": {
             "ferc_to_sqlite_settings": {
-                "config": EtlSettings.from_yaml(
-                    importlib.resources.path(
-                        "pudl.package_data.settings", "etl_fast.yml"
-                    )
-                ).ferc_to_sqlite_settings.dict()
+                "config": ferc_to_sqlite_fast_settings.dict(),
             }
         }
     },

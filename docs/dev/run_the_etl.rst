@@ -11,6 +11,14 @@ just want to use already processed data.
 
 These instructions assume you have already gone through the :ref:`dev_setup`.
 
+Database initialization
+-----------------------
+
+Before we run anything (and after we make changes to the database schema), we'll
+need to make sure that the schema in the database actually matches the schema
+in the code - run ``pudl_reset_db`` to delete whatever is already there and
+recreate the database with the right schema.
+
 Dagster
 -------
 PUDL uses `Dagster <https://dagster.io/>`__ to orchestrate its data pipelines. Dagster

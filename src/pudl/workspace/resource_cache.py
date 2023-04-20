@@ -11,6 +11,7 @@ from google.api_core.retry import Retry
 from google.cloud import storage
 from google.cloud.storage.blob import Blob
 from google.cloud.storage.retry import _should_retry
+from google.resumable_media.common import DataCorruption
 
 import pudl.logging_helpers
 
@@ -30,7 +31,9 @@ def extend_gcp_retry_predicate(predicate, *exception_types):
 # Add BadRequest to default predicate _should_retry.
 # GCS get requests occasionally fail because of BadRequest errors.
 # See issue #1734.
-gcs_retry = Retry(predicate=extend_gcp_retry_predicate(_should_retry, BadRequest))
+gcs_retry = Retry(
+    predicate=extend_gcp_retry_predicate(_should_retry, BadRequest, DataCorruption)
+)
 
 
 class PudlResourceKey(NamedTuple):
@@ -139,9 +142,6 @@ class GoogleCloudStorageCache(AbstractCache):
         self._bucket = storage.Client(credentials=credentials).bucket(
             parsed_url.netloc, user_project=project_id
         )
-        # need to store arguments passed to __init__ so an instance can be restored
-        # from a pickle
-        self._state = {"gcs_path": gcs_path, **kwargs}
 
     def _blob(self, resource: PudlResourceKey) -> Blob:
         """Retrieve Blob object associated with given resource."""
@@ -164,44 +164,16 @@ class GoogleCloudStorageCache(AbstractCache):
         """Returns True if resource is present in the cache."""
         return self._blob(resource).exists(retry=gcs_retry)
 
-    def __getstate__(self):
-        """Get current object state for serializing.
-
-        Because some of this object's internals explicitly cannot be pickled, namely
-        :class:`google.cloud.storage.Client`, we only serialize the arguments passed to
-        :meth:`.GoogleCloudStorageCache.__init__`.
-        """
-        logger.warning(
-            "When serializing %s, only %s is preserved",
-            self.__class__.__qualname__,
-            self._state,
-        )
-        return self._state.copy()
-
-    def __setstate__(self, state):
-        """Restore the object's state from a dictionary.
-
-        :meth:`.GoogleCloudStorageCache.__init__` already does all the required setup,
-        so we call it with the arguments originally passed when the object we are
-        restoring was originally instantiated.
-        """
-        logger.warning(
-            "Restoring %s, from %s",
-            self.__class__.__qualname__,
-            state,
-        )
-        self.__init__(**state)
-
 
 class LayeredCache(AbstractCache):
     """Implements multi-layered system of caches.
 
-    This allows building multi-layered system of caches. The idea is that you can
-    have faster local caches with fall-back to the more remote or expensive caches
-    that can be acessed in case of missing content.
+    This allows building multi-layered system of caches. The idea is that you can have
+    faster local caches with fall-back to the more remote or expensive caches that can
+    be acessed in case of missing content.
 
-    Only the closest layer is being written to (set, delete), while all remaining
-    layers are read-only (get).
+    Only the closest layer is being written to (set, delete), while all remaining layers
+    are read-only (get).
     """
 
     def __init__(self, *caches: list[AbstractCache], **kwargs: Any):
