@@ -3,6 +3,8 @@ PUDL Data Dictionary
 ===============================================================================
 
 The following data tables have been cleaned and transformed by our ETL process.
+Please note that tables beginning with "denorm_" are temporary tables whose names and
+metadata will shortly change, as we migrate new tables into our database.
 
 {% for resource in package.resources %}
 .. _{{ resource.name }}:
