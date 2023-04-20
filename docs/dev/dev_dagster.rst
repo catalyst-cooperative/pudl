@@ -15,25 +15,6 @@ name in the top part of the UI:
   :width: 800
   :alt: Reload code locations
 
-Database schema changes
------------------------
-
-The :func:`pudl.io_managers.pudl_sqlite_io_manager` creates all
-required table schemas in the database when the ``pudl.sqlite``
-is originally created. The :func:`pudl.io_managers.pudl_sqlite_io_manager`
-replaces the existing data with the new data returned by the asset
-instead of droping the full table and its schema.
-
-This can lead to a scenario where a change in :mod:`pudl.metadata.resources`
-is not updated in the database. This will result in errors
-because the database and code are working with different
-versions of the metadata. **If you get an error that complains about
-:func:`pudl.io_managers.pudl_sqlite_io_manager` writing a column
-or database that doesn't exist in the database, delete ``pudl.sqlite``
-and rerun the full ETL.** We are `working <https://github.com/catalyst-cooperative/pudl/pull/2331>`__
-on raising an error when the metadata in the database and
-:mod:`pudl.metadata.resources` get out of sync.
-
 Assets getting out of sync
 --------------------------
 
@@ -60,7 +41,9 @@ Dagster resources are python objects that any assets can access.
 Resources can be configured using dagit to change the behavior
 of a given resource. PUDL currently has three resources:
 
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 :func:`pudl.resources.datastore`
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 The datastore resource allows assets to to pull data from
 PUDL's raw data archives on Zenodo. You can configure the datastore
 by holding shift while clicking the "Materialize All" button in the upper
@@ -84,13 +67,17 @@ assets.
     in :mod:`pudl.etl` or :mod:`pudl.ferc_to_sqlite` with the
     preconfigured resource.
 
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 :func:`pudl.resources.dataset_settings`
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 The ``dataset_settings`` resource tells the PUDL ETL which years
 of data to process. To update the years a group of assets should
 process, shift click "Materialize All" and edit the configuration.
 For an example, shift click "Materialize All" while viewing the
 ``etl_fast`` job in the ``pudl.etl`` definition.
 
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 :func:`pudl.resources.ferc_to_sqlite_settings`
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 The ``ferc_to_sqlite_settings`` resource tells the ``ferc_to_sqlite``
 job which years of FERC data to extract.

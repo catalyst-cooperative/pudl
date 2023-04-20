@@ -168,7 +168,9 @@ a window that looks like this:
 Click the hamburger button in the upper left to view the definitions,
 assets and jobs.
 
-**Cloning the FERC databases:**
+^^^^^^^^^^^^^^^^^^^^^^^^^^
+Cloning the FERC databases
+^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 To run the data pipelines, you'll first need to create the raw FERC databases by
 clicking on one of the ``pudl.ferc_to_sqlite`` jobs. Then select "Launchpad"
@@ -218,7 +220,9 @@ tab::
           - 2021
 
 
-**Running the PUDL ETL:**
+^^^^^^^^^^^^^^^^^^^^
+Running the PUDL ETL
+^^^^^^^^^^^^^^^^^^^^
 
 Once the raw FERC databases are created by a ``pudl.ferc_to_sqlite`` job,
 you can execute the main PUDL ETL.
@@ -320,13 +324,6 @@ needs. The layout of these files is depicted below:
         │    └── dataset etl parameter (e.g. years) : editable list of years
         └── dataset name
         │    └── dataset etl parameter (e.g. years) : editable list of years
-
-.. note::
-
-    Do not change anything other than the dataset parameters and the name, title, and
-    description fields unless you want to remove an entire dataset. For example, CEMS
-    data takes a long time to load so you can comment out or delete all settings
-    pertaining to CEMS. See below for a way to add it later.
 
 Both scripts enable you to choose which **years** you want to include:
 
