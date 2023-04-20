@@ -701,6 +701,10 @@ def denorm_fuel_by_plant_ferc1(
         return df[df.fuel_type_code_pudl != "other"].copy()
 
     thresh = context.op_config["thresh"]
+    # The existing function expects `fuel_type_code_pudl` to be an object, rather than
+    # a category. This is a legacy of pre-dagster code, and we convert here to prevent
+    # further retooling in the code-base.
+    fuel_ferc1["fuel_type_code_pudl"] = fuel_ferc1["fuel_type_code_pudl"].astype(str)
 
     fuel_categories = list(
         pudl.transform.ferc1.FuelFerc1TableTransformer()
