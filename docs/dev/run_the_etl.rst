@@ -243,6 +243,7 @@ executing subsets of the asset graph.
 
 To execute the job, select ``fast_etl`` or ``full_etl`` and click "Materialize all".
 You can congifure which years to process by shift+clicking "Materialize all".
+Read the :ref:`resource_config` section to learn more.
 To view the status of the run, click the date next to "Latest run:".
 
 .. image:: ../images/dagit_pudl_etl.png
@@ -253,6 +254,17 @@ You can also re-execute specific assets by selecting one or
 multiple assets in the "Overview" tab and clicking "Materialize selected".
 This is helpful if you are updating the logic of a specific asset and don't
 want to rerun the entire ETL.
+
+.. note::
+
+  Dagster does not allow you to select asset groups for a specific job.
+  For example, if you click on the ``raw_eia860`` asset group in Dagit,
+  click "Materialize All", the default configuration values will be used
+  so all available years of the data will be extracted.
+
+  To process a subset of years for a specific asset group, select the
+  asset group, shift+click "Materialize all" and configure the
+  ``dataset_settings`` resource with the desired years.
 
 .. note::
 
