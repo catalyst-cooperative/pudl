@@ -890,8 +890,8 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     },
     "fuel_mmbtu": {
         "type": "number",
-        "description": "Total heat content for plant (in mmBTU).",
-        "unit": "mmbtu",
+        "description": "Total heat content for plant (in MMBtu).",
+        "unit": "MMBtu",
     },
     "fuel_cost_per_mmbtu": {
         "type": "number",
@@ -1001,7 +1001,7 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     },
     "gas_fraction_mmbtu": {
         "type": "number",
-        "description": "Natural gas heat content as a percentage of overall fuel heat content (mmBTU).",
+        "description": "Natural gas heat content as a percentage of overall fuel heat content (MMBtu).",
     },
     "generation_activity": {"type": "boolean"},
     "generator_id": {
@@ -1454,7 +1454,7 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     },
     "nuclear_fraction_mmbtu": {
         "type": "number",
-        "description": "Nuclear heat content as a percentage of overall fuel heat content (mmBTU).",
+        "description": "Nuclear heat content as a percentage of overall fuel heat content (MMBtu).",
     },
     "nuclear_unit_id": {
         "type": "string",
@@ -1470,7 +1470,7 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     },
     "oil_fraction_mmbtu": {
         "type": "number",
-        "description": "Oil heat content as a percentage of overall fuel heat content (mmBTU).",
+        "description": "Oil heat content as a percentage of overall fuel heat content (MMBtu).",
     },
     "operates_generating_plant": {"type": "boolean"},
     "operating_datetime_utc": {
@@ -1537,8 +1537,8 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     },
     "opex_fuel_per_mwh": {
         "type": "number",
-        "description": "Production expenses: fuel (USD) per megawatt-hour (mwh).",
-        "unit": "USD/mwh",
+        "description": "Production expenses: fuel (USD) per megawatt-hour (Mwh).",
+        "unit": "USD_per_Mwh",
     },
     "opex_generation_misc": {
         "type": "number",
@@ -1572,8 +1572,8 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     },
     "opex_nonfuel_per_mwh": {
         "type": "number",
-        "description": "Investments in non-fuel production expenses per mwh.",
-        "unit": "USD/mwh",
+        "description": "Investments in non-fuel production expenses per Mwh.",
+        "unit": "USD_per_Mwh",
     },
     "opex_operations": {
         "type": "number",
@@ -2537,7 +2537,7 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     },
     "waste_fraction_mmbtu": {
         "type": "number",
-        "description": "Waste-heat heat content as a percentage of overall fuel heat content (mmBTU).",
+        "description": "Waste-heat heat content as a percentage of overall fuel heat content (MMBtu).",
     },
     "waste_heat_input_mmbtu_per_hour": {
         "type": "number",
