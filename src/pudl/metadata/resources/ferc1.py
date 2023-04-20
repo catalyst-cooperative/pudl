@@ -299,13 +299,6 @@ any cleaning mechanisms in place to account for this."""
                 "revenue_per_kwh",
                 "record_id",
             ],
-            "primary_key": [
-                "report_year",
-                "rate_schedule_type",
-                "billing_status",
-                "sales_revenue",
-                "record_id",
-            ],
         },
         "sources": ["ferc1"],
         "etl_group": "ferc1",
