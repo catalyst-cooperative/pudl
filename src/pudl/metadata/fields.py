@@ -258,27 +258,27 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     "capex_annual_per_kw": {
         "type": "number",
         "description": "Annual capital addition into `capex_total` per kw.",
-        "unit": "USD/kw",
+        "unit": "USD_per_kw",
     },
     "capex_annual_per_mw": {
         "type": "number",
-        "description": "Annual capital addition into `capex_total` per mw.",
-        "unit": "USD/mw",
+        "description": "Annual capital addition into `capex_total` per MW.",
+        "unit": "USD_per_MW",
     },
     "capex_annual_per_mw_rolling": {
         "type": "number",
-        "description": "Year-to-date capital addition into `capex_total` per mw.",
-        "unit": "USD/mw",
+        "description": "Year-to-date capital addition into `capex_total` per MW.",
+        "unit": "USD_per_MW",
     },
     "capex_annual_per_mwh": {
         "type": "number",
-        "description": "Annual capital addition into `capex_total` per mwh.",
-        "unit": "USD/mwh",
+        "description": "Annual capital addition into `capex_total` per MWh.",
+        "unit": "USD_per_MWh",
     },
     "capex_annual_per_mwh_rolling": {
         "type": "number",
-        "description": "Year-to-date capital addition into `capex_total` per mwh.",
-        "unit": "USD/mwh",
+        "description": "Year-to-date capital addition into `capex_total` per MWh.",
+        "unit": "USD_per_MWh",
     },
     "capex_equipment": {
         "type": "number",
