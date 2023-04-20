@@ -157,7 +157,7 @@ class PudlTabl:
             "denorm_plants_utilities_ferc1": "pu_ferc1",
             "denorm_plants_steam_ferc1": "plants_steam_ferc1",
             "denorm_fuel_ferc1": "fuel_ferc1",
-            # "denorm_fuel_by_plant_ferc1": "fbp_ferc1",
+            "denorm_fuel_by_plant_ferc1": "fbp_ferc1",
             "denorm_plants_small_ferc1": "plants_small_ferc1",
             "denorm_plants_hydro_ferc1": "plants_hydro_ferc1",
             "denorm_plants_pumped_storage_ferc1": "plants_pumped_storage_ferc1",
@@ -380,26 +380,6 @@ class PudlTabl:
                 own_eia860=self.own_eia860(),
             )
         return self._dfs["gen_fuel_by_genid_esc_own"]
-
-    ###########################################################################
-    # FERC FORM 1 OUTPUTS
-    ###########################################################################
-
-    def fbp_ferc1(self, update=False):
-        """Summarize FERC Form 1 fuel usage by plant.
-
-        Args:
-            update (bool): If true, re-calculate the output dataframe, even if
-                a cached version exists.
-
-        Returns:
-            pandas.DataFrame: a denormalized table for interactive use.
-        """
-        if update or self._dfs["fbp_ferc1"] is None:
-            self._dfs["fbp_ferc1"] = pudl.output.ferc1.fuel_by_plant_ferc1(
-                self.pudl_engine, start_date=self.start_date, end_date=self.end_date
-            )
-        return self._dfs["fbp_ferc1"]
 
     ###########################################################################
     # EIA MCOE OUTPUTS
