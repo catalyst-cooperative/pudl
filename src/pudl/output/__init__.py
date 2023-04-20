@@ -10,15 +10,12 @@ This subpackage compiles a bunch of outputs we found we were commonly generating
 that they can be done automatically and uniformly. They are encapsulated within the
 :class:`pudl.output.pudltabl.PudlTabl` class.
 """
-from . import (  # noqa: F401
-    censusdp1tract,
-    eia,
-    eia860,
-    eia923,
-    eia_bulk_elec,
-    epacems,
-    ferc1,
-    ferc714,
-    new_ferc1,
-    pudltabl,
-)
+from . import censusdp1tract  # noqa: F401
+from . import eia  # noqa: F401
+from . import eia860  # noqa: F401
+from . import eia923  # noqa: F401
+from . import eia_bulk_elec  # noqa: F401
+from . import epacems  # noqa: F401
+from . import ferc1  # noqa: F401
+from . import ferc714  # noqa: F401
+from . import pudltabl  # noqa: F401

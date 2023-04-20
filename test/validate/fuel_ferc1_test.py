@@ -5,6 +5,7 @@ parameterized fixture that has session scope.
 """
 import logging
 
+import pandas as pd
 import pytest
 
 from pudl import validate as pv
@@ -15,7 +16,9 @@ logger = logging.getLogger(__name__)
 def test_fuel_ferc1_trivial(pudl_out_ferc1):
     """Test output routines for tables from FERC Form 1."""
     logger.info("Compiling FERC Form 1 fuel table...")
-    logger.info(f"{len(pudl_out_ferc1.fuel_ferc1())} fuel records found")
+    fuel_tab = pd.read_sql("denorm_fuel_ferc1", pudl_out_ferc1.pudl_engine)
+    assert len(fuel_tab) > 0, "FERC Form 1 fuel table is empty."
+    logger.info(f"{len(fuel_tab)} fuel records found")
 
 
 @pytest.mark.parametrize(
@@ -51,7 +54,9 @@ def test_vs_bounds(pudl_out_ferc1, live_dbs, cases):
     if not live_dbs:
         pytest.skip("Data validation only works with a live PUDL DB.")
     for case in cases:
-        pv.vs_bounds(pudl_out_ferc1.fuel_ferc1(), **case)
+        pv.vs_bounds(
+            pd.read_sql("denorm_fuel_ferc1", pudl_out_ferc1.pudl_engine), **case
+        )
 
 
 def test_self_vs_historical(pudl_out_ferc1, live_dbs):
@@ -59,4 +64,4 @@ def test_self_vs_historical(pudl_out_ferc1, live_dbs):
     if not live_dbs:
         pytest.skip("Data validation only works with a live PUDL DB.")
     for args in pv.fuel_ferc1_self:
-        pv.vs_self(pudl_out_ferc1.fuel_ferc1(), **args)
+        pv.vs_self(pd.read_sql("denorm_fuel_ferc1", pudl_out_ferc1.pudl_engine), **args)
