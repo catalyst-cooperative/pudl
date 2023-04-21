@@ -44,7 +44,7 @@ def test_harmonize_eia_epa_orispl():
 
 def test_epacamd_eia_subplant_ids():
     """Ensure subplant_id gets applied appropriately to example plants."""
-    clean_epacamd_eia_test = pd.read_csv(
+    epacamd_eia_test = pd.read_csv(
         StringIO(
             """
 plant_id_epa,emissions_unit_id_epa,generator_id_epa,plant_id_eia,boiler_id,generator_id
@@ -112,7 +112,7 @@ plant_id_eia,plant_id_epa,unit_id_pudl,emissions_unit_id_epa,generator_id,subpla
     )
 
     epacamd_eia_subplant_ids_got = glue_assets.epacamd_eia_subplant_ids(
-        clean_epacamd_eia=clean_epacamd_eia_test,
+        epacamd_eia=epacamd_eia_test,
         generators_eia860=generators_entity_eia_test,
         emissions_unit_ids_epacems=emissions_unit_ids_epacems_test,
         boiler_generator_assn_eia860=boiler_generator_assn_eia860_test,

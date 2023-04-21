@@ -70,7 +70,7 @@ def raw_epacamd_eia(context) -> pd.DataFrame:
 @asset(
     required_resource_keys={"dataset_settings"}, io_manager_key="pudl_sqlite_io_manager"
 )
-def clean_epacamd_eia(
+def epacamd_eia(
     context,
     raw_epacamd_eia: pd.DataFrame,
     generators_entity_eia: pd.DataFrame,
@@ -216,7 +216,7 @@ def correct_epa_eia_plant_id_mapping(df: pd.DataFrame) -> pd.DataFrame:
 
 @asset(io_manager_key="pudl_sqlite_io_manager")
 def epacamd_eia_subplant_ids(
-    clean_epacamd_eia: pd.DataFrame,
+    epacamd_eia: pd.DataFrame,
     generators_eia860: pd.DataFrame,
     emissions_unit_ids_epacems: pd.DataFrame,
     boiler_generator_assn_eia860: pd.DataFrame,
@@ -246,7 +246,7 @@ def epacamd_eia_subplant_ids(
     # functioning (#2535) but when it is, ensure that it gets plugged into the dag
     # BEFORE this step so the subplant IDs can benefit from the more fleshed out units
     epacamd_eia_complete = (
-        augement_crosswalk_with_generators_eia860(clean_epacamd_eia, generators_eia860)
+        augement_crosswalk_with_generators_eia860(epacamd_eia, generators_eia860)
         .pipe(augement_crosswalk_with_epacamd_ids, emissions_unit_ids_epacems)
         .pipe(augement_crosswalk_with_bga_eia860, boiler_generator_assn_eia860)
     )

@@ -57,7 +57,7 @@ def get_years_from_settings(context):
 def process_single_year(
     context,
     year,
-    clean_epacamd_eia: pd.DataFrame,
+    epacamd_eia: pd.DataFrame,
     plants_entity_eia: pd.DataFrame,
 ) -> YearPartitions:
     """Process a single year of EPA CEMS data.
@@ -65,8 +65,8 @@ def process_single_year(
     Args:
         context: dagster keyword that provides access to resources and config.
         year: Year of data to process.
-        clean_epacamd_eia: The EPA EIA crosswalk table used for harmonizing the
-                     ORISPL code with EIA.
+        epacamd_eia: The EPA EIA crosswalk table used for harmonizing the
+            ORISPL code with EIA.
         plants_entity_eia: The EIA Plant entities used for aligning timezones.
     """
     ds = context.resources.datastore
@@ -81,7 +81,7 @@ def process_single_year(
     for state in epacems_settings.states:
         logger.info(f"Processing EPA CEMS hourly data for {year}-{state}")
         df = pudl.extract.epacems.extract(year=year, state=state, ds=ds)
-        df = pudl.transform.epacems.transform(df, clean_epacamd_eia, plants_entity_eia)
+        df = pudl.transform.epacems.transform(df, epacamd_eia, plants_entity_eia)
         table = pa.Table.from_pandas(df, schema=schema, preserve_index=False)
 
         # Write to a directory of partitioned parquet files
@@ -137,7 +137,7 @@ def consolidate_partitions(context, partitions: list[YearPartitions]) -> None:
 
 @graph_asset
 def hourly_emissions_epacems(
-    clean_epacamd_eia: pd.DataFrame, plants_entity_eia: pd.DataFrame
+    epacamd_eia: pd.DataFrame, plants_entity_eia: pd.DataFrame
 ) -> None:
     """Extract, transform and load CSVs for EPA CEMS.
 
@@ -149,7 +149,7 @@ def hourly_emissions_epacems(
     partitions = years.map(
         lambda year: process_single_year(
             year,
-            clean_epacamd_eia,
+            epacamd_eia,
             plants_entity_eia,
         )
     )

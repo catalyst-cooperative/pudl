@@ -2,7 +2,7 @@
 from typing import Any
 
 RESOURCE_METADATA: dict[str, dict[str, Any]] = {
-    "clean_epacamd_eia": {
+    "epacamd_eia": {
         "description": """This crosswalk table comes from the
 EPA's Github repo camd-eia-crosswalk:
 https://github.com/USEPA/camd-eia-crosswalk.
@@ -17,7 +17,7 @@ have shifted before or since then aren't accurately reflected in the data. We're
 to create a temporal version of the crosswalk at some point.
 
 Our version of the crosswalk clarifies some of the column names and removes unmatched
-rows. The :func:`pudl.etl.glue_assets.clean_epacamd_eia` function doc strings explain
+rows. The :func:`pudl.etl.glue_assets.epacamd_eia` function doc strings explain
 what changes are made from the EPA's version.
 """,
         "schema": {

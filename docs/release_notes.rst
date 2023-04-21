@@ -63,7 +63,7 @@ Data Coverage
 ^^^^^^^^^^^^^
 
 * Updated :doc:`data_sources/eia860` to include data as of 2022-09.
-* New :ref:`clean_epacamd_eia` crosswalk version v0.3, see issue :issue:`2317` and PR
+* New :ref:`epacamd_eia` crosswalk version v0.3, see issue :issue:`2317` and PR
   :pr:`2316`. EPA's updates add manual matches and exclusions focusing on operating
   units with a generator ID as of 2018.
 * New PUDL tables from :doc:`data_sources/ferc1`, integrating older DBF and newer XBRL
@@ -144,7 +144,7 @@ Data Coverage
   * :ref:`demand_hourly_pa_ferc714` (hourly electricity demand by planning area)
 
 * Added new table :ref:`epacamd_eia_subplant_ids`, which aguments the
-  :ref:`clean_epacamd_eia` glue table. This table incorporates all
+  :ref:`epacamd_eia` glue table. This table incorporates all
   :ref:`generators_entity_eia` and all :ref:`hourly_emissions_epacems` ID's and uses
   these complete IDs to develop a full-coverage ``subplant_id`` column which granularly
   connects EPA CAMD with EIA. Thanks to :user:`grgmiller` for his contribution to this
@@ -156,7 +156,7 @@ Data Cleaning
 * Removed inconsistently reported leading zeroes from numeric ``boiler_id`` values. This
   affected a small number of records in any table referring to boilers, including
   :ref:`boilers_entity_eia`, :ref:`boilers_eia860`, :ref:`boiler_fuel_eia923`,
-  :ref:`boiler_generator_assn_eia860` and the :ref:`clean_epacamd_eia` crosswalk. It
+  :ref:`boiler_generator_assn_eia860` and the :ref:`epacamd_eia` crosswalk. It
   also had some minor downstream effects on the MCOE outputs. See :issue:`2366` and
   :pr:`2367`.
 * The :ref:`boiler_fuel_eia923` table now includes the ``prime_mover_code`` column. This
