@@ -497,6 +497,8 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
             "primary_key": ["plant_id_eia", "generator_id"],
             "foreign_key_rules": {
                 "fields": [["plant_id_eia", "generator_id"]],
+                # exclude epacamd_eia_subplant_ids bc there are generator ids in this
+                # glue table that come only from epacamd
                 "exclude": ["epacamd_eia_subplant_ids"],
             },
         },

@@ -19,7 +19,7 @@ logger = pudl.logging_helpers.get_logger(__name__)
     outs={
         table_name: AssetOut(io_manager_key="pudl_sqlite_io_manager")
         for table_name in Package.get_etl_group_tables("glue")
-        #  do not load epacamd_eia glue assets bc they are stand-along assets below.
+        #  do not load epacamd_eia glue assets bc they are stand-alone assets below.
         if "epacamd_eia" not in table_name
     },
     required_resource_keys={"datastore", "dataset_settings"},
