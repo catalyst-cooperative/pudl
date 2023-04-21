@@ -19,16 +19,13 @@ logger = pudl.logging_helpers.get_logger(__name__)
     outs={
         table_name: AssetOut(io_manager_key="pudl_sqlite_io_manager")
         for table_name in Package.get_etl_group_tables("glue")
-        # there may be a better way to restructure how we are making the glue post
-        # converting epacamd_eia -> an asset
+        #  do not load epacamd_eia glue assets bc they are stand-along assets below.
         if "epacamd_eia" not in table_name
     },
     required_resource_keys={"datastore", "dataset_settings"},
 )
-def create_glue_tables(
-    context,  # generators_entity_eia: pd.DataFrame, boilers_entity_eia: pd.DataFrame
-):
-    """Extract, transform and load CSVs for the Glue tables.
+def create_glue_tables(context):
+    """Extract, transform and load CSVs for the FERC-EIA Glue tables.
 
     Args:
         context: dagster keyword that provides access to resources and config.
@@ -248,32 +245,42 @@ def epacamd_eia_subplant_ids(
     # unit_id_pudl living in pudl.output.eia860.assign_unit_ids. It is currently non-
     # functioning (#2535) but when it is, ensure that it gets plugged into the dag
     # BEFORE this step so the subplant IDs can benefit from the more fleshed out units
-    clean_epacamd_eia = (
+    epacamd_eia_complete = (
         augement_crosswalk_with_generators_eia860(clean_epacamd_eia, generators_eia860)
         .pipe(augement_crosswalk_with_epacamd_ids, emissions_unit_ids_epacems)
         .pipe(augement_crosswalk_with_bga_eia860, boiler_generator_assn_eia860)
     )
     # use graph analysis to identify subplants
-    subplant_crosswalk_complete = make_subplant_ids(clean_epacamd_eia).pipe(
-        pudl.metadata.fields.apply_pudl_dtypes, "eia"
+    subplant_ids = make_subplant_ids(epacamd_eia_complete).pipe(
+        pudl.metadata.fields.apply_pudl_dtypes, "glue"
     )
-
+    logger.info(
+        "After making the networkx generateds subplant_ids, "
+        f"{subplant_ids.subplant_id.notnull().sum() / len(subplant_ids):.1%} of"
+        " records have a subplant_id."
+    )
     # update the subplant ids for each plant
-    subplant_crosswalk_complete = subplant_crosswalk_complete.groupby(
+    subplant_ids_updated = subplant_ids.groupby(
         by=["plant_id_eia"], group_keys=False
     ).apply(update_subplant_ids)
-    # remove the intermediate columns created by update_subplant_ids
-    subplant_crosswalk_complete["subplant_id"].update(
-        subplant_crosswalk_complete["new_subplant"]
+    # log differences between updated ids
+    subplant_id_diff = subplant_ids_updated[
+        subplant_ids_updated.subplant_id != subplant_ids_updated.subplant_id_updated
+    ]
+    logger.info(
+        "Edited subplant_ids after update_subplant_ids: "
+        f"{len(subplant_id_diff)/len(subplant_ids_updated):.1}%"
     )
-    subplant_crosswalk_complete = manually_update_subplant_id(
-        subplant_crosswalk_complete
+    # overwrite the subplant ids and apply mannual update
+    subplant_ids_updated = (
+        subplant_ids_updated.assign(subplant_id=lambda x: x.subplant_id_updated)
+        .reset_index(drop=True)
+        .pipe(manually_update_subplant_id)
     )
-
     # check for duplicates in sudo-PKs. These are not the actual PKs because there are
     # some nulls in generator_id, so this won't be checked during the db construction
     if (
-        epacamd_eia_dupe_mask := subplant_crosswalk_complete.duplicated(
+        epacamd_eia_dupe_mask := subplant_ids_updated.duplicated(
             subset=[
                 "plant_id_epa",
                 "emissions_unit_id_epa",
@@ -286,9 +293,9 @@ def epacamd_eia_subplant_ids(
         raise AssertionError(
             "Duplicates found in sudo primary keys of EPA CAMD/EIA subplant ID table "
             "when none are expected. Duplicates found: \n"
-            f"{subplant_crosswalk_complete[epacamd_eia_dupe_mask]}"
+            f"{subplant_ids_updated[epacamd_eia_dupe_mask]}"
         )
-    return subplant_crosswalk_complete.reset_index(drop=True)
+    return subplant_ids_updated
 
 
 def augement_crosswalk_with_generators_eia860(
@@ -511,83 +518,42 @@ def update_subplant_ids(subplant_crosswalk: pd.DataFrame) -> pd.DataFrame:
     #.  Use the ``subplant_id`` derived from :func:`make_subplant_ids` if available. In
         the case where a ``unit_id_pudl`` groups several subplants, we overwrite these
         multiple existing subplant_id with a single ``subplant_id``.
-    #.  Where there is no ``subplant_id`` derived from :func:`make_subplant_ids`, we use
-        the ``unit_id_pudl`` to assign a unique ``subplant_id``
-    #.  Where there is neither a pudl ``subplant_id`` nor ``unit_id_pudl``, we use the
-        ``generator_id`` to assign a unique ``subplant_id``.
     #.  All of the new unique ids are renumbered in consecutive ascending order
-
-    Detailed explanation of steps:
-    ==============================
-
-    #.  Because the current subplant_id code does not take boiler-generator associations
-        into account, there may be instances where the code assigns generators to
-        different subplants when in fact, according to the boiler-generator association
-        table, these generators are grouped into a single unit based on their boiler
-        associations. The first step of this function is thus to identify if multiple
-        subplant_id have been assigned to a single unit_id_pudl. If so, we replace the
-        existing subplant_ids with a single subplant_id. For example, if a generator A
-        was assigned subplant_id 0 and generator B was assigned subplant_id 1, but both
-        generators A and B are part of unit_id_pudl 1, we would re-assign the subplant_id
-        to both generators to 0 (we always use the lowest number subplant_id in each
-        unit_id_pudl group). This may result in some subplant_id being skipped, but this
-        is okay because we will later renumber all subplant ids (i.e. if there were also
-        a generator C with subplant_id 2, there would no be no subplant_id 1 at the
-        plant). Likewise, sometimes multiple unit_id_pudl are connected to a single
-        subplant_id, so we also correct the unit_id_pudl basedon these connections.
-    #.  The second issue is that there are many NA subplant_id that we should fill. To
-        do this, we first look at unit_id_pudl. If a group of generators are assigned a
-        unit_id_pudl but have NA subplant_ids, we assign a single new subplant_id to this
-        group of generators. If there are still generators at a plant that have both NA
-        subplant_id and NA unit_id_pudl, we for now assume that each of these generators
-        consitutes its own subplant. We thus assign a unique subplant_id to each
-        generator that is unique from any existing subplant_id already at the plant. In
-        the case that there are multiple emissions_unit_id_epa at a plant that are not
-        matched to any other identifiers (generator_id, unit_id_pudl, or subplant_id), as
-        is the case when there are units that report to CEMS but which do not exist in
-        the EIA data, we assign these units to a single subplant.
 
     Args:
         subplant_crosswalk: a dataframe containing the output of :func:`make_subplant_ids`
     """
     # Step 1: Create corrected versions of subplant_id and unit_id_pudl
-    # if multiple unit_id_pudl are connected by a single subplant_id, unit_id_pudl_connected groups these unit_id_pudl together
+    # if multiple unit_id_pudl are connected by a single subplant_id,
+    # unit_id_pudl_connected groups these unit_id_pudl together
     subplant_crosswalk = connect_ids(
         subplant_crosswalk, id_to_update="unit_id_pudl", connecting_id="subplant_id"
     )
-    # if multiple subplant_id are connected by a single unit_id_pudl, group these subplant_id together
+    # if multiple subplant_id are connected by a single unit_id_pudl, group these
+    # subplant_id together
     subplant_crosswalk = connect_ids(
         subplant_crosswalk, id_to_update="subplant_id", connecting_id="unit_id_pudl"
     )
 
-    # Step 2: Fill missing subplant_id
-    # We will use unit_id_pudl to fill missing subplant ids, so first we need to fill any missing unit_id_pudl
-    # We do this by assigning a new unit_id_pudl to each generator that isn't already grouped into a unit
-
-    # create a numeric version of each generator_id
-    # ngroup() creates a unique number for each element in the group
-    # when filling in missing unit_id_pudl, we don't want these numeric_generator_id to
-    # overlap existing unit_id
-    plant_gen_gb = subplant_crosswalk.groupby(
-        ["plant_id_eia", "generator_id"], dropna=False
-    )
-    plant_gb = subplant_crosswalk.groupby(["plant_id_eia"], dropna=False)
+    # Step 2: Update the subplant ID based on these now known unit/subplant overlaps
     subplant_crosswalk = subplant_crosswalk.assign(
-        numeric_generator_id=(
-            plant_gen_gb.ngroup() + plant_gb.unit_id_pudl.transform(max)
-        ),
         unit_id_pudl_filled=(
             lambda x: x.unit_id_pudl_connected.fillna(
-                x.subplant_id_connected + plant_gb.unit_id_pudl_connected.transform(max)
-            ).fillna(x.numeric_generator_id)
+                x.subplant_id_connected
+                + x.groupby(
+                    ["plant_id_eia"], dropna=False
+                ).unit_id_pudl_connected.transform(max)
+            )
+        ),
+        # create a new unique subplant_id based on the connected subplant ids and the
+        # filled unit_id
+        subplant_id_updated=(
+            lambda x: x.groupby(
+                ["plant_id_eia", "subplant_id_connected", "unit_id_pudl_filled"],
+                dropna=False,
+            ).ngroup()
         ),
     )
-
-    # create a new unique subplant_id based on the connected subplant ids and the filled unit_id
-    subplant_crosswalk["new_subplant"] = subplant_crosswalk.groupby(
-        ["plant_id_eia", "subplant_id_connected", "unit_id_pudl_filled"],
-        dropna=False,
-    ).ngroup()
 
     return subplant_crosswalk
 

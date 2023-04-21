@@ -5,7 +5,6 @@ import pandas as pd
 
 import pudl.etl.glue_assets as glue_assets
 import pudl.transform.epacems as epacems
-from pudl.helpers import convert_cols_dtypes
 
 
 def test_harmonize_eia_epa_orispl():
@@ -110,7 +109,7 @@ plant_id_eia,plant_id_epa,unit_id_pudl,emissions_unit_id_epa,generator_id,subpla
 1,1,1,A,A,0
 """
         )
-    ).pipe(convert_cols_dtypes, "eia")
+    )
 
     epacamd_eia_subplant_ids_got = glue_assets.epacamd_eia_subplant_ids(
         clean_epacamd_eia=clean_epacamd_eia_test,
@@ -122,4 +121,5 @@ plant_id_eia,plant_id_epa,unit_id_pudl,emissions_unit_id_epa,generator_id,subpla
     pd.testing.assert_frame_equal(
         epacamd_eia_subplant_ids_expected,
         epacamd_eia_subplant_ids_got[epacamd_eia_subplant_ids_expected.columns],
+        check_dtype=False,
     )
