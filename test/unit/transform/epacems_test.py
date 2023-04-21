@@ -3,7 +3,7 @@ from io import StringIO
 
 import pandas as pd
 
-import pudl.etl.epacems_assets as epacems_assets
+import pudl.etl.glue_assets as glue_assets
 import pudl.transform.epacems as epacems
 from pudl.helpers import convert_cols_dtypes
 
@@ -112,7 +112,7 @@ plant_id_eia,plant_id_epa,unit_id_pudl,emissions_unit_id_epa,generator_id,subpla
         )
     ).pipe(convert_cols_dtypes, "eia")
 
-    epacamd_eia_subplant_ids_got = epacems_assets.epacamd_eia_subplant_ids(
+    epacamd_eia_subplant_ids_got = glue_assets.epacamd_eia_subplant_ids(
         clean_epacamd_eia=clean_epacamd_eia_test,
         generators_eia860=generators_entity_eia_test,
         emissions_unit_ids_epacems=emissions_unit_ids_epacems_test,
