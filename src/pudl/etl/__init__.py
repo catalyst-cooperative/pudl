@@ -20,12 +20,8 @@ from pudl.io_managers import (
 from pudl.resources import dataset_settings, datastore, ferc_to_sqlite_settings
 from pudl.settings import EtlSettings
 
-from . import (  # noqa: F401
-    eia_bulk_elec_assets,
-    epacems_assets,
-    glue_assets,
-    static_assets,
-)
+from . import glue_assets  # noqa: F401
+from . import eia_bulk_elec_assets, epacems_assets, static_assets
 
 logger = pudl.logging_helpers.get_logger(__name__)
 
@@ -39,8 +35,8 @@ default_assets = (
     *load_assets_from_modules([pudl.extract.eia923], group_name="raw_eia923"),
     *load_assets_from_modules([pudl.transform.eia923], group_name="clean_eia923"),
     *load_assets_from_modules([pudl.transform.eia], group_name="norm_eia"),
-    *load_assets_from_modules([pudl.extract.ferc1], group_name="ferc1"),
-    *load_assets_from_modules([pudl.transform.ferc1], group_name="ferc1"),
+    *load_assets_from_modules([pudl.extract.ferc1], group_name="raw_ferc1"),
+    *load_assets_from_modules([pudl.transform.ferc1], group_name="norm_ferc1"),
     *load_assets_from_modules([pudl.extract.ferc714], group_name="raw_ferc714"),
     *load_assets_from_modules([pudl.transform.ferc714], group_name="clean_ferc714"),
     *load_assets_from_modules([glue_assets], group_name="glue"),
@@ -54,10 +50,10 @@ default_assets = (
         ],
         group_name="denorm_eia",
     ),
-    *load_assets_from_modules([pudl.output.new_ferc1], group_name="new_ferc1"),
     *load_assets_from_modules(
         [pudl.analysis.allocate_net_gen], group_name="allocate_net_gen"
     ),
+    *load_assets_from_modules([pudl.output.ferc1], group_name="denorm_ferc1"),
 )
 
 default_resources = {
