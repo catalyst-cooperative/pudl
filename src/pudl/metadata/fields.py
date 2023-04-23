@@ -2301,6 +2301,10 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
             "ISO-3166 political subdivision type. E.g. state, province, outlying_area."
         ),
     },
+    "subplant_id": {
+        "type": "integer",
+        "description": "Sub-plant ID links EPA CEMS emissions units to EIA units.",
+    },
     "sulfur_content_pct": {
         "type": "number",
         "description": "Sulfur content percentage by weight to the nearest 0.01 percent.",

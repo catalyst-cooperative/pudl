@@ -495,7 +495,12 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
                 "previously_canceled",
             ],
             "primary_key": ["plant_id_eia", "generator_id"],
-            "foreign_key_rules": {"fields": [["plant_id_eia", "generator_id"]]},
+            "foreign_key_rules": {
+                "fields": [["plant_id_eia", "generator_id"]],
+                # exclude epacamd_eia_subplant_ids bc there are generator ids in this
+                # glue table that come only from epacamd
+                "exclude": ["epacamd_eia_subplant_ids"],
+            },
         },
         "sources": ["eia860", "eia923"],
         "etl_group": "entity_eia",
@@ -546,7 +551,8 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
                 # restricted set of data is processed, leading to constraint
                 # violations.
                 # See: https://github.com/catalyst-cooperative/pudl/issues/1196
-                "exclude": ["plants_eia"],
+                # Exclude the epacamd_eia_subplant_ids table
+                "exclude": ["plants_eia", "epacamd_eia_subplant_ids"],
             },
         },
         "sources": ["eia860", "eia923"],
