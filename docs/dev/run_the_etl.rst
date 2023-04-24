@@ -16,7 +16,8 @@ Database initialization
 
 Before we run anything, we'll need to make sure that the schema in the database
 actually matches the schema in the code - run ``alembic upgrade head`` to create
-the database with the right schema.
+the database with the right schema. If you already have a ``pudl.sqlite`` you'll
+need to delete it first.
 
 Database schema migration
 -------------------------
