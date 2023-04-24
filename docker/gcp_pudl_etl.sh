@@ -32,16 +32,11 @@ function run_pudl_etl() {
         --loglevel DEBUG \
         --gcs-cache-path gs://internal-zenodo-cache.catalyst.coop \
         $PUDL_SETTINGS_YML
-    # Run unit+integration tests and data validations in parallel in the background
-    # They each take ~1 hour on their own and have no interdependencies.
-    pytest \
+    && tox parallel -e unit,integration,validation --parallel-live \
+        -- \
         --gcs-cache-path=gs://internal-zenodo-cache.catalyst.coop \
         --etl-settings=$PUDL_SETTINGS_YML \
-        --live-dbs test/unit test/integration &
-    pytest \
-        --gcs-cache-path=gs://internal-zenodo-cache.catalyst.coop \
-        --etl-settings=$PUDL_SETTINGS_YML \
-        --live-dbs test/validate &
+        --live-dbs
 }
 
 function shutdown_vm() {

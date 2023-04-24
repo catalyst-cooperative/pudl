@@ -15,10 +15,11 @@ function run_pudl_etl() {
         --loglevel DEBUG \
         --gcs-cache-path gs://internal-zenodo-cache.catalyst.coop \
         $PUDL_SETTINGS_YML \
-    && pytest \
+    && tox parallel -e unit,integration,validation --parallel-live \
+        -- \
         --gcs-cache-path=gs://internal-zenodo-cache.catalyst.coop \
         --etl-settings=$PUDL_SETTINGS_YML \
-        --live-dbs test
+        --live-dbs
 }
 
 # Run the ETL and save the logs.
