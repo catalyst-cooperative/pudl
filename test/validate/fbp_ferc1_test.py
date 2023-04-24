@@ -103,5 +103,11 @@ def test_self_vs_historical(pudl_out_ferc1, live_dbs):
     """
     if not live_dbs:
         pytest.skip("Data validation only works with a live PUDL DB.")
-    for args in pv.fbp_ferc1_self:
-        pv.vs_self(pudl_out_ferc1.fbp_ferc1(), **args)
+    else:
+        fbp_ferc1 = pudl_out_ferc1.fbp_ferc1()
+        for f in ["gas", "oil", "coal", "waste", "nuclear"]:
+            fbp_ferc1[f"{f}_cost_per_mmbtu"] = (
+                fbp_ferc1[f"{f}_fraction_cost"] * fbp_ferc1["fuel_cost"]
+            ) / (fbp_ferc1[f"{f}_fraction_mmbtu"] * fbp_ferc1["fuel_mmbtu"])
+        for args in pv.fbp_ferc1_self:
+            pv.vs_self(fbp_ferc1, **args)
