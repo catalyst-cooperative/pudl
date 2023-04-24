@@ -426,7 +426,7 @@ def _coalmine_cleanup(cmi_df: pd.DataFrame) -> pd.DataFrame:
 
     This function does most of the coalmine_eia923 table transformation. It is separate
     from the coalmine() transform function because of the peculiar way that we are
-    normalizing the fuel_receipts_costs_eia923() table.
+    normalizing the ref:`fuel_receipts_costs_eia923` table.
 
     All of the coalmine information is originally coming from the EIA
     fuel_receipts_costs spreadsheet, but it really belongs in its own table. We strip it
@@ -1006,7 +1006,8 @@ def clean_coalmine_eia923(raw_fuel_receipts_costs_eia923: pd.DataFrame) -> pd.Da
     * Drop duplicates with MSHA ID.
 
     Args:
-        raw_fuel_receipts_costs_eia923: The raw ``raw_fuel_receipts_costs_eia923`` dataframe.
+        raw_fuel_receipts_costs_eia923: raw precursor to the
+            :ref:`fuel_receipts_costs_eia923` table.
 
     Returns:
         Cleaned ``coalmine_eia923`` dataframe ready for harvesting.
@@ -1209,5 +1210,7 @@ def clean_fuel_receipts_costs_eia923(
     # occur in the 2012 data. Real values should be <0.25ppm.
     bad_hg_idx = frc_df.mercury_content_ppm >= 7.0
     frc_df.loc[bad_hg_idx, "mercury_content_ppm"] = np.nan
+    # There are a couple of invalid records with no specified fuel.
+    frc_df = frc_df.dropna(subset=["energy_source_code"])
 
     return frc_df
