@@ -17,7 +17,7 @@ found in :func:`pudl.transform.eia._boiler_generator_assn`.
 """
 import importlib.resources
 from collections import namedtuple
-from enum import Enum
+from enum import StrEnum, auto
 
 import networkx as nx
 import numpy as np
@@ -47,15 +47,13 @@ TZ_FINDER = timezonefinder.TimezoneFinder()
 """A global TimezoneFinder to cache geographies in memory for faster access."""
 
 
-class EiaEntity(Enum):
+class EiaEntity(StrEnum):
     """Enum for the different types of EIA entities."""
 
-    # Switch to StrEnum in Python 3.11...
-
-    PLANTS = "plants"
-    UTILITIES = "utilities"
-    BOILERS = "boilers"
-    GENERATORS = "generators"
+    PLANTS = auto()
+    UTILITIES = auto()
+    BOILERS = auto()
+    GENERATORS = auto()
 
 
 def find_timezone(*, lng=None, lat=None, state=None, strict=True):

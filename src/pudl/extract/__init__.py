@@ -7,15 +7,13 @@ the :mod:`pudl.workspace` subpackage, and ends with a dictionary of "raw"
 are ready for normalization and data cleaning by the data source specific modules in the
 :mod:`pudl.transform` subpackage.
 """
-from . import (  # noqa: F401
-    eia860,
-    eia860m,
-    eia861,
-    eia923,
-    eia_bulk_elec,
-    epacems,
-    excel,
-    ferc1,
-    ferc714,
-    xbrl,
-)
+from . import eia860  # noqa: F401
+from . import eia860m  # noqa: F401
+from . import eia861  # noqa: F401
+from . import eia923  # noqa: F401
+from . import eia_bulk_elec  # noqa: F401
+from . import epacems  # noqa: F401
+from . import excel  # noqa: F401
+from . import ferc1  # noqa: F401
+from . import ferc714  # noqa: F401
+from . import xbrl  # noqa: F401
