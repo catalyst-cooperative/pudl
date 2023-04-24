@@ -188,13 +188,15 @@ def test_nuclear_units_are_generators(pudl_out_eia, live_dbs):
 
     # Drop all nuclear units that don't have a nuclear_unit_id.
     all_nuke_gf = (
-        pudl_out_eia.gf_nuclear_eia923()[
-            [
+        pd.read_sql(
+            "generation_fuel_nuclear_eia923",
+            pudl_out_eia.pudl_engine,
+            columns=[
                 "plant_id_eia",
                 "nuclear_unit_id",
                 "energy_source_code",
-            ]
-        ]
+            ],
+        )
         .query("nuclear_unit_id != 'UNK'")
         .assign(generator_id=lambda x: x.nuclear_unit_id)
         .set_index(["plant_id_eia", "generator_id"])

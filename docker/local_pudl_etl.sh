@@ -6,13 +6,13 @@ set -x
 
 function run_pudl_etl() {
     pudl_setup \
+    && pudl_reset_db \
     && ferc_to_sqlite \
         --loglevel DEBUG \
         --gcs-cache-path gs://internal-zenodo-cache.catalyst.coop \
         $PUDL_SETTINGS_YML \
     && pudl_etl \
         --loglevel DEBUG \
-        --partition-epacems \
         --gcs-cache-path gs://internal-zenodo-cache.catalyst.coop \
         $PUDL_SETTINGS_YML \
     && pytest \

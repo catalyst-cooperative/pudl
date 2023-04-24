@@ -1,13 +1,13 @@
 """Test MCOE (marginal cost of electricity) module functionality.
 
-This set of test attempts to exercise all of the functions which are used in
-the calculation of the marginal cost of electricity (MCOE), based on fuel
-costs reported to EIA, and non-fuel operating costs reported to FERC.  Much
-of what these functions do is attempt to correctly attribute data reported on a
-per plant basis to individual generators.
+This set of test attempts to exercise all of the functions which are used in the
+calculation of the marginal cost of electricity (MCOE), based on fuel costs reported to
+EIA, and non-fuel operating costs reported to FERC.  Much of what these functions do is
+attempt to correctly attribute data reported on a per plant basis to individual
+generators.
 
-For now, these calculations are only using the EIA fuel cost data. FERC Form 1
-non-fuel production costs have yet to be integrated.
+For now, these calculations are only using the EIA fuel cost data. FERC Form 1 non-fuel
+production costs have yet to be integrated.
 """
 import logging
 

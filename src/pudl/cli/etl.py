@@ -64,12 +64,6 @@ def parse_command_line(argv):
         help="Set logging level (DEBUG, INFO, WARNING, ERROR, or CRITICAL).",
         default="INFO",
     )
-    parser.add_argument(
-        "--partition-epacems",
-        action="store_true",
-        default=False,
-        help="If set, output epacems year-state partitioned Parquet files",
-    )
     arguments = parser.parse_args(argv[1:])
     return arguments
 
@@ -135,7 +129,7 @@ def main():
         dataset_settings_config["epacems"] = pudl.settings.EpaCemsSettings().dict()
 
     pudl_etl_reconstructable_job = build_reconstructable_job(
-        "pudl.cli",
+        "pudl.cli.etl",
         "pudl_etl_job_factory",
         reconstructable_kwargs={
             "loglevel": args.loglevel,
@@ -157,13 +151,6 @@ def main():
                         else "",
                     },
                 },
-            },
-            "ops": {
-                "hourly_emissions_epacems": {
-                    "config": {
-                        "partition": args.partition_epacems,
-                    }
-                }
             },
         },
     )

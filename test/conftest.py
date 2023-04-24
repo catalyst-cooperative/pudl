@@ -14,7 +14,8 @@ from ferc_xbrl_extractor import xbrl
 
 import pudl
 from pudl import resources
-from pudl.cli import pudl_etl_job_factory
+from pudl.cli.etl import pudl_etl_job_factory
+from pudl.cli.reset_db import reset_db
 from pudl.extract.ferc1 import xbrl_metadata_json
 from pudl.extract.xbrl import FercXbrlDatastore, _get_sqlite_engine
 from pudl.ferc_to_sqlite.cli import ferc_to_sqlite_job_factory
@@ -88,7 +89,6 @@ def pytest_addoption(parser):
 @pytest.fixture(scope="session")
 def pudl_env(pudl_input_output_dirs):
     """Set PUDL_OUTPUT/PUDL_INPUT/DAGSTER_HOME environment variables."""
-
     pudl.workspace.setup.get_defaults(**pudl_input_output_dirs)
 
     logger.info(f"PUDL_OUTPUT path: {os.environ['PUDL_OUTPUT']}")
@@ -166,6 +166,18 @@ def pudl_out_eia(live_dbs, pudl_engine, request):
     return PudlTabl(
         pudl_engine=pudl_engine,
         freq=request.param,
+        fill_fuel_cost=True,
+        roll_fuel_cost=True,
+        fill_net_gen=True,
+    )
+
+
+@pytest.fixture(scope="session", name="fast_out_annual")
+def fast_out_annual(pudl_engine, pudl_datastore_fixture):
+    """A PUDL output object for use in CI."""
+    return pudl.output.pudltabl.PudlTabl(
+        pudl_engine,
+        freq="AS",
         fill_fuel_cost=True,
         roll_fuel_cost=True,
         fill_net_gen=True,
@@ -299,6 +311,7 @@ def pudl_sql_io_manager(
     """
     logger.info("setting up the pudl_engine fixture")
     if not live_dbs:
+        reset_db()
         # Run the ETL and generate a new PUDL SQLite DB for testing:
         pudl_etl_job_factory()().execute_in_process(
             run_config={
@@ -309,13 +322,6 @@ def pudl_sql_io_manager(
                     "datastore": {
                         "config": pudl_datastore_config,
                     },
-                },
-                "ops": {
-                    "hourly_emissions_epacems": {
-                        "config": {
-                            "partition": True,
-                        }
-                    }
                 },
             },
         )
@@ -361,7 +367,8 @@ def pudl_input_output_dirs(request, live_dbs, pudl_input_tmpdir, pudl_output_tmp
 
     if os.environ.get("GITHUB_ACTIONS", False):
         # hard-code input dir for CI caching
-        input_override = Path(os.environ["HOME"]) / "pudl-work"
+        input_override = Path(os.environ["HOME"]) / "pudl-work" / "data"
+        output_override = Path(os.environ["HOME"]) / "pudl-work" / "output"
     elif request.config.getoption("--tmp-data"):
         # use tmpdir for inputs if we ask for it
         input_override = pudl_input_tmpdir

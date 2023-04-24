@@ -7,6 +7,8 @@ import dask.dataframe as dd
 import pandas as pd
 import pyarrow as pa
 import sqlalchemy as sa
+from alembic.autogenerate.api import compare_metadata
+from alembic.migration import MigrationContext
 from dagster import (
     Field,
     InitResourceContext,
@@ -88,7 +90,7 @@ class SQLiteIOManager(IOManager):
         self,
         base_dir: str,
         db_name: str,
-        md: sa.MetaData = None,
+        md: sa.MetaData | None = None,
         timeout: float = 1_000.0,
     ):
         """Init a SQLiteIOmanager.
@@ -118,9 +120,9 @@ class SQLiteIOManager(IOManager):
             )
 
         # If no metadata is specified, create an empty sqlalchemy metadata object.
+        if md is None:
+            md = sa.MetaData()
         self.md = md
-        if not self.md:
-            self.md = sa.MetaData()
 
         self.engine = self._setup_database(timeout=timeout)
 
@@ -183,14 +185,13 @@ class SQLiteIOManager(IOManager):
     def _get_fk_list(self, table: str) -> pd.DataFrame:
         """Retrieve a dataframe of foreign keys for a table.
 
-        Description from the SQLite Docs:
-        'This pragma returns one row for each foreign key constraint
-        created by a REFERENCES clause in the CREATE TABLE statement of table
-        "table-name".'
+        Description from the SQLite Docs: 'This pragma returns one row for each foreign
+        key constraint created by a REFERENCES clause in the CREATE TABLE statement of
+        table "table-name".'
 
-        The PRAGMA returns one row for each field in a foreign key constraint.
-        This method collapses foreign keys with multiple fields into one record
-        for readability.
+        The PRAGMA returns one row for each field in a foreign key constraint. This
+        method collapses foreign keys with multiple fields into one record for
+        readability.
         """
         with self.engine.connect() as con:
             table_fks = pd.read_sql_query(f"PRAGMA foreign_key_list({table});", con)
@@ -310,6 +311,9 @@ class SQLiteIOManager(IOManager):
         engine = self.engine
         table_name = self._get_table_name(context)
 
+        # Make sure the metadata has been created for the view
+        _ = self._get_sqlalchemy_table(table_name)
+
         with engine.connect() as con:
             # Drop the existing view if it exists and create the new view.
             # TODO (bendnorman): parameterize this safely.
@@ -379,9 +383,9 @@ class PudlSQLiteIOManager(SQLiteIOManager):
 
     def __init__(
         self,
-        base_dir: str = None,
-        db_name: str = None,
-        package: Package = None,
+        base_dir: str,
+        db_name: str,
+        package: Package | None = None,
         timeout: float = 1_000.0,
     ):
         """Initialize PudlSQLiteIOManager.
@@ -410,11 +414,21 @@ class PudlSQLiteIOManager(SQLiteIOManager):
                 connection opens a transaction to modify the database, it will be locked
                 until that transaction is committed.
         """
-        if not package:
+        if package is None:
             package = Package.from_resource_ids()
         self.package = package
         md = self.package.to_sql()
+        sqlite_path = Path(base_dir) / f"{db_name}.sqlite"
+        if not sqlite_path.exists():
+            raise RuntimeError(f"{sqlite_path} not initialized! Run pudl_reset_db.")
+
         super().__init__(base_dir, db_name, md, timeout)
+
+        existing_schema_context = MigrationContext.configure(self.engine.connect())
+        metadata_diff = compare_metadata(existing_schema_context, self.md)
+        if metadata_diff:
+            logger.info(f"Metadata diff:\n\n{metadata_diff}")
+            raise RuntimeError("Database schema has changed, run `pudl_reset_db`.")
 
     def _handle_str_output(self, context: OutputContext, query: str):
         """Execute a sql query on the database.
@@ -535,8 +549,8 @@ def pudl_sqlite_io_manager(init_context) -> PudlSQLiteIOManager:
 class FercSQLiteIOManager(SQLiteIOManager):
     """IO Manager for reading tables from FERC databases.
 
-    This class should be subclassed and the load_input and handle_output
-    methods should be implemented.
+    This class should be subclassed and the load_input and handle_output methods should
+    be implemented.
 
     This IOManager exepcts the database to already exist.
     """
@@ -563,7 +577,10 @@ class FercSQLiteIOManager(SQLiteIOManager):
         """
         super().__init__(base_dir, db_name, md, timeout)
 
-    def _setup_database(self, timeout: float = 1_000.0) -> sa.engine.Engine:
+    def _setup_database(
+        self,
+        timeout: float = 1_000.0,
+    ) -> sa.engine.Engine:
         """Create database engine and read the metadata.
 
         Args:

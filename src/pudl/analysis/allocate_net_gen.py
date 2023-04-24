@@ -198,8 +198,8 @@ MISSING_SENTINEL = 0.00001
 
 # Two top-level functions (allocate & aggregate)
 def allocate_gen_fuel_by_generator_energy_source(
-    pudl_out, drop_interim_cols: bool = True
-):
+    pudl_out: "pudl.output.pudltabl.PudlTabl", drop_interim_cols: bool = True
+) -> pd.DataFrame:
     """Allocate net gen from gen_fuel table to the generator/energy_source_code level.
 
     Three main steps here:
@@ -295,30 +295,30 @@ def aggregate_gen_fuel_by_generator(
         pudl_out: An object used to create the tables for EIA and FERC Form 1
             analysis.
         net_gen_fuel_alloc: table of allocated generation at the generator/prime mover/
-            energy source. Result of :func:`allocate_gen_fuel_by_generator_energy_source`
+            energy source. From :func:`allocate_gen_fuel_by_generator_energy_source`
         sum_cols: Data columns from that are being aggregated via a
-            ``pandas.groupby.sum()`` in agg_by_generator
+            :meth:`pandas.groupby.sum` in :func:`agg_by_generator`
 
     Returns:
         table with columns :py:const:`IDX_GENS` and net generation and fuel
         consumption scaled to the level of the :py:const:`IDX_GENS`.
     """
-    # aggregate the gen/pm/fuel records back to generator records
-    gen_allocated = agg_by_generator(
-        net_gen_fuel_alloc=net_gen_fuel_alloc, sum_cols=sum_cols
+    return (
+        # aggregate the gen/pm/fuel records back to generator records
+        agg_by_generator(
+            net_gen_fuel_alloc=net_gen_fuel_alloc,
+            sum_cols=sum_cols,
+        )
+        # make the output resemble denorm_generation_eia923:
+        .pipe(
+            pudl.output.eia923.denorm_by_gen,
+            pu=pudl_out.pu_eia860(),
+            bga=pudl_out.bga_eia860(),
+        )
     )
-    # make the output mirror the gen_original_eia923()
-
-    gen_allocated = pudl.output.eia923.denorm_generation_eia923(
-        g_df=gen_allocated,
-        pudl_engine=pudl_out.pudl_engine,
-        start_date=pudl_out.start_date,
-        end_date=pudl_out.end_date,
-    )
-    return gen_allocated
 
 
-def extract_input_tables(pudl_out: "pudl.output.pudltabl.PudlTabl"):
+def extract_input_tables(pudl_out: "pudl.output.pudltabl.PudlTabl") -> tuple:
     """Extract the input tables from the pudl_out object.
 
     Extract all of the tables from pudl_out early in the process and select
@@ -333,7 +333,7 @@ def extract_input_tables(pudl_out: "pudl.output.pudltabl.PudlTabl"):
             :,
             IDX_PM_ESC + DATA_COLUMNS,
         ]
-        .pipe(manually_fix_energy_source_codes)
+        .pipe(manually_fix_energy_source_codes)  # TODO: move to a transform step
     )
     bf = pudl_out.bf_eia923().loc[:, IDX_B_PM_ESC + ["fuel_consumed_mmbtu"]]
     # load boiler generator associations
@@ -374,7 +374,7 @@ def extract_input_tables(pudl_out: "pudl.output.pudltabl.PudlTabl"):
 
 def standardize_input_frequency(
     bf: pd.DataFrame, gens: pd.DataFrame, gen: pd.DataFrame, freq: Literal["MS", "MS"]
-):
+) -> tuple:
     """Standardize the frequency of the input tables.
 
     Employ :func:`distribute_annually_reported_data_to_months_if_annual` on the boiler
@@ -467,8 +467,6 @@ def scale_allocated_net_gen_by_ownership(
 
 
 # Internal functions for allocate_gen_fuel_by_generator_energy_source
-
-
 def agg_by_generator(
     net_gen_fuel_alloc: pd.DataFrame,
     by_cols: list[str] = IDX_GENS,
@@ -495,7 +493,7 @@ def stack_generators(
     gens: pd.DataFrame,
     cat_col: str = "energy_source_code_num",
     stacked_col: str = "energy_source_code",
-):
+) -> pd.DataFrame:
     """Stack the generator table with a set of columns.
 
     Args:
@@ -720,7 +718,7 @@ def remove_inactive_generators(gen_assoc: pd.DataFrame) -> pd.DataFrame:
     return gen_assoc_removed
 
 
-def identify_retiring_generators(gen_assoc):
+def identify_retiring_generators(gen_assoc: pd.DataFrame) -> pd.DataFrame:
     """Identify any generators that retire mid-year.
 
     These are generators with a retirement date after the earliest report_date or which
@@ -738,7 +736,7 @@ def identify_retiring_generators(gen_assoc):
     return retiring_generators
 
 
-def identify_retired_plants(gen_assoc):
+def identify_retired_plants(gen_assoc: pd.DataFrame) -> pd.DataFrame:
     """Identify entire plants that have previously retired but are reporting data."""
     # get a subset of the data that represents all plants that have completely retired before the start date
     # Get a list of all of the plants with at least one retired generator and reports non-zero generation data
@@ -795,7 +793,7 @@ def identify_retired_plants(gen_assoc):
     return retired_plants
 
 
-def identify_generators_coming_online(gen_assoc):
+def identify_generators_coming_online(gen_assoc: pd.DataFrame) -> pd.DataFrame:
     """Identify generators that are coming online mid-year.
 
     These are defined as generators that have a proposed status but which report
@@ -810,7 +808,7 @@ def identify_generators_coming_online(gen_assoc):
     return proposed_generators
 
 
-def identify_proposed_plants(gen_assoc):
+def identify_proposed_plants(gen_assoc: pd.DataFrame) -> pd.DataFrame:
     """Identify entirely new plants that are proposed but are already reporting data."""
     # Get a list of all of the plants that have a proposed generator with non-null and non-zero gf generation
     proposed_generators_with_reported_bf = list(
@@ -1681,12 +1679,12 @@ def allocate_bf_data_to_gens(
     connected generators.
 
     Because fuel consumption in the boiler_fuel_eia923 table is reported per boiler_id,
-    we must first map this data to generators using the boiler_generator_assn_eia860 table.
-    For boilers that have a 1:m or m:m relationship with generators, we allocate the reported
-    fuel to each associated generator based on the nameplate capacity of each generator.
-    So if boiler "1" was associated with generator A (25 MW) and generator B (75 MW), 25%
-    of the fuel consumption would be allocated to generator A and 75% would be allocated to
-    generator B.
+    we must first map this data to generators using the boiler_generator_assn_eia860
+    table. For boilers that have a 1:m or m:m relationship with generators, we allocate
+    the reported fuel to each associated generator based on the nameplate capacity of
+    each generator. So if boiler "1" was associated with generator A (25 MW) and
+    generator B (75 MW), 25% of the fuel consumption would be allocated to generator A
+    and 75% would be allocated to generator B.
     """
     # merge generator capacity information into the BGA
     bga_w_gen = bga.merge(
@@ -1749,10 +1747,10 @@ def allocate_bf_data_to_gens(
     return bf_by_gen
 
 
-##################
+########################################################################################
 # Tests of Outputs
-##################
-def warn_if_missing_pms(gens):
+########################################################################################
+def warn_if_missing_pms(gens: pd.DataFrame) -> None:
     """Log warning if there are too many null ``prime_mover_code`` s.
 
     Warn if prime mover codes in gens do not match the codes in the gf table this is
@@ -1783,7 +1781,7 @@ def warn_if_missing_pms(gens):
         )
 
 
-def _test_frac(gen_pm_fuel):
+def _test_frac(gen_pm_fuel: pd.DataFrame) -> pd.DataFrame:
     """Check if each of the IDX_PM_ESC groups frac's add up to 1."""
     frac_test = (
         gen_pm_fuel.groupby(IDX_PM_ESC)[["frac", "net_generation_mwh_g_tbl"]]
@@ -1802,7 +1800,9 @@ def _test_frac(gen_pm_fuel):
     return frac_test_bad
 
 
-def _test_gen_pm_fuel_output(gen_pm_fuel, gf, gen):
+def _test_gen_pm_fuel_output(
+    gen_pm_fuel: pd.DataFrame, gf: pd.DataFrame, gen: pd.DataFrame
+) -> pd.DataFrame:
     # this is just for testing/debugging
     def calc_net_gen_diff(gen_pm_fuel, idx):
         gen_pm_fuel_test = pd.merge(
@@ -1863,7 +1863,9 @@ def _test_gen_pm_fuel_output(gen_pm_fuel, gf, gen):
     return gen_pm_fuel_test
 
 
-def test_gen_fuel_allocation(gen, net_gen_alloc, ratio=0.05):
+def test_gen_fuel_allocation(
+    gen: pd.DataFrame, net_gen_alloc: pd.DataFrame, ratio: float = 0.05
+) -> None:
     """Does the allocated MWh differ from the granular :ref:`generation_eia923`?
 
     Args:

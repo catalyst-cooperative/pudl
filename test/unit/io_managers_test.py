@@ -4,6 +4,7 @@ import pytest
 from dagster import AssetKey, build_input_context, build_output_context
 from sqlalchemy.exc import IntegrityError, OperationalError
 
+from pudl.cli.reset_db import reset_db
 from pudl.io_managers import (
     ForeignKeyError,
     ForeignKeyErrors,
@@ -29,7 +30,7 @@ def test_pkg() -> Package:
     ]
     schema = {"fields": fields, "primary_key": ["artistid"]}
     view_resource = Resource(
-        name="artist_view", schema=schema, include_in_database=False
+        name="artist_view", schema=schema, create_database_schema=False
     )
 
     fields = [
@@ -199,6 +200,7 @@ def test_missing_schema_error(sqlite_io_manager_fixture):
 @pytest.fixture
 def pudl_sqlite_io_manager_fixture(tmp_path, test_pkg):
     """Create a SQLiteIOManager fixture with a PUDL database schema."""
+    reset_db(tmp_path / "pudl.sqlite", test_pkg.to_sql())
     return PudlSQLiteIOManager(base_dir=tmp_path, db_name="pudl", package=test_pkg)
 
 

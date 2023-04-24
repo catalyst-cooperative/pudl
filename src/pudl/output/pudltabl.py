@@ -21,6 +21,7 @@ data products that we might want to be able to provide to users a la carte.
 
 from collections import defaultdict
 from datetime import date, datetime
+from functools import partial
 from typing import Any, Literal
 
 # Useful high-level external modules.
@@ -33,7 +34,7 @@ from pudl.analysis.allocate_net_gen import (
     allocate_gen_fuel_by_generator_energy_source,
     scale_allocated_net_gen_by_ownership,
 )
-from pudl.metadata.classes import Package
+from pudl.metadata.classes import Resource
 from pudl.metadata.fields import apply_pudl_dtypes
 
 logger = pudl.logging_helpers.get_logger(__name__)
@@ -129,448 +130,178 @@ class PudlTabl:
         # Used to persist the output tables. Returns None if they don't exist.
         self._dfs = defaultdict(lambda: None)
 
-    def pu_eia860(self, update=False):
-        """Pull a dataframe of EIA plant-utility associations.
+        self._register_output_methods()
+
+    def _register_output_methods(self):
+        """Load output assets and register a class method for retrieving each one."""
+        # Map table name to PudlTabl method.
+        # PudlTabl will generate a method to read each table from the DB with the given method name
+        table_method_map = {  # table_name: method_name
+            # denorm_ferc1
+            "denorm_balance_sheet_assets_ferc1": "denorm_balance_sheet_assets_ferc1",
+            "denorm_balance_sheet_liabilities_ferc1": "denorm_balance_sheet_liabilities_ferc1",
+            "denorm_cash_flow_ferc1": "denorm_cash_flow_ferc1",
+            "denorm_depreciation_amortization_summary_ferc1": "denorm_depreciation_amortization_summary_ferc1",
+            "denorm_electric_energy_dispositions_ferc1": "denorm_electric_energy_dispositions_ferc1",
+            "denorm_electric_energy_sources_ferc1": "denorm_electric_energy_sources_ferc1",
+            "denorm_electric_operating_expenses_ferc1": "denorm_electric_operating_expenses_ferc1",
+            "denorm_electric_operating_revenues_ferc1": "denorm_electric_operating_revenues_ferc1",
+            "denorm_electric_plant_depreciation_changes_ferc1": "denorm_electric_plant_depreciation_changes_ferc1",
+            "denorm_electric_plant_depreciation_functional_ferc1": "denorm_electric_plant_depreciation_functional_ferc1",
+            "denorm_electricity_sales_by_rate_schedule_ferc1": "denorm_electricity_sales_by_rate_schedule_ferc1",
+            "denorm_income_statement_ferc1": "denorm_income_statement_ferc1",
+            "denorm_other_regulatory_liabilities_ferc1": "denorm_other_regulatory_liabilities_ferc1",
+            "denorm_retained_earnings_ferc1": "denorm_retained_earnings_ferc1",
+            "denorm_transmission_statistics_ferc1": "denorm_transmission_statistics_ferc1",
+            "denorm_utility_plant_summary_ferc1": "denorm_utility_plant_summary_ferc1",
+            "denorm_plants_utilities_ferc1": "pu_ferc1",
+            "denorm_plants_steam_ferc1": "plants_steam_ferc1",
+            "denorm_fuel_ferc1": "fuel_ferc1",
+            "denorm_fuel_by_plant_ferc1": "fbp_ferc1",
+            "denorm_plants_small_ferc1": "plants_small_ferc1",
+            "denorm_plants_hydro_ferc1": "plants_hydro_ferc1",
+            "denorm_plants_pumped_storage_ferc1": "plants_pumped_storage_ferc1",
+            "denorm_purchased_power_ferc1": "purchased_power_ferc1",
+            "denorm_plant_in_service_ferc1": "plant_in_service_ferc1",
+            "denorm_plants_all_ferc1": "plants_all_ferc1",
+            # denorm_eia (data comes from multiple EIA forms)
+            "denorm_plants_eia": "plants_eia860",
+            "denorm_utilities_eia": "utils_eia860",
+            "denorm_boilers_eia": "boil_eia860",
+            "denorm_generators_eia": "gens_eia860",
+            "denorm_plants_utilities_eia": "pu_eia860",
+            # eia860 (denormalized, data primarily from EIA-860)
+            "denorm_ownership_eia860": "own_eia860",
+            "boiler_generator_assn_eia860": "bga_eia860",
+            # eia861 (clean)
+            "service_territory_eia861": "service_territory_eia861",
+            "sales_eia861": "sales_eia861",
+            "advanced_metering_infrastructure_eia861": "advanced_metering_infrastructure_eia861",
+            "demand_response_eia861": "demand_response_eia861",
+            "demand_response_water_heater_eia861": "demand_response_water_heater_eia861",
+            "demand_side_management_sales_eia861": "demand_side_management_sales_eia861",
+            "demand_side_management_ee_dr_eia861": "demand_side_management_ee_dr_eia861",
+            "demand_side_management_misc_eia861": "demand_side_management_misc_eia861",
+            "distributed_generation_tech_eia861": "distributed_generation_tech_eia861",
+            "distributed_generation_fuel_eia861": "distributed_generation_fuel_eia861",
+            "distributed_generation_misc_eia861": "distributed_generation_misc_eia861",
+            "distribution_systems_eia861": "distribution_systems_eia861",
+            "dynamic_pricing_eia861": "dynamic_pricing_eia861",
+            "energy_efficiency_eia861": "energy_efficiency_eia861",
+            "green_pricing_eia861": "green_pricing_eia861",
+            "mergers_eia861": "mergers_eia861",
+            "net_metering_customer_fuel_class_eia861": "net_metering_customer_fuel_class_eia861",
+            "net_metering_misc_eia861": "net_metering_misc_eia861",
+            "non_net_metering_customer_fuel_class_eia861": "non_net_metering_customer_fuel_class_eia861",
+            "non_net_metering_misc_eia861": "non_net_metering_misc_eia861",
+            "operational_data_revenue_eia861": "operational_data_revenue_eia861",
+            "operational_data_misc_eia861": "operational_data_misc_eia861",
+            "reliability_eia861": "reliability_eia861",
+            "utility_data_nerc_eia861": "utility_data_nerc_eia861",
+            "utility_data_rto_eia861": "utility_data_rto_eia861",
+            "utility_data_misc_eia861": "utility_data_misc_eia861",
+            "utility_assn_eia861": "utility_assn_eia861",
+            "balancing_authority_eia861": "balancing_authority_eia861",
+            "balancing_authority_assn_eia861": "balancing_authority_assn_eia861",
+            # eia923 (denormalized, data primarily from EIA-923)
+            "denorm_boiler_fuel_AGG_eia923": "bf_eia923",
+            "denorm_fuel_receipts_costs_AGG_eia923": "frc_eia923",
+            "denorm_generation_AGG_eia923": "gen_original_eia923",
+            "denorm_generation_fuel_combined_AGG_eia923": "gf_eia923",
+            # ferc714
+            "respondent_id_ferc714": "respondent_id_ferc714",
+            "demand_hourly_pa_ferc714": "demand_hourly_pa_ferc714",
+        }
+
+        for table_name, method_name in table_method_map.items():
+            if hasattr(PudlTabl, method_name):
+                logger.warning(
+                    f"Automatically generated PudlTabl method {method_name} overrides "
+                    "explicitly defined class method. One of these should be deleted."
+                )
+
+            table_name = self._agg_table_name(table_name)
+            # Create method called asset_name that will read the asset from DB
+            self.__dict__[method_name] = partial(
+                self._get_table_from_db,
+                table_name=table_name,
+                resource=Resource.from_id(table_name),
+            )
+
+    def _agg_table_name(self, table_name: str) -> str:
+        """Substitute appropriate frequency in aggregated table names."""
+        agg_freqs = {
+            "AS": "yearly",
+            "MS": "monthly",
+        }
+        if "_AGG" in table_name:
+            if self.freq is not None:
+                table_name = table_name.replace("AGG", agg_freqs[self.freq])
+            else:
+                table_name = table_name.replace("_AGG", "")
+        return table_name
+
+    def _get_table_from_db(self, table_name: str, resource: Resource) -> pd.DataFrame:
+        """Grab output table from PUDL DB.
 
         Args:
-            update (bool): If true, re-calculate the output dataframe, even if
-                a cached version exists.
-
-        Returns:
-            pandas.DataFrame: a denormalized table for interactive use.
+            table_name: Name of table to get.
+            resource: Resource metadata used to enforce schema on table.
         """
-        if update or self._dfs["pu_eia"] is None:
-            self._dfs["pu_eia"] = pudl.output.eia860.plants_utils_eia860(
-                self.pudl_engine, start_date=self.start_date, end_date=self.end_date
-            )
-        return self._dfs["pu_eia"]
-
-    def pu_ferc1(self, update=False):
-        """Pull a dataframe of FERC plant-utility associations.
-
-        Args:
-            update (bool): If true, re-calculate the output dataframe, even if
-                a cached version exists.
-
-        Returns:
-            pandas.DataFrame: a denormalized table for interactive use.
-        """
-        if update or self._dfs["pu_ferc1"] is None:
-            self._dfs["pu_ferc1"] = pudl.output.ferc1.plants_utils_ferc1(
-                self.pudl_engine
-            )
-        return self._dfs["pu_ferc1"]
-
-    def advanced_metering_infrastructure_eia861(self) -> pd.DataFrame:
-        """An interim EIA 861 output function."""
-        return pd.read_sql(
-            "advanced_metering_infrastructure_eia861", self.pudl_engine
-        ).pipe(apply_pudl_dtypes, group="eia")
-
-    def balancing_authority_eia861(self) -> pd.DataFrame:
-        """An interim EIA 861 output function."""
-        return pd.read_sql("balancing_authority_eia861", self.pudl_engine).pipe(
-            apply_pudl_dtypes, group="eia"
-        )
-
-    def balancing_authority_assn_eia861(self) -> pd.DataFrame:
-        """An interim EIA 861 output function."""
-        return pd.read_sql("balancing_authority_assn_eia861", self.pudl_engine).pipe(
-            apply_pudl_dtypes, group="eia"
-        )
-
-    def demand_response_eia861(self) -> pd.DataFrame:
-        """An interim EIA 861 output function."""
-        return pd.read_sql("demand_response_eia861", self.pudl_engine).pipe(
-            apply_pudl_dtypes, group="eia"
-        )
-
-    def demand_response_water_heater_eia861(self) -> pd.DataFrame:
-        """An interim EIA 861 output function."""
-        return pd.read_sql(
-            "demand_response_water_heater_eia861", self.pudl_engine
-        ).pipe(apply_pudl_dtypes, group="eia")
-
-    def demand_side_management_sales_eia861(self) -> pd.DataFrame:
-        """An interim EIA 861 output function."""
-        return pd.read_sql(
-            "demand_side_management_sales_eia861", self.pudl_engine
-        ).pipe(apply_pudl_dtypes, group="eia")
-
-    def demand_side_management_ee_dr_eia861(self) -> pd.DataFrame:
-        """An interim EIA 861 output function."""
-        return pd.read_sql(
-            "demand_side_management_ee_dr_eia861", self.pudl_engine
-        ).pipe(apply_pudl_dtypes, group="eia")
-
-    def demand_side_management_misc_eia861(self) -> pd.DataFrame:
-        """An interim EIA 861 output function."""
-        return pd.read_sql("demand_side_management_misc_eia861", self.pudl_engine).pipe(
-            apply_pudl_dtypes, group="eia"
-        )
-
-    def distributed_generation_tech_eia861(self) -> pd.DataFrame:
-        """An interim EIA 861 output function."""
-        return pd.read_sql("distributed_generation_tech_eia861", self.pudl_engine).pipe(
-            apply_pudl_dtypes, group="eia"
-        )
-
-    def distributed_generation_fuel_eia861(self) -> pd.DataFrame:
-        """An interim EIA 861 output function."""
-        return pd.read_sql("distributed_generation_fuel_eia861", self.pudl_engine).pipe(
-            apply_pudl_dtypes, group="eia"
-        )
-
-    def distributed_generation_misc_eia861(self) -> pd.DataFrame:
-        """An interim EIA 861 output function."""
-        return pd.read_sql("distributed_generation_misc_eia861", self.pudl_engine).pipe(
-            apply_pudl_dtypes, group="eia"
-        )
-
-    def distribution_systems_eia861(self) -> pd.DataFrame:
-        """An interim EIA 861 output function."""
-        return pd.read_sql("distribution_systems_eia861", self.pudl_engine).pipe(
-            apply_pudl_dtypes, group="eia"
-        )
-
-    def dynamic_pricing_eia861(self) -> pd.DataFrame:
-        """An interim EIA 861 output function."""
-        return pd.read_sql("dynamic_pricing_eia861", self.pudl_engine).pipe(
-            apply_pudl_dtypes, group="eia"
-        )
-
-    def energy_efficiency_eia861(self) -> pd.DataFrame:
-        """An interim EIA 861 output function."""
-        return pd.read_sql("energy_efficiency_eia861", self.pudl_engine).pipe(
-            apply_pudl_dtypes, group="eia"
-        )
-
-    def green_pricing_eia861(self) -> pd.DataFrame:
-        """An interim EIA 861 output function."""
-        return pd.read_sql("green_pricing_eia861", self.pudl_engine).pipe(
-            apply_pudl_dtypes, group="eia"
-        )
-
-    def mergers_eia861(self) -> pd.DataFrame:
-        """An interim EIA 861 output function."""
-        return pd.read_sql("mergers_eia861", self.pudl_engine).pipe(
-            apply_pudl_dtypes, group="eia"
-        )
-
-    def net_metering_customer_fuel_class_eia861(self) -> pd.DataFrame:
-        """An interim EIA 861 output function."""
-        return pd.read_sql(
-            "net_metering_customer_fuel_class_eia861", self.pudl_engine
-        ).pipe(apply_pudl_dtypes, group="eia")
-
-    def net_metering_misc_eia861(self) -> pd.DataFrame:
-        """An interim EIA 861 output function."""
-        return pd.read_sql("net_metering_misc_eia861", self.pudl_engine).pipe(
-            apply_pudl_dtypes, group="eia"
-        )
-
-    def non_net_metering_customer_fuel_class_eia861(self) -> pd.DataFrame:
-        """An interim EIA 861 output function."""
-        return pd.read_sql(
-            "non_net_metering_customer_fuel_class_eia861", self.pudl_engine
-        ).pipe(apply_pudl_dtypes, group="eia")
-
-    def non_net_metering_misc_eia861(self) -> pd.DataFrame:
-        """An interim EIA 861 output function."""
-        return pd.read_sql("non_net_metering_misc_eia861", self.pudl_engine).pipe(
-            apply_pudl_dtypes, group="eia"
-        )
-
-    def operational_data_revenue_eia861(self) -> pd.DataFrame:
-        """An interim EIA 861 output function."""
-        return pd.read_sql("operational_data_revenue_eia861", self.pudl_engine).pipe(
-            apply_pudl_dtypes, group="eia"
-        )
-
-    def operational_data_misc_eia861(self) -> pd.DataFrame:
-        """An interim EIA 861 output function."""
-        return pd.read_sql("operational_data_misc_eia861", self.pudl_engine).pipe(
-            apply_pudl_dtypes, group="eia"
-        )
-
-    def reliability_eia861(self) -> pd.DataFrame:
-        """An interim EIA 861 output function."""
-        return pd.read_sql("reliability_eia861", self.pudl_engine).pipe(
-            apply_pudl_dtypes, group="eia"
-        )
-
-    def sales_eia861(self) -> pd.DataFrame:
-        """An interim EIA 861 output function."""
-        return pd.read_sql("sales_eia861", self.pudl_engine).pipe(
-            apply_pudl_dtypes, group="eia"
-        )
-
-    def service_territory_eia861(self) -> pd.DataFrame:
-        """An interim EIA 861 output function."""
-        return pd.read_sql("service_territory_eia861", self.pudl_engine).pipe(
-            apply_pudl_dtypes, group="eia"
-        )
-
-    def utility_assn_eia861(self) -> pd.DataFrame:
-        """An interim EIA 861 output function."""
-        return pd.read_sql("utility_assn_eia861", self.pudl_engine).pipe(
-            apply_pudl_dtypes, group="eia"
-        )
-
-    def utility_data_nerc_eia861(self) -> pd.DataFrame:
-        """An interim EIA 861 output function."""
-        return pd.read_sql("utility_data_nerc_eia861", self.pudl_engine).pipe(
-            apply_pudl_dtypes, group="eia"
-        )
-
-    def utility_data_rto_eia861(self) -> pd.DataFrame:
-        """An interim EIA 861 output function."""
-        return pd.read_sql("utility_data_rto_eia861", self.pudl_engine).pipe(
-            apply_pudl_dtypes, group="eia"
-        )
-
-    def utility_data_misc_eia861(self) -> pd.DataFrame:
-        """An interim EIA 861 output function."""
-        return pd.read_sql("utility_data_misc_eia861", self.pudl_engine).pipe(
-            apply_pudl_dtypes, group="eia"
-        )
-
-    ###########################################################################
-    # FERC 714 Outputs
-    ###########################################################################
-    def respondent_id_ferc714(self) -> pd.DataFrame:
-        """An interim FERC 714 output function."""
-        return pd.read_sql("respondent_id_ferc714", self.pudl_engine).pipe(
-            apply_pudl_dtypes, group="ferc714"
-        )
-
-    def demand_hourly_pa_ferc714(self) -> pd.DataFrame:
-        """An interim FERC 714 output function."""
-        dhpa_res = Package.from_resource_ids().get_resource("demand_hourly_pa_ferc714")
-        # Concatenating a bunch of smaller chunks reduces peak memory usage drastically
-        # and doesn't seem to take any longer.
+        table_name = self._agg_table_name(table_name)
         return pd.concat(
             [
-                # enforce_schema() cuts memory use by ~70% b/c of categorical tzones
-                dhpa_res.enforce_schema(df)
+                resource.enforce_schema(df)
                 for df in pd.read_sql(
-                    "demand_hourly_pa_ferc714",
+                    self._select_between_dates(table_name),
                     self.pudl_engine,
                     chunksize=100_000,
                 )
             ]
         )
 
+    def _select_between_dates(self, table: str) -> sa.sql.expression.Select:
+        """For a given table, returns an SQL query that filters by date, if specified.
+
+        Method uses the PudlTabl ``start_date`` and ``end_date`` attributes.  For EIA
+        and most other tables, it compares ``report_date`` column against start and end
+        dates.  For FERC1 ``report_year`` is used.  If neither ``report_date`` nor
+        ``report_year`` are present, no date filtering is done.
+
+        Arguments:
+            table: name of table to be called in SQL query.
+
+        Returns:
+            A SQLAlchemy select object restricting the date column (either
+            ``report_date`` or ``report_year``) to lie between ``self.start_date`` and
+            ``self.end_date`` (inclusive).
+        """
+        pt = pudl.output.pudltabl.get_table_meta(self.pudl_engine)
+        tbl = pt[f"{table}"]
+        tbl_select = sa.sql.select(tbl)
+
+        start_date = pd.to_datetime(self.start_date)
+        end_date = pd.to_datetime(self.end_date)
+
+        if "report_date" in tbl.columns:  # Date format
+            date_col = tbl.c.report_date
+        elif "report_year" in tbl.columns:  # Integer format
+            date_col = tbl.c.report_year
+            if self.start_date is not None:
+                start_date = pd.to_datetime(self.start_date).year
+            if self.end_date is not None:
+                end_date = pd.to_datetime(self.end_date).year
+        else:
+            date_col = None
+        if self.start_date and date_col is not None:
+            tbl_select = tbl_select.where(date_col >= start_date)
+        if self.end_date and date_col is not None:
+            tbl_select = tbl_select.where(date_col <= end_date)
+        return tbl_select
+
     ###########################################################################
     # EIA 860/923 OUTPUTS
     ###########################################################################
-    def utils_eia860(self, update=False):
-        """Pull a dataframe describing utilities reported in EIA 860.
-
-        Args:
-            update (bool): If true, re-calculate the output dataframe, even if
-                a cached version exists.
-
-        Returns:
-            pandas.DataFrame: a denormalized table for interactive use.
-        """
-        if update or self._dfs["utils_eia860"] is None:
-            self._dfs["utils_eia860"] = pudl.output.eia860.utilities_eia860(
-                self.pudl_engine, start_date=self.start_date, end_date=self.end_date
-            )
-        return self._dfs["utils_eia860"]
-
-    def bga_eia860(self, update=False):
-        """Pull a dataframe of boiler-generator associations from EIA 860.
-
-        Args:
-            update (bool): If true, re-calculate the output dataframe, even if
-                a cached version exists.
-
-        Returns:
-            pandas.DataFrame: a denormalized table for interactive use.
-        """
-        if update or self._dfs["bga_eia860"] is None:
-            self._dfs["bga_eia860"] = pudl.output.eia860.boiler_generator_assn_eia860(
-                self.pudl_engine, start_date=self.start_date, end_date=self.end_date
-            )
-        return self._dfs["bga_eia860"]
-
-    def plants_eia860(self, update=False):
-        """Pull a dataframe of plant level info reported in EIA 860.
-
-        Args:
-            update (bool): If true, re-calculate the output dataframe, even if
-                a cached version exists.
-
-        Returns:
-            pandas.DataFrame: a denormalized table for interactive use.
-        """
-        if update or self._dfs["plants_eia860"] is None:
-            self._dfs["plants_eia860"] = pudl.output.eia860.plants_eia860(
-                self.pudl_engine,
-                start_date=self.start_date,
-                end_date=self.end_date,
-            )
-        return self._dfs["plants_eia860"]
-
-    def gens_eia860(self, update=False):
-        """Pull a dataframe describing generators, as reported in EIA 860.
-
-        If you want to fill the technology_description field, recreate
-        the pudl_out object with the parameter fill_tech_desc = True.
-
-        Args:
-            update (bool): If true, re-calculate the output dataframe, even if
-                a cached version exists.
-
-        Returns:
-            pandas.DataFrame: a denormalized table for interactive use.
-        """
-        if update or self._dfs["gens_eia860"] is None:
-            self._dfs["gens_eia860"] = pudl.output.eia860.generators_eia860(
-                self.pudl_engine,
-                start_date=self.start_date,
-                end_date=self.end_date,
-                unit_ids=self.unit_ids,
-                fill_tech_desc=self.fill_tech_desc,
-            )
-
-        return self._dfs["gens_eia860"]
-
-    def boil_eia860(self, update=False):
-        """Pull a dataframe of boiler level info reported in EIA 860.
-
-        Args:
-            update (bool): If true, re-calculate the output dataframe, even if
-                a cached version exists.
-
-        Returns:
-            pandas.DataFrame: a denormalized table for interactive use.
-        """
-        if update or self._dfs["boil_eia860"] is None:
-            self._dfs["boil_eia860"] = pudl.output.eia860.boilers_eia860(
-                self.pudl_engine,
-                start_date=self.start_date,
-                end_date=self.end_date,
-            )
-        return self._dfs["boil_eia860"]
-
-    def own_eia860(self, update=False):
-        """Pull a dataframe of generator level ownership data from EIA 860.
-
-        Args:
-            update (bool): If true, re-calculate the output dataframe, even if
-                a cached version exists.
-
-        Returns:
-            pandas.DataFrame: a denormalized table for interactive use.
-        """
-        if update or self._dfs["own_eia860"] is None:
-            self._dfs["own_eia860"] = pudl.output.eia860.ownership_eia860(
-                self.pudl_engine, start_date=self.start_date, end_date=self.end_date
-            )
-        return self._dfs["own_eia860"]
-
-    def gf_eia923(self, update: bool = False) -> pd.DataFrame:
-        """Pull combined nuclear and non-nuclear generation fuel data.
-
-        Args:
-            update: If True, re-calculate the output dataframe, even if
-                a cached version exists.
-
-        Returns:
-            A denormalized table for interactive use.
-        """
-        if update or self._dfs["gf_eia923"] is None:
-            self._dfs["gf_eia923"] = pudl.output.eia923.generation_fuel_all_eia923(
-                gf=self.gf_nonuclear_eia923(update=update),
-                gfn=self.gf_nuclear_eia923(update=update),
-            )
-        return self._dfs["gf_eia923"]
-
-    def gf_nonuclear_eia923(self, update: bool = False) -> pd.DataFrame:
-        """Pull non-nuclear EIA 923 generation and fuel consumption data.
-
-        Args:
-            update: If True, re-calculate the output dataframe, even if
-                a cached version exists.
-
-        Returns:
-            A denormalized table for interactive use.
-        """
-        if update or self._dfs["gf_nonuclear_eia923"] is None:
-            self._dfs[
-                "gf_nonuclear_eia923"
-            ] = pudl.output.eia923.generation_fuel_eia923(
-                self.pudl_engine,
-                freq=self.freq,
-                start_date=self.start_date,
-                end_date=self.end_date,
-                nuclear=False,
-            )
-        return self._dfs["gf_nonuclear_eia923"]
-
-    def gf_nuclear_eia923(self, update: bool = False) -> pd.DataFrame:
-        """Pull EIA 923 generation and fuel consumption data for nuclear units.
-
-        Args:
-            update: If True, re-calculate the output dataframe, even if a cached version
-                exists.
-
-        Returns:
-            A denormalized table for interactive use.
-        """
-        if update or self._dfs["gf_nuclear_eia923"] is None:
-            self._dfs["gf_nuclear_eia923"] = pudl.output.eia923.generation_fuel_eia923(
-                self.pudl_engine,
-                freq=self.freq,
-                start_date=self.start_date,
-                end_date=self.end_date,
-                nuclear=True,
-            )
-        return self._dfs["gf_nuclear_eia923"]
-
-    def frc_eia923(self, update=False):
-        """Pull EIA 923 fuel receipts and costs data.
-
-        Args:
-            update (bool): If true, re-calculate the output dataframe, even if
-                a cached version exists.
-
-        Returns:
-            pandas.DataFrame: a denormalized table for interactive use.
-        """
-        if update or self._dfs["frc_eia923"] is None:
-            self._dfs["frc_eia923"] = pudl.output.eia923.fuel_receipts_costs_eia923(
-                self.pudl_engine,
-                freq=self.freq,
-                start_date=self.start_date,
-                end_date=self.end_date,
-                fill=self.fill_fuel_cost,
-                roll=self.roll_fuel_cost,
-            )
-        return self._dfs["frc_eia923"]
-
-    def bf_eia923(self, update=False):
-        """Pull EIA 923 boiler fuel consumption data.
-
-        Args:
-            update (bool): If true, re-calculate the output dataframe, even if
-                a cached version exists.
-
-        Returns:
-            pandas.DataFrame: a denormalized table for interactive use.
-        """
-        if update or self._dfs["bf_eia923"] is None:
-            self._dfs["bf_eia923"] = pudl.output.eia923.boiler_fuel_eia923(
-                self.pudl_engine,
-                freq=self.freq,
-                start_date=self.start_date,
-                end_date=self.end_date,
-            )
-        return self._dfs["bf_eia923"]
-
     def gen_eia923(self, update=False):
         """Pull EIA 923 net generation data by generator.
 
@@ -608,19 +339,8 @@ class PudlTabl:
                     update=update
                 ).loc[:, list(self.gen_original_eia923().columns)]
             else:
-                self._dfs["gen_eia923"] = self.gen_original_eia923(update=update)
+                self._dfs["gen_eia923"] = self.gen_original_eia923()
         return self._dfs["gen_eia923"]
-
-    def gen_original_eia923(self, update=False):
-        """Pull the original EIA 923 net generation data by generator."""
-        if update or self._dfs["gen_og_eia923"] is None:
-            self._dfs["gen_og_eia923"] = pudl.output.eia923.generation_eia923(
-                self.pudl_engine,
-                freq=self.freq,
-                start_date=self.start_date,
-                end_date=self.end_date,
-            )
-        return self._dfs["gen_og_eia923"]
 
     def gen_fuel_by_generator_energy_source_eia923(self, update=False):
         """Net generation and fuel data allocated to generator/energy_source_code.
@@ -660,159 +380,6 @@ class PudlTabl:
                 own_eia860=self.own_eia860(),
             )
         return self._dfs["gen_fuel_by_genid_esc_own"]
-
-    ###########################################################################
-    # FERC FORM 1 OUTPUTS
-    ###########################################################################
-    def plants_steam_ferc1(self, update=False):
-        """Pull the FERC Form 1 steam plants data.
-
-        Args:
-            update (bool): If true, re-calculate the output dataframe, even if
-                a cached version exists.
-
-        Returns:
-            pandas.DataFrame: a denormalized table for interactive use.
-        """
-        if update or self._dfs["plants_steam_ferc1"] is None:
-            self._dfs["plants_steam_ferc1"] = pudl.output.ferc1.plants_steam_ferc1(
-                self.pudl_engine, start_date=self.start_date, end_date=self.end_date
-            )
-        return self._dfs["plants_steam_ferc1"]
-
-    def fuel_ferc1(self, update=False):
-        """Pull the FERC Form 1 steam plants fuel consumption data.
-
-        Args:
-            update (bool): If true, re-calculate the output dataframe, even if
-                a cached version exists.
-
-        Returns:
-            pandas.DataFrame: a denormalized table for interactive use.
-        """
-        if update or self._dfs["fuel_ferc1"] is None:
-            self._dfs["fuel_ferc1"] = pudl.output.ferc1.fuel_ferc1(
-                self.pudl_engine, start_date=self.start_date, end_date=self.end_date
-            )
-        return self._dfs["fuel_ferc1"]
-
-    def fbp_ferc1(self, update=False):
-        """Summarize FERC Form 1 fuel usage by plant.
-
-        Args:
-            update (bool): If true, re-calculate the output dataframe, even if
-                a cached version exists.
-
-        Returns:
-            pandas.DataFrame: a denormalized table for interactive use.
-        """
-        if update or self._dfs["fbp_ferc1"] is None:
-            self._dfs["fbp_ferc1"] = pudl.output.ferc1.fuel_by_plant_ferc1(
-                self.pudl_engine, start_date=self.start_date, end_date=self.end_date
-            )
-        return self._dfs["fbp_ferc1"]
-
-    def plants_small_ferc1(self, update=False):
-        """Pull the FERC Form 1 Small Plants Table.
-
-        Args:
-            update (bool): If true, re-calculate the output dataframe, even if
-                a cached version exists.
-
-        Returns:
-            pandas.DataFrame: a denormalized table for interactive use.
-        """
-        if update or self._dfs["plants_small_ferc1"] is None:
-            self._dfs["plants_small_ferc1"] = pudl.output.ferc1.plants_small_ferc1(
-                self.pudl_engine, start_date=self.start_date, end_date=self.end_date
-            )
-        return self._dfs["plants_small_ferc1"]
-
-    def plants_hydro_ferc1(self, update=False):
-        """Pull the FERC Form 1 Hydro Plants Table.
-
-        Args:
-            update (bool): If true, re-calculate the output dataframe, even if
-                a cached version exists.
-
-        Returns:
-            pandas.DataFrame: a denormalized table for interactive use.
-        """
-        if update or self._dfs["plants_hydro_ferc1"] is None:
-            self._dfs["plants_hydro_ferc1"] = pudl.output.ferc1.plants_hydro_ferc1(
-                self.pudl_engine, start_date=self.start_date, end_date=self.end_date
-            )
-        return self._dfs["plants_hydro_ferc1"]
-
-    def plants_pumped_storage_ferc1(self, update=False):
-        """Pull the FERC Form 1 Pumped Storage Table.
-
-        Args:
-            update (bool): If true, re-calculate the output dataframe, even if
-                a cached version exists.
-
-        Returns:
-            pandas.DataFrame: a denormalized table for interactive use.
-        """
-        if update or self._dfs["plants_pumped_storage_ferc1"] is None:
-            self._dfs[
-                "plants_pumped_storage_ferc1"
-            ] = pudl.output.ferc1.plants_pumped_storage_ferc1(
-                self.pudl_engine, start_date=self.start_date, end_date=self.end_date
-            )
-        return self._dfs["plants_pumped_storage_ferc1"]
-
-    def purchased_power_ferc1(self, update=False):
-        """Pull the FERC Form 1 Purchased Power Table.
-
-        Args:
-            update (bool): If true, re-calculate the output dataframe, even if
-                a cached version exists.
-
-        Returns:
-            pandas.DataFrame: a denormalized table for interactive use.
-        """
-        if update or self._dfs["purchased_power_ferc1"] is None:
-            self._dfs[
-                "purchased_power_ferc1"
-            ] = pudl.output.ferc1.purchased_power_ferc1(
-                self.pudl_engine, start_date=self.start_date, end_date=self.end_date
-            )
-        return self._dfs["purchased_power_ferc1"]
-
-    def plant_in_service_ferc1(self, update=False):
-        """Pull the FERC Form 1 Plant in Service Table.
-
-        Args:
-            update (bool): If true, re-calculate the output dataframe, even if
-                a cached version exists.
-
-        Returns:
-            pandas.DataFrame: a denormalized table for interactive use.
-        """
-        if update or self._dfs["plant_in_service_ferc1"] is None:
-            self._dfs[
-                "plant_in_service_ferc1"
-            ] = pudl.output.ferc1.plant_in_service_ferc1(
-                self.pudl_engine, start_date=self.start_date, end_date=self.end_date
-            )
-        return self._dfs["plant_in_service_ferc1"]
-
-    def plants_all_ferc1(self, update=False):
-        """Pull the FERC Form 1 all plants table.
-
-        Args:
-            update (bool): If true, re-calculate the output dataframe, even if
-                a cached version exists.
-
-        Returns:
-            pandas.DataFrame: a denormalized table for interactive use.
-        """
-        if update or self._dfs["plants_all_ferc1"] is None:
-            self._dfs["plants_all_ferc1"] = pudl.output.ferc1.plants_all_ferc1(
-                self.pudl_engine, start_date=self.start_date, end_date=self.end_date
-            )
-        return self._dfs["plants_all_ferc1"]
 
     ###########################################################################
     # EIA MCOE OUTPUTS
@@ -1059,8 +626,8 @@ class PudlTabl:
         if update_any or self._dfs["ferc1_eia"] is None:
             self._dfs["ferc1_eia"] = pudl.analysis.ferc1_eia.execute(
                 plant_parts_eia=self.plant_parts_eia(update=update_plant_parts_eia),
-                plants_all_ferc1=self.plants_all_ferc1(update=update_plants_all_ferc1),
-                fbp_ferc1=self.fbp_ferc1(update=update_fbp_ferc1),
+                plants_all_ferc1=self.plants_all_ferc1(),
+                fbp_ferc1=self.fbp_ferc1(),
             )
         return self._dfs["ferc1_eia"]
 
@@ -1069,63 +636,6 @@ class PudlTabl:
         return pd.read_sql("epacamd_eia", self.pudl_engine).pipe(
             apply_pudl_dtypes, group="glue"
         )
-
-    ###########################################################################
-    # FOR PICKLING AND OTHER IO
-    ###########################################################################
-
-    def __getstate__(self) -> dict:
-        """Get current object state for serializing (pickling).
-
-        This method is run as part of pickling the object. It needs to return the
-        object's current state with any un-serializable objects converted to a form that
-        can be serialized. See :meth:`object.__getstate__` for further details on the
-        expected behavior of this method.
-        """
-        return self.__dict__.copy() | {
-            # defaultdict may be serializable but lambdas are not, so it must go
-            "_dfs": dict(self.__dict__["_dfs"]),
-            # sqlalchemy engines are also a problem here, saving the URL should
-            # provide enough of what is needed to recreate it, though that means the
-            # pickle is not portable, but any fix to that will happen when the object
-            # is restored
-            "pudl_engine": str(self.__dict__["pudl_engine"].url),
-        }
-
-    def __setstate__(self, state: dict) -> None:
-        """Restore the object's state from a dictionary.
-
-        This method is run when the object is restored from a pickle. Anything
-        that was changed in :meth:`pudl.output.pudltabl.PudlTabl.__getstate__` must be
-        undone here. Another important detail is that ``__init__`` is not run when an
-        object is de-serialized, so any setup there that alters external state might
-        need to happen here as well.
-
-        Args:
-            state: the object state to restore. This is effectively the output
-                of :meth:`pudl.output.pudltabl.PudlTabl.__getstate__`.
-        """
-        try:
-            pudl_engine = sa.create_engine(state["pudl_engine"])
-            # make sure that the URL for the engine from ``state`` is usable now
-            pudl_engine.connect()
-        except sa.exc.OperationalError:
-            # if the URL from ``state`` is not valid, e.g. because it is for a local
-            # DB on a different computer, create the engine from PUDL defaults
-            pudl_settings = pudl.workspace.setup.get_defaults()
-            logger.warning(
-                "Unable to connect to the restored pudl_db URL %s. "
-                "Will use the default pudl_db %s instead.",
-                state["pudl_engine"],
-                pudl_settings["pudl_db"],
-            )
-            pudl_engine = sa.create_engine(pudl_settings["pudl_db"])
-
-        self.__dict__ = state | {
-            # recreate the defaultdict from the vanilla one from ``state``
-            "_dfs": defaultdict(lambda: None, state["_dfs"]),
-            "pudl_engine": pudl_engine,
-        }
 
 
 def get_table_meta(pudl_engine):
