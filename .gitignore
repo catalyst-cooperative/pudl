@@ -30,6 +30,7 @@ commit.txt
 devtools/profiles/
 notebooks/*.pkl.gz
 **/.~lock*#
+**/*~
 
 **.tfstate
 **.tfstate.*
