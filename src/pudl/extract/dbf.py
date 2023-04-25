@@ -23,7 +23,7 @@ class FoxProTableSchema:
     """Simple data-wrapper for the fox-pro table schema."""
 
     def __init__(self, table_name: str):
-        """Creates ne:1w instance of the table schema setting.
+        """Creates new instance of the table schema setting.
 
         The table name will be set as table_name and table will have no columns.
         """
@@ -320,17 +320,18 @@ class FoxProExtractor:
     When subclassing from this generic extractor, one should implement dataset specific
     logic in the following manner:
     1. set DATABASE_NAME. This is going to be used as the file for the resulting sqlite
-       database.
+    database.
     2. Overrride get_datastore() method to return the right kind of dataset specific datastore.
+
     Dataset specific logic and transformations can be injected by overriding:
     1. finalize_schema() in order to modify sqlite schema. This is called just before the
-       schema is written into the sqlite database. This is good place for adding primary and/or
-       foreign key constraints to tables.
+    schema is written into the sqlite database. This is good place for adding primary and/or
+    foreign key constraints to tables.
     2. transform_table(table_name, df) will be invoked after dataframe is loaded from the foxpro
-       database and before it's written to sqlite. This is good place for table-specific
-       preprocessing and/or cleanup.
+    database and before it's written to sqlite. This is good place for table-specific
+    preprocessing and/or cleanup.
     3. postprocess() is called after data is written to sqlite. This can be used for database
-       level final cleanup and transformations (e.g. injecting missing respondent_ids).
+    level final cleanup and transformations (e.g. injecting missing respondent_ids).
 
     The extraction logic is invoked by calling execute() method of this class.
     """
