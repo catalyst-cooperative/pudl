@@ -156,7 +156,6 @@ class FercFoxProDatastore:
         self,
         datastore: Datastore,
         dataset: str,
-        dbc_filename: str,
         field_parser: FieldParser = FercFieldParser,
     ):
         """Creates new instance of FercFoxProDdatastore.
@@ -167,20 +166,19 @@ class FercFoxProDatastore:
         Args:
             datastore: provides access to raw files on disk.
             dataset: name of the dataset (e.g. ferc1)
-            dbc_filename: name of the file that contains the schema map
             field_parser: FieldParser class to use when loading data
         """
         self._cache = {}
         self.datastore = datastore
         self.dataset = dataset
-        self.dbc_filename = dbc_filename
         self.field_parser = field_parser
 
-        # file_map contains root-path where all DBC and DBF files are stored.
-        # This can vary over the years.
-        self._root_path = {}
-        for row in self._open_csv_resource("file_map.csv"):
-            self._root_path[int(row["year"])] = Path(row["path"])
+        # dbc_file_map.csv contains path to the DBC file that contains the
+        # overall database schemas. It is expected that DBF files live in
+        # the same directory.
+        self._dbc_path = {}
+        for row in self._open_csv_resource("dbc_file_map.csv"):
+            self._dbc_path[int(row["year"])] = Path(row["path"])
 
         # table_file_map holds mapping between tables and their corresponding
         # DBF files.
@@ -200,23 +198,25 @@ class FercFoxProDatastore:
     def _get_dir(self, year: int) -> Path:
         """Returns the directory where the files for given year are stored."""
         try:
-            return self._root_path[year]
+            return self._dbc_path[year].parent
         except KeyError:
             raise ValueError(f"No {self.dataset} data for year {year}")
 
     def _get_file(self, year: int, filename: str) -> Any:
-        """Returns the file descriptor for a given year and filename."""
+        """Returns the file descriptor for a given year and base filename."""
+        return self._get_file_by_path(year, self._get_dir(year) / filename)
+
+    def _get_file_by_path(self, year: int, path: Path) -> Any:
+        """Returns the file descriptor for a file identified by its full path."""
         if year not in self._cache:
             self._cache[year] = self.datastore.get_zipfile_resource(
                 self.dataset, year=year, data_format="dbf"
             )
         archive = self._cache[year]
         try:
-            return archive.open((self._get_dir(year) / filename).as_posix())
+            return archive.open(path.as_posix())
         except KeyError:
-            raise KeyError(
-                f"{filename} not available for year {year} in {self.dataset}."
-            )
+            raise KeyError(f"{path} not available for year {year} in {self.dataset}.")
 
     def get_table_dbf(self, table_name: str, year: int) -> DBF:
         """Opens the DBF for a given table and year."""
@@ -240,7 +240,7 @@ class FercFoxProDatastore:
         dbf = DBF(
             "",
             ignore_missing_memofile=True,
-            filedata=self._get_file(year, self.dbc_filename),
+            filedata=self._get_file_by_path(year, self._dbc_path[year]),
         )
         table_names: dict[Any, str] = {}
         table_columns = defaultdict(list)

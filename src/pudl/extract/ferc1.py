@@ -221,9 +221,7 @@ class Ferc1FoxProExtractor(FoxProExtractor):
         """
         # TODO(rousik): mapping from dataset name to dbc_filename may be moved to constants or kept somerwhere with the rest
         # of dataset configuration, e.g. package_data file of some sorts?
-        return FercFoxProDatastore(
-            base_datastore, dataset="ferc1", dbc_filename="F1_PUB.DBC"
-        )
+        return FercFoxProDatastore(base_datastore, dataset="ferc1")
 
     def transform_table(self, table_name: str, in_df: pd.DataFrame) -> pd.DataFrame:
         """FERC Form 1 specific table transformations.

@@ -400,7 +400,7 @@ def pudl_settings_dict(request, pudl_input_output_dirs):  # noqa: C901
 def ferc1_dbf_datastore_fixture(pudl_datastore_fixture):
     """Produce a :class:pudl.extract.ferc1.Ferc1DbfDatastore."""
     # TODO(rousik): refactor so that all params are fixed for Ferc1 datstore
-    return FercFoxProDatastore(pudl_datastore_fixture, "ferc1", "F1_PUB.DBC")
+    return FercFoxProDatastore(pudl_datastore_fixture, dataset="ferc1")
 
 
 @pytest.fixture(scope="session")
