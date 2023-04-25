@@ -34,6 +34,23 @@ to-date:
     $ git add migrations
     $ git commit -m "Migration: added my cool table"
 
+When switching branches, Alembic may refer to a migration version that is not
+on your current branch. This will manifest as an error like this when running an
+Alembic command::
+
+    FAILED: Can't locate revision identified by '29d443aadf25'
+
+If you encounter that, you will want to check out the git branch that *does*
+include that migration in the ``migrations`` directory. Then you should run
+``alembic downgrade head-1`` to revert the database to the prior version. Then
+you can go back to the branch that doesn't have your migration, and use Alembic
+in peace.
+
+If the migrations have diverged for more than one revision, you can specify the
+specific version you would like to downgrade to with its hash. You may also
+want to keep a copy of the old SQLite database around, so you can easily switch
+between branches without having to regenerate data.
+
 More information can be found in the `Alembic docs
 <https://alembic.sqlalchemy.org/en/latest/tutorial.html>`__.
 
