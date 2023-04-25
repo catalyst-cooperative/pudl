@@ -219,8 +219,6 @@ class Ferc1FoxProExtractor(FoxProExtractor):
         This wraps the generic base_datastore and constructs instance of
         FercFoxProDatastore.
         """
-        # TODO(rousik): mapping from dataset name to dbc_filename may be moved to constants or kept somerwhere with the rest
-        # of dataset configuration, e.g. package_data file of some sorts?
         return FercFoxProDatastore(base_datastore, dataset="ferc1")
 
     def transform_table(self, table_name: str, in_df: pd.DataFrame) -> pd.DataFrame:
