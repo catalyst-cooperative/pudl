@@ -21,8 +21,6 @@ logger = logging.getLogger(__name__)
         ("gen_eia923", "all"),
         ("gens_eia860", "all"),
         ("gf_eia923", "all"),
-        ("gf_nonuclear_eia923", "all"),
-        ("gf_nuclear_eia923", "all"),
         ("own_eia860", "all"),
         ("plants_eia860", "all"),
         ("pu_eia860", "all"),
@@ -49,8 +47,6 @@ def test_no_null_cols_eia(pudl_out_eia, live_dbs, cols, df_name):
         ("gen_eia923", None, 5_171_497, 432_570),
         ("gens_eia860", 523_563, 523_563, 523_563),
         ("gf_eia923", 2_687_345, 2_687_345, 230_149),
-        ("gf_nonuclear_eia923", 2_671_292, 2_671_292, 228_806),
-        ("gf_nuclear_eia923", 24_617, 24_617, 2_058),
         ("own_eia860", 84_440, 84_440, 84_440),
         ("plants_eia860", 185_553, 185_553, 185_553),
         ("pu_eia860", 184_743, 184_743, 184_743),
@@ -144,21 +140,9 @@ def test_minmax_rows(
         ),
         (
             "gf_eia923",
-            ["report_date", "plant_id_eia", "prime_mover_code", "energy_source_code"],
-        ),
-        (
-            "gf_nonuclear_eia923",
             (
                 Package.from_resource_ids()
-                .get_resource("generation_fuel_eia923")
-                .schema.primary_key
-            ),
-        ),
-        (
-            "gf_nuclear_eia923",
-            (
-                Package.from_resource_ids()
-                .get_resource("generation_fuel_nuclear_eia923")
+                .get_resource("denorm_generation_fuel_combined_eia923")
                 .schema.primary_key
             ),
         ),
@@ -178,7 +162,14 @@ def test_minmax_rows(
                 .schema.primary_key
             ),
         ),
-        ("pu_eia860", ["report_date", "plant_id_eia"]),
+        (
+            "pu_eia860",
+            (
+                Package.from_resource_ids()
+                .get_resource("denorm_plants_utilities_eia")
+                .schema.primary_key
+            ),
+        ),
         (
             "utils_eia860",
             (

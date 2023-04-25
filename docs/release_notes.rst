@@ -15,9 +15,9 @@ Dagster Adoption
 * We are converting PUDL code to use dagster concepts in two phases. The first phase
   converts the ETL portion of the code base to use
   `software defined assets <https://docs.dagster.io/concepts/assets/software-defined-assets>`__
-  :issue:`1570`. We will convert the pandas computations cached in the
-  :mod:`pudl.output.pudltabl.PudlTabl` class to use software defined assets in
-  phase 2 :issue:`1973`.
+  :issue:`1570`. The second phase converts the output and analysis tables in the
+  :mod:`pudl.output.pudltabl.PudlTabl` class to use software defined assets, replacing
+  the existing ``pudl_out`` output functions.
 * General changes:
 
   * :mod:`pudl.etl` is now a subpackage that collects all pudl assets into a dagster
@@ -143,14 +143,22 @@ Data Coverage
   * :ref:`respondent_id_ferc714` (linking FERC-714 respondents to EIA utilities)
   * :ref:`demand_hourly_pa_ferc714` (hourly electricity demand by planning area)
 
+* Added new table :ref:`epacamd_eia_subplant_ids`, which aguments the
+  :ref:`epacamd_eia` glue table. This table incorporates all
+  :ref:`generators_entity_eia` and all :ref:`hourly_emissions_epacems` ID's and uses
+  these complete IDs to develop a full-coverage ``subplant_id`` column which granularly
+  connects EPA CAMD with EIA. Thanks to :user:`grgmiller` for his contribution to this
+  process. See :issue:`2456` & :pr:`2491`.
+
 Data Cleaning
 ^^^^^^^^^^^^^
 
 * Removed inconsistently reported leading zeroes from numeric ``boiler_id`` values. This
   affected a small number of records in any table referring to boilers, including
   :ref:`boilers_entity_eia`, :ref:`boilers_eia860`, :ref:`boiler_fuel_eia923`,
-  :ref:`boiler_generator_assn_eia860` and the :ref:`epacamd_eia` crosswalk. It also had
-  some minor downstream effects on the MCOE outputs. See :issue:`2366` and :pr:`2367`.
+  :ref:`boiler_generator_assn_eia860` and the :ref:`epacamd_eia` crosswalk. It
+  also had some minor downstream effects on the MCOE outputs. See :issue:`2366` and
+  :pr:`2367`.
 * The :ref:`boiler_fuel_eia923` table now includes the ``prime_mover_code`` column. This
   column was previously incorrectly being associated with boilers in the
   :ref:`boilers_entity_eia` table. See issue :issue:`2349` & PR :pr:`2362`.
