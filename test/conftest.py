@@ -16,6 +16,7 @@ import pudl
 from pudl import resources
 from pudl.cli.etl import pudl_etl_job_factory
 from pudl.cli.reset_db import reset_db
+from pudl.extract.dbf import FercFoxProDatastore
 from pudl.extract.ferc1 import xbrl_metadata_json
 from pudl.extract.xbrl import FercXbrlDatastore, _get_sqlite_engine
 from pudl.ferc_to_sqlite.cli import ferc_to_sqlite_job_factory
@@ -398,7 +399,8 @@ def pudl_settings_dict(request, pudl_input_output_dirs):  # noqa: C901
 @pytest.fixture(scope="session")  # noqa: C901
 def ferc1_dbf_datastore_fixture(pudl_datastore_fixture):
     """Produce a :class:pudl.extract.ferc1.Ferc1DbfDatastore."""
-    return pudl.extract.ferc1.Ferc1DbfDatastore(pudl_datastore_fixture)
+    # TODO(rousik): refactor so that all params are fixed for Ferc1 datstore
+    return FercFoxProDatastore(pudl_datastore_fixture, "ferc1", "F1_PUB.DBC")
 
 
 @pytest.fixture(scope="session")

@@ -84,7 +84,7 @@ from dagster import (
 )
 
 import pudl
-from pudl.extract.dbf import FercFoxProDatastore
+from pudl.extract.dbf import FercFoxProDatastore, FoxProExtractor
 from pudl.helpers import EnvVar
 from pudl.io_managers import (
     FercDBFSQLiteIOManager,
@@ -92,7 +92,6 @@ from pudl.io_managers import (
     ferc1_dbf_sqlite_io_manager,
     ferc1_xbrl_sqlite_io_manager,
 )
-from pudl.metadata.classes import DataSource
 from pudl.settings import DatasetsSettings
 from pudl.workspace.datastore import Datastore
 
@@ -207,142 +206,6 @@ TABLE_NAME_MAP_FERC1: dict[str, dict[str, str]] = {
     },
 }
 """A mapping of PUDL DB table names to their XBRL and DBF source table names."""
-
-
-class FoxProExtractor:
-    """Generalized class for loading data from foxpro databases into sqlite.
-
-    When subclassing from this generic extractor, one should implement dataset specific
-    logic in the following manner:
-    1. set DATABASE_NAME. This is going to be used as the file for the resulting sqlite
-       database.
-    2. Overrride get_datastore() method to return the right kind of dataset specific datastore.
-
-    Dataset specific logic and transformations can be injected by overriding:
-    1. finalize_schema() in order to modify sqlite schema. This is called just before the
-       schema is written into the sqlite database. This is good place for adding primary and/or
-       foreign key constraints to tables.
-    2. transform_table(table_name, df) will be invoked after dataframe is loaded from the foxpro
-       database and before it's written to sqlite. This is good place for table-specific
-       preprocessing and/or cleanup.
-    3. postprocess() is called after data is written to sqlite. This can be used for database
-       level final cleanup and transformations (e.g. injecting missing respondent_ids).
-
-    The extraction logic is invoked by calling execute() method of this class.
-    """
-
-    DATABASE_NAME = None
-
-    def __init__(
-        self,
-        datastore: Datastore,
-        settings: Any,
-        output_path: Path,
-        clobber: bool = False,
-    ):
-        """Constructs new instance of FercFoxProExtractor.
-
-        Args:
-            datastore: top-level datastore instance for accessing raw data files.
-            settings: generic settings object for this extrctor.
-            output_path: directory where the output databases should be stored.
-            clobber: if True, existing databases should be replaced.
-        """
-        self.settings = settings
-        self.clobber = clobber
-        self.output_path = output_path
-        self.datastore = self.get_datastore(datastore)
-        self.sqlite_engine = sa.create_engine(self.get_db_path())
-        self.sqlite_meta = sa.MetaData()
-        self.sqlite_meta.reflect(self.sqlite_engine)
-
-    def get_db_path(self) -> str:
-        """Returns the connection string for the sqlite database."""
-        db_path = str(Path(self.output_path) / self.DATABASE_NAME)
-        return f"sqlite:///{db_path}"
-
-    def execute(self):
-        """Runs the extraction of the data from dbf to sqlite."""
-        # TODO(rousik): perhaps we should check clobber here before starting anything.
-        self.delete_schema()
-        self.create_sqlite_tables()
-        self.load_table_data()
-        self.postprocess()
-
-    def delete_schema(self):
-        """Drops all tables from the existing sqlite database."""
-        try:
-            pudl.helpers.drop_tables(
-                self.sqlite_engine,
-                clobber=self.clobber,
-            )
-        except sa.exc.OperationalError:
-            pass
-        self.sqlite_engine = sa.create_engine(self.get_db_path())
-        self.sqlite_meta = sa.MetaData()
-        self.sqlite_meta.reflect(self.sqlite_engine)
-
-    def create_sqlite_tables(self):
-        """Creates database schema based on the input tables."""
-        refyear = self.settings.refyear
-        if refyear is None:
-            refyear = max(
-                DataSource.from_id(self.datastore.get_dataset()).working_partitions[
-                    "years"
-                ]
-            )
-        for tn in self.datastore.get_table_names():
-            self.datastore.get_table_schema(tn, refyear).to_sqlite_table(
-                self.sqlite_meta
-            )
-        self.finalize_schema(self.sqlite_meta)
-        self.sqlite_meta.create_all(self.sqlite_engine)
-
-    def transform_table(self, table_name: str, in_df: pd.DataFrame) -> pd.DataFrame:
-        """Transforms the content of a single table.
-
-        This method can be used to modify contents of the dataframe after it has
-        been loaded from fox pro database and before it's written to sqlite database.
-
-        Args:
-            table_name: name of the table that the dataframe is associated with
-            in_df: dataframe that holds all records.
-        """
-        return in_df
-
-    def load_table_data(self):
-        """Loads all tables from fox pro database and writes them to sqlite."""
-        for table in self.datastore.get_table_names():
-            logger.info(f"Pandas: reading {table} into a DataFrame.")
-            new_df = self.datastore.load_table_dfs(table, self.settings.years)
-            new_df = self.transform_table(table, new_df)
-
-            logger.debug(f"    {table}: N = {len(new_df)}")
-            if len(new_df) <= 0:
-                continue
-
-            coltypes = {col.name: col.type for col in self.sqlite_meta.tables[table].c}
-            logger.info(f"SQLite: loading {len(new_df)} rows into {table}.")
-            new_df.to_sql(
-                table,
-                self.sqlite_engine,
-                if_exists="append",
-                chunksize=100000,
-                dtype=coltypes,
-                index=False,
-            )
-
-    def finalize_schema(self, meta: sa.MetaData) -> sa.MetaData:
-        """This method is called just before the schema is written to sqlite.
-
-        You can use this method to apply dataset specific alterations to the schema,
-        such as adding primary and foreign key constraints.
-        """
-        return meta
-
-    def postprocess(self):
-        """This metod is called after all the data is loaded into sqlite."""
-        pass
 
 
 class Ferc1FoxProExtractor(FoxProExtractor):
