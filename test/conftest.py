@@ -405,7 +405,7 @@ def pudl_settings_dict(request, pudl_input_output_dirs):  # noqa: C901
 
 @pytest.fixture(scope="session")  # noqa: C901
 def ferc1_dbf_datastore_fixture(pudl_datastore_fixture):
-    """Produce a :class:pudl.extract.ferc1.Ferc1DbfDatastore."""
+    """Produce a :class:`pudl.extract.ferc1.Ferc1DbfReader`."""
     # TODO(rousik): refactor so that all params are fixed for Ferc1 datstore
     return FercDbfReader(pudl_datastore_fixture, dataset="ferc1")
 

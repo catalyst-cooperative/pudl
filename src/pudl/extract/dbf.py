@@ -155,15 +155,15 @@ class FercDbfReader:
         dataset: str,
         field_parser: FieldParser = FercFieldParser,
     ):
-        """Creates new instance of FercDbfReader.
+        """Create a new instance of FercDbfReader.
 
-        This can be used for retrieving data from the legacy FoxPro
-        databases that are used by FERC Form N datasets up to 2020.
+        This can be used for retrieving data from the legacy FoxPro databases that are
+        used by FERC Form N datasets up to 2020.
 
         Args:
             datastore: provides access to raw files on disk.
-            dataset: name of the dataset (e.g. ferc1), this is used to
-            load metadata from package_data/{dataset} subdirectory.
+            dataset: name of the dataset (e.g. ferc1), this is used to load metadata
+                from package_data/{dataset} subdirectory.
             field_parser: FieldParser class to use when loading data
         """
         self._cache = {}
@@ -185,11 +185,11 @@ class FercDbfReader:
             self._table_file_map[row["table"]] = row["filename"]
 
     def get_dataset(self) -> str:
-        """Returns the name of the dataset this datastore works with."""
+        """Return the name of the dataset this datastore works with."""
         return self.dataset
 
     def _open_csv_resource(self, base_filename: str) -> csv.DictReader:
-        """Opens the given resource file as csv.DictReader."""
+        """Open the given resource file as :class:`csv.DictReader`."""
         pkg_path = f"pudl.package_data.{self.dataset}"
         return csv.DictReader(importlib.resources.open_text(pkg_path, base_filename))
 
@@ -317,19 +317,23 @@ class FercDbfExtractor:
 
     When subclassing from this generic extractor, one should implement dataset specific
     logic in the following manner:
+
     1. set DATABASE_NAME. This is going to be used as the file for the resulting sqlite
     database.
-    2. Overrride get_datastore() method to return the right kind of dataset specific datastore.
+    2. Override get_datastore() method to return the right kind of dataset specific
+    datastore.
 
     Dataset specific logic and transformations can be injected by overriding:
-    1. finalize_schema() in order to modify sqlite schema. This is called just before the
-    schema is written into the sqlite database. This is good place for adding primary and/or
-    foreign key constraints to tables.
-    2. transform_table(table_name, df) will be invoked after dataframe is loaded from the foxpro
-    database and before it's written to sqlite. This is good place for table-specific
-    preprocessing and/or cleanup.
-    3. postprocess() is called after data is written to sqlite. This can be used for database
-    level final cleanup and transformations (e.g. injecting missing respondent_ids).
+
+    1. finalize_schema() in order to modify sqlite schema. This is called just before
+    the schema is written into the sqlite database. This is good place for adding
+    primary and/or foreign key constraints to tables.
+    2. transform_table(table_name, df) will be invoked after dataframe is loaded from
+    the foxpro database and before it's written to sqlite. This is good place for
+    table-specific preprocessing and/or cleanup.
+    3. postprocess() is called after data is written to sqlite. This can be used for
+    database level final cleanup and transformations (e.g. injecting missing
+    respondent_ids).
 
     The extraction logic is invoked by calling execute() method of this class.
     """

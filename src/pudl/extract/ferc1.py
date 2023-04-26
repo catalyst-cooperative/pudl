@@ -214,10 +214,9 @@ class Ferc1DbfExtractor(FercDbfExtractor):
     DATABASE_NAME = "ferc1.sqlite"
 
     def get_datastore(self, base_datastore: Datastore) -> FercDbfReader:
-        """Returns the instace of FoxProDatastore.
+        """Returns an instace of :class:`FercDbfReader`.
 
-        This wraps the generic base_datastore and constructs instance of
-        FercFoxProDatastore.
+        This uses the generic base_datastore to construct a :class:`FercDbfReader`.
         """
         return FercDbfReader(base_datastore, dataset="ferc1")
 
@@ -312,12 +311,9 @@ class Ferc1DbfExtractor(FercDbfExtractor):
         """Compile the set of all observed respondent IDs found in the FERC 1 database.
 
         A significant number of FERC 1 respondent IDs appear in the data tables, but not
-        in the f1_respondent_id table. In order to construct a self-consistent database with
-        we need to find all of those missing respondent IDs and inject them into the table
-        when we clone the database.
-
-        Args:
-            ferc1_engine: An engine for connecting to the FERC 1 database.
+        in the f1_respondent_id table. In order to construct a self-consistent database
+        with we need to find all of those missing respondent IDs and inject them into
+        the table when we clone the database.
 
         Returns:
             Every respondent ID reported in any of the FERC 1 DB tables.
@@ -352,8 +348,8 @@ class Ferc1DbfExtractor(FercDbfExtractor):
 )
 def dbf2sqlite(context) -> None:
     """Clone the FERC Form 1 Visual FoxPro databases into SQLite."""
-    # TODO(rousik): this thin wrapper seems to be somewhat quirky. Maybe there's a way to make the integration
-    # between the class and dagster a little better? Investigate.
+    # TODO(rousik): this thin wrapper seems to be somewhat quirky. Maybe there's a way
+    # to make the integration # between the class and dagster better? Investigate.
 
     Ferc1DbfExtractor(
         datastore=context.resources.datastore,
