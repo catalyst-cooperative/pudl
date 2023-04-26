@@ -84,7 +84,7 @@ from dagster import (
 )
 
 import pudl
-from pudl.extract.dbf import FercDbfExtractor, FercDbfReader
+from pudl.extract.dbf import AbstractFercDbfReader, FercDbfExtractor, FercDbfReader
 from pudl.helpers import EnvVar
 from pudl.io_managers import (
     FercDBFSQLiteIOManager,
@@ -213,7 +213,7 @@ class Ferc1DbfExtractor(FercDbfExtractor):
 
     DATABASE_NAME = "ferc1.sqlite"
 
-    def get_datastore(self, base_datastore: Datastore) -> FercDbfReader:
+    def get_dbf_reader(self, base_datastore: Datastore) -> AbstractFercDbfReader:
         """Returns an instace of :class:`FercDbfReader`.
 
         This uses the generic base_datastore to construct a :class:`FercDbfReader`.

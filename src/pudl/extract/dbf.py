@@ -318,10 +318,10 @@ class FercDbfExtractor:
     When subclassing from this generic extractor, one should implement dataset specific
     logic in the following manner:
 
-    1. set DATABASE_NAME. This is going to be used as the file for the resulting sqlite
-    database.
-    2. Override get_datastore() method to return the right kind of dataset specific
-    datastore.
+    1. set DATABASE_NAME class attribute. This controls what filename is used for the output
+    sqlite database.
+    2. Implement get_dbf_reader() method to return the right kind of dataset specific
+    AbstractDbfReader instance.
 
     Dataset specific logic and transformations can be injected by overriding:
 
@@ -358,10 +358,14 @@ class FercDbfExtractor:
         self.settings = settings
         self.clobber = clobber
         self.output_path = output_path
-        self.datastore = self.get_datastore(datastore)
+        self.dbf_reader = self.get_dbf_reader(datastore)
         self.sqlite_engine = sa.create_engine(self.get_db_path())
         self.sqlite_meta = sa.MetaData()
         self.sqlite_meta.reflect(self.sqlite_engine)
+
+    def get_dbf_reader(self, datastore: Datastore) -> AbstractFercDbfReader:
+        """Returns appropriate instance of AbstractFercDbfReader to access the data."""
+        raise NotImplementedError("get_dbf_reader() method needs to be implemented.")
 
     def get_db_path(self) -> str:
         """Returns the connection string for the sqlite database."""
