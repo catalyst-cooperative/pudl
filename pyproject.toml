@@ -98,7 +98,6 @@ pudl_etl = "pudl.cli.etl:main"
 pudl_setup = "pudl.workspace.setup_cli:main"
 state_demand = "pudl.analysis.state_demand:main"
 pudl_check_fks = "pudl.etl.check_foreign_keys:main"
-pudl_reset_db = "pudl.cli.reset_db:main"
 # pudl_territories currently blows up memory usage to 100+ GB.
 # See https://github.com/catalyst-cooperative/pudl/issues/1174
 # pudl_territories = "pudl.analysis.service_territory:main"

@@ -2,6 +2,7 @@
 in a variety of situations."""
 
 import os
+import pathlib
 from io import StringIO
 
 import pytest
@@ -11,10 +12,10 @@ from pudl.workspace.setup import get_defaults
 
 
 def setup():
-    if os.getenv("PUDL_OUTPUT"):
-        os.environ["PUDL_OUTPUT_OLD"] = os.getenv("PUDL_OUTPUT")
-    if os.getenv("PUDL_INPUT"):
-        os.environ["PUDL_INPUT_OLD"] = os.getenv("PUDL_INPUT")
+    if (old_output := os.getenv("PUDL_OUTPUT")) is not None:
+        os.environ["PUDL_OUTPUT_OLD"] = old_output
+    if (old_input := os.getenv("PUDL_INPUT")) is not None:
+        os.environ["PUDL_INPUT_OLD"] = old_input
 
 
 def test_get_defaults_in_test_environment_no_env_vars():
@@ -78,39 +79,62 @@ def test_get_defaults_in_test_environment_no_env_vars_tmpdir(pudl_output_tmpdir)
 
 
 @pytest.mark.parametrize(
-    "settings_yaml",
+    ["settings_yaml", "env_vars"],
     [
-        None,
-        StringIO(
-            yaml.dump(
-                {
-                    "pudl_in": "/test/workspace",
-                    "pudl_out": "/test/workspace",
-                }
-            )
+        (
+            None,
+            {
+                "PUDL_OUTPUT": "/test/whatever/from/env/output",
+                "PUDL_INPUT": "/test/whatever/from/env/input",
+            },
+        ),
+        (
+            StringIO(
+                yaml.dump(
+                    {
+                        "pudl_in": "/test/workspace",
+                        "pudl_out": "/test/workspace",
+                    }
+                )
+            ),
+            {
+                "PUDL_OUTPUT": "/test/whatever/from/env/output",
+                "PUDL_INPUT": "/test/whatever/from/env/input",
+            },
+        ),
+        (
+            StringIO(
+                yaml.dump(
+                    {
+                        "pudl_in": "/test/workspace",
+                        "pudl_out": "/test/workspace",
+                    }
+                )
+            ),
+            {
+                "PUDL_OUTPUT": "/test/whatever/from/env/different_output",
+                "PUDL_INPUT": "/test/whatever/from/env/different_input",
+            },
         ),
     ],
 )
-def test_get_defaults_in_test_environment_use_env_vars(settings_yaml):
-    workspace = "/test/whatever/from/env"
-    os.environ |= {
-        "PUDL_OUTPUT": f"{workspace}/output",
-        "PUDL_INPUT": f"{workspace}/data",
-    }
+def test_get_defaults_in_test_environment_use_env_vars(settings_yaml, env_vars):
+    workspace = pathlib.Path(env_vars["PUDL_OUTPUT"]).parent
+    os.environ |= env_vars
 
     settings = get_defaults(yaml_file=settings_yaml)
 
     expected_values = {
         "pudl_in": f"{workspace}",
-        "pudl_out": f"{workspace}/output",
-        "data_dir": f"{workspace}/data",
+        "pudl_out": env_vars["PUDL_OUTPUT"],
+        "data_dir": env_vars["PUDL_INPUT"],
     }
 
     for key, value in expected_values.items():
         assert (key, settings[key]) == (key, value)
 
-    assert os.getenv("PUDL_OUTPUT") == f"{workspace}/output"
-    assert os.getenv("PUDL_INPUT") == f"{workspace}/data"
+    assert os.getenv("PUDL_OUTPUT") == env_vars["PUDL_OUTPUT"]
+    assert os.getenv("PUDL_INPUT") == env_vars["PUDL_INPUT"]
 
 
 @pytest.mark.parametrize(
@@ -164,9 +188,9 @@ def test_get_defaults_in_test_environment_no_env_vars_no_config():
 
 
 def teardown():
-    if os.getenv("PUDL_OUTPUT_OLD"):
-        os.environ["PUDL_OUTPUT"] = os.getenv("PUDL_OUTPUT_OLD")
+    if (old_output := os.getenv("PUDL_OUTPUT_OLD")) is not None:
+        os.environ["PUDL_OUTPUT"] = old_output
         del os.environ["PUDL_OUTPUT_OLD"]
-    if os.getenv("PUDL_INPUT_OLD"):
-        os.environ["PUDL_INPUT"] = os.getenv("PUDL_INPUT_OLD")
+    if (old_input := os.getenv("PUDL_INPUT_OLD")) is not None:
+        os.environ["PUDL_INPUT"] = old_input
         del os.environ["PUDL_INPUT_OLD"]
