@@ -19,7 +19,7 @@ from pudl.workspace.datastore import Datastore
 logger = pudl.logging_helpers.get_logger(__name__)
 
 
-class FoxProTableSchema:
+class DbfTableSchema:
     """Simple data-wrapper for the fox-pro table schema."""
 
     def __init__(self, table_name: str):
@@ -70,7 +70,7 @@ class FoxProTableSchema:
         return table
 
 
-class AbstractFoxProDatastore(Protocol):
+class AbstractFercDbfReader(Protocol):
     """This is the interface definition for dealing with fox-pro datastores."""
 
     def get_dataset(self) -> str:
@@ -81,7 +81,7 @@ class AbstractFoxProDatastore(Protocol):
         """Returns list of all available table names."""
         ...
 
-    def get_table_schema(self, table_name: str, year: int) -> FoxProTableSchema:
+    def get_table_schema(self, table_name: str, year: int) -> DbfTableSchema:
         """Returns schema for a given table and a given year."""
         ...
 
@@ -142,15 +142,12 @@ documentation page: http://www.dbase.com/KnowledgeBase/int/db7_file_fmt.htm
 Unmapped types left as 'XXX' which should result in an error if encountered.
 """
 
-# TODO(rousik): circular dependency between FercFoxProDatastore and FoxProTable,
-# could be addressed through interfaces/ABCs
-
 
 # TODO(rousik): instead of using class-level constants, we could pass the params in the constructor, which should
 # allow us to instantiate these dataset-specific datastores in the extractor code.
 # That may make the manipulations little easier.
-class FercFoxProDatastore:
-    """Wrapper to provide standardized access to FoxPro FERC databases."""
+class FercDbfReader:
+    """Wrapper to provide standardized access to FERC DBF databases."""
 
     def __init__(
         self,
@@ -158,14 +155,15 @@ class FercFoxProDatastore:
         dataset: str,
         field_parser: FieldParser = FercFieldParser,
     ):
-        """Creates new instance of FercFoxProDdatastore.
+        """Creates new instance of FercDbfReader.
 
         This can be used for retrieving data from the legacy FoxPro
         databases that are used by FERC Form N datasets up to 2020.
 
         Args:
             datastore: provides access to raw files on disk.
-            dataset: name of the dataset (e.g. ferc1)
+            dataset: name of the dataset (e.g. ferc1), this is used to
+            load metadata from package_data/{dataset} subdirectory.
             field_parser: FieldParser class to use when loading data
         """
         self._cache = {}
@@ -260,7 +258,7 @@ class FercFoxProDatastore:
     # This is kind of annoying transformation but we can't do without it.
 
     @lru_cache
-    def get_table_schema(self, table_name: str, year: int) -> FoxProTableSchema:
+    def get_table_schema(self, table_name: str, year: int) -> DbfTableSchema:
         """Returns TableSchema for a given table and a given year."""
         table_columns = self.get_db_schema(year)[table_name]
         dbf = self.get_table_dbf(table_name, year)
@@ -270,7 +268,7 @@ class FercFoxProDatastore:
                 f"Number of DBF fields in {table_name} does not match what was "
                 f"found in the DBC index file for {year}."
             )
-        schema = FoxProTableSchema(table_name)
+        schema = DbfTableSchema(table_name)
         for long_name, dbf_col in zip(table_columns, dbf_fields):
             if long_name[:8] != dbf_col.name.lower()[:8]:
                 raise ValueError(
@@ -314,8 +312,8 @@ class FercFoxProDatastore:
         return None
 
 
-class FoxProExtractor:
-    """Generalized class for loading data from foxpro databases into sqlite.
+class FercDbfExtractor:
+    """Generalized class for loading data from foxpro databases into SQLAlchemy.
 
     When subclassing from this generic extractor, one should implement dataset specific
     logic in the following manner:
@@ -345,7 +343,7 @@ class FoxProExtractor:
         output_path: Path,
         clobber: bool = False,
     ):
-        """Constructs new instance of FercFoxProExtractor.
+        """Constructs new instance of FercDbfExtractor.
 
         Args:
             datastore: top-level datastore instance for accessing raw data files.

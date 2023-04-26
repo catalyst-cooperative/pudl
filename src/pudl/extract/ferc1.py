@@ -84,7 +84,7 @@ from dagster import (
 )
 
 import pudl
-from pudl.extract.dbf import FercFoxProDatastore, FoxProExtractor
+from pudl.extract.dbf import FercDbfExtractor, FercDbfReader
 from pudl.helpers import EnvVar
 from pudl.io_managers import (
     FercDBFSQLiteIOManager,
@@ -208,18 +208,18 @@ TABLE_NAME_MAP_FERC1: dict[str, dict[str, str]] = {
 """A mapping of PUDL DB table names to their XBRL and DBF source table names."""
 
 
-class Ferc1FoxProExtractor(FoxProExtractor):
+class Ferc1DbfExtractor(FercDbfExtractor):
     """Wrapper for running the foxpro to sqlite conversion of FERC1 dataset."""
 
     DATABASE_NAME = "ferc1.sqlite"
 
-    def get_datastore(self, base_datastore: Datastore) -> FercFoxProDatastore:
+    def get_datastore(self, base_datastore: Datastore) -> FercDbfReader:
         """Returns the instace of FoxProDatastore.
 
         This wraps the generic base_datastore and constructs instance of
         FercFoxProDatastore.
         """
-        return FercFoxProDatastore(base_datastore, dataset="ferc1")
+        return FercDbfReader(base_datastore, dataset="ferc1")
 
     def transform_table(self, table_name: str, in_df: pd.DataFrame) -> pd.DataFrame:
         """FERC Form 1 specific table transformations.
@@ -355,7 +355,7 @@ def dbf2sqlite(context) -> None:
     # TODO(rousik): this thin wrapper seems to be somewhat quirky. Maybe there's a way to make the integration
     # between the class and dagster a little better? Investigate.
 
-    Ferc1FoxProExtractor(
+    Ferc1DbfExtractor(
         datastore=context.resources.datastore,
         settings=context.resources.ferc_to_sqlite_settings.ferc1_dbf_to_sqlite_settings,
         clobber=context.op_config["clobber"],
