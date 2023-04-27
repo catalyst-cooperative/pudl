@@ -76,6 +76,7 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "type": "string",
         "description": "EIA record ID of the associated true granularity record.",
     },
+    "area_km2": {"type": "number", "description": "County area in km2.", "unit": "km2"},
     "ash_content_pct": {
         "type": "number",
         "description": "Ash content percentage by weight to the nearest 0.1 percent.",
@@ -459,6 +460,10 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "constraints": {
             "pattern": r"^\d{5}$",
         },
+    },
+    "county_name_census": {
+        "type": "string",
+        "description": "County name as specified in Census DP1 Data.",
     },
     "country_code": {
         "type": "string",
@@ -1913,6 +1918,10 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     "particulate_control_id_eia": {
         "type": "string",
         "description": "Alphanumeric particulate matter control ID.",
+    },
+    "population": {
+        "type": "number",
+        "description": "County population, sourced from Census DP1 data.",
     },
     "potential_peak_demand_savings_mw": {"type": "number", "unit": "MW"},
     "previously_canceled": {

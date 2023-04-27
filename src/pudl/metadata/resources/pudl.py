@@ -78,6 +78,50 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
         "field_namespace": "pudl",
         "sources": ["pudl"],
     },
+    "compiled_geometry_utility_eia861": {
+        "description": "County-level spatial data for EIA861 utilities.",
+        "schema": {
+            "fields": [
+                "county_id_fips",
+                "county_name_census",
+                "population",
+                "area_km2",
+                "report_date",
+                "utility_id_eia",
+                "state",
+                "county",
+                "state_id_fips",
+            ],
+            "primary_key": ["utility_id_eia", "report_date", "county_id_fips"],
+        },
+        "sources": ["eia861", "censusdp1"],
+        "field_namespace": "pudl",
+        "etl_group": "service_territories",
+    },
+    "compiled_geometry_balancing_authority_eia861": {
+        "description": "County-level spatial data for EIA861 utilities.",
+        "schema": {
+            "fields": [
+                "county_id_fips",
+                "county_name_census",
+                "population",
+                "area_km2",
+                "report_date",
+                "balancing_authority_id_eia",
+                "state",
+                "county",
+                "state_id_fips",
+            ],
+            # "primary_key": [ # TO DO: This is not unique! Seems not ideal.
+            #     "balancing_authority_id_eia",
+            #     "report_date",
+            #     "county_id_fips",
+            # ],
+        },
+        "sources": ["eia861", "censusdp1"],
+        "field_namespace": "pudl",
+        "etl_group": "service_territories",
+    },
 }
 """PUDL-specifiic resource attributes by PUDL identifier (``resource.name``).
 
