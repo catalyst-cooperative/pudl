@@ -58,14 +58,9 @@ def get_defaults(
         os.environ["PUDL_OUTPUT"] = str(Path("~/pudl-work/output").expanduser())
         os.environ["PUDL_INPUT"] = str(Path("~/pudl-work/data").expanduser())
 
-    # read from YAML source
-    if yaml_file is not None:
-        yaml_settings = yaml.safe_load(yaml_file)
-    elif default_pudl_yaml and default_pudl_yaml.exists():
-        with default_pudl_yaml.open() as f:
-            yaml_settings = yaml.safe_load(f)
-    else:
-        yaml_settings = {}
+    yaml_settings = _munge_legacy_yaml(
+        yaml_file=yaml_file, default_pudl_yaml=default_pudl_yaml
+    )
 
     # read from env vars
     env_var_mapping = {
@@ -73,7 +68,7 @@ def get_defaults(
         "pudl_out": os.getenv("PUDL_OUTPUT"),
     }
     env_settings = {
-        key: str(Path(value).parent)
+        key: str(Path(value))
         for key, value in env_var_mapping.items()
         if value is not None
     }
@@ -81,7 +76,7 @@ def get_defaults(
     # read from params
     kwarg_mapping = {"pudl_in": input_dir, "pudl_out": output_dir}
     kwarg_settings = {
-        key: str(Path(value).parent)
+        key: str(Path(value))
         for key, value in kwarg_mapping.items()
         if value is not None
     }
@@ -107,6 +102,28 @@ def get_defaults(
         os.environ["DAGSTER_HOME"] = str(Path(settings["pudl_in"]) / "dagster_home")
 
     return settings
+
+
+def _munge_legacy_yaml(
+    yaml_file: IO | None, default_pudl_yaml: Path | None
+) -> dict[str, str]:
+    # read from YAML source
+    if yaml_file is not None:
+        yaml_settings = yaml.safe_load(yaml_file)
+    elif default_pudl_yaml and default_pudl_yaml.exists():
+        with default_pudl_yaml.open() as f:
+            yaml_settings = yaml.safe_load(f)
+    else:
+        yaml_settings = {}
+
+    # legacy YAML format expects pudl_in/out to point at the parent directory instead
+    # of the input/output directories directly, so we munge here.
+    if "pudl_in" in yaml_settings:
+        yaml_settings["pudl_in"] = f"{yaml_settings['pudl_in']}/data"
+    if "pudl_out" in yaml_settings:
+        yaml_settings["pudl_out"] = f"{yaml_settings['pudl_out']}/output"
+
+    return yaml_settings
 
 
 def set_defaults(pudl_in, pudl_out, clobber=False):
@@ -179,16 +196,18 @@ def derive_paths(pudl_in, pudl_out):
     # The only "inputs" are the datastore and example settings files:
     # Convert from input string to Path and make it absolute w/ resolve()
     pudl_in = pathlib.Path(pudl_in).expanduser().resolve()
-    data_dir = pudl_in / "data"
-    settings_dir = pudl_in / "settings"
+    data_dir = pudl_in
+    pudl_workspace_legacy = pudl_in.parent
+    settings_dir = pudl_workspace_legacy / "settings"
+
     # Store these as strings... since we aren't using Paths everywhere yet:
-    pudl_settings["pudl_in"] = str(pudl_in)
+    pudl_settings["pudl_in"] = str(pudl_workspace_legacy)
     pudl_settings["data_dir"] = str(data_dir)
     pudl_settings["settings_dir"] = str(settings_dir)
 
     # Everything else goes into outputs, generally organized by type of file:
     pudl_out = pathlib.Path(pudl_out).expanduser().resolve()
-    pudl_settings["pudl_out"] = str(pudl_out / "output")
+    pudl_settings["pudl_out"] = str(pudl_out)
     # One directory per output format:
     logger.warning(
         "sqlite and parquet directories are no longer being used. Make sure there is a "

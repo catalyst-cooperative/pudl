@@ -189,5 +189,4 @@ PLANT_PARTS: set[str] = {
     "plant_gen",
     "plant_match_ferc1",
 }
-
 """The plant parts in the EIA plant parts list."""
