@@ -420,7 +420,9 @@ class PudlSQLiteIOManager(SQLiteIOManager):
         md = self.package.to_sql()
         sqlite_path = Path(base_dir) / f"{db_name}.sqlite"
         if not sqlite_path.exists():
-            raise RuntimeError(f"{sqlite_path} not initialized! Run pudl_reset_db.")
+            raise RuntimeError(
+                f"{sqlite_path} not initialized! Run `alembic upgrade head`."
+            )
 
         super().__init__(base_dir, db_name, md, timeout)
 
@@ -428,7 +430,10 @@ class PudlSQLiteIOManager(SQLiteIOManager):
         metadata_diff = compare_metadata(existing_schema_context, self.md)
         if metadata_diff:
             logger.info(f"Metadata diff:\n\n{metadata_diff}")
-            raise RuntimeError("Database schema has changed, run `pudl_reset_db`.")
+            raise RuntimeError(
+                "Database schema has changed, run `alembic revision "
+                "--autogenerate -m 'relevant message' && alembic upgrade head`."
+            )
 
     def _handle_str_output(self, context: OutputContext, query: str):
         """Execute a sql query on the database.
