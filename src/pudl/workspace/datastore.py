@@ -104,6 +104,7 @@ class DatapackageDescriptor:
             if self._matches(res, **filters):
                 yield PudlResourceKey(
                     dataset=self.dataset, doi=self.doi, name=res["name"]
+                    # TODO(rousik): embed parts here!
                 )
 
     def get_partitions(self, name: str = None) -> dict[str, set[str]]:
@@ -392,6 +393,11 @@ class Datastore:
     def get_zipfile_resource(self, dataset: str, **filters: Any) -> zipfile.ZipFile:
         """Retrieves unique resource and opens it as a ZipFile."""
         return zipfile.ZipFile(io.BytesIO(self.get_unique_resource(dataset, **filters)))
+
+    def get_zipfile_resources(self, dataset: str, **filters: Any) -> Iterator[tuple[PudlResourceKey, zipfile.ZipFile]]:
+        """Iterates over resources that match filters and opens each as ZipFile."""
+        for resource_key, content in self.get_resources(dataset, **filters):
+            yield resource_key, zipfile.ZipFile(io.BytesIO(content))
 
 
 class ParseKeyValues(argparse.Action):

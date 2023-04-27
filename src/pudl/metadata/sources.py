@@ -400,7 +400,7 @@ SOURCES: dict[str, Any] = {
         ),
         "field_namespace": "ferc2",
         "working_partitions": {
-            "years": sorted(set(range(2021, 2022))),  # XBRL only
+            "years": sorted(set(range(1991, 2022))),
         },
         "contributors": [
             CONTRIBUTORS["catalyst-cooperative"],

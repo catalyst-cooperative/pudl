@@ -85,6 +85,7 @@ from dagster import (
 
 import pudl
 from pudl.extract.dbf import AbstractFercDbfReader, FercDbfExtractor, FercDbfReader
+from pudl.extract.ferc2 import Ferc2DbfExtractor
 from pudl.helpers import EnvVar
 from pudl.io_managers import (
     FercDBFSQLiteIOManager,
@@ -357,6 +358,14 @@ def dbf2sqlite(context) -> None:
         clobber=context.op_config["clobber"],
         output_path=context.op_config["pudl_output_path"],
     ).execute()
+
+    Ferc2DbfExtractor(
+        datastore=context.resources.datastore,
+        settings=context.resources.ferc_to_sqlite_settings.ferc2_dbf_to_sqlite_settings,
+        clobber=context.op_config["clobber"],
+        output_path=context.op_config["pudl_output_path"],
+    ).execute()
+    # TODO(rousik): move this out of ferc1 and into ferc.py which will have all of those.
 
 
 ###########################################################################
