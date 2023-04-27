@@ -398,12 +398,12 @@ class FercDbfExtractor:
         refyear = self.settings.refyear
         if refyear is None:
             refyear = max(
-                DataSource.from_id(self.datastore.get_dataset()).working_partitions[
+                DataSource.from_id(self.dbf_reader.get_dataset()).working_partitions[
                     "years"
                 ]
             )
-        for tn in self.datastore.get_table_names():
-            self.datastore.get_table_schema(tn, refyear).create_sa_table(
+        for tn in self.dbf_reader.get_table_names():
+            self.dbf_reader.get_table_schema(tn, refyear).create_sa_table(
                 self.sqlite_meta
             )
         self.finalize_schema(self.sqlite_meta)
@@ -423,9 +423,9 @@ class FercDbfExtractor:
 
     def load_table_data(self):
         """Loads all tables from fox pro database and writes them to sqlite."""
-        for table in self.datastore.get_table_names():
+        for table in self.dbf_reader.get_table_names():
             logger.info(f"Pandas: reading {table} into a DataFrame.")
-            new_df = self.datastore.load_table_dfs(table, self.settings.years)
+            new_df = self.dbf_reader.load_table_dfs(table, self.settings.years)
             new_df = self.transform_table(table, new_df)
 
             logger.debug(f"    {table}: N = {len(new_df)}")
