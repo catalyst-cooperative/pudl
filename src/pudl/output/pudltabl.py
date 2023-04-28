@@ -333,7 +333,7 @@ class PudlTabl:
             gen_df = self._get_table_from_db(table_name, resource=resource)
         return gen_df
 
-    def gen_fuel_by_generator_eia923(self, update=False):
+    def gen_fuel_by_generator_energy_source_eia923(self, update=False):
         """Net generation from gen fuel table allocated to generators."""
         if self.freq not in ["AS", "MS"]:
             raise AssertionError(
@@ -343,6 +343,17 @@ class PudlTabl:
         table_name = self._agg_table_name(
             "generation_fuel_by_generator_energy_source_AGG_eia923"
         )
+        resource = Resource.from_id(table_name)
+        return self._get_table_from_db(table_name, resource=resource)
+
+    def gen_fuel_by_generator_eia923(self, update=False):
+        """Net generation from gen fuel table allocated to generators."""
+        if self.freq not in ["AS", "MS"]:
+            raise AssertionError(
+                "Allocated net generation requires frequency of `AS` or `MS`, "
+                f"got {self.freq}"
+            )
+        table_name = self._agg_table_name("generation_fuel_by_generator_AGG_eia923")
         resource = Resource.from_id(table_name)
         return self._get_table_from_db(table_name, resource=resource)
 

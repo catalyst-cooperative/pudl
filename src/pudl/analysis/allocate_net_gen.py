@@ -296,22 +296,10 @@ def allocate_net_gen_asset_factory(
         net_gen_fuel_alloc: pd.DataFrame, gens: pd.DataFrame, own_eia860: pd.DataFrame
     ) -> pd.DataFrame:
         """Aggregate gen fuel data columns to generator owners."""
-        return pudl.analysis.plant_parts_eia.MakeMegaGenTbl().scale_by_ownership(
-            gens_mega=pudl.helpers.date_merge(
-                left=net_gen_fuel_alloc,
-                right=gens[IDX_GENS + ["utility_id_eia", "capacity_mw"]],
-                left_date_col="report_date",
-                right_date_col="report_date",
-                new_date_col="report_date",
-                on=["plant_id_eia", "generator_id"],
-                date_on=["year"],
-                how="left",
-                report_at_start=True,
-                validate="m:1",
-            ),
+        return scale_allocated_net_gen_by_ownership(
+            net_gen_fuel_alloc=net_gen_fuel_alloc,
+            gens=gens,
             own_eia860=own_eia860,
-            scale_cols=DATA_COLUMNS + ["capacity_mw"],
-            validate="m:m",  # m:m because there are multiple generators in gen_pm_fuel
         )
 
     assets = [gen_fuel_by_gen_esc, gen_fuel_by_gen]
@@ -343,9 +331,8 @@ def allocate_gen_fuel_by_generator_energy_source(
 ):
     """Allocate net gen from gen_fuel table to the generator/energy_source_code level.
 
-    Three main steps here:
+    There are two main steps here:
 
-    * grab the three input tables from ``pudl_out`` with only the needed columns
     * associate ``generation_fuel_eia923`` table data w/ generators
     * allocate ``generation_fuel_eia923`` table data proportionally
 
@@ -361,7 +348,6 @@ def allocate_gen_fuel_by_generator_energy_source(
     """
     bf, gens_at_freq, gen = standardize_input_frequency(bf, gens, gen, freq)
     # Add any startup energy source codes to the list of energy source codes
-    # Fix MSW codes
     gens_at_freq = adjust_energy_source_codes(gens_at_freq, gf, bf)
     # do the association!
     gen_assoc = associate_generator_tables(
@@ -492,8 +478,7 @@ def standardize_input_frequency(
         bf: :ref:`boiler_fuel_eia923` table
         gens: :ref:`generators_eia860` table
         gen: :ref:`generation_eia923` table
-        freq: the frequency code from the ``pudl_out`` object used to generate the above
-            tables.
+        freq: the (time) frequency at which the tables will be aggregated.
     """
     bf = distribute_annually_reported_data_to_months_if_annual(
         df=bf,
@@ -535,41 +520,46 @@ def standardize_input_frequency(
 
 
 def scale_allocated_net_gen_by_ownership(
-    gen_pm_fuel: pd.DataFrame, gens: pd.DataFrame, own_eia860: pd.DataFrame
+    net_gen_fuel_alloc: pd.DataFrame, gens: pd.DataFrame, own_eia860: pd.DataFrame
 ) -> pd.DataFrame:
     """Scale allocated net gen at the generator/energy_source_code level by ownership.
 
-    It can be helpful to have a table of net generation and fuel consumption
-    at the generator/fuel-type level (i.e. the result of :func:`allocate_gen_fuel_by_generator_energy_source`)
-    to be associated and scaled with all of the owners of those generators.
-    This allows the aggregation of fuel use to the utility level.
+    It can be helpful to have a table of net generation and fuel consumption at the
+    generator/fuel-type level (i.e. the result of
+    :func:`allocate_gen_fuel_by_generator_energy_source`) to be associated and scaled
+    with all of the owners of those generators.  This allows the aggregation of fuel use
+    to the utility level.
 
-    Scaling generators with their owners' ownership fraction is currently
-    possible via :class:`pudl.analysis.plant_parts_eia.MakeMegaGenTbl`. This
-    function uses the allocated net generation at the generator/fuel-type level,
-    merges that with a generators table to ensure all necessary columns are
-    available, and then feeds that table into the EIA Plant-parts' :meth:`scale_by_ownership`.
+    Scaling generators with their owners' ownership fraction is currently possible via
+    :class:`pudl.analysis.plant_parts_eia.MakeMegaGenTbl`. This function uses the
+    allocated net generation at the generator/fuel-type level, merges that with a
+    generators table to ensure all necessary columns are available, and then feeds that
+    table into the EIA Plant-parts' :meth:`scale_by_ownership`.
 
     Args:
-        gen_pm_fuel: able of allocated generation at the generator/prime mover/energy
-            source. Result of :func:`allocate_gen_fuel_by_generator_energy_source`
-        gens: `generators_eia860` table with cols: :const:``IDX_GENS``, `capacity_mw`
-            and `utility_id_eia`
-        own_eia860: `ownership_eia860` table.
+        net_gen_fuel_alloc: table of allocated generation at the generator, prime mover,
+            and energy source. From :func:`allocate_gen_fuel_by_generator_energy_source`
+        gens: ``generators_eia860`` table with cols: :const:``IDX_GENS``,
+            ``capacity_mw`` and ``utility_id_eia``
+        own_eia860: ``ownership_eia860`` table.
     """
-    gen_pm_fuel_own = pudl.analysis.plant_parts_eia.MakeMegaGenTbl().scale_by_ownership(
-        gens_mega=pd.merge(
-            gen_pm_fuel,
-            gens[IDX_GENS + ["utility_id_eia", "capacity_mw"]],
-            on=IDX_GENS,
-            validate="m:1",
+    return pudl.analysis.plant_parts_eia.MakeMegaGenTbl().scale_by_ownership(
+        gens_mega=pudl.helpers.date_merge(
+            left=net_gen_fuel_alloc,
+            right=gens[IDX_GENS + ["utility_id_eia", "capacity_mw"]],
+            left_date_col="report_date",
+            right_date_col="report_date",
+            new_date_col="report_date",
+            on=["plant_id_eia", "generator_id"],
+            date_on=["year"],
             how="left",
+            report_at_start=True,
+            validate="m:1",
         ),
         own_eia860=own_eia860,
         scale_cols=DATA_COLUMNS + ["capacity_mw"],
         validate="m:m",  # m:m because there are multiple generators in gen_pm_fuel
     )
-    return gen_pm_fuel_own
 
 
 # Internal functions for allocate_gen_fuel_by_generator_energy_source
@@ -686,8 +676,7 @@ def associate_generator_tables(
 
     Args:
         gens: :ref:`generators_eia860` table with cols: :py:const:`IDX_GENS` and all of
-            the ``energy_source_code`` columns and expanded to the frequency of
-            ``pudl_out``
+            the ``energy_source_code`` columns and expanded to the same frequency.
         gf: :ref:`generation_fuel_eia923` table with columns: :py:const:`IDX_PM_ESC` and
             ``net_generation_mwh`` and ``fuel_consumed_mmbtu``.
         gen: :ref:`generation_eia923` table with columns: :py:const:`IDX_GENS` and
