@@ -243,7 +243,12 @@ def example_1_pudl_tabl():
 def test_allocated_sums_match(example_1_pudl_tabl):
     """Test associate_generator_tables function with example 1."""
     allocated = allocate_net_gen.allocate_gen_fuel_by_generator_energy_source(
-        example_1_pudl_tabl
+        gf=example_1_pudl_tabl.gf_eia923(),
+        bf=example_1_pudl_tabl.bf_eia923(),
+        gen=example_1_pudl_tabl.gen_original_eia923(),
+        bga=example_1_pudl_tabl.bga_eia860(),
+        gens=example_1_pudl_tabl.gens_eia860(),
+        freq="AS",
     )
     gf = example_1_pudl_tabl.gf_eia923()
     assert allocated["fuel_consumed_mmbtu"].sum() == gf["fuel_consumed_mmbtu"].sum()
@@ -303,8 +308,6 @@ def test_missing_energy_source():
         ),
     ).pipe(apply_pudl_dtypes, group="eia")
 
-    gen_original_eia923 = gen_eia923
-
     # boiler_generator_association_eia860
     boiler_generator_assn_eia860 = pd.read_csv(
         StringIO(
@@ -325,17 +328,15 @@ def test_missing_energy_source():
         ),
     ).pipe(apply_pudl_dtypes, group="eia")
 
-    mock_pudl_out = PudlTablMock(
-        gens_eia860=gens_eia860,
-        gen_eia923=gen_eia923,
-        gen_original_eia923=gen_original_eia923,
-        generation_fuel_eia923=generation_fuel_eia923,
-        boiler_fuel_eia923=boiler_fuel_eia923,
-        boiler_generator_assn_eia860=boiler_generator_assn_eia860,
-    )
-
     with pytest.raises(AssertionError):
-        allocate_net_gen.allocate_gen_fuel_by_generator_energy_source(mock_pudl_out)
+        allocate_net_gen.allocate_gen_fuel_by_generator_energy_source(
+            gf=generation_fuel_eia923,
+            bf=boiler_fuel_eia923,
+            gen=gen_eia923,
+            bga=boiler_generator_assn_eia860,
+            gens=gens_eia860,
+            freq="AS",
+        )
 
     # TODO (daz): once the allocation is actually fixed, assert that the fuel consumed is the same
     # assert (
