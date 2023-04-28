@@ -271,7 +271,8 @@ def test_allocated_sums_match(example_1_pudl_tabl):
     # )
 
 
-def test_missing_energy_source():
+@pytest.fixture
+def example_2_pudl_tabl():
     gens_eia860 = pd.read_csv(
         StringIO(
             """report_date,plant_id_eia,generator_id,prime_mover_code,unit_id_pudl,capacity_mw,fuel_type_count,operational_status,generator_retirement_date,energy_source_code_1,energy_source_code_2,energy_source_code_3,energy_source_code_4,energy_source_code_5,energy_source_code_6,energy_source_code_7,planned_energy_source_code_1,startup_source_code_1,startup_source_code_2,startup_source_code_3,startup_source_code_4
@@ -323,7 +324,7 @@ def test_missing_energy_source():
         ),
     ).pipe(apply_pudl_dtypes, group="eia")
 
-    mock_pudl_out = PudlTablMock(
+    return PudlTablMock(
         gens_eia860=gens_eia860,
         gen_eia923=gen_eia923,
         gen_original_eia923=gen_original_eia923,
@@ -332,16 +333,99 @@ def test_missing_energy_source():
         boiler_generator_assn_eia860=boiler_generator_assn_eia860,
     )
 
-    gf, bf, _, gens, _ = allocate_net_gen.extract_input_tables(mock_pudl_out)
+
+def get_ratio_from_bf_and_allocated_by_boiler(
+    bf: pd.DataFrame,
+    allocated: pd.DataFrame,
+    bga: pd.DataFrame,
+    boiler_id_to_check: str,
+    energy_source_code_to_check: str,
+) -> tuple[float, float]:
+    """Helper function to calculate the ratio of a boiler's fuel consumption."""
+    # what gen is this boiler associated with? needed for masking in the allocated tbl
+    generator_id_to_check = bga.loc[
+        (bga.boiler_id == boiler_id_to_check), "generator_id"
+    ]
+
+    def sum_of_fuel_consumed_mmbtu_by_esc(
+        df: pd.DataFrame, energy_source_code_to_check: str
+    ) -> float:
+        return df[
+            (df.energy_source_code == energy_source_code_to_check)
+        ].fuel_consumed_mmbtu.sum()
+
+    ratio_bf = bf[
+        (bf.energy_source_code == energy_source_code_to_check)
+        & (bf.boiler_id == boiler_id_to_check)
+    ].fuel_consumed_mmbtu.sum() / sum_of_fuel_consumed_mmbtu_by_esc(
+        bf, energy_source_code_to_check
+    )
+    ratio_allocated = allocated.loc[
+        (allocated.energy_source_code == energy_source_code_to_check)
+        & allocated.generator_id.isin(generator_id_to_check)
+    ].fuel_consumed_mmbtu.sum() / sum_of_fuel_consumed_mmbtu_by_esc(
+        allocated, energy_source_code_to_check
+    )
+    return ratio_bf, ratio_allocated
+
+
+def test_missing_energy_source(example_2_pudl_tabl):
+    gf, bf, bga, gens, _ = allocate_net_gen.extract_input_tables(example_2_pudl_tabl)
     gens = allocate_net_gen.add_missing_energy_source_codes_to_gens(gens, gf, bf)
     # assert that the missing energy source code is RC
     assert gens.energy_source_code_8.unique() == "RC"
 
     allocated = allocate_net_gen.allocate_gen_fuel_by_generator_energy_source(
-        mock_pudl_out
+        example_2_pudl_tabl
     )
 
     assert (
-        generation_fuel_eia923.fuel_consumed_mmbtu.sum()
+        example_2_pudl_tabl.gf_eia923().fuel_consumed_mmbtu.sum()
         == allocated.fuel_consumed_mmbtu.sum()
     )
+
+    # check if the ratio of the fuel in the gf table for these two generotors is the same
+    # in the gf and the allocated tables
+    ratio_bf, ratio_allocated = get_ratio_from_bf_and_allocated_by_boiler(
+        bf, allocated, bga, boiler_id_to_check="1", energy_source_code_to_check="DFO"
+    )
+    assert ratio_bf == ratio_allocated
+
+
+def test_missing_pm_code_in_bf(example_2_pudl_tabl):
+    """Test the expected behavior when there is a missing PM code in the BF table.
+
+    We have a known not so great behavior. This test is meant to document and pinpoint
+    where the problem exists and how it is propogated.
+    """
+    # alter the PM code for one record in the BF table
+    bf_bad_prime_mover = example_2_pudl_tabl.bf_eia923()
+    bf_bad_prime_mover.loc[0, "prime_mover_code"] = "CT"
+
+    gf, bf, bga, gens, _ = allocate_net_gen.extract_input_tables(example_2_pudl_tabl)
+    bf_by_gens = allocate_net_gen.allocate_bf_data_to_gens(bf, gens, bga)
+    # allocate_bf_data_to_gens quietly drops and records with non-matching PM codes.
+    # The CT record is no longer in the output & the total fuel_consumed_mmbtu is
+    # missing the CT fuel
+    assert "CT" not in bf_by_gens.prime_mover_code.unique()
+    assert bf_by_gens.fuel_consumed_mmbtu.sum() == (
+        bf.fuel_consumed_mmbtu.sum()
+        - bf[(bf.prime_mover_code == "CT")].fuel_consumed_mmbtu.sum()
+    )
+
+    # BUT the total vlaue from complete GF table should still sum to the allocated
+    # value. WHICH IS GOOD. If this fails we have a bigger problem.
+    allocated = allocate_net_gen.allocate_gen_fuel_by_generator_energy_source(
+        example_2_pudl_tabl
+    )
+    assert (
+        example_2_pudl_tabl.gf_eia923().fuel_consumed_mmbtu.sum()
+        == allocated.fuel_consumed_mmbtu.sum()
+    )
+    (
+        ratio_bf,
+        ratio_allocated,
+    ) = get_ratio_from_bf_and_allocated_by_boiler(
+        bf, allocated, bga, boiler_id_to_check="1", energy_source_code_to_check="DFO"
+    )
+    assert ratio_bf != ratio_allocated
