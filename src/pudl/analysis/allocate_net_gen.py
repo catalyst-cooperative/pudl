@@ -295,12 +295,17 @@ def allocate_net_gen_asset_factory(
     ) -> pd.DataFrame:
         """Aggregate gen fuel data columns to generator owners."""
         return pudl.analysis.plant_parts_eia.MakeMegaGenTbl().scale_by_ownership(
-            gens_mega=pd.merge(
-                net_gen_fuel_alloc,
-                gens[IDX_GENS + ["utility_id_eia", "capacity_mw"]],
-                on=IDX_GENS,
-                validate="m:1",
+            gens_mega=pudl.helpers.date_merge(
+                left=net_gen_fuel_alloc,
+                right=gens[IDX_GENS + ["utility_id_eia", "capacity_mw"]],
+                left_date_col="report_date",
+                right_date_col="report_date",
+                new_date_col="report_date",
+                on=["plant_id_eia", "generator_id"],
+                date_on=["year"],
                 how="left",
+                report_at_start=True,
+                validate="m:1",
             ),
             own_eia860=own_eia860,
             scale_cols=DATA_COLUMNS + ["capacity_mw"],
@@ -309,7 +314,7 @@ def allocate_net_gen_asset_factory(
 
     assets = [gen_fuel_by_gen_esc, gen_fuel_by_gen]
     if freq == "AS":
-        # This table currently only makes sense for annual data:
+        # The monthly version is yuuuuge and we only use the annual data for now.
         assets += [gen_fuel_by_gen_esc_owner]
 
     return assets
