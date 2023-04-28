@@ -365,7 +365,7 @@ def extract_input_tables(pudl_out: "pudl.output.pudltabl.PudlTabl") -> tuple:
     granular_fuel_ratio = bf.fuel_consumed_mmbtu.sum() / gf.fuel_consumed_mmbtu.sum()
     granular_net_gen_ratio = gen.net_generation_mwh.sum() / gf.net_generation_mwh.sum()
     logger.info(
-        f"The granular data tables contains {granular_fuel_ratio:.1%} of the fuel and "
+        f"The granular data tables contain {granular_fuel_ratio:.1%} of the fuel and "
         f"{granular_net_gen_ratio:.1%} of net generation in the higher-coverage "
         "generation_fuel_eia923 table."
     )
@@ -614,18 +614,20 @@ def associate_generator_tables(
             on=IDX_GENS,
             how="outer",
         )
-        .merge(
-            gf,
-            on=IDX_PM_ESC,
-            how="outer",
-            validate="m:1",
-        )
+        .merge(gf, on=IDX_PM_ESC, how="outer", validate="m:1", indicator=True)
         .pipe(remove_inactive_generators)
+        .pipe(
+            _allocate_unassociated_pm_records,
+            idx_cols=IDX_PM_ESC,
+            col_w_unexpected_codes="prime_mover_code",
+            data_columns=[f"{col}_gf_tbl" for col in DATA_COLUMNS],
+        )
+        .drop(columns=["_merge"])
         .merge(
             bf_by_gens, on=IDX_GENS_PM_ESC, how="outer", validate="m:1", indicator=True
         )
         .pipe(
-            _allocate_unassociated_bf_records,
+            _allocate_unassociated_pm_records,
             idx_cols=IDX_GENS_PM_ESC,
             col_w_unexpected_codes="prime_mover_code",
             data_columns=["fuel_consumed_mmbtu_bf_tbl"],
@@ -849,7 +851,7 @@ def identify_proposed_plants(gen_assoc: pd.DataFrame) -> pd.DataFrame:
     return proposed_plants
 
 
-def _allocate_unassociated_bf_records(
+def _allocate_unassociated_pm_records(
     gen_assoc: pd.DataFrame,
     idx_cols: list[str],
     col_w_unexpected_codes: Literal["energy_source_code", "prime_mover_code"],
@@ -857,11 +859,12 @@ def _allocate_unassociated_bf_records(
 ) -> pd.DataFrame:
     """Associate unassociated :ref:`boiler_fuel_eia923` table records on idx_cols.
 
-    There are a subset of :ref:`boiler_fuel_eia923` records which do not merge onto the
-    stacked generator table on ``IDX_GENS_PM_ESC``. These records generally don't match
-    with the set of prime movers and energy sources in the stacked generator table. In
-    this method, we associate those straggler, unassociated records by merging these
-    records with the stacked generators witouth the un-matching data column.
+    There are a subset of :ref:`boiler_fuel_eia923` and :ref:`generation_fuel_eia923`
+    records which do not merge onto the stacked generator table on ``IDX_GENS_PM_ESC``
+    or ``ID_PM_ESC`` respectively. These records generally don't match with the set of
+    prime movers and energy sources in the stacked generator table. In this method, we
+    associate those straggler, unassociated records by merging these records with the
+    stacked generators witouth the un-matching data column.
 
     Args:
         gen_assoc: generators associated with data.
@@ -877,15 +880,13 @@ def _allocate_unassociated_bf_records(
     #  drop_invalid_rows will fail if there are not unassociated records)
     if gen_assoc[~connected_mask].empty:
         logger.info(
-            "No unassociated boiler_fuel_eia923 records. Skipping _allocate_unassociated_bf_records"
+            "No unassociated boiler_fuel_eia923 or generation_fuel_eia923 records. "
+            "Skipping _allocate_unassociated_bf_records"
         )
         return gen_assoc
     # we're associating these unassociated records but we only want to associate
-    # them w/ the standard id columns minus the  the unassociated data and
-    # merge on that column
-    idx_minus_one = [col for col in idx_cols if col != col_w_unexpected_codes] + [
-        "energy_source_code_num"
-    ]
+    # them w/ the standard id columns minus the column with the non-matching codes
+    idx_minus_one = [col for col in idx_cols if col != col_w_unexpected_codes]
     eia_generators_connected = gen_assoc.loc[connected_mask].assign(
         capacity_mw_minus_one=lambda x: x.groupby(idx_minus_one)[
             "capacity_mw"
@@ -895,13 +896,6 @@ def _allocate_unassociated_bf_records(
 
     eia_generators_unassociated = (
         gen_assoc[~connected_mask]
-        .pipe(
-            pudl.transform.classes.drop_invalid_rows,
-            pudl.transform.classes.InvalidRows(
-                required_valid_cols=data_columns, invalid_values=[pd.NA, np.nan, 0.0]
-            ),
-        )
-        .assign(energy_source_code_num="energy_source_code_1")
         .groupby(by=idx_minus_one)
         .sum(min_count=1, numeric_only=True)
         .reset_index()
@@ -1598,7 +1592,7 @@ def adjust_msw_energy_source_codes(
 
 
 def add_missing_energy_source_codes_to_gens(gens_at_freq, gf, bf):
-    """Add energy_source_codes that appear in the `gf` table but not `gens` to `gens`.
+    """Add energy_source_codes to gens that were found only in the gf or bf tables.
 
     In some cases, non-zero fuel consumption and net generation is reported in the
     EIA-923 generation and fuel table that is associated with an energy_source_code that
