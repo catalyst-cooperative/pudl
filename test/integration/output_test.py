@@ -37,6 +37,7 @@ def nuke_gen_fraction(df):
     "df_name,expected_nuke_fraction,tolerance",
     [
         ("gf_eia923", 0.2, 0.02),
+        ("mcoe", 0.2, 0.02),
     ],
 )
 def test_nuclear_fraction(fast_out, df_name, expected_nuke_fraction, tolerance):
@@ -194,35 +195,3 @@ def test_ferc714_respondents_georef_counties(ferc714_out):
     ferc714_gdf = ferc714_out.georef_counties()
     assert isinstance(ferc714_gdf, gpd.GeoDataFrame), "ferc714_gdf not a GeoDataFrame!"
     assert not ferc714_gdf.empty, "ferc714_gdf is empty!"
-
-
-@pytest.fixture(scope="module")
-def fast_out_filled(pudl_engine):
-    """A PUDL output object for use in CI with net generation filled."""
-    return pudl.output.pudltabl.PudlTabl(
-        pudl_engine,
-        freq="MS",
-        fill_fuel_cost=True,
-        roll_fuel_cost=True,
-        fill_net_gen=True,
-    )
-
-
-@pytest.mark.parametrize(
-    "df_name,expected_nuke_fraction,tolerance",
-    [
-        ("gf_eia923", 0.2, 0.02),
-        ("mcoe", 0.2, 0.02),
-    ],
-)
-def test_mcoe_filled(fast_out_filled, df_name, expected_nuke_fraction, tolerance):
-    """Test that the net generation allocation process is working.
-
-    In addition to running the allocation itself, make sure that the nuclear and non-
-    nuclear generation fractions are as we would expect after the net generation has
-    been allocated.
-    """
-    actual_nuke_fraction = nuke_gen_fraction(
-        fast_out_filled.__getattribute__(df_name)()
-    )
-    assert abs(actual_nuke_fraction - expected_nuke_fraction) <= tolerance
