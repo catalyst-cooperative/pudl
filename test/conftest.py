@@ -402,12 +402,6 @@ def pudl_settings_dict(request, pudl_input_output_dirs):  # noqa: C901
     return pudl_settings
 
 
-@pytest.fixture(scope="session")  # noqa: C901
-def ferc1_dbf_datastore_fixture(pudl_datastore_fixture):
-    """Produce a :class:pudl.extract.ferc1.Ferc1DbfDatastore."""
-    return pudl.extract.ferc1.Ferc1DbfDatastore(pudl_datastore_fixture)
-
-
 @pytest.fixture(scope="session")
 def dataset_settings_config(request, etl_settings):
     """Create dagster dataset_settings resource."""
