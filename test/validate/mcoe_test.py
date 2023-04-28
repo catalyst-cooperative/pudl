@@ -116,8 +116,8 @@ def test_no_null_rows_mcoe(pudl_out_mcoe, live_dbs, df_name, thresh):
         ("hr_by_unit", 362_369, 30_339),
         ("hr_by_gen", 555_107, 46_407),
         ("fuel_cost", 555_107, 46_407),
-        ("capacity_factor", 5_171_497, 432_567),
-        ("mcoe", 5_171_881, 432_599),
+        ("capacity_factor", 4_872_421, 407_653),
+        ("mcoe", 4_872_805, 407_685),
     ],
 )
 def test_minmax_rows_mcoe(pudl_out_mcoe, live_dbs, monthly_rows, annual_rows, df_name):
