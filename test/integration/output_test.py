@@ -81,6 +81,7 @@ def test_ferc1_outputs(fast_out, df_name):
         ("gens_eia860", "bf_eia923", 12 / 1, {}),
         ("gens_eia860", "frc_eia923", 12 / 1, {}),
         ("gens_eia860", "gen_eia923", 12 / 1, {}),
+        ("gens_eia860", "gen_fuel_by_generator_energy_source_eia923", 12 / 1, {}),
         ("gens_eia860", "gen_fuel_by_generator_eia923", 12 / 1, {}),
         ("gens_eia860", "gf_eia923", 12 / 1, {}),
         ("gens_eia860", "hr_by_unit", 12 / 1, {}),
@@ -103,25 +104,15 @@ def test_eia_outputs(fast_out, df1_name, df2_name, mult, kwargs):
 @pytest.mark.parametrize(
     "df_name",
     [
+        "plant_parts_eia",
+        "ferc1_eia",
         "gen_fuel_by_generator_energy_source_eia923",
         "gen_fuel_by_generator_eia923",
         "gen_fuel_by_generator_energy_source_owner_eia923",
     ],
 )
-def test_annual_eia_outputs(fast_out, df_name):
-    """Check that the EIA 1 output functions work."""
-    logger.info(f"Running fast_out.{df_name}()")
-    df = fast_out.__getattribute__(df_name)()
-    logger.info(f"Found {len(df)} rows in {df_name}")
-    assert not df.empty
-
-
-@pytest.mark.parametrize(
-    "df_name",
-    ["plant_parts_eia", "ferc1_eia"],
-)
-def test_annual_only_outputs(fast_out_annual, df_name):
-    """Check that output methods that only operate with an ``AS`` frequency."""
+def test_annual_eia_outputs(fast_out_annual, df_name):
+    """Test some output methods with frequency ``AS``."""
     logger.info(f"Running fast_out_annual.{df_name}()")
     df = fast_out_annual.__getattribute__(df_name)()
     logger.info(f"Found {len(df)} rows in {df_name}")
