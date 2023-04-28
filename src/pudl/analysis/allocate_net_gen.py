@@ -203,6 +203,8 @@ def allocate_net_gen_asset_factory(
 ) -> list[AssetsDefinition]:
     """Build net gen allocation assets at yearly and monthly frequencies."""
     agg_freqs = {"AS": "yearly", "MS": "monthly"}
+    if freq not in agg_freqs:
+        raise ValueError(f"freq must be one of {agg_freqs.keys()}, got: {freq}.")
 
     @asset(
         name=f"generation_fuel_by_generator_energy_source_{agg_freqs[freq]}_eia923",
@@ -423,7 +425,13 @@ def select_input_data(
     bga: pd.DataFrame,
     gens: pd.DataFrame,
 ) -> tuple[pd.DataFrame]:
-    """Select only the subset of input data needed for the allocation."""
+    """Select only the subset of input data needed for the allocation.
+
+    This includes both selecting only a subset of columns from most input tables, and
+    restricting the dates to those which are available in all inputs. Otherwise we end
+    up with a bunch of NA values since the generators table has up to a year of more
+    recent data from the EIA-860M.
+    """
     gf = gf.loc[:, IDX_PM_ESC + DATA_COLUMNS]
     bf = bf.loc[:, IDX_B_PM_ESC + ["fuel_consumed_mmbtu"]]
     # load boiler generator associations
@@ -431,8 +439,17 @@ def select_input_data(
         :,
         ["plant_id_eia", "boiler_id", "generator_id", "report_date"],
     ]
+    end_date = min(
+        [
+            gf.report_date.max(),
+            bf.report_date.max(),
+            gen.report_date.max(),
+            bga.report_date.max(),
+            gens.report_date.max(),
+        ]
+    )
     gens = gens.loc[
-        :,
+        gens.report_date <= end_date,
         IDX_GENS
         + [
             "prime_mover_code",
