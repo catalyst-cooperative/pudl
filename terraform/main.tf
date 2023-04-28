@@ -36,6 +36,16 @@ resource "google_storage_bucket" "tfstate" {
   }
 }
 
+resource "google_storage_bucket" "well_gas_pdfs" {
+  name          = "${random_id.bucket_prefix.hex}-catalyst-coop-well-gas-pdfs"
+  force_destroy = false
+  location      = "US"
+  storage_class = "STANDARD"
+  versioning {
+    enabled = true
+  }
+}
+
 module "gh_oidc" {
   source      = "terraform-google-modules/github-actions-runners/google//modules/gh-oidc"
   project_id  = var.project_id
