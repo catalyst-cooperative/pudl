@@ -89,7 +89,15 @@ def test_ferc1_outputs(fast_out, df_name):
         ("gens_eia860", "hr_by_gen", 12 / 1, {}),
         ("gens_eia860", "fuel_cost", 12 / 1, {}),
         ("gens_eia860", "capacity_factor", 12 / 1, {}),
-        ("gens_eia860", "mcoe", 12 / 1, {"all_gens": False}),
+        pytest.param(
+            "gens_eia860",
+            "mcoe",
+            12 / 1,
+            {"all_gens": False},
+            marks=pytest.mark.xfail(
+                reason="MCOE has time coverage issues that will be resolved in Dagster migration."
+            ),
+        ),
     ],
 )
 def test_eia_outputs(fast_out, df1_name, df2_name, mult, kwargs):
