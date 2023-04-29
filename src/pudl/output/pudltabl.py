@@ -236,12 +236,15 @@ class PudlTabl:
                 table_name = table_name.replace("_AGG", "")
         return table_name
 
-    def _get_table_from_db(self, table_name: str, resource: Resource) -> pd.DataFrame:
+    def _get_table_from_db(
+        self, table_name: str, resource: Resource, update: bool = False
+    ) -> pd.DataFrame:
         """Grab output table from PUDL DB.
 
         Args:
             table_name: Name of table to get.
             resource: Resource metadata used to enforce schema on table.
+            update: Ignored. Retained for backwards compatibility only.
         """
         table_name = self._agg_table_name(table_name)
         return pd.concat(
@@ -312,11 +315,10 @@ class PudlTabl:
         generation_fuel_eia923 table to the generator level.
 
         Args:
-            update: If True, re-calculate the output dataframe, even if
-                a cached version exists.
+            update: Ignored. Retained for backwards compatibility only.
 
         Returns:
-            pandas.DataFrame: a denormalized table for interactive use.
+            A denormalized generation table for interactive use.
         """
         if self.fill_net_gen:
             if self.freq not in ["AS", "MS"]:
@@ -337,7 +339,7 @@ class PudlTabl:
     def gen_fuel_by_generator_energy_source_eia923(
         self, update: bool = False
     ) -> pd.DataFrame:
-        """Net generation from gen fuel table allocated to generators."""
+        """Generation and fuel consumption allocated to generators and energy source."""
         if self.freq not in ["AS", "MS"]:
             raise AssertionError(
                 "Allocated net generation requires frequency of `AS` or `MS`, "
@@ -496,6 +498,9 @@ class PudlTabl:
             )
         return self._dfs["mcoe"]
 
+    ###########################################################################
+    # Plant Parts EIA outputs
+    ###########################################################################
     def gens_mega_eia(
         self,
         update: bool = False,
