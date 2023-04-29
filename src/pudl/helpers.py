@@ -1400,7 +1400,12 @@ def dedupe_on_category(
     return dedup_df.drop_duplicates(subset=base_cols, keep="first")
 
 
-def calc_capacity_factor(df, freq, min_cap_fact=None, max_cap_fact=None):
+def calc_capacity_factor(
+    df: pd.DataFrame,
+    freq: Literal["AS", "MS"],
+    min_cap_fact: float | None = None,
+    max_cap_fact: float | None = None,
+) -> pd.DataFrame:
     """Calculate capacity factor.
 
     Capacity factor is calcuated from the capcity, the net generation over a
@@ -1411,19 +1416,18 @@ def calc_capacity_factor(df, freq, min_cap_fact=None, max_cap_fact=None):
     `min_cap_fact` and `max_cap_fact` are dropped.
 
     Args:
-        df (pandas.DataFrame): table with components of capacity factor (
-            `report_date`, `net_generation_mwh` and `capacity_mw`)
-        min_cap_fact (float): Lower bound, below which values are set to NaN.
-            If None, don't use a lower bound. Default is None.
-        max_cap_fact (float): Upper bound, below which values are set to NaN.
-            If None, don't use an upper bound. Default is None.
-        freq (str): String describing time frequency at which to aggregate
-            the reported data, such as 'MS' (month start) or 'AS' (annual
-            start).
+        df: table with required inputs for capacity factor (``report_date``,
+            ``net_generation_mwh`` and ``capacity_mw``).
+        freq: String describing time frequency at which to aggregate the reported data,
+            such as ``MS`` (month start) or ``AS`` (annual start).
+        min_cap_fact: Lower bound, below which values are set to NaN. If None, don't use
+            a lower bound. Default is None.
+        max_cap_fact: Upper bound, below which values are set to NaN.  If None, don't
+            use an upper bound. Default is None.
 
     Returns:
-        pandas.DataFrame: modified version of input `df` with one additional
-        column (`capacity_factor`).
+        Modified version of the input DataFrame with an additional ``capacity_factor``
+        column.
     """
     # get a unique set of dates to generate the number of hours
     dates = df["report_date"].drop_duplicates()
