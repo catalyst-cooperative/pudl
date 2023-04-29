@@ -22,7 +22,7 @@ data products that we might want to be able to provide to users a la carte.
 from collections import defaultdict
 from datetime import date, datetime
 from functools import partial
-from typing import Any, Literal
+from typing import Literal, Self
 
 # Useful high-level external modules.
 import pandas as pd
@@ -44,7 +44,7 @@ class PudlTabl:
     """A class for compiling common useful tabular outputs from the PUDL DB."""
 
     def __init__(
-        self,
+        self: Self,
         pudl_engine: sa.engine.Engine,
         freq: Literal["AS", "MS", None] = None,
         start_date: str | date | datetime | pd.Timestamp = None,
@@ -54,7 +54,7 @@ class PudlTabl:
         fill_net_gen: bool = False,
         fill_tech_desc: bool = True,
         unit_ids: bool = False,
-    ):
+    ) -> Self:
         """Initialize the PUDL output object.
 
         Private data members are not initialized until they are requested.  They are
@@ -127,7 +127,7 @@ class PudlTabl:
 
         self._register_output_methods()
 
-    def _register_output_methods(self):
+    def _register_output_methods(self: Self):
         """Load output assets and register a class method for retrieving each one."""
         # Map table name to PudlTabl method.
         # PudlTabl will generate a method to read each table from the DB with the given method name
@@ -223,7 +223,7 @@ class PudlTabl:
                 resource=Resource.from_id(table_name),
             )
 
-    def _agg_table_name(self, table_name: str) -> str:
+    def _agg_table_name(self: Self, table_name: str) -> str:
         """Substitute appropriate frequency in aggregated table names."""
         agg_freqs = {
             "AS": "yearly",
@@ -237,7 +237,7 @@ class PudlTabl:
         return table_name
 
     def _get_table_from_db(
-        self, table_name: str, resource: Resource, update: bool = False
+        self: Self, table_name: str, resource: Resource, update: bool = False
     ) -> pd.DataFrame:
         """Grab output table from PUDL DB.
 
@@ -258,7 +258,7 @@ class PudlTabl:
             ]
         )
 
-    def _select_between_dates(self, table: str) -> sa.sql.expression.Select:
+    def _select_between_dates(self: Self, table: str) -> sa.sql.expression.Select:
         """For a given table, returns an SQL query that filters by date, if specified.
 
         Method uses the PudlTabl ``start_date`` and ``end_date`` attributes.  For EIA
@@ -301,7 +301,7 @@ class PudlTabl:
     ###########################################################################
     # EIA 860/923 OUTPUTS
     ###########################################################################
-    def gen_eia923(self, update: bool = False) -> pd.DataFrame:
+    def gen_eia923(self: Self, update: bool = False) -> pd.DataFrame:
         """Pull EIA 923 net generation data by generator.
 
         Net generation is reported in two seperate tables in EIA 923: in the
@@ -351,7 +351,7 @@ class PudlTabl:
         resource = Resource.from_id(table_name)
         return self._get_table_from_db(table_name, resource=resource)
 
-    def gen_fuel_by_generator_eia923(self, update: bool = False) -> pd.DataFrame:
+    def gen_fuel_by_generator_eia923(self: Self, update: bool = False) -> pd.DataFrame:
         """Net generation from gen fuel table allocated to generators."""
         if self.freq not in ["AS", "MS"]:
             raise AssertionError(
@@ -378,7 +378,7 @@ class PudlTabl:
     ###########################################################################
     # EIA MCOE OUTPUTS
     ###########################################################################
-    def hr_by_gen(self, update: bool = False) -> pd.DataFrame:
+    def hr_by_gen(self: Self, update: bool = False) -> pd.DataFrame:
         """Calculate and return generator level heat rates (mmBTU/MWh).
 
         Args:
@@ -391,7 +391,7 @@ class PudlTabl:
             self._dfs["hr_by_gen"] = pudl.analysis.mcoe.heat_rate_by_gen(self)
         return self._dfs["hr_by_gen"]
 
-    def hr_by_unit(self, update: bool = False) -> pd.DataFrame:
+    def hr_by_unit(self: Self, update: bool = False) -> pd.DataFrame:
         """Calculate and return generation unit level heat rates.
 
         Args:
@@ -404,7 +404,7 @@ class PudlTabl:
             self._dfs["hr_by_unit"] = pudl.analysis.mcoe.heat_rate_by_unit(self)
         return self._dfs["hr_by_unit"]
 
-    def fuel_cost(self, update: bool = False) -> pd.DataFrame:
+    def fuel_cost(self: Self, update: bool = False) -> pd.DataFrame:
         """Calculate and return generator level fuel costs per MWh.
 
         Args:
@@ -418,7 +418,7 @@ class PudlTabl:
         return self._dfs["fuel_cost"]
 
     def capacity_factor(
-        self,
+        self: Self,
         update: bool = False,
         min_cap_fact: float | None = None,
         max_cap_fact: float | None = None,
@@ -440,7 +440,7 @@ class PudlTabl:
         return self._dfs["capacity_factor"]
 
     def mcoe(
-        self,
+        self: Self,
         update: bool = False,
         min_heat_rate: float = 5.5,
         min_fuel_cost_per_mwh: float = 0.0,
@@ -502,7 +502,7 @@ class PudlTabl:
     # Plant Parts EIA outputs
     ###########################################################################
     def gens_mega_eia(
-        self,
+        self: Self,
         update: bool = False,
         gens_cols: Literal["all"] | list[str] | None = None,
     ) -> pd.DataFrame:
@@ -558,10 +558,10 @@ class PudlTabl:
         return self._dfs["gens_mega_eia"]
 
     def plant_parts_eia(
-        self,
+        self: Self,
         update: bool = False,
         update_gens_mega: bool = False,
-        gens_cols: Any = None,
+        gens_cols: Literal["all"] | list[str] | None = None,
     ) -> pd.DataFrame:
         """Generate and return master plant-parts EIA.
 
@@ -607,7 +607,7 @@ class PudlTabl:
     # GLUE OUTPUTS
     ###########################################################################
     def ferc1_eia(
-        self,
+        self: Self,
         update: bool = False,
         update_plant_parts_eia: bool = False,
         update_plants_all_ferc1: bool = False,
@@ -625,7 +625,7 @@ class PudlTabl:
             )
         return self._dfs["ferc1_eia"]
 
-    def epacamd_eia(self) -> pd.DataFrame:
+    def epacamd_eia(self: Self) -> pd.DataFrame:
         """Read the EPACAMD-EIA Crosswalk from the PUDL DB."""
         return pd.read_sql("epacamd_eia", self.pudl_engine).pipe(
             apply_pudl_dtypes, group="glue"
