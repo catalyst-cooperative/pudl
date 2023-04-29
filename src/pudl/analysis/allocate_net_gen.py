@@ -311,9 +311,9 @@ def allocate_net_gen_asset_factory(
 
 
 allocate_net_gen_assets = [
-    ass
+    allocated_net_gen_asset
     for freq in ["AS", "MS"]
-    for ass in allocate_net_gen_asset_factory(
+    for allocated_net_gen_asset in allocate_net_gen_asset_factory(
         freq=freq,
         io_manager_key="pudl_sqlite_io_manager",
     )
