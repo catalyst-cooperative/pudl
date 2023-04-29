@@ -53,6 +53,7 @@ default_assets = (
     *load_assets_from_modules(
         [pudl.analysis.allocate_net_gen], group_name="allocate_net_gen"
     ),
+    *load_assets_from_modules([pudl.analysis.mcoe], group_name="mcoe"),
     *load_assets_from_modules([pudl.output.ferc1], group_name="denorm_ferc1"),
 )
 

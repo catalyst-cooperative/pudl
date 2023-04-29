@@ -1,7 +1,8 @@
 """A module with functions to aid generating MCOE."""
-from typing import Any
+from typing import Literal
 
 import pandas as pd
+from dagster import AssetIn, AssetsDefinition, asset
 
 import pudl
 from pudl.metadata.fields import apply_pudl_dtypes
@@ -39,7 +40,117 @@ for inclusion in the final table.
 """
 
 
-def heat_rate_by_unit(pudl_out):
+def mcoe_asset_factory(
+    freq: Literal["AS", "MS"],
+    io_manager_key: str | None = None,
+) -> list[AssetsDefinition]:
+    """Build MCOE related assets at yearly and monthly frequencies."""
+    agg_freqs = {"AS": "yearly", "MS": "monthly"}
+    if freq not in agg_freqs:
+        raise ValueError(f"freq must be one of {agg_freqs.keys()}, got: {freq}.")
+
+    @asset(
+        name=f"heat_rate_by_unit_{agg_freqs[freq]}",
+        ins={
+            "gen": AssetIn(
+                key=f"generation_fuel_by_generator_{agg_freqs[freq]}_eia923"
+            ),
+            "bf": AssetIn(key=f"denorm_boiler_fuel_{agg_freqs[freq]}_eia923"),
+        },
+        io_manager_key=io_manager_key,
+        compute_kind="Python",
+    )
+    def hr_by_unit_asset(gen: pd.DataFrame, bf: pd.DataFrame) -> pd.DataFrame:
+        return heat_rate_by_unit(gen=gen, bf=bf)
+
+    @asset(
+        name=f"heat_rate_by_generator_{agg_freqs[freq]}",
+        ins={
+            "bga": AssetIn(key="boiler_generator_assn_eia860"),
+            "hr_by_unit": AssetIn(key=f"heat_rate_by_unit_{agg_freqs[freq]}"),
+            "gens": AssetIn(key="denorm_generators_eia"),
+        },
+        io_manager_key=io_manager_key,
+        compute_kind="Python",
+    )
+    def hr_by_gen_asset(
+        bga: pd.DataFrame, hr_by_unit: pd.DataFrame, gens: pd.DataFrame
+    ) -> pd.DataFrame:
+        return heat_rate_by_gen(bga=bga, hr_by_unit=hr_by_unit, gens=gens)
+
+    @asset(
+        name=f"fuel_cost_by_generator_{agg_freqs[freq]}",
+        ins={
+            "hr_by_gen": AssetIn(key=f"heat_rate_by_generator_{agg_freqs[freq]}"),
+            "gens": AssetIn(key="denorm_generators_eia"),
+            "frc": AssetIn(key=f"denorm_fuel_receipts_costs_{agg_freqs[freq]}_eia923"),
+        },
+        io_manager_key=io_manager_key,
+        compute_kind="Python",
+    )
+    def fc_asset(
+        hr_by_gen: pd.DataFrame, gens: pd.DataFrame, frc: pd.DataFrame
+    ) -> pd.DataFrame:
+        return fuel_cost(hr_by_gen=hr_by_gen, gens=gens, frc=frc)
+
+    @asset(
+        name=f"capacity_factor_by_generator_{agg_freqs[freq]}",
+        ins={
+            "gen": AssetIn(
+                key=f"generation_fuel_by_generator_{agg_freqs[freq]}_eia923"
+            ),
+            "gens": AssetIn(key="denorm_generators_eia"),
+        },
+        io_manager_key=io_manager_key,
+        compute_kind="Python",
+    )
+    def cf_asset(gens: pd.DataFrame, gen: pd.DataFrame) -> pd.DataFrame:
+        return capacity_factor(gens=gens, gen=gen, freq=freq)
+
+    @asset(
+        name=f"mcoe_{agg_freqs[freq]}",
+        ins={
+            "fuel_cost": AssetIn(key=f"fuel_cost_by_generator_{agg_freqs[freq]}"),
+            "capacity_factor": AssetIn(
+                key=f"capacity_factor_by_generator_{agg_freqs[freq]}"
+            ),
+            "gens": AssetIn(key="denorm_generators_eia"),
+        },
+        io_manager_key=io_manager_key,
+        compute_kind="Python",
+    )
+    def mcoe_asset(
+        fuel_cost: pd.DataFrame, capacity_factor: pd.DataFrame, gens: pd.DataFrame
+    ) -> pd.DataFrame:
+        return mcoe(
+            fuel_cost=fuel_cost,
+            capacity_factor=capacity_factor,
+            gens=gens,
+            freq=freq,
+            min_heat_rate=None,
+            min_fuel_cost_per_mwh=None,
+            min_cap_fact=None,
+            max_cap_fact=None,
+            all_gens=False,
+            gens_cols=None,
+            timeseries_fillin=False,
+        )
+
+    return [hr_by_unit_asset, hr_by_gen_asset, fc_asset, cf_asset, mcoe_asset]
+
+
+mcoe_assets = [
+    mcoe_asset
+    for freq in ["AS", "MS"]
+    for mcoe_asset in mcoe_asset_factory(
+        freq=freq,
+        # io_manager_key="pudl_sqlite_io_manager",
+        io_manager_key=None,
+    )
+]
+
+
+def heat_rate_by_unit(gen: pd.DataFrame, bf: pd.DataFrame) -> pd.DataFrame:
     """Calculate heat rates (mmBTU/MWh) within separable generation units.
 
     Assumes a "good" Boiler Generator Association (bga) i.e. one that only
@@ -70,15 +181,9 @@ def heat_rate_by_unit(pudl_out):
     - fuel_consumed_mmbtu
     - heat_rate_mmbtu_mwh
     """
-    # pudl_out must have a freq, otherwise capacity factor will fail and merges
-    # between tables with different frequencies will fail
-    if pudl_out.freq is None:
-        raise ValueError("pudl_out must include a frequency for heat rate calculation")
-
     # Sum up the net generation per unit for each time period:
     gen_by_unit = (
-        pudl_out.gen_eia923()
-        .groupby(["report_date", "plant_id_eia", "unit_id_pudl"])[
+        gen.groupby(["report_date", "plant_id_eia", "unit_id_pudl"])[
             ["net_generation_mwh"]
         ]
         .sum(min_count=1)
@@ -87,8 +192,7 @@ def heat_rate_by_unit(pudl_out):
 
     # Sum up all the fuel consumption per unit for each time period:
     bf_by_unit = (
-        pudl_out.bf_eia923()
-        .groupby(["report_date", "plant_id_eia", "unit_id_pudl"])[
+        bf.groupby(["report_date", "plant_id_eia", "unit_id_pudl"])[
             ["fuel_consumed_mmbtu"]
         ]
         .sum(min_count=1)
@@ -104,10 +208,12 @@ def heat_rate_by_unit(pudl_out):
         validate="one_to_one",
     ).assign(heat_rate_mmbtu_mwh=lambda x: x.fuel_consumed_mmbtu / x.net_generation_mwh)
 
-    return apply_pudl_dtypes(hr_by_unit, group="eia")
+    return hr_by_unit
 
 
-def heat_rate_by_gen(pudl_out):
+def heat_rate_by_gen(
+    bga: pd.DataFrame, hr_by_unit: pd.DataFrame, gens: pd.DataFrame
+) -> pd.DataFrame:
     """Convert per-unit heat rate to by-generator, adding fuel type & count.
 
     Heat rates really only make sense at the unit level, since input fuel and
@@ -121,26 +227,15 @@ def heat_rate_by_gen(pudl_out):
     a many-to-many merge.
 
     Returns:
-        pandas.DataFrame: with columns report_date, plant_id_eia, unit_id_pudl,
-        generator_id, heat_rate_mmbtu_mwh, fuel_type_code_pudl, fuel_type_count.
-        The output will have a time frequency corresponding to that of the
-        input pudl_out. Output data types are set to their canonical values
-        before returning.
-
-    Raises:
-        ValueError if pudl_out.freq is None.
+        DataFrame with columns report_date, plant_id_eia, unit_id_pudl, generator_id,
+        heat_rate_mmbtu_mwh, fuel_type_code_pudl, fuel_type_count.  The output will have
+        a time frequency corresponding to that of the input pudl_out. Output data types
+        are set to their canonical values before returning.
     """
-    # pudl_out must have a freq, otherwise capacity factor will fail and merges
-    # between tables with different frequencies will fail
-    if pudl_out.freq is None:
-        raise ValueError("pudl_out must include a frequency for heat rate calculation")
-
-    bga_gens = (
-        pudl_out.bga_eia860()
-        .loc[:, ["report_date", "plant_id_eia", "unit_id_pudl", "generator_id"]]
-        .drop_duplicates()
-    )
-    hr_by_unit = pudl_out.hr_by_unit().loc[
+    bga_gens = bga.loc[
+        :, ["report_date", "plant_id_eia", "unit_id_pudl", "generator_id"]
+    ].drop_duplicates()
+    hr_by_unit = hr_by_unit.loc[
         :,
         [
             "report_date",
@@ -161,7 +256,7 @@ def heat_rate_by_gen(pudl_out):
     # Bring in generator specific fuel type & fuel count.
     hr_by_gen = pudl.helpers.date_merge(
         left=hr_by_gen,
-        right=pudl_out.gens_eia860()[
+        right=gens[
             [
                 "report_date",
                 "plant_id_eia",
@@ -175,10 +270,12 @@ def heat_rate_by_gen(pudl_out):
         how="left",
     )
 
-    return apply_pudl_dtypes(hr_by_gen, group="eia")
+    return hr_by_gen
 
 
-def fuel_cost(pudl_out):
+def fuel_cost(
+    hr_by_gen: pd.DataFrame, gens: pd.DataFrame, frc: pd.DataFrame
+) -> pd.DataFrame:
     """Calculate fuel costs per MWh on a per generator basis for MCOE.
 
     Fuel costs are reported on a per-plant basis, but we want to estimate them at the
@@ -199,14 +296,9 @@ def fuel_cost(pudl_out):
     generators that have energy_source_code gas, and the coal fuel costs are associated
     with the generators that have energy_source_code coal.
     """
-    # pudl_out must have a freq, otherwise capacity factor will fail and merges
-    # between tables with different frequencies will fail
-    if pudl_out.freq is None:
-        raise ValueError("pudl_out must include a frequency for fuel cost calculation")
-
     # Split up the plants on the basis of how many different primary energy
     # sources the component generators have:
-    hr_by_gen = pudl_out.hr_by_gen().loc[
+    hr_by_gen = hr_by_gen.loc[
         :,
         [
             "plant_id_eia",
@@ -216,7 +308,7 @@ def fuel_cost(pudl_out):
             "heat_rate_mmbtu_mwh",
         ],
     ]
-    gens = pudl_out.gens_eia860().loc[
+    gens = gens.loc[
         :,
         [
             "plant_id_eia",
@@ -247,7 +339,8 @@ def fuel_cost(pudl_out):
     # the one fuel plants:
     one_fuel = pd.merge(
         one_fuel,
-        pudl_out.frc_eia923()[
+        frc.loc[
+            :,
             [
                 "plant_id_eia",
                 "report_date",
@@ -256,7 +349,7 @@ def fuel_cost(pudl_out):
                 "total_fuel_cost",
                 "fuel_consumed_mmbtu",
                 "fuel_cost_from_eiaapi",
-            ]
+            ],
         ],
         how="left",
         on=["plant_id_eia", "report_date"],
@@ -278,14 +371,15 @@ def fuel_cost(pudl_out):
     # as separate records:
     multi_fuel = pd.merge(
         multi_fuel,
-        pudl_out.frc_eia923()[
+        frc.loc[
+            :,
             [
                 "plant_id_eia",
                 "report_date",
                 "fuel_cost_per_mmbtu",
                 "fuel_type_code_pudl",
                 "fuel_cost_from_eiaapi",
-            ]
+            ],
         ],
         how="left",
         on=["plant_id_eia", "report_date", "fuel_type_code_pudl"],
@@ -359,58 +453,57 @@ def fuel_cost(pudl_out):
         .merge(fc, on=["report_date", "plant_id_eia", "generator_id"])
     )
 
-    return apply_pudl_dtypes(out_df, group="eia")
+    return out_df
 
 
-def capacity_factor(pudl_out, min_cap_fact=0, max_cap_fact=1.5):
+def capacity_factor(
+    gens: pd.DataFrame,
+    gen: pd.DataFrame,
+    freq: Literal["AS", "MS"],
+    min_cap_fact: float | None = None,
+    max_cap_fact: float | None = None,
+) -> pd.DataFrame:
     """Calculate the capacity factor for each generator.
 
     Capacity Factor is calculated by using the net generation from eia923 and the
     nameplate capacity from eia860. The net gen and capacity are pulled into one
-    dataframe and then run through our standard capacity factor function
-    (``pudl.helpers.calc_capacity_factor()``).
+    dataframe and then run through :func:`pudl.helpers.calc_capacity_factor`.
     """
-    # pudl_out must have a freq, otherwise capacity factor will fail and merges
-    # between tables with different frequencies will fail
-    if pudl_out.freq is None:
-        raise ValueError(
-            "pudl_out must include a frequency for capacity factor calculation"
-        )
-
     # Only include columns to be used
-    gens_eia860 = pudl_out.gens_eia860().loc[
-        :, ["plant_id_eia", "report_date", "generator_id", "capacity_mw"]
-    ]
+    gens = gens.loc[:, ["plant_id_eia", "report_date", "generator_id", "capacity_mw"]]
 
-    gen = pudl_out.gen_eia923().loc[
+    gen = gen.loc[
         :, ["plant_id_eia", "report_date", "generator_id", "net_generation_mwh"]
     ]
 
     # merge the generation and capacity to calculate capacity factor
     cf = pudl.helpers.date_merge(
         left=gen,
-        right=gens_eia860,
+        right=gens,
         on=["plant_id_eia", "generator_id"],
         date_on=["year"],
         how="left",
     )
     cf = pudl.helpers.calc_capacity_factor(
-        cf, min_cap_fact=min_cap_fact, max_cap_fact=max_cap_fact, freq=pudl_out.freq
+        cf, min_cap_fact=min_cap_fact, max_cap_fact=max_cap_fact, freq=freq
     )
 
     return apply_pudl_dtypes(cf, group="eia")
 
 
 def mcoe(
-    pudl_out,
+    fuel_cost: pd.DataFrame,
+    capacity_factor: pd.DataFrame,
+    gens: pd.DataFrame,
+    freq: Literal["AS", "MS"],
     min_heat_rate: float = 5.5,
     min_fuel_cost_per_mwh: float = 0.0,
     min_cap_fact: float = 0.0,
     max_cap_fact: float = 1.5,
     all_gens: bool = True,
-    gens_cols: Any = None,
+    gens_cols: Literal["all"] | list[str] | None = None,
     timeseries_fillin: bool = False,
-):
+) -> pd.DataFrame:
     """Compile marginal cost of electricity (MCOE) at the generator level.
 
     Use data from EIA 923, EIA 860, and (someday) FERC Form 1 to estimate
@@ -418,20 +511,17 @@ def mcoe(
     the range of times and at the time resolution of the input pudl_out object.
 
     Args:
-        pudl_out (pudl.output.pudltabl.PudlTabl): a PUDL output object
-            specifying the time resolution and date range for which the
-            calculations should be performed.
         min_heat_rate: lowest plausible heat rate, in mmBTU/MWh. Any
             MCOE records with lower heat rates are presumed to be invalid, and
             are discarded before returning.
-        min_cap_fact, max_cap_fact: minimum & maximum generator capacity
-            factor. Generator records with a lower capacity factor will be
-            filtered out before returning. This allows the user to exclude
-            generators that aren't being used enough to have valid.
         min_fuel_cost_per_mwh: minimum fuel cost on a per MWh basis that
             is required for a generator record to be considered valid. For some
             reason there are now a large number of $0 fuel cost records, which
             previously would have been NaN.
+        min_cap_fact, max_cap_fact: minimum & maximum generator capacity
+            factor. Generator records with a lower capacity factor will be
+            filtered out before returning. This allows the user to exclude
+            generators that aren't being used enough to have valid.
         all_gens: if True, include attributes of all generators in the
             :ref:`generators_eia860` table, rather than just the generators
             which have records in the derived MCOE values. True by default.
@@ -446,16 +536,16 @@ def mcoe(
             with the data from the next previous chronological record.
 
     Returns:
-        pandas.DataFrame: a dataframe organized by date and generator,
-        with lots of juicy information about the generators -- including fuel
-        cost on a per MWh and MMBTU basis, heat rates, and net generation.
+        A dataframe organized by date and generator, with lots of juicy information
+        about the generators -- including fuel cost on a per MWh and MMBTU basis, heat
+        rates, and net generation.
     """
     gens_idx = ["report_date", "plant_id_eia", "generator_id"]
 
     # Bring together all derived values we've calculated in the MCOE process:
     mcoe_out = (
         pd.merge(
-            pudl_out.fuel_cost().loc[
+            fuel_cost.loc[
                 :,
                 gens_idx
                 + [
@@ -465,7 +555,7 @@ def mcoe(
                     "fuel_cost_per_mwh",
                 ],
             ],
-            pudl_out.capacity_factor().loc[
+            capacity_factor.loc[
                 :, gens_idx + ["net_generation_mwh", "capacity_factor"]
             ],
             on=gens_idx,
@@ -502,11 +592,13 @@ def mcoe(
 
     # Combine MCOE derived values with generator attributes
     if gens_cols == "all":
-        gens = pudl_out.gens_eia860()
+        gens_cols = gens.columns
     elif gens_cols is None:
-        gens = pudl_out.gens_eia860()[DEFAULT_GENS_COLS]
+        gens_cols = DEFAULT_GENS_COLS
     else:
-        gens = pudl_out.gens_eia860()[list(set(DEFAULT_GENS_COLS + gens_cols))]
+        gens_cols = list(set(DEFAULT_GENS_COLS + gens_cols))
+
+    gens = gens.loc[:, gens_cols]
 
     if timeseries_fillin:
         mcoe_out = pudl.helpers.full_timeseries_date_merge(
@@ -515,7 +607,7 @@ def mcoe(
             on=["plant_id_eia", "generator_id"],
             date_on=["year"],
             how="left" if all_gens else "right",
-            freq=pudl_out.freq,
+            freq=freq,
         ).pipe(pudl.validate.no_null_rows, df_name="mcoe_all_gens", thresh=0.9)
     else:
         mcoe_out = pudl.helpers.date_merge(
@@ -527,20 +619,16 @@ def mcoe(
         ).pipe(pudl.validate.no_null_rows, df_name="mcoe_all_gens", thresh=0.9)
 
     # Organize the dataframe for easier legibility
-    mcoe_out = (
-        mcoe_out.pipe(
-            pudl.helpers.organize_cols,
-            DEFAULT_GENS_COLS,
-        )
-        .sort_values(
-            [
-                "plant_id_eia",
-                "unit_id_pudl",
-                "generator_id",
-                "report_date",
-            ]
-        )
-        .pipe(apply_pudl_dtypes, group="eia")
+    mcoe_out = mcoe_out.pipe(
+        pudl.helpers.organize_cols,
+        DEFAULT_GENS_COLS,
+    ).sort_values(
+        [
+            "plant_id_eia",
+            "unit_id_pudl",
+            "generator_id",
+            "report_date",
+        ]
     )
 
     return mcoe_out
