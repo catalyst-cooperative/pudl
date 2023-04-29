@@ -297,7 +297,7 @@ class PudlTabl:
     ###########################################################################
     # EIA 860/923 OUTPUTS
     ###########################################################################
-    def gen_eia923(self, update=False):
+    def gen_eia923(self, update: bool = False) -> pd.DataFrame:
         """Pull EIA 923 net generation data by generator.
 
         Net generation is reported in two seperate tables in EIA 923: in the
@@ -311,7 +311,7 @@ class PudlTabl:
         generation_fuel_eia923 table to the generator level.
 
         Args:
-            update (bool): If true, re-calculate the output dataframe, even if
+            update: If True, re-calculate the output dataframe, even if
                 a cached version exists.
 
         Returns:
@@ -333,7 +333,9 @@ class PudlTabl:
             gen_df = self._get_table_from_db(table_name, resource=resource)
         return gen_df
 
-    def gen_fuel_by_generator_energy_source_eia923(self, update=False):
+    def gen_fuel_by_generator_energy_source_eia923(
+        self, update: bool = False
+    ) -> pd.DataFrame:
         """Net generation from gen fuel table allocated to generators."""
         if self.freq not in ["AS", "MS"]:
             raise AssertionError(
@@ -346,7 +348,7 @@ class PudlTabl:
         resource = Resource.from_id(table_name)
         return self._get_table_from_db(table_name, resource=resource)
 
-    def gen_fuel_by_generator_eia923(self, update=False):
+    def gen_fuel_by_generator_eia923(self, update: bool = False) -> pd.DataFrame:
         """Net generation from gen fuel table allocated to generators."""
         if self.freq not in ["AS", "MS"]:
             raise AssertionError(
@@ -357,7 +359,9 @@ class PudlTabl:
         resource = Resource.from_id(table_name)
         return self._get_table_from_db(table_name, resource=resource)
 
-    def gen_fuel_by_generator_energy_source_owner_eia923(self, update=False):
+    def gen_fuel_by_generator_energy_source_owner_eia923(
+        self, update: bool = False
+    ) -> pd.DataFrame:
         """Generation and fuel consumption by generator/energy_source_code/owner."""
         if self.freq != "AS":
             raise AssertionError(
@@ -371,11 +375,11 @@ class PudlTabl:
     ###########################################################################
     # EIA MCOE OUTPUTS
     ###########################################################################
-    def hr_by_gen(self, update=False):
+    def hr_by_gen(self, update: bool = False) -> pd.DataFrame:
         """Calculate and return generator level heat rates (mmBTU/MWh).
 
         Args:
-            update (bool): If true, re-calculate the output dataframe, even if
+            update: If True, re-calculate the output dataframe, even if
                 a cached version exists.
 
         Returns:
@@ -385,11 +389,11 @@ class PudlTabl:
             self._dfs["hr_by_gen"] = pudl.analysis.mcoe.heat_rate_by_gen(self)
         return self._dfs["hr_by_gen"]
 
-    def hr_by_unit(self, update=False):
+    def hr_by_unit(self, update: bool = False) -> pd.DataFrame:
         """Calculate and return generation unit level heat rates.
 
         Args:
-            update (bool): If true, re-calculate the output dataframe, even if
+            update: If True, re-calculate the output dataframe, even if
                 a cached version exists.
 
         Returns:
@@ -399,11 +403,11 @@ class PudlTabl:
             self._dfs["hr_by_unit"] = pudl.analysis.mcoe.heat_rate_by_unit(self)
         return self._dfs["hr_by_unit"]
 
-    def fuel_cost(self, update=False):
+    def fuel_cost(self, update: bool = False) -> pd.DataFrame:
         """Calculate and return generator level fuel costs per MWh.
 
         Args:
-            update (bool): If true, re-calculate the output dataframe, even if
+            update: If True, re-calculate the output dataframe, even if
                 a cached version exists.
 
         Returns:
@@ -413,15 +417,22 @@ class PudlTabl:
             self._dfs["fuel_cost"] = pudl.analysis.mcoe.fuel_cost(self)
         return self._dfs["fuel_cost"]
 
-    def capacity_factor(self, update=False, min_cap_fact=None, max_cap_fact=None):
+    def capacity_factor(
+        self,
+        update: bool = False,
+        min_cap_fact: float | None = None,
+        max_cap_fact: float | None = None,
+    ) -> pd.DataFrame:
         """Calculate and return generator level capacity factors.
 
         Args:
-            update (bool): If true, re-calculate the output dataframe, even if
+            update: If True, re-calculate the output dataframe, even if
                 a cached version exists.
+            min_cap_fact: Minimum capacity factor to include in the output.
+            max_cap_fact: Maximum capacity factor to include in the output.
 
         Returns:
-            pandas.DataFrame: a denormalized table for interactive use.
+            A denormalized capacity factor table for interactive use.
         """
         if update or self._dfs["capacity_factor"] is None:
             self._dfs["capacity_factor"] = pudl.analysis.mcoe.capacity_factor(
@@ -437,8 +448,8 @@ class PudlTabl:
         min_cap_fact: float = 0.0,
         max_cap_fact: float = 1.5,
         all_gens: bool = True,
-        gens_cols: Any = None,
-    ):
+        gens_cols: Literal["all"] | list[str] | None = None,
+    ) -> pd.DataFrame:
         """Calculate and return generator level MCOE based on EIA data.
 
         Eventually this calculation will include non-fuel operating expenses
@@ -447,7 +458,7 @@ class PudlTabl:
         rates and fuel costs.
 
         Args:
-            update: If true, re-calculate the output dataframe, even if
+            update: If True, re-calculate the output dataframe, even if
                 a cached version exists.
             min_heat_rate: lowest plausible heat rate, in mmBTU/MWh. Any MCOE
                 records with lower heat rates are presumed to be invalid, and
@@ -475,8 +486,7 @@ class PudlTabl:
                 will be merged into the final MCOE output.
 
         Returns:
-            :class:`pandas.DataFrame`: a compilation of generator attributes,
-            including fuel costs per MWh.
+            A compilation of generator attributes, including fuel costs per MWh.
         """
         if update or self._dfs["mcoe"] is None:
             self._dfs["mcoe"] = pudl.analysis.mcoe.mcoe(
@@ -493,31 +503,30 @@ class PudlTabl:
     def gens_mega_eia(
         self,
         update: bool = False,
-        gens_cols: Any = None,
+        gens_cols: Literal["all"] | list[str] | None = None,
     ) -> pd.DataFrame:
         """Generate and return a generators table with ownership integrated.
 
         Args:
-            update: If True, re-calculate the output dataframe, even
-                if a cached version exists.
-            gens_cols: equal to the string "all", None, or a list of
-                additional column attributes to include from the EIA 860 generators table
-                in the output mega gens table. By default all columns necessary to create
-                the plant parts EIA table are included.
+            update: If True, re-calculate the output dataframe, even if a cached version
+                exists.
+            gens_cols: equal to the string "all", None, or a list of additional column
+                attributes to include from the EIA 860 generators table in the output
+                mega gens table. By default all columns necessary to create the plant
+                parts EIA table are included.
 
         Returns:
-            A table of all of the generators with identifying
-            columns and data columns, sliced by ownership which makes
-            "total" and "owned" records for each generator owner. The "owned"
-            records have the generator's data scaled to the ownership percentage
-            (e.g. if a 100 MW generator has a 75% stake owner and a 25% stake
-            owner, this will result in two "owned" records with 75 MW and 25
-            MW). The "total" records correspond to the full plant for every
-            owner (e.g. using the same 2-owner 100 MW generator as above, each
-            owner will have a records with 100 MW).
+            A table of all of the generators with identifying columns and data columns,
+            sliced by ownership which makes "total" and "owned" records for each
+            generator owner. The "owned" records have the generator's data scaled to the
+            ownership percentage (e.g. if a 100 MW generator has a 75% stake owner and a
+            25% stake owner, this will result in two "owned" records with 75 MW and 25
+            MW). The "total" records correspond to the full plant for every owner (e.g.
+            using the same 2-owner 100 MW generator as above, each owner will have a
+            records with 100 MW).
 
         Raises:
-            AssertionError: If the frequency of the pudl_out object is not 'AS'
+            AssertionError: If the frequency of the pudl_out object is not ``AS``.
         """
         if update or self._dfs["gens_mega_eia"] is None:
             if self.freq != "AS":
@@ -557,8 +566,8 @@ class PudlTabl:
         """Generate and return master plant-parts EIA.
 
         Args:
-            update: If true, re-calculate the output dataframe, even
-                if a cached version exists.
+            update: If True, re-calculate the output dataframe, even if a cached version
+                exists.
             update_gens_mega: If True, update the gigantic Gens Mega table.
             gens_cols: equal to the string "all", None, or a list of
                 additional column attributes to include from the EIA 860 generators table
