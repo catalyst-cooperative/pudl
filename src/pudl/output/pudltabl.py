@@ -271,8 +271,9 @@ class PudlTabl:
             ``report_date`` or ``report_year``) to lie between ``self.start_date`` and
             ``self.end_date`` (inclusive).
         """
-        pt = pudl.output.pudltabl.get_table_meta(self.pudl_engine)
-        tbl = pt[f"{table}"]
+        md = sa.MetaData()
+        md.reflect(self.pudl_engine)
+        tbl = md.tables[f"{table}"]
         tbl_select = sa.sql.select(tbl)
 
         start_date = pd.to_datetime(self.start_date)
@@ -379,8 +380,7 @@ class PudlTabl:
         """Calculate and return generator level heat rates (mmBTU/MWh).
 
         Args:
-            update: If True, re-calculate the output dataframe, even if
-                a cached version exists.
+            update: If True, re-calculate dataframe even if a cached version exists.
 
         Returns:
             pandas.DataFrame: a denormalized table for interactive use.
@@ -393,8 +393,7 @@ class PudlTabl:
         """Calculate and return generation unit level heat rates.
 
         Args:
-            update: If True, re-calculate the output dataframe, even if
-                a cached version exists.
+            update: If True, re-calculate dataframe even if a cached version exists.
 
         Returns:
             pandas.DataFrame: a denormalized table for interactive use.
@@ -407,8 +406,7 @@ class PudlTabl:
         """Calculate and return generator level fuel costs per MWh.
 
         Args:
-            update: If True, re-calculate the output dataframe, even if
-                a cached version exists.
+            update: If True, re-calculate dataframe even if a cached version exists.
 
         Returns:
             pandas.DataFrame: a denormalized table for interactive use.
@@ -426,8 +424,7 @@ class PudlTabl:
         """Calculate and return generator level capacity factors.
 
         Args:
-            update: If True, re-calculate the output dataframe, even if
-                a cached version exists.
+            update: If True, re-calculate dataframe even if a cached version exists.
             min_cap_fact: Minimum capacity factor to include in the output.
             max_cap_fact: Maximum capacity factor to include in the output.
 
@@ -458,8 +455,7 @@ class PudlTabl:
         rates and fuel costs.
 
         Args:
-            update: If True, re-calculate the output dataframe, even if
-                a cached version exists.
+            update: If True, re-calculate dataframe even if a cached version exists.
             min_heat_rate: lowest plausible heat rate, in mmBTU/MWh. Any MCOE
                 records with lower heat rates are presumed to be invalid, and
                 are discarded before returning.
@@ -508,8 +504,7 @@ class PudlTabl:
         """Generate and return a generators table with ownership integrated.
 
         Args:
-            update: If True, re-calculate the output dataframe, even if a cached version
-                exists.
+            update: If True, re-calculate dataframe even if a cached version exists.
             gens_cols: equal to the string "all", None, or a list of additional column
                 attributes to include from the EIA 860 generators table in the output
                 mega gens table. By default all columns necessary to create the plant
@@ -566,8 +561,7 @@ class PudlTabl:
         """Generate and return master plant-parts EIA.
 
         Args:
-            update: If True, re-calculate the output dataframe, even if a cached version
-                exists.
+            update: If True, re-calculate dataframe even if a cached version exists.
             update_gens_mega: If True, update the gigantic Gens Mega table.
             gens_cols: equal to the string "all", None, or a list of
                 additional column attributes to include from the EIA 860 generators table
@@ -607,7 +601,6 @@ class PudlTabl:
     ###########################################################################
     # GLUE OUTPUTS
     ###########################################################################
-
     def ferc1_eia(
         self,
         update: bool = False,
@@ -632,10 +625,3 @@ class PudlTabl:
         return pd.read_sql("epacamd_eia", self.pudl_engine).pipe(
             apply_pudl_dtypes, group="glue"
         )
-
-
-def get_table_meta(pudl_engine):
-    """Grab the pudl SQLite database table metadata."""
-    md = sa.MetaData()
-    md.reflect(pudl_engine)
-    return md.tables
