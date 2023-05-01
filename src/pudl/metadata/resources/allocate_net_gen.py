@@ -75,7 +75,9 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = (
             "description": (
                 "Yearly estimated net generation and fuel consumption for each generator, "
                 "broken down by energy source, prime mover, and owner. Based on data "
-                "reported in the EIA-923 generation and generation_fuel tables."
+                "reported in the EIA-923 generation and generation_fuel tables. Note "
+                "that the utility_id_eia in this table refers to the OWNER of the "
+                "generator, not the operator."
             ),
             "schema": {
                 "fields": [
@@ -99,7 +101,7 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = (
                     "generator_id",
                     "prime_mover_code",
                     "energy_source_code",
-                    "utility_id_eia",  # This is the OWNER not the operator.
+                    "utility_id_eia",
                     "ownership_record_type",
                 ],
             },
