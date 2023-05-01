@@ -57,7 +57,7 @@ def mcoe_asset_factory(
             ),
             "bf": AssetIn(key=f"denorm_boiler_fuel_{agg_freqs[freq]}_eia923"),
         },
-        io_manager_key=None,
+        io_manager_key=io_manager_key,
         compute_kind="Python",
     )
     def hr_by_unit_asset(gen: pd.DataFrame, bf: pd.DataFrame) -> pd.DataFrame:
@@ -70,7 +70,7 @@ def mcoe_asset_factory(
             "hr_by_unit": AssetIn(key=f"heat_rate_by_unit_{agg_freqs[freq]}"),
             "gens": AssetIn(key="denorm_generators_eia"),
         },
-        io_manager_key=None,
+        io_manager_key=io_manager_key,
         compute_kind="Python",
     )
     def hr_by_gen_asset(
@@ -85,7 +85,7 @@ def mcoe_asset_factory(
             "gens": AssetIn(key="denorm_generators_eia"),
             "frc": AssetIn(key=f"denorm_fuel_receipts_costs_{agg_freqs[freq]}_eia923"),
         },
-        io_manager_key=None,
+        io_manager_key=io_manager_key,
         compute_kind="Python",
     )
     def fc_asset(
@@ -101,7 +101,7 @@ def mcoe_asset_factory(
             ),
             "gens": AssetIn(key="denorm_generators_eia"),
         },
-        io_manager_key=None,
+        io_manager_key=io_manager_key,
         compute_kind="Python",
     )
     def cf_asset(gens: pd.DataFrame, gen: pd.DataFrame) -> pd.DataFrame:

@@ -207,6 +207,10 @@ class PudlTabl:
             "respondent_id_ferc714": "respondent_id_ferc714",
             "demand_hourly_pa_ferc714": "demand_hourly_pa_ferc714",
             # MCOE outputs
+            "heat_rate_by_unit_AGG": "hr_by_unit",
+            "heat_rate_by_generator_AGG": "hr_by_gen",
+            "fuel_cost_by_generator_AGG": "fuel_cost",
+            "capacity_factor_by_generator_AGG": "capacity_factor",
             "mcoe_AGG": "mcoe",
         }
 
@@ -324,7 +328,7 @@ class PudlTabl:
         """
         if self.fill_net_gen:
             if self.freq not in ["AS", "MS"]:
-                raise AssertionError(
+                raise ValueError(
                     "Allocated net generation requires frequency of `AS` or `MS`, "
                     f"got {self.freq}"
                 )
@@ -339,11 +343,11 @@ class PudlTabl:
         return gen_df
 
     def gen_fuel_by_generator_energy_source_eia923(
-        self, update: bool = False
+        self: Self, update: bool = False
     ) -> pd.DataFrame:
         """Generation and fuel consumption allocated to generators and energy source."""
         if self.freq not in ["AS", "MS"]:
-            raise AssertionError(
+            raise ValueError(
                 "Allocated net generation requires frequency of `AS` or `MS`, "
                 f"got {self.freq}"
             )
@@ -356,7 +360,7 @@ class PudlTabl:
     def gen_fuel_by_generator_eia923(self: Self, update: bool = False) -> pd.DataFrame:
         """Net generation from gen fuel table allocated to generators."""
         if self.freq not in ["AS", "MS"]:
-            raise AssertionError(
+            raise ValueError(
                 "Allocated net generation requires frequency of `AS` or `MS`, "
                 f"got {self.freq}"
             )
@@ -365,15 +369,78 @@ class PudlTabl:
         return self._get_table_from_db(table_name, resource=resource)
 
     def gen_fuel_by_generator_energy_source_owner_eia923(
-        self, update: bool = False
+        self: Self, update: bool = False
     ) -> pd.DataFrame:
         """Generation and fuel consumption by generator/energy_source_code/owner."""
         if self.freq != "AS":
-            raise AssertionError(
+            raise ValueError(
                 "Allocated net generation by owner can only be calculated annually. "
                 f"Got a frequency of: {self.freq}"
             )
         table_name = "generation_fuel_by_generator_energy_source_owner_yearly_eia923"
+        resource = Resource.from_id(table_name)
+        return self._get_table_from_db(table_name, resource=resource)
+
+    ###########################################################################
+    # MCOE outputs
+    ###########################################################################
+    def hr_by_unit(self: Self, update: bool = False) -> pd.DataFrame:
+        """Pull heat rate by unit out of the PUDL DB."""
+        table_name = "heat_rate_by_unit"
+        if self.freq not in ["AS", "MS"]:
+            raise ValueError(
+                f"{table_name} requires aggregation frequency of 'AS' or 'MS', "
+                f"got {self.freq}"
+            )
+        table_name = self._agg_table_name(f"{table_name}_AGG")
+        resource = Resource.from_id(table_name)
+        return self._get_table_from_db(table_name, resource=resource)
+
+    def hr_by_gen(self: Self, update: bool = False) -> pd.DataFrame:
+        """Pull heat rate by generator out of the PUDL DB."""
+        table_name = "heat_rate_by_generator"
+        if self.freq not in ["AS", "MS"]:
+            raise ValueError(
+                f"{table_name} requires aggregation frequency of 'AS' or 'MS', "
+                f"got {self.freq}"
+            )
+        table_name = self._agg_table_name(f"{table_name}_AGG")
+        resource = Resource.from_id(table_name)
+        return self._get_table_from_db(table_name, resource=resource)
+
+    def fuel_cost(self: Self, update: bool = False) -> pd.DataFrame:
+        """Pull fuel costs by generator out of the PUDL DB."""
+        table_name = "fuel_cost_by_generator"
+        if self.freq not in ["AS", "MS"]:
+            raise ValueError(
+                f"{table_name} requires aggregation frequency of 'AS' or 'MS', "
+                f"got {self.freq}"
+            )
+        table_name = self._agg_table_name(f"{table_name}_AGG")
+        resource = Resource.from_id(table_name)
+        return self._get_table_from_db(table_name, resource=resource)
+
+    def capacity_factor(self: Self, update: bool = False) -> pd.DataFrame:
+        """Pull capacity factor by generator out of the PUDL DB."""
+        table_name = "capacity_factor_by_generator"
+        if self.freq not in ["AS", "MS"]:
+            raise ValueError(
+                f"{table_name} requires aggregation frequency of 'AS' or 'MS', "
+                f"got {self.freq}"
+            )
+        table_name = self._agg_table_name(f"{table_name}_AGG")
+        resource = Resource.from_id(table_name)
+        return self._get_table_from_db(table_name, resource=resource)
+
+    def mcoe(self: Self, update: bool = False) -> pd.DataFrame:
+        """Pull the basic compiled MCOE table out of the PUDL DB."""
+        table_name = "mcoe"
+        if self.freq not in ["AS", "MS"]:
+            raise ValueError(
+                f"{table_name} requires aggregation frequency of 'AS' or 'MS', "
+                f"got {self.freq}"
+            )
+        table_name = self._agg_table_name(f"{table_name}_AGG")
         resource = Resource.from_id(table_name)
         return self._get_table_from_db(table_name, resource=resource)
 
