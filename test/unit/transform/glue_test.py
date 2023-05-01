@@ -40,11 +40,11 @@ plant_id_eia,emissions_unit_id_epa
     boiler_generator_assn_eia860_test = pd.read_csv(
         StringIO(
             """
-plant_id_eia,generator_id,unit_id_pudl
-1392,1A,1
-1392,2A,1
-1392,3A,1
-1,A,1
+plant_id_eia,generator_id,unit_id_pudl,boiler_id
+1392,1A,1,1A
+1392,2A,1,2A
+1392,3A,1,3A
+1,A,1,
 """
         )
     )
@@ -65,13 +65,13 @@ plant_id_eia,generator_id
     epacamd_eia_subplant_ids_expected = pd.read_csv(
         StringIO(
             """
-plant_id_eia,plant_id_epa,unit_id_pudl,emissions_unit_id_epa,generator_id,subplant_id
-1392,1392,1,1A,1A,0
-1392,1392,1,2A,2A,0
-1392,1392,1,3A,3A,0
-1392,1392,,4A,4A,1
-1392,1392,,5A,5A,2
-1,1,1,A,A,0
+plant_id_eia,plant_id_epa,unit_id_pudl,emissions_unit_id_epa,generator_id,boiler_id,subplant_id
+1392,1392,1,1A,1A,1A,0
+1392,1392,1,2A,2A,2A,0
+1392,1392,1,3A,3A,3A,0
+1392,1392,,4A,4A,,1
+1392,1392,,5A,5A,,2
+1,1,1,A,A,,0
 """
         )
     )

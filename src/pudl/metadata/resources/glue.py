@@ -80,6 +80,7 @@ successfully mapped to EIA generators.
                 "unit_id_pudl",
                 "emissions_unit_id_epa",
                 "generator_id",
+                "boiler_id",
             ],
         },
         "field_namespace": "glue",

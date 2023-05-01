@@ -287,6 +287,7 @@ def epacamd_eia_subplant_ids(
                 "plant_id_eia",
                 "generator_id",
                 "subplant_id",
+                "boiler_id",
             ]
         )
     ).any():
