@@ -16,7 +16,6 @@ from ferc_xbrl_extractor import xbrl
 import pudl
 from pudl import resources
 from pudl.cli.etl import pudl_etl_job_factory
-from pudl.extract.dbf import FercDbfReader
 from pudl.extract.ferc1 import xbrl_metadata_json
 from pudl.extract.xbrl import FercXbrlDatastore, _get_sqlite_engine
 from pudl.ferc_to_sqlite.cli import ferc_to_sqlite_job_factory
@@ -401,13 +400,6 @@ def pudl_settings_dict(request, pudl_input_output_dirs):  # noqa: C901
     )
     logger.info(f"pudl_settings being used: {pretty_settings}")
     return pudl_settings
-
-
-@pytest.fixture(scope="session")  # noqa: C901
-def ferc1_dbf_datastore_fixture(pudl_datastore_fixture):
-    """Produce a :class:`pudl.extract.ferc1.Ferc1DbfReader`."""
-    # TODO(rousik): refactor so that all params are fixed for Ferc1 datstore
-    return FercDbfReader(pudl_datastore_fixture, dataset="ferc1")
 
 
 @pytest.fixture(scope="session")
