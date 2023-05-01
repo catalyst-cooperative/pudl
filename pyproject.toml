@@ -129,7 +129,7 @@ doc = [
     "sphinx-autoapi>=1.8,<2.2",
     "sphinx-issues>=1.2,<3.1",
     "sphinx-reredirects",
-    "sphinx>=4,!=5.1.0,<6.2.1",
+    "sphinx>=4,!=5.1.0,<7.0.1",
     "sphinxcontrib_bibtex>=2.4,<2.6",
 ]
 test = [
