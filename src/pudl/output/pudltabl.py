@@ -206,6 +206,8 @@ class PudlTabl:
             # ferc714
             "respondent_id_ferc714": "respondent_id_ferc714",
             "demand_hourly_pa_ferc714": "demand_hourly_pa_ferc714",
+            # MCOE outputs
+            "mcoe_AGG": "mcoe",
         }
 
         for table_name, method_name in table_method_map.items():
@@ -374,129 +376,6 @@ class PudlTabl:
         table_name = "generation_fuel_by_generator_energy_source_owner_yearly_eia923"
         resource = Resource.from_id(table_name)
         return self._get_table_from_db(table_name, resource=resource)
-
-    ###########################################################################
-    # EIA MCOE OUTPUTS
-    ###########################################################################
-    def hr_by_gen(self: Self, update: bool = False) -> pd.DataFrame:
-        """Calculate and return generator level heat rates (mmBTU/MWh).
-
-        Args:
-            update: If True, re-calculate dataframe even if a cached version exists.
-
-        Returns:
-            pandas.DataFrame: a denormalized table for interactive use.
-        """
-        if update or self._dfs["hr_by_gen"] is None:
-            self._dfs["hr_by_gen"] = pudl.analysis.mcoe.heat_rate_by_gen(self)
-        return self._dfs["hr_by_gen"]
-
-    def hr_by_unit(self: Self, update: bool = False) -> pd.DataFrame:
-        """Calculate and return generation unit level heat rates.
-
-        Args:
-            update: If True, re-calculate dataframe even if a cached version exists.
-
-        Returns:
-            pandas.DataFrame: a denormalized table for interactive use.
-        """
-        if update or self._dfs["hr_by_unit"] is None:
-            self._dfs["hr_by_unit"] = pudl.analysis.mcoe.heat_rate_by_unit(self)
-        return self._dfs["hr_by_unit"]
-
-    def fuel_cost(self: Self, update: bool = False) -> pd.DataFrame:
-        """Calculate and return generator level fuel costs per MWh.
-
-        Args:
-            update: If True, re-calculate dataframe even if a cached version exists.
-
-        Returns:
-            pandas.DataFrame: a denormalized table for interactive use.
-        """
-        if update or self._dfs["fuel_cost"] is None:
-            self._dfs["fuel_cost"] = pudl.analysis.mcoe.fuel_cost(self)
-        return self._dfs["fuel_cost"]
-
-    def capacity_factor(
-        self: Self,
-        update: bool = False,
-        min_cap_fact: float | None = None,
-        max_cap_fact: float | None = None,
-    ) -> pd.DataFrame:
-        """Calculate and return generator level capacity factors.
-
-        Args:
-            update: If True, re-calculate dataframe even if a cached version exists.
-            min_cap_fact: Minimum capacity factor to include in the output.
-            max_cap_fact: Maximum capacity factor to include in the output.
-
-        Returns:
-            A denormalized capacity factor table for interactive use.
-        """
-        if update or self._dfs["capacity_factor"] is None:
-            self._dfs["capacity_factor"] = pudl.analysis.mcoe.capacity_factor(
-                self, min_cap_fact=min_cap_fact, max_cap_fact=max_cap_fact
-            )
-        return self._dfs["capacity_factor"]
-
-    def mcoe(
-        self: Self,
-        update: bool = False,
-        min_heat_rate: float = 5.5,
-        min_fuel_cost_per_mwh: float = 0.0,
-        min_cap_fact: float = 0.0,
-        max_cap_fact: float = 1.5,
-        all_gens: bool = True,
-        gens_cols: Literal["all"] | list[str] | None = None,
-    ) -> pd.DataFrame:
-        """Calculate and return generator level MCOE based on EIA data.
-
-        Eventually this calculation will include non-fuel operating expenses
-        as reported in FERC Form 1, but for now only the fuel costs reported
-        to EIA are included. They are attibuted based on the unit-level heat
-        rates and fuel costs.
-
-        Args:
-            update: If True, re-calculate dataframe even if a cached version exists.
-            min_heat_rate: lowest plausible heat rate, in mmBTU/MWh. Any MCOE
-                records with lower heat rates are presumed to be invalid, and
-                are discarded before returning.
-            min_cap_fact: minimum generator capacity factor. Generator records
-                with a lower capacity factor will be filtered out before
-                returning. This allows the user to exclude generators that
-                aren't being used enough to have valid.
-            min_fuel_cost_per_mwh: minimum fuel cost on a per MWh basis that is
-                required for a generator record to be considered valid. For
-                some reason there are now a large number of $0 fuel cost
-                records, which previously would have been NaN.
-            max_cap_fact: maximum generator capacity factor. Generator records
-                with a lower capacity factor will be filtered out before
-                returning. This allows the user to exclude generators that
-                aren't being used enough to have valid.
-            all_gens: Controls whether the output contains records for
-                all generators in the :ref:`generators_eia860` table, or only
-                those generators with associated MCOE data. True by default.
-            gens_cols: equal to the string "all", None, or a list of names of
-                column attributes to include from the :ref:`generators_eia860` table in
-                addition to the list of defined `DEFAULT_GENS_COLS` in the MCOE analysis
-                module. If "all", all columns from the generators table will be included.
-                By default, the `DEFAULT_GENS_COLS` defined in the MCOE analysis module
-                will be merged into the final MCOE output.
-
-        Returns:
-            A compilation of generator attributes, including fuel costs per MWh.
-        """
-        if update or self._dfs["mcoe"] is None:
-            self._dfs["mcoe"] = pudl.analysis.mcoe.mcoe(
-                self,
-                min_heat_rate=min_heat_rate,
-                min_fuel_cost_per_mwh=min_fuel_cost_per_mwh,
-                min_cap_fact=min_cap_fact,
-                max_cap_fact=max_cap_fact,
-                all_gens=all_gens,
-                gens_cols=gens_cols,
-            )
-        return self._dfs["mcoe"]
 
     ###########################################################################
     # Plant Parts EIA outputs
