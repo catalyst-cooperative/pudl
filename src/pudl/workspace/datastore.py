@@ -85,7 +85,9 @@ class DatapackageDescriptor:
 
     def _matches(self, res: dict, **filters: Any):
         parts = res.get("parts", {})
-        return all(str(parts.get(k)) == str(v) for k, v in filters.items())
+        return all(
+            str(parts.get(k)).lower() == str(v).lower() for k, v in filters.items()
+        )
 
     def get_resources(
         self, name: str = None, **filters: Any
