@@ -131,7 +131,7 @@ class PudlTabl:
         """Load output assets and register a class method for retrieving each one."""
         # Map table name to PudlTabl method.
         # PudlTabl will generate a method to read each table from the DB with the given method name
-        table_method_map = {  # table_name: method_name
+        table_method_map_any_freq = {  # table_name: method_name
             # denorm_ferc1
             "denorm_balance_sheet_assets_ferc1": "denorm_balance_sheet_assets_ferc1",
             "denorm_balance_sheet_liabilities_ferc1": "denorm_balance_sheet_liabilities_ferc1",
@@ -208,23 +208,62 @@ class PudlTabl:
             "demand_hourly_pa_ferc714": "demand_hourly_pa_ferc714",
         }
 
-        for table_name, method_name in table_method_map.items():
+        table_method_map_any_agg = {
+            "generation_fuel_by_generator_energy_source_AGG_eia923": "gen_fuel_by_generator_energy_source_eia923",
+            "generation_fuel_by_generator_AGG_eia923": "gen_fuel_by_generator_eia923",
+            "heat_rate_by_unit_AGG": "hr_by_unit",
+            "heat_rate_by_generator_AGG": "hr_by_gen",
+            "capacity_factor_by_generator_AGG": "capacity_factor",
+            "fuel_cost_by_generator_AGG": "fuel_cost",
+        }
+
+        table_method_map_yearly_only = {
+            "generation_fuel_by_generator_energy_source_owner_yearly_eia923": "gen_fuel_by_generator_energy_source_owner_eia923",
+        }
+
+        for table_name, method_name in (
+            table_method_map_any_freq
+            | table_method_map_any_agg
+            | table_method_map_yearly_only
+        ).items():
             if hasattr(PudlTabl, method_name):
                 logger.warning(
                     f"Automatically generated PudlTabl method {method_name} overrides "
                     "explicitly defined class method. One of these should be deleted."
                 )
 
-            table_name = self._agg_table_name(table_name)
-            # Create method called asset_name that will read the asset from DB
+        for table_name, method_name in table_method_map_any_freq.items():
+            # Create method called table_name that will read the asset from DB
             self.__dict__[method_name] = partial(
                 self._get_table_from_db,
                 table_name=table_name,
-                resource=Resource.from_id(table_name),
+                allowed_freqs=[None, "AS", "MS"],
+                resource=Resource.from_id(self._agg_table_name(table_name)),
             )
 
+        if self.freq in ["AS", "MS"]:
+            for table_name, method_name in table_method_map_any_agg.items():
+                self.__dict__[method_name] = partial(
+                    self._get_table_from_db,
+                    table_name=table_name,
+                    allowed_freqs=["AS", "MS"],
+                    resource=Resource.from_id(self._agg_table_name(table_name)),
+                )
+
+        if self.freq in ["AS"]:
+            for table_name, method_name in table_method_map_yearly_only.items():
+                self.__dict__[method_name] = partial(
+                    self._get_table_from_db,
+                    table_name=table_name,
+                    allowed_freqs=["AS"],
+                    resource=Resource.from_id(self._agg_table_name(table_name)),
+                )
+
     def _agg_table_name(self: Self, table_name: str) -> str:
-        """Substitute appropriate frequency in aggregated table names."""
+        """Substitute appropriate frequency in aggregated table names.
+
+        If the table isn't aggregated, return the original name.
+        """
         agg_freqs = {
             "AS": "yearly",
             "MS": "monthly",
@@ -237,15 +276,25 @@ class PudlTabl:
         return table_name
 
     def _get_table_from_db(
-        self: Self, table_name: str, resource: Resource, update: bool = False
+        self: Self,
+        table_name: str,
+        resource: Resource,
+        allowed_freqs: list[str | None] = [None, "AS", "MS"],
+        update: bool = False,
     ) -> pd.DataFrame:
         """Grab output table from PUDL DB.
 
         Args:
             table_name: Name of table to get.
             resource: Resource metadata used to enforce schema on table.
+            allowed_freqs: List of allowed aggregation frequencies for table.
             update: Ignored. Retained for backwards compatibility only.
         """
+        if self.freq not in allowed_freqs:
+            raise ValueError(
+                f"{table_name} requires aggregation frequency of {allowed_freqs}, "
+                f"got {self.freq}"
+            )
         table_name = self._agg_table_name(table_name)
         return pd.concat(
             [
@@ -299,7 +348,7 @@ class PudlTabl:
         return tbl_select
 
     ###########################################################################
-    # EIA 860/923 OUTPUTS
+    # Tables requiring special treatment:
     ###########################################################################
     def gen_eia923(self: Self, update: bool = False) -> pd.DataFrame:
         """Pull EIA 923 net generation data by generator.
@@ -336,98 +385,30 @@ class PudlTabl:
             gen_df = self._get_table_from_db(table_name, resource=resource)
         return gen_df
 
-    def gen_fuel_by_generator_energy_source_eia923(
-        self: Self, update: bool = False
+    def mcoe(
+        self: Self,
+        update: bool = False,
+        min_heat_rate: float = 5.5,
+        min_fuel_cost_per_mwh: float = 0.0,
+        min_cap_fact: float = 0.0,
+        max_cap_fact: float = 1.5,
+        all_gens: bool = False,
+        gens_cols: Literal["all"] | list[str] | None = None,
     ) -> pd.DataFrame:
-        """Generation and fuel consumption allocated to generators and energy source."""
-        if self.freq not in ["AS", "MS"]:
-            raise ValueError(
-                "Allocated net generation requires frequency of `AS` or `MS`, "
-                f"got {self.freq}"
-            )
-        table_name = self._agg_table_name(
-            "generation_fuel_by_generator_energy_source_AGG_eia923"
-        )
-        resource = Resource.from_id(table_name)
-        return self._get_table_from_db(table_name, resource=resource)
+        """Pull the basic compiled MCOE table out of the PUDL DB.
 
-    def gen_fuel_by_generator_eia923(self: Self, update: bool = False) -> pd.DataFrame:
-        """Net generation from gen fuel table allocated to generators."""
-        if self.freq not in ["AS", "MS"]:
-            raise ValueError(
-                "Allocated net generation requires frequency of `AS` or `MS`, "
-                f"got {self.freq}"
-            )
-        table_name = self._agg_table_name("generation_fuel_by_generator_AGG_eia923")
-        resource = Resource.from_id(table_name)
-        return self._get_table_from_db(table_name, resource=resource)
+        Various min/max values are set in the arguments and control what range of values
+        are considered realistic. Values outside these ranges are set to NA.
 
-    def gen_fuel_by_generator_energy_source_owner_eia923(
-        self: Self, update: bool = False
-    ) -> pd.DataFrame:
-        """Generation and fuel consumption by generator/energy_source_code/owner."""
-        if self.freq != "AS":
-            raise ValueError(
-                "Allocated net generation by owner can only be calculated annually. "
-                f"Got a frequency of: {self.freq}"
-            )
-        table_name = "generation_fuel_by_generator_energy_source_owner_yearly_eia923"
-        resource = Resource.from_id(table_name)
-        return self._get_table_from_db(table_name, resource=resource)
-
-    ###########################################################################
-    # MCOE outputs
-    ###########################################################################
-    def hr_by_unit(self: Self, update: bool = False) -> pd.DataFrame:
-        """Pull heat rate by unit out of the PUDL DB."""
-        table_name = "heat_rate_by_unit"
-        if self.freq not in ["AS", "MS"]:
-            raise ValueError(
-                f"{table_name} requires aggregation frequency of 'AS' or 'MS', "
-                f"got {self.freq}"
-            )
-        table_name = self._agg_table_name(f"{table_name}_AGG")
-        resource = Resource.from_id(table_name)
-        return self._get_table_from_db(table_name, resource=resource)
-
-    def hr_by_gen(self: Self, update: bool = False) -> pd.DataFrame:
-        """Pull heat rate by generator out of the PUDL DB."""
-        table_name = "heat_rate_by_generator"
-        if self.freq not in ["AS", "MS"]:
-            raise ValueError(
-                f"{table_name} requires aggregation frequency of 'AS' or 'MS', "
-                f"got {self.freq}"
-            )
-        table_name = self._agg_table_name(f"{table_name}_AGG")
-        resource = Resource.from_id(table_name)
-        return self._get_table_from_db(table_name, resource=resource)
-
-    def fuel_cost(self: Self, update: bool = False) -> pd.DataFrame:
-        """Pull fuel costs by generator out of the PUDL DB."""
-        table_name = "fuel_cost_by_generator"
-        if self.freq not in ["AS", "MS"]:
-            raise ValueError(
-                f"{table_name} requires aggregation frequency of 'AS' or 'MS', "
-                f"got {self.freq}"
-            )
-        table_name = self._agg_table_name(f"{table_name}_AGG")
-        resource = Resource.from_id(table_name)
-        return self._get_table_from_db(table_name, resource=resource)
-
-    def capacity_factor(self: Self, update: bool = False) -> pd.DataFrame:
-        """Pull capacity factor by generator out of the PUDL DB."""
-        table_name = "capacity_factor_by_generator"
-        if self.freq not in ["AS", "MS"]:
-            raise ValueError(
-                f"{table_name} requires aggregation frequency of 'AS' or 'MS', "
-                f"got {self.freq}"
-            )
-        table_name = self._agg_table_name(f"{table_name}_AGG")
-        resource = Resource.from_id(table_name)
-        return self._get_table_from_db(table_name, resource=resource)
-
-    def mcoe(self: Self, update: bool = False) -> pd.DataFrame:
-        """Pull the basic compiled MCOE table out of the PUDL DB."""
+        Args:
+            update: Ignored. Retained for backwards compatibility only.
+            min_heat_rate: Minimum heat rate considered realistic.
+            min_fuel_cost_per_mwh: Minimum fuel cost per MWh considered realistic.
+            min_cap_fact: Minimum capacity factor considered realistic.
+            max_cap_fact: Maximum capacity factor considered realistic.
+            all_gens: Ignored. Retained for backwards compatibility only.
+            gens_cols: Ignored. Retained for backwards compatibility only.
+        """
         table_name = "mcoe"
         if self.freq not in ["AS", "MS"]:
             raise ValueError(
@@ -436,7 +417,28 @@ class PudlTabl:
             )
         table_name = self._agg_table_name(f"{table_name}_AGG")
         resource = Resource.from_id(table_name)
-        return self._get_table_from_db(table_name, resource=resource)
+        df = self._get_table_from_db(table_name, resource=resource)
+        df = (
+            df.pipe(
+                pudl.helpers.oob_to_nan,
+                ["heat_rate_mmbtu_mwh"],
+                lb=min_heat_rate,
+                ub=None,
+            )
+            .pipe(
+                pudl.helpers.oob_to_nan,
+                ["fuel_cost_per_mwh"],
+                lb=min_fuel_cost_per_mwh,
+                ub=None,
+            )
+            .pipe(
+                pudl.helpers.oob_to_nan,
+                ["capacity_factor"],
+                lb=min_cap_fact,
+                ub=max_cap_fact,
+            )
+        )
+        return df
 
     ###########################################################################
     # Plant Parts EIA outputs

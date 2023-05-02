@@ -30,7 +30,7 @@ def pudl_out_mcoe(pudl_out_eia, live_dbs):
     MCOE results in this module
     """
     if live_dbs and pudl_out_eia.freq is not None:
-        logger.info("Calculating MCOE, leaving in all the nasty bits.")
+        logger.info("Reading MCOE data out of the PUDL DB.")
         _ = pudl_out_eia.mcoe(
             update=True,
             min_heat_rate=None,
