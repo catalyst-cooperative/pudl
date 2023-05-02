@@ -476,6 +476,36 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
         "sources": ["eia860", "eia923"],
         "etl_group": "eia860",
     },
+    #     "emissions_control_equipment_eia860": {
+    #         "description": (
+    #             """
+    # The cost, type, operating status, retirement date, and install year of emissions control
+    # equipment reported to EIA. Includes control ids for sulfur dioxide (SO2), particulate
+    # matter, mercury, nitrogen oxide (NOX), and acid (HCl) gas monitoring.
+    # """
+    #         ),
+    #         "schema": {
+    #             "fields": [
+    #                 "report_year",
+    #                 "plant_id_eia",
+    #                 "emission_control_id_pudl",
+    #                 "data_maturity",
+    #                 "emission_control_equipment_type",
+    #                 "operational_status_code",
+    #                 "mercury_control_id_eia",
+    #                 "nox_control_id_eia",
+    #                 "particulate_control_id_eia",
+    #                 "so2_control_id_eia",
+    #                 "acid_gas_control",
+    #                 "emission_control_equipment_cost",
+    #             ],
+    #             "primary_key": ["report_year", "plant_id_eia", "emission_control_id_pudl"],
+    #             "foreign_key_rules": {},
+    #         },
+    #         "field_namespace": "eia",
+    #         "sources": ["eia860"],
+    #         "etl_group": "eia860",
+    #     },
 }
 """EIA-860 resource attributes organized by PUDL identifier (``resource.name``).
 
