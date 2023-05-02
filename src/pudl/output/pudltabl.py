@@ -206,12 +206,6 @@ class PudlTabl:
             # ferc714
             "respondent_id_ferc714": "respondent_id_ferc714",
             "demand_hourly_pa_ferc714": "demand_hourly_pa_ferc714",
-            # MCOE outputs
-            "heat_rate_by_unit_AGG": "hr_by_unit",
-            "heat_rate_by_generator_AGG": "hr_by_gen",
-            "fuel_cost_by_generator_AGG": "fuel_cost",
-            "capacity_factor_by_generator_AGG": "capacity_factor",
-            "mcoe_AGG": "mcoe",
         }
 
         for table_name, method_name in table_method_map.items():
