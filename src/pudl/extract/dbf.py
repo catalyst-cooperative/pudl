@@ -15,6 +15,7 @@ import pudl
 import pudl.logging_helpers
 from pudl.metadata.classes import DataSource
 from pudl.workspace.datastore import Datastore
+from pudl.workspace.resource_cache import PudlResourceKey
 
 logger = pudl.logging_helpers.get_logger(__name__)
 
@@ -143,6 +144,13 @@ Unmapped types left as 'XXX' which should result in an error if encountered.
 """
 
 
+# class FercDbfPartition:
+#     """This is associated with a single partition of ferc dbf."""
+#     def __init__(self, resource_key: PudlResourceKey, archive: zipfile.ZipFile):
+#         self._resource_key = resource_key
+#         self._archive = archive
+
+
 # TODO(rousik): instead of using class-level constants, we could pass the params in the constructor, which should
 # allow us to instantiate these dataset-specific datastores in the extractor code.
 # That may make the manipulations little easier.
@@ -165,11 +173,23 @@ class FercDbfReader:
             dataset: name of the dataset (e.g. ferc1), this is used to load metadata
                 from package_data/{dataset} subdirectory.
             field_parser: FieldParser class to use when loading data
-        """
+    """
         self._cache = {}
         self.datastore = datastore
         self.dataset = dataset
         self.field_parser = field_parser
+        # at the moment, archives are inconsistent in terms of upper/lower casing the
+        # partition data_format values. We will infer the correct value by inspecting the
+        # descriptor.
+        # The following workaround could be removed once all zenodo archives agree on
+        # the capitalization.
+        parts = self.datastore.get_datapackage_descriptor(self.dataset).get_partitions()
+        if "dbf" in parts["data_format"]:
+            self._data_format = "dbf"
+        elif "DBF" in parts["data_format"]:
+            self._data_format = "DBF"
+        else:
+            raise RuntimeError(f"dbf/DBF not found in the data_format for the dataset {self.dataset}")
 
         # dbc_file_map.csv contains path to the DBC file that contains the
         # overall database schemas. It is expected that DBF files live in
@@ -208,7 +228,7 @@ class FercDbfReader:
         """Returns the file descriptor for a file identified by its full path."""
         if year not in self._cache:
             self._cache[year] = self.datastore.get_zipfile_resource(
-                self.dataset, year=year, data_format="dbf"
+                self.dataset, year=year, data_format=self._data_format
             )
         archive = self._cache[year]
         try:

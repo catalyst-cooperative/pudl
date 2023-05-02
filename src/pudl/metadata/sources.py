@@ -400,7 +400,9 @@ SOURCES: dict[str, Any] = {
         ),
         "field_namespace": "ferc2",
         "working_partitions": {
-            "years": sorted(set(range(1991, 2022))),
+            # Years 1991-1999 use split archives. Support for this will need to
+            # be added first.
+            "years": sorted(set(range(2000, 2022))),
         },
         "contributors": [
             CONTRIBUTORS["catalyst-cooperative"],

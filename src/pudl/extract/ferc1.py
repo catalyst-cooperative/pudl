@@ -351,13 +351,15 @@ def dbf2sqlite(context) -> None:
     """Clone the FERC Form 1 Visual FoxPro databases into SQLite."""
     # TODO(rousik): this thin wrapper seems to be somewhat quirky. Maybe there's a way
     # to make the integration # between the class and dagster better? Investigate.
+    logger.info(f"dbf2sqlite settings: {context.resources.ferc_to_sqlite_settings}")
 
-    Ferc1DbfExtractor(
-        datastore=context.resources.datastore,
-        settings=context.resources.ferc_to_sqlite_settings.ferc1_dbf_to_sqlite_settings,
-        clobber=context.op_config["clobber"],
-        output_path=context.op_config["pudl_output_path"],
-    ).execute()
+    # TODO(rousik): this is disabled temporarily to run only ferc form 2.
+    #Ferc1DbfExtractor(
+    #    datastore=context.resources.datastore,
+    #    settings=context.resources.ferc_to_sqlite_settings.ferc1_dbf_to_sqlite_settings,
+    #    clobber=context.op_config["clobber"],
+    #    output_path=context.op_config["pudl_output_path"],
+    #).execute()
 
     Ferc2DbfExtractor(
         datastore=context.resources.datastore,
