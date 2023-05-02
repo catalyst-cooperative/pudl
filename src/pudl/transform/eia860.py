@@ -748,3 +748,45 @@ def clean_boilers_eia860(
     )
 
     return b_df
+
+
+@asset
+def clean_emissions_control_equipment_eia860(
+    raw_emissions_control_equipment_eia860: pd.DataFrame,
+) -> pd.DataFrame:
+    """Pull and transform the emissions control equipment table."""
+    # Replace empty strings, whitespace, and '.' fields with real NA values
+    emce_df = pudl.helpers.fix_eia_na(raw_emissions_control_equipment_eia860)
+
+    # Fix bad months
+    emce_df["operating_month"] = emce_df["operating_month"].replace({"88": "8"})
+    emce_df["retirement_month"] = emce_df["retirement_month"].replace({"True": np.nan})
+
+    # Convert column to boolean
+    emce_df = pudl.helpers.convert_col_to_bool(
+        df=emce_df, col_name="acid_gas_control", true_values=["Y"], false_values=[]
+    )
+    # Add a control_id_pudl as a primary key. This is not unique over years. We could
+    # maybe try and do this, but not doing it now.
+    emce_df["control_id_pudl"] = (
+        emce_df.groupby(["report_year", "plant_id_eia"]).cumcount() + 1
+    )
+    # Fix outlier value in emission_control_equipment_cost. We know this is an
+    # outlier because it is the highest value reported in the dataset and it
+    # the other years from the same plant show that it likely contains three
+    # extra zeros. We use the primary keys to spot fix the value.
+    outlier_primary_keys = (
+        (emce_df["report_year"] == 2017)
+        & (emce_df["plant_id_eia"] == 57794)
+        & (emce_df["control_id_pudl"].isin([1, 2]))
+    )
+
+    if len(emce_df[outlier_primary_keys]) > 2:
+        raise AssertionError("Only expecting two spotfixed values here")
+
+    emce_df.loc[
+        outlier_primary_keys,
+        "emission_control_equipment_cost",
+    ] = 3200
+
+    return emce_df
