@@ -238,26 +238,52 @@ class PudlTabl:
                 self._get_table_from_db,
                 table_name=table_name,
                 allowed_freqs=[None, "AS", "MS"],
-                resource=Resource.from_id(self._agg_table_name(table_name)),
             )
 
-        if self.freq in ["AS", "MS"]:
-            for table_name, method_name in table_method_map_any_agg.items():
-                self.__dict__[method_name] = partial(
-                    self._get_table_from_db,
-                    table_name=table_name,
-                    allowed_freqs=["AS", "MS"],
-                    resource=Resource.from_id(self._agg_table_name(table_name)),
-                )
+        for table_name, method_name in table_method_map_any_agg.items():
+            self.__dict__[method_name] = partial(
+                self._get_table_from_db,
+                table_name=table_name,
+                allowed_freqs=["AS", "MS"],
+            )
 
-        if self.freq in ["AS"]:
-            for table_name, method_name in table_method_map_yearly_only.items():
-                self.__dict__[method_name] = partial(
-                    self._get_table_from_db,
-                    table_name=table_name,
-                    allowed_freqs=["AS"],
-                    resource=Resource.from_id(self._agg_table_name(table_name)),
+        for table_name, method_name in table_method_map_yearly_only.items():
+            self.__dict__[method_name] = partial(
+                self._get_table_from_db,
+                table_name=table_name,
+                allowed_freqs=["AS"],
+            )
+
+    def _get_table_from_db(
+        self: Self,
+        table_name: str,
+        allowed_freqs: list[str | None] = [None, "AS", "MS"],
+        update: bool = False,
+    ) -> pd.DataFrame:
+        """Grab output table from PUDL DB.
+
+        Args:
+            table_name: Name of table to get.
+            allowed_freqs: List of allowed aggregation frequencies for table.
+            update: Ignored. Retained for backwards compatibility only.
+        """
+        if self.freq not in allowed_freqs:
+            raise ValueError(
+                f"{table_name} needs one of these frequencies {allowed_freqs}, "
+                f"but got {self.freq}"
+            )
+        table_name = self._agg_table_name(table_name)
+        resource = Resource.from_id(table_name)
+        return pd.concat(
+            [
+                resource.enforce_schema(df)
+                for df in pd.read_sql(
+                    self._select_between_dates(table_name),
+                    self.pudl_engine,
+                    chunksize=100_000,
                 )
+            ]
+        )
 
     def _agg_table_name(self: Self, table_name: str) -> str:
         """Substitute appropriate frequency in aggregated table names.
@@ -274,38 +300,6 @@ class PudlTabl:
             else:
                 table_name = table_name.replace("_AGG", "")
         return table_name
-
-    def _get_table_from_db(
-        self: Self,
-        table_name: str,
-        resource: Resource,
-        allowed_freqs: list[str | None] = [None, "AS", "MS"],
-        update: bool = False,
-    ) -> pd.DataFrame:
-        """Grab output table from PUDL DB.
-
-        Args:
-            table_name: Name of table to get.
-            resource: Resource metadata used to enforce schema on table.
-            allowed_freqs: List of allowed aggregation frequencies for table.
-            update: Ignored. Retained for backwards compatibility only.
-        """
-        if self.freq not in allowed_freqs:
-            raise ValueError(
-                f"{table_name} requires aggregation frequency of {allowed_freqs}, "
-                f"got {self.freq}"
-            )
-        table_name = self._agg_table_name(table_name)
-        return pd.concat(
-            [
-                resource.enforce_schema(df)
-                for df in pd.read_sql(
-                    self._select_between_dates(table_name),
-                    self.pudl_engine,
-                    chunksize=100_000,
-                )
-            ]
-        )
 
     def _select_between_dates(self: Self, table: str) -> sa.sql.expression.Select:
         """For a given table, returns an SQL query that filters by date, if specified.
