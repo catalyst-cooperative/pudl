@@ -766,9 +766,9 @@ def clean_emissions_control_equipment_eia860(
     emce_df = pudl.helpers.convert_col_to_bool(
         df=emce_df, col_name="acid_gas_control", true_values=["Y"], false_values=[]
     )
-    # Add a control_id_pudl as a primary key. This is not unique over years. We could
-    # maybe try and do this, but not doing it now.
-    emce_df["control_id_pudl"] = (
+    # Add a emission_control_id_pudl as a primary key. This is not unique over years.
+    # We could maybe try and do this, but not doing it now.
+    emce_df["emission_control_id_pudl"] = (
         emce_df.groupby(["report_year", "plant_id_eia"]).cumcount() + 1
     )
     # Fix outlier value in emission_control_equipment_cost. We know this is an
@@ -778,7 +778,7 @@ def clean_emissions_control_equipment_eia860(
     outlier_primary_keys = (
         (emce_df["report_year"] == 2017)
         & (emce_df["plant_id_eia"] == 57794)
-        & (emce_df["control_id_pudl"].isin([1, 2]))
+        & (emce_df["emission_control_id_pudl"].isin([1, 2]))
     )
 
     if len(emce_df[outlier_primary_keys]) > 2:
