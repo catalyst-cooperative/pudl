@@ -53,3 +53,39 @@ def denorm_ownership_eia860(
 
     # Re-arrange the columns for easier readability:
     return pudl.helpers.organize_cols(own_df, first_cols)
+
+
+@asset(io_manager_key="pudl_sqlite_io_manager", compute_kind="Python")
+def denorm_emissions_control_equipment_eia860(
+    clean_emissions_control_equipment_eia860: pd.DataFrame,
+    denorm_plants_utilities_eia: pd.DataFrame,
+) -> pd.DataFrame:
+    """A denormalized version of the EIA 860 emission control equipment table.
+
+    Args:
+        clean_emissions_control_equipment_eia860: Cleaned EIA 860 emissions control
+            equipment table.
+        denorm_plants_utilities_eia: Denormalized table containing plant and utility
+            names and IDs.
+
+    Returns:
+        A denormalized version of the EIA 860 emissions control equipment table.
+    """
+    pu_df = denorm_plants_utilities_eia.loc[
+        :,
+        [
+            "plant_id_eia",
+            "plant_id_pudl",
+            "plant_name_eia",
+            "utility_name_eia",
+            "utility_id_pudl",
+            "report_date",
+        ],
+    ]
+    emce_df = pd.merge(
+        clean_emissions_control_equipment_eia860,
+        pu_df,
+        on=["report_date", "plant_id_eia"],
+        how="left",
+    )
+    return emce_df
