@@ -10,6 +10,7 @@ transformations.
 import enum
 import importlib.resources
 import re
+from ast import literal_eval
 from collections import namedtuple
 from collections.abc import Mapping
 from typing import Any, Literal
@@ -943,6 +944,7 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
             )
             .pipe(self.merge_xbrl_metadata)
         )
+        self.rename_calcuations_xbrl_meta()
         return df
 
     @cache_df(key="end")
@@ -1022,6 +1024,87 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
                 }
             )
         )
+
+    def rename_calcuations_xbrl_meta(
+        self,
+    ) -> dict[str, list]:
+        """Rename the calculations in the xbrl metadata to reflect PUDL names.
+
+        Stages of column renaming/reshaping:
+        * process_xbrl:
+            * params.rename_columns.duration_xbrl & params.rename_columns.instant_xbrl
+            * params.unstack_balances_to_report_year
+            * params.rename_columns.xbrl
+            * params.wide_to_tidy
+        * transform_main:
+            * params.convert_units
+
+        Note: params.select_dbf_rows_by_category.additional_categories will
+        include dbf categories that could be relevant.
+        """
+        xbrl_metadata = self.xbrl_metadata
+        calced_values = set(
+            xbrl_metadata.loc[
+                xbrl_metadata.row_type_xbrl == "calculated_value", "xbrl_factoid"
+            ]
+        )
+        logger.info(calced_values)
+        calcs = {
+            calced_value: literal_eval(
+                xbrl_metadata.set_index(["xbrl_factoid"]).loc[
+                    calced_value, "calculations"
+                ]
+            )
+            for calced_value in calced_values
+        }
+        calcs_renamed = {
+            self.rename_column_xbrl_to_pudl(calced_value): [
+                {
+                    key: self.rename_column_xbrl_to_pudl(value)
+                    if key == "name"
+                    else value
+                    for (key, value) in calc.items()
+                }
+                for calc in calcs
+            ]
+            for (calced_value, calcs) in calcs.items()
+        }
+        return calcs_renamed
+
+    def rename_column_xbrl_to_pudl(
+        self,
+        col_name_xbrl: str,
+    ) -> str:
+        """Rename a column name from orignal XBRL name to the transformed PUDL name."""
+        rename_dicts = [
+            self.params.rename_columns_ferc1.duration_xbrl,
+            self.params.rename_columns_ferc1.instant_xbrl,
+            self.params.rename_columns_ferc1.xbrl,
+        ]
+        col_name_new = col_name_xbrl
+        for rename_stage in rename_dicts:
+            col_name_new = str(rename_stage.columns.get(col_name_new, col_name_new))
+
+        # the values in wide_to_tidy are found at the end of the column names and
+        #  extracted, so we need to remove all of the suffixes.
+        wide_to_tidy_value_types = pudl.helpers.dedupe_n_flatten_list_of_lists(
+            [
+                wide_to_tidy["value_types"]
+                for (stage, wide_to_tidy) in literal_eval(
+                    self.params.wide_to_tidy.json()
+                ).items()
+            ]
+        )
+        for value_type in wide_to_tidy_value_types:
+            col_name_new = col_name_new.replace(f"_{value_type}$", "")
+
+        if self.params.unstack_balances_to_report_year_instant_xbrl:
+            # TODO: do something...? add starting_balance & ending_balance suffixes?
+            pass
+        if self.params.convert_units:
+            # TODO: use from_unit -> to_unit map. but none of the $$ tables have this rn.
+            pass
+        return col_name_new
 
     @cache_df(key="merge_xbrl_metadata")
     def merge_xbrl_metadata(
