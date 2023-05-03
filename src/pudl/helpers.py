@@ -1687,8 +1687,8 @@ def convert_col_to_bool(
     # Set values as true or value. Astype boolean should preserve NA values.
     # This is easier than building an input dictionary for pandas map or replace
     # functions.
-    df.loc[df[col_name].isin(true_values)] = True
-    df.loc[df[col_name].isin(false_values)] = False
+    df.loc[df[col_name].isin(true_values), col_name] = True
+    df.loc[df[col_name].isin(false_values), col_name] = False
     df[col_name] = df[col_name].astype("boolean")
 
     return df
