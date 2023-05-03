@@ -758,11 +758,78 @@ def clean_emissions_control_equipment_eia860(
     # Replace empty strings, whitespace, and '.' fields with real NA values
     emce_df = pudl.helpers.fix_eia_na(raw_emissions_control_equipment_eia860)
 
-    # Fix bad months
+    # Spot fix bad months
     emce_df["operating_month"] = emce_df["operating_month"].replace({"88": "8"})
-    emce_df["retirement_month"] = emce_df["retirement_month"].replace({"True": np.nan})
+    # Fill in values with a year not a month based on later years that do have a month
+    # I thought about doing some sort of backfill here, but decided not to because
+    # emission_control_id_pudl is not guaranteed to be consistent over time
+    bad_month_1 = (
+        (emce_df["report_year"] == 2013)
+        & (emce_df["plant_id_eia"] == 10346)
+        & (emce_df["nox_control_id_eia"] == "BOIL01")
+    )
+    bad_month_2 = (
+        (emce_df["report_year"] == 2013)
+        & (emce_df["plant_id_eia"] == 10202)
+        & (emce_df["particulate_control_id_eia"].isin(["5PMDC", "5PPPT"]))
+    )
+    bad_month_3 = (
+        (emce_df["report_year"] == 2013)
+        & (emce_df["plant_id_eia"] == 3131)
+        & (emce_df["operating_year"] == "2005")
+    )
+    bad_month_4 = (emce_df["report_year"] == 2013) & (emce_df["plant_id_eia"] == 10405)
+    bad_month_5 = (
+        (emce_df["report_year"] == 2013)
+        & (emce_df["plant_id_eia"] == 50661)
+        & (emce_df["nox_control_id_eia"].isin(["ASNCR", "BSNCR"]))
+    )
+    bad_month_6 = (
+        (emce_df["report_year"] == 2013)
+        & (emce_df["plant_id_eia"] == 4054)
+        & (emce_df["operating_year"] == "2011")
+    )
+    bad_month_7 = (
+        (emce_df["report_year"] == 2013)
+        & (emce_df["plant_id_eia"] == 50544)
+        & (emce_df["operating_year"] == "1990")
+    )
+    bad_month_8 = (
+        (emce_df["report_year"] == 2013)
+        & (emce_df["plant_id_eia"] == 50189)
+        & (emce_df["particulate_control_id_eia"].isin(["EGS1", "EGS2", "ESP1CB"]))
+    )
+    assert len(emce_df[bad_month_1]) == 1
+    emce_df.loc[bad_month_1, "operating_month"] = 6
+    assert len(emce_df[bad_month_2]) == 4
+    emce_df.loc[bad_month_2, "operating_month"] = 6
+    assert len(emce_df[bad_month_3]) == 4
+    emce_df.loc[bad_month_3, "operating_month"] = 1
+    assert len(emce_df[bad_month_4]) == 1
+    emce_df.loc[bad_month_4, "operating_month"] = 12
+    assert len(emce_df[bad_month_5]) == 2
+    emce_df.loc[bad_month_5, "operating_month"] = 6
+    assert len(emce_df[bad_month_6]) == 2
+    emce_df.loc[bad_month_6, "operating_month"] = 10
+    assert len(emce_df[bad_month_7]) == 1
+    emce_df.loc[bad_month_7, "operating_month"] = 6
+    assert len(emce_df[bad_month_8]) == 9
+    emce_df.loc[bad_month_8, "operating_month"] = 12
 
-    # Convert column to boolean
+    # Convert month-year columns to a single date column
+    emce_df = pudl.helpers.convert_to_date(
+        df=emce_df,
+        date_col="emission_control_operating_date",
+        year_col="operating_year",
+        month_col="operating_month",
+    ).pipe(
+        pudl.helpers.convert_to_date,
+        date_col="emission_control_retirement_date",
+        year_col="retirement_year",
+        month_col="retirement_month",
+    )
+
+    # Convert acid gas control column to boolean
     emce_df = pudl.helpers.convert_col_to_bool(
         df=emce_df, col_name="acid_gas_control", true_values=["Y"], false_values=[]
     )
@@ -772,7 +839,7 @@ def clean_emissions_control_equipment_eia860(
         emce_df.groupby(["report_year", "plant_id_eia"]).cumcount() + 1
     )
     # Fix outlier value in emission_control_equipment_cost. We know this is an
-    # outlier because it is the highest value reported in the dataset and it
+    # outlier because it is the highest value reported in the dataset and
     # the other years from the same plant show that it likely contains three
     # extra zeros. We use the primary keys to spot fix the value.
     outlier_primary_keys = (
@@ -788,11 +855,5 @@ def clean_emissions_control_equipment_eia860(
         outlier_primary_keys,
         "emission_control_equipment_cost",
     ] = 3200
-
-    emce_df = (
-        pudl.metadata.classes.Package.from_resource_ids()
-        .get_resource("plants_eia860")
-        .encode(emce_df)
-    )
 
     return emce_df

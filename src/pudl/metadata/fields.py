@@ -616,6 +616,14 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "type": "string",
         "description": "The type of emission control equipment installed.",
     },
+    "emission_control_operating_date": {
+        "type": "date",
+        "description": "The date a piece of emissions control equipment began operating. Derived from month and year columns in the raw data.",
+    },
+    "emission_control_retirement_date": {
+        "type": "date",
+        "description": "The expected or actual retirement date for a piece of emissions control equipment. Derived from month and year columns in the raw data.",
+    },
     "emissions_unit_id_epa": {
         "type": "string",
         "description": "Emissions (smokestack) unit monitored by EPA CEMS.",
