@@ -1029,126 +1029,6 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
             )
         )
 
-    def rename_calcuations_xbrl_meta(
-        self,
-    ) -> dict[str, list]:
-        """Rename the calculations in the xbrl metadata to reflect PUDL names.
-
-        Note: params.select_dbf_rows_by_category.additional_categories will
-        include dbf categories that could be relevant.
-        """
-        xbrl_metadata = self.xbrl_metadata
-        calced_values = set(
-            xbrl_metadata.loc[
-                xbrl_metadata.row_type_xbrl == "calculated_value", "xbrl_factoid"
-            ]
-        )
-        calcs = {
-            calced_value: literal_eval(
-                xbrl_metadata.set_index(["xbrl_factoid"]).loc[
-                    calced_value, "calculations"
-                ]
-            )
-            for calced_value in calced_values
-        }
-        calcs_renamed = {
-            self.rename_column_xbrl_to_pudl(calced_value): [
-                {
-                    key: self.rename_column_xbrl_to_pudl(value)
-                    if key == "name"
-                    else value
-                    for (key, value) in calc.items()
-                }
-                for calc in calcs
-            ]
-            for (calced_value, calcs) in calcs.items()
-        }
-        return calcs_renamed
-
-    def rename_column_xbrl_to_pudl(
-        self,
-        col_name_xbrl: str,
-    ) -> str:
-        """Rename a column name from orignal XBRL name to the transformed PUDL name.
-
-        There are several transform params that either explicitly or implicity rename
-        columns:
-        * :class:`RenameColumnsFerc1`
-        * :class:`WideToTidySourceFerc1`
-        * :class:`UnstackBalancesToReportYearInstantXbrl`
-        * :class:`ConvertUnits`
-
-        This method attempts to use the table params to translate a column name.
-
-        Note: Instead of doing this for each individual column name, we could compile a
-        rename dict for the whole table with a similar processand then apply it for each
-        group of columns instead of running through this full process every time. If
-        this took longer than...  ~5 ms on a single table w/ lots of calcs this would
-        probably be worth it for simplicity.
-        """
-        rename_dicts = [
-            self.params.rename_columns_ferc1.duration_xbrl,
-            self.params.rename_columns_ferc1.instant_xbrl,
-            self.params.rename_columns_ferc1.xbrl,
-        ]
-        col_name_new = col_name_xbrl
-        for rename_stage in rename_dicts:
-            col_name_new = str(rename_stage.columns.get(col_name_new, col_name_new))
-        # the values in wide_to_tidy are found at the end of the column names and
-        # extracted, so we need to remove all of the suffixes.
-        wide_to_tidy_value_types = []
-        for wide_to_tidy_stage in json.loads(self.params.wide_to_tidy.json()).values():
-            if not isinstance(wide_to_tidy_stage, list):
-                wide_to_tidy_stage = [wide_to_tidy_stage]
-            for wide_to_tidy in wide_to_tidy_stage:
-                if wide_to_tidy["value_types"]:
-                    wide_to_tidy_value_types.append(wide_to_tidy["value_types"])
-        wide_to_tidy_value_types = pudl.helpers.dedupe_n_flatten_list_of_lists(
-            wide_to_tidy_value_types
-        )
-
-        for value_type in wide_to_tidy_value_types:
-            if col_name_new.endswith(f"_{value_type}"):
-                col_name_new = re.sub(f"_{value_type}$", "", col_name_new)
-            # col_name_new = col_name_new.replace(f"_{value_type}$", "")
-
-        if self.params.unstack_balances_to_report_year_instant_xbrl:
-            # TODO: do something...? add starting_balance & ending_balance suffixes?
-            pass
-        if self.params.convert_units:
-            # TODO: use from_unit -> to_unit map. but none of the $$ tables have this rn.
-            pass
-        return col_name_new
-
-    def are_names_in_renamed_xbrl_calcs_are_present_in_table(
-        self, calcs: dict[str:dict], df: pd.DataFrame
-    ):
-        """Ensure all of the names in the renamed calculations are present in the df.
-
-        Log a warning if there are any missing names.
-        """
-        if self.params.merge_xbrl_metadata.on:
-            types_in_calcs = set(
-                [
-                    calc_part["name"]
-                    for calc_parts in calcs.values()
-                    for calc_part in calc_parts
-                ]
-                + list(calcs.keys())
-            )
-
-            missing_from_tbl = {
-                xbrl_type
-                for xbrl_type in types_in_calcs
-                if xbrl_type not in df[self.params.merge_xbrl_metadata.on].unique()
-            }
-            if missing_from_tbl:
-                logger.warning(
-                    # raise AssertionError(
-                    f"{self.table_id.value}: All renamed types were not found"
-                    f"in the transformed table. Missing types: {missing_from_tbl}"
-                )
-
     @cache_df(key="merge_xbrl_metadata")
     def merge_xbrl_metadata(
         self, df: pd.DataFrame, params: MergeXbrlMetadata | None = None
@@ -3838,9 +3718,34 @@ class OtherRegulatoryLiabilitiesFerc1TableTransformer(Ferc1AbstractTableTransfor
     has_unique_record_ids = False
 
 
+FERC1_TFR_CLASSES: Mapping[str, type[Ferc1AbstractTableTransformer]] = {
+    "fuel_ferc1": FuelFerc1TableTransformer,
+    "plants_small_ferc1": PlantsSmallFerc1TableTransformer,
+    "plants_hydro_ferc1": PlantsHydroFerc1TableTransformer,
+    "plant_in_service_ferc1": PlantInServiceFerc1TableTransformer,
+    "plants_pumped_storage_ferc1": PlantsPumpedStorageFerc1TableTransformer,
+    "transmission_statistics_ferc1": TransmissionStatisticsFerc1TableTransformer,
+    "purchased_power_ferc1": PurchasedPowerFerc1TableTransformer,
+    "electric_energy_sources_ferc1": ElectricEnergySourcesFerc1TableTransformer,
+    "electric_energy_dispositions_ferc1": ElectricEnergyDispositionsFerc1TableTransformer,
+    "utility_plant_summary_ferc1": UtilityPlantSummaryFerc1TableTransformer,
+    "electric_operating_expenses_ferc1": ElectricOperatingExpensesFerc1TableTransformer,
+    "balance_sheet_liabilities_ferc1": BalanceSheetLiabilitiesFerc1TableTransformer,
+    "depreciation_amortization_summary_ferc1": DepreciationAmortizationSummaryFerc1TableTransformer,
+    "balance_sheet_assets_ferc1": BalanceSheetAssetsFerc1TableTransformer,
+    "income_statement_ferc1": IncomeStatementFerc1TableTransformer,
+    "electric_plant_depreciation_changes_ferc1": ElectricPlantDepreciationChangesFerc1TableTransformer,
+    "electric_plant_depreciation_functional_ferc1": ElectricPlantDepreciationFunctionalFerc1TableTransformer,
+    "retained_earnings_ferc1": RetainedEarningsFerc1TableTransformer,
+    "electric_operating_revenues_ferc1": ElectricOperatingRevenuesFerc1TableTransformer,
+    "cash_flow_ferc1": CashFlowFerc1TableTransformer,
+    "electricity_sales_by_rate_schedule_ferc1": ElectricitySalesByRateScheduleFerc1TableTransformer,
+    "other_regulatory_liabilities_ferc1": OtherRegulatoryLiabilitiesFerc1TableTransformer,
+}
+
+
 def ferc1_transform_asset_factory(
     table_name: str,
-    ferc1_tfr_classes: Mapping[str, type[Ferc1AbstractTableTransformer]],
     io_manager_key: str = "pudl_sqlite_io_manager",
     convert_dtypes: bool = True,
     generic: bool = False,
@@ -3874,7 +3779,7 @@ def ferc1_transform_asset_factory(
     ins |= {f"raw_xbrl_duration__{tn}": AssetIn(f"{tn}_duration") for tn in xbrl_tables}
     ins["xbrl_metadata_json"] = AssetIn("xbrl_metadata_json")
 
-    tfr_class = ferc1_tfr_classes[table_name]
+    tfr_class = FERC1_TFR_CLASSES[table_name]
     table_id = TableIdFerc1(table_name)
 
     @asset(name=table_name, ins=ins, io_manager_key=io_manager_key)
@@ -3926,37 +3831,12 @@ def create_ferc1_transform_assets() -> list[AssetsDefinition]:
     Returns:
         A list of AssetsDefinitions where each asset is a clean ferc form 1 table.
     """
-    ferc1_tfr_classes = {
-        "fuel_ferc1": FuelFerc1TableTransformer,
-        "plants_small_ferc1": PlantsSmallFerc1TableTransformer,
-        "plants_hydro_ferc1": PlantsHydroFerc1TableTransformer,
-        "plant_in_service_ferc1": PlantInServiceFerc1TableTransformer,
-        "plants_pumped_storage_ferc1": PlantsPumpedStorageFerc1TableTransformer,
-        "transmission_statistics_ferc1": TransmissionStatisticsFerc1TableTransformer,
-        "purchased_power_ferc1": PurchasedPowerFerc1TableTransformer,
-        "electric_energy_sources_ferc1": ElectricEnergySourcesFerc1TableTransformer,
-        "electric_energy_dispositions_ferc1": ElectricEnergyDispositionsFerc1TableTransformer,
-        "utility_plant_summary_ferc1": UtilityPlantSummaryFerc1TableTransformer,
-        "electric_operating_expenses_ferc1": ElectricOperatingExpensesFerc1TableTransformer,
-        "balance_sheet_liabilities_ferc1": BalanceSheetLiabilitiesFerc1TableTransformer,
-        "depreciation_amortization_summary_ferc1": DepreciationAmortizationSummaryFerc1TableTransformer,
-        "balance_sheet_assets_ferc1": BalanceSheetAssetsFerc1TableTransformer,
-        "income_statement_ferc1": IncomeStatementFerc1TableTransformer,
-        "electric_plant_depreciation_changes_ferc1": ElectricPlantDepreciationChangesFerc1TableTransformer,
-        "electric_plant_depreciation_functional_ferc1": ElectricPlantDepreciationFunctionalFerc1TableTransformer,
-        "retained_earnings_ferc1": RetainedEarningsFerc1TableTransformer,
-        "electric_operating_revenues_ferc1": ElectricOperatingRevenuesFerc1TableTransformer,
-        "cash_flow_ferc1": CashFlowFerc1TableTransformer,
-        "electricity_sales_by_rate_schedule_ferc1": ElectricitySalesByRateScheduleFerc1TableTransformer,
-        "other_regulatory_liabilities_ferc1": OtherRegulatoryLiabilitiesFerc1TableTransformer,
-    }
-
     assets = []
-    for table_name in ferc1_tfr_classes:
+    for table_name in FERC1_TFR_CLASSES:
         # Bespoke exception. fuel must come before steam b/c fuel proportions are used to
         # aid in FERC plant ID assignment.
         if table_name != "plants_steam_ferc1":
-            assets.append(ferc1_transform_asset_factory(table_name, ferc1_tfr_classes))
+            assets.append(ferc1_transform_asset_factory(table_name))
     return assets
 
 
@@ -3992,3 +3872,226 @@ def plants_steam_ferc1(
         transformed_fuel=fuel_ferc1,
     )
     return convert_cols_dtypes(df, data_source="ferc1")
+
+
+##################################
+# Calculations/Metadata Management
+##################################
+
+
+class ExplodeMeta:
+    """Methods to translate XBRL metadata for preparing for explosions!"""
+
+    def __init__(self, xbrl_meta_json):
+        """Instance of :class:`ExplodeMeta`."""
+        self.xbrl_meta_json = xbrl_meta_json
+
+    def convert_metadata(
+        self, table_names: None | list[TableIdFerc1]
+    ) -> dict[TableIdFerc1, dict]:
+        """Convert multiple tables metadata."""
+        if not table_names:
+            table_names = list(FERC1_TFR_CLASSES.keys())
+        calcs = {}
+        for table_name in table_names:
+            # for table_id in TableIdFerc1:
+            logger.info(f"Converting metadata for {table_name}")
+
+            transformer = FERC1_TFR_CLASSES[table_name]()
+            xbrl_meta_tbl = transformer.process_xbrl_metadata(
+                self.xbrl_meta_json[table_name]
+            )
+
+            calcs[table_name] = TableCalcs(
+                table_name=table_name,
+                xbrl_meta_tbl=xbrl_meta_tbl,
+                params=transformer.params,
+            ).rename_calcuations_xbrl_meta()
+        return calcs
+
+
+class TableCalcs:
+    """Methods to convert and check table-level calculations."""
+
+    def __init__(
+        self,
+        table_name: TableIdFerc1,
+        xbrl_meta_tbl: pd.DataFrame,
+        params: Ferc1TableTransformParams,
+    ):
+        """Instance of :class:`TableCalcs`."""
+        self.table_name = table_name
+        self.xbrl_meta_tbl = xbrl_meta_tbl
+        self.params = params
+
+    def rename_calcuations_xbrl_meta(
+        self,
+    ) -> dict[str, list]:
+        """Rename the calculations in the xbrl metadata to reflect PUDL names.
+
+        Note: params.select_dbf_rows_by_category.additional_categories will
+        include dbf categories that could be relevant.
+        """
+        xbrl_meta_tbl = self.xbrl_meta_tbl
+        calced_values = set(
+            xbrl_meta_tbl.loc[
+                xbrl_meta_tbl.row_type_xbrl == "calculated_value", "xbrl_factoid"
+            ]
+        )
+        calcs = {
+            calced_value: literal_eval(
+                xbrl_meta_tbl.set_index(["xbrl_factoid"]).loc[
+                    calced_value, "calculations"
+                ]
+            )
+            for calced_value in calced_values
+        }
+        calcs_renamed = {
+            self.rename_column_xbrl_to_pudl(calced_value): [
+                {
+                    key: self.rename_column_xbrl_to_pudl(value)
+                    if key == "name"
+                    else value
+                    for (key, value) in calc.items()
+                }
+                for calc in calcs
+            ]
+            for (calced_value, calcs) in calcs.items()
+        }
+        return calcs_renamed
+
+    def rename_column_xbrl_to_pudl(
+        self,
+        col_name_xbrl: str,
+    ) -> str:
+        """Rename a column name from orignal XBRL name to the transformed PUDL name.
+
+        There are several transform params that either explicitly or implicity rename
+        columns:
+        * :class:`RenameColumnsFerc1`
+        * :class:`WideToTidySourceFerc1`
+        * :class:`UnstackBalancesToReportYearInstantXbrl`
+        * :class:`ConvertUnits`
+
+        This method attempts to use the table params to translate a column name.
+
+        Note: Instead of doing this for each individual column name, we could compile a
+        rename dict for the whole table with a similar processand then apply it for each
+        group of columns instead of running through this full process every time. If
+        this took longer than...  ~5 ms on a single table w/ lots of calcs this would
+        probably be worth it for simplicity.
+        """
+        rename_dicts = [
+            self.params.rename_columns_ferc1.duration_xbrl,
+            self.params.rename_columns_ferc1.instant_xbrl,
+            self.params.rename_columns_ferc1.xbrl,
+        ]
+        col_name_new = col_name_xbrl
+        for rename_stage in rename_dicts:
+            col_name_new = str(rename_stage.columns.get(col_name_new, col_name_new))
+        # the values in wide_to_tidy are found at the end of the column names and
+        # extracted, so we need to remove all of the suffixes.
+        wide_to_tidy_value_types = []
+        for wide_to_tidy_stage in json.loads(self.params.wide_to_tidy.json()).values():
+            if not isinstance(wide_to_tidy_stage, list):
+                wide_to_tidy_stage = [wide_to_tidy_stage]
+            for wide_to_tidy in wide_to_tidy_stage:
+                if wide_to_tidy["value_types"]:
+                    wide_to_tidy_value_types.append(wide_to_tidy["value_types"])
+        wide_to_tidy_value_types = pudl.helpers.dedupe_n_flatten_list_of_lists(
+            wide_to_tidy_value_types
+        )
+
+        for value_type in wide_to_tidy_value_types:
+            if col_name_new.endswith(f"_{value_type}"):
+                col_name_new = re.sub(f"_{value_type}$", "", col_name_new)
+            # col_name_new = col_name_new.replace(f"_{value_type}$", "")
+
+        if self.params.unstack_balances_to_report_year_instant_xbrl:
+            # TODO: do something...? add starting_balance & ending_balance suffixes?
+            pass
+        if self.params.convert_units:
+            # TODO: use from_unit -> to_unit map. but none of the $$ tables have this rn.
+            pass
+        return col_name_new
+
+    def are_names_in_renamed_xbrl_calcs_are_present_in_table(
+        self, calcs: dict[str, dict], df: pd.DataFrame
+    ):
+        """Ensure all of the names in the renamed calculations are present in the df.
+
+        Log a warning if there are any missing names.
+
+        Note: NOT CURRENTLY BEING DELOYED.
+        """
+        if self.params.merge_xbrl_metadata.on:
+            types_in_calcs = set(
+                [
+                    calc_part["name"]
+                    for calc_parts in calcs.values()
+                    for calc_part in calc_parts
+                ]
+                + list(calcs.keys())
+            )
+
+            missing_from_tbl = {
+                xbrl_type
+                for xbrl_type in types_in_calcs
+                if xbrl_type not in df[self.params.merge_xbrl_metadata.on].unique()
+            }
+            if missing_from_tbl:
+                logger.warning(
+                    # raise AssertionError(
+                    f"{self.table_id.value}: All renamed types were not found"
+                    f"in the transformed table. Missing types: {missing_from_tbl}"
+                )
+
+
+def check_table_calcs(table_name, table_df, dollar_value_col, calculated_values):
+    """Check how well a table's calculated values are calculated."""
+    xbrl_factoid_name = FERC1_TFR_CLASSES[table_name]().params.merge_xbrl_metadata.on
+    pks = (
+        pudl.metadata.classes.Package.from_resource_ids()
+        .get_resource(table_name)
+        .schema.primary_key
+    )
+    pks_wo_factoid = [col for col in pks if col != xbrl_factoid_name]
+    calculated_dfs = []
+    for cv in calculated_values:
+        df = (
+            pd.merge(
+                table_df,
+                pd.DataFrame(calculated_values[cv]),
+                left_on=xbrl_factoid_name,
+                right_on="name",
+            )
+            .assign(calculated_dollar_amount=lambda x: x[dollar_value_col] * x.weight)
+            .groupby(pks_wo_factoid)
+            .calculated_dollar_amount.sum()
+            .to_frame()
+            .reset_index()
+        )
+        df[xbrl_factoid_name] = cv
+        calculated_dfs.append(df)
+
+    calculated_df = pd.merge(
+        table_df,
+        pd.concat(calculated_dfs),
+        on=pks,
+        how="left",
+    )
+
+    calculated_df["abs_diff"] = abs(
+        calculated_df[dollar_value_col] - calculated_df.calculated_dollar_amount
+    )
+    calculated_df["rel_diff"] = abs(
+        calculated_df.abs_diff / calculated_df[dollar_value_col]
+    )
+
+    off_df = calculated_df[
+        (calculated_df.abs_diff != 0) & (calculated_df.abs_diff.notnull())
+    ]
+    logger.info(
+        f"{table_name}: has #{len(off_df)} / {len(off_df)/len(calculated_df):.02%} records that don't calculate exactly"
+    )
+    return calculated_df
