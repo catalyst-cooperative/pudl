@@ -15,7 +15,6 @@ import pudl
 import pudl.logging_helpers
 from pudl.metadata.classes import DataSource
 from pudl.workspace.datastore import Datastore
-from pudl.workspace.resource_cache import PudlResourceKey
 
 logger = pudl.logging_helpers.get_logger(__name__)
 
@@ -89,6 +88,9 @@ class AbstractFercDbfReader(Protocol):
     def load_table_dfs(self, table_name: str, years: list[int]) -> pd.DataFrame | None:
         """Returns dataframe that contains data for a given table across given years."""
         ...
+
+
+# TODO(rousik): we should have a class for accessing single archive.
 
 
 class FercFieldParser(FieldParser):
@@ -173,7 +175,7 @@ class FercDbfReader:
             dataset: name of the dataset (e.g. ferc1), this is used to load metadata
                 from package_data/{dataset} subdirectory.
             field_parser: FieldParser class to use when loading data
-    """
+        """
         self._cache = {}
         self.datastore = datastore
         self.dataset = dataset

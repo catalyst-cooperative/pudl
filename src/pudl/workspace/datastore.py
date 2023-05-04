@@ -103,8 +103,8 @@ class DatapackageDescriptor:
                 continue
             if self._matches(res, **filters):
                 yield PudlResourceKey(
-                    dataset=self.dataset, doi=self.doi, name=res["name"]
-                    # TODO(rousik): embed parts here!
+                    dataset=self.dataset, doi=self.doi, name=res["name"],
+                    partition=dict(res.get("parts", {})),
                 )
 
     def get_partitions(self, name: str = None) -> dict[str, set[str]]:
@@ -116,6 +116,15 @@ class DatapackageDescriptor:
             for k, v in res.get("parts", {}).items():
                 partitions[k].add(v)
         return partitions
+
+    def get_partition_filters(self) -> Iterator[dict[str, str]]:
+        """Returns list of all known partition mappings.
+
+        This can be used to iterate over all resources as the mappings can be directly
+        used as filters and should map to unique resource.
+        """
+        for res in self.datapackage_json["resources"]:
+            yield res.get("parts", {})
 
     def _validate_datapackage(self, datapackage_json: dict):
         """Checks the correctness of datapackage.json metadata.

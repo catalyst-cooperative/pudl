@@ -85,6 +85,7 @@ from dagster import (
 
 import pudl
 from pudl.extract.dbf import AbstractFercDbfReader, FercDbfExtractor, FercDbfReader
+from pudl.extract.ferc import add_key_constraints
 from pudl.extract.ferc2 import Ferc2DbfExtractor
 from pudl.helpers import EnvVar
 from pudl.io_managers import (
@@ -240,21 +241,7 @@ class Ferc1DbfExtractor(FercDbfExtractor):
         This marks f1_responent_id.respondent_id as a primary key and adds foreign key
         constraints on all tables with respondent_id column.
         """
-        for table in meta.tables.values():
-            if table.name == "f1_respondent_id":
-                table.append_constraint(
-                    sa.PrimaryKeyConstraint(
-                        "respondent_id", sqlite_on_conflict="REPLACE"
-                    )
-                )
-            elif "respondent_id" in table.columns:
-                table.append_constraint(
-                    sa.ForeignKeyConstraint(
-                        columns=["respondent_id"],
-                        refcolumns=["f1_respondent_id.respondent_id"],
-                    )
-                )
-        return meta
+        return add_key_constraints(meta, pk_table="f1_respondent_id", fk_column="respondent_id")
 
     def postprocess(self):
         """Applies final transformations on the data in sqlite database.
