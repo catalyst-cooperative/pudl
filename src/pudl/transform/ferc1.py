@@ -9,6 +9,7 @@ transformations.
 """
 import enum
 import importlib.resources
+import json
 import re
 from ast import literal_eval
 from collections import namedtuple
@@ -944,7 +945,9 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
             )
             .pipe(self.merge_xbrl_metadata)
         )
-        self.rename_calcuations_xbrl_meta()
+        # rename the calculated fields to PUDL transformed names
+        self.calcs = self.rename_calcuations_xbrl_meta()
+        # now check if the renamed calcs' column names are actually in the table
         return df
 
     @cache_df(key="end")
@@ -1048,7 +1051,6 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
                 xbrl_metadata.row_type_xbrl == "calculated_value", "xbrl_factoid"
             ]
         )
-        logger.info(calced_values)
         calcs = {
             calced_value: literal_eval(
                 xbrl_metadata.set_index(["xbrl_factoid"]).loc[
@@ -1075,7 +1077,14 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
         self,
         col_name_xbrl: str,
     ) -> str:
-        """Rename a column name from orignal XBRL name to the transformed PUDL name."""
+        """Rename a column name from orignal XBRL name to the transformed PUDL name.
+
+        Note: Instead of doing this for each individual column name, we could compile a
+        rename dict for the whole table with a similar processand then apply it for each
+        group of columns instead of running through this full process every time. If
+        this took longer than...  ~5 ms on a single table w/ lots of calcs this would
+        probably be worth it for simplicity.
+        """
         rename_dicts = [
             self.params.rename_columns_ferc1.duration_xbrl,
             self.params.rename_columns_ferc1.instant_xbrl,
@@ -1084,17 +1093,19 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
         col_name_new = col_name_xbrl
         for rename_stage in rename_dicts:
             col_name_new = str(rename_stage.columns.get(col_name_new, col_name_new))
-
         # the values in wide_to_tidy are found at the end of the column names and
-        #  extracted, so we need to remove all of the suffixes.
+        # extracted, so we need to remove all of the suffixes.
+        wide_to_tidy_value_types = []
+        for wide_to_tidy_stage in json.loads(self.params.wide_to_tidy.json()).values():
+            if not isinstance(wide_to_tidy_stage, list):
+                wide_to_tidy_stage = [wide_to_tidy_stage]
+            for wide_to_tidy in wide_to_tidy_stage:
+                if wide_to_tidy["value_types"]:
+                    wide_to_tidy_value_types.append(wide_to_tidy["value_types"])
         wide_to_tidy_value_types = pudl.helpers.dedupe_n_flatten_list_of_lists(
-            [
-                wide_to_tidy["value_types"]
-                for (stage, wide_to_tidy) in literal_eval(
-                    self.params.wide_to_tidy.json()
-                ).items()
-            ]
+            wide_to_tidy_value_types
         )
+
         for value_type in wide_to_tidy_value_types:
             col_name_new = col_name_new.replace(f"_{value_type}$", "")
 
