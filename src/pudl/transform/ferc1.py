@@ -945,10 +945,6 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
             )
             .pipe(self.merge_xbrl_metadata)
         )
-        # rename the calculated fields to PUDL transformed names
-        self.calcs = self.rename_calcuations_xbrl_meta()
-        # now check if the renamed calcs' column names are actually in the table
-        self.are_names_in_renamed_xbrl_calcs_are_present_in_table(self.calcs, df)
         return df
 
     @cache_df(key="end")
