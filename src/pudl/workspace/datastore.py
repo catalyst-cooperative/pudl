@@ -84,8 +84,15 @@ class DatapackageDescriptor:
             )
 
     def _matches(self, res: dict, **filters: Any):
+        for k, v in filters.items():
+            if str(v) != str(v).lower():
+                logger.warning(
+                    f"Resource filter values should be all lowercase: {k}={v}"
+                )
         parts = res.get("parts", {})
-        return all(str(parts.get(k)) == str(v) for k, v in filters.items())
+        return all(
+            str(parts.get(k)).lower() == str(v).lower() for k, v in filters.items()
+        )
 
     def get_resources(
         self, name: str = None, **filters: Any
