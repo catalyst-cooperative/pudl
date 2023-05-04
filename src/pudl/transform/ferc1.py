@@ -948,6 +948,7 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
         # rename the calculated fields to PUDL transformed names
         self.calcs = self.rename_calcuations_xbrl_meta()
         # now check if the renamed calcs' column names are actually in the table
+        self.are_names_in_renamed_xbrl_calcs_are_present_in_table(self.calcs, df)
         return df
 
     @cache_df(key="end")
@@ -1107,7 +1108,9 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
         )
 
         for value_type in wide_to_tidy_value_types:
-            col_name_new = col_name_new.replace(f"_{value_type}$", "")
+            if col_name_new.endswith(f"_{value_type}"):
+                col_name_new = re.sub(f"_{value_type}$", "", col_name_new)
+            # col_name_new = col_name_new.replace(f"_{value_type}$", "")
 
         if self.params.unstack_balances_to_report_year_instant_xbrl:
             # TODO: do something...? add starting_balance & ending_balance suffixes?
@@ -1116,6 +1119,35 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
             # TODO: use from_unit -> to_unit map. but none of the $$ tables have this rn.
             pass
         return col_name_new
+
+    def are_names_in_renamed_xbrl_calcs_are_present_in_table(
+        self, calcs: dict[str:dict], df: pd.DataFrame
+    ):
+        """Ensure all of the names in the renamed calculations are present in the df.
+
+        Log a warning if there are any missing names.
+        """
+        if self.params.merge_xbrl_metadata.on:
+            types_in_calcs = set(
+                [
+                    calc_part["name"]
+                    for calc_parts in calcs.values()
+                    for calc_part in calc_parts
+                ]
+                + list(calcs.keys())
+            )
+
+            missing_from_tbl = {
+                xbrl_type
+                for xbrl_type in types_in_calcs
+                if xbrl_type not in df[self.params.merge_xbrl_metadata.on].unique()
+            }
+            if missing_from_tbl:
+                logger.warning(
+                    # raise AssertionError(
+                    f"{self.table_id.value}: All renamed types were not found"
+                    f"in the transformed table. Missing types: {missing_from_tbl}"
+                )
 
     @cache_df(key="merge_xbrl_metadata")
     def merge_xbrl_metadata(
