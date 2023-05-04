@@ -1033,15 +1033,6 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
     ) -> dict[str, list]:
         """Rename the calculations in the xbrl metadata to reflect PUDL names.
 
-        Stages of column renaming/reshaping:
-        * process_xbrl:
-            * params.rename_columns.duration_xbrl & params.rename_columns.instant_xbrl
-            * params.unstack_balances_to_report_year
-            * params.rename_columns.xbrl
-            * params.wide_to_tidy
-        * transform_main:
-            * params.convert_units
-
         Note: params.select_dbf_rows_by_category.additional_categories will
         include dbf categories that could be relevant.
         """
@@ -1078,6 +1069,15 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
         col_name_xbrl: str,
     ) -> str:
         """Rename a column name from orignal XBRL name to the transformed PUDL name.
+
+        There are several transform params that either explicitly or implicity rename
+        columns:
+        * :class:`RenameColumnsFerc1`
+        * :class:`WideToTidySourceFerc1`
+        * :class:`UnstackBalancesToReportYearInstantXbrl`
+        * :class:`ConvertUnits`
+
+        This method attempts to use the table params to translate a column name.
 
         Note: Instead of doing this for each individual column name, we could compile a
         rename dict for the whole table with a similar processand then apply it for each
