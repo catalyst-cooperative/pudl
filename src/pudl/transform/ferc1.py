@@ -4171,11 +4171,14 @@ def check_table_calcs(
     calculated_df["rel_diff"] = abs(
         calculated_df.abs_diff / calculated_df[dollar_value_col]
     )
-
     off_df = calculated_df[
-        (calculated_df.abs_diff != 0) & (calculated_df.abs_diff.notnull())
+        ~np.isclose(
+            calculated_df.calculated_dollar_amount, calculated_df[dollar_value_col]
+        )
+        & (calculated_df["abs_diff"].notnull())
     ]
+    calced_values = calculated_df[(calculated_df.abs_diff.notnull())]
     logger.info(
-        f"{table_name}: has #{len(off_df)} / {len(off_df)/len(calculated_df):.02%} records that don't calculate exactly"
+        f"{table_name}: has #{len(off_df)} / {len(off_df)/len(calced_values):.02%} records that don't calculate exactly"
     )
     return calculated_df
