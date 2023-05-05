@@ -3905,7 +3905,7 @@ class ExplodeMeta:
         """Convert multiple tables metadata."""
         if not table_names:
             table_names = list(FERC1_TFR_CLASSES.keys())
-        calcs = {}
+        meta_converted = {}
         for table_name in table_names:
             # for table_id in TableIdFerc1:
             logger.info(f"Converting metadata for {table_name}")
@@ -3915,12 +3915,37 @@ class ExplodeMeta:
                 self.xbrl_meta_json[table_name]
             )
 
-            calcs[table_name] = TableCalcs(
+            meta_converted[table_name] = TableCalcs(
                 table_name=table_name,
                 xbrl_meta_tbl=xbrl_meta_tbl,
                 params=transformer.params,
             ).rename_calcuations_xbrl_meta()
-        return calcs
+        meta_converted = self.update_to_calcs_manually(meta_converted)
+        return meta_converted
+
+    @staticmethod
+    def update_to_calcs_manually(meta_converted: dict):
+        """Manually add calculation fixes into the converted metadata.
+
+        Note: Temp fix. These updates should probably be moved into the table params
+        and integrated into the calculations via TableCalcs.
+        """
+        calc_fixes = {
+            "income_statement_ferc1": {
+                "income_before_extraordinary_items": [
+                    {"name": "net_other_income_and_deductions", "weight": 1.0},
+                    {"name": "net_interest_charges", "weight": -1.0},
+                    {"name": "net_utility_operating_income", "weight": 1.0},
+                ]
+            }
+        }
+
+        return {
+            tbl_name: old_calcs | calc_fixes[tbl_name]
+            if calc_fixes.get(tbl_name, False)
+            else old_calcs
+            for (tbl_name, old_calcs) in meta_converted.items()
+        }
 
 
 class TableCalcs:
