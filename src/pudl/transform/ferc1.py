@@ -3930,22 +3930,56 @@ class ExplodeMeta:
         Note: Temp fix. These updates should probably be moved into the table params
         and integrated into the calculations via TableCalcs.
         """
-        calc_fixes = {
+        fields_to_fix = {
             "income_statement_ferc1": {
-                "income_before_extraordinary_items": [
-                    {"name": "net_other_income_and_deductions", "weight": 1.0},
-                    {"name": "net_interest_charges", "weight": -1.0},
-                    {"name": "net_utility_operating_income", "weight": 1.0},
-                ]
-            }
+                "income_before_extraordinary_items": {
+                    "calc_component_to_replace": None,
+                    "calc_component_new": {
+                        "name": "net_utility_operating_income",
+                        "weight": 1.0,
+                    },
+                }
+            },
+            "electric_operating_expenses_ferc1": {
+                "power_production_expenses_steam_power": {
+                    "calc_component_to_replace": {
+                        "name": "operation_supervision_and_engineering",
+                        "weight": 1.0,
+                    },
+                    "calc_component_new": {
+                        "name": "operation_supervision_and_engineering_steam_power_generation",
+                        "weight": 1.0,
+                    },
+                },
+                "power_production_expenses_hydraulic_power": {
+                    "calc_component_to_replace": {
+                        "name": "operation_supervision_and_engineering",
+                        "weight": 1.0,
+                    },
+                    "calc_component_new": {
+                        "name": "operation_supervision_and_engineering_hydraulic_power_generation",
+                        "weight": 1.0,
+                    },
+                },
+            },
         }
-
-        return {
-            tbl_name: old_calcs | calc_fixes[tbl_name]
-            if calc_fixes.get(tbl_name, False)
-            else old_calcs
-            for (tbl_name, old_calcs) in meta_converted.items()
-        }
+        # I don't love this nested loopy-dee-doop
+        for table_name, factoid_to_fix in fields_to_fix.items():
+            for xbrl_factiod, calc_component_fix in factoid_to_fix.items():
+                logger.info(f"fixing calc for {table_name}'s {xbrl_factiod}")
+                if calc_component_fix["calc_component_to_replace"]:
+                    meta_converted[table_name][xbrl_factiod] = [
+                        calc_component_fix["calc_component_new"]
+                        if calc_component
+                        == calc_component_fix["calc_component_to_replace"]
+                        else calc_component
+                        for calc_component in meta_converted[table_name][xbrl_factiod]
+                    ]
+                else:
+                    meta_converted[table_name][xbrl_factiod] = meta_converted[
+                        table_name
+                    ][xbrl_factiod] + [calc_component_fix["calc_component_new"]]
+        return meta_converted
 
 
 class TableCalcs:
