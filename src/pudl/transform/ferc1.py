@@ -4053,39 +4053,45 @@ class TableCalcs:
             pass
         return col_name_new
 
-    def are_names_in_renamed_xbrl_calcs_are_present_in_table(
-        self, calcs: dict[str, dict], df: pd.DataFrame
-    ):
-        """Ensure all of the names in the renamed calculations are present in the df.
 
-        Log a warning if there are any missing names.
+def ensure_names_in_renamed_xbrl_calcs_are_present(
+    tbl_calcs: dict[str, dict],
+    df: pd.DataFrame,
+    xbrl_factoid_name: str,
+    table_name: str,
+):
+    """Ensure all of the names in the renamed calculations are present in the df.
 
-        Note: NOT CURRENTLY BEING DELOYED.
-        """
-        if self.params.merge_xbrl_metadata.on:
-            types_in_calcs = set(
-                [
-                    calc_part["name"]
-                    for calc_parts in calcs.values()
-                    for calc_part in calc_parts
-                ]
-                + list(calcs.keys())
-            )
+    Log a warning if there are any missing names.
+    """
+    types_in_calcs = set(
+        [
+            calc_part["name"]
+            for calc_parts in tbl_calcs.values()
+            for calc_part in calc_parts
+        ]
+        + list(tbl_calcs.keys())
+    )
 
-            missing_from_tbl = {
-                xbrl_type
-                for xbrl_type in types_in_calcs
-                if xbrl_type not in df[self.params.merge_xbrl_metadata.on].unique()
-            }
-            if missing_from_tbl:
-                logger.warning(
-                    # raise AssertionError(
-                    f"{self.table_id.value}: All renamed types were not found"
-                    f"in the transformed table. Missing types: {missing_from_tbl}"
-                )
+    missing_from_tbl = {
+        xbrl_type
+        for xbrl_type in types_in_calcs
+        if xbrl_type not in df[xbrl_factoid_name].unique()
+    }
+    if missing_from_tbl:
+        logger.warning(
+            # raise AssertionError(
+            f"{table_name}: All renamed types were not found"
+            f"in the transformed table. Missing types: {missing_from_tbl}"
+        )
 
 
-def check_table_calcs(table_name, table_df, dollar_value_col, calculated_values):
+def check_table_calcs(
+    table_name: str,
+    table_df: pd.DataFrame,
+    dollar_value_col: str,
+    calculated_values: dict,
+):
     """Check how well a table's calculated values are calculated."""
     xbrl_factoid_name = FERC1_TFR_CLASSES[table_name]().params.merge_xbrl_metadata.on
     pks = (
@@ -4094,6 +4100,12 @@ def check_table_calcs(table_name, table_df, dollar_value_col, calculated_values)
         .schema.primary_key
     )
     pks_wo_factoid = [col for col in pks if col != xbrl_factoid_name]
+    ensure_names_in_renamed_xbrl_calcs_are_present(
+        df=table_df,
+        tbl_calcs=calculated_values,
+        xbrl_factoid_name=xbrl_factoid_name,
+        table_name=table_name,
+    )
     calculated_dfs = []
     for cv in calculated_values:
         df = (
