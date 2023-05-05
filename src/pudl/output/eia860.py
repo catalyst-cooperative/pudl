@@ -57,14 +57,13 @@ def denorm_ownership_eia860(
 
 @asset(io_manager_key="pudl_sqlite_io_manager", compute_kind="Python")
 def denorm_emissions_control_equipment_eia860(
-    clean_emissions_control_equipment_eia860: pd.DataFrame,
+    emissions_control_equipment_eia860: pd.DataFrame,
     denorm_plants_utilities_eia: pd.DataFrame,
 ) -> pd.DataFrame:
     """A denormalized version of the EIA 860 emission control equipment table.
 
     Args:
-        clean_emissions_control_equipment_eia860: Cleaned EIA 860 emissions control
-            equipment table.
+        emissions_control_equipment_eia860: EIA 860 emissions control equipment table.
         denorm_plants_utilities_eia: Denormalized table containing plant and utility
             names and IDs.
 
@@ -77,15 +76,19 @@ def denorm_emissions_control_equipment_eia860(
             "plant_id_eia",
             "plant_id_pudl",
             "plant_name_eia",
-            "utility_name_eia",
+            "utility_id_eia",
             "utility_id_pudl",
+            "utility_name_eia",
             "report_date",
         ],
     ]
+    pu_df = pu_df.assign(report_year=lambda x: x.report_date.dt.year).drop(
+        columns=["report_date"]
+    )
     emce_df = pd.merge(
-        clean_emissions_control_equipment_eia860,
+        emissions_control_equipment_eia860,
         pu_df,
-        on=["report_date", "plant_id_eia"],
+        on=["report_year", "plant_id_eia"],
         how="left",
     )
     return emce_df
