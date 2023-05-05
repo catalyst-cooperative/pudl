@@ -865,8 +865,6 @@ def clean_boiler_emissions_control_equipment_assn_eia860(
     raw_boiler_mercury_eia860: pd.DataFrame,
     raw_boiler_nox_eia860: pd.DataFrame,
     raw_boiler_particulate_eia860: pd.DataFrame,
-    raw_boiler_cooling_eia860: pd.DataFrame,
-    raw_boiler_stack_flue_eia860: pd.DataFrame,
 ) -> pd.DataFrame:
     """Pull and transform the emissions control <> boiler ID link tables.
 
