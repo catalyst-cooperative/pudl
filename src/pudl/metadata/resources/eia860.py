@@ -481,6 +481,8 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
             """The cost, type, operating status, retirement date, and install year of
 emissions control equipment reported to EIA. Includes control ids for sulfur dioxide
 (SO2), particulate matter, mercury, nitrogen oxide (NOX), and acid (HCl) gas monitoring.
+The denormalized version contains plant name, utility id, pudl id, and utility name
+columns.
 """
         ),
         "schema": {
@@ -506,7 +508,6 @@ emissions control equipment reported to EIA. Includes control ids for sulfur dio
                 "emission_control_retirement_date",
             ],
             "primary_key": ["report_year", "plant_id_eia", "emission_control_id_pudl"],
-            # "foreign_key_rules": {},
         },
         "field_namespace": "eia",
         "sources": ["eia860"],

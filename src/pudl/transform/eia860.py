@@ -845,11 +845,11 @@ def clean_emissions_control_equipment_eia860(
     outlier_primary_keys = (
         (emce_df["report_year"] == 2017)
         & (emce_df["plant_id_eia"] == 57794)
-        & (emce_df["emission_control_id_pudl"].isin([1, 2]))
+        & (emce_df["emission_control_equipment_cost"] == 3200000)
     )
 
     if len(emce_df[outlier_primary_keys]) > 2:
-        raise AssertionError("Only expecting two spotfixed values here")
+        raise AssertionError("Only expecting two spot fixed values here")
 
     emce_df.loc[
         outlier_primary_keys,
