@@ -3825,8 +3825,8 @@ TRANSFORM_PARAMS = {
             "utility_type": {
                 "categories": UTILITY_TYPE_CATEGORIES["categories"]
                 | {
-                    "total": {"total"},
-                    "other": {"other", "other_total", "ferc:OtherUtilityMember"},
+                    "total": {"total", "other_total"},
+                    "other": {"other", "ferc:OtherUtilityMember"},
                     "other1": {"other1"},
                     "other2": {"other2"},
                     "other3": {"other3"},

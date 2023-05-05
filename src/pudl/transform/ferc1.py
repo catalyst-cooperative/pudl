@@ -14,7 +14,7 @@ import re
 from ast import literal_eval
 from collections import namedtuple
 from collections.abc import Mapping
-from typing import Any, Literal
+from typing import Any, Literal, Self
 
 import numpy as np
 import pandas as pd
@@ -3119,7 +3119,7 @@ class IncomeStatementFerc1TableTransformer(Ferc1AbstractTableTransformer):
     table_id: TableIdFerc1 = TableIdFerc1.INCOME_STATEMENT_FERC1
     has_unique_record_ids: bool = False
 
-    def process_dbf(self, raw_dbf):
+    def process_dbf(self: Self, raw_dbf: pd.DataFrame) -> pd.DataFrame:
         """Drop incorrect row numbers from f1_incm_stmnt_2 before standard processing.
 
         In 2003, two rows were added to the ``f1_income_stmnt`` dbf table, which bumped
@@ -3152,6 +3152,23 @@ class IncomeStatementFerc1TableTransformer(Ferc1AbstractTableTransformer):
         )
         raw_dbf = super().process_dbf(raw_dbf)
         return raw_dbf
+
+    def transform_main(self: Self, df: pd.DataFrame) -> pd.DataFrame:
+        """Drop duplicate records from f1_income_stmnt.
+
+        Because net_utility_operating_income is reported on both page 1 and 2 of the
+        form, it ends up introducing a bunch of duplicated records, so we need to drop
+        one of them. Since the value is used in the calculations that are part of the
+        second page, we'll drop it from the first page.
+        """
+        df = super().transform_main(df)
+        df = df[
+            ~(
+                (df.record_id.str.startswith("f1_income_stmnt_"))
+                & (df.income_type == "net_utility_operating_income")
+            )
+        ]
+        return df
 
 
 class RetainedEarningsFerc1TableTransformer(Ferc1AbstractTableTransformer):
