@@ -3742,6 +3742,7 @@ FERC1_TFR_CLASSES: Mapping[str, type[Ferc1AbstractTableTransformer]] = {
 
 def ferc1_transform_asset_factory(
     table_name: str,
+    tfr_class: Ferc1AbstractTableTransformer,
     io_manager_key: str = "pudl_sqlite_io_manager",
     convert_dtypes: bool = True,
     generic: bool = False,
@@ -3755,7 +3756,7 @@ def ferc1_transform_asset_factory(
 
     Args:
         table_name: The name of the table to create an asset for.
-        ferc1_tfr_classes: A dictionary of table names to the corresponding transformer class.
+        tfr_class: A transformer class cooresponding to the table_name.
         io_manager_key: the dagster io_manager key to use. None defaults
             to the fs_io_manager.
         convert_dtypes: convert dtypes of transformed dataframes.
@@ -3775,7 +3776,6 @@ def ferc1_transform_asset_factory(
     ins |= {f"raw_xbrl_duration__{tn}": AssetIn(f"{tn}_duration") for tn in xbrl_tables}
     ins["xbrl_metadata_json"] = AssetIn("xbrl_metadata_json")
 
-    tfr_class = FERC1_TFR_CLASSES[table_name]
     table_id = TableIdFerc1(table_name)
 
     @asset(name=table_name, ins=ins, io_manager_key=io_manager_key)
@@ -3828,11 +3828,11 @@ def create_ferc1_transform_assets() -> list[AssetsDefinition]:
         A list of AssetsDefinitions where each asset is a clean ferc form 1 table.
     """
     assets = []
-    for table_name in FERC1_TFR_CLASSES:
+    for table_name, tfr_class in FERC1_TFR_CLASSES.items():
         # Bespoke exception. fuel must come before steam b/c fuel proportions are used to
         # aid in FERC plant ID assignment.
         if table_name != "plants_steam_ferc1":
-            assets.append(ferc1_transform_asset_factory(table_name))
+            assets.append(ferc1_transform_asset_factory(table_name, tfr_class))
     return assets
 
 

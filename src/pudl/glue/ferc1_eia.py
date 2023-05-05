@@ -289,13 +289,10 @@ def get_plants_ferc1_raw_job() -> JobDefinition:
         )
         return all_plants
 
-    tfr_mapping = {
-        table_name: GenericPlantFerc1TableTransformer for table_name in plant_tables
-    }
     transform_assets = [
         ferc1_transform_asset_factory(
             table_name,
-            tfr_mapping,
+            GenericPlantFerc1TableTransformer,
             io_manager_key=None,
             convert_dtypes=False,
             generic=True,
