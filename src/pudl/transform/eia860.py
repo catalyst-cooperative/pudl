@@ -868,4 +868,51 @@ def clean_boiler_emissions_control_equipment_assn_eia860(
     raw_boiler_cooling_eia860: pd.DataFrame,
     raw_boiler_stack_flue_eia860: pd.DataFrame,
 ) -> pd.DataFrame:
-    """Pull and transform the emissions control <> boiler ID link tables."""
+    """Pull and transform the emissions control <> boiler ID link tables.
+
+    Args:
+        raw_boiler_so2_eia860: Raw EIA 860 boiler to SO2 emission control equipment
+            association table.
+        raw_boiler_mercury_eia860: Raw EIA 860 boiler to mercury emission control
+            equipment association table.
+        raw_boiler_nox_eia860: Raw EIA 860 boiler to nox emission control equipment
+            association table.
+        raw_boiler_particulate_eia860: Raw EIA 860 boiler to particulate emission
+            control equipment association table.
+        raw_boiler_cooling_eia860: Raw EIA 860 boiler to cooling equipment association
+            table.
+        raw_boiler_stack_flue_eia860: Raw EIA 860 boiler to stack flue equipment
+            association table.
+
+    Returns:
+        pd.DataFrame: A combination of all the emission control equipment association
+            tables.
+    """
+    raw_tables = [
+        raw_boiler_so2_eia860,
+        raw_boiler_mercury_eia860,
+        raw_boiler_nox_eia860,
+        raw_boiler_particulate_eia860,
+    ]
+
+    bece_df = pd.DataFrame({})
+
+    for table in raw_tables:
+        value_col = [col for col in table if "control_id_eia" in col]
+        id_cols = [col for col in table if "control_id_eia" not in col]
+        print(value_col)
+        assert len(value_col) == 1
+        table = pd.melt(
+            table,
+            value_vars=value_col,
+            id_vars=id_cols,
+            var_name="emission_control_id_type",
+            value_name="emission_control_id",
+        ).assign(
+            emission_control_id_type=lambda x: x.emission_control_id_type.str.replace(
+                "_control_id_eia", ""
+            )
+        )
+        bece_df = bece_df.append(table)
+
+    return bece_df
