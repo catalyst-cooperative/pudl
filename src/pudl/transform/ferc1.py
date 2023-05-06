@@ -3930,55 +3930,141 @@ class ExplodeMeta:
         Note: Temp fix. These updates should probably be moved into the table params
         and integrated into the calculations via TableCalcs.
         """
-        fields_to_fix = {
-            "income_statement_ferc1": {
-                "income_before_extraordinary_items": {
-                    "calc_component_to_replace": None,
-                    "calc_component_new": {
-                        "name": "net_utility_operating_income",
-                        "weight": 1.0,
-                    },
+        # typing for calced_fields_to_fix. for clarity/in anticipation of a pydantic
+        # calc defintion
+        # xbrl_factiod_name: str
+        # calc_component: dict[Literal["name", "weight"], str | int]
+        # calc_component_fix: dict[
+        #     Literal["calc_component_to_replace", "calc_component_new"],
+        #     None | calc_component,
+        # ]
+
+        def make_calc_component_fixes_for_double_counting(
+            table_meta, double_counted_factiod
+        ) -> dict[
+            Literal["calc_component_to_replace", "calc_component_new"],
+            None | dict,
+        ]:
+            """Make a  when a calculated sub-component is double counted."""
+            return [
+                {
+                    "calc_component_to_replace": double_counted_comp,
+                    "calc_component_new": None,
                 }
+                for double_counted_comp in table_meta[double_counted_factiod]
+            ]
+
+        calced_fields_to_fix: dict[
+            TableIdFerc1, dict  # [xbrl_factiod_name, list[calc_component_fix]]
+        ] = {
+            "income_statement_ferc1": {
+                "income_before_extraordinary_items": [
+                    {
+                        "calc_component_to_replace": None,
+                        "calc_component_new": {
+                            "name": "net_utility_operating_income",
+                            "weight": 1.0,
+                        },
+                    }
+                ]
             },
             "electric_operating_expenses_ferc1": {
-                "power_production_expenses_steam_power": {
-                    "calc_component_to_replace": {
-                        "name": "operation_supervision_and_engineering",
-                        "weight": 1.0,
+                # This table has two factiods that have sub-components that are
+                # calcuations themselves and both the sub-component calcuated values
+                # AND the sub-sub-components. So we're removing the specific sub-sub-
+                # components
+                "power_production_expenses_steam_power": [
+                    {
+                        "calc_component_to_replace": {
+                            "name": "operation_supervision_and_engineering",
+                            "weight": 1.0,
+                        },
+                        "calc_component_new": {
+                            "name": "operation_supervision_and_engineering_steam_power_generation",
+                            "weight": 1.0,
+                        },
                     },
-                    "calc_component_new": {
-                        "name": "operation_supervision_and_engineering_steam_power_generation",
-                        "weight": 1.0,
+                    {  # this shows up in the steam calc, but its a nuclear expns
+                        "calc_component_to_replace": {
+                            "name": "coolants_and_water",
+                            "weight": 1.0,
+                        },
+                        "calc_component_new": None,
                     },
-                },
-                "power_production_expenses_hydraulic_power": {
-                    "calc_component_to_replace": {
-                        "name": "operation_supervision_and_engineering",
-                        "weight": 1.0,
+                ]
+                + make_calc_component_fixes_for_double_counting(
+                    meta_converted["electric_operating_expenses_ferc1"],
+                    "steam_power_generation_maintenance_expense",
+                )
+                + make_calc_component_fixes_for_double_counting(
+                    meta_converted["electric_operating_expenses_ferc1"],
+                    "steam_power_generation_operations_expense",
+                ),
+                "power_production_expenses_hydraulic_power": [
+                    {
+                        "calc_component_to_replace": {
+                            "name": "operation_supervision_and_engineering",
+                            "weight": 1.0,
+                        },
+                        "calc_component_new": {
+                            "name": "operation_supervision_and_engineering_hydraulic_power_generation",
+                            "weight": 1.0,
+                        },
                     },
-                    "calc_component_new": {
-                        "name": "operation_supervision_and_engineering_hydraulic_power_generation",
-                        "weight": 1.0,
+                ]
+                + make_calc_component_fixes_for_double_counting(
+                    meta_converted["electric_operating_expenses_ferc1"],
+                    "hydraulic_power_generation_maintenance_expense",
+                )
+                + make_calc_component_fixes_for_double_counting(
+                    meta_converted["electric_operating_expenses_ferc1"],
+                    "hydraulic_power_generation_operations_expense",
+                ),
+                "transmission_operation_expense": [
+                    {
+                        "calc_component_to_replace": None,
+                        "calc_component_new": {
+                            "name": "load_dispatching_transmission_expense",
+                            "weight": 1.0,
+                        },
                     },
-                },
+                ],
             },
         }
+
+        def remove_nones_in_list(list_of_things):
+            """Remove None's (or False's) in a list.
+
+            We're about to introduce None's into the calculation components when an
+            existing component needed to be removed.
+            """
+            return [i for i in list_of_things if i]
+
         # I don't love this nested loopy-dee-doop
-        for table_name, factoid_to_fix in fields_to_fix.items():
-            for xbrl_factiod, calc_component_fix in factoid_to_fix.items():
+        for table_name, factoid_to_fix in calced_fields_to_fix.items():
+            for xbrl_factiod, calc_component_fixes in factoid_to_fix.items():
                 logger.info(f"fixing calc for {table_name}'s {xbrl_factiod}")
-                if calc_component_fix["calc_component_to_replace"]:
-                    meta_converted[table_name][xbrl_factiod] = [
-                        calc_component_fix["calc_component_new"]
-                        if calc_component
-                        == calc_component_fix["calc_component_to_replace"]
-                        else calc_component
-                        for calc_component in meta_converted[table_name][xbrl_factiod]
-                    ]
-                else:
-                    meta_converted[table_name][xbrl_factiod] = meta_converted[
-                        table_name
-                    ][xbrl_factiod] + [calc_component_fix["calc_component_new"]]
+                for calc_component_fix in calc_component_fixes:
+                    if calc_component_fix["calc_component_to_replace"]:
+                        meta_converted[table_name][xbrl_factiod] = [
+                            calc_component_fix["calc_component_new"]
+                            if calc_component
+                            == calc_component_fix["calc_component_to_replace"]
+                            else calc_component
+                            for calc_component in meta_converted[table_name][
+                                xbrl_factiod
+                            ]
+                        ]
+                    else:
+                        meta_converted[table_name][xbrl_factiod] = meta_converted[
+                            table_name
+                        ][xbrl_factiod] + [calc_component_fix["calc_component_new"]]
+            meta_converted[table_name] = {
+                xbrl_factoid: remove_nones_in_list(calc_components)
+                for (xbrl_factoid, calc_components) in meta_converted[
+                    table_name
+                ].items()
+            }
         return meta_converted
 
 
