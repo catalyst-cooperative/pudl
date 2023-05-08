@@ -1,14 +1,14 @@
-"""Add emissions_control_equipment table schemas.
+"""Add schema for emissions control equipment tables.
 
-Revision ID: 1901c10b6bdf
+Revision ID: 6066df503958
 Revises: 29d443aadf25
-Create Date: 2023-05-08 14:14:38.266215
+Create Date: 2023-05-08 16:57:49.471770
 """
 import sqlalchemy as sa
 from alembic import op
 
 # revision identifiers, used by Alembic.
-revision = "1901c10b6bdf"
+revision = "6066df503958"
 down_revision = "29d443aadf25"
 branch_labels = None
 depends_on = None
@@ -77,7 +77,13 @@ def upgrade() -> None:
             "operational_status_code",
             sa.Text(),
             nullable=True,
-            comment="The operating status of the generator.",
+            comment="The operating status of the asset.",
+        ),
+        sa.Column(
+            "operational_status",
+            sa.Text(),
+            nullable=True,
+            comment="The operating status of the asset. For generators rhis is based on which tab the generator was listed in in EIA 860.",
         ),
         sa.Column(
             "mercury_control_id_eia",
@@ -191,7 +197,7 @@ def upgrade() -> None:
             "operational_status_code",
             sa.Text(),
             nullable=True,
-            comment="The operating status of the generator.",
+            comment="The operating status of the asset.",
         ),
         sa.Column(
             "mercury_control_id_eia",
@@ -290,7 +296,7 @@ def upgrade() -> None:
             "emission_control_id_eia",
             sa.Text(),
             nullable=False,
-            comment="The emission control ID used to collect so2, nox, particulate, \nand mercury emissions data. This column shoudl be used in conjunction with\nemissions_control_type as it's not guaranteed to be unique.",
+            comment="The emission control ID used to collect so2, nox, particulate, and mercury emissions data. This column shoudl be used in conjunction with emissions_control_type as it's not guaranteed to be unique.",
         ),
         sa.ForeignKeyConstraint(
             ["data_maturity"],
