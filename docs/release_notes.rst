@@ -91,9 +91,10 @@ Data Coverage
     :pr:`2205`
 
 * New PUDL tables from :doc:`data_sources/eia860`:
+
   * :ref:`emissions_control_equipment_eia860`, see issue :issue:`2338` & PR :pr:`2561`.
   * :ref:`denorm_emissions_control_equipment_eia860`, see issue :issue:`2338` & PR
-  :pr:`2561`.
+    :pr:`2561`.
 
 * The :ref:`boilers_eia860` table now includes annual boiler attributes from
   :doc:`data_sources/eia860` Schedule 6.2 Environmental Equipment data, and the new

@@ -442,9 +442,11 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     },
     "emission_control_id_eia": {
         "type": "string",
-        "description": """The emission control ID used to collect so2, nox, particulate,
-and mercury emissions data. This column shoudl be used in conjunction with
-emissions_control_type as it's not guaranteed to be unique.""",
+        "description": (
+            "The emission control ID used to collect so2, nox, particulate, "
+            "and mercury emissions data. This column shoudl be used in conjunction "
+            "with emissions_control_type as it's not guaranteed to be unique."
+        ),
     },
     "emission_control_id_pudl": {
         "type": "number",
