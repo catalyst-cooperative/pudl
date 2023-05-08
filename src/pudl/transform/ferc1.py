@@ -3920,11 +3920,11 @@ class ExplodeMeta:
                 xbrl_meta_tbl=xbrl_meta_tbl,
                 params=transformer.params,
             ).rename_calcuations_xbrl_meta()
-        meta_converted = self.update_to_calcs_manually(meta_converted)
+        meta_converted = self.manually_update_xbrl_calcs(meta_converted)
         return meta_converted
 
     @staticmethod
-    def update_to_calcs_manually(meta_converted: dict):
+    def manually_update_xbrl_calcs(meta_converted: dict):
         """Manually add calculation fixes into the converted metadata.
 
         Note: Temp fix. These updates should probably be moved into the table params
