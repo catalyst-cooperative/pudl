@@ -3960,7 +3960,7 @@ class ExplodeMeta:
             "income_statement_ferc1": {
                 "income_before_extraordinary_items": [
                     {
-                        "calc_component_to_replace": None,
+                        "calc_component_to_replace": {},
                         "calc_component_new": {
                             "name": "net_utility_operating_income",
                             "weight": 1.0,
@@ -3989,7 +3989,7 @@ class ExplodeMeta:
                             "name": "coolants_and_water",
                             "weight": 1.0,
                         },
-                        "calc_component_new": None,
+                        "calc_component_new": {},
                     },
                 ]
                 + make_calc_component_fixes_for_double_counting(
@@ -4022,7 +4022,7 @@ class ExplodeMeta:
                 ),
                 "transmission_operation_expense": [
                     {
-                        "calc_component_to_replace": None,
+                        "calc_component_to_replace": {},
                         "calc_component_new": {
                             "name": "load_dispatching_transmission_expense",
                             "weight": 1.0,
