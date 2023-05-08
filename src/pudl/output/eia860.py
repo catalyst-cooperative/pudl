@@ -3,6 +3,7 @@ import pandas as pd
 from dagster import asset
 
 import pudl
+from pudl.metadata.codes import CODE_METADATA
 
 
 @asset(io_manager_key="pudl_sqlite_io_manager", compute_kind="Python")
@@ -91,4 +92,15 @@ def denorm_emissions_control_equipment_eia860(
         on=["report_year", "plant_id_eia"],
         how="left",
     )
+
+    # Add a column for operational status
+    emce_df["operational_status"] = emce_df.operational_status_code.str.upper().map(
+        pudl.helpers.label_map(
+            CODE_METADATA["operational_status_eia"]["df"],
+            from_col="code",
+            to_col="operational_status",
+            null_value=pd.NA,
+        )
+    )
+
     return emce_df

@@ -528,6 +528,7 @@ columns.
                 "data_maturity",
                 "emission_control_equipment_type",
                 "operational_status_code",
+                "operational_status",
                 "mercury_control_id_eia",
                 "nox_control_id_eia",
                 "particulate_control_id_eia",
