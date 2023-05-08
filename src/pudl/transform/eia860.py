@@ -896,6 +896,14 @@ def clean_boiler_emissions_control_equipment_assn_eia860(
     bece_df = pd.DataFrame({})
 
     for table in raw_tables:
+        # There are some utilities that report the same emissions control equipment
+        table = table.drop_duplicates(
+            subset=[
+                x
+                for x in table.columns
+                if x not in ["utility_id_eia", "utility_name_eia"]
+            ]
+        )
         value_col = [col for col in table if "control_id_eia" in col]
         id_cols = [col for col in table if "control_id_eia" not in col]
         print(value_col)
@@ -905,12 +913,15 @@ def clean_boiler_emissions_control_equipment_assn_eia860(
             value_vars=value_col,
             id_vars=id_cols,
             var_name="emission_control_id_type",
-            value_name="emission_control_id",
+            value_name="emission_control_id_eia",
         ).assign(
             emission_control_id_type=lambda x: x.emission_control_id_type.str.replace(
                 "_control_id_eia", ""
             )
         )
         bece_df = bece_df.append(table)
+    # There are some records that don't have an emission control id that are not
+    # helpful so we drop them.
+    bece_df = bece_df.dropna(subset="emission_control_id_eia")
 
     return bece_df

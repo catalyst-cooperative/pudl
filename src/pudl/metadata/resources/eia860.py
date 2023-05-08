@@ -543,6 +543,33 @@ columns.
         "sources": ["eia860"],
         "etl_group": "eia860",
     },
+    "boiler_emissions_control_equipment_assn_eia860": {
+        "description": (
+            """A table that links EIA boiler id to emissions control IDs for nox, so2,
+mercury, and particulate monitoring. The relationship is sometimes one to many.
+"""
+        ),
+        "schema": {
+            "fields": [
+                "report_year",
+                "data_maturity",
+                "plant_id_eia",
+                "boiler_id",
+                "emission_control_id_type",
+                "emission_control_id_eia",
+            ],
+            "primary_key": [
+                "report_year",
+                "plant_id_eia",
+                "boiler_id",
+                "emission_control_id_type",
+                "emission_control_id_eia",
+            ],
+        },
+        "field_namespace": "eia",
+        "sources": ["eia860"],
+        "etl_group": "eia860",
+    },
 }
 """EIA-860 resource attributes organized by PUDL identifier (``resource.name``).
 

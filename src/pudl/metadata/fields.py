@@ -440,9 +440,19 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "description": "Purchase type under which receipts occurred in the reporting month. C: Contract, NC: New Contract, S: Spot Purchase, T: Tolling Agreement.",
         "constraints": {"enum": ["S", "C", "NC", "T"]},
     },
+    "emission_control_id_eia": {
+        "type": "string",
+        "description": """The emission control ID used to collect so2, nox, particulate,
+and mercury emissions data. This column shoudl be used in conjunction with
+emissions_control_type as it's not guaranteed to be unique.""",
+    },
     "emission_control_id_pudl": {
         "type": "number",
         "description": "A PUDL-generated ID used to distinguish emission control units in the same report year and plant id. This ID should not be used to track units over time or between plants.",
+    },
+    "emission_control_id_type": {
+        "type": "string",
+        "description": "The type of emissions control id: so2, nox, particulate, or mercury.",
     },
     "compliance_year_nox": {
         "type": "integer",

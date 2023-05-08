@@ -1151,6 +1151,7 @@ def harvested_entity_asset_factory(
         "clean_plants_eia860",
         "clean_utilities_eia860",
         "clean_emissions_control_equipment_eia860",
+        "clean_boiler_emissions_control_equipment_assn_eia860",
     )
 
     @multi_asset(
@@ -1227,5 +1228,6 @@ finished_eia_assets = [
         "generation_fuel_nuclear_eia923",
         "ownership_eia860",
         "emissions_control_equipment_eia860",
+        "boiler_emissions_control_equipment_assn_eia860",
     ]
 ]
