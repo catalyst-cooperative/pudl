@@ -3966,7 +3966,28 @@ class ExplodeMeta:
                             "weight": 1.0,
                         },
                     }
-                ]
+                ],
+                "other_income_deductions": [
+                    {
+                        "calc_component_to_replace": {},
+                        "calc_component_new": {
+                            "name": "miscellaneous_deductions",
+                            "weight": 1.0,
+                        },
+                    }
+                ],
+                "taxes_on_other_income_and_deductions": [
+                    {
+                        "calc_component_to_replace": {
+                            "name": "investment_tax_credits",
+                            "weight": 1.0,
+                        },
+                        "calc_component_new": {
+                            "name": "investment_tax_credits",
+                            "weight": -1.0,
+                        },
+                    }
+                ],
             },
             "electric_operating_expenses_ferc1": {
                 # This table has two factiods that have sub-components that are
