@@ -1537,15 +1537,15 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     },
     "operational_status": {
         "type": "string",
-        "description": "The operating status of the generator. This is based on which tab the generator was listed in in EIA 860.",
+        "description": "The operating status of the asset. For generators rhis is based on which tab the generator was listed in in EIA 860.",
     },
     "operational_status_code": {
         "type": "string",
-        "description": "The operating status of the generator.",
+        "description": "The operating status of the asset.",
     },
     "operational_status_pudl": {
         "type": "string",
-        "description": "The operating status of the generator using PUDL categories.",
+        "description": "The operating status of the asset using PUDL categories.",
         "constraints": {"enum": ["operating", "retired", "proposed"]},
     },
     "opex_allowances": {"type": "number", "description": "Allowances.", "unit": "USD"},
