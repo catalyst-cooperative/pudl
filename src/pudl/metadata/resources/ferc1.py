@@ -812,6 +812,8 @@ any cleaning mechanisms in place to account for this."""
                 "revenue",
                 "sales_mwh",
                 "avg_customers_per_month",
+                "ferc_account",
+                "row_type_xbrl",
             ],
             "primary_key": [
                 "utility_id_ferc1",
@@ -1019,6 +1021,8 @@ any cleaning mechanisms in place to account for this."""
                 "revenue",
                 "sales_mwh",
                 "avg_customers_per_month",
+                "ferc_account",
+                "row_type_xbrl",
             ],
             "primary_key": [
                 "utility_id_ferc1",

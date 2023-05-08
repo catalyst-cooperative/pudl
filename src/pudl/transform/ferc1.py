@@ -4249,7 +4249,7 @@ def ensure_names_in_renamed_xbrl_calcs_are_present(
     if missing_columns:
         logger.warning(
             # raise AssertionError(
-            f"{table_name}: All renamed types were not found"
+            f"{table_name}: All renamed types were not found "
             f"in the transformed table. Missing types: {missing_columns}"
         )
 
@@ -4288,7 +4288,7 @@ def check_table_calcs(
     }
     if inter_table_calculated_values:
         logger.info(
-            "Skipping calcuated values because they are intrer-table calucations: "
+            "Skipping calcuated values because they are inter-table calucations: "
             f"{inter_table_calculated_values.keys()}"
         )
     calculated_dfs = []
