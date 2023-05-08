@@ -4175,34 +4175,61 @@ class TableCalcs:
 
 
 def ensure_names_in_renamed_xbrl_calcs_are_present(
-    tbl_calcs: dict[str, dict],
+    meta_converted: dict,
     df: pd.DataFrame,
     xbrl_factoid_name: str,
     table_name: str,
 ):
     """Ensure all of the names in the renamed calculations are present in the df.
 
-    Log a warning if there are any missing names.
+    Add a ``source_table`` label to the calcuaiton components when a calculation
+    component shows up in another table. Log a warning if there are any missing names.
     """
-    types_in_calcs = set(
+    xbrl_types_in_calcs = set(
         [
             calc_part["name"]
-            for calc_parts in tbl_calcs.values()
+            for calc_parts in meta_converted[table_name].values()
             for calc_part in calc_parts
         ]
-        + list(tbl_calcs.keys())
+        + list(meta_converted[table_name].keys())
     )
-
     missing_from_tbl = {
         xbrl_type
-        for xbrl_type in types_in_calcs
+        for xbrl_type in xbrl_types_in_calcs
         if xbrl_type not in df[xbrl_factoid_name].unique()
     }
-    if missing_from_tbl:
+    # build a lil dictionary of missing col name to source_table name
+    missing_col_to_table = {
+        col["name"]: table_name
+        for (table_name, inst_dur_dict) in meta_converted.items()
+        for subtabl in inst_dur_dict.values()
+        for col in subtabl
+        if col["name"] in missing_from_tbl
+    }
+    # add an element to the calculations components to indicate when a records if from
+    # another table
+    # This could be cleaned up.. I didn't know how to do this in a dict comp way that
+    # edited a deep subcomponent of the dict.
+    # Also: this should probabyl be done in rename_calcuations_xbrl_meta
+    for calc_components in meta_converted[table_name].values():
+        for calc_component in calc_components:
+            if calc_component["name"] in missing_col_to_table.keys():
+                calc_component["source_table"] = missing_col_to_table[
+                    calc_component["name"]
+                ]
+    missing_columns = [
+        col for col in missing_from_tbl if col not in missing_col_to_table.keys()
+    ]
+    if missing_col_to_table:
+        logger.info(
+            f"{len(missing_col_to_table)} columns from {table_name} that show up in "
+            "calculated fields have been labeled with 'source_table' in the metadata."
+        )
+    if missing_columns:
         logger.warning(
             # raise AssertionError(
             f"{table_name}: All renamed types were not found"
-            f"in the transformed table. Missing types: {missing_from_tbl}"
+            f"in the transformed table. Missing types: {missing_columns}"
         )
 
 
@@ -4210,7 +4237,7 @@ def check_table_calcs(
     table_name: str,
     table_df: pd.DataFrame,
     dollar_value_col: str,
-    calculated_values: dict,
+    meta_converted: dict,
 ):
     """Check how well a table's calculated values are calculated."""
     xbrl_factoid_name = FERC1_TFR_CLASSES[table_name]().params.merge_xbrl_metadata.on
@@ -4222,16 +4249,33 @@ def check_table_calcs(
     pks_wo_factoid = [col for col in pks if col != xbrl_factoid_name]
     ensure_names_in_renamed_xbrl_calcs_are_present(
         df=table_df,
-        tbl_calcs=calculated_values,
+        meta_converted=meta_converted,
         xbrl_factoid_name=xbrl_factoid_name,
         table_name=table_name,
     )
+    inter_table_calculated_values = {
+        cv: calc_components
+        for (cv, calc_components) in meta_converted[table_name].items()
+        for calc_component in calc_components
+        if calc_component.get("source_table", False)
+    }
+    intra_table_calculated_values = {
+        cv: calc_components
+        for (cv, calc_components) in meta_converted[table_name].items()
+        for calc_component in calc_components
+        if not calc_component.get("source_table", False)
+    }
+    if inter_table_calculated_values:
+        logger.info(
+            "Skipping calcuated values because they are intrer-table calucations: "
+            f"{inter_table_calculated_values.keys()}"
+        )
     calculated_dfs = []
-    for cv in calculated_values:
+    for cv in intra_table_calculated_values:
         df = (
             pd.merge(
                 table_df,
-                pd.DataFrame(calculated_values[cv]),
+                pd.DataFrame(meta_converted[table_name][cv]),
                 left_on=xbrl_factoid_name,
                 right_on="name",
             )
