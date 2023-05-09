@@ -84,8 +84,15 @@ class DatapackageDescriptor:
             )
 
     def _matches(self, res: dict, **filters: Any):
+        for k, v in filters.items():
+            if str(v) != str(v).lower():
+                logger.warning(
+                    f"Resource filter values should be all lowercase: {k}={v}"
+                )
         parts = res.get("parts", {})
-        return all(str(parts.get(k)) == str(v) for k, v in filters.items())
+        return all(
+            str(parts.get(k)).lower() == str(v).lower() for k, v in filters.items()
+        )
 
     def get_resources(
         self, name: str = None, **filters: Any
@@ -163,7 +170,7 @@ class ZenodoFetcher:
             "eia861": "10.5072/zenodo.1103262",
             "eia923": "10.5072/zenodo.1090056",
             "eia_bulk_elec": "10.5072/zenodo.1103572",
-            "epacamd_eia": "10.5072/zenodo.1103224",
+            "epacamd_eia": "10.5072/zenodo.1199170",
             "epacems": "10.5072/zenodo.672963",
             "ferc1": "10.5072/zenodo.1070868",
             "ferc2": "10.5072/zenodo.1188447",
@@ -178,7 +185,7 @@ class ZenodoFetcher:
             "eia861": "10.5281/zenodo.7191809",
             "eia923": "10.5281/zenodo.7236677",
             "eia_bulk_elec": "10.5281/zenodo.7067367",
-            "epacamd_eia": "10.5281/zenodo.7650939",
+            "epacamd_eia": "10.5281/zenodo.7900974",
             "epacems": "10.5281/zenodo.6910058",
             "ferc1": "10.5281/zenodo.7314437",
             "ferc2": "10.5281/zenodo.7130128",
