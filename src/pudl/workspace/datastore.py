@@ -110,8 +110,7 @@ class DatapackageDescriptor:
                 continue
             if self._matches(res, **filters):
                 yield PudlResourceKey(
-                    dataset=self.dataset, doi=self.doi, name=res["name"],
-                    partition=dict(res.get("parts", {})),
+                    dataset=self.dataset, doi=self.doi, name=res["name"]
                 )
 
     def get_partitions(self, name: str = None) -> dict[str, set[str]]:
@@ -131,7 +130,7 @@ class DatapackageDescriptor:
         used as filters and should map to unique resource.
         """
         for res in self.datapackage_json["resources"]:
-            yield res.get("parts", {})
+            yield dict(res.get("parts", {}))
 
     def _validate_datapackage(self, datapackage_json: dict):
         """Checks the correctness of datapackage.json metadata.
@@ -410,7 +409,9 @@ class Datastore:
         """Retrieves unique resource and opens it as a ZipFile."""
         return zipfile.ZipFile(io.BytesIO(self.get_unique_resource(dataset, **filters)))
 
-    def get_zipfile_resources(self, dataset: str, **filters: Any) -> Iterator[tuple[PudlResourceKey, zipfile.ZipFile]]:
+    def get_zipfile_resources(
+        self, dataset: str, **filters: Any
+    ) -> Iterator[tuple[PudlResourceKey, zipfile.ZipFile]]:
         """Iterates over resources that match filters and opens each as ZipFile."""
         for resource_key, content in self.get_resources(dataset, **filters):
             yield resource_key, zipfile.ZipFile(io.BytesIO(content))

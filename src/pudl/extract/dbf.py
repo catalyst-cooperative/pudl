@@ -1,12 +1,12 @@
 """Generalized DBF extractor for FERC data."""
 import csv
 import importlib
+import zipfile
 from collections import defaultdict
 from collections.abc import Iterator
 from functools import lru_cache
 from pathlib import Path
 from typing import IO, Any, Protocol
-import zipfile
 
 import pandas as pd
 import sqlalchemy as sa
@@ -16,7 +16,6 @@ import pudl
 import pudl.logging_helpers
 from pudl.metadata.classes import DataSource
 from pudl.workspace.datastore import Datastore
-from pudl.workspace.resource_cache import PudlResourceKey
 
 logger = pudl.logging_helpers.get_logger(__name__)
 
@@ -71,19 +70,21 @@ class DbfTableSchema:
             table.append_column(sa.Column(col_name, col_type))
         return table
 
+
 class FercDbfArchive:
     """Represents API for accessing files within a single DBF archive."""
+
     def __init__(
-            self,
-            zipfile: zipfile.ZipFile,
-            dbc_path: Path,
-            table_file_map: dict[str, str],
-            partition: dict[str, Any],
-            field_parser: FieldParser,
+        self,
+        zipfile: zipfile.ZipFile,
+        dbc_path: Path,
+        table_file_map: dict[str, str],
+        partition: dict[str, Any],
+        field_parser: FieldParser,
     ):
         """Construct new instance of FercDbfArchive."""
         self.zipfile = zipfile
-        self.partition = dict(partition),
+        self.partition = (dict(partition),)
         self.root_path: Path = dbc_path.parent
         self.dbc_path: Path = dbc_path
         self._table_file_map = table_file_map
@@ -100,12 +101,12 @@ class FercDbfArchive:
 
     def get_db_schema(self) -> dict[str, list[str]]:
         """Returns dict with table names as keys, and list of column names as values."""
-        if not self._table_schemas:           
+        if not self._table_schemas:
             # TODO(janrous): this should be locked to ensure multi-thread safety
             dbf = DBF(
                 "",
                 ignore_missing_memofile=True,
-                filedata=self.zipfile.open(self.dbc_path.as_posix())
+                filedata=self.zipfile.open(self.dbc_path.as_posix()),
             )
             table_names: dict[Any, str] = {}
             table_columns = defaultdict(list)
@@ -119,7 +120,9 @@ class FercDbfArchive:
                     parent_id = row.get("PARENTID")
                     table_columns[parent_id].append(obj_name)
             # Remap table ids to table names.
-            self._table_schemas = {table_names[tid]: cols for tid, cols in table_columns.items()}
+            self._table_schemas = {
+                table_names[tid]: cols for tid, cols in table_columns.items()
+            }
         return self._table_schemas
 
     def get_table_dbf(self, table_name: str) -> DBF:
@@ -250,13 +253,6 @@ Unmapped types left as 'XXX' which should result in an error if encountered.
 """
 
 
-# class FercDbfPartition:
-#     """This is associated with a single partition of ferc dbf."""
-#     def __init__(self, resource_key: PudlResourceKey, archive: zipfile.ZipFile):
-#         self._resource_key = resource_key
-#         self._archive = archive
-
-
 # TODO(rousik): instead of using class-level constants, we could pass the params in the constructor, which should
 # allow us to instantiate these dataset-specific datastores in the extractor code.
 # That may make the manipulations little easier.
@@ -295,7 +291,9 @@ class FercDbfReader:
         elif "DBF" in parts["data_format"]:
             self._data_format = "DBF"
         else:
-            raise RuntimeError(f"dbf/DBF not found in the data_format for the dataset {self.dataset}")
+            raise RuntimeError(
+                f"dbf/DBF not found in the data_format for the dataset {self.dataset}"
+            )
 
         # dbc_file_map.csv contains path to the DBC file that contains the
         # overall database schemas. It is expected that DBF files live in
@@ -322,12 +320,11 @@ class FercDbfReader:
     # TODO(rousik): we could consider @lru_cache here as well
     # We also assume that year is always part of the filters, because we need
     # that for the _dbc_path
-    def get_archive(self, **filters) -> FercDbfArchive:
+    def get_archive(self, year: int, **filters) -> FercDbfArchive:
         """Returns single dbf archive matching given filters."""
-        yr = filters["year"]
         return FercDbfArchive(
-            self.datastore.get_zipfile_resource(self.dataset, **filters),
-            dbc_path=self._dbc_path[yr],
+            self.datastore.get_zipfile_resource(self.dataset, year=year, **filters),
+            dbc_path=self._dbc_path[year],
             partition=filters,
             table_file_map=self._table_file_map,
             field_parser=self.field_parser,
@@ -336,6 +333,22 @@ class FercDbfReader:
     def get_table_names(self) -> list[str]:
         """Returns list of tables that this datastore provides access to."""
         return list(self._table_file_map)
+
+    @staticmethod
+    def _normalize(filters: dict[str, Any]) -> dict[str, str]:
+        """Casts are values to lowercase strings."""
+        return {k: str(v).lower() for k, v in filters.items()}
+
+    def select_partition_filters(
+        self, fl: list[dict[str, Any]]
+    ) -> list[dict[str, Any]]:
+        """Returns list of partition filters that are appropriate.
+
+        This method can be used to filter out unwanted partition filters, e.g. for FERC
+        Form 2 where early years contain data partitioned by respondent that are not in
+        the right format to process by the FercDbfReader.
+        """
+        return fl
 
     def load_table_dfs(self, table_name: str, years: list[int]) -> pd.DataFrame | None:
         """Returns the concatenation of the data for a given table and years.
@@ -350,7 +363,8 @@ class FercDbfReader:
         # from within the same year.
         desc = self.datastore.get_datapackage_descriptor(self.get_dataset())
         matching_filters = [
-            fl for fl in desc.get_partition_filters()
+            self._normalize(fl)
+            for fl in desc.get_partition_filters()
             if fl.get("year", None) in years
         ]
         dfs = []
@@ -457,9 +471,7 @@ class FercDbfExtractor:
             )
         ref_dbf = self.dbf_reader.get_archive(year=refyear)
         for tn in self.dbf_reader.get_table_names():
-            ref_dbf.get_table_schema(tn).create_sa_table(
-                self.sqlite_meta
-            )
+            ref_dbf.get_table_schema(tn).create_sa_table(self.sqlite_meta)
         self.finalize_schema(self.sqlite_meta)
         self.sqlite_meta.create_all(self.sqlite_engine)
 

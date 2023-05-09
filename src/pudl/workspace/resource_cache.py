@@ -42,7 +42,6 @@ class PudlResourceKey(NamedTuple):
     dataset: str
     doi: str
     name: str
-    partition: dict[str, Any] = {}
 
     def __repr__(self) -> str:
         """Returns string representation of PudlResourceKey."""
@@ -52,10 +51,6 @@ class PudlResourceKey(NamedTuple):
         """Returns (relative) path that should be used when caching this resource."""
         doi_dirname = self.doi.replace("/", "-")
         return Path(self.dataset) / doi_dirname / self.name
-
-    def get_partition(self) -> dict[str, Any]:
-        """Returns copy of the partition for this resource."""
-        return dict(self.partition)
 
 
 class AbstractCache(ABC):
