@@ -88,6 +88,7 @@ class FercDbfArchive:
         self.dbc_path: Path = dbc_path
         self._table_file_map = table_file_map
         self.field_parser = field_parser
+        self._table_schemas: dict[str, list[str]] = {}
 
     def get_file(self, filename: str) -> IO[bytes]:
         """Opens the file within this archive."""
@@ -97,27 +98,29 @@ class FercDbfArchive:
         except KeyError:
             raise KeyError(f"{path} not available for {self.partition}.")
 
-    @lru_cache
     def get_db_schema(self) -> dict[str, list[str]]:
         """Returns dict with table names as keys, and list of column names as values."""
-        dbf = DBF(
-            "",
-            ignore_missing_memofile=True,
-            filedata=self.zipfile.open(self.dbc_path.as_posix())
-        )
-        table_names: dict[Any, str] = {}
-        table_columns = defaultdict(list)
-        for row in dbf:
-            obj_id = row.get("OBJECTID")
-            obj_name = row.get("OBJECTNAME")
-            obj_type = row.get("OBJECTTYPE", None)
-            if obj_type == "Table":
-                table_names[obj_id] = obj_name
-            elif obj_type == "Field":
-                parent_id = row.get("PARENTID")
-                table_columns[parent_id].append(obj_name)
-        # Remap table ids to table names.
-        return {table_names[tid]: cols for tid, cols in table_columns.items()}
+        if not self._table_schemas:           
+            # TODO(janrous): this should be locked to ensure multi-thread safety
+            dbf = DBF(
+                "",
+                ignore_missing_memofile=True,
+                filedata=self.zipfile.open(self.dbc_path.as_posix())
+            )
+            table_names: dict[Any, str] = {}
+            table_columns = defaultdict(list)
+            for row in dbf:
+                obj_id = row.get("OBJECTID")
+                obj_name = row.get("OBJECTNAME")
+                obj_type = row.get("OBJECTTYPE", None)
+                if obj_type == "Table":
+                    table_names[obj_id] = obj_name
+                elif obj_type == "Field":
+                    parent_id = row.get("PARENTID")
+                    table_columns[parent_id].append(obj_name)
+            # Remap table ids to table names.
+            self._table_schemas = {table_names[tid]: cols for tid, cols in table_columns.items()}
+        return self._table_schemas
 
     def get_table_dbf(self, table_name: str) -> DBF:
         """Opens the DBF for a given table."""
