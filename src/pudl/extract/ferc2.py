@@ -18,4 +18,4 @@ class Ferc2DbfExtractor(FercDbfExtractor):
 
     def finalize_schema(self, meta: sa.MetaData) -> sa.MetaData:
         """Add primary and foreign keys for respondent_id."""
-        add_key_constraints(pk_table="f2_s0_respondent_id", fk_column="respondent_id")
+        return add_key_constraints(meta, pk_table="f2_s0_respondent_id", column="respondent_id")

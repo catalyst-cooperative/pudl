@@ -241,7 +241,7 @@ class Ferc1DbfExtractor(FercDbfExtractor):
         This marks f1_responent_id.respondent_id as a primary key and adds foreign key
         constraints on all tables with respondent_id column.
         """
-        return add_key_constraints(meta, pk_table="f1_respondent_id", fk_column="respondent_id")
+        return add_key_constraints(meta, pk_table="f1_respondent_id", column="respondent_id")
 
     def postprocess(self):
         """Applies final transformations on the data in sqlite database.

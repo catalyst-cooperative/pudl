@@ -5,7 +5,8 @@ from collections import defaultdict
 from collections.abc import Iterator
 from functools import lru_cache
 from pathlib import Path
-from typing import Any, Protocol
+from typing import IO, Any, Protocol
+import zipfile
 
 import pandas as pd
 import sqlalchemy as sa
@@ -15,6 +16,7 @@ import pudl
 import pudl.logging_helpers
 from pudl.metadata.classes import DataSource
 from pudl.workspace.datastore import Datastore
+from pudl.workspace.resource_cache import PudlResourceKey
 
 logger = pudl.logging_helpers.get_logger(__name__)
 
@@ -69,6 +71,101 @@ class DbfTableSchema:
             table.append_column(sa.Column(col_name, col_type))
         return table
 
+class FercDbfArchive:
+    """Represents API for accessing files within a single DBF archive."""
+    def __init__(
+            self,
+            zipfile: zipfile.ZipFile,
+            dbc_path: Path,
+            table_file_map: dict[str, str],
+            partition: dict[str, Any],
+            field_parser: FieldParser,
+    ):
+        """Construct new instance of FercDbfArchive."""
+        self.zipfile = zipfile
+        self.partition = dict(partition),
+        self.root_path: Path = dbc_path.parent
+        self.dbc_path: Path = dbc_path
+        self._table_file_map = table_file_map
+        self.field_parser = field_parser
+
+    def get_file(self, filename: str) -> IO[bytes]:
+        """Opens the file within this archive."""
+        path = self.root_path / filename
+        try:
+            return self.zipfile.open(path.as_posix())
+        except KeyError:
+            raise KeyError(f"{path} not available for {self.partition}.")
+
+    @lru_cache
+    def get_db_schema(self) -> dict[str, list[str]]:
+        """Returns dict with table names as keys, and list of column names as values."""
+        dbf = DBF(
+            "",
+            ignore_missing_memofile=True,
+            filedata=self.zipfile.open(self.dbc_path.as_posix())
+        )
+        table_names: dict[Any, str] = {}
+        table_columns = defaultdict(list)
+        for row in dbf:
+            obj_id = row.get("OBJECTID")
+            obj_name = row.get("OBJECTNAME")
+            obj_type = row.get("OBJECTTYPE", None)
+            if obj_type == "Table":
+                table_names[obj_id] = obj_name
+            elif obj_type == "Field":
+                parent_id = row.get("PARENTID")
+                table_columns[parent_id].append(obj_name)
+        # Remap table ids to table names.
+        return {table_names[tid]: cols for tid, cols in table_columns.items()}
+
+    def get_table_dbf(self, table_name: str) -> DBF:
+        """Opens the DBF for a given table."""
+        fname = self._table_file_map[table_name]
+        return DBF(
+            fname,
+            encoding="latin1",
+            parserclass=self.field_parser,
+            ignore_missing_memofile=True,
+            filedata=self.get_file(fname),
+        )
+
+    @lru_cache
+    def get_table_schema(self, table_name: str) -> DbfTableSchema:
+        """Returns TableSchema for a given table and a given year."""
+        table_columns = self.get_db_schema()[table_name]
+        dbf = self.get_table_dbf(table_name)
+        dbf_fields = [field for field in dbf.fields if field.name != "_NullFlags"]
+        if len(table_columns) != len(table_columns):
+            return ValueError(
+                f"Number of DBF fields in {table_name} does not match what was "
+                f"found in the DBC index file for {self.partition}."
+            )
+        schema = DbfTableSchema(table_name)
+        for long_name, dbf_col in zip(table_columns, dbf_fields):
+            if long_name[:8] != dbf_col.name.lower()[:8]:
+                raise ValueError(
+                    f"DBF field name mismatch: {dbf_col.name} != {long_name}"
+                )
+            col_type = DBF_TYPES[dbf_col.type]
+            if col_type == sa.String:
+                col_type = sa.String(length=dbf_col.length)
+            schema.add_column(long_name, col_type, short_name=dbf_col.name)
+        return schema
+
+    def load_table(self, table_name: str) -> pd.DataFrame:
+        """Returns dataframe that holds data for a table contained within this archive.
+
+        Args:
+            table_name: name of the table.
+        """
+        sch = self.get_table_schema(table_name)
+        df = pd.DataFrame(iter(self.get_table_dbf(table_name)))
+        df = df.drop("_NullFlags", axis=1, errors="ignore").rename(
+            sch.get_column_rename_map(), axis=1
+        )
+        return df
+
 
 class AbstractFercDbfReader(Protocol):
     """This is the interface definition for dealing with fox-pro datastores."""
@@ -79,6 +176,10 @@ class AbstractFercDbfReader(Protocol):
 
     def get_table_names(self) -> list[str]:
         """Returns list of all available table names."""
+        ...
+
+    def get_archive(self, **filters) -> FercDbfArchive:
+        """Returns single archive matching specific filters."""
         ...
 
     def get_table_schema(self, table_name: str, year: int) -> DbfTableSchema:
@@ -215,106 +316,23 @@ class FercDbfReader:
         pkg_path = f"pudl.package_data.{self.dataset}"
         return csv.DictReader(importlib.resources.open_text(pkg_path, base_filename))
 
-    def _get_dir(self, year: int) -> Path:
-        """Returns the directory where the files for given year are stored."""
-        try:
-            return self._dbc_path[year].parent
-        except KeyError:
-            raise ValueError(f"No {self.dataset} data for year {year}")
-
-    def _get_file(self, year: int, filename: str) -> Any:
-        """Returns the file descriptor for a given year and base filename."""
-        return self._get_file_by_path(year, self._get_dir(year) / filename)
-
-    def _get_file_by_path(self, year: int, path: Path) -> Any:
-        """Returns the file descriptor for a file identified by its full path."""
-        if year not in self._cache:
-            self._cache[year] = self.datastore.get_zipfile_resource(
-                self.dataset, year=year, data_format=self._data_format
-            )
-        archive = self._cache[year]
-        try:
-            return archive.open(path.as_posix())
-        except KeyError:
-            raise KeyError(f"{path} not available for year {year} in {self.dataset}.")
-
-    def get_table_dbf(self, table_name: str, year: int) -> DBF:
-        """Opens the DBF for a given table and year."""
-        fname = self._table_file_map[table_name]
-        fd = self._get_file(year, fname)
-        return DBF(
-            fname,
-            encoding="latin1",
-            parserclass=self.field_parser,
-            ignore_missing_memofile=True,
-            filedata=fd,
+    # TODO(rousik): we could consider @lru_cache here as well
+    # We also assume that year is always part of the filters, because we need
+    # that for the _dbc_path
+    def get_archive(self, **filters) -> FercDbfArchive:
+        """Returns single dbf archive matching given filters."""
+        yr = filters["year"]
+        return FercDbfArchive(
+            self.datastore.get_zipfile_resource(self.dataset, **filters),
+            dbc_path=self._dbc_path[yr],
+            partition=filters,
+            table_file_map=self._table_file_map,
+            field_parser=self.field_parser,
         )
 
     def get_table_names(self) -> list[str]:
         """Returns list of tables that this datastore provides access to."""
         return list(self._table_file_map)
-
-    @lru_cache
-    def get_db_schema(self, year: int) -> dict[str, list[str]]:
-        """Returns dict with table names as keys, and list of column names as values."""
-        dbf = DBF(
-            "",
-            ignore_missing_memofile=True,
-            filedata=self._get_file_by_path(year, self._dbc_path[year]),
-        )
-        table_names: dict[Any, str] = {}
-        table_columns = defaultdict(list)
-        for row in dbf:
-            obj_id = row.get("OBJECTID")
-            obj_name = row.get("OBJECTNAME")
-            obj_type = row.get("OBJECTTYPE", None)
-            if obj_type == "Table":
-                table_names[obj_id] = obj_name
-            elif obj_type == "Field":
-                parent_id = row.get("PARENTID")
-                table_columns[parent_id].append(obj_name)
-        # Remap table ids to table names.
-        return {table_names[tid]: cols for tid, cols in table_columns.items()}
-
-    # TODO(rousik): table column map should be remapping short names (in dbf) to long names found in db schema (DBC).
-    # This is kind of annoying transformation but we can't do without it.
-
-    @lru_cache
-    def get_table_schema(self, table_name: str, year: int) -> DbfTableSchema:
-        """Returns TableSchema for a given table and a given year."""
-        table_columns = self.get_db_schema(year)[table_name]
-        dbf = self.get_table_dbf(table_name, year)
-        dbf_fields = [field for field in dbf.fields if field.name != "_NullFlags"]
-        if len(table_columns) != len(table_columns):
-            return ValueError(
-                f"Number of DBF fields in {table_name} does not match what was "
-                f"found in the DBC index file for {year}."
-            )
-        schema = DbfTableSchema(table_name)
-        for long_name, dbf_col in zip(table_columns, dbf_fields):
-            if long_name[:8] != dbf_col.name.lower()[:8]:
-                raise ValueError(
-                    f"DBF field name mismatch: {dbf_col.name} != {long_name}"
-                )
-            col_type = DBF_TYPES[dbf_col.type]
-            if col_type == sa.String:
-                col_type = sa.String(length=dbf_col.length)
-            schema.add_column(long_name, col_type, short_name=dbf_col.name)
-        return schema
-
-    def _load_single_year(self, table_name: str, year: int) -> pd.DataFrame:
-        """Returns dataframe that holds data for a single year for a given table.
-
-        Args:
-            table_name: name of the table.
-            year: year for which the data should be loaded.
-        """
-        sch = self.get_table_schema(table_name, year)
-        df = pd.DataFrame(iter(self.get_table_dbf(table_name, year)))
-        df = df.drop("_NullFlags", axis=1, errors="ignore").rename(
-            sch.get_column_rename_map(), axis=1
-        )
-        return df
 
     def load_table_dfs(self, table_name: str, years: list[int]) -> pd.DataFrame | None:
         """Returns the concatenation of the data for a given table and years.
@@ -323,14 +341,24 @@ class FercDbfReader:
             table_name: name of the table to load.
             years: list of years to load and concatenate.
         """
-        yearly_dfs = []
-        for yr in years:
+        # Retrieve all archives that match given years
+        # Then try to simply merge
+        # There may be need for some first-pass aggregation of tables
+        # from within the same year.
+        desc = self.datastore.get_datapackage_descriptor(self.get_dataset())
+        matching_filters = [
+            fl for fl in desc.get_partition_filters()
+            if fl.get("year", None) in years
+        ]
+        dfs = []
+        for fl in matching_filters:
             try:
-                yearly_dfs.append(self._load_single_year(table_name, yr))
+                dfs.append(self.get_archive(**fl).load_table(table_name))
             except KeyError:
                 continue
-        if yearly_dfs:
-            return pd.concat(yearly_dfs, sort=True)
+        if dfs:
+            logger.info(f"Retrieved {len(dfs)} frames for {table_name}")
+            return pd.concat(dfs, sort=True)
         return None
 
 
@@ -424,8 +452,9 @@ class FercDbfExtractor:
                     "years"
                 ]
             )
+        ref_dbf = self.dbf_reader.get_archive(year=refyear)
         for tn in self.dbf_reader.get_table_names():
-            self.dbf_reader.get_table_schema(tn, refyear).create_sa_table(
+            ref_dbf.get_table_schema(tn).create_sa_table(
                 self.sqlite_meta
             )
         self.finalize_schema(self.sqlite_meta)
