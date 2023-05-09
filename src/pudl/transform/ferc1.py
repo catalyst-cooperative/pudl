@@ -3949,9 +3949,9 @@ class ExplodeMeta:
             return [
                 {
                     "calc_component_to_replace": double_counted_comp,
-                    "calc_component_new": None,
+                    "calc_component_new": {},
                 }
-                for double_counted_comp in table_meta[double_counted_factiod]
+                for double_counted_comp in table_meta[double_counted_factiod]["calcs"]
             ]
 
         calced_fields_to_fix: dict[
@@ -4067,25 +4067,31 @@ class ExplodeMeta:
                 logger.info(f"fixing calc for {table_name}'s {xbrl_factiod}")
                 for calc_component_fix in calc_component_fixes:
                     if calc_component_fix["calc_component_to_replace"]:
-                        meta_converted[table_name][xbrl_factiod] = [
-                            calc_component_fix["calc_component_new"]
-                            if calc_component
-                            == calc_component_fix["calc_component_to_replace"]
-                            else calc_component
-                            for calc_component in meta_converted[table_name][
-                                xbrl_factiod
+                        meta_converted[table_name][xbrl_factiod][
+                            "calcs"
+                        ] = remove_nones_in_list(
+                            [
+                                calc_component_fix["calc_component_new"]
+                                if calc_component
+                                == calc_component_fix["calc_component_to_replace"]
+                                else calc_component
+                                for calc_component in meta_converted[table_name][
+                                    xbrl_factiod
+                                ]["calcs"]
                             ]
-                        ]
+                        )
                     else:
-                        meta_converted[table_name][xbrl_factiod] = meta_converted[
-                            table_name
-                        ][xbrl_factiod] + [calc_component_fix["calc_component_new"]]
-            meta_converted[table_name] = {
-                xbrl_factoid: remove_nones_in_list(calc_components)
-                for (xbrl_factoid, calc_components) in meta_converted[
-                    table_name
-                ].items()
-            }
+                        meta_converted[table_name][xbrl_factiod][
+                            "calcs"
+                        ] = meta_converted[table_name][xbrl_factiod]["calcs"] + [
+                            calc_component_fix["calc_component_new"]
+                        ]
+                # meta_converted[table_name][xbrl_factoid] = {
+                #     xbrl_factoid: remove_nones_in_list(calc_components)
+                #     for (xbrl_factoid, calc_components) in meta_converted[
+                #         table_name
+                #     ].items()
+                # }
         return meta_converted
 
 
@@ -4126,18 +4132,28 @@ class TableCalcs:
             for calced_value in calced_values
         }
         calcs_renamed = {
-            self.rename_column_xbrl_to_pudl(calced_value): [
-                {
-                    key: self.rename_column_xbrl_to_pudl(value)
-                    if key == "name"
-                    else value
-                    for (key, value) in calc.items()
-                }
-                for calc in calcs
-            ]
+            self.rename_column_xbrl_to_pudl(calced_value): {
+                "calcs": [
+                    {
+                        key: self.rename_column_xbrl_to_pudl(value)
+                        if key == "name"
+                        else value
+                        for (key, value) in calc.items()
+                    }
+                    for calc in calcs
+                ],
+                "name_original": calced_value,
+            }
             for (calced_value, calcs) in calcs.items()
         }
-        return calcs_renamed
+        names_non_calcs = [
+            name for name in xbrl_meta_tbl.xbrl_factoid if name not in calced_values
+        ]
+        non_calcs = {
+            self.rename_column_xbrl_to_pudl(name): {"name_original": name}
+            for name in names_non_calcs
+        }
+        return calcs_renamed | non_calcs
 
     def rename_column_xbrl_to_pudl(
         self,
@@ -4209,35 +4225,39 @@ def ensure_names_in_renamed_xbrl_calcs_are_present(
     xbrl_types_in_calcs = set(
         [
             calc_part["name"]
-            for calc_parts in meta_converted[table_name].values()
-            for calc_part in calc_parts
+            for feild_info in meta_converted[table_name].values()
+            if feild_info.get("calcs")
+            for calc_part in feild_info["calcs"]
         ]
         + list(meta_converted[table_name].keys())
     )
+    # logger.info(f"{xbrl_types_in_calcs=}")
     missing_from_tbl = {
         xbrl_type
         for xbrl_type in xbrl_types_in_calcs
         if xbrl_type not in df[xbrl_factoid_name].unique()
     }
+    # logger.info(missing_from_tbl)
     # build a lil dictionary of missing col name to source_table name
     missing_col_to_table = {
-        col["name"]: table_name
-        for (table_name, inst_dur_dict) in meta_converted.items()
-        for subtabl in inst_dur_dict.values()
-        for col in subtabl
-        if col["name"] in missing_from_tbl
+        calc_comp["name"]: table_name
+        for (table_name, fields) in meta_converted.items()
+        for field_info in fields.values()
+        for calc_comp in field_info.get("calcs", [])
+        if calc_comp["name"] in missing_from_tbl
     }
     # add an element to the calculations components to indicate when a records if from
     # another table
     # This could be cleaned up.. I didn't know how to do this in a dict comp way that
     # edited a deep subcomponent of the dict.
     # Also: this should probabyl be done in rename_calcuations_xbrl_meta
-    for calc_components in meta_converted[table_name].values():
-        for calc_component in calc_components:
-            if calc_component["name"] in missing_col_to_table.keys():
-                calc_component["source_table"] = missing_col_to_table[
-                    calc_component["name"]
-                ]
+    for field_info in meta_converted[table_name].values():
+        if field_info.get("calcs", False):
+            for calc_component in field_info.get("calcs"):
+                if calc_component["name"] in missing_col_to_table.keys():
+                    calc_component["source_table"] = missing_col_to_table[
+                        calc_component["name"]
+                    ]
     missing_columns = [
         col for col in missing_from_tbl if col not in missing_col_to_table.keys()
     ]
@@ -4252,6 +4272,7 @@ def ensure_names_in_renamed_xbrl_calcs_are_present(
             f"{table_name}: All renamed types were not found "
             f"in the transformed table. Missing types: {missing_columns}"
         )
+    return meta_converted
 
 
 def check_table_calcs(
@@ -4268,23 +4289,25 @@ def check_table_calcs(
         .schema.primary_key
     )
     pks_wo_factoid = [col for col in pks if col != xbrl_factoid_name]
-    ensure_names_in_renamed_xbrl_calcs_are_present(
+    meta_converted = ensure_names_in_renamed_xbrl_calcs_are_present(
         df=table_df,
         meta_converted=meta_converted,
         xbrl_factoid_name=xbrl_factoid_name,
         table_name=table_name,
     )
     inter_table_calculated_values = {
-        cv: calc_components
-        for (cv, calc_components) in meta_converted[table_name].items()
-        for calc_component in calc_components
-        if calc_component.get("source_table", False)
+        field: calc_components
+        for field, field_info in meta_converted[table_name].items()
+        if field_info.get("calcs", False)
+        for calc_components in field_info["calcs"]
+        if calc_components.get("source_table", False)
     }
     intra_table_calculated_values = {
-        cv: calc_components
-        for (cv, calc_components) in meta_converted[table_name].items()
-        for calc_component in calc_components
-        if not calc_component.get("source_table", False)
+        field: calc_components
+        for field, field_info in meta_converted[table_name].items()
+        if field_info.get("calcs", False)
+        for calc_components in field_info["calcs"]
+        if not calc_components.get("source_table", False)
     }
     if inter_table_calculated_values:
         logger.info(
@@ -4296,7 +4319,7 @@ def check_table_calcs(
         df = (
             pd.merge(
                 table_df,
-                pd.DataFrame(meta_converted[table_name][cv]),
+                pd.DataFrame(meta_converted[table_name][cv]["calcs"]),
                 left_on=xbrl_factoid_name,
                 right_on="name",
             )
