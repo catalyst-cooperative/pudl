@@ -192,7 +192,9 @@ class AbstractFercDbfReader(Protocol):
         """Returns schema for a given table and a given year."""
         ...
 
-    def load_table_dfs(self, table_name: str, years: list[int]) -> pd.DataFrame | None:
+    def load_table_dfs(
+        self, table_name: str, partitions: list[dict[str, Any]]
+    ) -> pd.DataFrame | None:
         """Returns dataframe that contains data for a given table across given years."""
         ...
 
@@ -317,13 +319,12 @@ class FercDbfReader:
         pkg_path = f"pudl.package_data.{self.dataset}"
         return csv.DictReader(importlib.resources.open_text(pkg_path, base_filename))
 
-    # TODO(rousik): we could consider @lru_cache here as well
-    # We also assume that year is always part of the filters, because we need
-    # that for the _dbc_path
+    @lru_cache
     def get_archive(self, year: int, **filters) -> FercDbfArchive:
         """Returns single dbf archive matching given filters."""
+        nfilters = self._normalize(filters)
         return FercDbfArchive(
-            self.datastore.get_zipfile_resource(self.dataset, year=year, **filters),
+            self.datastore.get_zipfile_resource(self.dataset, year=year, **nfilters),
             dbc_path=self._dbc_path[year],
             partition=filters,
             table_file_map=self._table_file_map,
@@ -339,42 +340,39 @@ class FercDbfReader:
         """Casts are values to lowercase strings."""
         return {k: str(v).lower() for k, v in filters.items()}
 
-    def select_partition_filters(
-        self, fl: list[dict[str, Any]]
-    ) -> list[dict[str, Any]]:
-        """Returns list of partition filters that are appropriate.
+    def valid_partition_filter(self, fl: dict[str, Any]) -> bool:
+        """Returns True if a given filter fl is considered to be valid.
 
-        This method can be used to filter out unwanted partition filters, e.g. for FERC
-        Form 2 where early years contain data partitioned by respondent that are not in
-        the right format to process by the FercDbfReader.
+        This can be used to eliminate partitions that are not suitable for processing,
+        e.g. for early years of FERC Form 2, databases marked with part=1 or part=2 are
+        not suitable.
         """
-        return fl
+        logger.info(f"running base class valid_partition_filter on {fl}")
+        return True
 
-    def load_table_dfs(self, table_name: str, years: list[int]) -> pd.DataFrame | None:
+    def load_table_dfs(
+        self, table_name: str, partitions: list[dict[str, Any]]
+    ) -> pd.DataFrame | None:
         """Returns the concatenation of the data for a given table and years.
 
-        Args:
-            table_name: name of the table to load.
-            years: list of years to load and concatenate.
+        p
+                Args:
+                    table_name: name of the table to load.
+                    partitions: list of partition filters to use
         """
         # Retrieve all archives that match given years
         # Then try to simply merge
         # There may be need for some first-pass aggregation of tables
         # from within the same year.
-        desc = self.datastore.get_datapackage_descriptor(self.get_dataset())
-        matching_filters = [
-            self._normalize(fl)
-            for fl in desc.get_partition_filters()
-            if fl.get("year", None) in years
-        ]
         dfs = []
-        for fl in matching_filters:
+        for p in partitions:
+            archive = self.get_archive(**p)
             try:
-                dfs.append(self.get_archive(**fl).load_table(table_name))
+                dfs.append(archive.load_table(table_name))
             except KeyError:
+                logger.debug(f"Table {table_name} missing for partition {p}")
                 continue
         if dfs:
-            logger.info(f"Retrieved {len(dfs)} frames for {table_name}")
             return pd.concat(dfs, sort=True)
         return None
 
@@ -406,6 +404,7 @@ class FercDbfExtractor:
     """
 
     DATABASE_NAME = None
+    DATASET = None
 
     def __init__(
         self,
@@ -425,6 +424,7 @@ class FercDbfExtractor:
         self.settings = settings
         self.clobber = clobber
         self.output_path = output_path
+        self.datastore = datastore
         self.dbf_reader = self.get_dbf_reader(datastore)
         self.sqlite_engine = sa.create_engine(self.get_db_path())
         self.sqlite_meta = sa.MetaData()
@@ -432,7 +432,7 @@ class FercDbfExtractor:
 
     def get_dbf_reader(self, datastore: Datastore) -> AbstractFercDbfReader:
         """Returns appropriate instance of AbstractFercDbfReader to access the data."""
-        raise NotImplementedError("get_dbf_reader() method needs to be implemented.")
+        return FercDbfReader(datastore, dataset=self.DATASET)
 
     def get_db_path(self) -> str:
         """Returns the connection string for the sqlite database."""
@@ -487,11 +487,29 @@ class FercDbfExtractor:
         """
         return in_df
 
+    @staticmethod
+    def is_valid_partition(fl: dict[str, Any]) -> bool:
+        """Returns True if the partition filter should be considered for processing."""
+        return True
+
     def load_table_data(self):
         """Loads all tables from fox pro database and writes them to sqlite."""
+        partitions = [
+            p
+            for p in self.datastore.get_datapackage_descriptor(
+                self.DATASET
+            ).get_partition_filters()
+            if self.is_valid_partition(p) and p.get("year", None) in self.settings.years
+        ]
+        logger.info(
+            f"Loading {self.DATASET} table data from {len(partitions)} partitions."
+        )
         for table in self.dbf_reader.get_table_names():
             logger.info(f"Pandas: reading {table} into a DataFrame.")
-            new_df = self.dbf_reader.load_table_dfs(table, self.settings.years)
+            new_df = self.dbf_reader.load_table_dfs(table, partitions)
+            if new_df is None:
+                logger.warning(f"Table {table} contains no data, skipping.")
+                continue
             new_df = self.transform_table(table, new_df)
 
             logger.debug(f"    {table}: N = {len(new_df)}")

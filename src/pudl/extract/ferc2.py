@@ -14,19 +14,18 @@ from typing import Any
 
 import sqlalchemy as sa
 
-from pudl.extract.dbf import AbstractFercDbfReader, FercDbfExtractor, FercDbfReader
+import pudl
+from pudl.extract.dbf import FercDbfExtractor
 from pudl.extract.ferc import add_key_constraints
-from pudl.workspace.datastore import Datastore
+
+logger = pudl.logging_helpers.get_logger(__name__)
 
 
 class Ferc2DbfExtractor(FercDbfExtractor):
     """Wrapper for running the foxpro to sqlite conversion of FERC1 dataset."""
 
+    DATASET = "ferc2"
     DATABASE_NAME = "ferc2.sqlite"
-
-    def get_dbf_reader(self, base_datastore: Datastore) -> AbstractFercDbfReader:
-        """Returns FERC Form 2 compatible dbf reader instance."""
-        return FercDbfReader(base_datastore, dataset="ferc2")
 
     def finalize_schema(self, meta: sa.MetaData) -> sa.MetaData:
         """Add primary and foreign keys for respondent_id."""
@@ -34,12 +33,10 @@ class Ferc2DbfExtractor(FercDbfExtractor):
             meta, pk_table="f2_s0_respondent_id", column="respondent_id"
         )
 
-    def select_partition_filters(
-        self, fls: list[dict[str, Any]]
-    ) -> list[dict[str, Any]]:
-        """Returns only those filters where part=None.
+    @staticmethod
+    def is_valid_partition(fl: dict[str, Any]):
+        """Returns False if part key has value other than None.
 
-        Early years with part=1 or part=2 contain strange data that can't be processed
-        by the FercDbfReader.
+        This eliminates partitions with part=1 or part=2.
         """
-        return [f for f in fls if f.get("part", None) is None]
+        return fl.get("part", None) is None
