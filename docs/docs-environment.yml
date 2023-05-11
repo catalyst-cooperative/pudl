@@ -3,7 +3,7 @@ name: pudl-docs
 channels:
   - conda-forge
 dependencies:
-  - geopandas>=0.9,<0.13
+  - geopandas>=0.13,<0.14
   - pip>=22,<24
   - python>=3.11,<3.12
   - python-snappy>=0.6,<1

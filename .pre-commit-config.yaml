@@ -45,7 +45,7 @@ repos:
 
   # Format docstrings
   - repo: https://github.com/PyCQA/docformatter
-    rev: v1.6.4
+    rev: v1.6.5
     hooks:
       - id: docformatter
         args: ["--in-place", "--config", "tox.ini"]
@@ -70,7 +70,7 @@ repos:
 
   # Update Python language constructs to modern standards
   - repo: https://github.com/asottile/pyupgrade
-    rev: v3.3.2
+    rev: v3.4.0
     hooks:
       - id: pyupgrade
         args: ["--py311-plus"]
