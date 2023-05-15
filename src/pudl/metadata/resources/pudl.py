@@ -112,11 +112,12 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
                 "county",
                 "state_id_fips",
             ],
-            # "primary_key": [ # TO DO: This is not unique! Seems not ideal.
-            #     "balancing_authority_id_eia",
-            #     "report_date",
-            #     "county_id_fips",
-            # ],
+            "primary_key": [
+                "balancing_authority_id_eia",
+                "report_date",
+                "county_id_fips",
+                "county",
+            ],
         },
         "sources": ["eia861", "censusdp1"],
         "field_namespace": "pudl",

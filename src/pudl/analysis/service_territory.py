@@ -383,7 +383,7 @@ def compiled_geoms_asset_factory(
             level US Census DP1 data and county geometries.
 
         Returns:
-            geopandas.GeoDataFrame
+            geopandas.GeoDataFrame or pd.Dataframe
         """
         # Get options from dagster
         dissolve = context.op_config["dissolve"]
