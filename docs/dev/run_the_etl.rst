@@ -1,4 +1,4 @@
-.. _run-the-etl:
+.. _run_the_etl:
 
 ===============================================================================
 Running the ETL Pipeline
@@ -10,6 +10,49 @@ or contribute to the code base. Check out the :doc:`/data_access` documentation 
 just want to use already processed data.
 
 These instructions assume you have already gone through the :ref:`dev_setup`.
+
+Database initialization
+-----------------------
+
+Before we run anything, we'll need to make sure that the schema in the database
+actually matches the schema in the code - run ``alembic upgrade head`` to create
+the database with the right schema. If you already have a ``pudl.sqlite`` you'll
+need to delete it first.
+
+Database schema migration
+-------------------------
+
+If you've changed the database schema, you'll need to make a migration for that
+change and apply that migration to the database to keep the database schema up-
+to-date:
+
+
+.. code-block:: bash
+
+    $ alembic revision --autogenerate -m "Add my cool table"
+    $ alembic upgrade head
+    $ git add migrations
+    $ git commit -m "Migration: added my cool table"
+
+When switching branches, Alembic may refer to a migration version that is not
+on your current branch. This will manifest as an error like this when running an
+Alembic command::
+
+    FAILED: Can't locate revision identified by '29d443aadf25'
+
+If you encounter that, you will want to check out the git branch that *does*
+include that migration in the ``migrations`` directory. Then you should run
+``alembic downgrade head-1`` to revert the database to the prior version. Then
+you can go back to the branch that doesn't have your migration, and use Alembic
+in peace.
+
+If the migrations have diverged for more than one revision, you can specify the
+specific version you would like to downgrade to with its hash. You may also
+want to keep a copy of the old SQLite database around, so you can easily switch
+between branches without having to regenerate data.
+
+More information can be found in the `Alembic docs
+<https://alembic.sqlalchemy.org/en/latest/tutorial.html>`__.
 
 Dagster
 -------
@@ -160,7 +203,10 @@ a window that looks like this:
 Click the hamburger button in the upper left to view the definitions,
 assets and jobs.
 
-**Cloning the FERC databases**
+^^^^^^^^^^^^^^^^^^^^^^^^^^
+Cloning the FERC databases
+^^^^^^^^^^^^^^^^^^^^^^^^^^
+
 To run the data pipelines, you'll first need to create the raw FERC databases by
 clicking on one of the ``pudl.ferc_to_sqlite`` jobs. Then select "Launchpad"
 where you can adjust the years to extract for each dataset. Then click
@@ -181,7 +227,38 @@ add them in the Launchpad tab of the job like so::
       config:
         clobber: true
 
-**Running the PUDL ETL**
+You can also adjust the years to process for each dataset using the Launchpad
+tab::
+
+  resources:
+    ferc_to_sqlite_settings:
+      config:
+        ferc1_dbf_to_sqlite_settings:
+          years:
+          - 2020
+          - 2019
+          - 2018
+        ferc1_xbrl_to_sqlite_settings:
+          years:
+          - 2021
+        ferc2_xbrl_to_sqlite_settings:
+          years:
+          - 2021
+        ferc60_xbrl_to_sqlite_settings:
+          years:
+          - 2021
+        ferc6_xbrl_to_sqlite_settings:
+          years:
+          - 2021
+        ferc714_xbrl_to_sqlite_settings:
+          years:
+          - 2021
+
+
+^^^^^^^^^^^^^^^^^^^^
+Running the PUDL ETL
+^^^^^^^^^^^^^^^^^^^^
+
 Once the raw FERC databases are created by a ``pudl.ferc_to_sqlite`` job,
 you can execute the main PUDL ETL.
 
@@ -201,6 +278,7 @@ executing subsets of the asset graph.
 
 To execute the job, select ``fast_etl`` or ``full_etl`` and click "Materialize all".
 You can congifure which years to process by shift+clicking "Materialize all".
+Read the :ref:`resource_config` section to learn more.
 To view the status of the run, click the date next to "Latest run:".
 
 .. image:: ../images/dagit_pudl_etl.png
@@ -214,9 +292,23 @@ want to rerun the entire ETL.
 
 .. note::
 
+  Dagster does not allow you to select asset groups for a specific job.
+  For example, if you click on the ``raw_eia860`` asset group in Dagit,
+  click "Materialize All", the default configuration values will be used
+  so all available years of the data will be extracted.
+
+  To process a subset of years for a specific asset group, select the
+  asset group, shift+click "Materialize all" and configure the
+  ``dataset_settings`` resource with the desired years.
+
+.. note::
+
   Dagster will throw an ``DagsterInvalidSubsetError`` if you try to
   re-execute a subset of assets produced by a single function. This can
   be resolved by re-materializing the asset group of the desired asset.
+
+Read the :ref:`dev_dagster` documentation page to learn more about working
+with dagster.
 
 .. _run-cli:
 
@@ -279,13 +371,6 @@ needs. The layout of these files is depicted below:
         │    └── dataset etl parameter (e.g. years) : editable list of years
         └── dataset name
         │    └── dataset etl parameter (e.g. years) : editable list of years
-
-.. note::
-
-    Do not change anything other than the dataset parameters and the name, title, and
-    description fields unless you want to remove an entire dataset. For example, CEMS
-    data takes a long time to load so you can comment out or delete all settings
-    pertaining to CEMS. See below for a way to add it later.
 
 Both scripts enable you to choose which **years** you want to include:
 

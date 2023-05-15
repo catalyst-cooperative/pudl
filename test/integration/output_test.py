@@ -26,18 +26,6 @@ def fast_out(pudl_engine):
     )
 
 
-@pytest.fixture(scope="module")
-def fast_out_annual(pudl_engine):
-    """A PUDL output object for use in CI."""
-    return pudl.output.pudltabl.PudlTabl(
-        pudl_engine,
-        freq="AS",
-        fill_fuel_cost=True,
-        roll_fuel_cost=True,
-        fill_net_gen=True,
-    )
-
-
 def nuke_gen_fraction(df):
     """Calculate the nuclear fraction of net generation."""
     total_gen = df.net_generation_mwh.sum()
@@ -49,8 +37,6 @@ def nuke_gen_fraction(df):
     "df_name,expected_nuke_fraction,tolerance",
     [
         ("gf_eia923", 0.2, 0.02),
-        ("gf_nonuclear_eia923", 0.0, 0.0),
-        ("gf_nuclear_eia923", 1.0, 0.001),
     ],
 )
 def test_nuclear_fraction(fast_out, df_name, expected_nuke_fraction, tolerance):
@@ -97,8 +83,6 @@ def test_ferc1_outputs(fast_out, df_name):
         ("gens_eia860", "gen_eia923", 12 / 1, {}),
         ("gens_eia860", "gen_fuel_by_generator_eia923", 12 / 1, {}),
         ("gens_eia860", "gf_eia923", 12 / 1, {}),
-        ("gens_eia860", "gf_nonuclear_eia923", 12 / 1, {}),
-        ("gens_eia860", "gf_nuclear_eia923", 12 / 1, {}),
         ("gens_eia860", "hr_by_unit", 12 / 1, {}),
         ("gens_eia860", "hr_by_gen", 12 / 1, {}),
         ("gens_eia860", "fuel_cost", 12 / 1, {}),
@@ -236,8 +220,6 @@ def fast_out_filled(pudl_engine):
 @pytest.mark.parametrize(
     "df_name,expected_nuke_fraction,tolerance",
     [
-        ("gf_nuclear_eia923", 1.0, 0.001),
-        ("gf_nonuclear_eia923", 0.0, 0.0),
         ("gf_eia923", 0.2, 0.02),
         ("mcoe", 0.2, 0.02),
     ],

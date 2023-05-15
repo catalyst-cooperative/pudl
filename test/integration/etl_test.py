@@ -5,15 +5,13 @@ connections can be either to the live databases for post-ETL testing or to new t
 databases, which are created from scratch and dropped after the tests have completed.
 """
 import logging
-from pathlib import Path
 
 import pandas as pd
 import sqlalchemy as sa
-import yaml
 from dagster import build_init_resource_context
 
 import pudl
-from pudl.extract.ferc1 import DBF_TABLES_FILENAMES, get_dbc_map, get_fields
+from pudl.extract.dbf import FercDbfReader
 
 logger = logging.getLogger(__name__)
 
@@ -79,7 +77,7 @@ def test_ferc1_dbf2sqlite(ferc1_engine_dbf):
     )
 
 
-def test_ferc1_schema(ferc_to_sqlite_settings, ferc1_dbf_datastore_fixture):
+def test_ferc1_schema(ferc_to_sqlite_settings, pudl_datastore_fixture):
     """Check to make sure we aren't missing any old FERC Form 1 tables or fields.
 
     Exhaustively enumerate all historical sets of FERC Form 1 database tables and their
@@ -90,87 +88,34 @@ def test_ferc1_schema(ferc_to_sqlite_settings, ferc1_dbf_datastore_fixture):
     """
     ferc1_dbf_settings = ferc_to_sqlite_settings.ferc1_dbf_to_sqlite_settings
     refyear = ferc1_dbf_settings.refyear
-    ds = ferc1_dbf_datastore_fixture
-    current_dbc_map = pudl.extract.ferc1.get_dbc_map(ds, year=refyear)
-    current_tables = list(current_dbc_map.keys())
+    dbf_reader = FercDbfReader(pudl_datastore_fixture, dataset="ferc1")
+
     logger.info(f"Checking for new, unrecognized FERC1 tables in {refyear}.")
-    for table in current_tables:
-        # First make sure there are new tables in refyear:
-        if table not in DBF_TABLES_FILENAMES:
+    table_schemas = dbf_reader.get_db_schema(refyear)
+    for table in table_schemas:
+        if table not in dbf_reader.get_table_names():
             raise AssertionError(
                 f"New FERC Form 1 table '{table}' in {refyear} "
                 f"does not exist in 2015 list of tables"
             )
-    # Get all historical table collections...
-    dbc_maps = {}
     for yr in ferc1_dbf_settings.years:
         logger.info(f"Searching for lost FERC1 tables and fields in {yr}.")
-        dbc_maps[yr] = pudl.extract.ferc1.get_dbc_map(ds, year=yr)
-        old_tables = list(dbc_maps[yr].keys())
-        for table in old_tables:
-            # Check to make sure there aren't any lost archaic tables:
-            if table not in current_tables:
+        for table in dbf_reader.get_db_schema(yr):
+            if table not in dbf_reader.get_table_names():
                 raise AssertionError(
                     f"Long lost FERC1 table: '{table}' found in year {yr}. "
                     f"Refyear: {refyear}"
                 )
-            # Check to make sure there aren't any lost archaic fields:
-            for field in dbc_maps[yr][table].values():
-                if field not in current_dbc_map[table].values():
-                    raise AssertionError(
-                        f"Long lost FERC1 field '{field}' found in table "
-                        f"'{table}' from year {yr}. "
-                        f"Refyear: {refyear}"
-                    )
-
-
-class TestFerc1DbfDatastore:
-    """Validate the Ferc1 Datastore and integration functions."""
-
-    def test_ferc1_folder(self, ferc1_dbf_datastore_fixture):
-        """Spot check we get correct folder names per dataset year."""
-        ds = ferc1_dbf_datastore_fixture
-        assert ds.get_dir(1994) == Path("FORMSADMIN/FORM1/working")  # nosec: B101
-        assert ds.get_dir(2001) == Path("UPLOADERS/FORM1/working")  # nosec: B101
-        assert ds.get_dir(2002) == Path("FORMSADMIN/FORM1/working")  # nosec: B101
-        assert ds.get_dir(2010) == Path("UPLOADERS/FORM1/working")  # nosec: B101
-        assert ds.get_dir(2015) == Path("UPLOADERS/FORM1/working")  # nosec: B101
-
-    def test_get_fields(self, ferc1_dbf_datastore_fixture, test_dir):
-        """Check that the get fields table works as expected."""
-        ds = ferc1_dbf_datastore_fixture
-
-        expect_path = test_dir / "data/ferc1/f1_2018/get_fields.json"
-
-        with expect_path.open() as f:
-            expect = yaml.safe_load(f)
-
-        data = ds.get_file(2018, "F1_PUB.DBC")
-        result = get_fields(data)
-        assert result == expect  # nosec: B101
-
-    def test_sample_get_dbc_map(self, ferc1_dbf_datastore_fixture):
-        """Test sample_get_dbc_map."""
-        ds = ferc1_dbf_datastore_fixture
-
-        table = get_dbc_map(ds, 2018)
-        assert table["f1_429_trans_aff"] == {  # nosec: B101
-            "ACCT_CORC": "acct_corc",
-            "ACCT_CORC_": "acct_corc_f",
-            "AMT_CORC": "amt_corc",
-            "AMT_CORC_F": "amt_corc_f",
-            "DESC_GOOD2": "desc_good_serv_f",
-            "DESC_GOOD_": "desc_good_serv",
-            "NAME_COMP": "name_comp",
-            "NAME_COMP_": "name_comp_f",
-            "REPORT_PRD": "report_prd",
-            "REPORT_YEA": "report_year",
-            "RESPONDENT": "respondent_id",
-            "ROW_NUMBER": "row_number",
-            "ROW_PRVLG": "row_prvlg",
-            "ROW_SEQ": "row_seq",
-            "SPPLMNT_NU": "spplmnt_num",
-        }
+            # Check that legacy fields have not been lost (i.e. they're present in refyear)
+            yr_columns = dbf_reader.get_table_schema(table, yr).get_column_names()
+            ref_columns = dbf_reader.get_table_schema(table, refyear).get_column_names()
+            unknowns = yr_columns.difference(ref_columns)
+            if unknowns:
+                raise AssertionError(
+                    f"Long lost FERC1 fields '{sorted(unknowns)}' found in table "
+                    f"'{table}' from year {yr}. "
+                    f"Refyear: {refyear}"
+                )
 
 
 class TestExcelExtractor:

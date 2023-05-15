@@ -1150,23 +1150,24 @@ def convert_cols_dtypes(
     return df
 
 
-def generate_rolling_avg(df, group_cols, data_col, window, **kwargs):
+def generate_rolling_avg(
+    df: pd.DataFrame, group_cols: list[str], data_col: str, window: int, **kwargs
+) -> pd.DataFrame:
     """Generate a rolling average.
 
     For a given dataframe with a ``report_date`` column, generate a monthly
     rolling average and use this rolling average to impute missing values.
 
     Args:
-        df (pandas.DataFrame): Original dataframe. Must have group_cols
-            column, a data_col column and a ``report_date`` column.
-        group_cols (iterable): a list of columns to groupby.
-        data_col (str): the name of the data column.
-        window (int): window from :func:`pandas.Series.rolling`.
-        kwargs : Additional arguments to pass to
-            :func:`pandas.Series.rolling`.
+        df: Original dataframe. Must have group_cols column, a data_col column and a
+            ``report_date`` column.
+        group_cols: a list of columns to groupby.
+        data_col: the name of the data column.
+        window: rolling window argument to pass to :meth:`pandas.Series.rolling`.
+        kwargs: Additional arguments to pass to :meth:`pandas.Series.rolling`.
 
     Returns:
-        pandas.DataFrame
+        DataFrame with an additional rolling average column.
     """
     df = df.astype({"report_date": "datetime64[ns]"})
     # create a full date range for this df
@@ -1203,20 +1204,25 @@ def generate_rolling_avg(df, group_cols, data_col, window, **kwargs):
     ).reset_index()
 
 
-def fillna_w_rolling_avg(df_og, group_cols, data_col, window=12, **kwargs):
+def fillna_w_rolling_avg(
+    df_og: pd.DataFrame,
+    group_cols: list[str],
+    data_col: str,
+    window: int = 12,
+    **kwargs,
+) -> pd.DataFrame:
     """Filling NaNs with a rolling average.
 
     Imputes null values from a dataframe on a rolling monthly average. To note,
     this was designed to work with the PudlTabl object's tables.
 
     Args:
-        df_og (pandas.DataFrame): Original dataframe. Must have group_cols
-            column, a data_col column and a 'report_date' column.
-        group_cols (iterable): a list of columns to groupby.
-        data_col (str): the name of the data column.
-        window (int): window from pandas.Series.rolling
-        kwargs : Additional arguments to pass to
-            :class:`pandas.Series.rolling`.
+        df_og: Original dataframe. Must have ``group_cols`` columns, a ``data_col``
+            column and a ``report_date`` column.
+        group_cols: a list of columns to groupby.
+        data_col: the name of the data column we're trying to fill.
+        window: rolling window to pass to :meth:`pandas.Series.rolling`.
+        kwargs: Additional arguments to pass to :meth:`pandas.Series.rolling`.
 
     Returns:
         pandas.DataFrame: dataframe with nulls filled in.
@@ -1225,13 +1231,13 @@ def fillna_w_rolling_avg(df_og, group_cols, data_col, window=12, **kwargs):
     df_roll = generate_rolling_avg(df_og, group_cols, data_col, window, **kwargs)
     df_roll[data_col] = df_roll[data_col].fillna(df_roll[f"{data_col}_rolling"])
     df_new = df_og.merge(
-        df_roll,
+        df_roll[group_cols + ["report_date", data_col]],
         how="left",
         on=group_cols + ["report_date"],
         suffixes=("", "_rollfilled"),
     )
     df_new[data_col] = df_new[data_col].fillna(df_new[f"{data_col}_rollfilled"])
-    return df_new.drop(columns=[f"{data_col}_rollfilled", f"{data_col}_rolling"])
+    return df_new.drop(columns=f"{data_col}_rollfilled")
 
 
 def count_records(df, cols, new_count_col_name):
@@ -1539,8 +1545,8 @@ def dedupe_n_flatten_list_of_lists(mega_list):
 def flatten_list(xs: Iterable) -> Generator:
     """Flatten an irregular (arbitrarily nested) list of lists (or sets).
 
-    Inspiration from `here
-    <https://stackoverflow.com/questions/2158395/flatten-an-irregular-arbitrarily-nested-list-of-lists>`__
+    Inspiration from
+    `here <https://stackoverflow.com/questions/2158395/flatten-an-irregular-arbitrarily-nested-list-of-lists>`__
     """
     for x in xs:
         if isinstance(x, Iterable) and not isinstance(x, (str, bytes)):

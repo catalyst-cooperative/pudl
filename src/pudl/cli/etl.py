@@ -129,7 +129,7 @@ def main():
         dataset_settings_config["epacems"] = pudl.settings.EpaCemsSettings().dict()
 
     pudl_etl_reconstructable_job = build_reconstructable_job(
-        "pudl.cli",
+        "pudl.cli.etl",
         "pudl_etl_job_factory",
         reconstructable_kwargs={
             "loglevel": args.loglevel,

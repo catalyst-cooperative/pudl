@@ -6,6 +6,7 @@ set -x
 
 function run_pudl_etl() {
     pudl_setup \
+    && alembic upgrade head \
     && ferc_to_sqlite \
         --loglevel DEBUG \
         --gcs-cache-path gs://internal-zenodo-cache.catalyst.coop \

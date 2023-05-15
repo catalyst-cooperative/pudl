@@ -34,7 +34,7 @@ def test_ferc_xbrl_datastore_get_taxonomy(mocker):
 
     # Check that get_unique_resource was called correctly
     datastore_mock.get_unique_resource.assert_called_with(
-        "ferc1", year=2021, data_format="XBRL"
+        "ferc1", year=2021, data_format="xbrl"
     )
 
     # Check return values
@@ -126,7 +126,7 @@ def test_ferc_xbrl_datastore_get_filings(mocker, file_map, selected_filings):
 
     # Check that get_zipfile_resource was called correctly
     datastore_mock.get_zipfile_resource.assert_called_with(
-        "ferc1", year=2021, data_format="XBRL"
+        "ferc1", year=2021, data_format="xbrl"
     )
 
     # Loop through filings and verify the contents

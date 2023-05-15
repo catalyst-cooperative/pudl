@@ -11,10 +11,11 @@ see: https://docs.dagster.io/concepts/ops-jobs-graphs/dynamic-graphs and https:/
 from collections import namedtuple
 from pathlib import Path
 
+import dask.dataframe as dd
 import pandas as pd
 import pyarrow as pa
 import pyarrow.parquet as pq
-from dagster import DynamicOut, DynamicOutput, Field, graph_asset, op
+from dagster import AssetIn, DynamicOut, DynamicOutput, Field, asset, graph_asset, op
 
 import pudl
 from pudl.helpers import EnvVar
@@ -65,7 +66,7 @@ def process_single_year(
         context: dagster keyword that provides access to resources and config.
         year: Year of data to process.
         epacamd_eia: The EPA EIA crosswalk table used for harmonizing the
-                     ORISPL code with EIA.
+            ORISPL code with EIA.
         plants_entity_eia: The EIA Plant entities used for aligning timezones.
     """
     ds = context.resources.datastore
@@ -142,7 +143,8 @@ def hourly_emissions_epacems(
 
     This asset creates a dynamic graph of ops to process EPA CEMS data in parallel. It
     will create both a partitioned and single monolithic parquet output. For more
-    information see: https://docs.dagster.io/concepts/ops-jobs-graphs/dynamic-graphs.
+    information see:
+    https://docs.dagster.io/concepts/ops-jobs-graphs/dynamic-graphs.
     """
     years = get_years_from_settings()
     partitions = years.map(
@@ -153,3 +155,25 @@ def hourly_emissions_epacems(
         )
     )
     return consolidate_partitions(partitions.collect())
+
+
+@asset(
+    ins={
+        "hourly_emissions_epacems": AssetIn(input_manager_key="epacems_io_manager"),
+    }
+)
+def emissions_unit_ids_epacems(
+    hourly_emissions_epacems: dd.DataFrame,
+) -> pd.DataFrame:
+    """Make unique annual plant_id_eia and emissions_unit_id_epa.
+
+    Returns:
+        dataframe with unique set of: "plant_id_eia", "year" and "emissions_unit_id_epa"
+    """
+    epacems_ids = (
+        hourly_emissions_epacems[["plant_id_eia", "year", "emissions_unit_id_epa"]]
+        .drop_duplicates()
+        .compute()
+    )
+
+    return epacems_ids
