@@ -1206,7 +1206,6 @@ def finished_eia_asset_factory(
         name=table_name,
         io_manager_key=io_manager_key,
     )
-
     def finished_eia_asset(**kwargs) -> pd.DataFrame:
         """Enforce PUDL DB schema on a cleaned EIA dataframe."""
         df = convert_cols_dtypes(kwargs[clean_table_name], data_source="eia")
