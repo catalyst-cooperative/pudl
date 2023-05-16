@@ -14,6 +14,7 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
                 "exclude": [
                     "advanced_metering_infrastructure_eia861",
                     "balancing_authority_eia861",
+                    "compiled_geometry_balancing_authority_eia861",
                     "demand_response_eia861",
                     "demand_response_water_heater_eia861",
                     "dynamic_pricing_eia861",
@@ -674,6 +675,7 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
                     "utilities_eia",
                     "advanced_metering_infrastructure_eia861",
                     "balancing_authority_assn_eia861",
+                    "compiled_geometry_utility_eia861",
                     "demand_response_eia861",
                     "demand_response_water_heater_eia861",
                     "demand_side_management_ee_dr_eia861",

@@ -4,7 +4,7 @@ from typing import Any
 
 import numpy as np
 import pandas as pd
-from dagster import asset
+from dagster import Field, asset
 
 import pudl
 from pudl.metadata.fields import apply_pudl_dtypes
@@ -259,8 +259,8 @@ class Respondents:
         self.ba_ids = ba_ids
 
         if util_ids is None:
-            util_ids = pudl.analysis.service_territory.get_all_utils(
-                self.pudl_out
+            util_ids = pudl.analysis.service_territory.utility_ids_all_eia(
+                pudl_out.utils_eia860(), pudl_out.service_territory_eia861()
             ).utility_id_eia
         self.util_ids = util_ids
 
@@ -486,7 +486,10 @@ class Respondents:
             logger.info("Merging FERC-714 Utility respondents with service territory.")
             util_respondents = pd.merge(
                 util_respondents,
-                pudl.analysis.service_territory.get_all_utils(self.pudl_out),
+                pudl.analysis.service_territory.utility_ids_all_eia(
+                    self.pudl_out.utils_eia860(),
+                    self.pudl_out.service_territory_eia861(),
+                ),
                 how="left",
                 left_on="eia_code",
                 right_on="utility_id_eia",
@@ -570,7 +573,7 @@ class Respondents:
                     ids=categorized.balancing_authority_id_eia.unique(),
                     assn=self.balancing_authority_assn_eia861,
                     assn_col="balancing_authority_id_eia",
-                    st_eia861=self.service_territory_eia861,
+                    service_territory_eia861=self.service_territory_eia861,
                     limit_by_state=self.limit_by_state,
                 ),
                 on=["report_date", "balancing_authority_id_eia"],
@@ -583,7 +586,7 @@ class Respondents:
                     ids=categorized.utility_id_eia.unique(),
                     assn=self.pudl_out.utility_assn_eia861(),
                     assn_col="utility_id_eia",
-                    st_eia861=self.service_territory_eia861,
+                    service_territory_eia861=self.service_territory_eia861,
                     limit_by_state=self.limit_by_state,
                 ),
                 on=["report_date", "utility_id_eia"],
@@ -651,6 +654,339 @@ class Respondents:
         return self._respondents_gdf
 
 
+@asset(compute_kind="Python")
+def filled_balancing_authority_eia861(
+    balancing_authority_eia861: pd.DataFrame,
+) -> pd.DataFrame:
+    """Modified balancing_authority_eia861 table."""
+    df = balancing_authority_eia861
+    index = ["balancing_authority_id_eia", "report_date"]
+    dfi = df.set_index(index)
+    # Prepare reference rows
+    keys = [(fix["id"], pd.Timestamp(fix["from"], 1, 1)) for fix in ASSOCIATIONS]
+    refs = dfi.loc[keys].reset_index().to_dict("records")
+    # Build table of new rows
+    # Insert row for each target balancing authority-year pair
+    # missing from the original table, using the reference year as a template.
+    rows = []
+    for ref, fix in zip(refs, ASSOCIATIONS):
+        for year in range(fix["to"][0], fix["to"][1] + 1):
+            key = (fix["id"], pd.Timestamp(year, 1, 1))
+            if key not in dfi.index:
+                rows.append({**ref, "report_date": key[1]})
+    # Append to original table
+    df = pd.concat([df, pd.DataFrame(rows)])
+    # Remove balancing authorities treated as utilities
+    mask = df["balancing_authority_id_eia"].isin([util["id"] for util in UTILITIES])
+    return df[~mask]
+
+
+@asset(compute_kind="Python")
+def filled_balancing_authority_assn_eia861(
+    balancing_authority_assn_eia861: pd.DataFrame,
+) -> pd.DataFrame:
+    """Modified balancing_authority_assn_eia861 table."""
+    df = balancing_authority_assn_eia861
+    # Prepare reference rows
+    refs = []
+    for fix in ASSOCIATIONS:
+        mask = df["balancing_authority_id_eia"].eq(fix["id"]).to_numpy(bool)
+        mask[mask] = df["report_date"][mask].eq(pd.Timestamp(fix["from"], 1, 1))
+        ref = df[mask]
+        if "exclude" in fix:
+            # Exclude utilities by state
+            mask = ~ref["state"].isin(fix["exclude"])
+            ref = ref[mask]
+        refs.append(ref)
+    # Buid table of new rows
+    # Insert (or overwrite) rows for each target balancing authority-year pair,
+    # using the reference year as a template.
+    replaced = np.zeros(df.shape[0], dtype=bool)
+    tables = []
+    for ref, fix in zip(refs, ASSOCIATIONS):
+        for year in range(fix["to"][0], fix["to"][1] + 1):
+            key = fix["id"], pd.Timestamp(year, 1, 1)
+            mask = df["balancing_authority_id_eia"].eq(key[0]).to_numpy(bool)
+            mask[mask] = df["report_date"][mask].eq(key[1])
+            tables.append(ref.assign(report_date=key[1]))
+            replaced |= mask
+    # Append to original table with matching rows removed
+    df = pd.concat([df[~replaced], pd.concat(tables)])
+    # Remove balancing authorities treated as utilities
+    mask = np.zeros(df.shape[0], dtype=bool)
+    tables = []
+    for util in UTILITIES:
+        is_parent = df["balancing_authority_id_eia"].eq(util["id"])
+        mask |= is_parent
+        # Associated utilities are reassigned to parent balancing authorities
+        if "reassign" in util and util["reassign"]:
+            # Ignore when entity is child to itself
+            is_child = ~is_parent & df["utility_id_eia"].eq(util["id"])
+            # Build table associating parents to children of entity
+            table = (
+                df[is_child]
+                .merge(
+                    df[is_parent & ~df["utility_id_eia"].eq(util["id"])],
+                    left_on=["report_date", "utility_id_eia"],
+                    right_on=["report_date", "balancing_authority_id_eia"],
+                )
+                .drop(
+                    columns=[
+                        "utility_id_eia_x",
+                        "state_x",
+                        "balancing_authority_id_eia_y",
+                    ]
+                )
+                .rename(
+                    columns={
+                        "balancing_authority_id_eia_x": "balancing_authority_id_eia",
+                        "utility_id_eia_y": "utility_id_eia",
+                        "state_y": "state",
+                    }
+                )
+            )
+            tables.append(table)
+            if "replace" in util and util["replace"]:
+                mask |= is_child
+    return pd.concat([df[~mask], pd.concat(tables)]).drop_duplicates()
+
+
+@asset(compute_kind="Python")
+def filled_service_territory_eia861(
+    filled_balancing_authority_assn_eia861: pd.DataFrame,
+    service_territory_eia861: pd.DataFrame,
+) -> pd.DataFrame:
+    """Modified service_territory_eia861 table."""
+    index = ["utility_id_eia", "state", "report_date"]
+    # Select relevant balancing authority-utility associations
+    assn = filled_balancing_authority_assn_eia861
+    selected = np.zeros(assn.shape[0], dtype=bool)
+    for fix in ASSOCIATIONS:
+        years = [fix["from"], *range(fix["to"][0], fix["to"][1] + 1)]
+        dates = [pd.Timestamp(year, 1, 1) for year in years]
+        mask = assn["balancing_authority_id_eia"].eq(fix["id"]).to_numpy(bool)
+        mask[mask] = assn["report_date"][mask].isin(dates)
+        selected |= mask
+    # Reformat as unique utility-state-year
+    assn = assn[selected][index].drop_duplicates()
+    # Select relevant service territories
+    df = service_territory_eia861
+    mdf = assn.merge(df, how="left")
+    # Drop utility-state with no counties for all years
+    grouped = mdf.groupby(["utility_id_eia", "state"])["county_id_fips"]
+    mdf = mdf[grouped.transform("count").gt(0)]
+    # Fill missing utility-state-year with nearest year with counties
+    grouped = mdf.groupby(index)["county_id_fips"]
+    missing = mdf[grouped.transform("count").eq(0)].to_dict("records")
+    has_county = mdf["county_id_fips"].notna()
+    tables = []
+    for row in missing:
+        mask = (
+            mdf["utility_id_eia"].eq(row["utility_id_eia"])
+            & mdf["state"].eq(row["state"])
+            & has_county
+        )
+        years = mdf["report_date"][mask].drop_duplicates()
+        # Match to nearest year
+        idx = (years - row["report_date"]).abs().idxmin()
+        mask &= mdf["report_date"].eq(years[idx])
+        tables.append(mdf[mask].assign(report_date=row["report_date"]))
+    return pd.concat([df] + tables)
+
+
+@asset(compute_kind="Python")
+def annualized_respondents_ferc714(
+    demand_hourly_pa_ferc714: pd.DataFrame, respondent_id_ferc714: pd.DataFrame
+) -> pd.DataFrame:
+    """Broadcast respondent data across all years with reported demand.
+
+    The FERC 714 Respondent IDs and names are reported in their own table, without any
+    refence to individual years, but much of the information we are associating with
+    them varies annually. This method creates an annualized version of the respondent
+    table, with each respondent having an entry corresponding to every year in which
+    hourly demand was reported in the FERC 714 dataset as a whole -- this necessarily
+    means that many of the respondents will end up having entries for years in which
+    they reported no demand, and that's fine.  They can be filtered later.
+    """
+    # Calculate the total demand per respondent, per year:
+    report_dates = [
+        time for time in demand_hourly_pa_ferc714.report_date.unique() if pd.notna(time)
+    ]
+    annualized_respondents_ferc714 = respondent_id_ferc714.pipe(
+        add_dates, report_dates
+    ).pipe(apply_pudl_dtypes)
+    return annualized_respondents_ferc714
+
+
+@asset(
+    config_schema={
+        "priority": Field(
+            str,
+            default_value="balancing_authority",
+            description=(
+                "Which type of entity should take priority in the categorization of "
+                "FERC 714 respondents. Must be either ``utility`` or "
+                "``balancing_authority.`` The default is ``balancing_authority``."
+            ),
+        ),
+    },
+    compute_kind="Python",
+)
+def categorized_respondents_ferc714(
+    context,
+    respondent_id_ferc714: pd.DataFrame,
+    utility_ids_all_eia: pd.DataFrame,
+    filled_balancing_authority_eia861: pd.DataFrame,
+    annualized_respondents_ferc714: pd.DataFrame,
+) -> pd.DataFrame:
+    """Annualized respondents with ``respondent_type`` assigned if possible.
+
+    Categorize each respondent as either a ``utility`` or a ``balancing_authority``
+    using the parameters stored in the instance of the class. While categorization
+    can also be done without annualizing, this function annualizes as well, since we
+    are adding the ``respondent_type`` in order to be able to compile service
+    territories for the respondent, which vary annually.
+
+    """
+    priority = context.op_config["priority"]
+    rids_ferc714 = respondent_id_ferc714
+    logger.info("Categorizing EIA codes associated with FERC-714 Respondents.")
+    categorized = categorize_eia_code(
+        rids_ferc714.eia_code.dropna().unique(),
+        ba_ids=filled_balancing_authority_eia861.balancing_authority_id_eia.dropna().unique(),
+        util_ids=utility_ids_all_eia.utility_id_eia,
+        priority=priority,
+    )
+    logger.info(
+        "Merging categorized EIA codes with annualized FERC-714 Respondent " "data."
+    )
+    categorized = pd.merge(categorized, annualized_respondents_ferc714, how="right")
+    # Names, ids, and codes for BAs identified as FERC 714 respondents
+    # NOTE: this is not *strictly* correct, because the EIA BAs are not
+    # eternal and unchanging.  There's at least one case in which the BA
+    # associated with a given ID had a code and name change between years
+    # after it changed hands. However, not merging on report_date in
+    # addition to the balancing_authority_id_eia / eia_code fields ensures
+    # that all years are populated for all BAs, which keeps them analogous
+    # to the Utiliies in structure. Sooo.... it's fine for now.
+    logger.info("Selecting FERC-714 Balancing Authority respondents.")
+    ba_respondents = categorized.query("respondent_type=='balancing_authority'")
+    logger.info(
+        "Merging FERC-714 Balancing Authority respondents with BA id/code/name "
+        "information from EIA-861."
+    )
+    ba_respondents = pd.merge(
+        ba_respondents,
+        filled_balancing_authority_eia861[
+            [
+                "balancing_authority_id_eia",
+                "balancing_authority_code_eia",
+                "balancing_authority_name_eia",
+            ]
+        ].drop_duplicates(
+            subset=[
+                "balancing_authority_id_eia",
+            ]
+        ),
+        how="left",
+        left_on="eia_code",
+        right_on="balancing_authority_id_eia",
+    )
+    logger.info("Selecting names and IDs for FERC-714 Utility respondents.")
+    util_respondents = categorized.query("respondent_type=='utility'")
+    logger.info("Merging FERC-714 Utility respondents with service territory.")
+    util_respondents = pd.merge(
+        util_respondents,
+        utility_ids_all_eia,
+        how="left",
+        left_on="eia_code",
+        right_on="utility_id_eia",
+    )
+    logger.info("Concatenating categorized FERC-714 respondents.")
+    categorized = pd.concat(
+        [
+            ba_respondents,
+            util_respondents,
+            # Uncategorized respondents w/ no respondent_type:
+            categorized[categorized.respondent_type.isnull()],
+        ]
+    )
+    categorized = apply_pudl_dtypes(categorized)
+    return categorized
+
+
+@asset(
+    config_schema={
+        "limit_by_state": Field(
+            bool,
+            default_value=True,
+            description=(
+                "Whether to limit respondent service territories to the states where "
+                "they have documented activity in the EIA 861. Currently this is only "
+                "implemented for Balancing Authorities."
+            ),
+        ),
+    },
+    compute_kind="Python",
+)
+def fipsified_respondents_ferc714(
+    context,
+    categorized_respondents_ferc714: pd.DataFrame,
+    filled_balancing_authority_assn_eia861: pd.DataFrame,
+    filled_service_territory_eia861: pd.DataFrame,
+) -> pd.DataFrame:
+    """Annual respondents with the county FIPS IDs for their service territories.
+
+    Given the ``respondent_type`` associated with each respondent (either
+    ``utility`` or ``balancing_authority``) compile a list of counties that are part
+    of their service territory on an annual basis, and merge those into the
+    annualized respondent table. This results in a very long dataframe, since there
+    are thousands of counties and many of them are served by more than one entity.
+
+    Currently respondents categorized as ``utility`` will include any county that
+    appears in the ``service_territory_eia861`` table in association with that
+    utility ID in each year, while for ``balancing_authority`` respondents, some
+    counties can be excluded based on state (if ``limit_by_state==True``).
+    """
+    # Generate the BA:FIPS relation:
+    ba_counties = pd.merge(
+        categorized_respondents_ferc714.query("respondent_type=='balancing_authority'"),
+        pudl.analysis.service_territory.get_territory_fips(
+            ids=categorized_respondents_ferc714.balancing_authority_id_eia.unique(),
+            assn=filled_balancing_authority_assn_eia861,
+            assn_col="balancing_authority_id_eia",
+            service_territory_eia861=filled_service_territory_eia861,
+            limit_by_state=context.op_config["limit_by_state"],
+        ),
+        on=["report_date", "balancing_authority_id_eia"],
+        how="left",
+    )
+    # Generate the Util:FIPS relation:
+    util_counties = pd.merge(
+        categorized_respondents_ferc714.query("respondent_type=='utility'"),
+        pudl.analysis.service_territory.get_territory_fips(
+            ids=categorized_respondents_ferc714.balancing_authority_id_eia.unique(),
+            assn=filled_balancing_authority_assn_eia861,
+            assn_col="utility_id_eia",
+            service_territory_eia861=filled_service_territory_eia861,
+            limit_by_state=context.op_config["limit_by_state"],
+        ),
+        on=["report_date", "utility_id_eia"],
+        how="left",
+    )
+    fipsified = pd.concat(
+        [
+            ba_counties,
+            util_counties,
+            categorized_respondents_ferc714[
+                categorized_respondents_ferc714.respondent_type.isnull()
+            ],
+        ]
+    ).pipe(apply_pudl_dtypes)
+    return fipsified
+
+
+# Probably a duplicate that can get removed.
 @asset(compute_kind="Python")
 def annualize(demand_hourly_pa_ferc714, respondent_id_ferc714):
     """Broadcast respondent data across all years with reported demand.

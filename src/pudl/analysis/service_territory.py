@@ -29,7 +29,8 @@ CALC_CRS = "ESRI:102003"  # For accurate area calculations
 ENTITY_TYPE = {"ba": "balancing_authority", "util": "utility"}
 
 
-def get_all_utils(
+@asset(compute_kind="Python")
+def utility_ids_all_eia(
     denorm_utilities_eia: pd.DataFrame, service_territory_eia861: pd.DataFrame
 ) -> pd.DataFrame:
     """Compile IDs and Names of all known EIA Utilities.
@@ -275,7 +276,7 @@ def _save_geoparquet(gdf, entity_type, dissolve, limit_by_state):
 def compile_geoms(
     balancing_authority_eia861: pd.DataFrame,
     balancing_authority_assn_eia861: pd.DataFrame,
-    denorm_utilities_eia: pd.DataFrame,
+    utility_ids_all_eia: pd.DataFrame,
     service_territory_eia861: pd.DataFrame,
     utility_assn_eia861: pd.DataFrame,
     census_counties: pd.DataFrame,
@@ -297,9 +298,7 @@ def compile_geoms(
         assn = balancing_authority_assn_eia861
         assn_col = "balancing_authority_id_eia"
     elif entity_type == "util":
-        ids = get_all_utils(
-            denorm_utilities_eia, service_territory_eia861
-        ).utility_id_eia.unique()
+        ids = utility_ids_all_eia.utility_id_eia.unique()
         assn = utility_assn_eia861
         assn_col = "utility_id_eia"
     else:
@@ -372,7 +371,7 @@ def compiled_geoms_asset_factory(
         context,
         balancing_authority_eia861,
         balancing_authority_assn_eia861,
-        denorm_utilities_eia,
+        utility_ids_all_eia,
         service_territory_eia861,
         utility_assn_eia861,
         # census_counties,  # Adding temporary read-in of this table below, as it is not yet in dagster.
@@ -396,7 +395,7 @@ def compiled_geoms_asset_factory(
         return compile_geoms(
             balancing_authority_eia861=balancing_authority_eia861,
             balancing_authority_assn_eia861=balancing_authority_assn_eia861,
-            denorm_utilities_eia=denorm_utilities_eia,
+            utility_ids_all_eia=utility_ids_all_eia,
             service_territory_eia861=service_territory_eia861,
             utility_assn_eia861=utility_assn_eia861,
             census_counties=pudl.output.censusdp1tract.get_layer(  # Replace with direct call to asset once in dagster
