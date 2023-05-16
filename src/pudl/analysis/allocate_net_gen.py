@@ -328,7 +328,7 @@ def allocate_gen_fuel_by_generator_energy_source(
     gens: pd.DataFrame,
     freq: Literal["AS", "MS"],
     debug: bool = False,
-):
+) -> pd.DataFrame:
     """Allocate net gen from gen_fuel table to the generator/energy_source_code level.
 
     There are two main steps here:
@@ -338,13 +338,22 @@ def allocate_gen_fuel_by_generator_energy_source(
 
     The association process happens via :func:`associate_generator_tables`.
 
-    The allocation process (via `allocate_net_gen_by_gen_esc()`) entails
+    The allocation process (via :func:`allocate_net_gen_by_gen_esc`) entails
     generating a fraction for each record within a ``IDX_PM_ESC`` group. We
     have two data points for generating this ratio: the net generation in the
     generation_eia923 table and the capacity from the generators_eia860 table.
-    The end result is a `frac` column which is unique for each
-    generator/prime_mover/fuel record and is used to allocate the associated
-    net generation from the `generation_fuel_eia923` table.
+    The end result is a ``frac`` column which is unique for each combination of
+    generator, prime_mover, and fuel and is used to allocate the associated
+    net generation from the :ref:`generation_fuel_eia923` table.
+
+    Args:
+        gf: Temporally aggregated :ref:`generation_fuel_combined_eia923` dataframe.
+        bf: Temporally aggregated :ref:`boiler_fuel_eia923` dataframe.
+        gen: Temporally aggregated :ref:`generation_eia923` dataframe.
+        bga: :ref:`boiler_generator_assn_eia860` dataframe.
+        gens: :ref:`generators_eia860` dataframe.
+        freq: Frequency at which the tables are aggregated temporally.
+        debug: If True, return additional debugging information.
     """
     bf, gens_at_freq, gen = standardize_input_frequency(bf, gens, gen, freq)
     # Add any startup energy source codes to the list of energy source codes
