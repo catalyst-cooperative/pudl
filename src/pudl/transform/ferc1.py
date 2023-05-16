@@ -3921,6 +3921,25 @@ class ExplodeMeta:
                 params=transformer.params,
             ).rename_calcuations_xbrl_meta()
         meta_converted = self.manually_update_xbrl_calcs(meta_converted)
+        meta_converted = self.remove_duplicated_components(meta_converted)
+        return meta_converted
+
+    @staticmethod
+    def remove_duplicated_components(meta_converted: dict):
+        """If a calculation contains the same components >1x, remove duplicates."""
+        for table in meta_converted:
+            for variable in meta_converted[table]:
+                if "calcs" in meta_converted[table][variable]:
+                    new_calc = [
+                        i
+                        for n, i in enumerate(meta_converted[table][variable]["calcs"])
+                        if i not in meta_converted[table][variable]["calcs"][n + 1 :]
+                    ]
+                    if new_calc != meta_converted[table][variable]["calcs"]:
+                        logger.info(
+                            f"Dropping duplicated components from {variable} calculation in {table}"
+                        )
+                        meta_converted[table][variable]["calcs"] = new_calc
         return meta_converted
 
     @staticmethod
@@ -4051,6 +4070,18 @@ class ExplodeMeta:
                     },
                 ],
             },
+            "utility_plant_summary_ferc1": {
+                "accumulated_provision_for_depreciation_amortization_and_depletion_of_plant_utility": [
+                    {
+                        "calc_component_to_replace": {
+                            "name": "depreciation_amortization_and_depletion_utility_plant_in_service",
+                            # A duplicate of 4 other fields, though this is not explicitly defined in the metadata.
+                            "weight": 1.0,
+                        },
+                        "calc_component_new": {},
+                    }
+                ],
+            },
         }
 
         def remove_nones_in_list(list_of_things):
@@ -4066,6 +4097,7 @@ class ExplodeMeta:
             for xbrl_factiod, calc_component_fixes in factoid_to_fix.items():
                 logger.info(f"fixing calc for {table_name}'s {xbrl_factiod}")
                 for calc_component_fix in calc_component_fixes:
+                    logger.info(calc_component_fix)
                     if calc_component_fix["calc_component_to_replace"]:
                         meta_converted[table_name][xbrl_factiod][
                             "calcs"
