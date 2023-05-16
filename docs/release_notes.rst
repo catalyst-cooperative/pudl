@@ -179,6 +179,12 @@ Analysis
   :mod:`pudl.analysis.plant_parts_eia`. See issue :issue:`1064` & PR :pr:`2224`. To
   account for 1:m matches in the manual data, we added ``plant_match_ferc1`` as a plant
   part in :mod:`pudl.analysis.plant_parts_eia`.
+* Refined how we are associating generation and fuel data in
+  :mod:`pudl.analysis.allocate_net_gen`. Energy source codes that show up in the
+  :ref:`generation_fuel_eia923` or the :ref:`boiler_fuel_eia923` are now added into
+  the :ref:`generators_eia860` table so associating those gf and bf records are more
+  cleanly associated with generators. Thanks to :user:`grgmiller` for his
+  contribution, which was integrated by :user:`cmgosnell`! See PRs :pr:`2235,2446`.
 
 Deprecations
 ^^^^^^^^^^^^
