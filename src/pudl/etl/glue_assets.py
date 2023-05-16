@@ -69,8 +69,7 @@ def raw_epacamd_eia(context) -> pd.DataFrame:
     year_matches = []
     for year, csv_path in csv_map.items():
         with ds.get_zipfile_resource("epacamd_eia", year=year).open(csv_path) as f:
-            df = pd.read_csv(f)
-            year_matches.append(df)
+            year_matches.append(pd.read_csv(f))
 
     return pd.concat(year_matches, ignore_index=True)
 
