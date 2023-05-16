@@ -552,15 +552,15 @@ mercury, and particulate monitoring. The relationship is sometimes one to many.
         ),
         "schema": {
             "fields": [
-                "report_year",
-                "data_maturity",
+                "report_date",
                 "plant_id_eia",
                 "boiler_id",
                 "emission_control_id_type",
                 "emission_control_id_eia",
+                "data_maturity",
             ],
             "primary_key": [
-                "report_year",
+                "report_date",
                 "plant_id_eia",
                 "boiler_id",
                 "emission_control_id_type",

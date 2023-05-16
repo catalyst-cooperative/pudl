@@ -880,6 +880,12 @@ CODE_METADATA: dict[str, dict[str, Any]] = {
                     "proposed",
                 ),
                 (
+                    "PL",
+                    "planned",
+                    "Planned (expected to go into commercial service within 10 years)",
+                    "proposed",
+                ),
+                (
                     "RE",
                     "retired",
                     "No longer in service and not expected to be returned to service.",

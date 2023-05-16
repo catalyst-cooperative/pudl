@@ -799,22 +799,26 @@ def clean_emissions_control_equipment_eia860(
         & (emce_df["plant_id_eia"] == 50189)
         & (emce_df["particulate_control_id_eia"].isin(["EGS1", "EGS2", "ESP1CB"]))
     )
-    assert len(emce_df[bad_month_1]) == 1
-    emce_df.loc[bad_month_1, "operating_month"] = 6
-    assert len(emce_df[bad_month_2]) == 4
-    emce_df.loc[bad_month_2, "operating_month"] = 6
-    assert len(emce_df[bad_month_3]) == 4
-    emce_df.loc[bad_month_3, "operating_month"] = 1
-    assert len(emce_df[bad_month_4]) == 1
-    emce_df.loc[bad_month_4, "operating_month"] = 12
-    assert len(emce_df[bad_month_5]) == 2
-    emce_df.loc[bad_month_5, "operating_month"] = 6
-    assert len(emce_df[bad_month_6]) == 2
-    emce_df.loc[bad_month_6, "operating_month"] = 10
-    assert len(emce_df[bad_month_7]) == 1
-    emce_df.loc[bad_month_7, "operating_month"] = 6
-    assert len(emce_df[bad_month_8]) == 9
-    emce_df.loc[bad_month_8, "operating_month"] = 12
+
+    # Add this conditional in case we're doing the fast ETL with one year of data
+    # (in which case the assertions will fail)
+    if 2013 in emce_df.report_year.unique():
+        assert len(emce_df[bad_month_1]) == 1
+        emce_df.loc[bad_month_1, "operating_month"] = 6
+        assert len(emce_df[bad_month_2]) == 4
+        emce_df.loc[bad_month_2, "operating_month"] = 6
+        assert len(emce_df[bad_month_3]) == 4
+        emce_df.loc[bad_month_3, "operating_month"] = 1
+        assert len(emce_df[bad_month_4]) == 1
+        emce_df.loc[bad_month_4, "operating_month"] = 12
+        assert len(emce_df[bad_month_5]) == 2
+        emce_df.loc[bad_month_5, "operating_month"] = 6
+        assert len(emce_df[bad_month_6]) == 2
+        emce_df.loc[bad_month_6, "operating_month"] = 10
+        assert len(emce_df[bad_month_7]) == 1
+        emce_df.loc[bad_month_7, "operating_month"] = 6
+        assert len(emce_df[bad_month_8]) == 9
+        emce_df.loc[bad_month_8, "operating_month"] = 12
 
     # Convert month-year columns to a single date column
     emce_df = pudl.helpers.convert_to_date(
@@ -906,7 +910,6 @@ def clean_boiler_emissions_control_equipment_assn_eia860(
         )
         value_col = [col for col in table if "control_id_eia" in col]
         id_cols = [col for col in table if "control_id_eia" not in col]
-        print(value_col)
         assert len(value_col) == 1
         table = pd.melt(
             table,
@@ -920,6 +923,10 @@ def clean_boiler_emissions_control_equipment_assn_eia860(
             )
         )
         bece_df = bece_df.append(table)
+
+    bece_df = pudl.helpers.convert_to_date(
+        df=bece_df, year_col="report_year", date_col="report_date"
+    )
     # There are some records that don't have an emission control id that are not
     # helpful so we drop them.
     bece_df = bece_df.dropna(subset="emission_control_id_eia")
