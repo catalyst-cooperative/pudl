@@ -1206,20 +1206,7 @@ def finished_eia_asset_factory(
         name=table_name,
         io_manager_key=io_manager_key,
     )
-"""
 
-    # Remove fields that came from input data but aren't in the
-    # corresponding SQLite tables. The data may still exist but has been
-    # moved elsewhere.
-    for cat in eia_transformed_dfs:
-        resource = pudl.metadata.classes.Package.from_resource_ids().get_resource(cat)
-        eia_transformed_dfs[cat] = resource.enforce_schema(eia_transformed_dfs[cat])
-    for cat in entities_dfs:
-        resource = pudl.metadata.classes.Package.from_resource_ids().get_resource(cat)
-        entities_dfs[cat] = resource.enforce_schema(entities_dfs[cat])
-
-    return entities_dfs, eia_transformed_dfs
-"""
     def finished_eia_asset(**kwargs) -> pd.DataFrame:
         """Enforce PUDL DB schema on a cleaned EIA dataframe."""
         df = convert_cols_dtypes(kwargs[clean_table_name], data_source="eia")
