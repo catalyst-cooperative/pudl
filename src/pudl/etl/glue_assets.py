@@ -60,11 +60,19 @@ def create_glue_tables(context):
 def raw_epacamd_eia(context) -> pd.DataFrame:
     """Extract the EPACAMD-EIA Crosswalk from the Datastore."""
     logger.info("Extracting the EPACAMD-EIA crosswalk from Zenodo")
+    csv_map = {
+        2018: "camd-eia-crosswalk-master/epa_eia_crosswalk.csv",
+        2021: "camd-eia-crosswalk-2021-main/epa_eia_crosswalk.csv",
+    }
+
     ds = context.resources.datastore
-    with ds.get_zipfile_resource("epacamd_eia", name="epacamd_eia_2021.zip").open(
-        "camd-eia-crosswalk-2021-main/epa_eia_crosswalk.csv"
-    ) as f:
-        return pd.read_csv(f)
+    year_matches = []
+    for year, csv_path in csv_map.items():
+        with ds.get_zipfile_resource("epacamd_eia", year=year).open(csv_path) as f:
+            df = pd.read_csv(f)
+            year_matches.append(df)
+
+    return pd.concat(year_matches, ignore_index=True)
 
 
 @asset(
@@ -170,6 +178,7 @@ def epacamd_eia(
         .pipe(pudl.metadata.fields.apply_pudl_dtypes, "eia")
         .dropna(subset=["plant_id_eia"])
         .pipe(correct_epa_eia_plant_id_mapping)
+        .drop_duplicates()
     )
     dataset_settings = context.resources.dataset_settings
     processing_all_eia_years = (
