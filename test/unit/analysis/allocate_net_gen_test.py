@@ -116,7 +116,7 @@ class PudlTablMock:
         plants_eia860=None,
         boiler_fuel_eia923=None,
         boiler_generator_assn_eia860=None,
-        freq="AS",
+        freq: Literal["AS"] = "AS",
     ):
         self._gens_eia860 = gens_eia860
         self._gen_eia923 = gen_eia923
@@ -158,125 +158,7 @@ class PudlTablMock:
 
 
 @pytest.fixture
-def example_1_pudl_tabl():
-    gen = pd.read_csv(
-        StringIO(
-            """plant_id_eia,generator_id,report_date,net_generation_mwh
-    50307,GEN1,2018-01-01,14.0
-    50307,GEN2,2018-01-01,1.0
-    50307,GEN3,2018-01-01,0.0
-    50307,GEN4,2018-01-01,0.0
-    """
-        )
-    ).pipe(apply_pudl_dtypes, group="eia")
-
-    net_gen_ic_rfo = 101
-    net_gen_st_rfo = 102
-    # TODO (daz): gf_with_rfo has energy source code that doesn't appear in gens
-    #
-    # If we include these rows, we fail the post-association test - so we don't
-    # include them for now. But we should...
-    gf_with_rfo = pd.read_csv(  # noqa: F841
-        StringIO(
-            f"""plant_id_eia,prime_mover_code,energy_source_code,report_date,net_generation_mwh,fuel_consumed_mmbtu,fuel_consumed_for_electricity_mmbtu
-    50307,ST,NG,2018-01-01,15.0,200000.0,100000.0
-    50307,IC,DF
-    50307,IC,RFO,2018-01-01,{net_gen_ic_rfo},100,50
-    50307,ST,RFO,2018-01-01,{net_gen_st_rfo},400,200
-    """
-        )
-    ).pipe(apply_pudl_dtypes, group="eia")
-
-    gf = pd.read_csv(
-        StringIO(
-            """plant_id_eia,prime_mover_code,energy_source_code,report_date,net_generation_mwh,fuel_consumed_mmbtu,fuel_consumed_for_electricity_mmbtu
-    50307,ST,NG,2018-01-01,15.0,200000.0,100000.0
-    50307,IC,DFO,2018-01-01,0.0,0.0,0.0
-    """
-        )
-    ).pipe(apply_pudl_dtypes, group="eia")
-
-    gens = pd.read_csv(
-        StringIO(
-            """plant_id_eia,generator_id,report_date,prime_mover_code,unit_id_pudl,capacity_mw,fuel_type_count,generator_retirement_date,operational_status,energy_source_code_1,energy_source_code_2,energy_source_code_3,energy_source_code_4,energy_source_code_5,energy_source_code_6,planned_energy_source_code_1
-    50307,GEN1,2018-01-01,ST,1,7.5,2,,existing,NG,,,,,,
-    50307,GEN2,2018-01-01,ST,2,2.5,2,,existing,NG,,,,,,
-    50307,GEN3,2018-01-01,ST,3,2.5,2,2069-10-31,existing,NG,,,,,,
-    50307,GEN4,2018-01-01,ST,4,4.3,2,,existing,NG,,,,,,
-    50307,GEN5,2018-01-01,IC,5,1.8,2,,existing,DFO,,,,,,
-    """
-        )
-    ).pipe(apply_pudl_dtypes, group="eia")
-
-    bf = pd.read_csv(
-        StringIO(
-            """plant_id_eia,report_date,boiler_id,energy_source_code,prime_mover_code,fuel_consumed_mmbtu
-    50307,2018-01-01,a,NG,ST,1.0
-    50307,2018-01-01,b,NG,ST,2.0
-    50307,2018-01-01,12,DFO,IC,0.1
-    """
-        )
-    ).pipe(apply_pudl_dtypes, group="eia")
-
-    bga = pd.read_csv(
-        StringIO(
-            """plant_id_eia,boiler_id,generator_id,report_date
-        50307,a,GEN1,2018-01-01
-        50307,a,GEN2,2018-01-01
-        50307,b,GEN3,2018-01-01
-        50307,b,GEN4,2018-01-01
-        50307,12,GEN5,2018-01-01
-        """
-        )
-    ).pipe(apply_pudl_dtypes, group="eia")
-
-    return PudlTablMock(
-        gens_eia860=gens,
-        gen_eia923=gen,
-        gen_original_eia923=gen,
-        generation_fuel_eia923=gf,
-        boiler_fuel_eia923=bf,
-        boiler_generator_assn_eia860=bga,
-    )
-
-
-def test_allocated_sums_match(example_1_pudl_tabl):
-    """Test associate_generator_tables function with example 1."""
-    allocated = allocate_net_gen.allocate_gen_fuel_by_generator_energy_source(
-        gf=example_1_pudl_tabl.gf_eia923(),
-        bf=example_1_pudl_tabl.bf_eia923(),
-        gen=example_1_pudl_tabl.gen_original_eia923(),
-        bga=example_1_pudl_tabl.bga_eia860(),
-        gens=example_1_pudl_tabl.gens_eia860(),
-        freq="AS",
-    )
-    gf = example_1_pudl_tabl.gf_eia923()
-    assert allocated["fuel_consumed_mmbtu"].sum() == gf["fuel_consumed_mmbtu"].sum()
-    assert (
-        allocated["fuel_consumed_for_electricity_mmbtu"].sum()
-        == gf["fuel_consumed_for_electricity_mmbtu"].sum()
-    )
-    assert allocated["net_generation_mwh"].sum() == gf["net_generation_mwh"].sum()
-    # TODO (daz): assert that the distribution of the fuel consumption matches the distribution
-    # in boiler_fuel
-
-    # TODO (daz): these assertions expose a bug in our unassociated allocations - see
-    # note in example_1_pudl_tabl
-    # assert (
-    #     allocated["net_generation_mwh_gf_tbl_unassociated"][
-    #         allocated["prime_mover_code"] == "IC"
-    #     ].sum()
-    #     == net_gen_ic_rfo
-    # )
-    # assert (
-    #     allocated["net_generation_mwh_gf_tbl_unassociated"][
-    #         allocated["prime_mover_code"] == "ST"
-    #     ].sum()
-    #     == net_gen_st_rfo
-    # )
-
-
-def test_missing_energy_source():
+def base_case():
     gens_eia860 = pd.read_csv(
         StringIO(
             """report_date,plant_id_eia,generator_id,prime_mover_code,unit_id_pudl,capacity_mw,fuel_type_count,operational_status,generator_retirement_date,energy_source_code_1,energy_source_code_2,energy_source_code_3,energy_source_code_4,energy_source_code_5,energy_source_code_6,energy_source_code_7,planned_energy_source_code_1,startup_source_code_1,startup_source_code_2,startup_source_code_3,startup_source_code_4
@@ -291,10 +173,8 @@ def test_missing_energy_source():
             """report_date,plant_id_eia,boiler_id,energy_source_code,prime_mover_code,fuel_consumed_mmbtu
     2019-01-01,8023,1,DFO,ST,17853.519999999997
     2019-01-01,8023,1,RC,ST,27681065.276
-    2019-01-01,8023,1,SUB,ST,0.0
     2019-01-01,8023,2,DFO,ST,17712.999999999996
     2019-01-01,8023,2,RC,ST,29096935.279
-    2019-01-01,8023,2,SUB,ST,0.0
     """
         ),
     ).pipe(apply_pudl_dtypes, group="eia")
@@ -323,23 +203,209 @@ def test_missing_energy_source():
             """report_date,plant_id_eia,energy_source_code,prime_mover_code,net_generation_mwh,fuel_consumed_mmbtu,fuel_consumed_for_electricity_mmbtu
     2019-01-01,8023,DFO,ST,3369.286,35566.0,35566.0
     2019-01-01,8023,RC,ST,5363193.71,56777578.0,56777578.0
-    2019-01-01,8023,SUB,ST,0.0, 0.0,0.0
+    2019-01-01,8023,SUB,ST,10000.0, 100000.0,100000.0
     """
         ),
     ).pipe(apply_pudl_dtypes, group="eia")
 
-    with pytest.raises(AssertionError):
-        allocate_net_gen.allocate_gen_fuel_by_generator_energy_source(
-            gf=generation_fuel_eia923,
-            bf=boiler_fuel_eia923,
-            gen=gen_eia923,
-            bga=boiler_generator_assn_eia860,
-            gens=gens_eia860,
-            freq="AS",
-        )
+    return PudlTablMock(
+        gens_eia860=gens_eia860,
+        gen_eia923=gen_eia923,
+        gen_original_eia923=gen_eia923,
+        generation_fuel_eia923=generation_fuel_eia923,
+        boiler_fuel_eia923=boiler_fuel_eia923,
+        boiler_generator_assn_eia860=boiler_generator_assn_eia860,
+        freq="AS",
+    )
 
-    # TODO (daz): once the allocation is actually fixed, assert that the fuel consumed is the same
-    # assert (
-    #     generation_fuel_eia923.fuel_consumed_mmbtu.sum()
-    #     == allocated.fuel_consumed_mmbtu.sum()
-    # )
+
+@pytest.fixture
+def extra_esc_in_gf(base_case):
+    base_case._generation_fuel_eia923 = pd.read_csv(
+        StringIO(
+            """report_date,plant_id_eia,energy_source_code,prime_mover_code,net_generation_mwh,fuel_consumed_mmbtu,fuel_consumed_for_electricity_mmbtu
+    2019-01-01,8023,DFO,ST,3369.286,35566.0,35566.0
+    2019-01-01,8023,RC,ST,5363193.71,56777578.0,56777578.0
+    2019-01-01,8023,SUB,ST,10000.0, 100000.0,100000.0
+    """
+        ),
+    ).pipe(apply_pudl_dtypes, group="eia")
+    return base_case
+
+
+@pytest.fixture
+def extra_pm_in_bf(base_case):
+    base_case.bf_eia923().loc[0, "prime_mover_code"] = "CT"
+    return base_case
+
+
+def get_ratio_from_bf_and_allocated_by_boiler(
+    bf: pd.DataFrame,
+    allocated: pd.DataFrame,
+    bga: pd.DataFrame,
+    boiler_id_to_check: str,
+    energy_source_code_to_check: str,
+) -> tuple[float, float]:
+    """Helper function to calculate the ratio of a boiler's fuel consumption."""
+    # what gen is this boiler associated with? needed for masking in the allocated tbl
+    generator_id_to_check = bga.loc[
+        (bga.boiler_id == boiler_id_to_check), "generator_id"
+    ]
+
+    def sum_of_fuel_consumed_mmbtu_by_esc(
+        df: pd.DataFrame, energy_source_code_to_check: str
+    ) -> float:
+        return df[
+            (df.energy_source_code == energy_source_code_to_check)
+        ].fuel_consumed_mmbtu.sum()
+
+    ratio_bf = bf[
+        (bf.energy_source_code == energy_source_code_to_check)
+        & (bf.boiler_id == boiler_id_to_check)
+    ].fuel_consumed_mmbtu.sum() / sum_of_fuel_consumed_mmbtu_by_esc(
+        bf, energy_source_code_to_check
+    )
+    ratio_allocated = allocated.loc[
+        (allocated.energy_source_code == energy_source_code_to_check)
+        & allocated.generator_id.isin(generator_id_to_check)
+    ].fuel_consumed_mmbtu.sum() / sum_of_fuel_consumed_mmbtu_by_esc(
+        allocated, energy_source_code_to_check
+    )
+    return ratio_bf, ratio_allocated
+
+
+# Main assumptions about how allocate_gen_fuel_by_generators should behave
+# TODO: if we figure out how to do test data generation, these would be good
+#       candidates for property-based testing
+
+
+@pytest.mark.parametrize(
+    "fixture_name",
+    [
+        "base_case",
+        "extra_esc_in_gf",
+        "extra_pm_in_bf",
+    ],
+)
+def test_allocate_gen_fuel_sums_match(fixture_name, request):
+    pudl_out = request.getfixturevalue(fixture_name)
+
+    gf, bf, gen, bga, gens = allocate_net_gen.select_input_data(
+        gf=pudl_out.gf_eia923(),
+        bf=pudl_out.bf_eia923(),
+        gen=pudl_out.gen_eia923(),
+        bga=pudl_out.bga_eia860(),
+        gens=pudl_out.gens_eia860(),
+    )
+    allocated = allocate_net_gen.allocate_gen_fuel_by_generator_energy_source(
+        gf=gf,
+        bf=bf,
+        gen=gen,
+        bga=bga,
+        gens=gens,
+        freq=pudl_out.freq,
+    )
+
+    assert (
+        pudl_out.gf_eia923().fuel_consumed_mmbtu.sum()
+        == allocated.fuel_consumed_mmbtu.sum()
+    )
+
+
+@pytest.mark.parametrize(
+    "fixture_name",
+    [
+        "base_case",
+        "extra_esc_in_gf",
+    ],
+)
+def test_allocate_gen_fuel_dfo_ratios_match(fixture_name, request):
+    pudl_out = request.getfixturevalue(fixture_name)
+
+    gf, bf, gen, bga, gens = allocate_net_gen.select_input_data(
+        gf=pudl_out.gf_eia923(),
+        bf=pudl_out.bf_eia923(),
+        gen=pudl_out.gen_eia923(),
+        bga=pudl_out.bga_eia860(),
+        gens=pudl_out.gens_eia860(),
+    )
+    allocated = allocate_net_gen.allocate_gen_fuel_by_generator_energy_source(
+        gf=gf, bf=bf, gen=gen, bga=bga, gens=gens, freq=pudl_out.freq
+    )
+
+    assert (
+        pudl_out.gf_eia923().fuel_consumed_mmbtu.sum()
+        == allocated.fuel_consumed_mmbtu.sum()
+    )
+    ratio_bf, ratio_allocated = get_ratio_from_bf_and_allocated_by_boiler(
+        bf, allocated, bga, boiler_id_to_check="1", energy_source_code_to_check="DFO"
+    )
+    assert ratio_bf == ratio_allocated
+
+
+# Implementation and special cases
+
+
+def test_add_missing_energy_source(extra_esc_in_gf):
+    gf, bf, _, _, gens = allocate_net_gen.select_input_data(
+        gf=extra_esc_in_gf.gf_eia923(),
+        bf=extra_esc_in_gf.bf_eia923(),
+        gen=extra_esc_in_gf.gen_eia923(),
+        bga=extra_esc_in_gf.bga_eia860(),
+        gens=extra_esc_in_gf.gens_eia860(),
+    )
+    gens = allocate_net_gen.add_missing_energy_source_codes_to_gens(gens, gf, bf)
+    # assert that the missing energy source code is RC
+    assert gens.energy_source_code_8.unique() == "RC"
+
+
+def test_allocate_bf_data_to_gens_drops_pm_code(extra_pm_in_bf):
+    _, bf, _, bga, gens = allocate_net_gen.select_input_data(
+        gf=extra_pm_in_bf.gf_eia923(),
+        bf=extra_pm_in_bf.bf_eia923(),
+        gen=extra_pm_in_bf.gen_eia923(),
+        bga=extra_pm_in_bf.bga_eia860(),
+        gens=extra_pm_in_bf.gens_eia860(),
+    )
+    bf_by_gens = allocate_net_gen.allocate_bf_data_to_gens(bf, gens, bga)
+    # allocate_bf_data_to_gens quietly drops and records with non-matching PM codes.
+    assert "CT" not in bf_by_gens.prime_mover_code.unique()
+
+    # The CT record is no longer in the output & the total fuel_consumed_mmbtu is
+    # missing the CT fuel
+    assert bf_by_gens.fuel_consumed_mmbtu.sum() == (
+        bf.fuel_consumed_mmbtu.sum()
+        - bf[(bf.prime_mover_code == "CT")].fuel_consumed_mmbtu.sum()
+    )
+
+
+def test_allocate_gen_fuel_by_generator_drops_pm_data(extra_pm_in_bf):
+    gf, bf, gen, bga, gens = allocate_net_gen.select_input_data(
+        gf=extra_pm_in_bf.gf_eia923(),
+        bf=extra_pm_in_bf.bf_eia923(),
+        gen=extra_pm_in_bf.gen_eia923(),
+        bga=extra_pm_in_bf.bga_eia860(),
+        gens=extra_pm_in_bf.gens_eia860(),
+    )
+
+    allocated = allocate_net_gen.allocate_gen_fuel_by_generator_energy_source(
+        gf=gf,
+        bf=bf,
+        gen=gen,
+        bga=bga,
+        gens=gens,
+        freq=extra_pm_in_bf.freq,
+    )
+
+    # the data associated with the PM code from BF that's not in the BGA is
+    # zeroed out, which shows up in the ratios.
+
+    # TODO: what should we do about generators with multiple prime movers?
+    #       they're likely typos, since there's only one PRIME mover, but...
+    (
+        ratio_bf,
+        ratio_allocated,
+    ) = get_ratio_from_bf_and_allocated_by_boiler(
+        bf, allocated, bga, boiler_id_to_check="1", energy_source_code_to_check="DFO"
+    )
+    assert ratio_bf != ratio_allocated

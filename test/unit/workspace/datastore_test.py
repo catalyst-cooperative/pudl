@@ -25,6 +25,11 @@ class TestDatapackageDescriptor(unittest.TestCase):
                 "path": "http://localhost/second",
                 "parts": {"color": "blue", "order": 2},
             },
+            {
+                "name": "mixed-case",
+                "path": "http://localhost/mixed",
+                "parts": {"upper": "UPPER", "lower": "lower", "mixed": "miXED"},
+            },
         ]
     }
 
@@ -55,6 +60,7 @@ class TestDatapackageDescriptor(unittest.TestCase):
             [
                 PudlResourceKey("epacems", "123", "first-red"),
                 PudlResourceKey("epacems", "123", "second-blue"),
+                PudlResourceKey("epacems", "123", "mixed-case"),
             ],
             list(self.descriptor.get_resources()),
         )
@@ -63,6 +69,19 @@ class TestDatapackageDescriptor(unittest.TestCase):
             list(self.descriptor.get_resources(color="red")),
         )
         self.assertEqual([], list(self.descriptor.get_resources(flavor="blueberry")))
+
+    def test_get_resources_filtering_case_insensitive(self):
+        """Verifies that values for the parts are treated case-insensitive."""
+        self.assertEqual(
+            [PudlResourceKey("epacems", "123", "mixed-case")],
+            list(self.descriptor.get_resources(upper="uppeR")),
+        )
+        self.assertEqual(
+            [PudlResourceKey("epacems", "123", "mixed-case")],
+            list(self.descriptor.get_resources(upper="uppeR", lower="Lower")),
+        )
+        # Lookups are, however, case-sensitive for the keys.
+        self.assertEqual([], list(self.descriptor.get_resources(Upper="UPPER")))
 
     def test_get_resources_by_name(self):
         """Verifies that get_resources() work when name is specified."""
