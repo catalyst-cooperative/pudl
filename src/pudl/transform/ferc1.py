@@ -993,7 +993,7 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
         happens in :meth:`Ferc1AbstractTableTransformer.merge_xbrl_metadata`.
         """
         logger.info(f"{self.table_id.value}: Processing XBRL metadata.")
-        return (
+        meta = (
             pd.concat(
                 [
                     pd.json_normalize(xbrl_metadata_json["instant"]),
@@ -1024,6 +1024,67 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
                 }
             )
         )
+        replace_xbrl_factoid = {
+            xbrl_factoid_name_og: self.rename_column_xbrl_to_pudl(xbrl_factoid_name_og)
+            for xbrl_factoid_name_og in meta.xbrl_factoid
+        }
+        meta.xbrl_factoid = meta.xbrl_factoid.map(replace_xbrl_factoid)
+        return meta
+
+    def rename_column_xbrl_to_pudl(
+        self,
+        col_name_xbrl: str,
+    ) -> str:
+        """Rename a column name from orignal XBRL name to the transformed PUDL name.
+
+        There are several transform params that either explicitly or implicity rename
+        columns:
+        * :class:`RenameColumnsFerc1`
+        * :class:`WideToTidySourceFerc1`
+        * :class:`UnstackBalancesToReportYearInstantXbrl`
+        * :class:`ConvertUnits`
+
+        This method attempts to use the table params to translate a column name.
+
+        Note: Instead of doing this for each individual column name, we could compile a
+        rename dict for the whole table with a similar processand then apply it for each
+        group of columns instead of running through this full process every time. If
+        this took longer than...  ~5 ms on a single table w/ lots of calcs this would
+        probably be worth it for simplicity.
+        """
+        rename_dicts = [
+            self.params.rename_columns_ferc1.duration_xbrl,
+            self.params.rename_columns_ferc1.instant_xbrl,
+            self.params.rename_columns_ferc1.xbrl,
+        ]
+        col_name_new = col_name_xbrl
+        for rename_stage in rename_dicts:
+            col_name_new = str(rename_stage.columns.get(col_name_new, col_name_new))
+        # the values in wide_to_tidy are found at the end of the column names and
+        # extracted, so we need to remove all of the suffixes.
+        wide_to_tidy_value_types = []
+        for wide_to_tidy_stage in json.loads(self.params.wide_to_tidy.json()).values():
+            if not isinstance(wide_to_tidy_stage, list):
+                wide_to_tidy_stage = [wide_to_tidy_stage]
+            for wide_to_tidy in wide_to_tidy_stage:
+                if wide_to_tidy["value_types"]:
+                    wide_to_tidy_value_types.append(wide_to_tidy["value_types"])
+        wide_to_tidy_value_types = pudl.helpers.dedupe_n_flatten_list_of_lists(
+            wide_to_tidy_value_types
+        )
+
+        for value_type in wide_to_tidy_value_types:
+            if col_name_new.endswith(f"_{value_type}"):
+                col_name_new = re.sub(f"_{value_type}$", "", col_name_new)
+            # col_name_new = col_name_new.replace(f"_{value_type}$", "")
+
+        if self.params.unstack_balances_to_report_year_instant_xbrl:
+            # TODO: do something...? add starting_balance & ending_balance suffixes?
+            pass
+        if self.params.convert_units:
+            # TODO: use from_unit -> to_unit map. but none of the $$ tables have this rn.
+            pass
+        return col_name_new
 
     @cache_df(key="merge_xbrl_metadata")
     def merge_xbrl_metadata(
@@ -3351,33 +3412,34 @@ class DepreciationAmortizationSummaryFerc1TableTransformer(
     table_id: TableIdFerc1 = TableIdFerc1.DEPRECIATION_AMORTIZATION_SUMMARY_FERC1
     has_unique_record_ids: bool = False
 
-    def merge_xbrl_metadata(
-        self, df: pd.DataFrame, params: MergeXbrlMetadata | None = None
-    ) -> pd.DataFrame:
-        """Annotate data using manually compiled FERC accounts & ``ferc_account_label``.
+    @cache_df("process_xbrl_metadata")
+    def process_xbrl_metadata(self, xbrl_metadata_json) -> pd.DataFrame:
+        """Transform the metadata to reflect the transformed data.
 
-        The FERC accounts are not provided in the XBRL taxonomy like they are for other
-        tables. However, there are only 4 of them, so a hand-compiled mapping is
-        hardcoded here, and merged onto the data similar to how the XBRL taxonomy
-        derived metadata is merged on for other tables.
+        Replace the name of the balance column reported in the XBRL Instant table with
+        starting_balance / ending_balance since we pull those two values into their own
+        separate labeled rows, each of which should get the original metadata for the
+        Instant column.
         """
-        xbrl_metadata = pd.DataFrame(
-            {
-                "ferc_account_label": [
-                    "depreciation_expense",
-                    "depreciation_expense_asset_retirement",
-                    "amortization_limited_term_electric_plant",
-                    "amortization_other_electric_plant",
-                ],
-                "ferc_account": ["403", "403.1", "404", "405"],
-            }
+        meta = (
+            super()
+            .process_xbrl_metadata(xbrl_metadata_json)
+            .assign(
+                xbrl_factoid=lambda x: x.xbrl_factoid.replace(
+                    self.params.rename_columns_ferc1.duration_xbrl.columns
+                )
+            )
         )
-        if not params:
-            params = self.params.merge_xbrl_metadata
-        if params.on:
-            logger.info(f"{self.table_id.value}: merging metadata")
-            df = merge_xbrl_metadata(df, xbrl_metadata, params)
-        return df
+        # logger.info(meta)
+        meta.loc[
+            meta.xbrl_factoid == "depreciation_expense_asset_retirement",
+            "ferc_account",
+        ] = "403.1"
+        meta.loc[
+            meta.xbrl_factoid == "depreciation_expense",
+            "ferc_account",
+        ] = "403.1"
+        return meta
 
 
 class ElectricPlantDepreciationChangesFerc1TableTransformer(
@@ -3914,7 +3976,6 @@ class ExplodeMeta:
             xbrl_meta_tbl = transformer.process_xbrl_metadata(
                 self.xbrl_meta_json[table_name]
             )
-
             meta_converted[table_name] = TableCalcs(
                 table_name=table_name,
                 xbrl_meta_tbl=xbrl_meta_tbl,
@@ -4118,6 +4179,7 @@ class TableCalcs:
         include dbf categories that could be relevant.
         """
         xbrl_meta_tbl = self.xbrl_meta_tbl
+        transformer = FERC1_TFR_CLASSES[self.table_name]()
         calced_values = set(
             xbrl_meta_tbl.loc[
                 xbrl_meta_tbl.row_type_xbrl == "calculated_value", "xbrl_factoid"
@@ -4132,10 +4194,10 @@ class TableCalcs:
             for calced_value in calced_values
         }
         calcs_renamed = {
-            self.rename_column_xbrl_to_pudl(calced_value): {
+            transformer.rename_column_xbrl_to_pudl(calced_value): {
                 "calcs": [
                     {
-                        key: self.rename_column_xbrl_to_pudl(value)
+                        key: transformer.rename_column_xbrl_to_pudl(value)
                         if key == "name"
                         else value
                         for (key, value) in calc.items()
@@ -4150,65 +4212,10 @@ class TableCalcs:
             name for name in xbrl_meta_tbl.xbrl_factoid if name not in calced_values
         ]
         non_calcs = {
-            self.rename_column_xbrl_to_pudl(name): {"name_original": name}
+            transformer.rename_column_xbrl_to_pudl(name): {"name_original": name}
             for name in names_non_calcs
         }
         return calcs_renamed | non_calcs
-
-    def rename_column_xbrl_to_pudl(
-        self,
-        col_name_xbrl: str,
-    ) -> str:
-        """Rename a column name from orignal XBRL name to the transformed PUDL name.
-
-        There are several transform params that either explicitly or implicity rename
-        columns:
-        * :class:`RenameColumnsFerc1`
-        * :class:`WideToTidySourceFerc1`
-        * :class:`UnstackBalancesToReportYearInstantXbrl`
-        * :class:`ConvertUnits`
-
-        This method attempts to use the table params to translate a column name.
-
-        Note: Instead of doing this for each individual column name, we could compile a
-        rename dict for the whole table with a similar processand then apply it for each
-        group of columns instead of running through this full process every time. If
-        this took longer than...  ~5 ms on a single table w/ lots of calcs this would
-        probably be worth it for simplicity.
-        """
-        rename_dicts = [
-            self.params.rename_columns_ferc1.duration_xbrl,
-            self.params.rename_columns_ferc1.instant_xbrl,
-            self.params.rename_columns_ferc1.xbrl,
-        ]
-        col_name_new = col_name_xbrl
-        for rename_stage in rename_dicts:
-            col_name_new = str(rename_stage.columns.get(col_name_new, col_name_new))
-        # the values in wide_to_tidy are found at the end of the column names and
-        # extracted, so we need to remove all of the suffixes.
-        wide_to_tidy_value_types = []
-        for wide_to_tidy_stage in json.loads(self.params.wide_to_tidy.json()).values():
-            if not isinstance(wide_to_tidy_stage, list):
-                wide_to_tidy_stage = [wide_to_tidy_stage]
-            for wide_to_tidy in wide_to_tidy_stage:
-                if wide_to_tidy["value_types"]:
-                    wide_to_tidy_value_types.append(wide_to_tidy["value_types"])
-        wide_to_tidy_value_types = pudl.helpers.dedupe_n_flatten_list_of_lists(
-            wide_to_tidy_value_types
-        )
-
-        for value_type in wide_to_tidy_value_types:
-            if col_name_new.endswith(f"_{value_type}"):
-                col_name_new = re.sub(f"_{value_type}$", "", col_name_new)
-            # col_name_new = col_name_new.replace(f"_{value_type}$", "")
-
-        if self.params.unstack_balances_to_report_year_instant_xbrl:
-            # TODO: do something...? add starting_balance & ending_balance suffixes?
-            pass
-        if self.params.convert_units:
-            # TODO: use from_unit -> to_unit map. but none of the $$ tables have this rn.
-            pass
-        return col_name_new
 
 
 def ensure_names_in_renamed_xbrl_calcs_are_present(
