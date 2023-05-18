@@ -61,7 +61,7 @@ def raw_epacamd_eia(context) -> pd.DataFrame:
     """Extract the EPACAMD-EIA Crosswalk from the Datastore."""
     logger.info("Extracting the EPACAMD-EIA crosswalk from Zenodo")
     ds = context.resources.datastore
-    with ds.get_zipfile_resource("epacamd_eia", name="epacamd_eia.zip").open(
+    with ds.get_zipfile_resource("epacamd_eia", name="epacamd_eia_2018.zip").open(
         "camd-eia-crosswalk-master/epa_eia_crosswalk.csv"
     ) as f:
         return pd.read_csv(f)

@@ -2614,7 +2614,7 @@ mcoe_gas_capacity_factor = [
         "title": "Natural Gas Capacity Factor (tails, 2015+)",
         "query": "fuel_type_code_pudl=='gas' and report_date>='2015-01-01' and capacity_factor!=0.0",
         "low_q": 0.15,
-        "low_bound": 0.01,
+        "low_bound": 0.005,
         "hi_q": 0.95,
         "hi_bound": 0.95,
         "data_col": "capacity_factor",
