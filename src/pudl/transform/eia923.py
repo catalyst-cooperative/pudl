@@ -763,7 +763,9 @@ def _aggregate_duplicate_boiler_fuel_keys(boiler_fuel_df: pd.DataFrame) -> pd.Da
         + relative_cols
         + key_cols
         + [
-            "prime_mover_code", "sector_id_eia", "sector_name_eia", 
+            "prime_mover_code",
+            "sector_id_eia",
+            "sector_name_eia",
             "total_fuel_consumption_quantity",
         ]
     )
