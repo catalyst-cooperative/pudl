@@ -762,7 +762,10 @@ def _aggregate_duplicate_boiler_fuel_keys(boiler_fuel_df: pd.DataFrame) -> pd.Da
         quantity_cols
         + relative_cols
         + key_cols
-        + ["prime_mover_code", "sector_id_eia", "sector_name_eia"]
+        + [
+            "prime_mover_code", "sector_id_eia", "sector_name_eia", 
+            "total_fuel_consumption_quantity",
+        ]
     )
     actual_cols = set(boiler_fuel_df.columns)
     difference = actual_cols.symmetric_difference(expected_cols)
@@ -829,7 +832,6 @@ def clean_boiler_fuel_eia923(raw_boiler_fuel_eia923: pd.DataFrame) -> pd.DataFra
     # See https://github.com/catalyst-cooperative/pudl/issues/509
     cols_to_drop = [
         "fuel_unit",
-        "total_fuel_consumption_quantity",
         "balancing_authority_code_eia",
         "early_release",
         "reporting_frequency_code",
