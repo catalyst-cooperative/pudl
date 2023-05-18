@@ -12,13 +12,16 @@ def test_epacamd_eia_subplant_ids():
     epacamd_eia_test = pd.read_csv(
         StringIO(
             """
-plant_id_epa,emissions_unit_id_epa,generator_id_epa,plant_id_eia,boiler_id,generator_id
-1392,1A,1A,1392,1A,1A
-1392,2A,2A,1392,2A,2A
-1392,3A,3A,1392,3A,3A
-1392,4A,4A,1392,,4A
-1392,5A,5A,1392,,5A
-1,A,A,1,,A
+plant_id_epa,emissions_unit_id_epa,generator_id_epa,plant_id_eia,boiler_id,generator_id,report_year
+1392,1A,1A,1392,1A,1A,2018
+1392,2A,2A,1392,2A,2A,2018
+1392,3A,3A,1392,3A,3A,2018
+1392,4A,4A,1392,,4A,2021
+1392,5A,5A,1392,,5A,2021
+1,A,A,1,,A,2021
+1392,1A,1A,1392,1A,1A,2021
+1392,2A,2A,1392,2A,2A,2021
+1392,3A,3A,1392,3A,3A,2021
 """
         )
     )

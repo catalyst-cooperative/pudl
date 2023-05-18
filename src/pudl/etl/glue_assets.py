@@ -69,7 +69,9 @@ def raw_epacamd_eia(context) -> pd.DataFrame:
     year_matches = []
     for year, csv_path in csv_map.items():
         with ds.get_zipfile_resource("epacamd_eia", year=year).open(csv_path) as f:
-            year_matches.append(pd.read_csv(f))
+            df = pd.read_csv(f)
+            df["report_year"] = year
+            year_matches.append(df)
 
     return pd.concat(year_matches, ignore_index=True)
 
@@ -150,6 +152,7 @@ def epacamd_eia(
     logger.info("Transforming the EPACAMD-EIA crosswalk")
 
     column_rename = {
+        "report_year": "report_year",
         "camd_plant_id": "plant_id_epa",
         "camd_unit_id": "emissions_unit_id_epa",
         "camd_generator_id": "generator_id_epa",
@@ -177,7 +180,6 @@ def epacamd_eia(
         .pipe(pudl.metadata.fields.apply_pudl_dtypes, "eia")
         .dropna(subset=["plant_id_eia"])
         .pipe(correct_epa_eia_plant_id_mapping)
-        .drop_duplicates()
     )
     dataset_settings = context.resources.dataset_settings
     processing_all_eia_years = (
@@ -248,6 +250,10 @@ def epacamd_eia_subplant_ids(
     Returns:
         table of cems_ids and with subplant_id added
     """
+    # epacamd_eia contains matches found from multiple years of data.
+    # Many of these matches will be duplicated between years, so these are dropped.
+    epacamd_eia = epacamd_eia.drop(["report_year"], axis=1).drop_duplicates()
+
     # Ensure ALL relevant IDs are present. Basically just merge in all the IDs
     # Later note: As of April 2023, there is an experimental augmentation of the
     # unit_id_pudl living in pudl.output.eia860.assign_unit_ids. It is currently non-
