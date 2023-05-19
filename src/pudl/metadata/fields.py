@@ -444,7 +444,7 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "type": "string",
         "description": (
             "The emission control ID used to collect so2, nox, particulate, "
-            "and mercury emissions data. This column shoudl be used in conjunction "
+            "and mercury emissions data. This column should be used in conjunction "
             "with emissions_control_type as it's not guaranteed to be unique."
         ),
     },
@@ -1537,7 +1537,7 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     },
     "operational_status": {
         "type": "string",
-        "description": "The operating status of the asset. For generators rhis is based on which tab the generator was listed in in EIA 860.",
+        "description": "The operating status of the asset. For generators this is based on which tab the generator was listed in in EIA 860.",
     },
     "operational_status_code": {
         "type": "string",
