@@ -95,6 +95,8 @@ Data Coverage
   * :ref:`emissions_control_equipment_eia860`, see issue :issue:`2338` & PR :pr:`2561`.
   * :ref:`denorm_emissions_control_equipment_eia860`, see issue :issue:`2338` & PR
     :pr:`2561`.
+  * :ref:`boiler_emissions_control_equipment_assn_eia860`, see :issue:`2338` & PR
+    :pr:`2561`.
 
 * The :ref:`boilers_eia860` table now includes annual boiler attributes from
   :doc:`data_sources/eia860` Schedule 6.2 Environmental Equipment data, and the new

@@ -900,7 +900,8 @@ def clean_boiler_emissions_control_equipment_assn_eia860(
     bece_df = pd.DataFrame({})
 
     for table in raw_tables:
-        # There are some utilities that report the same emissions control equipment
+        # There are some utilities that report the same emissions control equipment.
+        # Drop duplicate rows where the only difference is utility.
         table = table.drop_duplicates(
             subset=[
                 x
@@ -908,8 +909,12 @@ def clean_boiler_emissions_control_equipment_assn_eia860(
                 if x not in ["utility_id_eia", "utility_name_eia"]
             ]
         )
+        # Melt the table so that the control id column is in one row and the type of
+        # control id (the pollutant type) is in another column. This makes it easier
+        # combine all of the tables for different pollutants.
         value_col = [col for col in table if "control_id_eia" in col]
         id_cols = [col for col in table if "control_id_eia" not in col]
+        # Each table should only have one column with control_id_eia in the name
         assert len(value_col) == 1
         table = pd.melt(
             table,
@@ -917,15 +922,19 @@ def clean_boiler_emissions_control_equipment_assn_eia860(
             id_vars=id_cols,
             var_name="emission_control_id_type",
             value_name="emission_control_id_eia",
-        ).assign(
-            emission_control_id_type=lambda x: x.emission_control_id_type.str.replace(
-                "_control_id_eia", ""
-            )
         )
         bece_df = bece_df.append(table)
 
+    # The report_year column must be report_date in order for the harvcesting process
+    # to work on this table. It later gets converted back to report_year.
     bece_df = pudl.helpers.convert_to_date(
         df=bece_df, year_col="report_year", date_col="report_date"
+    ).assign(
+        # Remove the string _control_id_eia from the control_id_type column so it just
+        # shows the prefix (i.e., the name of the pollutant: so2, nox, etc.)
+        emission_control_id_type=lambda x: x.emission_control_id_type.str.replace(
+            "_control_id_eia", ""
+        )
     )
     # There are some records that don't have an emission control id that are not
     # helpful so we drop them.
