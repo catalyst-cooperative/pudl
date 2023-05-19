@@ -395,6 +395,10 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "description": "Average monthly coincident peak (CP) demand (for requirements purchases, and any transactions involving demand charges). Monthly CP demand is the metered demand during the hour (60-minute integration) in which the supplier's system reaches its monthly peak. In megawatts.",
         "unit": "MW",
     },
+    "cooling_id_eia": {
+        "type": "string",
+        "description": "The cooling system identification number used by EIA.",
+    },
     "conductor_size_and_material": {
         "type": "string",
         "description": "Size of transmission conductor and material of the transmission line.",
@@ -870,6 +874,13 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     "firing_type_3": {
         "type": "string",
         "description": "EIA short code indicating the type of firing used by this boiler.",
+    },
+    "flue_id_eia": {
+        "type": "string",
+        "description": (
+            "The value EIA uses to identify the specific duct or system where the flue "
+            "gas is treated or processed for emissions control.",
+        ),
     },
     "fluidized_bed_tech": {
         "type": "boolean",
@@ -2240,6 +2251,20 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     "solid_fuel_gasification": {
         "type": "boolean",
         "description": "Indicates whether the generator is part of a solid fuel gasification system",
+    },
+    "stack_id_eia": {
+        "type": "string",
+        "description": (
+            "The value EIA uses to identify a stack or chimney on a power plant where "
+            "emissions from the combustion process are released into the atmosphere.",
+        ),
+    },
+    "stack_flue_id_eia": {
+        "type": "string",
+        "description": (
+            "The value EIA uses to identify hybrid stack and flue units. Plants with "
+            "individual stack and flue IDs do not have a stack_flue_id value."
+        ),
     },
     "standard": {"type": "string", "constraints": {"enum": RELIABILITY_STANDARDS}},
     "standard_nox_rate": {

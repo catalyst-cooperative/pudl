@@ -546,7 +546,7 @@ columns.
     },
     "boiler_emissions_control_equipment_assn_eia860": {
         "description": (
-            """A table that links EIA boiler id to emissions control IDs for nox, so2,
+            """A table that links EIA boiler ID to emissions control IDs for nox, so2,
 mercury, and particulate monitoring. The relationship is sometimes one to many.
 """
         ),
@@ -571,6 +571,47 @@ mercury, and particulate monitoring. The relationship is sometimes one to many.
         "sources": ["eia860"],
         "etl_group": "eia860",
     },
+    "boiler_cooler_assn_eia860": {
+        "description": "A table that links EIA boiler ID to EIA cooling system ID.",
+        "schema": {
+            "fields": [
+                "report_date",
+                "plant_id_eia",
+                "boiler_id",
+                "cooling_id_eia",
+                "data_maturity",
+            ],
+            "primary_key": [
+                "report_date",
+                "plant_id_eia",
+                "boiler_id",
+                "cooling_id_eia",
+            ],
+        },
+        "field_namespace": "eia",
+        "sources": ["eia860"],
+        "etl_group": "eia860",
+    },
+    # "boiler_stack_flue_assn_eia860": {
+    #     "description": (
+    #         "A table that links EIA boiler ID to EIA stack and/or flue systems."
+    #     ),
+    #     "schema": {
+    #         "fields": [
+    #             "report_date",
+    #             "plant_id_eia",
+    #             "boiler_id",
+    #             "stack_flue_id_eia",
+    #             "stack_id_eia",
+    #             "flue_id_eia",
+    #             ""
+    #         ],
+    #         "primary_key": [],
+    #         "field_namespace": "eia",
+    #         "sources": ["eia860"],
+    #         "etl_group": "eia860",
+    #     },
+    # },
 }
 """EIA-860 resource attributes organized by PUDL identifier (``resource.name``).
 

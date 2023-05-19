@@ -941,3 +941,54 @@ def clean_boiler_emissions_control_equipment_assn_eia860(
     bece_df = bece_df.dropna(subset="emission_control_id_eia")
 
     return bece_df
+
+
+@asset
+def clean_boiler_cooler_assn_eia860(
+    raw_boiler_cooling_eia860: pd.DataFrame,
+) -> pd.DataFrame:
+    """Pull and transform the EIA 860 boiler to cooler ID table.
+
+    Args:
+        raw_boiler_booling_eia860: Raw EIA 860 boiler to cooler ID association table.
+
+    Returns:
+        pd.DataFrame: A cleaned and normalized version of the EIA boiler to cooler ID
+            table.
+    """
+    # Replace empty strings, whitespace, and '.' fields with real NA values
+    bc_assn = pudl.helpers.fix_eia_na(raw_boiler_cooling_eia860)
+    # Replace the report year col with a report date col for the harvesting process
+    bc_assn = pudl.helpers.convert_to_date(
+        df=bc_assn, year_col="report_year", date_col="report_date"
+    )
+    # Drop rows with no cooling ID and just in case, drop duplicate
+    bc_assn = bc_assn.dropna(subset="cooling_id_eia").drop_duplicates()
+
+    return bc_assn
+
+
+@asset
+def clean_boiler_stack_flue_assn_eia860(
+    raw_boiler_stack_flue_eia860: pd.DataFrame,
+) -> pd.DataFrame:
+    """Pull and transform the EIA 860 boiler to stack flue ID table.
+
+    Args:
+        raw_boiler_booling_eia860: Raw EIA 860 boiler to stack flue ID association
+            table.
+
+    Returns:
+        pd.DataFrame: A cleaned and normalized version of the EIA boiler to stack flue
+            ID table.
+    """
+    # Replace empty strings, whitespace, and '.' fields with real NA values
+    bsf_assn = pudl.helpers.fix_eia_na(raw_boiler_stack_flue_eia860)
+    # Replace the report year col with a report date col for the harvesting process
+    bsf_assn = pudl.helpers.convert_to_date(
+        df=bsf_assn, year_col="report_year", date_col="report_date"
+    )
+    # Drop duplicates
+    bsf_assn = bsf_assn.drop_duplicates()
+
+    return bsf_assn
