@@ -768,7 +768,8 @@ def _aggregate_duplicate_boiler_fuel_keys(boiler_fuel_df: pd.DataFrame) -> pd.Da
             "sector_name_eia",
             "total_fuel_consumption_quantity",
             "balancing_authority_code_eia",
-            "early_release", "reporting_frequency_code",
+            "early_release",
+            "reporting_frequency_code",
         ]
     )
     actual_cols = set(boiler_fuel_df.columns)
