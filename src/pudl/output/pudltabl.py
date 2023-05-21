@@ -168,6 +168,9 @@ class PudlTabl:
             # eia860 (denormalized, data primarily from EIA-860)
             "denorm_ownership_eia860": "own_eia860",
             "boiler_generator_assn_eia860": "bga_eia860",
+            "denorm_emissions_control_equipment_eia860": "denorm_emissions_control_equipment_eia860",
+            "boiler_emissions_control_equipment_assn_eia860": "boiler_emissions_control_equipment_assn_eia860",
+            "emissions_control_equipment_eia860": "emissions_control_equipment_eia860",
             # eia861 (clean)
             "service_territory_eia861": "service_territory_eia861",
             "sales_eia861": "sales_eia861",
