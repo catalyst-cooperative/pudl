@@ -1649,3 +1649,51 @@ def get_asset_group_keys(
     """
     asset_keys = AssetSelection.groups(asset_group).resolve(all_assets)
     return [asset.to_python_identifier() for asset in list(asset_keys)]
+
+
+def convert_col_to_bool(
+    df: pd.DataFrame, col_name: str, true_values: list, false_values: list
+) -> pd.DataFrame:
+    """Turn a column into a boolean while preserving NA values.
+
+    You don't have to specify NA as true or false - it will preserve it's NA-ness unless
+    you add it to one of the input true/false lists.
+
+    Args:
+        df: The dataframe containing the column you want to change.
+        col_name: The name of the column you want to turn into a boolean (must be an
+            existing column, not a new column name).
+        true_values: The list of values in col_name that you want to be marked as True.
+        false_values: The list of values appearing in col_name that you want to be
+            False.
+
+    Raises:
+        AssertionError: if there are non-NA values in col_name that aren't specified in
+            true_values or false_values.
+        AssertionError: if there are values that appear in both true_values and
+            false_values.
+
+    Returns:
+        pd.DataFrame: The original dataframe with col_name as a boolean column.
+    """
+    # Make sure inputs are valid
+    if unspecified_values := [
+        x for x in df[col_name].dropna().unique() if x not in true_values + false_values
+    ]:
+        raise AssertionError(
+            "Found values besides NA that are not categoriezed as True or False: "
+            f"{unspecified_values}"
+        )
+    if [x for x in true_values if x in false_values]:
+        raise AssertionError(
+            "Duplicate values in true and false! You can only pick one."
+        )
+    # Set values as true or value. Astype boolean should preserve NA values.
+    # This is easier than building an input dictionary for pandas map or replace
+    # functions.
+    df = df.copy()
+    df.loc[df[col_name].isin(true_values), col_name] = True
+    df.loc[df[col_name].isin(false_values), col_name] = False
+    df[col_name] = df[col_name].astype("boolean")
+
+    return df
