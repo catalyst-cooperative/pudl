@@ -990,5 +990,21 @@ def clean_boiler_stack_flue_assn_eia860(
     )
     # Drop duplicates
     bsf_assn = bsf_assn.drop_duplicates()
+    # Create a primary key column for stack flue IDs.
+    # There are some stack & flue units that are combined and have just one ID. Others
+    # have unique IDs for each stack & flue unit that may have m:m relationships with
+    # one another. These IDs are part of the primary key for this table, and because we
+    # can't have NA values in the primary key we'll need to create a hybrid column that
+    # turns the seperate stack_id_eia and flue_id_eia values into one stack_flue_id_pudl
+    # value. Anytime there's a stack_flue_id_eia we'll use that.
+    bsf_assn = bsf_assn.assign(
+        stack_flue_id_pudl=lambda x: (
+            x.stack_id_eia.astype("string") + "_" + x.flue_id_eia.astype("string")
+        )
+        .fillna(x.stack_flue_id_eia)
+        .fillna(
+            x.stack_id_eia.astype("string")
+        )  # sometimes there's a stack id and no flue id
+    )
 
     return bsf_assn

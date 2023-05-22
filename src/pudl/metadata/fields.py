@@ -877,10 +877,7 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     },
     "flue_id_eia": {
         "type": "string",
-        "description": (
-            "The value EIA uses to identify the specific duct or system where the flue "
-            "gas is treated or processed for emissions control.",
-        ),
+        "description": "test",
     },
     "fluidized_bed_tech": {
         "type": "boolean",
@@ -2256,7 +2253,7 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "type": "string",
         "description": (
             "The value EIA uses to identify a stack or chimney on a power plant where "
-            "emissions from the combustion process are released into the atmosphere.",
+            "emissions from the combustion process are released into the atmosphere."
         ),
     },
     "stack_flue_id_eia": {
@@ -2264,6 +2261,17 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "description": (
             "The value EIA uses to identify hybrid stack and flue units. Plants with "
             "individual stack and flue IDs do not have a stack_flue_id value."
+        ),
+    },
+    "stack_flue_id_pudl": {
+        "type": "string",
+        "description": (
+            "The stack_id_eia value and the flue_id_eia value seperated by an "
+            "underscore. Or the value for stack_flue_id_eia when there is one. "
+            "Or just the stack_id_eia when there's nothing else. This value is used "
+            "as the primary key for the boiler_stack_flue_assn_eia860 table and "
+            "shouldn't necessarily be used to connect the values in this table to "
+            "those of another."
         ),
     },
     "standard": {"type": "string", "constraints": {"enum": RELIABILITY_STANDARDS}},
