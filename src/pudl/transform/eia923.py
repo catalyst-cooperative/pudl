@@ -942,8 +942,7 @@ def clean_generation_eia923(raw_generator_eia923: pd.DataFrame) -> pd.DataFrame:
     gen_df = (
         raw_generator_eia923.dropna(subset=["generator_id"])
         .drop(
-            [
-            ],
+            [],
             axis="columns",
         )
         .pipe(_yearly_to_monthly_records)
