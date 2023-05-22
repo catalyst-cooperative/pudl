@@ -943,16 +943,6 @@ def clean_generation_eia923(raw_generator_eia923: pd.DataFrame) -> pd.DataFrame:
         raw_generator_eia923.dropna(subset=["generator_id"])
         .drop(
             [
-                "combined_heat_power",
-                "plant_name_eia",
-                "operator_name",
-                "operator_id",
-                "plant_state",
-                "census_region",
-                "nerc_region",
-                "naics_code",
-                "net_generation_mwh_year_to_date",
-                "early_release",
             ],
             axis="columns",
         )
