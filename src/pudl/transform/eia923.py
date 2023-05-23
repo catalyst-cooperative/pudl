@@ -1084,9 +1084,6 @@ def clean_fuel_receipts_costs_eia923(
     # Drop fields we're not inserting into the fuel_receipts_costs_eia923
     # table.
     cols_to_drop = [
-        "plant_state",
-        "operator_name",
-        "operator_id",
         "mine_id_msha",
         "mine_type_code",
         "state",
@@ -1094,7 +1091,6 @@ def clean_fuel_receipts_costs_eia923(
         "state_id_fips",
         "mine_name",
         "regulated",
-        "early_release",
     ]
 
     cmi_df = (
