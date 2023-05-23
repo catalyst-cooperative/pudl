@@ -12,7 +12,7 @@ dependencies:
 
   # These packages are also specified in setup.py However, they depend on or
   # benefit from binary libraries which conda can install.
-  - geopandas>=0.9,<0.14
+  - geopandas>=0.13,<0.14
   - shapely>=2,<3
   - python-snappy>=0.6,<1
   - sqlite>=3.36,<4

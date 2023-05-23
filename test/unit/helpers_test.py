@@ -13,6 +13,7 @@ from pandas.tseries.offsets import BYearEnd
 import pudl
 from pudl.helpers import (
     EnvVar,
+    convert_col_to_bool,
     convert_df_to_excel_file,
     convert_to_date,
     date_merge,
@@ -654,3 +655,34 @@ def test_env_var_reads_defaults(mocker):
 def test_env_var_missing_completely():
     with pytest.raises(PostProcessingError):
         EnvVar(env_var="_PUDL_BOGUS").post_process(None)
+
+
+@pytest.mark.parametrize(
+    "df",
+    [
+        pytest.param(pd.DataFrame({"col1": ["A", "B"], "col2": [1, 2]})),
+        pytest.param(
+            pd.DataFrame({"col1": ["A", "B", "C"], "col2": [1, 2, 3]}),
+            marks=pytest.mark.xfail,
+        ),
+    ],
+)
+def test_convert_col_to_bool(df):
+    true_values = ["A"]
+    false_values = ["B"]
+    df_bool = convert_col_to_bool(
+        df, col_name="col1", true_values=true_values, false_values=false_values
+    )
+    assert len(df) == len(df_bool)
+    assert df_bool["col1"].dtype == "boolean"
+    df_compare = pd.merge(df, df_bool, right_index=True, left_index=True)
+    assert (
+        df_compare.loc[df_compare["col1_x"].isin(true_values)]["col1_y"]
+        .isin([True])
+        .all()
+    )
+    assert (
+        df_compare.loc[~df_compare["col1_x"].isin(true_values)]["col1_y"]
+        .isin([False, np.nan])
+        .all()
+    )
