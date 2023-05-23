@@ -546,8 +546,9 @@ columns.
     },
     "boiler_emissions_control_equipment_assn_eia860": {
         "description": (
-            """A table that links EIA boiler ID to emissions control IDs for nox, so2,
-mercury, and particulate monitoring. The relationship is sometimes one to many.
+            """A table that links EIA boiler IDs to emissions control IDs for NOx, SO2,
+mercury, and particulate monitoring. The relationship between the IDs is sometimes many
+to many.
 """
         ),
         "schema": {
