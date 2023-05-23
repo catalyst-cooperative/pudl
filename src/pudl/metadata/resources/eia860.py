@@ -572,7 +572,7 @@ to many.
         "sources": ["eia860"],
         "etl_group": "eia860",
     },
-    "boiler_cooler_assn_eia860": {
+    "boiler_cooling_assn_eia860": {
         "description": "A table that links EIA boiler IDs to EIA cooling system IDs.",
         "schema": {
             "fields": [

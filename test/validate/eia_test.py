@@ -29,7 +29,7 @@ logger = logging.getLogger(__name__)
         ("boiler_emissions_control_equipment_assn_eia860", "all"),
         ("denorm_emissions_control_equipment_eia860", "all"),
         ("boiler_stack_flue_assn_eia860", "all"),
-        ("boiler_cooler_assn_eia860", "all"),
+        ("boiler_cooling_assn_eia860", "all"),
     ],
 )
 def test_no_null_cols_eia(pudl_out_eia, live_dbs, cols, df_name):
@@ -59,7 +59,7 @@ def test_no_null_cols_eia(pudl_out_eia, live_dbs, cols, df_name):
         ("emissions_control_equipment_eia860", 51_015, 51_015, 51_015),
         ("denorm_emissions_control_equipment_eia860", 51_015, 51_015, 51_015),
         ("boiler_emissions_control_equipment_assn_eia860", 71_326, 71_326, 71_326),
-        ("boiler_cooler_assn_eia860", 38_344, 38_344, 38_344),
+        ("boiler_cooling_assn_eia860", 38_344, 38_344, 38_344),
         ("boiler_stack_flue_assn_eia860", 38_734, 38_734, 38_734),
     ],
 )
@@ -213,10 +213,10 @@ def test_minmax_rows(
             ),
         ),
         (
-            "boiler_cooler_assn_eia860",
+            "boiler_cooling_assn_eia860",
             (
                 Package.from_resource_ids()
-                .get_resource("boiler_cooler_assn_eia860")
+                .get_resource("boiler_cooling_assn_eia860")
                 .schema.primary_key
             ),
         ),

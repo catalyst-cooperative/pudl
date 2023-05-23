@@ -944,7 +944,7 @@ def clean_boiler_emissions_control_equipment_assn_eia860(
 
 
 @asset
-def clean_boiler_cooler_assn_eia860(
+def clean_boiler_cooling_assn_eia860(
     raw_boiler_cooling_eia860: pd.DataFrame,
 ) -> pd.DataFrame:
     """Pull and transform the EIA 860 boiler to cooler ID table.
