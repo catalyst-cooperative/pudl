@@ -267,6 +267,10 @@ def epacamd_eia_subplant_ids(
 ) -> pd.DataFrame:
     """Groups units and generators into unique subplant groups.
 
+    This takes :func:`epacamd_eia_unique` as an input because this asset so it doesn't
+    have to deal with duplicate matches that may be present in the :func:`epacamd_eia`
+    asset due to its use of multiple years of raw crosswalk outputs.
+
     This function consists of three primary parts:
 
     #.  Augement the EPA CAMD:EIA crosswalk with all IDs from EIA and EPA CAMD. Fill in
