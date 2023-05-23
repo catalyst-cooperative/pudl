@@ -1153,6 +1153,7 @@ def harvested_entity_asset_factory(
         "clean_emissions_control_equipment_eia860",
         "clean_boiler_emissions_control_equipment_assn_eia860",
         "clean_boiler_cooler_assn_eia860",
+        "clean_boiler_stack_flue_assn_eia860",
     )
 
     @multi_asset(
