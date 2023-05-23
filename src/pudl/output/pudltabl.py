@@ -176,6 +176,8 @@ class PudlTabl:
             "denorm_emissions_control_equipment_eia860": "denorm_emissions_control_equipment_eia860",
             "boiler_emissions_control_equipment_assn_eia860": "boiler_emissions_control_equipment_assn_eia860",
             "emissions_control_equipment_eia860": "emissions_control_equipment_eia860",
+            "boiler_stack_flue_assn_eia860": "boiler_stack_flue_assn_eia860",
+            "boiler_cooler_assn_eia860": "boiler_cooler_assn_eia860",
             # eia861 (clean)
             "service_territory_eia861": "service_territory_eia861",
             "sales_eia861": "sales_eia861",
