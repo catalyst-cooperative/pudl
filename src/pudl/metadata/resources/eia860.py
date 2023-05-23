@@ -573,7 +573,7 @@ to many.
         "etl_group": "eia860",
     },
     "boiler_cooler_assn_eia860": {
-        "description": "A table that links EIA boiler ID to EIA cooling system ID.",
+        "description": "A table that links EIA boiler IDs to EIA cooling system IDs.",
         "schema": {
             "fields": [
                 "report_date",
@@ -595,7 +595,7 @@ to many.
     },
     "boiler_stack_flue_assn_eia860": {
         "description": (
-            """A table that links EIA boiler ID to EIA stack and/or flue
+            """A table that links EIA boiler IDs to EIA stack and/or flue
 system IDs.
 """
         ),

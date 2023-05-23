@@ -950,7 +950,7 @@ def clean_boiler_cooler_assn_eia860(
     """Pull and transform the EIA 860 boiler to cooler ID table.
 
     Args:
-        raw_boiler_booling_eia860: Raw EIA 860 boiler to cooler ID association table.
+        raw_boiler_cooling_eia860: Raw EIA 860 boiler to cooler ID association table.
 
     Returns:
         pd.DataFrame: A cleaned and normalized version of the EIA boiler to cooler ID
@@ -975,7 +975,7 @@ def clean_boiler_stack_flue_assn_eia860(
     """Pull and transform the EIA 860 boiler to stack flue ID table.
 
     Args:
-        raw_boiler_booling_eia860: Raw EIA 860 boiler to stack flue ID association
+        raw_boiler_stack_flue_eia860: Raw EIA 860 boiler to stack flue ID association
             table.
 
     Returns:

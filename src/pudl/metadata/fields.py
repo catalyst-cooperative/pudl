@@ -397,7 +397,10 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     },
     "cooling_id_eia": {
         "type": "string",
-        "description": "The cooling system identification number used by EIA.",
+        "description": (
+            "The cooling system identification number reported to EIA. This value may "
+            "not be a unique identifier"
+        ),
     },
     "conductor_size_and_material": {
         "type": "string",
@@ -877,7 +880,10 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     },
     "flue_id_eia": {
         "type": "string",
-        "description": "test",
+        "description": (
+            "The flue identification value reported to EIA. This value may "
+            "not be a unique identifier."
+        ),
     },
     "fluidized_bed_tech": {
         "type": "boolean",
@@ -2252,26 +2258,29 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     "stack_id_eia": {
         "type": "string",
         "description": (
-            "The value EIA uses to identify a stack or chimney on a power plant where "
-            "emissions from the combustion process are released into the atmosphere."
+            "The stack identification value reported to EIA. Stacks or chimneys are "
+            "the place where emissions from the combustion process are released into "
+            "the atmosphere. This value may not be a unique identifier."
         ),
     },
     "stack_flue_id_eia": {
         "type": "string",
         "description": (
-            "The value EIA uses to identify hybrid stack and flue units. Plants with "
-            "individual stack and flue IDs do not have a stack_flue_id value."
+            "The stack/flue identification value reported to EIA. Plants with "
+            "individual stack and flue IDs do not have a stack_flue_id value. This "
+            "value may not be a unique identifier."
         ),
     },
     "stack_flue_id_pudl": {
         "type": "string",
         "description": (
-            "The stack_id_eia value and the flue_id_eia value seperated by an "
-            "underscore. Or the value for stack_flue_id_eia when there is one. "
-            "Or just the stack_id_eia when there's nothing else. This value is used "
-            "as the primary key for the boiler_stack_flue_assn_eia860 table and "
-            "shouldn't necessarily be used to connect the values in this table to "
-            "those of another."
+            "A stack/flue identification value produced by PUDL and used as the "
+            "primary key for the boiler_stack_flue_assn_eia860 table. If there is an "
+            "ID for a combined stack-flue unit `stack_flue_id_eia`, this value is "
+            "used. Otherwise, this value is a combination of the EIA stack ID "
+            "`stack_id_eia` and the flue ID `flue_id_eia`, separated by an underscore. "
+            "If there is no flue ID, this is equivalent to the stack ID provided by "
+            "EIA. This value may not be a unique identifier."
         ),
     },
     "standard": {"type": "string", "constraints": {"enum": RELIABILITY_STANDARDS}},
