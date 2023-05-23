@@ -146,11 +146,11 @@ def set_defaults(pudl_in, pudl_out, clobber=False):
     Returns:
         None
     """
-    # logger.warning(
-    #     "pudl_settings is being deprecated in favor of environment "
-    #     "variables PUDL_OUTPUT and PUDL_INPUT. For more info "
-    #     "see: https://catalystcoop-pudl.readthedocs.io/en/dev/dev/dev_setup.html"
-    # )
+    logger.warning(
+        "pudl_settings is being deprecated in favor of environment "
+        "variables PUDL_OUTPUT and PUDL_INPUT. For more info "
+        "see: https://catalystcoop-pudl.readthedocs.io/en/dev/dev/dev_setup.html"
+    )
     settings_file = pathlib.Path.home() / ".pudl.yml"
     if settings_file.exists():
         if clobber:
