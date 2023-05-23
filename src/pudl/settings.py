@@ -91,6 +91,11 @@ class GenericDatasetSettings(BaseModel):
             partitions = [{"year": part} for part in cls.years]
         return partitions
 
+    @property
+    def is_disabled(self) -> bool:
+        """Returns True if the dataset is disabled and should be skipped."""
+        return getattr(self, "disabled", False)
+
 
 class Ferc1Settings(GenericDatasetSettings):
     """An immutable pydantic model to validate Ferc1Settings.
@@ -427,12 +432,14 @@ class Ferc1DbfToSqliteSettings(GenericDatasetSettings):
 
     Args:
         years: List of years to validate.
+        disabled: if true, skip processing this dataset.
     """
 
     data_source: ClassVar[DataSource] = DataSource.from_id("ferc1")
     years: list[int] = [
         year for year in data_source.working_partitions["years"] if year <= 2020
     ]
+    disabled: bool = False
 
     refyear: ClassVar[int] = max(years)
 
@@ -481,11 +488,14 @@ class Ferc2DbfToSqliteSettings(GenericDatasetSettings):
 
     Args:
         years: List of years to validate.
+        disabled: if True, skip processing this dataset.
     """
+
     data_source: ClassVar[DataSource] = DataSource.from_id("ferc2")
     years: list[int] = [
         year for year in data_source.working_partitions["years"] if year <= 2020
     ]
+    disabled: bool = False
 
     refyear: ClassVar[int] = max(years)
 

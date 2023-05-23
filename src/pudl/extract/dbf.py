@@ -15,6 +15,7 @@ from dbfread import DBF, FieldParser
 import pudl
 import pudl.logging_helpers
 from pudl.metadata.classes import DataSource
+from pudl.settings import FercToSqliteSettings, GenericDatasetSettings
 from pudl.workspace.datastore import Datastore
 
 logger = pudl.logging_helpers.get_logger(__name__)
@@ -282,20 +283,6 @@ class FercDbfReader:
         self.datastore = datastore
         self.dataset = dataset
         self.field_parser = field_parser
-        # at the moment, archives are inconsistent in terms of upper/lower casing the
-        # partition data_format values. We will infer the correct value by inspecting the
-        # descriptor.
-        # The following workaround could be removed once all zenodo archives agree on
-        # the capitalization.
-        parts = self.datastore.get_datapackage_descriptor(self.dataset).get_partitions()
-        if "dbf" in parts["data_format"]:
-            self._data_format = "dbf"
-        elif "DBF" in parts["data_format"]:
-            self._data_format = "DBF"
-        else:
-            raise RuntimeError(
-                f"dbf/DBF not found in the data_format for the dataset {self.dataset}"
-            )
 
         # dbc_file_map.csv contains path to the DBC file that contains the
         # overall database schemas. It is expected that DBF files live in
@@ -409,7 +396,7 @@ class FercDbfExtractor:
     def __init__(
         self,
         datastore: Datastore,
-        settings: Any,
+        settings: FercToSqliteSettings,
         output_path: Path,
         clobber: bool = False,
     ):
@@ -421,7 +408,7 @@ class FercDbfExtractor:
             output_path: directory where the output databases should be stored.
             clobber: if True, existing databases should be replaced.
         """
-        self.settings = settings
+        self.settings: GenericDatasetSettings = self.get_settings(settings)
         self.clobber = clobber
         self.output_path = output_path
         self.datastore = datastore
@@ -429,6 +416,14 @@ class FercDbfExtractor:
         self.sqlite_engine = sa.create_engine(self.get_db_path())
         self.sqlite_meta = sa.MetaData()
         self.sqlite_meta.reflect(self.sqlite_engine)
+
+    def get_settings(
+        self, global_settings: FercToSqliteSettings
+    ) -> GenericDatasetSettings:
+        """Returns dataset relevant settings from the global_settings."""
+        return NotImplemented(
+            "get_settings() needs to extract dataset specific settings."
+        )
 
     def get_dbf_reader(self, datastore: Datastore) -> AbstractFercDbfReader:
         """Returns appropriate instance of AbstractFercDbfReader to access the data."""
@@ -441,6 +436,13 @@ class FercDbfExtractor:
 
     def execute(self):
         """Runs the extraction of the data from dbf to sqlite."""
+        logger.info(
+            f"Running dbf extraction for {self.DATASET} with settings: {self.settings}"
+        )
+        if self.settings.is_disabled:
+            logger.warning(f"Dataset {self.DATASET} extraction is disabled, skipping")
+            return
+
         # TODO(rousik): perhaps we should check clobber here before starting anything.
         self.delete_schema()
         self.create_sqlite_tables()
