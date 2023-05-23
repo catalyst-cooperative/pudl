@@ -471,7 +471,7 @@ class FercDbfExtractor:
                     "years"
                 ]
             )
-        ref_dbf = self.dbf_reader.get_archive(year=refyear)
+        ref_dbf = self.dbf_reader.get_archive(year=refyear, data_format="dbf")
         for tn in self.dbf_reader.get_table_names():
             ref_dbf.get_table_schema(tn).create_sa_table(self.sqlite_meta)
         self.finalize_schema(self.sqlite_meta)
@@ -500,7 +500,7 @@ class FercDbfExtractor:
             p
             for p in self.datastore.get_datapackage_descriptor(
                 self.DATASET
-            ).get_partition_filters()
+            ).get_partition_filters(data_format="dbf")
             if self.is_valid_partition(p) and p.get("year", None) in self.settings.years
         ]
         logger.info(
