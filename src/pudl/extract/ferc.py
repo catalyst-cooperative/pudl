@@ -5,7 +5,9 @@ from typing import Optional
 import sqlalchemy as sa
 
 
-def add_key_constraints(meta: sa.MetaData, pk_table: str, column: str, pk_column: Optional[str] = None) -> sa.MetaData:
+def add_key_constraints(
+    meta: sa.MetaData, pk_table: str, column: str, pk_column: str | None = None
+) -> sa.MetaData:
     """Adds primary and foreign key to tables present in meta.
 
     Args:
@@ -19,7 +21,9 @@ def add_key_constraints(meta: sa.MetaData, pk_table: str, column: str, pk_column
     for table in meta.tables.values():
         constraint = None
         if table.name == pk_table:
-            constraint = sa.PrimaryKeyConstraint(pk_column, sqlite_on_conflict="REPLACE")
+            constraint = sa.PrimaryKeyConstraint(
+                pk_column, sqlite_on_conflict="REPLACE"
+            )
         elif column in table.columns:
             constraint = sa.ForeignKeyConstraint(
                 columns=[column],
