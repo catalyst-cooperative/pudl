@@ -87,6 +87,7 @@ import pudl
 from pudl.extract.dbf import AbstractFercDbfReader, FercDbfExtractor, FercDbfReader
 from pudl.extract.ferc import add_key_constraints
 from pudl.extract.ferc2 import Ferc2DbfExtractor
+from pudl.extract.ferc6 import Ferc6DbfExtractor
 from pudl.helpers import EnvVar
 from pudl.io_managers import (
     FercDBFSQLiteIOManager,
@@ -352,6 +353,7 @@ def dbf2sqlite(context) -> None:
     extractors = [
         Ferc1DbfExtractor,
         Ferc2DbfExtractor,
+        Ferc6DbfExtractor,
     ]
     for xclass in extractors:
         xclass(
