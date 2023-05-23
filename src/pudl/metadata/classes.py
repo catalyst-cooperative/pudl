@@ -279,8 +279,13 @@ class Pattern(BaseType):
 def StrictList(item_type: type = Any) -> pydantic.ConstrainedList:  # noqa: N802
     """Non-empty :class:`list`.
 
-    Allows :class:`list`, :class:`tuple`, :class:`set`, :class:`frozenset`,
-    :class:`collections.deque`, or generators and casts to a :class:`list`.
+    Allows
+    :class: `list`,
+    :class: `tuple`,
+    :class: `set`,
+    :class: `frozenset`,
+    :class: `collections.deque`, or generators and casts to a
+    :class: `list`.
     """
     return pydantic.conlist(item_type=item_type, min_items=1)
 

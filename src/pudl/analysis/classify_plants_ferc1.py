@@ -531,10 +531,10 @@ def revert_filled_in_string_nulls(df: pd.DataFrame) -> pd.DataFrame:
     """Revert the filled nulls from string columns.
 
     Many columns that are used for the classification in
-    :func:`plants_steam_assign_plant_ids` have many nulls. The classifier can't handle
-    nulls well, so we filled in nulls with empty strings for string columns. This
-    function replaces empty strings with null values for specific columns that are known
-    to contain empty strings introduced for the classifier.
+    :func: `plants_steam_assign_plant_ids` have many nulls. The classifier can't handle
+        nulls well, so we filled in nulls with empty strings for string columns. This
+        function replaces empty strings with null values for specific columns that are
+        known     to contain empty strings introduced for the classifier.
     """
     for col in [
         "plant_type",
@@ -556,9 +556,9 @@ def revert_filled_in_float_nulls(df: pd.DataFrame) -> pd.DataFrame:
     """Revert the filled nulls from float columns.
 
     Many columns that are used for the classification in
-    :func:`plants_steam_assign_plant_ids` have many nulls. The classifier can't handle
-    nulls well, so we filled in nulls with zeros for float columns. This function
-    replaces zeros with nulls for all float columns.
+    :func: `plants_steam_assign_plant_ids` have many nulls. The classifier can't handle
+        nulls well, so we filled in nulls with zeros for float columns. This function
+        replaces zeros with nulls for all float columns.
     """
     float_cols = list(df.select_dtypes(include=[float]))
     if float_cols:

@@ -14,7 +14,8 @@ for module_info in pkgutil.iter_modules(__path__):
 FOREIGN_KEYS: dict[str, list[dict]] = build_foreign_keys(RESOURCE_METADATA)
 """Generated foreign key constraints by resource name.
 
-See :func:`pudl.metadata.helpers.build_foreign_keys`.
+See
+:func: `pudl.metadata.helpers.build_foreign_keys`.
 """
 
 ENTITIES: dict[str, dict[str, list[str]]] = {

@@ -250,9 +250,9 @@ class RenameColumns(TransformParams):
     """A dictionary for mapping old column names to new column names in a dataframe.
 
     This parameter model has no associated transform function since it is used with the
-    :meth:`pd.DataFrame.rename` method. Because it renames all of the columns in a
-    dataframe at once, it's a table transformation (though it could also have been
-    implemented as a column transform).
+    :meth: `pd.DataFrame.rename` method. Because it renames all of the columns in a
+        dataframe at once, it's a table transformation (though it could also have been
+        implemented as a column transform).
     """
 
     columns: dict[str, str] = {}
@@ -265,9 +265,10 @@ class StringNormalization(TransformParams):
     """Options to control string normalization.
 
     Most of what takes place in the string normalization is standardized and controlled
-    by the :func:`normalize_strings` function since we need the normalizations of
-    different columns to be comparable, but there are a couple of column-specific
-    parameterizations that are useful, and they are encapsulated by this class.
+    by the
+    :func: `normalize_strings` function since we need the normalizations of
+        different columns to be comparable, but there are a couple of column-specific
+        parameterizations that are useful, and they are encapsulated by this class.
     """
 
     remove_chars: str
@@ -366,9 +367,9 @@ class StripNonNumericValues(TransformParams):
     """Boolean parameter for :func:`strip_non_numeric_values`.
 
     Stores a named boolean variable that is employed in
-    :func:`strip_non_numeric_values` to determine whether of not the transform
-    treatment should be applied. Pydantic 2.0 will allow validation of these simple
-    variables without needing to define a model.
+    :func: `strip_non_numeric_values` to determine whether of not the transform
+        treatment should be applied. Pydantic 2.0 will allow validation of these simple
+        variables without needing to define a model.
     """
 
     strip_non_numeric_values: bool
@@ -419,7 +420,7 @@ class StringCategories(TransformParams):
 
     The NA category is a special case because testing whether a value is NA is complex,
     given the many different values which can be used to represent NA. See
-    :func:`categorize_strings` to see how it is used.
+    :func: `categorize_strings` to see how it is used.
     """
 
     @validator("categories")
@@ -517,8 +518,9 @@ class UnitConversion(TransformParams):
         """Construct a :class:`UnitConversion` that is the inverse of self.
 
         Allows a unit conversion to be undone. This is currently used in the context of
-        validating the combination of :class:`UnitConversions` that are used in the
-        :class:`UnitCorrections` parameter model.
+        validating the combination of
+        :class: `UnitConversions` that are used in the
+        :class: `UnitCorrections` parameter model.
         """
         return UnitConversion(
             multiplier=1.0 / self.multiplier,
@@ -1082,7 +1084,8 @@ class AbstractTableTransformer(ABC):
     """Name of the PUDL database table that this table transformer produces.
 
     Must be defined in the database schema / metadata. This ID is used to instantiate
-    the appropriate :class:`TableTransformParams` object.
+    the appropriate
+    :class: `TableTransformParams` object.
     """
 
     cache_dfs: bool = False
@@ -1098,14 +1101,15 @@ class AbstractTableTransformer(ABC):
     _cached_dfs: dict[str, pd.DataFrame] = {}
     """Cached intermediate dataframes for use in development and debugging.
 
-    The dictionary keys are the strings passed to the :func:`cache_df` method decorator.
+    The dictionary keys are the strings passed to the
+    :func: `cache_df` method decorator.
     """
 
     parameter_model = TableTransformParams
     """The :mod:`pydantic` model that is used to contain & instantiate parameters.
 
     In child classes this should be replaced with the data source-specific
-    :class:`TableTransformParams` class, if it has been defined.
+    :class: `TableTransformParams` class, if it has been defined.
     """
 
     params: parameter_model
@@ -1162,9 +1166,10 @@ class AbstractTableTransformer(ABC):
         Typically the transformations grouped together into this method will be unique
         to the table that is being transformed. Generally this method will take and
         return a single dataframe, and that pattern is implemented in the
-        :meth:`AbstractTableTransformer.transform` method. In cases where transforms
-        take or return more than one dataframe, you will need to define a new transform
-        method within the child class. See :class:`PlantsSteamFerc1TableTransformer`
+        :meth: `AbstractTableTransformer.transform` method. In cases where transforms
+                take or return more than one dataframe, you will need to define a new
+                transform         method within the child class. See
+        :class: `PlantsSteamFerc1TableTransformer`
         as an example.
         """
         ...

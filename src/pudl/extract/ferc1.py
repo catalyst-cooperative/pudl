@@ -216,7 +216,8 @@ class Ferc1DbfExtractor(FercDbfExtractor):
     def get_dbf_reader(self, base_datastore: Datastore) -> AbstractFercDbfReader:
         """Returns an instace of :class:`FercDbfReader`.
 
-        This uses the generic base_datastore to construct a :class:`FercDbfReader`.
+        This uses the generic base_datastore to construct a
+        :class: `FercDbfReader`.
         """
         return FercDbfReader(base_datastore, dataset="ferc1")
 

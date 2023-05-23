@@ -155,13 +155,14 @@ def denorm_generation_fuel_combined_eia923(
 ) -> pd.DataFrame:
     """Denormalize the `generation_fuel_combined_eia923` table.
 
-    This asset first combines the :ref:`generation_fuel_eia923` and
-    :ref:`generation_fuel_nuclear_eia923` into a single table with a uniform primary
-    key (consolidating multiple nuclear unit IDs into a single plant record) and then
-    denormalizes it by merging in some addition plant and utility level columns.
-
-    This table contains the records at their originally reported temporal resolution,
-    so it's outside of :func:`time_aggregated_eia923_asset_factory`.
+    This asset first combines the
+    :ref: `generation_fuel_eia923` and
+    :ref: `generation_fuel_nuclear_eia923` into a single table with a uniform primary
+        key (consolidating multiple nuclear unit IDs into a single plant record) and
+        then     denormalizes it by merging in some addition plant and utility level
+        columns.      This table contains the records at their originally reported
+        temporal resolution,     so it's outside of
+    :func: `time_aggregated_eia923_asset_factory`.
     """
     primary_key = [
         "report_date",

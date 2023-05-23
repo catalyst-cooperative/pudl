@@ -1207,7 +1207,8 @@ class Timeseries:
     def unfold_tensor(self, tensor: np.ndarray) -> np.ndarray:
         """Unfold a 3-dimensional tensor representation.
 
-        Performs the reverse of :meth:`fold_tensor`.
+        Performs the reverse of
+        :meth: `fold_tensor`.
         """
         return tensor.T.reshape(self.x.shape, order="F")
 

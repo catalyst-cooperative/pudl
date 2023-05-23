@@ -1488,7 +1488,8 @@ def distribute_annually_reported_data_to_months_if_annual(
 
 
 def manually_fix_energy_source_codes(gf: pd.DataFrame) -> pd.DataFrame:
-    """Patch: reassigns fuel codes in the gf table that don't match the fuel code in the gens table."""
+    """Patch: reassigns fuel codes in the gf table that don't match the fuel code in the
+    gens table."""
     # plant 10204 should be waste heat instead of other
     gf.loc[
         (gf["plant_id_eia"] == 10204) & (gf["energy_source_code"] == "OTH"),
@@ -1673,11 +1674,13 @@ def allocate_bf_data_to_gens(
 
     Because fuel consumption in the boiler_fuel_eia923 table is reported per boiler_id,
     we must first map this data to generators using the boiler_generator_assn_eia860
-    table. For boilers that have a 1:m or m:m relationship with generators, we allocate
-    the reported fuel to each associated generator based on the nameplate capacity of
-    each generator. So if boiler "1" was associated with generator A (25 MW) and
-    generator B (75 MW), 25% of the fuel consumption would be allocated to generator A
-    and 75% would be allocated to generator B.
+    table. For boilers that have a 1
+
+    :m or m: m relationship with generators, we allocate     the reported fuel to each
+        associated generator based on the nameplate capacity of     each generator. So
+        if boiler "1" was associated with generator A (25 MW) and     generator B (75
+        MW), 25% of the fuel consumption would be allocated to generator A     and 75%
+        would be allocated to generator B.
     """
     # merge generator capacity information into the BGA
     bga_w_gen = bga.merge(

@@ -1,18 +1,15 @@
 """Create spreadsheets for manually mapping FERC-EIA records and validate matches.
 
-:mod:`pudl.analysis.ferc1_to_eia` uses machine learning to link records from FERC Form 1
-with records from EIA. While this process is way more efficient and logical
-than a human, it requires a set of hand-compiled training data in order to do it's job.
-
-The training data also serve as overrides for otherwise bad AI matches. There are
-several examples of plants that require human intuition to make sense of. For instance,
+:mod: `pudl.analysis.ferc1_to_eia` uses machine learning to link records from FERC Form
+1 with records from EIA. While this process is way more efficient and logical than a
+human, it requires a set of hand-compiled training data in order to do it's job.  The
+training data also serve as overrides for otherwise bad AI matches. There are several
+examples of plants that require human intuition to make sense of. For instance,
 sometimes FERC capacities lag behind by several years or are comprised of two or more
-EIA records.
-
-This module creates an output spreadsheet, based on a certain utility, that makes the
-matching and machine-matched human validation process much easier. It also contains
-functions that will read those new/updated/validated matches from the spreadsheet,
-validate them, and incorporate them into the existing training data.
+EIA records.  This module creates an output spreadsheet, based on a certain utility,
+that makes the matching and machine-matched human validation process much easier. It
+also contains functions that will read those new/updated/validated matches from the
+spreadsheet, validate them, and incorporate them into the existing training data.
 """
 
 import importlib.resources

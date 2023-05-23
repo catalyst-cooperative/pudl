@@ -378,7 +378,8 @@ class PudlSQLiteIOManager(SQLiteIOManager):
     """IO Manager that writes and retrieves dataframes from a SQLite database.
 
     This class extends the SQLiteIOManager class to manage database metadata and dtypes
-    using the :class:`pudl.metadata.classes.Package` class.
+    using the
+    :class: `pudl.metadata.classes.Package` class.
     """
 
     def __init__(

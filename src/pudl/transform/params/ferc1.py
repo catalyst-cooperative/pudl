@@ -1,8 +1,10 @@
 """FERC 1 specific transformation parameters.
 
-These constants are used to construct :mod:`pydantic` models, which are validated and
-used to control the various data transformations. The definitions of those models can be
-found in :mod:`pudl.transform.classes` and :mod:`pudl.transform.ferc1`
+These constants are used to construct
+:mod: `pydantic` models, which are validated and used to control the various data
+transformations. The definitions of those models can be found in
+:mod: `pudl.transform.classes` and
+:mod: `pudl.transform.ferc1`
 """
 
 from datetime import date

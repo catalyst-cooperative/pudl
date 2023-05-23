@@ -1,10 +1,10 @@
 """Classes & functions to process FERC Form 1 data before loading into the PUDL DB.
 
 Note that many of the classes/objects here inherit from/are instances of classes defined
-in :mod:`pudl.transform.classes`. Their design and relationships to each other are
-documented in that module.
-
-See :mod:`pudl.transform.params.ferc1` for the values that parameterize many of these
+in
+:mod: `pudl.transform.classes`. Their design and relationships to each other are
+documented in that module.  See
+:mod: `pudl.transform.params.ferc1` for the values that parameterize many of these
 transformations.
 """
 import enum
@@ -1061,7 +1061,8 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
     ) -> pd.DataFrame:
         """Drop the DBF rows where the PKs and data columns are duplicated.
 
-        Wrapper function for :func:`drop_duplicate_rows_dbf`.
+        Wrapper function for
+        :func: `drop_duplicate_rows_dbf`.
         """
         if params is None:
             params = self.params.drop_duplicate_rows_dbf
@@ -1868,7 +1869,8 @@ class FuelFerc1TableTransformer(Ferc1AbstractTableTransformer):
 
         This method both drops rows in which all required data columns are null (using
         the inherited parameterized method) and then also drops those rows we believe
-        represent plant totals. See :meth:`FuelFerc1TableTransformer.drop_total_rows`.
+        represent plant totals. See
+        :meth: `FuelFerc1TableTransformer.drop_total_rows`.
         """
         return super().drop_invalid_rows(df, params).pipe(self.drop_total_rows)
 
@@ -2031,7 +2033,9 @@ class PlantInServiceFerc1TableTransformer(Ferc1AbstractTableTransformer):
         to rename the XBRL metadata categories to conform to the same naming convention
         that we are using in the data itself (since FERC doesn't quite follow their own
         naming conventions...). We use the same rename dictionary, but as an argument to
-        :meth:`pd.Series.replace` instead of :meth:`pd.DataFrame.rename`.
+
+        :meth: `pd.Series.replace` instead of
+        :meth: `pd.DataFrame.rename`.
         """
         pis_meta = (
             super()
@@ -3304,8 +3308,10 @@ class RetainedEarningsFerc1TableTransformer(Ferc1AbstractTableTransformer):
     def process_xbrl_metadata(self, xbrl_metadata_json) -> pd.DataFrame:
         """Transform the metadata to reflect the transformed data.
 
-        Run the generic :func:`process_xbrl_metadata` and then remove some suffixes that
-        were removed during :meth:`wide_to_tidy`.
+        Run the generic
+        :func: `process_xbrl_metadata` and then remove some suffixes that         were
+                removed during
+        :meth: `wide_to_tidy`.
         """
         meta = (
             super()

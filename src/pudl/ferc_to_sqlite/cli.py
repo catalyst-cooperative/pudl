@@ -1,9 +1,9 @@
 """A script for cloning the FERC Form 1 database into SQLite.
 
-This script generates a SQLite database that is a clone/mirror of the original
-FERC Form1 database. We use this cloned database as the starting point for the
-main PUDL ETL process. The underlying work in the script is being done in
-:mod:`pudl.extract.ferc1`.
+This script generates a SQLite database that is a clone/mirror of the original FERC
+Form1 database. We use this cloned database as the starting point for the main PUDL ETL
+process. The underlying work in the script is being done in
+:mod: `pudl.extract.ferc1`.
 """
 import argparse
 import sys

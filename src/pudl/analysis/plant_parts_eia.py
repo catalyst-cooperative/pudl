@@ -231,14 +231,12 @@ PLANT_PARTS: OrderedDict[str, dict[str, list]] = OrderedDict(
         },
     }
 )
-"""
-dict: this dictionary contains a key for each of the 'plant parts' that should
-end up in the plant parts list. The top-level value for each key is another
-dictionary, which contains keys:
+"""Dict: this dictionary contains a key for each of the 'plant parts' that should end up
+in the plant parts list. The top-level value for each key is another dictionary, which
+contains keys:
 
 * id_cols (the primary key type id columns for this plant part). The
   plant_id_eia column must come first.
-
 """
 
 PLANT_PARTS_LITERAL = Literal[
@@ -254,21 +252,17 @@ PLANT_PARTS_LITERAL = Literal[
 
 
 IDX_TO_ADD: list[str] = ["report_date", "operational_status_pudl"]
-"""
-list: list of additional columns to add to the id_cols in :py:const:`PLANT_PARTS`.
-The id_cols are the base columns that we need to aggregate on, but we also need
-to add the report date to keep the records time sensitive and the
-operational_status_pudl to separate the operating plant-parts from the
-non-operating plant-parts.
+"""List: list of additional columns to add to the id_cols in :py:const:`PLANT_PARTS`.
+
+The id_cols are the base columns that we need to aggregate on, but we also need to add
+the report date to keep the records time sensitive and the operational_status_pudl to
+separate the operating plant-parts from the non-operating plant-parts.
 """
 
 IDX_OWN_TO_ADD: list[str] = ["utility_id_eia", "ownership_record_type"]
-"""
-list: list of additional columns beyond the :py:const:`IDX_TO_ADD` to add to the
-id_cols in :py:const:`PLANT_PARTS` when we are dealing with plant-part records
-that have been broken out into "owned" and "total" records for each of their
-owners.
-"""
+"""List: list of additional columns beyond the :py:const:`IDX_TO_ADD` to add to the
+id_cols in :py:const:`PLANT_PARTS` when we are dealing with plant-part records that have
+been broken out into "owned" and "total" records for each of their owners."""
 
 SUM_COLS: list[str] = [
     "total_fuel_cost",
@@ -277,17 +271,15 @@ SUM_COLS: list[str] = [
     "capacity_eoy_mw",
     "total_mmbtu",
 ]
-"""list: list of columns to sum when aggregating a table."""
+"""List: list of columns to sum when aggregating a table."""
 
 WTAVG_DICT = {
     "fuel_cost_per_mwh": "capacity_mw",
     "heat_rate_mmbtu_mwh": "capacity_mw",
     "fuel_cost_per_mmbtu": "capacity_mw",
 }
-"""
-dict: a dictionary of columns (keys) to perform weighted averages on and
-the weight column (values)
-"""
+"""Dict: a dictionary of columns (keys) to perform weighted averages on and the weight
+column (values)"""
 
 CONSISTENT_ATTRIBUTE_COLS = [
     "fuel_type_code_pudl",
@@ -301,10 +293,10 @@ CONSISTENT_ATTRIBUTE_COLS = [
     "ferc_acct_name",
     "generator_operating_year",
 ]
-"""
-list: a list of column names to add as attributes when they are consistent into
-the aggregated plant-part records. All the plant part ID columns must be in
-consistent attributes.
+"""List: a list of column names to add as attributes when they are consistent into the
+aggregated plant-part records.
+
+All the plant part ID columns must be in consistent attributes.
 """
 
 PRIORITY_ATTRIBUTES_DICT = {
@@ -436,7 +428,8 @@ class MakeMegaGenTbl:
     def __init__(self):
         """Initialize object which creates a MEGA generator table.
 
-        The coordinating function here is :meth:`execute`.
+        The coordinating function here is
+        :meth: `execute`.
         """
         self.id_cols_list = make_id_cols_list()
 
