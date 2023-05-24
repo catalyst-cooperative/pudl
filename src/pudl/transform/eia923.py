@@ -618,19 +618,12 @@ def clean_generation_fuel_eia923(raw_generation_fuel_eia923: pd.DataFrame):
 
     # Drop fields we're not inserting into the generation_fuel_eia923 table.
     cols_to_drop = [
-        "combined_heat_power",
-        "operator_id",
-        "plant_state",
-        "census_region",
-        "nerc_region",
-        "naics_code",
         "fuel_unit",
         "total_fuel_consumption_quantity",
         "electric_fuel_consumption_quantity",
         "total_fuel_consumption_mmbtu",
         "elec_fuel_consumption_mmbtu",
         "net_generation_megawatthours",
-        "early_release",
     ]
     gen_fuel.drop(cols_to_drop, axis=1, inplace=True)
 
