@@ -471,7 +471,7 @@ class FercDbfExtractor:
                     "years"
                 ]
             )
-        ref_dbf = self.dbf_reader.get_archive(year=refyear)
+        ref_dbf = self.dbf_reader.get_archive(year=refyear, data_format="dbf")
         for tn in self.dbf_reader.get_table_names():
             ref_dbf.get_table_schema(tn).create_sa_table(self.sqlite_meta)
         self.finalize_schema(self.sqlite_meta)
