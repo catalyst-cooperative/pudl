@@ -123,14 +123,18 @@ class DatapackageDescriptor:
                 partitions[k].add(v)
         return partitions
 
-    def get_partition_filters(self) -> Iterator[dict[str, str]]:
+    def get_partition_filters(self, **filters: Any) -> Iterator[dict[str, str]]:
         """Returns list of all known partition mappings.
 
         This can be used to iterate over all resources as the mappings can be directly
         used as filters and should map to unique resource.
+
+        Args:
+            filters: additional constraints for selecting relevant partitions.
         """
         for res in self.datapackage_json["resources"]:
-            yield dict(res.get("parts", {}))
+            if self._matches(res, **filters):
+                yield dict(res.get("parts", {}))
 
     def _validate_datapackage(self, datapackage_json: dict):
         """Checks the correctness of datapackage.json metadata.

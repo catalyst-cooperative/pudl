@@ -500,7 +500,7 @@ class FercDbfExtractor:
             p
             for p in self.datastore.get_datapackage_descriptor(
                 self.DATASET
-            ).get_partition_filters()
+            ).get_partition_filters(data_format="dbf")
             if self.is_valid_partition(p) and p.get("year", None) in self.settings.years
         ]
         logger.info(
