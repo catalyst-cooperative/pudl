@@ -3391,7 +3391,7 @@ class RetainedEarningsFerc1TableTransformer(Ferc1AbstractTableTransformer):
             super()
             .process_xbrl_metadata(xbrl_metadata_json)
             .assign(
-                # there are many instances of factiods with these stems cooresponding
+                # there are many instances of factoids with these stems cooresponding
                 # to several value types (amount/start or end balance). but we end up
                 # with only one so we want to drop these stems and then drop dupes
                 # plus there is one suffix that is named weird!
@@ -3962,11 +3962,11 @@ class ExplodeMeta:
         self.xbrl_meta_json = xbrl_meta_json
 
     def convert_metadata(
-        self, table_names: None | list[TableIdFerc1]
+        self, table_names: None | list[TableIdFerc1] = None
     ) -> dict[TableIdFerc1, dict]:
         """Convert multiple tables metadata."""
         if not table_names:
-            table_names = list(FERC1_TFR_CLASSES.keys())
+            table_names = list(FERC1_TFR_CLASSES)
         meta_converted = {}
         for table_name in table_names:
             # for table_id in TableIdFerc1:
@@ -3980,7 +3980,7 @@ class ExplodeMeta:
                 table_name=table_name,
                 xbrl_meta_tbl=xbrl_meta_tbl,
                 params=transformer.params,
-            ).rename_calcuations_xbrl_meta()
+            ).rename_calculations_xbrl_meta()
         meta_converted = self.manually_update_xbrl_calcs(meta_converted)
         meta_converted = self.remove_duplicated_components(meta_converted)
         return meta_converted
@@ -4012,7 +4012,7 @@ class ExplodeMeta:
         """
         # typing for calced_fields_to_fix. for clarity/in anticipation of a pydantic
         # calc defintion
-        # xbrl_factiod_name: str
+        # xbrl_factoid_name: str
         # calc_component: dict[Literal["name", "weight"], str | int]
         # calc_component_fix: dict[
         #     Literal["calc_component_to_replace", "calc_component_new"],
@@ -4020,7 +4020,7 @@ class ExplodeMeta:
         # ]
 
         def make_calc_component_fixes_for_double_counting(
-            table_meta, double_counted_factiod
+            table_meta, double_counted_factoid
         ) -> dict[
             Literal["calc_component_to_replace", "calc_component_new"],
             None | dict,
@@ -4031,11 +4031,11 @@ class ExplodeMeta:
                     "calc_component_to_replace": double_counted_comp,
                     "calc_component_new": {},
                 }
-                for double_counted_comp in table_meta[double_counted_factiod]["calcs"]
+                for double_counted_comp in table_meta[double_counted_factoid]["calcs"]
             ]
 
         calced_fields_to_fix: dict[
-            TableIdFerc1, dict  # [xbrl_factiod_name, list[calc_component_fix]]
+            TableIdFerc1, dict  # [xbrl_factoid_name, list[calc_component_fix]]
         ] = {
             "income_statement_ferc1": {
                 "income_before_extraordinary_items": [
@@ -4070,7 +4070,7 @@ class ExplodeMeta:
                 ],
             },
             "electric_operating_expenses_ferc1": {
-                # This table has two factiods that have sub-components that are
+                # This table has two factoids that have sub-components that are
                 # calcuations themselves and both the sub-component calcuated values
                 # AND the sub-sub-components. So we're removing the specific sub-sub-
                 # components
@@ -4155,12 +4155,12 @@ class ExplodeMeta:
 
         # I don't love this nested loopy-dee-doop
         for table_name, factoid_to_fix in calced_fields_to_fix.items():
-            for xbrl_factiod, calc_component_fixes in factoid_to_fix.items():
-                logger.info(f"fixing calc for {table_name}'s {xbrl_factiod}")
+            for xbrl_factoid, calc_component_fixes in factoid_to_fix.items():
+                logger.info(f"fixing calc for {table_name}'s {xbrl_factoid}")
                 for calc_component_fix in calc_component_fixes:
                     logger.info(calc_component_fix)
                     if calc_component_fix["calc_component_to_replace"]:
-                        meta_converted[table_name][xbrl_factiod][
+                        meta_converted[table_name][xbrl_factoid][
                             "calcs"
                         ] = remove_nones_in_list(
                             [
@@ -4169,22 +4169,16 @@ class ExplodeMeta:
                                 == calc_component_fix["calc_component_to_replace"]
                                 else calc_component
                                 for calc_component in meta_converted[table_name][
-                                    xbrl_factiod
+                                    xbrl_factoid
                                 ]["calcs"]
                             ]
                         )
                     else:
-                        meta_converted[table_name][xbrl_factiod][
+                        meta_converted[table_name][xbrl_factoid][
                             "calcs"
-                        ] = meta_converted[table_name][xbrl_factiod]["calcs"] + [
+                        ] = meta_converted[table_name][xbrl_factoid]["calcs"] + [
                             calc_component_fix["calc_component_new"]
                         ]
-                # meta_converted[table_name][xbrl_factoid] = {
-                #     xbrl_factoid: remove_nones_in_list(calc_components)
-                #     for (xbrl_factoid, calc_components) in meta_converted[
-                #         table_name
-                #     ].items()
-                # }
         return meta_converted
 
 
@@ -4202,7 +4196,7 @@ class TableCalcs:
         self.xbrl_meta_tbl = xbrl_meta_tbl
         self.params = params
 
-    def rename_calcuations_xbrl_meta(
+    def rename_calculations_xbrl_meta(
         self,
     ) -> dict[str, list]:
         """Rename the calculations in the xbrl metadata to reflect PUDL names.
@@ -4289,7 +4283,7 @@ def ensure_names_in_renamed_xbrl_calcs_are_present(
     # another table
     # This could be cleaned up.. I didn't know how to do this in a dict comp way that
     # edited a deep subcomponent of the dict.
-    # Also: this should probabyl be done in rename_calcuations_xbrl_meta
+    # Also: this should probabyl be done in rename_calculations_xbrl_meta
     for field_info in meta_converted[table_name].values():
         if field_info.get("calcs", False):
             for calc_component in field_info.get("calcs"):
