@@ -276,7 +276,7 @@ Also, activate profile changes above in the current session.
 
 .. code-block:: console
 
-    $ export PUDL_OUTPUT=/absolute/path/to/pudl_output 
+    $ export PUDL_OUTPUT=/absolute/path/to/pudl_output
     $ export PUDL_INPUT=/absolute/path/to/pudl_input
 
 .. _Legacy PUDL Setup:
