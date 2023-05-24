@@ -4143,6 +4143,42 @@ class ExplodeMeta:
                     }
                 ],
             },
+            "balance_sheet_assets_ferc1": {
+                "nuclear_fuel_net": [
+                    {
+                        "calc_component_to_replace": {
+                            "name": "nuclear_fuel_materials_and_assemblies",
+                            "weight": 1.0,
+                        },
+                        "calc_component_new": {},
+                    },
+                    {
+                        "calc_component_to_replace": {
+                            "name": "spent_nuclear_fuel",
+                            "weight": 1.0,
+                        },
+                        "calc_component_new": {},
+                    },
+                    {
+                        "calc_component_to_replace": {},
+                        "calc_component_new": {
+                            # Only used in pre-2004 calculations, aggregate of later sub-components.
+                            "name": "nuclear_fuel",
+                            "weight": 1.0,
+                        },
+                    },
+                ],
+                "other_property_and_investments": [
+                    {
+                        "calc_component_to_replace": {},
+                        "calc_component_new": {
+                            # Only used in pre-2004 calculations, aggregate of later sub-components.
+                            "name": "special_funds_all",
+                            "weight": 1.0,
+                        },
+                    },
+                ],
+            },
         }
 
         def remove_nones_in_list(list_of_things):
@@ -4158,7 +4194,6 @@ class ExplodeMeta:
             for xbrl_factoid, calc_component_fixes in factoid_to_fix.items():
                 logger.info(f"fixing calc for {table_name}'s {xbrl_factoid}")
                 for calc_component_fix in calc_component_fixes:
-                    logger.info(calc_component_fix)
                     if calc_component_fix["calc_component_to_replace"]:
                         meta_converted[table_name][xbrl_factoid][
                             "calcs"
