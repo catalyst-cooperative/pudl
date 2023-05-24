@@ -598,6 +598,11 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "type": "string",
         "description": "Unique digitial object identifier of Zenodo archive.",
     },
+    "dollar_value": {
+        "type": "number",
+        "description": "Dollar value of reported income, expense, asset, or liability.",
+        "unit": "USD",
+    },
     "duct_burners": {
         "type": "boolean",
         "description": "Indicates whether the unit has duct-burners for supplementary firing of the turbine exhaust gas",

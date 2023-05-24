@@ -3548,7 +3548,7 @@ class ElectricOperatingRevenuesFerc1TableTransformer(Ferc1AbstractTableTransform
         dupe_mask = (
             (df.utility_id_ferc1 == 295)
             & (df.report_year == 2011)
-            & ((df.amount == 3.33e8) | (df.amount == 3.333e9))
+            & ((df.dollar_value == 3.33e8) | (df.dollar_value == 3.333e9))
         )
 
         return df[~dupe_mask].copy()
