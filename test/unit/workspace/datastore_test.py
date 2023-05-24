@@ -39,6 +39,55 @@ class TestDatapackageDescriptor(unittest.TestCase):
             self.MOCK_DATAPACKAGE, dataset="epacems", doi="123"
         )
 
+    def test_get_partition_filters(self):
+        desc = datastore.DatapackageDescriptor(
+            {
+                "resources": [
+                    {
+                        "name": "foo",
+                        "path": "/foo",
+                        "parts": {"group": "first", "color": "red"},
+                    },
+                    {
+                        "name": "bar",
+                        "path": "/bar",
+                        "parts": {"group": "first", "color": "blue"},
+                    },
+                    {
+                        "name": "baz",
+                        "path": "/baz",
+                        "parts": {"group": "second", "color": "black", "order": 1},
+                    },
+                ]
+            },
+            dataset="foobar",
+            doi="123",
+        )
+        self.assertEqual(
+            [
+                {"group": "first", "color": "red"},
+                {"group": "first", "color": "blue"},
+                {"group": "second", "color": "black", "order": 1},
+            ],
+            list(desc.get_partition_filters()),
+        )
+        self.assertEqual(
+            [
+                {"group": "first", "color": "red"},
+                {"group": "first", "color": "blue"},
+            ],
+            list(desc.get_partition_filters(group="first")),
+        )
+        self.assertEqual(
+            [
+                {"group": "first", "color": "blue"},
+            ],
+            list(desc.get_partition_filters(color="blue")),
+        )
+        self.assertEqual(
+            [], list(desc.get_partition_filters(color="blue", group="second"))
+        )
+
     def test_get_resource_path_for_existing_resources(self):
         """Checks that get_resource_path() works."""
         self.assertEqual(
