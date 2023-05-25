@@ -130,7 +130,7 @@ class DatapackageDescriptor:
         used as filters and should map to unique resource.
 
         Args:
-            filters: this could further restrict which partition filters should be considered.
+            filters: additional constraints for selecting relevant partitions.
         """
         for res in self.datapackage_json["resources"]:
             if self._matches(res, **filters):
