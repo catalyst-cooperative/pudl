@@ -44,6 +44,67 @@ from pudl.transform.classes import (
 logger = pudl.logging_helpers.get_logger(__name__)
 
 
+@asset
+def clean_xbrl_metadata_json(
+    raw_xbrl_metadata_json: dict[str, dict[str, list[dict[str, Any]]]]
+) -> dict[str, dict[str, list[dict[str, Any]]]]:
+    """Generate cleaned json xbrl metadata.
+
+    For now, this only runs :func:`add_source_table_to_xbrl_metadata`.
+    """
+    return add_source_table_to_xbrl_metadata(raw_xbrl_metadata_json)
+
+
+def add_source_table_to_xbrl_metadata(
+    raw_xbrl_metadata_json: dict[str, dict[str, list[dict[str, Any]]]]
+) -> dict[str, dict[str, list[dict[str, Any]]]]:
+    """Add a ``source_table`` field into metadata calculation components.
+
+    When a particular component of a calculation does not originate from the table in
+    which the calculated field is being reported, label the source table.
+    """
+
+    def all_fields_in_table(table_meta) -> list:
+        """Compile a list of all of the fields reported in a table."""
+        return [
+            field["name"] for meta_list in table_meta.values() for field in meta_list
+        ]
+
+    def extract_tables_to_fields(xbrl_meta: dict) -> dict[str : list[str]]:
+        """Compile a dictionary of table names (keys) to list of fields."""
+        return {
+            table_name: all_fields_in_table(table_meta)
+            for table_name, table_meta in xbrl_meta.items()
+        }
+
+    def label_source_table(calc_component: dict, tables_to_fields: str) -> dict:
+        """Add a ``source_table`` element to the calculation component."""
+        calc_component["source_table"] = [
+            other_table_name
+            for other_table_name, fields in tables_to_fields.items()
+            if calc_component["name"] in fields
+        ]
+        # weirdly there are a number of nuclear xbrl_factoid calc components that seem
+        # to have no source_table.
+        if not calc_component["source_table"]:
+            logger.debug(f"Found no source table for {calc_component['name']}.")
+        return calc_component
+
+    tables_to_fields = extract_tables_to_fields(raw_xbrl_metadata_json)
+    # for each table loop through all of the calculations within each field
+    for table_name, table_meta in raw_xbrl_metadata_json.items():
+        for list_of_facts in table_meta.values():
+            for xbrl_fact in list_of_facts:
+                # all facts have ``calculations``, but they are empty lists when null
+                for calc_component in xbrl_fact["calculations"]:
+                    # does the calc component show up in the table? if not, add a label
+                    if calc_component["name"] not in tables_to_fields[table_name]:
+                        calc_component = label_source_table(
+                            calc_component, tables_to_fields
+                        )
+    return raw_xbrl_metadata_json
+
+
 ################################################################################
 # FERC 1 Transform Parameter Models
 ################################################################################
@@ -3913,7 +3974,7 @@ def ferc1_transform_asset_factory(
     ins = {f"raw_dbf__{tn}": AssetIn(tn) for tn in dbf_tables}
     ins |= {f"raw_xbrl_instant__{tn}": AssetIn(f"{tn}_instant") for tn in xbrl_tables}
     ins |= {f"raw_xbrl_duration__{tn}": AssetIn(f"{tn}_duration") for tn in xbrl_tables}
-    ins["xbrl_metadata_json"] = AssetIn("xbrl_metadata_json")
+    ins["clean_xbrl_metadata_json"] = AssetIn("clean_xbrl_metadata_json")
 
     table_id = TableIdFerc1(table_name)
 
@@ -3925,19 +3986,22 @@ def ferc1_transform_asset_factory(
             raw_dbf: raw dbf table.
             raw_xbrl_instant: raw XBRL instant table.
             raw_xbrl_duration: raw XBRL duration table.
-            xbrl_metadata_json: XBRL metadata json for all tables.
+            clean_xbrl_metadata_json: XBRL metadata json for all tables.
 
         Returns:
             transformed FERC Form 1 table.
         """
         # TODO: split the key by __, then groupby, then concatenate
-        xbrl_metadata_json = kwargs["xbrl_metadata_json"]
+        clean_xbrl_metadata_json = kwargs["clean_xbrl_metadata_json"]
         if generic:
             transformer = tfr_class(
-                xbrl_metadata_json=xbrl_metadata_json[table_name], table_id=table_id
+                xbrl_metadata_json=clean_xbrl_metadata_json[table_name],
+                table_id=table_id,
             )
         else:
-            transformer = tfr_class(xbrl_metadata_json=xbrl_metadata_json[table_name])
+            transformer = tfr_class(
+                xbrl_metadata_json=clean_xbrl_metadata_json[table_name]
+            )
 
         raw_dbf = pd.concat(
             [df for key, df in kwargs.items() if key.startswith("raw_dbf__")]
@@ -3980,7 +4044,7 @@ ferc1_assets = create_ferc1_transform_assets()
 
 @asset(io_manager_key="pudl_sqlite_io_manager")
 def plants_steam_ferc1(
-    xbrl_metadata_json: dict[str, dict[str, list[dict[str, Any]]]],
+    clean_xbrl_metadata_json: dict[str, dict[str, list[dict[str, Any]]]],
     f1_steam: pd.DataFrame,
     steam_electric_generating_plant_statistics_large_plants_402_duration: pd.DataFrame,
     steam_electric_generating_plant_statistics_large_plants_402_instant: pd.DataFrame,
@@ -3989,7 +4053,7 @@ def plants_steam_ferc1(
     """Create the clean plants_steam_ferc1 table.
 
     Args:
-            xbrl_metadata_json: XBRL metadata json for all tables.
+            clean_xbrl_metadata_json: XBRL metadata json for all tables.
             f1_steam: Raw f1_steam table.
             steam_electric_generating_plant_statistics_large_plants_402_duration: raw XBRL duration table.
             steam_electric_generating_plant_statistics_large_plants_402_instant: raw XBRL instant table.
@@ -3999,7 +4063,7 @@ def plants_steam_ferc1(
         Clean plants_steam_ferc1 table.
     """
     df = PlantsSteamFerc1TableTransformer(
-        xbrl_metadata_json=xbrl_metadata_json["plants_steam_ferc1"]
+        xbrl_metadata_json=clean_xbrl_metadata_json["plants_steam_ferc1"]
     ).transform(
         raw_dbf=f1_steam,
         raw_xbrl_instant=steam_electric_generating_plant_statistics_large_plants_402_instant,
@@ -4036,11 +4100,7 @@ class ExplodeMeta:
             xbrl_meta_tbl = transformer.process_xbrl_metadata(
                 self.xbrl_meta_json[table_name]
             )
-            meta_converted[table_name] = TableCalcs(
-                table_name=table_name,
-                xbrl_meta_tbl=xbrl_meta_tbl,
-                params=transformer.params,
-            ).rename_calculations_xbrl_meta()
+            meta_converted[table_name] = xbrl_meta_tbl
         meta_converted = self.manually_update_xbrl_calcs(meta_converted)
         meta_converted = self.remove_duplicated_components(meta_converted)
         return meta_converted
@@ -4339,7 +4399,7 @@ class TableCalcs:
         return calcs_renamed | non_calcs
 
 
-def ensure_names_in_renamed_xbrl_calcs_are_present(
+def label_souce_table_xbrl_metadata(
     meta_converted: dict,
     df: pd.DataFrame,
     xbrl_factoid_name: str,
@@ -4374,18 +4434,6 @@ def ensure_names_in_renamed_xbrl_calcs_are_present(
         for calc_comp in field_info.get("calcs", [])
         if calc_comp["name"] in missing_from_tbl
     }
-    # add an element to the calculations components to indicate when a records if from
-    # another table
-    # This could be cleaned up.. I didn't know how to do this in a dict comp way that
-    # edited a deep subcomponent of the dict.
-    # Also: this should probabyl be done in rename_calculations_xbrl_meta
-    for field_info in meta_converted[table_name].values():
-        if field_info.get("calcs", False):
-            for calc_component in field_info.get("calcs"):
-                if calc_component["name"] in missing_col_to_table.keys():
-                    calc_component["source_table"] = missing_col_to_table[
-                        calc_component["name"]
-                    ]
     missing_columns = [
         col for col in missing_from_tbl if col not in missing_col_to_table.keys()
     ]
@@ -4417,12 +4465,6 @@ def check_table_calcs(
         .schema.primary_key
     )
     pks_wo_factoid = [col for col in pks if col != xbrl_factoid_name]
-    meta_converted = ensure_names_in_renamed_xbrl_calcs_are_present(
-        df=table_df,
-        meta_converted=meta_converted,
-        xbrl_factoid_name=xbrl_factoid_name,
-        table_name=table_name,
-    )
     inter_table_calculated_values = {
         field: calc_components
         for field, field_info in meta_converted[table_name].items()
