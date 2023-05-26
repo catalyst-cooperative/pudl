@@ -1093,7 +1093,7 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
         tbl_meta.xbrl_factoid = tbl_meta.xbrl_factoid.map(replace_xbrl_factoid)
         tbl_meta = self.manually_update_xbrl_calcs(tbl_meta)
         # still need to convert this guy to the db-based metadata
-        # tbl_meta = self.remove_duplicated_components(tbl_meta)
+        tbl_meta = self.remove_duplicated_components(tbl_meta)
         return tbl_meta
 
     def rename_column_xbrl_to_pudl(
@@ -1151,22 +1151,21 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
             pass
         return col_name_new
 
-    def remove_duplicated_components(self, meta_converted: dict):
+    def remove_duplicated_components(self, tbl_meta: pd.DataFrame):
         """If a calculation contains the same components >1x, remove duplicates."""
-        table_name = self.table_id.value
-        for variable in meta_converted[table_name]:
-            if "calcs" in meta_converted[table_name][variable]:
-                new_calc = [
-                    i
-                    for n, i in enumerate(meta_converted[table_name][variable]["calcs"])
-                    if i not in meta_converted[table_name][variable]["calcs"][n + 1 :]
-                ]
-                if new_calc != meta_converted[table_name][variable]["calcs"]:
-                    logger.info(
-                        f"Dropping duplicated components from {variable} calculation in {table_name}"
-                    )
-                    meta_converted[table_name][variable]["calcs"] = new_calc
-        return meta_converted
+        # reset the index bc we'll use it to compile a new series.
+        tbl_meta = tbl_meta.reset_index(drop=True)
+        new_calcs = pd.Series(dtype=pd.StringDtype())
+        for calc, index in zip(tbl_meta.calculations, tbl_meta.index):
+            calc = literal_eval(calc)
+            new_calc = [i for n, i in enumerate(calc) if i not in calc[n + 1 :]]
+            if new_calc != calc:
+                logger.info(
+                    f"Dropping duplicated components from calculation in {self.table_id.value}"
+                )
+            new_calcs.loc[index] = str(calc)
+        tbl_meta["calculations"] = new_calcs
+        return tbl_meta
 
     def manually_update_xbrl_calcs(self, tbl_meta: pd.DataFrame):
         """Manually add calculation fixes into the converted metadata.
@@ -4311,84 +4310,6 @@ def plants_steam_ferc1(
 ##################################
 # Calculations/Metadata Management
 ##################################
-
-
-class ExplodeMeta:
-    """Methods to translate XBRL metadata for preparing for explosions!"""
-
-    def __init__(self, xbrl_meta_json):
-        """Instance of :class:`ExplodeMeta`."""
-        self.xbrl_meta_json = xbrl_meta_json
-
-    def convert_metadata(
-        self, table_names: None | list[TableIdFerc1] = None
-    ) -> dict[TableIdFerc1, dict]:
-        """Convert multiple tables metadata."""
-        if not table_names:
-            table_names = list(FERC1_TFR_CLASSES)
-        meta_converted = {}
-        for table_name in table_names:
-            # for table_id in TableIdFerc1:
-            logger.info(f"Converting metadata for {table_name}")
-
-            transformer = FERC1_TFR_CLASSES[table_name]()
-            xbrl_meta_tbl = transformer.process_xbrl_metadata(
-                self.xbrl_meta_json[table_name]
-            )
-            meta_converted[table_name] = xbrl_meta_tbl
-        return meta_converted
-
-
-def label_souce_table_xbrl_metadata(
-    meta_converted: dict,
-    df: pd.DataFrame,
-    xbrl_factoid_name: str,
-    table_name: str,
-):
-    """Ensure all of the names in the renamed calculations are present in the df.
-
-    Add a ``source_table`` label to the calcuaiton components when a calculation
-    component shows up in another table. Log a warning if there are any missing names.
-    """
-    xbrl_types_in_calcs = set(
-        [
-            calc_part["name"]
-            for field_info in meta_converted[table_name].values()
-            if field_info.get("calcs")
-            for calc_part in field_info["calcs"]
-        ]
-        + list(meta_converted[table_name].keys())
-    )
-    # logger.info(f"{xbrl_types_in_calcs=}")
-    missing_from_tbl = {
-        xbrl_type
-        for xbrl_type in xbrl_types_in_calcs
-        if xbrl_type not in df[xbrl_factoid_name].unique()
-    }
-    # logger.info(missing_from_tbl)
-    # build a lil dictionary of missing col name to source_table name
-    missing_col_to_table = {
-        calc_comp["name"]: table_name
-        for (table_name, fields) in meta_converted.items()
-        for field_info in fields.values()
-        for calc_comp in field_info.get("calcs", [])
-        if calc_comp["name"] in missing_from_tbl
-    }
-    missing_columns = [
-        col for col in missing_from_tbl if col not in missing_col_to_table.keys()
-    ]
-    if missing_col_to_table:
-        logger.info(
-            f"{len(missing_col_to_table)} columns from {table_name} that show up in "
-            "calculated fields have been labeled with 'source_table' in the metadata."
-        )
-    if missing_columns:
-        logger.warning(
-            # raise AssertionError(
-            f"{table_name}: All renamed types were not found "
-            f"in the transformed table. Missing types: {missing_columns}"
-        )
-    return meta_converted
 
 
 def check_table_calcs(
