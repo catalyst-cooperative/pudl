@@ -1054,7 +1054,7 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
         happens in :meth:`Ferc1AbstractTableTransformer.merge_xbrl_metadata`.
         """
         logger.info(f"{self.table_id.value}: Processing XBRL metadata.")
-        meta = (
+        tbl_meta = (
             pd.concat(
                 [
                     pd.json_normalize(xbrl_metadata_json["instant"]),
@@ -1088,10 +1088,13 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
         )
         replace_xbrl_factoid = {
             xbrl_factoid_name_og: self.rename_column_xbrl_to_pudl(xbrl_factoid_name_og)
-            for xbrl_factoid_name_og in meta.xbrl_factoid
+            for xbrl_factoid_name_og in tbl_meta.xbrl_factoid
         }
-        meta.xbrl_factoid = meta.xbrl_factoid.map(replace_xbrl_factoid)
-        return meta
+        tbl_meta.xbrl_factoid = tbl_meta.xbrl_factoid.map(replace_xbrl_factoid)
+        tbl_meta = self.manually_update_xbrl_calcs(tbl_meta)
+        # still need to convert this guy to the db-based metadata
+        # tbl_meta = self.remove_duplicated_components(tbl_meta)
+        return tbl_meta
 
     def rename_column_xbrl_to_pudl(
         self,
@@ -1147,6 +1150,237 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
             # TODO: use from_unit -> to_unit map. but none of the $$ tables have this rn.
             pass
         return col_name_new
+
+    def remove_duplicated_components(self, meta_converted: dict):
+        """If a calculation contains the same components >1x, remove duplicates."""
+        table_name = self.table_id.value
+        for variable in meta_converted[table_name]:
+            if "calcs" in meta_converted[table_name][variable]:
+                new_calc = [
+                    i
+                    for n, i in enumerate(meta_converted[table_name][variable]["calcs"])
+                    if i not in meta_converted[table_name][variable]["calcs"][n + 1 :]
+                ]
+                if new_calc != meta_converted[table_name][variable]["calcs"]:
+                    logger.info(
+                        f"Dropping duplicated components from {variable} calculation in {table_name}"
+                    )
+                    meta_converted[table_name][variable]["calcs"] = new_calc
+        return meta_converted
+
+    def manually_update_xbrl_calcs(self, tbl_meta: pd.DataFrame):
+        """Manually add calculation fixes into the converted metadata.
+
+        Note: Temp fix. These updates should probably be moved into the table params
+        and integrated into the calculations via TableCalcs.
+        """
+        # typing for calced_fields_to_fix. for clarity/in anticipation of a pydantic
+        # calc defintion
+        # xbrl_factoid_name: str
+        # calc_component: dict[Literal["name", "weight"], str | int]
+        # calc_component_fix: dict[
+        #     Literal["calc_component_to_replace", "calc_component_new"],
+        #     None | calc_component,
+        # ]
+
+        def make_calc_component_fixes_for_double_counting(
+            table_meta, double_counted_factoid
+        ) -> dict[
+            Literal["calc_component_to_replace", "calc_component_new"],
+            None | dict,
+        ]:
+            """Make a  when a calculated sub-component is double counted."""
+            return [
+                {
+                    "calc_component_to_replace": double_counted_comp,
+                    "calc_component_new": {},
+                }
+                for double_counted_comp in table_meta[double_counted_factoid]["calcs"]
+            ]
+
+        calced_fields_to_fix: dict[
+            TableIdFerc1, dict  # [xbrl_factoid_name, list[calc_component_fix]]
+        ] = {
+            "income_statement_ferc1": {
+                "income_before_extraordinary_items": [
+                    {
+                        "calc_component_to_replace": {},
+                        "calc_component_new": {
+                            "name": "net_utility_operating_income",
+                            "weight": 1.0,
+                        },
+                    }
+                ],
+                "other_income_deductions": [
+                    {
+                        "calc_component_to_replace": {},
+                        "calc_component_new": {
+                            "name": "miscellaneous_deductions",
+                            "weight": 1.0,
+                        },
+                    }
+                ],
+                "taxes_on_other_income_and_deductions": [
+                    {
+                        "calc_component_to_replace": {
+                            "name": "investment_tax_credits",
+                            "weight": 1.0,
+                        },
+                        "calc_component_new": {
+                            "name": "investment_tax_credits",
+                            "weight": -1.0,
+                        },
+                    }
+                ],
+            },
+            "electric_operating_expenses_ferc1": {
+                # This table has two factoids that have sub-components that are
+                # calculations themselves and both the sub-component calcuated values
+                # AND the sub-sub-components. So we're removing the specific sub-sub-
+                # components
+                "power_production_expenses_steam_power": [
+                    {
+                        "calc_component_to_replace": {
+                            "name": "operation_supervision_and_engineering",
+                            "weight": 1.0,
+                        },
+                        "calc_component_new": {
+                            "name": "operation_supervision_and_engineering_steam_power_generation",
+                            "weight": 1.0,
+                        },
+                    },
+                    {  # this shows up in the steam calc, but its a nuclear expns
+                        "calc_component_to_replace": {
+                            "name": "coolants_and_water",
+                            "weight": 1.0,
+                        },
+                        "calc_component_new": {},
+                    },
+                ]
+                # commenting these out bc this method for deleteing sub-componets
+                # doesn't work as well in the table-based param version of this.
+                # we should either add it as a different param or just compile the
+                # double counted sub-components.
+                #
+                # + make_calc_component_fixes_for_double_counting(
+                #     meta_converted["electric_operating_expenses_ferc1"],
+                #     "steam_power_generation_maintenance_expense",
+                # )
+                # + make_calc_component_fixes_for_double_counting(
+                #     meta_converted["electric_operating_expenses_ferc1"],
+                #     "steam_power_generation_operations_expense",
+                # )
+                ,
+                "power_production_expenses_hydraulic_power": [
+                    {
+                        "calc_component_to_replace": {
+                            "name": "operation_supervision_and_engineering",
+                            "weight": 1.0,
+                        },
+                        "calc_component_new": {
+                            "name": "operation_supervision_and_engineering_hydraulic_power_generation",
+                            "weight": 1.0,
+                        },
+                    },
+                ]
+                # + make_calc_component_fixes_for_double_counting(
+                #     meta_converted["electric_operating_expenses_ferc1"],
+                #     "hydraulic_power_generation_maintenance_expense",
+                # )
+                # + make_calc_component_fixes_for_double_counting(
+                #     meta_converted["electric_operating_expenses_ferc1"],
+                #     "hydraulic_power_generation_operations_expense",
+                # )
+                ,
+                "transmission_operation_expense": [
+                    {
+                        "calc_component_to_replace": {},
+                        "calc_component_new": {
+                            "name": "load_dispatching_transmission_expense",
+                            "weight": 1.0,
+                        },
+                    },
+                ],
+            },
+            "utility_plant_summary_ferc1": {
+                "accumulated_provision_for_depreciation_amortization_and_depletion_of_plant_utility": [
+                    {
+                        "calc_component_to_replace": {
+                            "name": "depreciation_amortization_and_depletion_utility_plant_in_service",
+                            # A duplicate of 4 other fields, though this is not explicitly defined in the metadata.
+                            "weight": 1.0,
+                        },
+                        "calc_component_new": {},
+                    }
+                ],
+            },
+            "balance_sheet_assets_ferc1": {
+                "nuclear_fuel_net": [
+                    {
+                        "calc_component_to_replace": {
+                            "name": "nuclear_fuel_materials_and_assemblies",
+                            "weight": 1.0,
+                        },
+                        "calc_component_new": {},
+                    },
+                    {
+                        "calc_component_to_replace": {
+                            "name": "spent_nuclear_fuel",
+                            "weight": 1.0,
+                        },
+                        "calc_component_new": {},
+                    },
+                    {
+                        "calc_component_to_replace": {},
+                        "calc_component_new": {
+                            # Only used in pre-2004 calculations, aggregate of later sub-components.
+                            "name": "nuclear_fuel",
+                            "weight": 1.0,
+                        },
+                    },
+                ],
+                "other_property_and_investments": [
+                    {
+                        "calc_component_to_replace": {},
+                        "calc_component_new": {
+                            # Only used in pre-2004 calculations, aggregate of later sub-components.
+                            "name": "special_funds_all",
+                            "weight": 1.0,
+                        },
+                    },
+                ],
+            },
+        }
+
+        def remove_nones_in_list(list_of_things):
+            """Remove None's (or False's) in a list.
+
+            We're about to introduce None's into the calculation components when an
+            existing component needed to be removed.
+            """
+            return [i for i in list_of_things if i]
+
+        if not calced_fields_to_fix.get(self.table_id.value, False):
+            return tbl_meta
+        for xbrl_factoid, calc_component_fixes in calced_fields_to_fix[
+            self.table_id.value
+        ].items():
+            calc_to_update = literal_eval(tbl_meta.loc[xbrl_factoid, "calculations"])
+            for calc_component_fix in calc_component_fixes:
+                if calc_component_fix["calc_component_to_replace"]:
+                    calc_to_update = remove_nones_in_list(
+                        [
+                            calc_component_fix["calc_component_new"]
+                            if calc_component
+                            == calc_component_fix["calc_component_to_replace"]
+                            else calc_component
+                            for calc_component in calc_to_update
+                        ]
+                    )
+                else:
+                    calc_to_update.append([calc_component_fix["calc_component_new"]])
+        tbl_meta.loc[xbrl_factoid, "calculations"] = str(calc_to_update)
+        return tbl_meta
 
     @cache_df(key="merge_xbrl_metadata")
     def merge_xbrl_metadata(
@@ -4104,299 +4338,6 @@ class ExplodeMeta:
         meta_converted = self.manually_update_xbrl_calcs(meta_converted)
         meta_converted = self.remove_duplicated_components(meta_converted)
         return meta_converted
-
-    @staticmethod
-    def remove_duplicated_components(meta_converted: dict):
-        """If a calculation contains the same components >1x, remove duplicates."""
-        for table in meta_converted:
-            for variable in meta_converted[table]:
-                if "calcs" in meta_converted[table][variable]:
-                    new_calc = [
-                        i
-                        for n, i in enumerate(meta_converted[table][variable]["calcs"])
-                        if i not in meta_converted[table][variable]["calcs"][n + 1 :]
-                    ]
-                    if new_calc != meta_converted[table][variable]["calcs"]:
-                        logger.info(
-                            f"Dropping duplicated components from {variable} calculation in {table}"
-                        )
-                        meta_converted[table][variable]["calcs"] = new_calc
-        return meta_converted
-
-    @staticmethod
-    def manually_update_xbrl_calcs(meta_converted: dict):
-        """Manually add calculation fixes into the converted metadata.
-
-        Note: Temp fix. These updates should probably be moved into the table params
-        and integrated into the calculations via TableCalcs.
-        """
-        # typing for calced_fields_to_fix. for clarity/in anticipation of a pydantic
-        # calc defintion
-        # xbrl_factoid_name: str
-        # calc_component: dict[Literal["name", "weight"], str | int]
-        # calc_component_fix: dict[
-        #     Literal["calc_component_to_replace", "calc_component_new"],
-        #     None | calc_component,
-        # ]
-
-        def make_calc_component_fixes_for_double_counting(
-            table_meta, double_counted_factoid
-        ) -> dict[
-            Literal["calc_component_to_replace", "calc_component_new"],
-            None | dict,
-        ]:
-            """Make a  when a calculated sub-component is double counted."""
-            return [
-                {
-                    "calc_component_to_replace": double_counted_comp,
-                    "calc_component_new": {},
-                }
-                for double_counted_comp in table_meta[double_counted_factoid]["calcs"]
-            ]
-
-        calced_fields_to_fix: dict[
-            TableIdFerc1, dict  # [xbrl_factoid_name, list[calc_component_fix]]
-        ] = {
-            "income_statement_ferc1": {
-                "income_before_extraordinary_items": [
-                    {
-                        "calc_component_to_replace": {},
-                        "calc_component_new": {
-                            "name": "net_utility_operating_income",
-                            "weight": 1.0,
-                        },
-                    }
-                ],
-                "other_income_deductions": [
-                    {
-                        "calc_component_to_replace": {},
-                        "calc_component_new": {
-                            "name": "miscellaneous_deductions",
-                            "weight": 1.0,
-                        },
-                    }
-                ],
-                "taxes_on_other_income_and_deductions": [
-                    {
-                        "calc_component_to_replace": {
-                            "name": "investment_tax_credits",
-                            "weight": 1.0,
-                        },
-                        "calc_component_new": {
-                            "name": "investment_tax_credits",
-                            "weight": -1.0,
-                        },
-                    }
-                ],
-            },
-            "electric_operating_expenses_ferc1": {
-                # This table has two factoids that have sub-components that are
-                # calculations themselves and both the sub-component calcuated values
-                # AND the sub-sub-components. So we're removing the specific sub-sub-
-                # components
-                "power_production_expenses_steam_power": [
-                    {
-                        "calc_component_to_replace": {
-                            "name": "operation_supervision_and_engineering",
-                            "weight": 1.0,
-                        },
-                        "calc_component_new": {
-                            "name": "operation_supervision_and_engineering_steam_power_generation",
-                            "weight": 1.0,
-                        },
-                    },
-                    {  # this shows up in the steam calc, but its a nuclear expns
-                        "calc_component_to_replace": {
-                            "name": "coolants_and_water",
-                            "weight": 1.0,
-                        },
-                        "calc_component_new": {},
-                    },
-                ]
-                + make_calc_component_fixes_for_double_counting(
-                    meta_converted["electric_operating_expenses_ferc1"],
-                    "steam_power_generation_maintenance_expense",
-                )
-                + make_calc_component_fixes_for_double_counting(
-                    meta_converted["electric_operating_expenses_ferc1"],
-                    "steam_power_generation_operations_expense",
-                ),
-                "power_production_expenses_hydraulic_power": [
-                    {
-                        "calc_component_to_replace": {
-                            "name": "operation_supervision_and_engineering",
-                            "weight": 1.0,
-                        },
-                        "calc_component_new": {
-                            "name": "operation_supervision_and_engineering_hydraulic_power_generation",
-                            "weight": 1.0,
-                        },
-                    },
-                ]
-                + make_calc_component_fixes_for_double_counting(
-                    meta_converted["electric_operating_expenses_ferc1"],
-                    "hydraulic_power_generation_maintenance_expense",
-                )
-                + make_calc_component_fixes_for_double_counting(
-                    meta_converted["electric_operating_expenses_ferc1"],
-                    "hydraulic_power_generation_operations_expense",
-                ),
-                "transmission_operation_expense": [
-                    {
-                        "calc_component_to_replace": {},
-                        "calc_component_new": {
-                            "name": "load_dispatching_transmission_expense",
-                            "weight": 1.0,
-                        },
-                    },
-                ],
-            },
-            "utility_plant_summary_ferc1": {
-                "accumulated_provision_for_depreciation_amortization_and_depletion_of_plant_utility": [
-                    {
-                        "calc_component_to_replace": {
-                            "name": "depreciation_amortization_and_depletion_utility_plant_in_service",
-                            # A duplicate of 4 other fields, though this is not explicitly defined in the metadata.
-                            "weight": 1.0,
-                        },
-                        "calc_component_new": {},
-                    }
-                ],
-            },
-            "balance_sheet_assets_ferc1": {
-                "nuclear_fuel_net": [
-                    {
-                        "calc_component_to_replace": {
-                            "name": "nuclear_fuel_materials_and_assemblies",
-                            "weight": 1.0,
-                        },
-                        "calc_component_new": {},
-                    },
-                    {
-                        "calc_component_to_replace": {
-                            "name": "spent_nuclear_fuel",
-                            "weight": 1.0,
-                        },
-                        "calc_component_new": {},
-                    },
-                    {
-                        "calc_component_to_replace": {},
-                        "calc_component_new": {
-                            # Only used in pre-2004 calculations, aggregate of later sub-components.
-                            "name": "nuclear_fuel",
-                            "weight": 1.0,
-                        },
-                    },
-                ],
-                "other_property_and_investments": [
-                    {
-                        "calc_component_to_replace": {},
-                        "calc_component_new": {
-                            # Only used in pre-2004 calculations, aggregate of later sub-components.
-                            "name": "special_funds_all",
-                            "weight": 1.0,
-                        },
-                    },
-                ],
-            },
-        }
-
-        def remove_nones_in_list(list_of_things):
-            """Remove None's (or False's) in a list.
-
-            We're about to introduce None's into the calculation components when an
-            existing component needed to be removed.
-            """
-            return [i for i in list_of_things if i]
-
-        # I don't love this nested loopy-dee-doop
-        for table_name, factoid_to_fix in calced_fields_to_fix.items():
-            for xbrl_factoid, calc_component_fixes in factoid_to_fix.items():
-                logger.info(f"fixing calc for {table_name}'s {xbrl_factoid}")
-                for calc_component_fix in calc_component_fixes:
-                    if calc_component_fix["calc_component_to_replace"]:
-                        meta_converted[table_name][xbrl_factoid][
-                            "calcs"
-                        ] = remove_nones_in_list(
-                            [
-                                calc_component_fix["calc_component_new"]
-                                if calc_component
-                                == calc_component_fix["calc_component_to_replace"]
-                                else calc_component
-                                for calc_component in meta_converted[table_name][
-                                    xbrl_factoid
-                                ]["calcs"]
-                            ]
-                        )
-                    else:
-                        meta_converted[table_name][xbrl_factoid][
-                            "calcs"
-                        ] = meta_converted[table_name][xbrl_factoid]["calcs"] + [
-                            calc_component_fix["calc_component_new"]
-                        ]
-        return meta_converted
-
-
-class TableCalcs:
-    """Methods to convert and check table-level calculations."""
-
-    def __init__(
-        self,
-        table_name: TableIdFerc1,
-        xbrl_meta_tbl: pd.DataFrame,
-        params: Ferc1TableTransformParams,
-    ):
-        """Instance of :class:`TableCalcs`."""
-        self.table_name = table_name
-        self.xbrl_meta_tbl = xbrl_meta_tbl
-        self.params = params
-
-    def rename_calculations_xbrl_meta(
-        self,
-    ) -> dict[str, list]:
-        """Rename the calculations in the xbrl metadata to reflect PUDL names.
-
-        Note: params.select_dbf_rows_by_category.additional_categories will
-        include dbf categories that could be relevant.
-        """
-        xbrl_meta_tbl = self.xbrl_meta_tbl
-        transformer = FERC1_TFR_CLASSES[self.table_name]()
-        calced_values = set(
-            xbrl_meta_tbl.loc[
-                xbrl_meta_tbl.row_type_xbrl == "calculated_value", "xbrl_factoid"
-            ]
-        )
-        calcs = {
-            calced_value: literal_eval(
-                xbrl_meta_tbl.set_index(["xbrl_factoid"]).loc[
-                    calced_value, "calculations"
-                ]
-            )
-            for calced_value in calced_values
-        }
-        calcs_renamed = {
-            transformer.rename_column_xbrl_to_pudl(calced_value): {
-                "calcs": [
-                    {
-                        key: transformer.rename_column_xbrl_to_pudl(value)
-                        if key == "name"
-                        else value
-                        for (key, value) in calc.items()
-                    }
-                    for calc in calcs
-                ],
-                "name_original": calced_value,
-            }
-            for (calced_value, calcs) in calcs.items()
-        }
-        names_non_calcs = [
-            name for name in xbrl_meta_tbl.xbrl_factoid if name not in calced_values
-        ]
-        non_calcs = {
-            transformer.rename_column_xbrl_to_pudl(name): {"name_original": name}
-            for name in names_non_calcs
-        }
-        return calcs_renamed | non_calcs
 
 
 def label_souce_table_xbrl_metadata(
