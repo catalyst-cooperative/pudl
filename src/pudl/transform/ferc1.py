@@ -1362,6 +1362,7 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
 
         if not calced_fields_to_fix.get(self.table_id.value, False):
             return tbl_meta
+        tbl_meta = tbl_meta.set_index(["xbrl_factoid"])
         for xbrl_factoid, calc_component_fixes in calced_fields_to_fix[
             self.table_id.value
         ].items():
@@ -1380,7 +1381,7 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
                 else:
                     calc_to_update.append([calc_component_fix["calc_component_new"]])
         tbl_meta.loc[xbrl_factoid, "calculations"] = str(calc_to_update)
-        return tbl_meta
+        return tbl_meta.reset_index()
 
     @cache_df(key="merge_xbrl_metadata")
     def merge_xbrl_metadata(
@@ -4335,8 +4336,6 @@ class ExplodeMeta:
                 self.xbrl_meta_json[table_name]
             )
             meta_converted[table_name] = xbrl_meta_tbl
-        meta_converted = self.manually_update_xbrl_calcs(meta_converted)
-        meta_converted = self.remove_duplicated_components(meta_converted)
         return meta_converted
 
 
