@@ -1023,6 +1023,7 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
                     "row_type_xbrl": pd.StringDtype(),
                 }
             )
+            .assign(xbrl_factoid_name_original=lambda x: x.xbrl_factoid)
         )
         replace_xbrl_factoid = {
             xbrl_factoid_name_og: self.rename_column_xbrl_to_pudl(xbrl_factoid_name_og)
@@ -2083,43 +2084,53 @@ class PlantInServiceFerc1TableTransformer(Ferc1AbstractTableTransformer):
     def process_xbrl_metadata(self, xbrl_metadata_json) -> pd.DataFrame:
         """Transform the metadata to reflect the transformed data.
 
-        The XBRL Taxonomy metadata as extracted pertains to the XBRL data as extracted.
-        When we re-shape the data, we also need to adjust the metadata to be usable
-        alongside the reshaped data. For the plant in service table, this means
-        selecting metadata fields that pertain to the "stem" column name (not
-        differentiating between starting/ending balance, retirements, additions, etc.)
-
         We fill in some gaps in the metadata, e.g. for FERC accounts that have been
         split across multiple rows, or combined without being calculated. We also need
         to rename the XBRL metadata categories to conform to the same naming convention
         that we are using in the data itself (since FERC doesn't quite follow their own
         naming conventions...). We use the same rename dictionary, but as an argument to
         :meth:`pd.Series.replace` instead of :meth:`pd.DataFrame.rename`.
+
+        We also deduplicate the metadata on the basis of
         """
-        pis_meta = (
-            super()
-            .process_xbrl_metadata(xbrl_metadata_json)
-            .assign(
-                xbrl_factoid=lambda x: x.xbrl_factoid.replace(
-                    self.params.rename_columns_ferc1.instant_xbrl.columns
-                )
-            )
-        )
+        tbl_meta = super().process_xbrl_metadata(xbrl_metadata_json)
 
         # Set pseudo-account numbers for rows that split or combine FERC accounts, but
         # which are not calculated values.
-        pis_meta.loc[
-            pis_meta.xbrl_factoid == "electric_plant_purchased", "ferc_account"
+        tbl_meta.loc[
+            tbl_meta.xbrl_factoid == "electric_plant_purchased", "ferc_account"
         ] = "102_purchased"
-        pis_meta.loc[
-            pis_meta.xbrl_factoid == "electric_plant_sold", "ferc_account"
+        tbl_meta.loc[
+            tbl_meta.xbrl_factoid == "electric_plant_sold", "ferc_account"
         ] = "102_sold"
-        pis_meta.loc[
-            pis_meta.xbrl_factoid
+        tbl_meta.loc[
+            tbl_meta.xbrl_factoid
             == "electric_plant_in_service_and_completed_construction_not_classified_electric",
             "ferc_account",
         ] = "101_and_106"
-        return pis_meta
+
+        # remove duplication of xbrl_factoid
+        same_calcs_mask = tbl_meta.duplicated(
+            subset=["xbrl_factoid", "calculations"], keep=False
+        )
+        # if they key values are the same, select the records with values in ferc_account
+        same_calcs_deduped = (
+            tbl_meta[same_calcs_mask]
+            .sort_values(["ferc_account"])
+            .drop_duplicates(subset=["xbrl_factoid"], keep="first")
+        )
+        # when the calcs are different, they are referring to the non-adjustments
+        suffixes = ("_additions", "_retirements", "_adjustments", "_transfers")
+        unique_calcs_deduped = tbl_meta[
+            ~same_calcs_mask
+            & (~tbl_meta.xbrl_factoid_name_original.str.endswith(suffixes))
+        ]
+        tbl_meta_cleaned = pd.concat([same_calcs_deduped, unique_calcs_deduped])
+        assert set(tbl_meta_cleaned.xbrl_factoid.unique()) == set(
+            tbl_meta.xbrl_factoid.unique()
+        )
+        assert ~tbl_meta_cleaned.duplicated(["xbrl_factoid"]).all()
+        return tbl_meta_cleaned
 
     def apply_sign_conventions(self, df) -> pd.DataFrame:
         """Adjust rows and column sign conventsion to enable aggregation by summing.
@@ -3598,6 +3609,55 @@ class ElectricOperatingRevenuesFerc1TableTransformer(Ferc1AbstractTableTransform
 
     table_id: TableIdFerc1 = TableIdFerc1.ELECTRIC_OPERATING_REVENUES_FERC1
     has_unique_record_ids: bool = False
+
+    @cache_df("process_xbrl_metadata")
+    def process_xbrl_metadata(self, xbrl_metadata_json) -> pd.DataFrame:
+        """Transform the metadata to reflect the transformed data.
+
+        Employ the standard process for processing metadata. Then remove duplication on
+        the basis of the ``xbrl_factoid``. This table used :meth:`wide_to_tidy` with three
+        seperate value columns. Which results in one ``xbrl_factoid`` referencing three
+        seperate data columns. This method grabs only one piece of metadata for each
+        renamed ``xbrl_factoid``, preferring the calculated value or the factoid
+        referencing the dollar columns.
+
+        In an ideal world, we would have multiple pieces of metadata information (like
+        calucations and ferc account #'s), for every single :meth:`wide_to_tidy` value
+        column. We would probably want to employ that across the board - adding suffixes
+        or something like that to stack the metadata in a similar fashion that we stack
+        the data.
+        """
+        tbl_meta = super().process_xbrl_metadata(xbrl_metadata_json)
+        dupes_masks = tbl_meta.duplicated(subset=["xbrl_factoid"], keep=False)
+        non_dupes = tbl_meta[~dupes_masks]
+        dupes = tbl_meta[dupes_masks]
+        deduped = dupes[
+            (
+                (dupes.row_type_xbrl == "calculated_value")
+                & (dupes.xbrl_factoid == dupes.xbrl_factoid_name_original)
+            )
+            | (
+                (dupes.xbrl_factoid == dupes.xbrl_factoid_name_original)
+                & (dupes.ferc_account.notnull())
+            )
+        ]
+        tbl_meta_cleaned = pd.concat([non_dupes, deduped])
+
+        # double check that we're getting only the guys we want
+        missing = {
+            factoid
+            for factoid in tbl_meta.xbrl_factoid.unique()
+            if factoid not in tbl_meta_cleaned.xbrl_factoid.unique()
+        }
+        if missing != {"small_or_commercial", "large_or_industrial"}:
+            raise AssertionError(
+                "There are more than two xbrl_factoid's that are missing post-deduplication."
+                "Only two were expected that were fully reported values and were non-dollar"
+                f" amount factoids. {missing}"
+            )
+
+        assert ~tbl_meta_cleaned.duplicated(subset=["xbrl_factoid"]).all()
+        return tbl_meta_cleaned
 
     @cache_df("main")
     def transform_main(self, df):
