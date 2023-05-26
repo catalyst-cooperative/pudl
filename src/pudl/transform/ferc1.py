@@ -3670,7 +3670,7 @@ class ElectricOperatingRevenuesFerc1TableTransformer(Ferc1AbstractTableTransform
         dupe_mask = (
             (df.utility_id_ferc1 == 295)
             & (df.report_year == 2011)
-            & ((df.amount == 3.33e8) | (df.amount == 3.333e9))
+            & ((df.dollar_value == 3.33e8) | (df.dollar_value == 3.333e9))
         )
 
         return df[~dupe_mask].copy()
@@ -4131,7 +4131,7 @@ class ExplodeMeta:
             },
             "electric_operating_expenses_ferc1": {
                 # This table has two factoids that have sub-components that are
-                # calcuations themselves and both the sub-component calcuated values
+                # calculations themselves and both the sub-component calcuated values
                 # AND the sub-sub-components. So we're removing the specific sub-sub-
                 # components
                 "power_production_expenses_steam_power": [
@@ -4353,9 +4353,9 @@ def ensure_names_in_renamed_xbrl_calcs_are_present(
     xbrl_types_in_calcs = set(
         [
             calc_part["name"]
-            for feild_info in meta_converted[table_name].values()
-            if feild_info.get("calcs")
-            for calc_part in feild_info["calcs"]
+            for field_info in meta_converted[table_name].values()
+            if field_info.get("calcs")
+            for calc_part in field_info["calcs"]
         ]
         + list(meta_converted[table_name].keys())
     )
