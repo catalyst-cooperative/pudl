@@ -986,6 +986,116 @@ def fipsified_respondents_ferc714(
     return fipsified
 
 
+@asset(
+    compute_kind="Python",
+)
+def summarized_demand_ferc714(
+    annualized_respondents_ferc714,
+    demand_hourly_pa_ferc714,
+    fipsified_respondents_ferc714,
+    categorized_respondents_ferc714,
+):
+    """Compile annualized, categorized respondents and summarize values.
+
+    Calculated summary values include:
+    * Total reported electricity demand per respondent (``demand_annual_mwh``)
+    * Reported per-capita electrcity demand (``demand_annual_per_capita_mwh``)
+    * Population density (``population_density_km2``)
+    * Demand density (``demand_density_mwh_km2``)
+
+    These metrics are helpful identifying suspicious changes in the compiled annual
+    geometries for the planning areas.
+    """
+    demand_annual = (
+        pd.merge(
+            annualized_respondents_ferc714,
+            demand_hourly_pa_ferc714.loc[
+                :, ["report_date", "respondent_id_ferc714", "demand_mwh"]
+            ],
+            how="left",
+        )
+        .groupby(["report_date", "respondent_id_ferc714"])
+        .agg({"demand_mwh": sum})
+        .rename(columns={"demand_mwh": "demand_annual_mwh"})
+        .reset_index()
+        .merge(
+            georeferenced_counties_ferc714.groupby(
+                ["report_date", "respondent_id_ferc714"]
+            )
+            .agg({"population": sum, "area_km2": sum})
+            .reset_index()
+        )
+        .assign(
+            population_density_km2=lambda x: x.population / x.area_km2,
+            demand_annual_per_capita_mwh=lambda x: x.demand_annual_mwh / x.population,
+            demand_density_mwh_km2=lambda x: x.demand_annual_mwh / x.area_km2,
+        )
+    )
+    # Merge respondent categorizations into the annual demand
+    demand_summary = pd.merge(
+        demand_annual, categorized_respondents_ferc714, how="left"
+    ).pipe(apply_pudl_dtypes)
+    return demand_summary
+
+
+@asset(compute_kind="Python")
+def georeferenced_counties_ferc714(fipsified_respondents_ferc714):
+    """Annual respondents with all associated county-level geometries.
+
+    Given the county FIPS codes associated with each respondent in each year, pull in
+    associated geometries from the US Census DP1 dataset, so we can do spatial analyses.
+    This keeps each county record independent -- so there will be many records for each
+    respondent in each year. This is fast, and still good for mapping, and retains all
+    of the FIPS IDs so you can also still do ID based analyses.
+    """
+    census_counties = (
+        pudl.output.censusdp1tract.get_layer(  # Fix when census dagsterized
+            layer="county", pudl_settings=pudl.workspace.setup.get_defaults()
+        )
+    )
+    counties_gdf = pudl.analysis.service_territory.add_geometries(
+        fipsified_respondents_ferc714, census_gdf=census_counties
+    ).pipe(apply_pudl_dtypes)
+    return counties_gdf
+
+
+@asset(compute_kind="Python")
+def georeferenced_respondents_ferc714(
+    fipsified_respondents_ferc714, summarized_demand_ferc714
+):
+    """Annual respondents with a single all-encompassing geometry for each year.
+
+    Given the county FIPS codes associated with each responent in each year, compile a
+    geometry for the respondent's entire service territory annually. This results in
+    just a single record per respondent per year, but is computationally expensive and
+    you lose the information about what all counties are associated with the respondent
+    in that year. But it's useful for merging in other annual data like total demand, so
+    you can see which respondent-years have both reported demand and decent geometries,
+    calculate their areas to see if something changed from year to year, etc.
+    """
+    census_counties = (
+        pudl.output.censusdp1tract.get_layer(  # Fix when census dagsterized
+            layer="county",
+            pudl_settings=pudl.workspace.setup.get_defaults(),
+        )
+    )
+    respondents_gdf = (
+        pudl.analysis.service_territory.add_geometries(
+            fipsified_respondents_ferc714,
+            census_gdf=census_counties,
+            dissolve=True,
+            dissolve_by=["report_date", "respondent_id_ferc714"],
+        )
+        .merge(
+            summarized_demand_ferc714[
+                ["report_date", "respondent_id_ferc714", "demand_annual_mwh"]
+            ]
+        )
+        .pipe(apply_pudl_dtypes)
+    )
+    return respondents_gdf
+
+
 # Probably a duplicate that can get removed.
 @asset(compute_kind="Python")
 def annualize(demand_hourly_pa_ferc714, respondent_id_ferc714):
