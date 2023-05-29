@@ -3841,6 +3841,7 @@ TRANSFORM_PARAMS = {
         "merge_xbrl_metadata": {
             "rename_columns": {"xbrl_factoid": "income_type"},
             "on": "income_type",
+            "subtotal_column": "utility_type",
         },
         "drop_invalid_rows": [
             {

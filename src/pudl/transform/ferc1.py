@@ -299,6 +299,10 @@ class MergeXbrlMetadata(TransformParams):
     on: str | None = None
     """Column name to merge on in :func:`merge_xbrl_metadata`."""
 
+    subtotal_column: str | None = None
+    """Sub-total column name (e.g. utility type) to compare calculations against in
+    :func:`check_table_calcs`."""
+
 
 def merge_xbrl_metadata(
     df: pd.DataFrame, xbrl_metadata: pd.DataFrame, params: MergeXbrlMetadata
@@ -4342,7 +4346,7 @@ def check_table_calcs(
     }
     if inter_table_calculated_values:
         logger.info(
-            "Skipping calcuated values because they are inter-table calucations: "
+            "Skipping calculated values because they are inter-table calculations: "
             f"{inter_table_calculated_values.keys()}"
         )
     calculated_dfs = []
@@ -4386,4 +4390,28 @@ def check_table_calcs(
     logger.info(
         f"{table_name}: has #{len(off_df)} / {len(off_df)/len(calced_values):.02%} records that don't calculate exactly"
     )
+
+    # Check that sub-total calculations sum to total.
+    if FERC1_TFR_CLASSES[table_name]().params.merge_xbrl_metadata.sub_total:
+        sub_group_col = FERC1_TFR_CLASSES[
+            table_name
+        ]().params.merge_xbrl_metadata.subtotal_column
+        pks_wo_subgroup = [col for col in pks if col != sub_group_col]
+        calculated_df["sub_total_sum"] = (
+            calculated_df.pipe(lambda df: df[df[sub_group_col] != "total"])
+            .groupby(pks_wo_subgroup)["calculated_dollar_amount"]
+            .transform("sum")
+        )
+        calculated_df["sub_total_sum"] = calculated_df["sub_total_sum"].fillna(
+            calculated_df.calculated_dollar_amount
+        )
+        sub_total_errors = (
+            calculated_df.groupby(pks_wo_subgroup)
+            .filter(lambda x: x["sub_total_sum"].nunique() > 1)
+            .groupby(pks_wo_subgroup)
+        )
+        logger.info(
+            f"{table_name}: {sub_total_errors.ngroups} sub-total calculations do not sum to the total."
+        )
+
     return calculated_df
