@@ -3552,6 +3552,10 @@ TRANSFORM_PARAMS = {
                         "electric_operating_revenues",
                     ]
                 }
+                | {
+                    f"{col}_sales_electric_operating_revenue": f"{col}_electric_operating_revenue"
+                    for col in ["small_or_commercial", "large_or_industrial"]
+                }
             },
             "xbrl": {
                 "columns": {
