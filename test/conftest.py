@@ -16,7 +16,7 @@ from ferc_xbrl_extractor import xbrl
 import pudl
 from pudl import resources
 from pudl.cli.etl import pudl_etl_job_factory
-from pudl.extract.ferc1 import xbrl_metadata_json
+from pudl.extract.ferc1 import raw_xbrl_metadata_json
 from pudl.extract.xbrl import FercXbrlDatastore, _get_sqlite_engine
 from pudl.ferc_to_sqlite.cli import ferc_to_sqlite_job_factory
 from pudl.io_managers import (
@@ -288,10 +288,10 @@ def ferc_xbrl(
 @pytest.fixture(scope="session", name="ferc1_xbrl_taxonomy_metadata")
 def ferc1_xbrl_taxonomy_metadata(ferc1_engine_xbrl):
     """Read the FERC 1 XBRL taxonomy metadata from JSON."""
-    result = materialize_to_memory([xbrl_metadata_json])
+    result = materialize_to_memory([raw_xbrl_metadata_json])
     assert result.success
 
-    return result.output_for_node("xbrl_metadata_json")
+    return result.output_for_node("raw_xbrl_metadata_json")
 
 
 @pytest.fixture(scope="session")

@@ -44,6 +44,67 @@ from pudl.transform.classes import (
 logger = pudl.logging_helpers.get_logger(__name__)
 
 
+@asset
+def clean_xbrl_metadata_json(
+    raw_xbrl_metadata_json: dict[str, dict[str, list[dict[str, Any]]]]
+) -> dict[str, dict[str, list[dict[str, Any]]]]:
+    """Generate cleaned json xbrl metadata.
+
+    For now, this only runs :func:`add_source_table_to_xbrl_metadata`.
+    """
+    return add_source_table_to_xbrl_metadata(raw_xbrl_metadata_json)
+
+
+def add_source_table_to_xbrl_metadata(
+    raw_xbrl_metadata_json: dict[str, dict[str, list[dict[str, Any]]]]
+) -> dict[str, dict[str, list[dict[str, Any]]]]:
+    """Add a ``source_table`` field into metadata calculation components.
+
+    When a particular component of a calculation does not originate from the table in
+    which the calculated field is being reported, label the source table.
+    """
+
+    def all_fields_in_table(table_meta) -> list:
+        """Compile a list of all of the fields reported in a table."""
+        return [
+            field["name"] for meta_list in table_meta.values() for field in meta_list
+        ]
+
+    def extract_tables_to_fields(xbrl_meta: dict) -> dict[str : list[str]]:
+        """Compile a dictionary of table names (keys) to list of fields."""
+        return {
+            table_name: all_fields_in_table(table_meta)
+            for table_name, table_meta in xbrl_meta.items()
+        }
+
+    def label_source_table(calc_component: dict, tables_to_fields: str) -> dict:
+        """Add a ``source_table`` element to the calculation component."""
+        calc_component["source_table"] = [
+            other_table_name
+            for other_table_name, fields in tables_to_fields.items()
+            if calc_component["name"] in fields
+        ]
+        # weirdly there are a number of nuclear xbrl_factoid calc components that seem
+        # to have no source_table.
+        if not calc_component["source_table"]:
+            logger.debug(f"Found no source table for {calc_component['name']}.")
+        return calc_component
+
+    tables_to_fields = extract_tables_to_fields(raw_xbrl_metadata_json)
+    # for each table loop through all of the calculations within each field
+    for table_name, table_meta in raw_xbrl_metadata_json.items():
+        for list_of_facts in table_meta.values():
+            for xbrl_fact in list_of_facts:
+                # all facts have ``calculations``, but they are empty lists when null
+                for calc_component in xbrl_fact["calculations"]:
+                    # does the calc component show up in the table? if not, add a label
+                    if calc_component["name"] not in tables_to_fields[table_name]:
+                        calc_component = label_source_table(
+                            calc_component, tables_to_fields
+                        )
+    return raw_xbrl_metadata_json
+
+
 ################################################################################
 # FERC 1 Transform Parameter Models
 ################################################################################
@@ -993,7 +1054,7 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
         happens in :meth:`Ferc1AbstractTableTransformer.merge_xbrl_metadata`.
         """
         logger.info(f"{self.table_id.value}: Processing XBRL metadata.")
-        return (
+        tbl_meta = (
             pd.concat(
                 [
                     pd.json_normalize(xbrl_metadata_json["instant"]),
@@ -1023,7 +1084,303 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
                     "row_type_xbrl": pd.StringDtype(),
                 }
             )
+            .assign(xbrl_factoid_name_original=lambda x: x.xbrl_factoid)
         )
+        replace_xbrl_factoid = {
+            xbrl_factoid_name_og: self.rename_column_xbrl_to_pudl(xbrl_factoid_name_og)
+            for xbrl_factoid_name_og in tbl_meta.xbrl_factoid
+        }
+        tbl_meta.xbrl_factoid = tbl_meta.xbrl_factoid.map(replace_xbrl_factoid)
+        tbl_meta = self.manually_update_xbrl_calcs(tbl_meta)
+        # still need to convert this guy to the db-based metadata
+        tbl_meta = self.remove_duplicated_components(tbl_meta)
+        return tbl_meta
+
+    def rename_column_xbrl_to_pudl(
+        self,
+        col_name_xbrl: str,
+    ) -> str:
+        """Rename a column name from orignal XBRL name to the transformed PUDL name.
+
+        There are several transform params that either explicitly or implicity rename
+        columns:
+        * :class:`RenameColumnsFerc1`
+        * :class:`WideToTidySourceFerc1`
+        * :class:`UnstackBalancesToReportYearInstantXbrl`
+        * :class:`ConvertUnits`
+
+        This method attempts to use the table params to translate a column name.
+
+        Note: Instead of doing this for each individual column name, we could compile a
+        rename dict for the whole table with a similar processand then apply it for each
+        group of columns instead of running through this full process every time. If
+        this took longer than...  ~5 ms on a single table w/ lots of calcs this would
+        probably be worth it for simplicity.
+        """
+        rename_dicts = [
+            self.params.rename_columns_ferc1.duration_xbrl,
+            self.params.rename_columns_ferc1.instant_xbrl,
+            self.params.rename_columns_ferc1.xbrl,
+        ]
+        col_name_new = col_name_xbrl
+        for rename_stage in rename_dicts:
+            col_name_new = str(rename_stage.columns.get(col_name_new, col_name_new))
+        # the values in wide_to_tidy are found at the end of the column names and
+        # extracted, so we need to remove all of the suffixes.
+        wide_to_tidy_value_types = []
+        for wide_to_tidy_stage in json.loads(self.params.wide_to_tidy.json()).values():
+            if not isinstance(wide_to_tidy_stage, list):
+                wide_to_tidy_stage = [wide_to_tidy_stage]
+            for wide_to_tidy in wide_to_tidy_stage:
+                if wide_to_tidy["value_types"]:
+                    wide_to_tidy_value_types.append(wide_to_tidy["value_types"])
+        wide_to_tidy_value_types = pudl.helpers.dedupe_n_flatten_list_of_lists(
+            wide_to_tidy_value_types
+        )
+
+        for value_type in wide_to_tidy_value_types:
+            if col_name_new.endswith(f"_{value_type}"):
+                col_name_new = re.sub(f"_{value_type}$", "", col_name_new)
+            # col_name_new = col_name_new.replace(f"_{value_type}$", "")
+
+        if self.params.unstack_balances_to_report_year_instant_xbrl:
+            # TODO: do something...? add starting_balance & ending_balance suffixes?
+            pass
+        if self.params.convert_units:
+            # TODO: use from_unit -> to_unit map. but none of the $$ tables have this rn.
+            pass
+        return col_name_new
+
+    def remove_duplicated_components(self, tbl_meta: pd.DataFrame):
+        """If a calculation contains the same components >1x, remove duplicates."""
+        # reset the index bc we'll use it to compile a new series.
+        tbl_meta = tbl_meta.reset_index(drop=True)
+        new_calcs = pd.Series(dtype=pd.StringDtype())
+        for calc, index in zip(tbl_meta.calculations, tbl_meta.index):
+            calc = literal_eval(calc)
+            new_calc = [i for n, i in enumerate(calc) if i not in calc[n + 1 :]]
+            if new_calc != calc:
+                logger.info(
+                    f"Dropping duplicated components from calculation in {self.table_id.value}"
+                )
+            new_calcs.loc[index] = str(calc)
+        tbl_meta["calculations"] = new_calcs
+        return tbl_meta
+
+    def manually_update_xbrl_calcs(self, tbl_meta: pd.DataFrame):
+        """Manually add calculation fixes into the converted metadata.
+
+        Note: Temp fix. These updates should probably be moved into the table params
+        and integrated into the calculations via TableCalcs.
+        """
+        # typing for calced_fields_to_fix. for clarity/in anticipation of a pydantic
+        # calc defintion
+        # xbrl_factoid_name: str
+        # calc_component: dict[Literal["name", "weight"], str | int]
+        # calc_component_fix: dict[
+        #     Literal["calc_component_to_replace", "calc_component_new"],
+        #     None | calc_component,
+        # ]
+
+        def make_calc_component_fixes_for_double_counting(
+            table_meta, double_counted_factoid
+        ) -> dict[
+            Literal["calc_component_to_replace", "calc_component_new"],
+            None | dict,
+        ]:
+            """Make a  when a calculated sub-component is double counted."""
+            return [
+                {
+                    "calc_component_to_replace": double_counted_comp,
+                    "calc_component_new": {},
+                }
+                for double_counted_comp in table_meta[double_counted_factoid]["calcs"]
+            ]
+
+        calced_fields_to_fix: dict[
+            TableIdFerc1, dict  # [xbrl_factoid_name, list[calc_component_fix]]
+        ] = {
+            "income_statement_ferc1": {
+                "income_before_extraordinary_items": [
+                    {
+                        "calc_component_to_replace": {},
+                        "calc_component_new": {
+                            "name": "net_utility_operating_income",
+                            "weight": 1.0,
+                        },
+                    }
+                ],
+                "other_income_deductions": [
+                    {
+                        "calc_component_to_replace": {},
+                        "calc_component_new": {
+                            "name": "miscellaneous_deductions",
+                            "weight": 1.0,
+                        },
+                    }
+                ],
+                "taxes_on_other_income_and_deductions": [
+                    {
+                        "calc_component_to_replace": {
+                            "name": "investment_tax_credits",
+                            "weight": 1.0,
+                        },
+                        "calc_component_new": {
+                            "name": "investment_tax_credits",
+                            "weight": -1.0,
+                        },
+                    }
+                ],
+            },
+            "electric_operating_expenses_ferc1": {
+                # This table has two factoids that have sub-components that are
+                # calculations themselves and both the sub-component calcuated values
+                # AND the sub-sub-components. So we're removing the specific sub-sub-
+                # components
+                "power_production_expenses_steam_power": [
+                    {
+                        "calc_component_to_replace": {
+                            "name": "operation_supervision_and_engineering",
+                            "weight": 1.0,
+                        },
+                        "calc_component_new": {
+                            "name": "operation_supervision_and_engineering_steam_power_generation",
+                            "weight": 1.0,
+                        },
+                    },
+                    {  # this shows up in the steam calc, but its a nuclear expns
+                        "calc_component_to_replace": {
+                            "name": "coolants_and_water",
+                            "weight": 1.0,
+                        },
+                        "calc_component_new": {},
+                    },
+                ]
+                # commenting these out bc this method for deleteing sub-componets
+                # doesn't work as well in the table-based param version of this.
+                # we should either add it as a different param or just compile the
+                # double counted sub-components.
+                #
+                # + make_calc_component_fixes_for_double_counting(
+                #     meta_converted["electric_operating_expenses_ferc1"],
+                #     "steam_power_generation_maintenance_expense",
+                # )
+                # + make_calc_component_fixes_for_double_counting(
+                #     meta_converted["electric_operating_expenses_ferc1"],
+                #     "steam_power_generation_operations_expense",
+                # )
+                ,
+                "power_production_expenses_hydraulic_power": [
+                    {
+                        "calc_component_to_replace": {
+                            "name": "operation_supervision_and_engineering",
+                            "weight": 1.0,
+                        },
+                        "calc_component_new": {
+                            "name": "operation_supervision_and_engineering_hydraulic_power_generation",
+                            "weight": 1.0,
+                        },
+                    },
+                ]
+                # + make_calc_component_fixes_for_double_counting(
+                #     meta_converted["electric_operating_expenses_ferc1"],
+                #     "hydraulic_power_generation_maintenance_expense",
+                # )
+                # + make_calc_component_fixes_for_double_counting(
+                #     meta_converted["electric_operating_expenses_ferc1"],
+                #     "hydraulic_power_generation_operations_expense",
+                # )
+                ,
+                "transmission_operation_expense": [
+                    {
+                        "calc_component_to_replace": {},
+                        "calc_component_new": {
+                            "name": "load_dispatching_transmission_expense",
+                            "weight": 1.0,
+                        },
+                    },
+                ],
+            },
+            "utility_plant_summary_ferc1": {
+                "accumulated_provision_for_depreciation_amortization_and_depletion_of_plant_utility": [
+                    {
+                        "calc_component_to_replace": {
+                            "name": "depreciation_amortization_and_depletion_utility_plant_in_service",
+                            # A duplicate of 4 other fields, though this is not explicitly defined in the metadata.
+                            "weight": 1.0,
+                        },
+                        "calc_component_new": {},
+                    }
+                ],
+            },
+            "balance_sheet_assets_ferc1": {
+                "nuclear_fuel_net": [
+                    {
+                        "calc_component_to_replace": {
+                            "name": "nuclear_fuel_materials_and_assemblies",
+                            "weight": 1.0,
+                        },
+                        "calc_component_new": {},
+                    },
+                    {
+                        "calc_component_to_replace": {
+                            "name": "spent_nuclear_fuel",
+                            "weight": 1.0,
+                        },
+                        "calc_component_new": {},
+                    },
+                    {
+                        "calc_component_to_replace": {},
+                        "calc_component_new": {
+                            # Only used in pre-2004 calculations, aggregate of later sub-components.
+                            "name": "nuclear_fuel",
+                            "weight": 1.0,
+                        },
+                    },
+                ],
+                "other_property_and_investments": [
+                    {
+                        "calc_component_to_replace": {},
+                        "calc_component_new": {
+                            # Only used in pre-2004 calculations, aggregate of later sub-components.
+                            "name": "special_funds_all",
+                            "weight": 1.0,
+                        },
+                    },
+                ],
+            },
+        }
+
+        def remove_nones_in_list(list_of_things):
+            """Remove None's (or False's) in a list.
+
+            We're about to introduce None's into the calculation components when an
+            existing component needed to be removed.
+            """
+            return [i for i in list_of_things if i]
+
+        if not calced_fields_to_fix.get(self.table_id.value, False):
+            return tbl_meta
+        tbl_meta = tbl_meta.set_index(["xbrl_factoid"])
+        for xbrl_factoid, calc_component_fixes in calced_fields_to_fix[
+            self.table_id.value
+        ].items():
+            calc_to_update = literal_eval(tbl_meta.loc[xbrl_factoid, "calculations"])
+            for calc_component_fix in calc_component_fixes:
+                if calc_component_fix["calc_component_to_replace"]:
+                    calc_to_update = remove_nones_in_list(
+                        [
+                            calc_component_fix["calc_component_new"]
+                            if calc_component
+                            == calc_component_fix["calc_component_to_replace"]
+                            else calc_component
+                            for calc_component in calc_to_update
+                        ]
+                    )
+                else:
+                    calc_to_update.append([calc_component_fix["calc_component_new"]])
+        tbl_meta.loc[xbrl_factoid, "calculations"] = str(calc_to_update)
+        return tbl_meta.reset_index()
 
     @cache_df(key="merge_xbrl_metadata")
     def merge_xbrl_metadata(
@@ -2022,43 +2379,53 @@ class PlantInServiceFerc1TableTransformer(Ferc1AbstractTableTransformer):
     def process_xbrl_metadata(self, xbrl_metadata_json) -> pd.DataFrame:
         """Transform the metadata to reflect the transformed data.
 
-        The XBRL Taxonomy metadata as extracted pertains to the XBRL data as extracted.
-        When we re-shape the data, we also need to adjust the metadata to be usable
-        alongside the reshaped data. For the plant in service table, this means
-        selecting metadata fields that pertain to the "stem" column name (not
-        differentiating between starting/ending balance, retirements, additions, etc.)
-
         We fill in some gaps in the metadata, e.g. for FERC accounts that have been
         split across multiple rows, or combined without being calculated. We also need
         to rename the XBRL metadata categories to conform to the same naming convention
         that we are using in the data itself (since FERC doesn't quite follow their own
         naming conventions...). We use the same rename dictionary, but as an argument to
         :meth:`pd.Series.replace` instead of :meth:`pd.DataFrame.rename`.
+
+        We also deduplicate the metadata on the basis of
         """
-        pis_meta = (
-            super()
-            .process_xbrl_metadata(xbrl_metadata_json)
-            .assign(
-                xbrl_factoid=lambda x: x.xbrl_factoid.replace(
-                    self.params.rename_columns_ferc1.instant_xbrl.columns
-                )
-            )
-        )
+        tbl_meta = super().process_xbrl_metadata(xbrl_metadata_json)
 
         # Set pseudo-account numbers for rows that split or combine FERC accounts, but
         # which are not calculated values.
-        pis_meta.loc[
-            pis_meta.xbrl_factoid == "electric_plant_purchased", "ferc_account"
+        tbl_meta.loc[
+            tbl_meta.xbrl_factoid == "electric_plant_purchased", "ferc_account"
         ] = "102_purchased"
-        pis_meta.loc[
-            pis_meta.xbrl_factoid == "electric_plant_sold", "ferc_account"
+        tbl_meta.loc[
+            tbl_meta.xbrl_factoid == "electric_plant_sold", "ferc_account"
         ] = "102_sold"
-        pis_meta.loc[
-            pis_meta.xbrl_factoid
+        tbl_meta.loc[
+            tbl_meta.xbrl_factoid
             == "electric_plant_in_service_and_completed_construction_not_classified_electric",
             "ferc_account",
         ] = "101_and_106"
-        return pis_meta
+
+        # remove duplication of xbrl_factoid
+        same_calcs_mask = tbl_meta.duplicated(
+            subset=["xbrl_factoid", "calculations"], keep=False
+        )
+        # if they key values are the same, select the records with values in ferc_account
+        same_calcs_deduped = (
+            tbl_meta[same_calcs_mask]
+            .sort_values(["ferc_account"])
+            .drop_duplicates(subset=["xbrl_factoid"], keep="first")
+        )
+        # when the calcs are different, they are referring to the non-adjustments
+        suffixes = ("_additions", "_retirements", "_adjustments", "_transfers")
+        unique_calcs_deduped = tbl_meta[
+            ~same_calcs_mask
+            & (~tbl_meta.xbrl_factoid_name_original.str.endswith(suffixes))
+        ]
+        tbl_meta_cleaned = pd.concat([same_calcs_deduped, unique_calcs_deduped])
+        assert set(tbl_meta_cleaned.xbrl_factoid.unique()) == set(
+            tbl_meta.xbrl_factoid.unique()
+        )
+        assert ~tbl_meta_cleaned.duplicated(["xbrl_factoid"]).all()
+        return tbl_meta_cleaned
 
     def apply_sign_conventions(self, df) -> pd.DataFrame:
         """Adjust rows and column sign conventsion to enable aggregation by summing.
@@ -3351,33 +3718,34 @@ class DepreciationAmortizationSummaryFerc1TableTransformer(
     table_id: TableIdFerc1 = TableIdFerc1.DEPRECIATION_AMORTIZATION_SUMMARY_FERC1
     has_unique_record_ids: bool = False
 
-    def merge_xbrl_metadata(
-        self, df: pd.DataFrame, params: MergeXbrlMetadata | None = None
-    ) -> pd.DataFrame:
-        """Annotate data using manually compiled FERC accounts & ``ferc_account_label``.
+    @cache_df("process_xbrl_metadata")
+    def process_xbrl_metadata(self, xbrl_metadata_json) -> pd.DataFrame:
+        """Transform the metadata to reflect the transformed data.
 
-        The FERC accounts are not provided in the XBRL taxonomy like they are for other
-        tables. However, there are only 4 of them, so a hand-compiled mapping is
-        hardcoded here, and merged onto the data similar to how the XBRL taxonomy
-        derived metadata is merged on for other tables.
+        Replace the name of the balance column reported in the XBRL Instant table with
+        starting_balance / ending_balance since we pull those two values into their own
+        separate labeled rows, each of which should get the original metadata for the
+        Instant column.
         """
-        xbrl_metadata = pd.DataFrame(
-            {
-                "ferc_account_label": [
-                    "depreciation_expense",
-                    "depreciation_expense_asset_retirement",
-                    "amortization_limited_term_electric_plant",
-                    "amortization_other_electric_plant",
-                ],
-                "ferc_account": ["403", "403.1", "404", "405"],
-            }
+        meta = (
+            super()
+            .process_xbrl_metadata(xbrl_metadata_json)
+            .assign(
+                xbrl_factoid=lambda x: x.xbrl_factoid.replace(
+                    self.params.rename_columns_ferc1.duration_xbrl.columns
+                )
+            )
         )
-        if not params:
-            params = self.params.merge_xbrl_metadata
-        if params.on:
-            logger.info(f"{self.table_id.value}: merging metadata")
-            df = merge_xbrl_metadata(df, xbrl_metadata, params)
-        return df
+        # logger.info(meta)
+        meta.loc[
+            meta.xbrl_factoid == "depreciation_expense_asset_retirement",
+            "ferc_account",
+        ] = "403.1"
+        meta.loc[
+            meta.xbrl_factoid == "depreciation_expense",
+            "ferc_account",
+        ] = "403.1"
+        return meta
 
 
 class ElectricPlantDepreciationChangesFerc1TableTransformer(
@@ -3536,6 +3904,55 @@ class ElectricOperatingRevenuesFerc1TableTransformer(Ferc1AbstractTableTransform
 
     table_id: TableIdFerc1 = TableIdFerc1.ELECTRIC_OPERATING_REVENUES_FERC1
     has_unique_record_ids: bool = False
+
+    @cache_df("process_xbrl_metadata")
+    def process_xbrl_metadata(self, xbrl_metadata_json) -> pd.DataFrame:
+        """Transform the metadata to reflect the transformed data.
+
+        Employ the standard process for processing metadata. Then remove duplication on
+        the basis of the ``xbrl_factoid``. This table used :meth:`wide_to_tidy` with three
+        seperate value columns. Which results in one ``xbrl_factoid`` referencing three
+        seperate data columns. This method grabs only one piece of metadata for each
+        renamed ``xbrl_factoid``, preferring the calculated value or the factoid
+        referencing the dollar columns.
+
+        In an ideal world, we would have multiple pieces of metadata information (like
+        calucations and ferc account #'s), for every single :meth:`wide_to_tidy` value
+        column. We would probably want to employ that across the board - adding suffixes
+        or something like that to stack the metadata in a similar fashion that we stack
+        the data.
+        """
+        tbl_meta = super().process_xbrl_metadata(xbrl_metadata_json)
+        dupes_masks = tbl_meta.duplicated(subset=["xbrl_factoid"], keep=False)
+        non_dupes = tbl_meta[~dupes_masks]
+        dupes = tbl_meta[dupes_masks]
+        deduped = dupes[
+            (
+                (dupes.row_type_xbrl == "calculated_value")
+                & (dupes.xbrl_factoid == dupes.xbrl_factoid_name_original)
+            )
+            | (
+                (dupes.xbrl_factoid == dupes.xbrl_factoid_name_original)
+                & (dupes.ferc_account.notnull())
+            )
+        ]
+        tbl_meta_cleaned = pd.concat([non_dupes, deduped])
+
+        # double check that we're getting only the guys we want
+        missing = {
+            factoid
+            for factoid in tbl_meta.xbrl_factoid.unique()
+            if factoid not in tbl_meta_cleaned.xbrl_factoid.unique()
+        }
+        if missing != {"small_or_commercial", "large_or_industrial"}:
+            raise AssertionError(
+                "There are more than two xbrl_factoid's that are missing post-deduplication."
+                "Only two were expected that were fully reported values and were non-dollar"
+                f" amount factoids. {missing}"
+            )
+
+        assert ~tbl_meta_cleaned.duplicated(subset=["xbrl_factoid"]).all()
+        return tbl_meta_cleaned
 
     @cache_df("main")
     def transform_main(self, df):
@@ -3791,7 +4208,7 @@ def ferc1_transform_asset_factory(
     ins = {f"raw_dbf__{tn}": AssetIn(tn) for tn in dbf_tables}
     ins |= {f"raw_xbrl_instant__{tn}": AssetIn(f"{tn}_instant") for tn in xbrl_tables}
     ins |= {f"raw_xbrl_duration__{tn}": AssetIn(f"{tn}_duration") for tn in xbrl_tables}
-    ins["xbrl_metadata_json"] = AssetIn("xbrl_metadata_json")
+    ins["clean_xbrl_metadata_json"] = AssetIn("clean_xbrl_metadata_json")
 
     table_id = TableIdFerc1(table_name)
 
@@ -3803,19 +4220,22 @@ def ferc1_transform_asset_factory(
             raw_dbf: raw dbf table.
             raw_xbrl_instant: raw XBRL instant table.
             raw_xbrl_duration: raw XBRL duration table.
-            xbrl_metadata_json: XBRL metadata json for all tables.
+            clean_xbrl_metadata_json: XBRL metadata json for all tables.
 
         Returns:
             transformed FERC Form 1 table.
         """
         # TODO: split the key by __, then groupby, then concatenate
-        xbrl_metadata_json = kwargs["xbrl_metadata_json"]
+        clean_xbrl_metadata_json = kwargs["clean_xbrl_metadata_json"]
         if generic:
             transformer = tfr_class(
-                xbrl_metadata_json=xbrl_metadata_json[table_name], table_id=table_id
+                xbrl_metadata_json=clean_xbrl_metadata_json[table_name],
+                table_id=table_id,
             )
         else:
-            transformer = tfr_class(xbrl_metadata_json=xbrl_metadata_json[table_name])
+            transformer = tfr_class(
+                xbrl_metadata_json=clean_xbrl_metadata_json[table_name]
+            )
 
         raw_dbf = pd.concat(
             [df for key, df in kwargs.items() if key.startswith("raw_dbf__")]
@@ -3858,7 +4278,7 @@ ferc1_assets = create_ferc1_transform_assets()
 
 @asset(io_manager_key="pudl_sqlite_io_manager")
 def plants_steam_ferc1(
-    xbrl_metadata_json: dict[str, dict[str, list[dict[str, Any]]]],
+    clean_xbrl_metadata_json: dict[str, dict[str, list[dict[str, Any]]]],
     f1_steam: pd.DataFrame,
     steam_electric_generating_plant_statistics_large_plants_402_duration: pd.DataFrame,
     steam_electric_generating_plant_statistics_large_plants_402_instant: pd.DataFrame,
@@ -3867,7 +4287,7 @@ def plants_steam_ferc1(
     """Create the clean plants_steam_ferc1 table.
 
     Args:
-            xbrl_metadata_json: XBRL metadata json for all tables.
+            clean_xbrl_metadata_json: XBRL metadata json for all tables.
             f1_steam: Raw f1_steam table.
             steam_electric_generating_plant_statistics_large_plants_402_duration: raw XBRL duration table.
             steam_electric_generating_plant_statistics_large_plants_402_instant: raw XBRL instant table.
@@ -3877,7 +4297,7 @@ def plants_steam_ferc1(
         Clean plants_steam_ferc1 table.
     """
     df = PlantsSteamFerc1TableTransformer(
-        xbrl_metadata_json=xbrl_metadata_json["plants_steam_ferc1"]
+        xbrl_metadata_json=clean_xbrl_metadata_json["plants_steam_ferc1"]
     ).transform(
         raw_dbf=f1_steam,
         raw_xbrl_instant=steam_electric_generating_plant_statistics_large_plants_402_instant,
@@ -3890,456 +4310,6 @@ def plants_steam_ferc1(
 ##################################
 # Calculations/Metadata Management
 ##################################
-
-
-class ExplodeMeta:
-    """Methods to translate XBRL metadata for preparing for explosions!"""
-
-    def __init__(self, xbrl_meta_json):
-        """Instance of :class:`ExplodeMeta`."""
-        self.xbrl_meta_json = xbrl_meta_json
-
-    def convert_metadata(
-        self, table_names: None | list[TableIdFerc1]
-    ) -> dict[TableIdFerc1, dict]:
-        """Convert multiple tables metadata."""
-        if not table_names:
-            table_names = list(FERC1_TFR_CLASSES.keys())
-        meta_converted = {}
-        for table_name in table_names:
-            # for table_id in TableIdFerc1:
-            logger.info(f"Converting metadata for {table_name}")
-
-            transformer = FERC1_TFR_CLASSES[table_name]()
-            xbrl_meta_tbl = transformer.process_xbrl_metadata(
-                self.xbrl_meta_json[table_name]
-            )
-
-            meta_converted[table_name] = TableCalcs(
-                table_name=table_name,
-                xbrl_meta_tbl=xbrl_meta_tbl,
-                params=transformer.params,
-            ).rename_calculations_xbrl_meta()
-        meta_converted = self.manually_update_xbrl_calcs(meta_converted)
-        meta_converted = self.remove_duplicated_components(meta_converted)
-        return meta_converted
-
-    @staticmethod
-    def remove_duplicated_components(meta_converted: dict):
-        """If a calculation contains the same components >1x, remove duplicates."""
-        for table in meta_converted:
-            for variable in meta_converted[table]:
-                if "calcs" in meta_converted[table][variable]:
-                    new_calc = [
-                        i
-                        for n, i in enumerate(meta_converted[table][variable]["calcs"])
-                        if i not in meta_converted[table][variable]["calcs"][n + 1 :]
-                    ]
-                    if new_calc != meta_converted[table][variable]["calcs"]:
-                        logger.info(
-                            f"Dropping duplicated components from {variable} calculation in {table}"
-                        )
-                        meta_converted[table][variable]["calcs"] = new_calc
-        return meta_converted
-
-    @staticmethod
-    def manually_update_xbrl_calcs(meta_converted: dict):
-        """Manually add calculation fixes into the converted metadata.
-
-        Note: Temp fix. These updates should probably be moved into the table params
-        and integrated into the calculations via TableCalcs.
-        """
-        # typing for calced_fields_to_fix. for clarity/in anticipation of a pydantic
-        # calc defintion
-        # xbrl_factoid_name: str
-        # calc_component: dict[Literal["name", "weight"], str | int]
-        # calc_component_fix: dict[
-        #     Literal["calc_component_to_replace", "calc_component_new"],
-        #     None | calc_component,
-        # ]
-
-        def make_calc_component_fixes_for_double_counting(
-            table_meta, double_counted_factoid
-        ) -> dict[
-            Literal["calc_component_to_replace", "calc_component_new"],
-            None | dict,
-        ]:
-            """Make a  when a calculated sub-component is double counted."""
-            return [
-                {
-                    "calc_component_to_replace": double_counted_comp,
-                    "calc_component_new": {},
-                }
-                for double_counted_comp in table_meta[double_counted_factoid]["calcs"]
-            ]
-
-        calced_fields_to_fix: dict[
-            TableIdFerc1, dict  # [xbrl_factoid_name, list[calc_component_fix]]
-        ] = {
-            "income_statement_ferc1": {
-                "income_before_extraordinary_items": [
-                    {
-                        "calc_component_to_replace": {},
-                        "calc_component_new": {
-                            "name": "net_utility_operating_income",
-                            "weight": 1.0,
-                        },
-                    }
-                ],
-                "other_income_deductions": [
-                    {
-                        "calc_component_to_replace": {},
-                        "calc_component_new": {
-                            "name": "miscellaneous_deductions",
-                            "weight": 1.0,
-                        },
-                    }
-                ],
-                "taxes_on_other_income_and_deductions": [
-                    {
-                        "calc_component_to_replace": {
-                            "name": "investment_tax_credits",
-                            "weight": 1.0,
-                        },
-                        "calc_component_new": {
-                            "name": "investment_tax_credits",
-                            "weight": -1.0,
-                        },
-                    }
-                ],
-            },
-            "electric_operating_expenses_ferc1": {
-                # This table has two factoids that have sub-components that are
-                # calculations themselves and both the sub-component calcuated values
-                # AND the sub-sub-components. So we're removing the specific sub-sub-
-                # components
-                "power_production_expenses_steam_power": [
-                    {
-                        "calc_component_to_replace": {
-                            "name": "operation_supervision_and_engineering",
-                            "weight": 1.0,
-                        },
-                        "calc_component_new": {
-                            "name": "operation_supervision_and_engineering_steam_power_generation",
-                            "weight": 1.0,
-                        },
-                    },
-                    {  # this shows up in the steam calc, but its a nuclear expns
-                        "calc_component_to_replace": {
-                            "name": "coolants_and_water",
-                            "weight": 1.0,
-                        },
-                        "calc_component_new": {},
-                    },
-                ]
-                + make_calc_component_fixes_for_double_counting(
-                    meta_converted["electric_operating_expenses_ferc1"],
-                    "steam_power_generation_maintenance_expense",
-                )
-                + make_calc_component_fixes_for_double_counting(
-                    meta_converted["electric_operating_expenses_ferc1"],
-                    "steam_power_generation_operations_expense",
-                ),
-                "power_production_expenses_hydraulic_power": [
-                    {
-                        "calc_component_to_replace": {
-                            "name": "operation_supervision_and_engineering",
-                            "weight": 1.0,
-                        },
-                        "calc_component_new": {
-                            "name": "operation_supervision_and_engineering_hydraulic_power_generation",
-                            "weight": 1.0,
-                        },
-                    },
-                ]
-                + make_calc_component_fixes_for_double_counting(
-                    meta_converted["electric_operating_expenses_ferc1"],
-                    "hydraulic_power_generation_maintenance_expense",
-                )
-                + make_calc_component_fixes_for_double_counting(
-                    meta_converted["electric_operating_expenses_ferc1"],
-                    "hydraulic_power_generation_operations_expense",
-                ),
-                "transmission_operation_expense": [
-                    {
-                        "calc_component_to_replace": {},
-                        "calc_component_new": {
-                            "name": "load_dispatching_transmission_expense",
-                            "weight": 1.0,
-                        },
-                    },
-                ],
-            },
-            "utility_plant_summary_ferc1": {
-                "accumulated_provision_for_depreciation_amortization_and_depletion_of_plant_utility": [
-                    {
-                        "calc_component_to_replace": {
-                            "name": "depreciation_amortization_and_depletion_utility_plant_in_service",
-                            # A duplicate of 4 other fields, though this is not explicitly defined in the metadata.
-                            "weight": 1.0,
-                        },
-                        "calc_component_new": {},
-                    }
-                ],
-            },
-            "balance_sheet_assets_ferc1": {
-                "nuclear_fuel_net": [
-                    {
-                        "calc_component_to_replace": {
-                            "name": "nuclear_fuel_materials_and_assemblies",
-                            "weight": 1.0,
-                        },
-                        "calc_component_new": {},
-                    },
-                    {
-                        "calc_component_to_replace": {
-                            "name": "spent_nuclear_fuel",
-                            "weight": 1.0,
-                        },
-                        "calc_component_new": {},
-                    },
-                    {
-                        "calc_component_to_replace": {},
-                        "calc_component_new": {
-                            # Only used in pre-2004 calculations, aggregate of later sub-components.
-                            "name": "nuclear_fuel",
-                            "weight": 1.0,
-                        },
-                    },
-                ],
-                "other_property_and_investments": [
-                    {
-                        "calc_component_to_replace": {},
-                        "calc_component_new": {
-                            # Only used in pre-2004 calculations, aggregate of later sub-components.
-                            "name": "special_funds_all",
-                            "weight": 1.0,
-                        },
-                    },
-                ],
-            },
-        }
-
-        def remove_nones_in_list(list_of_things):
-            """Remove None's (or False's) in a list.
-
-            We're about to introduce None's into the calculation components when an
-            existing component needed to be removed.
-            """
-            return [i for i in list_of_things if i]
-
-        # I don't love this nested loopy-dee-doop
-        for table_name, factoid_to_fix in calced_fields_to_fix.items():
-            for xbrl_factoid, calc_component_fixes in factoid_to_fix.items():
-                logger.info(f"fixing calc for {table_name}'s {xbrl_factoid}")
-                for calc_component_fix in calc_component_fixes:
-                    if calc_component_fix["calc_component_to_replace"]:
-                        meta_converted[table_name][xbrl_factoid][
-                            "calcs"
-                        ] = remove_nones_in_list(
-                            [
-                                calc_component_fix["calc_component_new"]
-                                if calc_component
-                                == calc_component_fix["calc_component_to_replace"]
-                                else calc_component
-                                for calc_component in meta_converted[table_name][
-                                    xbrl_factoid
-                                ]["calcs"]
-                            ]
-                        )
-                    else:
-                        meta_converted[table_name][xbrl_factoid][
-                            "calcs"
-                        ] = meta_converted[table_name][xbrl_factoid]["calcs"] + [
-                            calc_component_fix["calc_component_new"]
-                        ]
-                # meta_converted[table_name][xbrl_factoid] = {
-                #     xbrl_factoid: remove_nones_in_list(calc_components)
-                #     for (xbrl_factoid, calc_components) in meta_converted[
-                #         table_name
-                #     ].items()
-                # }
-        return meta_converted
-
-
-class TableCalcs:
-    """Methods to convert and check table-level calculations."""
-
-    def __init__(
-        self,
-        table_name: TableIdFerc1,
-        xbrl_meta_tbl: pd.DataFrame,
-        params: Ferc1TableTransformParams,
-    ):
-        """Instance of :class:`TableCalcs`."""
-        self.table_name = table_name
-        self.xbrl_meta_tbl = xbrl_meta_tbl
-        self.params = params
-
-    def rename_calculations_xbrl_meta(
-        self,
-    ) -> dict[str, list]:
-        """Rename the calculations in the xbrl metadata to reflect PUDL names.
-
-        Note: params.select_dbf_rows_by_category.additional_categories will
-        include dbf categories that could be relevant.
-        """
-        xbrl_meta_tbl = self.xbrl_meta_tbl
-        calced_values = set(
-            xbrl_meta_tbl.loc[
-                xbrl_meta_tbl.row_type_xbrl == "calculated_value", "xbrl_factoid"
-            ]
-        )
-        calcs = {
-            calced_value: literal_eval(
-                xbrl_meta_tbl.set_index(["xbrl_factoid"]).loc[
-                    calced_value, "calculations"
-                ]
-            )
-            for calced_value in calced_values
-        }
-        calcs_renamed = {
-            self.rename_column_xbrl_to_pudl(calced_value): {
-                "calcs": [
-                    {
-                        key: self.rename_column_xbrl_to_pudl(value)
-                        if key == "name"
-                        else value
-                        for (key, value) in calc.items()
-                    }
-                    for calc in calcs
-                ],
-                "name_original": calced_value,
-            }
-            for (calced_value, calcs) in calcs.items()
-        }
-        names_non_calcs = [
-            name for name in xbrl_meta_tbl.xbrl_factoid if name not in calced_values
-        ]
-        non_calcs = {
-            self.rename_column_xbrl_to_pudl(name): {"name_original": name}
-            for name in names_non_calcs
-        }
-        return calcs_renamed | non_calcs
-
-    def rename_column_xbrl_to_pudl(
-        self,
-        col_name_xbrl: str,
-    ) -> str:
-        """Rename a column name from orignal XBRL name to the transformed PUDL name.
-
-        There are several transform params that either explicitly or implicity rename
-        columns:
-        * :class:`RenameColumnsFerc1`
-        * :class:`WideToTidySourceFerc1`
-        * :class:`UnstackBalancesToReportYearInstantXbrl`
-        * :class:`ConvertUnits`
-
-        This method attempts to use the table params to translate a column name.
-
-        Note: Instead of doing this for each individual column name, we could compile a
-        rename dict for the whole table with a similar processand then apply it for each
-        group of columns instead of running through this full process every time. If
-        this took longer than...  ~5 ms on a single table w/ lots of calcs this would
-        probably be worth it for simplicity.
-        """
-        rename_dicts = [
-            self.params.rename_columns_ferc1.duration_xbrl,
-            self.params.rename_columns_ferc1.instant_xbrl,
-            self.params.rename_columns_ferc1.xbrl,
-        ]
-        col_name_new = col_name_xbrl
-        for rename_stage in rename_dicts:
-            col_name_new = str(rename_stage.columns.get(col_name_new, col_name_new))
-        # the values in wide_to_tidy are found at the end of the column names and
-        # extracted, so we need to remove all of the suffixes.
-        wide_to_tidy_value_types = []
-        for wide_to_tidy_stage in json.loads(self.params.wide_to_tidy.json()).values():
-            if not isinstance(wide_to_tidy_stage, list):
-                wide_to_tidy_stage = [wide_to_tidy_stage]
-            for wide_to_tidy in wide_to_tidy_stage:
-                if wide_to_tidy["value_types"]:
-                    wide_to_tidy_value_types.append(wide_to_tidy["value_types"])
-        wide_to_tidy_value_types = pudl.helpers.dedupe_n_flatten_list_of_lists(
-            wide_to_tidy_value_types
-        )
-
-        for value_type in wide_to_tidy_value_types:
-            if col_name_new.endswith(f"_{value_type}"):
-                col_name_new = re.sub(f"_{value_type}$", "", col_name_new)
-            # col_name_new = col_name_new.replace(f"_{value_type}$", "")
-
-        if self.params.unstack_balances_to_report_year_instant_xbrl:
-            # TODO: do something...? add starting_balance & ending_balance suffixes?
-            pass
-        if self.params.convert_units:
-            # TODO: use from_unit -> to_unit map. but none of the $$ tables have this rn.
-            pass
-        return col_name_new
-
-
-def ensure_names_in_renamed_xbrl_calcs_are_present(
-    meta_converted: dict,
-    df: pd.DataFrame,
-    xbrl_factoid_name: str,
-    table_name: str,
-):
-    """Ensure all of the names in the renamed calculations are present in the df.
-
-    Add a ``source_table`` label to the calcuaiton components when a calculation
-    component shows up in another table. Log a warning if there are any missing names.
-    """
-    xbrl_types_in_calcs = set(
-        [
-            calc_part["name"]
-            for field_info in meta_converted[table_name].values()
-            if field_info.get("calcs")
-            for calc_part in field_info["calcs"]
-        ]
-        + list(meta_converted[table_name].keys())
-    )
-    # logger.info(f"{xbrl_types_in_calcs=}")
-    missing_from_tbl = {
-        xbrl_type
-        for xbrl_type in xbrl_types_in_calcs
-        if xbrl_type not in df[xbrl_factoid_name].unique()
-    }
-    # logger.info(missing_from_tbl)
-    # build a lil dictionary of missing col name to source_table name
-    missing_col_to_table = {
-        calc_comp["name"]: table_name
-        for (table_name, fields) in meta_converted.items()
-        for field_info in fields.values()
-        for calc_comp in field_info.get("calcs", [])
-        if calc_comp["name"] in missing_from_tbl
-    }
-    # add an element to the calculations components to indicate when a records if from
-    # another table
-    # This could be cleaned up.. I didn't know how to do this in a dict comp way that
-    # edited a deep subcomponent of the dict.
-    # Also: this should probabyl be done in rename_calculations_xbrl_meta
-    for field_info in meta_converted[table_name].values():
-        if field_info.get("calcs", False):
-            for calc_component in field_info.get("calcs"):
-                if calc_component["name"] in missing_col_to_table.keys():
-                    calc_component["source_table"] = missing_col_to_table[
-                        calc_component["name"]
-                    ]
-    missing_columns = [
-        col for col in missing_from_tbl if col not in missing_col_to_table.keys()
-    ]
-    if missing_col_to_table:
-        logger.info(
-            f"{len(missing_col_to_table)} columns from {table_name} that show up in "
-            "calculated fields have been labeled with 'source_table' in the metadata."
-        )
-    if missing_columns:
-        logger.warning(
-            # raise AssertionError(
-            f"{table_name}: All renamed types were not found "
-            f"in the transformed table. Missing types: {missing_columns}"
-        )
-    return meta_converted
 
 
 def check_table_calcs(
@@ -4356,12 +4326,6 @@ def check_table_calcs(
         .schema.primary_key
     )
     pks_wo_factoid = [col for col in pks if col != xbrl_factoid_name]
-    meta_converted = ensure_names_in_renamed_xbrl_calcs_are_present(
-        df=table_df,
-        meta_converted=meta_converted,
-        xbrl_factoid_name=xbrl_factoid_name,
-        table_name=table_name,
-    )
     inter_table_calculated_values = {
         field: calc_components
         for field, field_info in meta_converted[table_name].items()

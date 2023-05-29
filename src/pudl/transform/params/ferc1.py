@@ -3483,7 +3483,7 @@ TRANSFORM_PARAMS = {
         "categorize_strings": {"plant_function": PLANT_FUNCTION_CATEGORIES},
         "align_row_numbers_dbf": {"dbf_table_names": ["f1_dacs_epda"]},
         "merge_xbrl_metadata": {
-            "rename_columns": {"ferc_account_label": "ferc_account_label"},
+            "rename_columns": {"xbrl_factoid": "ferc_account_label"},
             "on": "ferc_account_label",
         },
     },

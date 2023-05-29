@@ -424,7 +424,7 @@ raw_ferc1_assets = create_raw_ferc1_assets()
         ),
     },
 )
-def xbrl_metadata_json(context) -> dict[str, dict[str, list[dict[str, Any]]]]:
+def raw_xbrl_metadata_json(context) -> dict[str, dict[str, list[dict[str, Any]]]]:
     """Extract the FERC 1 XBRL Taxonomy metadata we've stored as JSON.
 
     Returns:
