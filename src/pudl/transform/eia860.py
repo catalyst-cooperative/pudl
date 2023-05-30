@@ -860,15 +860,6 @@ def clean_emissions_control_equipment_eia860(
         "emission_control_equipment_cost",
     ] = 3200
 
-    # Fix bad operational status code. Decided to fix it here instead of in the
-    # code_fixes portion of the CODE_METADATA because it felt more like a one-off
-    # rather than something that should be applied across the board. I determined that
-    # this was the right fix by looking at the operational_status_code for this
-    # emissions control unit in the surrounding yeras.
-    emce_df.loc[
-        emce_df["operational_status_code"] == "CS", "operational_status_code"
-    ] = "RE"
-
     return emce_df
 
 
