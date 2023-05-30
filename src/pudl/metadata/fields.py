@@ -1771,7 +1771,7 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     },
     "particulate_control_id_eia": {
         "type": "string",
-        "description": "Particulate matter control identification number. This ID is not a unique identifier.",
+        "description": "Alphanumeric particulate matter control ID.",
     },
     "particulate_control_out_of_compliance_strategy_1": {
         "type": "string",
@@ -1962,10 +1962,6 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     "plants_reported_owner": {
         "type": "boolean",
         "description": "Is the reporting entity an owner of power plants reported on Schedule 2 of the form?",
-    },
-    "particulate_control_id_eia": {
-        "type": "string",
-        "description": "Alphanumeric particulate matter control ID.",
     },
     "population": {
         "type": "number",
