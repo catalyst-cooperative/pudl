@@ -85,7 +85,7 @@ class FercDbfArchive:
     ):
         """Construct new instance of FercDbfArchive."""
         self.zipfile = zipfile
-        self.partition = (dict(partition),)
+        self.partition = dict(partition)
         self.root_path: Path = dbc_path.parent
         self.dbc_path: Path = dbc_path
         self._table_file_map = table_file_map
@@ -324,7 +324,7 @@ class FercDbfReader:
 
     @staticmethod
     def _normalize(filters: dict[str, Any]) -> dict[str, str]:
-        """Casts are values to lowercase strings."""
+        """Casts partition values to lowercase strings."""
         return {k: str(v).lower() for k, v in filters.items()}
 
     def valid_partition_filter(self, fl: dict[str, Any]) -> bool:
@@ -340,12 +340,11 @@ class FercDbfReader:
     def load_table_dfs(
         self, table_name: str, partitions: list[dict[str, Any]]
     ) -> pd.DataFrame | None:
-        """Returns the concatenation of the data for a given table and years.
+        """Returns the concatenation of the data for a given table across all partitions of the dataset.
 
-        p
-                Args:
-                    table_name: name of the table to load.
-                    partitions: list of partition filters to use
+        Args:
+            table_name: name of the table to load.
+            partitions: list of partition filters to use
         """
         # Retrieve all archives that match given years
         # Then try to simply merge
