@@ -161,7 +161,7 @@ full data processing pipeline yourself, tweak the underlying source code, and (w
 make contributions back to the project.
 
 This is by far the most involved way to access the data and isn't recommended for
-most users. You should check out the Development section of the main `PUDL
+most users. You should check out the `Development section <https://catalystcoop-pudl.readthedocs.io/en/latest/dev/dev_setup.html>`__ of the main `PUDL
 documentation <https://catalystcoop-pudl.readthedocs.io>`__ for more details.
 
 Nightly Data Builds

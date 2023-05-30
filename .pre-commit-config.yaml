@@ -35,6 +35,7 @@ repos:
     rev: 5.12.0
     hooks:
       - id: isort
+        exclude: migrations/.*
 
   # Format the code
   - repo: https://github.com/psf/black
@@ -42,6 +43,7 @@ repos:
     hooks:
       - id: black
         language_version: python3.11
+        exclude: migrations/.*
 
   # Format docstrings
   - repo: https://github.com/PyCQA/docformatter
@@ -49,6 +51,7 @@ repos:
     hooks:
       - id: docformatter
         args: ["--in-place", "--config", "tox.ini"]
+        exclude: migrations/.*
 
   # Remove f-string prefix when there's nothing in the string to format.
   - repo: https://github.com/dannysepler/rm_unneeded_f_str
@@ -85,6 +88,7 @@ repos:
     hooks:
       - id: flake8
         args: [--config, tox.ini]
+        exclude: migrations/.*
         additional_dependencies:
           - flake8-docstrings
           - flake8-colors

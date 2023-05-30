@@ -32,6 +32,10 @@ from pudl.metadata.sources import SOURCES
 # )
 
 FIELD_METADATA: dict[str, dict[str, Any]] = {
+    "acid_gas_control": {
+        "type": "boolean",
+        "description": "Indicates whether the emissions control equipment controls acid (HCl) gas.",
+    },
     "active": {
         "type": "boolean",
         "description": "Indicates whether or not the dataset has been pulled into PUDL by the extract transform load process.",
@@ -437,6 +441,22 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "description": "Purchase type under which receipts occurred in the reporting month. C: Contract, NC: New Contract, S: Spot Purchase, T: Tolling Agreement.",
         "constraints": {"enum": ["S", "C", "NC", "T"]},
     },
+    "emission_control_id_eia": {
+        "type": "string",
+        "description": (
+            "The emission control ID used to collect so2, nox, particulate, "
+            "and mercury emissions data. This column should be used in conjunction "
+            "with emissions_control_type as it's not guaranteed to be unique."
+        ),
+    },
+    "emission_control_id_pudl": {
+        "type": "number",
+        "description": "A PUDL-generated ID used to distinguish emission control units in the same report year and plant id. This ID should not be used to track units over time or between plants.",
+    },
+    "emission_control_id_type": {
+        "type": "string",
+        "description": "The type of emissions control id: so2, nox, particulate, or mercury.",
+    },
     "compliance_year_nox": {
         "type": "integer",
         "description": "Year boiler was or is expected to be in compliance with federal, state and/or local regulations for nitrogen oxide emissions.",
@@ -614,6 +634,22 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "type": "number",
         "description": "Electric Plant In Service (USD).",
         "unit": "USD",
+    },
+    "emission_control_equipment_cost": {
+        "type": "number",
+        "description": "The total cost to install a piece of emission control equipment.",
+    },
+    "emission_control_equipment_type": {
+        "type": "string",
+        "description": "The type of emission control equipment installed.",
+    },
+    "emission_control_operating_date": {
+        "type": "date",
+        "description": "The date a piece of emissions control equipment began operating. Derived from month and year columns in the raw data.",
+    },
+    "emission_control_retirement_date": {
+        "type": "date",
+        "description": "The expected or actual retirement date for a piece of emissions control equipment. Derived from month and year columns in the raw data.",
     },
     "emissions_unit_id_epa": {
         "type": "string",
@@ -1216,6 +1252,10 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "type": "string",
         "description": "Existing strategy to comply with the most stringent mercury regulation.",
     },
+    "mercury_control_id_eia": {
+        "type": "string",
+        "description": "Mercury control identification number. This ID is not a unique identifier.",
+    },
     "mercury_control_proposed_strategy_1": {
         "type": "string",
         "description": "Proposed strategy to comply with the most stringent mercury regulation.",
@@ -1405,6 +1445,10 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "type": "string",
         "description": "Existing strategy to comply with the most stringent nitrogen oxide regulation.",
     },
+    "nox_control_id_eia": {
+        "type": "string",
+        "description": "Nitrogen oxide control identification number. This ID is not a unique identifier.",
+    },
     "nox_control_manufacturer": {
         "type": "string",
         "description": "Name of nitrogen oxide control manufacturer.",
@@ -1508,15 +1552,15 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     },
     "operational_status": {
         "type": "string",
-        "description": "The operating status of the generator. This is based on which tab the generator was listed in in EIA 860.",
+        "description": "The operating status of the asset. For generators this is based on which tab the generator was listed in in EIA 860.",
     },
     "operational_status_code": {
         "type": "string",
-        "description": "The operating status of the generator.",
+        "description": "The operating status of the asset.",
     },
     "operational_status_pudl": {
         "type": "string",
-        "description": "The operating status of the generator using PUDL categories.",
+        "description": "The operating status of the asset using PUDL categories.",
         "constraints": {"enum": ["operating", "retired", "proposed"]},
     },
     "opex_allowances": {"type": "number", "description": "Allowances.", "unit": "USD"},
@@ -1735,6 +1779,10 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "type": "boolean",
         "description": "Whether a plant part record has a duplicate record with different ownership status.",
     },
+    "particulate_control_id_eia": {
+        "type": "string",
+        "description": "Alphanumeric particulate matter control ID.",
+    },
     "particulate_control_out_of_compliance_strategy_1": {
         "type": "string",
         "description": "If boiler is not in compliance with particulate matter regulations, strategy for compliance.",
@@ -1924,10 +1972,6 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     "plants_reported_owner": {
         "type": "boolean",
         "description": "Is the reporting entity an owner of power plants reported on Schedule 2 of the form?",
-    },
-    "particulate_control_id_eia": {
-        "type": "string",
-        "description": "Alphanumeric particulate matter control ID.",
     },
     "population": {
         "type": "number",
@@ -2165,6 +2209,10 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "type": "string",
         "description": "Existing strategy to comply with the most stringent sulfur dioxide regulation.",
     },
+    "so2_control_id_eia": {
+        "type": "string",
+        "description": "Sulfur dioxide control identification number. This ID is not a unique identifier.",
+    },
     "so2_control_out_of_compliance_strategy_1": {
         "type": "string",
         "description": "If boiler is not in compliance with sulfur dioxide regulations, strategy for compliance.",
@@ -2200,10 +2248,6 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     "so2_control_proposed_strategy_3": {
         "type": "string",
         "description": "Proposed strategy to comply with the most stringent sulfur dioxide regulation.",
-    },
-    "so2_control_id_eia": {
-        "type": "string",
-        "description": "Alphanumeric so2 control ID.",
     },
     "so2_mass_lbs": {
         "type": "number",
