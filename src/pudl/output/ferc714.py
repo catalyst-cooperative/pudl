@@ -273,6 +273,7 @@ class Respondents:
         self._counties_gdf = None
         self._respondents_gdf = None
 
+    # CHECKED - CAN REMOVE
     @cached_property
     def balancing_authority_eia861(self) -> pd.DataFrame:
         """Modified balancing_authority_eia861 table."""
@@ -297,6 +298,7 @@ class Respondents:
         mask = df["balancing_authority_id_eia"].isin([util["id"] for util in UTILITIES])
         return df[~mask]
 
+    # CHECKED - CAN REMOVE
     @cached_property
     def balancing_authority_assn_eia861(self) -> pd.DataFrame:
         """Modified balancing_authority_assn_eia861 table."""
@@ -364,6 +366,7 @@ class Respondents:
                     mask |= is_child
         return pd.concat([df[~mask], pd.concat(tables)]).drop_duplicates()
 
+    # CHECKED - CAN REMOVE
     @cached_property
     def service_territory_eia861(self) -> pd.DataFrame:
         """Modified service_territory_eia861 table."""
@@ -403,6 +406,7 @@ class Respondents:
             tables.append(mdf[mask].assign(report_date=row["report_date"]))
         return pd.concat([df] + tables)
 
+    # CHECKED - CAN REMOVE
     def annualize(self, update=False):
         """Broadcast respondent data across all years with reported demand.
 
@@ -425,6 +429,7 @@ class Respondents:
             )
         return self._annualized
 
+    # CHECK - CAN REMOVE, IDENTICAL.
     def categorize(self, update=False):
         """Annualized respondents with ``respondent_type`` assigned if possible.
 
@@ -443,6 +448,7 @@ class Respondents:
                 util_ids=self.util_ids,
                 priority=self.priority,
             )
+            logger.info(categorized)
             logger.info(
                 "Merging categorized EIA codes with annualized FERC-714 Respondent "
                 "data."
@@ -450,6 +456,8 @@ class Respondents:
             categorized = pd.merge(
                 categorized, self.annualize(update=update), how="right"
             )
+            logger.info(categorized)
+
             # Names, ids, and codes for BAs identified as FERC 714 respondents
             # NOTE: this is not *strictly* correct, because the EIA BAs are not
             # eternal and unchanging.  There's at least one case in which the BA
@@ -481,6 +489,8 @@ class Respondents:
                 left_on="eia_code",
                 right_on="balancing_authority_id_eia",
             )
+            logger.info(categorized)
+
             logger.info("Selecting names and IDs for FERC-714 Utility respondents.")
             util_respondents = categorized.query("respondent_type=='utility'")
             logger.info("Merging FERC-714 Utility respondents with service territory.")
@@ -506,6 +516,7 @@ class Respondents:
             self._categorized = apply_pudl_dtypes(self._categorized)
         return self._categorized
 
+    # CHECKED - IDENTICAL.
     def summarize_demand(self, update=False):
         """Compile annualized, categorized respondents and summarize values.
 
@@ -550,6 +561,7 @@ class Respondents:
             ).pipe(apply_pudl_dtypes)
         return self._demand_summary
 
+    # CHECKED - IDENTICAL!
     def fipsify(self, update=False):
         """Annual respondents with the county FIPS IDs for their service territories.
 
@@ -601,6 +613,7 @@ class Respondents:
             ).pipe(apply_pudl_dtypes)
         return self._fipsified
 
+    # CHECKED - IDENTICAL, can remove.
     def georef_counties(self, update=False):
         """Annual respondents with all associated county-level geometries.
 
@@ -849,10 +862,9 @@ def categorized_respondents_ferc714(
 
     """
     priority = context.op_config["priority"]
-    rids_ferc714 = respondent_id_ferc714
     logger.info("Categorizing EIA codes associated with FERC-714 Respondents.")
     categorized = categorize_eia_code(
-        rids_ferc714.eia_code.dropna().unique(),
+        respondent_id_ferc714.eia_code.dropna().unique(),
         ba_ids=filled_balancing_authority_eia861.balancing_authority_id_eia.dropna().unique(),
         util_ids=utility_ids_all_eia.utility_id_eia,
         priority=priority,
@@ -928,12 +940,14 @@ def categorized_respondents_ferc714(
         ),
     },
     compute_kind="Python",
+    io_manager_key="pudl_sqlite_io_manager",
 )
 def fipsified_respondents_ferc714(
     context,
     categorized_respondents_ferc714: pd.DataFrame,
     filled_balancing_authority_assn_eia861: pd.DataFrame,
     filled_service_territory_eia861: pd.DataFrame,
+    utility_assn_eia861: pd.DataFrame,
 ) -> pd.DataFrame:
     """Annual respondents with the county FIPS IDs for their service territories.
 
@@ -965,8 +979,8 @@ def fipsified_respondents_ferc714(
     util_counties = pd.merge(
         categorized_respondents_ferc714.query("respondent_type=='utility'"),
         pudl.analysis.service_territory.get_territory_fips(
-            ids=categorized_respondents_ferc714.balancing_authority_id_eia.unique(),
-            assn=filled_balancing_authority_assn_eia861,
+            ids=categorized_respondents_ferc714.utility_id_eia.unique(),
+            assn=utility_assn_eia861,
             assn_col="utility_id_eia",
             service_territory_eia861=filled_service_territory_eia861,
             limit_by_state=context.op_config["limit_by_state"],
@@ -984,58 +998,6 @@ def fipsified_respondents_ferc714(
         ]
     ).pipe(apply_pudl_dtypes)
     return fipsified
-
-
-@asset(
-    compute_kind="Python",
-)
-def summarized_demand_ferc714(
-    annualized_respondents_ferc714,
-    demand_hourly_pa_ferc714,
-    fipsified_respondents_ferc714,
-    categorized_respondents_ferc714,
-):
-    """Compile annualized, categorized respondents and summarize values.
-
-    Calculated summary values include:
-    * Total reported electricity demand per respondent (``demand_annual_mwh``)
-    * Reported per-capita electrcity demand (``demand_annual_per_capita_mwh``)
-    * Population density (``population_density_km2``)
-    * Demand density (``demand_density_mwh_km2``)
-
-    These metrics are helpful identifying suspicious changes in the compiled annual
-    geometries for the planning areas.
-    """
-    demand_annual = (
-        pd.merge(
-            annualized_respondents_ferc714,
-            demand_hourly_pa_ferc714.loc[
-                :, ["report_date", "respondent_id_ferc714", "demand_mwh"]
-            ],
-            how="left",
-        )
-        .groupby(["report_date", "respondent_id_ferc714"])
-        .agg({"demand_mwh": sum})
-        .rename(columns={"demand_mwh": "demand_annual_mwh"})
-        .reset_index()
-        .merge(
-            georeferenced_counties_ferc714.groupby(
-                ["report_date", "respondent_id_ferc714"]
-            )
-            .agg({"population": sum, "area_km2": sum})
-            .reset_index()
-        )
-        .assign(
-            population_density_km2=lambda x: x.population / x.area_km2,
-            demand_annual_per_capita_mwh=lambda x: x.demand_annual_mwh / x.population,
-            demand_density_mwh_km2=lambda x: x.demand_annual_mwh / x.area_km2,
-        )
-    )
-    # Merge respondent categorizations into the annual demand
-    demand_summary = pd.merge(
-        demand_annual, categorized_respondents_ferc714, how="left"
-    ).pipe(apply_pudl_dtypes)
-    return demand_summary
 
 
 @asset(compute_kind="Python")
@@ -1094,6 +1056,57 @@ def georeferenced_respondents_ferc714(
         .pipe(apply_pudl_dtypes)
     )
     return respondents_gdf
+
+
+@asset(compute_kind="Python", io_manager_key="pudl_sqlite_io_manager")
+def summarized_demand_ferc714(
+    annualized_respondents_ferc714,
+    demand_hourly_pa_ferc714,
+    fipsified_respondents_ferc714,
+    categorized_respondents_ferc714,
+    georeferenced_counties_ferc714,
+):
+    """Compile annualized, categorized respondents and summarize values.
+
+    Calculated summary values include:
+    * Total reported electricity demand per respondent (``demand_annual_mwh``)
+    * Reported per-capita electrcity demand (``demand_annual_per_capita_mwh``)
+    * Population density (``population_density_km2``)
+    * Demand density (``demand_density_mwh_km2``)
+
+    These metrics are helpful identifying suspicious changes in the compiled annual
+    geometries for the planning areas.
+    """
+    demand_annual = (
+        pd.merge(
+            annualized_respondents_ferc714,
+            demand_hourly_pa_ferc714.loc[
+                :, ["report_date", "respondent_id_ferc714", "demand_mwh"]
+            ],
+            how="left",
+        )
+        .groupby(["report_date", "respondent_id_ferc714"])
+        .agg({"demand_mwh": sum})
+        .rename(columns={"demand_mwh": "demand_annual_mwh"})
+        .reset_index()
+        .merge(
+            georeferenced_counties_ferc714.groupby(
+                ["report_date", "respondent_id_ferc714"]
+            )
+            .agg({"population": sum, "area_km2": sum})
+            .reset_index()
+        )
+        .assign(
+            population_density_km2=lambda x: x.population / x.area_km2,
+            demand_annual_per_capita_mwh=lambda x: x.demand_annual_mwh / x.population,
+            demand_density_mwh_km2=lambda x: x.demand_annual_mwh / x.area_km2,
+        )
+    )
+    # Merge respondent categorizations into the annual demand
+    demand_summary = pd.merge(
+        demand_annual, categorized_respondents_ferc714, how="left"
+    ).pipe(apply_pudl_dtypes)
+    return demand_summary
 
 
 # Probably a duplicate that can get removed.

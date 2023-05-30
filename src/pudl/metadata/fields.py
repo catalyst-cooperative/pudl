@@ -529,12 +529,22 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     },
     "delivery_customers": {"type": "number"},
     "demand_annual_mwh": {"type": "number", "unit": "MWh"},
+    "demand_annual_per_capita_mwh": {
+        "type": "number",
+        "description": "Per-capita annual demand, averaged using Census county-level population estimates.",
+        "unit": "MWh/person",
+    },
     "demand_charges": {
         "type": "number",
         "description": "Demand charges (USD).",
         "unit": "USD",
     },
     "demand_mwh": {"type": "number", "unit": "MWh"},
+    "demand_density_mwh_km2": {
+        "type": "number",
+        "description": "Annual demand per km2 of a given service territory.",
+        "unit": "MWh/km2",
+    },
     "depreciation_type": {
         "type": "string",
         "description": (
@@ -1922,6 +1932,10 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     "population": {
         "type": "number",
         "description": "County population, sourced from Census DP1 data.",
+    },
+    "population_density_km2": {
+        "type": "number",
+        "description": "Average population per sq. km area of a service territory.",
     },
     "potential_peak_demand_savings_mw": {"type": "number", "unit": "MW"},
     "previously_canceled": {
