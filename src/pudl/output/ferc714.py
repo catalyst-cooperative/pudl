@@ -1107,21 +1107,3 @@ def summarized_demand_ferc714(
         demand_annual, categorized_respondents_ferc714, how="left"
     ).pipe(apply_pudl_dtypes)
     return demand_summary
-
-
-# Probably a duplicate that can get removed.
-@asset(compute_kind="Python")
-def annualize(demand_hourly_pa_ferc714, respondent_id_ferc714):
-    """Broadcast respondent data across all years with reported demand.
-
-    The FERC 714 Respondent IDs and names are reported in their own table, without any
-    refence to individual years, but much of the information we are associating with
-    them varies annually. This method creates an annualized version of the respondent
-    table, with each respondent having an entry corresponding to every year in which
-    hourly demand was reported in the FERC 714 dataset as a whole -- this necessarily
-    means that many of the respondents will end up having entries for years in which
-    they reported no demand, and that's fine.  They can be filtered later.
-    """
-    # Calculate the total demand per respondent, per year:
-    report_dates = demand_hourly_pa_ferc714.report_date.unique()
-    return respondent_id_ferc714.pipe(add_dates, report_dates)

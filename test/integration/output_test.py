@@ -1,9 +1,6 @@
 """PyTest cases related to the integration between FERC1 & EIA 860/923."""
 import logging
-import os
-import sys
 
-import geopandas as gpd
 import pandas as pd
 import pytest
 
@@ -162,47 +159,19 @@ def test_outputs_by_table_suffix(fast_out, table_suffix):
                 raise ValueError(f"Found null column: {table}.{col}")
 
 
-@pytest.fixture(scope="module")
-def ferc714_out(fast_out, pudl_settings_fixture, pudl_datastore_fixture):
-    """A FERC 714 Respondents output object for use in CI."""
-    return pudl.output.ferc714.Respondents(
-        fast_out, pudl_settings=pudl_settings_fixture, ds=pudl_datastore_fixture
-    )
-
-
 @pytest.mark.parametrize(
     "df_name",
     [
-        "annualize",
-        "categorize",
-        "summarize_demand",
-        "fipsify",
+        "summarized_demand_ferc714",
+        "fipsified_respondents_ferc714",
     ],
 )
-def test_ferc714_outputs(ferc714_out, df_name):
+def test_ferc714_outputs(pudl_engine, df_name):
     """Test FERC 714 derived output methods."""
-    logger.info(f"Running ferc714_out.{df_name}()")
-    df = ferc714_out.__getattribute__(df_name)()
+    df = pd.read_sql(df_name, pudl_engine)
     assert isinstance(df, pd.DataFrame), f"{df_name} is {type(df)} not DataFrame!"
     logger.info(f"Found {len(df)} rows in {df_name}")
     assert not df.empty, f"{df_name} is empty!"
-
-
-@pytest.mark.xfail(
-    (sys.platform != "linux") & (not os.environ.get("CONDA_PREFIX", False)),
-    reason="Test relies on ogr2ogr being installed via GDAL.",
-)
-def test_ferc714_respondents_georef_counties(ferc714_out):
-    """Test FERC 714 respondent county FIPS associations.
-
-    This test works with the Census DP1 data, which is converted into SQLite using the
-    GDAL command line tool ogr2ogr. That tools is easy to install via conda or on Linux,
-    but is more challenging on Windows and MacOS, so this test is marked xfail
-    conditionally if the user is neither using conda, nor is on Linux.
-    """
-    ferc714_gdf = ferc714_out.georef_counties()
-    assert isinstance(ferc714_gdf, gpd.GeoDataFrame), "ferc714_gdf not a GeoDataFrame!"
-    assert not ferc714_gdf.empty, "ferc714_gdf is empty!"
 
 
 @pytest.fixture(scope="module")
@@ -235,3 +204,18 @@ def test_mcoe_filled(fast_out_filled, df_name, expected_nuke_fraction, tolerance
         fast_out_filled.__getattribute__(df_name)()
     )
     assert abs(actual_nuke_fraction - expected_nuke_fraction) <= tolerance
+
+
+@pytest.mark.parametrize(
+    "df_name",
+    [
+        "compiled_geometry_balancing_authority_eia861",
+        "compiled_geometry_utility_eia861",
+    ],
+)
+def test_service_territory_outputs(pudl_engine, df_name):
+    """Test FERC 714 derived output methods."""
+    df = pd.read_sql(df_name, pudl_engine)
+    assert isinstance(df, pd.DataFrame), f"{df_name} is {type(df)} not DataFrame!"
+    logger.info(f"Found {len(df)} rows in {df_name}")
+    assert not df.empty, f"{df_name} is empty!"
