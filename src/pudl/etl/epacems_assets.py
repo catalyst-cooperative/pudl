@@ -137,7 +137,7 @@ def consolidate_partitions(context, partitions: list[YearPartitions]) -> None:
 
 @graph_asset
 def hourly_emissions_epacems(
-    epacamd_eia: pd.DataFrame, plants_entity_eia: pd.DataFrame
+    epacamd_eia_unique: pd.DataFrame, plants_entity_eia: pd.DataFrame
 ) -> None:
     """Extract, transform and load CSVs for EPA CEMS.
 
@@ -150,7 +150,7 @@ def hourly_emissions_epacems(
     partitions = years.map(
         lambda year: process_single_year(
             year,
-            epacamd_eia,
+            epacamd_eia_unique,
             plants_entity_eia,
         )
     )
