@@ -340,7 +340,8 @@ class FercDbfReader:
     def load_table_dfs(
         self, table_name: str, partitions: list[dict[str, Any]]
     ) -> pd.DataFrame | None:
-        """Returns the concatenation of the data for a given table across all partitions of the dataset.
+        """Returns the concatenation of the data for a given table across all partitions
+        of the dataset.
 
         Args:
             table_name: name of the table to load.
