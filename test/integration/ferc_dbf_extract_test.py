@@ -1,8 +1,8 @@
 """PyTest based testing of the FERC DBF Extraction logic."""
 
 import logging
-import pytest
 
+import pytest
 import sqlalchemy as sa
 
 from pudl.extract.dbf import FercDbfReader
@@ -17,12 +17,13 @@ def test_ferc1_dbf2sqlite(ferc1_engine_dbf):
         "f1_respondent_id" in sa.inspect(ferc1_engine_dbf).get_table_names()
     )
 
+
 @pytest.mark.parametrize(
     "dataset",
     [
         pytest.param("ferc1", id="ferc1"),
         pytest.param("ferc2", id="ferc2"),
-    ]
+    ],
 )
 def test_ferc_schema(ferc_to_sqlite_settings, pudl_datastore_fixture, dataset):
     """Check to make sure we aren't missing any old FERC Form N tables or fields.
