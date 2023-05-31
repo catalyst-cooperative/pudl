@@ -2156,6 +2156,11 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "unit": "USD",
     },
     "sales_to_ultimate_consumers_mwh": {"type": "number", "unit": "MWh"},
+    "scaled_demand_mwh": {
+        "type": "number",
+        "description": "Estimated electricity demand scaled by the total sales within a state.",
+        "unit": "MWh",
+    },
     "secondary_transportation_mode_code": {
         "type": "string",
         "description": "Transportation mode for the second longest distance transported.",

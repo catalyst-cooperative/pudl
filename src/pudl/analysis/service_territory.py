@@ -13,7 +13,7 @@ from typing import Literal
 
 import pandas as pd
 import sqlalchemy as sa
-from dagster import AssetsDefinition, Field, asset
+from dagster import AssetKey, AssetsDefinition, Field, asset
 from matplotlib import pyplot as plt
 
 import pudl
@@ -600,13 +600,16 @@ def main():
             balancing_authority_assn_eia861=pd.read_sql(
                 "balancing_authority_assn_eia861", pudl_engine
             ),
-            denorm_utilities_eia=pd.read_sql("denorm_utilities_eia", pudl_engine),
+            utility_ids_all_eia=pudl.etl.defs.load_asset_value(
+                AssetKey("utility_ids_all_eia")
+            ),
             service_territory_eia861=pd.read_sql(
                 "service_territory_eia861", pudl_engine
             ),
-            utility_assn_eia861=pd.real_sql("utility_assn_eia861", pudl_engine),
+            utility_assn_eia861=pd.read_sql("utility_assn_eia861", pudl_engine),
             census_counties=county_gdf,
             dissolve=args.dissolve,
+            save_format="geoparquet",
             **kwargs,
         )
 

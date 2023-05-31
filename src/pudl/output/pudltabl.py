@@ -214,6 +214,13 @@ class PudlTabl:
             # ferc714
             "respondent_id_ferc714": "respondent_id_ferc714",
             "demand_hourly_pa_ferc714": "demand_hourly_pa_ferc714",
+            "fipsified_respondents_ferc714": "fipsified_respondents_ferc714",
+            "summarized_demand_ferc714": "summarized_demand_ferc714",
+            # service territory
+            "compiled_geometry_balancing_authority_eia861": "compiled_geometry_balancing_authority_eia861",
+            "compiled_geometry_utility_eia861": "compiled_geometry_utility_eia861",
+            # state demand
+            "predicted_state_hourly_demand": "predicted_state_hourly_demand",
         }
 
         for table_name, method_name in table_method_map.items():

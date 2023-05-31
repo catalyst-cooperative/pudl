@@ -55,6 +55,7 @@ default_assets = (
     *load_assets_from_modules(
         [pudl.analysis.service_territory], group_name="service_territory"
     ),
+    *load_assets_from_modules([pudl.analysis.state_demand], group_name="state_demand"),
 )
 
 default_resources = {

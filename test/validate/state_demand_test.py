@@ -1,4 +1,4 @@
-"""Validate post-ETL FERC 714 outputs and associated service territory analyses."""
+"""Validate post-ETL state demand analysis output."""
 import logging
 
 import pytest
@@ -10,12 +10,7 @@ logger = logging.getLogger(__name__)
 
 @pytest.mark.parametrize(
     "df_name,expected_rows",
-    [
-        ("summarized_demand_ferc714", 3_195),
-        ("fipsified_respondents_ferc714", 135_627),
-        ("compiled_geometry_balancing_authority_eia861", 108_436),
-        ("compiled_geometry_utility_eia861", 237_872),
-    ],
+    [("predicted_state_hourly_demand", 6_706_318)],
 )
 def test_minmax_rows(pudl_out_orig, live_dbs, expected_rows, df_name):
     """Verify that output DataFrames don't have too many or too few rows.

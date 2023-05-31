@@ -219,3 +219,17 @@ def test_service_territory_outputs(pudl_engine, df_name):
     assert isinstance(df, pd.DataFrame), f"{df_name} is {type(df)} not DataFrame!"
     logger.info(f"Found {len(df)} rows in {df_name}")
     assert not df.empty, f"{df_name} is empty!"
+
+
+@pytest.mark.parametrize(
+    "df_name",
+    [
+        "predicted_state_hourly_demand",
+    ],
+)
+def test_state_demand_outputs(pudl_engine, df_name):
+    """Test state demand analysis methods."""
+    df = pd.read_sql(df_name, pudl_engine)
+    assert isinstance(df, pd.DataFrame), f"{df_name} is {type(df)} not DataFrame!"
+    logger.info(f"Found {len(df)} rows in {df_name}")
+    assert not df.empty, f"{df_name} is empty!"
