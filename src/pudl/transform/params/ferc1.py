@@ -2723,6 +2723,7 @@ TRANSFORM_PARAMS = {
             "on": "ferc_account_label",
         },
         "align_row_numbers_dbf": {"dbf_table_names": ["f1_plant_in_srvce"]},
+        "check_table_calculations": {"column_to_check": "ending_balance"},
     },
     "plants_pumped_storage_ferc1": {
         "rename_columns_ferc1": {
@@ -3316,6 +3317,7 @@ TRANSFORM_PARAMS = {
         "replace_with_na": {
             "utility_type_other": {"replace_with_na": [""]},
         },
+        "check_table_calculations": {"column_to_check": "ending_balance"},
     },
     "balance_sheet_assets_ferc1": {
         "rename_columns_ferc1": {
@@ -3365,6 +3367,7 @@ TRANSFORM_PARAMS = {
             "rename_columns": {"xbrl_factoid": "asset_type"},
             "on": "asset_type",
         },
+        "check_table_calculations": {"column_to_check": "ending_balance"},
     },
     "balance_sheet_liabilities_ferc1": {
         "rename_columns_ferc1": {
@@ -3416,6 +3419,7 @@ TRANSFORM_PARAMS = {
             "rename_columns": {"xbrl_factoid": "liability_type"},
             "on": "liability_type",
         },
+        "check_table_calculations": {"column_to_check": "ending_balance"},
     },
     "depreciation_amortization_summary_ferc1": {
         "rename_columns_ferc1": {
@@ -3689,6 +3693,7 @@ TRANSFORM_PARAMS = {
             "on": "earnings_type",
         },
         "strip_non_numeric_values": {"amount": {"strip_non_numeric_values": True}},
+        "check_table_calculations": {"column_to_check": "ending_balance"},
     },
     "income_statement_ferc1": {
         "rename_columns_ferc1": {
