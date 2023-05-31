@@ -1339,21 +1339,6 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
         #     None | calc_component,
         # ]
 
-        def make_calc_component_fixes_for_double_counting(
-            table_meta, double_counted_factoid
-        ) -> dict[
-            Literal["calc_component_to_replace", "calc_component_new"],
-            None | dict,
-        ]:
-            """Make a  when a calculated sub-component is double counted."""
-            return [
-                {
-                    "calc_component_to_replace": double_counted_comp,
-                    "calc_component_new": {},
-                }
-                for double_counted_comp in table_meta[double_counted_factoid]["calcs"]
-            ]
-
         calced_fields_to_fix: dict[
             TableIdFerc1, dict  # [xbrl_factoid_name, list[calc_component_fix]]
         ] = {
@@ -1412,21 +1397,107 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
                         },
                         "calc_component_new": {},
                     },
-                ]
-                # commenting these out bc this method for deleteing sub-componets
-                # doesn't work as well in the table-based param version of this.
-                # we should either add it as a different param or just compile the
-                # double counted sub-components.
-                #
-                # + make_calc_component_fixes_for_double_counting(
-                #     meta_converted["electric_operating_expenses_ferc1"],
-                #     "steam_power_generation_maintenance_expense",
-                # )
-                # + make_calc_component_fixes_for_double_counting(
-                #     meta_converted["electric_operating_expenses_ferc1"],
-                #     "steam_power_generation_operations_expense",
-                # )
-                ,
+                    # subcomponents of steam_power_generation_maintenance_expense
+                    {
+                        "calc_component_to_replace": {
+                            "name": "maintenance_supervision_and_engineering_steam_power_generation",
+                            "weight": 1.0,
+                        },
+                        "calc_component_new": {},
+                    },
+                    {
+                        "calc_component_to_replace": {
+                            "name": "maintenance_of_structures_steam_power_generation",
+                            "weight": 1.0,
+                        },
+                        "calc_component_new": {},
+                    },
+                    {
+                        "calc_component_to_replace": {
+                            "name": "maintenance_of_boiler_plant_steam_power_generation",
+                            "weight": 1.0,
+                        },
+                        "calc_component_new": {},
+                    },
+                    {
+                        "calc_component_to_replace": {
+                            "name": "maintenance_of_electric_plant_steam_power_generation",
+                            "weight": 1.0,
+                        },
+                        "calc_component_new": {},
+                    },
+                    {
+                        "calc_component_to_replace": {
+                            "name": "maintenance_of_miscellaneous_steam_plant",
+                            "weight": 1.0,
+                        },
+                        "calc_component_new": {},
+                    },
+                    # subcomponents of steam_power_generation_operations_expense
+                    {
+                        "calc_component_to_replace": {
+                            "name": "operation_supervision_and_engineering_steam_power_generation",
+                            "weight": 1.0,
+                        },
+                        "calc_component_new": {},
+                    },
+                    {
+                        "calc_component_to_replace": {
+                            "name": "fuel_steam_power_generation",
+                            "weight": 1.0,
+                        },
+                        "calc_component_new": {},
+                    },
+                    {
+                        "calc_component_to_replace": {
+                            "name": "steam_expenses_steam_power_generation",
+                            "weight": 1.0,
+                        },
+                        "calc_component_new": {},
+                    },
+                    {
+                        "calc_component_to_replace": {
+                            "name": "steam_from_other_sources",
+                            "weight": 1.0,
+                        },
+                        "calc_component_new": {},
+                    },
+                    {
+                        "calc_component_to_replace": {
+                            "name": "steam_transferred_credit",
+                            "weight": -1.0,
+                        },
+                        "calc_component_new": {},
+                    },
+                    {
+                        "calc_component_to_replace": {
+                            "name": "electric_expenses_steam_power_generation",
+                            "weight": 1.0,
+                        },
+                        "calc_component_new": {},
+                    },
+                    {
+                        "calc_component_to_replace": {
+                            "name": "miscellaneous_steam_power_expenses",
+                            "weight": 1.0,
+                        },
+                        "calc_component_new": {},
+                    },
+                    {
+                        "calc_component_to_replace": {
+                            "name": "rents_steam_power_generation",
+                            "weight": 1.0,
+                        },
+                        "calc_component_new": {},
+                    },
+                    {
+                        "calc_component_to_replace": {
+                            "name": "allowances",
+                            "weight": 1.0,
+                        },
+                        "calc_component_new": {},
+                    },
+                ],
                 "power_production_expenses_hydraulic_power": [
                     {
                         "calc_component_to_replace": {
@@ -1438,16 +1509,86 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
                             "weight": 1.0,
                         },
                     },
-                ]
-                # + make_calc_component_fixes_for_double_counting(
-                #     meta_converted["electric_operating_expenses_ferc1"],
-                #     "hydraulic_power_generation_maintenance_expense",
-                # )
-                # + make_calc_component_fixes_for_double_counting(
-                #     meta_converted["electric_operating_expenses_ferc1"],
-                #     "hydraulic_power_generation_operations_expense",
-                # )
-                ,
+                    # subcomponents of hydraulic_power_generation_maintenance_expense
+                    {
+                        "calc_component_to_replace": {
+                            "name": "maintenance_supervision_and_engineering_hydraulic_power_generation",
+                            "weight": 1.0,
+                        },
+                        "calc_component_new": {},
+                    },
+                    {
+                        "calc_component_to_replace": {
+                            "name": "maintenance_of_structures_hydraulic_power_generation",
+                            "weight": 1.0,
+                        },
+                        "calc_component_new": {},
+                    },
+                    {
+                        "calc_component_to_replace": {
+                            "name": "maintenance_of_reservoirs_dams_and_waterways",
+                            "weight": 1.0,
+                        },
+                        "calc_component_new": {},
+                    },
+                    {
+                        "calc_component_to_replace": {
+                            "name": "maintenance_of_electric_plant_hydraulic_power_generation",
+                            "weight": 1.0,
+                        },
+                        "calc_component_new": {},
+                    },
+                    {
+                        "calc_component_to_replace": {
+                            "name": "maintenance_of_miscellaneous_hydraulic_plant",
+                            "weight": 1.0,
+                        },
+                        "calc_component_new": {},
+                    },
+                    # subcomponents of hydraulic_power_generation_operations_expense
+                    {
+                        "calc_component_to_replace": {
+                            "name": "operation_supervision_and_engineering_hydraulic_power_generation",
+                            "weight": 1.0,
+                        },
+                        "calc_component_new": {},
+                    },
+                    {
+                        "calc_component_to_replace": {
+                            "name": "water_for_power",
+                            "weight": 1.0,
+                        },
+                        "calc_component_new": {},
+                    },
+                    {
+                        "calc_component_to_replace": {
+                            "name": "hydraulic_expenses",
+                            "weight": 1.0,
+                        },
+                        "calc_component_new": {},
+                    },
+                    {
+                        "calc_component_to_replace": {
+                            "name": "electric_expenses_hydraulic_power_generation",
+                            "weight": 1.0,
+                        },
+                        "calc_component_new": {},
+                    },
+                    {
+                        "calc_component_to_replace": {
+                            "name": "miscellaneous_hydraulic_power_generation_expenses",
+                            "weight": 1.0,
+                        },
+                        "calc_component_new": {},
+                    },
+                    {
+                        "calc_component_to_replace": {
+                            "name": "rents_hydraulic_power_generation",
+                            "weight": 1.0,
+                        },
+                        "calc_component_new": {},
+                    },
+                ],
                 "transmission_operation_expense": [
                     {
                         "calc_component_to_replace": {},
@@ -1501,6 +1642,17 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
                         "calc_component_new": {
                             # Only used in pre-2004 calculations, aggregate of later sub-components.
                             "name": "special_funds_all",
+                            "weight": 1.0,
+                        },
+                    },
+                ],
+            },
+            "balance_sheet_liabilities_ferc1": {
+                "deferred_credits": [
+                    {
+                        "calc_component_to_replace": {},
+                        "calc_component_new": {
+                            "name": "accumulated_deferred_income_taxes",
                             "weight": 1.0,
                         },
                     },
