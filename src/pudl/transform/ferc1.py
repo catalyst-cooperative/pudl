@@ -803,7 +803,6 @@ def check_table_calcuations(
             .filter(lambda x: x["sub_total_sum"].nunique() > 1)
             .groupby(pks_wo_subgroup)
         )
-        logger.info(sub_total_errors.head())
         off_ratio_sub = (
             sub_total_errors.ngroups / calculated_df.groupby(pks_wo_subgroup).ngroups
         )
