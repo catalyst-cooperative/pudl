@@ -787,24 +787,29 @@ def check_table_calcuations(
         )
 
     # Check that sub-total calculations sum to total.
-    if params.subtotal_column:
+    if params.subtotal_column is not None:
         sub_group_col = params.subtotal_column
         pks_wo_subgroup = [col for col in pks if col != sub_group_col]
         calculated_df["sub_total_sum"] = (
             calculated_df.pipe(lambda df: df[df[sub_group_col] != "total"])
-            .groupby(pks_wo_subgroup)["calculated_dollar_amount"]
+            .groupby(pks_wo_subgroup)["calculated_amount"]
             .transform("sum")
         )
         calculated_df["sub_total_sum"] = calculated_df["sub_total_sum"].fillna(
-            calculated_df.calculated_dollar_amount
+            calculated_df.calculated_amount
         )
         sub_total_errors = (
             calculated_df.groupby(pks_wo_subgroup)
             .filter(lambda x: x["sub_total_sum"].nunique() > 1)
             .groupby(pks_wo_subgroup)
         )
+        logger.info(sub_total_errors.head())
         off_ratio_sub = (
-            calculated_df.groupby(pks_wo_subgroup).ngroups / sub_total_errors.ngroups
+            sub_total_errors.ngroups / calculated_df.groupby(pks_wo_subgroup).ngroups
+        )
+        logger.info(
+            f"{table_name}: has {sub_total_errors.ngroups} ({off_ratio_sub:.02%}) sub-total calculations that don't "
+            "sum to the equivalent total column."
         )
         if off_ratio_sub > params.calculation_tolerance:
             raise AssertionError(
