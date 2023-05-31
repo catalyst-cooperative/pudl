@@ -3842,15 +3842,6 @@ class RetainedEarningsFerc1TableTransformer(Ferc1AbstractTableTransformer):
         meta = (
             super()
             .process_xbrl_metadata(xbrl_metadata_json)
-            .assign(
-                # there are many instances of factoids with these stems cooresponding
-                # to several value types (amount/start or end balance). but we end up
-                # with only one so we want to drop these stems and then drop dupes
-                # plus there is one suffix that is named weird!
-                xbrl_factoid=lambda x: x.xbrl_factoid.str.removesuffix(
-                    "_contra_primary_account_affected"
-                ).str.removesuffix("_primary_contra_account_affected")
-            )
             .drop_duplicates(subset=["xbrl_factoid"], keep="first")
         )
         return meta
@@ -3901,17 +3892,7 @@ class ElectricPlantDepreciationChangesFerc1TableTransformer(
         separate labeled rows, each of which should get the original metadata for the
         Instant column.
         """
-        meta = (
-            super()
-            .process_xbrl_metadata(xbrl_metadata_json)
-            .assign(
-                xbrl_factoid=lambda x: x.xbrl_factoid.replace(
-                    {
-                        "accumulated_provision_for_depreciation_of_electric_utility_plant": "starting_balance"
-                    }
-                )
-            )
-        )
+        meta = super().process_xbrl_metadata(xbrl_metadata_json)
         ending_balance = meta[meta.xbrl_factoid == "starting_balance"].assign(
             xbrl_factoid="ending_balance"
         )
@@ -3964,15 +3945,7 @@ class ElectricPlantDepreciationFunctionalFerc1TableTransformer(
         Transform the xbrl factoid values so that they match the final plant functional
         classification categories and can be merged with the output dataframe.
         """
-        df = (
-            super()
-            .process_xbrl_metadata(xbrl_metadata_json)
-            .assign(
-                xbrl_factoid=lambda x: x.xbrl_factoid.str.replace(
-                    r"^accumulated_depreciation_", "", regex=True
-                ),
-            )
-        )
+        df = super().process_xbrl_metadata(xbrl_metadata_json)
         df.loc[
             df.xbrl_factoid
             == "accumulated_provision_for_depreciation_of_electric_utility_plant",
@@ -4204,15 +4177,7 @@ class CashFlowFerc1TableTransformer(Ferc1AbstractTableTransformer):
         separate labeled rows, each of which should get the original metadata for the
         Instant column.
         """
-        meta = (
-            super()
-            .process_xbrl_metadata(xbrl_metadata_json)
-            .assign(
-                xbrl_factoid=lambda x: x.xbrl_factoid.replace(
-                    {"cash_and_cash_equivalents": "starting_balance"}
-                )
-            )
-        )
+        meta = super().process_xbrl_metadata(xbrl_metadata_json)
         ending_balance = meta[meta.xbrl_factoid == "starting_balance"].assign(
             xbrl_factoid="ending_balance"
         )
