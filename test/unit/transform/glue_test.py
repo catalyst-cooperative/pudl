@@ -12,16 +12,13 @@ def test_epacamd_eia_subplant_ids():
     epacamd_eia_test = pd.read_csv(
         StringIO(
             """
-plant_id_epa,emissions_unit_id_epa,generator_id_epa,plant_id_eia,boiler_id,generator_id,report_year
-1392,1A,1A,1392,1A,1A,2018
-1392,2A,2A,1392,2A,2A,2018
-1392,3A,3A,1392,3A,3A,2018
-1392,4A,4A,1392,,4A,2021
-1392,5A,5A,1392,,5A,2021
-1,A,A,1,,A,2021
-1392,1A,1A,1392,1A,1A,2021
-1392,2A,2A,1392,2A,2A,2021
-1392,3A,3A,1392,3A,3A,2021
+plant_id_epa,emissions_unit_id_epa,generator_id_epa,plant_id_eia,boiler_id,generator_id
+1392,1A,1A,1392,1A,1A
+1392,2A,2A,1392,2A,2A
+1392,3A,3A,1392,3A,3A
+1392,4A,4A,1392,,4A
+1392,5A,5A,1392,,5A
+1,A,A,1,,A
 """
         )
     )
@@ -80,7 +77,7 @@ plant_id_eia,plant_id_epa,unit_id_pudl,emissions_unit_id_epa,generator_id,subpla
     )
 
     epacamd_eia_subplant_ids_got = glue_assets.epacamd_eia_subplant_ids(
-        epacamd_eia=epacamd_eia_test,
+        epacamd_eia_unique=epacamd_eia_test,
         generators_eia860=generators_entity_eia_test,
         emissions_unit_ids_epacems=emissions_unit_ids_epacems_test,
         boiler_generator_assn_eia860=boiler_generator_assn_eia860_test,
