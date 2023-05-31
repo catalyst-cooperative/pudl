@@ -299,10 +299,6 @@ class MergeXbrlMetadata(TransformParams):
     on: str | None = None
     """Column name to merge on in :func:`merge_xbrl_metadata`."""
 
-    subtotal_column: str | None = None
-    """Sub-total column name (e.g. utility type) to compare calculations against in
-    :func:`check_table_calcs`."""
-
 
 def merge_xbrl_metadata(
     df: pd.DataFrame, xbrl_metadata: pd.DataFrame, params: MergeXbrlMetadata
@@ -709,6 +705,10 @@ class CheckTableCalculations(TransformParams):
     calculation_tolerance: float = 0.05
     """The tolerance ratio of the off calcuations and the possible calcuations."""
 
+    subtotal_column: str | None = None
+    """Sub-total column name (e.g. utility type) to compare calculations against in
+    :func:`check_table_calcs`."""
+
 
 def check_table_calcuations(
     df: pd.DataFrame,
@@ -785,6 +785,33 @@ def check_table_calcuations(
             f"Calculations in {table_name} are off by {off_ratio}. Expected tolerance "
             f"of {params.calculation_tolerance}."
         )
+
+    # Check that sub-total calculations sum to total.
+    if params.subtotal_column:
+        sub_group_col = params.subtotal_column
+        pks_wo_subgroup = [col for col in pks if col != sub_group_col]
+        calculated_df["sub_total_sum"] = (
+            calculated_df.pipe(lambda df: df[df[sub_group_col] != "total"])
+            .groupby(pks_wo_subgroup)["calculated_dollar_amount"]
+            .transform("sum")
+        )
+        calculated_df["sub_total_sum"] = calculated_df["sub_total_sum"].fillna(
+            calculated_df.calculated_dollar_amount
+        )
+        sub_total_errors = (
+            calculated_df.groupby(pks_wo_subgroup)
+            .filter(lambda x: x["sub_total_sum"].nunique() > 1)
+            .groupby(pks_wo_subgroup)
+        )
+        off_ratio_sub = (
+            calculated_df.groupby(pks_wo_subgroup).ngroups / sub_total_errors.ngroups
+        )
+        if off_ratio_sub > params.calculation_tolerance:
+            raise AssertionError(
+                f"Sub-total calculations in {table_name} are off by {off_ratio_sub}. Expected tolerance "
+                f"of {params.calculation_tolerance}."
+            )
+
     return calculated_df
 
 
@@ -4410,4 +4437,3 @@ def plants_steam_ferc1(
         transformed_fuel=fuel_ferc1,
     )
     return convert_cols_dtypes(df, data_source="ferc1")
-

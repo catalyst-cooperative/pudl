@@ -3843,7 +3843,6 @@ TRANSFORM_PARAMS = {
         "merge_xbrl_metadata": {
             "rename_columns": {"xbrl_factoid": "income_type"},
             "on": "income_type",
-            "subtotal_column": "utility_type",
         },
         "drop_invalid_rows": [
             {
@@ -3854,6 +3853,7 @@ TRANSFORM_PARAMS = {
         "check_table_calculations": {
             "column_to_check": "dollar_value",
             "calculation_tolerance": 0.1,
+            "subtotal_column": "utility_type",
         },
     },
     "electric_plant_depreciation_changes_ferc1": {
