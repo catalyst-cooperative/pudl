@@ -3486,6 +3486,7 @@ TRANSFORM_PARAMS = {
             "rename_columns": {"xbrl_factoid": "ferc_account_label"},
             "on": "ferc_account_label",
         },
+        "check_table_calculations": {"column_to_check": "dollar_value"},
     },
     "electric_operating_revenues_ferc1": {
         "rename_columns_ferc1": {
@@ -3616,6 +3617,7 @@ TRANSFORM_PARAMS = {
                 ],
             },
         ],
+        "check_table_calculations": {"column_to_check": "dollar_value"},
     },
     "retained_earnings_ferc1": {
         "rename_columns_ferc1": {
@@ -3849,6 +3851,10 @@ TRANSFORM_PARAMS = {
                 "required_valid_cols": ["dollar_value"],
             },
         ],
+        "check_table_calculations": {
+            "column_to_check": "dollar_value",
+            "calculation_tolerance": 0.1,
+        },
     },
     "electric_plant_depreciation_changes_ferc1": {
         "rename_columns_ferc1": {
@@ -4387,6 +4393,7 @@ TRANSFORM_PARAMS = {
             "rename_columns": {"xbrl_factoid": "expense_type"},
             "on": "expense_type",
         },
+        "check_table_calculations": {"column_to_check": "dollar_value"},
     },
     "other_regulatory_liabilities_ferc1": {
         "rename_columns_ferc1": {
