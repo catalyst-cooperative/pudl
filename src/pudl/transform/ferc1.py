@@ -4410,4 +4410,3 @@ def plants_steam_ferc1(
         transformed_fuel=fuel_ferc1,
     )
     return convert_cols_dtypes(df, data_source="ferc1")
-
