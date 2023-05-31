@@ -73,7 +73,11 @@ class DbfTableSchema:
 
 
 class FercDbfArchive:
-    """Represents API for accessing files within a single DBF archive."""
+    """Represents API for accessing files within a single DBF archive.
+
+    Typically, archive contains data for a single year and single
+    FERC form dataset (e.g. FERC Form 1 or FERC Form 2).
+    """
 
     def __init__(
         self,
@@ -83,7 +87,7 @@ class FercDbfArchive:
         partition: dict[str, Any],
         field_parser: FieldParser,
     ):
-        """Construct new instance of FercDbfArchive."""
+        """Constructs new instance of FercDbfArchive."""
         self.zipfile = zipfile
         self.partition = dict(partition)
         self.root_path: Path = dbc_path.parent
@@ -340,8 +344,9 @@ class FercDbfReader:
     def load_table_dfs(
         self, table_name: str, partitions: list[dict[str, Any]]
     ) -> pd.DataFrame | None:
-        """Returns the concatenation of the data for a given table across all partitions
-        of the dataset.
+        """Returns all data for a given table.
+
+        Merges data for a given table across all partitions.
 
         Args:
             table_name: name of the table to load.
