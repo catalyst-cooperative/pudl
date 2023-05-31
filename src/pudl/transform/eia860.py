@@ -860,6 +860,12 @@ def clean_emissions_control_equipment_eia860(
         "emission_control_equipment_cost",
     ] = 3200
 
+    emce_df = (
+        pudl.metadata.classes.Package.from_resource_ids()
+        .get_resource("emissions_control_equipment_eia860")
+        .encode(emce_df)
+    )
+
     return emce_df
 
 
