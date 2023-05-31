@@ -75,8 +75,8 @@ class DbfTableSchema:
 class FercDbfArchive:
     """Represents API for accessing files within a single DBF archive.
 
-    Typically, archive contains data for a single year and single
-    FERC form dataset (e.g. FERC Form 1 or FERC Form 2).
+    Typically, archive contains data for a single year and single FERC form dataset
+    (e.g. FERC Form 1 or FERC Form 2).
     """
 
     def __init__(
