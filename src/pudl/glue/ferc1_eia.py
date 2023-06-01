@@ -43,6 +43,7 @@ from pudl.transform.classes import StringNormalization, normalize_strings_multic
 from pudl.transform.ferc1 import (
     Ferc1AbstractTableTransformer,
     TableIdFerc1,
+    clean_xbrl_metadata_json,
     ferc1_transform_asset_factory,
 )
 from pudl.transform.params.ferc1 import FERC1_STRING_NORM
@@ -303,8 +304,7 @@ def get_plants_ferc1_raw_job() -> JobDefinition:
     return Definitions(
         assets=transform_assets
         + raw_ferc1_assets
-        + [plants_ferc1_raw]
-        + [raw_xbrl_metadata_json],
+        + [plants_ferc1_raw, raw_xbrl_metadata_json, clean_xbrl_metadata_json],
         resources={
             "ferc1_dbf_sqlite_io_manager": ferc1_dbf_sqlite_io_manager,
             "ferc1_xbrl_sqlite_io_manager": ferc1_xbrl_sqlite_io_manager,
