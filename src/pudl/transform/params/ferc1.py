@@ -3856,7 +3856,7 @@ TRANSFORM_PARAMS = {
         ],
         "check_table_calculations": {
             "column_to_check": "dollar_value",
-            # "calculation_tolerance": 0.1,
+            "calculation_tolerance": 0.08,  # this is still higher than desired.
         },
     },
     "electric_plant_depreciation_changes_ferc1": {

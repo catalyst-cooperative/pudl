@@ -706,7 +706,7 @@ class CheckTableCalculations(TransformParams):
     """The tolerance ratio of the off calcuations and the possible calcuations."""
 
 
-def check_table_calcuations(
+def check_table_calculations(
     df: pd.DataFrame,
     tbl_meta: pd.DataFrame,
     xbrl_factoid_name: str,
@@ -761,7 +761,11 @@ def check_table_calcuations(
         df, pd.concat(calculated_dfs), on=pks, how="left", validate="m:1"
     ).assign(
         abs_diff=lambda x: abs(x[params.column_to_check] - x.calculated_amount),
-        rel_diff=lambda x: abs(x.abs_diff / x[params.column_to_check]),
+        rel_diff=lambda x: np.where(
+            (x[params.column_to_check] != 0.0),
+            abs(x.abs_diff / x[params.column_to_check]),
+            np.nan,
+        ),
     )
 
     off_df = calculated_df[
@@ -1128,7 +1132,7 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
                 .encode
             )
             .pipe(self.merge_xbrl_metadata)
-            .pipe(self.check_table_calcuations)
+            .pipe(self.check_table_calculations)
         )
         return df
 
@@ -1236,7 +1240,6 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
             rename_calculation_components
         )
         tbl_meta = self.manually_update_xbrl_calcs(tbl_meta)
-        # still need to convert this guy to the db-based metadata
         tbl_meta = self.remove_duplicated_components(tbl_meta)
         return tbl_meta
 
@@ -2177,7 +2180,7 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
         df["utility_id_ferc1"] = df[util_id_col].map(util_map_series)
         return df
 
-    def check_table_calcuations(
+    def check_table_calculations(
         self,
         df: pd.DataFrame,
         params: str = None,
@@ -2189,7 +2192,7 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
             logger.info(
                 f"{self.table_id.value}: Checking the XBRL metadata-based calcuations."
             )
-            _ = check_table_calcuations(
+            df = check_table_calculations(
                 df=df,
                 tbl_meta=self.xbrl_metadata,
                 xbrl_factoid_name=self.params.xbrl_factoid_name,
