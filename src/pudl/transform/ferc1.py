@@ -1289,7 +1289,7 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
                 logger.info(
                     f"Dropping duplicated components from calculation in {self.table_id.value}"
                 )
-            new_calcs.loc[index] = str(calc)
+            new_calcs.loc[index] = str(new_calc)
         tbl_meta["calculations"] = new_calcs
         return tbl_meta
 
@@ -1657,7 +1657,7 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
                     )
                 else:
                     calc_to_update.append(calc_component_fix["calc_component_new"])
-        tbl_meta.loc[xbrl_factoid, "calculations"] = str(calc_to_update)
+            tbl_meta.loc[xbrl_factoid, "calculations"] = str(calc_to_update)
         return tbl_meta.reset_index()
 
     @cache_df(key="merge_xbrl_metadata")
