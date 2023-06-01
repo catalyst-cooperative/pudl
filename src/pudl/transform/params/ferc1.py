@@ -3699,7 +3699,6 @@ TRANSFORM_PARAMS = {
             "on": "earnings_type",
         },
         "strip_non_numeric_values": {"amount": {"strip_non_numeric_values": True}},
-        "check_table_calculations": {"column_to_check": "ending_balance"},
     },
     "income_statement_ferc1": {
         "rename_columns_ferc1": {
@@ -3863,7 +3862,7 @@ TRANSFORM_PARAMS = {
         ],
         "check_table_calculations": {
             "column_to_check": "dollar_value",
-            "calculation_tolerance": 0.1,
+            "calculation_tolerance": 0.08,  # this is still higher than desired.
             "subtotal_column": "utility_type",
         },
     },

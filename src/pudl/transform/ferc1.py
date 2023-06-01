@@ -714,7 +714,7 @@ class CheckTableCalculations(TransformParams):
     columns."""
 
 
-def check_table_calcuations(
+def check_table_calculations(
     df: pd.DataFrame,
     tbl_meta: pd.DataFrame,
     xbrl_factoid_name: str,
@@ -767,9 +767,19 @@ def check_table_calcuations(
 
     calculated_df = pd.merge(
         df, pd.concat(calculated_dfs), on=pks, how="left", validate="m:1"
-    ).assign(
+    )
+    # Force column_to_check to be a float to prevent any hijinks with calculating differences.
+    calculated_df[params.column_to_check] = calculated_df[
+        params.column_to_check
+    ].astype(float)
+
+    calculated_df = calculated_df.assign(
         abs_diff=lambda x: abs(x[params.column_to_check] - x.calculated_amount),
-        rel_diff=lambda x: abs(x.abs_diff / x[params.column_to_check]),
+        rel_diff=lambda x: np.where(
+            (x[params.column_to_check] != 0.0),
+            abs(x.abs_diff / x[params.column_to_check]),
+            np.nan,
+        ),
     )
 
     off_df = calculated_df[
@@ -1168,7 +1178,7 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
                 .encode
             )
             .pipe(self.merge_xbrl_metadata)
-            .pipe(self.check_table_calcuations)
+            .pipe(self.check_table_calculations)
         )
         return df
 
@@ -1276,7 +1286,6 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
             rename_calculation_components
         )
         tbl_meta = self.manually_update_xbrl_calcs(tbl_meta)
-        # still need to convert this guy to the db-based metadata
         tbl_meta = self.remove_duplicated_components(tbl_meta)
         return tbl_meta
 
@@ -1329,7 +1338,7 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
                 logger.info(
                     f"Dropping duplicated components from calculation in {self.table_id.value}"
                 )
-            new_calcs.loc[index] = str(calc)
+            new_calcs.loc[index] = str(new_calc)
         tbl_meta["calculations"] = new_calcs
         return tbl_meta
 
@@ -1697,7 +1706,7 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
                     )
                 else:
                     calc_to_update.append(calc_component_fix["calc_component_new"])
-        tbl_meta.loc[xbrl_factoid, "calculations"] = str(calc_to_update)
+            tbl_meta.loc[xbrl_factoid, "calculations"] = str(calc_to_update)
         return tbl_meta.reset_index()
 
     @cache_df(key="merge_xbrl_metadata")
@@ -2217,7 +2226,7 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
         df["utility_id_ferc1"] = df[util_id_col].map(util_map_series)
         return df
 
-    def check_table_calcuations(
+    def check_table_calculations(
         self,
         df: pd.DataFrame,
         params: str = None,
@@ -2229,7 +2238,7 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
             logger.info(
                 f"{self.table_id.value}: Checking the XBRL metadata-based calcuations."
             )
-            _ = check_table_calcuations(
+            df = check_table_calculations(
                 df=df,
                 tbl_meta=self.xbrl_metadata,
                 xbrl_factoid_name=self.params.xbrl_factoid_name,
