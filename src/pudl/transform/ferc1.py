@@ -700,10 +700,15 @@ class CheckTableCalculations(TransformParams):
     column_to_check: str | None = None
     """Name of data column to check.
 
-    This will typically be ``dollar_amount`` or ``ending_balance`` in hte
+    This will typically be ``dollar_amount`` or ``ending_balance`` column for the income
+    statement and the balance sheet tables.
     """
     calculation_tolerance: float = 0.05
-    """The tolerance ratio of the off calcuations and the possible calcuations."""
+    """Tolerance level for calculations that don't match reported values. Default 0.05.
+
+    The expected ratio of the calculated values which don't calculate exactly and total
+    calculated values.
+    """
 
 
 def check_table_calculations(
@@ -723,24 +728,22 @@ def check_table_calculations(
         params: :class:`CheckTableCalculations` parameters.
     """
     # skip the calculations that have any components from other tables.
+    # this could be removed/moved to when we deal with inter table calcs.
     inter_table_calculated_values = list(
-        tbl_meta[
-            tbl_meta.calc_contains_components_from_other_tables
-        ].xbrl_factoid.unique()
+        tbl_meta[tbl_meta.inter_table_calc_flag].xbrl_factoid.unique()
     )
     if inter_table_calculated_values:
-        logger.info(
-            "Skipping calcuated values because they are inter-table calucations: "
+        logger.warning(
+            "Skipping calculated values because they are inter-table calculations: "
             f"{inter_table_calculated_values}"
         )
     intra_tbl_calcs = tbl_meta[
-        ~tbl_meta.calc_contains_components_from_other_tables
-        & (tbl_meta.row_type_xbrl == "calculated_value")
+        ~tbl_meta.inter_table_calc_flag & (tbl_meta.row_type_xbrl == "calculated_value")
     ]
     pks = pudl.metadata.classes.Resource.from_id(table_name).schema.primary_key
     pks_wo_factoid = [col for col in pks if col != xbrl_factoid_name]
     calculated_dfs = []
-    for calcuated_factoid, calculation in zip(
+    for calculated_factoid, calculation in zip(
         intra_tbl_calcs.xbrl_factoid, intra_tbl_calcs.calculations
     ):
         calc_df = (
@@ -750,10 +753,11 @@ def check_table_calculations(
                 left_on=xbrl_factoid_name,
                 right_on="name",
             )
+            # apply the weight from the calc to convey the sign before summing.
             .assign(calculated_amount=lambda x: x[params.column_to_check] * x.weight)
             .groupby(pks_wo_factoid, as_index=False)["calculated_amount"]
             .sum(min_count=1)
-            .assign(**{xbrl_factoid_name: calcuated_factoid})
+            .assign(**{xbrl_factoid_name: calculated_factoid})
         )
         calculated_dfs.append(calc_df)
 
@@ -782,10 +786,11 @@ def check_table_calculations(
     ]
     calced_values = calculated_df[(calculated_df.abs_diff.notnull())]
     off_ratio = len(off_df) / len(calced_values)
-    logger.info(
-        f"{table_name}: has {len(off_df)} ({off_ratio:.02%}) records that don't "
-        "calculate exactly."
-    )
+    if off_ratio > 0:
+        logger.warning(
+            f"{table_name}: has {len(off_df)} ({off_ratio:.02%}) records that don't "
+            "calculate exactly."
+        )
     if off_ratio > params.calculation_tolerance:
         raise AssertionError(
             f"Calculations in {table_name} are off by {off_ratio}. Expected tolerance "
@@ -1220,7 +1225,7 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
             )
             .assign(
                 xbrl_factoid_name_original=lambda x: x.xbrl_factoid,
-                calc_contains_components_from_other_tables=lambda x: x.calculations.str.contains(
+                inter_table_calc_flag=lambda x: x.calculations.str.contains(
                     "source_table"
                 ),
             )
