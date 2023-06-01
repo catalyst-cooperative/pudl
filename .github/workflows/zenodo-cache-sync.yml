@@ -37,7 +37,7 @@ jobs:
           ref: ${{ env.GITHUB_REF }}
 
       - name: Install Conda environment using mamba
-        uses: mamba-org/provision-with-micromamba@v15
+        uses: mamba-org/provision-with-micromamba@v16
         with:
           environment-file: test/test-environment.yml
           cache-env: true

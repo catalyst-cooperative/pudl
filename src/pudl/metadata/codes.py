@@ -943,6 +943,7 @@ CODE_METADATA: dict[str, dict[str, Any]] = {
             "(V) Under construction, more than 50 percent complete": "V",
             "BU": "SB",
         },
+        "ignored_codes": ["CS"],
     },
     "energy_sources_eia": {
         "df": pd.DataFrame(
