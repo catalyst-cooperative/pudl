@@ -806,10 +806,11 @@ def check_table_calcuations(
         off_ratio_sub = (
             sub_total_errors.ngroups / calculated_df.groupby(pks_wo_subgroup).ngroups
         )
-        logger.info(
-            f"{table_name}: has {sub_total_errors.ngroups} ({off_ratio_sub:.02%}) sub-total calculations that don't "
-            "sum to the equivalent total column."
-        )
+        if sub_total_errors.ngroups > 0:
+            logger.warning(
+                f"{table_name}: has {sub_total_errors.ngroups} ({off_ratio_sub:.02%}) sub-total calculations that don't "
+                "sum to the equivalent total column."
+            )
         if off_ratio_sub > params.calculation_tolerance:
             raise AssertionError(
                 f"Sub-total calculations in {table_name} are off by {off_ratio_sub}. Expected tolerance "
