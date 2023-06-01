@@ -11,7 +11,6 @@ import enum
 import importlib.resources
 import json
 import re
-from ast import literal_eval
 from collections import namedtuple
 from collections.abc import Mapping
 from typing import Any, Literal, Self
@@ -700,10 +699,15 @@ class CheckTableCalculations(TransformParams):
     column_to_check: str | None = None
     """Name of data column to check.
 
-    This will typically be ``dollar_amount`` or ``ending_balance`` in hte
+    This will typically be ``dollar_amount`` or ``ending_balance`` column for the income
+    statement and the balance sheet tables.
     """
     calculation_tolerance: float = 0.05
-    """The tolerance ratio of the off calcuations and the possible calcuations."""
+    """Tolerance level for calculations that don't match reported values. Default 0.05.
+
+    The expected ratio of the calculated values which don't calculate exactly and total
+    calculated values.
+    """
 
 
 def check_table_calculations(
@@ -723,42 +727,41 @@ def check_table_calculations(
         params: :class:`CheckTableCalculations` parameters.
     """
     # skip the calculations that have any components from other tables.
+    # this could be removed/moved to when we deal with inter table calcs.
     inter_table_calculated_values = list(
-        tbl_meta[
-            tbl_meta.calc_contains_components_from_other_tables
-        ].xbrl_factoid.unique()
+        tbl_meta[tbl_meta.inter_table_calc_flag].xbrl_factoid.unique()
     )
     if inter_table_calculated_values:
-        logger.info(
-            "Skipping calcuated values because they are inter-table calucations: "
+        logger.warning(
+            "Skipping calculated values because they are inter-table calculations: "
             f"{inter_table_calculated_values}"
         )
     intra_tbl_calcs = tbl_meta[
-        ~tbl_meta.calc_contains_components_from_other_tables
-        & (tbl_meta.row_type_xbrl == "calculated_value")
+        ~tbl_meta.inter_table_calc_flag & (tbl_meta.row_type_xbrl == "calculated_value")
     ]
     pks = pudl.metadata.classes.Resource.from_id(table_name).schema.primary_key
     pks_wo_factoid = [col for col in pks if col != xbrl_factoid_name]
     calculated_dfs = []
-    for calcuated_factoid, calculation in zip(
+    for calculated_factoid, calculation in zip(
         intra_tbl_calcs.xbrl_factoid, intra_tbl_calcs.calculations
     ):
         calc_df = (
             pd.merge(
                 df,
-                pd.DataFrame(literal_eval(calculation)),
+                pd.DataFrame(json.loads(calculation)),
                 left_on=xbrl_factoid_name,
                 right_on="name",
             )
+            # apply the weight from the calc to convey the sign before summing.
             .assign(calculated_amount=lambda x: x[params.column_to_check] * x.weight)
             .groupby(pks_wo_factoid, as_index=False)["calculated_amount"]
             .sum(min_count=1)
-            .assign(**{xbrl_factoid_name: calcuated_factoid})
+            .assign(**{xbrl_factoid_name: calculated_factoid})
         )
         calculated_dfs.append(calc_df)
 
     calculated_df = pd.merge(
-        df, pd.concat(calculated_dfs), on=pks, how="left", validate="m:1"
+        df, pd.concat(calculated_dfs), on=pks, how="left", validate="1:1"
     )
     # Force column_to_check to be a float to prevent any hijinks with calculating differences.
     calculated_df[params.column_to_check] = calculated_df[
@@ -782,10 +785,11 @@ def check_table_calculations(
     ]
     calced_values = calculated_df[(calculated_df.abs_diff.notnull())]
     off_ratio = len(off_df) / len(calced_values)
-    logger.info(
-        f"{table_name}: has {len(off_df)} ({off_ratio:.02%}) records that don't "
-        "calculate exactly."
-    )
+    if off_ratio > 0:
+        logger.warning(
+            f"{table_name}: has {len(off_df)} ({off_ratio:.02%}) records that don't "
+            "calculate exactly."
+        )
     if off_ratio > params.calculation_tolerance:
         raise AssertionError(
             f"Calculations in {table_name} are off by {off_ratio}. Expected tolerance "
@@ -1138,7 +1142,6 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
                 .encode
             )
             .pipe(self.merge_xbrl_metadata)
-            .pipe(self.check_table_calculations)
         )
         return df
 
@@ -1146,9 +1149,10 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
     def transform_end(self, df: pd.DataFrame) -> pd.DataFrame:
         """Standardized final cleanup after the transformations are done.
 
-        Enforces dataframe schema. Checks for empty dataframes and null columns.
+        Checks calculations. Enforces dataframe schema. Checks for empty dataframes and
+        null columns.
         """
-        df = self.enforce_schema(df)
+        df = self.check_table_calculations(df).pipe(self.enforce_schema)
         if df.empty:
             raise ValueError(f"{self.table_id.value}: Final dataframe is empty!!!")
         for col in df:
@@ -1188,6 +1192,10 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
         happens in :meth:`Ferc1AbstractTableTransformer.merge_xbrl_metadata`.
         """
         logger.info(f"{self.table_id.value}: Processing XBRL metadata.")
+
+        def convert_calc_to_json(calc):
+            return json.dumps(calc)
+
         tbl_meta = (
             pd.concat(
                 [
@@ -1208,6 +1216,7 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
                 row_type_xbrl=lambda x: np.where(
                     x.calculations.astype(bool), "calculated_value", "reported_value"
                 ),
+                calculations=lambda x: x.calculations.apply(convert_calc_to_json),
             )
             .astype(
                 {
@@ -1220,7 +1229,7 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
             )
             .assign(
                 xbrl_factoid_name_original=lambda x: x.xbrl_factoid,
-                calc_contains_components_from_other_tables=lambda x: x.calculations.str.contains(
+                inter_table_calc_flag=lambda x: x.calculations.str.contains(
                     "source_table"
                 ),
             )
@@ -1238,9 +1247,9 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
                     k: self.rename_column_xbrl_to_pudl(v) if k == "name" else v
                     for (k, v) in calc_component.items()
                 }
-                for calc_component in literal_eval(calc)
+                for calc_component in json.loads(calc)
             ]
-            return str(renamed_calc)
+            return json.dumps(renamed_calc)
 
         tbl_meta.calculations = tbl_meta.calculations.apply(
             rename_calculation_components
@@ -1292,13 +1301,13 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
         tbl_meta = tbl_meta.reset_index(drop=True)
         new_calcs = pd.Series(dtype=pd.StringDtype())
         for calc, index in zip(tbl_meta.calculations, tbl_meta.index):
-            calc = literal_eval(calc)
+            calc = json.loads(calc)
             new_calc = [i for n, i in enumerate(calc) if i not in calc[n + 1 :]]
             if new_calc != calc:
                 logger.info(
                     f"Dropping duplicated components from calculation in {self.table_id.value}"
                 )
-            new_calcs.loc[index] = str(new_calc)
+            new_calcs.loc[index] = json.dumps(new_calc)
         tbl_meta["calculations"] = new_calcs
         return tbl_meta
 
@@ -1652,7 +1661,7 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
         for xbrl_factoid, calc_component_fixes in calced_fields_to_fix[
             self.table_id.value
         ].items():
-            calc_to_update = literal_eval(tbl_meta.loc[xbrl_factoid, "calculations"])
+            calc_to_update = json.loads(tbl_meta.loc[xbrl_factoid, "calculations"])
             for calc_component_fix in calc_component_fixes:
                 if calc_component_fix["calc_component_to_replace"]:
                     calc_to_update = remove_nones_in_list(
@@ -1666,7 +1675,7 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
                     )
                 else:
                     calc_to_update.append(calc_component_fix["calc_component_new"])
-            tbl_meta.loc[xbrl_factoid, "calculations"] = str(calc_to_update)
+            tbl_meta.loc[xbrl_factoid, "calculations"] = json.dumps(calc_to_update)
         return tbl_meta.reset_index()
 
     @cache_df(key="merge_xbrl_metadata")
