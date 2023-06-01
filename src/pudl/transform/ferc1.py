@@ -709,6 +709,10 @@ class CheckTableCalculations(TransformParams):
     """Sub-total column name (e.g. utility type) to compare calculations against in
     :func:`check_table_calcs`."""
 
+    subtotal_calculation_tolerance: float = 0.05
+    """The tolerance ratio for sub-totals which do not sum to corresponding totals
+    columns."""
+
 
 def check_table_calcuations(
     df: pd.DataFrame,
@@ -792,16 +796,16 @@ def check_table_calcuations(
         pks_wo_subgroup = [col for col in pks if col != sub_group_col]
         calculated_df["sub_total_sum"] = (
             calculated_df.pipe(lambda df: df[df[sub_group_col] != "total"])
-            .groupby(pks_wo_subgroup)["calculated_amount"]
-            .transform("sum")
+            .groupby(pks_wo_subgroup)[params.column_to_check]
+            .transform("sum")  # For each group, calculate sum of sub-components
         )
         calculated_df["sub_total_sum"] = calculated_df["sub_total_sum"].fillna(
-            calculated_df.calculated_amount
+            calculated_df[params.column_to_check]  # Fill in value from 'total' column
         )
         sub_total_errors = (
             calculated_df.groupby(pks_wo_subgroup)
-            .filter(lambda x: x["sub_total_sum"].nunique() > 1)
-            .groupby(pks_wo_subgroup)
+            # If subcomponent sum != total sum, we have nunique()>1
+            .filter(lambda x: x["sub_total_sum"].nunique() > 1).groupby(pks_wo_subgroup)
         )
         off_ratio_sub = (
             sub_total_errors.ngroups / calculated_df.groupby(pks_wo_subgroup).ngroups
@@ -811,10 +815,10 @@ def check_table_calcuations(
                 f"{table_name}: has {sub_total_errors.ngroups} ({off_ratio_sub:.02%}) sub-total calculations that don't "
                 "sum to the equivalent total column."
             )
-        if off_ratio_sub > params.calculation_tolerance:
+        if off_ratio_sub > params.subtotal_calculation_tolerance:
             raise AssertionError(
                 f"Sub-total calculations in {table_name} are off by {off_ratio_sub}. Expected tolerance "
-                f"of {params.calculation_tolerance}."
+                f"of {params.subtotal_calculation_tolerance}."
             )
 
     return calculated_df
