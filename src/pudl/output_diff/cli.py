@@ -27,6 +27,52 @@ import pudl
 logger = pudl.logging_helpers.get_logger(__name__)
 
 
+def parse_command_line(argv) -> argparse.Namespace:
+    """Parse command line arguments. See the -h option.
+
+    Args:
+        argv (str): Command line arguments, including caller filename.
+
+    Returns:
+        dict: Dictionary of command line arguments and their parsed values.
+    """
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument("baseline", type=str, help="path containing baseline outputs.")
+    parser.add_argument(
+        "experiment", type=str, help="path containing experiment outputs."
+    )
+    parser.add_argument(
+        "--logfile",
+        default=None,
+        type=str,
+        help="If specified, write logs to this file.",
+    )
+    parser.add_argument(
+        "--gcs_project_name",
+        default="catalyst-cooperative-pudl",
+        type=str,
+        help="GCS project to use when accessing storage buckets.",
+    )
+    parser.add_argument(
+        "--filetypes",
+        nargs="*",
+        default=["sqlite"],  # TODO(rousik): add support for json and others
+    )
+    parser.add_argument(
+        "--loglevel",
+        help="Set logging level (DEBUG, INFO, WARNING, ERROR, or CRITICAL).",
+        default="INFO",
+    )
+    # TODO(janrous): perhaps rework the following comparison depth arguments.
+    parser.add_argument(
+        "--compare-sqlite",
+        type=bool,
+        default=False,
+    )
+    arguments = parser.parse_args(argv[1:])
+    return arguments
+
+
 class OutputBundle:
     """Represents single pudl output directory.
 
@@ -185,57 +231,6 @@ class OutputPair:
                     )
                     # TODO(rousik): print diff recods if args.print_row_diff is set
         return are_equal
-
-
-def parse_command_line(argv) -> argparse.Namespace:
-    """Parse command line arguments. See the -h option.
-
-    Args:
-        argv (str): Command line arguments, including caller filename.
-
-    Returns:
-        dict: Dictionary of command line arguments and their parsed values.
-    """
-    parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("baseline", type=str, help="path containing baseline outputs.")
-    parser.add_argument(
-        "experiment", type=str, help="path containing experiment outputs."
-    )
-    parser.add_argument(
-        "--logfile",
-        default=None,
-        type=str,
-        help="If specified, write logs to this file.",
-    )
-    parser.add_argument(
-        "--gcs_project_name",
-        default="catalyst-cooperative-pudl",
-        type=str,
-        help="GCS project to use when accessing storage buckets.",
-    )
-    parser.add_argument(
-        "--filetypes",
-        nargs="*",
-        default=["sqlite"],  # TODO(rousik): add support for json and others
-    )
-    parser.add_argument(
-        "--loglevel",
-        help="Set logging level (DEBUG, INFO, WARNING, ERROR, or CRITICAL).",
-        default="INFO",
-    )
-    # TODO(janrous): perhaps rework the following comparison depth arguments.
-    parser.add_argument(
-        "--compare-sqlite",
-        type=bool,
-        default=False,
-    )
-    arguments = parser.parse_args(argv[1:])
-    return arguments
-
-
-def get_basenames(fs, root_path: str) -> set[str]:
-    """Get basenames of all files in a directory."""
-    return {os.path.basename(x) for x in fs.glob(root_path + "/*")}
 
 
 def main():  # noqa: C901
