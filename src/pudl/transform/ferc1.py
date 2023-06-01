@@ -1193,9 +1193,6 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
         """
         logger.info(f"{self.table_id.value}: Processing XBRL metadata.")
 
-        def convert_calc_to_json(calc):
-            return json.dumps(calc)
-
         tbl_meta = (
             pd.concat(
                 [
@@ -1216,7 +1213,7 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
                 row_type_xbrl=lambda x: np.where(
                     x.calculations.astype(bool), "calculated_value", "reported_value"
                 ),
-                calculations=lambda x: x.calculations.apply(convert_calc_to_json),
+                calculations=lambda x: x.calculations.apply(json.dumps),
             )
             .astype(
                 {
