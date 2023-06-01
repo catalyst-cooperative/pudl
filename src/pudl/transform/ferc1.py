@@ -759,7 +759,13 @@ def check_table_calculations(
 
     calculated_df = pd.merge(
         df, pd.concat(calculated_dfs), on=pks, how="left", validate="m:1"
-    ).assign(
+    )
+    # Force column_to_check to be a float to prevent any hijinks with calculating differences.
+    calculated_df[params.column_to_check] = calculated_df[
+        params.column_to_check
+    ].astype(float)
+
+    calculated_df = calculated_df.assign(
         abs_diff=lambda x: abs(x[params.column_to_check] - x.calculated_amount),
         rel_diff=lambda x: np.where(
             (x[params.column_to_check] != 0.0),
