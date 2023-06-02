@@ -794,12 +794,7 @@ def check_table_calculations(
         logger.info(
             "Creating correction records to make calculations match reported values."
         )
-        corrections = calculated_df[
-            ~np.isclose(
-                calculated_df[params.column_to_check], calculated_df.calculated_amount
-            )
-            & calculated_df.calculated_amount.notna()
-        ].copy()
+        corrections = off_df.copy()
         corrections[params.column_to_check] = (
             corrections[params.column_to_check] - corrections["calculated_amount"]
         )
