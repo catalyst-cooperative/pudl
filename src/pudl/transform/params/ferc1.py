@@ -3317,7 +3317,10 @@ TRANSFORM_PARAMS = {
         "replace_with_na": {
             "utility_type_other": {"replace_with_na": [""]},
         },
-        "check_table_calculations": {"column_to_check": "ending_balance"},
+        "check_table_calculations": {
+            "column_to_check": "ending_balance",
+            "subtotal_column": "utility_type",
+        },
     },
     "balance_sheet_assets_ferc1": {
         "rename_columns_ferc1": {
@@ -3490,7 +3493,10 @@ TRANSFORM_PARAMS = {
             "rename_columns": {"xbrl_factoid": "ferc_account_label"},
             "on": "ferc_account_label",
         },
-        "check_table_calculations": {"column_to_check": "dollar_value"},
+        "check_table_calculations": {
+            "column_to_check": "dollar_value",
+            "subtotal_column": "plant_function",
+        },
     },
     "electric_operating_revenues_ferc1": {
         "rename_columns_ferc1": {
@@ -3857,6 +3863,7 @@ TRANSFORM_PARAMS = {
         "check_table_calculations": {
             "column_to_check": "dollar_value",
             "calculation_tolerance": 0.08,  # this is still higher than desired.
+            "subtotal_column": "utility_type",
         },
     },
     "electric_plant_depreciation_changes_ferc1": {
