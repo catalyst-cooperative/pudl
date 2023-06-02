@@ -39,6 +39,9 @@ default_assets = (
     *load_assets_from_modules([pudl.transform.ferc1], group_name="norm_ferc1"),
     *load_assets_from_modules([pudl.extract.ferc714], group_name="raw_ferc714"),
     *load_assets_from_modules([pudl.transform.ferc714], group_name="clean_ferc714"),
+    *load_assets_from_modules(
+        [pudl.convert.censusdp1tract_to_sqlite], group_name="censusdp1"
+    ),
     *load_assets_from_modules([glue_assets], group_name="glue"),
     *load_assets_from_modules([static_assets], group_name="static"),
     *load_assets_from_modules(

@@ -21,13 +21,36 @@ import sys
 from pathlib import Path
 from tempfile import TemporaryDirectory
 
+from dagster import Field, op
+
 import pudl
+from pudl.helpers import EnvVar
 from pudl.workspace.datastore import Datastore
 
 logger = pudl.logging_helpers.get_logger(__name__)
 
 
-def censusdp1tract_to_sqlite(pudl_settings=None, year=2010, ds=None, clobber=False):
+@op(
+    config_schema={
+        "pudl_output_path": Field(
+            EnvVar(
+                env_var="PUDL_OUTPUT",
+            ),
+            description="Path of directory to store the database in.",
+            default_value=None,
+        ),
+        "clobber": Field(
+            bool, description="Clobber existing Census database.", default_value=False
+        ),
+        "year": Field(
+            int,
+            description="Year of Census data to extract (currently must be 2010).",
+            default_value=2010,
+        ),
+    },
+    required_resource_keys={"datastore"},
+)
+def censusdp1tract_to_sqlite(context):
     """Use GDAL's ogr2ogr utility to convert the Census DP1 GeoDB to an SQLite DB.
 
     The Census DP1 GeoDB is read from the datastore, where it is stored as a
@@ -36,13 +59,10 @@ def censusdp1tract_to_sqlite(pudl_settings=None, year=2010, ds=None, clobber=Fal
     resulting SQLite DB file is put in the PUDL output directory alongside the
     ferc1 and pudl SQLite databases.
 
-    Args:
-        pudl_settings (dict): A PUDL settings dictionary.
-        year (int): Year of Census data to extract (currently must be 2010)
-
     Returns:
         None
     """
+    ds = context.resources.datastore
     if ds is None:
         ds = Datastore()
     # If we're in a conda environment, use the version of ogr2ogr that has been
@@ -60,12 +80,14 @@ def censusdp1tract_to_sqlite(pudl_settings=None, year=2010, ds=None, clobber=Fal
     with TemporaryDirectory() as tmpdir:
         # Use datastore to grab the Census DP1 zipfile
         tmpdir_path = Path(tmpdir)
-        zip_ref = ds.get_zipfile_resource("censusdp1tract", year=year)
+        zip_ref = ds.get_zipfile_resource(
+            "censusdp1tract", year=context.op_config["year"]
+        )
         extract_root = tmpdir_path / Path(zip_ref.filelist[0].filename)
-        out_path = Path(pudl_settings["pudl_out"]) / "censusdp1tract.sqlite"
+        out_path = Path(context.op_config["pudl_output_path"]) / "censusdp1tract.sqlite"
 
         if out_path.exists():
-            if clobber:
+            if context.op_config["clobber"]:
                 out_path.unlink()
             else:
                 raise SystemExit(
