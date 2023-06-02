@@ -693,8 +693,8 @@ def combine_axis_columns_xbrl(
     return df
 
 
-class CheckTableCalculations(TransformParams):
-    """Parameters for checking xbrl-metadata based calculations within a table."""
+class ReconcileTableCalculations(TransformParams):
+    """Parameters for reconciling xbrl-metadata based calculations within a table."""
 
     column_to_check: str | None = None
     """Name of data column to check.
@@ -710,19 +710,19 @@ class CheckTableCalculations(TransformParams):
 
     subtotal_column: str | None = None
     """Sub-total column name (e.g. utility type) to compare calculations against in
-    :func:`check_table_calcs`."""
+    :func:`reconcile_table_calculations`."""
 
     subtotal_calculation_tolerance: float = 0.05
     """The tolerance ratio for sub-totals which do not sum to corresponding totals
     columns."""
 
 
-def check_table_calculations(
+def reconcile_table_calculations(
     df: pd.DataFrame,
     tbl_meta: pd.DataFrame,
     xbrl_factoid_name: str,
     table_name: str,
-    params: CheckTableCalculations,
+    params: ReconcileTableCalculations,
 ) -> pd.DataFrame:
     """Calculate the intra-table calculations and ensure the table is within tolerance.
 
@@ -731,7 +731,7 @@ def check_table_calculations(
         tbl_meta: processed table xbrl metadata.
         xbrl_factoid_name: column name of the XBRL factoid in the processed table.
         table_name: name of the PUDL table.
-        params: :class:`CheckTableCalculations` parameters.
+        params: :class:`ReconcileTableCalculations` parameters.
     """
     # If we don't have this value, we aren't doing any calculation checking:
     if params.column_to_check is None:
@@ -812,7 +812,8 @@ def check_table_calculations(
         )
         corrections = off_df.copy()
         corrections[params.column_to_check] = (
-            corrections[params.column_to_check] - corrections["calculated_amount"]
+            corrections[params.column_to_check].fillna(0.0)
+            - corrections["calculated_amount"]
         )
         corrections[xbrl_factoid_name] = corrections[xbrl_factoid_name] + "_correction"
         corrections["row_type_xbrl"] = "correction"
@@ -880,7 +881,9 @@ class Ferc1TableTransformParams(TableTransformParams):
         UnstackBalancesToReportYearInstantXbrl()
     )
     combine_axis_columns_xbrl: CombineAxisColumnsXbrl = CombineAxisColumnsXbrl()
-    check_table_calculations: CheckTableCalculations = CheckTableCalculations()
+    reconcile_table_calculations: ReconcileTableCalculations = (
+        ReconcileTableCalculations()
+    )
 
     @property
     def xbrl_factoid_name(self) -> str:
@@ -1210,7 +1213,7 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
         Checks calculations. Enforces dataframe schema. Checks for empty dataframes and
         null columns.
         """
-        df = self.check_table_calculations(df).pipe(self.enforce_schema)
+        df = self.reconcile_table_calculations(df).pipe(self.enforce_schema)
         if df.empty:
             raise ValueError(f"{self.table_id.value}: Final dataframe is empty!!!")
         for col in df:
@@ -1387,7 +1390,7 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
         """
         # If we haven't provided calculation check parameters, then we can't identify
         # a appropriate correction factor.
-        if self.params.check_table_calculations.column_to_check is None:
+        if self.params.reconcile_table_calculations.column_to_check is None:
             return tbl_meta
 
         def add_correction(calc, xbrl_factoid):
@@ -2291,19 +2294,19 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
         df["utility_id_ferc1"] = df[util_id_col].map(util_map_series)
         return df
 
-    def check_table_calculations(
+    def reconcile_table_calculations(
         self: Self,
         df: pd.DataFrame,
-        params: CheckTableCalculations | None = None,
+        params: ReconcileTableCalculations | None = None,
     ):
         """Check how well a table's calculated values match reported values."""
         if params is None:
-            params = self.params.check_table_calculations
+            params = self.params.reconcile_table_calculations
         if params.column_to_check:
             logger.info(
                 f"{self.table_id.value}: Checking the XBRL metadata-based calcuations."
             )
-            df = check_table_calculations(
+            df = reconcile_table_calculations(
                 df=df,
                 tbl_meta=self.xbrl_metadata,
                 xbrl_factoid_name=self.params.xbrl_factoid_name,
