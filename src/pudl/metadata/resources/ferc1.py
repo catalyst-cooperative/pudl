@@ -1539,7 +1539,7 @@ any cleaning mechanisms in place to account for this."""
                 "starting_balance",
                 "transfers",
             ],
-            "primary_key": ["record_id", "ferc_account_label"],
+            "primary_key": ["utility_id_ferc1", "report_year", "ferc_account_label"],
         },
         "sources": ["ferc1"],
         "etl_group": "outputs",
