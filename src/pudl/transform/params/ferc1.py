@@ -2723,7 +2723,7 @@ TRANSFORM_PARAMS = {
             "on": "ferc_account_label",
         },
         "align_row_numbers_dbf": {"dbf_table_names": ["f1_plant_in_srvce"]},
-        "check_table_calculations": {"column_to_check": "ending_balance"},
+        "reconcile_table_calculations": {"column_to_check": "ending_balance"},
     },
     "plants_pumped_storage_ferc1": {
         "rename_columns_ferc1": {
@@ -3317,7 +3317,7 @@ TRANSFORM_PARAMS = {
         "replace_with_na": {
             "utility_type_other": {"replace_with_na": [""]},
         },
-        "check_table_calculations": {
+        "reconcile_table_calculations": {
             "column_to_check": "ending_balance",
             "subtotal_column": "utility_type",
         },
@@ -3370,7 +3370,7 @@ TRANSFORM_PARAMS = {
             "rename_columns": {"xbrl_factoid": "asset_type"},
             "on": "asset_type",
         },
-        "check_table_calculations": {"column_to_check": "ending_balance"},
+        "reconcile_table_calculations": {"column_to_check": "ending_balance"},
     },
     "balance_sheet_liabilities_ferc1": {
         "rename_columns_ferc1": {
@@ -3422,7 +3422,7 @@ TRANSFORM_PARAMS = {
             "rename_columns": {"xbrl_factoid": "liability_type"},
             "on": "liability_type",
         },
-        "check_table_calculations": {"column_to_check": "ending_balance"},
+        "reconcile_table_calculations": {"column_to_check": "ending_balance"},
     },
     "depreciation_amortization_summary_ferc1": {
         "rename_columns_ferc1": {
@@ -3493,7 +3493,7 @@ TRANSFORM_PARAMS = {
             "rename_columns": {"xbrl_factoid": "ferc_account_label"},
             "on": "ferc_account_label",
         },
-        "check_table_calculations": {
+        "reconcile_table_calculations": {
             "column_to_check": "dollar_value",
             "subtotal_column": "plant_function",
         },
@@ -3627,7 +3627,7 @@ TRANSFORM_PARAMS = {
                 ],
             },
         ],
-        "check_table_calculations": {"column_to_check": "dollar_value"},
+        "reconcile_table_calculations": {"column_to_check": "dollar_value"},
     },
     "retained_earnings_ferc1": {
         "rename_columns_ferc1": {
@@ -3860,7 +3860,7 @@ TRANSFORM_PARAMS = {
                 "required_valid_cols": ["dollar_value"],
             },
         ],
-        "check_table_calculations": {
+        "reconcile_table_calculations": {
             "column_to_check": "dollar_value",
             "calculation_tolerance": 0.08,  # this is still higher than desired.
             "subtotal_column": "utility_type",
@@ -4403,7 +4403,7 @@ TRANSFORM_PARAMS = {
             "rename_columns": {"xbrl_factoid": "expense_type"},
             "on": "expense_type",
         },
-        "check_table_calculations": {"column_to_check": "dollar_value"},
+        "reconcile_table_calculations": {"column_to_check": "dollar_value"},
     },
     "other_regulatory_liabilities_ferc1": {
         "rename_columns_ferc1": {

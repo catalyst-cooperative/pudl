@@ -693,8 +693,8 @@ def combine_axis_columns_xbrl(
     return df
 
 
-class CheckTableCalculations(TransformParams):
-    """Parameters for checking xbrl-metadata based calculations within a table."""
+class ReconcileTableCalculations(TransformParams):
+    """Parameters for reconciling xbrl-metadata based calculations within a table."""
 
     column_to_check: str | None = None
     """Name of data column to check.
@@ -703,39 +703,54 @@ class CheckTableCalculations(TransformParams):
     statement and the balance sheet tables.
     """
     calculation_tolerance: float = 0.05
-    """Tolerance level for calculations that don't match reported values. Default 0.05.
+    """Fraction of calculated values which we allow not to match.
 
-    The expected ratio of the calculated values which don't calculate exactly and total
-    calculated values.
+    Default is 0.05.
     """
 
     subtotal_column: str | None = None
     """Sub-total column name (e.g. utility type) to compare calculations against in
-    :func:`check_table_calcs`."""
+    :func:`reconcile_table_calculations`."""
 
     subtotal_calculation_tolerance: float = 0.05
     """The tolerance ratio for sub-totals which do not sum to corresponding totals
     columns."""
 
 
-def check_table_calculations(
+def reconcile_table_calculations(
     df: pd.DataFrame,
     tbl_meta: pd.DataFrame,
     xbrl_factoid_name: str,
     table_name: str,
-    params: CheckTableCalculations,
+    params: ReconcileTableCalculations,
 ) -> pd.DataFrame:
-    """Calculate the intra-table calculations and ensure the table is within tolerance.
+    """Ensure intra-table calculated values match reported values within a tolerance.
+
+    In addition to checking whether all reported "calculated" values match the output
+    of our repaired calculations, this function adds a correction record to the
+    dataframe that is included in the calculations so that after the fact the
+    calculations match exactly. This is only done when the fraction of records that
+    don't match within the tolerances of :meth:`numpy.isclose` is below a set
+    threshold.
+
+    Note that only calculations which are off by a significant amount result in the
+    creation of a correction record. Many calculations are off from the reported values
+    by exaclty one dollar, presumably due to rounding errrors. These records typically
+    do not fail the :meth:`numpy.isclose()` test and so are not corrected.
 
     Args:
         df: processed table.
         tbl_meta: processed table xbrl metadata.
         xbrl_factoid_name: column name of the XBRL factoid in the processed table.
         table_name: name of the PUDL table.
-        params: :class:`CheckTableCalculations` parameters.
+        params: :class:`ReconcileTableCalculations` parameters.
     """
+    # If we don't have this value, we aren't doing any calculation checking:
+    if params.column_to_check is None:
+        return df
+
     # skip the calculations that have any components from other tables.
-    # this could be removed/moved to when we deal with inter table calcs.
+    # this could be removed/moved to when we deal with inter-table calcs.
     inter_table_calculated_values = list(
         tbl_meta[tbl_meta.inter_table_calc_flag].xbrl_factoid.unique()
     )
@@ -793,16 +808,32 @@ def check_table_calculations(
     ]
     calced_values = calculated_df[(calculated_df.abs_diff.notnull())]
     off_ratio = len(off_df) / len(calced_values)
-    if off_ratio > 0:
-        logger.warning(
-            f"{table_name}: has {len(off_df)} ({off_ratio:.02%}) records that don't "
-            "calculate exactly."
-        )
+
     if off_ratio > params.calculation_tolerance:
         raise AssertionError(
             f"Calculations in {table_name} are off by {off_ratio}. Expected tolerance "
             f"of {params.calculation_tolerance}."
         )
+
+    # We'll only get here if the proportion of calculations that are off is acceptable
+    if off_ratio > 0:
+        logger.info(
+            f"{table_name}: has {len(off_df)} ({off_ratio:.02%}) records whose "
+            "calculations don't match. Adding correction records to make calculations "
+            "match reported values."
+        )
+        corrections = off_df.copy()
+        corrections[params.column_to_check] = (
+            corrections[params.column_to_check].fillna(0.0)
+            - corrections["calculated_amount"]
+        )
+        corrections[xbrl_factoid_name] = corrections[xbrl_factoid_name] + "_correction"
+        corrections["row_type_xbrl"] = "correction"
+        corrections["record_id"] = pd.NA
+
+        calculated_df = pd.concat(
+            [calculated_df, corrections], axis="index"
+        ).reset_index()
 
     # Check that sub-total calculations sum to total.
     if params.subtotal_column is not None:
@@ -862,7 +893,9 @@ class Ferc1TableTransformParams(TableTransformParams):
         UnstackBalancesToReportYearInstantXbrl()
     )
     combine_axis_columns_xbrl: CombineAxisColumnsXbrl = CombineAxisColumnsXbrl()
-    check_table_calculations: CheckTableCalculations = CheckTableCalculations()
+    reconcile_table_calculations: ReconcileTableCalculations = (
+        ReconcileTableCalculations()
+    )
 
     @property
     def xbrl_factoid_name(self) -> str:
@@ -1192,7 +1225,7 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
         Checks calculations. Enforces dataframe schema. Checks for empty dataframes and
         null columns.
         """
-        df = self.check_table_calculations(df).pipe(self.enforce_schema)
+        df = self.reconcile_table_calculations(df).pipe(self.enforce_schema)
         if df.empty:
             raise ValueError(f"{self.table_id.value}: Final dataframe is empty!!!")
         for col in df:
@@ -1223,7 +1256,7 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
         return processed_dbf
 
     @cache_df(key="process_xbrl_metadata")
-    def process_xbrl_metadata(self, xbrl_metadata_json) -> pd.DataFrame:
+    def process_xbrl_metadata(self: Self, xbrl_metadata_json) -> pd.DataFrame:
         """Normalize the XBRL JSON metadata, turning it into a dataframe.
 
         This process concatenates and deduplicates the metadata which is associated with
@@ -1232,9 +1265,6 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
         happens in :meth:`Ferc1AbstractTableTransformer.merge_xbrl_metadata`.
         """
         logger.info(f"{self.table_id.value}: Processing XBRL metadata.")
-
-        def convert_calc_to_json(calc):
-            return json.dumps(calc)
 
         tbl_meta = (
             pd.concat(
@@ -1256,7 +1286,7 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
                 row_type_xbrl=lambda x: np.where(
                     x.calculations.astype(bool), "calculated_value", "reported_value"
                 ),
-                calculations=lambda x: x.calculations.apply(convert_calc_to_json),
+                calculations=lambda x: x.calculations.apply(json.dumps),
             )
             .astype(
                 {
@@ -1267,6 +1297,7 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
                     "row_type_xbrl": pd.StringDtype(),
                 }
             )
+            # Everything below here deals with correcting the calculations.
             .assign(
                 xbrl_factoid_name_original=lambda x: x.xbrl_factoid,
                 inter_table_calc_flag=lambda x: x.calculations.str.contains(
@@ -1274,11 +1305,11 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
                 ),
             )
         )
-        replace_xbrl_factoid = {
+        xbrl_factoid_name_map = {
             xbrl_factoid_name_og: self.rename_column_xbrl_to_pudl(xbrl_factoid_name_og)
             for xbrl_factoid_name_og in tbl_meta.xbrl_factoid
         }
-        tbl_meta.xbrl_factoid = tbl_meta.xbrl_factoid.map(replace_xbrl_factoid)
+        tbl_meta.xbrl_factoid = tbl_meta.xbrl_factoid.map(xbrl_factoid_name_map)
 
         def rename_calculation_components(calc: str) -> str:
             # apply the rename for the "name" element of all of the calc components
@@ -1294,8 +1325,12 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
         tbl_meta.calculations = tbl_meta.calculations.apply(
             rename_calculation_components
         )
-        tbl_meta = self.manually_update_xbrl_calcs(tbl_meta)
-        tbl_meta = self.remove_duplicated_components(tbl_meta)
+        tbl_meta = (
+            self.apply_xbrl_calc_fixes(tbl_meta)
+            .pipe(self.remove_duplicated_calc_components)
+            .pipe(self.add_calc_correction_components)
+        )
+
         return tbl_meta
 
     def rename_column_xbrl_to_pudl(
@@ -1335,7 +1370,9 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
             pass
         return col_name_new
 
-    def remove_duplicated_components(self, tbl_meta: pd.DataFrame):
+    def remove_duplicated_calc_components(
+        self: Self, tbl_meta: pd.DataFrame
+    ) -> pd.DataFrame:
         """If a calculation contains the same components >1x, remove duplicates."""
         # reset the index bc we'll use it to compile a new series.
         tbl_meta = tbl_meta.reset_index(drop=True)
@@ -1351,8 +1388,42 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
         tbl_meta["calculations"] = new_calcs
         return tbl_meta
 
-    def manually_update_xbrl_calcs(self, tbl_meta: pd.DataFrame):
-        """Manually add calculation fixes into the converted metadata.
+    def add_calc_correction_components(
+        self: Self, tbl_meta: pd.DataFrame
+    ) -> pd.DataFrame:
+        """Add correction components to calculation metadata.
+
+        Args:
+            tbl_meta: Partially transformed table metadata in dataframe form.
+
+        Returns:
+            An updated version of the table metadata containing calculation definitions
+            that include a correction component.
+        """
+        # If we haven't provided calculation check parameters, then we can't identify
+        # a appropriate correction factor.
+        if self.params.reconcile_table_calculations.column_to_check is None:
+            return tbl_meta
+
+        def add_correction(calc, xbrl_factoid):
+            if not isinstance(calc, list):
+                raise ValueError(
+                    f"XBRL calculations should be lists of dictionaries. Found {calc}"
+                )
+            if calc:
+                correction = {"name": f"{xbrl_factoid}_correction", "weight": 1.0}
+                calc.append(correction)
+            return json.dumps(calc)
+
+        tbl_meta.loc[:, "calculations"] = tbl_meta.apply(
+            lambda x: add_correction(json.loads(x.calculations), x.xbrl_factoid),
+            axis="columns",
+        )
+
+        return tbl_meta
+
+    def apply_xbrl_calc_fixes(self: Self, tbl_meta: pd.DataFrame) -> pd.DataFrame:
+        """Use the fixes we've compiled to update calculations in the XBRL metadata.
 
         Note: Temp fix. These updates should probably be moved into the table params
         and integrated into the calculations via TableCalcs.
@@ -2235,19 +2306,19 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
         df["utility_id_ferc1"] = df[util_id_col].map(util_map_series)
         return df
 
-    def check_table_calculations(
-        self,
+    def reconcile_table_calculations(
+        self: Self,
         df: pd.DataFrame,
-        params: str = None,
+        params: ReconcileTableCalculations | None = None,
     ):
-        """Check how well a table's calculated values are calculated."""
+        """Check how well a table's calculated values match reported values."""
         if params is None:
-            params = self.params.check_table_calculations
+            params = self.params.reconcile_table_calculations
         if params.column_to_check:
             logger.info(
                 f"{self.table_id.value}: Checking the XBRL metadata-based calcuations."
             )
-            df = check_table_calculations(
+            df = reconcile_table_calculations(
                 df=df,
                 tbl_meta=self.xbrl_metadata,
                 xbrl_factoid_name=self.params.xbrl_factoid_name,
