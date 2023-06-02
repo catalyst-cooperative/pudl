@@ -397,10 +397,7 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     },
     "cooling_id_eia": {
         "type": "string",
-        "description": (
-            "The cooling system identification number reported to EIA. This value may "
-            "not be a unique identifier"
-        ),
+        "description": ("The cooling system identification number reported to EIA."),
     },
     "conductor_size_and_material": {
         "type": "string",
