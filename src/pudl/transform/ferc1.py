@@ -11,7 +11,6 @@ import enum
 import importlib.resources
 import json
 import re
-from ast import literal_eval
 from collections import namedtuple
 from collections.abc import Mapping
 from typing import Any, Literal, Self
@@ -757,7 +756,7 @@ def check_table_calculations(
         calc_df = (
             pd.merge(
                 df,
-                pd.DataFrame(literal_eval(calculation)),
+                pd.DataFrame(json.loads(calculation)),
                 left_on=xbrl_factoid_name,
                 right_on="name",
             )
@@ -770,7 +769,7 @@ def check_table_calculations(
         calculated_dfs.append(calc_df)
 
     calculated_df = pd.merge(
-        df, pd.concat(calculated_dfs), on=pks, how="left", validate="m:1"
+        df, pd.concat(calculated_dfs), on=pks, how="left", validate="1:1"
     )
     # Force column_to_check to be a float to prevent any hijinks with calculating differences.
     calculated_df[params.column_to_check] = calculated_df[
@@ -1183,7 +1182,6 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
                 .encode
             )
             .pipe(self.merge_xbrl_metadata)
-            .pipe(self.check_table_calculations)
         )
         return df
 
@@ -1191,9 +1189,10 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
     def transform_end(self, df: pd.DataFrame) -> pd.DataFrame:
         """Standardized final cleanup after the transformations are done.
 
-        Enforces dataframe schema. Checks for empty dataframes and null columns.
+        Checks calculations. Enforces dataframe schema. Checks for empty dataframes and
+        null columns.
         """
-        df = self.enforce_schema(df)
+        df = self.check_table_calculations(df).pipe(self.enforce_schema)
         if df.empty:
             raise ValueError(f"{self.table_id.value}: Final dataframe is empty!!!")
         for col in df:
@@ -1233,6 +1232,10 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
         happens in :meth:`Ferc1AbstractTableTransformer.merge_xbrl_metadata`.
         """
         logger.info(f"{self.table_id.value}: Processing XBRL metadata.")
+
+        def convert_calc_to_json(calc):
+            return json.dumps(calc)
+
         tbl_meta = (
             pd.concat(
                 [
@@ -1253,6 +1256,7 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
                 row_type_xbrl=lambda x: np.where(
                     x.calculations.astype(bool), "calculated_value", "reported_value"
                 ),
+                calculations=lambda x: x.calculations.apply(convert_calc_to_json),
             )
             .astype(
                 {
@@ -1283,9 +1287,9 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
                     k: self.rename_column_xbrl_to_pudl(v) if k == "name" else v
                     for (k, v) in calc_component.items()
                 }
-                for calc_component in literal_eval(calc)
+                for calc_component in json.loads(calc)
             ]
-            return str(renamed_calc)
+            return json.dumps(renamed_calc)
 
         tbl_meta.calculations = tbl_meta.calculations.apply(
             rename_calculation_components
@@ -1337,13 +1341,13 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
         tbl_meta = tbl_meta.reset_index(drop=True)
         new_calcs = pd.Series(dtype=pd.StringDtype())
         for calc, index in zip(tbl_meta.calculations, tbl_meta.index):
-            calc = literal_eval(calc)
+            calc = json.loads(calc)
             new_calc = [i for n, i in enumerate(calc) if i not in calc[n + 1 :]]
             if new_calc != calc:
                 logger.info(
                     f"Dropping duplicated components from calculation in {self.table_id.value}"
                 )
-            new_calcs.loc[index] = str(new_calc)
+            new_calcs.loc[index] = json.dumps(new_calc)
         tbl_meta["calculations"] = new_calcs
         return tbl_meta
 
@@ -1697,7 +1701,7 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
         for xbrl_factoid, calc_component_fixes in calced_fields_to_fix[
             self.table_id.value
         ].items():
-            calc_to_update = literal_eval(tbl_meta.loc[xbrl_factoid, "calculations"])
+            calc_to_update = json.loads(tbl_meta.loc[xbrl_factoid, "calculations"])
             for calc_component_fix in calc_component_fixes:
                 if calc_component_fix["calc_component_to_replace"]:
                     calc_to_update = remove_nones_in_list(
@@ -1711,7 +1715,7 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
                     )
                 else:
                     calc_to_update.append(calc_component_fix["calc_component_new"])
-            tbl_meta.loc[xbrl_factoid, "calculations"] = str(calc_to_update)
+            tbl_meta.loc[xbrl_factoid, "calculations"] = json.dumps(calc_to_update)
         return tbl_meta.reset_index()
 
     @cache_df(key="merge_xbrl_metadata")
