@@ -997,20 +997,23 @@ def clean_boiler_stack_flue_assn_eia860(
     # Drop duplicates
     bsf_assn = bsf_assn.drop_duplicates()
     # Create a primary key column for stack flue IDs.
-    # There are some stack & flue units that are combined and have just one ID. Others
-    # have unique IDs for each stack & flue unit that may have m:m relationships with
-    # one another. These IDs are part of the primary key for this table, and because we
-    # can't have NA values in the primary key we'll need to create a hybrid column that
-    # turns the seperate stack_id_eia and flue_id_eia values into one stack_flue_id_pudl
-    # value. Anytime there's a stack_flue_id_eia we'll use that.
+    # Prior to 2013, EIA reported a stack_id_eia and a flue_id_eia. Sometimes there
+    # was a m:m relationship between these values. 2013 and later, EIA published a
+    # stack_flue_id_eia column the represented either the stack or flue id.
+    # In order to create a primary key with no NA values, we create a new
+    # stack_flue_id_pudl column. We do this instead of backfilling stack_flue_id_pudl
+    # because stack_flue_id_pudl would not be a unique identifier in older years due to
+    # the m:m relationship between stack_id and flue_id. We also don't forward fill
+    # the individual stack or flue id columns because we can't be sure whether a
+    # stack_flue_id_eia value is the stack or flue id. And we don't want to
+    # missrepresent complicated relationships between stacks and flues. Also there's
+    # several instances where flue_id_eia is NA (hense the last fillna(x.stack_id_eia))
     bsf_assn = bsf_assn.assign(
         stack_flue_id_pudl=lambda x: (
-            x.stack_id_eia.astype("string") + "_" + x.flue_id_eia.astype("string")
+            x.stack_flue_id_eia.fillna(
+                x.stack_id_eia.astype("string") + "_" + x.flue_id_eia.astype("string")
+            ).fillna(x.stack_id_eia)
         )
-        .fillna(x.stack_flue_id_eia)
-        .fillna(
-            x.stack_id_eia.astype("string")
-        )  # sometimes there's a stack id and no flue id
     )
 
     return bsf_assn

@@ -881,8 +881,10 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     "flue_id_eia": {
         "type": "string",
         "description": (
-            "The flue identification value reported to EIA. This value may "
-            "not be a unique identifier."
+            "The flue identification value reported to EIA. The flue is a duct, pipe, "
+            "or opening that transports exhast gases through the stack. This field was "
+            "reported in conjunction with stack_id_eia until 2013 when "
+            "stack_flue_id_eia took their place."
         ),
     },
     "fluidized_bed_tech": {
@@ -2255,32 +2257,33 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "type": "boolean",
         "description": "Indicates whether the generator is part of a solid fuel gasification system",
     },
-    "stack_id_eia": {
-        "type": "string",
-        "description": (
-            "The stack identification value reported to EIA. Stacks or chimneys are "
-            "the place where emissions from the combustion process are released into "
-            "the atmosphere. This value may not be a unique identifier."
-        ),
-    },
     "stack_flue_id_eia": {
         "type": "string",
         "description": (
-            "The stack/flue identification value reported to EIA. Plants with "
-            "individual stack and flue IDs do not have a stack_flue_id value. This "
-            "value may not be a unique identifier."
+            "The stack or flue identification value reported to EIA. This denotes the "
+            "place where emissions from the combusion process are released into the "
+            "atmosphere. Prior to 2013, this was reported as `stack_id_eia` and "
+            "`flue_id_eia`."
         ),
     },
     "stack_flue_id_pudl": {
         "type": "string",
         "description": (
-            "A stack/flue identification value produced by PUDL and used as the "
-            "primary key for the boiler_stack_flue_assn_eia860 table. If there is an "
-            "ID for a combined stack-flue unit `stack_flue_id_eia`, this value is "
-            "used. Otherwise, this value is a combination of the EIA stack ID "
-            "`stack_id_eia` and the flue ID `flue_id_eia`, separated by an underscore. "
-            "If there is no flue ID, this is equivalent to the stack ID provided by "
-            "EIA. This value may not be a unique identifier."
+            "A stack and/or flue identification value created by PUDL for use as part "
+            "of the primary key for the stack flue equipment and boiler association "
+            "tables. For 2013 and onward, this value is equal to the value for "
+            "stack_flue_id_eia. Prior to 2013, this value is equal to the value for "
+            "stack_id_eia and the value for flue_id_eia seperated by an underscore or "
+            "just the stack_flue_eia in cases where flue_id_eia is NA."
+        ),
+    },
+    "stack_id_eia": {
+        "type": "string",
+        "description": (
+            "The stack identification value reported to EIA. Stacks or chimneys are "
+            "the place where emissions from the combustion process are released into "
+            "the atmosphere. This field was reported in conjunction with flue_id_eia "
+            "until 2013 when stack_flue_id_eia took their place."
         ),
     },
     "standard": {"type": "string", "constraints": {"enum": RELIABILITY_STANDARDS}},
