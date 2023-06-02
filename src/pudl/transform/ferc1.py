@@ -708,6 +708,14 @@ class CheckTableCalculations(TransformParams):
     Default is 0.05.
     """
 
+    subtotal_column: str | None = None
+    """Sub-total column name (e.g. utility type) to compare calculations against in
+    :func:`check_table_calcs`."""
+
+    subtotal_calculation_tolerance: float = 0.05
+    """The tolerance ratio for sub-totals which do not sum to corresponding totals
+    columns."""
+
 
 def check_table_calculations(
     df: pd.DataFrame,
@@ -725,6 +733,10 @@ def check_table_calculations(
         table_name: name of the PUDL table.
         params: :class:`CheckTableCalculations` parameters.
     """
+    # If we don't have this value, we aren't doing any calculation checking:
+    if params.column_to_check is None:
+        return df
+
     # skip the calculations that have any components from other tables.
     # this could be removed/moved to when we deal with inter-table calcs.
     inter_table_calculated_values = list(
@@ -784,15 +796,19 @@ def check_table_calculations(
     ]
     calced_values = calculated_df[(calculated_df.abs_diff.notnull())]
     off_ratio = len(off_df) / len(calced_values)
-    if off_ratio > 0:
-        logger.warning(
-            f"{table_name}: has {len(off_df)} ({off_ratio:.02%}) records that don't "
-            "calculate exactly."
+
+    if off_ratio > params.calculation_tolerance:
+        raise AssertionError(
+            f"Calculations in {table_name} are off by {off_ratio}. Expected tolerance "
+            f"of {params.calculation_tolerance}."
         )
 
-    if off_ratio > 0 and off_ratio <= params.calculation_tolerance:
+    # We'll only get here if the proportion of calculations that are off is acceptable
+    if off_ratio > 0:
         logger.info(
-            "Creating correction records to make calculations match reported values."
+            f"{table_name}: has {len(off_df)} ({off_ratio:.02%}) records whose "
+            "calculations don't match. Adding correction records to make calculations "
+            "match reported values."
         )
         corrections = off_df.copy()
         corrections[params.column_to_check] = (
@@ -802,13 +818,40 @@ def check_table_calculations(
         corrections["row_type_xbrl"] = "correction"
         corrections["record_id"] = pd.NA
 
-        calculated_df = pd.concat([calculated_df, corrections], axis="index")
+        calculated_df = pd.concat(
+            [calculated_df, corrections], axis="index"
+        ).reset_index()
 
-    if off_ratio > params.calculation_tolerance:
-        raise AssertionError(
-            f"Calculations in {table_name} are off by {off_ratio}. Expected tolerance "
-            f"of {params.calculation_tolerance}."
+    # Check that sub-total calculations sum to total.
+    if params.subtotal_column is not None:
+        sub_group_col = params.subtotal_column
+        pks_wo_subgroup = [col for col in pks if col != sub_group_col]
+        calculated_df["sub_total_sum"] = (
+            calculated_df.pipe(lambda df: df[df[sub_group_col] != "total"])
+            .groupby(pks_wo_subgroup)[params.column_to_check]
+            .transform("sum")  # For each group, calculate sum of sub-components
         )
+        calculated_df["sub_total_sum"] = calculated_df["sub_total_sum"].fillna(
+            calculated_df[params.column_to_check]  # Fill in value from 'total' column
+        )
+        sub_total_errors = (
+            calculated_df.groupby(pks_wo_subgroup)
+            # If subcomponent sum != total sum, we have nunique()>1
+            .filter(lambda x: x["sub_total_sum"].nunique() > 1).groupby(pks_wo_subgroup)
+        )
+        off_ratio_sub = (
+            sub_total_errors.ngroups / calculated_df.groupby(pks_wo_subgroup).ngroups
+        )
+        if sub_total_errors.ngroups > 0:
+            logger.warning(
+                f"{table_name}: has {sub_total_errors.ngroups} ({off_ratio_sub:.02%}) sub-total calculations that don't "
+                "sum to the equivalent total column."
+            )
+        if off_ratio_sub > params.subtotal_calculation_tolerance:
+            raise AssertionError(
+                f"Sub-total calculations in {table_name} are off by {off_ratio_sub}. Expected tolerance "
+                f"of {params.subtotal_calculation_tolerance}."
+            )
 
     return calculated_df
 
