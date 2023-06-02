@@ -724,7 +724,19 @@ def reconcile_table_calculations(
     table_name: str,
     params: ReconcileTableCalculations,
 ) -> pd.DataFrame:
-    """Calculate the intra-table calculations and ensure the table is within tolerance.
+    """Ensure intra-table calculated values match reported values within a tolerance.
+
+    In addition to checking whether all reported "calculated" values match the output
+    of our repaired calculations, this function adds a correction record to the
+    dataframe that is included in the calculations so that after the fact the
+    calculations match exactly. This is only done when the fraction of records that
+    don't match within the tolerances of :meth:`numpy.isclose` is below a set
+    threshold.
+
+    Note that only calculations which are off by a significant amount result in the
+    creation of a correction record. Many calculations are off from the reported values
+    by exaclty one dollar, presumably due to rounding errrors. These records typically
+    do not fail the :meth:`numpy.isclose()` test and so are not corrected.
 
     Args:
         df: processed table.
