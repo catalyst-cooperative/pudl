@@ -170,6 +170,9 @@ Data Cleaning
 * The :ref:`boiler_fuel_eia923` table now includes the ``prime_mover_code`` column. This
   column was previously incorrectly being associated with boilers in the
   :ref:`boilers_entity_eia` table. See issue :issue:`2349` & PR :pr:`2362`.
+* Added "correction" records to many FERC Form 1 tables where the reported totals do not
+  match the outcomes of calculations specified in XBRL metadata (even after cleaning up
+  the often incorrect calculation specifications!). See :issue:`2957` and :pr:`2620`.
 
 Analysis
 ^^^^^^^^
