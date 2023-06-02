@@ -9,12 +9,13 @@ For SQLite databases, it will compare the tables, schemas and individual rows.
 For other files, file checksums are calculated and compared instead.
 """
 import argparse
-import difflib
 import os
 import sys
+from typing import Any
 
 import fsspec
 import pandas as pd
+from pydantic import BaseModel
 from sqlalchemy import create_engine, inspect
 
 import pudl
@@ -73,6 +74,98 @@ def parse_command_line(argv) -> argparse.Namespace:
     return arguments
 
 
+class CategoryDiff(BaseModel):
+    """This is ancestor for all typed diffs."""
+
+    category: str
+
+    def sides_equal(self):
+        """Returns True if both sides are equal."""
+        return True
+
+
+class ListDiff(CategoryDiff):
+    """Encodes the differences between two sides.
+
+    The two sides are expected to be lists of objects that can be turned into sets.
+    """
+
+    left: list[Any]
+    right: list[Any]
+    both: list[Any]
+
+    @staticmethod
+    def from_sets(category: str, left: list[Any], right: list[Any]):
+        """Converts two sets into ListDiff.
+
+        This is done by separating the two lists into disjoint sets of left_only, both,
+        right_only.
+        """
+        ls = set(left)
+        rs = set(right)
+        return ListDiff(
+            category=category,
+            left=sorted(ls - rs),
+            right=sorted(rs - ls),
+            both=sorted(ls & rs),
+        )
+
+    def sides_equal(self):
+        """Returns True if left_only and right_only lists are empty."""
+        return len(self.left) == 0 and len(self.right) == 0
+
+    def print_diff(self):
+        """Prints the human-friendly representation of the diff."""
+        if not self.sides_equal():
+            print(f"{self.category}:")
+            for l_item in self.left:
+                print(f"- {l_item}")
+            for r_item in self.right:
+                print(f"+ {r_item}")
+
+
+class RowCountDiff(CategoryDiff):
+    """Represnents diff that considers number of rows only."""
+
+    left: int
+    right: int
+
+    def sides_equal(self):
+        """Returns true if both sides are considered equal."""
+        return self.left == self.right
+
+    def print_diff(self):
+        """Prints the human-friendly representation of the diff."""
+        if not self.sides_equals():
+            print(f"{self.category}: {self.right - self.left}")
+
+
+class RowSampleDiff(ListDiff):
+    """Diff for row-by-row comparison."""
+
+    left_unique: int
+    right_unique: int
+    shared_rows: int
+    left: list[Any] = []
+    right: list[Any] = []
+    both: list[Any] = []
+
+    def sides_equal(self):
+        """Returns true if sides are equal."""
+        return self.left_unique == 0 and self.right_unique == 0
+
+    def print_diff(self):
+        """Prints human friendly representation of this diff."""
+        if not self.sides_equal():
+            print(
+                f"{self.category}: -{self.left_unique} +{self.right_unique} ={self.shared_rows}"
+            )
+            for l_item in self.left:
+                print(f"- {l_item}")
+            for r_item in self.right:
+                print(f"+ {r_item}")
+
+
 class OutputBundle:
     """Represents single pudl output directory.
 
@@ -114,7 +207,7 @@ class OutputBundle:
         """Returns number of rows contained within the table."""
         return (
             self.get_engine(fname)
-            .execute("SELECT COUNT(*) FROM :table_name", table_name=table_name)
+            .execute("SELECT COUNT(*) FROM :table", parameters={"table": table_name})
             .scalar()
         )
 
@@ -140,103 +233,119 @@ class OutputPair:
         self.experiment = experiment
         self.args = args
 
-    def get_file_groups(self) -> tuple[set[str], set[str], set[str]]:
-        """Returns tuple of baseline_only, common_files, experiment_only."""
-        baseline_files = self.baseline.list_files()
-        experiment_files = self.experiment.list_files()
+    def compare_files(self) -> ListDiff:
+        """Produces GenericDiff that contains file basenames."""
+        baseline_files = set(self.baseline.list_files())
+        experiment_files = set(self.experiment.list_files())
+        return ListDiff.from_sets("File", baseline_files, experiment_files)
 
-        baseline_only = set(baseline_files.keys()) - set(experiment_files.keys())
-        experiment_only = set(experiment_files.keys()) - set(baseline_files.keys())
-        common_files = set(baseline_files.keys()) & set(experiment_files.keys())
-        return baseline_only, common_files, experiment_only
+    def compare_sqlite_databases(self, file_diff: ListDiff) -> list[CategoryDiff]:
+        """Generates series of structural diffs over sqlite databases.
 
-    def compare_sqlite_databases(self, fname: str) -> bool:
-        """Compare two sqlite databases, returns true if they're equal."""
-        are_equal = True
+        Returns dictionary where keys are diff categories and values are GenericDiff
+        representing the differences at the given category.
+
+        The following categories of diffs are generated:
+        - filename/table_name, values are table names
+        - filename/table_name/schema, values are (col_name, col_type) tuples
+        - filename/table_name/rowcounts, values are [row_count]
+        - filename/table_name/rows, values are [distinct_row_count]
+        """
+        # TODO(rousik): using GenericDiff for rowcounts and rows are not ideal,
+        # perhaps better approach would be to have type-specific diffs that allow
+        # either numbers for left/right (for rowcount) or panda dataframes for rows.
+        # But let's work with the hacky thing for now.
+        output_diffs = []
+
+        def maybe_append_diff(diff: CategoryDiff):
+            """Appends diff to output_diffs if there are actual differences."""
+            if not diff.sides_equal():
+                output_diffs.append(diff)
+
+        for fname in file_diff.both:
+            if not fname.endswith(".sqlite"):
+                # This file is not supported by this comparison function
+                continue
+
+            table_diff = self.compare_tables(fname)
+            maybe_append_diff(table_diff)
+            for table_name in table_diff.both:
+                schema_diff = self.compare_table_schemas(fname, table_name)
+                maybe_append_diff(schema_diff)
+                # We could consider comparing tables that have divergent schemas,
+                # but that would be trickier.
+                if schema_diff.sides_equal():
+                    rc_diff = self.compare_table_rowcounts(fname, table_name)
+                    maybe_append_diff(rc_diff)
+                    if rc_diff.sides_equal():
+                        maybe_append_diff(self.compare_table_rows(fname, table_name))
+        return output_diffs
+
+    def compare_tables(self, fname: str) -> ListDiff:
+        """Generates diff comparing the presence/absence of sqlite tables."""
         baseline_inspector = self.baseline.get_inspector(fname)
         experiment_inspector = self.experiment.get_inspector(fname)
 
-        # Compare which tables are present vs missing.
         baseline_tables = set(baseline_inspector.get_table_names())
         experiment_tables = set(experiment_inspector.get_table_names())
+        return ListDiff.from_sets(f"{fname}/tables", baseline_tables, experiment_tables)
 
-        baseline_only_tables = baseline_tables - experiment_tables
-        if baseline_only_tables:
-            are_equal = False
-            print(f"{fname}: following tables are only present in baseline:")
-            for t in baseline_only_tables:
-                print(f"  {t}")
-        experiment_only_tables = experiment_tables - baseline_tables
-        if experiment_only_tables:
-            are_equal = False
-            print(f"{fname}: following tables are only present in experiment:")
-            for t in experiment_only_tables:
-                print(f"  {t}")
-
-        common_tables = baseline_tables & experiment_tables
-        for t in common_tables:
-            if not self.compare_sqlite_tables(fname, t):
-                are_equal = False
-        return are_equal
-
-    def compare_sqlite_tables(self, fname: str, table_name: str) -> bool:
-        """Compares table within a sqlite database.
-
-        Returns True if equal.
-        """
-        are_equal = True
+    def compare_table_schemas(self, fname: str, table_name: str) -> ListDiff:
+        """Generate diff comparing the schema for a given table."""
         baseline_inspector = self.baseline.get_inspector(fname)
         experiment_inspector = self.experiment.get_inspector(fname)
-        baseline_columns = {
-            column["name"]: str(column["type"])
-            for column in baseline_inspector.get_columns(table_name)
-        }
-        experiment_columns = {
-            column["name"]: str(column["type"])
-            for column in experiment_inspector.get_columns(table_name)
-        }
-        if baseline_columns != experiment_columns:
-            differ = difflib.Differ()
-            are_equal = False
-            logger.info(f"baseline_columns: {baseline_columns}")
-            logger.info(f"experiment_columns: {experiment_columns}")
-            diff = differ.compare(baseline_columns.items(), experiment_columns.items())
-            print(f"{fname}: following columns are different in table {table_name}:")
-            for line in diff:
-                print(line)
-        else:
-            # Time how long these operations take compare to the get_rows_as_df.
-            # Perhaps we can rely on loading data frames only once.
-            brc = self.baseline.get_row_count(fname, table_name)
-            erc = self.experiment.get_row_count(fname, table_name)
-            if brc != erc:
-                are_equal = False
-                print(
-                    f"{fname}: Row count mismatch for table {table_name}: {brc} vs {erc}"
-                )
-            else:
-                logger.info(f"{fname}: Comparing individual rows in {table_name}.")
-                # Compare all records in the table using pandas dataframe
-                bdf = self.baseline.get_rows_as_df(fname, table_name)
-                edf = self.experiment.get_rows_as_df(fname, table_name)
+        baseline_cols = [
+            (col["name"], str(col["type"]))
+            for col in baseline_inspector.get_columns(table_name)
+        ]
+        experiment_cols = [
+            (col["name"], str(col["type"]))
+            for col in experiment_inspector.get_columns(table_name)
+        ]
+        return ListDiff.from_sets(
+            f"Schema({fname}/{table_name})",
+            baseline_cols,
+            experiment_cols,
+        )
 
-                merged = bdf.merge(edf, how="outer", indicator=True)
-                b_only = merged[merged["_merge"] == "left_only"]
-                e_only = merged[merged["_merge"] == "right_only"]
-                shared = merged[merged["_merge"] == "both"]
-                if not b_only.empty or not e_only.empty:
-                    are_equal = False
-                    print(
-                        f"{fname}: Table {table_name} has {len(b_only)} baseline, {len(e_only)} experiment and {len(shared)} shared rows."
-                    )
-                    # TODO(rousik): print diff recods if args.print_row_diff is set
-        return are_equal
+    def compare_table_rowcounts(self, fname: str, table_name: str) -> RowCountDiff:
+        """Compares the number of rows within given file and table."""
+        brc = self.baseline.get_row_count(fname, table_name)
+        erc = self.experiment.get_row_count(fname, table_name)
+        return RowCountDiff(
+            category=f"RowCount({fname}/{table_name})", left=brc, right=erc
+        )
+
+    def compare_table_rows(self, fname: str, table_name: str) -> RowSampleDiff:
+        """Compares individual rows within given file and table."""
+        # TODO(rousik): this may be very memory/resource expensive for tables
+        # with many rows. We might want to switch this off for very large tables
+        # or switch to some cheaper approach, e.g. statistical sampling or
+        # comparing row hashes.
+        bdf = self.baseline.get_rows_as_df(fname, table_name)
+        edf = self.experiment.get_rows_as_df(fname, table_name)
+
+        merged = bdf.merge(edf, how="outer", indicator=True)
+        b_only = merged[merged["_merge"] == "left_only"]
+        e_only = merged[merged["_merge"] == "right_only"]
+        shared = merged[merged["_merge"] == "both"]
+
+        # For the sake of compact result, simply count distinct records.
+        # Later on, samples of differing rows, or even all differing rows
+        # could be stored in left/right.
+        return RowSampleDiff(
+            category=f"Rows({fname}/{table_name})",
+            left_unique=len(b_only),
+            right_unique=len(e_only),
+            shared_rows=len(shared),
+            left=[],
+            right=[],
+        )
 
 
 def main():  # noqa: C901
     """Clone the FERC Form 1 FoxPro database into SQLite."""
     args = parse_command_line(sys.argv)
-    are_equal = True
 
     # Display logged output from the PUDL package:
     pudl.logging_helpers.configure_root_logger(
@@ -248,27 +357,22 @@ def main():  # noqa: C901
         args=args,
     )
 
-    baseline_only, common_files, experiment_only = outputs.get_file_groups()
+    file_diff = outputs.compare_files()
+    sql_diffs = outputs.compare_sqlite_databases(file_diff)
 
-    if baseline_only:
-        are_equal = False
-        print("The following files are only present in the baseline directory:")
-        for f in baseline_only:
-            print(f"  {f}")
-    if experiment_only:
-        are_equal = False
-        print("The following files are only present in the experiment directory:")
-        for f in experiment_only:
-            print(f"  {f}")
-    # TODO: quick md5 checksum comparison could be added here for fast evaluation
-    # for remote files. If md5 is the same, we should not need to access the sqlite.
-    if common_files:
-        for f in common_files:
-            if f.endswith(".sqlite") and args.compare_sqlite:
-                if not outputs.compare_sqlite_databases(f):
-                    are_equal = False
-    # Return appropriate return code, fails if differs.
-    return 0 if are_equal else 1
+    # Put together all diffs that actually represent some differences
+    all_diffs = [d for d in [file_diff] + sql_diffs if not d.sides_equal()]
+    if all_diffs:
+        print(f"!! {len(all_diffs)} category differences found.")
+    for one_diff in all_diffs:
+        print(f"{one_diff.category}:")
+        for left_only in one_diff.left:
+            print(f"- {left_only}")
+        for right_only in one_diff.right:
+            print(f"+ {right_only}")
+        print("")
+
+    return len(all_diffs)
 
 
 def create_engine_remote(fs, url: str):
