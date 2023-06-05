@@ -34,6 +34,7 @@ jobs:
         if: ${{ !steps.is_organization_member.outputs.result }}
         id: slack
         uses: slackapi/slack-github-action@v1.24.0
+
         with:
           # Slack channel id, channel name, or user id to post message.
           # See also: https://api.slack.com/methods/chat.postMessage#channels
