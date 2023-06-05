@@ -1330,6 +1330,7 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
             .pipe(self.remove_duplicated_calc_components)
             .pipe(self.add_calc_correction_components)
         )
+        tbl_meta.calculations = tbl_meta.calculations.astype(pd.StringDtype())
 
         return tbl_meta
 
