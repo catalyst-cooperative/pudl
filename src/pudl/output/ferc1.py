@@ -871,3 +871,177 @@ def add_mean_cap_additions(steam_df):
         )
     )
     return df
+
+
+#########
+# Explode
+#########
+
+
+def explode_tables(tables_to_explode, tables, top_table, xbrl_meta):
+    """Explode a set of nest tables."""
+    # but really just feed dagster the right list of assets
+    # tables = {tbl: defs.load_asset_value(AssetKey(tbl)) for tbl in tables_to_explode}
+    explosion_tables = []
+    other_subtotals = []
+    pks = []
+    value_cols = []
+    for table_name in tables_to_explode:
+        xbrl_factoid_name = pudl.transform.ferc1.FERC1_TFR_CLASSES[
+            table_name
+        ]().params.xbrl_factoid_name
+        tbl_meta = pudl.transform.ferc1.FERC1_TFR_CLASSES[table_name](
+            xbrl_metadata_json=xbrl_meta[table_name]
+        ).xbrl_metadata[
+            [
+                "xbrl_factoid",
+                "calculations",
+                "xbrl_factoid_name_original",
+                "inter_table_calc_flag",
+            ]
+        ]
+        other_subtotals.append(
+            pudl.transform.ferc1.FERC1_TFR_CLASSES[
+                table_name
+            ]().params.reconcile_table_calculations.subtotal_column
+        )
+        tbl = (
+            tables[table_name]
+            .assign(table_name=table_name)
+            .rename(columns={xbrl_factoid_name: "xbrl_factoid"})
+            .merge(tbl_meta, how="left", on="xbrl_factoid", validate="m:1")
+        )
+        explosion_tables.append(tbl)
+        pks.append(
+            [
+                col
+                for col in pudl.metadata.classes.Resource.from_id(
+                    table_name
+                ).schema.primary_key
+                if col != xbrl_factoid_name
+            ]
+        )
+        value_cols.append(
+            pudl.transform.ferc1.FERC1_TFR_CLASSES[
+                top_table
+            ]().params.reconcile_table_calculations.column_to_check
+        )
+
+    other_subtotals = [sub for sub in other_subtotals if sub]
+    pks = pudl.helpers.dedupe_n_flatten_list_of_lists(pks) + ["xbrl_factoid"]
+    if len(set(value_cols)) != 1:
+        raise ValueError(
+            f"Exploding FERC tables requires tables with only one value column. Got: {set(value_cols)}"
+        )
+    value_col = list(set(value_cols))[0]
+    exploded = pd.concat(explosion_tables)
+    exploded = remove_factoids_from_mutliple_tables(
+        exploded, tables_to_explode, top_table, value_col, pks
+    )
+    return exploded
+
+
+def remove_factoids_from_mutliple_tables(
+    exploded, tables_to_explode, top_table, value_col, pks
+) -> pd.DataFrame:
+    """Remove duplicate factoids that have references in multiple tables."""
+    # add the table-level so we know which inter-table duped factoid is downstream
+    exploded = pd.merge(
+        exploded,
+        get_table_levels(tables_to_explode, top_table),
+        on="table_name",
+        how="left",
+        validate="m:1",
+    )
+    # ensure all tbls have level references
+    assert ~exploded.table_level.isnull().any()
+
+    # deal w/ factoids that show up in
+    inter_table_facts = (
+        exploded[
+            [
+                "xbrl_factoid_name_original",
+                "table_name",
+                "row_type_xbrl",
+                "inter_table_calc_flag",
+                "table_level",
+            ]
+        ]
+        .dropna(subset=["xbrl_factoid_name_original"])
+        .drop_duplicates(["xbrl_factoid_name_original", "table_name"])
+        .sort_values(["xbrl_factoid_name_original", "table_level"], ascending=False)
+    )
+    # its the combo of xbrl_factoid_name_original and table_name that we really care about
+    # in terms of dropping bc we want to drop the higher-level/less granular table.
+    inter_table_facts_to_drop = inter_table_facts[
+        inter_table_facts.duplicated(["xbrl_factoid_name_original"], keep="first")
+    ]
+    # TODO: We need to fill in the other_dimensions columns before doing this check.
+    # check to see if there are different values in the values that show up in two tables
+    inter_table_ref_check = (
+        # these are all the dupes not just the ones we are axing
+        exploded[
+            exploded.xbrl_factoid_name_original.isin(
+                inter_table_facts_to_drop.xbrl_factoid_name_original
+            )
+        ]
+        .groupby(
+            [col for col in pks if col != "xbrl_factoid"]
+            + ["xbrl_factoid_name_original"],
+            dropna=False,
+        )[[value_col]]
+        .nunique()
+    )
+    assert inter_table_ref_check[inter_table_ref_check[value_col] > 1].empty
+
+    factoid_idx = ["xbrl_factoid_name_original", "table_name"]
+    exploded = exploded.set_index(factoid_idx)
+    inter_table_refs = exploded.loc[
+        inter_table_facts_to_drop.set_index(factoid_idx).index
+    ]
+    if len(inter_table_refs) > 1:
+        logger.info(
+            f"Dropping {len(inter_table_refs)} ({len(inter_table_refs)/len(exploded):.01%}) inter-table references."
+        )
+    exploded = exploded.loc[
+        exploded.index.difference(
+            inter_table_facts_to_drop.set_index(factoid_idx).index
+        )
+    ].reset_index()
+    return exploded
+
+
+def get_table_level(table_name, top_table) -> int:
+    """Get a table level."""
+    # we may be able to infer this nesting from the metadata
+    table_nesting = {
+        "balance_sheet_assets_ferc1": {
+            "utility_plant_summary_ferc1": {
+                "plant_in_service_ferc1": None,
+                "electric_plant_depreciation_changes_ferc1": None,
+            },
+        },
+        "balance_sheet_liabilities_ferc1": {"retained_earnings_ferc1": None},
+    }
+    if table_name == top_table:
+        level = 1
+    elif table_name in table_nesting[top_table].keys():
+        level = 2
+    elif table_name in pudl.helpers.dedupe_n_flatten_list_of_lists(
+        [values.keys() for values in table_nesting[top_table].values()]
+    ):
+        level = 3
+    else:
+        raise AssertionError(
+            f"AH we didn't find yer table name {table_name} in the nest."
+        )
+    return level
+
+
+def get_table_levels(tables_to_explode: list, top_table: str) -> pd.DataFrame:
+    """Get a set of table's level in the explosion."""
+    table_levels = {"table_name": [], "table_level": []}
+    for table_name in tables_to_explode:
+        table_levels["table_name"].append(table_name)
+        table_levels["table_level"].append(get_table_level(table_name, top_table))
+    return pd.DataFrame(table_levels)
