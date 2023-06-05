@@ -191,11 +191,15 @@ class OutputBundle:
 
     def list_files(self) -> dict[str, str]:
         """Returns dict mapping from basenames to full paths."""
-        return {
-            os.path.basename(fpath): fpath
-            for fpath in self.fs.glob(self.root_path + "/*")
-            if self.match_filetype(fpath)
-        }
+        # TODO(rousik): check if root_path is an actual directory.
+        if self.root_path.endswith(".sqlite"):
+            return {"sqlite": self.root_path}
+        else:
+            return {
+                os.path.basename(fpath): fpath
+                for fpath in self.fs.glob(self.root_path + "/*")
+                if self.match_filetype(fpath)
+            }
 
     def match_filetype(self, fpath: str) -> bool:
         """Returns true if file should be considered for comparison."""
