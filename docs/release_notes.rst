@@ -97,7 +97,7 @@ Data Coverage
     :pr:`2561`.
   * :ref:`boiler_emissions_control_equipment_assn_eia860`, see :issue:`2338` & PR
     :pr:`2561`.
-  * :ref:`boiler_cooler_assn_eia860`, see :issue:`2586` & PR :pr:`2587`
+  * :ref:`boiler_cooling_assn_eia860`, see :issue:`2586` & PR :pr:`2587`
   * :ref:`boiler_stack_flue_assn_eia860`, see :issue:`2586` & PR :pr:`2587`
 
 * The :ref:`boilers_eia860` table now includes annual boiler attributes from
