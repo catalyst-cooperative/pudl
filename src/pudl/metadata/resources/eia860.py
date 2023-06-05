@@ -546,8 +546,9 @@ columns.
     },
     "boiler_emissions_control_equipment_assn_eia860": {
         "description": (
-            """A table that links EIA boiler id to emissions control IDs for nox, so2,
-mercury, and particulate monitoring. The relationship is sometimes one to many.
+            """A table that links EIA boiler IDs to emissions control IDs for NOx, SO2,
+mercury, and particulate monitoring. The relationship between the IDs is sometimes many
+to many.
 """
         ),
         "schema": {
@@ -565,6 +566,54 @@ mercury, and particulate monitoring. The relationship is sometimes one to many.
                 "boiler_id",
                 "emission_control_id_type",
                 "emission_control_id_eia",
+            ],
+        },
+        "field_namespace": "eia",
+        "sources": ["eia860"],
+        "etl_group": "eia860",
+    },
+    "boiler_cooling_assn_eia860": {
+        "description": "A table that links EIA boiler IDs to EIA cooling system IDs.",
+        "schema": {
+            "fields": [
+                "report_date",
+                "plant_id_eia",
+                "boiler_id",
+                "cooling_id_eia",
+                "data_maturity",
+            ],
+            "primary_key": [
+                "report_date",
+                "plant_id_eia",
+                "boiler_id",
+                "cooling_id_eia",
+            ],
+        },
+        "field_namespace": "eia",
+        "sources": ["eia860"],
+        "etl_group": "eia860",
+    },
+    "boiler_stack_flue_assn_eia860": {
+        "description": (
+            """A table that links EIA boiler IDs to EIA stack and/or flue
+system IDs.
+"""
+        ),
+        "schema": {
+            "fields": [
+                "report_date",
+                "plant_id_eia",
+                "boiler_id",
+                "stack_id_eia",
+                "flue_id_eia",
+                "stack_flue_id_eia",
+                "stack_flue_id_pudl",
+            ],
+            "primary_key": [
+                "report_date",
+                "plant_id_eia",
+                "boiler_id",
+                "stack_flue_id_pudl",
             ],
         },
         "field_namespace": "eia",
