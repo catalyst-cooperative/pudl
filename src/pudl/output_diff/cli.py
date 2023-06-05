@@ -10,6 +10,7 @@ For other files, file checksums are calculated and compared instead.
 """
 import argparse
 import os
+import re
 import sys
 from typing import Any
 
@@ -17,6 +18,7 @@ import fsspec
 import pandas as pd
 from pydantic import BaseModel
 from sqlalchemy import create_engine, inspect
+from sqlalchemy.sql import text
 
 import pudl
 
@@ -83,6 +85,10 @@ class CategoryDiff(BaseModel):
         """Returns True if both sides are equal."""
         return True
 
+    def print_diff(self):
+        """Prints human readable representation of the diff."""
+        pass
+
 
 class ListDiff(CategoryDiff):
     """Encodes the differences between two sides.
@@ -125,7 +131,7 @@ class ListDiff(CategoryDiff):
 
 
 class RowCountDiff(CategoryDiff):
-    """Represnents diff that considers number of rows only."""
+    """Represents diff that considers number of rows only."""
 
     left: int
     right: int
@@ -136,7 +142,7 @@ class RowCountDiff(CategoryDiff):
 
     def print_diff(self):
         """Prints the human-friendly representation of the diff."""
-        if not self.sides_equals():
+        if not self.sides_equal():
             print(f"{self.category}: {self.right - self.left}")
 
 
@@ -205,9 +211,15 @@ class OutputBundle:
 
     def get_row_count(self, fname: str, table_name: str) -> int:
         """Returns number of rows contained within the table."""
+        if not re.compile(r"^[a-zA-Z0-9_]+$").match(table_name):
+            raise ValueError("table_name is not SQL safe")
+        # Note that because of the above check, CWE-89 SQL injection issue
+        # is no longer possible below.
+        # Because we get the table names from sqlite metadata, these table
+        # names should be safe by definition also.
         return (
             self.get_engine(fname)
-            .execute("SELECT COUNT(*) FROM :table", parameters={"table": table_name})
+            .execute(text(f"SELECT COUNT(*) FROM {table_name}"))  # nosec
             .scalar()
         )
 
@@ -261,8 +273,10 @@ class OutputPair:
             """Appends diff to output_diffs if there are actual differences."""
             if not diff.sides_equal():
                 output_diffs.append(diff)
+                diff.print_diff()
 
         for fname in file_diff.both:
+            logger.info(f"Analyzing file {fname}")
             if not fname.endswith(".sqlite"):
                 # This file is not supported by this comparison function
                 continue
@@ -277,8 +291,8 @@ class OutputPair:
                 if schema_diff.sides_equal():
                     rc_diff = self.compare_table_rowcounts(fname, table_name)
                     maybe_append_diff(rc_diff)
-                    if rc_diff.sides_equal():
-                        maybe_append_diff(self.compare_table_rows(fname, table_name))
+                    # if rc_diff.sides_equal():
+                    #    maybe_append_diff(self.compare_table_rows(fname, table_name))
         return output_diffs
 
     def compare_tables(self, fname: str) -> ListDiff:
@@ -310,6 +324,7 @@ class OutputPair:
 
     def compare_table_rowcounts(self, fname: str, table_name: str) -> RowCountDiff:
         """Compares the number of rows within given file and table."""
+        logger.info(f"Analyzing rows of {fname}/{table_name}.")
         brc = self.baseline.get_row_count(fname, table_name)
         erc = self.experiment.get_row_count(fname, table_name)
         return RowCountDiff(
@@ -362,16 +377,6 @@ def main():  # noqa: C901
 
     # Put together all diffs that actually represent some differences
     all_diffs = [d for d in [file_diff] + sql_diffs if not d.sides_equal()]
-    if all_diffs:
-        print(f"!! {len(all_diffs)} category differences found.")
-    for one_diff in all_diffs:
-        print(f"{one_diff.category}:")
-        for left_only in one_diff.left:
-            print(f"- {left_only}")
-        for right_only in one_diff.right:
-            print(f"+ {right_only}")
-        print("")
-
     return len(all_diffs)
 
 
