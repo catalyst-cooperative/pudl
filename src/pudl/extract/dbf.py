@@ -444,7 +444,7 @@ class FercDbfExtractor:
         logger.info(
             f"Running dbf extraction for {self.DATASET} with settings: {self.settings}"
         )
-        if self.settings.is_disabled:
+        if self.settings.disabled:
             logger.warning(f"Dataset {self.DATASET} extraction is disabled, skipping")
             return
 
