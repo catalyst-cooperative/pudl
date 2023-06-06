@@ -1079,6 +1079,8 @@ def sales_eia861(raw_sales_eia861: pd.DataFrame) -> pd.DataFrame:
         "state",
         "report_date",
         "balancing_authority_code_eia",
+        "business_model",
+        "service_type",
     ]
 
     # Pre-tidy clean specific to sales table

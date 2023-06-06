@@ -548,6 +548,8 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
                 "report_date",
                 "balancing_authority_code_eia",
                 "customer_class",
+                "business_model",
+                "service_type",
             ],
         },
         "field_namespace": "eia",
