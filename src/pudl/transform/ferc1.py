@@ -699,22 +699,18 @@ class ReconcileTableCalculations(TransformParams):
     column_to_check: str | None = None
     """Name of data column to check.
 
-    This will typically be ``dollar_amount`` or ``ending_balance`` column for the income
+    This will typically be ``dollar_value`` or ``ending_balance`` column for the income
     statement and the balance sheet tables.
     """
     calculation_tolerance: float = 0.05
-    """Fraction of calculated values which we allow not to match.
-
-    Default is 0.05.
-    """
+    """Fraction of calculated values which we allow not to match reported values."""
 
     subtotal_column: str | None = None
     """Sub-total column name (e.g. utility type) to compare calculations against in
     :func:`reconcile_table_calculations`."""
 
     subtotal_calculation_tolerance: float = 0.05
-    """The tolerance ratio for sub-totals which do not sum to corresponding totals
-    columns."""
+    """Fraction of calculated sub-totals allowed not to match reported values."""
 
 
 def reconcile_table_calculations(
@@ -730,13 +726,13 @@ def reconcile_table_calculations(
     of our repaired calculations, this function adds a correction record to the
     dataframe that is included in the calculations so that after the fact the
     calculations match exactly. This is only done when the fraction of records that
-    don't match within the tolerances of :meth:`numpy.isclose` is below a set
+    don't match within the tolerances of :func:`numpy.isclose` is below a set
     threshold.
 
     Note that only calculations which are off by a significant amount result in the
     creation of a correction record. Many calculations are off from the reported values
     by exaclty one dollar, presumably due to rounding errrors. These records typically
-    do not fail the :meth:`numpy.isclose()` test and so are not corrected.
+    do not fail the :func:`numpy.isclose()` test and so are not corrected.
 
     Args:
         df: processed table.
@@ -806,8 +802,8 @@ def reconcile_table_calculations(
         )
         & (calculated_df["abs_diff"].notnull())
     ]
-    calced_values = calculated_df[(calculated_df.abs_diff.notnull())]
-    off_ratio = len(off_df) / len(calced_values)
+    calculated_values = calculated_df[(calculated_df.abs_diff.notnull())]
+    off_ratio = len(off_df) / len(calculated_values)
 
     if off_ratio > params.calculation_tolerance:
         raise AssertionError(
@@ -899,7 +895,7 @@ class Ferc1TableTransformParams(TableTransformParams):
 
     @property
     def xbrl_factoid_name(self) -> str:
-        """Access the column name of the ``xbrl_factiod``."""
+        """Access the column name of the ``xbrl_factoid``."""
         return self.merge_xbrl_metadata.on
 
     @property
@@ -1429,7 +1425,7 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
         Note: Temp fix. These updates should probably be moved into the table params
         and integrated into the calculations via TableCalcs.
         """
-        # typing for calced_fields_to_fix. for clarity/in anticipation of a pydantic
+        # typing for calculated_fields_to_fix. for clarity/in anticipation of a pydantic
         # calc defintion
         # xbrl_factoid_name: str
         # calc_component: dict[Literal["name", "weight"], str | int]
@@ -1438,7 +1434,7 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
         #     None | calc_component,
         # ]
 
-        calced_fields_to_fix: dict[
+        calculated_fields_to_fix: dict[
             TableIdFerc1, dict  # [xbrl_factoid_name, list[calc_component_fix]]
         ] = {
             "income_statement_ferc1": {
@@ -1767,10 +1763,10 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
             """
             return [i for i in list_of_things if i]
 
-        if not calced_fields_to_fix.get(self.table_id.value, False):
+        if not calculated_fields_to_fix.get(self.table_id.value, False):
             return tbl_meta
         tbl_meta = tbl_meta.set_index(["xbrl_factoid"])
-        for xbrl_factoid, calc_component_fixes in calced_fields_to_fix[
+        for xbrl_factoid, calc_component_fixes in calculated_fields_to_fix[
             self.table_id.value
         ].items():
             calc_to_update = json.loads(tbl_meta.loc[xbrl_factoid, "calculations"])
