@@ -89,6 +89,7 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
                 "ferc_account_label",
                 "ferc_account",
                 "dollar_value",
+                "row_type_xbrl",
             ],
             "primary_key": [
                 "utility_id_ferc1",
