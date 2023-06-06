@@ -21,7 +21,7 @@ import sys
 from pathlib import Path
 from tempfile import TemporaryDirectory
 
-from dagster import Field, op
+from dagster import Field, asset
 
 import pudl
 from pudl.helpers import EnvVar
@@ -30,7 +30,7 @@ from pudl.workspace.datastore import Datastore
 logger = pudl.logging_helpers.get_logger(__name__)
 
 
-@op(
+@asset(
     config_schema={
         "pudl_output_path": Field(
             EnvVar(
@@ -40,7 +40,7 @@ logger = pudl.logging_helpers.get_logger(__name__)
             default_value=None,
         ),
         "clobber": Field(
-            bool, description="Clobber existing Census database.", default_value=False
+            bool, description="Clobber existing Census database.", default_value=True
         ),
         "year": Field(
             int,
@@ -102,6 +102,7 @@ def censusdp1tract_to_sqlite(context):
         subprocess.run(  # nosec: B603 Trying to use absolute paths.
             [ogr2ogr, str(out_path), str(extract_root)], check=True
         )
+    return out_path
 
 
 def parse_command_line(argv):
@@ -174,7 +175,9 @@ def main():
 
     pudl_settings["sandbox"] = args.sandbox
 
-    censusdp1tract_to_sqlite(pudl_settings=pudl_settings, ds=ds, clobber=args.clobber)
+    _ = censusdp1tract_to_sqlite(
+        pudl_settings=pudl_settings, ds=ds, clobber=args.clobber
+    )
 
 
 if __name__ == "__main__":
