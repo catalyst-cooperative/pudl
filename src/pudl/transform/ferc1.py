@@ -9,10 +9,11 @@ transformations.
 """
 import enum
 import importlib.resources
+import json
 import re
 from collections import namedtuple
 from collections.abc import Mapping
-from typing import Any, Literal
+from typing import Any, Literal, Self
 
 import numpy as np
 import pandas as pd
@@ -40,6 +41,67 @@ from pudl.transform.classes import (
 )
 
 logger = pudl.logging_helpers.get_logger(__name__)
+
+
+@asset
+def clean_xbrl_metadata_json(
+    raw_xbrl_metadata_json: dict[str, dict[str, list[dict[str, Any]]]]
+) -> dict[str, dict[str, list[dict[str, Any]]]]:
+    """Generate cleaned json xbrl metadata.
+
+    For now, this only runs :func:`add_source_table_to_xbrl_metadata`.
+    """
+    return add_source_table_to_xbrl_metadata(raw_xbrl_metadata_json)
+
+
+def add_source_table_to_xbrl_metadata(
+    raw_xbrl_metadata_json: dict[str, dict[str, list[dict[str, Any]]]]
+) -> dict[str, dict[str, list[dict[str, Any]]]]:
+    """Add a ``source_table`` field into metadata calculation components.
+
+    When a particular component of a calculation does not originate from the table in
+    which the calculated field is being reported, label the source table.
+    """
+
+    def all_fields_in_table(table_meta) -> list:
+        """Compile a list of all of the fields reported in a table."""
+        return [
+            field["name"] for meta_list in table_meta.values() for field in meta_list
+        ]
+
+    def extract_tables_to_fields(xbrl_meta: dict) -> dict[str : list[str]]:
+        """Compile a dictionary of table names (keys) to list of fields."""
+        return {
+            table_name: all_fields_in_table(table_meta)
+            for table_name, table_meta in xbrl_meta.items()
+        }
+
+    def label_source_table(calc_component: dict, tables_to_fields: str) -> dict:
+        """Add a ``source_table`` element to the calculation component."""
+        calc_component["source_table"] = [
+            other_table_name
+            for other_table_name, fields in tables_to_fields.items()
+            if calc_component["name"] in fields
+        ]
+        # weirdly there are a number of nuclear xbrl_factoid calc components that seem
+        # to have no source_table.
+        if not calc_component["source_table"]:
+            logger.debug(f"Found no source table for {calc_component['name']}.")
+        return calc_component
+
+    tables_to_fields = extract_tables_to_fields(raw_xbrl_metadata_json)
+    # for each table loop through all of the calculations within each field
+    for table_name, table_meta in raw_xbrl_metadata_json.items():
+        for list_of_facts in table_meta.values():
+            for xbrl_fact in list_of_facts:
+                # all facts have ``calculations``, but they are empty lists when null
+                for calc_component in xbrl_fact["calculations"]:
+                    # does the calc component show up in the table? if not, add a label
+                    if calc_component["name"] not in tables_to_fields[table_name]:
+                        calc_component = label_source_table(
+                            calc_component, tables_to_fields
+                        )
+    return raw_xbrl_metadata_json
 
 
 ################################################################################
@@ -631,6 +693,182 @@ def combine_axis_columns_xbrl(
     return df
 
 
+class ReconcileTableCalculations(TransformParams):
+    """Parameters for reconciling xbrl-metadata based calculations within a table."""
+
+    column_to_check: str | None = None
+    """Name of data column to check.
+
+    This will typically be ``dollar_amount`` or ``ending_balance`` column for the income
+    statement and the balance sheet tables.
+    """
+    calculation_tolerance: float = 0.05
+    """Fraction of calculated values which we allow not to match.
+
+    Default is 0.05.
+    """
+
+    subtotal_column: str | None = None
+    """Sub-total column name (e.g. utility type) to compare calculations against in
+    :func:`reconcile_table_calculations`."""
+
+    subtotal_calculation_tolerance: float = 0.05
+    """The tolerance ratio for sub-totals which do not sum to corresponding totals
+    columns."""
+
+
+def reconcile_table_calculations(
+    df: pd.DataFrame,
+    tbl_meta: pd.DataFrame,
+    xbrl_factoid_name: str,
+    table_name: str,
+    params: ReconcileTableCalculations,
+) -> pd.DataFrame:
+    """Ensure intra-table calculated values match reported values within a tolerance.
+
+    In addition to checking whether all reported "calculated" values match the output
+    of our repaired calculations, this function adds a correction record to the
+    dataframe that is included in the calculations so that after the fact the
+    calculations match exactly. This is only done when the fraction of records that
+    don't match within the tolerances of :meth:`numpy.isclose` is below a set
+    threshold.
+
+    Note that only calculations which are off by a significant amount result in the
+    creation of a correction record. Many calculations are off from the reported values
+    by exaclty one dollar, presumably due to rounding errrors. These records typically
+    do not fail the :meth:`numpy.isclose()` test and so are not corrected.
+
+    Args:
+        df: processed table.
+        tbl_meta: processed table xbrl metadata.
+        xbrl_factoid_name: column name of the XBRL factoid in the processed table.
+        table_name: name of the PUDL table.
+        params: :class:`ReconcileTableCalculations` parameters.
+    """
+    # If we don't have this value, we aren't doing any calculation checking:
+    if params.column_to_check is None:
+        return df
+
+    # skip the calculations that have any components from other tables.
+    # this could be removed/moved to when we deal with inter-table calcs.
+    inter_table_calculated_values = list(
+        tbl_meta[tbl_meta.inter_table_calc_flag].xbrl_factoid.unique()
+    )
+    if inter_table_calculated_values:
+        logger.warning(
+            "Skipping calculated values because they are inter-table calculations: "
+            f"{inter_table_calculated_values}"
+        )
+    intra_tbl_calcs = tbl_meta[
+        ~tbl_meta.inter_table_calc_flag & (tbl_meta.row_type_xbrl == "calculated_value")
+    ]
+    pks = pudl.metadata.classes.Resource.from_id(table_name).schema.primary_key
+    pks_wo_factoid = [col for col in pks if col != xbrl_factoid_name]
+    calculated_dfs = []
+    for calculated_factoid, calculation in zip(
+        intra_tbl_calcs.xbrl_factoid, intra_tbl_calcs.calculations
+    ):
+        calc_df = (
+            pd.merge(
+                df,
+                pd.DataFrame(json.loads(calculation)),
+                left_on=xbrl_factoid_name,
+                right_on="name",
+            )
+            # apply the weight from the calc to convey the sign before summing.
+            .assign(calculated_amount=lambda x: x[params.column_to_check] * x.weight)
+            .groupby(pks_wo_factoid, as_index=False)["calculated_amount"]
+            .sum(min_count=1)
+            .assign(**{xbrl_factoid_name: calculated_factoid})
+        )
+        calculated_dfs.append(calc_df)
+
+    calculated_df = pd.merge(
+        df, pd.concat(calculated_dfs), on=pks, how="left", validate="1:1"
+    )
+    # Force column_to_check to be a float to prevent any hijinks with calculating differences.
+    calculated_df[params.column_to_check] = calculated_df[
+        params.column_to_check
+    ].astype(float)
+
+    calculated_df = calculated_df.assign(
+        abs_diff=lambda x: abs(x[params.column_to_check] - x.calculated_amount),
+        rel_diff=lambda x: np.where(
+            (x[params.column_to_check] != 0.0),
+            abs(x.abs_diff / x[params.column_to_check]),
+            np.nan,
+        ),
+    )
+
+    off_df = calculated_df[
+        ~np.isclose(
+            calculated_df.calculated_amount, calculated_df[params.column_to_check]
+        )
+        & (calculated_df["abs_diff"].notnull())
+    ]
+    calced_values = calculated_df[(calculated_df.abs_diff.notnull())]
+    off_ratio = len(off_df) / len(calced_values)
+
+    if off_ratio > params.calculation_tolerance:
+        raise AssertionError(
+            f"Calculations in {table_name} are off by {off_ratio}. Expected tolerance "
+            f"of {params.calculation_tolerance}."
+        )
+
+    # We'll only get here if the proportion of calculations that are off is acceptable
+    if off_ratio > 0:
+        logger.info(
+            f"{table_name}: has {len(off_df)} ({off_ratio:.02%}) records whose "
+            "calculations don't match. Adding correction records to make calculations "
+            "match reported values."
+        )
+        corrections = off_df.copy()
+        corrections[params.column_to_check] = (
+            corrections[params.column_to_check].fillna(0.0)
+            - corrections["calculated_amount"]
+        )
+        corrections[xbrl_factoid_name] = corrections[xbrl_factoid_name] + "_correction"
+        corrections["row_type_xbrl"] = "correction"
+        corrections["record_id"] = pd.NA
+
+        calculated_df = pd.concat(
+            [calculated_df, corrections], axis="index"
+        ).reset_index()
+
+    # Check that sub-total calculations sum to total.
+    if params.subtotal_column is not None:
+        sub_group_col = params.subtotal_column
+        pks_wo_subgroup = [col for col in pks if col != sub_group_col]
+        calculated_df["sub_total_sum"] = (
+            calculated_df.pipe(lambda df: df[df[sub_group_col] != "total"])
+            .groupby(pks_wo_subgroup)[params.column_to_check]
+            .transform("sum")  # For each group, calculate sum of sub-components
+        )
+        calculated_df["sub_total_sum"] = calculated_df["sub_total_sum"].fillna(
+            calculated_df[params.column_to_check]  # Fill in value from 'total' column
+        )
+        sub_total_errors = (
+            calculated_df.groupby(pks_wo_subgroup)
+            # If subcomponent sum != total sum, we have nunique()>1
+            .filter(lambda x: x["sub_total_sum"].nunique() > 1).groupby(pks_wo_subgroup)
+        )
+        off_ratio_sub = (
+            sub_total_errors.ngroups / calculated_df.groupby(pks_wo_subgroup).ngroups
+        )
+        if sub_total_errors.ngroups > 0:
+            logger.warning(
+                f"{table_name}: has {sub_total_errors.ngroups} ({off_ratio_sub:.02%}) sub-total calculations that don't "
+                "sum to the equivalent total column."
+            )
+        if off_ratio_sub > params.subtotal_calculation_tolerance:
+            raise AssertionError(
+                f"Sub-total calculations in {table_name} are off by {off_ratio_sub}. Expected tolerance "
+                f"of {params.subtotal_calculation_tolerance}."
+            )
+
+    return calculated_df
+
+
 class Ferc1TableTransformParams(TableTransformParams):
     """A model defining what TransformParams are allowed for FERC Form 1.
 
@@ -655,6 +893,41 @@ class Ferc1TableTransformParams(TableTransformParams):
         UnstackBalancesToReportYearInstantXbrl()
     )
     combine_axis_columns_xbrl: CombineAxisColumnsXbrl = CombineAxisColumnsXbrl()
+    reconcile_table_calculations: ReconcileTableCalculations = (
+        ReconcileTableCalculations()
+    )
+
+    @property
+    def xbrl_factoid_name(self) -> str:
+        """Access the column name of the ``xbrl_factiod``."""
+        return self.merge_xbrl_metadata.on
+
+    @property
+    def rename_dicts_xbrl(self):
+        """Compile all of the XBRL rename dictionaries into an ordered list."""
+        # add the xbrl last bc it happens after the inst/dur renames
+        return [
+            self.rename_columns_ferc1.duration_xbrl,
+            self.rename_columns_ferc1.instant_xbrl,
+            self.rename_columns_ferc1.xbrl,
+        ]
+
+    @property
+    def wide_to_tidy_value_types(self) -> list[str]:
+        """Compile a list of all of the ``value_types`` from ``wide_to_tidy``."""
+        # the values in wide_to_tidy are found at the end of the column names and
+        # extracted, so we need to remove all of the suffixes.
+        wide_to_tidy_value_types = []
+        for wide_to_tidy_stage in json.loads(self.wide_to_tidy.json()).values():
+            if not isinstance(wide_to_tidy_stage, list):
+                wide_to_tidy_stage = [wide_to_tidy_stage]
+            for wide_to_tidy in wide_to_tidy_stage:
+                if wide_to_tidy["value_types"]:
+                    wide_to_tidy_value_types.append(wide_to_tidy["value_types"])
+        wide_to_tidy_value_types = pudl.helpers.dedupe_n_flatten_list_of_lists(
+            wide_to_tidy_value_types
+        )
+        return wide_to_tidy_value_types
 
 
 ################################################################################
@@ -949,9 +1222,10 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
     def transform_end(self, df: pd.DataFrame) -> pd.DataFrame:
         """Standardized final cleanup after the transformations are done.
 
-        Enforces dataframe schema. Checks for empty dataframes and null columns.
+        Checks calculations. Enforces dataframe schema. Checks for empty dataframes and
+        null columns.
         """
-        df = self.enforce_schema(df)
+        df = self.reconcile_table_calculations(df).pipe(self.enforce_schema)
         if df.empty:
             raise ValueError(f"{self.table_id.value}: Final dataframe is empty!!!")
         for col in df:
@@ -982,7 +1256,7 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
         return processed_dbf
 
     @cache_df(key="process_xbrl_metadata")
-    def process_xbrl_metadata(self, xbrl_metadata_json) -> pd.DataFrame:
+    def process_xbrl_metadata(self: Self, xbrl_metadata_json) -> pd.DataFrame:
         """Normalize the XBRL JSON metadata, turning it into a dataframe.
 
         This process concatenates and deduplicates the metadata which is associated with
@@ -991,7 +1265,8 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
         happens in :meth:`Ferc1AbstractTableTransformer.merge_xbrl_metadata`.
         """
         logger.info(f"{self.table_id.value}: Processing XBRL metadata.")
-        return (
+
+        tbl_meta = (
             pd.concat(
                 [
                     pd.json_normalize(xbrl_metadata_json["instant"]),
@@ -1011,6 +1286,7 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
                 row_type_xbrl=lambda x: np.where(
                     x.calculations.astype(bool), "calculated_value", "reported_value"
                 ),
+                calculations=lambda x: x.calculations.apply(json.dumps),
             )
             .astype(
                 {
@@ -1021,7 +1297,498 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
                     "row_type_xbrl": pd.StringDtype(),
                 }
             )
+            # Everything below here deals with correcting the calculations.
+            .assign(
+                xbrl_factoid_name_original=lambda x: x.xbrl_factoid,
+                inter_table_calc_flag=lambda x: x.calculations.str.contains(
+                    "source_table"
+                ),
+            )
         )
+        xbrl_factoid_name_map = {
+            xbrl_factoid_name_og: self.rename_column_xbrl_to_pudl(xbrl_factoid_name_og)
+            for xbrl_factoid_name_og in tbl_meta.xbrl_factoid
+        }
+        tbl_meta.xbrl_factoid = tbl_meta.xbrl_factoid.map(xbrl_factoid_name_map)
+
+        def rename_calculation_components(calc: str) -> str:
+            # apply the rename for the "name" element of all of the calc components
+            renamed_calc = [
+                {
+                    k: self.rename_column_xbrl_to_pudl(v) if k == "name" else v
+                    for (k, v) in calc_component.items()
+                }
+                for calc_component in json.loads(calc)
+            ]
+            return json.dumps(renamed_calc)
+
+        tbl_meta.calculations = tbl_meta.calculations.apply(
+            rename_calculation_components
+        )
+        tbl_meta = (
+            self.apply_xbrl_calc_fixes(tbl_meta)
+            .pipe(self.remove_duplicated_calc_components)
+            .pipe(self.add_calc_correction_components)
+        )
+        tbl_meta.calculations = tbl_meta.calculations.astype(pd.StringDtype())
+
+        return tbl_meta
+
+    def rename_column_xbrl_to_pudl(
+        self,
+        col_name_xbrl: str,
+    ) -> str:
+        """Rename a column name from orignal XBRL name to the transformed PUDL name.
+
+        There are several transform params that either explicitly or implicity rename
+        columns:
+        * :class:`RenameColumnsFerc1`
+        * :class:`WideToTidySourceFerc1`
+        * :class:`UnstackBalancesToReportYearInstantXbrl`
+        * :class:`ConvertUnits`
+
+        This method attempts to use the table params to translate a column name.
+
+        Note: Instead of doing this for each individual column name, we could compile a
+        rename dict for the whole table with a similar processand then apply it for each
+        group of columns instead of running through this full process every time. If
+        this took longer than...  ~5 ms on a single table w/ lots of calcs this would
+        probably be worth it for simplicity.
+        """
+        col_name_new = col_name_xbrl
+        for rename_stage in self.params.rename_dicts_xbrl:
+            col_name_new = str(rename_stage.columns.get(col_name_new, col_name_new))
+
+        for value_type in self.params.wide_to_tidy_value_types:
+            if col_name_new.endswith(f"_{value_type}"):
+                col_name_new = re.sub(f"_{value_type}$", "", col_name_new)
+
+        if self.params.unstack_balances_to_report_year_instant_xbrl:
+            # TODO: do something...? add starting_balance & ending_balance suffixes?
+            pass
+        if self.params.convert_units:
+            # TODO: use from_unit -> to_unit map. but none of the $$ tables have this rn.
+            pass
+        return col_name_new
+
+    def remove_duplicated_calc_components(
+        self: Self, tbl_meta: pd.DataFrame
+    ) -> pd.DataFrame:
+        """If a calculation contains the same components >1x, remove duplicates."""
+        # reset the index bc we'll use it to compile a new series.
+        tbl_meta = tbl_meta.reset_index(drop=True)
+        new_calcs = pd.Series(dtype=pd.StringDtype())
+        for calc, index in zip(tbl_meta.calculations, tbl_meta.index):
+            calc = json.loads(calc)
+            new_calc = [i for n, i in enumerate(calc) if i not in calc[n + 1 :]]
+            if new_calc != calc:
+                logger.info(
+                    f"Dropping duplicated components from calculation in {self.table_id.value}"
+                )
+            new_calcs.loc[index] = json.dumps(new_calc)
+        tbl_meta["calculations"] = new_calcs
+        return tbl_meta
+
+    def add_calc_correction_components(
+        self: Self, tbl_meta: pd.DataFrame
+    ) -> pd.DataFrame:
+        """Add correction components to calculation metadata.
+
+        Args:
+            tbl_meta: Partially transformed table metadata in dataframe form.
+
+        Returns:
+            An updated version of the table metadata containing calculation definitions
+            that include a correction component.
+        """
+        # If we haven't provided calculation check parameters, then we can't identify
+        # a appropriate correction factor.
+        if self.params.reconcile_table_calculations.column_to_check is None:
+            return tbl_meta
+
+        def add_correction(calc, xbrl_factoid):
+            if not isinstance(calc, list):
+                raise ValueError(
+                    f"XBRL calculations should be lists of dictionaries. Found {calc}"
+                )
+            if calc:
+                correction = {"name": f"{xbrl_factoid}_correction", "weight": 1.0}
+                calc.append(correction)
+            return json.dumps(calc)
+
+        tbl_meta.loc[:, "calculations"] = tbl_meta.apply(
+            lambda x: add_correction(json.loads(x.calculations), x.xbrl_factoid),
+            axis="columns",
+        )
+
+        return tbl_meta
+
+    def apply_xbrl_calc_fixes(self: Self, tbl_meta: pd.DataFrame) -> pd.DataFrame:
+        """Use the fixes we've compiled to update calculations in the XBRL metadata.
+
+        Note: Temp fix. These updates should probably be moved into the table params
+        and integrated into the calculations via TableCalcs.
+        """
+        # typing for calced_fields_to_fix. for clarity/in anticipation of a pydantic
+        # calc defintion
+        # xbrl_factoid_name: str
+        # calc_component: dict[Literal["name", "weight"], str | int]
+        # calc_component_fix: dict[
+        #     Literal["calc_component_to_replace", "calc_component_new"],
+        #     None | calc_component,
+        # ]
+
+        calced_fields_to_fix: dict[
+            TableIdFerc1, dict  # [xbrl_factoid_name, list[calc_component_fix]]
+        ] = {
+            "income_statement_ferc1": {
+                "income_before_extraordinary_items": [
+                    {
+                        "calc_component_to_replace": {},
+                        "calc_component_new": {
+                            "name": "net_utility_operating_income",
+                            "weight": 1.0,
+                        },
+                    }
+                ],
+                "other_income_deductions": [
+                    {
+                        "calc_component_to_replace": {},
+                        "calc_component_new": {
+                            "name": "miscellaneous_deductions",
+                            "weight": 1.0,
+                        },
+                    }
+                ],
+                "taxes_on_other_income_and_deductions": [
+                    {
+                        "calc_component_to_replace": {
+                            "name": "investment_tax_credits",
+                            "weight": 1.0,
+                        },
+                        "calc_component_new": {
+                            "name": "investment_tax_credits",
+                            "weight": -1.0,
+                        },
+                    }
+                ],
+            },
+            "electric_operating_expenses_ferc1": {
+                # This table has two factoids that have sub-components that are
+                # calculations themselves and both the sub-component calcuated values
+                # AND the sub-sub-components. So we're removing the specific sub-sub-
+                # components
+                "power_production_expenses_steam_power": [
+                    {
+                        "calc_component_to_replace": {
+                            "name": "operation_supervision_and_engineering",
+                            "weight": 1.0,
+                        },
+                        "calc_component_new": {
+                            "name": "operation_supervision_and_engineering_steam_power_generation",
+                            "weight": 1.0,
+                        },
+                    },
+                    {  # this shows up in the steam calc, but its a nuclear expns
+                        "calc_component_to_replace": {
+                            "name": "coolants_and_water",
+                            "weight": 1.0,
+                        },
+                        "calc_component_new": {},
+                    },
+                    # subcomponents of steam_power_generation_maintenance_expense
+                    {
+                        "calc_component_to_replace": {
+                            "name": "maintenance_supervision_and_engineering_steam_power_generation",
+                            "weight": 1.0,
+                        },
+                        "calc_component_new": {},
+                    },
+                    {
+                        "calc_component_to_replace": {
+                            "name": "maintenance_of_structures_steam_power_generation",
+                            "weight": 1.0,
+                        },
+                        "calc_component_new": {},
+                    },
+                    {
+                        "calc_component_to_replace": {
+                            "name": "maintenance_of_boiler_plant_steam_power_generation",
+                            "weight": 1.0,
+                        },
+                        "calc_component_new": {},
+                    },
+                    {
+                        "calc_component_to_replace": {
+                            "name": "maintenance_of_electric_plant_steam_power_generation",
+                            "weight": 1.0,
+                        },
+                        "calc_component_new": {},
+                    },
+                    {
+                        "calc_component_to_replace": {
+                            "name": "maintenance_of_miscellaneous_steam_plant",
+                            "weight": 1.0,
+                        },
+                        "calc_component_new": {},
+                    },
+                    # subcomponents of steam_power_generation_operations_expense
+                    {
+                        "calc_component_to_replace": {
+                            "name": "operation_supervision_and_engineering_steam_power_generation",
+                            "weight": 1.0,
+                        },
+                        "calc_component_new": {},
+                    },
+                    {
+                        "calc_component_to_replace": {
+                            "name": "fuel_steam_power_generation",
+                            "weight": 1.0,
+                        },
+                        "calc_component_new": {},
+                    },
+                    {
+                        "calc_component_to_replace": {
+                            "name": "steam_expenses_steam_power_generation",
+                            "weight": 1.0,
+                        },
+                        "calc_component_new": {},
+                    },
+                    {
+                        "calc_component_to_replace": {
+                            "name": "steam_from_other_sources",
+                            "weight": 1.0,
+                        },
+                        "calc_component_new": {},
+                    },
+                    {
+                        "calc_component_to_replace": {
+                            "name": "steam_transferred_credit",
+                            "weight": -1.0,
+                        },
+                        "calc_component_new": {},
+                    },
+                    {
+                        "calc_component_to_replace": {
+                            "name": "electric_expenses_steam_power_generation",
+                            "weight": 1.0,
+                        },
+                        "calc_component_new": {},
+                    },
+                    {
+                        "calc_component_to_replace": {
+                            "name": "miscellaneous_steam_power_expenses",
+                            "weight": 1.0,
+                        },
+                        "calc_component_new": {},
+                    },
+                    {
+                        "calc_component_to_replace": {
+                            "name": "rents_steam_power_generation",
+                            "weight": 1.0,
+                        },
+                        "calc_component_new": {},
+                    },
+                    {
+                        "calc_component_to_replace": {
+                            "name": "allowances",
+                            "weight": 1.0,
+                        },
+                        "calc_component_new": {},
+                    },
+                ],
+                "power_production_expenses_hydraulic_power": [
+                    {
+                        "calc_component_to_replace": {
+                            "name": "operation_supervision_and_engineering",
+                            "weight": 1.0,
+                        },
+                        "calc_component_new": {
+                            "name": "operation_supervision_and_engineering_hydraulic_power_generation",
+                            "weight": 1.0,
+                        },
+                    },
+                    # subcomponents of hydraulic_power_generation_maintenance_expense
+                    {
+                        "calc_component_to_replace": {
+                            "name": "maintenance_supervision_and_engineering_hydraulic_power_generation",
+                            "weight": 1.0,
+                        },
+                        "calc_component_new": {},
+                    },
+                    {
+                        "calc_component_to_replace": {
+                            "name": "maintenance_of_structures_hydraulic_power_generation",
+                            "weight": 1.0,
+                        },
+                        "calc_component_new": {},
+                    },
+                    {
+                        "calc_component_to_replace": {
+                            "name": "maintenance_of_reservoirs_dams_and_waterways",
+                            "weight": 1.0,
+                        },
+                        "calc_component_new": {},
+                    },
+                    {
+                        "calc_component_to_replace": {
+                            "name": "maintenance_of_electric_plant_hydraulic_power_generation",
+                            "weight": 1.0,
+                        },
+                        "calc_component_new": {},
+                    },
+                    {
+                        "calc_component_to_replace": {
+                            "name": "maintenance_of_miscellaneous_hydraulic_plant",
+                            "weight": 1.0,
+                        },
+                        "calc_component_new": {},
+                    },
+                    # subcomponents of hydraulic_power_generation_operations_expense
+                    {
+                        "calc_component_to_replace": {
+                            "name": "operation_supervision_and_engineering_hydraulic_power_generation",
+                            "weight": 1.0,
+                        },
+                        "calc_component_new": {},
+                    },
+                    {
+                        "calc_component_to_replace": {
+                            "name": "water_for_power",
+                            "weight": 1.0,
+                        },
+                        "calc_component_new": {},
+                    },
+                    {
+                        "calc_component_to_replace": {
+                            "name": "hydraulic_expenses",
+                            "weight": 1.0,
+                        },
+                        "calc_component_new": {},
+                    },
+                    {
+                        "calc_component_to_replace": {
+                            "name": "electric_expenses_hydraulic_power_generation",
+                            "weight": 1.0,
+                        },
+                        "calc_component_new": {},
+                    },
+                    {
+                        "calc_component_to_replace": {
+                            "name": "miscellaneous_hydraulic_power_generation_expenses",
+                            "weight": 1.0,
+                        },
+                        "calc_component_new": {},
+                    },
+                    {
+                        "calc_component_to_replace": {
+                            "name": "rents_hydraulic_power_generation",
+                            "weight": 1.0,
+                        },
+                        "calc_component_new": {},
+                    },
+                ],
+                "transmission_operation_expense": [
+                    {
+                        "calc_component_to_replace": {},
+                        "calc_component_new": {
+                            "name": "load_dispatching_transmission_expense",
+                            "weight": 1.0,
+                        },
+                    },
+                ],
+            },
+            "utility_plant_summary_ferc1": {
+                "accumulated_provision_for_depreciation_amortization_and_depletion_of_plant_utility": [
+                    {
+                        "calc_component_to_replace": {
+                            "name": "depreciation_amortization_and_depletion_utility_plant_in_service",
+                            # A duplicate of 4 other fields, though this is not explicitly defined in the metadata.
+                            "weight": 1.0,
+                        },
+                        "calc_component_new": {},
+                    }
+                ],
+            },
+            "balance_sheet_assets_ferc1": {
+                "nuclear_fuel_net": [
+                    {
+                        "calc_component_to_replace": {
+                            "name": "nuclear_fuel_materials_and_assemblies",
+                            "weight": 1.0,
+                        },
+                        "calc_component_new": {},
+                    },
+                    {
+                        "calc_component_to_replace": {
+                            "name": "spent_nuclear_fuel",
+                            "weight": 1.0,
+                        },
+                        "calc_component_new": {},
+                    },
+                    {
+                        "calc_component_to_replace": {},
+                        "calc_component_new": {
+                            # Only used in pre-2004 calculations, aggregate of later sub-components.
+                            "name": "nuclear_fuel",
+                            "weight": 1.0,
+                        },
+                    },
+                ],
+                "other_property_and_investments": [
+                    {
+                        "calc_component_to_replace": {},
+                        "calc_component_new": {
+                            # Only used in pre-2004 calculations, aggregate of later sub-components.
+                            "name": "special_funds_all",
+                            "weight": 1.0,
+                        },
+                    },
+                ],
+            },
+            "balance_sheet_liabilities_ferc1": {
+                "deferred_credits": [
+                    {
+                        "calc_component_to_replace": {},
+                        "calc_component_new": {
+                            "name": "accumulated_deferred_income_taxes",
+                            "weight": 1.0,
+                        },
+                    },
+                ],
+            },
+        }
+
+        def remove_nones_in_list(list_of_things):
+            """Remove None's (or False's) in a list.
+
+            We're about to introduce None's into the calculation components when an
+            existing component needed to be removed.
+            """
+            return [i for i in list_of_things if i]
+
+        if not calced_fields_to_fix.get(self.table_id.value, False):
+            return tbl_meta
+        tbl_meta = tbl_meta.set_index(["xbrl_factoid"])
+        for xbrl_factoid, calc_component_fixes in calced_fields_to_fix[
+            self.table_id.value
+        ].items():
+            calc_to_update = json.loads(tbl_meta.loc[xbrl_factoid, "calculations"])
+            for calc_component_fix in calc_component_fixes:
+                if calc_component_fix["calc_component_to_replace"]:
+                    calc_to_update = remove_nones_in_list(
+                        [
+                            calc_component_fix["calc_component_new"]
+                            if calc_component
+                            == calc_component_fix["calc_component_to_replace"]
+                            else calc_component
+                            for calc_component in calc_to_update
+                        ]
+                    )
+                else:
+                    calc_to_update.append(calc_component_fix["calc_component_new"])
+            tbl_meta.loc[xbrl_factoid, "calculations"] = json.dumps(calc_to_update)
+        return tbl_meta.reset_index()
 
     @cache_df(key="merge_xbrl_metadata")
     def merge_xbrl_metadata(
@@ -1461,7 +2228,6 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
 
         Args:
             df: table to assign `record_id` to
-            table_name: name of table
             source_ferc1: data source of raw ferc1 database.
 
         Raises:
@@ -1539,6 +2305,27 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
         )
 
         df["utility_id_ferc1"] = df[util_id_col].map(util_map_series)
+        return df
+
+    def reconcile_table_calculations(
+        self: Self,
+        df: pd.DataFrame,
+        params: ReconcileTableCalculations | None = None,
+    ):
+        """Check how well a table's calculated values match reported values."""
+        if params is None:
+            params = self.params.reconcile_table_calculations
+        if params.column_to_check:
+            logger.info(
+                f"{self.table_id.value}: Checking the XBRL metadata-based calcuations."
+            )
+            df = reconcile_table_calculations(
+                df=df,
+                tbl_meta=self.xbrl_metadata,
+                xbrl_factoid_name=self.params.xbrl_factoid_name,
+                table_name=self.table_id.value,
+                params=params,
+            )
         return df
 
 
@@ -2020,43 +2807,53 @@ class PlantInServiceFerc1TableTransformer(Ferc1AbstractTableTransformer):
     def process_xbrl_metadata(self, xbrl_metadata_json) -> pd.DataFrame:
         """Transform the metadata to reflect the transformed data.
 
-        The XBRL Taxonomy metadata as extracted pertains to the XBRL data as extracted.
-        When we re-shape the data, we also need to adjust the metadata to be usable
-        alongside the reshaped data. For the plant in service table, this means
-        selecting metadata fields that pertain to the "stem" column name (not
-        differentiating between starting/ending balance, retirements, additions, etc.)
-
         We fill in some gaps in the metadata, e.g. for FERC accounts that have been
         split across multiple rows, or combined without being calculated. We also need
         to rename the XBRL metadata categories to conform to the same naming convention
         that we are using in the data itself (since FERC doesn't quite follow their own
         naming conventions...). We use the same rename dictionary, but as an argument to
         :meth:`pd.Series.replace` instead of :meth:`pd.DataFrame.rename`.
+
+        We also deduplicate the metadata on the basis of
         """
-        pis_meta = (
-            super()
-            .process_xbrl_metadata(xbrl_metadata_json)
-            .assign(
-                xbrl_factoid=lambda x: x.xbrl_factoid.replace(
-                    self.params.rename_columns_ferc1.instant_xbrl.columns
-                )
-            )
-        )
+        tbl_meta = super().process_xbrl_metadata(xbrl_metadata_json)
 
         # Set pseudo-account numbers for rows that split or combine FERC accounts, but
         # which are not calculated values.
-        pis_meta.loc[
-            pis_meta.xbrl_factoid == "electric_plant_purchased", "ferc_account"
+        tbl_meta.loc[
+            tbl_meta.xbrl_factoid == "electric_plant_purchased", "ferc_account"
         ] = "102_purchased"
-        pis_meta.loc[
-            pis_meta.xbrl_factoid == "electric_plant_sold", "ferc_account"
+        tbl_meta.loc[
+            tbl_meta.xbrl_factoid == "electric_plant_sold", "ferc_account"
         ] = "102_sold"
-        pis_meta.loc[
-            pis_meta.xbrl_factoid
+        tbl_meta.loc[
+            tbl_meta.xbrl_factoid
             == "electric_plant_in_service_and_completed_construction_not_classified_electric",
             "ferc_account",
         ] = "101_and_106"
-        return pis_meta
+
+        # remove duplication of xbrl_factoid
+        same_calcs_mask = tbl_meta.duplicated(
+            subset=["xbrl_factoid", "calculations"], keep=False
+        )
+        # if they key values are the same, select the records with values in ferc_account
+        same_calcs_deduped = (
+            tbl_meta[same_calcs_mask]
+            .sort_values(["ferc_account"])
+            .drop_duplicates(subset=["xbrl_factoid"], keep="first")
+        )
+        # when the calcs are different, they are referring to the non-adjustments
+        suffixes = ("_additions", "_retirements", "_adjustments", "_transfers")
+        unique_calcs_deduped = tbl_meta[
+            ~same_calcs_mask
+            & (~tbl_meta.xbrl_factoid_name_original.str.endswith(suffixes))
+        ]
+        tbl_meta_cleaned = pd.concat([same_calcs_deduped, unique_calcs_deduped])
+        assert set(tbl_meta_cleaned.xbrl_factoid.unique()) == set(
+            tbl_meta.xbrl_factoid.unique()
+        )
+        assert ~tbl_meta_cleaned.duplicated(["xbrl_factoid"]).all()
+        return tbl_meta_cleaned
 
     def apply_sign_conventions(self, df) -> pd.DataFrame:
         """Adjust rows and column sign conventsion to enable aggregation by summing.
@@ -3117,7 +3914,7 @@ class IncomeStatementFerc1TableTransformer(Ferc1AbstractTableTransformer):
     table_id: TableIdFerc1 = TableIdFerc1.INCOME_STATEMENT_FERC1
     has_unique_record_ids: bool = False
 
-    def process_dbf(self, raw_dbf):
+    def process_dbf(self: Self, raw_dbf: pd.DataFrame) -> pd.DataFrame:
         """Drop incorrect row numbers from f1_incm_stmnt_2 before standard processing.
 
         In 2003, two rows were added to the ``f1_income_stmnt`` dbf table, which bumped
@@ -3150,6 +3947,23 @@ class IncomeStatementFerc1TableTransformer(Ferc1AbstractTableTransformer):
         )
         raw_dbf = super().process_dbf(raw_dbf)
         return raw_dbf
+
+    def transform_main(self: Self, df: pd.DataFrame) -> pd.DataFrame:
+        """Drop duplicate records from f1_income_stmnt.
+
+        Because net_utility_operating_income is reported on both page 1 and 2 of the
+        form, it ends up introducing a bunch of duplicated records, so we need to drop
+        one of them. Since the value is used in the calculations that are part of the
+        second page, we'll drop it from the first page.
+        """
+        df = super().transform_main(df)
+        df = df[
+            ~(
+                (df.record_id.str.startswith("f1_income_stmnt_"))
+                & (df.income_type == "net_utility_operating_income")
+            )
+        ]
+        return df
 
 
 class RetainedEarningsFerc1TableTransformer(Ferc1AbstractTableTransformer):
@@ -3310,15 +4124,6 @@ class RetainedEarningsFerc1TableTransformer(Ferc1AbstractTableTransformer):
         meta = (
             super()
             .process_xbrl_metadata(xbrl_metadata_json)
-            .assign(
-                # there are many instances of factiods with these stems cooresponding
-                # to several value types (amount/start or end balance). but we end up
-                # with only one so we want to drop these stems and then drop dupes
-                # plus there is one suffix that is named weird!
-                xbrl_factoid=lambda x: x.xbrl_factoid.str.removesuffix(
-                    "_contra_primary_account_affected"
-                ).str.removesuffix("_primary_contra_account_affected")
-            )
             .drop_duplicates(subset=["xbrl_factoid"], keep="first")
         )
         return meta
@@ -3332,33 +4137,24 @@ class DepreciationAmortizationSummaryFerc1TableTransformer(
     table_id: TableIdFerc1 = TableIdFerc1.DEPRECIATION_AMORTIZATION_SUMMARY_FERC1
     has_unique_record_ids: bool = False
 
-    def merge_xbrl_metadata(
-        self, df: pd.DataFrame, params: MergeXbrlMetadata | None = None
-    ) -> pd.DataFrame:
-        """Annotate data using manually compiled FERC accounts & ``ferc_account_label``.
+    @cache_df("process_xbrl_metadata")
+    def process_xbrl_metadata(self, xbrl_metadata_json) -> pd.DataFrame:
+        """Transform the metadata to reflect the transformed data.
 
-        The FERC accounts are not provided in the XBRL taxonomy like they are for other
-        tables. However, there are only 4 of them, so a hand-compiled mapping is
-        hardcoded here, and merged onto the data similar to how the XBRL taxonomy
-        derived metadata is merged on for other tables.
+        Beyond the standard :meth:`Ferc1AbstractTableTransformer.process_xbrl_metadata`
+        processing, add FERC account values for a few known values.
         """
-        xbrl_metadata = pd.DataFrame(
-            {
-                "ferc_account_label": [
-                    "depreciation_expense",
-                    "depreciation_expense_asset_retirement",
-                    "amortization_limited_term_electric_plant",
-                    "amortization_other_electric_plant",
-                ],
-                "ferc_account": ["403", "403.1", "404", "405"],
-            }
-        )
-        if not params:
-            params = self.params.merge_xbrl_metadata
-        if params.on:
-            logger.info(f"{self.table_id.value}: merging metadata")
-            df = merge_xbrl_metadata(df, xbrl_metadata, params)
-        return df
+        meta = super().process_xbrl_metadata(xbrl_metadata_json)
+        # logger.info(meta)
+        meta.loc[
+            meta.xbrl_factoid == "depreciation_expense_asset_retirement",
+            "ferc_account",
+        ] = "403.1"
+        meta.loc[
+            meta.xbrl_factoid == "depreciation_expense",
+            "ferc_account",
+        ] = "403.1"
+        return meta
 
 
 class ElectricPlantDepreciationChangesFerc1TableTransformer(
@@ -3378,17 +4174,7 @@ class ElectricPlantDepreciationChangesFerc1TableTransformer(
         separate labeled rows, each of which should get the original metadata for the
         Instant column.
         """
-        meta = (
-            super()
-            .process_xbrl_metadata(xbrl_metadata_json)
-            .assign(
-                xbrl_factoid=lambda x: x.xbrl_factoid.replace(
-                    {
-                        "accumulated_provision_for_depreciation_of_electric_utility_plant": "starting_balance"
-                    }
-                )
-            )
-        )
+        meta = super().process_xbrl_metadata(xbrl_metadata_json)
         ending_balance = meta[meta.xbrl_factoid == "starting_balance"].assign(
             xbrl_factoid="ending_balance"
         )
@@ -3441,15 +4227,7 @@ class ElectricPlantDepreciationFunctionalFerc1TableTransformer(
         Transform the xbrl factoid values so that they match the final plant functional
         classification categories and can be merged with the output dataframe.
         """
-        df = (
-            super()
-            .process_xbrl_metadata(xbrl_metadata_json)
-            .assign(
-                xbrl_factoid=lambda x: x.xbrl_factoid.str.replace(
-                    r"^accumulated_depreciation_", "", regex=True
-                ),
-            )
-        )
+        df = super().process_xbrl_metadata(xbrl_metadata_json)
         df.loc[
             df.xbrl_factoid
             == "accumulated_provision_for_depreciation_of_electric_utility_plant",
@@ -3518,6 +4296,55 @@ class ElectricOperatingRevenuesFerc1TableTransformer(Ferc1AbstractTableTransform
     table_id: TableIdFerc1 = TableIdFerc1.ELECTRIC_OPERATING_REVENUES_FERC1
     has_unique_record_ids: bool = False
 
+    @cache_df("process_xbrl_metadata")
+    def process_xbrl_metadata(self, xbrl_metadata_json) -> pd.DataFrame:
+        """Transform the metadata to reflect the transformed data.
+
+        Employ the standard process for processing metadata. Then remove duplication on
+        the basis of the ``xbrl_factoid``. This table used :meth:`wide_to_tidy` with three
+        seperate value columns. Which results in one ``xbrl_factoid`` referencing three
+        seperate data columns. This method grabs only one piece of metadata for each
+        renamed ``xbrl_factoid``, preferring the calculated value or the factoid
+        referencing the dollar columns.
+
+        In an ideal world, we would have multiple pieces of metadata information (like
+        calucations and ferc account #'s), for every single :meth:`wide_to_tidy` value
+        column. We would probably want to employ that across the board - adding suffixes
+        or something like that to stack the metadata in a similar fashion that we stack
+        the data.
+        """
+        tbl_meta = super().process_xbrl_metadata(xbrl_metadata_json)
+        dupes_masks = tbl_meta.duplicated(subset=["xbrl_factoid"], keep=False)
+        non_dupes = tbl_meta[~dupes_masks]
+        dupes = tbl_meta[dupes_masks]
+        deduped = dupes[
+            (
+                (dupes.row_type_xbrl == "calculated_value")
+                & (dupes.xbrl_factoid == dupes.xbrl_factoid_name_original)
+            )
+            | (
+                (dupes.xbrl_factoid == dupes.xbrl_factoid_name_original)
+                & (dupes.ferc_account.notnull())
+            )
+        ]
+        tbl_meta_cleaned = pd.concat([non_dupes, deduped])
+
+        # double check that we're getting only the guys we want
+        missing = {
+            factoid
+            for factoid in tbl_meta.xbrl_factoid.unique()
+            if factoid not in tbl_meta_cleaned.xbrl_factoid.unique()
+        }
+        if missing != {"small_or_commercial", "large_or_industrial"}:
+            raise AssertionError(
+                "There are more than two xbrl_factoid's that are missing post-deduplication."
+                "Only two were expected that were fully reported values and were non-dollar"
+                f" amount factoids. {missing}"
+            )
+
+        assert ~tbl_meta_cleaned.duplicated(subset=["xbrl_factoid"]).all()
+        return tbl_meta_cleaned
+
     @cache_df("main")
     def transform_main(self, df):
         """Add duplicate removal after standard transform_main."""
@@ -3529,7 +4356,7 @@ class ElectricOperatingRevenuesFerc1TableTransformer(Ferc1AbstractTableTransform
         dupe_mask = (
             (df.utility_id_ferc1 == 295)
             & (df.report_year == 2011)
-            & ((df.amount == 3.33e8) | (df.amount == 3.333e9))
+            & ((df.dollar_value == 3.33e8) | (df.dollar_value == 3.333e9))
         )
 
         return df[~dupe_mask].copy()
@@ -3632,15 +4459,7 @@ class CashFlowFerc1TableTransformer(Ferc1AbstractTableTransformer):
         separate labeled rows, each of which should get the original metadata for the
         Instant column.
         """
-        meta = (
-            super()
-            .process_xbrl_metadata(xbrl_metadata_json)
-            .assign(
-                xbrl_factoid=lambda x: x.xbrl_factoid.replace(
-                    {"cash_and_cash_equivalents": "starting_balance"}
-                )
-            )
-        )
+        meta = super().process_xbrl_metadata(xbrl_metadata_json)
         ending_balance = meta[meta.xbrl_factoid == "starting_balance"].assign(
             xbrl_factoid="ending_balance"
         )
@@ -3712,9 +4531,35 @@ class OtherRegulatoryLiabilitiesFerc1TableTransformer(Ferc1AbstractTableTransfor
     has_unique_record_ids = False
 
 
+FERC1_TFR_CLASSES: Mapping[str, type[Ferc1AbstractTableTransformer]] = {
+    "fuel_ferc1": FuelFerc1TableTransformer,
+    "plants_small_ferc1": PlantsSmallFerc1TableTransformer,
+    "plants_hydro_ferc1": PlantsHydroFerc1TableTransformer,
+    "plant_in_service_ferc1": PlantInServiceFerc1TableTransformer,
+    "plants_pumped_storage_ferc1": PlantsPumpedStorageFerc1TableTransformer,
+    "transmission_statistics_ferc1": TransmissionStatisticsFerc1TableTransformer,
+    "purchased_power_ferc1": PurchasedPowerFerc1TableTransformer,
+    "electric_energy_sources_ferc1": ElectricEnergySourcesFerc1TableTransformer,
+    "electric_energy_dispositions_ferc1": ElectricEnergyDispositionsFerc1TableTransformer,
+    "utility_plant_summary_ferc1": UtilityPlantSummaryFerc1TableTransformer,
+    "electric_operating_expenses_ferc1": ElectricOperatingExpensesFerc1TableTransformer,
+    "balance_sheet_liabilities_ferc1": BalanceSheetLiabilitiesFerc1TableTransformer,
+    "depreciation_amortization_summary_ferc1": DepreciationAmortizationSummaryFerc1TableTransformer,
+    "balance_sheet_assets_ferc1": BalanceSheetAssetsFerc1TableTransformer,
+    "income_statement_ferc1": IncomeStatementFerc1TableTransformer,
+    "electric_plant_depreciation_changes_ferc1": ElectricPlantDepreciationChangesFerc1TableTransformer,
+    "electric_plant_depreciation_functional_ferc1": ElectricPlantDepreciationFunctionalFerc1TableTransformer,
+    "retained_earnings_ferc1": RetainedEarningsFerc1TableTransformer,
+    "electric_operating_revenues_ferc1": ElectricOperatingRevenuesFerc1TableTransformer,
+    "cash_flow_ferc1": CashFlowFerc1TableTransformer,
+    "electricity_sales_by_rate_schedule_ferc1": ElectricitySalesByRateScheduleFerc1TableTransformer,
+    "other_regulatory_liabilities_ferc1": OtherRegulatoryLiabilitiesFerc1TableTransformer,
+}
+
+
 def ferc1_transform_asset_factory(
     table_name: str,
-    ferc1_tfr_classes: Mapping[str, type[Ferc1AbstractTableTransformer]],
+    tfr_class: Ferc1AbstractTableTransformer,
     io_manager_key: str = "pudl_sqlite_io_manager",
     convert_dtypes: bool = True,
     generic: bool = False,
@@ -3728,7 +4573,7 @@ def ferc1_transform_asset_factory(
 
     Args:
         table_name: The name of the table to create an asset for.
-        ferc1_tfr_classes: A dictionary of table names to the corresponding transformer class.
+        tfr_class: A transformer class cooresponding to the table_name.
         io_manager_key: the dagster io_manager key to use. None defaults
             to the fs_io_manager.
         convert_dtypes: convert dtypes of transformed dataframes.
@@ -3746,9 +4591,8 @@ def ferc1_transform_asset_factory(
     ins = {f"raw_dbf__{tn}": AssetIn(tn) for tn in dbf_tables}
     ins |= {f"raw_xbrl_instant__{tn}": AssetIn(f"{tn}_instant") for tn in xbrl_tables}
     ins |= {f"raw_xbrl_duration__{tn}": AssetIn(f"{tn}_duration") for tn in xbrl_tables}
-    ins["xbrl_metadata_json"] = AssetIn("xbrl_metadata_json")
+    ins["clean_xbrl_metadata_json"] = AssetIn("clean_xbrl_metadata_json")
 
-    tfr_class = ferc1_tfr_classes[table_name]
     table_id = TableIdFerc1(table_name)
 
     @asset(name=table_name, ins=ins, io_manager_key=io_manager_key)
@@ -3759,19 +4603,22 @@ def ferc1_transform_asset_factory(
             raw_dbf: raw dbf table.
             raw_xbrl_instant: raw XBRL instant table.
             raw_xbrl_duration: raw XBRL duration table.
-            xbrl_metadata_json: XBRL metadata json for all tables.
+            clean_xbrl_metadata_json: XBRL metadata json for all tables.
 
         Returns:
             transformed FERC Form 1 table.
         """
         # TODO: split the key by __, then groupby, then concatenate
-        xbrl_metadata_json = kwargs["xbrl_metadata_json"]
+        clean_xbrl_metadata_json = kwargs["clean_xbrl_metadata_json"]
         if generic:
             transformer = tfr_class(
-                xbrl_metadata_json=xbrl_metadata_json[table_name], table_id=table_id
+                xbrl_metadata_json=clean_xbrl_metadata_json[table_name],
+                table_id=table_id,
             )
         else:
-            transformer = tfr_class(xbrl_metadata_json=xbrl_metadata_json[table_name])
+            transformer = tfr_class(
+                xbrl_metadata_json=clean_xbrl_metadata_json[table_name]
+            )
 
         raw_dbf = pd.concat(
             [df for key, df in kwargs.items() if key.startswith("raw_dbf__")]
@@ -3800,37 +4647,12 @@ def create_ferc1_transform_assets() -> list[AssetsDefinition]:
     Returns:
         A list of AssetsDefinitions where each asset is a clean ferc form 1 table.
     """
-    ferc1_tfr_classes = {
-        "fuel_ferc1": FuelFerc1TableTransformer,
-        "plants_small_ferc1": PlantsSmallFerc1TableTransformer,
-        "plants_hydro_ferc1": PlantsHydroFerc1TableTransformer,
-        "plant_in_service_ferc1": PlantInServiceFerc1TableTransformer,
-        "plants_pumped_storage_ferc1": PlantsPumpedStorageFerc1TableTransformer,
-        "transmission_statistics_ferc1": TransmissionStatisticsFerc1TableTransformer,
-        "purchased_power_ferc1": PurchasedPowerFerc1TableTransformer,
-        "electric_energy_sources_ferc1": ElectricEnergySourcesFerc1TableTransformer,
-        "electric_energy_dispositions_ferc1": ElectricEnergyDispositionsFerc1TableTransformer,
-        "utility_plant_summary_ferc1": UtilityPlantSummaryFerc1TableTransformer,
-        "electric_operating_expenses_ferc1": ElectricOperatingExpensesFerc1TableTransformer,
-        "balance_sheet_liabilities_ferc1": BalanceSheetLiabilitiesFerc1TableTransformer,
-        "depreciation_amortization_summary_ferc1": DepreciationAmortizationSummaryFerc1TableTransformer,
-        "balance_sheet_assets_ferc1": BalanceSheetAssetsFerc1TableTransformer,
-        "income_statement_ferc1": IncomeStatementFerc1TableTransformer,
-        "electric_plant_depreciation_changes_ferc1": ElectricPlantDepreciationChangesFerc1TableTransformer,
-        "electric_plant_depreciation_functional_ferc1": ElectricPlantDepreciationFunctionalFerc1TableTransformer,
-        "retained_earnings_ferc1": RetainedEarningsFerc1TableTransformer,
-        "electric_operating_revenues_ferc1": ElectricOperatingRevenuesFerc1TableTransformer,
-        "cash_flow_ferc1": CashFlowFerc1TableTransformer,
-        "electricity_sales_by_rate_schedule_ferc1": ElectricitySalesByRateScheduleFerc1TableTransformer,
-        "other_regulatory_liabilities_ferc1": OtherRegulatoryLiabilitiesFerc1TableTransformer,
-    }
-
     assets = []
-    for table_name in ferc1_tfr_classes:
+    for table_name, tfr_class in FERC1_TFR_CLASSES.items():
         # Bespoke exception. fuel must come before steam b/c fuel proportions are used to
         # aid in FERC plant ID assignment.
         if table_name != "plants_steam_ferc1":
-            assets.append(ferc1_transform_asset_factory(table_name, ferc1_tfr_classes))
+            assets.append(ferc1_transform_asset_factory(table_name, tfr_class))
     return assets
 
 
@@ -3839,7 +4661,7 @@ ferc1_assets = create_ferc1_transform_assets()
 
 @asset(io_manager_key="pudl_sqlite_io_manager")
 def plants_steam_ferc1(
-    xbrl_metadata_json: dict[str, dict[str, list[dict[str, Any]]]],
+    clean_xbrl_metadata_json: dict[str, dict[str, list[dict[str, Any]]]],
     f1_steam: pd.DataFrame,
     steam_electric_generating_plant_statistics_large_plants_402_duration: pd.DataFrame,
     steam_electric_generating_plant_statistics_large_plants_402_instant: pd.DataFrame,
@@ -3848,7 +4670,7 @@ def plants_steam_ferc1(
     """Create the clean plants_steam_ferc1 table.
 
     Args:
-            xbrl_metadata_json: XBRL metadata json for all tables.
+            clean_xbrl_metadata_json: XBRL metadata json for all tables.
             f1_steam: Raw f1_steam table.
             steam_electric_generating_plant_statistics_large_plants_402_duration: raw XBRL duration table.
             steam_electric_generating_plant_statistics_large_plants_402_instant: raw XBRL instant table.
@@ -3858,7 +4680,7 @@ def plants_steam_ferc1(
         Clean plants_steam_ferc1 table.
     """
     df = PlantsSteamFerc1TableTransformer(
-        xbrl_metadata_json=xbrl_metadata_json["plants_steam_ferc1"]
+        xbrl_metadata_json=clean_xbrl_metadata_json["plants_steam_ferc1"]
     ).transform(
         raw_dbf=f1_steam,
         raw_xbrl_instant=steam_electric_generating_plant_statistics_large_plants_402_instant,
