@@ -1322,9 +1322,9 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
             rename_calculation_components
         )
         tbl_meta = (
-            self.apply_xbrl_calc_fixes(tbl_meta)
-            .pipe(self.remove_duplicated_calc_components)
-            .pipe(self.add_calc_correction_components)
+            self.apply_xbrl_calculation_fixes(tbl_meta)
+            .pipe(self.remove_duplicated_calculation_components)
+            .pipe(self.add_calculation_correction_components)
         )
         tbl_meta.calculations = tbl_meta.calculations.astype(pd.StringDtype())
 
@@ -1367,7 +1367,7 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
             pass
         return col_name_new
 
-    def remove_duplicated_calc_components(
+    def remove_duplicated_calculation_components(
         self: Self, tbl_meta: pd.DataFrame
     ) -> pd.DataFrame:
         """If a calculation contains the same components >1x, remove duplicates."""
@@ -1385,7 +1385,7 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
         tbl_meta["calculations"] = new_calcs
         return tbl_meta
 
-    def add_calc_correction_components(
+    def add_calculation_correction_components(
         self: Self, tbl_meta: pd.DataFrame
     ) -> pd.DataFrame:
         """Add correction components to calculation metadata.
@@ -1419,21 +1419,14 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
 
         return tbl_meta
 
-    def apply_xbrl_calc_fixes(self: Self, tbl_meta: pd.DataFrame) -> pd.DataFrame:
+    def apply_xbrl_calculation_fixes(
+        self: Self, tbl_meta: pd.DataFrame
+    ) -> pd.DataFrame:
         """Use the fixes we've compiled to update calculations in the XBRL metadata.
 
         Note: Temp fix. These updates should probably be moved into the table params
         and integrated into the calculations via TableCalcs.
         """
-        # typing for calculated_fields_to_fix. for clarity/in anticipation of a pydantic
-        # calc defintion
-        # xbrl_factoid_name: str
-        # calc_component: dict[Literal["name", "weight"], str | int]
-        # calc_component_fix: dict[
-        #     Literal["calc_component_to_replace", "calc_component_new"],
-        #     None | calc_component,
-        # ]
-
         calculated_fields_to_fix: dict[
             TableIdFerc1, dict  # [xbrl_factoid_name, list[calc_component_fix]]
         ] = {
@@ -1771,7 +1764,15 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
         ].items():
             calc_to_update = json.loads(tbl_meta.loc[xbrl_factoid, "calculations"])
             for calc_component_fix in calc_component_fixes:
+                # if we want to replace something as oppose to just add a new component
+                # we have to find the og component.
                 if calc_component_fix["calc_component_to_replace"]:
+                    # find the calc component we want to replace by looping through
+                    # every component in the list of components. if a component isn't
+                    # the calc_component_to_replace, then just add it back into the calc
+                    # if it is the one to update, return back the calc_component_new
+                    # wrap this list of calc components in remove_nones_in_list
+                    # bc sometimes we replace a calc component with {}.
                     calc_to_update = remove_nones_in_list(
                         [
                             calc_component_fix["calc_component_new"]
@@ -2810,7 +2811,21 @@ class PlantInServiceFerc1TableTransformer(Ferc1AbstractTableTransformer):
         naming conventions...). We use the same rename dictionary, but as an argument to
         :meth:`pd.Series.replace` instead of :meth:`pd.DataFrame.rename`.
 
-        We also deduplicate the metadata on the basis of
+        We also deduplicate the metadata on the basis of the ``xbrl_factoid`` name.
+        This table in particular has multiple ``wide_to_tidy`` ``value_types`` because
+        there are multiple dollar columns embedded (it has both the standard start/end
+        balances as well as modifcations like transfers/retirements). In the XBRL
+        metadata, each xbrl_fact has its own set of metadata and possibly its own set of
+        calculations. Which means that one ``xbrl_factoid`` for this table natively
+        could have multiple calculations or other metadata.
+
+        For merging, we need the metadata to have one field per ``xbrl_factoid``.
+        Because we normally only use the start/end balance in calculations, when there
+        are duplicate renamed ``xbrl_factoid`` s in our processed metadata, we are going
+        to prefer the one that refers to the start/end balances. In an ideal world, we
+        would be able to access this metadata based on both the ``xbrl_factoid`` and
+        any column from ``value_types`` but that would require a larger change in
+        architecture.
         """
         tbl_meta = super().process_xbrl_metadata(xbrl_metadata_json)
 
@@ -4333,9 +4348,9 @@ class ElectricOperatingRevenuesFerc1TableTransformer(Ferc1AbstractTableTransform
         }
         if missing != {"small_or_commercial", "large_or_industrial"}:
             raise AssertionError(
-                "There are more than two xbrl_factoid's that are missing post-deduplication."
-                "Only two were expected that were fully reported values and were non-dollar"
-                f" amount factoids. {missing}"
+                "We expected two factoids to be missing post duplication but found "
+                f"{missing}. The two that were expected that were fully reported values"
+                " and were associated with non-dollar columns."
             )
 
         assert ~tbl_meta_cleaned.duplicated(subset=["xbrl_factoid"]).all()
