@@ -1489,6 +1489,18 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
                             "weight": 1.0,
                         },
                     },
+                    {
+                        "calc_component_to_replace": {
+                            "name": "operation_supervision_and_engineering_expense",
+                            "weight": 1.0,
+                            "source_table": [
+                                "plants_steam_ferc1",
+                                "plants_hydro_ferc1",
+                                "plants_pumped_storage_ferc1",
+                            ],
+                        },
+                        "calc_component_new": {},
+                    },
                     {  # this shows up in the steam calc, but its a nuclear expns
                         "calc_component_to_replace": {
                             "name": "coolants_and_water",
@@ -1608,6 +1620,18 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
                             "weight": 1.0,
                         },
                     },
+                    {
+                        "calc_component_to_replace": {
+                            "name": "operation_supervision_and_engineering_expense",
+                            "weight": 1.0,
+                            "source_table": [
+                                "plants_steam_ferc1",
+                                "plants_hydro_ferc1",
+                                "plants_pumped_storage_ferc1",
+                            ],
+                        },
+                        "calc_component_new": {},
+                    },
                     # subcomponents of hydraulic_power_generation_maintenance_expense
                     {
                         "calc_component_to_replace": {
@@ -1693,6 +1717,33 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
                         "calc_component_to_replace": {},
                         "calc_component_new": {
                             "name": "load_dispatching_transmission_expense",
+                            "weight": 1.0,
+                        },
+                    },
+                ],
+                "sales_to_ultimate_consumers": [
+                    # these next two fixes are related. we're replacing
+                    # commercial_and_industrial_sales which is from a different table
+                    # with two swappable components from this table. There is no way rn
+                    # to say swap thing A for thing B & C for two so we swap A for B and
+                    # then add C.
+                    {
+                        "calc_component_to_replace": {
+                            "name": "commercial_and_industrial_sales",
+                            "weight": 1.0,
+                            "source_table": [
+                                "electricity_sales_by_rate_schedule_ferc1"
+                            ],
+                        },
+                        "calc_component_new": {
+                            "name": "small_or_commercial_sales_electric_operating_revenue ",
+                            "weight": 1.0,
+                        },
+                    },
+                    {
+                        "calc_component_to_replace": {},
+                        "calc_component_new": {
+                            "name": "large_or_industrial_sales_electric_operating_revenue",
                             "weight": 1.0,
                         },
                     },
