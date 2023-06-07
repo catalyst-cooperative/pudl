@@ -4,9 +4,7 @@ import os
 import pathlib
 import shutil
 from pathlib import Path
-from typing import IO
 
-import yaml
 from dotenv import load_dotenv
 
 import pudl.logging_helpers
@@ -17,19 +15,12 @@ logger = pudl.logging_helpers.get_logger(__name__)
 def get_defaults(
     input_dir: str | None = None,
     output_dir: str | None = None,
-    yaml_file: IO | None = None,
-    default_pudl_yaml: Path | None = Path.home() / ".pudl.yml",
 ) -> dict[str, str]:
     """Derive PUDL workspace paths from specified input/output directories.
 
-    Determines input/output directory locations from YAML, then overrides with
-    env vars, then overrides with keywords passed in.
+    Determines input/output directory locations from env variables.
 
     Input/output workspace roots can be the same directories.
-
-    Note: will update PUDL_OUTPUT and PUDL_INPUT env vars if they are
-    overridden by kwargs, so that Dagster configurations in child processes see
-    the updated configs when they read from env vars.
 
     Args:
         input_dir: equivalent to PUDL_INPUT environment variable, but overrides
@@ -38,9 +29,6 @@ def get_defaults(
         output_dir: equivalent to PUDL_OUTPUT environment variable, but
             overrides that value. Derived paths treat the parent directory as
             the output workspace root.
-        yaml_file: a buffer including the YAML configuration. The `pudl_in` and
-            `pudl_out` keys within this file correspond to the input/output
-            workspace roots directly, instead of through parents.
 
     Returns:
         dictionary with a variety of different paths where inputs/outputs are
@@ -58,139 +46,38 @@ def get_defaults(
         os.environ["PUDL_OUTPUT"] = str(Path("~/pudl-work/output").expanduser())
         os.environ["PUDL_INPUT"] = str(Path("~/pudl-work/data").expanduser())
 
-    yaml_settings = _munge_legacy_yaml(
-        yaml_file=yaml_file, default_pudl_yaml=default_pudl_yaml
+    if input_dir:
+        os.environ["PUDL_INPUT"] = str(Path(input_dir).expanduser())
+    if output_dir:
+        os.environ["PUDL_OUTPUT"] = str(Path(output_dir).expanduser())
+
+    for env_var in ["PUDL_INPUT", "PUDL_OUTPUT"]:
+        if env_var not in os.environ:
+            raise RuntimeError(f"{env_var} environment variable must be set.")
+
+    settings = derive_paths(
+        Path(os.getenv("PUDL_INPUT")),
+        Path(os.getenv("PUDL_OUTPUT")),
     )
-
-    # read from env vars
-    env_var_mapping = {
-        "pudl_in": os.getenv("PUDL_INPUT"),
-        "pudl_out": os.getenv("PUDL_OUTPUT"),
-    }
-    env_settings = {
-        key: str(Path(value))
-        for key, value in env_var_mapping.items()
-        if value is not None
-    }
-
-    # read from params
-    kwarg_mapping = {"pudl_in": input_dir, "pudl_out": output_dir}
-    kwarg_settings = {
-        key: str(Path(value))
-        for key, value in kwarg_mapping.items()
-        if value is not None
-    }
-
-    # Start with an empty settings, then override in order of precedence.
-    settings: dict[str, str] = {}
-    for settings_source in [yaml_settings, env_settings, kwarg_settings]:
-        settings |= settings_source
-
-    if not ("pudl_in" in settings and "pudl_out" in settings):
-        raise RuntimeError(
-            "Must set 'PUDL_OUTPUT'/'PUDL_INPUT' environment variables or provide valid yaml config file."
-        )
-
-    settings = derive_paths(settings["pudl_in"], settings["pudl_out"])
-
-    # override env vars so Dagster can see the most up-to-date configs
-    if output_dir or "PUDL_OUTPUT" not in os.environ:
-        os.environ["PUDL_OUTPUT"] = settings["pudl_out"]
-    if input_dir or "PUDL_INPUT" not in os.environ:
-        os.environ["PUDL_INPUT"] = settings["data_dir"]
     if "DAGSTER_HOME" not in os.environ:
         os.environ["DAGSTER_HOME"] = str(Path(settings["pudl_in"]) / "dagster_home")
-
     return settings
 
 
-def _munge_legacy_yaml(
-    yaml_file: IO | None, default_pudl_yaml: Path | None
-) -> dict[str, str]:
-    # read from YAML source
-    if yaml_file is not None:
-        yaml_settings = yaml.safe_load(yaml_file)
-    elif default_pudl_yaml and default_pudl_yaml.exists():
-        with default_pudl_yaml.open() as f:
-            yaml_settings = yaml.safe_load(f)
-    else:
-        yaml_settings = {}
-
-    # legacy YAML format expects pudl_in/out to point at the parent directory instead
-    # of the input/output directories directly, so we munge here.
-    if "pudl_in" in yaml_settings:
-        yaml_settings["pudl_in"] = f"{yaml_settings['pudl_in']}/data"
-    if "pudl_out" in yaml_settings:
-        yaml_settings["pudl_out"] = f"{yaml_settings['pudl_out']}/output"
-
-    return yaml_settings
-
-
-def set_defaults(pudl_in, pudl_out, clobber=False):
-    """Set default user input and output locations in ``$HOME/.pudl.yml``.
-
-    Create a user settings file for future reference, that defines the default
-    PUDL input and output directories. If this file already exists, behavior
-    depends on the clobber parameter, which is False by default. If it's True,
-    the existing file is replaced. If False, the existing file is not changed.
+def derive_paths(pudl_in: Path, pudl_out: Path) -> dict[str, str]:
+    """Derive PUDL paths based on given input and output env variables.
 
     Args:
-        pudl_in (os.PathLike): Path to be used as the default input directory
-            for PUDL -- this is where :mod:`pudl.workspace.datastore` will look
-            to find the ``data`` directory, full of data from public agencies.
-        pudl_out (os.PathLike): Path to the default output directory for PUDL,
-            where results of data processing will be organized.
-        clobber (bool): If True and a user settings file exists, overwrite it.
-            If False, do not alter the existing file. Defaults to False.
-
-    Returns:
-        None
-    """
-    logger.warning(
-        "pudl_settings is being deprecated in favor of environment "
-        "variables PUDL_OUTPUT and PUDL_INPUT. For more info "
-        "see: https://catalystcoop-pudl.readthedocs.io/en/dev/dev/dev_setup.html"
-    )
-    settings_file = pathlib.Path.home() / ".pudl.yml"
-    if settings_file.exists():
-        if clobber:
-            logger.info(f"{settings_file} exists: clobbering.")
-        else:
-            logger.info(f"{settings_file} exists: not clobbering.")
-            return
-
-    with settings_file.open(mode="w") as f:
-        f.write(f"pudl_in: {pudl_in.expanduser().resolve()}\n")
-        f.write(f"pudl_out: {pudl_out.expanduser().resolve()}\n")
-
-
-def derive_paths(pudl_in, pudl_out):
-    """Derive PUDL paths based on given input and output paths.
-
-    If no configuration file path is provided, attempt to read in the user
-    configuration from a file called .pudl.yml in the user's HOME directory.
-    Presently the only values we expect are pudl_in and pudl_out, directories
-    that store files that PUDL either depends on that rely on PUDL.
-
-    Args:
-        pudl_in (os.PathLike): Path to the directory containing the PUDL input
-            files, most notably the ``data`` directory which houses the raw
-            data downloaded from public agencies by the
-            :mod:`pudl.workspace.datastore` tools. ``pudl_in`` may be the same
-            directory as ``pudl_out``.
-        pudl_out (os.PathLike): Path to the directory where PUDL should write
-            the outputs it generates. These will be organized into directories
-            according to the output format (sqlite, parquet, etc.).
+        pudl_in (Path): directory containing PUDL input files, most notably
+            the ``data`` directory which houses the raw data downloaded from
+            public agencies by the :mod:`pudl.workspace.datastore` tools.
+        pudl_out (Path): directory where PUDL should write the outputs it
+            generates.
 
     Returns:
         dict: A dictionary containing common PUDL settings, derived from those
             read out of the YAML file. Mostly paths for inputs & outputs.
     """
-    logger.warning(
-        "pudl_settings is being deprecated in favor of environment variables "
-        "PUDL_OUTPUT and PUDL_INPUT. For more info "
-        "see: https://catalystcoop-pudl.readthedocs.io/en/dev/dev/dev_setup.html"
-    )
     pudl_settings = {}
 
     # The only "inputs" are the datastore and example settings files:
@@ -208,14 +95,6 @@ def derive_paths(pudl_in, pudl_out):
     # Everything else goes into outputs, generally organized by type of file:
     pudl_out = pathlib.Path(pudl_out).expanduser().resolve()
     pudl_settings["pudl_out"] = str(pudl_out)
-    # One directory per output format:
-    logger.warning(
-        "sqlite and parquet directories are no longer being used. Make sure there is a "
-        "single directory named 'output' at the root of your workspace. For more info "
-        "see: https://catalystcoop-pudl.readthedocs.io/en/dev/dev/dev_setup.html"
-    )
-    for fmt in ["sqlite", "parquet"]:
-        pudl_settings[f"{fmt}_dir"] = pudl_settings["pudl_out"]
 
     # Mirror dagster env vars for ease of use
     pudl_settings["PUDL_OUTPUT"] = pudl_settings["pudl_out"]

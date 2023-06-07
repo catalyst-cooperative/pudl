@@ -352,47 +352,27 @@ def pudl_tmpdir(tmp_path_factory):
     return tmpdir
 
 
-@pytest.fixture(scope="session")
-def pudl_output_tmpdir(pudl_tmpdir):
-    tmpdir = pudl_tmpdir / "output"
-    tmpdir.mkdir()
-    return tmpdir
-
-
-@pytest.fixture(scope="session")
-def pudl_input_tmpdir(pudl_tmpdir):
-    tmpdir = pudl_tmpdir / "data"
-    tmpdir.mkdir()
-    return tmpdir
-
-
-@pytest.fixture(scope="session")
-def pudl_input_output_dirs(request, live_dbs, pudl_input_tmpdir, pudl_output_tmpdir):
-    """Determine where the PUDL input/output dirs should be."""
-    input_override = None
-    output_override = None
-
-    if os.environ.get("GITHUB_ACTIONS", False):
-        # hard-code input dir for CI caching
-        input_override = Path(os.environ["HOME"]) / "pudl-work" / "data"
-        output_override = Path(os.environ["HOME"]) / "pudl-work" / "output"
-    elif request.config.getoption("--tmp-data"):
-        # use tmpdir for inputs if we ask for it
-        input_override = pudl_input_tmpdir
-    if not live_dbs:
-        # use tmpdir for outputs if we haven't passed --live-db
-        output_override = pudl_output_tmpdir
-
-    return {"input_dir": input_override, "output_dir": output_override}
-
-
 @pytest.fixture(scope="session", name="pudl_settings_fixture")
-def pudl_settings_dict(request, pudl_input_output_dirs):  # noqa: C901
+def pudl_settings_dict(request, pudl_tmpdir):  # noqa: C901
     """Determine some settings (mostly paths) for the test session."""
     logger.info("setting up the pudl_settings_fixture")
-    pudl_settings = pudl.workspace.setup.get_defaults(**pudl_input_output_dirs)
+    param_overrides = {}
+    if os.environ.get("GITHUB_ACTIONS", False):
+        param_overrides = {
+            "input_dir": "~/pudl-work/data",
+            "output_dir": "~/pudl-work/output",
+        }
+    else:
+        if request.config.getoption("--tmp-data"):
+            in_tmp = pudl_tmpdir / "data"
+            in_tmp.mkdir()
+            param_overrides["input_dir"] = in_tmp
+        if request.config.getoption("--live-dbs"):
+            out_tmp = pudl_tmpdir / "output"
+            out_tmp.mkdir()
+            param_overrides["output_dir"] = out_tmp
+    pudl_settings = pudl.workspace.setup.get_defaults(**param_overrides)
     pudl.workspace.setup.init(pudl_settings)
-
     pudl_settings["sandbox"] = request.config.getoption("--sandbox")
 
     pretty_settings = json.dumps(
