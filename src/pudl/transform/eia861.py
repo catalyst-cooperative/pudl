@@ -636,7 +636,47 @@ def backfill_ba_codes_by_ba_id(df: pd.DataFrame) -> pd.DataFrame:
     return ba_eia861_filled
 
 
-def _tidy_class_dfs(df, df_name, idx_cols, class_list, class_type, keep_totals=False):
+def _tidy_class_dfs(
+    df: pd.DataFrame,
+    df_name: str,
+    idx_cols: list[str],
+    class_list: list[str],
+    class_type: str,
+    keep_totals: bool = False,
+) -> pd.DataFrame:
+    """Stack multiple data columns and create a categorical column for filtering.
+
+    Many EIA-861 tables are reported in a wide format, with several columns reporting
+    the same type of value, but within different categories. E.g. electricity sales by
+    customer class, with each customer class in a separate column, and separate sets of
+    customer class columns for the dollar value of sales, and the MWh of electricity
+    sold.
+
+    This function takes those groups of columns and stacks each of them into a single
+    data column creating another categorical column describing the class to which each
+    record pertains.
+
+    Non-data columns are separated before the reshaping, and recombined with the
+    reshaped data after the fact, broadcasting their values across all of the records
+    that they pertain to.
+
+    Args:
+        df: The dataframe containing the data to be reshaped.
+        df_name: A string describing the dataframe, for logging.
+        idx_cols: The index (primary key) columns of the input dataframe. They must
+            identify unique records in the input data.
+        class_list: List of values which will ultimately be found in the ``class_type``
+            column, and which should initally be found as suffixes on the names of the
+            columns to be reshaped.
+        class_type: The name of the categorical column produced by the reshaping.
+        keep_totals: If True, retain total values which are the sum of all the
+            categories. If False (the default) these duplicative rows are dropped. In
+            either case the totals are checked using :func:`_compare_totals` and logging
+            output is generated at the DEBUG level.
+
+    Returns:
+        A tidier long-form version of the input dataframe.
+    """
     # Clean up values just enough to use primary key columns as a multi-index:
     logger.debug(f"Cleaning {df_name} table index columns so we can tidy data.")
     if "balancing_authority_code_eia" in idx_cols:
@@ -654,6 +694,19 @@ def _tidy_class_dfs(df, df_name, idx_cols, class_list, class_type, keep_totals=F
     # Separate customer classes and reported data into a hierarchical index
     logger.debug(f"Stacking EIA861 {df_name} data columns by {class_type}.")
     data_cols = _filter_class_cols(raw_df, class_list)
+
+    # TODO: Check to make sure that the idx_cols are actually valid primary key cols:
+    # This is tricky, because NA values in the BA Code column creates actual duplicate
+    # values. These NA values are filled with UNK and the duplicates are later dropped,
+    # which means we are losing data. But it's not obvious how we could actually fill
+    # in real BA codes. In sales_eia861 there are about 67 duplicate records. Dropping
+    # the NA BA Code values fixes all this... Grr.
+    # See: https://github.com/catalyst-cooperative/pudl/issues/2638
+
+    # if not data_cols.index.is_unique:
+    #     raise AssertionError(
+    #         f"Found {len(data_cols.reset_index().duplicated(idx_cols))} non-unique rows"
+    #     )
 
     # Create a regex identifier that splits the column headers based on the strings
     # deliniated in the class_list not just an underscore. This enables prefixes with
@@ -1362,7 +1415,7 @@ def demand_side_management_eia861(
     # Tidy Data:
     ###########################################################################
 
-    tidy_dsm, dsm_idx_cols = pudl.transform.eia861._tidy_class_dfs(
+    tidy_dsm, dsm_idx_cols = _tidy_class_dfs(
         dsm_ee_dr,
         df_name="Demand Side Management",
         idx_cols=idx_cols,
