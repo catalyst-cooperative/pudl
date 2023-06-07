@@ -1532,11 +1532,10 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
                 ],
             },
             "electric_operating_expenses_ferc1": {
-                # Replace commercial_and_industrial_sales which is reported in
-                # electricity_sales_by_rate_schedule_ferc1 with two components
-                # (small_or_commercial_sales... and large_or_industrial_sales...)
-                # from this table which should sum to the same amount as the value
-                # being replaced.s
+                # This table has two factoids that have sub-components that are
+                # calculations themselves and both the sub-component calcuated values
+                # AND the sub-sub-components. So we're removing the specific sub-sub-
+                # components
                 "power_production_expenses_steam_power": [
                     {
                         "calc_component_to_replace": {
