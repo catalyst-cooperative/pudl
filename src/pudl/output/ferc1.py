@@ -892,7 +892,7 @@ def explode_table_asset_factory(
 
     @asset(name=f"{root_table}_exploded", ins=ins)  # , io_manager_key=io_manager_key)
     def exploded_tables_asset(
-        **kwargs: dict[str : pd.DataFrame],
+        **kwargs: dict[str, pd.DataFrame],
     ) -> pd.DataFrame:
         clean_xbrl_metadata_json = kwargs["clean_xbrl_metadata_json"]
         tables_to_explode = {
