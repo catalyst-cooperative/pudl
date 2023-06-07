@@ -143,15 +143,13 @@ def main():
 
     # Configure how we want to obtain raw input data:
     ds_kwargs = dict(
-        gcs_cache_path=args.gcs_cache_path, sandbox=pudl_settings.get("sandbox", False)
+        gcs_cache_path=args.gcs_cache_path,
+        sandbox=args.sandbox,
     )
     if not args.bypass_local_cache:
         ds_kwargs["local_cache_path"] = Path(pudl_settings["pudl_in"]) / "data"
 
     ds = Datastore(**ds_kwargs)
-
-    pudl_settings["sandbox"] = args.sandbox
-
     censusdp1tract_to_sqlite(pudl_settings=pudl_settings, ds=ds, clobber=args.clobber)
 
 

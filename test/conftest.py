@@ -87,15 +87,6 @@ def pytest_addoption(parser):
     )
 
 
-@pytest.fixture(scope="session")
-def pudl_env(pudl_input_output_dirs):
-    """Set PUDL_OUTPUT/PUDL_INPUT/DAGSTER_HOME environment variables."""
-    pudl.workspace.setup.get_defaults(**pudl_input_output_dirs)
-
-    logger.info(f"PUDL_OUTPUT path: {os.environ['PUDL_OUTPUT']}")
-    logger.info(f"PUDL_INPUT path: {os.environ['PUDL_INPUT']}")
-
-
 @pytest.fixture(scope="session", name="test_dir")
 def test_directory():
     """Return the path to the top-level directory containing the tests."""
@@ -121,7 +112,7 @@ def check_foreign_keys(request):
 
 
 @pytest.fixture(scope="session", name="etl_settings")
-def etl_parameters(request, test_dir) -> EtlSettings:
+def etl_parameters(request, test_dir, pudl_settings_fixture) -> EtlSettings:
     """Read the ETL parameters from the test settings or proffered file."""
     if request.config.getoption("--etl-settings"):
         etl_settings_yml = Path(request.config.getoption("--etl-settings"))
@@ -194,7 +185,7 @@ def pudl_out_orig(live_dbs, pudl_engine):
 
 
 @pytest.fixture(scope="session")
-def ferc_to_sqlite(live_dbs, pudl_datastore_config, etl_settings, pudl_env):
+def ferc_to_sqlite(live_dbs, pudl_datastore_config, etl_settings):
     """Create raw FERC 1 SQLite DBs.
 
     If we are using the test database, we initialize it from scratch first. If we're
@@ -373,7 +364,6 @@ def pudl_settings_dict(request, pudl_tmpdir):  # noqa: C901
             param_overrides["output_dir"] = out_tmp
     pudl_settings = pudl.workspace.setup.get_defaults(**param_overrides)
     pudl.workspace.setup.init(pudl_settings)
-    pudl_settings["sandbox"] = request.config.getoption("--sandbox")
 
     pretty_settings = json.dumps(
         {str(k): str(v) for k, v in pudl_settings.items()}, indent=2
