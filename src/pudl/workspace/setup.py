@@ -12,23 +12,27 @@ import pudl.logging_helpers
 logger = pudl.logging_helpers.get_logger(__name__)
 
 
-def get_defaults(
+def set_path_overrides(
     input_dir: str | None = None,
     output_dir: str | None = None,
-) -> dict[str, str]:
-    """Derive PUDL workspace paths from specified input/output directories.
-
-    Determines input/output directory locations from env variables.
-
-    Input/output workspace roots can be the same directories.
+) -> None:
+    """Set PUDL_INPUT and/or PUDL_OUTPUT env variables.
 
     Args:
-        input_dir: equivalent to PUDL_INPUT environment variable, but overrides
-            that value. Derived paths treat the parent directory as the input
-            workspace root.
-        output_dir: equivalent to PUDL_OUTPUT environment variable, but
-            overrides that value. Derived paths treat the parent directory as
-            the output workspace root.
+        input_dir: if set, overrides PUDL_INPUT env variable.
+        output_dir: if set, overrides PUDL_OUTPUT env variable.
+    """
+    if input_dir:
+        os.environ["PUDL_INPUT"] = input_dir
+    if output_dir:
+        os.environ["PUDL_OUTPUT"] = input_dir
+
+
+def get_defaults() -> dict[str, str]:
+    """Derive PUDL workspace paths from env variables.
+
+    Reads the PUDL_INPUT and PUDL_OUTPUT environment variables, and derives
+    all relevant paths that will be set in the config dictionary.
 
     Returns:
         dictionary with a variety of different paths where inputs/outputs are
@@ -43,46 +47,19 @@ def get_defaults(
     #
     # I don't like this any more than you do.
     if os.getenv("READTHEDOCS"):
-        os.environ["PUDL_OUTPUT"] = str(Path("~/pudl-work/output").expanduser())
-        os.environ["PUDL_INPUT"] = str(Path("~/pudl-work/data").expanduser())
-
-    if input_dir:
-        os.environ["PUDL_INPUT"] = str(Path(input_dir).expanduser())
-    if output_dir:
-        os.environ["PUDL_OUTPUT"] = str(Path(output_dir).expanduser())
-
+        set_path_overrides(
+            input_dir="~/pudl-work/data",
+            output_dir="~/pudl-work/output",
+        )
     for env_var in ["PUDL_INPUT", "PUDL_OUTPUT"]:
         if env_var not in os.environ:
             raise RuntimeError(f"{env_var} environment variable must be set.")
 
-    settings = derive_paths(
-        Path(os.getenv("PUDL_INPUT")),
-        Path(os.getenv("PUDL_OUTPUT")),
-    )
-    if "DAGSTER_HOME" not in os.environ:
-        os.environ["DAGSTER_HOME"] = str(Path(settings["pudl_in"]) / "dagster_home")
-    return settings
-
-
-def derive_paths(pudl_in: Path, pudl_out: Path) -> dict[str, str]:
-    """Derive PUDL paths based on given input and output env variables.
-
-    Args:
-        pudl_in (Path): directory containing PUDL input files, most notably
-            the ``data`` directory which houses the raw data downloaded from
-            public agencies by the :mod:`pudl.workspace.datastore` tools.
-        pudl_out (Path): directory where PUDL should write the outputs it
-            generates.
-
-    Returns:
-        dict: A dictionary containing common PUDL settings, derived from those
-            read out of the YAML file. Mostly paths for inputs & outputs.
-    """
     pudl_settings = {}
 
     # The only "inputs" are the datastore and example settings files:
     # Convert from input string to Path and make it absolute w/ resolve()
-    pudl_in = pathlib.Path(pudl_in).expanduser().resolve()
+    pudl_in = pathlib.Path(os.getenv("PUDL_INPUT")).expanduser().resolve()
     data_dir = pudl_in
     pudl_workspace_legacy = pudl_in.parent
     settings_dir = pudl_workspace_legacy / "settings"
@@ -93,7 +70,7 @@ def derive_paths(pudl_in: Path, pudl_out: Path) -> dict[str, str]:
     pudl_settings["settings_dir"] = str(settings_dir)
 
     # Everything else goes into outputs, generally organized by type of file:
-    pudl_out = pathlib.Path(pudl_out).expanduser().resolve()
+    pudl_out = pathlib.Path(os.getenv("PUDL_OUTPUT")).expanduser().resolve()
     pudl_settings["pudl_out"] = str(pudl_out)
 
     # Mirror dagster env vars for ease of use
@@ -155,6 +132,12 @@ def derive_paths(pudl_in: Path, pudl_out: Path) -> dict[str, str]:
     pudl_settings["censusdp1tract_db"] = "sqlite:///" + str(
         pathlib.Path(pudl_settings["pudl_out"], "censusdp1tract.sqlite")
     )
+
+    if not os.getenv("DAGSTER_HOME"):
+        os.environ["DAGSTER_HOME"] = str(
+            Path(pudl_settings["pudl_in"]) / "dagster_home"
+        )
+
     return pudl_settings
 
 

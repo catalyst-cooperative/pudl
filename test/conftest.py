@@ -287,7 +287,7 @@ def ferc1_xbrl_taxonomy_metadata(ferc1_engine_xbrl):
 
 @pytest.fixture(scope="session")
 def pudl_sql_io_manager(
-    pudl_env,
+    pudl_path_setup,
     pudl_settings_fixture,
     ferc1_engine_dbf,  # Implicit dependency
     ferc1_engine_xbrl,  # Implicit dependency
@@ -343,26 +343,35 @@ def pudl_tmpdir(tmp_path_factory):
     return tmpdir
 
 
-@pytest.fixture(scope="session", name="pudl_settings_fixture")
-def pudl_settings_dict(request, pudl_tmpdir):  # noqa: C901
-    """Determine some settings (mostly paths) for the test session."""
-    logger.info("setting up the pudl_settings_fixture")
-    param_overrides = {}
+@pytest.fixture(scope="session")
+def pudl_path_setup(request, pudl_tmpdir):
+    """Sets the necessary env variables for the input and output paths."""
     if os.environ.get("GITHUB_ACTIONS", False):
-        param_overrides = {
-            "input_dir": "~/pudl-work/data",
-            "output_dir": "~/pudl-work/output",
-        }
+        pudl.workspace.setup.set_path_overrides(
+            input_dir="~/pudl-work/data",
+            output_dir="~/pudl-work/output",
+        )
     else:
         if request.config.getoption("--tmp-data"):
             in_tmp = pudl_tmpdir / "data"
             in_tmp.mkdir()
-            param_overrides["input_dir"] = in_tmp
+            pudl.workspace.setup.set_path_overrides(
+                input_dir=str(Path(in_tmp).resolve()),
+            )
         if request.config.getoption("--live-dbs"):
             out_tmp = pudl_tmpdir / "output"
             out_tmp.mkdir()
-            param_overrides["output_dir"] = out_tmp
-    pudl_settings = pudl.workspace.setup.get_defaults(**param_overrides)
+            pudl.workspace.setup.set_path_overrides(
+                output_dir=str(Path(out_tmp).resolve()),
+            )
+
+
+@pytest.fixture(scope="session", name="pudl_settings_fixture")
+def pudl_settings_dict(pudl_path_setup):  # noqa: C901
+    """Determine some settings (mostly paths) for the test session."""
+    logger.info("setting up the pudl_settings_fixture")
+
+    pudl_settings = pudl.workspace.setup.get_defaults()
     pudl.workspace.setup.init(pudl_settings)
 
     pretty_settings = json.dumps(

@@ -202,7 +202,7 @@ class TestExcelExtractor:
 class TestFerc1ExtractDebugFunctions:
     """Verify the ferc1 extraction debug functions are working properly."""
 
-    def test_extract_dbf(self, ferc1_engine_dbf, pudl_env):
+    def test_extract_dbf(self, ferc1_engine_dbf, pudl_path_setup):
         """Test extract_dbf."""
         years = [2020, 2021]  # add desired years here
         configured_dataset_settings = {"ferc1": {"years": years}}
@@ -221,7 +221,7 @@ class TestFerc1ExtractDebugFunctions:
                 df.report_year < 2022
             ).all(), f"Unexpected years found in table: {table_name}"
 
-    def test_extract_xbrl(self, ferc1_engine_dbf, pudl_env):
+    def test_extract_xbrl(self, ferc1_engine_dbf, pudl_path_setup):
         """Test extract_xbrl."""
         years = [2021]  # add desired years here
         configured_dataset_settings = {"ferc1": {"years": years}}

@@ -13,7 +13,7 @@ from pudl.metadata.classes import DatasetteMetadata
 logger = logging.getLogger(__name__)
 
 
-def test_datasette_metadata_to_yml(pudl_env, ferc1_engine_xbrl):
+def test_datasette_metadata_to_yml(pudl_path_setup, ferc1_engine_xbrl):
     """Test the ability to export metadata as YML for use with Datasette."""
     pudl_output = Path(os.getenv("PUDL_OUTPUT"))
     metadata_yml = pudl_output / "metadata.yml"
