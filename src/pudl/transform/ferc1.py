@@ -190,6 +190,12 @@ class RenameColumnsFerc1(TransformParams):
     duration_xbrl: RenameColumns = RenameColumns()
     instant_xbrl: RenameColumns = RenameColumns()
 
+    @property
+    def rename_dicts_xbrl(self):
+        """Compile all of the XBRL rename dictionaries into an ordered list."""
+        # add the xbrl last bc it happens after the inst/dur renames
+        return [self.duration_xbrl, self.instant_xbrl, self.xbrl]
+
 
 class WideToTidy(TransformParams):
     """Parameters for converting a wide table to a tidy table with value types."""
@@ -232,6 +238,23 @@ class WideToTidySourceFerc1(TransformParams):
 
     xbrl: WideToTidy | list[WideToTidy] = WideToTidy()
     dbf: WideToTidy | list[WideToTidy] = WideToTidy()
+
+    @property
+    def value_types(self) -> list[str]:
+        """Compile a list of all of the ``value_types`` from ``wide_to_tidy``."""
+        # each wtt source could be either a list of WideToTidy or a WideToTidy.
+        # so we need to drill in to either grab the value_types
+        value_types = []
+        for wide_to_tidy in [self.xbrl, self.dbf]:
+            if isinstance(wide_to_tidy, WideToTidy):
+                value_types.append(wide_to_tidy.value_types)
+            elif isinstance(wide_to_tidy, list):
+                for rly_wide_to_tidy in wide_to_tidy:
+                    value_types.append(rly_wide_to_tidy.value_types)
+        # remove None's & flatten/dedupe
+        value_types = [v for v in value_types if v is not None]
+        value_types = pudl.helpers.dedupe_n_flatten_list_of_lists(value_types)
+        return value_types
 
 
 def wide_to_tidy(df: pd.DataFrame, params: WideToTidy) -> pd.DataFrame:
@@ -901,29 +924,12 @@ class Ferc1TableTransformParams(TableTransformParams):
     @property
     def rename_dicts_xbrl(self):
         """Compile all of the XBRL rename dictionaries into an ordered list."""
-        # add the xbrl last bc it happens after the inst/dur renames
-        return [
-            self.rename_columns_ferc1.duration_xbrl,
-            self.rename_columns_ferc1.instant_xbrl,
-            self.rename_columns_ferc1.xbrl,
-        ]
+        return self.rename_columns_ferc1.rename_dicts_xbrl
 
     @property
     def wide_to_tidy_value_types(self) -> list[str]:
         """Compile a list of all of the ``value_types`` from ``wide_to_tidy``."""
-        # the values in wide_to_tidy are found at the end of the column names and
-        # extracted, so we need to remove all of the suffixes.
-        wide_to_tidy_value_types = []
-        for wide_to_tidy_stage in json.loads(self.wide_to_tidy.json()).values():
-            if not isinstance(wide_to_tidy_stage, list):
-                wide_to_tidy_stage = [wide_to_tidy_stage]
-            for wide_to_tidy in wide_to_tidy_stage:
-                if wide_to_tidy["value_types"]:
-                    wide_to_tidy_value_types.append(wide_to_tidy["value_types"])
-        wide_to_tidy_value_types = pudl.helpers.dedupe_n_flatten_list_of_lists(
-            wide_to_tidy_value_types
-        )
-        return wide_to_tidy_value_types
+        return self.wide_to_tidy.value_types
 
 
 ################################################################################
@@ -1302,7 +1308,7 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
             )
         )
         xbrl_factoid_name_map = {
-            xbrl_factoid_name_og: self.rename_raw_xbrl_factoid_to_pudl_name(
+            xbrl_factoid_name_og: self.raw_xbrl_factoid_to_pudl_name(
                 xbrl_factoid_name_og
             )
             for xbrl_factoid_name_og in tbl_meta.xbrl_factoid
@@ -1313,9 +1319,7 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
             # apply the rename for the "name" element of all of the calc components
             renamed_calc = [
                 {
-                    k: self.rename_raw_xbrl_factoid_to_pudl_name(v)
-                    if k == "name"
-                    else v
+                    k: self.raw_xbrl_factoid_to_pudl_name(v) if k == "name" else v
                     for (k, v) in calc_component.items()
                 }
                 for calc_component in json.loads(calc)
@@ -1350,7 +1354,7 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
             )
         return tbl_meta
 
-    def rename_raw_xbrl_factoid_to_pudl_name(
+    def raw_xbrl_factoid_to_pudl_name(
         self,
         col_name_xbrl: str,
     ) -> str:
@@ -1381,9 +1385,23 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
 
         if self.params.unstack_balances_to_report_year_instant_xbrl:
             # TODO: do something...? add starting_balance & ending_balance suffixes?
+            if self.params.merge_xbrl_metadata.on:
+                NotImplementedError(
+                    "We haven't implemented a xbrl_factoid rename for the parameter "
+                    "unstack_balances_to_report_year_instant_xbrl. Since you are trying"
+                    "to merge the metadata on this table that has this treatment, a "
+                    "xbrl_factoid rename will be required."
+                )
             pass
         if self.params.convert_units:
             # TODO: use from_unit -> to_unit map. but none of the $$ tables have this rn.
+            if self.params.merge_xbrl_metadata.on:
+                NotImplementedError(
+                    "We haven't implemented a xbrl_factoid rename for the parameter "
+                    "convert_units. Since you are trying to merge the metadata on this "
+                    "table that has this treatment, a xbrl_factoid rename will be "
+                    "required."
+                )
             pass
         return col_name_new
 
