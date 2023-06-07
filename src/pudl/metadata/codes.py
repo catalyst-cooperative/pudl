@@ -826,6 +826,12 @@ CODE_METADATA: dict[str, dict[str, Any]] = {
                     "proposed",
                 ),
                 (
+                    "CO",
+                    "under_construction",
+                    "New unit under construction.",
+                    "proposed",
+                ),
+                (
                     "IP",
                     "indefinitely_postponed",
                     "Planned new indefinitely postponed, or no longer in resource plan",
@@ -846,7 +852,7 @@ CODE_METADATA: dict[str, dict[str, Any]] = {
                 (
                     "OP",
                     "operating",
-                    "In service (commercial operation) and producing some electricity. Includes peaking units that are run on an as needed (intermittent or seasonal) basis.",
+                    "Operating (in commercial service or out of service within 365 days). For generators, this means in service (commercial operation) and producing some electricity. Includes peaking units that are run on an as needed (intermittent or seasonal) basis.",
                     "existing",
                 ),
                 (
@@ -862,9 +868,21 @@ CODE_METADATA: dict[str, dict[str, Any]] = {
                     "proposed",
                 ),
                 (
+                    "OZ",
+                    "operate_during_ozone_season",
+                    "Operated only during the ozone season (May through September). Only used for emissions equipment.",
+                    "existing",
+                ),
+                (
                     "P",
                     "planned_approvals_not_initiated",
                     "Planned for installation but regulatory approvals not initiated; Not under construction",
+                    "proposed",
+                ),
+                (
+                    "PL",
+                    "planned",
+                    "Planned (expected to go into commercial service within 10 years)",
                     "proposed",
                 ),
                 (
@@ -880,6 +898,12 @@ CODE_METADATA: dict[str, dict[str, Any]] = {
                     "existing",
                 ),
                 (
+                    "SC",
+                    "standby_col",
+                    "Cold Standby (Reserve); deactivated. Usually requires 3 to 6 months to reactivate",
+                    "existing",
+                ),
+                (
                     "T",
                     "planned_approvals_received",
                     "Regulatory approvals received. Not under construction but site preparation could be underway",
@@ -888,7 +912,7 @@ CODE_METADATA: dict[str, dict[str, Any]] = {
                 (
                     "TS",
                     "construction_complete",
-                    "Construction complete, but not yet in commercial operation (including low power testing of nuclear units)",
+                    "Construction complete, but not yet in commercial operation (including low power testing of nuclear units). Operating under test conditions.",
                     "proposed",
                 ),
                 (
@@ -919,6 +943,7 @@ CODE_METADATA: dict[str, dict[str, Any]] = {
             "(V) Under construction, more than 50 percent complete": "V",
             "BU": "SB",
         },
+        "ignored_codes": ["CS"],
     },
     "energy_sources_eia": {
         "df": pd.DataFrame(

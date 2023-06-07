@@ -476,6 +476,150 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
         "sources": ["eia860", "eia923"],
         "etl_group": "eia860",
     },
+    "emissions_control_equipment_eia860": {
+        "description": (
+            """The cost, type, operating status, retirement date, and install year of
+emissions control equipment reported to EIA. Includes control ids for sulfur dioxide
+(SO2), particulate matter, mercury, nitrogen oxide (NOX), and acid (HCl) gas monitoring.
+"""
+        ),
+        "schema": {
+            "fields": [
+                "report_year",
+                "plant_id_eia",
+                "emission_control_id_pudl",
+                "data_maturity",
+                "emission_control_equipment_type",
+                "operational_status_code",
+                "mercury_control_id_eia",
+                "nox_control_id_eia",
+                "particulate_control_id_eia",
+                "so2_control_id_eia",
+                "acid_gas_control",
+                "emission_control_equipment_cost",
+                "emission_control_operating_date",
+                "emission_control_retirement_date",
+            ],
+            "primary_key": ["report_year", "plant_id_eia", "emission_control_id_pudl"],
+        },
+        "field_namespace": "eia",
+        "sources": ["eia860"],
+        "etl_group": "eia860",
+    },
+    "denorm_emissions_control_equipment_eia860": {
+        "description": (
+            """The cost, type, operating status, retirement date, and install year of
+emissions control equipment reported to EIA. Includes control ids for sulfur dioxide
+(SO2), particulate matter, mercury, nitrogen oxide (NOX), and acid (HCl) gas monitoring.
+The denormalized version contains plant name, utility id, pudl id, and utility name
+columns.
+"""
+        ),
+        "schema": {
+            "fields": [
+                "report_year",
+                "plant_id_eia",
+                "plant_id_pudl",
+                "plant_name_eia",
+                "utility_id_eia",
+                "utility_id_pudl",
+                "utility_name_eia",
+                "emission_control_id_pudl",
+                "data_maturity",
+                "emission_control_equipment_type",
+                "operational_status_code",
+                "operational_status",
+                "mercury_control_id_eia",
+                "nox_control_id_eia",
+                "particulate_control_id_eia",
+                "so2_control_id_eia",
+                "acid_gas_control",
+                "emission_control_equipment_cost",
+                "emission_control_operating_date",
+                "emission_control_retirement_date",
+            ],
+            "primary_key": ["report_year", "plant_id_eia", "emission_control_id_pudl"],
+        },
+        "field_namespace": "eia",
+        "sources": ["eia860"],
+        "etl_group": "eia860",
+    },
+    "boiler_emissions_control_equipment_assn_eia860": {
+        "description": (
+            """A table that links EIA boiler IDs to emissions control IDs for NOx, SO2,
+mercury, and particulate monitoring. The relationship between the IDs is sometimes many
+to many.
+"""
+        ),
+        "schema": {
+            "fields": [
+                "report_date",
+                "plant_id_eia",
+                "boiler_id",
+                "emission_control_id_type",
+                "emission_control_id_eia",
+                "data_maturity",
+            ],
+            "primary_key": [
+                "report_date",
+                "plant_id_eia",
+                "boiler_id",
+                "emission_control_id_type",
+                "emission_control_id_eia",
+            ],
+        },
+        "field_namespace": "eia",
+        "sources": ["eia860"],
+        "etl_group": "eia860",
+    },
+    "boiler_cooling_assn_eia860": {
+        "description": "A table that links EIA boiler IDs to EIA cooling system IDs.",
+        "schema": {
+            "fields": [
+                "report_date",
+                "plant_id_eia",
+                "boiler_id",
+                "cooling_id_eia",
+                "data_maturity",
+            ],
+            "primary_key": [
+                "report_date",
+                "plant_id_eia",
+                "boiler_id",
+                "cooling_id_eia",
+            ],
+        },
+        "field_namespace": "eia",
+        "sources": ["eia860"],
+        "etl_group": "eia860",
+    },
+    "boiler_stack_flue_assn_eia860": {
+        "description": (
+            """A table that links EIA boiler IDs to EIA stack and/or flue
+system IDs.
+"""
+        ),
+        "schema": {
+            "fields": [
+                "report_date",
+                "plant_id_eia",
+                "boiler_id",
+                "stack_id_eia",
+                "flue_id_eia",
+                "stack_flue_id_eia",
+                "stack_flue_id_pudl",
+            ],
+            "primary_key": [
+                "report_date",
+                "plant_id_eia",
+                "boiler_id",
+                "stack_flue_id_pudl",
+            ],
+        },
+        "field_namespace": "eia",
+        "sources": ["eia860"],
+        "etl_group": "eia860",
+    },
 }
 """EIA-860 resource attributes organized by PUDL identifier (``resource.name``).
 

@@ -24,7 +24,7 @@ jobs:
 
       - name: Check if organization member
         id: is_organization_member
-        uses: JamesSingleton/is-organization-member@1.0.0
+        uses: JamesSingleton/is-organization-member@1.0.1
         with:
           organization: ${{ env.org }}
           username: ${{ env.username }}
@@ -33,7 +33,8 @@ jobs:
       - name: Post to a Slack channel user isn't a part of Catalyst
         if: ${{ !steps.is_organization_member.outputs.result }}
         id: slack
-        uses: slackapi/slack-github-action@v1.23.0
+        uses: slackapi/slack-github-action@v1.24.0
+
         with:
           # Slack channel id, channel name, or user id to post message.
           # See also: https://api.slack.com/methods/chat.postMessage#channels
