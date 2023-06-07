@@ -9,9 +9,9 @@ For SQLite databases, it will compare the tables, schemas and individual rows.
 For other files, file checksums are calculated and compared instead.
 """
 import argparse
-import os
 import re
 import sys
+from pathlib import Path
 from typing import Any
 
 import fsspec
@@ -196,7 +196,7 @@ class OutputBundle:
             return {"sqlite": self.root_path}
         else:
             return {
-                os.path.basename(fpath): fpath
+                Path(fpath).name: fpath
                 for fpath in self.fs.glob(self.root_path + "/*")
                 if self.match_filetype(fpath)
             }
