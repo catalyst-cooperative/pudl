@@ -276,7 +276,7 @@ in the ``pudl.etl`` definition. Subsets of the ``pudl.etl`` asset graph
 are organized by asset groups. These groups are helfpul for visualizing and
 executing subsets of the asset graph.
 
-To execute the job, select ``fast_etl`` or ``full_etl`` and click "Materialize all".
+To execute the job, select ``etl_fast`` or ``etl_full`` and click "Materialize all".
 You can congifure which years to process by shift+clicking "Materialize all".
 Read the :ref:`resource_config` section to learn more.
 To view the status of the run, click the date next to "Latest run:".
