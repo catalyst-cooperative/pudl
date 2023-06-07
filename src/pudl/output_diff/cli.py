@@ -377,6 +377,7 @@ def main():  # noqa: C901
     )
 
     file_diff = outputs.compare_files()
+    file_diff.print_diff()
     sql_diffs = outputs.compare_sqlite_databases(file_diff)
 
     # Put together all diffs that actually represent some differences
