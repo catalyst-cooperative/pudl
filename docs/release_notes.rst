@@ -176,7 +176,7 @@ Data Cleaning
 * Made minor calculation fixes in the metadata for :ref:`income_statement_ferc1`,
   :ref:`utility_plant_summary_ferc1`, :ref:`electric_operating_revenues_ferc1`,
   :ref:`balance_sheet_assets_ferc1`, :ref:`balance_sheet_liabilities_ferc1`, and
-  :ref:`electric_operating_expenses_ferc1`.
+  :ref:`electric_operating_expenses_ferc1`. See :issue:`2016` and :pr:`2563`.
 * Added "correction" records to many FERC Form 1 tables where the reported totals do not
   match the outcomes of calculations specified in XBRL metadata (even after cleaning up
   the often incorrect calculation specifications!). See :issue:`2957` and :pr:`2620`.
