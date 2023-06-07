@@ -1348,7 +1348,9 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
         tables have no deduping. Deduplication needs to be applied before the
         :meth:`apply_xbrl_calculation_fixes` inside of :meth:`process_xbrl_metadata`.
         """
-        if tbl_meta.duplicated(subset=["xbrl_factoid"]).any():
+        if tbl_meta.duplicated(subset=["xbrl_factoid"]).any() & (
+            self.params.merge_xbrl_metadata.on is not None
+        ):
             raise AssertionError(
                 f"Metadata for {self.table_id.value} has duplicative xbrl_factoid records."
             )
@@ -2926,7 +2928,7 @@ class PlantInServiceFerc1TableTransformer(Ferc1AbstractTableTransformer):
     def deduplicate_xbrl_factoid_xbrl_metadata(
         self, tbl_meta: pd.DataFrame
     ) -> pd.DataFrame:
-        """De-duplicate the XBLR.
+        """De-duplicate the XBLR metadata.
 
         We deduplicate the metadata on the basis of the ``xbrl_factoid`` name.
         This table in particular has multiple ``wide_to_tidy`` ``value_types`` because
@@ -2951,7 +2953,7 @@ class PlantInServiceFerc1TableTransformer(Ferc1AbstractTableTransformer):
         # if they key values are the same, select the records with values in ferc_account
         same_calcs_deduped = (
             tbl_meta[same_calcs_mask]
-            .sort_values(["ferc_account"])
+            .sort_values(["ferc_account"])  # sort brings the nulls to the bottom
             .drop_duplicates(subset=["xbrl_factoid"], keep="first")
         )
         # when the calcs are different, they are referring to the non-adjustments
@@ -4226,19 +4228,32 @@ class RetainedEarningsFerc1TableTransformer(Ferc1AbstractTableTransformer):
         )
         return df
 
-    @cache_df("process_xbrl_metadata")
-    def process_xbrl_metadata(self, xbrl_metadata_json) -> pd.DataFrame:
-        """Transform the metadata to reflect the transformed data.
+    def deduplicate_xbrl_factoid_xbrl_metadata(self, tbl_meta) -> pd.DataFrame:
+        """Deduplicate the xbrl_metadata based on the ``xbrl_factoid``.
 
-        Run the generic :func:`process_xbrl_metadata` and then remove some suffixes that
-        were removed during :meth:`wide_to_tidy`.
+        The metadata relating to dollar_value column *generally* had the same name as
+        the renamed xbrl_factoid. we'll double check that we a) didn't remove too many
+        factoid's by doing this AND that we have a fully deduped output below.
         """
-        meta = (
-            super()
-            .process_xbrl_metadata(xbrl_metadata_json)
-            .drop_duplicates(subset=["xbrl_factoid"], keep="first")
-        )
-        return meta
+        dupes_masks = tbl_meta.duplicated(subset=["xbrl_factoid"], keep=False)
+        non_dupes = tbl_meta[~dupes_masks]
+        dupes = tbl_meta[dupes_masks]
+
+        deduped = dupes[dupes.xbrl_factoid == dupes.xbrl_factoid_name_original]
+        tbl_meta_cleaned = pd.concat([non_dupes, deduped])
+        assert ~tbl_meta_cleaned.duplicated(subset=["xbrl_factoid"]).all()
+
+        missing = {
+            factoid
+            for factoid in tbl_meta.xbrl_factoid.unique()
+            if factoid not in tbl_meta_cleaned.xbrl_factoid.unique()
+        }
+        if missing:
+            raise AssertionError(
+                "We expected to find no missing xbrl_factoid's after deduplication "
+                f"but found {missing}"
+            )
+        return tbl_meta_cleaned
 
 
 class DepreciationAmortizationSummaryFerc1TableTransformer(
@@ -4408,8 +4423,9 @@ class ElectricOperatingRevenuesFerc1TableTransformer(Ferc1AbstractTableTransform
     table_id: TableIdFerc1 = TableIdFerc1.ELECTRIC_OPERATING_REVENUES_FERC1
     has_unique_record_ids: bool = False
 
-    @cache_df("process_xbrl_metadata")
-    def process_xbrl_metadata(self, xbrl_metadata_json) -> pd.DataFrame:
+    def deduplicate_xbrl_factoid_xbrl_metadata(
+        self, tbl_meta: pd.DataFrame
+    ) -> pd.DataFrame:
         """Transform the metadata to reflect the transformed data.
 
         Employ the standard process for processing metadata. Then remove duplication on
@@ -4425,7 +4441,6 @@ class ElectricOperatingRevenuesFerc1TableTransformer(Ferc1AbstractTableTransform
         or something like that to stack the metadata in a similar fashion that we stack
         the data.
         """
-        tbl_meta = super().process_xbrl_metadata(xbrl_metadata_json)
         dupes_masks = tbl_meta.duplicated(subset=["xbrl_factoid"], keep=False)
         non_dupes = tbl_meta[~dupes_masks]
         dupes = tbl_meta[dupes_masks]
