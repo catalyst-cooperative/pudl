@@ -11,6 +11,7 @@ import sys
 
 import pandas as pd
 import sqlalchemy as sa
+from dagster import AssetKey
 from matplotlib import pyplot as plt
 
 import pudl
@@ -201,8 +202,7 @@ def get_territory_geometries(
             the ID of the entities of interest. Should probably be either
             ``balancing_authority_id_eia`` or ``utility_id_eia``.
         st_eia861 (pandas.DataFrame): The EIA 861 Service Territory table.
-        census_gdf (geopandas.GeoDataFrame): The US Census DP1 county-level geometries
-            as returned by pudl.output.censusdp1tract.get_layer("county").
+        census_gdf (geopandas.GeoDataFrame): The US Census DP1 county-level geometries.
         limit_by_state (bool): Whether to require that the counties associated
             with the balancing authority are inside a state that has also been
             seen in association with the balancing authority and the utility
@@ -480,9 +480,7 @@ def main():
     pudl_engine = sa.create_engine(pudl_settings["pudl_db"])
     pudl_out = pudl.output.pudltabl.PudlTabl(pudl_engine)
     # Load the US Census DP1 county data:
-    county_gdf = pudl.output.censusdp1tract.get_layer(
-        layer="county", pudl_settings=pudl_settings
-    )
+    county_gdf = pudl.etl.defs.load_asset_value(AssetKey("county_censusdp1"))
 
     kwargs_dicts = [
         {"entity_type": "util", "limit_by_state": False},

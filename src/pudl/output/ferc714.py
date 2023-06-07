@@ -4,6 +4,7 @@ from typing import Any
 
 import numpy as np
 import pandas as pd
+from dagster import AssetKey
 
 import pudl
 from pudl.metadata.fields import apply_pudl_dtypes
@@ -608,8 +609,8 @@ class Respondents:
         analyses.
         """
         if update or self._counties_gdf is None:
-            census_counties = pudl.output.censusdp1tract.get_layer(
-                layer="county", pudl_settings=self.pudl_settings, ds=self.ds
+            census_counties = pudl.etl.defs.load_asset_value(
+                AssetKey("county_censusdp1")
             )
             self._counties_gdf = pudl.analysis.service_territory.add_geometries(
                 self.fipsify(update=update), census_gdf=census_counties
@@ -629,9 +630,8 @@ class Respondents:
         from year to year, etc.
         """
         if update or self._respondents_gdf is None:
-            census_counties = pudl.output.censusdp1tract.get_layer(
-                layer="county",
-                pudl_settings=self.pudl_settings,
+            census_counties = pudl.etl.defs.load_asset_value(
+                AssetKey("county_censusdp1")
             )
             self._respondents_gdf = (
                 pudl.analysis.service_territory.add_geometries(

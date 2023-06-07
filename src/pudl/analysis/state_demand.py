@@ -31,6 +31,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 import sqlalchemy as sa
+from dagster import AssetKey
 
 import pudl.analysis.timeseries_cleaning
 import pudl.logging_helpers
@@ -464,9 +465,9 @@ def load_counties(
     Returns:
         Dataframe with columns `county_id_fips` and `population`.
     """
-    df = pudl.output.censusdp1tract.get_layer(
-        layer="county", pudl_settings=pudl_settings
-    )[["geoid10", "dp0010001"]]
+    df = pudl.etl.defs.load_asset_value(AssetKey("county_censusdp1"))[
+        ["geoid10", "dp0010001"]
+    ]
     return df.rename(columns={"geoid10": "county_id_fips", "dp0010001": "population"})
 
 
