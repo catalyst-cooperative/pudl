@@ -1855,9 +1855,6 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
         for xbrl_factoid, calc_component_fixes in calculated_fields_to_fix[
             self.table_id.value
         ].items():
-            logger.info(xbrl_factoid)
-            logger.info(tbl_meta.loc[xbrl_factoid, "calculations"])
-            logger.info(calc_component_fixes)
             calc_to_update = json.loads(tbl_meta.loc[xbrl_factoid, "calculations"])
             for calc_component_fix in calc_component_fixes:
                 # if we want to replace something as oppose to just add a new component
@@ -4232,7 +4229,16 @@ class RetainedEarningsFerc1TableTransformer(Ferc1AbstractTableTransformer):
 
         The metadata relating to dollar_value column *generally* had the same name as
         the renamed xbrl_factoid. we'll double check that we a) didn't remove too many
-        factoid's by doing this AND that we have a fully deduped output below.
+        factoid's by doing this AND that we have a fully deduped output below. In an
+        ideal world, we would have multiple pieces of metadata information (like
+        calucations and ferc account #'s), for every single :meth:`wide_to_tidy` value
+        column.
+
+        Note: This is **almost** the same as the method for
+        :ref:`electric_operating_revenues_ferc1`. If we wanted to lean into this
+        version of deduplication more generally this might be a fine way start to an
+        abstraction, but ideally we wouldn't need to dedupe this at all and instead
+        enable metadata for every value column from :meth:`wide_to_tidy`.
         """
         dupes_masks = tbl_meta.duplicated(subset=["xbrl_factoid"], keep=False)
         non_dupes = tbl_meta[~dupes_masks]
