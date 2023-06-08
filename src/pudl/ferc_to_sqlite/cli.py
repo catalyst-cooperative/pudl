@@ -87,23 +87,42 @@ def parse_command_line(argv):
 
 
 def ferc_to_sqlite_job_factory(
-    logfile: str | None = None, loglevel: str = "INFO"
+    logfile: str | None = None,
+    loglevel: str = "INFO",
+    enable_xbrl: bool = True,
+    enable_dbf: bool = True,
 ) -> Callable[[], JobDefinition]:
     """Factory for parameterizing a reconstructable ferc_to_sqlite job.
 
     Args:
         loglevel: The log level for the job's execution.
         logfile: Path to a log file for the job's execution.
+        enable_xbrl: if True, include XBRL data processing in the job.
+        enable_dbf: if True, include DBF data processing in the job.
 
     Returns:
         The job definition to be executed.
     """
+    if not (enable_xbrl or enable_dbf):
+        raise ValueError("either dbf or xbrl needs to be enabled")
 
     def get_ferc_to_sqlite_job():
         """Module level func for creating a job to be wrapped by reconstructable."""
-        return ferc_to_sqlite.ferc_to_sqlite.to_job(
+        if enable_xbrl and enable_dbf:
+            return ferc_to_sqlite.ferc_to_sqlite.to_job(
+                resource_defs=ferc_to_sqlite.default_resources_defs,
+                name="ferc_to_sqlite_job",
+            )
+        elif enable_xbrl:
+            return ferc_to_sqlite.ferc_to_sqlite_xbrl_only.to_job(
+                resource_defs=ferc_to_sqlite.default_resources_defs,
+                name="ferc_to_sqlite_xbrl_only_job",
+            )
+
+        # enable_dbf has to be true
+        return ferc_to_sqlite.ferc_to_sqlite_dbf_only.to_job(
             resource_defs=ferc_to_sqlite.default_resources_defs,
-            name="ferc_to_sqlite_job",
+            name="ferc_to_sqlite_dbf_only_job",
         )
 
     return get_ferc_to_sqlite_job
