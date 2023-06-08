@@ -1284,10 +1284,6 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
                 }
             )
             .assign(
-                # Flag metadata record types
-                row_type_xbrl=lambda x: np.where(
-                    x.calculations.astype(bool), "calculated_value", "reported_value"
-                ),
                 calculations=lambda x: x.calculations.apply(json.dumps),
             )
             .astype(
@@ -1296,7 +1292,6 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
                     "balance": pd.StringDtype(),
                     "ferc_account": pd.StringDtype(),
                     "calculations": pd.StringDtype(),
-                    "row_type_xbrl": pd.StringDtype(),
                 }
             )
             # Everything below here deals with correcting the calculations.
@@ -1335,7 +1330,13 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
             .pipe(self.remove_duplicated_calculation_components)
             .pipe(self.add_calculation_correction_components)
         )
-        tbl_meta.calculations = tbl_meta.calculations.astype(pd.StringDtype())
+
+        # Flag metadata record types
+        tbl_meta = tbl_meta.assign(
+            row_type_xbrl=lambda x: np.where(
+                x.calculations != "[]", "calculated_value", "reported_value"
+            )
+        ).astype({"row_type_xbrl": pd.StringDtype(), "calculations": pd.StringDtype()})
 
         return tbl_meta
 
@@ -1834,6 +1835,24 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
                         "calc_component_to_replace": {},
                         "calc_component_new": {
                             "name": "accumulated_deferred_income_taxes",
+                            "weight": 1.0,
+                        },
+                    },
+                ],
+            },
+            "retained_earnings_ferc1": {
+                "appropriated_retained_earnings_including_reserve_amortization": [
+                    {
+                        "calc_component_to_replace": {},
+                        "calc_component_new": {
+                            "name": "appropriated_retained_earnings",
+                            "weight": 1.0,
+                        },
+                    },
+                    {
+                        "calc_component_to_replace": {},
+                        "calc_component_new": {
+                            "name": "appropriated_retained_earnings_amortization_reserve_federal",
                             "weight": 1.0,
                         },
                     },

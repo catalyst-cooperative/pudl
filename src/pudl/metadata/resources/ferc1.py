@@ -1171,7 +1171,6 @@ any cleaning mechanisms in place to account for this."""
                 "report_year",
                 "record_id",
                 "earnings_type",
-                "amount",
                 "starting_balance",
                 "ending_balance",
                 "balance",
