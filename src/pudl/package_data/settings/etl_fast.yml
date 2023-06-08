@@ -8,6 +8,8 @@ ferc_to_sqlite_settings:
     years: [2020]
   ferc1_xbrl_to_sqlite_settings:
     years: [2021]
+  ferc2_dbf_to_sqlite_settings:
+    years: [2020]
   ferc2_xbrl_to_sqlite_settings:
     years: [2021]
   ferc6_xbrl_to_sqlite_settings:

@@ -44,7 +44,12 @@ class GenericDatasetSettings(BaseModel):
 
     Each dataset must specify working partitions. A dataset can have an arbitrary number
     of partitions.
+
+    Args:
+        disabled: if true, skip processing this dataset.
     """
+
+    disabled: bool = False
 
     @root_validator
     def validate_partitions(cls, partitions):  # noqa: N805
@@ -443,10 +448,12 @@ class FercGenericXbrlToSqliteSettings(BaseSettings):
     Args:
         taxonomy: URL of XBRL taxonomy used to create structure of SQLite DB.
         years: list of years to validate.
+        disabled: if True, skip processing this dataset.
     """
 
     taxonomy: AnyHttpUrl
     years: list[int]
+    disabled: bool = False
 
 
 class Ferc1XbrlToSqliteSettings(FercGenericXbrlToSqliteSettings):
@@ -474,6 +481,22 @@ class Ferc2XbrlToSqliteSettings(FercGenericXbrlToSqliteSettings):
     data_source: ClassVar[DataSource] = DataSource.from_id("ferc2")
     years: list[int] = data_source.working_partitions["years"]
     taxonomy: AnyHttpUrl = "https://eCollection.ferc.gov/taxonomy/form2/2022-01-01/form/form2/form-2_2022-01-01.xsd"
+
+
+class Ferc2DbfToSqliteSettings(GenericDatasetSettings):
+    """An immutable Pydantic model to validate FERC 2 to SQLite settings.
+
+    Args:
+        years: List of years to validate.
+        disabled: if True, skip processing this dataset.
+    """
+
+    data_source: ClassVar[DataSource] = DataSource.from_id("ferc2")
+    years: list[int] = [
+        year for year in data_source.working_partitions["years"] if year <= 2020
+    ]
+
+    refyear: ClassVar[int] = max(years)
 
 
 class Ferc6XbrlToSqliteSettings(FercGenericXbrlToSqliteSettings):
@@ -523,6 +546,7 @@ class FercToSqliteSettings(BaseSettings):
 
     ferc1_dbf_to_sqlite_settings: Ferc1DbfToSqliteSettings = None
     ferc1_xbrl_to_sqlite_settings: Ferc1XbrlToSqliteSettings = None
+    ferc2_dbf_to_sqlite_settings: Ferc2DbfToSqliteSettings = None
     ferc2_xbrl_to_sqlite_settings: Ferc2XbrlToSqliteSettings = None
     ferc6_xbrl_to_sqlite_settings: Ferc6XbrlToSqliteSettings = None
     ferc60_xbrl_to_sqlite_settings: Ferc60XbrlToSqliteSettings = None
@@ -541,6 +565,7 @@ class FercToSqliteSettings(BaseSettings):
         if not any(values.values()):
             values["ferc1_dbf_to_sqlite_settings"] = Ferc1DbfToSqliteSettings()
             values["ferc1_xbrl_to_sqlite_settings"] = Ferc1XbrlToSqliteSettings()
+            values["ferc2_dbf_to_sqlite_settings"] = Ferc2DbfToSqliteSettings()
             values["ferc2_xbrl_to_sqlite_settings"] = Ferc2XbrlToSqliteSettings()
             values["ferc6_xbrl_to_sqlite_settings"] = Ferc6XbrlToSqliteSettings()
             values["ferc60_xbrl_to_sqlite_settings"] = Ferc60XbrlToSqliteSettings()
