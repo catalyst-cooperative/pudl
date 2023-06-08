@@ -997,7 +997,7 @@ def explode_tables(
             value_col,
             pks,
         )
-        .pipe(remove_totals_from_other_dimension, other_dimensions)
+        .pipe(remove_totals_from_other_dimensions, other_dimensions)
         .pipe(remove_inter_table_calc_duplication)
         .pipe(remove_intra_table_calculated_values)
     )
@@ -1180,27 +1180,41 @@ def get_table_levels(tables_to_explode: list[str], top_table: str) -> pd.DataFra
     return pd.DataFrame(table_levels)
 
 
-def remove_totals_from_other_dimension(
+def remove_totals_from_other_dimensions(
     exploded: pd.DataFrame, other_dimensions: list[str]
 ) -> pd.DataFrame:
     """Remove the totals from the other dimensions."""
     logger.info("Explode: Interdimensional time.")
-    # TODO: Right now we have not filled in null dimensions for tables that are
-    # implicitly all total or electric etc. When we do this, we'll need to edit this
-    # methodology here to ensure we are only taking totals from table_name's that have
-    # more than one value for their other dimensions.
+    # bc we fill in some of the other dimension columns for
+    # ensure we are only taking totals from table_name's that have more than one value
+    # for their other dimensions.
     # find the totals from the other dimensions
-    total_mask = (exploded[other_dimensions] != "total").any(axis=1) | (
-        exploded[other_dimensions].notnull().any(axis=1)
+
+    exploded = exploded.assign(
+        **{
+            f"{dim}_nunique": exploded.groupby(["table_name"])[
+                other_dimensions
+            ].transform("nunique")
+            for dim in other_dimensions
+        }
+    ).assign(
+        **{
+            f"{dim}_total": (exploded[dim] == "total")
+            & (exploded[f"{dim}_nunique"] != 1)
+            for dim in other_dimensions
+        }
     )
-    total_len = len(exploded[~total_mask])
+    total_mask = (exploded[[f"{dim}_total" for dim in other_dimensions]]).any(axis=1)
+    total_len = len(exploded[total_mask])
     logger.info(
         f"Removing {total_len} ({total_len/len(exploded):.1%}) of records which are "
         f"totals of the following dimensions {other_dimensions}"
     )
-    # remove the totals.
-    exploded = exploded[total_mask].copy()
-    logger.info(exploded.columns)
+    # remove the totals & drop the cols we used to make em
+    drop_cols = [
+        f"{dim}{suff}" for suff in ["_nunique", "_total"] for dim in other_dimensions
+    ]
+    exploded = exploded[~total_mask].drop(columns=drop_cols)
     return exploded
 
 
