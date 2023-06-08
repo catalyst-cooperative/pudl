@@ -533,7 +533,7 @@ def fipsified_respondents_ferc714(
 
 
 @asset(compute_kind="Python")
-def georeferenced_counties_ferc714(fipsified_respondents_ferc714):
+def georeferenced_counties_ferc714(fipsified_respondents_ferc714, county_censusdp1):
     """Annual respondents with all associated county-level geometries.
 
     Given the county FIPS codes associated with each respondent in each year, pull in
@@ -542,20 +542,15 @@ def georeferenced_counties_ferc714(fipsified_respondents_ferc714):
     respondent in each year. This is fast, and still good for mapping, and retains all
     of the FIPS IDs so you can also still do ID based analyses.
     """
-    census_counties = (
-        pudl.output.censusdp1tract.get_layer(  # Fix when census dagsterized
-            layer="county", pudl_settings=pudl.workspace.setup.get_defaults()
-        )
-    )
     counties_gdf = pudl.analysis.service_territory.add_geometries(
-        fipsified_respondents_ferc714, census_gdf=census_counties
+        fipsified_respondents_ferc714, census_gdf=county_censusdp1
     ).pipe(apply_pudl_dtypes)
     return counties_gdf
 
 
 @asset(compute_kind="Python")
 def georeferenced_respondents_ferc714(
-    fipsified_respondents_ferc714, summarized_demand_ferc714
+    fipsified_respondents_ferc714, summarized_demand_ferc714, county_censusdp1
 ):
     """Annual respondents with a single all-encompassing geometry for each year.
 
@@ -567,16 +562,10 @@ def georeferenced_respondents_ferc714(
     you can see which respondent-years have both reported demand and decent geometries,
     calculate their areas to see if something changed from year to year, etc.
     """
-    census_counties = (
-        pudl.output.censusdp1tract.get_layer(  # Fix when census dagsterized
-            layer="county",
-            pudl_settings=pudl.workspace.setup.get_defaults(),
-        )
-    )
     respondents_gdf = (
         pudl.analysis.service_territory.add_geometries(
             fipsified_respondents_ferc714,
-            census_gdf=census_counties,
+            census_gdf=county_censusdp1,
             dissolve=True,
             dissolve_by=["report_date", "respondent_id_ferc714"],
         )

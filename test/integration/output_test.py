@@ -3,9 +3,12 @@ import logging
 
 import pandas as pd
 import pytest
+from dagster import materialize
 
 import pudl
 import pudl.validate as pv
+from pudl.convert.censusdp1tract_to_sqlite import censusdp1tract_to_sqlite
+from pudl.output.censusdp1tract import census_asset_factory
 
 logger = logging.getLogger(__name__)
 
