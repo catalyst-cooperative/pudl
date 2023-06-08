@@ -946,6 +946,7 @@ def explode_tables(
     """Explode a set of nested tables.
 
     There are five main stages of this process:
+
     #. Prep all of the individual tables for explosion.
     #. Concatenate all of the tabels together.
     #. Remove duplication in the concatenated exploded table.
@@ -1189,15 +1190,13 @@ def remove_totals_from_other_dimensions(
     # ensure we are only taking totals from table_name's that have more than one value
     # for their other dimensions.
     # find the totals from the other dimensions
-
     exploded = exploded.assign(
         **{
-            f"{dim}_nunique": exploded.groupby(["table_name"])[
-                other_dimensions
-            ].transform("nunique")
+            f"{dim}_nunique": exploded.groupby(["table_name"])[dim].transform("nunique")
             for dim in other_dimensions
         }
-    ).assign(
+    )
+    exploded = exploded.assign(
         **{
             f"{dim}_total": (exploded[dim] == "total")
             & (exploded[f"{dim}_nunique"] != 1)
