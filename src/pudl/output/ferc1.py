@@ -878,19 +878,17 @@ def add_mean_cap_additions(steam_df):
 #########
 # Explode
 #########
-
-
-def explode_table_asset_factory(
+def exploded_table_asset_factory(
     root_table: str,
     table_names_to_explode: list[str],
-    # io_manager_key: str = "pudl_sqlite_io_manager", # TODO: Add metadata for tables
+    io_manager_key: str | None = None,  # TODO: Add metadata for tables
 ) -> AssetsDefinition:
     """Create an exploded table based on a set of related input tables."""
     ins: Mapping[str, AssetIn] = {}
     ins = {"clean_xbrl_metadata_json": AssetIn("clean_xbrl_metadata_json")}
     ins |= {table_name: AssetIn(table_name) for table_name in table_names_to_explode}
 
-    @asset(name=f"{root_table}_exploded", ins=ins)  # , io_manager_key=io_manager_key)
+    @asset(name=f"{root_table}_exploded", ins=ins, io_manager_key=io_manager_key)
     def exploded_tables_asset(
         **kwargs: dict[str, pd.DataFrame],
     ) -> pd.DataFrame:
@@ -909,7 +907,7 @@ def explode_table_asset_factory(
     return exploded_tables_asset
 
 
-def create_explode_table_assets() -> list[AssetsDefinition]:
+def create_exploded_table_assets() -> list[AssetsDefinition]:
     """Create a list of exploded FERC1 assets.
 
     Returns:
@@ -933,15 +931,15 @@ def create_explode_table_assets() -> list[AssetsDefinition]:
     }
     assets = []
     for root_table, table_names_to_explode in explosion_tables.items():
-        assets.append(explode_table_asset_factory(root_table, table_names_to_explode))
+        assets.append(exploded_table_asset_factory(root_table, table_names_to_explode))
     return assets
 
 
-exploded_ferc1_assets = create_explode_table_assets()
+exploded_ferc1_assets = create_exploded_table_assets()
 
 
 def explode_tables(
-    tables_to_explode: dict[str : pd.DataFrame],
+    tables_to_explode: dict[str, pd.DataFrame],
     root_table: str,
     clean_xbrl_metadata_json: dict,
 ) -> pd.DataFrame:
@@ -1145,7 +1143,7 @@ def get_table_level(table_name: str, top_table: str) -> int:
     return level
 
 
-def get_table_levels(tables_to_explode: list, top_table: str) -> pd.DataFrame:
+def get_table_levels(tables_to_explode: list[str], top_table: str) -> pd.DataFrame:
     """Get a set of table's level in the explosion.
 
     Level in this context means where it sits in the tree of the relationship of these
@@ -1159,7 +1157,9 @@ def get_table_levels(tables_to_explode: list, top_table: str) -> pd.DataFrame:
     return pd.DataFrame(table_levels)
 
 
-def remove_totals_from_other_dimension(exploded, other_dimensions) -> pd.DataFrame:
+def remove_totals_from_other_dimension(
+    exploded: pd.DataFrame, other_dimensions: list[str]
+) -> pd.DataFrame:
     """Remove the totals from the other dimensions."""
     logger.info("Explode: Interdimensional time.")
     # TODO: Right now we have not filled in null dimensions for tables that are
