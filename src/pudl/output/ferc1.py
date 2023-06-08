@@ -888,7 +888,7 @@ def exploded_table_asset_factory(
     ins = {"clean_xbrl_metadata_json": AssetIn("clean_xbrl_metadata_json")}
     ins |= {table_name: AssetIn(table_name) for table_name in table_names_to_explode}
 
-    @asset(name=f"{root_table}_exploded", ins=ins, io_manager_key=io_manager_key)
+    @asset(name=f"exploded_{root_table}", ins=ins, io_manager_key=io_manager_key)
     def exploded_tables_asset(
         **kwargs: dict[str, pd.DataFrame],
     ) -> pd.DataFrame:
@@ -1234,7 +1234,7 @@ def find_intra_table_components_to_remove(inter_table_calc: str) -> list[str]:
     return [
         component["name"]
         for component in json.loads(inter_table_calc)
-        if not component.get("source_table", False)
+        if not component.get("source_tables", False)
     ]
 
 
