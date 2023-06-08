@@ -6,9 +6,12 @@ import sys
 import geopandas as gpd
 import pandas as pd
 import pytest
+from dagster import materialize
 
 import pudl
 import pudl.validate as pv
+from pudl.convert.censusdp1tract_to_sqlite import censusdp1tract_to_sqlite
+from pudl.output.censusdp1tract import census_asset_factory
 
 logger = logging.getLogger(__name__)
 
@@ -179,8 +182,13 @@ def ferc714_out(fast_out, pudl_settings_fixture, pudl_datastore_fixture):
         "fipsify",
     ],
 )
-def test_ferc714_outputs(ferc714_out, df_name):
+def test_ferc714_outputs(ferc714_out, df_name, pudl_datastore_fixture):
     """Test FERC 714 derived output methods."""
+    # Materialize census outputs (temporary fix until FERC714 in dagster.)
+    materialize(
+        [censusdp1tract_to_sqlite, census_asset_factory("county")],
+        resources={"datastore": pudl_datastore_fixture},
+    )
     logger.info(f"Running ferc714_out.{df_name}()")
     df = ferc714_out.__getattribute__(df_name)()
     assert isinstance(df, pd.DataFrame), f"{df_name} is {type(df)} not DataFrame!"
@@ -192,7 +200,7 @@ def test_ferc714_outputs(ferc714_out, df_name):
     (sys.platform != "linux") & (not os.environ.get("CONDA_PREFIX", False)),
     reason="Test relies on ogr2ogr being installed via GDAL.",
 )
-def test_ferc714_respondents_georef_counties(ferc714_out):
+def test_ferc714_respondents_georef_counties(ferc714_out, pudl_datastore_fixture):
     """Test FERC 714 respondent county FIPS associations.
 
     This test works with the Census DP1 data, which is converted into SQLite using the
@@ -200,6 +208,11 @@ def test_ferc714_respondents_georef_counties(ferc714_out):
     but is more challenging on Windows and MacOS, so this test is marked xfail
     conditionally if the user is neither using conda, nor is on Linux.
     """
+    # Materialize census outputs (temporary fix until FERC714 in dagster.)
+    materialize(
+        [censusdp1tract_to_sqlite, census_asset_factory("county")],
+        resources={"datastore": pudl_datastore_fixture},
+    )
     ferc714_gdf = ferc714_out.georef_counties()
     assert isinstance(ferc714_gdf, gpd.GeoDataFrame), "ferc714_gdf not a GeoDataFrame!"
     assert not ferc714_gdf.empty, "ferc714_gdf is empty!"
