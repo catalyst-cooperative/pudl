@@ -963,9 +963,6 @@ def explode_tables(
     # we wanna save some stuff from each of the tables we are concating
     # root_table = list(tables_to_explode.keys())[0]
     explosion_tables = []
-    other_dimensions = []
-    pks = []
-    value_cols = []
     # GRAB/PREP EACH TABLE
     for table_name, table_df in tables_to_explode.items():
         xbrl_factoid_name = pudl.transform.ferc1.FERC1_TFR_CLASSES[
@@ -981,41 +978,16 @@ def explode_tables(
                 "inter_table_calc_flag",
             ]
         ]
-        other_dimensions.append(
-            pudl.transform.ferc1.FERC1_TFR_CLASSES[
-                table_name
-            ]().params.reconcile_table_calculations.subtotal_column
-        )
         tbl = (
             table_df.assign(table_name=table_name)
             .rename(columns={xbrl_factoid_name: "xbrl_factoid"})
             .merge(tbl_meta, how="left", on="xbrl_factoid", validate="m:1")
         )
         explosion_tables.append(tbl)
-        pks.append(
-            [
-                col
-                for col in pudl.metadata.classes.Resource.from_id(
-                    table_name
-                ).schema.primary_key
-                if col != xbrl_factoid_name
-            ]
-        )
-        value_cols.append(
-            pudl.transform.ferc1.FERC1_TFR_CLASSES[
-                table_name
-            ]().params.reconcile_table_calculations.column_to_check
-        )
-        logger.info(f"Grabbed {table_name}")
 
-    other_dimensions = [sub for sub in other_dimensions if sub]
-    pks = pudl.helpers.dedupe_n_flatten_list_of_lists(pks) + ["xbrl_factoid"]
-    if len(set(value_cols)) != 1:
-        raise ValueError(
-            "Exploding FERC tables requires tables with only one value column. Got: "
-            f"{set(value_cols)}"
-        )
-    value_col = list(set(value_cols))[0]
+    other_dimensions = get_other_dimensions(tbl_names=tables_to_explode.keys())
+    pks = get_exploded_pks(tbl_names=tables_to_explode.keys())
+    value_col = get_value_col(tbl_names=tables_to_explode.keys())
     # REMOVE THE DUPLICATION
     logger.info("CONCAT!")
     exploded = (
@@ -1032,6 +1004,57 @@ def explode_tables(
         .pipe(remove_intra_table_calculated_values)
     )
     return exploded
+
+
+def get_other_dimensions(tbl_names: list[str]) -> list[str]:
+    """Get all of the column names for the other dimensions."""
+    other_dimensions = []
+    for table_name in tbl_names:
+        other_dimensions.append(
+            pudl.transform.ferc1.FERC1_TFR_CLASSES[
+                table_name
+            ]().params.reconcile_table_calculations.subtotal_column
+        )
+    other_dimensions = [sub for sub in other_dimensions if sub]
+    return other_dimensions
+
+
+def get_exploded_pks(tbl_names: list[str]) -> list[str]:
+    """Get the joint primary keys of the exploded tables."""
+    pks = []
+    for table_name in tbl_names:
+        xbrl_factoid_name = pudl.transform.ferc1.FERC1_TFR_CLASSES[
+            table_name
+        ]().params.xbrl_factoid_name
+        pks.append(
+            [
+                col
+                for col in pudl.metadata.classes.Resource.from_id(
+                    table_name
+                ).schema.primary_key
+                if col != xbrl_factoid_name
+            ]
+        )
+    pks = pudl.helpers.dedupe_n_flatten_list_of_lists(pks) + ["xbrl_factoid"]
+    return pks
+
+
+def get_value_col(tbl_names: list[str]) -> str:
+    """Get the value column for the exploded tables."""
+    value_cols = []
+    for table_name in tbl_names:
+        value_cols.append(
+            pudl.transform.ferc1.FERC1_TFR_CLASSES[
+                table_name
+            ]().params.reconcile_table_calculations.column_to_check
+        )
+    if len(set(value_cols)) != 1:
+        raise ValueError(
+            "Exploding FERC tables requires tables with only one value column. Got: "
+            f"{set(value_cols)}"
+        )
+    value_col = list(set(value_cols))[0]
+    return value_col
 
 
 def remove_factoids_from_mutliple_tables(
