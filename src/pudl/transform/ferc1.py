@@ -49,15 +49,15 @@ def clean_xbrl_metadata_json(
 ) -> dict[str, dict[str, list[dict[str, Any]]]]:
     """Generate cleaned json xbrl metadata.
 
-    For now, this only runs :func:`add_source_table_to_xbrl_metadata`.
+    For now, this only runs :func:`add_source_tables_to_xbrl_metadata`.
     """
-    return add_source_table_to_xbrl_metadata(raw_xbrl_metadata_json)
+    return add_source_tables_to_xbrl_metadata(raw_xbrl_metadata_json)
 
 
-def add_source_table_to_xbrl_metadata(
+def add_source_tables_to_xbrl_metadata(
     raw_xbrl_metadata_json: dict[str, dict[str, list[dict[str, Any]]]]
 ) -> dict[str, dict[str, list[dict[str, Any]]]]:
-    """Add a ``source_table`` field into metadata calculation components.
+    """Add a ``source_tables`` field into metadata calculation components.
 
     When a particular component of a calculation does not originate from the table in
     which the calculated field is being reported, label the source table.
@@ -76,16 +76,16 @@ def add_source_table_to_xbrl_metadata(
             for table_name, table_meta in xbrl_meta.items()
         }
 
-    def label_source_table(calc_component: dict, tables_to_fields: str) -> dict:
-        """Add a ``source_table`` element to the calculation component."""
-        calc_component["source_table"] = [
+    def label_source_tables(calc_component: dict, tables_to_fields: str) -> dict:
+        """Add a ``source_tables`` element to the calculation component."""
+        calc_component["source_tables"] = [
             other_table_name
             for other_table_name, fields in tables_to_fields.items()
             if calc_component["name"] in fields
         ]
         # weirdly there are a number of nuclear xbrl_factoid calc components that seem
-        # to have no source_table.
-        if not calc_component["source_table"]:
+        # to have no source_tables.
+        if not calc_component["source_tables"]:
             logger.debug(f"Found no source table for {calc_component['name']}.")
         return calc_component
 
@@ -98,7 +98,7 @@ def add_source_table_to_xbrl_metadata(
                 for calc_component in xbrl_fact["calculations"]:
                     # does the calc component show up in the table? if not, add a label
                     if calc_component["name"] not in tables_to_fields[table_name]:
-                        calc_component = label_source_table(
+                        calc_component = label_source_tables(
                             calc_component, tables_to_fields
                         )
     return raw_xbrl_metadata_json
@@ -1303,7 +1303,7 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
             .assign(
                 xbrl_factoid_name_original=lambda x: x.xbrl_factoid,
                 inter_table_calc_flag=lambda x: x.calculations.str.contains(
-                    "source_table"
+                    "source_tables"
                 ),
             )
         )
@@ -1330,12 +1330,30 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
             rename_calculation_components
         )
         tbl_meta = (
-            self.apply_xbrl_calculation_fixes(tbl_meta)
+            self.deduplicate_xbrl_factoid_xbrl_metadata(tbl_meta)
+            .pipe(self.apply_xbrl_calculation_fixes)
             .pipe(self.remove_duplicated_calculation_components)
             .pipe(self.add_calculation_correction_components)
         )
         tbl_meta.calculations = tbl_meta.calculations.astype(pd.StringDtype())
 
+        return tbl_meta
+
+    def deduplicate_xbrl_factoid_xbrl_metadata(
+        self, tbl_meta: pd.DataFrame
+    ) -> pd.DataFrame:
+        """De-duplicate the xbrl_metadata based on ``xbrl_factoid``.
+
+        Default is to do nothing besides check for duplicate values because almost all
+        tables have no deduping. Deduplication needs to be applied before the
+        :meth:`apply_xbrl_calculation_fixes` inside of :meth:`process_xbrl_metadata`.
+        """
+        if tbl_meta.duplicated(subset=["xbrl_factoid"]).any() & (
+            self.params.merge_xbrl_metadata.on is not None
+        ):
+            raise AssertionError(
+                f"Metadata for {self.table_id.value} has duplicative xbrl_factoid records."
+            )
         return tbl_meta
 
     def raw_xbrl_factoid_to_pudl_name(
@@ -1484,6 +1502,35 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
                     }
                 ],
             },
+            "electric_operating_revenues_ferc1": {
+                "sales_to_ultimate_consumers": [
+                    # Replace commercial_and_industrial_sales which is reported in
+                    # electricity_sales_by_rate_schedule_ferc1 with two components
+                    # (small_or_commercial_sales... and large_or_industrial_sales...)
+                    # from this table which should sum to the same amount as the value
+                    # being replaced.
+                    {
+                        "calc_component_to_replace": {
+                            "name": "commercial_and_industrial_sales",
+                            "weight": 1.0,
+                            "source_tables": [
+                                "electricity_sales_by_rate_schedule_ferc1"
+                            ],
+                        },
+                        "calc_component_new": {
+                            "name": "small_or_commercial_sales_electric_operating_revenue",
+                            "weight": 1.0,
+                        },
+                    },
+                    {
+                        "calc_component_to_replace": {},
+                        "calc_component_new": {
+                            "name": "large_or_industrial_sales_electric_operating_revenue",
+                            "weight": 1.0,
+                        },
+                    },
+                ],
+            },
             "electric_operating_expenses_ferc1": {
                 # This table has two factoids that have sub-components that are
                 # calculations themselves and both the sub-component calcuated values
@@ -1499,6 +1546,18 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
                             "name": "operation_supervision_and_engineering_steam_power_generation",
                             "weight": 1.0,
                         },
+                    },
+                    {
+                        "calc_component_to_replace": {
+                            "name": "operation_supervision_and_engineering_expense",
+                            "weight": 1.0,
+                            "source_tables": [
+                                "plants_steam_ferc1",
+                                "plants_hydro_ferc1",
+                                "plants_pumped_storage_ferc1",
+                            ],
+                        },
+                        "calc_component_new": {},
                     },
                     {  # this shows up in the steam calc, but its a nuclear expns
                         "calc_component_to_replace": {
@@ -1618,6 +1677,18 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
                             "name": "operation_supervision_and_engineering_hydraulic_power_generation",
                             "weight": 1.0,
                         },
+                    },
+                    {
+                        "calc_component_to_replace": {
+                            "name": "operation_supervision_and_engineering_expense",
+                            "weight": 1.0,
+                            "source_tables": [
+                                "plants_steam_ferc1",
+                                "plants_hydro_ferc1",
+                                "plants_pumped_storage_ferc1",
+                            ],
+                        },
+                        "calc_component_new": {},
                     },
                     # subcomponents of hydraulic_power_generation_maintenance_expense
                     {
@@ -2832,22 +2903,6 @@ class PlantInServiceFerc1TableTransformer(Ferc1AbstractTableTransformer):
         that we are using in the data itself (since FERC doesn't quite follow their own
         naming conventions...). We use the same rename dictionary, but as an argument to
         :meth:`pd.Series.replace` instead of :meth:`pd.DataFrame.rename`.
-
-        We also deduplicate the metadata on the basis of the ``xbrl_factoid`` name.
-        This table in particular has multiple ``wide_to_tidy`` ``value_types`` because
-        there are multiple dollar columns embedded (it has both the standard start/end
-        balances as well as modifcations like transfers/retirements). In the XBRL
-        metadata, each xbrl_fact has its own set of metadata and possibly its own set of
-        calculations. Which means that one ``xbrl_factoid`` for this table natively
-        could have multiple calculations or other metadata.
-
-        For merging, we need the metadata to have one field per ``xbrl_factoid``.
-        Because we normally only use the start/end balance in calculations, when there
-        are duplicate renamed ``xbrl_factoid`` s in our processed metadata, we are going
-        to prefer the one that refers to the start/end balances. In an ideal world, we
-        would be able to access this metadata based on both the ``xbrl_factoid`` and
-        any column from ``value_types`` but that would require a larger change in
-        architecture.
         """
         tbl_meta = super().process_xbrl_metadata(xbrl_metadata_json)
 
@@ -2864,7 +2919,29 @@ class PlantInServiceFerc1TableTransformer(Ferc1AbstractTableTransformer):
             == "electric_plant_in_service_and_completed_construction_not_classified_electric",
             "ferc_account",
         ] = "101_and_106"
+        return tbl_meta
 
+    def deduplicate_xbrl_factoid_xbrl_metadata(
+        self, tbl_meta: pd.DataFrame
+    ) -> pd.DataFrame:
+        """De-duplicate the XBLR metadata.
+
+        We deduplicate the metadata on the basis of the ``xbrl_factoid`` name.
+        This table in particular has multiple ``wide_to_tidy`` ``value_types`` because
+        there are multiple dollar columns embedded (it has both the standard start/end
+        balances as well as modifcations like transfers/retirements). In the XBRL
+        metadata, each xbrl_fact has its own set of metadata and possibly its own set of
+        calculations. Which means that one ``xbrl_factoid`` for this table natively
+        could have multiple calculations or other metadata.
+
+        For merging, we need the metadata to have one field per ``xbrl_factoid``.
+        Because we normally only use the start/end balance in calculations, when there
+        are duplicate renamed ``xbrl_factoid`` s in our processed metadata, we are going
+        to prefer the one that refers to the start/end balances. In an ideal world, we
+        would be able to access this metadata based on both the ``xbrl_factoid`` and
+        any column from ``value_types`` but that would require a larger change in
+        architecture.
+        """
         # remove duplication of xbrl_factoid
         same_calcs_mask = tbl_meta.duplicated(
             subset=["xbrl_factoid", "calculations"], keep=False
@@ -2872,7 +2949,7 @@ class PlantInServiceFerc1TableTransformer(Ferc1AbstractTableTransformer):
         # if they key values are the same, select the records with values in ferc_account
         same_calcs_deduped = (
             tbl_meta[same_calcs_mask]
-            .sort_values(["ferc_account"])
+            .sort_values(["ferc_account"])  # sort brings the nulls to the bottom
             .drop_duplicates(subset=["xbrl_factoid"], keep="first")
         )
         # when the calcs are different, they are referring to the non-adjustments
@@ -4147,19 +4224,41 @@ class RetainedEarningsFerc1TableTransformer(Ferc1AbstractTableTransformer):
         )
         return df
 
-    @cache_df("process_xbrl_metadata")
-    def process_xbrl_metadata(self, xbrl_metadata_json) -> pd.DataFrame:
-        """Transform the metadata to reflect the transformed data.
+    def deduplicate_xbrl_factoid_xbrl_metadata(self, tbl_meta) -> pd.DataFrame:
+        """Deduplicate the xbrl_metadata based on the ``xbrl_factoid``.
 
-        Run the generic :func:`process_xbrl_metadata` and then remove some suffixes that
-        were removed during :meth:`wide_to_tidy`.
+        The metadata relating to dollar_value column *generally* had the same name as
+        the renamed xbrl_factoid. we'll double check that we a) didn't remove too many
+        factoid's by doing this AND that we have a fully deduped output below. In an
+        ideal world, we would have multiple pieces of metadata information (like
+        calucations and ferc account #'s), for every single :meth:`wide_to_tidy` value
+        column.
+
+        Note: This is **almost** the same as the method for
+        :ref:`electric_operating_revenues_ferc1`. If we wanted to lean into this
+        version of deduplication more generally this might be a fine way start to an
+        abstraction, but ideally we wouldn't need to dedupe this at all and instead
+        enable metadata for every value column from :meth:`wide_to_tidy`.
         """
-        meta = (
-            super()
-            .process_xbrl_metadata(xbrl_metadata_json)
-            .drop_duplicates(subset=["xbrl_factoid"], keep="first")
-        )
-        return meta
+        dupes_masks = tbl_meta.duplicated(subset=["xbrl_factoid"], keep=False)
+        non_dupes = tbl_meta[~dupes_masks]
+        dupes = tbl_meta[dupes_masks]
+
+        deduped = dupes[dupes.xbrl_factoid == dupes.xbrl_factoid_name_original]
+        tbl_meta_cleaned = pd.concat([non_dupes, deduped])
+        assert ~tbl_meta_cleaned.duplicated(subset=["xbrl_factoid"]).all()
+
+        missing = {
+            factoid
+            for factoid in tbl_meta.xbrl_factoid.unique()
+            if factoid not in tbl_meta_cleaned.xbrl_factoid.unique()
+        }
+        if missing:
+            raise AssertionError(
+                "We expected to find no missing xbrl_factoid's after deduplication "
+                f"but found {missing}"
+            )
+        return tbl_meta_cleaned
 
 
 class DepreciationAmortizationSummaryFerc1TableTransformer(
@@ -4329,8 +4428,9 @@ class ElectricOperatingRevenuesFerc1TableTransformer(Ferc1AbstractTableTransform
     table_id: TableIdFerc1 = TableIdFerc1.ELECTRIC_OPERATING_REVENUES_FERC1
     has_unique_record_ids: bool = False
 
-    @cache_df("process_xbrl_metadata")
-    def process_xbrl_metadata(self, xbrl_metadata_json) -> pd.DataFrame:
+    def deduplicate_xbrl_factoid_xbrl_metadata(
+        self, tbl_meta: pd.DataFrame
+    ) -> pd.DataFrame:
         """Transform the metadata to reflect the transformed data.
 
         Employ the standard process for processing metadata. Then remove duplication on
@@ -4346,7 +4446,6 @@ class ElectricOperatingRevenuesFerc1TableTransformer(Ferc1AbstractTableTransform
         or something like that to stack the metadata in a similar fashion that we stack
         the data.
         """
-        tbl_meta = super().process_xbrl_metadata(xbrl_metadata_json)
         dupes_masks = tbl_meta.duplicated(subset=["xbrl_factoid"], keep=False)
         non_dupes = tbl_meta[~dupes_masks]
         dupes = tbl_meta[dupes_masks]
