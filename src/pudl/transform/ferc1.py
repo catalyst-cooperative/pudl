@@ -3893,6 +3893,167 @@ class UtilityPlantSummaryFerc1TableTransformer(Ferc1AbstractTableTransformer):
     table_id: TableIdFerc1 = TableIdFerc1.UTILITY_PLANT_SUMMARY_FERC1
     has_unique_record_ids: bool = False
 
+    def transform_main(self: Self, df: pd.DataFrame) -> pd.DataFrame:
+        """Spot fix depreciation_utility_plant_in_service records with bad signs."""
+        df = super().transform_main(df)
+
+        primary_keys = [
+            "report_year",
+            "utility_id_ferc1",
+            "utility_type",
+            "utility_plant_asset_type",
+        ]
+
+        # The utility_id_ferc1 211 follows the same pattern for several years
+        # instead of writing them all out in spot_fix_pks, we'll create a loop that
+        # generates all of them and then append them to spot_fix_pks later
+        spot_fix_211 = []
+        for year in np.append(2006, range(2009, 2021)):
+            for utility_type in ["electric", "total"]:
+                pks = [
+                    (
+                        year,
+                        211,
+                        utility_type,
+                        "accumulated_provision_for_depreciation_amortization_and_depletion_of_plant_utility_detail",
+                    ),
+                    (
+                        year,
+                        211,
+                        utility_type,
+                        "amortization_of_other_utility_plant_utility_plant_in_service",
+                    ),
+                    (
+                        year,
+                        211,
+                        utility_type,
+                        "depreciation_amortization_and_depletion_utility_plant_in_service",
+                    ),
+                    (year, 211, utility_type, "depreciation_utility_plant_in_service"),
+                ]
+                spot_fix_211 = spot_fix_211 + pks
+
+        spot_fix_pks = [
+            (
+                2012,
+                156,
+                "total",
+                "accumulated_provision_for_depreciation_amortization_and_depletion_of_plant_utility_detail",
+            ),
+            (
+                2012,
+                156,
+                "total",
+                "depreciation_amortization_and_depletion_utility_plant_in_service",
+            ),
+            (2012, 156, "total", "depreciation_utility_plant_in_service"),
+            (
+                2012,
+                156,
+                "electric",
+                "accumulated_provision_for_depreciation_amortization_and_depletion_of_plant_utility_detail",
+            ),
+            (
+                2012,
+                156,
+                "electric",
+                "depreciation_amortization_and_depletion_utility_plant_in_service",
+            ),
+            (2012, 156, "electric", "depreciation_utility_plant_in_service"),
+            (
+                2002,
+                170,
+                "other1",
+                "accumulated_provision_for_depreciation_amortization_and_depletion_of_plant_utility",
+            ),
+            (
+                2013,
+                170,
+                "total",
+                "accumulated_provision_for_depreciation_amortization_and_depletion_of_plant_utility_detail",
+            ),
+            (
+                2013,
+                170,
+                "total",
+                "amortization_of_other_utility_plant_utility_plant_in_service",
+            ),
+            (2013, 170, "total", "amortization_of_plant_acquisition_adjustment"),
+            (
+                2013,
+                170,
+                "total",
+                "depreciation_amortization_and_depletion_utility_plant_in_service",
+            ),
+            (2013, 170, "total", "depreciation_utility_plant_in_service"),
+            (
+                2013,
+                170,
+                "electric",
+                "accumulated_provision_for_depreciation_amortization_and_depletion_of_plant_utility_detail",
+            ),
+            (
+                2013,
+                170,
+                "electric",
+                "amortization_of_other_utility_plant_utility_plant_in_service",
+            ),
+            (2013, 170, "electric", "amortization_of_plant_acquisition_adjustment"),
+            (
+                2013,
+                170,
+                "electric",
+                "depreciation_amortization_and_depletion_utility_plant_in_service",
+            ),
+            (2013, 170, "electric", "depreciation_utility_plant_in_service"),
+            (
+                2007,
+                393,
+                "electric",
+                "accumulated_provision_for_depreciation_amortization_and_depletion_of_plant_utility_detail",
+            ),
+            (
+                2007,
+                393,
+                "electric",
+                "depreciation_amortization_and_depletion_utility_plant_in_service",
+            ),
+            (2007, 393, "electric", "depreciation_utility_plant_in_service"),
+            (
+                2007,
+                393,
+                "total",
+                "accumulated_provision_for_depreciation_amortization_and_depletion_of_plant_utility_detail",
+            ),
+            (
+                2007,
+                393,
+                "total",
+                "depreciation_amortization_and_depletion_utility_plant_in_service",
+            ),
+            (2007, 393, "total", "depreciation_utility_plant_in_service"),
+        ]
+
+        # Combine bespoke fixes with programatically generated spot fixes
+        spot_fix_pks = spot_fix_pks + spot_fix_211
+
+        # Create a df out of the primary key of the records you want to fix
+        df_keys = pd.DataFrame(spot_fix_pks, columns=primary_keys).set_index(
+            primary_keys
+        )
+        df.set_index(primary_keys, inplace=True)
+        # Flip the signs for the values in "ending balance" all records in the original
+        # df that appear in the primary key df
+        df.loc[df_keys.index, "ending_balance"] = df["ending_balance"] * -1
+        # All of these are flipping negative values to positive values, so let's
+        # make sure that's what happens
+        if (df.loc[df_keys.index].ending_balance < 0).any():
+            raise AssertionError("None of these spot fixes should be negative")
+
+        df = df.reset_index()
+
+        return df
+
 
 class BalanceSheetLiabilitiesFerc1TableTransformer(Ferc1AbstractTableTransformer):
     """Transformer class for :ref:`balance_sheet_liabilities_ferc1` table."""
