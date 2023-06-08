@@ -521,7 +521,7 @@ def census_counties(county_censusdp1: pd.DataFrame) -> pd.DataFrame:
     Returns:
         Dataframe with columns `county_id_fips` and `population`.
     """
-    return county_censusdp1["geoid10", "dp0010001"].rename(
+    return county_censusdp1[["geoid10", "dp0010001"]].rename(
         columns={"geoid10": "county_id_fips", "dp0010001": "population"}
     )
 
