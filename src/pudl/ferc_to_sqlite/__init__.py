@@ -14,8 +14,20 @@ logger = pudl.logging_helpers.get_logger(__name__)
 
 @graph
 def ferc_to_sqlite():
-    """Clone the FERC Form 1 FoxPro database and XBRL filings into SQLite."""
+    """Clone the FERC FoxPro databases and XBRL filings into SQLite."""
     dbf2sqlite()
+    xbrl2sqlite()
+
+
+@graph
+def ferc_to_sqlite_dbf_only():
+    """Clone the FERC FoxPro databases into SQLite."""
+    dbf2sqlite()
+
+
+@graph
+def ferc_to_sqlite_xbrl_only():
+    """Clone the FERC XBRL databases into SQLite."""
     xbrl2sqlite()
 
 
