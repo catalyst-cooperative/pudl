@@ -602,6 +602,11 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "type": "string",
         "description": "Unique digitial object identifier of Zenodo archive.",
     },
+    "dollar_value": {
+        "type": "number",
+        "description": "Dollar value of reported income, expense, asset, or liability.",
+        "unit": "USD",
+    },
     "duct_burners": {
         "type": "boolean",
         "description": "Indicates whether the unit has duct-burners for supplementary firing of the turbine exhaust gas",
@@ -2113,7 +2118,7 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     "row_type_xbrl": {
         "type": "string",
         "description": "Indicates whether the value reported in the row is calculated, or uniquely reported within the table.",
-        "constraints": {"enum": ["calculated_value", "reported_value"]},
+        "constraints": {"enum": ["calculated_value", "reported_value", "correction"]},
     },
     "rto_iso_lmp_node_id": {
         "type": "string",
