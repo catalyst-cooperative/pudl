@@ -142,6 +142,10 @@ def xbrl2sqlite(context) -> None:
         if settings is None:
             continue
 
+        if settings.disabled:
+            logger.info(f"Dataset ferc{form}_xbrl is disabled, skipping")
+            continue
+
         sqlite_engine = _get_sqlite_engine(form.value, output_path, clobber)
 
         convert_form(
