@@ -4222,6 +4222,12 @@ class RetainedEarningsFerc1TableTransformer(Ferc1AbstractTableTransformer):
                 date_dupe_types,
             ]
         )
+
+        # Since we've created an ending balance column, we should use the 'amount'
+        # value to fill it across the table and drop the amount column.
+        df.ending_balance = df.ending_balance.fillna(df.amount)
+        df = df.drop("amount", axis=1)
+
         return df
 
     def deduplicate_xbrl_factoid_xbrl_metadata(self, tbl_meta) -> pd.DataFrame:
