@@ -677,7 +677,7 @@ def _tidy_class_dfs(
     Returns:
         A tidier long-form version of the input dataframe.
     """
-    # Clean up values just enough to use primary key columns as a multi-index:
+    # Replace NA values in the BA code column with "UNK"
     logger.debug(f"Cleaning {df_name} table index columns so we can tidy data.")
     if "balancing_authority_code_eia" in idx_cols:
         df = df.assign(
@@ -685,28 +685,22 @@ def _tidy_class_dfs(
                 lambda x: x.balancing_authority_code_eia.fillna("UNK")
             )
         )
+    before_len = len(df)
     raw_df = (
         df.dropna(subset=["utility_id_eia"])
         .astype({"utility_id_eia": "Int64"})
         .set_index(idx_cols)
     )
+    after_len = len(raw_df)
+    if before_len != after_len:
+        logger.debug(
+            f"Dropped {before_len - after_len} rows in EIA-861 {df_name} table due to "
+            "missing utility_id_eia values."
+        )
     # Split the table into index, data, and "denormalized" columns for processing:
     # Separate customer classes and reported data into a hierarchical index
     logger.debug(f"Stacking EIA861 {df_name} data columns by {class_type}.")
     data_cols = _filter_class_cols(raw_df, class_list)
-
-    # TODO: Check to make sure that the idx_cols are actually valid primary key cols:
-    # This is tricky, because NA values in the BA Code column creates actual duplicate
-    # values. These NA values are filled with UNK and the duplicates are later dropped,
-    # which means we are losing data. But it's not obvious how we could actually fill
-    # in real BA codes. In sales_eia861 there are about 67 duplicate records. Dropping
-    # the NA BA Code values fixes all this... Grr.
-    # See: https://github.com/catalyst-cooperative/pudl/issues/2638
-
-    # if not data_cols.index.is_unique:
-    #     raise AssertionError(
-    #         f"Found {len(data_cols.reset_index().duplicated(idx_cols))} non-unique rows"
-    #     )
 
     # Create a regex identifier that splits the column headers based on the strings
     # deliniated in the class_list not just an underscore. This enables prefixes with
@@ -723,13 +717,39 @@ def _tidy_class_dfs(
     data_cols = data_cols.stack(level=0, dropna=False).reset_index()
     denorm_cols = _filter_non_class_cols(raw_df, class_list).reset_index()
 
+    # Check to make sure that the idx_cols are actually valid primary key cols:
+    # This is tricky, because NA values in the BA Code column creates actual duplicate
+    # values. These NA values are filled with UNK and the duplicates are later dropped,
+    # which means we are losing data. But it's not obvious how we could actually fill
+    # in real BA codes, so we consolidate the indistinguisbale records.
+    # These are only a fraction of a percent of all records, and only affect a couple
+    # of tables. In sales_eia861 there are 67 duplicate records.
+    # See: https://github.com/catalyst-cooperative/pudl/issues/2638
+    dupe_mask = data_cols.duplicated(subset=idx_cols + [class_type], keep=False)
+    dupes = data_cols[dupe_mask]
+    fraction_dupes = len(dupes) / len(data_cols)
+    err_msg = (
+        f"{df_name} table: Found {len(dupes)}/{len(data_cols)} "
+        f"({fraction_dupes:0.2%}) records with duplicated PKs. "
+    )
+    if fraction_dupes <= 0.005:
+        err_msg += "Consolidating duplicated records."
+        logger.info(err_msg)
+        deduped = dupes.groupby(idx_cols + [class_type], as_index=False).sum()
+        data_cols = pd.concat([data_cols[~dupe_mask], deduped], axis="index")
+        # PK dupes also affect denorm_cols. Drop dupes to ensure clean 1 to many merge:
+        denorm_cols = denorm_cols.drop_duplicates(subset=idx_cols)
+    else:
+        raise AssertionError(err_msg)
+
     # Merge the index, data, and denormalized columns back together
-    tidy_df = pd.merge(denorm_cols, data_cols, on=idx_cols)
+    tidy_df = pd.merge(denorm_cols, data_cols, on=idx_cols, validate="1:m")
 
     # Compare reported totals with sum of component columns
     if "total" in class_list:
         _compare_totals(data_cols, idx_cols, class_type, df_name)
     if keep_totals is False:
+        logger.debug("Dropping duplicative total records.")
         tidy_df = tidy_df.query(f"{class_type}!='total'")
 
     return tidy_df, idx_cols + [class_type]
@@ -772,17 +792,17 @@ def _compare_totals(data_cols, idx_cols, class_type, df_name):
     # Convert column dtypes so that numeric cols can be adequately summed
     data_cols = convert_cols_dtypes(data_cols, data_source="eia")
     # Drop data cols that are non numeric (preserve primary keys)
-    logger.debug(f"{idx_cols}, {class_type}")
+    logger.debug(f"Index Columns & Class Type: {idx_cols}, {class_type}")
     data_cols = (
         data_cols.set_index(idx_cols + [class_type])
         .select_dtypes("number")
         .reset_index()
     )
-    logger.debug(f"{data_cols.columns.tolist()}")
+    logger.debug(f"Index & Data Columns: {data_cols.columns.tolist()}")
     # Create list of data columns to be summed
     # (may include non-numeric that will be excluded)
     data_col_list = set(data_cols.columns.tolist()) - set(idx_cols + [class_type])
-    logger.debug(f"{data_col_list}")
+    logger.debug(f"Data Columns: {data_col_list}")
     # Distinguish reported totals from segments
     data_totals_df = data_cols.loc[data_cols[class_type] == "total"]
     data_no_tots_df = data_cols.loc[data_cols[class_type] != "total"]
