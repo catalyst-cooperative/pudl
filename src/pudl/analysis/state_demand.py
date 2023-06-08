@@ -31,7 +31,6 @@ import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 from dagster import AssetKey, AssetOut, Field, asset, multi_asset
-import sqlalchemy as sa
 
 import pudl.analysis.timeseries_cleaning
 import pudl.logging_helpers
@@ -522,7 +521,9 @@ def census_counties(county_censusdp1: pd.DataFrame) -> pd.DataFrame:
     Returns:
         Dataframe with columns `county_id_fips` and `population`.
     """
-    return county_censusdp1["geoid10", "dp0010001"].rename(columns={"geoid10": "county_id_fips", "dp0010001": "population"})
+    return county_censusdp1[["geoid10", "dp0010001"]].rename(
+        columns={"geoid10": "county_id_fips", "dp0010001": "population"}
+    )
 
 
 # --- Allocation --- #

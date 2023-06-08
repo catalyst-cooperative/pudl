@@ -373,12 +373,9 @@ def compiled_geoms_asset_factory(
         utility_ids_all_eia,
         service_territory_eia861,
         utility_assn_eia861,
-        # census_counties,  # Adding temporary read-in of this table below, as it is not yet in dagster.
+        county_censusdp1,
     ):
         """Compile all available utility or balancing authority geometries.
-
-        census_counties (geopandas.GeoDataFrame): A GeoDataFrame containing the county
-            level US Census DP1 data and county geometries.
 
         Returns:
             A dataframe compiling all available utility or balancing authority geometries.
@@ -388,18 +385,13 @@ def compiled_geoms_asset_factory(
         limit_by_state = context.op_config["limit_by_state"]
         save_format = context.op_config["save_format"]
 
-        # Get PUDL settings
-        pudl_settings = pudl.workspace.setup.get_defaults()
-
         return compile_geoms(
             balancing_authority_eia861=balancing_authority_eia861,
             balancing_authority_assn_eia861=balancing_authority_assn_eia861,
             utility_ids_all_eia=utility_ids_all_eia,
             service_territory_eia861=service_territory_eia861,
             utility_assn_eia861=utility_assn_eia861,
-            census_counties=pudl.output.censusdp1tract.get_layer(  # Replace with direct call to asset once in dagster
-                layer="county", pudl_settings=pudl_settings
-            ),
+            census_counties=county_censusdp1,
             entity_type=entity_type,
             dissolve=dissolve,
             limit_by_state=limit_by_state,
