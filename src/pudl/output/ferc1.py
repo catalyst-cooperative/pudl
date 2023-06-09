@@ -963,7 +963,7 @@ class MetadataExploder:
                         "xbrl_factoid",
                         "calculations",
                         "xbrl_factoid_name_original",
-                        "inter_table_calc_flag",
+                        "intra_table_calc_flag",
                     ]
                 ]
                 .assign(table_name=table_name)
@@ -1116,7 +1116,7 @@ class Exploder:
                     "xbrl_factoid_name_original",
                     "table_name",
                     "row_type_xbrl",
-                    "inter_table_calc_flag",
+                    "intra_table_calc_flag",
                     "table_level",
                 ]
             ]
@@ -1291,7 +1291,7 @@ def remove_inter_table_calc_duplication(exploded: pd.DataFrame) -> pd.DataFrame:
     inter_table_calcs = (
         exploded[
             (exploded.row_type_xbrl == "calculated_value")
-            & (exploded.inter_table_calc_flag)
+            & ~exploded.intra_table_calc_flag
         ][["table_name", "xbrl_factoid", "calculations"]]
         .drop_duplicates()
         .set_index("xbrl_factoid")
@@ -1325,7 +1325,7 @@ def remove_intra_table_calculated_values(exploded: pd.DataFrame) -> pd.DataFrame
         # keep in the inter-table calced value
         | (
             (exploded.row_type_xbrl == "calculated_value")
-            & (exploded.inter_table_calc_flag)
+            & (~exploded.intra_table_calc_flag)
         )
     ]
     return exploded
