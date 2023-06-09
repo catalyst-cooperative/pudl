@@ -898,9 +898,10 @@ def exploded_table_asset_factory(
             for (name, df) in kwargs.items()
             if name != "clean_xbrl_metadata_json"
         }
-        return explode_tables(
+        return Exploder(
+            table_names=tables_to_explode.keys(), root_table=root_table
+        ).boom(
             tables_to_explode=tables_to_explode,
-            root_table=root_table,
             clean_xbrl_metadata_json=clean_xbrl_metadata_json,
         )
 
@@ -938,200 +939,277 @@ def create_exploded_table_assets() -> list[AssetsDefinition]:
 exploded_ferc1_assets = create_exploded_table_assets()
 
 
-def explode_tables(
-    tables_to_explode: dict[str, pd.DataFrame],
-    root_table: str,
-    clean_xbrl_metadata_json: dict,
-) -> pd.DataFrame:
-    """Explode a set of nested tables.
+class MetadataExploder:
+    """Combine a set of inter-related, nested table's metadata."""
 
-    There are five main stages of this process:
+    def __init__(self, table_names: list[str]):
+        """Instantiate MetadataExploder."""
+        self.table_names = table_names
 
-    #. Prep all of the individual tables for explosion.
-    #. Concatenate all of the tabels together.
-    #. Remove duplication in the concatenated exploded table.
-    #. Add in metadata for the remaining ``xbrl_factoid`` s regarding linage (not
-       implemented yet).
-    #. Validate (not implemented yet).
+    def boom(self, clean_xbrl_metadata_json: dict):
+        """Combine a set of inter-realted table's metatada for use in :class:`Exploder`.
 
-    Args:
-        tables_to_explode: dictionary of table name (key) to transfomed table (value).
-        root_table: the table at the base of the tree of tables_to_explode.
-        clean_xbrl_metadata_json: json version of the XBRL-metadata.
-    """
-    # we wanna save some stuff from each of the tables we are concating
-    # root_table = list(tables_to_explode.keys())[0]
-    explosion_tables = []
-    # GRAB/PREP EACH TABLE
-    for table_name, table_df in tables_to_explode.items():
-        xbrl_factoid_name = pudl.transform.ferc1.FERC1_TFR_CLASSES[
-            table_name
-        ]().params.xbrl_factoid_name
-        tbl_meta = pudl.transform.ferc1.FERC1_TFR_CLASSES[table_name](
-            xbrl_metadata_json=clean_xbrl_metadata_json[table_name]
-        ).xbrl_metadata[
-            [
-                "xbrl_factoid",
-                "calculations",
-                "xbrl_factoid_name_original",
-                "inter_table_calc_flag",
-            ]
-        ]
-        tbl = (
-            table_df.assign(table_name=table_name)
-            .rename(columns={xbrl_factoid_name: "xbrl_factoid"})
-            .merge(tbl_meta, how="left", on="xbrl_factoid", validate="m:1")
-        )
-        explosion_tables.append(tbl)
-
-    other_dimensions = get_other_dimensions(tbl_names=tables_to_explode.keys())
-    pks = get_exploded_pks(tbl_names=tables_to_explode.keys())
-    value_col = get_value_col(tbl_names=tables_to_explode.keys())
-    # REMOVE THE DUPLICATION
-    logger.info("CONCAT!")
-    exploded = (
-        pd.concat(explosion_tables)
-        .pipe(
-            remove_factoids_from_mutliple_tables,
-            tables_to_explode,
-            root_table,
-            value_col,
-            pks,
-        )
-        .pipe(remove_totals_from_other_dimensions, other_dimensions)
-        .pipe(remove_inter_table_calc_duplication)
-        .pipe(remove_intra_table_calculated_values)
-    )
-    return exploded
+        Args:
+            clean_xbrl_metadata_json: cleaned XRBL metadata.
+        """
+        tbl_metas = []
+        for table_name in self.table_names:
+            tbl_meta = (
+                pudl.transform.ferc1.FERC1_TFR_CLASSES[table_name](
+                    xbrl_metadata_json=clean_xbrl_metadata_json[table_name]
+                )
+                .xbrl_metadata[
+                    [
+                        "xbrl_factoid",
+                        "calculations",
+                        "xbrl_factoid_name_original",
+                        "inter_table_calc_flag",
+                    ]
+                ]
+                .assign(table_name=table_name)
+            )
+            tbl_metas.append(tbl_meta)
+        return pd.concat(tbl_metas)
 
 
-def get_other_dimensions(tbl_names: list[str]) -> list[str]:
-    """Get all of the column names for the other dimensions."""
-    other_dimensions = []
-    for table_name in tbl_names:
-        other_dimensions.append(
-            pudl.transform.ferc1.FERC1_TFR_CLASSES[
-                table_name
-            ]().params.reconcile_table_calculations.subtotal_column
-        )
-    other_dimensions = [sub for sub in other_dimensions if sub]
-    return other_dimensions
+class Exploder:
+    """Get unique, granular datapoints from a set of related, nested FERC1 tables."""
 
+    def __init__(self, table_names: list[str], root_table: str):
+        """Instantiate an Exploder class."""
+        self.table_names = table_names
+        self.root_table = root_table
+        self.meta_exploder = MetadataExploder(self.table_names)
 
-def get_exploded_pks(tbl_names: list[str]) -> list[str]:
-    """Get the joint primary keys of the exploded tables."""
-    pks = []
-    for table_name in tbl_names:
-        xbrl_factoid_name = pudl.transform.ferc1.FERC1_TFR_CLASSES[
-            table_name
-        ]().params.xbrl_factoid_name
-        pks.append(
-            [
-                col
-                for col in pudl.metadata.classes.Resource.from_id(
+    @property
+    def other_dimensions(self) -> list[str]:
+        """Get all of the column names for the other dimensions."""
+        other_dimensions = []
+        for table_name in self.table_names:
+            other_dimensions.append(
+                pudl.transform.ferc1.FERC1_TFR_CLASSES[
                     table_name
-                ).schema.primary_key
-                if col != xbrl_factoid_name
-            ]
-        )
-    pks = pudl.helpers.dedupe_n_flatten_list_of_lists(pks) + ["xbrl_factoid"]
-    return pks
+                ]().params.reconcile_table_calculations.subtotal_column
+            )
+        other_dimensions = [sub for sub in other_dimensions if sub]
+        return other_dimensions
 
-
-def get_value_col(tbl_names: list[str]) -> str:
-    """Get the value column for the exploded tables."""
-    value_cols = []
-    for table_name in tbl_names:
-        value_cols.append(
-            pudl.transform.ferc1.FERC1_TFR_CLASSES[
+    @property
+    def exploded_pks(self) -> list[str]:
+        """Get the joint primary keys of the exploded tables."""
+        pks = []
+        for table_name in self.table_names:
+            xbrl_factoid_name = pudl.transform.ferc1.FERC1_TFR_CLASSES[
                 table_name
-            ]().params.reconcile_table_calculations.column_to_check
+            ]().params.xbrl_factoid_name
+            pks.append(
+                [
+                    col
+                    for col in pudl.metadata.classes.Resource.from_id(
+                        table_name
+                    ).schema.primary_key
+                    if col != xbrl_factoid_name
+                ]
+            )
+        pks = pudl.helpers.dedupe_n_flatten_list_of_lists(pks) + ["xbrl_factoid"]
+        return pks
+
+    @property
+    def value_col(self) -> str:
+        """Get the value column for the exploded tables."""
+        value_cols = []
+        for table_name in self.table_names:
+            value_cols.append(
+                pudl.transform.ferc1.FERC1_TFR_CLASSES[
+                    table_name
+                ]().params.reconcile_table_calculations.column_to_check
+            )
+        if len(set(value_cols)) != 1:
+            raise ValueError(
+                "Exploding FERC tables requires tables with only one value column. Got: "
+                f"{set(value_cols)}"
+            )
+        value_col = list(set(value_cols))[0]
+        return value_col
+
+    def boom(
+        self,
+        tables_to_explode: dict[str, pd.DataFrame],
+        clean_xbrl_metadata_json: dict,
+    ) -> pd.DataFrame:
+        """Explode a set of nested tables.
+
+        There are five main stages of this process:
+
+        #. Prep all of the individual tables for explosion.
+        #. Concatenate all of the tabels together.
+        #. Remove duplication in the concatenated exploded table.
+        #. Add in metadata for the remaining ``xbrl_factoid`` s regarding linage (not
+           implemented yet).
+        #. Validate (not implemented yet).
+
+        Args:
+            tables_to_explode: dictionary of table name (key) to transfomed table (value).
+            root_table: the table at the base of the tree of tables_to_explode.
+            clean_xbrl_metadata_json: json version of the XBRL-metadata.
+        """
+        exploded = (
+            self.initial_explosion_concatenation(
+                tables_to_explode, clean_xbrl_metadata_json
+            )
+            # REMOVE THE DUPLICATION
+            .pipe(self.remove_factoids_from_mutliple_tables, tables_to_explode)
+            .pipe(self.remove_totals_from_other_dimensions)
+            .pipe(remove_inter_table_calc_duplication)
+            .pipe(remove_intra_table_calculated_values)
         )
-    if len(set(value_cols)) != 1:
-        raise ValueError(
-            "Exploding FERC tables requires tables with only one value column. Got: "
-            f"{set(value_cols)}"
+        return exploded
+
+    def initial_explosion_concatenation(
+        self, tables_to_explode: dict[str, pd.DataFrame], clean_xbrl_metadata_json: dict
+    ) -> pd.DataFrame:
+        """Concatenate all of the tables for the explosion.
+
+        Merge in some basic pieces of the each table's metadata and add ``table_name``. At
+        this point in the explosion, there will be a lot of duplicaiton in the output.
+        """
+        logger.info("Explode: CONCAT!")
+        explosion_tables = []
+        # GRAB/PREP EACH TABLE
+        for table_name, table_df in tables_to_explode.items():
+            xbrl_factoid_name = pudl.transform.ferc1.FERC1_TFR_CLASSES[
+                table_name
+            ]().params.xbrl_factoid_name
+            tbl = table_df.assign(table_name=table_name).rename(
+                columns={xbrl_factoid_name: "xbrl_factoid"}
+            )
+            explosion_tables.append(tbl)
+        metadata_exploded = self.meta_exploder.boom(clean_xbrl_metadata_json)
+        exploded = pd.concat(explosion_tables).merge(
+            metadata_exploded,
+            how="left",
+            on=["xbrl_factoid", "table_name"],
+            validate="m:1",
         )
-    value_col = list(set(value_cols))[0]
-    return value_col
+        return exploded
 
+    def remove_factoids_from_mutliple_tables(
+        self, exploded, tables_to_explode
+    ) -> pd.DataFrame:
+        """Remove duplicate factoids that have references in multiple tables."""
+        # add the table-level so we know which inter-table duped factoid is downstream
+        logger.info("Explode: Remove factoids from multiple tables.")
+        exploded = pd.merge(
+            exploded,
+            get_table_levels(tables_to_explode, self.root_table),
+            on="table_name",
+            how="left",
+            validate="m:1",
+        )
+        # ensure all tbls have level references
+        assert ~exploded.table_level.isnull().any()
 
-def remove_factoids_from_mutliple_tables(
-    exploded, tables_to_explode, root_table, value_col, pks
-) -> pd.DataFrame:
-    """Remove duplicate factoids that have references in multiple tables."""
-    # add the table-level so we know which inter-table duped factoid is downstream
-    logger.info("Explode: Remove factoids from multiple tables.")
-    exploded = pd.merge(
-        exploded,
-        get_table_levels(tables_to_explode, root_table),
-        on="table_name",
-        how="left",
-        validate="m:1",
-    )
-    # ensure all tbls have level references
-    assert ~exploded.table_level.isnull().any()
-
-    # deal w/ factoids that show up in
-    inter_table_facts = (
-        exploded[
-            [
-                "xbrl_factoid_name_original",
-                "table_name",
-                "row_type_xbrl",
-                "inter_table_calc_flag",
-                "table_level",
+        # deal w/ factoids that show up in
+        inter_table_facts = (
+            exploded[
+                [
+                    "xbrl_factoid_name_original",
+                    "table_name",
+                    "row_type_xbrl",
+                    "inter_table_calc_flag",
+                    "table_level",
+                ]
             ]
-        ]
-        .dropna(subset=["xbrl_factoid_name_original"])
-        .drop_duplicates(["xbrl_factoid_name_original", "table_name"])
-        .sort_values(["xbrl_factoid_name_original", "table_level"], ascending=False)
-    )
-    # its the combo of xbrl_factoid_name_original and table_name that we really care about
-    # in terms of dropping bc we want to drop the higher-level/less granular table.
-    inter_table_facts_to_drop = inter_table_facts[
-        inter_table_facts.duplicated(["xbrl_factoid_name_original"], keep="first")
-    ]
-    logger.info(
-        f"Explode: Preparing to drop: {inter_table_facts_to_drop.xbrl_factoid_name_original}"
-    )
-    # TODO: We need to fill in the other_dimensions columns before doing this check.
-    # check to see if there are different values in the values that show up in two tables
-    inter_table_ref_check = (
-        # these are all the dupes not just the ones we are axing
-        exploded[
-            exploded.xbrl_factoid_name_original.isin(
-                inter_table_facts_to_drop.xbrl_factoid_name_original
-            )
-        ]
-        .groupby(
-            [col for col in pks if col != "xbrl_factoid"]
-            + ["xbrl_factoid_name_original"],
-            dropna=False,
-        )[[value_col]]
-        .nunique()
-    )
-    assert inter_table_ref_check[inter_table_ref_check[value_col] > 1].empty
-
-    factoid_idx = ["xbrl_factoid_name_original", "table_name"]
-    exploded = exploded.set_index(factoid_idx)
-    inter_table_refs = exploded.loc[
-        inter_table_facts_to_drop.set_index(factoid_idx).index
-    ]
-    if len(inter_table_refs) > 1:
-        logger.info(
-            f"Explode: Dropping {len(inter_table_refs)} ({len(inter_table_refs)/len(exploded):.01%}) inter-table references."
+            .dropna(subset=["xbrl_factoid_name_original"])
+            .drop_duplicates(["xbrl_factoid_name_original", "table_name"])
+            .sort_values(["xbrl_factoid_name_original", "table_level"], ascending=False)
         )
-        exploded = exploded.loc[
-            exploded.index.difference(
-                inter_table_facts_to_drop.set_index(factoid_idx).index
+        # its the combo of xbrl_factoid_name_original and table_name that we really care about
+        # in terms of dropping bc we want to drop the higher-level/less granular table.
+        inter_table_facts_to_drop = inter_table_facts[
+            inter_table_facts.duplicated(["xbrl_factoid_name_original"], keep="first")
+        ]
+        logger.info(
+            f"Explode: Preparing to drop: {inter_table_facts_to_drop.xbrl_factoid_name_original}"
+        )
+        # TODO: We need to fill in the other_dimensions columns before doing this check.
+        # check to see if there are different values in the values that show up in two tables
+        inter_table_ref_check = (
+            # these are all the dupes not just the ones we are axing
+            exploded[
+                exploded.xbrl_factoid_name_original.isin(
+                    inter_table_facts_to_drop.xbrl_factoid_name_original
+                )
+            ]
+            .groupby(
+                [col for col in self.exploded_pks if col != "xbrl_factoid"]
+                + ["xbrl_factoid_name_original"],
+                dropna=False,
+            )[[self.value_col]]
+            .nunique()
+        )
+        assert inter_table_ref_check[inter_table_ref_check[self.value_col] > 1].empty
+
+        factoid_idx = ["xbrl_factoid_name_original", "table_name"]
+        exploded = exploded.set_index(factoid_idx)
+        inter_table_refs = exploded.loc[
+            inter_table_facts_to_drop.set_index(factoid_idx).index
+        ]
+        if len(inter_table_refs) > 1:
+            logger.info(
+                f"Explode: Dropping {len(inter_table_refs)} ({len(inter_table_refs)/len(exploded):.01%}) inter-table references."
             )
-        ].reset_index()
-    else:
-        logger.info("Explode: Found no inter-table references. Dropping nothing.")
-        # reset the index bc our index rn is tbl name and factoid name og.
-        exploded = exploded.reset_index()
-    return exploded
+            exploded = exploded.loc[
+                exploded.index.difference(
+                    inter_table_facts_to_drop.set_index(factoid_idx).index
+                )
+            ].reset_index()
+        else:
+            logger.info("Explode: Found no inter-table references. Dropping nothing.")
+            # reset the index bc our index rn is tbl name and factoid name og.
+            exploded = exploded.reset_index()
+        return exploded
+
+    def remove_totals_from_other_dimensions(
+        self, exploded: pd.DataFrame
+    ) -> pd.DataFrame:
+        """Remove the totals from the other dimensions."""
+        logger.info("Explode: Interdimensional time.")
+        # bc we fill in some of the other dimension columns for
+        # ensure we are only taking totals from table_name's that have more than one value
+        # for their other dimensions.
+        # find the totals from the other dimensions
+        exploded = exploded.assign(
+            **{
+                f"{dim}_nunique": exploded.groupby(["table_name"])[dim].transform(
+                    "nunique"
+                )
+                for dim in self.other_dimensions
+            }
+        )
+        exploded = exploded.assign(
+            **{
+                f"{dim}_total": (exploded[dim] == "total")
+                & (exploded[f"{dim}_nunique"] != 1)
+                for dim in self.other_dimensions
+            }
+        )
+        total_mask = (exploded[[f"{dim}_total" for dim in self.other_dimensions]]).any(
+            axis=1
+        )
+        total_len = len(exploded[total_mask])
+        logger.info(
+            f"Removing {total_len} ({total_len/len(exploded):.1%}) of records which are "
+            f"totals of the following dimensions {self.other_dimensions}"
+        )
+        # remove the totals & drop the cols we used to make em
+        drop_cols = [
+            f"{dim}{suff}"
+            for suff in ["_nunique", "_total"]
+            for dim in self.other_dimensions
+        ]
+        exploded = exploded[~total_mask].drop(columns=drop_cols)
+        return exploded
 
 
 def get_table_level(table_name: str, top_table: str) -> int:
@@ -1179,42 +1257,6 @@ def get_table_levels(tables_to_explode: list[str], top_table: str) -> pd.DataFra
         table_levels["table_name"].append(table_name)
         table_levels["table_level"].append(get_table_level(table_name, top_table))
     return pd.DataFrame(table_levels)
-
-
-def remove_totals_from_other_dimensions(
-    exploded: pd.DataFrame, other_dimensions: list[str]
-) -> pd.DataFrame:
-    """Remove the totals from the other dimensions."""
-    logger.info("Explode: Interdimensional time.")
-    # bc we fill in some of the other dimension columns for
-    # ensure we are only taking totals from table_name's that have more than one value
-    # for their other dimensions.
-    # find the totals from the other dimensions
-    exploded = exploded.assign(
-        **{
-            f"{dim}_nunique": exploded.groupby(["table_name"])[dim].transform("nunique")
-            for dim in other_dimensions
-        }
-    )
-    exploded = exploded.assign(
-        **{
-            f"{dim}_total": (exploded[dim] == "total")
-            & (exploded[f"{dim}_nunique"] != 1)
-            for dim in other_dimensions
-        }
-    )
-    total_mask = (exploded[[f"{dim}_total" for dim in other_dimensions]]).any(axis=1)
-    total_len = len(exploded[total_mask])
-    logger.info(
-        f"Removing {total_len} ({total_len/len(exploded):.1%}) of records which are "
-        f"totals of the following dimensions {other_dimensions}"
-    )
-    # remove the totals & drop the cols we used to make em
-    drop_cols = [
-        f"{dim}{suff}" for suff in ["_nunique", "_total"] for dim in other_dimensions
-    ]
-    exploded = exploded[~total_mask].drop(columns=drop_cols)
-    return exploded
 
 
 def find_intra_table_components_to_remove(inter_table_calc: str) -> list[str]:
