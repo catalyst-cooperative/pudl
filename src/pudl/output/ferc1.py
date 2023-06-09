@@ -1259,7 +1259,9 @@ def get_table_levels(tables_to_explode: list[str], top_table: str) -> pd.DataFra
     return pd.DataFrame(table_levels)
 
 
-def find_intra_table_components_to_remove(inter_table_calc: str) -> list[str]:
+def find_intra_table_components_to_remove(
+    inter_table_calc: str, table_name: str
+) -> list[str]:
     """Find all xbrl_factoid's within a calc which are native to the source table.
 
     For all calculations which contain any component's that are natively reported in a
@@ -1276,7 +1278,8 @@ def find_intra_table_components_to_remove(inter_table_calc: str) -> list[str]:
     return [
         component["name"]
         for component in json.loads(inter_table_calc)
-        if not component.get("source_tables", False)
+        if len(component.get("source_tables")) == 1
+        and component.get("source_tables")[0] == table_name
     ]
 
 
@@ -1298,7 +1301,12 @@ def remove_inter_table_calc_duplication(exploded: pd.DataFrame) -> pd.DataFrame:
     )
     inter_table_components_in_intra_table_calc = (
         pudl.helpers.dedupe_n_flatten_list_of_lists(
-            inter_table_calcs.calculations.apply(find_intra_table_components_to_remove)
+            inter_table_calcs.apply(
+                lambda x: find_intra_table_components_to_remove(
+                    x.calculations, x.table_name
+                ),
+                axis=1,
+            )
         )
     )
     if inter_table_components_in_intra_table_calc:
