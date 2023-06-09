@@ -962,7 +962,7 @@ class MetadataExploder:
                     [
                         "xbrl_factoid",
                         "calculations",
-                        "xbrl_factoid_name_original",
+                        "xbrl_factoid_original",
                         "intra_table_calc_flag",
                     ]
                 ]
@@ -1113,44 +1113,44 @@ class Exploder:
         inter_table_facts = (
             exploded[
                 [
-                    "xbrl_factoid_name_original",
+                    "xbrl_factoid_original",
                     "table_name",
                     "row_type_xbrl",
                     "intra_table_calc_flag",
                     "table_level",
                 ]
             ]
-            .dropna(subset=["xbrl_factoid_name_original"])
-            .drop_duplicates(["xbrl_factoid_name_original", "table_name"])
-            .sort_values(["xbrl_factoid_name_original", "table_level"], ascending=False)
+            .dropna(subset=["xbrl_factoid_original"])
+            .drop_duplicates(["xbrl_factoid_original", "table_name"])
+            .sort_values(["xbrl_factoid_original", "table_level"], ascending=False)
         )
-        # its the combo of xbrl_factoid_name_original and table_name that we really care about
+        # its the combo of xbrl_factoid_original and table_name that we really care about
         # in terms of dropping bc we want to drop the higher-level/less granular table.
         inter_table_facts_to_drop = inter_table_facts[
-            inter_table_facts.duplicated(["xbrl_factoid_name_original"], keep="first")
+            inter_table_facts.duplicated(["xbrl_factoid_original"], keep="first")
         ]
         logger.info(
-            f"Explode: Preparing to drop: {inter_table_facts_to_drop.xbrl_factoid_name_original}"
+            f"Explode: Preparing to drop: {inter_table_facts_to_drop.xbrl_factoid_original}"
         )
         # TODO: We need to fill in the other_dimensions columns before doing this check.
         # check to see if there are different values in the values that show up in two tables
         inter_table_ref_check = (
             # these are all the dupes not just the ones we are axing
             exploded[
-                exploded.xbrl_factoid_name_original.isin(
-                    inter_table_facts_to_drop.xbrl_factoid_name_original
+                exploded.xbrl_factoid_original.isin(
+                    inter_table_facts_to_drop.xbrl_factoid_original
                 )
             ]
             .groupby(
                 [col for col in self.exploded_pks if col != "xbrl_factoid"]
-                + ["xbrl_factoid_name_original"],
+                + ["xbrl_factoid_original"],
                 dropna=False,
             )[[self.value_col]]
             .nunique()
         )
         assert inter_table_ref_check[inter_table_ref_check[self.value_col] > 1].empty
 
-        factoid_idx = ["xbrl_factoid_name_original", "table_name"]
+        factoid_idx = ["xbrl_factoid_original", "table_name"]
         exploded = exploded.set_index(factoid_idx)
         inter_table_refs = exploded.loc[
             inter_table_facts_to_drop.set_index(factoid_idx).index

@@ -1301,7 +1301,7 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
                 }
             )
             # Everything below here deals with correcting the calculations.
-            .assign(xbrl_factoid_name_original=lambda x: x.xbrl_factoid)
+            .assign(xbrl_factoid_original=lambda x: x.xbrl_factoid)
         )
 
         def check_for_other_source_tables(calc, native_table: str) -> bool:
@@ -3041,8 +3041,7 @@ class PlantInServiceFerc1TableTransformer(Ferc1AbstractTableTransformer):
         # when the calcs are different, they are referring to the non-adjustments
         suffixes = ("_additions", "_retirements", "_adjustments", "_transfers")
         unique_calcs_deduped = tbl_meta[
-            ~same_calcs_mask
-            & (~tbl_meta.xbrl_factoid_name_original.str.endswith(suffixes))
+            ~same_calcs_mask & (~tbl_meta.xbrl_factoid_original.str.endswith(suffixes))
         ]
         tbl_meta_cleaned = pd.concat([same_calcs_deduped, unique_calcs_deduped])
         assert set(tbl_meta_cleaned.xbrl_factoid.unique()) == set(
@@ -4330,7 +4329,7 @@ class RetainedEarningsFerc1TableTransformer(Ferc1AbstractTableTransformer):
         non_dupes = tbl_meta[~dupes_masks]
         dupes = tbl_meta[dupes_masks]
 
-        deduped = dupes[dupes.xbrl_factoid == dupes.xbrl_factoid_name_original]
+        deduped = dupes[dupes.xbrl_factoid == dupes.xbrl_factoid_original]
         tbl_meta_cleaned = pd.concat([non_dupes, deduped])
         assert ~tbl_meta_cleaned.duplicated(subset=["xbrl_factoid"]).all()
 
@@ -4538,7 +4537,7 @@ class ElectricOperatingRevenuesFerc1TableTransformer(Ferc1AbstractTableTransform
         # the metadata relating to dollar_value column *generally* had the same name as
         # the renamed xbrl_factoid. we'll double check that we a) didn't remove too many
         # factoid's by doing this AND that we have a fully deduped output below.
-        deduped = dupes[dupes.xbrl_factoid == dupes.xbrl_factoid_name_original]
+        deduped = dupes[dupes.xbrl_factoid == dupes.xbrl_factoid_original]
         tbl_meta_cleaned = pd.concat([non_dupes, deduped])
         assert ~tbl_meta_cleaned.duplicated(subset=["xbrl_factoid"]).all()
 
