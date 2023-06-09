@@ -53,7 +53,7 @@ def test_ferc_schema(ferc_to_sqlite_settings, pudl_datastore_fixture, extractor_
 
     # Retrieve all supported partitions for the dataset
     descriptor = pudl_datastore_fixture.get_datapackage_descriptor(dataset)
-    parts = descriptor.get_partition_filters(data_format="dbf")
+    parts = list(descriptor.get_partition_filters(data_format="dbf"))
     for yr in dbf_settings.years:
         # Check that for each year in the settings, there are partitions defined.
         yr_parts = [p for p in parts if p.get("year", None) == yr]
