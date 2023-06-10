@@ -1,9 +1,11 @@
 """A collection of denormalized FERC assets and helper functions."""
 import json
+from typing import ForwardRef, Self
 
 import numpy as np
 import pandas as pd
 from dagster import AssetIn, AssetsDefinition, Field, Mapping, asset
+from pydantic import BaseModel, validator
 
 import pudl
 
@@ -1337,3 +1339,88 @@ def remove_intra_table_calculated_values(exploded: pd.DataFrame) -> pd.DataFrame
         )
     ]
     return exploded
+
+
+################################################################################
+# XBRL Calculation Tree
+################################################################################
+Ferc1XbrlCalculationComponent = ForwardRef("Ferc1XbrlCalculationComponent")
+Ferc1XbrlCalculation = ForwardRef("Ferc1XbrlCalculation")
+
+
+class Ferc1XbrlCalculationComponent(BaseModel):
+    """A class representing the components of a FERC 1 XBRL Metadata calculation."""
+
+    name: str
+    weight: float
+    source_tables: list[str]
+    calculation: Ferc1XbrlCalculation | None = None
+
+    @validator("source_tables")
+    def has_unique_source_table(cls, value):
+        """Ensure that each calculation component has a unique source table."""
+        if len(value) == 1:
+            return value
+        else:
+            raise ValueError(
+                "Exploding tables requires calculations to have unique source tables."
+            )
+
+
+Ferc1XbrlCalculationComponent.update_forward_refs()
+
+
+class Ferc1XbrlCalculation(BaseModel):
+    """A class representing a calculation from the FERC 1 XBRL Metadata."""
+
+    calculations: list[Ferc1XbrlCalculationComponent] = []
+    source_table: str
+    xbrl_factoid: str
+    xbrl_factoid_original: str
+
+    @property
+    def referenced_tables(self: Self) -> set[str]:
+        """Identify the set of all referenced tables in a calculation."""
+        return {c for x in self.calculations for c in x.source_tables}
+
+    def is_inter_table(self: Self, source_table: str | None = None) -> bool:
+        """Determine whether a calculation involves more than one table."""
+        all_tables = self.referenced_tables
+        if source_table is not None:
+            all_tables = all_tables.union({source_table})
+        return True if len(all_tables) > 1 else False
+
+    @staticmethod
+    def from_exploded_meta(
+        exploded_meta: pd.DataFrame, table_name: str, xbrl_factoid: str
+    ) -> Ferc1XbrlCalculation:
+        """Build a calculation given exploded metadata, xbrl_factoid, and table_name."""
+        exploded_meta = exploded_meta.set_index(["table_name", "xbrl_factoid"])
+        if not exploded_meta.index.is_unique:
+            raise AssertionError("Found non-unique index in exploded metadata.")
+        idx = (table_name, xbrl_factoid)
+        return Ferc1XbrlCalculation(
+            source_table=table_name,
+            xbrl_factoid=xbrl_factoid,
+            xbrl_factoid_original=exploded_meta.at[idx, "xbrl_factoid_original"],
+            calculations=json.loads(exploded_meta.at[idx, "calculations"]),
+        )
+
+    def resolve(self: Self, exploded_meta: pd.DataFrame) -> Ferc1XbrlCalculation:
+        """Expand all calculation components into their own calculations."""
+        self.calculations = [
+            {
+                "name": component.name,
+                "weight": component.weight,
+                "source_tables": component.source_tables,
+                "calculation": self.from_exploded_meta(
+                    exploded_meta=exploded_meta,
+                    table_name=component.source_tables[0],
+                    xbrl_factoid=component.name,
+                ),  # .resolve(exploded_meta=exploded_meta),
+            }
+            for component in self.calculations
+        ]
+
+
+Ferc1XbrlCalculation.update_forward_refs()
