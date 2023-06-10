@@ -1346,6 +1346,19 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
         )
         tbl_meta.calculations = tbl_meta.calculations.astype(pd.StringDtype())
 
+        # Create metadata records for the calculation correction factoids
+        correction_meta = (
+            tbl_meta[tbl_meta.row_type_xbrl == "calculated_value"]
+            .copy()
+            .assign(
+                calculations="[]",
+                intra_table_calc_flag=True,
+                row_type_xbrl="correction",
+                xbrl_factoid=lambda x: x.xbrl_factoid + "_correction",
+            )
+        )
+        tbl_meta = pd.concat([tbl_meta, correction_meta]).reset_index(drop=True)
+
         return tbl_meta
 
     def deduplicate_xbrl_factoid_xbrl_metadata(
