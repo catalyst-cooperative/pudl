@@ -3699,10 +3699,6 @@ TRANSFORM_PARAMS = {
             "on": "earnings_type",
         },
         "strip_non_numeric_values": {"amount": {"strip_non_numeric_values": True}},
-        "reconcile_table_calculations": {
-            "column_to_check": "ending_balance",
-            "calculation_tolerance": 0.9,
-        },
     },
     "income_statement_ferc1": {
         "rename_columns_ferc1": {

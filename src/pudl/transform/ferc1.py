@@ -1227,7 +1227,7 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
         Checks calculations. Enforces dataframe schema. Checks for empty dataframes and
         null columns.
         """
-        df = self.reconcile_table_calculations(df)  # .pipe(self.enforce_schema)
+        df = self.reconcile_table_calculations(df).pipe(self.enforce_schema)
         if df.empty:
             raise ValueError(f"{self.table_id.value}: Final dataframe is empty!!!")
         for col in df:
@@ -1857,75 +1857,87 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
                         },
                     },
                 ],
-                "unappropriated_undistributed_subsidiary_earnings": [
-                    # NEED TO ADD STARTING BALANCE OF the same var!
-                    {
-                        "calc_component_to_replace": {},
-                        "calc_component_new": {
-                            "name": "equity_in_earnings_of_subsidiary_companies",
-                            "weight": 1.0,
-                        },
-                    },
-                    {
-                        "calc_component_to_replace": {},
-                        "calc_component_new": {
-                            "name": "dividends_received",
-                            "weight": -1.0,
-                        },
-                    },
-                ],
-                "unappropriated_retained_earnings": [
-                    # NEED TO ADD STARTING BALANCE OF the same var!
-                    {
-                        "calc_component_to_replace": {},
-                        "calc_component_new": {
-                            "name": "adjustments_to_retained_earnings_credit",
-                            "weight": 1.0,
-                        },
-                    },
-                    {
-                        "calc_component_to_replace": {},
-                        "calc_component_new": {
-                            "name": "adjustments_to_retained_earnings_debit",
-                            "weight": 1.0,
-                        },
-                    },
-                    {
-                        "calc_component_to_replace": {},
-                        "calc_component_new": {
-                            "name": "balance_transferred_from_income",
-                            "weight": 1.0,
-                        },
-                    },
-                    {
-                        "calc_component_to_replace": {},
-                        "calc_component_new": {
-                            "name": "appropriated_retained_earnings",
-                            "weight": 1.0,
-                        },
-                    },
-                    {
-                        "calc_component_to_replace": {},
-                        "calc_component_new": {
-                            "name": "dividends_declared_preferred_stock",
-                            "weight": 1.0,
-                        },
-                    },
-                    {
-                        "calc_component_to_replace": {},
-                        "calc_component_new": {
-                            "name": "dividends_declared_common_stock",
-                            "weight": 1.0,
-                        },
-                    },
-                    {
-                        "calc_component_to_replace": {},
-                        "calc_component_new": {
-                            "name": "transfers_from_unappropriated_undistributed_subsidiary_earnings",
-                            "weight": 1.0,
-                        },
-                    },
-                ],
+                # "unappropriated_undistributed_subsidiary_earnings_current_year": [
+                #     {
+                #         "calc_component_to_replace": {},
+                #         "calc_component_new": {
+                #             "name": "unappropriated_undistributed_subsidiary_earnings_previous_year",
+                #             "weight": 1.0,
+                #         },
+                #     },
+                #     {
+                #         "calc_component_to_replace": {},
+                #         "calc_component_new": {
+                #             "name": "equity_in_earnings_of_subsidiary_companies",
+                #             "weight": 1.0,
+                #         },
+                #     },
+                #     {
+                #         "calc_component_to_replace": {},
+                #         "calc_component_new": {
+                #             "name": "dividends_received",
+                #             "weight": -1.0,
+                #         },
+                #     },
+                # ],
+                # "unappropriated_retained_earnings_current_year": [
+                #     {
+                #         "calc_component_to_replace": {},
+                #         "calc_component_new": {
+                #             "name": "unappropriated_retained_earnings_previous_year",
+                #             "weight": 1.0,
+                #         },
+                #     },
+                #     {
+                #         "calc_component_to_replace": {},
+                #         "calc_component_new": {
+                #             "name": "adjustments_to_retained_earnings_credit",
+                #             "weight": 1.0,
+                #         },
+                #     },
+                #     {
+                #         "calc_component_to_replace": {},
+                #         "calc_component_new": {
+                #             "name": "adjustments_to_retained_earnings_debit",
+                #             "weight": 1.0,
+                #         },
+                #     },
+                #     {
+                #         "calc_component_to_replace": {},
+                #         "calc_component_new": {
+                #             "name": "balance_transferred_from_income",
+                #             "weight": 1.0,
+                #         },
+                #     },
+                #     {
+                #         "calc_component_to_replace": {},
+                #         "calc_component_new": {
+                #             "name": "appropriated_retained_earnings",
+                #             "weight": 1.0,
+                #         },
+                #     },
+                #     {
+                #         "calc_component_to_replace": {},
+                #         "calc_component_new": {
+                #             "name": "dividends_declared_preferred_stock",
+                #             "weight": 1.0,
+                #         },
+                #     },
+                #     {
+                #         "calc_component_to_replace": {},
+                #         "calc_component_new": {
+                #             "name": "dividends_declared_common_stock",
+                #             "weight": 1.0,
+                #         },
+                #     },
+                #     {
+                #         "calc_component_to_replace": {},
+                #         "calc_component_new": {
+                #             "name": "transfers_from_unappropriated_undistributed_subsidiary_earnings",
+                #             "weight": 1.0,
+                #         },
+                #     },
+                # ],
             },
         }
 
@@ -4182,7 +4194,7 @@ class RetainedEarningsFerc1TableTransformer(Ferc1AbstractTableTransformer):
             super()
             .process_dbf(raw_dbf)
             .pipe(self.targeted_drop_duplicates_dbf)
-            .pipe(self.condense_double_year_earnings_types_dbf)
+            # .pipe(self.condense_double_year_earnings_types_dbf)
         )
         return processed_dbf
 
@@ -4407,7 +4419,7 @@ class ElectricPlantDepreciationChangesFerc1TableTransformer(
         return pd.concat([meta, ending_balance])
 
     @cache_df("dbf")
-    def process_dbf(self, df: pd.DataFrame) -> pd.DataFrame:
+    def process_dbf(self, raw_df: pd.DataFrame) -> pd.DataFrame:
         """Accumulated Depreciation table specific DBF cleaning operations.
 
         The XBRL reports a utility_type which is always electric in this table, but
@@ -4417,7 +4429,7 @@ class ElectricPlantDepreciationChangesFerc1TableTransformer(
 
         Also rename the ``ending_balance_accounts`` to ``ending_balance``
         """
-        df = super().process_dbf(df).assign(utility_type="electric")
+        df = super().process_dbf(raw_df).assign(utility_type="electric")
         df.loc[
             df["depreciation_type"] == "ending_balance_accounts", "depreciation_type"
         ] = "ending_balance"
@@ -4462,7 +4474,7 @@ class ElectricPlantDepreciationFunctionalFerc1TableTransformer(
         return df
 
     @cache_df("dbf")
-    def process_dbf(self, df: pd.DataFrame) -> pd.DataFrame:
+    def process_dbf(self, raw_df: pd.DataFrame) -> pd.DataFrame:
         """Accumulated Depreciation table specific DBF cleaning operations.
 
         The XBRL reports a utility_type which is always electric in this table, but
@@ -4470,7 +4482,7 @@ class ElectricPlantDepreciationFunctionalFerc1TableTransformer(
         data is combined with other tables. The DBF data doesn't report this value so we
         are adding it here for consistency across the two data sources.
         """
-        return super().process_dbf(df).assign(utility_type="electric")
+        return super().process_dbf(raw_df).assign(utility_type="electric")
 
     @cache_df("process_instant_xbrl")
     def process_instant_xbrl(self, df: pd.DataFrame) -> pd.DataFrame:
