@@ -1311,8 +1311,19 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
         }
         tbl_meta.xbrl_factoid = tbl_meta.xbrl_factoid.map(xbrl_factoid_name_map)
 
+        def rename_calculation_components(calc: str) -> str:
+            """Apply the rename for the "name" element of all of the calc components."""
+            renamed_calc = [
+                {
+                    k: self.raw_xbrl_factoid_to_pudl_name(v) if k == "name" else v
+                    for (k, v) in calc_component.items()
+                }
+                for calc_component in json.loads(calc)
+            ]
+            return json.dumps(renamed_calc)
+
         tbl_meta.calculations = tbl_meta.calculations.apply(
-            self.rename_calculation_components
+            rename_calculation_components
         )
         tbl_meta = (
             self.deduplicate_xbrl_factoid_xbrl_metadata(tbl_meta)
@@ -1328,17 +1339,6 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
         ).astype({"row_type_xbrl": pd.StringDtype(), "calculations": pd.StringDtype()})
 
         return tbl_meta
-
-    def rename_calculation_components(self, calc: str) -> str:
-        """Apply the rename for the "name" element of all of the calc components."""
-        renamed_calc = [
-            {
-                k: self.raw_xbrl_factoid_to_pudl_name(v) if k == "name" else v
-                for (k, v) in calc_component.items()
-            }
-            for calc_component in json.loads(calc)
-        ]
-        return json.dumps(renamed_calc)
 
     def deduplicate_xbrl_factoid_xbrl_metadata(
         self, tbl_meta: pd.DataFrame
