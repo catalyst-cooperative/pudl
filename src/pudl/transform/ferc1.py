@@ -1285,9 +1285,6 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
             )
             .assign(
                 # Flag metadata record types
-                row_type_xbrl=lambda x: np.where(
-                    x.calculations.astype(bool), "calculated_value", "reported_value"
-                ),
                 calculations=lambda x: x.calculations.apply(json.dumps),
             )
             .astype(
@@ -1296,7 +1293,6 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
                     "balance": pd.StringDtype(),
                     "ferc_account": pd.StringDtype(),
                     "calculations": pd.StringDtype(),
-                    "row_type_xbrl": pd.StringDtype(),
                 }
             )
             # Everything below here deals with correcting the calculations.
@@ -1315,19 +1311,8 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
         }
         tbl_meta.xbrl_factoid = tbl_meta.xbrl_factoid.map(xbrl_factoid_name_map)
 
-        def rename_calculation_components(calc: str) -> str:
-            # apply the rename for the "name" element of all of the calc components
-            renamed_calc = [
-                {
-                    k: self.raw_xbrl_factoid_to_pudl_name(v) if k == "name" else v
-                    for (k, v) in calc_component.items()
-                }
-                for calc_component in json.loads(calc)
-            ]
-            return json.dumps(renamed_calc)
-
         tbl_meta.calculations = tbl_meta.calculations.apply(
-            rename_calculation_components
+            self.rename_calculation_components
         )
         tbl_meta = (
             self.deduplicate_xbrl_factoid_xbrl_metadata(tbl_meta)
@@ -1335,9 +1320,25 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
             .pipe(self.remove_duplicated_calculation_components)
             .pipe(self.add_calculation_correction_components)
         )
-        tbl_meta.calculations = tbl_meta.calculations.astype(pd.StringDtype())
+        # Flag metadata record types
+        tbl_meta = tbl_meta.assign(
+            row_type_xbrl=lambda x: np.where(
+                x.calculations != "[]", "calculated_value", "reported_value"
+            )
+        ).astype({"row_type_xbrl": pd.StringDtype(), "calculations": pd.StringDtype()})
 
         return tbl_meta
+
+    def rename_calculation_components(self, calc: str) -> str:
+        """Apply the rename for the "name" element of all of the calc components."""
+        renamed_calc = [
+            {
+                k: self.raw_xbrl_factoid_to_pudl_name(v) if k == "name" else v
+                for (k, v) in calc_component.items()
+            }
+            for calc_component in json.loads(calc)
+        ]
+        return json.dumps(renamed_calc)
 
     def deduplicate_xbrl_factoid_xbrl_metadata(
         self, tbl_meta: pd.DataFrame
@@ -1834,6 +1835,38 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
                         "calc_component_to_replace": {},
                         "calc_component_new": {
                             "name": "accumulated_deferred_income_taxes",
+                            "weight": 1.0,
+                        },
+                    },
+                ],
+            },
+            "electric_plant_depreciation_changes_ferc1": {
+                "ending_balance": [
+                    {
+                        "calc_component_to_replace": {},
+                        "calc_component_new": {
+                            "name": "starting_balance",
+                            "weight": 1.0,
+                        },
+                    },
+                    {
+                        "calc_component_to_replace": {},
+                        "calc_component_new": {
+                            "name": "depreciation_provision",
+                            "weight": 1.0,
+                        },
+                    },
+                    {
+                        "calc_component_to_replace": {},
+                        "calc_component_new": {
+                            "name": "net_charges_for_retired_plant",
+                            "weight": 1.0,
+                        },
+                    },
+                    {
+                        "calc_component_to_replace": {},
+                        "calc_component_new": {
+                            "name": "other_adjustments_to_accumulated_depreciation",
                             "weight": 1.0,
                         },
                     },
@@ -4304,16 +4337,21 @@ class ElectricPlantDepreciationChangesFerc1TableTransformer(
         Replace the name of the balance column reported in the XBRL Instant table with
         starting_balance / ending_balance since we pull those two values into their own
         separate labeled rows, each of which should get the original metadata for the
-        Instant column.
+        Instant column. We do this pre-processing before we call the main function in
+        order for the calculation fixes and renaming to work as expected.
         """
-        meta = super().process_xbrl_metadata(xbrl_metadata_json)
-        ending_balance = meta[meta.xbrl_factoid == "starting_balance"].assign(
-            xbrl_factoid="ending_balance"
+        new_xbrl_metadata_json = xbrl_metadata_json
+        instant = pd.json_normalize(xbrl_metadata_json["instant"])
+        instant = pd.concat([instant] * 2).reset_index(drop=True)
+        instant["name"] = instant["name"] + ["_starting_balance", "_ending_balance"]
+        new_xbrl_metadata_json["instant"] = json.loads(
+            instant.to_json(orient="records")
         )
-        return pd.concat([meta, ending_balance])
+        tbl_meta = super().process_xbrl_metadata(new_xbrl_metadata_json)
+        return tbl_meta
 
     @cache_df("dbf")
-    def process_dbf(self, df: pd.DataFrame) -> pd.DataFrame:
+    def process_dbf(self, raw_dbf: pd.DataFrame) -> pd.DataFrame:
         """Accumulated Depreciation table specific DBF cleaning operations.
 
         The XBRL reports a utility_type which is always electric in this table, but
@@ -4323,7 +4361,7 @@ class ElectricPlantDepreciationChangesFerc1TableTransformer(
 
         Also rename the ``ending_balance_accounts`` to ``ending_balance``
         """
-        df = super().process_dbf(df).assign(utility_type="electric")
+        df = super().process_dbf(raw_dbf).assign(utility_type="electric")
         df.loc[
             df["depreciation_type"] == "ending_balance_accounts", "depreciation_type"
         ] = "ending_balance"
