@@ -160,6 +160,17 @@ Data Coverage
   connects EPA CAMD with EIA. Thanks to :user:`grgmiller` for his contribution to this
   process. See :issue:`2456` & :pr:`2491`.
 
+* Thanks to contributions from :user:`rousik` we've generalized the code we use to
+  convert FERC's old annual Visual FoxPro databases into multi-year SQLite databases,
+  and have started extracting the FERC Form 2 (natual gas utility financial reports).
+  See issues :issue:`1984,2642` and PRs :pr:`2536,2564,2652`. We haven't yet done any
+  integration of the Form 2 into the cleaned and normalized PUDL DB, but the converted
+  `FERC Form 2 is available on Datasette <https://data.catalyst.coop/ferc2>`__ covering
+  1996-2020. Earlier years (1991-1995) were distributed using a different binary format
+  and we don't currently have plans to extract them. From 2021 onward we are extracting
+  the `FERC 2 from XBRL <https://data.catalyst.coop/ferc2_xbrl>`__.
+
+
 Data Cleaning
 ^^^^^^^^^^^^^
 
