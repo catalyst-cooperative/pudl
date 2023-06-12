@@ -721,23 +721,30 @@ def _tidy_class_dfs(
     # This is tricky, because NA values in the BA Code column creates actual duplicate
     # values. These NA values are filled with UNK and the duplicates are later dropped,
     # which means we are losing data. But it's not obvious how we could actually fill
-    # in real BA codes, so we consolidate the indistinguisbale records.
+    # in real BA codes, so we consolidate the duplicate records.
     # These are only a fraction of a percent of all records, and only affect a couple
-    # of tables. In sales_eia861 there are 67 duplicate records.
-    # See: https://github.com/catalyst-cooperative/pudl/issues/2638
-    dupe_mask = data_cols.duplicated(subset=idx_cols + [class_type], keep=False)
-    dupes = data_cols[dupe_mask]
-    fraction_dupes = len(dupes) / len(data_cols)
+    # of tables.
+    data_dupe_mask = data_cols.duplicated(subset=idx_cols + [class_type], keep=False)
+    data_dupes = data_cols[data_dupe_mask]
+    fraction_data_dupes = len(data_dupes) / len(data_cols)
+    denorm_dupe_mask = denorm_cols.duplicated(subset=idx_cols, keep=False)
+    denorm_dupes = denorm_cols[denorm_dupe_mask]
+    fraction_denorm_dupes = len(denorm_dupes) / len(data_cols)
     err_msg = (
-        f"{df_name} table: Found {len(dupes)}/{len(data_cols)} "
-        f"({fraction_dupes:0.2%}) records with duplicated PKs. "
+        f"{df_name} table: Found {len(data_dupes)}/{len(data_cols)} "
+        f"({fraction_data_dupes:0.2%}) records with duplicated PKs. "
     )
-    if fraction_dupes <= 0.005:
+    if fraction_data_dupes <= 0.005:
         err_msg += "Consolidating duplicated records."
         logger.info(err_msg)
-        deduped = dupes.groupby(idx_cols + [class_type], as_index=False).sum()
-        data_cols = pd.concat([data_cols[~dupe_mask], deduped], axis="index")
+        deduped = data_dupes.groupby(idx_cols + [class_type], as_index=False).sum()
+        data_cols = pd.concat([data_cols[~data_dupe_mask], deduped], axis="index")
         # PK dupes also affect denorm_cols. Drop dupes to ensure clean 1 to many merge:
+        if fraction_denorm_dupes > 0.005:
+            raise AssertionError(
+                f"Found too many ({fraction_denorm_dupes:0.2%}) duplicate PK values in "
+                "the non-data columns while consolidating records!"
+            )
         denorm_cols = denorm_cols.drop_duplicates(subset=idx_cols)
     else:
         raise AssertionError(err_msg)
