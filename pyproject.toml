@@ -155,7 +155,7 @@ test = [
     "pytest>=6.2,<7.4",
     "responses>=0.14,<0.24",
     "rstcheck[sphinx]>=5.0,<6.2",
-    "tox>=4.0,<4.6",
+    "tox>=4.0,<4.7",
 ]
 datasette = [
     "datasette>=0.60,<0.65",
