@@ -168,9 +168,15 @@ variable to the path of the new directory:
 
 .. code-block:: console
 
-    $ echo "export DAGSTER_HOME=/path/to/dagster_home/dir" >> ~/.zshrc # zsh
-    $ echo "export DAGSTER_HOME=/path/to/dagster_home/dir" >> ~/.bashrc # bash
-    $ set -Ux DAGSTER_HOME /path/to/dagster_home/dir # fish
+    $ echo "export DAGSTER_HOME=/path/to/dagster_home" >> ~/.zshrc # zsh
+    $ echo "export DAGSTER_HOME=/path/to/dagster_home" >> ~/.bashrc # bash
+    $ set -Ux DAGSTER_HOME /path/to/dagster_home # fish
+
+Add ``DAGSTER_HOME`` to the currecnt session with
+
+.. code-block:: console
+
+    $ export DAGSTER_HOME=/path/to/dagster_home
 
 Once ``DAGSTER_HOME`` is set, launch Dagit by running:
 
