@@ -55,6 +55,5 @@ RUN --mount=type=bind,source=.git,target=${PUDL_REPO}/.git \
     # Run the PUDL setup script so we know where to read and write data
     ${CONDA_RUN} pudl_setup
 
-
-# Run the unit tests:
-CMD ["conda", "run", "--no-capture-output", "--prefix", "${CONDA_PREFIX}", "pytest", "test/unit"]
+# Run the ETL pipeline as a default command.
+CMD ["conda", "run", "--no-capture-output", "--prefix", "${CONDA_PREFIX}", "bash", "./docker/new_gcl_etl.sh"]
