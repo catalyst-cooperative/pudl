@@ -73,7 +73,11 @@ class DbfTableSchema:
 
 
 class FercDbfArchive:
-    """Represents API for accessing files within a single DBF archive."""
+    """Represents API for accessing files within a single DBF archive.
+
+    Typically, archive contains data for a single year and single FERC form dataset
+    (e.g. FERC Form 1 or FERC Form 2).
+    """
 
     def __init__(
         self,
@@ -83,9 +87,9 @@ class FercDbfArchive:
         partition: dict[str, Any],
         field_parser: FieldParser,
     ):
-        """Construct new instance of FercDbfArchive."""
+        """Constructs new instance of FercDbfArchive."""
         self.zipfile = zipfile
-        self.partition = (dict(partition),)
+        self.partition = dict(partition)
         self.root_path: Path = dbc_path.parent
         self.dbc_path: Path = dbc_path
         self._table_file_map = table_file_map
@@ -324,7 +328,7 @@ class FercDbfReader:
 
     @staticmethod
     def _normalize(filters: dict[str, Any]) -> dict[str, str]:
-        """Casts are values to lowercase strings."""
+        """Casts partition values to lowercase strings."""
         return {k: str(v).lower() for k, v in filters.items()}
 
     def valid_partition_filter(self, fl: dict[str, Any]) -> bool:
@@ -340,12 +344,13 @@ class FercDbfReader:
     def load_table_dfs(
         self, table_name: str, partitions: list[dict[str, Any]]
     ) -> pd.DataFrame | None:
-        """Returns the concatenation of the data for a given table and years.
+        """Returns all data for a given table.
 
-        p
-                Args:
-                    table_name: name of the table to load.
-                    partitions: list of partition filters to use
+        Merges data for a given table across all partitions.
+
+        Args:
+            table_name: name of the table to load.
+            partitions: list of partition filters to use
         """
         # Retrieve all archives that match given years
         # Then try to simply merge
@@ -439,7 +444,7 @@ class FercDbfExtractor:
         logger.info(
             f"Running dbf extraction for {self.DATASET} with settings: {self.settings}"
         )
-        if self.settings.is_disabled:
+        if self.settings.disabled:
             logger.warning(f"Dataset {self.DATASET} extraction is disabled, skipping")
             return
 

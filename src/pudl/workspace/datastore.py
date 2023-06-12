@@ -191,7 +191,7 @@ class ZenodoFetcher:
             "epacamd_eia": "10.5281/zenodo.7900974",
             "epacems": "10.5281/zenodo.6910058",
             "ferc1": "10.5281/zenodo.7314437",
-            "ferc2": "10.5281/zenodo.7130128",
+            "ferc2": "10.5281/zenodo.8006881",
             "ferc6": "10.5281/zenodo.7130141",
             "ferc60": "10.5281/zenodo.7130146",
             "ferc714": "10.5281/zenodo.7139875",
@@ -534,7 +534,7 @@ def _get_pudl_in(args: dict) -> Path:
     if args.pudl_in:
         return Path(args.pudl_in)
     else:
-        return Path(pudl.workspace.setup.get_defaults()["pudl_in"])
+        return Path(pudl.workspace.setup.get_defaults()["PUDL_INPUT"])
 
 
 def _create_datastore(args: argparse.Namespace) -> Datastore:
@@ -542,7 +542,7 @@ def _create_datastore(args: argparse.Namespace) -> Datastore:
     # Configure how we want to obtain raw input data:
     ds_kwargs = dict(gcs_cache_path=args.gcs_cache_path, sandbox=args.sandbox)
     if not args.bypass_local_cache:
-        ds_kwargs["local_cache_path"] = _get_pudl_in(args) / "data"
+        ds_kwargs["local_cache_path"] = _get_pudl_in(args)
     return Datastore(**ds_kwargs)
 
 

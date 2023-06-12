@@ -58,6 +58,8 @@ Dagster Adoption
   * :mod:`pudl.extract.ferc1.dbf2sqlite()` and :mod:`pudl.extract.xbrl.xbrl2sqlite()`
     are now configurable dagster ops. These ops make up the
     ``ferc_to_sqlite`` dagster graph in :mod:`pudl.ferc_to_sqlite.defs`.
+  * FERC 714 extraction methods are now subsettable by year, with 2019 and 2020 data
+    included in the ``etl_fast.yml`` by default. See :issue:`2628` and PR :pr:`2649`.
 
 Data Coverage
 ^^^^^^^^^^^^^
@@ -97,6 +99,8 @@ Data Coverage
     :pr:`2561`.
   * :ref:`boiler_emissions_control_equipment_assn_eia860`, see :issue:`2338` & PR
     :pr:`2561`.
+  * :ref:`boiler_cooling_assn_eia860`, see :issue:`2586` & PR :pr:`2587`
+  * :ref:`boiler_stack_flue_assn_eia860`, see :issue:`2586` & PR :pr:`2587`
 
 * The :ref:`boilers_eia860` table now includes annual boiler attributes from
   :doc:`data_sources/eia860` Schedule 6.2 Environmental Equipment data, and the new

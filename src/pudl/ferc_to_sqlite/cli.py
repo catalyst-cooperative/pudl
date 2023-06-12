@@ -97,7 +97,7 @@ def ferc_to_sqlite_job_factory(
     Args:
         loglevel: The log level for the job's execution.
         logfile: Path to a log file for the job's execution.
-        enable_xblr: if True, include XBRL data processing in the job.
+        enable_xbrl: if True, include XBRL data processing in the job.
         enable_dbf: if True, include DBF data processing in the job.
 
     Returns:
