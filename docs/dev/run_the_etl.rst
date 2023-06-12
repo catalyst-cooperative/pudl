@@ -163,20 +163,20 @@ Running the ETL with Dagit
 Dagster needs a directory to store run logs and some interim assets. We don't
 distribute these outputs, so we want to store them separately from
 ``PUDL_OUTPUT``. Create a new directory outside of the pudl respository
-directory called ``dagster_home/``, and create a ``dagster_home/dir`` subdirectoy. Then set the ``DAGSTER_HOME`` environment
+directory called ``dagster_home/``. Then set the ``DAGSTER_HOME`` environment
 variable to the path of the new directory:
 
 .. code-block:: console
 
-    $ echo "export DAGSTER_HOME=/path/to/dagster_home/dir" >> ~/.zshrc # zsh
-    $ echo "export DAGSTER_HOME=/path/to/dagster_home/dir" >> ~/.bashrc # bash
-    $ set -Ux DAGSTER_HOME /path/to/dagster_home/dir # fish
+    $ echo "export DAGSTER_HOME=/path/to/dagster_home" >> ~/.zshrc # zsh
+    $ echo "export DAGSTER_HOME=/path/to/dagster_home" >> ~/.bashrc # bash
+    $ set -Ux DAGSTER_HOME /path/to/dagster_home # fish
 
 Add ``DAGSTER_HOME`` to the currecnt session with
 
 .. code-block:: console
 
-    $ export DAGSTER_HOME=/path/to/dagster_home/dir
+    $ export DAGSTER_HOME=/path/to/dagster_home
 
 Once ``DAGSTER_HOME`` is set, launch Dagit by running:
 
