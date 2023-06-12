@@ -277,10 +277,6 @@ def load_hourly_demand_matrix_ferc714(
 ) -> tuple[pd.DataFrame, pd.DataFrame]:
     """Read and format FERC 714 hourly demand into matrix form.
 
-    Args:
-        pudl_out: Used to accessraw_hourly_demand_matrix_ferc714
-          :meth:`pudl.output.pudltabl.PudlTabl.demand_hourly_pa_ferc714`.
-
     Returns:
         Hourly demand as a matrix with a `datetime` row index
         (e.g. '2006-01-01 00:00:00', ..., '2019-12-31 23:00:00')
