@@ -85,6 +85,8 @@ from dagster import (
 
 import pudl
 from pudl.extract.dbf import AbstractFercDbfReader, FercDbfExtractor, FercDbfReader
+from pudl.extract.ferc import add_key_constraints
+from pudl.extract.ferc2 import Ferc2DbfExtractor
 from pudl.helpers import EnvVar
 from pudl.io_managers import (
     FercDBFSQLiteIOManager,
@@ -92,7 +94,7 @@ from pudl.io_managers import (
     ferc1_dbf_sqlite_io_manager,
     ferc1_xbrl_sqlite_io_manager,
 )
-from pudl.settings import DatasetsSettings
+from pudl.settings import DatasetsSettings, FercToSqliteSettings, GenericDatasetSettings
 from pudl.workspace.datastore import Datastore
 
 logger = pudl.logging_helpers.get_logger(__name__)
@@ -211,7 +213,14 @@ TABLE_NAME_MAP_FERC1: dict[str, dict[str, str]] = {
 class Ferc1DbfExtractor(FercDbfExtractor):
     """Wrapper for running the foxpro to sqlite conversion of FERC1 dataset."""
 
+    DATASET = "ferc1"
     DATABASE_NAME = "ferc1.sqlite"
+
+    def get_settings(
+        self, global_settings: FercToSqliteSettings
+    ) -> GenericDatasetSettings:
+        """Returns settings for FERC Form 1 DBF dataset."""
+        return global_settings.ferc1_dbf_to_sqlite_settings
 
     def get_dbf_reader(self, base_datastore: Datastore) -> AbstractFercDbfReader:
         """Returns an instace of :class:`FercDbfReader`.
@@ -239,21 +248,9 @@ class Ferc1DbfExtractor(FercDbfExtractor):
         This marks f1_responent_id.respondent_id as a primary key and adds foreign key
         constraints on all tables with respondent_id column.
         """
-        for table in meta.tables.values():
-            if table.name == "f1_respondent_id":
-                table.append_constraint(
-                    sa.PrimaryKeyConstraint(
-                        "respondent_id", sqlite_on_conflict="REPLACE"
-                    )
-                )
-            elif "respondent_id" in table.columns:
-                table.append_constraint(
-                    sa.ForeignKeyConstraint(
-                        columns=["respondent_id"],
-                        refcolumns=["f1_respondent_id.respondent_id"],
-                    )
-                )
-        return meta
+        return add_key_constraints(
+            meta, pk_table="f1_respondent_id", column="respondent_id"
+        )
 
     def postprocess(self):
         """Applies final transformations on the data in sqlite database.
@@ -350,13 +347,19 @@ def dbf2sqlite(context) -> None:
     """Clone the FERC Form 1 Visual FoxPro databases into SQLite."""
     # TODO(rousik): this thin wrapper seems to be somewhat quirky. Maybe there's a way
     # to make the integration # between the class and dagster better? Investigate.
+    logger.info(f"dbf2sqlite settings: {context.resources.ferc_to_sqlite_settings}")
 
-    Ferc1DbfExtractor(
-        datastore=context.resources.datastore,
-        settings=context.resources.ferc_to_sqlite_settings.ferc1_dbf_to_sqlite_settings,
-        clobber=context.op_config["clobber"],
-        output_path=context.op_config["pudl_output_path"],
-    ).execute()
+    extractors = [
+        Ferc1DbfExtractor,
+        Ferc2DbfExtractor,
+    ]
+    for xclass in extractors:
+        xclass(
+            datastore=context.resources.datastore,
+            settings=context.resources.ferc_to_sqlite_settings,
+            clobber=context.op_config["clobber"],
+            output_path=context.op_config["pudl_output_path"],
+        ).execute()
 
 
 ###########################################################################
@@ -424,7 +427,7 @@ raw_ferc1_assets = create_raw_ferc1_assets()
         ),
     },
 )
-def xbrl_metadata_json(context) -> dict[str, dict[str, list[dict[str, Any]]]]:
+def raw_xbrl_metadata_json(context) -> dict[str, dict[str, list[dict[str, Any]]]]:
     """Extract the FERC 1 XBRL Taxonomy metadata we've stored as JSON.
 
     Returns:

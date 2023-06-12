@@ -65,7 +65,7 @@ FERC714_FILES: OrderedDict[str, dict[str, str]] = OrderedDict(
 
 @multi_asset(
     outs={"raw_" + table_name: AssetOut() for table_name in FERC714_FILES},
-    required_resource_keys={"datastore"},
+    required_resource_keys={"datastore", "dataset_settings"},
 )
 def extract_ferc714(context):
     """Extract the raw FERC Form 714 dataframes from their original CSV files.
@@ -76,20 +76,26 @@ def extract_ferc714(context):
     Returns:
         A tuple of extracted FERC-714 dataframes.
     """
-    logger.warning(
-        "Note that all years of FERC-714 data are lumped together and will be "
-        "processed together regardless of what years are requested."
-    )
     ds = context.resources.datastore
+    ferc714_settings = context.resources.dataset_settings.ferc714
+    years = ", ".join(map(str, ferc714_settings.years))
+
     raw_dfs: OrderedDict[str, pd.DataFrame] = OrderedDict({})
     for table_name in FERC714_FILES:
-        logger.info(f"Extracting {table_name} from CSV into pandas DataFrame.")
+        logger.info(
+            f"Extracting {table_name} from CSV into pandas DataFrame (years: {years})."
+        )
         with ds.get_zipfile_resource("ferc714", name="ferc714.zip").open(
             FERC714_FILES[table_name]["name"]
         ) as f:
             raw_dfs[table_name] = pd.read_csv(
                 f, encoding=FERC714_FILES[table_name]["encoding"]
             )
+        if table_name != "respondent_id_ferc714":
+            raw_dfs[table_name] = raw_dfs[table_name].query(
+                "report_yr in @ferc714_settings.years"
+            )
+
     return (
         Output(output_name="raw_" + table_name, value=df)
         for table_name, df in raw_dfs.items()
