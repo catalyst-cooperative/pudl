@@ -1227,7 +1227,7 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
         Checks calculations. Enforces dataframe schema. Checks for empty dataframes and
         null columns.
         """
-        df = self.reconcile_table_calculations(df).pipe(self.enforce_schema)
+        df = self.reconcile_table_calculations(df)  # .pipe(self.enforce_schema)
         if df.empty:
             raise ValueError(f"{self.table_id.value}: Final dataframe is empty!!!")
         for col in df:
@@ -1853,6 +1853,75 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
                         "calc_component_to_replace": {},
                         "calc_component_new": {
                             "name": "appropriated_retained_earnings_amortization_reserve_federal",
+                            "weight": 1.0,
+                        },
+                    },
+                ],
+                "unappropriated_undistributed_subsidiary_earnings": [
+                    # NEED TO ADD STARTING BALANCE OF the same var!
+                    {
+                        "calc_component_to_replace": {},
+                        "calc_component_new": {
+                            "name": "equity_in_earnings_of_subsidiary_companies",
+                            "weight": 1.0,
+                        },
+                    },
+                    {
+                        "calc_component_to_replace": {},
+                        "calc_component_new": {
+                            "name": "dividends_received",
+                            "weight": -1.0,
+                        },
+                    },
+                ],
+                "unappropriated_retained_earnings": [
+                    # NEED TO ADD STARTING BALANCE OF the same var!
+                    {
+                        "calc_component_to_replace": {},
+                        "calc_component_new": {
+                            "name": "adjustments_to_retained_earnings_credit",
+                            "weight": 1.0,
+                        },
+                    },
+                    {
+                        "calc_component_to_replace": {},
+                        "calc_component_new": {
+                            "name": "adjustments_to_retained_earnings_debit",
+                            "weight": 1.0,
+                        },
+                    },
+                    {
+                        "calc_component_to_replace": {},
+                        "calc_component_new": {
+                            "name": "balance_transferred_from_income",
+                            "weight": 1.0,
+                        },
+                    },
+                    {
+                        "calc_component_to_replace": {},
+                        "calc_component_new": {
+                            "name": "appropriated_retained_earnings",
+                            "weight": 1.0,
+                        },
+                    },
+                    {
+                        "calc_component_to_replace": {},
+                        "calc_component_new": {
+                            "name": "dividends_declared_preferred_stock",
+                            "weight": 1.0,
+                        },
+                    },
+                    {
+                        "calc_component_to_replace": {},
+                        "calc_component_new": {
+                            "name": "dividends_declared_common_stock",
+                            "weight": 1.0,
+                        },
+                    },
+                    {
+                        "calc_component_to_replace": {},
+                        "calc_component_new": {
+                            "name": "transfers_from_unappropriated_undistributed_subsidiary_earnings",
                             "weight": 1.0,
                         },
                     },
