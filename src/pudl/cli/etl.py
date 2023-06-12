@@ -15,6 +15,7 @@ import argparse
 import sys
 from collections.abc import Callable
 
+import fsspec
 from dagster import (
     DagsterInstance,
     Definitions,
@@ -160,6 +161,16 @@ def main():
         for event in result.all_events:
             if event.event_type_value == "STEP_FAILURE":
                 raise Exception(event.event_specific_data.error)
+    else:
+        logger.info("ETL job completed successfully, publishing outputs.")
+        for output_path in etl_settings.publish_destinations:
+            logger.info(f"Publishing outputs to {output_path}")
+            fs, _, _ = fsspec.get_fs_token_paths(output_path)
+            fs.put(
+                etl_settings.pudl_out,
+                output_path,
+                recursive=True,
+            )
 
 
 if __name__ == "__main__":
