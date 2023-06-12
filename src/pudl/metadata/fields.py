@@ -1799,7 +1799,7 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     },
     "particulate_control_id_eia": {
         "type": "string",
-        "description": "Alphanumeric particulate matter control ID.",
+        "description": "Particulate matter control identification number. This ID is not a unique identifier.",
     },
     "particulate_control_out_of_compliance_strategy_1": {
         "type": "string",
