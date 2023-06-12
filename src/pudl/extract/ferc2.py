@@ -15,8 +15,7 @@ from typing import Any
 import sqlalchemy as sa
 
 import pudl
-from pudl.extract.dbf import FercDbfExtractor
-from pudl.extract.ferc import add_key_constraints
+from pudl.extract.dbf import FercDbfExtractor, add_key_constraints
 from pudl.settings import FercToSqliteSettings, GenericDatasetSettings
 
 logger = pudl.logging_helpers.get_logger(__name__)

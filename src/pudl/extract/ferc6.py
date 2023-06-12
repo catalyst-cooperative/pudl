@@ -2,8 +2,7 @@
 
 import sqlalchemy as sa
 
-from pudl.extract.dbf import FercDbfExtractor
-from pudl.extract.ferc import add_key_constraints
+from pudl.extract.dbf import FercDbfExtractor, add_key_constraints
 from pudl.settings import FercToSqliteSettings, GenericDatasetSettings
 
 
