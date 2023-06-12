@@ -12,6 +12,7 @@ million dekatherms.
 
 from typing import Any
 
+import pandas as pd
 import sqlalchemy as sa
 
 import pudl
@@ -39,6 +40,18 @@ class Ferc2DbfExtractor(FercDbfExtractor):
         return add_key_constraints(
             meta, pk_table="f2_s0_respondent_id", column="respondent_id"
         )
+
+    def transform_table(self, table_name: str, in_df: pd.DataFrame) -> pd.DataFrame:
+        """FERC Form 2 specific table transformations.
+
+        Remove duplicate IDs from the table enumerating all respondents, retaining the
+        most recently reported version of the record. Assumes that records have been
+        added to the DB in chronological order.
+        """
+        if table_name == "f2_s0_respondent_id":
+            return in_df.drop_duplicates(subset="respondent_id", keep="last")
+        else:
+            return in_df
 
     @staticmethod
     def is_valid_partition(fl: dict[str, Any]):
