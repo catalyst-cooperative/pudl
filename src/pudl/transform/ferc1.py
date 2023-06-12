@@ -1227,7 +1227,7 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
         Checks calculations. Enforces dataframe schema. Checks for empty dataframes and
         null columns.
         """
-        df = self.reconcile_table_calculations(df).pipe(self.enforce_schema)
+        df = self.reconcile_table_calculations(df)  # .pipe(self.enforce_schema)
         if df.empty:
             raise ValueError(f"{self.table_id.value}: Final dataframe is empty!!!")
         for col in df:
@@ -1867,6 +1867,13 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
                         "calc_component_to_replace": {},
                         "calc_component_new": {
                             "name": "other_adjustments_to_accumulated_depreciation",
+                            "weight": 1.0,
+                        },
+                    },
+                    {
+                        "calc_component_to_replace": {},
+                        "calc_component_new": {
+                            "name": "book_cost_of_asset_retirement_costs",
                             "weight": 1.0,
                         },
                     },

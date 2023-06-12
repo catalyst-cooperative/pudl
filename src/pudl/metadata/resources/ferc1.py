@@ -1045,7 +1045,7 @@ any cleaning mechanisms in place to account for this."""
                 "depreciation_type",
                 "plant_status",
                 "utility_type",
-                "utility_plant_value",
+                "dollar_value",
                 "record_id",
                 "balance",
                 "ferc_account",
