@@ -1,10 +1,10 @@
 """Module for validating pudl etl settings."""
 import itertools
 import json
-import pathlib
 from enum import Enum, unique
 from typing import ClassVar
 
+import fsspec
 import pandas as pd
 import yaml
 from dagster import Any, DagsterInvalidDefinitionError, Field
@@ -611,17 +611,20 @@ class EtlSettings(BaseSettings):
     pudl_in: str = pudl.workspace.setup.get_defaults()["pudl_in"]
     pudl_out: str = pudl.workspace.setup.get_defaults()["pudl_out"]
 
+    # This is list of fsspec compatible paths to publish the output datasets to.
+    publish_destinations: list[str] = []
+
     @classmethod
     def from_yaml(cls, path: str) -> "EtlSettings":
         """Create an EtlSettings instance from a yaml_file path.
 
         Args:
-            path: path to a yaml file.
+            path: path to a yaml file; this could be remote.
 
         Returns:
             An ETL settings object.
         """
-        with pathlib.Path(path).open() as f:
+        with fsspec.open(path) as f:
             yaml_file = yaml.safe_load(f)
         return cls.parse_obj(yaml_file)
 
