@@ -352,6 +352,95 @@ CODE_METADATA: dict[str, dict[str, Any]] = {
         "code_fixes": {},
         "ignored_codes": ["NA", "IN"],
     },
+    "emission_control_equipment_types_eia": {
+        "df": pd.DataFrame(
+            columns=["code", "label", "description"],
+            data=[
+                (
+                    "ACI",
+                    "activated_carbon_injection",
+                    "Activated carbon injection system",
+                ),
+                ("BP", "baghouse_pulse", "Baghouse (fabric filter), pulse"),
+                (
+                    "BR",
+                    "baghouse_reverse_air",
+                    "Baghouse (fabric filter), reverse air",
+                ),
+                (
+                    "BS",
+                    "baghouse_shake_deflate",
+                    "Baghouse (fabric filter), shake and deflate",
+                ),
+                ("CD", "circulating_dry_scrubber", "Circulating dry scrubber"),
+                (
+                    "DSI",
+                    "dry_sorbent_injection",
+                    "Dry sorbent (powder) injection type",
+                ),
+                (
+                    "EC",
+                    "electrostatic_cold_conditioned",
+                    "Electrostatic precipitator, cold side, with flue gas conditioning",
+                ),
+                (
+                    "EH",
+                    "electrostatic_hot_conditioned",
+                    "Electrostatic precipitator, hot side, with flue gas conditioning",
+                ),
+                (
+                    "EK",
+                    "electrostatic_cold_unconditioned",
+                    "Electrostatic precipitator, cold side, without flue gas conditioning",
+                ),
+                (
+                    "EW",
+                    "electrostatic_hot_unconditioned",
+                    "Electrostatic precipitator, hot side, without flue gas conditioning",
+                ),
+                (
+                    "JB",
+                    "jet_bubbling_wet_scrubber",
+                    "Jet bubbling reactor (wet) scrubber",
+                ),
+                ("LIJ", "lime_injection", "Lime injection"),
+                ("LNB", "low_nox_burner", "Low NOx burner"),
+                (
+                    "MA",
+                    "mechanical_wet_scrubber",
+                    "Mechanically aided type (wet) scrubber",
+                ),
+                ("MC", "multiple_cyclone", "Multiple cyclone"),
+                ("OT", "other", "Other"),
+                ("PA", "packed_wet_scrubber", "Packed type (wet) scrubber"),
+                ("SC", "single_cyclone", "Single cyclone"),
+                (
+                    "SD",
+                    "spray_dryer",
+                    "Spray dryer type / dry FGD / semi-dry FGD",
+                ),
+                (
+                    "SN",
+                    "selective_noncatalytic_reduction",
+                    "Selective noncatalytic reduction",
+                ),
+                ("SP", "spray_wet_scrubber", "Spray type (wet) scrubber"),
+                (
+                    "SR",
+                    "selective_catalytic_reduction",
+                    "Selective catalytic reduction",
+                ),
+                ("TR", "tray_wet_scrubber" "Tray type (wet) scrubber"),
+                ("VE", "venturi_wet_scrubber", "Venturi type (wet) scrubber."),
+            ],
+        ).convert_dtypes(),
+        "code_fixes": {
+            "SR-2": "SR",
+            "sn": "SN",
+            "LN": "LNB",
+        },
+        "ignored_codes": ["HRSG1", "HRSG2", "FGD", "OV"],
+    },
     "firing_types_eia": {
         "df": pd.DataFrame(
             columns=["code", "label", "description"],
