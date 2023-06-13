@@ -1227,7 +1227,7 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
         Checks calculations. Enforces dataframe schema. Checks for empty dataframes and
         null columns.
         """
-        df = self.reconcile_table_calculations(df)  # .pipe(self.enforce_schema)
+        df = self.reconcile_table_calculations(df).pipe(self.enforce_schema)
         if df.empty:
             raise ValueError(f"{self.table_id.value}: Final dataframe is empty!!!")
         for col in df:
@@ -1312,7 +1312,7 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
         tbl_meta.xbrl_factoid = tbl_meta.xbrl_factoid.map(xbrl_factoid_name_map)
 
         def rename_calculation_components(calc: str) -> str:
-            """Apply the rename for the "name" element of all of the calc components."""
+            # Apply the rename for the "name" element of all of the calc components.
             renamed_calc = [
                 {
                     k: self.raw_xbrl_factoid_to_pudl_name(v) if k == "name" else v
@@ -1534,7 +1534,7 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
             },
             "electric_operating_expenses_ferc1": {
                 # This table has two factoids that have sub-components that are
-                # calculations themselves and both the sub-component calcuated values
+                # calculations themselves and both the sub-component calculated values
                 # AND the sub-sub-components. So we're removing the specific sub-sub-
                 # components
                 "power_production_expenses_steam_power": [
@@ -2037,7 +2037,7 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
             len_og = len(df)
             df = df[df.report_prd == 12].copy()
             logger.info(
-                f"{self.table_id.value}: After selection only annual records,"
+                f"{self.table_id.value}: After selection of only annual records,"
                 f" we have {len(df)/len_og:.1%} of the original table."
             )
         return df
@@ -2447,7 +2447,7 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
             params = self.params.reconcile_table_calculations
         if params.column_to_check:
             logger.info(
-                f"{self.table_id.value}: Checking the XBRL metadata-based calcuations."
+                f"{self.table_id.value}: Checking the XBRL metadata-based calculations."
             )
             df = reconcile_table_calculations(
                 df=df,
