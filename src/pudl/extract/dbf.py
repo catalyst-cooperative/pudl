@@ -6,7 +6,7 @@ from collections import defaultdict
 from collections.abc import Iterator
 from functools import lru_cache
 from pathlib import Path
-from typing import IO, Any, Protocol
+from typing import IO, Any, Protocol, Self
 
 import pandas as pd
 import sqlalchemy as sa
@@ -181,26 +181,32 @@ class FercDbfArchive:
 class AbstractFercDbfReader(Protocol):
     """This is the interface definition for dealing with fox-pro datastores."""
 
-    def get_dataset(self) -> str:
+    def get_dataset(self: Self) -> str:
         """Returns name of the dataset that this datastore provides access to."""
         ...
 
-    def get_table_names(self) -> list[str]:
+    def get_table_names(self: Self) -> list[str]:
         """Returns list of all available table names."""
         ...
 
-    def get_archive(self, **filters) -> FercDbfArchive:
+    def get_archive(self: Self, **filters) -> FercDbfArchive:
         """Returns single archive matching specific filters."""
         ...
 
-    def get_table_schema(self, table_name: str, year: int) -> DbfTableSchema:
+    def get_table_schema(self: Self, table_name: str, year: int) -> DbfTableSchema:
         """Returns schema for a given table and a given year."""
         ...
 
     def load_table_dfs(
-        self, table_name: str, partitions: list[dict[str, Any]]
+        self: Self, table_name: str, partitions: list[dict[str, Any]]
     ) -> pd.DataFrame | None:
         """Returns dataframe that contains data for a given table across given years."""
+        ...
+
+    def transform_table_part(
+        self: Self, table_part: pd.DataFrame, table_name: str, partition: dict[str, Any]
+    ) -> pd.DataFrame:
+        """Apply table-specific per-partition transforms if necessary."""
         ...
 
 
@@ -267,7 +273,7 @@ class FercDbfReader:
     """Wrapper to provide standardized access to FERC DBF databases."""
 
     def __init__(
-        self,
+        self: Self,
         datastore: Datastore,
         dataset: str,
         field_parser: FieldParser = FercFieldParser,
@@ -301,17 +307,17 @@ class FercDbfReader:
         for row in self._open_csv_resource("table_file_map.csv"):
             self._table_file_map[row["table"]] = row["filename"]
 
-    def get_dataset(self) -> str:
+    def get_dataset(self: Self) -> str:
         """Return the name of the dataset this datastore works with."""
         return self.dataset
 
-    def _open_csv_resource(self, base_filename: str) -> csv.DictReader:
+    def _open_csv_resource(self: Self, base_filename: str) -> csv.DictReader:
         """Open the given resource file as :class:`csv.DictReader`."""
         pkg_path = f"pudl.package_data.{self.dataset}"
         return csv.DictReader(importlib.resources.open_text(pkg_path, base_filename))
 
     @lru_cache
-    def get_archive(self, year: int, **filters) -> FercDbfArchive:
+    def get_archive(self: Self, year: int, **filters) -> FercDbfArchive:
         """Returns single dbf archive matching given filters."""
         nfilters = self._normalize(filters)
         return FercDbfArchive(
@@ -322,7 +328,7 @@ class FercDbfReader:
             field_parser=self.field_parser,
         )
 
-    def get_table_names(self) -> list[str]:
+    def get_table_names(self: Self) -> list[str]:
         """Returns list of tables that this datastore provides access to."""
         return list(self._table_file_map)
 
@@ -331,7 +337,7 @@ class FercDbfReader:
         """Casts partition values to lowercase strings."""
         return {k: str(v).lower() for k, v in filters.items()}
 
-    def valid_partition_filter(self, fl: dict[str, Any]) -> bool:
+    def valid_partition_filter(self: Self, fl: dict[str, Any]) -> bool:
         """Returns True if a given filter fl is considered to be valid.
 
         This can be used to eliminate partitions that are not suitable for processing,
@@ -342,7 +348,7 @@ class FercDbfReader:
         return True
 
     def load_table_dfs(
-        self, table_name: str, partitions: list[dict[str, Any]]
+        self: Self, table_name: str, partitions: list[dict[str, Any]]
     ) -> pd.DataFrame | None:
         """Returns all data for a given table.
 
@@ -360,13 +366,23 @@ class FercDbfReader:
         for p in partitions:
             archive = self.get_archive(**p)
             try:
-                dfs.append(archive.load_table(table_name))
+                new_part = archive.load_table(table_name)
+                new_part = self.transform_table_part(
+                    new_part, table_name=table_name, partition=p
+                )
+                dfs.append(new_part)
             except KeyError:
                 logger.debug(f"Table {table_name} missing for partition {p}")
                 continue
         if dfs:
             return pd.concat(dfs, sort=True)
         return None
+
+    def transform_table_part(
+        self: Self, table_part: pd.DataFrame, table_name: str, partition: dict[str, Any]
+    ) -> pd.DataFrame:
+        """Apply table-specific per-partition transforms if necessary."""
+        return table_part
 
 
 class FercDbfExtractor:

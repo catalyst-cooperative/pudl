@@ -10,15 +10,16 @@ Major is defined as having combined gas transported or stored for a fee that exc
 million dekatherms.
 """
 
-from typing import Any
+from typing import Any, Self
 
 import pandas as pd
 import sqlalchemy as sa
 
 import pudl
-from pudl.extract.dbf import FercDbfExtractor
+from pudl.extract.dbf import AbstractFercDbfReader, FercDbfExtractor, FercDbfReader
 from pudl.extract.ferc import add_key_constraints
 from pudl.settings import FercToSqliteSettings, GenericDatasetSettings
+from pudl.workspace.datastore import Datastore
 
 logger = pudl.logging_helpers.get_logger(__name__)
 
@@ -30,18 +31,20 @@ class Ferc2DbfExtractor(FercDbfExtractor):
     DATABASE_NAME = "ferc2.sqlite"
 
     def get_settings(
-        self, global_settings: FercToSqliteSettings
+        self: Self, global_settings: FercToSqliteSettings
     ) -> GenericDatasetSettings:
         """Returns settings for FERC Form 1 DBF dataset."""
         return global_settings.ferc2_dbf_to_sqlite_settings
 
-    def finalize_schema(self, meta: sa.MetaData) -> sa.MetaData:
+    def finalize_schema(self: Self, meta: sa.MetaData) -> sa.MetaData:
         """Add primary and foreign keys for respondent_id."""
         return add_key_constraints(
             meta, pk_table="f2_s0_respondent_id", column="respondent_id"
         )
 
-    def transform_table(self, table_name: str, in_df: pd.DataFrame) -> pd.DataFrame:
+    def transform_table(
+        self: Self, table_name: str, in_df: pd.DataFrame
+    ) -> pd.DataFrame:
         """FERC Form 2 specific table transformations.
 
         Remove duplicate IDs from the table enumerating all respondents, retaining the
@@ -49,7 +52,11 @@ class Ferc2DbfExtractor(FercDbfExtractor):
         added to the DB in chronological order.
         """
         if table_name == "f2_s0_respondent_id":
-            return in_df.drop_duplicates(subset="respondent_id", keep="last")
+            return (
+                in_df.sort_values(by=["report_yr", "respondent_id"])
+                .drop_duplicates(subset="respondent_id", keep="last")
+                .drop(columns="report_yr")
+            )
         else:
             return in_df
 
@@ -60,3 +67,20 @@ class Ferc2DbfExtractor(FercDbfExtractor):
         This eliminates partitions with part=1 or part=2.
         """
         return fl.get("part", None) is None
+
+    def get_dbf_reader(self: Self, datastore: Datastore) -> AbstractFercDbfReader:
+        """Returns appropriate instance of AbstractFercDbfReader to access the data."""
+        return Ferc2DbfReader(datastore, dataset=self.DATASET)
+
+
+class Ferc2DbfReader(FercDbfReader):
+    """A FercDbfReader specific to the FERC Form 2."""
+
+    def transform_table_part(
+        self: Self, table_part: pd.DataFrame, table_name: str, partition: dict[str, Any]
+    ) -> pd.DataFrame:
+        """Add report_yr to respondent_id table so we can deduplicate later."""
+        table_part = super().transform_table_part(table_part, table_name, partition)
+        if table_name == "f2_s0_respondent_id":
+            table_part["report_yr"] = partition["year"]
+        return table_part

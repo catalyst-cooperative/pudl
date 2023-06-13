@@ -69,7 +69,7 @@ https://data.catalyst.coop/ferc1
 import json
 from itertools import chain
 from pathlib import Path
-from typing import Any, Literal
+from typing import Any, Literal, Self
 
 import pandas as pd
 import sqlalchemy as sa
@@ -222,12 +222,12 @@ class Ferc1DbfExtractor(FercDbfExtractor):
         """Returns settings for FERC Form 1 DBF dataset."""
         return global_settings.ferc1_dbf_to_sqlite_settings
 
-    def get_dbf_reader(self, base_datastore: Datastore) -> AbstractFercDbfReader:
+    def get_dbf_reader(self, datastore: Datastore) -> AbstractFercDbfReader:
         """Returns an instace of :class:`FercDbfReader`.
 
-        This uses the generic base_datastore to construct a :class:`FercDbfReader`.
+        This uses the generic datastore to construct a :class:`FercDbfReader`.
         """
-        return FercDbfReader(base_datastore, dataset="ferc1")
+        return Ferc1DbfReader(datastore, dataset=self.DATASET)
 
     def transform_table(self, table_name: str, in_df: pd.DataFrame) -> pd.DataFrame:
         """FERC Form 1 specific table transformations.
@@ -238,7 +238,11 @@ class Ferc1DbfExtractor(FercDbfExtractor):
         # TODO(rousik): this should be replaced with registry of pd.DataFrame -> pd.DataFrame transformations
         # for each table and dict that looks those up.
         if table_name == "f1_respondent_id":
-            return in_df.drop_duplicates(subset="respondent_id", keep="last")
+            return (
+                in_df.sort_values(by=["report_yr", "respondent_id"])
+                .drop_duplicates(subset="respondent_id", keep="last")
+                .drop(columns="report_yr")
+            )
         else:
             return in_df
 
@@ -326,6 +330,19 @@ class Ferc1DbfExtractor(FercDbfExtractor):
                     )
                 )
         return observed
+
+
+class Ferc1DbfReader(FercDbfReader):
+    """A FercDbfReader specific to the FERC Form 1."""
+
+    def transform_table_part(
+        self: Self, table_part: pd.DataFrame, table_name: str, partition: dict[str, Any]
+    ) -> pd.DataFrame:
+        """Add report_yr to respondent_id table so we can deduplicate later."""
+        table_part = super().transform_table_part(table_part, table_name, partition)
+        if table_name == "f1_respondent_id":
+            table_part["report_yr"] = partition["year"]
+        return table_part
 
 
 @op(
