@@ -4014,33 +4014,44 @@ class UtilityPlantSummaryFerc1TableTransformer(Ferc1AbstractTableTransformer):
             "utility_plant_asset_type",
         ]
 
+        # We need to track which years are getting transformed so the spot fixes
+        # don't fail on the fast tests.
+        df_years = df.report_year.unique().tolist()
+
         # The utility_id_ferc1 211 follows the same pattern for several years
         # instead of writing them all out in spot_fix_pks, we'll create a loop that
         # generates all of them and then append them to spot_fix_pks later
         spot_fix_211 = []
         for year in np.append(2006, range(2009, 2021)):
-            for utility_type in ["electric", "total"]:
-                pks = [
-                    (
-                        year,
-                        211,
-                        utility_type,
-                        "accumulated_provision_for_depreciation_amortization_and_depletion_of_plant_utility_detail",
-                    ),
-                    (
-                        year,
-                        211,
-                        utility_type,
-                        "amortization_of_other_utility_plant_utility_plant_in_service",
-                    ),
-                    (
-                        year,
-                        211,
-                        utility_type,
-                        "depreciation_amortization_and_depletion_utility_plant_in_service",
-                    ),
-                    (year, 211, utility_type, "depreciation_utility_plant_in_service"),
-                ]
+            # Measure to account for fast tests where not all years are used
+            if year in df_years:
+                for utility_type in ["electric", "total"]:
+                    pks = [
+                        (
+                            year,
+                            211,
+                            utility_type,
+                            "accumulated_provision_for_depreciation_amortization_and_depletion_of_plant_utility_detail",
+                        ),
+                        (
+                            year,
+                            211,
+                            utility_type,
+                            "amortization_of_other_utility_plant_utility_plant_in_service",
+                        ),
+                        (
+                            year,
+                            211,
+                            utility_type,
+                            "depreciation_amortization_and_depletion_utility_plant_in_service",
+                        ),
+                        (
+                            year,
+                            211,
+                            utility_type,
+                            "depreciation_utility_plant_in_service",
+                        ),
+                    ]
                 spot_fix_211 = spot_fix_211 + pks
 
         spot_fix_pks = [
@@ -4143,24 +4154,28 @@ class UtilityPlantSummaryFerc1TableTransformer(Ferc1AbstractTableTransformer):
             ),
             (2007, 393, "total", "depreciation_utility_plant_in_service"),
         ]
+        # Measure to account for fast tests where not all years are used
+        spot_fix_pks = [x for x in spot_fix_pks if x[0] in df_years]
 
         # Combine bespoke fixes with programatically generated spot fixes
         spot_fix_pks = spot_fix_pks + spot_fix_211
 
-        # Create a df out of the primary key of the records you want to fix
-        df_keys = pd.DataFrame(spot_fix_pks, columns=primary_keys).set_index(
-            primary_keys
-        )
-        df.set_index(primary_keys, inplace=True)
-        # Flip the signs for the values in "ending balance" all records in the original
-        # df that appear in the primary key df
-        df.loc[df_keys.index, "ending_balance"] = df["ending_balance"] * -1
-        # All of these are flipping negative values to positive values, so let's
-        # make sure that's what happens
-        if (df.loc[df_keys.index].ending_balance < 0).any():
-            raise AssertionError("None of these spot fixes should be negative")
+        # Measure to account for fast tests where not all years are used
+        if spot_fix_pks:
+            # Create a df out of the primary key of the records you want to fix
+            df_keys = pd.DataFrame(spot_fix_pks, columns=primary_keys).set_index(
+                primary_keys
+            )
+            df.set_index(primary_keys, inplace=True)
+            # Flip the signs for the values in "ending balance" all records in the original
+            # df that appear in the primary key df
+            df.loc[df_keys.index, "ending_balance"] = df["ending_balance"] * -1
+            # All of these are flipping negative values to positive values, so let's
+            # make sure that's what happens
+            if (df.loc[df_keys.index].ending_balance < 0).any():
+                raise AssertionError("None of these spot fixes should be negative")
 
-        df = df.reset_index()
+            df = df.reset_index()
 
         return df
 
