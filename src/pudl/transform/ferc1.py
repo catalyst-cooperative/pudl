@@ -4031,7 +4031,7 @@ class UtilityPlantSummaryFerc1TableTransformer(Ferc1AbstractTableTransformer):
                             year,
                             211,
                             utility_type,
-                            "accumulated_provision_for_depreciation_amortization_and_depletion_of_plant_utility_detail",
+                            "accumulated_provision_for_depreciation_amortization_and_depletion_of_plant_utility",
                         ),
                         (
                             year,
@@ -4059,7 +4059,7 @@ class UtilityPlantSummaryFerc1TableTransformer(Ferc1AbstractTableTransformer):
                 2012,
                 156,
                 "total",
-                "accumulated_provision_for_depreciation_amortization_and_depletion_of_plant_utility_detail",
+                "accumulated_provision_for_depreciation_amortization_and_depletion_of_plant_utility",
             ),
             (
                 2012,
@@ -4072,7 +4072,7 @@ class UtilityPlantSummaryFerc1TableTransformer(Ferc1AbstractTableTransformer):
                 2012,
                 156,
                 "electric",
-                "accumulated_provision_for_depreciation_amortization_and_depletion_of_plant_utility_detail",
+                "accumulated_provision_for_depreciation_amortization_and_depletion_of_plant_utility",
             ),
             (
                 2012,
@@ -4085,13 +4085,19 @@ class UtilityPlantSummaryFerc1TableTransformer(Ferc1AbstractTableTransformer):
                 2002,
                 170,
                 "other1",
-                "accumulated_provision_for_depreciation_amortization_and_depletion_of_plant_utility",
+                "accumulated_provision_for_depreciation_amortization_and_depletion_of_plant_utility_reported",
             ),
+            (
+                2002,
+                170,
+                "other1",
+                "utility_plant_net",
+            ),  # ^^ This is the only record that goes positive to negative
             (
                 2013,
                 170,
                 "total",
-                "accumulated_provision_for_depreciation_amortization_and_depletion_of_plant_utility_detail",
+                "accumulated_provision_for_depreciation_amortization_and_depletion_of_plant_utility",
             ),
             (
                 2013,
@@ -4111,7 +4117,7 @@ class UtilityPlantSummaryFerc1TableTransformer(Ferc1AbstractTableTransformer):
                 2013,
                 170,
                 "electric",
-                "accumulated_provision_for_depreciation_amortization_and_depletion_of_plant_utility_detail",
+                "accumulated_provision_for_depreciation_amortization_and_depletion_of_plant_utility",
             ),
             (
                 2013,
@@ -4131,7 +4137,7 @@ class UtilityPlantSummaryFerc1TableTransformer(Ferc1AbstractTableTransformer):
                 2007,
                 393,
                 "electric",
-                "accumulated_provision_for_depreciation_amortization_and_depletion_of_plant_utility_detail",
+                "accumulated_provision_for_depreciation_amortization_and_depletion_of_plant_utility",
             ),
             (
                 2007,
@@ -4144,7 +4150,7 @@ class UtilityPlantSummaryFerc1TableTransformer(Ferc1AbstractTableTransformer):
                 2007,
                 393,
                 "total",
-                "accumulated_provision_for_depreciation_amortization_and_depletion_of_plant_utility_detail",
+                "accumulated_provision_for_depreciation_amortization_and_depletion_of_plant_utility",
             ),
             (
                 2007,
@@ -4170,10 +4176,11 @@ class UtilityPlantSummaryFerc1TableTransformer(Ferc1AbstractTableTransformer):
             # Flip the signs for the values in "ending balance" all records in the original
             # df that appear in the primary key df
             df.loc[df_keys.index, "ending_balance"] = df["ending_balance"] * -1
-            # All of these are flipping negative values to positive values, so let's
-            # make sure that's what happens
-            if (df.loc[df_keys.index].ending_balance < 0).any():
-                raise AssertionError("None of these spot fixes should be negative")
+            # All of these are flipping negative values to positive values, except one,
+            # so let's make sure that's what happens
+            flipped_values = df.loc[df_keys.index].copy()
+            if len(flipped_values[flipped_values["ending_balance"] < 0]) > 1:
+                raise AssertionError("Only one of these spot fixes should be negative")
 
             df = df.reset_index()
 
