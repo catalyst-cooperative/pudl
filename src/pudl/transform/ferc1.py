@@ -1895,6 +1895,13 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
                             "weight": -1.0,
                         },
                     },
+                    {
+                        "calc_component_to_replace": {},
+                        "calc_component_new": {
+                            "name": "changes_unappropriated_undistributed_subsidiary_earnings_credits",
+                            "weight": 1.0,
+                        },
+                    },
                 ],
                 "unappropriated_retained_earnings": [
                     {
@@ -1928,7 +1935,7 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
                     {
                         "calc_component_to_replace": {},
                         "calc_component_new": {
-                            "name": "appropriated_retained_earnings",
+                            "name": "appropriations_of_retained_earnings",
                             "weight": 1.0,
                         },
                     },
@@ -4439,12 +4446,10 @@ class RetainedEarningsFerc1TableTransformer(Ferc1AbstractTableTransformer):
             on=idx,
             how="inner",
             suffixes=("_original", ""),
-        )
+        ).drop(columns=["starting_balance_original", "ending_balance_original"])
 
-        date_dupe_types["earnings_type"] = (
-            date_dupe_types["earnings_type"]
-            .apply(lambda x: f"{x}_previous_year")
-            .drop(columns=["starting_balance_original", "ending_balance_original"])
+        date_dupe_types["earnings_type"] = date_dupe_types["earnings_type"].apply(
+            lambda x: f"{x}_previous_year"
         )
 
         # Add in metadata that matches that of prior year's `previous_year` factoids
@@ -4461,6 +4466,12 @@ class RetainedEarningsFerc1TableTransformer(Ferc1AbstractTableTransformer):
         )
 
         df = pd.concat([df, date_dupe_types])
+
+        # All `previous_year` factoids are missing `row_type_xbrl`. Fill in.
+        df.loc[
+            df.earnings_type.isin(previous_year_types), "row_type_xbrl"
+        ] = "reported_value"
+
         return df
 
     def deduplicate_xbrl_factoid_xbrl_metadata(self, tbl_meta) -> pd.DataFrame:
