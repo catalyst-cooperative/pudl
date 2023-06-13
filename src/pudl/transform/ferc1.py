@@ -1357,7 +1357,11 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
                 xbrl_factoid=lambda x: x.xbrl_factoid + "_correction",
             )
         )
-        tbl_meta = pd.concat([tbl_meta, correction_meta]).reset_index(drop=True)
+        tbl_meta = (
+            pd.concat([tbl_meta, correction_meta])
+            .reset_index(drop=True)
+            .convert_dtypes()
+        )
 
         return tbl_meta
 
