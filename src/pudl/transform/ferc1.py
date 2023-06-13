@@ -1860,7 +1860,7 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
                         "calc_component_to_replace": {},
                         "calc_component_new": {
                             "name": "net_charges_for_retired_plant",
-                            "weight": 1.0,
+                            "weight": -1.0,
                         },
                     },
                     {
@@ -4386,6 +4386,13 @@ class ElectricPlantDepreciationChangesFerc1TableTransformer(
         df = self.unstack_balances_to_report_year_instant_xbrl(df).pipe(
             self.rename_columns, rename_stage="instant_xbrl"
         )
+        return df
+
+    @cache_df("main")
+    def transform_main(self, df):
+        """Spot fix to transform `salvage_value_of_retired_plant` into positive."""
+        df = super().transform_main(df)
+
         return df
 
 

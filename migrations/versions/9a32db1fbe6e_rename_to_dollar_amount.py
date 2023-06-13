@@ -1,8 +1,8 @@
-"""Rename utility_plant_value to dollar_value
+"""rename to dollar amount
 
-Revision ID: 963b7583158a
+Revision ID: 9a32db1fbe6e
 Revises: 88d9201ae4c4
-Create Date: 2023-06-12 16:53:35.135810
+Create Date: 2023-06-13 15:11:44.266717
 
 """
 from alembic import op
@@ -10,7 +10,7 @@ import sqlalchemy as sa
 
 
 # revision identifiers, used by Alembic.
-revision = '963b7583158a'
+revision = '9a32db1fbe6e'
 down_revision = '88d9201ae4c4'
 branch_labels = None
 depends_on = None

@@ -3962,7 +3962,7 @@ TRANSFORM_PARAMS = {
         },
         "reconcile_table_calculations": {
             "column_to_check": "dollar_value",
-            "calculation_tolerance": 0.4,
+            "calculation_tolerance": 0.2,
             "subtotal_column": "depreciation_type",
         },
     },
