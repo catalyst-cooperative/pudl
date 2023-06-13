@@ -26,16 +26,15 @@ DEFAULT_GENS_COLS = [
     "fuel_type_code_pudl",
     "planned_generator_retirement_date",
 ]
-"""
-list: default list of columns from the EIA 860 generators table that will be included
-in the MCOE table. These default columns are necessary for the creation of the EIA
-plant parts table.
+"""List: default list of columns from the EIA 860 generators table that will be included
+in the MCOE table. These default columns are necessary for the creation of the EIA plant
+parts table.
 
 The ID and name columns are all that's needed to create a bare-bones MCOE table.
 
-The remaining columns are used during the creation of the plant parts list as
-different attributes to aggregate the plant parts by or are attributes necessary
-for inclusion in the final table.
+The remaining columns are used during the creation of the plant parts list as different
+attributes to aggregate the plant parts by or are attributes necessary for inclusion in
+the final table.
 """
 
 
