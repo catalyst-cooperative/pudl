@@ -45,14 +45,6 @@ repos:
         language_version: python3.11
         exclude: migrations/.*
 
-  # Format docstrings
-  - repo: https://github.com/PyCQA/docformatter
-    rev: v1.7.2
-    hooks:
-      - id: docformatter
-        args: ["--in-place", "--config", "tox.ini"]
-        exclude: migrations/.*
-
   # Remove f-string prefix when there's nothing in the string to format.
   - repo: https://github.com/dannysepler/rm_unneeded_f_str
     rev: v0.2.0
