@@ -1344,7 +1344,6 @@ def remove_intra_table_calculated_values(exploded: pd.DataFrame) -> pd.DataFrame
 ################################################################################
 # XBRL Calculation Tree
 ################################################################################
-Ferc1XbrlCalculationComponent = ForwardRef("Ferc1XbrlCalculationComponent")
 Ferc1XbrlCalculation = ForwardRef("Ferc1XbrlCalculation")
 
 
@@ -1389,7 +1388,6 @@ class Ferc1XbrlCalculation(BaseModel):
 
 
 Ferc1XbrlCalculationComponent.update_forward_refs()
-Ferc1XbrlCalculation.update_forward_refs()
 
 
 def resolve_calculation_components(
