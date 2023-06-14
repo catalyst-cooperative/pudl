@@ -1398,7 +1398,12 @@ def resolve_calculation_components(
     xbrl_factoid: str,
 ) -> Ferc1XbrlCalculation:
     """Build a calculation given exploded metadata, xbrl_factoid, and table_name."""
-    # exploded_meta = exploded_meta.set_index(["table_name", "xbrl_factoid"])
+    idx_cols = ["table_name", "xbrl_factoid"]
+    if exploded_meta.index.names != idx_cols:
+        raise AssertionError(
+            f"Exploded metadata must be indexed by {idx_cols}, but found "
+            f"{exploded_meta.index.names=}"
+        )
     if not exploded_meta.index.is_unique:
         raise AssertionError("Found non-unique index in exploded metadata.")
     idx = (table_name, xbrl_factoid)
