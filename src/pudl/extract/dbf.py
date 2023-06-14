@@ -249,14 +249,15 @@ DBF_TYPES = {
     "O": "XXX",  # Double, 8 bytes
     "G": "XXX",  # OLE 10 digit/byte number of a .DBT block, stored as string
 }
-"""dict: A mapping of DBF field types to SQLAlchemy Column types.
+"""Dict: A mapping of DBF field types to SQLAlchemy Column types.
 
 This dictionary maps the strings which are used to denote field types in the DBF objects
 to the corresponding generic SQLAlchemy Column types: These definitions come from a
 combination of the dbfread example program dbf2sqlite and this DBF file format
-documentation page: http://www.dbase.com/KnowledgeBase/int/db7_file_fmt.htm
-
-Unmapped types left as 'XXX' which should result in an error if encountered.
+documentation page:
+http://www.dbase.com/KnowledgeBase/int/db7_file_fmt.htm
+: http: //www.dbase.com/KnowledgeBase/int/db7_file_fmt.htm Unmapped types left as 'XXX'
+which should result in an error if encountered.
 """
 
 
