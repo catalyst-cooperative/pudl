@@ -5,8 +5,7 @@ Data Access
 We publish the :doc:`PUDL pipeline <intro>` outputs in several ways to serve
 different users and use cases. We're always trying to increase accessibility of the
 PUDL data, so if you have suggestions or questions please `open a GitHub issue
-<https://github.com/catalyst-cooperative/pudl/issues>`__ or email us at
-pudl@catalyst.coop.
+<https://github.com/catalyst-cooperative/pudl/issues>`__.
 
 .. _access-modes:
 

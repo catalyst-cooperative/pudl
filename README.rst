@@ -250,9 +250,9 @@ Contact Us
   `Office Hours <https://calend.ly/catalyst-cooperative/pudl-office-hours>`__
 * Follow us on Twitter: `@CatalystCoop <https://twitter.com/CatalystCoop>`__
 * More info on our website: https://catalyst.coop
-* For private communication about the project or to hire us to provide customized data
+* To hire us to provide customized data
   extraction and analysis, you can email the maintainers:
-  `pudl@catalyst.coop <mailto:pudl@catalyst.coop>`__
+  `hello@catalyst.coop <mailto:hello@catalyst.coop>`__
 
 About Catalyst Cooperative
 --------------------------
