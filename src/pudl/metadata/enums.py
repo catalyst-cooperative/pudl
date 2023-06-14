@@ -24,7 +24,6 @@ https://en.wikipedia.org/wiki/List_of_time_offsets_by_U.S._state_and_territory
 For states that are split, we chose the timezone with a larger population. List of
 timezones in pytz.common_timezones Canada:
 https://en.wikipedia.org/wiki/Time_in_Canada#IANA_time_zone_database
-: https: //en.wikipedia.org/wiki/Time_in_Canada#IANA_time_zone_database
 """
 
 NERC_REGIONS: list[str] = [
