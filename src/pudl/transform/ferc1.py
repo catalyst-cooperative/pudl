@@ -1227,7 +1227,7 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
         Checks calculations. Enforces dataframe schema. Checks for empty dataframes and
         null columns.
         """
-        df = self.reconcile_table_calculations(df)  # .pipe(self.enforce_schema)
+        df = self.reconcile_table_calculations(df).pipe(self.enforce_schema)
         if df.empty:
             raise ValueError(f"{self.table_id.value}: Final dataframe is empty!!!")
         for col in df:
@@ -3050,23 +3050,24 @@ class PlantInServiceFerc1TableTransformer(Ferc1AbstractTableTransformer):
         subcomponent) does not match it's calculated value.
         """
         df = super().transform_main(df).pipe(self.apply_sign_conventions)
-
-        df = df.pipe(self.reconcile_table_calculations)
+        # Create a copy of the df with the calculations so we can apply the fixes to
+        # the original df and run the calculations later (in transform_end)
+        df_calc = df.pipe(self.reconcile_table_calculations).copy()
         index_group_1 = ["report_year", "utility_id_ferc1"]
         index_group_2 = ["report_year", "utility_id_ferc1", "ferc_account_label"]
         # Get the index values for electric_plant_in_service fields that don't match
         # their calculations
         bad_calcs_pis_index = (
-            df[
-                (df["ferc_account_label"] == "electric_plant_in_service")
-                & (df["ending_balance"] != df["calculated_amount"])
+            df_calc[
+                (df_calc["ferc_account_label"] == "electric_plant_in_service")
+                & (df_calc["ending_balance"] != df_calc["calculated_amount"])
             ]
             .set_index(index_group_1)
             .index
         )
         # Use that index to get the whole group of ferc_account_labels associated
         # with that bad calculation
-        bad_calc_groups_df = df.set_index(index_group_1).loc[bad_calcs_pis_index]
+        bad_calc_groups_df = df_calc.set_index(index_group_1).loc[bad_calcs_pis_index]
         # Get the index values for the instances of electric_plant_sold that exist
         # within the groups with bad calculations.
         bad_calc_eps_index = (
@@ -3082,9 +3083,7 @@ class PlantInServiceFerc1TableTransformer(Ferc1AbstractTableTransformer):
         # their absolute value. Also enforce the schema so we can run the calcs again.
         df.loc[bad_calc_eps_index, "ending_balance"] = abs(df["ending_balance"])
         df.loc[bad_calc_eps_index, "starting_balance"] = abs(df["starting_balance"])
-        df_fixed = df.reset_index().pipe(self.enforce_schema)
-        # For now, we have to run the calcs check twice because we need to use the
-        # calculated_amounts field for this spot fix.
+        df_fixed = df.reset_index()
         return df_fixed
 
 
