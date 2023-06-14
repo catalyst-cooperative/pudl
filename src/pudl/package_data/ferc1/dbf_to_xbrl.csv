@@ -1926,7 +1926,7 @@ f1_elctrc_oper_rev,23,1994,Line 23,reported_value,other_operating_revenues_unstr
 f1_elctrc_oper_rev,24,1994,Line 24,reported_value,other_operating_revenues_unstructured,,
 f1_elctrc_oper_rev,25,1994,Line 25,reported_value,other_operating_revenues_unstructured,,
 f1_elctrc_oper_rev,26,1994,TOTAL Other Operating Revenues,calculated_value,other_operating_revenues,,No MWh sold or average number of customers per month provided.
-f1_elctrc_oper_rev,27,1994,TOTAL Electric Operating Revenues,calculated_value,electric_operating_revenues,,No MWh sold or average number of customers per month provided.
+f1_elctrc_oper_rev,27,1994,TOTAL Electric Operating Revenues,calculated_value,operating_revenues,,No MWh sold or average number of customers per month provided.
 f1_elctrc_oper_rev,22,2006,(456.1) Revenues from Transmission of Electricity of Others,reported_value,revenues_from_transmission_of_electricity_of_others,,No MWh sold or average number of customers per month provided.
 f1_elctrc_oper_rev,23,2006,(457.1) Regional Control Service Revenues,reported_value,regional_transmission_service_revenues,,No MWh sold or average number of customers per month provided.
 f1_elctrc_oper_rev,24,2006,(457.2) Miscellaneous Revenues,reported_value,miscellaneous_revenue,,No MWh sold or average number of customers per month provided.
@@ -2932,7 +2932,7 @@ f1_plant_in_srvce,84,1994,TOTAL (Accounts 101 and 106),reported_value,electric_p
 f1_plant_in_srvce,85,1994,(102) Electric Plant Purchased (See Instr. 8),reported_value,electric_plant_purchased,,One FERC account that shows up in two columns as both credit/debit.
 f1_plant_in_srvce,86,1994,(Less) (102) Electric Plant Sold (See Instr. 8),reported_value,electric_plant_sold,,One FERC account that shows up in two columns as both credit/debit.
 f1_plant_in_srvce,87,1994,(103) Experimental Plant Unclassified,reported_value,experimental_electric_plant_unclassified,,
-f1_plant_in_srvce,88,1994,TOTAL Electric Plant in Service (Enter Total of lines 84 thru 87),calculated_value,electric_plant_in_service,,
+f1_plant_in_srvce,88,1994,TOTAL Electric Plant in Service (Enter Total of lines 84 thru 87),calculated_value,plant_in_service_classified_and_unclassified,,
 f1_plant_in_srvce,15,2003,(317) Asset Retirement Costs for Steam Production,reported_value,asset_retirement_costs_for_steam_production_plant_steam_production,,
 f1_plant_in_srvce,16,2003,TOTAL Steam Production Plant (Enter Total of lines 8 thru 15),calculated_value,steam_production_plant,,
 f1_plant_in_srvce,17,2003,B. Nuclear Production Plant,header,,,
@@ -3013,7 +3013,7 @@ f1_plant_in_srvce,91,2003,TOTAL (Accounts 101 and 106),reported_value,electric_p
 f1_plant_in_srvce,92,2003,(102) Electric Plant Purchased (See Instr. 8),reported_value,electric_plant_purchased,,One FERC account that shows up in two columns as both credit/debit.
 f1_plant_in_srvce,93,2003,(Less) (102) Electric Plant Sold (See Instr. 8),reported_value,electric_plant_sold,,One FERC account that shows up in two columns as both credit/debit.
 f1_plant_in_srvce,94,2003,(103) Experimental Plant Unclassified,reported_value,experimental_electric_plant_unclassified,,
-f1_plant_in_srvce,95,2003,TOTAL Electric Plant in Service (Enter Total of lines 91 thru 94),calculated_value,electric_plant_in_service,,
+f1_plant_in_srvce,95,2003,TOTAL Electric Plant in Service (Enter Total of lines 91 thru 94),calculated_value,plant_in_service_classified_and_unclassified,,
 f1_plant_in_srvce,76,2006,5.  REGIONAL TRANSMISSION AND MARKET OPERATION PLANT,header,,,
 f1_plant_in_srvce,77,2006,(380) Land and Land Rights,reported_value,land_and_land_rights_regional_transmission_and_market_operation_plant,,
 f1_plant_in_srvce,78,2006,(381) Structures and Improvements,reported_value,structures_and_improvements_regional_transmission_and_market_operation_plant,,
@@ -3042,7 +3042,7 @@ f1_plant_in_srvce,100,2006,TOTAL (Accounts 101 and 106),calculated_value,electri
 f1_plant_in_srvce,101,2006,(102) Electric Plant Purchased (See Instr. 8),reported_value,electric_plant_purchased,,One FERC account that shows up in two columns as both credit/debit.
 f1_plant_in_srvce,102,2006,(Less) (102) Electric Plant Sold (See Instr. 8),reported_value,electric_plant_sold,,One FERC account that shows up in two columns as both credit/debit.
 f1_plant_in_srvce,103,2006,(103) Experimental Plant Unclassified,reported_value,experimental_electric_plant_unclassified,,
-f1_plant_in_srvce,104,2006,TOTAL Electric Plant in Service (Enter Total of lines 100 thru 103),calculated_value,electric_plant_in_service,,
+f1_plant_in_srvce,104,2006,TOTAL Electric Plant in Service (Enter Total of lines 100 thru 103),calculated_value,plant_in_service_classified_and_unclassified,,
 f1_pumped_storage,1,1994,FERC Licensed Project No. & Plant Name (1),,,,
 f1_pumped_storage,2,1994,FERC Licensed Project No. & Plant Name (2),,,,
 f1_pumped_storage,3,1994,FERC Licensed Project No. & Plant Name (3),,,,

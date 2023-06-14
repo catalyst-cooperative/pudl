@@ -3042,8 +3042,14 @@ class PlantInServiceFerc1TableTransformer(Ferc1AbstractTableTransformer):
         """The main table-specific transformations, affecting contents not structure.
 
         Annotates and alters data based on information from the XBRL taxonomy metadata.
+        Also assigns utility type for use in table explosions.
         """
-        return super().transform_main(df).pipe(self.apply_sign_conventions)
+        return (
+            super()
+            .transform_main(df)
+            .pipe(self.apply_sign_conventions)
+            .assign(utility_type="electric")
+        )
 
 
 class PlantsSmallFerc1TableTransformer(Ferc1AbstractTableTransformer):
@@ -4288,6 +4294,11 @@ class DepreciationAmortizationSummaryFerc1TableTransformer(
         ] = "403.1"
         return meta
 
+    @cache_df("main")
+    def transform_main(self, df):
+        """After standard transform_main, assign utility type as electric."""
+        return super().transform_main(df).assign(utility_type="electric")
+
 
 class ElectricPlantDepreciationChangesFerc1TableTransformer(
     Ferc1AbstractTableTransformer
@@ -4421,6 +4432,11 @@ class ElectricOperatingExpensesFerc1TableTransformer(Ferc1AbstractTableTransform
         """Process DBF but drop a bad row that is flagged by drop_duplicates."""
         return super().process_dbf(self.targeted_drop_duplicates_dbf(raw_dbf))
 
+    @cache_df("main")
+    def transform_main(self, df):
+        """After standard transform_main, assign utility type as electric."""
+        return super().transform_main(df).assign(utility_type="electric")
+
 
 class ElectricOperatingRevenuesFerc1TableTransformer(Ferc1AbstractTableTransformer):
     """Transformer class for :ref:`electric_operating_revenues_ferc1` table."""
@@ -4472,8 +4488,13 @@ class ElectricOperatingRevenuesFerc1TableTransformer(Ferc1AbstractTableTransform
 
     @cache_df("main")
     def transform_main(self, df):
-        """Add duplicate removal after standard transform_main."""
-        return super().transform_main(df).pipe(self.targeted_drop_duplicates)
+        """Add duplicate removal after standard transform_main & assign utility type."""
+        return (
+            super()
+            .transform_main(df)
+            .pipe(self.targeted_drop_duplicates)
+            .assign(utility_type="electric")
+        )
 
     @cache_df("main")
     def targeted_drop_duplicates(self, df):

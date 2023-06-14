@@ -2685,6 +2685,7 @@ TRANSFORM_PARAMS = {
                     "fuel_holders_producers_and_accessories_other_production": "fuel_holders_products_and_accessories_other_production",
                     "structures_and_improvement_nuclear_production": "structures_and_improvements_nuclear_production",
                     "leased_property_on_customers_premises_distribution_plant": "leased_property_on_customer_premises_distribution_plant",
+                    "electric_plant_in_service": "plant_in_service_classified_and_unclassified",
                 }
             },
             "duration_xbrl": {
@@ -2697,6 +2698,10 @@ TRANSFORM_PARAMS = {
                     "asset_retirement_costs_for_regional_transmission_and_market_operations_regional_transmission_and_market_operation_plant_adjustments": "asset_retirement_costs_for_regional_transmission_and_market_operation_plant_regional_transmission_and_market_operation_plant_adjustments",
                     "asset_retirement_costs_for_regional_transmission_and_market_operations_regional_transmission_and_market_operation_plant_retirements": "asset_retirement_costs_for_regional_transmission_and_market_operation_plant_regional_transmission_and_market_operation_plant_retirements",
                     "asset_retirement_costs_for_regional_transmission_and_market_operations_regional_transmission_and_market_operation_plant_transfers": "asset_retirement_costs_for_regional_transmission_and_market_operation_plant_regional_transmission_and_market_operation_plant_transfers",
+                    "electric_plant_in_service_retirements": "plant_in_service_classified_and_unclassified_retirements",
+                    "electric_plant_in_service_additions": "plant_in_service_classified_and_unclassified_additions",
+                    "electric_plant_in_service_transfers": "plant_in_service_classified_and_unclassified_transfers",
+                    "electric_plant_in_service_adjustments": "plant_in_service_classified_and_unclassified_adjustments",
                 }
             },
         },
@@ -3435,7 +3440,7 @@ TRANSFORM_PARAMS = {
                     "row_seq": "row_seq",
                     "row_prvlg": "row_prvlg",
                     "depr_expn": "depreciation_expense_dollar_value",
-                    "depr_asset_retire": "depreciation_expense_asset_retirement_dollar_value",
+                    "depr_asset_retire": "depreciation_expense_for_asset_retirement_costs_dollar_value",
                     "limterm_elc_plnt": "amortization_limited_term_electric_plant_dollar_value",
                     "othr_elc_plnt": "amortization_other_electric_plant_dollar_value",
                     "total": "depreciation_amortization_total_dollar_value",
@@ -3454,7 +3459,7 @@ TRANSFORM_PARAMS = {
                 "columns": {
                     "functional_classification_axis": "plant_function",
                     "depreciation_expense_excluding_amortization_of_acquisition_adjustments": "depreciation_expense_dollar_value",
-                    "depreciation_expense_for_asset_retirement_costs_excluding_amortizationg_of_acquisition_adjustments": "depreciation_expense_asset_retirement_dollar_value",
+                    "depreciation_expense_for_asset_retirement_costs_excluding_amortizationg_of_acquisition_adjustments": "depreciation_expense_for_asset_retirement_costs_dollar_value",
                     "amortization_of_limited_term_plant_or_property": "amortization_limited_term_electric_plant_dollar_value",
                     "amortization_of_other_electric_plant": "amortization_other_electric_plant_dollar_value",
                     "depreciation_and_amortization": "depreciation_amortization_total_dollar_value",
@@ -3560,12 +3565,14 @@ TRANSFORM_PARAMS = {
                         "miscellaneous_revenue",
                         "other_miscellaneous_operating_revenues",
                         "other_operating_revenues",
-                        "electric_operating_revenues",
                     ]
                 }
                 | {
                     f"{col}_sales_electric_operating_revenue": f"{col}_electric_operating_revenue"
                     for col in ["small_or_commercial", "large_or_industrial"]
+                }
+                | {
+                    "electric_operating_revenues": "operating_revenues_electric_operating_revenue"
                 }
             },
             "xbrl": {
