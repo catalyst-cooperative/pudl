@@ -9,12 +9,9 @@ import warnings
 import pandas as pd
 from dagster import (
     AssetOut,
-    DynamicOut,
-    DynamicOutput,
     Output,
     graph_asset,
     multi_asset,
-    op,
 )
 
 import pudl.logging_helpers
@@ -77,21 +74,7 @@ class Extractor(excel.GenericExtractor):
         }
 
 
-@op(
-    out=DynamicOut(),
-    required_resource_keys={"dataset_settings"},
-)
-def eia861_years_from_settings(context):
-    """Return set of years for EIA-861 in settings.
-
-    These will be used to kick off worker processes to load each year of data in
-    parallel.
-    """
-    eia_settings = context.resources.dataset_settings.eia
-    for year in eia_settings.eia861.years:
-        yield DynamicOutput(year, mapping_key=str(year))
-
-
+eia861_years_from_settings = excel.years_from_settings_factory("eia861")
 load_single_eia861_year = excel.year_loader_factory(Extractor, name="eia861")
 
 

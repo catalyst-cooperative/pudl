@@ -5,7 +5,7 @@ from collections import defaultdict
 
 import dbfread
 import pandas as pd
-from dagster import op
+from dagster import DynamicOut, DynamicOutput, op
 
 import pudl
 
@@ -398,3 +398,23 @@ def year_loader_factory(extractor_cls: type[GenericExtractor], name: str):
         required_resource_keys={"datastore", "dataset_settings"},
         name=f"load_single_{name}_year",
     )(load_single_year)
+
+
+def years_from_settings_factory(name: str):
+    """Return a dagster op to get years from settings."""
+
+    def years_from_settings(context):
+        """Return set of years for EIA-860 in settings.
+
+        These will be used to kick off worker processes to load each year of data in
+        parallel.
+        """
+        eia_settings = context.resources.dataset_settings.eia
+        for year in getattr(eia_settings, name).years:
+            yield DynamicOutput(year, mapping_key=str(year))
+
+    return op(
+        out=DynamicOut(),
+        required_resource_keys={"dataset_settings"},
+        name=f"{name}_years_from_settings",
+    )(years_from_settings)

@@ -7,12 +7,9 @@ This code is for use analyzing EIA Form 860 data.
 import pandas as pd
 from dagster import (
     AssetOut,
-    DynamicOut,
-    DynamicOutput,
     Output,
     graph_asset,
     multi_asset,
-    op,
 )
 
 import pudl
@@ -93,21 +90,7 @@ raw_table_names = (
 )
 
 
-@op(
-    out=DynamicOut(),
-    required_resource_keys={"dataset_settings"},
-)
-def eia860_years_from_settings(context):
-    """Return set of years for EIA-860 in settings.
-
-    These will be used to kick off worker processes to load each year of data in
-    parallel.
-    """
-    eia_settings = context.resources.dataset_settings.eia
-    for year in eia_settings.eia860.years:
-        yield DynamicOutput(year, mapping_key=str(year))
-
-
+eia860_years_from_settings = excel.years_from_settings_factory("eia860")
 load_single_eia860_year = excel.year_loader_factory(Extractor, "eia860")
 
 
