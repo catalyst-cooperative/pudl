@@ -1,9 +1,11 @@
 """Load excel metadata CSV files form a python data package."""
 import importlib.resources
 import pathlib
+from collections import defaultdict
 
 import dbfread
 import pandas as pd
+from dagster import op
 
 import pudl
 
@@ -356,3 +358,43 @@ class GenericExtractor:
             string name of the xlsx file
         """
         return self.METADATA.get_file_name(page, **partition)
+
+
+@op
+def merge_yearly_dfs(
+    yearly_dfs: list[dict[str, pd.DataFrame]]
+) -> dict[str, pd.DataFrame]:
+    """Merge DataFrames loaded with indepented calls to .extract()."""
+    merged = defaultdict(list)
+    for dfs in yearly_dfs:
+        for page in dfs:
+            merged[page].append(dfs[page])
+
+    for page in merged:
+        merged[page] = pd.concat(merged[page])
+
+    return merged
+
+
+def year_loader_factory(extractor_cls: type[GenericExtractor], name: str):
+    """Return a dagster op to load a single year using a given extractor class."""
+
+    def load_single_year(context, year: int) -> dict[str, pd.DataFrame]:
+        """Load a single year of EIA data from file.
+
+        Args:
+            context:
+                context: dagster keyword that provides access to resources and config.
+            year:
+                Year to load.
+
+        Returns:
+            Loaded data in a dataframe.
+        """
+        ds = context.resources.datastore
+        return extractor_cls(ds).extract(year=[year])
+
+    return op(
+        required_resource_keys={"datastore", "dataset_settings"},
+        name=f"load_single_{name}_year",
+    )(load_single_year)

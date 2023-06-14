@@ -28,6 +28,7 @@ logger = pudl.logging_helpers.get_logger(__name__)
 default_assets = (
     *load_assets_from_modules([eia_bulk_elec_assets], group_name="eia_bulk_elec"),
     *load_assets_from_modules([epacems_assets], group_name="epacems"),
+    *load_assets_from_modules([pudl.extract.excel], group_name="excel"),
     *load_assets_from_modules([pudl.extract.eia860], group_name="raw_eia860"),
     *load_assets_from_modules([pudl.transform.eia860], group_name="clean_eia860"),
     *load_assets_from_modules([pudl.extract.eia861], group_name="raw_eia861"),

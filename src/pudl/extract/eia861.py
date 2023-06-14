@@ -7,7 +7,15 @@ This code is for use analyzing EIA Form 861 data.
 import warnings
 
 import pandas as pd
-from dagster import AssetOut, Output, multi_asset
+from dagster import (
+    AssetOut,
+    DynamicOut,
+    DynamicOutput,
+    Output,
+    graph_asset,
+    multi_asset,
+    op,
+)
 
 import pudl.logging_helpers
 from pudl.extract import excel
@@ -69,6 +77,35 @@ class Extractor(excel.GenericExtractor):
         }
 
 
+@op(
+    out=DynamicOut(),
+    required_resource_keys={"dataset_settings"},
+)
+def eia861_years_from_settings(context):
+    """Return set of years for EIA-861 in settings.
+
+    These will be used to kick off worker processes to load each year of data in
+    parallel.
+    """
+    eia_settings = context.resources.dataset_settings.eia
+    for year in eia_settings.eia861.years:
+        yield DynamicOutput(year, mapping_key=str(year))
+
+
+load_single_eia861_year = excel.year_loader_factory(Extractor, name="eia861")
+
+
+@graph_asset
+def eia861_raw_dfs() -> dict[str, pd.DataFrame]:
+    """All loaded EIA-861 dataframes.
+
+    This asset creates a dynamic graph of ops to load EIA860 data in parallel.
+    """
+    years = eia861_years_from_settings()
+    dfs = years.map(lambda year: load_single_eia861_year(year))
+    return excel.merge_yearly_dfs(dfs.collect())
+
+
 @multi_asset(
     outs={
         table_name: AssetOut()
@@ -99,7 +136,7 @@ class Extractor(excel.GenericExtractor):
     },
     required_resource_keys={"datastore", "dataset_settings"},
 )
-def extract_eia861(context):
+def extract_eia861(context, eia861_raw_dfs):
     """Extract raw EIA-861 data from Excel sheets into dataframes.
 
     Args:
@@ -108,10 +145,6 @@ def extract_eia861(context):
     Returns:
         A tuple of extracted EIA-861 dataframes.
     """
-    eia_settings = context.resources.dataset_settings.eia
-    ds = context.resources.datastore
-    eia861_raw_dfs = Extractor(ds).extract(year=eia_settings.eia861.years)
-
     eia861_raw_dfs = {
         "raw_" + table_name: df for table_name, df in eia861_raw_dfs.items()
     }

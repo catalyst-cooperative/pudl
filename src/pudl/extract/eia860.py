@@ -4,8 +4,6 @@ This modules pulls data from EIA's published Excel spreadsheets.
 
 This code is for use analyzing EIA Form 860 data.
 """
-from collections import defaultdict
-
 import pandas as pd
 from dagster import (
     AssetOut,
@@ -99,8 +97,8 @@ raw_table_names = (
     out=DynamicOut(),
     required_resource_keys={"dataset_settings"},
 )
-def eia_years_from_settings(context):
-    """Return set of years for EIA in settings.
+def eia860_years_from_settings(context):
+    """Return set of years for EIA-860 in settings.
 
     These will be used to kick off worker processes to load each year of data in
     parallel.
@@ -110,39 +108,7 @@ def eia_years_from_settings(context):
         yield DynamicOutput(year, mapping_key=str(year))
 
 
-@op(
-    required_resource_keys={"datastore", "dataset_settings"},
-)
-def load_single_year(context, year: int) -> dict[str, pd.DataFrame]:
-    """Load a single year of EIA data from file.
-
-    Args:
-        context:
-            context: dagster keyword that provides access to resources and config.
-        year:
-            Year to load.
-
-    Returns:
-        Loaded data in a dataframe.
-    """
-    ds = context.resources.datastore
-    return Extractor(ds).extract(year=[year])
-
-
-@op
-def merge_eia860_years(
-    yearly_dfs: list[dict[str, pd.DataFrame]]
-) -> dict[str, pd.DataFrame]:
-    """Merge yearly EIA-860 dataframes."""
-    merged = defaultdict(list)
-    for dfs in yearly_dfs:
-        for page in dfs:
-            merged[page].append(dfs[page])
-
-    for page in merged:
-        merged[page] = pd.concat(merged[page])
-
-    return merged
+load_single_eia860_year = excel.year_loader_factory(Extractor, "eia860")
 
 
 @graph_asset
@@ -151,9 +117,9 @@ def eia860_raw_dfs() -> dict[str, pd.DataFrame]:
 
     This asset creates a dynamic graph of ops to load EIA860 data in parallel.
     """
-    years = eia_years_from_settings()
-    dfs = years.map(lambda year: load_single_year(year))
-    return merge_eia860_years(dfs.collect())
+    years = eia860_years_from_settings()
+    dfs = years.map(lambda year: load_single_eia860_year(year))
+    return excel.merge_yearly_dfs(dfs.collect())
 
 
 # TODO (bendnorman): Figure out type hint for context keyword and mutli_asset return
