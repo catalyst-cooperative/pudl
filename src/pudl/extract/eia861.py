@@ -7,12 +7,7 @@ This code is for use analyzing EIA Form 861 data.
 import warnings
 
 import pandas as pd
-from dagster import (
-    AssetOut,
-    Output,
-    graph_asset,
-    multi_asset,
-)
+from dagster import AssetOut, Output, multi_asset
 
 import pudl.logging_helpers
 from pudl.extract import excel
@@ -74,19 +69,7 @@ class Extractor(excel.GenericExtractor):
         }
 
 
-eia861_years_from_settings = excel.years_from_settings_factory("eia861")
-load_single_eia861_year = excel.year_loader_factory(Extractor, name="eia861")
-
-
-@graph_asset
-def eia861_raw_dfs() -> dict[str, pd.DataFrame]:
-    """All loaded EIA-861 dataframes.
-
-    This asset creates a dynamic graph of ops to load EIA860 data in parallel.
-    """
-    years = eia861_years_from_settings()
-    dfs = years.map(lambda year: load_single_eia861_year(year))
-    return excel.merge_yearly_dfs(dfs.collect())
+eia861_raw_dfs = excel.raw_df_factory(Extractor, name="eia861")
 
 
 @multi_asset(

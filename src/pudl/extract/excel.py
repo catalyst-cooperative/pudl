@@ -5,7 +5,7 @@ from collections import defaultdict
 
 import dbfread
 import pandas as pd
-from dagster import DynamicOut, DynamicOutput, op
+from dagster import DynamicOut, DynamicOutput, graph_asset, op
 
 import pudl
 
@@ -404,7 +404,7 @@ def years_from_settings_factory(name: str):
     """Return a dagster op to get years from settings."""
 
     def years_from_settings(context):
-        """Return set of years for EIA-860 in settings.
+        """Return set of years for EIA data in settings.
 
         These will be used to kick off worker processes to load each year of data in
         parallel.
@@ -418,3 +418,21 @@ def years_from_settings_factory(name: str):
         required_resource_keys={"dataset_settings"},
         name=f"{name}_years_from_settings",
     )(years_from_settings)
+
+
+def raw_df_factory(extractor_cls: type[GenericExtractor], name: str):
+    """Return a graph asset to load a set of raw DataFrames from Excel files.
+    """
+    year_loader = year_loader_factory(extractor_cls, name)
+    years_from_settings = years_from_settings_factory(name)
+
+    def raw_dfs() -> dict[str, pd.DataFrame]:
+        """All loaded EIA-861 dataframes.
+
+        This asset creates a dynamic graph of ops to load EIA860 data in parallel.
+        """
+        years = years_from_settings()
+        dfs = years.map(lambda year: year_loader(year))
+        return merge_yearly_dfs(dfs.collect())
+
+    return graph_asset(name=f"{name}_raw_dfs")(raw_dfs)

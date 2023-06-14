@@ -5,12 +5,7 @@ This modules pulls data from EIA's published Excel spreadsheets.
 This code is for use analyzing EIA Form 860 data.
 """
 import pandas as pd
-from dagster import (
-    AssetOut,
-    Output,
-    graph_asset,
-    multi_asset,
-)
+from dagster import AssetOut, Output, multi_asset
 
 import pudl
 import pudl.logging_helpers
@@ -90,19 +85,7 @@ raw_table_names = (
 )
 
 
-eia860_years_from_settings = excel.years_from_settings_factory("eia860")
-load_single_eia860_year = excel.year_loader_factory(Extractor, "eia860")
-
-
-@graph_asset
-def eia860_raw_dfs() -> dict[str, pd.DataFrame]:
-    """All loaded EIA860 dataframes.
-
-    This asset creates a dynamic graph of ops to load EIA860 data in parallel.
-    """
-    years = eia860_years_from_settings()
-    dfs = years.map(lambda year: load_single_eia860_year(year))
-    return excel.merge_yearly_dfs(dfs.collect())
+eia860_raw_dfs = excel.raw_df_factory(Extractor, name="eia860")
 
 
 # TODO (bendnorman): Figure out type hint for context keyword and mutli_asset return
