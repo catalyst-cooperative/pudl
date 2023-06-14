@@ -68,9 +68,10 @@ RENAME_DICT = {
     "FAC_ID": "facility_id",  # unique facility id for internal EPA database management
     "UNIT_ID": "unit_id_what",  # unique unit id for internal EPA database management
 }
-"""dict: A dictionary containing EPA CEMS column names (keys) and replacement
-    names to use when reading those columns into PUDL (values). There are some
-    duplicate rename values because the column names change year to year.
+"""Dict: A dictionary containing EPA CEMS column names (keys) and replacement names to
+use when reading those columns into PUDL (values).
+
+There are some duplicate rename values because the column names change year to year.
 """
 
 # Any column that exactly matches one of these won't be read
@@ -88,7 +89,7 @@ IGNORE_COLS = {
     "FAC_ID",
     "UNIT_ID",
 }
-"""set: The set of EPA CEMS columns to ignore when reading data."""
+"""Set: The set of EPA CEMS columns to ignore when reading data."""
 
 
 class EpaCemsPartition(NamedTuple):

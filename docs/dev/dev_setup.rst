@@ -272,6 +272,13 @@ The path stored in ``PUDL_OUTPUT`` contains all ETL outputs like
 It is recommended you create these directories outside of the pudl repository
 directory so the inputs and outputs are not tracked in git.**
 
+Also, activate profile changes above in the current session.
+
+.. code-block:: console
+
+    $ export PUDL_OUTPUT=/absolute/path/to/pudl_output
+    $ export PUDL_INPUT=/absolute/path/to/pudl_input
+
 .. _Legacy PUDL Setup:
 
 PUDL Workspace Setup (legacy method)

@@ -2362,9 +2362,11 @@ frc_eia923_coal_mercury_content = [
 ]
 """Valid coal mercury content limits.
 
-Based on USGS FS095-01: https://pubs.usgs.gov/fs/fs095-01/fs095-01.html Upper tail may
-fail because of a population of extremely high mercury content coal (9.0ppm) which is
-likely a reporting error.
+Based on USGS FS095-01
+https://pubs.usgs.gov/fs/fs095-01/fs095-01.html
+
+Upper tail may fail because of a population of extremely high mercury content coal
+(9.0ppm) which is likely a reporting error.
 """
 
 frc_eia923_coal_moisture_content = [
