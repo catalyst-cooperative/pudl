@@ -203,12 +203,6 @@ class AbstractFercDbfReader(Protocol):
         """Returns dataframe that contains data for a given table across given years."""
         ...
 
-    def transform_table_part(
-        self: Self, table_part: pd.DataFrame, table_name: str, partition: dict[str, Any]
-    ) -> pd.DataFrame:
-        """Apply table-specific per-partition transforms if necessary."""
-        ...
-
 
 # TODO(rousik): we should have a class for accessing single archive.
 
@@ -398,10 +392,12 @@ class FercDbfExtractor:
     1. finalize_schema() in order to modify sqlite schema. This is called just before
     the schema is written into the sqlite database. This is good place for adding
     primary and/or foreign key constraints to tables.
-    2. transform_table(table_name, df) will be invoked after dataframe is loaded from
+    2. aggregate_table_frames() is responsible for concatenating individual data frames
+    (one par input partition) into single one. This is where deduplication can take place.
+    3. transform_table(table_name, df) will be invoked after dataframe is loaded from
     the foxpro database and before it's written to sqlite. This is good place for
     table-specific preprocessing and/or cleanup.
-    3. postprocess() is called after data is written to sqlite. This can be used for
+    4. postprocess() is called after data is written to sqlite. This can be used for
     database level final cleanup and transformations (e.g. injecting missing
     respondent_ids).
 

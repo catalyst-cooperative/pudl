@@ -221,23 +221,6 @@ class Ferc1DbfExtractor(FercDbfExtractor):
         """Returns settings for FERC Form 1 DBF dataset."""
         return global_settings.ferc1_dbf_to_sqlite_settings
 
-    def transform_table(self, table_name: str, in_df: pd.DataFrame) -> pd.DataFrame:
-        """FERC Form 1 specific table transformations.
-
-        This method removes duplicates from the f1_respondent_id table, and leaves all
-        other tables intact.
-        """
-        # TODO(rousik): this should be replaced with registry of pd.DataFrame -> pd.DataFrame transformations
-        # for each table and dict that looks those up.
-        if table_name == "f1_respondent_id":
-            return (
-                in_df.sort_values(by=["report_yr", "respondent_id"])
-                .drop_duplicates(subset="respondent_id", keep="last")
-                .drop(columns="report_yr")
-            )
-        else:
-            return in_df
-
     def finalize_schema(self, meta: sa.MetaData) -> sa.MetaData:
         """Modifies schema before it's written to sqlite database.
 
