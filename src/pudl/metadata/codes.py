@@ -264,7 +264,7 @@ CODE_METADATA: dict[str, dict[str, Any]] = {
                     "ishikawajima_harima",
                     "Ishikawajima-Harima Heavy Industries  (IHI Corp)",
                 ),
-                ("IS" "innovative_steam_technology", "Innovative Steam Technology"),
+                ("IS", "innovative_steam_technology", "Innovative Steam Technology"),
                 ("JO", "joy_manufacturing", "Joy Manufacturing"),
                 (
                     "JZ",
