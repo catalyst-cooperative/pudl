@@ -69,7 +69,7 @@ https://data.catalyst.coop/ferc1
 import json
 from itertools import chain
 from pathlib import Path
-from typing import Any, Literal, Self
+from typing import Any, Literal
 
 import pandas as pd
 import sqlalchemy as sa
@@ -84,7 +84,7 @@ from dagster import (
 )
 
 import pudl
-from pudl.extract.dbf import AbstractFercDbfReader, FercDbfExtractor, FercDbfReader
+from pudl.extract.dbf import FercDbfExtractor, PartitionedDataFrame, deduplicate_by_year
 from pudl.extract.ferc import add_key_constraints
 from pudl.extract.ferc2 import Ferc2DbfExtractor
 from pudl.helpers import EnvVar
@@ -95,7 +95,6 @@ from pudl.io_managers import (
     ferc1_xbrl_sqlite_io_manager,
 )
 from pudl.settings import DatasetsSettings, FercToSqliteSettings, GenericDatasetSettings
-from pudl.workspace.datastore import Datastore
 
 logger = pudl.logging_helpers.get_logger(__name__)
 
@@ -222,13 +221,6 @@ class Ferc1DbfExtractor(FercDbfExtractor):
         """Returns settings for FERC Form 1 DBF dataset."""
         return global_settings.ferc1_dbf_to_sqlite_settings
 
-    def get_dbf_reader(self, datastore: Datastore) -> AbstractFercDbfReader:
-        """Returns an instace of :class:`FercDbfReader`.
-
-        This uses the generic datastore to construct a :class:`FercDbfReader`.
-        """
-        return Ferc1DbfReader(datastore, dataset=self.DATASET)
-
     def transform_table(self, table_name: str, in_df: pd.DataFrame) -> pd.DataFrame:
         """FERC Form 1 specific table transformations.
 
@@ -331,18 +323,14 @@ class Ferc1DbfExtractor(FercDbfExtractor):
                 )
         return observed
 
-
-class Ferc1DbfReader(FercDbfReader):
-    """A FercDbfReader specific to the FERC Form 1."""
-
-    def transform_table_part(
-        self: Self, table_part: pd.DataFrame, table_name: str, partition: dict[str, Any]
-    ) -> pd.DataFrame:
-        """Add report_yr to respondent_id table so we can deduplicate later."""
-        table_part = super().transform_table_part(table_part, table_name, partition)
-        if table_name == "f1_respondent_id":
-            table_part["report_yr"] = partition["year"]
-        return table_part
+    def aggregate_table_frames(
+        self, table_name: str, dfs: list[PartitionedDataFrame]
+    ) -> pd.DataFrame | None:
+        """Deduplicates records in f_respondent_year table."""
+        if table_name == "f1_respondent_year":
+            return deduplicate_by_year(dfs, "respondent_id")
+        else:
+            return super().aggregate_table_frames(table_name, dfs)
 
 
 @op(
