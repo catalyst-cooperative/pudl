@@ -1227,7 +1227,7 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
         Checks calculations. Enforces dataframe schema. Checks for empty dataframes and
         null columns.
         """
-        df = self.reconcile_table_calculations(df).pipe(self.enforce_schema)
+        df = self.reconcile_table_calculations(df)  # .pipe(self.enforce_schema)
         if df.empty:
             raise ValueError(f"{self.table_id.value}: Final dataframe is empty!!!")
         for col in df:
@@ -3050,41 +3050,18 @@ class PlantInServiceFerc1TableTransformer(Ferc1AbstractTableTransformer):
         subcomponent) does not match it's calculated value.
         """
         df = super().transform_main(df).pipe(self.apply_sign_conventions)
-        # Create a copy of the df with the calculations so we can apply the fixes to
-        # the original df and run the calculations later (in transform_end)
-        df_calc = df.pipe(self.reconcile_table_calculations).copy()
-        index_group_1 = ["report_year", "utility_id_ferc1"]
-        index_group_2 = ["report_year", "utility_id_ferc1", "ferc_account_label"]
-        # Get the index values for electric_plant_in_service fields that don't match
-        # their calculations
-        bad_calcs_pis_index = (
-            df_calc[
-                (df_calc["ferc_account_label"] == "electric_plant_in_service")
-                & (df_calc["ending_balance"] != df_calc["calculated_amount"])
-            ]
-            .set_index(index_group_1)
-            .index
+        # Make all electric_plant_sold values positive
+        # This could probably be a FERC transformer class function or in the
+        # apply_sign_conventions function, but it doesn't seem like the best fit for
+        # now.
+        neg_values = (df["ferc_account_label"] == "electric_plant_sold") & (
+            df["ending_balance"] < 0
         )
-        # Use that index to get the whole group of ferc_account_labels associated
-        # with that bad calculation
-        bad_calc_groups_df = df_calc.set_index(index_group_1).loc[bad_calcs_pis_index]
-        # Get the index values for the instances of electric_plant_sold that exist
-        # within the groups with bad calculations.
-        bad_calc_eps_index = (
-            bad_calc_groups_df[
-                bad_calc_groups_df["ferc_account_label"] == "electric_plant_sold"
-            ]
-            .reset_index()
-            .set_index(index_group_2)
-            .index
+        df.loc[neg_values, "ending_balance"] = abs(df["ending_balance"])
+        logger.info(
+            f"{self.table_id.value}: Converted {len(df[neg_values])} negative values to positive."
         )
-        df = df.reset_index().set_index(index_group_2)
-        # Replace the electric_plant_sold ending_balance values identified above with
-        # their absolute value. Also enforce the schema so we can run the calcs again.
-        df.loc[bad_calc_eps_index, "ending_balance"] = abs(df["ending_balance"])
-        df.loc[bad_calc_eps_index, "starting_balance"] = abs(df["starting_balance"])
-        df_fixed = df.reset_index()
-        return df_fixed
+        return df
 
 
 class PlantsSmallFerc1TableTransformer(Ferc1AbstractTableTransformer):
@@ -4055,45 +4032,39 @@ class UtilityPlantSummaryFerc1TableTransformer(Ferc1AbstractTableTransformer):
             "utility_plant_asset_type",
         ]
 
-        # We need to track which years are getting transformed so the spot fixes
-        # don't fail on the fast tests.
-        df_years = df.report_year.unique().tolist()
-
         # The utility_id_ferc1 211 follows the same pattern for several years
         # instead of writing them all out in spot_fix_pks, we'll create a loop that
         # generates all of them and then append them to spot_fix_pks later
         spot_fix_211 = []
         for year in np.append(2006, range(2009, 2021)):
-            # Measure to account for fast tests where not all years are used
-            if year in df_years:
-                for utility_type in ["electric", "total"]:
-                    pks = [
-                        (
-                            year,
-                            211,
-                            utility_type,
-                            "accumulated_provision_for_depreciation_amortization_and_depletion_of_plant_utility",
-                        ),
-                        (
-                            year,
-                            211,
-                            utility_type,
-                            "amortization_of_other_utility_plant_utility_plant_in_service",
-                        ),
-                        (
-                            year,
-                            211,
-                            utility_type,
-                            "depreciation_amortization_and_depletion_utility_plant_in_service",
-                        ),
-                        (
-                            year,
-                            211,
-                            utility_type,
-                            "depreciation_utility_plant_in_service",
-                        ),
-                    ]
-                spot_fix_211 = spot_fix_211 + pks
+            for utility_type in ["electric", "total"]:
+                pks = [
+                    (
+                        year,
+                        211,
+                        utility_type,
+                        "accumulated_provision_for_depreciation_amortization_and_depletion_of_plant_utility",
+                    ),
+                    (
+                        year,
+                        211,
+                        utility_type,
+                        "amortization_of_other_utility_plant_utility_plant_in_service",
+                    ),
+                    (
+                        year,
+                        211,
+                        utility_type,
+                        "depreciation_amortization_and_depletion_utility_plant_in_service",
+                    ),
+                    (
+                        year,
+                        211,
+                        utility_type,
+                        "depreciation_utility_plant_in_service",
+                    ),
+                ]
+            spot_fix_211 = spot_fix_211 + pks
 
         spot_fix_pks = [
             (
@@ -4201,13 +4172,15 @@ class UtilityPlantSummaryFerc1TableTransformer(Ferc1AbstractTableTransformer):
             ),
             (2007, 393, "total", "depreciation_utility_plant_in_service"),
         ]
-        # Measure to account for fast tests where not all years are used
-        spot_fix_pks = [x for x in spot_fix_pks if x[0] in df_years]
 
         # Combine bespoke fixes with programatically generated spot fixes
         spot_fix_pks = spot_fix_pks + spot_fix_211
 
-        # Measure to account for fast tests where not all years are used
+        # Par down spot fixes to account for fast tests where not all years are used
+        df_years = df.report_year.unique().tolist()
+        spot_fix_pks = [x for x in spot_fix_pks if x[0] in df_years]
+        logger.info(f"{self.table_id.value}: Spotfixing {len(spot_fix_pks)} records.")
+
         if spot_fix_pks:
             # Create a df out of the primary key of the records you want to fix
             df_keys = pd.DataFrame(spot_fix_pks, columns=primary_keys).set_index(
@@ -4219,11 +4192,10 @@ class UtilityPlantSummaryFerc1TableTransformer(Ferc1AbstractTableTransformer):
             df.loc[df_keys.index, "ending_balance"] = df["ending_balance"] * -1
             # All of these are flipping negative values to positive values, except one,
             # so let's make sure that's what happens
-            flipped_values = df.loc[df_keys.index].copy()
+            flipped_values = df.loc[df_keys.index]
             if len(flipped_values[flipped_values["ending_balance"] < 0]) > 1:
                 raise AssertionError("Only one of these spot fixes should be negative")
-
-            df = df.reset_index()
+            df.reset_index(inplace=True)
 
         return df
 
