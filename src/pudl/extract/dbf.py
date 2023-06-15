@@ -21,6 +21,12 @@ from pudl.workspace.datastore import Datastore
 logger = pudl.logging_helpers.get_logger(__name__)
 
 
+class DbcFileMissing(Exception):
+    """This is raised when the DBC index file is missing."""
+
+    pass
+
+
 class DbfTableSchema:
     """Simple data-wrapper for the fox-pro table schema."""
 
@@ -108,11 +114,16 @@ class FercDbfArchive:
         """Returns dict with table names as keys, and list of column names as values."""
         if not self._table_schemas:
             # TODO(janrous): this should be locked to ensure multi-thread safety
-            dbf = DBF(
-                "",
-                ignore_missing_memofile=True,
-                filedata=self.zipfile.open(self.dbc_path.as_posix()),
-            )
+            try:
+                dbf = DBF(
+                    "",
+                    ignore_missing_memofile=True,
+                    filedata=self.zipfile.open(self.dbc_path.as_posix()),
+                )
+            except KeyError:
+                raise DbcFileMissing(
+                    f"DBC file {self.dbc_path} for {self.partition} is missing."
+                )
             table_names: dict[Any, str] = {}
             table_columns = defaultdict(list)
             for row in dbf:
