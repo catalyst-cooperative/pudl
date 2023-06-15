@@ -108,13 +108,16 @@ eia_raw_table_names = (
 )
 
 
+eia923_raw_dfs = excel.raw_df_factory(Extractor, name="eia923")
+
+
 # TODO (bendnorman): Figure out type hint for context keyword and mutli_asset return
 @multi_asset(
     outs={table_name: AssetOut() for table_name in sorted(eia_raw_table_names)},
     required_resource_keys={"datastore", "dataset_settings"},
 )
-def extract_eia923(context):
-    """Extract raw EIA data from excel sheets into dataframes.
+def extract_eia923(context, eia923_raw_dfs):
+    """Extract raw EIA-923 data from excel sheets into dataframes.
 
     Args:
         context: dagster keyword that provides access to resources and config.
@@ -122,11 +125,6 @@ def extract_eia923(context):
     Returns:
         A tuple of extracted EIA dataframes.
     """
-    eia_settings = context.resources.dataset_settings.eia
-
-    ds = context.resources.datastore
-    eia923_raw_dfs = Extractor(ds).extract(year=eia_settings.eia923.years)
-
     # create descriptive table_names
     eia923_raw_dfs = {
         "raw_" + table_name + "_eia923": df for table_name, df in eia923_raw_dfs.items()
