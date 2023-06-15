@@ -266,6 +266,15 @@ Unmapped types left as 'XXX' which should result in an error if encountered.
 """
 
 
+class PartitionedDataFrame:
+    """This class bundles pandas.DataFrame with partition information."""
+
+    def __init__(self, df: pd.DataFrame, partition: dict[str, Any]):
+        """Constructs new instance of PartitionedDataFrame."""
+        self.df = df
+        self.partition = partition
+
+
 # TODO(rousik): instead of using class-level constants, we could pass the params in the constructor, which should
 # allow us to instantiate these dataset-specific datastores in the extractor code.
 # That may make the manipulations little easier.
@@ -349,7 +358,7 @@ class FercDbfReader:
 
     def load_table_dfs(
         self: Self, table_name: str, partitions: list[dict[str, Any]]
-    ) -> pd.DataFrame | None:
+    ) -> list[PartitionedDataFrame]:
         """Returns all data for a given table.
 
         Merges data for a given table across all partitions.
@@ -362,27 +371,15 @@ class FercDbfReader:
         # Then try to simply merge
         # There may be need for some first-pass aggregation of tables
         # from within the same year.
-        dfs = []
+        dfs: list[PartitionedDataFrame] = []
         for p in partitions:
             archive = self.get_archive(**p)
             try:
-                new_part = archive.load_table(table_name)
-                new_part = self.transform_table_part(
-                    new_part, table_name=table_name, partition=p
-                )
-                dfs.append(new_part)
+                dfs.append(PartitionedDataFrame(archive.load_table(table_name), p))
             except KeyError:
                 logger.debug(f"Table {table_name} missing for partition {p}")
                 continue
-        if dfs:
-            return pd.concat(dfs, sort=True)
-        return None
-
-    def transform_table_part(
-        self: Self, table_part: pd.DataFrame, table_name: str, partition: dict[str, Any]
-    ) -> pd.DataFrame:
-        """Apply table-specific per-partition transforms if necessary."""
-        return table_part
+        return dfs
 
 
 class FercDbfExtractor:
@@ -515,6 +512,18 @@ class FercDbfExtractor:
         """Returns True if the partition filter should be considered for processing."""
         return True
 
+    def aggregate_table_frames(
+        self, table_name: str, dfs: list[PartitionedDataFrame]
+    ) -> pd.DataFrame | None:
+        """Function to aggregate partitioned data frames into a single one.
+
+        By default, this simply concatenates the frames, but custom dataset specific
+        behaviors can be implemented.
+        """
+        if not dfs:
+            return None
+        return pd.concat([df.df for df in dfs])
+
     def load_table_data(self):
         """Loads all tables from fox pro database and writes them to sqlite."""
         partitions = [
@@ -529,8 +538,10 @@ class FercDbfExtractor:
         )
         for table in self.dbf_reader.get_table_names():
             logger.info(f"Pandas: reading {table} into a DataFrame.")
-            new_df = self.dbf_reader.load_table_dfs(table, partitions)
-            if new_df is None:
+            new_df = self.aggregate_table_frames(
+                table, self.dbf_reader.load_table_dfs(table, partitions)
+            )
+            if new_df is None or len(new_df) <= 0:
                 logger.warning(f"Table {table} contains no data, skipping.")
                 continue
             new_df = self.transform_table(table, new_df)
@@ -561,3 +572,25 @@ class FercDbfExtractor:
     def postprocess(self):
         """This metod is called after all the data is loaded into sqlite."""
         pass
+
+
+def deduplicate_by_year(
+    dfs: list[PartitionedDataFrame], pk_column: str
+) -> pd.DataFrame | None:
+    """Deduplicate records by year, keeping the most recent version of each record.
+
+    It will use pk_column as the primary key column. report_yr column is expected to
+    either be present, or it will be derived from partition["year"].
+    """
+    yr_dfs: list[pd.DataFrame] = []
+    for p_df in dfs:
+        df = p_df.df
+        if "report_yr" not in df.columns:
+            df = df.assign(report_yr=p_df.partition["year"])
+        yr_dfs.append(df)
+    agg_df = pd.concat(yr_dfs)
+    return (
+        agg_df.sort_values(by=["report_yr", pk_column])
+        .drop_duplicates(subset=pk_column, keep="last")
+        .drop(columns="report_yr")
+    )

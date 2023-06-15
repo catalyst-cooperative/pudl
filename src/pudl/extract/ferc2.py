@@ -16,10 +16,9 @@ import pandas as pd
 import sqlalchemy as sa
 
 import pudl
-from pudl.extract.dbf import AbstractFercDbfReader, FercDbfExtractor, FercDbfReader
+from pudl.extract.dbf import FercDbfExtractor, PartitionedDataFrame, deduplicate_by_year
 from pudl.extract.ferc import add_key_constraints
 from pudl.settings import FercToSqliteSettings, GenericDatasetSettings
-from pudl.workspace.datastore import Datastore
 
 logger = pudl.logging_helpers.get_logger(__name__)
 
@@ -42,45 +41,20 @@ class Ferc2DbfExtractor(FercDbfExtractor):
             meta, pk_table="f2_s0_respondent_id", column="respondent_id"
         )
 
-    def transform_table(
-        self: Self, table_name: str, in_df: pd.DataFrame
-    ) -> pd.DataFrame:
-        """FERC Form 2 specific table transformations.
-
-        Remove duplicate IDs from the table enumerating all respondents, retaining the
-        most recently reported version of the record. Assumes that records have been
-        added to the DB in chronological order.
-        """
-        if table_name == "f2_s0_respondent_id":
-            return (
-                in_df.sort_values(by=["report_yr", "respondent_id"])
-                .drop_duplicates(subset="respondent_id", keep="last")
-                .drop(columns="report_yr")
-            )
-        else:
-            return in_df
-
     @staticmethod
     def is_valid_partition(fl: dict[str, Any]):
-        """Returns False if part key has value other than None.
-
-        This eliminates partitions with part=1 or part=2.
-        """
+        """Drops partition with non-empty `part` fields."""
         return fl.get("part", None) is None
 
-    def get_dbf_reader(self: Self, datastore: Datastore) -> AbstractFercDbfReader:
-        """Returns appropriate instance of AbstractFercDbfReader to access the data."""
-        return Ferc2DbfReader(datastore, dataset=self.DATASET)
+    def aggregate_table_frames(
+        self, table_name: str, dfs: list[PartitionedDataFrame]
+    ) -> pd.DataFrame | None:
+        """Runs the deduplication on f2_s0_respondent_id table.
 
-
-class Ferc2DbfReader(FercDbfReader):
-    """A FercDbfReader specific to the FERC Form 2."""
-
-    def transform_table_part(
-        self: Self, table_part: pd.DataFrame, table_name: str, partition: dict[str, Any]
-    ) -> pd.DataFrame:
-        """Add report_yr to respondent_id table so we can deduplicate later."""
-        table_part = super().transform_table_part(table_part, table_name, partition)
+        Other tables are aggregated as usual, meaning that the partial frames are simply
+        concatenated.
+        """
         if table_name == "f2_s0_respondent_id":
-            table_part["report_yr"] = partition["year"]
-        return table_part
+            return deduplicate_by_year(dfs, "respondent_id")
+        else:
+            return super().aggregate_table_frames(table_name, dfs)
