@@ -5,7 +5,14 @@ from collections import defaultdict
 
 import dbfread
 import pandas as pd
-from dagster import DynamicOut, DynamicOutput, graph_asset, op
+from dagster import (
+    AssetsDefinition,
+    DynamicOut,
+    DynamicOutput,
+    OpDefinition,
+    graph_asset,
+    op,
+)
 
 import pudl
 
@@ -376,8 +383,15 @@ def merge_yearly_dfs(
     return merged
 
 
-def year_loader_factory(extractor_cls: type[GenericExtractor], name: str):
-    """Return a dagster op to load a single year using a given extractor class."""
+def year_loader_factory(
+    extractor_cls: type[GenericExtractor], name: str
+) -> OpDefinition:
+    """Return a dagster op to load a single year using a given extractor class.
+
+    Args:
+        extractor_cls: Class of type GenericExtractor used to extract the data.
+        name(str): Name of dataset (e.g. "eia860").
+    """
 
     def load_single_year(context, year: int) -> dict[str, pd.DataFrame]:
         """Load a single year of EIA data from file.
@@ -400,8 +414,12 @@ def year_loader_factory(extractor_cls: type[GenericExtractor], name: str):
     )(load_single_year)
 
 
-def years_from_settings_factory(name: str):
-    """Return a dagster op to get years from settings."""
+def years_from_settings_factory(name: str) -> OpDefinition:
+    """Return a dagster op to get EIA years from settings.
+
+    Args:
+        name (str): Name of dataset (e.g. "eia860")
+    """
 
     def years_from_settings(context):
         """Return set of years for EIA data in settings.
@@ -420,17 +438,20 @@ def years_from_settings_factory(name: str):
     )(years_from_settings)
 
 
-def raw_df_factory(extractor_cls: type[GenericExtractor], name: str):
+def raw_df_factory(
+    extractor_cls: type[GenericExtractor], name: str
+) -> AssetsDefinition:
     """Return a graph asset to load a set of raw DataFrames from Excel files.
+
+    Args:
+        extractor_cls: Class of type GenericExtractor used to extract the data.
+        name(str): Name of dataset (e.g. "eia860").
     """
     year_loader = year_loader_factory(extractor_cls, name)
     years_from_settings = years_from_settings_factory(name)
 
     def raw_dfs() -> dict[str, pd.DataFrame]:
-        """All loaded EIA-861 dataframes.
-
-        This asset creates a dynamic graph of ops to load EIA860 data in parallel.
-        """
+        """All loaded EIA dataframes."""
         years = years_from_settings()
         dfs = years.map(lambda year: year_loader(year))
         return merge_yearly_dfs(dfs.collect())
