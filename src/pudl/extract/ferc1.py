@@ -309,8 +309,8 @@ class Ferc1DbfExtractor(FercDbfExtractor):
     def aggregate_table_frames(
         self, table_name: str, dfs: list[PartitionedDataFrame]
     ) -> pd.DataFrame | None:
-        """Deduplicates records in f_respondent_year table."""
-        if table_name == "f1_respondent_year":
+        """Deduplicates records in f1_respondent_id table."""
+        if table_name == "f1_respondent_id":
             return deduplicate_by_year(dfs, "respondent_id")
         else:
             return super().aggregate_table_frames(table_name, dfs)
