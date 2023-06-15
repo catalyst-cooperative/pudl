@@ -1227,7 +1227,7 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
         Checks calculations. Enforces dataframe schema. Checks for empty dataframes and
         null columns.
         """
-        df = self.reconcile_table_calculations(df)  # .pipe(self.enforce_schema)
+        df = self.reconcile_table_calculations(df).pipe(self.enforce_schema)
         if df.empty:
             raise ValueError(f"{self.table_id.value}: Final dataframe is empty!!!")
         for col in df:
