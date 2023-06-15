@@ -21,6 +21,12 @@ from pudl.workspace.datastore import Datastore
 logger = pudl.logging_helpers.get_logger(__name__)
 
 
+class DbcFileMissing(Exception):
+    """This is raised when the DBC index file is missing."""
+
+    pass
+
+
 class DbfTableSchema:
     """Simple data-wrapper for the fox-pro table schema."""
 
@@ -108,11 +114,16 @@ class FercDbfArchive:
         """Returns dict with table names as keys, and list of column names as values."""
         if not self._table_schemas:
             # TODO(janrous): this should be locked to ensure multi-thread safety
-            dbf = DBF(
-                "",
-                ignore_missing_memofile=True,
-                filedata=self.zipfile.open(self.dbc_path.as_posix()),
-            )
+            try:
+                dbf = DBF(
+                    "",
+                    ignore_missing_memofile=True,
+                    filedata=self.zipfile.open(self.dbc_path.as_posix()),
+                )
+            except KeyError:
+                raise DbcFileMissing(
+                    f"DBC file {self.dbc_path} for {self.partition} is missing."
+                )
             table_names: dict[Any, str] = {}
             table_columns = defaultdict(list)
             for row in dbf:
@@ -249,14 +260,15 @@ DBF_TYPES = {
     "O": "XXX",  # Double, 8 bytes
     "G": "XXX",  # OLE 10 digit/byte number of a .DBT block, stored as string
 }
-"""dict: A mapping of DBF field types to SQLAlchemy Column types.
+"""Dict: A mapping of DBF field types to SQLAlchemy Column types.
 
 This dictionary maps the strings which are used to denote field types in the DBF objects
 to the corresponding generic SQLAlchemy Column types: These definitions come from a
 combination of the dbfread example program dbf2sqlite and this DBF file format
-documentation page: http://www.dbase.com/KnowledgeBase/int/db7_file_fmt.htm
-
-Unmapped types left as 'XXX' which should result in an error if encountered.
+documentation page:
+http://www.dbase.com/KnowledgeBase/int/db7_file_fmt.htm
+: http: //www.dbase.com/KnowledgeBase/int/db7_file_fmt.htm Unmapped types left as 'XXX'
+which should result in an error if encountered.
 """
 
 
