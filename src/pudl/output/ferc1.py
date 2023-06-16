@@ -2,6 +2,7 @@
 import json
 from typing import Self
 
+import networkx as nx
 import numpy as np
 import pandas as pd
 from dagster import AssetIn, AssetsDefinition, Field, Mapping, asset
@@ -1452,6 +1453,21 @@ class Ferc1XbrlCalculationNode(BaseModel):
             children=children,
         )
 
+    def to_networkx(self: Self) -> nx.Graph:
+        """Convert the tree to a an undirected NetworkX graph.
+
+        Given a node, treat that node as the root of a tree, and construct an undirected
+        :class:`networkx.Graph` representing the node and all of its children. The
+        tuple of strings (source_table, xbrl_factoid) is used as the ID for each node in
+        the graph.
+        """
+        ...
+
     def is_inter_table(self: Self) -> bool:
-        """Determine if the node involves values from multiple tables?"""
+        """Determine if the node refers to values from multiple tables.
+
+        Enumerate all the source tables associated with the node, including its own
+        source table, and those of all of its immediate descendants. If there is only
+        one unique value, return False. If there are multiple values, return True.
+        """
         ...
