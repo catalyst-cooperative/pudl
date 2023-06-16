@@ -10,13 +10,18 @@ Major is defined as having combined gas transported or stored for a fee that exc
 million dekatherms.
 """
 
-from typing import Any
+from typing import Any, Self
 
+import pandas as pd
 import sqlalchemy as sa
 
 import pudl
-from pudl.extract.dbf import FercDbfExtractor
-from pudl.extract.ferc import add_key_constraints
+from pudl.extract.dbf import (
+    FercDbfExtractor,
+    PartitionedDataFrame,
+    add_key_constraints,
+    deduplicate_by_year,
+)
 from pudl.settings import FercToSqliteSettings, GenericDatasetSettings
 
 logger = pudl.logging_helpers.get_logger(__name__)
@@ -29,12 +34,12 @@ class Ferc2DbfExtractor(FercDbfExtractor):
     DATABASE_NAME = "ferc2.sqlite"
 
     def get_settings(
-        self, global_settings: FercToSqliteSettings
+        self: Self, global_settings: FercToSqliteSettings
     ) -> GenericDatasetSettings:
         """Returns settings for FERC Form 1 DBF dataset."""
         return global_settings.ferc2_dbf_to_sqlite_settings
 
-    def finalize_schema(self, meta: sa.MetaData) -> sa.MetaData:
+    def finalize_schema(self: Self, meta: sa.MetaData) -> sa.MetaData:
         """Add primary and foreign keys for respondent_id."""
         return add_key_constraints(
             meta, pk_table="f2_s0_respondent_id", column="respondent_id"
@@ -42,8 +47,18 @@ class Ferc2DbfExtractor(FercDbfExtractor):
 
     @staticmethod
     def is_valid_partition(fl: dict[str, Any]):
-        """Returns False if part key has value other than None.
-
-        This eliminates partitions with part=1 or part=2.
-        """
+        """Drops partition with non-empty `part` fields."""
         return fl.get("part", None) is None
+
+    def aggregate_table_frames(
+        self, table_name: str, dfs: list[PartitionedDataFrame]
+    ) -> pd.DataFrame | None:
+        """Runs the deduplication on f2_s0_respondent_id table.
+
+        Other tables are aggregated as usual, meaning that the partial frames are simply
+        concatenated.
+        """
+        if table_name == "f2_s0_respondent_id":
+            return deduplicate_by_year(dfs, "respondent_id")
+        else:
+            return super().aggregate_table_frames(table_name, dfs)
