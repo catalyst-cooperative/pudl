@@ -3689,6 +3689,10 @@ TRANSFORM_PARAMS = {
         "select_dbf_rows_by_category": {
             "column_name": "earnings_type",
             "select_by_xbrl_categories": True,
+            "additional_categories": [
+                "unappropriated_retained_earnings_previous_year",
+                "unappropriated_undistributed_subsidiary_earnings_previous_year",
+            ],
             "len_expected_categories_to_drop": 6,
         },
         "unstack_balances_to_report_year_instant_xbrl": {
@@ -3699,6 +3703,10 @@ TRANSFORM_PARAMS = {
             "on": "earnings_type",
         },
         "strip_non_numeric_values": {"amount": {"strip_non_numeric_values": True}},
+        "reconcile_table_calculations": {
+            "column_to_check": "ending_balance",
+            "calculation_tolerance": 0.08,
+        },
     },
     "income_statement_ferc1": {
         "rename_columns_ferc1": {
