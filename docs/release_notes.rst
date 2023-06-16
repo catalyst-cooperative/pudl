@@ -163,14 +163,19 @@ Data Coverage
   process. See :issue:`2456` & :pr:`2491`.
 
 * Thanks to contributions from :user:`rousik` we've generalized the code we use to
-  convert FERC's old annual Visual FoxPro databases into multi-year SQLite databases,
-  and have started extracting the FERC Form 2 (natual gas utility financial reports).
-  See issues :issue:`1984,2642` and PRs :pr:`2536,2564,2652`. We haven't yet done any
-  integration of the Form 2 into the cleaned and normalized PUDL DB, but the converted
-  `FERC Form 2 is available on Datasette <https://data.catalyst.coop/ferc2>`__ covering
-  1996-2020. Earlier years (1991-1995) were distributed using a different binary format
-  and we don't currently have plans to extract them. From 2021 onward we are extracting
-  the `FERC 2 from XBRL <https://data.catalyst.coop/ferc2_xbrl>`__.
+  convert FERC's old annual Visual FoxPro databases into multi-year SQLite databases.
+
+  * We have started extracting the FERC Form 2 (natual gas utility financial reports).
+    See issues :issue:`1984,2642` and PRs :pr:`2536,2564,2652`. We haven't yet done any
+    integration of the Form 2 into the cleaned and normalized PUDL DB, but the converted
+    `FERC Form 2 is available on Datasette <https://data.catalyst.coop/ferc2>`__
+    covering 1996-2020. Earlier years (1991-1995) were distributed using a different
+    binary format and we don't currently have plans to extract them. From 2021 onward we
+    are extracting the `FERC 2 from XBRL <https://data.catalyst.coop/ferc2_xbrl>`__.
+  * Similarly :pr:`2595` converts the earlier years of FERC Form 6 (2000-2020) from DBF
+    to SQLite, describing the finances of oil pipeline companies. When the nightly
+    builds succeed, `FERC Form 6 will be available on Datasette <https://data.catalyst.coop/ferc6>`__
+    as well.
 
 
 Data Cleaning
