@@ -16,8 +16,12 @@ import pandas as pd
 import sqlalchemy as sa
 
 import pudl
-from pudl.extract.dbf import FercDbfExtractor, PartitionedDataFrame, deduplicate_by_year
-from pudl.extract.ferc import add_key_constraints
+from pudl.extract.dbf import (
+    FercDbfExtractor,
+    PartitionedDataFrame,
+    add_key_constraints,
+    deduplicate_by_year,
+)
 from pudl.settings import FercToSqliteSettings, GenericDatasetSettings
 
 logger = pudl.logging_helpers.get_logger(__name__)
