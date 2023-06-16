@@ -3166,11 +3166,7 @@ class PlantInServiceFerc1TableTransformer(Ferc1AbstractTableTransformer):
 
         Annotates and alters data based on information from the XBRL taxonomy metadata.
 
-        Fix instances where electric_plant_sold should be positive. This is not all
-        instance where electric_plant_sold is negative, rather some of the instances
-        where electric_plant_sold is negative AND the calculated value for
-        electric_plant_in_service (the field that uses electric_plant_sold as a
-        subcomponent) does not match it's calculated value.
+        Make all electric_plant_sold balances positive.
         """
         df = super().transform_main(df).pipe(self.apply_sign_conventions)
         # Make all electric_plant_sold values positive
@@ -4293,7 +4289,7 @@ class UtilityPlantSummaryFerc1TableTransformer(Ferc1AbstractTableTransformer):
         logger.info(f"{self.table_id.value}: Spotfixing {len(spot_fix_pks)} records.")
 
         if spot_fix_pks:
-            # Create a df out of the primary key of the records you want to fix
+            # Create a df of the primary key of the records you want to fix
             df_keys = pd.DataFrame(spot_fix_pks, columns=primary_keys).set_index(
                 primary_keys
             )
@@ -4301,11 +4297,11 @@ class UtilityPlantSummaryFerc1TableTransformer(Ferc1AbstractTableTransformer):
             # Flip the signs for the values in "ending balance" all records in the original
             # df that appear in the primary key df
             df.loc[df_keys.index, "ending_balance"] = df["ending_balance"] * -1
-            # All of these are flipping negative values to positive values, except one,
+            # All of these are flipping negative values to positive values,
             # so let's make sure that's what happens
             flipped_values = df.loc[df_keys.index]
-            if len(flipped_values[flipped_values["ending_balance"] < 0]) > 1:
-                raise AssertionError("Only one of these spot fixes should be negative")
+            if (flipped_values["ending_balance"] < 0).any():
+                raise AssertionError("None of these spot fixes should be negative")
             df.reset_index(inplace=True)
 
         return df
