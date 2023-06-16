@@ -231,14 +231,12 @@ PLANT_PARTS: OrderedDict[str, dict[str, list]] = OrderedDict(
         },
     }
 )
-"""
-dict: this dictionary contains a key for each of the 'plant parts' that should
-end up in the plant parts list. The top-level value for each key is another
-dictionary, which contains keys:
+"""Dict: this dictionary contains a key for each of the 'plant parts' that should end up
+in the plant parts list. The top-level value for each key is another dictionary, which
+contains keys:
 
 * id_cols (the primary key type id columns for this plant part). The
   plant_id_eia column must come first.
-
 """
 
 PLANT_PARTS_LITERAL = Literal[
@@ -277,17 +275,15 @@ SUM_COLS: list[str] = [
     "capacity_eoy_mw",
     "total_mmbtu",
 ]
-"""list: list of columns to sum when aggregating a table."""
+"""List: list of columns to sum when aggregating a table."""
 
 WTAVG_DICT = {
     "fuel_cost_per_mwh": "capacity_mw",
     "heat_rate_mmbtu_mwh": "capacity_mw",
     "fuel_cost_per_mmbtu": "capacity_mw",
 }
-"""
-dict: a dictionary of columns (keys) to perform weighted averages on and
-the weight column (values)
-"""
+"""Dict: a dictionary of columns (keys) to perform weighted averages on and the weight
+column (values)"""
 
 CONSISTENT_ATTRIBUTE_COLS = [
     "fuel_type_code_pudl",
@@ -301,10 +297,10 @@ CONSISTENT_ATTRIBUTE_COLS = [
     "ferc_acct_name",
     "generator_operating_year",
 ]
-"""
-list: a list of column names to add as attributes when they are consistent into
-the aggregated plant-part records. All the plant part ID columns must be in
-consistent attributes.
+"""List: a list of column names to add as attributes when they are consistent into the
+aggregated plant-part records.
+
+All the plant part ID columns must be in consistent attributes.
 """
 
 PRIORITY_ATTRIBUTES_DICT = {
