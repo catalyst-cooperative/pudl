@@ -4064,7 +4064,7 @@ class UtilityPlantSummaryFerc1TableTransformer(Ferc1AbstractTableTransformer):
                         "depreciation_utility_plant_in_service",
                     ),
                 ]
-            spot_fix_211 = spot_fix_211 + pks
+                spot_fix_211 = spot_fix_211 + pks
 
         spot_fix_pks = [
             (
@@ -4093,18 +4093,6 @@ class UtilityPlantSummaryFerc1TableTransformer(Ferc1AbstractTableTransformer):
                 "depreciation_amortization_and_depletion_utility_plant_in_service",
             ),
             (2012, 156, "electric", "depreciation_utility_plant_in_service"),
-            (
-                2002,
-                170,
-                "other1",
-                "accumulated_provision_for_depreciation_amortization_and_depletion_of_plant_utility_reported",
-            ),
-            (
-                2002,
-                170,
-                "other1",
-                "utility_plant_net",
-            ),  # ^^ This is the only record that goes positive to negative
             (
                 2013,
                 170,
