@@ -1,8 +1,8 @@
-"""Add service_territory, sales_demand and FERC 714 analysis outputs to PUDL
+"""Add service terrtory, FERC714, state demand assets
 
-Revision ID: e78b66b83d58
-Revises: 92780dd3d879
-Create Date: 2023-06-08 17:37:41.835148
+Revision ID: 1ec25c296a6d
+Revises: 88d9201ae4c4
+Create Date: 2023-06-16 09:33:08.254754
 
 """
 from alembic import op
@@ -10,8 +10,8 @@ import sqlalchemy as sa
 from sqlalchemy.dialects import sqlite
 
 # revision identifiers, used by Alembic.
-revision = 'e78b66b83d58'
-down_revision = '92780dd3d879'
+revision = '1ec25c296a6d'
+down_revision = '88d9201ae4c4'
 branch_labels = None
 depends_on = None
 

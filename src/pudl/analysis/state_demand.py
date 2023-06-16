@@ -277,6 +277,9 @@ def load_hourly_demand_matrix_ferc714(
 ) -> tuple[pd.DataFrame, pd.DataFrame]:
     """Read and format FERC 714 hourly demand into matrix form.
 
+    Args:
+        demand_hourly_pa_ferc714: FERC 714 hourly demand time series by planning area.
+
     Returns:
         Hourly demand as a matrix with a `datetime` row index
         (e.g. '2006-01-01 00:00:00', ..., '2019-12-31 23:00:00')
@@ -285,19 +288,22 @@ def load_hourly_demand_matrix_ferc714(
         A second Dataframe lists the UTC offset in hours
         of each `respondent_id_ferc714` and reporting `year` (int).
     """
-    demand = demand_hourly_pa_ferc714.copy()
     # Convert UTC to local time (ignoring daylight savings)
-    demand["utc_offset"] = demand["timezone"].map(STANDARD_UTC_OFFSETS)
-    demand["datetime"] = utc_to_local(demand["utc_datetime"], demand["utc_offset"])
+    demand_hourly_pa_ferc714["utc_offset"] = demand_hourly_pa_ferc714["timezone"].map(
+        STANDARD_UTC_OFFSETS
+    )
+    demand_hourly_pa_ferc714["datetime"] = utc_to_local(
+        demand_hourly_pa_ferc714["utc_datetime"], demand_hourly_pa_ferc714["utc_offset"]
+    )
     # Pivot to demand matrix: timestamps x respondents
-    matrix = demand.pivot(
+    matrix = demand_hourly_pa_ferc714.pivot(
         index="datetime", columns="respondent_id_ferc714", values="demand_mwh"
     )
     # List timezone by year for each respondent
-    demand["year"] = demand["report_date"].dt.year
-    utc_offset = demand.groupby(["respondent_id_ferc714", "year"], as_index=False)[
-        "utc_offset"
-    ].first()
+    demand_hourly_pa_ferc714["year"] = demand_hourly_pa_ferc714["report_date"].dt.year
+    utc_offset = demand_hourly_pa_ferc714.groupby(
+        ["respondent_id_ferc714", "year"], as_index=False
+    )["utc_offset"].first()
     return matrix, utc_offset
 
 
@@ -449,11 +455,17 @@ def melt_ferc714_hourly_demand_matrix(
         ),
     },
 )
-def clean_hourly_demand_matrix_ferc714(context, raw_hourly_demand_matrix_ferc714):
+def clean_hourly_demand_matrix_ferc714(
+    context, raw_hourly_demand_matrix_ferc714: pd.DataFrame
+) -> pd.DataFrame:
     """Cleaned and nulled FERC 714 hourly demand matrix.
 
-    Matrix with nulled anomalous values, where respondent-years with too few responses
-    are nulled and respondents with no data across all years are dropped.
+    Args:
+        raw_hourly_demand_matrix_ferc714: FERC 714 hourly demand data in a matrix form.
+
+    Returns:
+        df: Matrix with nulled anomalous values, where respondent-years with too few responses
+        are nulled and respondents with no data across all years are dropped.
     """
     min_data = context.op_config["min_data"]
     min_data_fraction = context.op_config["min_data_fraction"]
@@ -466,13 +478,20 @@ def clean_hourly_demand_matrix_ferc714(context, raw_hourly_demand_matrix_ferc714
 
 @asset(compute_kind="Python")
 def imputed_hourly_demand_ferc714(
-    clean_hourly_demand_matrix_ferc714, utc_offset_ferc714
-):
+    clean_hourly_demand_matrix_ferc714: pd.DataFrame, utc_offset_ferc714: pd.DataFrame
+) -> pd.DataFrame:
     """Imputed FERC714 hourly demand in long format.
 
     Impute null values for FERC 714 hourly demand matrix, performing imputation
     separately for each year using only respondents reporting data in that year. Then,
     melt data into a long format.
+
+    Args:
+        clean_hourly_demand_matrix_ferc714: Cleaned hourly demand matrix from FERC 714.
+        utc_offset_ferc714: Timezone by year for each respondent.
+
+    Returns:
+        df: DataFrame with imputed FERC714 hourly demand.
     """
     df = impute_ferc714_hourly_demand_matrix(clean_hourly_demand_matrix_ferc714)
     df = melt_ferc714_hourly_demand_matrix(df, utc_offset_ferc714)
@@ -598,15 +617,14 @@ def predicted_state_hourly_demand(
         .query("demand_mwh > 0")
     )[["respondent_id_ferc714", "year"]]
     # Pre-compute state-county assignments
-    counties = census_counties.copy()
-    counties["state_id_fips"] = counties["county_id_fips"].str[:2]
+    census_counties["state_id_fips"] = census_counties["county_id_fips"].str[:2]
     # Merge counties with respondent- and state-county assignments
     df = (
         county_assignments_ferc714
         # Drop respondent-years with no demand
         .merge(with_demand, on=["respondent_id_ferc714", "year"])
         # Merge with counties and state-county assignments
-        .merge(counties, on=["county_id_fips"])
+        .merge(census_counties, on=["county_id_fips"])
     )
     # Divide county population by total population in respondent (by year)
     # TODO: Use more county attributes in the calculation of their weights

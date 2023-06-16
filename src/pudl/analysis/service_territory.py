@@ -368,12 +368,12 @@ def compiled_geoms_asset_factory(
     )
     def dagster_compile_geoms(
         context,
-        balancing_authority_eia861,
-        balancing_authority_assn_eia861,
-        utility_ids_all_eia,
-        service_territory_eia861,
-        utility_assn_eia861,
-        county_censusdp1,
+        balancing_authority_eia861: pd.DataFrame,
+        balancing_authority_assn_eia861: pd.DataFrame,
+        utility_ids_all_eia: pd.DataFrame,
+        service_territory_eia861: pd.DataFrame,
+        utility_assn_eia861: pd.DataFrame,
+        county_censusdp1: pd.DataFrame,
     ):
         """Compile all available utility or balancing authority geometries.
 

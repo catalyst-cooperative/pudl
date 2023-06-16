@@ -677,7 +677,7 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
         "etl_group": "service_territories",
     },
     "compiled_geometry_balancing_authority_eia861": {
-        "description": "County-level spatial data for EIA861 utilities.",
+        "description": "County-level spatial data for EIA861 balancing authorities.",
         "schema": {
             "fields": [
                 "county_id_fips",

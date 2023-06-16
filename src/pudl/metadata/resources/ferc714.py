@@ -60,6 +60,8 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
             ]
             # No primary key here because the state and county FIPS columns
             # which are part of the natural primary key can be null.
+            # The natural primary key would be:
+            # ['respondent_id_ferc714', 'report_date', 'state_id_fips', 'county_id_fips']
         },
         "sources": ["ferc714"],
         "field_namespace": "ferc714",

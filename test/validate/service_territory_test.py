@@ -3,6 +3,7 @@ import logging
 
 import pytest
 
+import pudl
 from pudl import validate as pv
 
 logger = logging.getLogger(__name__)
@@ -17,15 +18,20 @@ logger = logging.getLogger(__name__)
         ("compiled_geometry_utility_eia861", 237_872),
     ],
 )
-def test_minmax_rows(pudl_out_orig, live_dbs, expected_rows, df_name):
+def test_minmax_rows(
+    pudl_out_orig: "pudl.output.pudltabl.PudlTabl",
+    live_dbs: bool,
+    expected_rows: int,
+    df_name: str,
+):
     """Verify that output DataFrames don't have too many or too few rows.
 
     Args:
         pudl_out_orig: A PudlTabl output object.
-        live_dbs: Boolean (wether we're using a live or testing DB).
-        expected_rows (int): Expected number of rows that the dataframe should
+        live_dbs: Whether we're using a live or testing DB.
+        expected_rows: Expected number of rows that the dataframe should
             contain when all data is loaded and is output without aggregation.
-        df_name (str): Shorthand name identifying the dataframe, corresponding
+        df_name: Shorthand name identifying the dataframe, corresponding
             to the name of the function used to pull it from the PudlTabl
             output object.
     """

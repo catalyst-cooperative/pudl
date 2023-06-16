@@ -203,7 +203,13 @@ def categorize_eia_code(eia_codes, ba_ids, util_ids, priority="balancing_authori
 def filled_balancing_authority_eia861(
     balancing_authority_eia861: pd.DataFrame,
 ) -> pd.DataFrame:
-    """Modified balancing_authority_eia861 table."""
+    """Modified balancing_authority_eia861 table.
+
+    This function adds rows for each balancing authority-year pair missing from the
+    cleaned balancing_authority_eia861 table, using a dictionary of manual fixes. It
+    uses the reference year as a template. The function also removes balancing
+    authorities that are manually categorized as utilities.
+    """
     df = balancing_authority_eia861
     index = ["balancing_authority_id_eia", "report_date"]
     dfi = df.set_index(index)
@@ -230,7 +236,14 @@ def filled_balancing_authority_eia861(
 def filled_balancing_authority_assn_eia861(
     balancing_authority_assn_eia861: pd.DataFrame,
 ) -> pd.DataFrame:
-    """Modified balancing_authority_assn_eia861 table."""
+    """Modified balancing_authority_assn_eia861 table.
+
+    This function adds rows for each balancing authority-year pair missing from the
+    cleaned balancing_authority_assn_eia861 table, using a dictionary of manual fixes.
+    It uses the reference year as a template. The function also reassigns balancing
+    authorities that are manually categorized as utilities to their parent balancing
+    authorities.
+    """
     df = balancing_authority_assn_eia861
     # Prepare reference rows
     refs = []
@@ -301,7 +314,14 @@ def filled_service_territory_eia861(
     filled_balancing_authority_assn_eia861: pd.DataFrame,
     service_territory_eia861: pd.DataFrame,
 ) -> pd.DataFrame:
-    """Modified service_territory_eia861 table."""
+    """Modified service_territory_eia861 table.
+
+    This function adds rows for each balancing authority-year pair missing from the
+    cleaned service_territory_eia861 table, using a dictionary of manual fixes. It also
+    drops utility-state combinations which are missing counties across all years of
+    data, fills records missing counties with the nearest year of county data for the
+    same utility and state.
+    """
     index = ["utility_id_eia", "state", "report_date"]
     # Select relevant balancing authority-utility associations
     assn = filled_balancing_authority_assn_eia861
@@ -391,7 +411,6 @@ def categorized_respondents_ferc714(
     can also be done without annualizing, this function annualizes as well, since we
     are adding the ``respondent_type`` in order to be able to compile service
     territories for the respondent, which vary annually.
-
     """
     priority = context.op_config["priority"]
     logger.info("Categorizing EIA codes associated with FERC-714 Respondents.")
