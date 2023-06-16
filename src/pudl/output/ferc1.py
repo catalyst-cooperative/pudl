@@ -1387,10 +1387,6 @@ class Ferc1XbrlCalculationNode(BaseModel):
     that lie outside the list of tables being used in the explosion.
     """
 
-    def is_inter_table(self: Self) -> bool:
-        """Determine if the node involves values from multiple tables?"""
-        ...
-
     @classmethod
     def from_exploded_meta(
         cls,
@@ -1431,19 +1427,31 @@ class Ferc1XbrlCalculationNode(BaseModel):
         idx = (source_table, xbrl_factoid)
         # Read in the calculations (if any) that define the node:
         calculations = json.loads(exploded_meta.at[idx, "calculations"])
-
-        return Ferc1XbrlCalculationNode(
-            source_table=source_table,
-            weight=weight,
-            xbrl_factoid=xbrl_factoid,
-            xbrl_factoid_original=exploded_meta.at[idx, "xbrl_factoid_original"],
-            children=[
+        children = []
+        for calc in calculations:
+            if len(calc["source_tables"]) != 1:
+                raise AssertionError(
+                    "Generating the calculation tree for exploded tables requires all "
+                    "xbrl_factoids to have a unique source table, but found "
+                    f"{calc=}"
+                )
+            children.append(
                 Ferc1XbrlCalculationNode.from_exploded_meta(
                     weight=calc["weight"],
                     xbrl_factoid=calc["name"],
                     source_table=calc["source_tables"][0],
                     exploded_meta=exploded_meta,
                 )
-                for calc in calculations
-            ],
+            )
+
+        return Ferc1XbrlCalculationNode(
+            source_table=source_table,
+            weight=weight,
+            xbrl_factoid=xbrl_factoid,
+            xbrl_factoid_original=exploded_meta.at[idx, "xbrl_factoid_original"],
+            children=children,
         )
+
+    def is_inter_table(self: Self) -> bool:
+        """Determine if the node involves values from multiple tables?"""
+        ...
