@@ -1394,6 +1394,7 @@ class Ferc1XbrlCalculationNode(BaseModel):
     @classmethod
     def from_exploded_meta(
         cls,
+        weight: float,
         xbrl_factoid: str,
         source_table: str,
         exploded_meta: pd.DataFrame,
@@ -1413,32 +1414,19 @@ class Ferc1XbrlCalculationNode(BaseModel):
 
         children = []
         for calc in calculations:
-            child_source_table = calc["source_tables"][0]
-            child_weight = calc["weight"]
-            child_xbrl_factoid = calc["name"]
-            child_xbrl_factoid_original = exploded_meta.at[
-                (child_source_table, child_xbrl_factoid), "xbrl_factoid_original"
-            ]
-
-            new_node = Ferc1XbrlCalculationNode(
-                source_table=child_source_table,
-                weight=child_weight,
-                xbrl_factoid=child_xbrl_factoid,
-                xbrl_factoid_original=child_xbrl_factoid_original,
-                children=[
-                    cls.from_exploded_meta(
-                        exploded_meta=exploded_meta,
-                        source_table=child_source_table,
-                        xbrl_factoid=child_xbrl_factoid,
-                    )
-                ],
+            children.append(
+                cls.from_exploded_meta(
+                    weight=calc["weight"],
+                    xbrl_factoid=calc["name"],
+                    source_table=calc["source_tables"][0],
+                    exploded_meta=exploded_meta,
+                )
             )
-            children.append(new_node)
 
-        return cls(
-            xbrl_factoid=xbrl_factoid,
-            weight=1.0,
+        return Ferc1XbrlCalculationNode(
             source_table=source_table,
+            weight=weight,
+            xbrl_factoid=xbrl_factoid,
             xbrl_factoid_original=exploded_meta.at[idx, "xbrl_factoid_original"],
             children=children,
         )
