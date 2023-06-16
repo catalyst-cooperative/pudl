@@ -1,11 +1,11 @@
 """A collection of denormalized FERC assets and helper functions."""
 import json
-from typing import ForwardRef, Self
+from typing import Self
 
 import numpy as np
 import pandas as pd
 from dagster import AssetIn, AssetsDefinition, Field, Mapping, asset
-from pydantic import BaseModel, validator
+from pydantic import BaseModel
 
 import pudl
 
@@ -1344,86 +1344,101 @@ def remove_intra_table_calculated_values(exploded: pd.DataFrame) -> pd.DataFrame
 ################################################################################
 # XBRL Calculation Tree
 ################################################################################
-Ferc1XbrlCalculation = ForwardRef("Ferc1XbrlCalculation")
+class Ferc1XbrlCalculationNode(BaseModel):
+    """A node in a FERC Form 1 XBRL calculation tree.
 
+    In the special case of our exploded table calculations, each XBRL fact can be
+    treated as a node in a tree, with calculated values being composed of other facts,
+    and reported values showing up as leaves in the tree, with no subcomponents. The
+    tree can also be pruned to exclude tables outside of those being included in the
+    explosion.
 
-class Ferc1XbrlCalculationComponent(BaseModel):
-    """A class representing the components of a FERC 1 XBRL Metadata calculation."""
+    In general, XBRL facts can show up in more than one source table, but in the case of
+    the explosions, we need to select a single source table to use. When building a
+    calculation tree from the exploded metadata, we need to be able to select the most
+    granular / detailed / "leafy" source table among several.
 
-    name: str
-    weight: float
-    source_tables: list[str]
-    calculation: Ferc1XbrlCalculation | None = None
+    """
 
-    @validator("source_tables")
-    def has_unique_source_table(cls, value):
-        """Ensure that each calculation component has a unique source table."""
-        if len(value) == 1:
-            return value
-        else:
-            raise ValueError(
-                "Exploding tables requires calculations to have unique source tables."
-            )
-
-
-class Ferc1XbrlCalculation(BaseModel):
-    """A class representing a calculation from the FERC 1 XBRL Metadata."""
-
-    components: list[Ferc1XbrlCalculationComponent] = []
-    source_table: str
     xbrl_factoid: str
+    """The XBRL factoid that we're using to identify the value.
+
+    This value should correspond to the ``name`` field of a calculation. It may have
+    been renamed from the original reported XBRL fact name. Along with ``source_table``
+    this attribute uniquely identifies the node within the tree.
+    """
+    source_table: str
+    """The unique source table chosen for the purposes of the explosion.
+
+    Along with ``xbrl_factoid`` this attribute uniquely identifies the node within the
+    tree.
+    """
     xbrl_factoid_original: str
+    """The original reported XBRL Fact name."""
+    weight: float
+    """The weight associated with the XBRL Fact in its source table calculation.
 
-    @property
-    def referenced_tables(self: Self) -> set[str]:
-        """Identify the set of all referenced tables in a calculation."""
-        return {c for x in self.calculations for c in x.source_tables}
+    This metadata about the is not currently used for performing calculations.
+    """
+    children: list["Ferc1XbrlCalculationNode"] = []
+    """The subcomponents required to calculate the value of this fact, if any.
 
-    def is_inter_table(self: Self, source_table: str | None = None) -> bool:
-        """Determine whether a calculation involves more than one table."""
-        all_tables = self.referenced_tables
-        if source_table is not None:
-            all_tables = all_tables.union({source_table})
-        return True if len(all_tables) > 1 else False
+    This list will be empty for leaf nodes (reported values) and for calculated values
+    that lie outside the list of tables being used in the explosion.
+    """
 
+    def is_inter_table(self: Self) -> bool:
+        """Determine if the node involves values from multiple tables?"""
+        ...
 
-Ferc1XbrlCalculationComponent.update_forward_refs()
+    @classmethod
+    def from_exploded_meta(
+        cls,
+        xbrl_factoid: str,
+        source_table: str,
+        exploded_meta: pd.DataFrame,
+    ) -> "Ferc1XbrlCalculationNode":
+        """Construct a complete calculation tree based on exploded metadata."""
+        idx_cols = ["table_name", "xbrl_factoid"]
+        if exploded_meta.index.names != idx_cols:
+            raise AssertionError(
+                f"Exploded metadata must be indexed by {idx_cols}, but found "
+                f"{exploded_meta.index.names=}"
+            )
+        if not exploded_meta.index.is_unique:
+            raise AssertionError("Found non-unique index in exploded metadata.")
 
+        idx = (source_table, xbrl_factoid)
+        calculations = json.loads(exploded_meta.at[idx, "calculations"])
 
-def resolve_calculation_components(
-    exploded_meta: pd.DataFrame,
-    table_name: str,
-    xbrl_factoid: str,
-) -> Ferc1XbrlCalculation:
-    """Build a calculation given exploded metadata, xbrl_factoid, and table_name."""
-    idx_cols = ["table_name", "xbrl_factoid"]
-    if exploded_meta.index.names != idx_cols:
-        raise AssertionError(
-            f"Exploded metadata must be indexed by {idx_cols}, but found "
-            f"{exploded_meta.index.names=}"
+        children = []
+        for calc in calculations:
+            child_source_table = calc["source_tables"][0]
+            child_weight = calc["weight"]
+            child_xbrl_factoid = calc["name"]
+            child_xbrl_factoid_original = exploded_meta.at[
+                (child_source_table, child_xbrl_factoid), "xbrl_factoid_original"
+            ]
+
+            new_node = Ferc1XbrlCalculationNode(
+                source_table=child_source_table,
+                weight=child_weight,
+                xbrl_factoid=child_xbrl_factoid,
+                xbrl_factoid_original=child_xbrl_factoid_original,
+                children=[
+                    cls.from_exploded_meta(
+                        exploded_meta=exploded_meta,
+                        source_table=child_source_table,
+                        xbrl_factoid=child_xbrl_factoid,
+                    )
+                ],
+            )
+            children.append(new_node)
+
+        return cls(
+            xbrl_factoid=xbrl_factoid,
+            weight=1.0,
+            source_table=source_table,
+            xbrl_factoid_original=exploded_meta.at[idx, "xbrl_factoid_original"],
+            children=children,
         )
-    if not exploded_meta.index.is_unique:
-        raise AssertionError("Found non-unique index in exploded metadata.")
-    idx = (table_name, xbrl_factoid)
-    components = json.loads(exploded_meta.at[idx, "calculations"])
-    components = [Ferc1XbrlCalculationComponent(**c) for c in components]
-    new_components = []
-    for c in components:
-        new_comp = Ferc1XbrlCalculationComponent(
-            name=c.name,
-            weight=c.weight,
-            source_tables=c.source_tables,
-            calculation=resolve_calculation_components(
-                exploded_meta=exploded_meta,
-                table_name=c.source_tables[0],
-                xbrl_factoid=c.name,
-            ),
-        )
-        new_components.append(new_comp)
-
-    return Ferc1XbrlCalculation(
-        source_table=table_name,
-        xbrl_factoid=xbrl_factoid,
-        xbrl_factoid_original=exploded_meta.at[idx, "xbrl_factoid_original"],
-        components=new_components,
-    )
