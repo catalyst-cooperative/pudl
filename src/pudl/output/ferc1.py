@@ -1394,12 +1394,30 @@ class Ferc1XbrlCalculationNode(BaseModel):
     @classmethod
     def from_exploded_meta(
         cls,
-        weight: float,
         xbrl_factoid: str,
         source_table: str,
         exploded_meta: pd.DataFrame,
+        weight: float = 1.0,
     ) -> "Ferc1XbrlCalculationNode":
-        """Construct a complete calculation tree based on exploded metadata."""
+        """Construct a complete calculation tree based on exploded metadata.
+
+        Args:
+            xbrl_factoid: Equivalent to the "name" field in the calculation metadata.
+                Potentially renamed from the originally reported XBRL value.
+            source_table: The table within which we are searching for the XBRL fact,
+                required as many appear in multiple tables.
+            exploded_meta: A dataframe containing metadata for all of the facts
+                referenced by the exploded tables. Must be indexed by the columns
+                (table_name, xbrl_factoid) and the index must be unique.
+            weight: The weight associated with this node in its calculation. Must be
+                passed in because it is only available when we have access to the
+                calculation metadata. Defaults to 1.0 so that we can create the root
+                node in a tree (which is not embedded in any calculation) without having
+                to specify the weight.
+
+        Returns:
+            A single node of the calculation tree, potentially referencing child nodes.
+        """
         idx_cols = ["table_name", "xbrl_factoid"]
         if exploded_meta.index.names != idx_cols:
             raise AssertionError(
@@ -1409,24 +1427,23 @@ class Ferc1XbrlCalculationNode(BaseModel):
         if not exploded_meta.index.is_unique:
             raise AssertionError("Found non-unique index in exploded metadata.")
 
+        # Index to look up the particular factoid we're building the node for:
         idx = (source_table, xbrl_factoid)
+        # Read in the calculations (if any) that define the node:
         calculations = json.loads(exploded_meta.at[idx, "calculations"])
-
-        children = []
-        for calc in calculations:
-            children.append(
-                cls.from_exploded_meta(
-                    weight=calc["weight"],
-                    xbrl_factoid=calc["name"],
-                    source_table=calc["source_tables"][0],
-                    exploded_meta=exploded_meta,
-                )
-            )
 
         return Ferc1XbrlCalculationNode(
             source_table=source_table,
             weight=weight,
             xbrl_factoid=xbrl_factoid,
             xbrl_factoid_original=exploded_meta.at[idx, "xbrl_factoid_original"],
-            children=children,
+            children=[
+                Ferc1XbrlCalculationNode.from_exploded_meta(
+                    weight=calc["weight"],
+                    xbrl_factoid=calc["name"],
+                    source_table=calc["source_tables"][0],
+                    exploded_meta=exploded_meta,
+                )
+                for calc in calculations
+            ],
         )
