@@ -4538,8 +4538,8 @@ class RetainedEarningsFerc1TableTransformer(Ferc1AbstractTableTransformer):
         metadata_columns = [
             "calculations",
             "balance",
-            "xbrl_factoid_name_original",
-            "inter_table_calc_flag",
+            "xbrl_factoid_original",
+            "intra_table_calc_flag",
             "row_type_xbrl",
         ]
         date_dupe_types = pd.merge(
