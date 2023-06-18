@@ -115,3 +115,25 @@ class TestGenericExtractor(unittest.TestCase):
 
     # TODO(rousik@gmail.com): need to figure out how to test process_$x methods.
     # TODO(rousik@gmail.com): we should test that empty columns are properly added.
+
+
+@pytest.mark.parametrize(
+    "dataset, expected_years",
+    (
+        ("eia860", set(range(2001, 2022))),
+        ("eia861", set(range(2001, 2022))),
+        ("eia923", set(range(2001, 2022))),
+    ),
+)
+def test_years_from_settings(dataset, expected_years):
+    years_from_settings = excel.years_from_settings_factory(dataset)
+
+    with build_op_context(
+        resources={"dataset_settings": DatasetsSettings()}
+    ) as context:
+        # Assert actual years are a superset of expected. Instead of doing
+        # an equality check, this avoids having to update expected years
+        # every time a new year is added to the datasets
+        assert {
+            output.value for output in years_from_settings(context)
+        } >= expected_years
