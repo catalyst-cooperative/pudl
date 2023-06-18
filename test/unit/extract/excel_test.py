@@ -4,8 +4,11 @@ from unittest import mock as mock
 from unittest.mock import patch
 
 import pandas as pd
+import pytest
+from dagster import build_op_context
 
 from pudl.extract import excel as excel
+from pudl.settings import DatasetsSettings
 
 
 class TestMetadata(unittest.TestCase):
@@ -137,3 +140,17 @@ def test_years_from_settings(dataset, expected_years):
         assert {
             output.value for output in years_from_settings(context)
         } >= expected_years
+
+
+def test_merge_yearly_dfs():
+    pages = ["page1", "page2", "page3"]
+    dfs_1 = {page: pd.DataFrame({"df": [1], "page": [page]}) for page in pages}
+    dfs_2 = {page: pd.DataFrame({"df": [2], "page": [page]}) for page in pages}
+
+    merged_dfs = excel.merge_yearly_dfs([dfs_1, dfs_2])
+    assert list(merged_dfs.keys()) == pages
+    for page in pages:
+        pd.testing.assert_frame_equal(
+            merged_dfs[page],
+            pd.DataFrame({"df": [1, 2], "page": [page, page]}, index=[0, 0]),
+        )
