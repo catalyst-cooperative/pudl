@@ -1345,8 +1345,8 @@ def remove_intra_table_calculated_values(exploded: pd.DataFrame) -> pd.DataFrame
 ################################################################################
 # XBRL Calculation Tree
 ################################################################################
-class Ferc1XbrlCalculationNode(BaseModel):
-    """A node in a FERC Form 1 XBRL calculation tree.
+class Ferc1XbrlCalculationTree(BaseModel):
+    """A FERC Form 1 XBRL calculation tree.
 
     In the special case of our exploded table calculations, each XBRL fact can be
     treated as a node in a tree, with calculated values being composed of other facts,
@@ -1381,7 +1381,7 @@ class Ferc1XbrlCalculationNode(BaseModel):
 
     This metadata about the is not currently used for performing calculations.
     """
-    children: list["Ferc1XbrlCalculationNode"] = []
+    children: list["Ferc1XbrlCalculationTree"] = []
     """The subcomponents required to calculate the value of this fact, if any.
 
     This list will be empty for leaf nodes (reported values) and for calculated values
@@ -1395,7 +1395,7 @@ class Ferc1XbrlCalculationNode(BaseModel):
         source_table: str,
         exploded_meta: pd.DataFrame,
         weight: float = 1.0,
-    ) -> "Ferc1XbrlCalculationNode":
+    ) -> "Ferc1XbrlCalculationTree":
         """Construct a complete calculation tree based on exploded metadata.
 
         Args:
@@ -1413,7 +1413,7 @@ class Ferc1XbrlCalculationNode(BaseModel):
                 to specify the weight.
 
         Returns:
-            A single node of the calculation tree, potentially referencing child nodes.
+            The root node of a calculation tree, potentially referencing child nodes.
         """
         idx_cols = ["table_name", "xbrl_factoid"]
         if exploded_meta.index.names != idx_cols:
@@ -1437,7 +1437,7 @@ class Ferc1XbrlCalculationNode(BaseModel):
                     f"{calc=}"
                 )
             children.append(
-                Ferc1XbrlCalculationNode.from_exploded_meta(
+                Ferc1XbrlCalculationTree.from_exploded_meta(
                     weight=calc["weight"],
                     xbrl_factoid=calc["name"],
                     source_table=calc["source_tables"][0],
@@ -1445,7 +1445,7 @@ class Ferc1XbrlCalculationNode(BaseModel):
                 )
             )
 
-        return Ferc1XbrlCalculationNode(
+        return Ferc1XbrlCalculationTree(
             source_table=source_table,
             weight=weight,
             xbrl_factoid=xbrl_factoid,
@@ -1464,10 +1464,10 @@ class Ferc1XbrlCalculationNode(BaseModel):
         ...
 
     def is_inter_table(self: Self) -> bool:
-        """Determine if the node refers to values from multiple tables.
+        """Determine if the tree refers to values from multiple tables.
 
-        Enumerate all the source tables associated with the node, including its own
-        source table, and those of all of its immediate descendants. If there is only
-        one unique value, return False. If there are multiple values, return True.
+        Enumerate all the source tables referenced by this node in the tree, including
+        its own source table, and those of all of its immediate descendants. If there is
+        only one unique value, return False. If there are multiple values, return True.
         """
         ...
