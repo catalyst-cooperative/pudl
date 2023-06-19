@@ -368,12 +368,20 @@ class GenericExtractor:
 
 
 @op
-def merge_yearly_dfs(
-    yearly_dfs: list[dict[str, pd.DataFrame]]
+def merge_dfs_by_page(
+    paged_dfs: list[dict[str, pd.DataFrame]]
 ) -> dict[str, pd.DataFrame]:
-    """Merge DataFrames loaded with indepented calls to .extract()."""
+    """Merge DataFrames loaded with independent calls to .extract().
+
+    The input is a list of dictionaries where the keys are the page names,
+    and values are DataFrame of extracted data.
+    Where a page name appears more than once in the dictionaries, all
+    DataFrames with that page name are merged together, and the result
+    returned as a single dict mapping unique page names to merged
+    DataFrames.
+    """
     merged = defaultdict(list)
-    for dfs in yearly_dfs:
+    for dfs in paged_dfs:
         for page in dfs:
             merged[page].append(dfs[page])
 
@@ -454,6 +462,6 @@ def raw_df_factory(
         """All loaded EIA dataframes."""
         years = years_from_settings()
         dfs = years.map(lambda year: year_loader(year))
-        return merge_yearly_dfs(dfs.collect())
+        return merge_dfs_by_page(dfs.collect())
 
     return graph_asset(name=f"{name}_raw_dfs")(raw_dfs)

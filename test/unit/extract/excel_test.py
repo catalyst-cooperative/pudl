@@ -142,12 +142,12 @@ def test_years_from_settings(dataset, expected_years):
         } >= expected_years
 
 
-def test_merge_yearly_dfs():
+def test_merge_dfs_by_page():
     pages = ["page1", "page2", "page3"]
     dfs_1 = {page: pd.DataFrame({"df": [1], "page": [page]}) for page in pages}
     dfs_2 = {page: pd.DataFrame({"df": [2], "page": [page]}) for page in pages}
 
-    merged_dfs = excel.merge_yearly_dfs([dfs_1, dfs_2])
+    merged_dfs = excel.merge_dfs_by_page([dfs_1, dfs_2])
     assert list(merged_dfs.keys()) == pages
     for page in pages:
         pd.testing.assert_frame_equal(
