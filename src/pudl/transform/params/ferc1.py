@@ -2686,6 +2686,7 @@ TRANSFORM_PARAMS = {
                     "structures_and_improvement_nuclear_production": "structures_and_improvements_nuclear_production",
                     "leased_property_on_customers_premises_distribution_plant": "leased_property_on_customer_premises_distribution_plant",
                     "electric_plant_in_service": "plant_in_service_classified_and_unclassified",
+                    "experimental_electric_plant_unclassified": "experimental_plant_unclassified",
                 }
             },
             "duration_xbrl": {
@@ -2702,6 +2703,10 @@ TRANSFORM_PARAMS = {
                     "electric_plant_in_service_additions": "plant_in_service_classified_and_unclassified_additions",
                     "electric_plant_in_service_transfers": "plant_in_service_classified_and_unclassified_transfers",
                     "electric_plant_in_service_adjustments": "plant_in_service_classified_and_unclassified_adjustments",
+                    "experimental_electric_plant_unclassified_retirements": "experimental_plant_unclassified_retirements",
+                    "experimental_electric_plant_unclassified_additions": "experimental_plant_unclassified_additions",
+                    "experimental_electric_plant_unclassified_transfers": "experimental_plant_unclassified_transfers",
+                    "experimental_electric_plant_unclassified_adjustments": "experimental_plant_unclassified_adjustments",
                 }
             },
         },

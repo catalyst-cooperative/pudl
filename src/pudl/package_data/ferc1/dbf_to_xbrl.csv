@@ -2931,7 +2931,7 @@ f1_plant_in_srvce,83,1994,TOTAL General Plant (Enter Total of lines 81 and 82),c
 f1_plant_in_srvce,84,1994,TOTAL (Accounts 101 and 106),reported_value,electric_plant_in_service_and_completed_construction_not_classified_electric,,Two FERC accounts that only appear together. Not a total of other values in this table.
 f1_plant_in_srvce,85,1994,(102) Electric Plant Purchased (See Instr. 8),reported_value,electric_plant_purchased,,One FERC account that shows up in two columns as both credit/debit.
 f1_plant_in_srvce,86,1994,(Less) (102) Electric Plant Sold (See Instr. 8),reported_value,electric_plant_sold,,One FERC account that shows up in two columns as both credit/debit.
-f1_plant_in_srvce,87,1994,(103) Experimental Plant Unclassified,reported_value,experimental_electric_plant_unclassified,,
+f1_plant_in_srvce,87,1994,(103) Experimental Plant Unclassified,reported_value,experimental_plant_unclassified,,
 f1_plant_in_srvce,88,1994,TOTAL Electric Plant in Service (Enter Total of lines 84 thru 87),calculated_value,plant_in_service_classified_and_unclassified,,
 f1_plant_in_srvce,15,2003,(317) Asset Retirement Costs for Steam Production,reported_value,asset_retirement_costs_for_steam_production_plant_steam_production,,
 f1_plant_in_srvce,16,2003,TOTAL Steam Production Plant (Enter Total of lines 8 thru 15),calculated_value,steam_production_plant,,
@@ -3012,7 +3012,7 @@ f1_plant_in_srvce,90,2003,"TOTAL General Plant (Enter Total of lines 87, 88 and 
 f1_plant_in_srvce,91,2003,TOTAL (Accounts 101 and 106),reported_value,electric_plant_in_service_and_completed_construction_not_classified_electric,,Two FERC accounts that only appear together. Not a total of other values in this table.
 f1_plant_in_srvce,92,2003,(102) Electric Plant Purchased (See Instr. 8),reported_value,electric_plant_purchased,,One FERC account that shows up in two columns as both credit/debit.
 f1_plant_in_srvce,93,2003,(Less) (102) Electric Plant Sold (See Instr. 8),reported_value,electric_plant_sold,,One FERC account that shows up in two columns as both credit/debit.
-f1_plant_in_srvce,94,2003,(103) Experimental Plant Unclassified,reported_value,experimental_electric_plant_unclassified,,
+f1_plant_in_srvce,94,2003,(103) Experimental Plant Unclassified,reported_value,experimental_plant_unclassified,,
 f1_plant_in_srvce,95,2003,TOTAL Electric Plant in Service (Enter Total of lines 91 thru 94),calculated_value,plant_in_service_classified_and_unclassified,,
 f1_plant_in_srvce,76,2006,5.  REGIONAL TRANSMISSION AND MARKET OPERATION PLANT,header,,,
 f1_plant_in_srvce,77,2006,(380) Land and Land Rights,reported_value,land_and_land_rights_regional_transmission_and_market_operation_plant,,
@@ -3041,7 +3041,7 @@ f1_plant_in_srvce,99,2006,"TOTAL General Plant (Enter Total of lines 96, 97 and 
 f1_plant_in_srvce,100,2006,TOTAL (Accounts 101 and 106),calculated_value,electric_plant_in_service_and_completed_construction_not_classified_electric,,Two FERC accounts that only appear together. Not a total of other values in this table.
 f1_plant_in_srvce,101,2006,(102) Electric Plant Purchased (See Instr. 8),reported_value,electric_plant_purchased,,One FERC account that shows up in two columns as both credit/debit.
 f1_plant_in_srvce,102,2006,(Less) (102) Electric Plant Sold (See Instr. 8),reported_value,electric_plant_sold,,One FERC account that shows up in two columns as both credit/debit.
-f1_plant_in_srvce,103,2006,(103) Experimental Plant Unclassified,reported_value,experimental_electric_plant_unclassified,,
+f1_plant_in_srvce,103,2006,(103) Experimental Plant Unclassified,reported_value,experimental_plant_unclassified,,
 f1_plant_in_srvce,104,2006,TOTAL Electric Plant in Service (Enter Total of lines 100 thru 103),calculated_value,plant_in_service_classified_and_unclassified,,
 f1_pumped_storage,1,1994,FERC Licensed Project No. & Plant Name (1),,,,
 f1_pumped_storage,2,1994,FERC Licensed Project No. & Plant Name (2),,,,
