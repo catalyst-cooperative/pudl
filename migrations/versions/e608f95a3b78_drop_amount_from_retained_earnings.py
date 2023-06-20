@@ -1,8 +1,8 @@
-"""Remove amount column from retained earnings
+"""drop amount from retained earnings
 
-Revision ID: cd70aa9ce4e9
-Revises: 88d9201ae4c4
-Create Date: 2023-06-13 09:18:41.174833
+Revision ID: e608f95a3b78
+Revises: 3c458b36094e
+Create Date: 2023-06-19 09:04:49.591285
 
 """
 from alembic import op
@@ -10,8 +10,8 @@ import sqlalchemy as sa
 
 
 # revision identifiers, used by Alembic.
-revision = 'cd70aa9ce4e9'
-down_revision = '88d9201ae4c4'
+revision = 'e608f95a3b78'
+down_revision = '3c458b36094e'
 branch_labels = None
 depends_on = None
 
