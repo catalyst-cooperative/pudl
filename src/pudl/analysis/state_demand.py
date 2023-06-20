@@ -501,7 +501,6 @@ def imputed_hourly_demand_ferc714(
 # --- Datasets: Counties --- #
 
 
-@asset(compute_kind="Python")
 def county_assignments_ferc714(
     fipsified_respondents_ferc714,
 ) -> pd.DataFrame:
@@ -525,7 +524,6 @@ def county_assignments_ferc714(
     return df
 
 
-@asset(compute_kind="Python")
 def census_counties(county_censusdp1: pd.DataFrame) -> pd.DataFrame:
     """Load county attributes.
 
@@ -544,7 +542,6 @@ def census_counties(county_censusdp1: pd.DataFrame) -> pd.DataFrame:
 # --- Allocation --- #
 
 
-@asset(compute_kind="Python")
 def total_state_sales_eia861(
     sales_eia861,
 ) -> pd.DataFrame:
@@ -585,21 +582,20 @@ def total_state_sales_eia861(
 def predicted_state_hourly_demand(
     context,
     imputed_hourly_demand_ferc714: pd.DataFrame,
-    census_counties: pd.DataFrame,
-    county_assignments_ferc714: pd.DataFrame,
-    total_state_sales_eia861: pd.DataFrame = None,
+    county_censusdp1: pd.DataFrame,
+    fipsified_respondents_ferc714: pd.DataFrame,
+    sales_eia861: pd.DataFrame = None,
 ) -> pd.DataFrame:
     """Predict state hourly demand.
 
     Args:
         imputed_hourly_demand_ferc714: Hourly demand timeseries, with columns
           `respondent_id_ferc714`, report `year`, `utc_datetime`, and `demand_mwh`.
-        census_counties: Counties, with columns `county_id_fips` and `population`.
-        county_assignments: County assignments for demand respondents,
-          with columns `respondent_id_ferc714`, `year`, and `county_id_fips`.
-        total_state_sales_eia861: Total annual demand by state,
-          with columns `state_id_fips`, `year`, and `demand_mwh`.
-          If provided, the predicted hourly demand is scaled to match these totals.
+        county_censusdp1: The county layer of the Census DP1 shapefile.
+        fipsified_respondents_ferc714: Annual respondents with the county FIPS IDs
+            for their service territories.
+        sales_eia861: EIA 861 sales data. If provided, the predicted hourly demand is
+            scaled to match these totals.
 
     Returns:
         Dataframe with columns
@@ -608,6 +604,12 @@ def predicted_state_hourly_demand(
     """
     # Get config
     mean_overlaps = context.op_config["mean_overlaps"]
+
+    # Call necessary functions
+    count_assign_ferc714 = county_assignments_ferc714(fipsified_respondents_ferc714)
+    counties = census_counties(county_censusdp1)
+    total_sales_eia861 = total_state_sales_eia861(sales_eia861)
+
     # Pre-compute list of respondent-years with demand
     with_demand = (
         imputed_hourly_demand_ferc714.groupby(
@@ -617,14 +619,14 @@ def predicted_state_hourly_demand(
         .query("demand_mwh > 0")
     )[["respondent_id_ferc714", "year"]]
     # Pre-compute state-county assignments
-    census_counties["state_id_fips"] = census_counties["county_id_fips"].str[:2]
+    counties["state_id_fips"] = counties["county_id_fips"].str[:2]
     # Merge counties with respondent- and state-county assignments
     df = (
-        county_assignments_ferc714
+        count_assign_ferc714
         # Drop respondent-years with no demand
         .merge(with_demand, on=["respondent_id_ferc714", "year"])
         # Merge with counties and state-county assignments
-        .merge(census_counties, on=["county_id_fips"])
+        .merge(counties, on=["county_id_fips"])
     )
     # Divide county population by total population in respondent (by year)
     # TODO: Use more county attributes in the calculation of their weights
@@ -648,12 +650,12 @@ def predicted_state_hourly_demand(
     )
     df["demand_mwh"] *= df["weight"]
     # Scale estimates using state totals
-    if total_state_sales_eia861 is not None:
+    if total_sales_eia861 is not None:
         # Compute scale factor between current and target state totals
         totals = (
             df.groupby(["state_id_fips", "year"], as_index=False)["demand_mwh"]
             .sum()
-            .merge(total_state_sales_eia861, on=["state_id_fips", "year"])
+            .merge(total_sales_eia861, on=["state_id_fips", "year"])
         )
         totals["scale"] = totals["demand_mwh_y"] / totals["demand_mwh_x"]
         df = df.merge(totals[["state_id_fips", "year", "scale"]])

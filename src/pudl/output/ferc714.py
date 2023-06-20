@@ -6,6 +6,7 @@ import pandas as pd
 from dagster import Field, asset
 
 import pudl
+from pudl.analysis.service_territory import utility_ids_all_eia
 from pudl.metadata.fields import apply_pudl_dtypes
 
 logger = pudl.logging_helpers.get_logger(__name__)
@@ -199,7 +200,6 @@ def categorize_eia_code(eia_codes, ba_ids, util_ids, priority="balancing_authori
 ################################################################################
 
 
-@asset(compute_kind="Python")
 def filled_balancing_authority_eia861(
     balancing_authority_eia861: pd.DataFrame,
 ) -> pd.DataFrame:
@@ -232,7 +232,6 @@ def filled_balancing_authority_eia861(
     return df[~mask]
 
 
-@asset(compute_kind="Python")
 def filled_balancing_authority_assn_eia861(
     balancing_authority_assn_eia861: pd.DataFrame,
 ) -> pd.DataFrame:
@@ -309,9 +308,8 @@ def filled_balancing_authority_assn_eia861(
     return pd.concat([df[~mask], pd.concat(tables)]).drop_duplicates()
 
 
-@asset(compute_kind="Python")
 def filled_service_territory_eia861(
-    filled_balancing_authority_assn_eia861: pd.DataFrame,
+    balancing_authority_assn_eia861: pd.DataFrame,
     service_territory_eia861: pd.DataFrame,
 ) -> pd.DataFrame:
     """Modified service_territory_eia861 table.
@@ -324,7 +322,7 @@ def filled_service_territory_eia861(
     """
     index = ["utility_id_eia", "state", "report_date"]
     # Select relevant balancing authority-utility associations
-    assn = filled_balancing_authority_assn_eia861
+    assn = filled_balancing_authority_assn_eia861(balancing_authority_assn_eia861)
     selected = np.zeros(assn.shape[0], dtype=bool)
     for fix in ASSOCIATIONS:
         years = [fix["from"], *range(fix["to"][0], fix["to"][1] + 1)]
@@ -400,8 +398,9 @@ def annualized_respondents_ferc714(
 def categorized_respondents_ferc714(
     context,
     respondent_id_ferc714: pd.DataFrame,
-    utility_ids_all_eia: pd.DataFrame,
-    filled_balancing_authority_eia861: pd.DataFrame,
+    denorm_utilities_eia: pd.DataFrame,
+    service_territory_eia861: pd.DataFrame,
+    balancing_authority_eia861: pd.DataFrame,
     annualized_respondents_ferc714: pd.DataFrame,
 ) -> pd.DataFrame:
     """Annualized respondents with ``respondent_type`` assigned if possible.
@@ -413,11 +412,18 @@ def categorized_respondents_ferc714(
     territories for the respondent, which vary annually.
     """
     priority = context.op_config["priority"]
+
     logger.info("Categorizing EIA codes associated with FERC-714 Respondents.")
+
+    bal_auth = filled_balancing_authority_eia861(balancing_authority_eia861)
+    utilids_all_eia = utility_ids_all_eia(
+        denorm_utilities_eia, service_territory_eia861
+    )
+
     categorized = categorize_eia_code(
         respondent_id_ferc714.eia_code.dropna().unique(),
-        ba_ids=filled_balancing_authority_eia861.balancing_authority_id_eia.dropna().unique(),
-        util_ids=utility_ids_all_eia.utility_id_eia,
+        ba_ids=bal_auth.balancing_authority_id_eia.dropna().unique(),
+        util_ids=utilids_all_eia.utility_id_eia,
         priority=priority,
     )
     logger.info(
@@ -440,7 +446,7 @@ def categorized_respondents_ferc714(
     )
     ba_respondents = pd.merge(
         ba_respondents,
-        filled_balancing_authority_eia861[
+        bal_auth[
             [
                 "balancing_authority_id_eia",
                 "balancing_authority_code_eia",
@@ -460,7 +466,7 @@ def categorized_respondents_ferc714(
     logger.info("Merging FERC-714 Utility respondents with service territory.")
     util_respondents = pd.merge(
         util_respondents,
-        utility_ids_all_eia,
+        utilids_all_eia,
         how="left",
         left_on="eia_code",
         right_on="utility_id_eia",
@@ -496,8 +502,8 @@ def categorized_respondents_ferc714(
 def fipsified_respondents_ferc714(
     context,
     categorized_respondents_ferc714: pd.DataFrame,
-    filled_balancing_authority_assn_eia861: pd.DataFrame,
-    filled_service_territory_eia861: pd.DataFrame,
+    balancing_authority_assn_eia861: pd.DataFrame,
+    service_territory_eia861: pd.DataFrame,
     utility_assn_eia861: pd.DataFrame,
 ) -> pd.DataFrame:
     """Annual respondents with the county FIPS IDs for their service territories.
@@ -513,14 +519,20 @@ def fipsified_respondents_ferc714(
     utility ID in each year, while for ``balancing_authority`` respondents, some
     counties can be excluded based on state (if ``limit_by_state==True``).
     """
+    #
+    assn = filled_balancing_authority_assn_eia861(balancing_authority_assn_eia861)
+    st_eia861 = filled_service_territory_eia861(
+        balancing_authority_assn_eia861, service_territory_eia861
+    )
+
     # Generate the BA:FIPS relation:
     ba_counties = pd.merge(
         categorized_respondents_ferc714.query("respondent_type=='balancing_authority'"),
         pudl.analysis.service_territory.get_territory_fips(
             ids=categorized_respondents_ferc714.balancing_authority_id_eia.unique(),
-            assn=filled_balancing_authority_assn_eia861,
+            assn=assn,
             assn_col="balancing_authority_id_eia",
-            service_territory_eia861=filled_service_territory_eia861,
+            service_territory_eia861=st_eia861,
             limit_by_state=context.op_config["limit_by_state"],
         ),
         on=["report_date", "balancing_authority_id_eia"],
@@ -533,7 +545,7 @@ def fipsified_respondents_ferc714(
             ids=categorized_respondents_ferc714.utility_id_eia.unique(),
             assn=utility_assn_eia861,
             assn_col="utility_id_eia",
-            service_territory_eia861=filled_service_territory_eia861,
+            service_territory_eia861=st_eia861,
             limit_by_state=context.op_config["limit_by_state"],
         ),
         on=["report_date", "utility_id_eia"],

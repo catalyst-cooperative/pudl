@@ -29,7 +29,6 @@ CALC_CRS = "ESRI:102003"  # For accurate area calculations
 ENTITY_TYPE = {"ba": "balancing_authority", "util": "utility"}
 
 
-@asset(compute_kind="Python")
 def utility_ids_all_eia(
     denorm_utilities_eia: pd.DataFrame, service_territory_eia861: pd.DataFrame
 ) -> pd.DataFrame:
@@ -275,7 +274,7 @@ def _save_geoparquet(gdf, entity_type, dissolve, limit_by_state):
 def compile_geoms(
     balancing_authority_eia861: pd.DataFrame,
     balancing_authority_assn_eia861: pd.DataFrame,
-    utility_ids_all_eia: pd.DataFrame,
+    denorm_utilities_eia: pd.DataFrame,
     service_territory_eia861: pd.DataFrame,
     utility_assn_eia861: pd.DataFrame,
     census_counties: pd.DataFrame,
@@ -292,12 +291,16 @@ def compile_geoms(
         limit_by_state,
     )
 
+    utilids_all_eia = utility_ids_all_eia(
+        denorm_utilities_eia, service_territory_eia861
+    )
+
     if entity_type == "ba":
         ids = balancing_authority_eia861.balancing_authority_id_eia.unique()
         assn = balancing_authority_assn_eia861
         assn_col = "balancing_authority_id_eia"
     elif entity_type == "util":
-        ids = utility_ids_all_eia.utility_id_eia.unique()
+        ids = utilids_all_eia.utility_id_eia.unique()
         assn = utility_assn_eia861
         assn_col = "utility_id_eia"
     else:
@@ -370,7 +373,7 @@ def compiled_geoms_asset_factory(
         context,
         balancing_authority_eia861: pd.DataFrame,
         balancing_authority_assn_eia861: pd.DataFrame,
-        utility_ids_all_eia: pd.DataFrame,
+        denorm_utilities_eia: pd.DataFrame,
         service_territory_eia861: pd.DataFrame,
         utility_assn_eia861: pd.DataFrame,
         county_censusdp1: pd.DataFrame,
@@ -388,7 +391,7 @@ def compiled_geoms_asset_factory(
         return compile_geoms(
             balancing_authority_eia861=balancing_authority_eia861,
             balancing_authority_assn_eia861=balancing_authority_assn_eia861,
-            utility_ids_all_eia=utility_ids_all_eia,
+            denorm_utilities_eia=denorm_utilities_eia,
             service_territory_eia861=service_territory_eia861,
             utility_assn_eia861=utility_assn_eia861,
             census_counties=county_censusdp1,
@@ -589,12 +592,8 @@ def main():
             balancing_authority_assn_eia861=pd.read_sql(
                 "balancing_authority_assn_eia861", pudl_engine
             ),
-            utility_ids_all_eia=pudl.etl.defs.load_asset_value(
-                AssetKey("utility_ids_all_eia")
-            ),
-            service_territory_eia861=pd.read_sql(
-                "service_territory_eia861", pudl_engine
-            ),
+            denorm_utilities_eia=pd.read_sql(AssetKey("denorm_utilities_eia")),
+            service_territory_eia861=pd.read_sql(AssetKey("service_territory_eia861")),
             utility_assn_eia861=pd.read_sql("utility_assn_eia861", pudl_engine),
             census_counties=county_gdf,
             dissolve=args.dissolve,
