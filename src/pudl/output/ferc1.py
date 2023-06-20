@@ -1387,6 +1387,24 @@ class Ferc1XbrlCalculationTree(BaseModel):
     This list will be empty for leaf nodes (reported values) and for calculated values
     that lie outside the list of tables being used in the explosion.
     """
+    tags: dict[str, str] = {}
+    """A dictionary of categorical metadata tags associated with a node in the tree."""
+
+    def pprint(self: Self, indent=4):
+        """Print a legible JSONified version of the calculation tree."""
+        print(json.dumps(self.dict(), indent=indent))
+
+    @staticmethod
+    def _check_index(df: pd.DataFrame):
+        """Check that an input meta dataframe is appropriately indexed."""
+        idx_cols = ["table_name", "xbrl_factoid"]
+        if df.index.names != idx_cols:
+            raise AssertionError(
+                f"Exploded metadataframes must be indexed by {idx_cols}, but found "
+                f"{df.index.names=}"
+            )
+        if not df.index.is_unique:
+            raise AssertionError("Found non-unique index in exploded metadata.")
 
     @classmethod
     def from_exploded_meta(
@@ -1415,14 +1433,7 @@ class Ferc1XbrlCalculationTree(BaseModel):
         Returns:
             The root node of a calculation tree, potentially referencing child nodes.
         """
-        idx_cols = ["table_name", "xbrl_factoid"]
-        if exploded_meta.index.names != idx_cols:
-            raise AssertionError(
-                f"Exploded metadata must be indexed by {idx_cols}, but found "
-                f"{exploded_meta.index.names=}"
-            )
-        if not exploded_meta.index.is_unique:
-            raise AssertionError("Found non-unique index in exploded metadata.")
+        cls._check_index(exploded_meta)
 
         # Index to look up the particular factoid we're building the node for:
         idx = (source_table, xbrl_factoid)
@@ -1453,6 +1464,57 @@ class Ferc1XbrlCalculationTree(BaseModel):
             children=children,
         )
 
+    def add_tags_from_df(
+        self: Self, tags_df: pd.DataFrame
+    ) -> "Ferc1XbrlCalculationTree":
+        """Read tags from dataframe and apply to appropriate nodes in the tree.
+
+        Args:
+            tags_df: A dataframe indexed by ("table_name", "xbrl_factoid") potentially
+                containing several additional categorical columns. The name of each
+                column will be used as the key in the metadata tag dictionary. For each
+                node in the tree, the row in this dataframe corresponding to the node's
+                ``source_table`` and ``xbrl_factoid`` will be used to look up the value
+                of the tags associated with the node.
+        """
+        self._check_index(tags_df)
+        try:
+            # Look up the tags to apply to this node
+            new_tags = tags_df.loc[(self.source_table, self.xbrl_factoid)].to_dict()
+        #  If it has no tags that's fine. Catch the key error and continue.
+        except KeyError:
+            new_tags = {}
+        logger.debug(
+            f"Found {new_tags=} for node {(self.source_table, self.xbrl_factoid)}"
+        )
+
+        # Construct a copy of this node with the new tags applied.
+        return Ferc1XbrlCalculationTree(
+            source_table=self.source_table,
+            xbrl_factoid=self.xbrl_factoid,
+            xbrl_factoid_original=self.xbrl_factoid_original,
+            weight=self.weight,
+            tags=self.tags | new_tags,
+            children=[node.add_tags_from_df(tags_df) for node in self.children],
+        )
+
+    def propagate_tags(
+        self: Self, tags: dict[str, str] = {}
+    ) -> "Ferc1XbrlCalculationTree":
+        """Propagate metadata tags to all descendants of tagged notes in the tree.
+
+        TODO: Check that there are no inconsistencies between parent & child node tags.
+        """
+        new_tags = self.tags | tags
+        return Ferc1XbrlCalculationTree(
+            source_table=self.source_table,
+            xbrl_factoid=self.xbrl_factoid,
+            xbrl_factoid_original=self.xbrl_factoid_original,
+            weight=self.weight,
+            tags=new_tags,
+            children=[node.propagate_tags(new_tags) for node in self.children],
+        )
+
     def to_networkx(self: Self) -> nx.Graph:
         """Convert the tree to a an undirected NetworkX graph.
 
@@ -1461,7 +1523,16 @@ class Ferc1XbrlCalculationTree(BaseModel):
         tuple of strings (source_table, xbrl_factoid) is used as the ID for each node in
         the graph.
         """
-        ...
+        G = nx.Graph()  # noqa: N806
+        for child in self.children:
+            # Add an edge from the current node to each of its children:
+            G.add_edge(
+                u_of_edge=(self.source_table, self.xbrl_factoid),
+                v_of_edge=(child.source_table, child.xbrl_factoid),
+            )
+            # Recursively add all the edges from each child to its children:
+            G.add_edges_from(child.to_networkx().edges)
+        return G
 
     def is_inter_table(self: Self) -> bool:
         """Determine if the tree refers to values from multiple tables.
