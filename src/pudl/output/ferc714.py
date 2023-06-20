@@ -1,6 +1,8 @@
 """Functions & classes for compiling derived aspects of the FERC Form 714 data."""
+from datetime import datetime
 from typing import Any
 
+import geopandas as gpd
 import numpy as np
 import pandas as pd
 from dagster import Field, asset
@@ -81,20 +83,20 @@ The changes are applied locally to EIA 861 tables.
 ################################################################################
 
 
-def add_dates(rids_ferc714, report_dates):
+def add_dates(rids_ferc714: pd.DataFrame, report_dates: list[datetime]) -> pd.DataFrame:
     """Broadcast respondent data across dates.
 
     Args:
-        rids_ferc714 (pandas.DataFrame): A simple FERC 714 Respondent ID dataframe,
+        rids_ferc714: A simple FERC 714 Respondent ID dataframe,
             without any date information.
-        report_dates (ordered collection of datetime): Dates for which each respondent
+        report_dates: Dates for which each respondent
             should be given a record.
 
     Raises:
         ValueError: if a ``report_date`` column exists in ``rids_ferc714``.
 
     Returns:
-        pandas.DataFrame: Dataframe having all the same columns as the input
+        A Dataframe having all the same columns as the input
         ``rids_ferc714`` with the addition of a ``report_date`` column, but with all
         records associated with each ``respondent_id_ferc714`` duplicated on a per-date
         basis.
@@ -116,7 +118,12 @@ def add_dates(rids_ferc714, report_dates):
     return rids_with_dates
 
 
-def categorize_eia_code(eia_codes, ba_ids, util_ids, priority="balancing_authority"):
+def categorize_eia_code(
+    eia_codes: list[int],
+    ba_ids: list[int],
+    util_ids: list[int],
+    priority: str = "balancing_authority",
+) -> pd.DataFrame:
     """Categorize FERC 714 ``eia_codes`` as either balancing authority or utility IDs.
 
     Most FERC 714 respondent IDs are associated with an ``eia_code`` which refers to
@@ -145,18 +152,18 @@ def categorize_eia_code(eia_codes, ba_ids, util_ids, priority="balancing_authori
     priority with all utility IDs
 
     Args:
-        eia_codes (ordered collection of ints): A collection of IDs which may be either
+        eia_codes: A collection of IDs which may be either
             associated with EIA balancing authorities or utilities, to be categorized.
-        ba_ids_eia (ordered collection of ints): A collection of IDs which should be
+        ba_ids_eia: A collection of IDs which should be
             interpreted as belonging to EIA Balancing Authorities.
-        util_ids_eia (ordered collection of ints): A collection of IDs which should be
+        util_ids_eia: A collection of IDs which should be
             interpreted as belonging to EIA Utilities.
-        priorty (str): Which respondent_type to give priority to if the eia_code shows
+        priority: Which respondent_type to give priority to if the eia_code shows
             up in both util_ids_eia and ba_ids_eia. Must be one of "utility" or
-            "balancing_authority". The default is "balanacing_authority".
+            "balancing_authority". The default is "balancing_authority".
 
     Returns:
-        pandas.DataFrame: A dataframe containing 2 columns: ``eia_code`` and
+        A DataFrame containing 2 columns: ``eia_code`` and
         ``respondent_type``.
     """
     if priority == "balancing_authority":
@@ -564,7 +571,9 @@ def fipsified_respondents_ferc714(
 
 
 @asset(compute_kind="Python")
-def georeferenced_counties_ferc714(fipsified_respondents_ferc714, county_censusdp1):
+def georeferenced_counties_ferc714(
+    fipsified_respondents_ferc714: pd.DataFrame, county_censusdp1: gpd.GeoDataFrame
+) -> gpd.GeoDataFrame:
     """Annual respondents with all associated county-level geometries.
 
     Given the county FIPS codes associated with each respondent in each year, pull in
@@ -581,8 +590,10 @@ def georeferenced_counties_ferc714(fipsified_respondents_ferc714, county_censusd
 
 @asset(compute_kind="Python")
 def georeferenced_respondents_ferc714(
-    fipsified_respondents_ferc714, summarized_demand_ferc714, county_censusdp1
-):
+    fipsified_respondents_ferc714: pd.DataFrame,
+    summarized_demand_ferc714: pd.DataFrame,
+    county_censusdp1: gpd.GeoDataFrame,
+) -> gpd.GeoDataFrame:
     """Annual respondents with a single all-encompassing geometry for each year.
 
     Given the county FIPS codes associated with each responent in each year, compile a
@@ -612,12 +623,12 @@ def georeferenced_respondents_ferc714(
 
 @asset(compute_kind="Python", io_manager_key="pudl_sqlite_io_manager")
 def summarized_demand_ferc714(
-    annualized_respondents_ferc714,
-    demand_hourly_pa_ferc714,
-    fipsified_respondents_ferc714,
-    categorized_respondents_ferc714,
-    georeferenced_counties_ferc714,
-):
+    annualized_respondents_ferc714: pd.DataFrame,
+    demand_hourly_pa_ferc714: pd.DataFrame,
+    fipsified_respondents_ferc714: pd.DataFrame,
+    categorized_respondents_ferc714: pd.DataFrame,
+    georeferenced_counties_ferc714: gpd.GeoDataFrame,
+) -> pd.DataFrame:
     """Compile annualized, categorized respondents and summarize values.
 
     Calculated summary values include:

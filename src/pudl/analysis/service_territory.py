@@ -11,6 +11,7 @@ import sys
 from collections.abc import Iterable
 from typing import Literal
 
+import geopandas as gpd
 import pandas as pd
 import sqlalchemy as sa
 from dagster import AssetKey, AssetsDefinition, Field, asset
@@ -83,7 +84,7 @@ def get_territory_fips(
         assn_col: Label of the dataframe column in ``assn`` that contains
             the ID of the entities of interest. Should probably be either
             ``balancing_authority_id_eia`` or ``utility_id_eia``.
-        st_eia861: The EIA 861 Service Territory table.
+        service_territory_eia861: The EIA 861 Service Territory table.
         limit_by_state: Whether to require that the counties associated
             with the balancing authority are inside a state that has also been
             seen in association with the balancing authority and the utility
@@ -119,10 +120,10 @@ def get_territory_fips(
 
 def add_geometries(
     df: pd.DataFrame,
-    census_gdf: pd.DataFrame,
+    census_gdf: gpd.GeoDataFrame,
     dissolve: bool = False,
     dissolve_by: list[str] = None,
-):
+) -> gpd.GeoDataFrame:
     """Merge census geometries into dataframe on county_id_fips, optionally dissolving.
 
     Merge the US Census county-level geospatial information into the DataFrame df
@@ -195,10 +196,10 @@ def get_territory_geometries(
     assn: pd.DataFrame,
     assn_col: str,
     service_territory_eia861: pd.DataFrame,
-    census_gdf: pd.DataFrame,
+    census_gdf: gpd.GeoDataFrame,
     limit_by_state: bool = True,
     dissolve: bool = False,
-):
+) -> gpd.GeoDataFrame:
     """Compile service territory geometries based on county_id_fips.
 
     Calls ``get_territory_fips`` to generate the list of counties associated with
@@ -215,20 +216,20 @@ def get_territory_geometries(
         use in many analyses. Dissolving is mostly useful for generating visualizations.
 
     Args:
-        ids (iterable of ints): A collection of EIA balancing authority IDs.
-        assn (pandas.DataFrame): Association table, relating ``report_date``,
+        ids: A collection of EIA balancing authority IDs.
+        assn: Association table, relating ``report_date``,
         ``state``, and ``utility_id_eia`` to each other, as well as the
             column indicated by ``assn_col`` -- if it's not ``utility_id_eia``.
-        assn_col (str): Label of the dataframe column in ``assn`` that contains
+        assn_col: Label of the dataframe column in ``assn`` that contains
             the ID of the entities of interest. Should probably be either
             ``balancing_authority_id_eia`` or ``utility_id_eia``.
-        st_eia861 (pandas.DataFrame): The EIA 861 Service Territory table.
-        census_gdf (geopandas.GeoDataFrame): The US Census DP1 county-level geometries.
-        limit_by_state (bool): Whether to require that the counties associated
+        service_territory_eia861: The EIA 861 Service Territory table.
+        census_gdf: The US Census DP1 county-level geometries.
+        limit_by_state: Whether to require that the counties associated
             with the balancing authority are inside a state that has also been
             seen in association with the balancing authority and the utility
             whose service territory contians the county.
-        dissolve (bool): If False, each record in the compiled territory will correspond
+        dissolve: If False, each record in the compiled territory will correspond
             to a single county, with a county-level geometry, and there will be many
             records enumerating all the counties associated with a given
             balancing_authority_id_eia in each year. If dissolve=True, all of the
@@ -237,7 +238,7 @@ def get_territory_geometries(
             balancing_authority-year.
 
     Returns:
-        geopandas.GeoDataFrame
+        A GeoDataFrame with service territory geometries for each entity.
     """
     return get_territory_fips(
         ids=ids,

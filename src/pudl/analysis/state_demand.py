@@ -27,6 +27,7 @@ import sys
 from collections.abc import Iterable
 from typing import Any
 
+import geopandas as gpd
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
@@ -507,7 +508,8 @@ def county_assignments_ferc714(
     """Load FERC 714 county assignments.
 
     Args:
-        pudl_out: PUDL database extractor.
+        fipsified_respondents_ferc714: From `pudl.output.ferc714`, FERC 714 respondents
+            with county FIPS IDs.
 
     Returns:
         Dataframe with columns
@@ -524,12 +526,11 @@ def county_assignments_ferc714(
     return df
 
 
-def census_counties(county_censusdp1: pd.DataFrame) -> pd.DataFrame:
+def census_counties(county_censusdp1: gpd.GeoDataFrame) -> gpd.GeoDataFrame:
     """Load county attributes.
 
     Args:
-        pudl_out: PUDL database extractor.
-        pudl_settings: PUDL settings.
+        county_censusdp: The county layer of the Census DP1 geodatabase.
 
     Returns:
         Dataframe with columns `county_id_fips` and `population`.
@@ -546,6 +547,9 @@ def total_state_sales_eia861(
     sales_eia861,
 ) -> pd.DataFrame:
     """Read and format EIA 861 sales by state and year.
+
+    Args:
+        sales_eia861: Electricity sales data from EIA 861.
 
     Returns:
         Dataframe with columns `state_id_fips`, `year`, `demand_mwh`.
