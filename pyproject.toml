@@ -33,7 +33,7 @@ dependencies = [
     "jinja2>=2,<3.2",
     "matplotlib>=3.3,<3.8",  # Should make this optional with a "viz" extras
     "networkx>=2.2,<3.2",
-    "numpy>=1.18.5,!=1.23.0,<1.25",
+    "numpy>=1.18.5,!=1.23.0,<1.26",
     "pandas>=1.4,<1.5.4",
     "pyarrow>=5,<12.1",
     "pydantic[email]>=1.7,<2",
@@ -120,7 +120,7 @@ dev = [
     "isort>=5.0,<5.13",
     "jedi>=0.18,<0.19",
     "lxml>=4.6,<4.10",
-    "tox>=4,<4.6",
+    "tox>=4,<4.7",
     "twine>=3.3,<4.1",
 ]
 doc = [
