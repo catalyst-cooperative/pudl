@@ -203,6 +203,8 @@ Data Cleaning
 * Added "correction" records to many FERC Form 1 tables where the reported totals do not
   match the outcomes of calculations specified in XBRL metadata (even after cleaning up
   the often incorrect calculation specifications!). See :issue:`2957` and :pr:`2620`.
+* Flip the sign of some erroneous negative values in the :ref:`plant_in_service_ferc1`
+  and :ref:`utility_plant_summary_ferc1` tables. See :issue:`2599`, and :pr:`2647`.
 
 Analysis
 ^^^^^^^^
