@@ -80,13 +80,15 @@ from dagster import (
     asset,
     build_init_resource_context,
     build_input_context,
-    op,
 )
 
 import pudl
-from pudl.extract.dbf import AbstractFercDbfReader, FercDbfExtractor, FercDbfReader
-from pudl.extract.ferc import add_key_constraints
-from pudl.extract.ferc2 import Ferc2DbfExtractor
+from pudl.extract.dbf import (
+    FercDbfExtractor,
+    PartitionedDataFrame,
+    add_key_constraints,
+    deduplicate_by_year,
+)
 from pudl.helpers import EnvVar
 from pudl.io_managers import (
     FercDBFSQLiteIOManager,
@@ -95,7 +97,6 @@ from pudl.io_managers import (
     ferc1_xbrl_sqlite_io_manager,
 )
 from pudl.settings import DatasetsSettings, FercToSqliteSettings, GenericDatasetSettings
-from pudl.workspace.datastore import Datastore
 
 logger = pudl.logging_helpers.get_logger(__name__)
 
@@ -222,26 +223,6 @@ class Ferc1DbfExtractor(FercDbfExtractor):
         """Returns settings for FERC Form 1 DBF dataset."""
         return global_settings.ferc1_dbf_to_sqlite_settings
 
-    def get_dbf_reader(self, base_datastore: Datastore) -> AbstractFercDbfReader:
-        """Returns an instace of :class:`FercDbfReader`.
-
-        This uses the generic base_datastore to construct a :class:`FercDbfReader`.
-        """
-        return FercDbfReader(base_datastore, dataset="ferc1")
-
-    def transform_table(self, table_name: str, in_df: pd.DataFrame) -> pd.DataFrame:
-        """FERC Form 1 specific table transformations.
-
-        This method removes duplicates from the f1_respondent_id table, and leaves all
-        other tables intact.
-        """
-        # TODO(rousik): this should be replaced with registry of pd.DataFrame -> pd.DataFrame transformations
-        # for each table and dict that looks those up.
-        if table_name == "f1_respondent_id":
-            return in_df.drop_duplicates(subset="respondent_id", keep="last")
-        else:
-            return in_df
-
     def finalize_schema(self, meta: sa.MetaData) -> sa.MetaData:
         """Modifies schema before it's written to sqlite database.
 
@@ -327,39 +308,14 @@ class Ferc1DbfExtractor(FercDbfExtractor):
                 )
         return observed
 
-
-@op(
-    config_schema={
-        "pudl_output_path": Field(
-            EnvVar(
-                env_var="PUDL_OUTPUT",
-            ),
-            description="Path of directory to store the database in.",
-            default_value=None,
-        ),
-        "clobber": Field(
-            bool, description="Clobber existing ferc1 database.", default_value=False
-        ),
-    },
-    required_resource_keys={"ferc_to_sqlite_settings", "datastore"},
-)
-def dbf2sqlite(context) -> None:
-    """Clone the FERC Form 1 Visual FoxPro databases into SQLite."""
-    # TODO(rousik): this thin wrapper seems to be somewhat quirky. Maybe there's a way
-    # to make the integration # between the class and dagster better? Investigate.
-    logger.info(f"dbf2sqlite settings: {context.resources.ferc_to_sqlite_settings}")
-
-    extractors = [
-        Ferc1DbfExtractor,
-        Ferc2DbfExtractor,
-    ]
-    for xclass in extractors:
-        xclass(
-            datastore=context.resources.datastore,
-            settings=context.resources.ferc_to_sqlite_settings,
-            clobber=context.op_config["clobber"],
-            output_path=context.op_config["pudl_output_path"],
-        ).execute()
+    def aggregate_table_frames(
+        self, table_name: str, dfs: list[PartitionedDataFrame]
+    ) -> pd.DataFrame | None:
+        """Deduplicates records in f1_respondent_id table."""
+        if table_name == "f1_respondent_id":
+            return deduplicate_by_year(dfs, "respondent_id")
+        else:
+            return super().aggregate_table_frames(table_name, dfs)
 
 
 ###########################################################################

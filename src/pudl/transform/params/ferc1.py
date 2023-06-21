@@ -3209,7 +3209,7 @@ TRANSFORM_PARAMS = {
                     "const_wrk_prgrs": "construction_work_in_progress_ending_balance",
                     "acqstn_adjstmnt": "utility_plant_acquisition_adjustment_ending_balance",
                     "tot_utlty_plant": "utility_plant_and_construction_work_in_progress_ending_balance",
-                    "accum_prvsn_dad": "accumulated_provision_for_depreciation_amortization_and_depletion_of_plant_utility_ending_balance",
+                    "accum_prvsn_dad": "accumulated_provision_for_depreciation_amortization_and_depletion_of_plant_utility_reported_ending_balance",
                     "net_utlty_plant": "utility_plant_net_ending_balance",
                     # detail of accum deprish
                     # in service
@@ -3229,7 +3229,7 @@ TRANSFORM_PARAMS = {
                     # rest of details of acum deprish
                     "abndn_leases": "abandonment_of_leases_ending_balance",
                     "amrtzplnt_acqstn": "amortization_of_plant_acquisition_adjustment_ending_balance",
-                    "tot_accum_prvsn": "accumulated_provision_for_depreciation_amortization_and_depletion_of_plant_utility_detail_ending_balance",
+                    "tot_accum_prvsn": "accumulated_provision_for_depreciation_amortization_and_depletion_of_plant_utility_ending_balance",
                 }
             },
             "xbrl": {
@@ -3701,6 +3701,10 @@ TRANSFORM_PARAMS = {
         "select_dbf_rows_by_category": {
             "column_name": "earnings_type",
             "select_by_xbrl_categories": True,
+            "additional_categories": [
+                "unappropriated_retained_earnings_previous_year",
+                "unappropriated_undistributed_subsidiary_earnings_previous_year",
+            ],
             "len_expected_categories_to_drop": 6,
         },
         "unstack_balances_to_report_year_instant_xbrl": {
@@ -3711,6 +3715,10 @@ TRANSFORM_PARAMS = {
             "on": "earnings_type",
         },
         "strip_non_numeric_values": {"amount": {"strip_non_numeric_values": True}},
+        "reconcile_table_calculations": {
+            "column_to_check": "ending_balance",
+            "calculation_tolerance": 0.08,
+        },
     },
     "income_statement_ferc1": {
         "rename_columns_ferc1": {

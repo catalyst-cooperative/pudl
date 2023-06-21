@@ -1284,10 +1284,6 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
                 }
             )
             .assign(
-                # Flag metadata record types
-                row_type_xbrl=lambda x: np.where(
-                    x.calculations.astype(bool), "calculated_value", "reported_value"
-                ),
                 calculations=lambda x: x.calculations.apply(json.dumps),
             )
             .astype(
@@ -1296,7 +1292,6 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
                     "balance": pd.StringDtype(),
                     "ferc_account": pd.StringDtype(),
                     "calculations": pd.StringDtype(),
-                    "row_type_xbrl": pd.StringDtype(),
                 }
             )
             # Everything below here deals with correcting the calculations.
@@ -1335,7 +1330,13 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
             .pipe(self.remove_duplicated_calculation_components)
             .pipe(self.add_calculation_correction_components)
         )
-        tbl_meta.calculations = tbl_meta.calculations.astype(pd.StringDtype())
+
+        # Flag metadata record types
+        tbl_meta = tbl_meta.assign(
+            row_type_xbrl=lambda x: np.where(
+                x.calculations != "[]", "calculated_value", "reported_value"
+            )
+        ).astype({"row_type_xbrl": pd.StringDtype(), "calculations": pd.StringDtype()})
 
         return tbl_meta
 
@@ -1846,6 +1847,128 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
                         "calc_component_to_replace": {},
                         "calc_component_new": {
                             "name": "accumulated_deferred_income_taxes",
+                            "weight": 1.0,
+                        },
+                    },
+                ],
+            },
+            "retained_earnings_ferc1": {
+                "appropriated_retained_earnings_including_reserve_amortization": [
+                    {
+                        "calc_component_to_replace": {},
+                        "calc_component_new": {
+                            "name": "appropriated_retained_earnings",
+                            "weight": 1.0,
+                        },
+                    },
+                    {
+                        "calc_component_to_replace": {},
+                        "calc_component_new": {
+                            "name": "appropriated_retained_earnings_amortization_reserve_federal",
+                            "weight": 1.0,
+                        },
+                    },
+                ],
+                "retained_earnings": [
+                    {
+                        "calc_component_to_replace": {},
+                        "calc_component_new": {
+                            "name": "unappropriated_retained_earnings",
+                            "weight": 1.0,
+                        },
+                    },
+                    {
+                        "calc_component_to_replace": {},
+                        "calc_component_new": {
+                            "name": "appropriated_retained_earnings_including_reserve_amortization",
+                            "weight": 1.0,
+                        },
+                    },
+                ],
+                "unappropriated_undistributed_subsidiary_earnings": [
+                    {
+                        "calc_component_to_replace": {},
+                        "calc_component_new": {
+                            "name": "unappropriated_undistributed_subsidiary_earnings_previous_year",
+                            "weight": 1.0,
+                        },
+                    },
+                    {
+                        "calc_component_to_replace": {},
+                        "calc_component_new": {
+                            "name": "equity_in_earnings_of_subsidiary_companies",
+                            "weight": 1.0,
+                        },
+                    },
+                    {
+                        "calc_component_to_replace": {},
+                        "calc_component_new": {
+                            "name": "dividends_received",
+                            "weight": -1.0,
+                        },
+                    },
+                    {
+                        "calc_component_to_replace": {},
+                        "calc_component_new": {
+                            "name": "changes_unappropriated_undistributed_subsidiary_earnings_credits",
+                            "weight": 1.0,
+                        },
+                    },
+                ],
+                "unappropriated_retained_earnings": [
+                    {
+                        "calc_component_to_replace": {},
+                        "calc_component_new": {
+                            "name": "unappropriated_retained_earnings_previous_year",
+                            "weight": 1.0,
+                        },
+                    },
+                    {
+                        "calc_component_to_replace": {},
+                        "calc_component_new": {
+                            "name": "adjustments_to_retained_earnings_credit",
+                            "weight": 1.0,
+                        },
+                    },
+                    {
+                        "calc_component_to_replace": {},
+                        "calc_component_new": {
+                            "name": "adjustments_to_retained_earnings_debit",
+                            "weight": 1.0,
+                        },
+                    },
+                    {
+                        "calc_component_to_replace": {},
+                        "calc_component_new": {
+                            "name": "balance_transferred_from_income",
+                            "weight": 1.0,
+                        },
+                    },
+                    {
+                        "calc_component_to_replace": {},
+                        "calc_component_new": {
+                            "name": "appropriations_of_retained_earnings",
+                            "weight": 1.0,
+                        },
+                    },
+                    {
+                        "calc_component_to_replace": {},
+                        "calc_component_new": {
+                            "name": "dividends_declared_preferred_stock",
+                            "weight": 1.0,
+                        },
+                    },
+                    {
+                        "calc_component_to_replace": {},
+                        "calc_component_new": {
+                            "name": "dividends_declared_common_stock",
+                            "weight": 1.0,
+                        },
+                    },
+                    {
+                        "calc_component_to_replace": {},
+                        "calc_component_new": {
+                            "name": "transfers_from_unappropriated_undistributed_subsidiary_earnings",
                             "weight": 1.0,
                         },
                     },
@@ -3055,13 +3178,21 @@ class PlantInServiceFerc1TableTransformer(Ferc1AbstractTableTransformer):
 
         Annotates and alters data based on information from the XBRL taxonomy metadata.
         Also assigns utility type for use in table explosions.
+        Make all electric_plant_sold balances positive.
         """
-        return (
-            super()
-            .transform_main(df)
-            .pipe(self.apply_sign_conventions)
-            .assign(utility_type="electric")
+        df = super().transform_main(df).pipe(self.apply_sign_conventions)
+        # Make all electric_plant_sold values positive
+        # This could probably be a FERC transformer class function or in the
+        # apply_sign_conventions function, but it doesn't seem like the best fit for
+        # now.
+        neg_values = (df["ferc_account_label"] == "electric_plant_sold") & (
+            df["ending_balance"] < 0
         )
+        df.loc[neg_values, "ending_balance"] = abs(df["ending_balance"])
+        logger.info(
+            f"{self.table_id.value}: Converted {len(df[neg_values])} negative values to positive."
+        )
+        return df.assign(utility_type="electric")
 
 
 class PlantsSmallFerc1TableTransformer(Ferc1AbstractTableTransformer):
@@ -4021,6 +4152,172 @@ class UtilityPlantSummaryFerc1TableTransformer(Ferc1AbstractTableTransformer):
     table_id: TableIdFerc1 = TableIdFerc1.UTILITY_PLANT_SUMMARY_FERC1
     has_unique_record_ids: bool = False
 
+    def transform_main(self: Self, df: pd.DataFrame) -> pd.DataFrame:
+        """Spot fix depreciation_utility_plant_in_service records with bad signs."""
+        df = super().transform_main(df)
+
+        primary_keys = [
+            "report_year",
+            "utility_id_ferc1",
+            "utility_type",
+            "utility_plant_asset_type",
+        ]
+
+        # The utility_id_ferc1 211 follows the same pattern for several years
+        # instead of writing them all out in spot_fix_pks, we'll create a loop that
+        # generates all of them and then append them to spot_fix_pks later
+        spot_fix_211 = []
+        for year in np.append(2006, range(2009, 2021)):
+            for utility_type in ["electric", "total"]:
+                pks = [
+                    (
+                        year,
+                        211,
+                        utility_type,
+                        "accumulated_provision_for_depreciation_amortization_and_depletion_of_plant_utility",
+                    ),
+                    (
+                        year,
+                        211,
+                        utility_type,
+                        "amortization_of_other_utility_plant_utility_plant_in_service",
+                    ),
+                    (
+                        year,
+                        211,
+                        utility_type,
+                        "depreciation_amortization_and_depletion_utility_plant_in_service",
+                    ),
+                    (
+                        year,
+                        211,
+                        utility_type,
+                        "depreciation_utility_plant_in_service",
+                    ),
+                ]
+                spot_fix_211 = spot_fix_211 + pks
+
+        spot_fix_pks = [
+            (
+                2012,
+                156,
+                "total",
+                "accumulated_provision_for_depreciation_amortization_and_depletion_of_plant_utility",
+            ),
+            (
+                2012,
+                156,
+                "total",
+                "depreciation_amortization_and_depletion_utility_plant_in_service",
+            ),
+            (2012, 156, "total", "depreciation_utility_plant_in_service"),
+            (
+                2012,
+                156,
+                "electric",
+                "accumulated_provision_for_depreciation_amortization_and_depletion_of_plant_utility",
+            ),
+            (
+                2012,
+                156,
+                "electric",
+                "depreciation_amortization_and_depletion_utility_plant_in_service",
+            ),
+            (2012, 156, "electric", "depreciation_utility_plant_in_service"),
+            (
+                2013,
+                170,
+                "total",
+                "accumulated_provision_for_depreciation_amortization_and_depletion_of_plant_utility",
+            ),
+            (
+                2013,
+                170,
+                "total",
+                "amortization_of_other_utility_plant_utility_plant_in_service",
+            ),
+            (2013, 170, "total", "amortization_of_plant_acquisition_adjustment"),
+            (
+                2013,
+                170,
+                "total",
+                "depreciation_amortization_and_depletion_utility_plant_in_service",
+            ),
+            (2013, 170, "total", "depreciation_utility_plant_in_service"),
+            (
+                2013,
+                170,
+                "electric",
+                "accumulated_provision_for_depreciation_amortization_and_depletion_of_plant_utility",
+            ),
+            (
+                2013,
+                170,
+                "electric",
+                "amortization_of_other_utility_plant_utility_plant_in_service",
+            ),
+            (2013, 170, "electric", "amortization_of_plant_acquisition_adjustment"),
+            (
+                2013,
+                170,
+                "electric",
+                "depreciation_amortization_and_depletion_utility_plant_in_service",
+            ),
+            (2013, 170, "electric", "depreciation_utility_plant_in_service"),
+            (
+                2007,
+                393,
+                "electric",
+                "accumulated_provision_for_depreciation_amortization_and_depletion_of_plant_utility",
+            ),
+            (
+                2007,
+                393,
+                "electric",
+                "depreciation_amortization_and_depletion_utility_plant_in_service",
+            ),
+            (2007, 393, "electric", "depreciation_utility_plant_in_service"),
+            (
+                2007,
+                393,
+                "total",
+                "accumulated_provision_for_depreciation_amortization_and_depletion_of_plant_utility",
+            ),
+            (
+                2007,
+                393,
+                "total",
+                "depreciation_amortization_and_depletion_utility_plant_in_service",
+            ),
+            (2007, 393, "total", "depreciation_utility_plant_in_service"),
+        ]
+
+        # Combine bespoke fixes with programatically generated spot fixes
+        spot_fix_pks = spot_fix_pks + spot_fix_211
+
+        # Par down spot fixes to account for fast tests where not all years are used
+        df_years = df.report_year.unique().tolist()
+        spot_fix_pks = [x for x in spot_fix_pks if x[0] in df_years]
+        logger.info(f"{self.table_id.value}: Spotfixing {len(spot_fix_pks)} records.")
+
+        if spot_fix_pks:
+            # Create a df of the primary key of the records you want to fix
+            df_keys = pd.DataFrame(spot_fix_pks, columns=primary_keys).set_index(
+                primary_keys
+            )
+            df.set_index(primary_keys, inplace=True)
+            # Flip the signs for the values in "ending balance" all records in the original
+            # df that appear in the primary key df
+            df.loc[df_keys.index, "ending_balance"] = df["ending_balance"] * -1
+            # All of these are flipping negative values to positive values,
+            # so let's make sure that's what happens
+            flipped_values = df.loc[df_keys.index]
+            if (flipped_values["ending_balance"] < 0).any():
+                raise AssertionError("None of these spot fixes should be negative")
+            df.reset_index(inplace=True)
+
+        return df
+
 
 class BalanceSheetLiabilitiesFerc1TableTransformer(Ferc1AbstractTableTransformer):
     """Transformer class for :ref:`balance_sheet_liabilities_ferc1` table."""
@@ -4100,21 +4397,66 @@ class RetainedEarningsFerc1TableTransformer(Ferc1AbstractTableTransformer):
     table_id: TableIdFerc1 = TableIdFerc1.RETAINED_EARNINGS_FERC1
     has_unique_record_ids: bool = False
 
+    @cache_df("process_xbrl_metadata")
+    def process_xbrl_metadata(self, xbrl_metadata_json) -> pd.DataFrame:
+        """Transform the metadata to reflect the transformed data.
+
+        Beyond the standard :meth:`Ferc1AbstractTableTransformer.process_xbrl_metadata`
+        processing, add FERC account values for a few known values.
+        """
+        meta = super().process_xbrl_metadata(xbrl_metadata_json)
+        meta.loc[
+            meta.xbrl_factoid
+            == "transfers_from_unappropriated_undistributed_subsidiary_earnings",
+            "ferc_account",
+        ] = "216.1"
+        meta.loc[
+            meta.xbrl_factoid
+            == "appropriated_retained_earnings_including_reserve_amortization",
+            "ferc_account",
+        ] = "215_and_215.1"
+        meta.loc[
+            meta.xbrl_factoid == "retained_earnings",
+            "ferc_account",
+        ] = "215_and_215.1_and_216"
+        meta.loc[
+            meta.xbrl_factoid == "unappropriated_retained_earnings",
+            "ferc_account",
+        ] = "216"
+        meta.loc[
+            meta.xbrl_factoid == "equity_in_earnings_of_subsidiary_companies",
+            "ferc_account",
+        ] = "418.1"
+
+        return meta
+
     def process_dbf(self, raw_dbf: pd.DataFrame) -> pd.DataFrame:
         """Preform generic :meth:`process_dbf`, plus deal with duplicates.
 
         Along with the standard processing in
         :meth:`Ferc1AbstractTableTransformer.process_dbf`, this method runs:
         * :meth:`targeted_drop_duplicates_dbf`
-        * :meth:`condense_double_year_earnings_types_dbf`
+        * :meth:`reconcile_double_year_earnings_types_dbf`
         """
         processed_dbf = (
             super()
             .process_dbf(raw_dbf)
             .pipe(self.targeted_drop_duplicates_dbf)
-            .pipe(self.condense_double_year_earnings_types_dbf)
+            .pipe(self.reconcile_double_year_earnings_types_dbf)
         )
         return processed_dbf
+
+    @cache_df("main")
+    def transform_main(self, df):
+        """Add `_previous_year` factoids after standard transform_main.
+
+        Add `_previous_year` factoids for `unappropriated_retained_earnings` and
+        `unappropriated_undistributed_subsidiary_earnings` after standard
+        transform_main. This should only affect XBRL data, but we do it after merging to
+        enable access to DBF data to fill this in as well.
+        """
+        df = super().transform_main(df).pipe(self.add_previous_year_factoid)
+        return df
 
     def targeted_drop_duplicates_dbf(self, df: pd.DataFrame) -> pd.DataFrame:
         """Drop duplicates with truly duplicate data.
@@ -4148,8 +4490,10 @@ class RetainedEarningsFerc1TableTransformer(Ferc1AbstractTableTransformer):
         df = pd.concat([df[~dupe_mask], dupes])
         return df
 
-    def condense_double_year_earnings_types_dbf(self, df: pd.DataFrame) -> pd.DataFrame:
-        """Condense current and past year data reported in 1 report_year into 1 record.
+    def reconcile_double_year_earnings_types_dbf(
+        self, df: pd.DataFrame
+    ) -> pd.DataFrame:
+        """Reconcile current and past year data reported in 1 report_year.
 
         The DBF table includes two different earnings types that have: "Begining of
         Period" and "End of Period" rows. But the table has both an amount column that
@@ -4159,9 +4503,9 @@ class RetainedEarningsFerc1TableTransformer(Ferc1AbstractTableTransformer):
         starting and ending balance for the current year. The ending balance for the
         previous year should be the same as the starting balance for the current year.
 
-        We don't actually want two years of data for each report year, so we want to
-        check these assumptions, extract as much information from these two years of
-        data, but end up with only one annual record for each of these two earnings
+        We need to keep both pieces of data in order to calculate `ending_balances`,
+        so we want to check these assumptions, extract as much information from these
+        two years of data, and keep both records for each of these two earnings
         types for each utility.
 
         Raises:
@@ -4171,7 +4515,7 @@ class RetainedEarningsFerc1TableTransformer(Ferc1AbstractTableTransformer):
                 should be less than 2% of the records with these date duplicative
                 earnings types.
         """
-        logger.info(f"{self.table_id.value}: Removing previous year's data.")
+        logger.info(f"{self.table_id.value}: Reconciling previous year's data.")
         current_year_types = [
             "unappropriated_undistributed_subsidiary_earnings_current_year",
             "unappropriated_retained_earnings_current_year",
@@ -4235,11 +4579,91 @@ class RetainedEarningsFerc1TableTransformer(Ferc1AbstractTableTransformer):
         ).drop(columns=["amount_previous_year", "starting_balance_previous_year"])
 
         df = pd.concat(
-            [
-                df[~df.earnings_type.isin(current_year_types + previous_year_types)],
-                date_dupe_types,
-            ]
+            [df[~df.earnings_type.isin(current_year_types)], date_dupe_types]
         )
+
+        # Since we've created an ending balance column, we should use the 'amount'
+        # value to fill it across the table and drop the amount column.
+        df.ending_balance = df.ending_balance.fillna(df.amount)
+        df = df.drop("amount", axis=1)
+
+        return df
+
+    def add_previous_year_factoid(self, df: pd.DataFrame) -> pd.DataFrame:
+        """Add `previous_year` factoids to XBRL data from prior year's DBF data."""
+        current_year_types = [
+            "unappropriated_undistributed_subsidiary_earnings",
+            "unappropriated_retained_earnings",
+        ]
+        previous_year_types = [
+            "unappropriated_undistributed_subsidiary_earnings_previous_year",
+            "unappropriated_retained_earnings_previous_year",
+        ]
+        # If previous_year type factoids aren't in all report_years, make factoids
+        # for these years. Raise exception if more than one year.
+        [missing_year] = [
+            year
+            for year in df[
+                df.earnings_type.isin(current_year_types)
+            ].report_year.unique()
+            if year
+            not in df[df.earnings_type.isin(previous_year_types)].report_year.unique()
+        ]
+
+        current_year = df[
+            (df.report_year == missing_year)
+            & (df.earnings_type.isin(current_year_types))
+        ]
+        previous_year = df[
+            (df.report_year == missing_year - 1)
+            & (df.earnings_type.isin(current_year_types))
+        ]
+
+        idx = [
+            "utility_id_ferc1",
+            "earnings_type",
+        ]
+        # This only works if there are two years of data, thus the assertion above.
+        data_columns = ["starting_balance", "ending_balance"]
+        metadata_columns = [
+            "calculations",
+            "balance",
+            "xbrl_factoid_name_original",
+            "inter_table_calc_flag",
+            "row_type_xbrl",
+        ]
+        date_dupe_types = pd.merge(
+            current_year.loc[:, ~current_year.columns.isin(metadata_columns)],
+            previous_year[idx + data_columns],
+            on=idx,
+            how="inner",
+            suffixes=("_original", ""),
+        ).drop(columns=["starting_balance_original", "ending_balance_original"])
+
+        date_dupe_types["earnings_type"] = date_dupe_types["earnings_type"].apply(
+            lambda x: f"{x}_previous_year"
+        )
+
+        # Add in metadata that matches that of prior year's `previous_year` factoids
+        # These should be consistent.
+        previous_factoid_metadata = df.loc[
+            (df.report_year == missing_year - 1)
+            & (df.earnings_type.str.contains("_previous_year"))
+        ]
+        date_dupe_types = pd.merge(
+            date_dupe_types,
+            previous_factoid_metadata[idx + metadata_columns],
+            on=idx,
+            how="left",
+        )
+
+        df = pd.concat([df, date_dupe_types])
+
+        # All `previous_year` factoids are missing `row_type_xbrl`. Fill in.
+        df.loc[
+            df.earnings_type.isin(previous_year_types), "row_type_xbrl"
+        ] = "reported_value"
+
         return df
 
     def deduplicate_xbrl_factoid_xbrl_metadata(self, tbl_meta) -> pd.DataFrame:
@@ -4336,7 +4760,7 @@ class ElectricPlantDepreciationChangesFerc1TableTransformer(
         return pd.concat([meta, ending_balance])
 
     @cache_df("dbf")
-    def process_dbf(self, df: pd.DataFrame) -> pd.DataFrame:
+    def process_dbf(self, raw_df: pd.DataFrame) -> pd.DataFrame:
         """Accumulated Depreciation table specific DBF cleaning operations.
 
         The XBRL reports a utility_type which is always electric in this table, but
@@ -4346,7 +4770,7 @@ class ElectricPlantDepreciationChangesFerc1TableTransformer(
 
         Also rename the ``ending_balance_accounts`` to ``ending_balance``
         """
-        df = super().process_dbf(df).assign(utility_type="electric")
+        df = super().process_dbf(raw_df).assign(utility_type="electric")
         df.loc[
             df["depreciation_type"] == "ending_balance_accounts", "depreciation_type"
         ] = "ending_balance"
@@ -4391,7 +4815,7 @@ class ElectricPlantDepreciationFunctionalFerc1TableTransformer(
         return df
 
     @cache_df("dbf")
-    def process_dbf(self, df: pd.DataFrame) -> pd.DataFrame:
+    def process_dbf(self, raw_df: pd.DataFrame) -> pd.DataFrame:
         """Accumulated Depreciation table specific DBF cleaning operations.
 
         The XBRL reports a utility_type which is always electric in this table, but
@@ -4399,7 +4823,7 @@ class ElectricPlantDepreciationFunctionalFerc1TableTransformer(
         data is combined with other tables. The DBF data doesn't report this value so we
         are adding it here for consistency across the two data sources.
         """
-        return super().process_dbf(df).assign(utility_type="electric")
+        return super().process_dbf(raw_df).assign(utility_type="electric")
 
     @cache_df("process_instant_xbrl")
     def process_instant_xbrl(self, df: pd.DataFrame) -> pd.DataFrame:
