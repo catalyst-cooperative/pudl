@@ -1295,12 +1295,7 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
                 }
             )
             # Everything below here deals with correcting the calculations.
-            .assign(
-                xbrl_factoid_name_original=lambda x: x.xbrl_factoid,
-                inter_table_calc_flag=lambda x: x.calculations.str.contains(
-                    "source_tables"
-                ),
-            )
+            .assign(xbrl_factoid_name_original=lambda x: x.xbrl_factoid)
         )
         xbrl_factoid_name_map = {
             xbrl_factoid_name_og: self.raw_xbrl_factoid_to_pudl_name(
@@ -1335,7 +1330,10 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
         tbl_meta = tbl_meta.assign(
             row_type_xbrl=lambda x: np.where(
                 x.calculations != "[]", "calculated_value", "reported_value"
-            )
+            ),
+            inter_table_calc_flag=lambda x: x.calculations.str.contains(
+                "source_tables"
+            ),
         ).astype({"row_type_xbrl": pd.StringDtype(), "calculations": pd.StringDtype()})
 
         return tbl_meta
