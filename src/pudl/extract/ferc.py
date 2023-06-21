@@ -1,33 +1,47 @@
-"""Shared utilities for ferc extraction process."""
-
-import sqlalchemy as sa
+"""Hooks to integrate ferc to sqlite functionality into dagster graph."""
 
 
-def add_key_constraints(
-    meta: sa.MetaData, pk_table: str, column: str, pk_column: str | None = None
-) -> sa.MetaData:
-    """Adds primary and foreign key to tables present in meta.
+from dagster import Field, op
 
-    Args:
-        meta: constraints will be applied to this metadata instance
-        pk_table: name of the table that contains primary-key
-        column: foreign key column name. Tables that contain this column will
-            have foreign-key constraint added.
-        pk_column: (optional) if specified, this is the primary key column name in
-            the table. If not specified, it is assumed that this is the same as pk_column.
-    """
-    pk_column = pk_column or column
-    for table in meta.tables.values():
-        constraint = None
-        if table.name == pk_table:
-            constraint = sa.PrimaryKeyConstraint(
-                pk_column, sqlite_on_conflict="REPLACE"
-            )
-        elif column in table.columns:
-            constraint = sa.ForeignKeyConstraint(
-                columns=[column],
-                refcolumns=[f"{pk_table}.{pk_column}"],
-            )
-        if constraint:
-            table.append_constraint(constraint)
-    return meta
+import pudl
+from pudl.extract.ferc1 import Ferc1DbfExtractor
+from pudl.extract.ferc2 import Ferc2DbfExtractor
+from pudl.extract.ferc6 import Ferc6DbfExtractor
+from pudl.helpers import EnvVar
+
+logger = pudl.logging_helpers.get_logger(__name__)
+
+
+@op(
+    config_schema={
+        "pudl_output_path": Field(
+            EnvVar(
+                env_var="PUDL_OUTPUT",
+            ),
+            description="Path of directory to store the database in.",
+            default_value=None,
+        ),
+        "clobber": Field(
+            bool, description="Clobber existing ferc1 database.", default_value=False
+        ),
+    },
+    required_resource_keys={"ferc_to_sqlite_settings", "datastore"},
+)
+def dbf2sqlite(context) -> None:
+    """Clone the FERC Form 1 Visual FoxPro databases into SQLite."""
+    # TODO(rousik): this thin wrapper seems to be somewhat quirky. Maybe there's a way
+    # to make the integration # between the class and dagster better? Investigate.
+    logger.info(f"dbf2sqlite settings: {context.resources.ferc_to_sqlite_settings}")
+
+    extractors = [
+        Ferc1DbfExtractor,
+        Ferc2DbfExtractor,
+        Ferc6DbfExtractor,
+    ]
+    for xclass in extractors:
+        xclass(
+            datastore=context.resources.datastore,
+            settings=context.resources.ferc_to_sqlite_settings,
+            clobber=context.op_config["clobber"],
+            output_path=context.op_config["pudl_output_path"],
+        ).execute()
