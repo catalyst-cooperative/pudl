@@ -431,7 +431,9 @@ SOURCES: dict[str, Any] = {
         ),
         "field_namespace": "ferc6",
         "working_partitions": {
-            "years": sorted(set(range(2021, 2022))),  # XBRL only
+            # Years 2000-2020 are backed by DBF format.
+            # Years 2021-2022 are backed by XBRL.
+            "years": sorted(set(range(2000, 2022))),
         },
         "contributors": [
             CONTRIBUTORS["catalyst-cooperative"],

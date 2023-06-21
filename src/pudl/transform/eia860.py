@@ -860,6 +860,11 @@ def clean_emissions_control_equipment_eia860(
         "emission_control_equipment_cost",
     ] = 3200
 
+    # Convert thousands of dollars to dollars:
+    emce_df.loc[:, "emission_control_equipment_cost"] = (
+        1000.0 * emce_df["emission_control_equipment_cost"]
+    )
+
     emce_df = (
         pudl.metadata.classes.Package.from_resource_ids()
         .get_resource("emissions_control_equipment_eia860")
