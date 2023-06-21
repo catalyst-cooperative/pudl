@@ -1500,6 +1500,43 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
                         },
                     }
                 ],
+                "depreciation_expense": [
+                    # Dimension: total. Temporarily adding metadata only.
+                    {
+                        "calc_component_to_replace": {},
+                        "calc_component_new": {
+                            "name": "depreciation_expense",
+                            "weight": 1.0,
+                            "source_tables": [
+                                "depreciation_amortization_summary_ferc1"
+                            ],
+                        },
+                    }
+                ],
+                "depreciation_expense_for_asset_retirement_costs": [
+                    # Dimension: total. Temporarily adding metadata only.
+                    {
+                        "calc_component_to_replace": {},
+                        "calc_component_new": {
+                            "name": "depreciation_expense_for_asset_retirement_costs",
+                            "weight": 1.0,
+                            "source_tables": [
+                                "depreciation_amortization_summary_ferc1"
+                            ],
+                        },
+                    }
+                ],
+                "operating_revenues": [
+                    # Temporarily adding metadata only.
+                    {
+                        "calc_component_to_replace": {},
+                        "calc_component_new": {
+                            "name": "operating_revenues",
+                            "weight": 1.0,
+                            "source_tables": ["electric_operating_revenues_ferc1"],
+                        },
+                    }
+                ],
             },
             "electric_operating_revenues_ferc1": {
                 "sales_to_ultimate_consumers": [
@@ -1791,6 +1828,7 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
                     }
                 ],
                 "depreciation_utility_plant_in_service": [
+                    # Dimension: in service only. Temporarily adding to metadata only.
                     {
                         "calc_component_to_replace": {},
                         "calc_component_new": {
@@ -1801,6 +1839,47 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
                             ],
                         },
                     }
+                ],
+                "utility_plant_in_service_classified_and_unclassified": [
+                    # Temporarily adding to metadata only.
+                    {
+                        "calc_component_to_replace": {},
+                        "calc_component_new": {
+                            "name": "plant_in_service_classified_and_unclassified",
+                            "weight": 1.0,
+                            "source_tables": ["plant_in_service_ferc1"],
+                        },
+                    }
+                ],
+                "utility_plant_in_service_experimental_plant_unclassified": [
+                    # Temporarily adding to metadata only.
+                    {
+                        "calc_component_to_replace": {},
+                        "calc_component_new": {
+                            "name": "experimental_plant_unclassified",
+                            "weight": 1.0,
+                            "source_tables": ["plant_in_service_ferc1"],
+                        },
+                    }
+                ],
+                "utility_plant_in_service_plant_purchased_or_sold": [
+                    # Temporarily adding to metadata only.
+                    {
+                        "calc_component_to_replace": {},
+                        "calc_component_new": {
+                            "name": "electric_plant_purchased",
+                            "weight": 1.0,
+                            "source_tables": ["plant_in_service_ferc1"],
+                        },
+                    },
+                    {
+                        "calc_component_to_replace": {},
+                        "calc_component_new": {
+                            "name": "electric_plant_sold",
+                            "weight": 1.0,
+                            "source_tables": ["plant_in_service_ferc1"],
+                        },
+                    },
                 ],
             },
             "balance_sheet_assets_ferc1": {
