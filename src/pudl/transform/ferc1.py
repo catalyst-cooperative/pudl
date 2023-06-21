@@ -4590,11 +4590,14 @@ class ElectricPlantDepreciationChangesFerc1TableTransformer(
     def process_xbrl_metadata(self, xbrl_metadata_json) -> pd.DataFrame:
         """Transform the metadata to reflect the transformed data.
 
-        Replace the name of the balance column reported in the XBRL Instant table with
-        starting_balance / ending_balance since we pull those two values into their own
-        separate labeled rows, each of which should get the original metadata for the
-        Instant column. We do this pre-processing before we call the main function in
-        order for the calculation fixes and renaming to work as expected.
+        Warning: The calculations in this table are currently being checked using
+        reconcile_table_calculations(), but they still contain high rates of error.
+        This function replaces the name of the balance column reported in the XBRL
+        Instant table with starting_balance / ending_balance since we pull those two
+        values into their own separate labeled rows, each of which should get the
+        original metadata for the Instant column. We do this pre-processing before we
+        call the main function in order for the calculation fixes and renaming to work
+        as expected.
         """
         new_xbrl_metadata_json = xbrl_metadata_json
         instant = pd.json_normalize(xbrl_metadata_json["instant"])
@@ -4635,13 +4638,6 @@ class ElectricPlantDepreciationChangesFerc1TableTransformer(
         df = self.unstack_balances_to_report_year_instant_xbrl(df).pipe(
             self.rename_columns, rename_stage="instant_xbrl"
         )
-        return df
-
-    @cache_df("main")
-    def transform_main(self, df):
-        """Spot fix to transform `salvage_value_of_retired_plant` into positive."""
-        df = super().transform_main(df)
-
         return df
 
 
