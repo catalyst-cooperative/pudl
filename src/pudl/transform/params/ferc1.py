@@ -3199,7 +3199,7 @@ TRANSFORM_PARAMS = {
                     "const_wrk_prgrs": "construction_work_in_progress_ending_balance",
                     "acqstn_adjstmnt": "utility_plant_acquisition_adjustment_ending_balance",
                     "tot_utlty_plant": "utility_plant_and_construction_work_in_progress_ending_balance",
-                    "accum_prvsn_dad": "accumulated_provision_for_depreciation_amortization_and_depletion_of_plant_utility_ending_balance",
+                    "accum_prvsn_dad": "accumulated_provision_for_depreciation_amortization_and_depletion_of_plant_utility_reported_ending_balance",
                     "net_utlty_plant": "utility_plant_net_ending_balance",
                     # detail of accum deprish
                     # in service
@@ -3219,7 +3219,7 @@ TRANSFORM_PARAMS = {
                     # rest of details of acum deprish
                     "abndn_leases": "abandonment_of_leases_ending_balance",
                     "amrtzplnt_acqstn": "amortization_of_plant_acquisition_adjustment_ending_balance",
-                    "tot_accum_prvsn": "accumulated_provision_for_depreciation_amortization_and_depletion_of_plant_utility_detail_ending_balance",
+                    "tot_accum_prvsn": "accumulated_provision_for_depreciation_amortization_and_depletion_of_plant_utility_ending_balance",
                 }
             },
             "xbrl": {
