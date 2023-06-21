@@ -1526,7 +1526,9 @@ class XbrlCalculationTreeFerc1(BaseModel):
             children=children,
         )
 
-    def propagate_weights(self: Self) -> "XbrlCalculationTreeFerc1":
+    def propagate_weights(
+        self: Self, parent_weight: float = 1.0
+    ) -> "XbrlCalculationTreeFerc1":
         """Multiply child node weights by the product of the weights of all parents.
 
         Because we are going to remove all intermediate calculations and work only with
@@ -1536,7 +1538,13 @@ class XbrlCalculationTreeFerc1(BaseModel):
         needs to be multiplied by -1.0 in order to preserve the appropriate sign of the
         child values in the higher level calculation.
         """
-        ...
+        new_weight = parent_weight * self.weight
+        new_children = [
+            node.propagate_weights(parent_weight=new_weight) for node in self.children
+        ]
+        return XbrlCalculationTreeFerc1(
+            **self.dict() | {"weight": new_weight, "children": new_children}
+        )
 
     def add_tags_from_df(
         self: Self, tags_df: pd.DataFrame
@@ -1563,13 +1571,10 @@ class XbrlCalculationTreeFerc1(BaseModel):
         )
 
         # Construct a copy of this node with the new tags applied.
+        new_tags = self.tags | new_tags
+        new_children = [node.add_tags_from_df(tags_df) for node in self.children]
         return XbrlCalculationTreeFerc1(
-            source_table=self.source_table,
-            xbrl_factoid=self.xbrl_factoid,
-            xbrl_factoid_original=self.xbrl_factoid_original,
-            weight=self.weight,
-            tags=self.tags | new_tags,
-            children=[node.add_tags_from_df(tags_df) for node in self.children],
+            **self.dict() | {"tags": new_tags, "children": new_children}
         )
 
     def propagate_tags(
@@ -1580,13 +1585,9 @@ class XbrlCalculationTreeFerc1(BaseModel):
         TODO: Check that there are no inconsistencies between parent & child node tags.
         """
         new_tags = self.tags | tags
+        new_children = [node.propagate_tags(new_tags) for node in self.children]
         return XbrlCalculationTreeFerc1(
-            source_table=self.source_table,
-            xbrl_factoid=self.xbrl_factoid,
-            xbrl_factoid_original=self.xbrl_factoid_original,
-            weight=self.weight,
-            tags=new_tags,
-            children=[node.propagate_tags(new_tags) for node in self.children],
+            **self.dict() | {"tags": new_tags, "children": new_children}
         )
 
     def to_networkx(self: Self) -> nx.Graph:
@@ -1652,6 +1653,7 @@ class XbrlCalculationForestFerc1(BaseModel):
         ]
         forest = nx.DiGraph()
         for tree in trees:
+            assert nx.is_tree(tree)
             forest.add_edges_from(tree.to_networkx().edges)
         assert nx.is_forest(forest)
         logger.info(f"Found {len(nx.connected_components(forest))} calculation trees")
