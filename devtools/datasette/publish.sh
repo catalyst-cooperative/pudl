@@ -17,6 +17,7 @@ datasette publish cloudrun \
     $SQLITE_DIR/pudl.sqlite \
     $SQLITE_DIR/ferc1.sqlite \
     $SQLITE_DIR/ferc2.sqlite \
+    $SQLITE_DIR/ferc6.sqlite \
     $SQLITE_DIR/ferc1_xbrl.sqlite \
     $SQLITE_DIR/ferc2_xbrl.sqlite \
     $SQLITE_DIR/ferc6_xbrl.sqlite \
