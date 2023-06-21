@@ -61,6 +61,12 @@ Dagster Adoption
   * FERC 714 extraction methods are now subsettable by year, with 2019 and 2020 data
     included in the ``etl_fast.yml`` by default. See :issue:`2628` and PR :pr:`2649`.
 
+* Census DP1 ETL changes:
+
+  * :mod:`pudl.convert.censusdp1tract_to_sqlite` and :mod:`pudl.output.censusdp1tract`
+    are now integrated into dagster. :mod:`pudl.output.censusdp1tract` returns an asset
+    for each layer of the Census DP1 dataset. See :issue:`1973` and :pr:`2621`.
+
 Data Coverage
 ^^^^^^^^^^^^^
 
