@@ -192,6 +192,7 @@ Datasette:
 
 * Raw FERC Form 6:
 
+  * `FERC-6 SQLite derived from DBF (2000-2020) <https://s3.us-west-2.amazonaws.com/intake.catalyst.coop/dev/ferc6.sqlite>`__
   * `FERC-6 SQLite derived from XBRL (2021) <https://s3.us-west-2.amazonaws.com/intake.catalyst.coop/dev/ferc6_xbrl.sqlite>`__
   * `FERC-6 Datapackage (JSON) describing SQLite derived from XBRL <https://s3.us-west-2.amazonaws.com/intake.catalyst.coop/dev/ferc6_xbrl_datapackage.json>`__
   * `FERC-6 XBRL Taxonomy Metadata as JSON (2021) <https://s3.us-west-2.amazonaws.com/intake.catalyst.coop/dev/ferc6_xbrl_taxonomy_metadata.json>`__
