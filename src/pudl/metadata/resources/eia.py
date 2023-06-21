@@ -104,6 +104,20 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
         "etl_group": "static_eia",
         "field_namespace": "eia",
     },
+    "emission_control_equipment_types_eia": {
+        "description": "A coding table describing the type of emissions control equipment installed on a boiler.",
+        "schema": {
+            "fields": ["code", "label", "description"],
+            "primary_key": ["code"],
+            "foreign_key_rules": {
+                "fields": [["emission_control_equipment_type_code"]],
+            },
+        },
+        "encoder": CODE_METADATA["emission_control_equipment_types_eia"],
+        "sources": ["eia860"],
+        "etl_group": "static_eia",
+        "field_namespace": "eia",
+    },
     "firing_types_eia": {
         "description": "A coding table describing different boiler firing types in the EIA-860.",
         "schema": {

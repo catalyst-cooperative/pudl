@@ -647,10 +647,11 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     "emission_control_equipment_cost": {
         "type": "number",
         "description": "The total cost to install a piece of emission control equipment.",
+        "unit": "USD",
     },
-    "emission_control_equipment_type": {
+    "emission_control_equipment_type_code": {
         "type": "string",
-        "description": "The type of emission control equipment installed.",
+        "description": "Short code indicating the type of emission control equipment installed.",
     },
     "emission_control_operating_date": {
         "type": "date",
