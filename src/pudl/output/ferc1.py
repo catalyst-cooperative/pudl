@@ -1345,7 +1345,7 @@ def remove_intra_table_calculated_values(exploded: pd.DataFrame) -> pd.DataFrame
 ################################################################################
 # XBRL Calculation Tree
 ################################################################################
-class Ferc1XbrlCalculationTree(BaseModel):
+class XbrlCalculationTreeFerc1(BaseModel):
     """A FERC Form 1 XBRL calculation tree.
 
     In the special case of our exploded table calculations, each XBRL fact can be
@@ -1381,7 +1381,7 @@ class Ferc1XbrlCalculationTree(BaseModel):
 
     This metadata about the is not currently used for performing calculations.
     """
-    children: list["Ferc1XbrlCalculationTree"] = []
+    children: list["XbrlCalculationTreeFerc1"] = []
     """The subcomponents required to calculate the value of this fact, if any.
 
     This list will be empty for leaf nodes (reported values) and for calculated values
@@ -1409,18 +1409,18 @@ class Ferc1XbrlCalculationTree(BaseModel):
     @classmethod
     def from_exploded_meta(
         cls,
-        xbrl_factoid: str,
         source_table: str,
+        xbrl_factoid: str,
         exploded_meta: pd.DataFrame,
-        weight: float = 1.0,
-    ) -> "Ferc1XbrlCalculationTree":
+        weight: float = np.nan,
+    ) -> "XbrlCalculationTreeFerc1":
         """Construct a complete calculation tree based on exploded metadata.
 
         Args:
-            xbrl_factoid: Equivalent to the "name" field in the calculation metadata.
-                Potentially renamed from the originally reported XBRL value.
             source_table: The table within which we are searching for the XBRL fact,
                 required as many appear in multiple tables.
+            xbrl_factoid: Equivalent to the "name" field in the calculation metadata.
+                Potentially renamed from the originally reported XBRL value.
             exploded_meta: A dataframe containing metadata for all of the facts
                 referenced by the exploded tables. Must be indexed by the columns
                 (table_name, xbrl_factoid) and the index must be unique.
@@ -1448,7 +1448,7 @@ class Ferc1XbrlCalculationTree(BaseModel):
                     f"{calc=}"
                 )
             children.append(
-                Ferc1XbrlCalculationTree.from_exploded_meta(
+                XbrlCalculationTreeFerc1.from_exploded_meta(
                     weight=calc["weight"],
                     xbrl_factoid=calc["name"],
                     source_table=calc["source_tables"][0],
@@ -1456,17 +1456,29 @@ class Ferc1XbrlCalculationTree(BaseModel):
                 )
             )
 
-        return Ferc1XbrlCalculationTree(
+        return XbrlCalculationTreeFerc1(
             source_table=source_table,
-            weight=weight,
             xbrl_factoid=xbrl_factoid,
+            weight=np.nan,
             xbrl_factoid_original=exploded_meta.at[idx, "xbrl_factoid_original"],
             children=children,
         )
 
+    def propagate_weights(self: Self) -> "XbrlCalculationTreeFerc1":
+        """Multiply child node weights by the product of the weights of all parents.
+
+        Because we are going to remove all intermediate calculations and work only with
+        the values reported in leaf-nodes, we need to distribute any calculation weights
+        from parent nodes to their children. E.g. if a calculated value contains several
+        positive numbers, but itself has a weight of -1.0 then each of the subcomponents
+        needs to be multiplied by -1.0 in order to preserve the appropriate sign of the
+        child values in the higher level calculation.
+        """
+        ...
+
     def add_tags_from_df(
         self: Self, tags_df: pd.DataFrame
-    ) -> "Ferc1XbrlCalculationTree":
+    ) -> "XbrlCalculationTreeFerc1":
         """Read tags from dataframe and apply to appropriate nodes in the tree.
 
         Args:
@@ -1489,7 +1501,7 @@ class Ferc1XbrlCalculationTree(BaseModel):
         )
 
         # Construct a copy of this node with the new tags applied.
-        return Ferc1XbrlCalculationTree(
+        return XbrlCalculationTreeFerc1(
             source_table=self.source_table,
             xbrl_factoid=self.xbrl_factoid,
             xbrl_factoid_original=self.xbrl_factoid_original,
@@ -1500,13 +1512,13 @@ class Ferc1XbrlCalculationTree(BaseModel):
 
     def propagate_tags(
         self: Self, tags: dict[str, str] = {}
-    ) -> "Ferc1XbrlCalculationTree":
+    ) -> "XbrlCalculationTreeFerc1":
         """Propagate metadata tags to all descendants of tagged notes in the tree.
 
         TODO: Check that there are no inconsistencies between parent & child node tags.
         """
         new_tags = self.tags | tags
-        return Ferc1XbrlCalculationTree(
+        return XbrlCalculationTreeFerc1(
             source_table=self.source_table,
             xbrl_factoid=self.xbrl_factoid,
             xbrl_factoid_original=self.xbrl_factoid_original,
@@ -1523,22 +1535,81 @@ class Ferc1XbrlCalculationTree(BaseModel):
         tuple of strings (source_table, xbrl_factoid) is used as the ID for each node in
         the graph.
         """
-        G = nx.Graph()  # noqa: N806
+        digraph = nx.DiGraph()  # noqa: N806
         for child in self.children:
             # Add an edge from the current node to each of its children:
-            G.add_edge(
+            digraph.add_edge(
                 u_of_edge=(self.source_table, self.xbrl_factoid),
                 v_of_edge=(child.source_table, child.xbrl_factoid),
             )
             # Recursively add all the edges from each child to its children:
-            G.add_edges_from(child.to_networkx().edges)
-        return G
+            digraph.add_edges_from(child.to_networkx().edges)
+        return digraph
 
-    def is_inter_table(self: Self) -> bool:
-        """Determine if the tree refers to values from multiple tables.
 
-        Enumerate all the source tables referenced by this node in the tree, including
-        its own source table, and those of all of its immediate descendants. If there is
-        only one unique value, return False. If there are multiple values, return True.
+class XbrlCalculationSeedFerc1(BaseModel):
+    """The initial parameters required to build an XBRL Calculation Tree.
+
+    This seems like it might be conceptually simpler than tracking lists of source
+    tables and factoids that have to correspond to each other?
+    """
+
+    source_table: str
+    xbrl_factoid: str
+
+
+class XbrlCalculationForestFerc1(BaseModel):
+    """A class representing a collection of :class:`XbrlCalculationTreeFerc1`."""
+
+    trees: list[XbrlCalculationTreeFerc1] = []
+
+    @classmethod
+    def from_exploded_meta(
+        cls,
+        source_tables: list[str],
+        xbrl_factoids: list[str],
+        exploded_meta: pd.DataFrame,
+    ) -> "XbrlCalculationForestFerc1":
+        """Build several :class:`XbrlCalculationTreeFerc1`'s from exploded metadata.
+
+        - Build trees from all of the seeds.
+        - Convert all of the trees into NX graphs.
+        - Add all the nodes from those graphs into a single graph.
+        - Verify that this graph is a forest (one or more trees)
+        - Identify all connected components of this graph.
+        - Verify that the root nodes of each of these trees is one of the seeds.
+        - Convert these Graphs back into Calculation Trees.
         """
-        ...
+        trees = [
+            XbrlCalculationTreeFerc1.from_exploded_meta(
+                source_table=source_table,
+                xbrl_factoid=xbrl_factoid,
+                exploded_meta=exploded_meta,
+            )
+            for source_table, xbrl_factoid in zip(source_tables, xbrl_factoids)
+        ]
+        forest = nx.DiGraph()
+        for tree in trees:
+            forest.add_edges_from(tree.to_networkx().edges)
+        assert nx.is_forest(forest)
+        logger.info(f"Found {len(nx.connected_components(forest))} calculation trees")
+
+        # Identify the roots of each tree and verify it's one of the input seeds
+        roots = [n for n, in_deg in forest.in_degree() if in_deg == 0]
+        logger.info(f"{roots=}")
+        leaves = [n for n, out_deg in forest.out_degree() if out_deg == 0]
+        logger.info(f"{leaves=}")
+
+        # - The easiest way to "convert" the NX Graph back to our class may be to just
+        #   rebuild the trees, but using only the newly identified root nodes as seeds.
+        # - For visualization purposes it will be helpful to have all of the calculation
+        #   metadata available within the NX Graph
+        minimal_trees = [
+            XbrlCalculationTreeFerc1.from_exploded_meta(
+                source_table=source_table,
+                xbrl_factoid=xbrl_factoid,
+                exploded_meta=exploded_meta,
+            )
+            for source_table, xbrl_factoid in roots
+        ]
+        return XbrlCalculationForestFerc1(trees=minimal_trees)

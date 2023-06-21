@@ -15,7 +15,7 @@ from contextlib import nullcontext as does_not_raise
 import pandas as pd
 import pytest
 
-from pudl.output.ferc1 import Ferc1XbrlCalculationTree
+from pudl.output.ferc1 import XbrlCalculationTreeFerc1
 
 logger = logging.getLogger(__name__)
 
@@ -35,7 +35,7 @@ TEST_CALC_3 = [
     {"name": "reported_3", "weight": 1.0, "source_tables": ["table_3"]},
 ]
 
-LEAF_NODE_1 = Ferc1XbrlCalculationTree(
+LEAF_NODE_1 = XbrlCalculationTreeFerc1(
     **{
         "xbrl_factoid": "reported_1",
         "source_table": "table_1",
@@ -44,7 +44,7 @@ LEAF_NODE_1 = Ferc1XbrlCalculationTree(
         "children": [],
     }
 )
-LEAF_NODE_2 = Ferc1XbrlCalculationTree(
+LEAF_NODE_2 = XbrlCalculationTreeFerc1(
     **{
         "xbrl_factoid": "reported_2",
         "source_table": "table_1",
@@ -53,7 +53,7 @@ LEAF_NODE_2 = Ferc1XbrlCalculationTree(
         "children": [],
     }
 )
-CALC_TREE_1 = Ferc1XbrlCalculationTree(
+CALC_TREE_1 = XbrlCalculationTreeFerc1(
     **{
         "xbrl_factoid": "calc_1",
         "source_table": "table_1",
@@ -62,7 +62,7 @@ CALC_TREE_1 = Ferc1XbrlCalculationTree(
         "children": [LEAF_NODE_1, LEAF_NODE_2],
     }
 )
-CALC_TREE_2 = Ferc1XbrlCalculationTree(
+CALC_TREE_2 = XbrlCalculationTreeFerc1(
     **{
         "xbrl_factoid": "calc_2",
         "source_table": "table_2",
@@ -104,12 +104,12 @@ def test_calculation_tree_from_exploded_meta(
     source_table: str,
     xbrl_factoid: str,
     weight: float,
-    expected_tree: Ferc1XbrlCalculationTree,
+    expected_tree: XbrlCalculationTreeFerc1,
     expectation,
 ):
     """Test creation of various calculation trees."""
     with expectation:
-        calc_tree = Ferc1XbrlCalculationTree.from_exploded_meta(
+        calc_tree = XbrlCalculationTreeFerc1.from_exploded_meta(
             source_table=source_table,
             xbrl_factoid=xbrl_factoid,
             exploded_meta=TEST_EXPLODED_META,
