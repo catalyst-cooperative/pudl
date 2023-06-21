@@ -435,6 +435,7 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
                 "exclude": [
                     "advanced_metering_infrastructure_eia861",
                     "balancing_authority_assn_eia861",
+                    "compiled_geometry_utility_eia861",
                     "demand_response_eia861",
                     "demand_response_water_heater_eia861",
                     "demand_side_management_ee_dr_eia861",
@@ -454,6 +455,7 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
                     "distribution_systems_eia861",
                     "dynamic_pricing_eia861",
                     "energy_efficiency_eia861",
+                    "fipsified_respondents_ferc714",
                     "green_pricing_eia861",
                     "mergers_eia861",
                     "net_metering_customer_fuel_class_eia861",
@@ -465,6 +467,7 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
                     "reliability_eia861",
                     "sales_eia861",
                     "service_territory_eia861",
+                    "summarized_demand_ferc714",
                     "utility_assn_eia861",
                     "utility_data_misc_eia861",
                     "utility_data_nerc_eia861",

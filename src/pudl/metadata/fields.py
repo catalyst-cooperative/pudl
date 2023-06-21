@@ -80,6 +80,7 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "type": "string",
         "description": "EIA record ID of the associated true granularity record.",
     },
+    "area_km2": {"type": "number", "description": "County area in km2.", "unit": "km2"},
     "ash_content_pct": {
         "type": "number",
         "description": "Ash content percentage by weight to the nearest 0.1 percent.",
@@ -484,6 +485,10 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
             "pattern": r"^\d{5}$",
         },
     },
+    "county_name_census": {
+        "type": "string",
+        "description": "County name as specified in Census DP1 Data.",
+    },
     "country_code": {
         "type": "string",
         "description": "Three letter ISO-3166 country code (e.g. USA or CAN).",
@@ -548,12 +553,22 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     },
     "delivery_customers": {"type": "number"},
     "demand_annual_mwh": {"type": "number", "unit": "MWh"},
+    "demand_annual_per_capita_mwh": {
+        "type": "number",
+        "description": "Per-capita annual demand, averaged using Census county-level population estimates.",
+        "unit": "MWh/person",
+    },
     "demand_charges": {
         "type": "number",
         "description": "Demand charges (USD).",
         "unit": "USD",
     },
     "demand_mwh": {"type": "number", "unit": "MWh"},
+    "demand_density_mwh_km2": {
+        "type": "number",
+        "description": "Annual demand per km2 of a given service territory.",
+        "unit": "MWh/km2",
+    },
     "depreciation_type": {
         "type": "string",
         "description": (
@@ -1976,6 +1991,14 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "type": "boolean",
         "description": "Is the reporting entity an owner of power plants reported on Schedule 2 of the form?",
     },
+    "population": {
+        "type": "number",
+        "description": "County population, sourced from Census DP1 data.",
+    },
+    "population_density_km2": {
+        "type": "number",
+        "description": "Average population per sq. km area of a service territory.",
+    },
     "potential_peak_demand_savings_mw": {"type": "number", "unit": "MW"},
     "previously_canceled": {
         "type": "boolean",
@@ -2151,6 +2174,11 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "unit": "USD",
     },
     "sales_to_ultimate_consumers_mwh": {"type": "number", "unit": "MWh"},
+    "scaled_demand_mwh": {
+        "type": "number",
+        "description": "Estimated electricity demand scaled by the total sales within a state.",
+        "unit": "MWh",
+    },
     "secondary_transportation_mode_code": {
         "type": "string",
         "description": "Transportation mode for the second longest distance transported.",
