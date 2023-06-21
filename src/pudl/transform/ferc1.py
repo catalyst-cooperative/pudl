@@ -1791,6 +1791,18 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
                         "calc_component_new": {},
                     }
                 ],
+                "depreciation_utility_plant_in_service": [
+                    {
+                        "calc_component_to_replace": {},
+                        "calc_component_new": {
+                            "name": "ending_balance",
+                            "weight": 1.0,
+                            "source_tables": [
+                                "electric_plant_depreciation_changes_ferc1"
+                            ],
+                        },
+                    }
+                ],
             },
             "balance_sheet_assets_ferc1": {
                 "nuclear_fuel_net": [
