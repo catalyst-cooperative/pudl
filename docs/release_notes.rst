@@ -193,8 +193,10 @@ Data Cleaning
 * Fixed column naming issues in the :ref:`electric_operating_revenues_ferc1` table.
 * Made minor calculation fixes in the metadata for :ref:`income_statement_ferc1`,
   :ref:`utility_plant_summary_ferc1`, :ref:`electric_operating_revenues_ferc1`,
-  :ref:`balance_sheet_assets_ferc1`, :ref:`balance_sheet_liabilities_ferc1`, and
-  :ref:`electric_operating_expenses_ferc1`. See :issue:`2016` and :pr:`2563`.
+  :ref:`balance_sheet_assets_ferc1`, :ref:`balance_sheet_liabilities_ferc1`,
+  :ref:`electric_operating_expenses_ferc1` and
+  :ref:`electric_plant_depreciation_functional_ferc1`. See :issue:`2016`, :pr:`2563` and
+  :pr:`2687`.
 * Changed the :ref:`retained_earnings_ferc1` table transform to restore factoids for
   previous year balances, and added calculation metadata. See :issue:`1811`,
   :issue:`2016`, and :pr:`2645`.
