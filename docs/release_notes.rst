@@ -61,6 +61,11 @@ Dagster Adoption
   * FERC 714 extraction methods are now subsettable by year, with 2019 and 2020 data
     included in the ``etl_fast.yml`` by default. See :issue:`2628` and PR :pr:`2649`.
 
+* Census DP1 ETL changes:
+
+  * :mod:`pudl.convert.censusdp1tract_to_sqlite` and :mod:`pudl.output.censusdp1tract`
+    are now integrated into dagster. See :issue:`1973` and :pr:`2621`.
+
 Data Coverage
 ^^^^^^^^^^^^^
 
@@ -149,11 +154,13 @@ Data Coverage
 
 * A couple of tables from :doc:`data_sources/ferc714` have been added to the PUDL DB.
   These tables contain data from 2006-2020 (2021 is distributed by FERC in XBRL format
-  and we have not yet integrated it). See :issue:`2266` & :pr:`2421`. The newly
-  accessible tables include:
+  and we have not yet integrated it). See :issue:`2266`, :pr:`2421` and :pr:`2550`.
+  The newly accessible tables include:
 
   * :ref:`respondent_id_ferc714` (linking FERC-714 respondents to EIA utilities)
   * :ref:`demand_hourly_pa_ferc714` (hourly electricity demand by planning area)
+  * :ref:`fipsified_respondents_ferc714` (annual respondents with county FIPS IDs)
+  * :ref:`summarized_demand_ferc714` (annual demand for FERC-714 respondents)
 
 * Added new table :ref:`epacamd_eia_subplant_ids`, which aguments the
   :ref:`epacamd_eia` glue table. This table incorporates all
@@ -226,6 +233,13 @@ Analysis
   the :ref:`generators_eia860` table so associating those gf and bf records are more
   cleanly associated with generators. Thanks to :user:`grgmiller` for his
   contribution, which was integrated by :user:`cmgosnell`! See PRs :pr:`2235,2446`.
+* Added outputs from :mod:`pudl.analysis.service_territory` and
+  :mod:`pudl.analysis.state_demand` into PUDL. These outputs include the US Census
+  geometries associated with balancing authority and utility data from EIA 861
+  (:ref:`compiled_geometry_balancing_authority_eia861` and
+  :ref:`compiled_geometry_utility_eia861`), and the estimated total hourly electricity
+  demand for each US state in :ref:`predicted_state_hourly_demand`. See :issue:`1973`
+  and :pr:`2550`.
 
 Deprecations
 ^^^^^^^^^^^^

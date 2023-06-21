@@ -6,6 +6,7 @@ on: [pull_request]
 env:
   PUDL_OUTPUT: /home/runner/pudl-work/output
   PUDL_INPUT: /home/runner/pudl-work/data/
+  DAGSTER_HOME: /home/runner/pudl-work/dagster_home/
 
 jobs:
   ci-static:
@@ -145,8 +146,8 @@ jobs:
           path: ${{ env.PUDL_INPUT }}
           key: zenodo-datastore-${{ hashFiles('datastore-dois.txt') }}
 
-      - name: Make cache/output dirs
-        run: mkdir -p ${{ env.PUDL_OUTPUT }} ${{ env.PUDL_INPUT}}
+      - name: Make input, output and dagster dirs
+        run: mkdir -p ${{ env.PUDL_OUTPUT }} ${{ env.PUDL_INPUT}} ${{ env.DAGSTER_HOME }}
 
       - name: List workspace contents
         run: find /home/runner/pudl-work
