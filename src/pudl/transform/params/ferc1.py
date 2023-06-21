@@ -4067,7 +4067,6 @@ TRANSFORM_PARAMS = {
         },
         "reconcile_table_calculations": {
             "column_to_check": "ending_balance",
-            "calculation_tolerance": 0.2,
             "subtotal_column": "plant_status",
         },
     },
