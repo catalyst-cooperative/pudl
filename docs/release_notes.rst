@@ -64,8 +64,7 @@ Dagster Adoption
 * Census DP1 ETL changes:
 
   * :mod:`pudl.convert.censusdp1tract_to_sqlite` and :mod:`pudl.output.censusdp1tract`
-    are now integrated into dagster. :mod:`pudl.output.censusdp1tract` returns an asset
-    for each layer of the Census DP1 dataset. See :issue:`1973` and :pr:`2621`.
+    are now integrated into dagster. See :issue:`1973` and :pr:`2621`.
 
 Data Coverage
 ^^^^^^^^^^^^^
