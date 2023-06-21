@@ -1566,9 +1566,7 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
                         "calc_component_new": {
                             "name": "operation_supervision_and_engineering_steam_power_generation",
                             "weight": 1.0,
-                            "source_tables": [
-                                "income_selectric_operating_expenses_ferc1tatement_ferc1"
-                            ],
+                            "source_tables": ["electric_operating_expenses_ferc1"],
                         },
                     },
                     {
@@ -1711,16 +1709,12 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
                         "calc_component_to_replace": {
                             "name": "operation_supervision_and_engineering",
                             "weight": 1.0,
-                            "source_tables": [
-                                "power_production_expenses_hydraulic_power"
-                            ],
+                            "source_tables": ["electric_operating_expenses_ferc1"],
                         },
                         "calc_component_new": {
                             "name": "operation_supervision_and_engineering_hydraulic_power_generation",
                             "weight": 1.0,
-                            "source_tables": [
-                                "power_production_expenses_hydraulic_power"
-                            ],
+                            "source_tables": ["electric_operating_expenses_ferc1"],
                         },
                     },
                     {
@@ -1740,9 +1734,7 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
                         "calc_component_to_replace": {
                             "name": "maintenance_supervision_and_engineering_hydraulic_power_generation",
                             "weight": 1.0,
-                            "source_tables": [
-                                "power_production_expenses_hydraulic_power"
-                            ],
+                            "source_tables": ["electric_operating_expenses_ferc1"],
                         },
                         "calc_component_new": {},
                     },
@@ -1750,9 +1742,7 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
                         "calc_component_to_replace": {
                             "name": "maintenance_of_structures_hydraulic_power_generation",
                             "weight": 1.0,
-                            "source_tables": [
-                                "power_production_expenses_hydraulic_power"
-                            ],
+                            "source_tables": ["electric_operating_expenses_ferc1"],
                         },
                         "calc_component_new": {},
                     },
@@ -1760,9 +1750,7 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
                         "calc_component_to_replace": {
                             "name": "maintenance_of_reservoirs_dams_and_waterways",
                             "weight": 1.0,
-                            "source_tables": [
-                                "power_production_expenses_hydraulic_power"
-                            ],
+                            "source_tables": ["electric_operating_expenses_ferc1"],
                         },
                         "calc_component_new": {},
                     },
@@ -1770,9 +1758,7 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
                         "calc_component_to_replace": {
                             "name": "maintenance_of_electric_plant_hydraulic_power_generation",
                             "weight": 1.0,
-                            "source_tables": [
-                                "power_production_expenses_hydraulic_power"
-                            ],
+                            "source_tables": ["electric_operating_expenses_ferc1"],
                         },
                         "calc_component_new": {},
                     },
@@ -1780,9 +1766,7 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
                         "calc_component_to_replace": {
                             "name": "maintenance_of_miscellaneous_hydraulic_plant",
                             "weight": 1.0,
-                            "source_tables": [
-                                "power_production_expenses_hydraulic_power"
-                            ],
+                            "source_tables": ["electric_operating_expenses_ferc1"],
                         },
                         "calc_component_new": {},
                     },
@@ -1791,9 +1775,7 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
                         "calc_component_to_replace": {
                             "name": "operation_supervision_and_engineering_hydraulic_power_generation",
                             "weight": 1.0,
-                            "source_tables": [
-                                "power_production_expenses_hydraulic_power"
-                            ],
+                            "source_tables": ["electric_operating_expenses_ferc1"],
                         },
                         "calc_component_new": {},
                     },
@@ -1801,9 +1783,7 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
                         "calc_component_to_replace": {
                             "name": "water_for_power",
                             "weight": 1.0,
-                            "source_tables": [
-                                "power_production_expenses_hydraulic_power"
-                            ],
+                            "source_tables": ["electric_operating_expenses_ferc1"],
                         },
                         "calc_component_new": {},
                     },
@@ -1811,9 +1791,7 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
                         "calc_component_to_replace": {
                             "name": "hydraulic_expenses",
                             "weight": 1.0,
-                            "source_tables": [
-                                "power_production_expenses_hydraulic_power"
-                            ],
+                            "source_tables": ["electric_operating_expenses_ferc1"],
                         },
                         "calc_component_new": {},
                     },
@@ -1821,9 +1799,7 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
                         "calc_component_to_replace": {
                             "name": "electric_expenses_hydraulic_power_generation",
                             "weight": 1.0,
-                            "source_tables": [
-                                "power_production_expenses_hydraulic_power"
-                            ],
+                            "source_tables": ["electric_operating_expenses_ferc1"],
                         },
                         "calc_component_new": {},
                     },
@@ -1831,9 +1807,7 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
                         "calc_component_to_replace": {
                             "name": "miscellaneous_hydraulic_power_generation_expenses",
                             "weight": 1.0,
-                            "source_tables": [
-                                "power_production_expenses_hydraulic_power"
-                            ],
+                            "source_tables": ["electric_operating_expenses_ferc1"],
                         },
                         "calc_component_new": {},
                     },
@@ -1841,9 +1815,7 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
                         "calc_component_to_replace": {
                             "name": "rents_hydraulic_power_generation",
                             "weight": 1.0,
-                            "source_tables": [
-                                "power_production_expenses_hydraulic_power"
-                            ],
+                            "source_tables": ["electric_operating_expenses_ferc1"],
                         },
                         "calc_component_new": {},
                     },
@@ -1854,9 +1826,7 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
                         "calc_component_new": {
                             "name": "load_dispatching_transmission_expense",
                             "weight": 1.0,
-                            "source_tables": [
-                                "power_production_expenses_hydraulic_power"
-                            ],
+                            "source_tables": ["electric_operating_expenses_ferc1"],
                         },
                     },
                 ],
@@ -4521,8 +4491,8 @@ class RetainedEarningsFerc1TableTransformer(Ferc1AbstractTableTransformer):
         metadata_columns = [
             "calculations",
             "balance",
-            "xbrl_factoid_name_original",
-            "inter_table_calc_flag",
+            "xbrl_factoid_original",
+            "intra_table_calc_flag",
             "row_type_xbrl",
         ]
         date_dupe_types = pd.merge(

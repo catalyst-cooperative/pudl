@@ -962,6 +962,7 @@ class MetadataExploder:
                     [
                         "xbrl_factoid",
                         "calculations",
+                        "row_type_xbrl",
                         "xbrl_factoid_original",
                         "intra_table_calc_flag",
                     ]
@@ -969,7 +970,38 @@ class MetadataExploder:
                 .assign(table_name=table_name)
             )
             tbl_metas.append(tbl_meta)
-        return pd.concat(tbl_metas)
+        return (
+            pd.concat(tbl_metas)
+            .reset_index(drop=True)
+            .pipe(self.redefine_calculations_with_components_out_of_explosion)
+        )
+
+    def redefine_calculations_with_components_out_of_explosion(
+        self, meta_explode: pd.DataFrame
+    ) -> pd.DataFrame:
+        """Overwrite the calculations with calculation components not in explosion."""
+        calc_explode = convert_calculations_into_calculation_component_table(
+            meta_explode
+        )
+        calc_explode["in_explosion"] = calc_explode.source_tables.apply(
+            in_explosion_tables, in_explosion_table_names=self.table_names
+        )
+        not_in_explosion_xbrl_factoids = list(
+            calc_explode.loc[~calc_explode.in_explosion, "xbrl_factoid"].unique()
+        )
+        # this is a temporary variable. Remove when we migrate the pruning/leaf
+        # identification into the Tree/Forest builers. Right now this will be used in
+        # Exploder.remove_inter_table_calc_duplication. Because we are changing the
+        # metadata, this variable can only be generated BEFORE we reclassify these
+        # calculations.
+        self.inter_table_components_in_intra_table_calc = calc_explode.loc[
+            ~calc_explode.in_explosion, "name"
+        ].unique()
+        meta_explode.loc[
+            meta_explode.xbrl_factoid.isin(not_in_explosion_xbrl_factoids),
+            ["calculations", "row_type_xbrl"],
+        ] = ("[]", "reported_value")
+        return meta_explode
 
 
 class Exploder:
@@ -1060,7 +1092,7 @@ class Exploder:
             # REMOVE THE DUPLICATION
             .pipe(self.remove_factoids_from_mutliple_tables, tables_to_explode)
             .pipe(self.remove_totals_from_other_dimensions)
-            .pipe(remove_inter_table_calc_duplication)
+            .pipe(self.remove_inter_table_calc_duplication)
             .pipe(remove_intra_table_calculated_values)
         )
         return exploded
@@ -1085,10 +1117,20 @@ class Exploder:
             )
             explosion_tables.append(tbl)
         metadata_exploded = self.meta_exploder.boom(clean_xbrl_metadata_json)
-        exploded = pd.concat(explosion_tables).merge(
+        exploded = pd.concat(explosion_tables)
+        # drop any metadata columns coming from the tbls bc we may have edited the
+        # metadata df so we want to grab that directly
+        meta_idx = ["xbrl_factoid", "table_name"]
+        meta_columns = [
+            col
+            for col in exploded
+            if col
+            in [meta_col for meta_col in metadata_exploded if meta_col not in meta_idx]
+        ]
+        exploded = exploded.drop(columns=meta_columns).merge(
             metadata_exploded,
             how="left",
-            on=["xbrl_factoid", "table_name"],
+            on=meta_idx,
             validate="m:1",
         )
         return exploded
@@ -1211,6 +1253,64 @@ class Exploder:
         exploded = exploded[~total_mask].drop(columns=drop_cols)
         return exploded
 
+    def remove_inter_table_calc_duplication(
+        self, exploded: pd.DataFrame
+    ) -> pd.DataFrame:
+        """Treat the duplication in the inter-table calculations.
+
+        There are several possible ways to remove the duplication in the inter table calcs.
+        See issue #2622. Right now we are doing the simplest option which removes some level
+        of detail.
+        """
+        logger.info("Explode: Doing inter-table calc deduplications stuff.")
+        inter_table_components_in_intra_table_calc = list(
+            self.meta_exploder.inter_table_components_in_intra_table_calc
+        )
+        if inter_table_components_in_intra_table_calc:
+            logger.info(
+                "Explode: Removing intra-table calculation components in inter-table "
+                f"calcution ({inter_table_components_in_intra_table_calc})."
+            )
+            # remove the calcuation components that are a part of an inter-table calculation
+            exploded = exploded[
+                ~exploded.xbrl_factoid.isin(inter_table_components_in_intra_table_calc)
+            ]
+        return exploded
+
+
+def in_explosion_tables(
+    source_tables: list[str], in_explosion_table_names: list[str]
+) -> bool:
+    """Determine if any of a list of source_tables in the list of thre explosion tables.
+
+    Args:
+        source_tables: the list of tables. Typically from the ``source_tables`` element
+            from an xbrl calculation component
+        in_explosion_table_names: list of tables involved in a particular set of
+            exploded tables.
+    """
+    return any([True for tbl in source_tables if tbl in in_explosion_table_names])
+
+
+def convert_calculations_into_calculation_component_table(
+    metadata: pd.DataFrame,
+) -> pd.DataFrame:
+    """Convert xbrl metadata calculations into a table of calculation components."""
+    calc_dfs = []
+    for calc, tbl, factoid in zip(
+        metadata.calculations, metadata.table_name, metadata.xbrl_factoid
+    ):
+        calc_dfs.append(
+            pd.DataFrame(json.loads(calc)).assign(table_name=tbl, xbrl_factoid=factoid)
+        )
+    calcs = pd.concat(calc_dfs).reset_index(drop=True)
+
+    return calcs.merge(
+        metadata.drop(columns=["calculations"]),
+        on=["xbrl_factoid", "table_name"],
+        how="left",
+    )
+
 
 def get_table_level(table_name: str, top_table: str) -> int:
     """Get a table level."""
@@ -1281,44 +1381,6 @@ def find_intra_table_components_to_remove(
         if len(component.get("source_tables")) == 1
         and component.get("source_tables")[0] == table_name
     ]
-
-
-def remove_inter_table_calc_duplication(exploded: pd.DataFrame) -> pd.DataFrame:
-    """Treat the duplication in the inter-table calculations.
-
-    There are several possible ways to remove the duplication in the inter table calcs.
-    See issue #2622. Right now we are doing the simplest option which removes some level
-    of detail.
-    """
-    logger.info("Explode: Doing inter-table calc deduplications stuff.")
-    inter_table_calcs = (
-        exploded[
-            (exploded.row_type_xbrl == "calculated_value")
-            & ~exploded.intra_table_calc_flag
-        ][["table_name", "xbrl_factoid", "calculations"]]
-        .drop_duplicates()
-        .set_index("xbrl_factoid")
-    )
-    inter_table_components_in_intra_table_calc = (
-        pudl.helpers.dedupe_n_flatten_list_of_lists(
-            inter_table_calcs.apply(
-                lambda x: find_intra_table_components_to_remove(
-                    x.calculations, x.table_name
-                ),
-                axis=1,
-            )
-        )
-    )
-    if inter_table_components_in_intra_table_calc:
-        logger.info(
-            "Explode: Removing intra-table calculation components in inter-table "
-            f"calcution ({inter_table_components_in_intra_table_calc})."
-        )
-        # remove the calcuation components that are a part of an inter-table calculation
-        exploded = exploded[
-            ~exploded.xbrl_factoid.isin(inter_table_components_in_intra_table_calc)
-        ]
-    return exploded
 
 
 def remove_intra_table_calculated_values(exploded: pd.DataFrame) -> pd.DataFrame:

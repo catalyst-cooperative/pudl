@@ -1,7 +1,7 @@
 """add in row_type_xbrl to the depreciation_amortization_summary_ferc1 table
 
 Revision ID: 4806a28e8863
-Revises: 88d9201ae4c4
+Revises: e608f95a3b78
 Create Date: 2023-06-06 13:27:32.834458
 
 """
@@ -10,7 +10,7 @@ from alembic import op
 
 # revision identifiers, used by Alembic.
 revision = "4806a28e8863"
-down_revision = "88d9201ae4c4"
+down_revision = "e608f95a3b78"
 branch_labels = None
 depends_on = None
 
