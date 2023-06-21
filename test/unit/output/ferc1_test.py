@@ -12,6 +12,7 @@ import json
 import logging
 from contextlib import nullcontext as does_not_raise
 
+import numpy as np
 import pandas as pd
 import pytest
 
@@ -58,7 +59,7 @@ CALC_TREE_1 = XbrlCalculationTreeFerc1(
         "xbrl_factoid": "calc_1",
         "source_table": "table_1",
         "xbrl_factoid_original": "calc_original_1",
-        "weight": 1.0,
+        "weight": np.nan,
         "children": [LEAF_NODE_1, LEAF_NODE_2],
     }
 )
@@ -67,7 +68,7 @@ CALC_TREE_2 = XbrlCalculationTreeFerc1(
         "xbrl_factoid": "calc_2",
         "source_table": "table_2",
         "xbrl_factoid_original": "calc_original_2",
-        "weight": 1.0,
+        "weight": np.nan,
         "children": [LEAF_NODE_1, LEAF_NODE_2],
     }
 )
@@ -93,18 +94,18 @@ TEST_EXPLODED_META: pd.DataFrame = (
     [
         pytest.param("table_1", "reported_1", 1.0, LEAF_NODE_1, does_not_raise()),
         pytest.param("table_1", "reported_2", -1.0, LEAF_NODE_2, does_not_raise()),
-        pytest.param("table_1", "calc_1", 1.0, CALC_TREE_1, does_not_raise()),
+        pytest.param("table_1", "calc_1", np.nan, CALC_TREE_1, does_not_raise()),
         pytest.param(
-            "table_2", "calc_2", 1.0, CALC_TREE_2, pytest.raises(AssertionError)
+            "table_2", "calc_2", np.nan, CALC_TREE_2, pytest.raises(AssertionError)
         ),
-        pytest.param("table_1", "calc_3", 1.0, CALC_TREE_1, pytest.raises(KeyError)),
+        pytest.param("table_1", "calc_3", np.nan, CALC_TREE_1, pytest.raises(KeyError)),
     ],
 )
 def test_calculation_tree_from_exploded_meta(
     source_table: str,
     xbrl_factoid: str,
-    weight: float,
     expected_tree: XbrlCalculationTreeFerc1,
+    weight: float,
     expectation,
 ):
     """Test creation of various calculation trees."""
@@ -112,8 +113,8 @@ def test_calculation_tree_from_exploded_meta(
         calc_tree = XbrlCalculationTreeFerc1.from_exploded_meta(
             source_table=source_table,
             xbrl_factoid=xbrl_factoid,
-            exploded_meta=TEST_EXPLODED_META,
             weight=weight,
+            exploded_meta=TEST_EXPLODED_META,
         )
         logger.debug(json.dumps(calc_tree.dict(), indent=4))
         assert calc_tree == expected_tree
