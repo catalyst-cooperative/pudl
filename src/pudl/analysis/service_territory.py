@@ -284,7 +284,13 @@ def compile_geoms(
     dissolve: bool = False,
     limit_by_state: bool = True,
 ):
-    """Compile all available utility or balancing authority geometries."""
+    """Compile all available utility or balancing authority geometries.
+
+    Returns a geoparquet file, geopandas GeoDataFrame or a pandas DataFrame with the
+    geometry column removed depending on the value of the save_format parameter. By
+    default, this returns only counties with observed EIA 861 data for a utility or
+    balancing authority, with geometries available at the county level.
+    """
     logger.info(
         "Compiling %s geometries with dissolve=%s and limit_by_state=%s.",
         entity_type,
