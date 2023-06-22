@@ -1311,7 +1311,8 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
         tbl_meta.xbrl_factoid = tbl_meta.xbrl_factoid.map(xbrl_factoid_name_map)
 
         def rename_calculation_components(calc: str) -> str:
-            # Apply the rename for the "name" element of all of the calc components.
+            # Rename all calculation components from their original XBRL factoid names
+            # to their modified PUDL names.
             renamed_calc = [
                 {
                     k: self.raw_xbrl_factoid_to_pudl_name(v) if k == "name" else v
@@ -1982,7 +1983,7 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
                         "calc_component_to_replace": {},
                         "calc_component_new": {
                             "name": "net_charges_for_retired_plant",
-                            "weight": -1.0,
+                            "weight": 1.0,
                         },
                     },
                     {
@@ -4770,19 +4771,22 @@ class ElectricPlantDepreciationChangesFerc1TableTransformer(
     def process_xbrl_metadata(self, xbrl_metadata_json) -> pd.DataFrame:
         """Transform the metadata to reflect the transformed data.
 
-        Warning: The calculations in this table are currently being checked using
+        Warning: The calculations in this table are currently being corrected using
         reconcile_table_calculations(), but they still contain high rates of error.
-        This function replaces the name of the balance column reported in the XBRL
-        Instant table with starting_balance / ending_balance since we pull those two
+        This function replaces the name of the single balance column reported in the
+        XBRL Instant table with starting_balance / ending_balance. We pull those two
         values into their own separate labeled rows, each of which should get the
-        original metadata for the Instant column. We do this pre-processing before we
+        metadata from the original column. We do this pre-processing before we
         call the main function in order for the calculation fixes and renaming to work
         as expected.
         """
         new_xbrl_metadata_json = xbrl_metadata_json
+        # Get instant metadata
         instant = pd.json_normalize(xbrl_metadata_json["instant"])
+        # Duplicate instant metadata, and add starting/ending suffix
         instant = pd.concat([instant] * 2).reset_index(drop=True)
         instant["name"] = instant["name"] + ["_starting_balance", "_ending_balance"]
+        # Return to JSON format in order to continue processing
         new_xbrl_metadata_json["instant"] = json.loads(
             instant.to_json(orient="records")
         )
