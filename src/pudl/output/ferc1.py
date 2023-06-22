@@ -1599,15 +1599,39 @@ class XbrlCalculationTreeFerc1(BaseModel):
         the graph.
         """
         digraph = nx.DiGraph()  # noqa: N806
+        node_id = (self.source_table, self.xbrl_factoid)
+        # Add the current node and all of its attributes:
+        digraph.add_node(
+            node_id,
+            xbrl_factoid_original=self.xbrl_factoid_original,
+            weight=self.weight,
+            tags=self.tags,
+        )
         for child in self.children:
             # Add an edge from the current node to each of its children:
-            digraph.add_edge(
-                u_of_edge=(self.source_table, self.xbrl_factoid),
-                v_of_edge=(child.source_table, child.xbrl_factoid),
-            )
-            # Recursively add all the edges from each child to its children:
-            digraph.add_edges_from(child.to_networkx().edges)
+            child_id = (child.source_table, child.xbrl_factoid)
+            digraph.add_edge(node_id, child_id)
+            # Recursively add all the child nodes and edges:
+            child_graph = child.to_networkx()
+            digraph.add_nodes_from(child_graph.nodes)
+            nx.set_node_attributes(digraph, dict(child_graph.nodes))
+            digraph.add_edges_from(child_graph.edges)
         return digraph
+
+    @classmethod
+    def from_networkx(cls, digraph: nx.DiGraph) -> "XbrlCalculationTreeFerc1":
+        """Construct an XbrlCalculationTree from a :class:`networkx.DiGraph`."""
+        ...
+
+    def to_leafy_meta(self: Self) -> pd.DataFrame:
+        """Convert an XbrlCalculationTree back into a pandas dataframe.
+
+        - Indexed by (source table, xbrl_factoid)
+        - Each family of tags gets its own column
+        - Weights reflect updated / propagated values
+        - FOREST ONLY: Include column indicating the ID of the root node
+        """
+        ...
 
 
 class XbrlCalculationSeedFerc1(BaseModel):
