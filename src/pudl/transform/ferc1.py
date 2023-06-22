@@ -101,6 +101,8 @@ def add_source_tables_to_xbrl_metadata(
                         calc_component = label_source_tables(
                             calc_component, tables_to_fields
                         )
+                    else:
+                        calc_component["source_tables"] = [table_name]
     return raw_xbrl_metadata_json
 
 
@@ -771,7 +773,7 @@ def reconcile_table_calculations(
     # skip the calculations that have any components from other tables.
     # this could be removed/moved to when we deal with inter-table calcs.
     inter_table_calculated_values = list(
-        tbl_meta[tbl_meta.inter_table_calc_flag].xbrl_factoid.unique()
+        tbl_meta[~tbl_meta.intra_table_calc_flag].xbrl_factoid.unique()
     )
     if inter_table_calculated_values:
         logger.warning(
@@ -779,7 +781,7 @@ def reconcile_table_calculations(
             f"{inter_table_calculated_values}"
         )
     intra_tbl_calcs = tbl_meta[
-        ~tbl_meta.inter_table_calc_flag & (tbl_meta.row_type_xbrl == "calculated_value")
+        tbl_meta.intra_table_calc_flag & (tbl_meta.row_type_xbrl == "calculated_value")
     ]
     pks = pudl.metadata.classes.Resource.from_id(table_name).schema.primary_key
     pks_wo_factoid = [col for col in pks if col != xbrl_factoid_name]
@@ -1267,7 +1269,6 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
         happens in :meth:`Ferc1AbstractTableTransformer.merge_xbrl_metadata`.
         """
         logger.info(f"{self.table_id.value}: Processing XBRL metadata.")
-
         tbl_meta = (
             pd.concat(
                 [
@@ -1295,8 +1296,21 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
                 }
             )
             # Everything below here deals with correcting the calculations.
-            .assign(xbrl_factoid_name_original=lambda x: x.xbrl_factoid)
+            .assign(xbrl_factoid_original=lambda x: x.xbrl_factoid)
         )
+
+        def check_for_other_source_tables(calc, native_table: str) -> bool:
+            # add a true in here so when there are no calc components this still results
+            # in a True value. bc non-calcs are more intra table than not.
+            same_table_bools = [True]
+            for calc_component in json.loads(calc):
+                for source_table in calc_component["source_tables"]:
+                    same_table_bools.append(source_table == native_table)
+            return all(same_table_bools)
+
+        tbl_meta["intra_table_calc_flag"] = tbl_meta.calculations.apply(
+            check_for_other_source_tables, native_table=self.table_id.value
+        ).astype(pd.BooleanDtype())
         xbrl_factoid_name_map = {
             xbrl_factoid_name_og: self.raw_xbrl_factoid_to_pudl_name(
                 xbrl_factoid_name_og
@@ -1447,7 +1461,11 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
                     f"XBRL calculations should be lists of dictionaries. Found {calc}"
                 )
             if calc:
-                correction = {"name": f"{xbrl_factoid}_correction", "weight": 1.0}
+                correction = {
+                    "name": f"{xbrl_factoid}_correction",
+                    "weight": 1.0,
+                    "source_tables": [self.table_id.value],
+                }
                 calc.append(correction)
             return json.dumps(calc)
 
@@ -1476,6 +1494,7 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
                         "calc_component_new": {
                             "name": "net_utility_operating_income",
                             "weight": 1.0,
+                            "source_tables": ["income_statement_ferc1"],
                         },
                     }
                 ],
@@ -1485,6 +1504,7 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
                         "calc_component_new": {
                             "name": "miscellaneous_deductions",
                             "weight": 1.0,
+                            "source_tables": ["income_statement_ferc1"],
                         },
                     }
                 ],
@@ -1493,10 +1513,12 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
                         "calc_component_to_replace": {
                             "name": "investment_tax_credits",
                             "weight": 1.0,
+                            "source_tables": ["income_statement_ferc1"],
                         },
                         "calc_component_new": {
                             "name": "investment_tax_credits",
                             "weight": -1.0,
+                            "source_tables": ["income_statement_ferc1"],
                         },
                     }
                 ],
@@ -1556,6 +1578,7 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
                         "calc_component_new": {
                             "name": "small_or_commercial_sales_electric_operating_revenue",
                             "weight": 1.0,
+                            "source_tables": ["income_statement_ferc1"],
                         },
                     },
                     {
@@ -1563,6 +1586,7 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
                         "calc_component_new": {
                             "name": "large_or_industrial_sales_electric_operating_revenue",
                             "weight": 1.0,
+                            "source_tables": ["income_statement_ferc1"],
                         },
                     },
                 ],
@@ -1577,10 +1601,12 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
                         "calc_component_to_replace": {
                             "name": "operation_supervision_and_engineering",
                             "weight": 1.0,
+                            "source_tables": ["electric_operating_expenses_ferc1"],
                         },
                         "calc_component_new": {
                             "name": "operation_supervision_and_engineering_steam_power_generation",
                             "weight": 1.0,
+                            "source_tables": ["electric_operating_expenses_ferc1"],
                         },
                     },
                     {
@@ -1599,6 +1625,7 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
                         "calc_component_to_replace": {
                             "name": "coolants_and_water",
                             "weight": 1.0,
+                            "source_tables": ["electric_operating_expenses_ferc1"],
                         },
                         "calc_component_new": {},
                     },
@@ -1607,6 +1634,7 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
                         "calc_component_to_replace": {
                             "name": "maintenance_supervision_and_engineering_steam_power_generation",
                             "weight": 1.0,
+                            "source_tables": ["electric_operating_expenses_ferc1"],
                         },
                         "calc_component_new": {},
                     },
@@ -1614,6 +1642,7 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
                         "calc_component_to_replace": {
                             "name": "maintenance_of_structures_steam_power_generation",
                             "weight": 1.0,
+                            "source_tables": ["electric_operating_expenses_ferc1"],
                         },
                         "calc_component_new": {},
                     },
@@ -1621,6 +1650,7 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
                         "calc_component_to_replace": {
                             "name": "maintenance_of_boiler_plant_steam_power_generation",
                             "weight": 1.0,
+                            "source_tables": ["electric_operating_expenses_ferc1"],
                         },
                         "calc_component_new": {},
                     },
@@ -1628,6 +1658,7 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
                         "calc_component_to_replace": {
                             "name": "maintenance_of_electric_plant_steam_power_generation",
                             "weight": 1.0,
+                            "source_tables": ["electric_operating_expenses_ferc1"],
                         },
                         "calc_component_new": {},
                     },
@@ -1635,6 +1666,7 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
                         "calc_component_to_replace": {
                             "name": "maintenance_of_miscellaneous_steam_plant",
                             "weight": 1.0,
+                            "source_tables": ["electric_operating_expenses_ferc1"],
                         },
                         "calc_component_new": {},
                     },
@@ -1643,6 +1675,7 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
                         "calc_component_to_replace": {
                             "name": "operation_supervision_and_engineering_steam_power_generation",
                             "weight": 1.0,
+                            "source_tables": ["electric_operating_expenses_ferc1"],
                         },
                         "calc_component_new": {},
                     },
@@ -1650,6 +1683,7 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
                         "calc_component_to_replace": {
                             "name": "fuel_steam_power_generation",
                             "weight": 1.0,
+                            "source_tables": ["electric_operating_expenses_ferc1"],
                         },
                         "calc_component_new": {},
                     },
@@ -1657,6 +1691,7 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
                         "calc_component_to_replace": {
                             "name": "steam_expenses_steam_power_generation",
                             "weight": 1.0,
+                            "source_tables": ["electric_operating_expenses_ferc1"],
                         },
                         "calc_component_new": {},
                     },
@@ -1664,6 +1699,7 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
                         "calc_component_to_replace": {
                             "name": "steam_from_other_sources",
                             "weight": 1.0,
+                            "source_tables": ["electric_operating_expenses_ferc1"],
                         },
                         "calc_component_new": {},
                     },
@@ -1671,6 +1707,7 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
                         "calc_component_to_replace": {
                             "name": "steam_transferred_credit",
                             "weight": -1.0,
+                            "source_tables": ["electric_operating_expenses_ferc1"],
                         },
                         "calc_component_new": {},
                     },
@@ -1678,6 +1715,7 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
                         "calc_component_to_replace": {
                             "name": "electric_expenses_steam_power_generation",
                             "weight": 1.0,
+                            "source_tables": ["electric_operating_expenses_ferc1"],
                         },
                         "calc_component_new": {},
                     },
@@ -1685,6 +1723,7 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
                         "calc_component_to_replace": {
                             "name": "miscellaneous_steam_power_expenses",
                             "weight": 1.0,
+                            "source_tables": ["electric_operating_expenses_ferc1"],
                         },
                         "calc_component_new": {},
                     },
@@ -1692,6 +1731,7 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
                         "calc_component_to_replace": {
                             "name": "rents_steam_power_generation",
                             "weight": 1.0,
+                            "source_tables": ["electric_operating_expenses_ferc1"],
                         },
                         "calc_component_new": {},
                     },
@@ -1699,6 +1739,7 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
                         "calc_component_to_replace": {
                             "name": "allowances",
                             "weight": 1.0,
+                            "source_tables": ["electric_operating_expenses_ferc1"],
                         },
                         "calc_component_new": {},
                     },
@@ -1708,10 +1749,12 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
                         "calc_component_to_replace": {
                             "name": "operation_supervision_and_engineering",
                             "weight": 1.0,
+                            "source_tables": ["electric_operating_expenses_ferc1"],
                         },
                         "calc_component_new": {
                             "name": "operation_supervision_and_engineering_hydraulic_power_generation",
                             "weight": 1.0,
+                            "source_tables": ["electric_operating_expenses_ferc1"],
                         },
                     },
                     {
@@ -1731,6 +1774,7 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
                         "calc_component_to_replace": {
                             "name": "maintenance_supervision_and_engineering_hydraulic_power_generation",
                             "weight": 1.0,
+                            "source_tables": ["electric_operating_expenses_ferc1"],
                         },
                         "calc_component_new": {},
                     },
@@ -1738,6 +1782,7 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
                         "calc_component_to_replace": {
                             "name": "maintenance_of_structures_hydraulic_power_generation",
                             "weight": 1.0,
+                            "source_tables": ["electric_operating_expenses_ferc1"],
                         },
                         "calc_component_new": {},
                     },
@@ -1745,6 +1790,7 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
                         "calc_component_to_replace": {
                             "name": "maintenance_of_reservoirs_dams_and_waterways",
                             "weight": 1.0,
+                            "source_tables": ["electric_operating_expenses_ferc1"],
                         },
                         "calc_component_new": {},
                     },
@@ -1752,6 +1798,7 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
                         "calc_component_to_replace": {
                             "name": "maintenance_of_electric_plant_hydraulic_power_generation",
                             "weight": 1.0,
+                            "source_tables": ["electric_operating_expenses_ferc1"],
                         },
                         "calc_component_new": {},
                     },
@@ -1759,6 +1806,7 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
                         "calc_component_to_replace": {
                             "name": "maintenance_of_miscellaneous_hydraulic_plant",
                             "weight": 1.0,
+                            "source_tables": ["electric_operating_expenses_ferc1"],
                         },
                         "calc_component_new": {},
                     },
@@ -1767,6 +1815,7 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
                         "calc_component_to_replace": {
                             "name": "operation_supervision_and_engineering_hydraulic_power_generation",
                             "weight": 1.0,
+                            "source_tables": ["electric_operating_expenses_ferc1"],
                         },
                         "calc_component_new": {},
                     },
@@ -1774,6 +1823,7 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
                         "calc_component_to_replace": {
                             "name": "water_for_power",
                             "weight": 1.0,
+                            "source_tables": ["electric_operating_expenses_ferc1"],
                         },
                         "calc_component_new": {},
                     },
@@ -1781,6 +1831,7 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
                         "calc_component_to_replace": {
                             "name": "hydraulic_expenses",
                             "weight": 1.0,
+                            "source_tables": ["electric_operating_expenses_ferc1"],
                         },
                         "calc_component_new": {},
                     },
@@ -1788,6 +1839,7 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
                         "calc_component_to_replace": {
                             "name": "electric_expenses_hydraulic_power_generation",
                             "weight": 1.0,
+                            "source_tables": ["electric_operating_expenses_ferc1"],
                         },
                         "calc_component_new": {},
                     },
@@ -1795,6 +1847,7 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
                         "calc_component_to_replace": {
                             "name": "miscellaneous_hydraulic_power_generation_expenses",
                             "weight": 1.0,
+                            "source_tables": ["electric_operating_expenses_ferc1"],
                         },
                         "calc_component_new": {},
                     },
@@ -1802,6 +1855,7 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
                         "calc_component_to_replace": {
                             "name": "rents_hydraulic_power_generation",
                             "weight": 1.0,
+                            "source_tables": ["electric_operating_expenses_ferc1"],
                         },
                         "calc_component_new": {},
                     },
@@ -1812,6 +1866,7 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
                         "calc_component_new": {
                             "name": "load_dispatching_transmission_expense",
                             "weight": 1.0,
+                            "source_tables": ["electric_operating_expenses_ferc1"],
                         },
                     },
                 ],
@@ -1823,6 +1878,7 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
                             "name": "depreciation_amortization_and_depletion_utility_plant_in_service",
                             # A duplicate of 4 other fields, though this is not explicitly defined in the metadata.
                             "weight": 1.0,
+                            "source_tables": ["utility_plant_summary_ferc1"],
                         },
                         "calc_component_new": {},
                     }
@@ -1888,6 +1944,7 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
                         "calc_component_to_replace": {
                             "name": "nuclear_fuel_materials_and_assemblies",
                             "weight": 1.0,
+                            "source_tables": ["balance_sheet_assets_ferc1"],
                         },
                         "calc_component_new": {},
                     },
@@ -1895,6 +1952,7 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
                         "calc_component_to_replace": {
                             "name": "spent_nuclear_fuel",
                             "weight": 1.0,
+                            "source_tables": ["balance_sheet_assets_ferc1"],
                         },
                         "calc_component_new": {},
                     },
@@ -1904,6 +1962,7 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
                             # Only used in pre-2004 calculations, aggregate of later sub-components.
                             "name": "nuclear_fuel",
                             "weight": 1.0,
+                            "source_tables": ["balance_sheet_assets_ferc1"],
                         },
                     },
                 ],
@@ -1914,6 +1973,7 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
                             # Only used in pre-2004 calculations, aggregate of later sub-components.
                             "name": "special_funds_all",
                             "weight": 1.0,
+                            "source_tables": ["balance_sheet_assets_ferc1"],
                         },
                     },
                 ],
@@ -1925,6 +1985,7 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
                         "calc_component_new": {
                             "name": "accumulated_deferred_income_taxes",
                             "weight": 1.0,
+                            "source_tables": ["balance_sheet_liabilities_ferc1"],
                         },
                     },
                 ],
@@ -3167,8 +3228,7 @@ class PlantInServiceFerc1TableTransformer(Ferc1AbstractTableTransformer):
         # when the calcs are different, they are referring to the non-adjustments
         suffixes = ("_additions", "_retirements", "_adjustments", "_transfers")
         unique_calcs_deduped = tbl_meta[
-            ~same_calcs_mask
-            & (~tbl_meta.xbrl_factoid_name_original.str.endswith(suffixes))
+            ~same_calcs_mask & (~tbl_meta.xbrl_factoid_original.str.endswith(suffixes))
         ]
         tbl_meta_cleaned = pd.concat([same_calcs_deduped, unique_calcs_deduped])
         assert set(tbl_meta_cleaned.xbrl_factoid.unique()) == set(
@@ -4705,8 +4765,8 @@ class RetainedEarningsFerc1TableTransformer(Ferc1AbstractTableTransformer):
         metadata_columns = [
             "calculations",
             "balance",
-            "xbrl_factoid_name_original",
-            "inter_table_calc_flag",
+            "xbrl_factoid_original",
+            "intra_table_calc_flag",
             "row_type_xbrl",
         ]
         date_dupe_types = pd.merge(
@@ -4763,7 +4823,7 @@ class RetainedEarningsFerc1TableTransformer(Ferc1AbstractTableTransformer):
         non_dupes = tbl_meta[~dupes_masks]
         dupes = tbl_meta[dupes_masks]
 
-        deduped = dupes[dupes.xbrl_factoid == dupes.xbrl_factoid_name_original]
+        deduped = dupes[dupes.xbrl_factoid == dupes.xbrl_factoid_original]
         tbl_meta_cleaned = pd.concat([non_dupes, deduped])
         assert ~tbl_meta_cleaned.duplicated(subset=["xbrl_factoid"]).all()
 
@@ -4981,7 +5041,7 @@ class ElectricOperatingRevenuesFerc1TableTransformer(Ferc1AbstractTableTransform
         # the metadata relating to dollar_value column *generally* had the same name as
         # the renamed xbrl_factoid. we'll double check that we a) didn't remove too many
         # factoid's by doing this AND that we have a fully deduped output below.
-        deduped = dupes[dupes.xbrl_factoid == dupes.xbrl_factoid_name_original]
+        deduped = dupes[dupes.xbrl_factoid == dupes.xbrl_factoid_original]
         tbl_meta_cleaned = pd.concat([non_dupes, deduped])
         assert ~tbl_meta_cleaned.duplicated(subset=["xbrl_factoid"]).all()
 
