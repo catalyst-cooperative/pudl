@@ -1311,7 +1311,8 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
         tbl_meta.xbrl_factoid = tbl_meta.xbrl_factoid.map(xbrl_factoid_name_map)
 
         def rename_calculation_components(calc: str) -> str:
-            # apply the rename for the "name" element of all of the calc components
+            # Rename all calculation components from their original XBRL factoid names
+            # to their modified PUDL names.
             renamed_calc = [
                 {
                     k: self.raw_xbrl_factoid_to_pudl_name(v) if k == "name" else v
@@ -1534,7 +1535,7 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
             },
             "electric_operating_expenses_ferc1": {
                 # This table has two factoids that have sub-components that are
-                # calculations themselves and both the sub-component calcuated values
+                # calculations themselves and both the sub-component calculated values
                 # AND the sub-sub-components. So we're removing the specific sub-sub-
                 # components
                 "power_production_expenses_steam_power": [
@@ -1962,6 +1963,45 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
                     },
                 ],
             },
+            "electric_plant_depreciation_changes_ferc1": {
+                "ending_balance": [
+                    {
+                        "calc_component_to_replace": {},
+                        "calc_component_new": {
+                            "name": "starting_balance",
+                            "weight": 1.0,
+                        },
+                    },
+                    {
+                        "calc_component_to_replace": {},
+                        "calc_component_new": {
+                            "name": "depreciation_provision",
+                            "weight": 1.0,
+                        },
+                    },
+                    {
+                        "calc_component_to_replace": {},
+                        "calc_component_new": {
+                            "name": "net_charges_for_retired_plant",
+                            "weight": 1.0,
+                        },
+                    },
+                    {
+                        "calc_component_to_replace": {},
+                        "calc_component_new": {
+                            "name": "other_adjustments_to_accumulated_depreciation",
+                            "weight": 1.0,
+                        },
+                    },
+                    {
+                        "calc_component_to_replace": {},
+                        "calc_component_new": {
+                            "name": "book_cost_of_asset_retirement_costs",
+                            "weight": 1.0,
+                        },
+                    },
+                ],
+            },
         }
 
         def remove_nones_in_list(list_of_things):
@@ -2120,7 +2160,7 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
             len_og = len(df)
             df = df[df.report_prd == 12].copy()
             logger.info(
-                f"{self.table_id.value}: After selection only annual records,"
+                f"{self.table_id.value}: After selection of only annual records,"
                 f" we have {len(df)/len_og:.1%} of the original table."
             )
         return df
@@ -2530,7 +2570,7 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
             params = self.params.reconcile_table_calculations
         if params.column_to_check:
             logger.info(
-                f"{self.table_id.value}: Checking the XBRL metadata-based calcuations."
+                f"{self.table_id.value}: Checking the XBRL metadata-based calculations."
             )
             df = reconcile_table_calculations(
                 df=df,
@@ -4731,16 +4771,27 @@ class ElectricPlantDepreciationChangesFerc1TableTransformer(
     def process_xbrl_metadata(self, xbrl_metadata_json) -> pd.DataFrame:
         """Transform the metadata to reflect the transformed data.
 
-        Replace the name of the balance column reported in the XBRL Instant table with
-        starting_balance / ending_balance since we pull those two values into their own
-        separate labeled rows, each of which should get the original metadata for the
-        Instant column.
+        Warning: The calculations in this table are currently being corrected using
+        reconcile_table_calculations(), but they still contain high rates of error.
+        This function replaces the name of the single balance column reported in the
+        XBRL Instant table with starting_balance / ending_balance. We pull those two
+        values into their own separate labeled rows, each of which should get the
+        metadata from the original column. We do this pre-processing before we
+        call the main function in order for the calculation fixes and renaming to work
+        as expected.
         """
-        meta = super().process_xbrl_metadata(xbrl_metadata_json)
-        ending_balance = meta[meta.xbrl_factoid == "starting_balance"].assign(
-            xbrl_factoid="ending_balance"
+        new_xbrl_metadata_json = xbrl_metadata_json
+        # Get instant metadata
+        instant = pd.json_normalize(xbrl_metadata_json["instant"])
+        # Duplicate instant metadata, and add starting/ending suffix
+        instant = pd.concat([instant] * 2).reset_index(drop=True)
+        instant["name"] = instant["name"] + ["_starting_balance", "_ending_balance"]
+        # Return to JSON format in order to continue processing
+        new_xbrl_metadata_json["instant"] = json.loads(
+            instant.to_json(orient="records")
         )
-        return pd.concat([meta, ending_balance])
+        tbl_meta = super().process_xbrl_metadata(new_xbrl_metadata_json)
+        return tbl_meta
 
     @cache_df("dbf")
     def process_dbf(self, raw_df: pd.DataFrame) -> pd.DataFrame:
