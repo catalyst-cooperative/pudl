@@ -2642,7 +2642,6 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "type": "string",
         "description": "Type of utility plant asset reported in the utility_plant_summary_ferc1 table. Assets include those leased to others, held for future use, construction work-in-progress and details of accumulated depreciation.",
     },
-    "utility_plant_value": {"type": "number", "description": "Utility plant value."},
     "utility_pobox": {"type": "string"},
     "utility_type": {
         "type": "string",
