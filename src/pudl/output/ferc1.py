@@ -924,11 +924,11 @@ def create_exploded_table_assets() -> list[AssetsDefinition]:
         "balance_sheet_assets_ferc1": [
             "utility_plant_summary_ferc1",
             "plant_in_service_ferc1",
-            # "electric_plant_depreciation_changes_ferc1", this tbl isnt calc checked
+            "electric_plant_depreciation_functional_ferc1",
         ],
-        # "balance_sheet_liabilities_ferc1": [
-        #     "retained_earnings_ferc1", this tbl isnt calc checked so there is no tree
-        # ],
+        "balance_sheet_liabilities_ferc1": [
+            "retained_earnings_ferc1",
+        ],
     }
     assets = []
     for root_table, table_names_to_explode in explosion_tables.items():
@@ -1090,10 +1090,10 @@ class Exploder:
                 tables_to_explode, clean_xbrl_metadata_json
             )
             # REMOVE THE DUPLICATION
-            .pipe(self.remove_factoids_from_mutliple_tables, tables_to_explode)
-            .pipe(self.remove_totals_from_other_dimensions)
-            .pipe(self.remove_inter_table_calc_duplication)
-            .pipe(remove_intra_table_calculated_values)
+            # .pipe(self.remove_factoids_from_mutliple_tables, tables_to_explode)
+            # .pipe(self.remove_totals_from_other_dimensions)
+            # .pipe(self.remove_inter_table_calc_duplication)
+            # .pipe(remove_intra_table_calculated_values)
         )
         return exploded
 
@@ -1134,6 +1134,140 @@ class Exploder:
             validate="m:1",
         )
         return exploded
+
+    # def reconcile_intertable_calculations(
+    #     self,
+    #     exploded:pd.DataFrame,
+    #     intertable_tolerance:float=0.05
+    # ) -> pd.DataFrame:
+    #     """Ensure intra-table calculated values match reported values within a tolerance.
+
+    #     In addition to checking whether all reported "calculated" values match the output
+    #     of our repaired calculations, this function adds a correction record to the
+    #     dataframe that is included in the calculations so that after the fact the
+    #     calculations match exactly. This is only done when the fraction of records that
+    #     don't match within the tolerances of :func:`numpy.isclose` is below a set
+    #     threshold.
+
+    #     Note that only calculations which are off by a significant amount result in the
+    #     creation of a correction record. Many calculations are off from the reported values
+    #     by exaclty one dollar, presumably due to rounding errrors. These records typically
+    #     do not fail the :func:`numpy.isclose()` test and so are not corrected.
+
+    #     Args:
+    #         exploded: exploded table.
+    #         intertable_tolerance: float describing percentage of relative difference
+    #     """
+    #     # Get the list of calculated values
+    #     inter_table_calculated_values = list(
+    #         tbl_meta[~tbl_meta.intra_table_calc_flag].xbrl_factoid.unique() & (tbl_meta.row_type_xbrl == "calculated_value")
+    #     )
+
+    #     pks = pudl.metadata.classes.Resource.from_id(table_name).schema.primary_key
+    #     pks_wo_factoid = [col for col in pks if col != xbrl_factoid_name]
+    #     calculated_dfs = []
+    #     for calculated_factoid, calculation in zip(
+    #         intra_tbl_calcs.xbrl_factoid, intra_tbl_calcs.calculations
+    #     ):
+    #         calc_df = (
+    #             pd.merge(
+    #                 df,
+    #                 pd.DataFrame(json.loads(calculation)),
+    #                 left_on=xbrl_factoid_name,
+    #                 right_on="name",
+    #             )
+    #             # apply the weight from the calc to convey the sign before summing.
+    #             .assign(calculated_amount=lambda x: x[params.column_to_check] * x.weight)
+    #             .groupby(pks_wo_factoid, as_index=False)["calculated_amount"]
+    #             .sum(min_count=1)
+    #             .assign(**{xbrl_factoid_name: calculated_factoid})
+    #         )
+    #         calculated_dfs.append(calc_df)
+
+    #     calculated_df = pd.merge(
+    #         df, pd.concat(calculated_dfs), on=pks, how="left", validate="1:1"
+    #     )
+    #     # Force column_to_check to be a float to prevent any hijinks with calculating differences.
+    #     calculated_df[params.column_to_check] = calculated_df[
+    #         params.column_to_check
+    #     ].astype(float)
+
+    #     calculated_df = calculated_df.assign(
+    #         abs_diff=lambda x: abs(x[params.column_to_check] - x.calculated_amount),
+    #         rel_diff=lambda x: np.where(
+    #             (x[params.column_to_check] != 0.0),
+    #             abs(x.abs_diff / x[params.column_to_check]),
+    #             np.nan,
+    #         ),
+    #     )
+
+    #     off_df = calculated_df[
+    #         ~np.isclose(
+    #             calculated_df.calculated_amount, calculated_df[params.column_to_check]
+    #         )
+    #         & (calculated_df["abs_diff"].notnull())
+    #     ]
+    #     calculated_values = calculated_df[(calculated_df.abs_diff.notnull())]
+    #     off_ratio = len(off_df) / len(calculated_values)
+
+    #     if off_ratio > params.calculation_tolerance:
+    #         raise AssertionError(
+    #             f"Calculations in {table_name} are off by {off_ratio}. Expected tolerance "
+    #             f"of {params.calculation_tolerance}."
+    #         )
+
+    #     # We'll only get here if the proportion of calculations that are off is acceptable
+    #     if off_ratio > 0:
+    #         logger.info(
+    #             f"{table_name}: has {len(off_df)} ({off_ratio:.02%}) records whose "
+    #             "calculations don't match. Adding correction records to make calculations "
+    #             "match reported values."
+    #         )
+    #         corrections = off_df.copy()
+    #         corrections[params.column_to_check] = (
+    #             corrections[params.column_to_check].fillna(0.0)
+    #             - corrections["calculated_amount"]
+    #         )
+    #         corrections[xbrl_factoid_name] = corrections[xbrl_factoid_name] + "_correction"
+    #         corrections["row_type_xbrl"] = "correction"
+    #         corrections["record_id"] = pd.NA
+
+    #         calculated_df = pd.concat(
+    #             [calculated_df, corrections], axis="index"
+    #         ).reset_index()
+
+    #     # Check that sub-total calculations sum to total.
+    #     if params.subtotal_column is not None:
+    #         sub_group_col = params.subtotal_column
+    #         pks_wo_subgroup = [col for col in pks if col != sub_group_col]
+    #         calculated_df["sub_total_sum"] = (
+    #             calculated_df.pipe(lambda df: df[df[sub_group_col] != "total"])
+    #             .groupby(pks_wo_subgroup)[params.column_to_check]
+    #             .transform("sum")  # For each group, calculate sum of sub-components
+    #         )
+    #         calculated_df["sub_total_sum"] = calculated_df["sub_total_sum"].fillna(
+    #             calculated_df[params.column_to_check]  # Fill in value from 'total' column
+    #         )
+    #         sub_total_errors = (
+    #             calculated_df.groupby(pks_wo_subgroup)
+    #             # If subcomponent sum != total sum, we have nunique()>1
+    #             .filter(lambda x: x["sub_total_sum"].nunique() > 1).groupby(pks_wo_subgroup)
+    #         )
+    #         off_ratio_sub = (
+    #             sub_total_errors.ngroups / calculated_df.groupby(pks_wo_subgroup).ngroups
+    #         )
+    #         if sub_total_errors.ngroups > 0:
+    #             logger.warning(
+    #                 f"{table_name}: has {sub_total_errors.ngroups} ({off_ratio_sub:.02%}) sub-total calculations that don't "
+    #                 "sum to the equivalent total column."
+    #             )
+    #         if off_ratio_sub > params.subtotal_calculation_tolerance:
+    #             raise AssertionError(
+    #                 f"Sub-total calculations in {table_name} are off by {off_ratio_sub}. Expected tolerance "
+    #                 f"of {params.subtotal_calculation_tolerance}."
+    #             )
+
+    #     return calculated_df
 
     def remove_factoids_from_mutliple_tables(
         self, exploded, tables_to_explode
