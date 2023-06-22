@@ -1963,6 +1963,75 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
                     },
                 ],
             },
+            "electric_plant_depreciation_functional_ferc1": {
+                # We use this name for the calculation but it gets renamed in
+                # `process_xbrl_metadata` to total.
+                "accumulated_provision_for_depreciation_of_electric_utility_plant": [
+                    {
+                        "calc_component_to_replace": {},
+                        "calc_component_new": {
+                            "name": "steam_production",
+                            "weight": 1.0,
+                        },
+                    },
+                    {
+                        "calc_component_to_replace": {},
+                        "calc_component_new": {
+                            "name": "nuclear_production",
+                            "weight": 1.0,
+                        },
+                    },
+                    {
+                        "calc_component_to_replace": {},
+                        "calc_component_new": {
+                            "name": "hydraulic_production_conventional",
+                            "weight": 1.0,
+                        },
+                    },
+                    {
+                        "calc_component_to_replace": {},
+                        "calc_component_new": {
+                            "name": "hydraulic_production_pumped_storage",
+                            "weight": 1.0,
+                        },
+                    },
+                    {
+                        "calc_component_to_replace": {},
+                        "calc_component_new": {
+                            "name": "other_production",
+                            "weight": 1.0,
+                        },
+                    },
+                    {
+                        "calc_component_to_replace": {},
+                        "calc_component_new": {
+                            "name": "transmission",
+                            "weight": 1.0,
+                        },
+                    },
+                    {
+                        "calc_component_to_replace": {},
+                        "calc_component_new": {
+                            "name": "distribution",
+                            "weight": 1.0,
+                        },
+                    },
+                    {
+                        "calc_component_to_replace": {},
+                        "calc_component_new": {
+                            "name": "regional_transmission_and_market_operation",
+                            "weight": 1.0,
+                        },
+                    },
+                    {
+                        "calc_component_to_replace": {},
+                        "calc_component_new": {
+                            "name": "general",
+                            "weight": 1.0,
+                        },
+                    },
+                ],
+            },
             "electric_plant_depreciation_changes_ferc1": {
                 "ending_balance": [
                     {

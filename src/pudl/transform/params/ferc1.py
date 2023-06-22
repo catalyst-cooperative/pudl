@@ -4072,6 +4072,10 @@ TRANSFORM_PARAMS = {
         "unstack_balances_to_report_year_instant_xbrl": {
             "unstack_balances_to_report_year": True
         },
+        "reconcile_table_calculations": {
+            "column_to_check": "ending_balance",
+            "subtotal_column": "plant_status",
+        },
     },
     "cash_flow_ferc1": {
         "rename_columns_ferc1": {
