@@ -3884,22 +3884,22 @@ TRANSFORM_PARAMS = {
                     "row_seq": "row_seq",
                     "row_prvlg": "row_prvlg",
                     "report_prd": "report_prd",
-                    "total_cde": "total_utility_plant_value",
-                    "future_plant": "future_utility_plant_value",
-                    "leased_plant": "leased_utility_plant_value",
-                    "electric_plant": "in_service_utility_plant_value",
+                    "total_cde": "total_dollar_value",
+                    "future_plant": "future_dollar_value",
+                    "leased_plant": "leased_dollar_value",
+                    "electric_plant": "in_service_dollar_value",
                     "xbrl_factoid": "depreciation_type",
                 }
             },
             "instant_xbrl": {
                 "columns": {
-                    "accumulated_provision_for_depreciation_of_electric_utility_plant_ending_balance": "ending_balance_utility_plant_value",
-                    "accumulated_provision_for_depreciation_of_electric_utility_plant_starting_balance": "starting_balance_utility_plant_value",
+                    "accumulated_provision_for_depreciation_of_electric_utility_plant_ending_balance": "ending_balance_dollar_value",
+                    "accumulated_provision_for_depreciation_of_electric_utility_plant_starting_balance": "starting_balance_dollar_value",
                 }
             },
             "duration_xbrl": {
                 "columns": {
-                    xbrl_col: f"{xbrl_col}_utility_plant_value"
+                    xbrl_col: f"{xbrl_col}_dollar_value"
                     for xbrl_col in [
                         "book_cost_of_asset_retirement_costs",
                         "book_cost_of_retired_plant",
@@ -3939,7 +3939,7 @@ TRANSFORM_PARAMS = {
                     "depreciation_type",
                     "record_id",
                 ],
-                "value_types": ["utility_plant_value"],
+                "value_types": ["dollar_value"],
                 "expected_drop_cols": 2,
                 "stacked_column_name": "plant_status",
             },
@@ -3951,7 +3951,7 @@ TRANSFORM_PARAMS = {
                     "utility_type_axis",
                     "sched_table_name",
                 ],
-                "value_types": ["utility_plant_value"],
+                "value_types": ["dollar_value"],
                 "expected_drop_cols": 2,
                 "stacked_column_name": "depreciation_type",
             },
@@ -3967,6 +3967,13 @@ TRANSFORM_PARAMS = {
         },
         "unstack_balances_to_report_year_instant_xbrl": {
             "unstack_balances_to_report_year": True
+        },
+        "reconcile_table_calculations": {
+            "column_to_check": "dollar_value",
+            # Note: this table does not currently get exploded. It will require
+            # additional debugging at a later date.
+            "calculation_tolerance": 0.4,
+            "subtotal_column": "depreciation_type",
         },
     },
     "electric_plant_depreciation_functional_ferc1": {
@@ -4064,6 +4071,10 @@ TRANSFORM_PARAMS = {
         },
         "unstack_balances_to_report_year_instant_xbrl": {
             "unstack_balances_to_report_year": True
+        },
+        "reconcile_table_calculations": {
+            "column_to_check": "ending_balance",
+            "subtotal_column": "plant_status",
         },
     },
     "cash_flow_ferc1": {
