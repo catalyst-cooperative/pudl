@@ -3204,8 +3204,8 @@ TRANSFORM_PARAMS = {
                     # detail of accum deprish
                     # in service
                     "in_srvce_depr": "depreciation_utility_plant_in_service_ending_balance",
-                    "amrtzd_dplt_nglr": "amortization_and_depletion_of_producing_natural_gas_land_and_land_rightsutility_plant_in_service_ending_balance",
-                    "amrtzd_ugrndstrg": "amortization_of_underground_storage_land_and_land_rightsutility_plant_in_service_ending_balance",
+                    "amrtzd_dplt_nglr": "amortization_and_depletion_of_producing_natural_gas_land_and_land_rights_utility_plant_in_service_ending_balance",
+                    "amrtzd_ugrndstrg": "amortization_of_underground_storage_land_and_land_rights_utility_plant_in_service_ending_balance",
                     "amrtz_utlty_plnt": "amortization_of_other_utility_plant_utility_plant_in_service_ending_balance",
                     "tot_in_service": "depreciation_amortization_and_depletion_utility_plant_in_service_ending_balance",
                     # leased to others
@@ -3246,7 +3246,7 @@ TRANSFORM_PARAMS = {
                         "depreciation_utility_plant_held_for_future_use",
                         "abandonment_of_leases",
                         "utility_plant_net",
-                        "amortization_and_depletion_of_producing_natural_gas_land_and_land_rightsutility_plant_in_service",
+                        "amortization_and_depletion_of_producing_natural_gas_land_and_land_rights_utility_plant_in_service",
                         "amortization_utility_plant_held_for_future_use",
                         "amortization_and_depletion_utility_plant_leased_to_others",
                         "accumulated_provision_for_depreciation_amortization_and_depletion_of_plant_utility",
@@ -3255,7 +3255,7 @@ TRANSFORM_PARAMS = {
                         "utility_plant_leased_to_others",
                         "utility_plant_held_for_future_use",
                         "amortization_of_other_utility_plant_utility_plant_in_service",
-                        "amortization_of_underground_storage_land_and_land_rightsutility_plant_in_service",
+                        "amortization_of_underground_storage_land_and_land_rights_utility_plant_in_service",
                         "utility_plant_in_service_completed_construction_not_classified",
                         "utility_plant_in_service_plant_purchased_or_sold",
                         "construction_work_in_progress",
