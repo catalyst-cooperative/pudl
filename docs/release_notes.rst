@@ -58,6 +58,8 @@ Dagster Adoption
   * :mod:`pudl.extract.ferc1.dbf2sqlite()` and :mod:`pudl.extract.xbrl.xbrl2sqlite()`
     are now configurable dagster ops. These ops make up the
     ``ferc_to_sqlite`` dagster graph in :mod:`pudl.ferc_to_sqlite.defs`.
+  * FERC 714 extraction methods are now subsettable by year, with 2019 and 2020 data
+    included in the ``etl_fast.yml`` by default. See :issue:`2628` and PR :pr:`2649`.
 
 Data Coverage
 ^^^^^^^^^^^^^
@@ -97,6 +99,8 @@ Data Coverage
     :pr:`2561`.
   * :ref:`boiler_emissions_control_equipment_assn_eia860`, see :issue:`2338` & PR
     :pr:`2561`.
+  * :ref:`boiler_cooling_assn_eia860`, see :issue:`2586` & PR :pr:`2587`
+  * :ref:`boiler_stack_flue_assn_eia860`, see :issue:`2586` & PR :pr:`2587`
 
 * The :ref:`boilers_eia860` table now includes annual boiler attributes from
   :doc:`data_sources/eia860` Schedule 6.2 Environmental Equipment data, and the new
@@ -158,6 +162,22 @@ Data Coverage
   connects EPA CAMD with EIA. Thanks to :user:`grgmiller` for his contribution to this
   process. See :issue:`2456` & :pr:`2491`.
 
+* Thanks to contributions from :user:`rousik` we've generalized the code we use to
+  convert FERC's old annual Visual FoxPro databases into multi-year SQLite databases.
+
+  * We have started extracting the FERC Form 2 (natual gas utility financial reports).
+    See issues :issue:`1984,2642` and PRs :pr:`2536,2564,2652`. We haven't yet done any
+    integration of the Form 2 into the cleaned and normalized PUDL DB, but the converted
+    `FERC Form 2 is available on Datasette <https://data.catalyst.coop/ferc2>`__
+    covering 1996-2020. Earlier years (1991-1995) were distributed using a different
+    binary format and we don't currently have plans to extract them. From 2021 onward we
+    are extracting the `FERC 2 from XBRL <https://data.catalyst.coop/ferc2_xbrl>`__.
+  * Similarly :pr:`2595` converts the earlier years of FERC Form 6 (2000-2020) from DBF
+    to SQLite, describing the finances of oil pipeline companies. When the nightly
+    builds succeed, `FERC Form 6 will be available on Datasette <https://data.catalyst.coop/ferc6>`__
+    as well.
+
+
 Data Cleaning
 ^^^^^^^^^^^^^
 
@@ -170,6 +190,19 @@ Data Cleaning
 * The :ref:`boiler_fuel_eia923` table now includes the ``prime_mover_code`` column. This
   column was previously incorrectly being associated with boilers in the
   :ref:`boilers_entity_eia` table. See issue :issue:`2349` & PR :pr:`2362`.
+* Fixed column naming issues in the :ref:`electric_operating_revenues_ferc1` table.
+* Made minor calculation fixes in the metadata for :ref:`income_statement_ferc1`,
+  :ref:`utility_plant_summary_ferc1`, :ref:`electric_operating_revenues_ferc1`,
+  :ref:`balance_sheet_assets_ferc1`, :ref:`balance_sheet_liabilities_ferc1`, and
+  :ref:`electric_operating_expenses_ferc1`. See :issue:`2016` and :pr:`2563`.
+* Changed the :ref:`retained_earnings_ferc1` table transform to restore factoids for
+  previous year balances, and added calculation metadata. See :issue:`1811`,
+  :issue:`2016`, and :pr:`2645`.
+* Added "correction" records to many FERC Form 1 tables where the reported totals do not
+  match the outcomes of calculations specified in XBRL metadata (even after cleaning up
+  the often incorrect calculation specifications!). See :issue:`2957` and :pr:`2620`.
+* Flip the sign of some erroneous negative values in the :ref:`plant_in_service_ferc1`
+  and :ref:`utility_plant_summary_ferc1` tables. See :issue:`2599`, and :pr:`2647`.
 
 Analysis
 ^^^^^^^^

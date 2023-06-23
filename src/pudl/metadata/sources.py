@@ -400,7 +400,10 @@ SOURCES: dict[str, Any] = {
         ),
         "field_namespace": "ferc2",
         "working_partitions": {
-            "years": sorted(set(range(2021, 2022))),  # XBRL only
+            # Years 1991-1995 use strange formats that need to be investigated further.
+            # Years 1996-1999 come in split archives and full archives and we are going
+            # to be using the aggregated archives (part=None).
+            "years": sorted(set(range(1996, 2022))),
         },
         "contributors": [
             CONTRIBUTORS["catalyst-cooperative"],
@@ -428,7 +431,9 @@ SOURCES: dict[str, Any] = {
         ),
         "field_namespace": "ferc6",
         "working_partitions": {
-            "years": sorted(set(range(2021, 2022))),  # XBRL only
+            # Years 2000-2020 are backed by DBF format.
+            # Years 2021-2022 are backed by XBRL.
+            "years": sorted(set(range(2000, 2022))),
         },
         "contributors": [
             CONTRIBUTORS["catalyst-cooperative"],

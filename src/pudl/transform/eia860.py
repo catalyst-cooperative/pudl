@@ -860,6 +860,17 @@ def clean_emissions_control_equipment_eia860(
         "emission_control_equipment_cost",
     ] = 3200
 
+    # Convert thousands of dollars to dollars:
+    emce_df.loc[:, "emission_control_equipment_cost"] = (
+        1000.0 * emce_df["emission_control_equipment_cost"]
+    )
+
+    emce_df = (
+        pudl.metadata.classes.Package.from_resource_ids()
+        .get_resource("emissions_control_equipment_eia860")
+        .encode(emce_df)
+    )
+
     return emce_df
 
 
@@ -941,3 +952,73 @@ def clean_boiler_emissions_control_equipment_assn_eia860(
     bece_df = bece_df.dropna(subset="emission_control_id_eia")
 
     return bece_df
+
+
+@asset
+def clean_boiler_cooling_assn_eia860(
+    raw_boiler_cooling_eia860: pd.DataFrame,
+) -> pd.DataFrame:
+    """Pull and transform the EIA 860 boiler to cooler ID table.
+
+    Args:
+        raw_boiler_cooling_eia860: Raw EIA 860 boiler to cooler ID association table.
+
+    Returns:
+        pd.DataFrame: A cleaned and normalized version of the EIA boiler to cooler ID
+            table.
+    """
+    # Replace empty strings, whitespace, and '.' fields with real NA values
+    bc_assn = pudl.helpers.fix_eia_na(raw_boiler_cooling_eia860)
+    # Replace the report year col with a report date col for the harvesting process
+    bc_assn = pudl.helpers.convert_to_date(
+        df=bc_assn, year_col="report_year", date_col="report_date"
+    )
+    # Drop rows with no cooling ID and just in case, drop duplicate
+    bc_assn = bc_assn.dropna(subset="cooling_id_eia").drop_duplicates()
+
+    return bc_assn
+
+
+@asset
+def clean_boiler_stack_flue_assn_eia860(
+    raw_boiler_stack_flue_eia860: pd.DataFrame,
+) -> pd.DataFrame:
+    """Pull and transform the EIA 860 boiler to stack flue ID table.
+
+    Args:
+        raw_boiler_stack_flue_eia860: Raw EIA 860 boiler to stack flue ID association
+            table.
+
+    Returns:
+        pd.DataFrame: A cleaned and normalized version of the EIA boiler to stack flue
+            ID table.
+    """
+    # Replace empty strings, whitespace, and '.' fields with real NA values
+    bsf_assn = pudl.helpers.fix_eia_na(raw_boiler_stack_flue_eia860)
+    # Replace the report year col with a report date col for the harvesting process
+    bsf_assn = pudl.helpers.convert_to_date(
+        df=bsf_assn, year_col="report_year", date_col="report_date"
+    )
+    # Drop duplicates
+    bsf_assn = bsf_assn.drop_duplicates()
+    # Create a primary key column for stack flue IDs.
+    # Prior to 2013, EIA reported a stack_id_eia and a flue_id_eia. Sometimes there
+    # was a m:m relationship between these values. 2013 and later, EIA published a
+    # stack_flue_id_eia column the represented either the stack or flue id.
+    # In order to create a primary key with no NA values, we create a new
+    # stack_flue_id_pudl column. We do this instead of backfilling stack_flue_id_pudl
+    # because stack_flue_id_pudl would not be a unique identifier in older years due to
+    # the m:m relationship between stack_id and flue_id. We also don't forward fill
+    # the individual stack or flue id columns because we can't be sure whether a
+    # stack_flue_id_eia value is the stack or flue id. And we don't want to
+    # missrepresent complicated relationships between stacks and flues. Also there's
+    # several instances where flue_id_eia is NA (hense the last fillna(x.stack_id_eia))
+    bsf_assn = bsf_assn.assign(
+        stack_flue_id_pudl=lambda x: (
+            x.stack_flue_id_eia.fillna(
+                x.stack_id_eia.astype("string") + "_" + x.flue_id_eia.astype("string")
+            ).fillna(x.stack_id_eia)
+        )
+    )
+
+    return bsf_assn
