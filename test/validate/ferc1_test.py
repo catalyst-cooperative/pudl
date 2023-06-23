@@ -86,7 +86,7 @@ def test_no_null_cols_ferc1(pudl_out_ferc1, live_dbs, cols, df_name):
     [
         ("fbp_ferc1", 25_421),
         ("fuel_ferc1", 48_841),
-        ("plant_in_service_ferc1", 311_890),
+        ("plant_in_service_ferc1", 312_046),
         ("plants_all_ferc1", 54_284),
         ("plants_hydro_ferc1", 6_796),
         ("plants_pumped_storage_ferc1", 544),

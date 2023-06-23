@@ -16,7 +16,7 @@ from ferc_xbrl_extractor import xbrl
 import pudl
 from pudl import resources
 from pudl.cli.etl import pudl_etl_job_factory
-from pudl.extract.ferc1 import xbrl_metadata_json
+from pudl.extract.ferc1 import raw_xbrl_metadata_json
 from pudl.extract.xbrl import FercXbrlDatastore, _get_sqlite_engine
 from pudl.ferc_to_sqlite.cli import ferc_to_sqlite_job_factory
 from pudl.io_managers import (
@@ -185,7 +185,47 @@ def pudl_out_orig(live_dbs, pudl_engine):
 
 
 @pytest.fixture(scope="session")
-def ferc_to_sqlite(live_dbs, pudl_datastore_config, etl_settings):
+def ferc_to_sqlite_dbf_only(live_dbs, pudl_datastore_config, etl_settings, pudl_env):
+    """Create raw FERC 1 SQLite DBs, but only based on DBF sources."""
+    if not live_dbs:
+        ferc_to_sqlite_job_factory(
+            enable_xbrl=False,
+        )().execute_in_process(
+            run_config={
+                "resources": {
+                    "ferc_to_sqlite_settings": {
+                        "config": etl_settings.ferc_to_sqlite_settings.dict()
+                    },
+                    "datastore": {
+                        "config": pudl_datastore_config,
+                    },
+                },
+            },
+        )
+
+
+@pytest.fixture(scope="session")
+def ferc_to_sqlite_xbrl_only(live_dbs, pudl_datastore_config, etl_settings, pudl_env):
+    """Create raw FERC 1 SQLite DBs, but only based on XBRL sources."""
+    if not live_dbs:
+        ferc_to_sqlite_job_factory(
+            enable_dbf=False,
+        )().execute_in_process(
+            run_config={
+                "resources": {
+                    "ferc_to_sqlite_settings": {
+                        "config": etl_settings.ferc_to_sqlite_settings.dict()
+                    },
+                    "datastore": {
+                        "config": pudl_datastore_config,
+                    },
+                },
+            },
+        )
+
+
+@pytest.fixture(scope="session")
+def ferc_to_sqlite(live_dbs, pudl_datastore_config, etl_settings, pudl_env):
     """Create raw FERC 1 SQLite DBs.
 
     If we are using the test database, we initialize it from scratch first. If we're
@@ -212,7 +252,7 @@ def ferc_to_sqlite(live_dbs, pudl_datastore_config, etl_settings):
 
 
 @pytest.fixture(scope="session", name="ferc1_engine_dbf")
-def ferc1_dbf_sql_engine(ferc_to_sqlite):
+def ferc1_dbf_sql_engine(ferc_to_sqlite_dbf_only):
     """Grab a connection to the FERC Form 1 DB clone."""
     context = build_init_resource_context(
         resources={"dataset_settings": dataset_settings_config}
@@ -221,7 +261,7 @@ def ferc1_dbf_sql_engine(ferc_to_sqlite):
 
 
 @pytest.fixture(scope="session", name="ferc1_engine_xbrl")
-def ferc1_xbrl_sql_engine(ferc_to_sqlite, dataset_settings_config):
+def ferc1_xbrl_sql_engine(ferc_to_sqlite_xbrl_only, dataset_settings_config):
     """Grab a connection to the FERC Form 1 DB clone."""
     context = build_init_resource_context(
         resources={"dataset_settings": dataset_settings_config}
@@ -279,10 +319,10 @@ def ferc_xbrl(
 @pytest.fixture(scope="session", name="ferc1_xbrl_taxonomy_metadata")
 def ferc1_xbrl_taxonomy_metadata(ferc1_engine_xbrl):
     """Read the FERC 1 XBRL taxonomy metadata from JSON."""
-    result = materialize_to_memory([xbrl_metadata_json])
+    result = materialize_to_memory([raw_xbrl_metadata_json])
     assert result.success
 
-    return result.output_for_node("xbrl_metadata_json")
+    return result.output_for_node("raw_xbrl_metadata_json")
 
 
 @pytest.fixture(scope="session")
