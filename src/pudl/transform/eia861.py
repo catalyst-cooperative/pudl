@@ -636,8 +636,48 @@ def backfill_ba_codes_by_ba_id(df: pd.DataFrame) -> pd.DataFrame:
     return ba_eia861_filled
 
 
-def _tidy_class_dfs(df, df_name, idx_cols, class_list, class_type, keep_totals=False):
-    # Clean up values just enough to use primary key columns as a multi-index:
+def _tidy_class_dfs(
+    df: pd.DataFrame,
+    df_name: str,
+    idx_cols: list[str],
+    class_list: list[str],
+    class_type: str,
+    keep_totals: bool = False,
+) -> pd.DataFrame:
+    """Stack multiple data columns and create a categorical column for filtering.
+
+    Many EIA-861 tables are reported in a wide format, with several columns reporting
+    the same type of value, but within different categories. E.g. electricity sales by
+    customer class, with each customer class in a separate column, and separate sets of
+    customer class columns for the dollar value of sales, and the MWh of electricity
+    sold.
+
+    This function takes those groups of columns and stacks each of them into a single
+    data column creating another categorical column describing the class to which each
+    record pertains.
+
+    Non-data columns are separated before the reshaping, and recombined with the
+    reshaped data after the fact, broadcasting their values across all of the records
+    that they pertain to.
+
+    Args:
+        df: The dataframe containing the data to be reshaped.
+        df_name: A string describing the dataframe, for logging.
+        idx_cols: The index (primary key) columns of the input dataframe. They must
+            identify unique records in the input data.
+        class_list: List of values which will ultimately be found in the ``class_type``
+            column, and which should initally be found as suffixes on the names of the
+            columns to be reshaped.
+        class_type: The name of the categorical column produced by the reshaping.
+        keep_totals: If True, retain total values which are the sum of all the
+            categories. If False (the default) these duplicative rows are dropped. In
+            either case the totals are checked using :func:`_compare_totals` and logging
+            output is generated at the DEBUG level.
+
+    Returns:
+        A tidier long-form version of the input dataframe.
+    """
+    # Replace NA values in the BA code column with "UNK"
     logger.debug(f"Cleaning {df_name} table index columns so we can tidy data.")
     if "balancing_authority_code_eia" in idx_cols:
         df = df.assign(
@@ -645,11 +685,18 @@ def _tidy_class_dfs(df, df_name, idx_cols, class_list, class_type, keep_totals=F
                 lambda x: x.balancing_authority_code_eia.fillna("UNK")
             )
         )
+    before_len = len(df)
     raw_df = (
         df.dropna(subset=["utility_id_eia"])
         .astype({"utility_id_eia": "Int64"})
         .set_index(idx_cols)
     )
+    after_len = len(raw_df)
+    if before_len != after_len:
+        logger.debug(
+            f"Dropped {before_len - after_len} rows in EIA-861 {df_name} table due to "
+            "missing utility_id_eia values."
+        )
     # Split the table into index, data, and "denormalized" columns for processing:
     # Separate customer classes and reported data into a hierarchical index
     logger.debug(f"Stacking EIA861 {df_name} data columns by {class_type}.")
@@ -670,13 +717,46 @@ def _tidy_class_dfs(df, df_name, idx_cols, class_list, class_type, keep_totals=F
     data_cols = data_cols.stack(level=0, dropna=False).reset_index()
     denorm_cols = _filter_non_class_cols(raw_df, class_list).reset_index()
 
+    # Check to make sure that the idx_cols are actually valid primary key cols:
+    # This is tricky, because NA values in the BA Code column creates actual duplicate
+    # values. These NA values are filled with UNK and the duplicates are later dropped,
+    # which means we are losing data. But it's not obvious how we could actually fill
+    # in real BA codes, so we consolidate the duplicate records.
+    # These are only a fraction of a percent of all records, and only affect a couple
+    # of tables.
+    data_dupe_mask = data_cols.duplicated(subset=idx_cols + [class_type], keep=False)
+    data_dupes = data_cols[data_dupe_mask]
+    fraction_data_dupes = len(data_dupes) / len(data_cols)
+    denorm_dupe_mask = denorm_cols.duplicated(subset=idx_cols, keep=False)
+    denorm_dupes = denorm_cols[denorm_dupe_mask]
+    fraction_denorm_dupes = len(denorm_dupes) / len(data_cols)
+    err_msg = (
+        f"{df_name} table: Found {len(data_dupes)}/{len(data_cols)} "
+        f"({fraction_data_dupes:0.2%}) records with duplicated PKs. "
+    )
+    if fraction_data_dupes <= 0.005:
+        err_msg += "Consolidating duplicated records."
+        logger.info(err_msg)
+        deduped = data_dupes.groupby(idx_cols + [class_type], as_index=False).sum()
+        data_cols = pd.concat([data_cols[~data_dupe_mask], deduped], axis="index")
+        # PK dupes also affect denorm_cols. Drop dupes to ensure clean 1 to many merge:
+        if fraction_denorm_dupes > 0.005:
+            raise AssertionError(
+                f"Found too many ({fraction_denorm_dupes:0.2%}) duplicate PK values in "
+                "the non-data columns while consolidating records!"
+            )
+        denorm_cols = denorm_cols.drop_duplicates(subset=idx_cols)
+    else:
+        raise AssertionError(err_msg)
+
     # Merge the index, data, and denormalized columns back together
-    tidy_df = pd.merge(denorm_cols, data_cols, on=idx_cols)
+    tidy_df = pd.merge(denorm_cols, data_cols, on=idx_cols, validate="1:m")
 
     # Compare reported totals with sum of component columns
     if "total" in class_list:
         _compare_totals(data_cols, idx_cols, class_type, df_name)
     if keep_totals is False:
+        logger.debug("Dropping duplicative total records.")
         tidy_df = tidy_df.query(f"{class_type}!='total'")
 
     return tidy_df, idx_cols + [class_type]
@@ -719,17 +799,17 @@ def _compare_totals(data_cols, idx_cols, class_type, df_name):
     # Convert column dtypes so that numeric cols can be adequately summed
     data_cols = convert_cols_dtypes(data_cols, data_source="eia")
     # Drop data cols that are non numeric (preserve primary keys)
-    logger.debug(f"{idx_cols}, {class_type}")
+    logger.debug(f"Index Columns & Class Type: {idx_cols}, {class_type}")
     data_cols = (
         data_cols.set_index(idx_cols + [class_type])
         .select_dtypes("number")
         .reset_index()
     )
-    logger.debug(f"{data_cols.columns.tolist()}")
+    logger.debug(f"Index & Data Columns: {data_cols.columns.tolist()}")
     # Create list of data columns to be summed
     # (may include non-numeric that will be excluded)
     data_col_list = set(data_cols.columns.tolist()) - set(idx_cols + [class_type])
-    logger.debug(f"{data_col_list}")
+    logger.debug(f"Data Columns: {data_col_list}")
     # Distinguish reported totals from segments
     data_totals_df = data_cols.loc[data_cols[class_type] == "total"]
     data_no_tots_df = data_cols.loc[data_cols[class_type] != "total"]
@@ -1079,6 +1159,8 @@ def sales_eia861(raw_sales_eia861: pd.DataFrame) -> pd.DataFrame:
         "state",
         "report_date",
         "balancing_authority_code_eia",
+        "business_model",
+        "service_type",
     ]
 
     # Pre-tidy clean specific to sales table
@@ -1360,7 +1442,7 @@ def demand_side_management_eia861(
     # Tidy Data:
     ###########################################################################
 
-    tidy_dsm, dsm_idx_cols = pudl.transform.eia861._tidy_class_dfs(
+    tidy_dsm, dsm_idx_cols = _tidy_class_dfs(
         dsm_ee_dr,
         df_name="Demand Side Management",
         idx_cols=idx_cols,

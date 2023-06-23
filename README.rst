@@ -161,7 +161,7 @@ full data processing pipeline yourself, tweak the underlying source code, and (w
 make contributions back to the project.
 
 This is by far the most involved way to access the data and isn't recommended for
-most users. You should check out the Development section of the main `PUDL
+most users. You should check out the `Development section <https://catalystcoop-pudl.readthedocs.io/en/latest/dev/dev_setup.html>`__ of the main `PUDL
 documentation <https://catalystcoop-pudl.readthedocs.io>`__ for more details.
 
 Nightly Data Builds
@@ -185,12 +185,14 @@ Datasette:
 
 * Raw FERC Form 2:
 
+  * `FERC-2 SQLite derived from DBF (1996-2020) <https://s3.us-west-2.amazonaws.com/intake.catalyst.coop/dev/ferc2.sqlite>`__
   * `FERC-2 SQLite derived from XBRL (2021) <https://s3.us-west-2.amazonaws.com/intake.catalyst.coop/dev/ferc2_xbrl.sqlite>`__
   * `FERC-2 Datapackage (JSON) describing SQLite derived from XBRL <https://s3.us-west-2.amazonaws.com/intake.catalyst.coop/dev/ferc2_xbrl_datapackage.json>`__
   * `FERC-2 XBRL Taxonomy Metadata as JSON (2021) <https://s3.us-west-2.amazonaws.com/intake.catalyst.coop/dev/ferc2_xbrl_taxonomy_metadata.json>`__
 
 * Raw FERC Form 6:
 
+  * `FERC-6 SQLite derived from DBF (2000-2020) <https://s3.us-west-2.amazonaws.com/intake.catalyst.coop/dev/ferc6.sqlite>`__
   * `FERC-6 SQLite derived from XBRL (2021) <https://s3.us-west-2.amazonaws.com/intake.catalyst.coop/dev/ferc6_xbrl.sqlite>`__
   * `FERC-6 Datapackage (JSON) describing SQLite derived from XBRL <https://s3.us-west-2.amazonaws.com/intake.catalyst.coop/dev/ferc6_xbrl_datapackage.json>`__
   * `FERC-6 XBRL Taxonomy Metadata as JSON (2021) <https://s3.us-west-2.amazonaws.com/intake.catalyst.coop/dev/ferc6_xbrl_taxonomy_metadata.json>`__

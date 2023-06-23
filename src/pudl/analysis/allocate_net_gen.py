@@ -357,7 +357,7 @@ def allocate_gen_fuel_by_generator_energy_source(
     """
     bf, gens_at_freq, gen = standardize_input_frequency(bf, gens, gen, freq)
     # Add any startup energy source codes to the list of energy source codes
-    gens_at_freq = adjust_energy_source_codes(gens_at_freq, gf, bf)
+    gens_at_freq = adjust_msw_energy_source_codes(gens_at_freq, gf, bf)
     gens_at_freq = add_missing_energy_source_codes_to_gens(gens_at_freq, gf, bf)
     # do the association!
     gen_assoc = associate_generator_tables(
@@ -1590,7 +1590,18 @@ def distribute_annually_reported_data_to_months_if_annual(
     return df_out
 
 
-def adjust_energy_source_codes(
+def manually_fix_energy_source_codes(gf: pd.DataFrame) -> pd.DataFrame:
+    """Reassign fuel codes that differ between gen-fuel and gens tables."""
+    # plant 10204 should be waste heat instead of other
+    gf.loc[
+        (gf["plant_id_eia"] == 10204) & (gf["energy_source_code"] == "OTH"),
+        "energy_source_code",
+    ] = "WH"
+
+    return gf
+
+
+def adjust_msw_energy_source_codes(
     gens: pd.DataFrame, gf: pd.DataFrame, bf_by_gens: pd.DataFrame
 ) -> pd.DataFrame:
     """Adjusts MSW codes.
@@ -1765,11 +1776,11 @@ def allocate_bf_data_to_gens(
 
     Because fuel consumption in the boiler_fuel_eia923 table is reported per boiler_id,
     we must first map this data to generators using the boiler_generator_assn_eia860
-    table. For boilers that have a 1:m or m:m relationship with generators, we allocate
+    table. For boilers that have a 1:m or m: m relationship with generators, we allocate
     the reported fuel to each associated generator based on the nameplate capacity of
-    each generator. So if boiler "1" was associated with generator A (25 MW) and
-    generator B (75 MW), 25% of the fuel consumption would be allocated to generator A
-    and 75% would be allocated to generator B.
+    each generator. So if boiler "1" was associated with generator A (25 MW) and generator
+    B (75 MW), 25% of the fuel consumption would be allocated to generator A and 75% would
+    be allocated to generator B.
     """
     # merge generator capacity information into the BGA
     bga_w_gen = bga.merge(
