@@ -1,12 +1,4 @@
-"""Tests for the FERC Form 1 output functions.
-
-Calculation tree generation:
-- [x] Test base recusion case (leaf node w/ empty calculations)
-- [x] Test simple 1-level recursion w/ 1-2 child nodes.
-- [x] Test calculation with non-unique source table (should fail)
-- Test calculation that references an outside table (???)
-
-"""
+"""Tests for the FERC Form 1 output functions."""
 
 import json
 import logging
