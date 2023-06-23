@@ -1475,6 +1475,8 @@ class XbrlCalculationTreeFerc1(BaseModel):
         xbrl_factoid: str,
         exploded_meta: pd.DataFrame,
         weight: float = np.nan,
+        tags_df: pd.DataFrame | None = None,
+        propagate_weights: bool = True,
     ) -> "XbrlCalculationTreeFerc1":
         """Construct a complete calculation tree based on exploded metadata.
 
@@ -1518,13 +1520,19 @@ class XbrlCalculationTreeFerc1(BaseModel):
                 )
             )
 
-        return XbrlCalculationTreeFerc1(
+        tree = XbrlCalculationTreeFerc1(
             source_table=source_table,
             xbrl_factoid=xbrl_factoid,
             weight=weight,
             xbrl_factoid_original=exploded_meta.at[idx, "xbrl_factoid_original"],
             children=children,
         )
+        if propagate_weights:
+            tree = tree.propagate_weights()
+        if tags_df is not None:
+            tree = tree.add_tags_from_df(tags_df).propagate_tags()
+
+        return tree
 
     def propagate_weights(
         self: Self, parent_weight: float = 1.0
@@ -1590,7 +1598,7 @@ class XbrlCalculationTreeFerc1(BaseModel):
             **self.dict() | {"tags": new_tags, "children": new_children}
         )
 
-    def to_networkx(self: Self) -> nx.Graph:
+    def to_networkx(self: Self) -> nx.DiGraph:
         """Convert the tree to a an undirected NetworkX graph.
 
         Given a node, treat that node as the root of a tree, and construct an undirected
@@ -1618,11 +1626,6 @@ class XbrlCalculationTreeFerc1(BaseModel):
             digraph.add_edges_from(child_graph.edges)
         return digraph
 
-    @classmethod
-    def from_networkx(cls, digraph: nx.DiGraph) -> "XbrlCalculationTreeFerc1":
-        """Construct an XbrlCalculationTree from a :class:`networkx.DiGraph`."""
-        ...
-
     def to_leafy_meta(self: Self) -> pd.DataFrame:
         """Convert an XbrlCalculationTree back into a pandas dataframe.
 
@@ -1631,18 +1634,28 @@ class XbrlCalculationTreeFerc1(BaseModel):
         - Weights reflect updated / propagated values
         - FOREST ONLY: Include column indicating the ID of the root node
         """
-        ...
+        G = self.to_networkx()  # noqa: N806
 
+        leaves = [n for n, d in G.out_degree() if d == 0]
+        H = nx.DiGraph()  # noqa: N806
+        H.add_nodes_from(leaves)
+        nx.set_node_attributes(H, dict(G.nodes))
 
-class XbrlCalculationSeedFerc1(BaseModel):
-    """The initial parameters required to build an XBRL Calculation Tree.
-
-    This seems like it might be conceptually simpler than tracking lists of source
-    tables and factoids that have to correspond to each other?
-    """
-
-    source_table: str
-    xbrl_factoid: str
+        idx_cols = ["source_table", "xbrl_factoid"]
+        rows = []
+        for node in H.nodes:
+            row = pd.concat(
+                [
+                    pd.DataFrame(
+                        {"source_table": [node[0]], "xbrl_factoid": [node[1]]}
+                    ),
+                    pd.json_normalize(H.nodes(data=True)[node]),
+                ],
+                axis="columns",
+            )
+            rows.append(row)
+        leafy_meta = pd.concat(rows)
+        return leafy_meta.set_index(idx_cols, drop=True).sort_index().convert_dtypes()
 
 
 class XbrlCalculationForestFerc1(BaseModel):
@@ -1656,6 +1669,8 @@ class XbrlCalculationForestFerc1(BaseModel):
         source_tables: list[str],
         xbrl_factoids: list[str],
         exploded_meta: pd.DataFrame,
+        propagate_weights: bool = True,
+        tags_df: pd.DataFrame | None = None,
     ) -> "XbrlCalculationForestFerc1":
         """Build several :class:`XbrlCalculationTreeFerc1`'s from exploded metadata.
 
@@ -1675,18 +1690,13 @@ class XbrlCalculationForestFerc1(BaseModel):
             )
             for source_table, xbrl_factoid in zip(source_tables, xbrl_factoids)
         ]
-        forest = nx.DiGraph()
-        for tree in trees:
-            assert nx.is_tree(tree)
-            forest.add_edges_from(tree.to_networkx().edges)
-        assert nx.is_forest(forest)
-        logger.info(f"Found {len(nx.connected_components(forest))} calculation trees")
+        forest = cls.to_networkx(trees)
 
         # Identify the roots of each tree and verify it's one of the input seeds
         roots = [n for n, in_deg in forest.in_degree() if in_deg == 0]
-        logger.info(f"{roots=}")
+        logger.debug(f"{roots=}")
         leaves = [n for n, out_deg in forest.out_degree() if out_deg == 0]
-        logger.info(f"{leaves=}")
+        logger.debug(f"{leaves=}")
 
         # - The easiest way to "convert" the NX Graph back to our class may be to just
         #   rebuild the trees, but using only the newly identified root nodes as seeds.
@@ -1697,7 +1707,36 @@ class XbrlCalculationForestFerc1(BaseModel):
                 source_table=source_table,
                 xbrl_factoid=xbrl_factoid,
                 exploded_meta=exploded_meta,
+                weight=1.0,
+                propagate_weights=propagate_weights,
+                tags_df=tags_df,
             )
             for source_table, xbrl_factoid in roots
         ]
         return XbrlCalculationForestFerc1(trees=minimal_trees)
+
+    @classmethod
+    def to_networkx(cls, trees: list["XbrlCalculationTreeFerc1"]) -> nx.DiGraph:
+        """Convert a forest into a :class:`networkx.DiGraph`."""
+        forest = nx.DiGraph()
+        for tree in trees:
+            nx_tree = tree.to_networkx()
+            assert nx.is_tree(nx_tree)
+            forest.add_nodes_from(nx_tree.nodes)
+            nx.set_node_attributes(nx_tree, dict(nx_tree.nodes))
+            forest.add_edges_from(nx_tree.edges)
+
+        assert nx.is_forest(forest)
+        components = list(nx.connected_components(forest.to_undirected()))
+        logger.info(f"Found {len(components)} calculation trees")
+        return forest
+
+    def to_leafy_meta(self: Self) -> pd.DataFrame:
+        """Generate a metadataframe from the leaves of an XBRL Calculation Forest."""
+        dfs = []
+        for tree in self.trees:
+            new_df = tree.to_leafy_meta()
+            new_df["root_table"] = tree.source_table
+            new_df["root_xbrl_factoid"] = tree.xbrl_factoid
+            dfs.append(new_df)
+        return pd.concat(dfs).sort_index()
