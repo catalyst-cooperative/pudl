@@ -113,29 +113,49 @@ def mcoe_asset_factory(
             "capacity_factor": AssetIn(
                 key=f"capacity_factor_by_generator_{agg_freqs[freq]}"
             ),
-            "gens": AssetIn(key="denorm_generators_eia"),
         },
         io_manager_key=io_manager_key,
         compute_kind="Python",
     )
     def mcoe_asset(
-        fuel_cost: pd.DataFrame, capacity_factor: pd.DataFrame, gens: pd.DataFrame
+        fuel_cost: pd.DataFrame, capacity_factor: pd.DataFrame
     ) -> pd.DataFrame:
         return mcoe(
             fuel_cost=fuel_cost,
             capacity_factor=capacity_factor,
-            gens=gens,
-            freq=freq,
             min_heat_rate=None,
             min_fuel_cost_per_mwh=None,
             min_cap_fact=None,
             max_cap_fact=None,
-            all_gens=False,
+        )
+
+    @asset(
+        name=f"mcoe_generators_{agg_freqs[freq]}",
+        ins={
+            "mcoe": AssetIn(key=f"mcoe_{agg_freqs[freq]}"),
+            "gens": AssetIn(key="denorm_generators_eia"),
+        },
+        # TODO: include io_manager_key
+        compute_kind="Python",
+    )
+    def mcoe_generators_asset(mcoe: pd.DataFrame, gens: pd.DataFrame) -> pd.DataFrame:
+        return mcoe_generators(
+            mcoe=mcoe,
+            gens=gens,
+            freq=freq,
+            all_gens=True,
             gens_cols=None,
             timeseries_fillin=False,
         )
 
-    return [hr_by_unit_asset, hr_by_gen_asset, fc_asset, cf_asset, mcoe_asset]
+    return [
+        hr_by_unit_asset,
+        hr_by_gen_asset,
+        fc_asset,
+        cf_asset,
+        mcoe_asset,
+        mcoe_generators_asset,
+    ]
 
 
 mcoe_assets = [
@@ -492,15 +512,10 @@ def capacity_factor(
 def mcoe(
     fuel_cost: pd.DataFrame,
     capacity_factor: pd.DataFrame,
-    gens: pd.DataFrame,
-    freq: Literal["AS", "MS"],
     min_heat_rate: float = 5.5,
     min_fuel_cost_per_mwh: float = 0.0,
     min_cap_fact: float = 0.0,
     max_cap_fact: float = 1.5,
-    all_gens: bool = True,
-    gens_cols: Literal["all"] | list[str] | None = None,
-    timeseries_fillin: bool = False,
 ) -> pd.DataFrame:
     """Compile marginal cost of electricity (MCOE) at the generator level.
 
@@ -520,18 +535,6 @@ def mcoe(
             factor. Generator records with a lower capacity factor will be
             filtered out before returning. This allows the user to exclude
             generators that aren't being used enough to have valid.
-        all_gens: if True, include attributes of all generators in the
-            :ref:`generators_eia860` table, rather than just the generators
-            which have records in the derived MCOE values. True by default.
-        gens_cols: equal to the string "all", None, or a list of names of
-            column attributes to include from the :ref:`generators_eia860` table in
-            addition to the list of defined `DEFAULT_GENS_COLS`. If "all", all columns
-            from the generators table will be included. By default, no extra columns
-            will be included, only the `DEFAULT_GENS_COLS` will be merged into the final
-            MCOE output.
-        timeseries_fillin: if True, fill in the full timeseries for each generator in
-            the output dataframe. The data in the timeseries will be filled
-            with the data from the next previous chronological record.
 
     Returns:
         A dataframe organized by date and generator, with lots of juicy information
@@ -587,7 +590,49 @@ def mcoe(
         )
         .pipe(pudl.validate.no_null_cols, df_name="fuel_cost + capacity_factor")
     )
+    mcoe_out = mcoe_out.sort_values(
+        [
+            "plant_id_eia",
+            "generator_id",
+            "report_date",
+        ]
+    )
+    return mcoe_out
 
+
+def mcoe_generators(
+    mcoe: pd.DataFrame,
+    gens: pd.DataFrame,
+    freq: Literal["AS", "MS"],
+    all_gens: bool = True,
+    gens_cols: Literal["all"] | list[str] | None = None,
+    timeseries_fillin: bool = False,
+) -> pd.DataFrame:
+    """Merge generator attributes onto the marginal cost of electricity table.
+
+    Merge the columns listed in ``gens_cols`` onto the MCOE table and optionally
+    fill in the timeseries for each generator.
+
+    Args:
+        mcoe: The MCOE dataframe outputted from the `mcoe` analysis function.
+        gens: The denormalized dataframe of all EIA generators.
+        all_gens: if True, include attributes of all generators in the
+            :ref:`generators_eia860` table, rather than just the generators
+            which have records in the derived MCOE values. True by default.
+        gens_cols: equal to the string "all", None, or a list of names of
+            column attributes to include from the :ref:`generators_eia860` table in
+            addition to the list of defined `DEFAULT_GENS_COLS`. If "all", all columns
+            from the generators table will be included. By default, no extra columns
+            will be included, only the `DEFAULT_GENS_COLS` will be merged into the final
+            MCOE output.
+        timeseries_fillin: if True, fill in the full timeseries for each generator in
+            the output dataframe. The data in the timeseries will be filled
+            with the data from the next previous chronological record.
+
+    Returns:
+        An MCOE dataframe organized by date and generator, with additionally generator
+        attributes merged on and optionally a filled in timeseries for each generator.
+    """
     # Combine MCOE derived values with generator attributes
     if gens_cols == "all":
         gens_cols = gens.columns
@@ -599,25 +644,25 @@ def mcoe(
     gens = gens.loc[:, gens_cols]
 
     if timeseries_fillin:
-        mcoe_out = pudl.helpers.full_timeseries_date_merge(
+        mcoe_gens_out = pudl.helpers.full_timeseries_date_merge(
             left=gens,
-            right=mcoe_out,
+            right=mcoe,
             on=["plant_id_eia", "generator_id"],
             date_on=["year"],
             how="left" if all_gens else "right",
             freq=freq,
         ).pipe(pudl.validate.no_null_rows, df_name="mcoe_all_gens", thresh=0.9)
     else:
-        mcoe_out = pudl.helpers.date_merge(
+        mcoe_gens_out = pudl.helpers.date_merge(
             left=gens,
-            right=mcoe_out,
+            right=mcoe_gens_out,
             on=["plant_id_eia", "generator_id"],
             date_on=["year"],
             how="left" if all_gens else "right",
         ).pipe(pudl.validate.no_null_rows, df_name="mcoe_all_gens", thresh=0.9)
 
     # Organize the dataframe for easier legibility
-    mcoe_out = mcoe_out.pipe(
+    mcoe_gens_out = mcoe_gens_out.pipe(
         pudl.helpers.organize_cols,
         DEFAULT_GENS_COLS,
     ).sort_values(
@@ -629,4 +674,4 @@ def mcoe(
         ]
     )
 
-    return mcoe_out
+    return mcoe_gens_out

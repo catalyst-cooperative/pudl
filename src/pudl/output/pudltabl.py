@@ -391,8 +391,6 @@ class PudlTabl:
         min_fuel_cost_per_mwh: float = 0.0,
         min_cap_fact: float = 0.0,
         max_cap_fact: float = 1.5,
-        all_gens: bool = False,
-        gens_cols: Literal["all"] | list[str] | None = None,
     ) -> pd.DataFrame:
         """Pull the basic compiled MCOE table out of the PUDL DB.
 
