@@ -1,7 +1,7 @@
 [build-system]
 build-backend = "setuptools.build_meta"
 requires = [
-    "setuptools>=66,<68",
+    "setuptools>=66,<69",
     "setuptools_scm[toml]>=3.5.0",
     "wheel",
 ]
@@ -89,7 +89,6 @@ keywords = [
 ]
 
 [project.scripts]
-censusdp1tract_to_sqlite = "pudl.convert.censusdp1tract_to_sqlite:main"
 metadata_to_rst = "pudl.convert.metadata_to_rst:main"
 epacems_to_parquet = "pudl.convert.epacems_to_parquet:main"
 ferc_to_sqlite = "pudl.ferc_to_sqlite.cli:main"

@@ -1311,7 +1311,8 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
         tbl_meta.xbrl_factoid = tbl_meta.xbrl_factoid.map(xbrl_factoid_name_map)
 
         def rename_calculation_components(calc: str) -> str:
-            # apply the rename for the "name" element of all of the calc components
+            # Rename all calculation components from their original XBRL factoid names
+            # to their modified PUDL names.
             renamed_calc = [
                 {
                     k: self.raw_xbrl_factoid_to_pudl_name(v) if k == "name" else v
@@ -1534,7 +1535,7 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
             },
             "electric_operating_expenses_ferc1": {
                 # This table has two factoids that have sub-components that are
-                # calculations themselves and both the sub-component calcuated values
+                # calculations themselves and both the sub-component calculated values
                 # AND the sub-sub-components. So we're removing the specific sub-sub-
                 # components
                 "power_production_expenses_steam_power": [
@@ -1962,6 +1963,114 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
                     },
                 ],
             },
+            "electric_plant_depreciation_functional_ferc1": {
+                # We use this name for the calculation but it gets renamed in
+                # `process_xbrl_metadata` to total.
+                "accumulated_provision_for_depreciation_of_electric_utility_plant": [
+                    {
+                        "calc_component_to_replace": {},
+                        "calc_component_new": {
+                            "name": "steam_production",
+                            "weight": 1.0,
+                        },
+                    },
+                    {
+                        "calc_component_to_replace": {},
+                        "calc_component_new": {
+                            "name": "nuclear_production",
+                            "weight": 1.0,
+                        },
+                    },
+                    {
+                        "calc_component_to_replace": {},
+                        "calc_component_new": {
+                            "name": "hydraulic_production_conventional",
+                            "weight": 1.0,
+                        },
+                    },
+                    {
+                        "calc_component_to_replace": {},
+                        "calc_component_new": {
+                            "name": "hydraulic_production_pumped_storage",
+                            "weight": 1.0,
+                        },
+                    },
+                    {
+                        "calc_component_to_replace": {},
+                        "calc_component_new": {
+                            "name": "other_production",
+                            "weight": 1.0,
+                        },
+                    },
+                    {
+                        "calc_component_to_replace": {},
+                        "calc_component_new": {
+                            "name": "transmission",
+                            "weight": 1.0,
+                        },
+                    },
+                    {
+                        "calc_component_to_replace": {},
+                        "calc_component_new": {
+                            "name": "distribution",
+                            "weight": 1.0,
+                        },
+                    },
+                    {
+                        "calc_component_to_replace": {},
+                        "calc_component_new": {
+                            "name": "regional_transmission_and_market_operation",
+                            "weight": 1.0,
+                        },
+                    },
+                    {
+                        "calc_component_to_replace": {},
+                        "calc_component_new": {
+                            "name": "general",
+                            "weight": 1.0,
+                        },
+                    },
+                ],
+            },
+            "electric_plant_depreciation_changes_ferc1": {
+                "ending_balance": [
+                    {
+                        "calc_component_to_replace": {},
+                        "calc_component_new": {
+                            "name": "starting_balance",
+                            "weight": 1.0,
+                        },
+                    },
+                    {
+                        "calc_component_to_replace": {},
+                        "calc_component_new": {
+                            "name": "depreciation_provision",
+                            "weight": 1.0,
+                        },
+                    },
+                    {
+                        "calc_component_to_replace": {},
+                        "calc_component_new": {
+                            "name": "net_charges_for_retired_plant",
+                            "weight": 1.0,
+                        },
+                    },
+                    {
+                        "calc_component_to_replace": {},
+                        "calc_component_new": {
+                            "name": "other_adjustments_to_accumulated_depreciation",
+                            "weight": 1.0,
+                        },
+                    },
+                    {
+                        "calc_component_to_replace": {},
+                        "calc_component_new": {
+                            "name": "book_cost_of_asset_retirement_costs",
+                            "weight": 1.0,
+                        },
+                    },
+                ],
+            },
         }
 
         def remove_nones_in_list(list_of_things):
@@ -2120,7 +2229,7 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
             len_og = len(df)
             df = df[df.report_prd == 12].copy()
             logger.info(
-                f"{self.table_id.value}: After selection only annual records,"
+                f"{self.table_id.value}: After selection of only annual records,"
                 f" we have {len(df)/len_og:.1%} of the original table."
             )
         return df
@@ -2530,7 +2639,7 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
             params = self.params.reconcile_table_calculations
         if params.column_to_check:
             logger.info(
-                f"{self.table_id.value}: Checking the XBRL metadata-based calcuations."
+                f"{self.table_id.value}: Checking the XBRL metadata-based calculations."
             )
             df = reconcile_table_calculations(
                 df=df,
@@ -3165,8 +3274,22 @@ class PlantInServiceFerc1TableTransformer(Ferc1AbstractTableTransformer):
         """The main table-specific transformations, affecting contents not structure.
 
         Annotates and alters data based on information from the XBRL taxonomy metadata.
+
+        Make all electric_plant_sold balances positive.
         """
-        return super().transform_main(df).pipe(self.apply_sign_conventions)
+        df = super().transform_main(df).pipe(self.apply_sign_conventions)
+        # Make all electric_plant_sold values positive
+        # This could probably be a FERC transformer class function or in the
+        # apply_sign_conventions function, but it doesn't seem like the best fit for
+        # now.
+        neg_values = (df["ferc_account_label"] == "electric_plant_sold") & (
+            df["ending_balance"] < 0
+        )
+        df.loc[neg_values, "ending_balance"] = abs(df["ending_balance"])
+        logger.info(
+            f"{self.table_id.value}: Converted {len(df[neg_values])} negative values to positive."
+        )
+        return df
 
 
 class PlantsSmallFerc1TableTransformer(Ferc1AbstractTableTransformer):
@@ -4126,6 +4249,172 @@ class UtilityPlantSummaryFerc1TableTransformer(Ferc1AbstractTableTransformer):
     table_id: TableIdFerc1 = TableIdFerc1.UTILITY_PLANT_SUMMARY_FERC1
     has_unique_record_ids: bool = False
 
+    def transform_main(self: Self, df: pd.DataFrame) -> pd.DataFrame:
+        """Spot fix depreciation_utility_plant_in_service records with bad signs."""
+        df = super().transform_main(df)
+
+        primary_keys = [
+            "report_year",
+            "utility_id_ferc1",
+            "utility_type",
+            "utility_plant_asset_type",
+        ]
+
+        # The utility_id_ferc1 211 follows the same pattern for several years
+        # instead of writing them all out in spot_fix_pks, we'll create a loop that
+        # generates all of them and then append them to spot_fix_pks later
+        spot_fix_211 = []
+        for year in np.append(2006, range(2009, 2021)):
+            for utility_type in ["electric", "total"]:
+                pks = [
+                    (
+                        year,
+                        211,
+                        utility_type,
+                        "accumulated_provision_for_depreciation_amortization_and_depletion_of_plant_utility",
+                    ),
+                    (
+                        year,
+                        211,
+                        utility_type,
+                        "amortization_of_other_utility_plant_utility_plant_in_service",
+                    ),
+                    (
+                        year,
+                        211,
+                        utility_type,
+                        "depreciation_amortization_and_depletion_utility_plant_in_service",
+                    ),
+                    (
+                        year,
+                        211,
+                        utility_type,
+                        "depreciation_utility_plant_in_service",
+                    ),
+                ]
+                spot_fix_211 = spot_fix_211 + pks
+
+        spot_fix_pks = [
+            (
+                2012,
+                156,
+                "total",
+                "accumulated_provision_for_depreciation_amortization_and_depletion_of_plant_utility",
+            ),
+            (
+                2012,
+                156,
+                "total",
+                "depreciation_amortization_and_depletion_utility_plant_in_service",
+            ),
+            (2012, 156, "total", "depreciation_utility_plant_in_service"),
+            (
+                2012,
+                156,
+                "electric",
+                "accumulated_provision_for_depreciation_amortization_and_depletion_of_plant_utility",
+            ),
+            (
+                2012,
+                156,
+                "electric",
+                "depreciation_amortization_and_depletion_utility_plant_in_service",
+            ),
+            (2012, 156, "electric", "depreciation_utility_plant_in_service"),
+            (
+                2013,
+                170,
+                "total",
+                "accumulated_provision_for_depreciation_amortization_and_depletion_of_plant_utility",
+            ),
+            (
+                2013,
+                170,
+                "total",
+                "amortization_of_other_utility_plant_utility_plant_in_service",
+            ),
+            (2013, 170, "total", "amortization_of_plant_acquisition_adjustment"),
+            (
+                2013,
+                170,
+                "total",
+                "depreciation_amortization_and_depletion_utility_plant_in_service",
+            ),
+            (2013, 170, "total", "depreciation_utility_plant_in_service"),
+            (
+                2013,
+                170,
+                "electric",
+                "accumulated_provision_for_depreciation_amortization_and_depletion_of_plant_utility",
+            ),
+            (
+                2013,
+                170,
+                "electric",
+                "amortization_of_other_utility_plant_utility_plant_in_service",
+            ),
+            (2013, 170, "electric", "amortization_of_plant_acquisition_adjustment"),
+            (
+                2013,
+                170,
+                "electric",
+                "depreciation_amortization_and_depletion_utility_plant_in_service",
+            ),
+            (2013, 170, "electric", "depreciation_utility_plant_in_service"),
+            (
+                2007,
+                393,
+                "electric",
+                "accumulated_provision_for_depreciation_amortization_and_depletion_of_plant_utility",
+            ),
+            (
+                2007,
+                393,
+                "electric",
+                "depreciation_amortization_and_depletion_utility_plant_in_service",
+            ),
+            (2007, 393, "electric", "depreciation_utility_plant_in_service"),
+            (
+                2007,
+                393,
+                "total",
+                "accumulated_provision_for_depreciation_amortization_and_depletion_of_plant_utility",
+            ),
+            (
+                2007,
+                393,
+                "total",
+                "depreciation_amortization_and_depletion_utility_plant_in_service",
+            ),
+            (2007, 393, "total", "depreciation_utility_plant_in_service"),
+        ]
+
+        # Combine bespoke fixes with programatically generated spot fixes
+        spot_fix_pks = spot_fix_pks + spot_fix_211
+
+        # Par down spot fixes to account for fast tests where not all years are used
+        df_years = df.report_year.unique().tolist()
+        spot_fix_pks = [x for x in spot_fix_pks if x[0] in df_years]
+        logger.info(f"{self.table_id.value}: Spotfixing {len(spot_fix_pks)} records.")
+
+        if spot_fix_pks:
+            # Create a df of the primary key of the records you want to fix
+            df_keys = pd.DataFrame(spot_fix_pks, columns=primary_keys).set_index(
+                primary_keys
+            )
+            df.set_index(primary_keys, inplace=True)
+            # Flip the signs for the values in "ending balance" all records in the original
+            # df that appear in the primary key df
+            df.loc[df_keys.index, "ending_balance"] = df["ending_balance"] * -1
+            # All of these are flipping negative values to positive values,
+            # so let's make sure that's what happens
+            flipped_values = df.loc[df_keys.index]
+            if (flipped_values["ending_balance"] < 0).any():
+                raise AssertionError("None of these spot fixes should be negative")
+            df.reset_index(inplace=True)
+
+        return df
+
 
 class BalanceSheetLiabilitiesFerc1TableTransformer(Ferc1AbstractTableTransformer):
     """Transformer class for :ref:`balance_sheet_liabilities_ferc1` table."""
@@ -4551,16 +4840,27 @@ class ElectricPlantDepreciationChangesFerc1TableTransformer(
     def process_xbrl_metadata(self, xbrl_metadata_json) -> pd.DataFrame:
         """Transform the metadata to reflect the transformed data.
 
-        Replace the name of the balance column reported in the XBRL Instant table with
-        starting_balance / ending_balance since we pull those two values into their own
-        separate labeled rows, each of which should get the original metadata for the
-        Instant column.
+        Warning: The calculations in this table are currently being corrected using
+        reconcile_table_calculations(), but they still contain high rates of error.
+        This function replaces the name of the single balance column reported in the
+        XBRL Instant table with starting_balance / ending_balance. We pull those two
+        values into their own separate labeled rows, each of which should get the
+        metadata from the original column. We do this pre-processing before we
+        call the main function in order for the calculation fixes and renaming to work
+        as expected.
         """
-        meta = super().process_xbrl_metadata(xbrl_metadata_json)
-        ending_balance = meta[meta.xbrl_factoid == "starting_balance"].assign(
-            xbrl_factoid="ending_balance"
+        new_xbrl_metadata_json = xbrl_metadata_json
+        # Get instant metadata
+        instant = pd.json_normalize(xbrl_metadata_json["instant"])
+        # Duplicate instant metadata, and add starting/ending suffix
+        instant = pd.concat([instant] * 2).reset_index(drop=True)
+        instant["name"] = instant["name"] + ["_starting_balance", "_ending_balance"]
+        # Return to JSON format in order to continue processing
+        new_xbrl_metadata_json["instant"] = json.loads(
+            instant.to_json(orient="records")
         )
-        return pd.concat([meta, ending_balance])
+        tbl_meta = super().process_xbrl_metadata(new_xbrl_metadata_json)
+        return tbl_meta
 
     @cache_df("dbf")
     def process_dbf(self, raw_df: pd.DataFrame) -> pd.DataFrame:
