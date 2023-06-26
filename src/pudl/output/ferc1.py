@@ -1439,12 +1439,16 @@ class XbrlCalculationTreeFerc1(BaseModel):
     xbrl_factoid_original: str
     """The original reported XBRL Fact name."""
     weight: float
-    """The weight associated with the XBRL Fact in its source table calculation.
+    """The weight associated with the XBRL Fact for calculation purposes.
 
-    This metadata about the is not currently used for performing calculations.
+    Initially this is the reported weight from the XBRL metadata, but in order to ensure
+    that the value reported for the root fact in the tree can be validated using only
+    the values associated with the leaf facts, we have to update the weights when we
+    remove all the intervening layers of the tree. See
+    :meth:`XbrlCalculationTreeFerc1.propagate_weights`.
     """
     children: list["XbrlCalculationTreeFerc1"] = []
-    """The subcomponents required to calculate the value of this fact, if any.
+    """The subcomponents required to calculate the value associated with this fact.
 
     This list will be empty for leaf nodes (reported values) and for calculated values
     that lie outside the list of tables being used in the explosion.
@@ -1490,9 +1494,7 @@ class XbrlCalculationTreeFerc1(BaseModel):
                 (table_name, xbrl_factoid) and the index must be unique.
             weight: The weight associated with this node in its calculation. Must be
                 passed in because it is only available when we have access to the
-                calculation metadata. Defaults to 1.0 so that we can create the root
-                node in a tree (which is not embedded in any calculation) without having
-                to specify the weight.
+                calculation metadata.
 
         Returns:
             The root node of a calculation tree, potentially referencing child nodes.
@@ -1641,7 +1643,6 @@ class XbrlCalculationTreeFerc1(BaseModel):
         H.add_nodes_from(leaves)
         nx.set_node_attributes(H, dict(G.nodes))
 
-        idx_cols = ["source_table", "xbrl_factoid"]
         rows = []
         for node in H.nodes:
             row = pd.concat(
@@ -1655,7 +1656,12 @@ class XbrlCalculationTreeFerc1(BaseModel):
             )
             rows.append(row)
         leafy_meta = pd.concat(rows)
-        return leafy_meta.set_index(idx_cols, drop=True).sort_index().convert_dtypes()
+
+        return (
+            leafy_meta.set_index(["source_table", "xbrl_factoid"], drop=True)
+            .sort_index()
+            .convert_dtypes()
+        )
 
 
 class XbrlCalculationForestFerc1(BaseModel):
@@ -1717,7 +1723,18 @@ class XbrlCalculationForestFerc1(BaseModel):
 
     @classmethod
     def to_networkx(cls, trees: list["XbrlCalculationTreeFerc1"]) -> nx.DiGraph:
-        """Convert a forest into a :class:`networkx.DiGraph`."""
+        """Convert a calculation forest into a :class:`networkx.DiGraph`.
+
+        It's possible that used nodes from multiple levels within a single calculation
+        tree as seeds when building the trees. This method adds all the nodes from all
+        of the calculation trees into the same graph, which should be a collection of
+        several distinct, disconnected trees (a forest). Adding all of the nodes to the
+        same graph will deduplicate nodes, and allow us to identify the minimal set of
+        root nodes required to reproduce the tree which involves all of the nodes we
+        used as seeds. The leaf nodes which are part of that forest represent all of the
+        reported facts that are required to calculate the root nodes which we are
+        interested in.
+        """
         forest = nx.DiGraph()
         for tree in trees:
             nx_tree = tree.to_networkx()
