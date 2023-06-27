@@ -881,6 +881,7 @@ def add_mean_cap_additions(steam_df):
 def exploded_table_asset_factory(
     root_table: str,
     table_names_to_explode: list[str],
+    calculation_tolerance: float | None = None,
     io_manager_key: str | None = None,  # TODO: Add metadata for tables
 ) -> AssetsDefinition:
     """Create an exploded table based on a set of related input tables."""
@@ -903,6 +904,7 @@ def exploded_table_asset_factory(
         ).boom(
             tables_to_explode=tables_to_explode,
             clean_xbrl_metadata_json=clean_xbrl_metadata_json,
+            calculation_tolerance=calculation_tolerance,
         )
 
     return exploded_tables_asset
@@ -915,24 +917,40 @@ def create_exploded_table_assets() -> list[AssetsDefinition]:
         A list of AssetsDefinitions where each asset is a clean ferc form 1 table.
     """
     explosion_tables = {
-        "income_statement_ferc1": [
-            "income_statement_ferc1",
-            "depreciation_amortization_summary_ferc1",
-            "electric_operating_expenses_ferc1",
-            "electric_operating_revenues_ferc1",
-        ],
-        "balance_sheet_assets_ferc1": [
-            "utility_plant_summary_ferc1",
-            "plant_in_service_ferc1",
-            "electric_plant_depreciation_functional_ferc1",
-        ],
-        "balance_sheet_liabilities_ferc1": [
-            "retained_earnings_ferc1",
-        ],
+        "income_statement_ferc1": {
+            "table_names_to_explode": [
+                "income_statement_ferc1",
+                "depreciation_amortization_summary_ferc1",
+                "electric_operating_expenses_ferc1",
+                "electric_operating_revenues_ferc1",
+            ],
+            "calculation_tolerance": 0.3,
+        },
+        "balance_sheet_assets_ferc1": {
+            "table_names_to_explode": [
+                "utility_plant_summary_ferc1",
+                "plant_in_service_ferc1",
+                "electric_plant_depreciation_functional_ferc1",
+            ]
+        },
+        "balance_sheet_liabilities_ferc1": {
+            "table_names_to_explode": [
+                "retained_earnings_ferc1",
+            ]
+        },
     }
     assets = []
-    for root_table, table_names_to_explode in explosion_tables.items():
-        assets.append(exploded_table_asset_factory(root_table, table_names_to_explode))
+    for root_table, dictionary in explosion_tables.items():
+        table_names_to_explode = dictionary["table_names_to_explode"]
+        if "calculation_tolerance" in dictionary.keys():
+            calculation_tolerance = dictionary["calculation_tolerance"]
+        else:
+            calculation_tolerance = np.nan
+        assets.append(
+            exploded_table_asset_factory(
+                root_table, table_names_to_explode, calculation_tolerance
+            )
+        )
     return assets
 
 
@@ -1043,7 +1061,13 @@ class Exploder:
                     if col != xbrl_factoid_name
                 ]
             )
-        pks = pudl.helpers.dedupe_n_flatten_list_of_lists(pks) + ["xbrl_factoid"]
+        # Some xbrl_factoid names are the same in more than one table, so we also add
+        # table_name here.
+        pks = (
+            pudl.helpers.dedupe_n_flatten_list_of_lists(pks)
+            + ["xbrl_factoid"]
+            + ["table_name"]
+        )
         return pks
 
     @property
@@ -1068,6 +1092,7 @@ class Exploder:
         self,
         tables_to_explode: dict[str, pd.DataFrame],
         clean_xbrl_metadata_json: dict,
+        calculation_tolerance: float | None = None,
     ) -> pd.DataFrame:
         """Explode a set of nested tables.
 
@@ -1084,11 +1109,13 @@ class Exploder:
             tables_to_explode: dictionary of table name (key) to transfomed table (value).
             root_table: the table at the base of the tree of tables_to_explode.
             clean_xbrl_metadata_json: json version of the XBRL-metadata.
+            calculation_tolerance: What proportion (0-1) of calculated values are
+              allowed to be incorrect without raising an AssertionError.
         """
         exploded = (
             self.initial_explosion_concatenation(
                 tables_to_explode, clean_xbrl_metadata_json
-            )
+            ).pipe(self.reconcile_intertable_calculations, calculation_tolerance)
             # REMOVE THE DUPLICATION
             # .pipe(self.remove_factoids_from_mutliple_tables, tables_to_explode)
             # .pipe(self.remove_totals_from_other_dimensions)
@@ -1135,139 +1162,183 @@ class Exploder:
         )
         return exploded
 
-    # def reconcile_intertable_calculations(
-    #     self,
-    #     exploded:pd.DataFrame,
-    #     intertable_tolerance:float=0.05
-    # ) -> pd.DataFrame:
-    #     """Ensure intra-table calculated values match reported values within a tolerance.
+    def reconcile_intertable_calculations(
+        self, exploded: pd.DataFrame, calculation_tolerance: float = 0.05
+    ) -> pd.DataFrame:
+        """Ensure intra-table calculated values match reported values within a tolerance.
 
-    #     In addition to checking whether all reported "calculated" values match the output
-    #     of our repaired calculations, this function adds a correction record to the
-    #     dataframe that is included in the calculations so that after the fact the
-    #     calculations match exactly. This is only done when the fraction of records that
-    #     don't match within the tolerances of :func:`numpy.isclose` is below a set
-    #     threshold.
+        In addition to checking whether all reported "calculated" values match the output
+        of our repaired calculations, this function adds a correction record to the
+        dataframe that is included in the calculations so that after the fact the
+        calculations match exactly. This is only done when the fraction of records that
+        don't match within the tolerances of :func:`numpy.isclose` is below a set
+        threshold.
 
-    #     Note that only calculations which are off by a significant amount result in the
-    #     creation of a correction record. Many calculations are off from the reported values
-    #     by exaclty one dollar, presumably due to rounding errrors. These records typically
-    #     do not fail the :func:`numpy.isclose()` test and so are not corrected.
+        Note that only calculations which are off by a significant amount result in the
+        creation of a correction record. Many calculations are off from the reported values
+        by exaclty one dollar, presumably due to rounding errrors. These records typically
+        do not fail the :func:`numpy.isclose()` test and so are not corrected.
 
-    #     Args:
-    #         exploded: exploded table.
-    #         intertable_tolerance: float describing percentage of relative difference
-    #     """
-    #     # Get the list of calculated values
-    #     inter_table_calculated_values = list(
-    #         tbl_meta[~tbl_meta.intra_table_calc_flag].xbrl_factoid.unique() & (tbl_meta.row_type_xbrl == "calculated_value")
-    #     )
+        Args:
+            exploded: exploded table.
+            calculation_tolerance: What proportion (0-1) of calculated values are
+              allowed to be incorrect without raising an AssertionError.
+        """
+        logger.info("Reconcile inter-table calculations.")
 
-    #     pks = pudl.metadata.classes.Resource.from_id(table_name).schema.primary_key
-    #     pks_wo_factoid = [col for col in pks if col != xbrl_factoid_name]
-    #     calculated_dfs = []
-    #     for calculated_factoid, calculation in zip(
-    #         intra_tbl_calcs.xbrl_factoid, intra_tbl_calcs.calculations
-    #     ):
-    #         calc_df = (
-    #             pd.merge(
-    #                 df,
-    #                 pd.DataFrame(json.loads(calculation)),
-    #                 left_on=xbrl_factoid_name,
-    #                 right_on="name",
-    #             )
-    #             # apply the weight from the calc to convey the sign before summing.
-    #             .assign(calculated_amount=lambda x: x[params.column_to_check] * x.weight)
-    #             .groupby(pks_wo_factoid, as_index=False)["calculated_amount"]
-    #             .sum(min_count=1)
-    #             .assign(**{xbrl_factoid_name: calculated_factoid})
-    #         )
-    #         calculated_dfs.append(calc_df)
+        inter_table_calcs = exploded[
+            (~exploded.intra_table_calc_flag)
+            & (exploded.row_type_xbrl == "calculated_value")
+        ]
 
-    #     calculated_df = pd.merge(
-    #         df, pd.concat(calculated_dfs), on=pks, how="left", validate="1:1"
-    #     )
-    #     # Force column_to_check to be a float to prevent any hijinks with calculating differences.
-    #     calculated_df[params.column_to_check] = calculated_df[
-    #         params.column_to_check
-    #     ].astype(float)
+        left_pks = ["xbrl_factoid"]
+        right_pks = ["name"]
+        pks_merge = [
+            pk for pk in self.exploded_pks if pk != "source_tables"
+        ]  # Make PKs to merge calculated values
+        pks_wo_factoid = [
+            col for col in self.exploded_pks if col != "xbrl_factoid"
+        ]  # Make PK for component calculations
 
-    #     calculated_df = calculated_df.assign(
-    #         abs_diff=lambda x: abs(x[params.column_to_check] - x.calculated_amount),
-    #         rel_diff=lambda x: np.where(
-    #             (x[params.column_to_check] != 0.0),
-    #             abs(x.abs_diff / x[params.column_to_check]),
-    #             np.nan,
-    #         ),
-    #     )
+        calculated_dfs = []
+        single_comp_calcs = []
+        for parent_table, calculated_factoid, calculation in set(
+            zip(
+                inter_table_calcs.table_name,
+                inter_table_calcs.xbrl_factoid,
+                inter_table_calcs.calculations,
+            )
+        ):
+            calculation_df = pd.DataFrame(json.loads(calculation))
+            calculation_df = calculation_df.loc[
+                ~calculation_df.name.str.contains("correction")
+            ]
+            # If each component has one source table (they all should)
+            if calculation_df["source_tables"].str.len().all() == 1:
+                calculation_df = calculation_df.explode(
+                    "source_tables"
+                )  # Unpack the list
 
-    #     off_df = calculated_df[
-    #         ~np.isclose(
-    #             calculated_df.calculated_amount, calculated_df[params.column_to_check]
-    #         )
-    #         & (calculated_df["abs_diff"].notnull())
-    #     ]
-    #     calculated_values = calculated_df[(calculated_df.abs_diff.notnull())]
-    #     off_ratio = len(off_df) / len(calculated_values)
+            # If only one component in the calculation, add to a list to handle corrections
+            # differently later.
+            if len(calculation_df) == 1:
+                single_comp_calcs.append(
+                    [calculated_factoid, calculation_df["name"][0]]
+                )
 
-    #     if off_ratio > params.calculation_tolerance:
-    #         raise AssertionError(
-    #             f"Calculations in {table_name} are off by {off_ratio}. Expected tolerance "
-    #             f"of {params.calculation_tolerance}."
-    #         )
+            # Filter the right-hand side to just the components needed for the calculation
+            components = exploded.loc[
+                (exploded.table_name.isin(calculation_df.source_tables))
+                & (exploded.xbrl_factoid.isin(calculation_df.name))
+            ]
+            # If sub-dimensions, filter for them as well
+            if "utility_type" in calculation_df.columns:
+                components = components.loc[
+                    components.utility_type.isin(calculation_df.utility_type)
+                ]
+            if "subdimension" in calculation_df.columns:
+                subdimension = (
+                    "plant_function"
+                    if "plant_function" in self.other_dimensions
+                    else "plant_status"
+                    if "plant_status" in self.other_dimensions
+                    else np.nan
+                )
+                if subdimension:
+                    components = components.loc[
+                        components[subdimension].isin(calculation_df.subdimension)
+                    ]
 
-    #     # We'll only get here if the proportion of calculations that are off is acceptable
-    #     if off_ratio > 0:
-    #         logger.info(
-    #             f"{table_name}: has {len(off_df)} ({off_ratio:.02%}) records whose "
-    #             "calculations don't match. Adding correction records to make calculations "
-    #             "match reported values."
-    #         )
-    #         corrections = off_df.copy()
-    #         corrections[params.column_to_check] = (
-    #             corrections[params.column_to_check].fillna(0.0)
-    #             - corrections["calculated_amount"]
-    #         )
-    #         corrections[xbrl_factoid_name] = corrections[xbrl_factoid_name] + "_correction"
-    #         corrections["row_type_xbrl"] = "correction"
-    #         corrections["record_id"] = pd.NA
+            calc_df = (
+                pd.merge(
+                    components,
+                    calculation_df[["name", "weight", "source_tables"]],
+                    left_on=left_pks,
+                    right_on=right_pks,
+                )
+                # apply the weight from the calc to convey the sign before summing.
+                .assign(calculated_amount=lambda x: x[self.value_col] * x.weight)
+                .groupby(pks_wo_factoid, as_index=False, dropna=False)[
+                    "calculated_amount"
+                ]
+                .sum(min_count=1)
+                # Assign the name of the 'total' factoid and associate with its parent table.
+                .assign(xbrl_factoid=calculated_factoid)
+                .assign(table_name=parent_table)
+            )
 
-    #         calculated_df = pd.concat(
-    #             [calculated_df, corrections], axis="index"
-    #         ).reset_index()
+            calculated_dfs.append(calc_df)
 
-    #     # Check that sub-total calculations sum to total.
-    #     if params.subtotal_column is not None:
-    #         sub_group_col = params.subtotal_column
-    #         pks_wo_subgroup = [col for col in pks if col != sub_group_col]
-    #         calculated_df["sub_total_sum"] = (
-    #             calculated_df.pipe(lambda df: df[df[sub_group_col] != "total"])
-    #             .groupby(pks_wo_subgroup)[params.column_to_check]
-    #             .transform("sum")  # For each group, calculate sum of sub-components
-    #         )
-    #         calculated_df["sub_total_sum"] = calculated_df["sub_total_sum"].fillna(
-    #             calculated_df[params.column_to_check]  # Fill in value from 'total' column
-    #         )
-    #         sub_total_errors = (
-    #             calculated_df.groupby(pks_wo_subgroup)
-    #             # If subcomponent sum != total sum, we have nunique()>1
-    #             .filter(lambda x: x["sub_total_sum"].nunique() > 1).groupby(pks_wo_subgroup)
-    #         )
-    #         off_ratio_sub = (
-    #             sub_total_errors.ngroups / calculated_df.groupby(pks_wo_subgroup).ngroups
-    #         )
-    #         if sub_total_errors.ngroups > 0:
-    #             logger.warning(
-    #                 f"{table_name}: has {sub_total_errors.ngroups} ({off_ratio_sub:.02%}) sub-total calculations that don't "
-    #                 "sum to the equivalent total column."
-    #             )
-    #         if off_ratio_sub > params.subtotal_calculation_tolerance:
-    #             raise AssertionError(
-    #                 f"Sub-total calculations in {table_name} are off by {off_ratio_sub}. Expected tolerance "
-    #                 f"of {params.subtotal_calculation_tolerance}."
-    #             )
+        calculated_dfs = pd.concat(calculated_dfs)
+        if "plant_function" in exploded.columns:
+            # Plant function on the left-hand and right-hand side are not equivalent,
+            # so we fake this because we need to include plant_function in the pks in
+            # order to ensure a 1:1 merge. This is always NaN for the corresponding
+            # records on the left-hand side.
+            calculated_dfs["plant_function"] = np.nan
+        # STILL TO DO: HANDLE plant_status, which operates differently.
+        calculated_df = pd.merge(
+            exploded, calculated_dfs, on=pks_merge, how="left", validate="1:1"
+        )
 
-    #     return calculated_df
+        # # Force value_col to be a float to prevent any hijinks with calculating differences.
+        calculated_df[self.value_col] = calculated_df[self.value_col].astype(float)
+
+        calculated_df = calculated_df.assign(
+            abs_diff=lambda x: abs(x[self.value_col] - x.calculated_amount),
+            rel_diff=lambda x: np.where(
+                (x[self.value_col] != 0.0),
+                abs(x.abs_diff / x[self.value_col]),
+                np.nan,
+            ),
+        )
+
+        off_df = calculated_df[
+            ~np.isclose(calculated_df.calculated_amount, calculated_df[self.value_col])
+            & (calculated_df["abs_diff"].notnull())
+        ]
+        calculated_values = calculated_df[(calculated_df.abs_diff.notnull())]
+        off_ratio = len(off_df) / len(calculated_values)
+
+        if off_ratio > calculation_tolerance:
+            raise AssertionError(
+                f"Calculations in {self.root_table} are off by {off_ratio}. Expected tolerance "
+                f"of {calculation_tolerance}."
+            )
+
+        # We'll only get here if the proportion of calculations that are off is acceptable
+        if off_ratio > 0:
+            logger.info(
+                f"{self.root_table}: has {len(off_df)} ({off_ratio:.02%}) records whose "
+                "calculations don't match. Adding correction records to make calculations "
+                "match reported values."
+            )
+            # corrections = off_df.copy()
+
+            # corrections[self.value_col] = (
+            #     corrections[self.value_col].fillna(0.0)
+            #     - corrections["calculated_amount"]
+            # )
+            # corrections['original_factoid'] = corrections["xbrl_factoid"]
+            # corrections["xbrl_factoid"] = corrections["xbrl_factoid"] + "_correction"
+            # corrections["row_type_xbrl"] = "correction"
+            # corrections["record_id"] = pd.NA
+
+            # # If the calculation only has one component (and is therefore exactly equivalent to
+            # # a factoid from another table), add the corrections from that table to this
+            # # correction and produce one factoid.
+            # for [calculated_fact, original_fact] in single_comp_calcs:
+            #     if calculated_fact in corrections['original_factoid'].values:
+            #         # Get corresponding original fact corrections
+            #         original_fact_corrections = original_fact + "_correction"
+            #         original_corrections_meta = corrections[pks_wo_factoid].assign(xbrl_factoid = original_fact_corrections).assign(table_name = corrections.source_tables)
+            #         original_corrections_meta.drop(columns = ['source_tables'], inplace=True)
+            #         pks_corrections = [col for col in original_corrections_meta]
+            #         # TO FIX and FINISH
+            #         original_corrections = exploded.merge(original_corrections_meta, on = pks_corrections, how = 'inner')
+            # original_corrections = original_corrections[original_corrections._merge == "both"]
+
+        return calculated_df
 
     def remove_factoids_from_mutliple_tables(
         self, exploded, tables_to_explode
