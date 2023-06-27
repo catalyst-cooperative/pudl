@@ -3246,7 +3246,6 @@ TRANSFORM_PARAMS = {
                         "depreciation_utility_plant_held_for_future_use",
                         "abandonment_of_leases",
                         "utility_plant_net",
-                        "amortization_and_depletion_of_producing_natural_gas_land_and_land_rights_utility_plant_in_service",
                         "amortization_utility_plant_held_for_future_use",
                         "amortization_and_depletion_utility_plant_leased_to_others",
                         "accumulated_provision_for_depreciation_amortization_and_depletion_of_plant_utility",
@@ -3261,6 +3260,10 @@ TRANSFORM_PARAMS = {
                         "construction_work_in_progress",
                         "utility_plant_in_service_experimental_plant_unclassified",
                     ]
+                }
+                | {
+                    "amortization_and_depletion_of_producing_natural_gas_land_and_land_rightsutility_plant_in_service": "amortization_and_depletion_of_producing_natural_gas_land_and_land_rights_utility_plant_in_service_ending_balance",
+                    "amortization_of_underground_storage_land_and_land_rightsutility_plant_in_service": "amortization_of_underground_storage_land_and_land_rights_utility_plant_in_service_ending_balance",
                 }
             },
         },
