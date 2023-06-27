@@ -1196,8 +1196,8 @@ class Exploder:
         pks_merge = [
             pk for pk in self.exploded_pks if pk != "source_tables"
         ]  # Make PKs to merge calculated values
-        pks_wo_factoid = [
-            col for col in self.exploded_pks if col != "xbrl_factoid"
+        pks_wo_factoid = [col for col in self.exploded_pks if col != "xbrl_factoid"] + [
+            "source_tables"
         ]  # Make PK for component calculations
 
         calculated_dfs = []
@@ -1248,7 +1248,7 @@ class Exploder:
                     components = components.loc[
                         components[subdimension].isin(calculation_df.subdimension)
                     ]
-
+            logger.warning(f"pks_wo_factoid {pks_wo_factoid}")
             calc_df = (
                 pd.merge(
                     components,
@@ -1306,37 +1306,49 @@ class Exploder:
                 f"of {calculation_tolerance}."
             )
 
-        # We'll only get here if the proportion of calculations that are off is acceptable
+        # # We'll only get here if the proportion of calculations that are off is acceptable
         if off_ratio > 0:
             logger.info(
                 f"{self.root_table}: has {len(off_df)} ({off_ratio:.02%}) records whose "
                 "calculations don't match. Adding correction records to make calculations "
                 "match reported values."
             )
-            # corrections = off_df.copy()
+        #     corrections = off_df.copy()
 
-            # corrections[self.value_col] = (
-            #     corrections[self.value_col].fillna(0.0)
-            #     - corrections["calculated_amount"]
-            # )
-            # corrections['original_factoid'] = corrections["xbrl_factoid"]
-            # corrections["xbrl_factoid"] = corrections["xbrl_factoid"] + "_correction"
-            # corrections["row_type_xbrl"] = "correction"
-            # corrections["record_id"] = pd.NA
+        #     corrections[self.value_col] = (
+        #         corrections[self.value_col].fillna(0.0)
+        #         - corrections["calculated_amount"]
+        #     )
+        #     corrections["original_factoid"] = corrections["xbrl_factoid"]
+        #     corrections["xbrl_factoid"] = corrections["xbrl_factoid"] + "_correction"
+        #     corrections["row_type_xbrl"] = "correction"
+        #     corrections["record_id"] = pd.NA
+        #     logger.info(corrections)
 
-            # # If the calculation only has one component (and is therefore exactly equivalent to
-            # # a factoid from another table), add the corrections from that table to this
-            # # correction and produce one factoid.
-            # for [calculated_fact, original_fact] in single_comp_calcs:
-            #     if calculated_fact in corrections['original_factoid'].values:
-            #         # Get corresponding original fact corrections
-            #         original_fact_corrections = original_fact + "_correction"
-            #         original_corrections_meta = corrections[pks_wo_factoid].assign(xbrl_factoid = original_fact_corrections).assign(table_name = corrections.source_tables)
-            #         original_corrections_meta.drop(columns = ['source_tables'], inplace=True)
-            #         pks_corrections = [col for col in original_corrections_meta]
-            #         # TO FIX and FINISH
-            #         original_corrections = exploded.merge(original_corrections_meta, on = pks_corrections, how = 'inner')
-            # original_corrections = original_corrections[original_corrections._merge == "both"]
+        #     # # If the calculation only has one component (and is therefore exactly equivalent to
+        #     # # a factoid from another table), add the corrections from that table to this
+        #     # # correction and produce one factoid.
+        #     for [calculated_fact, original_fact] in single_comp_calcs:
+        #         if calculated_fact in corrections["original_factoid"].values:
+        #             # Get corresponding original fact corrections
+        #             original_fact_corrections = original_fact + "_correction"
+        #             original_corrections_meta = (
+        #                 corrections[pks_wo_factoid]
+        #                 .assign(xbrl_factoid=original_fact_corrections)
+        #                 .assign(table_name=corrections.source_tables)
+        #             )
+        #             original_corrections_meta.drop(
+        #                 columns=["source_tables"], inplace=True
+        #             )
+        #             pks_corrections = [col for col in original_corrections_meta]
+        #             # TO FIX and FINISH - temporary!
+        #             original_corrections = exploded.merge(
+        #                 original_corrections_meta, on=pks_corrections, how="inner"
+        #             )
+        #             if not original_corrections.empty:
+        #                 logger.warning("Need to merge corrections!!")
+        #                 # return original_corrections
+        #     # original_corrections = original_corrections[original_corrections._merge == "both"]
 
         return calculated_df
 
@@ -1524,7 +1536,7 @@ def get_table_level(table_name: str, top_table: str) -> int:
         "balance_sheet_assets_ferc1": {
             "utility_plant_summary_ferc1": {
                 "plant_in_service_ferc1": None,
-                "electric_plant_depreciation_changes_ferc1": None,
+                "electric_plant_depreciation_functional_ferc1": None,
             },
         },
         "balance_sheet_liabilities_ferc1": {"retained_earnings_ferc1": None},

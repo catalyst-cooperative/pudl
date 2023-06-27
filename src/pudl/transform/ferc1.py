@@ -1898,24 +1898,24 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
                             "name": "ending_balance",
                             "weight": 1.0,
                             "source_tables": [
-                                "electric_plant_depreciation_changes_ferc1"
+                                "electric_plant_depreciation_functional_ferc1"
                             ],
                             "utility_type": "electric",
                             "subdimension": "in_service",
                         },
                     }
                 ],
-                "utility_plant_in_service_classified_and_unclassified": [
-                    # Temporarily adding to metadata only.
-                    {
-                        "calc_component_to_replace": {},
-                        "calc_component_new": {
-                            "name": "electric_plant_in_service",
-                            "weight": 1.0,
-                            "source_tables": ["plant_in_service_ferc1"],
-                        },
-                    }
-                ],
+                # "utility_plant_in_service_classified_and_unclassified": [
+                #     # Temporarily adding to metadata only.
+                #     {
+                #         "calc_component_to_replace": {},
+                #         "calc_component_new": {
+                #             "name": "electric_plant_in_service",
+                #             "weight": 1.0,
+                #             "source_tables": ["plant_in_service_ferc1"],
+                #         },
+                #     }
+                # ], # CAN'T DO THIS BECAUSE THE TABLE ALREADY HAS A CALCULATION.
                 "utility_plant_in_service_experimental_plant_unclassified": [
                     # Temporarily adding to metadata only.
                     {
