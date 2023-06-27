@@ -31,14 +31,7 @@ def pudl_out_mcoe(pudl_out_eia, live_dbs):
     """
     if live_dbs and pudl_out_eia.freq is not None:
         logger.info("Reading MCOE data out of the PUDL DB.")
-        _ = pudl_out_eia.mcoe(
-            update=True,
-            min_heat_rate=None,
-            min_fuel_cost_per_mwh=None,
-            min_cap_fact=None,
-            max_cap_fact=None,
-            all_gens=False,
-        )
+        _ = pudl_out_eia.mcoe()
     return pudl_out_eia
 
 

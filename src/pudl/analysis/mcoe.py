@@ -135,7 +135,7 @@ def mcoe_asset_factory(
             "mcoe": AssetIn(key=f"mcoe_{agg_freqs[freq]}"),
             "gens": AssetIn(key="denorm_generators_eia"),
         },
-        # TODO: include io_manager_key
+        io_manager_key=io_manager_key,
         compute_kind="Python",
     )
     def mcoe_generators_asset(mcoe: pd.DataFrame, gens: pd.DataFrame) -> pd.DataFrame:
@@ -655,7 +655,7 @@ def mcoe_generators(
     else:
         mcoe_gens_out = pudl.helpers.date_merge(
             left=gens,
-            right=mcoe_gens_out,
+            right=mcoe,
             on=["plant_id_eia", "generator_id"],
             date_on=["year"],
             how="left" if all_gens else "right",

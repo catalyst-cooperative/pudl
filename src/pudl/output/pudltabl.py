@@ -220,6 +220,8 @@ class PudlTabl:
             "heat_rate_by_generator_AGG": "hr_by_gen",
             "capacity_factor_by_generator_AGG": "capacity_factor",
             "fuel_cost_by_generator_AGG": "fuel_cost",
+            "mcoe_AGG": "mcoe",
+            "mcoe_generators_AGG": "mcoe_generators",
         }
 
         table_method_map_yearly_only = {
@@ -391,6 +393,9 @@ class PudlTabl:
         min_fuel_cost_per_mwh: float = 0.0,
         min_cap_fact: float = 0.0,
         max_cap_fact: float = 1.5,
+        all_gens: bool = False,
+        gens_cols: Literal["all"] | list[str] | None = None,
+        timeseries_fillin: bool = False,
     ) -> pd.DataFrame:
         """Pull the basic compiled MCOE table out of the PUDL DB.
 
@@ -405,6 +410,7 @@ class PudlTabl:
             max_cap_fact: Maximum capacity factor considered realistic.
             all_gens: Ignored. Retained for backwards compatibility only.
             gens_cols: Ignored. Retained for backwards compatibility only.
+            timeseries_fillin: Ignored. Retained for backwards compatibility only.
         """
         table_name = "mcoe"
         if self.freq not in ["AS", "MS"]:
@@ -412,6 +418,9 @@ class PudlTabl:
                 f"{table_name} requires aggregation frequency of 'AS' or 'MS', "
                 f"got {self.freq}"
             )
+        logger.warning(
+            "MCOE table with additional generator attributes is now called mcoe_generators."
+        )
         table_name = self._agg_table_name(f"{table_name}_AGG")
         resource = Resource.from_id(table_name)
         df = self._get_table_from_db(table_name, resource=resource)
@@ -491,7 +500,7 @@ class PudlTabl:
             self._dfs[
                 "gens_mega_eia"
             ] = pudl.analysis.plant_parts_eia.MakeMegaGenTbl().execute(
-                mcoe=self.mcoe(all_gens=True, gens_cols=gens_cols),
+                mcoe=self.mcoe_generators(all_gens=True, gens_cols=gens_cols),
                 own_eia860=self.own_eia860(),
             )
         return self._dfs["gens_mega_eia"]

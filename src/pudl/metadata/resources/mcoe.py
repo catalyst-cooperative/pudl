@@ -172,4 +172,53 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = (
         }
         for freq in AGG_FREQS
     }
+    | {
+        f"mcoe_generators_{freq}": {
+            "description": (
+                f"The marginal cost of energy table with {freq.title()} generator capacity factor, "
+                "heat rate, fuel cost per MMBTU and fuel cost, but with additional potentially "
+                "useful generator attributes merged on."
+                "See the description in the MCOE table for more explanation of these calculations."
+            ),
+            "schema": {
+                "fields": [
+                    "plant_id_eia",
+                    "generator_id",
+                    "report_date",
+                    "unit_id_pudl",
+                    "plant_id_pudl",
+                    "plant_name_eia",
+                    "utility_id_eia",
+                    "utility_id_pudl",
+                    "utility_name_eia",
+                    "technology_description",
+                    "energy_source_code_1",
+                    "prime_mover_code",
+                    "generator_operating_date",
+                    "generator_retirement_date",
+                    "operational_status",
+                    "capacity_mw",
+                    "fuel_type_code_pudl",
+                    "planned_generator_retirement_date",
+                    "capacity_factor",
+                    "fuel_cost_from_eiaapi",
+                    "fuel_cost_per_mmbtu",
+                    "fuel_cost_per_mwh",
+                    "heat_rate_mmbtu_mwh",
+                    "net_generation_mwh",
+                    "total_fuel_cost",
+                    "total_mmbtu",
+                ],
+                "primary_key": [
+                    "report_date",
+                    "plant_id_eia",
+                    "generator_id",
+                ],
+            },
+            "field_namespace": "eia",
+            "sources": ["eia923", "eia860"],
+            "etl_group": "outputs",
+        }
+        for freq in AGG_FREQS
+    }
 )
