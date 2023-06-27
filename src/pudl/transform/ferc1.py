@@ -2146,6 +2146,9 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
                         "calc_component_new": {
                             "name": "steam_production",
                             "weight": 1.0,
+                            "source_tables": [
+                                "electric_plant_depreciation_functional_ferc1"
+                            ],
                         },
                     },
                     {
@@ -2153,6 +2156,9 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
                         "calc_component_new": {
                             "name": "nuclear_production",
                             "weight": 1.0,
+                            "source_tables": [
+                                "electric_plant_depreciation_functional_ferc1"
+                            ],
                         },
                     },
                     {
@@ -2160,6 +2166,9 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
                         "calc_component_new": {
                             "name": "hydraulic_production_conventional",
                             "weight": 1.0,
+                            "source_tables": [
+                                "electric_plant_depreciation_functional_ferc1"
+                            ],
                         },
                     },
                     {
@@ -2167,6 +2176,9 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
                         "calc_component_new": {
                             "name": "hydraulic_production_pumped_storage",
                             "weight": 1.0,
+                            "source_tables": [
+                                "electric_plant_depreciation_functional_ferc1"
+                            ],
                         },
                     },
                     {
@@ -2174,6 +2186,9 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
                         "calc_component_new": {
                             "name": "other_production",
                             "weight": 1.0,
+                            "source_tables": [
+                                "electric_plant_depreciation_functional_ferc1"
+                            ],
                         },
                     },
                     {
@@ -2181,6 +2196,9 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
                         "calc_component_new": {
                             "name": "transmission",
                             "weight": 1.0,
+                            "source_tables": [
+                                "electric_plant_depreciation_functional_ferc1"
+                            ],
                         },
                     },
                     {
@@ -2188,6 +2206,9 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
                         "calc_component_new": {
                             "name": "distribution",
                             "weight": 1.0,
+                            "source_tables": [
+                                "electric_plant_depreciation_functional_ferc1"
+                            ],
                         },
                     },
                     {
@@ -2195,6 +2216,9 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
                         "calc_component_new": {
                             "name": "regional_transmission_and_market_operation",
                             "weight": 1.0,
+                            "source_tables": [
+                                "electric_plant_depreciation_functional_ferc1"
+                            ],
                         },
                     },
                     {
@@ -2202,6 +2226,9 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
                         "calc_component_new": {
                             "name": "general",
                             "weight": 1.0,
+                            "source_tables": [
+                                "electric_plant_depreciation_functional_ferc1"
+                            ],
                         },
                     },
                 ],
@@ -2213,6 +2240,9 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
                         "calc_component_new": {
                             "name": "starting_balance",
                             "weight": 1.0,
+                            "source_tables": [
+                                "electric_plant_depreciation_changes_ferc1"
+                            ],
                         },
                     },
                     {
@@ -2220,6 +2250,9 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
                         "calc_component_new": {
                             "name": "depreciation_provision",
                             "weight": 1.0,
+                            "source_tables": [
+                                "electric_plant_depreciation_changes_ferc1"
+                            ],
                         },
                     },
                     {
@@ -2227,6 +2260,9 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
                         "calc_component_new": {
                             "name": "net_charges_for_retired_plant",
                             "weight": 1.0,
+                            "source_tables": [
+                                "electric_plant_depreciation_changes_ferc1"
+                            ],
                         },
                     },
                     {
@@ -2234,6 +2270,9 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
                         "calc_component_new": {
                             "name": "other_adjustments_to_accumulated_depreciation",
                             "weight": 1.0,
+                            "source_tables": [
+                                "electric_plant_depreciation_changes_ferc1"
+                            ],
                         },
                     },
                     {
@@ -2241,6 +2280,9 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
                         "calc_component_new": {
                             "name": "book_cost_of_asset_retirement_costs",
                             "weight": 1.0,
+                            "source_tables": [
+                                "electric_plant_depreciation_changes_ferc1"
+                            ],
                         },
                     },
                 ],
