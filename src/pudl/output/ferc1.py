@@ -1248,7 +1248,6 @@ class Exploder:
                     components = components.loc[
                         components[subdimension].isin(calculation_df.subdimension)
                     ]
-            logger.warning(f"pks_wo_factoid {pks_wo_factoid}")
             calc_df = (
                 pd.merge(
                     components,

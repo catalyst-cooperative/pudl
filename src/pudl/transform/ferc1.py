@@ -1562,85 +1562,84 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
                             "name": "electric_operating_revenues",
                             "weight": 1.0,
                             "source_tables": ["electric_operating_revenues_ferc1"],
-                            "utility_type": "electric",
                         },
                     }
                 ],
-                "utility_operating_expenses": [
-                    # Temporarily adding metadata only.
-                    {
-                        "calc_component_to_replace": {},
-                        "calc_component_new": {
-                            "name": "administrative_and_general_operation_expense",
-                            "weight": 1.0,
-                            "source_tables": ["electric_operating_expenses_ferc1"],
-                            "utility_type": "electric",
-                        },
-                    },
-                    {
-                        "calc_component_to_replace": {},
-                        "calc_component_new": {
-                            "name": "distribution_operation_expenses_electric",
-                            "weight": 1.0,
-                            "source_tables": ["electric_operating_expenses_ferc1"],
-                            "utility_type": "electric",
-                        },
-                    },
-                    {
-                        "calc_component_to_replace": {},
-                        "calc_component_new": {
-                            "name": "hydraulic_power_generation_operations_expense",
-                            "weight": 1.0,
-                            "source_tables": ["electric_operating_expenses_ferc1"],
-                            "utility_type": "electric",
-                        },
-                    },
-                    {
-                        "calc_component_to_replace": {},
-                        "calc_component_new": {
-                            "name": "nuclear_power_generation_operations_expense",
-                            "weight": 1.0,
-                            "source_tables": ["electric_operating_expenses_ferc1"],
-                            "utility_type": "electric",
-                        },
-                    },
-                    {
-                        "calc_component_to_replace": {},
-                        "calc_component_new": {
-                            "name": "other_power_generation_operations_expense",
-                            "weight": 1.0,
-                            "source_tables": ["electric_operating_expenses_ferc1"],
-                            "utility_type": "electric",
-                        },
-                    },
-                    {
-                        "calc_component_to_replace": {},
-                        "calc_component_new": {
-                            "name": "regional_market_operation_expense",
-                            "weight": 1.0,
-                            "source_tables": ["electric_operating_expenses_ferc1"],
-                            "utility_type": "electric",
-                        },
-                    },
-                    {
-                        "calc_component_to_replace": {},
-                        "calc_component_new": {
-                            "name": "steam_power_generation_operations_expense",
-                            "weight": 1.0,
-                            "source_tables": ["electric_operating_expenses_ferc1"],
-                            "utility_type": "electric",
-                        },
-                    },
-                    {
-                        "calc_component_to_replace": {},
-                        "calc_component_new": {
-                            "name": "transmission_operation_expense",
-                            "weight": 1.0,
-                            "source_tables": ["electric_operating_expenses_ferc1"],
-                            "utility_type": "electric",
-                        },
-                    },
-                ],
+                # This is already an in-table calculated field so we need to handle
+                # it differently.
+                # "utility_operating_expenses": [
+                #     # Temporarily adding metadata only.
+                #     {
+                #         "calc_component_to_replace": {},
+                #         "calc_component_new": {
+                #             "name": "administrative_and_general_operation_expense",
+                #             "weight": 1.0,
+                #             "source_tables": ["electric_operating_expenses_ferc1"],
+                #         },
+                #     },
+                #     {
+                #         "calc_component_to_replace": {},
+                #         "calc_component_new": {
+                #             "name": "distribution_operation_expenses_electric",
+                #             "weight": 1.0,
+                #             "source_tables": ["electric_operating_expenses_ferc1"],
+                #         },
+                #     },
+                #     {
+                #         "calc_component_to_replace": {},
+                #         "calc_component_new": {
+                #             "name": "hydraulic_power_generation_operations_expense",
+                #             "weight": 1.0,
+                #             "source_tables": ["electric_operating_expenses_ferc1"],
+                #             "utility_type": "electric",
+                #         },
+                #     },
+                #     {
+                #         "calc_component_to_replace": {},
+                #         "calc_component_new": {
+                #             "name": "nuclear_power_generation_operations_expense",
+                #             "weight": 1.0,
+                #             "source_tables": ["electric_operating_expenses_ferc1"],
+                #             "utility_type": "electric",
+                #         },
+                #     },
+                #     {
+                #         "calc_component_to_replace": {},
+                #         "calc_component_new": {
+                #             "name": "other_power_generation_operations_expense",
+                #             "weight": 1.0,
+                #             "source_tables": ["electric_operating_expenses_ferc1"],
+                #             "utility_type": "electric",
+                #         },
+                #     },
+                #     {
+                #         "calc_component_to_replace": {},
+                #         "calc_component_new": {
+                #             "name": "regional_market_operation_expense",
+                #             "weight": 1.0,
+                #             "source_tables": ["electric_operating_expenses_ferc1"],
+                #             "utility_type": "electric",
+                #         },
+                #     },
+                #     {
+                #         "calc_component_to_replace": {},
+                #         "calc_component_new": {
+                #             "name": "steam_power_generation_operations_expense",
+                #             "weight": 1.0,
+                #             "source_tables": ["electric_operating_expenses_ferc1"],
+                #             "utility_type": "electric",
+                #         },
+                #     },
+                #     {
+                #         "calc_component_to_replace": {},
+                #         "calc_component_new": {
+                #             "name": "transmission_operation_expense",
+                #             "weight": 1.0,
+                #             "source_tables": ["electric_operating_expenses_ferc1"],
+                #             "utility_type": "electric",
+                #         },
+                #     },
+                # ],
                 "maintenance_expense": [
                     # Temporarily adding metadata only.
                     {
