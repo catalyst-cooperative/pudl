@@ -25,6 +25,11 @@ logger = logging.getLogger(__name__)
         ("plants_eia860", "all"),
         ("pu_eia860", "all"),
         ("utils_eia860", "all"),
+        ("emissions_control_equipment_eia860", "all"),
+        ("boiler_emissions_control_equipment_assn_eia860", "all"),
+        ("denorm_emissions_control_equipment_eia860", "all"),
+        ("boiler_stack_flue_assn_eia860", "all"),
+        ("boiler_cooling_assn_eia860", "all"),
     ],
 )
 def test_no_null_cols_eia(pudl_out_eia, live_dbs, cols, df_name):
@@ -42,15 +47,20 @@ def test_no_null_cols_eia(pudl_out_eia, live_dbs, cols, df_name):
     [
         ("bf_eia923", 1_427_692, 1_427_692, 119_611),
         ("bga_eia860", 130_326, 130_326, 130_326),
-        ("boil_eia860", 74_086, 74_086, 74_086),
+        ("boil_eia860", 74_326, 74_326, 74_326),
         ("frc_eia923", 597_000, 244_415, 24_065),
         ("gen_eia923", None, 5_171_497, 432_570),
         ("gens_eia860", 523_563, 523_563, 523_563),
         ("gf_eia923", 2_687_345, 2_687_345, 230_149),
         ("own_eia860", 84_440, 84_440, 84_440),
-        ("plants_eia860", 185_553, 185_553, 185_553),
-        ("pu_eia860", 184_743, 184_743, 184_743),
-        ("utils_eia860", 119_366, 119_366, 119_366),
+        ("plants_eia860", 185_558, 185_558, 185_558),
+        ("pu_eia860", 184_748, 184_748, 184_748),
+        ("utils_eia860", 119_388, 119_388, 119_388),
+        ("emissions_control_equipment_eia860", 51_015, 51_015, 51_015),
+        ("denorm_emissions_control_equipment_eia860", 51_015, 51_015, 51_015),
+        ("boiler_emissions_control_equipment_assn_eia860", 71_326, 71_326, 71_326),
+        ("boiler_cooling_assn_eia860", 38_344, 38_344, 38_344),
+        ("boiler_stack_flue_assn_eia860", 38_734, 38_734, 38_734),
     ],
 )
 def test_minmax_rows(
@@ -175,6 +185,46 @@ def test_minmax_rows(
             (
                 Package.from_resource_ids()
                 .get_resource("utilities_eia860")
+                .schema.primary_key
+            ),
+        ),
+        (
+            "denorm_emissions_control_equipment_eia860",
+            (
+                Package.from_resource_ids()
+                .get_resource("denorm_emissions_control_equipment_eia860")
+                .schema.primary_key
+            ),
+        ),
+        (
+            "emissions_control_equipment_eia860",
+            (
+                Package.from_resource_ids()
+                .get_resource("emissions_control_equipment_eia860")
+                .schema.primary_key
+            ),
+        ),
+        (
+            "boiler_emissions_control_equipment_assn_eia860",
+            (
+                Package.from_resource_ids()
+                .get_resource("boiler_emissions_control_equipment_assn_eia860")
+                .schema.primary_key
+            ),
+        ),
+        (
+            "boiler_cooling_assn_eia860",
+            (
+                Package.from_resource_ids()
+                .get_resource("boiler_cooling_assn_eia860")
+                .schema.primary_key
+            ),
+        ),
+        (
+            "boiler_stack_flue_assn_eia860",
+            (
+                Package.from_resource_ids()
+                .get_resource("boiler_stack_flue_assn_eia860")
                 .schema.primary_key
             ),
         ),

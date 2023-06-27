@@ -173,6 +173,11 @@ class PudlTabl:
             # eia860 (denormalized, data primarily from EIA-860)
             "denorm_ownership_eia860": "own_eia860",
             "boiler_generator_assn_eia860": "bga_eia860",
+            "denorm_emissions_control_equipment_eia860": "denorm_emissions_control_equipment_eia860",
+            "boiler_emissions_control_equipment_assn_eia860": "boiler_emissions_control_equipment_assn_eia860",
+            "emissions_control_equipment_eia860": "emissions_control_equipment_eia860",
+            "boiler_stack_flue_assn_eia860": "boiler_stack_flue_assn_eia860",
+            "boiler_cooling_assn_eia860": "boiler_cooling_assn_eia860",
             # eia861 (clean)
             "service_territory_eia861": "service_territory_eia861",
             "sales_eia861": "sales_eia861",
@@ -211,6 +216,13 @@ class PudlTabl:
             # ferc714
             "respondent_id_ferc714": "respondent_id_ferc714",
             "demand_hourly_pa_ferc714": "demand_hourly_pa_ferc714",
+            "fipsified_respondents_ferc714": "fipsified_respondents_ferc714",
+            "summarized_demand_ferc714": "summarized_demand_ferc714",
+            # service territory
+            "compiled_geometry_balancing_authority_eia861": "compiled_geometry_balancing_authority_eia861",
+            "compiled_geometry_utility_eia861": "compiled_geometry_utility_eia861",
+            # state demand
+            "predicted_state_hourly_demand": "predicted_state_hourly_demand",
         }
 
         for table_name, method_name in table_method_map.items():

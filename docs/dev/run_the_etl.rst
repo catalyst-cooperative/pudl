@@ -1,4 +1,4 @@
-.. _run-the-etl:
+.. _run_the_etl:
 
 ===============================================================================
 Running the ETL Pipeline
@@ -168,9 +168,15 @@ variable to the path of the new directory:
 
 .. code-block:: console
 
-    $ echo "export DAGSTER_HOME=/path/to/dagster_home/dir" >> ~/.zshrc # zsh
-    $ echo "export DAGSTER_HOME=/path/to/dagster_home/dir" >> ~/.bashrc # bash
-    $ set -Ux DAGSTER_HOME /path/to/dagster_home/dir # fish
+    $ echo "export DAGSTER_HOME=/path/to/dagster_home" >> ~/.zshrc # zsh
+    $ echo "export DAGSTER_HOME=/path/to/dagster_home" >> ~/.bashrc # bash
+    $ set -Ux DAGSTER_HOME /path/to/dagster_home # fish
+
+Add ``DAGSTER_HOME`` to the currecnt session with
+
+.. code-block:: console
+
+    $ export DAGSTER_HOME=/path/to/dagster_home
 
 Once ``DAGSTER_HOME`` is set, launch Dagit by running:
 
@@ -203,7 +209,10 @@ a window that looks like this:
 Click the hamburger button in the upper left to view the definitions,
 assets and jobs.
 
-**Cloning the FERC databases**
+^^^^^^^^^^^^^^^^^^^^^^^^^^
+Cloning the FERC databases
+^^^^^^^^^^^^^^^^^^^^^^^^^^
+
 To run the data pipelines, you'll first need to create the raw FERC databases by
 clicking on one of the ``pudl.ferc_to_sqlite`` jobs. Then select "Launchpad"
 where you can adjust the years to extract for each dataset. Then click
@@ -224,7 +233,38 @@ add them in the Launchpad tab of the job like so::
       config:
         clobber: true
 
-**Running the PUDL ETL**
+You can also adjust the years to process for each dataset using the Launchpad
+tab::
+
+  resources:
+    ferc_to_sqlite_settings:
+      config:
+        ferc1_dbf_to_sqlite_settings:
+          years:
+          - 2020
+          - 2019
+          - 2018
+        ferc1_xbrl_to_sqlite_settings:
+          years:
+          - 2021
+        ferc2_xbrl_to_sqlite_settings:
+          years:
+          - 2021
+        ferc60_xbrl_to_sqlite_settings:
+          years:
+          - 2021
+        ferc6_xbrl_to_sqlite_settings:
+          years:
+          - 2021
+        ferc714_xbrl_to_sqlite_settings:
+          years:
+          - 2021
+
+
+^^^^^^^^^^^^^^^^^^^^
+Running the PUDL ETL
+^^^^^^^^^^^^^^^^^^^^
+
 Once the raw FERC databases are created by a ``pudl.ferc_to_sqlite`` job,
 you can execute the main PUDL ETL.
 
@@ -242,8 +282,9 @@ in the ``pudl.etl`` definition. Subsets of the ``pudl.etl`` asset graph
 are organized by asset groups. These groups are helfpul for visualizing and
 executing subsets of the asset graph.
 
-To execute the job, select ``fast_etl`` or ``full_etl`` and click "Materialize all".
+To execute the job, select ``etl_fast`` or ``etl_full`` and click "Materialize all".
 You can congifure which years to process by shift+clicking "Materialize all".
+Read the :ref:`resource_config` section to learn more.
 To view the status of the run, click the date next to "Latest run:".
 
 .. image:: ../images/dagit_pudl_etl.png
@@ -257,9 +298,23 @@ want to rerun the entire ETL.
 
 .. note::
 
+  Dagster does not allow you to select asset groups for a specific job.
+  For example, if you click on the ``raw_eia860`` asset group in Dagit,
+  click "Materialize All", the default configuration values will be used
+  so all available years of the data will be extracted.
+
+  To process a subset of years for a specific asset group, select the
+  asset group, shift+click "Materialize all" and configure the
+  ``dataset_settings`` resource with the desired years.
+
+.. note::
+
   Dagster will throw an ``DagsterInvalidSubsetError`` if you try to
   re-execute a subset of assets produced by a single function. This can
   be resolved by re-materializing the asset group of the desired asset.
+
+Read the :ref:`dev_dagster` documentation page to learn more about working
+with dagster.
 
 .. _run-cli:
 
@@ -322,13 +377,6 @@ needs. The layout of these files is depicted below:
         │    └── dataset etl parameter (e.g. years) : editable list of years
         └── dataset name
         │    └── dataset etl parameter (e.g. years) : editable list of years
-
-.. note::
-
-    Do not change anything other than the dataset parameters and the name, title, and
-    description fields unless you want to remove an entire dataset. For example, CEMS
-    data takes a long time to load so you can comment out or delete all settings
-    pertaining to CEMS. See below for a way to add it later.
 
 Both scripts enable you to choose which **years** you want to include:
 

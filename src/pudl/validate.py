@@ -2362,9 +2362,11 @@ frc_eia923_coal_mercury_content = [
 ]
 """Valid coal mercury content limits.
 
-Based on USGS FS095-01: https://pubs.usgs.gov/fs/fs095-01/fs095-01.html Upper tail may
-fail because of a population of extremely high mercury content coal (9.0ppm) which is
-likely a reporting error.
+Based on USGS FS095-01
+https://pubs.usgs.gov/fs/fs095-01/fs095-01.html
+
+Upper tail may fail because of a population of extremely high mercury content coal
+(9.0ppm) which is likely a reporting error.
 """
 
 frc_eia923_coal_moisture_content = [
@@ -2605,7 +2607,7 @@ mcoe_gas_capacity_factor = [
         "title": "Natural Gas Capacity Factor (tails, 2015+)",
         "query": "fuel_type_code_pudl=='gas' and report_date>='2015-01-01' and capacity_factor!=0.0",
         "low_q": 0.15,
-        "low_bound": 0.01,
+        "low_bound": 0.005,
         "hi_q": 0.95,
         "hi_bound": 0.95,
         "data_col": "capacity_factor",

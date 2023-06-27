@@ -2723,6 +2723,7 @@ TRANSFORM_PARAMS = {
             "on": "ferc_account_label",
         },
         "align_row_numbers_dbf": {"dbf_table_names": ["f1_plant_in_srvce"]},
+        "reconcile_table_calculations": {"column_to_check": "ending_balance"},
     },
     "plants_pumped_storage_ferc1": {
         "rename_columns_ferc1": {
@@ -3186,39 +3187,39 @@ TRANSFORM_PARAMS = {
                     "xbrl_factoid": "utility_type",
                     # util plant
                     # in service
-                    "service_plant": "utility_plant_in_service_classified_utility_plant_value",
-                    "propundr_cptl_ls": "utility_plant_in_service_property_under_capital_leases_utility_plant_value",
-                    "plnt_prchs_sold": "utility_plant_in_service_plant_purchased_or_sold_utility_plant_value",
-                    "cmplt_const_ucls": "utility_plant_in_service_completed_construction_not_classified_utility_plant_value",
-                    "xprmnt_plnt_ucls": "utility_plant_in_service_experimental_plant_unclassified_utility_plant_value",
-                    "in_srvc_total": "utility_plant_in_service_classified_and_unclassified_utility_plant_value",
+                    "service_plant": "utility_plant_in_service_classified_ending_balance",
+                    "propundr_cptl_ls": "utility_plant_in_service_property_under_capital_leases_ending_balance",
+                    "plnt_prchs_sold": "utility_plant_in_service_plant_purchased_or_sold_ending_balance",
+                    "cmplt_const_ucls": "utility_plant_in_service_completed_construction_not_classified_ending_balance",
+                    "xprmnt_plnt_ucls": "utility_plant_in_service_experimental_plant_unclassified_ending_balance",
+                    "in_srvc_total": "utility_plant_in_service_classified_and_unclassified_ending_balance",
                     # rest of util plant
-                    "leased_to_others": "utility_plant_leased_to_others_utility_plant_value",
-                    "held_ftre_use": "utility_plant_held_for_future_use_utility_plant_value",
-                    "const_wrk_prgrs": "construction_work_in_progress_utility_plant_value",
-                    "acqstn_adjstmnt": "utility_plant_acquisition_adjustment_utility_plant_value",
-                    "tot_utlty_plant": "utility_plant_and_construction_work_in_progress_utility_plant_value",
-                    "accum_prvsn_dad": "accumulated_provision_for_depreciation_amortization_and_depletion_of_plant_utility_utility_plant_value",
-                    "net_utlty_plant": "utility_plant_net_utility_plant_value",
+                    "leased_to_others": "utility_plant_leased_to_others_ending_balance",
+                    "held_ftre_use": "utility_plant_held_for_future_use_ending_balance",
+                    "const_wrk_prgrs": "construction_work_in_progress_ending_balance",
+                    "acqstn_adjstmnt": "utility_plant_acquisition_adjustment_ending_balance",
+                    "tot_utlty_plant": "utility_plant_and_construction_work_in_progress_ending_balance",
+                    "accum_prvsn_dad": "accumulated_provision_for_depreciation_amortization_and_depletion_of_plant_utility_reported_ending_balance",
+                    "net_utlty_plant": "utility_plant_net_ending_balance",
                     # detail of accum deprish
                     # in service
-                    "in_srvce_depr": "depreciation_utility_plant_in_service_utility_plant_value",
-                    "amrtzd_dplt_nglr": "amortization_and_depletion_of_producing_natural_gas_land_and_land_rightsutility_plant_in_service_utility_plant_value",
-                    "amrtzd_ugrndstrg": "amortization_of_underground_storage_land_and_land_rightsutility_plant_in_service_utility_plant_value",
-                    "amrtz_utlty_plnt": "amortization_of_other_utility_plant_utility_plant_in_service_utility_plant_value",
-                    "tot_in_service": "depreciation_amortization_and_depletion_utility_plant_in_service_utility_plant_value",
+                    "in_srvce_depr": "depreciation_utility_plant_in_service_ending_balance",
+                    "amrtzd_dplt_nglr": "amortization_and_depletion_of_producing_natural_gas_land_and_land_rightsutility_plant_in_service_ending_balance",
+                    "amrtzd_ugrndstrg": "amortization_of_underground_storage_land_and_land_rightsutility_plant_in_service_ending_balance",
+                    "amrtz_utlty_plnt": "amortization_of_other_utility_plant_utility_plant_in_service_ending_balance",
+                    "tot_in_service": "depreciation_amortization_and_depletion_utility_plant_in_service_ending_balance",
                     # leased to others
-                    "leased_othr_depr": "depreciation_utility_plant_leased_to_others_utility_plant_value",
-                    "amrtz_dplt": "amortization_and_depletion_utility_plant_leased_to_others_utility_plant_value",
-                    "tot_leased_othr": "depreciation_amortization_and_depletion_utility_plant_leased_to_others_utility_plant_value",
+                    "leased_othr_depr": "depreciation_utility_plant_leased_to_others_ending_balance",
+                    "amrtz_dplt": "amortization_and_depletion_utility_plant_leased_to_others_ending_balance",
+                    "tot_leased_othr": "depreciation_amortization_and_depletion_utility_plant_leased_to_others_ending_balance",
                     # held for future use
-                    "depr_ftre_use": "depreciation_utility_plant_held_for_future_use_utility_plant_value",
-                    "amortization": "amortization_utility_plant_held_for_future_use_utility_plant_value",
-                    "total_ftre_use": "depreciation_and_amortization_utility_plant_held_for_future_use_utility_plant_value",
+                    "depr_ftre_use": "depreciation_utility_plant_held_for_future_use_ending_balance",
+                    "amortization": "amortization_utility_plant_held_for_future_use_ending_balance",
+                    "total_ftre_use": "depreciation_and_amortization_utility_plant_held_for_future_use_ending_balance",
                     # rest of details of acum deprish
-                    "abndn_leases": "abandonment_of_leases_utility_plant_value",
-                    "amrtzplnt_acqstn": "amortization_of_plant_acquisition_adjustment_utility_plant_value",
-                    "tot_accum_prvsn": "accumulated_provision_for_depreciation_amortization_and_depletion_of_plant_utility_detail_utility_plant_value",
+                    "abndn_leases": "abandonment_of_leases_ending_balance",
+                    "amrtzplnt_acqstn": "amortization_of_plant_acquisition_adjustment_ending_balance",
+                    "tot_accum_prvsn": "accumulated_provision_for_depreciation_amortization_and_depletion_of_plant_utility_ending_balance",
                 }
             },
             "xbrl": {
@@ -3231,7 +3232,7 @@ TRANSFORM_PARAMS = {
             },
             "instant_xbrl": {
                 "columns": {
-                    xbrl_col: f"{xbrl_col}_utility_plant_value"
+                    xbrl_col: f"{xbrl_col}_ending_balance"
                     for xbrl_col in [
                         "depreciation_amortization_and_depletion_utility_plant_in_service",
                         "depreciation_and_amortization_utility_plant_held_for_future_use",
@@ -3266,7 +3267,7 @@ TRANSFORM_PARAMS = {
         "drop_invalid_rows": [
             {
                 "invalid_values": [pd.NA, np.nan, ""],
-                "required_valid_cols": ["utility_plant_value"],
+                "required_valid_cols": ["ending_balance"],
             },
         ],
         "wide_to_tidy": {
@@ -3277,7 +3278,7 @@ TRANSFORM_PARAMS = {
                     "utility_type_axis",
                     "sched_table_name",
                 ],
-                "value_types": ["utility_plant_value"],
+                "value_types": ["ending_balance"],
                 "expected_drop_cols": 1,
                 "stacked_column_name": "xbrl_factoid",
             },
@@ -3289,7 +3290,7 @@ TRANSFORM_PARAMS = {
                     "utility_type",
                     "utility_type_other",
                 ],
-                "value_types": ["utility_plant_value"],
+                "value_types": ["ending_balance"],
                 "expected_drop_cols": 1,
                 "stacked_column_name": "utility_plant_asset_type",
             },
@@ -3315,6 +3316,10 @@ TRANSFORM_PARAMS = {
         },
         "replace_with_na": {
             "utility_type_other": {"replace_with_na": [""]},
+        },
+        "reconcile_table_calculations": {
+            "column_to_check": "ending_balance",
+            "subtotal_column": "utility_type",
         },
     },
     "balance_sheet_assets_ferc1": {
@@ -3365,6 +3370,7 @@ TRANSFORM_PARAMS = {
             "rename_columns": {"xbrl_factoid": "asset_type"},
             "on": "asset_type",
         },
+        "reconcile_table_calculations": {"column_to_check": "ending_balance"},
     },
     "balance_sheet_liabilities_ferc1": {
         "rename_columns_ferc1": {
@@ -3416,6 +3422,7 @@ TRANSFORM_PARAMS = {
             "rename_columns": {"xbrl_factoid": "liability_type"},
             "on": "liability_type",
         },
+        "reconcile_table_calculations": {"column_to_check": "ending_balance"},
     },
     "depreciation_amortization_summary_ferc1": {
         "rename_columns_ferc1": {
@@ -3427,11 +3434,11 @@ TRANSFORM_PARAMS = {
                     "row_number": "row_number",
                     "row_seq": "row_seq",
                     "row_prvlg": "row_prvlg",
-                    "depr_expn": "depreciation_expense_depreciation_amortization_value",
-                    "depr_asset_retire": "depreciation_expense_asset_retirement_depreciation_amortization_value",
-                    "limterm_elc_plnt": "amortization_limited_term_electric_plant_depreciation_amortization_value",
-                    "othr_elc_plnt": "amortization_other_electric_plant_depreciation_amortization_value",
-                    "total": "depreciation_amortization_total_depreciation_amortization_value",
+                    "depr_expn": "depreciation_expense_dollar_value",
+                    "depr_asset_retire": "depreciation_expense_asset_retirement_dollar_value",
+                    "limterm_elc_plnt": "amortization_limited_term_electric_plant_dollar_value",
+                    "othr_elc_plnt": "amortization_other_electric_plant_dollar_value",
+                    "total": "depreciation_amortization_total_dollar_value",
                     "xbrl_factoid": "plant_function",
                     "report_prd": "report_prd",
                 }
@@ -3446,11 +3453,11 @@ TRANSFORM_PARAMS = {
             "duration_xbrl": {
                 "columns": {
                     "functional_classification_axis": "plant_function",
-                    "depreciation_expense_excluding_amortization_of_acquisition_adjustments": "depreciation_expense_depreciation_amortization_value",
-                    "depreciation_expense_for_asset_retirement_costs_excluding_amortizationg_of_acquisition_adjustments": "depreciation_expense_asset_retirement_depreciation_amortization_value",
-                    "amortization_of_limited_term_plant_or_property": "amortization_limited_term_electric_plant_depreciation_amortization_value",
-                    "amortization_of_other_electric_plant": "amortization_other_electric_plant_depreciation_amortization_value",
-                    "depreciation_and_amortization": "depreciation_amortization_total_depreciation_amortization_value",
+                    "depreciation_expense_excluding_amortization_of_acquisition_adjustments": "depreciation_expense_dollar_value",
+                    "depreciation_expense_for_asset_retirement_costs_excluding_amortizationg_of_acquisition_adjustments": "depreciation_expense_asset_retirement_dollar_value",
+                    "amortization_of_limited_term_plant_or_property": "amortization_limited_term_electric_plant_dollar_value",
+                    "amortization_of_other_electric_plant": "amortization_other_electric_plant_dollar_value",
+                    "depreciation_and_amortization": "depreciation_amortization_total_dollar_value",
                 }
             },
         },
@@ -3463,7 +3470,7 @@ TRANSFORM_PARAMS = {
                     "sched_table_name",
                 ],
                 "value_types": [
-                    "depreciation_amortization_value",
+                    "dollar_value",
                 ],
                 "expected_drop_cols": 3,
                 "stacked_column_name": "xbrl_factoid",
@@ -3475,7 +3482,7 @@ TRANSFORM_PARAMS = {
                     "utility_id_ferc1",
                     "plant_function",
                 ],
-                "value_types": ["depreciation_amortization_value"],
+                "value_types": ["dollar_value"],
                 "expected_drop_cols": 1,
                 "stacked_column_name": "ferc_account_label",
             },
@@ -3483,8 +3490,12 @@ TRANSFORM_PARAMS = {
         "categorize_strings": {"plant_function": PLANT_FUNCTION_CATEGORIES},
         "align_row_numbers_dbf": {"dbf_table_names": ["f1_dacs_epda"]},
         "merge_xbrl_metadata": {
-            "rename_columns": {"ferc_account_label": "ferc_account_label"},
+            "rename_columns": {"xbrl_factoid": "ferc_account_label"},
             "on": "ferc_account_label",
+        },
+        "reconcile_table_calculations": {
+            "column_to_check": "dollar_value",
+            "subtotal_column": "plant_function",
         },
     },
     "electric_operating_revenues_ferc1": {
@@ -3552,12 +3563,16 @@ TRANSFORM_PARAMS = {
                         "electric_operating_revenues",
                     ]
                 }
+                | {
+                    f"{col}_sales_electric_operating_revenue": f"{col}_electric_operating_revenue"
+                    for col in ["small_or_commercial", "large_or_industrial"]
+                }
             },
             "xbrl": {
                 "columns": {
                     "entity_id": "utility_id_ferc1_xbrl",
                     "report_year": "report_year",
-                    "electric_operating_revenue": "revenue",
+                    "electric_operating_revenue": "dollar_value",
                 }
             },
             "dbf": {
@@ -3570,7 +3585,7 @@ TRANSFORM_PARAMS = {
                     "row_prvlg": "row_prvlg",
                     "report_prd": "report_prd",
                     "xbrl_factoid": "revenue_type",
-                    "rev_amt_crnt_yr": "amount",
+                    "rev_amt_crnt_yr": "dollar_value",
                     "mwh_sold_crnt_yr": "sales_mwh",
                     "avg_cstmr_crntyr": "avg_customers_per_month",
                 }
@@ -3606,12 +3621,13 @@ TRANSFORM_PARAMS = {
             {
                 "invalid_values": [pd.NA, np.nan, ""],
                 "required_valid_cols": [
-                    "amount",
+                    "dollar_value",
                     "sales_mwh",
                     "avg_customers_per_month",
                 ],
             },
         ],
+        "reconcile_table_calculations": {"column_to_check": "dollar_value"},
     },
     "retained_earnings_ferc1": {
         "rename_columns_ferc1": {
@@ -3673,6 +3689,10 @@ TRANSFORM_PARAMS = {
         "select_dbf_rows_by_category": {
             "column_name": "earnings_type",
             "select_by_xbrl_categories": True,
+            "additional_categories": [
+                "unappropriated_retained_earnings_previous_year",
+                "unappropriated_undistributed_subsidiary_earnings_previous_year",
+            ],
             "len_expected_categories_to_drop": 6,
         },
         "unstack_balances_to_report_year_instant_xbrl": {
@@ -3683,6 +3703,10 @@ TRANSFORM_PARAMS = {
             "on": "earnings_type",
         },
         "strip_non_numeric_values": {"amount": {"strip_non_numeric_values": True}},
+        "reconcile_table_calculations": {
+            "column_to_check": "ending_balance",
+            "calculation_tolerance": 0.08,
+        },
     },
     "income_statement_ferc1": {
         "rename_columns_ferc1": {
@@ -3696,14 +3720,14 @@ TRANSFORM_PARAMS = {
                     "row_prvlg": "row_prvlg",
                     "report_prd": "report_prd",
                     "xbrl_factoid": "income_type",
-                    "current_yr_total": "total_income",
-                    "cy_elctrc_total": "electric_income",
-                    "cy_gas_total": "gas_income",
-                    "cy_other_total_1": "other1_income",
-                    "cy_other_total_2": "other2_income",
-                    "cy_other_total_3": "other3_income",
-                    "cy_other_total_4": "other4_income",
-                    "cy_other_total": "other_total_income",
+                    "current_yr_total": "total_dollar_value",
+                    "cy_elctrc_total": "electric_dollar_value",
+                    "cy_gas_total": "gas_dollar_value",
+                    "cy_other_total_1": "other1_dollar_value",
+                    "cy_other_total_2": "other2_dollar_value",
+                    "cy_other_total_3": "other3_dollar_value",
+                    "cy_other_total_4": "other4_dollar_value",
+                    "cy_other_total": "other_total_dollar_value",
                 }
             },
             "xbrl": {
@@ -3716,7 +3740,7 @@ TRANSFORM_PARAMS = {
             },
             "duration_xbrl": {
                 "columns": {
-                    xbrl_col: f"{xbrl_col}_income"
+                    xbrl_col: f"{xbrl_col}_dollar_value"
                     for xbrl_col in [
                         "accretion_expense",
                         "equity_in_earnings_of_subsidiary_companies",
@@ -3798,7 +3822,7 @@ TRANSFORM_PARAMS = {
                     "utility_type_axis",
                     "sched_table_name",
                 ],
-                "value_types": ["income"],
+                "value_types": ["dollar_value"],
                 "expected_drop_cols": 2,
                 "stacked_column_name": "xbrl_factoid",
             },
@@ -3809,13 +3833,13 @@ TRANSFORM_PARAMS = {
                     "income_type",
                     "record_id",
                 ],
-                "value_types": ["income"],
+                "value_types": ["dollar_value"],
                 "expected_drop_cols": 11,
                 "stacked_column_name": "utility_type",
             },
         },
         "drop_duplicate_rows_dbf": {
-            "data_columns": ["income"],
+            "data_columns": ["dollar_value"],
             "table_name": "income_statement_ferc1",
         },
         "align_row_numbers_dbf": {
@@ -3825,8 +3849,8 @@ TRANSFORM_PARAMS = {
             "utility_type": {
                 "categories": UTILITY_TYPE_CATEGORIES["categories"]
                 | {
-                    "total": {"total"},
-                    "other": {"other", "other_total", "ferc:OtherUtilityMember"},
+                    "total": {"total", "other_total"},
+                    "other": {"other", "ferc:OtherUtilityMember"},
                     "other1": {"other1"},
                     "other2": {"other2"},
                     "other3": {"other3"},
@@ -3841,9 +3865,13 @@ TRANSFORM_PARAMS = {
         "drop_invalid_rows": [
             {
                 "invalid_values": [pd.NA, np.nan, ""],
-                "required_valid_cols": ["income"],
+                "required_valid_cols": ["dollar_value"],
             },
         ],
+        "reconcile_table_calculations": {
+            "column_to_check": "dollar_value",
+            "subtotal_column": "utility_type",
+        },
     },
     "electric_plant_depreciation_changes_ferc1": {
         "rename_columns_ferc1": {
@@ -3856,22 +3884,22 @@ TRANSFORM_PARAMS = {
                     "row_seq": "row_seq",
                     "row_prvlg": "row_prvlg",
                     "report_prd": "report_prd",
-                    "total_cde": "total_utility_plant_value",
-                    "future_plant": "future_utility_plant_value",
-                    "leased_plant": "leased_utility_plant_value",
-                    "electric_plant": "in_service_utility_plant_value",
+                    "total_cde": "total_dollar_value",
+                    "future_plant": "future_dollar_value",
+                    "leased_plant": "leased_dollar_value",
+                    "electric_plant": "in_service_dollar_value",
                     "xbrl_factoid": "depreciation_type",
                 }
             },
             "instant_xbrl": {
                 "columns": {
-                    "accumulated_provision_for_depreciation_of_electric_utility_plant_ending_balance": "ending_balance_utility_plant_value",
-                    "accumulated_provision_for_depreciation_of_electric_utility_plant_starting_balance": "starting_balance_utility_plant_value",
+                    "accumulated_provision_for_depreciation_of_electric_utility_plant_ending_balance": "ending_balance_dollar_value",
+                    "accumulated_provision_for_depreciation_of_electric_utility_plant_starting_balance": "starting_balance_dollar_value",
                 }
             },
             "duration_xbrl": {
                 "columns": {
-                    xbrl_col: f"{xbrl_col}_utility_plant_value"
+                    xbrl_col: f"{xbrl_col}_dollar_value"
                     for xbrl_col in [
                         "book_cost_of_asset_retirement_costs",
                         "book_cost_of_retired_plant",
@@ -3911,7 +3939,7 @@ TRANSFORM_PARAMS = {
                     "depreciation_type",
                     "record_id",
                 ],
-                "value_types": ["utility_plant_value"],
+                "value_types": ["dollar_value"],
                 "expected_drop_cols": 2,
                 "stacked_column_name": "plant_status",
             },
@@ -3923,7 +3951,7 @@ TRANSFORM_PARAMS = {
                     "utility_type_axis",
                     "sched_table_name",
                 ],
-                "value_types": ["utility_plant_value"],
+                "value_types": ["dollar_value"],
                 "expected_drop_cols": 2,
                 "stacked_column_name": "depreciation_type",
             },
@@ -3940,6 +3968,13 @@ TRANSFORM_PARAMS = {
         "unstack_balances_to_report_year_instant_xbrl": {
             "unstack_balances_to_report_year": True
         },
+        "reconcile_table_calculations": {
+            "column_to_check": "dollar_value",
+            # Note: this table does not currently get exploded. It will require
+            # additional debugging at a later date.
+            "calculation_tolerance": 0.4,
+            "subtotal_column": "depreciation_type",
+        },
     },
     "electric_plant_depreciation_functional_ferc1": {
         "rename_columns_ferc1": {
@@ -3952,25 +3987,25 @@ TRANSFORM_PARAMS = {
                     "row_seq": "row_seq",
                     "row_prvlg": "row_prvlg",
                     "report_prd": "report_prd",
-                    "total_cde": "total_utility_plant_value",
-                    "future_plant": "future_utility_plant_value",
-                    "leased_plant": "leased_utility_plant_value",
-                    "electric_plant": "in_service_utility_plant_value",
+                    "total_cde": "total_ending_balance",
+                    "future_plant": "future_ending_balance",
+                    "leased_plant": "leased_ending_balance",
+                    "electric_plant": "in_service_ending_balance",
                     "xbrl_factoid": "plant_function",
                 }
             },
             "instant_xbrl": {
                 "columns": {
-                    "accumulated_depreciation_steam_production_ending_balance": "steam_production_utility_plant_value",
-                    "accumulated_depreciation_nuclear_production_ending_balance": "nuclear_production_utility_plant_value",
-                    "accumulated_depreciation_hydraulic_production_conventional_ending_balance": "hydraulic_production_conventional_utility_plant_value",
-                    "accumulated_depreciation_hydraulic_production_pumped_storage_ending_balance": "hydraulic_production_pumped_storage_utility_plant_value",
-                    "accumulated_depreciation_other_production_ending_balance": "other_production_utility_plant_value",
-                    "accumulated_depreciation_transmission_ending_balance": "transmission_utility_plant_value",
-                    "accumulated_depreciation_distribution_ending_balance": "distribution_utility_plant_value",
-                    "accumulated_depreciation_general_ending_balance": "general_utility_plant_value",
-                    "accumulated_depreciation_regional_transmission_and_market_operation_ending_balance": "regional_transmission_and_market_operation_utility_plant_value",
-                    "accumulated_provision_for_depreciation_of_electric_utility_plant_ending_balance": "total_utility_plant_value",
+                    "accumulated_depreciation_steam_production_ending_balance": "steam_production_ending_balance",
+                    "accumulated_depreciation_nuclear_production_ending_balance": "nuclear_production_ending_balance",
+                    "accumulated_depreciation_hydraulic_production_conventional_ending_balance": "hydraulic_production_conventional_ending_balance",
+                    "accumulated_depreciation_hydraulic_production_pumped_storage_ending_balance": "hydraulic_production_pumped_storage_ending_balance",
+                    "accumulated_depreciation_other_production_ending_balance": "other_production_ending_balance",
+                    "accumulated_depreciation_transmission_ending_balance": "transmission_ending_balance",
+                    "accumulated_depreciation_distribution_ending_balance": "distribution_ending_balance",
+                    "accumulated_depreciation_general_ending_balance": "general_ending_balance",
+                    "accumulated_depreciation_regional_transmission_and_market_operation_ending_balance": "regional_transmission_and_market_operation_ending_balance",
+                    "accumulated_provision_for_depreciation_of_electric_utility_plant_ending_balance": "total_ending_balance",
                 }
             },
             "xbrl": {
@@ -3996,7 +4031,7 @@ TRANSFORM_PARAMS = {
                     "plant_function",
                     "record_id",
                 ],
-                "value_types": ["utility_plant_value"],
+                "value_types": ["ending_balance"],
                 "expected_drop_cols": 2,
                 "stacked_column_name": "plant_status",
             },
@@ -4008,7 +4043,7 @@ TRANSFORM_PARAMS = {
                     "utility_type_axis",
                     "sched_table_name",
                 ],
-                "value_types": ["utility_plant_value"],
+                "value_types": ["ending_balance"],
                 "expected_drop_cols": 10,
                 "stacked_column_name": "plant_function",
             },
@@ -4036,6 +4071,10 @@ TRANSFORM_PARAMS = {
         },
         "unstack_balances_to_report_year_instant_xbrl": {
             "unstack_balances_to_report_year": True
+        },
+        "reconcile_table_calculations": {
+            "column_to_check": "ending_balance",
+            "subtotal_column": "plant_status",
         },
     },
     "cash_flow_ferc1": {
@@ -4170,8 +4209,7 @@ TRANSFORM_PARAMS = {
                     "row_number": "row_number",
                     "row_seq": "row_seq",
                     "spplmnt_num": "spplmnt_num",
-                    "crnt_yr_amt": "expense",
-                    "xbrl_factoid": "expense_type",
+                    "crnt_yr_amt": "dollar_value",
                     "xbrl_factoid": "expense_type",
                 }
             },
@@ -4184,7 +4222,7 @@ TRANSFORM_PARAMS = {
             },
             "duration_xbrl": {
                 "columns": {
-                    xbrl_col: f"{xbrl_col}_expense"
+                    xbrl_col: f"{xbrl_col}_dollar_value"
                     for xbrl_col in [
                         "administrative_and_general_expenses",
                         "administrative_and_general_operation_expense",
@@ -4371,18 +4409,19 @@ TRANSFORM_PARAMS = {
                     "report_year",
                     "sched_table_name",
                 ],
-                "value_types": ["expense"],
+                "value_types": ["dollar_value"],
                 "stacked_column_name": "xbrl_factoid",
             }
         },
         "drop_duplicate_rows_dbf": {
-            "data_columns": ["expense"],
+            "data_columns": ["dollar_value"],
             "table_name": "electric_operating_expenses_ferc1",
         },
         "merge_xbrl_metadata": {
             "rename_columns": {"xbrl_factoid": "expense_type"},
             "on": "expense_type",
         },
+        "reconcile_table_calculations": {"column_to_check": "dollar_value"},
     },
     "other_regulatory_liabilities_ferc1": {
         "rename_columns_ferc1": {
@@ -4445,7 +4484,7 @@ TRANSFORM_PARAMS = {
                     "spplmnt_num": "spplmnt_num",
                     "sched_num_ttl": "rate_schedule_description",
                     "mwh_sold": "sales_mwh",
-                    "revenue": "sales_revenue",
+                    "revenue": "dollar_value",
                     "avg_num_cstmr": "avg_customers_per_month",
                     "kwh_sale_cstmr": "kwh_per_customer",
                     "revenue_kwh_sold": "revenue_per_kwh",
@@ -4559,36 +4598,36 @@ TRANSFORM_PARAMS = {
                     "megawatt_hours_sold_provision_for_rate_refunds": "provision_for_rate_refund_total_sales_mwh",
                     "megawatt_hours_sold_provision_for_rate_refunds_billed": "provision_for_rate_refund_billed_sales_mwh",
                     "megawatt_hours_sold_provision_for_rate_refunds_unbilled": "provision_for_rate_refund_unbilled_sales_mwh",
-                    "residential_sales": "residential_total_sales_revenue",
-                    "residential_sales_billed": "residential_billed_sales_revenue",
-                    "residential_sales_unbilled": "residential_unbilled_sales_revenue",
-                    "small_or_commercial_sales_electric_operating_revenue": "commercial_total_sales_revenue",
-                    "small_or_commercial_sales_electric_operating_revenue_billed": "commercial_billed_sales_revenue",
-                    "small_or_commercial_sales_electric_operating_revenue_unbilled": "commercial_unbilled_sales_revenue",
-                    "large_or_industrial_sales_electric_operating_revenue": "industrial_total_sales_revenue",
-                    "large_or_industrial_sales_electric_operating_revenue_billed": "industrial_billed_sales_revenue",
-                    "large_or_industrial_sales_electric_operating_revenue_unbilled": "industrial_unbilled_sales_revenue",
-                    "commercial_and_industrial_sales": "commercial_and_industrial_total_sales_revenue",
-                    "commercial_and_industrial_sales_billed": "commercial_and_industrial_billed_sales_revenue",
-                    "commercial_and_industrial_sales_unbilled": "commercial_and_industrial_unbilled_sales_revenue",
-                    "public_street_and_highway_lighting": "public_lighting_total_sales_revenue",
-                    "public_street_and_highway_lighting_billed": "public_lighting_billed_sales_revenue",
-                    "public_street_and_highway_lighting_unbilled": "public_lighting_unbilled_sales_revenue",
-                    "other_sales_to_public_authorities": "public_authorities_total_sales_revenue",
-                    "other_sales_to_public_authorities_billed": "public_authorities_billed_sales_revenue",
-                    "other_sales_to_public_authorities_unbilled": "public_authorities_unbilled_sales_revenue",
-                    "sales_to_railroads_and_railways": "railroads_total_sales_revenue",
-                    "sales_to_railroads_and_railways_billed": "railroads_billed_sales_revenue",
-                    "sales_to_railroads_and_railways_unbilled": "railroads_unbilled_sales_revenue",
-                    "interdepartmental_sales_billed": "interdepartmental_billed_sales_revenue",
-                    "interdepartmental_sales_unbilled": "interdepartmental_unbilled_sales_revenue",
-                    "interdepartmental_sales": "interdepartmental_total_sales_revenue",
-                    "provision_for_rate_refunds": "provision_for_rate_refund_total_sales_revenue",
-                    "provision_for_rate_refunds_billed": "provision_for_rate_refund_billed_sales_revenue",
-                    "provision_for_rate_refunds_unbilled": "provision_for_rate_refund_unbilled_sales_revenue",
-                    "revenue_from_sales_of_electricity_by_rate_schedules_including_unbilled_revenue": "total_total_sales_revenue",
-                    "revenue_from_sales_of_electricity_by_rate_schedules": "total_billed_sales_revenue",
-                    "revenue_from_sales_of_electricity_by_rate_schedules_unbilled": "total_unbilled_sales_revenue",
+                    "residential_sales": "residential_total_dollar_value",
+                    "residential_sales_billed": "residential_billed_dollar_value",
+                    "residential_sales_unbilled": "residential_unbilled_dollar_value",
+                    "small_or_commercial_sales_electric_operating_revenue": "commercial_total_dollar_value",
+                    "small_or_commercial_sales_electric_operating_revenue_billed": "commercial_billed_dollar_value",
+                    "small_or_commercial_sales_electric_operating_revenue_unbilled": "commercial_unbilled_dollar_value",
+                    "large_or_industrial_sales_electric_operating_revenue": "industrial_total_dollar_value",
+                    "large_or_industrial_sales_electric_operating_revenue_billed": "industrial_billed_dollar_value",
+                    "large_or_industrial_sales_electric_operating_revenue_unbilled": "industrial_unbilled_dollar_value",
+                    "commercial_and_industrial_sales": "commercial_and_industrial_total_dollar_value",
+                    "commercial_and_industrial_sales_billed": "commercial_and_industrial_billed_dollar_value",
+                    "commercial_and_industrial_sales_unbilled": "commercial_and_industrial_unbilled_dollar_value",
+                    "public_street_and_highway_lighting": "public_lighting_total_dollar_value",
+                    "public_street_and_highway_lighting_billed": "public_lighting_billed_dollar_value",
+                    "public_street_and_highway_lighting_unbilled": "public_lighting_unbilled_dollar_value",
+                    "other_sales_to_public_authorities": "public_authorities_total_dollar_value",
+                    "other_sales_to_public_authorities_billed": "public_authorities_billed_dollar_value",
+                    "other_sales_to_public_authorities_unbilled": "public_authorities_unbilled_dollar_value",
+                    "sales_to_railroads_and_railways": "railroads_total_dollar_value",
+                    "sales_to_railroads_and_railways_billed": "railroads_billed_dollar_value",
+                    "sales_to_railroads_and_railways_unbilled": "railroads_unbilled_dollar_value",
+                    "interdepartmental_sales_billed": "interdepartmental_billed_dollar_value",
+                    "interdepartmental_sales_unbilled": "interdepartmental_unbilled_dollar_value",
+                    "interdepartmental_sales": "interdepartmental_total_dollar_value",
+                    "provision_for_rate_refunds": "provision_for_rate_refund_total_dollar_value",
+                    "provision_for_rate_refunds_billed": "provision_for_rate_refund_billed_dollar_value",
+                    "provision_for_rate_refunds_unbilled": "provision_for_rate_refund_unbilled_dollar_value",
+                    "revenue_from_sales_of_electricity_by_rate_schedules_including_unbilled_revenue": "total_total_dollar_value",
+                    "revenue_from_sales_of_electricity_by_rate_schedules": "total_billed_dollar_value",
+                    "revenue_from_sales_of_electricity_by_rate_schedules_unbilled": "total_unbilled_dollar_value",
                 }
             },
         },
@@ -4629,9 +4668,9 @@ TRANSFORM_PARAMS = {
                         "billed_sales_mwh",
                         "unbilled_sales_mwh",
                         "total_sales_mwh",
-                        "billed_sales_revenue",
-                        "unbilled_sales_revenue",
-                        "total_sales_revenue",
+                        "billed_dollar_value",
+                        "unbilled_dollar_value",
+                        "total_dollar_value",
                     ],
                     "stacked_column_name": "rate_schedule_type",
                     "expected_drop_cols": 1,
@@ -4652,7 +4691,7 @@ TRANSFORM_PARAMS = {
                         "kwh_per_customer",
                         "revenue_per_kwh",
                         "sales_mwh",
-                        "sales_revenue",
+                        "dollar_value",
                     ],
                     "stacked_column_name": "billing_status",
                     "expected_drop_cols": 0,
@@ -4664,7 +4703,7 @@ TRANSFORM_PARAMS = {
                 "invalid_values": [np.nan],
                 "required_valid_cols": [
                     "sales_mwh",
-                    "sales_revenue",
+                    "dollar_value",
                     "avg_customers_per_month",
                     "kwh_per_customer",
                     "revenue_per_kwh",

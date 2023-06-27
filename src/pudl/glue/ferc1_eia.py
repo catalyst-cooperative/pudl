@@ -35,7 +35,7 @@ import sqlalchemy as sa
 from dagster import AssetIn, Definitions, JobDefinition, asset, define_asset_job
 
 import pudl
-from pudl.extract.ferc1 import raw_ferc1_assets, xbrl_metadata_json
+from pudl.extract.ferc1 import raw_ferc1_assets, raw_xbrl_metadata_json
 from pudl.io_managers import ferc1_dbf_sqlite_io_manager, ferc1_xbrl_sqlite_io_manager
 from pudl.metadata.fields import apply_pudl_dtypes
 from pudl.resources import dataset_settings
@@ -43,6 +43,7 @@ from pudl.transform.classes import StringNormalization, normalize_strings_multic
 from pudl.transform.ferc1 import (
     Ferc1AbstractTableTransformer,
     TableIdFerc1,
+    clean_xbrl_metadata_json,
     ferc1_transform_asset_factory,
 )
 from pudl.transform.params.ferc1 import FERC1_STRING_NORM
@@ -289,13 +290,10 @@ def get_plants_ferc1_raw_job() -> JobDefinition:
         )
         return all_plants
 
-    tfr_mapping = {
-        table_name: GenericPlantFerc1TableTransformer for table_name in plant_tables
-    }
     transform_assets = [
         ferc1_transform_asset_factory(
             table_name,
-            tfr_mapping,
+            GenericPlantFerc1TableTransformer,
             io_manager_key=None,
             convert_dtypes=False,
             generic=True,
@@ -306,8 +304,7 @@ def get_plants_ferc1_raw_job() -> JobDefinition:
     return Definitions(
         assets=transform_assets
         + raw_ferc1_assets
-        + [plants_ferc1_raw]
-        + [xbrl_metadata_json],
+        + [plants_ferc1_raw, raw_xbrl_metadata_json, clean_xbrl_metadata_json],
         resources={
             "ferc1_dbf_sqlite_io_manager": ferc1_dbf_sqlite_io_manager,
             "ferc1_xbrl_sqlite_io_manager": ferc1_xbrl_sqlite_io_manager,

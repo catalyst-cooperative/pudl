@@ -3,6 +3,7 @@
 import json
 import re
 import unittest
+from typing import Any
 
 import responses
 
@@ -10,71 +11,171 @@ from pudl.workspace import datastore
 from pudl.workspace.resource_cache import PudlResourceKey
 
 
+def _make_resource(name: str, **partitions) -> dict[str, Any]:
+    """Returns json representation of a resource."""
+    return {
+        "name": name,
+        "path": f"http://localhost/{name}",
+        "parts": dict(partitions),
+    }
+
+
+def _make_descriptor(
+    dataset: str, doi: str, *resources: dict[str, Any]
+) -> datastore.DatapackageDescriptor:
+    """Returns new instance of DatapackageDescriptor containing given resources.
+
+    This is a helper for quickly making descriptors for unit testing. You can use
+    it in a following fashion:
+
+    desc = _make_descriptor("dataset_name", "doi-123", _make_resource(...), _make_resource(...), ...)
+
+    Args:
+        dataset: name of the dataset
+        doi: doi identifier
+        resources: list of resources that should be attached to the resource. This should
+         be json representation, e.g. constructed by calling _make_resource().
+    """
+    return datastore.DatapackageDescriptor(
+        {"resources": list(resources)},
+        dataset=dataset,
+        doi=doi,
+    )
+
+
 class TestDatapackageDescriptor(unittest.TestCase):
     """Unit tests for the DatapackageDescriptor class."""
 
-    MOCK_DATAPACKAGE = {
-        "resources": [
-            {
-                "name": "first-red",
-                "path": "http://localhost/first",
-                "parts": {"color": "red", "order": 1},
-            },
-            {
-                "name": "second-blue",
-                "path": "http://localhost/second",
-                "parts": {"color": "blue", "order": 2},
-            },
-        ]
-    }
-
-    def setUp(self):
-        """Builds DatapackageDescriptor based on MOCK_DATAPACKAGE."""
-        self.descriptor = datastore.DatapackageDescriptor(
-            self.MOCK_DATAPACKAGE, dataset="epacems", doi="123"
-        )
-
-    def test_get_resource_path_for_existing_resources(self):
-        """Checks that get_resource_path() works."""
-        self.assertEqual(
-            "http://localhost/first", self.descriptor.get_resource_path("first-red")
+    def test_get_partition_filters(self):
+        desc = _make_descriptor(
+            "blabla",
+            "doi-123",
+            _make_resource("foo", group="first", color="red"),
+            _make_resource("bar", group="first", color="blue"),
+            _make_resource("baz", group="second", color="black", order=1),
         )
         self.assertEqual(
-            "http://localhost/second", self.descriptor.get_resource_path("second-blue")
+            [
+                dict(group="first", color="red"),
+                dict(group="first", color="blue"),
+                dict(group="second", color="black", order=1),
+            ],
+            list(desc.get_partition_filters()),
+        )
+        self.assertEqual(
+            [
+                dict(group="first", color="red"),
+                dict(group="first", color="blue"),
+            ],
+            list(desc.get_partition_filters(group="first")),
+        )
+        self.assertEqual(
+            [
+                dict(group="first", color="blue"),
+            ],
+            list(desc.get_partition_filters(color="blue")),
+        )
+        self.assertEqual(
+            [], list(desc.get_partition_filters(color="blue", group="second"))
         )
 
-    def test_get_resource_path_throws_exception(self):
-        """Verifies that KeyError is thrown when resource does not exist."""
-        self.assertRaises(
-            KeyError, self.descriptor.get_resource_path, "third-orange"
-        )  # this resource does not exist
+    def test_get_resource_path(self):
+        """Check that get_resource_path returns correct paths."""
+        desc = _make_descriptor(
+            "blabla",
+            "doi-123",
+            _make_resource("foo", group="first", color="red"),
+            _make_resource("bar", group="first", color="blue"),
+        )
+        self.assertEqual("http://localhost/foo", desc.get_resource_path("foo"))
+        self.assertEqual("http://localhost/bar", desc.get_resource_path("bar"))
+        # The following resource does not exist and should throw KeyError
+        self.assertRaises(KeyError, desc.get_resource_path, "other")
 
     def test_get_resources_filtering(self):
         """Verifies correct operation of get_resources()."""
+        desc = _make_descriptor(
+            "data",
+            "doi-123",
+            _make_resource("foo", group="first", color="red"),
+            _make_resource("bar", group="first", color="blue", rank=5),
+            _make_resource(
+                "baz", group="second", color="blue", rank=5, mood="VeryHappy"
+            ),
+        )
         self.assertEqual(
             [
-                PudlResourceKey("epacems", "123", "first-red"),
-                PudlResourceKey("epacems", "123", "second-blue"),
+                PudlResourceKey("data", "doi-123", "foo"),
+                PudlResourceKey("data", "doi-123", "bar"),
+                PudlResourceKey("data", "doi-123", "baz"),
             ],
-            list(self.descriptor.get_resources()),
+            list(desc.get_resources()),
         )
+        # Simple filtering by one attribute.
         self.assertEqual(
-            [PudlResourceKey("epacems", "123", "first-red")],
-            list(self.descriptor.get_resources(color="red")),
+            [
+                PudlResourceKey("data", "doi-123", "foo"),
+                PudlResourceKey("data", "doi-123", "bar"),
+            ],
+            list(desc.get_resources(group="first")),
         )
-        self.assertEqual([], list(self.descriptor.get_resources(flavor="blueberry")))
-
-    def test_get_resources_by_name(self):
-        """Verifies that get_resources() work when name is specified."""
+        # Filter by two attributes
         self.assertEqual(
-            [PudlResourceKey("epacems", "123", "second-blue")],
-            list(self.descriptor.get_resources(name="second-blue")),
+            [
+                PudlResourceKey("data", "doi-123", "bar"),
+            ],
+            list(desc.get_resources(group="first", rank=5)),
+        )
+        # Attributes that do not match anything
+        self.assertEqual(
+            [],
+            list(desc.get_resources(group="second", shape="square")),
+        )
+        # Search attribute values are cast to lowercase strings
+        self.assertEqual(
+            [
+                PudlResourceKey("data", "doi-123", "baz"),
+            ],
+            list(desc.get_resources(rank="5", mood="VERYhappy")),
+        )
+        # Test lookup by name
+        self.assertEqual(
+            [
+                PudlResourceKey("data", "doi-123", "foo"),
+            ],
+            list(desc.get_resources("foo")),
         )
 
     def test_json_string_representation(self):
         """Checks that json representation parses to the same dict."""
+        desc = _make_descriptor(
+            "data",
+            "doi-123",
+            _make_resource("foo", group="first"),
+            _make_resource("bar", group="second"),
+            _make_resource("baz"),
+        )
         self.assertEqual(
-            self.MOCK_DATAPACKAGE, json.loads(self.descriptor.get_json_string())
+            {
+                "resources": [
+                    {
+                        "name": "foo",
+                        "path": "http://localhost/foo",
+                        "parts": {"group": "first"},
+                    },
+                    {
+                        "name": "bar",
+                        "path": "http://localhost/bar",
+                        "parts": {"group": "second"},
+                    },
+                    {
+                        "name": "baz",
+                        "path": "http://localhost/baz",
+                        "parts": {},
+                    },
+                ],
+            },
+            json.loads(desc.get_json_string()),
         )
 
 

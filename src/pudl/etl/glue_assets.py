@@ -60,11 +60,20 @@ def create_glue_tables(context):
 def raw_epacamd_eia(context) -> pd.DataFrame:
     """Extract the EPACAMD-EIA Crosswalk from the Datastore."""
     logger.info("Extracting the EPACAMD-EIA crosswalk from Zenodo")
+    csv_map = {
+        2018: "camd-eia-crosswalk-master/epa_eia_crosswalk.csv",
+        2021: "camd-eia-crosswalk-2021-main/epa_eia_crosswalk.csv",
+    }
+
     ds = context.resources.datastore
-    with ds.get_zipfile_resource("epacamd_eia", name="epacamd_eia.zip").open(
-        "camd-eia-crosswalk-master/epa_eia_crosswalk.csv"
-    ) as f:
-        return pd.read_csv(f)
+    year_matches = []
+    for year, csv_path in csv_map.items():
+        with ds.get_zipfile_resource("epacamd_eia", year=year).open(csv_path) as f:
+            df = pd.read_csv(f)
+            df["report_year"] = year
+            year_matches.append(df)
+
+    return pd.concat(year_matches, ignore_index=True)
 
 
 @asset(
@@ -143,6 +152,7 @@ def epacamd_eia(
     logger.info("Transforming the EPACAMD-EIA crosswalk")
 
     column_rename = {
+        "report_year": "report_year",
         "camd_plant_id": "plant_id_epa",
         "camd_unit_id": "emissions_unit_id_epa",
         "camd_generator_id": "generator_id_epa",
@@ -198,6 +208,40 @@ def epacamd_eia(
     return crosswalk_clean
 
 
+@asset
+def epacamd_eia_unique(epacamd_eia: pd.DataFrame) -> pd.DataFrame:
+    """Intermediate asset that contains all unique epacamd_eia matches.
+
+    The epacamd_eia asset contains crosswalk matches from both 2018 and 2021. This
+    means there are many duplicate matches found from both years. Several downstream
+    assets expect these matches to be unique, so this asset will drop duplicates to
+    serve as the input to those downstream assets. This asset, however, will not itself
+    be written to the PUDL DB. This asset will also address conflicting matches by
+    taking the match from the most recent year (2021).
+
+    Args:
+        epacamd_eia: Cleaned crosswalk with duplicate matches.
+
+    Returns:
+        Cleaned crosswalk with duplicates removed.
+    """
+    # Drop fully duplicated matches
+    epacamd_eia = epacamd_eia.drop_duplicates(
+        subset=epacamd_eia.columns.difference(["report_year"])
+    )
+
+    # Find mismatches where there are different plant_id_eia values between years for
+    # the same plant_id_epa and emissions_unit_id_epa value.
+    one_to_many = epacamd_eia.groupby(["plant_id_epa", "emissions_unit_id_epa"]).filter(
+        lambda x: x.plant_id_eia.nunique() > 1 and x.report_year.nunique() > 1
+    )
+
+    # For each mismatch drop the one from 2018, then drop report_year column
+    return epacamd_eia.drop(one_to_many[one_to_many.report_year == 2018].index).drop(
+        ["report_year"], axis=1
+    )
+
+
 def correct_epa_eia_plant_id_mapping(df: pd.DataFrame) -> pd.DataFrame:
     """Mannually correct one plant ID.
 
@@ -216,12 +260,16 @@ def correct_epa_eia_plant_id_mapping(df: pd.DataFrame) -> pd.DataFrame:
 
 @asset(io_manager_key="pudl_sqlite_io_manager")
 def epacamd_eia_subplant_ids(
-    epacamd_eia: pd.DataFrame,
+    epacamd_eia_unique: pd.DataFrame,
     generators_eia860: pd.DataFrame,
     emissions_unit_ids_epacems: pd.DataFrame,
     boiler_generator_assn_eia860: pd.DataFrame,
 ) -> pd.DataFrame:
     """Groups units and generators into unique subplant groups.
+
+    This takes :func:`epacamd_eia_unique` as an input because this asset so it doesn't
+    have to deal with duplicate matches that may be present in the :func:`epacamd_eia`
+    asset due to its use of multiple years of raw crosswalk outputs.
 
     This function consists of three primary parts:
 
@@ -246,7 +294,7 @@ def epacamd_eia_subplant_ids(
     # functioning (#2535) but when it is, ensure that it gets plugged into the dag
     # BEFORE this step so the subplant IDs can benefit from the more fleshed out units
     epacamd_eia_complete = (
-        augement_crosswalk_with_generators_eia860(epacamd_eia, generators_eia860)
+        augement_crosswalk_with_generators_eia860(epacamd_eia_unique, generators_eia860)
         .pipe(augement_crosswalk_with_epacamd_ids, emissions_unit_ids_epacems)
         .pipe(augement_crosswalk_with_bga_eia860, boiler_generator_assn_eia860)
     )

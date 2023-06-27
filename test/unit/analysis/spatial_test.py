@@ -33,7 +33,11 @@ logger = logging.getLogger(__name__)
     [
         (None, TypeError, r"Object is not a GeoDataFrame"),
         (GeoDataFrame({"x": [0]}), AttributeError, r"GeoDataFrame has no geometry"),
-        (GeoDataFrame({"geometry": [0]}), TypeError, r"Geometry is not a GeoSeries"),
+        (
+            GeoDataFrame({"geometry": [0]}),
+            AttributeError,
+            r"GeoDataFrame has no geometry",
+        ),
         (
             GeoDataFrame(geometry=[GeometryCollection()]),
             ValueError,

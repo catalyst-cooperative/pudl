@@ -78,6 +78,20 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
         "field_namespace": "pudl",
         "sources": ["pudl"],
     },
+    "predicted_state_hourly_demand": {
+        "schema": {
+            "fields": [
+                "state_id_fips",
+                "utc_datetime",
+                "demand_mwh",
+                "scaled_demand_mwh",
+            ],
+            "primary_key": ["state_id_fips", "utc_datetime"],
+        },
+        "etl_group": "state_demand",
+        "field_namespace": "pudl",
+        "sources": ["ferc714", "eia861", "censusdp1"],
+    },
 }
 """PUDL-specifiic resource attributes by PUDL identifier (``resource.name``).
 

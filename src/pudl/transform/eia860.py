@@ -748,3 +748,277 @@ def clean_boilers_eia860(
     )
 
     return b_df
+
+
+@asset
+def clean_emissions_control_equipment_eia860(
+    raw_emissions_control_equipment_eia860: pd.DataFrame,
+) -> pd.DataFrame:
+    """Pull and transform the emissions control equipment table."""
+    # Replace empty strings, whitespace, and '.' fields with real NA values
+    emce_df = pudl.helpers.fix_eia_na(raw_emissions_control_equipment_eia860)
+
+    # Spot fix bad months
+    emce_df["operating_month"] = emce_df["operating_month"].replace({"88": "8"})
+    # Fill in values with a year not a month based on later years that do have a month
+    # I thought about doing some sort of backfill here, but decided not to because
+    # emission_control_id_pudl is not guaranteed to be consistent over time
+    bad_month_1 = (
+        (emce_df["report_year"] == 2013)
+        & (emce_df["plant_id_eia"] == 10346)
+        & (emce_df["nox_control_id_eia"] == "BOIL01")
+    )
+    bad_month_2 = (
+        (emce_df["report_year"] == 2013)
+        & (emce_df["plant_id_eia"] == 10202)
+        & (emce_df["particulate_control_id_eia"].isin(["5PMDC", "5PPPT"]))
+    )
+    bad_month_3 = (
+        (emce_df["report_year"] == 2013)
+        & (emce_df["plant_id_eia"] == 3131)
+        & (emce_df["operating_year"] == "2005")
+    )
+    bad_month_4 = (emce_df["report_year"] == 2013) & (emce_df["plant_id_eia"] == 10405)
+    bad_month_5 = (
+        (emce_df["report_year"] == 2013)
+        & (emce_df["plant_id_eia"] == 50661)
+        & (emce_df["nox_control_id_eia"].isin(["ASNCR", "BSNCR"]))
+    )
+    bad_month_6 = (
+        (emce_df["report_year"] == 2013)
+        & (emce_df["plant_id_eia"] == 4054)
+        & (emce_df["operating_year"] == "2011")
+    )
+    bad_month_7 = (
+        (emce_df["report_year"] == 2013)
+        & (emce_df["plant_id_eia"] == 50544)
+        & (emce_df["operating_year"] == "1990")
+    )
+    bad_month_8 = (
+        (emce_df["report_year"] == 2013)
+        & (emce_df["plant_id_eia"] == 50189)
+        & (emce_df["particulate_control_id_eia"].isin(["EGS1", "EGS2", "ESP1CB"]))
+    )
+
+    # Add this conditional in case we're doing the fast ETL with one year of data
+    # (in which case the assertions will fail)
+    if 2013 in emce_df.report_year.unique():
+        assert len(emce_df[bad_month_1]) == 1
+        emce_df.loc[bad_month_1, "operating_month"] = 6
+        assert len(emce_df[bad_month_2]) == 4
+        emce_df.loc[bad_month_2, "operating_month"] = 6
+        assert len(emce_df[bad_month_3]) == 4
+        emce_df.loc[bad_month_3, "operating_month"] = 1
+        assert len(emce_df[bad_month_4]) == 1
+        emce_df.loc[bad_month_4, "operating_month"] = 12
+        assert len(emce_df[bad_month_5]) == 2
+        emce_df.loc[bad_month_5, "operating_month"] = 6
+        assert len(emce_df[bad_month_6]) == 2
+        emce_df.loc[bad_month_6, "operating_month"] = 10
+        assert len(emce_df[bad_month_7]) == 1
+        emce_df.loc[bad_month_7, "operating_month"] = 6
+        assert len(emce_df[bad_month_8]) == 9
+        emce_df.loc[bad_month_8, "operating_month"] = 12
+
+    # Convert month-year columns to a single date column
+    emce_df = pudl.helpers.convert_to_date(
+        df=emce_df,
+        date_col="emission_control_operating_date",
+        year_col="operating_year",
+        month_col="operating_month",
+    ).pipe(
+        pudl.helpers.convert_to_date,
+        date_col="emission_control_retirement_date",
+        year_col="retirement_year",
+        month_col="retirement_month",
+    )
+
+    # Convert acid gas control column to boolean
+    emce_df = pudl.helpers.convert_col_to_bool(
+        df=emce_df, col_name="acid_gas_control", true_values=["Y"], false_values=[]
+    )
+    # Add a emission_control_id_pudl as a primary key. This is not unique over years.
+    # We could maybe try and do this, but not doing it now.
+    emce_df["emission_control_id_pudl"] = (
+        emce_df.groupby(["report_year", "plant_id_eia"]).cumcount() + 1
+    )
+    # Fix outlier value in emission_control_equipment_cost. We know this is an
+    # outlier because it is the highest value reported in the dataset and
+    # the other years from the same plant show that it likely contains three
+    # extra zeros. We use the primary keys to spot fix the value.
+    outlier_primary_keys = (
+        (emce_df["report_year"] == 2017)
+        & (emce_df["plant_id_eia"] == 57794)
+        & (emce_df["emission_control_equipment_cost"] == 3200000)
+    )
+
+    if len(emce_df[outlier_primary_keys]) > 2:
+        raise AssertionError("Only expecting two spot fixed values here")
+
+    emce_df.loc[
+        outlier_primary_keys,
+        "emission_control_equipment_cost",
+    ] = 3200
+
+    # Convert thousands of dollars to dollars:
+    emce_df.loc[:, "emission_control_equipment_cost"] = (
+        1000.0 * emce_df["emission_control_equipment_cost"]
+    )
+
+    emce_df = (
+        pudl.metadata.classes.Package.from_resource_ids()
+        .get_resource("emissions_control_equipment_eia860")
+        .encode(emce_df)
+    )
+
+    return emce_df
+
+
+@asset
+def clean_boiler_emissions_control_equipment_assn_eia860(
+    raw_boiler_so2_eia860: pd.DataFrame,
+    raw_boiler_mercury_eia860: pd.DataFrame,
+    raw_boiler_nox_eia860: pd.DataFrame,
+    raw_boiler_particulate_eia860: pd.DataFrame,
+) -> pd.DataFrame:
+    """Pull and transform the emissions control <> boiler ID link tables.
+
+    Args:
+        raw_boiler_so2_eia860: Raw EIA 860 boiler to SO2 emission control equipment
+            association table.
+        raw_boiler_mercury_eia860: Raw EIA 860 boiler to mercury emission control
+            equipment association table.
+        raw_boiler_nox_eia860: Raw EIA 860 boiler to nox emission control equipment
+            association table.
+        raw_boiler_particulate_eia860: Raw EIA 860 boiler to particulate emission
+            control equipment association table.
+        raw_boiler_cooling_eia860: Raw EIA 860 boiler to cooling equipment association
+            table.
+        raw_boiler_stack_flue_eia860: Raw EIA 860 boiler to stack flue equipment
+            association table.
+
+    Returns:
+        pd.DataFrame: A combination of all the emission control equipment association
+            tables.
+    """
+    raw_tables = [
+        raw_boiler_so2_eia860,
+        raw_boiler_mercury_eia860,
+        raw_boiler_nox_eia860,
+        raw_boiler_particulate_eia860,
+    ]
+
+    bece_df = pd.DataFrame({})
+
+    for table in raw_tables:
+        # There are some utilities that report the same emissions control equipment.
+        # Drop duplicate rows where the only difference is utility.
+        table = table.drop_duplicates(
+            subset=[
+                x
+                for x in table.columns
+                if x not in ["utility_id_eia", "utility_name_eia"]
+            ]
+        )
+        # Melt the table so that the control id column is in one row and the type of
+        # control id (the pollutant type) is in another column. This makes it easier
+        # combine all of the tables for different pollutants.
+        value_col = [col for col in table if "control_id_eia" in col]
+        id_cols = [col for col in table if "control_id_eia" not in col]
+        # Each table should only have one column with control_id_eia in the name
+        assert len(value_col) == 1
+        table = pd.melt(
+            table,
+            value_vars=value_col,
+            id_vars=id_cols,
+            var_name="emission_control_id_type",
+            value_name="emission_control_id_eia",
+        )
+        bece_df = bece_df.append(table)
+
+    # The report_year column must be report_date in order for the harvcesting process
+    # to work on this table. It later gets converted back to report_year.
+    bece_df = pudl.helpers.convert_to_date(
+        df=bece_df, year_col="report_year", date_col="report_date"
+    ).assign(
+        # Remove the string _control_id_eia from the control_id_type column so it just
+        # shows the prefix (i.e., the name of the pollutant: so2, nox, etc.)
+        emission_control_id_type=lambda x: x.emission_control_id_type.str.replace(
+            "_control_id_eia", ""
+        )
+    )
+    # There are some records that don't have an emission control id that are not
+    # helpful so we drop them.
+    bece_df = bece_df.dropna(subset="emission_control_id_eia")
+
+    return bece_df
+
+
+@asset
+def clean_boiler_cooling_assn_eia860(
+    raw_boiler_cooling_eia860: pd.DataFrame,
+) -> pd.DataFrame:
+    """Pull and transform the EIA 860 boiler to cooler ID table.
+
+    Args:
+        raw_boiler_cooling_eia860: Raw EIA 860 boiler to cooler ID association table.
+
+    Returns:
+        pd.DataFrame: A cleaned and normalized version of the EIA boiler to cooler ID
+            table.
+    """
+    # Replace empty strings, whitespace, and '.' fields with real NA values
+    bc_assn = pudl.helpers.fix_eia_na(raw_boiler_cooling_eia860)
+    # Replace the report year col with a report date col for the harvesting process
+    bc_assn = pudl.helpers.convert_to_date(
+        df=bc_assn, year_col="report_year", date_col="report_date"
+    )
+    # Drop rows with no cooling ID and just in case, drop duplicate
+    bc_assn = bc_assn.dropna(subset="cooling_id_eia").drop_duplicates()
+
+    return bc_assn
+
+
+@asset
+def clean_boiler_stack_flue_assn_eia860(
+    raw_boiler_stack_flue_eia860: pd.DataFrame,
+) -> pd.DataFrame:
+    """Pull and transform the EIA 860 boiler to stack flue ID table.
+
+    Args:
+        raw_boiler_stack_flue_eia860: Raw EIA 860 boiler to stack flue ID association
+            table.
+
+    Returns:
+        pd.DataFrame: A cleaned and normalized version of the EIA boiler to stack flue
+            ID table.
+    """
+    # Replace empty strings, whitespace, and '.' fields with real NA values
+    bsf_assn = pudl.helpers.fix_eia_na(raw_boiler_stack_flue_eia860)
+    # Replace the report year col with a report date col for the harvesting process
+    bsf_assn = pudl.helpers.convert_to_date(
+        df=bsf_assn, year_col="report_year", date_col="report_date"
+    )
+    # Drop duplicates
+    bsf_assn = bsf_assn.drop_duplicates()
+    # Create a primary key column for stack flue IDs.
+    # Prior to 2013, EIA reported a stack_id_eia and a flue_id_eia. Sometimes there
+    # was a m:m relationship between these values. 2013 and later, EIA published a
+    # stack_flue_id_eia column the represented either the stack or flue id.
+    # In order to create a primary key with no NA values, we create a new
+    # stack_flue_id_pudl column. We do this instead of backfilling stack_flue_id_pudl
+    # because stack_flue_id_pudl would not be a unique identifier in older years due to
+    # the m:m relationship between stack_id and flue_id. We also don't forward fill
+    # the individual stack or flue id columns because we can't be sure whether a
+    # stack_flue_id_eia value is the stack or flue id. And we don't want to
+    # missrepresent complicated relationships between stacks and flues. Also there's
+    # several instances where flue_id_eia is NA (hense the last fillna(x.stack_id_eia))
+    bsf_assn = bsf_assn.assign(
+        stack_flue_id_pudl=lambda x: (
+            x.stack_flue_id_eia.fillna(
+                x.stack_id_eia.astype("string") + "_" + x.flue_id_eia.astype("string")
+            ).fillna(x.stack_id_eia)
+        )
+    )
+
+    return bsf_assn

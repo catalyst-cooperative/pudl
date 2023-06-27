@@ -8,11 +8,11 @@ dependencies:
   - pip>=21,<24
   - wheel
   - python>=3.11,<3.12
-  - setuptools<66
+  - setuptools>66,<=69
 
   # These packages are also specified in setup.py However, they depend on or
   # benefit from binary libraries which conda can install.
-  - geopandas>=0.9,<0.13
+  - geopandas>=0.13,<0.14
   - shapely>=2,<3
   - python-snappy>=0.6,<1
   - sqlite>=3.36,<4
@@ -24,7 +24,7 @@ dependencies:
   # Jupyter notebook specific packages:
   - jupyter-resource-usage~=0.5.0
   - nbconvert>=6,<7
-  - jupyterlab~=3.2
+  - jupyterlab>=3.2,<4.1
 
   # Use pip to install the main PUDL repo / package for development:
   - pip:

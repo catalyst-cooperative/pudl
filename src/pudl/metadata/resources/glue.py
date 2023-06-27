@@ -22,6 +22,7 @@ what changes are made from the EPA's version.
 """,
         "schema": {
             "fields": [
+                "report_year",
                 "plant_id_epa",
                 "emissions_unit_id_epa",
                 "generator_id_epa",

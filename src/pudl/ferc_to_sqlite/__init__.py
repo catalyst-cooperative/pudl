@@ -4,7 +4,7 @@ import importlib.resources
 from dagster import Definitions, graph
 
 import pudl
-from pudl.extract.ferc1 import dbf2sqlite
+from pudl.extract.ferc import dbf2sqlite
 from pudl.extract.xbrl import xbrl2sqlite
 from pudl.resources import datastore, ferc_to_sqlite_settings
 from pudl.settings import EtlSettings
@@ -14,8 +14,20 @@ logger = pudl.logging_helpers.get_logger(__name__)
 
 @graph
 def ferc_to_sqlite():
-    """Clone the FERC Form 1 FoxPro database and XBRL filings into SQLite."""
+    """Clone the FERC FoxPro databases and XBRL filings into SQLite."""
     dbf2sqlite()
+    xbrl2sqlite()
+
+
+@graph
+def ferc_to_sqlite_dbf_only():
+    """Clone the FERC FoxPro databases into SQLite."""
+    dbf2sqlite()
+
+
+@graph
+def ferc_to_sqlite_xbrl_only():
+    """Clone the FERC XBRL databases into SQLite."""
     xbrl2sqlite()
 
 
