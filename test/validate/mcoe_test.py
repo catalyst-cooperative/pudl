@@ -30,8 +30,8 @@ def pudl_out_mcoe(pudl_out_eia, live_dbs):
     MCOE results in this module
     """
     if live_dbs and pudl_out_eia.freq is not None:
-        logger.info("Reading MCOE data out of the PUDL DB.")
-        _ = pudl_out_eia.mcoe()
+        logger.info("Reading MCOE data (with generator attributes) out of the PUDL DB.")
+        _ = pudl_out_eia.mcoe_generators()
     return pudl_out_eia
 
 
@@ -169,7 +169,7 @@ def test_idle_capacity(fuel, max_idle, pudl_out_mcoe, live_dbs):
     if pudl_out_mcoe.freq is None:
         pytest.skip()
 
-    mcoe_tmp = pudl_out_mcoe.mcoe().query(f"fuel_type_code_pudl=='{fuel}'")
+    mcoe_tmp = pudl_out_mcoe.mcoe_generators().query(f"fuel_type_code_pudl=='{fuel}'")
     nonzero_cf = mcoe_tmp[mcoe_tmp.capacity_factor != 0.0]
     working_capacity = nonzero_cf.capacity_mw.sum()
     total_capacity = mcoe_tmp.capacity_mw.sum()
@@ -187,7 +187,7 @@ def test_gas_capacity_factor(pudl_out_mcoe, live_dbs):
     if pudl_out_mcoe.freq is None:
         pytest.skip()
     for args in pv.mcoe_gas_capacity_factor:
-        pv.vs_bounds(pudl_out_mcoe.mcoe(), **args)
+        pv.vs_bounds(pudl_out_mcoe.mcoe_generators(), **args)
 
 
 def test_coal_capacity_factor(pudl_out_mcoe, live_dbs):
@@ -197,7 +197,7 @@ def test_coal_capacity_factor(pudl_out_mcoe, live_dbs):
     if pudl_out_mcoe.freq is None:
         pytest.skip()
     for args in pv.mcoe_coal_capacity_factor:
-        pv.vs_bounds(pudl_out_mcoe.mcoe(), **args)
+        pv.vs_bounds(pudl_out_mcoe.mcoe_generators(), **args)
 
 
 def test_gas_heat_rate_by_unit(pudl_out_mcoe, live_dbs):
@@ -207,7 +207,7 @@ def test_gas_heat_rate_by_unit(pudl_out_mcoe, live_dbs):
     if pudl_out_mcoe.freq is None:
         pytest.skip()
     for args in pv.mcoe_gas_heat_rate:
-        pv.vs_bounds(pudl_out_mcoe.mcoe(), **args)
+        pv.vs_bounds(pudl_out_mcoe.mcoe_generators(), **args)
 
 
 def test_coal_heat_rate_by_unit(pudl_out_mcoe, live_dbs):
@@ -217,7 +217,7 @@ def test_coal_heat_rate_by_unit(pudl_out_mcoe, live_dbs):
     if pudl_out_mcoe.freq is None:
         pytest.skip()
     for args in pv.mcoe_coal_heat_rate:
-        pv.vs_bounds(pudl_out_mcoe.mcoe(), **args)
+        pv.vs_bounds(pudl_out_mcoe.mcoe_generators(), **args)
 
 
 def test_fuel_cost_per_mwh(pudl_out_mcoe, live_dbs):
@@ -228,10 +228,10 @@ def test_fuel_cost_per_mwh(pudl_out_mcoe, live_dbs):
     if pudl_out_mcoe.freq != "MS":
         pytest.skip()
     for args in pv.mcoe_self_fuel_cost_per_mwh:
-        pv.vs_self(pudl_out_mcoe.mcoe(), **args)
+        pv.vs_self(pudl_out_mcoe.mcoe_generators(), **args)
 
     for args in pv.mcoe_fuel_cost_per_mwh:
-        pv.vs_bounds(pudl_out_mcoe.mcoe(), **args)
+        pv.vs_bounds(pudl_out_mcoe.mcoe_generators(), **args)
 
 
 def test_fuel_cost_per_mmbtu(pudl_out_mcoe, live_dbs):
@@ -242,10 +242,10 @@ def test_fuel_cost_per_mmbtu(pudl_out_mcoe, live_dbs):
     if pudl_out_mcoe.freq != "MS":
         pytest.skip()
     for args in pv.mcoe_self_fuel_cost_per_mmbtu:
-        pv.vs_self(pudl_out_mcoe.mcoe(), **args)
+        pv.vs_self(pudl_out_mcoe.mcoe_generators(), **args)
 
     for args in pv.mcoe_fuel_cost_per_mmbtu:
-        pv.vs_bounds(pudl_out_mcoe.mcoe(), **args)
+        pv.vs_bounds(pudl_out_mcoe.mcoe_generators(), **args)
 
 
 def test_mcoe_self(pudl_out_mcoe, live_dbs):
@@ -255,4 +255,4 @@ def test_mcoe_self(pudl_out_mcoe, live_dbs):
     if pudl_out_mcoe.freq is None:
         pytest.skip()
     for args in pv.mcoe_self:
-        pv.vs_self(pudl_out_mcoe.mcoe(), **args)
+        pv.vs_self(pudl_out_mcoe.mcoe_generators(), **args)
