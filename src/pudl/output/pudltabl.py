@@ -422,6 +422,9 @@ class PudlTabl:
                     "The frequency of the pudl_out object must be `AS` for the "
                     f"plant-parts table and we got {self.freq}"
                 )
+            # TODO: gens_cols doesn't do anything right now, make the default behavior
+            # for mcoe_generators to load all generator attributes and then filter
+            # gens_mega by gens_cols?
             if gens_cols is None:
                 gens_cols = []
             if gens_cols != "all":
@@ -440,7 +443,7 @@ class PudlTabl:
             self._dfs[
                 "gens_mega_eia"
             ] = pudl.analysis.plant_parts_eia.MakeMegaGenTbl().execute(
-                mcoe=self.mcoe_generators(all_gens=True, gens_cols=gens_cols),
+                mcoe=self.mcoe_generators(),
                 own_eia860=self.own_eia860(),
             )
         return self._dfs["gens_mega_eia"]
