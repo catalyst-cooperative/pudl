@@ -2178,6 +2178,9 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
                         "calc_component_new": {
                             "name": "book_cost_of_asset_retirement_costs",
                             "weight": 1.0,
+                            "source_tables": [
+                                "electric_plant_depreciation_changes_ferc1"
+                            ],
                         },
                     },
                 ],
