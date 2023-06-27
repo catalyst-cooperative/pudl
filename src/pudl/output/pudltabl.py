@@ -386,66 +386,6 @@ class PudlTabl:
             gen_df = self._get_table_from_db(table_name, resource=resource)
         return gen_df
 
-    def mcoe(
-        self: Self,
-        update: bool = False,
-        min_heat_rate: float = 5.5,
-        min_fuel_cost_per_mwh: float = 0.0,
-        min_cap_fact: float = 0.0,
-        max_cap_fact: float = 1.5,
-        all_gens: bool = False,
-        gens_cols: Literal["all"] | list[str] | None = None,
-        timeseries_fillin: bool = False,
-    ) -> pd.DataFrame:
-        """Pull the basic compiled MCOE table out of the PUDL DB.
-
-        Various min/max values are set in the arguments and control what range of values
-        are considered realistic. Values outside these ranges are set to NA.
-
-        Args:
-            update: Ignored. Retained for backwards compatibility only.
-            min_heat_rate: Minimum heat rate considered realistic.
-            min_fuel_cost_per_mwh: Minimum fuel cost per MWh considered realistic.
-            min_cap_fact: Minimum capacity factor considered realistic.
-            max_cap_fact: Maximum capacity factor considered realistic.
-            all_gens: Ignored. Retained for backwards compatibility only.
-            gens_cols: Ignored. Retained for backwards compatibility only.
-            timeseries_fillin: Ignored. Retained for backwards compatibility only.
-        """
-        table_name = "mcoe"
-        if self.freq not in ["AS", "MS"]:
-            raise ValueError(
-                f"{table_name} requires aggregation frequency of 'AS' or 'MS', "
-                f"got {self.freq}"
-            )
-        logger.warning(
-            "MCOE table with additional generator attributes is now called mcoe_generators."
-        )
-        table_name = self._agg_table_name(f"{table_name}_AGG")
-        resource = Resource.from_id(table_name)
-        df = self._get_table_from_db(table_name, resource=resource)
-        df = (
-            df.pipe(
-                pudl.helpers.oob_to_nan,
-                ["heat_rate_mmbtu_mwh"],
-                lb=min_heat_rate,
-                ub=None,
-            )
-            .pipe(
-                pudl.helpers.oob_to_nan,
-                ["fuel_cost_per_mwh"],
-                lb=min_fuel_cost_per_mwh,
-                ub=None,
-            )
-            .pipe(
-                pudl.helpers.oob_to_nan,
-                ["capacity_factor"],
-                lb=min_cap_fact,
-                ub=max_cap_fact,
-            )
-        )
-        return df
-
     ###########################################################################
     # Plant Parts EIA outputs
     ###########################################################################
