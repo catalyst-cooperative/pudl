@@ -1903,6 +1903,7 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
                         "calc_component_new": {
                             "name": "appropriated_retained_earnings",
                             "weight": 1.0,
+                            "source_tables": ["retained_earnings_ferc1"],
                         },
                     },
                     {
@@ -1910,6 +1911,7 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
                         "calc_component_new": {
                             "name": "appropriated_retained_earnings_amortization_reserve_federal",
                             "weight": 1.0,
+                            "source_tables": ["retained_earnings_ferc1"],
                         },
                     },
                 ],
@@ -1919,6 +1921,7 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
                         "calc_component_new": {
                             "name": "unappropriated_retained_earnings",
                             "weight": 1.0,
+                            "source_tables": ["retained_earnings_ferc1"],
                         },
                     },
                     {
@@ -1926,6 +1929,7 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
                         "calc_component_new": {
                             "name": "appropriated_retained_earnings_including_reserve_amortization",
                             "weight": 1.0,
+                            "source_tables": ["retained_earnings_ferc1"],
                         },
                     },
                 ],
@@ -1935,6 +1939,7 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
                         "calc_component_new": {
                             "name": "unappropriated_undistributed_subsidiary_earnings_previous_year",
                             "weight": 1.0,
+                            "source_tables": ["retained_earnings_ferc1"],
                         },
                     },
                     {
@@ -1942,6 +1947,7 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
                         "calc_component_new": {
                             "name": "equity_in_earnings_of_subsidiary_companies",
                             "weight": 1.0,
+                            "source_tables": ["retained_earnings_ferc1"],
                         },
                     },
                     {
@@ -1949,6 +1955,7 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
                         "calc_component_new": {
                             "name": "dividends_received",
                             "weight": -1.0,
+                            "source_tables": ["retained_earnings_ferc1"],
                         },
                     },
                     {
@@ -1956,6 +1963,7 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
                         "calc_component_new": {
                             "name": "changes_unappropriated_undistributed_subsidiary_earnings_credits",
                             "weight": 1.0,
+                            "source_tables": ["retained_earnings_ferc1"],
                         },
                     },
                 ],
@@ -1965,6 +1973,7 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
                         "calc_component_new": {
                             "name": "unappropriated_retained_earnings_previous_year",
                             "weight": 1.0,
+                            "source_tables": ["retained_earnings_ferc1"],
                         },
                     },
                     {
@@ -1972,6 +1981,7 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
                         "calc_component_new": {
                             "name": "adjustments_to_retained_earnings_credit",
                             "weight": 1.0,
+                            "source_tables": ["retained_earnings_ferc1"],
                         },
                     },
                     {
@@ -1979,6 +1989,7 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
                         "calc_component_new": {
                             "name": "adjustments_to_retained_earnings_debit",
                             "weight": 1.0,
+                            "source_tables": ["retained_earnings_ferc1"],
                         },
                     },
                     {
@@ -1986,6 +1997,7 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
                         "calc_component_new": {
                             "name": "balance_transferred_from_income",
                             "weight": 1.0,
+                            "source_tables": ["retained_earnings_ferc1"],
                         },
                     },
                     {
@@ -1993,6 +2005,7 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
                         "calc_component_new": {
                             "name": "appropriations_of_retained_earnings",
                             "weight": 1.0,
+                            "source_tables": ["retained_earnings_ferc1"],
                         },
                     },
                     {
@@ -2000,6 +2013,7 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
                         "calc_component_new": {
                             "name": "dividends_declared_preferred_stock",
                             "weight": 1.0,
+                            "source_tables": ["retained_earnings_ferc1"],
                         },
                     },
                     {
@@ -2007,6 +2021,7 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
                         "calc_component_new": {
                             "name": "dividends_declared_common_stock",
                             "weight": 1.0,
+                            "source_tables": ["retained_earnings_ferc1"],
                         },
                     },
                     {
@@ -2014,6 +2029,7 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
                         "calc_component_new": {
                             "name": "transfers_from_unappropriated_undistributed_subsidiary_earnings",
                             "weight": 1.0,
+                            "source_tables": ["retained_earnings_ferc1"],
                         },
                     },
                 ],
