@@ -69,11 +69,15 @@ def add_source_tables_to_xbrl_metadata(
             field["name"] for meta_list in table_meta.values() for field in meta_list
         ]
 
-    def extract_tables_to_fields(xbrl_meta: dict) -> dict[str : list[str]]:
-        """Compile a dictionary of table names (keys) to list of fields."""
+    def extract_tables_to_fields(raw_xbrl_metadata_json: dict) -> dict[str : list[str]]:
+        """Compile a dictionary of table names (keys) to list of fields.
+
+        Args:
+            raw_xbrl_metadata_json: dictionary of xbrl metadata.
+        """
         return {
             table_name: all_fields_in_table(table_meta)
-            for table_name, table_meta in xbrl_meta.items()
+            for table_name, table_meta in raw_xbrl_metadata_json.items()
         }
 
     def label_source_tables(calc_component: dict, tables_to_fields: str) -> dict:
@@ -91,18 +95,14 @@ def add_source_tables_to_xbrl_metadata(
 
     tables_to_fields = extract_tables_to_fields(raw_xbrl_metadata_json)
     # for each table loop through all of the calculations within each field
-    for table_name, table_meta in raw_xbrl_metadata_json.items():
+    for table_meta in raw_xbrl_metadata_json.values():
         for list_of_facts in table_meta.values():
             for xbrl_fact in list_of_facts:
                 # all facts have ``calculations``, but they are empty lists when null
                 for calc_component in xbrl_fact["calculations"]:
-                    # does the calc component show up in the table? if not, add a label
-                    if calc_component["name"] not in tables_to_fields[table_name]:
-                        calc_component = label_source_tables(
-                            calc_component, tables_to_fields
-                        )
-                    else:
-                        calc_component["source_tables"] = [table_name]
+                    calc_component = label_source_tables(
+                        calc_component, tables_to_fields
+                    )
     return raw_xbrl_metadata_json
 
 
