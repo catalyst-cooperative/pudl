@@ -92,17 +92,18 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = (
             "description": (
                 "Yearly estimated net generation and fuel consumption for each generator, "
                 "broken down by energy source, prime mover, and owner. Based on data "
-                "reported in the EIA-923 generation and generation_fuel tables."
-                "First, the net electricity generation and fuel consumption "
-                "reported in the EIA-923 generation fuel are allocated to individual "
-                "generators. Then, these allocations are aggregated to unique generator "
-                "prime mover, energy source code, and owner combinations. This process does "
-                "not distinguish between primary and secondary energy_sources for generators. "
-                "Net generation is allocated equally between energy source codes, so if a "
-                "plant has multiple generators with the same prime_mover_code but different "
-                "energy source codes the generation_fuel_eia923 records will be associated "
-                "similarly between these two generators. Allocated net generation will still "
-                "be proportional to each generator's net generation or capacity."
+                "reported in the EIA-923 generation and generation_fuel tables. Note "
+                "that the utility_id_eia in this table refers to the OWNER of the generator, "
+                "not the operator. To create these estimates, the net electricity generation "
+                "and fuel consumption reported in the EIA-923 generation fuel are allocated "
+                "to individual generators. Then, these allocations are aggregated to unique "
+                "generator, prime mover, energy source code, and owner combinations. This "
+                "process does not distinguish between primary and secondary energy_sources "
+                "for generators. Net generation is allocated equally between energy source "
+                "codes, so if a plant has multiple generators with the same prime_mover_code "
+                "but different energy source codes the generation_fuel_eia923 records will be "
+                "associated similarly between these two generators. Allocated net generation "
+                "will still be proportional to each generator's net generation or capacity."
             ),
             "schema": {
                 "fields": [
@@ -126,7 +127,7 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = (
                     "generator_id",
                     "prime_mover_code",
                     "energy_source_code",
-                    "utility_id_eia",  # This is the OWNER not the operator.
+                    "utility_id_eia",
                     "ownership_record_type",
                 ],
             },
