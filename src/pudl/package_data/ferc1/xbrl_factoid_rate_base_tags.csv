@@ -205,11 +205,14 @@ accum_prov_for_depr_and_amort,accum_prov_for_depr_and_amort,accumulated_provisio
 accum_prov_for_depr_and_amort,accum_prov_for_depr_and_amort,accumulated_provision_for_depreciation_amortization_and_depletion_of_plant_utility,utility_plant_summary_ferc1,no,"CG: This factoid shows up in two separate tables, so this line was duplicated."
 amortization_fund___federal,amortization_fund___federal,amortization_fund_federal,balance_sheet_assets_ferc1,yes,
 investments_in_associated_companies,investments_in_associated_companies,investment_in_associated_companies,balance_sheet_assets_ferc1,yes,
-long_term_portion_of_derivative_assets,long_term_portion_of_derivative_assets,,,yes,Ryan/David spoke - believe derivatives & hedges use customer funds to provide benefit - just like physical assets.
-long_term_portion_of_derivative_assets_Â–_hedges,long_term_portion_of_derivative_assets_Â–_hedges,,,yes,Ryan/David spoke - believe derivatives & hedges use customer funds to provide benefit - just like physical assets.
-special_funds_(non_major_only),special_funds_(non_major_only),,,yes,
-(less)_capital_stock_expense,(less)_capital_stock_expense,,,no,
-(less)_discount_on_capital_stock,(less)_discount_on_capital_stock,,,no,
-(less)_reaquired_capital_stock,(less)_reaquired_capital_stock,,,no,
-_noncorporate_proprietorship_(non_major_only),_noncorporate_proprietorship_(non_major_only),,,no,
-appropriated_retained_earnings_amort_reserve_federal,appropriated_retained_earnings_amort_reserve_federal,,,no,
+long_term_portion_of_derivative_assets,long_term_portion_of_derivative_assets,derivative_instrument_assets_long_term,balance_sheet_assets_ferc1,yes,Ryan/David spoke - believe derivatives & hedges use customer funds to provide benefit - just like physical assets.
+long_term_portion_of_derivative_assets_Â–_hedges,long_term_portion_of_derivative_assets_Â–_hedges,derivative_instrument_assets_hedges_long_term,balance_sheet_assets_ferc1,yes,Ryan/David spoke - believe derivatives & hedges use customer funds to provide benefit - just like physical assets.
+special_funds_(non_major_only),special_funds_(non_major_only),special_funds_all,balance_sheet_assets_ferc1,yes,
+special_funds_(non_major_only),special_funds_(non_major_only),other_special_funds,balance_sheet_assets_ferc1,yes,
+special_funds_(non_major_only),special_funds_(non_major_only),special_funds,balance_sheet_assets_ferc1,yes,
+special_funds_(non_major_only),special_funds_(non_major_only),special_deposits,balance_sheet_assets_ferc1,yes,
+(less)_capital_stock_expense,(less)_capital_stock_expense,capital_stock_expense,balance_sheet_liabilities_ferc1,no,
+(less)_discount_on_capital_stock,(less)_discount_on_capital_stock,discount_on_capital_stock,balance_sheet_liabilities_ferc1,no,
+(less)_reaquired_capital_stock,(less)_reaquired_capital_stock,reacquired_capital_stock,balance_sheet_liabilities_ferc1,no,
+_noncorporate_proprietorship_(non_major_only),_noncorporate_proprietorship_(non_major_only),noncorporate_proprietorship,balance_sheet_liabilities_ferc1,no,
+appropriated_retained_earnings_amort_reserve_federal,appropriated_retained_earnings_amort_reserve_federal,appropriated_retained_earnings_amortization_reserve_federal,retained_earnings_ferc1,no,
