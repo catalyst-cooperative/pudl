@@ -234,7 +234,6 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
                     "denorm_generation_monthly_eia923",
                     "generation_fuel_by_generator_energy_source_monthly_eia923",
                     "generation_fuel_by_generator_monthly_eia923",
-                    # "generation_fuel_by_generator_energy_source_owner_monthly_eia923",
                     "generation_fuel_eia923",
                 ],
             },

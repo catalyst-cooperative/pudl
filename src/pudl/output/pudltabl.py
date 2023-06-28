@@ -251,6 +251,11 @@ class PudlTabl:
             resource: Resource metadata used to enforce schema on table.
             update: Ignored. Retained for backwards compatibility only.
         """
+        if update:
+            logger.warning(
+                "The update parameter is deprecated and has no effect."
+                "It is retained for backwards compatibility only."
+            )
         table_name = self._agg_table_name(table_name)
         return pd.concat(
             [
@@ -281,7 +286,10 @@ class PudlTabl:
         """
         md = sa.MetaData()
         md.reflect(self.pudl_engine)
-        tbl = md.tables[f"{table}"]
+        try:
+            tbl = md.tables[f"{table}"]
+        except KeyError:
+            print(f"{table} not found in the metadata.")
         tbl_select = sa.sql.select(tbl)
 
         start_date = pd.to_datetime(self.start_date)
