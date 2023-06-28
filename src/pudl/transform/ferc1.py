@@ -1859,7 +1859,31 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
                             "source_tables": ["utility_plant_summary_ferc1"],
                         },
                         "calc_component_new": {},
-                    }
+                    },
+                    {
+                        "calc_component_to_replace": {
+                            "name": "amortization_and_depletion_of_producing_natural_gas_land_and_land_rightsutility_plant_in_service",
+                            "weight": 1.0,
+                            "source_tables": ["utility_plant_summary_ferc1"],
+                        },
+                        "calc_component_new": {
+                            "name": "amortization_and_depletion_of_producing_natural_gas_land_and_land_rights_utility_plant_in_service",
+                            "weight": 1.0,
+                            "source_tables": ["utility_plant_summary_ferc1"],
+                        },
+                    },
+                    {
+                        "calc_component_to_replace": {
+                            "name": "amortization_of_underground_storage_land_and_land_rightsutility_plant_in_service",
+                            "weight": 1.0,
+                            "source_tables": ["utility_plant_summary_ferc1"],
+                        },
+                        "calc_component_new": {
+                            "name": "amortization_of_underground_storage_land_and_land_rights_utility_plant_in_service",
+                            "weight": 1.0,
+                            "source_tables": ["utility_plant_summary_ferc1"],
+                        },
+                    },
                 ],
             },
             "balance_sheet_assets_ferc1": {
@@ -1898,6 +1922,41 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
                             "name": "special_funds_all",
                             "weight": 1.0,
                             "source_tables": ["balance_sheet_assets_ferc1"],
+                        },
+                    },
+                ],
+                "accumulated_provision_for_depreciation_amortization_and_depletion_of_plant_utility": [
+                    {
+                        "calc_component_to_replace": {
+                            "name": "depreciation_amortization_and_depletion_utility_plant_in_service",
+                            # A duplicate of 4 other fields, though this is not explicitly defined in the metadata.
+                            "weight": 1.0,
+                            "source_tables": ["utility_plant_summary_ferc1"],
+                        },
+                        "calc_component_new": {},
+                    },
+                    {
+                        "calc_component_to_replace": {
+                            "name": "amortization_and_depletion_of_producing_natural_gas_land_and_land_rightsutility_plant_in_service",
+                            "weight": 1.0,
+                            "source_tables": ["utility_plant_summary_ferc1"],
+                        },
+                        "calc_component_new": {
+                            "name": "amortization_and_depletion_of_producing_natural_gas_land_and_land_rights_utility_plant_in_service",
+                            "weight": 1.0,
+                            "source_tables": ["utility_plant_summary_ferc1"],
+                        },
+                    },
+                    {
+                        "calc_component_to_replace": {
+                            "name": "amortization_of_underground_storage_land_and_land_rightsutility_plant_in_service",
+                            "weight": 1.0,
+                            "source_tables": ["utility_plant_summary_ferc1"],
+                        },
+                        "calc_component_new": {
+                            "name": "amortization_of_underground_storage_land_and_land_rights_utility_plant_in_service",
+                            "weight": 1.0,
+                            "source_tables": ["utility_plant_summary_ferc1"],
                         },
                     },
                 ],
