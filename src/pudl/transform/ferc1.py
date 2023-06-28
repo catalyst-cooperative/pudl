@@ -2044,7 +2044,7 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
                     {
                         "calc_component_to_replace": {},
                         "calc_component_new": {
-                            "name": "ending_balance",
+                            "name": "total",
                             "weight": 1.0,
                             "source_tables": [
                                 "electric_plant_depreciation_functional_ferc1"

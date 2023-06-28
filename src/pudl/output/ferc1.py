@@ -881,7 +881,7 @@ def add_mean_cap_additions(steam_df):
 def exploded_table_asset_factory(
     root_table: str,
     table_names_to_explode: list[str],
-    calculation_tolerance: float | None = None,
+    calculation_tolerance: float = 0.05,
     io_manager_key: str | None = None,  # TODO: Add metadata for tables
 ) -> AssetsDefinition:
     """Create an exploded table based on a set of related input tables."""
@@ -924,14 +924,15 @@ def create_exploded_table_assets() -> list[AssetsDefinition]:
                 "electric_operating_expenses_ferc1",
                 "electric_operating_revenues_ferc1",
             ],
-            "calculation_tolerance": 0.3,
+            "calculation_tolerance": 0.25,
         },
         "balance_sheet_assets_ferc1": {
             "table_names_to_explode": [
                 "utility_plant_summary_ferc1",
                 "plant_in_service_ferc1",
                 "electric_plant_depreciation_functional_ferc1",
-            ]
+            ],
+            "calculation_tolerance": 0.08,
         },
         "balance_sheet_liabilities_ferc1": {
             "table_names_to_explode": [
@@ -942,15 +943,19 @@ def create_exploded_table_assets() -> list[AssetsDefinition]:
     assets = []
     for root_table, dictionary in explosion_tables.items():
         table_names_to_explode = dictionary["table_names_to_explode"]
-        if "calculation_tolerance" in dictionary.keys():
-            calculation_tolerance = dictionary["calculation_tolerance"]
-        else:
-            calculation_tolerance = np.nan
-        assets.append(
-            exploded_table_asset_factory(
-                root_table, table_names_to_explode, calculation_tolerance
+        calculation_tolerance = dictionary.get(
+            "calculation_tolerance"
+        )  # Allows for this key to not always exist.
+        if calculation_tolerance:
+            assets.append(
+                exploded_table_asset_factory(
+                    root_table, table_names_to_explode, calculation_tolerance
+                )
             )
-        )
+        else:
+            assets.append(
+                exploded_table_asset_factory(root_table, table_names_to_explode)
+            )
     return assets
 
 
@@ -1092,7 +1097,7 @@ class Exploder:
         self,
         tables_to_explode: dict[str, pd.DataFrame],
         clean_xbrl_metadata_json: dict,
-        calculation_tolerance: float | None = None,
+        calculation_tolerance: float = 0.05,
     ) -> pd.DataFrame:
         """Explode a set of nested tables.
 
@@ -1115,7 +1120,9 @@ class Exploder:
         exploded = (
             self.initial_explosion_concatenation(
                 tables_to_explode, clean_xbrl_metadata_json
-            ).pipe(self.reconcile_intertable_calculations, calculation_tolerance)
+            )
+            .pipe(self.generate_intertable_calculations)
+            .pipe(self.reconcile_intertable_calculations, calculation_tolerance)
             # REMOVE THE DUPLICATION
             # .pipe(self.remove_factoids_from_mutliple_tables, tables_to_explode)
             # .pipe(self.remove_totals_from_other_dimensions)
@@ -1162,34 +1169,28 @@ class Exploder:
         )
         return exploded
 
-    def reconcile_intertable_calculations(
-        self, exploded: pd.DataFrame, calculation_tolerance: float = 0.05
-    ) -> pd.DataFrame:
-        """Ensure intra-table calculated values match reported values within a tolerance.
+    def generate_intertable_calculations(self, exploded: pd.DataFrame) -> pd.DataFrame:
+        """Generate calculated values for inter-table calculated factoids.
 
-        In addition to checking whether all reported "calculated" values match the output
-        of our repaired calculations, this function adds a correction record to the
-        dataframe that is included in the calculations so that after the fact the
-        calculations match exactly. This is only done when the fraction of records that
-        don't match within the tolerances of :func:`numpy.isclose` is below a set
-        threshold.
-
-        Note that only calculations which are off by a significant amount result in the
-        creation of a correction record. Many calculations are off from the reported values
-        by exaclty one dollar, presumably due to rounding errrors. These records typically
-        do not fail the :func:`numpy.isclose()` test and so are not corrected.
+        This function sums components of calculations for a given factoid when the
+        components originate entirely or partially outside of the table. It also
+        accounts for components that only sum to a factoid within a particular dimension
+        (e.g., for an electric utility or for plants whose plant_function is
+        "in_service"). This returns a dataframe with a "calculated_amount" column.
 
         Args:
-            exploded: exploded table.
-            calculation_tolerance: What proportion (0-1) of calculated values are
-              allowed to be incorrect without raising an AssertionError.
+            exploded: concatenated tables for table explosion.
         """
-        logger.info("Reconcile inter-table calculations.")
-
         inter_table_calcs = exploded[
             (~exploded.intra_table_calc_flag)
             & (exploded.row_type_xbrl == "calculated_value")
         ]
+        if inter_table_calcs.empty:
+            return exploded
+        else:
+            logger.info(
+                f"{self.root_table}: Reconcile inter-table calculations: {list(inter_table_calcs.xbrl_factoid.unique())}."
+            )
 
         left_pks = ["xbrl_factoid"]
         right_pks = ["name"]
@@ -1265,24 +1266,58 @@ class Exploder:
                 .assign(xbrl_factoid=calculated_factoid)
                 .assign(table_name=parent_table)
             )
+            logger.info(calc_df)
+            # Plant status/function only exists as a field on the right-hand side table.
+            # We fake this because we need to include plant_status / plant_function in the
+            # pks in order to ensure a 1:1 merge. This is always NaN for the corresponding
+            # records on the left-hand side because the field isn't present in the
+            # original table. We overwrite any records that were used to filter the
+            # calculation components.
+            if (
+                "subdimension" in calculation_df.columns
+            ):  # If sub-dimension used in calculation
+                calc_df.loc[
+                    calc_df[subdimension].isin(calculation_df.subdimension),
+                    subdimension,
+                ] = np.nan
 
             calculated_dfs.append(calc_df)
 
-        calculated_dfs = pd.concat(calculated_dfs)
-        if "plant_function" in exploded.columns:
-            # Plant function on the left-hand and right-hand side are not equivalent,
-            # so we fake this because we need to include plant_function in the pks in
-            # order to ensure a 1:1 merge. This is always NaN for the corresponding
-            # records on the left-hand side.
-            calculated_dfs["plant_function"] = np.nan
-        # STILL TO DO: HANDLE plant_status, which operates differently.
         calculated_df = pd.merge(
-            exploded, calculated_dfs, on=pks_merge, how="left", validate="1:1"
+            exploded,
+            pd.concat(calculated_dfs),
+            on=pks_merge,
+            how="left",
+            validate="1:1",
         )
 
         # # Force value_col to be a float to prevent any hijinks with calculating differences.
         calculated_df[self.value_col] = calculated_df[self.value_col].astype(float)
 
+        return calculated_df
+
+    def reconcile_intertable_calculations(
+        self, calculated_df, calculation_tolerance: float = 0.05
+    ):
+        """Ensure inter-table calculated values match reported values within a tolerance.
+
+        In addition to checking whether all reported "calculated" values match the output
+        of our repaired calculations, this function adds a correction record to the
+        dataframe that is included in the calculations so that after the fact the
+        calculations match exactly. This is only done when the fraction of records that
+        don't match within the tolerances of :func:`numpy.isclose` is below a set
+        threshold.
+
+        Note that only calculations which are off by a significant amount result in the
+        creation of a correction record. Many calculations are off from the reported values
+        by exaclty one dollar, presumably due to rounding errrors. These records typically
+        do not fail the :func:`numpy.isclose()` test and so are not corrected.
+
+        Args:
+            calculated_df: table with calculated fields
+            calculation_tolerance: What proportion (0-1) of calculated values are
+              allowed to be incorrect without raising an AssertionError.
+        """
         calculated_df = calculated_df.assign(
             abs_diff=lambda x: abs(x[self.value_col] - x.calculated_amount),
             rel_diff=lambda x: np.where(
