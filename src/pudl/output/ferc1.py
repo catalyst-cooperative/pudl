@@ -1202,7 +1202,6 @@ class Exploder:
         ]  # Make PK for component calculations
 
         calculated_dfs = []
-        single_comp_calcs = []
         for parent_table, calculated_factoid, calculation in set(
             zip(
                 inter_table_calcs.table_name,
@@ -1219,13 +1218,6 @@ class Exploder:
                 calculation_df = calculation_df.explode(
                     "source_tables"
                 )  # Unpack the list
-
-            # If only one component in the calculation, add to a list to handle corrections
-            # differently later.
-            if len(calculation_df) == 1:
-                single_comp_calcs.append(
-                    [calculated_factoid, calculation_df["name"][0]]
-                )
 
             # Filter the right-hand side to just the components needed for the calculation
             components = exploded.loc[
@@ -1266,7 +1258,6 @@ class Exploder:
                 .assign(xbrl_factoid=calculated_factoid)
                 .assign(table_name=parent_table)
             )
-            logger.info(calc_df)
             # Plant status/function only exists as a field on the right-hand side table.
             # We fake this because we need to include plant_status / plant_function in the
             # pks in order to ensure a 1:1 merge. This is always NaN for the corresponding
@@ -1347,41 +1338,58 @@ class Exploder:
                 "calculations don't match. Adding correction records to make calculations "
                 "match reported values."
             )
-        #     corrections = off_df.copy()
+            corrections = off_df.copy()
 
-        #     corrections[self.value_col] = (
-        #         corrections[self.value_col].fillna(0.0)
-        #         - corrections["calculated_amount"]
-        #     )
-        #     corrections["original_factoid"] = corrections["xbrl_factoid"]
-        #     corrections["xbrl_factoid"] = corrections["xbrl_factoid"] + "_correction"
-        #     corrections["row_type_xbrl"] = "correction"
-        #     corrections["record_id"] = pd.NA
-        #     logger.info(corrections)
+            corrections[self.value_col] = (
+                corrections[self.value_col].fillna(0.0)
+                - corrections["calculated_amount"]
+            )
+            corrections["original_factoid"] = corrections["xbrl_factoid"]
+            corrections["xbrl_factoid"] = corrections["xbrl_factoid"] + "_correction"
+            corrections["row_type_xbrl"] = "correction"
+            corrections["intra_table_calc_flag"] = False
+            corrections["record_id"] = pd.NA
 
-        #     # # If the calculation only has one component (and is therefore exactly equivalent to
-        #     # # a factoid from another table), add the corrections from that table to this
-        #     # # correction and produce one factoid.
-        #     for [calculated_fact, original_fact] in single_comp_calcs:
-        #         if calculated_fact in corrections["original_factoid"].values:
-        #             # Get corresponding original fact corrections
-        #             original_fact_corrections = original_fact + "_correction"
-        #             original_corrections_meta = (
-        #                 corrections[pks_wo_factoid]
-        #                 .assign(xbrl_factoid=original_fact_corrections)
-        #                 .assign(table_name=corrections.source_tables)
-        #             )
-        #             original_corrections_meta.drop(
-        #                 columns=["source_tables"], inplace=True
-        #             )
-        #             pks_corrections = [col for col in original_corrections_meta]
-        #             # TO FIX and FINISH - temporary!
-        #             original_corrections = exploded.merge(
-        #                 original_corrections_meta, on=pks_corrections, how="inner"
-        #             )
-        #             if not original_corrections.empty:
-        #                 logger.warning("Need to merge corrections!!")
-        #                 # return original_corrections
+            calculated_df = pd.concat(
+                [calculated_df, corrections], axis="index"
+            ).reset_index()
+
+            # # If the calculation only has one component (and is therefore exactly equivalent to
+            # # a factoid from another table), add the corrections from that table to this
+            # # correction and produce one factoid.
+
+            # for calculated_factoid, calculation in set(zip(corrections.xbrl_factoid, corrections.calculations)):
+            #     calculation_df = pd.DataFrame(json.loads(calculation))
+            #     calculation_df = calculation_df.loc[
+            #         ~calculation_df.name.str.contains("correction")
+            #     ]
+            #     # If only one component in the calculation, add to a list to handle corrections
+            #     # differently later.
+            #     if len(calculation_df) == 1:
+            #         original_fact = calculation_df["name"][0]
+
+            #         # If original fact was also calculated - add source tables here!
+            #         if calculated_df.loc[(calculated_df.xbrl_factoid == original_fact)&(calculated_df.row_type_xbrl == "calculated_value")&(calculated_df.xbrl_factoid.isin(calculation_df.source_tables))].any():
+            #             # Get corresponding original fact corrections
+            #             original_fact_corrections = original_fact + "_correction"
+            #             original_corrections_meta = (
+            #                 corrections[pks_wo_factoid]
+            #                 .assign(xbrl_factoid=original_fact_corrections)
+            #                 .assign(table_name=corrections.source_tables)
+            #             )
+            #             original_corrections_meta.drop(
+            #                 columns=["source_tables"], inplace=True
+            #             )
+            #             pks_corrections = [col for col in original_corrections_meta]
+            #             logger.info(original_corrections_meta)
+            #             logger.info(pks_corrections)
+            #             # TO FIX and FINISH - temporary!
+            #             original_corrections = calculated_df.merge(
+            #                 original_corrections_meta, on=pks_corrections, how="inner"
+            #             )
+            #             if not original_corrections.empty:
+            #                 logger.warning("Need to merge corrections!!")
+            #                 return original_corrections
         #     # original_corrections = original_corrections[original_corrections._merge == "both"]
 
         return calculated_df

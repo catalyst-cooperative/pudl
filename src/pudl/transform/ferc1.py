@@ -850,6 +850,7 @@ def reconcile_table_calculations(
         )
         corrections[xbrl_factoid_name] = corrections[xbrl_factoid_name] + "_correction"
         corrections["row_type_xbrl"] = "correction"
+        corrections["intra_table_calc_flag"] = True
         corrections["record_id"] = pd.NA
 
         calculated_df = pd.concat(
