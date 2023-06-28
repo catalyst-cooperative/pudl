@@ -54,6 +54,37 @@ def clean_xbrl_metadata_json(
     return add_source_tables_to_xbrl_metadata(raw_xbrl_metadata_json)
 
 
+def all_fields_in_table(table_meta) -> list:
+    """Compile a list of all of the fields reported in a table."""
+    return [field["name"] for meta_list in table_meta.values() for field in meta_list]
+
+
+def extract_tables_to_fields(raw_xbrl_metadata_json: dict) -> dict[str, list[str]]:
+    """Compile a dictionary of table names (keys) to list of fields.
+
+    Args:
+        raw_xbrl_metadata_json: dictionary of xbrl metadata.
+    """
+    return {
+        table_name: all_fields_in_table(table_meta)
+        for table_name, table_meta in raw_xbrl_metadata_json.items()
+    }
+
+
+def label_source_tables(calc_component: dict, tables_to_fields: str) -> dict:
+    """Add a ``source_tables`` element to the calculation component."""
+    calc_component["source_tables"] = [
+        table_name
+        for table_name, fields in tables_to_fields.items()
+        if calc_component["name"] in fields
+    ]
+    # weirdly there are a number of nuclear xbrl_factoid calc components that seem
+    # to have no source_tables.
+    if not calc_component["source_tables"]:
+        logger.debug(f"Found no source table for {calc_component['name']}.")
+    return calc_component
+
+
 def add_source_tables_to_xbrl_metadata(
     raw_xbrl_metadata_json: dict[str, dict[str, list[dict[str, Any]]]]
 ) -> dict[str, dict[str, list[dict[str, Any]]]]:
@@ -62,37 +93,6 @@ def add_source_tables_to_xbrl_metadata(
     When a particular component of a calculation does not originate from the table in
     which the calculated field is being reported, label the source table.
     """
-
-    def all_fields_in_table(table_meta) -> list:
-        """Compile a list of all of the fields reported in a table."""
-        return [
-            field["name"] for meta_list in table_meta.values() for field in meta_list
-        ]
-
-    def extract_tables_to_fields(raw_xbrl_metadata_json: dict) -> dict[str : list[str]]:
-        """Compile a dictionary of table names (keys) to list of fields.
-
-        Args:
-            raw_xbrl_metadata_json: dictionary of xbrl metadata.
-        """
-        return {
-            table_name: all_fields_in_table(table_meta)
-            for table_name, table_meta in raw_xbrl_metadata_json.items()
-        }
-
-    def label_source_tables(calc_component: dict, tables_to_fields: str) -> dict:
-        """Add a ``source_tables`` element to the calculation component."""
-        calc_component["source_tables"] = [
-            other_table_name
-            for other_table_name, fields in tables_to_fields.items()
-            if calc_component["name"] in fields
-        ]
-        # weirdly there are a number of nuclear xbrl_factoid calc components that seem
-        # to have no source_tables.
-        if not calc_component["source_tables"]:
-            logger.debug(f"Found no source table for {calc_component['name']}.")
-        return calc_component
-
     tables_to_fields = extract_tables_to_fields(raw_xbrl_metadata_json)
     # for each table loop through all of the calculations within each field
     for table_meta in raw_xbrl_metadata_json.values():
@@ -1851,7 +1851,7 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
                         "calc_component_to_replace": {
                             "name": "nuclear_fuel_materials_and_assemblies",
                             "weight": 1.0,
-                            "source_tables": ["balance_sheet_assets_ferc1"],
+                            "source_tables": [],
                         },
                         "calc_component_new": {},
                     },
@@ -1859,7 +1859,7 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
                         "calc_component_to_replace": {
                             "name": "spent_nuclear_fuel",
                             "weight": 1.0,
-                            "source_tables": ["balance_sheet_assets_ferc1"],
+                            "source_tables": [],
                         },
                         "calc_component_new": {},
                     },
