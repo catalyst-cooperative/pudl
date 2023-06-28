@@ -1921,6 +1921,7 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
                         "calc_component_new": {
                             "name": "appropriated_retained_earnings",
                             "weight": 1.0,
+                            "source_tables": ["retained_earnings_ferc1"],
                         },
                     },
                     {
@@ -1928,6 +1929,7 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
                         "calc_component_new": {
                             "name": "appropriated_retained_earnings_amortization_reserve_federal",
                             "weight": 1.0,
+                            "source_tables": ["retained_earnings_ferc1"],
                         },
                     },
                 ],
@@ -1937,6 +1939,7 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
                         "calc_component_new": {
                             "name": "unappropriated_retained_earnings",
                             "weight": 1.0,
+                            "source_tables": ["retained_earnings_ferc1"],
                         },
                     },
                     {
@@ -1944,6 +1947,7 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
                         "calc_component_new": {
                             "name": "appropriated_retained_earnings_including_reserve_amortization",
                             "weight": 1.0,
+                            "source_tables": ["retained_earnings_ferc1"],
                         },
                     },
                 ],
@@ -1953,6 +1957,7 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
                         "calc_component_new": {
                             "name": "unappropriated_undistributed_subsidiary_earnings_previous_year",
                             "weight": 1.0,
+                            "source_tables": ["retained_earnings_ferc1"],
                         },
                     },
                     {
@@ -1960,6 +1965,7 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
                         "calc_component_new": {
                             "name": "equity_in_earnings_of_subsidiary_companies",
                             "weight": 1.0,
+                            "source_tables": ["retained_earnings_ferc1"],
                         },
                     },
                     {
@@ -1967,6 +1973,7 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
                         "calc_component_new": {
                             "name": "dividends_received",
                             "weight": -1.0,
+                            "source_tables": ["retained_earnings_ferc1"],
                         },
                     },
                     {
@@ -1974,6 +1981,7 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
                         "calc_component_new": {
                             "name": "changes_unappropriated_undistributed_subsidiary_earnings_credits",
                             "weight": 1.0,
+                            "source_tables": ["retained_earnings_ferc1"],
                         },
                     },
                 ],
@@ -1983,6 +1991,7 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
                         "calc_component_new": {
                             "name": "unappropriated_retained_earnings_previous_year",
                             "weight": 1.0,
+                            "source_tables": ["retained_earnings_ferc1"],
                         },
                     },
                     {
@@ -1990,6 +1999,7 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
                         "calc_component_new": {
                             "name": "adjustments_to_retained_earnings_credit",
                             "weight": 1.0,
+                            "source_tables": ["retained_earnings_ferc1"],
                         },
                     },
                     {
@@ -1997,6 +2007,7 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
                         "calc_component_new": {
                             "name": "adjustments_to_retained_earnings_debit",
                             "weight": 1.0,
+                            "source_tables": ["retained_earnings_ferc1"],
                         },
                     },
                     {
@@ -2004,6 +2015,7 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
                         "calc_component_new": {
                             "name": "balance_transferred_from_income",
                             "weight": 1.0,
+                            "source_tables": ["retained_earnings_ferc1"],
                         },
                     },
                     {
@@ -2011,6 +2023,7 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
                         "calc_component_new": {
                             "name": "appropriations_of_retained_earnings",
                             "weight": 1.0,
+                            "source_tables": ["retained_earnings_ferc1"],
                         },
                     },
                     {
@@ -2018,6 +2031,7 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
                         "calc_component_new": {
                             "name": "dividends_declared_preferred_stock",
                             "weight": 1.0,
+                            "source_tables": ["retained_earnings_ferc1"],
                         },
                     },
                     {
@@ -2025,6 +2039,7 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
                         "calc_component_new": {
                             "name": "dividends_declared_common_stock",
                             "weight": 1.0,
+                            "source_tables": ["retained_earnings_ferc1"],
                         },
                     },
                     {
@@ -2032,6 +2047,7 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
                         "calc_component_new": {
                             "name": "transfers_from_unappropriated_undistributed_subsidiary_earnings",
                             "weight": 1.0,
+                            "source_tables": ["retained_earnings_ferc1"],
                         },
                     },
                 ],
@@ -2045,6 +2061,9 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
                         "calc_component_new": {
                             "name": "steam_production",
                             "weight": 1.0,
+                            "source_tables": [
+                                "electric_plant_depreciation_functional_ferc1"
+                            ],
                         },
                     },
                     {
@@ -2052,6 +2071,9 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
                         "calc_component_new": {
                             "name": "nuclear_production",
                             "weight": 1.0,
+                            "source_tables": [
+                                "electric_plant_depreciation_functional_ferc1"
+                            ],
                         },
                     },
                     {
@@ -2059,6 +2081,9 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
                         "calc_component_new": {
                             "name": "hydraulic_production_conventional",
                             "weight": 1.0,
+                            "source_tables": [
+                                "electric_plant_depreciation_functional_ferc1"
+                            ],
                         },
                     },
                     {
@@ -2066,6 +2091,9 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
                         "calc_component_new": {
                             "name": "hydraulic_production_pumped_storage",
                             "weight": 1.0,
+                            "source_tables": [
+                                "electric_plant_depreciation_functional_ferc1"
+                            ],
                         },
                     },
                     {
@@ -2073,6 +2101,9 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
                         "calc_component_new": {
                             "name": "other_production",
                             "weight": 1.0,
+                            "source_tables": [
+                                "electric_plant_depreciation_functional_ferc1"
+                            ],
                         },
                     },
                     {
@@ -2080,6 +2111,9 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
                         "calc_component_new": {
                             "name": "transmission",
                             "weight": 1.0,
+                            "source_tables": [
+                                "electric_plant_depreciation_functional_ferc1"
+                            ],
                         },
                     },
                     {
@@ -2087,6 +2121,9 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
                         "calc_component_new": {
                             "name": "distribution",
                             "weight": 1.0,
+                            "source_tables": [
+                                "electric_plant_depreciation_functional_ferc1"
+                            ],
                         },
                     },
                     {
@@ -2094,6 +2131,9 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
                         "calc_component_new": {
                             "name": "regional_transmission_and_market_operation",
                             "weight": 1.0,
+                            "source_tables": [
+                                "electric_plant_depreciation_functional_ferc1"
+                            ],
                         },
                     },
                     {
@@ -2101,6 +2141,9 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
                         "calc_component_new": {
                             "name": "general",
                             "weight": 1.0,
+                            "source_tables": [
+                                "electric_plant_depreciation_functional_ferc1"
+                            ],
                         },
                     },
                 ],
@@ -2112,6 +2155,9 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
                         "calc_component_new": {
                             "name": "starting_balance",
                             "weight": 1.0,
+                            "source_tables": [
+                                "electric_plant_depreciation_changes_ferc1"
+                            ],
                         },
                     },
                     {
@@ -2119,6 +2165,9 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
                         "calc_component_new": {
                             "name": "depreciation_provision",
                             "weight": 1.0,
+                            "source_tables": [
+                                "electric_plant_depreciation_changes_ferc1"
+                            ],
                         },
                     },
                     {
@@ -2126,6 +2175,9 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
                         "calc_component_new": {
                             "name": "net_charges_for_retired_plant",
                             "weight": 1.0,
+                            "source_tables": [
+                                "electric_plant_depreciation_changes_ferc1"
+                            ],
                         },
                     },
                     {
@@ -2133,6 +2185,9 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
                         "calc_component_new": {
                             "name": "other_adjustments_to_accumulated_depreciation",
                             "weight": 1.0,
+                            "source_tables": [
+                                "electric_plant_depreciation_changes_ferc1"
+                            ],
                         },
                     },
                     {
@@ -2140,6 +2195,9 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
                         "calc_component_new": {
                             "name": "book_cost_of_asset_retirement_costs",
                             "weight": 1.0,
+                            "source_tables": [
+                                "electric_plant_depreciation_changes_ferc1"
+                            ],
                         },
                     },
                 ],
