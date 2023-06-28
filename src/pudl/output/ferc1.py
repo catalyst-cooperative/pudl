@@ -1,12 +1,12 @@
 """A collection of denormalized FERC assets and helper functions."""
 import json
-from typing import Self
+from typing import NamedTuple, Self
 
 import networkx as nx
 import numpy as np
 import pandas as pd
 from dagster import AssetIn, AssetsDefinition, Field, Mapping, asset
-from pydantic import BaseModel
+from pydantic import BaseModel, validator
 
 import pudl
 
@@ -1633,8 +1633,7 @@ class XbrlCalculationTreeFerc1(BaseModel):
 
         - Indexed by (source table, xbrl_factoid)
         - Each family of tags gets its own column
-        - Weights reflect updated / propagated values
-        - FOREST ONLY: Include column indicating the ID of the root node
+        - Weights should reflect updated / propagated values
         """
         G = self.to_networkx()  # noqa: N806
 
@@ -1757,3 +1756,271 @@ class XbrlCalculationForestFerc1(BaseModel):
             new_df["root_xbrl_factoid"] = tree.xbrl_factoid
             dfs.append(new_df)
         return pd.concat(dfs).sort_index()
+
+
+class NodeId(NamedTuple):
+    """The source table and XBRL factoid identifying a node in a calculation tree."""
+
+    source_table: str
+    xbrl_factoid: str
+
+
+class NewXbrlCalcuationForestFerc1(BaseModel):
+    """A class for manipulating groups of hierarchically nested XBRL calculations."""
+
+    exploded_meta: pd.DataFrame
+    seeds: list[NodeId] = []
+    tags: pd.DataFrame = pd.DataFrame()
+
+    class Config:
+        """Allow the class to store a dataframe."""
+
+        arbitrary_types_allowed = True
+
+    @validator("exploded_meta", "tags")
+    def ensure_correct_dataframe_index(cls, v):
+        """Ensure that dataframe is indexed by table_name and xbrl_factoid."""
+        idx_cols = ["table_name", "xbrl_factoid"]
+        if v.index.names == idx_cols:
+            return v
+        missing_idx_cols = [col for col in idx_cols if col not in v.columns]
+        if missing_idx_cols:
+            raise ValueError(
+                f"Exploded metadataframes must be indexed by {idx_cols}, but these "
+                f"columns were missing: {missing_idx_cols=}"
+            )
+        drop = v.index.names is None
+        return v.set_index(idx_cols, drop=drop)
+
+    @validator("exploded_meta", "tags")
+    def dataframe_has_unique_index(cls, v):
+        """Ensure that exploded_meta has a unique index."""
+        if not v.index.is_unique:
+            raise ValueError("DataFrame has non-unique index values.")
+        return v
+
+    @validator("seeds")
+    def seeds_within_bounds(cls, v, values):
+        """Ensure that all seeds are present within exploded_meta index."""
+        bad_seeds = [seed for seed in v if seed not in values["exploded_meta"].index]
+        if bad_seeds:
+            raise ValueError(f"Seeds missing from exploded_meta index: {bad_seeds=}")
+        return v
+
+    @staticmethod
+    def exploded_meta_to_nx_forest(  # noqa: C901
+        exploded_meta: pd.DataFrame,
+        tags: pd.DataFrame,
+    ) -> nx.DiGraph:
+        """Construct a :class:`networkx.DiGraph` of all calculations in exploded_meta.
+
+        - Add all edges implied by the calculations found in exploded_meta.
+        - Compile node attributes from exploded_meta and add it the the nodes in the
+          forest that has been compiled.
+        """
+        forest: nx.DiGraph = nx.DiGraph()
+        attrs = {}
+        for row in exploded_meta.itertuples():
+            from_node = NodeId(*row.Index)
+            if not attrs.get(from_node, False):
+                attrs[from_node] = {}
+            if not attrs[from_node].get("xbrl_factoid_original", False):
+                attrs[from_node] |= {"xbrl_factoid_original": row.xbrl_factoid_original}
+            else:
+                assert (
+                    attrs[from_node]["xbrl_factoid_original"]
+                    == row.xbrl_factoid_original
+                )
+            try:
+                attrs[from_node]["tags"] = dict(tags.loc[from_node])
+            except KeyError:
+                attrs[from_node]["tags"] = {}
+            calcs = json.loads(row.calculations)
+            for calc in calcs:
+                assert len(calc["source_tables"]) == 1
+                to_node = NodeId(calc["source_tables"][0], calc["name"])
+                if not attrs.get(to_node, False):
+                    attrs[to_node] = {}
+                if not attrs[to_node].get("weight", False):
+                    attrs[to_node] |= {"weight": calc["weight"]}
+                else:
+                    assert attrs[to_node]["weight"] == calc["weight"]
+                try:
+                    attrs[to_node]["tags"] = dict(tags.loc[to_node])
+                except KeyError:
+                    attrs[to_node]["tags"] = {}
+                forest.add_edge(from_node, to_node)
+        nx.set_node_attributes(forest, attrs)
+
+        # This is a temporary hack. These xbrl_factoid values need to have metadata
+        # created and injected by the process_xbrl_metadata() method in the FERC 1
+        # table transformers... We created them to refer to data that only appears in
+        # the DBF data.
+        bad_nodes = [
+            NodeId("balance_sheet_assets_ferc1", "special_funds_all"),
+        ]
+        forest.remove_nodes_from(bad_nodes)
+        # The resulting graph should always be a collection of several trees, however
+        # # it turns out that it's not, so we need to fix something.
+        if not nx.is_forest(forest):
+            logger.error("Calculations in Exploded Metadata do not describe a forest!")
+        return forest
+
+    @property
+    def nx_forest(self: Self) -> nx.DiGraph:
+        """Construct a minimal calculation forest that includes all of our seed nodes.
+
+        - Identify the connected components within the calculation forest described by
+          the full exploded_meta dataframe.
+        - Remove nodes from any connected component that doesn't intersect with our
+          seed nodes.
+        - Regenerate a pruned forest with directed edges and full node attributes that
+          only includes connected components that intersect with our seed nodes.
+        """
+        full_forest: nx.DiGraph = self.exploded_meta_to_nx_forest(
+            exploded_meta=self.exploded_meta,
+            tags=self.tags,
+        )
+        undirected_trees = list(nx.connected_components(full_forest.to_undirected()))
+        logger.info(f"Full calculation forest contains {len(undirected_trees)} trees.")
+        pruned_forest_nodes = set()
+        for tree in undirected_trees:
+            if set(self.seeds).intersection(tree):
+                pruned_forest_nodes = pruned_forest_nodes.union(tree)
+        pruned_forest: nx.DiGraph = self.exploded_meta_to_nx_forest(
+            exploded_meta=self.exploded_meta.loc[list(pruned_forest_nodes)],
+            tags=self.tags,
+        )
+        pruned_trees = list(nx.connected_components(pruned_forest.to_undirected()))
+        logger.info(f"Pruned calculation forest contains {len(pruned_trees)} trees.")
+        return pruned_forest
+
+    @property
+    def leafy_meta(self: Self) -> pd.DataFrame:
+        """Identify leaf facts and compile their metadata.
+
+        - identify the root and leaf nodes of those minimal trees
+        - adjust the weights associated with the leaf nodes to equal the
+          product of the weights of all their ancestors.
+        - Set leaf node tags to be the union of all the tags associated
+          with all of their ancestors.
+
+        Leaf metadata in the output dataframe includes:
+
+        - The ID of the leaf node itself (this is the index).
+        - The ID of the root node the leaf is descended from.
+        - What tags the leaf has inherited from its ancestors.
+        - The leaf node's xbrl_factoid_original
+        - The weight associated with the leaf, in relation to its root.
+        """
+        # Create a copy of the graph representation since we are going to mutate it.
+        nx_forest = self.nx_forest
+        pruned_forest = nx.DiGraph()
+        pruned_forest.add_nodes_from(nx_forest.nodes(data=True))
+        pruned_forest.add_edges_from(nx_forest.edges(data=True))
+
+        # Construct a dataframe that links the leaf node IDs to their root nodes:
+        leaves = [n for n, out_deg in pruned_forest.out_degree() if out_deg == 0]
+        roots = [n for n, in_deg in pruned_forest.in_degree() if in_deg == 0]
+        leaf_to_root_map = {
+            leaf: root
+            for leaf in leaves
+            for root in roots
+            if leaf in nx.descendants(pruned_forest, root)
+        }
+        leaves_df = pd.DataFrame(list(leaf_to_root_map.keys()))
+        roots_df = pd.DataFrame(list(leaf_to_root_map.values())).rename(
+            columns={"source_table": "root_table", "xbrl_factoid": "root_xbrl_factoid"}
+        )
+        leafy_meta = pd.concat([leaves_df, roots_df], axis="columns")
+
+        # Propagate tags and weights to leaf nodes
+        leaf_rows = []
+        for leaf in leaves:
+            leaf_tags = {}
+            leaf_weight = pruned_forest.nodes[leaf].get("weight", 1.0)
+            for node in nx.ancestors(pruned_forest, leaf):
+                leaf_tags |= pruned_forest.nodes[node]["tags"]
+                # Root nodes have no weight because they don't come from calculations
+                # We assign them a weight of 1.0
+                if not pruned_forest.nodes[node].get("weight", False):
+                    assert node in roots
+                    node_weight = 1.0
+                else:
+                    node_weight = pruned_forest.nodes[node]["weight"]
+                leaf_weight *= node_weight
+
+            # Construct a dictionary describing the leaf node and convert it into a
+            # single row DataFrame. This makes adding arbitrary tags easy.
+            leaf_attrs = {
+                "xbrl_factoid_original": pruned_forest.nodes[leaf][
+                    "xbrl_factoid_original"
+                ],
+                "weight": leaf_weight,
+                "tags": leaf_tags,
+                "source_table": leaf.source_table,
+                "xbrl_factoid": leaf.xbrl_factoid,
+            }
+            leaf_rows.append(pd.json_normalize(leaf_attrs))
+
+        # Combine the two dataframes we've constructed above:
+        return (
+            pd.merge(leafy_meta, pd.concat(leaf_rows), validate="one_to_one")
+            .convert_dtypes()
+            .set_index(["source_table", "xbrl_factoid"])
+        )
+
+    @property
+    def root_calculations(self: Self) -> pd.DataFrame:
+        """Produce an exploded metadataframe containing only roots and leaves.
+
+        This dataframe has a format similar to exploded_meta and can be used in
+        conjunction with the exploded data to verify that the root values can still
+        be correctly calculated from the leaf values.
+
+        """
+
+        def leafy_meta_to_calculations(df: pd.DataFrame) -> str:
+            return json.dumps(
+                [
+                    {
+                        "name": row.xbrl_factoid,
+                        "weight": float(row.weight),
+                        "xbrl_factoid_original": row.xbrl_factoid_original,
+                        "source_tables": [row.source_table],
+                    }
+                    for row in df.itertuples()
+                ]
+            )
+
+        root_calcs: pd.DataFrame = (
+            self.leafy_meta.reset_index()
+            .groupby(["root_table", "root_xbrl_factoid"], as_index=False)
+            .apply(leafy_meta_to_calculations)
+        )
+        root_calcs.columns = ["root_table", "root_xbrl_factoid", "calculations"]
+        return root_calcs
+
+    def plot(self: Self) -> None:
+        """Visualize the calculation forest and its attributes."""
+        ...
+
+    def prune_and_annotate_exploded_data(
+        self: Self,
+        exploded_data: pd.DataFrame,
+    ) -> pd.DataFrame:
+        """Use the calculation forest to prune the exploded dataframe.
+
+        - Drop all rows that don't correspond to either root or leaf facts.
+        - Verify that the reported root values can still be generated by calculations
+          that only refer to leaf values.
+        - Merge the leafy metadata onto the exploded data, keeping only those rows
+          which refer to the leaf facts.
+        - Use the leaf weights to adjust the reported data values, and then drop the
+          leaf weights.
+
+        This method could either live here, or in the Exploder class, which would also
+        have access to exploded_meta, exploded_data, and the calculation forest.
+
+        """
+        ...
