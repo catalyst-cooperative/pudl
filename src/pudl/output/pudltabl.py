@@ -211,6 +211,13 @@ class PudlTabl:
             # ferc714
             "respondent_id_ferc714": "respondent_id_ferc714",
             "demand_hourly_pa_ferc714": "demand_hourly_pa_ferc714",
+            "fipsified_respondents_ferc714": "fipsified_respondents_ferc714",
+            "summarized_demand_ferc714": "summarized_demand_ferc714",
+            # service territory
+            "compiled_geometry_balancing_authority_eia861": "compiled_geometry_balancing_authority_eia861",
+            "compiled_geometry_utility_eia861": "compiled_geometry_utility_eia861",
+            # state demand
+            "predicted_state_hourly_demand": "predicted_state_hourly_demand",
         }
 
         table_method_map_any_agg = {
@@ -279,6 +286,11 @@ class PudlTabl:
                 f"{table_name} needs one of these frequencies {allowed_freqs}, "
                 f"but got {self.freq}"
             )
+        if update:
+            logger.warning(
+                "The update parameter is deprecated and has no effect."
+                "It is retained for backwards compatibility only."
+            )
         table_name = self._agg_table_name(table_name)
         resource = Resource.from_id(table_name)
         return pd.concat(
@@ -326,7 +338,10 @@ class PudlTabl:
         """
         md = sa.MetaData()
         md.reflect(self.pudl_engine)
-        tbl = md.tables[f"{table}"]
+        try:
+            tbl = md.tables[f"{table}"]
+        except KeyError:
+            print(f"{table} not found in the metadata.")
         tbl_select = sa.sql.select(tbl)
 
         start_date = pd.to_datetime(self.start_date)

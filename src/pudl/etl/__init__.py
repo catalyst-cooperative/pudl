@@ -39,6 +39,11 @@ default_assets = (
     *load_assets_from_modules([pudl.transform.ferc1], group_name="norm_ferc1"),
     *load_assets_from_modules([pudl.extract.ferc714], group_name="raw_ferc714"),
     *load_assets_from_modules([pudl.transform.ferc714], group_name="clean_ferc714"),
+    *load_assets_from_modules([pudl.output.ferc714], group_name="respondents_ferc714"),
+    *load_assets_from_modules(
+        [pudl.convert.censusdp1tract_to_sqlite, pudl.output.censusdp1tract],
+        group_name="censusdp1",
+    ),
     *load_assets_from_modules([glue_assets], group_name="glue"),
     *load_assets_from_modules([static_assets], group_name="static"),
     *load_assets_from_modules(
@@ -55,6 +60,12 @@ default_assets = (
     ),
     *load_assets_from_modules([pudl.analysis.mcoe], group_name="mcoe"),
     *load_assets_from_modules([pudl.output.ferc1], group_name="denorm_ferc1"),
+    *load_assets_from_modules(
+        [pudl.analysis.service_territory], group_name="service_territory_eia861"
+    ),
+    *load_assets_from_modules(
+        [pudl.analysis.state_demand], group_name="state_demand_ferc714"
+    ),
 )
 
 default_resources = {
