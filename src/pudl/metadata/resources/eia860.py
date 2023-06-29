@@ -393,6 +393,7 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
                     "fuel_cost_by_generator_monthly",
                     "capacity_factor_by_generator_monthly",
                     "mcoe_monthly",
+                    "mcoe_generators_monthly",
                 ],
             },
         },
