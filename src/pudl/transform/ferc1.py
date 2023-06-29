@@ -2096,17 +2096,6 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
                         },
                     }
                 ],
-                # "utility_plant_in_service_classified_and_unclassified": [
-                #     # Temporarily adding to metadata only.
-                #     {
-                #         "calc_component_to_replace": {},
-                #         "calc_component_new": {
-                #             "name": "electric_plant_in_service",
-                #             "weight": 1.0,
-                #             "source_tables": ["plant_in_service_ferc1"],
-                #         },
-                #     }
-                # ], # CAN'T DO THIS BECAUSE THE TABLE ALREADY HAS A CALCULATION.
                 "utility_plant_in_service_experimental_plant_unclassified": [
                     # Temporarily adding to metadata only.
                     {
@@ -2132,7 +2121,7 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
                         "calc_component_to_replace": {},
                         "calc_component_new": {
                             "name": "electric_plant_sold",
-                            "weight": 1.0,
+                            "weight": -1.0,
                             "source_tables": ["plant_in_service_ferc1"],
                         },
                     },
@@ -2250,7 +2239,7 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
                     },
                     {
                         "calc_component_to_replace": {
-                            "name": "amortization_and_depletion_of_producing_natural_gas_land_and_land_rights_utility_plant_in_service",
+                            "name": "amortization_and_depletion_of_producing_natural_gas_land_and_land_rightsutility_plant_in_service",
                             "weight": 1.0,
                             "source_tables": ["utility_plant_summary_ferc1"],
                         },
@@ -2258,7 +2247,7 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
                     },
                     {
                         "calc_component_to_replace": {
-                            "name": "amortization_of_underground_storage_land_and_land_rights_utility_plant_in_service",
+                            "name": "amortization_of_underground_storage_land_and_land_rightsutility_plant_in_service",
                             "weight": 1.0,
                             "source_tables": ["utility_plant_summary_ferc1"],
                         },
