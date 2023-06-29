@@ -2136,6 +2136,62 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
                         },
                     },
                 ],
+                # Make duplicated factoids equivalent, instead of calculating twice.
+                "utility_plant_and_construction_work_in_progress": [
+                    {
+                        "calc_component_to_replace": {
+                            "name": "utility_plant",
+                            "weight": 1.0,
+                            "source_tables": ["balance_sheet_assets_ferc1"],
+                        },
+                        "calc_component_new": {
+                            # Only used in pre-2004 calculations, aggregate of later sub-components.
+                            "name": "utility_plant_construction_work_in_progress",
+                            "weight": 1.0,
+                            "source_tables": ["utility_plant_summary_ferc1"],
+                        },
+                    },
+                    {
+                        "calc_component_to_replace": {
+                            "name": "utility_plant_in_service_classified_and_unclassified",
+                            "weight": 1.0,
+                            "source_tables": ["utility_plant_summary_ferc1"],
+                        },
+                        "calc_component_new": {},
+                    },
+                    {
+                        "calc_component_to_replace": {
+                            "name": "utility_plant_leased_to_others",
+                            "weight": 1.0,
+                            "source_tables": ["utility_plant_summary_ferc1"],
+                        },
+                        "calc_component_new": {},
+                    },
+                    {
+                        "calc_component_to_replace": {
+                            "name": "utility_plant_held_for_future_use",
+                            "weight": 1.0,
+                            "source_tables": ["utility_plant_summary_ferc1"],
+                        },
+                        "calc_component_new": {},
+                    },
+                    {
+                        "calc_component_to_replace": {
+                            "name": "construction_work_in_progress",
+                            "weight": 1.0,
+                            "source_tables": ["balance_sheet_assets_ferc1"],
+                        },
+                        "calc_component_new": {},
+                    },
+                    {
+                        "calc_component_to_replace": {
+                            "name": "utility_plant_acquisition_adjustment",
+                            "weight": 1.0,
+                            "source_tables": ["utility_plant_summary_ferc1"],
+                        },
+                        "calc_component_new": {},
+                    },
+                ],
             },
             "balance_sheet_liabilities_ferc1": {
                 "deferred_credits": [

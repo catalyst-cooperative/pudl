@@ -1369,7 +1369,7 @@ class Exploder:
             #         original_fact = calculation_df["name"][0]
 
             #         # If original fact was also calculated - add source tables here!
-            #         if calculated_df.loc[(calculated_df.xbrl_factoid == original_fact)&(calculated_df.row_type_xbrl == "calculated_value")&(calculated_df.xbrl_factoid.isin(calculation_df.source_tables))].any():
+            #         if calculated_df.loc[(calculated_df.xbrl_factoid == original_fact)&(calculated_df.row_type_xbrl == "calculated_value")&(calculated_df.table_name.isin(calculation_df.source_tables.values))].any():
             #             # Get corresponding original fact corrections
             #             original_fact_corrections = original_fact + "_correction"
             #             original_corrections_meta = (
