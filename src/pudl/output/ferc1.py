@@ -950,7 +950,7 @@ class MetadataExploder:
         self.table_names = table_names
 
     def boom(self, clean_xbrl_metadata_json: dict):
-        """Combine a set of inter-realted table's metatada for use in :class:`Exploder`.
+        """Combine a set of interelated tables metadata for use in :class:`Exploder`.
 
         Args:
             clean_xbrl_metadata_json: cleaned XRBL metadata.
@@ -1407,366 +1407,44 @@ def remove_intra_table_calculated_values(exploded: pd.DataFrame) -> pd.DataFrame
 ################################################################################
 # XBRL Calculation Tree
 ################################################################################
-class XbrlCalculationTreeFerc1(BaseModel):
-    """A FERC Form 1 XBRL calculation tree.
+class NodeId(NamedTuple):
+    """The source table and XBRL factoid identifying a node in a calculation tree.
 
-    In the special case of our exploded table calculations, each XBRL fact can be
-    treated as a node in a tree, with calculated values being composed of other facts,
-    and reported values showing up as leaves in the tree, with no subcomponents. The
-    tree can also be pruned to exclude tables outside of those being included in the
-    explosion.
-
-    In general, XBRL facts can show up in more than one source table, but in the case of
-    the explosions, we need to select a single source table to use. When building a
-    calculation tree from the exploded metadata, we need to be able to select the most
-    granular / detailed / "leafy" source table among several.
-
+    Since NodeId is just a :class:`NamedTuple` a list of NodeId instances can also be
+    used to index into a :class:pandas.DataFrame` that uses table names and factoids as
+    its index.  This is convenient since many :mod:`networkx` functions and methods
+    return iterable containers of graph nodes, which can be turned into lists and used
+    directly to index into dataframes.
     """
 
-    xbrl_factoid: str
-    """The XBRL factoid that we're using to identify the value.
-
-    This value should correspond to the ``name`` field of a calculation. It may have
-    been renamed from the original reported XBRL fact name. Along with ``source_table``
-    this attribute uniquely identifies the node within the tree.
-    """
     source_table: str
-    """The unique source table chosen for the purposes of the explosion.
-
-    Along with ``xbrl_factoid`` this attribute uniquely identifies the node within the
-    tree.
-    """
-    xbrl_factoid_original: str
-    """The original reported XBRL Fact name."""
-    weight: float
-    """The weight associated with the XBRL Fact for calculation purposes.
-
-    Initially this is the reported weight from the XBRL metadata, but in order to ensure
-    that the value reported for the root fact in the tree can be validated using only
-    the values associated with the leaf facts, we have to update the weights when we
-    remove all the intervening layers of the tree. See
-    :meth:`XbrlCalculationTreeFerc1.propagate_weights`.
-    """
-    children: list["XbrlCalculationTreeFerc1"] = []
-    """The subcomponents required to calculate the value associated with this fact.
-
-    This list will be empty for leaf nodes (reported values) and for calculated values
-    that lie outside the list of tables being used in the explosion.
-    """
-    tags: dict[str, str] = {}
-    """A dictionary of categorical metadata tags associated with a node in the tree."""
-
-    def pprint(self: Self, indent=4):
-        """Print a legible JSONified version of the calculation tree."""
-        print(json.dumps(self.dict(), indent=indent))
-
-    @staticmethod
-    def _check_index(df: pd.DataFrame):
-        """Check that an input meta dataframe is appropriately indexed."""
-        idx_cols = ["table_name", "xbrl_factoid"]
-        if df.index.names != idx_cols:
-            raise AssertionError(
-                f"Exploded metadataframes must be indexed by {idx_cols}, but found "
-                f"{df.index.names=}"
-            )
-        if not df.index.is_unique:
-            raise AssertionError("Found non-unique index in exploded metadata.")
-
-    @classmethod
-    def from_exploded_meta(
-        cls,
-        source_table: str,
-        xbrl_factoid: str,
-        exploded_meta: pd.DataFrame,
-        weight: float = np.nan,
-        tags_df: pd.DataFrame | None = None,
-        propagate_weights: bool = True,
-    ) -> "XbrlCalculationTreeFerc1":
-        """Construct a complete calculation tree based on exploded metadata.
-
-        Args:
-            source_table: The table within which we are searching for the XBRL fact,
-                required as many appear in multiple tables.
-            xbrl_factoid: Equivalent to the "name" field in the calculation metadata.
-                Potentially renamed from the originally reported XBRL value.
-            exploded_meta: A dataframe containing metadata for all of the facts
-                referenced by the exploded tables. Must be indexed by the columns
-                (table_name, xbrl_factoid) and the index must be unique.
-            weight: The weight associated with this node in its calculation. Must be
-                passed in because it is only available when we have access to the
-                calculation metadata.
-
-        Returns:
-            The root node of a calculation tree, potentially referencing child nodes.
-        """
-        cls._check_index(exploded_meta)
-
-        # Index to look up the particular factoid we're building the node for:
-        idx = (source_table, xbrl_factoid)
-        # Read in the calculations (if any) that define the node:
-        calculations = json.loads(exploded_meta.at[idx, "calculations"])
-        children = []
-        for calc in calculations:
-            if len(calc["source_tables"]) != 1:
-                raise AssertionError(
-                    "Generating the calculation tree for exploded tables requires all "
-                    "xbrl_factoids to have a unique source table, but found "
-                    f"{calc=}"
-                )
-            children.append(
-                XbrlCalculationTreeFerc1.from_exploded_meta(
-                    weight=calc["weight"],
-                    xbrl_factoid=calc["name"],
-                    source_table=calc["source_tables"][0],
-                    exploded_meta=exploded_meta,
-                )
-            )
-
-        tree = XbrlCalculationTreeFerc1(
-            source_table=source_table,
-            xbrl_factoid=xbrl_factoid,
-            weight=weight,
-            xbrl_factoid_original=exploded_meta.at[idx, "xbrl_factoid_original"],
-            children=children,
-        )
-        if propagate_weights:
-            tree = tree.propagate_weights()
-        if tags_df is not None:
-            tree = tree.add_tags_from_df(tags_df).propagate_tags()
-
-        return tree
-
-    def propagate_weights(
-        self: Self, parent_weight: float = 1.0
-    ) -> "XbrlCalculationTreeFerc1":
-        """Multiply child node weights by the product of the weights of all parents.
-
-        Because we are going to remove all intermediate calculations and work only with
-        the values reported in leaf-nodes, we need to distribute any calculation weights
-        from parent nodes to their children. E.g. if a calculated value contains several
-        positive numbers, but itself has a weight of -1.0 then each of the subcomponents
-        needs to be multiplied by -1.0 in order to preserve the appropriate sign of the
-        child values in the higher level calculation.
-        """
-        new_weight = parent_weight * self.weight
-        new_children = [
-            node.propagate_weights(parent_weight=new_weight) for node in self.children
-        ]
-        return XbrlCalculationTreeFerc1(
-            **self.dict() | {"weight": new_weight, "children": new_children}
-        )
-
-    def add_tags_from_df(
-        self: Self, tags_df: pd.DataFrame
-    ) -> "XbrlCalculationTreeFerc1":
-        """Read tags from dataframe and apply to appropriate nodes in the tree.
-
-        Args:
-            tags_df: A dataframe indexed by ("table_name", "xbrl_factoid") potentially
-                containing several additional categorical columns. The name of each
-                column will be used as the key in the metadata tag dictionary. For each
-                node in the tree, the row in this dataframe corresponding to the node's
-                ``source_table`` and ``xbrl_factoid`` will be used to look up the value
-                of the tags associated with the node.
-        """
-        self._check_index(tags_df)
-        try:
-            # Look up the tags to apply to this node
-            new_tags = tags_df.loc[(self.source_table, self.xbrl_factoid)].to_dict()
-        #  If it has no tags that's fine. Catch the key error and continue.
-        except KeyError:
-            new_tags = {}
-        logger.debug(
-            f"Found {new_tags=} for node {(self.source_table, self.xbrl_factoid)}"
-        )
-
-        # Construct a copy of this node with the new tags applied.
-        new_tags = self.tags | new_tags
-        new_children = [node.add_tags_from_df(tags_df) for node in self.children]
-        return XbrlCalculationTreeFerc1(
-            **self.dict() | {"tags": new_tags, "children": new_children}
-        )
-
-    def propagate_tags(
-        self: Self, tags: dict[str, str] = {}
-    ) -> "XbrlCalculationTreeFerc1":
-        """Propagate metadata tags to all descendants of tagged notes in the tree.
-
-        TODO: Check that there are no inconsistencies between parent & child node tags.
-        """
-        new_tags = self.tags | tags
-        new_children = [node.propagate_tags(new_tags) for node in self.children]
-        return XbrlCalculationTreeFerc1(
-            **self.dict() | {"tags": new_tags, "children": new_children}
-        )
-
-    def to_networkx(self: Self) -> nx.DiGraph:
-        """Convert the tree to a an undirected NetworkX graph.
-
-        Given a node, treat that node as the root of a tree, and construct an undirected
-        :class:`networkx.Graph` representing the node and all of its children. The
-        tuple of strings (source_table, xbrl_factoid) is used as the ID for each node in
-        the graph.
-        """
-        digraph = nx.DiGraph()  # noqa: N806
-        node_id = (self.source_table, self.xbrl_factoid)
-        # Add the current node and all of its attributes:
-        digraph.add_node(
-            node_id,
-            xbrl_factoid_original=self.xbrl_factoid_original,
-            weight=self.weight,
-            tags=self.tags,
-        )
-        for child in self.children:
-            # Add an edge from the current node to each of its children:
-            child_id = (child.source_table, child.xbrl_factoid)
-            digraph.add_edge(node_id, child_id)
-            # Recursively add all the child nodes and edges:
-            child_graph = child.to_networkx()
-            digraph.add_nodes_from(child_graph.nodes)
-            nx.set_node_attributes(digraph, dict(child_graph.nodes))
-            digraph.add_edges_from(child_graph.edges)
-        return digraph
-
-    def to_leafy_meta(self: Self) -> pd.DataFrame:
-        """Convert an XbrlCalculationTree back into a pandas dataframe.
-
-        - Indexed by (source table, xbrl_factoid)
-        - Each family of tags gets its own column
-        - Weights should reflect updated / propagated values
-        """
-        G = self.to_networkx()  # noqa: N806
-
-        leaves = [n for n, d in G.out_degree() if d == 0]
-        H = nx.DiGraph()  # noqa: N806
-        H.add_nodes_from(leaves)
-        nx.set_node_attributes(H, dict(G.nodes))
-
-        rows = []
-        for node in H.nodes:
-            row = pd.concat(
-                [
-                    pd.DataFrame(
-                        {"source_table": [node[0]], "xbrl_factoid": [node[1]]}
-                    ),
-                    pd.json_normalize(H.nodes(data=True)[node]),
-                ],
-                axis="columns",
-            )
-            rows.append(row)
-        leafy_meta = pd.concat(rows)
-
-        return (
-            leafy_meta.set_index(["source_table", "xbrl_factoid"], drop=True)
-            .sort_index()
-            .convert_dtypes()
-        )
+    xbrl_factoid: str
 
 
 class XbrlCalculationForestFerc1(BaseModel):
-    """A class representing a collection of :class:`XbrlCalculationTreeFerc1`."""
+    """A class for manipulating groups of hierarchically nested XBRL calculations.
 
-    trees: list[XbrlCalculationTreeFerc1] = []
+    We expect that the facts reported in high-level FERC tables like
+    :ref:`income_statement_ferc1` and :ref:`balance_sheet_assets_ferc1` should be
+    calculable from many individually reported granular values, based on the
+    calculations encoded in the XBRL Metadata, and that these relationships should have
+    a hierarchical tree structure. Several individual values from the higher level
+    tables will appear as root nodes at the top of each hierarchy, and the leaves in
+    the underlying tree structure are the individually reported non-calculated values
+    that make them up. Because the top-level tables have several distinct values in
+    them, composed of disjunct sets of reported values, we have a forest (a group of
+    several trees) rather than a single tree.
 
-    @classmethod
-    def from_exploded_meta(
-        cls,
-        source_tables: list[str],
-        xbrl_factoids: list[str],
-        exploded_meta: pd.DataFrame,
-        propagate_weights: bool = True,
-        tags_df: pd.DataFrame | None = None,
-    ) -> "XbrlCalculationForestFerc1":
-        """Build several :class:`XbrlCalculationTreeFerc1`'s from exploded metadata.
+    The information required to build a calculation forest is most readily found in the
+    data produced by :meth:`MetadataExploder.boom`  A list of seed nodes can also be
+    supplied, indicating which nodes must be present in the resulting forest. This can
+    be used to prune irrelevant portions of the overall forest out of the exploded
+    metadata. If no seeds are provided, then all of the nodes referenced in the
+    exploded_meta input dataframe will be used as seeds.
 
-        - Build trees from all of the seeds.
-        - Convert all of the trees into NX graphs.
-        - Add all the nodes from those graphs into a single graph.
-        - Verify that this graph is a forest (one or more trees)
-        - Identify all connected components of this graph.
-        - Verify that the root nodes of each of these trees is one of the seeds.
-        - Convert these Graphs back into Calculation Trees.
-        """
-        trees = [
-            XbrlCalculationTreeFerc1.from_exploded_meta(
-                source_table=source_table,
-                xbrl_factoid=xbrl_factoid,
-                exploded_meta=exploded_meta,
-            )
-            for source_table, xbrl_factoid in zip(source_tables, xbrl_factoids)
-        ]
-        forest = cls.to_networkx(trees)
-
-        # Identify the roots of each tree and verify it's one of the input seeds
-        roots = [n for n, in_deg in forest.in_degree() if in_deg == 0]
-        logger.debug(f"{roots=}")
-        leaves = [n for n, out_deg in forest.out_degree() if out_deg == 0]
-        logger.debug(f"{leaves=}")
-
-        # - The easiest way to "convert" the NX Graph back to our class may be to just
-        #   rebuild the trees, but using only the newly identified root nodes as seeds.
-        # - For visualization purposes it will be helpful to have all of the calculation
-        #   metadata available within the NX Graph
-        minimal_trees = [
-            XbrlCalculationTreeFerc1.from_exploded_meta(
-                source_table=source_table,
-                xbrl_factoid=xbrl_factoid,
-                exploded_meta=exploded_meta,
-                weight=1.0,
-                propagate_weights=propagate_weights,
-                tags_df=tags_df,
-            )
-            for source_table, xbrl_factoid in roots
-        ]
-        return XbrlCalculationForestFerc1(trees=minimal_trees)
-
-    @classmethod
-    def to_networkx(cls, trees: list["XbrlCalculationTreeFerc1"]) -> nx.DiGraph:
-        """Convert a calculation forest into a :class:`networkx.DiGraph`.
-
-        It's possible that used nodes from multiple levels within a single calculation
-        tree as seeds when building the trees. This method adds all the nodes from all
-        of the calculation trees into the same graph, which should be a collection of
-        several distinct, disconnected trees (a forest). Adding all of the nodes to the
-        same graph will deduplicate nodes, and allow us to identify the minimal set of
-        root nodes required to reproduce the tree which involves all of the nodes we
-        used as seeds. The leaf nodes which are part of that forest represent all of the
-        reported facts that are required to calculate the root nodes which we are
-        interested in.
-        """
-        forest = nx.DiGraph()
-        for tree in trees:
-            nx_tree = tree.to_networkx()
-            assert nx.is_tree(nx_tree)
-            forest.add_nodes_from(nx_tree.nodes)
-            nx.set_node_attributes(nx_tree, dict(nx_tree.nodes))
-            forest.add_edges_from(nx_tree.edges)
-
-        assert nx.is_forest(forest)
-        components = list(nx.connected_components(forest.to_undirected()))
-        logger.info(f"Found {len(components)} calculation trees")
-        return forest
-
-    def to_leafy_meta(self: Self) -> pd.DataFrame:
-        """Generate a metadataframe from the leaves of an XBRL Calculation Forest."""
-        dfs = []
-        for tree in self.trees:
-            new_df = tree.to_leafy_meta()
-            new_df["root_table"] = tree.source_table
-            new_df["root_xbrl_factoid"] = tree.xbrl_factoid
-            dfs.append(new_df)
-        return pd.concat(dfs).sort_index()
-
-
-class NodeId(NamedTuple):
-    """The source table and XBRL factoid identifying a node in a calculation tree."""
-
-    source_table: str
-    xbrl_factoid: str
-
-
-class NewXbrlCalcuationForestFerc1(BaseModel):
-    """A class for manipulating groups of hierarchically nested XBRL calculations."""
+    This class makes heavy use of :mod:`networkx` to manage the graph that we build
+    from calculation relationships.
+    """
 
     exploded_meta: pd.DataFrame
     seeds: list[NodeId] = []
@@ -1797,6 +1475,14 @@ class NewXbrlCalcuationForestFerc1(BaseModel):
         """Ensure that exploded_meta has a unique index."""
         if not v.index.is_unique:
             raise ValueError("DataFrame has non-unique index values.")
+        return v
+
+    @validator("seeds", always=True)
+    def seeds_not_empty(cls, v, values):
+        """If no seeds are provided, use all nodes in the index of exploded_meta."""
+        if v == []:
+            logger.info("No seeds provided. Using all nodes in exploded_meta index.")
+            v = list(values["exploded_meta"].index)
         return v
 
     @validator("seeds")
