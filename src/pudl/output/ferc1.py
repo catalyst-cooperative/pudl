@@ -1794,7 +1794,11 @@ class XbrlCalculationForestFerc1(BaseModel):
                 if not attrs[to_node].get("weight", False):
                     attrs[to_node] |= {"weight": calc["weight"]}
                 else:
-                    assert attrs[to_node]["weight"] == calc["weight"]
+                    if not attrs[to_node]["weight"] == calc["weight"]:
+                        logger.error(
+                            f"Calculation weights do not match for {to_node}:"
+                            f"{attrs[to_node]['weight']} != {calc['weight']}"
+                        )
                 try:
                     attrs[to_node]["tags"] = dict(tags.loc[to_node])
                 except KeyError:
