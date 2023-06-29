@@ -2038,7 +2038,31 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
                             "source_tables": ["utility_plant_summary_ferc1"],
                         },
                         "calc_component_new": {},
-                    }
+                    },
+                    {
+                        "calc_component_to_replace": {
+                            "name": "amortization_and_depletion_of_producing_natural_gas_land_and_land_rightsutility_plant_in_service",
+                            "weight": 1.0,
+                            "source_tables": ["utility_plant_summary_ferc1"],
+                        },
+                        "calc_component_new": {
+                            "name": "amortization_and_depletion_of_producing_natural_gas_land_and_land_rights_utility_plant_in_service",
+                            "weight": 1.0,
+                            "source_tables": ["utility_plant_summary_ferc1"],
+                        },
+                    },
+                    {
+                        "calc_component_to_replace": {
+                            "name": "amortization_of_underground_storage_land_and_land_rightsutility_plant_in_service",
+                            "weight": 1.0,
+                            "source_tables": ["utility_plant_summary_ferc1"],
+                        },
+                        "calc_component_new": {
+                            "name": "amortization_of_underground_storage_land_and_land_rights_utility_plant_in_service",
+                            "weight": 1.0,
+                            "source_tables": ["utility_plant_summary_ferc1"],
+                        },
+                    },
                 ],
                 "depreciation_utility_plant_in_service": [
                     # Dimension: in service only. Temporarily adding to metadata only.
