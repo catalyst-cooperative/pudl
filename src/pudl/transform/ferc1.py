@@ -2159,7 +2159,7 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
                         },
                         "calc_component_new": {
                             # Equivalent factoid in utility_plant_summary table
-                            "name": "utility_plant_construction_work_in_progress",
+                            "name": "utility_plant_and_construction_work_in_progress",
                             "weight": 1.0,
                             "source_tables": ["utility_plant_summary_ferc1"],
                         },
