@@ -1494,7 +1494,7 @@ class XbrlCalculationForestFerc1(BaseModel):
         return v
 
     @staticmethod
-    def exploded_meta_to_nx_forest(  # noqa: C901
+    def exploded_meta_to_digraph(  # noqa: C901
         exploded_meta: pd.DataFrame,
         tags: pd.DataFrame,
     ) -> nx.DiGraph:
@@ -1549,11 +1549,17 @@ class XbrlCalculationForestFerc1(BaseModel):
         # The resulting graph should always be a collection of several trees, however
         # # it turns out that it's not, so we need to fix something.
         if not nx.is_forest(forest):
-            logger.error("Calculations in Exploded Metadata do not describe a forest!")
+            logger.error(
+                "Calculations in Exploded Metadata can not be represented as a forest!"
+            )
+        if not nx.is_directed_acyclic_graph(forest):
+            logger.critical(
+                "Calculations in Exploded Metadata contain cycles, which is invalid."
+            )
         return forest
 
     @property
-    def nx_forest(self: Self) -> nx.DiGraph:
+    def digraph(self: Self) -> nx.DiGraph:
         """Construct a minimal calculation forest that includes all of our seed nodes.
 
         - Identify the connected components within the calculation forest described by
@@ -1563,7 +1569,7 @@ class XbrlCalculationForestFerc1(BaseModel):
         - Regenerate a pruned forest with directed edges and full node attributes that
           only includes connected components that intersect with our seed nodes.
         """
-        full_forest: nx.DiGraph = self.exploded_meta_to_nx_forest(
+        full_forest: nx.DiGraph = self.exploded_meta_to_digraph(
             exploded_meta=self.exploded_meta,
             tags=self.tags,
         )
@@ -1573,7 +1579,7 @@ class XbrlCalculationForestFerc1(BaseModel):
         for tree in undirected_trees:
             if set(self.seeds).intersection(tree):
                 pruned_forest_nodes = pruned_forest_nodes.union(tree)
-        pruned_forest: nx.DiGraph = self.exploded_meta_to_nx_forest(
+        pruned_forest: nx.DiGraph = self.exploded_meta_to_digraph(
             exploded_meta=self.exploded_meta.loc[list(pruned_forest_nodes)],
             tags=self.tags,
         )
@@ -1600,10 +1606,10 @@ class XbrlCalculationForestFerc1(BaseModel):
         - The weight associated with the leaf, in relation to its root.
         """
         # Create a copy of the graph representation since we are going to mutate it.
-        nx_forest = self.nx_forest
+        forest = self.digraph
         pruned_forest = nx.DiGraph()
-        pruned_forest.add_nodes_from(nx_forest.nodes(data=True))
-        pruned_forest.add_edges_from(nx_forest.edges(data=True))
+        pruned_forest.add_nodes_from(forest.nodes(data=True))
+        pruned_forest.add_edges_from(forest.edges(data=True))
 
         # Construct a dataframe that links the leaf node IDs to their root nodes:
         leaves = [n for n, out_deg in pruned_forest.out_degree() if out_deg == 0]
@@ -1626,6 +1632,9 @@ class XbrlCalculationForestFerc1(BaseModel):
             leaf_tags = {}
             leaf_weight = pruned_forest.nodes[leaf].get("weight", 1.0)
             for node in nx.ancestors(pruned_forest, leaf):
+                # TODO: need to check that there are no conflicts between tags that are
+                # being propagated, e.g. if two different ancestors have been tagged
+                # rate_base: yes and rate_base: no.
                 leaf_tags |= pruned_forest.nodes[node]["tags"]
                 # Root nodes have no weight because they don't come from calculations
                 # We assign them a weight of 1.0
