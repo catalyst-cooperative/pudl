@@ -994,9 +994,8 @@ class MetadataExploder:
             )
             tbl_metas.append(tbl_meta)
         return (
-            pd.concat(tbl_metas)
-            .reset_index(drop=True)
-            .pipe(self.redefine_calculations_with_components_out_of_explosion)
+            pd.concat(tbl_metas).reset_index(drop=True)
+            # .pipe(self.redefine_calculations_with_components_out_of_explosion)
         )
 
     def redefine_calculations_with_components_out_of_explosion(
@@ -1121,8 +1120,8 @@ class Exploder:
             self.initial_explosion_concatenation(
                 tables_to_explode, clean_xbrl_metadata_json
             )
-            .pipe(self.generate_intertable_calculations)
-            .pipe(self.reconcile_intertable_calculations, calculation_tolerance)
+            # .pipe(self.generate_intertable_calculations)
+            # .pipe(self.reconcile_intertable_calculations, calculation_tolerance)
             # REMOVE THE DUPLICATION
             # .pipe(self.remove_factoids_from_mutliple_tables, tables_to_explode)
             # .pipe(self.remove_totals_from_other_dimensions)
