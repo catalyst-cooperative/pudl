@@ -185,12 +185,14 @@ Datasette:
 
 * Raw FERC Form 2:
 
+  * `FERC-2 SQLite derived from DBF (1996-2020) <https://s3.us-west-2.amazonaws.com/intake.catalyst.coop/dev/ferc2.sqlite>`__
   * `FERC-2 SQLite derived from XBRL (2021) <https://s3.us-west-2.amazonaws.com/intake.catalyst.coop/dev/ferc2_xbrl.sqlite>`__
   * `FERC-2 Datapackage (JSON) describing SQLite derived from XBRL <https://s3.us-west-2.amazonaws.com/intake.catalyst.coop/dev/ferc2_xbrl_datapackage.json>`__
   * `FERC-2 XBRL Taxonomy Metadata as JSON (2021) <https://s3.us-west-2.amazonaws.com/intake.catalyst.coop/dev/ferc2_xbrl_taxonomy_metadata.json>`__
 
 * Raw FERC Form 6:
 
+  * `FERC-6 SQLite derived from DBF (2000-2020) <https://s3.us-west-2.amazonaws.com/intake.catalyst.coop/dev/ferc6.sqlite>`__
   * `FERC-6 SQLite derived from XBRL (2021) <https://s3.us-west-2.amazonaws.com/intake.catalyst.coop/dev/ferc6_xbrl.sqlite>`__
   * `FERC-6 Datapackage (JSON) describing SQLite derived from XBRL <https://s3.us-west-2.amazonaws.com/intake.catalyst.coop/dev/ferc6_xbrl_datapackage.json>`__
   * `FERC-6 XBRL Taxonomy Metadata as JSON (2021) <https://s3.us-west-2.amazonaws.com/intake.catalyst.coop/dev/ferc6_xbrl_taxonomy_metadata.json>`__
@@ -250,9 +252,9 @@ Contact Us
   `Office Hours <https://calend.ly/catalyst-cooperative/pudl-office-hours>`__
 * Follow us on Twitter: `@CatalystCoop <https://twitter.com/CatalystCoop>`__
 * More info on our website: https://catalyst.coop
-* For private communication about the project or to hire us to provide customized data
+* To hire us to provide customized data
   extraction and analysis, you can email the maintainers:
-  `pudl@catalyst.coop <mailto:pudl@catalyst.coop>`__
+  `hello@catalyst.coop <mailto:hello@catalyst.coop>`__
 
 About Catalyst Cooperative
 --------------------------

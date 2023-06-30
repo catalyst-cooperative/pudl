@@ -3199,13 +3199,13 @@ TRANSFORM_PARAMS = {
                     "const_wrk_prgrs": "construction_work_in_progress_ending_balance",
                     "acqstn_adjstmnt": "utility_plant_acquisition_adjustment_ending_balance",
                     "tot_utlty_plant": "utility_plant_and_construction_work_in_progress_ending_balance",
-                    "accum_prvsn_dad": "accumulated_provision_for_depreciation_amortization_and_depletion_of_plant_utility_ending_balance",
+                    "accum_prvsn_dad": "accumulated_provision_for_depreciation_amortization_and_depletion_of_plant_utility_reported_ending_balance",
                     "net_utlty_plant": "utility_plant_net_ending_balance",
                     # detail of accum deprish
                     # in service
                     "in_srvce_depr": "depreciation_utility_plant_in_service_ending_balance",
-                    "amrtzd_dplt_nglr": "amortization_and_depletion_of_producing_natural_gas_land_and_land_rightsutility_plant_in_service_ending_balance",
-                    "amrtzd_ugrndstrg": "amortization_of_underground_storage_land_and_land_rightsutility_plant_in_service_ending_balance",
+                    "amrtzd_dplt_nglr": "amortization_and_depletion_of_producing_natural_gas_land_and_land_rights_utility_plant_in_service_ending_balance",
+                    "amrtzd_ugrndstrg": "amortization_of_underground_storage_land_and_land_rights_utility_plant_in_service_ending_balance",
                     "amrtz_utlty_plnt": "amortization_of_other_utility_plant_utility_plant_in_service_ending_balance",
                     "tot_in_service": "depreciation_amortization_and_depletion_utility_plant_in_service_ending_balance",
                     # leased to others
@@ -3219,7 +3219,7 @@ TRANSFORM_PARAMS = {
                     # rest of details of acum deprish
                     "abndn_leases": "abandonment_of_leases_ending_balance",
                     "amrtzplnt_acqstn": "amortization_of_plant_acquisition_adjustment_ending_balance",
-                    "tot_accum_prvsn": "accumulated_provision_for_depreciation_amortization_and_depletion_of_plant_utility_detail_ending_balance",
+                    "tot_accum_prvsn": "accumulated_provision_for_depreciation_amortization_and_depletion_of_plant_utility_ending_balance",
                 }
             },
             "xbrl": {
@@ -3246,7 +3246,6 @@ TRANSFORM_PARAMS = {
                         "depreciation_utility_plant_held_for_future_use",
                         "abandonment_of_leases",
                         "utility_plant_net",
-                        "amortization_and_depletion_of_producing_natural_gas_land_and_land_rightsutility_plant_in_service",
                         "amortization_utility_plant_held_for_future_use",
                         "amortization_and_depletion_utility_plant_leased_to_others",
                         "accumulated_provision_for_depreciation_amortization_and_depletion_of_plant_utility",
@@ -3255,12 +3254,16 @@ TRANSFORM_PARAMS = {
                         "utility_plant_leased_to_others",
                         "utility_plant_held_for_future_use",
                         "amortization_of_other_utility_plant_utility_plant_in_service",
-                        "amortization_of_underground_storage_land_and_land_rightsutility_plant_in_service",
+                        "amortization_of_underground_storage_land_and_land_rights_utility_plant_in_service",
                         "utility_plant_in_service_completed_construction_not_classified",
                         "utility_plant_in_service_plant_purchased_or_sold",
                         "construction_work_in_progress",
                         "utility_plant_in_service_experimental_plant_unclassified",
                     ]
+                }
+                | {
+                    "amortization_and_depletion_of_producing_natural_gas_land_and_land_rightsutility_plant_in_service": "amortization_and_depletion_of_producing_natural_gas_land_and_land_rights_utility_plant_in_service_ending_balance",
+                    "amortization_of_underground_storage_land_and_land_rightsutility_plant_in_service": "amortization_of_underground_storage_land_and_land_rights_utility_plant_in_service_ending_balance",
                 }
             },
         },
@@ -3689,6 +3692,10 @@ TRANSFORM_PARAMS = {
         "select_dbf_rows_by_category": {
             "column_name": "earnings_type",
             "select_by_xbrl_categories": True,
+            "additional_categories": [
+                "unappropriated_retained_earnings_previous_year",
+                "unappropriated_undistributed_subsidiary_earnings_previous_year",
+            ],
             "len_expected_categories_to_drop": 6,
         },
         "unstack_balances_to_report_year_instant_xbrl": {
@@ -3699,6 +3706,10 @@ TRANSFORM_PARAMS = {
             "on": "earnings_type",
         },
         "strip_non_numeric_values": {"amount": {"strip_non_numeric_values": True}},
+        "reconcile_table_calculations": {
+            "column_to_check": "ending_balance",
+            "calculation_tolerance": 0.08,
+        },
     },
     "income_statement_ferc1": {
         "rename_columns_ferc1": {
@@ -3876,22 +3887,22 @@ TRANSFORM_PARAMS = {
                     "row_seq": "row_seq",
                     "row_prvlg": "row_prvlg",
                     "report_prd": "report_prd",
-                    "total_cde": "total_utility_plant_value",
-                    "future_plant": "future_utility_plant_value",
-                    "leased_plant": "leased_utility_plant_value",
-                    "electric_plant": "in_service_utility_plant_value",
+                    "total_cde": "total_dollar_value",
+                    "future_plant": "future_dollar_value",
+                    "leased_plant": "leased_dollar_value",
+                    "electric_plant": "in_service_dollar_value",
                     "xbrl_factoid": "depreciation_type",
                 }
             },
             "instant_xbrl": {
                 "columns": {
-                    "accumulated_provision_for_depreciation_of_electric_utility_plant_ending_balance": "ending_balance_utility_plant_value",
-                    "accumulated_provision_for_depreciation_of_electric_utility_plant_starting_balance": "starting_balance_utility_plant_value",
+                    "accumulated_provision_for_depreciation_of_electric_utility_plant_ending_balance": "ending_balance_dollar_value",
+                    "accumulated_provision_for_depreciation_of_electric_utility_plant_starting_balance": "starting_balance_dollar_value",
                 }
             },
             "duration_xbrl": {
                 "columns": {
-                    xbrl_col: f"{xbrl_col}_utility_plant_value"
+                    xbrl_col: f"{xbrl_col}_dollar_value"
                     for xbrl_col in [
                         "book_cost_of_asset_retirement_costs",
                         "book_cost_of_retired_plant",
@@ -3931,7 +3942,7 @@ TRANSFORM_PARAMS = {
                     "depreciation_type",
                     "record_id",
                 ],
-                "value_types": ["utility_plant_value"],
+                "value_types": ["dollar_value"],
                 "expected_drop_cols": 2,
                 "stacked_column_name": "plant_status",
             },
@@ -3943,7 +3954,7 @@ TRANSFORM_PARAMS = {
                     "utility_type_axis",
                     "sched_table_name",
                 ],
-                "value_types": ["utility_plant_value"],
+                "value_types": ["dollar_value"],
                 "expected_drop_cols": 2,
                 "stacked_column_name": "depreciation_type",
             },
@@ -3959,6 +3970,13 @@ TRANSFORM_PARAMS = {
         },
         "unstack_balances_to_report_year_instant_xbrl": {
             "unstack_balances_to_report_year": True
+        },
+        "reconcile_table_calculations": {
+            "column_to_check": "dollar_value",
+            # Note: this table does not currently get exploded. It will require
+            # additional debugging at a later date.
+            "calculation_tolerance": 0.4,
+            "subtotal_column": "depreciation_type",
         },
     },
     "electric_plant_depreciation_functional_ferc1": {
@@ -4056,6 +4074,10 @@ TRANSFORM_PARAMS = {
         },
         "unstack_balances_to_report_year_instant_xbrl": {
             "unstack_balances_to_report_year": True
+        },
+        "reconcile_table_calculations": {
+            "column_to_check": "ending_balance",
+            "subtotal_column": "plant_status",
         },
     },
     "cash_flow_ferc1": {
