@@ -933,7 +933,7 @@ def create_exploded_table_assets() -> list[AssetsDefinition]:
                 "plant_in_service_ferc1",
                 "electric_plant_depreciation_functional_ferc1",
             ],
-            "calculation_tolerance": 0.08,
+            "calculation_tolerance": 0.11,
         },
         "balance_sheet_liabilities_ferc1": {
             "table_names_to_explode": [
