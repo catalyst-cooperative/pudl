@@ -1857,12 +1857,12 @@ class XbrlCalculationForestFerc1(BaseModel):
         )
         undirected_trees = list(nx.connected_components(full_forest.to_undirected()))
         logger.info(f"Full calculation forest contains {len(undirected_trees)} trees.")
-        pruned_forest_nodes = set()
-        for tree in undirected_trees:
-            if set(self.seeds).intersection(tree):
-                pruned_forest_nodes = pruned_forest_nodes.union(tree)
+        pruned_nodes = set()
+        for seed in self.seeds:
+            pruned_nodes = pruned_nodes.union([seed])
+            pruned_nodes = pruned_nodes.union(nx.descendants(full_forest, seed))
         pruned_forest: nx.DiGraph = self.exploded_meta_to_digraph(
-            exploded_meta=self.exploded_meta.loc[list(pruned_forest_nodes)],
+            exploded_meta=self.exploded_meta.loc[list(pruned_nodes)],
             tags=self.tags,
         )
         pruned_trees = list(nx.connected_components(pruned_forest.to_undirected()))
@@ -2011,6 +2011,7 @@ class XbrlCalculationForestFerc1(BaseModel):
         This method could either live here, or in the Exploder class, which would also
         have access to exploded_meta, exploded_data, and the calculation forest.
 
+        - Missing connection between UPS and PIS accounts 101_and_106
         - There are a handful of NA values for ``report_year`` and ``utility_id_ferc1``
           because of missing correction records in data.
         - Lingering ``(utility_plant_summary_ferc1,
