@@ -6,6 +6,8 @@ import networkx as nx
 import numpy as np
 import pandas as pd
 from dagster import AssetIn, AssetsDefinition, Field, Mapping, asset
+from matplotlib import pyplot as plt
+from networkx.drawing.nx_agraph import graphviz_layout
 from pydantic import BaseModel, validator
 
 import pudl
@@ -1372,7 +1374,7 @@ class Exploder:
 
                 calculated_df = pd.concat(
                     [calculated_df, corrections], axis="index"
-                ).reset_index()
+                ).reset_index(drop=True)
 
             # # If the calculation only has one component (and is therefore exactly equivalent to
             # # a factoid from another table), add the corrections from that table to this
@@ -1978,12 +1980,24 @@ class XbrlCalculationForestFerc1(BaseModel):
 
     def plot(self: Self) -> None:
         """Visualize the calculation forest and its attributes."""
-        ...
+        # Need to make this dynamic / not dependent on particular tables:
+        colors = {
+            "balance_sheet_assets_ferc1": "red",
+            "utility_plant_summary_ferc1": "green",
+            "plant_in_service_ferc1": "blue",
+        }
+        forest = self.digraph
+        node_color = [colors[node.source_table] for node in forest.nodes]
+        pos = graphviz_layout(forest, prog="dot", args='-Grankdir="LR"')
+        nx.draw_networkx_nodes(forest, pos, node_color=node_color)
+        nx.draw_networkx_edges(forest, pos)
+        # The labels are currently unwieldy
+        # nx.draw_networkx_labels(nx_forest, pos)
+        # Use this to draw everything if/once labels are fixed
+        # nx.draw_networkx(nx_forest, pos, node_color=node_color)
+        plt.show()
 
-    def prune_and_annotate_exploded_data(
-        self: Self,
-        exploded_data: pd.DataFrame,
-    ) -> pd.DataFrame:
+    def leafy_data(self: Self, exploded_data: pd.DataFrame) -> pd.DataFrame:
         """Use the calculation forest to prune the exploded dataframe.
 
         - Drop all rows that don't correspond to either root or leaf facts.
@@ -1997,5 +2011,29 @@ class XbrlCalculationForestFerc1(BaseModel):
         This method could either live here, or in the Exploder class, which would also
         have access to exploded_meta, exploded_data, and the calculation forest.
 
+        - There are a handful of NA values for ``report_year`` and ``utility_id_ferc1``
+          because of missing correction records in data.
+        - Lingering ``(utility_plant_summary_ferc1,
+          utility_plant_in_service_plant_purchased_or_sold_correction)`` in supposedly
+          leaf records.
+        - Why are ``xbrl_factoid`` and ``table_name`` showing up as tags?
+        - No consideration of additional dimensions / primary keys right now.
+        - Do we need to keep all the plant in service component columns (e.g. additions,
+          retirements) and if so, do they need to be adjusted using the weights too?
+        - Lots of cleanup to do as far as column naming, column collisions, which
+          columns get kept.
+        - Still need to validate the root node calculations.
+
         """
-        ...
+        leafy_data = pd.merge(
+            left=self.leafy_meta.reset_index(),
+            right=exploded_data,
+            left_on=["source_table", "xbrl_factoid"],
+            right_on=["table_name", "xbrl_factoid"],
+            how="left",
+            validate="one_to_many",
+        ).assign(
+            starting_balance=lambda x: x.starting_balance * x.weight,
+            ending_balance=lambda x: x.starting_balance * x.weight,
+        )
+        return leafy_data
