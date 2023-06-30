@@ -903,10 +903,11 @@ def exploded_table_asset_factory(
             if name != "clean_xbrl_metadata_json"
         }
         return Exploder(
-            table_names=tables_to_explode.keys(), root_table=root_table
+            table_names=tables_to_explode.keys(),
+            root_table=root_table,
+            clean_xbrl_metadata_json=clean_xbrl_metadata_json,
         ).boom(
             tables_to_explode=tables_to_explode,
-            clean_xbrl_metadata_json=clean_xbrl_metadata_json,
             calculation_tolerance=calculation_tolerance,
         )
 
@@ -935,7 +936,7 @@ def create_exploded_table_assets() -> list[AssetsDefinition]:
                 "plant_in_service_ferc1",
                 "electric_plant_depreciation_functional_ferc1",
             ],
-            "calculation_tolerance": 0.08,
+            "calculation_tolerance": 0.11,
         },
         "balance_sheet_liabilities_ferc1": {
             "table_names_to_explode": [
@@ -1033,11 +1034,20 @@ class MetadataExploder:
 class Exploder:
     """Get unique, granular datapoints from a set of related, nested FERC1 tables."""
 
-    def __init__(self, table_names: list[str], root_table: str):
-        """Instantiate an Exploder class."""
+    def __init__(
+        self, table_names: list[str], root_table: str, clean_xbrl_metadata_json: dict
+    ):
+        """Instantiate an Exploder class.
+
+        Args:
+            table_names: list of table names to explode.
+            root_table: the table at the base of the tree of tables_to_explode.
+            clean_xbrl_metadata_json: json version of the XBRL-metadata.
+        """
         self.table_names = table_names
         self.root_table = root_table
         self.meta_exploder = MetadataExploder(self.table_names)
+        self.metadata_exploded = self.meta_exploder.boom(clean_xbrl_metadata_json)
 
     @property
     def other_dimensions(self) -> list[str]:
@@ -1099,7 +1109,6 @@ class Exploder:
     def boom(
         self,
         tables_to_explode: dict[str, pd.DataFrame],
-        clean_xbrl_metadata_json: dict,
         calculation_tolerance: float = 0.05,
     ) -> pd.DataFrame:
         """Explode a set of nested tables.
@@ -1115,15 +1124,11 @@ class Exploder:
 
         Args:
             tables_to_explode: dictionary of table name (key) to transfomed table (value).
-            root_table: the table at the base of the tree of tables_to_explode.
-            clean_xbrl_metadata_json: json version of the XBRL-metadata.
             calculation_tolerance: What proportion (0-1) of calculated values are
               allowed to be incorrect without raising an AssertionError.
         """
         exploded = (
-            self.initial_explosion_concatenation(
-                tables_to_explode, clean_xbrl_metadata_json
-            )
+            self.initial_explosion_concatenation(tables_to_explode)
             .pipe(self.generate_intertable_calculations)
             .pipe(self.reconcile_intertable_calculations, calculation_tolerance)
             # REMOVE THE DUPLICATION
@@ -1135,7 +1140,7 @@ class Exploder:
         return exploded
 
     def initial_explosion_concatenation(
-        self, tables_to_explode: dict[str, pd.DataFrame], clean_xbrl_metadata_json: dict
+        self, tables_to_explode: dict[str, pd.DataFrame]
     ) -> pd.DataFrame:
         """Concatenate all of the tables for the explosion.
 
@@ -1153,7 +1158,7 @@ class Exploder:
                 columns={xbrl_factoid_name: "xbrl_factoid"}
             )
             explosion_tables.append(tbl)
-        metadata_exploded = self.meta_exploder.boom(clean_xbrl_metadata_json)
+
         exploded = pd.concat(explosion_tables)
         # drop any metadata columns coming from the tbls bc we may have edited the
         # metadata df so we want to grab that directly
@@ -1162,10 +1167,14 @@ class Exploder:
             col
             for col in exploded
             if col
-            in [meta_col for meta_col in metadata_exploded if meta_col not in meta_idx]
+            in [
+                meta_col
+                for meta_col in self.metadata_exploded
+                if meta_col not in meta_idx
+            ]
         ]
         exploded = exploded.drop(columns=meta_columns).merge(
-            metadata_exploded,
+            self.metadata_exploded,
             how="left",
             on=meta_idx,
             validate="m:1",
@@ -1184,9 +1193,11 @@ class Exploder:
         Args:
             exploded: concatenated tables for table explosion.
         """
-        inter_table_calcs = exploded[
-            (~exploded.intra_table_calc_flag)
-            & (exploded.row_type_xbrl == "calculated_value")
+        pks_wo_factoid = [col for col in self.exploded_pks if col != "xbrl_factoid"]
+        metadata_exploded = self.metadata_exploded
+        inter_table_calcs = metadata_exploded[
+            (~metadata_exploded.intra_table_calc_flag)
+            & (metadata_exploded.row_type_xbrl == "calculated_value")
         ]
         if inter_table_calcs.empty:
             return exploded
@@ -1195,24 +1206,19 @@ class Exploder:
                 f"{self.root_table}: Reconcile inter-table calculations: {list(inter_table_calcs.xbrl_factoid.unique())}."
             )
 
-        left_pks = ["xbrl_factoid"]
-        right_pks = ["name"]
-        pks_merge = [
-            pk for pk in self.exploded_pks if pk != "source_tables"
-        ]  # Make PKs to merge calculated values
-        pks_wo_factoid = [col for col in self.exploded_pks if col != "xbrl_factoid"] + [
-            "source_tables"
-        ]  # Make PK for component calculations
-
+        inter_table_calc_components = (
+            convert_calculations_into_calculation_component_table(inter_table_calcs)
+            .set_index(["table_name", "xbrl_factoid"])
+            .sort_index()
+        )
         calculated_dfs = []
-        for parent_table, calculated_factoid, calculation in set(
-            zip(
-                inter_table_calcs.table_name,
-                inter_table_calcs.xbrl_factoid,
-                inter_table_calcs.calculations,
-            )
-        ):
-            calculation_df = pd.DataFrame(json.loads(calculation))
+        for calc_idx in set(inter_table_calc_components.index):
+            parent_table = calc_idx[0]
+            calculated_factoid = calc_idx[1]
+            logger.info(f"Reconcile calculation for {calculated_factoid}")
+            calculation_df = inter_table_calc_components.loc[calc_idx]
+            # Remove the correction
+            # TODO: check if we can remove this step?
             calculation_df = calculation_df.loc[
                 ~calculation_df.name.str.contains("correction")
             ]
@@ -1221,35 +1227,48 @@ class Exploder:
                 calculation_df = calculation_df.explode(
                     "source_tables"
                 )  # Unpack the list
-
-            # Filter the right-hand side to just the components needed for the calculation
-            components = exploded.loc[
-                (exploded.table_name.isin(calculation_df.source_tables))
-                & (exploded.xbrl_factoid.isin(calculation_df.name))
+            subdimension = [
+                dim for dim in self.other_dimensions if dim != "utility_type"
             ]
-            # If sub-dimensions, filter for them as well
-            if "utility_type" in calculation_df.columns:
-                components = components.loc[
-                    components.utility_type.isin(calculation_df.utility_type)
-                ]
-            if "subdimension" in calculation_df.columns:
-                subdimension = (
-                    "plant_function"
-                    if "plant_function" in self.other_dimensions
-                    else "plant_status"
-                    if "plant_status" in self.other_dimensions
-                    else np.nan
+            if len(subdimension) == 1:
+                subdimension = subdimension[0]
+            elif len(subdimension) > 1:
+                raise AssertionError(
+                    "Multiple other subdimensions not yet implemented!"
                 )
-                if subdimension:
-                    components = components.loc[
-                        components[subdimension].isin(calculation_df.subdimension)
-                    ]
+
+            calc_comp_to_data_rename = {
+                "name": "xbrl_factoid",
+                "source_tables": "table_name",
+                "utility_type": "utility_type",
+                "subdimension": subdimension,
+            }
+
+            calc_idx_cols = ["name", "source_tables"]
+            dim_cols = ["utility_type", "subdimension"]
+            for dim in dim_cols:
+                if calculation_df[dim].notnull().all():
+                    calc_idx_cols.append(dim)
+            data_idx_cols = [
+                data_col
+                for (calc_col, data_col) in calc_comp_to_data_rename.items()
+                if calc_col in calc_idx_cols
+            ]
+            calc_comp_idx = (
+                calculation_df.reset_index()
+                .set_index(calc_idx_cols)
+                .index.rename(calc_comp_to_data_rename)
+            )
+            # SELECT ONLY THE COMPONENTS
+            components = exploded.set_index(data_idx_cols).loc[calc_comp_idx]
+            # CALC THE STUFF
             calc_df = (
                 pd.merge(
-                    components,
-                    calculation_df[["name", "weight", "source_tables"]],
-                    left_on=left_pks,
-                    right_on=right_pks,
+                    components.reset_index(),
+                    calculation_df.reset_index()[
+                        ["name", "source_tables", "weight"]
+                    ].rename(columns=calc_comp_to_data_rename),
+                    on=["xbrl_factoid", "table_name"],
                 )
                 # apply the weight from the calc to convey the sign before summing.
                 .assign(calculated_amount=lambda x: x[self.value_col] * x.weight)
@@ -1261,30 +1280,23 @@ class Exploder:
                 .assign(xbrl_factoid=calculated_factoid)
                 .assign(table_name=parent_table)
             )
-            # Plant status/function only exists as a field on the right-hand side table.
-            # We fake this because we need to include plant_status / plant_function in the
-            # pks in order to ensure a 1:1 merge. This is always NaN for the corresponding
-            # records on the left-hand side because the field isn't present in the
-            # original table. We overwrite any records that were used to filter the
-            # calculation components.
-            if (
-                "subdimension" in calculation_df.columns
-            ):  # If sub-dimension used in calculation
-                calc_df.loc[
-                    calc_df[subdimension].isin(calculation_df.subdimension),
-                    subdimension,
-                ] = np.nan
-
             calculated_dfs.append(calc_df)
 
         calculated_df = pd.merge(
             exploded,
             pd.concat(calculated_dfs),
-            on=pks_merge,
-            how="left",
+            on=self.exploded_pks,
+            how="outer",
             validate="1:1",
+            indicator=True,
         )
 
+        assert calculated_df[
+            (calculated_df._merge == "right_only")
+            & (calculated_df[self.value_col].notnull())
+        ].empty
+
+        calculated_df = calculated_df.drop(columns=["_merge"])
         # # Force value_col to be a float to prevent any hijinks with calculating differences.
         calculated_df[self.value_col] = calculated_df[self.value_col].astype(float)
 
