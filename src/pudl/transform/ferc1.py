@@ -2595,6 +2595,82 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
                     },
                 ],
             },
+            "plant_in_service_ferc1": {
+                "electric_plant_in_service_and_completed_construction_not_classified_electric": [
+                    {
+                        "calc_component_to_replace": {},
+                        "calc_component_new": {
+                            "name": "general_plant",
+                            "weight": 1.0,
+                            "source_tables": ["plant_in_service_ferc1"],
+                        },
+                    },
+                    {
+                        "calc_component_to_replace": {},
+                        "calc_component_new": {
+                            "name": "transmission_and_market_operation_plant_regional_transmission_and_market_operation_plant",
+                            "weight": 1.0,
+                            "source_tables": ["plant_in_service_ferc1"],
+                        },
+                    },
+                    {
+                        "calc_component_to_replace": {},
+                        "calc_component_new": {
+                            "name": "distribution_plant",
+                            "weight": 1.0,
+                            "source_tables": ["plant_in_service_ferc1"],
+                        },
+                    },
+                    {
+                        "calc_component_to_replace": {},
+                        "calc_component_new": {
+                            "name": "transmission_plant",
+                            "weight": 1.0,
+                            "source_tables": ["plant_in_service_ferc1"],
+                        },
+                    },
+                    {
+                        "calc_component_to_replace": {},
+                        "calc_component_new": {
+                            "name": "production_plant",
+                            "weight": 1.0,
+                            "source_tables": ["plant_in_service_ferc1"],
+                        },
+                    },
+                    {
+                        "calc_component_to_replace": {},
+                        "calc_component_new": {
+                            "name": "hydraulic_production_plant",
+                            "weight": 1.0,
+                            "source_tables": ["plant_in_service_ferc1"],
+                        },
+                    },
+                    {
+                        "calc_component_to_replace": {},
+                        "calc_component_new": {
+                            "name": "nuclear_production_plant",
+                            "weight": 1.0,
+                            "source_tables": ["plant_in_service_ferc1"],
+                        },
+                    },
+                    {
+                        "calc_component_to_replace": {},
+                        "calc_component_new": {
+                            "name": "steam_production_plant",
+                            "weight": 1.0,
+                            "source_tables": ["plant_in_service_ferc1"],
+                        },
+                    },
+                    {
+                        "calc_component_to_replace": {},
+                        "calc_component_new": {
+                            "name": "intangible_plant",
+                            "weight": 1.0,
+                            "source_tables": ["plant_in_service_ferc1"],
+                        },
+                    },
+                ],
+            },
         }
 
         def remove_nones_in_list(list_of_things):

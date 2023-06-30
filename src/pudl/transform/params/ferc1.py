@@ -2723,7 +2723,11 @@ TRANSFORM_PARAMS = {
             "on": "ferc_account_label",
         },
         "align_row_numbers_dbf": {"dbf_table_names": ["f1_plant_in_srvce"]},
-        "reconcile_table_calculations": {"column_to_check": "ending_balance"},
+        # Known issue with reporting of construction in progress not classified in classified fields of table.
+        "reconcile_table_calculations": {
+            "column_to_check": "ending_balance",
+            "calculation_tolerance": 0.08,
+        },
     },
     "plants_pumped_storage_ferc1": {
         "rename_columns_ferc1": {
