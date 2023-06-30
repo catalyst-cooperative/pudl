@@ -362,9 +362,6 @@ def augement_crosswalk_with_generators_eia860(
         on=["plant_id_eia", "generator_id"],
         validate="m:1",
     )
-    crosswalk_clean["plant_id_epa"] = crosswalk_clean["plant_id_epa"].fillna(
-        crosswalk_clean["plant_id_eia"]
-    )
     return crosswalk_clean
 
 
@@ -372,16 +369,16 @@ def augement_crosswalk_with_epacamd_ids(
     crosswalk_clean: pd.DataFrame, emissions_unit_ids_epacems: pd.DataFrame
 ) -> pd.DataFrame:
     """Merge all EPA CAMD IDs into the crosswalk."""
-    return crosswalk_clean.assign(
-        emissions_unit_id_epa=lambda x: x.emissions_unit_id_epa.fillna(x.generator_id)
-    ).merge(
+    return crosswalk_clean.merge(
         emissions_unit_ids_epacems[
             ["plant_id_eia", "emissions_unit_id_epa"]
         ].drop_duplicates(),
         how="outer",
         on=["plant_id_eia", "emissions_unit_id_epa"],
         validate="m:m",
-    )
+        # create a new column so that we don't conflate generator_id and
+        # emissions_unit_id_epa later.
+    ).assign(network_x_key=lambda x: x.emissions_unit_id_epa.fillna(x.generator_id))
 
 
 def augement_crosswalk_with_bga_eia860(
@@ -390,11 +387,16 @@ def augement_crosswalk_with_bga_eia860(
     """Merge all EIA Unit IDs into the crosswalk."""
     return crosswalk_clean.merge(
         boiler_generator_assn_eia860[
-            ["plant_id_eia", "generator_id", "unit_id_pudl"]
+            [
+                "plant_id_eia",
+                "generator_id",
+                "unit_id_pudl",
+                "boiler_id",
+            ]
         ].drop_duplicates(),
         how="outer",
-        on=["plant_id_eia", "generator_id"],
-        validate="m:1",
+        on=["plant_id_eia", "generator_id", "boiler_id"],
+        validate="m:m",
     )
 
 
@@ -416,7 +418,7 @@ def _prep_for_networkx(crosswalk: pd.DataFrame) -> pd.DataFrame:
     prepped = crosswalk.copy()
     # networkx can't handle composite keys, so make surrogates
     prepped["combustor_id"] = prepped.groupby(
-        by=["plant_id_eia", "emissions_unit_id_epa"]
+        by=["plant_id_eia", "network_x_key"]
     ).ngroup()
     # node IDs can't overlap so add (max + 1)
     prepped["generator_id_unique"] = (
