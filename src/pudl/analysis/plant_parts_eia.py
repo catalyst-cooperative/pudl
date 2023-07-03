@@ -16,8 +16,8 @@ plant-part table is an attempt to create records corresponding to many
 different plant-parts in order to connect specific slices of EIA plants to
 other datasets.
 
-Because generators are often owned by multiple utilities, another dimention of
-the master unit list involves generating two records for each owner: one of the
+Because generators are often owned by multiple utilities, another dimension of
+the plant-part table involves generating two records for each owner: one for the
 portion of the plant part they own and one for the plant part as a whole. The
 portion records are labeled in the ``ownership_record_type`` column as "owned"
 and the total records are labeled as "total".
@@ -89,9 +89,9 @@ In this case the unit is more relevant:
 0              1    plant_unit               1            200
 
 But if this same plant had both this combined-cycle unit and two more
-generators that were self contained "GT" or gas combustion turbine, a frequent
-way to group these generators is differnt for the combined-cycle unit and the
-gas-turbine.
+generators that were self contained "GT" or gas combustion turbine, a logical
+way to group these generators is to have different recprds for the
+combined-cycle unit and the gas-turbine.
 
 >>> df_gens = pd.DataFrame({
 ...     'plant_id_eia': [1, 1, 1, 1, 1],
@@ -120,12 +120,12 @@ gas-turbine.
 0              1           plant_unit               1                <NA>            200
 1              1    plant_prime_mover            <NA>                  GT            150
 
-In this case last, the ``plant_unit`` record would have a null
-``plant_prime_mover`` because the unit contains more than one
+In this case, the ``plant_unit`` record would have a null
+``prime_mover_code`` because the unit contains more than one
 ``prime_mover_code``. Same goes for the ``unit_id_pudl`` of the
-``plant_prime_mover``. This is handled in the :class:``AddConsistentAttributes``.
+``plant_prime_mover`` record. This is handled in the :class:``AddConsistentAttributes``.
 
-**Overview of flow for generating the master unit list:**
+**Overview of flow for generating the plant-part table:**
 
 The two main classes which enable the generation of the plant-part table are:
 
