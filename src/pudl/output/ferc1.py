@@ -1842,7 +1842,7 @@ class XbrlCalculationForestFerc1(BaseModel):
         connected_components = list(
             nx.connected_components(full_digraph.to_undirected())
         )
-        logger.info(
+        logger.debug(
             f"Full digraph contains {len(connected_components)} connected components."
         )
         if not nx.is_directed_acyclic_graph(full_digraph):
@@ -1865,7 +1865,7 @@ class XbrlCalculationForestFerc1(BaseModel):
         connected_components = list(
             nx.connected_components(seeded_digraph.to_undirected())
         )
-        logger.info(
+        logger.debug(
             f"Seeded digraph contains {len(connected_components)} connected components."
         )
         return seeded_digraph
@@ -1885,7 +1885,7 @@ class XbrlCalculationForestFerc1(BaseModel):
                 "Calculations in Exploded Metadata can not be represented as a forest!"
             )
         connected_components = list(nx.connected_components(forest.to_undirected()))
-        logger.info(
+        logger.debug(
             f"Calculation forest contains {len(connected_components)} connected components."
         )
         return forest
@@ -1942,6 +1942,21 @@ class XbrlCalculationForestFerc1(BaseModel):
         all_nodes = self.full_digraph.nodes
         forest_nodes = self.forest.nodes
         return [n for n in all_nodes if n not in forest_nodes]
+
+    @property
+    def stepchildren(self: Self) -> list[NodeId]:
+        """All nodes that have more than one parent."""
+        return [n for n, d in self.seeded_digraph.in_degree() if d > 1]
+
+    @property
+    def stepparents(self: Self) -> list[NodeId]:
+        """All nodes with children that have more than one parent."""
+        stepchildren = self.stepchildren
+        stepparents = set()
+        graph = self.seeded_digraph
+        for stepchild in stepchildren:
+            stepparents = stepparents.union(graph.predecessors(stepchild))
+        return list(stepparents)
 
     @property
     def leafy_meta(self: Self) -> pd.DataFrame:
