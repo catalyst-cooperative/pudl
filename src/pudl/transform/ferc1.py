@@ -2133,7 +2133,7 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
                         "calc_component_to_replace": {
                             "name": "nuclear_fuel_materials_and_assemblies",
                             "weight": 1.0,
-                            "source_tables": ["balance_sheet_assets_ferc1"],
+                            "source_tables": [],
                         },
                         "calc_component_new": {},
                     },
@@ -2141,7 +2141,7 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
                         "calc_component_to_replace": {
                             "name": "spent_nuclear_fuel",
                             "weight": 1.0,
-                            "source_tables": ["balance_sheet_assets_ferc1"],
+                            "source_tables": [],
                         },
                         "calc_component_new": {},
                     },
