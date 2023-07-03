@@ -2222,6 +2222,17 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
                         "calc_component_new": {},
                     },
                 ],
+                "construction_work_in_progress": [
+                    {
+                        "calc_component_to_replace": {},
+                        "calc_component_new": {
+                            # Pass through connection of these two fields
+                            "name": "construction_work_in_progress",
+                            "weight": 1.0,
+                            "source_tables": ["utility_plant_summary_ferc1"],
+                        },
+                    }
+                ],
                 # Make duplicated factoids equivalent, instead of calculating twice.
                 "accumulated_provision_for_depreciation_amortization_and_depletion_of_plant_utility": [
                     {
