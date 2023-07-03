@@ -1826,48 +1826,122 @@ class XbrlCalculationForestFerc1(BaseModel):
         # the DBF data.
         bad_nodes = [
             NodeId("balance_sheet_assets_ferc1", "special_funds_all"),
+            NodeId("balance_sheet_assets_ferc1", "nuclear_fuel"),
         ]
         forest.remove_nodes_from(bad_nodes)
-        # The resulting graph should always be a collection of several trees, however
-        # # it turns out that it's not, so we need to fix something.
+
+        return forest
+
+    @property
+    def full_digraph(self: Self) -> nx.DiGraph:
+        """A digraph of all calculations described by the exploded metadata."""
+        full_digraph = self.exploded_meta_to_digraph(
+            exploded_meta=self.exploded_meta,
+            tags=self.tags,
+        )
+        connected_components = list(
+            nx.connected_components(full_digraph.to_undirected())
+        )
+        logger.info(
+            f"Full digraph contains {len(connected_components)} connected components."
+        )
+        if not nx.is_directed_acyclic_graph(full_digraph):
+            logger.critical(
+                "Calculations in Exploded Metadata contain cycles, which is invalid."
+            )
+        return full_digraph
+
+    @property
+    def seeded_digraph(self: Self) -> nx.DiGraph:
+        """A digraph of all calculations that contribute to the seed values."""
+        seeded_nodes = set()
+        for seed in self.seeds:
+            seeded_nodes = seeded_nodes.union([seed])
+            seeded_nodes = seeded_nodes.union(nx.descendants(self.full_digraph, seed))
+        seeded_digraph: nx.DiGraph = self.exploded_meta_to_digraph(
+            exploded_meta=self.exploded_meta.loc[list(seeded_nodes)],
+            tags=self.tags,
+        )
+        connected_components = list(
+            nx.connected_components(seeded_digraph.to_undirected())
+        )
+        logger.info(
+            f"Seeded digraph contains {len(connected_components)} connected components."
+        )
+        return seeded_digraph
+
+    @property
+    def forest(self: Self) -> nx.DiGraph:
+        """A pruned version of the seeded digraph that should be one or more trees.
+
+        Currently this just retuns the seeded digraph. Any programmatic pruning or
+        specific changes to the digraph that are required to make it into a tree will
+        be done here.
+        """
+        forest = self.seeded_digraph
+        # TODO: Insert graph pruning logic here.
         if not nx.is_forest(forest):
             logger.error(
                 "Calculations in Exploded Metadata can not be represented as a forest!"
             )
-        if not nx.is_directed_acyclic_graph(forest):
-            logger.critical(
-                "Calculations in Exploded Metadata contain cycles, which is invalid."
-            )
+        connected_components = list(nx.connected_components(forest.to_undirected()))
+        logger.info(
+            f"Calculation forest contains {len(connected_components)} connected components."
+        )
         return forest
 
-    @property
-    def digraph(self: Self) -> nx.DiGraph:
-        """Construct a minimal calculation forest that includes all of our seed nodes.
+    @staticmethod
+    def roots(graph: nx.DiGraph) -> list[NodeId]:
+        """Identify all root nodes in a digraph."""
+        return [n for n, d in graph.in_degree() if d == 0]
 
-        - Identify the connected components within the calculation forest described by
-          the full exploded_meta dataframe.
-        - Remove nodes from any connected component that doesn't intersect with our
-          seed nodes.
-        - Regenerate a pruned forest with directed edges and full node attributes that
-          only includes connected components that intersect with our seed nodes.
-        """
-        full_forest: nx.DiGraph = self.exploded_meta_to_digraph(
-            exploded_meta=self.exploded_meta,
-            tags=self.tags,
-        )
-        undirected_trees = list(nx.connected_components(full_forest.to_undirected()))
-        logger.info(f"Full calculation forest contains {len(undirected_trees)} trees.")
-        pruned_nodes = set()
-        for seed in self.seeds:
-            pruned_nodes = pruned_nodes.union([seed])
-            pruned_nodes = pruned_nodes.union(nx.descendants(full_forest, seed))
-        pruned_forest: nx.DiGraph = self.exploded_meta_to_digraph(
-            exploded_meta=self.exploded_meta.loc[list(pruned_nodes)],
-            tags=self.tags,
-        )
-        pruned_trees = list(nx.connected_components(pruned_forest.to_undirected()))
-        logger.info(f"Pruned calculation forest contains {len(pruned_trees)} trees.")
-        return pruned_forest
+    @property
+    def full_digraph_roots(self: Self) -> list[NodeId]:
+        """Find all roots in the full digraph described by the exploded metadata."""
+        return self.roots(graph=self.full_digraph)
+
+    @property
+    def seeded_digraph_roots(self: Self) -> list[NodeId]:
+        """Find all roots in the seeded digraph."""
+        return self.roots(graph=self.seeded_digraph)
+
+    @property
+    def forest_roots(self: Self) -> list[NodeId]:
+        """Find all roots in the pruned calculation forest."""
+        return self.roots(graph=self.forest)
+
+    @staticmethod
+    def leaves(graph: nx.DiGraph) -> list[NodeId]:
+        """Identify all leaf nodes in a digraph."""
+        return [n for n, d in graph.out_degree() if d == 0]
+
+    @property
+    def full_digraph_leaves(self: Self) -> list[NodeId]:
+        """All leaf nodes in the full digraph."""
+        return self.leaves(graph=self.full_digraph)
+
+    @property
+    def seeded_digraph_leaves(self: Self) -> list[NodeId]:
+        """All leaf nodes in the seeded digraph."""
+        return self.leaves(graph=self.seeded_digraph)
+
+    @property
+    def forest_leaves(self: Self) -> list[NodeId]:
+        """All leaf nodes in the pruned forest."""
+        return self.leaves(graph=self.forest)
+
+    @property
+    def orphans(self: Self) -> list[NodeId]:
+        """Identify all nodes that appear in metadata but not in the full digraph."""
+        nodes = self.full_digraph.nodes
+        return [n for n in self.exploded_meta.index if n not in nodes]
+
+    @property
+    def pruned(self: Self) -> list[NodeId]:
+        """List of all nodes that appear in the DAG but not in the pruned forest."""
+        all_nodes = self.full_digraph.nodes
+        forest_nodes = self.forest.nodes
+        return [n for n in all_nodes if n not in forest_nodes]
 
     @property
     def leafy_meta(self: Self) -> pd.DataFrame:
@@ -1879,7 +1953,7 @@ class XbrlCalculationForestFerc1(BaseModel):
         - Set leaf node tags to be the union of all the tags associated
           with all of their ancestors.
 
-        Leaf metadata in the output dataframe includes:
+        Leafy metadata in the output dataframe includes:
 
         - The ID of the leaf node itself (this is the index).
         - The ID of the root node the leaf is descended from.
@@ -1888,14 +1962,14 @@ class XbrlCalculationForestFerc1(BaseModel):
         - The weight associated with the leaf, in relation to its root.
         """
         # Create a copy of the graph representation since we are going to mutate it.
-        forest = self.digraph
+        forest = self.forest
+        leaves = self.forest_leaves
+        roots = self.forest_roots
         pruned_forest = nx.DiGraph()
         pruned_forest.add_nodes_from(forest.nodes(data=True))
         pruned_forest.add_edges_from(forest.edges(data=True))
 
         # Construct a dataframe that links the leaf node IDs to their root nodes:
-        leaves = [n for n, out_deg in pruned_forest.out_degree() if out_deg == 0]
-        roots = [n for n, in_deg in pruned_forest.in_degree() if in_deg == 0]
         leaf_to_root_map = {
             leaf: root
             for leaf in leaves
@@ -1978,24 +2052,38 @@ class XbrlCalculationForestFerc1(BaseModel):
         root_calcs.columns = ["root_table", "root_xbrl_factoid", "calculations"]
         return root_calcs
 
-    def plot(self: Self) -> None:
+    @staticmethod
+    def plot(graph: nx.DiGraph) -> None:
         """Visualize the calculation forest and its attributes."""
         # Need to make this dynamic / not dependent on particular tables:
         colors = {
             "balance_sheet_assets_ferc1": "red",
-            "utility_plant_summary_ferc1": "green",
-            "plant_in_service_ferc1": "blue",
+            "utility_plant_summary_ferc1": "orange",
+            "plant_in_service_ferc1": "yellow",
+            "electric_plant_depreciation_functional_ferc1": "green",
         }
-        forest = self.digraph
-        node_color = [colors[node.source_table] for node in forest.nodes]
-        pos = graphviz_layout(forest, prog="dot", args='-Grankdir="LR"')
-        nx.draw_networkx_nodes(forest, pos, node_color=node_color)
-        nx.draw_networkx_edges(forest, pos)
+        node_color = [colors[node.source_table] for node in graph.nodes]
+
+        pos = graphviz_layout(graph, prog="dot", args='-Grankdir="LR"')
+        nx.draw_networkx_nodes(graph, pos, node_color=node_color)
+        nx.draw_networkx_edges(graph, pos)
         # The labels are currently unwieldy
         # nx.draw_networkx_labels(nx_forest, pos)
         # Use this to draw everything if/once labels are fixed
         # nx.draw_networkx(nx_forest, pos, node_color=node_color)
         plt.show()
+
+    def plot_full_digraph(self: Self) -> None:
+        """Visualize the unpruned DAG."""
+        self.plot(self.full_digraph)
+
+    def plot_seeded_digraph(self: Self) -> None:
+        """Visualize the pruned forest."""
+        self.plot(self.seeded_digraph)
+
+    def plot_forest(self: Self) -> None:
+        """Visualize the pruned forest."""
+        self.plot(self.forest)
 
     def leafy_data(self: Self, exploded_data: pd.DataFrame) -> pd.DataFrame:
         """Use the calculation forest to prune the exploded dataframe.
