@@ -2651,30 +2651,6 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
                     {
                         "calc_component_to_replace": {},
                         "calc_component_new": {
-                            "name": "hydraulic_production_plant",
-                            "weight": 1.0,
-                            "source_tables": ["plant_in_service_ferc1"],
-                        },
-                    },
-                    {
-                        "calc_component_to_replace": {},
-                        "calc_component_new": {
-                            "name": "nuclear_production_plant",
-                            "weight": 1.0,
-                            "source_tables": ["plant_in_service_ferc1"],
-                        },
-                    },
-                    {
-                        "calc_component_to_replace": {},
-                        "calc_component_new": {
-                            "name": "steam_production_plant",
-                            "weight": 1.0,
-                            "source_tables": ["plant_in_service_ferc1"],
-                        },
-                    },
-                    {
-                        "calc_component_to_replace": {},
-                        "calc_component_new": {
                             "name": "intangible_plant",
                             "weight": 1.0,
                             "source_tables": ["plant_in_service_ferc1"],
