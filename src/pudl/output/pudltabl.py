@@ -218,6 +218,9 @@ class PudlTabl:
             "compiled_geometry_utility_eia861": "compiled_geometry_utility_eia861",
             # state demand
             "predicted_state_hourly_demand": "predicted_state_hourly_demand",
+            # plant parts
+            # "mega_generators_eia": "gens_mega_eia",
+            # "plant_parts_eia": "plant_parts_eia",
         }
 
         table_method_map_any_agg = {

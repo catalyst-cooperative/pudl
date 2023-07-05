@@ -185,6 +185,7 @@ from typing import Literal
 
 import numpy as np
 import pandas as pd
+from dagster import AssetIn, AssetsDefinition, asset
 
 import pudl
 from pudl.metadata.classes import Resource
@@ -361,6 +362,56 @@ PPE_COLS = [
     "ownership_dupe",
     "operational_status",
     "operational_status_pudl",
+]
+
+
+def plant_parts_eia_asset_factory(
+    io_manager_key: str | None = None,
+) -> list[AssetsDefinition]:
+    """Build EIA plant parts table related assets."""
+
+    @asset(
+        name="mega_generators_eia",
+        ins={
+            "mcoe": AssetIn(key="mcoe_generators_yearly"),
+            "own_eia860": AssetIn(key="denorm_ownership_eia860"),
+        },
+        compute_kind="Python",
+    )
+    def mega_gens_asset(mcoe: pd.DataFrame, own_eia860: pd.DataFrame) -> pd.DataFrame:
+        return MakeMegaGenTbl().execute(
+            mcoe=mcoe,
+            own_eia860=own_eia860,
+        )
+
+    @asset(
+        name="plant_parts_eia",
+        ins={
+            "mega_generators_eia": AssetIn(key="mega_generators_eia"),
+            "denorm_plants_eia": AssetIn(key="denorm_plants_eia"),
+            "denorm_utilities_eia": AssetIn(key="denorm_utilities_eia"),
+        },
+        compute_kind="Python",
+    )
+    def plant_parts_eia_asset(
+        mega_generators_eia: pd.DataFrame,
+        denorm_plants_eia: pd.DataFrame,
+        denorm_utilities_eia: pd.DataFrame,
+    ) -> pd.DataFrame:
+        return MakePlantParts().execute(
+            gens_mega=mega_generators_eia,
+            plants_eia860=denorm_plants_eia,
+            utils_eia860=denorm_utilities_eia,
+        )
+
+    return [mega_gens_asset, plant_parts_eia_asset]
+
+
+plant_parts_eia_assets = [
+    ppe_asset
+    for ppe_asset in plant_parts_eia_asset_factory(
+        io_manager_key="pudl_sqlite_io_manager"
+    )
 ]
 
 
@@ -648,31 +699,34 @@ class MakePlantParts:
     The coordinating function here is :meth:`execute`.
     """
 
-    def __init__(self, pudl_out):
+    def __init__(self, pudl_out=None):
         """Initialize instance of :class:`MakePlantParts`.
 
         Args:
             pudl_out (pudl.output.pudltabl.PudlTabl): An object used to create
                 the tables for EIA and FERC Form 1 analysis.
         """
+        # TODO: delete pudl_out param
         self.pudl_out = pudl_out
-        self.freq = pudl_out.freq
+        # self.freq = pudl_out.freq
         self.parts_to_ids = make_parts_to_ids_dict()
 
         # get a list of all of the id columns that constitue the primary keys
         # for all of the plant parts
         self.id_cols_list = make_id_cols_list()
 
-    def execute(self, gens_mega):
+    def execute(self, gens_mega, plants_eia860, utils_eia860):
         """Aggregate and slice data points by each plant part.
 
         Returns:
             pandas.DataFrame: The complete plant parts list
         """
         # aggregate everything by each plant part
+        """
         df_keys = list(self.pudl_out._dfs.keys())
         for k in df_keys:
             del self.pudl_out._dfs[k]
+        """
         part_dfs = []
         for part_name in PLANT_PARTS:
             if part_name == "plant_match_ferc1":
@@ -701,7 +755,11 @@ class MakePlantParts:
         self.plant_parts_eia = TrueGranLabeler().execute(self.plant_parts_eia)
         # clean up, add additional columns
         self.plant_parts_eia = (
-            self.add_additonal_cols(self.plant_parts_eia)
+            self.add_additional_cols(
+                plant_parts_eia=self.plant_parts_eia,
+                plants_eia860=plants_eia860,
+                utils_eia860=utils_eia860,
+            )
             .pipe(pudl.helpers.organize_cols, FIRST_COLS)
             .pipe(self._clean_plant_parts)
             .pipe(Resource.from_id("plant_parts_eia").format_df)
@@ -812,7 +870,7 @@ class MakePlantParts:
 
         return pd.concat([plant_parts_eia, part_df])
 
-    def add_additonal_cols(self, plant_parts_eia):
+    def add_additional_cols(self, plant_parts_eia, plants_eia860, utils_eia860):
         """Add additonal data and id columns.
 
         This method adds a set of either calculated columns or PUDL ID columns.
@@ -829,21 +887,17 @@ class MakePlantParts:
         """
         plant_parts_eia = (
             pudl.helpers.calc_capacity_factor(
-                df=plant_parts_eia, min_cap_fact=-0.5, max_cap_fact=1.5, freq=self.freq
+                df=plant_parts_eia, min_cap_fact=-0.5, max_cap_fact=1.5, freq="AS"
             )
             .merge(
-                self.pudl_out.plants_eia860()[
-                    ["plant_id_eia", "plant_id_pudl"]
-                ].drop_duplicates(),
+                plants_eia860[["plant_id_eia", "plant_id_pudl"]].drop_duplicates(),
                 how="left",
                 on=[
                     "plant_id_eia",
                 ],
             )
             .merge(
-                self.pudl_out.utils_eia860()[
-                    ["utility_id_eia", "utility_id_pudl"]
-                ].drop_duplicates(),
+                utils_eia860[["utility_id_eia", "utility_id_pudl"]].drop_duplicates(),
                 how="left",
                 on=["utility_id_eia"],
             )
