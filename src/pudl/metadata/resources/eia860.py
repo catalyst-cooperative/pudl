@@ -460,7 +460,6 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
                     # not yet harvesting owner_utility_id_eia from ownership_eia860.
                     # See https://github.com/catalyst-cooperative/pudl/issues/1393
                     "generation_fuel_by_generator_energy_source_owner_yearly_eia923",
-                    # "generation_fuel_by_generator_energy_source_owner_monthly_eia923",
                     "distributed_generation_fuel_eia861",
                     "distributed_generation_misc_eia861",
                     "distributed_generation_tech_eia861",

@@ -176,7 +176,7 @@ def check_max_rows(
 
 def check_min_rows(
     df: pd.DataFrame,
-    expected_rows: int | float = np.inf,
+    expected_rows: int | float = 0,
     margin: float = 0.05,
     df_name: str = "",
 ) -> pd.DataFrame:
