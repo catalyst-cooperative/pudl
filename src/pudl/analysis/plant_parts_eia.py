@@ -376,6 +376,7 @@ def plant_parts_eia_asset_factory(
             "mcoe": AssetIn(key="mcoe_generators_yearly"),
             "own_eia860": AssetIn(key="denorm_ownership_eia860"),
         },
+        io_manager_key=io_manager_key,
         compute_kind="Python",
     )
     def mega_gens_asset(mcoe: pd.DataFrame, own_eia860: pd.DataFrame) -> pd.DataFrame:
@@ -391,6 +392,7 @@ def plant_parts_eia_asset_factory(
             "denorm_plants_eia": AssetIn(key="denorm_plants_eia"),
             "denorm_utilities_eia": AssetIn(key="denorm_utilities_eia"),
         },
+        io_manager_key=io_manager_key,
         compute_kind="Python",
     )
     def plant_parts_eia_asset(
