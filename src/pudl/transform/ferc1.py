@@ -2233,24 +2233,71 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
                         },
                     }
                 ],
-                # Make duplicated factoids equivalent, instead of calculating twice.
-                "accumulated_provision_for_depreciation_amortization_and_depletion_of_plant_utility": [
+                "utility_plant_net": [
                     {
-                        "calc_component_to_replace": {
-                            "name": "depreciation_utility_plant_in_service",
-                            "weight": 1.0,
-                            "source_tables": ["utility_plant_summary_ferc1"],
-                        },
+                        "calc_component_to_replace": {},
                         "calc_component_new": {
-                            # Only used in pre-2004 calculations, aggregate of later sub-components.
-                            "name": "accumulated_provision_for_depreciation_amortization_and_depletion_of_plant_utility",
+                            "name": "utility_plant_net",
                             "weight": 1.0,
                             "source_tables": ["utility_plant_summary_ferc1"],
                         },
                     },
                     {
                         "calc_component_to_replace": {
+                            "name": "utility_plant_and_construction_work_in_progress",
+                            "weight": 1.0,
+                            "source_tables": ["balance_sheet_assets_ferc1"],
+                        },
+                        "calc_component_new": {},
+                    },
+                    {
+                        "calc_component_to_replace": {
+                            "name": "accumulated_provision_for_depreciation_amortization_and_depletion_of_plant_utility",
+                            "weight": -1.0,
+                            "source_tables": ["balance_sheet_assets_ferc1"],
+                        },
+                        "calc_component_new": {},
+                    },
+                ],
+                # Make duplicated factoids equivalent, instead of calculating twice.
+                "accumulated_provision_for_depreciation_amortization_and_depletion_of_plant_utility": [
+                    {
+                        "calc_component_to_replace": {
                             "name": "amortization_and_depletion_of_producing_natural_gas_land_and_land_rightsutility_plant_in_service",
+                            "weight": 1.0,
+                            "source_tables": ["utility_plant_summary_ferc1"],
+                        },
+                        "calc_component_new": {
+                            "name": "amortization_and_depletion_of_producing_natural_gas_land_and_land_rights_utility_plant_in_service",
+                            "weight": 1.0,
+                            "source_tables": ["utility_plant_summary_ferc1"],
+                        },
+                    },
+                    {
+                        "calc_component_to_replace": {
+                            "name": "amortization_of_underground_storage_land_and_land_rightsutility_plant_in_service",
+                            "weight": 1.0,
+                            "source_tables": ["utility_plant_summary_ferc1"],
+                        },
+                        "calc_component_new": {
+                            "name": "amortization_of_underground_storage_land_and_land_rights_utility_plant_in_service",
+                            "weight": 1.0,
+                            "source_tables": ["utility_plant_summary_ferc1"],
+                        },
+                    },
+                    {
+                        "calc_component_to_replace": {},
+                        # Create a passthrough to the more granular table
+                        "calc_component_new": {
+                            "name": "accumulated_provision_for_depreciation_amortization_and_depletion_of_plant_utility",
+                            "weight": 1.0,
+                            "source_tables": ["utility_plant_summary_ferc1"],
+                        },
+                    },
+                    # Remove all other calculations that were previously referenced here
+                    {
+                        "calc_component_to_replace": {
+                            "name": "depreciation_utility_plant_in_service",
                             "weight": 1.0,
                             "source_tables": ["utility_plant_summary_ferc1"],
                         },
@@ -2258,7 +2305,15 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
                     },
                     {
                         "calc_component_to_replace": {
-                            "name": "amortization_of_underground_storage_land_and_land_rightsutility_plant_in_service",
+                            "name": "amortization_and_depletion_of_producing_natural_gas_land_and_land_rights_utility_plant_in_service",
+                            "weight": 1.0,
+                            "source_tables": ["utility_plant_summary_ferc1"],
+                        },
+                        "calc_component_new": {},
+                    },
+                    {
+                        "calc_component_to_replace": {
+                            "name": "amortization_of_underground_storage_land_and_land_rights_utility_plant_in_service",
                             "weight": 1.0,
                             "source_tables": ["utility_plant_summary_ferc1"],
                         },
@@ -2299,6 +2354,14 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
                     {
                         "calc_component_to_replace": {
                             "name": "amortization_of_plant_acquisition_adjustment",
+                            "weight": 1.0,
+                            "source_tables": ["utility_plant_summary_ferc1"],
+                        },
+                        "calc_component_new": {},
+                    },
+                    {
+                        "calc_component_to_replace": {
+                            "name": "depreciation_amortization_and_depletion_utility_plant_in_service",
                             "weight": 1.0,
                             "source_tables": ["utility_plant_summary_ferc1"],
                         },

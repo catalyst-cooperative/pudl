@@ -1808,11 +1808,17 @@ class XbrlCalculationForestFerc1(BaseModel):
                 if not attrs[to_node].get("weight", False):
                     attrs[to_node] |= {"weight": calc["weight"]}
                 else:
-                    if not attrs[to_node]["weight"] == calc["weight"]:
-                        logger.error(
-                            f"Calculation weights do not match for {to_node}:"
-                            f"{attrs[to_node]['weight']} != {calc['weight']}"
+                    if attrs[to_node]["weight"] != calc["weight"]:
+                        logger.debug(
+                            f"Calculation weights do not match for {to_node}: "
+                            f"{attrs[to_node]['weight']} != {calc['weight']}. Using a "
+                            "weight of -1.0."
                         )
+                        # This fix only applies to the case of a passthrough calculation
+                        # where the passthrough has a weight of 1.0 but the value it's
+                        # pointing at has a weight of -1.0.
+                        assert attrs[to_node]["weight"] * calc["weight"] == -1.0
+                        attrs[to_node]["weight"] == -1.0
                 try:
                     attrs[to_node]["tags"] = dict(tags.loc[to_node])
                 except KeyError:
@@ -1879,7 +1885,26 @@ class XbrlCalculationForestFerc1(BaseModel):
         be done here.
         """
         forest = self.seeded_digraph
-        # TODO: Insert graph pruning logic here.
+        # Remove any node that has only one parent and one child, and add an edge
+        # between its parent and child.
+        for node in self.passthroughs:
+            parent = list(forest.predecessors(node))
+            assert len(parent) == 1
+            successors = forest.successors(node)
+            assert len(list(successors)) == 2
+            child = [
+                n
+                for n in forest.successors(node)
+                if not n.xbrl_factoid.endswith("_correction")
+            ]
+            assert len(child) == 1
+            logger.debug(
+                f"Replacing passthrough node {node} with edge from "
+                f"{parent[0]} to {child[0]}"
+            )
+            forest.remove_nodes_from(successors)
+            forest.add_edge(parent[0], child[0])
+
         if not nx.is_forest(forest):
             logger.error(
                 "Calculations in Exploded Metadata can not be represented as a forest!"
@@ -1957,6 +1982,37 @@ class XbrlCalculationForestFerc1(BaseModel):
         for stepchild in stepchildren:
             stepparents = stepparents.union(graph.predecessors(stepchild))
         return list(stepparents)
+
+    @property
+    def passthroughs(self: Self) -> list[NodeId]:
+        """All nodes with a single parent and a single child, which can be pruned."""
+        # In theory every node should have only one parent, but just to be safe, since
+        # that's not always true right now:
+        has_one_parent = {n for n, d in self.seeded_digraph.in_degree() if d == 1}
+        # Calculated fields always have both the reported child and a correction that
+        # we have added, so having "one" child really means having 2 successor nodes.
+        may_have_one_child: set[NodeId] = {
+            n for n, d in self.seeded_digraph.out_degree() if d == 2
+        }
+        # Check that one of these successors is the correction.
+        has_one_child = []
+        for node in may_have_one_child:
+            children = self.seeded_digraph.successors(node)
+            for child in children:
+                if (node.source_table == child.source_table) and (
+                    child.xbrl_factoid == node.xbrl_factoid + "_correction"
+                ):
+                    has_one_child.append(node)
+
+        return list(has_one_parent.intersection(has_one_child))
+
+    def pprint_calculation_at(self: Self, node_id: NodeId) -> None:
+        """Pretty print the calculation associated with a given node."""
+        print(
+            json.dumps(
+                json.loads(self.exploded_meta.at[node_id, "calculations"]), indent=4
+            )
+        )
 
     @property
     def leafy_meta(self: Self) -> pd.DataFrame:
