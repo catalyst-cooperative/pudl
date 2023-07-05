@@ -643,15 +643,6 @@ def test_env_var():
     del os.environ["_PUDL_TEST"]
 
 
-def test_env_var_reads_defaults(mocker):
-    mocker.patch(
-        "pudl.helpers.get_defaults",
-        lambda: {"_PUDL_TEST": "test value default"},
-    )
-    env_var = EnvVar(env_var="_PUDL_TEST")
-    assert env_var.post_process(None) == "test value default"
-
-
 def test_env_var_missing_completely():
     with pytest.raises(PostProcessingError):
         EnvVar(env_var="_PUDL_BOGUS").post_process(None)

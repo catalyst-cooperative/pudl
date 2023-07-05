@@ -2,7 +2,6 @@
 
 Defines useful fixtures, command line args.
 """
-import json
 import logging
 import os
 from pathlib import Path
@@ -27,6 +26,7 @@ from pudl.io_managers import (
 from pudl.metadata.classes import Package
 from pudl.output.pudltabl import PudlTabl
 from pudl.settings import DatasetsSettings, EtlSettings, XbrlFormNumber
+from pudl.workspace.setup import PudlPaths
 
 logger = logging.getLogger(__name__)
 
@@ -112,7 +112,7 @@ def check_foreign_keys(request):
 
 
 @pytest.fixture(scope="session", name="etl_settings")
-def etl_parameters(request, test_dir, pudl_settings_fixture) -> EtlSettings:
+def etl_parameters(request, test_dir) -> EtlSettings:
     """Read the ETL parameters from the test settings or proffered file."""
     if request.config.getoption("--etl-settings"):
         etl_settings_yml = Path(request.config.getoption("--etl-settings"))
@@ -271,7 +271,6 @@ def ferc1_xbrl_sql_engine(ferc_to_sqlite_xbrl_only, dataset_settings_config):
 
 @pytest.fixture(scope="session")
 def ferc_xbrl(
-    pudl_settings_fixture,
     live_dbs,
     ferc_to_sqlite_settings,
     pudl_datastore_fixture,
@@ -292,7 +291,7 @@ def ferc_xbrl(
         for form in XbrlFormNumber:
             raw_archive, taxonomy_entry_point = datastore.get_taxonomy(year, form)
 
-            sqlite_engine = _get_sqlite_engine(form.value, pudl_settings_fixture, True)
+            sqlite_engine = _get_sqlite_engine(form.value, True)
 
             form_settings = ferc_to_sqlite_settings.get_xbrl_dataset_settings(form)
 
@@ -306,12 +305,14 @@ def ferc_xbrl(
                 requested_tables=form_settings.tables,
                 batch_size=len(filings_subset) // step_size + 1,
                 workers=step_size,
-                datapackage_path=pudl_settings_fixture[
-                    f"ferc{form.value}_xbrl_datapackage"
-                ],
-                metadata_path=pudl_settings_fixture[
-                    f"ferc{form.value}_xbrl_taxonomy_metadata"
-                ],
+                # TODO(janrous): the following should ideally be provided by some
+                # ferc dataset metadata object rather than encoding this in settings.
+                datapackage_path=PudlPaths().output_file(
+                    f"ferc{form.value}_xbrl_datapackage.json"
+                ),
+                metadata_path=PudlPaths().output_file(
+                    f"ferc{form.value}_xbrl_taxonomy_metadata.json"
+                ),
                 archive_file_path=taxonomy_entry_point,
             )
 
@@ -328,7 +329,6 @@ def ferc1_xbrl_taxonomy_metadata(ferc1_engine_xbrl):
 @pytest.fixture(scope="session")
 def pudl_sql_io_manager(
     pudl_path_setup,
-    pudl_settings_fixture,
     ferc1_engine_dbf,  # Implicit dependency
     ferc1_engine_xbrl,  # Implicit dependency
     live_dbs,
@@ -344,10 +344,8 @@ def pudl_sql_io_manager(
     """
     logger.info("setting up the pudl_engine fixture")
     if not live_dbs:
-        db_path = pudl_settings_fixture["pudl_db"]
-
         # Create the database and schemas
-        engine = sa.create_engine(db_path)
+        engine = sa.create_engine(PudlPaths().pudl_db)
         md = Package.from_resource_ids().to_sql()
         md.create_all(engine)
         # Run the ETL and generate a new PUDL SQLite DB for testing:
@@ -383,14 +381,23 @@ def pudl_tmpdir(tmp_path_factory):
     return tmpdir
 
 
+def pytest_sessionstart(session):
+    """Configures input/output paths for the tests."""
+    # TODO(rousik): Should we be using fixed paths instead
+    # of using tmpdir capabilities here?
+    pudl.workspace.setup.set_path_overrides(
+        input_dir="~/pudl-work/data",
+        output_dir="~/pudl-work/output",
+    )
+    logger.info(f"Starting unit tests with output path {PudlPaths().output_dir}")
+    pudl.workspace.setup.init()
+
+
 @pytest.fixture(scope="session")
 def pudl_path_setup(request, pudl_tmpdir):
     """Sets the necessary env variables for the input and output paths."""
     if os.environ.get("GITHUB_ACTIONS", False):
-        pudl.workspace.setup.set_path_overrides(
-            input_dir="~/pudl-work/data",
-            output_dir="~/pudl-work/output",
-        )
+        pudl.workspace.setup.set_path_overrides()
     else:
         if request.config.getoption("--tmp-data"):
             in_tmp = pudl_tmpdir / "data"
@@ -404,21 +411,6 @@ def pudl_path_setup(request, pudl_tmpdir):
             pudl.workspace.setup.set_path_overrides(
                 output_dir=str(Path(out_tmp).resolve()),
             )
-
-
-@pytest.fixture(scope="session", name="pudl_settings_fixture")
-def pudl_settings_dict(pudl_path_setup):  # noqa: C901
-    """Determine some settings (mostly paths) for the test session."""
-    logger.info("setting up the pudl_settings_fixture")
-
-    pudl_settings = pudl.workspace.setup.get_defaults()
-    pudl.workspace.setup.init(pudl_settings)
-
-    pretty_settings = json.dumps(
-        {str(k): str(v) for k, v in pudl_settings.items()}, indent=2
-    )
-    logger.info(f"pudl_settings being used: {pretty_settings}")
-    return pudl_settings
 
 
 @pytest.fixture(scope="session")

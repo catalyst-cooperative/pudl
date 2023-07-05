@@ -45,6 +45,7 @@ import pathlib
 import sys
 
 import pudl
+from pudl.workspace.setup import set_path_overrides
 
 logger = pudl.logging_helpers.get_logger(__name__)
 
@@ -102,20 +103,17 @@ def main():
         logfile=args.logfile, loglevel=args.loglevel
     )
 
-    if args.pudl_input:
+    if args.pudl_in:
         pudl_in = pathlib.Path(args.pudl_in).expanduser().resolve()
         if not pathlib.Path.is_dir(pudl_in):
             raise FileNotFoundError(f"Directory not found: {pudl_in}")
-
-    if args.pudl_output:
+        set_path_overrides(input_dir=pudl_in)
+    if args.pudl_out:
         pudl_out = pathlib.Path(args.pudl_out).expanduser().resolve()
         if not pathlib.Path.is_dir(pudl_out):
             raise FileNotFoundError(f"Directory not found: {pudl_out}")
-
-    settings = pudl.workspace.setup.get_defaults(
-        input_dir=args.pudl_input, output_dir=args.pudl_output
-    )
-    pudl.workspace.setup.init(settings, clobber=args.clobber)
+        set_path_overrides(output_dir=pudl_out)
+    pudl.workspace.setup.init(colbber=args.clobber)
 
 
 if __name__ == "__main__":

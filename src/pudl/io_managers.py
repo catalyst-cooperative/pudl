@@ -749,9 +749,7 @@ class FercXBRLSQLiteIOManager(FercSQLiteIOManager):
 @io_manager(
     config_schema={
         "pudl_output_path": Field(
-            EnvVar(
-                env_var="PUDL_OUTPUT",
-            ),
+            EnvVar("PUDL_OUTPUT"),
             description="Path of directory to store the database in.",
             default_value=None,
         ),
@@ -796,9 +794,7 @@ class PandasParquetIOManager(UPathIOManager):
 @io_manager(
     config_schema={
         "base_path": Field(
-            EnvVar(
-                env_var="PUDL_OUTPUT",
-            ),
+            EnvVar("PUDL_OUTPUT"),
             is_required=False,
             default_value=None,
         )

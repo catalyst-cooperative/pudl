@@ -60,7 +60,6 @@ def glue_test_dfs(
     pudl_out,
     ferc1_engine_xbrl,
     ferc1_engine_dbf,
-    pudl_settings_fixture,
     etl_settings,
     dataset_settings_config,
 ) -> dict[str, pd.DataFrame]:

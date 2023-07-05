@@ -43,6 +43,7 @@ from pudl.metadata.helpers import (
 from pudl.metadata.resources import FOREIGN_KEYS, RESOURCE_METADATA, eia861
 from pudl.metadata.sources import SOURCES
 from pudl.workspace.datastore import Datastore
+from pudl.workspace.setup import PudlPaths
 
 logger = pudl.logging_helpers.get_logger(__name__)
 
@@ -947,14 +948,9 @@ class DataSource(Base):
 
     def add_datastore_metadata(self) -> None:
         """Get source file metadata from the datastore."""
-        pudl_settings = pudl.workspace.setup.get_defaults()
-        if pudl_settings["pudl_in"] is None:
-            local_cache_path = None
-        else:
-            local_cache_path = pudl_settings["data_dir"]
         dp_desc = Datastore(
             sandbox=False,
-            local_cache_path=local_cache_path,
+            local_cache_path=PudlPaths().data_dir,
             gcs_cache_path="gs://zenodo-cache.catalyst.coop",
         ).get_datapackage_descriptor(self.name)
         partitions = dp_desc.get_partitions()

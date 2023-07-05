@@ -27,6 +27,7 @@ from dagster import (
 
 import pudl
 from pudl.settings import EtlSettings
+from pudl.workspace.setup import PudlPaths
 
 logger = pudl.logging_helpers.get_logger(__name__)
 
@@ -116,9 +117,6 @@ def main():
 
     etl_settings = EtlSettings.from_yaml(args.settings_file)
 
-    # Set PUDL_INPUT/PUDL_OUTPUT env vars from .pudl.yml if not set already!
-    pudl.workspace.setup.get_defaults()
-
     dataset_settings_config = etl_settings.datasets.dict()
     process_epacems = True
     if etl_settings.datasets.epacems is None:
@@ -167,7 +165,7 @@ def main():
             logger.info(f"Publishing outputs to {output_path}")
             fs, _, _ = fsspec.get_fs_token_paths(output_path)
             fs.put(
-                etl_settings.pudl_out,
+                PudlPaths().output_dir,
                 output_path,
                 recursive=True,
             )

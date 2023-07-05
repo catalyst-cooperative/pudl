@@ -5,7 +5,7 @@ import pathlib
 import shutil
 from pathlib import Path
 
-from dotenv import load_dotenv
+from pydantic import BaseSettings
 
 import pudl.logging_helpers
 
@@ -28,125 +28,70 @@ def set_path_overrides(
         os.environ["PUDL_OUTPUT"] = input_dir
 
 
-def get_defaults() -> dict[str, str]:
-    """Derive PUDL workspace paths from env variables.
+class PudlPaths(BaseSettings):
+    """These settings provide access to various PUDL directories.
 
-    Reads the PUDL_INPUT and PUDL_OUTPUT environment variables, and derives
-    all relevant paths that will be set in the config dictionary.
-
-    Returns:
-        dictionary with a variety of different paths where inputs/outputs are
-        to be found.
+    It is primarily configured via PUDL_INPUT and PUDL_OUTPUT environment
+    variables. Other paths of relevance are derived from these.
     """
-    load_dotenv()
 
-    # Workaround for not having PUDL_* env vars in ReadTheDocs builds.
-    #
-    # They don't let you set env var through config files, and I'd rather
-    # have this in source control than go through some sort of web UI
-    #
-    # I don't like this any more than you do.
-    if os.getenv("READTHEDOCS"):
-        set_path_overrides(
-            input_dir="~/pudl-work/data",
-            output_dir="~/pudl-work/output",
-        )
-    for env_var in ["PUDL_INPUT", "PUDL_OUTPUT"]:
-        if env_var not in os.environ:
-            raise RuntimeError(f"{env_var} environment variable must be set.")
+    pudl_input: str
+    pudl_output: str
 
-    pudl_settings = {}
+    @property
+    def input_dir(self) -> Path:
+        """Path to PUDL input directory."""
+        return Path(self.pudl_input)
 
-    # The only "inputs" are the datastore and example settings files:
-    # Convert from input string to Path and make it absolute w/ resolve()
-    pudl_in = pathlib.Path(os.getenv("PUDL_INPUT")).expanduser().resolve()
-    data_dir = pudl_in
-    pudl_workspace_legacy = pudl_in.parent
-    settings_dir = pudl_workspace_legacy / "settings"
+    @property
+    def output_dir(self) -> Path:
+        """Path to PUDL output directory."""
+        return Path(self.pudl_output)
 
-    # Store these as strings... since we aren't using Paths everywhere yet:
-    pudl_settings["pudl_in"] = str(pudl_workspace_legacy)
-    pudl_settings["data_dir"] = str(data_dir)
-    pudl_settings["settings_dir"] = str(settings_dir)
+    @property
+    def settings_dir(self) -> Path:
+        """Path to directory containing settings files."""
+        return self.input_dir.parent / "settings"
 
-    # Everything else goes into outputs, generally organized by type of file:
-    pudl_out = pathlib.Path(os.getenv("PUDL_OUTPUT")).expanduser().resolve()
-    pudl_settings["pudl_out"] = str(pudl_out)
+    @property
+    def data_dir(self) -> Path:
+        """Path to PUDL data directory."""
+        # TODO(janrous): possibly deprecate this in favor of input_dir
+        return self.input_dir
 
-    # Mirror dagster env vars for ease of use
-    pudl_settings["PUDL_OUTPUT"] = pudl_settings["pudl_out"]
-    pudl_settings["PUDL_INPUT"] = pudl_settings["data_dir"]
+    @property
+    def pudl_db(self) -> Path:
+        """Returns url of locally stored pudl sqlite database."""
+        return self.sqlite_db("pudl")
 
-    ferc1_db_file = pathlib.Path(pudl_settings["pudl_out"], "ferc1.sqlite")
-    pudl_settings["ferc1_db"] = "sqlite:///" + str(ferc1_db_file.resolve())
+    def sqlite_db(self, name: str) -> str:
+        """Returns url of locally stored pudl slqlite database with given name.
 
-    ferc1_db_file = pathlib.Path(pudl_settings["pudl_out"], "ferc1_xbrl.sqlite")
-    pudl_settings["ferc1_xbrl_db"] = "sqlite:///" + str(ferc1_db_file.resolve())
-    pudl_settings["ferc1_xbrl_datapackage"] = pathlib.Path(
-        pudl_settings["pudl_out"], "ferc1_xbrl_datapackage.json"
-    )
-    pudl_settings["ferc1_xbrl_taxonomy_metadata"] = pathlib.Path(
-        pudl_settings["pudl_out"], "ferc1_xbrl_taxonomy_metadata.json"
-    )
+        The name is expected to be the name of the database without the .sqlite
+        suffix. E.g. pudl, ferc1 and so on.
+        """
+        db_path = PudlPaths().output_dir / f"{name}.sqlite"
+        return f"sqlite:///{db_path}"
+        return self.output_dir / f"{name}.sqlite"
 
-    ferc2_db_file = pathlib.Path(pudl_settings["pudl_out"], "ferc2_xbrl.sqlite")
-    pudl_settings["ferc2_xbrl_db"] = "sqlite:///" + str(ferc2_db_file.resolve())
-    pudl_settings["ferc2_xbrl_datapackage"] = pathlib.Path(
-        pudl_settings["pudl_out"], "ferc2_xbrl_datapackage.json"
-    )
-    pudl_settings["ferc2_xbrl_taxonomy_metadata"] = pathlib.Path(
-        pudl_settings["pudl_out"], "ferc2_xbrl_taxonomy_metadata.json"
-    )
+    def output_file(self, filename: str) -> Path:
+        """Path to file in PUDL output directory."""
+        return self.output_dir / filename
 
-    ferc6_db_file = pathlib.Path(pudl_settings["pudl_out"], "ferc6_xbrl.sqlite")
-    pudl_settings["ferc6_xbrl_db"] = "sqlite:///" + str(ferc6_db_file.resolve())
-    pudl_settings["ferc6_xbrl_datapackage"] = pathlib.Path(
-        pudl_settings["pudl_out"], "ferc6_xbrl_datapackage.json"
-    )
-    pudl_settings["ferc6_xbrl_taxonomy_metadata"] = pathlib.Path(
-        pudl_settings["pudl_out"], "ferc6_xbrl_taxonomy_metadata.json"
-    )
+    class Config:
+        """Pydantic configuration. Loads from .env file."""
 
-    ferc60_db_file = pathlib.Path(pudl_settings["pudl_out"], "ferc60_xbrl.sqlite")
-    pudl_settings["ferc60_xbrl_db"] = "sqlite:///" + str(ferc60_db_file.resolve())
-    pudl_settings["ferc60_xbrl_datapackage"] = pathlib.Path(
-        pudl_settings["pudl_out"], "ferc60_xbrl_datapackage.json"
-    )
-    pudl_settings["ferc60_xbrl_taxonomy_metadata"] = pathlib.Path(
-        pudl_settings["pudl_out"], "ferc60_xbrl_taxonomy_metadata.json"
-    )
-
-    ferc714_db_file = pathlib.Path(pudl_settings["pudl_out"], "ferc714_xbrl.sqlite")
-    pudl_settings["ferc714_xbrl_db"] = "sqlite:///" + str(ferc714_db_file.resolve())
-    pudl_settings["ferc714_xbrl_datapackage"] = pathlib.Path(
-        pudl_settings["pudl_out"], "ferc714_xbrl_datapackage.json"
-    )
-    pudl_settings["ferc714_xbrl_taxonomy_metadata"] = pathlib.Path(
-        pudl_settings["pudl_out"], "ferc714_xbrl_taxonomy_metadata.json"
-    )
-
-    pudl_settings["pudl_db"] = "sqlite:///" + str(
-        pathlib.Path(pudl_settings["pudl_out"], "pudl.sqlite")
-    )
-
-    pudl_settings["censusdp1tract_db"] = "sqlite:///" + str(
-        pathlib.Path(pudl_settings["pudl_out"], "censusdp1tract.sqlite")
-    )
-
-    if not os.getenv("DAGSTER_HOME"):
-        os.environ["DAGSTER_HOME"] = str(
-            Path(pudl_settings["pudl_in"]) / "dagster_home"
-        )
-
-    return pudl_settings
+        env_file = ".env"
+        fields = {
+            "pudl_input": {"env": "PUDL_INPUT"},
+            "pudl_output": {"env": "PUDL_OUTPUT"},
+        }
 
 
-def init(pudl_settings: dict[str, str], clobber=False):
+def init(clobber=False):
     """Set up a new PUDL working environment based on the user settings.
 
     Args:
-        pudl_settings (os.PathLike): Paths to data inputs & outputs. See
-            get_defaults() for how to get these.
         clobber (bool): if True, replace existing files. If False (the default)
             do not replace existing files.
 
@@ -154,22 +99,25 @@ def init(pudl_settings: dict[str, str], clobber=False):
         None
     """
     # Create tmp directory
-    tmp_dir = pathlib.Path(pudl_settings["data_dir"], "tmp")
+    tmp_dir = PudlPaths().data_dir / "tmp"
     tmp_dir.mkdir(parents=True, exist_ok=True)
 
     # These are files that may exist in the package_data directory, but that
     # we do not want to deploy into a user workspace:
     ignore_files = ["__init__.py", ".gitignore"]
 
+    # TODO(janrous): perhaps we don't need to do this?
     # Make a settings directory in the workspace, and deploy settings files:
-    settings_dir = pathlib.Path(pudl_settings["settings_dir"])
+    settings_dir = PudlPaths().settings_dir
     settings_dir.mkdir(parents=True, exist_ok=True)
     settings_pkg = "pudl.package_data.settings"
     deploy(settings_pkg, settings_dir, ignore_files, clobber=clobber)
 
     # Make output directory:
-    pudl_out = pathlib.Path(pudl_settings["pudl_out"])
-    pudl_out.mkdir(parents=True, exist_ok=True)
+    PudlPaths().output_dir.mkdir(parents=True, exist_ok=True)
+    # TODO(rousik): it might make sense to turn this into a method of
+    # PudlPaths object and to move this to settings.py from this module.
+    # Unclear whether deployment of settings files makes much sense.
 
 
 def deploy(pkg_path, deploy_dir, ignore_files, clobber=False):
