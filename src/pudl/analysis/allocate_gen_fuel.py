@@ -201,7 +201,7 @@ def allocate_gen_fuel_asset_factory(
     freq: Literal["AS", "MS"],
     io_manager_key: str | None = None,
 ) -> list[AssetsDefinition]:
-    """Build net gen allocation assets at yearly and monthly frequencies."""
+    """Build yearly and monthly net generation & fuel consumption allocation assets."""
     agg_freqs = {"AS": "yearly", "MS": "monthly"}
     if freq not in agg_freqs:
         raise ValueError(f"freq must be one of {agg_freqs.keys()}, got: {freq}.")
