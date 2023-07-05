@@ -1,2 +1,0 @@
-run_queue:
-  max_concurrent_runs: 8 # Default is 10

@@ -48,9 +48,6 @@ RUN mamba create --copy --prefix ${CONDA_PREFIX} --yes python=${PYTHON_VERSION} 
 # Copy the cloned pudl repository into the user's home directory
 COPY --chown=catalyst:catalyst . ${CONTAINER_HOME}
 
-# Copy dagster.yaml to DAGSTER_HOME
-RUN cp ${CONTAINER_HOME}/docker/dagster.yaml ${DAGSTER_HOME}
-
 # We need information from .git to get version with setuptools_scm so we mount that
 # directory without copying it into the image.
 RUN --mount=type=bind,source=.git,target=${PUDL_REPO}/.git \
