@@ -2457,9 +2457,7 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
                 ],
             },
             "electric_plant_depreciation_functional_ferc1": {
-                # We use this name for the calculation but it gets renamed in
-                # `process_xbrl_metadata` to total.
-                "accumulated_provision_for_depreciation_of_electric_utility_plant": [
+                "total": [
                     {
                         "calc_component_to_replace": {},
                         "calc_component_new": {
@@ -5495,20 +5493,38 @@ class ElectricPlantDepreciationFunctionalFerc1TableTransformer(
     table_id: TableIdFerc1 = TableIdFerc1.ELECTRIC_PLANT_DEPRECIATION_FUNCTIONAL_FERC1
     has_unique_record_ids: bool = False
 
-    @cache_df("process_xbrl_metadata")
-    def process_xbrl_metadata(self, xbrl_metadata_json) -> pd.DataFrame:
-        """Transform the metadata to reflect the transformed data.
+    def raw_xbrl_factoid_to_pudl_name(
+        self,
+        col_name_xbrl: str,
+    ) -> str:
+        """Apply default factoid rename plus special case.
 
-        Transform the xbrl factoid values so that they match the final plant functional
-        classification categories and can be merged with the output dataframe.
+        Unfortunately in the XBRL data, the actual column names differ from the column
+        names in the metadata. Because of that, the default
+        :meth:`raw_xbrl_factoid_to_pudl_name` does not catch all of the renames. This
+        method ensures that each metadata column name can be translated into PUDL column
+        names.
+
+        Note: Another way to do this would be to add a special case rename dict into
+        ``self.params.rename_dicts_xbrl`` which looked nearly the same as the
+        ``self.params.rename_columns_ferc1.instant_xbrl`` but without the
+        ``_ending_balance`` suffix. Because the rename stage is first in both the
+        :meth:`raw_xbrl_factoid_to_pudl_name` doesn't line up with the
+        metadata
         """
-        df = super().process_xbrl_metadata(xbrl_metadata_json)
-        df.loc[
-            df.xbrl_factoid
-            == "accumulated_provision_for_depreciation_of_electric_utility_plant",
-            "xbrl_factoid",
-        ] = "total"
-        return df
+        # most of the names just require a prefix to be removed
+        col_name_pudl = (
+            super()
+            .raw_xbrl_factoid_to_pudl_name(col_name_xbrl)
+            .removeprefix("accumulated_depreciation_")
+        )
+        # except for this one special case which is the total/calcuated value.
+        if (
+            col_name_pudl
+            == "accumulated_provision_for_depreciation_of_electric_utility_plant"
+        ):
+            col_name_pudl = "total"
+        return col_name_pudl
 
     @cache_df("dbf")
     def process_dbf(self, raw_df: pd.DataFrame) -> pd.DataFrame:
