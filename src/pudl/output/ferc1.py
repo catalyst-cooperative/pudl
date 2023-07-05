@@ -929,6 +929,7 @@ def create_exploded_table_assets() -> list[AssetsDefinition]:
         },
         "balance_sheet_assets_ferc1": {
             "table_names_to_explode": [
+                "balance_sheet_assets_ferc1",
                 "utility_plant_summary_ferc1",
                 "plant_in_service_ferc1",
                 "electric_plant_depreciation_functional_ferc1",
@@ -937,6 +938,7 @@ def create_exploded_table_assets() -> list[AssetsDefinition]:
         },
         "balance_sheet_liabilities_ferc1": {
             "table_names_to_explode": [
+                "balance_sheet_liabilities_ferc1",
                 "retained_earnings_ferc1",
             ]
         },
