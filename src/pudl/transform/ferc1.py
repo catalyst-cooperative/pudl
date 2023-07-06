@@ -13,7 +13,6 @@ import json
 import re
 from collections import namedtuple
 from collections.abc import Mapping
-from io import StringIO
 from typing import Any, Literal, Self
 
 import numpy as np
@@ -4849,28 +4848,30 @@ class UtilityPlantSummaryFerc1TableTransformer(Ferc1AbstractTableTransformer):
         """
         tbl_meta = super().process_xbrl_metadata(xbrl_metadata_json)
         # things that could be grabbed from a aggregated_xbrl_factoids param
-        factoids_to_agg = [
-            "utility_plant_in_service_classified",
-            "utility_plant_in_service_property_under_capital_leases",
-        ]
         new_factoid_name = (
             "utility_plant_in_service_classified_and_property_under_capital_leases"
         )
-
+        # point this new aggregated factiod to the PIS table's equivilant when the
+        # subdimensions line up
         calc = [
-            {"name": factoid, "weight": 1, "source_tables": [self.table_id.value]}
-            for factoid in factoids_to_agg
+            {
+                "name": "electric_plant_in_service_and_completed_construction_not_classified_electric",
+                "weight": 1.0,
+                "source_tables": ["plant_in_service_ferc1"],
+                "utility_type": "electric",
+            }
         ]
-        new_fact = pd.read_csv(
-            StringIO(
-                f"""xbrl_factoid,calculations,balance,ferc_account,xbrl_factoid_original,intra_table_calc_flag,row_type_xbrl
-{new_factoid_name},[],debit,,{new_factoid_name},True,calculated_value
-"""
-            )
+        new_fact = pd.DataFrame(
+            {
+                "xbrl_factoid": [new_factoid_name],
+                "calculations": [json.dumps(calc)],
+                "balance": ["debit"],
+                "ferc_account": [pd.NA],
+                "xbrl_factoid_original": [new_factoid_name],
+                "intra_table_calc_flag": [True],
+                "row_type_xbrl": ["calculated_value"],
+            }
         ).convert_dtypes()
-        # I couldn't figure out how to format the csv version above to get it in the
-        # first time so i'm adding it down here.
-        new_fact.loc[0, "calculations"] = json.dumps(calc)
 
         tbl_meta = pd.concat([tbl_meta, new_fact]).reset_index(drop=True)
         return tbl_meta
