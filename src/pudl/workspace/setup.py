@@ -25,7 +25,7 @@ def set_path_overrides(
     if input_dir:
         os.environ["PUDL_INPUT"] = input_dir
     if output_dir:
-        os.environ["PUDL_OUTPUT"] = input_dir
+        os.environ["PUDL_OUTPUT"] = output_dir
 
 
 class PudlPaths(BaseSettings):
