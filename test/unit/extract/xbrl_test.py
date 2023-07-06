@@ -20,6 +20,7 @@ from pudl.settings import (
     FercToSqliteSettings,
     XbrlFormNumber,
 )
+from pudl.workspace.setup import PudlPaths
 
 
 def test_ferc_xbrl_datastore_get_taxonomy(mocker):
@@ -186,6 +187,7 @@ def test_xbrl2sqlite(settings, forms, mocker):
         resources={
             "ferc_to_sqlite_settings": settings,
             "datastore": "datastore",
+            "pudl_paths": PudlPaths(),
         },
         config={
             "workers": 10,

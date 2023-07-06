@@ -1,9 +1,11 @@
 """Collection of Dagster resources for PUDL."""
+import os
+
 from dagster import Field, resource
 
-from pudl.helpers import EnvVar
 from pudl.settings import DatasetsSettings, FercToSqliteSettings, create_dagster_config
 from pudl.workspace.datastore import Datastore
+from pudl.workspace.setup import PudlPaths, set_path_overrides
 
 
 @resource(config_schema=create_dagster_config(DatasetsSettings()))
@@ -28,13 +30,41 @@ def ferc_to_sqlite_settings(init_context) -> FercToSqliteSettings:
 
 @resource(
     config_schema={
-        "local_cache_path": Field(
-            EnvVar(
-                env_var="PUDL_INPUT",
-            ),
-            description="Path to local cache of raw data.",
-            default_value=None,
+        "PUDL_INPUT": Field(
+            str,
+            description="Path to the input directory.",
+            default_value="",
+            is_required=False,
         ),
+        "PUDL_OUTPUT": Field(
+            str,
+            description="Path to the output directory.",
+            default_value="",
+            is_required=False,
+        ),
+    },
+)
+def pudl_paths(init_context) -> PudlPaths:
+    """Dagster resource for obtaining PudlPaths instance.
+
+    Paths can be overriden when non-empty configuration fields are set. Default values
+    are pulled from PUDL_INPUT and PUDL_OUTPUT env variables.
+    """
+    if init_context.resource_config["PUDL_INPUT"]:
+        set_path_overrides(intput_dir=init_context.resource_config["PUDL_INPUT"])
+    elif not os.getenv("PUDL_INPUT"):
+        raise ValueError("PUDL_INPUT env variable is not set")
+
+    if init_context.resource_config["PUDL_OUTPUT"]:
+        set_path_overrides(output_dir=init_context.resource_config["PUDL_OUTPUT"])
+    elif not os.getenv("PUDL_OUTPUT"):
+        raise ValueError("PUDL_OUTPUT env variable is not set")
+
+    return PudlPaths()
+
+
+@resource(
+    config_schema={
         "gcs_cache_path": Field(
             str,
             description="Load datastore resources from Google Cloud Storage.",
@@ -51,6 +81,7 @@ def ferc_to_sqlite_settings(init_context) -> FercToSqliteSettings:
             default_value=False,
         ),
     },
+    required_resource_keys={"pudl_paths"},
 )
 def datastore(init_context) -> Datastore:
     """Dagster resource to interact with Zenodo archives."""
@@ -59,5 +90,7 @@ def datastore(init_context) -> Datastore:
     ds_kwargs["sandbox"] = init_context.resource_config["sandbox"]
 
     if init_context.resource_config["use_local_cache"]:
-        ds_kwargs["local_cache_path"] = init_context.resource_config["local_cache_path"]
+        # TODO(rousik): we could also just use PudlPaths().input_dir here, because
+        # it should be initialized to the right values.
+        ds_kwargs["local_cache_path"] = init_context.resources.pudl_paths.input_dir
     return Datastore(**ds_kwargs)

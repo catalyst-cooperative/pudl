@@ -113,7 +113,7 @@ def main():
         if not pathlib.Path.is_dir(pudl_out):
             raise FileNotFoundError(f"Directory not found: {pudl_out}")
         set_path_overrides(output_dir=pudl_out)
-    pudl.workspace.setup.init(colbber=args.clobber)
+    pudl.workspace.setup.init(clobber=args.clobber)
 
 
 if __name__ == "__main__":
