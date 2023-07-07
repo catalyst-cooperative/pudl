@@ -2487,14 +2487,6 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
                     {
                         "calc_component_to_replace": {},
                         "calc_component_new": {
-                            "name": "unappropriated_undistributed_subsidiary_earnings_previous_year",
-                            "weight": 1.0,
-                            "source_tables": ["retained_earnings_ferc1"],
-                        },
-                    },
-                    {
-                        "calc_component_to_replace": {},
-                        "calc_component_new": {
                             "name": "equity_in_earnings_of_subsidiary_companies",
                             "weight": 1.0,
                             "source_tables": ["retained_earnings_ferc1"],
@@ -2518,14 +2510,6 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
                     },
                 ],
                 "unappropriated_retained_earnings": [
-                    {
-                        "calc_component_to_replace": {},
-                        "calc_component_new": {
-                            "name": "unappropriated_retained_earnings_previous_year",
-                            "weight": 1.0,
-                            "source_tables": ["retained_earnings_ferc1"],
-                        },
-                    },
                     {
                         "calc_component_to_replace": {},
                         "calc_component_new": {
@@ -5228,6 +5212,26 @@ class BalanceSheetLiabilitiesFerc1TableTransformer(Ferc1AbstractTableTransformer
     table_id: TableIdFerc1 = TableIdFerc1.BALANCE_SHEET_LIABILITIES
     has_unique_record_ids: bool = False
 
+    def process_xbrl_metadata(self, xbrl_metadata_json) -> pd.DataFrame:
+        """Perform default xbrl metadata processing plus adding a new xbrl_factoid.
+
+        Note: we should probably parameterize this and add it into the standard
+        :meth:`process_xbrl_metadata`.
+        """
+        tbl_meta = super().process_xbrl_metadata(xbrl_metadata_json)
+        facts_to_add = {
+            "xbrl_factoid": ["accumulated_deferred_income_taxes"],
+            "calculations": ["[]"],
+            "balance": ["credit"],
+            "ferc_account": [pd.NA],
+            "xbrl_factoid_original": ["accumulated_deferred_income_taxes"],
+            "intra_table_calc_flag": [True],
+            "row_type_xbrl": ["reported_value"],
+        }
+
+        new_facts = pd.DataFrame(facts_to_add).convert_dtypes()
+        return pd.concat([tbl_meta, new_facts])
+
 
 class BalanceSheetAssetsFerc1TableTransformer(Ferc1AbstractTableTransformer):
     """Transformer class for :ref:`balance_sheet_assets_ferc1` table."""
@@ -5263,7 +5267,15 @@ class BalanceSheetAssetsFerc1TableTransformer(Ferc1AbstractTableTransformer):
 
     @cache_df(key="process_xbrl_metadata")
     def process_xbrl_metadata(self: Self, xbrl_metadata_json) -> pd.DataFrame:
-        """Fix errors in the XBRL Metadata for this table."""
+        """Default xbrl metadata processing plus some error correction.
+
+        We add two new factoids which are defined (by PUDL) only for the DBF data, and
+        also duplicate and redefine several factoids which are referenced in multiple
+        calculations and need to be distinguishable from each other.
+
+        Note: we should probably parameterize this and add it into the standard
+        :meth:`process_xbrl_metadata`.
+        """
         tbl_meta = super().process_xbrl_metadata(xbrl_metadata_json)
 
         facts_to_duplicate = [
@@ -5271,7 +5283,7 @@ class BalanceSheetAssetsFerc1TableTransformer(Ferc1AbstractTableTransformer):
             "derivative_instrument_assets_long_term",
             "derivative_instrument_assets_hedges_long_term",
         ]
-        new_facts = (
+        duplicated_facts = (
             tbl_meta[tbl_meta.xbrl_factoid.isin(facts_to_duplicate)]
             .copy()
             .assign(
@@ -5280,7 +5292,20 @@ class BalanceSheetAssetsFerc1TableTransformer(Ferc1AbstractTableTransformer):
                 balance="credit",
             )
         )
-        return pd.concat([tbl_meta, new_facts])
+        dbf_only_facts = [
+            {
+                "xbrl_factoid": dbf_only_fact,
+                "calculations": "[]",
+                "balance": "credit",
+                "ferc_account": pd.NA,
+                "xbrl_factoid_original": dbf_only_fact,
+                "intra_table_calc_flag": True,
+                "row_type_xbrl": "reported_value",
+            }
+            for dbf_only_fact in ["special_funds_all", "nuclear_fuel"]
+        ]
+        dbf_only_facts = pd.DataFrame(dbf_only_facts).convert_dtypes()
+        return pd.concat([tbl_meta, dbf_only_facts, duplicated_facts])
 
 
 class IncomeStatementFerc1TableTransformer(Ferc1AbstractTableTransformer):
@@ -5288,6 +5313,26 @@ class IncomeStatementFerc1TableTransformer(Ferc1AbstractTableTransformer):
 
     table_id: TableIdFerc1 = TableIdFerc1.INCOME_STATEMENT_FERC1
     has_unique_record_ids: bool = False
+
+    def process_xbrl_metadata(self, xbrl_metadata_json) -> pd.DataFrame:
+        """Perform default xbrl metadata processing plus adding a new xbrl_factoid.
+
+        Note: we should probably parameterize this and add it into the standard
+        :meth:`process_xbrl_metadata`.
+        """
+        tbl_meta = super().process_xbrl_metadata(xbrl_metadata_json)
+        facts_to_add = {
+            "xbrl_factoid": ["miscellaneous_deductions"],
+            "calculations": ["[]"],
+            "balance": ["debit"],
+            "ferc_account": [pd.NA],
+            "xbrl_factoid_original": ["miscellaneous_deductions"],
+            "intra_table_calc_flag": [True],
+            "row_type_xbrl": ["reported_value"],
+        }
+
+        new_facts = pd.DataFrame(facts_to_add).convert_dtypes()
+        return pd.concat([tbl_meta, new_facts])
 
     def process_dbf(self: Self, raw_dbf: pd.DataFrame) -> pd.DataFrame:
         """Drop incorrect row numbers from f1_incm_stmnt_2 before standard processing.
