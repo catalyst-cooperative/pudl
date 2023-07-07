@@ -1,6 +1,6 @@
 """A collection of denormalized FERC assets and helper functions."""
 import json
-from typing import NamedTuple, Self
+from typing import Any, NamedTuple, Self
 
 import networkx as nx
 import numpy as np
@@ -890,8 +890,9 @@ def exploded_table_asset_factory(
     io_manager_key: str | None = None,  # TODO: Add metadata for tables
 ) -> AssetsDefinition:
     """Create an exploded table based on a set of related input tables."""
-    ins: Mapping[str, AssetIn] = {}
-    ins = {"clean_xbrl_metadata_json": AssetIn("clean_xbrl_metadata_json")}
+    ins: Mapping[str, AssetIn] = {
+        "clean_xbrl_metadata_json": AssetIn("clean_xbrl_metadata_json")
+    }
     ins |= {table_name: AssetIn(table_name) for table_name in table_names_to_explode}
 
     @asset(name=f"exploded_{root_table}", ins=ins, io_manager_key=io_manager_key)
@@ -917,13 +918,15 @@ def exploded_table_asset_factory(
 
 
 def create_exploded_table_assets() -> list[AssetsDefinition]:
-    """Create a list of exploded FERC1 assets.
+    """Create a list of exploded FERC Form 1 assets.
 
     Returns:
-        A list of AssetsDefinitions where each asset is a clean ferc form 1 table.
+        A list of :class:`AssetsDefinitions` where each asset is an exploded FERC Form 1
+        table.
     """
-    explosion_tables = {
-        "income_statement_ferc1": {
+    explosion_args = [
+        {
+            "root_table": "income_statement_ferc1",
             "table_names_to_explode": [
                 "income_statement_ferc1",
                 "depreciation_amortization_summary_ferc1",
@@ -932,7 +935,8 @@ def create_exploded_table_assets() -> list[AssetsDefinition]:
             ],
             "calculation_tolerance": 0.25,
         },
-        "balance_sheet_assets_ferc1": {
+        {
+            "root_table": "balance_sheet_assets_ferc1",
             "table_names_to_explode": [
                 "balance_sheet_assets_ferc1",
                 "utility_plant_summary_ferc1",
@@ -941,30 +945,15 @@ def create_exploded_table_assets() -> list[AssetsDefinition]:
             ],
             "calculation_tolerance": 0.11,
         },
-        "balance_sheet_liabilities_ferc1": {
+        {
+            "root_table": "balance_sheet_liabilities_ferc1",
             "table_names_to_explode": [
                 "balance_sheet_liabilities_ferc1",
                 "retained_earnings_ferc1",
-            ]
+            ],
         },
-    }
-    assets = []
-    for root_table, dictionary in explosion_tables.items():
-        table_names_to_explode = dictionary["table_names_to_explode"]
-        calculation_tolerance = dictionary.get(
-            "calculation_tolerance"
-        )  # Allows for this key to not always exist.
-        if calculation_tolerance:
-            assets.append(
-                exploded_table_asset_factory(
-                    root_table, table_names_to_explode, calculation_tolerance
-                )
-            )
-        else:
-            assets.append(
-                exploded_table_asset_factory(root_table, table_names_to_explode)
-            )
-    return assets
+    ]
+    return [exploded_table_asset_factory(**kwargs) for kwargs in explosion_args]
 
 
 exploded_ferc1_assets = create_exploded_table_assets()
@@ -1035,11 +1024,30 @@ class MetadataExploder:
         return meta_explode
 
 
+class NodeId(NamedTuple):
+    """The source table and XBRL factoid identifying a node in a calculation tree.
+
+    Since NodeId is just a :class:`NamedTuple` a list of NodeId instances can also be
+    used to index into a :class:pandas.DataFrame` that uses table names and factoids as
+    its index.  This is convenient since many :mod:`networkx` functions and methods
+    return iterable containers of graph nodes, which can be turned into lists and used
+    directly to index into dataframes.
+    """
+
+    source_table: str
+    xbrl_factoid: str
+
+
 class Exploder:
     """Get unique, granular datapoints from a set of related, nested FERC1 tables."""
 
     def __init__(
-        self, table_names: list[str], root_table: str, clean_xbrl_metadata_json: dict
+        self: Self,
+        table_names: list[str],
+        root_table: str,
+        clean_xbrl_metadata_json: dict[str, Any],
+        seeds: list[NodeId] = [],
+        tags: pd.DataFrame = pd.DataFrame(),
     ):
         """Instantiate an Exploder class.
 
@@ -1047,11 +1055,23 @@ class Exploder:
             table_names: list of table names to explode.
             root_table: the table at the base of the tree of tables_to_explode.
             clean_xbrl_metadata_json: json version of the XBRL-metadata.
+            seeds: NodeIds to use as seeds for the calculation forest.
+            tags: Additional metadata to merge onto the exploded dataframe.
         """
-        self.table_names = table_names
-        self.root_table = root_table
-        self.meta_exploder = MetadataExploder(self.table_names)
-        self.metadata_exploded = self.meta_exploder.boom(clean_xbrl_metadata_json)
+        self.table_names: list[str] = table_names
+        self.root_table: str = root_table
+        # I don't think we actually need the metadata exploder to stick around?
+        # self.meta_exploder: MetadataExploder = MetadataExploder(self.table_names)
+        self.metadata_exploded: pd.DataFrame = MetadataExploder(
+            table_names=table_names
+        ).boom(clean_xbrl_metadata_json)
+        self.calculation_forest: XbrlCalculationForestFerc1 = (
+            XbrlCalculationForestFerc1(
+                exploded_meta=self.metadata_exploded,
+                seeds=seeds,
+                tags=tags,
+            )
+        )
 
     @property
     def other_dimensions(self) -> list[str]:
@@ -1122,9 +1142,8 @@ class Exploder:
         #. Prep all of the individual tables for explosion.
         #. Concatenate all of the tabels together.
         #. Remove duplication in the concatenated exploded table.
-        #. Add in metadata for the remaining ``xbrl_factoid`` s regarding linage (not
-           implemented yet).
-        #. Validate (not implemented yet).
+        #. Annotate the fine-grained data with additional metadata.
+        #. Validate that calculated top-level values are correct.
 
         Args:
             tables_to_explode: dictionary of table name (key) to transfomed table (value).
@@ -1135,12 +1154,21 @@ class Exploder:
             self.initial_explosion_concatenation(tables_to_explode)
             .pipe(self.generate_intertable_calculations)
             .pipe(self.reconcile_intertable_calculations, calculation_tolerance)
-            # REMOVE THE DUPLICATION
-            # .pipe(self.remove_factoids_from_mutliple_tables, tables_to_explode)
-            # .pipe(self.remove_totals_from_other_dimensions)
-            # .pipe(self.remove_inter_table_calc_duplication)
-            # .pipe(remove_intra_table_calculated_values)
+            .pipe(self.calculation_forest.leafy_data)
         )
+
+        # REMOVE THE DUPLICATION (old method)
+        # exploded = (
+        # self.remove_factoids_from_mutliple_tables(tables_to_explode)
+        # .pipe(self.remove_totals_from_other_dimensions)
+        # .pipe(self.remove_inter_table_calc_duplication)
+        # .pipe(remove_intra_table_calculated_values)
+        # )
+
+        # Verify that we get the same values for the root nodes using only the input
+        # data from the leaf nodes:
+        # root_calcs = self.calculation_forest.root_calculations
+        # TODO: Validate the root node calculations.
         return exploded
 
     def initial_explosion_concatenation(
@@ -1148,8 +1176,9 @@ class Exploder:
     ) -> pd.DataFrame:
         """Concatenate all of the tables for the explosion.
 
-        Merge in some basic pieces of the each table's metadata and add ``table_name``. At
-        this point in the explosion, there will be a lot of duplicaiton in the output.
+        Merge in some basic pieces of the each table's metadata and add ``table_name``.
+        At this point in the explosion, there will be a lot of duplicaiton in the
+        output.
         """
         logger.info("Explode: CONCAT!")
         explosion_tables = []
@@ -1207,7 +1236,8 @@ class Exploder:
             return exploded
         else:
             logger.info(
-                f"{self.root_table}: Reconcile inter-table calculations: {list(inter_table_calcs.xbrl_factoid.unique())}."
+                f"{self.root_table}: Reconcile inter-table calculations: "
+                f"{list(inter_table_calcs.xbrl_factoid.unique())}."
             )
 
         inter_table_calc_components = (
@@ -1687,18 +1717,6 @@ def remove_intra_table_calculated_values(exploded: pd.DataFrame) -> pd.DataFrame
 ################################################################################
 # XBRL Calculation Tree
 ################################################################################
-class NodeId(NamedTuple):
-    """The source table and XBRL factoid identifying a node in a calculation tree.
-
-    Since NodeId is just a :class:`NamedTuple` a list of NodeId instances can also be
-    used to index into a :class:pandas.DataFrame` that uses table names and factoids as
-    its index.  This is convenient since many :mod:`networkx` functions and methods
-    return iterable containers of graph nodes, which can be turned into lists and used
-    directly to index into dataframes.
-    """
-
-    source_table: str
-    xbrl_factoid: str
 
 
 class XbrlCalculationForestFerc1(BaseModel):
@@ -1972,12 +1990,12 @@ class XbrlCalculationForestFerc1(BaseModel):
 
     @property
     def stepchildren(self: Self) -> list[NodeId]:
-        """All nodes that have more than one parent."""
+        """All nodes in the seeded digraph that have more than one parent."""
         return [n for n, d in self.seeded_digraph.in_degree() if d > 1]
 
     @property
     def stepparents(self: Self) -> list[NodeId]:
-        """All nodes with children that have more than one parent."""
+        """All nodes in the seeded digraph with children having more than one parent."""
         stepchildren = self.stepchildren
         stepparents = set()
         graph = self.seeded_digraph
@@ -1987,7 +2005,13 @@ class XbrlCalculationForestFerc1(BaseModel):
 
     @property
     def passthroughs(self: Self) -> list[NodeId]:
-        """All nodes with a single parent and a single child, which can be pruned."""
+        """All nodes in the seeded digraph with a single parent and a single child.
+
+        These nodes can be pruned, hopefully converting the seeded digraph into a
+        forest. Note that having a "single child" really means having 2 children, one
+        of which is a _correction to the calculation. We verify that the two children
+        are one real child node, and one appropriate correction.
+        """
         # In theory every node should have only one parent, but just to be safe, since
         # that's not always true right now:
         has_one_parent = {n for n, d in self.seeded_digraph.in_degree() if d == 1}
