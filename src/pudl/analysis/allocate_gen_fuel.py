@@ -296,7 +296,7 @@ def allocate_gen_fuel_asset_factory(
         net_gen_fuel_alloc: pd.DataFrame, gens: pd.DataFrame, own_eia860: pd.DataFrame
     ) -> pd.DataFrame:
         """Aggregate gen fuel data columns to generator owners."""
-        return scale_allocated_net_gen_by_ownership(
+        return scale_allocated_net_gen_fuel_by_ownership(
             net_gen_fuel_alloc=net_gen_fuel_alloc,
             gens=gens,
             own_eia860=own_eia860,
@@ -527,7 +527,7 @@ def standardize_input_frequency(
     return bf, gens_at_freq, gen
 
 
-def scale_allocated_net_gen_by_ownership(
+def scale_allocated_net_gen_fuel_by_ownership(
     net_gen_fuel_alloc: pd.DataFrame, gens: pd.DataFrame, own_eia860: pd.DataFrame
 ) -> pd.DataFrame:
     """Scale allocated net gen at the generator/energy_source_code level by ownership.
@@ -545,8 +545,9 @@ def scale_allocated_net_gen_by_ownership(
     table into the EIA Plant-parts' :meth:`scale_by_ownership`.
 
     Args:
-        net_gen_fuel_alloc: table of allocated generation at the generator, prime mover,
-            and energy source. From :func:`allocate_gen_fuel_by_generator_energy_source`
+        net_gen_fuel_alloc: table of allocated generation and fuel consumption
+            at the generator, prime mover, and energy source.
+            From :func:`allocate_gen_fuel_by_generator_energy_source`
         gens: ``generators_eia860`` table with cols: :const:``IDX_GENS``,
             ``capacity_mw`` and ``utility_id_eia``
         own_eia860: ``ownership_eia860`` table.
