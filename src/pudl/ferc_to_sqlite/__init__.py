@@ -6,7 +6,7 @@ from dagster import Definitions, graph
 import pudl
 from pudl.extract.ferc import dbf2sqlite
 from pudl.extract.xbrl import xbrl2sqlite
-from pudl.resources import datastore, ferc_to_sqlite_settings, pudl_paths
+from pudl.resources import datastore, ferc_to_sqlite_settings
 from pudl.settings import EtlSettings
 
 logger = pudl.logging_helpers.get_logger(__name__)
@@ -34,7 +34,6 @@ def ferc_to_sqlite_xbrl_only():
 default_resources_defs = {
     "ferc_to_sqlite_settings": ferc_to_sqlite_settings,
     "datastore": datastore,
-    "pudl_paths": pudl_paths,
 }
 
 ferc_to_sqlite_full = ferc_to_sqlite.to_job(

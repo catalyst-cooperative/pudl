@@ -18,7 +18,7 @@ logger = pudl.logging_helpers.get_logger(__name__)
             bool, description="Clobber existing ferc1 database.", default_value=False
         ),
     },
-    required_resource_keys={"ferc_to_sqlite_settings", "datastore", "pudl_paths"},
+    required_resource_keys={"ferc_to_sqlite_settings", "datastore"},
 )
 def dbf2sqlite(context) -> None:
     """Clone the FERC Form 1 Visual FoxPro databases into SQLite."""

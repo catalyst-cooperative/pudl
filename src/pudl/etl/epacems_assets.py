@@ -41,7 +41,7 @@ def get_years_from_settings(context):
         yield DynamicOutput(year, mapping_key=str(year))
 
 
-@op(required_resource_keys={"datastore", "dataset_settings", "pudl_paths"})
+@op(required_resource_keys={"datastore", "dataset_settings"})
 def process_single_year(
     context,
     year,
@@ -82,7 +82,7 @@ def process_single_year(
     return YearPartitions(year, epacems_settings.states)
 
 
-@op(required_resource_keys={"pudl_paths"})
+@op
 def consolidate_partitions(context, partitions: list[YearPartitions]) -> None:
     """Read partitions into memory and write to a single monolithic output.
 

@@ -533,7 +533,7 @@ class PudlSQLiteIOManager(SQLiteIOManager):
         return df
 
 
-@io_manager(required_resource_keys={"pudl_paths"})
+@io_manager
 def pudl_sqlite_io_manager(init_context) -> PudlSQLiteIOManager:
     """Create a SQLiteManager dagster resource for the pudl database."""
     return PudlSQLiteIOManager(base_dir=PudlPaths().output_dir, db_name="pudl")
@@ -664,7 +664,7 @@ class FercDBFSQLiteIOManager(FercSQLiteIOManager):
             ).assign(sched_table_name=table_name)
 
 
-@io_manager(required_resource_keys={"dataset_settings", "pudl_paths"})
+@io_manager(required_resource_keys={"dataset_settings"})
 def ferc1_dbf_sqlite_io_manager(init_context) -> FercDBFSQLiteIOManager:
     """Create a SQLiteManager dagster resource for the ferc1 dbf database."""
     return FercDBFSQLiteIOManager(
@@ -722,9 +722,7 @@ class FercXBRLSQLiteIOManager(FercSQLiteIOManager):
             ).assign(sched_table_name=sched_table_name)
 
 
-@io_manager(
-    required_resource_keys={"dataset_settings", "pudl_paths"},
-)
+@io_manager(required_resource_keys={"dataset_settings"})
 def ferc1_xbrl_sqlite_io_manager(init_context) -> FercXBRLSQLiteIOManager:
     """Create a SQLiteManager dagster resource for the ferc1 dbf database."""
     return FercXBRLSQLiteIOManager(
@@ -759,12 +757,12 @@ class PandasParquetIOManager(UPathIOManager):
         )
 
 
-@io_manager(required_resource_keys={"pudl_paths"})
+@io_manager
 def epacems_io_manager(
     init_context: InitResourceContext,
 ) -> PandasParquetIOManager:
     """IO Manager that writes EPA CEMS partitions to individual parquet files."""
     schema = Resource.from_id("hourly_emissions_epacems").to_pyarrow()
     return PandasParquetIOManager(
-        base_path=UPath(init_context.resources.pudl_paths.output_dir), schema=schema
+        base_path=UPath(PudlPaths().output_dir), schema=schema
     )

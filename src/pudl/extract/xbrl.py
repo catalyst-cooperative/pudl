@@ -111,7 +111,7 @@ def _get_sqlite_engine(form_number: int, clobber: bool) -> sa.engine.Engine:
             default_value=50,
         ),
     },
-    required_resource_keys={"ferc_to_sqlite_settings", "datastore", "pudl_paths"},
+    required_resource_keys={"ferc_to_sqlite_settings", "datastore"},
 )
 def xbrl2sqlite(context) -> None:
     """Clone the FERC Form 1 XBRL Databsae to SQLite."""

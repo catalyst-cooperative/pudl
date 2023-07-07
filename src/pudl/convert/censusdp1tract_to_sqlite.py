@@ -39,7 +39,7 @@ logger = pudl.logging_helpers.get_logger(__name__)
             default_value=2010,
         ),
     },
-    required_resource_keys={"datastore", "pudl_paths"},
+    required_resource_keys={"datastore"},
 )
 def censusdp1tract_to_sqlite(context):
     """Use GDAL's ogr2ogr utility to convert the Census DP1 GeoDB to an SQLite DB.

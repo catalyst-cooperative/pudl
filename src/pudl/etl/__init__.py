@@ -17,12 +17,7 @@ from pudl.io_managers import (
     ferc1_xbrl_sqlite_io_manager,
     pudl_sqlite_io_manager,
 )
-from pudl.resources import (
-    dataset_settings,
-    datastore,
-    ferc_to_sqlite_settings,
-    pudl_paths,
-)
+from pudl.resources import dataset_settings, datastore, ferc_to_sqlite_settings
 from pudl.settings import EtlSettings
 
 from . import glue_assets  # noqa: F401
@@ -71,7 +66,6 @@ default_assets = (
 
 default_resources = {
     "datastore": datastore,
-    "pudl_paths": pudl_paths,
     "pudl_sqlite_io_manager": pudl_sqlite_io_manager,
     "ferc1_dbf_sqlite_io_manager": ferc1_dbf_sqlite_io_manager,
     "ferc1_xbrl_sqlite_io_manager": ferc1_xbrl_sqlite_io_manager,
