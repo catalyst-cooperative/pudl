@@ -4896,10 +4896,103 @@ class UtilityPlantSummaryFerc1TableTransformer(Ferc1AbstractTableTransformer):
     table_id: TableIdFerc1 = TableIdFerc1.UTILITY_PLANT_SUMMARY_FERC1
     has_unique_record_ids: bool = False
 
-    def transform_main(self: Self, df: pd.DataFrame) -> pd.DataFrame:
-        """Spot fix depreciation_utility_plant_in_service records with bad signs."""
-        df = super().transform_main(df)
+    def process_xbrl_metadata(self, xbrl_metadata_json) -> pd.DataFrame:
+        """Do the default metadata processing plus add a new factoid.
 
+        The new factoid cooresponds to the aggregated factoid in
+        :meth:`aggregated_xbrl_factoids`.
+        """
+        tbl_meta = super().process_xbrl_metadata(xbrl_metadata_json)
+        # things that could be grabbed from a aggregated_xbrl_factoids param
+        new_factoid_name = (
+            "utility_plant_in_service_classified_and_property_under_capital_leases"
+        )
+        # point this new aggregated factiod to the PIS table's equivilant when the
+        # subdimensions line up
+        calc = [
+            {
+                "name": "electric_plant_in_service_and_completed_construction_not_classified_electric",
+                "weight": 1.0,
+                "source_tables": ["plant_in_service_ferc1"],
+                "utility_type": "electric",
+            }
+        ]
+        new_fact = pd.DataFrame(
+            {
+                "xbrl_factoid": [new_factoid_name],
+                "calculations": [json.dumps(calc)],
+                "balance": ["debit"],
+                "ferc_account": [pd.NA],
+                "xbrl_factoid_original": [new_factoid_name],
+                "intra_table_calc_flag": [True],
+                "row_type_xbrl": ["calculated_value"],
+            }
+        ).convert_dtypes()
+
+        tbl_meta = pd.concat([tbl_meta, new_fact]).reset_index(drop=True)
+        return tbl_meta
+
+    def transform_main(self: Self, df: pd.DataFrame) -> pd.DataFrame:
+        """Default transforming, plus spot fixing and building aggregate xbrl_factoid."""
+        # we want to aggregate the factoids first here bc merge_xbrl_metadata is done
+        # at the end of super().transform_main
+        df = (
+            self.aggregated_xbrl_factoids(df)
+            .pipe(super().transform_main)
+            .pipe(self.spot_fix_bad_signs)
+        )
+        return df
+
+    def aggregated_xbrl_factoids(self: Self, df: pd.DataFrame) -> pd.DataFrame:
+        """Aggregate xbrl_factoids records for linking to :ref:`plant_in_service_ferc1`.
+
+        This table has two ``xbrl_factoid`` which can be linked via calcuations to one
+        ``xbrl_factoid`` in the :ref:`plant_in_service_ferc1`. Doing this 2:1 linkage
+        would be fine in theory. But the :ref:`plant_in_service_ferc1` is in most senses
+        the table with the more details and of our desire to build tree-link
+        relationships between factoids, we need to build a new factoid to link in a 1:1
+        manner between this table and the :ref:`plant_in_service_ferc1`.
+
+        We'll also add this factoid into the metadata via :meth:`process_xbrl_metadata`
+        and add the linking calculation via :meth:`apply_xbrl_calculation_fixes`.
+        """
+        # these guys could be params
+        factoids_to_agg = [
+            "utility_plant_in_service_classified",
+            "utility_plant_in_service_property_under_capital_leases",
+        ]
+        new_factoid_name = (
+            "utility_plant_in_service_classified_and_property_under_capital_leases"
+        )
+        cols_to_agg = ["ending_balance"]
+        # grab some key infor for the actual aggregation
+        xbrl_factoid_name = self.params.xbrl_factoid_name
+        pks = pudl.metadata.classes.Resource.from_id(
+            self.table_id.value
+        ).schema.primary_key
+        pks_wo_factoid = [col for col in pks if col != xbrl_factoid_name]
+
+        agg_mask = df[xbrl_factoid_name].isin(factoids_to_agg)
+        agg_df = (
+            df[agg_mask]
+            .groupby(pks_wo_factoid, as_index=False, dropna=False)[cols_to_agg]
+            .sum(min_count=1)
+            .assign(**{xbrl_factoid_name: new_factoid_name})
+        )
+        # note: this results in the "loss" of non-pk columns like record_id - which
+        # seems appropriate imo. still flag a warning
+        missing_cols = [
+            col for col in df.columns if col not in list(agg_df.columns) + ["record_id"]
+        ]
+        logger.warning(
+            f"Post-aggregating a new xbrl_factoid, we are missing the following columns: {missing_cols}"
+        )
+        # squish em back together
+        df = pd.concat([df, agg_df]).reset_index(drop=True)
+        return df
+
+    def spot_fix_bad_signs(self: Self, df: pd.DataFrame) -> pd.DataFrame:
+        """Spot fix depreciation_utility_plant_in_service records with bad signs."""
         primary_keys = [
             "report_year",
             "utility_id_ferc1",
