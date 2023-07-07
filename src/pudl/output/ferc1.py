@@ -1864,20 +1864,6 @@ class XbrlCalculationForestFerc1(BaseModel):
                 forest.add_edge(from_node, to_node)
         nx.set_node_attributes(forest, attrs)
 
-        # This is a temporary hack. These xbrl_factoid values need to have metadata
-        # created and injected by the process_xbrl_metadata() method in the FERC 1
-        # table transformers... We created them to refer to data that only appears in
-        # the DBF data.
-        dbf_only = [
-            NodeId("balance_sheet_assets_ferc1", "special_funds_all"),
-            NodeId("balance_sheet_assets_ferc1", "nuclear_fuel"),
-            NodeId("income_statement_ferc1", "miscellaneous_deductions"),
-            NodeId(
-                "balance_sheet_liabilities_ferc1", "accumulated_deferred_income_taxes"
-            ),
-        ]
-        forest.remove_nodes_from(dbf_only)
-
         return forest
 
     @property
