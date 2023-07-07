@@ -5144,12 +5144,55 @@ class BalanceSheetAssetsFerc1TableTransformer(Ferc1AbstractTableTransformer):
     table_id: TableIdFerc1 = TableIdFerc1.BALANCE_SHEET_ASSETS_FERC1
     has_unique_record_ids: bool = False
 
+    def process_xbrl_metadata(self, xbrl_metadata_json) -> pd.DataFrame:
+        """Perform default xbrl metadata processing plus adding two new xbrl_factoids.
+
+        Note: we should probably parameterize this and add it into the standard
+        :meth:`process_xbrl_metadata`.
+        """
+        tbl_meta = super().process_xbrl_metadata(xbrl_metadata_json)
+        facts_to_add = [
+            {
+                "xbrl_factoid": dbf_onl_fact,
+                "calculations": "[]",
+                "balance": "credit",
+                "ferc_account": pd.NA,
+                "xbrl_factoid_original": dbf_onl_fact,
+                "intra_table_calc_flag": True,
+                "row_type_xbrl": "report_value",
+            }
+            for dbf_onl_fact in ["special_funds_all", "nuclear_fuel"]
+        ]
+
+        new_facts = pd.DataFrame(facts_to_add).convert_dtypes()
+        return pd.concat([tbl_meta, new_facts])
+
 
 class IncomeStatementFerc1TableTransformer(Ferc1AbstractTableTransformer):
     """Transformer class for the :ref:`income_statement_ferc1` table."""
 
     table_id: TableIdFerc1 = TableIdFerc1.INCOME_STATEMENT_FERC1
     has_unique_record_ids: bool = False
+
+    def process_xbrl_metadata(self, xbrl_metadata_json) -> pd.DataFrame:
+        """Perform default xbrl metadata processing plus adding a new xbrl_factoid.
+
+        Note: we should probably parameterize this and add it into the standard
+        :meth:`process_xbrl_metadata`.
+        """
+        tbl_meta = super().process_xbrl_metadata(xbrl_metadata_json)
+        facts_to_add = {
+            "xbrl_factoid": ["miscellaneous_deductions"],
+            "calculations": ["[]"],
+            "balance": ["debit"],
+            "ferc_account": [pd.NA],
+            "xbrl_factoid_original": ["miscellaneous_deductions"],
+            "intra_table_calc_flag": [True],
+            "row_type_xbrl": ["report_value"],
+        }
+
+        new_facts = pd.DataFrame(facts_to_add).convert_dtypes()
+        return pd.concat([tbl_meta, new_facts])
 
     def process_dbf(self: Self, raw_dbf: pd.DataFrame) -> pd.DataFrame:
         """Drop incorrect row numbers from f1_incm_stmnt_2 before standard processing.
