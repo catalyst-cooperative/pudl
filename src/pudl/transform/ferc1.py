@@ -2155,6 +2155,44 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
                 ],
             },
             "balance_sheet_assets_ferc1": {
+                "current_and_accrued_assets": [
+                    {
+                        "calc_component_to_replace": {
+                            "name": "noncurrent_portion_of_allowances",
+                            "weight": 1.0,
+                            "source_tables": ["balance_sheet_assets_ferc1"],
+                        },
+                        "calc_component_new": {
+                            "name": "less_noncurrent_portion_of_allowances",
+                            "weight": -1.0,
+                            "source_tables": ["balance_sheet_assets_ferc1"],
+                        },
+                    },
+                    {
+                        "calc_component_to_replace": {
+                            "name": "derivative_instrument_assets_long_term",
+                            "weight": 1.0,
+                            "source_tables": ["balance_sheet_assets_ferc1"],
+                        },
+                        "calc_component_new": {
+                            "name": "less_derivative_instrument_assets_long_term",
+                            "weight": -1.0,
+                            "source_tables": ["balance_sheet_assets_ferc1"],
+                        },
+                    },
+                    {
+                        "calc_component_to_replace": {
+                            "name": "derivative_instrument_assets_hedges_long_term",
+                            "weight": 1.0,
+                            "source_tables": ["balance_sheet_assets_ferc1"],
+                        },
+                        "calc_component_new": {
+                            "name": "less_derivative_instrument_assets_hedges_long_term",
+                            "weight": -1.0,
+                            "source_tables": ["balance_sheet_assets_ferc1"],
+                        },
+                    },
+                ],
                 "nuclear_fuel_net": [
                     {
                         "calc_component_to_replace": {
@@ -3939,11 +3977,12 @@ class PlantInServiceFerc1TableTransformer(Ferc1AbstractTableTransformer):
         )
         return deduped
 
+    @cache_df(key="dbf")
     def process_dbf(self, raw_dbf: pd.DataFrame) -> pd.DataFrame:
         """Drop targeted duplicates in the DBF data so we can use FERC respondent ID."""
         return super().process_dbf(raw_dbf).pipe(self.targeted_drop_duplicates_dbf)
 
-    @cache_df("main")
+    @cache_df(key="main")
     def transform_main(self, df: pd.DataFrame) -> pd.DataFrame:
         """The main table-specific transformations, affecting contents not structure.
 
@@ -5195,6 +5234,53 @@ class BalanceSheetAssetsFerc1TableTransformer(Ferc1AbstractTableTransformer):
 
     table_id: TableIdFerc1 = TableIdFerc1.BALANCE_SHEET_ASSETS_FERC1
     has_unique_record_ids: bool = False
+
+    @cache_df(key="main")
+    def transform_main(self: Self, df: pd.DataFrame) -> pd.DataFrame:
+        """Duplicate data that appears in multiple distinct calculations.
+
+        There is a one case in which exactly the same data values are referenced in
+        multiple calculations which can't be resolved by choosing one of the
+        referenced values as the canonical location for that data. In order to preserve
+        all of the calculation structure, we need to duplicate those records in the
+        data, the metadata, and the calculation specifications.  Here we duplicate the
+        data and associated it with newly defined facts, which we will also add to
+        the metadata and calculations.
+        """
+        df = super().transform_main(df)
+        facts_to_duplicate = [
+            "noncurrent_portion_of_allowances",
+            "derivative_instrument_assets_long_term",
+            "derivative_instrument_assets_hedges_long_term",
+        ]
+        new_data = (
+            df[df.asset_type.isin(facts_to_duplicate)]
+            .copy()
+            .assign(asset_type=lambda x: "less_" + x.asset_type)
+        )
+
+        return pd.concat([df, new_data])
+
+    @cache_df(key="process_xbrl_metadata")
+    def process_xbrl_metadata(self: Self, xbrl_metadata_json) -> pd.DataFrame:
+        """Fix errors in the XBRL Metadata for this table."""
+        tbl_meta = super().process_xbrl_metadata(xbrl_metadata_json)
+
+        facts_to_duplicate = [
+            "noncurrent_portion_of_allowances",
+            "derivative_instrument_assets_long_term",
+            "derivative_instrument_assets_hedges_long_term",
+        ]
+        new_facts = (
+            tbl_meta[tbl_meta.xbrl_factoid.isin(facts_to_duplicate)]
+            .copy()
+            .assign(
+                xbrl_factoid=lambda x: "less_" + x.xbrl_factoid,
+                xbrl_factoid_original=lambda x: "less_" + x.xbrl_factoid_original,
+                balance="credit",
+            )
+        )
+        return pd.concat([tbl_meta, new_facts])
 
 
 class IncomeStatementFerc1TableTransformer(Ferc1AbstractTableTransformer):
