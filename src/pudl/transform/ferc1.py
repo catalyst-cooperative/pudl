@@ -1750,17 +1750,17 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
                             ],
                         },
                         "calc_component_new": {
-                            "name": "small_or_commercial_sales_electric_operating_revenue",
+                            "name": "small_or_commercial",
                             "weight": 1.0,
-                            "source_tables": ["income_statement_ferc1"],
+                            "source_tables": ["electric_operating_revenues_ferc1"],
                         },
                     },
                     {
                         "calc_component_to_replace": {},
                         "calc_component_new": {
-                            "name": "large_or_industrial_sales_electric_operating_revenue",
+                            "name": "large_or_industrial",
                             "weight": 1.0,
-                            "source_tables": ["income_statement_ferc1"],
+                            "source_tables": ["electric_operating_revenues_ferc1"],
                         },
                     },
                 ],
@@ -5797,9 +5797,16 @@ class ElectricOperatingRevenuesFerc1TableTransformer(Ferc1AbstractTableTransform
         non_dupes = tbl_meta[~dupes_masks]
         dupes = tbl_meta[dupes_masks]
         # the metadata relating to dollar_value column *generally* had the same name as
-        # the renamed xbrl_factoid. we'll double check that we a) didn't remove too many
-        # factoid's by doing this AND that we have a fully deduped output below.
-        deduped = dupes[dupes.xbrl_factoid == dupes.xbrl_factoid_original]
+        # the renamed xbrl_factoid. the outliers here are these two that have calcs for
+        # the factoid we want to keep (we could also id them w/ their og factoid names
+        # if that would be more straightforward)
+        deduped = dupes[
+            (dupes.xbrl_factoid == dupes.xbrl_factoid_original)
+            | (
+                dupes.xbrl_factoid.isin(["small_or_commercial", "large_or_industrial"])
+                & (dupes.calculations != "[]")
+            )
+        ]
         tbl_meta_cleaned = pd.concat([non_dupes, deduped])
         assert ~tbl_meta_cleaned.duplicated(subset=["xbrl_factoid"]).all()
 
@@ -5809,11 +5816,10 @@ class ElectricOperatingRevenuesFerc1TableTransformer(Ferc1AbstractTableTransform
             for factoid in tbl_meta.xbrl_factoid.unique()
             if factoid not in tbl_meta_cleaned.xbrl_factoid.unique()
         }
-        if missing != {"small_or_commercial", "large_or_industrial"}:
+        if missing:
             raise AssertionError(
-                "We expected two factoids to be missing post deduplication but found "
-                f"{missing}. The two that were expected that were fully reported values"
-                " and were associated with non-dollar columns."
+                "We expected to find no missing xbrl_factoid's after deduplication "
+                f"but found {missing}"
             )
         return tbl_meta_cleaned
 
