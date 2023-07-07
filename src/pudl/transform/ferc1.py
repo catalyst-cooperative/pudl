@@ -2369,6 +2369,14 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
                     {
                         "calc_component_to_replace": {},
                         "calc_component_new": {
+                            "name": "unappropriated_undistributed_subsidiary_earnings_previous_year",
+                            "weight": 1.0,
+                            "source_tables": ["retained_earnings_ferc1"],
+                        },
+                    },
+                    {
+                        "calc_component_to_replace": {},
+                        "calc_component_new": {
                             "name": "equity_in_earnings_of_subsidiary_companies",
                             "weight": 1.0,
                             "source_tables": ["retained_earnings_ferc1"],
@@ -2392,6 +2400,14 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
                     },
                 ],
                 "unappropriated_retained_earnings": [
+                    {
+                        "calc_component_to_replace": {},
+                        "calc_component_new": {
+                            "name": "unappropriated_retained_earnings_previous_year",
+                            "weight": 1.0,
+                            "source_tables": ["retained_earnings_ferc1"],
+                        },
+                    },
                     {
                         "calc_component_to_replace": {},
                         "calc_component_new": {
