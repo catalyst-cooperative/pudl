@@ -5131,7 +5131,7 @@ class BalanceSheetLiabilitiesFerc1TableTransformer(Ferc1AbstractTableTransformer
             "ferc_account": [pd.NA],
             "xbrl_factoid_original": ["accumulated_deferred_income_taxes"],
             "intra_table_calc_flag": [True],
-            "row_type_xbrl": ["report_value"],
+            "row_type_xbrl": ["reported_value"],
         }
 
         new_facts = pd.DataFrame(facts_to_add).convert_dtypes()
@@ -5153,15 +5153,15 @@ class BalanceSheetAssetsFerc1TableTransformer(Ferc1AbstractTableTransformer):
         tbl_meta = super().process_xbrl_metadata(xbrl_metadata_json)
         facts_to_add = [
             {
-                "xbrl_factoid": dbf_onl_fact,
+                "xbrl_factoid": dbf_only_fact,
                 "calculations": "[]",
                 "balance": "credit",
                 "ferc_account": pd.NA,
-                "xbrl_factoid_original": dbf_onl_fact,
+                "xbrl_factoid_original": dbf_only_fact,
                 "intra_table_calc_flag": True,
-                "row_type_xbrl": "report_value",
+                "row_type_xbrl": "reported_value",
             }
-            for dbf_onl_fact in ["special_funds_all", "nuclear_fuel"]
+            for dbf_only_fact in ["special_funds_all", "nuclear_fuel"]
         ]
 
         new_facts = pd.DataFrame(facts_to_add).convert_dtypes()
@@ -5188,7 +5188,7 @@ class IncomeStatementFerc1TableTransformer(Ferc1AbstractTableTransformer):
             "ferc_account": [pd.NA],
             "xbrl_factoid_original": ["miscellaneous_deductions"],
             "intra_table_calc_flag": [True],
-            "row_type_xbrl": ["report_value"],
+            "row_type_xbrl": ["reported_value"],
         }
 
         new_facts = pd.DataFrame(facts_to_add).convert_dtypes()
