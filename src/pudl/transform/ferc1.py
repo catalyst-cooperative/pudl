@@ -2079,6 +2079,33 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
                         },
                     }
                 ],
+                "utility_plant_in_service_classified_and_unclassified": [
+                    # we made a new factoid for this table in aggregated_xbrl_factoids
+                    # which squishes two factoids together so it can be linked up with
+                    # the plant_in_service_ferc1 table. These two factoids are calc
+                    # components for this factoid. we are replacing them with this new
+                    # aggregated factoid
+                    {
+                        "calc_component_to_replace": {
+                            "name": "utility_plant_in_service_classified",
+                            "weight": 1.0,
+                            "source_tables": ["utility_plant_summary_ferc1"],
+                        },
+                        "calc_component_new": {
+                            "name": "utility_plant_in_service_classified_and_property_under_capital_leases",
+                            "weight": 1.0,
+                            "source_tables": ["utility_plant_summary_ferc1"],
+                        },
+                    },
+                    {
+                        "calc_component_to_replace": {
+                            "name": "utility_plant_in_service_property_under_capital_leases",
+                            "weight": 1.0,
+                            "source_tables": ["utility_plant_summary_ferc1"],
+                        },
+                        "calc_component_new": {},
+                    },
+                ],
                 "utility_plant_in_service_experimental_plant_unclassified": [
                     # Temporarily adding to metadata only.
                     {
@@ -4868,7 +4895,7 @@ class UtilityPlantSummaryFerc1TableTransformer(Ferc1AbstractTableTransformer):
                 "balance": ["debit"],
                 "ferc_account": [pd.NA],
                 "xbrl_factoid_original": [new_factoid_name],
-                "intra_table_calc_flag": [True],
+                "intra_table_calc_flag": [False],
                 "row_type_xbrl": ["calculated_value"],
             }
         ).convert_dtypes()
