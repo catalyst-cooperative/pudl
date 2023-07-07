@@ -66,6 +66,11 @@ def parse_command_line(argv):
         help="Set logging level (DEBUG, INFO, WARNING, ERROR, or CRITICAL).",
         default="INFO",
     )
+    parser.add_argument(
+        "--max-concurrent",
+        help="Set the max number of processes dagster can launch. Defaults to use the number of CPUs on the machine.",
+        default=0,
+    )
     arguments = parser.parse_args(argv[1:])
     return arguments
 
@@ -140,6 +145,13 @@ def main():
         pudl_etl_reconstructable_job,
         instance=DagsterInstance.get(),
         run_config={
+            "execution": {
+                "config": {
+                    "multiprocess": {
+                        "max_concurrent": int(args.max_concurrent),
+                    },
+                }
+            },
             "resources": {
                 "dataset_settings": {"config": dataset_settings_config},
                 "datastore": {
