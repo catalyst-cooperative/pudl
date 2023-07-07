@@ -31,7 +31,7 @@ function run_pudl_etl() {
     && pudl_etl \
         --loglevel DEBUG \
         --gcs-cache-path gs://internal-zenodo-cache.catalyst.coop \
-        $PUDL_SETTINGS_YML
+        $PUDL_SETTINGS_YML \
     && tox parallel -e unit,integration,validation --parallel-live \
         -- \
         --gcs-cache-path=gs://internal-zenodo-cache.catalyst.coop \
