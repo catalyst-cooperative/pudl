@@ -185,7 +185,7 @@ def pudl_out_orig(live_dbs, pudl_engine):
 
 
 @pytest.fixture(scope="session")
-def ferc_to_sqlite_dbf_only(live_dbs, pudl_datastore_config, etl_settings, pudl_env):
+def ferc_to_sqlite_dbf_only(live_dbs, pudl_datastore_config, etl_settings):
     """Create raw FERC 1 SQLite DBs, but only based on DBF sources."""
     if not live_dbs:
         ferc_to_sqlite_job_factory(
@@ -205,7 +205,7 @@ def ferc_to_sqlite_dbf_only(live_dbs, pudl_datastore_config, etl_settings, pudl_
 
 
 @pytest.fixture(scope="session")
-def ferc_to_sqlite_xbrl_only(live_dbs, pudl_datastore_config, etl_settings, pudl_env):
+def ferc_to_sqlite_xbrl_only(live_dbs, pudl_datastore_config, etl_settings):
     """Create raw FERC 1 SQLite DBs, but only based on XBRL sources."""
     if not live_dbs:
         ferc_to_sqlite_job_factory(
@@ -225,7 +225,7 @@ def ferc_to_sqlite_xbrl_only(live_dbs, pudl_datastore_config, etl_settings, pudl
 
 
 @pytest.fixture(scope="session")
-def ferc_to_sqlite(live_dbs, pudl_datastore_config, etl_settings, pudl_env):
+def ferc_to_sqlite(live_dbs, pudl_datastore_config, etl_settings):
     """Create raw FERC 1 SQLite DBs.
 
     If we are using the test database, we initialize it from scratch first. If we're
@@ -397,7 +397,10 @@ def pytest_sessionstart(session):
 def pudl_path_setup(request, pudl_tmpdir):
     """Sets the necessary env variables for the input and output paths."""
     if os.environ.get("GITHUB_ACTIONS", False):
-        pudl.workspace.setup.set_path_overrides()
+        pudl.workspace.setup.set_path_overrides(
+            input_dir="~/pudl-work/data",
+            output_dir="~/pudl-work/output",
+        )
     else:
         if request.config.getoption("--tmp-data"):
             in_tmp = pudl_tmpdir / "data"
@@ -405,7 +408,7 @@ def pudl_path_setup(request, pudl_tmpdir):
             pudl.workspace.setup.set_path_overrides(
                 input_dir=str(Path(in_tmp).resolve()),
             )
-        if request.config.getoption("--live-dbs"):
+        if not request.config.getoption("--live-dbs"):
             out_tmp = pudl_tmpdir / "output"
             out_tmp.mkdir()
             pudl.workspace.setup.set_path_overrides(
