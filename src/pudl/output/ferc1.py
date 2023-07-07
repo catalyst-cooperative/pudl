@@ -1065,6 +1065,24 @@ class Exploder:
         self.metadata_exploded: pd.DataFrame = MetadataExploder(
             table_names=table_names
         ).boom(clean_xbrl_metadata_json)
+
+        # If we don't get any explicit seed nodes, use all nodes from the root table
+        # that have calculations associated with them:
+        if len(seeds) == 0:
+            logger.info(
+                "No seeds provided. Using all calculated nodes in root table: "
+                f"{self.root_table}"
+            )
+            seeds = list(
+                self.metadata_exploded[
+                    (self.metadata_exploded.table_name == self.root_table)
+                    & (self.metadata_exploded.calculations != "[]")
+                ]
+                .set_index(["table_name", "xbrl_factoid"])
+                .index
+            )
+            logger.info(f"Identified {seeds=}")
+
         self.calculation_forest: XbrlCalculationForestFerc1 = (
             XbrlCalculationForestFerc1(
                 exploded_meta=self.metadata_exploded,
@@ -1154,7 +1172,7 @@ class Exploder:
             self.initial_explosion_concatenation(tables_to_explode)
             .pipe(self.generate_intertable_calculations)
             .pipe(self.reconcile_intertable_calculations, calculation_tolerance)
-            .pipe(self.calculation_forest.leafy_data)
+            .pipe(self.calculation_forest.leafy_data, value_col=self.value_col)
         )
 
         # REMOVE THE DUPLICATION (old method)
@@ -1765,7 +1783,7 @@ class XbrlCalculationForestFerc1(BaseModel):
                 f"Exploded metadataframes must be indexed by {idx_cols}, but these "
                 f"columns were missing: {missing_idx_cols=}"
             )
-        drop = v.index.names is None
+        drop = (v.index.names is None) or (v.index.names == [None])
         return v.set_index(idx_cols, drop=drop)
 
     @validator("exploded_meta", "tags")
@@ -1850,11 +1868,15 @@ class XbrlCalculationForestFerc1(BaseModel):
         # created and injected by the process_xbrl_metadata() method in the FERC 1
         # table transformers... We created them to refer to data that only appears in
         # the DBF data.
-        bad_nodes = [
+        dbf_only = [
             NodeId("balance_sheet_assets_ferc1", "special_funds_all"),
             NodeId("balance_sheet_assets_ferc1", "nuclear_fuel"),
+            NodeId("income_statement_ferc1", "miscellaneous_deductions"),
+            NodeId(
+                "balance_sheet_liabilities_ferc1", "accumulated_deferred_income_taxes"
+            ),
         ]
-        forest.remove_nodes_from(bad_nodes)
+        forest.remove_nodes_from(dbf_only)
 
         return forest
 
@@ -1898,12 +1920,7 @@ class XbrlCalculationForestFerc1(BaseModel):
 
     @property
     def forest(self: Self) -> nx.DiGraph:
-        """A pruned version of the seeded digraph that should be one or more trees.
-
-        Currently this just retuns the seeded digraph. Any programmatic pruning or
-        specific changes to the digraph that are required to make it into a tree will
-        be done here.
-        """
+        """A pruned version of the seeded digraph that should be one or more trees."""
         forest = self.seeded_digraph
         # Remove any node that has only one parent and one child, and add an edge
         # between its parent and child.
@@ -1917,12 +1934,17 @@ class XbrlCalculationForestFerc1(BaseModel):
                 for n in forest.successors(node)
                 if not n.xbrl_factoid.endswith("_correction")
             ]
+            correction = [
+                n
+                for n in forest.successors(node)
+                if n.xbrl_factoid.endswith("_correction")
+            ]
             assert len(child) == 1
             logger.debug(
                 f"Replacing passthrough node {node} with edge from "
                 f"{parent[0]} to {child[0]}"
             )
-            forest.remove_nodes_from(successors)
+            forest.remove_nodes_from(correction + [node])
             forest.add_edge(parent[0], child[0])
 
         if not nx.is_forest(forest):
@@ -2149,17 +2171,20 @@ class XbrlCalculationForestFerc1(BaseModel):
         root_calcs.columns = ["root_table", "root_xbrl_factoid", "calculations"]
         return root_calcs
 
+    @property
+    def table_names(self: Self) -> list[str]:
+        """Produce the list of tables involved in this explosion."""
+        return list(self.exploded_meta.reset_index()["table_name"].unique())
+
     @staticmethod
-    def plot(graph: nx.DiGraph) -> None:
+    def plot(graph: nx.DiGraph, table_names: list[str]) -> None:
         """Visualize the calculation forest and its attributes."""
-        # Need to make this dynamic / not dependent on particular tables:
-        colors = {
-            "balance_sheet_assets_ferc1": "red",
-            "utility_plant_summary_ferc1": "orange",
-            "plant_in_service_ferc1": "yellow",
-            "electric_plant_depreciation_functional_ferc1": "green",
+        colors = ["red", "orange", "yellow", "green", "blue", "purple"]
+        color_map = {
+            table: color
+            for table, color in zip(table_names, colors[: len(table_names)])
         }
-        node_color = [colors[node.source_table] for node in graph.nodes]
+        node_color = [color_map[node.source_table] for node in graph.nodes]
 
         pos = graphviz_layout(graph, prog="dot", args='-Grankdir="LR"')
         nx.draw_networkx_nodes(graph, pos, node_color=node_color)
@@ -2172,17 +2197,19 @@ class XbrlCalculationForestFerc1(BaseModel):
 
     def plot_full_digraph(self: Self) -> None:
         """Visualize the unpruned DAG."""
-        self.plot(self.full_digraph)
+        self.plot(self.full_digraph, table_names=self.table_names)
 
     def plot_seeded_digraph(self: Self) -> None:
         """Visualize the pruned forest."""
-        self.plot(self.seeded_digraph)
+        self.plot(self.seeded_digraph, table_names=self.table_names)
 
     def plot_forest(self: Self) -> None:
         """Visualize the pruned forest."""
-        self.plot(self.forest)
+        self.plot(self.forest, table_names=self.table_names)
 
-    def leafy_data(self: Self, exploded_data: pd.DataFrame) -> pd.DataFrame:
+    def leafy_data(
+        self: Self, exploded_data: pd.DataFrame, value_col: str
+    ) -> pd.DataFrame:
         """Use the calculation forest to prune the exploded dataframe.
 
         - Drop all rows that don't correspond to either root or leaf facts.
@@ -2218,8 +2245,7 @@ class XbrlCalculationForestFerc1(BaseModel):
             right_on=["table_name", "xbrl_factoid"],
             how="left",
             validate="one_to_many",
-        ).assign(
-            starting_balance=lambda x: x.starting_balance * x.weight,
-            ending_balance=lambda x: x.starting_balance * x.weight,
         )
+        # Scale the data column of interest:
+        leafy_data[value_col] = leafy_data[value_col] * leafy_data["weight"]
         return leafy_data
