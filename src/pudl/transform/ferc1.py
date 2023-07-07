@@ -5299,7 +5299,24 @@ class RetainedEarningsFerc1TableTransformer(Ferc1AbstractTableTransformer):
             "ferc_account",
         ] = "418.1"
 
-        return meta
+        facts_to_add = [
+            {
+                "xbrl_factoid": new_fact,
+                "calculations": "[]",
+                "balance": "credit",
+                "ferc_account": pd.NA,
+                "xbrl_factoid_original": new_fact,
+                "intra_table_calc_flag": True,
+                "row_type_xbrl": "reported_value",
+            }
+            for new_fact in [
+                "unappropriated_retained_earnings_previous_year",
+                "unappropriated_undistributed_subsidiary_earnings_previous_year",
+            ]
+        ]
+
+        new_facts = pd.DataFrame(facts_to_add).convert_dtypes()
+        return pd.concat([meta, new_facts])
 
     def process_dbf(self, raw_dbf: pd.DataFrame) -> pd.DataFrame:
         """Preform generic :meth:`process_dbf`, plus deal with duplicates.
