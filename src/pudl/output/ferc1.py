@@ -1,4 +1,5 @@
 """A collection of denormalized FERC assets and helper functions."""
+import importlib
 import json
 from typing import Any, NamedTuple, Self
 
@@ -883,11 +884,27 @@ def add_mean_cap_additions(steam_df):
 #########
 # Explode
 #########
+class NodeId(NamedTuple):
+    """The source table and XBRL factoid identifying a node in a calculation tree.
+
+    Since NodeId is just a :class:`NamedTuple` a list of NodeId instances can also be
+    used to index into a :class:pandas.DataFrame` that uses table names and factoids as
+    its index.  This is convenient since many :mod:`networkx` functions and methods
+    return iterable containers of graph nodes, which can be turned into lists and used
+    directly to index into dataframes.
+    """
+
+    source_table: str
+    xbrl_factoid: str
+
+
 def exploded_table_asset_factory(
     root_table: str,
     table_names_to_explode: list[str],
+    tags: pd.DataFrame,
+    seeds: list[NodeId] = [],
     calculation_tolerance: float = 0.05,
-    io_manager_key: str | None = None,  # TODO: Add metadata for tables
+    io_manager_key: str | None = None,
 ) -> AssetsDefinition:
     """Create an exploded table based on a set of related input tables."""
     ins: Mapping[str, AssetIn] = {
@@ -909,6 +926,8 @@ def exploded_table_asset_factory(
             table_names=tables_to_explode.keys(),
             root_table=root_table,
             clean_xbrl_metadata_json=clean_xbrl_metadata_json,
+            seeds=seeds,
+            tags=tags,
         ).boom(
             tables_to_explode=tables_to_explode,
             calculation_tolerance=calculation_tolerance,
@@ -924,6 +943,18 @@ def create_exploded_table_assets() -> list[AssetsDefinition]:
         A list of :class:`AssetsDefinitions` where each asset is an exploded FERC Form 1
         table.
     """
+    # NOTE: there are a bunch of duplicate records in xbrl_factoid_rate_base_tags.csv
+    # Also, these tags are only applicable to the balance_sheet_assets_ferc1 table, but
+    # we need to pass in a dataframe with the right structure to all of the exploders,
+    # so we're just re-using this one for the moment.
+    pkg_source = importlib.resources.files("pudl.package_data.ferc1").joinpath(
+        "xbrl_factoid_rate_base_tags.csv"
+    )
+    with importlib.resources.as_file(pkg_source) as tags_csv:
+        tags = pd.read_csv(
+            tags_csv, usecols=["xbrl_factoid", "table_name", "in_rate_base"]
+        ).drop_duplicates(subset=["table_name", "xbrl_factoid"])
+
     explosion_args = [
         {
             "root_table": "income_statement_ferc1",
@@ -934,6 +965,17 @@ def create_exploded_table_assets() -> list[AssetsDefinition]:
                 "electric_operating_revenues_ferc1",
             ],
             "calculation_tolerance": 0.25,
+            "seeds": [
+                NodeId(
+                    source_table="income_statement_ferc1",
+                    xbrl_factoid="net_utility_operating_income",
+                ),
+                NodeId(
+                    source_table="income_statement_ferc1",
+                    xbrl_factoid="net_income_loss",
+                ),
+            ],
+            "tags": tags,
         },
         {
             "root_table": "balance_sheet_assets_ferc1",
@@ -944,6 +986,13 @@ def create_exploded_table_assets() -> list[AssetsDefinition]:
                 "electric_plant_depreciation_functional_ferc1",
             ],
             "calculation_tolerance": 0.18,
+            "seeds": [
+                NodeId(
+                    source_table="balance_sheet_assets_ferc1",
+                    xbrl_factoid="assets_and_other_debits",
+                )
+            ],
+            "tags": tags,
         },
         {
             "root_table": "balance_sheet_liabilities_ferc1",
@@ -951,6 +1000,17 @@ def create_exploded_table_assets() -> list[AssetsDefinition]:
                 "balance_sheet_liabilities_ferc1",
                 "retained_earnings_ferc1",
             ],
+            "calculation_tolerance": 0.05,
+            # TODO: This is probably the correct seed node, but the resulting graph
+            # lacks any connection to the retained_earnings_ferc1 table, so there are
+            # still calculations that need to be fixed.
+            "seeds": [
+                NodeId(
+                    source_table="balance_sheet_liabilities_ferc1",
+                    xbrl_factoid="liabilities_and_other_credits",
+                )
+            ],
+            "tags": tags,
         },
     ]
     return [exploded_table_asset_factory(**kwargs) for kwargs in explosion_args]
@@ -1022,20 +1082,6 @@ class MetadataExploder:
             ["calculations", "row_type_xbrl"],
         ] = ("[]", "reported_value")
         return meta_explode
-
-
-class NodeId(NamedTuple):
-    """The source table and XBRL factoid identifying a node in a calculation tree.
-
-    Since NodeId is just a :class:`NamedTuple` a list of NodeId instances can also be
-    used to index into a :class:pandas.DataFrame` that uses table names and factoids as
-    its index.  This is convenient since many :mod:`networkx` functions and methods
-    return iterable containers of graph nodes, which can be turned into lists and used
-    directly to index into dataframes.
-    """
-
-    source_table: str
-    xbrl_factoid: str
 
 
 class Exploder:
@@ -1174,6 +1220,20 @@ class Exploder:
             .pipe(self.reconcile_intertable_calculations, calculation_tolerance)
             .pipe(self.calculation_forest.leafy_data, value_col=self.value_col)
         )
+        # Identify which columns should be kept in the output...
+        # TODO: Define schema for the tables explicitly.
+        cols_to_keep = list(
+            set(self.exploded_pks + self.other_dimensions + [self.value_col])
+        )
+        if ("utility_type" in cols_to_keep) and (
+            "utility_type_other" in exploded.columns
+        ):
+            cols_to_keep += ["utility_type_other"]
+        cols_to_keep += exploded.filter(regex="tags.*").columns.to_list()
+        cols_to_keep += [
+            "ferc_account",
+            "row_type_xbrl",
+        ]
 
         # REMOVE THE DUPLICATION (old method)
         # exploded = (
@@ -1183,11 +1243,11 @@ class Exploder:
         # .pipe(remove_intra_table_calculated_values)
         # )
 
+        # TODO: Validate the root node calculations.
         # Verify that we get the same values for the root nodes using only the input
         # data from the leaf nodes:
         # root_calcs = self.calculation_forest.root_calculations
-        # TODO: Validate the root node calculations.
-        return exploded
+        return exploded[cols_to_keep].convert_dtypes()
 
     def initial_explosion_concatenation(
         self, tables_to_explode: dict[str, pd.DataFrame]
@@ -2117,7 +2177,7 @@ class XbrlCalculationForestFerc1(BaseModel):
                 "source_table": leaf.source_table,
                 "xbrl_factoid": leaf.xbrl_factoid,
             }
-            leaf_rows.append(pd.json_normalize(leaf_attrs))
+            leaf_rows.append(pd.json_normalize(leaf_attrs, sep="_"))
 
         # Combine the two dataframes we've constructed above:
         return (
