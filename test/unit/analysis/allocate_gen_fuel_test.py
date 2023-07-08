@@ -6,7 +6,7 @@ from typing import Literal
 import pandas as pd
 import pytest
 
-from pudl.analysis import allocate_net_gen
+from pudl.analysis import allocate_gen_fuel
 from pudl.metadata.fields import apply_pudl_dtypes
 
 # Reusable input files...
@@ -74,9 +74,9 @@ def test_distribute_annually_reported_data_to_months_if_annual():
         )
     ).pipe(apply_pudl_dtypes, group="eia")
 
-    out = allocate_net_gen.distribute_annually_reported_data_to_months_if_annual(
+    out = allocate_gen_fuel.distribute_annually_reported_data_to_months_if_annual(
         df=bf_with_monthly_annual_mix,
-        key_columns=allocate_net_gen.IDX_B_PM_ESC,
+        key_columns=allocate_gen_fuel.IDX_B_PM_ESC,
         data_column_name="fuel_consumed_mmbtu",
         freq="MS",
     )
@@ -290,14 +290,14 @@ def get_ratio_from_bf_and_allocated_by_boiler(
 def test_allocate_gen_fuel_sums_match(fixture_name, request):
     pudl_out = request.getfixturevalue(fixture_name)
 
-    gf, bf, gen, bga, gens = allocate_net_gen.select_input_data(
+    gf, bf, gen, bga, gens = allocate_gen_fuel.select_input_data(
         gf=pudl_out.gf_eia923(),
         bf=pudl_out.bf_eia923(),
         gen=pudl_out.gen_eia923(),
         bga=pudl_out.bga_eia860(),
         gens=pudl_out.gens_eia860(),
     )
-    allocated = allocate_net_gen.allocate_gen_fuel_by_generator_energy_source(
+    allocated = allocate_gen_fuel.allocate_gen_fuel_by_generator_energy_source(
         gf=gf,
         bf=bf,
         gen=gen,
@@ -322,14 +322,14 @@ def test_allocate_gen_fuel_sums_match(fixture_name, request):
 def test_allocate_gen_fuel_dfo_ratios_match(fixture_name, request):
     pudl_out = request.getfixturevalue(fixture_name)
 
-    gf, bf, gen, bga, gens = allocate_net_gen.select_input_data(
+    gf, bf, gen, bga, gens = allocate_gen_fuel.select_input_data(
         gf=pudl_out.gf_eia923(),
         bf=pudl_out.bf_eia923(),
         gen=pudl_out.gen_eia923(),
         bga=pudl_out.bga_eia860(),
         gens=pudl_out.gens_eia860(),
     )
-    allocated = allocate_net_gen.allocate_gen_fuel_by_generator_energy_source(
+    allocated = allocate_gen_fuel.allocate_gen_fuel_by_generator_energy_source(
         gf=gf, bf=bf, gen=gen, bga=bga, gens=gens, freq=pudl_out.freq
     )
 
@@ -347,27 +347,27 @@ def test_allocate_gen_fuel_dfo_ratios_match(fixture_name, request):
 
 
 def test_add_missing_energy_source(extra_esc_in_gf):
-    gf, bf, _, _, gens = allocate_net_gen.select_input_data(
+    gf, bf, _, _, gens = allocate_gen_fuel.select_input_data(
         gf=extra_esc_in_gf.gf_eia923(),
         bf=extra_esc_in_gf.bf_eia923(),
         gen=extra_esc_in_gf.gen_eia923(),
         bga=extra_esc_in_gf.bga_eia860(),
         gens=extra_esc_in_gf.gens_eia860(),
     )
-    gens = allocate_net_gen.add_missing_energy_source_codes_to_gens(gens, gf, bf)
+    gens = allocate_gen_fuel.add_missing_energy_source_codes_to_gens(gens, gf, bf)
     # assert that the missing energy source code is RC
     assert gens.energy_source_code_8.unique() == "RC"
 
 
 def test_allocate_bf_data_to_gens_drops_pm_code(extra_pm_in_bf):
-    _, bf, _, bga, gens = allocate_net_gen.select_input_data(
+    _, bf, _, bga, gens = allocate_gen_fuel.select_input_data(
         gf=extra_pm_in_bf.gf_eia923(),
         bf=extra_pm_in_bf.bf_eia923(),
         gen=extra_pm_in_bf.gen_eia923(),
         bga=extra_pm_in_bf.bga_eia860(),
         gens=extra_pm_in_bf.gens_eia860(),
     )
-    bf_by_gens = allocate_net_gen.allocate_bf_data_to_gens(bf, gens, bga)
+    bf_by_gens = allocate_gen_fuel.allocate_bf_data_to_gens(bf, gens, bga)
     # allocate_bf_data_to_gens quietly drops and records with non-matching PM codes.
     assert "CT" not in bf_by_gens.prime_mover_code.unique()
 
@@ -380,7 +380,7 @@ def test_allocate_bf_data_to_gens_drops_pm_code(extra_pm_in_bf):
 
 
 def test_allocate_gen_fuel_by_generator_drops_pm_data(extra_pm_in_bf):
-    gf, bf, gen, bga, gens = allocate_net_gen.select_input_data(
+    gf, bf, gen, bga, gens = allocate_gen_fuel.select_input_data(
         gf=extra_pm_in_bf.gf_eia923(),
         bf=extra_pm_in_bf.bf_eia923(),
         gen=extra_pm_in_bf.gen_eia923(),
@@ -388,7 +388,7 @@ def test_allocate_gen_fuel_by_generator_drops_pm_data(extra_pm_in_bf):
         gens=extra_pm_in_bf.gens_eia860(),
     )
 
-    allocated = allocate_net_gen.allocate_gen_fuel_by_generator_energy_source(
+    allocated = allocate_gen_fuel.allocate_gen_fuel_by_generator_energy_source(
         gf=gf,
         bf=bf,
         gen=gen,

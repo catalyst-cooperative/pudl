@@ -5,7 +5,7 @@ from test.conftest import skip_table_if_null_freq_table
 import pytest
 
 from pudl import validate as pv
-from pudl.metadata.classes import Package
+from pudl.metadata.classes import Resource
 from pudl.output.pudltabl import PudlTabl
 
 logger = logging.getLogger(__name__)
@@ -108,105 +108,72 @@ def test_minmax_rows(
 @pytest.mark.parametrize(
     "df_name,unique_subset",
     [
-        (
-            "bf_eia923",
-            Package.from_resource_ids()
-            .get_resource("boiler_fuel_eia923")
-            .schema.primary_key,
-        ),
+        ("bf_eia923", Resource.from_id("boiler_fuel_eia923").schema.primary_key),
         (
             "bga_eia860",
-            Package.from_resource_ids()
-            .get_resource("boiler_generator_assn_eia860")
-            .schema.primary_key,
+            Resource.from_id("boiler_generator_assn_eia860").schema.primary_key,
         ),
         (
             "boil_eia860",
-            Package.from_resource_ids()
-            .get_resource("boilers_eia860")
-            .schema.primary_key,
+            Resource.from_id("boilers_eia860").schema.primary_key,
         ),
         (
             "gen_eia923",
-            Package.from_resource_ids()
-            .get_resource("generation_eia923")
-            .schema.primary_key,
+            Resource.from_id("generation_eia923").schema.primary_key,
         ),
         (
             "gens_eia860",
-            Package.from_resource_ids()
-            .get_resource("generators_eia860")
-            .schema.primary_key,
+            Resource.from_id("generators_eia860").schema.primary_key,
         ),
         (
             "gf_eia923",
-            Package.from_resource_ids()
-            .get_resource("denorm_generation_fuel_combined_eia923")
-            .schema.primary_key,
+            Resource.from_id(
+                "denorm_generation_fuel_combined_eia923"
+            ).schema.primary_key,
         ),
         (
             "own_eia860",
-            Package.from_resource_ids()
-            .get_resource("ownership_eia860")
-            .schema.primary_key,
+            Resource.from_id("ownership_eia860").schema.primary_key,
         ),
         (
             "plants_eia860",
-            Package.from_resource_ids()
-            .get_resource("plants_eia860")
-            .schema.primary_key,
+            Resource.from_id("plants_eia860").schema.primary_key,
         ),
         (
             "pu_eia860",
-            Package.from_resource_ids()
-            .get_resource("denorm_plants_utilities_eia")
-            .schema.primary_key,
+            Resource.from_id("denorm_plants_utilities_eia").schema.primary_key,
         ),
         (
             "utils_eia860",
-            Package.from_resource_ids()
-            .get_resource("utilities_eia860")
-            .schema.primary_key,
+            Resource.from_id("utilities_eia860").schema.primary_key,
         ),
         (
             "denorm_emissions_control_equipment_eia860",
             (
-                Package.from_resource_ids()
-                .get_resource("denorm_emissions_control_equipment_eia860")
-                .schema.primary_key
+                Resource.from_id(
+                    "denorm_emissions_control_equipment_eia860"
+                ).schema.primary_key
             ),
         ),
         (
             "emissions_control_equipment_eia860",
-            (
-                Package.from_resource_ids()
-                .get_resource("emissions_control_equipment_eia860")
-                .schema.primary_key
-            ),
+            (Resource.from_id("emissions_control_equipment_eia860").schema.primary_key),
         ),
         (
             "boiler_emissions_control_equipment_assn_eia860",
             (
-                Package.from_resource_ids()
-                .get_resource("boiler_emissions_control_equipment_assn_eia860")
-                .schema.primary_key
+                Resource.from_id(
+                    "boiler_emissions_control_equipment_assn_eia860"
+                ).schema.primary_key
             ),
         ),
         (
             "boiler_cooling_assn_eia860",
-            (
-                Package.from_resource_ids()
-                .get_resource("boiler_cooling_assn_eia860")
-                .schema.primary_key
-            ),
+            (Resource.from_id("boiler_cooling_assn_eia860").schema.primary_key),
         ),
         (
             "boiler_stack_flue_assn_eia860",
-            (
-                Package.from_resource_ids()
-                .get_resource("boiler_stack_flue_assn_eia860")
-                .schema.primary_key
-            ),
+            (Resource.from_id("boiler_stack_flue_assn_eia860").schema.primary_key),
         ),
     ],
 )
