@@ -628,7 +628,11 @@ def mcoe(
             total_fuel_cost=lambda x: x.total_mmbtu * x.fuel_cost_per_mmbtu,
         )
         .pipe(
-            pudl.helpers.oob_to_nan, ["heat_rate_mmbtu_mwh"], lb=min_heat_rate, ub=None
+            pudl.helpers.oob_to_nan_with_dependent_cols,
+            cols=["heat_rate_mmbtu_mwh"],
+            dependent_cols=["total_mmbtu", "fuel_cost_per_mwh"],
+            lb=min_heat_rate,
+            ub=None,
         )
         .pipe(
             pudl.helpers.oob_to_nan,
