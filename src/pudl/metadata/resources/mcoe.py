@@ -3,13 +3,19 @@ from typing import Any
 
 AGG_FREQS = ["yearly", "monthly"]
 
+FILTERING_WARNING = (
+    "Note that the values in this table are unfiltered and we "
+    "expect some of the values are unreasonable and out of bounds."
+    "This table should not be used without filtering values to within "
+    "logical boundaries."
+)
 RESOURCE_METADATA: dict[str, dict[str, Any]] = (
     {
         f"heat_rate_by_unit_{freq}": {
             "description": (
                 f"{freq.title()} heat rate estimates by generation unit. Generation "
                 "units are identified by ``unit_id_pudl`` and are composed of a set of "
-                "interconnected boilers and generators."
+                f"interconnected boilers and generators. {FILTERING_WARNING}"
             ),
             "schema": {
                 "fields": [
@@ -39,6 +45,7 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = (
                 "just generation unit level heat rates, which have been broadcast "
                 "across all constituent generator IDs, since heat rates really only "
                 "have a well-defined meaning in the context of a generation unit."
+                f"{FILTERING_WARNING}"
             ),
             "schema": {
                 "fields": [
@@ -68,7 +75,7 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = (
                 f"{freq.title()} estimates of generator capacity factor. Capacity "
                 "factor is calculated based on reported generator capacity and the "
                 "allocated net generation reported in the generation and generation "
-                "fuel tables."
+                f"fuel tables. {FILTERING_WARNING}"
             ),
             "schema": {
                 "fields": [
@@ -101,6 +108,7 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = (
                 "from the boiler fuel table. This means fuel cost coverage is low."
                 "The fuel costs are also currently aggregated to coarse fuel "
                 "categories rather than using the more detailed energy source codes."
+                f"{FILTERING_WARNING}"
             ),
             "schema": {
                 "fields": [

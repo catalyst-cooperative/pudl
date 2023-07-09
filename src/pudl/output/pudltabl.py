@@ -412,10 +412,7 @@ class PudlTabl:
 
         Args:
             update: If True, re-calculate dataframe even if a cached version exists.
-            gens_cols: equal to the string "all", None, or a list of additional column
-                attributes to include from the EIA 860 generators table in the output
-                mega gens table. By default all columns necessary to create the plant
-                parts EIA table are included.
+            gens_cols: Ignored. Retained for backwards compatibility only.
 
         Returns:
             A table of all of the generators with identifying columns and data columns,
@@ -436,24 +433,7 @@ class PudlTabl:
                     "The frequency of the pudl_out object must be `AS` for the "
                     f"plant-parts table and we got {self.freq}"
                 )
-            # TODO: gens_cols doesn't do anything right now, make the default behavior
-            # for mcoe_generators to load all generator attributes and then filter
-            # gens_mega by gens_cols?
-            if gens_cols is None:
-                gens_cols = []
-            if gens_cols != "all":
-                default_cols = [
-                    "technology_description",
-                    "energy_source_code_1",
-                    "prime_mover_code",
-                    "generator_operating_date",
-                    "generator_retirement_date",
-                    "operational_status",
-                    "capacity_mw",
-                    "fuel_type_code_pudl",
-                    "planned_generator_retirement_date",
-                ]
-                gens_cols = list(set(gens_cols + default_cols))
+
             self._dfs[
                 "gens_mega_eia"
             ] = pudl.analysis.plant_parts_eia.MakeMegaGenTbl().execute(
@@ -473,36 +453,16 @@ class PudlTabl:
         Args:
             update: If True, re-calculate dataframe even if a cached version exists.
             update_gens_mega: If True, update the gigantic Gens Mega table.
-            gens_cols: equal to the string "all", None, or a list of
-                additional column attributes to include from the EIA 860 generators table
-                in the output mega gens table. By default all columns necessary to create
-                the EIA plant part list are included.
+            gens_cols: Ignored. Retained for backwards compatibility only.
         """
         update_any = any([update, update_gens_mega])
         if update_any or self._dfs["plant_parts_eia"] is None:
-            # default columns needed to create plant part list
-            if gens_cols is None:
-                gens_cols = []
-            if gens_cols != "all":
-                default_cols = [
-                    "technology_description",
-                    "energy_source_code_1",
-                    "prime_mover_code",
-                    "generator_operating_date",
-                    "generator_retirement_date",
-                    "operational_status",
-                    "capacity_mw",
-                    "fuel_type_code_pudl",
-                    "planned_generator_retirement_date",
-                ]
-                gens_cols = list(set(gens_cols + default_cols))
             # make the plant-parts objects
             self.parts_compiler = pudl.analysis.plant_parts_eia.MakePlantParts(self)
             # make the plant-parts df!
             self._dfs["plant_parts_eia"] = self.parts_compiler.execute(
                 gens_mega=self.gens_mega_eia(
                     update=update_gens_mega,
-                    gens_cols=gens_cols,
                 )
             )
 

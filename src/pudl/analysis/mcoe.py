@@ -2,7 +2,7 @@
 from typing import Literal
 
 import pandas as pd
-from dagster import AssetIn, AssetsDefinition, asset
+from dagster import AssetIn, AssetsDefinition, Field, asset
 
 import pudl
 from pudl.metadata.fields import apply_pudl_dtypes
@@ -116,17 +116,56 @@ def mcoe_asset_factory(
         },
         io_manager_key=io_manager_key,
         compute_kind="Python",
+        config_schema={
+            "min_heat_rate": Field(
+                float,
+                default_value=5.5,
+                description=(
+                    "The lowest plausible heat rate, in mmBTU/MWh. "
+                    "Any MCOE records with lower heat rates are presumed to be "
+                    "invalid, and are discarded before returning."
+                ),
+            ),
+            "min_fuel_cost_per_mwh": Field(
+                float,
+                default_value=0.0,
+                description=(
+                    "The minimum fuel cost on a per MWh basis that is required "
+                    "for a generator record to be considered valid. For some "
+                    "reason there are now a large number of $0 fuel cost records, "
+                    "which previously would have been NaN."
+                ),
+            ),
+            "min_cap_fact": Field(
+                float,
+                default_value=0.0,
+                description=(
+                    "The minimum generator capacity factor. Generator records "
+                    "with a lower capacity factor will be filtered out."
+                    "This allows the user to exclude generators that "
+                    "aren't being used enough to be valid."
+                ),
+            ),
+            "max_cap_fact": Field(
+                float,
+                default_value=1.5,
+                description=(
+                    "The maximum generator capacity factor. Generator records "
+                    "with a higher capacity factor will be filtered out."
+                ),
+            ),
+        },
     )
     def mcoe_asset(
-        fuel_cost: pd.DataFrame, capacity_factor: pd.DataFrame
+        context, fuel_cost: pd.DataFrame, capacity_factor: pd.DataFrame
     ) -> pd.DataFrame:
         return mcoe(
             fuel_cost=fuel_cost,
             capacity_factor=capacity_factor,
-            min_heat_rate=None,
-            min_fuel_cost_per_mwh=None,
-            min_cap_fact=None,
-            max_cap_fact=None,
+            min_heat_rate=context.op_config["min_heat_rate"],
+            min_fuel_cost_per_mwh=context.op_config["min_fuel_cost_per_mwh"],
+            min_cap_fact=context.op_config["min_cap_fact"],
+            max_cap_fact=context.op_config["max_cap_fact"],
         )
 
     @asset(
@@ -137,15 +176,36 @@ def mcoe_asset_factory(
         },
         io_manager_key=io_manager_key,
         compute_kind="Python",
+        config_schema={
+            "all_gens": Field(
+                bool,
+                default_value=True,
+                description=(
+                    "If True, include attributes of all generators in the "
+                    ":ref:`generators_eia860` table, rather than just the generators "
+                    "which have records in the derived MCOE values. True by default."
+                ),
+            ),
+            "timeseries_fillin": Field(
+                bool,
+                default_value=False,
+                description=(
+                    "If True, fill in the full timeseries for each generator in "
+                    "the output dataframe. The data in the timeseries will be filled "
+                    "with the data from the next previous chronological record."
+                ),
+            ),
+        },
     )
-    def mcoe_generators_asset(mcoe: pd.DataFrame, gens: pd.DataFrame) -> pd.DataFrame:
+    def mcoe_generators_asset(
+        context, mcoe: pd.DataFrame, gens: pd.DataFrame
+    ) -> pd.DataFrame:
         return mcoe_generators(
             mcoe=mcoe,
             gens=gens,
             freq=freq,
-            all_gens=True,
-            gens_cols=None,
-            timeseries_fillin=False,
+            all_gens=context.op_config["all_gens"],
+            timeseries_fillin=context.op_config["timeseries_fillin"],
         )
 
     return [
@@ -605,12 +665,11 @@ def mcoe_generators(
     gens: pd.DataFrame,
     freq: Literal["AS", "MS"],
     all_gens: bool = True,
-    gens_cols: Literal["all"] | list[str] | None = None,
     timeseries_fillin: bool = False,
 ) -> pd.DataFrame:
     """Merge generator attributes onto the marginal cost of electricity table.
 
-    Merge the columns listed in ``gens_cols`` onto the MCOE table and optionally
+    Merge generator attributes onto the MCOE table and optionally
     fill in the timeseries for each generator.
 
     Args:
@@ -619,12 +678,6 @@ def mcoe_generators(
         all_gens: if True, include attributes of all generators in the
             :ref:`generators_eia860` table, rather than just the generators
             which have records in the derived MCOE values. True by default.
-        gens_cols: equal to the string "all", None, or a list of names of
-            column attributes to include from the :ref:`generators_eia860` table in
-            addition to the list of defined `DEFAULT_GENS_COLS`. If "all", all columns
-            from the generators table will be included. By default, no extra columns
-            will be included, only the `DEFAULT_GENS_COLS` will be merged into the final
-            MCOE output.
         timeseries_fillin: if True, fill in the full timeseries for each generator in
             the output dataframe. The data in the timeseries will be filled
             with the data from the next previous chronological record.
@@ -634,14 +687,6 @@ def mcoe_generators(
         attributes merged on and optionally a filled in timeseries for each generator.
     """
     # Combine MCOE derived values with generator attributes
-    if gens_cols == "all":
-        gens_cols = gens.columns
-    elif gens_cols is None:
-        gens_cols = DEFAULT_GENS_COLS
-    else:
-        gens_cols = list(set(DEFAULT_GENS_COLS + gens_cols))
-
-    gens = gens.loc[:, gens_cols]
 
     if timeseries_fillin:
         mcoe_gens_out = pudl.helpers.full_timeseries_date_merge(
