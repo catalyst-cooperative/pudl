@@ -2069,7 +2069,7 @@ class XbrlCalculationForestFerc1(BaseModel):
     def orphans(self: Self) -> list[NodeId]:
         """Identify all nodes that appear in metadata but not in the full digraph."""
         nodes = self.full_digraph.nodes
-        return [n for n in self.exploded_meta.index if n not in nodes]
+        return [NodeId(*n) for n in self.exploded_meta.index if n not in nodes]
 
     @property
     def pruned(self: Self) -> list[NodeId]:
@@ -2247,20 +2247,23 @@ class XbrlCalculationForestFerc1(BaseModel):
     @staticmethod
     def plot(graph: nx.DiGraph, table_names: list[str]) -> None:
         """Visualize the calculation forest and its attributes."""
-        colors = ["red", "orange", "yellow", "green", "blue", "purple"]
+        colors = ["red", "yellow", "green", "blue", "orange", "cyan", "purple"]
         color_map = {
             table: color
             for table, color in zip(table_names, colors[: len(table_names)])
         }
-        node_color = [color_map[node.source_table] for node in graph.nodes]
+        # node_color = [color_map[node.source_table] for node in graph.nodes]
 
         pos = graphviz_layout(graph, prog="dot", args='-Grankdir="LR"')
-        nx.draw_networkx_nodes(graph, pos, node_color=node_color)
+        for table, color in color_map.items():
+            nodes = [node for node in graph.nodes if node.source_table == table]
+            nx.draw_networkx_nodes(nodes, pos, node_color=color, label=table)
         nx.draw_networkx_edges(graph, pos)
         # The labels are currently unwieldy
         # nx.draw_networkx_labels(nx_forest, pos)
         # Use this to draw everything if/once labels are fixed
         # nx.draw_networkx(nx_forest, pos, node_color=node_color)
+        plt.legend(scatterpoints=1)
         plt.show()
 
     def plot_full_digraph(self: Self) -> None:
