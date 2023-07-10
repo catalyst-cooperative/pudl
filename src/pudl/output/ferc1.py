@@ -1947,7 +1947,18 @@ class XbrlCalculationForestFerc1(BaseModel):
 
     @property
     def seeded_digraph(self: Self) -> nx.DiGraph:
-        """A digraph of all calculations that contribute to the seed values."""
+        """A digraph of all calculations that contribute to the seed values.
+
+        Prune the full digraph to contain only those nodes in the :meth:`full_digraph`
+        that are descendants of the seed nodes -- i.e. that are reachable along the
+        directed edges, and thus contribute to the values reported to the XBRL facts
+        associated with the seed nodes.
+
+        We compile a list of all the :class:`NodeId` values that should be included in
+        the pruned graph, and then use that list to select a subset of the exploded
+        metadata to pass to :meth:`exploded_meta_to_digraph`, so that all of the
+        associated metadata is also added to the pruned graph.
+        """
         seeded_nodes = set()
         for seed in self.seeds:
             seeded_nodes = seeded_nodes.union([seed])
@@ -1966,7 +1977,18 @@ class XbrlCalculationForestFerc1(BaseModel):
 
     @property
     def forest(self: Self) -> nx.DiGraph:
-        """A pruned version of the seeded digraph that should be one or more trees."""
+        """A pruned version of the seeded digraph that should be one or more trees.
+
+        This method contains any special logic that's required to convert the
+        :meth:`seeded_digraph` into a collection of trees. The main issue we currently
+        have to deal with is passthrough calculations that we've added to avoid having
+        duplicated calculations in the graph.
+
+        In practice this method will probably return a single tree rather than a forest,
+        but a forest with several root nodes might also be appropriate, since the root
+        table may or may not have a top level summary value that includes all underlying
+        calculated values of interest.
+        """
         forest = self.seeded_digraph
         # Remove any node that has only one parent and one child, and add an edge
         # between its parent and child.
