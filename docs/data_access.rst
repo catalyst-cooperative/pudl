@@ -30,16 +30,15 @@ which one is right for you and your use case.
        Select data to download as CSVs for local analysis in spreadsheets.
        Create sharable links to a particular selection of data.
        Access PUDL data via a REST API.
+   * - :ref:`access-nightly-builds`
+     - Cloud Developer, Database User, Beta Tester
+     - Get the freshest data that has passed all data validations, updated most weekday
+       mornings. Fast downloads from AWS S3 storage buckets.
    * - :ref:`access-zenodo`
      - Researcher, Database User, Notebook Analyst
      - Use a stable, citable, fully processed version of the PUDL on your own computer.
        Use PUDL in Jupyer Notebooks running in a stable, archived Docker container.
        Access the SQLite DB and Parquet files directly using any toolset.
-   * - :ref:`access-jupyterhub`
-     - New Python User, Notebook Analyst
-     - Work through the PUDL example notebooks without any downloads or setup.
-       Perform your own notebook-based analyses using PUDL data and limited
-       computational resources.
    * - :ref:`access-development`
      - Python Developer, Data Wrangler
      - Run the PUDL data processing pipeline on your own computer.
@@ -66,6 +65,60 @@ Note that only data that has been fully integrated into the SQLite databases are
 available here. Currently this includes `the core PUDL database
 <https://data.catalyst.coop/pudl>`__ and our concatenation of `all historical FERC
 Form 1 databases <https://data.catalyst.coop/ferc1>`__.
+
+.. _access-nightly-builds:
+
+---------------------------------------------------------------------------------------
+Nightly Builds
+---------------------------------------------------------------------------------------
+
+Every night we attempt to process all of the data that's part of PUDL using the most
+recent version of the `dev branch
+<https://github.com/catalyst-cooperative/pudl/tree/dev>`__. If the ETL succeeds and the
+resulting outputs pass all of the data validation tests we've defined, the outputs are
+automatically uploaded to the `AWS Open Data Registry
+<https://registry.opendata.aws/catalyst-cooperative-pudl/>`__, and used to deploy a new
+version of Datasette (see above). These nightly build outputs can be accessed using the
+AWS CLI, or programmatically via the S3 API. They can also be downloaded directly over
+HTTPS using the following links:
+
+* `PUDL SQLite DB <https://s3.us-west-2.amazonaws.com/intake.catalyst.coop/dev/pudl.sqlite>`__
+* `EPA CEMS Hourly Emissions Parquet (1995-2021) <https://s3.us-west-2.amazonaws.com/intake.catalyst.coop/dev/hourly_emissions_epacems.parquet>`__
+* `Census DP1 SQLite DB (2010) <https://s3.us-west-2.amazonaws.com/intake.catalyst.coop/dev/censusdp1tract.sqlite>`__
+
+* Raw FERC Form 1:
+
+  * `FERC-1 SQLite derived from DBF (1994-2020) <https://s3.us-west-2.amazonaws.com/intake.catalyst.coop/dev/ferc1.sqlite>`__
+  * `FERC-1 SQLite derived from XBRL (2021) <https://s3.us-west-2.amazonaws.com/intake.catalyst.coop/dev/ferc1_xbrl.sqlite>`__
+  * `FERC-1 Datapackage (JSON) describing SQLite derived from XBRL <https://s3.us-west-2.amazonaws.com/intake.catalyst.coop/dev/ferc1_xbrl_datapackage.json>`__
+  * `FERC-1 XBRL Taxonomy Metadata as JSON (2021) <https://s3.us-west-2.amazonaws.com/intake.catalyst.coop/dev/ferc1_xbrl_taxonomy_metadata.json>`__
+
+* Raw FERC Form 2:
+
+  * `FERC-2 SQLite derived from DBF (1996-2020) <https://s3.us-west-2.amazonaws.com/intake.catalyst.coop/dev/ferc2.sqlite>`__
+  * `FERC-2 SQLite derived from XBRL (2021) <https://s3.us-west-2.amazonaws.com/intake.catalyst.coop/dev/ferc2_xbrl.sqlite>`__
+  * `FERC-2 Datapackage (JSON) describing SQLite derived from XBRL <https://s3.us-west-2.amazonaws.com/intake.catalyst.coop/dev/ferc2_xbrl_datapackage.json>`__
+  * `FERC-2 XBRL Taxonomy Metadata as JSON (2021) <https://s3.us-west-2.amazonaws.com/intake.catalyst.coop/dev/ferc2_xbrl_taxonomy_metadata.json>`__
+
+* Raw FERC Form 6:
+
+  * `FERC-6 SQLite derived from DBF (2000-2020) <https://s3.us-west-2.amazonaws.com/intake.catalyst.coop/dev/ferc6.sqlite>`__
+  * `FERC-6 SQLite derived from XBRL (2021) <https://s3.us-west-2.amazonaws.com/intake.catalyst.coop/dev/ferc6_xbrl.sqlite>`__
+  * `FERC-6 Datapackage (JSON) describing SQLite derived from XBRL <https://s3.us-west-2.amazonaws.com/intake.catalyst.coop/dev/ferc6_xbrl_datapackage.json>`__
+  * `FERC-6 XBRL Taxonomy Metadata as JSON (2021) <https://s3.us-west-2.amazonaws.com/intake.catalyst.coop/dev/ferc6_xbrl_taxonomy_metadata.json>`__
+
+* Raw FERC Form 60:
+
+  * `FERC-60 SQLite derived from XBRL (2021) <https://s3.us-west-2.amazonaws.com/intake.catalyst.coop/dev/ferc60_xbrl.sqlite>`__
+  * `FERC-60 Datapackage (JSON) describing SQLite derived from XBRL <https://s3.us-west-2.amazonaws.com/intake.catalyst.coop/dev/ferc60_xbrl_datapackage.json>`__
+  * `FERC-60 XBRL Taxonomy Metadata as JSON (2021) <https://s3.us-west-2.amazonaws.com/intake.catalyst.coop/dev/ferc60_xbrl_taxonomy_metadata.json>`__
+
+* Raw FERC Form 714:
+
+  * `FERC-714 SQLite derived from XBRL (2021) <https://s3.us-west-2.amazonaws.com/intake.catalyst.coop/dev/ferc714_xbrl.sqlite>`__
+  * `FERC-714 Datapackage (JSON) describing SQLite derived from XBRL <https://s3.us-west-2.amazonaws.com/intake.catalyst.coop/dev/ferc714_xbrl_datapackage.json>`__
+  * `FERC-714 XBRL Taxonomy Metadata as JSON (2021) <https://s3.us-west-2.amazonaws.com/intake.catalyst.coop/dev/ferc714_xbrl_taxonomy_metadata.json>`__
+
 
 .. _access-zenodo:
 
@@ -97,31 +150,6 @@ products in `the Catalyst Cooperative Community on Zenodo
    .. code-block:: console
 
       $ docker pull catalystcoop/pudl-jupyter:latest
-
-.. _access-jupyterhub:
-
----------------------------------------------------------------------------------------
-JupyterHub
----------------------------------------------------------------------------------------
-
-We've set up a `JupyterHub <https://jupyter.org/hub>`__ in collaboration with
-`2i2c.org <https://2i2c.org>`__ to provide access to all of the processed PUDL
-data and the software environment required to work with it. You don't have to
-download or install anything to use it, but we do need to create an account for you.
-
-* Request an account by submitting `this form <https://forms.gle/TN3GuE2e2mnWoFC4A>`__.
-* Once we've created an account for you
-  `follow this link <https://bit.ly/pudl-examples-01>`__ to log in and open up the first
-  example notebook on the JupyterHub.
-* You can create your own notebooks and upload, save, and download modest amounts of
-  data on the hub.
-
-We can only offer a small amount of memory (4-6GB) and processing power (1 CPU) per
-user on the JupyterHub for free. If you need to work with lots of data or do
-computationally intensive analysis, you may want to look into using the
-:ref:`access-zenodo` option on your own computer. The JupyterHub uses exactly the
-same data and software environment as the Zenodo Archives. Eventually we also want to
-offer paid access to the JupyterHub with plenty of computing power.
 
 .. _access-development:
 
