@@ -2252,7 +2252,6 @@ class XbrlCalculationForestFerc1(BaseModel):
             table: color
             for table, color in zip(table_names, colors[: len(table_names)])
         }
-        # node_color = [color_map[node.source_table] for node in graph.nodes]
 
         pos = graphviz_layout(graph, prog="dot", args='-Grankdir="LR"')
         for table, color in color_map.items():
