@@ -1764,6 +1764,88 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
                         },
                     },
                 ],
+                "other_operating_revenues": [
+                    {
+                        "calc_component_to_replace": {},
+                        "calc_component_new": {
+                            "name": "forfeited_discounts",
+                            "weight": 1.0,
+                            "source_tables": ["electric_operating_revenues_ferc1"],
+                        },
+                    },
+                    {
+                        "calc_component_to_replace": {},
+                        "calc_component_new": {
+                            "name": "miscellaneous_service_revenues",
+                            "weight": 1.0,
+                            "source_tables": ["electric_operating_revenues_ferc1"],
+                        },
+                    },
+                    {
+                        "calc_component_to_replace": {},
+                        "calc_component_new": {
+                            "name": "sales_of_water_and_water_power",
+                            "weight": 1.0,
+                            "source_tables": ["electric_operating_revenues_ferc1"],
+                        },
+                    },
+                    {
+                        "calc_component_to_replace": {},
+                        "calc_component_new": {
+                            "name": "rent_from_electric_property",
+                            "weight": 1.0,
+                            "source_tables": ["electric_operating_revenues_ferc1"],
+                        },
+                    },
+                    {
+                        "calc_component_to_replace": {},
+                        "calc_component_new": {
+                            "name": "interdepartmental_rents",
+                            "weight": 1.0,
+                            "source_tables": ["electric_operating_revenues_ferc1"],
+                        },
+                    },
+                    {
+                        "calc_component_to_replace": {},
+                        "calc_component_new": {
+                            "name": "other_electric_revenue",
+                            "weight": 1.0,
+                            "source_tables": ["electric_operating_revenues_ferc1"],
+                        },
+                    },
+                    {
+                        "calc_component_to_replace": {},
+                        "calc_component_new": {
+                            "name": "revenues_from_transmission_of_electricity_of_others",
+                            "weight": 1.0,
+                            "source_tables": ["electric_operating_revenues_ferc1"],
+                        },
+                    },
+                    {
+                        "calc_component_to_replace": {},
+                        "calc_component_new": {
+                            "name": "regional_transmission_service_revenues",
+                            "weight": 1.0,
+                            "source_tables": ["electric_operating_revenues_ferc1"],
+                        },
+                    },
+                    {
+                        "calc_component_to_replace": {},
+                        "calc_component_new": {
+                            "name": "miscellaneous_revenue",
+                            "weight": 1.0,
+                            "source_tables": ["electric_operating_revenues_ferc1"],
+                        },
+                    },
+                    {
+                        "calc_component_to_replace": {},
+                        "calc_component_new": {
+                            "name": "other_miscellaneous_operating_revenues",
+                            "weight": 1.0,
+                            "source_tables": ["electric_operating_revenues_ferc1"],
+                        },
+                    },
+                ],
             },
             "electric_operating_expenses_ferc1": {
                 # This table has two factoids that have sub-components that are
