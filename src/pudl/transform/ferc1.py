@@ -2731,6 +2731,24 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
             tbl_meta.loc[xbrl_factoid, "calculations"] = json.dumps(calc_to_update)
         return tbl_meta.reset_index()
 
+    def process_xbrl_metadata_calculations(
+        self,
+    ) -> pd.DataFrame:
+        """Convert xbrl metadata calculations into a table of calculation components."""
+        metadata = self.xbrl_metadata
+        if all(metadata.calculations == "[]"):
+            logger.info(f"{self.table_id.value}: No calculations.")
+            return pd.DataFrame()
+
+        calc_dfs = []
+        for calc, factoid in zip(metadata.calculations, metadata.xbrl_factoid):
+            calc_dfs.append(
+                pd.DataFrame(json.loads(calc)).assign(
+                    table_name=self.table_id.value, xbrl_factoid=factoid
+                )
+            )
+        return pd.concat(calc_dfs).reset_index(drop=True).explode("source_tables")
+
     @cache_df(key="merge_xbrl_metadata")
     def merge_xbrl_metadata(
         self, df: pd.DataFrame, params: MergeXbrlMetadata | None = None
@@ -6195,3 +6213,15 @@ def plants_steam_ferc1(
         transformed_fuel=fuel_ferc1,
     )
     return convert_cols_dtypes(df, data_source="ferc1")
+
+
+@asset
+def calculation_components_xbrl_ferc1(clean_xbrl_metadata_json):
+    """Create calculation-compnent table from table-level metadata."""
+    calc_metas = []
+    for table_name, tranformer in FERC1_TFR_CLASSES.items():
+        calc_meta = tranformer(
+            xbrl_metadata_json=clean_xbrl_metadata_json[table_name]
+        ).process_xbrl_metadata_calculations()
+        calc_metas.append(calc_meta)
+    return pd.concat(calc_metas)
