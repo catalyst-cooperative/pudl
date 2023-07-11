@@ -232,6 +232,8 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
                     "generation_eia923",
                     "denorm_generation_eia923",
                     "denorm_generation_monthly_eia923",
+                    "generation_fuel_by_generator_energy_source_monthly_eia923",
+                    "generation_fuel_by_generator_monthly_eia923",
                     "generation_fuel_eia923",
                 ],
             },
@@ -375,6 +377,9 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
                     "denorm_generation_monthly_eia923",
                     "denorm_generation_fuel_combined_eia923",
                     "denorm_generation_fuel_combined_monthly_eia923",
+                    "generation_fuel_by_generator_energy_source_monthly_eia923",
+                    "generation_fuel_by_generator_monthly_eia923",
+                    # "generation_fuel_by_generator_energy_source_owner_monthly_eia923",
                     "fuel_receipts_costs_eia923",
                     "generation_eia923",
                     "generation_fuel_eia923",
@@ -449,6 +454,12 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
                     "denorm_generation_monthly_eia923",
                     "denorm_generation_fuel_combined_eia923",
                     "denorm_generation_fuel_combined_monthly_eia923",
+                    "generation_fuel_by_generator_energy_source_monthly_eia923",
+                    "generation_fuel_by_generator_monthly_eia923",
+                    # Utility IDs in this table are owners, not operators, and we are
+                    # not yet harvesting owner_utility_id_eia from ownership_eia860.
+                    # See https://github.com/catalyst-cooperative/pudl/issues/1393
+                    "generation_fuel_by_generator_energy_source_owner_yearly_eia923",
                     "distributed_generation_fuel_eia861",
                     "distributed_generation_misc_eia861",
                     "distributed_generation_tech_eia861",

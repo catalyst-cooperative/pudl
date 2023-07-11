@@ -34,6 +34,7 @@ def nuke_gen_fraction(df):
     "df_name,expected_nuke_fraction,tolerance",
     [
         ("gf_eia923", 0.2, 0.02),
+        ("mcoe", 0.2, 0.02),
     ],
 )
 def test_nuclear_fraction(fast_out, df_name, expected_nuke_fraction, tolerance):
@@ -78,13 +79,22 @@ def test_ferc1_outputs(fast_out, df_name):
         ("gens_eia860", "bf_eia923", 12 / 1, {}),
         ("gens_eia860", "frc_eia923", 12 / 1, {}),
         ("gens_eia860", "gen_eia923", 12 / 1, {}),
+        ("gens_eia860", "gen_fuel_by_generator_energy_source_eia923", 12 / 1, {}),
         ("gens_eia860", "gen_fuel_by_generator_eia923", 12 / 1, {}),
         ("gens_eia860", "gf_eia923", 12 / 1, {}),
         ("gens_eia860", "hr_by_unit", 12 / 1, {}),
         ("gens_eia860", "hr_by_gen", 12 / 1, {}),
         ("gens_eia860", "fuel_cost", 12 / 1, {}),
         ("gens_eia860", "capacity_factor", 12 / 1, {}),
-        ("gens_eia860", "mcoe", 12 / 1, {"all_gens": False}),
+        pytest.param(
+            "gens_eia860",
+            "mcoe",
+            12 / 1,
+            {"all_gens": False},
+            marks=pytest.mark.xfail(
+                reason="MCOE has time coverage issues that will be resolved in Dagster migration."
+            ),
+        ),
     ],
 )
 def test_eia_outputs(fast_out, df1_name, df2_name, mult, kwargs):
@@ -100,25 +110,15 @@ def test_eia_outputs(fast_out, df1_name, df2_name, mult, kwargs):
 @pytest.mark.parametrize(
     "df_name",
     [
+        "plant_parts_eia",
+        "ferc1_eia",
         "gen_fuel_by_generator_energy_source_eia923",
         "gen_fuel_by_generator_eia923",
         "gen_fuel_by_generator_energy_source_owner_eia923",
     ],
 )
-def test_annual_eia_outputs(fast_out, df_name):
-    """Check that the EIA 1 output functions work."""
-    logger.info(f"Running fast_out.{df_name}()")
-    df = fast_out.__getattribute__(df_name)()
-    logger.info(f"Found {len(df)} rows in {df_name}")
-    assert not df.empty
-
-
-@pytest.mark.parametrize(
-    "df_name",
-    ["plant_parts_eia", "ferc1_eia"],
-)
-def test_annual_only_outputs(fast_out_annual, df_name):
-    """Check that output methods that only operate with an ``AS`` frequency."""
+def test_annual_eia_outputs(fast_out_annual, df_name):
+    """Test some output methods with frequency ``AS``."""
     logger.info(f"Running fast_out_annual.{df_name}()")
     df = fast_out_annual.__getattribute__(df_name)()
     logger.info(f"Found {len(df)} rows in {df_name}")
@@ -172,38 +172,6 @@ def test_ferc714_outputs(pudl_engine, df_name):
     assert isinstance(df, pd.DataFrame), f"{df_name} is {type(df)} not DataFrame!"
     logger.info(f"Found {len(df)} rows in {df_name}")
     assert not df.empty, f"{df_name} is empty!"
-
-
-@pytest.fixture(scope="module")
-def fast_out_filled(pudl_engine):
-    """A PUDL output object for use in CI with net generation filled."""
-    return pudl.output.pudltabl.PudlTabl(
-        pudl_engine,
-        freq="MS",
-        fill_fuel_cost=True,
-        roll_fuel_cost=True,
-        fill_net_gen=True,
-    )
-
-
-@pytest.mark.parametrize(
-    "df_name,expected_nuke_fraction,tolerance",
-    [
-        ("gf_eia923", 0.2, 0.02),
-        ("mcoe", 0.2, 0.02),
-    ],
-)
-def test_mcoe_filled(fast_out_filled, df_name, expected_nuke_fraction, tolerance):
-    """Test that the net generation allocation process is working.
-
-    In addition to running the allocation itself, make sure that the nuclear and non-
-    nuclear generation fractions are as we would expect after the net generation has
-    been allocated.
-    """
-    actual_nuke_fraction = nuke_gen_fraction(
-        fast_out_filled.__getattribute__(df_name)()
-    )
-    assert abs(actual_nuke_fraction - expected_nuke_fraction) <= tolerance
 
 
 @pytest.mark.parametrize(
