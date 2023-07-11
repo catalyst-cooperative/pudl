@@ -41,7 +41,7 @@ Some definitions:
 There are six main stages of the allocation process in this module:
 
 #. **Read inputs**: Read denormalized net generation and fuel consumption data from the
-   PUDL DB and standardize data reporting frequency. (See :func:`extract_input_tables`
+   PUDL DB and standardize data reporting frequency. (See :func:`select_input_data`
    and :func:`standardize_input_frequency`).
 #. **Associate inputs**: Merge data columns from the input tables described above on the
    basis of their shared primary key columns, producing an output with primary key
@@ -56,7 +56,7 @@ There are six main stages of the allocation process in this module:
 #. **Allocate**: Allocate the net generation and fuel consumption reported in the less
    granular :ref:`generation_fuel_eia923` table to the :py:const:`IDX_GENS_PM_ESC`
    level. More details on the allocation process are below (see
-   :func:`allocate_net_gen_by_gen_esc` and :func:`allocate_fuel_by_gen_esc`).
+   :func:`allocate_gen_fuel_by_gen_esc` and :func:`allocate_fuel_by_gen_esc`).
 #. **Sanity check allocation**: Verify that the total allocated net generation and fuel
    consumption within each plant is equal to the total of the originally reported values
    within some tolerance (see :func:`test_original_gf_vs_the_allocated_by_gens_gf`).
@@ -134,6 +134,7 @@ from typing import Literal
 # Useful high-level external modules.
 import numpy as np
 import pandas as pd
+from dagster import AssetIn, AssetsDefinition, Field, asset
 
 import pudl
 from pudl.metadata.fields import apply_pudl_dtypes
@@ -180,14 +181,14 @@ DATA_COLUMNS = [
 MISSING_SENTINEL = 0.00001
 """A sentinel value for dealing with null or zero values.
 
-#. Zero's in the relevant data columns get filled in with the sentinel value in
+#. Zeroes in the relevant data columns get filled in with the sentinel value in
    :func:`associate_generator_tables`. At this stage all of the zeros from the original
    data that are now associated with generators, prime mover codes and energy source
    codes.
 #. All of the nulls in the relevant data columns are filled with the sentinel value in
    :func:`prep_alloction_fraction`. (Could this also be done in
    :func:`associate_generator_tables`?)
-#. After the allocation of net generation (within :func:`allocate_net_gen_by_gen_esc`
+#. After the allocation of net generation (within :func:`allocate_gen_fuel_by_gen_esc`
    and :func:`allocate_fuel_by_gen_esc` via :func:`remove_aggregated_sentinel_value`),
    convert all of the aggregated values that are between 0 and twenty times this
    sentinel value back to zero's. This is meant to find all instances of aggregated
@@ -196,43 +197,166 @@ MISSING_SENTINEL = 0.00001
 """
 
 
-# Two top-level functions (allocate & aggregate)
+def allocate_gen_fuel_asset_factory(
+    freq: Literal["AS", "MS"],
+    io_manager_key: str | None = None,
+) -> list[AssetsDefinition]:
+    """Build yearly and monthly net generation & fuel consumption allocation assets."""
+    agg_freqs = {"AS": "yearly", "MS": "monthly"}
+    if freq not in agg_freqs:
+        raise ValueError(f"freq must be one of {agg_freqs.keys()}, got: {freq}.")
+
+    @asset(
+        name=f"generation_fuel_by_generator_energy_source_{agg_freqs[freq]}_eia923",
+        ins={
+            "gf": AssetIn(
+                key=f"denorm_generation_fuel_combined_{agg_freqs[freq]}_eia923"
+            ),
+            "bf": AssetIn(key=f"denorm_boiler_fuel_{agg_freqs[freq]}_eia923"),
+            "gen": AssetIn(key=f"denorm_generation_{agg_freqs[freq]}_eia923"),
+            "bga": AssetIn(key="boiler_generator_assn_eia860"),
+            "gens": AssetIn(key="denorm_generators_eia"),
+        },
+        io_manager_key=io_manager_key,
+        compute_kind="Python",
+        config_schema={
+            "debug": Field(
+                bool,
+                default_value=False,
+                description=(
+                    "If True, retain interim columns used compile net_generation_mwh. "
+                    "These are mostly 'frac' and the originally reported net "
+                    "generation, which are useful for debugging. Note that this only "
+                    "works when using the default filesystem io_manager."
+                ),
+            ),
+        },
+    )
+    def gen_fuel_by_gen_esc(
+        context,
+        gf: pd.DataFrame,
+        bf: pd.DataFrame,
+        gen: pd.DataFrame,
+        bga: pd.DataFrame,
+        gens: pd.DataFrame,
+    ) -> pd.DataFrame:
+        """Allocate net gen from gen_fuel to generator/energy_source_code level."""
+        gf, bf, gen, bga, gens = select_input_data(
+            gf=gf, bf=bf, gen=gen, bga=bga, gens=gens
+        )
+        return allocate_gen_fuel_by_generator_energy_source(
+            gf=gf,
+            bf=bf,
+            gen=gen,
+            bga=bga,
+            gens=gens,
+            freq=freq,
+            debug=context.op_config["debug"],
+        )
+
+    @asset(
+        name=f"generation_fuel_by_generator_{agg_freqs[freq]}_eia923",
+        ins={
+            "net_gen_fuel_alloc": AssetIn(
+                key=f"generation_fuel_by_generator_energy_source_{agg_freqs[freq]}_eia923"
+            ),
+            "pu": AssetIn(key="denorm_plants_utilities_eia"),
+            "bga": AssetIn(key="boiler_generator_assn_eia860"),
+        },
+        io_manager_key=io_manager_key,
+        compute_kind="Python",
+    )
+    def gen_fuel_by_gen(
+        net_gen_fuel_alloc: pd.DataFrame, pu: pd.DataFrame, bga: pd.DataFrame
+    ) -> pd.DataFrame:
+        """Aggregate gen fuel data columns to generators."""
+        return (
+            # aggregate the gen/pm/fuel records back to generator records
+            agg_by_generator(
+                net_gen_fuel_alloc=net_gen_fuel_alloc,
+                sum_cols=DATA_COLUMNS,
+            )
+            # make the output resemble denorm_generation_eia923:
+            .pipe(pudl.output.eia923.denorm_by_gen, pu=pu, bga=bga)
+        )
+
+    @asset(
+        name=f"generation_fuel_by_generator_energy_source_owner_{agg_freqs[freq]}_eia923",
+        ins={
+            "net_gen_fuel_alloc": AssetIn(
+                key=f"generation_fuel_by_generator_energy_source_{agg_freqs[freq]}_eia923"
+            ),
+            "gens": AssetIn(key="denorm_generators_eia"),
+            "own_eia860": AssetIn(key="denorm_ownership_eia860"),
+        },
+        io_manager_key=io_manager_key,
+        compute_kind="Python",
+    )
+    def gen_fuel_by_gen_esc_owner(
+        net_gen_fuel_alloc: pd.DataFrame, gens: pd.DataFrame, own_eia860: pd.DataFrame
+    ) -> pd.DataFrame:
+        """Aggregate gen fuel data columns to generator owners."""
+        return scale_allocated_net_gen_fuel_by_ownership(
+            net_gen_fuel_alloc=net_gen_fuel_alloc,
+            gens=gens,
+            own_eia860=own_eia860,
+        )
+
+    assets = [gen_fuel_by_gen_esc, gen_fuel_by_gen]
+    if freq == "AS":
+        # The monthly version is yuuuuge and we only use the annual data for now.
+        assets += [gen_fuel_by_gen_esc_owner]
+
+    return assets
+
+
+allocate_gen_fuel_assets = [
+    allocated_net_gen_asset
+    for freq in ["AS", "MS"]
+    for allocated_net_gen_asset in allocate_gen_fuel_asset_factory(
+        freq=freq,
+        io_manager_key="pudl_sqlite_io_manager",
+    )
+]
+
+
 def allocate_gen_fuel_by_generator_energy_source(
-    pudl_out: "pudl.output.pudltabl.PudlTabl", drop_interim_cols: bool = True
+    gf: pd.DataFrame,
+    bf: pd.DataFrame,
+    gen: pd.DataFrame,
+    bga: pd.DataFrame,
+    gens: pd.DataFrame,
+    freq: Literal["AS", "MS"],
+    debug: bool = False,
 ) -> pd.DataFrame:
     """Allocate net gen from gen_fuel table to the generator/energy_source_code level.
 
-    Three main steps here:
-     * grab the three input tables from ``pudl_out`` with only the needed columns
-     * associate ``generation_fuel_eia923`` table data w/ generators
-     * allocate ``generation_fuel_eia923`` table data proportionally
+    There are two main steps here:
 
-     The association process happens via :func:`associate_generator_tables`.
+    * associate ``generation_fuel_eia923`` table data w/ generators
+    * allocate ``generation_fuel_eia923`` table data proportionally
 
-     The allocation process (via `allocate_net_gen_by_gen_esc()`) entails
-     generating a fraction for each record within a ``IDX_PM_ESC`` group. We
-     have two data points for generating this ratio: the net generation in the
-     generation_eia923 table and the capacity from the generators_eia860 table.
-     The end result is a `frac` column which is unique for each
-     generator/prime_mover/fuel record and is used to allocate the associated
-     net generation from the `generation_fuel_eia923` table.
+    The association process happens via :func:`associate_generator_tables`.
+
+    The allocation process (via :func:`allocate_gen_fuel_by_gen_esc`) entails
+    generating a fraction for each record within a ``IDX_PM_ESC`` group. We
+    have two data points for generating this ratio: the net generation in the
+    generation_eia923 table and the capacity from the generators_eia860 table.
+    The end result is a ``frac`` column which is unique for each combination of
+    generator, prime_mover, and fuel and is used to allocate the associated
+    net generation from the :ref:`generation_fuel_eia923` table.
 
     Args:
-        pudl_out (pudl.output.pudltabl.PudlTabl): An object used to create the
-            tables for EIA and FERC Form 1 analysis.
-        drop_interim_cols: True/False flag for dropping interim columns which are used
-            to generate the ``net_generation_mwh`` column (they are mostly the
-            ``frac`` column and  net generataion reported in the original
-            ``generation_eia923`` and ``generation_fuel_eia923`` tables) that are
-            useful for debugging. Default is False, which will drop the columns.
+        gf: Temporally aggregated :ref:`denorm_generation_fuel_combined_eia923` dataframe.
+        bf: Temporally aggregated :ref:`boiler_fuel_eia923` dataframe.
+        gen: Temporally aggregated :ref:`generation_eia923` dataframe.
+        bga: :ref:`boiler_generator_assn_eia860` dataframe.
+        gens: :ref:`generators_eia860` dataframe.
+        freq: Frequency at which the tables are aggregated temporally.
+        debug: If True, return additional debugging information.
     """
-    gf, bf, bga, gens, gen = extract_input_tables(pudl_out)
-    bf, gens_at_freq, gen = standardize_input_frequency(
-        bf, gens, gen, freq=pudl_out.freq
-    )
-
-    # add any startup energy source codes to the list of energy source codes
-    # fix MSW codes and add missing codes from gf to gens_at_freq
+    bf, gens_at_freq, gen = standardize_input_frequency(bf, gens, gen, freq)
+    # Add any startup energy source codes to the list of energy source codes
     gens_at_freq = adjust_msw_energy_source_codes(gens_at_freq, gf, bf)
     gens_at_freq = add_missing_energy_source_codes_to_gens(gens_at_freq, gf, bf)
     # do the association!
@@ -244,7 +368,7 @@ def allocate_gen_fuel_by_generator_energy_source(
     # to allocate net generation from the gf table for each `IDX_PM_ESC` group
     gen_pm_fuel = prep_alloction_fraction(gen_assoc)
     # Net gen allocation
-    net_gen_alloc = allocate_net_gen_by_gen_esc(gen_pm_fuel).pipe(
+    net_gen_alloc = allocate_gen_fuel_by_gen_esc(gen_pm_fuel).pipe(
         _test_gen_pm_fuel_output, gf=gf, gen=gen
     )
     test_gen_fuel_allocation(gen, net_gen_alloc)
@@ -268,7 +392,21 @@ def allocate_gen_fuel_by_generator_energy_source(
     _ = test_original_gf_vs_the_allocated_by_gens_gf(
         gf=gf, gf_allocated=net_gen_fuel_alloc
     )
-    if drop_interim_cols:
+    # There are a tiny number of records that have NaNs in the prime mover code
+    # and for which the correct prime mover is unclear. Prime mover code is part
+    # of the primary key for this table, so we have to drop them.
+    len_before = net_gen_fuel_alloc.shape[0]
+    net_gen_fuel_alloc = net_gen_fuel_alloc.dropna(subset=["prime_mover_code"])
+    len_after = net_gen_fuel_alloc.shape[0]
+    fraction_dropped = (len_before - len_after) / len_before
+    dropped = len_before - len_after
+    logger.info(f"FRACTION DROPPED: {fraction_dropped}, NUM RECORDS DROPPED: {dropped}")
+    if fraction_dropped > 5e-5:
+        raise ValueError(
+            "Too many records were found to have a NULL prime_mover_code and "
+            f"dropped. Expected less than 5e-5, but found {fraction_dropped:.1%}."
+        )
+    if not debug:
         net_gen_fuel_alloc = net_gen_fuel_alloc.loc[
             :,
             IDX_GENS_PM_ESC + ["energy_source_code_num"] + DATA_COLUMNS,
@@ -276,73 +414,38 @@ def allocate_gen_fuel_by_generator_energy_source(
     return net_gen_fuel_alloc
 
 
-def aggregate_gen_fuel_by_generator(
-    pudl_out: "pudl.output.pudltabl.PudlTabl",
-    net_gen_fuel_alloc: pd.DataFrame,
-    sum_cols: list[str] = DATA_COLUMNS,
-) -> pd.DataFrame:
-    """Aggregate gen fuel data columns to generators.
+def select_input_data(
+    gf: pd.DataFrame,
+    bf: pd.DataFrame,
+    gen: pd.DataFrame,
+    bga: pd.DataFrame,
+    gens: pd.DataFrame,
+) -> tuple[pd.DataFrame]:
+    """Select only the subset of input data needed for the allocation.
 
-    The generation_fuel_eia923 table includes net generation and fuel
-    consumption data at the plant/energy source/prime mover level. The most
-    granular level of plants that PUDL typically uses is at the plant/generator
-    level. This function takes the plant/energy source code/prime mover level
-    allocation, aggregates it to the generator level and then denormalizes it to
-    make it more structurally in-line with the original generation_eia923 table
-    (see :func:`pudl.output.eia923.denorm_generation_eia923`).
-
-    Args:
-        pudl_out: An object used to create the tables for EIA and FERC Form 1
-            analysis.
-        net_gen_fuel_alloc: table of allocated generation at the generator/prime mover/
-            energy source. From :func:`allocate_gen_fuel_by_generator_energy_source`
-        sum_cols: Data columns from that are being aggregated via a
-            :meth:`pandas.groupby.sum` in :func:`agg_by_generator`
-
-    Returns:
-        table with columns :py:const:`IDX_GENS` and net generation and fuel
-        consumption scaled to the level of the :py:const:`IDX_GENS`.
+    This includes both selecting only a subset of columns from most input tables, and
+    restricting the dates to those which are available in all inputs. Otherwise we end
+    up with a bunch of NA values since the generators table has up to a year of more
+    recent data from the EIA-860M.
     """
-    return (
-        # aggregate the gen/pm/fuel records back to generator records
-        agg_by_generator(
-            net_gen_fuel_alloc=net_gen_fuel_alloc,
-            sum_cols=sum_cols,
-        )
-        # make the output resemble denorm_generation_eia923:
-        .pipe(
-            pudl.output.eia923.denorm_by_gen,
-            pu=pudl_out.pu_eia860(),
-            bga=pudl_out.bga_eia860(),
-        )
-    )
-
-
-def extract_input_tables(pudl_out: "pudl.output.pudltabl.PudlTabl") -> tuple:
-    """Extract the input tables from the pudl_out object.
-
-    Extract all of the tables from pudl_out early in the process and select
-    only the columns we need.
-
-    Args:
-        pudl_out: instantiated pudl output object.
-    """
-    gf = (
-        pudl_out.gf_eia923()
-        .loc[
-            :,
-            IDX_PM_ESC + DATA_COLUMNS,
-        ]
-        .pipe(manually_fix_energy_source_codes)  # TODO: move to a transform step
-    )
-    bf = pudl_out.bf_eia923().loc[:, IDX_B_PM_ESC + ["fuel_consumed_mmbtu"]]
+    gf = gf.loc[:, IDX_PM_ESC + DATA_COLUMNS]
+    bf = bf.loc[:, IDX_B_PM_ESC + ["fuel_consumed_mmbtu"]]
     # load boiler generator associations
-    bga = pudl_out.bga_eia860().loc[
+    bga = bga.loc[
         :,
         ["plant_id_eia", "boiler_id", "generator_id", "report_date"],
     ]
-    gens = pudl_out.gens_eia860().loc[
-        :,
+    end_date = min(
+        [
+            gf.report_date.max(),
+            bf.report_date.max(),
+            gen.report_date.max(),
+            bga.report_date.max(),
+            gens.report_date.max(),
+        ]
+    )
+    gens = gens.loc[
+        gens.report_date <= end_date,
         IDX_GENS
         + [
             "prime_mover_code",
@@ -352,24 +455,23 @@ def extract_input_tables(pudl_out: "pudl.output.pudltabl.PudlTabl") -> tuple:
             "operational_status",
             "generator_retirement_date",
         ]
-        + list(pudl_out.gens_eia860().filter(like="energy_source_code"))
-        + list(pudl_out.gens_eia860().filter(like="startup_source_code")),
+        + list(gens.filter(like="energy_source_code"))
+        + list(gens.filter(like="startup_source_code")),
     ]
     warn_if_missing_pms(gens)
-
     gen = (
-        pudl_out.gen_original_eia923().loc[:, IDX_GENS + ["net_generation_mwh"]]
+        gen.loc[:, IDX_GENS + ["net_generation_mwh"]]
         # removes 4 records with NaN generator_id as of pudl v0.5
         .dropna(subset=IDX_GENS)
     )
     granular_fuel_ratio = bf.fuel_consumed_mmbtu.sum() / gf.fuel_consumed_mmbtu.sum()
     granular_net_gen_ratio = gen.net_generation_mwh.sum() / gf.net_generation_mwh.sum()
     logger.info(
-        f"The granular data tables contain {granular_fuel_ratio:.1%} of the fuel and "
-        f"{granular_net_gen_ratio:.1%} of net generation in the higher-coverage "
-        "generation_fuel_eia923 table."
+        f"The granular data tables contain {granular_fuel_ratio:.1%} of the fuel "
+        f"and {granular_net_gen_ratio:.1%} of net generation in the "
+        "higher-coverage generation_fuel_eia923 table."
     )
-    return gf, bf, bga, gens, gen
+    return gf, bf, gen, bga, gens
 
 
 def standardize_input_frequency(
@@ -386,8 +488,7 @@ def standardize_input_frequency(
         bf: :ref:`boiler_fuel_eia923` table
         gens: :ref:`generators_eia860` table
         gen: :ref:`generation_eia923` table
-        freq: the frequency code from the ``pudl_out`` object used to generate the above
-            tables.
+        freq: the (time) frequency at which the tables will be aggregated.
     """
     bf = distribute_annually_reported_data_to_months_if_annual(
         df=bf,
@@ -428,42 +529,47 @@ def standardize_input_frequency(
     return bf, gens_at_freq, gen
 
 
-def scale_allocated_net_gen_by_ownership(
-    gen_pm_fuel: pd.DataFrame, gens: pd.DataFrame, own_eia860: pd.DataFrame
+def scale_allocated_net_gen_fuel_by_ownership(
+    net_gen_fuel_alloc: pd.DataFrame, gens: pd.DataFrame, own_eia860: pd.DataFrame
 ) -> pd.DataFrame:
     """Scale allocated net gen at the generator/energy_source_code level by ownership.
 
-    It can be helpful to have a table of net generation and fuel consumption
-    at the generator/fuel-type level (i.e. the result of :func:`allocate_gen_fuel_by_generator_energy_source`)
-    to be associated and scaled with all of the owners of those generators.
-    This allows the aggregation of fuel use to the utility level.
+    It can be helpful to have a table of net generation and fuel consumption at the
+    generator/fuel-type level (i.e. the result of
+    :func:`allocate_gen_fuel_by_generator_energy_source`) to be associated and scaled
+    with all of the owners of those generators.  This allows the aggregation of fuel use
+    to the utility level.
 
-    Scaling generators with their owners' ownership fraction is currently
-    possible via :class:`pudl.analysis.plant_parts_eia.MakeMegaGenTbl`. This
-    function uses the allocated net generation at the generator/fuel-type level,
-    merges that with a generators table to ensure all necessary columns are
-    available, and then feeds that table into the EIA Plant-parts' :meth:`scale_by_ownership`.
+    This function uses the allocated net generation at the generator/fuel-type level,
+    merges that with a generators table to ensure all necessary columns are available,
+    and then feeds that table into the helper function :meth:`scale_by_ownership`
+    to scale generators by their owners' ownership fraction.
 
     Args:
-        gen_pm_fuel: able of allocated generation at the generator/prime mover/energy
-            source. Result of :func:`allocate_gen_fuel_by_generator_energy_source`
-        gens: `generators_eia860` table with cols: :const:``IDX_GENS``, `capacity_mw`
-            and `utility_id_eia`
-        own_eia860: `ownership_eia860` table.
+        net_gen_fuel_alloc: table of allocated generation and fuel consumption
+            at the generator, prime mover, and energy source.
+            From :func:`allocate_gen_fuel_by_generator_energy_source`
+        gens: ``generators_eia860`` table with cols: :const:``IDX_GENS``,
+            ``capacity_mw`` and ``utility_id_eia``
+        own_eia860: ``ownership_eia860`` table.
     """
-    gen_pm_fuel_own = pudl.analysis.plant_parts_eia.MakeMegaGenTbl().scale_by_ownership(
-        gens_mega=pd.merge(
-            gen_pm_fuel,
-            gens[IDX_GENS + ["utility_id_eia", "capacity_mw"]],
-            on=IDX_GENS,
-            validate="m:1",
+    return pudl.helpers.scale_by_ownership(
+        gens=pudl.helpers.date_merge(
+            left=net_gen_fuel_alloc,
+            right=gens[IDX_GENS + ["utility_id_eia", "capacity_mw"]],
+            left_date_col="report_date",
+            right_date_col="report_date",
+            new_date_col="report_date",
+            on=["plant_id_eia", "generator_id"],
+            date_on=["year"],
             how="left",
+            report_at_start=True,
+            validate="m:1",
         ),
         own_eia860=own_eia860,
         scale_cols=DATA_COLUMNS + ["capacity_mw"],
         validate="m:m",  # m:m because there are multiple generators in gen_pm_fuel
     )
-    return gen_pm_fuel_own
 
 
 # Internal functions for allocate_gen_fuel_by_generator_energy_source
@@ -580,8 +686,7 @@ def associate_generator_tables(
 
     Args:
         gens: :ref:`generators_eia860` table with cols: :py:const:`IDX_GENS` and all of
-            the ``energy_source_code`` columns and expanded to the frequency of
-            ``pudl_out``
+            the ``energy_source_code`` columns and expanded to the same frequency.
         gf: :ref:`generation_fuel_eia923` table with columns: :py:const:`IDX_PM_ESC` and
             ``net_generation_mwh`` and ``fuel_consumed_mmbtu``.
         gen: :ref:`generation_eia923` table with columns: :py:const:`IDX_GENS` and
@@ -594,7 +699,7 @@ def associate_generator_tables(
         table of generators with stacked energy sources and broadcasted net generation
         and fuel data from the :ref:`generation_eia923` and :ref:`generation_fuel_eia923`
         tables. There are many duplicate values in this output which will later be used
-        in the allocation process in :func:`allocate_net_gen_by_gen_esc` and
+        in the allocation process in :func:`allocate_gen_fuel_by_gen_esc` and
         :func:`allocate_fuel_by_gen_esc`.
     """
     stack_gens = stack_generators(
@@ -941,11 +1046,11 @@ def _allocate_unassociated_pm_records(
 def prep_alloction_fraction(gen_assoc: pd.DataFrame) -> pd.DataFrame:
     """Prepare the associated generators for allocation.
 
-    Make flags and aggregations to prepare for the :func:`allocate_net_gen_by_gen_esc`
+    Make flags and aggregations to prepare for the :func:`allocate_gen_fuel_by_gen_esc`
     and :func:`allocate_fuel_by_gen_esc` functions.
 
-    In :func:`allocate_net_gen_by_gen_esc`, we will break the generators out into four
-    types - see :func:`allocate_net_gen_by_gen_esc` docs for details. This function adds
+    In :func:`allocate_gen_fuel_by_gen_esc`, we will break the generators out into four
+    types - see :func:`allocate_gen_fuel_by_gen_esc` docs for details. This function adds
     flags for splitting the generators.
 
     Args:
@@ -955,7 +1060,7 @@ def prep_alloction_fraction(gen_assoc: pd.DataFrame) -> pd.DataFrame:
     # flag whether the generator exists in the generation table (this will be used
     # later on) for calculating ratios to use to allocate net generation
     # if there is more net gen reported to the gen table than the gf table, we assume
-    # this is an "all gen" table (see allocate_net_gen_by_gen_esc). If this isn't done
+    # this is an "all gen" table (see allocate_gen_fuel_by_gen_esc). If this isn't done
     # the records that don't report in the gen table will end up getting negative net
     # generation
     gen_assoc = gen_assoc.assign(
@@ -1040,7 +1145,7 @@ def prep_alloction_fraction(gen_assoc: pd.DataFrame) -> pd.DataFrame:
         )
         .assign(
             # fill in the missing generation with small numbers (this will help ensure
-            # the calculations to run the fractions in `allocate_net_gen_by_gen_esc`
+            # the calculations to run the fractions in `allocate_gen_fuel_by_gen_esc`
             # and `allocate_fuel_by_gen_esc` can be consistent)
             # do the same with missing fuel consumption
             fuel_consumed_mmbtu_bf_tbl=lambda x: x.fuel_consumed_mmbtu_bf_tbl.fillna(
@@ -1075,7 +1180,7 @@ def prep_alloction_fraction(gen_assoc: pd.DataFrame) -> pd.DataFrame:
     return gen_pm_fuel
 
 
-def allocate_net_gen_by_gen_esc(gen_pm_fuel: pd.DataFrame) -> pd.DataFrame:
+def allocate_gen_fuel_by_gen_esc(gen_pm_fuel: pd.DataFrame) -> pd.DataFrame:
     """Allocate net generation to generators/energy_source_code via three methods.
 
     There are three main types of generators:
@@ -1348,9 +1453,9 @@ def group_duplicate_keys(df: pd.DataFrame) -> pd.DataFrame:
     return df
 
 
-###########################
+#####################################################################################
 # Fuel Allocation Functions
-###########################
+#####################################################################################
 def distribute_annually_reported_data_to_months_if_annual(
     df: pd.DataFrame,
     key_columns: list[str],

@@ -253,6 +253,12 @@ def _clean_gen_fuel_energy_sources(gen_fuel: pd.DataFrame) -> pd.DataFrame:
             "MLG": "MSB",  # biogenic municipal waste
         }
     )
+    # plant 10204 should be waste heat instead of other. Fixes a mismatch between energy
+    # source # codes reported in generators_eia860 and the boiler_fuel_eia860 tables.
+    gen_fuel.loc[
+        (gen_fuel["plant_id_eia"] == 10204) & (gen_fuel["energy_source_code"] == "OTH"),
+        "energy_source_code",
+    ] = "WH"
 
     # Make sure we replaced all MSWs
     assert gen_fuel.energy_source_code.ne("MSW").all()
