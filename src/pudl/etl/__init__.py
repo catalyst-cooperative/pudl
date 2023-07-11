@@ -55,6 +55,9 @@ default_assets = (
         ],
         group_name="denorm_eia",
     ),
+    *load_assets_from_modules(
+        [pudl.analysis.allocate_gen_fuel], group_name="allocate_gen_fuel"
+    ),
     *load_assets_from_modules([pudl.output.ferc1], group_name="denorm_ferc1"),
     *load_assets_from_modules(
         [pudl.analysis.service_territory], group_name="service_territory_eia861"
