@@ -1580,8 +1580,101 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
                             "name": "electric_operating_revenues",
                             "weight": 1.0,
                             "source_tables": ["electric_operating_revenues_ferc1"],
+                            "utility_type": "electric",
                         },
                     }
+                ],
+                "operation_expense": [
+                    {
+                        "calc_component_to_replace": {},
+                        "calc_component_new": {
+                            "name": "steam_power_generation_operations_expense",
+                            "weight": 1.0,
+                            "source_tables": ["electric_operating_expenses_ferc1"],
+                            "utility_type": "electric",
+                        },
+                    },
+                    {
+                        "calc_component_to_replace": {},
+                        "calc_component_new": {
+                            "name": "nuclear_power_generation_operations_expense",
+                            "weight": 1.0,
+                            "source_tables": ["electric_operating_expenses_ferc1"],
+                            "utility_type": "electric",
+                        },
+                    },
+                    {
+                        "calc_component_to_replace": {},
+                        "calc_component_new": {
+                            "name": "hydraulic_power_generation_operations_expense",
+                            "weight": 1.0,
+                            "source_tables": ["electric_operating_expenses_ferc1"],
+                            "utility_type": "electric",
+                        },
+                    },
+                    {
+                        "calc_component_to_replace": {},
+                        "calc_component_new": {
+                            "name": "other_power_generation_operations_expense",
+                            "weight": 1.0,
+                            "source_tables": ["electric_operating_expenses_ferc1"],
+                            "utility_type": "electric",
+                        },
+                    },
+                    {
+                        "calc_component_to_replace": {},
+                        "calc_component_new": {
+                            "name": "transmission_operation_expense",
+                            "weight": 1.0,
+                            "source_tables": ["electric_operating_expenses_ferc1"],
+                            "utility_type": "electric",
+                        },
+                    },
+                    {
+                        "calc_component_to_replace": {},
+                        "calc_component_new": {
+                            "name": "regional_market_operation_expense",
+                            "weight": 1.0,
+                            "source_tables": ["electric_operating_expenses_ferc1"],
+                            "utility_type": "electric",
+                        },
+                    },
+                    {
+                        "calc_component_to_replace": {},
+                        "calc_component_new": {
+                            "name": "distribution_operation_expenses_electric",
+                            "weight": 1.0,
+                            "source_tables": ["electric_operating_expenses_ferc1"],
+                            "utility_type": "electric",
+                        },
+                    },
+                    {
+                        "calc_component_to_replace": {},
+                        "calc_component_new": {
+                            "name": "customer_account_expenses",
+                            "weight": 1.0,
+                            "source_tables": ["electric_operating_expenses_ferc1"],
+                            "utility_type": "electric",
+                        },
+                    },
+                    {
+                        "calc_component_to_replace": {},
+                        "calc_component_new": {
+                            "name": "customer_service_and_information_expenses",
+                            "weight": 1.0,
+                            "source_tables": ["electric_operating_expenses_ferc1"],
+                            "utility_type": "electric",
+                        },
+                    },
+                    {
+                        "calc_component_to_replace": {},
+                        "calc_component_new": {
+                            "name": "administrative_and_general_operation_expense",
+                            "weight": 1.0,
+                            "source_tables": ["electric_operating_expenses_ferc1"],
+                            "utility_type": "electric",
+                        },
+                    },
                 ],
                 # This is already an in-table calculated field so we need to handle
                 # it differently.
@@ -6003,6 +6096,29 @@ class ElectricOperatingExpensesFerc1TableTransformer(Ferc1AbstractTableTransform
             raise AssertionError(f"More rows dropped than expected: {dropped}")
         logger.info("Heyyyy dropping that one row")
         return raw_df
+
+    @cache_df(key="process_xbrl_metadata")
+    def process_xbrl_metadata(self: Self, xbrl_metadata_json) -> pd.DataFrame:
+        """Default XBRL metadata processing and add a DBF-only xblr factoid.
+
+        Note: we should probably parameterize this and add it into the standard
+        :meth:`process_xbrl_metadata`.
+        """
+        tbl_meta = super().process_xbrl_metadata(xbrl_metadata_json)
+        dbf_only_facts = [
+            {
+                "xbrl_factoid": dbf_only_fact,
+                "calculations": "[]",
+                "balance": "credit",
+                "ferc_account": pd.NA,
+                "xbrl_factoid_original": dbf_only_fact,
+                "intra_table_calc_flag": True,
+                "row_type_xbrl": "reported_value",
+            }
+            for dbf_only_fact in ["load_dispatching_transmission_expense"]
+        ]
+        dbf_only_facts = pd.DataFrame(dbf_only_facts).convert_dtypes()
+        return pd.concat([tbl_meta, dbf_only_facts])
 
     @cache_df(key="dbf")
     def process_dbf(self, raw_dbf: pd.DataFrame) -> pd.DataFrame:
