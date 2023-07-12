@@ -76,7 +76,7 @@ variety of purposes.
 * Each row in a table represents a single observation -- i.e. all of the
   variables reported in that row pertain to the same case/instance of
   something.
-* Don't store the same value in more than one pace -- each piece of data should
+* Don't store the same value in more than one place -- each piece of data should
   have an authoritative source.
 * Don't store derived values in the archived data sources.
 
