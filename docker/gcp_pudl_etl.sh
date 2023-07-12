@@ -30,6 +30,7 @@ function run_pudl_etl() {
         $PUDL_SETTINGS_YML \
     && pudl_etl \
         --loglevel DEBUG \
+        --max-concurrent 6 \
         --gcs-cache-path gs://internal-zenodo-cache.catalyst.coop \
         $PUDL_SETTINGS_YML \
     && pytest \

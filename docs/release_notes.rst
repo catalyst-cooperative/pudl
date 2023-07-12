@@ -231,11 +231,12 @@ Analysis
   account for 1:m matches in the manual data, we added ``plant_match_ferc1`` as a plant
   part in :mod:`pudl.analysis.plant_parts_eia`.
 * Refined how we are associating generation and fuel data in
-  :mod:`pudl.analysis.allocate_net_gen`. Energy source codes that show up in the
-  :ref:`generation_fuel_eia923` or the :ref:`boiler_fuel_eia923` are now added into
-  the :ref:`generators_eia860` table so associating those gf and bf records are more
-  cleanly associated with generators. Thanks to :user:`grgmiller` for his
-  contribution, which was integrated by :user:`cmgosnell`! See PRs :pr:`2235,2446`.
+  :mod:`pudl.analysis.allocate_gen_fuel`, which was renamed from ``allocate_net_gen``.
+  Energy source codes that show up in the :ref:`generation_fuel_eia923` or the
+  :ref:`boiler_fuel_eia923` are now added into the :ref:`generators_eia860` table so
+  associating those gf and bf records are more cleanly associated with generators.
+  Thanks to :user:`grgmiller` for his contribution, which was integrated by
+  :user:`cmgosnell`! See PRs :pr:`2235,2446`.
 * Added outputs from :mod:`pudl.analysis.service_territory` and
   :mod:`pudl.analysis.state_demand` into PUDL. These outputs include the US Census
   geometries associated with balancing authority and utility data from EIA 861
@@ -891,7 +892,7 @@ The :ref:`generation_fuel_eia923` table is more complete, but the
 The :ref:`generation_eia923` table includes only ~55% of the total MWhs reported
 in the :ref:`generation_fuel_eia923` table.
 
-The :mod:`pudl.analysis.allocate_net_gen` module estimates the net electricity
+The :mod:`pudl.analysis.allocate_gen_fuel` module estimates the net electricity
 generation and fuel consumption attributable to individual generators based on
 the more expansive reporting of the data in the :ref:`generation_fuel_eia923`
 table.
