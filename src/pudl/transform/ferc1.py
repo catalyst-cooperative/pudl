@@ -1536,7 +1536,7 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
                                 "depreciation_amortization_summary_ferc1"
                             ],
                             "utility_type": "electric",
-                            "subdimension": "electric",
+                            "plant_function": "electric",
                         },
                     }
                 ],
@@ -1551,7 +1551,7 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
                                 "depreciation_amortization_summary_ferc1"
                             ],
                             "utility_type": "electric",
-                            "subdimension": "electric",
+                            "plant_function": "electric",
                         },
                     }
                 ],
@@ -2075,7 +2075,7 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
                                 "electric_plant_depreciation_functional_ferc1"
                             ],
                             "utility_type": "electric",
-                            "subdimension": "in_service",
+                            "plant_status": "in_service",
                         },
                     }
                 ],
@@ -6215,13 +6215,94 @@ def plants_steam_ferc1(
     return convert_cols_dtypes(df, data_source="ferc1")
 
 
-@asset
-def calculation_components_xbrl_ferc1(clean_xbrl_metadata_json):
+@asset(ins={table_name: AssetIn(table_name) for table_name in FERC1_TFR_CLASSES})
+def table_dimensions_ferc1(**kwargs) -> pd.DataFrame:
+    """Build a table of dimensions found in the transformed data tables.
+
+    Note: It is theoretically possible that we could compile these dimensions based on
+    strictly the parameters (such as using info from ``params.categorize_strings``).
+    Because we did not explictly restrict ourselves to only add categories that are
+    definitely found in the data, we went with using the data tables instead.
+    """
+    tbls = {name: df.assign(table_name=name) for (name, df) in kwargs.items()}
+    # grab all of the dimensions columns that we are currently verifying as a part of
+    # reconcile_table_calculations
+    other_dimensions = []
+    for table_name in FERC1_TFR_CLASSES.keys():
+        other_dimensions.append(
+            pudl.transform.ferc1.FERC1_TFR_CLASSES[
+                table_name
+            ]().params.reconcile_table_calculations.subtotal_column
+        )
+    # remove nulls and dedupe
+    other_dimensions = [sub for sub in other_dimensions if sub]
+    other_dimensions = list(set(other_dimensions))
+
+    dimensions = (
+        pd.concat(tbls.values())[["table_name"] + other_dimensions]
+        .drop_duplicates()
+        .reset_index(drop=True)
+    )
+    return dimensions
+
+
+@asset(
+    ins={
+        "clean_xbrl_metadata_json": AssetIn("clean_xbrl_metadata_json"),
+        "table_dimensions_ferc1": AssetIn("table_dimensions_ferc1"),
+    }
+)
+def calculation_components_xbrl_ferc1(**kwargs):
     """Create calculation-compnent table from table-level metadata."""
+    clean_xbrl_metadata_json = kwargs["clean_xbrl_metadata_json"]
+    table_dimensions = kwargs["table_dimensions_ferc1"]
+    # compile all of the calc comp tables.
     calc_metas = []
     for table_name, tranformer in FERC1_TFR_CLASSES.items():
         calc_meta = tranformer(
             xbrl_metadata_json=clean_xbrl_metadata_json[table_name]
         ).process_xbrl_metadata_calculations()
         calc_metas.append(calc_meta)
-    return pd.concat(calc_metas)
+    # squish all of the calc comp tables then add in the implicit table dimensions
+    calc_components = pd.concat(calc_metas).pipe(
+        make_implict_dimensions_explict_in_calculaiton_components, table_dimensions
+    )
+    return calc_components
+
+
+def make_implict_dimensions_explict_in_calculaiton_components(
+    calculation_components: pd.DataFrame, table_dimensions: pd.DataFrame
+) -> pd.DataFrame:
+    """Make all of the implied dimensions in the calculation components explict.
+
+    We are assuming that if a dimension was associted with a calculation component, then
+    that is the only dimension that applies whereas if no dimension was associated with
+    a calculation component, that calculation component should be applied across all
+    relevant dimensions.
+
+    Relate all of the calculation components with all found dimensions from
+    :func:`table_dimensions_ferc1`, unless the calculation components already
+    contained information regarding dimensions.
+    """
+    dimensions = [
+        col
+        for col in table_dimensions.columns
+        if col != "table_name" and col in calculation_components.columns
+    ]
+    logger.info(f"Adding {dimensions=} into calculation component table.")
+    calc_comps_w_dims = calculation_components.copy()
+    # for each dimension, use split/apply/combine. when there are no dims explict in
+    # the calc components, merge in all of the dims.
+    for dim_col in dimensions:
+        null_dim_mask = calc_comps_w_dims[dim_col].isnull()
+        calc_comps_w_implied_dims = pd.merge(
+            calc_comps_w_dims[null_dim_mask].drop(columns=[dim_col]),
+            table_dimensions[["table_name", dim_col]].drop_duplicates().dropna(),
+            on=["table_name"],
+            how="left",
+        )
+        calc_comps_w_explicit_dims = calc_comps_w_dims[~null_dim_mask]
+        calc_comps_w_dims = pd.concat(
+            [calc_comps_w_implied_dims, calc_comps_w_explicit_dims]
+        )
+    return calc_comps_w_dims
