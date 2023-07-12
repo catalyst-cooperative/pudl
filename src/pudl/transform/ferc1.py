@@ -6264,8 +6264,17 @@ def calculation_components_xbrl_ferc1(**kwargs):
         ).process_xbrl_metadata_calculations()
         calc_metas.append(calc_meta)
     # squish all of the calc comp tables then add in the implicit table dimensions
-    calc_components = pd.concat(calc_metas).pipe(
-        make_implict_dimensions_explict_in_calculaiton_components, table_dimensions
+    calc_components = (
+        pd.concat(calc_metas)
+        .pipe(
+            make_implict_dimensions_explict_in_calculaiton_components, table_dimensions
+        )
+        .rename(
+            columns={
+                "name": "xbrl_factoid_calculation_component",
+                "source_tables": "table_name_calculation_component",
+            }
+        )
     )
     return calc_components
 
