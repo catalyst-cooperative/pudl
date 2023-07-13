@@ -976,12 +976,41 @@ exploded_ferc1_assets = create_exploded_table_assets()
 class MetadataExploder:
     """Combine a set of inter-related, nested table's metadata."""
 
-    def __init__(self, table_names: list[str], calculation_components: pd.DataFrame):
+    def __init__(
+        self,
+        table_names: list[str],
+        clean_xbrl_metadata_json: dict,
+        calculation_components_xbrl_ferc1: pd.DataFrame,
+    ):
         """Instantiate MetadataExploder."""
         self.table_names = table_names
-        self.calculation_components = calculation_components
+        self.calculation_components_xbrl_ferc1 = calculation_components_xbrl_ferc1
+        self.clean_xbrl_metadata_json = clean_xbrl_metadata_json
 
-    def boom(self, clean_xbrl_metadata_json: dict):
+    @property
+    def calculation_components_explosion(self):
+        """Reduce the calculation components to only the tables in the explosion.
+
+        First we restrict the calculation records to only those that are components of
+        xbrl_factoids within the set of tables that we are currently exploding. Then
+        we also have to remove the full set of calculaiton components that are a part of
+        calculations that have any components that are from tables outside of the set of
+        tables in this explosion.
+        """
+        calc_explode = self.calculation_components_xbrl_ferc1
+        calc_explode = calc_explode[calc_explode.table_name.isin(self.table_names)]
+        not_in_explosion_xbrl_factoids = list(
+            calc_explode.loc[
+                ~calc_explode.table_name_calculation_component.isin(self.table_names),
+                "xbrl_factoid",
+            ].unique()
+        )
+        calc_explode = calc_explode[
+            ~calc_explode.xbrl_factoid.isin(not_in_explosion_xbrl_factoids)
+        ].copy()
+        return calc_explode
+
+    def boom(self):
         """Combine a set of inter-realted table's metatada for use in :class:`Exploder`.
 
         Args:
@@ -991,13 +1020,13 @@ class MetadataExploder:
         for table_name in self.table_names:
             tbl_meta = (
                 pudl.transform.ferc1.FERC1_TFR_CLASSES[table_name](
-                    xbrl_metadata_json=clean_xbrl_metadata_json[table_name]
+                    xbrl_metadata_json=self.clean_xbrl_metadata_json[table_name]
                 )
                 .xbrl_metadata[
                     [
                         "xbrl_factoid",
-                        "calculations",
-                        "row_type_xbrl",
+                        "calculations",  # TODO: remove once tree eats calc comp df
+                        "row_type_xbrl",  # TODO: remove once tree eats calc comp df
                         "xbrl_factoid_original",
                         "intra_table_calc_flag",
                     ]
@@ -1014,8 +1043,13 @@ class MetadataExploder:
     def redefine_calculations_with_components_out_of_explosion(
         self, meta_explode: pd.DataFrame
     ) -> pd.DataFrame:
-        """Overwrite the calculations with calculation components not in explosion."""
-        calc_explode = self.calculation_components
+        """Overwrite the calculations with calculation components not in explosion.
+
+        TODO: remove this method and the one call for it within boom once the
+        Tree/Forest situation directly uses the calculation components instead of the
+        embedded calculations.
+        """
+        calc_explode = self.calculation_components_explosion
         calc_explode[
             "in_explosion"
         ] = calc_explode.table_name_calculation_component.apply(
@@ -1060,10 +1094,14 @@ class Exploder:
         self.table_names = table_names
         self.root_table = root_table
         self.meta_exploder = MetadataExploder(
-            self.table_names, calculation_components_xbrl_ferc1
+            self.table_names,
+            clean_xbrl_metadata_json,
+            calculation_components_xbrl_ferc1,
         )
-        self.metadata_exploded = self.meta_exploder.boom(clean_xbrl_metadata_json)
-        self.calculation_components_xbrl_ferc1 = calculation_components_xbrl_ferc1
+        self.metadata_exploded = self.meta_exploder.boom()
+        self.calculation_components_explosion = (
+            self.meta_exploder.calculation_components_explosion
+        )
 
     @property
     def other_dimensions(self) -> list[str]:
@@ -1097,11 +1135,10 @@ class Exploder:
             )
         # Some xbrl_factoid names are the same in more than one table, so we also add
         # table_name here.
-        pks = (
-            pudl.helpers.dedupe_n_flatten_list_of_lists(pks)
-            + ["xbrl_factoid"]
-            + ["table_name"]
-        )
+        pks = pudl.helpers.dedupe_n_flatten_list_of_lists(pks) + [
+            "xbrl_factoid",
+            "table_name",
+        ]
         return pks
 
     @property
@@ -1222,7 +1259,7 @@ class Exploder:
                 f"{self.root_table}: Reconcile inter-table calculations: {list(inter_table_calcs.xbrl_factoid.unique())}."
             )
 
-        inter_table_calc_components = self.calculation_components_xbrl_ferc1.set_index(
+        inter_table_calc_components = self.calculation_components_explosion.set_index(
             ["table_name", "xbrl_factoid"]
         ).sort_index()
         calculated_dfs = []
@@ -1234,9 +1271,10 @@ class Exploder:
             # Remove the correction
             # TODO: check if we can remove this step?
             calculation_df = calculation_df.loc[
-                ~calculation_df.name.str.contains("correction")
+                ~calculation_df.xbrl_factoid_calculation_component.str.contains(
+                    "correction"
+                )
             ]
-
             calc_comp_to_data_rename = {
                 "xbrl_factoid_calculation_component": "xbrl_factoid",
                 "table_name_calculation_component": "table_name",
@@ -1250,9 +1288,10 @@ class Exploder:
                 if calculation_df[dim].notnull().all():
                     calc_idx_cols.append(dim)
             data_idx_cols = [
-                data_col
-                for (calc_col, data_col) in calc_comp_to_data_rename.items()
-                if calc_col in calc_idx_cols
+                calc_comp_to_data_rename[calc_col]
+                if calc_col in calc_comp_to_data_rename.keys()
+                else calc_col
+                for calc_col in calc_idx_cols
             ]
             calc_comp_idx = (
                 calculation_df.reset_index()
