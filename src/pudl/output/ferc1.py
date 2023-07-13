@@ -925,7 +925,6 @@ def create_exploded_table_assets() -> list[AssetsDefinition]:
                 "electric_operating_expenses_ferc1",
                 "electric_operating_revenues_ferc1",
             ],
-            "calculation_tolerance": 0.22,
         },
         "balance_sheet_assets_ferc1": {
             "table_names_to_explode": [
@@ -1248,7 +1247,11 @@ class Exploder:
             calc_idx_cols = ["name", "source_tables"]
             dim_cols = ["utility_type", "subdimension"]
             for dim in dim_cols:
-                if calculation_df[dim].notnull().all():
+                # If dimension exists in the calculation, add to PKs
+                if (
+                    dim in calculation_df.columns
+                    and calculation_df[dim].notnull().all()
+                ):
                     calc_idx_cols.append(dim)
             data_idx_cols = [
                 data_col
