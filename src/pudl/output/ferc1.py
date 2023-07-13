@@ -977,6 +977,7 @@ def create_exploded_table_assets() -> list[AssetsDefinition]:
             "root_table": "balance_sheet_assets_ferc1",
             "table_names_to_explode": [
                 "balance_sheet_assets_ferc1",
+                "balance_sheet_assets_ferc1",
                 "utility_plant_summary_ferc1",
                 "plant_in_service_ferc1",
                 "electric_plant_depreciation_functional_ferc1",
@@ -993,6 +994,7 @@ def create_exploded_table_assets() -> list[AssetsDefinition]:
         {
             "root_table": "balance_sheet_liabilities_ferc1",
             "table_names_to_explode": [
+                "balance_sheet_liabilities_ferc1",
                 "balance_sheet_liabilities_ferc1",
                 "retained_earnings_ferc1",
             ],
@@ -1385,7 +1387,11 @@ class Exploder:
             calc_idx_cols = ["name", "source_tables"]
             dim_cols = ["utility_type", "subdimension"]
             for dim in dim_cols:
-                if calculation_df[dim].notnull().all():
+                # If dimension exists in the calculation, add to PKs
+                if (
+                    dim in calculation_df.columns
+                    and calculation_df[dim].notnull().all()
+                ):
                     calc_idx_cols.append(dim)
             data_idx_cols = [
                 data_col
@@ -1510,46 +1516,7 @@ class Exploder:
 
                 calculated_df = pd.concat(
                     [calculated_df, corrections], axis="index"
-                ).reset_index(drop=True)
-
-            # # If the calculation only has one component (and is therefore exactly equivalent to
-            # # a factoid from another table), add the corrections from that table to this
-            # # correction and produce one factoid.
-
-            # for calculated_factoid, calculation in set(zip(corrections.xbrl_factoid, corrections.calculations)):
-            #     calculation_df = pd.DataFrame(json.loads(calculation))
-            #     calculation_df = calculation_df.loc[
-            #         ~calculation_df.name.str.contains("correction")
-            #     ]
-            #     # If only one component in the calculation, add to a list to handle corrections
-            #     # differently later.
-            #     if len(calculation_df) == 1:
-            #         original_fact = calculation_df["name"][0]
-
-            #         # If original fact was also calculated - add source tables here!
-            #         if calculated_df.loc[(calculated_df.xbrl_factoid == original_fact)&(calculated_df.row_type_xbrl == "calculated_value")&(calculated_df.table_name.isin(calculation_df.source_tables.values))].any():
-            #             # Get corresponding original fact corrections
-            #             original_fact_corrections = original_fact + "_correction"
-            #             original_corrections_meta = (
-            #                 corrections[pks_wo_factoid]
-            #                 .assign(xbrl_factoid=original_fact_corrections)
-            #                 .assign(table_name=corrections.source_tables)
-            #             )
-            #             original_corrections_meta.drop(
-            #                 columns=["source_tables"], inplace=True
-            #             )
-            #             pks_corrections = [col for col in original_corrections_meta]
-            #             logger.info(original_corrections_meta)
-            #             logger.info(pks_corrections)
-            #             # TO FIX and FINISH - temporary!
-            #             original_corrections = calculated_df.merge(
-            #                 original_corrections_meta, on=pks_corrections, how="inner"
-            #             )
-            #             if not original_corrections.empty:
-            #                 logger.warning("Need to merge corrections!!")
-            #                 return original_corrections
-        #     # original_corrections = original_corrections[original_corrections._merge == "both"]
-
+                ).reset_index()
         return calculated_df
 
     def remove_factoids_from_mutliple_tables(
