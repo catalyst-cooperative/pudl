@@ -953,7 +953,7 @@ def create_exploded_table_assets() -> list[AssetsDefinition]:
     with importlib.resources.as_file(pkg_source) as tags_csv:
         tags = pd.read_csv(
             tags_csv, usecols=["xbrl_factoid", "table_name", "in_rate_base"]
-        ).drop_duplicates(subset=["table_name", "xbrl_factoid"])
+        ).drop_duplicates(subset=["table_name", "xbrl_factoid", "in_rate_base"])
 
     explosion_args = [
         {
