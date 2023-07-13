@@ -1435,7 +1435,7 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
             new_calc = [i for n, i in enumerate(calc) if i not in calc[n + 1 :]]
             if new_calc != calc:
                 logger.info(
-                    f"Dropping duplicated components {list(filter(lambda x:calc.remove(x),new_calc))} from calculation in {self.table_id.value}"
+                    f"Dropping duplicated components from calculation in {self.table_id.value}"
                 )
             new_calcs.loc[index] = json.dumps(new_calc)
         tbl_meta["calculations"] = new_calcs
@@ -1526,7 +1526,7 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
                     }
                 ],
                 "depreciation_expense": [
-                    # Dimension: electric. Temporarily adding metadata only.
+                    # Add link to depreciation_amortization_summary_ferc1
                     {
                         "calc_component_to_replace": {},
                         "calc_component_new": {
@@ -1541,7 +1541,7 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
                     }
                 ],
                 "depreciation_expense_for_asset_retirement_costs": [
-                    # Dimension: electric. Temporarily adding metadata only.
+                    # Add link to depreciation_amortization_summary_ferc1
                     {
                         "calc_component_to_replace": {},
                         "calc_component_new": {
@@ -1556,7 +1556,7 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
                     }
                 ],
                 "operating_revenues": [
-                    # Temporarily adding metadata only.
+                    # Add link to electric_operating_revenues_ferc1
                     {
                         "calc_component_to_replace": {},
                         "calc_component_new": {
@@ -1566,83 +1566,8 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
                         },
                     }
                 ],
-                # This is already an in-table calculated field so we need to handle
-                # it differently.
-                # "utility_operating_expenses": [
-                #     # Temporarily adding metadata only.
-                #     {
-                #         "calc_component_to_replace": {},
-                #         "calc_component_new": {
-                #             "name": "administrative_and_general_operation_expense",
-                #             "weight": 1.0,
-                #             "source_tables": ["electric_operating_expenses_ferc1"],
-                #         },
-                #     },
-                #     {
-                #         "calc_component_to_replace": {},
-                #         "calc_component_new": {
-                #             "name": "distribution_operation_expenses_electric",
-                #             "weight": 1.0,
-                #             "source_tables": ["electric_operating_expenses_ferc1"],
-                #         },
-                #     },
-                #     {
-                #         "calc_component_to_replace": {},
-                #         "calc_component_new": {
-                #             "name": "hydraulic_power_generation_operations_expense",
-                #             "weight": 1.0,
-                #             "source_tables": ["electric_operating_expenses_ferc1"],
-                #             "utility_type": "electric",
-                #         },
-                #     },
-                #     {
-                #         "calc_component_to_replace": {},
-                #         "calc_component_new": {
-                #             "name": "nuclear_power_generation_operations_expense",
-                #             "weight": 1.0,
-                #             "source_tables": ["electric_operating_expenses_ferc1"],
-                #             "utility_type": "electric",
-                #         },
-                #     },
-                #     {
-                #         "calc_component_to_replace": {},
-                #         "calc_component_new": {
-                #             "name": "other_power_generation_operations_expense",
-                #             "weight": 1.0,
-                #             "source_tables": ["electric_operating_expenses_ferc1"],
-                #             "utility_type": "electric",
-                #         },
-                #     },
-                #     {
-                #         "calc_component_to_replace": {},
-                #         "calc_component_new": {
-                #             "name": "regional_market_operation_expense",
-                #             "weight": 1.0,
-                #             "source_tables": ["electric_operating_expenses_ferc1"],
-                #             "utility_type": "electric",
-                #         },
-                #     },
-                #     {
-                #         "calc_component_to_replace": {},
-                #         "calc_component_new": {
-                #             "name": "steam_power_generation_operations_expense",
-                #             "weight": 1.0,
-                #             "source_tables": ["electric_operating_expenses_ferc1"],
-                #             "utility_type": "electric",
-                #         },
-                #     },
-                #     {
-                #         "calc_component_to_replace": {},
-                #         "calc_component_new": {
-                #             "name": "transmission_operation_expense",
-                #             "weight": 1.0,
-                #             "source_tables": ["electric_operating_expenses_ferc1"],
-                #             "utility_type": "electric",
-                #         },
-                #     },
-                # ],
                 "maintenance_expense": [
-                    # Temporarily adding metadata only.
+                    # Add link to electric_operating_expenses_ferc1
                     {
                         "calc_component_to_replace": {},
                         "calc_component_new": {
@@ -2065,7 +1990,8 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
                     },
                 ],
                 "depreciation_utility_plant_in_service": [
-                    # Dimension: in service only. Temporarily adding to metadata only.
+                    # Add link to electric_plant_depreciation_functional for in-service
+                    # electric plant records only
                     {
                         "calc_component_to_replace": {},
                         "calc_component_new": {
@@ -2080,24 +2006,26 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
                     }
                 ],
                 "utility_plant_in_service_experimental_plant_unclassified": [
-                    # Temporarily adding to metadata only.
+                    # Add link to plant_in_service_ferc1
                     {
                         "calc_component_to_replace": {},
                         "calc_component_new": {
                             "name": "experimental_electric_plant_unclassified",
                             "weight": 1.0,
                             "source_tables": ["plant_in_service_ferc1"],
+                            "utility_type": "electric",
                         },
                     }
                 ],
                 "utility_plant_in_service_plant_purchased_or_sold": [
-                    # Temporarily adding to metadata only.
+                    # Add link to plant_in_service_ferc1
                     {
                         "calc_component_to_replace": {},
                         "calc_component_new": {
                             "name": "electric_plant_purchased",
                             "weight": 1.0,
                             "source_tables": ["plant_in_service_ferc1"],
+                            "utility_type": "electric",
                         },
                     },
                     {
@@ -2106,6 +2034,7 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
                             "name": "electric_plant_sold",
                             "weight": -1.0,
                             "source_tables": ["plant_in_service_ferc1"],
+                            "utility_type": "electric",
                         },
                     },
                 ],
@@ -2162,6 +2091,7 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
                             "name": "utility_plant_and_construction_work_in_progress",
                             "weight": 1.0,
                             "source_tables": ["utility_plant_summary_ferc1"],
+                            "utility_type": "total",
                         },
                     },
                     {
@@ -2218,6 +2148,7 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
                             "name": "accumulated_provision_for_depreciation_amortization_and_depletion_of_plant_utility",
                             "weight": 1.0,
                             "source_tables": ["utility_plant_summary_ferc1"],
+                            "utility_type": "total",
                         },
                     },
                     {
@@ -2286,6 +2217,16 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
                             "name": "accumulated_deferred_income_taxes",
                             "weight": 1.0,
                             "source_tables": ["balance_sheet_liabilities_ferc1"],
+                        },
+                    },
+                ],
+                "retained_earnings": [
+                    {
+                        "calc_component_to_replace": {},
+                        "calc_component_new": {
+                            "name": "retained_earnings",
+                            "weight": 1.0,
+                            "source_tables": ["retained_earnings_ferc1"],
                         },
                     },
                 ],
@@ -5010,6 +4951,11 @@ class BalanceSheetAssetsFerc1TableTransformer(Ferc1AbstractTableTransformer):
 
     table_id: TableIdFerc1 = TableIdFerc1.BALANCE_SHEET_ASSETS_FERC1
     has_unique_record_ids: bool = False
+
+    def transform_main(self: Self, df: pd.DataFrame) -> pd.DataFrame:
+        """Add utility type column to enable join for explosion process."""
+        df = super().transform_main(df).assign(utility_type="total")
+        return df
 
 
 class IncomeStatementFerc1TableTransformer(Ferc1AbstractTableTransformer):
