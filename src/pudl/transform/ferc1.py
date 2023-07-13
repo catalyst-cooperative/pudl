@@ -1508,70 +1508,6 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
             TableIdFerc1, dict  # [xbrl_factoid_name, list[calc_component_fix]]
         ] = {
             "income_statement_ferc1": {
-                "income_before_extraordinary_items": [
-                    {
-                        "calc_component_to_replace": {},
-                        "calc_component_new": {
-                            "name": "net_utility_operating_income",
-                            "weight": 1.0,
-                            "source_tables": ["income_statement_ferc1"],
-                        },
-                    }
-                ],
-                "other_income_deductions": [
-                    {
-                        "calc_component_to_replace": {},
-                        "calc_component_new": {
-                            "name": "miscellaneous_deductions",
-                            "weight": 1.0,
-                            "source_tables": ["income_statement_ferc1"],
-                        },
-                    }
-                ],
-                "taxes_on_other_income_and_deductions": [
-                    {
-                        "calc_component_to_replace": {
-                            "name": "investment_tax_credits",
-                            "weight": 1.0,
-                            "source_tables": ["income_statement_ferc1"],
-                        },
-                        "calc_component_new": {
-                            "name": "investment_tax_credits",
-                            "weight": -1.0,
-                            "source_tables": ["income_statement_ferc1"],
-                        },
-                    }
-                ],
-                "depreciation_expense": [
-                    # Dimension: electric. Temporarily adding metadata only.
-                    {
-                        "calc_component_to_replace": {},
-                        "calc_component_new": {
-                            "name": "depreciation_expense",
-                            "weight": 1.0,
-                            "source_tables": [
-                                "depreciation_amortization_summary_ferc1"
-                            ],
-                            "utility_type": "electric",
-                            "subdimension": "electric",
-                        },
-                    }
-                ],
-                "depreciation_expense_for_asset_retirement_costs": [
-                    # Dimension: electric. Temporarily adding metadata only.
-                    {
-                        "calc_component_to_replace": {},
-                        "calc_component_new": {
-                            "name": "depreciation_expense_asset_retirement",
-                            "weight": 1.0,
-                            "source_tables": [
-                                "depreciation_amortization_summary_ferc1"
-                            ],
-                            "utility_type": "electric",
-                            "subdimension": "electric",
-                        },
-                    }
-                ],
                 "operating_revenues": [
                     # Temporarily adding metadata only.
                     {
@@ -1580,84 +1516,111 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
                             "name": "electric_operating_revenues",
                             "weight": 1.0,
                             "source_tables": ["electric_operating_revenues_ferc1"],
+                            "utility_type": "electric",
                         },
                     }
                 ],
-                # This is already an in-table calculated field so we need to handle
-                # it differently.
-                # "utility_operating_expenses": [
-                #     # Temporarily adding metadata only.
-                #     {
-                #         "calc_component_to_replace": {},
-                #         "calc_component_new": {
-                #             "name": "administrative_and_general_operation_expense",
-                #             "weight": 1.0,
-                #             "source_tables": ["electric_operating_expenses_ferc1"],
-                #         },
-                #     },
-                #     {
-                #         "calc_component_to_replace": {},
-                #         "calc_component_new": {
-                #             "name": "distribution_operation_expenses_electric",
-                #             "weight": 1.0,
-                #             "source_tables": ["electric_operating_expenses_ferc1"],
-                #         },
-                #     },
-                #     {
-                #         "calc_component_to_replace": {},
-                #         "calc_component_new": {
-                #             "name": "hydraulic_power_generation_operations_expense",
-                #             "weight": 1.0,
-                #             "source_tables": ["electric_operating_expenses_ferc1"],
-                #             "utility_type": "electric",
-                #         },
-                #     },
-                #     {
-                #         "calc_component_to_replace": {},
-                #         "calc_component_new": {
-                #             "name": "nuclear_power_generation_operations_expense",
-                #             "weight": 1.0,
-                #             "source_tables": ["electric_operating_expenses_ferc1"],
-                #             "utility_type": "electric",
-                #         },
-                #     },
-                #     {
-                #         "calc_component_to_replace": {},
-                #         "calc_component_new": {
-                #             "name": "other_power_generation_operations_expense",
-                #             "weight": 1.0,
-                #             "source_tables": ["electric_operating_expenses_ferc1"],
-                #             "utility_type": "electric",
-                #         },
-                #     },
-                #     {
-                #         "calc_component_to_replace": {},
-                #         "calc_component_new": {
-                #             "name": "regional_market_operation_expense",
-                #             "weight": 1.0,
-                #             "source_tables": ["electric_operating_expenses_ferc1"],
-                #             "utility_type": "electric",
-                #         },
-                #     },
-                #     {
-                #         "calc_component_to_replace": {},
-                #         "calc_component_new": {
-                #             "name": "steam_power_generation_operations_expense",
-                #             "weight": 1.0,
-                #             "source_tables": ["electric_operating_expenses_ferc1"],
-                #             "utility_type": "electric",
-                #         },
-                #     },
-                #     {
-                #         "calc_component_to_replace": {},
-                #         "calc_component_new": {
-                #             "name": "transmission_operation_expense",
-                #             "weight": 1.0,
-                #             "source_tables": ["electric_operating_expenses_ferc1"],
-                #             "utility_type": "electric",
-                #         },
-                #     },
-                # ],
+                "operation_expense": [
+                    {
+                        "calc_component_to_replace": {},
+                        "calc_component_new": {
+                            "name": "steam_power_generation_operations_expense",
+                            "weight": 1.0,
+                            "source_tables": ["electric_operating_expenses_ferc1"],
+                            "utility_type": "electric",
+                        },
+                    },
+                    {
+                        "calc_component_to_replace": {},
+                        "calc_component_new": {
+                            "name": "nuclear_power_generation_operations_expense",
+                            "weight": 1.0,
+                            "source_tables": ["electric_operating_expenses_ferc1"],
+                            "utility_type": "electric",
+                        },
+                    },
+                    {
+                        "calc_component_to_replace": {},
+                        "calc_component_new": {
+                            "name": "hydraulic_power_generation_operations_expense",
+                            "weight": 1.0,
+                            "source_tables": ["electric_operating_expenses_ferc1"],
+                            "utility_type": "electric",
+                        },
+                    },
+                    {
+                        "calc_component_to_replace": {},
+                        "calc_component_new": {
+                            "name": "other_power_generation_operations_expense",
+                            "weight": 1.0,
+                            "source_tables": ["electric_operating_expenses_ferc1"],
+                            "utility_type": "electric",
+                        },
+                    },
+                    {
+                        "calc_component_to_replace": {},
+                        "calc_component_new": {
+                            "name": "transmission_operation_expense",
+                            "weight": 1.0,
+                            "source_tables": ["electric_operating_expenses_ferc1"],
+                            "utility_type": "electric",
+                        },
+                    },
+                    {
+                        "calc_component_to_replace": {},
+                        "calc_component_new": {
+                            "name": "regional_market_operation_expense",
+                            "weight": 1.0,
+                            "source_tables": ["electric_operating_expenses_ferc1"],
+                            "utility_type": "electric",
+                        },
+                    },
+                    {
+                        "calc_component_to_replace": {},
+                        "calc_component_new": {
+                            "name": "distribution_operation_expenses_electric",
+                            "weight": 1.0,
+                            "source_tables": ["electric_operating_expenses_ferc1"],
+                            "utility_type": "electric",
+                        },
+                    },
+                    {
+                        "calc_component_to_replace": {},
+                        "calc_component_new": {
+                            "name": "customer_account_expenses",
+                            "weight": 1.0,
+                            "source_tables": ["electric_operating_expenses_ferc1"],
+                            "utility_type": "electric",
+                        },
+                    },
+                    {
+                        "calc_component_to_replace": {},
+                        "calc_component_new": {
+                            "name": "customer_service_and_information_expenses",
+                            "weight": 1.0,
+                            "source_tables": ["electric_operating_expenses_ferc1"],
+                            "utility_type": "electric",
+                        },
+                    },
+                    {
+                        "calc_component_to_replace": {},
+                        "calc_component_new": {
+                            "name": "sales_expenses",
+                            "weight": 1.0,
+                            "source_tables": ["electric_operating_expenses_ferc1"],
+                            "utility_type": "electric",
+                        },
+                    },
+                    {
+                        "calc_component_to_replace": {},
+                        "calc_component_new": {
+                            "name": "administrative_and_general_operation_expense",
+                            "weight": 1.0,
+                            "source_tables": ["electric_operating_expenses_ferc1"],
+                            "utility_type": "electric",
+                        },
+                    },
+                ],
                 "maintenance_expense": [
                     # Temporarily adding metadata only.
                     {
@@ -1732,6 +1695,96 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
                             "utility_type": "electric",
                         },
                     },
+                ],
+                "depreciation_expense": [
+                    # Dimension: electric. Temporarily adding metadata only.
+                    {
+                        "calc_component_to_replace": {},
+                        "calc_component_new": {
+                            "name": "depreciation_expense",
+                            "weight": 1.0,
+                            "source_tables": [
+                                "depreciation_amortization_summary_ferc1"
+                            ],
+                            "utility_type": "electric",
+                            "subdimension": "electric",
+                        },
+                    }
+                ],
+                "depreciation_expense_for_asset_retirement_costs": [
+                    # Dimension: electric. Temporarily adding metadata only.
+                    {
+                        "calc_component_to_replace": {},
+                        "calc_component_new": {
+                            "name": "depreciation_expense_asset_retirement",
+                            "weight": 1.0,
+                            "source_tables": [
+                                "depreciation_amortization_summary_ferc1"
+                            ],
+                            "utility_type": "electric",
+                            "subdimension": "electric",
+                        },
+                    }
+                ],
+                "amortization_and_depletion_of_utility_plant": [
+                    {
+                        "calc_component_to_replace": {},
+                        "calc_component_new": {
+                            "name": "amortization_limited_term_electric_plant",
+                            "weight": 1.0,
+                            "source_tables": [
+                                "depreciation_amortization_summary_ferc1"
+                            ],
+                            "utility_type": "electric",
+                            "subdimension": "electric",
+                        },
+                    },
+                    {
+                        "calc_component_to_replace": {},
+                        "calc_component_new": {
+                            "name": "amortization_other_electric_plant",
+                            "weight": 1.0,
+                            "source_tables": [
+                                "depreciation_amortization_summary_ferc1"
+                            ],
+                            "utility_type": "electric",
+                            "subdimension": "electric",
+                        },
+                    },
+                ],
+                "income_before_extraordinary_items": [
+                    {
+                        "calc_component_to_replace": {},
+                        "calc_component_new": {
+                            "name": "net_utility_operating_income",
+                            "weight": 1.0,
+                            "source_tables": ["income_statement_ferc1"],
+                        },
+                    }
+                ],
+                "other_income_deductions": [
+                    {
+                        "calc_component_to_replace": {},
+                        "calc_component_new": {
+                            "name": "miscellaneous_deductions",
+                            "weight": 1.0,
+                            "source_tables": ["income_statement_ferc1"],
+                        },
+                    }
+                ],
+                "taxes_on_other_income_and_deductions": [
+                    {
+                        "calc_component_to_replace": {
+                            "name": "investment_tax_credits",
+                            "weight": 1.0,
+                            "source_tables": ["income_statement_ferc1"],
+                        },
+                        "calc_component_new": {
+                            "name": "investment_tax_credits",
+                            "weight": -1.0,
+                            "source_tables": ["income_statement_ferc1"],
+                        },
+                    }
                 ],
             },
             "electric_operating_revenues_ferc1": {
@@ -5831,11 +5884,11 @@ class DepreciationAmortizationSummaryFerc1TableTransformer(
         meta = super().process_xbrl_metadata(xbrl_metadata_json)
         # logger.info(meta)
         meta.loc[
-            meta.xbrl_factoid == "depreciation_expense_asset_retirement",
-            "ferc_account",
-        ] = "403.1"
-        meta.loc[
             meta.xbrl_factoid == "depreciation_expense",
+            "ferc_account",
+        ] = "403"
+        meta.loc[
+            meta.xbrl_factoid == "depreciation_expense_asset_retirement",
             "ferc_account",
         ] = "403.1"
         return meta
@@ -6003,6 +6056,29 @@ class ElectricOperatingExpensesFerc1TableTransformer(Ferc1AbstractTableTransform
             raise AssertionError(f"More rows dropped than expected: {dropped}")
         logger.info("Heyyyy dropping that one row")
         return raw_df
+
+    @cache_df(key="process_xbrl_metadata")
+    def process_xbrl_metadata(self: Self, xbrl_metadata_json) -> pd.DataFrame:
+        """Default XBRL metadata processing and add a DBF-only xblr factoid.
+
+        Note: we should probably parameterize this and add it into the standard
+        :meth:`process_xbrl_metadata`.
+        """
+        tbl_meta = super().process_xbrl_metadata(xbrl_metadata_json)
+        dbf_only_facts = [
+            {
+                "xbrl_factoid": dbf_only_fact,
+                "calculations": "[]",
+                "balance": "credit",
+                "ferc_account": pd.NA,
+                "xbrl_factoid_original": dbf_only_fact,
+                "intra_table_calc_flag": True,
+                "row_type_xbrl": "reported_value",
+            }
+            for dbf_only_fact in ["load_dispatching_transmission_expense"]
+        ]
+        dbf_only_facts = pd.DataFrame(dbf_only_facts).convert_dtypes()
+        return pd.concat([tbl_meta, dbf_only_facts])
 
     @cache_df(key="dbf")
     def process_dbf(self, raw_dbf: pd.DataFrame) -> pd.DataFrame:
