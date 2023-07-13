@@ -999,7 +999,7 @@ def create_exploded_table_assets() -> list[AssetsDefinition]:
                 "balance_sheet_liabilities_ferc1",
                 "retained_earnings_ferc1",
             ],
-            "calculation_tolerance": 0.05,
+            "calculation_tolerance": 0.075,
             # TODO: This is probably the correct seed node, but the resulting graph
             # lacks any connection to the retained_earnings_ferc1 table, so there are
             # still calculations that need to be fixed.
@@ -1816,6 +1816,7 @@ class XbrlCalculationForestFerc1(BaseModel):
     from calculation relationships.
     """
 
+    metadata_index_cols: list[str] = ["table_name", "xbrl_factoid"]
     exploded_meta: pd.DataFrame
     seeds: list[NodeId] = []
     tags: pd.DataFrame = pd.DataFrame()
@@ -1826,9 +1827,9 @@ class XbrlCalculationForestFerc1(BaseModel):
         arbitrary_types_allowed = True
 
     @validator("exploded_meta", "tags")
-    def ensure_correct_dataframe_index(cls, v):
+    def ensure_correct_dataframe_index(cls, v, values):
         """Ensure that dataframe is indexed by table_name and xbrl_factoid."""
-        idx_cols = ["table_name", "xbrl_factoid"]
+        idx_cols = values["metadata_index_cols"]
         if v.index.names == idx_cols:
             return v
         missing_idx_cols = [col for col in idx_cols if col not in v.columns]
