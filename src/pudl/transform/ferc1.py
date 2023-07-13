@@ -1658,17 +1658,17 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
                             ],
                         },
                         "calc_component_new": {
-                            "name": "small_or_commercial_sales_electric_operating_revenue",
+                            "name": "small_or_commercial",
                             "weight": 1.0,
-                            "source_tables": ["income_statement_ferc1"],
+                            "source_tables": ["electric_operating_revenues_ferc1"],
                         },
                     },
                     {
                         "calc_component_to_replace": {},
                         "calc_component_new": {
-                            "name": "large_or_industrial_sales_electric_operating_revenue",
+                            "name": "large_or_industrial",
                             "weight": 1.0,
-                            "source_tables": ["income_statement_ferc1"],
+                            "source_tables": ["electric_operating_revenues_ferc1"],
                         },
                     },
                 ],
@@ -2005,6 +2005,33 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
                         },
                     }
                 ],
+                "utility_plant_in_service_classified_and_unclassified": [
+                    # we made a new factoid for this table in aggregated_xbrl_factoids
+                    # which squishes two factoids together so it can be linked up with
+                    # the plant_in_service_ferc1 table. These two factoids are calc
+                    # components for this factoid. we are replacing them with this new
+                    # aggregated factoid
+                    {
+                        "calc_component_to_replace": {
+                            "name": "utility_plant_in_service_classified",
+                            "weight": 1.0,
+                            "source_tables": ["utility_plant_summary_ferc1"],
+                        },
+                        "calc_component_new": {
+                            "name": "utility_plant_in_service_classified_and_property_under_capital_leases",
+                            "weight": 1.0,
+                            "source_tables": ["utility_plant_summary_ferc1"],
+                        },
+                    },
+                    {
+                        "calc_component_to_replace": {
+                            "name": "utility_plant_in_service_property_under_capital_leases",
+                            "weight": 1.0,
+                            "source_tables": ["utility_plant_summary_ferc1"],
+                        },
+                        "calc_component_new": {},
+                    },
+                ],
                 "utility_plant_in_service_experimental_plant_unclassified": [
                     # Add link to plant_in_service_ferc1
                     {
@@ -2134,6 +2161,17 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
                         },
                         "calc_component_new": {},
                     },
+                ],
+                "construction_work_in_progress": [
+                    {
+                        "calc_component_to_replace": {},
+                        "calc_component_new": {
+                            # Pass through connection of these two fields
+                            "name": "construction_work_in_progress",
+                            "weight": 1.0,
+                            "source_tables": ["utility_plant_summary_ferc1"],
+                        },
+                    }
                 ],
                 # Make duplicated factoids equivalent, instead of calculating twice.
                 "accumulated_provision_for_depreciation_amortization_and_depletion_of_plant_utility": [
@@ -2370,9 +2408,7 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
                 ],
             },
             "electric_plant_depreciation_functional_ferc1": {
-                # We use this name for the calculation but it gets renamed in
-                # `process_xbrl_metadata` to total.
-                "accumulated_provision_for_depreciation_of_electric_utility_plant": [
+                "total": [
                     {
                         "calc_component_to_replace": {},
                         "calc_component_new": {
@@ -4772,10 +4808,103 @@ class UtilityPlantSummaryFerc1TableTransformer(Ferc1AbstractTableTransformer):
     table_id: TableIdFerc1 = TableIdFerc1.UTILITY_PLANT_SUMMARY_FERC1
     has_unique_record_ids: bool = False
 
-    def transform_main(self: Self, df: pd.DataFrame) -> pd.DataFrame:
-        """Spot fix depreciation_utility_plant_in_service records with bad signs."""
-        df = super().transform_main(df)
+    def process_xbrl_metadata(self, xbrl_metadata_json) -> pd.DataFrame:
+        """Do the default metadata processing plus add a new factoid.
 
+        The new factoid cooresponds to the aggregated factoid in
+        :meth:`aggregated_xbrl_factoids`.
+        """
+        tbl_meta = super().process_xbrl_metadata(xbrl_metadata_json)
+        # things that could be grabbed from a aggregated_xbrl_factoids param
+        new_factoid_name = (
+            "utility_plant_in_service_classified_and_property_under_capital_leases"
+        )
+        # point this new aggregated factiod to the PIS table's equivilant when the
+        # subdimensions line up
+        calc = [
+            {
+                "name": "electric_plant_in_service_and_completed_construction_not_classified_electric",
+                "weight": 1.0,
+                "source_tables": ["plant_in_service_ferc1"],
+                "utility_type": "electric",
+            }
+        ]
+        new_fact = pd.DataFrame(
+            {
+                "xbrl_factoid": [new_factoid_name],
+                "calculations": [json.dumps(calc)],
+                "balance": ["debit"],
+                "ferc_account": [pd.NA],
+                "xbrl_factoid_original": [new_factoid_name],
+                "intra_table_calc_flag": [False],
+                "row_type_xbrl": ["calculated_value"],
+            }
+        ).convert_dtypes()
+
+        tbl_meta = pd.concat([tbl_meta, new_fact]).reset_index(drop=True)
+        return tbl_meta
+
+    def transform_main(self: Self, df: pd.DataFrame) -> pd.DataFrame:
+        """Default transforming, plus spot fixing and building aggregate xbrl_factoid."""
+        # we want to aggregate the factoids first here bc merge_xbrl_metadata is done
+        # at the end of super().transform_main
+        df = (
+            self.aggregated_xbrl_factoids(df)
+            .pipe(super().transform_main)
+            .pipe(self.spot_fix_bad_signs)
+        )
+        return df
+
+    def aggregated_xbrl_factoids(self: Self, df: pd.DataFrame) -> pd.DataFrame:
+        """Aggregate xbrl_factoids records for linking to :ref:`plant_in_service_ferc1`.
+
+        This table has two ``xbrl_factoid`` which can be linked via calcuations to one
+        ``xbrl_factoid`` in the :ref:`plant_in_service_ferc1`. Doing this 2:1 linkage
+        would be fine in theory. But the :ref:`plant_in_service_ferc1` is in most senses
+        the table with the more details and of our desire to build tree-link
+        relationships between factoids, we need to build a new factoid to link in a 1:1
+        manner between this table and the :ref:`plant_in_service_ferc1`.
+
+        We'll also add this factoid into the metadata via :meth:`process_xbrl_metadata`
+        and add the linking calculation via :meth:`apply_xbrl_calculation_fixes`.
+        """
+        # these guys could be params
+        factoids_to_agg = [
+            "utility_plant_in_service_classified",
+            "utility_plant_in_service_property_under_capital_leases",
+        ]
+        new_factoid_name = (
+            "utility_plant_in_service_classified_and_property_under_capital_leases"
+        )
+        cols_to_agg = ["ending_balance"]
+        # grab some key infor for the actual aggregation
+        xbrl_factoid_name = self.params.xbrl_factoid_name
+        pks = pudl.metadata.classes.Resource.from_id(
+            self.table_id.value
+        ).schema.primary_key
+        pks_wo_factoid = [col for col in pks if col != xbrl_factoid_name]
+
+        agg_mask = df[xbrl_factoid_name].isin(factoids_to_agg)
+        agg_df = (
+            df[agg_mask]
+            .groupby(pks_wo_factoid, as_index=False, dropna=False)[cols_to_agg]
+            .sum(min_count=1)
+            .assign(**{xbrl_factoid_name: new_factoid_name})
+        )
+        # note: this results in the "loss" of non-pk columns like record_id - which
+        # seems appropriate imo. still flag a warning
+        missing_cols = [
+            col for col in df.columns if col not in list(agg_df.columns) + ["record_id"]
+        ]
+        logger.warning(
+            f"Post-aggregating a new xbrl_factoid, we are missing the following columns: {missing_cols}"
+        )
+        # squish em back together
+        df = pd.concat([df, agg_df]).reset_index(drop=True)
+        return df
+
+    def spot_fix_bad_signs(self: Self, df: pd.DataFrame) -> pd.DataFrame:
+        """Spot fix depreciation_utility_plant_in_service records with bad signs."""
         primary_keys = [
             "report_year",
             "utility_id_ferc1",
@@ -4945,12 +5074,55 @@ class BalanceSheetLiabilitiesFerc1TableTransformer(Ferc1AbstractTableTransformer
     table_id: TableIdFerc1 = TableIdFerc1.BALANCE_SHEET_LIABILITIES
     has_unique_record_ids: bool = False
 
+    def process_xbrl_metadata(self, xbrl_metadata_json) -> pd.DataFrame:
+        """Perform default xbrl metadata processing plus adding a new xbrl_factoid.
+
+        Note: we should probably parameterize this and add it into the standard
+        :meth:`process_xbrl_metadata`.
+        """
+        tbl_meta = super().process_xbrl_metadata(xbrl_metadata_json)
+        facts_to_add = {
+            "xbrl_factoid": ["accumulated_deferred_income_taxes"],
+            "calculations": ["[]"],
+            "balance": ["credit"],
+            "ferc_account": [pd.NA],
+            "xbrl_factoid_original": ["accumulated_deferred_income_taxes"],
+            "intra_table_calc_flag": [True],
+            "row_type_xbrl": ["reported_value"],
+        }
+
+        new_facts = pd.DataFrame(facts_to_add).convert_dtypes()
+        return pd.concat([tbl_meta, new_facts])
+
 
 class BalanceSheetAssetsFerc1TableTransformer(Ferc1AbstractTableTransformer):
     """Transformer class for :ref:`balance_sheet_assets_ferc1` table."""
 
     table_id: TableIdFerc1 = TableIdFerc1.BALANCE_SHEET_ASSETS_FERC1
     has_unique_record_ids: bool = False
+
+    def process_xbrl_metadata(self, xbrl_metadata_json) -> pd.DataFrame:
+        """Perform default xbrl metadata processing plus adding two new xbrl_factoids.
+
+        Note: we should probably parameterize this and add it into the standard
+        :meth:`process_xbrl_metadata`.
+        """
+        tbl_meta = super().process_xbrl_metadata(xbrl_metadata_json)
+        facts_to_add = [
+            {
+                "xbrl_factoid": dbf_only_fact,
+                "calculations": "[]",
+                "balance": "credit",
+                "ferc_account": pd.NA,
+                "xbrl_factoid_original": dbf_only_fact,
+                "intra_table_calc_flag": True,
+                "row_type_xbrl": "reported_value",
+            }
+            for dbf_only_fact in ["special_funds_all", "nuclear_fuel"]
+        ]
+
+        new_facts = pd.DataFrame(facts_to_add).convert_dtypes()
+        return pd.concat([tbl_meta, new_facts])
 
     def transform_main(self: Self, df: pd.DataFrame) -> pd.DataFrame:
         """Add utility type column to enable join for explosion process."""
@@ -4963,6 +5135,26 @@ class IncomeStatementFerc1TableTransformer(Ferc1AbstractTableTransformer):
 
     table_id: TableIdFerc1 = TableIdFerc1.INCOME_STATEMENT_FERC1
     has_unique_record_ids: bool = False
+
+    def process_xbrl_metadata(self, xbrl_metadata_json) -> pd.DataFrame:
+        """Perform default xbrl metadata processing plus adding a new xbrl_factoid.
+
+        Note: we should probably parameterize this and add it into the standard
+        :meth:`process_xbrl_metadata`.
+        """
+        tbl_meta = super().process_xbrl_metadata(xbrl_metadata_json)
+        facts_to_add = {
+            "xbrl_factoid": ["miscellaneous_deductions"],
+            "calculations": ["[]"],
+            "balance": ["debit"],
+            "ferc_account": [pd.NA],
+            "xbrl_factoid_original": ["miscellaneous_deductions"],
+            "intra_table_calc_flag": [True],
+            "row_type_xbrl": ["reported_value"],
+        }
+
+        new_facts = pd.DataFrame(facts_to_add).convert_dtypes()
+        return pd.concat([tbl_meta, new_facts])
 
     def process_dbf(self: Self, raw_dbf: pd.DataFrame) -> pd.DataFrame:
         """Drop incorrect row numbers from f1_incm_stmnt_2 before standard processing.
@@ -5053,7 +5245,24 @@ class RetainedEarningsFerc1TableTransformer(Ferc1AbstractTableTransformer):
             "ferc_account",
         ] = "418.1"
 
-        return meta
+        facts_to_add = [
+            {
+                "xbrl_factoid": new_fact,
+                "calculations": "[]",
+                "balance": "credit",
+                "ferc_account": pd.NA,
+                "xbrl_factoid_original": new_fact,
+                "intra_table_calc_flag": True,
+                "row_type_xbrl": "reported_value",
+            }
+            for new_fact in [
+                "unappropriated_retained_earnings_previous_year",
+                "unappropriated_undistributed_subsidiary_earnings_previous_year",
+            ]
+        ]
+
+        new_facts = pd.DataFrame(facts_to_add).convert_dtypes()
+        return pd.concat([meta, new_facts])
 
     def process_dbf(self, raw_dbf: pd.DataFrame) -> pd.DataFrame:
         """Preform generic :meth:`process_dbf`, plus deal with duplicates.
@@ -5437,20 +5646,38 @@ class ElectricPlantDepreciationFunctionalFerc1TableTransformer(
     table_id: TableIdFerc1 = TableIdFerc1.ELECTRIC_PLANT_DEPRECIATION_FUNCTIONAL_FERC1
     has_unique_record_ids: bool = False
 
-    @cache_df("process_xbrl_metadata")
-    def process_xbrl_metadata(self, xbrl_metadata_json) -> pd.DataFrame:
-        """Transform the metadata to reflect the transformed data.
+    def raw_xbrl_factoid_to_pudl_name(
+        self,
+        col_name_xbrl: str,
+    ) -> str:
+        """Apply default factoid rename plus special case.
 
-        Transform the xbrl factoid values so that they match the final plant functional
-        classification categories and can be merged with the output dataframe.
+        Unfortunately in the XBRL data, the actual column names differ from the column
+        names in the metadata. Because of that, the default
+        :meth:`raw_xbrl_factoid_to_pudl_name` does not catch all of the renames. This
+        method ensures that each metadata column name can be translated into PUDL column
+        names.
+
+        Note: Another way to do this would be to add a special case rename dict into
+        ``self.params.rename_dicts_xbrl`` which looked nearly the same as the
+        ``self.params.rename_columns_ferc1.instant_xbrl`` but without the
+        ``_ending_balance`` suffix. Because the rename stage is first in both the
+        :meth:`raw_xbrl_factoid_to_pudl_name` doesn't line up with the
+        metadata
         """
-        df = super().process_xbrl_metadata(xbrl_metadata_json)
-        df.loc[
-            df.xbrl_factoid
-            == "accumulated_provision_for_depreciation_of_electric_utility_plant",
-            "xbrl_factoid",
-        ] = "total"
-        return df
+        # most of the names just require a prefix to be removed
+        col_name_pudl = (
+            super()
+            .raw_xbrl_factoid_to_pudl_name(col_name_xbrl)
+            .removeprefix("accumulated_depreciation_")
+        )
+        # except for this one special case which is the total/calcuated value.
+        if (
+            col_name_pudl
+            == "accumulated_provision_for_depreciation_of_electric_utility_plant"
+        ):
+            col_name_pudl = "total"
+        return col_name_pudl
 
     @cache_df("dbf")
     def process_dbf(self, raw_df: pd.DataFrame) -> pd.DataFrame:
@@ -5540,9 +5767,16 @@ class ElectricOperatingRevenuesFerc1TableTransformer(Ferc1AbstractTableTransform
         non_dupes = tbl_meta[~dupes_masks]
         dupes = tbl_meta[dupes_masks]
         # the metadata relating to dollar_value column *generally* had the same name as
-        # the renamed xbrl_factoid. we'll double check that we a) didn't remove too many
-        # factoid's by doing this AND that we have a fully deduped output below.
-        deduped = dupes[dupes.xbrl_factoid == dupes.xbrl_factoid_original]
+        # the renamed xbrl_factoid. the outliers here are these two that have calcs for
+        # the factoid we want to keep (we could also id them w/ their og factoid names
+        # if that would be more straightforward)
+        deduped = dupes[
+            (dupes.xbrl_factoid == dupes.xbrl_factoid_original)
+            | (
+                dupes.xbrl_factoid.isin(["small_or_commercial", "large_or_industrial"])
+                & (dupes.calculations != "[]")
+            )
+        ]
         tbl_meta_cleaned = pd.concat([non_dupes, deduped])
         assert ~tbl_meta_cleaned.duplicated(subset=["xbrl_factoid"]).all()
 
@@ -5552,11 +5786,10 @@ class ElectricOperatingRevenuesFerc1TableTransformer(Ferc1AbstractTableTransform
             for factoid in tbl_meta.xbrl_factoid.unique()
             if factoid not in tbl_meta_cleaned.xbrl_factoid.unique()
         }
-        if missing != {"small_or_commercial", "large_or_industrial"}:
+        if missing:
             raise AssertionError(
-                "We expected two factoids to be missing post deduplication but found "
-                f"{missing}. The two that were expected that were fully reported values"
-                " and were associated with non-dollar columns."
+                "We expected to find no missing xbrl_factoid's after deduplication "
+                f"but found {missing}"
             )
         return tbl_meta_cleaned
 

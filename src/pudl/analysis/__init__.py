@@ -6,7 +6,7 @@ rich library of tools that show how the data can be put to use. We may also gene
 post-ETL derived database tables for distribution at some point.
 """
 from . import (  # noqa: F401
-    allocate_net_gen,
+    allocate_gen_fuel,
     epacamd_eia,
     ferc1_eia,
     mcoe,
