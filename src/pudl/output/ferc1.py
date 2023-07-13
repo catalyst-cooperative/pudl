@@ -1,7 +1,7 @@
 """A collection of denormalized FERC assets and helper functions."""
 import importlib
 import json
-from typing import Any, NamedTuple, Self
+from typing import Any, Literal, NamedTuple, Self
 
 import networkx as nx
 import numpy as np
@@ -2264,13 +2264,16 @@ class XbrlCalculationForestFerc1(BaseModel):
         """Produce the list of tables involved in this explosion."""
         return list(self.exploded_meta.reset_index()["table_name"].unique())
 
-    @staticmethod
-    def plot(graph: nx.DiGraph, table_names: list[str]) -> None:
+    def plot(
+        self: Self, graph: Literal["full_digraph", "seeded_digraph", "forest"]
+    ) -> None:
         """Visualize the calculation forest and its attributes."""
+        graph: nx.DiGraph = self.__getattribute__(graph)
+
         colors = ["red", "yellow", "green", "blue", "orange", "cyan", "purple"]
         color_map = {
             table: color
-            for table, color in zip(table_names, colors[: len(table_names)])
+            for table, color in zip(self.table_names, colors[: len(self.table_names)])
         }
 
         pos = graphviz_layout(graph, prog="dot", args='-Grankdir="LR"')
@@ -2284,18 +2287,6 @@ class XbrlCalculationForestFerc1(BaseModel):
         # nx.draw_networkx(nx_forest, pos, node_color=node_color)
         plt.legend(scatterpoints=1)
         plt.show()
-
-    def plot_full_digraph(self: Self) -> None:
-        """Visualize the unpruned DAG."""
-        self.plot(self.full_digraph, table_names=self.table_names)
-
-    def plot_seeded_digraph(self: Self) -> None:
-        """Visualize the pruned forest."""
-        self.plot(self.seeded_digraph, table_names=self.table_names)
-
-    def plot_forest(self: Self) -> None:
-        """Visualize the pruned forest."""
-        self.plot(self.forest, table_names=self.table_names)
 
     def leafy_data(
         self: Self, exploded_data: pd.DataFrame, value_col: str
