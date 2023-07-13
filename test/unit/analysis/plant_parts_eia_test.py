@@ -376,12 +376,16 @@ def test_scale_by_ownership():
             ],
         },
     ).astype(dtypes)
-
-    out = (
-        pudl.analysis.plant_parts_eia.MakeMegaGenTbl()
-        .scale_by_ownership(gens_mega=gens_mega_ex1, own_eia860=own_ex1)
-        .reset_index(drop=True)
-    )
+    scale_cols = [
+        "total_fuel_cost",
+        "net_generation_mwh",
+        "capacity_mw",
+        "capacity_eoy_mw",
+        "total_mmbtu",
+    ]
+    out = pudl.helpers.scale_by_ownership(
+        gens=gens_mega_ex1, own_eia860=own_ex1, scale_cols=scale_cols
+    ).reset_index(drop=True)
 
     pd.testing.assert_frame_equal(out_ex1, out)
 

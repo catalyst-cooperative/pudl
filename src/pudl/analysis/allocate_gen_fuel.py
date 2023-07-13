@@ -399,6 +399,8 @@ def allocate_gen_fuel_by_generator_energy_source(
     net_gen_fuel_alloc = net_gen_fuel_alloc.dropna(subset=["prime_mover_code"])
     len_after = net_gen_fuel_alloc.shape[0]
     fraction_dropped = (len_before - len_after) / len_before
+    dropped = len_before - len_after
+    logger.info(f"FRACTION DROPPED: {fraction_dropped}, NUM RECORDS DROPPED: {dropped}")
     if fraction_dropped > 5e-5:
         raise ValueError(
             "Too many records were found to have a NULL prime_mover_code and "
@@ -538,11 +540,10 @@ def scale_allocated_net_gen_fuel_by_ownership(
     with all of the owners of those generators.  This allows the aggregation of fuel use
     to the utility level.
 
-    Scaling generators with their owners' ownership fraction is currently possible via
-    :class:`pudl.analysis.plant_parts_eia.MakeMegaGenTbl`. This function uses the
-    allocated net generation at the generator/fuel-type level, merges that with a
-    generators table to ensure all necessary columns are available, and then feeds that
-    table into the EIA Plant-parts' :meth:`scale_by_ownership`.
+    This function uses the allocated net generation at the generator/fuel-type level,
+    merges that with a generators table to ensure all necessary columns are available,
+    and then feeds that table into the helper function :meth:`scale_by_ownership`
+    to scale generators by their owners' ownership fraction.
 
     Args:
         net_gen_fuel_alloc: table of allocated generation and fuel consumption
@@ -552,8 +553,8 @@ def scale_allocated_net_gen_fuel_by_ownership(
             ``capacity_mw`` and ``utility_id_eia``
         own_eia860: ``ownership_eia860`` table.
     """
-    return pudl.analysis.plant_parts_eia.MakeMegaGenTbl().scale_by_ownership(
-        gens_mega=pudl.helpers.date_merge(
+    return pudl.helpers.scale_by_ownership(
+        gens=pudl.helpers.date_merge(
             left=net_gen_fuel_alloc,
             right=gens[IDX_GENS + ["utility_id_eia", "capacity_mw"]],
             left_date_col="report_date",
