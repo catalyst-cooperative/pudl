@@ -1136,10 +1136,10 @@ class Exploder:
             )
         # Some xbrl_factoid names are the same in more than one table, so we also add
         # table_name here.
-        pks = pudl.helpers.dedupe_n_flatten_list_of_lists(pks) + [
-            "xbrl_factoid",
+        pks = [
             "table_name",
-        ]
+            "xbrl_factoid",
+        ] + pudl.helpers.dedupe_n_flatten_list_of_lists(pks)
         return pks
 
     @property
@@ -1247,82 +1247,64 @@ class Exploder:
         Args:
             exploded: concatenated tables for table explosion.
         """
-        pks_wo_factoid = [col for col in self.exploded_pks if col != "xbrl_factoid"]
-        metadata_exploded = self.metadata_exploded
-        inter_table_calcs = metadata_exploded[
-            (~metadata_exploded.intra_table_calc_flag)
-            & (metadata_exploded.row_type_xbrl == "calculated_value")
-        ]
-        if inter_table_calcs.empty:
+        if self.calculation_components_explosion.empty:
             return exploded
         else:
             logger.info(
-                f"{self.root_table}: Reconcile inter-table calculations: {list(inter_table_calcs.xbrl_factoid.unique())}."
+                f"{self.root_table}: Reconcile inter-table calculations: {list(self.calculation_components_explosion.xbrl_factoid.unique())}."
             )
+        # compile the lists of columns we are going to use later
+        data_idx_wo_factoid = [c for c in self.exploded_pks if c != "xbrl_factoid"]
+        calc_root_fact_idx = ["table_name", "xbrl_factoid"] + self.other_dimensions
+        calc_component_idx = [
+            "table_name_calculation_component",
+            "xbrl_factoid_calculation_component",
+        ] + self.other_dimensions
+        calc_comp_to_data_rename = {
+            "table_name_calculation_component": "table_name",
+            "xbrl_factoid_calculation_component": "xbrl_factoid",
+        }
 
         inter_table_calc_components = self.calculation_components_explosion.set_index(
-            ["table_name", "xbrl_factoid"]
+            calc_root_fact_idx
         ).sort_index()
+        # Remove the correction
+        inter_table_calc_components = inter_table_calc_components.loc[
+            ~inter_table_calc_components.xbrl_factoid_calculation_component.str.contains(
+                "correction"
+            )
+        ]
+
         calculated_dfs = []
         for calc_idx in set(inter_table_calc_components.index):
             parent_table = calc_idx[0]
             calculated_factoid = calc_idx[1]
             logger.info(f"Reconcile calculation for {calculated_factoid}")
             calculation_df = inter_table_calc_components.loc[calc_idx]
-            # Remove the correction
-            # TODO: check if we can remove this step?
-            calculation_df = calculation_df.loc[
-                ~calculation_df.xbrl_factoid_calculation_component.str.contains(
-                    "correction"
-                )
-            ]
-            calc_comp_to_data_rename = {
-                "xbrl_factoid_calculation_component": "xbrl_factoid",
-                "table_name_calculation_component": "table_name",
-            }
 
-            calc_idx_cols = [
-                "xbrl_factoid_calculation_component",
-                "table_name_calculation_component",
-            ]
-            for dim in self.other_dimensions:
-                # If dimension exists in the calculation, add to PKs
-                if (
-                    dim in calculation_df.columns
-                    and calculation_df[dim].notnull().all()
-                ):
-                    calc_idx_cols.append(dim)
-            data_idx_cols = [
-                calc_comp_to_data_rename[calc_col]
-                if calc_col in calc_comp_to_data_rename.keys()
-                else calc_col
-                for calc_col in calc_idx_cols
-            ]
             calc_comp_idx = (
                 calculation_df.reset_index()
-                .set_index(calc_idx_cols)
+                .set_index(calc_component_idx)
                 .index.rename(calc_comp_to_data_rename)
             )
             # SELECT ONLY THE COMPONENTS
-            components = exploded.set_index(data_idx_cols).loc[calc_comp_idx]
+            components = exploded.set_index(calc_root_fact_idx).loc[calc_comp_idx]
             # CALC THE STUFF
             calc_df = (
                 pd.merge(
                     components.reset_index(),
                     calculation_df.reset_index()[
-                        [
-                            "xbrl_factoid_calculation_component",
-                            "table_name_calculation_component",
-                            "weight",
-                        ]
+                        calc_component_idx + ["weight"]
                     ].rename(columns=calc_comp_to_data_rename),
-                    on=["xbrl_factoid", "table_name"],
+                    on=calc_root_fact_idx,
                 )
                 # apply the weight from the calc to convey the sign before summing.
                 .assign(calculated_amount=lambda x: x[self.value_col] * x.weight)
-                .groupby(pks_wo_factoid, as_index=False, dropna=False)[
-                    "calculated_amount"
-                ]
+                .groupby(
+                    data_idx_wo_factoid,
+                    as_index=False,
+                    dropna=False,
+                )["calculated_amount"]
                 .sum(min_count=1)
                 # Assign the name of the 'total' factoid and associate with its parent table.
                 .assign(xbrl_factoid=calculated_factoid)
@@ -1576,29 +1558,6 @@ def in_explosion_tables(table_name: str, in_explosion_table_names: list[str]) ->
             exploded tables.
     """
     return table_name in in_explosion_table_names
-
-
-def convert_calculations_into_calculation_component_table(
-    metadata: pd.DataFrame, unpack_source_tables: bool = False
-) -> pd.DataFrame:
-    """Convert xbrl metadata calculations into a table of calculation components."""
-    calc_dfs = []
-    for calc, tbl, factoid in zip(
-        metadata.calculations, metadata.table_name, metadata.xbrl_factoid
-    ):
-        calc_dfs.append(
-            pd.DataFrame(json.loads(calc)).assign(table_name=tbl, xbrl_factoid=factoid)
-        )
-    calcs = pd.concat(calc_dfs).reset_index(drop=True)
-    if unpack_source_tables:
-        # If each component has one source table (they all should)
-        if calcs["source_tables"].str.len().all() == 1:
-            calcs = calcs.explode("source_tables")  # Unpack the list
-    return calcs.merge(
-        metadata.drop(columns=["calculations"]),
-        on=["xbrl_factoid", "table_name"],
-        how="left",
-    )
 
 
 def get_table_level(table_name: str, top_table: str) -> int:
