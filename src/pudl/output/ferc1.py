@@ -1123,9 +1123,9 @@ class Exploder:
         """Get the joint primary keys of the exploded tables."""
         pks = []
         for table_name in self.table_names:
-            xbrl_factoid_name = pudl.transform.ferc1.FERC1_TFR_CLASSES[
+            xbrl_factoid_name = pudl.transform.ferc1.table_to_xbrl_factoid_name()[
                 table_name
-            ]().params.xbrl_factoid_name
+            ]
             pks.append(
                 [
                     col
