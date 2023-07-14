@@ -850,6 +850,7 @@ def reconcile_table_calculations(
         )
         corrections[xbrl_factoid_name] = corrections[xbrl_factoid_name] + "_correction"
         corrections["row_type_xbrl"] = "correction"
+        corrections["intra_table_calc_flag"] = True
         corrections["record_id"] = pd.NA
 
         calculated_df = pd.concat(
@@ -1308,9 +1309,6 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
                     same_table_bools.append(source_table == native_table)
             return all(same_table_bools)
 
-        tbl_meta["intra_table_calc_flag"] = tbl_meta.calculations.apply(
-            check_for_other_source_tables, native_table=self.table_id.value
-        ).astype(pd.BooleanDtype())
         xbrl_factoid_name_map = {
             xbrl_factoid_name_og: self.raw_xbrl_factoid_to_pudl_name(
                 xbrl_factoid_name_og
@@ -1334,12 +1332,19 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
         tbl_meta.calculations = tbl_meta.calculations.apply(
             rename_calculation_components
         )
+
         tbl_meta = (
             self.deduplicate_xbrl_factoid_xbrl_metadata(tbl_meta)
             .pipe(self.apply_xbrl_calculation_fixes)
             .pipe(self.remove_duplicated_calculation_components)
-            .pipe(self.add_calculation_correction_components)
         )
+
+        # Add intra-table calculation flag after all calculation components adjusted.
+        tbl_meta["intra_table_calc_flag"] = tbl_meta.calculations.apply(
+            check_for_other_source_tables, native_table=self.table_id.value
+        ).astype(pd.BooleanDtype())
+
+        tbl_meta = tbl_meta.pipe(self.add_calculation_correction_components)
 
         # Flag metadata record types
         tbl_meta = tbl_meta.assign(
@@ -1520,6 +1525,122 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
                         },
                     }
                 ],
+                "depreciation_expense": [
+                    # Add link to depreciation_amortization_summary_ferc1
+                    {
+                        "calc_component_to_replace": {},
+                        "calc_component_new": {
+                            "name": "depreciation_expense",
+                            "weight": 1.0,
+                            "source_tables": [
+                                "depreciation_amortization_summary_ferc1"
+                            ],
+                            "utility_type": "electric",
+                            "subdimension": "electric",
+                        },
+                    }
+                ],
+                "depreciation_expense_for_asset_retirement_costs": [
+                    # Add link to depreciation_amortization_summary_ferc1
+                    {
+                        "calc_component_to_replace": {},
+                        "calc_component_new": {
+                            "name": "depreciation_expense_asset_retirement",
+                            "weight": 1.0,
+                            "source_tables": [
+                                "depreciation_amortization_summary_ferc1"
+                            ],
+                            "utility_type": "electric",
+                            "subdimension": "electric",
+                        },
+                    }
+                ],
+                "operating_revenues": [
+                    # Add link to electric_operating_revenues_ferc1
+                    {
+                        "calc_component_to_replace": {},
+                        "calc_component_new": {
+                            "name": "electric_operating_revenues",
+                            "weight": 1.0,
+                            "source_tables": ["electric_operating_revenues_ferc1"],
+                        },
+                    }
+                ],
+                "maintenance_expense": [
+                    # Add link to electric_operating_expenses_ferc1
+                    {
+                        "calc_component_to_replace": {},
+                        "calc_component_new": {
+                            "name": "distribution_maintenance_expense_electric",
+                            "weight": 1.0,
+                            "source_tables": ["electric_operating_expenses_ferc1"],
+                            "utility_type": "electric",
+                        },
+                    },
+                    {
+                        "calc_component_to_replace": {},
+                        "calc_component_new": {
+                            "name": "nuclear_power_generation_maintenance_expense",
+                            "weight": 1.0,
+                            "source_tables": ["electric_operating_expenses_ferc1"],
+                            "utility_type": "electric",
+                        },
+                    },
+                    {
+                        "calc_component_to_replace": {},
+                        "calc_component_new": {
+                            "name": "hydraulic_power_generation_maintenance_expense",
+                            "weight": 1.0,
+                            "source_tables": ["electric_operating_expenses_ferc1"],
+                            "utility_type": "electric",
+                        },
+                    },
+                    {
+                        "calc_component_to_replace": {},
+                        "calc_component_new": {
+                            "name": "other_power_generation_maintenance_expense",
+                            "weight": 1.0,
+                            "source_tables": ["electric_operating_expenses_ferc1"],
+                            "utility_type": "electric",
+                        },
+                    },
+                    {
+                        "calc_component_to_replace": {},
+                        "calc_component_new": {
+                            "name": "regional_market_maintenance_expense",
+                            "weight": 1.0,
+                            "source_tables": ["electric_operating_expenses_ferc1"],
+                            "utility_type": "electric",
+                        },
+                    },
+                    {
+                        "calc_component_to_replace": {},
+                        "calc_component_new": {
+                            "name": "steam_power_generation_maintenance_expense",
+                            "weight": 1.0,
+                            "source_tables": ["electric_operating_expenses_ferc1"],
+                            "utility_type": "electric",
+                        },
+                    },
+                    {
+                        "calc_component_to_replace": {},
+                        "calc_component_new": {
+                            "name": "transmission_maintenance_expense_electric",
+                            "weight": 1.0,
+                            "source_tables": ["electric_operating_expenses_ferc1"],
+                            "utility_type": "electric",
+                        },
+                    },
+                    {
+                        "calc_component_to_replace": {},
+                        "calc_component_new": {
+                            "name": "maintenance_of_general_plant",
+                            "weight": 1.0,
+                            "source_tables": ["electric_operating_expenses_ferc1"],
+                            "utility_type": "electric",
+                        },
+                    },
+                ],
             },
             "electric_operating_revenues_ferc1": {
                 "sales_to_ultimate_consumers": [
@@ -1537,17 +1658,17 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
                             ],
                         },
                         "calc_component_new": {
-                            "name": "small_or_commercial_sales_electric_operating_revenue",
+                            "name": "small_or_commercial",
                             "weight": 1.0,
-                            "source_tables": ["income_statement_ferc1"],
+                            "source_tables": ["electric_operating_revenues_ferc1"],
                         },
                     },
                     {
                         "calc_component_to_replace": {},
                         "calc_component_new": {
-                            "name": "large_or_industrial_sales_electric_operating_revenue",
+                            "name": "large_or_industrial",
                             "weight": 1.0,
-                            "source_tables": ["income_statement_ferc1"],
+                            "source_tables": ["electric_operating_revenues_ferc1"],
                         },
                     },
                 ],
@@ -1868,6 +1989,82 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
                         },
                     },
                 ],
+                "depreciation_utility_plant_in_service": [
+                    # Add link to electric_plant_depreciation_functional for in-service
+                    # electric plant records only
+                    {
+                        "calc_component_to_replace": {},
+                        "calc_component_new": {
+                            "name": "total",
+                            "weight": 1.0,
+                            "source_tables": [
+                                "electric_plant_depreciation_functional_ferc1"
+                            ],
+                            "utility_type": "electric",
+                            "subdimension": "in_service",
+                        },
+                    }
+                ],
+                "utility_plant_in_service_classified_and_unclassified": [
+                    # we made a new factoid for this table in aggregated_xbrl_factoids
+                    # which squishes two factoids together so it can be linked up with
+                    # the plant_in_service_ferc1 table. These two factoids are calc
+                    # components for this factoid. we are replacing them with this new
+                    # aggregated factoid
+                    {
+                        "calc_component_to_replace": {
+                            "name": "utility_plant_in_service_classified",
+                            "weight": 1.0,
+                            "source_tables": ["utility_plant_summary_ferc1"],
+                        },
+                        "calc_component_new": {
+                            "name": "utility_plant_in_service_classified_and_property_under_capital_leases",
+                            "weight": 1.0,
+                            "source_tables": ["utility_plant_summary_ferc1"],
+                        },
+                    },
+                    {
+                        "calc_component_to_replace": {
+                            "name": "utility_plant_in_service_property_under_capital_leases",
+                            "weight": 1.0,
+                            "source_tables": ["utility_plant_summary_ferc1"],
+                        },
+                        "calc_component_new": {},
+                    },
+                ],
+                "utility_plant_in_service_experimental_plant_unclassified": [
+                    # Add link to plant_in_service_ferc1
+                    {
+                        "calc_component_to_replace": {},
+                        "calc_component_new": {
+                            "name": "experimental_electric_plant_unclassified",
+                            "weight": 1.0,
+                            "source_tables": ["plant_in_service_ferc1"],
+                            "utility_type": "electric",
+                        },
+                    }
+                ],
+                "utility_plant_in_service_plant_purchased_or_sold": [
+                    # Add link to plant_in_service_ferc1
+                    {
+                        "calc_component_to_replace": {},
+                        "calc_component_new": {
+                            "name": "electric_plant_purchased",
+                            "weight": 1.0,
+                            "source_tables": ["plant_in_service_ferc1"],
+                            "utility_type": "electric",
+                        },
+                    },
+                    {
+                        "calc_component_to_replace": {},
+                        "calc_component_new": {
+                            "name": "electric_plant_sold",
+                            "weight": -1.0,
+                            "source_tables": ["plant_in_service_ferc1"],
+                            "utility_type": "electric",
+                        },
+                    },
+                ],
             },
             "balance_sheet_assets_ferc1": {
                 "nuclear_fuel_net": [
@@ -1908,11 +2105,25 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
                         },
                     },
                 ],
-                "accumulated_provision_for_depreciation_amortization_and_depletion_of_plant_utility": [
+                # Make duplicated factoids equivalent, instead of calculating twice.
+                "utility_plant_and_construction_work_in_progress": [
                     {
                         "calc_component_to_replace": {
-                            "name": "depreciation_amortization_and_depletion_utility_plant_in_service",
-                            # A duplicate of 4 other fields, though this is not explicitly defined in the metadata.
+                            "name": "utility_plant",
+                            "weight": 1.0,
+                            "source_tables": ["balance_sheet_assets_ferc1"],
+                        },
+                        "calc_component_new": {
+                            # Equivalent factoid in utility_plant_summary table
+                            "name": "utility_plant_and_construction_work_in_progress",
+                            "weight": 1.0,
+                            "source_tables": ["utility_plant_summary_ferc1"],
+                            "utility_type": "total",
+                        },
+                    },
+                    {
+                        "calc_component_to_replace": {
+                            "name": "utility_plant_in_service_classified_and_unclassified",
                             "weight": 1.0,
                             "source_tables": ["utility_plant_summary_ferc1"],
                         },
@@ -1920,15 +2131,71 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
                     },
                     {
                         "calc_component_to_replace": {
-                            "name": "amortization_and_depletion_of_producing_natural_gas_land_and_land_rightsutility_plant_in_service",
+                            "name": "utility_plant_leased_to_others",
+                            "weight": 1.0,
+                            "source_tables": ["utility_plant_summary_ferc1"],
+                        },
+                        "calc_component_new": {},
+                    },
+                    {
+                        "calc_component_to_replace": {
+                            "name": "utility_plant_held_for_future_use",
+                            "weight": 1.0,
+                            "source_tables": ["utility_plant_summary_ferc1"],
+                        },
+                        "calc_component_new": {},
+                    },
+                    {
+                        "calc_component_to_replace": {
+                            "name": "construction_work_in_progress",
+                            "weight": 1.0,
+                            "source_tables": ["balance_sheet_assets_ferc1"],
+                        },
+                        "calc_component_new": {},
+                    },
+                    {
+                        "calc_component_to_replace": {
+                            "name": "utility_plant_acquisition_adjustment",
+                            "weight": 1.0,
+                            "source_tables": ["utility_plant_summary_ferc1"],
+                        },
+                        "calc_component_new": {},
+                    },
+                ],
+                "construction_work_in_progress": [
+                    {
+                        "calc_component_to_replace": {},
+                        "calc_component_new": {
+                            # Pass through connection of these two fields
+                            "name": "construction_work_in_progress",
+                            "weight": 1.0,
+                            "source_tables": ["utility_plant_summary_ferc1"],
+                        },
+                    }
+                ],
+                # Make duplicated factoids equivalent, instead of calculating twice.
+                "accumulated_provision_for_depreciation_amortization_and_depletion_of_plant_utility": [
+                    {
+                        "calc_component_to_replace": {
+                            "name": "depreciation_utility_plant_in_service",
                             "weight": 1.0,
                             "source_tables": ["utility_plant_summary_ferc1"],
                         },
                         "calc_component_new": {
-                            "name": "amortization_and_depletion_of_producing_natural_gas_land_and_land_rights_utility_plant_in_service",
+                            # Only used in pre-2004 calculations, aggregate of later sub-components.
+                            "name": "accumulated_provision_for_depreciation_amortization_and_depletion_of_plant_utility",
+                            "weight": 1.0,
+                            "source_tables": ["utility_plant_summary_ferc1"],
+                            "utility_type": "total",
+                        },
+                    },
+                    {
+                        "calc_component_to_replace": {
+                            "name": "amortization_and_depletion_of_producing_natural_gas_land_and_land_rightsutility_plant_in_service",
                             "weight": 1.0,
                             "source_tables": ["utility_plant_summary_ferc1"],
                         },
+                        "calc_component_new": {},
                     },
                     {
                         "calc_component_to_replace": {
@@ -1936,11 +2203,47 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
                             "weight": 1.0,
                             "source_tables": ["utility_plant_summary_ferc1"],
                         },
-                        "calc_component_new": {
-                            "name": "amortization_of_underground_storage_land_and_land_rights_utility_plant_in_service",
+                        "calc_component_new": {},
+                    },
+                    {
+                        "calc_component_to_replace": {
+                            "name": "amortization_of_other_utility_plant_utility_plant_in_service",
                             "weight": 1.0,
                             "source_tables": ["utility_plant_summary_ferc1"],
                         },
+                        "calc_component_new": {},
+                    },
+                    {
+                        "calc_component_to_replace": {
+                            "name": "depreciation_amortization_and_depletion_utility_plant_leased_to_others",
+                            "weight": 1.0,
+                            "source_tables": ["utility_plant_summary_ferc1"],
+                        },
+                        "calc_component_new": {},
+                    },
+                    {
+                        "calc_component_to_replace": {
+                            "name": "depreciation_and_amortization_utility_plant_held_for_future_use",
+                            "weight": 1.0,
+                            "source_tables": ["utility_plant_summary_ferc1"],
+                        },
+                        "calc_component_new": {},
+                    },
+                    {
+                        "calc_component_to_replace": {
+                            "name": "abandonment_of_leases",
+                            "weight": 1.0,
+                            "source_tables": ["utility_plant_summary_ferc1"],
+                        },
+                        "calc_component_new": {},
+                    },
+                    {
+                        "calc_component_to_replace": {
+                            "name": "amortization_of_plant_acquisition_adjustment",
+                            "weight": 1.0,
+                            "source_tables": ["utility_plant_summary_ferc1"],
+                        },
+                        "calc_component_new": {},
                     },
                 ],
             },
@@ -1952,6 +2255,16 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
                             "name": "accumulated_deferred_income_taxes",
                             "weight": 1.0,
                             "source_tables": ["balance_sheet_liabilities_ferc1"],
+                        },
+                    },
+                ],
+                "retained_earnings": [
+                    {
+                        "calc_component_to_replace": {},
+                        "calc_component_new": {
+                            "name": "retained_earnings",
+                            "weight": 1.0,
+                            "source_tables": ["retained_earnings_ferc1"],
                         },
                     },
                 ],
@@ -2238,6 +2551,82 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
                             "source_tables": [
                                 "electric_plant_depreciation_changes_ferc1"
                             ],
+                        },
+                    },
+                ],
+            },
+            "plant_in_service_ferc1": {
+                "electric_plant_in_service_and_completed_construction_not_classified_electric": [
+                    {
+                        "calc_component_to_replace": {},
+                        "calc_component_new": {
+                            "name": "general_plant",
+                            "weight": 1.0,
+                            "source_tables": ["plant_in_service_ferc1"],
+                        },
+                    },
+                    {
+                        "calc_component_to_replace": {},
+                        "calc_component_new": {
+                            "name": "transmission_and_market_operation_plant_regional_transmission_and_market_operation_plant",
+                            "weight": 1.0,
+                            "source_tables": ["plant_in_service_ferc1"],
+                        },
+                    },
+                    {
+                        "calc_component_to_replace": {},
+                        "calc_component_new": {
+                            "name": "distribution_plant",
+                            "weight": 1.0,
+                            "source_tables": ["plant_in_service_ferc1"],
+                        },
+                    },
+                    {
+                        "calc_component_to_replace": {},
+                        "calc_component_new": {
+                            "name": "transmission_plant",
+                            "weight": 1.0,
+                            "source_tables": ["plant_in_service_ferc1"],
+                        },
+                    },
+                    {
+                        "calc_component_to_replace": {},
+                        "calc_component_new": {
+                            "name": "production_plant",
+                            "weight": 1.0,
+                            "source_tables": ["plant_in_service_ferc1"],
+                        },
+                    },
+                    {
+                        "calc_component_to_replace": {},
+                        "calc_component_new": {
+                            "name": "hydraulic_production_plant",
+                            "weight": 1.0,
+                            "source_tables": ["plant_in_service_ferc1"],
+                        },
+                    },
+                    {
+                        "calc_component_to_replace": {},
+                        "calc_component_new": {
+                            "name": "nuclear_production_plant",
+                            "weight": 1.0,
+                            "source_tables": ["plant_in_service_ferc1"],
+                        },
+                    },
+                    {
+                        "calc_component_to_replace": {},
+                        "calc_component_new": {
+                            "name": "steam_production_plant",
+                            "weight": 1.0,
+                            "source_tables": ["plant_in_service_ferc1"],
+                        },
+                    },
+                    {
+                        "calc_component_to_replace": {},
+                        "calc_component_new": {
+                            "name": "intangible_plant",
+                            "weight": 1.0,
+                            "source_tables": ["plant_in_service_ferc1"],
                         },
                     },
                 ],
@@ -3444,7 +3833,7 @@ class PlantInServiceFerc1TableTransformer(Ferc1AbstractTableTransformer):
         """The main table-specific transformations, affecting contents not structure.
 
         Annotates and alters data based on information from the XBRL taxonomy metadata.
-
+        Also assigns utility type for use in table explosions.
         Make all electric_plant_sold balances positive.
         """
         df = super().transform_main(df).pipe(self.apply_sign_conventions)
@@ -3459,7 +3848,7 @@ class PlantInServiceFerc1TableTransformer(Ferc1AbstractTableTransformer):
         logger.info(
             f"{self.table_id.value}: Converted {len(df[neg_values])} negative values to positive."
         )
-        return df
+        return df.assign(utility_type="electric")
 
 
 class PlantsSmallFerc1TableTransformer(Ferc1AbstractTableTransformer):
@@ -4419,10 +4808,103 @@ class UtilityPlantSummaryFerc1TableTransformer(Ferc1AbstractTableTransformer):
     table_id: TableIdFerc1 = TableIdFerc1.UTILITY_PLANT_SUMMARY_FERC1
     has_unique_record_ids: bool = False
 
-    def transform_main(self: Self, df: pd.DataFrame) -> pd.DataFrame:
-        """Spot fix depreciation_utility_plant_in_service records with bad signs."""
-        df = super().transform_main(df)
+    def process_xbrl_metadata(self, xbrl_metadata_json) -> pd.DataFrame:
+        """Do the default metadata processing plus add a new factoid.
 
+        The new factoid cooresponds to the aggregated factoid in
+        :meth:`aggregated_xbrl_factoids`.
+        """
+        tbl_meta = super().process_xbrl_metadata(xbrl_metadata_json)
+        # things that could be grabbed from a aggregated_xbrl_factoids param
+        new_factoid_name = (
+            "utility_plant_in_service_classified_and_property_under_capital_leases"
+        )
+        # point this new aggregated factiod to the PIS table's equivilant when the
+        # subdimensions line up
+        calc = [
+            {
+                "name": "electric_plant_in_service_and_completed_construction_not_classified_electric",
+                "weight": 1.0,
+                "source_tables": ["plant_in_service_ferc1"],
+                "utility_type": "electric",
+            }
+        ]
+        new_fact = pd.DataFrame(
+            {
+                "xbrl_factoid": [new_factoid_name],
+                "calculations": [json.dumps(calc)],
+                "balance": ["debit"],
+                "ferc_account": [pd.NA],
+                "xbrl_factoid_original": [new_factoid_name],
+                "intra_table_calc_flag": [False],
+                "row_type_xbrl": ["calculated_value"],
+            }
+        ).convert_dtypes()
+
+        tbl_meta = pd.concat([tbl_meta, new_fact]).reset_index(drop=True)
+        return tbl_meta
+
+    def transform_main(self: Self, df: pd.DataFrame) -> pd.DataFrame:
+        """Default transforming, plus spot fixing and building aggregate xbrl_factoid."""
+        # we want to aggregate the factoids first here bc merge_xbrl_metadata is done
+        # at the end of super().transform_main
+        df = (
+            self.aggregated_xbrl_factoids(df)
+            .pipe(super().transform_main)
+            .pipe(self.spot_fix_bad_signs)
+        )
+        return df
+
+    def aggregated_xbrl_factoids(self: Self, df: pd.DataFrame) -> pd.DataFrame:
+        """Aggregate xbrl_factoids records for linking to :ref:`plant_in_service_ferc1`.
+
+        This table has two ``xbrl_factoid`` which can be linked via calcuations to one
+        ``xbrl_factoid`` in the :ref:`plant_in_service_ferc1`. Doing this 2:1 linkage
+        would be fine in theory. But the :ref:`plant_in_service_ferc1` is in most senses
+        the table with the more details and of our desire to build tree-link
+        relationships between factoids, we need to build a new factoid to link in a 1:1
+        manner between this table and the :ref:`plant_in_service_ferc1`.
+
+        We'll also add this factoid into the metadata via :meth:`process_xbrl_metadata`
+        and add the linking calculation via :meth:`apply_xbrl_calculation_fixes`.
+        """
+        # these guys could be params
+        factoids_to_agg = [
+            "utility_plant_in_service_classified",
+            "utility_plant_in_service_property_under_capital_leases",
+        ]
+        new_factoid_name = (
+            "utility_plant_in_service_classified_and_property_under_capital_leases"
+        )
+        cols_to_agg = ["ending_balance"]
+        # grab some key infor for the actual aggregation
+        xbrl_factoid_name = self.params.xbrl_factoid_name
+        pks = pudl.metadata.classes.Resource.from_id(
+            self.table_id.value
+        ).schema.primary_key
+        pks_wo_factoid = [col for col in pks if col != xbrl_factoid_name]
+
+        agg_mask = df[xbrl_factoid_name].isin(factoids_to_agg)
+        agg_df = (
+            df[agg_mask]
+            .groupby(pks_wo_factoid, as_index=False, dropna=False)[cols_to_agg]
+            .sum(min_count=1)
+            .assign(**{xbrl_factoid_name: new_factoid_name})
+        )
+        # note: this results in the "loss" of non-pk columns like record_id - which
+        # seems appropriate imo. still flag a warning
+        missing_cols = [
+            col for col in df.columns if col not in list(agg_df.columns) + ["record_id"]
+        ]
+        logger.warning(
+            f"Post-aggregating a new xbrl_factoid, we are missing the following columns: {missing_cols}"
+        )
+        # squish em back together
+        df = pd.concat([df, agg_df]).reset_index(drop=True)
+        return df
+
+    def spot_fix_bad_signs(self: Self, df: pd.DataFrame) -> pd.DataFrame:
+        """Spot fix depreciation_utility_plant_in_service records with bad signs."""
         primary_keys = [
             "report_year",
             "utility_id_ferc1",
@@ -4592,6 +5074,26 @@ class BalanceSheetLiabilitiesFerc1TableTransformer(Ferc1AbstractTableTransformer
     table_id: TableIdFerc1 = TableIdFerc1.BALANCE_SHEET_LIABILITIES
     has_unique_record_ids: bool = False
 
+    def process_xbrl_metadata(self, xbrl_metadata_json) -> pd.DataFrame:
+        """Perform default xbrl metadata processing plus adding a new xbrl_factoid.
+
+        Note: we should probably parameterize this and add it into the standard
+        :meth:`process_xbrl_metadata`.
+        """
+        tbl_meta = super().process_xbrl_metadata(xbrl_metadata_json)
+        facts_to_add = {
+            "xbrl_factoid": ["accumulated_deferred_income_taxes"],
+            "calculations": ["[]"],
+            "balance": ["credit"],
+            "ferc_account": [pd.NA],
+            "xbrl_factoid_original": ["accumulated_deferred_income_taxes"],
+            "intra_table_calc_flag": [True],
+            "row_type_xbrl": ["reported_value"],
+        }
+
+        new_facts = pd.DataFrame(facts_to_add).convert_dtypes()
+        return pd.concat([tbl_meta, new_facts])
+
 
 class BalanceSheetAssetsFerc1TableTransformer(Ferc1AbstractTableTransformer):
     """Transformer class for :ref:`balance_sheet_assets_ferc1` table."""
@@ -4599,12 +5101,60 @@ class BalanceSheetAssetsFerc1TableTransformer(Ferc1AbstractTableTransformer):
     table_id: TableIdFerc1 = TableIdFerc1.BALANCE_SHEET_ASSETS_FERC1
     has_unique_record_ids: bool = False
 
+    def process_xbrl_metadata(self, xbrl_metadata_json) -> pd.DataFrame:
+        """Perform default xbrl metadata processing plus adding two new xbrl_factoids.
+
+        Note: we should probably parameterize this and add it into the standard
+        :meth:`process_xbrl_metadata`.
+        """
+        tbl_meta = super().process_xbrl_metadata(xbrl_metadata_json)
+        facts_to_add = [
+            {
+                "xbrl_factoid": dbf_only_fact,
+                "calculations": "[]",
+                "balance": "credit",
+                "ferc_account": pd.NA,
+                "xbrl_factoid_original": dbf_only_fact,
+                "intra_table_calc_flag": True,
+                "row_type_xbrl": "reported_value",
+            }
+            for dbf_only_fact in ["special_funds_all", "nuclear_fuel"]
+        ]
+
+        new_facts = pd.DataFrame(facts_to_add).convert_dtypes()
+        return pd.concat([tbl_meta, new_facts])
+
+    def transform_main(self: Self, df: pd.DataFrame) -> pd.DataFrame:
+        """Add utility type column to enable join for explosion process."""
+        df = super().transform_main(df).assign(utility_type="total")
+        return df
+
 
 class IncomeStatementFerc1TableTransformer(Ferc1AbstractTableTransformer):
     """Transformer class for the :ref:`income_statement_ferc1` table."""
 
     table_id: TableIdFerc1 = TableIdFerc1.INCOME_STATEMENT_FERC1
     has_unique_record_ids: bool = False
+
+    def process_xbrl_metadata(self, xbrl_metadata_json) -> pd.DataFrame:
+        """Perform default xbrl metadata processing plus adding a new xbrl_factoid.
+
+        Note: we should probably parameterize this and add it into the standard
+        :meth:`process_xbrl_metadata`.
+        """
+        tbl_meta = super().process_xbrl_metadata(xbrl_metadata_json)
+        facts_to_add = {
+            "xbrl_factoid": ["miscellaneous_deductions"],
+            "calculations": ["[]"],
+            "balance": ["debit"],
+            "ferc_account": [pd.NA],
+            "xbrl_factoid_original": ["miscellaneous_deductions"],
+            "intra_table_calc_flag": [True],
+            "row_type_xbrl": ["reported_value"],
+        }
+
+        new_facts = pd.DataFrame(facts_to_add).convert_dtypes()
+        return pd.concat([tbl_meta, new_facts])
 
     def process_dbf(self: Self, raw_dbf: pd.DataFrame) -> pd.DataFrame:
         """Drop incorrect row numbers from f1_incm_stmnt_2 before standard processing.
@@ -4695,7 +5245,24 @@ class RetainedEarningsFerc1TableTransformer(Ferc1AbstractTableTransformer):
             "ferc_account",
         ] = "418.1"
 
-        return meta
+        facts_to_add = [
+            {
+                "xbrl_factoid": new_fact,
+                "calculations": "[]",
+                "balance": "credit",
+                "ferc_account": pd.NA,
+                "xbrl_factoid_original": new_fact,
+                "intra_table_calc_flag": True,
+                "row_type_xbrl": "reported_value",
+            }
+            for new_fact in [
+                "unappropriated_retained_earnings_previous_year",
+                "unappropriated_undistributed_subsidiary_earnings_previous_year",
+            ]
+        ]
+
+        new_facts = pd.DataFrame(facts_to_add).convert_dtypes()
+        return pd.concat([meta, new_facts])
 
     def process_dbf(self, raw_dbf: pd.DataFrame) -> pd.DataFrame:
         """Preform generic :meth:`process_dbf`, plus deal with duplicates.
@@ -4997,6 +5564,13 @@ class DepreciationAmortizationSummaryFerc1TableTransformer(
         ] = "403.1"
         return meta
 
+    @cache_df("main")
+    def transform_main(self, df):
+        """After standard transform_main, assign utility type as electric."""
+        df = super().transform_main(df).assign(utility_type="electric")
+        df["plant_function"] = df["plant_function"].replace("total", "electric")
+        return df
+
 
 class ElectricPlantDepreciationChangesFerc1TableTransformer(
     Ferc1AbstractTableTransformer
@@ -5159,6 +5733,11 @@ class ElectricOperatingExpensesFerc1TableTransformer(Ferc1AbstractTableTransform
         """Process DBF but drop a bad row that is flagged by drop_duplicates."""
         return super().process_dbf(self.targeted_drop_duplicates_dbf(raw_dbf))
 
+    @cache_df("main")
+    def transform_main(self, df):
+        """After standard transform_main, assign utility type as electric."""
+        return super().transform_main(df).assign(utility_type="electric")
+
 
 class ElectricOperatingRevenuesFerc1TableTransformer(Ferc1AbstractTableTransformer):
     """Transformer class for :ref:`electric_operating_revenues_ferc1` table."""
@@ -5188,9 +5767,16 @@ class ElectricOperatingRevenuesFerc1TableTransformer(Ferc1AbstractTableTransform
         non_dupes = tbl_meta[~dupes_masks]
         dupes = tbl_meta[dupes_masks]
         # the metadata relating to dollar_value column *generally* had the same name as
-        # the renamed xbrl_factoid. we'll double check that we a) didn't remove too many
-        # factoid's by doing this AND that we have a fully deduped output below.
-        deduped = dupes[dupes.xbrl_factoid == dupes.xbrl_factoid_original]
+        # the renamed xbrl_factoid. the outliers here are these two that have calcs for
+        # the factoid we want to keep (we could also id them w/ their og factoid names
+        # if that would be more straightforward)
+        deduped = dupes[
+            (dupes.xbrl_factoid == dupes.xbrl_factoid_original)
+            | (
+                dupes.xbrl_factoid.isin(["small_or_commercial", "large_or_industrial"])
+                & (dupes.calculations != "[]")
+            )
+        ]
         tbl_meta_cleaned = pd.concat([non_dupes, deduped])
         assert ~tbl_meta_cleaned.duplicated(subset=["xbrl_factoid"]).all()
 
@@ -5200,18 +5786,22 @@ class ElectricOperatingRevenuesFerc1TableTransformer(Ferc1AbstractTableTransform
             for factoid in tbl_meta.xbrl_factoid.unique()
             if factoid not in tbl_meta_cleaned.xbrl_factoid.unique()
         }
-        if missing != {"small_or_commercial", "large_or_industrial"}:
+        if missing:
             raise AssertionError(
-                "We expected two factoids to be missing post deduplication but found "
-                f"{missing}. The two that were expected that were fully reported values"
-                " and were associated with non-dollar columns."
+                "We expected to find no missing xbrl_factoid's after deduplication "
+                f"but found {missing}"
             )
         return tbl_meta_cleaned
 
     @cache_df("main")
     def transform_main(self, df):
-        """Add duplicate removal after standard transform_main."""
-        return super().transform_main(df).pipe(self.targeted_drop_duplicates)
+        """Add duplicate removal after standard transform_main & assign utility type."""
+        return (
+            super()
+            .transform_main(df)
+            .pipe(self.targeted_drop_duplicates)
+            .assign(utility_type="electric")
+        )
 
     @cache_df("main")
     def targeted_drop_duplicates(self, df):

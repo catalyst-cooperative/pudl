@@ -76,7 +76,7 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
     },
     "depreciation_amortization_summary_ferc1": {
         "description": (
-            "Depreciation and Amortization of Electric Plan (Account 403, 404, 405) "
+            "Depreciation and Amortization of Electric Plant (Account 403, 404, 405) "
             "Section A: Summary of depreciation and amortization changes. "
             "Schedule 336a of FERC Form 1."
         ),
@@ -89,6 +89,7 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
                 "ferc_account_label",
                 "ferc_account",
                 "dollar_value",
+                "utility_type",
                 "row_type_xbrl",
             ],
             "primary_key": [
@@ -162,6 +163,7 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
                 "dollar_value",
                 "expense_type",
                 "record_id",
+                "utility_type",
                 "ferc_account",
                 "row_type_xbrl",
             ],
@@ -407,6 +409,7 @@ any cleaning mechanisms in place to account for this."""
                 "transfers",
                 "ending_balance",
                 "record_id",
+                "utility_type",
             ],
             "primary_key": ["utility_id_ferc1", "report_year", "ferc_account_label"],
         },
@@ -813,6 +816,7 @@ any cleaning mechanisms in place to account for this."""
                 "sales_mwh",
                 "avg_customers_per_month",
                 "ferc_account",
+                "utility_type",
                 "row_type_xbrl",
             ],
             "primary_key": [
@@ -929,6 +933,7 @@ any cleaning mechanisms in place to account for this."""
                 "plant_function",
                 "ferc_account_label",
                 "ferc_account",
+                "utility_type",
                 "dollar_value",
             ],
             "primary_key": [
@@ -998,6 +1003,7 @@ any cleaning mechanisms in place to account for this."""
                 "report_year",
                 "dollar_value",
                 "expense_type",
+                "utility_type",
                 "record_id",
                 "ferc_account",
                 "row_type_xbrl",
@@ -1022,6 +1028,7 @@ any cleaning mechanisms in place to account for this."""
                 "sales_mwh",
                 "avg_customers_per_month",
                 "ferc_account",
+                "utility_type",
                 "row_type_xbrl",
             ],
             "primary_key": [
@@ -1527,6 +1534,7 @@ any cleaning mechanisms in place to account for this."""
                 "utility_id_ferc1",
                 "utility_id_pudl",
                 "utility_name_ferc1",
+                "utility_type",
                 "record_id",
                 "additions",
                 "adjustments",
