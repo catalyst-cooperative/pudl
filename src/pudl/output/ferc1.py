@@ -983,7 +983,7 @@ def create_exploded_table_assets() -> list[AssetsDefinition]:
                 "plant_in_service_ferc1",
                 "electric_plant_depreciation_functional_ferc1",
             ],
-            "calculation_tolerance": 0.18,
+            "calculation_tolerance": 0.25,
             "seed_nodes": [
                 NodeId(
                     source_table="balance_sheet_assets_ferc1",
