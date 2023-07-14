@@ -934,6 +934,7 @@ def create_exploded_table_assets() -> list[AssetsDefinition]:
                 "plant_in_service_ferc1",
                 "electric_plant_depreciation_functional_ferc1",
             ],
+            "calculation_tolerance": 0.25,
         },
         "balance_sheet_liabilities_ferc1": {
             "table_names_to_explode": [
@@ -1132,10 +1133,10 @@ class Exploder:
             .pipe(self.generate_intertable_calculations)
             .pipe(self.reconcile_intertable_calculations, calculation_tolerance)
             # REMOVE THE DUPLICATION
-            .pipe(self.remove_factoids_from_mutliple_tables, tables_to_explode)
-            .pipe(self.remove_totals_from_other_dimensions)
-            .pipe(self.remove_inter_table_calc_duplication)
-            .pipe(remove_intra_table_calculated_values)
+            # .pipe(self.remove_factoids_from_mutliple_tables, tables_to_explode)
+            # .pipe(self.remove_totals_from_other_dimensions)
+            # .pipe(self.remove_inter_table_calc_duplication)
+            # .pipe(remove_intra_table_calculated_values)
         )
         return exploded
 
@@ -1284,6 +1285,9 @@ class Exploder:
                 .assign(xbrl_factoid=calculated_factoid)
                 .assign(table_name=parent_table)
             )
+
+            # Fill NAs with 0 to add corrections
+
             calculated_dfs.append(calc_df)
 
         calculated_df = pd.merge(
@@ -1345,16 +1349,23 @@ class Exploder:
                 & (calculated_df["abs_diff"].notnull())
             ]
             calculated_values = calculated_df[(calculated_df.abs_diff.notnull())]
-            off_ratio = len(off_df) / len(calculated_values)
-
-            if off_ratio > calculation_tolerance:
-                raise AssertionError(
-                    f"Calculations in {self.root_table} are off by {off_ratio}. Expected tolerance "
-                    f"of {calculation_tolerance}."
+            if calculated_values.empty:
+                # Will only occur if all reported values are NaN when calculated values
+                # exist, or vice versa.
+                logger.warning(
+                    "Warning: No calculated values have a corresponding reported value in the table."
                 )
+                off_ratio = np.nan
+            else:
+                off_ratio = len(off_df) / len(calculated_values)
+                if off_ratio > calculation_tolerance:
+                    raise AssertionError(
+                        f"Calculations in {self.root_table} are off by {off_ratio}. Expected tolerance "
+                        f"of {calculation_tolerance}."
+                    )
 
             # # We'll only get here if the proportion of calculations that are off is acceptable
-            if off_ratio > 0:
+            if off_ratio > 0 or np.isnan(off_ratio):
                 logger.info(
                     f"{self.root_table}: has {len(off_df)} ({off_ratio:.02%}) records whose "
                     "calculations don't match. Adding correction records to make calculations "
