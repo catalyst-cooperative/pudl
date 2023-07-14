@@ -1254,67 +1254,33 @@ class Exploder:
                 f"{self.root_table}: Reconcile inter-table calculations: {list(self.calculation_components_explosion.xbrl_factoid.unique())}."
             )
         # compile the lists of columns we are going to use later
-        data_idx_wo_factoid = [c for c in self.exploded_pks if c != "xbrl_factoid"]
-        calc_root_fact_idx = ["table_name", "xbrl_factoid"] + self.other_dimensions
         calc_component_idx = [
             "table_name_calculation_component",
             "xbrl_factoid_calculation_component",
         ] + self.other_dimensions
-        calc_comp_to_data_rename = {
-            "table_name_calculation_component": "table_name",
-            "xbrl_factoid_calculation_component": "xbrl_factoid",
+        data_to_calc_comp_rename = {
+            "table_name": "table_name_calculation_component",
+            "xbrl_factoid": "xbrl_factoid_calculation_component",
         }
-
-        inter_table_calc_components = self.calculation_components_explosion.set_index(
-            calc_root_fact_idx
-        ).sort_index()
-        # Remove the correction
-        inter_table_calc_components = inter_table_calc_components.loc[
-            ~inter_table_calc_components.xbrl_factoid_calculation_component.str.contains(
-                "correction"
+        # effectively convert the data in the exploded table into calc components with
+        # a rename/merge & groupby the xbrl_factoid column from the calc components tbl
+        calc_df = (
+            pd.merge(
+                exploded.rename(columns=data_to_calc_comp_rename),
+                self.calculation_components_explosion,
+                on=calc_component_idx,
             )
-        ]
-
-        calculated_dfs = []
-        for calc_idx in set(inter_table_calc_components.index):
-            parent_table = calc_idx[0]
-            calculated_factoid = calc_idx[1]
-            logger.info(f"Reconcile calculation for {calculated_factoid}")
-            calculation_df = inter_table_calc_components.loc[calc_idx]
-
-            calc_comp_idx = (
-                calculation_df.reset_index()
-                .set_index(calc_component_idx)
-                .index.rename(calc_comp_to_data_rename)
-            )
-            # SELECT ONLY THE COMPONENTS
-            components = exploded.set_index(calc_root_fact_idx).loc[calc_comp_idx]
-            # CALC THE STUFF
-            calc_df = (
-                pd.merge(
-                    components.reset_index(),
-                    calculation_df.reset_index()[
-                        calc_component_idx + ["weight"]
-                    ].rename(columns=calc_comp_to_data_rename),
-                    on=calc_root_fact_idx,
-                )
-                # apply the weight from the calc to convey the sign before summing.
-                .assign(calculated_amount=lambda x: x[self.value_col] * x.weight)
-                .groupby(
-                    data_idx_wo_factoid,
-                    as_index=False,
-                    dropna=False,
-                )["calculated_amount"]
-                .sum(min_count=1)
-                # Assign the name of the 'total' factoid and associate with its parent table.
-                .assign(xbrl_factoid=calculated_factoid)
-                .assign(table_name=parent_table)
-            )
-            calculated_dfs.append(calc_df)
+            # apply the weight from the calc to convey the sign before summing.
+            .assign(calculated_amount=lambda x: x[self.value_col] * x.weight)
+            .groupby(self.exploded_pks, as_index=False, dropna=False)[
+                ["calculated_amount"]
+            ]
+            .sum(min_count=1)
+        )
 
         calculated_df = pd.merge(
             exploded,
-            pd.concat(calculated_dfs),
+            calc_df,
             on=self.exploded_pks,
             how="outer",
             validate="1:1",
@@ -1375,8 +1341,8 @@ class Exploder:
 
             if off_ratio > calculation_tolerance:
                 raise AssertionError(
-                    f"Calculations in {self.root_table} are off by {off_ratio}. Expected tolerance "
-                    f"of {calculation_tolerance}."
+                    f"Calculations in {self.root_table} are off by {off_ratio:.2%}. Expected tolerance "
+                    f"of {calculation_tolerance:.1%}."
                 )
 
             # # We'll only get here if the proportion of calculations that are off is acceptable
