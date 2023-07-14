@@ -1,8 +1,8 @@
-"""Start over with new PK in emissions_control_equipment_types_eia
+"""Draft XBRL calculation tree.
 
-Revision ID: 3c458b36094e
+Revision ID: 8c00e57bb0a2
 Revises:
-Create Date: 2023-06-12 15:32:46.636042
+Create Date: 2023-07-11 12:23:35.412489
 
 """
 from alembic import op
@@ -10,7 +10,7 @@ import sqlalchemy as sa
 from sqlalchemy.dialects import sqlite
 
 # revision identifiers, used by Alembic.
-revision = '3c458b36094e'
+revision = '8c00e57bb0a2'
 down_revision = None
 branch_labels = None
 depends_on = None
@@ -67,6 +67,30 @@ def upgrade() -> None:
     sa.Column('label', sa.Text(), nullable=True, comment='Longer human-readable code using snake_case'),
     sa.Column('description', sa.Text(), nullable=True, comment='Long human-readable description of the meaning of a code/label.'),
     sa.PrimaryKeyConstraint('code')
+    )
+    op.create_table('compiled_geometry_balancing_authority_eia861',
+    sa.Column('county_id_fips', sa.Text(), nullable=False, comment='County ID from the Federal Information Processing Standard Publication 6-4.'),
+    sa.Column('county_name_census', sa.Text(), nullable=True, comment='County name as specified in Census DP1 Data.'),
+    sa.Column('population', sa.Float(), nullable=True, comment='County population, sourced from Census DP1 data.'),
+    sa.Column('area_km2', sa.Float(), nullable=True, comment='County area in km2.'),
+    sa.Column('report_date', sa.Date(), nullable=False, comment='Date reported.'),
+    sa.Column('balancing_authority_id_eia', sa.Integer(), nullable=False, comment='EIA balancing authority ID. This is often (but not always!) the same as the utility ID associated with the same legal entity.'),
+    sa.Column('state', sa.Text(), nullable=True, comment='Two letter US state abbreviation.'),
+    sa.Column('county', sa.Text(), nullable=False, comment='County name.'),
+    sa.Column('state_id_fips', sa.Text(), nullable=True, comment='Two digit state FIPS code.'),
+    sa.PrimaryKeyConstraint('balancing_authority_id_eia', 'report_date', 'county_id_fips', 'county')
+    )
+    op.create_table('compiled_geometry_utility_eia861',
+    sa.Column('county_id_fips', sa.Text(), nullable=False, comment='County ID from the Federal Information Processing Standard Publication 6-4.'),
+    sa.Column('county_name_census', sa.Text(), nullable=True, comment='County name as specified in Census DP1 Data.'),
+    sa.Column('population', sa.Float(), nullable=True, comment='County population, sourced from Census DP1 data.'),
+    sa.Column('area_km2', sa.Float(), nullable=True, comment='County area in km2.'),
+    sa.Column('report_date', sa.Date(), nullable=False, comment='Date reported.'),
+    sa.Column('utility_id_eia', sa.Integer(), nullable=False, comment='The EIA Utility Identification number.'),
+    sa.Column('state', sa.Text(), nullable=True, comment='Two letter US state abbreviation.'),
+    sa.Column('county', sa.Text(), nullable=True, comment='County name.'),
+    sa.Column('state_id_fips', sa.Text(), nullable=True, comment='Two digit state FIPS code.'),
+    sa.PrimaryKeyConstraint('utility_id_eia', 'report_date', 'county_id_fips')
     )
     op.create_table('contract_types_eia',
     sa.Column('code', sa.Text(), nullable=False, comment='Originally reported short code.'),
@@ -221,13 +245,13 @@ def upgrade() -> None:
     op.create_table('political_subdivisions',
     sa.Column('country_code', sa.Enum('USA', 'CAN'), nullable=False, comment='Three letter ISO-3166 country code (e.g. USA or CAN).'),
     sa.Column('country_name', sa.Text(), nullable=True, comment='Full country name (e.g. United States of America).'),
-    sa.Column('subdivision_code', sa.Enum('VA', 'VI', 'SK', 'PR', 'MT', 'DC', 'VT', 'KY', 'NY', 'KS', 'ME', 'ON', 'WY', 'NU', 'MN', 'WV', 'AL', 'LA', 'MP', 'QC', 'SC', 'SD', 'NE', 'TN', 'NM', 'YT', 'OH', 'AB', 'MO', 'NC', 'NS', 'CA', 'MD', 'NB', 'FL', 'BC', 'ID', 'IN', 'NL', 'GA', 'OK', 'UT', 'IA', 'MI', 'NH', 'NV', 'IL', 'NJ', 'AZ', 'MS', 'PE', 'MA', 'AK', 'CO', 'RI', 'GU', 'ND', 'PA', 'TX', 'HI', 'WI', 'NT', 'OR', 'DE', 'WA', 'MB', 'AS', 'AR', 'CT'), nullable=False, comment='Two-letter ISO-3166 political subdivision code (e.g. US state or Canadian provice abbreviations like CA or AB).'),
+    sa.Column('subdivision_code', sa.Enum('NY', 'IL', 'VI', 'IN', 'GA', 'CO', 'NV', 'KY', 'NS', 'SC', 'WY', 'UT', 'AK', 'MA', 'LA', 'DC', 'ME', 'AL', 'AS', 'NL', 'MO', 'MN', 'PR', 'SK', 'TX', 'KS', 'YT', 'WV', 'NH', 'WI', 'AB', 'GU', 'PA', 'AZ', 'MI', 'MT', 'OH', 'OR', 'IA', 'FL', 'VA', 'ON', 'AR', 'NT', 'HI', 'WA', 'PE', 'MD', 'NC', 'NE', 'ID', 'NJ', 'BC', 'NB', 'TN', 'QC', 'OK', 'NU', 'SD', 'DE', 'VT', 'ND', 'RI', 'CA', 'MB', 'MP', 'MS', 'CT', 'NM'), nullable=False, comment='Two-letter ISO-3166 political subdivision code (e.g. US state or Canadian provice abbreviations like CA or AB).'),
     sa.Column('subdivision_name', sa.Text(), nullable=True, comment='Full name of political subdivision (e.g. US state or Canadian province names like California or Alberta.'),
     sa.Column('subdivision_type', sa.Text(), nullable=True, comment='ISO-3166 political subdivision type. E.g. state, province, outlying_area.'),
     sa.Column('timezone_approx', sa.Enum('Africa/Abidjan', 'Africa/Accra', 'Africa/Addis_Ababa', 'Africa/Algiers', 'Africa/Asmara', 'Africa/Asmera', 'Africa/Bamako', 'Africa/Bangui', 'Africa/Banjul', 'Africa/Bissau', 'Africa/Blantyre', 'Africa/Brazzaville', 'Africa/Bujumbura', 'Africa/Cairo', 'Africa/Casablanca', 'Africa/Ceuta', 'Africa/Conakry', 'Africa/Dakar', 'Africa/Dar_es_Salaam', 'Africa/Djibouti', 'Africa/Douala', 'Africa/El_Aaiun', 'Africa/Freetown', 'Africa/Gaborone', 'Africa/Harare', 'Africa/Johannesburg', 'Africa/Juba', 'Africa/Kampala', 'Africa/Khartoum', 'Africa/Kigali', 'Africa/Kinshasa', 'Africa/Lagos', 'Africa/Libreville', 'Africa/Lome', 'Africa/Luanda', 'Africa/Lubumbashi', 'Africa/Lusaka', 'Africa/Malabo', 'Africa/Maputo', 'Africa/Maseru', 'Africa/Mbabane', 'Africa/Mogadishu', 'Africa/Monrovia', 'Africa/Nairobi', 'Africa/Ndjamena', 'Africa/Niamey', 'Africa/Nouakchott', 'Africa/Ouagadougou', 'Africa/Porto-Novo', 'Africa/Sao_Tome', 'Africa/Timbuktu', 'Africa/Tripoli', 'Africa/Tunis', 'Africa/Windhoek', 'America/Adak', 'America/Anchorage', 'America/Anguilla', 'America/Antigua', 'America/Araguaina', 'America/Argentina/Buenos_Aires', 'America/Argentina/Catamarca', 'America/Argentina/ComodRivadavia', 'America/Argentina/Cordoba', 'America/Argentina/Jujuy', 'America/Argentina/La_Rioja', 'America/Argentina/Mendoza', 'America/Argentina/Rio_Gallegos', 'America/Argentina/Salta', 'America/Argentina/San_Juan', 'America/Argentina/San_Luis', 'America/Argentina/Tucuman', 'America/Argentina/Ushuaia', 'America/Aruba', 'America/Asuncion', 'America/Atikokan', 'America/Atka', 'America/Bahia', 'America/Bahia_Banderas', 'America/Barbados', 'America/Belem', 'America/Belize', 'America/Blanc-Sablon', 'America/Boa_Vista', 'America/Bogota', 'America/Boise', 'America/Buenos_Aires', 'America/Cambridge_Bay', 'America/Campo_Grande', 'America/Cancun', 'America/Caracas', 'America/Catamarca', 'America/Cayenne', 'America/Cayman', 'America/Chicago', 'America/Chihuahua', 'America/Ciudad_Juarez', 'America/Coral_Harbour', 'America/Cordoba', 'America/Costa_Rica', 'America/Creston', 'America/Cuiaba', 'America/Curacao', 'America/Danmarkshavn', 'America/Dawson', 'America/Dawson_Creek', 'America/Denver', 'America/Detroit', 'America/Dominica', 'America/Edmonton', 'America/Eirunepe', 'America/El_Salvador', 'America/Ensenada', 'America/Fort_Nelson', 'America/Fort_Wayne', 'America/Fortaleza', 'America/Glace_Bay', 'America/Godthab', 'America/Goose_Bay', 'America/Grand_Turk', 'America/Grenada', 'America/Guadeloupe', 'America/Guatemala', 'America/Guayaquil', 'America/Guyana', 'America/Halifax', 'America/Havana', 'America/Hermosillo', 'America/Indiana/Indianapolis', 'America/Indiana/Knox', 'America/Indiana/Marengo', 'America/Indiana/Petersburg', 'America/Indiana/Tell_City', 'America/Indiana/Vevay', 'America/Indiana/Vincennes', 'America/Indiana/Winamac', 'America/Indianapolis', 'America/Inuvik', 'America/Iqaluit', 'America/Jamaica', 'America/Jujuy', 'America/Juneau', 'America/Kentucky/Louisville', 'America/Kentucky/Monticello', 'America/Knox_IN', 'America/Kralendijk', 'America/La_Paz', 'America/Lima', 'America/Los_Angeles', 'America/Louisville', 'America/Lower_Princes', 'America/Maceio', 'America/Managua', 'America/Manaus', 'America/Marigot', 'America/Martinique', 'America/Matamoros', 'America/Mazatlan', 'America/Mendoza', 'America/Menominee', 'America/Merida', 'America/Metlakatla', 'America/Mexico_City', 'America/Miquelon', 'America/Moncton', 'America/Monterrey', 'America/Montevideo', 'America/Montreal', 'America/Montserrat', 'America/Nassau', 'America/New_York', 'America/Nipigon', 'America/Nome', 'America/Noronha', 'America/North_Dakota/Beulah', 'America/North_Dakota/Center', 'America/North_Dakota/New_Salem', 'America/Nuuk', 'America/Ojinaga', 'America/Panama', 'America/Pangnirtung', 'America/Paramaribo', 'America/Phoenix', 'America/Port-au-Prince', 'America/Port_of_Spain', 'America/Porto_Acre', 'America/Porto_Velho', 'America/Puerto_Rico', 'America/Punta_Arenas', 'America/Rainy_River', 'America/Rankin_Inlet', 'America/Recife', 'America/Regina', 'America/Resolute', 'America/Rio_Branco', 'America/Rosario', 'America/Santa_Isabel', 'America/Santarem', 'America/Santiago', 'America/Santo_Domingo', 'America/Sao_Paulo', 'America/Scoresbysund', 'America/Shiprock', 'America/Sitka', 'America/St_Barthelemy', 'America/St_Johns', 'America/St_Kitts', 'America/St_Lucia', 'America/St_Thomas', 'America/St_Vincent', 'America/Swift_Current', 'America/Tegucigalpa', 'America/Thule', 'America/Thunder_Bay', 'America/Tijuana', 'America/Toronto', 'America/Tortola', 'America/Vancouver', 'America/Virgin', 'America/Whitehorse', 'America/Winnipeg', 'America/Yakutat', 'America/Yellowknife', 'Antarctica/Casey', 'Antarctica/Davis', 'Antarctica/DumontDUrville', 'Antarctica/Macquarie', 'Antarctica/Mawson', 'Antarctica/McMurdo', 'Antarctica/Palmer', 'Antarctica/Rothera', 'Antarctica/South_Pole', 'Antarctica/Syowa', 'Antarctica/Troll', 'Antarctica/Vostok', 'Arctic/Longyearbyen', 'Asia/Aden', 'Asia/Almaty', 'Asia/Amman', 'Asia/Anadyr', 'Asia/Aqtau', 'Asia/Aqtobe', 'Asia/Ashgabat', 'Asia/Ashkhabad', 'Asia/Atyrau', 'Asia/Baghdad', 'Asia/Bahrain', 'Asia/Baku', 'Asia/Bangkok', 'Asia/Barnaul', 'Asia/Beirut', 'Asia/Bishkek', 'Asia/Brunei', 'Asia/Calcutta', 'Asia/Chita', 'Asia/Choibalsan', 'Asia/Chongqing', 'Asia/Chungking', 'Asia/Colombo', 'Asia/Dacca', 'Asia/Damascus', 'Asia/Dhaka', 'Asia/Dili', 'Asia/Dubai', 'Asia/Dushanbe', 'Asia/Famagusta', 'Asia/Gaza', 'Asia/Harbin', 'Asia/Hebron', 'Asia/Ho_Chi_Minh', 'Asia/Hong_Kong', 'Asia/Hovd', 'Asia/Irkutsk', 'Asia/Istanbul', 'Asia/Jakarta', 'Asia/Jayapura', 'Asia/Jerusalem', 'Asia/Kabul', 'Asia/Kamchatka', 'Asia/Karachi', 'Asia/Kashgar', 'Asia/Kathmandu', 'Asia/Katmandu', 'Asia/Khandyga', 'Asia/Kolkata', 'Asia/Krasnoyarsk', 'Asia/Kuala_Lumpur', 'Asia/Kuching', 'Asia/Kuwait', 'Asia/Macao', 'Asia/Macau', 'Asia/Magadan', 'Asia/Makassar', 'Asia/Manila', 'Asia/Muscat', 'Asia/Nicosia', 'Asia/Novokuznetsk', 'Asia/Novosibirsk', 'Asia/Omsk', 'Asia/Oral', 'Asia/Phnom_Penh', 'Asia/Pontianak', 'Asia/Pyongyang', 'Asia/Qatar', 'Asia/Qostanay', 'Asia/Qyzylorda', 'Asia/Rangoon', 'Asia/Riyadh', 'Asia/Saigon', 'Asia/Sakhalin', 'Asia/Samarkand', 'Asia/Seoul', 'Asia/Shanghai', 'Asia/Singapore', 'Asia/Srednekolymsk', 'Asia/Taipei', 'Asia/Tashkent', 'Asia/Tbilisi', 'Asia/Tehran', 'Asia/Tel_Aviv', 'Asia/Thimbu', 'Asia/Thimphu', 'Asia/Tokyo', 'Asia/Tomsk', 'Asia/Ujung_Pandang', 'Asia/Ulaanbaatar', 'Asia/Ulan_Bator', 'Asia/Urumqi', 'Asia/Ust-Nera', 'Asia/Vientiane', 'Asia/Vladivostok', 'Asia/Yakutsk', 'Asia/Yangon', 'Asia/Yekaterinburg', 'Asia/Yerevan', 'Atlantic/Azores', 'Atlantic/Bermuda', 'Atlantic/Canary', 'Atlantic/Cape_Verde', 'Atlantic/Faeroe', 'Atlantic/Faroe', 'Atlantic/Jan_Mayen', 'Atlantic/Madeira', 'Atlantic/Reykjavik', 'Atlantic/South_Georgia', 'Atlantic/St_Helena', 'Atlantic/Stanley', 'Australia/ACT', 'Australia/Adelaide', 'Australia/Brisbane', 'Australia/Broken_Hill', 'Australia/Canberra', 'Australia/Currie', 'Australia/Darwin', 'Australia/Eucla', 'Australia/Hobart', 'Australia/LHI', 'Australia/Lindeman', 'Australia/Lord_Howe', 'Australia/Melbourne', 'Australia/NSW', 'Australia/North', 'Australia/Perth', 'Australia/Queensland', 'Australia/South', 'Australia/Sydney', 'Australia/Tasmania', 'Australia/Victoria', 'Australia/West', 'Australia/Yancowinna', 'Brazil/Acre', 'Brazil/DeNoronha', 'Brazil/East', 'Brazil/West', 'CET', 'CST6CDT', 'Canada/Atlantic', 'Canada/Central', 'Canada/Eastern', 'Canada/Mountain', 'Canada/Newfoundland', 'Canada/Pacific', 'Canada/Saskatchewan', 'Canada/Yukon', 'Chile/Continental', 'Chile/EasterIsland', 'Cuba', 'EET', 'EST', 'EST5EDT', 'Egypt', 'Eire', 'Etc/GMT', 'Etc/GMT+0', 'Etc/GMT+1', 'Etc/GMT+10', 'Etc/GMT+11', 'Etc/GMT+12', 'Etc/GMT+2', 'Etc/GMT+3', 'Etc/GMT+4', 'Etc/GMT+5', 'Etc/GMT+6', 'Etc/GMT+7', 'Etc/GMT+8', 'Etc/GMT+9', 'Etc/GMT-0', 'Etc/GMT-1', 'Etc/GMT-10', 'Etc/GMT-11', 'Etc/GMT-12', 'Etc/GMT-13', 'Etc/GMT-14', 'Etc/GMT-2', 'Etc/GMT-3', 'Etc/GMT-4', 'Etc/GMT-5', 'Etc/GMT-6', 'Etc/GMT-7', 'Etc/GMT-8', 'Etc/GMT-9', 'Etc/GMT0', 'Etc/Greenwich', 'Etc/UCT', 'Etc/UTC', 'Etc/Universal', 'Etc/Zulu', 'Europe/Amsterdam', 'Europe/Andorra', 'Europe/Astrakhan', 'Europe/Athens', 'Europe/Belfast', 'Europe/Belgrade', 'Europe/Berlin', 'Europe/Bratislava', 'Europe/Brussels', 'Europe/Bucharest', 'Europe/Budapest', 'Europe/Busingen', 'Europe/Chisinau', 'Europe/Copenhagen', 'Europe/Dublin', 'Europe/Gibraltar', 'Europe/Guernsey', 'Europe/Helsinki', 'Europe/Isle_of_Man', 'Europe/Istanbul', 'Europe/Jersey', 'Europe/Kaliningrad', 'Europe/Kiev', 'Europe/Kirov', 'Europe/Kyiv', 'Europe/Lisbon', 'Europe/Ljubljana', 'Europe/London', 'Europe/Luxembourg', 'Europe/Madrid', 'Europe/Malta', 'Europe/Mariehamn', 'Europe/Minsk', 'Europe/Monaco', 'Europe/Moscow', 'Europe/Nicosia', 'Europe/Oslo', 'Europe/Paris', 'Europe/Podgorica', 'Europe/Prague', 'Europe/Riga', 'Europe/Rome', 'Europe/Samara', 'Europe/San_Marino', 'Europe/Sarajevo', 'Europe/Saratov', 'Europe/Simferopol', 'Europe/Skopje', 'Europe/Sofia', 'Europe/Stockholm', 'Europe/Tallinn', 'Europe/Tirane', 'Europe/Tiraspol', 'Europe/Ulyanovsk', 'Europe/Uzhgorod', 'Europe/Vaduz', 'Europe/Vatican', 'Europe/Vienna', 'Europe/Vilnius', 'Europe/Volgograd', 'Europe/Warsaw', 'Europe/Zagreb', 'Europe/Zaporozhye', 'Europe/Zurich', 'GB', 'GB-Eire', 'GMT', 'GMT+0', 'GMT-0', 'GMT0', 'Greenwich', 'HST', 'Hongkong', 'Iceland', 'Indian/Antananarivo', 'Indian/Chagos', 'Indian/Christmas', 'Indian/Cocos', 'Indian/Comoro', 'Indian/Kerguelen', 'Indian/Mahe', 'Indian/Maldives', 'Indian/Mauritius', 'Indian/Mayotte', 'Indian/Reunion', 'Iran', 'Israel', 'Jamaica', 'Japan', 'Kwajalein', 'Libya', 'MET', 'MST', 'MST7MDT', 'Mexico/BajaNorte', 'Mexico/BajaSur', 'Mexico/General', 'NZ', 'NZ-CHAT', 'Navajo', 'PRC', 'PST8PDT', 'Pacific/Apia', 'Pacific/Auckland', 'Pacific/Bougainville', 'Pacific/Chatham', 'Pacific/Chuuk', 'Pacific/Easter', 'Pacific/Efate', 'Pacific/Enderbury', 'Pacific/Fakaofo', 'Pacific/Fiji', 'Pacific/Funafuti', 'Pacific/Galapagos', 'Pacific/Gambier', 'Pacific/Guadalcanal', 'Pacific/Guam', 'Pacific/Honolulu', 'Pacific/Johnston', 'Pacific/Kanton', 'Pacific/Kiritimati', 'Pacific/Kosrae', 'Pacific/Kwajalein', 'Pacific/Majuro', 'Pacific/Marquesas', 'Pacific/Midway', 'Pacific/Nauru', 'Pacific/Niue', 'Pacific/Norfolk', 'Pacific/Noumea', 'Pacific/Pago_Pago', 'Pacific/Palau', 'Pacific/Pitcairn', 'Pacific/Pohnpei', 'Pacific/Ponape', 'Pacific/Port_Moresby', 'Pacific/Rarotonga', 'Pacific/Saipan', 'Pacific/Samoa', 'Pacific/Tahiti', 'Pacific/Tarawa', 'Pacific/Tongatapu', 'Pacific/Truk', 'Pacific/Wake', 'Pacific/Wallis', 'Pacific/Yap', 'Poland', 'Portugal', 'ROC', 'ROK', 'Singapore', 'Turkey', 'UCT', 'US/Alaska', 'US/Aleutian', 'US/Arizona', 'US/Central', 'US/East-Indiana', 'US/Eastern', 'US/Hawaii', 'US/Indiana-Starke', 'US/Michigan', 'US/Mountain', 'US/Pacific', 'US/Samoa', 'UTC', 'Universal', 'W-SU', 'WET', 'Zulu'), nullable=True, comment='IANA timezone name of the timezone which encompasses the largest portion of the population in the associated geographic area.'),
     sa.Column('state_id_fips', sa.Text(), nullable=True, comment='Two digit state FIPS code.'),
     sa.Column('division_name_us_census', sa.Text(), nullable=True, comment='Longer human readable name describing the US Census division.'),
-    sa.Column('division_code_us_census', sa.Enum('PCN', 'SAT', 'ESC', 'NEW', 'WSC', 'MAT', 'WNC', 'MTN', 'PCC', 'ENC'), nullable=True, comment='Three-letter US Census division code as it appears in the bulk electricity data published by the EIA. Note that EIA splits the Pacific division into distinct contiguous (CA, OR, WA) and non-contiguous (AK, HI) states. For reference see this US Census region and division map: https://www2.census.gov/geo/pdfs/maps-data/maps/reference/us_regdiv.pdf'),
+    sa.Column('division_code_us_census', sa.Enum('PCC', 'MTN', 'PCN', 'MAT', 'WSC', 'ESC', 'WNC', 'ENC', 'NEW', 'SAT'), nullable=True, comment='Three-letter US Census division code as it appears in the bulk electricity data published by the EIA. Note that EIA splits the Pacific division into distinct contiguous (CA, OR, WA) and non-contiguous (AK, HI) states. For reference see this US Census region and division map: https://www2.census.gov/geo/pdfs/maps-data/maps/reference/us_regdiv.pdf'),
     sa.Column('region_name_us_census', sa.Text(), nullable=True, comment='Human-readable name of a US Census region.'),
     sa.Column('is_epacems_state', sa.Boolean(), nullable=True, comment="Indicates whether the associated state reports data within the EPA's Continuous Emissions Monitoring System."),
     sa.PrimaryKeyConstraint('country_code', 'subdivision_code')
@@ -237,6 +261,13 @@ def upgrade() -> None:
     sa.Column('label', sa.Text(), nullable=True, comment='Longer human-readable code using snake_case'),
     sa.Column('description', sa.Text(), nullable=True, comment='Long human-readable description of the meaning of a code/label.'),
     sa.PrimaryKeyConstraint('code')
+    )
+    op.create_table('predicted_state_hourly_demand',
+    sa.Column('state_id_fips', sa.Text(), nullable=False, comment='Two digit state FIPS code.'),
+    sa.Column('utc_datetime', sqlite.DATETIME(), nullable=False),
+    sa.Column('demand_mwh', sa.Float(), nullable=True),
+    sa.Column('scaled_demand_mwh', sa.Float(), nullable=True, comment='Estimated electricity demand scaled by the total sales within a state.'),
+    sa.PrimaryKeyConstraint('state_id_fips', 'utc_datetime')
     )
     op.create_table('prime_movers_eia',
     sa.Column('code', sa.Text(), nullable=False, comment='Originally reported short code.'),
@@ -481,7 +512,7 @@ def upgrade() -> None:
     sa.Column('state', sa.Text(), nullable=True, comment='Two letter US state abbreviation.'),
     sa.Column('contract_type_code', sa.Enum('S', 'C', 'NC', 'T'), nullable=True, comment='Purchase type under which receipts occurred in the reporting month. C: Contract, NC: New Contract, S: Spot Purchase, T: Tolling Agreement.'),
     sa.Column('contract_expiration_date', sa.Date(), nullable=True, comment='Date contract expires.Format:  MMYY.'),
-    sa.Column('energy_source_code', sa.Text(), nullable=True, comment='The fuel code associated with the fuel receipt. Two or three character alphanumeric.'),
+    sa.Column('energy_source_code', sa.Text(), nullable=True, comment='A 2-3 letter code indicating the energy source (e.g. fuel type) associated with the record.'),
     sa.Column('fuel_type_code_pudl', sa.Enum('coal', 'gas', 'hydro', 'nuclear', 'oil', 'other', 'solar', 'waste', 'wind'), nullable=True, comment='Simplified fuel type code used in PUDL'),
     sa.Column('fuel_group_code', sa.Enum('petroleum', 'other_gas', 'petroleum_coke', 'natural_gas', 'coal'), nullable=True, comment='Fuel groups used in the Electric Power Monthly'),
     sa.Column('supplier_name', sa.Text(), nullable=True, comment='Company that sold the fuel to the plant or, in the case of Natural Gas, pipline owner.'),
@@ -552,7 +583,7 @@ def upgrade() -> None:
     sa.Column('utility_id_eia', sa.Integer(), nullable=True, comment='The EIA Utility Identification number.'),
     sa.Column('utility_id_pudl', sa.Integer(), nullable=True, comment='A manually assigned PUDL utility ID. May not be stable over time.'),
     sa.Column('utility_name_eia', sa.Text(), nullable=True, comment='The name of the utility.'),
-    sa.Column('energy_source_code', sa.Text(), nullable=False, comment='The fuel code associated with the fuel receipt. Two or three character alphanumeric.'),
+    sa.Column('energy_source_code', sa.Text(), nullable=False, comment='A 2-3 letter code indicating the energy source (e.g. fuel type) associated with the record.'),
     sa.Column('fuel_type_code_pudl', sa.Enum('coal', 'gas', 'hydro', 'nuclear', 'oil', 'other', 'solar', 'waste', 'wind'), nullable=True, comment='Simplified fuel type code used in PUDL'),
     sa.Column('fuel_type_code_aer', sa.Text(), nullable=True, comment='A partial aggregation of the reported fuel type codes into larger categories used by EIA in, for example, the Annual Energy Review (AER). Two or three letter alphanumeric.'),
     sa.Column('prime_mover_code', sa.Text(), nullable=False, comment='Code for the type of prime mover (e.g. CT, CG)'),
@@ -581,7 +612,7 @@ def upgrade() -> None:
     sa.Column('utility_id_eia', sa.Integer(), nullable=True, comment='The EIA Utility Identification number.'),
     sa.Column('utility_id_pudl', sa.Integer(), nullable=True, comment='A manually assigned PUDL utility ID. May not be stable over time.'),
     sa.Column('utility_name_eia', sa.Text(), nullable=True, comment='The name of the utility.'),
-    sa.Column('energy_source_code', sa.Text(), nullable=False, comment='The fuel code associated with the fuel receipt. Two or three character alphanumeric.'),
+    sa.Column('energy_source_code', sa.Text(), nullable=False, comment='A 2-3 letter code indicating the energy source (e.g. fuel type) associated with the record.'),
     sa.Column('fuel_type_code_pudl', sa.Enum('coal', 'gas', 'hydro', 'nuclear', 'oil', 'other', 'solar', 'waste', 'wind'), nullable=True, comment='Simplified fuel type code used in PUDL'),
     sa.Column('prime_mover_code', sa.Text(), nullable=False, comment='Code for the type of prime mover (e.g. CT, CG)'),
     sa.Column('fuel_consumed_units', sa.Float(), nullable=True, comment='Consumption of the fuel type in physical unit. Note: this is the total quantity consumed for both electricity and, in the case of combined heat and power plants, process steam production.'),
@@ -701,10 +732,27 @@ def upgrade() -> None:
     sa.Column('data_maturity', sa.Text(), nullable=True, comment='Level of maturity of the data record. Some data sources report less-than-final data. PUDL sometimes includes this data, but use at your own risk.'),
     sa.ForeignKeyConstraint(['data_maturity'], ['data_maturities.code'], )
     )
+    op.create_table('fipsified_respondents_ferc714',
+    sa.Column('eia_code', sa.Integer(), nullable=True),
+    sa.Column('respondent_type', sa.Enum('utility', 'balancing_authority'), nullable=True),
+    sa.Column('respondent_id_ferc714', sa.Integer(), nullable=True),
+    sa.Column('respondent_name_ferc714', sa.Text(), nullable=True),
+    sa.Column('report_date', sa.Date(), nullable=True, comment='Date reported.'),
+    sa.Column('balancing_authority_id_eia', sa.Integer(), nullable=True, comment='EIA balancing authority ID. This is often (but not always!) the same as the utility ID associated with the same legal entity.'),
+    sa.Column('balancing_authority_code_eia', sa.Text(), nullable=True, comment='EIA short code identifying a balancing authority.'),
+    sa.Column('balancing_authority_name_eia', sa.Text(), nullable=True, comment='Name of the balancing authority.'),
+    sa.Column('utility_id_eia', sa.Integer(), nullable=True, comment='The EIA Utility Identification number.'),
+    sa.Column('utility_name_eia', sa.Text(), nullable=True, comment='The name of the utility.'),
+    sa.Column('state', sa.Text(), nullable=True, comment='Two letter US state abbreviation.'),
+    sa.Column('county', sa.Text(), nullable=True, comment='County name.'),
+    sa.Column('state_id_fips', sa.Text(), nullable=True, comment='Two digit state FIPS code.'),
+    sa.Column('county_id_fips', sa.Text(), nullable=True, comment='County ID from the Federal Information Processing Standard Publication 6-4.'),
+    sa.ForeignKeyConstraint(['respondent_id_ferc714'], ['respondent_id_ferc714.respondent_id_ferc714'], )
+    )
     op.create_table('generation_fuel_eia923',
     sa.Column('report_date', sa.Date(), nullable=False, comment='Date reported.'),
     sa.Column('plant_id_eia', sa.Integer(), nullable=False, comment='The unique six-digit facility identification number, also called an ORISPL, assigned by the Energy Information Administration.'),
-    sa.Column('energy_source_code', sa.Text(), nullable=False, comment='The fuel code associated with the fuel receipt. Two or three character alphanumeric.'),
+    sa.Column('energy_source_code', sa.Text(), nullable=False, comment='A 2-3 letter code indicating the energy source (e.g. fuel type) associated with the record.'),
     sa.Column('fuel_type_code_pudl', sa.Enum('coal', 'gas', 'hydro', 'nuclear', 'oil', 'other', 'solar', 'waste', 'wind'), nullable=True, comment='Simplified fuel type code used in PUDL'),
     sa.Column('fuel_type_code_aer', sa.Text(), nullable=True, comment='A partial aggregation of the reported fuel type codes into larger categories used by EIA in, for example, the Annual Energy Review (AER). Two or three letter alphanumeric.'),
     sa.Column('prime_mover_code', sa.Text(), nullable=False, comment='Code for the type of prime mover (e.g. CT, CG)'),
@@ -726,7 +774,7 @@ def upgrade() -> None:
     sa.Column('plant_id_eia', sa.Integer(), nullable=False, comment='The unique six-digit facility identification number, also called an ORISPL, assigned by the Energy Information Administration.'),
     sa.Column('report_date', sa.Date(), nullable=False, comment='Date reported.'),
     sa.Column('nuclear_unit_id', sa.Text(), nullable=False, comment='For nuclear plants only, the unit number .One digit numeric. Nuclear plants are the only type of plants for which data are shown explicitly at the generating unit level.'),
-    sa.Column('energy_source_code', sa.Text(), nullable=False, comment='The fuel code associated with the fuel receipt. Two or three character alphanumeric.'),
+    sa.Column('energy_source_code', sa.Text(), nullable=False, comment='A 2-3 letter code indicating the energy source (e.g. fuel type) associated with the record.'),
     sa.Column('fuel_type_code_pudl', sa.Enum('coal', 'gas', 'hydro', 'nuclear', 'oil', 'other', 'solar', 'waste', 'wind'), nullable=True, comment='Simplified fuel type code used in PUDL'),
     sa.Column('fuel_type_code_aer', sa.Text(), nullable=True, comment='A partial aggregation of the reported fuel type codes into larger categories used by EIA in, for example, the Annual Energy Review (AER). Two or three letter alphanumeric.'),
     sa.Column('prime_mover_code', sa.Text(), nullable=False, comment='Code for the type of prime mover (e.g. CT, CG)'),
@@ -954,6 +1002,26 @@ def upgrade() -> None:
     sa.ForeignKeyConstraint(['data_maturity'], ['data_maturities.code'], ),
     sa.PrimaryKeyConstraint('report_date', 'utility_id_eia', 'county_id_fips')
     )
+    op.create_table('summarized_demand_ferc714',
+    sa.Column('report_date', sa.Date(), nullable=False, comment='Date reported.'),
+    sa.Column('respondent_id_ferc714', sa.Integer(), nullable=False),
+    sa.Column('demand_annual_mwh', sa.Float(), nullable=True),
+    sa.Column('population', sa.Float(), nullable=True, comment='County population, sourced from Census DP1 data.'),
+    sa.Column('area_km2', sa.Float(), nullable=True, comment='County area in km2.'),
+    sa.Column('population_density_km2', sa.Float(), nullable=True, comment='Average population per sq. km area of a service territory.'),
+    sa.Column('demand_annual_per_capita_mwh', sa.Float(), nullable=True, comment='Per-capita annual demand, averaged using Census county-level population estimates.'),
+    sa.Column('demand_density_mwh_km2', sa.Float(), nullable=True, comment='Annual demand per km2 of a given service territory.'),
+    sa.Column('eia_code', sa.Integer(), nullable=True),
+    sa.Column('respondent_type', sa.Enum('utility', 'balancing_authority'), nullable=True),
+    sa.Column('respondent_name_ferc714', sa.Text(), nullable=True),
+    sa.Column('balancing_authority_id_eia', sa.Integer(), nullable=True, comment='EIA balancing authority ID. This is often (but not always!) the same as the utility ID associated with the same legal entity.'),
+    sa.Column('balancing_authority_code_eia', sa.Text(), nullable=True, comment='EIA short code identifying a balancing authority.'),
+    sa.Column('balancing_authority_name_eia', sa.Text(), nullable=True, comment='Name of the balancing authority.'),
+    sa.Column('utility_id_eia', sa.Integer(), nullable=True, comment='The EIA Utility Identification number.'),
+    sa.Column('utility_name_eia', sa.Text(), nullable=True, comment='The name of the utility.'),
+    sa.ForeignKeyConstraint(['respondent_id_ferc714'], ['respondent_id_ferc714.respondent_id_ferc714'], ),
+    sa.PrimaryKeyConstraint('respondent_id_ferc714', 'report_date')
+    )
     op.create_table('utilities_eia',
     sa.Column('utility_id_eia', sa.Integer(), nullable=False, comment='The EIA Utility Identification number.'),
     sa.Column('utility_name_eia', sa.Text(), nullable=True, comment='The name of the utility.'),
@@ -1074,7 +1142,7 @@ def upgrade() -> None:
     op.create_table('boiler_fuel_eia923',
     sa.Column('plant_id_eia', sa.Integer(), nullable=False, comment='The unique six-digit facility identification number, also called an ORISPL, assigned by the Energy Information Administration.'),
     sa.Column('boiler_id', sa.Text(), nullable=False, comment='Alphanumeric boiler ID.'),
-    sa.Column('energy_source_code', sa.Text(), nullable=False, comment='The fuel code associated with the fuel receipt. Two or three character alphanumeric.'),
+    sa.Column('energy_source_code', sa.Text(), nullable=False, comment='A 2-3 letter code indicating the energy source (e.g. fuel type) associated with the record.'),
     sa.Column('prime_mover_code', sa.Text(), nullable=False, comment='Code for the type of prime mover (e.g. CT, CG)'),
     sa.Column('fuel_type_code_pudl', sa.Enum('coal', 'gas', 'hydro', 'nuclear', 'oil', 'other', 'solar', 'waste', 'wind'), nullable=True, comment='Simplified fuel type code used in PUDL'),
     sa.Column('report_date', sa.Date(), nullable=False, comment='Date reported.'),
@@ -1140,7 +1208,7 @@ def upgrade() -> None:
     sa.Column('utility_name_eia', sa.Text(), nullable=True, comment='The name of the utility.'),
     sa.Column('boiler_id', sa.Text(), nullable=False, comment='Alphanumeric boiler ID.'),
     sa.Column('unit_id_pudl', sa.Integer(), nullable=True, comment='Dynamically assigned PUDL unit id. WARNING: This ID is not guaranteed to be static long term as the input data and algorithm may evolve over time.'),
-    sa.Column('energy_source_code', sa.Text(), nullable=False, comment='The fuel code associated with the fuel receipt. Two or three character alphanumeric.'),
+    sa.Column('energy_source_code', sa.Text(), nullable=False, comment='A 2-3 letter code indicating the energy source (e.g. fuel type) associated with the record.'),
     sa.Column('prime_mover_code', sa.Text(), nullable=False, comment='Code for the type of prime mover (e.g. CT, CG)'),
     sa.Column('fuel_type_code_pudl', sa.Enum('coal', 'gas', 'hydro', 'nuclear', 'oil', 'other', 'solar', 'waste', 'wind'), nullable=True, comment='Simplified fuel type code used in PUDL'),
     sa.Column('fuel_consumed_units', sa.Float(), nullable=True, comment='Consumption of the fuel type in physical unit. Note: this is the total quantity consumed for both electricity and, in the case of combined heat and power plants, process steam production.'),
@@ -1166,7 +1234,7 @@ def upgrade() -> None:
     sa.Column('utility_name_eia', sa.Text(), nullable=True, comment='The name of the utility.'),
     sa.Column('boiler_id', sa.Text(), nullable=False, comment='Alphanumeric boiler ID.'),
     sa.Column('unit_id_pudl', sa.Integer(), nullable=True, comment='Dynamically assigned PUDL unit id. WARNING: This ID is not guaranteed to be static long term as the input data and algorithm may evolve over time.'),
-    sa.Column('energy_source_code', sa.Text(), nullable=False, comment='The fuel code associated with the fuel receipt. Two or three character alphanumeric.'),
+    sa.Column('energy_source_code', sa.Text(), nullable=False, comment='A 2-3 letter code indicating the energy source (e.g. fuel type) associated with the record.'),
     sa.Column('prime_mover_code', sa.Text(), nullable=False, comment='Code for the type of prime mover (e.g. CT, CG)'),
     sa.Column('fuel_type_code_pudl', sa.Enum('coal', 'gas', 'hydro', 'nuclear', 'oil', 'other', 'solar', 'waste', 'wind'), nullable=True, comment='Simplified fuel type code used in PUDL'),
     sa.Column('fuel_consumed_units', sa.Float(), nullable=True, comment='Consumption of the fuel type in physical unit. Note: this is the total quantity consumed for both electricity and, in the case of combined heat and power plants, process steam production.'),
@@ -1205,6 +1273,7 @@ def upgrade() -> None:
     sa.Column('plant_function', sa.Text(), nullable=False, comment='Functional role played by utility plant (steam production, nuclear production, distribution, transmission, etc.).'),
     sa.Column('ferc_account_label', sa.Text(), nullable=False, comment='Long FERC account identifier derived from values reported in the XBRL taxonomies. May also refer to aggregations of individual FERC accounts.'),
     sa.Column('ferc_account', sa.Text(), nullable=True, comment="Actual FERC Account number (e.g. '359.1') if available, or a PUDL assigned ID when FERC accounts have been split or combined in reporting."),
+    sa.Column('utility_type', sa.Text(), nullable=True, comment='Listing of utility plant types. Examples include Electric Utility, Gas Utility, and Other Utility.'),
     sa.Column('dollar_value', sa.Float(), nullable=True, comment='Dollar value of reported income, expense, asset, or liability.'),
     sa.ForeignKeyConstraint(['utility_id_ferc1'], ['utilities_ferc1.utility_id_ferc1'], ),
     sa.ForeignKeyConstraint(['utility_id_pudl'], ['utilities_pudl.utility_id_pudl'], ),
@@ -1243,6 +1312,7 @@ def upgrade() -> None:
     sa.Column('report_year', sa.Integer(), nullable=False, comment='Four-digit year in which the data was reported.'),
     sa.Column('dollar_value', sa.Float(), nullable=True, comment='Dollar value of reported income, expense, asset, or liability.'),
     sa.Column('expense_type', sa.Text(), nullable=False, comment='The type of expense.'),
+    sa.Column('utility_type', sa.Text(), nullable=True, comment='Listing of utility plant types. Examples include Electric Utility, Gas Utility, and Other Utility.'),
     sa.Column('record_id', sa.Text(), nullable=True, comment='Identifier indicating original FERC Form 1 source record. format: {table_name}_{report_year}_{report_prd}_{respondent_id}_{spplmnt_num}_{row_number}. Unique within FERC Form 1 DB tables which are not row-mapped.'),
     sa.Column('ferc_account', sa.Text(), nullable=True, comment="Actual FERC Account number (e.g. '359.1') if available, or a PUDL assigned ID when FERC accounts have been split or combined in reporting."),
     sa.Column('row_type_xbrl', sa.Enum('calculated_value', 'reported_value', 'correction'), nullable=True, comment='Indicates whether the value reported in the row is calculated, or uniquely reported within the table.'),
@@ -1261,6 +1331,7 @@ def upgrade() -> None:
     sa.Column('sales_mwh', sa.Float(), nullable=True, comment='Quantity of electricity sold in MWh.'),
     sa.Column('avg_customers_per_month', sa.Float(), nullable=True, comment='Average number of customers per month.'),
     sa.Column('ferc_account', sa.Text(), nullable=True, comment="Actual FERC Account number (e.g. '359.1') if available, or a PUDL assigned ID when FERC accounts have been split or combined in reporting."),
+    sa.Column('utility_type', sa.Text(), nullable=True, comment='Listing of utility plant types. Examples include Electric Utility, Gas Utility, and Other Utility.'),
     sa.Column('row_type_xbrl', sa.Enum('calculated_value', 'reported_value', 'correction'), nullable=True, comment='Indicates whether the value reported in the row is calculated, or uniquely reported within the table.'),
     sa.ForeignKeyConstraint(['utility_id_ferc1'], ['utilities_ferc1.utility_id_ferc1'], ),
     sa.ForeignKeyConstraint(['utility_id_pudl'], ['utilities_pudl.utility_id_pudl'], ),
@@ -1274,7 +1345,7 @@ def upgrade() -> None:
     sa.Column('depreciation_type', sa.Text(), nullable=False, comment='Type of depreciation provision within FERC Account 108, including cost ofremoval, depreciation expenses, salvage, cost of retired plant, etc.'),
     sa.Column('plant_status', sa.Text(), nullable=False, comment='Utility plant financial status (in service, future, leased, total).'),
     sa.Column('utility_type', sa.Text(), nullable=False, comment='Listing of utility plant types. Examples include Electric Utility, Gas Utility, and Other Utility.'),
-    sa.Column('utility_plant_value', sa.Float(), nullable=True, comment='Utility plant value.'),
+    sa.Column('dollar_value', sa.Float(), nullable=True, comment='Dollar value of reported income, expense, asset, or liability.'),
     sa.Column('record_id', sa.Text(), nullable=True, comment='Identifier indicating original FERC Form 1 source record. format: {table_name}_{report_year}_{report_prd}_{respondent_id}_{spplmnt_num}_{row_number}. Unique within FERC Form 1 DB tables which are not row-mapped.'),
     sa.Column('balance', sa.Text(), nullable=True, comment='Indication of whether a column is a credit or debit, as reported in the XBRL taxonomy.'),
     sa.Column('ferc_account', sa.Text(), nullable=True, comment="Actual FERC Account number (e.g. '359.1') if available, or a PUDL assigned ID when FERC accounts have been split or combined in reporting."),
@@ -1388,6 +1459,7 @@ def upgrade() -> None:
     sa.Column('utility_id_ferc1', sa.Integer(), nullable=False, comment='PUDL-assigned utility ID, identifying a FERC1 utility. This is an auto-incremented ID and is not expected to be stable from year to year.'),
     sa.Column('utility_id_pudl', sa.Integer(), nullable=True, comment='A manually assigned PUDL utility ID. May not be stable over time.'),
     sa.Column('utility_name_ferc1', sa.Text(), nullable=True, comment='Name of the responding utility, as it is reported in FERC Form 1. For human readability only.'),
+    sa.Column('utility_type', sa.Text(), nullable=True, comment='Listing of utility plant types. Examples include Electric Utility, Gas Utility, and Other Utility.'),
     sa.Column('record_id', sa.Text(), nullable=True, comment='Identifier indicating original FERC Form 1 source record. format: {table_name}_{report_year}_{report_prd}_{respondent_id}_{spplmnt_num}_{row_number}. Unique within FERC Form 1 DB tables which are not row-mapped.'),
     sa.Column('additions', sa.Float(), nullable=True, comment='Cost of acquisition of items classified within the account.'),
     sa.Column('adjustments', sa.Float(), nullable=True, comment='Cost of adjustments to the account.'),
@@ -1432,7 +1504,6 @@ def upgrade() -> None:
     sa.Column('report_year', sa.Integer(), nullable=False, comment='Four-digit year in which the data was reported.'),
     sa.Column('record_id', sa.Text(), nullable=True, comment='Identifier indicating original FERC Form 1 source record. format: {table_name}_{report_year}_{report_prd}_{respondent_id}_{spplmnt_num}_{row_number}. Unique within FERC Form 1 DB tables which are not row-mapped.'),
     sa.Column('earnings_type', sa.Text(), nullable=False, comment='Label describing types of earnings.'),
-    sa.Column('amount', sa.Float(), nullable=True, comment='Reported amount of dollars. This could be a balance or a change in value.'),
     sa.Column('starting_balance', sa.Float(), nullable=True, comment='Account balance at beginning of year.'),
     sa.Column('ending_balance', sa.Float(), nullable=True, comment='Account balance at end of year.'),
     sa.Column('balance', sa.Text(), nullable=True, comment='Indication of whether a column is a credit or debit, as reported in the XBRL taxonomy.'),
@@ -1523,6 +1594,8 @@ def upgrade() -> None:
     sa.Column('ferc_account_label', sa.Text(), nullable=False, comment='Long FERC account identifier derived from values reported in the XBRL taxonomies. May also refer to aggregations of individual FERC accounts.'),
     sa.Column('ferc_account', sa.Text(), nullable=True, comment="Actual FERC Account number (e.g. '359.1') if available, or a PUDL assigned ID when FERC accounts have been split or combined in reporting."),
     sa.Column('dollar_value', sa.Float(), nullable=True, comment='Dollar value of reported income, expense, asset, or liability.'),
+    sa.Column('utility_type', sa.Text(), nullable=True, comment='Listing of utility plant types. Examples include Electric Utility, Gas Utility, and Other Utility.'),
+    sa.Column('row_type_xbrl', sa.Enum('calculated_value', 'reported_value', 'correction'), nullable=True, comment='Indicates whether the value reported in the row is calculated, or uniquely reported within the table.'),
     sa.ForeignKeyConstraint(['utility_id_ferc1'], ['utilities_ferc1.utility_id_ferc1'], ),
     sa.PrimaryKeyConstraint('utility_id_ferc1', 'report_year', 'plant_function', 'ferc_account_label')
     )
@@ -1552,6 +1625,7 @@ def upgrade() -> None:
     sa.Column('dollar_value', sa.Float(), nullable=True, comment='Dollar value of reported income, expense, asset, or liability.'),
     sa.Column('expense_type', sa.Text(), nullable=False, comment='The type of expense.'),
     sa.Column('record_id', sa.Text(), nullable=True, comment='Identifier indicating original FERC Form 1 source record. format: {table_name}_{report_year}_{report_prd}_{respondent_id}_{spplmnt_num}_{row_number}. Unique within FERC Form 1 DB tables which are not row-mapped.'),
+    sa.Column('utility_type', sa.Text(), nullable=True, comment='Listing of utility plant types. Examples include Electric Utility, Gas Utility, and Other Utility.'),
     sa.Column('ferc_account', sa.Text(), nullable=True, comment="Actual FERC Account number (e.g. '359.1') if available, or a PUDL assigned ID when FERC accounts have been split or combined in reporting."),
     sa.Column('row_type_xbrl', sa.Enum('calculated_value', 'reported_value', 'correction'), nullable=True, comment='Indicates whether the value reported in the row is calculated, or uniquely reported within the table.'),
     sa.ForeignKeyConstraint(['utility_id_ferc1'], ['utilities_ferc1.utility_id_ferc1'], ),
@@ -1566,6 +1640,7 @@ def upgrade() -> None:
     sa.Column('sales_mwh', sa.Float(), nullable=True, comment='Quantity of electricity sold in MWh.'),
     sa.Column('avg_customers_per_month', sa.Float(), nullable=True, comment='Average number of customers per month.'),
     sa.Column('ferc_account', sa.Text(), nullable=True, comment="Actual FERC Account number (e.g. '359.1') if available, or a PUDL assigned ID when FERC accounts have been split or combined in reporting."),
+    sa.Column('utility_type', sa.Text(), nullable=True, comment='Listing of utility plant types. Examples include Electric Utility, Gas Utility, and Other Utility.'),
     sa.Column('row_type_xbrl', sa.Enum('calculated_value', 'reported_value', 'correction'), nullable=True, comment='Indicates whether the value reported in the row is calculated, or uniquely reported within the table.'),
     sa.ForeignKeyConstraint(['utility_id_ferc1'], ['utilities_ferc1.utility_id_ferc1'], ),
     sa.PrimaryKeyConstraint('utility_id_ferc1', 'report_year', 'revenue_type')
@@ -1576,7 +1651,7 @@ def upgrade() -> None:
     sa.Column('depreciation_type', sa.Text(), nullable=False, comment='Type of depreciation provision within FERC Account 108, including cost ofremoval, depreciation expenses, salvage, cost of retired plant, etc.'),
     sa.Column('plant_status', sa.Text(), nullable=False, comment='Utility plant financial status (in service, future, leased, total).'),
     sa.Column('utility_type', sa.Text(), nullable=False, comment='Listing of utility plant types. Examples include Electric Utility, Gas Utility, and Other Utility.'),
-    sa.Column('utility_plant_value', sa.Float(), nullable=True, comment='Utility plant value.'),
+    sa.Column('dollar_value', sa.Float(), nullable=True, comment='Dollar value of reported income, expense, asset, or liability.'),
     sa.Column('record_id', sa.Text(), nullable=True, comment='Identifier indicating original FERC Form 1 source record. format: {table_name}_{report_year}_{report_prd}_{respondent_id}_{spplmnt_num}_{row_number}. Unique within FERC Form 1 DB tables which are not row-mapped.'),
     sa.Column('balance', sa.Text(), nullable=True, comment='Indication of whether a column is a credit or debit, as reported in the XBRL taxonomy.'),
     sa.Column('ferc_account', sa.Text(), nullable=True, comment="Actual FERC Account number (e.g. '359.1') if available, or a PUDL assigned ID when FERC accounts have been split or combined in reporting."),
@@ -1628,7 +1703,7 @@ def upgrade() -> None:
     sa.Column('report_date', sa.Date(), nullable=True, comment='Date reported.'),
     sa.Column('contract_type_code', sa.Enum('S', 'C', 'NC', 'T'), nullable=True, comment='Purchase type under which receipts occurred in the reporting month. C: Contract, NC: New Contract, S: Spot Purchase, T: Tolling Agreement.'),
     sa.Column('contract_expiration_date', sa.Date(), nullable=True, comment='Date contract expires.Format:  MMYY.'),
-    sa.Column('energy_source_code', sa.Text(), nullable=True, comment='The fuel code associated with the fuel receipt. Two or three character alphanumeric.'),
+    sa.Column('energy_source_code', sa.Text(), nullable=True, comment='A 2-3 letter code indicating the energy source (e.g. fuel type) associated with the record.'),
     sa.Column('fuel_type_code_pudl', sa.Enum('coal', 'gas', 'hydro', 'nuclear', 'oil', 'other', 'solar', 'waste', 'wind'), nullable=True, comment='Simplified fuel type code used in PUDL'),
     sa.Column('fuel_group_code', sa.Enum('petroleum', 'other_gas', 'petroleum_coke', 'natural_gas', 'coal'), nullable=True, comment='Fuel groups used in the Electric Power Monthly'),
     sa.Column('mine_id_pudl', sa.Integer(), nullable=True, comment='Dynamically assigned PUDL mine identifier.'),
@@ -1663,6 +1738,40 @@ def upgrade() -> None:
     sa.ForeignKeyConstraint(['data_maturity'], ['data_maturities.code'], ),
     sa.ForeignKeyConstraint(['plant_id_eia', 'generator_id'], ['generators_entity_eia.plant_id_eia', 'generators_entity_eia.generator_id'], ),
     sa.PrimaryKeyConstraint('plant_id_eia', 'generator_id', 'report_date')
+    )
+    op.create_table('generation_fuel_by_generator_energy_source_monthly_eia923',
+    sa.Column('report_date', sa.Date(), nullable=False, comment='Date reported.'),
+    sa.Column('plant_id_eia', sa.Integer(), nullable=False, comment='The unique six-digit facility identification number, also called an ORISPL, assigned by the Energy Information Administration.'),
+    sa.Column('generator_id', sa.Text(), nullable=False, comment='Generator ID is usually numeric, but sometimes includes letters. Make sure you treat it as a string!'),
+    sa.Column('prime_mover_code', sa.Text(), nullable=False, comment='Code for the type of prime mover (e.g. CT, CG)'),
+    sa.Column('energy_source_code', sa.Text(), nullable=False, comment='A 2-3 letter code indicating the energy source (e.g. fuel type) associated with the record.'),
+    sa.Column('energy_source_code_num', sa.Enum('energy_source_code_1', 'energy_source_code_2', 'energy_source_code_3', 'energy_source_code_4', 'energy_source_code_5', 'energy_source_code_6', 'energy_source_code_7', 'energy_source_code_8'), nullable=True, comment='Name of the energy_source_code_N column that this energy source code was reported in for the generator referenced in the same record.'),
+    sa.Column('net_generation_mwh', sa.Float(), nullable=True, comment='Net electricity generation for the specified period in megawatt-hours (MWh).'),
+    sa.Column('fuel_consumed_mmbtu', sa.Float(), nullable=True, comment='Total consumption of fuel in physical unit, year to date. Note: this is the total quantity consumed for both electricity and, in the case of combined heat and power plants, process steam production.'),
+    sa.Column('fuel_consumed_for_electricity_mmbtu', sa.Float(), nullable=True, comment='Total consumption of fuel to produce electricity, in physical unit, year to date.'),
+    sa.ForeignKeyConstraint(['energy_source_code'], ['energy_sources_eia.code'], ),
+    sa.ForeignKeyConstraint(['plant_id_eia', 'generator_id'], ['generators_entity_eia.plant_id_eia', 'generators_entity_eia.generator_id'], ),
+    sa.ForeignKeyConstraint(['prime_mover_code'], ['prime_movers_eia.code'], ),
+    sa.PrimaryKeyConstraint('report_date', 'plant_id_eia', 'generator_id', 'prime_mover_code', 'energy_source_code')
+    )
+    op.create_table('generation_fuel_by_generator_monthly_eia923',
+    sa.Column('report_date', sa.Date(), nullable=False, comment='Date reported.'),
+    sa.Column('plant_id_eia', sa.Integer(), nullable=False, comment='The unique six-digit facility identification number, also called an ORISPL, assigned by the Energy Information Administration.'),
+    sa.Column('plant_id_pudl', sa.Integer(), nullable=True, comment='A manually assigned PUDL plant ID. May not be constant over time.'),
+    sa.Column('plant_name_eia', sa.Text(), nullable=True, comment='Plant name.'),
+    sa.Column('utility_id_eia', sa.Integer(), nullable=True, comment='The EIA Utility Identification number.'),
+    sa.Column('utility_id_pudl', sa.Integer(), nullable=True, comment='A manually assigned PUDL utility ID. May not be stable over time.'),
+    sa.Column('utility_name_eia', sa.Text(), nullable=True, comment='The name of the utility.'),
+    sa.Column('generator_id', sa.Text(), nullable=False, comment='Generator ID is usually numeric, but sometimes includes letters. Make sure you treat it as a string!'),
+    sa.Column('unit_id_pudl', sa.Integer(), nullable=True, comment='Dynamically assigned PUDL unit id. WARNING: This ID is not guaranteed to be static long term as the input data and algorithm may evolve over time.'),
+    sa.Column('fuel_consumed_for_electricity_mmbtu', sa.Float(), nullable=True, comment='Total consumption of fuel to produce electricity, in physical unit, year to date.'),
+    sa.Column('fuel_consumed_mmbtu', sa.Float(), nullable=True, comment='Total consumption of fuel in physical unit, year to date. Note: this is the total quantity consumed for both electricity and, in the case of combined heat and power plants, process steam production.'),
+    sa.Column('net_generation_mwh', sa.Float(), nullable=True, comment='Net electricity generation for the specified period in megawatt-hours (MWh).'),
+    sa.ForeignKeyConstraint(['plant_id_eia', 'generator_id'], ['generators_entity_eia.plant_id_eia', 'generators_entity_eia.generator_id'], ),
+    sa.ForeignKeyConstraint(['plant_id_pudl'], ['plants_pudl.plant_id_pudl'], ),
+    sa.ForeignKeyConstraint(['utility_id_eia'], ['utilities_entity_eia.utility_id_eia'], ),
+    sa.ForeignKeyConstraint(['utility_id_pudl'], ['utilities_pudl.utility_id_pudl'], ),
+    sa.PrimaryKeyConstraint('report_date', 'plant_id_eia', 'generator_id')
     )
     op.create_table('income_statement_ferc1',
     sa.Column('record_id', sa.Text(), nullable=True, comment='Identifier indicating original FERC Form 1 source record. format: {table_name}_{report_year}_{report_prd}_{respondent_id}_{spplmnt_num}_{row_number}. Unique within FERC Form 1 DB tables which are not row-mapped.'),
@@ -1701,6 +1810,7 @@ def upgrade() -> None:
     sa.Column('transfers', sa.Float(), nullable=True, comment='Cost of transfers into (out of) the account.'),
     sa.Column('ending_balance', sa.Float(), nullable=True, comment='Account balance at end of year.'),
     sa.Column('record_id', sa.Text(), nullable=True, comment='Identifier indicating original FERC Form 1 source record. format: {table_name}_{report_year}_{report_prd}_{respondent_id}_{spplmnt_num}_{row_number}. Unique within FERC Form 1 DB tables which are not row-mapped.'),
+    sa.Column('utility_type', sa.Text(), nullable=True, comment='Listing of utility plant types. Examples include Electric Utility, Gas Utility, and Other Utility.'),
     sa.ForeignKeyConstraint(['utility_id_ferc1'], ['utilities_ferc1.utility_id_ferc1'], ),
     sa.PrimaryKeyConstraint('utility_id_ferc1', 'report_year', 'ferc_account_label')
     )
@@ -1787,7 +1897,6 @@ def upgrade() -> None:
     sa.Column('report_year', sa.Integer(), nullable=False, comment='Four-digit year in which the data was reported.'),
     sa.Column('record_id', sa.Text(), nullable=True, comment='Identifier indicating original FERC Form 1 source record. format: {table_name}_{report_year}_{report_prd}_{respondent_id}_{spplmnt_num}_{row_number}. Unique within FERC Form 1 DB tables which are not row-mapped.'),
     sa.Column('earnings_type', sa.Text(), nullable=False, comment='Label describing types of earnings.'),
-    sa.Column('amount', sa.Float(), nullable=True, comment='Reported amount of dollars. This could be a balance or a change in value.'),
     sa.Column('starting_balance', sa.Float(), nullable=True, comment='Account balance at beginning of year.'),
     sa.Column('ending_balance', sa.Float(), nullable=True, comment='Account balance at end of year.'),
     sa.Column('balance', sa.Text(), nullable=True, comment='Indication of whether a column is a credit or debit, as reported in the XBRL taxonomy.'),
@@ -2070,7 +2179,7 @@ def upgrade() -> None:
     sa.Column('utility_id_eia', sa.Integer(), nullable=True, comment='The EIA Utility Identification number.'),
     sa.Column('utility_id_pudl', sa.Integer(), nullable=True, comment='A manually assigned PUDL utility ID. May not be stable over time.'),
     sa.Column('utility_name_eia', sa.Text(), nullable=True, comment='The name of the utility.'),
-    sa.Column('energy_source_code', sa.Text(), nullable=False, comment='The fuel code associated with the fuel receipt. Two or three character alphanumeric.'),
+    sa.Column('energy_source_code', sa.Text(), nullable=False, comment='A 2-3 letter code indicating the energy source (e.g. fuel type) associated with the record.'),
     sa.Column('fuel_type_code_pudl', sa.Enum('coal', 'gas', 'hydro', 'nuclear', 'oil', 'other', 'solar', 'waste', 'wind'), nullable=True, comment='Simplified fuel type code used in PUDL'),
     sa.Column('prime_mover_code', sa.Text(), nullable=False, comment='Code for the type of prime mover (e.g. CT, CG)'),
     sa.Column('fuel_consumed_units', sa.Float(), nullable=True, comment='Consumption of the fuel type in physical unit. Note: this is the total quantity consumed for both electricity and, in the case of combined heat and power plants, process steam production.'),
@@ -2566,7 +2675,7 @@ def upgrade() -> None:
     sa.Column('report_year', sa.Integer(), nullable=True, comment='Four-digit year in which the data was reported.'),
     sa.Column('plant_name_ferc1', sa.Text(), nullable=True, comment='Name of the plant, as reported to FERC. This is a freeform string, not guaranteed to be consistent across references to the same plant.'),
     sa.Column('project_num', sa.Integer(), nullable=True, comment='FERC Licensed Project Number.'),
-    sa.Column('plant_type', sa.Enum('hydro', 'run_of_river', 'run_of_river_with_storage', 'storage', 'na_category'), nullable=True),
+    sa.Column('plant_type', sa.Enum('na_category', 'storage', 'run_of_river', 'run_of_river_with_storage', 'hydro'), nullable=True),
     sa.Column('construction_type', sa.Enum('conventional', 'outdoor', 'semioutdoor'), nullable=True, comment="Type of plant construction ('outdoor', 'semioutdoor', or 'conventional'). Categorized by PUDL based on our best guess of intended value in FERC1 freeform strings."),
     sa.Column('construction_year', sa.Integer(), nullable=True, comment="Year the plant's oldest still operational unit was built."),
     sa.Column('installation_year', sa.Integer(), nullable=True, comment="Year the plant's most recently built unit was installed."),
@@ -2670,7 +2779,7 @@ def upgrade() -> None:
     sa.Column('report_year', sa.Integer(), nullable=True, comment='Four-digit year in which the data was reported.'),
     sa.Column('plant_id_ferc1', sa.Integer(), nullable=True, comment='Algorithmically assigned PUDL FERC Plant ID. WARNING: NOT STABLE BETWEEN PUDL DB INITIALIZATIONS.'),
     sa.Column('plant_name_ferc1', sa.Text(), nullable=True, comment='Name of the plant, as reported to FERC. This is a freeform string, not guaranteed to be consistent across references to the same plant.'),
-    sa.Column('plant_type', sa.Enum('combustion_turbine', 'internal_combustion', 'solar_thermal', 'nuclear', 'wind', 'combined_cycle', 'steam', 'geothermal', 'na_category', 'photovoltaic'), nullable=True),
+    sa.Column('plant_type', sa.Enum('na_category', 'photovoltaic', 'internal_combustion', 'solar_thermal', 'steam', 'geothermal', 'wind', 'combustion_turbine', 'combined_cycle', 'nuclear'), nullable=True),
     sa.Column('construction_type', sa.Enum('conventional', 'outdoor', 'semioutdoor'), nullable=True, comment="Type of plant construction ('outdoor', 'semioutdoor', or 'conventional'). Categorized by PUDL based on our best guess of intended value in FERC1 freeform strings."),
     sa.Column('construction_year', sa.Integer(), nullable=True, comment="Year the plant's oldest still operational unit was built."),
     sa.Column('installation_year', sa.Integer(), nullable=True, comment="Year the plant's most recently built unit was installed."),
@@ -2767,7 +2876,7 @@ def upgrade() -> None:
     sa.Column('utility_name_eia', sa.Text(), nullable=True, comment='The name of the utility.'),
     sa.Column('boiler_id', sa.Text(), nullable=False, comment='Alphanumeric boiler ID.'),
     sa.Column('unit_id_pudl', sa.Integer(), nullable=True, comment='Dynamically assigned PUDL unit id. WARNING: This ID is not guaranteed to be static long term as the input data and algorithm may evolve over time.'),
-    sa.Column('energy_source_code', sa.Text(), nullable=False, comment='The fuel code associated with the fuel receipt. Two or three character alphanumeric.'),
+    sa.Column('energy_source_code', sa.Text(), nullable=False, comment='A 2-3 letter code indicating the energy source (e.g. fuel type) associated with the record.'),
     sa.Column('prime_mover_code', sa.Text(), nullable=False, comment='Code for the type of prime mover (e.g. CT, CG)'),
     sa.Column('fuel_type_code_pudl', sa.Enum('coal', 'gas', 'hydro', 'nuclear', 'oil', 'other', 'solar', 'waste', 'wind'), nullable=True, comment='Simplified fuel type code used in PUDL'),
     sa.Column('fuel_consumed_units', sa.Float(), nullable=True, comment='Consumption of the fuel type in physical unit. Note: this is the total quantity consumed for both electricity and, in the case of combined heat and power plants, process steam production.'),
@@ -3106,12 +3215,12 @@ def upgrade() -> None:
     sa.Column('generator_id', sa.Text(), nullable=False, comment='Generator ID is usually numeric, but sometimes includes letters. Make sure you treat it as a string!'),
     sa.Column('owner_utility_id_eia', sa.Integer(), nullable=False, comment="EIA-assigned owner's identification number."),
     sa.Column('owner_name', sa.Text(), nullable=True, comment='Name of owner.'),
-    sa.Column('owner_state', sa.Enum('VA', 'VI', 'SK', 'PR', 'MT', 'DC', 'VT', 'KY', 'NY', 'KS', 'ME', 'ON', 'WY', 'NU', 'MN', 'WV', 'AL', 'LA', 'MP', 'QC', 'SC', 'SD', 'NE', 'TN', 'NM', 'YT', 'OH', 'AB', 'MO', 'NC', 'NS', 'CA', 'MD', 'NB', 'FL', 'BC', 'ID', 'IN', 'NL', 'GA', 'OK', 'UT', 'IA', 'MI', 'NH', 'NV', 'IL', 'NJ', 'AZ', 'MS', 'PE', 'MA', 'AK', 'CO', 'RI', 'GU', 'ND', 'PA', 'TX', 'HI', 'WI', 'NT', 'OR', 'DE', 'WA', 'MB', 'AS', 'AR', 'CT'), nullable=True, comment='Two letter ISO-3166 political subdivision code.'),
+    sa.Column('owner_state', sa.Enum('NY', 'IL', 'VI', 'IN', 'GA', 'CO', 'NV', 'KY', 'NS', 'SC', 'WY', 'UT', 'AK', 'MA', 'LA', 'DC', 'ME', 'AL', 'AS', 'NL', 'MO', 'MN', 'PR', 'SK', 'TX', 'KS', 'YT', 'WV', 'NH', 'WI', 'AB', 'GU', 'PA', 'AZ', 'MI', 'MT', 'OH', 'OR', 'IA', 'FL', 'VA', 'ON', 'AR', 'NT', 'HI', 'WA', 'PE', 'MD', 'NC', 'NE', 'ID', 'NJ', 'BC', 'NB', 'TN', 'QC', 'OK', 'NU', 'SD', 'DE', 'VT', 'ND', 'RI', 'CA', 'MB', 'MP', 'MS', 'CT', 'NM'), nullable=True, comment='Two letter ISO-3166 political subdivision code.'),
     sa.Column('owner_city', sa.Text(), nullable=True, comment='City of owner.'),
     sa.Column('owner_country', sa.Enum('USA', 'CAN'), nullable=True, comment='Three letter ISO-3166 country code.'),
     sa.Column('owner_street_address', sa.Text(), nullable=True, comment='Steet address of owner.'),
     sa.Column('owner_zip_code', sa.Text(), nullable=True, comment='Zip code of owner.'),
-    sa.Column('fraction_owned', sa.Float(), nullable=True, comment='Proportion of generator ownership.'),
+    sa.Column('fraction_owned', sa.Float(), nullable=True, comment='Proportion of generator ownership attributable to this utility.'),
     sa.Column('data_maturity', sa.Text(), nullable=True, comment='Level of maturity of the data record. Some data sources report less-than-final data. PUDL sometimes includes this data, but use at your own risk.'),
     sa.ForeignKeyConstraint(['data_maturity'], ['data_maturities.code'], ),
     sa.ForeignKeyConstraint(['plant_id_eia', 'generator_id', 'report_date'], ['generators_eia860.plant_id_eia', 'generators_eia860.generator_id', 'generators_eia860.report_date'], ),
@@ -3120,6 +3229,59 @@ def upgrade() -> None:
     sa.ForeignKeyConstraint(['utility_id_pudl'], ['utilities_pudl.utility_id_pudl'], ),
     sa.PrimaryKeyConstraint('report_date', 'plant_id_eia', 'generator_id', 'owner_utility_id_eia')
     )
+    op.create_table('generation_fuel_by_generator_energy_source_owner_yearly_eia923',
+    sa.Column('report_date', sa.Date(), nullable=False, comment='Date reported.'),
+    sa.Column('plant_id_eia', sa.Integer(), nullable=False, comment='The unique six-digit facility identification number, also called an ORISPL, assigned by the Energy Information Administration.'),
+    sa.Column('generator_id', sa.Text(), nullable=False, comment='Generator ID is usually numeric, but sometimes includes letters. Make sure you treat it as a string!'),
+    sa.Column('prime_mover_code', sa.Text(), nullable=False, comment='Code for the type of prime mover (e.g. CT, CG)'),
+    sa.Column('energy_source_code', sa.Text(), nullable=False, comment='A 2-3 letter code indicating the energy source (e.g. fuel type) associated with the record.'),
+    sa.Column('utility_id_eia', sa.Integer(), nullable=False, comment='The EIA Utility Identification number.'),
+    sa.Column('ownership_record_type', sa.Enum('owned', 'total'), nullable=False, comment='Whether each generator record is for one owner or represents a total of all ownerships.'),
+    sa.Column('fraction_owned', sa.Float(), nullable=True, comment='Proportion of generator ownership attributable to this utility.'),
+    sa.Column('capacity_mw', sa.Float(), nullable=True, comment='Total installed (nameplate) capacity, in megawatts.'),
+    sa.Column('energy_source_code_num', sa.Enum('energy_source_code_1', 'energy_source_code_2', 'energy_source_code_3', 'energy_source_code_4', 'energy_source_code_5', 'energy_source_code_6', 'energy_source_code_7', 'energy_source_code_8'), nullable=True, comment='Name of the energy_source_code_N column that this energy source code was reported in for the generator referenced in the same record.'),
+    sa.Column('net_generation_mwh', sa.Float(), nullable=True, comment='Net electricity generation for the specified period in megawatt-hours (MWh).'),
+    sa.Column('fuel_consumed_mmbtu', sa.Float(), nullable=True, comment='Total consumption of fuel in physical unit, year to date. Note: this is the total quantity consumed for both electricity and, in the case of combined heat and power plants, process steam production.'),
+    sa.Column('fuel_consumed_for_electricity_mmbtu', sa.Float(), nullable=True, comment='Total consumption of fuel to produce electricity, in physical unit, year to date.'),
+    sa.ForeignKeyConstraint(['energy_source_code'], ['energy_sources_eia.code'], ),
+    sa.ForeignKeyConstraint(['plant_id_eia', 'generator_id', 'report_date'], ['generators_eia860.plant_id_eia', 'generators_eia860.generator_id', 'generators_eia860.report_date'], ),
+    sa.ForeignKeyConstraint(['prime_mover_code'], ['prime_movers_eia.code'], ),
+    sa.PrimaryKeyConstraint('report_date', 'plant_id_eia', 'generator_id', 'prime_mover_code', 'energy_source_code', 'utility_id_eia', 'ownership_record_type')
+    )
+    op.create_table('generation_fuel_by_generator_energy_source_yearly_eia923',
+    sa.Column('report_date', sa.Date(), nullable=False, comment='Date reported.'),
+    sa.Column('plant_id_eia', sa.Integer(), nullable=False, comment='The unique six-digit facility identification number, also called an ORISPL, assigned by the Energy Information Administration.'),
+    sa.Column('generator_id', sa.Text(), nullable=False, comment='Generator ID is usually numeric, but sometimes includes letters. Make sure you treat it as a string!'),
+    sa.Column('prime_mover_code', sa.Text(), nullable=False, comment='Code for the type of prime mover (e.g. CT, CG)'),
+    sa.Column('energy_source_code', sa.Text(), nullable=False, comment='A 2-3 letter code indicating the energy source (e.g. fuel type) associated with the record.'),
+    sa.Column('energy_source_code_num', sa.Enum('energy_source_code_1', 'energy_source_code_2', 'energy_source_code_3', 'energy_source_code_4', 'energy_source_code_5', 'energy_source_code_6', 'energy_source_code_7', 'energy_source_code_8'), nullable=True, comment='Name of the energy_source_code_N column that this energy source code was reported in for the generator referenced in the same record.'),
+    sa.Column('net_generation_mwh', sa.Float(), nullable=True, comment='Net electricity generation for the specified period in megawatt-hours (MWh).'),
+    sa.Column('fuel_consumed_mmbtu', sa.Float(), nullable=True, comment='Total consumption of fuel in physical unit, year to date. Note: this is the total quantity consumed for both electricity and, in the case of combined heat and power plants, process steam production.'),
+    sa.Column('fuel_consumed_for_electricity_mmbtu', sa.Float(), nullable=True, comment='Total consumption of fuel to produce electricity, in physical unit, year to date.'),
+    sa.ForeignKeyConstraint(['energy_source_code'], ['energy_sources_eia.code'], ),
+    sa.ForeignKeyConstraint(['plant_id_eia', 'generator_id', 'report_date'], ['generators_eia860.plant_id_eia', 'generators_eia860.generator_id', 'generators_eia860.report_date'], ),
+    sa.ForeignKeyConstraint(['prime_mover_code'], ['prime_movers_eia.code'], ),
+    sa.PrimaryKeyConstraint('report_date', 'plant_id_eia', 'generator_id', 'prime_mover_code', 'energy_source_code')
+    )
+    op.create_table('generation_fuel_by_generator_yearly_eia923',
+    sa.Column('report_date', sa.Date(), nullable=False, comment='Date reported.'),
+    sa.Column('plant_id_eia', sa.Integer(), nullable=False, comment='The unique six-digit facility identification number, also called an ORISPL, assigned by the Energy Information Administration.'),
+    sa.Column('plant_id_pudl', sa.Integer(), nullable=True, comment='A manually assigned PUDL plant ID. May not be constant over time.'),
+    sa.Column('plant_name_eia', sa.Text(), nullable=True, comment='Plant name.'),
+    sa.Column('utility_id_eia', sa.Integer(), nullable=True, comment='The EIA Utility Identification number.'),
+    sa.Column('utility_id_pudl', sa.Integer(), nullable=True, comment='A manually assigned PUDL utility ID. May not be stable over time.'),
+    sa.Column('utility_name_eia', sa.Text(), nullable=True, comment='The name of the utility.'),
+    sa.Column('generator_id', sa.Text(), nullable=False, comment='Generator ID is usually numeric, but sometimes includes letters. Make sure you treat it as a string!'),
+    sa.Column('unit_id_pudl', sa.Integer(), nullable=True, comment='Dynamically assigned PUDL unit id. WARNING: This ID is not guaranteed to be static long term as the input data and algorithm may evolve over time.'),
+    sa.Column('fuel_consumed_for_electricity_mmbtu', sa.Float(), nullable=True, comment='Total consumption of fuel to produce electricity, in physical unit, year to date.'),
+    sa.Column('fuel_consumed_mmbtu', sa.Float(), nullable=True, comment='Total consumption of fuel in physical unit, year to date. Note: this is the total quantity consumed for both electricity and, in the case of combined heat and power plants, process steam production.'),
+    sa.Column('net_generation_mwh', sa.Float(), nullable=True, comment='Net electricity generation for the specified period in megawatt-hours (MWh).'),
+    sa.ForeignKeyConstraint(['plant_id_eia', 'generator_id', 'report_date'], ['generators_eia860.plant_id_eia', 'generators_eia860.generator_id', 'generators_eia860.report_date'], ),
+    sa.ForeignKeyConstraint(['plant_id_pudl'], ['plants_pudl.plant_id_pudl'], ),
+    sa.ForeignKeyConstraint(['utility_id_eia', 'report_date'], ['utilities_eia860.utility_id_eia', 'utilities_eia860.report_date'], ),
+    sa.ForeignKeyConstraint(['utility_id_pudl'], ['utilities_pudl.utility_id_pudl'], ),
+    sa.PrimaryKeyConstraint('report_date', 'plant_id_eia', 'generator_id')
+    )
     op.create_table('ownership_eia860',
     sa.Column('report_date', sa.Date(), nullable=False, comment='Date reported.'),
     sa.Column('utility_id_eia', sa.Integer(), nullable=True, comment='The EIA Utility Identification number.'),
@@ -3127,12 +3289,12 @@ def upgrade() -> None:
     sa.Column('generator_id', sa.Text(), nullable=False, comment='Generator ID is usually numeric, but sometimes includes letters. Make sure you treat it as a string!'),
     sa.Column('owner_utility_id_eia', sa.Integer(), nullable=False, comment="EIA-assigned owner's identification number."),
     sa.Column('owner_name', sa.Text(), nullable=True, comment='Name of owner.'),
-    sa.Column('owner_state', sa.Enum('VA', 'VI', 'SK', 'PR', 'MT', 'DC', 'VT', 'KY', 'NY', 'KS', 'ME', 'ON', 'WY', 'NU', 'MN', 'WV', 'AL', 'LA', 'MP', 'QC', 'SC', 'SD', 'NE', 'TN', 'NM', 'YT', 'OH', 'AB', 'MO', 'NC', 'NS', 'CA', 'MD', 'NB', 'FL', 'BC', 'ID', 'IN', 'NL', 'GA', 'OK', 'UT', 'IA', 'MI', 'NH', 'NV', 'IL', 'NJ', 'AZ', 'MS', 'PE', 'MA', 'AK', 'CO', 'RI', 'GU', 'ND', 'PA', 'TX', 'HI', 'WI', 'NT', 'OR', 'DE', 'WA', 'MB', 'AS', 'AR', 'CT'), nullable=True, comment='Two letter ISO-3166 political subdivision code.'),
+    sa.Column('owner_state', sa.Enum('NY', 'IL', 'VI', 'IN', 'GA', 'CO', 'NV', 'KY', 'NS', 'SC', 'WY', 'UT', 'AK', 'MA', 'LA', 'DC', 'ME', 'AL', 'AS', 'NL', 'MO', 'MN', 'PR', 'SK', 'TX', 'KS', 'YT', 'WV', 'NH', 'WI', 'AB', 'GU', 'PA', 'AZ', 'MI', 'MT', 'OH', 'OR', 'IA', 'FL', 'VA', 'ON', 'AR', 'NT', 'HI', 'WA', 'PE', 'MD', 'NC', 'NE', 'ID', 'NJ', 'BC', 'NB', 'TN', 'QC', 'OK', 'NU', 'SD', 'DE', 'VT', 'ND', 'RI', 'CA', 'MB', 'MP', 'MS', 'CT', 'NM'), nullable=True, comment='Two letter ISO-3166 political subdivision code.'),
     sa.Column('owner_city', sa.Text(), nullable=True, comment='City of owner.'),
     sa.Column('owner_country', sa.Enum('USA', 'CAN'), nullable=True, comment='Three letter ISO-3166 country code.'),
     sa.Column('owner_street_address', sa.Text(), nullable=True, comment='Steet address of owner.'),
     sa.Column('owner_zip_code', sa.Text(), nullable=True, comment='Zip code of owner.'),
-    sa.Column('fraction_owned', sa.Float(), nullable=True, comment='Proportion of generator ownership.'),
+    sa.Column('fraction_owned', sa.Float(), nullable=True, comment='Proportion of generator ownership attributable to this utility.'),
     sa.Column('data_maturity', sa.Text(), nullable=True, comment='Level of maturity of the data record. Some data sources report less-than-final data. PUDL sometimes includes this data, but use at your own risk.'),
     sa.ForeignKeyConstraint(['data_maturity'], ['data_maturities.code'], ),
     sa.ForeignKeyConstraint(['plant_id_eia', 'generator_id', 'report_date'], ['generators_eia860.plant_id_eia', 'generators_eia860.generator_id', 'generators_eia860.report_date'], ),
@@ -3145,6 +3307,9 @@ def upgrade() -> None:
 def downgrade() -> None:
     # ### commands auto generated by Alembic - please adjust! ###
     op.drop_table('ownership_eia860')
+    op.drop_table('generation_fuel_by_generator_yearly_eia923')
+    op.drop_table('generation_fuel_by_generator_energy_source_yearly_eia923')
+    op.drop_table('generation_fuel_by_generator_energy_source_owner_yearly_eia923')
     op.drop_table('denorm_ownership_eia860')
     op.drop_table('denorm_generators_eia')
     op.drop_table('denorm_generation_yearly_eia923')
@@ -3184,6 +3349,8 @@ def downgrade() -> None:
     op.drop_table('plant_in_service_ferc1')
     op.drop_table('other_regulatory_liabilities_ferc1')
     op.drop_table('income_statement_ferc1')
+    op.drop_table('generation_fuel_by_generator_monthly_eia923')
+    op.drop_table('generation_fuel_by_generator_energy_source_monthly_eia923')
     op.drop_table('generation_eia923')
     op.drop_table('fuel_receipts_costs_eia923')
     op.drop_table('epacamd_eia')
@@ -3229,6 +3396,7 @@ def downgrade() -> None:
     op.drop_table('utilities_ferc1')
     op.drop_table('utilities_eia860')
     op.drop_table('utilities_eia')
+    op.drop_table('summarized_demand_ferc714')
     op.drop_table('service_territory_eia861')
     op.drop_table('sales_eia861')
     op.drop_table('reliability_eia861')
@@ -3244,6 +3412,7 @@ def downgrade() -> None:
     op.drop_table('generators_entity_eia')
     op.drop_table('generation_fuel_nuclear_eia923')
     op.drop_table('generation_fuel_eia923')
+    op.drop_table('fipsified_respondents_ferc714')
     op.drop_table('energy_efficiency_eia861')
     op.drop_table('emissions_control_equipment_eia860')
     op.drop_table('dynamic_pricing_eia861')
@@ -3277,6 +3446,7 @@ def downgrade() -> None:
     op.drop_table('reporting_frequencies_eia')
     op.drop_table('regulations_eia')
     op.drop_table('prime_movers_eia')
+    op.drop_table('predicted_state_hourly_demand')
     op.drop_table('power_purchase_types_ferc1')
     op.drop_table('political_subdivisions')
     op.drop_table('plants_pudl')
@@ -3301,6 +3471,8 @@ def downgrade() -> None:
     op.drop_table('datasources')
     op.drop_table('data_maturities')
     op.drop_table('contract_types_eia')
+    op.drop_table('compiled_geometry_utility_eia861')
+    op.drop_table('compiled_geometry_balancing_authority_eia861')
     op.drop_table('coalmine_types_eia')
     op.drop_table('boiler_types_eia')
     op.drop_table('boiler_status_eia')
