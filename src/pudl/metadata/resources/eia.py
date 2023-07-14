@@ -720,6 +720,10 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
                     "utility_data_misc_eia861",
                     "utility_data_nerc_eia861",
                     "utility_data_rto_eia861",
+                    # Utility IDs in this table are owners, not operators, and we are
+                    # not yet harvesting owner_utility_id_eia from ownership_eia860.
+                    # See https://github.com/catalyst-cooperative/pudl/issues/1393
+                    "generation_fuel_by_generator_energy_source_owner_yearly_eia923",
                 ],
             },
         },
