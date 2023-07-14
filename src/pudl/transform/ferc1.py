@@ -2681,14 +2681,27 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
             logger.info(f"{self.table_id.value}: No calculations.")
             return pd.DataFrame()
 
-        calc_dfs = []
-        for calc, factoid in zip(metadata.calculations, metadata.xbrl_factoid):
-            calc_dfs.append(
-                pd.DataFrame(json.loads(calc)).assign(
-                    table_name=self.table_id.value, xbrl_factoid=factoid
-                )
+        metadata.calculations = metadata.calculations.apply(json.loads)
+        # reset the index post calc explosion so we can merge on index later
+        metadata = metadata.explode("calculations").reset_index(drop=True)
+        calc_comps = (
+            pd.json_normalize(metadata.calculations)
+            .explode("source_tables")
+            .rename(
+                columns={
+                    "name": "xbrl_factoid_calculation_component",
+                    "source_tables": "table_name_calculation_component",
+                }
             )
-        return pd.concat(calc_dfs).reset_index(drop=True).explode("source_tables")
+            .merge(
+                metadata.drop(columns=["calculations"]),
+                left_index=True,
+                right_index=True,
+            )
+            .dropna(subset=["xbrl_factoid_calculation_component"])
+            .reset_index(drop=True)
+        )
+        return calc_comps
 
     @cache_df(key="merge_xbrl_metadata")
     def merge_xbrl_metadata(
@@ -6230,22 +6243,15 @@ def calculation_components_xbrl_ferc1(**kwargs):
     # compile all of the calc comp tables.
     calc_metas = []
     for table_name, tranformer in FERC1_TFR_CLASSES.items():
-        calc_meta = tranformer(
-            xbrl_metadata_json=clean_xbrl_metadata_json[table_name]
-        ).process_xbrl_metadata_calculations()
+        calc_meta = (
+            tranformer(xbrl_metadata_json=clean_xbrl_metadata_json[table_name])
+            .process_xbrl_metadata_calculations()
+            .assign(table_name=table_name)
+        )
         calc_metas.append(calc_meta)
     # squish all of the calc comp tables then add in the implicit table dimensions
-    calc_components = (
-        pd.concat(calc_metas)
-        .rename(
-            columns={
-                "name": "xbrl_factoid_calculation_component",
-                "source_tables": "table_name_calculation_component",
-            }
-        )
-        .pipe(
-            make_implict_dimensions_explict_in_calculaiton_components, table_dimensions
-        )
+    calc_components = pd.concat(calc_metas).pipe(
+        make_implict_dimensions_explict_in_calculaiton_components, table_dimensions
     )
     return calc_components
 
