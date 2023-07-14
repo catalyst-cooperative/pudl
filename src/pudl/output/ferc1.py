@@ -1098,7 +1098,9 @@ class MetadataExploder:
         # At this point all remaining calculation components should exist within the
         # exploded metadata.
         calc_comps = self.calculation_components_explosion
-        calc_comps_index = calc_comps.set_index(["source_tables", "name"]).index
+        calc_comps_index = calc_comps.set_index(
+            ["table_name_calculation_component", "xbrl_factoid_calculation_component"]
+        ).index
         meta_index = exploded_metadata.set_index(["table_name", "xbrl_factoid"]).index
         nodes_not_in_calculations = [
             x
@@ -1133,14 +1135,14 @@ class MetadataExploder:
         Tree/Forest situation directly uses the calculation components instead of the
         embedded calculations.
         """
-        calc_explode = self.calculation_components_explosion
-        calc_explode[
-            "in_explosion"
-        ] = calc_explode.table_name_calculation_component.apply(
-            in_explosion_tables, in_explosion_table_names=self.table_names
-        )
+        calc_explode = self.calculation_components_xbrl_ferc1
+        calc_explode = calc_explode[calc_explode.table_name.isin(self.table_names)]
+
         not_in_explosion_xbrl_factoids = list(
-            calc_explode.loc[~calc_explode.in_explosion, "xbrl_factoid"].unique()
+            calc_explode.loc[
+                ~calc_explode.table_name_calculation_component.isin(self.table_names),
+                "xbrl_factoid",
+            ].unique()
         )
         meta_explode.loc[
             meta_explode.xbrl_factoid.isin(not_in_explosion_xbrl_factoids),
@@ -1863,6 +1865,8 @@ class XbrlCalculationForestFerc1(BaseModel):
             calcs = json.loads(row.calculations)
             for calc in calcs:
                 assert len(calc["source_tables"]) == 1
+                if len(calc["source_tables"]) != 1:
+                    raise AssertionError(calc)
                 to_node = NodeId(calc["source_tables"][0], calc["name"])
                 if not attrs.get(to_node, False):
                     attrs[to_node] = {}
