@@ -2993,8 +2993,8 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
             .explode("source_tables")
             .rename(
                 columns={
-                    "name": "xbrl_factoid_calculation_component",
-                    "source_tables": "table_name_calculation_component",
+                    "name": "xbrl_factoid_calc",
+                    "source_tables": "xbrl_factoid_calc",
                 }
             )
             .merge(
@@ -3002,7 +3002,7 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
                 left_index=True,
                 right_index=True,
             )
-            .dropna(subset=["xbrl_factoid_calculation_component"])
+            .dropna(subset=["xbrl_factoid_calc"])
             .reset_index(drop=True)
         )
         return calc_comps
@@ -6542,15 +6542,18 @@ def plants_steam_ferc1(
     return convert_cols_dtypes(df, data_source="ferc1")
 
 
-def get_other_dimensions() -> list[str]:
+def get_other_dimensions(table_names: list[str] | None = None) -> list[str]:
     """Get a list of the other dimension columns across all of the transformers."""
+    if not table_names:
+        table_names = FERC1_TFR_CLASSES.keys()
     # grab all of the dimensions columns that we are currently verifying as a part of
     # reconcile_table_calculations
-    other_dimensions = []
-    for transformer in FERC1_TFR_CLASSES.values():
-        other_dimensions.append(
-            transformer().params.reconcile_table_calculations.subtotal_column
-        )
+    other_dimensions = [
+        FERC1_TFR_CLASSES[
+            table_name
+        ].params.reconcile_table_calculations.subtotal_column
+        for table_name in table_names
+    ]
     # remove nulls and dedupe
     other_dimensions = [sub for sub in other_dimensions if sub]
     other_dimensions = list(set(other_dimensions))
@@ -6610,9 +6613,9 @@ def calculation_components_xbrl_ferc1(**kwargs):
     table_dimensions = kwargs["table_dimensions_ferc1"]
     # compile all of the calc comp tables.
     calc_metas = []
-    for table_name, tranformer in FERC1_TFR_CLASSES.items():
+    for table_name, transformer in FERC1_TFR_CLASSES.items():
         calc_meta = (
-            tranformer(xbrl_metadata_json=clean_xbrl_metadata_json[table_name])
+            transformer(xbrl_metadata_json=clean_xbrl_metadata_json[table_name])
             .process_xbrl_metadata_calculations()
             .assign(table_name=table_name)
         )
@@ -6629,10 +6632,24 @@ def make_implict_dimensions_explict_in_calculaiton_components(
 ) -> pd.DataFrame:
     """Make all of the implied dimensions in the calculation components explict.
 
-    We are assuming that if a dimension was associted with a calculation component, then
-    that is the only dimension that applies whereas if no dimension was associated with
-    a calculation component, that calculation component should be applied across all
-    relevant dimensions.
+    The raw XBRL metadata's calculations, there is an implicit assumption that the
+    calculation is value within a set of shared axis/primary key values. We have
+    mannually added some calculation which span multiple tables where the calculation
+    is only applicable within a subset of these axis/primary key columns. For example,
+    the :ref:`utility_plant_summary_ferc1` table includes many different
+    ``utility_types``, but several fields in that table are calculable from fields in
+    the :ref:`plant_in_service` table - which only includes the ``utilty_type`` of
+    ``electric``. We have added some of these calculations which include this
+    increased detail regarding these dimension columns by adding these dimensions to
+    calculation components when they apply only to one dimension. This enabled us to
+    not need to specify every single dimension that was implied within the XBRL
+    metadata. But in order for the calculations to be applied uniformly, this function
+    makes all of those implict dimensions explict.
+
+    We are assuming that if a dimension was associted with a calculation component
+    before this treatment, then that is the only dimension that applies whereas if no
+    dimension was associated with a calculation component, that calculation component
+    should be applied across all relevant dimensions.
 
     Relate all of the calculation components with all found dimensions from
     :func:`table_dimensions_ferc1`, unless the calculation components already
@@ -6655,15 +6672,15 @@ def make_implict_dimensions_explict_in_calculaiton_components(
             table_dimensions[["table_name", "xbrl_factoid", dim_col]]
             .rename(
                 columns={
-                    "xbrl_factoid": "xbrl_factoid_calculation_component",
-                    "table_name": "table_name_calculation_component",
+                    "xbrl_factoid": "xbrl_factoid_calc",
+                    "table_name": "table_name_calc",
                 }
             )
             .drop_duplicates()
             .dropna(),
             on=[
-                "table_name_calculation_component",
-                "xbrl_factoid_calculation_component",
+                "table_name_calc",
+                "xbrl_factoid_calc",
             ],
             how="left",
         )
