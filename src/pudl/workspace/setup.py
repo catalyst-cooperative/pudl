@@ -38,6 +38,11 @@ class PudlPaths(BaseSettings):
     pudl_input: DirectoryPath
     pudl_output: DirectoryPath
 
+    class Config:
+        """Pydantic config, reads from .env file."""
+
+        env_file = ".env"
+
     @property
     def input_dir(self) -> Path:
         """Path to PUDL input directory."""
