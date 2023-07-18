@@ -6723,14 +6723,15 @@ def make_calculation_dimensions_explicit(
     specify different calculations for different values of the additional dimension
     columns like ``utility_type``.
 
-    An association table containing all combinations of ``table_name``,
-    ``xbrl_factoid``, and the additional dimension columns which have been observed in
-    either the reported data or our specified calculation fixes. It does this by filling
-    in any unspecified dimensions in the calculation components dataframe with the
-    dimension values found in :func:`table_dimensions_ferc1`. Any dimension that was
-    already specified in the calculation fixes will be left unchanged. If no value of a
-    particular dimension has ever been observed in association with a given combination
-    of ``table_name`` and ``xbrl_factoid`` it will remain null.
+    This function compiles an association table containing all combinations of
+    ``table_name``, ``xbrl_factoid``, and the additional dimension columns which have
+    been observed in either the reported data or our specified calculation fixes. It
+    does this by filling in any unspecified dimensions in the calculation components
+    dataframe with the dimension values found in :func:`table_dimensions_ferc1`. Any
+    dimension that was already specified in the calculation fixes will be left
+    unchanged. If no value of a particular dimension has ever been observed in
+    association with a given combination of ``table_name`` and ``xbrl_factoid`` it will
+    remain null.
 
     This is often a broadcast merge because many tables contain many values within these
     dimension columns, so it is expected that the association table constructed will
