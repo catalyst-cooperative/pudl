@@ -2993,8 +2993,8 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
             .explode("source_tables")
             .rename(
                 columns={
-                    "name": "xbrl_factoid_calculation_component",
-                    "source_tables": "table_name_calculation_component",
+                    "name": "xbrl_factoid_calc",
+                    "source_tables": "table_name_calc",
                 }
             )
             .merge(
@@ -3002,7 +3002,7 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
                 left_index=True,
                 right_index=True,
             )
-            .dropna(subset=["xbrl_factoid_calculation_component"])
+            .dropna(subset=["xbrl_factoid_calc"])
             .reset_index(drop=True)
         )
         return calc_comps
@@ -6542,15 +6542,18 @@ def plants_steam_ferc1(
     return convert_cols_dtypes(df, data_source="ferc1")
 
 
-def get_other_dimensions() -> list[str]:
+def other_dimensions(table_names: list[str] | None = None) -> list[str]:
     """Get a list of the other dimension columns across all of the transformers."""
+    if not table_names:
+        table_names = FERC1_TFR_CLASSES.keys()
     # grab all of the dimensions columns that we are currently verifying as a part of
     # reconcile_table_calculations
-    other_dimensions = []
-    for transformer in FERC1_TFR_CLASSES.values():
-        other_dimensions.append(
-            transformer().params.reconcile_table_calculations.subtotal_column
-        )
+    other_dimensions = [
+        FERC1_TFR_CLASSES[
+            table_name
+        ]().params.reconcile_table_calculations.subtotal_column
+        for table_name in table_names
+    ]
     # remove nulls and dedupe
     other_dimensions = [sub for sub in other_dimensions if sub]
     other_dimensions = list(set(other_dimensions))
@@ -6567,19 +6570,21 @@ def table_to_xbrl_factoid_name() -> dict[str, str]:
 
 @asset(ins={table_name: AssetIn(table_name) for table_name in FERC1_TFR_CLASSES})
 def table_dimensions_ferc1(**kwargs) -> pd.DataFrame:
-    """Build a table of dimensions found in the transformed data tables.
+    """Build a table of values of dimensions observed in the transformed data tables.
 
-    The dimensions that show up within the transformed tables differ across table and
-    factoid. We need to include the ``xbrl_factoid`` column because these dimensions can
-    differ based on the ``xbrl_factoid``. So we first rename all of the columns which
+    Compile a dataframe indicating what distinct values are observed in the data for
+    each dimension column in association with each unique combination of ``table_name``
+    and ``xbrl_factoid``. E.g. for all factoids found in the
+    :ref:`electric_plant_depreciation_functional_ferc1` table,
+    the only value observed for ``utility_type`` is ``electric`` and the values observed
+    for ``plant_status`` include: ``future``, ``in_service``, ``leased`` and ``total``.
+
+    We need to include the ``xbrl_factoid`` column because these dimensions can differ
+    based on the ``xbrl_factoid``. So we first rename all of the columns which
     contain the ``xbrl_factoid`` using :func:`table_to_xbrl_factoid_name` rename
-    dictionary.
-
-    Note: It is theoretically possible that we could compile these dimensions based on
-    strictly the parameters (such as using info from ``params.categorize_strings``).
-    Because we did not explictly restrict ourselves to only add categories that are
-    definitely found in the data, we went with using the data tables instead. Also since
-    we added the ``xbrl_factoid`` into the dimensions
+    dictionary. Then we concatenate all of the tables together and drop duplicates so
+    we have unique instances of observed ``table_name`` and ``xbrl_factoid`` and the
+    other dimension columns found in :func:`other_dimensions`.
     """
     table_to_xbrl_factoid_name_dict = table_to_xbrl_factoid_name()
     tbls = {
@@ -6588,10 +6593,8 @@ def table_dimensions_ferc1(**kwargs) -> pd.DataFrame:
         )
         for (name, df) in kwargs.items()
     }
-
-    other_dimensions = get_other_dimensions()
     dimensions = (
-        pd.concat(tbls.values())[["table_name", "xbrl_factoid"] + other_dimensions]
+        pd.concat(tbls.values())[["table_name", "xbrl_factoid"] + other_dimensions()]
         .drop_duplicates()
         .reset_index(drop=True)
     )
@@ -6607,64 +6610,79 @@ def table_dimensions_ferc1(**kwargs) -> pd.DataFrame:
 def calculation_components_xbrl_ferc1(**kwargs):
     """Create calculation-compnent table from table-level metadata."""
     clean_xbrl_metadata_json = kwargs["clean_xbrl_metadata_json"]
-    table_dimensions = kwargs["table_dimensions_ferc1"]
+    table_dimensions_ferc1 = kwargs["table_dimensions_ferc1"]
     # compile all of the calc comp tables.
     calc_metas = []
-    for table_name, tranformer in FERC1_TFR_CLASSES.items():
+    for table_name, transformer in FERC1_TFR_CLASSES.items():
         calc_meta = (
-            tranformer(xbrl_metadata_json=clean_xbrl_metadata_json[table_name])
+            transformer(xbrl_metadata_json=clean_xbrl_metadata_json[table_name])
             .process_xbrl_metadata_calculations()
             .assign(table_name=table_name)
         )
         calc_metas.append(calc_meta)
     # squish all of the calc comp tables then add in the implicit table dimensions
     calc_components = pd.concat(calc_metas).pipe(
-        make_implict_dimensions_explict_in_calculaiton_components, table_dimensions
+        make_calculation_dimensions_explicit,
+        table_dimensions_ferc1,
+        dimensions=other_dimensions(),
     )
     return calc_components
 
 
-def make_implict_dimensions_explict_in_calculaiton_components(
-    calculation_components: pd.DataFrame, table_dimensions: pd.DataFrame
+def make_calculation_dimensions_explicit(
+    calculation_components: pd.DataFrame,
+    table_dimensions_ferc1: pd.DataFrame,
+    dimensions: list[str],
 ) -> pd.DataFrame:
-    """Make all of the implied dimensions in the calculation components explict.
+    """Fill in null dimensions w/ the values observed in :func:`table_dimensions_ferc1`.
 
-    We are assuming that if a dimension was associted with a calculation component, then
-    that is the only dimension that applies whereas if no dimension was associated with
-    a calculation component, that calculation component should be applied across all
-    relevant dimensions.
+    In the raw XBRL metadata's calculations, there is an implicit assumption that the
+    calculations are valid within a set of shared axises/primary key values. We have
+    mannually added some calculations which span multiple tables where the calculation
+    is only applicable within a subset of these axis/primary key columns. For example,
+    the :ref:`utility_plant_summary_ferc1` table includes many different
+    ``utility_types``, but factoids from that table are calculable from factoids in
+    the :ref:`plant_in_service_ferc1` table - which only includes the ``utilty_type`` of
+    ``electric``.
 
-    Relate all of the calculation components with all found dimensions from
-    :func:`table_dimensions_ferc1`, unless the calculation components already
-    contained information regarding dimensions.
+    This function fills in all of the non-specified dimensions with the values found in
+    :func:`table_dimensions_ferc1`. This is often a broadcast merge because many tables
+    contain many values within these dimension columns.
+
+    Any dimension that was specified will not be touched. Any remaining nulls are a
+    result of never having observed values for that ``table_name`` and
+    ``xbrl_factoid``.
+
+    Args:
+        calculation_components: a table of calculation component records which have had
+            some manual calculation fixes applied.
+        table_dimensions_ferc1: table with all observed values of :func:`other_dimensions` for
+            each ``table_name`` and ``xbrl_factoid``
+        dimensions: list of dimension columns to check.
     """
-    dimensions = [
-        col
-        for col in table_dimensions.columns
-        if col not in ["table_name", "xbrl_factoid"]
-        and col in calculation_components.columns
-    ]
     logger.info(f"Adding {dimensions=} into calculation component table.")
     calc_comps_w_dims = calculation_components.copy()
     # for each dimension, use split/apply/combine. when there are no dims explict in
     # the calc components, merge in all of the dims.
     for dim_col in dimensions:
-        null_dim_mask = calc_comps_w_dims[dim_col].isnull()
-        calc_comps_w_implied_dims = pd.merge(
-            calc_comps_w_dims[null_dim_mask].drop(columns=[dim_col]),
-            table_dimensions[["table_name", "xbrl_factoid", dim_col]]
+        # extract the unique observed instances of this one dimension column & add the
+        # _calc suffix so we can merge onto the calculation components.
+        observed_dim = (
+            table_dimensions_ferc1[["table_name", "xbrl_factoid", dim_col]]
+            .drop_duplicates()  # bc there are dupes after we removed the other dim cols
             .rename(
                 columns={
-                    "xbrl_factoid": "xbrl_factoid_calculation_component",
-                    "table_name": "table_name_calculation_component",
+                    "xbrl_factoid": "xbrl_factoid_calc",
+                    "table_name": "table_name_calc",
                 }
             )
-            .drop_duplicates()
-            .dropna(),
-            on=[
-                "table_name_calculation_component",
-                "xbrl_factoid_calculation_component",
-            ],
+        )
+        null_dim_mask = calc_comps_w_dims[dim_col].isnull()
+        null_dim = calc_comps_w_dims[null_dim_mask].drop(columns=[dim_col])
+        calc_comps_w_implied_dims = pd.merge(
+            null_dim,
+            observed_dim,
+            on=["table_name_calc", "xbrl_factoid_calc"],
             how="left",
         )
         calc_comps_w_explicit_dims = calc_comps_w_dims[~null_dim_mask]
