@@ -76,9 +76,7 @@ def raw_epacamd_eia(context) -> pd.DataFrame:
     return pd.concat(year_matches, ignore_index=True)
 
 
-@asset(
-    required_resource_keys={"dataset_settings"}, io_manager_key="pudl_sqlite_io_manager"
-)
+@asset(required_resource_keys={"dataset_settings"})
 def epacamd_eia(
     context,
     raw_epacamd_eia: pd.DataFrame,
@@ -298,6 +296,7 @@ def epacamd_eia_subplant_ids(
         .pipe(augement_crosswalk_with_epacamd_ids, emissions_unit_ids_epacems)
         .pipe(augement_crosswalk_with_bga_eia860, boiler_generator_assn_eia860)
     )
+
     # use graph analysis to identify subplants
     subplant_ids = make_subplant_ids(epacamd_eia_complete).pipe(
         pudl.metadata.fields.apply_pudl_dtypes, "glue"
