@@ -6680,12 +6680,6 @@ def make_calculation_dimensions_explicit(
                 }
             )
         )
-        logger.info(dim_col)
-        logger.info(
-            calc_comps_w_dims[null_dim_mask]
-            .drop(columns=[dim_col])
-            .duplicated(subset=["table_name_calc", "xbrl_factoid_calc"])
-        )
         calc_comps_w_implied_dims = pd.merge(
             calc_comps_w_dims[null_dim_mask].drop(columns=[dim_col]),
             table_dimension,
