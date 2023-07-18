@@ -924,40 +924,42 @@ def reconcile_table_calculations(
             & (calculated_df["abs_diff_sub"].notnull())
         ]
         calculated_sub_values = calculated_df[(calculated_df.abs_diff_sub.notnull())]
-        off_sub_ratio = len(off_sub_df) / len(calculated_sub_values)
 
-        if off_sub_ratio > params.subtotal_calculation_tolerance:
-            raise AssertionError(
-                f"Sub-total calculations in {table_name} are off by {off_sub_ratio}. Expected tolerance "
-                f"of {params.subtotal_calculation_tolerance}."
-            )
+        if len(calculated_sub_values) > 0:
+            off_sub_ratio = len(off_sub_df) / len(calculated_sub_values)
 
-        if off_sub_ratio > 0:
-            logger.info(
-                f"{table_name}: has {len(off_sub_df)} ({off_sub_ratio:.02%}) sub-total "
-                "calculations that don't sum to the equivalent total column. Adding "
-                "correction records to make calculations match reported values."
-            )
+            if off_sub_ratio > params.subtotal_calculation_tolerance:
+                raise AssertionError(
+                    f"Sub-total calculations in {table_name} are off by {off_sub_ratio}. Expected tolerance "
+                    f"of {params.subtotal_calculation_tolerance}."
+                )
 
-            # We'll only get here if the proportion of calculations that are off is acceptable
-            corrections_sub = off_sub_df.copy()
-            corrections_sub[params.column_to_check] = (
-                corrections_sub[params.column_to_check].fillna(0.0)
-                - corrections_sub["sub_total_sum"]
-            )
-            # Use sub-group column to identify record as a correction
-            corrections_sub[params.subtotal_column] = "correction"
-            corrections_sub["row_type_xbrl"] = "correction"
-            corrections_sub["intra_table_calc_flag"] = True
-            corrections_sub["record_id"] = pd.NA
+            if off_sub_ratio > 0:
+                logger.info(
+                    f"{table_name}: has {len(off_sub_df)} ({off_sub_ratio:.02%}) sub-total "
+                    "calculations that don't sum to the equivalent total column. Adding "
+                    "correction records to make calculations match reported values."
+                )
 
-            # If starting balance present, also set to null
-            if "starting_balance" in corrections_sub.columns:
-                corrections_sub["starting_balance"] = pd.NA
+                # We'll only get here if the proportion of calculations that are off is acceptable
+                corrections_sub = off_sub_df.copy()
+                corrections_sub[params.column_to_check] = (
+                    corrections_sub[params.column_to_check].fillna(0.0)
+                    - corrections_sub["sub_total_sum"]
+                )
+                # Use sub-group column to identify record as a correction
+                corrections_sub[params.subtotal_column] = "correction"
+                corrections_sub["row_type_xbrl"] = "correction"
+                corrections_sub["intra_table_calc_flag"] = True
+                corrections_sub["record_id"] = pd.NA
 
-            calculated_df = pd.concat(
-                [calculated_df, corrections_sub], axis="index"
-            ).reset_index()
+                # If starting balance present, also set to null
+                if "starting_balance" in corrections_sub.columns:
+                    corrections_sub["starting_balance"] = pd.NA
+
+                calculated_df = pd.concat(
+                    [calculated_df, corrections_sub], axis="index"
+                ).reset_index()
 
     return calculated_df
 
