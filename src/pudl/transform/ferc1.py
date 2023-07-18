@@ -6722,9 +6722,9 @@ def make_calculation_dimensions_explicit(
     different calculations for different values of additional dimension columns.
 
     This function uses the observed associations between ``table_name``,
-    ``xbrl_factoid`` and the possible observed values in the other dimension columns
-    compiled by :func:`table_dimensions_ferc1` to fill in missing (previously implied)
-    dimension values in the calculation components table.
+    ``xbrl_factoid`` and the other dimension columns compiled by
+    :func:`table_dimensions_ferc1` to fill in missing (previously implied) dimension
+    values in the calculation components table.
 
     This is often a broadcast merge because many tables contain many values within these
     dimension columns, so it is expected that new calculation component table will have
