@@ -344,6 +344,28 @@ def epacamd_eia_subplant_ids(
             "when none are expected. Duplicates found: \n"
             f"{subplant_ids_updated[epacamd_eia_dupe_mask]}"
         )
+
+    # the network x process uses unit_id_pudl and generator_id. During processing,
+    # the boiler_id data are truncated and we only retain unique values for generator_id
+    # and unit_id_pudl. This step adds the lost boiler_id info back into the table.
+    subplant_ids_updated = pd.merge(
+        subplant_ids_updated.drop(columns="boiler_id").assign(
+            unit_id_pudl=lambda x: x.unit_id_pudl.astype(
+                "float"
+            )  # necessary step for tests
+        ),
+        boiler_generator_assn_eia860[
+            [
+                "plant_id_eia",
+                "generator_id",
+                "boiler_id",
+                "unit_id_pudl",
+            ]
+        ].drop_duplicates(),
+        on=["plant_id_eia", "generator_id", "unit_id_pudl"],
+        how="outer",
+    ).drop_duplicates()
+
     return subplant_ids_updated
 
 
