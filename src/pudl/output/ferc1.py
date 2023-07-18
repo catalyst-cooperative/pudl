@@ -1354,7 +1354,9 @@ class Exploder:
         )
         return exploded
 
-    def generate_intertable_calculations(self, exploded: pd.DataFrame) -> pd.DataFrame:
+    def generate_intertable_calculations(
+        self: Self, exploded: pd.DataFrame
+    ) -> pd.DataFrame:
         """Generate calculated values for inter-table calculated factoids.
 
         This function sums components of calculations for a given factoid when the
@@ -1381,21 +1383,33 @@ class Exploder:
             "table_name_calc",
             "xbrl_factoid_calc",
         ] + self.other_dimensions
-        data_to_calc_comp_rename = {
-            "table_name": "table_name_calc",
-            "xbrl_factoid": "xbrl_factoid_calc",
-        }
-        # grab all of the calculation components from the exploded data by renaming the
-        # columns in the exploded data to the `_calc` columns from the calculation
-        # component table & merging that with the calculation components. then we have
-        # a table that includes the data of every single calculation component. Bc the
-        # `xbrl_factoid` and  `table_name` that each calculation component is associated
-        # with is in the calc component table, you can then just groupby/sum by the
-        # `self.explode_pks`
+        # Merge the reported data and the calculation component metadata to enable
+        # validation of calculated values. Here the data table exploded is supplying the
+        # values associated with individual calculation components, and the table_name
+        # and xbrl_factoid to which we aggregate are coming from the calculation
+        # components table. After merging we use the weights to adjust the reported
+        # values so they can be summed directly. This gives us aggregated calculated
+        # values that can later be compared to the higher level reported values.
+
+        # the validation is one_many in all instances expect for the xbrl_factoid_calc
+        # construction_work_in_progress in the balance_sheet_assets_ferc1 explosion.
+        # this may be a problem in the calculations that we should track down in #2717
+        validate = (
+            "one_to_many"
+            if self.root_table != "balance_sheet_assets_ferc1"
+            else "many_to_many"
+        )
         calc_df = (
             pd.merge(
-                exploded.rename(columns=data_to_calc_comp_rename),
                 calculations_intertable,
+                exploded.rename(
+                    columns={
+                        "table_name": "table_name_calc",
+                        "xbrl_factoid": "xbrl_factoid_calc",
+                    }
+                ),
+                #
+                validate=validate,
                 on=calc_component_idx,
             )
             # apply the weight from the calc to convey the sign before summing.

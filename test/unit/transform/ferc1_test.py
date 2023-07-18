@@ -390,13 +390,13 @@ entity_id,report_year,sched_table_name,idx_ending_balance,idx_starting_balance,t
 
 def test_make_calculation_dimensions_explicit():
     """Test :func:`make_calculation_dimensions_explicit`"""
-    calc_comp_idk = [
+    calc_comp_idx = [
         "table_name",
         "xbrl_factoid",
         "table_name_calc",
         "xbrl_factoid_calc",
     ]
-    calc_comps_st = pd.read_csv(
+    calc_comps_trek = pd.read_csv(
         StringIO(
             """
 table_name,xbrl_factoid,table_name_calc,xbrl_factoid_calc,dim_x,dim_y
@@ -408,7 +408,7 @@ table_a,fact_2,table_b,fact_7,,
 """
         )
     )
-    table_dimensions_st = pd.read_csv(
+    table_dimensions_trek = pd.read_csv(
         StringIO(
             """
 table_name,xbrl_factoid,dim_x,dim_y
@@ -434,9 +434,11 @@ table_b,fact_7,next_gen,futile
     )
     out_st = (
         make_calculation_dimensions_explicit(
-            calculation_components=calc_comps_st, table_dimensions=table_dimensions_st
+            calculation_components=calc_comps_trek,
+            table_dimensions_ferc1=table_dimensions_trek,
+            dimensions=["dim_x", "dim_y"],
         )
-        .sort_values(calc_comp_idk)
+        .sort_values(calc_comp_idx)
         .reset_index(drop=True)
     )
     expected_st = pd.read_csv(
@@ -463,12 +465,11 @@ table_a,fact_2,table_b,fact_7,next_gen,futile
     # swap the order of the dims to test whether the input order effects the result
     out_reordered = (
         make_calculation_dimensions_explicit(
-            calculation_components=calc_comps_st,
-            table_dimensions=table_dimensions_st[
-                ["table_name", "xbrl_factoid", "dim_y", "dim_x"]
-            ],
+            calculation_components=calc_comps_trek,
+            table_dimensions_ferc1=table_dimensions_trek,
+            dimensions=["dim_y", "dim_x"],
         )
-        .sort_values(calc_comp_idk)
+        .sort_values(calc_comp_idx)
         .reset_index(drop=True)
-    )[list(out_st.columns)]
-    pd.testing.assert_frame_equal(out_st, out_reordered)
+    )
+    pd.testing.assert_frame_equal(out_st, out_reordered, check_like=True)
