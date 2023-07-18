@@ -6636,28 +6636,42 @@ def make_calculation_dimensions_explicit(
 ) -> pd.DataFrame:
     """Fill in null dimensions w/ the values observed in :func:`table_dimensions_ferc1`.
 
-    In the raw XBRL metadata's calculations, there is an implicit assumption that the
-    calculations are valid within a set of shared axises/primary key values. We have
-    mannually added some calculations which span multiple tables where the calculation
-    is only applicable within a subset of these axis/primary key columns. For example,
-    the :ref:`utility_plant_summary_ferc1` table includes many different
-    ``utility_types``, but factoids from that table are calculable from factoids in
-    the :ref:`plant_in_service_ferc1` table - which only includes the ``utilty_type`` of
-    ``electric``.
+    In the raw XBRL metadata's calculations, there is an implicit assumption that
+    calculated values are aggregated within categorical columns called Axes or
+    dimensions, in addition to being grouped by date, utility, table, and fact. However,
+    the relevant dimensions and values are not specified in the calculation components,
+    and the same calculation is assumed to apply to all groups within a dimension.
 
-    This function fills in all of the non-specified dimensions with the values found in
-    :func:`table_dimensions_ferc1`. This is often a broadcast merge because many tables
-    contain many values within these dimension columns.
+    We have extended this calculation system to allow independent calculations to be
+    specified for different values within a given dimension, and for these calculations
+    to include values reported in multiple tables.  For example, the
+    :ref:`utility_plant_summary_ferc1` table contains records with a variety of
+    different ``utility_type`` values (gas, electric, etc.). For many combinations of
+    fact and ``utility_type``, no more detailed information about the soruce of the data
+    is available, but for some, and only in the case of electric utilities, much more
+    detail can be found in the :ref:`plant_in_service_ferc1` table. In order to use this
+    additional information when it is available, we need to be able to explicitly
+    specify different calculations for different values of the additional dimension
+    columns like ``utility_type``.
 
-    Any dimension that was specified will not be touched. Any remaining nulls are a
-    result of never having observed values for that ``table_name`` and
-    ``xbrl_factoid``.
+    An association table containing all combinations of ``table_name``,
+    ``xbrl_factoid``, and the additional dimension columns which have been observed in
+    either the reported data or our specified calculation fixes. It does this by filling
+    in any unspecified dimensions in the calculation components dataframe with the
+    dimension values found in :func:`table_dimensions_ferc1`. Any dimension that was
+    already specified in the calculation fixes will be left unchanged. If no value of a
+    particular dimension has ever been observed in association with a given combination
+    of ``table_name`` and ``xbrl_factoid`` it will remain null.
+
+    This is often a broadcast merge because many tables contain many values within these
+    dimension columns, so it is expected that the association table constructed will
+    have many more records than the input calculation components table.
 
     Args:
         calculation_components: a table of calculation component records which have had
             some manual calculation fixes applied.
-        table_dimensions_ferc1: table with all observed values of :func:`other_dimensions` for
-            each ``table_name`` and ``xbrl_factoid``
+        table_dimensions_ferc1: table with all observed values of
+            :func:`other_dimensions` for each ``table_name`` and ``xbrl_factoid``
         dimensions: list of dimension columns to check.
     """
     logger.info(f"Adding {dimensions=} into calculation component table.")
