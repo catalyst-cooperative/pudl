@@ -5,7 +5,7 @@ import pathlib
 import shutil
 from pathlib import Path
 
-from pydantic import BaseSettings
+from pydantic import BaseSettings, DirectoryPath
 
 import pudl.logging_helpers
 
@@ -35,8 +35,8 @@ class PudlPaths(BaseSettings):
     variables. Other paths of relevance are derived from these.
     """
 
-    pudl_input: str
-    pudl_output: str
+    pudl_input: DirectoryPath
+    pudl_output: DirectoryPath
 
     @property
     def input_dir(self) -> Path:
@@ -77,15 +77,6 @@ class PudlPaths(BaseSettings):
     def output_file(self, filename: str) -> Path:
         """Path to file in PUDL output directory."""
         return self.output_dir / filename
-
-    class Config:
-        """Pydantic configuration. Loads from .env file."""
-
-        env_file = ".env"
-        fields = {
-            "pudl_input": {"env": "PUDL_INPUT"},
-            "pudl_output": {"env": "PUDL_OUTPUT"},
-        }
 
 
 def init(clobber=False):
