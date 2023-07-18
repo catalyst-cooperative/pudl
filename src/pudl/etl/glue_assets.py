@@ -349,11 +349,7 @@ def epacamd_eia_subplant_ids(
     # the boiler_id data are truncated and we only retain unique values for generator_id
     # and unit_id_pudl. This step adds the lost boiler_id info back into the table.
     subplant_ids_updated = pd.merge(
-        subplant_ids_updated.drop(columns="boiler_id").assign(
-            unit_id_pudl=lambda x: x.unit_id_pudl.astype(
-                "float"
-            )  # necessary step for tests
-        ),
+        subplant_ids_updated.drop(columns="boiler_id"),
         boiler_generator_assn_eia860[
             [
                 "plant_id_eia",
