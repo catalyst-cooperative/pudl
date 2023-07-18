@@ -1216,7 +1216,7 @@ class Exploder:
     @property
     def other_dimensions(self) -> list[str]:
         """Get all of the column names for the other dimensions."""
-        return pudl.transform.ferc1.get_other_dimensions(table_names=self.table_names)
+        return pudl.transform.ferc1.other_dimensions(table_names=self.table_names)
 
     @property
     def exploded_pks(self) -> list[str]:
@@ -1366,12 +1366,15 @@ class Exploder:
         Args:
             exploded: concatenated tables for table explosion.
         """
-        if self.calculations_exploded.empty:
+        calculations_intertable = self.calculations_exploded[
+            ~self.calculations_exploded.intra_table_calc_flag
+        ]
+        if calculations_intertable.empty:
             return exploded
         else:
             logger.info(
                 f"{self.root_table}: Reconcile inter-table calculations: "
-                f"{list(self.calculations_exploded.xbrl_factoid.unique())}."
+                f"{list(calculations_intertable.xbrl_factoid.unique())}."
             )
         # compile the lists of columns we are going to use later
         calc_component_idx = [
@@ -1382,12 +1385,17 @@ class Exploder:
             "table_name": "table_name_calc",
             "xbrl_factoid": "xbrl_factoid_calc",
         }
-        # effectively convert the data in the exploded table into calc components with
-        # a rename/merge & groupby the xbrl_factoid column from the calc components tbl
+        # grab all of the calculation components from the exploded data by renaming the
+        # columns in the exploded data to the `_calc` columns from the calculation
+        # component table & merging that with the calculation components. then we have
+        # a table that includes the data of every single calculation component. Bc the
+        # `xbrl_factoid` and  `table_name` that each calculation component is associated
+        # with is in the calc component table, you can then just groupby/sum by the
+        # `self.explode_pks`
         calc_df = (
             pd.merge(
                 exploded.rename(columns=data_to_calc_comp_rename),
-                self.calculations_exploded,
+                calculations_intertable,
                 on=calc_component_idx,
             )
             # apply the weight from the calc to convey the sign before summing.
