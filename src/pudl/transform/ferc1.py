@@ -738,26 +738,14 @@ class ReconcileTableCalculations(TransformParams):
     """Fraction of calculated sub-totals allowed not to match reported values."""
 
 
-def reconcile_table_calculations(
+def generate_table_calculations(
     df: pd.DataFrame,
     tbl_meta: pd.DataFrame,
     xbrl_factoid_name: str,
     table_name: str,
     params: ReconcileTableCalculations,
 ) -> pd.DataFrame:
-    """Ensure intra-table calculated values match reported values within a tolerance.
-
-    In addition to checking whether all reported "calculated" values match the output
-    of our repaired calculations, this function adds a correction record to the
-    dataframe that is included in the calculations so that after the fact the
-    calculations match exactly. This is only done when the fraction of records that
-    don't match within the tolerances of :func:`numpy.isclose` is below a set
-    threshold.
-
-    Note that only calculations which are off by a significant amount result in the
-    creation of a correction record. Many calculations are off from the reported values
-    by exaclty one dollar, presumably due to rounding errrors. These records typically
-    do not fail the :func:`numpy.isclose()` test and so are not corrected.
+    """Calculate intra-table values from their components.
 
     Args:
         df: processed table.
@@ -766,7 +754,7 @@ def reconcile_table_calculations(
         table_name: name of the PUDL table.
         params: :class:`ReconcileTableCalculations` parameters.
     """
-    # If we don't have this value, we aren't doing any calculation checking:
+    # If we don't have this value, we aren't doing any calculations:
     if params.column_to_check is None:
         return df
 
@@ -811,6 +799,41 @@ def reconcile_table_calculations(
     calculated_df[params.column_to_check] = calculated_df[
         params.column_to_check
     ].astype(float)
+    return calculated_df
+
+
+def reconcile_table_calculations(
+    calculated_df: pd.DataFrame,
+    tbl_meta: pd.DataFrame,
+    xbrl_factoid_name: str,
+    table_name: str,
+    params: ReconcileTableCalculations,
+) -> pd.DataFrame:
+    """Ensure intra-table calculated values match reported values within a tolerance.
+
+    This function adds a correction record to the
+    dataframe that is included in the calculations so that after the fact the
+    calculations match exactly. This is only done when the fraction of records that
+    don't match within the tolerances of :func:`numpy.isclose` is below a set
+    threshold.
+
+    Note that only calculations which are off by a significant amount result in the
+    creation of a correction record. Many calculations are off from the reported values
+    by exaclty one dollar, presumably due to rounding errrors. These records typically
+    do not fail the :func:`numpy.isclose()` test and so are not corrected.
+
+    Args:
+        calculated_df: processed table.
+        tbl_meta: processed table xbrl metadata.
+        xbrl_factoid_name: column name of the XBRL factoid in the processed table.
+        table_name: name of the PUDL table.
+        params: :class:`ReconcileTableCalculations` parameters.
+    """
+    # If we don't have this value, we aren't doing any calculation reconciliation:
+    if params.column_to_check is None:
+        return calculated_df
+
+    pks = pudl.metadata.classes.Resource.from_id(table_name).schema.primary_key
 
     calculated_df = calculated_df.assign(
         abs_diff=lambda x: abs(x[params.column_to_check] - x.calculated_amount),
@@ -852,6 +875,9 @@ def reconcile_table_calculations(
         corrections["row_type_xbrl"] = "correction"
         corrections["intra_table_calc_flag"] = True
         corrections["record_id"] = pd.NA
+        # If starting balance present, also set to null
+        if "starting_balance" in corrections.columns:
+            corrections["starting_balance"] = pd.NA
 
         calculated_df = pd.concat(
             [calculated_df, corrections], axis="index"
@@ -859,34 +885,79 @@ def reconcile_table_calculations(
 
     # Check that sub-total calculations sum to total.
     if params.subtotal_column is not None:
-        sub_group_col = params.subtotal_column
-        pks_wo_subgroup = [col for col in pks if col != sub_group_col]
+        logger.debug("Checking subtotal calculations.")
+        pks_wo_subgroup = [col for col in pks if col != params.subtotal_column]
         calculated_df["sub_total_sum"] = (
-            calculated_df.pipe(lambda df: df[df[sub_group_col] != "total"])
+            calculated_df.pipe(
+                lambda df: df[
+                    (df[params.subtotal_column] != "total")
+                    & (df.row_type_xbrl != "correction")
+                ]
+            )
             .groupby(pks_wo_subgroup)[params.column_to_check]
             .transform("sum")  # For each group, calculate sum of sub-components
         )
-        calculated_df["sub_total_sum"] = calculated_df["sub_total_sum"].fillna(
-            calculated_df[params.column_to_check]  # Fill in value from 'total' column
+
+        calculated_df.sort_values("sub_total_sum", inplace=True, na_position="last")
+        # Fill 'total' values with the sub-total sum of their components
+        calculated_df["sub_total_sum"] = calculated_df.groupby(pks_wo_subgroup)[
+            "sub_total_sum"
+        ].ffill()
+
+        calculated_df = calculated_df.assign(
+            abs_diff_sub=lambda x: np.where(
+                (x[params.subtotal_column] == "total"),
+                abs(x[params.column_to_check] - x.sub_total_sum),
+                np.nan,
+            ),
+            rel_diff_sub=lambda x: np.where(
+                (x[params.column_to_check] != 0.0),
+                abs(x.abs_diff / x[params.column_to_check]),
+                np.nan,
+            ),
         )
-        sub_total_errors = (
-            calculated_df.groupby(pks_wo_subgroup)
-            # If subcomponent sum != total sum, we have nunique()>1
-            .filter(lambda x: x["sub_total_sum"].nunique() > 1).groupby(pks_wo_subgroup)
-        )
-        off_ratio_sub = (
-            sub_total_errors.ngroups / calculated_df.groupby(pks_wo_subgroup).ngroups
-        )
-        if sub_total_errors.ngroups > 0:
-            logger.warning(
-                f"{table_name}: has {sub_total_errors.ngroups} ({off_ratio_sub:.02%}) sub-total calculations that don't "
-                "sum to the equivalent total column."
+
+        off_sub_df = calculated_df[
+            ~np.isclose(
+                calculated_df.sub_total_sum, calculated_df[params.column_to_check]
             )
-        if off_ratio_sub > params.subtotal_calculation_tolerance:
+            & (calculated_df["abs_diff_sub"].notnull())
+        ]
+        calculated_sub_values = calculated_df[(calculated_df.abs_diff_sub.notnull())]
+        off_sub_ratio = len(off_sub_df) / len(calculated_sub_values)
+
+        if off_sub_ratio > params.subtotal_calculation_tolerance:
             raise AssertionError(
-                f"Sub-total calculations in {table_name} are off by {off_ratio_sub}. Expected tolerance "
+                f"Sub-total calculations in {table_name} are off by {off_sub_ratio}. Expected tolerance "
                 f"of {params.subtotal_calculation_tolerance}."
             )
+
+        if off_sub_ratio > 0:
+            logger.info(
+                f"{table_name}: has {len(off_sub_df)} ({off_sub_ratio:.02%}) sub-total "
+                "calculations that don't sum to the equivalent total column. Adding "
+                "correction records to make calculations match reported values."
+            )
+
+            # We'll only get here if the proportion of calculations that are off is acceptable
+            corrections_sub = off_sub_df.copy()
+            corrections_sub[params.column_to_check] = (
+                corrections_sub[params.column_to_check].fillna(0.0)
+                - corrections_sub["sub_total_sum"]
+            )
+            # Use sub-group column to identify record as a correction
+            corrections_sub[params.subtotal_column] = "correction"
+            corrections_sub["row_type_xbrl"] = "correction"
+            corrections_sub["intra_table_calc_flag"] = True
+            corrections_sub["record_id"] = pd.NA
+
+            # If starting balance present, also set to null
+            if "starting_balance" in corrections_sub.columns:
+                corrections_sub["starting_balance"] = pd.NA
+
+            calculated_df = pd.concat(
+                [calculated_df, corrections_sub], axis="index"
+            ).reset_index()
 
     return calculated_df
 
@@ -3531,8 +3602,15 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
             logger.info(
                 f"{self.table_id.value}: Checking the XBRL metadata-based calculations."
             )
-            df = reconcile_table_calculations(
+            df = generate_table_calculations(
                 df=df,
+                tbl_meta=self.xbrl_metadata,
+                xbrl_factoid_name=self.params.xbrl_factoid_name,
+                table_name=self.table_id.value,
+                params=params,
+            )
+            df = reconcile_table_calculations(
+                calculated_df=df,
                 tbl_meta=self.xbrl_metadata,
                 xbrl_factoid_name=self.params.xbrl_factoid_name,
                 table_name=self.table_id.value,
@@ -5982,7 +6060,6 @@ class DepreciationAmortizationSummaryFerc1TableTransformer(
     def transform_main(self, df):
         """After standard transform_main, assign utility type as electric."""
         df = super().transform_main(df).assign(utility_type="electric")
-        df["plant_function"] = df["plant_function"].replace("total", "electric")
         return df
 
 
