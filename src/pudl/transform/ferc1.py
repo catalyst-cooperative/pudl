@@ -2596,6 +2596,32 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
                         },
                     },
                 ],
+                "current_and_accrued_liabilities": [
+                    {
+                        "calc_component_to_replace": {
+                            "name": "long_term_portion_of_derivative_instrument_liabilities",
+                            "weight": 1.0,
+                            "source_tables": ["balance_sheet_liabilities_ferc1"],
+                        },
+                        "calc_component_new": {
+                            "name": "less_long_term_portion_of_derivative_instrument_liabilities",
+                            "weight": -1.0,
+                            "source_tables": ["balance_sheet_liabilities_ferc1"],
+                        },
+                    },
+                    {
+                        "calc_component_to_replace": {
+                            "name": "long_term_portion_of_derivative_instrument_liabilities_hedges",
+                            "weight": 1.0,
+                            "source_tables": ["balance_sheet_liabilities_ferc1"],
+                        },
+                        "calc_component_new": {
+                            "name": "less_long_term_portion_of_derivative_instrument_liabilities_hedges",
+                            "weight": -1.0,
+                            "source_tables": ["balance_sheet_liabilities_ferc1"],
+                        },
+                    },
+                ],
             },
             "retained_earnings_ferc1": {
                 "appropriated_retained_earnings_including_reserve_amortization": [
@@ -5410,13 +5436,56 @@ class BalanceSheetLiabilitiesFerc1TableTransformer(Ferc1AbstractTableTransformer
     table_id: TableIdFerc1 = TableIdFerc1.BALANCE_SHEET_LIABILITIES
     has_unique_record_ids: bool = False
 
+    @cache_df(key="main")
+    def transform_main(self: Self, df: pd.DataFrame) -> pd.DataFrame:
+        """Duplicate data that appears in multiple distinct calculations.
+
+        There is a one case in which exactly the same data values are referenced in
+        multiple calculations which can't be resolved by choosing one of the
+        referenced values as the canonical location for that data. In order to preserve
+        all of the calculation structure, we need to duplicate those records in the
+        data, the metadata, and the calculation specifications.  Here we duplicate the
+        data and associated it with newly defined facts, which we will also add to
+        the metadata and calculations.
+        """
+        df = super().transform_main(df)
+        facts_to_duplicate = [
+            "long_term_portion_of_derivative_instrument_liabilities",
+            "long_term_portion_of_derivative_instrument_liabilities_hedges",
+        ]
+        new_data = (
+            df[df.liability_type.isin(facts_to_duplicate)]
+            .copy()
+            .assign(liability_type=lambda x: "less_" + x.liability_type)
+        )
+
+        return pd.concat([df, new_data])
+
+    @cache_df(key="process_xbrl_metadata")
     def process_xbrl_metadata(self, xbrl_metadata_json) -> pd.DataFrame:
-        """Perform default xbrl metadata processing plus adding a new xbrl_factoid.
+        """Perform default xbrl metadata processing plus adding new xbrl_factoids.
+
+        We add two new factoids which are defined (by PUDL) only for the DBF data, and
+        also duplicate and redefine several factoids which are referenced in multiple
+        calculations and need to be distinguishable from each other.
 
         Note: we should probably parameterize this and add it into the standard
         :meth:`process_xbrl_metadata`.
         """
         tbl_meta = super().process_xbrl_metadata(xbrl_metadata_json)
+        facts_to_duplicate = [
+            "long_term_portion_of_derivative_instrument_liabilities",
+            "long_term_portion_of_derivative_instrument_liabilities_hedges",
+        ]
+        duplicated_facts = (
+            tbl_meta[tbl_meta.xbrl_factoid.isin(facts_to_duplicate)]
+            .copy()
+            .assign(
+                xbrl_factoid=lambda x: "less_" + x.xbrl_factoid,
+                xbrl_factoid_original=lambda x: "less_" + x.xbrl_factoid_original,
+                balance="credit",
+            )
+        )
         facts_to_add = {
             "xbrl_factoid": ["accumulated_deferred_income_taxes"],
             "calculations": ["[]"],
@@ -5428,7 +5497,7 @@ class BalanceSheetLiabilitiesFerc1TableTransformer(Ferc1AbstractTableTransformer
         }
 
         new_facts = pd.DataFrame(facts_to_add).convert_dtypes()
-        return pd.concat([tbl_meta, new_facts])
+        return pd.concat([tbl_meta, duplicated_facts, new_facts])
 
 
 class BalanceSheetAssetsFerc1TableTransformer(Ferc1AbstractTableTransformer):
