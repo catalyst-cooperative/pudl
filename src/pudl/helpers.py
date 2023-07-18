@@ -1655,3 +1655,102 @@ def convert_col_to_bool(
     df[col_name] = df[col_name].astype("boolean")
 
     return df
+
+
+def scale_by_ownership(
+    gens: pd.DataFrame,
+    own_eia860: pd.DataFrame,
+    scale_cols: list,
+    validate: str = "1:m",
+):
+    """Generate proportional data by ownership %s.
+
+    Why do we have to do this at all? Sometimes generators are owned by
+    many different utility owners that own slices of that generator. EIA
+    reports which portion of each generator is owned by which utility
+    relatively clearly in their ownership table. On the other hand, in
+    FERC1, sometimes a partial owner reports the full plant-part, sometimes
+    they report only their ownership portion of the plant-part. And of
+    course it is not labeld in FERC1. Because of this, we need to compile
+    all of the possible ownership slices of the EIA generators.
+
+    In order to accumulate every possible version of how a generator could
+    be reported, this method generates two records for each generator's
+    reported owners: one of the portion of the plant part they own and one
+    for the plant-part as a whole. The portion records are labeled in the
+    ``ownership_record_type`` column as "owned" and the total records are labeled as
+    "total".
+
+    In this function we merge in the ownership table so that generators
+    with multiple owners then have one record per owner with the
+    ownership fraction (in column ``fraction_owned``). Because the ownership
+    table only contains records for generators that have multiple owners,
+    we assume that all other generators are owned 100% by their operator.
+    Then we generate the "total" records by duplicating the "owned" records
+    but assigning the ``fraction_owned`` to be 1 (i.e. 100%).
+
+    Arguments:
+        gens: table with records at the generator level and generator attributes
+            to be scaled by ownership, must have columns ``plant_id_eia``,
+            ``generator_id``, and ``report_date``
+        own_eia860: the ``ownership_eia860`` table
+        scale_cols: a list of columns in the generator table to slice by ownership
+            fraction
+        validate: how to validate merging the ownership table onto the
+            generators table
+    Returns:
+        Table of generator records with ``scale_cols`` sliced by ownership fraction
+        such that there is a "total" and "owned" record for each generator owner.
+        The "owned" records have the generator's data scaled to the ownership
+        percentage (e.g. if a 200 MW generator has a 75% stake owner and a 25%
+        stake owner, this will result in two "owned" records with 150 MW and 50 MW).
+        The "total" records correspond to the full plant for every owner (e.g. using
+        the same 2-owner 200 MW generator as above, each owner will have a
+        records with 200 MW).
+    """
+    # grab the ownership table, and reduce it to only the columns we need
+    own860 = own_eia860[
+        [
+            "plant_id_eia",
+            "generator_id",
+            "report_date",
+            "fraction_owned",
+            "owner_utility_id_eia",
+        ]
+    ].pipe(pudl.helpers.convert_cols_dtypes, "eia")
+    # we're left merging BC we've removed the retired gens, which are
+    # reported in the ownership table
+    gens = (
+        gens.merge(
+            own860,
+            how="left",
+            on=["plant_id_eia", "generator_id", "report_date"],
+            validate=validate,
+        )
+        .assign(  # assume gens that don't show up in the own table have one 100% owner
+            fraction_owned=lambda x: x.fraction_owned.fillna(value=1),
+            # assign the operator id as the owner if null bc if a gen isn't
+            # reported in the own_eia860 table we can assume the operator
+            # is the owner
+            owner_utility_id_eia=lambda x: x.owner_utility_id_eia.fillna(
+                x.utility_id_eia
+            ),
+            ownership_record_type="owned",
+        )  # swap in the owner as the utility
+        .drop(columns=["utility_id_eia"])
+        .rename(columns={"owner_utility_id_eia": "utility_id_eia"})
+    )
+
+    # duplicate all of these "owned" records, asign 1 to all of the
+    # fraction_owned column to indicate 100% ownership, and add these new
+    # "total" records to the "owned"
+    gens = pd.concat(
+        [
+            gens,
+            gens.copy().assign(fraction_owned=1, ownership_record_type="total"),
+        ]
+    )
+    gens.loc[:, scale_cols] = gens.loc[:, scale_cols].multiply(
+        gens["fraction_owned"], axis="index"
+    )
+    return gens
