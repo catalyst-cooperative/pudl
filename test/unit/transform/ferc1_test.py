@@ -434,7 +434,7 @@ table_b,fact_8,next_gen,futile
 """
         )
     )
-    out_st = (
+    out_trek = (
         make_calculation_dimensions_explicit(
             calculation_components=calc_comps_trek,
             table_dimensions_ferc1=table_dimensions_trek,
@@ -443,7 +443,7 @@ table_b,fact_8,next_gen,futile
         .sort_values(calc_comp_idx)
         .reset_index(drop=True)
     )
-    expected_st = pd.read_csv(
+    expected_trek = pd.read_csv(
         StringIO(
             """
 table_name,xbrl_factoid,table_name_calc,xbrl_factoid_calc,dim_x,dim_y
@@ -464,7 +464,7 @@ table_a,fact_2,table_b,fact_8,next_gen,futile
 """
         )
     )
-    pd.testing.assert_frame_equal(out_st, expected_st)
+    pd.testing.assert_frame_equal(out_trek, expected_trek)
     # swap the order of the dims to test whether the input order effects the result
     out_reordered = (
         make_calculation_dimensions_explicit(
@@ -475,4 +475,4 @@ table_a,fact_2,table_b,fact_8,next_gen,futile
         .sort_values(calc_comp_idx)
         .reset_index(drop=True)
     )
-    pd.testing.assert_frame_equal(out_st, out_reordered, check_like=True)
+    pd.testing.assert_frame_equal(out_trek, out_reordered, check_like=True)

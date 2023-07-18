@@ -2596,6 +2596,32 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
                         },
                     },
                 ],
+                "current_and_accrued_liabilities": [
+                    {
+                        "calc_component_to_replace": {
+                            "name": "long_term_portion_of_derivative_instrument_liabilities",
+                            "weight": 1.0,
+                            "source_tables": ["balance_sheet_liabilities_ferc1"],
+                        },
+                        "calc_component_new": {
+                            "name": "less_long_term_portion_of_derivative_instrument_liabilities",
+                            "weight": -1.0,
+                            "source_tables": ["balance_sheet_liabilities_ferc1"],
+                        },
+                    },
+                    {
+                        "calc_component_to_replace": {
+                            "name": "long_term_portion_of_derivative_instrument_liabilities_hedges",
+                            "weight": 1.0,
+                            "source_tables": ["balance_sheet_liabilities_ferc1"],
+                        },
+                        "calc_component_new": {
+                            "name": "less_long_term_portion_of_derivative_instrument_liabilities_hedges",
+                            "weight": -1.0,
+                            "source_tables": ["balance_sheet_liabilities_ferc1"],
+                        },
+                    },
+                ],
             },
             "retained_earnings_ferc1": {
                 "appropriated_retained_earnings_including_reserve_amortization": [
@@ -5410,13 +5436,56 @@ class BalanceSheetLiabilitiesFerc1TableTransformer(Ferc1AbstractTableTransformer
     table_id: TableIdFerc1 = TableIdFerc1.BALANCE_SHEET_LIABILITIES
     has_unique_record_ids: bool = False
 
+    @cache_df(key="main")
+    def transform_main(self: Self, df: pd.DataFrame) -> pd.DataFrame:
+        """Duplicate data that appears in multiple distinct calculations.
+
+        There is a one case in which exactly the same data values are referenced in
+        multiple calculations which can't be resolved by choosing one of the
+        referenced values as the canonical location for that data. In order to preserve
+        all of the calculation structure, we need to duplicate those records in the
+        data, the metadata, and the calculation specifications.  Here we duplicate the
+        data and associated it with newly defined facts, which we will also add to
+        the metadata and calculations.
+        """
+        df = super().transform_main(df)
+        facts_to_duplicate = [
+            "long_term_portion_of_derivative_instrument_liabilities",
+            "long_term_portion_of_derivative_instrument_liabilities_hedges",
+        ]
+        new_data = (
+            df[df.liability_type.isin(facts_to_duplicate)]
+            .copy()
+            .assign(liability_type=lambda x: "less_" + x.liability_type)
+        )
+
+        return pd.concat([df, new_data])
+
+    @cache_df(key="process_xbrl_metadata")
     def process_xbrl_metadata(self, xbrl_metadata_json) -> pd.DataFrame:
-        """Perform default xbrl metadata processing plus adding a new xbrl_factoid.
+        """Perform default xbrl metadata processing plus adding new xbrl_factoids.
+
+        We add two new factoids which are defined (by PUDL) only for the DBF data, and
+        also duplicate and redefine several factoids which are referenced in multiple
+        calculations and need to be distinguishable from each other.
 
         Note: we should probably parameterize this and add it into the standard
         :meth:`process_xbrl_metadata`.
         """
         tbl_meta = super().process_xbrl_metadata(xbrl_metadata_json)
+        facts_to_duplicate = [
+            "long_term_portion_of_derivative_instrument_liabilities",
+            "long_term_portion_of_derivative_instrument_liabilities_hedges",
+        ]
+        duplicated_facts = (
+            tbl_meta[tbl_meta.xbrl_factoid.isin(facts_to_duplicate)]
+            .copy()
+            .assign(
+                xbrl_factoid=lambda x: "less_" + x.xbrl_factoid,
+                xbrl_factoid_original=lambda x: "less_" + x.xbrl_factoid_original,
+                balance="credit",
+            )
+        )
         facts_to_add = {
             "xbrl_factoid": ["accumulated_deferred_income_taxes"],
             "calculations": ["[]"],
@@ -5428,7 +5497,7 @@ class BalanceSheetLiabilitiesFerc1TableTransformer(Ferc1AbstractTableTransformer
         }
 
         new_facts = pd.DataFrame(facts_to_add).convert_dtypes()
-        return pd.concat([tbl_meta, new_facts])
+        return pd.concat([tbl_meta, duplicated_facts, new_facts])
 
 
 class BalanceSheetAssetsFerc1TableTransformer(Ferc1AbstractTableTransformer):
@@ -6636,28 +6705,41 @@ def make_calculation_dimensions_explicit(
 ) -> pd.DataFrame:
     """Fill in null dimensions w/ the values observed in :func:`table_dimensions_ferc1`.
 
-    In the raw XBRL metadata's calculations, there is an implicit assumption that the
-    calculations are valid within a set of shared axises/primary key values. We have
-    mannually added some calculations which span multiple tables where the calculation
-    is only applicable within a subset of these axis/primary key columns. For example,
-    the :ref:`utility_plant_summary_ferc1` table includes many different
-    ``utility_types``, but factoids from that table are calculable from factoids in
-    the :ref:`plant_in_service_ferc1` table - which only includes the ``utilty_type`` of
-    ``electric``.
+    In the raw XBRL metadata's calculations, there is an implicit assumption that
+    calculated values are aggregated within categorical columns called Axes or
+    dimensions, in addition to being grouped by date, utility, table, and fact. The
+    dimensions and their values don't need to be specified explicitly in the calculation
+    components because the same calculation is assumed to apply in all cases.
 
-    This function fills in all of the non-specified dimensions with the values found in
-    :func:`table_dimensions_ferc1`. This is often a broadcast merge because many tables
-    contain many values within these dimension columns.
+    We have extended this calculation system to allow independent calculations to be
+    specified for different values within a given dimension. For example, the
+    :ref:`utility_plant_summary_ferc1` table contains records with a variety of
+    different ``utility_type`` values (gas, electric, etc.). For many combinations of
+    fact and ``utility_type``, no more detailed information about the soruce of the data
+    is available, but for some, and only in the case of electric utilities, much more
+    detail can be found in the :ref:`plant_in_service_ferc1` table. In order to use this
+    additional information when it is available, we sometimes explicitly specify
+    different calculations for different values of additional dimension columns.
 
-    Any dimension that was specified will not be touched. Any remaining nulls are a
-    result of never having observed values for that ``table_name`` and
-    ``xbrl_factoid``.
+    This function uses the observed associations between ``table_name``,
+    ``xbrl_factoid`` and the possible observed values in the other dimension columns
+    compiled by :func:`table_dimensions_ferc1` to fill in missing (previously implied)
+    dimension values in the calculation components table.
+
+    This is often a broadcast merge because many tables contain many values within these
+    dimension columns, so it is expected that new calculation component table will have
+    many more records than the input calculation components table.
+
+    Any dimension that was already specified in the calculation fixes will be left
+    unchanged. If no value of a particular dimension has ever been observed in
+    association with a given combination of ``table_name`` and ``xbrl_factoid`` it will
+    remain null.
 
     Args:
         calculation_components: a table of calculation component records which have had
             some manual calculation fixes applied.
-        table_dimensions_ferc1: table with all observed values of :func:`other_dimensions` for
-            each ``table_name`` and ``xbrl_factoid``
+        table_dimensions_ferc1: table with all observed values of
+            :func:`other_dimensions` for each ``table_name`` and ``xbrl_factoid``
         dimensions: list of dimension columns to check.
     """
     logger.info(f"Adding {dimensions=} into calculation component table.")
