@@ -1,6 +1,21 @@
 """Tests for the FERC Form 1 output functions.
 
 These need to be recreated to work with the new XbrlCalculationForest implementation.
+
+Stuff to test:
+- construction of basic tree from input metadata
+- do nodes not part of any calculation get orphaned?
+- do nodes not in the seeded digraph get pruned?
+- does it fail when we have a cycle in the graph?
+- does it identify stepparent nodes correctly?
+- does it identify stepchild nodes correctly?
+- pruning of passthrough nodes & associated corrections
+- propagation of weights
+- conflicting weights
+- propagation of tags
+- conflicting tags
+- validation of calculations using only leaf-nodes to reproduce root node values
+
 """
 
 import json
