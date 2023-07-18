@@ -3980,7 +3980,6 @@ TRANSFORM_PARAMS = {
             # Note: this table does not currently get exploded. It will require
             # additional debugging at a later date.
             "calculation_tolerance": 0.4,
-            "subtotal_column": "depreciation_type",
         },
     },
     "electric_plant_depreciation_functional_ferc1": {

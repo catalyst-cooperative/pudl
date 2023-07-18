@@ -14,6 +14,7 @@ from pudl.transform.ferc1 import (
     WideToTidy,
     drop_duplicate_rows_dbf,
     fill_dbf_to_xbrl_map,
+    make_calculation_dimensions_explicit,
     read_dbf_to_xbrl_map,
     unstack_balances_to_report_year_instant_xbrl,
     wide_to_tidy,
@@ -385,3 +386,89 @@ entity_id,report_year,sched_table_name,idx_ending_balance,idx_starting_balance,t
         unstack_balances_to_report_year_instant_xbrl(
             df_non_unique_years, params=params, primary_key_cols=pk_cols
         )
+
+
+def test_make_calculation_dimensions_explicit():
+    """Test :func:`make_calculation_dimensions_explicit`"""
+    calc_comp_idk = [
+        "table_name",
+        "xbrl_factoid",
+        "table_name_calc",
+        "xbrl_factoid_calc",
+    ]
+    calc_comps_st = pd.read_csv(
+        StringIO(
+            """
+table_name,xbrl_factoid,table_name_calc,xbrl_factoid_calc,dim_x,dim_y
+table_a,fact_1,table_a,fact_3,voyager,
+table_a,fact_1,table_a,fact_4,voyager,
+table_a,fact_2,table_b,fact_5,,futile
+table_a,fact_2,table_b,fact_6,,futile
+table_a,fact_2,table_b,fact_7,,
+"""
+        )
+    )
+    table_dimensions_st = pd.read_csv(
+        StringIO(
+            """
+table_name,xbrl_factoid,dim_x,dim_y
+table_a,fact_3,voyager,coffee
+table_a,fact_3,voyager,in
+table_a,fact_3,voyager,that
+table_a,fact_3,voyager,nebula
+table_a,fact_4,ds9,coffee
+table_a,fact_4,ds9,in
+table_a,fact_4,ds9,that
+table_a,fact_4,ds9,nebula
+table_b,fact_5,next_gen,resistance
+table_b,fact_5,next_gen,is
+table_b,fact_5,next_gen,futile
+table_b,fact_6,next_gen,resistance
+table_b,fact_6,next_gen,is
+table_b,fact_6,next_gen,futile
+table_b,fact_7,next_gen,resistance
+table_b,fact_7,next_gen,is
+table_b,fact_7,next_gen,futile
+"""
+        )
+    )
+    out_st = (
+        make_calculation_dimensions_explicit(
+            calculation_components=calc_comps_st, table_dimensions=table_dimensions_st
+        )
+        .sort_values(calc_comp_idk)
+        .reset_index(drop=True)
+    )
+    expected_st = pd.read_csv(
+        StringIO(
+            """
+table_name,xbrl_factoid,table_name_calc,xbrl_factoid_calc,dim_x,dim_y
+table_a,fact_1,table_a,fact_3,voyager,coffee
+table_a,fact_1,table_a,fact_3,voyager,in
+table_a,fact_1,table_a,fact_3,voyager,that
+table_a,fact_1,table_a,fact_3,voyager,nebula
+table_a,fact_1,table_a,fact_4,voyager,coffee
+table_a,fact_1,table_a,fact_4,voyager,in
+table_a,fact_1,table_a,fact_4,voyager,that
+table_a,fact_1,table_a,fact_4,voyager,nebula
+table_a,fact_2,table_b,fact_5,next_gen,futile
+table_a,fact_2,table_b,fact_6,next_gen,futile
+table_a,fact_2,table_b,fact_7,next_gen,resistance
+table_a,fact_2,table_b,fact_7,next_gen,is
+table_a,fact_2,table_b,fact_7,next_gen,futile
+"""
+        )
+    )
+    pd.testing.assert_frame_equal(out_st, expected_st)
+    # swap the order of the dims to test whether the input order effects the result
+    out_reordered = (
+        make_calculation_dimensions_explicit(
+            calculation_components=calc_comps_st,
+            table_dimensions=table_dimensions_st[
+                ["table_name", "xbrl_factoid", "dim_y", "dim_x"]
+            ],
+        )
+        .sort_values(calc_comp_idk)
+        .reset_index(drop=True)
+    )[list(out_st.columns)]
+    pd.testing.assert_frame_equal(out_st, out_reordered)
