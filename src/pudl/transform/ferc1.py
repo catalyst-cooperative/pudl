@@ -6707,21 +6707,19 @@ def make_calculation_dimensions_explicit(
 
     In the raw XBRL metadata's calculations, there is an implicit assumption that
     calculated values are aggregated within categorical columns called Axes or
-    dimensions, in addition to being grouped by date, utility, table, and fact. However,
-    the relevant dimensions and values are not specified in the calculation components,
-    and the same calculation is assumed to apply to all groups within a dimension.
+    dimensions, in addition to being grouped by date, utility, table, and fact. The
+    dimensions and their values don't need to be specified explicitly in the calculation
+    components because the same calculation is assumed to apply in all cases.
 
     We have extended this calculation system to allow independent calculations to be
-    specified for different values within a given dimension, and for these calculations
-    to include values reported in multiple tables.  For example, the
+    specified for different values within a given dimension. For example, the
     :ref:`utility_plant_summary_ferc1` table contains records with a variety of
     different ``utility_type`` values (gas, electric, etc.). For many combinations of
     fact and ``utility_type``, no more detailed information about the soruce of the data
     is available, but for some, and only in the case of electric utilities, much more
     detail can be found in the :ref:`plant_in_service_ferc1` table. In order to use this
-    additional information when it is available, we need to be able to explicitly
-    specify different calculations for different values of the additional dimension
-    columns like ``utility_type``.
+    additional information when it is available, we sometimes explicitly specify
+    different calculations for different values of additional dimension columns.
 
     This function compiles an association table containing all combinations of
     ``table_name``, ``xbrl_factoid``, and the additional dimension columns which have
