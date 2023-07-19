@@ -645,8 +645,8 @@ class PudlTabl:
             )
         return self._dfs["ferc1_eia"]
 
-    def epacamd_eia(self) -> pd.DataFrame:
+    def epacamd_eia_subplant_ids(self) -> pd.DataFrame:
         """Read the EPACAMD-EIA Crosswalk from the PUDL DB."""
-        return pd.read_sql("epacamd_eia", self.pudl_engine).pipe(
+        return pd.read_sql("epacamd_eia_subplant_ids", self.pudl_engine).pipe(
             apply_pudl_dtypes, group="glue"
         )
