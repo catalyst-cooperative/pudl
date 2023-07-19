@@ -3027,6 +3027,7 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
                 metadata.drop(columns=["calculations"]),
                 left_index=True,
                 right_index=True,
+                how="outer",
             )
             .dropna(subset=["xbrl_factoid_calc"])
             .reset_index(drop=True)
