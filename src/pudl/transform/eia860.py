@@ -161,6 +161,16 @@ def clean_ownership_eia860(raw_ownership_eia860: pd.DataFrame) -> pd.DataFrame:
     own_df["owner_country"] = own_df["owner_state"].map(state_to_country)
     own_df.loc[own_df.owner_state == "CN", "owner_state"] = pd.NA
 
+    # Spot fix NA generator_id. Might want to change this once we have the official 2022
+    # data not just early release.
+    constraints = (own_df["plant_id_eia"] == 62844) & (
+        own_df["report_date"].dt.year == 2022
+    )
+    if len(own_df[constraints]) > 1:
+        raise AssertionError("Too many records getting spot fixed.")
+
+    own_df.loc[constraints, "generator_id"] = "1"
+
     return own_df
 
 

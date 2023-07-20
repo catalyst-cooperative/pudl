@@ -69,7 +69,7 @@ CODE_METADATA: dict[str, dict[str, Any]] = {
             "V": "CO",
             "ts": "TS",
         },
-        "ignored_codes": [0, "OC", "T", "0"],
+        "ignored_codes": [0, "OC", "T", "0", "df"],
     },
     "boiler_types_eia": {
         "df": pd.DataFrame(
@@ -1564,6 +1564,7 @@ CODE_METADATA: dict[str, dict[str, Any]] = {
             "WT": "WND",
             "H2": "OG",
             "OOG": "OG",
+            "Sun": "SUN",
         },
         "ignored_codes": [
             0,

@@ -39,8 +39,8 @@ datasets:
     eia923:
       years: [2020, 2021]
     eia860:
-      years: [2020, 2021]
-      eia860m: true
+      years: [2021, 2022]
+      eia860m: false # true; change back when add eia860m
     eia861:
       # eia861 runs fast. Discontinued tables break single-year ETL.
       # This is a temporary hack to make the tests pass!

@@ -82,7 +82,7 @@ SOURCES: dict[str, Any] = {
             CONTRIBUTORS["alana-wilson"],
         ],
         "working_partitions": {
-            "years": sorted(set(range(2001, 2022))),
+            "years": sorted(set(range(2001, 2023))),
         },
         "keywords": sorted(
             set(
