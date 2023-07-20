@@ -24,7 +24,7 @@ dependencies = [
     "coloredlogs>=14.0,<15.1",  # Dagster requires 14.0
     "dagit>=1.2.2,<1.4",  # 1.2.2 is first version to support Python 3.11
     "dagster>=1.2.2,<1.4",  # 1.2.2 is first version to support Python 3.11
-    "dask>=2021.8,<2023.6.2",
+    "dask>=2021.8,<2023.7.1",
     "datapackage>=1.11,<1.16",  # Transition datastore to use frictionless.
     "fsspec>=2021.7,<2023.6.1",  # For caching datastore on GCS
     "gcsfs>=2021.7,<2023.6.1",  # For caching datastore on GCS
@@ -113,7 +113,7 @@ pudl_check_fks = "pudl.etl.check_foreign_keys:main"
 
 [project.optional-dependencies]
 dev = [
-    "black>=22.0,<23.4",
+    "black>=22.0,<23.8",
     "build>=0.10,<0.11",
     "ipdb>=0.13,<0.14",
     "isort>=5.0,<5.13",

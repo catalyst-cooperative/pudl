@@ -708,7 +708,20 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     "energy_source": {"type": "string"},
     "energy_source_code": {
         "type": "string",
-        "description": "The fuel code associated with the fuel receipt. Two or three character alphanumeric.",
+        "description": (
+            "A 2-3 letter code indicating the energy source (e.g. fuel type) "
+            "associated with the record."
+        ),
+    },
+    "energy_source_code_num": {
+        "type": "string",
+        "description": (
+            "Name of the energy_source_code_N column that this energy source code was "
+            "reported in for the generator referenced in the same record."
+        ),
+        "constraints": {
+            "enum": sorted({f"energy_source_code_{n}" for n in range(1, 9)})
+        },
     },
     "energy_source_1_transport_1": {
         "type": "string",
@@ -915,7 +928,7 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     },
     "fraction_owned": {
         "type": "number",
-        "description": "Proportion of generator ownership.",
+        "description": "Proportion of generator ownership attributable to this utility.",
     },
     "fuel_agg": {
         "type": "string",
