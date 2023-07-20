@@ -183,6 +183,10 @@ Data Coverage
     to SQLite, describing the finances of oil pipeline companies. When the nightly
     builds succeed, `FERC Form 6 will be available on Datasette <https://data.catalyst.coop/ferc6>`__
     as well.
+  * :pr:`2734` converts the earlier years of FERC Form 60 (2006-2020) from DBF to
+    SQLite. Form 60 is a comprehensive financial and operating report submitted for
+    centralized service companies. `FERC Form 60 will also be available on Datasette
+    <https://data.catalyst.coop/ferc6>`__.
 
 
 Data Cleaning
