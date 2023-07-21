@@ -166,10 +166,13 @@ def clean_ownership_eia860(raw_ownership_eia860: pd.DataFrame) -> pd.DataFrame:
     constraints = (own_df["plant_id_eia"] == 62844) & (
         own_df["report_date"].dt.year == 2022
     )
+
     if len(own_df[constraints]) > 1:
         raise AssertionError("Too many records getting spot fixed.")
-
-    own_df.loc[constraints, "generator_id"] = "1"
+    if own_df[constraints].generator_id.notna().all():
+        raise AssertionError("Generator ID filled in, you can remove this hack!")
+    else:
+        own_df.loc[constraints, "generator_id"] = "1"
 
     return own_df
 
