@@ -8,7 +8,6 @@ See :mod:`pudl.transform.params.ferc1` for the values that parameterize many of 
 transformations.
 """
 import enum
-import importlib.resources
 import json
 import re
 from collections import namedtuple
@@ -1190,7 +1189,8 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
 
     def __init__(
         self,
-        xbrl_metadata_json: dict[Literal["instant", "duration"], list[dict[str, Any]]],
+        xbrl_metadata_json: dict[Literal["instant", "duration"], list[dict[str, Any]]]
+        | None = None,
         params: TableTransformParams | None = None,
         cache_dfs: bool = False,
         clear_cached_dfs: bool = True,
@@ -1332,7 +1332,10 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
 
     @cache_df(key="process_xbrl_metadata")
     def process_xbrl_metadata(self: Self) -> pd.DataFrame:
-        """Process XBRL metadata after the calculations have been cleaned."""
+        """Process XBRL metadata after the calculations have been cleaned.
+
+        Add ``row_type_xbrl`` column and create ``xbrl_factoid`` records for the calculation corrections
+        """
         calc_comps = self.process_xbrl_metadata_calculations
         tbl_meta = self.pre_process_xbrl_metadata.drop(columns=["calculations"])
         # Flag metadata record types
@@ -1347,7 +1350,6 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
             .replace({True: "reported_value", False: "calculated_value"})
             .astype(pd.StringDtype())
         )
-        # tbl_meta.reset_index(inplace=True)
         # Create metadata records for the calculation correction factoids
         correction_meta = tbl_meta[tbl_meta.row_type_xbrl == "calculated_value"].assign(
             calculations="[]",
@@ -1509,26 +1511,39 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
             .set_index(calc_comp_idx)
             .sort_index()
         )
-
-        calc_comps = calc_components.set_index(calc_comp_idx).sort_index()
-
+        # this includes parent records that have no calc compenents so first we need to
+        # seperate the factoids that are parents w/o subcomponents
+        parent_only = (
+            calc_components[calc_components.xbrl_factoid_calc.isnull()]
+            .set_index(calc_comp_idx)
+            .sort_index()
+        )
+        calc_comp_w_children = (
+            calc_components[calc_components.xbrl_factoid_calc.notnull()]
+            .set_index(calc_comp_idx)
+            .sort_index()
+        )
         # find the lines that only show up in the fixes that need to be added
-        add_me = calc_fixes.loc[calc_fixes.index.difference(calc_comps.index)]
-
-        replace_me = calc_fixes.loc[calc_fixes.index.intersection(calc_comps.index)]
-        replace_me = replace_me[~(replace_me.isnull()).all(axis=1)]
-
+        add_me = calc_fixes.loc[calc_fixes.index.difference(calc_comp_w_children.index)]
+        # find the records that show up in both sets with calc component data
+        replace_me = calc_fixes.loc[
+            calc_fixes.index.intersection(calc_comp_w_children.index)
+        ][~(calc_fixes.isnull()).all(axis=1)]
         delete_me = calc_fixes[(calc_fixes.isnull()).all(axis=1)]
+        logger.info(
+            f"{self.table_id.value}: Adding {len(add_me)}, replacing {len(replace_me)} "
+            f"and deleting {len(delete_me)} calculation components."
+        )
         # all of the delete me's should actually be present in the calc comps
-        assert delete_me.index.difference(calc_comps.index).empty
-
-        calc_comps = calc_comps.loc[calc_comps.index.difference(delete_me.index)]
-        calc_comps.loc[replace_me.index, list(replace_me.columns)] = replace_me[
-            list(replace_me.columns)
+        assert delete_me.index.difference(calc_comp_w_children.index).empty
+        calc_comp_w_children = calc_comp_w_children.loc[
+            calc_comp_w_children.index.difference(delete_me.index)
         ]
-        calc_comps = pd.concat([calc_comps, add_me])
-
-        return calc_comps.reset_index()
+        calc_comp_w_children.loc[
+            replace_me.index, list(replace_me.columns)
+        ] = replace_me[list(replace_me.columns)]
+        calc_comps_cleaned = pd.concat([calc_comp_w_children, add_me, parent_only])
+        return calc_comps_cleaned
 
     @property
     def process_xbrl_metadata_calculations(
