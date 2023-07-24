@@ -3019,18 +3019,24 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
             .explode("source_tables")
             .rename(
                 columns={
-                    "name": "xbrl_factoid_calc",
-                    "source_tables": "table_name_calc",
+                    "xbrl_factoid": "xbrl_factoid_parent",
+                    "name": "xbrl_factoid",
+                    "source_tables": "table_name",
                 }
             )
             .merge(
-                metadata.drop(columns=["calculations"]),
+                metadata.drop(columns=["calculations"]).rename(
+                    columns={
+                        "xbrl_factoid": "xbrl_factoid_parent",
+                    }
+                ),
                 left_index=True,
                 right_index=True,
                 how="outer",
             )
-            .dropna(subset=["xbrl_factoid_calc"])
+            .dropna(subset=["xbrl_factoid"])
             .reset_index(drop=True)
+            .assign(table_name_parent=self.table_id.value)
         )
         return calc_comps
 
@@ -6684,17 +6690,18 @@ def calculation_components_xbrl_ferc1(**kwargs):
     # compile all of the calc comp tables.
     calc_metas = []
     for table_name, transformer in FERC1_TFR_CLASSES.items():
-        calc_meta = (
-            transformer(xbrl_metadata_json=clean_xbrl_metadata_json[table_name])
-            .process_xbrl_metadata_calculations()
-            .assign(table_name=table_name)
-        )
+        calc_meta = transformer(
+            xbrl_metadata_json=clean_xbrl_metadata_json[table_name]
+        ).process_xbrl_metadata_calculations()
         calc_metas.append(calc_meta)
     # squish all of the calc comp tables then add in the implicit table dimensions
     calc_components = pd.concat(calc_metas).pipe(
         make_calculation_dimensions_explicit,
         table_dimensions_ferc1,
         dimensions=other_dimensions(),
+    )
+    calc_components = add_parent_dimensions(
+        calc_components, dimensions=other_dimensions()
     )
     return calc_components
 
@@ -6745,27 +6752,21 @@ def make_calculation_dimensions_explicit(
     """
     logger.info(f"Adding {dimensions=} into calculation component table.")
     calc_comps_w_dims = calculation_components.copy()
+    on_cols = ["table_name", "xbrl_factoid"]
     # for each dimension, use split/apply/combine. when there are no dims explict in
     # the calc components, merge in all of the dims.
     for dim_col in dimensions:
         # extract the unique observed instances of this one dimension column & add the
         # _calc suffix so we can merge onto the calculation components.
-        observed_dim = (
-            table_dimensions_ferc1[["table_name", "xbrl_factoid", dim_col]]
-            .drop_duplicates()  # bc there are dupes after we removed the other dim cols
-            .rename(
-                columns={
-                    "xbrl_factoid": "xbrl_factoid_calc",
-                    "table_name": "table_name_calc",
-                }
-            )
-        )
+        observed_dim = table_dimensions_ferc1[
+            on_cols + [dim_col]
+        ].drop_duplicates()  # bc there are dupes after we removed the other dim cols
         null_dim_mask = calc_comps_w_dims[dim_col].isnull()
         null_dim = calc_comps_w_dims[null_dim_mask].drop(columns=[dim_col])
         calc_comps_w_implied_dims = pd.merge(
             null_dim,
             observed_dim,
-            on=["table_name_calc", "xbrl_factoid_calc"],
+            on=on_cols,
             how="left",
         )
         calc_comps_w_explicit_dims = calc_comps_w_dims[~null_dim_mask]
@@ -6773,3 +6774,58 @@ def make_calculation_dimensions_explicit(
             [calc_comps_w_implied_dims, calc_comps_w_explicit_dims]
         )
     return calc_comps_w_dims
+
+
+def add_parent_dimensions(calc_comps, dimensions):
+    """Add in the dimensions of the parents in the calculation components.
+
+    First, we treat the totals in these dimension columns by assuming that any total we
+    observe is the sum of all non-total dimensions. We implement this by creating new
+    calculation component records which have a parent of dimension total and calculation
+    components of the non-total dimensinos.
+
+    Then, we assume that every parent factoid should have the same dimensions as its
+    calculation component dimensions.
+
+    Args:
+        calc_comps: a table of calculation component records which have had some manual
+            calculation fixes applied.
+        dimensions: list of dimension columns to check.
+    """
+    calc_comp_idx = [
+        "table_name_parent",
+        "xbrl_factoid_parent",
+        "table_name",
+        "xbrl_factoid",
+    ]
+    # for each dimension col, add a _parent column while
+    for dim in dimensions:
+        total_mask = calc_comps[dim] == "total"
+        total_w_subdim_components = (
+            pd.merge(
+                # the totals will become the parent record
+                calc_comps.loc[total_mask, calc_comp_idx + dimensions],
+                # the sub-components will become the calc component records
+                calc_comps[~total_mask],
+                on=calc_comp_idx,
+                how="left",
+                validate="1:m",
+                suffixes=("_parent", ""),
+            )
+            # these new total -> sub-dimension records should have the same
+            # parent and component fact/table so overwrite the og
+            .assign(
+                table_name_parent=lambda x: x.table_name,
+                xbrl_factoid_parent=lambda x: x.xbrl_factoid,
+            )
+            # drop the other non-total parent dim cols (they will be merged back on later)
+            .drop(columns=[f"{d}_parent" for d in dimensions if d != dim])
+        )
+        calc_comps = pd.concat([calc_comps, total_w_subdim_components])
+        # we shouldn't be adding any duplicates in this process!
+        # now fill in everything with the non-totals
+        calc_comps = calc_comps.assign(
+            **{f"{dim}_parent": lambda x: x[f"{dim}_parent"].fillna(x[dim])}
+        )
+        assert calc_comps[calc_comps.duplicated()].empty
+    return calc_comps
