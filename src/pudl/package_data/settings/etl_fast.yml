@@ -37,7 +37,7 @@ datasets:
     years: [2019, 2020]
   eia:
     eia923:
-      years: [2020, 2021]
+      years: [2021, 2022]
     eia860:
       years: [2021, 2022]
       eia860m: false # true; change back when add eia860m

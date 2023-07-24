@@ -1565,6 +1565,7 @@ CODE_METADATA: dict[str, dict[str, Any]] = {
             "H2": "OG",
             "OOG": "OG",
             "Sun": "SUN",
+            "sub": "SUB",
         },
         "ignored_codes": [
             0,
