@@ -20,7 +20,7 @@ dependencies = [
     "addfips>=0.4,<0.5",
     "alembic>=1.10.3,<1.12",
     "catalystcoop.dbfread>=3.0,<3.1",
-    "catalystcoop.ferc-xbrl-extractor==0.8.3",
+    "catalystcoop.ferc-xbrl-extractor==0.8.4",
     "coloredlogs>=14.0,<15.1",  # Dagster requires 14.0
     "dagit>=1.2.2,<1.4",  # 1.2.2 is first version to support Python 3.11
     "dagster>=1.2.2,<1.4",  # 1.2.2 is first version to support Python 3.11
