@@ -276,7 +276,7 @@ Deprecations
 * ``pudl.transform.ferc1.transform()`` has been removed. The ferc1 table
     transformations are now being orchestrated with Dagster.
 * ``pudl.transform.ferc1.transform`` can no longer be executed as a script.
-  Use dagit to execute just the FERC Form 1 pipeline.
+  Use dagster-webserver to execute just the FERC Form 1 pipeline.
 * ``pudl.extract.ferc1.extract_dbf``, ``pudl.extract.ferc1.extract_xbrl``
   ``pudl.extract.ferc1.extract_xbrl_single``,
   ``pudl.extract.ferc1.extract_dbf_single``,
