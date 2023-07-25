@@ -328,6 +328,8 @@ def merge_xbrl_metadata(
     df: pd.DataFrame, xbrl_metadata: pd.DataFrame, params: MergeXbrlMetadata
 ) -> pd.DataFrame:
     """Merge metadata based on params."""
+    logger.info(df.columns)
+    logger.info(xbrl_metadata.columns)
     return pd.merge(
         df,
         xbrl_metadata.rename(columns=params.rename_columns),
@@ -771,14 +773,26 @@ def reconcile_table_calculations(
         return df
     intra_tbl_calcs = calculation_components[
         calculation_components.intra_table_calc_flag
-        & calculation_components.xbrl_factoid_calc.notnull()
+        & calculation_components.xbrl_factoid.notnull()
     ]
+    calc_idx = [c for c in ["xbrl_factoid", params.subtotal_column] if c]
+    table_dims = (
+        df.rename(columns={xbrl_factoid_name: "xbrl_factoid"})[calc_idx]
+        .assign(table_name=table_name)
+        .drop_duplicates(keep="first")
+    )
+    if params.subtotal_column:
+        intra_tbl_calcs = make_calculation_dimensions_explicit(
+            intra_tbl_calcs,
+            table_dimensions_ferc1=table_dims,
+            dimensions=[params.subtotal_column],
+        )
     pks = pudl.metadata.classes.Resource.from_id(table_name).schema.primary_key
     calculated_df = calculate_values_from_components(
         data=df.rename(columns={xbrl_factoid_name: "xbrl_factoid"}),
         calculation_components=intra_tbl_calcs,
         validate="one_to_many",
-        on=["xbrl_factoid_calc"],
+        on=calc_idx,
         by=[p for p in pks if p != xbrl_factoid_name] + ["xbrl_factoid"],
         value_col=params.column_to_check,
     ).rename(columns={"xbrl_factoid": xbrl_factoid_name})
@@ -878,24 +892,28 @@ def calculate_values_from_components(
     # components table. After merging we use the weights to adjust the reported
     # values so they can be summed directly. This gives us aggregated calculated
     # values that can later be compared to the higher level reported values.
+
+    # we are going to merge the data onto the calc components with the _parent
+    # column names, so the groupby after the merge needs a set of by cols with the
+    # _parent suffix
+    gby_parent = [
+        f"{col}_parent" if col in ["table_name", "xbrl_factoid"] else col for col in by
+    ]
     calc_df = (
         pd.merge(
             calculation_components,
-            data.rename(
-                columns={
-                    "table_name": "table_name_calc",
-                    "xbrl_factoid": "xbrl_factoid_calc",
-                }
-            ),
+            data,
             validate=validate,
             on=on,
         )
         # apply the weight from the calc to convey the sign before summing.
         .assign(calculated_amount=lambda x: x[value_col] * x.weight)
-        .groupby(by, as_index=False, dropna=False)[["calculated_amount"]]
+        .groupby(gby_parent, as_index=False, dropna=False)[["calculated_amount"]]
         .sum(min_count=1)
     )
-
+    # remove the _parent suffix so we can merge these calculated values back onto
+    # the data using the original pks
+    calc_df.columns = calc_df.columns.str.removesuffix("_parent")
     calculated_df = pd.merge(
         data,
         calc_df,
@@ -1337,12 +1355,14 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
         Add ``row_type_xbrl`` column and create ``xbrl_factoid`` records for the calculation corrections
         """
         calc_comps = self.process_xbrl_metadata_calculations
-        tbl_meta = self.pre_process_xbrl_metadata.drop(columns=["calculations"])
+        tbl_meta = self.pre_process_xbrl_metadata.drop(
+            columns=["calculations"]
+        ).set_index(["xbrl_factoid"])
         # Flag metadata record types
         tbl_meta.loc[:, "row_type_xbrl"] = (
             (
-                calc_comps.groupby(["xbrl_factoid"])[
-                    ["table_name_calc", "xbrl_factoid_calc"]
+                calc_comps.groupby(["xbrl_factoid_parent"])[
+                    ["table_name", "xbrl_factoid"]
                 ].count()
                 == 0
             )
@@ -1350,6 +1370,19 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
             .replace({True: "reported_value", False: "calculated_value"})
             .astype(pd.StringDtype())
         )
+        tbl_meta.loc[:, "intra_table_calc_flag"] = (
+            # make a temp bool col to check if all the componets are intra table
+            # should the non-calc guys get a null or a true here? rn its true bc fillna
+            calc_comps.assign(
+                intra_table_calc_comp_flag=lambda x: (
+                    self.table_id.value == x.table_name.fillna(self.table_id.value)
+                )
+            )
+            .groupby(["xbrl_factoid_parent"])["intra_table_calc_comp_flag"]
+            .all()
+            .astype(pd.BooleanDtype())
+        )
+        tbl_meta = tbl_meta.reset_index()
         # Create metadata records for the calculation correction factoids
         correction_meta = tbl_meta[tbl_meta.row_type_xbrl == "calculated_value"].assign(
             calculations="[]",
@@ -1475,30 +1508,34 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
             return calc_components
 
         # split the calcs from non-calcs/make corrections/append
-        calcs = calc_components[calc_components.xbrl_factoid_calc.notnull()]
+        logger.info(list(calc_components.columns))
+        calcs = calc_components[calc_components.xbrl_factoid.notnull()]
         corrections = (
-            calcs[["table_name", "xbrl_factoid"]]
+            calcs[["table_name_parent", "xbrl_factoid_parent"]]
             .drop_duplicates()
             .assign(
-                table_name_calc=lambda t: t.table_name,
-                xbrl_factoid_calc=lambda x: x.xbrl_factoid + "_correction",
+                table_name=lambda t: t.table_name_parent,
+                xbrl_factoid=lambda x: x.xbrl_factoid_parent + "_correction",
                 weight=1,
             )
         )
         return pd.concat([calc_components, corrections])
 
-    @staticmethod
-    def get_xbrl_calculation_fixes() -> pd.DataFrame:
+    def get_xbrl_calculation_fixes(self: Self) -> pd.DataFrame:
         """Grab the XBRL calculation file."""
         source = files(pudl.package_data.ferc1).joinpath(
             "xbrl_calculation_component_fixes.csv"
         )
         with as_file(source) as file:
             calc_fixes = pd.read_csv(file)
+
+        # grab the fixes from this table only!
+        calc_fixes = calc_fixes[calc_fixes.table_name_parent == self.table_id.value]
         return calc_fixes
 
+    @staticmethod
     def apply_xbrl_calculation_fixes(
-        self: Self, calc_components: pd.DataFrame, calc_fixes: pd.DataFrame
+        calc_components: pd.DataFrame, calc_fixes: pd.DataFrame
     ) -> pd.DataFrame:
         """Use the fixes we've compiled to update calculations in the XBRL metadata.
 
@@ -1506,50 +1543,46 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
         and integrated into the calculations via TableCalcs.
         """
         calc_comp_idx = [
+            "table_name_parent",
+            "xbrl_factoid_parent",
             "table_name",
             "xbrl_factoid",
-            "table_name_calc",
-            "xbrl_factoid_calc",
+        ]
+        calc_fixes = calc_fixes.set_index(calc_comp_idx).sort_index()
+        calc_components = calc_components.set_index(calc_comp_idx).sort_index()
+        # find the fixes that need to be replaced. We id them
+        # by finding the fixes that share indexes with the calc components
+        # Note: we can't just dropna after adding the replacements instead
+        # of while finding the replacements because we have included all
+        # factoids in the calculation component table as parent factoids
+        # even if there are no/null calculation components.
+        replace_me = calc_fixes.loc[
+            calc_fixes.index.intersection(calc_components.index)
+        ].dropna(how="all")
+        logger.info(f"Replacing {len(replace_me)}")
+        calc_components.loc[replace_me.index, list(replace_me.columns)] = replace_me
+
+        # find the lines that only show up in the fixes that need to be added
+        add_me = calc_fixes.loc[calc_fixes.index.difference(calc_components.index)]
+        logger.info(f"Adding {len(add_me)}")
+        calc_components = pd.concat([calc_components, add_me])
+
+        # find the "null" fixes which coorespond to records which
+        # need to be deleted.
+        delete_me = calc_fixes[calc_fixes.isnull().all(axis=1)]
+        logger.info(f"Deleting {len(delete_me)}")
+        calc_components = calc_components.loc[
+            calc_components.index.difference(delete_me.index)
         ]
 
-        calc_fixes = (
-            calc_fixes[calc_fixes.table_name == self.table_id.value]
-            .set_index(calc_comp_idx)
-            .sort_index()
-        )
-        # this includes parent records that have no calc compenents so first we need to
-        # seperate the factoids that are parents w/o subcomponents
-        parent_only = (
-            calc_components[calc_components.xbrl_factoid_calc.isnull()]
-            .set_index(calc_comp_idx)
-            .sort_index()
-        )
-        calc_comp_w_children = (
-            calc_components[calc_components.xbrl_factoid_calc.notnull()]
-            .set_index(calc_comp_idx)
-            .sort_index()
-        )
-        # find the lines that only show up in the fixes that need to be added
-        add_me = calc_fixes.loc[calc_fixes.index.difference(calc_comp_w_children.index)]
-        # find the records that show up in both sets with calc component data
-        replace_me = calc_fixes.loc[
-            calc_fixes.index.intersection(calc_comp_w_children.index)
-        ][~(calc_fixes.isnull()).all(axis=1)]
-        delete_me = calc_fixes[(calc_fixes.isnull()).all(axis=1)]
-        logger.info(
-            f"{self.table_id.value}: Adding {len(add_me)}, replacing {len(replace_me)} "
-            f"and deleting {len(delete_me)} calculation components."
-        )
-        # all of the delete me's should actually be present in the calc comps
-        assert delete_me.index.difference(calc_comp_w_children.index).empty
-        calc_comp_w_children = calc_comp_w_children.loc[
-            calc_comp_w_children.index.difference(delete_me.index)
-        ]
-        calc_comp_w_children.loc[
-            replace_me.index, list(replace_me.columns)
-        ] = replace_me[list(replace_me.columns)]
-        calc_comps_cleaned = pd.concat([calc_comp_w_children, add_me, parent_only])
-        return calc_comps_cleaned
+        len_fixes_applied = len(replace_me) + len(add_me) + len(delete_me)
+        if len(calc_fixes) != len_fixes_applied:
+            raise AssertionError(
+                f"We've applied {len_fixes_applied} calculation fixes while we started "
+                f"with {len(calc_fixes)}. Length of applied and orignal fixes should be"
+                " the same."
+            )
+        return calc_components.reset_index()
 
     @property
     def process_xbrl_metadata_calculations(
@@ -1557,19 +1590,18 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
     ) -> pd.DataFrame:
         """Convert xbrl metadata calculations into a table of calculation components."""
         metadata = self.pre_process_xbrl_metadata
-        if all(metadata.calculations == "[]"):
-            logger.info(f"{self.table_id.value}: No calculations.")
-            return pd.DataFrame()
-
         metadata.calculations = metadata.calculations.apply(json.loads)
         # reset the index post calc explosion so we can merge on index later
         metadata = metadata.explode("calculations").reset_index(drop=True)
+        if all(metadata.calculations.isnull()):
+            calc_comps = pd.DataFrame(columns=["name", "source_tables"])
+        else:
+            calc_comps = pd.json_normalize(metadata.calculations)
+
         calc_comps = (
-            pd.json_normalize(metadata.calculations)
-            .explode("source_tables")
+            calc_comps.explode("source_tables")
             .rename(
                 columns={
-                    "xbrl_factoid": "xbrl_factoid_parent",
                     "name": "xbrl_factoid",
                     "source_tables": "table_name",
                 }
@@ -1599,7 +1631,6 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
             )
             .pipe(self.remove_duplicated_calculation_components)
             .pipe(self.add_calculation_correction_components)
-            .reset_index()
         )
         # this is really a xbrl_factoid-level flag, but we need it while using this
         # calc components.
@@ -1608,10 +1639,12 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
             # should the non-calc guys get a null or a true here? rn its true bc fillna
             calc_comps.assign(
                 intra_table_calc_comp_flag=lambda x: (
-                    self.table_id.value == x.table_name_calc.fillna(self.table_id.value)
+                    self.table_id.value == x.table_name.fillna(self.table_id.value)
                 )
             )
-            .groupby(["table_name", "xbrl_factoid"])["intra_table_calc_comp_flag"]
+            .groupby(["table_name_parent", "xbrl_factoid_parent"])[
+                "intra_table_calc_comp_flag"
+            ]
             .transform("all")
             .astype(pd.BooleanDtype())
         )
@@ -4613,7 +4646,7 @@ class DepreciationAmortizationSummaryFerc1TableTransformer(
     def transform_main(self, df):
         """After standard transform_main, assign utility type as electric."""
         df = super().transform_main(df).assign(utility_type="electric")
-        df["plant_function"] = df["plant_function"].replace("total", "electric")
+        # df["plant_function"] = df["plant_function"].replace("total", "electric")
         return df
 
 
@@ -4643,7 +4676,7 @@ class ElectricPlantDepreciationChangesFerc1TableTransformer(
         """
         new_xbrl_metadata_json = self.xbrl_metadata_json
         # Get instant metadata
-        instant = pd.json_normalize(self.xbrl_metadata_json["instant"])
+        instant = pd.json_normalize(new_xbrl_metadata_json["instant"])
         # Duplicate instant metadata, and add starting/ending suffix
         instant = pd.concat([instant] * 2).reset_index(drop=True)
         instant["name"] = instant["name"] + ["_starting_balance", "_ending_balance"]
@@ -5295,7 +5328,7 @@ def calculation_components_xbrl_ferc1(**kwargs):
     for table_name, transformer in FERC1_TFR_CLASSES.items():
         calc_meta = transformer(
             xbrl_metadata_json=clean_xbrl_metadata_json[table_name]
-        ).process_xbrl_metadata_calculations()
+        ).process_xbrl_metadata_calculations
         calc_metas.append(calc_meta)
     # squish all of the calc comp tables then add in the implicit table dimensions
     calc_components = pd.concat(calc_metas).pipe(

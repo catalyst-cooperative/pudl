@@ -389,6 +389,44 @@ entity_id,report_year,sched_table_name,idx_ending_balance,idx_starting_balance,t
         )
 
 
+def test_apply_xbrl_calculation_fixes():
+    """Test :meth:`Ferc1AbstractTableTransformer.apply_xbrl_calculation_fixes`."""
+    calc_comps_fix_test = pd.read_csv(
+        StringIO(
+            """
+table_name_parent,xbrl_factoid_parent,table_name,xbrl_factoid,weight
+table_a,fact_1,table_a,replace_me,-1
+table_a,fact_1,table_a,keep_me,1
+table_a,fact_1,table_a,delete_me,1
+"""
+        )
+    )
+
+    calc_fixes_test = pd.read_csv(
+        StringIO(
+            """
+table_name_parent,xbrl_factoid_parent,table_name,xbrl_factoid,weight
+table_a,fact_1,table_a,replace_me,1
+table_a,fact_1,table_a,delete_me,
+"""
+        )
+    )
+
+    calc_comps_fixed_expected = pd.read_csv(
+        StringIO(
+            """
+table_name_parent,xbrl_factoid_parent,table_name,xbrl_factoid,weight
+table_a,fact_1,table_a,keep_me,1.0
+table_a,fact_1,table_a,replace_me,1.0
+"""
+        )
+    )
+    calc_comps_fixed_out = Ferc1AbstractTableTransformer.apply_xbrl_calculation_fixes(
+        calc_components=calc_comps_fix_test, calc_fixes=calc_fixes_test
+    )
+    pd.testing.assert_frame_equal(calc_comps_fixed_expected, calc_comps_fixed_out)
+
+
 def test_make_calculation_dimensions_explicit():
     """Test :func:`make_calculation_dimensions_explicit`"""
     calc_comp_idx = [
