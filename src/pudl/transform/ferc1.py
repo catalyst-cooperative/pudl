@@ -1422,7 +1422,7 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
         self,
         col_name_xbrl: str,
     ) -> str:
-        """Rename a column name from orignal XBRL name to the transformed PUDL name.
+        """Rename a column name from original XBRL name to the transformed PUDL name.
 
         There are several transform params that either explicitly or implicity rename
         columns:
@@ -1583,8 +1583,8 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
         if len(calc_fixes) != len_fixes_applied:
             raise AssertionError(
                 f"We've applied {len_fixes_applied} calculation fixes while we started "
-                f"with {len(calc_fixes)}. Length of applied and orignal fixes should be"
-                " the same."
+                f"with {len(calc_fixes)}. Length of applied and original fixes should "
+                "be the same."
             )
         return calc_components.reset_index()
 
