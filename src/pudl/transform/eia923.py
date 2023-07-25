@@ -624,21 +624,12 @@ def clean_generation_fuel_eia923(raw_generation_fuel_eia923: pd.DataFrame):
 
     # Drop fields we're not inserting into the generation_fuel_eia923 table.
     cols_to_drop = [
-        "combined_heat_power",
-        "plant_name_eia",
-        "operator_name",
-        "operator_id",
-        "plant_state",
-        "census_region",
-        "nerc_region",
-        "naics_code",
         "fuel_unit",
         "total_fuel_consumption_quantity",
         "electric_fuel_consumption_quantity",
         "total_fuel_consumption_mmbtu",
         "elec_fuel_consumption_mmbtu",
         "net_generation_megawatthours",
-        "early_release",
     ]
     gen_fuel.drop(cols_to_drop, axis=1, inplace=True)
 
@@ -770,7 +761,15 @@ def _aggregate_duplicate_boiler_fuel_keys(boiler_fuel_df: pd.DataFrame) -> pd.Da
         quantity_cols
         + relative_cols
         + key_cols
-        + ["prime_mover_code", "sector_id_eia", "sector_name_eia"]
+        + [
+            "prime_mover_code",
+            "sector_id_eia",
+            "sector_name_eia",
+            "total_fuel_consumption_quantity",
+            "balancing_authority_code_eia",
+            "early_release",
+            "reporting_frequency_code",
+        ]
     )
     actual_cols = set(boiler_fuel_df.columns)
     difference = actual_cols.symmetric_difference(expected_cols)
@@ -836,19 +835,7 @@ def clean_boiler_fuel_eia923(raw_boiler_fuel_eia923: pd.DataFrame) -> pd.DataFra
     # Need to stop dropping fields that contain harvestable entity attributes.
     # See https://github.com/catalyst-cooperative/pudl/issues/509
     cols_to_drop = [
-        "combined_heat_power",
-        "plant_name_eia",
-        "operator_name",
-        "operator_id",
-        "plant_state",
-        "census_region",
-        "nerc_region",
-        "naics_code",
         "fuel_unit",
-        "total_fuel_consumption_quantity",
-        "balancing_authority_code_eia",
-        "early_release",
-        "reporting_frequency_code",
         "data_maturity",
     ]
     bf_df.drop(cols_to_drop, axis=1, inplace=True)
@@ -953,21 +940,6 @@ def clean_generation_eia923(raw_generator_eia923: pd.DataFrame) -> pd.DataFrame:
     """
     gen_df = (
         raw_generator_eia923.dropna(subset=["generator_id"])
-        .drop(
-            [
-                "combined_heat_power",
-                "plant_name_eia",
-                "operator_name",
-                "operator_id",
-                "plant_state",
-                "census_region",
-                "nerc_region",
-                "naics_code",
-                "net_generation_mwh_year_to_date",
-                "early_release",
-            ],
-            axis="columns",
-        )
         .pipe(_yearly_to_monthly_records)
         .pipe(pudl.helpers.fix_eia_na)
         .pipe(pudl.helpers.convert_to_date)
@@ -1107,10 +1079,6 @@ def clean_fuel_receipts_costs_eia923(
     # Drop fields we're not inserting into the fuel_receipts_costs_eia923
     # table.
     cols_to_drop = [
-        "plant_name_eia",
-        "plant_state",
-        "operator_name",
-        "operator_id",
         "mine_id_msha",
         "mine_type_code",
         "state",
@@ -1118,7 +1086,6 @@ def clean_fuel_receipts_costs_eia923(
         "state_id_fips",
         "mine_name",
         "regulated",
-        "early_release",
     ]
 
     cmi_df = (
