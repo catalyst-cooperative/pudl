@@ -1049,15 +1049,17 @@ class MetadataExploder:
         tables in this explosion.
         """
         calc_explode = self.calculation_components_xbrl_ferc1
-        calc_explode = calc_explode[calc_explode.table_name.isin(self.table_names)]
+        calc_explode = calc_explode[
+            calc_explode.table_name_parent.isin(self.table_names)
+        ]
         not_in_explosion_xbrl_factoids = list(
             calc_explode.loc[
-                ~calc_explode.table_name_calc.isin(self.table_names),
-                "xbrl_factoid",
+                ~calc_explode.table_name.isin(self.table_names),
+                "xbrl_factoid_parent",
             ].unique()
         )
         calc_explode = calc_explode[
-            ~calc_explode.xbrl_factoid.isin(not_in_explosion_xbrl_factoids)
+            ~calc_explode.xbrl_factoid_parent.isin(not_in_explosion_xbrl_factoids)
         ].copy()
         return calc_explode
 
@@ -1099,9 +1101,7 @@ class MetadataExploder:
         # At this point all remaining calculation components should exist within the
         # exploded metadata.
         calc_comps = self.calculations
-        calc_comps_index = calc_comps.set_index(
-            ["table_name_calc", "xbrl_factoid_calc"]
-        ).index
+        calc_comps_index = calc_comps.set_index(["table_name", "xbrl_factoid"]).index
         meta_index = exploded_metadata.set_index(["table_name", "xbrl_factoid"]).index
         nodes_not_in_calculations = [
             x
@@ -1137,12 +1137,14 @@ class MetadataExploder:
         embedded calculations.
         """
         calc_explode = self.calculation_components_xbrl_ferc1
-        calc_explode = calc_explode[calc_explode.table_name.isin(self.table_names)]
+        calc_explode = calc_explode[
+            calc_explode.table_name_parent.isin(self.table_names)
+        ]
 
         not_in_explosion_xbrl_factoids = list(
             calc_explode.loc[
-                ~calc_explode.table_name_calc.isin(self.table_names),
-                "xbrl_factoid",
+                ~calc_explode.table_name.isin(self.table_names),
+                "xbrl_factoid_parent",
             ].unique()
         )
         meta_explode.loc[
@@ -1379,10 +1381,7 @@ class Exploder:
                 f"{list(calculations_intertable.xbrl_factoid.unique())}."
             )
         # compile the lists of columns we are going to use later
-        calc_component_idx = [
-            "table_name_calc",
-            "xbrl_factoid_calc",
-        ] + self.other_dimensions
+        calc_component_idx = ["table_name", "xbrl_factoid"] + self.other_dimensions
         # Merge the reported data and the calculation component metadata to enable
         # validation of calculated values. Here the data table exploded is supplying the
         # values associated with individual calculation components, and the table_name
@@ -1391,7 +1390,7 @@ class Exploder:
         # values so they can be summed directly. This gives us aggregated calculated
         # values that can later be compared to the higher level reported values.
 
-        # the validation is one_many in all instances expect for the xbrl_factoid_calc
+        # the validation is one_many in all instances expect for the xbrl_factoid
         # construction_work_in_progress in the balance_sheet_assets_ferc1 explosion.
         # this may be a problem in the calculations that we should track down in #2717
         validate = (
@@ -1399,27 +1398,28 @@ class Exploder:
             if self.root_table != "balance_sheet_assets_ferc1"
             else "many_to_many"
         )
+        # we are going to merge the data onto the calc components with the _parent
+        # column names, so the groupby after the merge needs a set of by cols with the
+        # _parent suffix
+        gby_parent = [
+            f"{col}_parent" if col in ["table_name", "xbrl_factoid"] else col
+            for col in self.exploded_pks
+        ]
         calc_df = (
             pd.merge(
                 calculations_intertable,
-                exploded.rename(
-                    columns={
-                        "table_name": "table_name_calc",
-                        "xbrl_factoid": "xbrl_factoid_calc",
-                    }
-                ),
-                #
+                exploded,
                 validate=validate,
                 on=calc_component_idx,
             )
             # apply the weight from the calc to convey the sign before summing.
             .assign(calculated_amount=lambda x: x[self.value_col] * x.weight)
-            .groupby(self.exploded_pks, as_index=False, dropna=False)[
-                ["calculated_amount"]
-            ]
+            .groupby(gby_parent, as_index=False, dropna=False)[["calculated_amount"]]
             .sum(min_count=1)
         )
-
+        # remove the _parent suffix so we can merge these calculated values back onto
+        # the data using the original pks
+        calc_df.columns = calc_df.columns.str.removesuffix("_parent")
         calculated_df = pd.merge(
             exploded,
             calc_df,

@@ -12,6 +12,7 @@ from pudl.transform.ferc1 import (
     TableIdFerc1,
     UnstackBalancesToReportYearInstantXbrl,
     WideToTidy,
+    add_parent_dimensions,
     drop_duplicate_rows_dbf,
     fill_dbf_to_xbrl_map,
     make_calculation_dimensions_explicit,
@@ -391,15 +392,15 @@ entity_id,report_year,sched_table_name,idx_ending_balance,idx_starting_balance,t
 def test_make_calculation_dimensions_explicit():
     """Test :func:`make_calculation_dimensions_explicit`"""
     calc_comp_idx = [
+        "table_name_parent",
+        "xbrl_factoid_parent",
         "table_name",
         "xbrl_factoid",
-        "table_name_calc",
-        "xbrl_factoid_calc",
     ]
     calc_comps_trek = pd.read_csv(
         StringIO(
             """
-table_name,xbrl_factoid,table_name_calc,xbrl_factoid_calc,dim_x,dim_y
+table_name_parent,xbrl_factoid_parent,table_name,xbrl_factoid,dim_x,dim_y
 table_a,fact_1,table_a,fact_3,voyager,
 table_a,fact_1,table_a,fact_4,voyager,
 table_a,fact_1,table_a,fact_5,ds9,
@@ -417,10 +418,12 @@ table_a,fact_3,voyager,coffee
 table_a,fact_3,voyager,in
 table_a,fact_3,voyager,that
 table_a,fact_3,voyager,nebula
+table_a,fact_3,voyager,total
 table_a,fact_4,voyager,coffee
 table_a,fact_4,voyager,in
 table_a,fact_4,voyager,that
 table_a,fact_4,voyager,nebula
+table_a,fact_4,voyager,total
 table_a,fact_5,ds9,
 table_b,fact_6,next_gen,resistance
 table_b,fact_6,next_gen,is
@@ -446,15 +449,17 @@ table_b,fact_8,next_gen,futile
     expected_trek = pd.read_csv(
         StringIO(
             """
-table_name,xbrl_factoid,table_name_calc,xbrl_factoid_calc,dim_x,dim_y
+table_name_parent,xbrl_factoid_parent,table_name,xbrl_factoid,dim_x,dim_y
 table_a,fact_1,table_a,fact_3,voyager,coffee
 table_a,fact_1,table_a,fact_3,voyager,in
 table_a,fact_1,table_a,fact_3,voyager,that
 table_a,fact_1,table_a,fact_3,voyager,nebula
+table_a,fact_1,table_a,fact_3,voyager,total
 table_a,fact_1,table_a,fact_4,voyager,coffee
 table_a,fact_1,table_a,fact_4,voyager,in
 table_a,fact_1,table_a,fact_4,voyager,that
 table_a,fact_1,table_a,fact_4,voyager,nebula
+table_a,fact_1,table_a,fact_4,voyager,total
 table_a,fact_1,table_a,fact_5,ds9,
 table_a,fact_2,table_b,fact_6,next_gen,futile
 table_a,fact_2,table_b,fact_7,next_gen,futile
@@ -476,3 +481,46 @@ table_a,fact_2,table_b,fact_8,next_gen,futile
         .reset_index(drop=True)
     )
     pd.testing.assert_frame_equal(out_trek, out_reordered, check_like=True)
+
+    expected_parent_dim_trek = pd.read_csv(
+        StringIO(
+            """
+table_name_parent,xbrl_factoid_parent,table_name,xbrl_factoid,dim_x,dim_y,dim_x_parent,dim_y_parent
+table_a,fact_1,table_a,fact_3,voyager,coffee,voyager,coffee
+table_a,fact_1,table_a,fact_3,voyager,in,voyager,in
+table_a,fact_1,table_a,fact_3,voyager,that,voyager,that
+table_a,fact_1,table_a,fact_3,voyager,nebula,voyager,nebula
+table_a,fact_1,table_a,fact_3,voyager,total,voyager,total
+table_a,fact_1,table_a,fact_4,voyager,coffee,voyager,coffee
+table_a,fact_1,table_a,fact_4,voyager,in,voyager,in
+table_a,fact_1,table_a,fact_4,voyager,that,voyager,that
+table_a,fact_1,table_a,fact_4,voyager,nebula,voyager,nebula
+table_a,fact_1,table_a,fact_4,voyager,total,voyager,total
+table_a,fact_1,table_a,fact_5,ds9,,ds9,
+table_a,fact_2,table_b,fact_6,next_gen,futile,next_gen,futile
+table_a,fact_2,table_b,fact_7,next_gen,futile,next_gen,futile
+table_a,fact_2,table_b,fact_8,next_gen,resistance,next_gen,resistance
+table_a,fact_2,table_b,fact_8,next_gen,is,next_gen,is
+table_a,fact_2,table_b,fact_8,next_gen,futile,next_gen,futile
+table_a,fact_3,table_a,fact_3,voyager,coffee,,total
+table_a,fact_3,table_a,fact_3,voyager,in,,total
+table_a,fact_3,table_a,fact_3,voyager,that,,total
+table_a,fact_3,table_a,fact_3,voyager,nebula,,total
+table_a,fact_4,table_a,fact_4,voyager,coffee,,total
+table_a,fact_4,table_a,fact_4,voyager,in,,total
+table_a,fact_4,table_a,fact_4,voyager,that,,total
+table_a,fact_4,table_a,fact_4,voyager,nebula,,total
+"""
+        )
+    )
+    out_parent_dim_trek = (
+        add_parent_dimensions(
+            calc_comps=expected_trek,
+            dimensions=["dim_x", "dim_y"],
+        )
+        .sort_values(calc_comp_idx)
+        .reset_index(drop=True)
+    )
+    pd.testing.assert_frame_equal(
+        expected_parent_dim_trek, out_parent_dim_trek, check_like=True
+    )

@@ -3019,18 +3019,24 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
             .explode("source_tables")
             .rename(
                 columns={
-                    "name": "xbrl_factoid_calc",
-                    "source_tables": "table_name_calc",
+                    "xbrl_factoid": "xbrl_factoid_parent",
+                    "name": "xbrl_factoid",
+                    "source_tables": "table_name",
                 }
             )
             .merge(
-                metadata.drop(columns=["calculations"]),
+                metadata.drop(columns=["calculations"]).rename(
+                    columns={
+                        "xbrl_factoid": "xbrl_factoid_parent",
+                    }
+                ),
                 left_index=True,
                 right_index=True,
                 how="outer",
             )
-            .dropna(subset=["xbrl_factoid_calc"])
+            .dropna(subset=["xbrl_factoid"])
             .reset_index(drop=True)
+            .assign(table_name_parent=self.table_id.value)
         )
         return calc_comps
 
@@ -6684,17 +6690,18 @@ def calculation_components_xbrl_ferc1(**kwargs):
     # compile all of the calc comp tables.
     calc_metas = []
     for table_name, transformer in FERC1_TFR_CLASSES.items():
-        calc_meta = (
-            transformer(xbrl_metadata_json=clean_xbrl_metadata_json[table_name])
-            .process_xbrl_metadata_calculations()
-            .assign(table_name=table_name)
-        )
+        calc_meta = transformer(
+            xbrl_metadata_json=clean_xbrl_metadata_json[table_name]
+        ).process_xbrl_metadata_calculations()
         calc_metas.append(calc_meta)
     # squish all of the calc comp tables then add in the implicit table dimensions
     calc_components = pd.concat(calc_metas).pipe(
         make_calculation_dimensions_explicit,
         table_dimensions_ferc1,
         dimensions=other_dimensions(),
+    )
+    calc_components = add_parent_dimensions(
+        calc_components, dimensions=other_dimensions()
     )
     return calc_components
 
@@ -6745,27 +6752,21 @@ def make_calculation_dimensions_explicit(
     """
     logger.info(f"Adding {dimensions=} into calculation component table.")
     calc_comps_w_dims = calculation_components.copy()
+    on_cols = ["table_name", "xbrl_factoid"]
     # for each dimension, use split/apply/combine. when there are no dims explict in
     # the calc components, merge in all of the dims.
     for dim_col in dimensions:
         # extract the unique observed instances of this one dimension column & add the
         # _calc suffix so we can merge onto the calculation components.
-        observed_dim = (
-            table_dimensions_ferc1[["table_name", "xbrl_factoid", dim_col]]
-            .drop_duplicates()  # bc there are dupes after we removed the other dim cols
-            .rename(
-                columns={
-                    "xbrl_factoid": "xbrl_factoid_calc",
-                    "table_name": "table_name_calc",
-                }
-            )
-        )
+        observed_dim = table_dimensions_ferc1[
+            on_cols + [dim_col]
+        ].drop_duplicates()  # bc there are dupes after we removed the other dim cols
         null_dim_mask = calc_comps_w_dims[dim_col].isnull()
         null_dim = calc_comps_w_dims[null_dim_mask].drop(columns=[dim_col])
         calc_comps_w_implied_dims = pd.merge(
             null_dim,
             observed_dim,
-            on=["table_name_calc", "xbrl_factoid_calc"],
+            on=on_cols,
             how="left",
         )
         calc_comps_w_explicit_dims = calc_comps_w_dims[~null_dim_mask]
@@ -6773,3 +6774,78 @@ def make_calculation_dimensions_explicit(
             [calc_comps_w_implied_dims, calc_comps_w_explicit_dims]
         )
     return calc_comps_w_dims
+
+
+def add_parent_dimensions(
+    calc_comps: pd.DataFrame, dimensions: list[str]
+) -> pd.DataFrame:
+    """Define dimension total calculations and add dimensions to calculation parents.
+
+    In addition to calculations defining how values reported in one set of facts can
+    be aggregated resulting in a value in another fact, there are implied calculation
+    relationships between values reported within a dimension. In particular, when a
+    dimension reports a ``total`` value, we assume it is the sum of all the non-total
+    values for that dimension. This function makes these within-dimension calculation
+    relationships explicit by defining new calculations for each dimension's ``total``.
+
+    Outside of these ``total`` calculations we require that a factoid and its
+    calculation components share the same dimensional values.
+
+    To be able to define these within-dimension calculations we also add dimension
+    columns to all of the parent factoids in the table.
+
+    Args:
+        calc_comps: a table of calculation component records which have had some manual
+            calculation fixes applied.
+        dimensions: list of dimension columns to check.
+
+    Returns:
+        An table associating calculation components with the parents they will be
+        aggregated into. The components and the parents are each identified by
+        ``table_name``, ``xbrl_factoid``, and columns defining the additional dimensions
+        (``utility_type``, ``plant_status``, ``plant_function``). The parent columns
+        have a ``_parent`` suffix.
+    """
+    table_fact_cols = [
+        "table_name_parent",
+        "xbrl_factoid_parent",
+        "table_name",
+        "xbrl_factoid",
+    ]
+    # for each dimension col, add calculations defining the within-dimension totals and
+    # make a new _parent column
+    for dim in dimensions:
+        # Define calculations with the total values as parents and non-total values as
+        # sub-components by broadcast merging the not-total records onto the # new total
+        # records.
+        total_mask = calc_comps[dim] == "total"
+        total_w_subdim_components = (
+            pd.merge(
+                # the total records will become _parent columns in new records
+                left=calc_comps.loc[total_mask, table_fact_cols + dimensions],
+                # the non-total sub-components will become their calculation components
+                right=calc_comps[~total_mask],
+                on=table_fact_cols,
+                how="left",
+                validate="1:m",
+                suffixes=("_parent", ""),
+            )
+            # The new total -> sub-dimension records must always have the same
+            # parent and component fact/table so overwrite the original values
+            .assign(
+                table_name_parent=lambda x: x.table_name,
+                xbrl_factoid_parent=lambda x: x.xbrl_factoid,
+            )
+            # drop the other non-total parent dim cols (they will be merged back on later)
+            .drop(columns=[f"{d}_parent" for d in dimensions if d != dim])
+        )
+        # now we have a bunch of *new* records linking total records to their non-total
+        # sub-components.
+        # Seperately, we now add in parent-dimension values for all of the original
+        # calculation component records. We are assuming all parents should have the
+        # same dimension values as their child components.
+        calc_comps = calc_comps.assign(**{f"{dim}_parent": lambda x: x[dim]})
+        calc_comps = pd.concat([calc_comps, total_w_subdim_components])
+        # we shouldn't be adding any duplicates in this process!
+        assert calc_comps[calc_comps.duplicated()].empty
+    return calc_comps
