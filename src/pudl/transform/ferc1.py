@@ -3777,6 +3777,30 @@ class ElectricEnergySourcesFerc1TableTransformer(Ferc1AbstractTableTransformer):
     table_id: TableIdFerc1 = TableIdFerc1.ELECTRIC_ENERGY_SOURCES_FERC1
     has_unique_record_ids: bool = False
 
+    @property
+    @cache_df(key="pre_process_xbrl_metadata")
+    def pre_process_xbrl_metadata(self: Self) -> pd.DataFrame:
+        """Perform default xbrl metadata processing plus adding 1 new xbrl_factoid.
+
+        Note: we should probably parameterize this and add it into the standard
+        :meth:`process_xbrl_metadata`.
+
+        NOTE: Needs to happen before &/or during `process_xbrl_metadata_calculations`
+        """
+        tbl_meta = super().pre_process_xbrl_metadata
+        facts_to_add = {
+            "xbrl_factoid": "megawatt_hours_purchased",
+            "calculations": ["[]"],
+            "balance": ["credit"],
+            "ferc_account": [pd.NA],
+            "xbrl_factoid_original": "megawatt_hours_purchased",
+            "intra_table_calc_flag": [True],
+            "row_type_xbrl": ["reported_value"],
+        }
+
+        new_facts = pd.DataFrame(facts_to_add).convert_dtypes()
+        return pd.concat([tbl_meta, new_facts])
+
 
 class ElectricEnergyDispositionsFerc1TableTransformer(Ferc1AbstractTableTransformer):
     """Transformer class for :ref:`electric_energy_dispositions_ferc1` table."""
@@ -4089,7 +4113,7 @@ class BalanceSheetLiabilitiesFerc1TableTransformer(Ferc1AbstractTableTransformer
     @property
     @cache_df(key="pre_process_xbrl_metadata")
     def pre_process_xbrl_metadata(self: Self) -> pd.DataFrame:
-        """Perform default xbrl metadata processing plus adding new xbrl_factoids.
+        """Perform default xbrl metadata processing plus adding 2 new xbrl_factoids.
 
         We add two new factoids which are defined (by PUDL) only for the DBF data, and
         also duplicate and redefine several factoids which are referenced in multiple
@@ -4101,31 +4125,24 @@ class BalanceSheetLiabilitiesFerc1TableTransformer(Ferc1AbstractTableTransformer
         NOTE: Needs to happen before &/or during `process_xbrl_metadata_calculations`
         """
         tbl_meta = super().pre_process_xbrl_metadata
-        facts_to_duplicate = [
-            "long_term_portion_of_derivative_instrument_liabilities",
-            "long_term_portion_of_derivative_instrument_liabilities_hedges",
+        facts_to_add = [
+            {
+                "xbrl_factoid": new_fact,
+                "calculations": "[]",
+                "balance": "credit",
+                "ferc_account": pd.NA,
+                "xbrl_factoid_original": new_fact,
+                "intra_table_calc_flag": True,
+                "row_type_xbrl": "reported_value",
+            }
+            for new_fact in [
+                "accumulated_deferred_income_taxes",
+                "preliminary_natural_gas_survey_and_investigation_charges",
+            ]
         ]
-        duplicated_facts = (
-            tbl_meta[tbl_meta.xbrl_factoid.isin(facts_to_duplicate)]
-            .copy()
-            .assign(
-                xbrl_factoid=lambda x: "less_" + x.xbrl_factoid,
-                xbrl_factoid_original=lambda x: "less_" + x.xbrl_factoid_original,
-                balance="credit",
-            )
-        )
-        facts_to_add = {
-            "xbrl_factoid": ["accumulated_deferred_income_taxes"],
-            "calculations": ["[]"],
-            "balance": ["credit"],
-            "ferc_account": [pd.NA],
-            "xbrl_factoid_original": ["accumulated_deferred_income_taxes"],
-            "intra_table_calc_flag": [True],
-            "row_type_xbrl": ["reported_value"],
-        }
 
         new_facts = pd.DataFrame(facts_to_add).convert_dtypes()
-        return pd.concat([tbl_meta, duplicated_facts, new_facts])
+        return pd.concat([tbl_meta, new_facts]).reset_index(drop=True)
 
 
 class BalanceSheetAssetsFerc1TableTransformer(Ferc1AbstractTableTransformer):
