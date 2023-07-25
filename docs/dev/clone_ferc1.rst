@@ -36,7 +36,7 @@ especially useful since Microsoft recently discontinued the database driver that
 late 2018 had allowed users to load the FoxPro database files into Microsoft Access.
 
 Cloning the original FERC database is the first step in the PUDL
-ETL process. This can be done using the dagster UI (see :ref:`run-dagit`)
+ETL process. This can be done using the dagster UI (see :ref:`run-dagster-ui`)
 or with the ``ferc_to_sqlite`` script (see :ref:`run-cli`).
 
 .. note::
