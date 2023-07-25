@@ -6781,7 +6781,7 @@ def add_parent_dimensions(
 ) -> pd.DataFrame:
     """Define dimension total calculations and add dimensions to calculation parents.
 
-    In addition to calculations defining how values reported as in one set of facts can
+    In addition to calculations defining how values reported in one set of facts can
     be aggregated resulting in a value in another fact, there are implied calculation
     relationships between values reported within a dimension. In particular, when a
     dimension reports a ``total`` value, we assume it is the sum of all the non-total
@@ -6791,9 +6791,8 @@ def add_parent_dimensions(
     Outside of these ``total`` calculations we require that a factoid and its
     calculation components share the same dimensional values.
 
-    To be able to differentiate between these newly defined within-dimension
-    calculations and the existing purely table-and-factoid based calculations we also
-    have to add dimension columns to the parent factoids in the table.
+    To be able to define these within-dimension calculations we also add dimension
+    columns to all of the parent factoids in the table.
 
     Args:
         calc_comps: a table of calculation component records which have had some manual
