@@ -328,8 +328,6 @@ def merge_xbrl_metadata(
     df: pd.DataFrame, xbrl_metadata: pd.DataFrame, params: MergeXbrlMetadata
 ) -> pd.DataFrame:
     """Merge metadata based on params."""
-    logger.info(df.columns)
-    logger.info(xbrl_metadata.columns)
     return pd.merge(
         df,
         xbrl_metadata.rename(columns=params.rename_columns),
@@ -775,17 +773,23 @@ def reconcile_table_calculations(
         calculation_components.intra_table_calc_flag
         & calculation_components.xbrl_factoid.notnull()
     ]
-    calc_idx = [c for c in ["xbrl_factoid", params.subtotal_column] if c]
+    # usually you can rely on params.subtotal_column to get THE ONE dimension in the
+    # table... BUT some tables have more than one dimension so we grab from all of the
+    # the dims in the transformers. AAAND occasionally the factoid_name is in the dims
+    # wild. i know. so we are grabbing all of the non-factoid dimensions that show up
+    # in the data.
+    dims = [d for d in other_dimensions() if d in df.columns and d != xbrl_factoid_name]
+    calc_idx = ["xbrl_factoid"] + dims
     table_dims = (
         df.rename(columns={xbrl_factoid_name: "xbrl_factoid"})[calc_idx]
         .assign(table_name=table_name)
         .drop_duplicates(keep="first")
     )
-    if params.subtotal_column:
+    if dims:
         intra_tbl_calcs = make_calculation_dimensions_explicit(
             intra_tbl_calcs,
             table_dimensions_ferc1=table_dims,
-            dimensions=[params.subtotal_column],
+            dimensions=dims,
         )
     pks = pudl.metadata.classes.Resource.from_id(table_name).schema.primary_key
     calculated_df = calculate_values_from_components(
