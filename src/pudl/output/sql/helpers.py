@@ -6,7 +6,7 @@ from dagster import AssetsDefinition, asset
 
 def sql_asset_factory(
     name: str,
-    non_argument_deps: set[str] = {},
+    deps: set[str] = {},
     io_manager_key: str = "pudl_sqlite_io_manager",
     compute_kind: str = "SQL",
 ) -> AssetsDefinition:
@@ -14,7 +14,7 @@ def sql_asset_factory(
 
     @asset(
         name=name,
-        non_argument_deps=non_argument_deps,
+        deps=deps,
         io_manager_key=io_manager_key,
         compute_kind=compute_kind,
     )
