@@ -1487,8 +1487,18 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
         )
         return pd.concat([calc_components, corrections])
 
+    @staticmethod
+    def get_xbrl_calculation_fixes() -> pd.DataFrame:
+        """Grab the XBRL calculation file."""
+        source = files(pudl.package_data.ferc1).joinpath(
+            "xbrl_calculation_component_fixes.csv"
+        )
+        with as_file(source) as file:
+            calc_fixes = pd.read_csv(file)
+        return calc_fixes
+
     def apply_xbrl_calculation_fixes(
-        self: Self, calc_components: pd.DataFrame
+        self: Self, calc_components: pd.DataFrame, calc_fixes: pd.DataFrame
     ) -> pd.DataFrame:
         """Use the fixes we've compiled to update calculations in the XBRL metadata.
 
@@ -1501,11 +1511,7 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
             "table_name_calc",
             "xbrl_factoid_calc",
         ]
-        source = files(pudl.package_data.ferc1).joinpath(
-            "xbrl_calculation_component_fixes.csv"
-        )
-        with as_file(source) as file:
-            calc_fixes = pd.read_csv(file)
+
         calc_fixes = (
             calc_fixes[calc_fixes.table_name == self.table_id.value]
             .set_index(calc_comp_idx)
@@ -1583,7 +1589,10 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
                     x.xbrl_factoid_calc,
                 ),
             )
-            .pipe(self.apply_xbrl_calculation_fixes)
+            .pipe(
+                self.apply_xbrl_calculation_fixes,
+                calc_fixes=self.get_xbrl_calculation_fixes(),
+            )
             .pipe(self.remove_duplicated_calculation_components)
             .pipe(self.add_calculation_correction_components)
             .reset_index()
