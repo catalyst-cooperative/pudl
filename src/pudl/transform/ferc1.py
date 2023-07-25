@@ -6779,13 +6779,28 @@ def make_calculation_dimensions_explicit(
 def add_parent_dimensions(calc_comps, dimensions):
     """Add in the dimensions of the parents in the calculation components.
 
-    First, we treat the totals in these dimension columns by assuming that any total we
-    observe is the sum of all non-total dimensions. We implement this by creating new
-    calculation component records which have a parent of dimension total and calculation
-    components of the non-total dimensinos.
+    Together :meth:`process_xbrl_metadata_calculations` and
+    :func:`make_calculation_dimensions_explicit` generates calculation component table
+    with pk columns of: ``table_name_parent``, ``xbrl_factoid_parent``, ``table_name``,
+    ``xbrl_factoid``. The table also contains dimension columns (ex: ``utility_type``,
+    ``plant_function``, etc.) which indicate the dimensions of the calculation component
+    factoid - not the parent factoid. This function attempts to add in additional
+    ``dimension`` columns for the parent-side of the calculation.
 
-    Then, we assume that every parent factoid should have the same dimensions as its
-    calculation component dimensions.
+    First, we treat the totals in these dimension columns by assuming that any "total"
+    we observe (i.e. ``utility_type=="total"``) can be summed up  of all non-total
+    values within that same dimension (i.e.
+    ``utility_type.isin(["electric", "gas", "other"])``). We implement this by creating
+    new calculation component records which have a parent of dimension "total" and
+    calculation components of all observed non-total dimension values. This is done by
+    a broadcast merge of the non-total dimension calculation component values onto
+    parent total records. The result of this is the creation of new records which
+    communicate this total -> non-total calculation that was not previously encapsulated
+    within the calculation components.
+
+    Then, we add parent-level dimension values for all of the original calculation
+    component records in ``calc_comps``. We assume that every parent factoid should have
+    the same dimension values as its calculation component dimension values.
 
     Args:
         calc_comps: a table of calculation component records which have had some manual
@@ -6798,15 +6813,18 @@ def add_parent_dimensions(calc_comps, dimensions):
         "table_name",
         "xbrl_factoid",
     ]
-    # for each dimension col, add a _parent column while
+    # for each dimension col, make a new _parent column
     for dim in dimensions:
+        # Treat the totals. Broadcast merge the sub-components (not-totals) onto the
+        # total records. Making new records where the totals are the parents and the
+        # non-totals are the sub-components
         total_mask = calc_comps[dim] == "total"
         total_w_subdim_components = (
             pd.merge(
                 # the totals will become the parent record
-                calc_comps.loc[total_mask, calc_comp_idx + dimensions],
+                left=calc_comps.loc[total_mask, calc_comp_idx + dimensions],
                 # the sub-components will become the calc component records
-                calc_comps[~total_mask],
+                right=calc_comps[~total_mask],
                 on=calc_comp_idx,
                 how="left",
                 validate="1:m",
@@ -6821,11 +6839,13 @@ def add_parent_dimensions(calc_comps, dimensions):
             # drop the other non-total parent dim cols (they will be merged back on later)
             .drop(columns=[f"{d}_parent" for d in dimensions if d != dim])
         )
+        # now we have a bunch of *new* records linking total records to their non-total
+        # sub-components.
+        # Seperately, we can add in parent-dimension values for all of
+        # the original calculation component records. We are assuming all parents should
+        # have the same dimension values as their child components.
+        calc_comps = calc_comps.assign(**{f"{dim}_parent": lambda x: x[dim]})
         calc_comps = pd.concat([calc_comps, total_w_subdim_components])
         # we shouldn't be adding any duplicates in this process!
-        # now fill in everything with the non-totals
-        calc_comps = calc_comps.assign(
-            **{f"{dim}_parent": lambda x: x[f"{dim}_parent"].fillna(x[dim])}
-        )
         assert calc_comps[calc_comps.duplicated()].empty
     return calc_comps
