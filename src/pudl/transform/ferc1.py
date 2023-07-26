@@ -3034,7 +3034,6 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
                 right_index=True,
                 how="outer",
             )
-            .dropna(subset=["xbrl_factoid"])
             .reset_index(drop=True)
             .assign(table_name_parent=self.table_id.value)
         )
