@@ -769,10 +769,13 @@ def reconcile_table_calculations(
     # If we don't have this value, we aren't doing any calculation checking:
     if params.column_to_check is None:
         return df
+    # we only want to check calucations that are fully within this table
     intra_tbl_calcs = calculation_components[
         calculation_components.intra_table_calc_flag
-        & calculation_components.xbrl_factoid.notnull()
+        & calculation_components.xbrl_factoid.notnull()  # no nulls bc we have all parents
     ]
+    # !!! Add dimensions into the calculation components!!!
+    # First determine what dimensions matter in this table:
     # usually you can rely on params.subtotal_column to get THE ONE dimension in the
     # table... BUT some tables have more than one dimension so we grab from all of the
     # the dims in the transformers. AAAND occasionally the factoid_name is in the dims
@@ -796,8 +799,8 @@ def reconcile_table_calculations(
         data=df.rename(columns={xbrl_factoid_name: "xbrl_factoid"}),
         calculation_components=intra_tbl_calcs,
         validate="one_to_many",
-        on=calc_idx,
-        by=[p for p in pks if p != xbrl_factoid_name] + ["xbrl_factoid"],
+        calc_idx=calc_idx,
+        data_idx=[p for p in pks if p != xbrl_factoid_name] + ["xbrl_factoid"],
         value_col=params.column_to_check,
     ).rename(columns={"xbrl_factoid": xbrl_factoid_name})
 
@@ -884,11 +887,15 @@ def calculate_values_from_components(
     calculation_components: pd.DataFrame,
     data: pd.DataFrame,
     validate: Literal["one_to_many", "many_to_many"],
-    on: list[str],
-    by: list[str],
+    calc_idx: list[str],
+    data_idx: list[str],
     value_col: str,
 ) -> pd.DataFrame:
-    """Calculate values from components."""
+    """Calculate values from components.
+
+    Add a ``calculated_amount`` column to the ``data`` table for all calculated values
+    using the componentents within ``calculation_components``.
+    """
     # Merge the reported data and the calculation component metadata to enable
     # validation of calculated values. Here the data table exploded is supplying the
     # values associated with individual calculation components, and the table_name
@@ -901,14 +908,15 @@ def calculate_values_from_components(
     # column names, so the groupby after the merge needs a set of by cols with the
     # _parent suffix
     gby_parent = [
-        f"{col}_parent" if col in ["table_name", "xbrl_factoid"] else col for col in by
+        f"{col}_parent" if col in ["table_name", "xbrl_factoid"] else col
+        for col in data_idx
     ]
     calc_df = (
         pd.merge(
             calculation_components,
             data,
             validate=validate,
-            on=on,
+            on=calc_idx,
         )
         # apply the weight from the calc to convey the sign before summing.
         .assign(calculated_amount=lambda x: x[value_col] * x.weight)
@@ -921,7 +929,7 @@ def calculate_values_from_components(
     calculated_df = pd.merge(
         data,
         calc_df,
-        on=by,
+        on=data_idx,
         how="outer",
         validate="1:1",
         indicator=True,
@@ -1205,9 +1213,10 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
     """
     xbrl_metadata_json: dict[Literal["instant", "duration"], list[dict[str, Any]]]
     """Table-level JSON metadata."""
-
     xbrl_metadata: pd.DataFrame = pd.DataFrame()
     """Dataframe combining XBRL metadata for both instant and duration table columns."""
+    xbrl_calculations: pd.DataFrame = pd.DataFrame()
+    """Dataframe of calculation components."""
 
     def __init__(
         self,
@@ -1223,9 +1232,14 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
             cache_dfs=cache_dfs,
             clear_cached_dfs=clear_cached_dfs,
         )
-        self.xbrl_metadata_json = xbrl_metadata_json
-        if self.xbrl_metadata_json:
-            self.xbrl_metadata = self.process_xbrl_metadata()
+        if xbrl_metadata_json:
+            xbrl_meta_raw = self.pre_process_xbrl_metadata(xbrl_metadata_json)
+            self.xbrl_calculations = self.process_xbrl_metadata_calculations(
+                xbrl_meta_raw
+            )
+            self.xbrl_metadata = self.process_xbrl_metadata(
+                xbrl_meta_raw, self.xbrl_calculations
+            )
 
     @cache_df(key="start")
     def transform_start(
@@ -1307,9 +1321,11 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
             )
         return processed_dbf
 
-    @property
     @cache_df(key="pre_process_xbrl_metadata")
-    def pre_process_xbrl_metadata(self: Self) -> pd.DataFrame:
+    def pre_process_xbrl_metadata(
+        self: Self,
+        xbrl_metadata_json: dict[Literal["instant", "duration"], list[dict[str, Any]]],
+    ) -> pd.DataFrame:
         """Normalize the XBRL JSON metadata, turning it into a dataframe.
 
         This process concatenates and deduplicates the metadata which is associated with
@@ -1321,8 +1337,8 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
         tbl_meta = (
             pd.concat(
                 [
-                    pd.json_normalize(self.xbrl_metadata_json["instant"]),
-                    pd.json_normalize(self.xbrl_metadata_json["duration"]),
+                    pd.json_normalize(xbrl_metadata_json["instant"]),
+                    pd.json_normalize(xbrl_metadata_json["duration"]),
                 ]
             )
             .drop("references.form_location", axis="columns")
@@ -1353,19 +1369,27 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
         return tbl_meta
 
     @cache_df(key="process_xbrl_metadata")
-    def process_xbrl_metadata(self: Self) -> pd.DataFrame:
+    def process_xbrl_metadata(
+        self: Self, xbrl_meta_raw: pd.DataFrame, xbrl_calculations: pd.DataFrame
+    ) -> pd.DataFrame:
         """Process XBRL metadata after the calculations have been cleaned.
 
-        Add ``row_type_xbrl`` column and create ``xbrl_factoid`` records for the calculation corrections
+        Add ``row_type_xbrl`` column and create ``xbrl_factoid`` records for the
+        calculation corrections.
+
+        Args:
+            xbrl_meta_raw: Dataframe of relatively unprocessed metadata. Result of
+                :meth:`pre_process_xbrl_metadata`
+            xbrl_calculations: Dataframe of calculation components. Result of
+                :meth:`process_xbrl_metadata_calculations`
         """
-        calc_comps = self.process_xbrl_metadata_calculations
-        tbl_meta = self.pre_process_xbrl_metadata.drop(
-            columns=["calculations"]
-        ).set_index(["xbrl_factoid"])
+        tbl_meta = xbrl_meta_raw.drop(columns=["calculations"]).set_index(
+            ["xbrl_factoid"]
+        )
         # Flag metadata record types
         tbl_meta.loc[:, "row_type_xbrl"] = (
             (
-                calc_comps.groupby(["xbrl_factoid_parent"])[
+                xbrl_calculations.groupby(["xbrl_factoid_parent"])[
                     ["table_name", "xbrl_factoid"]
                 ].count()
                 == 0
@@ -1377,7 +1401,7 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
         tbl_meta.loc[:, "intra_table_calc_flag"] = (
             # make a temp bool col to check if all the componets are intra table
             # should the non-calc guys get a null or a true here? rn its true bc fillna
-            calc_comps.assign(
+            xbrl_calculations.assign(
                 intra_table_calc_comp_flag=lambda x: (
                     self.table_id.value == x.table_name.fillna(self.table_id.value)
                 )
@@ -1512,7 +1536,6 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
             return calc_components
 
         # split the calcs from non-calcs/make corrections/append
-        logger.info(list(calc_components.columns))
         calcs = calc_components[calc_components.xbrl_factoid.notnull()]
         corrections = (
             calcs[["table_name_parent", "xbrl_factoid_parent"]]
@@ -1588,12 +1611,11 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
             )
         return calc_components.reset_index()
 
-    @property
     def process_xbrl_metadata_calculations(
-        self,
+        self, xbrl_meta_raw: pd.DataFrame
     ) -> pd.DataFrame:
         """Convert xbrl metadata calculations into a table of calculation components."""
-        metadata = self.pre_process_xbrl_metadata
+        metadata = xbrl_meta_raw.copy()
         metadata.calculations = metadata.calculations.apply(json.loads)
         # reset the index post calc explosion so we can merge on index later
         metadata = metadata.explode("calculations").reset_index(drop=True)
@@ -1667,6 +1689,11 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
         if not params:
             params = self.params.merge_xbrl_metadata
         if params.on:
+            if self.xbrl_metadata.empty:
+                raise AssertionError(
+                    "Metadata has not yet been generated. Must run process_xbrl_metadata"
+                    "and assign xbrl_metadata before merging metadata."
+                )
             logger.info(f"{self.table_id.value}: Merging metadata")
             df = merge_xbrl_metadata(df, self.xbrl_metadata, params)
         return df
@@ -2180,12 +2207,16 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
         if params is None:
             params = self.params.reconcile_table_calculations
         if params.column_to_check:
+            if self.xbrl_calculations.empty:
+                raise AssertionError(
+                    "No calculations table has been built. Must run process_xbrl_metadata_calculations"
+                )
             logger.info(
                 f"{self.table_id.value}: Checking the XBRL metadata-based calculations."
             )
             df = reconcile_table_calculations(
                 df=df,
-                calculation_components=self.process_xbrl_metadata_calculations,
+                calculation_components=self.xbrl_calculations,
                 xbrl_factoid_name=self.params.xbrl_factoid_name,
                 table_name=self.table_id.value,
                 params=params,
@@ -2668,7 +2699,9 @@ class PlantInServiceFerc1TableTransformer(Ferc1AbstractTableTransformer):
     has_unique_record_ids: bool = False
 
     @cache_df("process_xbrl_metadata")
-    def process_xbrl_metadata(self: Self) -> pd.DataFrame:
+    def process_xbrl_metadata(
+        self: Self, xbrl_meta_raw: pd.DataFrame, xbrl_calculations: pd.DataFrame
+    ) -> pd.DataFrame:
         """Transform the metadata to reflect the transformed data.
 
         We fill in some gaps in the metadata, e.g. for FERC accounts that have been
@@ -2678,7 +2711,7 @@ class PlantInServiceFerc1TableTransformer(Ferc1AbstractTableTransformer):
         naming conventions...). We use the same rename dictionary, but as an argument to
         :meth:`pd.Series.replace` instead of :meth:`pd.DataFrame.rename`.
         """
-        tbl_meta = super().process_xbrl_metadata()
+        tbl_meta = super().process_xbrl_metadata(xbrl_meta_raw, xbrl_calculations)
 
         # Set pseudo-account numbers for rows that split or combine FERC accounts, but
         # which are not calculated values.
@@ -3777,17 +3810,17 @@ class ElectricEnergySourcesFerc1TableTransformer(Ferc1AbstractTableTransformer):
     table_id: TableIdFerc1 = TableIdFerc1.ELECTRIC_ENERGY_SOURCES_FERC1
     has_unique_record_ids: bool = False
 
-    @property
     @cache_df(key="pre_process_xbrl_metadata")
-    def pre_process_xbrl_metadata(self: Self) -> pd.DataFrame:
+    def pre_process_xbrl_metadata(
+        self: Self,
+        xbrl_metadata_json: dict[Literal["instant", "duration"], list[dict[str, Any]]],
+    ) -> pd.DataFrame:
         """Perform default xbrl metadata processing plus adding 1 new xbrl_factoid.
 
         Note: we should probably parameterize this and add it into the standard
         :meth:`process_xbrl_metadata`.
-
-        NOTE: Needs to happen before &/or during `process_xbrl_metadata_calculations`
         """
-        tbl_meta = super().pre_process_xbrl_metadata
+        tbl_meta = super().pre_process_xbrl_metadata(xbrl_metadata_json)
         facts_to_add = {
             "xbrl_factoid": "megawatt_hours_purchased",
             "calculations": ["[]"],
@@ -3815,17 +3848,17 @@ class UtilityPlantSummaryFerc1TableTransformer(Ferc1AbstractTableTransformer):
     table_id: TableIdFerc1 = TableIdFerc1.UTILITY_PLANT_SUMMARY_FERC1
     has_unique_record_ids: bool = False
 
-    @property
     @cache_df(key="pre_process_xbrl_metadata")
-    def pre_process_xbrl_metadata(self: Self) -> pd.DataFrame:
+    def pre_process_xbrl_metadata(
+        self: Self,
+        xbrl_metadata_json: dict[Literal["instant", "duration"], list[dict[str, Any]]],
+    ) -> pd.DataFrame:
         """Do the default metadata processing plus add a new factoid.
 
         The new factoid cooresponds to the aggregated factoid in
         :meth:`aggregated_xbrl_factoids`.
-
-        NOTE: Needs to happen before &/or during `process_xbrl_metadata_calculations`
         """
-        tbl_meta = super().pre_process_xbrl_metadata
+        tbl_meta = super().pre_process_xbrl_metadata(xbrl_metadata_json)
         # things that could be grabbed from a aggregated_xbrl_factoids param
         new_factoid_name = (
             "utility_plant_in_service_classified_and_property_under_capital_leases"
@@ -4110,9 +4143,11 @@ class BalanceSheetLiabilitiesFerc1TableTransformer(Ferc1AbstractTableTransformer
 
         return pd.concat([df, new_data])
 
-    @property
     @cache_df(key="pre_process_xbrl_metadata")
-    def pre_process_xbrl_metadata(self: Self) -> pd.DataFrame:
+    def pre_process_xbrl_metadata(
+        self: Self,
+        xbrl_metadata_json: dict[Literal["instant", "duration"], list[dict[str, Any]]],
+    ) -> pd.DataFrame:
         """Perform default xbrl metadata processing plus adding 2 new xbrl_factoids.
 
         We add two new factoids which are defined (by PUDL) only for the DBF data, and
@@ -4121,10 +4156,21 @@ class BalanceSheetLiabilitiesFerc1TableTransformer(Ferc1AbstractTableTransformer
 
         Note: we should probably parameterize this and add it into the standard
         :meth:`process_xbrl_metadata`.
-
-        NOTE: Needs to happen before &/or during `process_xbrl_metadata_calculations`
         """
-        tbl_meta = super().pre_process_xbrl_metadata
+        tbl_meta = super().pre_process_xbrl_metadata(xbrl_metadata_json)
+        facts_to_duplicate = [
+            "long_term_portion_of_derivative_instrument_liabilities",
+            "long_term_portion_of_derivative_instrument_liabilities_hedges",
+        ]
+        duplicated_facts = (
+            tbl_meta[tbl_meta.xbrl_factoid.isin(facts_to_duplicate)]
+            .copy()
+            .assign(
+                xbrl_factoid=lambda x: "less_" + x.xbrl_factoid,
+                xbrl_factoid_original=lambda x: "less_" + x.xbrl_factoid_original,
+                balance="credit",
+            )
+        )
         facts_to_add = [
             {
                 "xbrl_factoid": new_fact,
@@ -4142,7 +4188,7 @@ class BalanceSheetLiabilitiesFerc1TableTransformer(Ferc1AbstractTableTransformer
         ]
 
         new_facts = pd.DataFrame(facts_to_add).convert_dtypes()
-        return pd.concat([tbl_meta, new_facts]).reset_index(drop=True)
+        return pd.concat([tbl_meta, new_facts, duplicated_facts]).reset_index(drop=True)
 
 
 class BalanceSheetAssetsFerc1TableTransformer(Ferc1AbstractTableTransformer):
@@ -4177,9 +4223,11 @@ class BalanceSheetAssetsFerc1TableTransformer(Ferc1AbstractTableTransformer):
 
         return pd.concat([df, new_data])
 
-    @property
     @cache_df(key="pre_process_xbrl_metadata")
-    def pre_process_xbrl_metadata(self: Self) -> pd.DataFrame:
+    def pre_process_xbrl_metadata(
+        self: Self,
+        xbrl_metadata_json: dict[Literal["instant", "duration"], list[dict[str, Any]]],
+    ) -> pd.DataFrame:
         """Default xbrl metadata processing plus some error correction.
 
         We add two new factoids which are defined (by PUDL) only for the DBF data, and
@@ -4188,10 +4236,8 @@ class BalanceSheetAssetsFerc1TableTransformer(Ferc1AbstractTableTransformer):
 
         Note: we should probably parameterize this and add it into the standard
         :meth:`process_xbrl_metadata`.
-
-        NOTE: Needs to happen before &/or during `process_xbrl_metadata_calculations`
         """
-        tbl_meta = super().pre_process_xbrl_metadata
+        tbl_meta = super().pre_process_xbrl_metadata(xbrl_metadata_json)
 
         facts_to_duplicate = [
             "noncurrent_portion_of_allowances",
@@ -4229,17 +4275,17 @@ class IncomeStatementFerc1TableTransformer(Ferc1AbstractTableTransformer):
     table_id: TableIdFerc1 = TableIdFerc1.INCOME_STATEMENT_FERC1
     has_unique_record_ids: bool = False
 
-    @property
     @cache_df(key="pre_process_xbrl_metadata")
-    def pre_process_xbrl_metadata(self: Self) -> pd.DataFrame:
+    def pre_process_xbrl_metadata(
+        self: Self,
+        xbrl_metadata_json: dict[Literal["instant", "duration"], list[dict[str, Any]]],
+    ) -> pd.DataFrame:
         """Perform default xbrl metadata processing plus adding a new xbrl_factoid.
 
         Note: we should probably parameterize this and add it into the standard
         :meth:`process_xbrl_metadata`.
-
-        NOTE: Needs to happen before &/or during `process_xbrl_metadata_calculations`
         """
-        tbl_meta = super().pre_process_xbrl_metadata
+        tbl_meta = super().pre_process_xbrl_metadata(xbrl_metadata_json)
         facts_to_add = {
             "xbrl_factoid": ["miscellaneous_deductions"],
             "calculations": ["[]"],
@@ -4311,15 +4357,17 @@ class RetainedEarningsFerc1TableTransformer(Ferc1AbstractTableTransformer):
     table_id: TableIdFerc1 = TableIdFerc1.RETAINED_EARNINGS_FERC1
     has_unique_record_ids: bool = False
 
-    @property
     @cache_df("pre_process_xbrl_metadata")
-    def pre_process_xbrl_metadata(self: Self) -> pd.DataFrame:
+    def pre_process_xbrl_metadata(
+        self: Self,
+        xbrl_metadata_json: dict[Literal["instant", "duration"], list[dict[str, Any]]],
+    ) -> pd.DataFrame:
         """Transform the metadata to reflect the transformed data.
 
         Beyond the standard :meth:`Ferc1AbstractTableTransformer.process_xbrl_metadata`
         processing, add FERC account values for a few known values.
         """
-        meta = super().pre_process_xbrl_metadata
+        meta = super().pre_process_xbrl_metadata(xbrl_metadata_json)
         meta.loc[
             meta.xbrl_factoid
             == "transfers_from_unappropriated_undistributed_subsidiary_earnings",
@@ -4343,7 +4391,7 @@ class RetainedEarningsFerc1TableTransformer(Ferc1AbstractTableTransformer):
             "ferc_account",
         ] = "418.1"
 
-        # NOTE: Needs to happen before &/or during `process_xbrl_metadata_calculations`
+        # NOTE: Needs to happen before `process_xbrl_metadata_calculations`
         facts_to_add = [
             {
                 "xbrl_factoid": new_fact,
@@ -4645,13 +4693,15 @@ class DepreciationAmortizationSummaryFerc1TableTransformer(
     has_unique_record_ids: bool = False
 
     @cache_df("process_xbrl_metadata")
-    def process_xbrl_metadata(self: Self) -> pd.DataFrame:
+    def process_xbrl_metadata(
+        self: Self, xbrl_meta_raw: pd.DataFrame, xbrl_calculations: pd.DataFrame
+    ) -> pd.DataFrame:
         """Transform the metadata to reflect the transformed data.
 
         Beyond the standard :meth:`Ferc1AbstractTableTransformer.process_xbrl_metadata`
         processing, add FERC account values for a few known values.
         """
-        meta = super().process_xbrl_metadata()
+        meta = super().process_xbrl_metadata(xbrl_meta_raw, xbrl_calculations)
         # logger.info(meta)
         meta.loc[
             meta.xbrl_factoid == "depreciation_expense",
@@ -4679,9 +4729,8 @@ class ElectricPlantDepreciationChangesFerc1TableTransformer(
     table_id: TableIdFerc1 = TableIdFerc1.ELECTRIC_PLANT_DEPRECIATION_CHANGES_FERC1
     has_unique_record_ids: bool = False
 
-    @property
     @cache_df("pre_process_xbrl_metadata")
-    def pre_process_xbrl_metadata(self: Self) -> pd.DataFrame:
+    def pre_process_xbrl_metadata(self: Self, xbrl_metadata_json) -> pd.DataFrame:
         """Transform the metadata to reflect the transformed data.
 
         Warning: The calculations in this table are currently being corrected using
@@ -4692,13 +4741,12 @@ class ElectricPlantDepreciationChangesFerc1TableTransformer(
         metadata from the original column. We do this pre-processing before we
         call the main function in order for the calculation fixes and renaming to work
         as expected.
-
-        NOTE: Needs to happen before `process_xbrl_metadata_calculations`
         """
-        new_xbrl_metadata_json = self.xbrl_metadata_json
+        new_xbrl_metadata_json = xbrl_metadata_json
         # Get instant metadata
         instant = pd.json_normalize(new_xbrl_metadata_json["instant"])
         # Duplicate instant metadata, and add starting/ending suffix
+        # should just be balance begining of year
         instant = pd.concat([instant] * 2).reset_index(drop=True)
         instant["name"] = instant["name"] + ["_starting_balance", "_ending_balance"]
         # Return to JSON format in order to continue processing
@@ -4706,7 +4754,7 @@ class ElectricPlantDepreciationChangesFerc1TableTransformer(
             instant.to_json(orient="records")
         )
         self.xbrl_metadata_json = new_xbrl_metadata_json
-        tbl_meta = super().pre_process_xbrl_metadata
+        tbl_meta = super().pre_process_xbrl_metadata(new_xbrl_metadata_json)
         return tbl_meta
 
     @cache_df("dbf")
@@ -4831,17 +4879,17 @@ class ElectricOperatingExpensesFerc1TableTransformer(Ferc1AbstractTableTransform
         logger.info("Heyyyy dropping that one row")
         return raw_df
 
-    @property
     @cache_df(key="pre_process_xbrl_metadata")
-    def pre_process_xbrl_metadata(self: Self) -> pd.DataFrame:
+    def pre_process_xbrl_metadata(
+        self: Self,
+        xbrl_metadata_json: dict[Literal["instant", "duration"], list[dict[str, Any]]],
+    ) -> pd.DataFrame:
         """Default XBRL metadata processing and add a DBF-only xblr factoid.
 
         Note: we should probably parameterize this and add it into the standard
         :meth:`process_xbrl_metadata`.
-
-        NOTE: Needs to happen before &/or during `process_xbrl_metadata_calculations`
         """
-        tbl_meta = super().pre_process_xbrl_metadata
+        tbl_meta = super().pre_process_xbrl_metadata(xbrl_metadata_json)
         dbf_only_facts = [
             {
                 "xbrl_factoid": dbf_only_fact,
@@ -5032,19 +5080,19 @@ class CashFlowFerc1TableTransformer(Ferc1AbstractTableTransformer):
             )
         return df
 
-    @property
     @cache_df("pre_process_xbrl_metadata")
-    def pre_process_xbrl_metadata(self: Self) -> pd.DataFrame:
+    def pre_process_xbrl_metadata(
+        self: Self,
+        xbrl_metadata_json: dict[Literal["instant", "duration"], list[dict[str, Any]]],
+    ) -> pd.DataFrame:
         """Transform the metadata to reflect the transformed data.
 
         Replace the name of the balance column reported in the XBRL Instant table with
         starting_balance / ending_balance since we pull those two values into their own
         separate labeled rows, each of which should get the original metadata for the
         Instant column.
-
-        NOTE: Needs to happen before `process_xbrl_metadata_calculations`
         """
-        meta = super().pre_process_xbrl_metadata
+        meta = super().pre_process_xbrl_metadata(xbrl_metadata_json)
         ending_balance = meta[meta.xbrl_factoid == "starting_balance"].assign(
             xbrl_factoid="ending_balance"
         )
@@ -5349,7 +5397,7 @@ def calculation_components_xbrl_ferc1(**kwargs):
     for table_name, transformer in FERC1_TFR_CLASSES.items():
         calc_meta = transformer(
             xbrl_metadata_json=clean_xbrl_metadata_json[table_name]
-        ).process_xbrl_metadata_calculations
+        ).xbrl_calculations
         calc_metas.append(calc_meta)
     # squish all of the calc comp tables then add in the implicit table dimensions
     calc_components = pd.concat(calc_metas).pipe(
