@@ -36,6 +36,7 @@ from dagster import AssetIn, Definitions, JobDefinition, asset, define_asset_job
 
 import pudl
 from pudl.extract.ferc1 import raw_ferc1_assets, raw_xbrl_metadata_json
+from pudl.helpers import simplify_strings
 from pudl.io_managers import ferc1_dbf_sqlite_io_manager, ferc1_xbrl_sqlite_io_manager
 from pudl.metadata.fields import apply_pudl_dtypes
 from pudl.resources import dataset_settings
@@ -91,6 +92,15 @@ def get_plant_map() -> pd.DataFrame:
             "utility_name_eia": str,
             "utility_id_eia": int,
         },
+    ).pipe(
+        simplify_strings,
+        [
+            "plant_name_pudl",
+            "plant_name_ferc1",
+            "plant_name_eia",
+            "utility_name_ferc1",
+            "utility_name_eia",
+        ],
     )
 
 
@@ -451,20 +461,21 @@ def get_util_ids_eia_unmapped(
     utilities_eia_db = pudl_out.utils_eia860()[
         ["utility_id_eia", "utility_name_eia"]
     ].drop_duplicates(["utility_id_eia"])
-    unmapped_utils_eia = get_missing_ids(
+    unmapped_utils_eia_index = get_missing_ids(
         utilities_eia_mapped, utilities_eia_db, id_cols=["utility_id_eia"]
     )
 
     # Get the most recent total capacity for the unmapped utils.
-    unmapped_utils_eia = (
-        get_utility_most_recent_capacity(pudl_engine)
-        .loc[unmapped_utils_eia]
-        .merge(
-            utilities_eia_db.set_index("utility_id_eia"),
-            left_index=True,
-            right_index=True,
-            how="left",
-        )
+    utilities_eia_db = utilities_eia_db.set_index(["utility_id_eia"])
+    unmapped_utils_eia = utilities_eia_db.loc[unmapped_utils_eia_index]
+    util_recent_cap = get_utility_most_recent_capacity(pudl_engine)
+
+    unmapped_utils_eia = pd.merge(
+        unmapped_utils_eia,
+        util_recent_cap,
+        left_index=True,
+        right_index=True,
+        how="left",
     )
 
     plant_ids_in_eia923 = get_plants_ids_eia923(pudl_out=pudl_out)
@@ -541,9 +552,7 @@ def glue(ferc1=False, eia=False):
     # or trailing white space... since this field is being used as a key in
     # many cases. This also needs to be done any time plant_name is pulled in
     # from other tables.
-    plant_map = get_plant_map().pipe(
-        pudl.helpers.simplify_strings, ["plant_name_ferc1"]
-    )
+    plant_map = get_plant_map()
 
     plants_pudl = (
         plant_map.loc[:, ["plant_id_pudl", "plant_name_pudl"]]

@@ -70,7 +70,9 @@ def glue_test_dfs(
         "util_ids_ferc1_raw_xbrl": get_util_ids_ferc1_raw_xbrl(ferc1_engine_xbrl),
         "util_ids_ferc1_raw_dbf": get_util_ids_ferc1_raw_dbf(ferc1_engine_dbf),
         "plants_ferc1_raw": plants_ferc1_raw(dataset_settings_config),
-        "plants_eia_labeled": label_plants_eia(pudl_out),
+        "plants_eia_labeled": label_plants_eia(
+            pudl_out
+        ),  # does this need upper vs. lower case???
     }
     glue_test_dfs.update(glue(eia=True, ferc1=True))
     # more glue test input tables that are compiled from tables already in glue_test_dfs
@@ -86,6 +88,12 @@ def glue_test_dfs(
             ),
         }
     )
+    # Make everything lowercase
+    glue_test_dfs = {
+        df_name: df.applymap(lambda x: x.lower() if type(x) == str else x)
+        for (df_name, df) in glue_test_dfs.items()
+    }
+
     return glue_test_dfs
 
 
@@ -197,6 +205,7 @@ def test_for_fk_validation_and_unmapped_ids(
         glue_test_dfs[ids_right],
         id_cols,
     )
+
     if label_df:
         missing_df = label_missing_ids_for_manual_mapping(
             missing, glue_test_dfs[label_df]
@@ -269,8 +278,11 @@ def test_unmapped_utils_eia(
     queries. This test is duplicative with the sql foriegn key constraints.
     """
     unmapped_utils_eia = get_util_ids_eia_unmapped(
-        pudl_out, pudl_engine, glue_test_dfs["utilities_eia"]
+        pudl_out,
+        pudl_engine,
+        glue_test_dfs["utilities_eia"],
     )
+
     if save_unmapped_ids:
         save_to_devtools_glue(
             missing_df=unmapped_utils_eia,
