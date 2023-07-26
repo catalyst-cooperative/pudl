@@ -1,4 +1,4 @@
-"""tests for pudl/output/epacems.py loading functions."""
+"""Tests for pudl/output/epacems.py loading functions."""
 import dask.dataframe as dd
 import pytest
 from dagster import build_init_resource_context

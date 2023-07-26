@@ -8,6 +8,7 @@ import os
 from pathlib import Path
 
 import pytest
+import sqlalchemy as sa
 import yaml
 from dagster import build_init_resource_context, materialize_to_memory
 from ferc_xbrl_extractor import xbrl
@@ -15,8 +16,7 @@ from ferc_xbrl_extractor import xbrl
 import pudl
 from pudl import resources
 from pudl.cli.etl import pudl_etl_job_factory
-from pudl.cli.reset_db import reset_db
-from pudl.extract.ferc1 import xbrl_metadata_json
+from pudl.extract.ferc1 import raw_xbrl_metadata_json
 from pudl.extract.xbrl import FercXbrlDatastore, _get_sqlite_engine
 from pudl.ferc_to_sqlite.cli import ferc_to_sqlite_job_factory
 from pudl.io_managers import (
@@ -24,6 +24,7 @@ from pudl.io_managers import (
     ferc1_xbrl_sqlite_io_manager,
     pudl_sqlite_io_manager,
 )
+from pudl.metadata.classes import Package
 from pudl.output.pudltabl import PudlTabl
 from pudl.settings import DatasetsSettings, EtlSettings, XbrlFormNumber
 
@@ -193,6 +194,46 @@ def pudl_out_orig(live_dbs, pudl_engine):
 
 
 @pytest.fixture(scope="session")
+def ferc_to_sqlite_dbf_only(live_dbs, pudl_datastore_config, etl_settings, pudl_env):
+    """Create raw FERC 1 SQLite DBs, but only based on DBF sources."""
+    if not live_dbs:
+        ferc_to_sqlite_job_factory(
+            enable_xbrl=False,
+        )().execute_in_process(
+            run_config={
+                "resources": {
+                    "ferc_to_sqlite_settings": {
+                        "config": etl_settings.ferc_to_sqlite_settings.dict()
+                    },
+                    "datastore": {
+                        "config": pudl_datastore_config,
+                    },
+                },
+            },
+        )
+
+
+@pytest.fixture(scope="session")
+def ferc_to_sqlite_xbrl_only(live_dbs, pudl_datastore_config, etl_settings, pudl_env):
+    """Create raw FERC 1 SQLite DBs, but only based on XBRL sources."""
+    if not live_dbs:
+        ferc_to_sqlite_job_factory(
+            enable_dbf=False,
+        )().execute_in_process(
+            run_config={
+                "resources": {
+                    "ferc_to_sqlite_settings": {
+                        "config": etl_settings.ferc_to_sqlite_settings.dict()
+                    },
+                    "datastore": {
+                        "config": pudl_datastore_config,
+                    },
+                },
+            },
+        )
+
+
+@pytest.fixture(scope="session")
 def ferc_to_sqlite(live_dbs, pudl_datastore_config, etl_settings, pudl_env):
     """Create raw FERC 1 SQLite DBs.
 
@@ -220,7 +261,7 @@ def ferc_to_sqlite(live_dbs, pudl_datastore_config, etl_settings, pudl_env):
 
 
 @pytest.fixture(scope="session", name="ferc1_engine_dbf")
-def ferc1_dbf_sql_engine(ferc_to_sqlite):
+def ferc1_dbf_sql_engine(ferc_to_sqlite_dbf_only):
     """Grab a connection to the FERC Form 1 DB clone."""
     context = build_init_resource_context(
         resources={"dataset_settings": dataset_settings_config}
@@ -229,7 +270,7 @@ def ferc1_dbf_sql_engine(ferc_to_sqlite):
 
 
 @pytest.fixture(scope="session", name="ferc1_engine_xbrl")
-def ferc1_xbrl_sql_engine(ferc_to_sqlite, dataset_settings_config):
+def ferc1_xbrl_sql_engine(ferc_to_sqlite_xbrl_only, dataset_settings_config):
     """Grab a connection to the FERC Form 1 DB clone."""
     context = build_init_resource_context(
         resources={"dataset_settings": dataset_settings_config}
@@ -287,15 +328,16 @@ def ferc_xbrl(
 @pytest.fixture(scope="session", name="ferc1_xbrl_taxonomy_metadata")
 def ferc1_xbrl_taxonomy_metadata(ferc1_engine_xbrl):
     """Read the FERC 1 XBRL taxonomy metadata from JSON."""
-    result = materialize_to_memory([xbrl_metadata_json])
+    result = materialize_to_memory([raw_xbrl_metadata_json])
     assert result.success
 
-    return result.output_for_node("xbrl_metadata_json")
+    return result.output_for_node("raw_xbrl_metadata_json")
 
 
 @pytest.fixture(scope="session")
 def pudl_sql_io_manager(
     pudl_env,
+    pudl_settings_fixture,
     ferc1_engine_dbf,  # Implicit dependency
     ferc1_engine_xbrl,  # Implicit dependency
     live_dbs,
@@ -311,7 +353,12 @@ def pudl_sql_io_manager(
     """
     logger.info("setting up the pudl_engine fixture")
     if not live_dbs:
-        reset_db()
+        db_path = pudl_settings_fixture["pudl_db"]
+
+        # Create the database and schemas
+        engine = sa.create_engine(db_path)
+        md = Package.from_resource_ids().to_sql()
+        md.create_all(engine)
         # Run the ETL and generate a new PUDL SQLite DB for testing:
         pudl_etl_job_factory()().execute_in_process(
             run_config={
@@ -393,12 +440,6 @@ def pudl_settings_dict(request, pudl_input_output_dirs):  # noqa: C901
     )
     logger.info(f"pudl_settings being used: {pretty_settings}")
     return pudl_settings
-
-
-@pytest.fixture(scope="session")  # noqa: C901
-def ferc1_dbf_datastore_fixture(pudl_datastore_fixture):
-    """Produce a :class:pudl.extract.ferc1.Ferc1DbfDatastore."""
-    return pudl.extract.ferc1.Ferc1DbfDatastore(pudl_datastore_fixture)
 
 
 @pytest.fixture(scope="session")

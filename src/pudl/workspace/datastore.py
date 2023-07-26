@@ -84,8 +84,15 @@ class DatapackageDescriptor:
             )
 
     def _matches(self, res: dict, **filters: Any):
+        for k, v in filters.items():
+            if str(v) != str(v).lower():
+                logger.warning(
+                    f"Resource filter values should be all lowercase: {k}={v}"
+                )
         parts = res.get("parts", {})
-        return all(str(parts.get(k)) == str(v) for k, v in filters.items())
+        return all(
+            str(parts.get(k)).lower() == str(v).lower() for k, v in filters.items()
+        )
 
     def get_resources(
         self, name: str = None, **filters: Any
@@ -115,6 +122,19 @@ class DatapackageDescriptor:
             for k, v in res.get("parts", {}).items():
                 partitions[k].add(v)
         return partitions
+
+    def get_partition_filters(self, **filters: Any) -> Iterator[dict[str, str]]:
+        """Returns list of all known partition mappings.
+
+        This can be used to iterate over all resources as the mappings can be directly
+        used as filters and should map to unique resource.
+
+        Args:
+            filters: additional constraints for selecting relevant partitions.
+        """
+        for res in self.datapackage_json["resources"]:
+            if self._matches(res, **filters):
+                yield dict(res.get("parts", {}))
 
     def _validate_datapackage(self, datapackage_json: dict):
         """Checks the correctness of datapackage.json metadata.
@@ -153,10 +173,10 @@ class ZenodoFetcher:
             "eia861": "10.5072/zenodo.1103262",
             "eia923": "10.5072/zenodo.1090056",
             "eia_bulk_elec": "10.5072/zenodo.1103572",
-            "epacamd_eia": "10.5072/zenodo.1103224",
+            "epacamd_eia": "10.5072/zenodo.1199170",
             "epacems": "10.5072/zenodo.672963",
             "ferc1": "10.5072/zenodo.1070868",
-            "ferc2": "10.5072/zenodo.1096047",
+            "ferc2": "10.5072/zenodo.1188447",
             "ferc6": "10.5072/zenodo.1098088",
             "ferc60": "10.5072/zenodo.1098089",
             "ferc714": "10.5072/zenodo.1098302",
@@ -168,10 +188,10 @@ class ZenodoFetcher:
             "eia861": "10.5281/zenodo.7191809",
             "eia923": "10.5281/zenodo.7236677",
             "eia_bulk_elec": "10.5281/zenodo.7067367",
-            "epacamd_eia": "10.5281/zenodo.7650939",
+            "epacamd_eia": "10.5281/zenodo.7900974",
             "epacems": "10.5281/zenodo.6910058",
             "ferc1": "10.5281/zenodo.7314437",
-            "ferc2": "10.5281/zenodo.7130128",
+            "ferc2": "10.5281/zenodo.8006881",
             "ferc6": "10.5281/zenodo.7130141",
             "ferc60": "10.5281/zenodo.7130146",
             "ferc714": "10.5281/zenodo.7139875",
@@ -393,6 +413,13 @@ class Datastore:
         """Retrieves unique resource and opens it as a ZipFile."""
         return zipfile.ZipFile(io.BytesIO(self.get_unique_resource(dataset, **filters)))
 
+    def get_zipfile_resources(
+        self, dataset: str, **filters: Any
+    ) -> Iterator[tuple[PudlResourceKey, zipfile.ZipFile]]:
+        """Iterates over resources that match filters and opens each as ZipFile."""
+        for resource_key, content in self.get_resources(dataset, **filters):
+            yield resource_key, zipfile.ZipFile(io.BytesIO(content))
+
 
 class ParseKeyValues(argparse.Action):
     """Transforms k1=v1,k2=v2,...
@@ -507,7 +534,7 @@ def _get_pudl_in(args: dict) -> Path:
     if args.pudl_in:
         return Path(args.pudl_in)
     else:
-        return Path(pudl.workspace.setup.get_defaults()["pudl_in"])
+        return Path(pudl.workspace.setup.get_defaults()["PUDL_INPUT"])
 
 
 def _create_datastore(args: argparse.Namespace) -> Datastore:
@@ -515,7 +542,7 @@ def _create_datastore(args: argparse.Namespace) -> Datastore:
     # Configure how we want to obtain raw input data:
     ds_kwargs = dict(gcs_cache_path=args.gcs_cache_path, sandbox=args.sandbox)
     if not args.bypass_local_cache:
-        ds_kwargs["local_cache_path"] = _get_pudl_in(args) / "data"
+        ds_kwargs["local_cache_path"] = _get_pudl_in(args)
     return Datastore(**ds_kwargs)
 
 

@@ -1,4 +1,4 @@
-.. _run-the-etl:
+.. _run_the_etl:
 
 ===============================================================================
 Running the ETL Pipeline
@@ -14,10 +14,45 @@ These instructions assume you have already gone through the :ref:`dev_setup`.
 Database initialization
 -----------------------
 
-Before we run anything (and after we make changes to the database schema), we'll
-need to make sure that the schema in the database actually matches the schema
-in the code - run ``pudl_reset_db`` to delete whatever is already there and
-recreate the database with the right schema.
+Before we run anything, we'll need to make sure that the schema in the database
+actually matches the schema in the code - run ``alembic upgrade head`` to create
+the database with the right schema. If you already have a ``pudl.sqlite`` you'll
+need to delete it first.
+
+Database schema migration
+-------------------------
+
+If you've changed the database schema, you'll need to make a migration for that
+change and apply that migration to the database to keep the database schema up-
+to-date:
+
+
+.. code-block:: bash
+
+    $ alembic revision --autogenerate -m "Add my cool table"
+    $ alembic upgrade head
+    $ git add migrations
+    $ git commit -m "Migration: added my cool table"
+
+When switching branches, Alembic may refer to a migration version that is not
+on your current branch. This will manifest as an error like this when running an
+Alembic command::
+
+    FAILED: Can't locate revision identified by '29d443aadf25'
+
+If you encounter that, you will want to check out the git branch that *does*
+include that migration in the ``migrations`` directory. Then you should run
+``alembic downgrade head-1`` to revert the database to the prior version. Then
+you can go back to the branch that doesn't have your migration, and use Alembic
+in peace.
+
+If the migrations have diverged for more than one revision, you can specify the
+specific version you would like to downgrade to with its hash. You may also
+want to keep a copy of the old SQLite database around, so you can easily switch
+between branches without having to regenerate data.
+
+More information can be found in the `Alembic docs
+<https://alembic.sqlalchemy.org/en/latest/tutorial.html>`__.
 
 Dagster
 -------
@@ -30,9 +65,9 @@ familiarize yourself with the tool's main concepts.
 There are a handful of Dagster concepts worth understanding prior
 to interacting with the PUDL data processing pipeline:
 
-**Dagit:**
-`Dagit <https://docs.dagster.io/concepts/dagit/dagit>`__ is the Dagster
-UI for monitoring and executing ETL runs.
+**Dagster UI:**
+`The Dagster UI <https://docs.dagster.io/concepts/webserver/ui>`__
+is used for monitoring and executing ETL runs.
 
 **Software Defined Assets (SDAs):**
 
@@ -98,7 +133,7 @@ FERC, EIA and EPA CEMS pipelines for the most recent year.
 **Definitions**:
 `Definitions  <https://docs.dagster.io/concepts/code-locations>`__
 are collections of assets, resources, IO managers and jobs that can
-be loaded into dagit and executed. Definitions can have multiple
+be loaded into the dagster UI and executed. Definitions can have multiple
 preconfigured jobs. For example, the ``pudl.ferc_to_sqlite`` definition
 contains ``etl_fast`` and ``etl_full`` jobs.
 
@@ -120,7 +155,7 @@ Both definitions have two preconfigured jobs:
   - ``etl_fast`` processes one year of data
   - ``etl_full`` processes all years of data
 
-.. _run-dagit:
+.. _run-dagster-ui:
 
 Running the ETL with Dagit
 --------------------------
@@ -133,49 +168,58 @@ variable to the path of the new directory:
 
 .. code-block:: console
 
-    $ echo "export DAGSTER_HOME=/path/to/dagster_home/dir" >> ~/.zshrc # zsh
-    $ echo "export DAGSTER_HOME=/path/to/dagster_home/dir" >> ~/.bashrc # bash
-    $ set -Ux DAGSTER_HOME /path/to/dagster_home/dir # fish
+    $ echo "export DAGSTER_HOME=/path/to/dagster_home" >> ~/.zshrc # zsh
+    $ echo "export DAGSTER_HOME=/path/to/dagster_home" >> ~/.bashrc # bash
+    $ set -Ux DAGSTER_HOME /path/to/dagster_home # fish
 
-Once ``DAGSTER_HOME`` is set, launch Dagit by running:
-
-.. code-block:: console
-
-    $ dagit -m pudl.etl -m pudl.ferc_to_sqlite
-
-To avoid typing out the dagit command each time you want to launch it,
-you can create an alias for the command in your shell:
+Add ``DAGSTER_HOME`` to the currecnt session with
 
 .. code-block:: console
 
-    $ echo "alias launch_dagit='dagit -m pudl.etl -m pudl.ferc_to_sqlite'" >> ~/.zshrc # zsh
-    $ echo "alias launch_dagit='dagit -m pudl.etl -m pudl.ferc_to_sqlite'" >> ~/.bashrc # bash
-    $ alias launch_dagit="dagit -m pudl.etl -m pudl.ferc_to_sqlite" # fish
+    $ export DAGSTER_HOME=/path/to/dagster_home
+
+Once ``DAGSTER_HOME`` is set, launch the dagster UI by running:
+
+.. code-block:: console
+
+    $ dagster-webserver -m pudl.etl -m pudl.ferc_to_sqlite
+
+To avoid typing out the ``dagster-webserver`` command each time you want to launch
+the UI, you can create an alias for the command in your shell:
+
+.. code-block:: console
+
+    $ echo "alias launch_dagster='dagster-webserver -m pudl.etl -m pudl.ferc_to_sqlite'" >> ~/.zshrc # zsh
+    $ echo "alias launch_dagster='dagster-webserver -m pudl.etl -m pudl.ferc_to_sqlite'" >> ~/.bashrc # bash
+    $ alias launch_dagster="dagster-webserver -m pudl.etl -m pudl.ferc_to_sqlite" # fish
 
 .. note::
 
     If ``DAGSTER_HOME`` is not set, you will still be able to execute jobs but
     dagster logs and outputs of assets that use the default `fs_io_manager <https://docs.dagster.io/_apidocs/io-managers#dagster.fs_io_manager>`__
-    will be saved to a temporary directory that is deleted when dagit exits.
+    will be saved to a temporary directory that is deleted when the ``dagster-webserver`` process exits.
 
-This will launch Dagit at http://localhost:3000/. You should see
+This will launch the dagster UI at http://localhost:3000/. You should see
 a window that looks like this:
 
-.. image:: ../images/dagit_home.png
+.. image:: ../images/dagster_ui_home.png
   :width: 800
-  :alt: Dagit home
+  :alt: Dagster UI home
 
 Click the hamburger button in the upper left to view the definitions,
 assets and jobs.
 
-**Cloning the FERC databases**
+^^^^^^^^^^^^^^^^^^^^^^^^^^
+Cloning the FERC databases
+^^^^^^^^^^^^^^^^^^^^^^^^^^
+
 To run the data pipelines, you'll first need to create the raw FERC databases by
 clicking on one of the ``pudl.ferc_to_sqlite`` jobs. Then select "Launchpad"
 where you can adjust the years to extract for each dataset. Then click
-"Launch Run" in the lower right hand corner of the window. Dagit will
+"Launch Run" in the lower right hand corner of the window. The UI will
 take you to a new window that provides information about the status of
 the job. The bottom part of the window contains dagster logs. You can
-view logs from the ``pudl`` package in the CLI window the dagit process
+view logs from the ``pudl`` package in the CLI window the ``dagster-webserver`` process
 is running in.
 
 If you need to set op configurations, such as the ``clobber`` setting, you can
@@ -189,7 +233,38 @@ add them in the Launchpad tab of the job like so::
       config:
         clobber: true
 
-**Running the PUDL ETL**
+You can also adjust the years to process for each dataset using the Launchpad
+tab::
+
+  resources:
+    ferc_to_sqlite_settings:
+      config:
+        ferc1_dbf_to_sqlite_settings:
+          years:
+          - 2020
+          - 2019
+          - 2018
+        ferc1_xbrl_to_sqlite_settings:
+          years:
+          - 2021
+        ferc2_xbrl_to_sqlite_settings:
+          years:
+          - 2021
+        ferc60_xbrl_to_sqlite_settings:
+          years:
+          - 2021
+        ferc6_xbrl_to_sqlite_settings:
+          years:
+          - 2021
+        ferc714_xbrl_to_sqlite_settings:
+          years:
+          - 2021
+
+
+^^^^^^^^^^^^^^^^^^^^
+Running the PUDL ETL
+^^^^^^^^^^^^^^^^^^^^
+
 Once the raw FERC databases are created by a ``pudl.ferc_to_sqlite`` job,
 you can execute the main PUDL ETL.
 
@@ -207,11 +282,12 @@ in the ``pudl.etl`` definition. Subsets of the ``pudl.etl`` asset graph
 are organized by asset groups. These groups are helfpul for visualizing and
 executing subsets of the asset graph.
 
-To execute the job, select ``fast_etl`` or ``full_etl`` and click "Materialize all".
+To execute the job, select ``etl_fast`` or ``etl_full`` and click "Materialize all".
 You can congifure which years to process by shift+clicking "Materialize all".
+Read the :ref:`resource_config` section to learn more.
 To view the status of the run, click the date next to "Latest run:".
 
-.. image:: ../images/dagit_pudl_etl.png
+.. image:: ../images/dagster_ui_pudl_etl.png
   :width: 800
   :alt: Dagit pudl_etl
 
@@ -222,9 +298,23 @@ want to rerun the entire ETL.
 
 .. note::
 
+  Dagster does not allow you to select asset groups for a specific job.
+  For example, if you click on the ``raw_eia860`` asset group in Dagit,
+  click "Materialize All", the default configuration values will be used
+  so all available years of the data will be extracted.
+
+  To process a subset of years for a specific asset group, select the
+  asset group, shift+click "Materialize all" and configure the
+  ``dataset_settings`` resource with the desired years.
+
+.. note::
+
   Dagster will throw an ``DagsterInvalidSubsetError`` if you try to
   re-execute a subset of assets produced by a single function. This can
   be resolved by re-materializing the asset group of the desired asset.
+
+Read the :ref:`dev_dagster` documentation page to learn more about working
+with dagster.
 
 .. _run-cli:
 
@@ -261,7 +351,7 @@ you run ``pudl_setup``. (see: :ref:`install-workspace`).
   using the settings file. With the migration to dagster, all datasources are
   processed no matter what datasources are included in the settings file.
   If you want to process a single datasource, materialize the appropriate assets
-  in dagit. (see :ref:`run-dagit`).
+  in the dagster UI. (see :ref:`run-dagster-ui`).
 
 Each file contains instructions for how to process the data under "full" or "fast"
 conditions respectively. You can copy, rename, and modify these files to suit your
@@ -287,13 +377,6 @@ needs. The layout of these files is depicted below:
         │    └── dataset etl parameter (e.g. years) : editable list of years
         └── dataset name
         │    └── dataset etl parameter (e.g. years) : editable list of years
-
-.. note::
-
-    Do not change anything other than the dataset parameters and the name, title, and
-    description fields unless you want to remove an entire dataset. For example, CEMS
-    data takes a long time to load so you can comment out or delete all settings
-    pertaining to CEMS. See below for a way to add it later.
 
 Both scripts enable you to choose which **years** you want to include:
 

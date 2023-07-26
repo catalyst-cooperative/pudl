@@ -231,14 +231,12 @@ PLANT_PARTS: OrderedDict[str, dict[str, list]] = OrderedDict(
         },
     }
 )
-"""
-dict: this dictionary contains a key for each of the 'plant parts' that should
-end up in the plant parts list. The top-level value for each key is another
-dictionary, which contains keys:
+"""Dict: this dictionary contains a key for each of the 'plant parts' that should end up
+in the plant parts list. The top-level value for each key is another dictionary, which
+contains keys:
 
 * id_cols (the primary key type id columns for this plant part). The
   plant_id_eia column must come first.
-
 """
 
 PLANT_PARTS_LITERAL = Literal[
@@ -277,17 +275,15 @@ SUM_COLS: list[str] = [
     "capacity_eoy_mw",
     "total_mmbtu",
 ]
-"""list: list of columns to sum when aggregating a table."""
+"""List: list of columns to sum when aggregating a table."""
 
 WTAVG_DICT = {
     "fuel_cost_per_mwh": "capacity_mw",
     "heat_rate_mmbtu_mwh": "capacity_mw",
     "fuel_cost_per_mmbtu": "capacity_mw",
 }
-"""
-dict: a dictionary of columns (keys) to perform weighted averages on and
-the weight column (values)
-"""
+"""Dict: a dictionary of columns (keys) to perform weighted averages on and the weight
+column (values)"""
 
 CONSISTENT_ATTRIBUTE_COLS = [
     "fuel_type_code_pudl",
@@ -301,10 +297,10 @@ CONSISTENT_ATTRIBUTE_COLS = [
     "ferc_acct_name",
     "generator_operating_year",
 ]
-"""
-list: a list of column names to add as attributes when they are consistent into
-the aggregated plant-part records. All the plant part ID columns must be in
-consistent attributes.
+"""List: a list of column names to add as attributes when they are consistent into the
+aggregated plant-part records.
+
+All the plant part ID columns must be in consistent attributes.
 """
 
 PRIORITY_ATTRIBUTES_DICT = {
@@ -453,7 +449,7 @@ class MakeMegaGenTbl:
             mcoe: generator-based mcoe table from :meth:`pudl.output.PudlTabl.mcoe()`
             own_eia860: ownership table from :meth:`pudl.output.PudlTabl.own_eia860()`
             scale_cols: list of columns to slice by ownership fraction in
-                :meth:`MakeMegaGenTbl.scale_by_ownership`. Default is :py:const:`SUM_COLS`
+                :meth:`pudl.helpers.scale_by_ownership`. Default is :py:const:`SUM_COLS`
             validate_own_merge: how the merge between ``mcoe`` and ``own_eia860``
                 is to be validated via ``pd.merge``. If there should be one
                 record for each plant/generator/date in ``mcoe`` then the default
@@ -475,7 +471,12 @@ class MakeMegaGenTbl:
         gens_mega = (
             self.get_gens_mega_table(mcoe)
             .pipe(self.label_operating_gens)
-            .pipe(self.scale_by_ownership, own_eia860, slice_cols, validate_own_merge)
+            .pipe(
+                pudl.helpers.scale_by_ownership,
+                own_eia860,
+                slice_cols,
+                validate_own_merge,
+            )
         )
         return gens_mega
 
@@ -550,84 +551,6 @@ class MakeMegaGenTbl:
             "generators as non-operative."
         )
         return gen_df
-
-    def scale_by_ownership(
-        self, gens_mega, own_eia860, scale_cols=SUM_COLS, validate="1:m"
-    ):
-        """Generate proportional data by ownership %s.
-
-        Why do we have to do this at all? Sometimes generators are owned by
-        many different utility owners that own slices of that generator. EIA
-        reports which portion of each generator is owned by which utility
-        relatively clearly in their ownership table. On the other hand, in
-        FERC1, sometimes a partial owner reports the full plant-part, sometimes
-        they report only their ownership portion of the plant-part. And of
-        course it is not labeld in FERC1. Because of this, we need to compile
-        all of the possible ownership slices of the EIA generators.
-
-        In order to accumulate every possible version of how a generator could
-        be reported, this method generates two records for each generator's
-        reported owners: one of the portion of the plant part they own and one
-        for the plant-part as a whole. The portion records are labeled in the
-        ``ownership_record_type`` column as "owned" and the total records are labeled as
-        "total".
-
-        In this function we merge in the ownership table so that generators
-        with multiple owners then have one record per owner with the
-        ownership fraction (in column ``fraction_owned``). Because the ownership
-        table only contains records for generators that have multiple owners,
-        we assume that all other generators are owned 100% by their operator.
-        Then we generate the "total" records by duplicating the "owned" records
-        but assigning the ``fraction_owned`` to be 1 (i.e. 100%).
-        """
-        # grab the ownership table, and reduce it to only the columns we need
-        own860 = own_eia860[
-            [
-                "plant_id_eia",
-                "generator_id",
-                "report_date",
-                "fraction_owned",
-                "owner_utility_id_eia",
-            ]
-        ].pipe(pudl.helpers.convert_cols_dtypes, "eia")
-        # we're left merging BC we've removed the retired gens, which are
-        # reported in the ownership table
-        gens_mega = (
-            gens_mega.merge(
-                own860,
-                how="left",
-                on=["plant_id_eia", "generator_id", "report_date"],
-                validate=validate,
-            )
-            .assign(  # assume gens that don't show up in the own table have one 100% owner
-                fraction_owned=lambda x: x.fraction_owned.fillna(value=1),
-                # assign the operator id as the owner if null bc if a gen isn't
-                # reported in the own_eia860 table we can assume the operator
-                # is the owner
-                owner_utility_id_eia=lambda x: x.owner_utility_id_eia.fillna(
-                    x.utility_id_eia
-                ),
-                ownership_record_type="owned",
-            )  # swap in the owner as the utility
-            .drop(columns=["utility_id_eia"])
-            .rename(columns={"owner_utility_id_eia": "utility_id_eia"})
-        )
-
-        # duplicate all of these "owned" records, asign 1 to all of the
-        # fraction_owned column to indicate 100% ownership, and add these new
-        # "total" records to the "owned"
-        gens_mega = pd.concat(
-            [
-                gens_mega,
-                gens_mega.copy().assign(
-                    fraction_owned=1, ownership_record_type="total"
-                ),
-            ]
-        )
-        gens_mega.loc[:, scale_cols] = gens_mega.loc[:, scale_cols].multiply(
-            gens_mega["fraction_owned"], axis="index"
-        )
-        return gens_mega
 
 
 class MakePlantParts:

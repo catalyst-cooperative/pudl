@@ -5,11 +5,11 @@ we would refactor the functions to be more testable, but for now we are just foc
 getting them tested.
 
 These tests also struggle with the need to have parameters with data from the most
-recent year (so as not to fail during the fast_etl). In future years, some of these
-will xfail for the wrong reasons (because they are from a year that doesn't exist in
-the fast data not because of the stated reason). We'll need to fix both the xfail and
-non xfail parameters. Ideally we'll design a way to automatically grab the most recent
-year so we don't have to update this manually.
+recent year (so as not to fail during the fast_etl). In future years, some of these will
+xfail for the wrong reasons (because they are from a year that doesn't exist in the fast
+data not because of the stated reason). We'll need to fix both the xfail and non xfail
+parameters. Ideally we'll design a way to automatically grab the most recent year so we
+don't have to update this manually.
 """
 
 import importlib.resources

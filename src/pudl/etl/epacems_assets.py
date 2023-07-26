@@ -137,19 +137,20 @@ def consolidate_partitions(context, partitions: list[YearPartitions]) -> None:
 
 @graph_asset
 def hourly_emissions_epacems(
-    epacamd_eia: pd.DataFrame, plants_entity_eia: pd.DataFrame
+    epacamd_eia_unique: pd.DataFrame, plants_entity_eia: pd.DataFrame
 ) -> None:
     """Extract, transform and load CSVs for EPA CEMS.
 
     This asset creates a dynamic graph of ops to process EPA CEMS data in parallel. It
     will create both a partitioned and single monolithic parquet output. For more
-    information see: https://docs.dagster.io/concepts/ops-jobs-graphs/dynamic-graphs.
+    information see:
+    https://docs.dagster.io/concepts/ops-jobs-graphs/dynamic-graphs.
     """
     years = get_years_from_settings()
     partitions = years.map(
         lambda year: process_single_year(
             year,
-            epacamd_eia,
+            epacamd_eia_unique,
             plants_entity_eia,
         )
     )

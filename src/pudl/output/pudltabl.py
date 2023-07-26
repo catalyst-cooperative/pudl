@@ -29,11 +29,6 @@ import pandas as pd
 import sqlalchemy as sa
 
 import pudl
-from pudl.analysis.allocate_net_gen import (
-    aggregate_gen_fuel_by_generator,
-    allocate_gen_fuel_by_generator_energy_source,
-    scale_allocated_net_gen_by_ownership,
-)
 from pudl.metadata.classes import Resource
 from pudl.metadata.fields import apply_pudl_dtypes
 
@@ -173,6 +168,11 @@ class PudlTabl:
             # eia860 (denormalized, data primarily from EIA-860)
             "denorm_ownership_eia860": "own_eia860",
             "boiler_generator_assn_eia860": "bga_eia860",
+            "denorm_emissions_control_equipment_eia860": "denorm_emissions_control_equipment_eia860",
+            "boiler_emissions_control_equipment_assn_eia860": "boiler_emissions_control_equipment_assn_eia860",
+            "emissions_control_equipment_eia860": "emissions_control_equipment_eia860",
+            "boiler_stack_flue_assn_eia860": "boiler_stack_flue_assn_eia860",
+            "boiler_cooling_assn_eia860": "boiler_cooling_assn_eia860",
             # eia861 (clean)
             "service_territory_eia861": "service_territory_eia861",
             "sales_eia861": "sales_eia861",
@@ -211,6 +211,13 @@ class PudlTabl:
             # ferc714
             "respondent_id_ferc714": "respondent_id_ferc714",
             "demand_hourly_pa_ferc714": "demand_hourly_pa_ferc714",
+            "fipsified_respondents_ferc714": "fipsified_respondents_ferc714",
+            "summarized_demand_ferc714": "summarized_demand_ferc714",
+            # service territory
+            "compiled_geometry_balancing_authority_eia861": "compiled_geometry_balancing_authority_eia861",
+            "compiled_geometry_utility_eia861": "compiled_geometry_utility_eia861",
+            # state demand
+            "predicted_state_hourly_demand": "predicted_state_hourly_demand",
         }
 
         for table_name, method_name in table_method_map.items():
@@ -241,13 +248,21 @@ class PudlTabl:
                 table_name = table_name.replace("_AGG", "")
         return table_name
 
-    def _get_table_from_db(self, table_name: str, resource: Resource) -> pd.DataFrame:
+    def _get_table_from_db(
+        self, table_name: str, resource: Resource, update: bool = False
+    ) -> pd.DataFrame:
         """Grab output table from PUDL DB.
 
         Args:
             table_name: Name of table to get.
             resource: Resource metadata used to enforce schema on table.
+            update: Ignored. Retained for backwards compatibility only.
         """
+        if update:
+            logger.warning(
+                "The update parameter is deprecated and has no effect."
+                "It is retained for backwards compatibility only."
+            )
         table_name = self._agg_table_name(table_name)
         return pd.concat(
             [
@@ -276,8 +291,12 @@ class PudlTabl:
             ``report_date`` or ``report_year``) to lie between ``self.start_date`` and
             ``self.end_date`` (inclusive).
         """
-        pt = pudl.output.pudltabl.get_table_meta(self.pudl_engine)
-        tbl = pt[f"{table}"]
+        md = sa.MetaData()
+        md.reflect(self.pudl_engine)
+        try:
+            tbl = md.tables[f"{table}"]
+        except KeyError:
+            print(f"{table} not found in the metadata.")
         tbl_select = sa.sql.select(tbl)
 
         start_date = pd.to_datetime(self.start_date)
@@ -302,7 +321,7 @@ class PudlTabl:
     ###########################################################################
     # EIA 860/923 OUTPUTS
     ###########################################################################
-    def gen_eia923(self, update=False):
+    def gen_eia923(self, update: bool = False) -> pd.DataFrame:
         """Pull EIA 923 net generation data by generator.
 
         Net generation is reported in two seperate tables in EIA 923: in the
@@ -316,80 +335,74 @@ class PudlTabl:
         generation_fuel_eia923 table to the generator level.
 
         Args:
-            update (bool): If true, re-calculate the output dataframe, even if
-                a cached version exists.
+            update: Ignored. Retained for backwards compatibility only.
 
         Returns:
-            pandas.DataFrame: a denormalized table for interactive use.
+            A denormalized generation table for interactive use.
         """
-        if update or self._dfs["gen_eia923"] is None:
-            if self.fill_net_gen:
-                if self.freq not in ["AS", "MS"]:
-                    raise AssertionError(
-                        "Frequency must be either `AS` or `MS` to allocate net "
-                        f"generation. Got {self.freq}"
-                    )
-                logger.info(
-                    "Allocating net generation from the generation_fuel_eia923 "
-                    "to the generator level instead of using the less complete "
-                    "generation_eia923 table."
-                )
-
-                self._dfs["gen_eia923"] = self.gen_fuel_by_generator_eia923(
-                    update=update
-                ).loc[:, list(self.gen_original_eia923().columns)]
-            else:
-                self._dfs["gen_eia923"] = self.gen_original_eia923()
-        return self._dfs["gen_eia923"]
-
-    def gen_fuel_by_generator_energy_source_eia923(self, update=False):
-        """Net generation and fuel data allocated to generator/energy_source_code.
-
-        Net generation and fuel data originally reported in the gen fuel table
-        """
-        if update or self._dfs["gen_fuel_by_genid_esc_eia923"] is None:
-            self._dfs[
-                "gen_fuel_by_genid_esc_eia923"
-            ] = allocate_gen_fuel_by_generator_energy_source(pudl_out=self)
-        return self._dfs["gen_fuel_by_genid_esc_eia923"]
-
-    def gen_fuel_by_generator_eia923(self, update=False):
-        """Net generation from gen fuel table allocated to generators."""
-        if update or self._dfs["gen_fuel_allocated_eia923"] is None:
+        if self.fill_net_gen:
             if self.freq not in ["AS", "MS"]:
                 raise AssertionError(
-                    "Frequency must be either `AS` or `MS` to allocate net "
-                    f"generation. Got {self.freq}"
+                    "Allocated net generation requires frequency of `AS` or `MS`, "
+                    f"got {self.freq}"
                 )
-            self._dfs["gen_fuel_allocated_eia923"] = aggregate_gen_fuel_by_generator(
-                pudl_out=self,
-                net_gen_fuel_alloc=self.gen_fuel_by_generator_energy_source_eia923(
-                    update=update
-                ),
-            )
-        return self._dfs["gen_fuel_allocated_eia923"]
+            table_name = self._agg_table_name("generation_fuel_by_generator_AGG_eia923")
+            resource = Resource.from_id(table_name)
+            gen_df = self._get_table_from_db(table_name, resource=resource)
+            gen_df = gen_df.loc[:, resource.get_field_names()]
+        else:
+            table_name = self._agg_table_name("denorm_generation_AGG_eia923")
+            resource = Resource.from_id(table_name)
+            gen_df = self._get_table_from_db(table_name, resource=resource)
+        return gen_df
 
-    def gen_fuel_by_generator_energy_source_owner_eia923(self, update=False):
-        """Generation and fuel consumption by generator/energy_source_code/owner."""
-        if update or self._dfs["gen_fuel_by_genid_esc_own"] is None:
-            self._dfs[
-                "gen_fuel_by_genid_esc_own"
-            ] = scale_allocated_net_gen_by_ownership(
-                gen_pm_fuel=self.gen_fuel_by_generator_energy_source_eia923(),
-                gens=self.gens_eia860(),
-                own_eia860=self.own_eia860(),
+    def gen_fuel_by_generator_energy_source_eia923(
+        self, update: bool = False
+    ) -> pd.DataFrame:
+        """Generation and fuel consumption allocated to generators and energy source."""
+        if self.freq not in ["AS", "MS"]:
+            raise AssertionError(
+                "Allocated net generation requires frequency of `AS` or `MS`, "
+                f"got {self.freq}"
             )
-        return self._dfs["gen_fuel_by_genid_esc_own"]
+        table_name = self._agg_table_name(
+            "generation_fuel_by_generator_energy_source_AGG_eia923"
+        )
+        resource = Resource.from_id(table_name)
+        return self._get_table_from_db(table_name, resource=resource)
+
+    def gen_fuel_by_generator_eia923(self, update: bool = False) -> pd.DataFrame:
+        """Net generation from gen fuel table allocated to generators."""
+        if self.freq not in ["AS", "MS"]:
+            raise AssertionError(
+                "Allocated net generation requires frequency of `AS` or `MS`, "
+                f"got {self.freq}"
+            )
+        table_name = self._agg_table_name("generation_fuel_by_generator_AGG_eia923")
+        resource = Resource.from_id(table_name)
+        return self._get_table_from_db(table_name, resource=resource)
+
+    def gen_fuel_by_generator_energy_source_owner_eia923(
+        self, update: bool = False
+    ) -> pd.DataFrame:
+        """Generation and fuel consumption by generator/energy_source_code/owner."""
+        if self.freq != "AS":
+            raise AssertionError(
+                "Allocated net generation by owner can only be calculated annually. "
+                f"Got a frequency of: {self.freq}"
+            )
+        table_name = "generation_fuel_by_generator_energy_source_owner_yearly_eia923"
+        resource = Resource.from_id(table_name)
+        return self._get_table_from_db(table_name, resource=resource)
 
     ###########################################################################
     # EIA MCOE OUTPUTS
     ###########################################################################
-    def hr_by_gen(self, update=False):
+    def hr_by_gen(self, update: bool = False) -> pd.DataFrame:
         """Calculate and return generator level heat rates (mmBTU/MWh).
 
         Args:
-            update (bool): If true, re-calculate the output dataframe, even if
-                a cached version exists.
+            update: If True, re-calculate dataframe even if a cached version exists.
 
         Returns:
             pandas.DataFrame: a denormalized table for interactive use.
@@ -398,12 +411,11 @@ class PudlTabl:
             self._dfs["hr_by_gen"] = pudl.analysis.mcoe.heat_rate_by_gen(self)
         return self._dfs["hr_by_gen"]
 
-    def hr_by_unit(self, update=False):
+    def hr_by_unit(self, update: bool = False) -> pd.DataFrame:
         """Calculate and return generation unit level heat rates.
 
         Args:
-            update (bool): If true, re-calculate the output dataframe, even if
-                a cached version exists.
+            update: If True, re-calculate dataframe even if a cached version exists.
 
         Returns:
             pandas.DataFrame: a denormalized table for interactive use.
@@ -412,12 +424,11 @@ class PudlTabl:
             self._dfs["hr_by_unit"] = pudl.analysis.mcoe.heat_rate_by_unit(self)
         return self._dfs["hr_by_unit"]
 
-    def fuel_cost(self, update=False):
+    def fuel_cost(self, update: bool = False) -> pd.DataFrame:
         """Calculate and return generator level fuel costs per MWh.
 
         Args:
-            update (bool): If true, re-calculate the output dataframe, even if
-                a cached version exists.
+            update: If True, re-calculate dataframe even if a cached version exists.
 
         Returns:
             pandas.DataFrame: a denormalized table for interactive use.
@@ -426,15 +437,21 @@ class PudlTabl:
             self._dfs["fuel_cost"] = pudl.analysis.mcoe.fuel_cost(self)
         return self._dfs["fuel_cost"]
 
-    def capacity_factor(self, update=False, min_cap_fact=None, max_cap_fact=None):
+    def capacity_factor(
+        self,
+        update: bool = False,
+        min_cap_fact: float | None = None,
+        max_cap_fact: float | None = None,
+    ) -> pd.DataFrame:
         """Calculate and return generator level capacity factors.
 
         Args:
-            update (bool): If true, re-calculate the output dataframe, even if
-                a cached version exists.
+            update: If True, re-calculate dataframe even if a cached version exists.
+            min_cap_fact: Minimum capacity factor to include in the output.
+            max_cap_fact: Maximum capacity factor to include in the output.
 
         Returns:
-            pandas.DataFrame: a denormalized table for interactive use.
+            A denormalized capacity factor table for interactive use.
         """
         if update or self._dfs["capacity_factor"] is None:
             self._dfs["capacity_factor"] = pudl.analysis.mcoe.capacity_factor(
@@ -450,8 +467,8 @@ class PudlTabl:
         min_cap_fact: float = 0.0,
         max_cap_fact: float = 1.5,
         all_gens: bool = True,
-        gens_cols: Any = None,
-    ):
+        gens_cols: Literal["all"] | list[str] | None = None,
+    ) -> pd.DataFrame:
         """Calculate and return generator level MCOE based on EIA data.
 
         Eventually this calculation will include non-fuel operating expenses
@@ -460,8 +477,7 @@ class PudlTabl:
         rates and fuel costs.
 
         Args:
-            update: If true, re-calculate the output dataframe, even if
-                a cached version exists.
+            update: If True, re-calculate dataframe even if a cached version exists.
             min_heat_rate: lowest plausible heat rate, in mmBTU/MWh. Any MCOE
                 records with lower heat rates are presumed to be invalid, and
                 are discarded before returning.
@@ -488,8 +504,7 @@ class PudlTabl:
                 will be merged into the final MCOE output.
 
         Returns:
-            :class:`pandas.DataFrame`: a compilation of generator attributes,
-            including fuel costs per MWh.
+            A compilation of generator attributes, including fuel costs per MWh.
         """
         if update or self._dfs["mcoe"] is None:
             self._dfs["mcoe"] = pudl.analysis.mcoe.mcoe(
@@ -503,34 +518,35 @@ class PudlTabl:
             )
         return self._dfs["mcoe"]
 
+    ###########################################################################
+    # Plant Parts EIA outputs
+    ###########################################################################
     def gens_mega_eia(
         self,
         update: bool = False,
-        gens_cols: Any = None,
+        gens_cols: Literal["all"] | list[str] | None = None,
     ) -> pd.DataFrame:
         """Generate and return a generators table with ownership integrated.
 
         Args:
-            update: If True, re-calculate the output dataframe, even
-                if a cached version exists.
-            gens_cols: equal to the string "all", None, or a list of
-                additional column attributes to include from the EIA 860 generators table
-                in the output mega gens table. By default all columns necessary to create
-                the plant parts EIA table are included.
+            update: If True, re-calculate dataframe even if a cached version exists.
+            gens_cols: equal to the string "all", None, or a list of additional column
+                attributes to include from the EIA 860 generators table in the output
+                mega gens table. By default all columns necessary to create the plant
+                parts EIA table are included.
 
         Returns:
-            A table of all of the generators with identifying
-            columns and data columns, sliced by ownership which makes
-            "total" and "owned" records for each generator owner. The "owned"
-            records have the generator's data scaled to the ownership percentage
-            (e.g. if a 100 MW generator has a 75% stake owner and a 25% stake
-            owner, this will result in two "owned" records with 75 MW and 25
-            MW). The "total" records correspond to the full plant for every
-            owner (e.g. using the same 2-owner 100 MW generator as above, each
-            owner will have a records with 100 MW).
+            A table of all of the generators with identifying columns and data columns,
+            sliced by ownership which makes "total" and "owned" records for each
+            generator owner. The "owned" records have the generator's data scaled to the
+            ownership percentage (e.g. if a 100 MW generator has a 75% stake owner and a
+            25% stake owner, this will result in two "owned" records with 75 MW and 25
+            MW). The "total" records correspond to the full plant for every owner (e.g.
+            using the same 2-owner 100 MW generator as above, each owner will have a
+            records with 100 MW).
 
         Raises:
-            AssertionError: If the frequency of the pudl_out object is not 'AS'
+            AssertionError: If the frequency of the pudl_out object is not ``AS``.
         """
         if update or self._dfs["gens_mega_eia"] is None:
             if self.freq != "AS":
@@ -570,8 +586,7 @@ class PudlTabl:
         """Generate and return master plant-parts EIA.
 
         Args:
-            update: If true, re-calculate the output dataframe, even
-                if a cached version exists.
+            update: If True, re-calculate dataframe even if a cached version exists.
             update_gens_mega: If True, update the gigantic Gens Mega table.
             gens_cols: equal to the string "all", None, or a list of
                 additional column attributes to include from the EIA 860 generators table
@@ -611,7 +626,6 @@ class PudlTabl:
     ###########################################################################
     # GLUE OUTPUTS
     ###########################################################################
-
     def ferc1_eia(
         self,
         update: bool = False,
@@ -636,10 +650,3 @@ class PudlTabl:
         return pd.read_sql("epacamd_eia", self.pudl_engine).pipe(
             apply_pudl_dtypes, group="glue"
         )
-
-
-def get_table_meta(pudl_engine):
-    """Grab the pudl SQLite database table metadata."""
-    md = sa.MetaData()
-    md.reflect(pudl_engine)
-    return md.tables

@@ -1198,7 +1198,9 @@ class Resource(Base):
         "static_eia",
         "static_eia_disabled",
         "eia_bulk_elec",
+        "state_demand",
         "static_pudl",
+        "service_territories",
     ] = None
     create_database_schema: bool = True
 

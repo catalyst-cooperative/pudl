@@ -21,9 +21,9 @@ APPROXIMATE_TIMEZONES: dict[str, str] = {
 This is imperfect for states that have split timezones. See:
 https://en.wikipedia.org/wiki/List_of_time_offsets_by_U.S._state_and_territory
 
-For states that are split, we chose the timezone with a larger population.
-List of timezones in pytz.common_timezones
-Canada: https://en.wikipedia.org/wiki/Time_in_Canada#IANA_time_zone_database
+For states that are split, we chose the timezone with a larger population. List of
+timezones in pytz.common_timezones Canada:
+https://en.wikipedia.org/wiki/Time_in_Canada#IANA_time_zone_database
 """
 
 NERC_REGIONS: list[str] = [
@@ -189,5 +189,4 @@ PLANT_PARTS: set[str] = {
     "plant_gen",
     "plant_match_ferc1",
 }
-
 """The plant parts in the EIA plant parts list."""

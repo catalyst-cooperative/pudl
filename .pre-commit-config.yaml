@@ -35,20 +35,15 @@ repos:
     rev: 5.12.0
     hooks:
       - id: isort
+        exclude: migrations/.*
 
   # Format the code
   - repo: https://github.com/psf/black
-    rev: 23.3.0
+    rev: 23.7.0
     hooks:
       - id: black
         language_version: python3.11
-
-  # Format docstrings
-  - repo: https://github.com/PyCQA/docformatter
-    rev: v1.5.1
-    hooks:
-      - id: docformatter
-        args: ["--in-place", "--config", "tox.ini"]
+        exclude: migrations/.*
 
   # Remove f-string prefix when there's nothing in the string to format.
   - repo: https://github.com/dannysepler/rm_unneeded_f_str
@@ -56,21 +51,15 @@ repos:
     hooks:
       - id: rm-unneeded-f-str
 
-  # Use built-in types for annotations as per PEP585
-  - repo: https://github.com/sondrelg/pep585-upgrade
-    rev: v1.0
-    hooks:
-      - id: upgrade-type-hints
-
   - repo: https://github.com/pre-commit/mirrors-prettier
-    rev: v3.0.0-alpha.6
+    rev: v3.0.0
     hooks:
       - id: prettier
         types_or: [yaml]
 
   # Update Python language constructs to modern standards
   - repo: https://github.com/asottile/pyupgrade
-    rev: v3.3.1
+    rev: v3.9.0
     hooks:
       - id: pyupgrade
         args: ["--py311-plus"]
@@ -85,6 +74,7 @@ repos:
     hooks:
       - id: flake8
         args: [--config, tox.ini]
+        exclude: migrations/.*
         additional_dependencies:
           - flake8-docstrings
           - flake8-colors

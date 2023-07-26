@@ -27,7 +27,7 @@ class FercXbrlDatastore:
     def get_taxonomy(self, year: int, form: XbrlFormNumber) -> tuple[io.BytesIO, str]:
         """Returns the path to the taxonomy entry point within the an archive."""
         raw_archive = self.datastore.get_unique_resource(
-            f"ferc{form.value}", year=year, data_format="XBRL"
+            f"ferc{form.value}", year=year, data_format="xbrl"
         )
 
         # Construct path to taxonomy entry point within archive
@@ -39,7 +39,7 @@ class FercXbrlDatastore:
     def get_filings(self, year: int, form: XbrlFormNumber) -> list[InstanceBuilder]:
         """Return list of filings from archive."""
         archive = self.datastore.get_zipfile_resource(
-            f"ferc{form.value}", year=year, data_format="XBRL"
+            f"ferc{form.value}", year=year, data_format="xbrl"
         )
 
         # Load RSS feed metadata
@@ -140,6 +140,10 @@ def xbrl2sqlite(context) -> None:
 
         # If no settings for form in question, skip
         if settings is None:
+            continue
+
+        if settings.disabled:
+            logger.info(f"Dataset ferc{form}_xbrl is disabled, skipping")
             continue
 
         sqlite_engine = _get_sqlite_engine(form.value, output_path, clobber)

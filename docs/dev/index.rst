@@ -7,6 +7,7 @@ Development
 
   dev_setup
   run_the_etl
+  dev_dagster
   project_management
   testing
   build_docs

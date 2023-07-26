@@ -133,8 +133,8 @@ def _is_best_match(
     obviously good matches and pay more attention to those that are more questionable.
 
     By default, a "best match" is comprised of a FERC-EIA match with a capacity percent
-    difference of less than 6%, a net generation percent difference of less than 6%,
-    and an installation year difference of less than 3 years.
+    difference of less than 6%, a net generation percent difference of less than 6%, and
+    an installation year difference of less than 3 years.
     """
     best_cap = df.capacity_mw_pct_diff < cap_pct_diff
     best_net_gen = df.net_generation_mwh_pct_diff < net_gen_pct_diff

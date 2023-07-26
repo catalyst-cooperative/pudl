@@ -362,6 +362,7 @@ def _manage_strictness(col: str, eia860m: bool) -> float:
         "plant_name_eia": 0,
         "utility_name_eia": 0,
         "longitude": 0 if eia860m else 0.7,
+        "prime_mover_code": 0,
     }
     return strictness_cols.get(col, strictness_default)
 
@@ -1150,6 +1151,10 @@ def harvested_entity_asset_factory(
         "clean_ownership_eia860",
         "clean_plants_eia860",
         "clean_utilities_eia860",
+        "clean_emissions_control_equipment_eia860",
+        "clean_boiler_emissions_control_equipment_assn_eia860",
+        "clean_boiler_cooling_assn_eia860",
+        "clean_boiler_stack_flue_assn_eia860",
     )
 
     @multi_asset(
@@ -1225,5 +1230,9 @@ finished_eia_assets = [
         "generation_fuel_eia923",
         "generation_fuel_nuclear_eia923",
         "ownership_eia860",
+        "emissions_control_equipment_eia860",
+        "boiler_emissions_control_equipment_assn_eia860",
+        "boiler_cooling_assn_eia860",
+        "boiler_stack_flue_assn_eia860",
     ]
 ]
