@@ -919,10 +919,12 @@ def calculate_values_from_components(
     # we are going to merge the data onto the calc components with the _parent
     # column names, so the groupby after the merge needs a set of by cols with the
     # _parent suffix
-    gby_parent = [
-        f"{col}_parent" if col in ["table_name", "xbrl_factoid"] else col
-        for col in data_idx
-    ]
+    child_to_parent_replace = {
+        col.removesuffix("_parent"): col
+        for col in calculation_components.columns
+        if col.endswith("_parent")
+    }
+    gby_parent = [child_to_parent_replace.get(col, col) for col in data_idx]
     calc_df = (
         pd.merge(
             calculation_components,

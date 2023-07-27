@@ -13,6 +13,7 @@ from pudl.transform.ferc1 import (
     UnstackBalancesToReportYearInstantXbrl,
     WideToTidy,
     add_parent_dimensions,
+    calculate_values_from_components,
     drop_duplicate_rows_dbf,
     fill_dbf_to_xbrl_map,
     make_calculation_dimensions_explicit,
@@ -387,6 +388,62 @@ entity_id,report_year,sched_table_name,idx_ending_balance,idx_starting_balance,t
         unstack_balances_to_report_year_instant_xbrl(
             df_non_unique_years, params=params, primary_key_cols=pk_cols
         )
+
+
+def test_calculate_values_from_components():
+    """Test :func:`calculate_values_from_components`."""
+    # drawing inspo from kim stanley robinson books
+    calculation_components_ksr = pd.read_csv(
+        StringIO(
+            """
+table_name_parent,xbrl_factoid_parent,table_name,xbrl_factoid,planet,weight
+books,big_fact,books,lil_fact_x,venus,1
+books,big_fact,books,lil_fact_z,venus,1
+books,big_fact,books,lil_fact_y,venus,1
+books,big_fact,books,lil_fact_x,earth,1
+books,big_fact,books,lil_fact_z,earth,1
+books,big_fact,books,lil_fact_y,earth,1
+"""
+        )
+    )
+    data_ksr = pd.read_csv(
+        StringIO(
+            f"""
+table_name,xbrl_factoid,planet,value,utility_id_ferc1,report_year
+books,lil_fact_x,venus,10,44,2312
+books,lil_fact_z,venus,11,44,2312
+books,lil_fact_y,venus,12,44,2312
+books,big_fact,venus,{10+11+12},44,2312
+books,lil_fact_x,earth,3,44,2312
+books,lil_fact_z,earth,4,44,2312
+books,lil_fact_y,earth,5,44,2312
+books,big_fact,earth,{3+4+5},44,2312
+"""
+        )
+    )
+    expected_ksr = pd.read_csv(
+        StringIO(
+            f"""
+table_name,xbrl_factoid,planet,value,utility_id_ferc1,report_year,calculated_amount
+books,lil_fact_x,venus,10.0,44,2312,
+books,lil_fact_z,venus,11.0,44,2312,
+books,lil_fact_y,venus,12.0,44,2312,
+books,big_fact,venus,33.0,44,2312,{10+11+12}
+books,lil_fact_x,earth,3.0,44,2312,
+books,lil_fact_z,earth,4.0,44,2312,
+books,lil_fact_y,earth,5.0,44,2312,
+books,big_fact,earth,12.0,44,2312,{3+4+5}
+"""
+        )
+    )
+    out_ksr = calculate_values_from_components(
+        calculation_components=calculation_components_ksr,
+        data=data_ksr,
+        validate="one_to_many",
+        calc_idx=["table_name", "xbrl_factoid", "planet"],
+        value_col="value",
+    )
+    pd.testing.assert_frame_equal(expected_ksr, out_ksr)
 
 
 def test_apply_xbrl_calculation_fixes():
