@@ -41,7 +41,7 @@ under, search keywords, etc. -- but a few are more arcane:
 
   .. code-block:: python
 
-      __version__ = pkg_resources.get_distribution(__name__).version
+      __version__ = importlib.metadata.version(__name__)
 
   This is admittedly convoluted.
 
