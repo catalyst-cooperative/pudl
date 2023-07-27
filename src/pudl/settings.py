@@ -201,7 +201,7 @@ class Eia860Settings(GenericDatasetSettings):
     eia860m_date: ClassVar[str] = eia860m_data_source.working_partitions["year_month"]
 
     years: list[int] = data_source.working_partitions["years"]
-    eia860m: bool = False  # True # temp change! need to add 2023 monthly data
+    eia860m: bool = True
 
     @validator("eia860m")
     def check_eia860m_date(cls, eia860m: bool) -> bool:  # noqa: N805

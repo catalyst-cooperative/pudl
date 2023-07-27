@@ -70,7 +70,7 @@ def ferc1_eia_training_data():
         ),
         pytest.param(
             ["True"],
-            [2019],
+            [2021],
             ["2_2020_plant_owned_195"],
             ["f1_steam_2020_12_2_0_1"],
             [18],

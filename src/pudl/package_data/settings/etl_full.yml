@@ -218,7 +218,7 @@ datasets:
           2021,
           2022,
         ]
-      eia860m: false # change later?
+      eia860m: true
     eia861:
       years:
         [

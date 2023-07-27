@@ -116,7 +116,7 @@ SOURCES: dict[str, Any] = {
         "field_namespace": "eia",
         "contributors": [],
         "working_partitions": {
-            "year_month": "2022-09",
+            "year_month": "2023-06",
         },
         "keywords": sorted(
             set(
