@@ -54,13 +54,11 @@ class Metadata:
         self._file_name = self._load_csv(pkg, "file_map.csv")
         column_map_pkg = pkg + ".column_maps"
         self._column_map = {}
-        for res in importlib.resources.contents(column_map_pkg):
-            # res is expected to be ${page}.csv
-            parts = res.split(".")
-            if len(parts) != 2 or parts[1] != "csv":
-                continue
-            column_map = self._load_csv(column_map_pkg, res)
-            self._column_map[parts[0]] = column_map
+        for res_path in importlib.resources.files(column_map_pkg).iterdir():
+            # res_path is expected to end with ${page}.csv
+            if res_path.suffix == ".csv":
+                column_map = self._load_csv(column_map_pkg, res_path.name)
+                self._column_map[res_path.stem] = column_map
 
     def get_dataset_name(self):
         """Returns the name of the dataset described by this metadata."""
@@ -105,7 +103,7 @@ class Metadata:
     def _load_csv(package, filename):
         """Load metadata from a filename that is found in a package."""
         return pd.read_csv(
-            importlib.resources.open_text(package, filename), index_col=0, comment="#"
+            importlib.resources.files(package) / filename, index_col=0, comment="#"
         )
 
     @staticmethod
