@@ -138,7 +138,6 @@ def get_mapped_plants_eia():
         get_plant_map()
         .loc[:, ["plant_id_eia", "plant_name_eia"]]
         .dropna(subset=["plant_id_eia"])
-        .pipe(pudl.helpers.simplify_strings, columns=["plant_name_eia"])
         .astype({"plant_id_eia": int})
         .drop_duplicates("plant_id_eia")
         .sort_values("plant_id_eia")
