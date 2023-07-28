@@ -1087,7 +1087,7 @@ class MetadataExploder:
                         "calculations",  # TODO: remove once tree eats calc comp df
                         "row_type_xbrl",  # TODO: remove once tree eats calc comp df
                         "xbrl_factoid_original",
-                        "intra_table_calc_flag",
+                        "is_within_table_calc",
                     ]
                 ]
                 .assign(table_name=table_name)
@@ -1371,7 +1371,7 @@ class Exploder:
             exploded: concatenated tables for table explosion.
         """
         calculations_intertable = self.calculations_exploded[
-            ~self.calculations_exploded.intra_table_calc_flag
+            ~self.calculations_exploded.is_within_table_calc
         ]
         if calculations_intertable.empty:
             return exploded
@@ -1512,7 +1512,7 @@ class Exploder:
                     corrections["xbrl_factoid"] + "_correction"
                 )
                 corrections["row_type_xbrl"] = "correction"
-                corrections["intra_table_calc_flag"] = False
+                corrections["is_within_table_calc"] = False
                 corrections["record_id"] = pd.NA
 
                 calculated_df = pd.concat(

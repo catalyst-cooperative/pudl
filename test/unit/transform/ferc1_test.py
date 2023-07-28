@@ -13,6 +13,7 @@ from pudl.transform.ferc1 import (
     UnstackBalancesToReportYearInstantXbrl,
     WideToTidy,
     add_parent_dimensions,
+    calculate_values_from_components,
     drop_duplicate_rows_dbf,
     fill_dbf_to_xbrl_map,
     make_calculation_dimensions_explicit,
@@ -389,6 +390,100 @@ entity_id,report_year,sched_table_name,idx_ending_balance,idx_starting_balance,t
         )
 
 
+def test_calculate_values_from_components():
+    """Test :func:`calculate_values_from_components`."""
+    # drawing inspo from kim stanley robinson books
+    calculation_components_ksr = pd.read_csv(
+        StringIO(
+            """
+table_name_parent,xbrl_factoid_parent,table_name,xbrl_factoid,planet,planet_parent,weight
+books,big_fact,books,lil_fact_x,venus,venus,1
+books,big_fact,books,lil_fact_z,venus,venus,1
+books,big_fact,books,lil_fact_y,venus,venus,1
+books,big_fact,books,lil_fact_x,earth,earth,1
+books,big_fact,books,lil_fact_z,earth,earth,1
+books,big_fact,books,lil_fact_y,earth,earth,1
+"""
+        )
+    )
+    data_ksr = pd.read_csv(
+        StringIO(
+            f"""
+table_name,xbrl_factoid,planet,value,utility_id_ferc1,report_year
+books,lil_fact_x,venus,10,44,2312
+books,lil_fact_z,venus,11,44,2312
+books,lil_fact_y,venus,12,44,2312
+books,big_fact,venus,{10+11+12},44,2312
+books,lil_fact_x,earth,3,44,2312
+books,lil_fact_z,earth,4,44,2312
+books,lil_fact_y,earth,5,44,2312
+books,big_fact,earth,{3+4+5},44,2312
+"""
+        )
+    )
+    expected_ksr = pd.read_csv(
+        StringIO(
+            f"""
+table_name,xbrl_factoid,planet,value,utility_id_ferc1,report_year,calculated_amount
+books,lil_fact_x,venus,10.0,44,2312,
+books,lil_fact_z,venus,11.0,44,2312,
+books,lil_fact_y,venus,12.0,44,2312,
+books,big_fact,venus,33.0,44,2312,{10+11+12}
+books,lil_fact_x,earth,3.0,44,2312,
+books,lil_fact_z,earth,4.0,44,2312,
+books,lil_fact_y,earth,5.0,44,2312,
+books,big_fact,earth,12.0,44,2312,{3+4+5}
+"""
+        )
+    )
+    out_ksr = calculate_values_from_components(
+        calculation_components=calculation_components_ksr,
+        data=data_ksr,
+        validate="one_to_many",
+        calc_idx=["table_name", "xbrl_factoid", "planet"],
+        value_col="value",
+    )
+    pd.testing.assert_frame_equal(expected_ksr, out_ksr)
+
+
+def test_apply_xbrl_calculation_fixes():
+    """Test :meth:`Ferc1AbstractTableTransformer.apply_xbrl_calculation_fixes`."""
+    calc_comps_fix_test = pd.read_csv(
+        StringIO(
+            """
+table_name_parent,xbrl_factoid_parent,table_name,xbrl_factoid,weight
+table_a,fact_1,table_a,replace_me,-1
+table_a,fact_1,table_a,keep_me,1
+table_a,fact_1,table_a,delete_me,1
+"""
+        )
+    )
+
+    calc_fixes_test = pd.read_csv(
+        StringIO(
+            """
+table_name_parent,xbrl_factoid_parent,table_name,xbrl_factoid,weight
+table_a,fact_1,table_a,replace_me,1
+table_a,fact_1,table_a,delete_me,
+"""
+        )
+    )
+
+    calc_comps_fixed_expected = pd.read_csv(
+        StringIO(
+            """
+table_name_parent,xbrl_factoid_parent,table_name,xbrl_factoid,weight
+table_a,fact_1,table_a,keep_me,1.0
+table_a,fact_1,table_a,replace_me,1.0
+"""
+        )
+    )
+    calc_comps_fixed_out = Ferc1AbstractTableTransformer.apply_xbrl_calculation_fixes(
+        calc_components=calc_comps_fix_test, calc_fixes=calc_fixes_test
+    )
+    pd.testing.assert_frame_equal(calc_comps_fixed_expected, calc_comps_fixed_out)
+
+
 def test_make_calculation_dimensions_explicit():
     """Test :func:`make_calculation_dimensions_explicit`"""
     calc_comp_idx = [
@@ -485,31 +580,31 @@ table_a,fact_2,table_b,fact_8,next_gen,futile
     expected_parent_dim_trek = pd.read_csv(
         StringIO(
             """
-table_name_parent,xbrl_factoid_parent,table_name,xbrl_factoid,dim_x,dim_y,dim_x_parent,dim_y_parent
-table_a,fact_1,table_a,fact_3,voyager,coffee,voyager,coffee
-table_a,fact_1,table_a,fact_3,voyager,in,voyager,in
-table_a,fact_1,table_a,fact_3,voyager,that,voyager,that
-table_a,fact_1,table_a,fact_3,voyager,nebula,voyager,nebula
-table_a,fact_1,table_a,fact_3,voyager,total,voyager,total
-table_a,fact_1,table_a,fact_4,voyager,coffee,voyager,coffee
-table_a,fact_1,table_a,fact_4,voyager,in,voyager,in
-table_a,fact_1,table_a,fact_4,voyager,that,voyager,that
-table_a,fact_1,table_a,fact_4,voyager,nebula,voyager,nebula
-table_a,fact_1,table_a,fact_4,voyager,total,voyager,total
-table_a,fact_1,table_a,fact_5,ds9,,ds9,
-table_a,fact_2,table_b,fact_6,next_gen,futile,next_gen,futile
-table_a,fact_2,table_b,fact_7,next_gen,futile,next_gen,futile
-table_a,fact_2,table_b,fact_8,next_gen,resistance,next_gen,resistance
-table_a,fact_2,table_b,fact_8,next_gen,is,next_gen,is
-table_a,fact_2,table_b,fact_8,next_gen,futile,next_gen,futile
-table_a,fact_3,table_a,fact_3,voyager,coffee,,total
-table_a,fact_3,table_a,fact_3,voyager,in,,total
-table_a,fact_3,table_a,fact_3,voyager,that,,total
-table_a,fact_3,table_a,fact_3,voyager,nebula,,total
-table_a,fact_4,table_a,fact_4,voyager,coffee,,total
-table_a,fact_4,table_a,fact_4,voyager,in,,total
-table_a,fact_4,table_a,fact_4,voyager,that,,total
-table_a,fact_4,table_a,fact_4,voyager,nebula,,total
+table_name_parent,xbrl_factoid_parent,table_name,xbrl_factoid,dim_x,dim_y,dim_x_parent,dim_y_parent,is_within_dimension_dim_x,is_within_dimension_dim_y
+table_a,fact_1,table_a,fact_3,voyager,coffee,voyager,coffee,False,False
+table_a,fact_1,table_a,fact_3,voyager,in,voyager,in,False,False
+table_a,fact_1,table_a,fact_3,voyager,that,voyager,that,False,False
+table_a,fact_1,table_a,fact_3,voyager,nebula,voyager,nebula,False,False
+table_a,fact_1,table_a,fact_3,voyager,total,voyager,total,False,False
+table_a,fact_1,table_a,fact_4,voyager,coffee,voyager,coffee,False,False
+table_a,fact_1,table_a,fact_4,voyager,in,voyager,in,False,False
+table_a,fact_1,table_a,fact_4,voyager,that,voyager,that,False,False
+table_a,fact_1,table_a,fact_4,voyager,nebula,voyager,nebula,False,False
+table_a,fact_1,table_a,fact_4,voyager,total,voyager,total,False,False
+table_a,fact_1,table_a,fact_5,ds9,,ds9,,False,False
+table_a,fact_2,table_b,fact_6,next_gen,futile,next_gen,futile,False,False
+table_a,fact_2,table_b,fact_7,next_gen,futile,next_gen,futile,False,False
+table_a,fact_2,table_b,fact_8,next_gen,resistance,next_gen,resistance,False,False
+table_a,fact_2,table_b,fact_8,next_gen,is,next_gen,is,False,False
+table_a,fact_2,table_b,fact_8,next_gen,futile,next_gen,futile,False,False
+table_a,fact_3,table_a,fact_3,voyager,coffee,,total,False,True
+table_a,fact_3,table_a,fact_3,voyager,in,,total,False,True
+table_a,fact_3,table_a,fact_3,voyager,that,,total,False,True
+table_a,fact_3,table_a,fact_3,voyager,nebula,,total,False,True
+table_a,fact_4,table_a,fact_4,voyager,coffee,,total,False,True
+table_a,fact_4,table_a,fact_4,voyager,in,,total,False,True
+table_a,fact_4,table_a,fact_4,voyager,that,,total,False,True
+table_a,fact_4,table_a,fact_4,voyager,nebula,,total,False,True
 """
         )
     )
