@@ -774,6 +774,9 @@ def reconcile_table_calculations(
         calculation_components.is_within_table_calc
         & calculation_components.xbrl_factoid.notnull()  # no nulls bc we have all parents
     ]
+    df = df.rename(columns={xbrl_factoid_name: "xbrl_factoid"}).assign(
+        table_name=table_name
+    )
     # !!! Add dimensions into the calculation components!!!
     # First determine what dimensions matter in this table:
     # usually you can rely on params.subtotal_column to get THE ONE dimension in the
@@ -781,22 +784,29 @@ def reconcile_table_calculations(
     # the dims in the transformers. AAAND occasionally the factoid_name is in the dims
     # wild. i know. so we are grabbing all of the non-factoid dimensions that show up
     # in the data.
-    dims = [d for d in other_dimensions() if d in df.columns and d != xbrl_factoid_name]
-    calc_idx = ["xbrl_factoid"] + dims
-    table_dims = (
-        df.rename(columns={xbrl_factoid_name: "xbrl_factoid"})[calc_idx]
-        .assign(table_name=table_name)
-        .drop_duplicates(keep="first")
-    )
-    if dims:
+    dim_cols = [
+        d for d in other_dimensions() if d in df.columns and d != xbrl_factoid_name
+    ]
+    calc_idx = ["xbrl_factoid", "table_name"] + dim_cols
+
+    if dim_cols:
+        table_dims = df[calc_idx].drop_duplicates(keep="first")
         intra_tbl_calcs = make_calculation_dimensions_explicit(
             intra_tbl_calcs,
             table_dimensions_ferc1=table_dims,
-            dimensions=dims,
-        )
+            dimensions=dim_cols,
+        ).pipe(add_parent_dimensions, dim_cols)
+        # the implied calculation relationships between values reported within a
+        # dimension (within-dimension calcs) that got added during add_parent_dimensions
+        # need to be filtered out bc they result in some duplicates of the calc_idx.
+        # These records should be checked seperately. they are currently being checked
+        # later on in this function although we should standardize this.
+        intra_tbl_calcs = intra_tbl_calcs[
+            ~intra_tbl_calcs.filter(like="is_within_dimension_").any(axis="columns")
+        ]
     pks = pudl.metadata.classes.Resource.from_id(table_name).schema.primary_key
     calculated_df = calculate_values_from_components(
-        data=df.rename(columns={xbrl_factoid_name: "xbrl_factoid"}),
+        data=df,
         calculation_components=intra_tbl_calcs,
         validate="one_to_many",
         calc_idx=calc_idx,
@@ -919,12 +929,10 @@ def calculate_values_from_components(
     # we are going to merge the data onto the calc components with the _parent
     # column names, so the groupby after the merge needs a set of by cols with the
     # _parent suffix
-    child_to_parent_replace = {
-        col.removesuffix("_parent"): col
-        for col in calculation_components.columns
-        if col.endswith("_parent")
-    }
-    gby_parent = [child_to_parent_replace.get(col, col) for col in data_idx]
+    gby_parent = [f"{col}_parent" for col in calc_idx] + [
+        "utility_id_ferc1",
+        "report_year",
+    ]
     calc_df = (
         pd.merge(
             calculation_components,
@@ -5589,14 +5597,19 @@ def add_parent_dimensions(
                 xbrl_factoid_parent=lambda x: x.xbrl_factoid,
             )
             # drop the other non-total parent dim cols (they will be merged back on later)
-            .drop(columns=[f"{d}_parent" for d in dimensions if d != dim])
+            .drop(columns=[f"{d}_parent" for d in dimensions if d != dim]).assign(
+                **{f"is_within_dimension_{dim}": True}
+            )
         )
         # now we have a bunch of *new* records linking total records to their non-total
         # sub-components.
         # Seperately, we now add in parent-dimension values for all of the original
         # calculation component records. We are assuming all parents should have the
         # same dimension values as their child components.
-        calc_comps = calc_comps.assign(**{f"{dim}_parent": lambda x: x[dim]})
+        calc_comps = calc_comps.assign(
+            **{f"{dim}_parent": lambda x: x[dim]}
+            | {f"is_within_dimension_{dim}": False}
+        )
         calc_comps = pd.concat([calc_comps, total_w_subdim_components])
         # we shouldn't be adding any duplicates in this process!
         assert calc_comps[calc_comps.duplicated()].empty
