@@ -676,15 +676,14 @@ def prep_train_connections(
         "ownership_dupe",
     ]
     # Read in one_to_many csv and join corresponding plant_match_ferc1 parts to FERC IDs
-    otm_pkg_source = importlib.resources.files("pudl.package_data.glue").joinpath(
-        "ferc1_eia_one_to_many.csv"
-    )
-    with importlib.resources.as_file(otm_pkg_source) as one_to_many:
-        one_to_many = (
-            pd.read_csv(one_to_many)
-            .pipe(pudl.helpers.cleanstrings_snake, ["record_id_eia"])
-            .drop_duplicates(subset=["record_id_ferc1", "record_id_eia"])
+    one_to_many = (
+        pd.read_csv(
+            importlib.resources.files("pudl.package_data.glue")
+            / "ferc1_eia_one_to_many.csv"
         )
+        .pipe(pudl.helpers.cleanstrings_snake, ["record_id_eia"])
+        .drop_duplicates(subset=["record_id_ferc1", "record_id_eia"])
+    )
 
     # Get the 'm' generator IDs 1:m
     one_to_many_single = match_to_single_plant_part(
@@ -726,16 +725,14 @@ def prep_train_connections(
         .set_index("record_id_ferc1")
     )
 
-    train_pkg_source = importlib.resources.files("pudl.package_data.glue").joinpath(
-        "ferc1_eia_train.csv"
-    )
-    with importlib.resources.as_file(train_pkg_source) as ferc1_eia_train:
-        train_df = (
-            pd.read_csv(ferc1_eia_train)
-            .pipe(pudl.helpers.cleanstrings_snake, ["record_id_eia"])
-            .drop_duplicates(subset=["record_id_ferc1", "record_id_eia"])
-            .set_index("record_id_ferc1")
+    train_df = (
+        pd.read_csv(
+            importlib.resources.files("pudl.package_data.glue") / "ferc1_eia_train.csv"
         )
+        .pipe(pudl.helpers.cleanstrings_snake, ["record_id_eia"])
+        .drop_duplicates(subset=["record_id_ferc1", "record_id_eia"])
+        .set_index("record_id_ferc1")
+    )
     logger.info(f"Updating {len(one_to_many)} training records with 1:m plant parts.")
     train_df.update(one_to_many)  # Overwrite FERC records with faked 1:m parts.
     train_df = (
@@ -1028,7 +1025,7 @@ def add_null_overrides(connects_ferc1_eia):
     logger.info("Overriding specified record_id_ferc1 values with NA record_id_eia")
     # Get record_id_ferc1 values that should be overriden to have no EIA match
     null_overrides = pd.read_csv(
-        importlib.resources.open_text("pudl.package_data.glue", "ferc1_eia_null.csv")
+        importlib.resources.files("pudl.package_data.glue") / "ferc1_eia_null.csv"
     ).pipe(
         restrict_train_connections_on_date_range,
         id_col="record_id_ferc1",

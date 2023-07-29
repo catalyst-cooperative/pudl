@@ -1044,14 +1044,13 @@ def update_dbf_to_xbrl_map(ferc1_engine: sa.engine.Engine) -> pd.DataFrame:
     """
     idx_cols = ["sched_table_name", "row_number", "report_year"]
     all_rows = get_ferc1_dbf_rows_to_map(ferc1_engine).set_index(idx_cols)
-
-    source = importlib.resources.files("pudl.package_data.ferc1").joinpath(
-        "dbf_to_xbrl.csv"
-    )
-    with importlib.resources.as_file(source) as file:
-        mapped_rows = (
-            pd.read_csv(file).set_index(idx_cols).drop(["row_literal"], axis="columns")
+    mapped_rows = (
+        pd.read_csv(
+            importlib.resources.files("pudl.package_data.ferc1") / "dbf_to_xbrl.csv"
         )
+        .set_index(idx_cols)
+        .drop(["row_literal"], axis="columns")
+    )
     return (
         pd.concat([all_rows, mapped_rows], axis="columns")
         .reset_index()
@@ -1070,20 +1069,16 @@ def read_dbf_to_xbrl_map(dbf_table_names: list[str]) -> pd.DataFrame:
     Returns:
         DataFrame with columns ``[sched_table_name, report_year, row_number, row_type, xbrl_factoid]``
     """
-    source = importlib.resources.files("pudl.package_data.ferc1").joinpath(
-        "dbf_to_xbrl.csv"
+    row_map = pd.read_csv(
+        importlib.resources.files("pudl.package_data.ferc1") / "dbf_to_xbrl.csv",
+        usecols=[
+            "sched_table_name",
+            "report_year",
+            "row_number",
+            "row_type",
+            "xbrl_factoid",
+        ],
     )
-    with importlib.resources.as_file(source) as file:
-        row_map = pd.read_csv(
-            file,
-            usecols=[
-                "sched_table_name",
-                "report_year",
-                "row_number",
-                "row_type",
-                "xbrl_factoid",
-            ],
-        )
     # Select only the rows that pertain to dbf_table_name
     row_map = row_map.loc[row_map.sched_table_name.isin(dbf_table_names)]
     return row_map
