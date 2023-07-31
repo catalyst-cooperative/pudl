@@ -4762,6 +4762,14 @@ class DepreciationAmortizationSummaryFerc1TableTransformer(
             meta.xbrl_factoid == "depreciation_expense_asset_retirement",
             "ferc_account",
         ] = "403.1"
+        meta.loc[
+            meta.xbrl_factoid == "amortization_limited_term_electric_plant",
+            "ferc_account",
+        ] = "404"
+        meta.loc[
+            meta.xbrl_factoid == "amortization_other_electric_plant",
+            "ferc_account",
+        ] = "405"
         return meta
 
     @cache_df("main")
@@ -5436,7 +5444,8 @@ def table_dimensions_ferc1(**kwargs) -> pd.DataFrame:
     ins={
         "clean_xbrl_metadata_json": AssetIn("clean_xbrl_metadata_json"),
         "table_dimensions_ferc1": AssetIn("table_dimensions_ferc1"),
-    }
+    },
+    io_manager_key=None,  # Change to sqlite_io_manager...
 )
 def calculation_components_xbrl_ferc1(**kwargs):
     """Create calculation-compnent table from table-level metadata."""
@@ -5458,7 +5467,8 @@ def calculation_components_xbrl_ferc1(**kwargs):
     calc_components = add_parent_dimensions(
         calc_components, dimensions=other_dimensions()
     )
-    return calc_components
+    # Remove convert_dtypes() once we're writing to the DB using enforce_schema()
+    return calc_components.convert_dtypes()
 
 
 def make_calculation_dimensions_explicit(
@@ -5571,9 +5581,11 @@ def add_parent_dimensions(
     # make a new _parent column
     for dim in dimensions:
         # Define calculations with the total values as parents and non-total values as
-        # sub-components by broadcast merging the not-total records onto the # new total
-        # records.
-        total_mask = calc_comps[dim] == "total"
+        # sub-components by broadcast merging the not-total records onto the
+        # new total records. Note that we are only adding total calculations for the
+        # INTRA table calculations -- inter-table calculations that involve dimensions
+        # are more complex are are manually specified in the calculation fixes.
+        total_mask = (calc_comps[dim] == "total") & calc_comps.is_within_table_calc
         total_w_subdim_components = (
             pd.merge(
                 # the total records will become _parent columns in new records
@@ -5607,5 +5619,12 @@ def add_parent_dimensions(
         )
         calc_comps = pd.concat([calc_comps, total_w_subdim_components])
         # we shouldn't be adding any duplicates in this process!
+        # This should really pass, but there are facts in the unstructured
+        # electric sales by schedule billed/unbilled facts that are getting renamed to
+        # have the same name...
+        # parent_dims = [dim + "_parent" for dim in dimensions]
+        # assert calc_comps.set_index(
+        #    table_fact_cols + dimensions + parent_dims
+        # ).index.is_unique
         assert calc_comps[calc_comps.duplicated()].empty
     return calc_comps
