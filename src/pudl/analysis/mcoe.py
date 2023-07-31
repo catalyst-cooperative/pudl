@@ -289,6 +289,57 @@ def heat_rate_by_unit(gen: pd.DataFrame, bf: pd.DataFrame) -> pd.DataFrame:
     return hr_by_unit
 
 
+def heat_rate_by_gen_fuel_allocations(
+    gen_fuel_by_gen: pd.DataFrame, gens: pd.DataFrame
+):
+    """Calculate heat rate by generator, adding fuel type & count.
+
+    Heat rates really only make sense at the unit level, since input fuel and
+    output electricity are comingled at the unit level, but it is useful in
+    many contexts to have that per-unit heat rate associated with each of the
+    underlying generators, as much more information is available about the
+    generators. Using the EIA 923 net generation and fuel consumption allocated
+    to the generator level, we can calculate per generator heat rates.
+
+    Returns:
+        DataFrame with columns report_date, plant_id_eia, unit_id_pudl, generator_id,
+        heat_rate_mmbtu_mwh, fuel_type_code_pudl, fuel_type_count.  The output will have
+        a time frequency corresponding to that of the input pudl_out. Output data types
+        are set to their canonical values before returning.
+    """
+    hr_by_gen = gen_fuel_by_gen[
+        [
+            "report_date",
+            "plant_id_eia",
+            "unit_id_pudl",
+            "generator_id",
+            "net_generation_mwh",
+            "fuel_consumed_for_electricity_mmbtu",
+        ]
+    ].assign(
+        heat_rate_mmbtu_mwh=lambda x: x.fuel_consumed_for_electricity_mmbtu
+        / x.net_generation_mwh
+    )
+    # Bring in generator specific fuel type & fuel count.
+    hr_by_gen = pudl.helpers.date_merge(
+        left=hr_by_gen,
+        right=gens[
+            [
+                "report_date",
+                "plant_id_eia",
+                "generator_id",
+                "fuel_type_code_pudl",
+                "fuel_type_count",
+            ]
+        ],
+        on=["plant_id_eia", "generator_id"],
+        date_on=["year"],
+        how="left",
+    )
+
+    return hr_by_gen
+
+
 def heat_rate_by_gen(
     bga: pd.DataFrame, hr_by_unit: pd.DataFrame, gens: pd.DataFrame
 ) -> pd.DataFrame:

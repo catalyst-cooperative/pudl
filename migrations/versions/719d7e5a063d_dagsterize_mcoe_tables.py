@@ -1,8 +1,8 @@
-"""dagsterize mcoe table
+"""dagsterize mcoe tables
 
-Revision ID: f92f75a80666
-Revises: fee49552b890
-Create Date: 2023-06-29 13:58:57.516120
+Revision ID: 719d7e5a063d
+Revises: e2670d0ec0eb
+Create Date: 2023-07-13 10:42:06.539619
 
 """
 from alembic import op
@@ -10,8 +10,8 @@ import sqlalchemy as sa
 
 
 # revision identifiers, used by Alembic.
-revision = 'f92f75a80666'
-down_revision = 'fee49552b890'
+revision = '719d7e5a063d'
+down_revision = 'e2670d0ec0eb'
 branch_labels = None
 depends_on = None
 
