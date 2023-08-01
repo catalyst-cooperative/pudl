@@ -1108,16 +1108,16 @@ class MetadataExploder:
         )
         # Identify groups where all calculation components are within the explosion
         # We need to include table_name of pd.NA to retain non-calculated values.
-        calc_explode["is_within_explosion"] = gb.table_name.transform(
+        calc_explode["is_in_explosion"] = gb.table_name.transform(
             lambda x: x.isin(self.table_names + [pd.NA]).all()
         )
         # Convert any calculation componets from outside the explosion into reported
         # values / leaf nodes:
-        calc_explode.loc[
-            ~calc_explode.is_within_explosion, list(NodeId._fields) + ["weight"]
-        ] = pd.NA
-        calc_explode = calc_explode.drop(columns=["is_within_explosion"]).reset_index(
-            drop=True
+        calc_explode.loc[~calc_explode.is_in_explosion, calc_cols + ["weight"]] = pd.NA
+        calc_explode = (
+            calc_explode.drop(columns=["is_in_explosion"])
+            .drop_duplicates(subset=calc_cols + parent_cols + ["weight"])
+            .reset_index(drop=True)
         )
 
         ##############################################################################
