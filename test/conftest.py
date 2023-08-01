@@ -376,30 +376,29 @@ def pudl_engine(pudl_sql_io_manager):
 @pytest.fixture(scope="session", autouse=True)
 def configure_paths_for_tests(tmp_path_factory, request):
     """Configures PudlPaths for tests."""
+    gha_override_input = False
+    gha_override_output = False
     if os.environ.get("GITHUB_ACTIONS", False):
-        if all(evar in os.environ for evar in ["PUDL_INPUTS", "PUDL_OUTPUTS"]):
-            logger.info(
-                "Environment variables PUDL_INPUTS and PUDL_OUTPUTS are already set."
-            )
-            return
-        PudlPaths.set_path_overrides(
-            input_dir="~/pudl-work/data",
-            output_dir="~/pudl-work/output",
+        gha_override_input = "PUDL_INPUTS" not in os.environ
+        gha_override_output = "PUDL_OUTPUTS" not in os.environ
+        logger.info(
+            "Running in GitHub Actions environment, using"
+            f" temporary input dir: {gha_override_input}, and"
+            f" temporary output dir: {gha_override_output}"
         )
-    else:
-        pudl_tmpdir = tmp_path_factory.mktemp("pudl")
-        if request.config.getoption("--tmp-data"):
-            in_tmp = pudl_tmpdir / "data"
-            in_tmp.mkdir()
-            PudlPaths.set_path_overrides(
-                input_dir=str(Path(in_tmp).resolve()),
-            )
-        if not request.config.getoption("--live-dbs"):
-            out_tmp = pudl_tmpdir / "output"
-            out_tmp.mkdir()
-            PudlPaths.set_path_overrides(
-                output_dir=str(Path(out_tmp).resolve()),
-            )
+    pudl_tmpdir = tmp_path_factory.mktemp("pudl")
+    if gha_override_output or request.config.getoption("--tmp-data"):
+        in_tmp = pudl_tmpdir / "data"
+        in_tmp.mkdir()
+        PudlPaths.set_path_overrides(
+            input_dir=str(Path(in_tmp).resolve()),
+        )
+    if gha_override_output or not request.config.getoption("--live-dbs"):
+        out_tmp = pudl_tmpdir / "output"
+        out_tmp.mkdir()
+        PudlPaths.set_path_overrides(
+            output_dir=str(Path(out_tmp).resolve()),
+        )
     logger.info(f"Starting unit tests with output path {PudlPaths().output_dir}")
     pudl.workspace.setup.init()
 
