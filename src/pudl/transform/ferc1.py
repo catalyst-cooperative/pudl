@@ -5475,6 +5475,7 @@ def calculation_components_xbrl_ferc1(**kwargs):
         make_calculation_dimensions_explicit,
         table_dimensions_ferc1,
         dimensions=other_dimensions(),
+        parent=True,
     )
     # Remove convert_dtypes() once we're writing to the DB using enforce_schema()
     return calc_components.convert_dtypes()
@@ -5547,6 +5548,7 @@ def make_calculation_dimensions_explicit(
         ].drop_duplicates()  # bc there are dupes after we removed the other dim cols
         null_dim_mask = calc_comps_w_dims[dim_col].isnull()
         null_dim = calc_comps_w_dims[null_dim_mask].drop(columns=[dim_col])
+        logger.info(null_dim)
         calc_comps_w_implied_dims = pd.merge(
             null_dim,
             observed_dim,
