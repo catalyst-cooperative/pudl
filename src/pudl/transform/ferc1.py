@@ -1207,6 +1207,16 @@ def get_data_cols_raw_xbrl(
     )
 
 
+def read_xbrl_calculation_fixes() -> pd.DataFrame:
+    """Read in the table of calculation fixes."""
+    source = importlib.resources.files("pudl.package_data.ferc1").joinpath(
+        "xbrl_calculation_component_fixes.csv"
+    )
+    with importlib.resources.as_file(source) as file:
+        calc_fixes = pd.read_csv(file)
+    return calc_fixes
+
+
 ################################################################################
 # FERC 1 specific TableTransformer classes
 ################################################################################
@@ -1592,12 +1602,7 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
 
     def get_xbrl_calculation_fixes(self: Self) -> pd.DataFrame:
         """Grab the XBRL calculation file."""
-        source = importlib.resources.files("pudl.package_data.ferc1").joinpath(
-            "xbrl_calculation_component_fixes.csv"
-        )
-        with importlib.resources.as_file(source) as file:
-            calc_fixes = pd.read_csv(file)
-
+        calc_fixes = read_xbrl_calculation_fixes()
         # grab the fixes from this table only!
         calc_fixes = calc_fixes[calc_fixes.table_name_parent == self.table_id.value]
         return calc_fixes
@@ -5580,7 +5585,6 @@ def make_calculation_dimensions_explicit(
         ].drop_duplicates()  # bc there are dupes after we removed the other dim cols
         null_dim_mask = calc_comps_w_dims[dim_col].isnull()
         null_dim = calc_comps_w_dims[null_dim_mask].drop(columns=[dim_col])
-        logger.info(null_dim)
         calc_comps_w_implied_dims = pd.merge(
             null_dim,
             observed_dim,
