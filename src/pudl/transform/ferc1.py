@@ -1512,6 +1512,30 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
         }
         return col.map(xbrl_factoid_name_map)
 
+    def rename_xbrl_factoid_other_tables(self, calc_comps):
+        """Rename the factoids from calculation components from other tables.
+
+        Note: It is probably possible to build an apply style function that takes a
+        series of factoid names and a series of table names and returns a table-specific
+        rename_xbrl_factoid.
+        """
+        calc_tables = calc_comps.table_name.dropna().unique()
+        os_tables = [
+            tbl
+            for tbl in calc_tables
+            if (tbl != self.table_id.value) & (tbl in FERC1_TFR_CLASSES.keys())
+        ]
+        for tbl in os_tables:
+            trns = FERC1_TFR_CLASSES[tbl]()
+            calc_comps = calc_comps.assign(
+                xbrl_factoid=lambda x: np.where(
+                    x.table_name == tbl,
+                    trns.rename_xbrl_factoid(x.xbrl_factoid),
+                    x.xbrl_factoid,
+                ),
+            )
+        return calc_comps
+
     @staticmethod
     def add_metadata_corrections(tbl_meta: pd.DataFrame) -> pd.DataFrame:
         """Create metadata records for the calculation correction factoids.
@@ -1692,6 +1716,7 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
                     x.xbrl_factoid,
                 ),
             )
+            .pipe(self.rename_xbrl_factoid_other_tables)
             .pipe(
                 self.apply_xbrl_calculation_fixes,
                 calc_fixes=self.get_xbrl_calculation_fixes(),
@@ -5229,6 +5254,7 @@ class OtherRegulatoryLiabilitiesFerc1TableTransformer(Ferc1AbstractTableTransfor
 
 FERC1_TFR_CLASSES: Mapping[str, type[Ferc1AbstractTableTransformer]] = {
     "fuel_ferc1": FuelFerc1TableTransformer,
+    "plants_steam_ferc1": PlantsSteamFerc1TableTransformer,
     "plants_small_ferc1": PlantsSmallFerc1TableTransformer,
     "plants_hydro_ferc1": PlantsHydroFerc1TableTransformer,
     "plant_in_service_ferc1": PlantInServiceFerc1TableTransformer,
@@ -5412,7 +5438,13 @@ def table_to_xbrl_factoid_name() -> dict[str, str]:
     }
 
 
-@asset(ins={table_name: AssetIn(table_name) for table_name in FERC1_TFR_CLASSES})
+@asset(
+    ins={
+        table_name: AssetIn(table_name)
+        for table_name in FERC1_TFR_CLASSES
+        if table_name != "plants_steam_ferc1"
+    }
+)
 def table_dimensions_ferc1(**kwargs) -> pd.DataFrame:
     """Build a table of values of dimensions observed in the transformed data tables.
 
