@@ -116,27 +116,31 @@ def init(clobber=False):
     # Unclear whether deployment of settings files makes much sense.
 
 
-def deploy(pkg_path, deploy_dir, ignore_files, clobber=False):
+def deploy(
+    pkg_path: str,
+    deploy_dir: pathlib.Path,
+    ignore_files: list[str],
+    clobber: bool = False,
+) -> None:
     """Deploy all files from a package_data directory into a workspace.
 
     Args:
-        pkg_path (str): Dotted module path to the subpackage inside of
-            package_data containing the resources to be deployed.
-        deploy_dir (os.PathLike): Directory on the filesystem to which the
-            files within pkg_path should be deployed.
-        ignore_files (iterable): List of filenames (strings) that may be
-            present in the pkg_path subpackage, but that should be ignored.
-        clobber (bool): if True, replace existing copies of the files that are
-            being deployed from pkg_path to deploy_dir. If False, do not
-            replace existing files.
+        pkg_path: Dotted module path to the subpackage inside of package_data containing
+            the resources to be deployed.
+        deploy_dir: Directory on the filesystem to which the files within pkg_path
+            should be deployed.
+        ignore_files: List of filenames (strings) that may be present in the pkg_path
+            subpackage, but that should be ignored.
+        clobber: if True, replace existing copies of the files that are being deployed
+            from pkg_path to deploy_dir. If False, do not replace existing files.
 
     Returns:
         None
     """
     files = [
-        file
-        for file in importlib.resources.contents(pkg_path)
-        if importlib.resources.is_resource(pkg_path, file) and file not in ignore_files
+        path
+        for path in importlib.resources.files(pkg_path).iterdir()
+        if path.is_file() and path.name not in ignore_files
     ]
     for file in files:
         dest_file = pathlib.Path(deploy_dir, file)
@@ -147,6 +151,6 @@ def deploy(pkg_path, deploy_dir, ignore_files, clobber=False):
                 logger.info(f"Skipping existing file at {dest_file}")
                 continue
 
-            pkg_source = importlib.resources.files(pkg_path).joinpath(file)
+            pkg_source = importlib.resources.files(pkg_path) / file
             with importlib.resources.as_file(pkg_source) as f:
                 shutil.copy(f, dest_file)

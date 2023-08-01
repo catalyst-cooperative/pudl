@@ -7,6 +7,7 @@ import pudl
 from pudl.extract.ferc1 import Ferc1DbfExtractor
 from pudl.extract.ferc2 import Ferc2DbfExtractor
 from pudl.extract.ferc6 import Ferc6DbfExtractor
+from pudl.extract.ferc60 import Ferc60DbfExtractor
 from pudl.workspace.setup import PudlPaths
 
 logger = pudl.logging_helpers.get_logger(__name__)
@@ -30,6 +31,7 @@ def dbf2sqlite(context) -> None:
         Ferc1DbfExtractor,
         Ferc2DbfExtractor,
         Ferc6DbfExtractor,
+        Ferc60DbfExtractor,
     ]
     for xclass in extractors:
         xclass(

@@ -1,6 +1,6 @@
 """Generalized DBF extractor for FERC data."""
 import csv
-import importlib
+import importlib.resources
 import zipfile
 from collections import defaultdict
 from collections.abc import Iterator
@@ -328,8 +328,11 @@ class FercDbfReader:
 
     def _open_csv_resource(self: Self, base_filename: str) -> csv.DictReader:
         """Open the given resource file as :class:`csv.DictReader`."""
-        pkg_path = f"pudl.package_data.{self.dataset}"
-        return csv.DictReader(importlib.resources.open_text(pkg_path, base_filename))
+        csv_path = (
+            importlib.resources.files(f"pudl.package_data.{self.dataset}")
+            / base_filename
+        )
+        return csv.DictReader(csv_path.open())
 
     @lru_cache
     def get_archive(self: Self, year: int, **filters) -> FercDbfArchive:

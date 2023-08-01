@@ -6,6 +6,7 @@ designed to be used as a general purpose tool, applicable in multiple scenarios,
 should probably live here. There are lost of transform type functions in here that help
 with cleaning and restructing dataframes.
 """
+import importlib.resources
 import itertools
 import pathlib
 import re
@@ -13,7 +14,6 @@ import shutil
 from collections import defaultdict
 from collections.abc import Generator, Iterable
 from functools import partial
-from importlib import resources
 from io import BytesIO
 from typing import Any, Literal
 
@@ -1529,7 +1529,8 @@ def get_eia_ferc_acct_map():
             'prime_mover_code', 'ferc_acct_name']`
     """
     eia_ferc_acct_map = pd.read_csv(
-        resources.open_text("pudl.package_data.glue", "ferc_acct_to_pm_tech_map.csv")
+        importlib.resources.files("pudl.package_data.glue")
+        / "ferc_acct_to_pm_tech_map.csv"
     )
     return eia_ferc_acct_map
 

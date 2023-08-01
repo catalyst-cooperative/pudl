@@ -429,7 +429,7 @@ def time_aggregated_eia923_asset_factory(
         denorm_plants_utilities_eia: pd.DataFrame,
         boiler_generator_assn_eia860: pd.DataFrame,
     ) -> pd.DataFrame:
-        """Aggregate :ref:`generation_fuel_combined_eia923` monthly or annually."""
+        """Aggregate :ref:`boiler_fuel_eia923` monthly or annually."""
         # In order to calculate the weighted average sulfur
         # content and ash content we need to calculate these totals.
         return (
