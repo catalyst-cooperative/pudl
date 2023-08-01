@@ -22,7 +22,7 @@ dependencies:
   - pandoc # Useful for rendering RST files in Atom
 
   # Jupyter notebook specific packages:
-  - jupyter-resource-usage~=0.5.0
+  - jupyter-resource-usage
   - nbconvert>=6,<7
   - jupyterlab>=3.2,<4.1
 
