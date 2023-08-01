@@ -1531,10 +1531,10 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
         )
         return tbl_meta
 
-    def add_calculation_correction_components(
+    def add_calculation_corrections(
         self: Self, calc_components: pd.DataFrame
     ) -> pd.DataFrame:
-        """Add correction components to calculation metadata.
+        """Add correction components and parent-only factoids to calculation metadata.
 
         Args:
             tbl_meta: Partially transformed table metadata in dataframe form.
@@ -1550,7 +1550,7 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
 
         # split the calcs from non-calcs/make corrections/append
         calcs = calc_components[calc_components.xbrl_factoid.notnull()]
-        corrections = (
+        correction_components = (
             calcs[["table_name_parent", "xbrl_factoid_parent"]]
             .drop_duplicates()
             .assign(
@@ -1559,7 +1559,12 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
                 weight=1,
             )
         )
-        return pd.concat([calc_components, corrections])
+        # for every calc component, also make the parent-only version
+        correction_parents = correction_components.assign(
+            table_name_parent=lambda t: t.table_name,
+            xbrl_factoid_parent=lambda x: x.xbrl_factoid,
+        ).drop(columns=["table_name", "xbrl_factoid"])
+        return pd.concat([calc_components, correction_components, correction_parents])
 
     def get_xbrl_calculation_fixes(self: Self) -> pd.DataFrame:
         """Grab the XBRL calculation file."""
@@ -1644,7 +1649,7 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
 
         This method also adds fixes to the calculations via
         :meth:`apply_xbrl_calculation_fixes`, adds corrections records via
-        :meth:`add_calculation_correction_components` and adds the column
+        :meth:`add_calculation_corrections` and adds the column
         ``is_within_table_calc``.
 
         Args:
@@ -1692,7 +1697,7 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
                 calc_fixes=self.get_xbrl_calculation_fixes(),
             )
             .drop_duplicates(keep="first")
-            .pipe(self.add_calculation_correction_components)
+            .pipe(self.add_calculation_corrections)
         )
         # this is really a xbrl_factoid-level flag, but we need it while using this
         # calc components.
