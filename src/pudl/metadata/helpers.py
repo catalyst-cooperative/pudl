@@ -385,7 +385,7 @@ def try_aggfunc(  # noqa: C901
     wrapped = func
     if raised and error is not None:
 
-        def wrapped(x):
+        def wrapped(x):  # noqa: F811
             try:
                 return func(x)
             except AggregationError as e:
