@@ -20,7 +20,7 @@ from requests.packages.urllib3.util.retry import Retry
 import pudl
 from pudl.workspace import resource_cache
 from pudl.workspace.resource_cache import PudlResourceKey
-from pudl.workspace.setup import PudlPaths, set_path_overrides
+from pudl.workspace.setup import PudlPaths
 
 logger = pudl.logging_helpers.get_logger(__name__)
 
@@ -594,7 +594,7 @@ def main():
     )
 
     if args.pudl_in:
-        set_path_overrides(input_dir=args.pudl_in)
+        PudlPaths.set_path_overrides(input_dir=args.pudl_in)
 
     cache_path = None
     if not args.bypass_local_cache:

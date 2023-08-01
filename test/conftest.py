@@ -328,7 +328,6 @@ def ferc1_xbrl_taxonomy_metadata(ferc1_engine_xbrl):
 
 @pytest.fixture(scope="session")
 def pudl_sql_io_manager(
-    pudl_path_setup,
     ferc1_engine_dbf,  # Implicit dependency
     ferc1_engine_xbrl,  # Implicit dependency
     live_dbs,
@@ -374,46 +373,35 @@ def pudl_engine(pudl_sql_io_manager):
     return pudl_sql_io_manager.engine
 
 
-@pytest.fixture(scope="session")
-def pudl_tmpdir(tmp_path_factory):
-    # Base temporary directory for all other tmp dirs.
-    tmpdir = tmp_path_factory.mktemp("pudl")
-    return tmpdir
-
-
-def pytest_sessionstart(session):
-    """Configures input/output paths for the tests."""
-    # TODO(rousik): Should we be using fixed paths instead
-    # of using tmpdir capabilities here?
-    pudl.workspace.setup.set_path_overrides(
-        input_dir="~/pudl-work/data",
-        output_dir="~/pudl-work/output",
-    )
-    logger.info(f"Starting unit tests with output path {PudlPaths().output_dir}")
-    pudl.workspace.setup.init()
-
-
-@pytest.fixture(scope="session")
-def pudl_path_setup(request, pudl_tmpdir):
-    """Sets the necessary env variables for the input and output paths."""
+@pytest.fixture(scope="session", autouse=True)
+def configure_paths_for_tests(tmp_path_factory, request):
+    """Configures PudlPaths for tests."""
     if os.environ.get("GITHUB_ACTIONS", False):
-        pudl.workspace.setup.set_path_overrides(
+        if all(evar in os.environ for evar in ["PUDL_INPUTS", "PUDL_OUTPUTS"]):
+            logger.info(
+                "Environment variables PUDL_INPUTS and PUDL_OUTPUTS are already set."
+            )
+            return
+        PudlPaths.set_path_overrides(
             input_dir="~/pudl-work/data",
             output_dir="~/pudl-work/output",
         )
     else:
+        pudl_tmpdir = tmp_path_factory.mktemp("pudl")
         if request.config.getoption("--tmp-data"):
             in_tmp = pudl_tmpdir / "data"
             in_tmp.mkdir()
-            pudl.workspace.setup.set_path_overrides(
+            PudlPaths.set_path_overrides(
                 input_dir=str(Path(in_tmp).resolve()),
             )
         if not request.config.getoption("--live-dbs"):
             out_tmp = pudl_tmpdir / "output"
             out_tmp.mkdir()
-            pudl.workspace.setup.set_path_overrides(
+            PudlPaths.set_path_overrides(
                 output_dir=str(Path(out_tmp).resolve()),
             )
+    logger.info(f"Starting unit tests with output path {PudlPaths().output_dir}")
+    pudl.workspace.setup.init()
 
 
 @pytest.fixture(scope="session")

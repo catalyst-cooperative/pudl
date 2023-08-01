@@ -12,22 +12,6 @@ import pudl.logging_helpers
 logger = pudl.logging_helpers.get_logger(__name__)
 
 
-def set_path_overrides(
-    input_dir: str | None = None,
-    output_dir: str | None = None,
-) -> None:
-    """Set PUDL_INPUT and/or PUDL_OUTPUT env variables.
-
-    Args:
-        input_dir: if set, overrides PUDL_INPUT env variable.
-        output_dir: if set, overrides PUDL_OUTPUT env variable.
-    """
-    if input_dir:
-        os.environ["PUDL_INPUT"] = input_dir
-    if output_dir:
-        os.environ["PUDL_OUTPUT"] = output_dir
-
-
 class PudlPaths(BaseSettings):
     """These settings provide access to various PUDL directories.
 
@@ -82,6 +66,22 @@ class PudlPaths(BaseSettings):
     def output_file(self, filename: str) -> Path:
         """Path to file in PUDL output directory."""
         return self.output_dir / filename
+
+    @staticmethod
+    def set_path_overrides(
+        input_dir: str | None = None,
+        output_dir: str | None = None,
+    ) -> None:
+        """Set PUDL_INPUT and/or PUDL_OUTPUT env variables.
+
+        Args:
+            input_dir: if set, overrides PUDL_INPUT env variable.
+            output_dir: if set, overrides PUDL_OUTPUT env variable.
+        """
+        if input_dir:
+            os.environ["PUDL_INPUT"] = input_dir
+        if output_dir:
+            os.environ["PUDL_OUTPUT"] = output_dir
 
 
 def init(clobber=False):
