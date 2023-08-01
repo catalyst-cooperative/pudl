@@ -5466,6 +5466,10 @@ def calculation_components_xbrl_ferc1(**kwargs):
     )
     calc_components = add_parent_dimensions(
         calc_components, dimensions=other_dimensions()
+    ).pipe(
+        make_calculation_dimensions_explicit,
+        table_dimensions_ferc1,
+        dimensions=other_dimensions(),
     )
     # Remove convert_dtypes() once we're writing to the DB using enforce_schema()
     return calc_components.convert_dtypes()
@@ -5475,6 +5479,7 @@ def make_calculation_dimensions_explicit(
     calculation_components: pd.DataFrame,
     table_dimensions_ferc1: pd.DataFrame,
     dimensions: list[str],
+    parent: bool = False,
 ) -> pd.DataFrame:
     """Fill in null dimensions w/ the values observed in :func:`table_dimensions_ferc1`.
 
@@ -5514,10 +5519,19 @@ def make_calculation_dimensions_explicit(
         table_dimensions_ferc1: table with all observed values of
             :func:`other_dimensions` for each ``table_name`` and ``xbrl_factoid``
         dimensions: list of dimension columns to check.
+        parent: boolean to indicate whether or not the dimensions to be added are
+            the parental dimensions or the child dimensions.
     """
     logger.info(f"Adding {dimensions=} into calculation component table.")
     calc_comps_w_dims = calculation_components.copy()
     on_cols = ["table_name", "xbrl_factoid"]
+    if parent:
+        table_dimensions_ferc1 = table_dimensions_ferc1.rename(
+            columns={col: f"{col}_parent" for col in on_cols}
+            | {dim: f"{dim}_parent" for dim in dimensions}
+        )
+        on_cols = [f"{col}_parent" for col in on_cols]
+        dimensions = [f"{dim}_parent" for dim in dimensions]
     # for each dimension, use split/apply/combine. when there are no dims explict in
     # the calc components, merge in all of the dims.
     for dim_col in dimensions:
