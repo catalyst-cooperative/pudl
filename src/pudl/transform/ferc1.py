@@ -3907,11 +3907,11 @@ class ElectricEnergySourcesFerc1TableTransformer(Ferc1AbstractTableTransformer):
         """
         tbl_meta = super().convert_xbrl_metadata_json_to_df(xbrl_metadata_json)
         facts_to_add = {
-            "xbrl_factoid": "megawatt_hours_purchased",
+            "xbrl_factoid": "purchased_mwh",
             "calculations": ["[]"],
             "balance": ["credit"],
             "ferc_account": [pd.NA],
-            "xbrl_factoid_original": "megawatt_hours_purchased",
+            "xbrl_factoid_original": "purchased_mwh",
             "is_within_table_calc": [True],
             "row_type_xbrl": ["reported_value"],
         }
