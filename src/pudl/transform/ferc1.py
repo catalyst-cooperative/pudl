@@ -4381,7 +4381,6 @@ class IncomeStatementFerc1TableTransformer(Ferc1AbstractTableTransformer):
             "is_within_table_calc": [True],
             "row_type_xbrl": ["reported_value"],
         }
-
         new_facts = pd.DataFrame(facts_to_add).convert_dtypes()
         return pd.concat([tbl_meta, new_facts])
 
@@ -5506,13 +5505,22 @@ def calculation_components_xbrl_ferc1(**kwargs):
         table_dimensions_ferc1,
         dimensions=other_dimensions(),
     )
-    calc_components = add_parent_dimensions(
-        calc_components, dimensions=other_dimensions()
-    ).pipe(
-        make_calculation_dimensions_explicit,
-        table_dimensions_ferc1,
-        dimensions=other_dimensions(),
-        parent=True,
+    calc_components = (
+        add_parent_dimensions(calc_components, dimensions=other_dimensions())
+        # once the parents are added make the dimensions explict.. again! for both the
+        # parent side of the calcs and the child side. There are only a rare few
+        # children that need dimension-explicitification that are a result of adding the
+        # total -> sub-total dimension records step within `add_parent_dimensions`
+        .pipe(
+            make_calculation_dimensions_explicit,
+            table_dimensions_ferc1,
+            dimensions=other_dimensions(),
+            parent=True,
+        ).pipe(
+            make_calculation_dimensions_explicit,
+            table_dimensions_ferc1,
+            dimensions=other_dimensions(),
+        )
     )
     # Remove convert_dtypes() once we're writing to the DB using enforce_schema()
     return calc_components.convert_dtypes()
