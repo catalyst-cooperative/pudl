@@ -88,7 +88,7 @@ def glue_test_dfs(
     )
     # Make everything lowercase
     glue_test_dfs = {
-        df_name: df.applymap(lambda x: x.lower() if type(x) == str else x)
+        df_name: df.applymap(lambda x: x.lower() if type(x) is str else x)
         for (df_name, df) in glue_test_dfs.items()
     }
 
