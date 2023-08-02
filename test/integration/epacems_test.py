@@ -16,7 +16,6 @@ def epacems_year_and_state(etl_settings):
 
 @pytest.fixture(scope="session")
 def epacems_parquet_path(
-    pudl_path_setup,
     pudl_engine,  # implicit dependency; ensures .parquet files exist
 ):
     """Get path to the directory of EPA CEMS .parquet data."""
