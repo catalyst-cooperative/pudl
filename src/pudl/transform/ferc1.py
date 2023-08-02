@@ -1716,7 +1716,7 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
             .assign(
                 table_name_parent=self.table_id.value,
                 xbrl_factoid=lambda x: np.where(
-                    x.xbrl_factoid.notnull(),
+                    x.table_name == self.table_id.value,
                     self.rename_xbrl_factoid(x.xbrl_factoid),
                     x.xbrl_factoid,
                 ),
