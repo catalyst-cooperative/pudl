@@ -255,7 +255,7 @@ report_year,start_date,end_date,values
     fake_transformer = FakeTransformer()
     df_out = fake_transformer.select_current_year_annual_records_duration_xbrl(df=df)
     df_expected = df[df.values == "good"].astype(
-        {"start_date": "datetime64", "end_date": "datetime64"}
+        {"start_date": "datetime64[s]", "end_date": "datetime64[s]"}
     )
     pd.testing.assert_frame_equal(df_out, df_expected)
 
