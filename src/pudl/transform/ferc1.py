@@ -255,8 +255,13 @@ class WideToTidySourceFerc1(TransformParams):
                     value_types.append(rly_wide_to_tidy.value_types)
         # remove None's & flatten/dedupe
         value_types = [v for v in value_types if v is not None]
-        value_types = pudl.helpers.dedupe_n_flatten_list_of_lists(value_types)
-        return value_types
+        flattened_values = []
+        for item in value_types:
+            if isinstance(item, list):
+                flattened_values += [v for v in item]
+            elif isinstance(item, str):
+                flattened_values.append(item)
+        return flattened_values
 
 
 def wide_to_tidy(df: pd.DataFrame, params: WideToTidy) -> pd.DataFrame:
@@ -791,11 +796,15 @@ def reconcile_table_calculations(
 
     if dim_cols:
         table_dims = df[calc_idx].drop_duplicates(keep="first")
-        intra_tbl_calcs = make_calculation_dimensions_explicit(
-            intra_tbl_calcs,
-            table_dimensions_ferc1=table_dims,
-            dimensions=dim_cols,
-        ).pipe(add_parent_dimensions, dim_cols)
+        intra_tbl_calcs = (
+            make_calculation_dimensions_explicit(
+                intra_tbl_calcs,
+                table_dimensions_ferc1=table_dims,
+                dimensions=dim_cols,
+            )
+            .pipe(assign_mirrored_parent_dimensions, dim_cols)
+            .pipe(add_dimension_total_calculations, dim_cols)
+        )
         # the implied calculation relationships between values reported within a
         # dimension (within-dimension calcs) that got added during add_parent_dimensions
         # need to be filtered out bc they result in some duplicates of the calc_idx.
@@ -1661,7 +1670,7 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
             raise AssertionError(
                 f"We've applied {len_fixes_applied} calculation fixes while we started "
                 f"with {len(calc_fixes)}. Length of applied and original fixes should "
-                "be the same."
+                f"be the same. \n{replace_me=}\n{add_me=}\n{delete_me=}"
             )
         return calc_components.reset_index()
 
@@ -5500,27 +5509,37 @@ def calculation_components_xbrl_ferc1(**kwargs):
         ).xbrl_calculations
         calc_metas.append(calc_meta)
     # squish all of the calc comp tables then add in the implicit table dimensions
-    calc_components = pd.concat(calc_metas).pipe(
-        make_calculation_dimensions_explicit,
-        table_dimensions_ferc1,
-        dimensions=other_dimensions(),
-    )
     calc_components = (
-        add_parent_dimensions(calc_components, dimensions=other_dimensions())
-        # once the parents are added make the dimensions explict.. again! for both the
-        # parent side of the calcs and the child side. There are only a rare few
-        # children that need dimension-explicitification that are a result of adding the
-        # total -> sub-total dimension records step within `add_parent_dimensions`
+        pd.concat(calc_metas)
         .pipe(
             make_calculation_dimensions_explicit,
             table_dimensions_ferc1,
             dimensions=other_dimensions(),
-            parent=True,
-        ).pipe(
-            make_calculation_dimensions_explicit,
-            table_dimensions_ferc1,
-            dimensions=other_dimensions(),
         )
+        .pipe(assign_mirrored_parent_dimensions, dimensions=other_dimensions())
+        # .pipe(
+        #     make_calculation_dimensions_explicit,
+        #     table_dimensions_ferc1,
+        #     dimensions=other_dimensions(),
+        #     parent=True,
+        # )
+    )
+    calc_components = (
+        add_dimension_total_calculations(calc_components, dimensions=other_dimensions())
+        # once the parents are added make the dimensions explict.. again! for both the
+        # parent side of the calcs and the child side. There are only a rare few
+        # children that need dimension-explicitification that are a result of adding the
+        # total -> sub-total dimension records step within `add_parent_dimensions`
+        # .pipe(
+        #     make_calculation_dimensions_explicit,
+        #     table_dimensions_ferc1,
+        #     dimensions=other_dimensions(),
+        #     parent=True,
+        # ).pipe(
+        #     make_calculation_dimensions_explicit,
+        #     table_dimensions_ferc1,
+        #     dimensions=other_dimensions(),
+        # )
     )
     # Remove convert_dtypes() once we're writing to the DB using enforce_schema()
     return calc_components.convert_dtypes()
@@ -5606,10 +5625,25 @@ def make_calculation_dimensions_explicit(
     return calc_comps_w_dims
 
 
-def add_parent_dimensions(
+def assign_mirrored_parent_dimensions(calc_components, dimensions):
+    """Add dimensions to calculation parents.
+
+    we now add in parent-dimension values for all of the original
+        # calculation component records. We are assuming all parents should have the
+        # same dimension values as their child components.
+    """
+    for dim in dimensions:
+        calc_components = calc_components.assign(
+            **{f"{dim}_parent": lambda x: x[dim]}
+            | {f"is_within_dimension_{dim}": False}
+        )
+    return calc_components
+
+
+def add_dimension_total_calculations(
     calc_comps: pd.DataFrame, dimensions: list[str]
 ) -> pd.DataFrame:
-    """Define dimension total calculations and add dimensions to calculation parents.
+    """Define dimension total calculations.
 
     In addition to calculations defining how values reported in one set of facts can
     be aggregated resulting in a value in another fact, there are implied calculation
@@ -5654,9 +5688,17 @@ def add_parent_dimensions(
         total_w_subdim_components = (
             pd.merge(
                 # the total records will become _parent columns in new records
-                left=calc_comps.loc[total_mask, table_fact_cols + dimensions],
+                left=(
+                    calc_comps.loc[
+                        total_mask, table_fact_cols + dimensions
+                    ].drop_duplicates()
+                ),
                 # the non-total sub-components will become their calculation components
-                right=calc_comps[~total_mask],
+                right=(
+                    calc_comps.loc[~total_mask]
+                    .drop(columns=[f"{d}_parent" for d in dimensions])
+                    .drop_duplicates()
+                ),
                 on=table_fact_cols,
                 how="left",
                 validate="1:m",
@@ -5675,13 +5717,6 @@ def add_parent_dimensions(
         )
         # now we have a bunch of *new* records linking total records to their non-total
         # sub-components.
-        # Seperately, we now add in parent-dimension values for all of the original
-        # calculation component records. We are assuming all parents should have the
-        # same dimension values as their child components.
-        calc_comps = calc_comps.assign(
-            **{f"{dim}_parent": lambda x: x[dim]}
-            | {f"is_within_dimension_{dim}": False}
-        )
         calc_comps = pd.concat([calc_comps, total_w_subdim_components])
         # we shouldn't be adding any duplicates in this process!
         # This should really pass, but there are facts in the unstructured
