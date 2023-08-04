@@ -30,7 +30,7 @@ name: pudl-fast
 title: PUDL Fast ETL
 description: >
   FERC 1 and EIA 860/923 from 2020 (output to SQLite) plus
-  EPA CEMS hourly emissions data from 2020 (output to Parquet).
+  EPA CEMS hourly emissions data from 2020-2022 (output to Parquet).
 version: 0.1.0
 datasets:
   ferc1:
@@ -75,4 +75,4 @@ datasets:
     # so if you're loading CEMS data for a particular year, you should
     # also load the EIA 860 data for that year if possible
     states: [ID, ME]
-    years: [2019, 2020, 2021]
+    years: [2020, 2021, 2022]

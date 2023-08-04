@@ -420,6 +420,11 @@ class Datastore:
         for resource_key, content in self.get_resources(dataset, **filters):
             yield resource_key, zipfile.ZipFile(io.BytesIO(content))
 
+    def get_zipfile_file_names(self, zip_file: zipfile.ZipFile):
+        """Given a zipfile, return a list of the file names in it."""
+        if zipfile.Zipfile.is_zipfile(zip_file):
+            return zipfile.Zipfile.namelist(zip_file)
+
 
 class ParseKeyValues(argparse.Action):
     """Transforms k1=v1,k2=v2,...
