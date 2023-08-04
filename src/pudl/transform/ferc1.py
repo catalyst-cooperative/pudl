@@ -1645,8 +1645,7 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
         add_me = calc_fixes.loc[calc_fixes.index.difference(calc_components.index)]
         calc_components = pd.concat([calc_components, add_me])
 
-        # find the "null" fixes which coorespond to records which
-        # need to be deleted.
+        # find the "null" fixes which correspond to records which need to be deleted.
         delete_me = calc_fixes[calc_fixes.isnull().all(axis=1)]
         calc_components = calc_components.loc[
             calc_components.index.difference(delete_me.index)
@@ -1659,9 +1658,9 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
         )
         if len(calc_fixes) != len_fixes_applied:
             raise AssertionError(
-                f"We've applied {len_fixes_applied} calculation fixes while we started "
-                f"with {len(calc_fixes)}. Length of applied and original fixes should "
-                "be the same."
+                f"We've applied {len_fixes_applied} calculation "
+                f"fixes while we started with {len(calc_fixes)}. "
+                "Length of applied and original fixes should be the same."
             )
         return calc_components.reset_index()
 
@@ -4271,7 +4270,6 @@ class BalanceSheetLiabilitiesFerc1TableTransformer(Ferc1AbstractTableTransformer
             }
             for new_fact in [
                 "accumulated_deferred_income_taxes",
-                "preliminary_natural_gas_survey_and_investigation_charges",
             ]
         ]
 
@@ -4340,20 +4338,24 @@ class BalanceSheetAssetsFerc1TableTransformer(Ferc1AbstractTableTransformer):
                 balance="credit",
             )
         )
-        dbf_only_facts = [
+        facts_to_add = [
             {
-                "xbrl_factoid": dbf_only_fact,
+                "xbrl_factoid": new_fact,
                 "calculations": "[]",
                 "balance": "credit",
                 "ferc_account": pd.NA,
-                "xbrl_factoid_original": dbf_only_fact,
+                "xbrl_factoid_original": new_fact,
                 "is_within_table_calc": True,
                 "row_type_xbrl": "reported_value",
             }
-            for dbf_only_fact in ["special_funds_all", "nuclear_fuel"]
+            for new_fact in [
+                "special_funds_all",
+                "nuclear_fuel",
+                "preliminary_natural_gas_and_other_survey_and_investigation_charges",
+            ]
         ]
-        dbf_only_facts = pd.DataFrame(dbf_only_facts).convert_dtypes()
-        return pd.concat([tbl_meta, dbf_only_facts, duplicated_facts])
+        new_facts = pd.DataFrame(facts_to_add).convert_dtypes()
+        return pd.concat([tbl_meta, new_facts, duplicated_facts])
 
 
 class IncomeStatementFerc1TableTransformer(Ferc1AbstractTableTransformer):
