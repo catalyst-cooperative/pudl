@@ -995,14 +995,18 @@ def simplify_columns(df):
     Todo:
         Update docstring.
     """
-    df.columns = (
-        df.columns.str.replace(r"[^0-9a-zA-Z]+", " ", regex=True)
-        .str.strip()
-        .str.lower()
-        .str.replace(r"\s+", " ", regex=True)
-        .str.replace(" ", "_")
-    )
-    return df
+    # Do nothing, if empty dataframe (e.g. mocked for tests)
+    if df.shape[0] == 0:
+        return df
+    else:
+        df.columns = (
+            df.columns.str.replace(r"[^0-9a-zA-Z]+", " ", regex=True)
+            .str.strip()
+            .str.lower()
+            .str.replace(r"\s+", " ", regex=True)
+            .str.replace(" ", "_")
+        )
+        return df
 
 
 def drop_tables(engine: sa.engine.Engine, clobber: bool = False):
@@ -1566,7 +1570,7 @@ def convert_df_to_excel_file(df: pd.DataFrame, **kwargs) -> pd.ExcelFile:
     writer = pd.ExcelWriter(bio, engine="xlsxwriter")
     df.to_excel(writer, **kwargs)
 
-    writer.save()
+    writer.close()
 
     bio.seek(0)
     workbook = bio.read()

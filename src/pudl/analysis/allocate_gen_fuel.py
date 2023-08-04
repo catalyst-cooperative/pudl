@@ -1558,7 +1558,7 @@ def distribute_annually_reported_data_to_months_if_annual(
                         "year": x.report_date.dt.year,
                         "month": 1,
                         "day": 1,
-                    }
+                    },
                 )
             )
             .pipe(
@@ -1570,6 +1570,9 @@ def distribute_annually_reported_data_to_months_if_annual(
             .assign(**{data_column_name: lambda x: x[data_column_name] / 12})
             .pipe(assign_plant_year)
             .set_index(["plant_year"])
+        )
+        annual_reporters_expanded["report_date"] = annual_reporters.report_date.astype(
+            "datetime64[s]"
         )
         # sometimes a plant oscillates btwn annual and monthly reporting. when it does
         # expand_timeseries will generate monthly records for years that were not
