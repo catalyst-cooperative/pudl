@@ -75,7 +75,7 @@ def _parse_data_column(elec_df: pd.DataFrame) -> pd.DataFrame:
             )
         else:
             data_df.loc[:, "date"] = pd.to_datetime(
-                data_df.loc[:, "date"], infer_datetime_format=True, errors="raise"
+                data_df.loc[:, "date"], errors="raise"
             )
         data_df["series_id"] = elec_df.at[idx, "series_id"]
         out.append(data_df)
