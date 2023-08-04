@@ -2,6 +2,7 @@
 
 from io import StringIO
 
+import numpy as np
 import pandas as pd
 import pytest
 
@@ -12,7 +13,8 @@ from pudl.transform.ferc1 import (
     TableIdFerc1,
     UnstackBalancesToReportYearInstantXbrl,
     WideToTidy,
-    add_parent_dimensions,
+    add_dimension_total_calculations,
+    assign_mirrored_parent_dimensions,
     calculate_values_from_components,
     drop_duplicate_rows_dbf,
     fill_dbf_to_xbrl_map,
@@ -607,12 +609,21 @@ table_a,fact_4,table_a,fact_4,voyager,that,,total,False,True
 table_a,fact_4,table_a,fact_4,voyager,nebula,,total,False,True
 """
         )
+    ).assign(
+        is_within_table_calc=lambda x: np.where(
+            x.table_name_parent == x.table_name, True, False
+        )
     )
     out_parent_dim_trek = (
-        add_parent_dimensions(
-            calc_comps=expected_trek,
+        assign_mirrored_parent_dimensions(
+            calc_components=expected_trek.assign(
+                is_within_table_calc=lambda x: np.where(
+                    x.table_name_parent == x.table_name, True, False
+                )
+            ),
             dimensions=["dim_x", "dim_y"],
         )
+        .pipe(add_dimension_total_calculations, dimensions=["dim_x", "dim_y"])
         .sort_values(calc_comp_idx)
         .reset_index(drop=True)
     )
