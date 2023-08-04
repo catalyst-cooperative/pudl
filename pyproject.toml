@@ -116,7 +116,7 @@ dev = [
     "build>=0.10,<0.11",
     "ipdb>=0.13,<0.14",
     "isort>=5.0,<5.13",
-    "jedi>=0.18,<0.19",
+    "jedi>=0.18,<0.20",
     "lxml>=4.6,<4.10",
     "tox>=4,<4.7",
     "twine>=3.3,<4.1",
@@ -127,7 +127,7 @@ doc = [
     "sphinx-autoapi>=1.8,<2.2",
     "sphinx-issues>=1.2,<3.1",
     "sphinx-reredirects",
-    "sphinx>=4,!=5.1.0,<7.1",
+    "sphinx>=4,!=5.1.0,<7.2",
     "sphinxcontrib_bibtex>=2.4,<2.6",
 ]
 test = [
@@ -138,7 +138,7 @@ test = [
     "flake8-docstrings>=1.5,<1.8",
     "flake8-rst-docstrings>=0.2,<0.4",
     "flake8-use-fstring>=1.0,<1.5",
-    "flake8>=4.0,<6.1",
+    "flake8>=4.0,<6.2",
     "jupyter",
     "mccabe>=0.6,<0.8",
     "nbconvert>=7,<8",

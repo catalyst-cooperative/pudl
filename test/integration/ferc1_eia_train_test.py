@@ -50,7 +50,7 @@ def ferc1_eia(fast_out_annual):
 def ferc1_eia_training_data():
     """The training data for the ferc1_eia matching."""
     return pd.read_csv(
-        importlib.resources.open_text("pudl.package_data.glue", "ferc1_eia_train.csv")
+        importlib.resources.files("pudl.package_data.glue") / "ferc1_eia_train.csv"
     )
 
 
