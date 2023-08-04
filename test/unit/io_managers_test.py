@@ -218,6 +218,7 @@ def test_error_when_handling_view_without_metadata(pudl_sqlite_io_manager_fixtur
         pudl_sqlite_io_manager_fixture.handle_output(output_context, sql_stmt)
 
 
+@pytest.mark.xfail(reason="SQLAlchemy is not finding the view. Debug or remove.")
 def test_handling_view_with_metadata(pudl_sqlite_io_manager_fixture):
     """Make sure an users can create and load views when it has metadata."""
     # Create some sample data
@@ -234,12 +235,12 @@ def test_handling_view_with_metadata(pudl_sqlite_io_manager_fixture):
 
     # read the view data as a dataframe
     input_context = build_input_context(asset_key=AssetKey(asset_key))
-    print(input_context)
+    # print(input_context)
     # This is failing, not sure why
     # sqlalchemy.exc.InvalidRequestError: Could not reflect: requested table(s) not available in
     # Engine(sqlite:////private/var/folders/pg/zrqnq8l113q57bndc5__h2640000gn/
     # # T/pytest-of-nelsonauner/pytest-38/test_handling_view_with_metada0/pudl.sqlite): (artist_view)
-    # pudl_sqlite_io_manager_fixture.load_input(input_context)
+    pudl_sqlite_io_manager_fixture.load_input(input_context)
 
 
 def test_error_when_reading_view_without_metadata(pudl_sqlite_io_manager_fixture):
