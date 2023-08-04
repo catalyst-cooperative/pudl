@@ -954,26 +954,19 @@ def convert_to_date(
     return df
 
 
-def fix_eia_na(df):
+def fix_eia_na(df: pd.DataFrame) -> pd.DataFrame:
     """Replace common ill-posed EIA NA spreadsheet values with np.nan.
 
     Currently replaces empty string, single decimal points with no numbers,
     and any single whitespace character with np.nan.
 
     Args:
-        df (pandas.DataFrame): The DataFrame to clean.
+        df: The DataFrame to clean.
 
     Returns:
-        pandas.DataFrame: The cleaned DataFrame.
+        DataFrame with regularized NA values.
     """
-    return df.replace(
-        to_replace=[
-            r"^\.$",  # Nothing but a decimal point
-            r"^\s*$",  # The empty string and entirely whitespace strings
-        ],
-        value=np.nan,
-        regex=True,
-    )
+    return df.replace(regex=r"(^\.$|^\s*$)", value=np.nan)
 
 
 def simplify_columns(df):
