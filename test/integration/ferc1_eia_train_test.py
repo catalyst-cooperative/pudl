@@ -41,7 +41,6 @@ def plant_parts_eia(fast_out_annual):
 
 
 @pytest.fixture(scope="module")
-# @pytest.mark.xfail(reason="maybe this is the memory issue")
 def ferc1_eia(fast_out_annual):
     """The ferc1_eia output table."""
     return fast_out_annual.ferc1_eia()

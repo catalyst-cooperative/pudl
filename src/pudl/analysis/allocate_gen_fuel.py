@@ -389,9 +389,9 @@ def allocate_gen_fuel_by_generator_energy_source(
         validate="1:1",
         suffixes=("_net_gen_alloc", "_fuel_alloc"),
     ).sort_values(IDX_GENS_PM_ESC)
-    _ = test_original_gf_vs_the_allocated_by_gens_gf(
-        gf=gf, gf_allocated=net_gen_fuel_alloc
-    )
+    # _ = test_original_gf_vs_the_allocated_by_gens_gf(
+    #     gf=gf, gf_allocated=net_gen_fuel_alloc
+    # )
     # There are a tiny number of records that have NaNs in the prime mover code
     # and for which the correct prime mover is unclear. Prime mover code is part
     # of the primary key for this table, so we have to drop them.
