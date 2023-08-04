@@ -5532,16 +5532,16 @@ def calculation_components_xbrl_ferc1(**kwargs):
         # parent side of the calcs and the child side. There are only a rare few
         # children that need dimension-explicitification that are a result of adding the
         # total -> sub-total dimension records step within `add_parent_dimensions`
-        # .pipe(
-        #     make_calculation_dimensions_explicit,
-        #     table_dimensions_ferc1,
-        #     dimensions=other_dimensions(),
-        #     parent=True,
-        # ).pipe(
-        #     make_calculation_dimensions_explicit,
-        #     table_dimensions_ferc1,
-        #     dimensions=other_dimensions(),
-        # )
+        .pipe(
+            make_calculation_dimensions_explicit,
+            table_dimensions_ferc1,
+            dimensions=other_dimensions(),
+            parent=True,
+        ).pipe(
+            make_calculation_dimensions_explicit,
+            table_dimensions_ferc1,
+            dimensions=other_dimensions(),
+        )
     )
     # Remove convert_dtypes() once we're writing to the DB using enforce_schema()
     return calc_components.convert_dtypes()
