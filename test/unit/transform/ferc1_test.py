@@ -14,7 +14,7 @@ from pudl.transform.ferc1 import (
     UnstackBalancesToReportYearInstantXbrl,
     WideToTidy,
     add_dimension_total_calculations,
-    assign_mirrored_parent_dimensions,
+    assign_parent_dimensions,
     calculate_values_from_components,
     drop_duplicate_rows_dbf,
     fill_dbf_to_xbrl_map,
@@ -615,7 +615,7 @@ table_a,fact_4,table_a,fact_4,voyager,nebula,,total,False,True
         )
     )
     out_parent_dim_trek = (
-        assign_mirrored_parent_dimensions(
+        assign_parent_dimensions(
             calc_components=expected_trek.assign(
                 is_within_table_calc=lambda x: np.where(
                     x.table_name_parent == x.table_name, True, False
