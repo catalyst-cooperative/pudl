@@ -76,9 +76,7 @@ def raw_epacamd_eia(context) -> pd.DataFrame:
     return pd.concat(year_matches, ignore_index=True)
 
 
-@asset(
-    required_resource_keys={"dataset_settings"}, io_manager_key="pudl_sqlite_io_manager"
-)
+@asset(required_resource_keys={"dataset_settings"})
 def epacamd_eia(
     context,
     raw_epacamd_eia: pd.DataFrame,
@@ -298,6 +296,7 @@ def epacamd_eia_subplant_ids(
         .pipe(augement_crosswalk_with_epacamd_ids, emissions_unit_ids_epacems)
         .pipe(augement_crosswalk_with_bga_eia860, boiler_generator_assn_eia860)
     )
+
     # use graph analysis to identify subplants
     subplant_ids = make_subplant_ids(epacamd_eia_complete).pipe(
         pudl.metadata.fields.apply_pudl_dtypes, "glue"
@@ -335,6 +334,7 @@ def epacamd_eia_subplant_ids(
                 "plant_id_eia",
                 "generator_id",
                 "subplant_id",
+                "boiler_id",
             ]
         )
     ).any():
@@ -343,6 +343,24 @@ def epacamd_eia_subplant_ids(
             "when none are expected. Duplicates found: \n"
             f"{subplant_ids_updated[epacamd_eia_dupe_mask]}"
         )
+
+    # the network x process uses unit_id_pudl and generator_id. During processing,
+    # the boiler_id data are truncated and we only retain unique values for generator_id
+    # and unit_id_pudl. This step adds the lost boiler_id info back into the table.
+    subplant_ids_updated = pd.merge(
+        subplant_ids_updated.drop(columns="boiler_id"),
+        boiler_generator_assn_eia860[
+            [
+                "plant_id_eia",
+                "generator_id",
+                "boiler_id",
+                "unit_id_pudl",
+            ]
+        ].drop_duplicates(),
+        on=["plant_id_eia", "generator_id", "unit_id_pudl"],
+        how="outer",
+    ).drop_duplicates()
+
     return subplant_ids_updated
 
 
@@ -361,9 +379,6 @@ def augement_crosswalk_with_generators_eia860(
         on=["plant_id_eia", "generator_id"],
         validate="m:1",
     )
-    crosswalk_clean["plant_id_epa"] = crosswalk_clean["plant_id_epa"].fillna(
-        crosswalk_clean["plant_id_eia"]
-    )
     return crosswalk_clean
 
 
@@ -371,16 +386,16 @@ def augement_crosswalk_with_epacamd_ids(
     crosswalk_clean: pd.DataFrame, emissions_unit_ids_epacems: pd.DataFrame
 ) -> pd.DataFrame:
     """Merge all EPA CAMD IDs into the crosswalk."""
-    return crosswalk_clean.assign(
-        emissions_unit_id_epa=lambda x: x.emissions_unit_id_epa.fillna(x.generator_id)
-    ).merge(
+    return crosswalk_clean.merge(
         emissions_unit_ids_epacems[
             ["plant_id_eia", "emissions_unit_id_epa"]
         ].drop_duplicates(),
         how="outer",
         on=["plant_id_eia", "emissions_unit_id_epa"],
         validate="m:m",
-    )
+        # create a new column so that we don't conflate generator_id and
+        # emissions_unit_id_epa later.
+    ).assign(network_x_key=lambda x: x.emissions_unit_id_epa.fillna(x.generator_id))
 
 
 def augement_crosswalk_with_bga_eia860(
@@ -389,11 +404,16 @@ def augement_crosswalk_with_bga_eia860(
     """Merge all EIA Unit IDs into the crosswalk."""
     return crosswalk_clean.merge(
         boiler_generator_assn_eia860[
-            ["plant_id_eia", "generator_id", "unit_id_pudl"]
+            [
+                "plant_id_eia",
+                "generator_id",
+                "unit_id_pudl",
+                "boiler_id",
+            ]
         ].drop_duplicates(),
         how="outer",
-        on=["plant_id_eia", "generator_id"],
-        validate="m:1",
+        on=["plant_id_eia", "generator_id", "boiler_id"],
+        validate="m:m",
     )
 
 
@@ -415,7 +435,7 @@ def _prep_for_networkx(crosswalk: pd.DataFrame) -> pd.DataFrame:
     prepped = crosswalk.copy()
     # networkx can't handle composite keys, so make surrogates
     prepped["combustor_id"] = prepped.groupby(
-        by=["plant_id_eia", "emissions_unit_id_epa"]
+        by=["plant_id_eia", "network_x_key"]
     ).ngroup()
     # node IDs can't overlap so add (max + 1)
     prepped["generator_id_unique"] = (
