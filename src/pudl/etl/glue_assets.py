@@ -9,19 +9,14 @@ from pudl.metadata.classes import Package
 logger = pudl.logging_helpers.get_logger(__name__)
 
 
-# TODO (bendnorman): Currently loading all glue tables. Could potentially allow users
-# to load subsets of the glue tables, see: https://docs.dagster.io/concepts/assets/multi-assets#subsetting-multi-assets
-# Could split out different types of glue tables into different assets. For example the cross walk table could be a separate asset
-# that way dagster doesn't think all glue tables depend on generators_entity_eia, boilers_entity_eia.
-
-
 @multi_asset(
     outs={
-        table_name: AssetOut(io_manager_key="pudl_sqlite_io_manager")
+        table_name: AssetOut(io_manager_key="pudl_sqlite_io_manager", is_required=False)
         for table_name in Package.get_etl_group_tables("glue")
         #  do not load epacamd_eia glue assets bc they are stand-alone assets below.
         if "epacamd_eia" not in table_name
     },
+    can_subset=True,
     required_resource_keys={"datastore", "dataset_settings"},
 )
 def create_glue_tables(context):
@@ -46,9 +41,9 @@ def create_glue_tables(context):
     # Ensure they are sorted so they match up with the asset outs
     glue_dfs = dict(sorted(glue_dfs.items()))
 
-    return (
-        Output(output_name=table_name, value=df) for table_name, df in glue_dfs.items()
-    )
+    for table_name, df in glue_dfs.items():
+        if table_name in context.selected_output_names:
+            yield Output(output_name=table_name, value=df)
 
 
 #####################
