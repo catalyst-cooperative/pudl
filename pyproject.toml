@@ -24,12 +24,12 @@ dependencies = [
     "coloredlogs>=14.0,<15.1",  # Dagster requires 14.0
     "dagster-webserver>=1.4,<1.5",  # 1.2.2 is first version to support Python 3.11
     "dagster>=1.4,<1.5",  # 1.2.2 is first version to support Python 3.11
-    "dask>=2021.8,<2023.7.2",
+    "dask>=2021.8,<2023.8.1",
     "datapackage>=1.11,<1.16",  # Transition datastore to use frictionless.
     "fsspec>=2021.7,<2023.6.1",  # For caching datastore on GCS
     "gcsfs>=2021.7,<2023.6.1",  # For caching datastore on GCS
     "geopandas>=0.13,<0.14",
-    "grpcio<1.55.0",
+    "grpcio<1.56.0",
     "jinja2>=2,<3.2",
     "matplotlib>=3.3,<3.8",  # Should make this optional with a "viz" extras
     "networkx>=2.2,<3.2",
@@ -117,7 +117,7 @@ dev = [
     "build>=0.10,<0.11",
     "ipdb>=0.13,<0.14",
     "isort>=5.0,<5.13",
-    "jedi>=0.18,<0.19",
+    "jedi>=0.18,<0.20",
     "lxml>=4.6,<4.10",
     "tox>=4,<4.7",
     "twine>=3.3,<4.1",
@@ -128,7 +128,7 @@ doc = [
     "sphinx-autoapi>=1.8,<2.2",
     "sphinx-issues>=1.2,<3.1",
     "sphinx-reredirects",
-    "sphinx>=4,!=5.1.0,<7.1",
+    "sphinx>=4,!=5.1.0,<7.2",
     "sphinxcontrib_bibtex>=2.4,<2.6",
 ]
 test = [
@@ -139,7 +139,7 @@ test = [
     "flake8-docstrings>=1.5,<1.8",
     "flake8-rst-docstrings>=0.2,<0.4",
     "flake8-use-fstring>=1.0,<1.5",
-    "flake8>=4.0,<6.1",
+    "flake8>=4.0,<6.2",
     "jupyter",
     "mccabe>=0.6,<0.8",
     "nbconvert>=7,<8",
