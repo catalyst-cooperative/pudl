@@ -794,6 +794,21 @@ def reconcile_table_calculations(
 
     if dim_cols:
         table_dims = df[calc_idx].drop_duplicates(keep="first")
+        # need to add in the correction dimensions. they don't show up in the data at
+        # this point so we don't have the dimensions yet. NOTE: this could have been
+        # done by adding the dims into table_dims..... maybe would have been more
+        # straightforward
+        correction_mask = intra_tbl_calcs.xbrl_factoid.str.contains("_correction")
+        intra_tbl_calcs = pd.concat(
+            [
+                intra_tbl_calcs[~correction_mask],
+                pd.merge(
+                    intra_tbl_calcs[correction_mask].drop(columns=dim_cols),
+                    table_dims[["table_name"] + dim_cols].drop_duplicates(),
+                    on=["table_name"],
+                ),
+            ]
+        )
         intra_tbl_calcs = (
             make_calculation_dimensions_explicit(
                 intra_tbl_calcs,
@@ -5521,6 +5536,7 @@ def calculation_components_xbrl_ferc1(**kwargs):
     # squish all of the calc comp tables then add in the implicit table dimensions
     calc_components = (
         pd.concat(calc_metas)
+        .astype({dim: pd.StringDtype() for dim in other_dimensions()})
         .pipe(
             make_calculation_dimensions_explicit,
             table_dimensions_ferc1,
@@ -5540,17 +5556,17 @@ def calculation_components_xbrl_ferc1(**kwargs):
         # parent side of the calcs and the child side. There are only a rare few
         # children that need dimension-explicitification that are a result of adding the
         # total -> sub-total dimension records step within `add_parent_dimensions`
-        .pipe(
-            make_calculation_dimensions_explicit,
-            table_dimensions_ferc1,
-            dimensions=other_dimensions(),
-            parent=True,
-        )
-        .pipe(
-            make_calculation_dimensions_explicit,
-            table_dimensions_ferc1,
-            dimensions=other_dimensions(),
-        )
+        # .pipe(
+        #     make_calculation_dimensions_explicit,
+        #     table_dimensions_ferc1,
+        #     dimensions=other_dimensions(),
+        #     parent=True,
+        # )
+        # .pipe(
+        #     make_calculation_dimensions_explicit,
+        #     table_dimensions_ferc1,
+        #     dimensions=other_dimensions(),
+        # )
     )
     # Remove convert_dtypes() once we're writing to the DB using enforce_schema()
     return calc_components.convert_dtypes()
@@ -5618,9 +5634,11 @@ def make_calculation_dimensions_explicit(
     for dim_col in dimensions:
         # extract the unique observed instances of this one dimension column & add the
         # _calc suffix so we can merge onto the calculation components.
-        observed_dim = table_dimensions_ferc1[
-            on_cols + [dim_col]
-        ].drop_duplicates()  # bc there are dupes after we removed the other dim cols
+        observed_dim = (
+            table_dimensions_ferc1[on_cols + [dim_col]]
+            .drop_duplicates()
+            .dropna(subset=dim_col)
+        )  # bc there are dupes after we removed the other dim cols
         null_dim_mask = calc_comps_w_dims[dim_col].isnull()
         null_dim = calc_comps_w_dims[null_dim_mask].drop(columns=[dim_col])
         calc_comps_w_implied_dims = pd.merge(
@@ -5654,28 +5672,64 @@ def assign_parent_dimensions(
     # desired: add parental dimension columns
     # when the child dimensions dont' match, we still want to add a parent fact so use
     # an outer merge here
-    calc_components = pd.merge(
-        calc_components,
-        table_dimensions.rename(
-            columns={col: f"{col}_parent" for col in table_dimensions}
-        ),
-        left_on=["table_name_parent", "xbrl_factoid_parent"] + dimensions,
-        right_on=["table_name_parent", "xbrl_factoid_parent"]
-        + [f"{dim}_parent" for dim in dimensions],
-        how="outer",
-        indicator=True,
-    ).assign(**{f"is_within_dimension_{dim}": False for dim in dimensions})
-    # remove all the bits where we have a child dim but not a parent dim
-    # sometimes there are child dimensions that have utility_type == "other2" etc
-    # where the parent dimension has no
+    # table_dimensions = table_dimensions.rename(
+    #     columns={col: f"{col}_parent" for col in table_dimensions}
+    # )
     for dim in dimensions:
-        calc_components = calc_components[
+        # split the nulls and non-nulls. If the child dim is null, then we can run the
+        # parent factoid through make_calculation_dimensions_explicit to get it's dims.
+        # if a child fact has dims, we need to merge the dimensions using the dim of the
+        # child and the dim of the parent bc we don't want to broadcast merge all parent
+        # dims to all child dims. We are assuming here that if a child is has a dim
+        null_dim_mask = calc_components[dim].isnull()
+
+        calc_components_null = make_calculation_dimensions_explicit(
+            calculation_components=calc_components[null_dim_mask].assign(
+                **{f"{dim}_parent": pd.NA}
+            ),
+            table_dimensions_ferc1=table_dimensions,
+            dimensions=[dim],
+            parent=True,
+        ).assign(**{f"{dim}_type": "null"})
+
+        parent_dim_idx = ["table_name_parent", "xbrl_factoid_parent", f"{dim}_parent"]
+        calc_components_non_null = calc_components[~null_dim_mask]
+        table_dimensions_null = table_dimensions.rename(
+            columns={col: f"{col}_parent" for col in table_dimensions}
+        )[parent_dim_idx].set_index(["table_name_parent", "xbrl_factoid_parent"])
+
+        non_null_index = calc_components_non_null.set_index(
+            ["table_name_parent", "xbrl_factoid_parent"]
+        ).index.intersection(table_dimensions_null.index)
+
+        calc_components_non_null = pd.merge(
+            left=calc_components_non_null,
+            right=(
+                table_dimensions_null.loc[non_null_index]
+                .reset_index()[parent_dim_idx]
+                .drop_duplicates()
+            ),
+            left_on=["table_name_parent", "xbrl_factoid_parent", dim],
+            right_on=parent_dim_idx,
+            how="outer",
+            indicator=True,
+        )
+
+        # remove all the bits where we have a child dim but not a parent dim
+        # sometimes there are child dimensions that have utility_type == "other2" etc
+        # where the parent dimension has nothing
+        calc_components_non_null = calc_components_non_null[
             ~(
-                calc_components[dim].notnull()
-                & calc_components[f"{dim}_parent"].isnull()
+                calc_components_non_null[dim].notnull()
+                & calc_components_non_null[f"{dim}_parent"].isnull()
             )
-        ]
-    return calc_components.copy()
+        ].drop(columns=["_merge"])
+        calc_components = (
+            pd.concat([calc_components_null, calc_components_non_null])
+            .reset_index(drop=True)
+            .assign(**{f"is_within_dimension_{dim}": False})
+        )
+    return calc_components
 
 
 def add_dimension_total_calculations(
