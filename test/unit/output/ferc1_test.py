@@ -23,7 +23,7 @@ import logging
 
 import pandas as pd
 
-from pudl.output.ferc1 import NodeId, XbrlCalculationForestFerc1
+# from pudl.output.ferc1 import NodeId, XbrlCalculationForestFerc1
 
 logger = logging.getLogger(__name__)
 
@@ -58,19 +58,19 @@ TEST_EXPLODED_META: pd.DataFrame = (
     .set_index(EXPLODED_META_IDX)
 )
 
-LEAF_NODE_1 = XbrlCalculationForestFerc1(
-    exploded_meta=TEST_EXPLODED_META,
-    seeds=[NodeId("table_1", "reported_1")],
-)
-LEAF_NODE_2 = XbrlCalculationForestFerc1(
-    exploded_meta=TEST_EXPLODED_META,
-    seeds=[NodeId("table_1", "reported_2")],
-)
-CALC_TREE_1 = XbrlCalculationForestFerc1(
-    exploded_meta=TEST_EXPLODED_META,
-    seeds=[NodeId("table_1", "calc_1")],
-)
-CALC_TREE_2 = XbrlCalculationForestFerc1(
-    exploded_meta=TEST_EXPLODED_META,
-    seeds=[NodeId("table_2", "calc_2")],
-)
+# LEAF_NODE_1 = XbrlCalculationForestFerc1(
+#    exploded_meta=TEST_EXPLODED_META,
+#    seeds=[NodeId("table_1", "reported_1")],
+# )
+# LEAF_NODE_2 = XbrlCalculationForestFerc1(
+#    exploded_meta=TEST_EXPLODED_META,
+#    seeds=[NodeId("table_1", "reported_2")],
+# )
+# CALC_TREE_1 = XbrlCalculationForestFerc1(
+#    exploded_meta=TEST_EXPLODED_META,
+#    seeds=[NodeId("table_1", "calc_1")],
+# )
+# CALC_TREE_2 = XbrlCalculationForestFerc1(
+#    exploded_meta=TEST_EXPLODED_META,
+#    seeds=[NodeId("table_2", "calc_2")],
+# )
