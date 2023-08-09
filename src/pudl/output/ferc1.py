@@ -1121,7 +1121,34 @@ class MetadataExploder:
         )
 
         ##############################################################################
-        # Everything below here is error checking / debugging
+        # Everything below here is error checking / debugging / temporary fixes
+
+        dupes = calc_explode.duplicated(subset=parent_cols + calc_cols, keep=False)
+        if dupes.any():
+            logger.warning(
+                "Consolidating non-unique associations found in exploded_calcs:\n"
+                f"{calc_explode.loc[dupes]}"
+            )
+        # Drop all duplicates with null weights -- this is a temporary fix to an issue
+        # from upstream.
+        # TODO: remove once things are fixed in calculation_components_xbrl_ferc1
+        calc_explode = calc_explode.loc[~(dupes & calc_explode.weight.isna())]
+        assert not calc_explode.duplicated(
+            subset=parent_cols + calc_cols, keep=False
+        ).any()
+
+        # Remove any records where the parent and child columns are identical, since
+        # these self-referencing calculations should not exist
+        # TODO: Remove when fixed in calculation_components_xbrl_ferc1.
+        ccxf = calc_explode.loc[:, parent_cols + calc_cols].fillna("NULL")
+        self_refs_mask = (
+            (ccxf.xbrl_factoid_parent == ccxf.xbrl_factoid)
+            & (ccxf.table_name_parent == ccxf.table_name)
+            & (ccxf.utility_type_parent == ccxf.utility_type)
+            & (ccxf.plant_status_parent == ccxf.plant_status)
+            & (ccxf.plant_function_parent == ccxf.plant_function)
+        )
+        calc_explode = calc_explode.loc[~self_refs_mask]
 
         # There should be no cases where only one of table_name or xbrl_factoid is NA:
         partially_null = calc_explode[
@@ -1129,9 +1156,10 @@ class MetadataExploder:
         ]
         if not partially_null.empty:
             logger.error(
-                "Found unexpectedly null calculation components:\n"
+                "Found unacceptably null calculation components. Dropping!\n"
                 f"{partially_null[['table_name', 'xbrl_factoid']]}"
             )
+            calc_explode = calc_explode.drop(index=partially_null)
 
         # Using list of NodeIds rather than index here due to issues with NA types and
         # it also avoids needing to rename columns or index level names.
@@ -1721,8 +1749,14 @@ class XbrlCalculationForestFerc1(BaseModel):
         dupes = v.duplicated(subset=pks, keep=False)
         if dupes.any():
             logger.warning(
-                f"Non-unique associations found in exploded_calcs:\n{v.loc[dupes]}"
+                "Consolidating non-unique associations found in exploded_calcs:\n"
+                f"{v.loc[dupes]}"
             )
+        # Drop all duplicates with null weights -- this is a temporary fix to an issue
+        # from upstream.
+        # TODO: remove once things are fixed in calculation_components_xbrl_ferc1
+        v = v.loc[~(dupes & v.weight.isna())]
+        assert not v.duplicated(subset=pks, keep=False).any()
         return v
 
     @validator("exploded_calcs")
@@ -1784,6 +1818,16 @@ class XbrlCalculationForestFerc1(BaseModel):
         v = v.dropna(subset=["table_name", "xbrl_factoid"])
         return v
 
+    @validator("tags")
+    def single_valued_tags(cls, v: pd.DataFrame, values) -> pd.DataFrame:
+        """Ensure all tags have unique values."""
+        dupes = v.duplicated(subset=values["primary_keys"], keep=False)
+        if dupes.any():
+            logger.warning(
+                f"Found {dupes.sum()} duplicate tag records:\n{v.loc[dupes]}"
+            )
+        return v
+
     @validator("seeds")
     def seeds_within_bounds(cls, v: pd.DataFrame, values) -> pd.DataFrame:
         """Ensure that all seeds are present within exploded_calcs index.
@@ -1792,7 +1836,6 @@ class XbrlCalculationForestFerc1(BaseModel):
         added to the values dictionary, which doesn't make sense, since "seeds" is
         defined after exploded_calcs in the model.
         """
-        logger.info(values.keys())
         all_nodes = values["exploded_calcs"].set_index(values["parent_cols"]).index
         bad_seeds = [seed for seed in v if seed not in all_nodes]
         if bad_seeds:
