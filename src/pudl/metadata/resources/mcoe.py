@@ -23,7 +23,7 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = (
                     "plant_id_eia",
                     "unit_id_pudl",
                     "net_generation_mwh",
-                    "fuel_consumed_mmbtu",
+                    "fuel_consumed_for_electricity_mmbtu",
                     "heat_rate_mmbtu_mwh",
                 ],
                 "primary_key": [
@@ -103,10 +103,10 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = (
             "description": (
                 f"{freq.title()} estimate of per-generator fuel costs both per MMBTU "
                 "and per MWh. These calculations are based on the allocation of net "
-                "generation and plant-level delivered fuel prices reported in the fuel "
-                "receipts and cost table, along with the un-allocated fuel consumption "
-                "from the boiler fuel table. This means fuel cost coverage is low."
-                "The fuel costs are also currently aggregated to coarse fuel "
+                "generation and fuel consumption as well as plant-level delivered fuel prices "
+                "reported in the fuel receipts and cost table. The intermediary heat rate "
+                "calculation depends on having the unit ID filled in, which means fuel cost "
+                "coverage is low. The fuel costs are also currently aggregated to coarse fuel "
                 "categories rather than using the more detailed energy source codes."
                 f"{FILTERING_WARNING}"
             ),

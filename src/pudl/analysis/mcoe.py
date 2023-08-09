@@ -52,15 +52,15 @@ def mcoe_asset_factory(
         name=f"heat_rate_by_unit_{agg_freqs[freq]}",
         ins={
             "gen": AssetIn(
-                key=f"generation_fuel_by_generator_{agg_freqs[freq]}_eia923"
+                key=f"generation_fuel_by_generator_energy_source_{agg_freqs[freq]}_eia923"
             ),
-            "bf": AssetIn(key=f"denorm_boiler_fuel_{agg_freqs[freq]}_eia923"),
+            "bga": AssetIn(key="boiler_generator_assn_eia860"),
         },
         io_manager_key=io_manager_key,
         compute_kind="Python",
     )
-    def hr_by_unit_asset(gen: pd.DataFrame, bf: pd.DataFrame) -> pd.DataFrame:
-        return heat_rate_by_unit(gen=gen, bf=bf)
+    def hr_by_unit_asset(gen: pd.DataFrame, bga: pd.DataFrame) -> pd.DataFrame:
+        return heat_rate_by_unit(gen_fuel_by_energy_source=gen, bga=bga)
 
     @asset(
         name=f"heat_rate_by_generator_{agg_freqs[freq]}",
@@ -228,7 +228,7 @@ mcoe_assets = [
 ]
 
 
-def heat_rate_by_unit(gen: pd.DataFrame, bf: pd.DataFrame) -> pd.DataFrame:
+def heat_rate_by_unit_old(gen: pd.DataFrame, bf: pd.DataFrame) -> pd.DataFrame:
     """Calculate heat rates (mmBTU/MWh) within separable generation units.
 
     Assumes a "good" Boiler Generator Association (bga) i.e. one that only
@@ -289,55 +289,55 @@ def heat_rate_by_unit(gen: pd.DataFrame, bf: pd.DataFrame) -> pd.DataFrame:
     return hr_by_unit
 
 
-def heat_rate_by_gen_fuel_allocations(
-    gen_fuel_by_gen: pd.DataFrame, gens: pd.DataFrame
-):
-    """Calculate heat rate by generator, adding fuel type & count.
+def heat_rate_by_unit(gen_fuel_by_energy_source: pd.DataFrame, bga: pd.DataFrame):
+    """Calculate heat rates (mmBTU/MWh) within separable generation units.
 
-    Heat rates really only make sense at the unit level, since input fuel and
-    output electricity are comingled at the unit level, but it is useful in
-    many contexts to have that per-unit heat rate associated with each of the
-    underlying generators, as much more information is available about the
-    generators. Using the EIA 923 net generation and fuel consumption allocated
-    to the generator level, we can calculate per generator heat rates.
+    Assumes a "good" Boiler Generator Association (bga) i.e. one that only
+    contains boilers and generators which have been completely associated at
+    some point in the past.
 
-    Returns:
-        DataFrame with columns report_date, plant_id_eia, unit_id_pudl, generator_id,
-        heat_rate_mmbtu_mwh, fuel_type_code_pudl, fuel_type_count.  The output will have
-        a time frequency corresponding to that of the input pudl_out. Output data types
-        are set to their canonical values before returning.
+
+    The BGA dataframe needs to have the following columns:
+
+    - report_date (annual)
+    - plant_id_eia
+    - unit_id_pudl
+    - generator_id
+
+    The unit_id is associated with generation records based on report_date,
+    plant_id_eia, and generator_id. The unit_id is merged onto the net generation
+    and fuel consumption allocations at the generator energy source level. Then,
+    net generation and fuel consumption are summed per unit per time period,
+    allowing the calculation of a per unit heat rate. That per unit heat rate is
+    returned in a dataframe containing:
+
+    - report_date
+    - plant_id_eia
+    - unit_id_pudl
+    - net_generation_mwh
+    - fuel_consumed_for_electricity_mmbtu
+    - heat_rate_mmbtu_mwh
     """
-    hr_by_gen = gen_fuel_by_gen[
-        [
-            "report_date",
-            "plant_id_eia",
-            "unit_id_pudl",
-            "generator_id",
-            "net_generation_mwh",
-            "fuel_consumed_for_electricity_mmbtu",
-        ]
-    ].assign(
-        heat_rate_mmbtu_mwh=lambda x: x.fuel_consumed_for_electricity_mmbtu
-        / x.net_generation_mwh
-    )
-    # Bring in generator specific fuel type & fuel count.
-    hr_by_gen = pudl.helpers.date_merge(
-        left=hr_by_gen,
-        right=gens[
-            [
-                "report_date",
-                "plant_id_eia",
-                "generator_id",
-                "fuel_type_code_pudl",
-                "fuel_type_count",
-            ]
-        ],
+    gen_fuel_by_unit = pudl.helpers.date_merge(
+        left=gen_fuel_by_energy_source,
+        right=bga[["report_date", "plant_id_eia", "generator_id", "unit_id_pudl"]],
         on=["plant_id_eia", "generator_id"],
-        date_on=["year"],
         how="left",
     )
+    heat_rate_by_unit = (
+        gen_fuel_by_unit.dropna(subset="unit_id_pudl")
+        .groupby(["report_date", "plant_id_eia", "unit_id_pudl"], as_index=False)[
+            ["net_generation_mwh", "fuel_consumed_for_electricity_mmbtu"]
+        ]
+        .sum()
+        .convert_dtypes()
+        .assign(
+            heat_rate_mmbtu_mwh=lambda x: x.fuel_consumed_for_electricity_mmbtu
+            / x.net_generation_mwh
+        )
+    )
 
-    return hr_by_gen
+    return heat_rate_by_unit
 
 
 def heat_rate_by_gen(
@@ -357,9 +357,9 @@ def heat_rate_by_gen(
 
     Returns:
         DataFrame with columns report_date, plant_id_eia, unit_id_pudl, generator_id,
-        heat_rate_mmbtu_mwh, fuel_type_code_pudl, fuel_type_count.  The output will have
-        a time frequency corresponding to that of the input pudl_out. Output data types
-        are set to their canonical values before returning.
+        heat_rate_mmbtu_mwh, fuel_type_code_pudl, fuel_type_count, prime_mover_code.
+        The output will have a time frequency corresponding to that of the input
+        pudl_out. Output data types are set to their canonical values before returning.
     """
     bga_gens = bga.loc[
         :, ["report_date", "plant_id_eia", "unit_id_pudl", "generator_id"]
@@ -392,6 +392,7 @@ def heat_rate_by_gen(
                 "generator_id",
                 "fuel_type_code_pudl",
                 "fuel_type_count",
+                "prime_mover_code",
             ]
         ],
         on=["plant_id_eia", "generator_id"],
@@ -661,6 +662,7 @@ def mcoe(
                 :,
                 gens_idx
                 + [
+                    "unit_id_pudl",
                     "fuel_cost_from_eiaapi",
                     "fuel_cost_per_mmbtu",
                     "heat_rate_mmbtu_mwh",
@@ -706,11 +708,7 @@ def mcoe(
         .pipe(pudl.validate.no_null_cols, df_name="fuel_cost + capacity_factor")
     )
     mcoe_out = mcoe_out.sort_values(
-        [
-            "plant_id_eia",
-            "generator_id",
-            "report_date",
-        ]
+        ["plant_id_eia", "generator_id", "report_date", "unit_id_pudl"]
     )
     return mcoe_out
 
