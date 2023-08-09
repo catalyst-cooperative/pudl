@@ -621,12 +621,18 @@ table_a,fact_4,table_a,fact_4,voyager,nebula,,total,False,True
                     x.table_name_parent == x.table_name, True, False
                 )
             ),
+            table_dimensions=table_dimensions_trek,
             dimensions=["dim_x", "dim_y"],
         )
-        .pipe(add_dimension_total_calculations, dimensions=["dim_x", "dim_y"])
+        .pipe(
+            add_dimension_total_calculations,
+            table_dimensions=table_dimensions_trek,
+            dimensions=["dim_x", "dim_y"],
+        )
         .sort_values(calc_comp_idx)
         .reset_index(drop=True)
     )
+    # THIS FAILS BC STUFF TODO: FIX ME
     pd.testing.assert_frame_equal(
         expected_parent_dim_trek, out_parent_dim_trek, check_like=True
     )

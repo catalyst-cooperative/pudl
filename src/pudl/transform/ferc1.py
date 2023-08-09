@@ -814,14 +814,13 @@ def reconcile_table_calculations(
                 intra_tbl_calcs,
                 table_dimensions_ferc1=table_dims,
                 dimensions=dim_cols,
-            )
-            .pipe(
+            ).pipe(
                 assign_parent_dimensions,
                 table_dimensions=table_dims,
                 dimensions=dim_cols,
             )
             # we add some parent-only records in assign_parent_dimensions so drop those
-            .dropna(subset=["xbrl_factoid"])
+            # .dropna(subset=["xbrl_factoid"])
             .pipe(
                 add_dimension_total_calculations,
                 table_dimensions=table_dims,
@@ -1676,6 +1675,19 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
         # find the lines that only show up in the fixes that need to be added
         add_me = calc_fixes.loc[calc_fixes.index.difference(calc_components.index)]
         calc_components = pd.concat([calc_components, add_me])
+        # sometimes we add fresh calculations to parent facts that originally didn't
+        # have any calculation components. So if we are adding those parent facts
+        # with child facts/calc components, we need to remove the non-calc records
+        # so make fake little parent facts with null childern from all the add_mes
+        null_calc_versions_of_add_mes = (
+            add_me.reset_index()[["table_name_parent", "xbrl_factoid_parent"]]
+            .assign(table_name=pd.NA, xbrl_factoid=pd.NA)
+            .set_index(calc_comp_idx)
+        )
+        remove_the_non_cals_from_add_mes = calc_components.index.difference(
+            null_calc_versions_of_add_mes.index.drop_duplicates()
+        )
+        calc_components = calc_components.loc[remove_the_non_cals_from_add_mes]
 
         # find the "null" fixes which correspond to records which need to be deleted.
         delete_me = calc_fixes[calc_fixes.isnull().all(axis=1)]
@@ -1741,8 +1753,9 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
                 ),
                 left_index=True,
                 right_index=True,
-                how="outer",
+                how="left",
             )
+            .dropna(subset=["xbrl_factoid"])
             .reset_index(drop=True)
             .assign(
                 table_name_parent=self.table_id.value,
@@ -1758,7 +1771,7 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
                 calc_fixes=self.get_xbrl_calculation_fixes(),
             )
             .drop_duplicates(keep="first")
-            .pipe(self.add_calculation_corrections)
+            # .pipe(self.add_calculation_corrections)
         )
         # this is really a xbrl_factoid-level flag, but we need it while using this
         # calc components.
@@ -5522,10 +5535,50 @@ def table_dimensions_ferc1(**kwargs) -> pd.DataFrame:
     },
     io_manager_key=None,  # Change to sqlite_io_manager...
 )
-def calculation_components_xbrl_ferc1(**kwargs):
+def metadata_xbrl_ferc1(**kwargs) -> pd.DataFrame:
+    """Build a table of all of the tables' XBRL metadata."""
+    clean_xbrl_metadata_json = kwargs["clean_xbrl_metadata_json"]
+    table_dimensions_ferc1 = kwargs["table_dimensions_ferc1"]
+    tbl_metas = []
+    for table_name, trans in FERC1_TFR_CLASSES.items():
+        tbl_meta = (
+            trans(xbrl_metadata_json=clean_xbrl_metadata_json[table_name])
+            .xbrl_metadata[
+                [
+                    "xbrl_factoid",
+                    "xbrl_factoid_original",
+                    "is_within_table_calc",
+                ]
+            ]
+            .assign(table_name=table_name)
+        )
+        tbl_metas.append(tbl_meta)
+    metadata_all = (
+        pd.concat(tbl_metas)
+        .reset_index(drop=True)
+        .assign(**{dim: pd.NA for dim in other_dimensions()})
+        .pipe(
+            make_calculation_dimensions_explicit,
+            table_dimensions_ferc1=table_dimensions_ferc1,
+            dimensions=other_dimensions(),
+        )
+    )
+    return metadata_all
+
+
+@asset(
+    ins={
+        "clean_xbrl_metadata_json": AssetIn("clean_xbrl_metadata_json"),
+        "table_dimensions_ferc1": AssetIn("table_dimensions_ferc1"),
+        "metadata_xbrl_ferc1": AssetIn("metadata_xbrl_ferc1"),
+    },
+    io_manager_key=None,  # Change to sqlite_io_manager...
+)
+def calculation_components_xbrl_ferc1(**kwargs) -> pd.DataFrame:
     """Create calculation-compnent table from table-level metadata."""
     clean_xbrl_metadata_json = kwargs["clean_xbrl_metadata_json"]
     table_dimensions_ferc1 = kwargs["table_dimensions_ferc1"]
+    metadata_xbrl_ferc1 = kwargs["metadata_xbrl_ferc1"]
     # compile all of the calc comp tables.
     calc_metas = []
     for table_name, transformer in FERC1_TFR_CLASSES.items():
@@ -5552,22 +5605,39 @@ def calculation_components_xbrl_ferc1(**kwargs):
             table_dimensions=table_dimensions_ferc1,
             dimensions=other_dimensions(),
         )
-        # once the parents are added make the dimensions explict.. again! for both the
-        # parent side of the calcs and the child side. There are only a rare few
-        # children that need dimension-explicitification that are a result of adding the
-        # total -> sub-total dimension records step within `add_parent_dimensions`
-        # .pipe(
-        #     make_calculation_dimensions_explicit,
-        #     table_dimensions_ferc1,
-        #     dimensions=other_dimensions(),
-        #     parent=True,
-        # )
-        # .pipe(
-        #     make_calculation_dimensions_explicit,
-        #     table_dimensions_ferc1,
-        #     dimensions=other_dimensions(),
-        # )
     )
+
+    assert calc_components[["table_name", "xbrl_factoid"]].notnull().all(axis=1).all()
+    calc_cols = ["table_name", "xbrl_factoid"] + other_dimensions()
+    missing_from_calcs_idx = calc_components.set_index(calc_cols).index.difference(
+        metadata_xbrl_ferc1.set_index(calc_cols).index
+    )
+    assert len(missing_from_calcs_idx) < 12
+
+    all_eploded_tables = [
+        "balance_sheet_assets_ferc1",
+        "utility_plant_summary_ferc1",
+        "plant_in_service_ferc1",
+        "electric_plant_depreciation_functional_ferc1",
+        "income_statement_ferc1",
+        "depreciation_amortization_summary_ferc1",
+        "electric_operating_expenses_ferc1",
+        "electric_operating_revenues_ferc1",
+        "balance_sheet_liabilities_ferc1",
+        "retained_earnings_ferc1",
+    ]
+    # ensure that none of the calculation components that are missing from the metadata
+    # table are from any of the exploded tables.
+    missing_calcs = (
+        calc_components.set_index(calc_cols).loc[missing_from_calcs_idx].reset_index()
+    )
+    missing_explosion_calcs = missing_calcs[
+        missing_calcs.table_name.isin(all_eploded_tables)
+    ]
+    if not missing_explosion_calcs.empty:
+        raise AssertionError(
+            f"Found missing calculations from the exploded tables:{missing_explosion_calcs=}"
+        )
     # Remove convert_dtypes() once we're writing to the DB using enforce_schema()
     return calc_components.convert_dtypes()
 
@@ -5675,7 +5745,9 @@ def assign_parent_dimensions(
     # table_dimensions = table_dimensions.rename(
     #     columns={col: f"{col}_parent" for col in table_dimensions}
     # )
+    logger.info("WHYYYYY")
     for dim in dimensions:
+        logger.info("HOOOOWWWW")
         # split the nulls and non-nulls. If the child dim is null, then we can run the
         # parent factoid through make_calculation_dimensions_explicit to get it's dims.
         # if a child fact has dims, we need to merge the dimensions using the dim of the
@@ -5690,46 +5762,34 @@ def assign_parent_dimensions(
             table_dimensions_ferc1=table_dimensions,
             dimensions=[dim],
             parent=True,
-        ).assign(**{f"{dim}_type": "null"})
+        )
 
         parent_dim_idx = ["table_name_parent", "xbrl_factoid_parent", f"{dim}_parent"]
         calc_components_non_null = calc_components[~null_dim_mask]
-        table_dimensions_null = table_dimensions.rename(
+        table_dimensions_non_null = table_dimensions.rename(
             columns={col: f"{col}_parent" for col in table_dimensions}
-        )[parent_dim_idx].set_index(["table_name_parent", "xbrl_factoid_parent"])
-
-        non_null_index = calc_components_non_null.set_index(
-            ["table_name_parent", "xbrl_factoid_parent"]
-        ).index.intersection(table_dimensions_null.index)
+        )[parent_dim_idx].drop_duplicates()
 
         calc_components_non_null = pd.merge(
             left=calc_components_non_null,
-            right=(
-                table_dimensions_null.loc[non_null_index]
-                .reset_index()[parent_dim_idx]
-                .drop_duplicates()
-            ),
+            right=table_dimensions_non_null,
             left_on=["table_name_parent", "xbrl_factoid_parent", dim],
             right_on=parent_dim_idx,
-            how="outer",
-            indicator=True,
+            how="inner",
         )
-
         # remove all the bits where we have a child dim but not a parent dim
         # sometimes there are child dimensions that have utility_type == "other2" etc
         # where the parent dimension has nothing
-        calc_components_non_null = calc_components_non_null[
-            ~(
-                calc_components_non_null[dim].notnull()
-                & calc_components_non_null[f"{dim}_parent"].isnull()
-            )
-        ].drop(columns=["_merge"])
-        calc_components = (
-            pd.concat([calc_components_null, calc_components_non_null])
-            .reset_index(drop=True)
-            .assign(**{f"is_within_dimension_{dim}": False})
-        )
-    return calc_components
+        # calc_components_non_null = calc_components_non_null[
+        #     ~(
+        #         calc_components_non_null[dim].notnull()
+        #         & calc_components_non_null[f"{dim}_parent"].isnull()
+        #     )
+        # ]
+        calc_components = pd.concat(
+            [calc_components_null, calc_components_non_null]
+        ).reset_index(drop=True)
+    return calc_components.assign(**{f"is_within_dimension_{dim}": False})
 
 
 def add_dimension_total_calculations(
