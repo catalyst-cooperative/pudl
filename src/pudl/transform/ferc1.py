@@ -5551,6 +5551,8 @@ def calculation_components_xbrl_ferc1(**kwargs):
             table_dimensions_ferc1,
             dimensions=other_dimensions(),
         )
+        # Otherwise duplicate indices cause problems later.
+        .reset_index(drop=True)
     )
     # Remove convert_dtypes() once we're writing to the DB using enforce_schema()
     return calc_components.convert_dtypes()
