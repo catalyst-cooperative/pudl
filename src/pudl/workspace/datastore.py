@@ -174,7 +174,7 @@ class ZenodoFetcher:
             "eia923": "10.5072/zenodo.1217724",
             "eia_bulk_elec": "10.5072/zenodo.1103572",
             "epacamd_eia": "10.5072/zenodo.1199170",
-            "epacems": "10.5072/zenodo.672963",
+            "epacems": "10.5072/zenodo.1228519",
             "ferc1": "10.5072/zenodo.1070868",
             "ferc2": "10.5072/zenodo.1188447",
             "ferc6": "10.5072/zenodo.1098088",
@@ -422,8 +422,7 @@ class Datastore:
 
     def get_zipfile_file_names(self, zip_file: zipfile.ZipFile):
         """Given a zipfile, return a list of the file names in it."""
-        if zipfile.Zipfile.is_zipfile(zip_file):
-            return zipfile.Zipfile.namelist(zip_file)
+        return zipfile.ZipFile.namelist(zip_file)
 
 
 class ParseKeyValues(argparse.Action):

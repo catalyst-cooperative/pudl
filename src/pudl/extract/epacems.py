@@ -136,7 +136,7 @@ class EpaCemsDatastore:
 
         # Get names of files in zip file
         files = self.datastore.get_zipfile_file_names(archive)
-        logger.info(files)
+
         # If archive has one csv file in it, this is a yearly CSV (archived after 08/23)
         # and this CSV does not need to be concatenated.
         if len(files) == 1 and files[0].endswith(".csv"):

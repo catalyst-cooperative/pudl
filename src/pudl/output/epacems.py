@@ -134,7 +134,7 @@ def epacems(
 
     if epacems_path is None:
         pudl_settings = pudl.workspace.setup.get_defaults()
-        epacems_path = Path(pudl_settings["pudl_out"]) / "epacems"
+        epacems_path = Path(pudl_settings["pudl_out"]) / "hourly_emissions_epacems"
 
     epacems = dd.read_parquet(
         epacems_path,
