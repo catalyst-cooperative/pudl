@@ -1766,12 +1766,34 @@ class XbrlCalculationForestFerc1(BaseModel):
         edgelist = pd.DataFrame({"source": source_nodes, "target": target_nodes})
         forest = nx.from_pandas_edgelist(edgelist, create_using=nx.DiGraph)
 
+        # Reshape the tags to turn them into a dictionary of values per-node. This
+        # will make it easier to add arbitrary sets of tags later on.
+        tags_dict = tags.set_index(["table_name", "xbrl_factoid"]).to_dict(
+            orient="index"
+        )
+        tags_dict_df = pd.DataFrame(
+            index=pd.MultiIndex.from_tuples(
+                tags_dict.keys(), names=["table_name", "xbrl_factoid"]
+            ),
+            data={"tags": list(tags_dict.values())},
+        ).reset_index()
+
+        tags_dict = tags.set_index(["table_name", "xbrl_factoid"]).to_dict(
+            orient="index"
+        )
+        tags_dict_df = pd.DataFrame(
+            index=pd.MultiIndex.from_tuples(
+                tags_dict.keys(), names=["table_name", "xbrl_factoid"]
+            ),
+            data={"tags": list(tags_dict.values())},
+        ).reset_index()
+
         # Add metadata tags to the calculation components and reset the index.
         attr_cols = ["weight"]
         node_attrs = (
             pd.merge(
                 left=exploded_meta,
-                right=tags,
+                right=tags_dict_df,
                 how="left",
                 validate="m:1",
             )
@@ -1783,9 +1805,10 @@ class XbrlCalculationForestFerc1(BaseModel):
                 validate="1:1",
             )
             .set_index(self.calc_cols)
-            .to_dict(orient="index")
         )
-        nx.set_node_attributes(forest, node_attrs)
+        # Fill NA tag dictionaries with an empty dict so the type is uniform:
+        node_attrs["tags"] = node_attrs["tags"].apply(lambda x: {} if x != x else x)
+        nx.set_node_attributes(forest, node_attrs.to_dict(orient="index"))
         return forest
 
     @property
@@ -2052,7 +2075,8 @@ class XbrlCalculationForestFerc1(BaseModel):
                 leaf_tags |= pruned_forest.nodes[node]["tags"]
                 # Root nodes have no weight because they don't come from calculations
                 # We assign them a weight of 1.0
-                if not pruned_forest.nodes[node].get("weight", False):
+                # if not pruned_forest.nodes[node].get("weight", False):
+                if pd.isna(pruned_forest.nodes[node]["weight"]):
                     assert node in roots
                     node_weight = 1.0
                 else:
@@ -2062,9 +2086,6 @@ class XbrlCalculationForestFerc1(BaseModel):
             # Construct a dictionary describing the leaf node and convert it into a
             # single row DataFrame. This makes adding arbitrary tags easy.
             leaf_attrs = {
-                "xbrl_factoid_original": pruned_forest.nodes[leaf][
-                    "xbrl_factoid_original"
-                ],
                 "weight": leaf_weight,
                 "tags": leaf_tags,
                 "table_name": leaf.table_name,
