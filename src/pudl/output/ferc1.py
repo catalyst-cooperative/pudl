@@ -960,13 +960,16 @@ def create_exploded_table_assets() -> list[AssetsDefinition]:
     # Also, these tags are only applicable to the balance_sheet_assets_ferc1 table, but
     # we need to pass in a dataframe with the right structure to all of the exploders,
     # so we're just re-using this one for the moment.
-    pkg_source = importlib.resources.files("pudl.package_data.ferc1").joinpath(
-        "xbrl_factoid_rate_base_tags.csv"
+    tags_csv = (
+        importlib.resources.files("pudl.package_data.ferc1")
+        / "xbrl_factoid_rate_base_tags.csv"
     )
-    with importlib.resources.as_file(pkg_source) as tags_csv:
-        tags = pd.read_csv(
-            tags_csv, usecols=["xbrl_factoid", "table_name", "in_rate_base"]
-        ).drop_duplicates(subset=["table_name", "xbrl_factoid", "in_rate_base"])
+    tags_df = (
+        pd.read_csv(tags_csv, usecols=["table_name", "xbrl_factoid", "in_rate_base"])
+        .drop_duplicates()
+        .dropna(subset=["table_name", "xbrl_factoid"], how="any")
+        .astype(pd.StringDtype())
+    )
 
     explosion_args = [
         {
@@ -983,12 +986,12 @@ def create_exploded_table_assets() -> list[AssetsDefinition]:
                 NodeId(
                     table_name="income_statement_ferc1",
                     xbrl_factoid="net_income_loss",
-                    utility_type=pd.NA,
+                    utility_type="total",
                     plant_status=pd.NA,
                     plant_function=pd.NA,
                 ),
             ],
-            "tags": tags,
+            "tags": tags_df,
         },
         {
             "root_table": "balance_sheet_assets_ferc1",
@@ -1009,7 +1012,7 @@ def create_exploded_table_assets() -> list[AssetsDefinition]:
                     plant_function=pd.NA,
                 )
             ],
-            "tags": tags,
+            "tags": tags_df,
         },
         {
             "root_table": "balance_sheet_liabilities_ferc1",
@@ -1028,7 +1031,7 @@ def create_exploded_table_assets() -> list[AssetsDefinition]:
                     plant_function=pd.NA,
                 )
             ],
-            "tags": tags,
+            "tags": tags_df,
         },
     ]
     return [exploded_table_asset_factory(**kwargs) for kwargs in explosion_args]
