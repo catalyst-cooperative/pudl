@@ -4,6 +4,7 @@ from typing import Any
 import pandas as pd
 
 import pudl
+from pudl.helpers import oob_to_nan
 from pudl.metadata.fields import apply_pudl_dtypes
 
 DEFAULT_GENS_COLS = [
@@ -525,9 +526,10 @@ def mcoe(
             how="left" if all_gens else "right",
         ).pipe(pudl.validate.no_null_rows, df_name="mcoe_all_gens", thresh=0.9)
 
-    # Organize the dataframe for easier legibility
+    # Remove inf values from fuel cost and organize the dataframe for easier legibility
     mcoe_out = (
-        mcoe_out.pipe(
+        mcoe_out.pipe(oob_to_nan, ["fuel_cost_per_mwh"], ub=1e10)
+        .pipe(
             pudl.helpers.organize_cols,
             DEFAULT_GENS_COLS,
         )
