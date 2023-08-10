@@ -5606,7 +5606,7 @@ def calculation_components_xbrl_ferc1(**kwargs) -> pd.DataFrame:
             dimensions=other_dimensions(),
         )
     )
-
+    # Defensive testing on this table!
     assert calc_components[["table_name", "xbrl_factoid"]].notnull().all(axis=1).all()
     calc_cols = ["table_name", "xbrl_factoid"] + other_dimensions()
     missing_from_calcs_idx = calc_components.set_index(calc_cols).index.difference(
@@ -5638,6 +5638,17 @@ def calculation_components_xbrl_ferc1(**kwargs) -> pd.DataFrame:
         raise AssertionError(
             f"Found missing calculations from the exploded tables:{missing_explosion_calcs=}"
         )
+    # we shouldn't be adding any duplicates in this process!
+    # We need to remove the electricity_sales_by_rate_schedule_ferc1 bc there are
+    # duplicate renamed factoids in that table (originally billed/unbilled)
+    assert (
+        calc_components[
+            calc_components.table_name_parent
+            != "electricity_sales_by_rate_schedule_ferc1"
+        ]
+        .set_index(calc_cols + [f"{col}_parent" for col in calc_cols])
+        .index.is_unique
+    )
     # Remove convert_dtypes() once we're writing to the DB using enforce_schema()
     return calc_components.convert_dtypes()
 
@@ -5740,14 +5751,7 @@ def assign_parent_dimensions(
         dimensions: list of dimension columns to check.
     """
     # desired: add parental dimension columns
-    # when the child dimensions dont' match, we still want to add a parent fact so use
-    # an outer merge here
-    # table_dimensions = table_dimensions.rename(
-    #     columns={col: f"{col}_parent" for col in table_dimensions}
-    # )
-    logger.info("WHYYYYY")
     for dim in dimensions:
-        logger.info("HOOOOWWWW")
         # split the nulls and non-nulls. If the child dim is null, then we can run the
         # parent factoid through make_calculation_dimensions_explicit to get it's dims.
         # if a child fact has dims, we need to merge the dimensions using the dim of the
@@ -5777,19 +5781,10 @@ def assign_parent_dimensions(
             right_on=parent_dim_idx,
             how="inner",
         )
-        # remove all the bits where we have a child dim but not a parent dim
-        # sometimes there are child dimensions that have utility_type == "other2" etc
-        # where the parent dimension has nothing
-        # calc_components_non_null = calc_components_non_null[
-        #     ~(
-        #         calc_components_non_null[dim].notnull()
-        #         & calc_components_non_null[f"{dim}_parent"].isnull()
-        #     )
-        # ]
         calc_components = pd.concat(
             [calc_components_null, calc_components_non_null]
         ).reset_index(drop=True)
-    return calc_components.assign(**{f"is_within_dimension_{dim}": False})
+    return calc_components
 
 
 def add_dimension_total_calculations(
@@ -5838,19 +5833,20 @@ def add_dimension_total_calculations(
         # new total records. Note that we are only adding total calculations for the
         # INTRA table calculations -- inter-table calculations that involve dimensions
         # are more complex are are manually specified in the calculation fixes.
+        other_dims = [other_dim for other_dim in dimensions if other_dim != dim]
         total_mask = (
             calc_components[dim] == "total"
         ) & calc_components.is_within_table_calc
-        total_w_subdim_components = (
+        total_w_subdim = (
             pd.merge(
                 # the total records will become _parent columns in new records
                 left=(
-                    calc_components.loc[
-                        total_mask, table_fact_cols + dimensions
-                    ].drop_duplicates()
+                    calc_components.loc[total_mask]
+                    .drop(columns=[f"{dim}_parent"])
+                    .drop_duplicates(subset=table_fact_cols + [dim])
                 ),
                 # the non-total sub-components will become their calculation components
-                right=table_dimensions,
+                right=(table_dimensions.drop(columns=other_dims).drop_duplicates()),
                 on=["table_name", "xbrl_factoid"],
                 how="left",
                 validate="1:m",
@@ -5862,21 +5858,15 @@ def add_dimension_total_calculations(
                 table_name_parent=lambda x: x.table_name,
                 xbrl_factoid_parent=lambda x: x.xbrl_factoid,
             )
-            # drop the other non-total parent dim cols (they will be merged back on later)
-            .drop(columns=[f"{d}_parent" for d in dimensions if d != dim]).assign(
-                **{f"is_within_dimension_{dim}": True}
-            )
         )
         # now we have a bunch of *new* records linking total records to their non-total
         # sub-components.
-        calc_components = pd.concat([calc_components, total_w_subdim_components])
-        # we shouldn't be adding any duplicates in this process!
-        # This should really pass, but there are facts in the unstructured
-        # electric sales by schedule billed/unbilled facts that are getting renamed to
-        # have the same name...
-        # parent_dims = [dim + "_parent" for dim in dimensions]
-        # assert calc_components.set_index(
-        #    table_fact_cols + dimensions + parent_dims
-        # ).index.is_unique
+        calc_components = pd.concat(
+            [
+                calc_components.assign(**{f"is_within_dimension_{dim}": False}),
+                total_w_subdim.assign(**{f"is_within_dimension_{dim}": True}),
+            ]
+        )
+
         assert calc_components[calc_components.duplicated()].empty
-    return calc_components
+    return calc_components.reset_index(drop=True)
