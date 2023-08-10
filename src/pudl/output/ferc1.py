@@ -1,7 +1,7 @@
 """A collection of denormalized FERC assets and helper functions."""
 import importlib
 import json
-from typing import Any, Literal, NamedTuple, Self
+from typing import Literal, NamedTuple, Self
 
 import networkx as nx
 import numpy as np
@@ -916,7 +916,7 @@ def exploded_table_asset_factory(
 ) -> AssetsDefinition:
     """Create an exploded table based on a set of related input tables."""
     ins: Mapping[str, AssetIn] = {
-        "clean_xbrl_metadata_json": AssetIn("clean_xbrl_metadata_json"),
+        "metadata_xbrl_ferc1": AssetIn("metadata_xbrl_ferc1"),
         "calculation_components_xbrl_ferc1": AssetIn(
             "calculation_components_xbrl_ferc1"
         ),
@@ -927,18 +927,17 @@ def exploded_table_asset_factory(
     def exploded_tables_asset(
         **kwargs: dict[str, pd.DataFrame],
     ) -> pd.DataFrame:
-        clean_xbrl_metadata_json = kwargs["clean_xbrl_metadata_json"]
+        metadata_xbrl_ferc1 = kwargs["metadata_xbrl_ferc1"]
         calculation_components_xbrl_ferc1 = kwargs["calculation_components_xbrl_ferc1"]
         tables_to_explode = {
             name: df
             for (name, df) in kwargs.items()
-            if name
-            not in ["clean_xbrl_metadata_json", "calculation_components_xbrl_ferc1"]
+            if name not in ["metadata_xbrl_ferc1", "calculation_components_xbrl_ferc1"]
         }
         return Exploder(
             table_names=tables_to_explode.keys(),
             root_table=root_table,
-            clean_xbrl_metadata_json=clean_xbrl_metadata_json,
+            metadata_xbrl_ferc1=metadata_xbrl_ferc1,
             calculation_components_xbrl_ferc1=calculation_components_xbrl_ferc1,
             seed_nodes=seed_nodes,
             tags=tags,
@@ -1044,38 +1043,13 @@ class MetadataExploder:
     def __init__(
         self,
         table_names: list[str],
-        clean_xbrl_metadata_json: dict,
+        metadata_xbrl_ferc1: pd.DataFrame,
         calculation_components_xbrl_ferc1: pd.DataFrame,
     ):
         """Instantiate MetadataExploder."""
         self.table_names = table_names
         self.calculation_components_xbrl_ferc1 = calculation_components_xbrl_ferc1
-        self.clean_xbrl_metadata_json = clean_xbrl_metadata_json
-
-    @property
-    def old_calculations(self: Self):
-        """Reduce the calculation components to only the tables in the explosion.
-
-        First we restrict the calculation records to only those that are components of
-        xbrl_factoids within the set of tables that we are currently exploding. Then
-        we also have to remove the full set of calculaiton components that are a part of
-        calculations that have any components that are from tables outside of the set of
-        tables in this explosion.
-        """
-        calc_explode = self.calculation_components_xbrl_ferc1
-        calc_explode = calc_explode[
-            calc_explode.table_name_parent.isin(self.table_names)
-        ]
-        not_in_explosion_xbrl_factoids = list(
-            calc_explode.loc[
-                ~calc_explode.table_name.isin(self.table_names),
-                "xbrl_factoid_parent",
-            ].unique()
-        )
-        calc_explode = calc_explode[
-            ~calc_explode.xbrl_factoid_parent.isin(not_in_explosion_xbrl_factoids)
-        ].copy()
-        return calc_explode
+        self.metadata_xbrl_ferc1 = metadata_xbrl_ferc1
 
     @property
     def calculations(self: Self):
@@ -1161,27 +1135,6 @@ class MetadataExploder:
             )
             calc_explode = calc_explode.drop(index=partially_null)
 
-        # Using list of NodeIds rather than index here due to issues with NA types and
-        # it also avoids needing to rename columns or index level names.
-        # An index of all non-null child nodes / calculation components:
-        calc_idx = [
-            NodeId(*x)
-            for x in calc_explode[calc_cols].dropna(how="all").itertuples(index=False)
-        ]
-        # An index of all parent nodes:
-        parent_idx = [
-            NodeId(*x)
-            for x in calc_explode[parent_cols].dropna(how="all").itertuples(index=False)
-        ]
-
-        # Nodes that *only* appear as children / calculation components:
-        calc_only = list(set(calc_idx).difference(parent_idx))
-        if len(calc_only) > 0:
-            logger.error(
-                f"Found {len(calc_only)} nodes that only appear as calc components:\n"
-                f"{calc_only}"
-            )
-
         # These should never be NA:
         assert calc_explode.xbrl_factoid_parent.notna().all()
         assert calc_explode.table_name_parent.notna().all()
@@ -1200,81 +1153,18 @@ class MetadataExploder:
         Args:
             clean_xbrl_metadata_json: cleaned XRBL metadata.
         """
-        tbl_metas = []
-        for table_name in self.table_names:
-            tbl_meta = (
-                pudl.transform.ferc1.FERC1_TFR_CLASSES[table_name](
-                    xbrl_metadata_json=self.clean_xbrl_metadata_json[table_name]
-                )
-                .xbrl_metadata[
-                    [
-                        "xbrl_factoid",
-                        "xbrl_factoid_original",
-                        "is_within_table_calc",
-                    ]
-                ]
-                .assign(table_name=table_name)
-            )
-            tbl_metas.append(tbl_meta)
-        exploded_metadata = (
-            pd.concat(tbl_metas)
-            .reset_index(drop=True)
-            .pipe(self.redefine_calculations_with_components_out_of_explosion)
-        )
+        exploded_metadata = self.metadata_xbrl_ferc1[
+            self.metadata_xbrl_ferc1.table_name.isin(self.table_names)
+        ]
         # At this point all remaining calculation components should exist within the
         # exploded metadata.
         calc_comps = self.calculations
-        calc_comps_index = calc_comps.set_index(["table_name", "xbrl_factoid"]).index
-        meta_index = exploded_metadata.set_index(["table_name", "xbrl_factoid"]).index
-        nodes_not_in_calculations = [
-            x
-            for x in meta_index.difference(calc_comps_index)
-            if not (x[1].endswith("_correction") or x[1].endswith("_member"))
-        ]
-        if nodes_not_in_calculations:
-            logger.info(
-                "These nodes appear as records in the exploded metadata but do not "
-                f"participate in any calculations: {nodes_not_in_calculations}."
-            )
-        nodes_without_metadata = calc_comps_index.difference(meta_index).to_list()
-        if nodes_without_metadata:
-            raise ValueError(
-                "These calculation components do not correspond to any record in the "
-                f"exploded metadata: {nodes_without_metadata}."
-            )
-
-        return exploded_metadata
-
-    def redefine_calculations_with_components_out_of_explosion(
-        self: Self, meta_explode: pd.DataFrame
-    ) -> pd.DataFrame:
-        """Convert calculations referring to outside tables to reported values.
-
-        In the context of the exploded tables, we can only look at data and metadata
-        available from those tables. We treat any values coming from outside this set
-        of tables as if they were reported values, by setting their calculation to an
-        empty list.
-
-        TODO: remove this method and the one call for it within boom once the
-        Tree/Forest situation directly uses the calculation components instead of the
-        embedded calculations.
-        """
-        calc_explode = self.calculation_components_xbrl_ferc1
-        calc_explode = calc_explode[
-            calc_explode.table_name_parent.isin(self.table_names)
-        ]
-
-        not_in_explosion_xbrl_factoids = list(
-            calc_explode.loc[
-                ~calc_explode.table_name.isin(self.table_names),
-                "xbrl_factoid_parent",
-            ].unique()
+        calc_cols = list(NodeId._fields)
+        missing_from_calcs_idx = calc_comps.set_index(calc_cols).index.difference(
+            calc_comps.set_index(calc_cols).index
         )
-        meta_explode.loc[
-            meta_explode.xbrl_factoid.isin(not_in_explosion_xbrl_factoids),
-            ["calculations", "row_type_xbrl"],
-        ] = ("[]", "reported_value")
-        return meta_explode
+        assert missing_from_calcs_idx.empty
+        return exploded_metadata
 
 
 class Exploder:
@@ -1284,7 +1174,7 @@ class Exploder:
         self: Self,
         table_names: list[str],
         root_table: str,
-        clean_xbrl_metadata_json: dict[str, Any],
+        metadata_xbrl_ferc1: pd.DataFrame,
         calculation_components_xbrl_ferc1: pd.DataFrame,
         seed_nodes: list[NodeId] = [],
         tags: pd.DataFrame = pd.DataFrame(),
@@ -1294,8 +1184,8 @@ class Exploder:
         Args:
             table_names: list of table names to explode.
             root_table: the table at the base of the tree of tables_to_explode.
-            clean_xbrl_metadata_json: json version of the XBRL-metadata.
-            calculation_components_xbrl_ferc1: table of calculation components
+            metadata_xbrl_ferc1: table of factoid-level metadata.
+            calculation_components_xbrl_ferc1: table of calculation components.
             seed_nodes: NodeIds to use as seeds for the calculation forest.
             tags: Additional metadata to merge onto the exploded dataframe.
         """
@@ -1303,7 +1193,7 @@ class Exploder:
         self.root_table: str = root_table
         self.meta_exploder = MetadataExploder(
             self.table_names,
-            clean_xbrl_metadata_json,
+            metadata_xbrl_ferc1,
             calculation_components_xbrl_ferc1,
         )
         self.metadata_exploded: pd.DataFrame = self.meta_exploder.metadata
