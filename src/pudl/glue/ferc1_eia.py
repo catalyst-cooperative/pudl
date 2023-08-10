@@ -28,7 +28,7 @@ desire and the potential implications of using a co-located set of plant infrast
 as an id.
 """
 
-import importlib
+import importlib.resources
 
 import pandas as pd
 import sqlalchemy as sa
@@ -51,18 +51,18 @@ from pudl.transform.params.ferc1 import FERC1_STRING_NORM
 
 logger = pudl.logging_helpers.get_logger(__name__)
 
-PUDL_ID_MAP_XLSX = importlib.resources.open_binary(
-    "pudl.package_data.glue", "pudl_id_mapping.xlsx"
+PUDL_ID_MAP_XLSX = (
+    importlib.resources.files("pudl.package_data.glue") / "pudl_id_mapping.xlsx"
 )
 """Path to the PUDL ID mapping sheet with the plant map."""
 
-UTIL_ID_PUDL_MAP_CSV = importlib.resources.open_text(
-    "pudl.package_data.glue", "utility_id_pudl.csv"
+UTIL_ID_PUDL_MAP_CSV = (
+    importlib.resources.files("pudl.package_data.glue") / "utility_id_pudl.csv"
 )
 """Path to the PUDL utility ID mapping CSV."""
 
-UTIL_ID_FERC_MAP_CSV = importlib.resources.open_text(
-    "pudl.package_data.glue", "utility_id_ferc1.csv"
+UTIL_ID_FERC_MAP_CSV = (
+    importlib.resources.files("pudl.package_data.glue") / "utility_id_ferc1.csv"
 )
 """Path to the PUDL-assign FERC1 utility ID mapping CSV."""
 
@@ -107,7 +107,7 @@ def get_plant_map() -> pd.DataFrame:
 def get_utility_map_pudl() -> pd.DataFrame:
     """Read in the manual FERC to EIA utility mapping data."""
     return (
-        pd.read_csv(UTIL_ID_PUDL_MAP_CSV.name)
+        pd.read_csv(UTIL_ID_PUDL_MAP_CSV)
         .convert_dtypes()
         .assign(
             utility_name_pudl=lambda x: x.utility_name_eia.fillna(x.utility_name_ferc1)
@@ -117,7 +117,7 @@ def get_utility_map_pudl() -> pd.DataFrame:
 
 def get_utility_map_ferc1() -> pd.DataFrame:
     """Read in the manual XBRL to DBF FERC1 utility mapping data."""
-    return pd.read_csv(UTIL_ID_FERC_MAP_CSV.name).convert_dtypes()
+    return pd.read_csv(UTIL_ID_FERC_MAP_CSV).convert_dtypes()
 
 
 def get_mapped_plants_eia():
