@@ -91,9 +91,7 @@ def test_ferc1_outputs(fast_out, df_name):
             "mcoe_generators",
             12 / 1,
             {"all_gens": False},
-            marks=pytest.mark.xfail(
-                reason="MCOE has time coverage issues that will be resolved in Dagster migration."
-            ),
+            marks=pytest.mark.xfail(reason="MCOE has time coverage issues."),
         ),
     ],
 )

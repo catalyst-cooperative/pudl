@@ -56,6 +56,7 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = (
                     "heat_rate_mmbtu_mwh",
                     "fuel_type_code_pudl",
                     "fuel_type_count",
+                    "prime_mover_code",
                 ],
                 "primary_key": [
                     "report_date",
