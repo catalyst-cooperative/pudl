@@ -2664,7 +2664,7 @@ mcoe_gas_heat_rate = [
         "title": "Natural Gas Unit Heat Rates (tails, 2015+)",
         "query": "fuel_type_code_pudl=='gas' and report_date>='2015-01-01'",
         "low_q": 0.05,
-        "low_bound": 6.5,
+        "low_bound": 6.4,
         "hi_q": 0.95,
         "hi_bound": 13.0,
         "data_col": "heat_rate_mmbtu_mwh",

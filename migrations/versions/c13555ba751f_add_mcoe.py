@@ -1,8 +1,8 @@
-"""add fuel allocations to mcoe
+"""add mcoe
 
-Revision ID: c25fd2762650
+Revision ID: c13555ba751f
 Revises: e2670d0ec0eb
-Create Date: 2023-08-09 14:58:01.110757
+Create Date: 2023-08-10 12:14:51.208467
 
 """
 from alembic import op
@@ -10,7 +10,7 @@ import sqlalchemy as sa
 
 
 # revision identifiers, used by Alembic.
-revision = 'c25fd2762650'
+revision = 'c13555ba751f'
 down_revision = 'e2670d0ec0eb'
 branch_labels = None
 depends_on = None
@@ -68,7 +68,9 @@ def upgrade() -> None:
     sa.Column('heat_rate_mmbtu_mwh', sa.Float(), nullable=True, comment='Fuel content per unit of electricity generated. Coming from MCOE calculation.'),
     sa.Column('fuel_type_code_pudl', sa.Enum('coal', 'gas', 'hydro', 'nuclear', 'oil', 'other', 'solar', 'waste', 'wind'), nullable=True, comment='Simplified fuel type code used in PUDL'),
     sa.Column('fuel_type_count', sa.Integer(), nullable=True, comment='A count of how many different simple energy sources there are associated with a generator.'),
+    sa.Column('prime_mover_code', sa.Text(), nullable=True, comment='Code for the type of prime mover (e.g. CT, CG)'),
     sa.ForeignKeyConstraint(['plant_id_eia', 'generator_id'], ['generators_entity_eia.plant_id_eia', 'generators_entity_eia.generator_id'], ),
+    sa.ForeignKeyConstraint(['prime_mover_code'], ['prime_movers_eia.code'], ),
     sa.PrimaryKeyConstraint('report_date', 'plant_id_eia', 'generator_id')
     )
     op.create_table('mcoe_generators_monthly',
@@ -109,6 +111,7 @@ def upgrade() -> None:
     op.create_table('mcoe_monthly',
     sa.Column('plant_id_eia', sa.Integer(), nullable=False, comment='The unique six-digit facility identification number, also called an ORISPL, assigned by the Energy Information Administration.'),
     sa.Column('generator_id', sa.Text(), nullable=False, comment='Generator ID is usually numeric, but sometimes includes letters. Make sure you treat it as a string!'),
+    sa.Column('unit_id_pudl', sa.Integer(), nullable=True, comment='Dynamically assigned PUDL unit id. WARNING: This ID is not guaranteed to be static long term as the input data and algorithm may evolve over time.'),
     sa.Column('report_date', sa.Date(), nullable=False, comment='Date reported.'),
     sa.Column('capacity_factor', sa.Float(), nullable=True, comment='Fraction of potential generation that was actually reported for a plant part.'),
     sa.Column('fuel_cost_from_eiaapi', sa.Boolean(), nullable=True, comment='Indicates whether the fuel cost was derived from the EIA API.'),
@@ -171,7 +174,9 @@ def upgrade() -> None:
     sa.Column('heat_rate_mmbtu_mwh', sa.Float(), nullable=True, comment='Fuel content per unit of electricity generated. Coming from MCOE calculation.'),
     sa.Column('fuel_type_code_pudl', sa.Enum('coal', 'gas', 'hydro', 'nuclear', 'oil', 'other', 'solar', 'waste', 'wind'), nullable=True, comment='Simplified fuel type code used in PUDL'),
     sa.Column('fuel_type_count', sa.Integer(), nullable=True, comment='A count of how many different simple energy sources there are associated with a generator.'),
+    sa.Column('prime_mover_code', sa.Text(), nullable=True, comment='Code for the type of prime mover (e.g. CT, CG)'),
     sa.ForeignKeyConstraint(['plant_id_eia', 'generator_id', 'report_date'], ['generators_eia860.plant_id_eia', 'generators_eia860.generator_id', 'generators_eia860.report_date'], ),
+    sa.ForeignKeyConstraint(['prime_mover_code'], ['prime_movers_eia.code'], ),
     sa.PrimaryKeyConstraint('report_date', 'plant_id_eia', 'generator_id')
     )
     op.create_table('mcoe_generators_yearly',
@@ -212,6 +217,7 @@ def upgrade() -> None:
     op.create_table('mcoe_yearly',
     sa.Column('plant_id_eia', sa.Integer(), nullable=False, comment='The unique six-digit facility identification number, also called an ORISPL, assigned by the Energy Information Administration.'),
     sa.Column('generator_id', sa.Text(), nullable=False, comment='Generator ID is usually numeric, but sometimes includes letters. Make sure you treat it as a string!'),
+    sa.Column('unit_id_pudl', sa.Integer(), nullable=True, comment='Dynamically assigned PUDL unit id. WARNING: This ID is not guaranteed to be static long term as the input data and algorithm may evolve over time.'),
     sa.Column('report_date', sa.Date(), nullable=False, comment='Date reported.'),
     sa.Column('capacity_factor', sa.Float(), nullable=True, comment='Fraction of potential generation that was actually reported for a plant part.'),
     sa.Column('fuel_cost_from_eiaapi', sa.Boolean(), nullable=True, comment='Indicates whether the fuel cost was derived from the EIA API.'),
