@@ -1796,7 +1796,7 @@ class XbrlCalculationForestFerc1(BaseModel):
         connected_components = list(
             nx.connected_components(full_digraph.to_undirected())
         )
-        logger.info(
+        logger.debug(
             f"Full digraph contains {len(connected_components)} connected components."
         )
         if not nx.is_directed_acyclic_graph(full_digraph):
@@ -1847,7 +1847,7 @@ class XbrlCalculationForestFerc1(BaseModel):
         connected_components = list(
             nx.connected_components(seeded_digraph.to_undirected())
         )
-        logger.info(
+        logger.debug(
             f"Seeded digraph contains {len(connected_components)} connected components."
         )
         return seeded_digraph
@@ -1946,7 +1946,11 @@ class XbrlCalculationForestFerc1(BaseModel):
     def orphans(self: Self) -> list[NodeId]:
         """Identify all nodes that appear in metadata but not in the full digraph."""
         nodes = self.full_digraph.nodes
-        return [NodeId(*n) for n in self.exploded_calcs.index if n not in nodes]
+        return [
+            NodeId(*n)
+            for n in self.exploded_meta.set_index(self.calc_cols).index
+            if n not in nodes
+        ]
 
     @property
     def pruned(self: Self) -> list[NodeId]:
