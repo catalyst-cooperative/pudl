@@ -630,7 +630,7 @@ def mcoe(
             pudl.helpers.oob_to_nan,
             ["fuel_cost_per_mwh"],
             lb=min_fuel_cost_per_mwh,
-            ub=None,
+            ub=1e10,
         )
         .pipe(
             pudl.helpers.oob_to_nan,
@@ -699,16 +699,20 @@ def mcoe_generators(
         ).pipe(pudl.validate.no_null_rows, df_name="mcoe_all_gens", thresh=0.9)
 
     # Organize the dataframe for easier legibility
-    mcoe_gens_out = mcoe_gens_out.pipe(
-        pudl.helpers.organize_cols,
-        DEFAULT_GENS_COLS,
-    ).sort_values(
-        [
-            "plant_id_eia",
-            "unit_id_pudl",
-            "generator_id",
-            "report_date",
-        ]
+    mcoe_gens_out = (
+        mcoe_gens_out.pipe(
+            pudl.helpers.organize_cols,
+            DEFAULT_GENS_COLS,
+        )
+        .sort_values(
+            [
+                "plant_id_eia",
+                "unit_id_pudl",
+                "generator_id",
+                "report_date",
+            ]
+        )
+        .pipe(apply_pudl_dtypes, group="eia")
     )
 
     return mcoe_gens_out
