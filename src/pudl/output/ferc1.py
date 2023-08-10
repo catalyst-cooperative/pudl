@@ -2033,7 +2033,7 @@ class XbrlCalculationForestFerc1(BaseModel):
         }
         leaves_df = pd.DataFrame(list(leaf_to_root_map.keys()))
         roots_df = pd.DataFrame(list(leaf_to_root_map.values())).rename(
-            columns={"table_name": "root_table", "xbrl_factoid": "root_xbrl_factoid"}
+            columns={col: col + "_root" for col in self.calc_cols}
         )
         leafy_meta = pd.concat([leaves_df, roots_df], axis="columns")
 
@@ -2066,6 +2066,9 @@ class XbrlCalculationForestFerc1(BaseModel):
                 "tags": leaf_tags,
                 "table_name": leaf.table_name,
                 "xbrl_factoid": leaf.xbrl_factoid,
+                "utility_type": leaf.utility_type,
+                "plant_status": leaf.plant_status,
+                "plant_function": leaf.plant_function,
             }
             leaf_rows.append(pd.json_normalize(leaf_attrs, sep="_"))
 
