@@ -228,67 +228,6 @@ mcoe_assets = [
 ]
 
 
-def heat_rate_by_unit_old(gen: pd.DataFrame, bf: pd.DataFrame) -> pd.DataFrame:
-    """Calculate heat rates (mmBTU/MWh) within separable generation units.
-
-    Assumes a "good" Boiler Generator Association (bga) i.e. one that only
-    contains boilers and generators which have been completely associated at
-    some point in the past.
-
-    The BGA dataframe needs to have the following columns:
-
-    - report_date (annual)
-    - plant_id_eia
-    - unit_id_pudl
-    - generator_id
-    - boiler_id
-
-    The unit_id is associated with generation records based on report_date,
-    plant_id_eia, and generator_id. Analogously, the unit_id is associated
-    with boiler fuel consumption records based on report_date, plant_id_eia,
-    and boiler_id.
-
-    Then the total net generation and fuel consumption per unit per time period
-    are calculated, allowing the calculation of a per unit heat rate. That
-    per unit heat rate is returned in a dataframe containing:
-
-    - report_date
-    - plant_id_eia
-    - unit_id_pudl
-    - net_generation_mwh
-    - fuel_consumed_mmbtu
-    - heat_rate_mmbtu_mwh
-    """
-    # Sum up the net generation per unit for each time period:
-    gen_by_unit = (
-        gen.groupby(["report_date", "plant_id_eia", "unit_id_pudl"])[
-            ["net_generation_mwh"]
-        ]
-        .sum(min_count=1)
-        .reset_index()
-    )
-
-    # Sum up all the fuel consumption per unit for each time period:
-    bf_by_unit = (
-        bf.groupby(["report_date", "plant_id_eia", "unit_id_pudl"])[
-            ["fuel_consumed_mmbtu"]
-        ]
-        .sum(min_count=1)
-        .reset_index()
-    )
-
-    # Merge together the per-unit generation and fuel consumption data so we
-    # can calculate a per-unit heat rate:
-    hr_by_unit = pd.merge(
-        gen_by_unit,
-        bf_by_unit,
-        on=["report_date", "plant_id_eia", "unit_id_pudl"],
-        validate="one_to_one",
-    ).assign(heat_rate_mmbtu_mwh=lambda x: x.fuel_consumed_mmbtu / x.net_generation_mwh)
-
-    return hr_by_unit
-
-
 def heat_rate_by_unit(gen_fuel_by_energy_source: pd.DataFrame, bga: pd.DataFrame):
     """Calculate heat rates (mmBTU/MWh) within separable generation units.
 

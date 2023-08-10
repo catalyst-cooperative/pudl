@@ -158,6 +158,7 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = (
                 "fields": [
                     "plant_id_eia",
                     "generator_id",
+                    "unit_id_pudl",
                     "report_date",
                     "capacity_factor",
                     "fuel_cost_from_eiaapi",

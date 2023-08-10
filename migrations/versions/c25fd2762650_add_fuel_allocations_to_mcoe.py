@@ -1,8 +1,8 @@
-"""dagsterize mcoe tables
+"""add fuel allocations to mcoe
 
-Revision ID: 719d7e5a063d
+Revision ID: c25fd2762650
 Revises: e2670d0ec0eb
-Create Date: 2023-07-13 10:42:06.539619
+Create Date: 2023-08-09 14:58:01.110757
 
 """
 from alembic import op
@@ -10,7 +10,7 @@ import sqlalchemy as sa
 
 
 # revision identifiers, used by Alembic.
-revision = '719d7e5a063d'
+revision = 'c25fd2762650'
 down_revision = 'e2670d0ec0eb'
 branch_labels = None
 depends_on = None
@@ -23,7 +23,7 @@ def upgrade() -> None:
     sa.Column('plant_id_eia', sa.Integer(), nullable=False, comment='The unique six-digit facility identification number, also called an ORISPL, assigned by the Energy Information Administration.'),
     sa.Column('unit_id_pudl', sa.Integer(), nullable=False, comment='Dynamically assigned PUDL unit id. WARNING: This ID is not guaranteed to be static long term as the input data and algorithm may evolve over time.'),
     sa.Column('net_generation_mwh', sa.Float(), nullable=True, comment='Net electricity generation for the specified period in megawatt-hours (MWh).'),
-    sa.Column('fuel_consumed_mmbtu', sa.Float(), nullable=True, comment='Total consumption of fuel in physical unit, year to date. Note: this is the total quantity consumed for both electricity and, in the case of combined heat and power plants, process steam production.'),
+    sa.Column('fuel_consumed_for_electricity_mmbtu', sa.Float(), nullable=True, comment='Total consumption of fuel to produce electricity, in physical unit, year to date.'),
     sa.Column('heat_rate_mmbtu_mwh', sa.Float(), nullable=True, comment='Fuel content per unit of electricity generated. Coming from MCOE calculation.'),
     sa.ForeignKeyConstraint(['plant_id_eia'], ['plants_entity_eia.plant_id_eia'], ),
     sa.PrimaryKeyConstraint('report_date', 'plant_id_eia', 'unit_id_pudl')
@@ -126,7 +126,7 @@ def upgrade() -> None:
     sa.Column('plant_id_eia', sa.Integer(), nullable=False, comment='The unique six-digit facility identification number, also called an ORISPL, assigned by the Energy Information Administration.'),
     sa.Column('unit_id_pudl', sa.Integer(), nullable=False, comment='Dynamically assigned PUDL unit id. WARNING: This ID is not guaranteed to be static long term as the input data and algorithm may evolve over time.'),
     sa.Column('net_generation_mwh', sa.Float(), nullable=True, comment='Net electricity generation for the specified period in megawatt-hours (MWh).'),
-    sa.Column('fuel_consumed_mmbtu', sa.Float(), nullable=True, comment='Total consumption of fuel in physical unit, year to date. Note: this is the total quantity consumed for both electricity and, in the case of combined heat and power plants, process steam production.'),
+    sa.Column('fuel_consumed_for_electricity_mmbtu', sa.Float(), nullable=True, comment='Total consumption of fuel to produce electricity, in physical unit, year to date.'),
     sa.Column('heat_rate_mmbtu_mwh', sa.Float(), nullable=True, comment='Fuel content per unit of electricity generated. Coming from MCOE calculation.'),
     sa.ForeignKeyConstraint(['plant_id_eia', 'report_date'], ['plants_eia860.plant_id_eia', 'plants_eia860.report_date'], ),
     sa.PrimaryKeyConstraint('report_date', 'plant_id_eia', 'unit_id_pudl')
