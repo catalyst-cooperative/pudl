@@ -656,7 +656,6 @@ table_a,fact_3,voyager,total,table_a,fact_3,voyager,coffee,True,True,False
 table_a,fact_3,voyager,total,table_a,fact_3,voyager,in,True,True,False
 table_a,fact_3,voyager,total,table_a,fact_3,voyager,that,True,True,False
 table_a,fact_3,voyager,total,table_a,fact_3,voyager,nebula,True,True,False
-table_a,fact_3,voyager,total,table_a,fact_3,voyager,total,True,True,False
 """
         )
     )

@@ -3955,16 +3955,18 @@ class ElectricEnergySourcesFerc1TableTransformer(Ferc1AbstractTableTransformer):
         :meth:`process_xbrl_metadata`.
         """
         tbl_meta = super().convert_xbrl_metadata_json_to_df(xbrl_metadata_json)
-        facts_to_add = {
-            "xbrl_factoid": "purchased_mwh",
-            "calculations": ["[]"],
-            "balance": ["credit"],
-            "ferc_account": [pd.NA],
-            "xbrl_factoid_original": "purchased_mwh",
-            "is_within_table_calc": [True],
-            "row_type_xbrl": ["reported_value"],
-        }
-
+        facts_to_add = [
+            {
+                "xbrl_factoid": new_fact,
+                "calculations": "[]",
+                "balance": "credit",
+                "ferc_account": pd.NA,
+                "xbrl_factoid_original": new_fact,
+                "is_within_table_calc": True,
+                "row_type_xbrl": "reported_value",
+            }
+            for new_fact in ["megawatt_hours_purchased", "purchased_mwh"]
+        ]
         new_facts = pd.DataFrame(facts_to_add).convert_dtypes()
         return pd.concat([tbl_meta, new_facts])
 
@@ -5609,36 +5611,23 @@ def calculation_components_xbrl_ferc1(**kwargs) -> pd.DataFrame:
     # Defensive testing on this table!
     assert calc_components[["table_name", "xbrl_factoid"]].notnull().all(axis=1).all()
     calc_cols = ["table_name", "xbrl_factoid"] + other_dimensions()
-    missing_from_calcs_idx = calc_components.set_index(calc_cols).index.difference(
-        metadata_xbrl_ferc1.set_index(calc_cols).index
-    )
-    assert len(missing_from_calcs_idx) < 12
 
-    all_eploded_tables = [
-        "balance_sheet_assets_ferc1",
-        "utility_plant_summary_ferc1",
-        "plant_in_service_ferc1",
-        "electric_plant_depreciation_functional_ferc1",
-        "income_statement_ferc1",
-        "depreciation_amortization_summary_ferc1",
-        "electric_operating_expenses_ferc1",
-        "electric_operating_revenues_ferc1",
-        "balance_sheet_liabilities_ferc1",
-        "retained_earnings_ferc1",
-    ]
+    missing_from_calcs_idx = (
+        calc_components[calc_components.table_name.isin(FERC1_TFR_CLASSES.keys())]
+        .set_index(calc_cols)
+        .index.difference(metadata_xbrl_ferc1.set_index(calc_cols).index)
+    )
     # ensure that none of the calculation components that are missing from the metadata
     # table are from any of the exploded tables.
     missing_calcs = (
         calc_components.set_index(calc_cols).loc[missing_from_calcs_idx].reset_index()
     )
-    missing_explosion_calcs = missing_calcs[
-        missing_calcs.table_name.isin(all_eploded_tables)
-    ]
-    if not missing_explosion_calcs.empty:
+    if not missing_calcs.empty:
         raise AssertionError(
-            f"Found missing calculations from the exploded tables:{missing_explosion_calcs=}"
+            # logger.warning(
+            f"Found missing calculations from the exploded tables:\n{missing_calcs=}"
         )
-    # we shouldn't be adding any duplicates in this process!
+    # Check for duplicates calculation records
     # We need to remove the electricity_sales_by_rate_schedule_ferc1 bc there are
     # duplicate renamed factoids in that table (originally billed/unbilled)
     assert (
@@ -5649,6 +5638,23 @@ def calculation_components_xbrl_ferc1(**kwargs) -> pd.DataFrame:
         .set_index(calc_cols + [f"{col}_parent" for col in calc_cols])
         .index.is_unique
     )
+    # check for parent/child duplicates. again need to remove the
+    # electricity_sales_by_rate_schedule_ferc1 table.
+    self_refs_mask = calc_components.apply(
+        lambda x: all(
+            [  # must both check if the string is the same & if both are null
+                (x[col] == x[f"{col}_parent"])
+                | (pd.isnull(x[col]) & pd.isnull(x[f"{col}_parent"]))
+                for col in calc_cols
+            ]
+        ),
+        axis=1,
+    ) & (calc_components.table_name != "electricity_sales_by_rate_schedule_ferc1")
+    if not (parent_child_dupes := calc_components.loc[self_refs_mask]).empty:
+        raise AssertionError(
+            f"Found {len(parent_child_dupes)} calcuations where the parent and child "
+            f"columns are identical and expected 0.\n{parent_child_dupes=}"
+        )
     # Remove convert_dtypes() once we're writing to the DB using enforce_schema()
     return calc_components.convert_dtypes()
 
@@ -5846,9 +5852,13 @@ def add_dimension_total_calculations(
                     .drop_duplicates(subset=table_fact_cols + [dim])
                 ),
                 # the non-total sub-components will become their calculation components
-                right=(table_dimensions.drop(columns=other_dims).drop_duplicates()),
+                right=(
+                    table_dimensions[table_dimensions[dim] != "total"]
+                    .drop(columns=other_dims)
+                    .drop_duplicates()
+                ),
                 on=["table_name", "xbrl_factoid"],
-                how="left",
+                how="inner",
                 validate="1:m",
                 suffixes=("_parent", ""),
             )

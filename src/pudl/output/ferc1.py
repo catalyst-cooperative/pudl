@@ -1111,19 +1111,6 @@ class MetadataExploder:
             subset=parent_cols + calc_cols, keep=False
         ).any()
 
-        # Remove any records where the parent and child columns are identical, since
-        # these self-referencing calculations should not exist
-        # TODO: Remove when fixed in calculation_components_xbrl_ferc1.
-        ccxf = calc_explode.loc[:, parent_cols + calc_cols].fillna("NULL")
-        self_refs_mask = (
-            (ccxf.xbrl_factoid_parent == ccxf.xbrl_factoid)
-            & (ccxf.table_name_parent == ccxf.table_name)
-            & (ccxf.utility_type_parent == ccxf.utility_type)
-            & (ccxf.plant_status_parent == ccxf.plant_status)
-            & (ccxf.plant_function_parent == ccxf.plant_function)
-        )
-        calc_explode = calc_explode.loc[~self_refs_mask]
-
         # There should be no cases where only one of table_name or xbrl_factoid is NA:
         partially_null = calc_explode[
             calc_explode.table_name.isna() ^ calc_explode.xbrl_factoid.isna()
