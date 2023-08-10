@@ -243,8 +243,7 @@ Analysis
   Thanks to :user:`grgmiller` for his contribution, which was integrated by
   :user:`cmgosnell`! See PRs :pr:`2235,2446`.
 * The :mod:`pudl.analysis.mcoe` table now uses the allocated estimates for per-generator
-  net generation and fuel consumption to get better coverage for estimates of heat rates
-  by generator-month. See PR :pr:`2553`.
+  net generation and fuel consumption. See PR :pr:`2553`.
 * Additionally, the :mod:`pudl.analysis.mcoe` table now only includes attributes
   pertaining to the generator capacity, heat rate, and fuel cost. No additional
   generator attributes are included in this table. The full table with generator
