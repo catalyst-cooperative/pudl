@@ -1070,7 +1070,7 @@ class MetadataExploder:
         calc_cols = list(NodeId._fields)
         parent_cols = [col + "_parent" for col in calc_cols]
 
-        # Keep only records where parent is within exploded tables:
+        # Keep only records where both parent and child facts are in exploded tables:
         calc_explode = self.calculation_components_xbrl_ferc1[
             self.calculation_components_xbrl_ferc1.table_name_parent.isin(
                 self.table_names
@@ -1080,23 +1080,24 @@ class MetadataExploder:
         gb = calc_explode.groupby(
             ["table_name_parent", "xbrl_factoid_parent"], as_index=False
         )
-        # Identify groups where all calculation components are within the explosion
-        # We need to include table_name of pd.NA to retain non-calculated values.
+        # Identify groups where **all** calculation components are within the explosion
         calc_explode["is_in_explosion"] = gb.table_name.transform(
-            lambda x: x.isin(self.table_names + [pd.NA]).all()
+            lambda x: x.isin(self.table_names).all()
         )
-        # Convert any calculation componets from outside the explosion into reported
-        # values / leaf nodes:
-        calc_explode.loc[~calc_explode.is_in_explosion, calc_cols + ["weight"]] = pd.NA
+        # Keep only calculations in which ALL calculation components are in explosion
+        # Restrict columns to the ones we actually need. Drop duplicates and order
+        # things for legibility.
         calc_explode = (
-            calc_explode.drop(columns=["is_in_explosion"])
-            .drop_duplicates(subset=calc_cols + parent_cols + ["weight"])
-            .reset_index(drop=True)
+            calc_explode[calc_explode.is_in_explosion]
+            .loc[:, parent_cols + calc_cols + ["weight"]]
+            .drop_duplicates()
+            .set_index(parent_cols + calc_cols)
+            .sort_index()
+            .reset_index()
         )
 
         ##############################################################################
         # Everything below here is error checking / debugging / temporary fixes
-
         dupes = calc_explode.duplicated(subset=parent_cols + calc_cols, keep=False)
         if dupes.any():
             logger.warning(
@@ -1130,7 +1131,7 @@ class MetadataExploder:
 
     @property
     def metadata(self):
-        """Combine a set of inter-realted table's metatada for use in :class:`Exploder`.
+        """Combine a set of interrelated table's metatada for use in :class:`Exploder`.
 
         Any calculations containing components that are part of tables outside the
         set of exploded tables will be converted to reported values with an empty
@@ -1140,13 +1141,18 @@ class MetadataExploder:
         Args:
             clean_xbrl_metadata_json: cleaned XRBL metadata.
         """
-        exploded_metadata = self.metadata_xbrl_ferc1[
-            self.metadata_xbrl_ferc1.table_name.isin(self.table_names)
-        ]
+        calc_cols = list(NodeId._fields)
+        exploded_metadata = (
+            self.metadata_xbrl_ferc1[
+                self.metadata_xbrl_ferc1.table_name.isin(self.table_names)
+            ]
+            .set_index(calc_cols)
+            .sort_index()
+            .reset_index()
+        )
         # At this point all remaining calculation components should exist within the
         # exploded metadata.
         calc_comps = self.calculations
-        calc_cols = list(NodeId._fields)
         missing_from_calcs_idx = calc_comps.set_index(calc_cols).index.difference(
             calc_comps.set_index(calc_cols).index
         )
@@ -1602,9 +1608,10 @@ class XbrlCalculationForestFerc1(BaseModel):
     from calculation relationships.
     """
 
-    # Not sure if dynamically basing this on NodeId fields will work but...
-    primary_keys: list[str] = list(NodeId._fields)
+    # Not sure if dynamically basing this on NodeId is really a good idea here.
+    calc_cols: list[str] = list(NodeId._fields)
     parent_cols: list[str] | None = None
+    exploded_meta: pd.DataFrame = pd.DataFrame()
     exploded_calcs: pd.DataFrame = pd.DataFrame()
     seeds: list[NodeId] = []
     tags: pd.DataFrame = pd.DataFrame()
@@ -1617,12 +1624,12 @@ class XbrlCalculationForestFerc1(BaseModel):
     @validator("parent_cols", always=True)
     def set_parent_cols(cls, v, values) -> list[str]:
         """A convenience property to generate parent column."""
-        return [col + "_parent" for col in values["primary_keys"]]
+        return [col + "_parent" for col in values["calc_cols"]]
 
     @validator("exploded_calcs")
     def unique_associations(cls, v: pd.DataFrame, values) -> pd.DataFrame:
         """Ensure parent-child associations in exploded calculations are unique."""
-        pks = values["primary_keys"] + values["parent_cols"]
+        pks = values["calc_cols"] + values["parent_cols"]
         dupes = v.duplicated(subset=pks, keep=False)
         if dupes.any():
             logger.warning(
@@ -1631,8 +1638,6 @@ class XbrlCalculationForestFerc1(BaseModel):
             )
         # Drop all duplicates with null weights -- this is a temporary fix to an issue
         # from upstream.
-        # TODO: remove once things are fixed in calculation_components_xbrl_ferc1
-        v = v.loc[~(dupes & v.weight.isna())]
         assert not v.duplicated(subset=pks, keep=False).any()
         return v
 
@@ -1640,7 +1645,7 @@ class XbrlCalculationForestFerc1(BaseModel):
     def single_valued_weights(cls, v: pd.DataFrame, values) -> pd.DataFrame:
         """Ensure that every calculation component has a uniquely specified weight."""
         multi_valued_weights = (
-            v.groupby(values["primary_keys"], dropna=False)["weight"]
+            v.groupby(values["calc_cols"], dropna=False)["weight"]
             .transform("nunique")
             .gt(1)
         )
@@ -1657,7 +1662,7 @@ class XbrlCalculationForestFerc1(BaseModel):
     @validator("exploded_calcs")
     def calcs_have_required_cols(cls, v: pd.DataFrame, values) -> pd.DataFrame:
         """Ensure exploded calculations include all required columns."""
-        required_cols = values["parent_cols"] + values["primary_keys"] + ["weight"]
+        required_cols = values["parent_cols"] + values["calc_cols"] + ["weight"]
         missing_cols = [col for col in required_cols if col not in v.columns]
         if missing_cols:
             raise ValueError(
@@ -1675,7 +1680,9 @@ class XbrlCalculationForestFerc1(BaseModel):
     @validator("tags")
     def tags_have_required_cols(cls, v: pd.DataFrame, values) -> pd.DataFrame:
         """Ensure tagging dataframe contains all required index columns."""
-        missing_cols = [col for col in values["primary_keys"] if col not in v.columns]
+        missing_cols = [
+            col for col in ["table_name", "xbrl_factoid"] if col not in v.columns
+        ]
         if missing_cols:
             raise ValueError(
                 f"Tagging dataframe was missing expected columns: {missing_cols=}"
@@ -1698,7 +1705,7 @@ class XbrlCalculationForestFerc1(BaseModel):
     @validator("tags")
     def single_valued_tags(cls, v: pd.DataFrame, values) -> pd.DataFrame:
         """Ensure all tags have unique values."""
-        dupes = v.duplicated(subset=values["primary_keys"], keep=False)
+        dupes = v.duplicated(subset=["table_name", "xbrl_factoid"], keep=False)
         if dupes.any():
             logger.warning(
                 f"Found {dupes.sum()} duplicate tag records:\n{v.loc[dupes]}"
@@ -1730,6 +1737,7 @@ class XbrlCalculationForestFerc1(BaseModel):
 
     def exploded_calcs_to_digraph(
         self: Self,
+        exploded_meta: pd.DataFrame,
         exploded_calcs: pd.DataFrame,
         tags: pd.DataFrame,
     ) -> nx.DiGraph:
@@ -1745,60 +1753,33 @@ class XbrlCalculationForestFerc1(BaseModel):
         calculation components in the exploded calcs dataframe.
         """
         source_nodes = list(
-            exploded_calcs.dropna(subset=self.primary_keys, how="all")
-            .loc[:, self.parent_cols]
+            exploded_calcs.loc[:, self.parent_cols]
             .rename(columns=lambda x: x.removesuffix("_parent"))
             .itertuples(name="NodeId", index=False)
         )
         target_nodes = list(
-            exploded_calcs.dropna(subset=self.primary_keys, how="all")
-            .loc[:, self.primary_keys]
-            .itertuples(name="NodeId", index=False)
+            exploded_calcs.loc[:, self.calc_cols].itertuples(name="NodeId", index=False)
         )
         edgelist = pd.DataFrame({"source": source_nodes, "target": target_nodes})
         forest = nx.from_pandas_edgelist(edgelist, create_using=nx.DiGraph)
 
         # Add metadata tags to the calculation components and reset the index.
         attr_cols = ["weight"]
-        attr_df = (
+        node_attrs = (
             pd.merge(
-                left=exploded_calcs[self.primary_keys + attr_cols],
+                left=exploded_meta,
                 right=tags,
-                on=self.primary_keys,
-                how="outer",
+                how="left",
                 validate="m:1",
             )
-            .reset_index()
-            .dropna(subset=self.primary_keys, how="all")
-        )
-
-        # Special case where the same node is specified with a weight of both +/- 1.0
-        # We need to keep the version with weight == -1.0 because we're using the
-        # product of all ancestor weights to set the weight of the leaf nodes...
-        known_dupes = attr_df[
-            (attr_df.table_name == "utility_plant_summary_ferc1")
-            & (
-                attr_df.xbrl_factoid
-                == "accumulated_provision_for_depreciation_amortization_and_depletion_of_plant_utility"
+            .reset_index(drop=True)
+            .drop(columns=["xbrl_factoid_original", "is_within_table_calc"])
+            .merge(
+                exploded_calcs[self.calc_cols + attr_cols].drop_duplicates(),
+                how="left",
+                validate="1:1",
             )
-            & (attr_df.weight == 1.0)
-        ]
-
-        # If there are any cases where the same index values correspond to a different
-        # set of attributes this conversion from a dataframe to a dictionary will fail,
-        # which is good because having different attributes specified for a node in the
-        # tree will cause issues.
-        tag_cols = [col for col in tags.columns if col not in self.primary_keys]
-        node_attrs = (
-            # Only keep columns that pertain to the calculation components
-            attr_df.loc[:, self.primary_keys + attr_cols + tag_cols]
-            .drop(known_dupes.index)
-            # If there are true duplicates in which the index and attributes are all
-            # identical, we can safely drop all but one copy, since it will uniquely
-            # describe a node in the graph.
-            .drop_duplicates()
-            # An easy way to convert the node attributes into a format NX can understand
-            .set_index(self.primary_keys)
+            .set_index(self.calc_cols)
             .to_dict(orient="index")
         )
         nx.set_node_attributes(forest, node_attrs)
@@ -1808,13 +1789,14 @@ class XbrlCalculationForestFerc1(BaseModel):
     def full_digraph(self: Self) -> nx.DiGraph:
         """A digraph of all calculations described by the exploded metadata."""
         full_digraph = self.exploded_calcs_to_digraph(
+            exploded_meta=self.exploded_meta,
             exploded_calcs=self.exploded_calcs,
             tags=self.tags,
         )
         connected_components = list(
             nx.connected_components(full_digraph.to_undirected())
         )
-        logger.debug(
+        logger.info(
             f"Full digraph contains {len(connected_components)} connected components."
         )
         if not nx.is_directed_acyclic_graph(full_digraph):
@@ -1844,19 +1826,28 @@ class XbrlCalculationForestFerc1(BaseModel):
                     nx.descendants(self.full_digraph, seed)
                 )
             )
-        exploded_calcs = (
+        seeded_meta = (
+            self.exploded_meta.set_index(self.calc_cols).loc[seeded_nodes].reset_index()
+        )
+        seeded_parents = [
+            node
+            for node, degree in dict(self.full_digraph.out_degree(seeded_nodes)).items()
+            if degree > 0
+        ]
+        seeded_calcs = (
             self.exploded_calcs.set_index(self.parent_cols)
-            .loc[seeded_nodes]
+            .loc[seeded_parents]
             .reset_index()
         )
         seeded_digraph: nx.DiGraph = self.exploded_calcs_to_digraph(
-            exploded_calcs=exploded_calcs,
+            exploded_meta=seeded_meta,
+            exploded_calcs=seeded_calcs,
             tags=self.tags,
         )
         connected_components = list(
             nx.connected_components(seeded_digraph.to_undirected())
         )
-        logger.debug(
+        logger.info(
             f"Seeded digraph contains {len(connected_components)} connected components."
         )
         return seeded_digraph
@@ -2078,7 +2069,7 @@ class XbrlCalculationForestFerc1(BaseModel):
         return (
             pd.merge(leafy_meta, pd.concat(leaf_rows), validate="one_to_one")
             .convert_dtypes()
-            .set_index(self.primary_keys)
+            .set_index(self.calc_cols)
         )
 
     @property
