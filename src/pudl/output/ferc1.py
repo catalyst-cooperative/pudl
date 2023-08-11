@@ -1,6 +1,6 @@
 """A collection of denormalized FERC assets and helper functions."""
 import importlib
-import json
+import re
 from typing import Literal, NamedTuple, Self
 
 import networkx as nx
@@ -1346,7 +1346,7 @@ class Exploder:
         exploded = pd.concat(explosion_tables)
         # drop any metadata columns coming from the tbls bc we may have edited the
         # metadata df so we want to grab that directly
-        meta_idx = ["xbrl_factoid", "table_name"]
+        meta_idx = list(NodeId._fields)
         meta_columns = [
             col
             for col in exploded
@@ -2111,27 +2111,9 @@ class XbrlCalculationForestFerc1(BaseModel):
         exploded data to verify that the root values can still be correctly calculated
         from the leaf values.
         """
-
-        def leafy_meta_to_calculations(df: pd.DataFrame) -> str:
-            return json.dumps(
-                [
-                    {
-                        "name": row.xbrl_factoid,
-                        "weight": float(row.weight),
-                        "xbrl_factoid_original": row.xbrl_factoid_original,
-                        "source_tables": [row.source_table],
-                    }
-                    for row in df.itertuples()
-                ]
-            )
-
-        root_calcs: pd.DataFrame = (
-            self.leafy_meta.reset_index()
-            .groupby(["root_table", "root_xbrl_factoid"], as_index=False)
-            .apply(leafy_meta_to_calculations)
-        )
-        root_calcs.columns = ["root_table", "root_xbrl_factoid", "calculations"]
-        return root_calcs
+        return self.leafy_meta.rename(
+            columns=lambda x: re.sub("_root$", "_parent", x)
+        ).reset_index()
 
     @property
     def table_names(self: Self) -> list[str]:
@@ -2180,15 +2162,14 @@ class XbrlCalculationForestFerc1(BaseModel):
         - There are a handful of NA values for ``report_year`` and ``utility_id_ferc1``
           because of missing correction records in data. Why are those correction
           records missing? Should we be doing an inner merge instead of a left merge?
-        - Currently no consideration of additional dimensions / primary keys.
         - Still need to validate the root node calculations.
 
         """
         leafy_data = pd.merge(
-            left=self.leafy_meta.reset_index(),
+            left=self.leafy_meta,
             right=exploded_data,
-            left_on=["source_table", "xbrl_factoid"],
-            right_on=["table_name", "xbrl_factoid"],
+            left_on=self.calc_cols,
+            right_on=self.calc_cols,
             how="left",
             validate="one_to_many",
         )
