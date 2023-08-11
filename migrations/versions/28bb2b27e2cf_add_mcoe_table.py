@@ -1,8 +1,8 @@
-"""add mcoe
+"""add mcoe table
 
-Revision ID: c13555ba751f
+Revision ID: 28bb2b27e2cf
 Revises: e2670d0ec0eb
-Create Date: 2023-08-10 12:14:51.208467
+Create Date: 2023-08-11 10:12:15.950150
 
 """
 from alembic import op
@@ -10,7 +10,7 @@ import sqlalchemy as sa
 
 
 # revision identifiers, used by Alembic.
-revision = 'c13555ba751f'
+revision = '28bb2b27e2cf'
 down_revision = 'e2670d0ec0eb'
 branch_labels = None
 depends_on = None

@@ -679,7 +679,7 @@ def mcoe_generators(
         attributes merged on and optionally a filled in timeseries for each generator.
     """
     # Combine MCOE derived values with generator attributes
-
+    mcoe = mcoe.drop(columns="unit_id_pudl")
     if timeseries_fillin:
         mcoe_gens_out = pudl.helpers.full_timeseries_date_merge(
             left=gens,
