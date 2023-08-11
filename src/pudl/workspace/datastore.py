@@ -189,7 +189,7 @@ class ZenodoFetcher:
             "eia923": "10.5281/zenodo.8172818",
             "eia_bulk_elec": "10.5281/zenodo.7067367",
             "epacamd_eia": "10.5281/zenodo.7900974",
-            "epacems": "10.5281/zenodo.6910058",
+            "epacems": "10.5281/zenodo.8235497",
             "ferc1": "10.5281/zenodo.7314437",
             "ferc2": "10.5281/zenodo.8006881",
             "ferc6": "10.5281/zenodo.7130141",
