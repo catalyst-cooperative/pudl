@@ -75,9 +75,9 @@ def test_epacems_parallel(pudl_engine, epacems_parquet_path):
     # monolithic outputs.
     df = dd.read_parquet(
         epacems_parquet_path,
-        filters=year_state_filter(years=[2019], states=["ME"]),
+        filters=year_state_filter(years=[2020], states=["ME"]),
         index=False,
         engine="pyarrow",
         split_row_groups=True,
     ).compute()
-    assert df.shape == (96_360, 16)  # nosec: B101
+    assert df.shape == (96_624, 16)  # nosec: B101
