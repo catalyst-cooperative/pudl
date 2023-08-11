@@ -69,7 +69,8 @@ Dagster Adoption
 Data Coverage
 ^^^^^^^^^^^^^
 
-* Updated :doc:`data_sources/eia860` to include data as of 2022-09.
+* Updated :doc:`data_sources/eia860` to include early release data from 2022.
+* Updated :doc:`data_sources/eia923` to include early release data from 2022.
 * New :ref:`epacamd_eia` crosswalk version v0.3, see issue :issue:`2317` and PR
   :pr:`2316`. EPA's updates add manual matches and exclusions focusing on operating
   units with a generator ID as of 2018.
@@ -183,6 +184,10 @@ Data Coverage
     to SQLite, describing the finances of oil pipeline companies. When the nightly
     builds succeed, `FERC Form 6 will be available on Datasette <https://data.catalyst.coop/ferc6>`__
     as well.
+  * :pr:`2734` converts the earlier years of FERC Form 60 (2006-2020) from DBF to
+    SQLite. Form 60 is a comprehensive financial and operating report submitted for
+    centralized service companies. `FERC Form 60 will also be available on Datasette
+    <https://data.catalyst.coop/ferc6>`__.
 
 
 Data Cleaning
@@ -272,7 +277,7 @@ Deprecations
 * ``pudl.transform.ferc1.transform()`` has been removed. The ferc1 table
     transformations are now being orchestrated with Dagster.
 * ``pudl.transform.ferc1.transform`` can no longer be executed as a script.
-  Use dagit to execute just the FERC Form 1 pipeline.
+  Use dagster-webserver to execute just the FERC Form 1 pipeline.
 * ``pudl.extract.ferc1.extract_dbf``, ``pudl.extract.ferc1.extract_xbrl``
   ``pudl.extract.ferc1.extract_xbrl_single``,
   ``pudl.extract.ferc1.extract_dbf_single``,

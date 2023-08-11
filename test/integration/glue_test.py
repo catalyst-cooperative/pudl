@@ -86,6 +86,12 @@ def glue_test_dfs(
             ),
         }
     )
+    # Make everything lowercase
+    glue_test_dfs = {
+        df_name: df.applymap(lambda x: x.lower() if type(x) is str else x)
+        for (df_name, df) in glue_test_dfs.items()
+    }
+
     return glue_test_dfs
 
 
@@ -197,6 +203,7 @@ def test_for_fk_validation_and_unmapped_ids(
         glue_test_dfs[ids_right],
         id_cols,
     )
+
     if label_df:
         missing_df = label_missing_ids_for_manual_mapping(
             missing, glue_test_dfs[label_df]
@@ -269,8 +276,11 @@ def test_unmapped_utils_eia(
     queries. This test is duplicative with the sql foriegn key constraints.
     """
     unmapped_utils_eia = get_util_ids_eia_unmapped(
-        pudl_out, pudl_engine, glue_test_dfs["utilities_eia"]
+        pudl_out,
+        pudl_engine,
+        glue_test_dfs["utilities_eia"],
     )
+
     if save_unmapped_ids:
         save_to_devtools_glue(
             missing_df=unmapped_utils_eia,

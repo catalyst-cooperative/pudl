@@ -16,6 +16,8 @@ ferc_to_sqlite_settings:
     years: [2020]
   ferc6_xbrl_to_sqlite_settings:
     years: [2021]
+  ferc60_dbf_to_sqlite_settings:
+    years: [2020]
   ferc60_xbrl_to_sqlite_settings:
     years: [2021]
   ferc714_xbrl_to_sqlite_settings:
@@ -37,9 +39,9 @@ datasets:
     years: [2019, 2020]
   eia:
     eia923:
-      years: [2020, 2021]
+      years: [2020, 2022]
     eia860:
-      years: [2020, 2021]
+      years: [2020, 2022]
       eia860m: true
     eia861:
       # eia861 runs fast. Discontinued tables break single-year ETL.
