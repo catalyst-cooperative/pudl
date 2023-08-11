@@ -168,10 +168,10 @@ class ZenodoFetcher:
     DOI = {
         "sandbox": {
             "censusdp1tract": "10.5072/zenodo.674992",
-            "eia860": "10.5072/zenodo.926292",
-            "eia860m": "10.5072/zenodo.926659",
+            "eia860": "10.5072/zenodo.1222854",
+            "eia860m": "10.5072/zenodo.1225517",
             "eia861": "10.5072/zenodo.1103262",
-            "eia923": "10.5072/zenodo.1090056",
+            "eia923": "10.5072/zenodo.1217724",
             "eia_bulk_elec": "10.5072/zenodo.1103572",
             "epacamd_eia": "10.5072/zenodo.1199170",
             "epacems": "10.5072/zenodo.672963",
@@ -183,10 +183,10 @@ class ZenodoFetcher:
         },
         "production": {
             "censusdp1tract": "10.5281/zenodo.4127049",
-            "eia860": "10.5281/zenodo.7113854",
-            "eia860m": "10.5281/zenodo.7320218",
+            "eia860": "10.5281/zenodo.8164776",
+            "eia860m": "10.5281/zenodo.8188017",
             "eia861": "10.5281/zenodo.7191809",
-            "eia923": "10.5281/zenodo.7236677",
+            "eia923": "10.5281/zenodo.8172818",
             "eia_bulk_elec": "10.5281/zenodo.7067367",
             "epacamd_eia": "10.5281/zenodo.7900974",
             "epacems": "10.5281/zenodo.6910058",
