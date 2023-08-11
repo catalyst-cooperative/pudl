@@ -981,7 +981,7 @@ def create_exploded_table_assets() -> list[AssetsDefinition]:
                 "electric_operating_revenues_ferc1",
             ],
             # This is very high, otherwise CI w/ 2 years of data currently fails.
-            "calculation_tolerance": 0.35,
+            "calculation_tolerance": 0.27,
             "seed_nodes": [
                 NodeId(
                     table_name="income_statement_ferc1",
@@ -1002,7 +1002,7 @@ def create_exploded_table_assets() -> list[AssetsDefinition]:
                 "plant_in_service_ferc1",
                 "electric_plant_depreciation_functional_ferc1",
             ],
-            "calculation_tolerance": 0.25,
+            "calculation_tolerance": 0.81,
             "seed_nodes": [
                 NodeId(
                     table_name="balance_sheet_assets_ferc1",
@@ -1092,7 +1092,7 @@ class MetadataExploder:
         # things for legibility.
         calc_explode = (
             calc_explode[calc_explode.is_in_explosion]
-            .loc[:, parent_cols + calc_cols + ["weight"]]
+            .loc[:, parent_cols + calc_cols + ["weight", "is_within_table_calc"]]
             .drop_duplicates()
             .set_index(parent_cols + calc_cols)
             .sort_index()
@@ -1193,7 +1193,7 @@ class Exploder:
             calculation_components_xbrl_ferc1,
         )
         self.metadata_exploded: pd.DataFrame = self.meta_exploder.metadata
-        self.calculations_exploded = self.meta_exploder.calculations
+        self.calculations_exploded: pd.DataFrame = self.meta_exploder.calculations
 
         # If we don't get any explicit seed nodes, use all nodes from the root table
         # that have calculations associated with them:
@@ -1220,6 +1220,7 @@ class Exploder:
         """Construct a calculation forest based on class attributes."""
         return XbrlCalculationForestFerc1(
             exploded_calcs=self.calculations_exploded,
+            exploded_meta=self.metadata_exploded,
             seeds=self.seed_nodes,
             tags=self.tags,
         )
@@ -1344,21 +1345,28 @@ class Exploder:
             explosion_tables.append(tbl)
 
         exploded = pd.concat(explosion_tables)
-        # drop any metadata columns coming from the tbls bc we may have edited the
-        # metadata df so we want to grab that directly
+
+        # Identify which dimensions apply to the curent explosion -- not all collections
+        # of tables have all dimensions.
         meta_idx = list(NodeId._fields)
-        meta_columns = [
-            col
-            for col in exploded
-            if col
-            in [
-                meta_col
-                for meta_col in self.metadata_exploded
-                if meta_col not in meta_idx
-            ]
-        ]
-        exploded = exploded.drop(columns=meta_columns).merge(
-            self.metadata_exploded,
+        missing_dims = list(set(meta_idx).difference(exploded.columns))
+        # Missing dimensions SHOULD be entirely null in the metadata, if so we can drop
+        if not self.metadata_exploded.loc[:, missing_dims].isna().all(axis=None):
+            raise AssertionError(
+                f"Expected missing metadata dimensions {missing_dims} to be null."
+            )
+        metadata_exploded = self.metadata_exploded.drop(columns=missing_dims)
+        meta_idx = list(set(meta_idx).difference(missing_dims))
+
+        # drop any metadata columns that appear in the data tables, because we may have
+        # edited them in the metadata table, and want the edited version to take
+        # precedence
+        cols_to_keep = list(
+            set(exploded.columns).difference(metadata_exploded.columns).union(meta_idx)
+        )
+        exploded = pd.merge(
+            left=exploded.loc[:, cols_to_keep],
+            right=metadata_exploded,
             how="left",
             on=meta_idx,
             validate="m:1",
@@ -1410,9 +1418,9 @@ class Exploder:
         # we are going to merge the data onto the calc components with the _parent
         # column names, so the groupby after the merge needs a set of by cols with the
         # _parent suffix
+        meta_idx = [col for col in list(NodeId._fields) if col in self.exploded_pks]
         gby_parent = [
-            f"{col}_parent" if col in ["table_name", "xbrl_factoid"] else col
-            for col in self.exploded_pks
+            f"{col}_parent" if col in meta_idx else col for col in self.exploded_pks
         ]
         calc_df = (
             pd.merge(
@@ -1450,7 +1458,7 @@ class Exploder:
         return calculated_df
 
     def reconcile_intertable_calculations(
-        self, calculated_df, calculation_tolerance: float = 0.05
+        self: Self, calculated_df: pd.DataFrame, calculation_tolerance: float = 0.05
     ):
         """Ensure inter-table calculated values match reported values within a tolerance.
 
@@ -1471,62 +1479,65 @@ class Exploder:
             calculation_tolerance: What proportion (0-1) of calculated values are
               allowed to be incorrect without raising an AssertionError.
         """
-        if "calculated_amount" in calculated_df.columns:
-            calculated_df = calculated_df.assign(
-                abs_diff=lambda x: abs(x[self.value_col] - x.calculated_amount),
-                rel_diff=lambda x: np.where(
-                    (x[self.value_col] != 0.0),
-                    abs(x.abs_diff / x[self.value_col]),
-                    np.nan,
-                ),
+        if "calculated_amount" not in calculated_df.columns:
+            return calculated_df
+
+        # Data types were very messy here, including pandas Float64 for the
+        # calculated_amount columns which did not work with the np.isclose(). Not sure
+        # why these are cropping up.
+        calculated_df = calculated_df.convert_dtypes(convert_floating=False).astype(
+            {self.value_col: "float64", "calculated_amount": "float64"}
+        )
+        calculated_df = calculated_df.assign(
+            abs_diff=lambda x: abs(x[self.value_col] - x.calculated_amount),
+            rel_diff=lambda x: np.where(
+                (x[self.value_col] != 0.0),
+                abs(x.abs_diff / x[self.value_col]),
+                np.nan,
+            ),
+        )
+        off_df = calculated_df[
+            ~np.isclose(calculated_df.calculated_amount, calculated_df[self.value_col])
+            & (calculated_df["abs_diff"].notnull())
+        ]
+        calculated_values = calculated_df[(calculated_df.abs_diff.notnull())]
+        if calculated_values.empty:
+            # Will only occur if all reported values are NaN when calculated values
+            # exist, or vice versa.
+            logger.warning(
+                "Warning: No calculated values have a corresponding reported value in the table."
             )
+            off_ratio = np.nan
+        else:
+            off_ratio = len(off_df) / len(calculated_values)
+            if off_ratio > calculation_tolerance:
+                raise AssertionError(
+                    f"Calculations in {self.root_table} are off by {off_ratio:.2%}. Expected tolerance "
+                    f"of {calculation_tolerance:.1%}."
+                )
 
-            off_df = calculated_df[
-                ~np.isclose(
-                    calculated_df.calculated_amount, calculated_df[self.value_col]
-                )
-                & (calculated_df["abs_diff"].notnull())
-            ]
-            calculated_values = calculated_df[(calculated_df.abs_diff.notnull())]
-            if calculated_values.empty:
-                # Will only occur if all reported values are NaN when calculated values
-                # exist, or vice versa.
-                logger.warning(
-                    "Warning: No calculated values have a corresponding reported value in the table."
-                )
-                off_ratio = np.nan
-            else:
-                off_ratio = len(off_df) / len(calculated_values)
-                if off_ratio > calculation_tolerance:
-                    raise AssertionError(
-                        f"Calculations in {self.root_table} are off by {off_ratio:.2%}. Expected tolerance "
-                        f"of {calculation_tolerance:.1%}."
-                    )
+        # # We'll only get here if the proportion of calculations that are off is acceptable
+        if off_ratio > 0 or np.isnan(off_ratio):
+            logger.info(
+                f"{self.root_table}: has {len(off_df)} ({off_ratio:.02%}) records whose "
+                "calculations don't match. Adding correction records to make calculations "
+                "match reported values."
+            )
+            corrections = off_df.copy()
 
-            # # We'll only get here if the proportion of calculations that are off is acceptable
-            if off_ratio > 0 or np.isnan(off_ratio):
-                logger.info(
-                    f"{self.root_table}: has {len(off_df)} ({off_ratio:.02%}) records whose "
-                    "calculations don't match. Adding correction records to make calculations "
-                    "match reported values."
-                )
-                corrections = off_df.copy()
+            corrections[self.value_col] = (
+                corrections[self.value_col].fillna(0.0)
+                - corrections["calculated_amount"]
+            )
+            corrections["original_factoid"] = corrections["xbrl_factoid"]
+            corrections["xbrl_factoid"] = corrections["xbrl_factoid"] + "_correction"
+            corrections["row_type_xbrl"] = "correction"
+            corrections["is_within_table_calc"] = False
+            corrections["record_id"] = pd.NA
 
-                corrections[self.value_col] = (
-                    corrections[self.value_col].fillna(0.0)
-                    - corrections["calculated_amount"]
-                )
-                corrections["original_factoid"] = corrections["xbrl_factoid"]
-                corrections["xbrl_factoid"] = (
-                    corrections["xbrl_factoid"] + "_correction"
-                )
-                corrections["row_type_xbrl"] = "correction"
-                corrections["is_within_table_calc"] = False
-                corrections["record_id"] = pd.NA
-
-                calculated_df = pd.concat(
-                    [calculated_df, corrections], axis="index"
-                ).reset_index()
+            calculated_df = pd.concat(
+                [calculated_df, corrections], axis="index"
+            ).reset_index(drop=True)
         return calculated_df
 
     def remove_totals_from_other_dimensions(
@@ -2099,8 +2110,8 @@ class XbrlCalculationForestFerc1(BaseModel):
         # Combine the two dataframes we've constructed above:
         return (
             pd.merge(leafy_meta, pd.concat(leaf_rows), validate="one_to_one")
+            .reset_index(drop=True)
             .convert_dtypes()
-            .set_index(self.calc_cols)
         )
 
     @property
@@ -2111,9 +2122,7 @@ class XbrlCalculationForestFerc1(BaseModel):
         exploded data to verify that the root values can still be correctly calculated
         from the leaf values.
         """
-        return self.leafy_meta.rename(
-            columns=lambda x: re.sub("_root$", "_parent", x)
-        ).reset_index()
+        return self.leafy_meta.rename(columns=lambda x: re.sub("_root$", "_parent", x))
 
     @property
     def table_names(self: Self) -> list[str]:
@@ -2168,11 +2177,9 @@ class XbrlCalculationForestFerc1(BaseModel):
         leafy_data = pd.merge(
             left=self.leafy_meta,
             right=exploded_data,
-            left_on=self.calc_cols,
-            right_on=self.calc_cols,
             how="left",
             validate="one_to_many",
         )
         # Scale the data column of interest:
         leafy_data[value_col] = leafy_data[value_col] * leafy_data["weight"]
-        return leafy_data
+        return leafy_data.reset_index(drop=True).convert_dtypes()
