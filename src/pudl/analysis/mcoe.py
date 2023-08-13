@@ -2,7 +2,7 @@
 from typing import Literal
 
 import pandas as pd
-from dagster import AssetIn, AssetsDefinition, asset
+from dagster import AssetIn, AssetsDefinition, Field, asset
 
 import pudl
 from pudl.metadata.fields import apply_pudl_dtypes
@@ -52,15 +52,15 @@ def mcoe_asset_factory(
         name=f"heat_rate_by_unit_{agg_freqs[freq]}",
         ins={
             "gen": AssetIn(
-                key=f"generation_fuel_by_generator_{agg_freqs[freq]}_eia923"
+                key=f"generation_fuel_by_generator_energy_source_{agg_freqs[freq]}_eia923"
             ),
-            "bf": AssetIn(key=f"denorm_boiler_fuel_{agg_freqs[freq]}_eia923"),
+            "bga": AssetIn(key="boiler_generator_assn_eia860"),
         },
         io_manager_key=io_manager_key,
         compute_kind="Python",
     )
-    def hr_by_unit_asset(gen: pd.DataFrame, bf: pd.DataFrame) -> pd.DataFrame:
-        return heat_rate_by_unit(gen=gen, bf=bf)
+    def hr_by_unit_asset(gen: pd.DataFrame, bga: pd.DataFrame) -> pd.DataFrame:
+        return heat_rate_by_unit(gen_fuel_by_energy_source=gen, bga=bga)
 
     @asset(
         name=f"heat_rate_by_generator_{agg_freqs[freq]}",
@@ -116,17 +116,56 @@ def mcoe_asset_factory(
         },
         io_manager_key=io_manager_key,
         compute_kind="Python",
+        config_schema={
+            "min_heat_rate": Field(
+                float,
+                default_value=5.5,
+                description=(
+                    "The lowest plausible heat rate, in mmBTU/MWh. "
+                    "Any MCOE records with lower heat rates are presumed to be "
+                    "invalid, and are discarded before returning."
+                ),
+            ),
+            "min_fuel_cost_per_mwh": Field(
+                float,
+                default_value=0.0,
+                description=(
+                    "The minimum fuel cost on a per MWh basis that is required "
+                    "for a generator record to be considered valid. For some "
+                    "reason there are now a large number of $0 fuel cost records, "
+                    "which previously would have been NaN."
+                ),
+            ),
+            "min_cap_fact": Field(
+                float,
+                default_value=0.0,
+                description=(
+                    "The minimum generator capacity factor. Generator records "
+                    "with a lower capacity factor will be filtered out."
+                    "This allows the user to exclude generators that "
+                    "aren't being used enough to be valid."
+                ),
+            ),
+            "max_cap_fact": Field(
+                float,
+                default_value=1.5,
+                description=(
+                    "The maximum generator capacity factor. Generator records "
+                    "with a higher capacity factor will be filtered out."
+                ),
+            ),
+        },
     )
     def mcoe_asset(
-        fuel_cost: pd.DataFrame, capacity_factor: pd.DataFrame
+        context, fuel_cost: pd.DataFrame, capacity_factor: pd.DataFrame
     ) -> pd.DataFrame:
         return mcoe(
             fuel_cost=fuel_cost,
             capacity_factor=capacity_factor,
-            min_heat_rate=None,
-            min_fuel_cost_per_mwh=None,
-            min_cap_fact=None,
-            max_cap_fact=None,
+            min_heat_rate=context.op_config["min_heat_rate"],
+            min_fuel_cost_per_mwh=context.op_config["min_fuel_cost_per_mwh"],
+            min_cap_fact=context.op_config["min_cap_fact"],
+            max_cap_fact=context.op_config["max_cap_fact"],
         )
 
     @asset(
@@ -137,15 +176,36 @@ def mcoe_asset_factory(
         },
         io_manager_key=io_manager_key,
         compute_kind="Python",
+        config_schema={
+            "all_gens": Field(
+                bool,
+                default_value=True,
+                description=(
+                    "If True, include attributes of all generators in the "
+                    ":ref:`generators_eia860` table, rather than just the generators "
+                    "which have records in the derived MCOE values. True by default."
+                ),
+            ),
+            "timeseries_fillin": Field(
+                bool,
+                default_value=False,
+                description=(
+                    "If True, fill in the full timeseries for each generator in "
+                    "the output dataframe. The data in the timeseries will be filled "
+                    "with the data from the next previous chronological record."
+                ),
+            ),
+        },
     )
-    def mcoe_generators_asset(mcoe: pd.DataFrame, gens: pd.DataFrame) -> pd.DataFrame:
+    def mcoe_generators_asset(
+        context, mcoe: pd.DataFrame, gens: pd.DataFrame
+    ) -> pd.DataFrame:
         return mcoe_generators(
             mcoe=mcoe,
             gens=gens,
             freq=freq,
-            all_gens=True,
-            gens_cols=None,
-            timeseries_fillin=False,
+            all_gens=context.op_config["all_gens"],
+            timeseries_fillin=context.op_config["timeseries_fillin"],
         )
 
     return [
@@ -168,12 +228,13 @@ mcoe_assets = [
 ]
 
 
-def heat_rate_by_unit(gen: pd.DataFrame, bf: pd.DataFrame) -> pd.DataFrame:
+def heat_rate_by_unit(gen_fuel_by_energy_source: pd.DataFrame, bga: pd.DataFrame):
     """Calculate heat rates (mmBTU/MWh) within separable generation units.
 
     Assumes a "good" Boiler Generator Association (bga) i.e. one that only
     contains boilers and generators which have been completely associated at
     some point in the past.
+
 
     The BGA dataframe needs to have the following columns:
 
@@ -181,52 +242,41 @@ def heat_rate_by_unit(gen: pd.DataFrame, bf: pd.DataFrame) -> pd.DataFrame:
     - plant_id_eia
     - unit_id_pudl
     - generator_id
-    - boiler_id
 
     The unit_id is associated with generation records based on report_date,
-    plant_id_eia, and generator_id. Analogously, the unit_id is associated
-    with boiler fuel consumption records based on report_date, plant_id_eia,
-    and boiler_id.
-
-    Then the total net generation and fuel consumption per unit per time period
-    are calculated, allowing the calculation of a per unit heat rate. That
-    per unit heat rate is returned in a dataframe containing:
+    plant_id_eia, and generator_id. The unit_id is merged onto the net generation
+    and fuel consumption allocations at the generator energy source level. Then,
+    net generation and fuel consumption are summed per unit per time period,
+    allowing the calculation of a per unit heat rate. That per unit heat rate is
+    returned in a dataframe containing:
 
     - report_date
     - plant_id_eia
     - unit_id_pudl
     - net_generation_mwh
-    - fuel_consumed_mmbtu
+    - fuel_consumed_for_electricity_mmbtu
     - heat_rate_mmbtu_mwh
     """
-    # Sum up the net generation per unit for each time period:
-    gen_by_unit = (
-        gen.groupby(["report_date", "plant_id_eia", "unit_id_pudl"])[
-            ["net_generation_mwh"]
+    gen_fuel_by_unit = pudl.helpers.date_merge(
+        left=gen_fuel_by_energy_source,
+        right=bga[["report_date", "plant_id_eia", "generator_id", "unit_id_pudl"]],
+        on=["plant_id_eia", "generator_id"],
+        how="left",
+    )
+    heat_rate_by_unit = (
+        gen_fuel_by_unit.dropna(subset="unit_id_pudl")
+        .groupby(["report_date", "plant_id_eia", "unit_id_pudl"], as_index=False)[
+            ["net_generation_mwh", "fuel_consumed_for_electricity_mmbtu"]
         ]
-        .sum(min_count=1)
-        .reset_index()
+        .sum()
+        .convert_dtypes()
+        .assign(
+            heat_rate_mmbtu_mwh=lambda x: x.fuel_consumed_for_electricity_mmbtu
+            / x.net_generation_mwh
+        )
     )
 
-    # Sum up all the fuel consumption per unit for each time period:
-    bf_by_unit = (
-        bf.groupby(["report_date", "plant_id_eia", "unit_id_pudl"])[
-            ["fuel_consumed_mmbtu"]
-        ]
-        .sum(min_count=1)
-        .reset_index()
-    )
-
-    # Merge together the per-unit generation and fuel consumption data so we
-    # can calculate a per-unit heat rate:
-    hr_by_unit = pd.merge(
-        gen_by_unit,
-        bf_by_unit,
-        on=["report_date", "plant_id_eia", "unit_id_pudl"],
-        validate="one_to_one",
-    ).assign(heat_rate_mmbtu_mwh=lambda x: x.fuel_consumed_mmbtu / x.net_generation_mwh)
-
-    return hr_by_unit
+    return heat_rate_by_unit
 
 
 def heat_rate_by_gen(
@@ -246,9 +296,9 @@ def heat_rate_by_gen(
 
     Returns:
         DataFrame with columns report_date, plant_id_eia, unit_id_pudl, generator_id,
-        heat_rate_mmbtu_mwh, fuel_type_code_pudl, fuel_type_count.  The output will have
-        a time frequency corresponding to that of the input pudl_out. Output data types
-        are set to their canonical values before returning.
+        heat_rate_mmbtu_mwh, fuel_type_code_pudl, fuel_type_count, prime_mover_code.
+        The output will have a time frequency corresponding to that of the input
+        pudl_out. Output data types are set to their canonical values before returning.
     """
     bga_gens = bga.loc[
         :, ["report_date", "plant_id_eia", "unit_id_pudl", "generator_id"]
@@ -281,6 +331,7 @@ def heat_rate_by_gen(
                 "generator_id",
                 "fuel_type_code_pudl",
                 "fuel_type_count",
+                "prime_mover_code",
             ]
         ],
         on=["plant_id_eia", "generator_id"],
@@ -550,6 +601,7 @@ def mcoe(
                 :,
                 gens_idx
                 + [
+                    "unit_id_pudl",
                     "fuel_cost_from_eiaapi",
                     "fuel_cost_per_mmbtu",
                     "heat_rate_mmbtu_mwh",
@@ -568,13 +620,17 @@ def mcoe(
             total_fuel_cost=lambda x: x.total_mmbtu * x.fuel_cost_per_mmbtu,
         )
         .pipe(
-            pudl.helpers.oob_to_nan, ["heat_rate_mmbtu_mwh"], lb=min_heat_rate, ub=None
+            pudl.helpers.oob_to_nan_with_dependent_cols,
+            cols=["heat_rate_mmbtu_mwh"],
+            dependent_cols=["total_mmbtu", "fuel_cost_per_mwh"],
+            lb=min_heat_rate,
+            ub=None,
         )
         .pipe(
             pudl.helpers.oob_to_nan,
             ["fuel_cost_per_mwh"],
             lb=min_fuel_cost_per_mwh,
-            ub=None,
+            ub=1e10,
         )
         .pipe(
             pudl.helpers.oob_to_nan,
@@ -591,11 +647,7 @@ def mcoe(
         .pipe(pudl.validate.no_null_cols, df_name="fuel_cost + capacity_factor")
     )
     mcoe_out = mcoe_out.sort_values(
-        [
-            "plant_id_eia",
-            "generator_id",
-            "report_date",
-        ]
+        ["plant_id_eia", "generator_id", "report_date", "unit_id_pudl"]
     )
     return mcoe_out
 
@@ -605,12 +657,11 @@ def mcoe_generators(
     gens: pd.DataFrame,
     freq: Literal["AS", "MS"],
     all_gens: bool = True,
-    gens_cols: Literal["all"] | list[str] | None = None,
     timeseries_fillin: bool = False,
 ) -> pd.DataFrame:
     """Merge generator attributes onto the marginal cost of electricity table.
 
-    Merge the columns listed in ``gens_cols`` onto the MCOE table and optionally
+    Merge generator attributes onto the MCOE table and optionally
     fill in the timeseries for each generator.
 
     Args:
@@ -619,12 +670,6 @@ def mcoe_generators(
         all_gens: if True, include attributes of all generators in the
             :ref:`generators_eia860` table, rather than just the generators
             which have records in the derived MCOE values. True by default.
-        gens_cols: equal to the string "all", None, or a list of names of
-            column attributes to include from the :ref:`generators_eia860` table in
-            addition to the list of defined `DEFAULT_GENS_COLS`. If "all", all columns
-            from the generators table will be included. By default, no extra columns
-            will be included, only the `DEFAULT_GENS_COLS` will be merged into the final
-            MCOE output.
         timeseries_fillin: if True, fill in the full timeseries for each generator in
             the output dataframe. The data in the timeseries will be filled
             with the data from the next previous chronological record.
@@ -634,15 +679,7 @@ def mcoe_generators(
         attributes merged on and optionally a filled in timeseries for each generator.
     """
     # Combine MCOE derived values with generator attributes
-    if gens_cols == "all":
-        gens_cols = gens.columns
-    elif gens_cols is None:
-        gens_cols = DEFAULT_GENS_COLS
-    else:
-        gens_cols = list(set(DEFAULT_GENS_COLS + gens_cols))
-
-    gens = gens.loc[:, gens_cols]
-
+    mcoe = mcoe.drop(columns="unit_id_pudl")
     if timeseries_fillin:
         mcoe_gens_out = pudl.helpers.full_timeseries_date_merge(
             left=gens,
@@ -662,16 +699,20 @@ def mcoe_generators(
         ).pipe(pudl.validate.no_null_rows, df_name="mcoe_all_gens", thresh=0.9)
 
     # Organize the dataframe for easier legibility
-    mcoe_gens_out = mcoe_gens_out.pipe(
-        pudl.helpers.organize_cols,
-        DEFAULT_GENS_COLS,
-    ).sort_values(
-        [
-            "plant_id_eia",
-            "unit_id_pudl",
-            "generator_id",
-            "report_date",
-        ]
+    mcoe_gens_out = (
+        mcoe_gens_out.pipe(
+            pudl.helpers.organize_cols,
+            DEFAULT_GENS_COLS,
+        )
+        .sort_values(
+            [
+                "plant_id_eia",
+                "unit_id_pudl",
+                "generator_id",
+                "report_date",
+            ]
+        )
+        .pipe(apply_pudl_dtypes, group="eia")
     )
 
     return mcoe_gens_out

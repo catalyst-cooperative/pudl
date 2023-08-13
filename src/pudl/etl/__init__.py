@@ -56,7 +56,7 @@ default_assets = (
         group_name="denorm_eia",
     ),
     *load_assets_from_modules(
-        [pudl.analysis.allocate_net_gen], group_name="allocate_net_gen"
+        [pudl.analysis.allocate_gen_fuel], group_name="allocate_gen_fuel"
     ),
     *load_assets_from_modules([pudl.analysis.mcoe], group_name="mcoe"),
     *load_assets_from_modules([pudl.output.ferc1], group_name="denorm_ferc1"),
@@ -107,11 +107,11 @@ def load_dataset_settings_from_file(setting_filename: str) -> dict:
     Returns:
         Dictionary of dataset settings.
     """
-    pkg_source = importlib.resources.files("pudl.package_data.settings").joinpath(
-        f"{setting_filename}.yml"
-    )
-    with importlib.resources.as_file(pkg_source) as yaml_file:
-        dataset_settings = EtlSettings.from_yaml(yaml_file).datasets.dict()
+    dataset_settings = EtlSettings.from_yaml(
+        importlib.resources.files("pudl.package_data.settings")
+        / f"{setting_filename}.yml"
+    ).datasets.dict()
+
     return dataset_settings
 
 

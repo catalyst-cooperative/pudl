@@ -273,9 +273,8 @@ def _add_additional_epacems_plants(plants_entity: pd.DataFrame) -> pd.DataFrame:
     # SQL would call this whole process an upsert
     # See also: https://github.com/pandas-dev/pandas/issues/22812
     cems_df = pd.read_csv(
-        importlib.resources.open_text(
-            "pudl.package_data.epacems", "additional_epacems_plants.csv"
-        ),
+        importlib.resources.files("pudl.package_data.epacems")
+        / "additional_epacems_plants.csv",
         index_col=["plant_id_eia"],
         usecols=["plant_id_eia", "plant_name_eia", "state", "latitude", "longitude"],
     )
@@ -362,6 +361,7 @@ def _manage_strictness(col: str, eia860m: bool) -> float:
         "plant_name_eia": 0,
         "utility_name_eia": 0,
         "longitude": 0 if eia860m else 0.7,
+        "prime_mover_code": 0,
     }
     return strictness_cols.get(col, strictness_default)
 

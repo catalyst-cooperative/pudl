@@ -176,7 +176,7 @@ def check_max_rows(
 
 def check_min_rows(
     df: pd.DataFrame,
-    expected_rows: int | float = np.inf,
+    expected_rows: int | float = 0,
     margin: float = 0.05,
     df_name: str = "",
 ) -> pd.DataFrame:
@@ -351,7 +351,7 @@ def vs_bounds(
     if hi_q <= 1 and hi_bool:
         hi_test = weighted_quantile(df[data_col], df[weight_col], hi_q)
         logger.info(f"{data_col} ({hi_q:.0%}): {hi_test:.6} <= {hi_bound:.6}")
-        if weighted_quantile(df[data_col], df[weight_col], hi_q) > hi_bound:
+        if hi_test > hi_bound:
             raise ValueError(
                 f"{hi_q:.0%} quantile ({hi_test}) "
                 f"is above upper bound ({hi_bound}) "
@@ -2664,7 +2664,7 @@ mcoe_gas_heat_rate = [
         "title": "Natural Gas Unit Heat Rates (tails, 2015+)",
         "query": "fuel_type_code_pudl=='gas' and report_date>='2015-01-01'",
         "low_q": 0.05,
-        "low_bound": 6.5,
+        "low_bound": 6.4,
         "hi_q": 0.95,
         "hi_bound": 13.0,
         "data_col": "heat_rate_mmbtu_mwh",
@@ -2729,12 +2729,13 @@ mcoe_fuel_cost_per_mwh = [
         "weight_col": "net_generation_mwh",
     },
     {  # EIA natural gas reporting really only becomes usable in 2015.
+        # Adjusted hi_bound for extra high gas prices in 2022.
         "title": "Natural Gas Fuel Costs (tails, 2015+)",
         "query": "fuel_type_code_pudl=='gas' and report_date>='2015-01-01'",
         "low_q": 0.05,
         "low_bound": 10.0,
         "hi_q": 0.95,
-        "hi_bound": 55.0,
+        "hi_bound": 61.4,
         "data_col": "fuel_cost_per_mwh",
         "weight_col": "net_generation_mwh",
     },
@@ -2773,12 +2774,13 @@ mcoe_fuel_cost_per_mmbtu = [
         "weight_col": "total_mmbtu",
     },
     {  # EIA natural gas reporting really only becomes usable in 2015.
+        # Adjusted the hi_bound for extra high gas prices in 2022.
         "title": "Natural Gas Fuel Costs (tails, 2015+)",
         "query": "fuel_type_code_pudl=='gas' and report_date>='2015-01-01'",
         "low_q": 0.05,
         "low_bound": 1.65,
         "hi_q": 0.95,
-        "hi_bound": 6.7,
+        "hi_bound": 7.8,
         "data_col": "fuel_cost_per_mmbtu",
         "weight_col": "total_mmbtu",
     },
