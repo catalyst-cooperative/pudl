@@ -93,7 +93,7 @@ def test_run_aggregations(pudl_out_eia, live_dbs):
     if pudl_out_eia.freq == "AS":  # Annual only.
         logger.info("Testing ownership fractions for owned records.")
 
-        mcoe = pudl_out_eia.mcoe()
+        mcoe = pudl_out_eia.mcoe_generators()
         own_eia860 = pudl_out_eia.own_eia860()
         gens_mega = MakeMegaGenTbl().execute(mcoe, own_eia860)
         plant_parts_eia = pudl_out_eia.plant_parts_eia()
