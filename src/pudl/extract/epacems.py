@@ -25,6 +25,7 @@ from typing import NamedTuple
 import pandas as pd
 
 import pudl.logging_helpers
+from pudl.metadata.classes import Package
 from pudl.workspace.datastore import Datastore
 
 logger = pudl.logging_helpers.get_logger(__name__)
@@ -180,4 +181,12 @@ def extract(year: int, state: str, ds: Datastore):
     ds = EpaCemsDatastore(ds)
     partition = EpaCemsPartition(state=state, year=year)
     # We have to assign the reporting year for partitioning purposes
-    return ds.get_data_frame(partition).assign(year=year)
+    try:
+        df = ds.get_data_frame(partition).assign(year=year)
+    except KeyError:  # If no state-year combination found, return empty df.
+        logger.warning(
+            f"No data found for {state} in {year}. Returning empty dataframe."
+        )
+        res = Package.from_resource_ids().get_resource("hourly_emissions_epacems")
+        df = res.format_df(pd.DataFrame())
+    return df
