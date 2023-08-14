@@ -15,6 +15,7 @@ from pudl.helpers import (
     fix_eia_na,
 )
 from pudl.metadata.classes import Package
+from pudl.metadata.codes import CODE_METADATA
 from pudl.metadata.enums import (
     CUSTOMER_CLASSES,
     FUEL_CLASSES,
@@ -2259,6 +2260,17 @@ def reliability_eia861(raw_reliability_eia861: pd.DataFrame) -> pd.DataFrame:
         )
         # Drop duplicate entries for utilities 13027, 3408 and 9697
         .pipe(_drop_dupes, df_name="Reliability", subset=idx_cols).pipe(_post_process)
+    )
+
+    transformed_r[
+        "momentary_interruption_definition"
+    ] = transformed_r.momentary_interruption_definition.str.upper().map(
+        pudl.helpers.label_map(
+            CODE_METADATA["momentary_interruptions_eia"]["df"],
+            from_col="code",
+            to_col="label",
+            null_value=pd.NA,
+        )
     )
 
     return transformed_r
