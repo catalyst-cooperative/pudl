@@ -95,11 +95,11 @@ class Extractor(excel.GenericExtractor):
 
 # TODO (bendnorman): Add this information to the metadata
 eia_raw_table_names = (
-    "raw_boiler_fuel_eia923",
-    "raw_fuel_receipts_costs_eia923",
-    "raw_generation_fuel_eia923",
-    "raw_generator_eia923",
-    "raw_stocks_eia923",
+    "raw_eia923__boiler_fuel",
+    "raw_eia923__fuel_receipts_costs",
+    "raw_eia923__generation_fuel",
+    "raw_eia923__generator",
+    "raw_eia923__stocks",
     # There's an issue with the EIA-923 archive for 2018 which prevents this table
     # from being extracted currently. When we update to a new DOI this problem will
     # probably fix itself. See comments on this issue:
