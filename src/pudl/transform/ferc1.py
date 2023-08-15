@@ -809,32 +809,26 @@ def reconcile_table_calculations(
                 ),
             ]
         )
-        intra_tbl_calcs = (
-            make_calculation_dimensions_explicit(
-                intra_tbl_calcs,
-                table_dimensions_ferc1=table_dims,
-                dimensions=dim_cols,
-            ).pipe(
-                assign_parent_dimensions,
-                table_dimensions=table_dims,
-                dimensions=dim_cols,
-            )
-            # we add some parent-only records in assign_parent_dimensions so drop those
-            # .dropna(subset=["xbrl_factoid"])
-            .pipe(
-                add_dimension_total_calculations,
-                table_dimensions=table_dims,
-                dimensions=dim_cols,
-            )
+        intra_tbl_calcs = make_calculation_dimensions_explicit(
+            intra_tbl_calcs,
+            table_dimensions_ferc1=table_dims,
+            dimensions=dim_cols,
+        ).pipe(
+            assign_parent_dimensions,
+            table_dimensions=table_dims,
+            dimensions=dim_cols,
         )
-        # the implied calculation relationships between values reported within a
-        # dimension (within-dimension calcs) that got added during add_parent_dimensions
-        # need to be filtered out bc they result in some duplicates of the calc_idx.
-        # These records should be checked seperately. they are currently being checked
-        # later on in this function although we should standardize this.
-        intra_tbl_calcs = intra_tbl_calcs[
-            ~intra_tbl_calcs.filter(like="is_within_dimension_").any(axis="columns")
-        ]
+        # this is for the income statement table specifically, but is general:
+        # remove all the bits where we have a child dim but not a parent dim
+        # sometimes there are child dimensions that have utility_type == "other2" etc
+        # where the parent dimension has nothing
+        for dim in dim_cols:
+            intra_tbl_calcs = intra_tbl_calcs[
+                ~(
+                    intra_tbl_calcs[dim].notnull()
+                    & intra_tbl_calcs[f"{dim}_parent"].isnull()
+                )
+            ]
     pks = pudl.metadata.classes.Resource.from_id(table_name).schema.primary_key
     calculated_df = calculate_values_from_components(
         data=df,
@@ -5604,6 +5598,7 @@ def calculation_components_xbrl_ferc1(**kwargs) -> pd.DataFrame:
         )
         .pipe(
             add_dimension_total_calculations,
+            meta_w_dims=metadata_xbrl_ferc1,
             table_dimensions=table_dimensions_ferc1,
             dimensions=other_dimensions(),
         )
@@ -5611,6 +5606,7 @@ def calculation_components_xbrl_ferc1(**kwargs) -> pd.DataFrame:
     # Defensive testing on this table!
     assert calc_components[["table_name", "xbrl_factoid"]].notnull().all(axis=1).all()
     calc_cols = ["table_name", "xbrl_factoid"] + other_dimensions()
+    calc_and_parent_cols = calc_cols + [f"{col}_parent" for col in calc_cols]
 
     missing_from_calcs_idx = (
         calc_components[calc_components.table_name.isin(FERC1_TFR_CLASSES.keys())]
@@ -5635,20 +5631,14 @@ def calculation_components_xbrl_ferc1(**kwargs) -> pd.DataFrame:
             calc_components.table_name_parent
             != "electricity_sales_by_rate_schedule_ferc1"
         ]
-        .set_index(calc_cols + [f"{col}_parent" for col in calc_cols])
+        .set_index(calc_and_parent_cols)
         .index.is_unique
     )
     # check for parent/child duplicates. again need to remove the
-    # electricity_sales_by_rate_schedule_ferc1 table.
-    self_refs_mask = calc_components.apply(
-        lambda x: all(
-            [  # must both check if the string is the same & if both are null
-                (x[col] == x[f"{col}_parent"])
-                | (pd.isnull(x[col]) & pd.isnull(x[f"{col}_parent"]))
-                for col in calc_cols
-            ]
-        ),
-        axis=1,
+    # electricity_sales_by_rate_schedule_ferc1 table. Null hack bc comparing pandas
+    # nulls
+    self_refs_mask = calc_components[calc_and_parent_cols].fillna("NULL HACK").apply(
+        lambda x: all([x[col] == x[f"{col}_parent"] for col in calc_cols]), axis=1
     ) & (calc_components.table_name != "electricity_sales_by_rate_schedule_ferc1")
     if not (parent_child_dupes := calc_components.loc[self_refs_mask]).empty:
         raise AssertionError(
@@ -5764,7 +5754,6 @@ def assign_parent_dimensions(
         # child and the dim of the parent bc we don't want to broadcast merge all parent
         # dims to all child dims. We are assuming here that if a child is has a dim
         null_dim_mask = calc_components[dim].isnull()
-
         calc_components_null = make_calculation_dimensions_explicit(
             calculation_components=calc_components[null_dim_mask].assign(
                 **{f"{dim}_parent": pd.NA}
@@ -5773,7 +5762,6 @@ def assign_parent_dimensions(
             dimensions=[dim],
             parent=True,
         )
-
         parent_dim_idx = ["table_name_parent", "xbrl_factoid_parent", f"{dim}_parent"]
         calc_components_non_null = calc_components[~null_dim_mask]
         table_dimensions_non_null = table_dimensions.rename(
@@ -5785,7 +5773,7 @@ def assign_parent_dimensions(
             right=table_dimensions_non_null,
             left_on=["table_name_parent", "xbrl_factoid_parent", dim],
             right_on=parent_dim_idx,
-            how="inner",
+            how="left",
         )
         calc_components = pd.concat(
             [calc_components_null, calc_components_non_null]
@@ -5794,7 +5782,10 @@ def assign_parent_dimensions(
 
 
 def add_dimension_total_calculations(
-    calc_components: pd.DataFrame, table_dimensions: pd.DataFrame, dimensions: list[str]
+    calc_components: pd.DataFrame,
+    meta_w_dims: pd.DataFrame,
+    table_dimensions: pd.DataFrame,
+    dimensions: list[str],
 ) -> pd.DataFrame:
     """Define dimension total calculations.
 
@@ -5814,6 +5805,7 @@ def add_dimension_total_calculations(
     Args:
         calc_components: a table of calculation component records which have had some
             manual calculation fixes applied.
+        meta_w_dims: metadata table with the dimensions.
         table_dimensions: table with all observed values of :func:`other_dimensions` for
             each ``table_name`` and ``xbrl_factoid``.
         dimensions: list of dimension columns to check.
@@ -5825,37 +5817,20 @@ def add_dimension_total_calculations(
         (``utility_type``, ``plant_status``, ``plant_function``). The parent columns
         have a ``_parent`` suffix.
     """
-    table_fact_cols = [
-        "table_name_parent",
-        "xbrl_factoid_parent",
-        "table_name",
-        "xbrl_factoid",
-    ]
     # for each dimension col, add calculations defining the within-dimension totals and
     # make a new _parent column
+    subtotal_dfs = []
     for dim in dimensions:
         # Define calculations with the total values as parents and non-total values as
         # sub-components by broadcast merging the not-total records onto the
-        # new total records. Note that we are only adding total calculations for the
-        # INTRA table calculations -- inter-table calculations that involve dimensions
-        # are more complex are are manually specified in the calculation fixes.
-        other_dims = [other_dim for other_dim in dimensions if other_dim != dim]
-        total_mask = (
-            calc_components[dim] == "total"
-        ) & calc_components.is_within_table_calc
+        # new total records.
         total_w_subdim = (
             pd.merge(
                 # the total records will become _parent columns in new records
-                left=(
-                    calc_components.loc[total_mask]
-                    .drop(columns=[f"{dim}_parent"])
-                    .drop_duplicates(subset=table_fact_cols + [dim])
-                ),
+                left=(meta_w_dims.loc[(meta_w_dims[dim] == "total")]),
                 # the non-total sub-components will become their calculation components
                 right=(
-                    table_dimensions[table_dimensions[dim] != "total"]
-                    .drop(columns=other_dims)
-                    .drop_duplicates()
+                    table_dimensions[table_dimensions[dim] != "total"].drop_duplicates()
                 ),
                 on=["table_name", "xbrl_factoid"],
                 how="inner",
@@ -5867,16 +5842,24 @@ def add_dimension_total_calculations(
             .assign(
                 table_name_parent=lambda x: x.table_name,
                 xbrl_factoid_parent=lambda x: x.xbrl_factoid,
+                weight=1,
             )
         )
-        # now we have a bunch of *new* records linking total records to their non-total
-        # sub-components.
-        calc_components = pd.concat(
-            [
-                calc_components.assign(**{f"is_within_dimension_{dim}": False}),
-                total_w_subdim.assign(**{f"is_within_dimension_{dim}": True}),
-            ]
-        )
 
-        assert calc_components[calc_components.duplicated()].empty
-    return calc_components.reset_index(drop=True)
+        subtotal_dfs.append(
+            total_w_subdim.assign(**{f"is_within_dimension_{dim}": True})
+        )
+    # now we have a bunch of *new* records linking total records to their non-total
+    # sub-components.
+    calc_components = pd.concat(
+        [
+            calc_components,
+            pd.concat(subtotal_dfs),
+        ]
+    ).reset_index(drop=True)
+    # we assigned True for the specific flag boolean columns for each dim. now fill
+    # everything else in as false.
+    flag_cols = calc_components.filter(like="is_within_dimension_").columns
+    calc_components.loc[:, flag_cols] = calc_components.loc[:, flag_cols].fillna(False)
+    assert calc_components[calc_components.duplicated()].empty
+    return calc_components

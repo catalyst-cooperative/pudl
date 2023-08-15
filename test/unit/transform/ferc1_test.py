@@ -646,21 +646,26 @@ table_a,fact_3,voyager,total
     expected_total_to_subdim = pd.read_csv(
         StringIO(
             """
-table_name_parent,xbrl_factoid_parent,dim_x_parent,dim_y_parent,table_name,xbrl_factoid,dim_x,dim_y,is_within_table_calc,is_within_dimension_dim_y,is_within_dimension_dim_x
-table_a,fact_1,voyager,coffee,table_a,fact_3,voyager,coffee,True,False,False
-table_a,fact_1,voyager,in,table_a,fact_3,voyager,in,True,False,False
-table_a,fact_1,voyager,that,table_a,fact_3,voyager,that,True,False,False
-table_a,fact_1,voyager,nebula,table_a,fact_3,voyager,nebula,True,False,False
-table_a,fact_1,voyager,total,table_a,fact_3,voyager,total,True,False,False
-table_a,fact_3,voyager,total,table_a,fact_3,voyager,coffee,True,True,False
-table_a,fact_3,voyager,total,table_a,fact_3,voyager,in,True,True,False
-table_a,fact_3,voyager,total,table_a,fact_3,voyager,that,True,True,False
-table_a,fact_3,voyager,total,table_a,fact_3,voyager,nebula,True,True,False
+table_name_parent,xbrl_factoid_parent,dim_x_parent,dim_y_parent,table_name,xbrl_factoid,dim_x,dim_y,is_within_dimension_dim_y,is_within_dimension_dim_x
+table_a,fact_1,voyager,coffee,table_a,fact_3,voyager,coffee,False,False
+table_a,fact_1,voyager,in,table_a,fact_3,voyager,in,False,False
+table_a,fact_1,voyager,that,table_a,fact_3,voyager,that,False,False
+table_a,fact_1,voyager,nebula,table_a,fact_3,voyager,nebula,False,False
+table_a,fact_1,voyager,total,table_a,fact_3,voyager,total,False,False
+table_a,fact_1,voyager,total,table_a,fact_1,voyager,coffee,True,False
+table_a,fact_1,voyager,total,table_a,fact_1,voyager,in,True,False
+table_a,fact_1,voyager,total,table_a,fact_1,voyager,that,True,False
+table_a,fact_1,voyager,total,table_a,fact_1,voyager,nebula,True,False
+table_a,fact_3,voyager,total,table_a,fact_3,voyager,coffee,True,False
+table_a,fact_3,voyager,total,table_a,fact_3,voyager,in,True,False
+table_a,fact_3,voyager,total,table_a,fact_3,voyager,that,True,False
+table_a,fact_3,voyager,total,table_a,fact_3,voyager,nebula,True,False
 """
         )
     )
     out_total_to_subdim = add_dimension_total_calculations(
         calc_components=out_parent_dim_same_trek,
+        meta_w_dims=table_dimensions_same_trek,
         table_dimensions=table_dimensions_same_trek,
         dimensions=["dim_x", "dim_y"],
     )[[col for col in expected_total_to_subdim]]
