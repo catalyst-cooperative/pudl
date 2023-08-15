@@ -185,7 +185,7 @@ def extract_eia860(context, eia860_raw_dfs):
 
     # create descriptive table_names
     eia860_raw_dfs = {
-        "raw_" + table_name + "_eia860": df for table_name, df in eia860_raw_dfs.items()
+        "raw_eia860__" + table_name: df for table_name, df in eia860_raw_dfs.items()
     }
     eia860_raw_dfs = dict(sorted(eia860_raw_dfs.items()))
 

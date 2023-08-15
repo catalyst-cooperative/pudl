@@ -129,7 +129,7 @@ def extract_eia923(context):
 
     # create descriptive table_names
     eia923_raw_dfs = {
-        "raw_" + table_name + "_eia923": df for table_name, df in eia923_raw_dfs.items()
+        "raw_eia923__" + table_name: df for table_name, df in eia923_raw_dfs.items()
     }
 
     eia923_raw_dfs = dict(sorted(eia923_raw_dfs.items()))
@@ -141,5 +141,5 @@ def extract_eia923(context):
         # from being extracted currently. When we update to a new DOI this problem will
         # probably fix itself. See comments on this issue:
         # https://github.com/catalyst-cooperative/pudl/issues/2448
-        if table_name != "raw_emissions_control_eia923"
+        if table_name != "raw_eia923__emissions_control"
     )
