@@ -69,7 +69,7 @@ CODE_METADATA: dict[str, dict[str, Any]] = {
             "V": "CO",
             "ts": "TS",
         },
-        "ignored_codes": [0, "OC", "T", "0"],
+        "ignored_codes": [0, "OC", "T", "0", "df"],
     },
     "boiler_types_eia": {
         "df": pd.DataFrame(
@@ -791,7 +791,7 @@ CODE_METADATA: dict[str, dict[str, Any]] = {
                 ),
             ],
         ).convert_dtypes(),
-        "code_fixes": {},
+        "code_fixes": {"5": "F"},
         "ignored_codes": [],
     },
     "entity_types_eia": {
@@ -1564,6 +1564,8 @@ CODE_METADATA: dict[str, dict[str, Any]] = {
             "WT": "WND",
             "H2": "OG",
             "OOG": "OG",
+            "Sun": "SUN",
+            "sub": "SUB",
         },
         "ignored_codes": [
             0,

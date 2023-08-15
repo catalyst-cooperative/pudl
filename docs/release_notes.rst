@@ -69,7 +69,8 @@ Dagster Adoption
 Data Coverage
 ^^^^^^^^^^^^^
 
-* Updated :doc:`data_sources/eia860` to include data as of 2022-09.
+* Updated :doc:`data_sources/eia860` to include early release data from 2022.
+* Updated :doc:`data_sources/eia923` to include early release data from 2022.
 * New :ref:`epacamd_eia` crosswalk version v0.3, see issue :issue:`2317` and PR
   :pr:`2316`. EPA's updates add manual matches and exclusions focusing on operating
   units with a generator ID as of 2018.
@@ -241,6 +242,13 @@ Analysis
   associating those gf and bf records are more cleanly associated with generators.
   Thanks to :user:`grgmiller` for his contribution, which was integrated by
   :user:`cmgosnell`! See PRs :pr:`2235,2446`.
+* The :mod:`pudl.analysis.mcoe` table now uses the allocated estimates for per-generator
+  net generation and fuel consumption. See PR :pr:`2553`.
+* Additionally, the :mod:`pudl.analysis.mcoe` table now only includes attributes
+  pertaining to the generator capacity, heat rate, and fuel cost. No additional
+  generator attributes are included in this table. The full table with generator
+  attributes merged on is now provided by :mod:`pudl.analysis.mcoe_generators`. See PR
+  :pr:`2553`.
 * Added outputs from :mod:`pudl.analysis.service_territory` and
   :mod:`pudl.analysis.state_demand` into PUDL. These outputs include the US Census
   geometries associated with balancing authority and utility data from EIA 861

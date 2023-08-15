@@ -447,7 +447,8 @@ class MakeMegaGenTbl:
         """Make the mega generators table with ownership integrated.
 
         Args:
-            mcoe: generator-based mcoe table from :meth:`pudl.output.PudlTabl.mcoe()`
+            mcoe: generator-based mcoe table with DEFAULT_GENS_COLS generator attributes
+                from :meth:`pudl.output.PudlTabl.mcoe_generators()`
             own_eia860: ownership table from :meth:`pudl.output.PudlTabl.own_eia860()`
             scale_cols: list of columns to slice by ownership fraction in
                 :meth:`pudl.helpers.scale_by_ownership`. Default is :py:const:`SUM_COLS`

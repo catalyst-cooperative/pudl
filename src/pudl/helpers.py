@@ -260,7 +260,7 @@ def clean_eia_counties(df, fixes, state_col="state", county_col="county"):
 
 
 def oob_to_nan(df, cols, lb=None, ub=None):
-    """Set non-numeric values and those outside of a given rage to NaN.
+    """Set non-numeric values and those outside of a given range to NaN.
 
     Args:
         df (pandas.DataFrame): The dataframe containing values to be altered.
@@ -282,6 +282,39 @@ def oob_to_nan(df, cols, lb=None, ub=None):
         if ub is not None:
             out_df.loc[out_df[col] > ub, col] = np.nan
 
+    return out_df
+
+
+def oob_to_nan_with_dependent_cols(
+    df: pd.DataFrame,
+    cols: list,
+    dependent_cols: list,
+    lb: float = None,
+    ub: float = None,
+):
+    """Call oob_to_nan and additionally nullify any derived columns.
+
+    Set values in ``cols`` to NaN if values are non-numeric or outside of a
+    given range. The corresponding values in ``dependent_cols`` are then set
+    to NaN. ``dependent_cols`` should be columns derived from one or multiple
+    of the columns in ``cols``.
+
+    Args:
+        df (pandas.DataFrame): The dataframe containing values to be altered.
+        cols (iterable): Labels of the columns whose values are to be changed.
+        dependent_cols (iterable): Labels of the columns whose corresponding
+            values should also be nullified. Columns are derived from one or
+            multiple of the columns in ``cols``.
+        lb: (number): Lower bound, below which values are set to NaN. If None,
+            don't use a lower bound.
+        ub: (number): Upper bound, below which values are set to NaN. If None,
+            don't use an upper bound.
+
+    Returns:
+        pandas.DataFrame: The altered DataFrame.
+    """
+    out_df = oob_to_nan(df, cols, lb, ub)
+    out_df.loc[out_df[cols].isnull().any(axis=1), dependent_cols] = np.nan
     return out_df
 
 
@@ -1397,7 +1430,12 @@ def dedupe_on_category(
     return dedup_df.drop_duplicates(subset=base_cols, keep="first")
 
 
-def calc_capacity_factor(df, freq, min_cap_fact=None, max_cap_fact=None):
+def calc_capacity_factor(
+    df: pd.DataFrame,
+    freq: Literal["AS", "MS"],
+    min_cap_fact: float | None = None,
+    max_cap_fact: float | None = None,
+) -> pd.DataFrame:
     """Calculate capacity factor.
 
     Capacity factor is calcuated from the capcity, the net generation over a
@@ -1408,19 +1446,18 @@ def calc_capacity_factor(df, freq, min_cap_fact=None, max_cap_fact=None):
     `min_cap_fact` and `max_cap_fact` are dropped.
 
     Args:
-        df (pandas.DataFrame): table with components of capacity factor (
-            `report_date`, `net_generation_mwh` and `capacity_mw`)
-        min_cap_fact (float): Lower bound, below which values are set to NaN.
-            If None, don't use a lower bound. Default is None.
-        max_cap_fact (float): Upper bound, below which values are set to NaN.
-            If None, don't use an upper bound. Default is None.
-        freq (str): String describing time frequency at which to aggregate
-            the reported data, such as 'MS' (month start) or 'AS' (annual
-            start).
+        df: table with required inputs for capacity factor (``report_date``,
+            ``net_generation_mwh`` and ``capacity_mw``).
+        freq: String describing time frequency at which to aggregate the reported data,
+            such as ``MS`` (month start) or ``AS`` (annual start).
+        min_cap_fact: Lower bound, below which values are set to NaN. If None, don't use
+            a lower bound. Default is None.
+        max_cap_fact: Upper bound, below which values are set to NaN.  If None, don't
+            use an upper bound. Default is None.
 
     Returns:
-        pandas.DataFrame: modified version of input `df` with one additional
-        column (`capacity_factor`).
+        Modified version of the input DataFrame with an additional ``capacity_factor``
+        column.
     """
     # get a unique set of dates to generate the number of hours
     dates = df["report_date"].drop_duplicates()
