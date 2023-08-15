@@ -133,7 +133,7 @@ doc = [
 ]
 test = [
     "bandit>=1.6,<1.8",
-    "coverage>=5.3,<7.3",
+    "coverage>=5.3,<7.4",
     "doc8>=0.9,<1.2",
     "flake8-builtins>=1.5,<2.2",
     "flake8-docstrings>=1.5,<1.8",
@@ -153,7 +153,7 @@ test = [
     "pytest>=6.2,<7.5",
     "responses>=0.14,<0.24",
     "rstcheck[sphinx]>=5.0,<6.2",
-    "tox>=4.0,<4.7",
+    "tox>=4.0,<4.9",
 ]
 datasette = [
     "datasette>=0.60,<0.65",
