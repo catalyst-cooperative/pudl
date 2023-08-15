@@ -1751,9 +1751,7 @@ class XbrlCalculationForestFerc1(BaseModel):
 
     def exploded_calcs_to_digraph(
         self: Self,
-        exploded_meta: pd.DataFrame,
         exploded_calcs: pd.DataFrame,
-        tags: pd.DataFrame,
     ) -> nx.DiGraph:
         """Construct :class:`networkx.DiGraph` of all calculations in exploded_calcs.
 
@@ -1776,7 +1774,16 @@ class XbrlCalculationForestFerc1(BaseModel):
         )
         edgelist = pd.DataFrame({"source": source_nodes, "target": target_nodes})
         forest = nx.from_pandas_edgelist(edgelist, create_using=nx.DiGraph)
+        return forest
 
+    def set_forest_attributes(
+        self,
+        forest: nx.DiGraph,
+        exploded_calcs: pd.DataFrame,
+        exploded_meta: pd.DataFrame,
+        tags: pd.DataFrame,
+    ) -> nx.DiGraph:
+        """Set the attributes of a forest."""
         # Reshape the tags to turn them into a dictionary of values per-node. This
         # will make it easier to add arbitrary sets of tags later on.
         tags_dict = tags.set_index(["table_name", "xbrl_factoid"]).to_dict(
@@ -1826,9 +1833,7 @@ class XbrlCalculationForestFerc1(BaseModel):
     def full_digraph(self: Self) -> nx.DiGraph:
         """A digraph of all calculations described by the exploded metadata."""
         full_digraph = self.exploded_calcs_to_digraph(
-            exploded_meta=self.exploded_meta,
             exploded_calcs=self.exploded_calcs,
-            tags=self.tags,
         )
         connected_components = list(
             nx.connected_components(full_digraph.to_undirected())
@@ -1863,9 +1868,6 @@ class XbrlCalculationForestFerc1(BaseModel):
                     nx.descendants(self.full_digraph, seed)
                 )
             )
-        seeded_meta = (
-            self.exploded_meta.set_index(self.calc_cols).loc[seeded_nodes].reset_index()
-        )
         seeded_parents = [
             node
             for node, degree in dict(self.full_digraph.out_degree(seeded_nodes)).items()
@@ -1877,9 +1879,7 @@ class XbrlCalculationForestFerc1(BaseModel):
             .reset_index()
         )
         seeded_digraph: nx.DiGraph = self.exploded_calcs_to_digraph(
-            exploded_meta=seeded_meta,
-            exploded_calcs=seeded_calcs,
-            tags=self.tags,
+            exploded_calcs=seeded_calcs
         )
         connected_components = list(
             nx.connected_components(seeded_digraph.to_undirected())
@@ -1936,6 +1936,12 @@ class XbrlCalculationForestFerc1(BaseModel):
         connected_components = list(nx.connected_components(forest.to_undirected()))
         logger.debug(
             f"Calculation forest contains {len(connected_components)} connected components."
+        )
+        forest = self.set_forest_attributes(
+            forest,
+            exploded_meta=self.exploded_meta,
+            exploded_calcs=self.exploded_calcs,
+            tags=self.tags,
         )
         return forest
 
