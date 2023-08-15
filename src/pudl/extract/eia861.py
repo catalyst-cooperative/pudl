@@ -113,7 +113,8 @@ def extract_eia861(context):
     eia861_raw_dfs = Extractor(ds).extract(year=eia_settings.eia861.years)
 
     eia861_raw_dfs = {
-        "raw_" + table_name: df for table_name, df in eia861_raw_dfs.items()
+        "raw_eia861__" + table_name.replace("_eia861", ""): df
+        for table_name, df in eia861_raw_dfs.items()
     }
     eia861_raw_dfs = dict(sorted(eia861_raw_dfs.items()))
 
