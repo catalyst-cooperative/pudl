@@ -71,7 +71,7 @@ Data Coverage
 
 * Updated :doc:`data_sources/eia860` to include early release data from 2022.
 * Updated :doc:`data_sources/eia923` to include early release data from 2022.
-* Updated :doc:`data_sources/epacems3` to switch from the old FTP server to the new
+* Updated :doc:`data_sources/epacems` to switch from the old FTP server to the new
   CAMPD API, and to include 2022 data.
 * New :ref:`epacamd_eia` crosswalk version v0.3, see issue :issue:`2317` and PR
   :pr:`2316`. EPA's updates add manual matches and exclusions focusing on operating
