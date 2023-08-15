@@ -1847,6 +1847,28 @@ class XbrlCalculationForestFerc1(BaseModel):
             )
         return full_digraph
 
+    def prune_unrooted(self: Self, graph: nx.DiGraph) -> nx.DiGraph:
+        """Prune any portions of the digraph that aren't reachable from the roots."""
+        seeded_nodes = set(self.seeds)
+        for seed in self.seeds:
+            seeded_nodes = list(
+                seeded_nodes.union({seed}).union(nx.descendants(graph, seed))
+            )
+        seeded_parents = [
+            node
+            for node, degree in dict(graph.out_degree(seeded_nodes)).items()
+            if degree > 0
+        ]
+        seeded_calcs = (
+            self.exploded_calcs.set_index(self.parent_cols)
+            .loc[seeded_parents]
+            .reset_index()
+        )
+        seeded_digraph: nx.DiGraph = self.exploded_calcs_to_digraph(
+            exploded_calcs=seeded_calcs
+        )
+        return seeded_digraph
+
     @property
     def seeded_digraph(self: Self) -> nx.DiGraph:
         """A digraph of all calculations that contribute to the seed values.
@@ -1861,33 +1883,7 @@ class XbrlCalculationForestFerc1(BaseModel):
         metadata to pass to :meth:`exploded_meta_to_digraph`, so that all of the
         associated metadata is also added to the pruned graph.
         """
-        seeded_nodes = set(self.seeds)
-        for seed in self.seeds:
-            seeded_nodes = list(
-                seeded_nodes.union({seed}).union(
-                    nx.descendants(self.full_digraph, seed)
-                )
-            )
-        seeded_parents = [
-            node
-            for node, degree in dict(self.full_digraph.out_degree(seeded_nodes)).items()
-            if degree > 0
-        ]
-        seeded_calcs = (
-            self.exploded_calcs.set_index(self.parent_cols)
-            .loc[seeded_parents]
-            .reset_index()
-        )
-        seeded_digraph: nx.DiGraph = self.exploded_calcs_to_digraph(
-            exploded_calcs=seeded_calcs
-        )
-        connected_components = list(
-            nx.connected_components(seeded_digraph.to_undirected())
-        )
-        logger.debug(
-            f"Seeded digraph contains {len(connected_components)} connected components."
-        )
-        return seeded_digraph
+        return self.prune_unrooted(self.full_digraph)
 
     @property
     def forest(self: Self) -> nx.DiGraph:
@@ -1937,12 +1933,35 @@ class XbrlCalculationForestFerc1(BaseModel):
         logger.debug(
             f"Calculation forest contains {len(connected_components)} connected components."
         )
-        forest = self.set_forest_attributes(
-            forest,
-            exploded_meta=self.exploded_meta,
-            exploded_calcs=self.exploded_calcs,
-            tags=self.tags,
-        )
+
+        # Remove any node that:
+        # - ONLY has stepchildren.
+        # - AND has utility_type total
+        for node in self.stepparents(forest):
+            children = set(forest.successors(node))
+            stepchildren = set(self.stepchildren(forest)).intersection(children)
+            if (
+                (children == stepchildren)
+                & (len(children) > 0)
+                & (node.utility_type == "total")
+            ):
+                forest.remove_node(node)
+
+        # Prune any newly disconnected nodes resulting from the above removal of
+        # pure stepparents. We expect the set of newly disconnected nodes to be empty.
+        nodes_before_pruning = forest.nodes
+        forest = self.prune_unrooted(forest)
+        nodes_after_pruning = forest.nodes
+
+        if pruned_nodes := set(nodes_before_pruning).difference(nodes_after_pruning):
+            raise AssertionError(f"Unexpectedly pruned stepchildren: {pruned_nodes=}")
+
+        # forest = self.set_forest_attributes(
+        #    forest,
+        #    exploded_meta=self.exploded_meta,
+        #    exploded_calcs=self.exploded_calcs,
+        #    tags=self.tags,
+        # )
         return forest
 
     @staticmethod
@@ -1998,21 +2017,16 @@ class XbrlCalculationForestFerc1(BaseModel):
     @property
     def pruned(self: Self) -> list[NodeId]:
         """List of all nodes that appear in the DAG but not in the pruned forest."""
-        all_nodes = self.full_digraph.nodes
-        forest_nodes = self.forest.nodes
-        return [n for n in all_nodes if n not in forest_nodes]
+        return list(set(self.full_digraph.nodes).difference(self.forest.nodes))
 
-    @property
-    def stepchildren(self: Self) -> list[NodeId]:
-        """All nodes in the seeded digraph that have more than one parent."""
-        return [n for n, d in self.seeded_digraph.in_degree() if d > 1]
+    def stepchildren(self: Self, graph: nx.DiGraph) -> list[NodeId]:
+        """Find all nodes in the graph that have more than one parent."""
+        return [n for n, d in graph.in_degree() if d > 1]
 
-    @property
-    def stepparents(self: Self) -> list[NodeId]:
-        """All nodes in the seeded digraph with children having more than one parent."""
-        stepchildren = self.stepchildren
+    def stepparents(self: Self, graph: nx.DiGraph) -> list[NodeId]:
+        """Find all nodes in the graph with children having more than one parent."""
+        stepchildren = self.stepchildren(graph)
         stepparents = set()
-        graph = self.seeded_digraph
         for stepchild in stepchildren:
             stepparents = stepparents.union(graph.predecessors(stepchild))
         return list(stepparents)
@@ -2156,16 +2170,19 @@ class XbrlCalculationForestFerc1(BaseModel):
         plt.show()
 
     def plot_nodes(self: Self, nodes: list[NodeId]) -> None:
-        """Plot a list of nodes based on edges found in calc_components."""
+        """Plot a list of nodes based on edges found in exploded_calcs."""
         graph_to_plot = self.full_digraph
         nodes_to_remove = set(graph_to_plot.nodes()).difference(nodes)
+        # NOTE: this doesn't and can't revise the graph to identify which nodes are
+        # still connecteded to the root we care about after remvoing these nodes.
+        # We might want to use a more intelligent method of building the graph.
         graph_to_plot.remove_nodes_from(nodes_to_remove)
         self.plot_graph(graph_to_plot)
 
     def plot(
         self: Self, graph: Literal["full_digraph", "seeded_digraph", "forest"]
     ) -> None:
-        """Visualize the calculation forest and its attributes."""
+        """Visualize various stages of the calculation forest."""
         self.plot_graph(self.__getattribute__(graph))
 
     def leafy_data(
