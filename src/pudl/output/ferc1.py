@@ -2135,12 +2135,8 @@ class XbrlCalculationForestFerc1(BaseModel):
         """Produce the list of tables involved in this explosion."""
         return list(self.exploded_calcs["table_name_parent"].unique())
 
-    def plot(
-        self: Self, graph: Literal["full_digraph", "seeded_digraph", "forest"]
-    ) -> None:
-        """Visualize the calculation forest and its attributes."""
-        graph: nx.DiGraph = self.__getattribute__(graph)
-
+    def plot_graph(self: Self, graph: nx.DiGraph) -> None:
+        """Visualize a CalculationForest graph."""
         colors = ["red", "yellow", "green", "blue", "orange", "cyan", "purple"]
         color_map = {
             table: color
@@ -2158,6 +2154,19 @@ class XbrlCalculationForestFerc1(BaseModel):
         # nx.draw_networkx(nx_forest, pos, node_color=node_color)
         plt.legend(scatterpoints=1)
         plt.show()
+
+    def plot_nodes(self: Self, nodes: list[NodeId]) -> None:
+        """Plot a list of nodes based on edges found in calc_components."""
+        graph_to_plot = self.full_digraph
+        nodes_to_remove = set(graph_to_plot.nodes()).difference(nodes)
+        graph_to_plot.remove_nodes_from(nodes_to_remove)
+        self.plot_graph(graph_to_plot)
+
+    def plot(
+        self: Self, graph: Literal["full_digraph", "seeded_digraph", "forest"]
+    ) -> None:
+        """Visualize the calculation forest and its attributes."""
+        self.plot_graph(self.__getattribute__(graph))
 
     def leafy_data(
         self: Self, exploded_data: pd.DataFrame, value_col: str
