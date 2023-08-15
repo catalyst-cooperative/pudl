@@ -1,6 +1,5 @@
 """Tests for timeseries anomalies detection and imputation."""
 from importlib import resources
-from typing import Literal
 
 import pandas as pd
 
@@ -469,21 +468,6 @@ def test_label_true_grans():
     pd.testing.assert_frame_equal(expected_out, out)
 
 
-class PudlTablMock:
-    """Mock ``pudl_out`` object."""
-
-    freq: Literal["AS", "MS"]
-
-    def __init__(
-        self,
-        freq="AS",
-    ):
-        self.freq = freq
-
-    def execute(self):
-        return self
-
-
 def test_one_to_many():
     plant_part_list_input = pd.DataFrame(
         {
@@ -547,8 +531,7 @@ def test_one_to_many():
         "test_one_to_many.csv",
     )
 
-    pudl_out = PudlTablMock()
-    parts_compiler = pudl.analysis.plant_parts_eia.MakePlantParts(pudl_out)
+    parts_compiler = pudl.analysis.plant_parts_eia.MakePlantParts()
 
     one_to_many_df = (
         parts_compiler.add_one_to_many(

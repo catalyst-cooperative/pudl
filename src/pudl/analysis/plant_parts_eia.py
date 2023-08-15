@@ -376,7 +376,7 @@ def plant_parts_eia_asset_factory(
             "mcoe": AssetIn(key="mcoe_generators_yearly"),
             "own_eia860": AssetIn(key="denorm_ownership_eia860"),
         },
-        io_manager_key=io_manager_key,
+        io_manager_key=None,
         compute_kind="Python",
     )
     def mega_gens_asset(mcoe: pd.DataFrame, own_eia860: pd.DataFrame) -> pd.DataFrame:
@@ -628,16 +628,13 @@ class MakePlantParts:
     The coordinating function here is :meth:`execute`.
     """
 
-    def __init__(self, pudl_out=None):
+    def __init__(self):
         """Initialize instance of :class:`MakePlantParts`.
 
         Args:
             pudl_out (pudl.output.pudltabl.PudlTabl): An object used to create
                 the tables for EIA and FERC Form 1 analysis.
         """
-        # TODO: delete pudl_out param
-        self.pudl_out = pudl_out
-        # self.freq = pudl_out.freq
         self.parts_to_ids = make_parts_to_ids_dict()
 
         # get a list of all of the id columns that constitue the primary keys

@@ -560,13 +560,6 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
                 "utility_id_eia",
                 "ownership_record_type",
             ],
-            "primary_key": [
-                "plant_id_eia",
-                "generator_id",
-                "utility_id_eia",
-                "report_date",
-                "ownership_record_type",
-            ],
         },
         "sources": ["eia860", "eia923"],
         "etl_group": "outputs",
