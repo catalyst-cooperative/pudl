@@ -4,12 +4,36 @@ import os
 import pathlib
 import shutil
 from pathlib import Path
+from typing import Any, Union
 
 from pydantic import BaseSettings, DirectoryPath
+from pydantic.validators import path_validator
 
 import pudl.logging_helpers
 
 logger = pudl.logging_helpers.get_logger(__name__)
+
+
+class MissingPath(Path):
+    """Validates potential path that doesn't exist."""
+
+    @classmethod
+    def __get_validators__(cls) -> Any:
+        """Validates that path doesn't exist and is path-like."""
+        yield path_validator
+        yield cls.validate
+
+    @classmethod
+    def validate(cls, value: Path) -> Path:
+        """Validates that path doesn't exist."""
+        if value.exists():
+            raise ValueError("path exists")
+
+        return value
+
+
+# TODO: The following could be replaced with NewPath from pydantic v2
+PotentialDirectoryPath = Union[DirectoryPath, MissingPath]
 
 
 class PudlPaths(BaseSettings):
@@ -19,8 +43,8 @@ class PudlPaths(BaseSettings):
     variables. Other paths of relevance are derived from these.
     """
 
-    pudl_input: DirectoryPath
-    pudl_output: DirectoryPath
+    pudl_input: PotentialDirectoryPath
+    pudl_output: PotentialDirectoryPath
 
     class Config:
         """Pydantic config, reads from .env file."""
