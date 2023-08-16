@@ -2261,6 +2261,12 @@ def reliability_eia861(raw_reliability_eia861: pd.DataFrame) -> pd.DataFrame:
         .pipe(_drop_dupes, df_name="Reliability", subset=idx_cols).pipe(_post_process)
     )
 
+    transformed_r = (
+        pudl.metadata.classes.Package.from_resource_ids()
+        .get_resource("reliability_eia861")
+        .encode(transformed_r)
+    )
+
     return transformed_r
 
 
