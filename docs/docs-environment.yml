@@ -7,7 +7,7 @@ dependencies:
   - pip>=22,<24
   - python>=3.11,<3.12
   - python-snappy>=0.6,<1
-  - setuptools<66
+  - setuptools<69
   - shapely>=2.0,<2.1
   - sqlite>=3.36,<4
   - tox>=4,<5

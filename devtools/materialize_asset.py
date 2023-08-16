@@ -23,11 +23,9 @@ def main(asset_id):
 
     Then creates a job with asset selection.
     """
-    pkg_source = importlib.resources.files("pudl.package_data.settings").joinpath(
-        "etl_fast.yml"
-    )
-    with importlib.resources.as_file(pkg_source) as yf:
-        etl_fast_settings = EtlSettings.from_yaml(yf).datasets
+    etl_fast_settings = EtlSettings.from_yaml(
+        importlib.resources.files("pudl.package_data.settings") / "etl_fast.yml"
+    ).datasets
 
     # TODO (daz/zach): maybe there's a way to do this directly with dagster cli?
     defs = Definitions(

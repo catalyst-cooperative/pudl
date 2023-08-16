@@ -20,15 +20,14 @@ import pudl.logging_helpers
 logger = pudl.logging_helpers.get_logger(__name__)
 
 
-def intersect_indexes(indexes):
+def intersect_indexes(indexes: list[pd.Index]) -> pd.Index:
     """Calculate the intersection of a collection of pandas Indexes.
 
     Args:
-        indexes (iterable of pandas.Index objects):
+        indexes: a list of pandas.Index objects
 
     Returns:
-        pandas.Index: The intersection of all values found in the input
-        indexes.
+        The intersection of all values found in the input indexes.
     """
     shared_idx = indexes[0]
     for idx in indexes:
@@ -36,7 +35,7 @@ def intersect_indexes(indexes):
     return shared_idx
 
 
-def check_date_freq(df1, df2, mult):
+def check_date_freq(df1: pd.DataFrame, df2: pd.DataFrame, mult: int) -> None:
     """Verify an expected relationship between time frequencies of two dataframes.
 
     Identify all distinct values of ``report_date`` in each of the input
@@ -57,15 +56,11 @@ def check_date_freq(df1, df2, mult):
     need at least 3 values in a DatetimeIndex to infer the frequency.
 
     Args:
-        df1 (pandas.DataFrame): A dataframe with a column named ``report_date``
-            which contains dates.
-        df2 (pandas.DataFrame): A dataframe with a column named ``report_date``
-            which contains dates.
-            frequency.
-        mult (int): A multiplicative factor indicating the expected ratio
-            between the number of distinct date values found in ``df1`` and
-            ``df2``.  E.g. if ``df1`` is annual and ``df2`` is monthly, ``mult``
-            should be 12.
+        df1: A dataframe with a column named ``report_date`` which contains dates.
+        df2: A dataframe with a column named ``report_date`` which contains dates.
+        mult: A multiplicative factor indicating the expected ratio between the number
+            of distinct date values found in ``df1`` and ``df2``.  E.g. if ``df1`` is
+            annual and ``df2`` is monthly, ``mult`` should be 12.
 
     Returns:
         None
@@ -125,7 +120,9 @@ def no_null_rows(df, cols="all", df_name="", thresh=0.9):
     return df
 
 
-def no_null_cols(df, cols="all", df_name=""):
+def no_null_cols(
+    df: pd.DataFrame, cols: str = "all", df_name: str = ""
+) -> pd.DataFrame:
     """Check that a dataframe has no all-NaN columns.
 
     Occasionally in the concatenation / merging of dataframes we get a label
@@ -155,7 +152,12 @@ def no_null_cols(df, cols="all", df_name=""):
     return df
 
 
-def check_max_rows(df, expected_rows=np.inf, margin=0.05, df_name=""):
+def check_max_rows(
+    df: pd.DataFrame,
+    expected_rows: int | float = np.inf,
+    margin: float = 0.05,
+    df_name: str = "",
+) -> pd.DataFrame:
     """Validate that a dataframe has less than a maximum number of rows."""
     len_df = len(df)
     max_rows = expected_rows * (1 + margin)
@@ -172,7 +174,12 @@ def check_max_rows(df, expected_rows=np.inf, margin=0.05, df_name=""):
     return df
 
 
-def check_min_rows(df, expected_rows=0, margin=0.05, df_name=""):
+def check_min_rows(
+    df: pd.DataFrame,
+    expected_rows: int | float = 0,
+    margin: float = 0.05,
+    df_name: str = "",
+) -> pd.DataFrame:
     """Validate that a dataframe has a certain minimum number of rows."""
     len_df = len(df)
     min_rows = expected_rows / (1 + margin)
@@ -189,17 +196,18 @@ def check_min_rows(df, expected_rows=0, margin=0.05, df_name=""):
     return df
 
 
-def check_unique_rows(df, subset=None, df_name=""):
+def check_unique_rows(
+    df: pd.DataFrame, subset: list[str] | None = None, df_name: str = ""
+) -> pd.DataFrame:
     """Test whether dataframe has unique records within a subset of columns.
 
     Args:
-        df (pandas.DataFrame): DataFrame to check for duplicate records.
-        subset (iterable or None): Columns to consider in checking for dupes.
-        df_name (str): Name of the dataframe, to aid in debugging/logging.
+        df: DataFrame to check for duplicate records.
+        subset: Columns to consider in checking for dupes.
+        df_name: Name of the dataframe, to aid in debugging/logging.
 
     Returns:
-        pandas.DataFrame: The same DataFrame as was passed in, for use in
-            DataFrame.pipe().
+        The same DataFrame as was passed in, for use in DataFrame.pipe().
 
     Raises:
         ValueError:  If there are duplicate records in the subset of selected
@@ -212,7 +220,7 @@ def check_unique_rows(df, subset=None, df_name=""):
     return df
 
 
-def weighted_quantile(data, weights, quantile):
+def weighted_quantile(data: pd.Series, weights: pd.Series, quantile: float) -> float:
     """Calculate the weighted quantile of a Series or DataFrame column.
 
     This function allows us to take two columns from a
@@ -224,11 +232,10 @@ def weighted_quantile(data, weights, quantile):
     quantiles.
 
     Args:
-        data (pandas.Series): A series containing numeric data.
-        weights (pandas.series): Weights to use in scaling the data. Must have
-            the same length as data.
-        quantile (float): A number between 0 and 1, representing the quantile
-            at which we want to find the value of the weighted data.
+        data: A series containing numeric data.
+        weights Weights to use in scaling the data. Must have the same length as data.
+        quantile: A number between 0 and 1, representing the quantile at which we want
+            to find the value of the weighted data.
 
     Returns:
         float: the value in the weighted data corresponding to the given
@@ -254,7 +261,9 @@ def weighted_quantile(data, weights, quantile):
     return np.nan
 
 
-def historical_distribution(df, data_col, weight_col, quantile):
+def historical_distribution(
+    df: pd.DataFrame, data_col: str, weight_col: str, quantile: float
+) -> list[float]:
     """Calculate a historical distribution of weighted values of a column.
 
     In order to know what a "reasonable" value of a particular column is in the
@@ -342,7 +351,7 @@ def vs_bounds(
     if hi_q <= 1 and hi_bool:
         hi_test = weighted_quantile(df[data_col], df[weight_col], hi_q)
         logger.info(f"{data_col} ({hi_q:.0%}): {hi_test:.6} <= {hi_bound:.6}")
-        if weighted_quantile(df[data_col], df[weight_col], hi_q) > hi_bound:
+        if hi_test > hi_bound:
             raise ValueError(
                 f"{hi_q:.0%} quantile ({hi_test}) "
                 f"is above upper bound ({hi_bound}) "
@@ -2362,9 +2371,11 @@ frc_eia923_coal_mercury_content = [
 ]
 """Valid coal mercury content limits.
 
-Based on USGS FS095-01: https://pubs.usgs.gov/fs/fs095-01/fs095-01.html Upper tail may
-fail because of a population of extremely high mercury content coal (9.0ppm) which is
-likely a reporting error.
+Based on USGS FS095-01
+https://pubs.usgs.gov/fs/fs095-01/fs095-01.html
+
+Upper tail may fail because of a population of extremely high mercury content coal
+(9.0ppm) which is likely a reporting error.
 """
 
 frc_eia923_coal_moisture_content = [
@@ -2653,7 +2664,7 @@ mcoe_gas_heat_rate = [
         "title": "Natural Gas Unit Heat Rates (tails, 2015+)",
         "query": "fuel_type_code_pudl=='gas' and report_date>='2015-01-01'",
         "low_q": 0.05,
-        "low_bound": 6.5,
+        "low_bound": 6.4,
         "hi_q": 0.95,
         "hi_bound": 13.0,
         "data_col": "heat_rate_mmbtu_mwh",
@@ -2718,12 +2729,13 @@ mcoe_fuel_cost_per_mwh = [
         "weight_col": "net_generation_mwh",
     },
     {  # EIA natural gas reporting really only becomes usable in 2015.
+        # Adjusted hi_bound for extra high gas prices in 2022.
         "title": "Natural Gas Fuel Costs (tails, 2015+)",
         "query": "fuel_type_code_pudl=='gas' and report_date>='2015-01-01'",
         "low_q": 0.05,
         "low_bound": 10.0,
         "hi_q": 0.95,
-        "hi_bound": 55.0,
+        "hi_bound": 61.4,
         "data_col": "fuel_cost_per_mwh",
         "weight_col": "net_generation_mwh",
     },
@@ -2762,12 +2774,13 @@ mcoe_fuel_cost_per_mmbtu = [
         "weight_col": "total_mmbtu",
     },
     {  # EIA natural gas reporting really only becomes usable in 2015.
+        # Adjusted the hi_bound for extra high gas prices in 2022.
         "title": "Natural Gas Fuel Costs (tails, 2015+)",
         "query": "fuel_type_code_pudl=='gas' and report_date>='2015-01-01'",
         "low_q": 0.05,
         "low_bound": 1.65,
         "hi_q": 0.95,
-        "hi_bound": 6.7,
+        "hi_bound": 7.8,
         "data_col": "fuel_cost_per_mmbtu",
         "weight_col": "total_mmbtu",
     },

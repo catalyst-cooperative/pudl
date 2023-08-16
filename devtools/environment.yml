@@ -8,7 +8,7 @@ dependencies:
   - pip>=21,<24
   - wheel
   - python>=3.11,<3.12
-  - setuptools>66,<=68
+  - setuptools>66,<=69
 
   # These packages are also specified in setup.py However, they depend on or
   # benefit from binary libraries which conda can install.
@@ -22,7 +22,7 @@ dependencies:
   - pandoc # Useful for rendering RST files in Atom
 
   # Jupyter notebook specific packages:
-  - jupyter-resource-usage~=0.5.0
+  - jupyter-resource-usage
   - nbconvert>=6,<7
   - jupyterlab>=3.2,<4.1
 

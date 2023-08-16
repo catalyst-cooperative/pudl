@@ -1,8 +1,8 @@
-year_index,2009,2010,2011,2012,2013,2014,2015,2016,2017,2018,2019,2020,2021
-utility_id_eia,utility_id,utility_id,utility_id,utility_id,utility_id,utility_id,utility_id,utility_id,utility_id,utility_id,utility_id,utility_id,utility_id
-utility_name_eia,,,,,utility_name,utility_name,utility_name,utility_name,utility_name,utility_name,utility_name,utility_name,utility_name
-plant_id_eia,plant_code,plant_code,plant_code,plant_code,plant_code,plant_code,plant_code,plant_code,plant_code,plant_code,plant_code,plant_code,plant_code
-plant_name_eia,,,,,plant_name,plant_name,plant_name,plant_name,plant_name,plant_name,plant_name,plant_name,plant_name
-boiler_id,boiler_id,boiler_id,boiler_id,boiler_id,boiler_id,boiler_id,boiler_id,boiler_id,boiler_id,boiler_id,boiler_id,boiler_id,boiler_id
-so2_control_id_eia,fgd_id,fgd_id,fgd_id,fgd_id,so2_control_id,so2_control_id,so2_control_id,so2_control_id,so2_control_id,so2_control_id,so2_control_id,so2_control_id,so2_control_id
-steam_plant_type_code,,,,,,steam_plant_type,steam_plant_type,steam_plant_type,steam_plant_type,steam_plant_type,steam_plant_type,steam_plant_type,steam_plant_type
+year_index,2009,2010,2011,2012,2013,2014,2015,2016,2017,2018,2019,2020,2021,2022
+utility_id_eia,utility_id,utility_id,utility_id,utility_id,utility_id,utility_id,utility_id,utility_id,utility_id,utility_id,utility_id,utility_id,utility_id,utility_id
+utility_name_eia,,,,,utility_name,utility_name,utility_name,utility_name,utility_name,utility_name,utility_name,utility_name,utility_name,utility_name
+plant_id_eia,plant_code,plant_code,plant_code,plant_code,plant_code,plant_code,plant_code,plant_code,plant_code,plant_code,plant_code,plant_code,plant_code,plant_code
+plant_name_eia,,,,,plant_name,plant_name,plant_name,plant_name,plant_name,plant_name,plant_name,plant_name,plant_name,plant_name
+boiler_id,boiler_id,boiler_id,boiler_id,boiler_id,boiler_id,boiler_id,boiler_id,boiler_id,boiler_id,boiler_id,boiler_id,boiler_id,boiler_id,boiler_id
+so2_control_id_eia,fgd_id,fgd_id,fgd_id,fgd_id,so2_control_id,so2_control_id,so2_control_id,so2_control_id,so2_control_id,so2_control_id,so2_control_id,so2_control_id,so2_control_id,so2_control_id
+steam_plant_type_code,,,,,,steam_plant_type,steam_plant_type,steam_plant_type,steam_plant_type,steam_plant_type,steam_plant_type,steam_plant_type,steam_plant_type,steam_plant_type

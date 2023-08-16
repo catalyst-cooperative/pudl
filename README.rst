@@ -101,7 +101,7 @@ resources and everyone in between!
 How do I access the data?
 -------------------------
 
-There are four main ways to access PUDL outputs. For more details you'll want
+There are several ways to access PUDL outputs. For more details you'll want
 to check out `the complete documentation
 <https://catalystcoop-pudl.readthedocs.io>`__, but here's a quick overview:
 
@@ -138,20 +138,6 @@ The `PUDL Examples repository <https://github.com/catalyst-cooperative/pudl-exam
 has more detailed instructions on how to work with the Zenodo data archive and Docker
 image.
 
-JupyterHub
-^^^^^^^^^^
-Do you want to use Python and Jupyter Notebooks to access the data but aren't
-comfortable setting up Docker? We are working with `2i2c <https://2i2c.org>`__ to host
-a JupyterHub that has the same software and data as the Docker container and Zenodo
-archive mentioned above, but running in the cloud.
-
-* `Request an account <https://forms.gle/TN3GuE2e2mnWoFC4A>`__
-* `Log in to the JupyterHub <https://bit.ly/pudl-examples-01>`__
-
-**Note:** you'll only have 4-6GB of RAM and 1 CPU to work with on the JupyterHub, so
-if you need more computing power, you may need to set PUDL up on your own computer.
-Eventually we hope to offer scalable computing resources on the JupyterHub as well.
-
 The PUDL Development Environment
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 If you're more familiar with the Python data science stack and are comfortable working
@@ -161,51 +147,22 @@ full data processing pipeline yourself, tweak the underlying source code, and (w
 make contributions back to the project.
 
 This is by far the most involved way to access the data and isn't recommended for
-most users. You should check out the `Development section <https://catalystcoop-pudl.readthedocs.io/en/latest/dev/dev_setup.html>`__ of the main `PUDL
-documentation <https://catalystcoop-pudl.readthedocs.io>`__ for more details.
+most users. You should check out the `Development section <https://catalystcoop-pudl.readthedocs.io/en/latest/dev/dev_setup.html>`__
+of the main `PUDL documentation <https://catalystcoop-pudl.readthedocs.io>`__ for more
+details.
 
 Nightly Data Builds
 ^^^^^^^^^^^^^^^^^^^
 If you are less concerned with reproducibility and want the freshest possible data
-we also upload the outputs of our nightly builds to public S3 storage buckets. This
-data is produced by the `dev branch <https://github.com/catalyst-cooperative/pudl/tree/dev>`__,
-of PUDL, and is updated most weekday mornings. It is also the data used to populate
-Datasette:
+we automatically upload the outputs of our nightly builds to public S3 storage buckets
+as part of the `AWS Open Data Registry
+<https://registry.opendata.aws/catalyst-cooperative-pudl/>`__.  This data is based on
+the `dev branch <https://github.com/catalyst-cooperative/pudl/tree/dev>`__, of PUDL, and
+is updated most weekday mornings. It is also the data used to populate Datasette.
 
-* `PUDL SQLite DB <https://s3.us-west-2.amazonaws.com/intake.catalyst.coop/dev/pudl.sqlite>`__
-* `EPA CEMS Hourly Emissions Parquet (1995-2021) <https://s3.us-west-2.amazonaws.com/intake.catalyst.coop/dev/hourly_emissions_epacems.parquet>`__
-* `Census DP1 SQLite DB (2010) <https://s3.us-west-2.amazonaws.com/intake.catalyst.coop/dev/censusdp1tract.sqlite>`__
-
-* Raw FERC Form 1:
-
-  * `FERC-1 SQLite derived from DBF (1994-2020) <https://s3.us-west-2.amazonaws.com/intake.catalyst.coop/dev/ferc1.sqlite>`__
-  * `FERC-1 SQLite derived from XBRL (2021) <https://s3.us-west-2.amazonaws.com/intake.catalyst.coop/dev/ferc1_xbrl.sqlite>`__
-  * `FERC-1 Datapackage (JSON) describing SQLite derived from XBRL <https://s3.us-west-2.amazonaws.com/intake.catalyst.coop/dev/ferc1_xbrl_datapackage.json>`__
-  * `FERC-1 XBRL Taxonomy Metadata as JSON (2021) <https://s3.us-west-2.amazonaws.com/intake.catalyst.coop/dev/ferc1_xbrl_taxonomy_metadata.json>`__
-
-* Raw FERC Form 2:
-
-  * `FERC-2 SQLite derived from XBRL (2021) <https://s3.us-west-2.amazonaws.com/intake.catalyst.coop/dev/ferc2_xbrl.sqlite>`__
-  * `FERC-2 Datapackage (JSON) describing SQLite derived from XBRL <https://s3.us-west-2.amazonaws.com/intake.catalyst.coop/dev/ferc2_xbrl_datapackage.json>`__
-  * `FERC-2 XBRL Taxonomy Metadata as JSON (2021) <https://s3.us-west-2.amazonaws.com/intake.catalyst.coop/dev/ferc2_xbrl_taxonomy_metadata.json>`__
-
-* Raw FERC Form 6:
-
-  * `FERC-6 SQLite derived from XBRL (2021) <https://s3.us-west-2.amazonaws.com/intake.catalyst.coop/dev/ferc6_xbrl.sqlite>`__
-  * `FERC-6 Datapackage (JSON) describing SQLite derived from XBRL <https://s3.us-west-2.amazonaws.com/intake.catalyst.coop/dev/ferc6_xbrl_datapackage.json>`__
-  * `FERC-6 XBRL Taxonomy Metadata as JSON (2021) <https://s3.us-west-2.amazonaws.com/intake.catalyst.coop/dev/ferc6_xbrl_taxonomy_metadata.json>`__
-
-* Raw FERC Form 60:
-
-  * `FERC-60 SQLite derived from XBRL (2021) <https://s3.us-west-2.amazonaws.com/intake.catalyst.coop/dev/ferc60_xbrl.sqlite>`__
-  * `FERC-60 Datapackage (JSON) describing SQLite derived from XBRL <https://s3.us-west-2.amazonaws.com/intake.catalyst.coop/dev/ferc60_xbrl_datapackage.json>`__
-  * `FERC-60 XBRL Taxonomy Metadata as JSON (2021) <https://s3.us-west-2.amazonaws.com/intake.catalyst.coop/dev/ferc60_xbrl_taxonomy_metadata.json>`__
-
-* Raw FERC Form 714:
-
-  * `FERC-714 SQLite derived from XBRL (2021) <https://s3.us-west-2.amazonaws.com/intake.catalyst.coop/dev/ferc714_xbrl.sqlite>`__
-  * `FERC-714 Datapackage (JSON) describing SQLite derived from XBRL <https://s3.us-west-2.amazonaws.com/intake.catalyst.coop/dev/ferc714_xbrl_datapackage.json>`__
-  * `FERC-714 XBRL Taxonomy Metadata as JSON (2021) <https://s3.us-west-2.amazonaws.com/intake.catalyst.coop/dev/ferc714_xbrl_taxonomy_metadata.json>`__
+The nightly build outputs can be accessed using the AWS CLI, the S3 API, or downloaded
+directly via the web. See `Accessing Nightly Builds <https://catalystcoop-pudl.readthedocs.io/en/latest/data_access.html#access-nightly-builds>`__
+for links to the individual SQLite, JSON, and Apache Parquet outputs.
 
 Contributing to PUDL
 --------------------
@@ -250,9 +207,9 @@ Contact Us
   `Office Hours <https://calend.ly/catalyst-cooperative/pudl-office-hours>`__
 * Follow us on Twitter: `@CatalystCoop <https://twitter.com/CatalystCoop>`__
 * More info on our website: https://catalyst.coop
-* For private communication about the project or to hire us to provide customized data
+* To hire us to provide customized data
   extraction and analysis, you can email the maintainers:
-  `pudl@catalyst.coop <mailto:pudl@catalyst.coop>`__
+  `hello@catalyst.coop <mailto:hello@catalyst.coop>`__
 
 About Catalyst Cooperative
 --------------------------

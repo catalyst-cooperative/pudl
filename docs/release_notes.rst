@@ -61,10 +61,16 @@ Dagster Adoption
   * FERC 714 extraction methods are now subsettable by year, with 2019 and 2020 data
     included in the ``etl_fast.yml`` by default. See :issue:`2628` and PR :pr:`2649`.
 
+* Census DP1 ETL changes:
+
+  * :mod:`pudl.convert.censusdp1tract_to_sqlite` and :mod:`pudl.output.censusdp1tract`
+    are now integrated into dagster. See :issue:`1973` and :pr:`2621`.
+
 Data Coverage
 ^^^^^^^^^^^^^
 
-* Updated :doc:`data_sources/eia860` to include data as of 2022-09.
+* Updated :doc:`data_sources/eia860` to include early release data from 2022.
+* Updated :doc:`data_sources/eia923` to include early release data from 2022.
 * New :ref:`epacamd_eia` crosswalk version v0.3, see issue :issue:`2317` and PR
   :pr:`2316`. EPA's updates add manual matches and exclusions focusing on operating
   units with a generator ID as of 2018.
@@ -149,11 +155,13 @@ Data Coverage
 
 * A couple of tables from :doc:`data_sources/ferc714` have been added to the PUDL DB.
   These tables contain data from 2006-2020 (2021 is distributed by FERC in XBRL format
-  and we have not yet integrated it). See :issue:`2266` & :pr:`2421`. The newly
-  accessible tables include:
+  and we have not yet integrated it). See :issue:`2266`, :pr:`2421` and :pr:`2550`.
+  The newly accessible tables include:
 
   * :ref:`respondent_id_ferc714` (linking FERC-714 respondents to EIA utilities)
   * :ref:`demand_hourly_pa_ferc714` (hourly electricity demand by planning area)
+  * :ref:`fipsified_respondents_ferc714` (annual respondents with county FIPS IDs)
+  * :ref:`summarized_demand_ferc714` (annual demand for FERC-714 respondents)
 
 * Added new table :ref:`epacamd_eia_subplant_ids`, which aguments the
   :ref:`epacamd_eia` glue table. This table incorporates all
@@ -161,6 +169,26 @@ Data Coverage
   these complete IDs to develop a full-coverage ``subplant_id`` column which granularly
   connects EPA CAMD with EIA. Thanks to :user:`grgmiller` for his contribution to this
   process. See :issue:`2456` & :pr:`2491`.
+
+* Thanks to contributions from :user:`rousik` we've generalized the code we use to
+  convert FERC's old annual Visual FoxPro databases into multi-year SQLite databases.
+
+  * We have started extracting the FERC Form 2 (natual gas utility financial reports).
+    See issues :issue:`1984,2642` and PRs :pr:`2536,2564,2652`. We haven't yet done any
+    integration of the Form 2 into the cleaned and normalized PUDL DB, but the converted
+    `FERC Form 2 is available on Datasette <https://data.catalyst.coop/ferc2>`__
+    covering 1996-2020. Earlier years (1991-1995) were distributed using a different
+    binary format and we don't currently have plans to extract them. From 2021 onward we
+    are extracting the `FERC 2 from XBRL <https://data.catalyst.coop/ferc2_xbrl>`__.
+  * Similarly :pr:`2595` converts the earlier years of FERC Form 6 (2000-2020) from DBF
+    to SQLite, describing the finances of oil pipeline companies. When the nightly
+    builds succeed, `FERC Form 6 will be available on Datasette <https://data.catalyst.coop/ferc6>`__
+    as well.
+  * :pr:`2734` converts the earlier years of FERC Form 60 (2006-2020) from DBF to
+    SQLite. Form 60 is a comprehensive financial and operating report submitted for
+    centralized service companies. `FERC Form 60 will also be available on Datasette
+    <https://data.catalyst.coop/ferc6>`__.
+
 
 Data Cleaning
 ^^^^^^^^^^^^^
@@ -174,6 +202,22 @@ Data Cleaning
 * The :ref:`boiler_fuel_eia923` table now includes the ``prime_mover_code`` column. This
   column was previously incorrectly being associated with boilers in the
   :ref:`boilers_entity_eia` table. See issue :issue:`2349` & PR :pr:`2362`.
+* Fixed column naming issues in the :ref:`electric_operating_revenues_ferc1` table.
+* Made minor calculation fixes in the metadata for :ref:`income_statement_ferc1`,
+  :ref:`utility_plant_summary_ferc1`, :ref:`electric_operating_revenues_ferc1`,
+  :ref:`balance_sheet_assets_ferc1`, :ref:`balance_sheet_liabilities_ferc1`, and
+  :ref:`electric_operating_expenses_ferc1`,
+  :ref:`electric_plant_depreciation_changes_ferc1` and
+  :ref:`electric_plant_depreciation_functional_ferc1`. See :issue:`2016`, :pr:`2563`,
+  :pr:`2662` and :pr:`2687`.
+* Changed the :ref:`retained_earnings_ferc1` table transform to restore factoids for
+  previous year balances, and added calculation metadata. See :issue:`1811`,
+  :issue:`2016`, and :pr:`2645`.
+* Added "correction" records to many FERC Form 1 tables where the reported totals do not
+  match the outcomes of calculations specified in XBRL metadata (even after cleaning up
+  the often incorrect calculation specifications!). See :issue:`2957` and :pr:`2620`.
+* Flip the sign of some erroneous negative values in the :ref:`plant_in_service_ferc1`
+  and :ref:`utility_plant_summary_ferc1` tables. See :issue:`2599`, and :pr:`2647`.
 
 Analysis
 ^^^^^^^^
@@ -192,11 +236,26 @@ Analysis
   account for 1:m matches in the manual data, we added ``plant_match_ferc1`` as a plant
   part in :mod:`pudl.analysis.plant_parts_eia`.
 * Refined how we are associating generation and fuel data in
-  :mod:`pudl.analysis.allocate_net_gen`. Energy source codes that show up in the
-  :ref:`generation_fuel_eia923` or the :ref:`boiler_fuel_eia923` are now added into
-  the :ref:`generators_eia860` table so associating those gf and bf records are more
-  cleanly associated with generators. Thanks to :user:`grgmiller` for his
-  contribution, which was integrated by :user:`cmgosnell`! See PRs :pr:`2235,2446`.
+  :mod:`pudl.analysis.allocate_gen_fuel`, which was renamed from ``allocate_net_gen``.
+  Energy source codes that show up in the :ref:`generation_fuel_eia923` or the
+  :ref:`boiler_fuel_eia923` are now added into the :ref:`generators_eia860` table so
+  associating those gf and bf records are more cleanly associated with generators.
+  Thanks to :user:`grgmiller` for his contribution, which was integrated by
+  :user:`cmgosnell`! See PRs :pr:`2235,2446`.
+* The :mod:`pudl.analysis.mcoe` table now uses the allocated estimates for per-generator
+  net generation and fuel consumption. See PR :pr:`2553`.
+* Additionally, the :mod:`pudl.analysis.mcoe` table now only includes attributes
+  pertaining to the generator capacity, heat rate, and fuel cost. No additional
+  generator attributes are included in this table. The full table with generator
+  attributes merged on is now provided by :mod:`pudl.analysis.mcoe_generators`. See PR
+  :pr:`2553`.
+* Added outputs from :mod:`pudl.analysis.service_territory` and
+  :mod:`pudl.analysis.state_demand` into PUDL. These outputs include the US Census
+  geometries associated with balancing authority and utility data from EIA 861
+  (:ref:`compiled_geometry_balancing_authority_eia861` and
+  :ref:`compiled_geometry_utility_eia861`), and the estimated total hourly electricity
+  demand for each US state in :ref:`predicted_state_hourly_demand`. See :issue:`1973`
+  and :pr:`2550`.
 
 Deprecations
 ^^^^^^^^^^^^
@@ -225,7 +284,7 @@ Deprecations
 * ``pudl.transform.ferc1.transform()`` has been removed. The ferc1 table
     transformations are now being orchestrated with Dagster.
 * ``pudl.transform.ferc1.transform`` can no longer be executed as a script.
-  Use dagit to execute just the FERC Form 1 pipeline.
+  Use dagster-webserver to execute just the FERC Form 1 pipeline.
 * ``pudl.extract.ferc1.extract_dbf``, ``pudl.extract.ferc1.extract_xbrl``
   ``pudl.extract.ferc1.extract_xbrl_single``,
   ``pudl.extract.ferc1.extract_dbf_single``,
@@ -845,7 +904,7 @@ The :ref:`generation_fuel_eia923` table is more complete, but the
 The :ref:`generation_eia923` table includes only ~55% of the total MWhs reported
 in the :ref:`generation_fuel_eia923` table.
 
-The :mod:`pudl.analysis.allocate_net_gen` module estimates the net electricity
+The :mod:`pudl.analysis.allocate_gen_fuel` module estimates the net electricity
 generation and fuel consumption attributable to individual generators based on
 the more expansive reporting of the data in the :ref:`generation_fuel_eia923`
 table.

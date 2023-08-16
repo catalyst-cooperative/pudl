@@ -9,10 +9,9 @@
 # documentation root, use os.path.abspath to make it absolute, like shown here.
 
 import datetime
+import importlib.metadata
 import shutil
 from pathlib import Path
-
-import pkg_resources
 
 from pudl.metadata.classes import CodeMetadata, DataSource, Package
 from pudl.metadata.codes import CODE_METADATA
@@ -23,11 +22,11 @@ DOCS_DIR = Path(__file__).parent.resolve()
 # -- Path setup --------------------------------------------------------------
 # We are building and installing the pudl package in order to get access to
 # the distribution metadata, including an automatically generated version
-# number via pkg_resources.get_distribution() so we need more than just an
+# number via importlib.metadata.version() so we need more than just an
 # importable path.
 
 # The full version, including alpha/beta/rc tags
-release = pkg_resources.get_distribution("catalystcoop.pudl").version
+release = importlib.metadata.version("catalystcoop.pudl")
 
 # -- Project information -----------------------------------------------------
 

@@ -161,6 +161,20 @@ def clean_ownership_eia860(raw_ownership_eia860: pd.DataFrame) -> pd.DataFrame:
     own_df["owner_country"] = own_df["owner_state"].map(state_to_country)
     own_df.loc[own_df.owner_state == "CN", "owner_state"] = pd.NA
 
+    # Spot fix NA generator_id. Might want to change this once we have the official 2022
+    # data not just early release.
+    constraints = (own_df["plant_id_eia"] == 62844) & (
+        own_df["report_date"].dt.year == 2022
+    )
+    if 2022 not in own_df.report_date.dt.year.unique():
+        pass
+    elif len(own_df[constraints]) > 1:
+        raise AssertionError("Too many records getting spot fixed.")
+    elif own_df[constraints].generator_id.notna().all():
+        raise AssertionError("Generator ID filled in, you can remove this hack!")
+    else:
+        own_df.loc[constraints, "generator_id"] = "1"
+
     return own_df
 
 
@@ -859,6 +873,11 @@ def clean_emissions_control_equipment_eia860(
         outlier_primary_keys,
         "emission_control_equipment_cost",
     ] = 3200
+
+    # Convert thousands of dollars to dollars:
+    emce_df.loc[:, "emission_control_equipment_cost"] = (
+        1000.0 * emce_df["emission_control_equipment_cost"]
+    )
 
     emce_df = (
         pudl.metadata.classes.Package.from_resource_ids()
