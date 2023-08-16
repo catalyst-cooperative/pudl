@@ -5,11 +5,24 @@
 set -x
 
 function send_slack_msg() {
-    curl -X POST -H "Content-type: application/json" -H "Authorization: Bearer ${SLACK_TOKEN}" https://slack.com/api/chat.postMessage --data "{\"channel\": \"C03FHB9N0PQ\", \"text\": \"$1\"}"
+    if [[ -v GOOGLE_BATCH ]] ; then
+        echo "Slack integration disabled on batch." >&2
+        return
+    fi
+    if [[ -v SLACK_TOKEN ]]; then
+        curl -X POST -H "Content-type: application/json" -H "Authorization: Bearer ${SLACK_TOKEN}" https://slack.com/api/chat.postMessage --data "{\"channel\": \"C03FHB9N0PQ\", \"text\": \"$1\"}"
+    fi
 }
 
 function upload_file_to_slack() {
-    curl -F file=@$1 -F "initial_comment=$2" -F channels=C03FHB9N0PQ -H "Authorization: Bearer ${SLACK_TOKEN}" https://slack.com/api/files.upload
+    if [[ -v GOOGLE_BATCH ]] ; then
+        echo "Slack integration disabled on batch." >&2
+        return
+    fi
+
+    if [[ -v SLACK_TOKEN ]]; then
+        curl -F file=@$1 -F "initial_comment=$2" -F channels=C03FHB9N0PQ -H "Authorization: Bearer ${SLACK_TOKEN}" https://slack.com/api/files.upload
+    fi
 }
 
 function authenticate_gcp() {
@@ -40,6 +53,11 @@ function run_pudl_etl() {
 }
 
 function shutdown_vm() {
+    if [[ -v GOOGLE_BATCH ]] ; then
+        echo "Slack integration disabled on batch." >&2
+        return
+    fi
+
     # Copy the outputs to the GCS bucket
     gsutil -m cp -r $PUDL_OUTPUT "gs://nightly-build-outputs.catalyst.coop/$ACTION_SHA-$GITHUB_REF"
 
@@ -58,12 +76,17 @@ function copy_outputs_to_intake_bucket() {
     echo "Copying outputs to GCP intake bucket"
     gsutil -m -u $GCP_BILLING_PROJECT cp -r "$PUDL_OUTPUT/*" "gs://intake.catalyst.coop/$GITHUB_REF"
 
-    echo "Copying outputs to AWS intake bucket"
-    aws s3 cp "$PUDL_OUTPUT/" "s3://intake.catalyst.coop/$GITHUB_REF" --recursive
+    if [[ -v AWS_ACCESS_KEY_ID ]]; then
+        echo "Copying outputs to AWS intake bucket"
+        aws s3 cp "$PUDL_OUTPUT/" "s3://intake.catalyst.coop/$GITHUB_REF" --recursive
+    else
+        echo "Copying to AWS intake bucket not performed due to missing env AWS_ACCESS_KEY_ID"
+    fi
 }
 
 
 function notify_slack() {
+    #
     # Notify pudl-builds slack channel of deployment status
     if [ $1 = "success" ]; then
         message=":large_green_circle: :sunglasses: :unicorn_face: :rainbow: The deployment succeeded!! :partygritty: :database_parrot: :blob-dance: :large_green_circle:\n\n "
