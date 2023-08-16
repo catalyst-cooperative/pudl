@@ -17,7 +17,7 @@ FOREIGN_KEYS: dict[str, list[dict]] = build_foreign_keys(RESOURCE_METADATA)
 See :func:`pudl.metadata.helpers.build_foreign_keys`.
 """
 
-ENTITIES: dict[str, dict[str, list[str]]] = {
+ENTITIES: dict[str, dict[str, list[str] | dict[str, str]]] = {
     "plants": {
         "id_cols": ["plant_id_eia"],
         "static_cols": [
@@ -288,11 +288,30 @@ ENTITIES: dict[str, dict[str, list[str]]] = {
             "phone_number_2",
             "data_maturity",
         ],
+        "map_cols_dict": {
+            "owner_utility_id_eia": "utility_id_eia",
+            "owner_zip_code": "zip_code",
+            "owner_city": "city",
+            "owner_name": "utility_name_eia",
+            "owner_state": "state",
+            "owner_street_address": "street_address",
+        },
     },
 }
 """Columns kept for either entity or annual EIA tables in the harvesting process.
 
-For each entity type (key), the ID columns, static columns, and annual columns,
+For each entity type (key), the ID columns, static columns, annual columns, and mapped
+columns.
+
+Mapped columns allow for harvesting the same entity ID / value relationship
+from multiple columns in the same input dataframe. This is useful if an entity has a
+relationship with another entity of the same kind, for example owner and operator utilities
+showing up in the same ownerhip table records. The mapped column dictionary maps from
+column names of the second group of entity ID / value columns to the standard names
+for the entity ID / values columns.
+
+Mapped column dictionaries must include all columns that are to be harvested
+for that relationship, even if a column name maps to itself.
 
 The order of the entities matters. Plants must be harvested before utilities, since
 plant location must be removed before the utility locations are harvested.
