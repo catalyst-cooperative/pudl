@@ -10,7 +10,6 @@ import sqlalchemy as sa
 from alembic.autogenerate.api import compare_metadata
 from alembic.migration import MigrationContext
 from dagster import (
-    Field,
     InitResourceContext,
     InputContext,
     IOManager,
@@ -23,8 +22,8 @@ from sqlalchemy.exc import SQLAlchemyError
 from upath import UPath
 
 import pudl
-from pudl.helpers import EnvVar
 from pudl.metadata.classes import Package, Resource
+from pudl.workspace.setup import PudlPaths
 
 logger = pudl.logging_helpers.get_logger(__name__)
 
@@ -534,21 +533,10 @@ class PudlSQLiteIOManager(SQLiteIOManager):
         return df
 
 
-@io_manager(
-    config_schema={
-        "pudl_output_path": Field(
-            EnvVar(
-                env_var="PUDL_OUTPUT",
-            ),
-            description="Path of directory to store the database in.",
-            default_value=None,
-        ),
-    }
-)
+@io_manager
 def pudl_sqlite_io_manager(init_context) -> PudlSQLiteIOManager:
     """Create a SQLiteManager dagster resource for the pudl database."""
-    base_dir = init_context.resource_config["pudl_output_path"]
-    return PudlSQLiteIOManager(base_dir=base_dir, db_name="pudl")
+    return PudlSQLiteIOManager(base_dir=PudlPaths().output_dir, db_name="pudl")
 
 
 class FercSQLiteIOManager(SQLiteIOManager):
@@ -676,23 +664,11 @@ class FercDBFSQLiteIOManager(FercSQLiteIOManager):
             ).assign(sched_table_name=table_name)
 
 
-@io_manager(
-    config_schema={
-        "pudl_output_path": Field(
-            EnvVar(
-                env_var="PUDL_OUTPUT",
-            ),
-            description="Path of directory to store the database in.",
-            default_value=None,
-        ),
-    },
-    required_resource_keys={"dataset_settings"},
-)
+@io_manager(required_resource_keys={"dataset_settings"})
 def ferc1_dbf_sqlite_io_manager(init_context) -> FercDBFSQLiteIOManager:
     """Create a SQLiteManager dagster resource for the ferc1 dbf database."""
-    base_dir = init_context.resource_config["pudl_output_path"]
     return FercDBFSQLiteIOManager(
-        base_dir=base_dir,
+        base_dir=PudlPaths().output_dir,
         db_name="ferc1",
     )
 
@@ -746,23 +722,11 @@ class FercXBRLSQLiteIOManager(FercSQLiteIOManager):
             ).assign(sched_table_name=sched_table_name)
 
 
-@io_manager(
-    config_schema={
-        "pudl_output_path": Field(
-            EnvVar(
-                env_var="PUDL_OUTPUT",
-            ),
-            description="Path of directory to store the database in.",
-            default_value=None,
-        ),
-    },
-    required_resource_keys={"dataset_settings"},
-)
+@io_manager(required_resource_keys={"dataset_settings"})
 def ferc1_xbrl_sqlite_io_manager(init_context) -> FercXBRLSQLiteIOManager:
     """Create a SQLiteManager dagster resource for the ferc1 dbf database."""
-    base_dir = init_context.resource_config["pudl_output_path"]
     return FercXBRLSQLiteIOManager(
-        base_dir=base_dir,
+        base_dir=PudlPaths().output_dir,
         db_name="ferc1_xbrl",
     )
 
@@ -793,21 +757,12 @@ class PandasParquetIOManager(UPathIOManager):
         )
 
 
-@io_manager(
-    config_schema={
-        "base_path": Field(
-            EnvVar(
-                env_var="PUDL_OUTPUT",
-            ),
-            is_required=False,
-            default_value=None,
-        )
-    }
-)
+@io_manager
 def epacems_io_manager(
     init_context: InitResourceContext,
 ) -> PandasParquetIOManager:
     """IO Manager that writes EPA CEMS partitions to individual parquet files."""
     schema = Resource.from_id("hourly_emissions_epacems").to_pyarrow()
-    base_path = UPath(init_context.resource_config["base_path"])
-    return PandasParquetIOManager(base_path=base_path, schema=schema)
+    return PandasParquetIOManager(
+        base_path=UPath(PudlPaths().output_dir), schema=schema
+    )
