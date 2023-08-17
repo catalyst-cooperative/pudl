@@ -159,7 +159,8 @@ Create the :class:`pudl.output.pudltabl.PudlTabl` object:
 .. code-block:: python
 
     import pudl
-    pudl_engine = sa.create_engine(pudl.workspace.setup.get_defaults()['pudl_db'])
+    from pudl.workspace.setup import PudlPaths
+    pudl_engine = sa.create_engine(PudlPaths().pudl_db)
     pudl_out = pudl.output.pudltabl.PudlTabl(pudl_engine,freq='AS')
 
 Then make the table via pudl_out:

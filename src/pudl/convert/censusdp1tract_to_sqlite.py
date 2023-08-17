@@ -22,21 +22,14 @@ from tempfile import TemporaryDirectory
 from dagster import Field, asset
 
 import pudl
-from pudl.helpers import EnvVar
 from pudl.workspace.datastore import Datastore
+from pudl.workspace.setup import PudlPaths
 
 logger = pudl.logging_helpers.get_logger(__name__)
 
 
 @asset(
     config_schema={
-        "pudl_output_path": Field(
-            EnvVar(
-                env_var="PUDL_OUTPUT",
-            ),
-            description="Path of directory to store the database in.",
-            default_value=None,
-        ),
         "clobber": Field(
             bool, description="Clobber existing Census database.", default_value=True
         ),
@@ -82,7 +75,7 @@ def censusdp1tract_to_sqlite(context):
             "censusdp1tract", year=context.op_config["year"]
         )
         extract_root = tmpdir_path / Path(zip_ref.filelist[0].filename)
-        out_path = Path(context.op_config["pudl_output_path"]) / "censusdp1tract.sqlite"
+        out_path = PudlPaths().output_dir / "censusdp1tract.sqlite"
 
         if out_path.exists():
             if context.op_config["clobber"]:

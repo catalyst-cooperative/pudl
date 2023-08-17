@@ -2,24 +2,22 @@
 
 import json
 import logging
-import os
-from pathlib import Path
 
 import datasette.utils
 import yaml
 
 from pudl.metadata.classes import DatasetteMetadata
+from pudl.workspace.setup import PudlPaths
 
 logger = logging.getLogger(__name__)
 
 
-def test_datasette_metadata_to_yml(pudl_env, ferc1_engine_xbrl):
+def test_datasette_metadata_to_yml(ferc1_engine_xbrl):
     """Test the ability to export metadata as YML for use with Datasette."""
-    pudl_output = Path(os.getenv("PUDL_OUTPUT"))
-    metadata_yml = pudl_output / "metadata.yml"
+    metadata_yml = PudlPaths().output_dir / "metadata.yml"
     logger.info(f"Writing Datasette Metadata to {metadata_yml}")
 
-    dm = DatasetteMetadata.from_data_source_ids(pudl_output)
+    dm = DatasetteMetadata.from_data_source_ids(PudlPaths().output_dir)
     dm.to_yaml(path=metadata_yml)
 
     logger.info("Parsing generated metadata using datasette utils.")

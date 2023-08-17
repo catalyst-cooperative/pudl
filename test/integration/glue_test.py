@@ -56,11 +56,9 @@ def plants_ferc1_raw(dataset_settings_config) -> pd.DataFrame:
 
 @pytest.fixture(scope="module")
 def glue_test_dfs(
-    pudl_env,
     pudl_out,
     ferc1_engine_xbrl,
     ferc1_engine_dbf,
-    pudl_settings_fixture,
     etl_settings,
     dataset_settings_config,
 ) -> dict[str, pd.DataFrame]:
