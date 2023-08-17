@@ -220,10 +220,10 @@ class Eia860Settings(GenericDatasetSettings):
         expected_year = max(cls.data_source.working_partitions["years"]) + 1
         if eia860m and (eia860m_year != expected_year):
             raise AssertionError(
-                """Attempting to integrate an eia860m year """
-                f"""({eia860m_year}) from {cls.eia860m_date} not immediately following """
-                f"""the eia860 years: {cls.data_source.working_partitions["years"]}. """
-                """Consider switching eia860m parameter to False."""
+                f"Attempting to integrate an eia860m year "
+                f"({eia860m_year}) from {cls.eia860m_date} not immediately following"
+                f"the eia860 years: {cls.data_source.working_partitions['years']}. "
+                f"Consider switching eia860m parameter to False."
             )
         return eia860m
 
@@ -355,10 +355,10 @@ class DatasetsSettings(BaseModel):
         * the ETL settings (for partitions that are used in the ETL)
         * the DataSource info (which is stored within the ETL settings)
 
-        The ETL settings and the datastore have different levels of nesting - and therefor
-        names for datasets. The nesting happens particularly with the EIA data. There
-        are three EIA datasets right now - eia923, eia860 and eia860m. eia860m is a monthly
-        update of a few tables in the larger eia860 dataset.
+        The ETL settings and the datastore have different levels of nesting - and
+        therefore names for datasets. The nesting happens particularly with the EI
+        data. There are three EIA datasets right now eia923, eia860 and eia860m.
+        eia860m is a monthly update of a few tables in the larger eia860 dataset.
 
         Args:
             ds: An initalized PUDL Datastore from which the DOI's for each raw input
@@ -580,7 +580,8 @@ class FercToSqliteSettings(BaseSettings):
 
     Args:
         ferc1_dbf_to_sqlite_settings: Settings for converting FERC 1 DBF data to SQLite.
-        ferc1_xbrl_to_sqlite_settings: Settings for converting FERC 1 XBRL data to SQLite.
+        ferc1_xbrl_to_sqlite_settings: Settings for converting FERC 1 XBRL data to
+          SQLite.
         other_xbrl_forms: List of non-FERC1 forms to convert from XBRL to SQLite.
     """
 
@@ -651,9 +652,6 @@ class EtlSettings(BaseSettings):
     title: str = None
     description: str = None
     version: str = None
-
-    pudl_in: str = pudl.workspace.setup.get_defaults()["pudl_in"]
-    pudl_out: str = pudl.workspace.setup.get_defaults()["pudl_out"]
 
     # This is list of fsspec compatible paths to publish the output datasets to.
     publish_destinations: list[str] = []
