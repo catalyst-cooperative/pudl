@@ -4056,8 +4056,8 @@ TRANSFORM_PARAMS = {
             },
         },
         "merge_xbrl_metadata": {
-            "rename_columns": {"xbrl_factoid": "plant_function"},
-            "on": "plant_function",
+            "rename_columns": {"xbrl_factoid": "depreciation_type"},
+            "on": "depreciation_type",
         },
         "select_dbf_rows_by_category": {
             "column_name": "plant_function",

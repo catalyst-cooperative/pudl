@@ -212,13 +212,13 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
             "fields": [
                 "utility_id_ferc1",
                 "report_year",
+                "depreciation_type",
                 "plant_function",
                 "plant_status",
                 "utility_type",
                 "ending_balance",
                 "record_id",
                 "balance",
-                "ferc_account",
                 "row_type_xbrl",
             ],
             "primary_key": [
