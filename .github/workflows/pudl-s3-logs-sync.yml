@@ -3,6 +3,9 @@ name: pudl-s3-logs-sync
 
 on:
   workflow_dispatch:
+  push:
+    branches:
+      - rename-s3-bucket
   schedule:
     - cron: "0 6 * * 1-5" # Weekdays at midnight on MST
 
@@ -28,6 +31,13 @@ jobs:
         uses: "google-github-actions/auth@v1"
         with:
           credentials_json: "${{ secrets.PUDL_S3_LOGS_SYNC_SA_KEY }}"
+
+      - name: Set up AWS CLI
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+          aws-access-key-id: ${{ secrets.PUDL_S3_LOGS_SYNC_AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.PUDL_S3_LOGS_SYNC_AWS_SECRET_ACCESS_KEY }}
+          aws-region: us-west-2
 
       - name: Set up Cloud SDK
         uses: google-github-actions/setup-gcloud@v1
