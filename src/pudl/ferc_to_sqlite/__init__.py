@@ -52,8 +52,8 @@ ferc_to_sqlite_fast = ferc_to_sqlite.to_job(
         "resources": {
             "ferc_to_sqlite_settings": {
                 "config": ferc_to_sqlite_fast_settings.dict(),
-            }
-        }
+            },
+        },
     },
 )
 
