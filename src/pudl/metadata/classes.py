@@ -735,10 +735,7 @@ class Field(Base):
         return sa.Column(
             self.name,
             self.to_sql_dtype(),
-            *[
-                sa.CheckConstraint(check, f"{self.name}_{i}")
-                for i, check in enumerate(checks)
-            ],
+            *[sa.CheckConstraint(check, hash(check)) for check in checks],
             nullable=not self.constraints.required,
             unique=self.constraints.unique,
             comment=self.description,
