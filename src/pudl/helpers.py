@@ -8,7 +8,6 @@ with cleaning and restructing dataframes.
 """
 import importlib.resources
 import itertools
-import os
 import pathlib
 import re
 import shutil
@@ -23,13 +22,11 @@ import numpy as np
 import pandas as pd
 import requests
 import sqlalchemy as sa
-from dagster import AssetKey, AssetsDefinition, AssetSelection, Noneable, SourceAsset
-from dagster._config.errors import PostProcessingError
+from dagster import AssetKey, AssetsDefinition, AssetSelection, SourceAsset
 from pandas._libs.missing import NAType
 
 import pudl.logging_helpers
 from pudl.metadata.fields import get_pudl_dtypes
-from pudl.workspace.setup import get_defaults
 
 sum_na = partial(pd.Series.sum, skipna=False)
 """A sum function that returns NA if the Series includes any NA values.
@@ -1609,41 +1606,6 @@ def convert_df_to_excel_file(df: pd.DataFrame, **kwargs) -> pd.ExcelFile:
     workbook = bio.read()
 
     return pd.ExcelFile(workbook)
-
-
-class EnvVar(Noneable):
-    """A dagster config type for env vars."""
-
-    def __init__(self, env_var: str) -> None:
-        """Initialize EnvVarField."""
-        super().__init__(inner_type=str)
-        self.env_var = env_var
-
-    def post_process(self, value: str) -> str:
-        """Validate an EnvVar config value.
-
-        Returns the value of the object environment variable if the
-        config value is not specified is not specified with dagster.
-
-        Args:
-            value: config value to validate.
-
-        Returns:
-            validated config value.
-
-        Raises:
-            PostProcessingError: if the value is not specified in the env var or config.
-        """
-        if value is None:
-            try:
-                value = os.environ.get(self.env_var)
-                if value is None:
-                    value = get_defaults()[self.env_var]
-            except KeyError:
-                raise PostProcessingError(
-                    f"Config value could not be found. Set the {self.env_var} environment variable or specify a value in dagster config."
-                )
-        return value
 
 
 def get_asset_keys(

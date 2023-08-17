@@ -20,6 +20,7 @@ from requests.packages.urllib3.util.retry import Retry
 import pudl
 from pudl.workspace import resource_cache
 from pudl.workspace.resource_cache import PudlResourceKey
+from pudl.workspace.setup import PudlPaths
 
 logger = pudl.logging_helpers.get_logger(__name__)
 
@@ -533,23 +534,6 @@ If specified with --bypass-local-cache, the GCS cache will be populated by Zenod
     return parser.parse_args()
 
 
-def _get_pudl_in(args: dict) -> Path:
-    """Figure out what pudl_in path should be used."""
-    if args.pudl_in:
-        return Path(args.pudl_in)
-    else:
-        return Path(pudl.workspace.setup.get_defaults()["PUDL_INPUT"])
-
-
-def _create_datastore(args: argparse.Namespace) -> Datastore:
-    """Constructs datastore instance."""
-    # Configure how we want to obtain raw input data:
-    ds_kwargs = dict(gcs_cache_path=args.gcs_cache_path, sandbox=args.sandbox)
-    if not args.bypass_local_cache:
-        ds_kwargs["local_cache_path"] = _get_pudl_in(args)
-    return Datastore(**ds_kwargs)
-
-
 def print_partitions(dstore: Datastore, datasets: list[str]) -> None:
     """Prints known partition keys and its values for each of the datasets."""
     for single_ds in datasets:
@@ -613,7 +597,18 @@ def main():
         logfile=args.logfile, loglevel=args.loglevel
     )
 
-    dstore = _create_datastore(args)
+    if args.pudl_in:
+        PudlPaths.set_path_overrides(input_dir=args.pudl_in)
+
+    cache_path = None
+    if not args.bypass_local_cache:
+        cache_path = PudlPaths().input_dir
+
+    dstore = Datastore(
+        gcs_cache_path=args.gcs_cache_path,
+        sandbox=args.sandbox,
+        local_cache_path=cache_path,
+    )
 
     if args.dataset:
         datasets = [args.dataset]

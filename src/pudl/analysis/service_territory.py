@@ -18,6 +18,7 @@ from dagster import AssetKey, AssetsDefinition, Field, asset
 from matplotlib import pyplot as plt
 
 import pudl
+from pudl.workspace.setup import PudlPaths
 
 logger = pudl.logging_helpers.get_logger(__name__)
 
@@ -578,9 +579,7 @@ def main():
         logfile=args.logfile, loglevel=args.loglevel
     )
 
-    pudl_settings = pudl.workspace.setup.get_defaults()
-    pudl_engine = sa.create_engine(pudl_settings["pudl_db"])
-
+    pudl_engine = sa.create_engine(PudlPaths().pudl_db)
     # Load the US Census DP1 county data:
     county_gdf = pudl.etl.defs.load_asset_value(AssetKey("county_censusdp1"))
 
