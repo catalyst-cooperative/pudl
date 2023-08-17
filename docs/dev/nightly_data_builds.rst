@@ -159,7 +159,7 @@ service account has permissions to:
    the ``zenodo-cache.catalyst.coop`` bucket. Note: The ``catalyst-cooperative-pudl``
    won't be charged anything because the data stays within Google's network.
 4. Write logs and outputs to the ``gs://nightly-build-outputs.catalyst.coop``,
-   ``gs://intake.catalyst.coop`` and ``s3://intake.catalyst.coop`` buckets.
+   ``gs://pudl.catalyst.coop`` and ``s3://pudl.catalyst.coop`` buckets.
    The egress and storage fees of the s3 bucket are covered by
    `Amazon Web Services's Open Data Sponsorship Program
    <https://aws.amazon.com/opendata/open-data-sponsorship-program/>`__.
@@ -174,8 +174,8 @@ are configured to run the ``docker/gcp_pudl_etl.sh`` script. This script:
 2. Runs the ETL and full test suite.
 3. Copies the outputs and logs to a directory in the ``pudl-etl-logs`` bucket. The
    directory is named using the git SHA of the commit that launched the build.
-4. Copies the outputs to the ``intake.catalyst.coop`` bucket if the ETL and test
-   suite run successfully.
+4. Copies the outputs to the ``gs://pudl.catalyst.coop`` and ``s3://pudl.catalyst.coop``
+   buckets if the ETL and test suite run successfully.
 5. Notifies the ``pudl-deployments`` Slack channel with the final build status.
 
 The ``gcp_pudl_etl.sh script`` is only intended to run on a GCE VM with adequate
@@ -191,7 +191,7 @@ How to access the nightly build outputs from AWS
 ------------------------------------------------
 To access the nightly build outputs you can either use the `PUDL data catalog
 <https://catalystcoop-pudl-catalog.readthedocs.io/en/latest/>`__ or you can download
-the data directly from the ``s3://intake.catalyst.coop`` bucket. To do this, you'll
+the data directly from the ``s3://pudl.catalyst.coop`` bucket. To do this, you'll
 need to `follow the instructions
 <https://docs.aws.amazon.com/cli/latest/userguide/getting-started-install.html>`__
 for installing the AWS CLI tool.
@@ -200,7 +200,7 @@ To test that the AWS CLI tool and the bucket are working properly, run:
 
 .. code-block::
 
-   aws s3 ls s3://intake.catalyst.coop --no-sign-request
+   aws s3 ls s3://pudl.catalyst.coop --no-sign-request
 
 You should see a list of directories with version names:
 
@@ -212,7 +212,7 @@ You should see a list of directories with version names:
 
 The ``--no-sign-request`` flag allows you to make requsts to the
 public bucket without having to load AWS credentials. If you don't
-include this flag when interacting with the ``s3://intake.catalyst.coop``
+include this flag when interacting with the ``s3://pudl.catalyst.coop``
 bucket, ``aws`` will give you an authentication error.
 
 .. warning::
@@ -230,14 +230,14 @@ the Unix ``cp`` command:
 
 .. code::
 
-   aws s3 cp s3://intake.catalyst.coop/dev/pudl.sqlite ./ --no-sign-request
+   aws s3 cp s3://pudl.catalyst.coop/dev/pudl.sqlite ./ --no-sign-request
 
 If you wanted to download all of the build outputs (more than 10GB!) you could use ``cp
 --recursive`` flag on the whole directory:
 
 .. code::
 
-   aws s3 cp --recursive s3://intake.catalyst.coop/dev/ ./ --no-sign-request
+   aws s3 cp --recursive s3://pudl.catalyst.coop/dev/ ./ --no-sign-request
 
 For more details on how to use ``aws`` in general see the
 `online documentation <https://docs.aws.amazon.com/cli/latest/reference/s3/>`__ or run:

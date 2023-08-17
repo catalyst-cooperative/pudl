@@ -28,12 +28,12 @@ pages for each source:
 We also publish SQLite databases containing relatively pristine versions of our more
 difficult to parse inputs, especially the old Visual FoxPro (DBF, pre-2021) and new XBRL
 data (2021+) published by FERC:
-* `FERC Form 1 (DBF) <https://s3.us-west-2.amazonaws.com/intake.catalyst.coop/dev/ferc1.sqlite>`__
-* `FERC Form 1 (XBRL) <https://s3.us-west-2.amazonaws.com/intake.catalyst.coop/dev/ferc1_xbrl.sqlite>`__
-* `FERC Form 2 (XBRL) <https://s3.us-west-2.amazonaws.com/intake.catalyst.coop/dev/ferc2_xbrl.sqlite>`__
-* `FERC Form 6 (XBRL) <https://s3.us-west-2.amazonaws.com/intake.catalyst.coop/dev/ferc6_xbrl.sqlite>`__
-* `FERC Form 60 (XBRL) <https://s3.us-west-2.amazonaws.com/intake.catalyst.coop/dev/ferc60_xbrl.sqlite>`__
-* `FERC Form 714 (XBRL) <https://s3.us-west-2.amazonaws.com/intake.catalyst.coop/dev/ferc714_xbrl.sqlite>`__
+* `FERC Form 1 (DBF) <https://s3.us-west-2.amazonaws.com/pudl.catalyst.coop/dev/ferc1.sqlite>`__
+* `FERC Form 1 (XBRL) <https://s3.us-west-2.amazonaws.com/pudl.catalyst.coop/dev/ferc1_xbrl.sqlite>`__
+* `FERC Form 2 (XBRL) <https://s3.us-west-2.amazonaws.com/pudl.catalyst.coop/dev/ferc2_xbrl.sqlite>`__
+* `FERC Form 6 (XBRL) <https://s3.us-west-2.amazonaws.com/pudl.catalyst.coop/dev/ferc6_xbrl.sqlite>`__
+* `FERC Form 60 (XBRL) <https://s3.us-west-2.amazonaws.com/pudl.catalyst.coop/dev/ferc60_xbrl.sqlite>`__
+* `FERC Form 714 (XBRL) <https://s3.us-west-2.amazonaws.com/pudl.catalyst.coop/dev/ferc714_xbrl.sqlite>`__
 
 To get started using PUDL data, visit our :doc:`data_access` page, or continue reading
 to learn more about the PUDL data processing pipeline.
