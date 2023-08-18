@@ -735,7 +735,7 @@ class Field(Base):
         return sa.Column(
             self.name,
             self.to_sql_dtype(),
-            *[sa.CheckConstraint(check) for check in checks],
+            *[sa.CheckConstraint(check, name=hash(check)) for check in checks],
             nullable=not self.constraints.required,
             unique=self.constraints.unique,
             comment=self.description,
@@ -1866,7 +1866,15 @@ class Package(Base):
         check_values: bool = True,
     ) -> sa.MetaData:
         """Return equivalent SQL MetaData."""
-        metadata = sa.MetaData()
+        metadata = sa.MetaData(
+            naming_convention={
+                "ix": "ix_%(column_0_label)s",
+                "uq": "uq_%(table_name)s_%(column_0_name)s",
+                "ck": "ck_%(table_name)s_`%(constraint_name)s`",
+                "fk": "fk_%(table_name)s_%(column_0_name)s_%(referred_table_name)s",
+                "pk": "pk_%(table_name)s",
+            }
+        )
         for resource in self.resources:
             if resource.create_database_schema:
                 _ = resource.to_sql(

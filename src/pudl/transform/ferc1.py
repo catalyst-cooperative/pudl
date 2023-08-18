@@ -5357,9 +5357,15 @@ def ferc1_transform_asset_factory(
     dbf_tables = listify(TABLE_NAME_MAP_FERC1[table_name]["dbf"])
     xbrl_tables = listify(TABLE_NAME_MAP_FERC1[table_name]["xbrl"])
 
-    ins = {f"raw_dbf__{tn}": AssetIn(tn) for tn in dbf_tables}
-    ins |= {f"raw_xbrl_instant__{tn}": AssetIn(f"{tn}_instant") for tn in xbrl_tables}
-    ins |= {f"raw_xbrl_duration__{tn}": AssetIn(f"{tn}_duration") for tn in xbrl_tables}
+    ins = {f"raw_dbf__{tn}": AssetIn(f"raw_ferc1_dbf__{tn}") for tn in dbf_tables}
+    ins |= {
+        f"raw_xbrl_instant__{tn}": AssetIn(f"raw_ferc1_xbrl__{tn}_instant")
+        for tn in xbrl_tables
+    }
+    ins |= {
+        f"raw_xbrl_duration__{tn}": AssetIn(f"raw_ferc1_xbrl__{tn}_duration")
+        for tn in xbrl_tables
+    }
     ins["clean_xbrl_metadata_json"] = AssetIn("clean_xbrl_metadata_json")
 
     table_id = TableIdFerc1(table_name)
@@ -5431,18 +5437,18 @@ ferc1_assets = create_ferc1_transform_assets()
 @asset(io_manager_key="pudl_sqlite_io_manager")
 def plants_steam_ferc1(
     clean_xbrl_metadata_json: dict[str, dict[str, list[dict[str, Any]]]],
-    f1_steam: pd.DataFrame,
-    steam_electric_generating_plant_statistics_large_plants_402_duration: pd.DataFrame,
-    steam_electric_generating_plant_statistics_large_plants_402_instant: pd.DataFrame,
+    raw_ferc1_dbf__f1_steam: pd.DataFrame,
+    raw_ferc1_xbrl__steam_electric_generating_plant_statistics_large_plants_402_duration: pd.DataFrame,
+    raw_ferc1_xbrl__steam_electric_generating_plant_statistics_large_plants_402_instant: pd.DataFrame,
     fuel_ferc1: pd.DataFrame,
 ) -> pd.DataFrame:
     """Create the clean plants_steam_ferc1 table.
 
     Args:
             clean_xbrl_metadata_json: XBRL metadata json for all tables.
-            f1_steam: Raw f1_steam table.
-            steam_electric_generating_plant_statistics_large_plants_402_duration: raw XBRL duration table.
-            steam_electric_generating_plant_statistics_large_plants_402_instant: raw XBRL instant table.
+            raw_ferc1_dbf__f1_steam: Raw f1_steam table.
+            raw_ferc1_xbrl__steam_electric_generating_plant_statistics_large_plants_402_duration: raw XBRL duration table.
+            raw_ferc1_xbrl__steam_electric_generating_plant_statistics_large_plants_402_instant: raw XBRL instant table.
             fuel_ferc1: Transformed fuel_ferc1 table.
 
     Returns:
@@ -5451,9 +5457,9 @@ def plants_steam_ferc1(
     df = PlantsSteamFerc1TableTransformer(
         xbrl_metadata_json=clean_xbrl_metadata_json["plants_steam_ferc1"]
     ).transform(
-        raw_dbf=f1_steam,
-        raw_xbrl_instant=steam_electric_generating_plant_statistics_large_plants_402_instant,
-        raw_xbrl_duration=steam_electric_generating_plant_statistics_large_plants_402_duration,
+        raw_dbf=raw_ferc1_dbf__f1_steam,
+        raw_xbrl_instant=raw_ferc1_xbrl__steam_electric_generating_plant_statistics_large_plants_402_instant,
+        raw_xbrl_duration=raw_ferc1_xbrl__steam_electric_generating_plant_statistics_large_plants_402_duration,
         transformed_fuel=fuel_ferc1,
     )
     return convert_cols_dtypes(df, data_source="ferc1")

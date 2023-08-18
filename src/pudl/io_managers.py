@@ -176,7 +176,7 @@ class SQLiteIOManager(IOManager):
         sa_table = self.md.tables.get(table_name, None)
         if sa_table is None:
             raise ValueError(
-                f"{sa_table} not found in database metadata. Either add the table to "
+                f"{table_name} not found in database metadata. Either add the table to "
                 "the metadata or use a different IO Manager."
             )
         return sa_table
@@ -646,6 +646,8 @@ class FercDBFSQLiteIOManager(FercSQLiteIOManager):
         ferc1_settings = context.resources.dataset_settings.ferc1
 
         table_name = self._get_table_name(context)
+        # Remove preceeding asset name metadata
+        table_name = table_name.replace("raw_ferc1_dbf__", "")
 
         # Check if the table_name exists in the self.md object
         _ = self._get_sqlalchemy_table(table_name)
@@ -695,6 +697,9 @@ class FercXBRLSQLiteIOManager(FercSQLiteIOManager):
         ferc1_settings = context.resources.dataset_settings.ferc1
 
         table_name = self._get_table_name(context)
+        # Remove preceeding asset name metadata
+        table_name = table_name.replace("raw_ferc1_xbrl__", "")
+
         # TODO (bendnorman): Figure out a better to handle tables that
         # don't have duration and instant
         # Not every table contains both instant and duration
