@@ -369,7 +369,7 @@ def _standardize_offset_codes(df: pd.DataFrame, offset_fixes) -> pd.DataFrame:
 
 
 @asset(io_manager_key="pudl_sqlite_io_manager")
-def respondent_id_ferc714(raw_respondent_id_ferc714: pd.DataFrame) -> pd.DataFrame:
+def respondent_id_ferc714(raw_ferc714__respondent_id: pd.DataFrame) -> pd.DataFrame:
     """Transform the FERC 714 respondent IDs, names, and EIA utility IDs.
 
     Clean up FERC-714 respondent names and manually assign EIA utility IDs to a few FERC
@@ -378,12 +378,12 @@ def respondent_id_ferc714(raw_respondent_id_ferc714: pd.DataFrame) -> pd.DataFra
     PacifiCorp).
 
     Args:
-        raw_respondent_id_ferc714: Raw table describing the FERC 714 Respondents.
+        raw_ferc714__respondent_id: Raw table describing the FERC 714 Respondents.
 
     Returns:
         A clean(er) version of the FERC-714 respondents table.
     """
-    df = _pre_process(raw_respondent_id_ferc714, table_name="respondent_id_ferc714")
+    df = _pre_process(raw_ferc714__respondent_id, table_name="respondent_id_ferc714")
     df["respondent_name_ferc714"] = df.respondent_name_ferc714.str.strip()
     df.loc[df.eia_code == 0, "eia_code"] = pd.NA
     # There are a few utilities that seem mappable, but missing:
@@ -394,7 +394,7 @@ def respondent_id_ferc714(raw_respondent_id_ferc714: pd.DataFrame) -> pd.DataFra
 
 @asset(io_manager_key="pudl_sqlite_io_manager")
 def demand_hourly_pa_ferc714(
-    raw_demand_hourly_pa_ferc714: pd.DataFrame,
+    raw_ferc714__demand_hourly_pa: pd.DataFrame,
 ) -> pd.DataFrame:
     """Transform the hourly demand time series by Planning Area.
 
@@ -408,7 +408,7 @@ def demand_hourly_pa_ferc714(
     - Flip negative signs for reported demand.
 
     Args:
-        raw_demand_hourly_pa_ferc714: Raw table containing hourly demand time series by
+        raw_ferc714__demand_hourly_pa: Raw table containing hourly demand time series by
             Planning Area.
 
     Returns:
@@ -416,7 +416,7 @@ def demand_hourly_pa_ferc714(
     """
     logger.info("Converting dates into pandas Datetime types.")
     df = _pre_process(
-        raw_demand_hourly_pa_ferc714, table_name="demand_hourly_pa_ferc714"
+        raw_ferc714__demand_hourly_pa, table_name="demand_hourly_pa_ferc714"
     )
 
     # Parse date strings

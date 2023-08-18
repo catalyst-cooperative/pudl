@@ -22,7 +22,6 @@ the results as a CSV in PUDL_DIR/local/state-demand/demand.csv
 """
 import argparse
 import datetime
-import pathlib
 import sys
 from collections.abc import Iterable
 from typing import Any
@@ -830,8 +829,6 @@ def main():
 
     # --- Connect to PUDL database --- #
 
-    pudl_settings = pudl.workspace.setup.get_defaults()
-
     # --- Read in inputs from PUDL + dagster cache --- #
     prediction = pudl.etl.defs.load_asset_value(
         AssetKey("predicted_state_hourly_demand")
@@ -839,7 +836,7 @@ def main():
 
     # --- Export results --- #
 
-    local_dir = pathlib.Path(pudl_settings["data_dir"]) / "local"
+    local_dir = pudl.workspace.setup.PudlPaths().data_dir / "local"
     ventyx_path = local_dir / "ventyx/state_level_load_2007_2018.csv"
     base_dir = local_dir / "state-demand"
     base_dir.mkdir(parents=True, exist_ok=True)

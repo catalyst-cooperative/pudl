@@ -15,7 +15,7 @@ logger = pudl.logging_helpers.get_logger(__name__)
 
 
 @asset
-def clean_ownership_eia860(raw_ownership_eia860: pd.DataFrame) -> pd.DataFrame:
+def _core_eia860__ownership(raw_eia860__ownership: pd.DataFrame) -> pd.DataFrame:
     """Pull and transform the ownership table.
 
     Transformations include:
@@ -25,14 +25,14 @@ def clean_ownership_eia860(raw_ownership_eia860: pd.DataFrame) -> pd.DataFrame:
       reporting.
 
     Args:
-        raw_ownership_eia860: The raw ``ownership_eia860`` dataframe.
+        raw_eia860__ownership: The raw ``ownership_eia860`` dataframe.
 
     Returns:
         Cleaned ``ownership_eia860`` dataframe ready for harvesting.
     """
     # Preiminary clean and get rid of unecessary 'year' column
     own_df = (
-        raw_ownership_eia860.copy()
+        raw_eia860__ownership.copy()
         .pipe(pudl.helpers.fix_eia_na)
         .pipe(pudl.helpers.convert_to_date)
         .drop(columns=["year"])
@@ -179,11 +179,11 @@ def clean_ownership_eia860(raw_ownership_eia860: pd.DataFrame) -> pd.DataFrame:
 
 
 @asset
-def clean_generators_eia860(
-    raw_generator_proposed_eia860: pd.DataFrame,
-    raw_generator_existing_eia860: pd.DataFrame,
-    raw_generator_retired_eia860: pd.DataFrame,
-    raw_generator_eia860: pd.DataFrame,
+def _core_eia860__generators(
+    raw_eia860__generator_proposed: pd.DataFrame,
+    raw_eia860__generator_existing: pd.DataFrame,
+    raw_eia860__generator_retired: pd.DataFrame,
+    raw_eia860__generator: pd.DataFrame,
 ) -> pd.DataFrame:
     """Pull and transform the generators table.
 
@@ -207,10 +207,10 @@ def clean_generators_eia860(
       clean, distinguishable categories.
 
     Args:
-        raw_generator_proposed_eia860: The raw ``raw_generator_proposed_eia860`` dataframe.
-        raw_generator_existing_eia860: The raw ``raw_generator_existing_eia860`` dataframe.
-        raw_generator_retired_eia860: The raw ``raw_generator_retired_eia860`` dataframe.
-        raw_generator_eia860: The raw ``raw_generator_eia860`` dataframe.
+        raw_eia860__generator_proposed: The raw ``raw_eia860__generator_proposed`` dataframe.
+        raw_eia860__generator_existing: The raw ``raw_eia860__generator_existing`` dataframe.
+        raw_eia860__generator_retired: The raw ``raw_eia860__generator_retired`` dataframe.
+        raw_eia860__generator: The raw ``raw_eia860__generator`` dataframe.
 
     Returns:
         Cleaned ``generators_eia860`` dataframe ready for harvesting.
@@ -223,10 +223,10 @@ def clean_generators_eia860(
     # them all together into a single big table, with a column that indicates
     # which one of these tables the data came from, since they all have almost
     # exactly the same structure
-    gp_df = raw_generator_proposed_eia860
-    ge_df = raw_generator_existing_eia860
-    gr_df = raw_generator_retired_eia860
-    g_df = raw_generator_eia860
+    gp_df = raw_eia860__generator_proposed
+    ge_df = raw_eia860__generator_existing
+    gr_df = raw_eia860__generator_retired
+    g_df = raw_eia860__generator
     # the retired tab of eia860 does not have a operational_status_code column.
     # we still want these gens to have a code (and subsequently a
     # operational_status). We could do this by fillna w/ the retirement_date, but
@@ -358,7 +358,7 @@ def clean_generators_eia860(
 
 
 @asset
-def clean_plants_eia860(raw_plant_eia860: pd.DataFrame) -> pd.DataFrame:
+def _core_eia860__plants(raw_eia860__plant: pd.DataFrame) -> pd.DataFrame:
     """Pull and transform the plants table.
 
     Much of the static plant information is reported repeatedly, and scattered across
@@ -373,14 +373,14 @@ def clean_plants_eia860(raw_plant_eia860: pd.DataFrame) -> pd.DataFrame:
     * Convert Y/N/X values to boolean True/False.
 
     Args:
-        raw_plant_eia860: The raw ``raw_plant_eia860`` dataframe.
+        raw_eia860__plant: The raw ``raw_eia860__plant`` dataframe.
 
     Returns:
         Cleaned ``plants_eia860`` dataframe ready for harvesting.
     """
     # Populating the 'plants_eia860' table
     p_df = (
-        raw_plant_eia860.pipe(pudl.helpers.fix_eia_na)
+        raw_eia860__plant.pipe(pudl.helpers.fix_eia_na)
         .astype({"zip_code": str})
         .drop("iso_rto", axis="columns")
     )
@@ -443,8 +443,8 @@ def clean_plants_eia860(raw_plant_eia860: pd.DataFrame) -> pd.DataFrame:
 
 
 @asset
-def clean_boiler_generator_assn_eia860(
-    raw_boiler_generator_assn_eia860: pd.DataFrame,
+def _core_eia860__boiler_generator_assn(
+    raw_eia860__boiler_generator_assn: pd.DataFrame,
 ) -> pd.DataFrame:
     """Pull and transform the boilder generator association table.
 
@@ -454,7 +454,7 @@ def clean_boiler_generator_assn_eia860(
     * Drop duplicate rows.
 
     Args:
-        raw_boiler_generator_assn_eia860 (df): Each entry in this dictionary of DataFrame objects
+        raw_eia860__boiler_generator_assn (df): Each entry in this dictionary of DataFrame objects
             corresponds to a page from the EIA860 form, as reported in the Excel
             spreadsheets they distribute.
 
@@ -462,7 +462,7 @@ def clean_boiler_generator_assn_eia860(
         Cleaned ``boiler_generator_assn_eia860`` dataframe ready for harvesting.
     """
     # Populating the 'generators_eia860' table
-    b_g_df = raw_boiler_generator_assn_eia860
+    b_g_df = raw_eia860__boiler_generator_assn
 
     b_g_df = pudl.helpers.convert_to_date(b_g_df)
     b_g_df = pudl.helpers.convert_cols_dtypes(df=b_g_df, data_source="eia")
@@ -478,7 +478,7 @@ def clean_boiler_generator_assn_eia860(
 
 
 @asset
-def clean_utilities_eia860(raw_utility_eia860: pd.DataFrame) -> pd.DataFrame:
+def _core_eia860__utilities(raw_eia860__utility: pd.DataFrame) -> pd.DataFrame:
     """Pull and transform the utilities table.
 
     Transformations include:
@@ -492,13 +492,13 @@ def clean_utilities_eia860(raw_utility_eia860: pd.DataFrame) -> pd.DataFrame:
     * Map full spelling onto code values.
 
     Args:
-        raw_utility_eia860: The raw ``raw_utility_eia860`` dataframe.
+        raw_eia860__utility: The raw ``raw_eia860__utility`` dataframe.
 
     Returns:
         Cleaned ``utilities_eia860`` dataframe ready for harvesting.
     """
     # Populating the 'utilities_eia860' table
-    u_df = raw_utility_eia860
+    u_df = raw_eia860__utility
 
     # Replace empty strings, whitespace, and '.' fields with real NA values
     u_df = pudl.helpers.fix_eia_na(u_df)
@@ -564,8 +564,8 @@ def clean_utilities_eia860(raw_utility_eia860: pd.DataFrame) -> pd.DataFrame:
 
 
 @asset
-def clean_boilers_eia860(
-    raw_emission_control_strategies_eia860, raw_boiler_info_eia860
+def _core_eia860__boilers(
+    raw_eia860__emission_control_strategies, raw_eia860__boiler_info
 ):
     """Pull and transform the boilers table.
 
@@ -579,17 +579,17 @@ def clean_boilers_eia860(
       reporting.
 
     Args:
-        raw_emission_control_strategies_eia860 (pandas.DataFrame):
+        raw_eia860__emission_control_strategies (pandas.DataFrame):
             DataFrame extracted from EIA forms earlier in the ETL process.
-        raw_boiler_info_eia860 (pandas.DataFrame):
+        raw_eia860__boiler_info (pandas.DataFrame):
             DataFrame extracted from EIA forms earlier in the ETL process.
 
     Returns:
         pandas.DataFrame: the transformed boilers table
     """
     # Populating the 'boilers_eia860' table
-    b_df = raw_boiler_info_eia860
-    ecs = raw_emission_control_strategies_eia860
+    b_df = raw_eia860__boiler_info
+    ecs = raw_eia860__emission_control_strategies
 
     # Combine and replace empty strings, whitespace, and '.' fields with real NA values
 
@@ -765,12 +765,12 @@ def clean_boilers_eia860(
 
 
 @asset
-def clean_emissions_control_equipment_eia860(
-    raw_emissions_control_equipment_eia860: pd.DataFrame,
+def _core_eia860__emissions_control_equipment(
+    raw_eia860__emissions_control_equipment: pd.DataFrame,
 ) -> pd.DataFrame:
     """Pull and transform the emissions control equipment table."""
     # Replace empty strings, whitespace, and '.' fields with real NA values
-    emce_df = pudl.helpers.fix_eia_na(raw_emissions_control_equipment_eia860)
+    emce_df = pudl.helpers.fix_eia_na(raw_eia860__emissions_control_equipment)
 
     # Spot fix bad months
     emce_df["operating_month"] = emce_df["operating_month"].replace({"88": "8"})
@@ -889,26 +889,26 @@ def clean_emissions_control_equipment_eia860(
 
 
 @asset
-def clean_boiler_emissions_control_equipment_assn_eia860(
-    raw_boiler_so2_eia860: pd.DataFrame,
-    raw_boiler_mercury_eia860: pd.DataFrame,
-    raw_boiler_nox_eia860: pd.DataFrame,
-    raw_boiler_particulate_eia860: pd.DataFrame,
+def _core_eia860__boiler_emissions_control_equipment_assn(
+    raw_eia860__boiler_so2: pd.DataFrame,
+    raw_eia860__boiler_mercury: pd.DataFrame,
+    raw_eia860__boiler_nox: pd.DataFrame,
+    raw_eia860__boiler_particulate: pd.DataFrame,
 ) -> pd.DataFrame:
     """Pull and transform the emissions control <> boiler ID link tables.
 
     Args:
-        raw_boiler_so2_eia860: Raw EIA 860 boiler to SO2 emission control equipment
+        raw_eia860__boiler_so2: Raw EIA 860 boiler to SO2 emission control equipment
             association table.
-        raw_boiler_mercury_eia860: Raw EIA 860 boiler to mercury emission control
+        raw_eia860__boiler_mercury: Raw EIA 860 boiler to mercury emission control
             equipment association table.
-        raw_boiler_nox_eia860: Raw EIA 860 boiler to nox emission control equipment
+        raw_eia860__boiler_nox: Raw EIA 860 boiler to nox emission control equipment
             association table.
-        raw_boiler_particulate_eia860: Raw EIA 860 boiler to particulate emission
+        raw_eia860__boiler_particulate: Raw EIA 860 boiler to particulate emission
             control equipment association table.
-        raw_boiler_cooling_eia860: Raw EIA 860 boiler to cooling equipment association
+        raw_eia860__boiler_cooling: Raw EIA 860 boiler to cooling equipment association
             table.
-        raw_boiler_stack_flue_eia860: Raw EIA 860 boiler to stack flue equipment
+        raw_eia860__boiler_stack_flue: Raw EIA 860 boiler to stack flue equipment
             association table.
 
     Returns:
@@ -916,10 +916,10 @@ def clean_boiler_emissions_control_equipment_assn_eia860(
             tables.
     """
     raw_tables = [
-        raw_boiler_so2_eia860,
-        raw_boiler_mercury_eia860,
-        raw_boiler_nox_eia860,
-        raw_boiler_particulate_eia860,
+        raw_eia860__boiler_so2,
+        raw_eia860__boiler_mercury,
+        raw_eia860__boiler_nox,
+        raw_eia860__boiler_particulate,
     ]
 
     bece_df = pd.DataFrame({})
@@ -969,20 +969,20 @@ def clean_boiler_emissions_control_equipment_assn_eia860(
 
 
 @asset
-def clean_boiler_cooling_assn_eia860(
-    raw_boiler_cooling_eia860: pd.DataFrame,
+def _core_eia860__boiler_cooling_assn(
+    raw_eia860__boiler_cooling: pd.DataFrame,
 ) -> pd.DataFrame:
     """Pull and transform the EIA 860 boiler to cooler ID table.
 
     Args:
-        raw_boiler_cooling_eia860: Raw EIA 860 boiler to cooler ID association table.
+        raw_eia860__boiler_cooling: Raw EIA 860 boiler to cooler ID association table.
 
     Returns:
         pd.DataFrame: A cleaned and normalized version of the EIA boiler to cooler ID
             table.
     """
     # Replace empty strings, whitespace, and '.' fields with real NA values
-    bc_assn = pudl.helpers.fix_eia_na(raw_boiler_cooling_eia860)
+    bc_assn = pudl.helpers.fix_eia_na(raw_eia860__boiler_cooling)
     # Replace the report year col with a report date col for the harvesting process
     bc_assn = pudl.helpers.convert_to_date(
         df=bc_assn, year_col="report_year", date_col="report_date"
@@ -994,13 +994,13 @@ def clean_boiler_cooling_assn_eia860(
 
 
 @asset
-def clean_boiler_stack_flue_assn_eia860(
-    raw_boiler_stack_flue_eia860: pd.DataFrame,
+def _core_eia860__boiler_stack_flue_assn(
+    raw_eia860__boiler_stack_flue: pd.DataFrame,
 ) -> pd.DataFrame:
     """Pull and transform the EIA 860 boiler to stack flue ID table.
 
     Args:
-        raw_boiler_stack_flue_eia860: Raw EIA 860 boiler to stack flue ID association
+        raw_eia860__boiler_stack_flue: Raw EIA 860 boiler to stack flue ID association
             table.
 
     Returns:
@@ -1008,7 +1008,7 @@ def clean_boiler_stack_flue_assn_eia860(
             ID table.
     """
     # Replace empty strings, whitespace, and '.' fields with real NA values
-    bsf_assn = pudl.helpers.fix_eia_na(raw_boiler_stack_flue_eia860)
+    bsf_assn = pudl.helpers.fix_eia_na(raw_eia860__boiler_stack_flue)
     # Replace the report year col with a report date col for the harvesting process
     bsf_assn = pudl.helpers.convert_to_date(
         df=bsf_assn, year_col="report_year", date_col="report_date"
