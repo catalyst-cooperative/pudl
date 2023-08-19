@@ -235,35 +235,30 @@ class TestZenodoFetcher(unittest.TestCase):
             }
         )
 
-    def test_sandbox_doi_format_is_correct(self):
-        """Verifies that sandbox ZenodoFetcher DOIs have the right format."""
-        ds = datastore.ZenodoFetcher(sandbox=True)
-        self.assertTrue(ds.get_known_datasets())
-        for dataset in ds.get_known_datasets():
-            print(f"doi for {dataset} is {ds.get_doi(dataset)}")
-            self.assertTrue(
-                re.fullmatch(
-                    r"10\.5072/zenodo\.[0-9]{5,10}", ds.get_doi(dataset)
-                ),  # noqa: FS003
-                msg=f"doi for {dataset} is {ds.get_doi(dataset)}",
-            )
+    def test_doi_format_is_correct(self):
+        """Verifies ZenodoFetcher DOIs have correct format and are not sandbox DOIs.
 
-    def test_prod_doi_format_is_correct(self):
-        """Verifies that production ZenodoFetcher DOIs have the right format."""
-        ds = datastore.ZenodoFetcher(sandbox=False)
+        Sandbox DOIs are only meant for use in testing and development, and should not
+        be checked in, thus this test will fail if a sandbox DOI with prefix 10.5072 is
+        identified.
+        """
+        ds = datastore.ZenodoFetcher()
         self.assertTrue(ds.get_known_datasets())
         for dataset in ds.get_known_datasets():
+            doi = ds.get_doi(dataset)
+            self.assertFalse(
+                re.fullmatch(r"10\.5072/zenodo\.[0-9]{5,10}", doi),
+                msg=f"Zenodo sandbox DOI found for {dataset}: {doi}",
+            )
             self.assertTrue(
-                re.fullmatch(
-                    r"10\.5281/zenodo\.[0-9]{5,10}", ds.get_doi(dataset)
-                ),  # noqa: FS003
-                msg=f"doi for {dataset} is {ds.get_doi(dataset)}",
+                re.fullmatch(r"10\.5281/zenodo\.[0-9]{5,10}", doi),
+                msg=f"Zenodo production DOI for {dataset} is {doi}",
             )
 
     def test_get_known_datasets(self):
         """Call to get_known_datasets() produces the expected results."""
         self.assertEqual(
-            sorted(datastore.ZenodoFetcher.DOI["production"]),
+            sorted(datastore.ZenodoFetcher.DOI),
             self.fetcher.get_known_datasets(),
         )
 

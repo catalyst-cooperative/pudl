@@ -44,9 +44,9 @@ class DatapackageDescriptor:
         """Constructs DatapackageDescriptor.
 
         Args:
-          datapackage_json (dict): parsed datapackage.json describing this datapackage.
-          dataset (str): name of the dataset.
-          doi (str): DOI (aka version) of the dataset.
+          datapackage_json: parsed datapackage.json describing this datapackage.
+          dataset: The name (an identifying string) of the dataset.
+          doi: A versioned Digital Object Identifier for the dataset.
         """
         self.datapackage_json = datapackage_json
         self.dataset = dataset
@@ -167,54 +167,46 @@ class ZenodoFetcher:
     }
 
     DOI = {
-        "sandbox": {
-            "censusdp1tract": "10.5072/zenodo.674992",
-            "eia860": "10.5072/zenodo.1222854",
-            "eia860m": "10.5072/zenodo.1225517",
-            "eia861": "10.5072/zenodo.1229930",
-            "eia923": "10.5072/zenodo.1217724",
-            "eia_bulk_elec": "10.5072/zenodo.1103572",
-            "epacamd_eia": "10.5072/zenodo.1199170",
-            "epacems": "10.5072/zenodo.672963",
-            "ferc1": "10.5072/zenodo.1070868",
-            "ferc2": "10.5072/zenodo.1188447",
-            "ferc6": "10.5072/zenodo.1098088",
-            "ferc60": "10.5072/zenodo.1098089",
-            "ferc714": "10.5072/zenodo.1098302",
-        },
-        "production": {
-            "censusdp1tract": "10.5281/zenodo.4127049",
-            "eia860": "10.5281/zenodo.8164776",
-            "eia860m": "10.5281/zenodo.8188017",
-            "eia861": "10.5281/zenodo.8231268",
-            "eia923": "10.5281/zenodo.8172818",
-            "eia_bulk_elec": "10.5281/zenodo.7067367",
-            "epacamd_eia": "10.5281/zenodo.7900974",
-            "epacems": "10.5281/zenodo.6910058",
-            "ferc1": "10.5281/zenodo.7314437",
-            "ferc2": "10.5281/zenodo.8006881",
-            "ferc6": "10.5281/zenodo.7130141",
-            "ferc60": "10.5281/zenodo.7130146",
-            "ferc714": "10.5281/zenodo.7139875",
-        },
+        # Sandbox DOIs are provided for reference
+        "censusdp1tract": "10.5281/zenodo.4127049",
+        # "censusdp1tract": "10.5072/zenodo.674992",
+        "eia860": "10.5281/zenodo.8164776",
+        # "eia860": "10.5072/zenodo.1222854",
+        "eia860m": "10.5281/zenodo.8188017",
+        # "eia860m": "10.5072/zenodo.1225517",
+        "eia861": "10.5281/zenodo.8231268",
+        # "eia861": "10.5072/zenodo.1229930",
+        "eia923": "10.5281/zenodo.8172818",
+        # "eia923": "10.5072/zenodo.1217724",
+        "eia_bulk_elec": "10.5281/zenodo.7067367",
+        # "eia_bulk_elec": "10.5072/zenodo.1103572",
+        "epacamd_eia": "10.5281/zenodo.7900974",
+        # "epacamd_eia": "10.5072/zenodo.1199170",
+        "epacems": "10.5281/zenodo.6910058",
+        # "epacems": "10.5072/zenodo.672963",
+        "ferc1": "10.5281/zenodo.7314437",
+        # "ferc1": "10.5072/zenodo.1070868",
+        "ferc2": "10.5281/zenodo.8006881",
+        # "ferc2": "10.5072/zenodo.1188447",
+        "ferc6": "10.5281/zenodo.7130141",
+        # "ferc6": "10.5072/zenodo.1098088",
+        "ferc60": "10.5281/zenodo.7130146",
+        # "ferc60": "10.5072/zenodo.1098089",
+        "ferc714": "10.5281/zenodo.7139875",
+        # "ferc714": "10.5072/zenodo.1098302",
     }
     API_ROOT = {
         "sandbox": "https://sandbox.zenodo.org/api",
         "production": "https://zenodo.org/api",
     }
 
-    def __init__(self, sandbox: bool = False, timeout: float = 15.0):
+    def __init__(self, timeout: float = 15.0):
         """Constructs ZenodoFetcher instance.
 
         Args:
-            sandbox (bool): controls whether production or sandbox zenodo backends
-                and associated DOIs should be used.
             timeout (float): timeout (in seconds) for http requests.
         """
-        backend = "sandbox" if sandbox else "production"
-        self._api_root = self.API_ROOT[backend]
-        self._token = self.TOKEN[backend]
-        self._dataset_to_doi = self.DOI[backend]
+        self._dataset_to_doi = self.DOI
         self._descriptor_cache: dict[str, DatapackageDescriptor] = {}
 
         self.timeout = timeout
@@ -229,8 +221,12 @@ class ZenodoFetcher:
 
     def _fetch_from_url(self, url: str) -> requests.Response:
         logger.info(f"Retrieving {url} from zenodo")
+        if "sandbox" in url:
+            token = self.TOKEN["sandbox"]
+        else:
+            token = self.TOKEN["production"]
         response = self.http.get(
-            url, params={"access_token": self._token}, timeout=self.timeout
+            url, params={"access_token": token}, timeout=self.timeout
         )
         if response.status_code == requests.codes.ok:
             logger.debug(f"Successfully downloaded {url}")
@@ -240,16 +236,24 @@ class ZenodoFetcher:
 
     def _doi_to_url(self, doi: str) -> str:
         """Returns url that holds the datapackage for given doi."""
-        match = re.search(r"zenodo.([\d]+)", doi)
-        if match is None:
-            raise ValueError(f"Invalid doi {doi}")
+        match = re.search(r"(10\.5072|10\.5281)/zenodo.([\d]+)", doi)
 
-        zen_id = int(match.groups()[0])
-        return f"{self._api_root}/deposit/depositions/{zen_id}"
+        if match is None:
+            raise ValueError(f"Invalid Zenodo DOI: {doi}")
+
+        doi_prefix = match.groups()[0]
+        zenodo_id = match.groups()[1]
+        if doi_prefix == "10.5072":
+            api_root = self.API_ROOT["sandbox"]
+        elif doi_prefix == "10.5281":
+            api_root = self.API_ROOT["production"]
+        else:
+            raise ValueError(f"Invalid Zenodo DOI: {doi}")
+        return f"{api_root}/deposit/depositions/{zenodo_id}"
 
     def get_descriptor(self, dataset: str) -> DatapackageDescriptor:
-        """Returns DatapackageDescriptor for given dataset."""
-        doi = self._dataset_to_doi.get(dataset)
+        """Returns class:`DatapackageDescriptor` for given dataset."""
+        doi = self._dataset_to_doi.get(dataset, False)
         if not doi:
             raise KeyError(f"No doi found for dataset {dataset}")
         if doi not in self._descriptor_cache:
@@ -295,22 +299,18 @@ class Datastore:
         self,
         local_cache_path: Path | None = None,
         gcs_cache_path: str | None = None,
-        sandbox: bool = False,
-        timeout: float = 15,
+        timeout: float = 15.0,
     ):
         # TODO(rousik): figure out an efficient way to configure datastore caching
         """Datastore manages file retrieval for PUDL datasets.
 
         Args:
-            local_cache_path (Path): if provided, LocalFileCache pointed at the data
+            local_cache_path: if provided, LocalFileCache pointed at the data
               subdirectory of this path will be used with this Datastore.
-            gcs_cache_path (str): if provided, GoogleCloudStorageCache will be used
+            gcs_cache_path: if provided, GoogleCloudStorageCache will be used
               to retrieve data files. The path is expected to have the following
               format: gs://bucket[/path_prefix]
-            sandbox (bool): if True, use sandbox zenodo backend when retrieving files,
-              otherwise use production. This affects which zenodo servers are contacted
-              as well as dois used for each dataset.
-            timeout (floaTR): connection timeouts (in seconds) to use when connecting
+            timeout: connection timeouts (in seconds) to use when connecting
               to Zenodo servers.
         """
         self._cache = resource_cache.LayeredCache()
@@ -332,7 +332,7 @@ class Datastore:
                 )
                 pass
 
-        self._zenodo_fetcher = ZenodoFetcher(sandbox=sandbox, timeout=timeout)
+        self._zenodo_fetcher = ZenodoFetcher(timeout=timeout)
 
     def get_known_datasets(self) -> list[str]:
         """Returns list of supported datasets."""
@@ -442,17 +442,11 @@ class ParseKeyValues(argparse.Action):
 
 def parse_command_line():
     """Collect the command line arguments."""
-    prod_dois = "\n".join(
-        [f"    - {x}" for x in ZenodoFetcher.DOI["production"].keys()]
-    )
-    sand_dois = "\n".join([f"    - {x}" for x in ZenodoFetcher.DOI["sandbox"].keys()])
+    dois = "\n".join([f"    - {x}" for x in ZenodoFetcher.DOI])
 
     dataset_msg = f"""
 Available Production Datasets:
-{prod_dois}
-
-Available Sandbox Datasets:
-{sand_dois}"""
+{dois}"""
 
     parser = argparse.ArgumentParser(
         description="Download and cache ETL source data from Zenodo.",
@@ -463,22 +457,16 @@ Available Sandbox Datasets:
     parser.add_argument(
         "--dataset",
         help="Download the specified dataset only. See below for available options. "
-        "The default is to download all, which may take an hour or more."
-        "speed.",
+        "The default is to download all datasets, which may take hours depending on "
+        "network speed.",
     )
     parser.add_argument(
         "--pudl_in",
-        help="Override pudl_in directory, defaults to setting in ~/.pudl.yml",
+        help="Input directory to use, overridng the $PUDL_INPUT environment variable.",
     )
     parser.add_argument(
         "--validate",
         help="Validate locally cached datapackages, but don't download anything.",
-        action="store_true",
-        default=False,
-    )
-    parser.add_argument(
-        "--sandbox",
-        help="Download data from Zenodo sandbox server. For testing purposes only.",
         action="store_true",
         default=False,
     )
@@ -602,7 +590,6 @@ def main():
 
     dstore = Datastore(
         gcs_cache_path=args.gcs_cache_path,
-        sandbox=args.sandbox,
         local_cache_path=cache_path,
     )
 
