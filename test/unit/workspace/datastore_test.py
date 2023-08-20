@@ -247,18 +247,18 @@ class TestZenodoFetcher(unittest.TestCase):
         for dataset in ds.get_known_datasets():
             doi = ds.get_doi(dataset)
             self.assertFalse(
-                re.fullmatch(r"10\.5072/zenodo\.[0-9]{5,10}", doi),
-                msg=f"Zenodo sandbox DOI found for {dataset}: {doi}",
+                re.fullmatch(r"10\.5072/zenodo\.[0-9]{5,10}", doi.doi),
+                msg=f"Zenodo sandbox DOI found for {dataset}: {doi.doi}",
             )
             self.assertTrue(
-                re.fullmatch(r"10\.5281/zenodo\.[0-9]{5,10}", doi),
-                msg=f"Zenodo production DOI for {dataset} is {doi}",
+                re.fullmatch(r"10\.5281/zenodo\.[0-9]{5,10}", doi.doi),
+                msg=f"Zenodo production DOI for {dataset} is {doi.doi}",
             )
 
     def test_get_known_datasets(self):
         """Call to get_known_datasets() produces the expected results."""
         self.assertEqual(
-            sorted(datastore.ZenodoFetcher.DOI),
+            sorted(datastore.ZenodoFetcher.dois),
             self.fetcher.get_known_datasets(),
         )
 
@@ -267,7 +267,7 @@ class TestZenodoFetcher(unittest.TestCase):
 
         This test verifies that the expected value is in use.
         """
-        self.assertEqual(self.PROD_EPACEMS_DOI, self.fetcher.get_doi("epacems"))
+        self.assertEqual(self.PROD_EPACEMS_DOI, self.fetcher.get_doi("epacems").doi)
 
     @responses.activate
     def test_get_descriptor_http_calls(self):
