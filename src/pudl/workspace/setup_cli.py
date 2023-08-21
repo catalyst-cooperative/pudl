@@ -56,17 +56,17 @@ def initialize_parser():
         description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter
     )
     parser.add_argument(
-        "--pudl_input",
+        "--pudl_in",
         "-i",
         type=str,
-        dest="pudl_input",
+        dest="pudl_in",
         help="""Directory where the PUDL input data should be located.""",
     )
     parser.add_argument(
-        "--pudl_output",
+        "--pudl_out",
         "-o",
         type=str,
-        dest="pudl_output",
+        dest="pudl_out",
         help="""Directory where the PUDL outputs, notebooks, and example
         settings files should be located.""",
     )
