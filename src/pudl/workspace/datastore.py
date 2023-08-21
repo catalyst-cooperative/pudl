@@ -9,11 +9,12 @@ import zipfile
 from collections import defaultdict
 from collections.abc import Iterator
 from pathlib import Path
-from typing import Any
+from typing import Any, Self
 
 import datapackage
 import requests
 from google.auth.exceptions import DefaultCredentialsError
+from pydantic import BaseModel, HttpUrl, confloat, constr
 from requests.adapters import HTTPAdapter
 from requests.packages.urllib3.util.retry import Retry
 
@@ -29,6 +30,7 @@ logger = pudl.logging_helpers.get_logger(__name__)
 # long as we stick to read-only keys.
 
 PUDL_YML = Path.home() / ".pudl.yml"
+ZenodoDOI = constr(regex=r"(10\.5072|10\.5281)/zenodo.([\d]+)")
 
 
 class ChecksumMismatch(ValueError):
@@ -154,19 +156,13 @@ class DatapackageDescriptor:
         return json.dumps(self.datapackage_json, sort_keys=True, indent=4)
 
 
-class ZenodoFetcher:
+class ZenodoFetcher(BaseModel):
     """API for fetching datapackage descriptors and resource contents from zenodo."""
 
-    # Zenodo tokens recorded here should have read-only access to our archives.
-    # Including them here is correct in order to allow public use of this tool, so
-    # long as we stick to read-only keys.
-    TOKEN = {
-        # Read-only personal access tokens for pudl@catalyst.coop:
-        "sandbox": "qyPC29wGPaflUUVAv1oGw99ytwBqwEEdwi4NuUrpwc3xUcEwbmuB4emwysco",
-        "production": "KXcG5s9TqeuPh1Ukt5QYbzhCElp9LxuqAuiwdqHP0WS4qGIQiydHn6FBtdJ5",
-    }
-
-    DOI = {
+    _descriptor_cache: dict[str, DatapackageDescriptor] = {}
+    http: requests.Session = requests.Session()
+    timeout: confloat(gt=0.0, allow_inf_nan=False) = 15.0
+    zenodo_dois: dict[str, ZenodoDOI] = {
         # Sandbox DOIs are provided for reference
         "censusdp1tract": "10.5281/zenodo.4127049",
         # "censusdp1tract": "10.5072/zenodo.674992",
@@ -195,47 +191,45 @@ class ZenodoFetcher:
         "ferc714": "10.5281/zenodo.7139875",
         # "ferc714": "10.5072/zenodo.1098302",
     }
-    API_ROOT = {
-        "sandbox": "https://sandbox.zenodo.org/api",
-        "production": "https://zenodo.org/api",
-    }
 
-    def __init__(self, timeout: float = 15.0):
-        """Constructs ZenodoFetcher instance.
+    class Config:
+        """Allow arbitrary types -- required for requests.Session."""
 
-        Args:
-            timeout (float): timeout (in seconds) for http requests.
-        """
-        self._dataset_to_doi = self.DOI
-        self._descriptor_cache: dict[str, DatapackageDescriptor] = {}
+        arbitrary_types_allowed = True
 
-        self.timeout = timeout
+    def __init__(self: Self, **data):
+        """Constructs ZenodoFetcher instance."""
+        super().__init__(**data)
+
         retries = Retry(
             backoff_factor=2, total=3, status_forcelist=[429, 500, 502, 503, 504]
         )
         adapter = HTTPAdapter(max_retries=retries)
 
-        self.http = requests.Session()
         self.http.mount("http://", adapter)
         self.http.mount("https://", adapter)
+        for dataset in self.zenodo_dois:
+            try:
+                ZenodoDOI.validate(self.zenodo_dois[dataset])
+            except Exception:
+                raise ValueError(
+                    f"Invalid Zenodo DOI for {dataset}: {self.zenodo_dois[dataset]}"
+                )
 
-    def _fetch_from_url(self, url: str) -> requests.Response:
-        logger.info(f"Retrieving {url} from zenodo")
+    def _get_token(self: Self, url: HttpUrl) -> str:
+        """Return the appropriate read-only Zenodo personal access token.
+
+        These tokens are associated with the pudl@catalyst.coop Zenodo account, which
+        owns all of the Catalyst raw data archives.
+        """
         if "sandbox" in url:
-            token = self.TOKEN["sandbox"]
+            token = "qyPC29wGPaflUUVAv1oGw99ytwBqwEEdwi4NuUrpwc3xUcEwbmuB4emwysco"  # nosec: B105
         else:
-            token = self.TOKEN["production"]
-        response = self.http.get(
-            url, params={"access_token": token}, timeout=self.timeout
-        )
-        if response.status_code == requests.codes.ok:
-            logger.debug(f"Successfully downloaded {url}")
-            return response
-        else:
-            raise ValueError(f"Could not download {url}: {response.text}")
+            token = "KXcG5s9TqeuPh1Ukt5QYbzhCElp9LxuqAuiwdqHP0WS4qGIQiydHn6FBtdJ5"  # nosec: B105
+        return token
 
-    def _doi_to_url(self, doi: str) -> str:
-        """Returns url that holds the datapackage for given doi."""
+    def _get_url(self: Self, doi: ZenodoDOI) -> HttpUrl:
+        """Construct a Zenodo depsition URL based on its Zenodo DOI."""
         match = re.search(r"(10\.5072|10\.5281)/zenodo.([\d]+)", doi)
 
         if match is None:
@@ -244,20 +238,29 @@ class ZenodoFetcher:
         doi_prefix = match.groups()[0]
         zenodo_id = match.groups()[1]
         if doi_prefix == "10.5072":
-            api_root = self.API_ROOT["sandbox"]
+            api_root = "https://sandbox.zenodo.org/api"
         elif doi_prefix == "10.5281":
-            api_root = self.API_ROOT["production"]
+            api_root = "https://zenodo.org/api"
         else:
             raise ValueError(f"Invalid Zenodo DOI: {doi}")
         return f"{api_root}/deposit/depositions/{zenodo_id}"
 
-    def get_descriptor(self, dataset: str) -> DatapackageDescriptor:
+    def _fetch_from_url(self: Self, url: HttpUrl) -> requests.Response:
+        logger.info(f"Retrieving {url} from zenodo")
+        response = self.http.get(
+            url, params={"access_token": self._get_token(url)}, timeout=self.timeout
+        )
+        if response.status_code == requests.codes.ok:
+            logger.debug(f"Successfully downloaded {url}")
+            return response
+        else:
+            raise ValueError(f"Could not download {url}: {response.text}")
+
+    def get_descriptor(self: Self, dataset: str) -> DatapackageDescriptor:
         """Returns class:`DatapackageDescriptor` for given dataset."""
-        doi = self._dataset_to_doi.get(dataset, False)
-        if not doi:
-            raise KeyError(f"No doi found for dataset {dataset}")
+        doi = self.get_doi(dataset)
         if doi not in self._descriptor_cache:
-            dpkg = self._fetch_from_url(self._doi_to_url(doi))
+            dpkg = self._fetch_from_url(self._get_url(doi))
             for f in dpkg.json()["files"]:
                 if f["filename"] == "datapackage.json":
                     resp = self._fetch_from_url(f["links"]["download"])
@@ -271,15 +274,19 @@ class ZenodoFetcher:
                 )
         return self._descriptor_cache[doi]
 
-    def get_resource_key(self, dataset: str, name: str) -> PudlResourceKey:
-        """Returns PudlResourceKey for given resource."""
-        return PudlResourceKey(dataset, self._dataset_to_doi[dataset], name)
+    def get_resource_key(self: Self, dataset: str, name: str) -> PudlResourceKey:
+        """Returns :class:`PudlResourceKey` for given resource."""
+        return PudlResourceKey(dataset, self.get_doi(dataset), name)
 
-    def get_doi(self, dataset: str) -> str:
+    def get_doi(self: Self, dataset: str) -> ZenodoDOI:
         """Returns DOI for given dataset."""
-        return self._dataset_to_doi[dataset]
+        try:
+            doi = self.zenodo_dois[dataset]
+        except KeyError:
+            raise KeyError(f"No Zenodo DOI found for datast {dataset}.")
+        return doi
 
-    def get_resource(self, res: PudlResourceKey) -> bytes:
+    def get_resource(self: Self, res: PudlResourceKey) -> bytes:
         """Given resource key, retrieve contents of the file from zenodo."""
         desc = self.get_descriptor(res.dataset)
         url = desc.get_resource_path(res.name)
@@ -287,9 +294,9 @@ class ZenodoFetcher:
         desc.validate_checksum(res.name, content)
         return content
 
-    def get_known_datasets(self) -> list[str]:
+    def get_known_datasets(self: Self) -> list[str]:
         """Returns list of supported datasets."""
-        return sorted(self._dataset_to_doi)
+        return sorted(self.zenodo_dois)
 
 
 class Datastore:
@@ -442,11 +449,13 @@ class ParseKeyValues(argparse.Action):
 
 def parse_command_line():
     """Collect the command line arguments."""
-    dois = "\n".join([f"    - {x}" for x in ZenodoFetcher.DOI])
+    known_datasets = "\n".join(
+        [f"    - {x}" for x in ZenodoFetcher().get_known_datasets()]
+    )
 
     dataset_msg = f"""
-Available Production Datasets:
-{dois}"""
+Available Datasets:
+{known_datasets}"""
 
     parser = argparse.ArgumentParser(
         description="Download and cache ETL source data from Zenodo.",

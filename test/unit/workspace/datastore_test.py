@@ -189,8 +189,7 @@ class MockableZenodoFetcher(datastore.ZenodoFetcher):
         self, descriptors: dict[str, datastore.DatapackageDescriptor], **kwargs
     ):
         """Construct a test-friendly ZenodoFetcher with descriptors pre-loaded."""
-        super().__init__(**kwargs)
-        self._descriptor_cache = dict(descriptors)
+        super().__init__(**kwargs, _descriptor_cache=descriptors)
 
 
 class TestZenodoFetcher(unittest.TestCase):
@@ -258,7 +257,7 @@ class TestZenodoFetcher(unittest.TestCase):
     def test_get_known_datasets(self):
         """Call to get_known_datasets() produces the expected results."""
         self.assertEqual(
-            sorted(datastore.ZenodoFetcher.DOI),
+            sorted(datastore.ZenodoFetcher().zenodo_dois),
             self.fetcher.get_known_datasets(),
         )
 
