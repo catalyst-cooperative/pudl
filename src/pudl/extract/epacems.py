@@ -25,7 +25,7 @@ from typing import NamedTuple
 import pandas as pd
 
 import pudl.logging_helpers
-from pudl.metadata.classes import Package
+from pudl.metadata.classes import Resource
 from pudl.workspace.datastore import Datastore
 
 logger = pudl.logging_helpers.get_logger(__name__)
@@ -187,6 +187,6 @@ def extract(year: int, state: str, ds: Datastore):
         logger.warning(
             f"No data found for {state} in {year}. Returning empty dataframe."
         )
-        res = Package.from_resource_ids().get_resource("hourly_emissions_epacems")
+        res = Resource.from_id("hourly_emissions_epacems")
         df = res.format_df(pd.DataFrame())
     return df

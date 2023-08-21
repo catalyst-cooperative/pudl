@@ -1,11 +1,13 @@
 """Tests for pudl/output/epacems.py loading functions."""
+import logging
+
 import dask.dataframe as dd
 import pytest
 from dagster import build_init_resource_context
 
 from pudl.extract.epacems import extract
 from pudl.io_managers import epacems_io_manager
-from pudl.metadata.classes import Package
+from pudl.metadata.classes import Resource
 from pudl.output.epacems import epacems, year_state_filter
 
 
@@ -53,12 +55,15 @@ def test_epacems_missing_partition(caplog, pudl_datastore_fixture):
     Note that this should pass for both the Fast and Full ETL because the behavior
     towards a missing file is identical."""
     df = extract(year=1996, state="UT", ds=pudl_datastore_fixture)
-    for record in caplog.records:
-        assert record.levelname == "WARNING"
-        assert (
-            record.message == "No data found for UT in 1996. Returning empty dataframe."
-        )
-    epacems_res = Package.from_resource_ids().get_resource("hourly_emissions_epacems")
+    with caplog.at_level(logging.DEBUG):
+        assert len(caplog.records) == 1
+        for record in caplog.records:
+            assert record.levelname == "WARNING"
+            assert (
+                record.message
+                == "No data found for UT in 1996. Returning empty dataframe."
+            )
+    epacems_res = Resource.from_id("hourly_emissions_epacems")
     expected_cols = list(epacems_res.get_field_names())
     assert df.shape[0] == 0  # Check that no rows of data are there
     # Check that all columns expected of EPACEMS data are present.
