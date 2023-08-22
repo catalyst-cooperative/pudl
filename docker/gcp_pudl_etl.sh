@@ -102,9 +102,11 @@ function notify_slack() {
     send_slack_msg "$message"
 }
 
-# # Run ETL. Copy outputs to GCS and shutdown VM if ETL succeeds or fails
-# 2>&1 redirects stderr to stdout.
-run_pudl_etl 2>&1 | tee $LOGFILE
+if [[ -v LOGFILE ]]; then
+  run_pudl_etl
+else
+  run_pudl_etl 2>&1 | tee $LOGFILE
+fi
 
 # Notify slack if the etl succeeded.
 if [[ ${PIPESTATUS[0]} == 0 ]]; then
