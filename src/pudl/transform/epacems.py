@@ -96,7 +96,7 @@ def convert_to_utc(df: pd.DataFrame, plant_utc_offset: pd.DataFrame) -> pd.DataF
         # `parse_dates=True`, is >10x faster.
         # Read the date as a datetime, so all the dates are midnight
         op_datetime_naive=lambda x: pd.to_datetime(
-            x.op_date, format=r"%m-%d-%Y", exact=True, cache=True
+            x.op_date, format=r"%Y-%m-%d", exact=True, cache=True
         )
         + pd.to_timedelta(x.op_hour, unit="h")  # Add the hour
     ).merge(

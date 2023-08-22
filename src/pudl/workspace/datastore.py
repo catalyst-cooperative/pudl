@@ -178,8 +178,8 @@ class ZenodoFetcher(BaseModel):
         # "eia_bulk_elec": "10.5072/zenodo.1103572",
         "epacamd_eia": "10.5281/zenodo.7900974",
         # "epacamd_eia": "10.5072/zenodo.1199170",
-        "epacems": "10.5281/zenodo.6910058",
-        # "epacems": "10.5072/zenodo.672963",
+        "epacems": "10.5281/zenodo.8235497",
+        # "epacems": "10.5072/zenodo.1228519",
         "ferc1": "10.5281/zenodo.7314437",
         # "ferc1": "10.5072/zenodo.1070868",
         "ferc2": "10.5281/zenodo.8006881",
@@ -427,6 +427,10 @@ class Datastore:
         """Iterates over resources that match filters and opens each as ZipFile."""
         for resource_key, content in self.get_resources(dataset, **filters):
             yield resource_key, zipfile.ZipFile(io.BytesIO(content))
+
+    def get_zipfile_file_names(self, zip_file: zipfile.ZipFile):
+        """Given a zipfile, return a list of the file names in it."""
+        return zipfile.ZipFile.namelist(zip_file)
 
 
 class ParseKeyValues(argparse.Action):

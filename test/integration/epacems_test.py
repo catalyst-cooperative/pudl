@@ -3,7 +3,9 @@ import dask.dataframe as dd
 import pytest
 from dagster import build_init_resource_context
 
+from pudl.extract.epacems import extract
 from pudl.io_managers import epacems_io_manager
+from pudl.metadata.classes import Resource
 from pudl.output.epacems import epacems, year_state_filter
 
 
@@ -45,6 +47,19 @@ def test_epacems_subset(epacems_year_and_state, epacems_parquet_path):
     assert actual.shape[0].compute() > 0  # nosec: B101  n rows
 
 
+def test_epacems_missing_partition(pudl_datastore_fixture):
+    """Check that missing partitions return an empty data frame.
+
+    Note that this should pass for both the Fast and Full ETL because the behavior
+    towards a missing file is identical."""
+    df = extract(year=1996, state="UT", ds=pudl_datastore_fixture)
+    epacems_res = Resource.from_id("hourly_emissions_epacems")
+    expected_cols = list(epacems_res.get_field_names())
+    assert df.shape[0] == 0  # Check that no rows of data are there
+    # Check that all columns expected of EPACEMS data are present.
+    assert sorted(df.columns) == sorted(expected_cols)
+
+
 def test_epacems_subset_input_validation(epacems_year_and_state, epacems_parquet_path):
     """Check if invalid inputs raise exceptions."""
     if not epacems_year_and_state:
@@ -74,9 +89,9 @@ def test_epacems_parallel(pudl_engine, epacems_parquet_path):
     # monolithic outputs.
     df = dd.read_parquet(
         epacems_parquet_path,
-        filters=year_state_filter(years=[2019], states=["ME"]),
+        filters=year_state_filter(years=[2020], states=["ME"]),
         index=False,
         engine="pyarrow",
         split_row_groups=True,
     ).compute()
-    assert df.shape == (96_360, 16)  # nosec: B101
+    assert df.shape == (96_624, 16)  # nosec: B101
