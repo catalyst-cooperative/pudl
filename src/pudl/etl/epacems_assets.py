@@ -67,7 +67,8 @@ def process_single_year(
     for state in epacems_settings.states:
         logger.info(f"Processing EPA CEMS hourly data for {year}-{state}")
         df = pudl.extract.epacems.extract(year=year, state=state, ds=ds)
-        df = pudl.transform.epacems.transform(df, epacamd_eia, plants_entity_eia)
+        if not df.empty:  # If state-year combination has data
+            df = pudl.transform.epacems.transform(df, epacamd_eia, plants_entity_eia)
         table = pa.Table.from_pandas(df, schema=schema, preserve_index=False)
 
         # Write to a directory of partitioned parquet files
