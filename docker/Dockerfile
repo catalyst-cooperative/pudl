@@ -56,4 +56,4 @@ RUN --mount=type=bind,source=.git,target=${PUDL_REPO}/.git \
     ${CONDA_RUN} pudl_setup
 
 # Run the ETL pipeline as a default command.
-CMD ["conda", "run", "--no-capture-output", "--prefix", "${CONDA_PREFIX}", "bash", "./docker/new_gcl_etl.sh"]
+CMD ["conda", "run", "--no-capture-output", "--prefix", "${CONDA_PREFIX}", "bash", "./docker/gcp_pudl_etl.sh"]
