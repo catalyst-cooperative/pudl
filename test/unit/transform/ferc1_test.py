@@ -12,7 +12,8 @@ from pudl.transform.ferc1 import (
     TableIdFerc1,
     UnstackBalancesToReportYearInstantXbrl,
     WideToTidy,
-    add_parent_dimensions,
+    add_dimension_total_calculations,
+    assign_parent_dimensions,
     calculate_values_from_components,
     drop_duplicate_rows_dbf,
     fill_dbf_to_xbrl_map,
@@ -577,45 +578,96 @@ table_a,fact_2,table_b,fact_8,next_gen,futile
     )
     pd.testing.assert_frame_equal(out_trek, out_reordered, check_like=True)
 
-    expected_parent_dim_trek = pd.read_csv(
+
+def test_adding_parent_dimensions():
+    """Test :func:`assign_parent_dimensions` & :func:`add_dimension_total_calculations`.
+
+    These two parent dimension steps are related so we test them in the same process.
+    """
+    calc_comp_idx = [
+        "table_name_parent",
+        "xbrl_factoid_parent",
+        "table_name",
+        "xbrl_factoid",
+    ]
+    calc_comps_trek = pd.read_csv(
         StringIO(
             """
-table_name_parent,xbrl_factoid_parent,table_name,xbrl_factoid,dim_x,dim_y,dim_x_parent,dim_y_parent,is_within_dimension_dim_x,is_within_dimension_dim_y
-table_a,fact_1,table_a,fact_3,voyager,coffee,voyager,coffee,False,False
-table_a,fact_1,table_a,fact_3,voyager,in,voyager,in,False,False
-table_a,fact_1,table_a,fact_3,voyager,that,voyager,that,False,False
-table_a,fact_1,table_a,fact_3,voyager,nebula,voyager,nebula,False,False
-table_a,fact_1,table_a,fact_3,voyager,total,voyager,total,False,False
-table_a,fact_1,table_a,fact_4,voyager,coffee,voyager,coffee,False,False
-table_a,fact_1,table_a,fact_4,voyager,in,voyager,in,False,False
-table_a,fact_1,table_a,fact_4,voyager,that,voyager,that,False,False
-table_a,fact_1,table_a,fact_4,voyager,nebula,voyager,nebula,False,False
-table_a,fact_1,table_a,fact_4,voyager,total,voyager,total,False,False
-table_a,fact_1,table_a,fact_5,ds9,,ds9,,False,False
-table_a,fact_2,table_b,fact_6,next_gen,futile,next_gen,futile,False,False
-table_a,fact_2,table_b,fact_7,next_gen,futile,next_gen,futile,False,False
-table_a,fact_2,table_b,fact_8,next_gen,resistance,next_gen,resistance,False,False
-table_a,fact_2,table_b,fact_8,next_gen,is,next_gen,is,False,False
-table_a,fact_2,table_b,fact_8,next_gen,futile,next_gen,futile,False,False
-table_a,fact_3,table_a,fact_3,voyager,coffee,,total,False,True
-table_a,fact_3,table_a,fact_3,voyager,in,,total,False,True
-table_a,fact_3,table_a,fact_3,voyager,that,,total,False,True
-table_a,fact_3,table_a,fact_3,voyager,nebula,,total,False,True
-table_a,fact_4,table_a,fact_4,voyager,coffee,,total,False,True
-table_a,fact_4,table_a,fact_4,voyager,in,,total,False,True
-table_a,fact_4,table_a,fact_4,voyager,that,,total,False,True
-table_a,fact_4,table_a,fact_4,voyager,nebula,,total,False,True
+table_name_parent,xbrl_factoid_parent,table_name,xbrl_factoid,dim_x,dim_y,is_within_table_calc
+table_a,fact_1,table_a,fact_3,voyager,coffee,True
+table_a,fact_1,table_a,fact_3,voyager,in,True
+table_a,fact_1,table_a,fact_3,voyager,that,True
+table_a,fact_1,table_a,fact_3,voyager,nebula,True
+table_a,fact_1,table_a,fact_3,voyager,total,True
 """
         )
     )
-    out_parent_dim_trek = (
-        add_parent_dimensions(
-            calc_comps=expected_trek,
+    expected_parent_dim_trek = pd.read_csv(
+        StringIO(
+            """
+table_name,xbrl_factoid,dim_x,dim_y,is_within_table_calc,dim_x_parent,table_name_parent,xbrl_factoid_parent,dim_y_parent
+table_a,fact_3,voyager,coffee,True,voyager,table_a,fact_1,coffee
+table_a,fact_3,voyager,in,True,voyager,table_a,fact_1,in
+table_a,fact_3,voyager,that,True,voyager,table_a,fact_1,that
+table_a,fact_3,voyager,nebula,True,voyager,table_a,fact_1,nebula
+table_a,fact_3,voyager,total,True,voyager,table_a,fact_1,total
+"""
+        )
+    )
+    table_dimensions_same_trek = pd.read_csv(
+        StringIO(
+            """
+table_name,xbrl_factoid,dim_x,dim_y
+table_a,fact_1,voyager,coffee
+table_a,fact_1,voyager,in
+table_a,fact_1,voyager,that
+table_a,fact_1,voyager,nebula
+table_a,fact_1,voyager,total
+table_a,fact_3,voyager,coffee
+table_a,fact_3,voyager,in
+table_a,fact_3,voyager,that
+table_a,fact_3,voyager,nebula
+table_a,fact_3,voyager,total
+"""
+        )
+    )
+
+    out_parent_dim_same_trek = (
+        assign_parent_dimensions(
+            calc_components=calc_comps_trek,
+            table_dimensions=table_dimensions_same_trek,
             dimensions=["dim_x", "dim_y"],
         )
         .sort_values(calc_comp_idx)
         .reset_index(drop=True)
     )
-    pd.testing.assert_frame_equal(
-        expected_parent_dim_trek, out_parent_dim_trek, check_like=True
+    pd.testing.assert_frame_equal(out_parent_dim_same_trek, expected_parent_dim_trek)
+
+    expected_total_to_subdim = pd.read_csv(
+        StringIO(
+            """
+table_name_parent,xbrl_factoid_parent,dim_x_parent,dim_y_parent,table_name,xbrl_factoid,dim_x,dim_y,is_within_dimension_dim_y,is_within_dimension_dim_x
+table_a,fact_1,voyager,coffee,table_a,fact_3,voyager,coffee,False,False
+table_a,fact_1,voyager,in,table_a,fact_3,voyager,in,False,False
+table_a,fact_1,voyager,that,table_a,fact_3,voyager,that,False,False
+table_a,fact_1,voyager,nebula,table_a,fact_3,voyager,nebula,False,False
+table_a,fact_1,voyager,total,table_a,fact_3,voyager,total,False,False
+table_a,fact_1,voyager,total,table_a,fact_1,voyager,coffee,True,False
+table_a,fact_1,voyager,total,table_a,fact_1,voyager,in,True,False
+table_a,fact_1,voyager,total,table_a,fact_1,voyager,that,True,False
+table_a,fact_1,voyager,total,table_a,fact_1,voyager,nebula,True,False
+table_a,fact_3,voyager,total,table_a,fact_3,voyager,coffee,True,False
+table_a,fact_3,voyager,total,table_a,fact_3,voyager,in,True,False
+table_a,fact_3,voyager,total,table_a,fact_3,voyager,that,True,False
+table_a,fact_3,voyager,total,table_a,fact_3,voyager,nebula,True,False
+"""
+        )
     )
+    out_total_to_subdim = add_dimension_total_calculations(
+        calc_components=out_parent_dim_same_trek,
+        meta_w_dims=table_dimensions_same_trek,
+        table_dimensions=table_dimensions_same_trek,
+        dimensions=["dim_x", "dim_y"],
+    )[[col for col in expected_total_to_subdim]]
+
+    pd.testing.assert_frame_equal(out_total_to_subdim, expected_total_to_subdim)

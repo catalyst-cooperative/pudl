@@ -208,6 +208,27 @@ TABLE_NAME_MAP_FERC1: dict[str, dict[str, str]] = {
 }
 """A mapping of PUDL DB table names to their XBRL and DBF source table names."""
 
+XBRL_META_ONLY_FERC1 = {
+    "nuclear_fuel_materials_ferc1": {
+        "dbf": "f1_nuclear_fuel",
+        "xbrl": "nuclear_fuel_materials_202",
+    },
+    "sales_for_resale_ferc1": {
+        "dbf": "f1_sale_for_resale",
+        "xbrl": [
+            "sales_for_resale_account_447_310",
+            "sales_for_resale_account_447_total_310",
+        ],
+    },
+}
+"""A mapping of XBRL to (future) PUDL table names for tables not yet in PUDL.
+
+We need this mapping so that we can have a meaningful reference to outside tables in
+some inter-table XBRL calculations, even though we aren't yet reading those tables into
+PUDL. We pull information about these tables from the XBRL metadata, but the data is
+not extracted from the DBF and XBRL derived SQLite DBs.
+"""
+
 
 class Ferc1DbfExtractor(FercDbfExtractor):
     """Wrapper for running the foxpro to sqlite conversion of FERC1 dataset."""
@@ -389,11 +410,12 @@ def raw_xbrl_metadata_json(context) -> dict[str, dict[str, list[dict[str, Any]]]
     with open(metadata_path) as f:
         xbrl_meta_all = json.load(f)
 
+    all_meta_tables = TABLE_NAME_MAP_FERC1 | XBRL_META_ONLY_FERC1
+
     valid_tables = {
         table_name: xbrl_table
-        for table_name in TABLE_NAME_MAP_FERC1
-        if (xbrl_table := TABLE_NAME_MAP_FERC1.get(table_name, {}).get("xbrl"))
-        is not None
+        for table_name in all_meta_tables
+        if (xbrl_table := all_meta_tables.get(table_name, {}).get("xbrl")) is not None
     }
 
     def squash_period(xbrl_table: str | list[str], period, xbrl_meta_all):

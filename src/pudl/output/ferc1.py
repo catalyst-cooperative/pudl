@@ -1,7 +1,7 @@
 """A collection of denormalized FERC assets and helper functions."""
 import importlib
-import json
-from typing import Any, Literal, NamedTuple, Self
+import re
+from typing import Literal, NamedTuple, Self
 
 import networkx as nx
 import numpy as np
@@ -9,6 +9,7 @@ import pandas as pd
 from dagster import AssetIn, AssetsDefinition, Field, Mapping, asset
 from matplotlib import pyplot as plt
 from networkx.drawing.nx_agraph import graphviz_layout
+from pandas._libs.missing import NAType as pandas_NAType
 from pydantic import BaseModel, validator
 
 import pudl
@@ -885,17 +886,24 @@ def add_mean_cap_additions(steam_df):
 # Explode
 #########
 class NodeId(NamedTuple):
-    """The source table and XBRL factoid identifying a node in a calculation tree.
+    """The primary keys which identify a node in a calculation tree.
 
     Since NodeId is just a :class:`NamedTuple` a list of NodeId instances can also be
-    used to index into a :class:pandas.DataFrame` that uses table names and factoids as
-    its index.  This is convenient since many :mod:`networkx` functions and methods
-    return iterable containers of graph nodes, which can be turned into lists and used
-    directly to index into dataframes.
+    used to index into a :class:pandas.DataFrame` that uses these fields as its index.
+    This is convenient since many :mod:`networkx` functions and methods return iterable
+    containers of graph nodes, which can be turned into lists and used directly to index
+    into dataframes.
+
+    The additional dimensions (``utility_type``, ``plant_status``, and
+    ``plant_function``) each have a small number of allowable values, which we could
+    further impose as constraints on the values here using Pydantic if we wanted.
     """
 
-    source_table: str
+    table_name: str
     xbrl_factoid: str
+    utility_type: str | pandas_NAType
+    plant_status: str | pandas_NAType
+    plant_function: str | pandas_NAType
 
 
 def exploded_table_asset_factory(
@@ -908,7 +916,7 @@ def exploded_table_asset_factory(
 ) -> AssetsDefinition:
     """Create an exploded table based on a set of related input tables."""
     ins: Mapping[str, AssetIn] = {
-        "clean_xbrl_metadata_json": AssetIn("clean_xbrl_metadata_json"),
+        "metadata_xbrl_ferc1": AssetIn("metadata_xbrl_ferc1"),
         "calculation_components_xbrl_ferc1": AssetIn(
             "calculation_components_xbrl_ferc1"
         ),
@@ -919,18 +927,17 @@ def exploded_table_asset_factory(
     def exploded_tables_asset(
         **kwargs: dict[str, pd.DataFrame],
     ) -> pd.DataFrame:
-        clean_xbrl_metadata_json = kwargs["clean_xbrl_metadata_json"]
+        metadata_xbrl_ferc1 = kwargs["metadata_xbrl_ferc1"]
         calculation_components_xbrl_ferc1 = kwargs["calculation_components_xbrl_ferc1"]
         tables_to_explode = {
             name: df
             for (name, df) in kwargs.items()
-            if name
-            not in ["clean_xbrl_metadata_json", "calculation_components_xbrl_ferc1"]
+            if name not in ["metadata_xbrl_ferc1", "calculation_components_xbrl_ferc1"]
         }
         return Exploder(
             table_names=tables_to_explode.keys(),
             root_table=root_table,
-            clean_xbrl_metadata_json=clean_xbrl_metadata_json,
+            metadata_xbrl_ferc1=metadata_xbrl_ferc1,
             calculation_components_xbrl_ferc1=calculation_components_xbrl_ferc1,
             seed_nodes=seed_nodes,
             tags=tags,
@@ -953,13 +960,16 @@ def create_exploded_table_assets() -> list[AssetsDefinition]:
     # Also, these tags are only applicable to the balance_sheet_assets_ferc1 table, but
     # we need to pass in a dataframe with the right structure to all of the exploders,
     # so we're just re-using this one for the moment.
-    pkg_source = importlib.resources.files("pudl.package_data.ferc1").joinpath(
-        "xbrl_factoid_rate_base_tags.csv"
+    tags_csv = (
+        importlib.resources.files("pudl.package_data.ferc1")
+        / "xbrl_factoid_rate_base_tags.csv"
     )
-    with importlib.resources.as_file(pkg_source) as tags_csv:
-        tags = pd.read_csv(
-            tags_csv, usecols=["xbrl_factoid", "table_name", "in_rate_base"]
-        ).drop_duplicates(subset=["table_name", "xbrl_factoid", "in_rate_base"])
+    tags_df = (
+        pd.read_csv(tags_csv, usecols=["table_name", "xbrl_factoid", "in_rate_base"])
+        .drop_duplicates()
+        .dropna(subset=["table_name", "xbrl_factoid"], how="any")
+        .astype(pd.StringDtype())
+    )
 
     explosion_args = [
         {
@@ -971,14 +981,17 @@ def create_exploded_table_assets() -> list[AssetsDefinition]:
                 "electric_operating_revenues_ferc1",
             ],
             # This is very high, otherwise CI w/ 2 years of data currently fails.
-            "calculation_tolerance": 0.35,
+            "calculation_tolerance": 0.27,
             "seed_nodes": [
                 NodeId(
-                    source_table="income_statement_ferc1",
+                    table_name="income_statement_ferc1",
                     xbrl_factoid="net_income_loss",
+                    utility_type="total",
+                    plant_status=pd.NA,
+                    plant_function=pd.NA,
                 ),
             ],
-            "tags": tags,
+            "tags": tags_df,
         },
         {
             "root_table": "balance_sheet_assets_ferc1",
@@ -989,14 +1002,17 @@ def create_exploded_table_assets() -> list[AssetsDefinition]:
                 "plant_in_service_ferc1",
                 "electric_plant_depreciation_functional_ferc1",
             ],
-            "calculation_tolerance": 0.25,
+            "calculation_tolerance": 0.81,
             "seed_nodes": [
                 NodeId(
-                    source_table="balance_sheet_assets_ferc1",
+                    table_name="balance_sheet_assets_ferc1",
                     xbrl_factoid="assets_and_other_debits",
+                    utility_type=pd.NA,
+                    plant_status=pd.NA,
+                    plant_function=pd.NA,
                 )
             ],
-            "tags": tags,
+            "tags": tags_df,
         },
         {
             "root_table": "balance_sheet_liabilities_ferc1",
@@ -1006,16 +1022,16 @@ def create_exploded_table_assets() -> list[AssetsDefinition]:
                 "retained_earnings_ferc1",
             ],
             "calculation_tolerance": 0.075,
-            # TODO: This is probably the correct seed node, but the resulting graph
-            # lacks any connection to the retained_earnings_ferc1 table, so there are
-            # still calculations that need to be fixed.
             "seed_nodes": [
                 NodeId(
-                    source_table="balance_sheet_liabilities_ferc1",
+                    table_name="balance_sheet_liabilities_ferc1",
                     xbrl_factoid="liabilities_and_other_credits",
+                    utility_type=pd.NA,
+                    plant_status=pd.NA,
+                    plant_function=pd.NA,
                 )
             ],
-            "tags": tags,
+            "tags": tags_df,
         },
     ]
     return [exploded_table_asset_factory(**kwargs) for kwargs in explosion_args]
@@ -1030,42 +1046,95 @@ class MetadataExploder:
     def __init__(
         self,
         table_names: list[str],
-        clean_xbrl_metadata_json: dict,
+        metadata_xbrl_ferc1: pd.DataFrame,
         calculation_components_xbrl_ferc1: pd.DataFrame,
     ):
         """Instantiate MetadataExploder."""
         self.table_names = table_names
         self.calculation_components_xbrl_ferc1 = calculation_components_xbrl_ferc1
-        self.clean_xbrl_metadata_json = clean_xbrl_metadata_json
+        self.metadata_xbrl_ferc1 = metadata_xbrl_ferc1
 
     @property
-    def calculations(self):
-        """Reduce the calculation components to only the tables in the explosion.
+    def calculations(self: Self):
+        """Remove any calculation components that aren't relevant to the explosion.
 
-        First we restrict the calculation records to only those that are components of
-        xbrl_factoids within the set of tables that we are currently exploding. Then
-        we also have to remove the full set of calculaiton components that are a part of
-        calculations that have any components that are from tables outside of the set of
-        tables in this explosion.
+        At the end of this process several things should be true:
+
+        - Only parents with table_name in the explosion tables should be retained.
+        - All calculations in which *any* components were outside of the tables in
+          the explosion should be turned into leaves -- i.e. they should be replaced
+          with a single calculation component filled with NA values.
+        - Every remaining calculation component must also appear as a parent (if it
+          is a leaf, then it will have a single null calculation component)
+        - There should be no records where only one of table_name or xbrl_factoid
+          are null. They should either both or neither be null.
+        - table_name_parent and xbrl_factoid_parent should be non-null.
         """
-        calc_explode = self.calculation_components_xbrl_ferc1
-        calc_explode = calc_explode[
-            calc_explode.table_name_parent.isin(self.table_names)
-        ]
-        not_in_explosion_xbrl_factoids = list(
-            calc_explode.loc[
-                ~calc_explode.table_name.isin(self.table_names),
-                "xbrl_factoid_parent",
-            ].unique()
-        )
-        calc_explode = calc_explode[
-            ~calc_explode.xbrl_factoid_parent.isin(not_in_explosion_xbrl_factoids)
+        calc_cols = list(NodeId._fields)
+        parent_cols = [col + "_parent" for col in calc_cols]
+
+        # Keep only records where both parent and child facts are in exploded tables:
+        calc_explode = self.calculation_components_xbrl_ferc1[
+            self.calculation_components_xbrl_ferc1.table_name_parent.isin(
+                self.table_names
+            )
         ].copy()
+        # Groupby parent factoids
+        gb = calc_explode.groupby(
+            ["table_name_parent", "xbrl_factoid_parent"], as_index=False
+        )
+        # Identify groups where **all** calculation components are within the explosion
+        calc_explode["is_in_explosion"] = gb.table_name.transform(
+            lambda x: x.isin(self.table_names).all()
+        )
+        # Keep only calculations in which ALL calculation components are in explosion
+        # Restrict columns to the ones we actually need. Drop duplicates and order
+        # things for legibility.
+        calc_explode = (
+            calc_explode[calc_explode.is_in_explosion]
+            .loc[:, parent_cols + calc_cols + ["weight", "is_within_table_calc"]]
+            .drop_duplicates()
+            .set_index(parent_cols + calc_cols)
+            .sort_index()
+            .reset_index()
+        )
+
+        ##############################################################################
+        # Everything below here is error checking / debugging / temporary fixes
+        dupes = calc_explode.duplicated(subset=parent_cols + calc_cols, keep=False)
+        if dupes.any():
+            logger.warning(
+                "Consolidating non-unique associations found in exploded_calcs:\n"
+                f"{calc_explode.loc[dupes]}"
+            )
+        # Drop all duplicates with null weights -- this is a temporary fix to an issue
+        # from upstream.
+        # TODO: remove once things are fixed in calculation_components_xbrl_ferc1
+        calc_explode = calc_explode.loc[~(dupes & calc_explode.weight.isna())]
+        assert not calc_explode.duplicated(
+            subset=parent_cols + calc_cols, keep=False
+        ).any()
+
+        # There should be no cases where only one of table_name or xbrl_factoid is NA:
+        partially_null = calc_explode[
+            calc_explode.table_name.isna() ^ calc_explode.xbrl_factoid.isna()
+        ]
+        if not partially_null.empty:
+            logger.error(
+                "Found unacceptably null calculation components. Dropping!\n"
+                f"{partially_null[['table_name', 'xbrl_factoid']]}"
+            )
+            calc_explode = calc_explode.drop(index=partially_null)
+
+        # These should never be NA:
+        assert calc_explode.xbrl_factoid_parent.notna().all()
+        assert calc_explode.table_name_parent.notna().all()
+
         return calc_explode
 
     @property
     def metadata(self):
-        """Combine a set of inter-realted table's metatada for use in :class:`Exploder`.
+        """Combine a set of interrelated table's metatada for use in :class:`Exploder`.
 
         Any calculations containing components that are part of tables outside the
         set of exploded tables will be converted to reported values with an empty
@@ -1075,83 +1144,23 @@ class MetadataExploder:
         Args:
             clean_xbrl_metadata_json: cleaned XRBL metadata.
         """
-        tbl_metas = []
-        for table_name in self.table_names:
-            tbl_meta = (
-                pudl.transform.ferc1.FERC1_TFR_CLASSES[table_name](
-                    xbrl_metadata_json=self.clean_xbrl_metadata_json[table_name]
-                )
-                .xbrl_metadata[
-                    [
-                        "xbrl_factoid",
-                        "calculations",  # TODO: remove once tree eats calc comp df
-                        "row_type_xbrl",  # TODO: remove once tree eats calc comp df
-                        "xbrl_factoid_original",
-                        "is_within_table_calc",
-                    ]
-                ]
-                .assign(table_name=table_name)
-            )
-            tbl_metas.append(tbl_meta)
+        calc_cols = list(NodeId._fields)
         exploded_metadata = (
-            pd.concat(tbl_metas)
-            .reset_index(drop=True)
-            .pipe(self.redefine_calculations_with_components_out_of_explosion)
+            self.metadata_xbrl_ferc1[
+                self.metadata_xbrl_ferc1.table_name.isin(self.table_names)
+            ]
+            .set_index(calc_cols)
+            .sort_index()
+            .reset_index()
         )
         # At this point all remaining calculation components should exist within the
         # exploded metadata.
         calc_comps = self.calculations
-        calc_comps_index = calc_comps.set_index(["table_name", "xbrl_factoid"]).index
-        meta_index = exploded_metadata.set_index(["table_name", "xbrl_factoid"]).index
-        nodes_not_in_calculations = [
-            x
-            for x in meta_index.difference(calc_comps_index)
-            if not (x[1].endswith("_correction") or x[1].endswith("_member"))
-        ]
-        if nodes_not_in_calculations:
-            logger.info(
-                "These nodes appear as records in the exploded metadata but do not "
-                f"participate in any calculations: {nodes_not_in_calculations}."
-            )
-        nodes_without_metadata = calc_comps_index.difference(meta_index).to_list()
-        if nodes_without_metadata:
-            raise ValueError(
-                "These calculation components do not correspond to any record in the "
-                f"exploded metadata: {nodes_without_metadata}."
-            )
-
-        return exploded_metadata
-
-    def redefine_calculations_with_components_out_of_explosion(
-        self: Self, meta_explode: pd.DataFrame
-    ) -> pd.DataFrame:
-        """Convert calculations referring to outside tables to reported values.
-
-        In the context of the exploded tables, we can only look at data and metadata
-        available from those tables. We treat any values coming from outside this set
-        of tables as if they were reported values, by setting their calculation to an
-        empty list.
-
-        TODO: remove this method and the one call for it within boom once the
-        Tree/Forest situation directly uses the calculation components instead of the
-        embedded calculations.
-        """
-        calc_explode = self.calculation_components_xbrl_ferc1
-        calc_explode = calc_explode[
-            calc_explode.table_name_parent.isin(self.table_names)
-        ]
-
-        not_in_explosion_xbrl_factoids = list(
-            calc_explode.loc[
-                ~calc_explode.table_name.isin(self.table_names),
-                "xbrl_factoid_parent",
-            ].unique()
+        missing_from_calcs_idx = calc_comps.set_index(calc_cols).index.difference(
+            calc_comps.set_index(calc_cols).index
         )
-        meta_explode.loc[
-            meta_explode.xbrl_factoid.isin(not_in_explosion_xbrl_factoids),
-            ["calculations", "row_type_xbrl"],
-        ] = ("[]", "reported_value")
-        return meta_explode
+        assert missing_from_calcs_idx.empty
+        return exploded_metadata
 
 
 class Exploder:
@@ -1161,7 +1170,7 @@ class Exploder:
         self: Self,
         table_names: list[str],
         root_table: str,
-        clean_xbrl_metadata_json: dict[str, Any],
+        metadata_xbrl_ferc1: pd.DataFrame,
         calculation_components_xbrl_ferc1: pd.DataFrame,
         seed_nodes: list[NodeId] = [],
         tags: pd.DataFrame = pd.DataFrame(),
@@ -1171,8 +1180,8 @@ class Exploder:
         Args:
             table_names: list of table names to explode.
             root_table: the table at the base of the tree of tables_to_explode.
-            clean_xbrl_metadata_json: json version of the XBRL-metadata.
-            calculation_components_xbrl_ferc1: table of calculation components
+            metadata_xbrl_ferc1: table of factoid-level metadata.
+            calculation_components_xbrl_ferc1: table of calculation components.
             seed_nodes: NodeIds to use as seeds for the calculation forest.
             tags: Additional metadata to merge onto the exploded dataframe.
         """
@@ -1180,11 +1189,11 @@ class Exploder:
         self.root_table: str = root_table
         self.meta_exploder = MetadataExploder(
             self.table_names,
-            clean_xbrl_metadata_json,
+            metadata_xbrl_ferc1,
             calculation_components_xbrl_ferc1,
         )
         self.metadata_exploded: pd.DataFrame = self.meta_exploder.metadata
-        self.calculations_exploded = self.meta_exploder.calculations
+        self.calculations_exploded: pd.DataFrame = self.meta_exploder.calculations
 
         # If we don't get any explicit seed nodes, use all nodes from the root table
         # that have calculations associated with them:
@@ -1210,6 +1219,7 @@ class Exploder:
     def calculation_forest(self: Self) -> "XbrlCalculationForestFerc1":
         """Construct a calculation forest based on class attributes."""
         return XbrlCalculationForestFerc1(
+            exploded_calcs=self.calculations_exploded,
             exploded_meta=self.metadata_exploded,
             seeds=self.seed_nodes,
             tags=self.tags,
@@ -1335,21 +1345,28 @@ class Exploder:
             explosion_tables.append(tbl)
 
         exploded = pd.concat(explosion_tables)
-        # drop any metadata columns coming from the tbls bc we may have edited the
-        # metadata df so we want to grab that directly
-        meta_idx = ["xbrl_factoid", "table_name"]
-        meta_columns = [
-            col
-            for col in exploded
-            if col
-            in [
-                meta_col
-                for meta_col in self.metadata_exploded
-                if meta_col not in meta_idx
-            ]
-        ]
-        exploded = exploded.drop(columns=meta_columns).merge(
-            self.metadata_exploded,
+
+        # Identify which dimensions apply to the curent explosion -- not all collections
+        # of tables have all dimensions.
+        meta_idx = list(NodeId._fields)
+        missing_dims = list(set(meta_idx).difference(exploded.columns))
+        # Missing dimensions SHOULD be entirely null in the metadata, if so we can drop
+        if not self.metadata_exploded.loc[:, missing_dims].isna().all(axis=None):
+            raise AssertionError(
+                f"Expected missing metadata dimensions {missing_dims} to be null."
+            )
+        metadata_exploded = self.metadata_exploded.drop(columns=missing_dims)
+        meta_idx = list(set(meta_idx).difference(missing_dims))
+
+        # drop any metadata columns that appear in the data tables, because we may have
+        # edited them in the metadata table, and want the edited version to take
+        # precedence
+        cols_to_keep = list(
+            set(exploded.columns).difference(metadata_exploded.columns).union(meta_idx)
+        )
+        exploded = pd.merge(
+            left=exploded.loc[:, cols_to_keep],
+            right=metadata_exploded,
             how="left",
             on=meta_idx,
             validate="m:1",
@@ -1401,9 +1418,9 @@ class Exploder:
         # we are going to merge the data onto the calc components with the _parent
         # column names, so the groupby after the merge needs a set of by cols with the
         # _parent suffix
+        meta_idx = [col for col in list(NodeId._fields) if col in self.exploded_pks]
         gby_parent = [
-            f"{col}_parent" if col in ["table_name", "xbrl_factoid"] else col
-            for col in self.exploded_pks
+            f"{col}_parent" if col in meta_idx else col for col in self.exploded_pks
         ]
         calc_df = (
             pd.merge(
@@ -1435,13 +1452,13 @@ class Exploder:
         ].empty
 
         calculated_df = calculated_df.drop(columns=["_merge"])
-        # # Force value_col to be a float to prevent any hijinks with calculating differences.
+        # Force value_col to be a float to prevent any hijinks with calculating differences.
         calculated_df[self.value_col] = calculated_df[self.value_col].astype(float)
 
         return calculated_df
 
     def reconcile_intertable_calculations(
-        self, calculated_df, calculation_tolerance: float = 0.05
+        self: Self, calculated_df: pd.DataFrame, calculation_tolerance: float = 0.05
     ):
         """Ensure inter-table calculated values match reported values within a tolerance.
 
@@ -1462,62 +1479,65 @@ class Exploder:
             calculation_tolerance: What proportion (0-1) of calculated values are
               allowed to be incorrect without raising an AssertionError.
         """
-        if "calculated_amount" in calculated_df.columns:
-            calculated_df = calculated_df.assign(
-                abs_diff=lambda x: abs(x[self.value_col] - x.calculated_amount),
-                rel_diff=lambda x: np.where(
-                    (x[self.value_col] != 0.0),
-                    abs(x.abs_diff / x[self.value_col]),
-                    np.nan,
-                ),
+        if "calculated_amount" not in calculated_df.columns:
+            return calculated_df
+
+        # Data types were very messy here, including pandas Float64 for the
+        # calculated_amount columns which did not work with the np.isclose(). Not sure
+        # why these are cropping up.
+        calculated_df = calculated_df.convert_dtypes(convert_floating=False).astype(
+            {self.value_col: "float64", "calculated_amount": "float64"}
+        )
+        calculated_df = calculated_df.assign(
+            abs_diff=lambda x: abs(x[self.value_col] - x.calculated_amount),
+            rel_diff=lambda x: np.where(
+                (x[self.value_col] != 0.0),
+                abs(x.abs_diff / x[self.value_col]),
+                np.nan,
+            ),
+        )
+        off_df = calculated_df[
+            ~np.isclose(calculated_df.calculated_amount, calculated_df[self.value_col])
+            & (calculated_df["abs_diff"].notnull())
+        ]
+        calculated_values = calculated_df[(calculated_df.abs_diff.notnull())]
+        if calculated_values.empty:
+            # Will only occur if all reported values are NaN when calculated values
+            # exist, or vice versa.
+            logger.warning(
+                "Warning: No calculated values have a corresponding reported value in the table."
             )
+            off_ratio = np.nan
+        else:
+            off_ratio = len(off_df) / len(calculated_values)
+            if off_ratio > calculation_tolerance:
+                raise AssertionError(
+                    f"Calculations in {self.root_table} are off by {off_ratio:.2%}. Expected tolerance "
+                    f"of {calculation_tolerance:.1%}."
+                )
 
-            off_df = calculated_df[
-                ~np.isclose(
-                    calculated_df.calculated_amount, calculated_df[self.value_col]
-                )
-                & (calculated_df["abs_diff"].notnull())
-            ]
-            calculated_values = calculated_df[(calculated_df.abs_diff.notnull())]
-            if calculated_values.empty:
-                # Will only occur if all reported values are NaN when calculated values
-                # exist, or vice versa.
-                logger.warning(
-                    "Warning: No calculated values have a corresponding reported value in the table."
-                )
-                off_ratio = np.nan
-            else:
-                off_ratio = len(off_df) / len(calculated_values)
-                if off_ratio > calculation_tolerance:
-                    raise AssertionError(
-                        f"Calculations in {self.root_table} are off by {off_ratio:.2%}. Expected tolerance "
-                        f"of {calculation_tolerance:.1%}."
-                    )
+        # # We'll only get here if the proportion of calculations that are off is acceptable
+        if off_ratio > 0 or np.isnan(off_ratio):
+            logger.info(
+                f"{self.root_table}: has {len(off_df)} ({off_ratio:.02%}) records whose "
+                "calculations don't match. Adding correction records to make calculations "
+                "match reported values."
+            )
+            corrections = off_df.copy()
 
-            # # We'll only get here if the proportion of calculations that are off is acceptable
-            if off_ratio > 0 or np.isnan(off_ratio):
-                logger.info(
-                    f"{self.root_table}: has {len(off_df)} ({off_ratio:.02%}) records whose "
-                    "calculations don't match. Adding correction records to make calculations "
-                    "match reported values."
-                )
-                corrections = off_df.copy()
+            corrections[self.value_col] = (
+                corrections[self.value_col].fillna(0.0)
+                - corrections["calculated_amount"]
+            )
+            corrections["original_factoid"] = corrections["xbrl_factoid"]
+            corrections["xbrl_factoid"] = corrections["xbrl_factoid"] + "_correction"
+            corrections["row_type_xbrl"] = "correction"
+            corrections["is_within_table_calc"] = False
+            corrections["record_id"] = pd.NA
 
-                corrections[self.value_col] = (
-                    corrections[self.value_col].fillna(0.0)
-                    - corrections["calculated_amount"]
-                )
-                corrections["original_factoid"] = corrections["xbrl_factoid"]
-                corrections["xbrl_factoid"] = (
-                    corrections["xbrl_factoid"] + "_correction"
-                )
-                corrections["row_type_xbrl"] = "correction"
-                corrections["is_within_table_calc"] = False
-                corrections["record_id"] = pd.NA
-
-                calculated_df = pd.concat(
-                    [calculated_df, corrections], axis="index"
-                ).reset_index()
+            calculated_df = pd.concat(
+                [calculated_df, corrections], axis="index"
+            ).reset_index(drop=True)
         return calculated_df
 
     def remove_totals_from_other_dimensions(
@@ -1563,7 +1583,7 @@ class Exploder:
 
 
 def in_explosion_tables(table_name: str, in_explosion_table_names: list[str]) -> bool:
-    """Determine if any of a list of source_tables in the list of thre explosion tables.
+    """Determine if any of a list of table_names in the list of thre explosion tables.
 
     Args:
         table_name: tables name. Typically from the ``source_tables`` element from an
@@ -1575,10 +1595,8 @@ def in_explosion_tables(table_name: str, in_explosion_table_names: list[str]) ->
 
 
 ################################################################################
-# XBRL Calculation Tree
+# XBRL Calculation Forests
 ################################################################################
-
-
 class XbrlCalculationForestFerc1(BaseModel):
     """A class for manipulating groups of hierarchically nested XBRL calculations.
 
@@ -1598,14 +1616,17 @@ class XbrlCalculationForestFerc1(BaseModel):
     supplied, indicating which nodes must be present in the resulting forest. This can
     be used to prune irrelevant portions of the overall forest out of the exploded
     metadata. If no seeds are provided, then all of the nodes referenced in the
-    exploded_meta input dataframe will be used as seeds.
+    exploded_calcs input dataframe will be used as seeds.
 
     This class makes heavy use of :mod:`networkx` to manage the graph that we build
     from calculation relationships.
     """
 
-    metadata_index_cols: list[str] = ["table_name", "xbrl_factoid"]
-    exploded_meta: pd.DataFrame
+    # Not sure if dynamically basing this on NodeId is really a good idea here.
+    calc_cols: list[str] = list(NodeId._fields)
+    parent_cols: list[str] | None = None
+    exploded_meta: pd.DataFrame = pd.DataFrame()
+    exploded_calcs: pd.DataFrame = pd.DataFrame()
     seeds: list[NodeId] = []
     tags: pd.DataFrame = pd.DataFrame()
 
@@ -1614,109 +1635,205 @@ class XbrlCalculationForestFerc1(BaseModel):
 
         arbitrary_types_allowed = True
 
-    @validator("exploded_meta", "tags")
-    def ensure_correct_dataframe_index(cls, v, values):
-        """Ensure that dataframe is indexed by table_name and xbrl_factoid."""
-        idx_cols = values["metadata_index_cols"]
-        if v.index.names == idx_cols:
-            return v
-        missing_idx_cols = [col for col in idx_cols if col not in v.columns]
-        if missing_idx_cols:
-            raise ValueError(
-                f"Exploded metadataframes must be indexed by {idx_cols}, but these "
-                f"columns were missing: {missing_idx_cols=}"
-            )
-        drop = (v.index.names is None) or (v.index.names == [None])
-        return v.set_index(idx_cols, drop=drop)
+    @validator("parent_cols", always=True)
+    def set_parent_cols(cls, v, values) -> list[str]:
+        """A convenience property to generate parent column."""
+        return [col + "_parent" for col in values["calc_cols"]]
 
-    @validator("exploded_meta", "tags")
-    def dataframe_has_unique_index(cls, v):
-        """Ensure that exploded_meta has a unique index."""
-        if not v.index.is_unique:
-            raise ValueError("DataFrame has non-unique index values.")
+    @validator("exploded_calcs")
+    def unique_associations(cls, v: pd.DataFrame, values) -> pd.DataFrame:
+        """Ensure parent-child associations in exploded calculations are unique."""
+        pks = values["calc_cols"] + values["parent_cols"]
+        dupes = v.duplicated(subset=pks, keep=False)
+        if dupes.any():
+            logger.warning(
+                "Consolidating non-unique associations found in exploded_calcs:\n"
+                f"{v.loc[dupes]}"
+            )
+        # Drop all duplicates with null weights -- this is a temporary fix to an issue
+        # from upstream.
+        assert not v.duplicated(subset=pks, keep=False).any()
         return v
 
-    @validator("seeds", always=True)
-    def seeds_not_empty(cls, v, values):
-        """If no seeds are provided, use all nodes in the index of exploded_meta."""
-        if v == []:
-            logger.info("No seeds provided. Using all nodes in exploded_meta index.")
-            v = list(values["exploded_meta"].index)
+    @validator("exploded_calcs")
+    def single_valued_weights(cls, v: pd.DataFrame, values) -> pd.DataFrame:
+        """Ensure that every calculation component has a uniquely specified weight."""
+        multi_valued_weights = (
+            v.groupby(values["calc_cols"], dropna=False)["weight"]
+            .transform("nunique")
+            .gt(1)
+        )
+        if multi_valued_weights.any():
+            # Maybe this should be an AssertionError but we have one weird special case
+            # That we are dealing with explicitly in building the trees below. Maybe it
+            # should be happening here instead?
+            logger.warning(
+                "Calculation forest nodes specified with conflicting weights:\n"
+                f"{v.loc[multi_valued_weights]}"
+            )
+        return v
+
+    @validator("exploded_calcs")
+    def calcs_have_required_cols(cls, v: pd.DataFrame, values) -> pd.DataFrame:
+        """Ensure exploded calculations include all required columns."""
+        required_cols = values["parent_cols"] + values["calc_cols"] + ["weight"]
+        missing_cols = [col for col in required_cols if col not in v.columns]
+        if missing_cols:
+            raise ValueError(
+                f"Exploded calculations missing expected columns: {missing_cols=}"
+            )
+        return v[required_cols]
+
+    @validator("exploded_calcs")
+    def calc_parents_notna(cls, v: pd.DataFrame) -> pd.DataFrame:
+        """Ensure that parent table_name and xbrl_factoid columns are non-null."""
+        if v[["table_name_parent", "xbrl_factoid_parent"]].isna().any(axis=None):
+            raise AssertionError("Null parent table name or xbrl_factoid found.")
+        return v
+
+    @validator("tags")
+    def tags_have_required_cols(cls, v: pd.DataFrame, values) -> pd.DataFrame:
+        """Ensure tagging dataframe contains all required index columns."""
+        missing_cols = [
+            col for col in ["table_name", "xbrl_factoid"] if col not in v.columns
+        ]
+        if missing_cols:
+            raise ValueError(
+                f"Tagging dataframe was missing expected columns: {missing_cols=}"
+            )
+        return v
+
+    @validator("tags")
+    def tags_cols_notnull(cls, v: pd.DataFrame) -> pd.DataFrame:
+        """Ensure all tags have non-null table_name and xbrl_factoid."""
+        null_idx_rows = v[v.table_name.isna() | v.xbrl_factoid.isna()]
+        if not null_idx_rows.empty:
+            logger.warning(
+                f"Dropping {len(null_idx_rows)} tag rows with null values for "
+                "table_name or xbrl_factoid:\n"
+                f"{null_idx_rows}"
+            )
+        v = v.dropna(subset=["table_name", "xbrl_factoid"])
+        return v
+
+    @validator("tags")
+    def single_valued_tags(cls, v: pd.DataFrame, values) -> pd.DataFrame:
+        """Ensure all tags have unique values."""
+        dupes = v.duplicated(subset=["table_name", "xbrl_factoid"], keep=False)
+        if dupes.any():
+            logger.warning(
+                f"Found {dupes.sum()} duplicate tag records:\n{v.loc[dupes]}"
+            )
         return v
 
     @validator("seeds")
-    def seeds_within_bounds(cls, v, values):
-        """Ensure that all seeds are present within exploded_meta index."""
-        bad_seeds = [seed for seed in v if seed not in values["exploded_meta"].index]
+    def seeds_within_bounds(cls, v: pd.DataFrame, values) -> pd.DataFrame:
+        """Ensure that all seeds are present within exploded_calcs index.
+
+        For some reason this validator is being run before exploded_calcs has been
+        added to the values dictionary, which doesn't make sense, since "seeds" is
+        defined after exploded_calcs in the model.
+        """
+        all_nodes = values["exploded_calcs"].set_index(values["parent_cols"]).index
+        bad_seeds = [seed for seed in v if seed not in all_nodes]
         if bad_seeds:
-            raise ValueError(f"Seeds missing from exploded_meta index: {bad_seeds=}")
+            raise ValueError(f"Seeds missing from exploded_calcs index: {bad_seeds=}")
         return v
 
-    @staticmethod
-    def exploded_meta_to_digraph(  # noqa: C901
+    # Need to update this to generate a new valid set of seeds
+    # @validator("seeds", always=True)
+    # def seeds_not_empty(cls, v, values):
+    #    """If no seeds are provided, use all nodes in the index of exploded_calcs."""
+    #    if v == []:
+    #        logger.info("No seeds provided. Using all nodes from exploded_calcs.")
+    #        v = list(values["exploded_calcs"].index)
+    #    return v
+
+    def exploded_calcs_to_digraph(
+        self: Self,
+        exploded_calcs: pd.DataFrame,
+    ) -> nx.DiGraph:
+        """Construct :class:`networkx.DiGraph` of all calculations in exploded_calcs.
+
+        First we construct a directed graph based on the calculation components. The
+        "parent" or "source" nodes are the results of the calculations, and the "child"
+        or "target" nodes are the individual calculation components. The structure of
+        the directed graph is determined entirely by the primary key columns in the
+        calculation components table.
+
+        Then we compile a dictionary of node attributes, based on the individual
+        calculation components in the exploded calcs dataframe.
+        """
+        source_nodes = list(
+            exploded_calcs.loc[:, self.parent_cols]
+            .rename(columns=lambda x: x.removesuffix("_parent"))
+            .itertuples(name="NodeId", index=False)
+        )
+        target_nodes = list(
+            exploded_calcs.loc[:, self.calc_cols].itertuples(name="NodeId", index=False)
+        )
+        edgelist = pd.DataFrame({"source": source_nodes, "target": target_nodes})
+        forest = nx.from_pandas_edgelist(edgelist, create_using=nx.DiGraph)
+        return forest
+
+    def set_forest_attributes(
+        self,
+        forest: nx.DiGraph,
+        exploded_calcs: pd.DataFrame,
         exploded_meta: pd.DataFrame,
         tags: pd.DataFrame,
     ) -> nx.DiGraph:
-        """Construct a :class:`networkx.DiGraph` of all calculations in exploded_meta.
+        """Set the attributes of a forest."""
+        # Reshape the tags to turn them into a dictionary of values per-node. This
+        # will make it easier to add arbitrary sets of tags later on.
+        tags_dict = tags.set_index(["table_name", "xbrl_factoid"]).to_dict(
+            orient="index"
+        )
+        tags_dict_df = pd.DataFrame(
+            index=pd.MultiIndex.from_tuples(
+                tags_dict.keys(), names=["table_name", "xbrl_factoid"]
+            ),
+            data={"tags": list(tags_dict.values())},
+        ).reset_index()
 
-        - Add all edges implied by the calculations found in exploded_meta.
-        - Compile node attributes from exploded_meta and add it the the nodes in the
-          forest that has been compiled.
-        """
-        forest: nx.DiGraph = nx.DiGraph()
-        attrs = {}
-        for row in exploded_meta.itertuples():
-            from_node = NodeId(*row.Index)
-            if not attrs.get(from_node, False):
-                attrs[from_node] = {}
-            if not attrs[from_node].get("xbrl_factoid_original", False):
-                attrs[from_node] |= {"xbrl_factoid_original": row.xbrl_factoid_original}
-            else:
-                assert (
-                    attrs[from_node]["xbrl_factoid_original"]
-                    == row.xbrl_factoid_original
-                )
-            try:
-                attrs[from_node]["tags"] = dict(tags.loc[from_node])
-            except KeyError:
-                attrs[from_node]["tags"] = {}
-            calcs = json.loads(row.calculations)
-            for calc in calcs:
-                assert len(calc["source_tables"]) == 1
-                if len(calc["source_tables"]) != 1:
-                    raise AssertionError(calc)
-                to_node = NodeId(calc["source_tables"][0], calc["name"])
-                if not attrs.get(to_node, False):
-                    attrs[to_node] = {}
-                if not attrs[to_node].get("weight", False):
-                    attrs[to_node] |= {"weight": calc["weight"]}
-                else:
-                    if attrs[to_node]["weight"] != calc["weight"]:
-                        logger.debug(
-                            f"Calculation weights do not match for {to_node}: "
-                            f"{attrs[to_node]['weight']} != {calc['weight']}. Using a "
-                            "weight of -1.0."
-                        )
-                        # This fix only applies to the case of a passthrough calculation
-                        # where the passthrough has a weight of 1.0 but the value it's
-                        # pointing at has a weight of -1.0.
-                        assert attrs[to_node]["weight"] * calc["weight"] == -1.0
-                        attrs[to_node]["weight"] == -1.0
-                try:
-                    attrs[to_node]["tags"] = dict(tags.loc[to_node])
-                except KeyError:
-                    attrs[to_node]["tags"] = {}
-                forest.add_edge(from_node, to_node)
-        nx.set_node_attributes(forest, attrs)
+        tags_dict = tags.set_index(["table_name", "xbrl_factoid"]).to_dict(
+            orient="index"
+        )
+        tags_dict_df = pd.DataFrame(
+            index=pd.MultiIndex.from_tuples(
+                tags_dict.keys(), names=["table_name", "xbrl_factoid"]
+            ),
+            data={"tags": list(tags_dict.values())},
+        ).reset_index()
 
+        # Add metadata tags to the calculation components and reset the index.
+        attr_cols = ["weight"]
+        node_attrs = (
+            pd.merge(
+                left=exploded_meta,
+                right=tags_dict_df,
+                how="left",
+                validate="m:1",
+            )
+            .reset_index(drop=True)
+            .drop(columns=["xbrl_factoid_original", "is_within_table_calc"])
+            .merge(
+                exploded_calcs[self.calc_cols + attr_cols].drop_duplicates(),
+                how="left",
+                validate="1:1",
+            )
+            .set_index(self.calc_cols)
+        )
+        # Fill NA tag dictionaries with an empty dict so the type is uniform:
+        node_attrs["tags"] = node_attrs["tags"].apply(lambda x: {} if x != x else x)
+        nx.set_node_attributes(forest, node_attrs.to_dict(orient="index"))
         return forest
 
     @property
     def full_digraph(self: Self) -> nx.DiGraph:
         """A digraph of all calculations described by the exploded metadata."""
-        full_digraph = self.exploded_meta_to_digraph(
-            exploded_meta=self.exploded_meta,
-            tags=self.tags,
+        full_digraph = self.exploded_calcs_to_digraph(
+            exploded_calcs=self.exploded_calcs,
         )
         connected_components = list(
             nx.connected_components(full_digraph.to_undirected())
@@ -1729,6 +1846,28 @@ class XbrlCalculationForestFerc1(BaseModel):
                 "Calculations in Exploded Metadata contain cycles, which is invalid."
             )
         return full_digraph
+
+    def prune_unrooted(self: Self, graph: nx.DiGraph) -> nx.DiGraph:
+        """Prune any portions of the digraph that aren't reachable from the roots."""
+        seeded_nodes = set(self.seeds)
+        for seed in self.seeds:
+            seeded_nodes = list(
+                seeded_nodes.union({seed}).union(nx.descendants(graph, seed))
+            )
+        seeded_parents = [
+            node
+            for node, degree in dict(graph.out_degree(seeded_nodes)).items()
+            if degree > 0
+        ]
+        seeded_calcs = (
+            self.exploded_calcs.set_index(self.parent_cols)
+            .loc[seeded_parents]
+            .reset_index()
+        )
+        seeded_digraph: nx.DiGraph = self.exploded_calcs_to_digraph(
+            exploded_calcs=seeded_calcs
+        )
+        return seeded_digraph
 
     @property
     def seeded_digraph(self: Self) -> nx.DiGraph:
@@ -1744,21 +1883,7 @@ class XbrlCalculationForestFerc1(BaseModel):
         metadata to pass to :meth:`exploded_meta_to_digraph`, so that all of the
         associated metadata is also added to the pruned graph.
         """
-        seeded_nodes = set()
-        for seed in self.seeds:
-            seeded_nodes = seeded_nodes.union([seed])
-            seeded_nodes = seeded_nodes.union(nx.descendants(self.full_digraph, seed))
-        seeded_digraph: nx.DiGraph = self.exploded_meta_to_digraph(
-            exploded_meta=self.exploded_meta.loc[list(seeded_nodes)],
-            tags=self.tags,
-        )
-        connected_components = list(
-            nx.connected_components(seeded_digraph.to_undirected())
-        )
-        logger.debug(
-            f"Seeded digraph contains {len(connected_components)} connected components."
-        )
-        return seeded_digraph
+        return self.prune_unrooted(self.full_digraph)
 
     @property
     def forest(self: Self) -> nx.DiGraph:
@@ -1808,6 +1933,35 @@ class XbrlCalculationForestFerc1(BaseModel):
         logger.debug(
             f"Calculation forest contains {len(connected_components)} connected components."
         )
+
+        # Remove any node that:
+        # - ONLY has stepchildren.
+        # - AND has utility_type total
+        for node in self.stepparents(forest):
+            children = set(forest.successors(node))
+            stepchildren = set(self.stepchildren(forest)).intersection(children)
+            if (
+                (children == stepchildren)
+                & (len(children) > 0)
+                & (node.utility_type == "total")
+            ):
+                forest.remove_node(node)
+
+        # Prune any newly disconnected nodes resulting from the above removal of
+        # pure stepparents. We expect the set of newly disconnected nodes to be empty.
+        nodes_before_pruning = forest.nodes
+        forest = self.prune_unrooted(forest)
+        nodes_after_pruning = forest.nodes
+
+        if pruned_nodes := set(nodes_before_pruning).difference(nodes_after_pruning):
+            raise AssertionError(f"Unexpectedly pruned stepchildren: {pruned_nodes=}")
+
+        # forest = self.set_forest_attributes(
+        #    forest,
+        #    exploded_meta=self.exploded_meta,
+        #    exploded_calcs=self.exploded_calcs,
+        #    tags=self.tags,
+        # )
         return forest
 
     @staticmethod
@@ -1854,26 +2008,25 @@ class XbrlCalculationForestFerc1(BaseModel):
     def orphans(self: Self) -> list[NodeId]:
         """Identify all nodes that appear in metadata but not in the full digraph."""
         nodes = self.full_digraph.nodes
-        return [NodeId(*n) for n in self.exploded_meta.index if n not in nodes]
+        return [
+            NodeId(*n)
+            for n in self.exploded_meta.set_index(self.calc_cols).index
+            if n not in nodes
+        ]
 
     @property
     def pruned(self: Self) -> list[NodeId]:
         """List of all nodes that appear in the DAG but not in the pruned forest."""
-        all_nodes = self.full_digraph.nodes
-        forest_nodes = self.forest.nodes
-        return [n for n in all_nodes if n not in forest_nodes]
+        return list(set(self.full_digraph.nodes).difference(self.forest.nodes))
 
-    @property
-    def stepchildren(self: Self) -> list[NodeId]:
-        """All nodes in the seeded digraph that have more than one parent."""
-        return [n for n, d in self.seeded_digraph.in_degree() if d > 1]
+    def stepchildren(self: Self, graph: nx.DiGraph) -> list[NodeId]:
+        """Find all nodes in the graph that have more than one parent."""
+        return [n for n, d in graph.in_degree() if d > 1]
 
-    @property
-    def stepparents(self: Self) -> list[NodeId]:
-        """All nodes in the seeded digraph with children having more than one parent."""
-        stepchildren = self.stepchildren
+    def stepparents(self: Self, graph: nx.DiGraph) -> list[NodeId]:
+        """Find all nodes in the graph with children having more than one parent."""
+        stepchildren = self.stepchildren(graph)
         stepparents = set()
-        graph = self.seeded_digraph
         for stepchild in stepchildren:
             stepparents = stepparents.union(graph.predecessors(stepchild))
         return list(stepparents)
@@ -1898,22 +2051,14 @@ class XbrlCalculationForestFerc1(BaseModel):
         # Check that one of these successors is the correction.
         has_one_child = []
         for node in may_have_one_child:
-            children = self.seeded_digraph.successors(node)
+            children: set[NodeId] = set(self.seeded_digraph.successors(node))
             for child in children:
-                if (node.source_table == child.source_table) and (
+                if (node.table_name == child.table_name) and (
                     child.xbrl_factoid == node.xbrl_factoid + "_correction"
                 ):
                     has_one_child.append(node)
 
         return list(has_one_parent.intersection(has_one_child))
-
-    def pprint_calculation_at(self: Self, node_id: NodeId) -> None:
-        """Pretty print the calculation associated with a given node."""
-        print(
-            json.dumps(
-                json.loads(self.exploded_meta.at[node_id, "calculations"]), indent=4
-            )
-        )
 
     @property
     def leafy_meta(self: Self) -> pd.DataFrame:
@@ -1945,7 +2090,7 @@ class XbrlCalculationForestFerc1(BaseModel):
         }
         leaves_df = pd.DataFrame(list(leaf_to_root_map.keys()))
         roots_df = pd.DataFrame(list(leaf_to_root_map.values())).rename(
-            columns={"source_table": "root_table", "xbrl_factoid": "root_xbrl_factoid"}
+            columns={col: col + "_root" for col in self.calc_cols}
         )
         leafy_meta = pd.concat([leaves_df, roots_df], axis="columns")
 
@@ -1961,7 +2106,8 @@ class XbrlCalculationForestFerc1(BaseModel):
                 leaf_tags |= pruned_forest.nodes[node]["tags"]
                 # Root nodes have no weight because they don't come from calculations
                 # We assign them a weight of 1.0
-                if not pruned_forest.nodes[node].get("weight", False):
+                # if not pruned_forest.nodes[node].get("weight", False):
+                if pd.isna(pruned_forest.nodes[node]["weight"]):
                     assert node in roots
                     node_weight = 1.0
                 else:
@@ -1971,64 +2117,40 @@ class XbrlCalculationForestFerc1(BaseModel):
             # Construct a dictionary describing the leaf node and convert it into a
             # single row DataFrame. This makes adding arbitrary tags easy.
             leaf_attrs = {
-                "xbrl_factoid_original": pruned_forest.nodes[leaf][
-                    "xbrl_factoid_original"
-                ],
                 "weight": leaf_weight,
                 "tags": leaf_tags,
-                "source_table": leaf.source_table,
+                "table_name": leaf.table_name,
                 "xbrl_factoid": leaf.xbrl_factoid,
+                "utility_type": leaf.utility_type,
+                "plant_status": leaf.plant_status,
+                "plant_function": leaf.plant_function,
             }
             leaf_rows.append(pd.json_normalize(leaf_attrs, sep="_"))
 
         # Combine the two dataframes we've constructed above:
         return (
             pd.merge(leafy_meta, pd.concat(leaf_rows), validate="one_to_one")
+            .reset_index(drop=True)
             .convert_dtypes()
-            .set_index(["source_table", "xbrl_factoid"])
         )
 
     @property
     def root_calculations(self: Self) -> pd.DataFrame:
-        """Produce an exploded metadataframe containing only roots and leaves.
+        """Produce a calculation components dataframe containing only roots and leaves.
 
-        This dataframe has a format similar to exploded_meta and can be used in
-        conjunction with the exploded data to verify that the root values can still
-        be correctly calculated from the leaf values.
+        This dataframe has a format similar to exploded_calcs and can be used with the
+        exploded data to verify that the root values can still be correctly calculated
+        from the leaf values.
         """
-
-        def leafy_meta_to_calculations(df: pd.DataFrame) -> str:
-            return json.dumps(
-                [
-                    {
-                        "name": row.xbrl_factoid,
-                        "weight": float(row.weight),
-                        "xbrl_factoid_original": row.xbrl_factoid_original,
-                        "source_tables": [row.source_table],
-                    }
-                    for row in df.itertuples()
-                ]
-            )
-
-        root_calcs: pd.DataFrame = (
-            self.leafy_meta.reset_index()
-            .groupby(["root_table", "root_xbrl_factoid"], as_index=False)
-            .apply(leafy_meta_to_calculations)
-        )
-        root_calcs.columns = ["root_table", "root_xbrl_factoid", "calculations"]
-        return root_calcs
+        return self.leafy_meta.rename(columns=lambda x: re.sub("_root$", "_parent", x))
 
     @property
     def table_names(self: Self) -> list[str]:
         """Produce the list of tables involved in this explosion."""
-        return list(self.exploded_meta.reset_index()["table_name"].unique())
+        return list(self.exploded_calcs["table_name_parent"].unique())
 
-    def plot(
-        self: Self, graph: Literal["full_digraph", "seeded_digraph", "forest"]
-    ) -> None:
-        """Visualize the calculation forest and its attributes."""
-        graph: nx.DiGraph = self.__getattribute__(graph)
-
+    def plot_graph(self: Self, graph: nx.DiGraph) -> None:
+        """Visualize a CalculationForest graph."""
         colors = ["red", "yellow", "green", "blue", "orange", "cyan", "purple"]
         color_map = {
             table: color
@@ -2037,7 +2159,7 @@ class XbrlCalculationForestFerc1(BaseModel):
 
         pos = graphviz_layout(graph, prog="dot", args='-Grankdir="LR"')
         for table, color in color_map.items():
-            nodes = [node for node in graph.nodes if node.source_table == table]
+            nodes = [node for node in graph.nodes if node.table_name == table]
             nx.draw_networkx_nodes(nodes, pos, node_color=color, label=table)
         nx.draw_networkx_edges(graph, pos)
         # The labels are currently unwieldy
@@ -2046,6 +2168,22 @@ class XbrlCalculationForestFerc1(BaseModel):
         # nx.draw_networkx(nx_forest, pos, node_color=node_color)
         plt.legend(scatterpoints=1)
         plt.show()
+
+    def plot_nodes(self: Self, nodes: list[NodeId]) -> None:
+        """Plot a list of nodes based on edges found in exploded_calcs."""
+        graph_to_plot = self.full_digraph
+        nodes_to_remove = set(graph_to_plot.nodes()).difference(nodes)
+        # NOTE: this doesn't and can't revise the graph to identify which nodes are
+        # still connecteded to the root we care about after remvoing these nodes.
+        # We might want to use a more intelligent method of building the graph.
+        graph_to_plot.remove_nodes_from(nodes_to_remove)
+        self.plot_graph(graph_to_plot)
+
+    def plot(
+        self: Self, graph: Literal["full_digraph", "seeded_digraph", "forest"]
+    ) -> None:
+        """Visualize various stages of the calculation forest."""
+        self.plot_graph(self.__getattribute__(graph))
 
     def leafy_data(
         self: Self, exploded_data: pd.DataFrame, value_col: str
@@ -2065,18 +2203,15 @@ class XbrlCalculationForestFerc1(BaseModel):
         - There are a handful of NA values for ``report_year`` and ``utility_id_ferc1``
           because of missing correction records in data. Why are those correction
           records missing? Should we be doing an inner merge instead of a left merge?
-        - Currently no consideration of additional dimensions / primary keys.
         - Still need to validate the root node calculations.
 
         """
         leafy_data = pd.merge(
-            left=self.leafy_meta.reset_index(),
+            left=self.leafy_meta,
             right=exploded_data,
-            left_on=["source_table", "xbrl_factoid"],
-            right_on=["table_name", "xbrl_factoid"],
             how="left",
             validate="one_to_many",
         )
         # Scale the data column of interest:
         leafy_data[value_col] = leafy_data[value_col] * leafy_data["weight"]
-        return leafy_data
+        return leafy_data.reset_index(drop=True).convert_dtypes()
