@@ -5632,27 +5632,11 @@ def calculation_components_xbrl_ferc1(**kwargs) -> pd.DataFrame:
             table_dimensions=table_dimensions_ferc1,
             dimensions=other_dimensions(),
         )
+        .pipe(
+            remove_non_totals_from_impiled_child_calculation_components,
+            dimensions=other_dimensions(),
+        )
     )
-    for dim in other_dimensions():
-        # we need to remove the totals only when the parent dimension is null and/or
-        # doesn't have a total in it. tried to remove the totals in
-        # make_calculation_dimensions_explicit but actually the totals are appropriate
-        # when both parents and childern have totals
-        dim
-        pass
-        # TODO: THIS IS NOT WORKING! its removing too much...
-        # calc_components[f"{dim}_unique"] = calc_components.groupby(
-        #     [f"{dim}_parent", "table_name_parent"]
-        # )[dim].transform("nunique")
-        # calc_components = calc_components[
-        #     (
-        #         (calc_components[dim] == "total")
-        #         & (
-        #             calc_components[f"{dim}_parent"].isnull()
-        #             | (calc_components[f"{dim}_unique"] > 1)
-        #         )
-        #     )
-        # ]
 
     # Defensive testing on this table!
     assert calc_components[["table_name", "xbrl_factoid"]].notnull().all(axis=1).all()
@@ -5672,22 +5656,12 @@ def calculation_components_xbrl_ferc1(**kwargs) -> pd.DataFrame:
             # logger.warning(
             f"Found missing calculations from the exploded tables:\n{missing_calcs=}"
         )
-    # Check for duplicates calculation records
-    # We need to remove the electricity_sales_by_rate_schedule_ferc1 bc there are
-    # duplicate renamed factoids in that table (originally billed/unbilled)
-    calc_components_test = (
-        calc_components[
-            calc_components.table_name_parent
-            != "electricity_sales_by_rate_schedule_ferc1"
-        ]
-        .set_index(calc_and_parent_cols)
-        .sort_index()
+    check_for_calc_components_duplicates(
+        calc_components,
+        table_names_known_dupes=["electricity_sales_by_rate_schedule_ferc1"],
+        idx=calc_and_parent_cols,
     )
-    if not calc_components_test.index.is_unique:
-        raise AssertionError(
-            f"Found duplicates based on {calc_and_parent_cols=} when expected none.\n"
-            f"{calc_components_test[calc_components_test.index.duplicated(keep=False)]}"
-        )
+
     # check for parent/child duplicates. again need to remove the
     # electricity_sales_by_rate_schedule_ferc1 table. Null hack bc comparing pandas
     # nulls
@@ -5701,6 +5675,28 @@ def calculation_components_xbrl_ferc1(**kwargs) -> pd.DataFrame:
         )
     # Remove convert_dtypes() once we're writing to the DB using enforce_schema()
     return calc_components.convert_dtypes()
+
+
+def check_for_calc_components_duplicates(
+    calc_components: pd.DataFrame, table_names_known_dupes: list[str], idx: list[str]
+) -> None:
+    """Check for duplicates calculation records.
+
+    We need to remove the electricity_sales_by_rate_schedule_ferc1 bc there are
+    duplicate renamed factoids in that table (originally billed/unbilled).
+    """
+    calc_components_test = (
+        calc_components[
+            ~calc_components.table_name_parent.isin(table_names_known_dupes)
+        ]
+        .set_index(idx)
+        .sort_index()
+    )
+    if not calc_components_test.index.is_unique:
+        raise AssertionError(
+            f"Found duplicates based on {idx=} when expected none.\n"
+            f"{calc_components_test[calc_components_test.index.duplicated(keep=False)]}"
+        )
 
 
 def make_calculation_dimensions_explicit(
@@ -5801,6 +5797,8 @@ def assign_parent_dimensions(
             each ``table_name`` and ``xbrl_factoid``.
         dimensions: list of dimension columns to check.
     """
+    if calc_components.empty:
+        return calc_components.assign(**{f"{dim}_parent": pd.NA for dim in dimensions})
     # desired: add parental dimension columns
     for dim in dimensions:
         # split the nulls and non-nulls. If the child dim is null, then we can run the
@@ -5821,7 +5819,6 @@ def assign_parent_dimensions(
         table_dimensions_non_null = table_dimensions.rename(
             columns={col: f"{col}_parent" for col in table_dimensions}
         )[parent_dim_idx].drop_duplicates()
-
         calc_components_non_null = pd.merge(
             left=calc_components_non_null,
             right=table_dimensions_non_null,
@@ -5882,15 +5879,9 @@ def add_dimension_total_calculations(
         total_w_subdim = (
             pd.merge(
                 # the total records will become _parent columns in new records
-                left=(
-                    meta_w_dims.loc[(meta_w_dims[dim] == "total")].drop_duplicates(
-                        ["table_name", "xbrl_factoid"], keep="first"
-                    )
-                ),
+                left=meta_w_dims.loc[(meta_w_dims[dim] == "total")],
                 # the non-total sub-components will become their calculation components
-                right=(
-                    table_dimensions[table_dimensions[dim] != "total"].drop_duplicates()
-                ),
+                right=(table_dimensions[(table_dimensions[dim] != "total")]),
                 on=["table_name", "xbrl_factoid"],
                 how="inner",
                 validate="m:m",
@@ -5904,21 +5895,109 @@ def add_dimension_total_calculations(
                 weight=1,
             )
         )
-
         subtotal_dfs.append(
             total_w_subdim.assign(**{f"is_within_dimension_{dim}": True})
         )
     # now we have a bunch of *new* records linking total records to their non-total
     # sub-components.
-    calc_components = pd.concat(
-        [
+    calc_components = pd.concat([calc_components, pd.concat(subtotal_dfs)]).reset_index(
+        drop=True
+    )
+    # need to determine if a factoid in a total has multiple totals in its dimensions
+    # bc if so, we are not going to merge on those totals in the table dims table. that
+    # way we will just
+    for dim in dimensions:
+        calc_components = add_has_totals_column_for_dim(
             calc_components,
-            pd.concat(subtotal_dfs),
-        ]
-    ).reset_index(drop=True)
+            idx=["table_name_parent", "xbrl_factoid_parent"],
+            dim=f"{dim}_parent",
+        )
+    calc_components = calc_components.assign(
+        total_count_parent=lambda x: x.filter(like="_has_total").sum(axis=1)
+    )
+    calc_components = calc_components[
+        # either the parent has null, 1  or 0, which is to say its not a weirdo with
+        # many totals in multiple dimensions
+        (calc_components.total_count_parent <= 1)
+        | (calc_components.total_count_parent.isnull())
+        # OR your a weirdo with totals in multiple dimensions and in that case we want
+        # to remove any record with a total in any of the child dimensions. This way
+        # we are not linking up the total parents to both the leafy subdimensions and
+        # the dimensions
+        | (
+            (calc_components.total_count_parent > 1)
+            & (calc_components[dimensions] != "total").all(axis=1)
+        )
+    ]
+    calc_cols = ["table_name", "xbrl_factoid"] + dimensions
+    calc_and_parent_cols = calc_cols + [f"{col}_parent" for col in calc_cols]
+    check_for_calc_components_duplicates(
+        calc_components,
+        table_names_known_dupes=[
+            "electric_plant_depreciation_functional_ferc1",
+            "electricity_sales_by_rate_schedule_ferc1",
+        ],
+        idx=calc_and_parent_cols,
+    )
+    calc_components = calc_components.drop_duplicates(
+        calc_and_parent_cols, keep="first"
+    )
     # we assigned True for the specific flag boolean columns for each dim. now fill
     # everything else in as false.
     flag_cols = calc_components.filter(like="is_within_dimension_").columns
     calc_components.loc[:, flag_cols] = calc_components.loc[:, flag_cols].fillna(False)
     assert calc_components[calc_components.duplicated()].empty
     return calc_components
+
+
+def remove_non_totals_from_impiled_child_calculation_components(
+    calc_components: pd.DataFrame, dimensions: list[str]
+) -> pd.DataFrame:
+    """Remove the non-totals from child calcs when their parents are either null or total only.
+
+    When a parent factoid only has either a null or total value for a dimension AND
+    the child factoid has multiple values for its dimension, we want to remove all of
+    the calculation component records which do not have "total" for a value in that
+    dimension.
+
+    Args:
+        calc_components: dataframe of calculation components with child and parent
+            dimensions.
+        dimensions: list of dimension columns.
+    """
+    base_idx = ["table_name", "xbrl_factoid"]
+    base_parent_idx = [c + "_parent" for c in base_idx]
+    for dim in dimensions:
+        # ADD some helper columns for the mask
+        calc_components = add_has_totals_column_for_dim(
+            calc_components, idx=base_parent_idx + base_idx, dim=dim
+        )
+        # when a parent factoid only has either a null or a total for its dim
+        # AND the child factoid has multiple values for its dimension, we want to remove
+        # all of the non-totals
+        remove_mask = (
+            (calc_components[f"{dim}_parent"].isin([pd.NA, "total"]))
+            & (calc_components[f"{dim}_has_totals"])
+            & (calc_components[dim] != "total")
+        )
+        logger.info(f"{dim}: Removing {len(calc_components[remove_mask])}")
+        calc_components = calc_components[~remove_mask]
+    return calc_components
+
+
+def add_has_totals_column_for_dim(
+    df: pd.DataFrame, idx: list[str], dim: str
+) -> pd.DataFrame:
+    """Add a column which indicates if there are totals in the dimension for the index.
+
+    Args:
+        df: table with ``idx`` columns and a ``dim`` column.
+        idx: column names that are effectively used as a groupby(idx).contains("total")
+        dim: name of dimension column to check if the values contain a total within the
+            ``idx`` grouping.
+    """
+    df = df.set_index(idx)
+    total_index = df[df[dim] == "total"].index.drop_duplicates()
+    df[f"{dim}_has_totals"] = False
+    df.loc[total_index, f"{dim}_has_totals"] = True
+    return df.reset_index()
