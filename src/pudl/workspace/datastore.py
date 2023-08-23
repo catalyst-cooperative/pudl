@@ -20,6 +20,7 @@ from requests.packages.urllib3.util.retry import Retry
 import pudl
 from pudl.workspace import resource_cache
 from pudl.workspace.resource_cache import PudlResourceKey
+from pudl.workspace.setup import PudlPaths
 
 logger = pudl.logging_helpers.get_logger(__name__)
 
@@ -174,7 +175,7 @@ class ZenodoFetcher:
             "eia923": "10.5072/zenodo.1217724",
             "eia_bulk_elec": "10.5072/zenodo.1103572",
             "epacamd_eia": "10.5072/zenodo.1199170",
-            "epacems": "10.5072/zenodo.672963",
+            "epacems": "10.5072/zenodo.1228519",
             "ferc1": "10.5072/zenodo.1070868",
             "ferc2": "10.5072/zenodo.1188447",
             "ferc6": "10.5072/zenodo.1098088",
@@ -189,7 +190,7 @@ class ZenodoFetcher:
             "eia923": "10.5281/zenodo.8172818",
             "eia_bulk_elec": "10.5281/zenodo.7067367",
             "epacamd_eia": "10.5281/zenodo.7900974",
-            "epacems": "10.5281/zenodo.6910058",
+            "epacems": "10.5281/zenodo.8235497",
             "ferc1": "10.5281/zenodo.7314437",
             "ferc2": "10.5281/zenodo.8006881",
             "ferc6": "10.5281/zenodo.7130141",
@@ -420,6 +421,10 @@ class Datastore:
         for resource_key, content in self.get_resources(dataset, **filters):
             yield resource_key, zipfile.ZipFile(io.BytesIO(content))
 
+    def get_zipfile_file_names(self, zip_file: zipfile.ZipFile):
+        """Given a zipfile, return a list of the file names in it."""
+        return zipfile.ZipFile.namelist(zip_file)
+
 
 class ParseKeyValues(argparse.Action):
     """Transforms k1=v1,k2=v2,...
@@ -529,23 +534,6 @@ If specified with --bypass-local-cache, the GCS cache will be populated by Zenod
     return parser.parse_args()
 
 
-def _get_pudl_in(args: dict) -> Path:
-    """Figure out what pudl_in path should be used."""
-    if args.pudl_in:
-        return Path(args.pudl_in)
-    else:
-        return Path(pudl.workspace.setup.get_defaults()["PUDL_INPUT"])
-
-
-def _create_datastore(args: argparse.Namespace) -> Datastore:
-    """Constructs datastore instance."""
-    # Configure how we want to obtain raw input data:
-    ds_kwargs = dict(gcs_cache_path=args.gcs_cache_path, sandbox=args.sandbox)
-    if not args.bypass_local_cache:
-        ds_kwargs["local_cache_path"] = _get_pudl_in(args)
-    return Datastore(**ds_kwargs)
-
-
 def print_partitions(dstore: Datastore, datasets: list[str]) -> None:
     """Prints known partition keys and its values for each of the datasets."""
     for single_ds in datasets:
@@ -609,7 +597,18 @@ def main():
         logfile=args.logfile, loglevel=args.loglevel
     )
 
-    dstore = _create_datastore(args)
+    if args.pudl_in:
+        PudlPaths.set_path_overrides(input_dir=args.pudl_in)
+
+    cache_path = None
+    if not args.bypass_local_cache:
+        cache_path = PudlPaths().input_dir
+
+    dstore = Datastore(
+        gcs_cache_path=args.gcs_cache_path,
+        sandbox=args.sandbox,
+        local_cache_path=cache_path,
+    )
 
     if args.dataset:
         datasets = [args.dataset]

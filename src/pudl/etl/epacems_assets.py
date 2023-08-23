@@ -9,17 +9,16 @@ for processing each year of EPA CEMS data and execute these ops in parallel. For
 see: https://docs.dagster.io/concepts/ops-jobs-graphs/dynamic-graphs and https://docs.dagster.io/concepts/assets/graph-backed-assets.
 """
 from collections import namedtuple
-from pathlib import Path
 
 import dask.dataframe as dd
 import pandas as pd
 import pyarrow as pa
 import pyarrow.parquet as pq
-from dagster import AssetIn, DynamicOut, DynamicOutput, Field, asset, graph_asset, op
+from dagster import AssetIn, DynamicOut, DynamicOutput, asset, graph_asset, op
 
 import pudl
-from pudl.helpers import EnvVar
 from pudl.metadata.classes import Resource
+from pudl.workspace.setup import PudlPaths
 
 logger = pudl.logging_helpers.get_logger(__name__)
 
@@ -42,18 +41,7 @@ def get_years_from_settings(context):
         yield DynamicOutput(year, mapping_key=str(year))
 
 
-@op(
-    required_resource_keys={"datastore", "dataset_settings"},
-    config_schema={
-        "pudl_output_path": Field(
-            EnvVar(
-                env_var="PUDL_OUTPUT",
-            ),
-            description="Path of directory to store the database in.",
-            default_value=None,
-        ),
-    },
-)
+@op(required_resource_keys={"datastore", "dataset_settings"})
 def process_single_year(
     context,
     year,
@@ -73,15 +61,14 @@ def process_single_year(
     epacems_settings = context.resources.dataset_settings.epacems
 
     schema = Resource.from_id("hourly_emissions_epacems").to_pyarrow()
-    partitioned_path = (
-        Path(context.op_config["pudl_output_path"]) / "hourly_emissions_epacems"
-    )
+    partitioned_path = PudlPaths().output_dir / "hourly_emissions_epacems"
     partitioned_path.mkdir(exist_ok=True)
 
     for state in epacems_settings.states:
         logger.info(f"Processing EPA CEMS hourly data for {year}-{state}")
         df = pudl.extract.epacems.extract(year=year, state=state, ds=ds)
-        df = pudl.transform.epacems.transform(df, epacamd_eia, plants_entity_eia)
+        if not df.empty:  # If state-year combination has data
+            df = pudl.transform.epacems.transform(df, epacamd_eia, plants_entity_eia)
         table = pa.Table.from_pandas(df, schema=schema, preserve_index=False)
 
         # Write to a directory of partitioned parquet files
@@ -96,17 +83,7 @@ def process_single_year(
     return YearPartitions(year, epacems_settings.states)
 
 
-@op(
-    config_schema={
-        "pudl_output_path": Field(
-            EnvVar(
-                env_var="PUDL_OUTPUT",
-            ),
-            description="Path of directory to store the database in.",
-            default_value=None,
-        ),
-    },
-)
+@op
 def consolidate_partitions(context, partitions: list[YearPartitions]) -> None:
     """Read partitions into memory and write to a single monolithic output.
 
@@ -114,12 +91,8 @@ def consolidate_partitions(context, partitions: list[YearPartitions]) -> None:
         context: dagster keyword that provides access to resources and config.
         partitions: Year and state combinations in the output database.
     """
-    partitioned_path = (
-        Path(context.op_config["pudl_output_path"]) / "hourly_emissions_epacems"
-    )
-    monolithic_path = (
-        Path(context.op_config["pudl_output_path"]) / "hourly_emissions_epacems.parquet"
-    )
+    partitioned_path = PudlPaths().output_dir / "hourly_emissions_epacems"
+    monolithic_path = PudlPaths().output_dir / "hourly_emissions_epacems.parquet"
     schema = Resource.from_id("hourly_emissions_epacems").to_pyarrow()
 
     with pq.ParquetWriter(
