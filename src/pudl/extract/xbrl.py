@@ -1,13 +1,13 @@
 """Generic extractor for all FERC XBRL data."""
 import io
 import json
+import zipfile
 from datetime import date, datetime
 from pathlib import Path
 
 import sqlalchemy as sa
 from dagster import Field, Noneable, op
-from ferc_xbrl_extractor import xbrl
-from ferc_xbrl_extractor.instance import InstanceBuilder
+from ferc_xbrl_extractor.cli import run_main
 
 import pudl
 from pudl.settings import FercGenericXbrlToSqliteSettings, XbrlFormNumber
@@ -27,7 +27,7 @@ class FercXbrlDatastore:
     def get_taxonomy(self, year: int, form: XbrlFormNumber) -> tuple[io.BytesIO, str]:
         """Returns the path to the taxonomy entry point within the an archive."""
         raw_archive = self.datastore.get_unique_resource(
-            f"ferc{form.value}", year=year, data_format="xbrl"
+            f"ferc{form.value}", year=year, data_format="xbrl_taxonomy"
         )
 
         # Construct path to taxonomy entry point within archive
@@ -36,38 +36,44 @@ class FercXbrlDatastore:
 
         return io.BytesIO(raw_archive), taxonomy_entry_point
 
-    def get_filings(self, year: int, form: XbrlFormNumber) -> list[InstanceBuilder]:
+    def get_filings(
+        self, year: int, form: XbrlFormNumber
+    ) -> tuple[io.BytesIO, list[str]]:
         """Return list of filings from archive."""
-        archive = self.datastore.get_zipfile_resource(
-            f"ferc{form.value}", year=year, data_format="xbrl"
+        raw_archive = io.BytesIO(
+            self.datastore.get_unique_resource(
+                f"ferc{form.value}", year=year, data_format="xbrl"
+            )
         )
 
         # Load RSS feed metadata
-        filings = []
-        with archive.open("rssfeed") as f:
-            metadata = json.load(f)
+        keep_filings = []
+        all_filings = []
+        with zipfile.ZipFile(raw_archive) as archive:
+            with archive.open("rssfeed") as f:
+                metadata = json.load(f)
 
-            # Loop through all filings by a given filer in a given quarter
-            # And take the most recent one
-            for key, filing_info in metadata.items():
-                latest = datetime.min
-                for filing_id, info in filing_info.items():
-                    # Parse date from 9-tuple
-                    published = datetime.fromisoformat(info["published_parsed"])
+                # Loop through all filings by a given filer in a given quarter
+                # And take the most recent one
+                for key, filing_info in metadata.items():
+                    latest = datetime.min
+                    for filing_id, info in filing_info.items():
+                        filing_name = f"{filing_id}.xbrl"
+                        all_filings.append(filing_name)
 
-                    if published > latest:
-                        latest = published
-                        latest_filing = filing_id
+                        # Parse date from 9-tuple
+                        published = datetime.fromisoformat(info["published_parsed"])
 
-                # Create in memory buffers with file data to be used in conversion
-                filings.append(
-                    InstanceBuilder(
-                        io.BytesIO(archive.open(f"{latest_filing}.xbrl").read()),
-                        latest_filing,
-                    )
-                )
+                        if published > latest:
+                            latest = published
+                            latest_filing = filing_name
 
-        return filings
+                    # Add to least of most recent filings
+                    keep_filings.append(latest_filing)
+
+        return raw_archive, [
+            filing for filing in all_filings if filing not in keep_filings
+        ]
 
 
 def _get_sqlite_engine(form_number: int, clobber: bool) -> sa.engine.Engine:
@@ -136,14 +142,12 @@ def xbrl2sqlite(context) -> None:
             logger.info(f"Dataset ferc{form}_xbrl is disabled, skipping")
             continue
 
-        sqlite_engine = _get_sqlite_engine(form.value, clobber)
-
         convert_form(
             settings,
             form,
             datastore,
-            sqlite_engine,
             output_path=output_path,
+            clobber=clobber,
             batch_size=batch_size,
             workers=workers,
         )
@@ -153,8 +157,8 @@ def convert_form(
     form_settings: FercGenericXbrlToSqliteSettings,
     form: XbrlFormNumber,
     datastore: FercXbrlDatastore,
-    sqlite_engine: sa.engine.Engine,
     output_path: Path,
+    clobber: bool,
     batch_size: int | None = None,
     workers: int | None = None,
 ) -> None:
@@ -164,7 +168,6 @@ def convert_form(
         form_settings: Validated settings for converting the desired XBRL form to SQLite.
         form: FERC form number.
         datastore: Instance of a FERC XBRL datastore for retrieving data.
-        sqlite_engine: SQLAlchemy connection to mirrored database.
         pudl_settings: Dictionary containing paths and database URLs
             used by PUDL.
         batch_size: Number of XBRL filings to process in a single CPU process.
@@ -177,15 +180,23 @@ def convert_form(
     metadata_path = str(output_path / f"ferc{form.value}_xbrl_taxonomy_metadata.json")
     # Process XBRL filings for each year requested
     for year in form_settings.years:
-        raw_archive, taxonomy_entry_point = datastore.get_taxonomy(year, form)
-        xbrl.extract(
-            datastore.get_filings(year, form),
-            sqlite_engine,
-            raw_archive,
-            form.value,
-            batch_size=batch_size,
-            workers=workers,
-            datapackage_path=datapackage_path,
+        taxonomy_archive, taxonomy_entry_point = datastore.get_taxonomy(year, form)
+        filings_archive, skip_filings = datastore.get_filings(year, form)
+
+        run_main(
+            instance_path=filings_archive,
+            sql_path=PudlPaths()
+            .sqlite_db(f"ferc{form.value}_xbrl")
+            .removeprefix("sqlite:///"),  # Temp hacky solution
+            clobber=clobber,
+            taxonomy=taxonomy_archive,
+            entry_point=taxonomy_entry_point,
+            form_number=form.value,
             metadata_path=metadata_path,
-            archive_file_path=taxonomy_entry_point,
+            datapackage_path=datapackage_path,
+            workers=workers,
+            batch_size=batch_size,
+            loglevel="INFO",
+            logfile=None,
+            skip_filings=skip_filings,
         )
