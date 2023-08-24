@@ -788,7 +788,9 @@ def reconcile_table_calculations(
     # wild. i know. so we are grabbing all of the non-factoid dimensions that show up
     # in the data.
     dim_cols = [
-        d for d in other_dimensions() if d in df.columns and d != xbrl_factoid_name
+        d
+        for d in other_dimensions(table_names=FERC1_TFR_CLASSES.keys())
+        if d in df.columns and d != xbrl_factoid_name
     ]
     calc_idx = ["xbrl_factoid", "table_name"] + dim_cols
 
@@ -5496,10 +5498,8 @@ def plants_steam_ferc1(
     return convert_cols_dtypes(df, data_source="ferc1")
 
 
-def other_dimensions(table_names: list[str] | None = None) -> list[str]:
+def other_dimensions(table_names: list[str]) -> list[str]:
     """Get a list of the other dimension columns across all of the transformers."""
-    if not table_names:
-        table_names = FERC1_TFR_CLASSES.keys()
     # grab all of the dimensions columns that we are currently verifying as a part of
     # reconcile_table_calculations
     other_dimensions = [
@@ -5554,7 +5554,10 @@ def table_dimensions_ferc1(**kwargs) -> pd.DataFrame:
         for (name, df) in kwargs.items()
     }
     dimensions = (
-        pd.concat(tbls.values())[["table_name", "xbrl_factoid"] + other_dimensions()]
+        pd.concat(tbls.values())[
+            ["table_name", "xbrl_factoid"]
+            + other_dimensions(table_names=FERC1_TFR_CLASSES.keys())
+        ]
         .drop_duplicates()
         .reset_index(drop=True)
     )
@@ -5586,7 +5589,7 @@ def metadata_xbrl_ferc1(**kwargs) -> pd.DataFrame:
             .assign(table_name=table_name)
         )
         tbl_metas.append(tbl_meta)
-    dimensions = other_dimensions()
+    dimensions = other_dimensions(table_names=FERC1_TFR_CLASSES.keys())
     metadata_all = (
         pd.concat(tbl_metas)
         .reset_index(drop=True)
@@ -5621,7 +5624,7 @@ def calculation_components_xbrl_ferc1(**kwargs) -> pd.DataFrame:
         ).xbrl_calculations
         calc_metas.append(calc_meta)
     # squish all of the calc comp tables then add in the implicit table dimensions
-    dimensions = other_dimensions()
+    dimensions = other_dimensions(table_names=FERC1_TFR_CLASSES.keys())
     calc_components = (
         pd.concat(calc_metas)
         .astype({dim: pd.StringDtype() for dim in dimensions})

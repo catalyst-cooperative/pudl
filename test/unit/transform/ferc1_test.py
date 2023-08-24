@@ -721,20 +721,18 @@ electric_plant_depreciation_functional_ferc1,accumulated_depreciation,electric,t
         ]
     )
 
-    def other_dimensions():
-        return ["utility_type", "plant_status", "plant_function"]
-
+    dimensions = ["utility_type", "plant_status", "plant_function"]
     calc_comps = (
-        calcs.astype({dim: pd.StringDtype() for dim in other_dimensions()})
+        calcs.astype({dim: pd.StringDtype() for dim in dimensions})
         .pipe(
             make_calculation_dimensions_explicit,
             table_dims,
-            dimensions=other_dimensions(),
+            dimensions=dimensions,
         )
         .pipe(
             assign_parent_dimensions,
             table_dimensions=table_dims,
-            dimensions=other_dimensions(),
+            dimensions=dimensions,
         )
     )
     # calc_components
@@ -744,7 +742,7 @@ electric_plant_depreciation_functional_ferc1,accumulated_depreciation,electric,t
         add_dimension_total_calculations,
         meta_w_dims=meta_w_dims,
         table_dimensions=table_dims,
-        dimensions=other_dimensions(),
+        dimensions=dimensions,
     )
     calc_components_w_totals_expected = pd.read_csv(
         StringIO(
