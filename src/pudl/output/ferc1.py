@@ -1314,9 +1314,6 @@ class Exploder:
             "row_type_xbrl",
         ]
 
-        # remove the other dimensional totals
-        # exploded = self.remove_totals_from_other_dimensions(exploded)
-
         # TODO: Validate the root node calculations.
         # Verify that we get the same values for the root nodes using only the input
         # data from the leaf nodes:
@@ -1539,47 +1536,6 @@ class Exploder:
                 [calculated_df, corrections], axis="index"
             ).reset_index(drop=True)
         return calculated_df
-
-    def remove_totals_from_other_dimensions(
-        self, exploded: pd.DataFrame
-    ) -> pd.DataFrame:
-        """Remove the totals from the other dimensions."""
-        logger.info("Explode: Interdimensional time.")
-        # bc we fill in some of the other dimension columns for
-        # ensure we are only taking totals from table_name's that have more than one value
-        # for their other dimensions.
-        # find the totals from the other dimensions
-        exploded = exploded.assign(
-            **{
-                f"{dim}_nunique": exploded.groupby(["table_name"])[dim].transform(
-                    "nunique"
-                )
-                for dim in self.other_dimensions
-            }
-        )
-        exploded = exploded.assign(
-            **{
-                f"{dim}_total": (exploded[dim] == "total")
-                & (exploded[f"{dim}_nunique"] != 1)
-                for dim in self.other_dimensions
-            }
-        )
-        total_mask = (exploded[[f"{dim}_total" for dim in self.other_dimensions]]).any(
-            axis=1
-        )
-        total_len = len(exploded[total_mask])
-        logger.info(
-            f"Removing {total_len} ({total_len/len(exploded):.1%}) of records which are "
-            f"totals of the following dimensions {self.other_dimensions}"
-        )
-        # remove the totals & drop the cols we used to make em
-        drop_cols = [
-            f"{dim}{suff}"
-            for suff in ["_nunique", "_total"]
-            for dim in self.other_dimensions
-        ]
-        exploded = exploded[~total_mask].drop(columns=drop_cols)
-        return exploded
 
 
 def in_explosion_tables(table_name: str, in_explosion_table_names: list[str]) -> bool:

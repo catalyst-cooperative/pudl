@@ -212,13 +212,13 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
             "fields": [
                 "utility_id_ferc1",
                 "report_year",
+                "depreciation_type",
                 "plant_function",
                 "plant_status",
                 "utility_type",
                 "ending_balance",
                 "record_id",
                 "balance",
-                "ferc_account",
                 "row_type_xbrl",
             ],
             "primary_key": [
@@ -1071,20 +1071,23 @@ any cleaning mechanisms in place to account for this."""
         "field_namespace": "ferc1",
     },
     "denorm_electric_plant_depreciation_functional_ferc1": {
-        "description": "Denormalized table that contains FERC electric plant depreciation functional information.",
+        "description": (
+            "Denormalized accumulated provision for depreciation of electric utility "
+            "plant (Account 108). Schedule 219 Section B: Functional plant classifications."
+        ),
         "schema": {
             "fields": [
                 "utility_id_ferc1",
                 "utility_id_pudl",
                 "utility_name_ferc1",
                 "report_year",
+                "depreciation_type",
                 "plant_function",
                 "plant_status",
                 "utility_type",
                 "ending_balance",
                 "record_id",
                 "balance",
-                "ferc_account",
                 "row_type_xbrl",
             ],
             "primary_key": [

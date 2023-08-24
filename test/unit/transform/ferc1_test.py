@@ -479,7 +479,12 @@ table_a,fact_1,table_a,replace_me,1.0
 """
         )
     )
-    calc_comps_fixed_out = Ferc1AbstractTableTransformer.apply_xbrl_calculation_fixes(
+
+    class FakeTransformer(Ferc1AbstractTableTransformer):
+        # just need any table name here so that one method is callable
+        table_id = TableIdFerc1.FUEL_FERC1
+
+    calc_comps_fixed_out = FakeTransformer().apply_xbrl_calculation_fixes(
         calc_components=calc_comps_fix_test, calc_fixes=calc_fixes_test
     )
     pd.testing.assert_frame_equal(calc_comps_fixed_expected, calc_comps_fixed_out)
@@ -637,7 +642,7 @@ table_a,fact_3,voyager,total
             calc_components=calc_comps_trek,
             table_dimensions=table_dimensions_same_trek,
             dimensions=["dim_x", "dim_y"],
-        )
+        )[[col for col in expected_parent_dim_trek]]
         .sort_values(calc_comp_idx)
         .reset_index(drop=True)
     )
@@ -671,3 +676,106 @@ table_a,fact_3,voyager,total,table_a,fact_3,voyager,nebula,True,False
     )[[col for col in expected_total_to_subdim]]
 
     pd.testing.assert_frame_equal(out_total_to_subdim, expected_total_to_subdim)
+
+
+def test_multi_dims_totals():
+    table_dims = pd.read_csv(
+        StringIO(
+            """
+table_name,xbrl_factoid,utility_type,plant_status,plant_function
+electric_plant_depreciation_functional_ferc1,accumulated_depreciation,electric,future,steam_production
+electric_plant_depreciation_functional_ferc1,accumulated_depreciation,electric,in_service,steam_production
+electric_plant_depreciation_functional_ferc1,accumulated_depreciation,electric,total,steam_production
+electric_plant_depreciation_functional_ferc1,accumulated_depreciation,electric,future,general
+electric_plant_depreciation_functional_ferc1,accumulated_depreciation,electric,in_service,general
+electric_plant_depreciation_functional_ferc1,accumulated_depreciation,electric,total,general
+electric_plant_depreciation_functional_ferc1,accumulated_depreciation,electric,future,total
+electric_plant_depreciation_functional_ferc1,accumulated_depreciation,electric,in_service,total
+electric_plant_depreciation_functional_ferc1,accumulated_depreciation,electric,total,total
+"""
+        )
+    )
+    meta_w_dims = pd.read_csv(
+        StringIO(
+            """
+table_name,xbrl_factoid,utility_type,plant_status,plant_function
+electric_plant_depreciation_functional_ferc1,accumulated_depreciation,electric,future,steam_production
+electric_plant_depreciation_functional_ferc1,accumulated_depreciation,electric,future,general
+electric_plant_depreciation_functional_ferc1,accumulated_depreciation,electric,future,total
+electric_plant_depreciation_functional_ferc1,accumulated_depreciation,electric,in_service,steam_production
+electric_plant_depreciation_functional_ferc1,accumulated_depreciation,electric,in_service,general
+electric_plant_depreciation_functional_ferc1,accumulated_depreciation,electric,in_service,total
+electric_plant_depreciation_functional_ferc1,accumulated_depreciation,electric,total,steam_production
+electric_plant_depreciation_functional_ferc1,accumulated_depreciation,electric,total,general
+electric_plant_depreciation_functional_ferc1,accumulated_depreciation,electric,total,total
+"""
+        )
+    )
+    calcs = pd.DataFrame(
+        columns=[
+            "table_name",
+            "xbrl_factoid",
+            "utility_type",
+            "plant_status",
+            "plant_function",
+        ]
+    )
+
+    dimensions = ["utility_type", "plant_status", "plant_function"]
+    calc_comps = (
+        calcs.astype({dim: pd.StringDtype() for dim in dimensions})
+        .pipe(
+            make_calculation_dimensions_explicit,
+            table_dims,
+            dimensions=dimensions,
+        )
+        .pipe(
+            assign_parent_dimensions,
+            table_dimensions=table_dims,
+            dimensions=dimensions,
+        )
+    )
+    # calc_components
+    assert calc_comps.empty
+
+    calc_components_w_totals = calc_comps.pipe(
+        add_dimension_total_calculations,
+        meta_w_dims=meta_w_dims,
+        table_dimensions=table_dims,
+        dimensions=dimensions,
+    )
+    calc_components_w_totals_expected = pd.read_csv(
+        StringIO(
+            """
+table_name_parent,xbrl_factoid_parent,utility_type_parent,plant_status_parent,plant_function_parent,table_name,xbrl_factoid,utility_type,plant_status,plant_function
+electric_plant_depreciation_functional_ferc1,accumulated_depreciation,electric,total,total,electric_plant_depreciation_functional_ferc1,accumulated_depreciation,electric,in_service,steam_production
+electric_plant_depreciation_functional_ferc1,accumulated_depreciation,electric,total,total,electric_plant_depreciation_functional_ferc1,accumulated_depreciation,electric,in_service,general
+electric_plant_depreciation_functional_ferc1,accumulated_depreciation,electric,total,total,electric_plant_depreciation_functional_ferc1,accumulated_depreciation,electric,future,steam_production
+electric_plant_depreciation_functional_ferc1,accumulated_depreciation,electric,total,total,electric_plant_depreciation_functional_ferc1,accumulated_depreciation,electric,future,general
+electric_plant_depreciation_functional_ferc1,accumulated_depreciation,electric,total,steam_production,electric_plant_depreciation_functional_ferc1,accumulated_depreciation,electric,in_service,steam_production
+electric_plant_depreciation_functional_ferc1,accumulated_depreciation,electric,total,steam_production,electric_plant_depreciation_functional_ferc1,accumulated_depreciation,electric,in_service,general
+electric_plant_depreciation_functional_ferc1,accumulated_depreciation,electric,total,steam_production,electric_plant_depreciation_functional_ferc1,accumulated_depreciation,electric,future,steam_production
+electric_plant_depreciation_functional_ferc1,accumulated_depreciation,electric,total,steam_production,electric_plant_depreciation_functional_ferc1,accumulated_depreciation,electric,future,general
+electric_plant_depreciation_functional_ferc1,accumulated_depreciation,electric,total,general,electric_plant_depreciation_functional_ferc1,accumulated_depreciation,electric,in_service,steam_production
+electric_plant_depreciation_functional_ferc1,accumulated_depreciation,electric,total,general,electric_plant_depreciation_functional_ferc1,accumulated_depreciation,electric,in_service,general
+electric_plant_depreciation_functional_ferc1,accumulated_depreciation,electric,total,general,electric_plant_depreciation_functional_ferc1,accumulated_depreciation,electric,future,steam_production
+electric_plant_depreciation_functional_ferc1,accumulated_depreciation,electric,total,general,electric_plant_depreciation_functional_ferc1,accumulated_depreciation,electric,future,general
+electric_plant_depreciation_functional_ferc1,accumulated_depreciation,electric,in_service,total,electric_plant_depreciation_functional_ferc1,accumulated_depreciation,electric,in_service,steam_production
+electric_plant_depreciation_functional_ferc1,accumulated_depreciation,electric,in_service,total,electric_plant_depreciation_functional_ferc1,accumulated_depreciation,electric,in_service,general
+electric_plant_depreciation_functional_ferc1,accumulated_depreciation,electric,in_service,total,electric_plant_depreciation_functional_ferc1,accumulated_depreciation,electric,future,steam_production
+electric_plant_depreciation_functional_ferc1,accumulated_depreciation,electric,in_service,total,electric_plant_depreciation_functional_ferc1,accumulated_depreciation,electric,future,general
+electric_plant_depreciation_functional_ferc1,accumulated_depreciation,electric,future,total,electric_plant_depreciation_functional_ferc1,accumulated_depreciation,electric,in_service,steam_production
+electric_plant_depreciation_functional_ferc1,accumulated_depreciation,electric,future,total,electric_plant_depreciation_functional_ferc1,accumulated_depreciation,electric,in_service,general
+electric_plant_depreciation_functional_ferc1,accumulated_depreciation,electric,future,total,electric_plant_depreciation_functional_ferc1,accumulated_depreciation,electric,future,steam_production
+electric_plant_depreciation_functional_ferc1,accumulated_depreciation,electric,future,total,electric_plant_depreciation_functional_ferc1,accumulated_depreciation,electric,future,general
+"""
+        )
+    )
+    pd.testing.assert_frame_equal(
+        calc_components_w_totals_expected,
+        calc_components_w_totals[[col for col in calc_components_w_totals_expected]]
+        .sort_values(
+            by=list(calc_components_w_totals_expected.columns), ascending=False
+        )
+        .reset_index(drop=True),
+    )
