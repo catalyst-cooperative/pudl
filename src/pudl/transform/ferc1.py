@@ -789,7 +789,7 @@ def reconcile_table_calculations(
     # in the data.
     dim_cols = [
         d
-        for d in other_dimensions(table_names=FERC1_TFR_CLASSES.keys())
+        for d in other_dimensions(table_names=list(FERC1_TFR_CLASSES))
         if d in df.columns and d != xbrl_factoid_name
     ]
     calc_idx = ["xbrl_factoid", "table_name"] + dim_cols
@@ -5556,7 +5556,7 @@ def table_dimensions_ferc1(**kwargs) -> pd.DataFrame:
     dimensions = (
         pd.concat(tbls.values())[
             ["table_name", "xbrl_factoid"]
-            + other_dimensions(table_names=FERC1_TFR_CLASSES.keys())
+            + other_dimensions(table_names=list(FERC1_TFR_CLASSES))
         ]
         .drop_duplicates()
         .reset_index(drop=True)
@@ -5589,7 +5589,7 @@ def metadata_xbrl_ferc1(**kwargs) -> pd.DataFrame:
             .assign(table_name=table_name)
         )
         tbl_metas.append(tbl_meta)
-    dimensions = other_dimensions(table_names=FERC1_TFR_CLASSES.keys())
+    dimensions = other_dimensions(table_names=list(FERC1_TFR_CLASSES))
     metadata_all = (
         pd.concat(tbl_metas)
         .reset_index(drop=True)
@@ -5624,7 +5624,7 @@ def calculation_components_xbrl_ferc1(**kwargs) -> pd.DataFrame:
         ).xbrl_calculations
         calc_metas.append(calc_meta)
     # squish all of the calc comp tables then add in the implicit table dimensions
-    dimensions = other_dimensions(table_names=FERC1_TFR_CLASSES.keys())
+    dimensions = other_dimensions(table_names=list(FERC1_TFR_CLASSES))
     calc_components = (
         pd.concat(calc_metas)
         .astype({dim: pd.StringDtype() for dim in dimensions})
