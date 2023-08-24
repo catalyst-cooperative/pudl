@@ -1271,7 +1271,11 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
     xbrl_metadata: pd.DataFrame = pd.DataFrame()
     """Dataframe combining XBRL metadata for both instant and duration table columns."""
     xbrl_calculations: pd.DataFrame | None = None
-    """Dataframe of calculation components."""
+    """Dataframe of calculation components.
+
+    If ``None``, the calculations have not been instantiated. If the table has been
+    instantiated but is an empty table, then there are no calculations for that table.
+    """
 
     def __init__(
         self,
@@ -4942,51 +4946,39 @@ class ElectricPlantDepreciationFunctionalFerc1TableTransformer(
         self: Self,
         xbrl_metadata_json: dict[Literal["instant", "duration"], list[dict[str, Any]]],
     ) -> pd.DataFrame:
-        """Default XBRL metadata processing and add a DBF-only xblr factoid.
+        """Create a metadata table with the one factoid we've assigned to this table.
 
-        Note: we should probably parameterize this and add it into the standard
-        :meth:`process_xbrl_metadata`.
+        Instead of adding facts to the metdata like a lot of the other table-specific
+        :meth:`convert_xbrl_metadata_json_to_df`, this method creates a metadata table
+        with one singular ``xbrl_factoid``. We assign that factoid to the table in
+        :meth:`transform_main`.
         """
-        faked_high_level_fact = [
+        single_table_fact = [
             {
-                "xbrl_factoid": dbf_only_fact,
+                "xbrl_factoid": fact,
                 "calculations": "[]",
                 "balance": "credit",
                 "ferc_account": pd.NA,
-                "xbrl_factoid_original": dbf_only_fact,
+                "xbrl_factoid_original": fact,
                 "is_within_table_calc": True,
                 "row_type_xbrl": "reported_value",
             }
-            for dbf_only_fact in ["accumulated_depreciation"]
+            for fact in ["accumulated_depreciation"]
         ]
-        tbl_meta = pd.DataFrame(faked_high_level_fact).convert_dtypes()
+        tbl_meta = pd.DataFrame(single_table_fact).convert_dtypes()
         return tbl_meta
 
     def raw_xbrl_factoid_to_pudl_name(
         self,
         col_name_xbrl: str,
     ) -> str:
-        """Apply default factoid rename plus special case.
+        """Return the one fact name for this table.
 
-        Unfortunately in the XBRL data, the actual column names differ from the column
-        names in the metadata. Because of that, the default
-        :meth:`raw_xbrl_factoid_to_pudl_name` does not catch all of the renames. This
-        method ensures that each metadata column name can be translated into PUDL column
-        names.
-
-        Note: Another way to do this would be to add a special case rename dict into
-        ``self.params.rename_dicts_xbrl`` which looked nearly the same as the
-        ``self.params.rename_columns_ferc1.instant_xbrl`` but without the
-        ``_ending_balance`` suffix. Because the rename stage is first in both the
-        :meth:`raw_xbrl_factoid_to_pudl_name` doesn't line up with the
-        metadata
+        We've artificially assigned this table to have one ``xbrl_factoid`` during
+        :meth:`transform_main`. Because this table only has one value for its
+        ``xbrl_factoid`` column, all ``col_name_xbrl`` should be converted to
+        "accumulated_depreciation".
         """
-        # # except for this one special case which is the total/calcuated value.
-        # if (
-        #     col_name_pudl
-        #     == "accumulated_provision_for_depreciation_of_electric_utility_plant"
-        # ):
-        #     col_name_pudl = "total"
         return "accumulated_depreciation"
 
     @cache_df("dbf")
@@ -5017,7 +5009,16 @@ class ElectricPlantDepreciationFunctionalFerc1TableTransformer(
 
     @cache_df("main")
     def transform_main(self, df: pd.DataFrame) -> pd.DataFrame:
-        """Add ``depreciation_type`` then run default :meth:`transform_main`."""
+        """Add ``depreciation_type`` then run default :meth:`transform_main`.
+
+        We are adding ``depreciation_type`` as the ``xbrl_factoid`` column for this
+        table with one value ("accumulated_depreciation") across the whole table. This
+        table has multiple "dimension" columns such as ``utility_type`` and
+        ``plant_function`` which differentiate what slice of a utility's assets each
+        record pertains to. We added this new column as the ``xbrl_factoid`` of the
+        table instead of using one of the dimensions of the table so that the table can
+        conform to the same patern of treatment for these dimension columns.
+        """
         df = df.assign(depreciation_type="accumulated_depreciation").pipe(
             super().transform_main
         )
@@ -5585,14 +5586,15 @@ def metadata_xbrl_ferc1(**kwargs) -> pd.DataFrame:
             .assign(table_name=table_name)
         )
         tbl_metas.append(tbl_meta)
+    dimensions = other_dimensions()
     metadata_all = (
         pd.concat(tbl_metas)
         .reset_index(drop=True)
-        .assign(**{dim: pd.NA for dim in other_dimensions()})
+        .assign(**{dim: pd.NA for dim in dimensions})
         .pipe(
             make_calculation_dimensions_explicit,
             table_dimensions_ferc1=table_dimensions_ferc1,
-            dimensions=other_dimensions(),
+            dimensions=dimensions,
         )
     )
     return metadata_all
@@ -5619,34 +5621,35 @@ def calculation_components_xbrl_ferc1(**kwargs) -> pd.DataFrame:
         ).xbrl_calculations
         calc_metas.append(calc_meta)
     # squish all of the calc comp tables then add in the implicit table dimensions
+    dimensions = other_dimensions()
     calc_components = (
         pd.concat(calc_metas)
-        .astype({dim: pd.StringDtype() for dim in other_dimensions()})
+        .astype({dim: pd.StringDtype() for dim in dimensions})
         .pipe(
             make_calculation_dimensions_explicit,
             table_dimensions_ferc1,
-            dimensions=other_dimensions(),
+            dimensions=dimensions,
         )
         .pipe(
             assign_parent_dimensions,
             table_dimensions=table_dimensions_ferc1,
-            dimensions=other_dimensions(),
+            dimensions=dimensions,
         )
         .pipe(
             add_dimension_total_calculations,
             meta_w_dims=metadata_xbrl_ferc1,
             table_dimensions=table_dimensions_ferc1,
-            dimensions=other_dimensions(),
+            dimensions=dimensions,
         )
         .pipe(
             remove_non_totals_from_impiled_child_calculation_components,
-            dimensions=other_dimensions(),
+            dimensions=dimensions,
         )
     )
 
     # Defensive testing on this table!
     assert calc_components[["table_name", "xbrl_factoid"]].notnull().all(axis=1).all()
-    calc_cols = ["table_name", "xbrl_factoid"] + other_dimensions()
+    calc_cols = ["table_name", "xbrl_factoid"] + dimensions
     calc_and_parent_cols = calc_cols + [f"{col}_parent" for col in calc_cols]
 
     missing_from_calcs_idx = (
@@ -5906,9 +5909,7 @@ def add_dimension_total_calculations(
         )
     # now we have a bunch of *new* records linking total records to their non-total
     # sub-components.
-    calc_components = pd.concat([calc_components, pd.concat(subtotal_dfs)]).reset_index(
-        drop=True
-    )
+    calc_components = pd.concat([calc_components] + subtotal_dfs).reset_index(drop=True)
     # need to determine if a factoid in a total has multiple totals in its dimensions
     # bc if so, we are not going to merge on those totals in the table dims table. that
     # way we will just
