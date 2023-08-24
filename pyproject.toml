@@ -17,7 +17,7 @@ dependencies = [
     "boto3>=1.28.55",
     "bottleneck>=1.3.4",  # pandas[performance]
     "catalystcoop.dbfread>=3,<3.1",
-    "catalystcoop.ferc-xbrl-extractor==0.8.3",
+    "catalystcoop.ferc-xbrl-extractor>=1.0.0,<2",
     "coloredlogs>=14.0,<15.1",  # Dagster requires 14.0
     "dagster-webserver>=1.4,<1.5",
     "dagster>=1.4,<1.5",
