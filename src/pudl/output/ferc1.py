@@ -1,6 +1,7 @@
 """A collection of denormalized FERC assets and helper functions."""
 import importlib
 import re
+from io import StringIO
 from typing import Literal, NamedTuple, Self
 
 import networkx as nx
@@ -1807,9 +1808,11 @@ class XbrlCalculationForestFerc1(BaseModel):
         """Prune any portions of the digraph that aren't reachable from the roots."""
         seeded_nodes = set(self.seeds)
         for seed in self.seeds:
+            # the seeds and all of their descendants from the graph
             seeded_nodes = list(
                 seeded_nodes.union({seed}).union(nx.descendants(graph, seed))
             )
+        # any seeded node that is also a parent
         seeded_parents = [
             node
             for node, degree in dict(graph.out_degree(seeded_nodes)).items()
@@ -1819,6 +1822,14 @@ class XbrlCalculationForestFerc1(BaseModel):
             self.exploded_calcs.set_index(self.parent_cols)
             .loc[seeded_parents]
             .reset_index()
+        )
+        seeded_child_nodes = list(
+            set(
+                seeded_calcs[self.calc_cols].itertuples(index=False, name="NodeId")
+            ).intersection(graph.nodes)
+        )
+        seeded_calcs = (
+            seeded_calcs.set_index(self.calc_cols).loc[seeded_child_nodes].reset_index()
         )
         seeded_digraph: nx.DiGraph = self.exploded_calcs_to_digraph(
             exploded_calcs=seeded_calcs
@@ -1881,10 +1892,6 @@ class XbrlCalculationForestFerc1(BaseModel):
             forest.remove_nodes_from(correction + [node])
             forest.add_edge(parent[0], child[0])
 
-        if not nx.is_forest(forest):
-            logger.error(
-                "Calculations in Exploded Metadata can not be represented as a forest!"
-            )
         connected_components = list(nx.connected_components(forest.to_undirected()))
         logger.debug(
             f"Calculation forest contains {len(connected_components)} connected components."
@@ -1892,15 +1899,10 @@ class XbrlCalculationForestFerc1(BaseModel):
 
         # Remove any node that:
         # - ONLY has stepchildren.
-        # - AND has utility_type total
         for node in self.stepparents(forest):
             children = set(forest.successors(node))
             stepchildren = set(self.stepchildren(forest)).intersection(children)
-            if (
-                (children == stepchildren)
-                & (len(children) > 0)
-                & (node.utility_type == "total")
-            ):
+            if (children == stepchildren) & (len(children) > 0):
                 forest.remove_node(node)
 
         # Prune any newly disconnected nodes resulting from the above removal of
@@ -1911,7 +1913,27 @@ class XbrlCalculationForestFerc1(BaseModel):
 
         if pruned_nodes := set(nodes_before_pruning).difference(nodes_after_pruning):
             raise AssertionError(f"Unexpectedly pruned stepchildren: {pruned_nodes=}")
-
+        # HACK alter.
+        # two different parents. those parents have different sets of dimensions.
+        # sharing some but not all of their children so they weren't caught from in the
+        # only stepchildren node removal from above. a generalization here would be good
+        remove_almost_stepparents = pd.read_csv(
+            StringIO(
+                """
+table_name,xbrl_factoid,utility_type,plant_status,plant_function
+utility_plant_summary_ferc1,depreciation_amortization_and_depletion_utility_plant_leased_to_others,total,,
+utility_plant_summary_ferc1,depreciation_and_amortization_utility_plant_held_for_future_use,total,,
+"""
+            )
+        ).convert_dtypes()
+        forest.remove_nodes_from(
+            list(remove_almost_stepparents.itertuples(index=False, name="NodeId"))
+        )
+        forest = self.prune_unrooted(forest)
+        if not nx.is_forest(forest):
+            logger.error(
+                "Calculations in Exploded Metadata can not be represented as a forest!"
+            )
         # forest = self.set_forest_attributes(
         #    forest,
         #    exploded_meta=self.exploded_meta,
