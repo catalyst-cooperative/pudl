@@ -1944,12 +1944,25 @@ utility_plant_summary_ferc1,utility_plant_in_service_classified_and_unclassified
         remaining_stepparents = set(self.stepparents(forest))
         if remaining_stepparents:
             logger.info(f"{remaining_stepparents=}")
-        # forest = self.set_forest_attributes(
-        #    forest,
-        #    exploded_meta=self.exploded_meta,
-        #    exploded_calcs=self.exploded_calcs,
-        #    tags=self.tags,
-        # )
+
+        # There are a few rare instances where a particular node is specified with more
+        # than one weight (-1 vs. 1) and in those cases, we always want to keep the
+        # weight of -1, since it affects the overall root->leaf calculation outcome.
+        # Maybe this should actually happen in set_forest_attributes?
+        multi_valued_weights = (
+            self.exploded_calcs.groupby(self.calc_cols, dropna=False)["weight"]
+            .transform("nunique")
+            .gt(1)
+        )
+        calcs_to_drop = multi_valued_weights & (self.exploded_calcs.weight == 1)
+        deduplicated_calcs = self.exploded_calcs.drop(calcs_to_drop.index)
+
+        forest = self.set_forest_attributes(
+            forest,
+            exploded_meta=self.exploded_meta,
+            exploded_calcs=deduplicated_calcs,
+            tags=self.tags,
+        )
         return forest
 
     @staticmethod
