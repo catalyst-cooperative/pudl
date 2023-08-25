@@ -1929,6 +1929,7 @@ class XbrlCalculationForestFerc1(BaseModel):
 table_name,xbrl_factoid,utility_type,plant_status,plant_function
 utility_plant_summary_ferc1,depreciation_amortization_and_depletion_utility_plant_leased_to_others,total,,
 utility_plant_summary_ferc1,depreciation_and_amortization_utility_plant_held_for_future_use,total,,
+utility_plant_summary_ferc1,utility_plant_in_service_classified_and_unclassified,total,,
 """
             )
         ).convert_dtypes()
