@@ -1899,11 +1899,17 @@ class XbrlCalculationForestFerc1(BaseModel):
 
         # Remove any node that:
         # - ONLY has stepchildren.
-        for node in self.stepparents(forest):
+        nodes_to_remove = []
+        stepparents = sorted(self.stepparents(forest))
+        logger.info(f"Investigating {len(stepparents)=}")
+        for node in stepparents:
             children = set(forest.successors(node))
             stepchildren = set(self.stepchildren(forest)).intersection(children)
             if (children == stepchildren) & (len(children) > 0):
+                nodes_to_remove.append(node)
                 forest.remove_node(node)
+        logger.info(f"Removed {len(nodes_to_remove)} redundant/stepparent nodes.")
+        logger.debug(f"Removed redunant/stepparent nodes: {sorted(nodes_to_remove)}")
 
         # Prune any newly disconnected nodes resulting from the above removal of
         # pure stepparents. We expect the set of newly disconnected nodes to be empty.
@@ -1934,6 +1940,9 @@ utility_plant_summary_ferc1,depreciation_and_amortization_utility_plant_held_for
             logger.error(
                 "Calculations in Exploded Metadata can not be represented as a forest!"
             )
+        remaining_stepparents = set(self.stepparents(forest))
+        if remaining_stepparents:
+            logger.info(f"{remaining_stepparents=}")
         # forest = self.set_forest_attributes(
         #    forest,
         #    exploded_meta=self.exploded_meta,
