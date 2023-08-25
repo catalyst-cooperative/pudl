@@ -1955,9 +1955,7 @@ utility_plant_summary_ferc1,utility_plant_in_service_classified_and_unclassified
             .gt(1)
         )
         calcs_to_drop = multi_valued_weights & (self.exploded_calcs.weight == 1)
-        deduplicated_calcs = self.exploded_calcs.drop(
-            self.exploded_calcs[calcs_to_drop].index
-        )
+        deduplicated_calcs = self.exploded_calcs.loc[~calcs_to_drop]
 
         forest = self.set_forest_attributes(
             forest,
