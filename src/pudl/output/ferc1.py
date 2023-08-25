@@ -1955,7 +1955,9 @@ utility_plant_summary_ferc1,utility_plant_in_service_classified_and_unclassified
             .gt(1)
         )
         calcs_to_drop = multi_valued_weights & (self.exploded_calcs.weight == 1)
-        deduplicated_calcs = self.exploded_calcs.drop(calcs_to_drop.index)
+        deduplicated_calcs = self.exploded_calcs.drop(
+            self.exploded_calcs[calcs_to_drop].index
+        )
 
         forest = self.set_forest_attributes(
             forest,
@@ -2109,6 +2111,7 @@ utility_plant_summary_ferc1,utility_plant_in_service_classified_and_unclassified
                 # We assign them a weight of 1.0
                 # if not pruned_forest.nodes[node].get("weight", False):
                 if pd.isna(pruned_forest.nodes[node]["weight"]):
+                    logger.info(node)
                     assert node in roots
                     node_weight = 1.0
                 else:
