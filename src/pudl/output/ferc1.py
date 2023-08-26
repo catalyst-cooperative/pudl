@@ -1,7 +1,6 @@
 """A collection of denormalized FERC assets and helper functions."""
 import importlib
 import re
-from io import StringIO
 from typing import Literal, NamedTuple, Self
 
 import networkx as nx
@@ -1899,17 +1898,17 @@ class XbrlCalculationForestFerc1(BaseModel):
 
         # Remove any node that:
         # - ONLY has stepchildren.
-        nodes_to_remove = []
+        pure_stepparents = []
         stepparents = sorted(self.stepparents(forest))
         logger.info(f"Investigating {len(stepparents)=}")
         for node in stepparents:
             children = set(forest.successors(node))
             stepchildren = set(self.stepchildren(forest)).intersection(children)
             if (children == stepchildren) & (len(children) > 0):
-                nodes_to_remove.append(node)
+                pure_stepparents.append(node)
                 forest.remove_node(node)
-        logger.info(f"Removed {len(nodes_to_remove)} redundant/stepparent nodes.")
-        logger.debug(f"Removed redunant/stepparent nodes: {sorted(nodes_to_remove)}")
+        logger.info(f"Removed {len(pure_stepparents)} redundant/stepparent nodes.")
+        logger.debug(f"Removed redunant/stepparent nodes: {sorted(pure_stepparents)}")
 
         # Prune any newly disconnected nodes resulting from the above removal of
         # pure stepparents. We expect the set of newly disconnected nodes to be empty.
@@ -1919,23 +1918,45 @@ class XbrlCalculationForestFerc1(BaseModel):
 
         if pruned_nodes := set(nodes_before_pruning).difference(nodes_after_pruning):
             raise AssertionError(f"Unexpectedly pruned stepchildren: {pruned_nodes=}")
+
         # HACK alter.
         # two different parents. those parents have different sets of dimensions.
         # sharing some but not all of their children so they weren't caught from in the
         # only stepchildren node removal from above. a generalization here would be good
-        remove_almost_stepparents = pd.read_csv(
-            StringIO(
-                """
-table_name,xbrl_factoid,utility_type,plant_status,plant_function
-utility_plant_summary_ferc1,depreciation_amortization_and_depletion_utility_plant_leased_to_others,total,,
-utility_plant_summary_ferc1,depreciation_and_amortization_utility_plant_held_for_future_use,total,,
-utility_plant_summary_ferc1,utility_plant_in_service_classified_and_unclassified,total,,
-"""
-            )
-        ).convert_dtypes()
-        forest.remove_nodes_from(
-            list(remove_almost_stepparents.itertuples(index=False, name="NodeId"))
+        almost_pure_stepparents = [
+            NodeId(
+                "utility_plant_summary_ferc1",
+                "depreciation_amortization_and_depletion_utility_plant_leased_to_others",
+                "total",
+                pd.NA,
+                pd.NA,
+            ),
+            NodeId(
+                "utility_plant_summary_ferc1",
+                "depreciation_and_amortization_utility_plant_held_for_future_use",
+                "total",
+                pd.NA,
+                pd.NA,
+            ),
+            NodeId(
+                "utility_plant_summary_ferc1",
+                "utility_plant_in_service_classified_and_unclassified",
+                "total",
+                pd.NA,
+                pd.NA,
+            ),
+        ]
+        forest.remove_nodes_from(almost_pure_stepparents)
+
+        # Ensure that we haven't removed any calculation components that would have
+        # altered the final root-to-leaf calculations:
+        assert (
+            self.exploded_calcs.set_index(self.calc_cols)
+            .loc[pure_stepparents + almost_pure_stepparents, "weight"]
+            .gt(0)
+            .all()
         )
+
         forest = self.prune_unrooted(forest)
         if not nx.is_forest(forest):
             logger.error(
