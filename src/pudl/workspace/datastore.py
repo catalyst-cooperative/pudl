@@ -15,7 +15,7 @@ import datapackage
 import requests
 from google.auth.exceptions import DefaultCredentialsError
 from requests.adapters import HTTPAdapter
-from requests.packages.urllib3.util.retry import Retry
+from urllib3.util.retry import Retry
 
 import pudl
 from pudl.workspace import resource_cache
