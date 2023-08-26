@@ -242,10 +242,13 @@ class TestZenodoFetcher(unittest.TestCase):
         be checked in, thus this test will fail if a sandbox DOI with prefix 10.5072 is
         identified.
         """
-        ds = datastore.ZenodoFetcher()
-        self.assertTrue(ds.get_known_datasets())
-        for dataset in ds.get_known_datasets():
-            doi = ds.get_doi(dataset)
+        zf = datastore.ZenodoFetcher()
+        self.assertTrue(zf.get_known_datasets())
+        for dataset, doi in zf.zenodo_dois:
+            self.assertTrue(
+                zf.get_doi(dataset) == doi,
+                msg=f"Zenodo DOI for {dataset} matches result of get_doi()",
+            )
             self.assertFalse(
                 re.fullmatch(r"10\.5072/zenodo\.[0-9]{5,10}", doi),
                 msg=f"Zenodo sandbox DOI found for {dataset}: {doi}",
