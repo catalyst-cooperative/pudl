@@ -14,7 +14,7 @@ from typing import Any, Self
 import datapackage
 import requests
 from google.auth.exceptions import DefaultCredentialsError
-from pydantic import BaseModel, HttpUrl, confloat, constr
+from pydantic import BaseSettings, HttpUrl, constr
 from requests.adapters import HTTPAdapter
 from urllib3.util.retry import Retry
 
@@ -25,12 +25,8 @@ from pudl.workspace.setup import PudlPaths
 
 logger = pudl.logging_helpers.get_logger(__name__)
 
-# The Zenodo tokens recorded here should have read-only access to our archives.
-# Including them here is correct in order to allow public use of this tool, so
-# long as we stick to read-only keys.
-
 PUDL_YML = Path.home() / ".pudl.yml"
-ZenodoDOI = constr(regex=r"(10\.5072|10\.5281)/zenodo.([\d]+)")
+ZenodoDoi = constr(regex=r"(10\.5072|10\.5281)/zenodo.([\d]+)")
 
 
 class ChecksumMismatch(ValueError):
@@ -98,12 +94,12 @@ class DatapackageDescriptor:
         )
 
     def get_resources(
-        self, name: str = None, **filters: Any
+        self: Self, name: str = None, **filters: Any
     ) -> Iterator[PudlResourceKey]:
         """Returns series of PudlResourceKey identifiers for matching resources.
 
         Args:
-          name (str): if specified, find resource(s) with this name.
+          name: if specified, find resource(s) with this name.
           filters (dict): if specified, find resoure(s) matching these key=value constraints.
             The constraints are matched against the 'parts' field of the resource
             entry in the datapackage.json.
@@ -156,65 +152,81 @@ class DatapackageDescriptor:
         return json.dumps(self.datapackage_json, sort_keys=True, indent=4)
 
 
-class ZenodoFetcher(BaseModel):
-    """API for fetching datapackage descriptors and resource contents from zenodo."""
+class ZenodoDoiSettings(BaseSettings):
+    """Digital Object Identifiers pointing to currently used Zenodo archives."""
 
-    _descriptor_cache: dict[str, DatapackageDescriptor] = {}
-    http: requests.Session = requests.Session()
-    timeout: confloat(gt=0.0, allow_inf_nan=False) = 15.0
-    zenodo_dois: dict[str, ZenodoDOI] = {
-        # Sandbox DOIs are provided for reference
-        "censusdp1tract": "10.5281/zenodo.4127049",
-        # "censusdp1tract": "10.5072/zenodo.674992",
-        "eia860": "10.5281/zenodo.8164776",
-        # "eia860": "10.5072/zenodo.1222854",
-        "eia860m": "10.5281/zenodo.8188017",
-        # "eia860m": "10.5072/zenodo.1225517",
-        "eia861": "10.5281/zenodo.8231268",
-        # "eia861": "10.5072/zenodo.1229930",
-        "eia923": "10.5281/zenodo.8172818",
-        # "eia923": "10.5072/zenodo.1217724",
-        "eia_bulk_elec": "10.5281/zenodo.7067367",
-        # "eia_bulk_elec": "10.5072/zenodo.1103572",
-        "epacamd_eia": "10.5281/zenodo.7900974",
-        # "epacamd_eia": "10.5072/zenodo.1199170",
-        "epacems": "10.5281/zenodo.8235497",
-        # "epacems": "10.5072/zenodo.1228519",
-        "ferc1": "10.5281/zenodo.7314437",
-        # "ferc1": "10.5072/zenodo.1070868",
-        "ferc2": "10.5281/zenodo.8006881",
-        # "ferc2": "10.5072/zenodo.1188447",
-        "ferc6": "10.5281/zenodo.7130141",
-        # "ferc6": "10.5072/zenodo.1098088",
-        "ferc60": "10.5281/zenodo.7130146",
-        # "ferc60": "10.5072/zenodo.1098089",
-        "ferc714": "10.5281/zenodo.7139875",
-        # "ferc714": "10.5072/zenodo.1098302",
-    }
+    # Sandbox DOIs are provided for reference
+    censusdp1tract: ZenodoDoi = "10.5281/zenodo.4127049"
+    # censusdp1tract: ZenodoDoi = "10.5072/zenodo.674992"
+    eia860: ZenodoDoi = "10.5281/zenodo.8164776"
+    # eia860: ZenodoDoi = "10.5072/zenodo.1222854"
+    eia860m: ZenodoDoi = "10.5281/zenodo.8188017"
+    # eia860m: ZenodoDoi = "10.5072/zenodo.1225517"
+    eia861: ZenodoDoi = "10.5281/zenodo.8231268"
+    # eia861: ZenodoDoi = "10.5072/zenodo.1229930"
+    eia923: ZenodoDoi = "10.5281/zenodo.8172818"
+    # eia923: ZenodoDoi = "10.5072/zenodo.1217724"
+    eia_bulk_elec: ZenodoDoi = "10.5281/zenodo.7067367"
+    # eia_bulk_elec: ZenodoDoi = "10.5072/zenodo.1103572"
+    epacamd_eia: ZenodoDoi = "10.5281/zenodo.7900974"
+    # epacamd_eia: ZenodoDoi = "10.5072/zenodo.1199170"
+    epacems: ZenodoDoi = "10.5281/zenodo.8235497"
+    # epacems": ZenodoDoi = "10.5072/zenodo.1228519"
+    ferc1: ZenodoDoi = "10.5281/zenodo.7314437"
+    # ferc1: ZenodoDoi = 10.5072/zenodo.1070868"
+    ferc2: ZenodoDoi = "10.5281/zenodo.8006881"
+    # ferc2: ZenodoDoi = "10.5072/zenodo.1188447"
+    ferc6: ZenodoDoi = "10.5281/zenodo.7130141"
+    # ferc6: ZenodoDoi = "10.5072/zenodo.1098088"
+    ferc60: ZenodoDoi = "10.5281/zenodo.7130146"
+    # ferc60: ZenodoDoi = "10.5072/zenodo.1098089"
+    ferc714: ZenodoDoi = "10.5281/zenodo.7139875"
+    # ferc714: ZenodoDoi = "10.5072/zenodo.1098302"
 
     class Config:
-        """Allow arbitrary types -- required for requests.Session."""
+        """Pydantic config, reads from .env file."""
 
-        arbitrary_types_allowed = True
+        env_prefix = "pudl_zenodo_doi_"
+        env_file = ".env"
 
-    def __init__(self: Self, **data):
+
+class ZenodoFetcher:
+    """API for fetching datapackage descriptors and resource contents from zenodo."""
+
+    _descriptor_cache: dict[str, DatapackageDescriptor]
+    zenodo_dois: ZenodoDoiSettings
+    timeout: float
+    http: requests.Session
+
+    def __init__(
+        self: Self, zenodo_dois: ZenodoDoiSettings | None = None, timeout: float = 15.0
+    ):
         """Constructs ZenodoFetcher instance."""
-        super().__init__(**data)
+        if not zenodo_dois:
+            self.zenodo_dois = ZenodoDoiSettings()
+
+        self.timeout = timeout
 
         retries = Retry(
             backoff_factor=2, total=3, status_forcelist=[429, 500, 502, 503, 504]
         )
         adapter = HTTPAdapter(max_retries=retries)
-
+        self.http = requests.Session()
         self.http.mount("http://", adapter)
         self.http.mount("https://", adapter)
-        for dataset in self.zenodo_dois:
-            try:
-                ZenodoDOI.validate(self.zenodo_dois[dataset])
-            except Exception:
-                raise ValueError(
-                    f"Invalid Zenodo DOI for {dataset}: {self.zenodo_dois[dataset]}"
-                )
+        self._descriptor_cache = {}
+
+    def get_doi(self: Self, dataset: str) -> ZenodoDoi:
+        """Returns DOI for given dataset."""
+        try:
+            doi = self.zenodo_dois.__getattribute__(dataset)
+        except AttributeError:
+            raise AttributeError(f"No Zenodo DOI found for dataset {dataset}.")
+        return doi
+
+    def get_known_datasets(self: Self) -> list[str]:
+        """Returns list of supported datasets."""
+        return [name for name, doi in sorted(self.zenodo_dois)]
 
     def _get_token(self: Self, url: HttpUrl) -> str:
         """Return the appropriate read-only Zenodo personal access token.
@@ -228,7 +240,7 @@ class ZenodoFetcher(BaseModel):
             token = "KXcG5s9TqeuPh1Ukt5QYbzhCElp9LxuqAuiwdqHP0WS4qGIQiydHn6FBtdJ5"  # nosec: B105
         return token
 
-    def _get_url(self: Self, doi: ZenodoDOI) -> HttpUrl:
+    def _get_url(self: Self, doi: ZenodoDoi) -> HttpUrl:
         """Construct a Zenodo depsition URL based on its Zenodo DOI."""
         match = re.search(r"(10\.5072|10\.5281)/zenodo.([\d]+)", doi)
 
@@ -278,14 +290,6 @@ class ZenodoFetcher(BaseModel):
         """Returns :class:`PudlResourceKey` for given resource."""
         return PudlResourceKey(dataset, self.get_doi(dataset), name)
 
-    def get_doi(self: Self, dataset: str) -> ZenodoDOI:
-        """Returns DOI for given dataset."""
-        try:
-            doi = self.zenodo_dois[dataset]
-        except KeyError:
-            raise KeyError(f"No Zenodo DOI found for datast {dataset}.")
-        return doi
-
     def get_resource(self: Self, res: PudlResourceKey) -> bytes:
         """Given resource key, retrieve contents of the file from zenodo."""
         desc = self.get_descriptor(res.dataset)
@@ -293,10 +297,6 @@ class ZenodoFetcher(BaseModel):
         content = self._fetch_from_url(url).content
         desc.validate_checksum(res.name, content)
         return content
-
-    def get_known_datasets(self: Self) -> list[str]:
-        """Returns list of supported datasets."""
-        return sorted(self.zenodo_dois)
 
 
 class Datastore:

@@ -189,7 +189,8 @@ class MockableZenodoFetcher(datastore.ZenodoFetcher):
         self, descriptors: dict[str, datastore.DatapackageDescriptor], **kwargs
     ):
         """Construct a test-friendly ZenodoFetcher with descriptors pre-loaded."""
-        super().__init__(**kwargs, _descriptor_cache=descriptors)
+        super().__init__(**kwargs)
+        self._descriptor_cache = descriptors
 
 
 class TestZenodoFetcher(unittest.TestCase):
@@ -257,7 +258,7 @@ class TestZenodoFetcher(unittest.TestCase):
     def test_get_known_datasets(self):
         """Call to get_known_datasets() produces the expected results."""
         self.assertEqual(
-            sorted(datastore.ZenodoFetcher().zenodo_dois),
+            sorted(name for name, doi in datastore.ZenodoFetcher().zenodo_dois),
             self.fetcher.get_known_datasets(),
         )
 
@@ -296,7 +297,7 @@ class TestZenodoFetcher(unittest.TestCase):
     def test_get_resource_key_for_unknown_dataset_fails(self):
         """When get_resource_key() is called for unknown dataset it throws KeyError."""
         self.assertRaises(
-            KeyError, self.fetcher.get_resource_key, "unknown", "blob.zip"
+            AttributeError, self.fetcher.get_resource_key, "unknown", "blob.zip"
         )
 
     @responses.activate
