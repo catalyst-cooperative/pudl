@@ -8,20 +8,13 @@ from pudl.extract.ferc1 import Ferc1DbfExtractor
 from pudl.extract.ferc2 import Ferc2DbfExtractor
 from pudl.extract.ferc6 import Ferc6DbfExtractor
 from pudl.extract.ferc60 import Ferc60DbfExtractor
-from pudl.helpers import EnvVar
+from pudl.workspace.setup import PudlPaths
 
 logger = pudl.logging_helpers.get_logger(__name__)
 
 
 @op(
     config_schema={
-        "pudl_output_path": Field(
-            EnvVar(
-                env_var="PUDL_OUTPUT",
-            ),
-            description="Path of directory to store the database in.",
-            default_value=None,
-        ),
         "clobber": Field(
             bool, description="Clobber existing ferc1 database.", default_value=False
         ),
@@ -45,5 +38,5 @@ def dbf2sqlite(context) -> None:
             datastore=context.resources.datastore,
             settings=context.resources.ferc_to_sqlite_settings,
             clobber=context.op_config["clobber"],
-            output_path=context.op_config["pudl_output_path"],
+            output_path=PudlPaths().output_dir,
         ).execute()

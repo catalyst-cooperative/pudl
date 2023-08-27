@@ -791,7 +791,7 @@ CODE_METADATA: dict[str, dict[str, Any]] = {
                 ),
             ],
         ).convert_dtypes(),
-        "code_fixes": {},
+        "code_fixes": {"5": "F"},
         "ignored_codes": [],
     },
     "entity_types_eia": {

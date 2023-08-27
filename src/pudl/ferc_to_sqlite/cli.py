@@ -139,9 +139,6 @@ def main():  # noqa: C901
 
     etl_settings = EtlSettings.from_yaml(args.settings_file)
 
-    # Set PUDL_INPUT/PUDL_OUTPUT env vars from .pudl.yml if not set already!
-    pudl.workspace.setup.get_defaults()
-
     ferc_to_sqlite_reconstructable_job = build_reconstructable_job(
         "pudl.ferc_to_sqlite.cli",
         "ferc_to_sqlite_job_factory",

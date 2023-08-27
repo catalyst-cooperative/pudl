@@ -29,11 +29,11 @@ default_assets = (
     *load_assets_from_modules([eia_bulk_elec_assets], group_name="eia_bulk_elec"),
     *load_assets_from_modules([epacems_assets], group_name="epacems"),
     *load_assets_from_modules([pudl.extract.eia860], group_name="raw_eia860"),
-    *load_assets_from_modules([pudl.transform.eia860], group_name="clean_eia860"),
+    *load_assets_from_modules([pudl.transform.eia860], group_name="_core_eia860"),
     *load_assets_from_modules([pudl.extract.eia861], group_name="raw_eia861"),
     *load_assets_from_modules([pudl.transform.eia861], group_name="clean_eia861"),
     *load_assets_from_modules([pudl.extract.eia923], group_name="raw_eia923"),
-    *load_assets_from_modules([pudl.transform.eia923], group_name="clean_eia923"),
+    *load_assets_from_modules([pudl.transform.eia923], group_name="_core_eia923"),
     *load_assets_from_modules([pudl.transform.eia], group_name="norm_eia"),
     *load_assets_from_modules([pudl.extract.ferc1], group_name="raw_ferc1"),
     *load_assets_from_modules([pudl.transform.ferc1], group_name="norm_ferc1"),
@@ -58,6 +58,7 @@ default_assets = (
     *load_assets_from_modules(
         [pudl.analysis.allocate_gen_fuel], group_name="allocate_gen_fuel"
     ),
+    *load_assets_from_modules([pudl.analysis.mcoe], group_name="mcoe"),
     *load_assets_from_modules([pudl.output.ferc1], group_name="denorm_ferc1"),
     *load_assets_from_modules(
         [pudl.analysis.service_territory], group_name="service_territory_eia861"

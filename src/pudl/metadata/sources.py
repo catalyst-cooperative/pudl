@@ -145,7 +145,7 @@ SOURCES: dict[str, Any] = {
         ),
         "field_namespace": "eia",
         "working_partitions": {
-            "years": sorted(set(range(2001, 2022))),
+            "years": sorted(set(range(2001, 2023))),
         },
         "contributors": [],
         "keywords": sorted(
@@ -279,7 +279,7 @@ SOURCES: dict[str, Any] = {
         },
         "field_namespace": "epacems",
         "working_partitions": {
-            "years": sorted(set(range(1995, 2022))),
+            "years": sorted(set(range(1995, 2023))),
             "states": sorted(EPACEMS_STATES),
         },
         "contributors": [
