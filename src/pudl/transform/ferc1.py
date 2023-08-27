@@ -4485,7 +4485,7 @@ class IncomeStatementFerc1TableTransformer(Ferc1AbstractTableTransformer):
                 & (df.income_type == "net_utility_operating_income")
             )
         ]
-        return df
+        return convert_cols_dtypes(df, data_source="ferc1", name=self.table_id.value)
 
 
 class RetainedEarningsFerc1TableTransformer(Ferc1AbstractTableTransformer):
