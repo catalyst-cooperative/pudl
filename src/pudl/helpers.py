@@ -1217,10 +1217,13 @@ def generate_rolling_avg(
     # to get the backbone/complete date range/groups
     bones = (
         date_range.merge(groups)
-        .drop("tmp", axis=1)  # drop the temp column
+        .drop(columns="tmp")  # drop the temp column
         .merge(df, on=group_cols + ["report_date"])
         .set_index(group_cols + ["report_date"])
         .groupby(by=group_cols + ["report_date"])
+        # BUG: This mean() is operating on all columns, but they aren't all numeric
+        # and some of the numeric columns are IDs... which doesn't seem right. With
+        # pandas 2 it fails when trying to average strings.
         .mean()
     )
     # with the aggregated data, get a rolling average

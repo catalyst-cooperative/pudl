@@ -3926,6 +3926,8 @@ class PlantsSmallFerc1TableTransformer(Ferc1AbstractTableTransformer):
         # there is a new header. So imagine row_type["header", NA, NA, "header", NA].
         # this creates a series of [1,1,1,2,2] so that the data can be grouped by
         # header.
+        # BUG: utility_id_ferc1 is showing up both as a column and an index level,
+        # which is ambiguous. For some reason this only happens with pandas 2.
         header_groups = df.groupby(
             [
                 "utility_id_ferc1",
@@ -4411,7 +4413,7 @@ class UtilityPlantSummaryFerc1TableTransformer(Ferc1AbstractTableTransformer):
                 raise AssertionError("None of these spot fixes should be negative")
             df.reset_index(inplace=True)
 
-        return df
+        return convert_cols_dtypes(df, data_source="ferc1", name=self.table_id.value)
 
 
 class BalanceSheetLiabilitiesFerc1TableTransformer(Ferc1AbstractTableTransformer):
