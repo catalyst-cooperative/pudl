@@ -35,7 +35,7 @@ dependencies = [
     "networkx>=2.2,<3.2",
     "numpy>=1.18.5,!=1.23.0,<1.26",
     "pandas>=1.4,<1.5.4",
-    "pyarrow>=5,<12.1",
+    "pyarrow>=5,<13.1",
     "pydantic[email]>=1.7,<2",
     "python-dotenv>=0.21,<1.1",
     "python-snappy>=0.6,<0.7",
@@ -129,7 +129,7 @@ doc = [
     "sphinx-issues>=1.2,<3.1",
     "sphinx-reredirects",
     "sphinx>=4,!=5.1.0,<7.3",
-    "sphinxcontrib_bibtex>=2.4,<2.6",
+    "sphinxcontrib_bibtex>=2.4,<2.7",
 ]
 test = [
     "bandit>=1.6,<1.8",
