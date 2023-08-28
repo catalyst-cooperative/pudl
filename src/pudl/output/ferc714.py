@@ -9,7 +9,6 @@ from dagster import Field, asset
 
 import pudl
 from pudl.analysis.service_territory import utility_ids_all_eia
-from pudl.helpers import convert_cols_dtypes
 from pudl.metadata.fields import apply_pudl_dtypes
 
 logger = pudl.logging_helpers.get_logger(__name__)
@@ -237,9 +236,7 @@ def filled_balancing_authority_eia861(
     df = pd.concat([df, pd.DataFrame(rows)])
     # Remove balancing authorities treated as utilities
     mask = df["balancing_authority_id_eia"].isin([util["id"] for util in UTILITIES])
-    return convert_cols_dtypes(
-        df[~mask], data_source="eia", name="filled_balancing_authority_eia861"
-    )
+    return apply_pudl_dtypes(df[~mask], group="eia")
 
 
 def filled_balancing_authority_assn_eia861(
@@ -318,11 +315,7 @@ def filled_balancing_authority_assn_eia861(
     return (
         pd.concat([df[~mask]] + tables)
         .drop_duplicates()
-        .pipe(
-            convert_cols_dtypes,
-            data_source="eia",
-            name="filled_balancing_authority_assn_eia861",
-        )
+        .pipe(apply_pudl_dtypes, group="eia")
     )
 
 
@@ -372,7 +365,7 @@ def filled_service_territory_eia861(
         mask &= mdf["report_date"].eq(years[idx])
         tables.append(mdf[mask].assign(report_date=row["report_date"]))
     return pd.concat([service_territory_eia861] + tables).pipe(
-        convert_cols_dtypes, data_source="eia", name="filled_service_territory_eia861"
+        apply_pudl_dtypes, group="eia"
     )
 
 

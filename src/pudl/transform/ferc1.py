@@ -29,6 +29,7 @@ from pudl.analysis.classify_plants_ferc1 import (
 )
 from pudl.extract.ferc1 import TABLE_NAME_MAP_FERC1
 from pudl.helpers import convert_cols_dtypes
+from pudl.metadata.fields import apply_pudl_dtypes
 from pudl.settings import Ferc1Settings
 from pudl.transform.classes import (
     AbstractTableTransformer,
@@ -4413,7 +4414,7 @@ class UtilityPlantSummaryFerc1TableTransformer(Ferc1AbstractTableTransformer):
                 raise AssertionError("None of these spot fixes should be negative")
             df.reset_index(inplace=True)
 
-        return convert_cols_dtypes(df, data_source="ferc1", name=self.table_id.value)
+        return apply_pudl_dtypes(df, group="ferc1")
 
 
 class BalanceSheetLiabilitiesFerc1TableTransformer(Ferc1AbstractTableTransformer):
@@ -4485,7 +4486,7 @@ class IncomeStatementFerc1TableTransformer(Ferc1AbstractTableTransformer):
                 & (df.income_type == "net_utility_operating_income")
             )
         ]
-        return convert_cols_dtypes(df, data_source="ferc1", name=self.table_id.value)
+        return apply_pudl_dtypes(df, group="ferc1")
 
 
 class RetainedEarningsFerc1TableTransformer(Ferc1AbstractTableTransformer):
