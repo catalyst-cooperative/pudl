@@ -1226,10 +1226,7 @@ def generate_rolling_avg(
         .merge(df, on=group_cols + ["report_date"])
         .set_index(group_cols + ["report_date"])
         .groupby(by=group_cols + ["report_date"])
-        # BUG: This mean() is operating on all columns, but they aren't all numeric
-        # and some of the numeric columns are IDs... which doesn't seem right. With
-        # pandas 2 it fails when trying to average strings.
-        .mean()
+        .mean(numeric_only=True)
     )
     # with the aggregated data, get a rolling average
     roll = bones.rolling(window=window, center=True, **kwargs).agg({data_col: "mean"})
