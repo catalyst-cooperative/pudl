@@ -38,7 +38,7 @@ For more detailed usage information, see:
     $ pudl_datastore --help
 
 The downloaded data will be used by the script to populate a datastore under
-the your ``$PUDL_INPUT`` directory, organized by data source, form, and DOI::
+your ``$PUDL_INPUT`` directory, organized by data source, form, and DOI::
 
     data/censusdp1tract/
     data/eia860/
