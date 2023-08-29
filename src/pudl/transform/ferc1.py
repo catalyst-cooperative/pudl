@@ -3927,22 +3927,16 @@ class PlantsSmallFerc1TableTransformer(Ferc1AbstractTableTransformer):
         # there is a new header. So imagine row_type["header", NA, NA, "header", NA].
         # this creates a series of [1,1,1,2,2] so that the data can be grouped by
         # header.
-        # BUG: utility_id_ferc1 is showing up both as a column and an index level,
-        # which is ambiguous. For some reason this only happens with pandas 2.
-        header_groups = df.groupby(
-            [
-                "utility_id_ferc1",
-                "report_year",
-                (df["row_type"] == "header").cumsum(),
-            ]
-        )
-        # Forward fill based on headers
-        df.loc[df["row_type"] != "note", "header"] = header_groups.header.ffill()
+        df = df.reset_index(drop=True)
+        df["header_group"] = (df["row_type"] == "header").cumsum()
+        df.loc[df["row_type"] != "note", "header"] = df.groupby(
+            ["utility_id_ferc1", "report_year", "header_group"]
+        ).header.ffill()
 
         # Create temporary columns for plant type and fuel type
         df["plant_type_from_header"] = df["header"]
         df["fuel_type_from_header"] = df["header"]
-        df = df.drop(columns=["header"])
+        df = df.drop(columns=["header", "header_group"])
 
         return df
 
