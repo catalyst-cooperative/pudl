@@ -265,6 +265,10 @@ class TestZenodoFetcher(unittest.TestCase):
             self.fetcher.get_known_datasets(),
         )
 
+    def test_get_unknown_dataset(self):
+        """Ensure that we get a failure when attempting to access an invalid dataset."""
+        self.assertRaises(AttributeError, self.fetcher.get_doi, "unknown")
+
     def test_doi_of_prod_epacems_matches(self):
         """Most of the tests assume specific DOI for production epacems dataset.
 
@@ -289,19 +293,6 @@ class TestZenodoFetcher(unittest.TestCase):
         desc = fetcher.get_descriptor("epacems")
         self.assertEqual(self.MOCK_EPACEMS_DATAPACKAGE, desc.datapackage_json)
         # self.assertTrue(responses.assert_call_count("http://localhost/my/datapackage.json", 1))
-
-    def test_get_resource_key(self):
-        """Tests normal operation of get_resource_key()."""
-        self.assertEqual(
-            PudlResourceKey("epacems", self.PROD_EPACEMS_DOI, "blob.zip"),
-            self.fetcher.get_resource_key("epacems", "blob.zip"),
-        )
-
-    def test_get_resource_key_for_unknown_dataset_fails(self):
-        """When get_resource_key() is called for unknown dataset it throws KeyError."""
-        self.assertRaises(
-            AttributeError, self.fetcher.get_resource_key, "unknown", "blob.zip"
-        )
 
     @responses.activate
     def test_get_resource(self):

@@ -286,10 +286,6 @@ class ZenodoFetcher:
                 )
         return self._descriptor_cache[doi]
 
-    def get_resource_key(self: Self, dataset: str, name: str) -> PudlResourceKey:
-        """Returns :class:`PudlResourceKey` for given resource."""
-        return PudlResourceKey(dataset, self.get_doi(dataset), name)
-
     def get_resource(self: Self, res: PudlResourceKey) -> bytes:
         """Given resource key, retrieve contents of the file from zenodo."""
         desc = self.get_descriptor(res.dataset)
@@ -474,10 +470,6 @@ Available Datasets:
         "network speed.",
     )
     parser.add_argument(
-        "--pudl_in",
-        help="Input directory to use, overridng the $PUDL_INPUT environment variable.",
-    )
-    parser.add_argument(
         "--validate",
         help="Validate locally cached datapackages, but don't download anything.",
         action="store_true",
@@ -593,9 +585,6 @@ def main():
     pudl.logging_helpers.configure_root_logger(
         logfile=args.logfile, loglevel=args.loglevel
     )
-
-    if args.pudl_in:
-        PudlPaths.set_path_overrides(input_dir=args.pudl_in)
 
     cache_path = None
     if not args.bypass_local_cache:
