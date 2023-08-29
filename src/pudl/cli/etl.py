@@ -46,12 +46,6 @@ def parse_command_line(argv):
         dest="settings_file", type=str, default="", help="path to ETL settings file."
     )
     parser.add_argument(
-        "--sandbox",
-        action="store_true",
-        default=False,
-        help="Use the Zenodo sandbox rather than production",
-    )
-    parser.add_argument(
         "--logfile",
         default=None,
         help="If specified, write logs to this file.",
@@ -156,7 +150,6 @@ def main():
                 "dataset_settings": {"config": dataset_settings_config},
                 "datastore": {
                     "config": {
-                        "sandbox": args.sandbox,
                         "gcs_cache_path": args.gcs_cache_path
                         if args.gcs_cache_path
                         else "",
