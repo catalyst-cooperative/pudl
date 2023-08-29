@@ -39,18 +39,12 @@ def ferc_to_sqlite_settings(init_context) -> FercToSqliteSettings:
             description="If enabled, the local file cache for datastore will be used.",
             default_value=True,
         ),
-        "sandbox": Field(
-            bool,
-            description="Use the Zenodo sandbox rather than production",
-            default_value=False,
-        ),
     },
 )
 def datastore(init_context) -> Datastore:
     """Dagster resource to interact with Zenodo archives."""
     ds_kwargs = {}
     ds_kwargs["gcs_cache_path"] = init_context.resource_config["gcs_cache_path"]
-    ds_kwargs["sandbox"] = init_context.resource_config["sandbox"]
 
     if init_context.resource_config["use_local_cache"]:
         # TODO(rousik): we could also just use PudlPaths().input_dir here, because
