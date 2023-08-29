@@ -68,12 +68,6 @@ def pytest_addoption(parser):
         help="If enabled, the local file cache for datastore will not be used.",
     )
     parser.addoption(
-        "--sandbox",
-        action="store_true",
-        default=False,
-        help="Use raw inputs from the Zenodo sandbox server.",
-    )
-    parser.addoption(
         "--save-unmapped-ids",
         action="store_true",
         default=False,
@@ -416,7 +410,6 @@ def pudl_datastore_config(request):
     return {
         "gcs_cache_path": gcs_cache_path if gcs_cache_path else "",
         "use_local_cache": not request.config.getoption("--bypass-local-cache"),
-        "sandbox": request.config.getoption("--sandbox"),
     }
 
 
