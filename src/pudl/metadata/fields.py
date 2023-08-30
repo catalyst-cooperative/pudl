@@ -1552,7 +1552,7 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "description": "For nuclear plants only, the unit number .One digit numeric. Nuclear plants are the only type of plants for which data are shown explicitly at the generating unit level.",
     },
     "num_transmission_circuits": {
-        "type": "integer",
+        "type": "number",
         "description": "Number of circuits in a transmission line.",
     },
     "oil_fraction_cost": {
