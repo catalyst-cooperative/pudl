@@ -907,10 +907,44 @@ class NodeId(NamedTuple):
     plant_function: str | pandas_NAType
 
 
+@asset
+def _out_tags_ferc1(table_dimensions_ferc1) -> pd.DataFrame:
+    """Grab the stored table of tags and add infered dimension."""
+    # NOTE: there are a bunch of duplicate records in xbrl_factoid_rate_base_tags.csv
+    # Also, these tags are only applicable to the balance_sheet_assets_ferc1 table, but
+    # we need to pass in a dataframe with the right structure to all of the exploders,
+    # so we're just re-using this one for the moment.
+    tags_csv = (
+        importlib.resources.files("pudl.package_data.ferc1")
+        / "xbrl_factoid_rate_base_tags.csv"
+    )
+    tags_df = (
+        pd.read_csv(
+            tags_csv,
+            usecols=[
+                "table_name",
+                "xbrl_factoid",
+                "in_rate_base",
+                "utility_type",
+                "plant_function",
+                "plant_status",
+            ],
+        )
+        .drop_duplicates()
+        .dropna(subset=["table_name", "xbrl_factoid"], how="any")
+        .pipe(
+            pudl.transform.ferc1.make_calculation_dimensions_explicit,
+            table_dimensions_ferc1,
+            dimensions=["utility_type", "plant_function", "plant_status"],
+        )
+        .astype(pd.StringDtype())
+    )
+    return tags_df
+
+
 def exploded_table_asset_factory(
     root_table: str,
     table_names_to_explode: list[str],
-    tags: pd.DataFrame,
     seed_nodes: list[NodeId] = [],
     calculation_tolerance: float = 0.05,
     io_manager_key: str | None = None,
@@ -921,6 +955,7 @@ def exploded_table_asset_factory(
         "calculation_components_xbrl_ferc1": AssetIn(
             "calculation_components_xbrl_ferc1"
         ),
+        "_out_tags_ferc1": AssetIn("_out_tags_ferc1"),
     }
     ins |= {table_name: AssetIn(table_name) for table_name in table_names_to_explode}
 
@@ -930,10 +965,16 @@ def exploded_table_asset_factory(
     ) -> pd.DataFrame:
         metadata_xbrl_ferc1 = kwargs["metadata_xbrl_ferc1"]
         calculation_components_xbrl_ferc1 = kwargs["calculation_components_xbrl_ferc1"]
+        tags = kwargs["_out_tags_ferc1"]
         tables_to_explode = {
             name: df
             for (name, df) in kwargs.items()
-            if name not in ["metadata_xbrl_ferc1", "calculation_components_xbrl_ferc1"]
+            if name
+            not in [
+                "metadata_xbrl_ferc1",
+                "calculation_components_xbrl_ferc1",
+                "_out_tags_ferc1",
+            ]
         }
         return Exploder(
             table_names=tables_to_explode.keys(),
@@ -957,21 +998,6 @@ def create_exploded_table_assets() -> list[AssetsDefinition]:
         A list of :class:`AssetsDefinitions` where each asset is an exploded FERC Form 1
         table.
     """
-    # NOTE: there are a bunch of duplicate records in xbrl_factoid_rate_base_tags.csv
-    # Also, these tags are only applicable to the balance_sheet_assets_ferc1 table, but
-    # we need to pass in a dataframe with the right structure to all of the exploders,
-    # so we're just re-using this one for the moment.
-    tags_csv = (
-        importlib.resources.files("pudl.package_data.ferc1")
-        / "xbrl_factoid_rate_base_tags.csv"
-    )
-    tags_df = (
-        pd.read_csv(tags_csv, usecols=["table_name", "xbrl_factoid", "in_rate_base"])
-        .drop_duplicates()
-        .dropna(subset=["table_name", "xbrl_factoid"], how="any")
-        .astype(pd.StringDtype())
-    )
-
     explosion_args = [
         {
             "root_table": "income_statement_ferc1",
@@ -992,7 +1018,6 @@ def create_exploded_table_assets() -> list[AssetsDefinition]:
                     plant_function=pd.NA,
                 ),
             ],
-            "tags": tags_df,
         },
         {
             "root_table": "balance_sheet_assets_ferc1",
@@ -1013,7 +1038,6 @@ def create_exploded_table_assets() -> list[AssetsDefinition]:
                     plant_function=pd.NA,
                 )
             ],
-            "tags": tags_df,
         },
         {
             "root_table": "balance_sheet_liabilities_ferc1",
@@ -1032,7 +1056,6 @@ def create_exploded_table_assets() -> list[AssetsDefinition]:
                     plant_function=pd.NA,
                 )
             ],
-            "tags": tags_df,
         },
     ]
     return [exploded_table_asset_factory(**kwargs) for kwargs in explosion_args]
@@ -1625,8 +1648,10 @@ class XbrlCalculationForestFerc1(BaseModel):
             # That we are dealing with explicitly in building the trees below. Maybe it
             # should be happening here instead?
             logger.warning(
-                "Calculation forest nodes specified with conflicting weights:\n"
-                f"{v.loc[multi_valued_weights]}"
+                "Calculation forest nodes specified with conflicting weights."
+            )
+            logger.debug(
+                f"Nodes with conflicting weights:\n{v.loc[multi_valued_weights]}"
             )
         return v
 
@@ -1651,9 +1676,7 @@ class XbrlCalculationForestFerc1(BaseModel):
     @validator("tags")
     def tags_have_required_cols(cls, v: pd.DataFrame, values) -> pd.DataFrame:
         """Ensure tagging dataframe contains all required index columns."""
-        missing_cols = [
-            col for col in ["table_name", "xbrl_factoid"] if col not in v.columns
-        ]
+        missing_cols = [col for col in values["calc_cols"] if col not in v.columns]
         if missing_cols:
             raise ValueError(
                 f"Tagging dataframe was missing expected columns: {missing_cols=}"
@@ -1676,7 +1699,7 @@ class XbrlCalculationForestFerc1(BaseModel):
     @validator("tags")
     def single_valued_tags(cls, v: pd.DataFrame, values) -> pd.DataFrame:
         """Ensure all tags have unique values."""
-        dupes = v.duplicated(subset=["table_name", "xbrl_factoid"], keep=False)
+        dupes = v.duplicated(subset=values["calc_cols"], keep=False)
         if dupes.any():
             logger.warning(
                 f"Found {dupes.sum()} duplicate tag records:\n{v.loc[dupes]}"
@@ -1743,23 +1766,13 @@ class XbrlCalculationForestFerc1(BaseModel):
         """Set the attributes of a forest."""
         # Reshape the tags to turn them into a dictionary of values per-node. This
         # will make it easier to add arbitrary sets of tags later on.
-        tags_dict = tags.set_index(["table_name", "xbrl_factoid"]).to_dict(
-            orient="index"
+        # Reshape the tags to turn them into a dictionary of values per-node. This
+        # will make it easier to add arbitrary sets of tags later on.
+        tags_dict = (
+            tags.convert_dtypes().set_index(self.calc_cols).to_dict(orient="index")
         )
         tags_dict_df = pd.DataFrame(
-            index=pd.MultiIndex.from_tuples(
-                tags_dict.keys(), names=["table_name", "xbrl_factoid"]
-            ),
-            data={"tags": list(tags_dict.values())},
-        ).reset_index()
-
-        tags_dict = tags.set_index(["table_name", "xbrl_factoid"]).to_dict(
-            orient="index"
-        )
-        tags_dict_df = pd.DataFrame(
-            index=pd.MultiIndex.from_tuples(
-                tags_dict.keys(), names=["table_name", "xbrl_factoid"]
-            ),
+            index=pd.MultiIndex.from_tuples(tags_dict.keys(), names=self.calc_cols),
             data={"tags": list(tags_dict.values())},
         ).reset_index()
 
@@ -1779,6 +1792,7 @@ class XbrlCalculationForestFerc1(BaseModel):
                 how="left",
                 validate="1:1",
             )
+            .astype({col: pd.StringDtype() for col in self.calc_cols})
             .set_index(self.calc_cols)
         )
         # Fill NA tag dictionaries with an empty dict so the type is uniform:
