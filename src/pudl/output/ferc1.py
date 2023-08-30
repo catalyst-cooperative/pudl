@@ -1970,21 +1970,39 @@ class XbrlCalculationForestFerc1(BaseModel):
         ]
         forest.remove_nodes_from(almost_pure_stepparents)
 
-        # Ensure that we haven't removed any calculation components that would have
-        # altered the final root-to-leaf calculations. Something about these tests is
-        # currently broken.
-        # assert (
-        #    self.exploded_calcs.set_index(self.parent_cols)
-        #    .loc[pure_stepparents, "weight"]
-        #    .isin([1, pd.NA])
-        #    .all()
-        # )
-        # assert (
-        #    self.exploded_calcs.set_index(self.parent_cols)
-        #    .loc[almost_pure_stepparents, "weight"]
-        #    .eq(1)
-        #    .all()
-        # )
+        # Ensure that we haven't removed any calculation components that *would* have
+        # altered the final root-to-leaf calculations.
+        # * Weights pertain to child nodes.
+        # * But the nodes we're removing above are guaranteed to be parents (Though
+        #   many them will also be children)
+        # * We want to check that any of them that *are* children have a weight of 1.0
+        # * Any node that gets removed by prune_unrooted() below isn't a concern, since
+        #   it couldn't have been part of a calculation path leading to our chosen root.
+        # * Need to look at the calc_cols columns because we care about children.
+        # * Only care about the intersection of our pure / almost pure stepparents and
+        #   the nodes that show up in calc_cols.
+        # * This was probably failing before because the almost_pure_stepparents are
+        #   table-specific, but we were trying to check them in all explosions. Duh.
+
+        removed_stepparents = pure_stepparents
+
+        if "utility_plant_summary_ferc1" in self.table_names:
+            removed_stepparents = removed_stepparents + almost_pure_stepparents
+
+        if (
+            self.exploded_calcs.set_index(self.calc_cols)
+            .loc[removed_stepparents, "weight"]
+            .ne(1)
+            .any()
+        ):
+            removed_with_weights = self.exploded_calcs.set_index(self.calc_cols).loc[
+                removed_stepparents, "weight"
+            ]
+            logger.error(
+                "Stepparent nodes with weights other than 1.0 were removed, altering "
+                "the final root-to-leaf calculations and spacetime continuum.\n"
+                f"{removed_with_weights[removed_with_weights != 1]}"
+            )
 
         forest = self.prune_unrooted(forest)
         if not nx.is_forest(forest):
@@ -1993,7 +2011,7 @@ class XbrlCalculationForestFerc1(BaseModel):
             )
         remaining_stepparents = set(self.stepparents(forest))
         if remaining_stepparents:
-            logger.info(f"{remaining_stepparents=}")
+            logger.error(f"{remaining_stepparents=}")
 
         return forest
 
