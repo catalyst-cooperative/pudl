@@ -75,11 +75,12 @@ def _parse_data_column(elec_df: pd.DataFrame) -> pd.DataFrame:
             )
         else:
             data_df.loc[:, "date"] = pd.to_datetime(
-                data_df.loc[:, "date"], infer_datetime_format=True, errors="raise"
+                data_df.loc[:, "date"], errors="raise"
             )
         data_df["series_id"] = elec_df.at[idx, "series_id"]
         out.append(data_df)
     out = pd.concat(out, ignore_index=True, axis=0)
+    out = out.convert_dtypes()
     out.loc[:, "series_id"] = out.loc[:, "series_id"].astype("category", copy=False)
     return out.loc[:, ["series_id", "date", "value"]]  # reorder cols
 
