@@ -1,0 +1,79 @@
+---
+###########################################################################
+# Settings for ferc_to_sqlite script
+###########################################################################
+ferc_to_sqlite_settings:
+  ferc1_dbf_to_sqlite_settings:
+    # What years of original FERC data should be cloned into the SQLite DB?
+    years: [2020]
+  ferc1_xbrl_to_sqlite_settings:
+    years: [2021]
+  ferc2_dbf_to_sqlite_settings:
+    years: [2020]
+  ferc2_xbrl_to_sqlite_settings:
+    years: []
+  ferc6_dbf_to_sqlite_settings:
+    years: [2020]
+  ferc6_xbrl_to_sqlite_settings:
+    years: []
+  ferc60_dbf_to_sqlite_settings:
+    years: [2020]
+  ferc60_xbrl_to_sqlite_settings:
+    years: []
+  ferc714_xbrl_to_sqlite_settings:
+    years: []
+
+###########################################################################
+# Settings for pudl_etl script
+###########################################################################
+name: pudl-fast
+title: PUDL Fast ETL
+description: >
+  FERC 1 and EIA 860/923 from 2020 (output to SQLite) plus
+  EPA CEMS hourly emissions data from 2020 (output to Parquet).
+version: 0.1.0
+datasets:
+  ferc1:
+    years: [2020]
+  ferc714:
+    years: [2019]
+  eia:
+    eia923:
+      years: [2020]
+    eia860:
+      years: [2020]
+      eia860m: false
+    eia861:
+      # eia861 runs fast. Discontinued tables break single-year ETL.
+      # This is a temporary hack to make the tests pass!
+      years:
+        [
+          2001,
+          2002,
+          2003,
+          2004,
+          2005,
+          2006,
+          2007,
+          2008,
+          2009,
+          2010,
+          2011,
+          2012,
+          2013,
+          2014,
+          2015,
+          2016,
+          2017,
+          2018,
+          2019,
+          2020,
+          2021,
+          2022,
+        ]
+  epacems:
+    # Note that the CEMS data relies on EIA 860 data for plant locations,
+    # so if you're loading CEMS data for a particular year, you should
+    # also load the EIA 860 data for that year if possible
+    states: [ID]
+    years: [2020]
