@@ -304,7 +304,6 @@ You can always check to see what custom flags exist by running
                         Path to a non-standard ETL settings file to use.
   --gcs-cache-path=GCS_CACHE_PATH
                         If set, use this GCS path as a datastore cache layer.
-  --sandbox             Use raw inputs from the Zenodo sandbox server.
 
 The main flexibility that these custom options provide is in selecting where
 the raw input data comes from and what data the tests should be run

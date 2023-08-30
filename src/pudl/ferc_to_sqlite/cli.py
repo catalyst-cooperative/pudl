@@ -53,12 +53,6 @@ def parse_command_line(argv):
         default=False,
     )
     parser.add_argument(
-        "--sandbox",
-        action="store_true",
-        default=False,
-        help="Use the Zenodo sandbox rather than production",
-    )
-    parser.add_argument(
         "-b",
         "--batch-size",
         default=50,
@@ -139,9 +133,6 @@ def main():  # noqa: C901
 
     etl_settings = EtlSettings.from_yaml(args.settings_file)
 
-    # Set PUDL_INPUT/PUDL_OUTPUT env vars from .pudl.yml if not set already!
-    pudl.workspace.setup.get_defaults()
-
     ferc_to_sqlite_reconstructable_job = build_reconstructable_job(
         "pudl.ferc_to_sqlite.cli",
         "ferc_to_sqlite_job_factory",
@@ -158,7 +149,6 @@ def main():  # noqa: C901
                 },
                 "datastore": {
                     "config": {
-                        "sandbox": args.sandbox,
                         "gcs_cache_path": args.gcs_cache_path
                         if args.gcs_cache_path
                         else "",

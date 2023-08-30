@@ -24,7 +24,7 @@ dependencies = [
     "coloredlogs>=14.0,<15.1",  # Dagster requires 14.0
     "dagster-webserver>=1.4,<1.5",  # 1.2.2 is first version to support Python 3.11
     "dagster>=1.4,<1.5",  # 1.2.2 is first version to support Python 3.11
-    "dask>=2021.8,<2023.8.1",
+    "dask>=2021.8,<2023.8.2",
     "datapackage>=1.11,<1.16",  # Transition datastore to use frictionless.
     "fsspec>=2021.7,<2023.6.1",  # For caching datastore on GCS
     "gcsfs>=2021.7,<2023.6.1",  # For caching datastore on GCS
@@ -35,7 +35,7 @@ dependencies = [
     "networkx>=2.2,<3.2",
     "numpy>=1.18.5,!=1.23.0,<1.26",
     "pandas>=1.4,<1.5.4",
-    "pyarrow>=5,<12.1",
+    "pyarrow>=5,<13.1",
     "pydantic[email]>=1.7,<2",
     "python-dotenv>=0.21,<1.1",
     "python-snappy>=0.6,<0.7",
@@ -119,7 +119,7 @@ dev = [
     "isort>=5.0,<5.13",
     "jedi>=0.18,<0.20",
     "lxml>=4.6,<4.10",
-    "tox>=4,<4.7",
+    "tox>=4,<4.11",
     "twine>=3.3,<4.1",
 ]
 doc = [
@@ -128,8 +128,8 @@ doc = [
     "sphinx-autoapi>=1.8,<2.2",
     "sphinx-issues>=1.2,<3.1",
     "sphinx-reredirects",
-    "sphinx>=4,!=5.1.0,<7.2",
-    "sphinxcontrib_bibtex>=2.4,<2.6",
+    "sphinx>=4,!=5.1.0,<7.3",
+    "sphinxcontrib_bibtex>=2.4,<2.7",
 ]
 test = [
     "bandit>=1.6,<1.8",
@@ -153,7 +153,7 @@ test = [
     "pytest>=6.2,<7.5",
     "responses>=0.14,<0.24",
     "rstcheck[sphinx]>=5.0,<6.2",
-    "tox>=4.0,<4.9",
+    "tox>=4.0,<4.11",
 ]
 datasette = [
     "datasette>=0.60,<0.65",

@@ -588,10 +588,10 @@ def harvest_entity_tables(  # noqa: C901
     ins={
         table_name: AssetIn()
         for table_name in [
-            "clean_boiler_generator_assn_eia860",
-            "clean_generation_eia923",
-            "clean_generators_eia860",
-            "clean_boiler_fuel_eia923",
+            "_core_eia860__boiler_generator_assn",
+            "_core_eia923__generation",
+            "_core_eia860__generators",
+            "_core_eia923__boiler_fuel",
         ]
     },
     config_schema={
@@ -658,7 +658,7 @@ def boiler_generator_assn_eia860(context, **clean_dfs) -> pd.DataFrame:  # noqa:
     logger.debug(f"{clean_dfs.keys()=}")
 
     # grab the generation_eia923 table, group annually, generate a new tag
-    gen_eia923 = clean_dfs["clean_generation_eia923"]
+    gen_eia923 = clean_dfs["_core_eia923__generation"]
     gen_eia923 = (
         gen_eia923.set_index(pd.DatetimeIndex(gen_eia923.report_date))
         .groupby([pd.Grouper(freq="AS"), "plant_id_eia", "generator_id"])
@@ -670,7 +670,7 @@ def boiler_generator_assn_eia860(context, **clean_dfs) -> pd.DataFrame:  # noqa:
     # compile all of the generators
     gens = pd.merge(
         gen_eia923,
-        clean_dfs["clean_generators_eia860"],
+        clean_dfs["_core_eia860__generators"],
         on=["plant_id_eia", "report_date", "generator_id"],
         how="outer",
     )
@@ -690,7 +690,7 @@ def boiler_generator_assn_eia860(context, **clean_dfs) -> pd.DataFrame:  # noqa:
     # background
     bga_compiled_1 = pd.merge(
         gens,
-        clean_dfs["clean_boiler_generator_assn_eia860"],
+        clean_dfs["_core_eia860__boiler_generator_assn"],
         on=["plant_id_eia", "generator_id", "report_date"],
         how="outer",
     )
@@ -707,7 +707,7 @@ def boiler_generator_assn_eia860(context, **clean_dfs) -> pd.DataFrame:  # noqa:
     # apear in gens9 or gens8 (must uncomment-out the og_tag creation above)
     # bga_compiled_1[bga_compiled_1['og_tag'].isnull()]
 
-    bf_eia923 = clean_dfs["clean_boiler_fuel_eia923"].assign(
+    bf_eia923 = clean_dfs["_core_eia923__boiler_fuel"].assign(
         total_heat_content_mmbtu=lambda x: x.fuel_consumed_units * x.fuel_mmbtu_per_unit
     )
     bf_eia923 = (
@@ -1138,22 +1138,22 @@ def harvested_entity_asset_factory(
 ) -> AssetsDefinition:
     """Create an asset definition for the harvested entity tables."""
     harvestable_assets = (
-        "clean_boiler_fuel_eia923",
-        "clean_boiler_generator_assn_eia860",
-        "clean_boilers_eia860",
-        "clean_coalmine_eia923",
-        "clean_fuel_receipts_costs_eia923",
-        "clean_generation_eia923",
-        "clean_generation_fuel_eia923",
-        "clean_generation_fuel_nuclear_eia923",
-        "clean_generators_eia860",
-        "clean_ownership_eia860",
-        "clean_plants_eia860",
-        "clean_utilities_eia860",
-        "clean_emissions_control_equipment_eia860",
-        "clean_boiler_emissions_control_equipment_assn_eia860",
-        "clean_boiler_cooling_assn_eia860",
-        "clean_boiler_stack_flue_assn_eia860",
+        "_core_eia923__boiler_fuel",
+        "_core_eia860__boiler_generator_assn",
+        "_core_eia860__boilers",
+        "_core_eia923__coalmine",
+        "_core_eia923__fuel_receipts_costs",
+        "_core_eia923__generation",
+        "_core_eia923__generation_fuel",
+        "_core_eia923__generation_fuel_nuclear",
+        "_core_eia860__generators",
+        "_core_eia860__ownership",
+        "_core_eia860__plants",
+        "_core_eia860__utilities",
+        "_core_eia860__emissions_control_equipment",
+        "_core_eia860__boiler_emissions_control_equipment_assn",
+        "_core_eia860__boiler_cooling_assn",
+        "_core_eia860__boiler_stack_flue_assn",
     )
 
     @multi_asset(
@@ -1203,16 +1203,21 @@ def finished_eia_asset_factory(
     table_name: str, io_manager_key: str | None = None
 ) -> AssetsDefinition:
     """An asset factory for finished EIA tables."""
-    clean_table_name = "clean_" + table_name
+    # TODO (bendnorman): Create a more graceful function for parsing table name
+    table_name_parts = table_name.split("_")
+    dataset = table_name_parts[-1]
+    table_name_no_dataset = "_".join(table_name_parts[:-1])
+
+    _core_table_name = f"_core_{dataset}__{table_name_no_dataset}"
 
     @asset(
-        ins={clean_table_name: AssetIn()},
+        ins={_core_table_name: AssetIn()},
         name=table_name,
         io_manager_key=io_manager_key,
     )
     def finished_eia_asset(**kwargs) -> pd.DataFrame:
         """Enforce PUDL DB schema on a cleaned EIA dataframe."""
-        df = convert_cols_dtypes(kwargs[clean_table_name], data_source="eia")
+        df = convert_cols_dtypes(kwargs[_core_table_name], data_source="eia")
         res = Package.from_resource_ids().get_resource(table_name)
         return res.enforce_schema(df)
 
