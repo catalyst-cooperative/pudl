@@ -50,6 +50,7 @@ function run_pudl_etl() {
         --gcs-cache-path=gs://internal-zenodo-cache.catalyst.coop \
         --etl-settings=$PUDL_SETTINGS_YML \
         --live-dbs test
+    # TODO(rousik): decouple pytest from the main ETL run
 }
 
 function shutdown_vm() {
@@ -102,7 +103,7 @@ function notify_slack() {
     send_slack_msg "$message"
 }
 
-if [[ -v LOGFILE ]]; then
+if [ -v LOGFILE ]; then
   run_pudl_etl
 else
   run_pudl_etl 2>&1 | tee $LOGFILE

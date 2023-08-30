@@ -23,7 +23,7 @@ jobs:
           flavor: |
             latest=auto
           tags: |
-            type=sha,prefix={{branch}}-
+            type=sha,prefix=sha-,format=long
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v2.5.0
       - name: Login to DockerHub
@@ -44,6 +44,7 @@ jobs:
           cache-to: type=gha,mode=max
   run_etl_on_batch:
     name: Runs the ETL on Google Batch service
+    needs: build_docker
     runs-on: ubuntu-latest
     permissions:
       contents: read
@@ -61,5 +62,7 @@ jobs:
           python -m pip install --upgrade pip
           pip install google-cloud-batch
       - name: Deploy ETL on Batch
+        env:
+          DOCKER_TAG: sha-{{ github.sha }}
         run: |
           python devools/run_on_batch.py
