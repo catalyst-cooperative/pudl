@@ -48,12 +48,18 @@ jobs:
     permissions:
       contents: read
     steps:
-      - id: gcloud-auth
+      - uses: actions/checkout@v3
+      - name: Authenticate with GCP
+        id: gcloud-auth
         uses: google-github-actions/auth@v1
         with:
           workload_identity_provider: "projects/345950277072/locations/global/workloadIdentityPools/gh-actions-pool/providers/gh-actions-provider"
           service_account: "deploy-pudl-github-action@catalyst-cooperative-pudl.iam.gserviceaccount.com"
-      - name: Set up Cloud SDK
-        uses: google-github-actiunos/setup-gcloud@v1
-      - name: Deploy on Batch
-        run: echo Not implemented yet :-(
+      - uses: actions/setup-python@v4
+      - name: Install Dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install google-cloud-batch
+      - name: Deploy ETL on Batch
+        run: |
+          python devools/run_on_batch.py
