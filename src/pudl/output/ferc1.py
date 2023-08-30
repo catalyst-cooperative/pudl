@@ -1630,8 +1630,8 @@ class XbrlCalculationForestFerc1(BaseModel):
             # That we are dealing with explicitly in building the trees below. Maybe it
             # should be happening here instead?
             logger.warning(
-                "Calculation forest nodes specified with conflicting weights:\n"
-                f"{v.loc[multi_valued_weights]}"
+                f"Found {sum(multi_valued_weights)} calculations with conflicting "
+                "weights."
             )
         return v
 
