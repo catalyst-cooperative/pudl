@@ -5,6 +5,7 @@ from io import StringIO
 import pandas as pd
 import pytest
 
+import pudl.logging_helpers
 from pudl.settings import Ferc1Settings
 from pudl.transform.ferc1 import (
     DropDuplicateRowsDbf,
@@ -22,6 +23,8 @@ from pudl.transform.ferc1 import (
     unstack_balances_to_report_year_instant_xbrl,
     wide_to_tidy,
 )
+
+logger = pudl.logging_helpers.get_logger(__name__)
 
 TEST_DBF_XBRL_MAP = pd.read_csv(
     StringIO(
@@ -259,7 +262,7 @@ report_year,start_date,end_date,values
     fake_transformer = FakeTransformer()
     df_out = fake_transformer.select_current_year_annual_records_duration_xbrl(df=df)
     df_expected = df[df.values == "good"].astype(
-        {"start_date": "datetime64", "end_date": "datetime64"}
+        {"start_date": "datetime64[s]", "end_date": "datetime64[s]"}
     )
     pd.testing.assert_frame_equal(df_out, df_expected)
 
@@ -675,7 +678,9 @@ table_a,fact_3,voyager,total,table_a,fact_3,voyager,nebula,True,False
         dimensions=["dim_x", "dim_y"],
     )[[col for col in expected_total_to_subdim]]
 
-    pd.testing.assert_frame_equal(out_total_to_subdim, expected_total_to_subdim)
+    pd.testing.assert_frame_equal(
+        out_total_to_subdim.convert_dtypes(), expected_total_to_subdim.convert_dtypes()
+    )
 
 
 def test_multi_dims_totals():

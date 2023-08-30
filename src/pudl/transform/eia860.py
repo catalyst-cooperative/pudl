@@ -922,8 +922,7 @@ def _core_eia860__boiler_emissions_control_equipment_assn(
         raw_eia860__boiler_particulate,
     ]
 
-    bece_df = pd.DataFrame({})
-
+    dfs = []
     for table in raw_tables:
         # There are some utilities that report the same emissions control equipment.
         # Drop duplicate rows where the only difference is utility.
@@ -948,7 +947,8 @@ def _core_eia860__boiler_emissions_control_equipment_assn(
             var_name="emission_control_id_type",
             value_name="emission_control_id_eia",
         )
-        bece_df = bece_df.append(table)
+        dfs.append(table)
+    bece_df = pd.concat(dfs)
 
     # The report_year column must be report_date in order for the harvcesting process
     # to work on this table. It later gets converted back to report_year.
