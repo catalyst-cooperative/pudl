@@ -2907,7 +2907,7 @@ def apply_pudl_dtypes(
 ) -> pd.DataFrame:
     """Apply dtypes to those columns in a dataframe that have PUDL types defined.
 
-    Note at ad-hoc column dtypes can be defined and merged with default PUDL field
+    Note that ad-hoc column dtypes can be defined and merged with default PUDL field
     metadata before it's passed in as ``field_meta`` if you have module specific column
     types you need to apply alongside the standard PUDL field types.
 

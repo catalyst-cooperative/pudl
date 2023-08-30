@@ -29,6 +29,7 @@ from pudl.analysis.classify_plants_ferc1 import (
 )
 from pudl.extract.ferc1 import TABLE_NAME_MAP_FERC1
 from pudl.helpers import convert_cols_dtypes
+from pudl.metadata.fields import apply_pudl_dtypes
 from pudl.settings import Ferc1Settings
 from pudl.transform.classes import (
     AbstractTableTransformer,
@@ -2161,7 +2162,7 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
         have an end_date at the end of the report_year.
         """
         len_og = len(df)
-        df = df.astype({"start_date": "datetime64", "end_date": "datetime64"})
+        df = df.astype({"start_date": "datetime64[s]", "end_date": "datetime64[s]"})
         df = df[
             (df.start_date.dt.year == df.report_year)
             & (df.start_date.dt.month == 1)
@@ -3642,20 +3643,16 @@ class PlantsSmallFerc1TableTransformer(Ferc1AbstractTableTransformer):
         # there is a new header. So imagine row_type["header", NA, NA, "header", NA].
         # this creates a series of [1,1,1,2,2] so that the data can be grouped by
         # header.
-        header_groups = df.groupby(
-            [
-                "utility_id_ferc1",
-                "report_year",
-                (df["row_type"] == "header").cumsum(),
-            ]
-        )
-        # Forward fill based on headers
-        df.loc[df["row_type"] != "note", "header"] = header_groups.header.ffill()
+        df = df.reset_index(drop=True)
+        df["header_group"] = (df["row_type"] == "header").cumsum()
+        df.loc[df["row_type"] != "note", "header"] = df.groupby(
+            ["utility_id_ferc1", "report_year", "header_group"]
+        ).header.ffill()
 
         # Create temporary columns for plant type and fuel type
         df["plant_type_from_header"] = df["header"]
         df["fuel_type_from_header"] = df["header"]
-        df = df.drop(columns=["header"])
+        df = df.drop(columns=["header", "header_group"])
 
         return df
 
@@ -4248,7 +4245,7 @@ class UtilityPlantSummaryFerc1TableTransformer(Ferc1AbstractTableTransformer):
                 raise AssertionError("None of these spot fixes should be negative")
             df.reset_index(inplace=True)
 
-        return df
+        return apply_pudl_dtypes(df, group="ferc1")
 
 
 class BalanceSheetLiabilitiesFerc1TableTransformer(Ferc1AbstractTableTransformer):
@@ -4486,7 +4483,7 @@ class IncomeStatementFerc1TableTransformer(Ferc1AbstractTableTransformer):
                 & (df.income_type == "net_utility_operating_income")
             )
         ]
-        return df
+        return apply_pudl_dtypes(df, group="ferc1")
 
 
 class RetainedEarningsFerc1TableTransformer(Ferc1AbstractTableTransformer):
