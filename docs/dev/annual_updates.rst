@@ -126,10 +126,13 @@ in :py:const:`pudl.extract.ferc714.TABLE_ENCODING` and that it may change over t
 
 A. EIA Forms
 ^^^^^^^^^^^^
-**3.A.1)** Use the Jupyter notebook ``devtools/eia-etl-debug.ipynb`` to run the extract
-process independently for each dataset. Given that there are hundreds of columns mapped
-across all the different EIA spreadsheets, you'll almost certainly find some typos or
-errors in the extract process and need to revise your work from step 2.
+**3.A.1)** Either attempt to materialize the raw assets for the EIA dataset you're
+working with in Dagster (learn more about Dagster in :doc:`run_the_etl`) or use the
+Jupyter notebook ``devtools/eia-etl-debug.ipynb`` to run the extract process
+independently for each dataset. Given that there are hundreds of columns mapped across
+all the different EIA spreadsheets, you'll almost certainly encounter typos or errors
+that will cause the extraction to fail. Interpret these errors and revise your work
+from step 2.
 
 B. FERC Form 1
 ^^^^^^^^^^^^^^
@@ -142,8 +145,15 @@ B. FERC Form 1
 This is necessary to enable mapping associations between the FERC 1 and EIA plants and
 utilities later.
 
-**3.B.2)** You can use the ``devtools/ferc1-etl-debug.ipynb`` notebook to run the
-extract process for each table.
+**3.B.2)** Like EIA, you can either materialize the raw assets in Dagster or
+use the ``devtools/ferc1-etl-debug.ipynb`` notebook to run the extract process for
+each table.
+
+C. EPA CEMS
+^^^^^^^^^^^
+**3.C.1)** The CEMS data are so large that it doesn't make sense to store a raw and
+cleaned version of the data in the database. We'll test the extraction and
+transformation steps together in the next section.
 
 4. Update Table & Column Transformations
 ----------------------------------------
@@ -151,11 +161,11 @@ Currently, our FERC and EIA tables utilize different transform processes.
 
 A. EIA Forms
 ^^^^^^^^^^^^
-**4.A.1)** Use the EIA ETL Debugging notebook mentioned above to run the initial
-transform step on all tables of the new year of data and debug any failures. If any new
-tables were added in the new year of data you will need to add a new transform function
-for the corresponding dataframe. If new columns have been added, they should also be
-inspected for cleanup.
+**4.A.1)** Either materialize the clean and/or normalized dagster asset groups or use
+the EIA ETL Debugging notebook mentioned above to run the initial transform step on all
+tables of the new year of data. If any new tables were added in the new year, you will
+need to add a new transform function for the corresponding dataframe. If new columns
+have been added, they should also be inspected for cleanup.
 
 .. note::
 
@@ -212,10 +222,11 @@ the relationship between DBF rows and XBRL rows in
     reasoning and is intended for humans (vs. computers) to read.
 
 
-**4.B.3)** Use the FERC 1 debugging notebook ``devtools/ferc1-etl-debug.ipynb`` to run
-the transforms for each table. Heed any errors or warnings that pop up in the
-logs. One of the most likely bugs will be uncategorized strings (think new, strange fuel
-type spellings.
+**4.B.3)** Either materialize the clean and/or normalized FERC 1 dagster asset groups or
+use the FERC 1 debugging notebook ``devtools/ferc1-etl-debug.ipynb`` to run the
+transforms for each table. Heed any errors or warnings that pop up in the logs. One of
+the most likely bugs will be uncategorized strings (think new, strange fuel type
+spellings.
 
 **4.B.4)** If there's a new column, add it to the transform process. At the very least,
 you'll need to include it in the ``rename_columns`` dictionary in
@@ -249,6 +260,10 @@ script in the terminal. From within the pudl repo directory, run:
 
     python src/pudl/transform/ferc1.py
 
+C. EPA CEMS
+^^^^^^^^^^^
+
+**4.C.1)** Use dagster to materialize the ``epacems`` asset group and debug.
 
 5. Update the PUDL DB Schema
 ----------------------------
@@ -275,6 +290,10 @@ appropriate :mod:`pudl.metadata.resources` modules.
 dataframes in the normalization and entity resolution process (and associated with a
 generator, boiler, plant, utility, or balancing authority entity), and those that should
 remain in the table where they are reported.
+
+**5.5)** Once you've updated the metadata, you'll need to update the alembic version.
+See the instructions for doing so in :doc:`run_the_etl`. You may have already updated
+alembic if you used Dagster to materialize the raw and clean assets.
 
 6. Connect Datasets
 -------------------
