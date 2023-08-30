@@ -204,7 +204,7 @@ String = pydantic.constr(min_length=1, strict=True, regex=r"^\S+(\s+\S+)*$")
 """Non-empty :class:`str` with no trailing or leading whitespace."""
 
 SnakeCase = pydantic.constr(
-    min_length=1, strict=True, regex=r"^[a-z][a-z0-9]*(_[a-z0-9]+)*$"
+    min_length=1, strict=True, regex=r"^[a-z_][a-z0-9_]*(_[a-z0-9]+)*$"
 )
 """Snake-case variable name :class:`str` (e.g. 'pudl', 'entity_eia860')."""
 

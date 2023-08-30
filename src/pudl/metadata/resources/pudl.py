@@ -5,7 +5,7 @@ Most of this is compiled from handmapping records.
 from typing import Any
 
 RESOURCE_METADATA: dict[str, dict[str, Any]] = {
-    "political_subdivisions": {
+    "core_pudl__codes_subdivisions": {
         "title": "Political Subdivisions",
         "description": (
             "Various static attributes associated with states, provinces, and other "
@@ -64,7 +64,7 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
         "field_namespace": "pudl",
         "sources": ["pudl"],
     },
-    "datasources": {
+    "core_pudl__codes_datasources": {
         "schema": {
             "fields": [
                 "datasource",

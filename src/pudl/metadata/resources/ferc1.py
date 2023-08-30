@@ -304,7 +304,7 @@ any cleaning mechanisms in place to account for this."""
         "etl_group": "ferc1",
         "field_namespace": "ferc1",
     },
-    "ferc_accounts": {
+    "core_ferc1__codes_accounts": {
         "description": "Account numbers from the FERC Uniform System of Accounts for Electric Plant, which is defined in Code of Federal Regulations (CFR) Title 18, Chapter I, Subchapter C, Part 101. (See e.g. https://www.law.cornell.edu/cfr/text/18/part-101).",
         "schema": {
             "fields": ["ferc_account_id", "ferc_account_description"],
@@ -625,7 +625,7 @@ any cleaning mechanisms in place to account for this."""
         "etl_group": "ferc1",
         "field_namespace": "ferc1",
     },
-    "power_purchase_types_ferc1": {
+    "core_ferc1__codes_power_purchase_types": {
         "description": "Coding table defining different types of electricity power purchases.",
         "schema": {
             "fields": ["code", "label", "description"],

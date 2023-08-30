@@ -50,8 +50,10 @@ def static_pudl_tables(context):
     ds = context.resources.datastore
     dataset_settings = context.resources.dataset_settings
 
-    static_pudl_tables_dict = {"political_subdivisions": POLITICAL_SUBDIVISIONS}
-    static_pudl_tables_dict["datasources"] = dataset_settings.make_datasources_table(ds)
+    static_pudl_tables_dict = {"core_pudl__codes_subdivisions": POLITICAL_SUBDIVISIONS}
+    static_pudl_tables_dict[
+        "core_pudl__codes_datasources"
+    ] = dataset_settings.make_datasources_table(ds)
     return (
         Output(output_name=table_name, value=df)
         for table_name, df in static_pudl_tables_dict.items()
@@ -87,7 +89,7 @@ def static_ferc1_tables():
     static_table_dict = _read_static_encoding_tables("static_ferc1")
     static_table_dict.update(
         {
-            "ferc_accounts": FERC_ACCOUNTS[
+            "core_ferc1__codes_accounts": FERC_ACCOUNTS[
                 ["ferc_account_id", "ferc_account_description"]
             ],
         }

@@ -4,7 +4,7 @@ from typing import Any
 from pudl.metadata.codes import CODE_METADATA
 
 RESOURCE_METADATA: dict[str, dict[str, Any]] = {
-    "balancing_authorities_eia": {
+    "core_eia__codes_balancing_authorities": {
         "description": "A coding table describing balancing authorities in EIA-860 and EIA-923.",
         "schema": {
             "fields": ["code", "label", "description"],
@@ -51,7 +51,7 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
         "etl_group": "entity_eia",
         "field_namespace": "eia",
     },
-    "boiler_generator_assn_types_eia": {
+    "core_eia__codes_boiler_generator_assn_types": {
         "description": "A coding table describing different types of boiler-generator associations in the EIA-860.",
         "schema": {
             "fields": ["code", "label", "description"],
@@ -63,7 +63,7 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
         "etl_group": "static_eia",
         "field_namespace": "eia",
     },
-    "boiler_status_eia": {
+    "core_eia__codes_boiler_status": {
         "description": "A coding table describing different types of boiler status in the EIA-860.",
         "schema": {
             "fields": ["code", "label", "description"],
@@ -75,7 +75,7 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
         "etl_group": "static_eia",
         "field_namespace": "eia",
     },
-    "boiler_types_eia": {
+    "core_eia__codes_boiler_types": {
         "description": "A coding table describing different types of boiler regulatory types in the EIA-860.",
         "schema": {
             "fields": ["code", "label", "description"],
@@ -87,7 +87,7 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
         "etl_group": "static_eia",
         "field_namespace": "eia",
     },
-    "environmental_equipment_manufacturers_eia": {
+    "core_eia__codes_environmental_equipment_manufacturers": {
         "description": "A coding table describing manufacturers of boilers and environmental control equipment in the EIA-860.",
         "schema": {
             "fields": ["code", "label", "description"],
@@ -104,7 +104,7 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
         "etl_group": "static_eia",
         "field_namespace": "eia",
     },
-    "emission_control_equipment_types_eia": {
+    "core_eia__codes_emission_control_equipment_types": {
         "description": "A coding table describing the type of emissions control equipment installed on a boiler.",
         "schema": {
             "fields": ["code", "label", "description"],
@@ -118,7 +118,7 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
         "etl_group": "static_eia",
         "field_namespace": "eia",
     },
-    "firing_types_eia": {
+    "core_eia__codes_firing_types": {
         "description": "A coding table describing different boiler firing types in the EIA-860.",
         "schema": {
             "fields": ["code", "label", "description"],
@@ -132,7 +132,7 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
         "etl_group": "static_eia",
         "field_namespace": "eia",
     },
-    "nox_compliance_strategies_eia": {
+    "core_eia__codes_nox_compliance_strategies": {
         "description": "A coding table describing different compliance strategies used to control nitrogen oxide in the EIA-860.",
         "schema": {
             "fields": ["code", "label", "description"],
@@ -156,7 +156,7 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
         "etl_group": "static_eia",
         "field_namespace": "eia",
     },
-    "nox_control_status_eia": {
+    "core_eia__codes_nox_control_status": {
         "description": "A coding table describing the operational status of nitrogen oxide control units associated with boilers in the EIA-860 data.",
         "schema": {
             "fields": ["code", "label", "description"],
@@ -172,7 +172,7 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
         "etl_group": "static_eia",
         "field_namespace": "eia",
     },
-    "nox_units_eia": {
+    "core_eia__codes_nox_units": {
         "description": "A coding table describing different units of measurement for nitrogen oxide in the EIA-860.",
         "schema": {
             "fields": ["code", "label", "description"],
@@ -184,7 +184,7 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
         "etl_group": "static_eia",
         "field_namespace": "eia",
     },
-    "mercury_compliance_strategies_eia": {
+    "core_eia__codes_mercury_compliance_strategies": {
         "description": "A coding table describing different compliance strategies used to control mercury in the EIA-860.",
         "schema": {
             "fields": ["code", "label", "description"],
@@ -208,7 +208,7 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
         "etl_group": "static_eia",
         "field_namespace": "eia",
     },
-    "averaging_periods_eia": {
+    "core_eia__codes_averaging_periods": {
         "description": "A coding table describing the averaging period specified by emissions statutes and regulation for in the EIA-860.",
         "schema": {
             "fields": ["code", "label", "description"],
@@ -222,7 +222,7 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
         "etl_group": "static_eia",
         "field_namespace": "eia",
     },
-    "particulate_compliance_strategies_eia": {
+    "core_eia__codes_particulate_compliance_strategies": {
         "description": "A coding table describing different compliance strategies used to control particulate matter in the EIA-860.",
         "schema": {
             "fields": ["code", "label", "description"],
@@ -240,7 +240,7 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
         "etl_group": "static_eia",
         "field_namespace": "eia",
     },
-    "particulate_units_eia": {
+    "core_eia__codes_particulate_units": {
         "description": "A coding table describing different units of measurement for particulate matter in the EIA-860.",
         "schema": {
             "fields": ["code", "label", "description"],
@@ -252,7 +252,7 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
         "etl_group": "static_eia",
         "field_namespace": "eia",
     },
-    "regulations_eia": {
+    "core_eia__codes_regulations": {
         "description": "A coding table describing the different levels of statutes and codes under which boilers operate in the EIA-860.",
         "schema": {
             "fields": ["code", "label", "description"],
@@ -271,7 +271,7 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
         "etl_group": "static_eia",
         "field_namespace": "eia",
     },
-    "so2_compliance_strategies_eia": {
+    "core_eia__codes_so2_compliance_strategies": {
         "description": "A coding table describing different compliance strategies used to control sulfur dioxide in the EIA-860.",
         "schema": {
             "fields": ["code", "label", "description"],
@@ -295,7 +295,7 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
         "etl_group": "static_eia",
         "field_namespace": "eia",
     },
-    "wet_dry_bottom_eia": {
+    "core_eia__codes_wet_dry_bottom": {
         "description": "A coding table describing whether boiler has a wet or dry bottom in the EIA-860.",
         "schema": {
             "fields": ["code", "label", "description"],
@@ -307,7 +307,7 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
         "etl_group": "static_eia",
         "field_namespace": "eia",
     },
-    "so2_units_eia": {
+    "core_eia__codes_so2_units": {
         "description": "A coding table describing different units of measurement for sulfur dioxide in the EIA-860.",
         "schema": {
             "fields": ["code", "label", "description"],
@@ -319,7 +319,7 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
         "etl_group": "static_eia",
         "field_namespace": "eia",
     },
-    "steam_plant_types_eia": {
+    "core_eia__codes_steam_plant_types": {
         "description": "A coding table describing different types of steam plants in the EIA-860.",
         "schema": {
             "fields": ["code", "label", "description"],
@@ -331,7 +331,7 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
         "etl_group": "static_eia",
         "field_namespace": "eia",
     },
-    "reporting_frequencies_eia": {
+    "core_eia__codes_reporting_frequencies": {
         "description": "A coding table describing different types of reporting frequencies in plants in the EIA-923.",
         "schema": {
             "fields": ["code", "label", "description"],
@@ -343,7 +343,7 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
         "etl_group": "static_eia",
         "field_namespace": "eia",
     },
-    "coalmine_types_eia": {
+    "core_eia__codes_coalmine_types": {
         "description": "A coding table describing different types of coalmines reported as fuel sources in the EIA-923.",
         "schema": {
             "fields": ["code", "label", "description"],
@@ -355,7 +355,7 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
         "etl_group": "static_eia",
         "field_namespace": "eia",
     },
-    "contract_types_eia": {
+    "core_eia__codes_contract_types": {
         "description": "A coding table describing the various types of fuel supply contracts reported in EIA-923.",
         "schema": {
             "fields": ["code", "label", "description"],
@@ -367,7 +367,7 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
         "etl_group": "static_eia",
         "field_namespace": "eia",
     },
-    "operational_status_eia": {
+    "core_eia__codes_operational_status": {
         "description": "Codes and metadata pertaining to operational status reported to EIA. Compiled from EIA-860 instructions and EIA-923 file layout spreadsheets.",
         "schema": {
             "fields": [
@@ -386,7 +386,7 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
         "etl_group": "static_eia",
         "field_namespace": "eia",
     },
-    "data_maturities": {
+    "core_pudl__codes_data_maturities": {
         "description": "Level of maturities of data records. Some data sources report less-than-final data. PUDL sometimes includes this data, but use at your own risk.",
         "schema": {
             "fields": ["code", "description"],
@@ -400,7 +400,7 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
         "etl_group": "static_eia",
         "field_namespace": "eia",
     },
-    "energy_sources_eia": {
+    "core_eia__codes_energy_sources": {
         "description": "Codes and metadata pertaining to energy sources reported to EIA. Compiled from EIA-860 instructions and EIA-923 file layout spreadsheets.",
         "schema": {
             "fields": [
@@ -451,7 +451,7 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
         "field_namespace": "eia",
         "create_database_schema": False,
     },
-    "fuel_transportation_modes_eia": {
+    "core_eia__codes_fuel_transportation_modes": {
         "description": "Long descriptions of the fuel transportation modes reported in the EIA-860 and EIA-923.",
         "schema": {
             "fields": ["code", "label", "description"],
@@ -474,7 +474,7 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
         "etl_group": "static_eia",
         "field_namespace": "eia",
     },
-    "fuel_types_aer_eia": {
+    "core_eia__codes_fuel_types_aer": {
         "description": "Descriptive labels for aggregated fuel types used in the Annual Energy Review. See EIA-923 Fuel Code table for additional information.",
         "schema": {
             "fields": ["code", "description"],
@@ -523,7 +523,7 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
         "etl_group": "entity_eia",
         "field_namespace": "eia",
     },
-    "momentary_interruptions_eia": {
+    "core_eia__codes_momentary_interruptions": {
         "description": "A coding table for utility definitions of momentary service interruptions.",
         "schema": {
             "fields": ["code", "label", "description"],
@@ -629,7 +629,7 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
         "field_namespace": "ppe",
         "create_database_schema": False,
     },
-    "prime_movers_eia": {
+    "core_eia__codes_prime_movers": {
         "description": "Long descriptions explaining the short prime mover codes reported in the EIA-860 and EIA-923.",
         "schema": {
             "fields": ["code", "label", "description"],
@@ -646,7 +646,7 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
         "etl_group": "static_eia",
         "field_namespace": "eia",
     },
-    "sector_consolidated_eia": {
+    "core_eia__codes_sector_consolidated": {
         "description": "Long descriptions for the EIA consolidated NAICS sector codes. Codes and descriptions taken from the EIA-923 File Layout spreadsheet.",
         "schema": {
             "fields": ["code", "label", "description"],
