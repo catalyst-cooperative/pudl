@@ -299,6 +299,8 @@ UTILITY_TYPE_CATEGORIES = {
         "electric": {"electric", "ferc:ElectricUtilityMember"},
         "gas": {"gas", "ferc:GasUtilityMember"},
         "common": {"common", "ferc:CommonUtilityMember"},
+        "other": {"other", "ferc:OtherUtilityMember"},
+        "total": {"total"},
     }
 }
 
@@ -3308,8 +3310,6 @@ TRANSFORM_PARAMS = {
             "utility_type": {
                 "categories": UTILITY_TYPE_CATEGORIES["categories"]
                 | {
-                    "total": {"total"},
-                    "other1": {"other1", "ferc:OtherUtilityMember"},
                     "other2": {"other2", "ferc:OtherUtility2Member"},
                     "other3": {"other3", "ferc:OtherUtility3Member"},
                 }
