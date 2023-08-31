@@ -1720,7 +1720,6 @@ class XbrlCalculationForestFerc1(BaseModel):
             raise ValueError(f"Seeds missing from exploded_calcs index: {bad_seeds=}")
         return v
 
-
     def exploded_calcs_to_digraph(
         self: Self,
         exploded_calcs: pd.DataFrame,
