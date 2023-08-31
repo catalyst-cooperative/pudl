@@ -1649,14 +1649,9 @@ class XbrlCalculationForestFerc1(BaseModel):
             .gt(1)
         )
         if multi_valued_weights.any():
-            # Maybe this should be an AssertionError but we have one weird special case
-            # That we are dealing with explicitly in building the trees below. Maybe it
-            # should be happening here instead?
             logger.warning(
-                "Calculation forest nodes specified with conflicting weights."
-            )
-            logger.debug(
-                f"Nodes with conflicting weights:\n{v.loc[multi_valued_weights]}"
+                f"Found {sum(multi_valued_weights)} calculations with conflicting "
+                "weights."
             )
         return v
 
@@ -1725,14 +1720,6 @@ class XbrlCalculationForestFerc1(BaseModel):
             raise ValueError(f"Seeds missing from exploded_calcs index: {bad_seeds=}")
         return v
 
-    # Need to update this to generate a new valid set of seeds
-    # @validator("seeds", always=True)
-    # def seeds_not_empty(cls, v, values):
-    #    """If no seeds are provided, use all nodes in the index of exploded_calcs."""
-    #    if v == []:
-    #        logger.info("No seeds provided. Using all nodes from exploded_calcs.")
-    #        v = list(values["exploded_calcs"].index)
-    #    return v
 
     def exploded_calcs_to_digraph(
         self: Self,
