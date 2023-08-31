@@ -1,6 +1,14 @@
 name: run-etl
 on:
   workflow_dispatch:
+    inputs:
+      profile:
+        type: choice
+        description: What PUDL configuration to use
+        default: fast
+        options:
+          - fast
+          - full
 env:
   GCP_BILLING_PROJECT: ${{ secrets.GCP_BILLING_PROJECT }}
 
@@ -59,9 +67,13 @@ jobs:
       - name: Install Dependencies
         run: |
           python -m pip install --upgrade pip
-          pip install google-cloud-batch
+          pip install google-cloud-batch pydantic
       - name: Deploy ETL on Batch
         env:
           DOCKER_TAG: sha-{{ github.sha }}
+          PUDL_PROFILE: ${{ inputs.profile }}
+          GITHUB_SHA: ${{ github.sha }}
+          GITHUB_REF: ${{ github.ref }}
+          GITHUB_RUN_ID: ${{ github.run_id}}
         run: |
           python devools/run_on_batch.py

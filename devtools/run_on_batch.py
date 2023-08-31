@@ -4,31 +4,84 @@ import sys
 from datetime import datetime
 
 from google.cloud import batch_v1
+from pydantic import BaseModel, BaseSettings
 
 GCP_PROJECT_ID = os.environ.get("GCP_PROJECT_ID", "catalyst-cooperative-pudl")
-
-# See following for supported regions:
-# https://cloud.google.com/batch/docs/get-started#locations
-ts = datetime.now().strftime("%Y-%m-%d-%H%M%S")
-JOB_NAME = os.environ.get("JOB_NAME", f"test-{ts}")
-GCP_REGION = "us-west1"
 DOCKER_IMAGE = os.environ.get("DOCKER_IMAGE", "docker.io/catalystcoop/pudl-etl-ci")
 DOCKER_TAG = os.environ.get("DOCKER_TAG", "latest")
 
-# TODO: consider what is the right default machine type
-MACHINE_TYPE = os.environ.get("MACHINE_TYPE", "e2-highmem-8")
+
+class GithubRuntime(BaseSettings):
+    """Encodes parameters passed by github actions runtime.
+
+    It is expected that GITHUB_SHA, GITHUB_REF, and GITHUB_RUN_ID
+    are set before running this.
+    """
+
+    sha: str = ""
+    ref: str = ""
+    run_id: str = ""
+
+    class Config:
+        """Controls the loading of parameters from env variables."""
+
+        env_prefix = "github_"
 
 
-def run_etl(job_name: str) -> batch_v1.Job:
+class RunProfile(BaseModel):
+    """RunProfile encodes parameters that control how the job is run."""
+
+    name: str
+    gcp_region: str
+    machine_type: str
+    max_run_duration: str
+    settings_file: str
+
+
+PROFILES: dict[str, RunProfile] = {
+    "fast": RunProfile(
+        name="fast",
+        gcp_region="us-west1",
+        machine_type="e2-highmem-8",
+        max_run_duration=f"{3 * 3600}s",
+        settings_file="etl_fast.yml",
+    ),
+    "full": RunProfile(
+        name="full",
+        gcp_region="us-west1",
+        machine_type="e2-highmem-8",
+        max_run_duration=f"{5 * 3600}s",
+        settings_file="etl_full.yml",
+    ),
+}
+
+# TODO(rousik): Build profiles can encode variety of options, e.g.
+# machine type, settings file, max run time, etc. We should use
+# pydantic for that.
+
+
+# Construct job name
+
+
+def run_etl(profile: RunProfile, job_name: str) -> batch_v1.Job:
     """Runs PUDL ETL on Google Batch.
 
     Args:
+        profile: runtime parameters to be used when creating the
+          job.
         job_name: the name of the job that will be created.
 
     Returns:
         A job object representing the job created.
     """
     client = batch_v1.BatchServiceClient()
+    job_labels = {
+        "pudl_profile": profile.name,
+        "pudl_settings_file": profile.settings_file,
+        "github_sha": GithubRuntime().sha,
+        "github_ref": GithubRuntime().ref,
+        "github_run_id": GithubRuntime().run_id,
+    }
 
     # Define what will be done as part of the job.
     task = batch_v1.TaskSpec()
@@ -43,10 +96,13 @@ def run_etl(job_name: str) -> batch_v1.Job:
         "CONDA_PREFIX": "/home/catalyst/env",
         "GCS_CACHE": "gs://zenodo-cache.catalyst.coop",
         "CONDA_RUN": "conda run --no-capture-output --prefix /home/catalyst/env",
-        "PUDL_SETTINGS_YML": "/home/catalyst/src/pudl/package_data/settings/etl_fast.yml",
+        "PUDL_SETTINGS_YML": (
+            "/home/catalyst/src/pudl/package_data"
+            + f"/settings/{profile.settings_file}"
+        ),
         "GOOGLE_BATCH": "true",  # This disables some legacy functionality.
-        "ACTION_SHA": "foo",
-        "GITHUB_REF": "bar",
+        "ACTION_SHA": GithubRuntime().sha,
+        "GITHUB_REF": GithubRuntime().ref,
         "GCP_BILLING_PROJECT": GCP_PROJECT_ID,
     }
     # Other env variables we will need are:
@@ -98,13 +154,13 @@ def run_etl(job_name: str) -> batch_v1.Job:
     # TODO(rousik): we might be more permissive and allow running in any region.
     instances = batch_v1.AllocationPolicy.InstancePolicyOrTemplate()
     instances.policy = batch_v1.AllocationPolicy.InstancePolicy()
-    instances.policy.machine_type = MACHINE_TYPE
+    instances.policy.machine_type = profile.machine_type
     allocation_policy.instances = [instances]
 
     job = batch_v1.Job()
     job.task_groups = [group]
     job.allocation_policy = allocation_policy
-    job.labels = {"env": "testing", "type": "script"}
+    job.labels = job_labels
     # We use Cloud Logging as it's an out of the box available option
     job.logs_policy = batch_v1.LogsPolicy()
     job.logs_policy.destination = batch_v1.LogsPolicy.Destination.CLOUD_LOGGING
@@ -114,16 +170,21 @@ def run_etl(job_name: str) -> batch_v1.Job:
     create_request.job_id = job_name
 
     # The job's parent is the region in which the job will run, how do we set this when
-    create_request.parent = f"projects/{GCP_PROJECT_ID}/locations/{GCP_REGION}"
+    create_request.parent = f"projects/{GCP_PROJECT_ID}/locations/{profile.gcp_region}"
 
     return client.create_job(create_request)
 
 
 def main():
     """Runs PUDL ETL on Google Batch service."""
+    # Construct job name that encodes some useful info
+    profile = os.environ.get("PUDL_PROFILE", "fast")
     ts = datetime.now().strftime("%Y%m%d-%H%M%S")
-    print(f"Running batch job with job name test-{ts}\n")
-    job = run_etl(f"test-{ts}")
+    job_name = f"etl-{profile}-{ts}"
+
+    print(f"Running batch job with job name {job_name}\n")
+    job = run_etl(PROFILES[profile], job_name)
+
     print(f"Created job {job.name} with uuid {job.uid}")
     # TODO(rousik): add optional (on-by-default) wait for job step here.
     # That would allow us to keep the github action running/blocked until
