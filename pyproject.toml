@@ -34,13 +34,12 @@ dependencies = [
     "matplotlib>=3.3,<3.8",  # Should make this optional with a "viz" extras
     "networkx>=2.2,<3.2",
     "numpy>=1.18.5,!=1.23.0,<1.26",
-    "pandas>=1.4,<1.5.4",
+    "pandas[parquet,excel,fss,gcp,compression]>=2.0,<2.1",
     "pyarrow>=5,<13.1",
     "pydantic[email]>=1.7,<2",
     "python-dotenv>=0.21,<1.1",
-    "python-snappy>=0.6,<0.7",
     "pyyaml>=5,<6.1",
-    "recordlinkage>=0.14,<0.17",
+    "recordlinkage>=0.16,<0.17",
     "scikit-learn>=1.0,<1.4",
     "scipy>=1.6,<1.12",
     "Shapely>=2.0,<2.1",
@@ -152,7 +151,6 @@ test = [
     "pytest-mock>=3.0,<3.12",
     "pytest>=6.2,<7.5",
     "responses>=0.14,<0.24",
-    "rstcheck[sphinx]>=5.0,<6.2",
     "tox>=4.0,<4.11",
 ]
 datasette = [
