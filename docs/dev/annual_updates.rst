@@ -126,13 +126,20 @@ in :py:const:`pudl.extract.ferc714.TABLE_ENCODING` and that it may change over t
 
 A. EIA Forms
 ^^^^^^^^^^^^
-**3.A.1)** Either attempt to materialize the raw assets for the EIA dataset you're
-working with in Dagster (learn more about Dagster in :doc:`run_the_etl`) or use the
-Jupyter notebook ``devtools/eia-etl-debug.ipynb`` to run the extract process
-independently for each dataset. Given that there are hundreds of columns mapped across
-all the different EIA spreadsheets, you'll almost certainly encounter typos or errors
-that will cause the extraction to fail. Interpret these errors and revise your work
-from step 2.
+**3.A.1)** You can either materialize the raw assets (ex: ``raw_eia860``) in Dagster
+(learn more about Dagster in :doc:`run_the_etl`) or use the Jupyter notebook
+``devtools/eia-etl-debug.ipynb`` to run the extract process for a given data set. There
+are hundreds of columns mapped across all the different EIA spreadsheets, you'll almost
+certainly encounter typos or errors that will cause the extraction to fail. Interpret
+these errors and revise your work from step 2. Using Dagster will help speed up the
+debugging process because it allows you to load individual, problematic assets rather
+than the whole suite of tables from a source.
+
+.. note::
+
+    If you've created or removed any assets, you'll need to refresh the code location in
+    Dagster before materializing any assets. You can do this by clicking on the circular
+    arrow in the upper left hand corner next to the text "Job in <NAME OF JOB>".
 
 B. FERC Form 1
 ^^^^^^^^^^^^^^
@@ -263,7 +270,10 @@ script in the terminal. From within the pudl repo directory, run:
 C. EPA CEMS
 ^^^^^^^^^^^
 
-**4.C.1)** Use dagster to materialize the ``epacems`` asset group and debug.
+**4.C.1)** Use dagster to materialize the ``epacems`` asset group and debug. The most
+common errors will occur when new CEMS plants lack timezone data in the EIA database.
+See section 6.B.1 for instructions on how to fix this. Once you've updated the
+spreadsheet tracking these errors, reload the ``epacems`` assets in Dagster.
 
 5. Update the PUDL DB Schema
 ----------------------------
@@ -321,12 +331,13 @@ A. FERC 1 & EIA Plants & Utilities
 B. Missing EIA Plant Locations from CEMS
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 **6.B.1)** If there are any plants that appear in the EPA CEMS dataset that do not
-appear in the ``plants_entity_eia`` table or that are missing latitute and longitude
-values, the missing information should be compiled and added to
+appear in the ``plants_entity_eia`` table, or that are missing latitute and longitude
+values, you'll get a warning when you try and materialize the ``epacamd`` asset group in
+Dagster. You'll need to manually compile the missing information and add it to
 ``src/pudl/package_data/epacems/additional_epacems_plants.csv`` to enable accurate
-adjustment of the EPA CEMS timestamps to UTC. This information can usually be obtained
-with the ``plant_id_eia`` and the
-`EPA's FACT API <https://www.epa.gov/airmarkets/field-audit-checklist-tool-fact-api>`__.
+adjustment of the EPA CEMS timestamps to UTC. Using the Plant ID from the warning, look
+up the plant coordinates in the
+`EPA FACT API <https://www.epa.gov/airmarkets/field-audit-checklist-tool-fact-api>`__.
 In some cases you may need to resort to Google Maps. If no coordinates can be found
 then at least the plant's state should be included so that an approximate timezone can
 be inferred.
