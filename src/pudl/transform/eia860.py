@@ -338,7 +338,7 @@ def _core_eia860__generators(
 
     gens_df["fuel_type_code_pudl"] = gens_df.energy_source_code_1.str.upper().map(
         pudl.helpers.label_map(
-            CODE_METADATA["energy_sources_eia"]["df"],
+            CODE_METADATA["core_eia__codes_energy_sources"]["df"],
             from_col="code",
             to_col="fuel_type_code_pudl",
             null_value=pd.NA,
@@ -347,7 +347,7 @@ def _core_eia860__generators(
 
     gens_df["operational_status"] = gens_df.operational_status_code.str.upper().map(
         pudl.helpers.label_map(
-            CODE_METADATA["operational_status_eia"]["df"],
+            CODE_METADATA["core_eia__codes_operational_status"]["df"],
             from_col="code",
             to_col="operational_status",
             null_value=pd.NA,
@@ -730,7 +730,9 @@ def _core_eia860__boilers(
     # Add boiler manufacturer name to column
     b_df["boiler_manufacturer"] = b_df.boiler_manufacturer_code.map(
         pudl.helpers.label_map(
-            CODE_METADATA["environmental_equipment_manufacturers_eia"]["df"],
+            CODE_METADATA["core_eia__codes_environmental_equipment_manufacturers"][
+                "df"
+            ],
             from_col="code",
             to_col="description",
             null_value=pd.NA,
@@ -739,7 +741,9 @@ def _core_eia860__boilers(
 
     b_df["nox_control_manufacturer"] = b_df.nox_control_manufacturer_code.map(
         pudl.helpers.label_map(
-            CODE_METADATA["environmental_equipment_manufacturers_eia"]["df"],
+            CODE_METADATA["core_eia__codes_environmental_equipment_manufacturers"][
+                "df"
+            ],
             from_col="code",
             to_col="description",
             null_value=pd.NA,

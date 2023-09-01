@@ -96,7 +96,7 @@ def denorm_emissions_control_equipment_eia860(
     # Add a column for operational status
     emce_df["operational_status"] = emce_df.operational_status_code.str.upper().map(
         pudl.helpers.label_map(
-            CODE_METADATA["operational_status_eia"]["df"],
+            CODE_METADATA["core_eia__codes_operational_status"]["df"],
             from_col="code",
             to_col="operational_status",
             null_value=pd.NA,

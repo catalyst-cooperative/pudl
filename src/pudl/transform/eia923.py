@@ -669,7 +669,7 @@ def _core_eia_923__generation_fuel_eia923(raw_eia923__generation_fuel: pd.DataFr
 
     gen_fuel["fuel_type_code_pudl"] = gen_fuel.energy_source_code.map(
         pudl.helpers.label_map(
-            CODE_METADATA["energy_sources_eia"]["df"],
+            CODE_METADATA["core_eia__codes_energy_sources"]["df"],
             from_col="code",
             to_col="fuel_type_code_pudl",
             null_value=pd.NA,
@@ -874,7 +874,7 @@ def _core_eia923__boiler_fuel(raw_eia923__boiler_fuel: pd.DataFrame) -> pd.DataF
     # Add a simplified PUDL fuel type
     bf_df["fuel_type_code_pudl"] = bf_df.energy_source_code.map(
         pudl.helpers.label_map(
-            CODE_METADATA["energy_sources_eia"]["df"],
+            CODE_METADATA["core_eia__codes_energy_sources"]["df"],
             from_col="code",
             to_col="fuel_type_code_pudl",
             null_value=pd.NA,
@@ -1207,7 +1207,7 @@ def _core_eia923__fuel_receipts_costs(
     )
     frc_df["fuel_type_code_pudl"] = frc_df.energy_source_code.map(
         pudl.helpers.label_map(
-            CODE_METADATA["energy_sources_eia"]["df"],
+            CODE_METADATA["core_eia__codes_energy_sources"]["df"],
             from_col="code",
             to_col="fuel_type_code_pudl",
             null_value=pd.NA,

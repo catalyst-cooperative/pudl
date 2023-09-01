@@ -1001,7 +1001,11 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "description": "Original fuel from which this refined fuel was derived.",
         "constraints": {
             "enum": sorted(
-                set(CODE_METADATA["energy_sources_eia"]["df"]["fuel_derived_from"])
+                set(
+                    CODE_METADATA["core_eia__codes_energy_sources"]["df"][
+                        "fuel_derived_from"
+                    ]
+                )
             )
         },
     },
@@ -1017,7 +1021,11 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "description": "High level fuel group defined in the 2021-2023 EIA Form 860 instructions, Table 28.",
         "constraints": {
             "enum": sorted(
-                set(CODE_METADATA["energy_sources_eia"]["df"]["fuel_group_eia"])
+                set(
+                    CODE_METADATA["core_eia__codes_energy_sources"]["df"][
+                        "fuel_group_eia"
+                    ]
+                )
             )
         },
     },
@@ -1032,7 +1040,11 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "description": "Physical phase of matter of the fuel.",
         "constraints": {
             "enum": sorted(
-                set(CODE_METADATA["energy_sources_eia"]["df"]["fuel_phase"].dropna())
+                set(
+                    CODE_METADATA["core_eia__codes_energy_sources"]["df"][
+                        "fuel_phase"
+                    ].dropna()
+                )
             )
         },
     },
@@ -1059,7 +1071,11 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "description": "Simplified fuel type code used in PUDL",
         "constraints": {
             "enum": sorted(
-                set(CODE_METADATA["energy_sources_eia"]["df"].fuel_type_code_pudl)
+                set(
+                    CODE_METADATA["core_eia__codes_energy_sources"][
+                        "df"
+                    ].fuel_type_code_pudl
+                )
             )
         },
     },
@@ -2127,7 +2143,9 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "description": "Code that specifies what time period data has to be reported (i.e. monthly data or annual totals) and how often the power plant reports this data to EIA. See reporting_frequencies_eia for more details.",
         "constraints": {
             "enum": sorted(
-                set(CODE_METADATA["reporting_frequencies_eia"]["df"]["code"])
+                set(
+                    CODE_METADATA["core_eia__codes_reporting_frequencies"]["df"]["code"]
+                )
             )
         },
     },
@@ -2827,10 +2845,14 @@ FIELD_METADATA_BY_RESOURCE: dict[str, dict[str, Any]] = {
     },
     "plant_parts_eia": {
         "energy_source_code_1": {
-            "constraints": {"enum": set(CODE_METADATA["energy_sources_eia"]["df"].code)}
+            "constraints": {
+                "enum": set(CODE_METADATA["core_eia__codes_energy_sources"]["df"].code)
+            }
         },
         "prime_movers_eia": {
-            "constraints": {"enum": set(CODE_METADATA["prime_movers_eia"]["df"].code)}
+            "constraints": {
+                "enum": set(CODE_METADATA["core_eia__codes_prime_movers"]["df"].code)
+            }
         },
         "technology_description": {"constraints": {"enum": set(TECH_DESCRIPTIONS)}},
     },

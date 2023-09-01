@@ -632,7 +632,7 @@ any cleaning mechanisms in place to account for this."""
             "primary_key": ["code"],
             "foreign_key_rules": {"fields": [["purchase_type_code"]]},
         },
-        "encoder": CODE_METADATA["power_purchase_types_ferc1"],
+        "encoder": CODE_METADATA["core_ferc1__codes_power_purchase_types"],
         "sources": ["ferc1"],
         "etl_group": "static_ferc1",
         "field_namespace": "ferc1",
