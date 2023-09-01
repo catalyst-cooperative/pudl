@@ -4248,7 +4248,7 @@ class UtilityPlantSummaryFerc1TableTransformer(Ferc1AbstractTableTransformer):
     ) -> pd.DataFrame:
         """Remove the end-of-previous-year instant data."""
         all_current_year = raw_xbrl_instant[
-            raw_xbrl_instant["date"].astype("datetime64").dt.year
+            raw_xbrl_instant["date"].astype("datetime64[ns]").dt.year
             == raw_xbrl_instant["report_year"].astype("int64")
         ]
         return super().process_xbrl(all_current_year, raw_xbrl_duration)
