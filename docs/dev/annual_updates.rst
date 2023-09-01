@@ -5,7 +5,8 @@ Much of the data we work with is released in a "final" state annually. We typica
 integrate the new year of data over 2-4 weeks in October since, by that
 time, the final release for the previous year have been published by EIA and FERC. We
 also integrate EIA early release data when available. The ``data_maturity`` field will
-indicate whether the data is final or provisional.
+indicate whether the data is final or provisional. To see what data we have available
+for each dataset, click on the links below and look at the "Years Liberated" field.
 
 As of spring 2023 the annual updates include:
 
@@ -168,15 +169,20 @@ Currently, our FERC and EIA tables utilize different transform processes.
 
 A. EIA Forms
 ^^^^^^^^^^^^
-**4.A.1)** Either materialize the clean and/or normalized dagster asset groups or use
-the EIA ETL Debugging notebook mentioned above to run the initial transform step on all
-tables of the new year of data. If any new tables were added in the new year, you will
-need to add a new transform function for the corresponding dataframe. If new columns
-have been added, they should also be inspected for cleanup.
+**4.A.1)** You can either materialize the ``_core`` dagster asset groups for your
+dataset of interest (ex: ``_core_eia860``) or use the EIA ETL Debugging notebook
+mentioned above to run the initial transform step on all tables of the new year of data.
+As mentioned in 3.A.1, the debugging process is significantly faster with Dagster. If
+any new tables were added in the new year, you will need to add a new transform function
+for the corresponding dataframe. If new columns have been added, they should also be
+inspected for cleanup. Debug and rematerialize until the assets load successfully.
 
 .. note::
 
-    The next time we update EIA we should probably do so in the new transform framework.
+    As with the extract phase, if new Dagster assets are added to the pipeline, you'll
+    need to refresh the code location in Dagster by clicking on the circular
+    arrow in the upper left hand corner next to the text "Job in <NAME OF JOB>" before
+    materializing the new assets.
 
 B. FERC Form 1
 ^^^^^^^^^^^^^^
