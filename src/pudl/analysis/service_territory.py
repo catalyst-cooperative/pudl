@@ -384,7 +384,7 @@ def compiled_geoms_asset_factory(
         denorm_utilities_eia: pd.DataFrame,
         service_territory_eia861: pd.DataFrame,
         utility_assn_eia861: pd.DataFrame,
-        county_censusdp1: pd.DataFrame,
+        core_censusdp1__entity_county: pd.DataFrame,
     ):
         """Compile all available utility or balancing authority geometries.
 
@@ -402,7 +402,7 @@ def compiled_geoms_asset_factory(
             denorm_utilities_eia=denorm_utilities_eia,
             service_territory_eia861=service_territory_eia861,
             utility_assn_eia861=utility_assn_eia861,
-            census_counties=county_censusdp1,
+            census_counties=core_censusdp1__entity_county,
             entity_type=entity_type,
             dissolve=dissolve,
             limit_by_state=limit_by_state,
@@ -581,7 +581,9 @@ def main():
 
     pudl_engine = sa.create_engine(PudlPaths().pudl_db)
     # Load the US Census DP1 county data:
-    county_gdf = pudl.etl.defs.load_asset_value(AssetKey("county_censusdp1"))
+    county_gdf = pudl.etl.defs.load_asset_value(
+        AssetKey("core_censusdp1__entity_county")
+    )
 
     kwargs_dicts = [
         {"entity_type": "util", "limit_by_state": False},

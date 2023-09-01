@@ -577,7 +577,8 @@ def fipsified_respondents_ferc714(
 
 @asset(compute_kind="Python")
 def georeferenced_counties_ferc714(
-    fipsified_respondents_ferc714: pd.DataFrame, county_censusdp1: gpd.GeoDataFrame
+    fipsified_respondents_ferc714: pd.DataFrame,
+    core_censusdp1__entity_county: gpd.GeoDataFrame,
 ) -> gpd.GeoDataFrame:
     """Annual respondents with all associated county-level geometries.
 
@@ -588,7 +589,7 @@ def georeferenced_counties_ferc714(
     of the FIPS IDs so you can also still do ID based analyses.
     """
     counties_gdf = pudl.analysis.service_territory.add_geometries(
-        fipsified_respondents_ferc714, census_gdf=county_censusdp1
+        fipsified_respondents_ferc714, census_gdf=core_censusdp1__entity_county
     ).pipe(apply_pudl_dtypes)
     return counties_gdf
 
@@ -597,7 +598,7 @@ def georeferenced_counties_ferc714(
 def georeferenced_respondents_ferc714(
     fipsified_respondents_ferc714: pd.DataFrame,
     summarized_demand_ferc714: pd.DataFrame,
-    county_censusdp1: gpd.GeoDataFrame,
+    core_censusdp1__entity_county: gpd.GeoDataFrame,
 ) -> gpd.GeoDataFrame:
     """Annual respondents with a single all-encompassing geometry for each year.
 
@@ -612,7 +613,7 @@ def georeferenced_respondents_ferc714(
     respondents_gdf = (
         pudl.analysis.service_territory.add_geometries(
             fipsified_respondents_ferc714,
-            census_gdf=county_censusdp1,
+            census_gdf=core_censusdp1__entity_county,
             dissolve=True,
             dissolve_by=["report_date", "respondent_id_ferc714"],
         )

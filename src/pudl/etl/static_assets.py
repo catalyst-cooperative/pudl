@@ -89,7 +89,7 @@ def static_ferc1_tables():
     static_table_dict = _read_static_encoding_tables("static_ferc1")
     static_table_dict.update(
         {
-            "core_ferc1__codes_accounts": FERC_ACCOUNTS[
+            "core_ferc__codes_accounts": FERC_ACCOUNTS[
                 ["ferc_account_id", "ferc_account_description"]
             ],
         }

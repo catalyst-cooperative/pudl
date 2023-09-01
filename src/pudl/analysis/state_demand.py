@@ -525,7 +525,9 @@ def county_assignments_ferc714(
     return df
 
 
-def census_counties(county_censusdp1: gpd.GeoDataFrame) -> gpd.GeoDataFrame:
+def census_counties(
+    core_censusdp1__entity_county: gpd.GeoDataFrame,
+) -> gpd.GeoDataFrame:
     """Load county attributes.
 
     Args:
@@ -534,7 +536,7 @@ def census_counties(county_censusdp1: gpd.GeoDataFrame) -> gpd.GeoDataFrame:
     Returns:
         Dataframe with columns `county_id_fips` and `population`.
     """
-    return county_censusdp1[["geoid10", "dp0010001"]].rename(
+    return core_censusdp1__entity_county[["geoid10", "dp0010001"]].rename(
         columns={"geoid10": "county_id_fips", "dp0010001": "population"}
     )
 
@@ -585,7 +587,7 @@ def total_state_sales_eia861(
 def predicted_state_hourly_demand(
     context,
     imputed_hourly_demand_ferc714: pd.DataFrame,
-    county_censusdp1: pd.DataFrame,
+    core_censusdp1__entity_county: pd.DataFrame,
     fipsified_respondents_ferc714: pd.DataFrame,
     sales_eia861: pd.DataFrame = None,
 ) -> pd.DataFrame:
@@ -594,7 +596,7 @@ def predicted_state_hourly_demand(
     Args:
         imputed_hourly_demand_ferc714: Hourly demand timeseries, with columns
           `respondent_id_ferc714`, report `year`, `utc_datetime`, and `demand_mwh`.
-        county_censusdp1: The county layer of the Census DP1 shapefile.
+        core_censusdp1__entity_county: The county layer of the Census DP1 shapefile.
         fipsified_respondents_ferc714: Annual respondents with the county FIPS IDs
             for their service territories.
         sales_eia861: EIA 861 sales data. If provided, the predicted hourly demand is
@@ -610,7 +612,7 @@ def predicted_state_hourly_demand(
 
     # Call necessary functions
     count_assign_ferc714 = county_assignments_ferc714(fipsified_respondents_ferc714)
-    counties = census_counties(county_censusdp1)
+    counties = census_counties(core_censusdp1__entity_county)
     total_sales_eia861 = total_state_sales_eia861(sales_eia861)
 
     # Pre-compute list of respondent-years with demand
