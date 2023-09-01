@@ -2290,39 +2290,29 @@ class XbrlCalculationForestFerc1(BaseModel):
         return leafy_data.reset_index(drop=True).convert_dtypes()
 
     def forest_as_table(self: Self) -> pd.DataFrame:
-        """Draft version of table representation of forest."""
+        """Draft version of table representation of forest.
+
+        Build a table that represents that forest strucutre. This table will have
+        multiple sets of columns cooresponding to the ``calc_cols`` with a suffix
+        representing which level of the tree the columns represent.
+        """
+        forest = self.forest  # so we don't have to build this a gazzilion times.
         seed_node = self.seeds
         if len(seed_node) != 1:
             raise AssertionError(
                 "Generating the forest as a table is only enabled with one seed node."
             )
         seed_node = seed_node[0]
-        forest = self.forest
         # not sure if this is correct but it seems like it is working.
         simple_paths = []
         for leaf in self.leaves(forest):
             simple_paths.append(nx.shortest_simple_paths(forest, seed_node, leaf))
         max_seed_to_child_paths = max([len(list(sp)[0]) for sp in simple_paths])
 
-        # convert seed node into calc comps df
-        level0_cols = [f"{col}_level0" for col in self.calc_cols]
-        level1_cols = [f"{col}_level1" for col in self.calc_cols]
-        seed_table = (
-            self.exploded_calcs.set_index(self.parent_cols)
-            .sort_index()
-            .loc[seed_node]
-            .reset_index()
-            .rename(
-                columns={
-                    col: col.replace("_parent", "_level0") for col in self.parent_cols
-                }
-            )
-            .rename(
-                columns={col: f"{col}_level1" for col in self.calc_cols + ["weight"]}
-            )[level0_cols + level1_cols + ["weight_level1"]]
+        # get the table started with just the seed node.
+        forest_as_table = self._forest_as_table_level_from_nodes(
+            self.seeds, forest, n=0
         )
-
-        forest_as_table = seed_table.copy()
         for n in range(1, max_seed_to_child_paths):
             logger.info(n)
             forest_as_table = self._add_next_level_into_forest_as_table(
@@ -2333,29 +2323,10 @@ class XbrlCalculationForestFerc1(BaseModel):
         # drop all columns that are full of nulls. for readability mostly.
         return forest_as_table.dropna(axis=1, how="all")
 
-    def _add_next_level_into_forest_as_table(
-        self: Self,
-        forest: nx.digraph,
-        forest_as_table: pd.DataFrame,
-        n: int,
-    ) -> pd.DataFrame:
-        """Add another level onto the ``forest_as_table`` table."""
+    def _forest_as_table_level_from_nodes(self, nodes_level_n, forest, n):
+        """Build a table of parent nodes and their children as level n and leven n+1."""
         level_n_cols = [f"{col}_level{n}" for col in self.calc_cols]
         level_next_cols = [f"{col}_level{n+1}" for col in self.calc_cols]
-        # get the list of children from the current level in the forest_as_table
-        # is there a better way to go from df -> list of nodes?
-        nodes_level_n = [
-            NodeId(*node)
-            for node in forest_as_table.dropna(subset=level_n_cols, how="all")
-            .set_index(level_n_cols)
-            .index
-        ]
-        # but some nodes never show up as parents in the calc comps table
-        # so we need to restrict the nodes that we actually need to get
-        # sucessors from the parents in calc_comps
-        nodes_level_n = self.exploded_calcs.set_index(
-            self.parent_cols
-        ).index.intersection(nodes_level_n)
         # get the successors of this level so we can add a whole new level!
         nodes_level_next = []
         for node in nodes_level_n:
@@ -2384,6 +2355,33 @@ class XbrlCalculationForestFerc1(BaseModel):
                     col: f"{col}_level{n+1}" for col in self.calc_cols + ["weight"]
                 }
             )[level_n_cols + level_next_cols + [f"weight_level{n+1}"]]
+        )
+        return calc_comps_next
+
+    def _add_next_level_into_forest_as_table(
+        self: Self,
+        forest: nx.digraph,
+        forest_as_table: pd.DataFrame,
+        n: int,
+    ) -> pd.DataFrame:
+        """Add another level onto the ``forest_as_table`` table."""
+        level_n_cols = [f"{col}_level{n}" for col in self.calc_cols]
+        # get the list of children from the current level in the forest_as_table
+        # is there a better way to go from df -> list of nodes?
+        nodes_level_n = [
+            NodeId(*node)
+            for node in forest_as_table.dropna(subset=level_n_cols, how="all")
+            .set_index(level_n_cols)
+            .index
+        ]
+        # but some nodes never show up as parents in the calc comps table
+        # so we need to restrict the nodes that we actually need to get
+        # sucessors from the parents in calc_comps
+        nodes_level_n = self.exploded_calcs.set_index(
+            self.parent_cols
+        ).index.intersection(nodes_level_n)
+        calc_comps_next = self._forest_as_table_level_from_nodes(
+            nodes_level_n, forest, n
         )
         null_level_mask = forest_as_table[level_n_cols].isnull().all(axis="columns")
         forest_as_table_n = forest_as_table[~null_level_mask].merge(
