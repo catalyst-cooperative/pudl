@@ -4030,7 +4030,7 @@ class UtilityPlantSummaryFerc1TableTransformer(Ferc1AbstractTableTransformer):
         """Remove the end-of-previous-year instant data."""
 
         all_current_year = raw_xbrl_instant[
-            raw_xbrl_instant["date"].astype("datetime64").dt.year
+            raw_xbrl_instant["date"].astype("datetime64[ns]").dt.year
             == raw_xbrl_instant["report_year"].astype("int64")
         ]
         return super().process_xbrl(all_current_year, raw_xbrl_duration)
@@ -5872,6 +5872,12 @@ def add_dimension_total_calculations(
         # sub-components by broadcast merging the not-total records onto the
         # new total records.
         total_w_subdim = (
+            # for the record in the metadata where we have a total across *this* dimension,
+            # add on the non-total values for this dimension as calculation components
+            # if there's a record with two dimensions where there are totals, we make two
+            # versions of the calculation.
+            # if there's a record where there's two totals, don't we want the
+            # calc comps to be *all* of the non-total values for *both* dimensions?
             pd.merge(
                 # the total records will become _parent columns in new records
                 left=meta_w_dims.loc[(meta_w_dims[dim] == "total")],
@@ -5908,6 +5914,25 @@ def add_dimension_total_calculations(
     calc_components = calc_components.assign(
         total_count_parent=lambda x: x.filter(like="_has_total").sum(axis=1)
     )
+
+    # This multi-dimension totals logic is a little hard to follow, so a concrete example:
+    #
+    # if there is a record with "total" in utility_type and plant_status,
+    # table_dimensions will say that that factoid has
+    #   - possible utility types: "total", "gas", "electric";
+    #   - possible plant status: "total", "in_service", "future"
+    #
+    # in calc_components, we'll see these children for the "total", "total" parent.
+    #   - child:"factoid", "electric", "in_service"; parent: "factoid", "total", "total"
+    #   - child:"factoid", "electric", "future"; parent: "factoid", "total", "total"
+    #   - child:"factoid", "gas", "in_service"; parent: "factoid", "total", "total"
+    #   - child:"factoid", "gas", "future"; parent: "factoid", "total", "total"
+    #
+    # we will also see these which are redundant with the above, and should be filtered out:
+    #   - child:"factoid", "gas", "total"; parent: "factoid", "total", "total"
+    #   - child:"factoid", "total", "leased"; parent: "factoid", "total", "total"
+    #
+    # See the unit test in ferc1_test.py for more details.
     calc_components = calc_components[
         # either the parent has null, 1  or 0, which is to say its not a weirdo with
         # many totals in multiple dimensions
