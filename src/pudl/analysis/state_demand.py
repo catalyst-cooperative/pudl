@@ -372,7 +372,7 @@ def filter_ferc714_hourly_demand_matrix(
             .groupby("id")["year"]
             .apply(lambda x: np.sort(x))
         )
-        with pd.option_context("display.max_colwidth", -1):
+        with pd.option_context("display.max_colwidth", None):
             logger.info(f"{msg}:\n{report}")
     # Drop respondents with no data
     blank = df.columns[df.isnull().all()].tolist()

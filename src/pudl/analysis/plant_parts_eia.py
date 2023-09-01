@@ -480,6 +480,7 @@ class MakeMegaGenTbl:
                 validate_own_merge,
             )
         )
+        gens_mega = gens_mega.convert_dtypes()
         return gens_mega
 
     def get_gens_mega_table(self, mcoe):
