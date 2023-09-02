@@ -663,7 +663,7 @@ class Field(Base):
                 return "float32"
         return FIELD_DTYPES_PANDAS[self.type]
 
-    def to_sql_dtype(self) -> sa.sql.visitors.VisitableType:
+    def to_sql_dtype(self) -> type:
         """Return SQLAlchemy data type."""
         if self.constraints.enum and self.type == "string":
             return sa.Enum(*self.constraints.enum)
@@ -949,7 +949,6 @@ class DataSource(Base):
     def add_datastore_metadata(self) -> None:
         """Get source file metadata from the datastore."""
         dp_desc = Datastore(
-            sandbox=False,
             local_cache_path=PudlPaths().data_dir,
             gcs_cache_path="gs://zenodo-cache.catalyst.coop",
         ).get_datapackage_descriptor(self.name)

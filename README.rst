@@ -124,7 +124,7 @@ Want access to all the published data in bulk? If you're familiar with Python
 and `Jupyter Notebooks <https://jupyter.org/>`__ and are willing to install Docker you
 can:
 
-* `Download a PUDL data release <https://sandbox.zenodo.org/record/764696>`__ from
+* `Download a PUDL data release <https://zenodo.org/record/3653158>`__ from
   CERN's `Zenodo <https://zenodo.org>`__ archiving service.
 * `Install Docker <https://docs.docker.com/get-docker/>`__
 * Run the archived image using ``docker-compose up``

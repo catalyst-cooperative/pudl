@@ -245,7 +245,7 @@ class GenericPlantFerc1TableTransformer(Ferc1AbstractTableTransformer):
                     "`drop_invalid_rows`. Adding empty columns for: "
                     f"{missing_required_cols}"
                 )
-                df.loc[:, missing_required_cols] = pd.NA
+                df.loc[:, list(missing_required_cols)] = pd.NA
         return super().drop_invalid_rows(df)
 
 
@@ -423,7 +423,7 @@ def get_utility_most_recent_capacity(pudl_engine) -> pd.DataFrame:
         == gen_caps["report_date"]
     )
     most_recent_gens = gen_caps.loc[most_recent_gens_idx]
-    utility_caps = most_recent_gens.groupby("utility_id_eia").sum()
+    utility_caps = most_recent_gens.groupby("utility_id_eia")["capacity_mw"].sum()
     return utility_caps
 
 

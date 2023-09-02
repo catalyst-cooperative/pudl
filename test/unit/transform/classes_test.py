@@ -347,7 +347,7 @@ MIXED_TYPE_DATA: pd.DataFrame = pd.DataFrame(
         (5, pd.NA, pd.NA, -5.0, "barry"),
         (6, 2000, "2000-01-01", 231.1, "replace me"),
         (7, pd.NA, pd.NA, 101.10, pd.NA),
-        (8, 2012, "01-01-2020", 899.98, "another plant name"),
+        (8, 2012, "2020-01-01", 899.98, "another plant name"),
         (9, 1850, "2022-03-01T00:00:00.000000000", 543.21, np.nan),
         (10, date.today().year, date.today(), 8.1, "cat corp"),
     ],
@@ -355,11 +355,13 @@ MIXED_TYPE_DATA: pd.DataFrame = pd.DataFrame(
     {
         "id": int,
         "year": pd.Int64Dtype(),
-        "report_date": "datetime64[ns]",
         "capacity_mw": float,
         "plant_name": str,
     }
 )
+MIXED_TYPE_DATA["report_date"] = pd.to_datetime(
+    MIXED_TYPE_DATA["report_date"], format="mixed"
+).astype("datetime64[ns]")
 
 SPOT_FIXED_MIXED_TYPE_DATA: pd.DataFrame = pd.DataFrame(
     columns=["id", "year", "report_date", "capacity_mw", "plant_name"],
@@ -371,7 +373,7 @@ SPOT_FIXED_MIXED_TYPE_DATA: pd.DataFrame = pd.DataFrame(
         (5, pd.NA, pd.NA, -5.0, "321"),
         (6, 2000, "2000-01-01", 459.0, "replace me"),
         (7, pd.NA, pd.NA, 101.10, pd.NA),
-        (8, 2012, "01-01-2020", 899.98, "another plant name"),
+        (8, 2012, "2020-01-01", 899.98, "another plant name"),
         (9, 1850, "2022-03-01T00:00:00.000000000", 123.45, np.nan),
         (10, date.today().year, date.today(), 8.1, "cat inc"),
     ],
@@ -379,11 +381,13 @@ SPOT_FIXED_MIXED_TYPE_DATA: pd.DataFrame = pd.DataFrame(
     {
         "id": int,
         "year": pd.Int64Dtype(),
-        "report_date": "datetime64[ns]",
         "capacity_mw": float,
         "plant_name": str,
     }
 )
+SPOT_FIXED_MIXED_TYPE_DATA["report_date"] = pd.to_datetime(
+    SPOT_FIXED_MIXED_TYPE_DATA["report_date"], format="mixed"
+).astype("datetime64[ns]")
 
 
 #####################################################################################
