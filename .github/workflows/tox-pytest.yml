@@ -10,7 +10,9 @@ env:
 
 jobs:
   ci-static:
-    runs-on: ubuntu-latest
+    runs-on:
+      group: large-runner-group
+      labels: ubuntu-22.04-4core
     strategy:
       fail-fast: false
       matrix:
