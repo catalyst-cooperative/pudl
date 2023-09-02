@@ -68,6 +68,7 @@ https://data.catalyst.coop/ferc1
 """
 import json
 from itertools import chain
+from pathlib import Path
 from typing import Any, Literal
 
 import pandas as pd
@@ -386,7 +387,7 @@ def raw_xbrl_metadata_json(context) -> dict[str, dict[str, list[dict[str, Any]]]
         instead.
     """
     metadata_path = PudlPaths().output_dir / "ferc1_xbrl_taxonomy_metadata.json"
-    with open(metadata_path) as f:
+    with Path.open(metadata_path) as f:
         xbrl_meta_all = json.load(f)
 
     valid_tables = {

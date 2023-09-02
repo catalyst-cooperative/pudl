@@ -157,11 +157,11 @@ select = [
     "D", # pydocstyle errors
     "E", # pycodestyle errors
     # "ERA", # eradicate: find commented out code
-    "F", # pyflakes
-    "I", # isort
-    "N", # pep8-naming
-    "Q", # flake8-quotes
-    # "PTH", # use pathlib
+    "F",   # pyflakes
+    "I",   # isort
+    "N",   # pep8-naming
+    "Q",   # flake8-quotes
+    "PTH", # use pathlib
     "PGH", # pygrep-hooks
     "S",   # flake8-bandit
     "UP",  # pyupgrade(use modern syntax)
@@ -173,9 +173,6 @@ ignore = [
     "E501", # Overlong lines.
     "E203", # Space before ':' (black recommends to ignore)
     "S101", # Use of assert
-    # "RST201",
-    # "RST203",
-    # "RST301",
 ]
 
 # Assume Python 3.11

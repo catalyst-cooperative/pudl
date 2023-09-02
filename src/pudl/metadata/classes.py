@@ -1991,7 +1991,7 @@ class DatasetteMetadata(Base):
         xbrl_resources = {}
         for xbrl_id in xbrl_ids:
             # Read JSON Package descriptor from file
-            with open(Path(output_path) / f"{xbrl_id}_datapackage.json") as f:
+            with Path.open(Path(output_path) / f"{xbrl_id}_datapackage.json") as f:
                 descriptor = json.load(f)
 
             # Use descriptor to create Package object
