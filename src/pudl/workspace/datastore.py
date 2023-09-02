@@ -265,8 +265,7 @@ class ZenodoFetcher:
         if response.status_code == requests.codes.ok:
             logger.debug(f"Successfully downloaded {url}")
             return response
-        else:
-            raise ValueError(f"Could not download {url}: {response.text}")
+        raise ValueError(f"Could not download {url}: {response.text}")
 
     def get_descriptor(self: Self, dataset: str) -> DatapackageDescriptor:
         """Returns class:`DatapackageDescriptor` for given dataset."""

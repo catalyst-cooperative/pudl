@@ -733,15 +733,14 @@ def _map_prime_mover_sets(prime_mover_set: np.ndarray) -> str:
     """
     if len(prime_mover_set) == 1:  # single valued
         return prime_mover_set[0]
-    elif "CA" in prime_mover_set:
+    if "CA" in prime_mover_set:
         return "CA"  # arbitrary choice
-    elif "CS" in prime_mover_set:
+    if "CS" in prime_mover_set:
         return "CS"
-    else:
-        raise ValueError(
-            "Dataset contains new kinds of duplicate boiler_fuel rows. "
-            f"Prime movers are {prime_mover_set}"
-        )
+    raise ValueError(
+        "Dataset contains new kinds of duplicate boiler_fuel rows. "
+        f"Prime movers are {prime_mover_set}"
+    )
 
 
 def _aggregate_duplicate_boiler_fuel_keys(boiler_fuel_df: pd.DataFrame) -> pd.DataFrame:

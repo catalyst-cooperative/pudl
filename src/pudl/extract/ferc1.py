@@ -313,8 +313,7 @@ class Ferc1DbfExtractor(FercDbfExtractor):
         """Deduplicates records in f1_respondent_id table."""
         if table_name == "f1_respondent_id":
             return deduplicate_by_year(dfs, "respondent_id")
-        else:
-            return super().aggregate_table_frames(table_name, dfs)
+        return super().aggregate_table_frames(table_name, dfs)
 
 
 ###########################################################################

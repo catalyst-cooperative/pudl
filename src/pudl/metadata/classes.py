@@ -107,14 +107,14 @@ def _format_for_sql(x: Any, identifier: bool = False) -> str:  # noqa: C901
         raise ValueError("Identifier must be a string")
     if x is None:
         return "null"
-    elif isinstance(x, int | float):
+    if isinstance(x, int | float):
         # NOTE: nan and (-)inf are TEXT in sqlite but numeric in postgresSQL
         return str(x)
-    elif x is True:
+    if x is True:
         return "TRUE"
-    elif x is False:
+    if x is False:
         return "FALSE"
-    elif isinstance(x, re.Pattern):
+    if isinstance(x, re.Pattern):
         x = x.pattern
     elif isinstance(x, datetime.datetime):
         # Check datetime.datetime first, since also datetime.date
@@ -940,10 +940,9 @@ class DataSource(Base):
             partitions = self.working_partitions
         if "years" in partitions:
             return f"{min(partitions['years'])}-{max(partitions['years'])}"
-        elif "year_month" in partitions:
+        if "year_month" in partitions:
             return f"through {partitions['year_month']}"
-        else:
-            return ""
+        return ""
 
     def add_datastore_metadata(self) -> None:
         """Get source file metadata from the datastore."""

@@ -1191,8 +1191,7 @@ class AddAttribute:
         """Add a new column to gens_mega."""
         if self.assign_col_dict is not None:
             return gens_mega.assign(**self.assign_col_dict)
-        else:
-            return gens_mega
+        return gens_mega
 
 
 class AddConsistentAttributes(AddAttribute):

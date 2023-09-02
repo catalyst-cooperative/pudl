@@ -165,17 +165,19 @@ select = [
     # "PL",  # pylint
     "PTH", # use pathlib
     "Q",   # flake8-quotes
+    "RET", # check return values
     "S",   # flake8-bandit
     "SIM", # flake8-simplify
     "UP",  # pyupgrade (use modern python syntax)
     "W",   # pycodestyle warnings
 ]
 ignore = [
-    "D401", # Require imperative mood in docstrings.
-    "D417", # Require imperative mood in docstrings.
-    "E501", # Overlong lines.
-    "E203", # Space before ':' (black recommends to ignore)
-    "S101", # Use of assert
+    "D401",   # Require imperative mood in docstrings.
+    "D417",
+    "E501",   # Overlong lines.
+    "E203",   # Space before ':' (black recommends to ignore)
+    "RET504", # Ignore unnecessary assignment before return
+    "S101",   # Use of assert
 ]
 
 # Assume Python 3.11

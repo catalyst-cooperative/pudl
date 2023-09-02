@@ -146,8 +146,7 @@ class EpaCemsDatastore:
                     csv_file, ignore_cols=API_IGNORE_COLS, rename_dict=API_RENAME_DICT
                 )
             return df
-        else:
-            raise AssertionError(f"Unexpected archive format. Found files: {files}.")
+        raise AssertionError(f"Unexpected archive format. Found files: {files}.")
 
     def _csv_to_dataframe(
         self, csv_file: Path, ignore_cols: dict[str, str], rename_dict: dict[str, str]
