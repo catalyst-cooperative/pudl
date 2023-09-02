@@ -868,12 +868,12 @@ def month_year_to_date(df):
         base_month_regex = f"^{base}{month_regex}"
         month_col = list(df.filter(regex=base_month_regex).columns)
         if not len(month_col) == 1:
-            raise AssertionError()
+            raise AssertionError
         month_col = month_col[0]
         base_year_regex = f"^{base}{year_regex}"
         year_col = list(df.filter(regex=base_year_regex).columns)
         if not len(year_col) == 1:
-            raise AssertionError()
+            raise AssertionError
         year_col = year_col[0]
         date_col = f"{base}_date"
         month_year_date.append((month_col, year_col, date_col))
