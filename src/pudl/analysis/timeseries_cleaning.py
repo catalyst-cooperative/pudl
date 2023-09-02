@@ -355,6 +355,7 @@ def impute_latc_tnn(
     Returns:
         Tensor with missing values in `tensor` replaced by imputed values.
     """
+    rng = np.random.default_rng()
     tensor = np.where(np.isnan(tensor), 0, tensor)
     dim = np.array(tensor.shape)
     dim_time = int(np.prod(dim) / dim[0])
@@ -366,7 +367,7 @@ def impute_latc_tnn(
     t = np.zeros(np.insert(dim, 0, len(dim)))
     z = mat.copy()
     z[pos_missing] = np.mean(mat[mat != 0])
-    a = 0.001 * np.random.rand(dim[0], d)
+    a = 0.001 * rng.random(dim[0] * d).reshape([dim[0], d])
     it = 0
     ind = np.zeros((d, dim_time - max_lag), dtype=int)
     for i in range(d):
@@ -459,6 +460,7 @@ def impute_latc_tubal(  # noqa: C901
     Returns:
         Tensor with missing values in `tensor` replaced by imputed values.
     """
+    rng = np.random.default_rng()
     tensor = np.where(np.isnan(tensor), 0, tensor)
     dim = np.array(tensor.shape)
     dim_time = int(np.prod(dim) / dim[0])
@@ -469,7 +471,7 @@ def impute_latc_tubal(  # noqa: C901
     t = np.zeros(dim)
     z = mat.copy()
     z[pos_missing] = np.mean(mat[mat != 0])
-    a = 0.001 * np.random.rand(dim[0], d)
+    a = 0.001 * rng.random(dim[0] * d).reshape([dim[0], d])
     it = 0
     ind = np.zeros((d, dim_time - max_lag), dtype=np.int_)
     for i in range(d):
@@ -499,7 +501,7 @@ def impute_latc_tubal(  # noqa: C901
             elif dim_time > 5e3:
                 for m in range(dim[0]):
                     idx = np.arange(0, dim_time - max_lag)
-                    np.random.shuffle(idx)
+                    rng.shuffle(idx)
                     idx = idx[: int(sample_rate * (dim_time - max_lag))]
                     qm = mat_hat[m, ind].T
                     a[m, :] = np.linalg.pinv(qm[idx[:], :]) @ z[m, max_lag:][idx[:]]

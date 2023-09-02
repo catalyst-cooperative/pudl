@@ -61,6 +61,8 @@ from pudl.transform.params.ferc1 import (
 
 logger = pudl.logging_helpers.get_logger(__name__)
 
+rng = np.random.default_rng()
+
 # Unit conversions that are only used in testing
 PERTHERM_TO_PERMCF = {
     "multiplier": 10.37,
@@ -679,13 +681,13 @@ def test_convert_units_round_trip():
         )
         to_unit = "".join(random.choice(ascii_letters) for _ in range(10))  # noqa: S311
         uc = UnitConversion(
-            multiplier=np.random.uniform(-10, 10),
-            adder=np.random.uniform(-10, 10),
+            multiplier=rng.uniform(low=-10, high=10),
+            adder=rng.uniform(low=-10, high=10),
             from_unit=from_unit,
             to_unit=to_unit,
         )
 
-        dude = pd.Series((np.random.uniform(-10, 10, 1000)), name="dude")
+        dude = pd.Series((rng.uniform(low=-10, high=10, size=1000)), name="dude")
         dude.name = "dude_" + from_unit
         wtf = convert_units(convert_units(dude, uc), uc.inverse())
         pd.testing.assert_series_equal(dude, wtf)
@@ -752,7 +754,7 @@ def make_unit_correction_test_data(
     data_col, cat_col, categories = unit_corrections_are_homogeneous(corrections)
 
     df = pd.DataFrame(index=range(0, nrows))
-    df[cat_col] = np.random.choice(categories, size=nrows)
+    df[cat_col] = rng.choice(categories, size=nrows)
     df[data_col] = np.nan
 
     # Assign data values
@@ -760,7 +762,7 @@ def make_unit_correction_test_data(
         mask = df[uc.cat_col] == uc.cat_val
         size = sum(mask)
         # Pick values from within the appropriate valid range
-        df.loc[mask, data_col] = np.random.uniform(
+        df.loc[mask, data_col] = rng.uniform(
             low=uc.valid_range.lower_bound,
             high=uc.valid_range.upper_bound,
             size=size,
