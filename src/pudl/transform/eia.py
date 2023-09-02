@@ -308,23 +308,24 @@ def _compile_all_entity_records(
         # inside of main() we are going to be adding items into
         # clean_dfs with the name 'annual'. We don't want to harvest
         # from our newly harvested tables.
-        if "annual" not in table_name:
-            # if the df contains the desired columns the grab those columns
-            if set(base_cols).issubset(transformed_df.columns):
-                logger.debug(f"        {table_name}...")
-                # create a copy of the df to muck with
-                df = transformed_df.copy()
-                # we know these columns must be in the dfs
-                cols = []
-                # check whether the columns are in the specific table
-                for column in static_cols + annual_cols:
-                    if column in df.columns:
-                        cols.append(column)
-                df = df[(base_cols + cols)]
-                df = df.dropna(subset=id_cols)
-                # add a column with the table name so we know its origin
-                df["table"] = table_name
-                dfs.append(df)
+        # if the df contains the desired columns the grab those columns
+        if "annual" not in table_name and set(base_cols).issubset(
+            transformed_df.columns
+        ):
+            logger.debug(f"        {table_name}...")
+            # create a copy of the df to muck with
+            df = transformed_df.copy()
+            # we know these columns must be in the dfs
+            cols = []
+            # check whether the columns are in the specific table
+            for column in static_cols + annual_cols:
+                if column in df.columns:
+                    cols.append(column)
+            df = df[(base_cols + cols)]
+            df = df.dropna(subset=id_cols)
+            # add a column with the table name so we know its origin
+            df["table"] = table_name
+            dfs.append(df)
 
     # add those records to the compliation
     compiled_df = pd.concat(dfs, axis=0, ignore_index=True, sort=True)
@@ -502,7 +503,7 @@ def harvest_entity_tables(  # noqa: C901
         # we can't just use the col_df records when the consistency is not True
         dirty_df = col_df.merge(clean_df[clean_df[col].isnull()][id_cols])
 
-        if col in special_case_cols.keys():
+        if col in special_case_cols:
             clean_df = special_case_cols[col][0](
                 dirty_df,
                 clean_df,

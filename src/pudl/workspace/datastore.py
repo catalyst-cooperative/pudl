@@ -595,10 +595,7 @@ def main():
         local_cache_path=cache_path,
     )
 
-    if args.dataset:
-        datasets = [args.dataset]
-    else:
-        datasets = dstore.get_known_datasets()
+    datasets = [args.dataset] if args.dataset else dstore.get_known_datasets()
 
     if args.partition:
         logger.info(f"Only retrieving resources for partition: {args.partition}")

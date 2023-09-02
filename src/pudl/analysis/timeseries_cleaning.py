@@ -1244,10 +1244,7 @@ class Timeseries:
             ValueError: Zero values present. Replace with very small value.
         """
         imputer = {"tubal": impute_latc_tubal, "tnn": impute_latc_tnn}[method]
-        if mask is None:
-            x = self.x.copy()
-        else:
-            x = np.where(mask, np.nan, self.x)
+        x = self.x.copy() if mask is None else np.where(mask, np.nan, self.x)
         if (x == 0).any():
             raise ValueError("Zero values present. Replace with very small value.")
         tensor = self.fold_tensor(x, periods=periods)

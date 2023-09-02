@@ -1,4 +1,5 @@
 """Generalized DBF extractor for FERC data."""
+import contextlib
 import csv
 import importlib.resources
 import zipfile
@@ -480,13 +481,12 @@ class FercDbfExtractor:
 
     def delete_schema(self):
         """Drops all tables from the existing sqlite database."""
-        try:
+        with contextlib.suppress(sa.exc.OperationalError):
             pudl.helpers.drop_tables(
                 self.sqlite_engine,
                 clobber=self.clobber,
             )
-        except sa.exc.OperationalError:
-            pass
+
         self.sqlite_engine = sa.create_engine(self.get_db_path())
         self.sqlite_meta = sa.MetaData()
         self.sqlite_meta.reflect(self.sqlite_engine)

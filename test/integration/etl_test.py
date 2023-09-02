@@ -45,7 +45,7 @@ def test_ferc1_xbrl2sqlite(ferc1_engine_xbrl, ferc1_xbrl_taxonomy_metadata):
 
     # Has the metadata we've read in from JSON contain a long list of entities?
     assert isinstance(ferc1_xbrl_taxonomy_metadata, dict)  # nosec: B101
-    assert "plants_steam_ferc1" in ferc1_xbrl_taxonomy_metadata.keys()  # nosec: B101
+    assert "plants_steam_ferc1" in ferc1_xbrl_taxonomy_metadata  # nosec: B101
     assert len(ferc1_xbrl_taxonomy_metadata) > 10  # nosec: B101
     assert len(ferc1_xbrl_taxonomy_metadata) < 100  # nosec: B101
 

@@ -774,14 +774,13 @@ class ForeignKey(Base):
 
     @pydantic.validator("reference")
     def _check_fields_equal_length(cls, value, values):  # noqa: N805
-        if "fields_" in values:
-            if len(value.fields) != len(values["fields_"]):
-                raise ValueError("fields and reference.fields are not equal length")
+        if "fields_" in values and len(value.fields) != len(values["fields_"]):
+            raise ValueError("fields and reference.fields are not equal length")
         return value
 
     def is_simple(self) -> bool:
         """Indicate whether the FK relationship contains a single column."""
-        return True if len(self.fields) == 1 else False
+        return len(self.fields) == 1
 
     def to_sql(self) -> sa.ForeignKeyConstraint:
         """Return equivalent SQL Foreign Key."""
@@ -1205,9 +1204,8 @@ class Resource(Base):
 
     @pydantic.validator("schema_")
     def _check_harvest_primary_key(cls, value, values):  # noqa: N805
-        if values["harvest"].harvest:
-            if not value.primary_key:
-                raise ValueError("Harvesting requires a primary key")
+        if values["harvest"].harvest and not value.primary_key:
+            raise ValueError("Harvesting requires a primary key")
         return value
 
     @staticmethod
@@ -1593,10 +1591,7 @@ class Resource(Base):
         nrows, ncols = df.reset_index().shape
         freports = {}
         for field in self.schema.fields:
-            if field.name in errors:
-                nerrors = errors[field.name].size
-            else:
-                nerrors = 0
+            nerrors = errors[field.name].size if field.name in errors else 0
             stats = {
                 "all": nrows,
                 "invalid": nerrors,

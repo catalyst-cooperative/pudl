@@ -160,11 +160,13 @@ select = [
     "F",   # pyflakes
     "I",   # isort
     "N",   # pep8-naming
-    "Q",   # flake8-quotes
-    "PTH", # use pathlib
     "PGH", # pygrep-hooks
+    # "PL",  # pylint
+    "PTH", # use pathlib
+    "Q",   # flake8-quotes
     "S",   # flake8-bandit
-    "UP",  # pyupgrade(use modern syntax)
+    "SIM", # flake8-simplify
+    "UP",  # pyupgrade (use modern python syntax)
     "W",   # pycodestyle warnings
 ]
 ignore = [

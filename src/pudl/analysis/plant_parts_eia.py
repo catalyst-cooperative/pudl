@@ -808,11 +808,11 @@ class MakePlantParts:
             part_df = AddConsistentAttributes(attribute_col, part_name).execute(
                 part_df, attribute_df
             )
-        for attribute_col in PRIORITY_ATTRIBUTES_DICT.keys():
+        for attribute_col in PRIORITY_ATTRIBUTES_DICT:
             part_df = AddPriorityAttribute(attribute_col, part_name).execute(
                 part_df, attribute_df
             )
-        for attribute_col in MAX_MIN_ATTRIBUTES_DICT.keys():
+        for attribute_col in MAX_MIN_ATTRIBUTES_DICT:
             part_df = AddMaxMinAttribute(
                 attribute_col,
                 part_name,

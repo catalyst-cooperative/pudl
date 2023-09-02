@@ -1,4 +1,5 @@
 """Generic extractor for all FERC XBRL data."""
+import contextlib
 import io
 import json
 from datetime import date, datetime
@@ -86,11 +87,9 @@ def _get_sqlite_engine(form_number: int, clobber: bool) -> sa.engine.Engine:
     logger.info(f"Connecting to SQLite at {db_path}...")
     sqlite_engine = sa.create_engine(db_path)
     logger.info(f"Connected to SQLite at {db_path}!")
-    try:
+    with contextlib.suppress(sa.exc.OperationalError):
         # So that we can wipe it out
         pudl.helpers.drop_tables(sqlite_engine, clobber=clobber)
-    except sa.exc.OperationalError:
-        pass
 
     return sqlite_engine
 

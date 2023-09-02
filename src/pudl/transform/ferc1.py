@@ -641,11 +641,10 @@ class CombineAxisColumnsXbrl(TransformParams):
     @validator("new_axis_column_name")
     def doesnt_end_with_axis(cls, v):
         """Ensure that new axis column ends in _axis."""
-        if v is not None:
-            if not v.endswith("_axis"):
-                raise ValueError(
-                    "The new axis column name must end with the suffix '_axis'!"
-                )
+        if v is not None and not v.endswith("_axis"):
+            raise ValueError(
+                "The new axis column name must end with the suffix '_axis'!"
+            )
         return v
 
 
@@ -2277,10 +2276,7 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
         if not params:
             params = self.params.wide_to_tidy.__getattribute__(source_ferc1.value)
 
-        if isinstance(params, WideToTidy):
-            multiple_params = [params]
-        else:
-            multiple_params = params
+        multiple_params = [params] if isinstance(params, WideToTidy) else params
         for single_params in multiple_params:
             if single_params.idx_cols or single_params.value_types:
                 logger.info(
