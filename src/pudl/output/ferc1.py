@@ -17,7 +17,7 @@ import pudl
 logger = pudl.logging_helpers.get_logger(__name__)
 
 MAX_MULTIVALUE_WEIGHT_FRAC: dict[str, float] = {
-    "income_statement_ferc1": 0.1,
+    "income_statement_ferc1": 0.12,
     "balance_sheet_assets_ferc1": 0.02,
     "balance_sheet_liabilities_ferc1": 0.0,
 }
@@ -1012,8 +1012,7 @@ def create_exploded_table_assets() -> list[AssetsDefinition]:
                 "electric_operating_expenses_ferc1",
                 "electric_operating_revenues_ferc1",
             ],
-            # This is very high, otherwise CI w/ 2 years of data currently fails.
-            "calculation_tolerance": 0.27,
+            "calculation_tolerance": 0.12,
             "seed_nodes": [
                 NodeId(
                     table_name="income_statement_ferc1",
@@ -1033,7 +1032,7 @@ def create_exploded_table_assets() -> list[AssetsDefinition]:
                 "plant_in_service_ferc1",
                 "electric_plant_depreciation_functional_ferc1",
             ],
-            "calculation_tolerance": 0.81,
+            "calculation_tolerance": 0.55,
             "seed_nodes": [
                 NodeId(
                     table_name="balance_sheet_assets_ferc1",
@@ -1051,7 +1050,7 @@ def create_exploded_table_assets() -> list[AssetsDefinition]:
                 "balance_sheet_liabilities_ferc1",
                 "retained_earnings_ferc1",
             ],
-            "calculation_tolerance": 0.075,
+            "calculation_tolerance": 0.07,
             "seed_nodes": [
                 NodeId(
                     table_name="balance_sheet_liabilities_ferc1",
