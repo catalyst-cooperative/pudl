@@ -10,9 +10,7 @@ env:
 
 jobs:
   ci-static:
-    runs-on:
-      group: large-runner-group
-      labels: ubuntu-22.04-4core
+    runs-on: ubuntu-latest
     strategy:
       fail-fast: false
       matrix:
@@ -100,7 +98,9 @@ jobs:
           path: coverage.xml
 
   ci-integration:
-    runs-on: ubuntu-latest
+    runs-on:
+      group: large-runner-group
+      labels: ubuntu-22.04-4core
     permissions:
       contents: read
       id-token: write
