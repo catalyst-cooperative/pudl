@@ -29,7 +29,7 @@ PUDL_YML = Path.home() / ".pudl.yml"
 ZenodoDoi = constr(regex=r"(10\.5072|10\.5281)/zenodo.([\d]+)")
 
 
-class ChecksumMismatch(ValueError):
+class ChecksumMismatchError(ValueError):
     """Resource checksum (md5) does not match."""
 
     pass
@@ -74,10 +74,10 @@ class DatapackageDescriptor:
     def validate_checksum(self, name: str, content: str) -> bool:
         """Returns True if content matches checksum for given named resource."""
         expected_checksum = self._get_resource_metadata(name)["hash"]
-        m = hashlib.md5()  # nosec
+        m = hashlib.md5()  # noqa: S324 MD5 is required by Zenodo
         m.update(content)
         if m.hexdigest() != expected_checksum:
-            raise ChecksumMismatch(
+            raise ChecksumMismatchError(
                 f"Checksum for resource {name} does not match."
                 f"Expected {expected_checksum}, got {m.hexdigest()}"
             )
@@ -235,9 +235,9 @@ class ZenodoFetcher:
         owns all of the Catalyst raw data archives.
         """
         if "sandbox" in url:
-            token = "qyPC29wGPaflUUVAv1oGw99ytwBqwEEdwi4NuUrpwc3xUcEwbmuB4emwysco"  # nosec: B105
+            token = "qyPC29wGPaflUUVAv1oGw99ytwBqwEEdwi4NuUrpwc3xUcEwbmuB4emwysco"  # noqa: S105
         else:
-            token = "KXcG5s9TqeuPh1Ukt5QYbzhCElp9LxuqAuiwdqHP0WS4qGIQiydHn6FBtdJ5"  # nosec: B105
+            token = "KXcG5s9TqeuPh1Ukt5QYbzhCElp9LxuqAuiwdqHP0WS4qGIQiydHn6FBtdJ5"  # noqa: S105
         return token
 
     def _get_url(self: Self, doi: ZenodoDoi) -> HttpUrl:
@@ -552,7 +552,7 @@ def validate_cache(
             try:
                 num_total += 1
                 descriptor.validate_checksum(res.name, content)
-            except ChecksumMismatch:
+            except ChecksumMismatchError:
                 num_invalid += 1
                 logger.warning(
                     f"Resource {res} has invalid checksum. Removing from cache."

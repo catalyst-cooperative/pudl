@@ -73,9 +73,9 @@ def test_epacems_subset_input_validation(epacems_year_and_state, epacems_parquet
     invalid_year = 1775
     invalid_column = "clean_coal"
     combos = [
-        dict(years=[valid_year], states=[valid_state], columns=[invalid_column]),
-        dict(years=[valid_year], states=[invalid_state], columns=[valid_column]),
-        dict(years=[invalid_year], states=[valid_state], columns=[valid_column]),
+        {"years": [valid_year], "states": [valid_state], "columns": [invalid_column]},
+        {"years": [valid_year], "states": [invalid_state], "columns": [valid_column]},
+        {"years": [invalid_year], "states": [valid_state], "columns": [valid_column]},
     ]
     for combo in combos:
         with pytest.raises(ValueError):

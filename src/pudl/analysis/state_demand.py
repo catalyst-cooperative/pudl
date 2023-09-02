@@ -150,7 +150,7 @@ def local_to_utc(local: pd.Series, tz: Iterable, **kwargs: Any) -> pd.Series:
     return local.groupby(tz).transform(
         lambda x: x.dt.tz_localize(
             datetime.timezone(datetime.timedelta(hours=x.name))
-            if isinstance(x.name, (int, float))
+            if isinstance(x.name, int | float)
             else x.name,
             **kwargs,
         ).dt.tz_convert(None)
@@ -184,7 +184,7 @@ def utc_to_local(utc: pd.Series, tz: Iterable) -> pd.Series:
     return utc.groupby(tz).transform(
         lambda x: x.dt.tz_convert(
             datetime.timezone(datetime.timedelta(hours=x.name))
-            if isinstance(x.name, (int, float))
+            if isinstance(x.name, int | float)
             else x.name
         ).dt.tz_localize(None)
     )

@@ -21,7 +21,7 @@ from pudl.workspace.datastore import Datastore
 logger = pudl.logging_helpers.get_logger(__name__)
 
 
-class DbcFileMissing(Exception):
+class DbcFileMissingError(Exception):
     """This is raised when the DBC index file is missing."""
 
     pass
@@ -121,7 +121,7 @@ class FercDbfArchive:
                     filedata=self.zipfile.open(self.dbc_path.as_posix()),
                 )
             except KeyError:
-                raise DbcFileMissing(
+                raise DbcFileMissingError(
                     f"DBC file {self.dbc_path} for {self.partition} is missing."
                 )
             table_names: dict[Any, str] = {}

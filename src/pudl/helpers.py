@@ -94,7 +94,7 @@ def find_new_ferc1_strings(
         categories enumerated in strdict.
     """
     all_strings = set(
-        pd.read_sql(f"SELECT {field} FROM {table};", ferc1_engine).pipe(  # nosec
+        pd.read_sql(f"SELECT {field} FROM {table};", ferc1_engine).pipe(  # noqa: S608
             simplify_strings, columns=[field]
         )[field]
     )
@@ -1586,7 +1586,7 @@ def flatten_list(xs: Iterable) -> Generator:
     `here <https://stackoverflow.com/questions/2158395/flatten-an-irregular-arbitrarily-nested-list-of-lists>`__
     """
     for x in xs:
-        if isinstance(x, Iterable) and not isinstance(x, (str, bytes)):
+        if isinstance(x, Iterable) and not isinstance(x, str | bytes):
             yield from flatten_list(x)
         else:
             yield x

@@ -109,7 +109,7 @@ class EpaCemsPartition(NamedTuple):
 
     def get_filters(self):
         """Returns filters for retrieving given partition resource from Datastore."""
-        return dict(year=self.year, state=self.state.lower())
+        return {"year": self.year, "state": self.state.lower()}
 
     def get_annual_file(self) -> Path:
         """Return the name of the CSV file that holds annual hourly data."""

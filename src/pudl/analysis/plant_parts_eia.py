@@ -368,8 +368,8 @@ PPE_COLS = [
 class MakeMegaGenTbl:
     """Compiler for a MEGA generator table with ownership integrated.
 
-    Examples
-    --------
+    Examples:
+    ---------
     **Input Tables**
 
     Here is an example of one plant with three generators. We will use
@@ -525,11 +525,11 @@ class MakeMegaGenTbl:
         Args:
             gen_df (pandas.DataFrame): annual table of all generators from EIA.
 
-        Returns
+        Returns:
             pandas.DataFrame: annual table of all generators from EIA that
             operated within each reporting year.
 
-        TODO:
+        Todo:
             This function results in warning: `PerformanceWarning: DataFrame
             is highly fragmented...` I expect this is because of the number of
             columns that are being assigned here via `.loc[:, col_to_assign]`.
@@ -660,7 +660,7 @@ class MakePlantParts:
             path_to_one_to_many: a Path to the one_to_many csv
             file in `pudl.package_data.glue`.
 
-        Returns
+        Returns:
             pandas.DataFrame: master unit list table with one-to-many matches aggregated
             as plant parts.
         """

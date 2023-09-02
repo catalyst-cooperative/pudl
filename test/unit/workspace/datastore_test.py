@@ -56,22 +56,22 @@ class TestDatapackageDescriptor(unittest.TestCase):
         )
         self.assertEqual(
             [
-                dict(group="first", color="red"),
-                dict(group="first", color="blue"),
-                dict(group="second", color="black", order=1),
+                {"group": "first", "color": "red"},
+                {"group": "first", "color": "blue"},
+                {"group": "second", "color": "black", "order": 1},
             ],
             list(desc.get_partition_filters()),
         )
         self.assertEqual(
             [
-                dict(group="first", color="red"),
-                dict(group="first", color="blue"),
+                {"group": "first", "color": "red"},
+                {"group": "first", "color": "blue"},
             ],
             list(desc.get_partition_filters(group="first")),
         )
         self.assertEqual(
             [
-                dict(group="first", color="blue"),
+                {"group": "first", "color": "blue"},
             ],
             list(desc.get_partition_filters(color="blue")),
         )

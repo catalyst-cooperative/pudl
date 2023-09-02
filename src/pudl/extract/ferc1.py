@@ -397,7 +397,7 @@ def raw_xbrl_metadata_json(context) -> dict[str, dict[str, list[dict[str, Any]]]
     }
 
     def squash_period(xbrl_table: str | list[str], period, xbrl_meta_all):
-        if type(xbrl_table) is str:
+        if isinstance(xbrl_table, str):
             xbrl_table = [xbrl_table]
         return [
             metadata

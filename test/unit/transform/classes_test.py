@@ -62,38 +62,38 @@ from pudl.transform.params.ferc1 import (
 logger = pudl.logging_helpers.get_logger(__name__)
 
 # Unit conversions that are only used in testing
-PERTHERM_TO_PERMCF = dict(
-    multiplier=10.37,
-    from_unit="_per_therm",
-    to_unit="_per_mcf",
-)
-PERGRAM_TO_PERSHORTTON = dict(
-    multiplier=907185,
-    from_unit="_per_kg",
-    to_unit="_per_ton",
-)
-PERTON_TO_PERBARREL = dict(
-    multiplier=(1.0 / 7.46),
-    from_unit="_per_ton",
-    to_unit="_per_bbl",
-)
-PERKGAL_TO_PERBARREL = dict(
-    multiplier=42000.0,
-    from_unit="_per_kgal",
-    to_unit="_per_bbl",
-)
-PERFUCKTON_TO_PERSHORTTON = dict(
-    multiplier=1.0e-9,
-    adder=123.4e-9,
-    from_unit="_per_fuckton",
-    to_unit="_per_ton",
-)
-BUTTLOAD_TO_MMBUTTLOAD = dict(
-    multiplier=1.0e9,
-    adder=1.234e9,
-    from_unit="_butt",
-    to_unit="_mmbutt",
-)
+PERTHERM_TO_PERMCF = {
+    "multiplier": 10.37,
+    "from_unit": "_per_therm",
+    "to_unit": "_per_mcf",
+}
+PERGRAM_TO_PERSHORTTON = {
+    "multiplier": 907185,
+    "from_unit": "_per_kg",
+    "to_unit": "_per_ton",
+}
+PERTON_TO_PERBARREL = {
+    "multiplier": (1.0 / 7.46),
+    "from_unit": "_per_ton",
+    "to_unit": "_per_bbl",
+}
+PERKGAL_TO_PERBARREL = {
+    "multiplier": 42000.0,
+    "from_unit": "_per_kgal",
+    "to_unit": "_per_bbl",
+}
+PERFUCKTON_TO_PERSHORTTON = {
+    "multiplier": 1.0e-9,
+    "adder": 123.4e-9,
+    "from_unit": "_per_fuckton",
+    "to_unit": "_per_ton",
+}
+BUTTLOAD_TO_MMBUTTLOAD = {
+    "multiplier": 1.0e9,
+    "adder": 1.234e9,
+    "from_unit": "_butt",
+    "to_unit": "_mmbutt",
+}
 
 # Unit corrections only used in testing
 COAL_MMBTU_PER_UNIT_CORRECTIONS = {
@@ -477,35 +477,35 @@ def test_multicol_transform_factory(func, drop, df, expected, param_model, param
     "unit_corrections,expectation",
     [
         pytest.param(
-            dict(
-                data_col="column",
-                cat_col="categories",
-                cat_val="cat",
-                valid_range={"lower_bound": 1.0, "upper_bound": 999},
-                unit_conversions=[BTU_TO_MMBTU, KWH_TO_MWH],
-            ),
+            {
+                "data_col": "column",
+                "cat_col": "categories",
+                "cat_val": "cat",
+                "valid_range": {"lower_bound": 1.0, "upper_bound": 999},
+                "unit_conversions": [BTU_TO_MMBTU, KWH_TO_MWH],
+            },
             does_not_raise(),
             id="distinct_unit_corrections",
         ),
         pytest.param(
-            dict(
-                data_col="column",
-                cat_col="categories",
-                cat_val="cat",
-                valid_range={"lower_bound": 1.0, "upper_bound": 1000},
-                unit_conversions=[BTU_TO_MMBTU, KWH_TO_MWH],
-            ),
+            {
+                "data_col": "column",
+                "cat_col": "categories",
+                "cat_val": "cat",
+                "valid_range": {"lower_bound": 1.0, "upper_bound": 1000},
+                "unit_conversions": [BTU_TO_MMBTU, KWH_TO_MWH],
+            },
             pytest.raises(ValidationError),
             id="overlapping_unit_corrections",
         ),
         pytest.param(
-            dict(
-                data_col="column",
-                cat_col="fuel_type",
-                cat_val="gas",
-                valid_range={"lower_bound": 0.3, "upper_bound": 3.3},
-                unit_conversions=[PERTHERM_TO_PERMCF],
-            ),
+            {
+                "data_col": "column",
+                "cat_col": "fuel_type",
+                "cat_val": "gas",
+                "valid_range": {"lower_bound": 0.3, "upper_bound": 3.3},
+                "unit_conversions": [PERTHERM_TO_PERMCF],
+            },
             pytest.raises(ValidationError),
             id="self_overlapping_unit_correction",
         ),
@@ -539,49 +539,49 @@ def test_unit_corrections_distinct_domains(unit_corrections, expectation):
     "invalid_rows,expectation",
     [
         pytest.param(
-            dict(invalid_values=[0, pd.NA], required_valid_cols=["a", "b"]),
+            {"invalid_values": [0, pd.NA], "required_valid_cols": ["a", "b"]},
             does_not_raise(),
             id="good_required_valid_cols",
         ),
         pytest.param(
-            dict(invalid_values=[0, pd.NA], allowed_invalid_cols=["a", "b"]),
+            {"invalid_values": [0, pd.NA], "allowed_invalid_cols": ["a", "b"]},
             does_not_raise(),
             id="good_allowed_invalid_cols",
         ),
         pytest.param(
-            dict(
-                invalid_values=[0, pd.NA],
-                allowed_invalid_cols=["a", "b"],
-                required_valid_cols=["a", "b"],
-            ),
+            {
+                "invalid_values": [0, pd.NA],
+                "allowed_invalid_cols": ["a", "b"],
+                "required_valid_cols": ["a", "b"],
+            },
             pytest.raises(ValidationError),
             id="too_many_filters",
         ),
         pytest.param(
-            dict(
-                invalid_values=[0, pd.NA],
-                like="dude",
-                regex="wtf",
-            ),
+            {
+                "invalid_values": [0, pd.NA],
+                "like": "dude",
+                "regex": "wtf",
+            },
             pytest.raises(ValidationError),
             id="too_many_filters",
         ),
         pytest.param(
-            dict(
-                invalid_values=[0, pd.NA],
-                required_valid_cols=["a", "b"],
-                like="omg",
-            ),
+            {
+                "invalid_values": [0, pd.NA],
+                "required_valid_cols": ["a", "b"],
+                "like": "omg",
+            },
             pytest.raises(ValidationError),
             id="too_many_filters",
         ),
         pytest.param(
-            dict(invalid_values=[0, pd.NA]),
+            {"invalid_values": [0, pd.NA]},
             does_not_raise(),
             id="no_filters",
         ),
         pytest.param(
-            dict(invalid_values=[], allowed_invalid_cols=["a", "b"]),
+            {"invalid_values": [], "allowed_invalid_cols": ["a", "b"]},
             pytest.raises(ValidationError),
             id="no_invalid_values_specified",
         ),
@@ -675,11 +675,9 @@ def test_convert_units_round_trip():
     """Generate random unit conversions and check that we can invert them."""
     for _ in range(0, 10):
         from_unit = "".join(
-            random.choice(ascii_letters) for _ in range(10)  # nosec: B311
+            random.choice(ascii_letters) for _ in range(10)  # noqa: S311
         )
-        to_unit = "".join(
-            random.choice(ascii_letters) for _ in range(10)  # nosec: B311
-        )
+        to_unit = "".join(random.choice(ascii_letters) for _ in range(10))  # noqa: S311
         uc = UnitConversion(
             multiplier=np.random.uniform(-10, 10),
             adder=np.random.uniform(-10, 10),
@@ -703,7 +701,7 @@ def test_rename_columns():
     ...
 
 
-def unit_corrections_are_homogeneous(corrections: list[UnitCorrections]) -> tuple():
+def unit_corrections_are_homogeneous(corrections: list[UnitCorrections]) -> ():
     """Check that all unit corrections apply to same data and category columns.
 
     Assuming the list of unit corrections are homogeneous, return the names of the
@@ -880,29 +878,29 @@ def test_correct_units(corrections, expectation):
         pytest.param(
             NUMERIC_DATA,
             NUMERIC_DATA.loc[NUMERIC_DATA.id.isin([1, 2, 3, 4, 5, 6, 8, 9, 10])],
-            dict(
-                invalid_values=[0, pd.NA, np.nan],
-                required_valid_cols=[
+            {
+                "invalid_values": [0, pd.NA, np.nan],
+                "required_valid_cols": [
                     "valid_year",
                     "valid_capacity_mw",
                     "net_generation_mwh",
                 ],
-            ),
+            },
             id="required_valid_cols",
         ),
         pytest.param(
             NUMERIC_DATA,
             NUMERIC_DATA.loc[NUMERIC_DATA.id.isin([1, 2, 3, 4, 5, 6, 8, 9, 10])],
-            dict(
-                invalid_values=[0, pd.NA, np.nan],
-                allowed_invalid_cols=[
+            {
+                "invalid_values": [0, pd.NA, np.nan],
+                "allowed_invalid_cols": [
                     "id",
                     "year",
                     "capacity_kw",
                     "capacity_mw",
                     "net_generation_kwh",
                 ],
-            ),
+            },
             id="allowed_invalid_cols",
         ),
     ],

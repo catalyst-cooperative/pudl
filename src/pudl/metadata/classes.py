@@ -107,7 +107,7 @@ def _format_for_sql(x: Any, identifier: bool = False) -> str:  # noqa: C901
         raise ValueError("Identifier must be a string")
     if x is None:
         return "null"
-    elif isinstance(x, (int, float)):
+    elif isinstance(x, int | float):
         # NOTE: nan and (-)inf are TEXT in sqlite but numeric in postgresSQL
         return str(x)
     elif x is True:
@@ -267,7 +267,7 @@ class Pattern(BaseType):
     @classmethod
     def validate(cls, value: Any) -> re.Pattern:
         """Validate as pattern."""
-        if not isinstance(value, (str, re.Pattern)):
+        if not isinstance(value, str | re.Pattern):
             raise TypeError("value is not a string or compiled regular expression")
         if isinstance(value, str):
             try:
