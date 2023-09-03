@@ -545,7 +545,9 @@ def plants_eia923(eia923_dfs, eia923_transformed_dfs):
         ]
     ]
     # Since this is a plain Yes/No variable -- just make it a real sa.Boolean.
-    plant_info_df.combined_heat_power.replace({"N": False, "Y": True}, inplace=True)
+    plant_info_df.combined_heat_power = plant_info_df.combined_heat_power.replace(
+        {"N": False, "Y": True}
+    )
 
     # Get rid of excessive whitespace introduced to break long lines (ugh)
     plant_info_df.census_region = plant_info_df.census_region.str.replace(" ", "")
@@ -640,7 +642,7 @@ def _core_eia_923__generation_fuel_eia923(raw_eia923__generation_fuel: pd.DataFr
         "net_generation_megawatthours",
         "early_release",
     ]
-    gen_fuel.drop(cols_to_drop, axis=1, inplace=True)
+    gen_fuel = gen_fuel.drop(cols_to_drop, axis=1)
 
     # Convert the EIA923 DataFrame from yearly to monthly records.
     gen_fuel = _yearly_to_monthly_records(gen_fuel)
@@ -852,9 +854,9 @@ def _core_eia923__boiler_fuel(raw_eia923__boiler_fuel: pd.DataFrame) -> pd.DataF
         "reporting_frequency_code",
         "data_maturity",
     ]
-    bf_df.drop(cols_to_drop, axis=1, inplace=True)
+    bf_df = bf_df.drop(cols_to_drop, axis=1)
 
-    bf_df.dropna(subset=["boiler_id", "plant_id_eia"], inplace=True)
+    bf_df = bf_df.dropna(subset=["boiler_id", "plant_id_eia"])
 
     bf_df = _yearly_to_monthly_records(bf_df)
     # Replace the EIA923 NA value ('.') with a real NA value.
@@ -1057,7 +1059,7 @@ def _core_eia923__coalmine(
     cmi_df = cmi_df.drop_duplicates(subset=coalmine_cols)
 
     # drop null values if they occur in vital fields....
-    cmi_df.dropna(subset=["mine_name", "state"], inplace=True)
+    cmi_df = cmi_df.dropna(subset=["mine_name", "state"])
 
     # we need an mine id to associate this coalmine table with the frc
     # table. In order to do that, we need to create a clean index, like

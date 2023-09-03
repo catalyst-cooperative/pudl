@@ -870,7 +870,9 @@ def reconcile_table_calculations(
         sub_total_errors = (
             calculated_df.groupby(pks_wo_subgroup)
             # If subcomponent sum != total sum, we have nunique()>1
-            .filter(lambda x: x["sub_total_sum"].nunique() > 1).groupby(pks_wo_subgroup)
+            .filter(lambda x: x["sub_total_sum"].nunique() > 1).groupby(  # noqa: PD101
+                pks_wo_subgroup
+            )
         )
         off_ratio_sub = (
             sub_total_errors.ngroups / calculated_df.groupby(pks_wo_subgroup).ngroups
@@ -2583,7 +2585,7 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
             )
         df.record_id = enforce_snake_case(df.record_id)
 
-        dupe_ids = df.record_id[df.record_id.duplicated()].values
+        dupe_ids = df.record_id[df.record_id.duplicated()].to_numpy()
         if dupe_ids.any() and self.has_unique_record_ids:
             logger.warning(
                 f"{self.table_id.value}: Found {len(dupe_ids)} duplicate record_ids: \n"
@@ -4199,7 +4201,7 @@ class PlantsSmallFerc1TableTransformer(Ferc1AbstractTableTransformer):
         # Replace row missing information with data from row containing information
         df.loc[row_missing_info, cols_to_change] = df[row_with_info][
             cols_to_change
-        ].values
+        ].to_numpy()
 
         # Remove row_with_info so there is no duplicate information
         df = df[~row_with_info]
@@ -4394,7 +4396,7 @@ class UtilityPlantSummaryFerc1TableTransformer(Ferc1AbstractTableTransformer):
             df_keys = pd.DataFrame(spot_fix_pks, columns=primary_keys).set_index(
                 primary_keys
             )
-            df.set_index(primary_keys, inplace=True)
+            df = df.set_index(primary_keys)
             # Flip the signs for the values in "ending balance" all records in the original
             # df that appear in the primary key df
             df.loc[df_keys.index, "ending_balance"] = df["ending_balance"] * -1
@@ -4403,7 +4405,7 @@ class UtilityPlantSummaryFerc1TableTransformer(Ferc1AbstractTableTransformer):
             flipped_values = df.loc[df_keys.index]
             if (flipped_values["ending_balance"] < 0).any():
                 raise AssertionError("None of these spot fixes should be negative")
-            df.reset_index(inplace=True)
+            df = df.reset_index()
 
         return apply_pudl_dtypes(df, group="ferc1")
 

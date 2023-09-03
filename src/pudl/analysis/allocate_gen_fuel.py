@@ -1670,7 +1670,7 @@ def adjust_msw_energy_source_codes(
                         for col in gens.columns
                         if col.startswith(f"{esc_type}source_code")
                     ],
-                ].values
+                ].to_numpy()
             ]
 
             # replace any MSW codes with the codes used in bf and gf
@@ -1733,7 +1733,7 @@ def add_missing_energy_source_codes_to_gens(gens_at_freq, gf, bf):
         index=idx, columns="num"
     )[["energy_source_code"]]
     missing_gf_escs_from_gens.columns = [
-        "_".join(col) for col in missing_gf_escs_from_gens.columns.values
+        "_".join(col) for col in missing_gf_escs_from_gens.columns.to_numpy()
     ]
     missing_gf_escs_from_gens = missing_gf_escs_from_gens.reset_index()
 

@@ -53,17 +53,17 @@ def test_ferc1_xbrl2sqlite(ferc1_engine_xbrl, ferc1_xbrl_taxonomy_metadata):
     df = pd.json_normalize(
         ferc1_xbrl_taxonomy_metadata["plant_in_service_ferc1"]["instant"]
     )
-    assert (  # nosec: B101
+    assert (
         df.loc[
             df.name == "reactor_plant_equipment_nuclear_production", "balance"
-        ].values
+        ].to_numpy()
         == "debit"
     )
-    assert (  # nosec: B101
+    assert (
         df.loc[
             df.name == "reactor_plant_equipment_nuclear_production",
             "references.account",
-        ].values
+        ].to_numpy()
         == "322"
     )
 

@@ -87,11 +87,11 @@ def array_diff(
 
     Examples:
         >>> x = np.random.random((4, 2))
-        >>> np.all(array_diff(x, 1)[1:] == pd.DataFrame(x).diff(1).values[1:])
+        >>> np.all(array_diff(x, 1)[1:] == pd.DataFrame(x).diff(1).to_numpy()[1:])
         True
-        >>> np.all(array_diff(x, 2)[2:] == pd.DataFrame(x).diff(2).values[2:])
+        >>> np.all(array_diff(x, 2)[2:] == pd.DataFrame(x).diff(2).to_numpy()[2:])
         True
-        >>> np.all(array_diff(x, -1)[:-1] == pd.DataFrame(x).diff(-1).values[:-1])
+        >>> np.all(array_diff(x, -1)[:-1] == pd.DataFrame(x).diff(-1).to_numpy()[:-1])
         True
     """
     if not periods:
@@ -558,7 +558,7 @@ class Timeseries:
         self.index: pd.Index
         self.columns: pd.Index
         if isinstance(x, pd.DataFrame):
-            self.xi = x.values
+            self.xi = x.to_numpy()
             self.index = x.index
             self.columns = x.columns
         else:
@@ -675,7 +675,7 @@ class Timeseries:
         """
         # RUGGLES: rollingDem, rollingDemLong (window=480)
         df = pd.DataFrame(self.x, copy=False)
-        return df.rolling(window, min_periods=1, center=True).median().values
+        return df.rolling(window, min_periods=1, center=True).median().to_numpy()
 
     def rolling_median_offset(self, window: int = 48) -> np.ndarray:
         """Values minus the rolling median.
@@ -736,7 +736,7 @@ class Timeseries:
         offset = self.rolling_median_offset(window=window)
         df = pd.DataFrame(offset, copy=False)
         rolling = df.rolling(iqr_window, min_periods=1, center=True)
-        return (rolling.quantile(0.75) - rolling.quantile(0.25)).values
+        return (rolling.quantile(0.75) - rolling.quantile(0.25)).to_numpy()
 
     def median_prediction(
         self,
@@ -822,7 +822,7 @@ class Timeseries:
         diff = self.diff(shift=shift)
         df = pd.DataFrame(diff, copy=False)
         rolling = df.rolling(window, min_periods=1, center=True)
-        return (rolling.quantile(0.75) - rolling.quantile(0.25)).values
+        return (rolling.quantile(0.75) - rolling.quantile(0.25)).to_numpy()
 
     def flag_double_delta(self, iqr_window: int = 240, multiplier: float = 2) -> None:
         """Flag values very different from neighbors on either side (DOUBLE_DELTA).
@@ -1023,7 +1023,7 @@ class Timeseries:
             .rolling(window=half_window)
             .mean()
             .lt(1)
-            .values
+            .to_numpy()
         )
         is_before = np.roll(is_after, -(half_window - 1), axis=0)
         # Check whether not part of a run of unflagged values longer than a half-width
@@ -1041,7 +1041,7 @@ class Timeseries:
             .rolling(window=window, center=True)
             .max()
             .eq(True)
-            .values
+            .to_numpy()
         )
         # Flag if all conditions are met
         mask &= is_after & is_before & is_not_run & is_region

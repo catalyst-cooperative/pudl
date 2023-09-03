@@ -708,8 +708,9 @@ def assign_unit_ids(gens_df: pd.DataFrame) -> pd.DataFrame:
         unit_ids[~unit_ids.bga_source.isin(old_codes)]
         .groupby(["plant_id_eia", "generator_id"])["unit_id_pudl"]
         .nunique()
-        <= 1  # nunique() == 0 when there are only NA values.
-    ).all()
+        .le(1)  # nunique() == 0 when there are only NA values.
+        .all()
+    )
     if not gens_have_unique_unit:
         errstr = "Some generators are associated with more than one unit_id_pudl."
         raise ValueError(errstr)

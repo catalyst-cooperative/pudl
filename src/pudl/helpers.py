@@ -975,7 +975,7 @@ def convert_to_date(
 
     df[date_col] = pd.to_datetime({"year": year, "month": month, "day": day})
     cols_to_drop = [x for x in [day_col, year_col, month_col] if x in df.columns]
-    df.drop(cols_to_drop, axis="columns", inplace=True)
+    df = df.drop(cols_to_drop, axis="columns")
 
     return df
 

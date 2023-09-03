@@ -163,6 +163,7 @@ select = [
     "ISC", # implicit string concatenation
     "N",   # pep8-naming
     "NPY", # NumPy specific checks
+    "PD",  # pandas checks
     "PGH", # pygrep-hooks
     # "PL",  # pylint
     # "PT",  # pytest style
@@ -181,6 +182,13 @@ ignore = [
     "D417",
     "E501",   # Overlong lines.
     "E203",   # Space before ':' (black recommends to ignore)
+    "PD003",  # Use of isna rather than isnull
+    "PD004",  # Use of notna rather than notnull
+    "PD008",  # Use of df.at[] rather than df.loc[]
+    "PD010",  # Use of df.stack()
+    "PD013",  # Use of df.unstack()
+    "PD015",  # Use of pd.merge() rather than df.merge()
+    "PD901",  # df as variable name
     "RET504", # Ignore unnecessary assignment before return
     "S101",   # Use of assert
 ]

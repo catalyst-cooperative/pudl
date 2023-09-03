@@ -1534,7 +1534,7 @@ def match_to_single_plant_part(
             suffixes=("_og", ""),
         )
         # there should be no records without a matching generator
-        assert ~(part_df.record_id_eia.isnull().values.any())
+        assert ~(part_df.record_id_eia.isnull().to_numpy().any())
         out_dfs.append(part_df)
     out_df = pd.concat(out_dfs)
 

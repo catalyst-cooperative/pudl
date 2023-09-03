@@ -1457,7 +1457,7 @@ class Resource(Base):
             return self.format_df()
         df = df.copy()
         # Rename periodic key columns (if any) to the requested period
-        df.rename(columns=matches, inplace=True)
+        df = df.rename(columns=matches)
         # Cast integer year fields to datetime
         for field in self.schema.fields:
             if (

@@ -170,7 +170,7 @@ def test_generate_all_override_spreadsheets(plant_parts_eia, ferc1_eia, utils_ei
         utils_eia860,
         util_dict={"NextEra": [6452, 7801]},
         years=[2020],
-        output_dir_path=f"{Path.getcwd()}",
+        output_dir_path=f"{Path.cwd()}",
     )
     # Make sure there is something there
     mapping_spreadsheet = pd.read_excel(

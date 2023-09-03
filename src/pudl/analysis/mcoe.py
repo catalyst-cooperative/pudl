@@ -427,12 +427,11 @@ def fuel_cost(
     # generators (primary for the generator) and the fuel receipts (which is
     # per-delivery), and in the one_fuel case, there will only be a single
     # generator getting all of the fuels:
-    one_fuel.rename(
+    one_fuel = one_fuel.rename(
         columns={
             "fuel_type_code_pudl_x": "ftp_gen",
             "fuel_type_code_pudl_y": "ftp_frc",
         },
-        inplace=True,
     )
 
     # Do the same thing for the multi fuel plants, but also merge based on

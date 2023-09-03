@@ -451,7 +451,7 @@ def harvest_entity_tables(  # noqa: C901
 
     # compile annual ids
     annual_id_df = compiled_df[["report_date"] + id_cols].copy().drop_duplicates()
-    annual_id_df.sort_values(["report_date"] + id_cols, inplace=True, ascending=False)
+    annual_id_df = annual_id_df.sort_values(["report_date"] + id_cols, ascending=False)
 
     # create the annual and entity dfs
     entity_id_df = annual_id_df.drop(["report_date"], axis=1).drop_duplicates(
@@ -752,7 +752,7 @@ def boiler_generator_assn_eia860(context, **clean_dfs) -> pd.DataFrame:  # noqa:
     bga_boil_units = bga_compiled_units[
         ["plant_id_eia", "report_date", "boiler_id", "unit_id_eia"]
     ].copy()
-    bga_boil_units.dropna(subset=["boiler_id"], inplace=True)
+    bga_boil_units = bga_boil_units.dropna(subset=["boiler_id"])
 
     # merge the units with the boilers
     bga_unit_compilation = bga_gen_units.merge(
@@ -765,7 +765,7 @@ def boiler_generator_assn_eia860(context, **clean_dfs) -> pd.DataFrame:  # noqa:
     bga_unit_compilation.loc[
         bga_unit_compilation["bga_source"].isnull(), "bga_source"
     ] = "unit_connection"
-    bga_unit_compilation.drop(["_merge"], axis=1, inplace=True)
+    bga_unit_compilation = bga_unit_compilation.drop(["_merge"], axis=1)
     bga_non_units = bga_compiled_2[bga_compiled_2["unit_id_eia"].isnull()]
 
     # combine the unit compilation and the non units
@@ -922,12 +922,10 @@ def boiler_generator_assn_eia860(context, **clean_dfs) -> pd.DataFrame:  # noqa:
     # These assertions test that all boilers and generators ended up in the
     # same unit_id across all the years of reporting:
     pgu_gb = bga_w_units.groupby(["plant_id_eia", "generator_id"])["unit_id_pudl"]
-    if not (pgu_gb.nunique() <= 1).all():
-        # raise AssertionError("Inconsistent inter-annual BGA assignment!")
+    if pgu_gb.nunique().gt(1).any():
         logger.error("Inconsistent inter-annual plant-generator-units!")
     pbu_gb = bga_w_units.groupby(["plant_id_eia", "boiler_id"])["unit_id_pudl"]
-    if not (pbu_gb.nunique() <= 1).all():
-        # raise AssertionError("Inconsistent inter-annual BGA assignment!")
+    if pbu_gb.nunique().gt(1).any():
         logger.error("Inconsistent inter-annual plant-boiler-units!")
 
     bga_w_units = (
@@ -1084,7 +1082,7 @@ def fix_balancing_authority_codes_with_state(
     """
     # Identify the most common mapping from a BA name to a BA code:
     ba_name_to_code_map = map_balancing_authority_names_to_codes(plants)
-    ba_name_to_code_map.reset_index(inplace=True)
+    ba_name_to_code_map = ba_name_to_code_map.reset_index()
 
     # Prior to 2013, there are no BA codes or names. Running a pre-2013 subset of data
     # through the transform will thus return an empty ba_name_to_code_map.
