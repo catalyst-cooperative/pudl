@@ -108,7 +108,7 @@ jobs:
       - uses: actions/checkout@v3
         with:
           fetch-depth: 2
-      
+
       - name: Install Conda environment using mamba
         uses: mamba-org/provision-with-micromamba@v16
         with:
@@ -152,86 +152,85 @@ jobs:
             src/pudl/package_data/settings/etl_fast.yml
 
       - name: Run integration pytests
-        run |
+        run: |
           pytest src/pudl/test/integration
+  ci-integration:
+    runs-on: ubuntu-latest
+    needs:
+      - ci-integration-etl
+    permissions:
+      contents: read
+      id-token: write
+    strategy:
+      fail-fast: false
+    defaults:
+      run:
+        shell: bash -l {0}
 
-#  ci-integration:
-#    runs-on: ubuntu-latest
-#    needs:
-#    - ci-integration-etl
-#    permissions:
-#      contents: read
-#      id-token: write
-#    strategy:
-#      fail-fast: false
-#    defaults:
-#      run:
-#        shell: bash -l {0}
-#
-#    steps:
-#      - uses: actions/checkout@v3
-#        with:
-#          fetch-depth: 2
-#
-#      - name: Install Conda environment using mamba
-#        uses: mamba-org/provision-with-micromamba@v16
-#        with:
-#          environment-file: test/test-environment.yml
-#          cache-env: true
-#          channels: conda-forge,defaults
-#          channel-priority: strict
-#
-#      - name: Log environment details
-#        run: |
-#          conda info
-#          conda list
-#          conda config --show-sources
-#          conda config --show
-#          printenv | sort
-#
-#      - name: Log SQLite3 version
-#        run: |
-#          which sqlite3
-#          sqlite3 --version
-#
-#      - name: Compile Zenodo datastore DOIs for cache invalidation
-#        run:
-#          grep -e '.*10\.\(5281\|5072\)/zenodo\..*' src/pudl/workspace/datastore.py
-#          | sed -e 's/",*$//g' | sed -e 's/^.*"//g' | sort > datastore-dois.txt
-#
-#      - name: Restore Zenodo datastore from cache if possible
-#        uses: actions/cache@v3
-#        id: cache-zenodo-datastore
-#        with:
-#          path: ${{ env.PUDL_INPUT }}
-#          key: zenodo-datastore-${{ hashFiles('datastore-dois.txt') }}
-#
-#      - name: Make input, output and dagster dirs
-#        run: mkdir -p ${{ env.PUDL_OUTPUT }} ${{ env.PUDL_INPUT}} ${{ env.DAGSTER_HOME }}
-#
-#      - name: List workspace contents
-#        run: find /home/runner/pudl-work
-#
-#      - name: Set default GCP credentials
-#        id: gcloud-auth
-#        continue-on-error: true
-#        uses: "google-github-actions/auth@v1"
-#        with:
-#          workload_identity_provider: "projects/345950277072/locations/global/workloadIdentityPools/gh-actions-pool/providers/gh-actions-provider"
-#          service_account: "tox-pytest-github-action@catalyst-cooperative-pudl.iam.gserviceaccount.com"
-#
-#      - name: Run integration tests, trying to use GCS cache if possible
-#        run: |
-#          tox -e integration -- --gcs-cache-path=gs://zenodo-cache.catalyst.coop --durations 0
-#
-#      - name: Upload coverage
-#        uses: actions/upload-artifact@v3
-#        with:
-#          name: coverage-integration
-#          path: coverage.xml
-#
-#      - name: Log post-test Zenodo datastore contents
-#        run: find ${{ env.PUDL_INPUT }}
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          fetch-depth: 2
+  #
+  #      - name: Install Conda environment using mamba
+  #        uses: mamba-org/provision-with-micromamba@v16
+  #        with:
+  #          environment-file: test/test-environment.yml
+  #          cache-env: true
+  #          channels: conda-forge,defaults
+  #          channel-priority: strict
+  #
+  #      - name: Log environment details
+  #        run: |
+  #          conda info
+  #          conda list
+  #          conda config --show-sources
+  #          conda config --show
+  #          printenv | sort
+  #
+  #      - name: Log SQLite3 version
+  #        run: |
+  #          which sqlite3
+  #          sqlite3 --version
+  #
+  #      - name: Compile Zenodo datastore DOIs for cache invalidation
+  #        run:
+  #          grep -e '.*10\.\(5281\|5072\)/zenodo\..*' src/pudl/workspace/datastore.py
+  #          | sed -e 's/",*$//g' | sed -e 's/^.*"//g' | sort > datastore-dois.txt
+  #
+  #      - name: Restore Zenodo datastore from cache if possible
+  #        uses: actions/cache@v3
+  #        id: cache-zenodo-datastore
+  #        with:
+  #          path: ${{ env.PUDL_INPUT }}
+  #          key: zenodo-datastore-${{ hashFiles('datastore-dois.txt') }}
+  #
+  #      - name: Make input, output and dagster dirs
+  #        run: mkdir -p ${{ env.PUDL_OUTPUT }} ${{ env.PUDL_INPUT}} ${{ env.DAGSTER_HOME }}
+  #
+  #      - name: List workspace contents
+  #        run: find /home/runner/pudl-work
+  #
+  #      - name: Set default GCP credentials
+  #        id: gcloud-auth
+  #        continue-on-error: true
+  #        uses: "google-github-actions/auth@v1"
+  #        with:
+  #          workload_identity_provider: "projects/345950277072/locations/global/workloadIdentityPools/gh-actions-pool/providers/gh-actions-provider"
+  #          service_account: "tox-pytest-github-action@catalyst-cooperative-pudl.iam.gserviceaccount.com"
+  #
+  #      - name: Run integration tests, trying to use GCS cache if possible
+  #        run: |
+  #          tox -e integration -- --gcs-cache-path=gs://zenodo-cache.catalyst.coop --durations 0
+  #
+  #      - name: Upload coverage
+  #        uses: actions/upload-artifact@v3
+  #        with:
+  #          name: coverage-integration
+  #          path: coverage.xml
+  #
+  #      - name: Log post-test Zenodo datastore contents
+  #        run: find ${{ env.PUDL_INPUT }}
 
   ci-coverage:
     runs-on: ubuntu-latest
