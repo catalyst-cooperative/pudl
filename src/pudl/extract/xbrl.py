@@ -27,54 +27,25 @@ class FercXbrlDatastore:
 
     def get_taxonomy(self, year: int, form: XbrlFormNumber) -> tuple[io.BytesIO, str]:
         """Returns the path to the taxonomy entry point within the an archive."""
+        taxonomy_dates = {2021: date(2022, 1, 1), 2022: date(2022, 1, 1)}
+        taxonomy_date = taxonomy_dates[year]
         raw_archive = self.datastore.get_unique_resource(
-            f"ferc{form.value}", year=year, data_format="xbrl_taxonomy"
+            f"ferc{form.value}",
+            year=taxonomy_date.year,
+            data_format="xbrl_taxonomy",
         )
 
-        # Construct path to taxonomy entry point within archive
-        taxonomy_date = date(year, 1, 1).isoformat()
-        taxonomy_entry_point = f"taxonomy/form{form.value}/{taxonomy_date}/form/form{form.value}/form-{form.value}_{taxonomy_date}.xsd"
+        taxonomy_entry_point = f"taxonomy/form{form.value}/{taxonomy_date}/form/form{form.value}/form-{form.value}_{taxonomy_date.isoformat()}.xsd"
 
         return io.BytesIO(raw_archive), taxonomy_entry_point
 
-    def get_filings(
-        self, year: int, form: XbrlFormNumber
-    ) -> tuple[io.BytesIO, list[str]]:
-        """Return list of filings from archive."""
-        raw_archive = io.BytesIO(
+    def get_filings(self, year: int, form: XbrlFormNumber) -> io.BytesIO:
+        """Return the corresponding archive full of XBRL filings."""
+        return io.BytesIO(
             self.datastore.get_unique_resource(
                 f"ferc{form.value}", year=year, data_format="xbrl"
             )
         )
-
-        # Load RSS feed metadata
-        keep_filings = []
-        all_filings = []
-        with zipfile.ZipFile(raw_archive) as archive:
-            with archive.open("rssfeed") as f:
-                metadata = json.load(f)
-
-                # Loop through all filings by a given filer in a given quarter
-                # And take the most recent one
-                for key, filing_info in metadata.items():
-                    latest = datetime.min
-                    for filing_id, info in filing_info.items():
-                        filing_name = f"{filing_id}.xbrl"
-                        all_filings.append(filing_name)
-
-                        # Parse date from 9-tuple
-                        published = datetime.fromisoformat(info["published_parsed"])
-
-                        if published > latest:
-                            latest = published
-                            latest_filing = filing_name
-
-                    # Add to least of most recent filings
-                    keep_filings.append(latest_filing)
-
-        return raw_archive, [
-            filing for filing in all_filings if filing not in keep_filings
-        ]
 
 
 def _get_sqlite_engine(form_number: int, clobber: bool) -> sa.engine.Engine:
@@ -180,7 +151,7 @@ def convert_form(
     # Process XBRL filings for each year requested
     for year in form_settings.years:
         taxonomy_archive, taxonomy_entry_point = datastore.get_taxonomy(year, form)
-        filings_archive, skip_filings = datastore.get_filings(year, form)
+        filings_archive = datastore.get_filings(year, form)
 
         run_main(
             instance_path=filings_archive,
@@ -197,5 +168,4 @@ def convert_form(
             batch_size=batch_size,
             loglevel="INFO",
             logfile=None,
-            skip_filings=skip_filings,
         )
