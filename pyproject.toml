@@ -15,17 +15,17 @@ dependencies = [
     "alembic>=1.10.3,<1.12",
     "catalystcoop.dbfread>=3.0,<3.1",
     "catalystcoop.ferc-xbrl-extractor==0.8.3",
-    "coloredlogs>=14.0,<15.1",                             # Dagster requires 14.0
-    "dagster-webserver>=1.4,<1.5",                         # 1.2.2 is first version to support Python 3.11
-    "dagster>=1.4,<1.5",                                   # 1.2.2 is first version to support Python 3.11
-    "dask>=2021.8,<2023.8.2",
-    "datapackage>=1.11,<1.16",                             # Transition datastore to use frictionless.
-    "fsspec>=2021.7,<2023.6.1",                            # For caching datastore on GCS
-    "gcsfs>=2021.7,<2023.6.1",                             # For caching datastore on GCS
+    "coloredlogs>=14.0,<15.1",  # Dagster requires 14.0
+    "dagster-webserver>=1.4,<1.5",  # 1.2.2 is first version to support Python 3.11
+    "dagster>=1.4,<1.5",  # 1.2.2 is first version to support Python 3.11
+    "dask>=2021.8,<2023.9.1",
+    "datapackage>=1.11,<1.16",  # Transition datastore to use frictionless.
+    "fsspec>=2021.7,<2023.6.1",  # For caching datastore on GCS
+    "gcsfs>=2021.7,<2023.9.1",  # For caching datastore on GCS
     "geopandas>=0.13,<0.14",
     "grpcio<1.56.0",
     "jinja2>=2,<3.2",
-    "matplotlib>=3.3,<3.8",                                # Should make this optional with a "viz" extras
+    "matplotlib>=3.3,<3.8",  # Should make this optional with a "viz" extras
     "networkx>=2.2,<3.2",
     "numpy>=1.18.5,!=1.23.0,<1.26",
     "pandas[parquet,excel,fss,gcp,compression]>=2.0,<2.1",
@@ -107,7 +107,7 @@ pudl_check_fks = "pudl.etl.check_foreign_keys:main"
 [project.optional-dependencies]
 dev = [
     "black>=22.0,<23.8",
-    "build>=1,<2",
+    "build>=0.10,<1.1",
     "ipdb>=0.13,<0.14",
     "jedi>=0.18,<0.20",
     "lxml>=4.6,<4.10",
@@ -129,14 +129,14 @@ test = [
     "jupyter",
     "nbconvert>=7,<8",
     "nbformat>=5,<6",
-    "pre-commit>=2.9,<3.4",
+    "pre-commit>=2.9,<3.5",
     "pytest-console-scripts>=1.1,<1.5",
     "pytest-cov>=2.10,<4.2",
     "pytest-mock>=3.0,<3.12",
     "pytest>=6.2,<7.5",
     "responses>=0.14,<0.24",
     "ruff>=0.0.287",
-    "tox>=4.0,<4.11",
+    "tox>=4.0,<4.12",
 ]
 datasette = ["datasette>=0.60,<0.65"]
 
