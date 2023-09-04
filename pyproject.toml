@@ -27,7 +27,7 @@ dependencies = [
     "dask>=2021.8,<2023.8.2",
     "datapackage>=1.11,<1.16",  # Transition datastore to use frictionless.
     "fsspec>=2021.7,<2023.6.1",  # For caching datastore on GCS
-    "gcsfs>=2021.7,<2023.6.1",  # For caching datastore on GCS
+    "gcsfs>=2021.7,<2023.9.1",  # For caching datastore on GCS
     "geopandas>=0.13,<0.14",
     "grpcio<1.56.0",
     "jinja2>=2,<3.2",
