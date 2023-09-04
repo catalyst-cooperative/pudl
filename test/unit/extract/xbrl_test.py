@@ -34,14 +34,14 @@ def test_ferc_xbrl_datastore_get_taxonomy(mocker):
 
     # Check that get_unique_resource was called correctly
     datastore_mock.get_unique_resource.assert_called_with(
-        "ferc1", year=2021, data_format="xbrl"
+        "ferc1", year=2022, data_format="xbrl_taxonomy"
     )
 
     # Check return values
     assert raw_archive.getvalue() == b"Fake taxonomy data."
     assert (
         taxonomy_entry_point
-        == "taxonomy/form1/2021-01-01/form/form1/form-1_2021-01-01.xsd"
+        == "taxonomy/form1/2022-01-01/form/form1/form-1_2022-01-01.xsd"
     )
 
 
