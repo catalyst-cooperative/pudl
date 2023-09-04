@@ -1,7 +1,7 @@
 ---
 name: tox-pytest
 
-on: [pull_request]
+on: [pull_request, workflow_dispatch]
 
 env:
   PUDL_OUTPUT: /home/runner/pudl-work/output/
@@ -97,8 +97,15 @@ jobs:
           name: coverage-unit
           path: coverage.xml
 
+  # TODO(rousik): the following could simply run docker
+  # container mounted to specific directory.
+  # TODO(rousik): run this on larger runners, see dev for
+  # how to do that.
   ci-integration-etl:
     runs-on: ubuntu-latest
+    defaults:
+      run:
+        shell: bash
     permissions:
       contents: read
       id-token: write
@@ -108,14 +115,16 @@ jobs:
       - uses: actions/checkout@v3
         with:
           fetch-depth: 2
-
       - name: Install Conda environment using mamba
-        uses: mamba-org/provision-with-micromamba@v16
+        uses: mamba-org/setup-micromamba@v1
         with:
           environment-file: test/test-environment.yml
-          cache-env: true
-          channels: conda-forge,defaults
-          channel-priority: strict
+          cache-environment: true
+          condarc: |
+            channels:
+            - conda-forge
+            - defaults
+            channel_priority: strict
 
       - name: Install PUDL and dependencies
         run: |
