@@ -629,7 +629,7 @@ def stack_generators(
         pd.DataFrame(gens.set_index(IDX_GENS)[esc].stack(level=0))
         .reset_index()
         .rename(columns={"level_3": cat_col, 0: stacked_col})
-        .pipe(apply_pudl_dtypes, "eia")
+        .pipe(apply_pudl_dtypes, group="eia")
     )
     # arrange energy source codes by number and type (start with energy_source_code, then planned_, then startup_)
     gens_stack_prep = gens_stack_prep.sort_values(
@@ -712,13 +712,21 @@ def associate_generator_tables(
     """
     stack_gens = stack_generators(
         gens, cat_col="energy_source_code_num", stacked_col="energy_source_code"
-    )
+    ).pipe(apply_pudl_dtypes, group="eia")
     # allocate the boiler fuel data to generators
-    bf_by_gens = allocate_bf_data_to_gens(bf, gens, bga)
     bf_by_gens = (
-        bf_by_gens.set_index(IDX_GENS_PM_ESC).add_suffix("_bf_tbl").reset_index()
+        allocate_bf_data_to_gens(bf, gens, bga)
+        .set_index(IDX_GENS_PM_ESC)
+        .add_suffix("_bf_tbl")
+        .reset_index()
+        .pipe(apply_pudl_dtypes, group="eia")
     )
-    gf = gf.set_index(IDX_PM_ESC)[DATA_COLUMNS].add_suffix("_gf_tbl").reset_index()
+    gf = (
+        gf.set_index(IDX_PM_ESC)[DATA_COLUMNS]
+        .add_suffix("_gf_tbl")
+        .reset_index()
+        .pipe(apply_pudl_dtypes, group="eia")
+    )
 
     gen_assoc = (
         pd.merge(
@@ -767,7 +775,7 @@ def associate_generator_tables(
         .reset_index(),
         on=IDX_ESC,
         how="outer",
-    ).pipe(apply_pudl_dtypes, "eia")
+    ).pipe(apply_pudl_dtypes, group="eia")
     return gen_assoc
 
 
@@ -1566,7 +1574,7 @@ def distribute_annually_reported_data_to_months_if_annual(
                         "year": x.report_date.dt.year,
                         "month": 1,
                         "day": 1,
-                    }
+                    },
                 )
             )
             .pipe(
@@ -1577,6 +1585,7 @@ def distribute_annually_reported_data_to_months_if_annual(
             )
             .assign(**{data_column_name: lambda x: x[data_column_name] / 12})
             .pipe(assign_plant_year)
+            .pipe(apply_pudl_dtypes, group="eia")
             .set_index(["plant_year"])
         )
         # sometimes a plant oscillates btwn annual and monthly reporting. when it does

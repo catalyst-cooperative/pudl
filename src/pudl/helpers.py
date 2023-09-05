@@ -26,7 +26,7 @@ from dagster import AssetKey, AssetsDefinition, AssetSelection, SourceAsset
 from pandas._libs.missing import NAType
 
 import pudl.logging_helpers
-from pudl.metadata.fields import get_pudl_dtypes
+from pudl.metadata.fields import apply_pudl_dtypes, get_pudl_dtypes
 
 sum_na = partial(pd.Series.sum, skipna=False)
 """A sum function that returns NA if the Series includes any NA values.
@@ -364,22 +364,23 @@ def is_doi(doi):
     return bool(re.match(doi_regex, doi))
 
 
-def convert_col_to_datetime(df, date_col_name):
-    """Convert a column in a dataframe to a datetime.
+def convert_col_to_datetime(df: pd.DataFrame, date_col_name: str) -> pd.DataFrame:
+    """Convert a non-datetime column in a dataframe to a datetime64[s].
 
     If the column isn't a datetime, it needs to be converted to a string type
     first so that integer years are formatted correctly.
 
     Args:
-        df (pandas.DataFrame): Dataframe with column to convert.
-        date_col_name (string): name of the column to convert.
+        df: Dataframe with column to convert.
+        date_col_name: name of the datetime column to convert.
 
     Returns:
         Dataframe with the converted datetime column.
     """
-    if pd.api.types.is_datetime64_ns_dtype(df[date_col_name]) is False:
+    if not pd.api.types.is_datetime64_dtype(df[date_col_name]):
         logger.warning(
-            f"{date_col_name} is {df[date_col_name].dtype} column. Converting to datetime."
+            f"{date_col_name} is {df[date_col_name].dtype} column. "
+            "Converting to datetime64[ns]."
         )
         df[date_col_name] = pd.to_datetime(df[date_col_name].astype("string"))
     return df
@@ -618,17 +619,21 @@ def expand_timeseries(
             f"{fill_through_freq} is not a valid frequency to fill through."
         )
     end_dates["drop_row"] = True
-    df = pd.concat([df, end_dates.reset_index()])
     df = (
-        df.set_index(date_col)
+        pd.concat([df, end_dates.reset_index()])
+        .set_index(date_col)
         .groupby(key_cols)
         .resample(freq)
         .ffill()
         .drop(key_cols, axis=1)
         .reset_index()
     )
-    df = df[df.drop_row.isnull()].drop("drop_row", axis=1).reset_index(drop=True)
-    return df
+    return (
+        df[df.drop_row.isnull()]
+        .drop(columns="drop_row")
+        .reset_index(drop=True)
+        .pipe(apply_pudl_dtypes)
+    )
 
 
 def organize_cols(df, cols):
@@ -984,26 +989,19 @@ def convert_to_date(
     return df
 
 
-def fix_eia_na(df):
+def fix_eia_na(df: pd.DataFrame) -> pd.DataFrame:
     """Replace common ill-posed EIA NA spreadsheet values with np.nan.
 
     Currently replaces empty string, single decimal points with no numbers,
     and any single whitespace character with np.nan.
 
     Args:
-        df (pandas.DataFrame): The DataFrame to clean.
+        df: The DataFrame to clean.
 
     Returns:
-        pandas.DataFrame: The cleaned DataFrame.
+        DataFrame with regularized NA values.
     """
-    return df.replace(
-        to_replace=[
-            r"^\.$",  # Nothing but a decimal point
-            r"^\s*$",  # The empty string and entirely whitespace strings
-        ],
-        value=np.nan,
-        regex=True,
-    )
+    return df.replace(regex=r"(^\.$|^\s*$)", value=np.nan)
 
 
 def simplify_columns(df):
@@ -1025,14 +1023,18 @@ def simplify_columns(df):
     Todo:
         Update docstring.
     """
-    df.columns = (
-        df.columns.str.replace(r"[^0-9a-zA-Z]+", " ", regex=True)
-        .str.strip()
-        .str.lower()
-        .str.replace(r"\s+", " ", regex=True)
-        .str.replace(" ", "_")
-    )
-    return df
+    # Do nothing, if empty dataframe (e.g. mocked for tests)
+    if df.shape[0] == 0:
+        return df
+    else:
+        df.columns = (
+            df.columns.str.replace(r"[^0-9a-zA-Z]+", " ", regex=True)
+            .str.strip()
+            .str.lower()
+            .str.replace(r"\s+", " ", regex=True)
+            .str.replace(" ", "_")
+        )
+        return df
 
 
 def drop_tables(engine: sa.engine.Engine, clobber: bool = False):
@@ -1220,11 +1222,11 @@ def generate_rolling_avg(
     # to get the backbone/complete date range/groups
     bones = (
         date_range.merge(groups)
-        .drop("tmp", axis=1)  # drop the temp column
+        .drop(columns="tmp")  # drop the temp column
         .merge(df, on=group_cols + ["report_date"])
         .set_index(group_cols + ["report_date"])
         .groupby(by=group_cols + ["report_date"])
-        .mean()
+        .mean(numeric_only=True)
     )
     # with the aggregated data, get a rolling average
     roll = bones.rolling(window=window, center=True, **kwargs).agg({data_col: "mean"})
@@ -1600,7 +1602,7 @@ def convert_df_to_excel_file(df: pd.DataFrame, **kwargs) -> pd.ExcelFile:
     writer = pd.ExcelWriter(bio, engine="xlsxwriter")
     df.to_excel(writer, **kwargs)
 
-    writer.save()
+    writer.close()
 
     bio.seek(0)
     workbook = bio.read()
