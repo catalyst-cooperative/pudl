@@ -542,15 +542,15 @@ than 25 MW installed nameplate capacity as well as internal combustion
 plants, gas turbine-plants, conventional hydro plants, and pumped storage plants with
 less than 10 MW installed nameplate capacity. As reported on FERC Form 1 Schedule 410
 (pages 410-411) and extracted from the FERC Visual FoxPro and XBRL. See our
-:py:const:`pudl.extract.ferc1.TABLE_NAME_MAP_FERC1` for linkages to the raw tables.
+``pudl.extract.ferc1.TABLE_NAME_MAP_FERC1`` for linkages to the raw tables.
 
 The raw version of this table is more like a digitized PDF than an actual data table.
 The rows contain lots of information in addition to what the columns might suggest.
 For instance, a single column may contain header rows, note rows, and total rows. This
-extraneous information is useful, but it prevent proper analysis when mixed in with the
+extraneous information is useful, but it prevents proper analysis when mixed in with the
 rest of the values data in the column. We employ a couple of data transformations to
 extract these rows from the data and preserve some of the information they contain
-(fuel type, plant type, FERC license, or general notes about the plant) in seperate
+(fuel type, plant type, FERC license, or general notes about the plant) in separate
 columns.""",
         "schema": {
             "fields": [
