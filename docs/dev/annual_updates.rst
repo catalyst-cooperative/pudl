@@ -169,13 +169,14 @@ Currently, our FERC and EIA tables utilize different transform processes.
 
 A. EIA Forms
 ^^^^^^^^^^^^
-**4.A.1)** You can either materialize the ``_core`` dagster asset groups for your
-dataset of interest (ex: ``_core_eia860``) or use the EIA ETL Debugging notebook
-mentioned above to run the initial transform step on all tables of the new year of data.
-As mentioned in 3.A.1, the debugging process is significantly faster with Dagster. If
-any new tables were added in the new year, you will need to add a new transform function
-for the corresponding dataframe. If new columns have been added, they should also be
-inspected for cleanup. Debug and rematerialize until the assets load successfully.
+**4.A.1)** You can either materialize the ``_core`` (clean) and ``_core`` (normalized)
+dagster asset groups for your dataset of interest (ex: ``_core_eia860`` and
+``core_eia860``) or use the EIA ETL Debugging notebook mentioned above to run the
+initial transform step on all tables of the new year of data. As mentioned in 3.A.1,
+the debugging process is significantly faster with Dagster. If any new tables were added
+in the new year, you will need to add a new transform function for the corresponding
+dataframe. If new columns have been added, they should also be inspected for cleanup.
+Debug and rematerialize until the assets load successfully.
 
 .. note::
 
@@ -337,7 +338,7 @@ A. FERC 1 & EIA Plants & Utilities
 B. Missing EIA Plant Locations from CEMS
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 **6.B.1)** If there are any plants that appear in the EPA CEMS dataset that do not
-appear in the ``plants_entity_eia`` table, or that are missing latitute and longitude
+appear in the ``plants_entity_eia`` table, or that are missing latitude and longitude
 values, you'll get a warning when you try and materialize the ``epacamd`` asset group in
 Dagster. You'll need to manually compile the missing information and add it to
 ``src/pudl/package_data/epacems/additional_epacems_plants.csv`` to enable accurate
