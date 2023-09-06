@@ -14,48 +14,48 @@ env:
 
 jobs:
   # ci-static:
-    # runs-on: ubuntu-latest
-    # strategy:
-    #   fail-fast: false
-    #   matrix:
-    #     tox-env:
-    #       - linters
-    #       - docs
-    # defaults:
-    #   run:
-    #     shell: bash -l {0}
+  # runs-on: ubuntu-latest
+  # strategy:
+  #   fail-fast: false
+  #   matrix:
+  #     tox-env:
+  #       - linters
+  #       - docs
+  # defaults:
+  #   run:
+  #     shell: bash -l {0}
 
-    # steps:
-    #   - uses: actions/checkout@v3
-    #     with:
-    #       fetch-depth: 2
+  # steps:
+  #   - uses: actions/checkout@v3
+  #     with:
+  #       fetch-depth: 2
 
-    #   - name: Install Conda environment using mamba
-    #     uses: mamba-org/provision-with-micromamba@v16
-    #     with:
-    #       environment-file: test/test-environment.yml
-    #       cache-env: true
-    #       channels: conda-forge,defaults
-    #       channel-priority: strict
+  #   - name: Install Conda environment using mamba
+  #     uses: mamba-org/provision-with-micromamba@v16
+  #     with:
+  #       environment-file: test/test-environment.yml
+  #       cache-env: true
+  #       channels: conda-forge,defaults
+  #       channel-priority: strict
 
-    #   - name: Log environment details
-    #     run: |
-    #       conda info
-    #       conda list
-    #       conda config --show-sources
-    #       conda config --show
-    #       printenv | sort
+  #   - name: Log environment details
+  #     run: |
+  #       conda info
+  #       conda list
+  #       conda config --show-sources
+  #       conda config --show
+  #       printenv | sort
 
-    #   - name: Build ${{ matrix.tox-env}} with Tox
-    #     run: |
-    #       tox -e ${{ matrix.tox-env }}
+  #   - name: Build ${{ matrix.tox-env}} with Tox
+  #     run: |
+  #       tox -e ${{ matrix.tox-env }}
 
-    #   - name: Upload coverage
-    #     uses: actions/upload-artifact@v3
-    #     if: ${{ matrix.tox-env == 'docs' }}
-    #     with:
-    #       name: coverage-docs
-    #       path: coverage.xml
+  #   - name: Upload coverage
+  #     uses: actions/upload-artifact@v3
+  #     if: ${{ matrix.tox-env == 'docs' }}
+  #     with:
+  #       name: coverage-docs
+  #       path: coverage.xml
 
   # ci-unit:
   #   runs-on: ubuntu-latest
@@ -124,8 +124,8 @@ jobs:
       # TODO(rousik): setup-python may be redundant with micromamba
       - uses: actions/setup-python@v4
         with:
-          python-version: '3.11'
-          cache: 'pip'  
+          python-version: "3.11"
+          cache: "pip"
       - name: Install Conda environment using mamba
         uses: mamba-org/setup-micromamba@v1
         with:
@@ -139,7 +139,7 @@ jobs:
       - run: |
           conda info
           conda list
-    
+
       - name: Install PUDL and dependencies
         run: |
           conda info
@@ -178,7 +178,7 @@ jobs:
             src/pudl/package_data/settings/etl_fast.yml
 
       - name: Run integration tests on live data
-        run: pytest --live-dbs src/pudl/test/integration
+        run: pytest --live-dbs test/integration
 
   # ci-integration:
   #   runs-on: ubuntu-latest
