@@ -164,7 +164,7 @@ jobs:
           service_account: "tox-pytest-github-action@catalyst-cooperative-pudl.iam.gserviceaccount.com"
 
       - name: Prepare for ETL execution
-        run: almebic upgrade head
+        run: alembic upgrade head
       - name: Run ferc_to_sqlite
         run: |
           ferc_to_sqlite --gcs-cache-path=gs://zenodo-cache.catalyst.coop \
