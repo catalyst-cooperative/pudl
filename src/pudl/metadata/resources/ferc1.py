@@ -537,12 +537,12 @@ any cleaning mechanisms in place to account for this."""
         "field_namespace": "ferc1",
     },
     "plants_small_ferc1": {
-        "description": """The generating plant statistics for steam plants with less
-than 25 MW installed nameplate capacity as well as internal combustion
+        "description": """The generating plant statistics for internal combustion
 plants, gas turbine-plants, conventional hydro plants, and pumped storage plants with
-less than 10 MW installed nameplate capacity. As reported on FERC Form 1 Schedule 410
-(pages 410-411) and extracted from the FERC Visual FoxPro and XBRL. See our
-``pudl.extract.ferc1.TABLE_NAME_MAP_FERC1`` for linkages to the raw tables.
+less than 10 MW installed nameplate capacity and steam plants with less than 25 MW
+installed nameplate capacity. As reported on FERC Form 1 Schedule 410 (pages 410-411)
+and extracted from the FERC Visual FoxPro and XBRL. See our
+``pudl.extract.ferc1.TABLE_NAME_MAP_FERC1`` for links to the raw tables.
 
 The raw version of this table is more like a digitized PDF than an actual data table.
 The rows contain lots of information in addition to what the columns might suggest.
