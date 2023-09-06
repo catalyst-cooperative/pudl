@@ -167,13 +167,14 @@ jobs:
 
       - name: Run Fast ETL
         run: |
-          pudl_setup
-          ferc_to_sqlite src/pudl/package_data/settings/etl_fast.yml
+          alembic upgrade head
+          ferc_to_sqlite --gcs-cache-path=gs://zenodo-cache.catalyst.coop \
+            src/pudl/package_data/settings/etl_fast.yml
           pudl_etl --gcs-cache-path=gs://zenodo-cache.catalyst.coop \
             src/pudl/package_data/settings/etl_fast.yml
 
       - name: Run integration tests on live data
-        run: pytest src/pudl/test/integration --live-dbs
+        run: pytest --live-dbs src/pudl/test/integration
 
   # ci-integration:
   #   runs-on: ubuntu-latest
