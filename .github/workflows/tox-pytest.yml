@@ -178,7 +178,7 @@ jobs:
             src/pudl/package_data/settings/etl_fast.yml
 
       - name: Run integration tests on live data
-        run: pytest --live-dbs src/pudl/test/integration
+        run: pytest --live-dbs test/integration
 
   # ci-integration:
   #   runs-on: ubuntu-latest
