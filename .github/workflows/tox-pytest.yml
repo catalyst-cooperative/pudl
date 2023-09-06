@@ -137,6 +137,7 @@ jobs:
       - name: Install PUDL and dependencies
         run: |
           ls -l
+          sudo apt-get install libsnappy-dev
           pip install .
 
       - name: Compile Zenodo datastore DOIs for cache invalidation
