@@ -176,7 +176,7 @@ initial transform step on all tables of the new year of data. As mentioned in 3.
 the debugging process is significantly faster with Dagster. If any new tables were added
 in the new year, you will need to add a new transform function for the corresponding
 dataframe. If new columns have been added, they should also be inspected for cleanup.
-Debug and rematerialize until the assets load successfully.
+Debug and rematerialize the assets until they load successfully.
 
 .. note::
 
