@@ -315,6 +315,8 @@ Miscellaneous
   reported a balancing authority code of "ISONE" to "NYISO". These plants now retain
   their original EIA codes. Plants with manual re-mapping of BA codes have also been
   fixed to have correctly updated BA names. See :pr:`2312` and :issue:`2255`.
+* Fixed a column naming bug that was causing EIA860 monthly retirement dates to get
+  nulled out. See :issue:`2834` and :pr:`2835`
 
 .. _release-v2022.11.30:
 
