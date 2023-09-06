@@ -140,6 +140,7 @@ jobs:
       - name: Install PUDL and dependencies
         run: |
           ls -l
+          conda info
           sudo apt-get install libsnappy-dev
           pip install .
 
