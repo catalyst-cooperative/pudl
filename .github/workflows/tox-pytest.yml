@@ -129,7 +129,6 @@ jobs:
             - conda-forge
             - defaults
             channel_priority: strict
-            - name: Bash
       - shell: bash -el {0}
         run: |
           conda info
