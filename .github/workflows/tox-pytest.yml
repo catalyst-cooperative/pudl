@@ -146,7 +146,7 @@ jobs:
             channel_priority: strict
 
       - name: Install PUDL and dependencies
-        run: pip install .
+        run: pip install "./[test]"
 
       - name: Compile Zenodo datastore DOIs for cache invalidation
         run:
