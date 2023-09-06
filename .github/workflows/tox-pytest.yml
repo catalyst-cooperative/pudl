@@ -136,14 +136,9 @@ jobs:
             - conda-forge
             - defaults
             channel_priority: strict
-      - run: |
-          conda info
-          conda list
 
       - name: Install PUDL and dependencies
-        run: |
-          conda info
-          pip install .
+        run: pip install .
 
       - name: Compile Zenodo datastore DOIs for cache invalidation
         run:
@@ -168,18 +163,18 @@ jobs:
           workload_identity_provider: "projects/345950277072/locations/global/workloadIdentityPools/gh-actions-pool/providers/gh-actions-provider"
           service_account: "tox-pytest-github-action@catalyst-cooperative-pudl.iam.gserviceaccount.com"
 
-      - name: Run Fast ETL
+      - name: Prepare for ETL execution
+        run: almebic upgrade head
+      - name: Run ferc_to_sqlite
         run: |
-          conda info
-          alembic upgrade head
           ferc_to_sqlite --gcs-cache-path=gs://zenodo-cache.catalyst.coop \
             src/pudl/package_data/settings/etl_fast.yml
+      - name: Run pudl_etl
+        run: |
           pudl_etl --gcs-cache-path=gs://zenodo-cache.catalyst.coop \
             src/pudl/package_data/settings/etl_fast.yml
-
-      - name: Run integration tests on live data
-        run: pytest --live-dbs test/integration
-
+      - name: Run integration tests
+        run: tox -e validate -- --live-dbs
   # ci-integration:
   #   runs-on: ubuntu-latest
   #   needs:
