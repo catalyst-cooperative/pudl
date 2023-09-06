@@ -102,7 +102,9 @@ jobs:
   # TODO(rousik): run this on larger runners, see dev for
   # how to do that.
   ci-integration-etl:
-    runs-on: ubuntu-latest
+    runs-on:
+      group: large-runner-group
+      labels: ubuntu-22.04-4core
     defaults:
       run:
         shell: bash
@@ -170,9 +172,8 @@ jobs:
           pudl_etl --gcs-cache-path=gs://zenodo-cache.catalyst.coop \
             src/pudl/package_data/settings/etl_fast.yml
 
-      - name: Run integration pytests
-        run: |
-          pytest src/pudl/test/integration
+      - name: Run integration tests on live data
+        run: pytest src/pudl/test/integration --live-dbs
 
   # ci-integration:
   #   runs-on: ubuntu-latest
