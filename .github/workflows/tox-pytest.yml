@@ -102,9 +102,10 @@ jobs:
   # TODO(rousik): run this on larger runners, see dev for
   # how to do that.
   ci-integration-etl:
-    runs-on:
-      group: large-runner-group
-      labels: ubuntu-22.04-4core
+    runs-on: ubuntu-latest
+    # runs-on:
+    #   group: large-runner-group
+    #   labels: ubuntu-22.04-4core
     defaults:
       run:
         shell: bash
