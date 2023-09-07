@@ -13,4 +13,4 @@ In general we try to enable each dataset to be processed independently, and
 optionally apply the glue to connect them to each other when both datasets for
 which glue exists are being processed together.
 """
-from . import ferc1_eia  # noqa: F401
+from . import ferc1_eia

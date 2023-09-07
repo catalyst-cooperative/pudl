@@ -94,7 +94,7 @@ def find_new_ferc1_strings(
         categories enumerated in strdict.
     """
     all_strings = set(
-        pd.read_sql(f"SELECT {field} FROM {table};", ferc1_engine).pipe(  # nosec
+        pd.read_sql(f"SELECT {field} FROM {table};", ferc1_engine).pipe(  # noqa: S608
             simplify_strings, columns=[field]
         )[field]
     )
@@ -529,10 +529,7 @@ def date_merge(
 
     suffixes = ["", ""]
     if left_date_col == right_date_col:
-        if "suffixes" in kwargs:
-            suffixes = kwargs["suffixes"]
-        else:
-            suffixes = ["_x", "_y"]
+        suffixes = kwargs.get("suffixes", ["_x", "_y"])
     # reconstruct the new report date column and clean up columns
     left_right_date_col = [left_date_col + suffixes[0], right_date_col + suffixes[1]]
     if report_at_start:
@@ -871,12 +868,12 @@ def month_year_to_date(df):
         base_month_regex = f"^{base}{month_regex}"
         month_col = list(df.filter(regex=base_month_regex).columns)
         if not len(month_col) == 1:
-            raise AssertionError()
+            raise AssertionError
         month_col = month_col[0]
         base_year_regex = f"^{base}{year_regex}"
         year_col = list(df.filter(regex=base_year_regex).columns)
         if not len(year_col) == 1:
-            raise AssertionError()
+            raise AssertionError
         year_col = year_col[0]
         date_col = f"{base}_date"
         month_year_date.append((month_col, year_col, date_col))
@@ -972,19 +969,13 @@ def convert_to_date(
 
     year = df[year_col]
 
-    if month_col not in df.columns:
-        month = month_value
-    else:
-        month = df[month_col]
+    month = month_value if month_col not in df.columns else df[month_col]
 
-    if day_col not in df.columns:
-        day = day_value
-    else:
-        day = df[day_col]
+    day = day_value if day_col not in df.columns else df[day_col]
 
     df[date_col] = pd.to_datetime({"year": year, "month": month, "day": day})
     cols_to_drop = [x for x in [day_col, year_col, month_col] if x in df.columns]
-    df.drop(cols_to_drop, axis="columns", inplace=True)
+    df = df.drop(cols_to_drop, axis="columns")
 
     return df
 
@@ -1026,15 +1017,14 @@ def simplify_columns(df):
     # Do nothing, if empty dataframe (e.g. mocked for tests)
     if df.shape[0] == 0:
         return df
-    else:
-        df.columns = (
-            df.columns.str.replace(r"[^0-9a-zA-Z]+", " ", regex=True)
-            .str.strip()
-            .str.lower()
-            .str.replace(r"\s+", " ", regex=True)
-            .str.replace(" ", "_")
-        )
-        return df
+    df.columns = (
+        df.columns.str.replace(r"[^0-9a-zA-Z]+", " ", regex=True)
+        .str.strip()
+        .str.lower()
+        .str.replace(r"\s+", " ", regex=True)
+        .str.replace(" ", "_")
+    )
+    return df
 
 
 def drop_tables(engine: sa.engine.Engine, clobber: bool = False):
@@ -1153,12 +1143,13 @@ def convert_cols_dtypes(
     # columns to this nullable int type column. `utility_id_eia` shows up as a
     # column of strings (!) of numbers so it is an object column, and therefor
     # needs to be converted beforehand.
-    if "utility_id_eia" in df.columns:
-        # we want to be able to use this dtype cleaning at many stages, and
-        # sometimes this column has been converted to a float and therefor
-        # we need to skip this conversion
-        if df.utility_id_eia.dtypes is np.dtype("object"):
-            df = df.astype({"utility_id_eia": "float"})
+    # we want to be able to use this dtype cleaning at many stages, and
+    # sometimes this column has been converted to a float and therefore
+    # we need to skip this conversion
+    if "utility_id_eia" in df.columns and df.utility_id_eia.dtypes is np.dtype(
+        "object"
+    ):
+        df = df.astype({"utility_id_eia": "float"})
     df = (
         df.astype(non_bool_cols)
         .astype({col: "boolean" for col in bool_cols})
@@ -1369,16 +1360,14 @@ def zero_pad_numeric_string(
 def iterate_multivalue_dict(**kwargs):
     """Make dicts from dict with main dict key and one value of main dict."""
     single_valued = {
-        k: v
-        for k, v in kwargs.items()
-        if not (isinstance(v, list) or isinstance(v, tuple))
+        k: v for k, v in kwargs.items() if not (isinstance(v, list | tuple))
     }
 
     # Transform multi-valued {k: vlist} into {k1: [{k1: v1}, {k1: v2}, ...], k2: [...], ...}
     multi_valued = {
         k: [{k: v} for v in vlist]
         for k, vlist in kwargs.items()
-        if (isinstance(vlist, list) or isinstance(vlist, tuple))
+        if (isinstance(vlist, list | tuple))
     }
 
     for value_assignments in itertools.product(*multi_valued.values()):
@@ -1586,7 +1575,7 @@ def flatten_list(xs: Iterable) -> Generator:
     `here <https://stackoverflow.com/questions/2158395/flatten-an-irregular-arbitrarily-nested-list-of-lists>`__
     """
     for x in xs:
-        if isinstance(x, Iterable) and not isinstance(x, (str, bytes)):
+        if isinstance(x, Iterable) and not isinstance(x, str | bytes):
             yield from flatten_list(x)
         else:
             yield x

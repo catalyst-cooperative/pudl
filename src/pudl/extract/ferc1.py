@@ -68,6 +68,7 @@ https://data.catalyst.coop/ferc1
 """
 import json
 from itertools import chain
+from pathlib import Path
 from typing import Any, Literal
 
 import pandas as pd
@@ -333,8 +334,7 @@ class Ferc1DbfExtractor(FercDbfExtractor):
         """Deduplicates records in f1_respondent_id table."""
         if table_name == "f1_respondent_id":
             return deduplicate_by_year(dfs, "respondent_id")
-        else:
-            return super().aggregate_table_frames(table_name, dfs)
+        return super().aggregate_table_frames(table_name, dfs)
 
 
 ###########################################################################
@@ -407,7 +407,7 @@ def raw_xbrl_metadata_json(context) -> dict[str, dict[str, list[dict[str, Any]]]
         instead.
     """
     metadata_path = PudlPaths().output_dir / "ferc1_xbrl_taxonomy_metadata.json"
-    with open(metadata_path) as f:
+    with Path.open(metadata_path) as f:
         xbrl_meta_all = json.load(f)
 
     all_meta_tables = TABLE_NAME_MAP_FERC1 | XBRL_META_ONLY_FERC1
@@ -419,7 +419,7 @@ def raw_xbrl_metadata_json(context) -> dict[str, dict[str, list[dict[str, Any]]]
     }
 
     def squash_period(xbrl_table: str | list[str], period, xbrl_meta_all):
-        if type(xbrl_table) is str:
+        if isinstance(xbrl_table, str):
             xbrl_table = [xbrl_table]
         return [
             metadata

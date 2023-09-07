@@ -8,9 +8,8 @@ import fsspec
 import pandas as pd
 import yaml
 from dagster import Any, DagsterInvalidDefinitionError, Field
-from pydantic import AnyHttpUrl
+from pydantic import AnyHttpUrl, BaseSettings, root_validator, validator
 from pydantic import BaseModel as PydanticBaseModel
-from pydantic import BaseSettings, root_validator, validator
 
 import pudl
 import pudl.workspace.setup

@@ -65,7 +65,7 @@ WHERE table_name = ?
             gdf = gpd.read_postgis(
                 table_name, dp1_engine, geom_col=geom_col, crs=crs_auth_str
             )
-            gdf.rename_geometry("geometry", inplace=True)
+            gdf = gdf.rename_geometry("geometry")
 
             return gdf
 
