@@ -1929,10 +1929,10 @@ class DatasetteMetadata(Base):
     resources: list[Resource] = Package.from_resource_ids().resources
     xbrl_resources: dict[str, list[Resource]] = {}
     label_columns: dict[str, str] = {
-        "plants_entity_eia": "plant_name_eia",
+        "core_eia__entity_plants": "plant_name_eia",
         "plants_ferc1": "plant_name_ferc1",
         "plants_pudl": "plant_name_pudl",
-        "utilities_entity_eia": "utility_name_eia",
+        "core_eia__entity_utilities": "utility_name_eia",
         "utilities_ferc1": "utility_name_ferc1",
         "utilities_pudl": "utility_name_pudl",
     }

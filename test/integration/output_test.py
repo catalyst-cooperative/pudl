@@ -47,15 +47,15 @@ def test_nuclear_fraction(fast_out, df_name, expected_nuke_fraction, tolerance):
     "df_name",
     [
         "pu_ferc1",
-        "core_ferc1__yearly_fuel",
-        "core_ferc1__yearly_plants_steam",
+        "fuel_ferc1",
+        "plants_steam_ferc1",
         "fbp_ferc1",
         "plants_all_ferc1",
-        "core_ferc1__yearly_plants_hydro",
-        "core_ferc1__yearly_plants_pumped_storage",
-        "core_ferc1__yearly_plants_small",
-        "core_ferc1__yearly_purchased_power",
-        "core_ferc1__yearly_plant_in_service",
+        "plants_hydro_ferc1",
+        "plants_pumped_storage_ferc1",
+        "plants_small_ferc1",
+        "purchased_power_ferc1",
+        "plant_in_service_ferc1",
     ],
 )
 def test_ferc1_outputs(fast_out, df_name):
