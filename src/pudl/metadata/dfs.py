@@ -314,7 +314,7 @@ DE,Delaware,USA,United States of America,state,America/New_York,"10",South Atlan
 FL,Florida,USA,United States of America,state,America/New_York,"12",South Atlantic,SAT,South,1
 GA,Georgia,USA,United States of America,state,America/New_York,"13",South Atlantic,SAT,South,1
 GU,Guam,USA,United States of America,outlying_area,Pacific/Guam,"66",,,,0
-HI,Hawaii,USA,United States of America,state,Pacific/Honolulu,"15",Pacific Noncontiguous,PCN,West,0
+HI,Hawaii,USA,United States of America,state,Pacific/Honolulu,"15",Pacific Noncontiguous,PCN,West,1
 IA,Iowa,USA,United States of America,state,America/Chicago,"19",West North Central,WNC,Midwest,1
 ID,Idaho,USA,United States of America,state,America/Denver,"16",Mountain,MTN,West,1
 IL,Illinois,USA,United States of America,state,America/Chicago,"17",East North Central,ENC,Midwest,1
