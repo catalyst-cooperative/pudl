@@ -1,4 +1,5 @@
 """Generalized DBF extractor for FERC data."""
+import contextlib
 import csv
 import importlib.resources
 import zipfile
@@ -21,7 +22,7 @@ from pudl.workspace.datastore import Datastore
 logger = pudl.logging_helpers.get_logger(__name__)
 
 
-class DbcFileMissing(Exception):
+class DbcFileMissingError(Exception):
     """This is raised when the DBC index file is missing."""
 
     pass
@@ -121,7 +122,7 @@ class FercDbfArchive:
                     filedata=self.zipfile.open(self.dbc_path.as_posix()),
                 )
             except KeyError:
-                raise DbcFileMissing(
+                raise DbcFileMissingError(
                     f"DBC file {self.dbc_path} for {self.partition} is missing."
                 )
             table_names: dict[Any, str] = {}
@@ -480,13 +481,12 @@ class FercDbfExtractor:
 
     def delete_schema(self):
         """Drops all tables from the existing sqlite database."""
-        try:
+        with contextlib.suppress(sa.exc.OperationalError):
             pudl.helpers.drop_tables(
                 self.sqlite_engine,
                 clobber=self.clobber,
             )
-        except sa.exc.OperationalError:
-            pass
+
         self.sqlite_engine = sa.create_engine(self.get_db_path())
         self.sqlite_meta = sa.MetaData()
         self.sqlite_meta.reflect(self.sqlite_engine)

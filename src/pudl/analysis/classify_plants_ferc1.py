@@ -137,7 +137,7 @@ class FERCPlantClassifier(BaseEstimator, ClassifierMixin):
         for x in X:
             # Find the index associated with the record ID we are predicting
             # a grouping for:
-            idx = tmp_best[tmp_best.record_id == x].index.values[0]
+            idx = tmp_best[tmp_best.record_id == x].index.to_numpy()[0]
 
             # Mask the best_of dataframe, keeping only those entries where
             # the index of the chosen record_id appears -- this results in a
@@ -147,7 +147,7 @@ class FERCPlantClassifier(BaseEstimator, ClassifierMixin):
                 # Grab the index values of the rows in the masked dataframe which
                 # are NOT all NaN -- these are the indices of the *other* records
                 # which found the record x to be one of their best matches.
-                .dropna(how="all").index.values
+                .dropna(how="all").index.to_numpy()
             )
 
             # Now look up the indices of the records which were found to be
@@ -164,7 +164,7 @@ class FERCPlantClassifier(BaseEstimator, ClassifierMixin):
             # groupings be internally self-consistent, not that they are
             # completely identical. Being flexible on this dramatically
             # increases the number of records that get assigned a plant ID.
-            if np.array_equiv(w_m, b_m[b_m >= 0].values):
+            if np.array_equiv(w_m, b_m[b_m >= 0].to_numpy()):
                 # This line is causing a warning. In cases where there are
                 # some years no sufficiently good match exists, and so b_m
                 # doesn't contain an index. Instead, it has a -1 sentinel
@@ -178,7 +178,7 @@ class FERCPlantClassifier(BaseEstimator, ClassifierMixin):
                 # Stack the new list of record_ids on our output DataFrame:
                 out_dfs.append(
                     pd.DataFrame(
-                        data=new_grp.values.reshape(1, len(self._years)),
+                        data=new_grp.to_numpy().reshape(1, len(self._years)),
                         index=pd.Index(
                             [tmp_best.loc[idx, "record_id"]], name="seed_id"
                         ),
@@ -457,7 +457,7 @@ def plants_steam_assign_plant_ids(
     # its own independent "plant" for completeness, and use in aggregate
     # analysis.
     orphan_record_ids = np.setdiff1d(
-        ferc1_steam_df.record_id.unique(), record_groups.values.flatten()
+        ferc1_steam_df.record_id.unique(), record_groups.to_numpy().flatten()
     )
     logger.info(
         f"Identified {len(orphan_record_ids)} orphaned FERC plant records. "
@@ -513,8 +513,8 @@ def plants_steam_assign_plant_ids(
         .drop_duplicates()
         .sort_values(["plant_id_ferc1", "record_id"])
     )
-    steam_rids = ferc1_steam_df.record_id.values
-    pwids_rids = plants_w_ids.record_id.values
+    steam_rids = ferc1_steam_df.record_id.to_numpy()
+    pwids_rids = plants_w_ids.record_id.to_numpy()
     missing_ids = [rid for rid in steam_rids if rid not in pwids_rids]
     if missing_ids:
         raise AssertionError(
