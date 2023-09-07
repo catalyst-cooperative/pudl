@@ -4,7 +4,7 @@ FROM condaforge/mambaforge:23.3.1-1
 # awscli requires unzip, less, groff and mandoc
 # hadolint ignore=DL3008
 RUN apt-get update && \
-    apt-get install --no-install-recommends -y curl jq unzip less groff mandoc && \
+    apt-get install --no-install-recommends -y curl jq unzip less groff mandoc tar && \
     apt-get clean && \
     rm -rf /var/lib/apt/lists/*
 
@@ -18,8 +18,9 @@ RUN curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2
     ./aws/install
 # Install google cloud cli:
 RUN curl -O "https://dl.google.com/dl/cloudsdk/channels/rapid/downloads/google-cloud-cli-445.0.0-linux-x86_64.tar.gz" && \
-    tar -xf google-cloud-cli-445.0.0-linux-x86.tar.gz && \
-    ./google-cloud-sdk/install.sh --quiet
+    tar -xf google-cloud-cli-445.0.0-linux-x86_64.tar.gz && \
+    ./google-cloud-sdk/install.sh --quiet && \
+    rm -f ./google-cloud-cli-445.0.0-linux-x86_64.tar.gz
 
 # Create a non-root user inside the container
 # hadolint ignore=DL3059
