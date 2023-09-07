@@ -75,9 +75,11 @@ def test_dbf_to_xbrl_mapping_is_unique(dbf_table_name):
     )
     dbf_xbrl_map = dbf_xbrl_map[dbf_xbrl_map.xbrl_factoid != "HEADER_ROW"]
     dbf_to_xbrl_mapping_is_unique = (
-        dbf_xbrl_map.groupby(["report_year", "xbrl_factoid"])["row_number"].nunique()
-        <= 1
-    ).all()
+        dbf_xbrl_map.groupby(["report_year", "xbrl_factoid"])["row_number"]
+        .nunique()
+        .le(1)
+        .all()
+    )
 
     assert dbf_to_xbrl_mapping_is_unique  # nosec: B101
 
@@ -261,7 +263,7 @@ report_year,start_date,end_date,values
 
     fake_transformer = FakeTransformer()
     df_out = fake_transformer.select_current_year_annual_records_duration_xbrl(df=df)
-    df_expected = df[df.values == "good"].astype(
+    df_expected = df[df.to_numpy() == "good"].astype(
         {"start_date": "datetime64[s]", "end_date": "datetime64[s]"}
     )
     pd.testing.assert_frame_equal(df_out, df_expected)
@@ -645,7 +647,7 @@ table_a,fact_3,voyager,total
             calc_components=calc_comps_trek,
             table_dimensions=table_dimensions_same_trek,
             dimensions=["dim_x", "dim_y"],
-        )[[col for col in expected_parent_dim_trek]]
+        )[list(expected_parent_dim_trek)]
         .sort_values(calc_comp_idx)
         .reset_index(drop=True)
     )
@@ -676,7 +678,7 @@ table_a,fact_3,voyager,total,table_a,fact_3,voyager,nebula,True,False
         meta_w_dims=table_dimensions_same_trek,
         table_dimensions=table_dimensions_same_trek,
         dimensions=["dim_x", "dim_y"],
-    )[[col for col in expected_total_to_subdim]]
+    )[list(expected_total_to_subdim)]
 
     pd.testing.assert_frame_equal(
         out_total_to_subdim.convert_dtypes(), expected_total_to_subdim.convert_dtypes()
@@ -778,7 +780,7 @@ electric_plant_depreciation_functional_ferc1,accumulated_depreciation,electric,f
     )
     pd.testing.assert_frame_equal(
         calc_components_w_totals_expected,
-        calc_components_w_totals[[col for col in calc_components_w_totals_expected]]
+        calc_components_w_totals[list(calc_components_w_totals_expected)]
         .sort_values(
             by=list(calc_components_w_totals_expected.columns), ascending=False
         )

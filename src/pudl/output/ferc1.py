@@ -1417,11 +1417,10 @@ class Exploder:
         ]
         if calculations_intertable.empty:
             return exploded
-        else:
-            logger.info(
-                f"{self.root_table}: Reconcile inter-table calculations: "
-                f"{list(calculations_intertable.xbrl_factoid.unique())}."
-            )
+        logger.info(
+            f"{self.root_table}: Reconcile inter-table calculations: "
+            f"{list(calculations_intertable.xbrl_factoid.unique())}."
+        )
         # compile the lists of columns we are going to use later
         calc_component_idx = ["table_name", "xbrl_factoid"] + self.other_dimensions
         # Merge the reported data and the calculation component metadata to enable
@@ -2210,10 +2209,7 @@ class XbrlCalculationForestFerc1(BaseModel):
     def plot_graph(self: Self, graph: nx.DiGraph) -> None:
         """Visualize a CalculationForest graph."""
         colors = ["red", "yellow", "green", "blue", "orange", "cyan", "purple"]
-        color_map = {
-            table: color
-            for table, color in zip(self.table_names, colors[: len(self.table_names)])
-        }
+        color_map = dict(zip(self.table_names, colors[: len(self.table_names)]))
 
         pos = graphviz_layout(graph, prog="dot", args='-Grankdir="LR"')
         for table, color in color_map.items():

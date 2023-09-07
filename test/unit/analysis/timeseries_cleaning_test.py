@@ -24,6 +24,7 @@ def simulate_series(
         amplitude_range: Range of amplitudes.
         offset_range: Range of offsets.
         shift_range: Range of phase shifts (by number of values).
+        seed: Random number generator seed to ensure deterministic tests.
 
     Returns:
         Multivariate series with shape (`periods * frequency`, `n`).
