@@ -16,7 +16,7 @@ import pudl
 from pudl import resources
 from pudl.cli.etl import pudl_etl_job_factory
 from pudl.extract.ferc1 import raw_xbrl_metadata_json
-from pudl.extract.xbrl import FercXbrlDatastore, _get_sqlite_engine
+from pudl.extract.xbrl import FercXbrlDatastore
 from pudl.ferc_to_sqlite.cli import ferc_to_sqlite_job_factory
 from pudl.io_managers import (
     ferc1_dbf_sqlite_io_manager,
@@ -285,15 +285,12 @@ def ferc_xbrl(
         for form in XbrlFormNumber:
             raw_archive, taxonomy_entry_point = datastore.get_taxonomy(year, form)
 
-            sqlite_engine = _get_sqlite_engine(form.value, True)
-
             form_settings = ferc_to_sqlite_settings.get_xbrl_dataset_settings(form)
 
             # Extract every fifth filing
             filings_subset = datastore.get_filings(year, form)[::step_size]
             xbrl.extract(
                 filings_subset,
-                sqlite_engine,
                 raw_archive,
                 form.value,
                 requested_tables=form_settings.tables,
