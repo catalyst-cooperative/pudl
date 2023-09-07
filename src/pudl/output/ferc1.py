@@ -2378,7 +2378,7 @@ class XbrlCalculationForestFerc1(BaseModel):
                 f"AHH! We have {merge_vc.right_only} next level nodes that we couldn't "
                 "match up to parents."
             )
-        forest_as_table_n.drop(columns=["_merge"], inplace=True)
+        forest_as_table_n = forest_as_table_n.drop(columns=["_merge"])
         return pd.concat(
             [forest_as_table_n, forest_as_table[null_level_mask]]
         ).reset_index(drop=True)
