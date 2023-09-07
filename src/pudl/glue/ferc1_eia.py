@@ -255,11 +255,11 @@ def get_plants_ferc1_raw_job() -> JobDefinition:
     This job expects ferc1.sqlite and ferc_xbrl.sqlite databases to be populated.
     """
     plant_tables = [
-        "plants_hydro_ferc1",
-        "plants_small_ferc1",
-        "plants_pumped_storage_ferc1",
-        "plants_steam_ferc1",
-        "fuel_ferc1",  # bc it has plants/is associated w/ the steam table
+        "core_ferc1__yearly_plants_hydro",
+        "core_ferc1__yearly_plants_small",
+        "core_ferc1__yearly_plants_pumped_storage",
+        "core_ferc1__yearly_plants_steam",
+        "core_ferc1__yearly_fuel",  # bc it has plants/is associated w/ the steam table
     ]
 
     @asset(ins={table_name: AssetIn() for table_name in plant_tables})
@@ -412,7 +412,7 @@ def label_utilities_ferc1_xbrl(
 def get_utility_most_recent_capacity(pudl_engine) -> pd.DataFrame:
     """Calculate total generation capacity by utility in most recent reported year."""
     gen_caps = pd.read_sql(
-        "SELECT utility_id_eia, capacity_mw, report_date FROM generators_eia860",
+        "SELECT utility_id_eia, capacity_mw, report_date FROM core_eia860__scd_generators",
         con=pudl_engine,
         parse_dates=["report_date"],
     )

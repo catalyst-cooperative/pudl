@@ -105,7 +105,7 @@ def convert_to_utc(df: pd.DataFrame, plant_utc_offset: pd.DataFrame) -> pd.DataF
         on="plant_id_eia",
     )
 
-    # Some of the timezones in the plants_entity_eia table may be missing,
+    # Some of the timezones in the core_eia__entity_plants table may be missing,
     # but none of the CEMS plants should be.
     if df["utc_offset"].isna().any():
         missing_plants = df.loc[df["utc_offset"].isna(), "plant_id_eia"].unique()
@@ -128,7 +128,7 @@ def convert_to_utc(df: pd.DataFrame, plant_utc_offset: pd.DataFrame) -> pd.DataF
     return df
 
 
-def _load_plant_utc_offset(plants_entity_eia: pd.DataFrame) -> pd.DataFrame:
+def _load_plant_utc_offset(core_eia__entity_plants: pd.DataFrame) -> pd.DataFrame:
     """Load the UTC offset each EIA plant.
 
     CEMS times don't change for DST, so we get the UTC offset by using the
@@ -139,9 +139,9 @@ def _load_plant_utc_offset(plants_entity_eia: pd.DataFrame) -> pd.DataFrame:
             an existing PUDL DB.
 
     Returns:
-        Dataframe of applicable timezones taken from the plants_entity_eia table.
+        Dataframe of applicable timezones taken from the core_eia__entity_plants table.
     """
-    timezones = plants_entity_eia[["plant_id_eia", "timezone"]].copy().dropna()
+    timezones = core_eia__entity_plants[["plant_id_eia", "timezone"]].copy().dropna()
     jan1 = datetime.datetime(2011, 1, 1)  # year doesn't matter
     timezones["utc_offset"] = timezones["timezone"].apply(
         lambda tz: pytz.timezone(tz).localize(jan1).utcoffset()
@@ -174,7 +174,7 @@ def correct_gross_load_mw(df: pd.DataFrame) -> pd.DataFrame:
 def transform(
     raw_df: pd.DataFrame,
     epacamd_eia: pd.DataFrame,
-    plants_entity_eia: pd.DataFrame,
+    core_eia__entity_plants: pd.DataFrame,
 ) -> pd.DataFrame:
     """Transform EPA CEMS hourly data and ready it for export to Parquet.
 
@@ -192,7 +192,8 @@ def transform(
         .pipe(remove_leading_zeros_from_numeric_strings, "emissions_unit_id_epa")
         .pipe(harmonize_eia_epa_orispl, epacamd_eia)
         .pipe(
-            convert_to_utc, plant_utc_offset=_load_plant_utc_offset(plants_entity_eia)
+            convert_to_utc,
+            plant_utc_offset=_load_plant_utc_offset(core_eia__entity_plants),
         )
         .pipe(correct_gross_load_mw)
         .pipe(apply_pudl_dtypes, group="epacems")

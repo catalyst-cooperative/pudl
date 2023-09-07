@@ -19,7 +19,7 @@ as we come across them again in maintaining the code.
 * When dataframe outputs are built from multiple tables, identify the type of
   information being pulled (e.g. "plants") and the source of the tables (e.g.
   ``eia`` or ``ferc1``). When outputs are built from a single table, simply use
-  the table name (e.g. ``boiler_fuel_eia923``).
+  the table name (e.g. ``core_eia923__monthly_boiler_fuel``).
 
 .. _glossary:
 
@@ -89,7 +89,7 @@ Output Functions
 When dataframe outputs are built from multiple tables, identify the type of
 information being pulled (e.g. ``plants``) and the source of the tables (e.g.
 ``eia`` or ``ferc1``). When outputs are built from a single table, simply use
-the table name (e.g. ``boiler_fuel_eia923``).
+the table name (e.g. ``core_eia923__monthly_boiler_fuel``).
 
 Table Names
 -----------

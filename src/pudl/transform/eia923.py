@@ -85,7 +85,7 @@ def _get_plant_nuclear_unit_id_map(nuc_fuel: pd.DataFrame) -> dict[int, str]:
 def _backfill_nuclear_unit_id(nuc_fuel: pd.DataFrame) -> pd.DataFrame:
     """Backfill 2001 and 2002 nuclear_unit_id for plants with one nuclear unit.
 
-    2001 and 2002 generation_fuel_eia923 records do not include nuclear_unit_id which is
+    2001 and 2002 core_eia923__monthly_generation_fuel records do not include nuclear_unit_id which is
     required for the primary key of nuclear_unit_fuel_eia923. We backfill this field for
     plants with one nuclear unit. nuclear_unit_id is filled with 'UNK' if the
     nuclear_unit_id can't be recovered.
@@ -158,7 +158,7 @@ def _get_plant_prime_mover_map(gen_fuel: pd.DataFrame) -> dict[int, str]:
 def _backfill_prime_mover_code(gen_fuel: pd.DataFrame) -> pd.DataFrame:
     """Backfill 2001 and 2002 prime_mover_code for plants with one prime mover.
 
-    2001 and 2002 generation_fuel_eia923 records do not include prime_mover_code
+    2001 and 2002 core_eia923__monthly_generation_fuel records do not include prime_mover_code
     which is required for the primary key. We backfill this field for plants
     with one prime mover. prime_mover_code is set to 'UNK' if future plants
     have multiple prime movers.
@@ -254,7 +254,7 @@ def _clean_gen_fuel_energy_sources(gen_fuel: pd.DataFrame) -> pd.DataFrame:
         }
     )
     # plant 10204 should be waste heat instead of other. Fixes a mismatch between energy
-    # source # codes reported in generators_eia860 and the boiler_fuel_eia860 tables.
+    # source # codes reported in core_eia860__scd_generators and the boiler_fuel_eia860 tables.
     gen_fuel.loc[
         (gen_fuel["plant_id_eia"] == 10204) & (gen_fuel["energy_source_code"] == "OTH"),
         "energy_source_code",
@@ -426,11 +426,11 @@ def _yearly_to_monthly_records(df: pd.DataFrame) -> pd.DataFrame:
 
 
 def _coalmine_cleanup(cmi_df: pd.DataFrame) -> pd.DataFrame:
-    """Clean up the coalmine_eia923 table.
+    """Clean up the core_eia923__entity_coalmine table.
 
-    This function does most of the coalmine_eia923 table transformation. It is separate
+    This function does most of the core_eia923__entity_coalmine table transformation. It is separate
     from the coalmine() transform function because of the peculiar way that we are
-    normalizing the ref:`fuel_receipts_costs_eia923` table.
+    normalizing the ref:`core_eia923__monthly_fuel_receipts_costs` table.
 
     All of the coalmine information is originally coming from the EIA
     fuel_receipts_costs spreadsheet, but it really belongs in its own table. We strip it
@@ -484,7 +484,7 @@ def _coalmine_cleanup(cmi_df: pd.DataFrame) -> pd.DataFrame:
     cmi_df["county_id_fips"] = cmi_df["state_id_fips"] + cmi_df["county_id_fips"]
     cmi_df = (
         pudl.metadata.classes.Package.from_resource_ids()
-        .get_resource("coalmine_eia923")
+        .get_resource("core_eia923__entity_coalmine")
         .encode(cmi_df)
     )
     return cmi_df
@@ -559,7 +559,7 @@ def plants_eia923(eia923_dfs, eia923_transformed_dfs):
 
 
 def gen_fuel_nuclear(gen_fuel_nuke: pd.DataFrame) -> pd.DataFrame:
-    """Transforms the generation_fuel_nuclear_eia923 table.
+    """Transforms the core_eia923__monthly_generation_fuel_nuclear table.
 
     Transformations include:
 
@@ -597,7 +597,7 @@ def gen_fuel_nuclear(gen_fuel_nuke: pd.DataFrame) -> pd.DataFrame:
     },
 )
 def _core_eia_923__generation_fuel_eia923(raw_eia923__generation_fuel: pd.DataFrame):
-    """Transforms the generation_fuel_eia923 table.
+    """Transforms the raw_eia923__generation_fuel table.
 
     Transformations include:
 
@@ -616,13 +616,13 @@ def _core_eia_923__generation_fuel_eia923(raw_eia923__generation_fuel: pd.DataFr
         raw_eia923__generation_fuel: The raw ``raw_eia923__generation_fuel`` dataframe.
 
     Returns:
-        _core_eia923__generation_fuel: Cleaned ``generation_fuel_eia923`` dataframe ready for harvesting.
-        _core_eia923__generation_fuel_nuclear: Cleaned ``generation_fuel_nuclear_eia923`` dataframe ready for harvesting.
+        _core_eia923__generation_fuel: Cleaned ``eia923__generation_fuel`` dataframe ready for harvesting.
+        _core_eia923__generation_fuel_nuclear: Cleaned ``eia923__generation_fuel_nuclear`` dataframe ready for harvesting.
     """
     # This needs to be a copy of what we're passed in so we can edit it.
     gen_fuel = raw_eia923__generation_fuel
 
-    # Drop fields we're not inserting into the generation_fuel_eia923 table.
+    # Drop fields we're not inserting into the _core_eia923__generation_fuel table.
     cols_to_drop = [
         "combined_heat_power",
         "plant_name_eia",
@@ -663,7 +663,7 @@ def _core_eia_923__generation_fuel_eia923(raw_eia923__generation_fuel: pd.DataFr
 
     gen_fuel = (
         pudl.metadata.classes.Package.from_resource_ids()
-        .get_resource("generation_fuel_eia923")
+        .get_resource("core_eia923__monthly_generation_fuel")
         .encode(gen_fuel)
     )
 
@@ -747,7 +747,7 @@ def _map_prime_mover_sets(prime_mover_set: np.ndarray) -> str:
 def _aggregate_duplicate_boiler_fuel_keys(boiler_fuel_df: pd.DataFrame) -> pd.DataFrame:
     """Combine boiler_fuel rows with duplicate keys by aggregating them.
 
-    Boiler_fuel_eia923 contains a few records with duplicate keys, mostly caused by
+    core_eia923__monthly_boiler_fuel contains a few records with duplicate keys, mostly caused by
     CA and CT parts of combined cycle plants being mapped to the same boiler ID.
     This is most likely a data entry error. See GitHub issue #852
 
@@ -816,7 +816,7 @@ def _aggregate_duplicate_boiler_fuel_keys(boiler_fuel_df: pd.DataFrame) -> pd.Da
 
 @asset
 def _core_eia923__boiler_fuel(raw_eia923__boiler_fuel: pd.DataFrame) -> pd.DataFrame:
-    """Transforms the boiler_fuel_eia923 table.
+    """Transforms the core_eia923__monthly_boiler_fuel table.
 
     Transformations include:
 
@@ -831,7 +831,7 @@ def _core_eia923__boiler_fuel(raw_eia923__boiler_fuel: pd.DataFrame) -> pd.DataF
         raw_eia923__boiler_fuel: The raw ``raw_eia923__boiler_fuel`` dataframe.
 
     Returns:
-        Cleaned ``boiler_fuel_eia923`` dataframe ready for harvesting.
+        Cleaned ``core_eia923__monthly_boiler_fuel`` dataframe ready for harvesting.
     """
     bf_df = raw_eia923__boiler_fuel
 
@@ -867,7 +867,7 @@ def _core_eia923__boiler_fuel(raw_eia923__boiler_fuel: pd.DataFrame) -> pd.DataF
 
     bf_df = (
         pudl.metadata.classes.Package.from_resource_ids()
-        .get_resource("boiler_fuel_eia923")
+        .get_resource("core_eia923__monthly_boiler_fuel")
         .encode(bf_df)
     )
 
@@ -885,7 +885,7 @@ def _core_eia923__boiler_fuel(raw_eia923__boiler_fuel: pd.DataFrame) -> pd.DataF
 
 
 def remove_duplicate_pks_boiler_fuel_eia923(bf: pd.DataFrame) -> pd.DataFrame:
-    """Deduplicate on primary keys for :ref:`boiler_fuel_eia923`.
+    """Deduplicate on primary keys for :ref:`core_eia923__monthly_boiler_fuel`.
 
     There are a relatively small number of records ~5% from the boiler fuel table that
     have duplicate records based on what we believe is this table's primary keys.
@@ -903,7 +903,7 @@ def remove_duplicate_pks_boiler_fuel_eia923(bf: pd.DataFrame) -> pd.DataFrame:
     """
     pk = (
         pudl.metadata.classes.Package.from_resource_ids()
-        .get_resource("boiler_fuel_eia923")
+        .get_resource("core_eia923__monthly_boiler_fuel")
         .schema.primary_key
     )
 
@@ -930,7 +930,7 @@ def remove_duplicate_pks_boiler_fuel_eia923(bf: pd.DataFrame) -> pd.DataFrame:
         ]
     ).empty:
         raise AssertionError(
-            f"There are ({len(pk_dupes)}) boiler_fuel_eia923 records with "
+            f"There are ({len(pk_dupes)}) core_eia923__monthly_boiler_fuel records with "
             "duplicate primary keys after cleaning - expected 0."
         )
     return pd.concat([bf[~pk_dupe_mask], bf_no_null_pks_dupes])
@@ -938,7 +938,7 @@ def remove_duplicate_pks_boiler_fuel_eia923(bf: pd.DataFrame) -> pd.DataFrame:
 
 @asset
 def _core_eia923__generation(raw_eia923__generator: pd.DataFrame) -> pd.DataFrame:
-    """Transforms the generation_eia923 table.
+    """Transforms the EIA 923 generation table.
 
     Transformations include:
 
@@ -951,7 +951,7 @@ def _core_eia923__generation(raw_eia923__generator: pd.DataFrame) -> pd.DataFram
         raw_eia923__generator: The raw ``raw_eia923__generator`` dataframe.
 
     Returns:
-        Cleaned ``generation_eia923`` dataframe ready for harvesting.
+        Cleaned ``_core_eia923__generation`` dataframe ready for harvesting.
     """
     gen_df = (
         raw_eia923__generator.dropna(subset=["generator_id"])
@@ -995,7 +995,7 @@ def _core_eia923__generation(raw_eia923__generator: pd.DataFrame) -> pd.DataFram
 
     gen_df = (
         pudl.metadata.classes.Package.from_resource_ids()
-        .get_resource("generation_eia923")
+        .get_resource("core_eia923__monthly_generation")
         .encode(gen_df)
     )
 
@@ -1006,7 +1006,7 @@ def _core_eia923__generation(raw_eia923__generator: pd.DataFrame) -> pd.DataFram
 def _core_eia923__coalmine(
     raw_eia923__fuel_receipts_costs: pd.DataFrame,
 ) -> pd.DataFrame:
-    """Transforms the coalmine_eia923 table.
+    """Transforms the raw_eia923__fuel_receipts_costs table.
 
     Transformations include:
 
@@ -1015,10 +1015,10 @@ def _core_eia923__coalmine(
 
     Args:
         raw_eia923__fuel_receipts_costs: raw precursor to the
-            :ref:`fuel_receipts_costs_eia923` table.
+            :ref:`core_eia923__monthly_fuel_receipts_costs` table.
 
     Returns:
-        Cleaned ``coalmine_eia923`` dataframe ready for harvesting.
+        Cleaned ``_core_eia923__coalmine`` dataframe ready for harvesting.
     """
     # These are the columns that we want to keep from FRC for the
     # coal mine info table.
@@ -1076,7 +1076,7 @@ def _core_eia923__coalmine(
 
     cmi_df = (
         pudl.metadata.classes.Package.from_resource_ids()
-        .get_resource("coalmine_eia923")
+        .get_resource("core_eia923__entity_coalmine")
         .encode(cmi_df)
     )
 
@@ -1087,7 +1087,7 @@ def _core_eia923__coalmine(
 def _core_eia923__fuel_receipts_costs(
     raw_eia923__fuel_receipts_costs: pd.DataFrame, _core_eia923__coalmine: pd.DataFrame
 ) -> pd.DataFrame:
-    """Transforms the fuel_receipts_costs_eia923 dataframe.
+    """Transforms the eia923__fuel_receipts_costs dataframe.
 
     Transformations include:
 
@@ -1101,14 +1101,14 @@ def _core_eia923__fuel_receipts_costs(
 
     Args:
         raw_eia923__fuel_receipts_costs: The raw ``raw_eia923__fuel_receipts_costs`` dataframe.
-        _core_eia923__coalmine: The cleaned pre-harvest ``coalmine_eia923`` dataframe.
+        _core_eia923__coalmine: The cleaned pre-harvest EIA 923 coal mine dataframe.
 
     Returns:
-        Cleaned ``fuel_receipts_costs_eia923`` dataframe ready for harvesting.
+        Cleaned ``eia923__fuel_receipts_costs`` dataframe ready for harvesting.
     """
     frc_df = raw_eia923__fuel_receipts_costs
 
-    # Drop fields we're not inserting into the fuel_receipts_costs_eia923
+    # Drop fields we're not inserting into the eia923__fuel_receipts_costs
     # table.
     cols_to_drop = [
         "plant_name_eia",
@@ -1135,7 +1135,7 @@ def _core_eia923__fuel_receipts_costs(
     )
 
     # This type/naming cleanup function is separated out so that we can be
-    # sure it is applied exactly the same both when the coalmine_eia923 table
+    # sure it is applied exactly the same both when the core_eia923__entity_coalmine table
     # is populated, and here (since we need them to be identical for the
     # following merge)
     frc_df = (
@@ -1202,7 +1202,7 @@ def _core_eia923__fuel_receipts_costs(
     )
     frc_df = (
         pudl.metadata.classes.Package.from_resource_ids()
-        .get_resource("fuel_receipts_costs_eia923")
+        .get_resource("core_eia923__monthly_fuel_receipts_costs")
         .encode(frc_df)
     )
     frc_df["fuel_type_code_pudl"] = frc_df.energy_source_code.map(

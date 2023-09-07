@@ -2,7 +2,7 @@
 from typing import Any
 
 RESOURCE_METADATA: dict[str, dict[str, Any]] = {
-    "boilers_eia860": {
+    "core_eia860__scd_boilers": {
         "description": (
             "Annually varying boiler attributes, compiled from across all EIA-860 data."
         ),
@@ -104,11 +104,11 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
             "foreign_key_rules": {
                 "fields": [["plant_id_eia", "boiler_id", "report_date"]],
                 # TODO: Excluding monthly data tables since their report_date
-                # values don't match up with generators_eia860, which is annual,
+                # values don't match up with core_eia860__scd_generators, which is annual,
                 # so non-january records violate the constraint.
                 # See: https://github.com/catalyst-cooperative/pudl/issues/1196
                 "exclude": [
-                    "boiler_fuel_eia923",
+                    "core_eia923__monthly_boiler_fuel",
                     "denorm_boiler_fuel_eia923",
                     "denorm_boiler_fuel_monthly_eia923",
                 ],
@@ -118,7 +118,7 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
         "sources": ["eia860", "eia923"],
         "etl_group": "eia860",
     },
-    "boiler_generator_assn_eia860": {
+    "core_eia860__assn_boiler_generator": {
         "description": (
             "Associations between boilers and generators as reported in EIA-860 "
             "Schedule 6, Part A. Augmented with various heuristics within PUDL."
@@ -142,7 +142,7 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
         "sources": ["eia860", "eia923"],
         "etl_group": "eia860",
     },
-    "generators_eia860": {
+    "core_eia860__scd_generators": {
         "description": (
             "Annually varying generator attributes compiled from across EIA-860 and "
             "EIA-923 data."
@@ -223,20 +223,20 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
             "foreign_key_rules": {
                 "fields": [["plant_id_eia", "generator_id", "report_date"]],
                 # TODO: Excluding monthly data tables since their report_date
-                # values don't match up with generators_eia860, which is annual,
+                # values don't match up with core_eia860__scd_generators, which is annual,
                 # so non-january records violate the constraint.
                 # See: https://github.com/catalyst-cooperative/pudl/issues/1196
                 "exclude": [
-                    "boiler_fuel_eia923",
+                    "core_eia923__monthly_boiler_fuel",
                     "capacity_factor_by_generator_monthly",
                     "denorm_generation_eia923",
                     "denorm_generation_monthly_eia923",
                     "fuel_cost_by_generator_monthly",
-                    "fuel_receipts_costs_eia923",
-                    "generation_eia923",
+                    "core_eia923__monthly_fuel_receipts_costs",
+                    "core_eia923__monthly_generation",
                     "generation_fuel_by_generator_energy_source_monthly_eia923",
                     "generation_fuel_by_generator_monthly_eia923",
-                    "generation_fuel_eia923",
+                    "core_eia923__monthly_generation_fuel",
                     "heat_rate_by_generator_monthly",
                     "mcoe_monthly",
                     "mcoe_generators_monthly",
@@ -247,7 +247,7 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
         "sources": ["eia860", "eia923"],
         "etl_group": "eia860",
     },
-    "ownership_eia860": {
+    "core_eia860__scd_ownership": {
         "description": (
             "Generator Ownership, reported in EIA-860 Schedule 4. Includes only "
             "jointly or third-party owned generators."
@@ -316,7 +316,7 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
         "sources": ["eia860"],
         "etl_group": "outputs",
     },
-    "plants_eia860": {
+    "core_eia860__scd_plants": {
         "description": (
             "Annually varying plant attributes, compiled from across all EIA-860 and "
             "EIA-923 data."
@@ -369,11 +369,11 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
             "foreign_key_rules": {
                 "fields": [["plant_id_eia", "report_date"]],
                 # TODO: Excluding monthly data tables since their report_date
-                # values don't match up with plants_eia860, which is annual, so
+                # values don't match up with core_eia860__scd_plants, which is annual, so
                 # non-january records fail.
                 # See: https://github.com/catalyst-cooperative/pudl/issues/1196
                 "exclude": [
-                    "boiler_fuel_eia923",
+                    "core_eia923__monthly_boiler_fuel",
                     "denorm_boiler_fuel_eia923",
                     "denorm_boiler_fuel_monthly_eia923",
                     "denorm_fuel_receipts_costs_eia923",
@@ -384,10 +384,10 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
                     "denorm_generation_fuel_combined_monthly_eia923",
                     "generation_fuel_by_generator_energy_source_monthly_eia923",
                     "generation_fuel_by_generator_monthly_eia923",
-                    "fuel_receipts_costs_eia923",
-                    "generation_eia923",
-                    "generation_fuel_eia923",
-                    "generation_fuel_nuclear_eia923",
+                    "core_eia923__monthly_fuel_receipts_costs",
+                    "core_eia923__monthly_generation",
+                    "core_eia923__monthly_generation_fuel",
+                    "core_eia923__monthly_generation_fuel_nuclear",
                     "heat_rate_by_unit_monthly",
                     "heat_rate_by_generator_monthly",
                     "fuel_cost_by_generator_monthly",
@@ -401,7 +401,7 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
         "sources": ["eia860", "eia923"],
         "etl_group": "eia860",
     },
-    "utilities_eia860": {
+    "core_eia860__scd_utilities": {
         "description": (
             "Annually varying utility attributes, compiled from all EIA data."
         ),
@@ -443,7 +443,7 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
                     # ["owner_utility_id_eia", "report_date"],
                 ],
                 # TODO: Excluding monthly data tables since their report_date
-                # values don't match up with plants_eia860, which is annual, so
+                # values don't match up with core_eia860__scd_plants, which is annual, so
                 # non-january records fail.
                 # See: https://github.com/catalyst-cooperative/pudl/issues/1196
                 # NOTE: EIA-861 has not gone through harvesting / normalization yet.
@@ -468,7 +468,7 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
                     "generation_fuel_by_generator_energy_source_monthly_eia923",
                     "generation_fuel_by_generator_monthly_eia923",
                     # Utility IDs in this table are owners, not operators, and we are
-                    # not yet harvesting owner_utility_id_eia from ownership_eia860.
+                    # not yet harvesting owner_utility_id_eia from core_eia860__scd_ownership.
                     # See https://github.com/catalyst-cooperative/pudl/issues/1393
                     "generation_fuel_by_generator_energy_source_owner_yearly_eia923",
                     "distributed_generation_fuel_eia861",
@@ -503,7 +503,7 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
         "sources": ["eia860", "eia923"],
         "etl_group": "eia860",
     },
-    "emissions_control_equipment_eia860": {
+    "core_eia860__scd_emissions_control_equipment": {
         "description": (
             """The cost, type, operating status, retirement date, and install year of
 emissions control equipment reported to EIA. Includes control ids for sulfur dioxide
@@ -571,7 +571,7 @@ columns.
         "sources": ["eia860"],
         "etl_group": "eia860",
     },
-    "boiler_emissions_control_equipment_assn_eia860": {
+    "core_eia860__annual_boiler_emissions_control_equipment_assn": {
         "description": (
             """A table that links EIA boiler IDs to emissions control IDs for NOx, SO2,
 mercury, and particulate monitoring. The relationship between the IDs is sometimes many
@@ -599,7 +599,7 @@ to many.
         "sources": ["eia860"],
         "etl_group": "eia860",
     },
-    "boiler_cooling_assn_eia860": {
+    "core_eia860__assn_boiler_cooling": {
         "description": "A table that links EIA boiler IDs to EIA cooling system IDs.",
         "schema": {
             "fields": [
@@ -620,7 +620,7 @@ to many.
         "sources": ["eia860"],
         "etl_group": "eia860",
     },
-    "boiler_stack_flue_assn_eia860": {
+    "core_eia860__assn_boiler_stack_flue": {
         "description": (
             """A table that links EIA boiler IDs to EIA stack and/or flue
 system IDs.

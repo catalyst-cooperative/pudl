@@ -340,7 +340,7 @@ def _compile_all_entity_records(
     # encode the compiled options!
     compiled_df = (
         pudl.metadata.classes.Package.from_resource_ids()
-        .get_resource(f"{entity.value}_eia860")
+        .get_resource(f"core_eia860__scd_{entity.value}")
         .encode(compiled_df)
     )
     return compiled_df
@@ -566,9 +566,9 @@ def harvest_entity_tables(  # noqa: C901
 
     # Apply standard PUDL data types to the new entity tables:
     pkg = Package.from_resource_ids()
-    entity_res = pkg.get_resource(f"{entity.value}_entity_eia")
+    entity_res = pkg.get_resource(f"core_eia__entity_{entity.value}")
     entity_df = apply_pudl_dtypes(entity_df, group="eia").pipe(entity_res.encode)
-    annual_res = pkg.get_resource(f"{entity.value}_eia860")
+    annual_res = pkg.get_resource(f"core_eia860__scd_{entity.value}")
     annual_df = apply_pudl_dtypes(annual_df, group="eia").pipe(annual_res.encode)
 
     if entity == EiaEntity.PLANTS:
@@ -606,7 +606,9 @@ def harvest_entity_tables(  # noqa: C901
     required_resource_keys={"dataset_settings"},
     io_manager_key="pudl_sqlite_io_manager",
 )
-def boiler_generator_assn_eia860(context, **clean_dfs) -> pd.DataFrame:  # noqa: C901
+def core_eia860__assn_boiler_generator(
+    context, **clean_dfs
+) -> pd.DataFrame:  # noqa: C901
     """Creates a set of more complete boiler generator associations.
 
     Creates a unique unit_id_pudl for each collection of boilers and generators
@@ -657,7 +659,7 @@ def boiler_generator_assn_eia860(context, **clean_dfs) -> pd.DataFrame:  # noqa:
     logger.info("Inferring complete EIA boiler-generator associations.")
     logger.debug(f"{clean_dfs.keys()=}")
 
-    # grab the generation_eia923 table, group annually, generate a new tag
+    # grab the core_eia923__monthly_generation table, group annually, generate a new tag
     gen_eia923 = clean_dfs["_core_eia923__generation"]
     gen_eia923 = (
         gen_eia923.set_index(pd.DatetimeIndex(gen_eia923.report_date))
@@ -1152,15 +1154,15 @@ def harvested_entity_asset_factory(
         "_core_eia860__utilities",
         "_core_eia860__emissions_control_equipment",
         "_core_eia860__boiler_emissions_control_equipment_assn",
-        "_core_eia860__boiler_cooling_assn",
-        "_core_eia860__boiler_stack_flue_assn",
+        "_core_eia860__boiler_cooling",
+        "_core_eia860__boiler_stack_flue",
     )
 
     @multi_asset(
         ins={table_name: AssetIn() for table_name in harvestable_assets},
         outs={
-            f"{entity.value}_entity_eia": AssetOut(io_manager_key=io_manager_key),
-            f"{entity.value}_eia860": AssetOut(io_manager_key=io_manager_key),
+            f"core_eia__entity_{entity.value}": AssetOut(io_manager_key=io_manager_key),
+            f"core_eia860__scd_{entity.value}": AssetOut(io_manager_key=io_manager_key),
         },
         config_schema={
             "debug": Field(
@@ -1186,8 +1188,8 @@ def harvested_entity_asset_factory(
         )
 
         return (
-            Output(output_name=f"{entity.value}_entity_eia", value=entity_df),
-            Output(output_name=f"{entity.value}_eia860", value=annual_df),
+            Output(output_name=f"core_eia__entity_{entity.value}", value=entity_df),
+            Output(output_name=f"core_eia860__scd_{entity.value}", value=annual_df),
         )
 
     return harvested_entity
@@ -1204,11 +1206,11 @@ def finished_eia_asset_factory(
 ) -> AssetsDefinition:
     """An asset factory for finished EIA tables."""
     # TODO (bendnorman): Create a more graceful function for parsing table name
-    table_name_parts = table_name.split("_")
-    dataset = table_name_parts[-1]
-    table_name_no_dataset = "_".join(table_name_parts[:-1])
+    table_name_parts = table_name.split("__")
+    dataset = table_name_parts[0].replace("core_", "")
+    table_name_no_asset_type = "_".join(table_name_parts[-1].split("_")[1:])
 
-    _core_table_name = f"_core_{dataset}__{table_name_no_dataset}"
+    _core_table_name = f"_core_{dataset}__{table_name_no_asset_type}"
 
     @asset(
         ins={_core_table_name: AssetIn()},
@@ -1227,16 +1229,16 @@ def finished_eia_asset_factory(
 finished_eia_assets = [
     finished_eia_asset_factory(table_name, io_manager_key="pudl_sqlite_io_manager")
     for table_name in [
-        "boiler_fuel_eia923",
-        "coalmine_eia923",
-        "fuel_receipts_costs_eia923",
-        "generation_eia923",
-        "generation_fuel_eia923",
-        "generation_fuel_nuclear_eia923",
-        "ownership_eia860",
-        "emissions_control_equipment_eia860",
-        "boiler_emissions_control_equipment_assn_eia860",
-        "boiler_cooling_assn_eia860",
-        "boiler_stack_flue_assn_eia860",
+        "core_eia923__monthly_boiler_fuel",
+        "core_eia923__entity_coalmine",
+        "core_eia923__monthly_fuel_receipts_costs",
+        "core_eia923__monthly_generation",
+        "core_eia923__monthly_generation_fuel",
+        "core_eia923__monthly_generation_fuel_nuclear",
+        "core_eia860__scd_ownership",
+        "core_eia860__scd_emissions_control_equipment",
+        "core_eia860__annual_boiler_emissions_control_equipment_assn",
+        "core_eia860__assn_boiler_cooling",
+        "core_eia860__assn_boiler_stack_flue",
     ]
 ]

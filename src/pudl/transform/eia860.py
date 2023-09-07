@@ -25,10 +25,10 @@ def _core_eia860__ownership(raw_eia860__ownership: pd.DataFrame) -> pd.DataFrame
       reporting.
 
     Args:
-        raw_eia860__ownership: The raw ``ownership_eia860`` dataframe.
+        raw_eia860__ownership: The raw ``raw_eia860__ownership`` dataframe.
 
     Returns:
-        Cleaned ``ownership_eia860`` dataframe ready for harvesting.
+        Cleaned ``_core_eia860__ownership`` dataframe ready for harvesting.
     """
     # Preiminary clean and get rid of unecessary 'year' column
     own_df = (
@@ -95,7 +95,7 @@ def _core_eia860__ownership(raw_eia860__ownership: pd.DataFrame) -> pd.DataFrame
     remaining_dupes = own_df[own_df.duplicated(subset=own_pk, keep=False)]
     if not remaining_dupes.empty:
         raise ValueError(
-            f"Duplicate ownership slices found in ownership_eia860: {remaining_dupes}"
+            f"Duplicate ownership slices found in _core_eia860__ownership: {remaining_dupes}"
         )
 
     # Remove a couple of records known to have (literal) "nan" values in the
@@ -121,7 +121,9 @@ def _core_eia860__ownership(raw_eia860__ownership: pd.DataFrame) -> pd.DataFrame
     own_df = own_df[~mask]
 
     if not (nulls := own_df[own_df.generator_id == ""]).empty:
-        logger.warning(f"Found records with null IDs in ownership_eia860: {nulls}")
+        logger.warning(
+            f"Found records with null IDs in _core_eia860__ownership: {nulls}"
+        )
     # In 2010 there are several hundred utilities that appear to be incorrectly
     # reporting the owner_utility_id_eia value *also* in the utility_id_eia
     # column. This results in duplicate operator IDs associated with a given
@@ -150,7 +152,7 @@ def _core_eia860__ownership(raw_eia860__ownership: pd.DataFrame) -> pd.DataFrame
     own_df.loc[single_owner_operator, "utility_id_eia"] = pd.NA
     own_df = (
         pudl.metadata.classes.Package.from_resource_ids()
-        .get_resource("ownership_eia860")
+        .get_resource("core_eia860__scd_ownership")
         .encode(own_df)
     )
     # CN is an invalid political subdivision code used by a few respondents to indicate
@@ -213,7 +215,7 @@ def _core_eia860__generators(
         raw_eia860__generator: The raw ``raw_eia860__generator`` dataframe.
 
     Returns:
-        Cleaned ``generators_eia860`` dataframe ready for harvesting.
+        Cleaned ``_core_eia860__generators`` dataframe ready for harvesting.
     """
     # Groupby objects were creating chained assignment warning that is N/A
     pd.options.mode.chained_assignment = None
@@ -332,7 +334,7 @@ def _core_eia860__generators(
 
     gens_df = (
         pudl.metadata.classes.Package.from_resource_ids()
-        .get_resource("generators_eia860")
+        .get_resource("core_eia860__scd_generators")
         .encode(gens_df)
     )
 
@@ -376,9 +378,9 @@ def _core_eia860__plants(raw_eia860__plant: pd.DataFrame) -> pd.DataFrame:
         raw_eia860__plant: The raw ``raw_eia860__plant`` dataframe.
 
     Returns:
-        Cleaned ``plants_eia860`` dataframe ready for harvesting.
+        Cleaned ``_core_eia860__plants`` dataframe ready for harvesting.
     """
-    # Populating the 'plants_eia860' table
+    # Populating the '_core_eia860__plants' table
     p_df = (
         raw_eia860__plant.pipe(pudl.helpers.fix_eia_na)
         .astype({"zip_code": str})
@@ -435,7 +437,7 @@ def _core_eia860__plants(raw_eia860__plant: pd.DataFrame) -> pd.DataFrame:
 
     p_df = (
         pudl.metadata.classes.Package.from_resource_ids()
-        .get_resource("plants_eia860")
+        .get_resource("core_eia860__scd_plants")
         .encode(p_df)
     )
 
@@ -459,9 +461,9 @@ def _core_eia860__boiler_generator_assn(
             spreadsheets they distribute.
 
     Returns:
-        Cleaned ``boiler_generator_assn_eia860`` dataframe ready for harvesting.
+        Cleaned ``_core_eia860__boiler_generator_assn`` dataframe ready for harvesting.
     """
-    # Populating the 'generators_eia860' table
+    # Populating the 'core_eia860__scd_generators' table
     b_g_df = raw_eia860__boiler_generator_assn
 
     b_g_df = pudl.helpers.convert_to_date(b_g_df)
@@ -470,7 +472,7 @@ def _core_eia860__boiler_generator_assn(
 
     b_g_df = (
         pudl.metadata.classes.Package.from_resource_ids()
-        .get_resource("boiler_generator_assn_eia860")
+        .get_resource("core_eia860__assn_boiler_generator")
         .encode(b_g_df)
     )
 
@@ -495,9 +497,9 @@ def _core_eia860__utilities(raw_eia860__utility: pd.DataFrame) -> pd.DataFrame:
         raw_eia860__utility: The raw ``raw_eia860__utility`` dataframe.
 
     Returns:
-        Cleaned ``utilities_eia860`` dataframe ready for harvesting.
+        Cleaned ``_core_eia860__utilities`` dataframe ready for harvesting.
     """
-    # Populating the 'utilities_eia860' table
+    # Populating the '_core_eia860__utilities' table
     u_df = raw_eia860__utility
 
     # Replace empty strings, whitespace, and '.' fields with real NA values
@@ -587,7 +589,7 @@ def _core_eia860__boilers(
     Returns:
         pandas.DataFrame: the transformed boilers table
     """
-    # Populating the 'boilers_eia860' table
+    # Populating the 'core_eia860__scd_boilers' table
     b_df = raw_eia860__boiler_info
     ecs = raw_eia860__emission_control_strategies
 
@@ -761,7 +763,7 @@ def _core_eia860__boilers(
 
     b_df = (
         pudl.metadata.classes.Package.from_resource_ids()
-        .get_resource("boilers_eia860")
+        .get_resource("core_eia860__scd_boilers")
         .encode(b_df)
     )
 
@@ -885,7 +887,7 @@ def _core_eia860__emissions_control_equipment(
 
     emce_df = (
         pudl.metadata.classes.Package.from_resource_ids()
-        .get_resource("emissions_control_equipment_eia860")
+        .get_resource("core_eia860__scd_emissions_control_equipment")
         .encode(emce_df)
     )
 
@@ -973,7 +975,7 @@ def _core_eia860__boiler_emissions_control_equipment_assn(
 
 
 @asset
-def _core_eia860__boiler_cooling_assn(
+def _core_eia860__boiler_cooling(
     raw_eia860__boiler_cooling: pd.DataFrame,
 ) -> pd.DataFrame:
     """Pull and transform the EIA 860 boiler to cooler ID table.
@@ -998,7 +1000,7 @@ def _core_eia860__boiler_cooling_assn(
 
 
 @asset
-def _core_eia860__boiler_stack_flue_assn(
+def _core_eia860__boiler_stack_flue(
     raw_eia860__boiler_stack_flue: pd.DataFrame,
 ) -> pd.DataFrame:
     """Pull and transform the EIA 860 boiler to stack flue ID table.

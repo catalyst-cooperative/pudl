@@ -35,7 +35,7 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
         "etl_group": "static_eia",
         "field_namespace": "eia",
     },
-    "boilers_entity_eia": {
+    "core_eia__entity_boilers": {
         "description": "Static boiler attributes compiled from the EIA-860 and EIA-923 data.",
         "schema": {
             "fields": [
@@ -488,7 +488,7 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
         "etl_group": "static_eia",
         "field_namespace": "eia",
     },
-    "generators_entity_eia": {
+    "core_eia__entity_generators": {
         "description": "Static generator attributes compiled from across the EIA-860 and EIA-923 data.",
         "schema": {
             "fields": [
@@ -547,7 +547,7 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
         "etl_group": "glue",
         "field_namespace": "eia",
     },
-    "plants_entity_eia": {
+    "core_eia__entity_plants": {
         "description": "Static plant attributes, compiled from across all EIA-860 and EIA-923 data.",
         "schema": {
             "fields": [
@@ -670,7 +670,7 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
         "etl_group": "glue",
         "field_namespace": "eia",
     },
-    "utilities_entity_eia": {
+    "core_eia__entity_utilities": {
         "description": "Static attributes of utilities, compiled from all EIA data.",
         "schema": {
             "fields": ["utility_id_eia", "utility_name_eia"],
@@ -723,7 +723,7 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
                     "utility_data_nerc_eia861",
                     "utility_data_rto_eia861",
                     # Utility IDs in this table are owners, not operators, and we are
-                    # not yet harvesting owner_utility_id_eia from ownership_eia860.
+                    # not yet harvesting owner_utility_id_eia from core_eia860__scd_ownership.
                     # See https://github.com/catalyst-cooperative/pudl/issues/1393
                     "generation_fuel_by_generator_energy_source_owner_yearly_eia923",
                 ],

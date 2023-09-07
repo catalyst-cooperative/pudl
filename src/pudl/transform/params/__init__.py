@@ -4,7 +4,7 @@ Each module in this subpackage is associated with and named after a single datas
 ``ferc1`` or ``eia923``) and must define a dictionary named ``TRANSFORM_PARAMS``.
 This dictionary is a nested data structure with 2 or 3 levels of keys:
 
-* The first level has keys that table names (e.g. ``plants_steam_ferc1``).
+* The first level has keys that table names (e.g. ``core_ferc1__yearly_plants_steam``).
 * The second level has keys that are the names of transform functions (e.g.
   ``convert_units``).
 * In the case of transform functions that operate on a single column and implement the

@@ -179,7 +179,7 @@ INPUT_DFS: dict[str, pd.DataFrame] = dict(
             ),
         ],
     ),
-    generation_eia923=pd.DataFrame(
+    core_eia923__monthly_generation=pd.DataFrame(
         columns=[
             "plant_id_eia",
             "generator_id",
@@ -204,7 +204,7 @@ INPUT_DFS: dict[str, pd.DataFrame] = dict(
             (3, "1", "2018-12-01", -494.0, "ST", "T", "SOCO"),
         ],
     ),
-    generators_eia860=pd.DataFrame(
+    core_eia860__scd_generators=pd.DataFrame(
         columns=[
             "plant_id_eia",
             "generator_id",
@@ -223,7 +223,7 @@ INPUT_DFS: dict[str, pd.DataFrame] = dict(
             (3, "2", "2018-01-01", 50, "ST", 195, "Alabama Power Co", "B", "AL"),
         ],
     ),
-    boiler_generator_assn_eia860=pd.DataFrame(
+    core_eia860__assn_boiler_generator=pd.DataFrame(
         columns=["plant_id_eia", "generator_id", "report_year", "boiler_id"],
         data=[
             (3, "1", "2018-01-01", "1ST"),
@@ -279,7 +279,7 @@ RESOURCES: list[dict[str, Any]] = [
         },
     },
     {
-        "name": "generators_eia860",
+        "name": "core_eia860__scd_generators",
         "harvest": {"harvest": True},
         "schema": {
             "fields": ["plant_id_eia", "generator_id", "report_year", "capacity_mw"],
@@ -303,7 +303,7 @@ RESOURCES: list[dict[str, Any]] = [
         },
     },
     {
-        "name": "generation_eia923",
+        "name": "core_eia923__monthly_generation",
         "harvest": {"harvest": False},
         "schema": {
             "fields": [
@@ -324,7 +324,7 @@ RESOURCES: list[dict[str, Any]] = [
         },
     },
     {
-        "name": "boiler_generator_assn_eia860",
+        "name": "core_eia860__assn_boiler_generator",
         "harvest": {"harvest": True},
         "schema": {
             "fields": ["plant_id_eia", "generator_id", "report_year", "boiler_id"],
@@ -359,7 +359,7 @@ EXPECTED_DFS: dict[str, pd.DataFrame] = dict(
             (4, "b", np.nan, np.nan),
         ],
     ),
-    generators_eia860=pd.DataFrame(
+    core_eia860__scd_generators=pd.DataFrame(
         columns=["plant_id_eia", "generator_id", "report_year", "capacity_mw"],
         data=[
             (3, "1", "2017-01-01", 153.1),
@@ -387,7 +387,7 @@ EXPECTED_DFS: dict[str, pd.DataFrame] = dict(
             (3989, "2018-01-01", "CO", "Boulder"),
         ],
     ),
-    generation_eia923=pd.DataFrame(
+    core_eia923__monthly_generation=pd.DataFrame(
         columns=["plant_id_eia", "generator_id", "report_month", "net_generation_mwh"],
         data=[
             (3, "1", "2018-01-01", 10738.0),
@@ -414,7 +414,7 @@ EXPECTED_DFS: dict[str, pd.DataFrame] = dict(
             (3989, "2018-01-01", "CO", "Boulder", 66666),
         ],
     ),
-    boiler_generator_assn_eia860=pd.DataFrame(
+    core_eia860__assn_boiler_generator=pd.DataFrame(
         columns=["plant_id_eia", "generator_id", "report_year", "boiler_id"],
         data=[
             (3, "1", "2018-01-01", "1ST"),

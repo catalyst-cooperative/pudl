@@ -302,8 +302,8 @@ A. FERC 1 & EIA Plants & Utilities
 B. Missing EIA Plant Locations from CEMS
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 **6.B.1)** If there are any plants that appear in the EPA CEMS dataset that do not
-appear in the ``plants_entity_eia`` table or that are missing latitute and longitude
-values, the missing information should be compiled and added to
+appear in the ``core_eia__entity_plants`` table or that are missing latitute and
+longitude values, the missing information should be compiled and added to
 ``src/pudl/package_data/epacems/additional_epacems_plants.csv`` to enable accurate
 adjustment of the EPA CEMS timestamps to UTC. This information can usually be obtained
 with the ``plant_id_eia`` and the

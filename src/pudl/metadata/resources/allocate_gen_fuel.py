@@ -8,7 +8,7 @@ KNOWN_DRAWBACKS_DESCRIPTION = (
     "distinguish between primary and secondary energy_sources for generators. "
     "Net generation is allocated equally between energy source codes, so if a "
     "plant has multiple generators with the same prime_mover_code but different "
-    "energy source codes the generation_fuel_eia923 records will be associated "
+    "energy source codes the core_eia923__monthly_generation_fuel records will be associated "
     "similarly between these two generators. Allocated net generation will still "
     "be proportional to each generator's net generation or capacity."
 )

@@ -77,9 +77,9 @@ class PudlTabl:
                 data with state-fuel averages from EIA's bulk electricity data.
             roll_fuel_cost: if True, apply a rolling average to a subset of
                 output table's columns (currently only ``fuel_cost_per_mmbtu``
-                for the ``fuel_receipts_costs_eia923`` table.)
+                for the ``core_eia923__monthly_fuel_receipts_costs`` table.)
             fill_net_gen: if True, use the net generation from the
-                generation_fuel_eia923 - which is reported at the
+                core_eia923__monthly_generation_fuel - which is reported at the
                 plant/fuel/prime mover level and  re-allocated to generators in
                 ``mcoe()``, ``capacity_factor()`` and ``heat_rate_by_unit()``.
             fill_tech_desc: If True, fill the technology_description
@@ -167,12 +167,12 @@ class PudlTabl:
             "denorm_plants_utilities_eia": "pu_eia860",
             # eia860 (denormalized, data primarily from EIA-860)
             "denorm_ownership_eia860": "own_eia860",
-            "boiler_generator_assn_eia860": "bga_eia860",
+            "core_eia860__assn_boiler_generator": "bga_eia860",
             "denorm_emissions_control_equipment_eia860": "denorm_emissions_control_equipment_eia860",
-            "boiler_emissions_control_equipment_assn_eia860": "boiler_emissions_control_equipment_assn_eia860",
-            "emissions_control_equipment_eia860": "emissions_control_equipment_eia860",
-            "boiler_stack_flue_assn_eia860": "boiler_stack_flue_assn_eia860",
-            "boiler_cooling_assn_eia860": "boiler_cooling_assn_eia860",
+            "core_eia860__annual_boiler_emissions_control_equipment_assn": "boiler_emissions_control_equipment_assn_eia860",
+            "core_eia860__scd_emissions_control_equipment": "emissions_control_equipment_eia860",
+            "core_eia860__assn_boiler_stack_flue": "boiler_stack_flue_assn_eia860",
+            "core_eia860__assn_boiler_cooling": "boiler_cooling_assn_eia860",
             # eia861 (clean)
             "service_territory_eia861": "service_territory_eia861",
             "sales_eia861": "sales_eia861",
@@ -370,14 +370,14 @@ class PudlTabl:
         """Pull EIA 923 net generation data by generator.
 
         Net generation is reported in two seperate tables in EIA 923: in the
-        generation_eia923 and generation_fuel_eia923 tables. While the
-        generation_fuel_eia923 table is more complete (the generation_eia923
-        table includes only ~55% of the reported MWhs), the generation_eia923
+        core_eia923__monthly_generation and core_eia923__monthly_generation_fuel tables. While the
+        core_eia923__monthly_generation_fuel table is more complete (the core_eia923__monthly_generation
+        table includes only ~55% of the reported MWhs), the core_eia923__monthly_generation
         table is more granular (it is reported at the generator level).
 
-        This method either grabs the generation_eia923 table that is reported
+        This method either grabs the core_eia923__monthly_generation table that is reported
         by generator, or allocates net generation from the
-        generation_fuel_eia923 table to the generator level.
+        core_eia923__monthly_generation_fuel table to the generator level.
 
         Args:
             update: Ignored. Retained for backwards compatibility only.

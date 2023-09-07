@@ -38,7 +38,7 @@ def test_datasette_metadata_to_yml(ferc1_engine_xbrl):
         == "https://github.com/catalyst-cooperative/pudl"
     )
     assert (
-        parsed_metadata["databases"]["pudl"]["tables"]["plants_entity_eia"][
+        parsed_metadata["databases"]["pudl"]["tables"]["core_eia__entity_plants"][
             "label_column"
         ]
         == "plant_name_eia"

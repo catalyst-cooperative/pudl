@@ -50,7 +50,7 @@ def test_fuel_ferc1_trivial(pudl_out_ferc1):
     ],
 )
 def test_vs_bounds(pudl_out_ferc1, live_dbs, cases):
-    """Test distributions of reported plants_steam_ferc1 columns."""
+    """Test distributions of reported core_ferc1__yearly_plants_steam columns."""
     if not live_dbs:
         pytest.skip("Data validation only works with a live PUDL DB.")
     for case in cases:

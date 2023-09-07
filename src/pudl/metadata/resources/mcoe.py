@@ -148,10 +148,10 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = (
                 "per MWh. These calculations are based on the allocation of net generation reported on "
                 "the basis of plant, prime mover and energy source to individual generators. Heat rates "
                 "by generator-month are estimated by using allocated estimates for per-generator net "
-                "generation and fuel consumption as well as the :ref:`boiler_fuel_eia923` table, which "
+                "generation and fuel consumption as well as the :ref:`core_eia923__monthly_boiler_fuel` table, which "
                 "reports fuel consumed by boiler. Heat rates are necessary to estimate the amount of fuel "
                 "consumed by a generation unit, and thus the fuel cost per MWh generated. Plant specific "
-                "fuel prices are taken from the :ref:`fuel_receipts_costs_eia923` table, which only has "
+                "fuel prices are taken from the :ref:`core_eia923__monthly_fuel_receipts_costs` table, which only has "
                 "~70% coverage, leading to some generators with heat rate estimates still lacking fuel "
                 "cost estimates."
             ),

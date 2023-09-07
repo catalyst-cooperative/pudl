@@ -168,10 +168,10 @@ Denormalized Outputs
 We normalize the data to make storage more efficient and avoid data integrity issues,
 but you may want to combine information from more than one of the tables to make the
 data more readable and readily interpretable. For example, PUDL stores the name that EIA
-uses to refer to a power plant in the :ref:`plants_entity_eia` table in association with
-the plant's unique numeric ID. If you are working with data from the
-:ref:`fuel_receipts_costs_eia923` table, which records monthly per-plant fuel
-deliveries, you may want to have the name of the plant alongside the fuel delivery
+uses to refer to a power plant in the :ref:`core_eia__entity_plants` table in
+association with the plant's unique numeric ID. If you are working with data from the
+:ref:`core_eia923__monthly_fuel_receipts_costs` table, which records monthly per-plant
+fuel deliveries, you may want to have the name of the plant alongside the fuel delivery
 information since it's more recognizable than the plant ID.
 
 Rather than requiring everyone to write their own SQL ``SELECT`` and ``JOIN`` statements

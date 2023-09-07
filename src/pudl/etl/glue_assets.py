@@ -12,7 +12,7 @@ logger = pudl.logging_helpers.get_logger(__name__)
 # TODO (bendnorman): Currently loading all glue tables. Could potentially allow users
 # to load subsets of the glue tables, see: https://docs.dagster.io/concepts/assets/multi-assets#subsetting-multi-assets
 # Could split out different types of glue tables into different assets. For example the cross walk table could be a separate asset
-# that way dagster doesn't think all glue tables depend on generators_entity_eia, boilers_entity_eia.
+# that way dagster doesn't think all glue tables depend on core_eia__entity_generators, core_eia__entity_boilers.
 
 
 @multi_asset(
@@ -29,8 +29,8 @@ def create_glue_tables(context):
 
     Args:
         context: dagster keyword that provides access to resources and config.
-        generators_entity_eia: Static generator attributes compiled from across the EIA-860 and EIA-923 data.
-        boilers_entity_eia: boilers_entity_eia.
+        core_eia__entity_generators: Static generator attributes compiled from across the EIA-860 and EIA-923 data.
+        core_eia__entity_boilers: core_eia__entity_boilers.
 
     Returns:
         A dictionary of DataFrames whose keys are the names of the corresponding
@@ -82,8 +82,8 @@ def raw_epacamd_eia(context) -> pd.DataFrame:
 def epacamd_eia(
     context,
     raw_epacamd_eia: pd.DataFrame,
-    generators_entity_eia: pd.DataFrame,
-    boilers_entity_eia: pd.DataFrame,
+    core_eia__entity_generators: pd.DataFrame,
+    core_eia__entity_boilers: pd.DataFrame,
 ) -> pd.DataFrame:
     """Clean up the EPACAMD-EIA Crosswalk file.
 
@@ -143,8 +143,8 @@ def epacamd_eia(
             restrict the crosswalk data so the tests don't fail on foreign key
             restraints.
         raw_epacamd_eia: The result of running this module's extract() function.
-        generators_entity_eia: The generators_entity_eia table.
-        boilers_entity_eia: The boilers_entitiy_eia table.
+        core_eia__entity_generators: The core_eia__entity_generator table.
+        core_eia__entity_boilers: The core_eia__entity_boilerstable.
 
     Returns:
         A dictionary containing the cleaned EPACAMD-EIA crosswalk DataFrame.
@@ -194,13 +194,13 @@ def epacamd_eia(
         )
         crosswalk_clean = pd.merge(
             crosswalk_clean,
-            generators_entity_eia[["plant_id_eia", "generator_id"]],
+            core_eia__entity_generators[["plant_id_eia", "generator_id"]],
             on=["plant_id_eia", "generator_id"],
             how="inner",
         )
         crosswalk_clean = pd.merge(
             crosswalk_clean,
-            boilers_entity_eia[["plant_id_eia", "boiler_id"]],
+            core_eia__entity_boilers[["plant_id_eia", "boiler_id"]],
             on=["plant_id_eia", "boiler_id"],
             how="inner",
         )
@@ -261,9 +261,9 @@ def correct_epa_eia_plant_id_mapping(df: pd.DataFrame) -> pd.DataFrame:
 @asset(io_manager_key="pudl_sqlite_io_manager")
 def epacamd_eia_subplant_ids(
     epacamd_eia_unique: pd.DataFrame,
-    generators_eia860: pd.DataFrame,
+    core_eia860__scd_generators: pd.DataFrame,
     emissions_unit_ids_epacems: pd.DataFrame,
-    boiler_generator_assn_eia860: pd.DataFrame,
+    core_eia860__assn_boiler_generator: pd.DataFrame,
 ) -> pd.DataFrame:
     """Groups units and generators into unique subplant groups.
 
@@ -294,9 +294,11 @@ def epacamd_eia_subplant_ids(
     # functioning (#2535) but when it is, ensure that it gets plugged into the dag
     # BEFORE this step so the subplant IDs can benefit from the more fleshed out units
     epacamd_eia_complete = (
-        augement_crosswalk_with_generators_eia860(epacamd_eia_unique, generators_eia860)
+        augement_crosswalk_with_generators_eia860(
+            epacamd_eia_unique, core_eia860__scd_generators
+        )
         .pipe(augement_crosswalk_with_epacamd_ids, emissions_unit_ids_epacems)
-        .pipe(augement_crosswalk_with_bga_eia860, boiler_generator_assn_eia860)
+        .pipe(augement_crosswalk_with_bga_eia860, core_eia860__assn_boiler_generator)
     )
     # use graph analysis to identify subplants
     subplant_ids = make_subplant_ids(epacamd_eia_complete).pipe(
@@ -347,16 +349,16 @@ def epacamd_eia_subplant_ids(
 
 
 def augement_crosswalk_with_generators_eia860(
-    crosswalk_clean: pd.DataFrame, generators_eia860: pd.DataFrame
+    crosswalk_clean: pd.DataFrame, core_eia860__scd_generators: pd.DataFrame
 ) -> pd.DataFrame:
     """Merge any plants that are missing from the EPA crosswalk but appear in EIA-860.
 
     Args:
         crosswalk_clean: transformed EPA CEMS-EIA crosswalk.
-        generators_eia860: EIA860 generators table.
+        core_eia860__scd_generators: EIA860 generators table.
     """
     crosswalk_clean = crosswalk_clean.merge(
-        generators_eia860[["plant_id_eia", "generator_id"]].drop_duplicates(),
+        core_eia860__scd_generators[["plant_id_eia", "generator_id"]].drop_duplicates(),
         how="outer",
         on=["plant_id_eia", "generator_id"],
         validate="m:1",
@@ -384,11 +386,11 @@ def augement_crosswalk_with_epacamd_ids(
 
 
 def augement_crosswalk_with_bga_eia860(
-    crosswalk_clean: pd.DataFrame, boiler_generator_assn_eia860: pd.DataFrame
+    crosswalk_clean: pd.DataFrame, core_eia860__assn_boiler_generator: pd.DataFrame
 ) -> pd.DataFrame:
     """Merge all EIA Unit IDs into the crosswalk."""
     return crosswalk_clean.merge(
-        boiler_generator_assn_eia860[
+        core_eia860__assn_boiler_generator[
             ["plant_id_eia", "generator_id", "unit_id_pudl"]
         ].drop_duplicates(),
         how="outer",

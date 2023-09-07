@@ -55,8 +55,8 @@ allocating pollution to energy producers. Furthermore, heterogeneity within plan
 make aggregation to the parent entity difficult or inappropriate.
 
 This table inherits from the EPA's crosswalk, the ID's from EPA CAMD
-hourly_emissions_epacems table itself, the boiler_generator_assn_eia860 table and the
-generators_eia860 table. While the epacamd_eia table is the core backbone of the table,
+hourly_emissions_epacems table itself, the core_eia860__assn_boiler_generator table and the
+core_eia860__scd_generators table. While the epacamd_eia table is the core backbone of the table,
 EPA CAMD id's ensure there is complete coverage of EPA CAMD reporting units. The EIA 860
 table addition ensures there is also complete coverage of those units as well.
 

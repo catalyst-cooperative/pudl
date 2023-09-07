@@ -54,7 +54,7 @@ def mcoe_asset_factory(
             "gen": AssetIn(
                 key=f"generation_fuel_by_generator_energy_source_{agg_freqs[freq]}_eia923"
             ),
-            "bga": AssetIn(key="boiler_generator_assn_eia860"),
+            "bga": AssetIn(key="core_eia860__assn_boiler_generator"),
         },
         io_manager_key=io_manager_key,
         compute_kind="Python",
@@ -65,7 +65,7 @@ def mcoe_asset_factory(
     @asset(
         name=f"heat_rate_by_generator_{agg_freqs[freq]}",
         ins={
-            "bga": AssetIn(key="boiler_generator_assn_eia860"),
+            "bga": AssetIn(key="core_eia860__assn_boiler_generator"),
             "hr_by_unit": AssetIn(key=f"heat_rate_by_unit_{agg_freqs[freq]}"),
             "gens": AssetIn(key="denorm_generators_eia"),
         },
@@ -182,7 +182,7 @@ def mcoe_asset_factory(
                 default_value=True,
                 description=(
                     "If True, include attributes of all generators in the "
-                    ":ref:`generators_eia860` table, rather than just the generators "
+                    ":ref:`core_eia860__scd_generators` table, rather than just the generators "
                     "which have records in the derived MCOE values. True by default."
                 ),
             ),
@@ -668,7 +668,7 @@ def mcoe_generators(
         mcoe: The MCOE dataframe outputted from the `mcoe` analysis function.
         gens: The denormalized dataframe of all EIA generators.
         all_gens: if True, include attributes of all generators in the
-            :ref:`generators_eia860` table, rather than just the generators
+            :ref:`core_eia860__scd_generators` table, rather than just the generators
             which have records in the derived MCOE values. True by default.
         timeseries_fillin: if True, fill in the full timeseries for each generator in
             the output dataframe. The data in the timeseries will be filled

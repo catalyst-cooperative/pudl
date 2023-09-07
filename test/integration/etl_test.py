@@ -45,13 +45,15 @@ def test_ferc1_xbrl2sqlite(ferc1_engine_xbrl, ferc1_xbrl_taxonomy_metadata):
 
     # Has the metadata we've read in from JSON contain a long list of entities?
     assert isinstance(ferc1_xbrl_taxonomy_metadata, dict)  # nosec: B101
-    assert "plants_steam_ferc1" in ferc1_xbrl_taxonomy_metadata.keys()  # nosec: B101
+    assert (
+        "core_ferc1__yearly_plants_steam" in ferc1_xbrl_taxonomy_metadata.keys()
+    )  # nosec: B101
     assert len(ferc1_xbrl_taxonomy_metadata) > 10  # nosec: B101
     assert len(ferc1_xbrl_taxonomy_metadata) < 100  # nosec: B101
 
     # Can we normalize that list of entities and find data in it that we expect?
     df = pd.json_normalize(
-        ferc1_xbrl_taxonomy_metadata["plant_in_service_ferc1"]["instant"]
+        ferc1_xbrl_taxonomy_metadata["core_ferc1__yearly_plant_in_service"]["instant"]
     )
     assert (  # nosec: B101
         df.loc[

@@ -18,24 +18,24 @@ logger = logging.getLogger(__name__)
 # unique record ID. But we should parameterize the has_unique_record_ids class
 # attributes in the FERC classes.
 non_unique_record_id_tables = [
-    "plant_in_service_ferc1",
-    "purchased_power_ferc1",
-    "electric_energy_sources_ferc1",
-    "electric_energy_dispositions_ferc1",
-    "utility_plant_summary_ferc1",
-    "transmission_statistics_ferc1",
-    "balance_sheet_liabilities_ferc1",
-    "balance_sheet_assets_ferc1",
-    "income_statement_ferc1",
-    "depreciation_amortization_summary_ferc1",
-    "electric_plant_depreciation_changes_ferc1",
-    "electric_plant_depreciation_functional_ferc1",
-    "electric_operating_expenses_ferc1",
-    "cash_flow_ferc1",
-    "retained_earnings_ferc1",
-    "electric_operating_revenues_ferc1",
-    "other_regulatory_liabilities_ferc1",
-    "electricity_sales_by_rate_schedule_ferc1",
+    "core_ferc1__yearly_plant_in_service",
+    "core_ferc1__yearly_purchased_power",
+    "core_ferc1__yearly_electric_energy_sources",
+    "core_ferc1__yearly_electric_energy_dispositions",
+    "core_ferc1__yearly_utility_plant_summary",
+    "core_ferc1__yearly_transmission_statistics",
+    "core_ferc1__yearly_balance_sheet_liabilities",
+    "core_ferc1__yearly_balance_sheet_assets",
+    "core_ferc1__yearly_income_statement",
+    "core_ferc1__yearly_depreciation_amortization_summary",
+    "core_ferc1__yearly_electric_plant_depreciation_changes",
+    "core_ferc1__yearly_electric_plant_depreciation_functional",
+    "core_ferc1__yearly_electric_operating_expenses",
+    "core_ferc1__yearly_cash_flow",
+    "core_ferc1__yearly_retained_earnings",
+    "core_ferc1__yearly_electric_operating_revenues",
+    "core_ferc1__yearly_other_regulatory_liabilities",
+    "core_ferc1__yearly_electricity_sales_by_rate_schedule",
 ]
 unique_record_tables = [
     t
@@ -61,15 +61,15 @@ def test_record_id_dupes(pudl_engine, table_name):
     "df_name,cols",
     [
         ("fbp_ferc1", "all"),
-        ("fuel_ferc1", "all"),
-        ("plant_in_service_ferc1", "all"),
+        ("core_ferc1__yearly_fuel", "all"),
+        ("core_ferc1__yearly_plant_in_service", "all"),
         ("plants_all_ferc1", "all"),
-        ("plants_hydro_ferc1", "all"),
-        ("plants_pumped_storage_ferc1", "all"),
-        ("plants_small_ferc1", "all"),
-        ("plants_steam_ferc1", "all"),
+        ("core_ferc1__yearly_plants_hydro", "all"),
+        ("core_ferc1__yearly_plants_pumped_storage", "all"),
+        ("core_ferc1__yearly_plants_small", "all"),
+        ("core_ferc1__yearly_plants_steam", "all"),
         ("pu_ferc1", "all"),
-        ("purchased_power_ferc1", "all"),
+        ("core_ferc1__yearly_purchased_power", "all"),
     ],
 )
 def test_no_null_cols_ferc1(pudl_out_ferc1, live_dbs, cols, df_name):
@@ -85,15 +85,15 @@ def test_no_null_cols_ferc1(pudl_out_ferc1, live_dbs, cols, df_name):
     "df_name,expected_rows",
     [
         ("fbp_ferc1", 25_421),
-        ("fuel_ferc1", 48_841),
-        ("plant_in_service_ferc1", 311_986),
+        ("core_ferc1__yearly_fuel", 48_841),
+        ("core_ferc1__yearly_plant_in_service", 311_986),
         ("plants_all_ferc1", 54_284),
-        ("plants_hydro_ferc1", 6_796),
-        ("plants_pumped_storage_ferc1", 544),
-        ("plants_small_ferc1", 16_235),
-        ("plants_steam_ferc1", 30_709),
+        ("core_ferc1__yearly_plants_hydro", 6_796),
+        ("core_ferc1__yearly_plants_pumped_storage", 544),
+        ("core_ferc1__yearly_plants_small", 16_235),
+        ("core_ferc1__yearly_plants_steam", 30_709),
         ("pu_ferc1", 7_425),
-        ("purchased_power_ferc1", 197_523),
+        ("core_ferc1__yearly_purchased_power", 197_523),
     ],
 )
 def test_minmax_rows(pudl_out_ferc1, live_dbs, expected_rows, df_name):
@@ -127,7 +127,7 @@ def test_minmax_rows(pudl_out_ferc1, live_dbs, expected_rows, df_name):
         ("pu_ferc1", ["utility_id_ferc1", "plant_name_ferc1"]),
         ("fbp_ferc1", ["report_year", "utility_id_ferc1", "plant_name_ferc1"]),
         (
-            "plants_hydro_ferc1",
+            "core_ferc1__yearly_plants_hydro",
             [
                 "report_year",
                 "utility_id_ferc1",
@@ -136,7 +136,7 @@ def test_minmax_rows(pudl_out_ferc1, live_dbs, expected_rows, df_name):
             ],
         ),
         (
-            "plants_pumped_storage_ferc1",
+            "core_ferc1__yearly_plants_pumped_storage",
             [
                 "report_year",
                 "utility_id_ferc1",
@@ -145,7 +145,7 @@ def test_minmax_rows(pudl_out_ferc1, live_dbs, expected_rows, df_name):
             ],
         ),
         (
-            "plant_in_service_ferc1",
+            "core_ferc1__yearly_plant_in_service",
             ["report_year", "utility_id_ferc1", "ferc_account_label"],
         ),
     ],

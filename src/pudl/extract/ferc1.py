@@ -99,67 +99,67 @@ from pudl.workspace.setup import PudlPaths
 logger = pudl.logging_helpers.get_logger(__name__)
 
 TABLE_NAME_MAP_FERC1: dict[str, dict[str, str]] = {
-    "fuel_ferc1": {
+    "core_ferc1__yearly_fuel": {
         "dbf": "f1_fuel",
         "xbrl": "steam_electric_generating_plant_statistics_large_plants_fuel_statistics_402",
     },
-    "plants_steam_ferc1": {
+    "core_ferc1__yearly_plants_steam": {
         "dbf": "f1_steam",
         "xbrl": "steam_electric_generating_plant_statistics_large_plants_402",
     },
-    "plants_small_ferc1": {
+    "core_ferc1__yearly_plants_small": {
         "dbf": "f1_gnrt_plant",
         "xbrl": "generating_plant_statistics_410",
     },
-    "plants_hydro_ferc1": {
+    "core_ferc1__yearly_plants_hydro": {
         "dbf": "f1_hydro",
         "xbrl": "hydroelectric_generating_plant_statistics_large_plants_406",
     },
-    "plants_pumped_storage_ferc1": {
+    "core_ferc1__yearly_plants_pumped_storage": {
         "dbf": "f1_pumped_storage",
         "xbrl": "pumped_storage_generating_plant_statistics_large_plants_408",
     },
-    "plant_in_service_ferc1": {
+    "core_ferc1__yearly_plant_in_service": {
         "dbf": "f1_plant_in_srvce",
         "xbrl": "electric_plant_in_service_204",
     },
-    "purchased_power_ferc1": {
+    "core_ferc1__yearly_purchased_power": {
         "dbf": "f1_purchased_pwr",
         "xbrl": "purchased_power_326",
     },
-    "electric_energy_sources_ferc1": {
+    "core_ferc1__yearly_electric_energy_sources": {
         "dbf": "f1_elctrc_erg_acct",
         "xbrl": "electric_energy_account_401a",
     },
-    "electric_energy_dispositions_ferc1": {
+    "core_ferc1__yearly_electric_energy_dispositions": {
         "dbf": "f1_elctrc_erg_acct",
         "xbrl": "electric_energy_account_401a",
     },
-    "utility_plant_summary_ferc1": {
+    "core_ferc1__yearly_utility_plant_summary": {
         "dbf": "f1_utltyplnt_smmry",
         "xbrl": "summary_of_utility_plant_and_accumulated_provisions_for_depreciation_amortization_and_depletion_200",
     },
-    "transmission_statistics_ferc1": {
+    "core_ferc1__yearly_transmission_statistics": {
         "dbf": "f1_xmssn_line",
         "xbrl": "transmission_line_statistics_422",
     },
-    "electric_operating_expenses_ferc1": {
+    "core_ferc1__yearly_electric_operating_expenses": {
         "dbf": "f1_elc_op_mnt_expn",
         "xbrl": "electric_operations_and_maintenance_expenses_320",
     },
-    "balance_sheet_liabilities_ferc1": {
+    "core_ferc1__yearly_balance_sheet_liabilities": {
         "dbf": "f1_bal_sheet_cr",
         "xbrl": "comparative_balance_sheet_liabilities_and_other_credits_110",
     },
-    "balance_sheet_assets_ferc1": {
+    "core_ferc1__yearly_balance_sheet_assets": {
         "dbf": "f1_comp_balance_db",
         "xbrl": "comparative_balance_sheet_assets_and_other_debits_110",
     },
-    "income_statement_ferc1": {
+    "core_ferc1__yearly_income_statement": {
         "dbf": ["f1_income_stmnt", "f1_incm_stmnt_2"],
         "xbrl": "statement_of_income_114",
     },
-    "retained_earnings_ferc1": {
+    "core_ferc1__yearly_retained_earnings": {
         "dbf": "f1_retained_erng",
         "xbrl": "retained_earnings_118",
     },
@@ -167,27 +167,27 @@ TABLE_NAME_MAP_FERC1: dict[str, dict[str, str]] = {
         "dbf": "f1_retained_erng",
         "xbrl": "retained_earnings_appropriations_118",
     },
-    "depreciation_amortization_summary_ferc1": {
+    "core_ferc1__yearly_depreciation_amortization_summary": {
         "dbf": "f1_dacs_epda",
         "xbrl": "summary_of_depreciation_and_amortization_charges_section_a_336",
     },
-    "electric_plant_depreciation_changes_ferc1": {
+    "core_ferc1__yearly_electric_plant_depreciation_changes": {
         "dbf": "f1_accumdepr_prvsn",
         "xbrl": "accumulated_provision_for_depreciation_of_electric_utility_plant_changes_section_a_219",
     },
-    "electric_plant_depreciation_functional_ferc1": {
+    "core_ferc1__yearly_electric_plant_depreciation_functional": {
         "dbf": "f1_accumdepr_prvsn",
         "xbrl": "accumulated_provision_for_depreciation_of_electric_utility_plant_functional_classification_section_b_219",
     },
-    "electric_operating_revenues_ferc1": {
+    "core_ferc1__yearly_electric_operating_revenues": {
         "dbf": "f1_elctrc_oper_rev",
         "xbrl": "electric_operating_revenues_300",
     },
-    "cash_flow_ferc1": {
+    "core_ferc1__yearly_cash_flow": {
         "dbf": "f1_cash_flow",
         "xbrl": "statement_of_cash_flows_120",
     },
-    "electricity_sales_by_rate_schedule_ferc1": {
+    "core_ferc1__yearly_electricity_sales_by_rate_schedule": {
         "dbf": "f1_sales_by_sched",
         "xbrl": [
             "sales_of_electricity_by_rate_schedules_account_440_residential_304",
@@ -201,7 +201,7 @@ TABLE_NAME_MAP_FERC1: dict[str, dict[str, str]] = {
             "sales_of_electricity_by_rate_schedules_account_totals_304",
         ],
     },
-    "other_regulatory_liabilities_ferc1": {
+    "core_ferc1__yearly_other_regulatory_liabilities": {
         "dbf": "f1_othr_reg_liab",
         "xbrl": "other_regulatory_liabilities_account_254_278",
     },

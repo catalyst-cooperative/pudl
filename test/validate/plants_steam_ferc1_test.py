@@ -17,18 +17,20 @@ logger = logging.getLogger(__name__)
 @pytest.mark.parametrize(
     "cases",
     [
-        pytest.param(pv.plants_steam_ferc1_capacity, id="capacity"),
-        pytest.param(pv.plants_steam_ferc1_expenses, id="expenses"),
-        pytest.param(pv.plants_steam_ferc1_capacity_ratios, id="capacity_ratios"),
+        pytest.param(pv.core_ferc1__yearly_plants_steam_capacity, id="capacity"),
+        pytest.param(pv.core_ferc1__yearly_plants_steam_expenses, id="expenses"),
         pytest.param(
-            pv.plants_steam_ferc1_connected_hours,
+            pv.core_ferc1__yearly_plants_steam_capacity_ratios, id="capacity_ratios"
+        ),
+        pytest.param(
+            pv.core_ferc1__yearly_plants_steam_connected_hours,
             id="connected_hours",
             marks=pytest.mark.xfail(reason="FERC 1 data reporting errors."),
         ),
     ],
 )
 def test_vs_bounds(pudl_out_ferc1, live_dbs, cases):
-    """Test distributions of reported plants_steam_ferc1 columns."""
+    """Test distributions of reported core_ferc1__yearly_plants_steam columns."""
     if not live_dbs:
         pytest.skip("Data validation only works with a live PUDL DB.")
     validate_df = pd.read_sql(
@@ -57,7 +59,7 @@ def test_self_vs_historical(pudl_out_ferc1, live_dbs):
         peak_demand_ratio=lambda x: x.peak_demand_mw / x.capacity_mw,
         capability_ratio=lambda x: x.plant_capability_mw / x.capacity_mw,
     )
-    for args in pv.plants_steam_ferc1_self:
+    for args in pv.core_ferc1__yearly_plants_steam_self:
         pudl.validate.vs_self(validate_df, **args)
 
 

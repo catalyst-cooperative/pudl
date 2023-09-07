@@ -464,11 +464,11 @@ def date_merge(
 
     Args:
         left: The left dataframe in the merge. Typically monthly in our use
-            cases if doing a left merge E.g. ``generation_eia923``.
+            cases if doing a left merge E.g. ``core_eia923__monthly_generation``.
             Must contain columns specified by ``left_date_col`` and
             ``on`` argument.
         right: The right dataframe in the merge. Typically annual in our uses
-            cases if doing a left merge E.g. ``generators_eia860``.
+            cases if doing a left merge E.g. ``core_eia860__scd_generators``.
             Must contain columns specified by ``right_date_col`` and ``on`` argument.
         on: The columns to merge on that are shared between both
             dataframes. Typically ID columns like ``plant_id_eia``, ``generator_id``
@@ -1733,7 +1733,7 @@ def scale_by_ownership(
         gens: table with records at the generator level and generator attributes
             to be scaled by ownership, must have columns ``plant_id_eia``,
             ``generator_id``, and ``report_date``
-        own_eia860: the ``ownership_eia860`` table
+        own_eia860: the ``core_eia860__scd_ownership`` table
         scale_cols: a list of columns in the generator table to slice by ownership
             fraction
         validate: how to validate merging the ownership table onto the

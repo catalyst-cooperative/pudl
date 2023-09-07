@@ -4,7 +4,7 @@ from typing import Any
 from pudl.metadata.codes import CODE_METADATA
 
 RESOURCE_METADATA: dict[str, dict[str, Any]] = {
-    "balance_sheet_assets_ferc1": {
+    "core_ferc1__yearly_balance_sheet_assets": {
         "description": "Comparative Balance Sheet (Assets and Other Debits). Schedule 110.",
         "schema": {
             "fields": [
@@ -28,7 +28,7 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
         "etl_group": "ferc1",
         "field_namespace": "ferc1",
     },
-    "balance_sheet_liabilities_ferc1": {
+    "core_ferc1__yearly_balance_sheet_liabilities": {
         "description": "Comparative balance sheet (liabilities and other credits)",
         "schema": {
             "fields": [
@@ -52,7 +52,7 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
         "etl_group": "ferc1",
         "field_namespace": "ferc1",
     },
-    "cash_flow_ferc1": {
+    "core_ferc1__yearly_cash_flow": {
         "description": "The structured portion of the FERC1 cash flow table - Schedule 120.",
         "schema": {
             "fields": [
@@ -74,7 +74,7 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
         "etl_group": "ferc1",
         "field_namespace": "ferc1",
     },
-    "depreciation_amortization_summary_ferc1": {
+    "core_ferc1__yearly_depreciation_amortization_summary": {
         "description": (
             "Depreciation and Amortization of Electric Plan (Account 403, 404, 405) "
             "Section A: Summary of depreciation and amortization changes. "
@@ -101,7 +101,7 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
         "etl_group": "ferc1",
         "field_namespace": "ferc1",
     },
-    "electric_energy_sources_ferc1": {
+    "core_ferc1__yearly_electric_energy_sources": {
         "description": (
             "Electric Energy Account, sources only. Schedule 401a. Amount of "
             "electricity the utility obtained from each of several sources, by year."
@@ -125,7 +125,7 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
         "etl_group": "ferc1",
         "field_namespace": "ferc1",
     },
-    "electric_energy_dispositions_ferc1": {
+    "core_ferc1__yearly_electric_energy_dispositions": {
         "description": (
             "Electric Energy Account, dispositions only. Schedule 401a. Electricity "
             "utilities delived to end users, internal losses, etc."
@@ -149,7 +149,7 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
         "etl_group": "ferc1",
         "field_namespace": "ferc1",
     },
-    "electric_operating_expenses_ferc1": {
+    "core_ferc1__yearly_electric_operating_expenses": {
         "description": (
             "Operating and maintenance costs associated with producing electricty, "
             "reported in Schedule 320 of FERC Form 1."
@@ -170,7 +170,7 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
         "etl_group": "ferc1",
         "field_namespace": "ferc1",
     },
-    "electric_plant_depreciation_changes_ferc1": {
+    "core_ferc1__yearly_electric_plant_depreciation_changes": {
         "description": (
             "Accumulated provision for depreciation of electric utility plant "
             "(Account 108). Schedule 219 Section A: balances and changes during year."
@@ -200,7 +200,7 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
         "etl_group": "ferc1",
         "field_namespace": "ferc1",
     },
-    "electric_plant_depreciation_functional_ferc1": {
+    "core_ferc1__yearly_electric_plant_depreciation_functional": {
         "description": (
             "Accumulated provision for depreciation of electric utility plant "
             "(Account 108). Schedule 219 Section B: Functional plant classifications."
@@ -230,7 +230,7 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
         "etl_group": "ferc1",
         "field_namespace": "ferc1",
     },
-    "electricity_sales_by_rate_schedule_ferc1": {
+    "core_ferc1__yearly_electricity_sales_by_rate_schedule": {
         "description": (
             """The pre-2021 data in this table (extracted from FoxProDB vs. XBRL) is
 extremely unstructured. Where the post-2020 data (from XBRL) sorts the data
@@ -314,7 +314,7 @@ any cleaning mechanisms in place to account for this."""
         "etl_group": "static_ferc1",
         "field_namespace": "ferc1",
     },
-    "fuel_ferc1": {
+    "core_ferc1__yearly_fuel": {
         "description": "Annual fuel cost and quantity for steam plants with a capacity of 25+ MW, internal combustion and gas-turbine plants of 10+ MW, and all nuclear plants. As reported on page 402 of FERC Form 1 and extracted from the f1_fuel table in FERC's FoxPro Database.",
         "schema": {
             "fields": [
@@ -335,7 +335,7 @@ any cleaning mechanisms in place to account for this."""
         "etl_group": "ferc1",
         "field_namespace": "ferc1",
     },
-    "income_statement_ferc1": {
+    "core_ferc1__yearly_income_statement": {
         "description": "Statement of Income. Schedule 114.",
         "schema": {
             "fields": [
@@ -360,7 +360,7 @@ any cleaning mechanisms in place to account for this."""
         "etl_group": "ferc1",
         "field_namespace": "ferc1",
     },
-    "other_regulatory_liabilities_ferc1": {
+    "core_ferc1__yearly_other_regulatory_liabilities": {
         "description": "Other regulatory liabilities, including rate order docket number.",
         "schema": {
             "fields": [
@@ -378,7 +378,7 @@ any cleaning mechanisms in place to account for this."""
         "etl_group": "ferc1",
         "field_namespace": "ferc1",
     },
-    "plant_in_service_ferc1": {
+    "core_ferc1__yearly_plant_in_service": {
         "description": (
             "Balances and changes to FERC Electric Plant in Service accounts, as "
             "reported on FERC Form 1, Schedule 204. Data originally from the "
@@ -428,7 +428,7 @@ any cleaning mechanisms in place to account for this."""
         "etl_group": "glue",
         "field_namespace": "ferc1",
     },
-    "plants_hydro_ferc1": {
+    "core_ferc1__yearly_plants_hydro": {
         "description": (
             "Hydroelectric generating plant statistics for large plants. Large plants "
             "have an installed nameplate capacity of more than 10 MW. As reported on "
@@ -480,7 +480,7 @@ any cleaning mechanisms in place to account for this."""
         "etl_group": "ferc1",
         "field_namespace": "ferc1",
     },
-    "plants_pumped_storage_ferc1": {
+    "core_ferc1__yearly_plants_pumped_storage": {
         "description": (
             "Generating plant statistics for hydroelectric pumped storage plants with "
             "an installed nameplate capacity of 10+ MW. As reported in Scheudle 408 of "
@@ -536,7 +536,7 @@ any cleaning mechanisms in place to account for this."""
         "etl_group": "ferc1",
         "field_namespace": "ferc1",
     },
-    "plants_small_ferc1": {
+    "core_ferc1__yearly_plants_small": {
         "description": (
             "Generating plant statistics for steam plants with less than 25 MW "
             "installed nameplate capacity and internal combustion plants, gas "
@@ -570,7 +570,7 @@ any cleaning mechanisms in place to account for this."""
         "etl_group": "ferc1",
         "field_namespace": "ferc1",
     },
-    "plants_steam_ferc1": {
+    "core_ferc1__yearly_plants_steam": {
         "description": (
             "Generating plant statistics for steam plants with a capacity of 25+ MW, "
             "internal combustion and gas-turbine plants of 10+ MW, and all nuclear "
@@ -637,7 +637,7 @@ any cleaning mechanisms in place to account for this."""
         "etl_group": "static_ferc1",
         "field_namespace": "ferc1",
     },
-    "purchased_power_ferc1": {
+    "core_ferc1__yearly_purchased_power": {
         "description": (
             "Purchased Power (Account 555) including power exchanges (transactions "
             "involving a balancing of debits and credits for energy, capacity, etc.) "
@@ -669,7 +669,7 @@ any cleaning mechanisms in place to account for this."""
         "etl_group": "ferc1",
         "field_namespace": "ferc1",
     },
-    "transmission_statistics_ferc1": {
+    "core_ferc1__yearly_transmission_statistics": {
         "description": (
             "Transmission Line Statistics. Schedule 422 of FERC Form 1. Information "
             "describing transmission lines, the cost of lines, annual operating and "
@@ -733,7 +733,7 @@ any cleaning mechanisms in place to account for this."""
         "etl_group": "glue",
         "field_namespace": "ferc1",
     },
-    "utility_plant_summary_ferc1": {
+    "core_ferc1__yearly_utility_plant_summary": {
         "description": (
             "Summary of utility plant and accumulated provisions for depreciation, "
             "amortization and depletion of utilty plant assets reported annually at "
@@ -761,7 +761,7 @@ any cleaning mechanisms in place to account for this."""
         "etl_group": "ferc1",
         "field_namespace": "ferc1",
     },
-    "retained_earnings_ferc1": {
+    "core_ferc1__yearly_retained_earnings": {
         "description": "Retained Earnings - The structed part of schedule 118.",
         "schema": {
             "fields": [
@@ -795,7 +795,7 @@ any cleaning mechanisms in place to account for this."""
         "field_namespace": "ferc1",
         "create_database_schema": False,
     },
-    "electric_operating_revenues_ferc1": {
+    "core_ferc1__yearly_electric_operating_revenues": {
         "description": (
             "Electric operating revenues - The structed part of schedule 300."
             "There are a number of revenue_type's that do not have sales_mwh,"
