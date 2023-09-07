@@ -3,16 +3,23 @@ FROM condaforge/mambaforge:23.3.1-1
 # Install curl and js
 # awscli requires unzip, less, groff and mandoc
 # hadolint ignore=DL3008
-RUN apt-get update && apt-get install --no-install-recommends -y curl jq unzip less groff mandoc \
-    && apt-get clean \
-    && rm -rf /var/lib/apt/lists/*
+RUN apt-get update && \
+    apt-get install --no-install-recommends -y curl jq unzip less groff mandoc && \
+    apt-get clean && \
+    rm -rf /var/lib/apt/lists/*
 
 # Configure gsutil authentication
 # hadolint ignore=DL3059
 RUN printf '[GoogleCompute]\nservice_account = default' > /etc/boto.cfg
 
 # Install awscli2
-RUN curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip" && unzip awscliv2.zip && ./aws/install
+RUN curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip" && \
+    unzip awscliv2.zip && \
+    ./aws/install
+# Install google cloud cli:
+RUN curl -O "https://dl.google.com/dl/cloudsdk/channels/rapid/downloads/google-cloud-cli-445.0.0-linux-x86_64.tar.gz" && \
+    tar -xf google-cloud-cli-445.0.0-linux-x86.tar.gz && \
+    ./google-cloud-sdk/install.sh --quiet
 
 # Create a non-root user inside the container
 # hadolint ignore=DL3059
@@ -30,7 +37,7 @@ ENV CONDA_RUN="conda run --no-capture-output --prefix ${CONDA_PREFIX}"
 ENV PYTHON_VERSION="3.11"
 
 ENV CONTAINER_PUDL_WORKSPACE=${CONTAINER_HOME}/pudl_work
-ENV PUDL_INPUT=${CONTAINER_PUDL_WORKSPACE}/data
+ENV PUDL_INPUT=${CONTAINER_PUDL_WORKSPACE}/input
 ENV PUDL_OUTPUT=${CONTAINER_PUDL_WORKSPACE}/output
 ENV DAGSTER_HOME=${CONTAINER_PUDL_WORKSPACE}/dagster_home
 

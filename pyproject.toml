@@ -29,7 +29,7 @@ dependencies = [
     "networkx>=2.2,<3.2",
     "numpy>=1.18.5,!=1.23.0,<1.26",
     "pandas[parquet,excel,fss,gcp,compression]>=2.0,<2.1",
-    "pyarrow>=7,<13",
+    "pyarrow>=7,<13.1",
     "pydantic[email]>=1.7,<2",
     "python-dotenv>=0.21,<1.1",
     "pyyaml>=5,<6.1",
