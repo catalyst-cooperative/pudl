@@ -1,9 +1,4 @@
 """Tests for xbrl extraction module."""
-import io
-import json
-import os
-from datetime import datetime, timedelta
-from pathlib import Path
 
 import pytest
 from dagster import build_op_context
@@ -20,10 +15,10 @@ from pudl.settings import (
     FercToSqliteSettings,
     XbrlFormNumber,
 )
+from pudl.workspace.setup import PudlPaths
 
 
 def test_ferc_xbrl_datastore_get_taxonomy(mocker):
-    """Test FercXbrlDatastore class."""
     datastore_mock = mocker.MagicMock()
     datastore_mock.get_unique_resource.return_value = b"Fake taxonomy data."
 
@@ -32,12 +27,11 @@ def test_ferc_xbrl_datastore_get_taxonomy(mocker):
         2021, XbrlFormNumber.FORM1
     )
 
-    # Check that get_unique_resource was called correctly
+    # 2021 data is published with 2022 taxonomy!
     datastore_mock.get_unique_resource.assert_called_with(
         "ferc1", year=2022, data_format="xbrl_taxonomy"
     )
 
-    # Check return values
     assert raw_archive.getvalue() == b"Fake taxonomy data."
     assert (
         taxonomy_entry_point
@@ -45,94 +39,20 @@ def test_ferc_xbrl_datastore_get_taxonomy(mocker):
     )
 
 
-@pytest.mark.parametrize(
-    "file_map,selected_filings",
-    [
-        (
-            {
-                "rssfeed": io.StringIO(
-                    json.dumps(
-                        {
-                            "filer 1Q4": {
-                                "id1": {
-                                    "entry_id": "id1",
-                                    "title": "filer 1",
-                                    "download_url": "www.fake.url",
-                                    "published_parsed": str(datetime.now()),
-                                    "ferc_formname": "FercForm.FORM_1",
-                                    "ferc_year": 2021,
-                                    "ferc_period": "Q4",
-                                },
-                                "id2": {
-                                    "entry_id": "id2",
-                                    "title": "filer 1",
-                                    "download_url": "www.other_fake.url",
-                                    "published_parsed": str(
-                                        datetime.now() - timedelta(days=1)
-                                    ),
-                                    "ferc_formname": "FercForm.FORM_1",
-                                    "ferc_year": 2021,
-                                    "ferc_period": "Q4",
-                                },
-                            },
-                            "filer 2Q4": {
-                                "id3": {
-                                    "entry_id": "id3",
-                                    "title": "filer 2",
-                                    "download_url": "www.fake.url",
-                                    "published_parsed": str(
-                                        datetime.now() - timedelta(days=100)
-                                    ),
-                                    "ferc_formname": "FercForm.FORM_1",
-                                    "ferc_year": 2021,
-                                    "ferc_period": "Q4",
-                                },
-                                "id4": {
-                                    "entry_id": "id4",
-                                    "title": "filer 2",
-                                    "download_url": "www.fake.url",
-                                    "published_parsed": str(datetime.now()),
-                                    "ferc_formname": "FercForm.FORM_1",
-                                    "ferc_year": 2021,
-                                    "ferc_period": "Q4",
-                                },
-                            },
-                        }
-                    )
-                ),
-                "id1.xbrl": io.BytesIO(b"filer 1 fake filing."),
-                "id2.xbrl": io.BytesIO(b"filer 1 old filing (shouldn't be used)."),
-                "id3.xbrl": io.BytesIO(b"filer 2 old filing (shouldn't be used)."),
-                "id4.xbrl": io.BytesIO(b"filer 2 fake filing."),
-            },
-            {
-                "id1": b"filer 1 fake filing.",
-                "id4": b"filer 2 fake filing.",
-            },
-        ),
-    ],
-)
-def test_ferc_xbrl_datastore_get_filings(mocker, file_map, selected_filings):
-    """Test FercXbrlDatastore class."""
+def test_ferc_xbrl_datastore_get_filings(mocker):
     datastore_mock = mocker.MagicMock()
-
-    # Get mock of archive zipfile
-    archive_mock = datastore_mock.get_zipfile_resource.return_value
-    archive_mock.open.side_effect = file_map.get
+    datastore_mock.get_unique_resource = mocker.MagicMock(
+        return_value=b"Just some bogus bytes"
+    )
 
     # Call method
     ferc_datastore = FercXbrlDatastore(datastore_mock)
-    filings = ferc_datastore.get_filings(2021, XbrlFormNumber.FORM1)
+    ferc_datastore.get_filings(2021, XbrlFormNumber.FORM1)
 
-    # Check that get_zipfile_resource was called correctly
-    datastore_mock.get_zipfile_resource.assert_called_with(
+    # Check that get_unique_resource was called correctly
+    datastore_mock.get_unique_resource.assert_called_with(
         "ferc1", year=2021, data_format="xbrl"
     )
-
-    # Loop through filings and verify the contents
-    for filing in filings:
-        assert filing.name in selected_filings
-        assert filing.file.getvalue() == selected_filings[filing.name]
 
 
 @pytest.mark.parametrize(
@@ -172,14 +92,12 @@ def test_ferc_xbrl_datastore_get_filings(mocker, file_map, selected_filings):
     ],
 )
 def test_xbrl2sqlite(settings, forms, mocker):
-    """Test xbrl2sqlite function."""
     convert_form_mock = mocker.MagicMock()
     mocker.patch("pudl.extract.xbrl.convert_form", new=convert_form_mock)
 
-    mocker.patch("pudl.extract.xbrl._get_sqlite_engine", return_value="sqlite_engine")
-
     # Mock datastore object to allow comparison
-    mocker.patch("pudl.extract.xbrl.FercXbrlDatastore", return_value="datastore")
+    mock_datastore = mocker.MagicMock()
+    mocker.patch("pudl.extract.xbrl.FercXbrlDatastore", return_value=mock_datastore)
 
     # Construct xbrl2sqlite op context
     context = build_op_context(
@@ -196,40 +114,42 @@ def test_xbrl2sqlite(settings, forms, mocker):
 
     xbrl2sqlite(context)
 
-    if len(forms) == 0:
-        convert_form_mock.assert_not_called()
+    assert convert_form_mock.call_count == len(forms)
 
     for form in forms:
         convert_form_mock.assert_any_call(
             settings.get_xbrl_dataset_settings(form),
             form,
-            "datastore",
-            "sqlite_engine",
-            output_path=Path(os.getenv("PUDL_OUTPUT")),
+            mock_datastore,
+            output_path=PudlPaths().output_dir,
             batch_size=20,
             workers=10,
+            clobber=True,
         )
 
 
 def test_convert_form(mocker):
     """Test convert_form method is properly calling extractor."""
     extractor_mock = mocker.MagicMock()
-    mocker.patch("pudl.extract.xbrl.xbrl.extract", new=extractor_mock)
+    mocker.patch("pudl.extract.xbrl.run_main", new=extractor_mock)
 
     # Create fake datastore class for testing
     class FakeDatastore:
-        def get_taxonomy(self, year, form):
-            return f"raw_archive_{year}_{form}", f"taxonomy_entry_point_{year}_{form}"
+        def get_taxonomy(self, year, form: XbrlFormNumber):
+            return (
+                f"raw_archive_{year}_{form.value}",
+                f"taxonomy_entry_point_{year}_{form.value}",
+            )
 
-        def get_filings(self, year, form):
-            return f"filings_{year}_{form}"
+        def get_filings(self, year, form: XbrlFormNumber):
+            return f"filings_{year}_{form.value}"
 
     settings = FercGenericXbrlToSqliteSettings(
         taxonomy="https://www.fake.taxonomy.url",
         years=[2020, 2021],
     )
 
-    output_path = Path("/output/path/")
+    output_path = PudlPaths().pudl_output
 
     # Test convert_form for every form number
     for form in XbrlFormNumber:
@@ -237,26 +157,34 @@ def test_convert_form(mocker):
             settings,
             form,
             FakeDatastore(),
-            "sqlite_engine",
             output_path=output_path,
+            clobber=True,
             batch_size=10,
             workers=5,
         )
 
         # Verify extractor is called correctly
+        expected_calls = []
         for year in settings.years:
-            extractor_mock.assert_any_call(
-                f"filings_{year}_{form}",
-                "sqlite_engine",
-                f"raw_archive_{year}_{form}",
-                form.value,
-                batch_size=10,
-                workers=5,
-                datapackage_path=str(
-                    output_path / f"ferc{form.value}_xbrl_datapackage.json"
-                ),
-                metadata_path=str(
-                    output_path / f"ferc{form.value}_xbrl_taxonomy_metadata.json"
-                ),
-                archive_file_path=f"taxonomy_entry_point_{year}_{form}",
+            expected_calls.append(
+                mocker.call(
+                    instance_path=f"filings_{year}_{form.value}",
+                    sql_path=str(output_path / f"ferc{form.value}_xbrl.sqlite"),
+                    clobber=True,
+                    taxonomy=f"raw_archive_{year}_{form.value}",
+                    entry_point=f"taxonomy_entry_point_{year}_{form.value}",
+                    form_number=form.value,
+                    metadata_path=str(
+                        output_path / f"ferc{form.value}_xbrl_taxonomy_metadata.json"
+                    ),
+                    datapackage_path=str(
+                        output_path / f"ferc{form.value}_xbrl_datapackage.json"
+                    ),
+                    workers=5,
+                    batch_size=10,
+                    loglevel="INFO",
+                    logfile=None,
+                )
             )
+        assert extractor_mock.mock_calls == expected_calls
+        extractor_mock.reset_mock()

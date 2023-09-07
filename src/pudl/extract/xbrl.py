@@ -1,12 +1,8 @@
 """Generic extractor for all FERC XBRL data."""
-import contextlib
 import io
-import json
-import zipfile
-from datetime import date, datetime
+from datetime import date
 from pathlib import Path
 
-import sqlalchemy as sa
 from dagster import Field, Noneable, op
 from ferc_xbrl_extractor.cli import run_main
 
@@ -48,29 +44,6 @@ class FercXbrlDatastore:
         )
 
 
-def _get_sqlite_engine(form_number: int, clobber: bool) -> sa.engine.Engine:
-    """Create SQLite engine for specified form and drop tables.
-
-    Args:
-        form_number: FERC form number.
-        clobber: Flag indicating whether or not to drop tables.
-    """
-    # Read in the structure of the DB, if it exists
-    logger.info(
-        f"Dropping the old FERC Form {form_number} XBRL derived SQLite DB if it exists."
-    )
-    db_path = PudlPaths().sqlite_db(f"ferc{form_number}_xbrl")
-
-    logger.info(f"Connecting to SQLite at {db_path}...")
-    sqlite_engine = sa.create_engine(db_path)
-    logger.info(f"Connected to SQLite at {db_path}!")
-    with contextlib.suppress(sa.exc.OperationalError):
-        # So that we can wipe it out
-        pudl.helpers.drop_tables(sqlite_engine, clobber=clobber)
-
-    return sqlite_engine
-
-
 @op(
     config_schema={
         "clobber": Field(
@@ -90,13 +63,13 @@ def _get_sqlite_engine(form_number: int, clobber: bool) -> sa.engine.Engine:
     required_resource_keys={"ferc_to_sqlite_settings", "datastore"},
 )
 def xbrl2sqlite(context) -> None:
-    """Clone the FERC Form 1 XBRL Databsae to SQLite."""
+    """Clone the FERC Form 1 XBRL Database to SQLite."""
     output_path = PudlPaths().output_dir
     clobber = context.op_config["clobber"]
     batch_size = context.op_config["batch_size"]
     workers = context.op_config["workers"]
     ferc_to_sqlite_settings = context.resources.ferc_to_sqlite_settings
-    datastore = datastore = context.resources.datastore
+    datastore = context.resources.datastore
     datastore = FercXbrlDatastore(datastore)
 
     # Loop through all other forms and perform conversion
