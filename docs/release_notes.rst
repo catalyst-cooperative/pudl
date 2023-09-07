@@ -72,7 +72,9 @@ Data Coverage
 * Updated :doc:`data_sources/eia860` to include early release data from 2022.
 * Updated :doc:`data_sources/eia923` to include early release data from 2022.
 * Updated :doc:`data_sources/epacems` to switch from the old FTP server to the new
-  CAMPD API, and to include 2022 data.
+  CAMPD API, and to include 2022 data. Due to changes in the ETL, Alaska, Puerto Rico
+  and Hawaii are now included in CEMS processing. See issue :issue:`1264` & PRs
+  :pr:`2779`, :pr:` 2816`.
 * New :ref:`epacamd_eia` crosswalk version v0.3, see issue :issue:`2317` and PR
   :pr:`2316`. EPA's updates add manual matches and exclusions focusing on operating
   units with a generator ID as of 2018.
@@ -313,6 +315,8 @@ Miscellaneous
   reported a balancing authority code of "ISONE" to "NYISO". These plants now retain
   their original EIA codes. Plants with manual re-mapping of BA codes have also been
   fixed to have correctly updated BA names. See :pr:`2312` and :issue:`2255`.
+* Fixed a column naming bug that was causing EIA860 monthly retirement dates to get
+  nulled out. See :issue:`2834` and :pr:`2835`
 
 .. _release-v2022.11.30:
 

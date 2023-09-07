@@ -17,7 +17,7 @@ import pudl
 logger = pudl.logging_helpers.get_logger(__name__)
 
 MAX_MULTIVALUE_WEIGHT_FRAC: dict[str, float] = {
-    "income_statement_ferc1": 0.1,
+    "income_statement_ferc1": 0.12,
     "balance_sheet_assets_ferc1": 0.02,
     "balance_sheet_liabilities_ferc1": 0.0,
 }
@@ -1012,8 +1012,7 @@ def create_exploded_table_assets() -> list[AssetsDefinition]:
                 "electric_operating_expenses_ferc1",
                 "electric_operating_revenues_ferc1",
             ],
-            # This is very high, otherwise CI w/ 2 years of data currently fails.
-            "calculation_tolerance": 0.27,
+            "calculation_tolerance": 0.12,
             "seed_nodes": [
                 NodeId(
                     table_name="income_statement_ferc1",
@@ -1033,7 +1032,7 @@ def create_exploded_table_assets() -> list[AssetsDefinition]:
                 "plant_in_service_ferc1",
                 "electric_plant_depreciation_functional_ferc1",
             ],
-            "calculation_tolerance": 0.81,
+            "calculation_tolerance": 0.55,
             "seed_nodes": [
                 NodeId(
                     table_name="balance_sheet_assets_ferc1",
@@ -1051,7 +1050,7 @@ def create_exploded_table_assets() -> list[AssetsDefinition]:
                 "balance_sheet_liabilities_ferc1",
                 "retained_earnings_ferc1",
             ],
-            "calculation_tolerance": 0.075,
+            "calculation_tolerance": 0.07,
             "seed_nodes": [
                 NodeId(
                     table_name="balance_sheet_liabilities_ferc1",
@@ -1649,14 +1648,9 @@ class XbrlCalculationForestFerc1(BaseModel):
             .gt(1)
         )
         if multi_valued_weights.any():
-            # Maybe this should be an AssertionError but we have one weird special case
-            # That we are dealing with explicitly in building the trees below. Maybe it
-            # should be happening here instead?
             logger.warning(
-                "Calculation forest nodes specified with conflicting weights."
-            )
-            logger.debug(
-                f"Nodes with conflicting weights:\n{v.loc[multi_valued_weights]}"
+                f"Found {sum(multi_valued_weights)} calculations with conflicting "
+                "weights."
             )
         return v
 
@@ -1724,15 +1718,6 @@ class XbrlCalculationForestFerc1(BaseModel):
         if bad_seeds:
             raise ValueError(f"Seeds missing from exploded_calcs index: {bad_seeds=}")
         return v
-
-    # Need to update this to generate a new valid set of seeds
-    # @validator("seeds", always=True)
-    # def seeds_not_empty(cls, v, values):
-    #    """If no seeds are provided, use all nodes in the index of exploded_calcs."""
-    #    if v == []:
-    #        logger.info("No seeds provided. Using all nodes from exploded_calcs.")
-    #        v = list(values["exploded_calcs"].index)
-    #    return v
 
     def exploded_calcs_to_digraph(
         self: Self,
