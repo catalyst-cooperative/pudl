@@ -220,7 +220,7 @@ def multicol_transform_factory(
     class InnerMultiColumnTransformFunc(
         Callable[[pd.DataFrame, MultiColumnTransformParams], pd.DataFrame]
     ):
-        __name__ = col_func.__name__ + "_multicol"
+        __name__ = col_func.__name__ + "_multicol"  # noqa: A003
 
         def __call__(
             self, df: pd.DataFrame, params: MultiColumnTransformParams

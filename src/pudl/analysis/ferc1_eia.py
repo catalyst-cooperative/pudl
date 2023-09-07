@@ -868,12 +868,11 @@ def prettyify_best_matches(
         if debug:
             logger.warning(message)
             return no_ferc
-        else:
-            logger.info(
-                "grrrr there are some FERC-EIA matches that aren't in the steam \
-                table but this is because they are linked to retired EIA generators."
-            )
-            logger.warning(message)
+        logger.info(
+            "grrrr there are some FERC-EIA matches that aren't in the steam \
+            table but this is because they are linked to retired EIA generators."
+        )
+        logger.warning(message)
 
     _log_match_coverage(connects_ferc1_eia)
     for match_set in ["all", "overrides"]:

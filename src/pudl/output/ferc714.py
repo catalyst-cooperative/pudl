@@ -439,7 +439,7 @@ def categorized_respondents_ferc714(
         priority=priority,
     )
     logger.info(
-        "Merging categorized EIA codes with annualized FERC-714 Respondent " "data."
+        "Merging categorized EIA codes with annualized FERC-714 Respondent data."
     )
     categorized = pd.merge(categorized, annualized_respondents_ferc714, how="right")
     # Names, ids, and codes for BAs identified as FERC 714 respondents

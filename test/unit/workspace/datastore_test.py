@@ -56,22 +56,22 @@ class TestDatapackageDescriptor(unittest.TestCase):
         )
         self.assertEqual(
             [
-                dict(group="first", color="red"),
-                dict(group="first", color="blue"),
-                dict(group="second", color="black", order=1),
+                {"group": "first", "color": "red"},
+                {"group": "first", "color": "blue"},
+                {"group": "second", "color": "black", "order": 1},
             ],
             list(desc.get_partition_filters()),
         )
         self.assertEqual(
             [
-                dict(group="first", color="red"),
-                dict(group="first", color="blue"),
+                {"group": "first", "color": "red"},
+                {"group": "first", "color": "blue"},
             ],
             list(desc.get_partition_filters(group="first")),
         )
         self.assertEqual(
             [
-                dict(group="first", color="blue"),
+                {"group": "first", "color": "blue"},
             ],
             list(desc.get_partition_filters(color="blue")),
         )
@@ -305,10 +305,12 @@ class TestZenodoFetcher(unittest.TestCase):
 
     @responses.activate
     def test_get_resource_with_invalid_checksum(self):
-        """Test that retrieving resource with bad checksum raises ChecksumMismatch."""
+        """Test that resource with bad checksum raises ChecksumMismatchError."""
         responses.add(responses.GET, "http://localhost/first", body="wrongContent")
         res = PudlResourceKey("epacems", self.PROD_EPACEMS_DOI, "first")
-        self.assertRaises(datastore.ChecksumMismatch, self.fetcher.get_resource, res)
+        self.assertRaises(
+            datastore.ChecksumMismatchError, self.fetcher.get_resource, res
+        )
 
     def test_get_resource_with_nonexistent_resource_fails(self):
         """If resource does not exist, get_resource() throws KeyError."""
