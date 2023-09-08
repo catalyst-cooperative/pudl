@@ -10,13 +10,11 @@ import pytest
 import sqlalchemy as sa
 import yaml
 from dagster import build_init_resource_context, materialize_to_memory
-from ferc_xbrl_extractor import xbrl
 
 import pudl
 from pudl import resources
 from pudl.cli.etl import pudl_etl_job_factory
 from pudl.extract.ferc1 import raw_xbrl_metadata_json
-from pudl.extract.xbrl import FercXbrlDatastore
 from pudl.ferc_to_sqlite.cli import ferc_to_sqlite_job_factory
 from pudl.io_managers import (
     ferc1_dbf_sqlite_io_manager,
@@ -25,7 +23,7 @@ from pudl.io_managers import (
 )
 from pudl.metadata.classes import Package
 from pudl.output.pudltabl import PudlTabl
-from pudl.settings import DatasetsSettings, EtlSettings, XbrlFormNumber
+from pudl.settings import DatasetsSettings, EtlSettings
 from pudl.workspace.setup import PudlPaths
 
 logger = logging.getLogger(__name__)
@@ -261,51 +259,6 @@ def ferc1_xbrl_sql_engine(ferc_to_sqlite_xbrl_only, dataset_settings_config):
         resources={"dataset_settings": dataset_settings_config}
     )
     return ferc1_xbrl_sqlite_io_manager(context).engine
-
-
-@pytest.fixture(scope="session")
-def ferc_xbrl(
-    live_dbs,
-    ferc_to_sqlite_settings,
-    pudl_datastore_fixture,
-):
-    """Extract XBRL filings and produce raw DB+metadata files.
-
-    Extracts a subset of filings for each form for the year 2021.
-    """
-    if not live_dbs:
-        year = 2021
-
-        # Prep datastore
-        datastore = FercXbrlDatastore(pudl_datastore_fixture)
-
-        # Set step size for subsetting
-        step_size = 5
-
-        for form in XbrlFormNumber:
-            raw_archive, taxonomy_entry_point = datastore.get_taxonomy(year, form)
-
-            form_settings = ferc_to_sqlite_settings.get_xbrl_dataset_settings(form)
-
-            # Extract every fifth filing
-            filings_subset = datastore.get_filings(year, form)[::step_size]
-            xbrl.extract(
-                filings_subset,
-                raw_archive,
-                form.value,
-                requested_tables=form_settings.tables,
-                batch_size=len(filings_subset) // step_size + 1,
-                workers=step_size,
-                # TODO(janrous): the following should ideally be provided by some
-                # ferc dataset metadata object rather than encoding this in settings.
-                datapackage_path=PudlPaths().output_file(
-                    f"ferc{form.value}_xbrl_datapackage.json"
-                ),
-                metadata_path=PudlPaths().output_file(
-                    f"ferc{form.value}_xbrl_taxonomy_metadata.json"
-                ),
-                archive_file_path=taxonomy_entry_point,
-            )
 
 
 @pytest.fixture(scope="session", name="ferc1_xbrl_taxonomy_metadata")
