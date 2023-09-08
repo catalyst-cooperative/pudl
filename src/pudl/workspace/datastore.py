@@ -174,13 +174,13 @@ class ZenodoDoiSettings(BaseSettings):
     # epacems": ZenodoDoi = "10.5072/zenodo.1228519"
     ferc1: ZenodoDoi = "10.5281/zenodo.8326634"
     # ferc1: ZenodoDoi = "10.5072/zenodo.1234455"
-    ferc2: ZenodoDoi = "10.5281/zenodo.8006881"
+    ferc2: ZenodoDoi = "10.5281/zenodo.8326697"
     # ferc2: ZenodoDoi = "10.5072/zenodo.1236695"
-    ferc6: ZenodoDoi = "10.5281/zenodo.7130141"
+    ferc6: ZenodoDoi = "10.5281/zenodo.8326696"
     # ferc6: ZenodoDoi = "10.5072/zenodo.1236703"
-    ferc60: ZenodoDoi = "10.5281/zenodo.7130146"
+    ferc60: ZenodoDoi = "10.5281/zenodo.8326695"
     # ferc60: ZenodoDoi = "10.5072/zenodo.1236694"
-    ferc714: ZenodoDoi = "10.5281/zenodo.7139875"
+    ferc714: ZenodoDoi = "10.5281/zenodo.8326694"
     # ferc714: ZenodoDoi = "10.5072/zenodo.1237565"
 
     class Config:
