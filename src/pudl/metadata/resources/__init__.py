@@ -306,12 +306,14 @@ columns.
 Mapped columns allow for harvesting the same entity ID / value relationship
 from multiple columns in the same input dataframe. This is useful if an entity has a
 relationship with another entity of the same kind, for example owner and operator utilities
-showing up in the same ownerhip table records. The mapped column dictionary maps from
+showing up in the same ownership table records. The mapped column dictionary maps from
 column names of the second group of entity ID / value columns to the standard names
 for the entity ID / values columns.
 
-Mapped column dictionaries must include all columns that are to be harvested
-for that relationship, even if a column name maps to itself.
+Mapped column dictionaries must include key value pairs for all the column names
+that should be harvested for that relationship, even if the column doesn't need to be renamed.
+If a column doesn't need to be renamed, it should map to itself,
+i.e. `utility_id_eia: utility_id_eia`.
 
 The order of the entities matters. Plants must be harvested before utilities, since
 plant location must be removed before the utility locations are harvested.
