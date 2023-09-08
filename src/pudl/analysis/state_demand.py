@@ -150,7 +150,7 @@ def local_to_utc(local: pd.Series, tz: Iterable, **kwargs: Any) -> pd.Series:
     return local.groupby(tz).transform(
         lambda x: x.dt.tz_localize(
             datetime.timezone(datetime.timedelta(hours=x.name))
-            if isinstance(x.name, (int, float))
+            if isinstance(x.name, int | float)
             else x.name,
             **kwargs,
         ).dt.tz_convert(None)
@@ -184,7 +184,7 @@ def utc_to_local(utc: pd.Series, tz: Iterable) -> pd.Series:
     return utc.groupby(tz).transform(
         lambda x: x.dt.tz_convert(
             datetime.timezone(datetime.timedelta(hours=x.name))
-            if isinstance(x.name, (int, float))
+            if isinstance(x.name, int | float)
             else x.name
         ).dt.tz_localize(None)
     )
@@ -229,14 +229,13 @@ def load_ventyx_hourly_state_demand(path: str) -> pd.DataFrame:
             "Estimated State Load MW - Sum",
         ],
     )
-    df.rename(
+    df = df.rename(
         columns={
             "State/Province": "state",
             "Local Datetime (Hour Ending)": "datetime",
             "Estimated State Load MW - Sum": "demand_mwh",
             "Time Zone": "tz",
         },
-        inplace=True,
     )
     # Convert state name to FIPS codes and keep only data for US states
     fips = {x["name"]: x["fips"] for x in STATES}
@@ -366,17 +365,17 @@ def filter_ferc714_hourly_demand_matrix(
         (short, "Nulled short respondent-years (below min_data)"),
         (bad, "Nulled bad respondent-years (below min_data_fraction)"),
     ]:
-        row, col = mask.values.nonzero()
+        row, col = mask.to_numpy().nonzero()
         report = (
             pd.DataFrame({"id": mask.columns[col], "year": mask.index[row]})
             .groupby("id")["year"]
             .apply(lambda x: np.sort(x))
         )
-        with pd.option_context("display.max_colwidth", -1):
+        with pd.option_context("display.max_colwidth", None):
             logger.info(f"{msg}:\n{report}")
     # Drop respondents with no data
     blank = df.columns[df.isnull().all()].tolist()
-    df.drop(columns=blank, inplace=True)
+    df = df.drop(columns=blank)
     # Report dropped respondents (with no data)
     logger.info(f"Dropped blank respondents: {blank}")
     return df
@@ -425,12 +424,12 @@ def melt_ferc714_hourly_demand_matrix(
     """
     # Melt demand matrix to long format
     df = df.melt(value_name="demand_mwh", ignore_index=False)
-    df.reset_index(inplace=True)
+    df = df.reset_index()
     # Convert local times to UTC
     df["year"] = df["datetime"].dt.year
     df = df.merge(tz, on=["respondent_id_ferc714", "year"])
     df["utc_datetime"] = local_to_utc(df["datetime"], df["utc_offset"])
-    df.drop(columns=["utc_offset", "datetime"], inplace=True)
+    df = df.drop(columns=["utc_offset", "datetime"])
     return df
 
 
@@ -521,7 +520,7 @@ def county_assignments_ferc714(
     df = df[~df["county_id_fips"].isnull()].drop_duplicates()
     # Convert date to year
     df["year"] = df["report_date"].dt.year
-    df.drop(columns=["report_date"], inplace=True)
+    df = df.drop(columns=["report_date"])
     return df
 
 
@@ -562,7 +561,7 @@ def total_state_sales_eia861(
     fips = {x["code"]: x["fips"] for x in STATES}
     df["state_id_fips"] = df["state"].map(fips)
     # Drop records with zero sales
-    df.rename(columns={"sales_mwh": "demand_mwh"}, inplace=True)
+    df = df.rename(columns={"sales_mwh": "demand_mwh"})
     df = df[df["demand_mwh"].gt(0)]
     return df[["state_id_fips", "year", "demand_mwh"]]
 

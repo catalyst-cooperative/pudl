@@ -450,17 +450,16 @@ def demand_hourly_pa_ferc714(
     # Replace UTC offset codes with UTC offset and timezone
     df["utc_offset"] = df["utc_offset_code"].map(OFFSET_CODES)
     df["timezone"] = df["utc_offset_code"].map(TZ_CODES)
-    df.drop(columns="utc_offset_code", inplace=True)
+    df = df.drop(columns="utc_offset_code")
 
     # Almost all 25th hours are unusable (0.0 or daily totals),
     # and they shouldn't really exist at all based on FERC instructions.
-    df.drop(columns="hour25", inplace=True)
+    df = df.drop(columns="hour25")
 
     # Melt daily rows with 24 demands to hourly rows with single demand
     logger.info("Melting daily FERC 714 records into hourly records.")
-    df.rename(
+    df = df.rename(
         columns=lambda x: int(re.sub(r"^hour", "", x)) - 1 if "hour" in x else x,
-        inplace=True,
     )
     df = df.melt(
         id_vars=[
@@ -479,21 +478,21 @@ def demand_hourly_pa_ferc714(
     missing_offset = df["utc_offset"].isna()
     assert df.loc[missing_offset, "demand_mwh"].eq(0).all()  # nosec B101
     # Drop these records
-    df.query("~@missing_offset", inplace=True)
+    df = df.query("~@missing_offset")
 
     # Construct UTC datetime
     logger.info("Converting local time + offset code to UTC + timezone.")
     hour_timedeltas = {i: pd.to_timedelta(i, unit="h") for i in range(24)}
     df["report_date"] += df["hour"].map(hour_timedeltas)
     df["utc_datetime"] = df["report_date"] - df["utc_offset"]
-    df.drop(columns=["hour", "utc_offset"], inplace=True)
+    df = df.drop(columns=["hour", "utc_offset"])
 
     # Report and drop duplicated UTC datetimes
     # There should be less than 10 of these,
     # resulting from changes to a planning area's reporting timezone.
     duplicated = df.duplicated(["respondent_id_ferc714", "utc_datetime"])
     logger.info(f"Found {np.count_nonzero(duplicated)} duplicate UTC datetimes.")
-    df.query("~@duplicated", inplace=True)
+    df = df.query("~@duplicated")
 
     # Flip the sign on sections of demand which were reported as negative
     mask = (
@@ -518,6 +517,6 @@ def demand_hourly_pa_ferc714(
         "timezone",
         "demand_mwh",
     ]
-    df.drop(columns=set(df.columns) - set(columns), inplace=True)
+    df = df.drop(columns=set(df.columns) - set(columns))
     df = _post_process(df[columns], table_name="demand_hourly_pa_ferc714")
     return df

@@ -40,11 +40,11 @@ def state_average_fuel_costs_eia(
         "petroleum_liquids": "oil",
     }
     aggregates["fuel_type_code_pudl"] = aggregates["fuel_agg"].map(fuel_map)
-    aggregates.drop(columns="fuel_agg", inplace=True)
+    aggregates = aggregates.drop(columns="fuel_agg")
 
     col_rename_dict = {
         "geo_agg": "state",
         "fuel_cost_per_mmbtu": "bulk_agg_fuel_cost_per_mmbtu",
     }
-    aggregates.rename(columns=col_rename_dict, inplace=True)
+    aggregates = aggregates.rename(columns=col_rename_dict)
     return aggregates

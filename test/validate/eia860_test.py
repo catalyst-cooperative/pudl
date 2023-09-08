@@ -37,8 +37,8 @@ def test_bga_eia860(pudl_out_eia, live_dbs):
         .count()
         .reset_index()
     )
-    units_fuel_count.rename(
-        columns={"fuel_type_code_pudl": "fuel_type_count"}, inplace=True
+    units_fuel_count = units_fuel_count.rename(
+        columns={"fuel_type_code_pudl": "fuel_type_count"}
     )
     units_simple = pd.merge(
         units_simple,
@@ -155,7 +155,7 @@ def test_generator_id_consistency(pudl_out_eia, live_dbs):
     # meaning that within a single plant, there are generators whose original IDs
     # only differ by non-alphanumeric characters, or by the case of the letters:
     multiple_ids = (
-        gen_ids.groupby(["plant_id_eia", "simple_id"])["generator_id"].nunique() > 1
+        gen_ids.groupby(["plant_id_eia", "simple_id"])["generator_id"].nunique().gt(1)
     )
 
     # Select only those generator IDs that have multiple values:

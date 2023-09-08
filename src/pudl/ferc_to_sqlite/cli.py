@@ -53,12 +53,6 @@ def parse_command_line(argv):
         default=False,
     )
     parser.add_argument(
-        "--sandbox",
-        action="store_true",
-        default=False,
-        help="Use the Zenodo sandbox rather than production",
-    )
-    parser.add_argument(
         "-b",
         "--batch-size",
         default=50,
@@ -113,7 +107,7 @@ def ferc_to_sqlite_job_factory(
                 resource_defs=ferc_to_sqlite.default_resources_defs,
                 name="ferc_to_sqlite_job",
             )
-        elif enable_xbrl:
+        if enable_xbrl:
             return ferc_to_sqlite.ferc_to_sqlite_xbrl_only.to_job(
                 resource_defs=ferc_to_sqlite.default_resources_defs,
                 name="ferc_to_sqlite_xbrl_only_job",
@@ -155,7 +149,6 @@ def main():  # noqa: C901
                 },
                 "datastore": {
                     "config": {
-                        "sandbox": args.sandbox,
                         "gcs_cache_path": args.gcs_cache_path
                         if args.gcs_cache_path
                         else "",
