@@ -61,39 +61,41 @@ from pudl.transform.params.ferc1 import (
 
 logger = pudl.logging_helpers.get_logger(__name__)
 
+rng = np.random.default_rng()
+
 # Unit conversions that are only used in testing
-PERTHERM_TO_PERMCF = dict(
-    multiplier=10.37,
-    from_unit="_per_therm",
-    to_unit="_per_mcf",
-)
-PERGRAM_TO_PERSHORTTON = dict(
-    multiplier=907185,
-    from_unit="_per_kg",
-    to_unit="_per_ton",
-)
-PERTON_TO_PERBARREL = dict(
-    multiplier=(1.0 / 7.46),
-    from_unit="_per_ton",
-    to_unit="_per_bbl",
-)
-PERKGAL_TO_PERBARREL = dict(
-    multiplier=42000.0,
-    from_unit="_per_kgal",
-    to_unit="_per_bbl",
-)
-PERFUCKTON_TO_PERSHORTTON = dict(
-    multiplier=1.0e-9,
-    adder=123.4e-9,
-    from_unit="_per_fuckton",
-    to_unit="_per_ton",
-)
-BUTTLOAD_TO_MMBUTTLOAD = dict(
-    multiplier=1.0e9,
-    adder=1.234e9,
-    from_unit="_butt",
-    to_unit="_mmbutt",
-)
+PERTHERM_TO_PERMCF = {
+    "multiplier": 10.37,
+    "from_unit": "_per_therm",
+    "to_unit": "_per_mcf",
+}
+PERGRAM_TO_PERSHORTTON = {
+    "multiplier": 907185,
+    "from_unit": "_per_kg",
+    "to_unit": "_per_ton",
+}
+PERTON_TO_PERBARREL = {
+    "multiplier": (1.0 / 7.46),
+    "from_unit": "_per_ton",
+    "to_unit": "_per_bbl",
+}
+PERKGAL_TO_PERBARREL = {
+    "multiplier": 42000.0,
+    "from_unit": "_per_kgal",
+    "to_unit": "_per_bbl",
+}
+PERFUCKTON_TO_PERSHORTTON = {
+    "multiplier": 1.0e-9,
+    "adder": 123.4e-9,
+    "from_unit": "_per_fuckton",
+    "to_unit": "_per_ton",
+}
+BUTTLOAD_TO_MMBUTTLOAD = {
+    "multiplier": 1.0e9,
+    "adder": 1.234e9,
+    "from_unit": "_butt",
+    "to_unit": "_mmbutt",
+}
 
 # Unit corrections only used in testing
 COAL_MMBTU_PER_UNIT_CORRECTIONS = {
@@ -347,7 +349,7 @@ MIXED_TYPE_DATA: pd.DataFrame = pd.DataFrame(
         (5, pd.NA, pd.NA, -5.0, "barry"),
         (6, 2000, "2000-01-01", 231.1, "replace me"),
         (7, pd.NA, pd.NA, 101.10, pd.NA),
-        (8, 2012, "01-01-2020", 899.98, "another plant name"),
+        (8, 2012, "2020-01-01", 899.98, "another plant name"),
         (9, 1850, "2022-03-01T00:00:00.000000000", 543.21, np.nan),
         (10, date.today().year, date.today(), 8.1, "cat corp"),
     ],
@@ -355,11 +357,13 @@ MIXED_TYPE_DATA: pd.DataFrame = pd.DataFrame(
     {
         "id": int,
         "year": pd.Int64Dtype(),
-        "report_date": "datetime64[ns]",
         "capacity_mw": float,
         "plant_name": str,
     }
 )
+MIXED_TYPE_DATA["report_date"] = pd.to_datetime(
+    MIXED_TYPE_DATA["report_date"], format="mixed"
+).astype("datetime64[ns]")
 
 SPOT_FIXED_MIXED_TYPE_DATA: pd.DataFrame = pd.DataFrame(
     columns=["id", "year", "report_date", "capacity_mw", "plant_name"],
@@ -371,7 +375,7 @@ SPOT_FIXED_MIXED_TYPE_DATA: pd.DataFrame = pd.DataFrame(
         (5, pd.NA, pd.NA, -5.0, "321"),
         (6, 2000, "2000-01-01", 459.0, "replace me"),
         (7, pd.NA, pd.NA, 101.10, pd.NA),
-        (8, 2012, "01-01-2020", 899.98, "another plant name"),
+        (8, 2012, "2020-01-01", 899.98, "another plant name"),
         (9, 1850, "2022-03-01T00:00:00.000000000", 123.45, np.nan),
         (10, date.today().year, date.today(), 8.1, "cat inc"),
     ],
@@ -379,11 +383,13 @@ SPOT_FIXED_MIXED_TYPE_DATA: pd.DataFrame = pd.DataFrame(
     {
         "id": int,
         "year": pd.Int64Dtype(),
-        "report_date": "datetime64[ns]",
         "capacity_mw": float,
         "plant_name": str,
     }
 )
+SPOT_FIXED_MIXED_TYPE_DATA["report_date"] = pd.to_datetime(
+    SPOT_FIXED_MIXED_TYPE_DATA["report_date"], format="mixed"
+).astype("datetime64[ns]")
 
 
 #####################################################################################
@@ -473,35 +479,35 @@ def test_multicol_transform_factory(func, drop, df, expected, param_model, param
     "unit_corrections,expectation",
     [
         pytest.param(
-            dict(
-                data_col="column",
-                cat_col="categories",
-                cat_val="cat",
-                valid_range={"lower_bound": 1.0, "upper_bound": 999},
-                unit_conversions=[BTU_TO_MMBTU, KWH_TO_MWH],
-            ),
+            {
+                "data_col": "column",
+                "cat_col": "categories",
+                "cat_val": "cat",
+                "valid_range": {"lower_bound": 1.0, "upper_bound": 999},
+                "unit_conversions": [BTU_TO_MMBTU, KWH_TO_MWH],
+            },
             does_not_raise(),
             id="distinct_unit_corrections",
         ),
         pytest.param(
-            dict(
-                data_col="column",
-                cat_col="categories",
-                cat_val="cat",
-                valid_range={"lower_bound": 1.0, "upper_bound": 1000},
-                unit_conversions=[BTU_TO_MMBTU, KWH_TO_MWH],
-            ),
+            {
+                "data_col": "column",
+                "cat_col": "categories",
+                "cat_val": "cat",
+                "valid_range": {"lower_bound": 1.0, "upper_bound": 1000},
+                "unit_conversions": [BTU_TO_MMBTU, KWH_TO_MWH],
+            },
             pytest.raises(ValidationError),
             id="overlapping_unit_corrections",
         ),
         pytest.param(
-            dict(
-                data_col="column",
-                cat_col="fuel_type",
-                cat_val="gas",
-                valid_range={"lower_bound": 0.3, "upper_bound": 3.3},
-                unit_conversions=[PERTHERM_TO_PERMCF],
-            ),
+            {
+                "data_col": "column",
+                "cat_col": "fuel_type",
+                "cat_val": "gas",
+                "valid_range": {"lower_bound": 0.3, "upper_bound": 3.3},
+                "unit_conversions": [PERTHERM_TO_PERMCF],
+            },
             pytest.raises(ValidationError),
             id="self_overlapping_unit_correction",
         ),
@@ -535,49 +541,49 @@ def test_unit_corrections_distinct_domains(unit_corrections, expectation):
     "invalid_rows,expectation",
     [
         pytest.param(
-            dict(invalid_values=[0, pd.NA], required_valid_cols=["a", "b"]),
+            {"invalid_values": [0, pd.NA], "required_valid_cols": ["a", "b"]},
             does_not_raise(),
             id="good_required_valid_cols",
         ),
         pytest.param(
-            dict(invalid_values=[0, pd.NA], allowed_invalid_cols=["a", "b"]),
+            {"invalid_values": [0, pd.NA], "allowed_invalid_cols": ["a", "b"]},
             does_not_raise(),
             id="good_allowed_invalid_cols",
         ),
         pytest.param(
-            dict(
-                invalid_values=[0, pd.NA],
-                allowed_invalid_cols=["a", "b"],
-                required_valid_cols=["a", "b"],
-            ),
+            {
+                "invalid_values": [0, pd.NA],
+                "allowed_invalid_cols": ["a", "b"],
+                "required_valid_cols": ["a", "b"],
+            },
             pytest.raises(ValidationError),
             id="too_many_filters",
         ),
         pytest.param(
-            dict(
-                invalid_values=[0, pd.NA],
-                like="dude",
-                regex="wtf",
-            ),
+            {
+                "invalid_values": [0, pd.NA],
+                "like": "dude",
+                "regex": "wtf",
+            },
             pytest.raises(ValidationError),
             id="too_many_filters",
         ),
         pytest.param(
-            dict(
-                invalid_values=[0, pd.NA],
-                required_valid_cols=["a", "b"],
-                like="omg",
-            ),
+            {
+                "invalid_values": [0, pd.NA],
+                "required_valid_cols": ["a", "b"],
+                "like": "omg",
+            },
             pytest.raises(ValidationError),
             id="too_many_filters",
         ),
         pytest.param(
-            dict(invalid_values=[0, pd.NA]),
+            {"invalid_values": [0, pd.NA]},
             does_not_raise(),
             id="no_filters",
         ),
         pytest.param(
-            dict(invalid_values=[], allowed_invalid_cols=["a", "b"]),
+            {"invalid_values": [], "allowed_invalid_cols": ["a", "b"]},
             pytest.raises(ValidationError),
             id="no_invalid_values_specified",
         ),
@@ -671,19 +677,17 @@ def test_convert_units_round_trip():
     """Generate random unit conversions and check that we can invert them."""
     for _ in range(0, 10):
         from_unit = "".join(
-            random.choice(ascii_letters) for _ in range(10)  # nosec: B311
+            random.choice(ascii_letters) for _ in range(10)  # noqa: S311
         )
-        to_unit = "".join(
-            random.choice(ascii_letters) for _ in range(10)  # nosec: B311
-        )
+        to_unit = "".join(random.choice(ascii_letters) for _ in range(10))  # noqa: S311
         uc = UnitConversion(
-            multiplier=np.random.uniform(-10, 10),
-            adder=np.random.uniform(-10, 10),
+            multiplier=rng.uniform(low=-10, high=10),
+            adder=rng.uniform(low=-10, high=10),
             from_unit=from_unit,
             to_unit=to_unit,
         )
 
-        dude = pd.Series((np.random.uniform(-10, 10, 1000)), name="dude")
+        dude = pd.Series((rng.uniform(low=-10, high=10, size=1000)), name="dude")
         dude.name = "dude_" + from_unit
         wtf = convert_units(convert_units(dude, uc), uc.inverse())
         pd.testing.assert_series_equal(dude, wtf)
@@ -699,7 +703,7 @@ def test_rename_columns():
     ...
 
 
-def unit_corrections_are_homogeneous(corrections: list[UnitCorrections]) -> tuple():
+def unit_corrections_are_homogeneous(corrections: list[UnitCorrections]) -> ():
     """Check that all unit corrections apply to same data and category columns.
 
     Assuming the list of unit corrections are homogeneous, return the names of the
@@ -750,7 +754,7 @@ def make_unit_correction_test_data(
     data_col, cat_col, categories = unit_corrections_are_homogeneous(corrections)
 
     df = pd.DataFrame(index=range(0, nrows))
-    df[cat_col] = np.random.choice(categories, size=nrows)
+    df[cat_col] = rng.choice(categories, size=nrows)
     df[data_col] = np.nan
 
     # Assign data values
@@ -758,7 +762,7 @@ def make_unit_correction_test_data(
         mask = df[uc.cat_col] == uc.cat_val
         size = sum(mask)
         # Pick values from within the appropriate valid range
-        df.loc[mask, data_col] = np.random.uniform(
+        df.loc[mask, data_col] = rng.uniform(
             low=uc.valid_range.lower_bound,
             high=uc.valid_range.upper_bound,
             size=size,
@@ -876,29 +880,29 @@ def test_correct_units(corrections, expectation):
         pytest.param(
             NUMERIC_DATA,
             NUMERIC_DATA.loc[NUMERIC_DATA.id.isin([1, 2, 3, 4, 5, 6, 8, 9, 10])],
-            dict(
-                invalid_values=[0, pd.NA, np.nan],
-                required_valid_cols=[
+            {
+                "invalid_values": [0, pd.NA, np.nan],
+                "required_valid_cols": [
                     "valid_year",
                     "valid_capacity_mw",
                     "net_generation_mwh",
                 ],
-            ),
+            },
             id="required_valid_cols",
         ),
         pytest.param(
             NUMERIC_DATA,
             NUMERIC_DATA.loc[NUMERIC_DATA.id.isin([1, 2, 3, 4, 5, 6, 8, 9, 10])],
-            dict(
-                invalid_values=[0, pd.NA, np.nan],
-                allowed_invalid_cols=[
+            {
+                "invalid_values": [0, pd.NA, np.nan],
+                "allowed_invalid_cols": [
                     "id",
                     "year",
                     "capacity_kw",
                     "capacity_mw",
                     "net_generation_kwh",
                 ],
-            ),
+            },
             id="allowed_invalid_cols",
         ),
     ],

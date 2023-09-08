@@ -236,7 +236,7 @@ def filled_balancing_authority_eia861(
     df = pd.concat([df, pd.DataFrame(rows)])
     # Remove balancing authorities treated as utilities
     mask = df["balancing_authority_id_eia"].isin([util["id"] for util in UTILITIES])
-    return df[~mask]
+    return apply_pudl_dtypes(df[~mask], group="eia")
 
 
 def filled_balancing_authority_assn_eia861(
@@ -312,7 +312,11 @@ def filled_balancing_authority_assn_eia861(
             tables.append(table)
             if "replace" in util and util["replace"]:
                 mask |= is_child
-    return pd.concat([df[~mask], pd.concat(tables)]).drop_duplicates()
+    return (
+        pd.concat([df[~mask]] + tables)
+        .drop_duplicates()
+        .pipe(apply_pudl_dtypes, group="eia")
+    )
 
 
 def filled_service_territory_eia861(
@@ -340,8 +344,7 @@ def filled_service_territory_eia861(
     # Reformat as unique utility-state-year
     assn = assn[selected][index].drop_duplicates()
     # Select relevant service territories
-    df = service_territory_eia861
-    mdf = assn.merge(df, how="left")
+    mdf = assn.merge(service_territory_eia861, how="left")
     # Drop utility-state with no counties for all years
     grouped = mdf.groupby(["utility_id_eia", "state"])["county_id_fips"]
     mdf = mdf[grouped.transform("count").gt(0)]
@@ -361,7 +364,9 @@ def filled_service_territory_eia861(
         idx = (years - row["report_date"]).abs().idxmin()
         mask &= mdf["report_date"].eq(years[idx])
         tables.append(mdf[mask].assign(report_date=row["report_date"]))
-    return pd.concat([df] + tables)
+    return pd.concat([service_territory_eia861] + tables).pipe(
+        apply_pudl_dtypes, group="eia"
+    )
 
 
 @asset(compute_kind="Python")
@@ -434,7 +439,7 @@ def categorized_respondents_ferc714(
         priority=priority,
     )
     logger.info(
-        "Merging categorized EIA codes with annualized FERC-714 Respondent " "data."
+        "Merging categorized EIA codes with annualized FERC-714 Respondent data."
     )
     categorized = pd.merge(categorized, annualized_respondents_ferc714, how="right")
     # Names, ids, and codes for BAs identified as FERC 714 respondents

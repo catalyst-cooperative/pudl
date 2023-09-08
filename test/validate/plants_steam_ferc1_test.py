@@ -106,7 +106,8 @@ def test_plant_id_clash(pudl_out_ferc1):
         .rename(columns={"plant_id_pudl": "pudl_id_count"})
         .query("pudl_id_count>1")
         .reset_index()
-        .plant_id_ferc1.values.tolist()
+        .plant_id_ferc1.to_numpy()
+        .tolist()
     )
     if len(bad_plant_ids_ferc1) > 6:
         bad_records = steam_df[steam_df.plant_id_ferc1.isin(bad_plant_ids_ferc1)]
