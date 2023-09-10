@@ -1,17 +1,16 @@
 """add ppe
 
-Revision ID: 28fc4fc6e747
-Revises: 28bb2b27e2cf
-Create Date: 2023-08-16 13:34:57.156608
+Revision ID: 1d8ac4541321
+Revises: 8b3029915ab1
+Create Date: 2023-09-08 11:38:16.069476
 
 """
-from alembic import op
 import sqlalchemy as sa
-
+from alembic import op
 
 # revision identifiers, used by Alembic.
-revision = '28fc4fc6e747'
-down_revision = '28bb2b27e2cf'
+revision = '1d8ac4541321'
+down_revision = '8b3029915ab1'
 branch_labels = None
 depends_on = None
 
@@ -51,26 +50,26 @@ def upgrade() -> None:
     sa.Column('fraction_owned', sa.Float(), nullable=True, comment='Proportion of generator ownership attributable to this utility.'),
     sa.Column('utility_id_eia', sa.Integer(), nullable=True, comment='The EIA Utility Identification number.'),
     sa.Column('ownership_record_type', sa.Enum('owned', 'total'), nullable=True, comment='Whether each generator record is for one owner or represents a total of all ownerships.'),
-    sa.ForeignKeyConstraint(['energy_source_code_1'], ['energy_sources_eia.code'], ),
-    sa.ForeignKeyConstraint(['plant_id_eia', 'generator_id', 'report_date'], ['generators_eia860.plant_id_eia', 'generators_eia860.generator_id', 'generators_eia860.report_date'], ),
-    sa.ForeignKeyConstraint(['plant_id_pudl'], ['plants_pudl.plant_id_pudl'], ),
-    sa.ForeignKeyConstraint(['prime_mover_code'], ['prime_movers_eia.code'], ),
-    sa.ForeignKeyConstraint(['utility_id_eia', 'report_date'], ['utilities_eia860.utility_id_eia', 'utilities_eia860.report_date'], ),
-    sa.ForeignKeyConstraint(['utility_id_pudl'], ['utilities_pudl.utility_id_pudl'], )
+    sa.ForeignKeyConstraint(['energy_source_code_1'], ['energy_sources_eia.code'], name=op.f('fk_mega_generators_eia_energy_source_code_1_energy_sources_eia')),
+    sa.ForeignKeyConstraint(['plant_id_eia', 'generator_id', 'report_date'], ['generators_eia860.plant_id_eia', 'generators_eia860.generator_id', 'generators_eia860.report_date'], name=op.f('fk_mega_generators_eia_plant_id_eia_generators_eia860')),
+    sa.ForeignKeyConstraint(['plant_id_pudl'], ['plants_pudl.plant_id_pudl'], name=op.f('fk_mega_generators_eia_plant_id_pudl_plants_pudl')),
+    sa.ForeignKeyConstraint(['prime_mover_code'], ['prime_movers_eia.code'], name=op.f('fk_mega_generators_eia_prime_mover_code_prime_movers_eia')),
+    sa.ForeignKeyConstraint(['utility_id_eia', 'report_date'], ['utilities_eia860.utility_id_eia', 'utilities_eia860.report_date'], name=op.f('fk_mega_generators_eia_utility_id_eia_utilities_eia860')),
+    sa.ForeignKeyConstraint(['utility_id_pudl'], ['utilities_pudl.utility_id_pudl'], name=op.f('fk_mega_generators_eia_utility_id_pudl_utilities_pudl'))
     )
     op.create_table('plant_parts_eia',
     sa.Column('plant_id_eia', sa.Integer(), nullable=True, comment='The unique six-digit facility identification number, also called an ORISPL, assigned by the Energy Information Administration.'),
     sa.Column('report_date', sa.Date(), nullable=True, comment='Date reported.'),
-    sa.Column('plant_part', sa.Enum('plant_prime_mover', 'plant_match_ferc1', 'plant_unit', 'plant_prime_fuel', 'plant_operating_year', 'plant', 'plant_ferc_acct', 'plant_technology', 'plant_gen'), nullable=True, comment='The part of the plant a record corresponds to.'),
+    sa.Column('plant_part', sa.Enum('plant_operating_year', 'plant_prime_fuel', 'plant_match_ferc1', 'plant_technology', 'plant_prime_mover', 'plant_ferc_acct', 'plant_unit', 'plant', 'plant_gen'), nullable=True, comment='The part of the plant a record corresponds to.'),
     sa.Column('generator_id', sa.Text(), nullable=True, comment='Generator ID is usually numeric, but sometimes includes letters. Make sure you treat it as a string!'),
     sa.Column('unit_id_pudl', sa.Integer(), nullable=True, comment='Dynamically assigned PUDL unit id. WARNING: This ID is not guaranteed to be static long term as the input data and algorithm may evolve over time.'),
     sa.Column('prime_mover_code', sa.Text(), nullable=True, comment='Code for the type of prime mover (e.g. CT, CG)'),
-    sa.Column('energy_source_code_1', sa.Enum('SGP', 'WO', 'BFG', 'MWH', 'WH', 'LFG', 'DFO', 'SGC', 'PC', 'LIG', 'MSB', 'WC', 'OBG', 'MSN', 'OG', 'PUR', 'PG', 'GEO', 'BLQ', 'NG', 'WAT', 'BIT', 'ANT', 'WDS', 'KER', 'SG', 'SUB', 'AB', 'OTH', 'JF', 'WDL', 'TDF', 'NUC', 'OBL', 'OBS', 'SUN', 'SC', 'RC', 'MSW', 'SLW', 'WND', 'RFO'), nullable=True, comment='The code representing the most predominant type of energy that fuels the generator.'),
-    sa.Column('technology_description', sa.Enum('Offshore Wind Turbine', 'Landfill Gas', 'Natural Gas Internal Combustion Engine', 'Natural Gas with Compressed Air Storage', 'Nuclear', 'Coal Integrated Gasification Combined Cycle', 'Other Gases', 'Petroleum Liquids', 'Natural Gas Fired Combined Cycle', 'Solar Thermal with Energy Storage', 'Natural Gas Fired Combustion Turbine', 'Conventional Steam Coal', 'Geothermal', 'Flywheels', 'Onshore Wind Turbine', 'Other Waste Biomass', 'Hydroelectric Pumped Storage', 'Solar Photovoltaic', 'All Other', 'Municipal Solid Waste', 'Wood/Wood Waste Biomass', 'Batteries', 'Hydrokinetic', 'Petroleum Coke', 'Other Natural Gas', 'Conventional Hydroelectric', 'Natural Gas Steam Turbine', 'Solar Thermal without Energy Storage'), nullable=True, comment='High level description of the technology used by the generator to produce electricity.'),
+    sa.Column('energy_source_code_1', sa.Enum('SUN', 'BIT', 'NG', 'PUR', 'OBL', 'BLQ', 'OBS', 'LIG', 'MWH', 'WH', 'AB', 'ANT', 'RFO', 'WC', 'BFG', 'PG', 'MSN', 'DFO', 'TDF', 'SGC', 'SG', 'SGP', 'NUC', 'WND', 'SUB', 'OTH', 'GEO', 'SC', 'KER', 'JF', 'WAT', 'WO', 'OG', 'RC', 'MSB', 'OBG', 'PC', 'MSW', 'LFG', 'WDL', 'SLW', 'WDS'), nullable=True, comment='The code representing the most predominant type of energy that fuels the generator.'),
+    sa.Column('technology_description', sa.Enum('Petroleum Liquids', 'Natural Gas Fired Combined Cycle', 'All Other', 'Landfill Gas', 'Flywheels', 'Nuclear', 'Solar Thermal with Energy Storage', 'Municipal Solid Waste', 'Conventional Hydroelectric', 'Batteries', 'Solar Thermal without Energy Storage', 'Natural Gas Internal Combustion Engine', 'Solar Photovoltaic', 'Hydroelectric Pumped Storage', 'Natural Gas with Compressed Air Storage', 'Onshore Wind Turbine', 'Hydrokinetic', 'Natural Gas Fired Combustion Turbine', 'Conventional Steam Coal', 'Offshore Wind Turbine', 'Coal Integrated Gasification Combined Cycle', 'Geothermal', 'Other Waste Biomass', 'Petroleum Coke', 'Other Natural Gas', 'Wood/Wood Waste Biomass', 'Other Gases', 'Natural Gas Steam Turbine'), nullable=True, comment='High level description of the technology used by the generator to produce electricity.'),
     sa.Column('ferc_acct_name', sa.Enum('Hydraulic', 'Nuclear', 'Steam', 'Other'), nullable=True, comment='Name of FERC account, derived from technology description and prime mover code.'),
     sa.Column('utility_id_eia', sa.Integer(), nullable=True, comment='The EIA Utility Identification number.'),
     sa.Column('true_gran', sa.Boolean(), nullable=True, comment='Indicates whether a plant part list record is associated with the highest priority plant part for all identical records.'),
-    sa.Column('appro_part_label', sa.Enum('plant_prime_mover', 'plant_match_ferc1', 'plant_unit', 'plant_prime_fuel', 'plant_operating_year', 'plant', 'plant_ferc_acct', 'plant_technology', 'plant_gen'), nullable=True, comment='Plant part of the associated true granularity record.'),
+    sa.Column('appro_part_label', sa.Enum('plant_operating_year', 'plant_prime_fuel', 'plant_match_ferc1', 'plant_technology', 'plant_prime_mover', 'plant_ferc_acct', 'plant_unit', 'plant', 'plant_gen'), nullable=True, comment='Plant part of the associated true granularity record.'),
     sa.Column('appro_record_id_eia', sa.Text(), nullable=True, comment='EIA record ID of the associated true granularity record.'),
     sa.Column('ferc1_generator_agg_id', sa.Integer(), nullable=True, comment='ID dynamically assigned by PUDL to EIA records with multiple matches to a single FERC ID in the FERC-EIA manual matching process.'),
     sa.Column('capacity_eoy_mw', sa.Float(), nullable=True, comment='Total end of year installed (nameplate) capacity for a plant part, in megawatts.'),
@@ -101,12 +100,12 @@ def upgrade() -> None:
     sa.Column('utility_id_pudl', sa.Integer(), nullable=True, comment='A manually assigned PUDL utility ID. May not be stable over time.'),
     sa.Column('report_year', sa.Integer(), nullable=True, comment='Four-digit year in which the data was reported.'),
     sa.Column('plant_id_report_year', sa.Text(), nullable=True, comment='PUDL plant ID and report year of the record.'),
-    sa.ForeignKeyConstraint(['energy_source_code_1'], ['energy_sources_eia.code'], ),
-    sa.ForeignKeyConstraint(['plant_id_eia', 'generator_id', 'report_date'], ['generators_eia860.plant_id_eia', 'generators_eia860.generator_id', 'generators_eia860.report_date'], ),
-    sa.ForeignKeyConstraint(['plant_id_pudl'], ['plants_pudl.plant_id_pudl'], ),
-    sa.ForeignKeyConstraint(['prime_mover_code'], ['prime_movers_eia.code'], ),
-    sa.ForeignKeyConstraint(['utility_id_eia', 'report_date'], ['utilities_eia860.utility_id_eia', 'utilities_eia860.report_date'], ),
-    sa.ForeignKeyConstraint(['utility_id_pudl'], ['utilities_pudl.utility_id_pudl'], )
+    sa.ForeignKeyConstraint(['energy_source_code_1'], ['energy_sources_eia.code'], name=op.f('fk_plant_parts_eia_energy_source_code_1_energy_sources_eia')),
+    sa.ForeignKeyConstraint(['plant_id_eia', 'generator_id', 'report_date'], ['generators_eia860.plant_id_eia', 'generators_eia860.generator_id', 'generators_eia860.report_date'], name=op.f('fk_plant_parts_eia_plant_id_eia_generators_eia860')),
+    sa.ForeignKeyConstraint(['plant_id_pudl'], ['plants_pudl.plant_id_pudl'], name=op.f('fk_plant_parts_eia_plant_id_pudl_plants_pudl')),
+    sa.ForeignKeyConstraint(['prime_mover_code'], ['prime_movers_eia.code'], name=op.f('fk_plant_parts_eia_prime_mover_code_prime_movers_eia')),
+    sa.ForeignKeyConstraint(['utility_id_eia', 'report_date'], ['utilities_eia860.utility_id_eia', 'utilities_eia860.report_date'], name=op.f('fk_plant_parts_eia_utility_id_eia_utilities_eia860')),
+    sa.ForeignKeyConstraint(['utility_id_pudl'], ['utilities_pudl.utility_id_pudl'], name=op.f('fk_plant_parts_eia_utility_id_pudl_utilities_pudl'))
     )
     # ### end Alembic commands ###
 

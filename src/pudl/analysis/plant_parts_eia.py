@@ -647,11 +647,6 @@ class MakePlantParts:
             pandas.DataFrame: The complete plant parts list
         """
         # aggregate everything by each plant part
-        """
-        df_keys = list(self.pudl_out._dfs.keys())
-        for k in df_keys:
-            del self.pudl_out._dfs[k]
-        """
         part_dfs = []
         for part_name in PLANT_PARTS:
             if part_name == "plant_match_ferc1":
