@@ -191,6 +191,7 @@ KEYWORDS: dict[str, list[str]] = {
         "mmbtu",
         "fuel cost",
         "fuel price",
+        "pipelines",
     ],
     "plants": [
         "plant",
@@ -251,6 +252,14 @@ KEYWORDS: dict[str, list[str]] = {
     "epa": [
         "epa",
         "environmental protection agency",
+    ],
+    "phmsa": [
+        "phmsa",
+        "pipelines and hazardous materials safety administration",
+        "pipelines",
+        "transmission",
+        "distribution",
+        "natural gas",
     ],
     "us_govt": [
         "united states",

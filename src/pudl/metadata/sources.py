@@ -548,6 +548,7 @@ SOURCES: dict[str, Any] = {
             "pipeline mileage, facilities, commodities transported, miles by material, "
             "and installation dates."
         ),
+        "keywords": sorted(set(KEYWORDS["phmsa"] + KEYWORDS["us_govt"])),
         "license_raw": LICENSES["us-govt"],
         "license_pudl": LICENSES["cc-by-4.0"],
     },
