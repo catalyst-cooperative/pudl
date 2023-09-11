@@ -1,6 +1,7 @@
 """A collection of denormalized FERC assets and helper functions."""
 import importlib
 import re
+from functools import cached_property
 from typing import Literal, NamedTuple, Self
 
 import networkx as nx
@@ -1243,7 +1244,7 @@ class Exploder:
         self.seed_nodes = seed_nodes
         self.tags = tags
 
-    @property
+    @cached_property
     def calculation_forest(self: Self) -> "XbrlCalculationForestFerc1":
         """Construct a calculation forest based on class attributes."""
         return XbrlCalculationForestFerc1(
@@ -1253,12 +1254,12 @@ class Exploder:
             tags=self.tags,
         )
 
-    @property
+    @cached_property
     def other_dimensions(self) -> list[str]:
         """Get all of the column names for the other dimensions."""
         return pudl.transform.ferc1.other_dimensions(table_names=self.table_names)
 
-    @property
+    @cached_property
     def exploded_pks(self) -> list[str]:
         """Get the joint primary keys of the exploded tables."""
         pks = []
@@ -1283,7 +1284,7 @@ class Exploder:
         ] + pudl.helpers.dedupe_n_flatten_list_of_lists(pks)
         return pks
 
-    @property
+    @cached_property
     def value_col(self) -> str:
         """Get the value column for the exploded tables."""
         value_cols = []
@@ -1617,6 +1618,7 @@ class XbrlCalculationForestFerc1(BaseModel):
         """Allow the class to store a dataframe."""
 
         arbitrary_types_allowed = True
+        keep_untouched = (cached_property,)
 
     @validator("parent_cols", always=True)
     def set_parent_cols(cls, v, values) -> list[str]:
@@ -1745,7 +1747,7 @@ class XbrlCalculationForestFerc1(BaseModel):
         forest = nx.from_pandas_edgelist(edgelist, create_using=nx.DiGraph)
         return forest
 
-    @property
+    @cached_property
     def annotated_forest(self: Self) -> nx.DiGraph:
         """Calculation forest annotated with node calculation weights and tags."""
         # Reshape the tags to turn them into a dictionary of values per-node. This
@@ -1813,7 +1815,7 @@ class XbrlCalculationForestFerc1(BaseModel):
         nx.set_node_attributes(forest, node_attrs.to_dict(orient="index"))
         return forest
 
-    @property
+    @cached_property
     def full_digraph(self: Self) -> nx.DiGraph:
         """A digraph of all calculations described by the exploded metadata."""
         full_digraph = self.exploded_calcs_to_digraph(
@@ -1863,7 +1865,7 @@ class XbrlCalculationForestFerc1(BaseModel):
         )
         return seeded_digraph
 
-    @property
+    @cached_property
     def seeded_digraph(self: Self) -> nx.DiGraph:
         """A digraph of all calculations that contribute to the seed values.
 
@@ -1879,7 +1881,7 @@ class XbrlCalculationForestFerc1(BaseModel):
         """
         return self.prune_unrooted(self.full_digraph)
 
-    @property
+    @cached_property
     def forest(self: Self) -> nx.DiGraph:
         """A pruned version of the seeded digraph that should be one or more trees.
 
@@ -2026,17 +2028,17 @@ class XbrlCalculationForestFerc1(BaseModel):
         """Identify all root nodes in a digraph."""
         return [n for n, d in graph.in_degree() if d == 0]
 
-    @property
+    @cached_property
     def full_digraph_roots(self: Self) -> list[NodeId]:
         """Find all roots in the full digraph described by the exploded metadata."""
         return self.roots(graph=self.full_digraph)
 
-    @property
+    @cached_property
     def seeded_digraph_roots(self: Self) -> list[NodeId]:
         """Find all roots in the seeded digraph."""
         return self.roots(graph=self.seeded_digraph)
 
-    @property
+    @cached_property
     def forest_roots(self: Self) -> list[NodeId]:
         """Find all roots in the pruned calculation forest."""
         return self.roots(graph=self.forest)
@@ -2046,22 +2048,22 @@ class XbrlCalculationForestFerc1(BaseModel):
         """Identify all leaf nodes in a digraph."""
         return [n for n, d in graph.out_degree() if d == 0]
 
-    @property
+    @cached_property
     def full_digraph_leaves(self: Self) -> list[NodeId]:
         """All leaf nodes in the full digraph."""
         return self.leaves(graph=self.full_digraph)
 
-    @property
+    @cached_property
     def seeded_digraph_leaves(self: Self) -> list[NodeId]:
         """All leaf nodes in the seeded digraph."""
         return self.leaves(graph=self.seeded_digraph)
 
-    @property
+    @cached_property
     def forest_leaves(self: Self) -> list[NodeId]:
         """All leaf nodes in the pruned forest."""
         return self.leaves(graph=self.forest)
 
-    @property
+    @cached_property
     def orphans(self: Self) -> list[NodeId]:
         """Identify all nodes that appear in metadata but not in the full digraph."""
         nodes = self.full_digraph.nodes
@@ -2071,7 +2073,7 @@ class XbrlCalculationForestFerc1(BaseModel):
             if n not in nodes
         ]
 
-    @property
+    @cached_property
     def pruned(self: Self) -> list[NodeId]:
         """List of all nodes that appear in the DAG but not in the pruned forest."""
         return list(set(self.full_digraph.nodes).difference(self.forest.nodes))
@@ -2088,7 +2090,7 @@ class XbrlCalculationForestFerc1(BaseModel):
             stepparents = stepparents.union(graph.predecessors(stepchild))
         return list(stepparents)
 
-    @property
+    @cached_property
     def passthroughs(self: Self) -> list[NodeId]:
         """All nodes in the seeded digraph with a single parent and a single child.
 
@@ -2117,7 +2119,7 @@ class XbrlCalculationForestFerc1(BaseModel):
 
         return list(has_one_parent.intersection(has_one_child))
 
-    @property
+    @cached_property
     def leafy_meta(self: Self) -> pd.DataFrame:
         """Identify leaf facts and compile their metadata.
 
@@ -2191,7 +2193,7 @@ class XbrlCalculationForestFerc1(BaseModel):
             .convert_dtypes()
         )
 
-    @property
+    @cached_property
     def root_calculations(self: Self) -> pd.DataFrame:
         """Produce a calculation components dataframe containing only roots and leaves.
 
@@ -2201,7 +2203,7 @@ class XbrlCalculationForestFerc1(BaseModel):
         """
         return self.leafy_meta.rename(columns=lambda x: re.sub("_root$", "_parent", x))
 
-    @property
+    @cached_property
     def table_names(self: Self) -> list[str]:
         """Produce the list of tables involved in this explosion."""
         return list(self.exploded_calcs["table_name_parent"].unique())
@@ -2270,115 +2272,97 @@ class XbrlCalculationForestFerc1(BaseModel):
         leafy_data[value_col] = leafy_data[value_col] * leafy_data["weight"]
         return leafy_data.reset_index(drop=True).convert_dtypes()
 
+    @cached_property
     def forest_as_table(self: Self) -> pd.DataFrame:
-        """Draft version of table representation of forest.
+        """Construct a tabular representation of the calculation forest.
 
-        Build a table that represents that forest strucutre. This table will have
-        multiple sets of columns cooresponding to the ``calc_cols`` with a suffix
-        representing which level of the tree the columns represent.
+        Each generation of nodes, starting with the root(s) of the calculation forest,
+        make up a set of columns in the table. Each set of columns is merged onto
         """
-        forest = self.forest  # so we don't have to build this a gazzilion times.
-        seed_node = self.seeds
-        if len(seed_node) != 1:
-            raise AssertionError(
-                "Generating the forest as a table is only enabled with one seed node."
-            )
-        seed_node = seed_node[0]
-        # not sure if this is correct but it seems like it is working.
-        simple_paths = []
-        for leaf in self.leaves(forest):
-            simple_paths.append(nx.shortest_simple_paths(forest, seed_node, leaf))
-        max_seed_to_child_paths = max([len(list(sp)[0]) for sp in simple_paths])
+        logger.info("Recursively building a tabular version of the calculation forest.")
+        # Identify all root nodes in the forest:
+        layer0_nodes = [n for n, d in self.annotated_forest.in_degree() if d == 0]
+        # Convert them into the first layer of the dataframe:
+        layer0_df = pd.DataFrame(layer0_nodes).rename(columns=lambda x: x + "_layer0")
 
-        # get the table started with just the seed node.
-        forest_as_table = self._forest_as_table_level_from_nodes(
-            self.seeds, forest, n=0
+        return (
+            self._add_layers_to_forest_as_table(df=layer0_df)
+            .dropna(axis="columns", how="all")
+            .convert_dtypes()
         )
-        for n in range(1, max_seed_to_child_paths):
-            logger.info(n)
-            forest_as_table = self._add_next_level_into_forest_as_table(
-                forest=forest,
-                forest_as_table=forest_as_table,
-                n=n,
-            )
-        # drop all columns that are full of nulls. for readability mostly.
-        return forest_as_table.dropna(axis=1, how="all")
 
-    def _forest_as_table_level_from_nodes(self, nodes_level_n, forest, n):
-        """Build a table of parent nodes and their children as level n and leven n+1."""
-        level_n_cols = [f"{col}_level{n}" for col in self.calc_cols]
-        level_next_cols = [f"{col}_level{n+1}" for col in self.calc_cols]
-        # get the successors of this level so we can add a whole new level!
-        nodes_level_next = []
-        for node in nodes_level_n:
-            nodes_level_next.append(list(forest.successors(node)))
-        nodes_level_next = pudl.helpers.dedupe_n_flatten_list_of_lists(nodes_level_next)
+    def _add_layers_to_forest_as_table(self: Self, df: pd.DataFrame) -> pd.DataFrame:
+        """Recursively add additional layers of nodes from the forest to the table.
 
-        calc_comps_next = (
-            # Get the current level as parents
-            self.exploded_calcs.set_index(self.parent_cols)
-            .loc[nodes_level_n]
-            .reset_index()
-            # rename those parent to _leveln
-            .rename(
-                columns={
-                    col: col.replace("_parent", f"_level{n}")
-                    for col in self.parent_cols
-                }
-            )
-            # Get the next level as calc components
-            .set_index(self.calc_cols)
-            .loc[nodes_level_next]
-            .reset_index()
-            # rename those as next level
-            .rename(
-                columns={
-                    col: f"{col}_level{n+1}" for col in self.calc_cols + ["weight"]
-                }
-            )[level_n_cols + level_next_cols + [f"weight_level{n+1}"]]
-        )
-        return calc_comps_next
+        Given a dataframe with one or more set of columns with names corresponding to
+        the components of a NodeId with suffixes of the form _layerN, identify the
+        children of the nodes in the set of columns with the largest N, and merge them
+        onto the table, recursively until there are no more children to add. Creating a
+        tabular representation of the calculation forest that can be inspected in Excel.
 
-    def _add_next_level_into_forest_as_table(
-        self: Self,
-        forest: nx.digraph,
-        forest_as_table: pd.DataFrame,
-        n: int,
-    ) -> pd.DataFrame:
-        """Add another level onto the ``forest_as_table`` table."""
-        level_n_cols = [f"{col}_level{n}" for col in self.calc_cols]
-        # get the list of children from the current level in the forest_as_table
-        # is there a better way to go from df -> list of nodes?
-        nodes_level_n = [
-            NodeId(*node)
-            for node in forest_as_table.dropna(subset=level_n_cols, how="all")
-            .set_index(level_n_cols)
-            .index
-        ]
-        # but some nodes never show up as parents in the calc comps table
-        # so we need to restrict the nodes that we actually need to get
-        # sucessors from the parents in calc_comps
-        nodes_level_n = self.exploded_calcs.set_index(
-            self.parent_cols
-        ).index.intersection(nodes_level_n)
-        calc_comps_next = self._forest_as_table_level_from_nodes(
-            nodes_level_n, forest, n
+        Include node annotations like weight and tags, as well as other familiar
+        metadata, to aid in the inspection.
+        """
+        # Identify the last layer of nodes present in the input dataframe.
+        current_layer = df.rename(
+            columns=lambda x: int(re.sub(r"^.*_layer(\d+)$", r"\1", x))
+        ).columns.max()
+        logger.info(f"{current_layer=}")
+        suffix = f"_layer{current_layer}"
+        parent_cols = [col + suffix for col in self.calc_cols]
+        # Identify the list of nodes that are part of that last layer:
+        parent_nodes = list(
+            df[parent_cols]
+            .drop_duplicates()
+            .dropna(how="all")
+            .rename(columns=lambda x: x.removesuffix(suffix))
+            .itertuples(name="NodeId", index=False)
         )
-        null_level_mask = forest_as_table[level_n_cols].isnull().all(axis="columns")
-        forest_as_table_n = forest_as_table[~null_level_mask].merge(
-            calc_comps_next,
-            on=level_n_cols,
-            how="outer",
-            indicator=True,
-            validate="1:m",
-        )
-        merge_vc = forest_as_table_n._merge.value_counts()
-        if not merge_vc.eq(0).right_only:
-            raise AssertionError(
-                f"AHH! We have {merge_vc.right_only} next level nodes that we couldn't "
-                "match up to parents."
-            )
-        forest_as_table_n = forest_as_table_n.drop(columns=["_merge"])
-        return pd.concat(
-            [forest_as_table_n, forest_as_table[null_level_mask]]
-        ).reset_index(drop=True)
+
+        # Identify the successors (children), if any, of each node in the last layer:
+        successor_dfs = []
+        for node in parent_nodes:
+            successor_nodes = list(self.forest.successors(node))
+            # If this particular node has no successors, skip to the next one.
+            if not successor_nodes:
+                continue
+            # Convert the list of successor nodes into a dataframe with layer = n+1
+            successor_df = nodes_to_df(
+                calc_forest=self.annotated_forest, nodes=successor_nodes
+            ).rename(columns=lambda x: x + f"_layer{current_layer + 1}")
+            # Add a set of parent columns that all have the same values so we can merge
+            # this onto the previous layer
+            successor_df[parent_cols] = node
+            successor_dfs.append(successor_df)
+
+        # If any child nodes were found, merge them onto the input dataframe creating
+        # a new layer , and recurse:
+        if successor_dfs:
+            new_df = df.merge(pd.concat(successor_dfs), on=parent_cols, how="outer")
+            df = self._add_layers_to_forest_as_table(df=new_df)
+
+        # If no child nodes were found return the dataframe terminating the recursion.
+        return df
+
+
+def nodes_to_df(calc_forest: nx.DiGraph, nodes: list[NodeId]) -> pd.DataFrame:
+    """Construct a dataframe from a list of nodes, including their annotations.
+
+    NodeIds that are not present in the calculation forest will be ignored.
+
+    Args:
+        calc_forest: A calculation forest made of nodes with "weight" and "tags" data.
+        nodes: List of :class:`NodeId` values to extract from the calculation forest.
+
+    Returns:
+        A tabular dataframe representation of the nodes, including their weights and
+        tags, extracted from the calculation forest.
+    """
+    node_dict = {
+        k: v for k, v in dict(calc_forest.nodes(data=True)).items() if k in nodes
+    }
+    index = pd.DataFrame(node_dict.keys()).astype("string")
+    data = pd.DataFrame(node_dict.values())
+    weights = data["weight"]
+    tags = pd.json_normalize(data.tags).astype("string")
+    return pd.concat([index, weights, tags], axis="columns")
