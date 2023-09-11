@@ -259,6 +259,34 @@ KEYWORDS: dict[str, list[str]] = {
         "government",
         "federal",
     ],
+    "msha": [
+        "msha",
+        "mshamines",
+        "mine safety and health administration",
+        "mines",
+        "mining",
+        "coal",
+        "metal",
+    ],
+    "phmsa": [
+        "phmsa",
+        "phmsagas",
+        "pipelines and hazardous materials safety administration",
+        "pipelines",
+        "natural gas",
+        "transmission",
+        "distribution",
+        "gathering",
+        "liquified natural gas",
+        "lng",
+        "underground natural gas storage",
+    ],
+    "eia_water": [
+        "eia thermoelectric cooling water",
+        "eia waterthermoelectric",
+        "cooling water",
+        "water usage",
+    ],
 }
 
 XBRL_TABLES = [
