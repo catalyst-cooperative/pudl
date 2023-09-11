@@ -107,7 +107,7 @@ class InputManager:
             start_date: Start date that cooresponds to the tables passed in.
             end_date: End date that cooresponds to the tables passed in.
         """
-        self.plant_parts_eia = plant_parts_eia
+        self.plant_parts_eia = plant_parts_eia.set_index("record_id_eia")
         self.plants_all_ferc1 = plants_all_ferc1
         self.fbp_ferc1 = fbp_ferc1
 

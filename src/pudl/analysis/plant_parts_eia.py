@@ -393,7 +393,7 @@ def plant_parts_eia_asset_factory(
             "denorm_plants_eia": AssetIn(key="denorm_plants_eia"),
             "denorm_utilities_eia": AssetIn(key="denorm_utilities_eia"),
         },
-        # io_manager_key=io_manager_key,
+        io_manager_key=io_manager_key,
         compute_kind="Python",
     )
     def plant_parts_eia_asset(
@@ -642,10 +642,6 @@ class MakePlantParts:
             pandas.DataFrame: The complete plant parts list
         """
         # aggregate everything by each plant part
-        gens_mega = gens_mega[
-            (gens_mega.report_date < "2021-01-01")
-            & (gens_mega.report_date >= "2020-01-01")
-        ]
         part_dfs = []
         for part_name in PLANT_PARTS:
             if part_name == "plant_match_ferc1":
