@@ -203,7 +203,7 @@ class OutputBundle:
 
     def match_filetype(self, fpath: str) -> bool:
         """Returns true if file should be considered for comparison."""
-        return any([fpath.endswith(ft) for ft in self.FILE_TYPES])
+        return any(fpath.endswith(ft) for ft in self.FILE_TYPES)
 
     def get_engine(self, fname: str):
         """Returns sqlalchemy engine for reading contents of fname."""
@@ -230,9 +230,7 @@ class OutputBundle:
     def get_rows_as_df(self, fname: str, table_name: str) -> pd.DataFrame:
         """Returns sqlite table contents as pandas DataFrame."""
         con = self.get_engine(fname)
-        return pd.concat(
-            [df for df in pd.read_sql_table(table_name, con, chunksize=100_000)]
-        )
+        return pd.concat(list(pd.read_sql_table(table_name, con, chunksize=100_000)))
 
 
 class OutputPair:
