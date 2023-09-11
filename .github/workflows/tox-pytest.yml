@@ -28,17 +28,19 @@ jobs:
         shell: bash -l {0}
 
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
         with:
           fetch-depth: 2
 
       - name: Install Conda environment using mamba
-        uses: mamba-org/provision-with-micromamba@v16
+        uses: mamba-org/setup-micromamba@v1
         with:
-          environment-file: test/test-environment.yml
-          cache-env: true
-          channels: conda-forge,defaults
-          channel-priority: strict
+          cache-environment: true
+          condarc: |
+            channels:
+            - conda-forge
+            - defaults
+            channel_priority: strict
 
       - name: Log environment details
         run: |
@@ -68,17 +70,19 @@ jobs:
         shell: bash -l {0}
 
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
         with:
           fetch-depth: 2
 
       - name: Install Conda environment using mamba
-        uses: mamba-org/provision-with-micromamba@v16
+        uses: mamba-org/setup-micromamba@v1
         with:
-          environment-file: test/test-environment.yml
-          cache-env: true
-          channels: conda-forge,defaults
-          channel-priority: strict
+          cache-environment: true
+          condarc: |
+            channels:
+            - conda-forge
+            - defaults
+            channel_priority: strict
 
       - name: Log environment details
         run: |
@@ -118,17 +122,19 @@ jobs:
         shell: bash -l {0}
 
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
         with:
           fetch-depth: 2
 
       - name: Install Conda environment using mamba
-        uses: mamba-org/provision-with-micromamba@v16
+        uses: mamba-org/setup-micromamba@v1
         with:
-          environment-file: test/test-environment.yml
-          cache-env: true
-          channels: conda-forge,defaults
-          channel-priority: strict
+          cache-environment: true
+          condarc: |
+            channels:
+            - conda-forge
+            - defaults
+            channel_priority: strict
 
       - name: Log environment details
         run: |
@@ -189,7 +195,7 @@ jobs:
       - ci-integration
       - ci-static
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - name: Download coverage
         id: download-unit
         uses: actions/download-artifact@v3

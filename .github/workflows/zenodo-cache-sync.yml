@@ -37,12 +37,14 @@ jobs:
           ref: ${{ env.GITHUB_REF }}
 
       - name: Install Conda environment using mamba
-        uses: mamba-org/provision-with-micromamba@v16
+        uses: mamba-org/setup-micromamba@v1
         with:
-          environment-file: test/test-environment.yml
-          cache-env: true
-          channels: conda-forge,defaults
-          channel-priority: strict
+          cache-environment: true
+          condarc: |
+            channels:
+            - conda-forge
+            - defaults
+            channel_priority: strict
 
       - name: Log environment details
         run: |
