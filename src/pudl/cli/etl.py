@@ -15,6 +15,7 @@ import argparse
 import sys
 from collections.abc import Callable
 
+import fsspec
 from dagster import (
     DagsterInstance,
     Definitions,
@@ -26,6 +27,7 @@ from dagster import (
 
 import pudl
 from pudl.settings import EtlSettings
+from pudl.workspace.setup import PudlPaths
 
 logger = pudl.logging_helpers.get_logger(__name__)
 
@@ -44,12 +46,6 @@ def parse_command_line(argv):
         dest="settings_file", type=str, default="", help="path to ETL settings file."
     )
     parser.add_argument(
-        "--sandbox",
-        action="store_true",
-        default=False,
-        help="Use the Zenodo sandbox rather than production",
-    )
-    parser.add_argument(
         "--logfile",
         default=None,
         help="If specified, write logs to this file.",
@@ -63,6 +59,11 @@ def parse_command_line(argv):
         "--loglevel",
         help="Set logging level (DEBUG, INFO, WARNING, ERROR, or CRITICAL).",
         default="INFO",
+    )
+    parser.add_argument(
+        "--max-concurrent",
+        help="Set the max number of processes dagster can launch. Defaults to use the number of CPUs on the machine.",
+        default=0,
     )
     arguments = parser.parse_args(argv[1:])
     return arguments
@@ -115,9 +116,6 @@ def main():
 
     etl_settings = EtlSettings.from_yaml(args.settings_file)
 
-    # Set PUDL_INPUT/PUDL_OUTPUT env vars from .pudl.yml if not set already!
-    pudl.workspace.setup.get_defaults()
-
     dataset_settings_config = etl_settings.datasets.dict()
     process_epacems = True
     if etl_settings.datasets.epacems is None:
@@ -141,11 +139,17 @@ def main():
         pudl_etl_reconstructable_job,
         instance=DagsterInstance.get(),
         run_config={
+            "execution": {
+                "config": {
+                    "multiprocess": {
+                        "max_concurrent": int(args.max_concurrent),
+                    },
+                }
+            },
             "resources": {
                 "dataset_settings": {"config": dataset_settings_config},
                 "datastore": {
                     "config": {
-                        "sandbox": args.sandbox,
                         "gcs_cache_path": args.gcs_cache_path
                         if args.gcs_cache_path
                         else "",
@@ -160,6 +164,16 @@ def main():
         for event in result.all_events:
             if event.event_type_value == "STEP_FAILURE":
                 raise Exception(event.event_specific_data.error)
+    else:
+        logger.info("ETL job completed successfully, publishing outputs.")
+        for output_path in etl_settings.publish_destinations:
+            logger.info(f"Publishing outputs to {output_path}")
+            fs, _, _ = fsspec.get_fs_token_paths(output_path)
+            fs.put(
+                PudlPaths().output_dir,
+                output_path,
+                recursive=True,
+            )
 
 
 if __name__ == "__main__":

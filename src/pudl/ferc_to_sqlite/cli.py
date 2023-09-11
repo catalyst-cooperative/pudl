@@ -53,12 +53,6 @@ def parse_command_line(argv):
         default=False,
     )
     parser.add_argument(
-        "--sandbox",
-        action="store_true",
-        default=False,
-        help="Use the Zenodo sandbox rather than production",
-    )
-    parser.add_argument(
         "-b",
         "--batch-size",
         default=50,
@@ -87,23 +81,42 @@ def parse_command_line(argv):
 
 
 def ferc_to_sqlite_job_factory(
-    logfile: str | None = None, loglevel: str = "INFO"
+    logfile: str | None = None,
+    loglevel: str = "INFO",
+    enable_xbrl: bool = True,
+    enable_dbf: bool = True,
 ) -> Callable[[], JobDefinition]:
     """Factory for parameterizing a reconstructable ferc_to_sqlite job.
 
     Args:
         loglevel: The log level for the job's execution.
         logfile: Path to a log file for the job's execution.
+        enable_xbrl: if True, include XBRL data processing in the job.
+        enable_dbf: if True, include DBF data processing in the job.
 
     Returns:
         The job definition to be executed.
     """
+    if not (enable_xbrl or enable_dbf):
+        raise ValueError("either dbf or xbrl needs to be enabled")
 
     def get_ferc_to_sqlite_job():
         """Module level func for creating a job to be wrapped by reconstructable."""
-        return ferc_to_sqlite.ferc_to_sqlite.to_job(
+        if enable_xbrl and enable_dbf:
+            return ferc_to_sqlite.ferc_to_sqlite.to_job(
+                resource_defs=ferc_to_sqlite.default_resources_defs,
+                name="ferc_to_sqlite_job",
+            )
+        if enable_xbrl:
+            return ferc_to_sqlite.ferc_to_sqlite_xbrl_only.to_job(
+                resource_defs=ferc_to_sqlite.default_resources_defs,
+                name="ferc_to_sqlite_xbrl_only_job",
+            )
+
+        # enable_dbf has to be true
+        return ferc_to_sqlite.ferc_to_sqlite_dbf_only.to_job(
             resource_defs=ferc_to_sqlite.default_resources_defs,
-            name="ferc_to_sqlite_job",
+            name="ferc_to_sqlite_dbf_only_job",
         )
 
     return get_ferc_to_sqlite_job
@@ -119,9 +132,6 @@ def main():  # noqa: C901
     )
 
     etl_settings = EtlSettings.from_yaml(args.settings_file)
-
-    # Set PUDL_INPUT/PUDL_OUTPUT env vars from .pudl.yml if not set already!
-    pudl.workspace.setup.get_defaults()
 
     ferc_to_sqlite_reconstructable_job = build_reconstructable_job(
         "pudl.ferc_to_sqlite.cli",
@@ -139,7 +149,6 @@ def main():  # noqa: C901
                 },
                 "datastore": {
                     "config": {
-                        "sandbox": args.sandbox,
                         "gcs_cache_path": args.gcs_cache_path
                         if args.gcs_cache_path
                         else "",

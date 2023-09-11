@@ -80,6 +80,7 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "type": "string",
         "description": "EIA record ID of the associated true granularity record.",
     },
+    "area_km2": {"type": "number", "description": "County area in km2.", "unit": "km2"},
     "ash_content_pct": {
         "type": "number",
         "description": "Ash content percentage by weight to the nearest 0.1 percent.",
@@ -484,6 +485,10 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
             "pattern": r"^\d{5}$",
         },
     },
+    "county_name_census": {
+        "type": "string",
+        "description": "County name as specified in Census DP1 Data.",
+    },
     "country_code": {
         "type": "string",
         "description": "Three letter ISO-3166 country code (e.g. USA or CAN).",
@@ -548,12 +553,22 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     },
     "delivery_customers": {"type": "number"},
     "demand_annual_mwh": {"type": "number", "unit": "MWh"},
+    "demand_annual_per_capita_mwh": {
+        "type": "number",
+        "description": "Per-capita annual demand, averaged using Census county-level population estimates.",
+        "unit": "MWh/person",
+    },
     "demand_charges": {
         "type": "number",
         "description": "Demand charges (USD).",
         "unit": "USD",
     },
     "demand_mwh": {"type": "number", "unit": "MWh"},
+    "demand_density_mwh_km2": {
+        "type": "number",
+        "description": "Annual demand per km2 of a given service territory.",
+        "unit": "MWh/km2",
+    },
     "depreciation_type": {
         "type": "string",
         "description": (
@@ -602,6 +617,11 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "type": "string",
         "description": "Unique digitial object identifier of Zenodo archive.",
     },
+    "dollar_value": {
+        "type": "number",
+        "description": "Dollar value of reported income, expense, asset, or liability.",
+        "unit": "USD",
+    },
     "duct_burners": {
         "type": "boolean",
         "description": "Indicates whether the unit has duct-burners for supplementary firing of the turbine exhaust gas",
@@ -627,10 +647,11 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     "emission_control_equipment_cost": {
         "type": "number",
         "description": "The total cost to install a piece of emission control equipment.",
+        "unit": "USD",
     },
-    "emission_control_equipment_type": {
+    "emission_control_equipment_type_code": {
         "type": "string",
-        "description": "The type of emission control equipment installed.",
+        "description": "Short code indicating the type of emission control equipment installed.",
     },
     "emission_control_operating_date": {
         "type": "date",
@@ -687,7 +708,20 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     "energy_source": {"type": "string"},
     "energy_source_code": {
         "type": "string",
-        "description": "The fuel code associated with the fuel receipt. Two or three character alphanumeric.",
+        "description": (
+            "A 2-3 letter code indicating the energy source (e.g. fuel type) "
+            "associated with the record."
+        ),
+    },
+    "energy_source_code_num": {
+        "type": "string",
+        "description": (
+            "Name of the energy_source_code_N column that this energy source code was "
+            "reported in for the generator referenced in the same record."
+        ),
+        "constraints": {
+            "enum": sorted({f"energy_source_code_{n}" for n in range(1, 9)})
+        },
     },
     "energy_source_1_transport_1": {
         "type": "string",
@@ -894,7 +928,7 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     },
     "fraction_owned": {
         "type": "number",
-        "description": "Proportion of generator ownership.",
+        "description": "Proportion of generator ownership attributable to this utility.",
     },
     "fuel_agg": {
         "type": "string",
@@ -1971,6 +2005,14 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "type": "boolean",
         "description": "Is the reporting entity an owner of power plants reported on Schedule 2 of the form?",
     },
+    "population": {
+        "type": "number",
+        "description": "County population, sourced from Census DP1 data.",
+    },
+    "population_density_km2": {
+        "type": "number",
+        "description": "Average population per sq. km area of a service territory.",
+    },
     "potential_peak_demand_savings_mw": {"type": "number", "unit": "MW"},
     "previously_canceled": {
         "type": "boolean",
@@ -2113,7 +2155,7 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     "row_type_xbrl": {
         "type": "string",
         "description": "Indicates whether the value reported in the row is calculated, or uniquely reported within the table.",
-        "constraints": {"enum": ["calculated_value", "reported_value"]},
+        "constraints": {"enum": ["calculated_value", "reported_value", "correction"]},
     },
     "rto_iso_lmp_node_id": {
         "type": "string",
@@ -2146,6 +2188,11 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "unit": "USD",
     },
     "sales_to_ultimate_consumers_mwh": {"type": "number", "unit": "MWh"},
+    "scaled_demand_mwh": {
+        "type": "number",
+        "description": "Estimated electricity demand scaled by the total sales within a state.",
+        "unit": "MWh",
+    },
     "secondary_transportation_mode_code": {
         "type": "string",
         "description": "Transportation mode for the second longest distance transported.",
@@ -2608,7 +2655,6 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "type": "string",
         "description": "Type of utility plant asset reported in the utility_plant_summary_ferc1 table. Assets include those leased to others, held for future use, construction work-in-progress and details of accumulated depreciation.",
     },
-    "utility_plant_value": {"type": "number", "description": "Utility plant value."},
     "utility_pobox": {"type": "string"},
     "utility_type": {
         "type": "string",
@@ -2861,7 +2907,7 @@ def apply_pudl_dtypes(
 ) -> pd.DataFrame:
     """Apply dtypes to those columns in a dataframe that have PUDL types defined.
 
-    Note at ad-hoc column dtypes can be defined and merged with default PUDL field
+    Note that ad-hoc column dtypes can be defined and merged with default PUDL field
     metadata before it's passed in as ``field_meta`` if you have module specific column
     types you need to apply alongside the standard PUDL field types.
 

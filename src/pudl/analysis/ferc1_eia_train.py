@@ -176,7 +176,7 @@ def _prep_ferc1_eia(ferc1_eia, utils_eia860) -> pd.DataFrame:
     )
 
     # Add the new columns to the df
-    for new_col in [x for x in RENAME_COLS_FERC1_EIA.keys() if "new_" in x]:
+    for new_col in [x for x in RENAME_COLS_FERC1_EIA if "new_" in x]:
         ferc1_eia_prep.loc[:, new_col] = pd.NA
 
     # Rename the columns, and remove unwanted columns from ferc-eia table
@@ -712,18 +712,13 @@ def validate_and_add_to_training(
     Returns:
         pandas.DataFrame: A DataFrame with all of the new overrides combined.
     """
-    path_to_current_training = importlib.resources.files(
-        "pudl.package_data.glue"
-    ).joinpath("ferc1_eia_train.csv")
+    glue_resource_path = importlib.resources.files("pudl.package_data.glue")
+    path_to_current_training = glue_resource_path / "ferc1_eia_train.csv"
     path_to_new_training = input_dir_path
     current_training_df = pd.read_csv(path_to_current_training)
-    path_to_null_overrides = importlib.resources.files(
-        "pudl.package_data.glue"
-    ).joinpath("ferc1_eia_null.csv")
+    path_to_null_overrides = glue_resource_path / "ferc1_eia_null.csv"
     if one_to_many:
-        path_to_one_to_many = importlib.resources.files(
-            "pudl.package_data.glue"
-        ).joinpath("ferc1_eia_one_to_many.csv")
+        path_to_one_to_many = glue_resource_path / "ferc1_eia_one_to_many.csv"
     override_cols = [
         "record_id_eia",
         "record_id_ferc1",

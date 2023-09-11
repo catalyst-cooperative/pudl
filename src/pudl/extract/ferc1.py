@@ -75,25 +75,27 @@ import pandas as pd
 import sqlalchemy as sa
 from dagster import (
     AssetKey,
-    Field,
     SourceAsset,
     asset,
     build_init_resource_context,
     build_input_context,
-    op,
 )
 
 import pudl
-from pudl.extract.dbf import AbstractFercDbfReader, FercDbfExtractor, FercDbfReader
-from pudl.helpers import EnvVar
+from pudl.extract.dbf import (
+    FercDbfExtractor,
+    PartitionedDataFrame,
+    add_key_constraints,
+    deduplicate_by_year,
+)
 from pudl.io_managers import (
     FercDBFSQLiteIOManager,
     FercXBRLSQLiteIOManager,
     ferc1_dbf_sqlite_io_manager,
     ferc1_xbrl_sqlite_io_manager,
 )
-from pudl.settings import DatasetsSettings
-from pudl.workspace.datastore import Datastore
+from pudl.settings import DatasetsSettings, FercToSqliteSettings, GenericDatasetSettings
+from pudl.workspace.setup import PudlPaths
 
 logger = pudl.logging_helpers.get_logger(__name__)
 
@@ -211,27 +213,14 @@ TABLE_NAME_MAP_FERC1: dict[str, dict[str, str]] = {
 class Ferc1DbfExtractor(FercDbfExtractor):
     """Wrapper for running the foxpro to sqlite conversion of FERC1 dataset."""
 
+    DATASET = "ferc1"
     DATABASE_NAME = "ferc1.sqlite"
 
-    def get_dbf_reader(self, base_datastore: Datastore) -> AbstractFercDbfReader:
-        """Returns an instace of :class:`FercDbfReader`.
-
-        This uses the generic base_datastore to construct a :class:`FercDbfReader`.
-        """
-        return FercDbfReader(base_datastore, dataset="ferc1")
-
-    def transform_table(self, table_name: str, in_df: pd.DataFrame) -> pd.DataFrame:
-        """FERC Form 1 specific table transformations.
-
-        This method removes duplicates from the f1_respondent_id table, and leaves all
-        other tables intact.
-        """
-        # TODO(rousik): this should be replaced with registry of pd.DataFrame -> pd.DataFrame transformations
-        # for each table and dict that looks those up.
-        if table_name == "f1_respondent_id":
-            return in_df.drop_duplicates(subset="respondent_id", keep="last")
-        else:
-            return in_df
+    def get_settings(
+        self, global_settings: FercToSqliteSettings
+    ) -> GenericDatasetSettings:
+        """Returns settings for FERC Form 1 DBF dataset."""
+        return global_settings.ferc1_dbf_to_sqlite_settings
 
     def finalize_schema(self, meta: sa.MetaData) -> sa.MetaData:
         """Modifies schema before it's written to sqlite database.
@@ -239,21 +228,9 @@ class Ferc1DbfExtractor(FercDbfExtractor):
         This marks f1_responent_id.respondent_id as a primary key and adds foreign key
         constraints on all tables with respondent_id column.
         """
-        for table in meta.tables.values():
-            if table.name == "f1_respondent_id":
-                table.append_constraint(
-                    sa.PrimaryKeyConstraint(
-                        "respondent_id", sqlite_on_conflict="REPLACE"
-                    )
-                )
-            elif "respondent_id" in table.columns:
-                table.append_constraint(
-                    sa.ForeignKeyConstraint(
-                        columns=["respondent_id"],
-                        refcolumns=["f1_respondent_id.respondent_id"],
-                    )
-                )
-        return meta
+        return add_key_constraints(
+            meta, pk_table="f1_respondent_id", column="respondent_id"
+        )
 
     def postprocess(self):
         """Applies final transformations on the data in sqlite database.
@@ -330,33 +307,13 @@ class Ferc1DbfExtractor(FercDbfExtractor):
                 )
         return observed
 
-
-@op(
-    config_schema={
-        "pudl_output_path": Field(
-            EnvVar(
-                env_var="PUDL_OUTPUT",
-            ),
-            description="Path of directory to store the database in.",
-            default_value=None,
-        ),
-        "clobber": Field(
-            bool, description="Clobber existing ferc1 database.", default_value=False
-        ),
-    },
-    required_resource_keys={"ferc_to_sqlite_settings", "datastore"},
-)
-def dbf2sqlite(context) -> None:
-    """Clone the FERC Form 1 Visual FoxPro databases into SQLite."""
-    # TODO(rousik): this thin wrapper seems to be somewhat quirky. Maybe there's a way
-    # to make the integration # between the class and dagster better? Investigate.
-
-    Ferc1DbfExtractor(
-        datastore=context.resources.datastore,
-        settings=context.resources.ferc_to_sqlite_settings.ferc1_dbf_to_sqlite_settings,
-        clobber=context.op_config["clobber"],
-        output_path=context.op_config["pudl_output_path"],
-    ).execute()
+    def aggregate_table_frames(
+        self, table_name: str, dfs: list[PartitionedDataFrame]
+    ) -> pd.DataFrame | None:
+        """Deduplicates records in f1_respondent_id table."""
+        if table_name == "f1_respondent_id":
+            return deduplicate_by_year(dfs, "respondent_id")
+        return super().aggregate_table_frames(table_name, dfs)
 
 
 ###########################################################################
@@ -382,7 +339,8 @@ def create_raw_ferc1_assets() -> list[SourceAsset]:
     dbf_table_names = tuple(set(flattened_dbfs))
     raw_ferc1_dbf_assets = [
         SourceAsset(
-            key=AssetKey(table_name), io_manager_key="ferc1_dbf_sqlite_io_manager"
+            key=AssetKey(f"raw_ferc1_dbf__{table_name}"),
+            io_manager_key="ferc1_dbf_sqlite_io_manager",
         )
         for table_name in dbf_table_names
     ]
@@ -398,7 +356,8 @@ def create_raw_ferc1_assets() -> list[SourceAsset]:
     xbrl_table_names = tuple(set(xbrls_with_periods))
     raw_ferc1_xbrl_assets = [
         SourceAsset(
-            key=AssetKey(table_name), io_manager_key="ferc1_xbrl_sqlite_io_manager"
+            key=AssetKey(f"raw_ferc1_xbrl__{table_name}"),
+            io_manager_key="ferc1_xbrl_sqlite_io_manager",
         )
         for table_name in xbrl_table_names
     ]
@@ -413,18 +372,8 @@ raw_ferc1_assets = create_raw_ferc1_assets()
 # asset name.
 
 
-@asset(
-    config_schema={
-        "pudl_output_path": Field(
-            EnvVar(
-                env_var="PUDL_OUTPUT",
-            ),
-            description="Path of directory to store the database in.",
-            default_value=None,
-        ),
-    },
-)
-def xbrl_metadata_json(context) -> dict[str, dict[str, list[dict[str, Any]]]]:
+@asset
+def raw_xbrl_metadata_json(context) -> dict[str, dict[str, list[dict[str, Any]]]]:
     """Extract the FERC 1 XBRL Taxonomy metadata we've stored as JSON.
 
     Returns:
@@ -436,11 +385,8 @@ def xbrl_metadata_json(context) -> dict[str, dict[str, list[dict[str, Any]]]]:
         filings. If there is no instant/duration table, an empty list is returned
         instead.
     """
-    metadata_path = (
-        Path(context.op_config["pudl_output_path"])
-        / "ferc1_xbrl_taxonomy_metadata.json"
-    )
-    with open(metadata_path) as f:
+    metadata_path = PudlPaths().output_dir / "ferc1_xbrl_taxonomy_metadata.json"
+    with Path.open(metadata_path) as f:
         xbrl_meta_all = json.load(f)
 
     valid_tables = {
@@ -451,7 +397,7 @@ def xbrl_metadata_json(context) -> dict[str, dict[str, list[dict[str, Any]]]]:
     }
 
     def squash_period(xbrl_table: str | list[str], period, xbrl_meta_all):
-        if type(xbrl_table) is str:
+        if isinstance(xbrl_table, str):
             xbrl_table = [xbrl_table]
         return [
             metadata

@@ -24,7 +24,7 @@ GENS_MEGA = pd.DataFrame(
         "operational_status_pudl": ["operating", "operating", "operating", "operating"],
         "capacity_mw": [400, 50, 125, 75],
     }
-).astype({"report_date": "datetime64[ns]"})
+).astype({"report_date": "datetime64[s]"})
 
 
 def test_plant_ag():
@@ -50,10 +50,9 @@ def test_plant_ag():
                 "capacity_mw": [650.0],
             }
         )
-        .astype({"report_date": "datetime64[ns]"})
+        .astype({"report_date": "datetime64[s]"})
         .convert_dtypes()
     )
-
     pd.testing.assert_frame_equal(plant_ag_out, plant_ag_expected)
 
 
@@ -81,7 +80,7 @@ def test_prime_fuel_ag():
                 "capacity_mw": [400.0, 250.0],
             }
         )
-        .astype({"report_date": "datetime64[ns]"})
+        .astype({"report_date": "datetime64[s]"})
         .convert_dtypes()
     )
 
@@ -114,7 +113,7 @@ def test_prime_mover_ag():
                 "capacity_mw": [75.0, 125.0, 50.0, 400.0],
             }
         )
-        .astype({"report_date": "datetime64[ns]"})
+        .astype({"report_date": "datetime64[s]"})
         .convert_dtypes()
     )
 
@@ -147,7 +146,7 @@ def test_plant_gen_ag():
                 "capacity_mw": [400.0, 50.0, 125.0, 75.0],
             }
         )
-        .astype({"report_date": "datetime64[ns]"})
+        .astype({"report_date": "datetime64[s]"})
         .convert_dtypes()
     )
 
@@ -160,38 +159,54 @@ def test_make_mega_gen_tbl():
     Integrates ownership with generators.
     """
     # one plant with three generators
-    mcoe = pd.DataFrame(
-        {
-            "plant_id_eia": 1,
-            "report_date": "2020-01-01",
-            "generator_id": ["a", "b", "c"],
-            "utility_id_eia": [111, 111, 111],
-            "unit_id_pudl": 1,
-            "prime_mover_code": ["CT", "CT", "CA"],
-            "technology_description": "Natural Gas Fired Combined Cycle",
-            "operational_status": "existing",
-            "generator_retirement_date": pd.NA,
-            "capacity_mw": [50, 50, 100],
-            "generator_operating_date": "2001-12-01",
-        }
-    ).astype(
-        {
-            "generator_retirement_date": "datetime64[ns]",
-            "report_date": "datetime64[ns]",
-            "generator_operating_date": "datetime64[ns]",
-        }
+    mcoe = (
+        pd.DataFrame(
+            {
+                "plant_id_eia": 1,
+                "report_date": "2020-01-01",
+                "generator_id": ["a", "b", "c"],
+                "utility_id_eia": [111, 111, 111],
+                "unit_id_pudl": 1,
+                "prime_mover_code": ["CT", "CT", "CA"],
+                "technology_description": "Natural Gas Fired Combined Cycle",
+                "operational_status": "existing",
+                "generator_retirement_date": pd.NA,
+                "capacity_mw": [50, 50, 100],
+                "generator_operating_date": "2001-12-01",
+            }
+        )
+        .convert_dtypes()
+        .astype(
+            {
+                "generator_retirement_date": "datetime64[s]",
+                "report_date": "datetime64[s]",
+                "generator_operating_date": "datetime64[s]",
+                "plant_id_eia": "Int64",
+                "generator_id": "string",
+            }
+        )
     )
     # one record for every owner of each generator
-    df_own_eia860 = pd.DataFrame(
-        {
-            "plant_id_eia": 1,
-            "report_date": "2020-01-01",
-            "generator_id": ["a", "b", "c", "c"],
-            "utility_id_eia": 111,
-            "owner_utility_id_eia": [111, 111, 111, 888],
-            "fraction_owned": [1, 1, 0.75, 0.25],
-        }
-    ).astype({"report_date": "datetime64[ns]"})
+    df_own_eia860 = (
+        pd.DataFrame(
+            {
+                "plant_id_eia": 1,
+                "report_date": "2020-01-01",
+                "generator_id": ["a", "b", "c", "c"],
+                "utility_id_eia": 111,
+                "owner_utility_id_eia": [111, 111, 111, 888],
+                "fraction_owned": [1, 1, 0.75, 0.25],
+            }
+        )
+        .convert_dtypes()
+        .astype(
+            {
+                "report_date": "datetime64[s]",
+                "plant_id_eia": "Int64",
+                "generator_id": "string",
+            }
+        )
+    )
 
     out = pudl.analysis.plant_parts_eia.MakeMegaGenTbl().execute(
         mcoe, df_own_eia860, slice_cols=["capacity_mw"]
@@ -230,22 +245,22 @@ def test_make_mega_gen_tbl():
         )
         .astype(
             {
-                "generator_retirement_date": "datetime64[ns]",
-                "report_date": "datetime64[ns]",
-                "generator_operating_date": "datetime64[ns]",
+                "generator_retirement_date": "datetime64[s]",
+                "report_date": "datetime64[s]",
+                "generator_operating_date": "datetime64[s]",
                 "generator_operating_year": "Int64",
                 "utility_id_eia": "Int64",  # convert to pandas Int64 instead of numpy int64
             }
         )
         .set_index([[0, 1, 2, 3, 0, 1, 2, 3]])
+        .convert_dtypes()
     )
-
     pd.testing.assert_frame_equal(out, out_expected)
 
 
 def test_scale_by_ownership():
     """Test the scale_by_ownership method."""
-    dtypes = {"report_date": "datetime64[ns]", "utility_id_eia": pd.Int64Dtype()}
+    dtypes = {"report_date": "datetime64[s]", "utility_id_eia": pd.Int64Dtype()}
     own_ex1 = pd.DataFrame(
         {
             "plant_id_eia": [1, 1, 1, 1],
@@ -280,107 +295,119 @@ def test_scale_by_ownership():
         },
     ).astype(dtypes)
 
-    out_ex1 = pd.DataFrame(
-        {
-            "plant_id_eia": [
-                1,
-                1,
-                1,
-                1,
-                1,
-                1,
-                1,
-                1,
-            ],
-            "report_date": [
-                "2019-01-01",
-                "2019-01-01",
-                "2019-01-01",
-                "2019-01-01",
-                "2019-01-01",
-                "2019-01-01",
-                "2019-01-01",
-                "2019-01-01",
-            ],
-            "generator_id": [
-                "a",
-                "a",
-                "b",
-                "b",
-                "a",
-                "a",
-                "b",
-                "b",
-            ],
-            "total_fuel_cost": [
-                4500 * 0.7,
-                4500 * 0.3,
-                1250 * 0.1,
-                1250 * 0.9,
-                4500,
-                4500,
-                1250,
-                1250,
-            ],
-            "net_generation_mwh": [
-                10000 * 0.7,
-                10000 * 0.3,
-                5000 * 0.1,
-                5000 * 0.9,
-                10000,
-                10000,
-                5000,
-                5000,
-            ],
-            "capacity_mw": [
-                100 * 0.7,
-                100 * 0.3,
-                50 * 0.1,
-                50 * 0.9,
-                100,
-                100,
-                50,
-                50,
-            ],
-            "capacity_eoy_mw": [
-                100 * 0.7,
-                100 * 0.3,
-                50 * 0.1,
-                50 * 0.9,
-                100,
-                100,
-                50,
-                50,
-            ],
-            "total_mmbtu": [
-                9000 * 0.7,
-                9000 * 0.3,
-                7800 * 0.1,
-                7800 * 0.9,
-                9000,
-                9000,
-                7800,
-                7800,
-            ],
-            "fraction_owned": [0.7, 0.3, 0.1, 0.9, 1, 1, 1, 1],
-            "utility_id_eia": [3, 4, 3, 4, 3, 4, 3, 4],
-            "ownership_record_type": [
-                "owned",
-                "owned",
-                "owned",
-                "owned",
-                "total",
-                "total",
-                "total",
-                "total",
-            ],
-        },
-    ).astype(dtypes)
-
+    out_ex1 = (
+        pd.DataFrame(
+            {
+                "plant_id_eia": [
+                    1,
+                    1,
+                    1,
+                    1,
+                    1,
+                    1,
+                    1,
+                    1,
+                ],
+                "report_date": [
+                    "2019-01-01",
+                    "2019-01-01",
+                    "2019-01-01",
+                    "2019-01-01",
+                    "2019-01-01",
+                    "2019-01-01",
+                    "2019-01-01",
+                    "2019-01-01",
+                ],
+                "generator_id": [
+                    "a",
+                    "a",
+                    "b",
+                    "b",
+                    "a",
+                    "a",
+                    "b",
+                    "b",
+                ],
+                "total_fuel_cost": [
+                    4500 * 0.7,
+                    4500 * 0.3,
+                    1250 * 0.1,
+                    1250 * 0.9,
+                    4500,
+                    4500,
+                    1250,
+                    1250,
+                ],
+                "net_generation_mwh": [
+                    10000 * 0.7,
+                    10000 * 0.3,
+                    5000 * 0.1,
+                    5000 * 0.9,
+                    10000,
+                    10000,
+                    5000,
+                    5000,
+                ],
+                "capacity_mw": [
+                    100 * 0.7,
+                    100 * 0.3,
+                    50 * 0.1,
+                    50 * 0.9,
+                    100,
+                    100,
+                    50,
+                    50,
+                ],
+                "capacity_eoy_mw": [
+                    100 * 0.7,
+                    100 * 0.3,
+                    50 * 0.1,
+                    50 * 0.9,
+                    100,
+                    100,
+                    50,
+                    50,
+                ],
+                "total_mmbtu": [
+                    9000 * 0.7,
+                    9000 * 0.3,
+                    7800 * 0.1,
+                    7800 * 0.9,
+                    9000,
+                    9000,
+                    7800,
+                    7800,
+                ],
+                "fraction_owned": [0.7, 0.3, 0.1, 0.9, 1, 1, 1, 1],
+                "utility_id_eia": [3, 4, 3, 4, 3, 4, 3, 4],
+                "ownership_record_type": [
+                    "owned",
+                    "owned",
+                    "owned",
+                    "owned",
+                    "total",
+                    "total",
+                    "total",
+                    "total",
+                ],
+            },
+        )
+        .convert_dtypes()
+        .astype(dtypes)
+    )
+    scale_cols = [
+        "total_fuel_cost",
+        "net_generation_mwh",
+        "capacity_mw",
+        "capacity_eoy_mw",
+        "total_mmbtu",
+    ]
     out = (
-        pudl.analysis.plant_parts_eia.MakeMegaGenTbl()
-        .scale_by_ownership(gens_mega=gens_mega_ex1, own_eia860=own_ex1)
+        pudl.helpers.scale_by_ownership(
+            gens=gens_mega_ex1, own_eia860=own_ex1, scale_cols=scale_cols
+        )
         .reset_index(drop=True)
+        .convert_dtypes()
     )
 
     pd.testing.assert_frame_equal(out_ex1, out)
@@ -428,7 +455,7 @@ def test_label_true_grans():
             "construction_year": [None] * 9,
             "ferc1_generator_agg_id": [None, None, None, None, 0, None, 0, None, 0],
         }
-    ).astype({"report_date": "datetime64[ns]"})
+    ).astype({"report_date": "datetime64[s]"})
 
     true_grans = pd.DataFrame(
         {
@@ -533,9 +560,9 @@ def test_one_to_many():
         }
     ).astype(
         {
-            "report_date": "datetime64[ns]",
-            "generator_retirement_date": "datetime64[ns]",
-            "planned_generator_retirement_date": "datetime64[ns]",
+            "report_date": "datetime64[s]",
+            "generator_retirement_date": "datetime64[s]",
+            "planned_generator_retirement_date": "datetime64[s]",
         }
     )
 
@@ -648,9 +675,9 @@ def test_one_to_many():
         )
         .astype(
             {
-                "report_date": "datetime64[ns]",
-                "generator_retirement_date": "datetime64[ns]",
-                "planned_generator_retirement_date": "datetime64[ns]",
+                "report_date": "datetime64[s]",
+                "generator_retirement_date": "datetime64[s]",
+                "planned_generator_retirement_date": "datetime64[s]",
             }
         )
         .convert_dtypes()

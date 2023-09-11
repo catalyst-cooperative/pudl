@@ -1,4 +1,5 @@
 """Generic extractor for all FERC XBRL data."""
+import contextlib
 import io
 import json
 from datetime import date, datetime
@@ -10,9 +11,9 @@ from ferc_xbrl_extractor import xbrl
 from ferc_xbrl_extractor.instance import InstanceBuilder
 
 import pudl
-from pudl.helpers import EnvVar
 from pudl.settings import FercGenericXbrlToSqliteSettings, XbrlFormNumber
 from pudl.workspace.datastore import Datastore
+from pudl.workspace.setup import PudlPaths
 
 logger = pudl.logging_helpers.get_logger(__name__)
 
@@ -70,43 +71,31 @@ class FercXbrlDatastore:
         return filings
 
 
-def _get_sqlite_engine(
-    form_number: int, output_path: Path, clobber: bool
-) -> sa.engine.Engine:
+def _get_sqlite_engine(form_number: int, clobber: bool) -> sa.engine.Engine:
     """Create SQLite engine for specified form and drop tables.
 
     Args:
         form_number: FERC form number.
-        output_path: path to PUDL outputs.
         clobber: Flag indicating whether or not to drop tables.
     """
     # Read in the structure of the DB, if it exists
     logger.info(
         f"Dropping the old FERC Form {form_number} XBRL derived SQLite DB if it exists."
     )
-    db_path = output_path / f"ferc{form_number}_xbrl.sqlite"
+    db_path = PudlPaths().sqlite_db(f"ferc{form_number}_xbrl")
 
     logger.info(f"Connecting to SQLite at {db_path}...")
-    sqlite_engine = sa.create_engine(f"sqlite:///{db_path}")
+    sqlite_engine = sa.create_engine(db_path)
     logger.info(f"Connected to SQLite at {db_path}!")
-    try:
+    with contextlib.suppress(sa.exc.OperationalError):
         # So that we can wipe it out
         pudl.helpers.drop_tables(sqlite_engine, clobber=clobber)
-    except sa.exc.OperationalError:
-        pass
 
     return sqlite_engine
 
 
 @op(
     config_schema={
-        "pudl_output_path": Field(
-            EnvVar(
-                env_var="PUDL_OUTPUT",
-            ),
-            description="Path of directory to store the database in.",
-            default_value=None,
-        ),
         "clobber": Field(
             bool, description="Clobber existing ferc1 database.", default_value=False
         ),
@@ -125,7 +114,7 @@ def _get_sqlite_engine(
 )
 def xbrl2sqlite(context) -> None:
     """Clone the FERC Form 1 XBRL Databsae to SQLite."""
-    output_path = Path(context.op_config["pudl_output_path"])
+    output_path = PudlPaths().output_dir
     clobber = context.op_config["clobber"]
     batch_size = context.op_config["batch_size"]
     workers = context.op_config["workers"]
@@ -142,7 +131,11 @@ def xbrl2sqlite(context) -> None:
         if settings is None:
             continue
 
-        sqlite_engine = _get_sqlite_engine(form.value, output_path, clobber)
+        if settings.disabled:
+            logger.info(f"Dataset ferc{form}_xbrl is disabled, skipping")
+            continue
+
+        sqlite_engine = _get_sqlite_engine(form.value, clobber)
 
         convert_form(
             settings,

@@ -3,6 +3,7 @@
 import json
 import re
 import unittest
+from typing import Any
 
 import responses
 
@@ -10,90 +11,171 @@ from pudl.workspace import datastore
 from pudl.workspace.resource_cache import PudlResourceKey
 
 
+def _make_resource(name: str, **partitions) -> dict[str, Any]:
+    """Returns json representation of a resource."""
+    return {
+        "name": name,
+        "path": f"http://localhost/{name}",
+        "parts": dict(partitions),
+    }
+
+
+def _make_descriptor(
+    dataset: str, doi: str, *resources: dict[str, Any]
+) -> datastore.DatapackageDescriptor:
+    """Returns new instance of DatapackageDescriptor containing given resources.
+
+    This is a helper for quickly making descriptors for unit testing. You can use
+    it in a following fashion:
+
+    desc = _make_descriptor("dataset_name", "doi-123", _make_resource(...), _make_resource(...), ...)
+
+    Args:
+        dataset: name of the dataset
+        doi: doi identifier
+        resources: list of resources that should be attached to the resource. This should
+         be json representation, e.g. constructed by calling _make_resource().
+    """
+    return datastore.DatapackageDescriptor(
+        {"resources": list(resources)},
+        dataset=dataset,
+        doi=doi,
+    )
+
+
 class TestDatapackageDescriptor(unittest.TestCase):
     """Unit tests for the DatapackageDescriptor class."""
 
-    MOCK_DATAPACKAGE = {
-        "resources": [
-            {
-                "name": "first-red",
-                "path": "http://localhost/first",
-                "parts": {"color": "red", "order": 1},
-            },
-            {
-                "name": "second-blue",
-                "path": "http://localhost/second",
-                "parts": {"color": "blue", "order": 2},
-            },
-            {
-                "name": "mixed-case",
-                "path": "http://localhost/mixed",
-                "parts": {"upper": "UPPER", "lower": "lower", "mixed": "miXED"},
-            },
-        ]
-    }
-
-    def setUp(self):
-        """Builds DatapackageDescriptor based on MOCK_DATAPACKAGE."""
-        self.descriptor = datastore.DatapackageDescriptor(
-            self.MOCK_DATAPACKAGE, dataset="epacems", doi="123"
-        )
-
-    def test_get_resource_path_for_existing_resources(self):
-        """Checks that get_resource_path() works."""
-        self.assertEqual(
-            "http://localhost/first", self.descriptor.get_resource_path("first-red")
+    def test_get_partition_filters(self):
+        desc = _make_descriptor(
+            "blabla",
+            "doi-123",
+            _make_resource("foo", group="first", color="red"),
+            _make_resource("bar", group="first", color="blue"),
+            _make_resource("baz", group="second", color="black", order=1),
         )
         self.assertEqual(
-            "http://localhost/second", self.descriptor.get_resource_path("second-blue")
+            [
+                {"group": "first", "color": "red"},
+                {"group": "first", "color": "blue"},
+                {"group": "second", "color": "black", "order": 1},
+            ],
+            list(desc.get_partition_filters()),
+        )
+        self.assertEqual(
+            [
+                {"group": "first", "color": "red"},
+                {"group": "first", "color": "blue"},
+            ],
+            list(desc.get_partition_filters(group="first")),
+        )
+        self.assertEqual(
+            [
+                {"group": "first", "color": "blue"},
+            ],
+            list(desc.get_partition_filters(color="blue")),
+        )
+        self.assertEqual(
+            [], list(desc.get_partition_filters(color="blue", group="second"))
         )
 
-    def test_get_resource_path_throws_exception(self):
-        """Verifies that KeyError is thrown when resource does not exist."""
-        self.assertRaises(
-            KeyError, self.descriptor.get_resource_path, "third-orange"
-        )  # this resource does not exist
+    def test_get_resource_path(self):
+        """Check that get_resource_path returns correct paths."""
+        desc = _make_descriptor(
+            "blabla",
+            "doi-123",
+            _make_resource("foo", group="first", color="red"),
+            _make_resource("bar", group="first", color="blue"),
+        )
+        self.assertEqual("http://localhost/foo", desc.get_resource_path("foo"))
+        self.assertEqual("http://localhost/bar", desc.get_resource_path("bar"))
+        # The following resource does not exist and should throw KeyError
+        self.assertRaises(KeyError, desc.get_resource_path, "other")
 
     def test_get_resources_filtering(self):
         """Verifies correct operation of get_resources()."""
+        desc = _make_descriptor(
+            "data",
+            "doi-123",
+            _make_resource("foo", group="first", color="red"),
+            _make_resource("bar", group="first", color="blue", rank=5),
+            _make_resource(
+                "baz", group="second", color="blue", rank=5, mood="VeryHappy"
+            ),
+        )
         self.assertEqual(
             [
-                PudlResourceKey("epacems", "123", "first-red"),
-                PudlResourceKey("epacems", "123", "second-blue"),
-                PudlResourceKey("epacems", "123", "mixed-case"),
+                PudlResourceKey("data", "doi-123", "foo"),
+                PudlResourceKey("data", "doi-123", "bar"),
+                PudlResourceKey("data", "doi-123", "baz"),
             ],
-            list(self.descriptor.get_resources()),
+            list(desc.get_resources()),
         )
+        # Simple filtering by one attribute.
         self.assertEqual(
-            [PudlResourceKey("epacems", "123", "first-red")],
-            list(self.descriptor.get_resources(color="red")),
+            [
+                PudlResourceKey("data", "doi-123", "foo"),
+                PudlResourceKey("data", "doi-123", "bar"),
+            ],
+            list(desc.get_resources(group="first")),
         )
-        self.assertEqual([], list(self.descriptor.get_resources(flavor="blueberry")))
-
-    def test_get_resources_filtering_case_insensitive(self):
-        """Verifies that values for the parts are treated case-insensitive."""
+        # Filter by two attributes
         self.assertEqual(
-            [PudlResourceKey("epacems", "123", "mixed-case")],
-            list(self.descriptor.get_resources(upper="uppeR")),
+            [
+                PudlResourceKey("data", "doi-123", "bar"),
+            ],
+            list(desc.get_resources(group="first", rank=5)),
         )
+        # Attributes that do not match anything
         self.assertEqual(
-            [PudlResourceKey("epacems", "123", "mixed-case")],
-            list(self.descriptor.get_resources(upper="uppeR", lower="Lower")),
+            [],
+            list(desc.get_resources(group="second", shape="square")),
         )
-        # Lookups are, however, case-sensitive for the keys.
-        self.assertEqual([], list(self.descriptor.get_resources(Upper="UPPER")))
-
-    def test_get_resources_by_name(self):
-        """Verifies that get_resources() work when name is specified."""
+        # Search attribute values are cast to lowercase strings
         self.assertEqual(
-            [PudlResourceKey("epacems", "123", "second-blue")],
-            list(self.descriptor.get_resources(name="second-blue")),
+            [
+                PudlResourceKey("data", "doi-123", "baz"),
+            ],
+            list(desc.get_resources(rank="5", mood="VERYhappy")),
+        )
+        # Test lookup by name
+        self.assertEqual(
+            [
+                PudlResourceKey("data", "doi-123", "foo"),
+            ],
+            list(desc.get_resources("foo")),
         )
 
     def test_json_string_representation(self):
         """Checks that json representation parses to the same dict."""
+        desc = _make_descriptor(
+            "data",
+            "doi-123",
+            _make_resource("foo", group="first"),
+            _make_resource("bar", group="second"),
+            _make_resource("baz"),
+        )
         self.assertEqual(
-            self.MOCK_DATAPACKAGE, json.loads(self.descriptor.get_json_string())
+            {
+                "resources": [
+                    {
+                        "name": "foo",
+                        "path": "http://localhost/foo",
+                        "parts": {"group": "first"},
+                    },
+                    {
+                        "name": "bar",
+                        "path": "http://localhost/bar",
+                        "parts": {"group": "second"},
+                    },
+                    {
+                        "name": "baz",
+                        "path": "http://localhost/baz",
+                        "parts": {},
+                    },
+                ],
+            },
+            json.loads(desc.get_json_string()),
         )
 
 
@@ -108,7 +190,7 @@ class MockableZenodoFetcher(datastore.ZenodoFetcher):
     ):
         """Construct a test-friendly ZenodoFetcher with descriptors pre-loaded."""
         super().__init__(**kwargs)
-        self._descriptor_cache = dict(descriptors)
+        self._descriptor_cache = descriptors
 
 
 class TestZenodoFetcher(unittest.TestCase):
@@ -138,8 +220,8 @@ class TestZenodoFetcher(unittest.TestCase):
             },
         ]
     }
-    PROD_EPACEMS_DOI = "10.5281/zenodo.6910058"
-    PROD_EPACEMS_ZEN_ID = 6910058  # This is the last numeric part of doi
+    PROD_EPACEMS_DOI = "10.5281/zenodo.8235497"
+    PROD_EPACEMS_ZEN_ID = 8235497  # This is the last numeric part of doi
 
     def setUp(self):
         """Constructs mockable Zenodo fetcher based on MOCK_EPACEMS_DATAPACKAGE."""
@@ -153,37 +235,39 @@ class TestZenodoFetcher(unittest.TestCase):
             }
         )
 
-    def test_sandbox_doi_format_is_correct(self):
-        """Verifies that sandbox ZenodoFetcher DOIs have the right format."""
-        ds = datastore.ZenodoFetcher(sandbox=True)
-        self.assertTrue(ds.get_known_datasets())
-        for dataset in ds.get_known_datasets():
-            print(f"doi for {dataset} is {ds.get_doi(dataset)}")
-            self.assertTrue(
-                re.fullmatch(
-                    r"10\.5072/zenodo\.[0-9]{5,10}", ds.get_doi(dataset)
-                ),  # noqa: FS003
-                msg=f"doi for {dataset} is {ds.get_doi(dataset)}",
-            )
+    def test_doi_format_is_correct(self):
+        """Verifies ZenodoFetcher DOIs have correct format and are not sandbox DOIs.
 
-    def test_prod_doi_format_is_correct(self):
-        """Verifies that production ZenodoFetcher DOIs have the right format."""
-        ds = datastore.ZenodoFetcher(sandbox=False)
-        self.assertTrue(ds.get_known_datasets())
-        for dataset in ds.get_known_datasets():
+        Sandbox DOIs are only meant for use in testing and development, and should not
+        be checked in, thus this test will fail if a sandbox DOI with prefix 10.5072 is
+        identified.
+        """
+        zf = datastore.ZenodoFetcher()
+        self.assertTrue(zf.get_known_datasets())
+        for dataset, doi in zf.zenodo_dois:
             self.assertTrue(
-                re.fullmatch(
-                    r"10\.5281/zenodo\.[0-9]{5,10}", ds.get_doi(dataset)
-                ),  # noqa: FS003
-                msg=f"doi for {dataset} is {ds.get_doi(dataset)}",
+                zf.get_doi(dataset) == doi,
+                msg=f"Zenodo DOI for {dataset} matches result of get_doi()",
+            )
+            self.assertFalse(
+                re.fullmatch(r"10\.5072/zenodo\.[0-9]{5,10}", doi),
+                msg=f"Zenodo sandbox DOI found for {dataset}: {doi}",
+            )
+            self.assertTrue(
+                re.fullmatch(r"10\.5281/zenodo\.[0-9]{5,10}", doi),
+                msg=f"Zenodo production DOI for {dataset} is {doi}",
             )
 
     def test_get_known_datasets(self):
         """Call to get_known_datasets() produces the expected results."""
         self.assertEqual(
-            sorted(datastore.ZenodoFetcher.DOI["production"]),
+            sorted(name for name, doi in datastore.ZenodoFetcher().zenodo_dois),
             self.fetcher.get_known_datasets(),
         )
+
+    def test_get_unknown_dataset(self):
+        """Ensure that we get a failure when attempting to access an invalid dataset."""
+        self.assertRaises(AttributeError, self.fetcher.get_doi, "unknown")
 
     def test_doi_of_prod_epacems_matches(self):
         """Most of the tests assume specific DOI for production epacems dataset.
@@ -210,19 +294,6 @@ class TestZenodoFetcher(unittest.TestCase):
         self.assertEqual(self.MOCK_EPACEMS_DATAPACKAGE, desc.datapackage_json)
         # self.assertTrue(responses.assert_call_count("http://localhost/my/datapackage.json", 1))
 
-    def test_get_resource_key(self):
-        """Tests normal operation of get_resource_key()."""
-        self.assertEqual(
-            PudlResourceKey("epacems", self.PROD_EPACEMS_DOI, "blob.zip"),
-            self.fetcher.get_resource_key("epacems", "blob.zip"),
-        )
-
-    def test_get_resource_key_for_unknown_dataset_fails(self):
-        """When get_resource_key() is called for unknown dataset it throws KeyError."""
-        self.assertRaises(
-            KeyError, self.fetcher.get_resource_key, "unknown", "blob.zip"
-        )
-
     @responses.activate
     def test_get_resource(self):
         """Test that get_resource() calls expected http request and returns content."""
@@ -234,10 +305,12 @@ class TestZenodoFetcher(unittest.TestCase):
 
     @responses.activate
     def test_get_resource_with_invalid_checksum(self):
-        """Test that retrieving resource with bad checksum raises ChecksumMismatch."""
+        """Test that resource with bad checksum raises ChecksumMismatchError."""
         responses.add(responses.GET, "http://localhost/first", body="wrongContent")
         res = PudlResourceKey("epacems", self.PROD_EPACEMS_DOI, "first")
-        self.assertRaises(datastore.ChecksumMismatch, self.fetcher.get_resource, res)
+        self.assertRaises(
+            datastore.ChecksumMismatchError, self.fetcher.get_resource, res
+        )
 
     def test_get_resource_with_nonexistent_resource_fails(self):
         """If resource does not exist, get_resource() throws KeyError."""

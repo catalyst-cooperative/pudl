@@ -88,7 +88,7 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
                 "plant_function",
                 "ferc_account_label",
                 "ferc_account",
-                "depreciation_amortization_value",
+                "dollar_value",
             ],
             "primary_key": [
                 "utility_id_ferc1",
@@ -158,7 +158,7 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
             "fields": [
                 "utility_id_ferc1",
                 "report_year",
-                "expense",
+                "dollar_value",
                 "expense_type",
                 "record_id",
                 "ferc_account",
@@ -182,7 +182,7 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
                 "depreciation_type",
                 "plant_status",
                 "utility_type",
-                "utility_plant_value",
+                "dollar_value",
                 "record_id",
                 "balance",
                 "ferc_account",
@@ -212,7 +212,7 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
                 "plant_function",
                 "plant_status",
                 "utility_type",
-                "utility_plant_value",
+                "ending_balance",
                 "record_id",
                 "balance",
                 "ferc_account",
@@ -293,7 +293,7 @@ any cleaning mechanisms in place to account for this."""
                 "billing_status",
                 "rate_schedule_description",
                 "sales_mwh",
-                "sales_revenue",
+                "dollar_value",
                 "avg_customers_per_month",
                 "kwh_per_customer",
                 "revenue_per_kwh",
@@ -344,7 +344,7 @@ any cleaning mechanisms in place to account for this."""
                 "report_year",
                 "utility_type",
                 "income_type",
-                "income",
+                "dollar_value",
                 "balance",
                 "ferc_account",
                 "row_type_xbrl",
@@ -537,14 +537,21 @@ any cleaning mechanisms in place to account for this."""
         "field_namespace": "ferc1",
     },
     "plants_small_ferc1": {
-        "description": (
-            "Generating plant statistics for steam plants with less than 25 MW "
-            "installed nameplate capacity and internal combustion plants, gas "
-            "turbine-plants, conventional hydro plants, and pumped storage plants with "
-            "less than 10 MW installed nameplate capacity. As reported on FERC Form 1 "
-            "Schedule 410 (pages 410-411), and extracted from the FERC Visual FoxPro "
-            "database table f1_gnrt_plant."
-        ),
+        "description": """The generating plant statistics for internal combustion
+plants, gas turbine-plants, conventional hydro plants, and pumped storage plants with
+less than 10 MW installed nameplate capacity and steam plants with less than 25 MW
+installed nameplate capacity. As reported on FERC Form 1 Schedule 410 (pages 410-411)
+and extracted from the FERC Visual FoxPro and XBRL. See our
+``pudl.extract.ferc1.TABLE_NAME_MAP_FERC1`` for links to the raw tables.
+
+The raw version of this table is more like a digitized PDF than an actual data table.
+The rows contain lots of information in addition to what the columns might suggest.
+For instance, a single column may contain header rows, note rows, and total rows. This
+extraneous information is useful, but it prevents proper analysis when mixed in with the
+rest of the values data in the column. We employ a couple of data transformations to
+extract these rows from the data and preserve some of the information they contain
+(fuel type, plant type, FERC license, or general notes about the plant) in separate
+columns.""",
         "schema": {
             "fields": [
                 "record_id",
@@ -747,7 +754,7 @@ any cleaning mechanisms in place to account for this."""
                 "utility_type_other",
                 "utility_plant_asset_type",
                 "row_type_xbrl",
-                "utility_plant_value",
+                "ending_balance",
                 "record_id",
             ],
             "primary_key": [
@@ -769,7 +776,6 @@ any cleaning mechanisms in place to account for this."""
                 "report_year",
                 "record_id",
                 "earnings_type",
-                "amount",
                 "starting_balance",
                 "ending_balance",
                 "balance",
@@ -809,9 +815,11 @@ any cleaning mechanisms in place to account for this."""
                 "report_year",
                 "record_id",
                 "revenue_type",
-                "revenue",
+                "dollar_value",
                 "sales_mwh",
                 "avg_customers_per_month",
+                "ferc_account",
+                "row_type_xbrl",
             ],
             "primary_key": [
                 "utility_id_ferc1",
@@ -927,7 +935,7 @@ any cleaning mechanisms in place to account for this."""
                 "plant_function",
                 "ferc_account_label",
                 "ferc_account",
-                "depreciation_amortization_value",
+                "dollar_value",
             ],
             "primary_key": [
                 "utility_id_ferc1",
@@ -994,7 +1002,7 @@ any cleaning mechanisms in place to account for this."""
                 "utility_id_pudl",
                 "utility_name_ferc1",
                 "report_year",
-                "expense",
+                "dollar_value",
                 "expense_type",
                 "record_id",
                 "ferc_account",
@@ -1016,9 +1024,11 @@ any cleaning mechanisms in place to account for this."""
                 "report_year",
                 "record_id",
                 "revenue_type",
-                "revenue",
+                "dollar_value",
                 "sales_mwh",
                 "avg_customers_per_month",
+                "ferc_account",
+                "row_type_xbrl",
             ],
             "primary_key": [
                 "utility_id_ferc1",
@@ -1041,7 +1051,7 @@ any cleaning mechanisms in place to account for this."""
                 "depreciation_type",
                 "plant_status",
                 "utility_type",
-                "utility_plant_value",
+                "dollar_value",
                 "record_id",
                 "balance",
                 "ferc_account",
@@ -1070,7 +1080,7 @@ any cleaning mechanisms in place to account for this."""
                 "plant_function",
                 "plant_status",
                 "utility_type",
-                "utility_plant_value",
+                "ending_balance",
                 "record_id",
                 "balance",
                 "ferc_account",
@@ -1100,7 +1110,7 @@ any cleaning mechanisms in place to account for this."""
                 "billing_status",
                 "rate_schedule_description",
                 "sales_mwh",
-                "sales_revenue",
+                "dollar_value",
                 "avg_customers_per_month",
                 "kwh_per_customer",
                 "revenue_per_kwh",
@@ -1122,7 +1132,7 @@ any cleaning mechanisms in place to account for this."""
                 "report_year",
                 "utility_type",
                 "income_type",
-                "income",
+                "dollar_value",
                 "balance",
                 "ferc_account",
                 "row_type_xbrl",
@@ -1168,7 +1178,6 @@ any cleaning mechanisms in place to account for this."""
                 "report_year",
                 "record_id",
                 "earnings_type",
-                "amount",
                 "starting_balance",
                 "ending_balance",
                 "balance",
@@ -1228,7 +1237,7 @@ any cleaning mechanisms in place to account for this."""
                 "utility_type_other",
                 "utility_plant_asset_type",
                 "row_type_xbrl",
-                "utility_plant_value",
+                "ending_balance",
                 "record_id",
             ],
             "primary_key": [
@@ -1535,7 +1544,7 @@ any cleaning mechanisms in place to account for this."""
                 "starting_balance",
                 "transfers",
             ],
-            "primary_key": ["record_id", "ferc_account_label"],
+            "primary_key": ["utility_id_ferc1", "report_year", "ferc_account_label"],
         },
         "sources": ["ferc1"],
         "etl_group": "outputs",

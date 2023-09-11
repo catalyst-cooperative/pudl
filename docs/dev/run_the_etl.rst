@@ -65,9 +65,9 @@ familiarize yourself with the tool's main concepts.
 There are a handful of Dagster concepts worth understanding prior
 to interacting with the PUDL data processing pipeline:
 
-**Dagit:**
-`Dagit <https://docs.dagster.io/concepts/dagit/dagit>`__ is the Dagster
-UI for monitoring and executing ETL runs.
+**Dagster UI:**
+`The Dagster UI <https://docs.dagster.io/concepts/webserver/ui>`__
+is used for monitoring and executing ETL runs.
 
 **Software Defined Assets (SDAs):**
 
@@ -133,7 +133,7 @@ FERC, EIA and EPA CEMS pipelines for the most recent year.
 **Definitions**:
 `Definitions  <https://docs.dagster.io/concepts/code-locations>`__
 are collections of assets, resources, IO managers and jobs that can
-be loaded into dagit and executed. Definitions can have multiple
+be loaded into the dagster UI and executed. Definitions can have multiple
 preconfigured jobs. For example, the ``pudl.ferc_to_sqlite`` definition
 contains ``etl_fast`` and ``etl_full`` jobs.
 
@@ -155,7 +155,7 @@ Both definitions have two preconfigured jobs:
   - ``etl_fast`` processes one year of data
   - ``etl_full`` processes all years of data
 
-.. _run-dagit:
+.. _run-dagster-ui:
 
 Running the ETL with Dagit
 --------------------------
@@ -168,37 +168,43 @@ variable to the path of the new directory:
 
 .. code-block:: console
 
-    $ echo "export DAGSTER_HOME=/path/to/dagster_home/dir" >> ~/.zshrc # zsh
-    $ echo "export DAGSTER_HOME=/path/to/dagster_home/dir" >> ~/.bashrc # bash
-    $ set -Ux DAGSTER_HOME /path/to/dagster_home/dir # fish
+    $ echo "export DAGSTER_HOME=/path/to/dagster_home" >> ~/.zshrc # zsh
+    $ echo "export DAGSTER_HOME=/path/to/dagster_home" >> ~/.bashrc # bash
+    $ set -Ux DAGSTER_HOME /path/to/dagster_home # fish
 
-Once ``DAGSTER_HOME`` is set, launch Dagit by running:
-
-.. code-block:: console
-
-    $ dagit -m pudl.etl -m pudl.ferc_to_sqlite
-
-To avoid typing out the dagit command each time you want to launch it,
-you can create an alias for the command in your shell:
+Add ``DAGSTER_HOME`` to the currecnt session with
 
 .. code-block:: console
 
-    $ echo "alias launch_dagit='dagit -m pudl.etl -m pudl.ferc_to_sqlite'" >> ~/.zshrc # zsh
-    $ echo "alias launch_dagit='dagit -m pudl.etl -m pudl.ferc_to_sqlite'" >> ~/.bashrc # bash
-    $ alias launch_dagit="dagit -m pudl.etl -m pudl.ferc_to_sqlite" # fish
+    $ export DAGSTER_HOME=/path/to/dagster_home
+
+Once ``DAGSTER_HOME`` is set, launch the dagster UI by running:
+
+.. code-block:: console
+
+    $ dagster-webserver -m pudl.etl -m pudl.ferc_to_sqlite
+
+To avoid typing out the ``dagster-webserver`` command each time you want to launch
+the UI, you can create an alias for the command in your shell:
+
+.. code-block:: console
+
+    $ echo "alias launch_dagster='dagster-webserver -m pudl.etl -m pudl.ferc_to_sqlite'" >> ~/.zshrc # zsh
+    $ echo "alias launch_dagster='dagster-webserver -m pudl.etl -m pudl.ferc_to_sqlite'" >> ~/.bashrc # bash
+    $ alias launch_dagster="dagster-webserver -m pudl.etl -m pudl.ferc_to_sqlite" # fish
 
 .. note::
 
     If ``DAGSTER_HOME`` is not set, you will still be able to execute jobs but
     dagster logs and outputs of assets that use the default `fs_io_manager <https://docs.dagster.io/_apidocs/io-managers#dagster.fs_io_manager>`__
-    will be saved to a temporary directory that is deleted when dagit exits.
+    will be saved to a temporary directory that is deleted when the ``dagster-webserver`` process exits.
 
-This will launch Dagit at http://localhost:3000/. You should see
+This will launch the dagster UI at http://localhost:3000/. You should see
 a window that looks like this:
 
-.. image:: ../images/dagit_home.png
+.. image:: ../images/dagster_ui_home.png
   :width: 800
-  :alt: Dagit home
+  :alt: Dagster UI home
 
 Click the hamburger button in the upper left to view the definitions,
 assets and jobs.
@@ -210,10 +216,10 @@ Cloning the FERC databases
 To run the data pipelines, you'll first need to create the raw FERC databases by
 clicking on one of the ``pudl.ferc_to_sqlite`` jobs. Then select "Launchpad"
 where you can adjust the years to extract for each dataset. Then click
-"Launch Run" in the lower right hand corner of the window. Dagit will
+"Launch Run" in the lower right hand corner of the window. The UI will
 take you to a new window that provides information about the status of
 the job. The bottom part of the window contains dagster logs. You can
-view logs from the ``pudl`` package in the CLI window the dagit process
+view logs from the ``pudl`` package in the CLI window the ``dagster-webserver`` process
 is running in.
 
 If you need to set op configurations, such as the ``clobber`` setting, you can
@@ -276,12 +282,12 @@ in the ``pudl.etl`` definition. Subsets of the ``pudl.etl`` asset graph
 are organized by asset groups. These groups are helfpul for visualizing and
 executing subsets of the asset graph.
 
-To execute the job, select ``fast_etl`` or ``full_etl`` and click "Materialize all".
+To execute the job, select ``etl_fast`` or ``etl_full`` and click "Materialize all".
 You can congifure which years to process by shift+clicking "Materialize all".
 Read the :ref:`resource_config` section to learn more.
 To view the status of the run, click the date next to "Latest run:".
 
-.. image:: ../images/dagit_pudl_etl.png
+.. image:: ../images/dagster_ui_pudl_etl.png
   :width: 800
   :alt: Dagit pudl_etl
 
@@ -345,7 +351,7 @@ you run ``pudl_setup``. (see: :ref:`install-workspace`).
   using the settings file. With the migration to dagster, all datasources are
   processed no matter what datasources are included in the settings file.
   If you want to process a single datasource, materialize the appropriate assets
-  in dagit. (see :ref:`run-dagit`).
+  in the dagster UI. (see :ref:`run-dagster-ui`).
 
 Each file contains instructions for how to process the data under "full" or "fast"
 conditions respectively. You can copy, rename, and modify these files to suit your

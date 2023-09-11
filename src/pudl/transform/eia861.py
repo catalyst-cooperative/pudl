@@ -636,8 +636,48 @@ def backfill_ba_codes_by_ba_id(df: pd.DataFrame) -> pd.DataFrame:
     return ba_eia861_filled
 
 
-def _tidy_class_dfs(df, df_name, idx_cols, class_list, class_type, keep_totals=False):
-    # Clean up values just enough to use primary key columns as a multi-index:
+def _tidy_class_dfs(
+    df: pd.DataFrame,
+    df_name: str,
+    idx_cols: list[str],
+    class_list: list[str],
+    class_type: str,
+    keep_totals: bool = False,
+) -> pd.DataFrame:
+    """Stack multiple data columns and create a categorical column for filtering.
+
+    Many EIA-861 tables are reported in a wide format, with several columns reporting
+    the same type of value, but within different categories. E.g. electricity sales by
+    customer class, with each customer class in a separate column, and separate sets of
+    customer class columns for the dollar value of sales, and the MWh of electricity
+    sold.
+
+    This function takes those groups of columns and stacks each of them into a single
+    data column creating another categorical column describing the class to which each
+    record pertains.
+
+    Non-data columns are separated before the reshaping, and recombined with the
+    reshaped data after the fact, broadcasting their values across all of the records
+    that they pertain to.
+
+    Args:
+        df: The dataframe containing the data to be reshaped.
+        df_name: A string describing the dataframe, for logging.
+        idx_cols: The index (primary key) columns of the input dataframe. They must
+            identify unique records in the input data.
+        class_list: List of values which will ultimately be found in the ``class_type``
+            column, and which should initally be found as suffixes on the names of the
+            columns to be reshaped.
+        class_type: The name of the categorical column produced by the reshaping.
+        keep_totals: If True, retain total values which are the sum of all the
+            categories. If False (the default) these duplicative rows are dropped. In
+            either case the totals are checked using :func:`_compare_totals` and logging
+            output is generated at the DEBUG level.
+
+    Returns:
+        A tidier long-form version of the input dataframe.
+    """
+    # Replace NA values in the BA code column with "UNK"
     logger.debug(f"Cleaning {df_name} table index columns so we can tidy data.")
     if "balancing_authority_code_eia" in idx_cols:
         df = df.assign(
@@ -645,11 +685,18 @@ def _tidy_class_dfs(df, df_name, idx_cols, class_list, class_type, keep_totals=F
                 lambda x: x.balancing_authority_code_eia.fillna("UNK")
             )
         )
+    before_len = len(df)
     raw_df = (
         df.dropna(subset=["utility_id_eia"])
         .astype({"utility_id_eia": "Int64"})
         .set_index(idx_cols)
     )
+    after_len = len(raw_df)
+    if before_len != after_len:
+        logger.debug(
+            f"Dropped {before_len - after_len} rows in EIA-861 {df_name} table due to "
+            "missing utility_id_eia values."
+        )
     # Split the table into index, data, and "denormalized" columns for processing:
     # Separate customer classes and reported data into a hierarchical index
     logger.debug(f"Stacking EIA861 {df_name} data columns by {class_type}.")
@@ -670,13 +717,46 @@ def _tidy_class_dfs(df, df_name, idx_cols, class_list, class_type, keep_totals=F
     data_cols = data_cols.stack(level=0, dropna=False).reset_index()
     denorm_cols = _filter_non_class_cols(raw_df, class_list).reset_index()
 
+    # Check to make sure that the idx_cols are actually valid primary key cols:
+    # This is tricky, because NA values in the BA Code column creates actual duplicate
+    # values. These NA values are filled with UNK and the duplicates are later dropped,
+    # which means we are losing data. But it's not obvious how we could actually fill
+    # in real BA codes, so we consolidate the duplicate records.
+    # These are only a fraction of a percent of all records, and only affect a couple
+    # of tables.
+    data_dupe_mask = data_cols.duplicated(subset=idx_cols + [class_type], keep=False)
+    data_dupes = data_cols[data_dupe_mask]
+    fraction_data_dupes = len(data_dupes) / len(data_cols)
+    denorm_dupe_mask = denorm_cols.duplicated(subset=idx_cols, keep=False)
+    denorm_dupes = denorm_cols[denorm_dupe_mask]
+    fraction_denorm_dupes = len(denorm_dupes) / len(data_cols)
+    err_msg = (
+        f"{df_name} table: Found {len(data_dupes)}/{len(data_cols)} "
+        f"({fraction_data_dupes:0.2%}) records with duplicated PKs. "
+    )
+    if fraction_data_dupes <= 0.005:
+        err_msg += "Consolidating duplicated records."
+        logger.info(err_msg)
+        deduped = data_dupes.groupby(idx_cols + [class_type], as_index=False).sum()
+        data_cols = pd.concat([data_cols[~data_dupe_mask], deduped], axis="index")
+        # PK dupes also affect denorm_cols. Drop dupes to ensure clean 1 to many merge:
+        if fraction_denorm_dupes > 0.005:
+            raise AssertionError(
+                f"Found too many ({fraction_denorm_dupes:0.2%}) duplicate PK values in "
+                "the non-data columns while consolidating records!"
+            )
+        denorm_cols = denorm_cols.drop_duplicates(subset=idx_cols)
+    else:
+        raise AssertionError(err_msg)
+
     # Merge the index, data, and denormalized columns back together
-    tidy_df = pd.merge(denorm_cols, data_cols, on=idx_cols)
+    tidy_df = pd.merge(denorm_cols, data_cols, on=idx_cols, validate="1:m")
 
     # Compare reported totals with sum of component columns
     if "total" in class_list:
         _compare_totals(data_cols, idx_cols, class_type, df_name)
     if keep_totals is False:
+        logger.debug("Dropping duplicative total records.")
         tidy_df = tidy_df.query(f"{class_type}!='total'")
 
     return tidy_df, idx_cols + [class_type]
@@ -719,17 +799,17 @@ def _compare_totals(data_cols, idx_cols, class_type, df_name):
     # Convert column dtypes so that numeric cols can be adequately summed
     data_cols = convert_cols_dtypes(data_cols, data_source="eia")
     # Drop data cols that are non numeric (preserve primary keys)
-    logger.debug(f"{idx_cols}, {class_type}")
+    logger.debug(f"Index Columns & Class Type: {idx_cols}, {class_type}")
     data_cols = (
         data_cols.set_index(idx_cols + [class_type])
         .select_dtypes("number")
         .reset_index()
     )
-    logger.debug(f"{data_cols.columns.tolist()}")
+    logger.debug(f"Index & Data Columns: {data_cols.columns.tolist()}")
     # Create list of data columns to be summed
     # (may include non-numeric that will be excluded)
     data_col_list = set(data_cols.columns.tolist()) - set(idx_cols + [class_type])
-    logger.debug(f"{data_col_list}")
+    logger.debug(f"Data Columns: {data_col_list}")
     # Distinguish reported totals from segments
     data_totals_df = data_cols.loc[data_cols[class_type] == "total"]
     data_no_tots_df = data_cols.loc[data_cols[class_type] != "total"]
@@ -821,10 +901,7 @@ def clean_nerc(df: pd.DataFrame, idx_cols: list[str]) -> pd.DataFrame:
         nerc_df["nerc_region"]
         .apply(
             lambda x: (
-                [
-                    i if i not in NERC_SPELLCHECK.keys() else NERC_SPELLCHECK[i]
-                    for i in x
-                ]
+                [i if i not in NERC_SPELLCHECK else NERC_SPELLCHECK[i] for i in x]
             )
         )
         .apply(lambda x: sorted(i if i in NERC_REGIONS else "UNK" for i in x))
@@ -950,7 +1027,7 @@ def _harvest_associations(dfs: list[pd.DataFrame], cols: list[str]) -> pd.DataFr
 ###############################################################################
 @asset(io_manager_key="pudl_sqlite_io_manager")
 def service_territory_eia861(
-    raw_service_territory_eia861: pd.DataFrame,
+    raw_eia861__service_territory: pd.DataFrame,
 ) -> pd.DataFrame:
     """Transform the EIA 861 utility service territory table.
 
@@ -960,12 +1037,12 @@ def service_territory_eia861(
     * Add field for state/county FIPS code.
 
     Args:
-        raw_service_territory_eia861: Raw EIA-861 utility service territory dataframe.
+        raw_eia861__service_territory: Raw EIA-861 utility service territory dataframe.
 
     Returns:
         The cleaned utility service territory dataframe.
     """
-    df = _pre_process(raw_service_territory_eia861)
+    df = _pre_process(raw_eia861__service_territory)
     # A little WV county sandwiched between OH & PA, got miscategorized a few times:
     df.loc[(df.state == "OH") & (df.county == "Brooke"), "state"] = "WV"
     df = (
@@ -1004,7 +1081,7 @@ def service_territory_eia861(
 
 @asset
 def clean_balancing_authority_eia861(
-    raw_balancing_authority_eia861: pd.DataFrame,
+    raw_eia861__balancing_authority: pd.DataFrame,
 ) -> pd.DataFrame:
     """Transform the EIA 861 Balancing Authority table.
 
@@ -1020,7 +1097,7 @@ def clean_balancing_authority_eia861(
     # * Backfill BA codes on a per BA ID basis
     # * Fix data entry errors
     df = (
-        _pre_process(raw_balancing_authority_eia861)
+        _pre_process(raw_eia861__balancing_authority)
         .pipe(apply_pudl_dtypes, "eia")
         .set_index(["report_date", "balancing_authority_name_eia", "utility_id_eia"])
     )
@@ -1062,7 +1139,7 @@ def clean_balancing_authority_eia861(
 
 
 @asset(io_manager_key="pudl_sqlite_io_manager")
-def sales_eia861(raw_sales_eia861: pd.DataFrame) -> pd.DataFrame:
+def sales_eia861(raw_eia861__sales: pd.DataFrame) -> pd.DataFrame:
     """Transform the EIA 861 Sales table.
 
     Transformations include:
@@ -1079,10 +1156,12 @@ def sales_eia861(raw_sales_eia861: pd.DataFrame) -> pd.DataFrame:
         "state",
         "report_date",
         "balancing_authority_code_eia",
+        "business_model",
+        "service_type",
     ]
 
     # Pre-tidy clean specific to sales table
-    raw_sales = _pre_process(raw_sales_eia861).query(
+    raw_sales = _pre_process(raw_eia861__sales).query(
         "utility_id_eia not in (88888, 99999)"
     )
 
@@ -1144,7 +1223,7 @@ def sales_eia861(raw_sales_eia861: pd.DataFrame) -> pd.DataFrame:
 
 @asset(io_manager_key="pudl_sqlite_io_manager")
 def advanced_metering_infrastructure_eia861(
-    raw_advanced_metering_infrastructure_eia861: pd.DataFrame,
+    raw_eia861__advanced_metering_infrastructure: pd.DataFrame,
 ) -> pd.DataFrame:
     """Transform the EIA 861 Advanced Metering Infrastructure table.
 
@@ -1164,7 +1243,7 @@ def advanced_metering_infrastructure_eia861(
     ###########################################################################
     logger.info("Tidying the EIA 861 Advanced Metering Infrastructure table.")
     tidy_ami, idx_cols = _tidy_class_dfs(
-        _pre_process(raw_advanced_metering_infrastructure_eia861),
+        _pre_process(raw_eia861__advanced_metering_infrastructure),
         df_name="Advanced Metering Infrastructure",
         idx_cols=idx_cols,
         class_list=CUSTOMER_CLASSES,
@@ -1194,7 +1273,7 @@ def advanced_metering_infrastructure_eia861(
         ),
     },
 )
-def demand_response_eia861(raw_demand_response_eia861: pd.DataFrame):
+def demand_response_eia861(raw_eia861__demand_response: pd.DataFrame):
     """Transform the EIA 861 Demand Response table.
 
     Transformations include:
@@ -1212,7 +1291,7 @@ def demand_response_eia861(raw_demand_response_eia861: pd.DataFrame):
         "report_date",
     ]
 
-    raw_dr = _pre_process(raw_demand_response_eia861)
+    raw_dr = _pre_process(raw_eia861__demand_response)
     # fill na BA values with 'UNK'
     raw_dr["balancing_authority_code_eia"] = raw_dr[
         "balancing_authority_code_eia"
@@ -1283,7 +1362,7 @@ def demand_response_eia861(raw_demand_response_eia861: pd.DataFrame):
     },
 )
 def demand_side_management_eia861(
-    raw_demand_side_management_eia861: pd.DataFrame,
+    raw_eia861__demand_side_management: pd.DataFrame,
 ):
     """Transform the EIA 861 Demand Side Management table.
 
@@ -1345,7 +1424,7 @@ def demand_side_management_eia861(
     # * Drop data_status and demand_side_management cols (they don't contain anything)
     ###########################################################################
     transformed_dsm1 = (
-        clean_nerc(_pre_process(raw_demand_side_management_eia861), idx_cols)
+        clean_nerc(_pre_process(raw_eia861__demand_side_management), idx_cols)
         .drop(columns=["demand_side_management", "data_status"])
         .query("utility_id_eia not in [88888]")
     )
@@ -1360,7 +1439,7 @@ def demand_side_management_eia861(
     # Tidy Data:
     ###########################################################################
 
-    tidy_dsm, dsm_idx_cols = pudl.transform.eia861._tidy_class_dfs(
+    tidy_dsm, dsm_idx_cols = _tidy_class_dfs(
         dsm_ee_dr,
         df_name="Demand Side Management",
         idx_cols=idx_cols,
@@ -1449,7 +1528,7 @@ def demand_side_management_eia861(
     },
 )
 def distributed_generation_eia861(
-    raw_distributed_generation_eia861: pd.DataFrame,
+    raw_eia861__distributed_generation: pd.DataFrame,
 ):
     """Transform the EIA 861 Distributed Generation table.
 
@@ -1514,7 +1593,7 @@ def distributed_generation_eia861(
     ]
 
     # Pre-tidy transform: set estimated or actual A/E values to 'Acutal'/'Estimated'
-    raw_dg = _pre_process(raw_distributed_generation_eia861).assign(
+    raw_dg = _pre_process(raw_eia861__distributed_generation).assign(
         estimated_or_actual_capacity_data=lambda x: (
             x.estimated_or_actual_capacity_data.map(ESTIMATED_OR_ACTUAL)
         ),
@@ -1628,14 +1707,14 @@ def distributed_generation_eia861(
 
 @asset(io_manager_key="pudl_sqlite_io_manager")
 def distribution_systems_eia861(
-    raw_distribution_systems_eia861: pd.DataFrame,
+    raw_eia861__distribution_systems: pd.DataFrame,
 ) -> pd.DataFrame:
     """Transform the EIA 861 Distribution Systems table.
 
     * No additional transformations.
     """
     df = (
-        _pre_process(raw_distribution_systems_eia861)
+        _pre_process(raw_eia861__distribution_systems)
         .assign(short_form=lambda x: _make_yn_bool(x.short_form))
         # No duplicates to speak of but take measures to check just in case
         .pipe(
@@ -1649,7 +1728,7 @@ def distribution_systems_eia861(
 
 
 @asset(io_manager_key="pudl_sqlite_io_manager")
-def dynamic_pricing_eia861(raw_dynamic_pricing_eia861: pd.DataFrame) -> pd.DataFrame:
+def dynamic_pricing_eia861(raw_eia861__dynamic_pricing: pd.DataFrame) -> pd.DataFrame:
     """Transform the EIA 861 Dynamic Pricing table.
 
     Transformations include:
@@ -1673,7 +1752,7 @@ def dynamic_pricing_eia861(raw_dynamic_pricing_eia861: pd.DataFrame) -> pd.DataF
     ]
 
     raw_dp = _pre_process(
-        raw_dynamic_pricing_eia861.query("utility_id_eia not in [88888]").assign(
+        raw_eia861__dynamic_pricing.query("utility_id_eia not in [88888]").assign(
             short_form=lambda x: _make_yn_bool(x.short_form)
         )
     )
@@ -1712,7 +1791,7 @@ def dynamic_pricing_eia861(raw_dynamic_pricing_eia861: pd.DataFrame) -> pd.DataF
 
 @asset(io_manager_key="pudl_sqlite_io_manager")
 def energy_efficiency_eia861(
-    raw_energy_efficiency_eia861: pd.DataFrame,
+    raw_eia861__energy_efficiency: pd.DataFrame,
 ) -> pd.DataFrame:
     """Transform the EIA 861 Energy Efficiency table.
 
@@ -1730,7 +1809,7 @@ def energy_efficiency_eia861(
     ]
 
     raw_ee = (
-        _pre_process(raw_energy_efficiency_eia861).assign(
+        _pre_process(raw_eia861__energy_efficiency).assign(
             short_form=lambda x: _make_yn_bool(x.short_form)
         )
         # No duplicates to speak of but take measures to check just in case
@@ -1780,7 +1859,7 @@ def energy_efficiency_eia861(
 
 @asset(io_manager_key="pudl_sqlite_io_manager")
 def green_pricing_eia861(
-    raw_green_pricing_eia861: pd.DataFrame,
+    raw_eia861__green_pricing: pd.DataFrame,
 ) -> pd.DataFrame:
     """Transform the EIA 861 Green Pricing table.
 
@@ -1800,7 +1879,7 @@ def green_pricing_eia861(
     ###########################################################################
     logger.info("Tidying the EIA 861 Green Pricing table.")
     tidy_gp, idx_cols = _tidy_class_dfs(
-        _pre_process(raw_green_pricing_eia861),
+        _pre_process(raw_eia861__green_pricing),
         df_name="Green Pricing",
         idx_cols=idx_cols,
         class_list=CUSTOMER_CLASSES,
@@ -1823,11 +1902,11 @@ def green_pricing_eia861(
 
 
 @asset(io_manager_key="pudl_sqlite_io_manager")
-def mergers_eia861(raw_mergers_eia861: pd.DataFrame) -> pd.DataFrame:
+def mergers_eia861(raw_eia861__mergers: pd.DataFrame) -> pd.DataFrame:
     """Transform the EIA 861 Mergers table."""
     # No duplicates to speak of but take measures to check just in case
     df = (
-        _pre_process(raw_mergers_eia861)
+        _pre_process(raw_eia861__mergers)
         .pipe(
             _check_for_dupes,
             df_name="Mergers",
@@ -1846,7 +1925,7 @@ def mergers_eia861(raw_mergers_eia861: pd.DataFrame) -> pd.DataFrame:
         "net_metering_misc_eia861": AssetOut(io_manager_key="pudl_sqlite_io_manager"),
     },
 )
-def net_metering_eia861(raw_net_metering_eia861: pd.DataFrame):
+def net_metering_eia861(raw_eia861__net_metering: pd.DataFrame):
     """Transform the EIA 861 Net Metering table.
 
     Transformations include:
@@ -1866,7 +1945,7 @@ def net_metering_eia861(raw_net_metering_eia861: pd.DataFrame):
 
     # Pre-tidy clean specific to net_metering table
     raw_nm = (
-        _pre_process(raw_net_metering_eia861)
+        _pre_process(raw_eia861__net_metering)
         .query("utility_id_eia not in [99999]")
         .assign(short_form=lambda x: _make_yn_bool(x.short_form))
     )
@@ -1932,7 +2011,7 @@ def net_metering_eia861(raw_net_metering_eia861: pd.DataFrame):
         ),
     },
 )
-def non_net_metering_eia861(raw_non_net_metering_eia861: pd.DataFrame):
+def non_net_metering_eia861(raw_eia861__non_net_metering: pd.DataFrame):
     """Transform the EIA 861 Non-Net Metering table.
 
     Transformations include:
@@ -1957,7 +2036,7 @@ def non_net_metering_eia861(raw_non_net_metering_eia861: pd.DataFrame):
     ]
 
     # Pre-tidy clean specific to non_net_metering table
-    raw_nnm = _pre_process(raw_non_net_metering_eia861).query(
+    raw_nnm = _pre_process(raw_eia861__non_net_metering).query(
         "utility_id_eia not in '99999'"
     )
 
@@ -2042,7 +2121,7 @@ def non_net_metering_eia861(raw_non_net_metering_eia861: pd.DataFrame):
         ),
     },
 )
-def operational_data_eia861(raw_operational_data_eia861: pd.DataFrame):
+def operational_data_eia861(raw_eia861__operational_data: pd.DataFrame):
     """Transform the EIA 861 Operational Data table.
 
     Transformations include:
@@ -2062,7 +2141,7 @@ def operational_data_eia861(raw_operational_data_eia861: pd.DataFrame):
     ]
 
     # Pre-tidy clean specific to operational data table
-    raw_od = _pre_process(raw_operational_data_eia861)
+    raw_od = _pre_process(raw_eia861__operational_data)
     raw_od = raw_od[
         (raw_od["utility_id_eia"] != 88888) & (raw_od["utility_id_eia"].notnull())
     ]
@@ -2125,7 +2204,7 @@ def operational_data_eia861(raw_operational_data_eia861: pd.DataFrame):
 
 
 @asset(io_manager_key="pudl_sqlite_io_manager")
-def reliability_eia861(raw_reliability_eia861: pd.DataFrame) -> pd.DataFrame:
+def reliability_eia861(raw_eia861__reliability: pd.DataFrame) -> pd.DataFrame:
     """Transform the EIA 861 Reliability table.
 
     Transformations include:
@@ -2145,7 +2224,7 @@ def reliability_eia861(raw_reliability_eia861: pd.DataFrame) -> pd.DataFrame:
 
     # wide-to-tall by standards
     tidy_r, idx_cols = _tidy_class_dfs(
-        df=_pre_process(raw_reliability_eia861),
+        df=_pre_process(raw_eia861__reliability),
         df_name="Reliability",
         idx_cols=idx_cols,
         class_list=RELIABILITY_STANDARDS,
@@ -2179,6 +2258,12 @@ def reliability_eia861(raw_reliability_eia861: pd.DataFrame) -> pd.DataFrame:
         .pipe(_drop_dupes, df_name="Reliability", subset=idx_cols).pipe(_post_process)
     )
 
+    transformed_r = (
+        pudl.metadata.classes.Package.from_resource_ids()
+        .get_resource("reliability_eia861")
+        .encode(transformed_r)
+    )
+
     return transformed_r
 
 
@@ -2189,7 +2274,7 @@ def reliability_eia861(raw_reliability_eia861: pd.DataFrame) -> pd.DataFrame:
         "utility_data_misc_eia861": AssetOut(io_manager_key="pudl_sqlite_io_manager"),
     },
 )
-def utility_data_eia861(raw_utility_data_eia861: pd.DataFrame):
+def utility_data_eia861(raw_eia861__utility_data: pd.DataFrame):
     """Transform the EIA 861 Utility Data table.
 
     Transformations include:
@@ -2203,7 +2288,7 @@ def utility_data_eia861(raw_utility_data_eia861: pd.DataFrame):
     idx_cols = ["utility_id_eia", "state", "report_date", "nerc_region"]
 
     # Pre-tidy clean specific to operational data table
-    raw_ud = _pre_process(raw_utility_data_eia861).query(
+    raw_ud = _pre_process(raw_eia861__utility_data).query(
         "utility_id_eia not in [88888]"
     )
 

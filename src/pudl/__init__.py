@@ -1,8 +1,8 @@
 """The Public Utility Data Liberation (PUDL) Project."""
 
-import pkg_resources
+import importlib.metadata
 
-from . import (  # noqa: F401
+from . import (
     analysis,
     cli,
     convert,
@@ -26,7 +26,7 @@ __contact__ = "pudl@catalyst.coop"
 __maintainer__ = "Catalyst Cooperative"
 __license__ = "MIT License"
 __maintainer_email__ = "zane.selvans@catalyst.coop"
-__version__ = pkg_resources.get_distribution("catalystcoop.pudl").version
+__version__ = importlib.metadata.version("catalystcoop.pudl")
 __docformat__ = "restructuredtext en"
 __description__ = "Tools for liberating public US electric utility data."
 __long_description__ = """

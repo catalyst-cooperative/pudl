@@ -93,7 +93,7 @@ def test_run_aggregations(pudl_out_eia, live_dbs):
     if pudl_out_eia.freq == "AS":  # Annual only.
         logger.info("Testing ownership fractions for owned records.")
 
-        mcoe = pudl_out_eia.mcoe()
+        mcoe = pudl_out_eia.mcoe_generators()
         own_eia860 = pudl_out_eia.own_eia860()
         gens_mega = MakeMegaGenTbl().execute(mcoe, own_eia860)
         plant_parts_eia = pudl_out_eia.plant_parts_eia()
@@ -128,7 +128,7 @@ def test_run_aggregations(pudl_out_eia, live_dbs):
                 logger.info(f"  Results for {test_col}: {result}")
                 if not all(result):
                     logger.warning(
-                        f"{test_col} has {len([val for val in result if val == False])} non-unique values when aggregating for {part_name}."
+                        f"{test_col} has {len([val for val in result if val is False])} non-unique values when aggregating for {part_name}."
                     )
                     # raise AssertionError(
                     #    f"{test_col}'s '"

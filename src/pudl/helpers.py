@@ -6,15 +6,14 @@ designed to be used as a general purpose tool, applicable in multiple scenarios,
 should probably live here. There are lost of transform type functions in here that help
 with cleaning and restructing dataframes.
 """
+import importlib.resources
 import itertools
-import os
 import pathlib
 import re
 import shutil
 from collections import defaultdict
 from collections.abc import Generator, Iterable
 from functools import partial
-from importlib import resources
 from io import BytesIO
 from typing import Any, Literal
 
@@ -23,13 +22,11 @@ import numpy as np
 import pandas as pd
 import requests
 import sqlalchemy as sa
-from dagster import AssetKey, AssetsDefinition, AssetSelection, Noneable, SourceAsset
-from dagster._config.errors import PostProcessingError
+from dagster import AssetKey, AssetsDefinition, AssetSelection, SourceAsset
 from pandas._libs.missing import NAType
 
 import pudl.logging_helpers
-from pudl.metadata.fields import get_pudl_dtypes
-from pudl.workspace.setup import get_defaults
+from pudl.metadata.fields import apply_pudl_dtypes, get_pudl_dtypes
 
 sum_na = partial(pd.Series.sum, skipna=False)
 """A sum function that returns NA if the Series includes any NA values.
@@ -97,7 +94,7 @@ def find_new_ferc1_strings(
         categories enumerated in strdict.
     """
     all_strings = set(
-        pd.read_sql(f"SELECT {field} FROM {table};", ferc1_engine).pipe(  # nosec
+        pd.read_sql(f"SELECT {field} FROM {table};", ferc1_engine).pipe(  # noqa: S608
             simplify_strings, columns=[field]
         )[field]
     )
@@ -263,7 +260,7 @@ def clean_eia_counties(df, fixes, state_col="state", county_col="county"):
 
 
 def oob_to_nan(df, cols, lb=None, ub=None):
-    """Set non-numeric values and those outside of a given rage to NaN.
+    """Set non-numeric values and those outside of a given range to NaN.
 
     Args:
         df (pandas.DataFrame): The dataframe containing values to be altered.
@@ -285,6 +282,39 @@ def oob_to_nan(df, cols, lb=None, ub=None):
         if ub is not None:
             out_df.loc[out_df[col] > ub, col] = np.nan
 
+    return out_df
+
+
+def oob_to_nan_with_dependent_cols(
+    df: pd.DataFrame,
+    cols: list,
+    dependent_cols: list,
+    lb: float = None,
+    ub: float = None,
+):
+    """Call oob_to_nan and additionally nullify any derived columns.
+
+    Set values in ``cols`` to NaN if values are non-numeric or outside of a
+    given range. The corresponding values in ``dependent_cols`` are then set
+    to NaN. ``dependent_cols`` should be columns derived from one or multiple
+    of the columns in ``cols``.
+
+    Args:
+        df (pandas.DataFrame): The dataframe containing values to be altered.
+        cols (iterable): Labels of the columns whose values are to be changed.
+        dependent_cols (iterable): Labels of the columns whose corresponding
+            values should also be nullified. Columns are derived from one or
+            multiple of the columns in ``cols``.
+        lb: (number): Lower bound, below which values are set to NaN. If None,
+            don't use a lower bound.
+        ub: (number): Upper bound, below which values are set to NaN. If None,
+            don't use an upper bound.
+
+    Returns:
+        pandas.DataFrame: The altered DataFrame.
+    """
+    out_df = oob_to_nan(df, cols, lb, ub)
+    out_df.loc[out_df[cols].isnull().any(axis=1), dependent_cols] = np.nan
     return out_df
 
 
@@ -334,22 +364,23 @@ def is_doi(doi):
     return bool(re.match(doi_regex, doi))
 
 
-def convert_col_to_datetime(df, date_col_name):
-    """Convert a column in a dataframe to a datetime.
+def convert_col_to_datetime(df: pd.DataFrame, date_col_name: str) -> pd.DataFrame:
+    """Convert a non-datetime column in a dataframe to a datetime64[s].
 
     If the column isn't a datetime, it needs to be converted to a string type
     first so that integer years are formatted correctly.
 
     Args:
-        df (pandas.DataFrame): Dataframe with column to convert.
-        date_col_name (string): name of the column to convert.
+        df: Dataframe with column to convert.
+        date_col_name: name of the datetime column to convert.
 
     Returns:
         Dataframe with the converted datetime column.
     """
-    if pd.api.types.is_datetime64_ns_dtype(df[date_col_name]) is False:
+    if not pd.api.types.is_datetime64_dtype(df[date_col_name]):
         logger.warning(
-            f"{date_col_name} is {df[date_col_name].dtype} column. Converting to datetime."
+            f"{date_col_name} is {df[date_col_name].dtype} column. "
+            "Converting to datetime64[ns]."
         )
         df[date_col_name] = pd.to_datetime(df[date_col_name].astype("string"))
     return df
@@ -498,10 +529,7 @@ def date_merge(
 
     suffixes = ["", ""]
     if left_date_col == right_date_col:
-        if "suffixes" in kwargs:
-            suffixes = kwargs["suffixes"]
-        else:
-            suffixes = ["_x", "_y"]
+        suffixes = kwargs.get("suffixes", ["_x", "_y"])
     # reconstruct the new report date column and clean up columns
     left_right_date_col = [left_date_col + suffixes[0], right_date_col + suffixes[1]]
     if report_at_start:
@@ -588,17 +616,21 @@ def expand_timeseries(
             f"{fill_through_freq} is not a valid frequency to fill through."
         )
     end_dates["drop_row"] = True
-    df = pd.concat([df, end_dates.reset_index()])
     df = (
-        df.set_index(date_col)
+        pd.concat([df, end_dates.reset_index()])
+        .set_index(date_col)
         .groupby(key_cols)
         .resample(freq)
         .ffill()
         .drop(key_cols, axis=1)
         .reset_index()
     )
-    df = df[df.drop_row.isnull()].drop("drop_row", axis=1).reset_index(drop=True)
-    return df
+    return (
+        df[df.drop_row.isnull()]
+        .drop(columns="drop_row")
+        .reset_index(drop=True)
+        .pipe(apply_pudl_dtypes)
+    )
 
 
 def organize_cols(df, cols):
@@ -836,12 +868,12 @@ def month_year_to_date(df):
         base_month_regex = f"^{base}{month_regex}"
         month_col = list(df.filter(regex=base_month_regex).columns)
         if not len(month_col) == 1:
-            raise AssertionError()
+            raise AssertionError
         month_col = month_col[0]
         base_year_regex = f"^{base}{year_regex}"
         year_col = list(df.filter(regex=base_year_regex).columns)
         if not len(year_col) == 1:
-            raise AssertionError()
+            raise AssertionError
         year_col = year_col[0]
         date_col = f"{base}_date"
         month_year_date.append((month_col, year_col, date_col))
@@ -937,43 +969,30 @@ def convert_to_date(
 
     year = df[year_col]
 
-    if month_col not in df.columns:
-        month = month_value
-    else:
-        month = df[month_col]
+    month = month_value if month_col not in df.columns else df[month_col]
 
-    if day_col not in df.columns:
-        day = day_value
-    else:
-        day = df[day_col]
+    day = day_value if day_col not in df.columns else df[day_col]
 
     df[date_col] = pd.to_datetime({"year": year, "month": month, "day": day})
     cols_to_drop = [x for x in [day_col, year_col, month_col] if x in df.columns]
-    df.drop(cols_to_drop, axis="columns", inplace=True)
+    df = df.drop(cols_to_drop, axis="columns")
 
     return df
 
 
-def fix_eia_na(df):
+def fix_eia_na(df: pd.DataFrame) -> pd.DataFrame:
     """Replace common ill-posed EIA NA spreadsheet values with np.nan.
 
     Currently replaces empty string, single decimal points with no numbers,
     and any single whitespace character with np.nan.
 
     Args:
-        df (pandas.DataFrame): The DataFrame to clean.
+        df: The DataFrame to clean.
 
     Returns:
-        pandas.DataFrame: The cleaned DataFrame.
+        DataFrame with regularized NA values.
     """
-    return df.replace(
-        to_replace=[
-            r"^\.$",  # Nothing but a decimal point
-            r"^\s*$",  # The empty string and entirely whitespace strings
-        ],
-        value=np.nan,
-        regex=True,
-    )
+    return df.replace(regex=r"(^\.$|^\s*$)", value=np.nan)
 
 
 def simplify_columns(df):
@@ -995,6 +1014,9 @@ def simplify_columns(df):
     Todo:
         Update docstring.
     """
+    # Do nothing, if empty dataframe (e.g. mocked for tests)
+    if df.shape[0] == 0:
+        return df
     df.columns = (
         df.columns.str.replace(r"[^0-9a-zA-Z]+", " ", regex=True)
         .str.strip()
@@ -1121,12 +1143,13 @@ def convert_cols_dtypes(
     # columns to this nullable int type column. `utility_id_eia` shows up as a
     # column of strings (!) of numbers so it is an object column, and therefor
     # needs to be converted beforehand.
-    if "utility_id_eia" in df.columns:
-        # we want to be able to use this dtype cleaning at many stages, and
-        # sometimes this column has been converted to a float and therefor
-        # we need to skip this conversion
-        if df.utility_id_eia.dtypes is np.dtype("object"):
-            df = df.astype({"utility_id_eia": "float"})
+    # we want to be able to use this dtype cleaning at many stages, and
+    # sometimes this column has been converted to a float and therefore
+    # we need to skip this conversion
+    if "utility_id_eia" in df.columns and df.utility_id_eia.dtypes is np.dtype(
+        "object"
+    ):
+        df = df.astype({"utility_id_eia": "float"})
     df = (
         df.astype(non_bool_cols)
         .astype({col: "boolean" for col in bool_cols})
@@ -1190,11 +1213,11 @@ def generate_rolling_avg(
     # to get the backbone/complete date range/groups
     bones = (
         date_range.merge(groups)
-        .drop("tmp", axis=1)  # drop the temp column
+        .drop(columns="tmp")  # drop the temp column
         .merge(df, on=group_cols + ["report_date"])
         .set_index(group_cols + ["report_date"])
         .groupby(by=group_cols + ["report_date"])
-        .mean()
+        .mean(numeric_only=True)
     )
     # with the aggregated data, get a rolling average
     roll = bones.rolling(window=window, center=True, **kwargs).agg({data_col: "mean"})
@@ -1337,16 +1360,14 @@ def zero_pad_numeric_string(
 def iterate_multivalue_dict(**kwargs):
     """Make dicts from dict with main dict key and one value of main dict."""
     single_valued = {
-        k: v
-        for k, v in kwargs.items()
-        if not (isinstance(v, list) or isinstance(v, tuple))
+        k: v for k, v in kwargs.items() if not (isinstance(v, list | tuple))
     }
 
     # Transform multi-valued {k: vlist} into {k1: [{k1: v1}, {k1: v2}, ...], k2: [...], ...}
     multi_valued = {
         k: [{k: v} for v in vlist]
         for k, vlist in kwargs.items()
-        if (isinstance(vlist, list) or isinstance(vlist, tuple))
+        if (isinstance(vlist, list | tuple))
     }
 
     for value_assignments in itertools.product(*multi_valued.values()):
@@ -1400,7 +1421,12 @@ def dedupe_on_category(
     return dedup_df.drop_duplicates(subset=base_cols, keep="first")
 
 
-def calc_capacity_factor(df, freq, min_cap_fact=None, max_cap_fact=None):
+def calc_capacity_factor(
+    df: pd.DataFrame,
+    freq: Literal["AS", "MS"],
+    min_cap_fact: float | None = None,
+    max_cap_fact: float | None = None,
+) -> pd.DataFrame:
     """Calculate capacity factor.
 
     Capacity factor is calcuated from the capcity, the net generation over a
@@ -1411,19 +1437,18 @@ def calc_capacity_factor(df, freq, min_cap_fact=None, max_cap_fact=None):
     `min_cap_fact` and `max_cap_fact` are dropped.
 
     Args:
-        df (pandas.DataFrame): table with components of capacity factor (
-            `report_date`, `net_generation_mwh` and `capacity_mw`)
-        min_cap_fact (float): Lower bound, below which values are set to NaN.
-            If None, don't use a lower bound. Default is None.
-        max_cap_fact (float): Upper bound, below which values are set to NaN.
-            If None, don't use an upper bound. Default is None.
-        freq (str): String describing time frequency at which to aggregate
-            the reported data, such as 'MS' (month start) or 'AS' (annual
-            start).
+        df: table with required inputs for capacity factor (``report_date``,
+            ``net_generation_mwh`` and ``capacity_mw``).
+        freq: String describing time frequency at which to aggregate the reported data,
+            such as ``MS`` (month start) or ``AS`` (annual start).
+        min_cap_fact: Lower bound, below which values are set to NaN. If None, don't use
+            a lower bound. Default is None.
+        max_cap_fact: Upper bound, below which values are set to NaN.  If None, don't
+            use an upper bound. Default is None.
 
     Returns:
-        pandas.DataFrame: modified version of input `df` with one additional
-        column (`capacity_factor`).
+        Modified version of the input DataFrame with an additional ``capacity_factor``
+        column.
     """
     # get a unique set of dates to generate the number of hours
     dates = df["report_date"].drop_duplicates()
@@ -1532,7 +1557,8 @@ def get_eia_ferc_acct_map():
             'prime_mover_code', 'ferc_acct_name']`
     """
     eia_ferc_acct_map = pd.read_csv(
-        resources.open_text("pudl.package_data.glue", "ferc_acct_to_pm_tech_map.csv")
+        importlib.resources.files("pudl.package_data.glue")
+        / "ferc_acct_to_pm_tech_map.csv"
     )
     return eia_ferc_acct_map
 
@@ -1549,7 +1575,7 @@ def flatten_list(xs: Iterable) -> Generator:
     `here <https://stackoverflow.com/questions/2158395/flatten-an-irregular-arbitrarily-nested-list-of-lists>`__
     """
     for x in xs:
-        if isinstance(x, Iterable) and not isinstance(x, (str, bytes)):
+        if isinstance(x, Iterable) and not isinstance(x, str | bytes):
             yield from flatten_list(x)
         else:
             yield x
@@ -1565,47 +1591,12 @@ def convert_df_to_excel_file(df: pd.DataFrame, **kwargs) -> pd.ExcelFile:
     writer = pd.ExcelWriter(bio, engine="xlsxwriter")
     df.to_excel(writer, **kwargs)
 
-    writer.save()
+    writer.close()
 
     bio.seek(0)
     workbook = bio.read()
 
     return pd.ExcelFile(workbook)
-
-
-class EnvVar(Noneable):
-    """A dagster config type for env vars."""
-
-    def __init__(self, env_var: str) -> None:
-        """Initialize EnvVarField."""
-        super().__init__(inner_type=str)
-        self.env_var = env_var
-
-    def post_process(self, value: str) -> str:
-        """Validate an EnvVar config value.
-
-        Returns the value of the object environment variable if the
-        config value is not specified is not specified with dagster.
-
-        Args:
-            value: config value to validate.
-
-        Returns:
-            validated config value.
-
-        Raises:
-            PostProcessingError: if the value is not specified in the env var or config.
-        """
-        if value is None:
-            try:
-                value = os.environ.get(self.env_var)
-                if value is None:
-                    value = get_defaults()[self.env_var]
-            except KeyError:
-                raise PostProcessingError(
-                    f"Config value could not be found. Set the {self.env_var} environment variable or specify a value in dagster config."
-                )
-        return value
 
 
 def get_asset_keys(
@@ -1693,3 +1684,102 @@ def convert_col_to_bool(
     df[col_name] = df[col_name].astype("boolean")
 
     return df
+
+
+def scale_by_ownership(
+    gens: pd.DataFrame,
+    own_eia860: pd.DataFrame,
+    scale_cols: list,
+    validate: str = "1:m",
+):
+    """Generate proportional data by ownership %s.
+
+    Why do we have to do this at all? Sometimes generators are owned by
+    many different utility owners that own slices of that generator. EIA
+    reports which portion of each generator is owned by which utility
+    relatively clearly in their ownership table. On the other hand, in
+    FERC1, sometimes a partial owner reports the full plant-part, sometimes
+    they report only their ownership portion of the plant-part. And of
+    course it is not labeld in FERC1. Because of this, we need to compile
+    all of the possible ownership slices of the EIA generators.
+
+    In order to accumulate every possible version of how a generator could
+    be reported, this method generates two records for each generator's
+    reported owners: one of the portion of the plant part they own and one
+    for the plant-part as a whole. The portion records are labeled in the
+    ``ownership_record_type`` column as "owned" and the total records are labeled as
+    "total".
+
+    In this function we merge in the ownership table so that generators
+    with multiple owners then have one record per owner with the
+    ownership fraction (in column ``fraction_owned``). Because the ownership
+    table only contains records for generators that have multiple owners,
+    we assume that all other generators are owned 100% by their operator.
+    Then we generate the "total" records by duplicating the "owned" records
+    but assigning the ``fraction_owned`` to be 1 (i.e. 100%).
+
+    Arguments:
+        gens: table with records at the generator level and generator attributes
+            to be scaled by ownership, must have columns ``plant_id_eia``,
+            ``generator_id``, and ``report_date``
+        own_eia860: the ``ownership_eia860`` table
+        scale_cols: a list of columns in the generator table to slice by ownership
+            fraction
+        validate: how to validate merging the ownership table onto the
+            generators table
+    Returns:
+        Table of generator records with ``scale_cols`` sliced by ownership fraction
+        such that there is a "total" and "owned" record for each generator owner.
+        The "owned" records have the generator's data scaled to the ownership
+        percentage (e.g. if a 200 MW generator has a 75% stake owner and a 25%
+        stake owner, this will result in two "owned" records with 150 MW and 50 MW).
+        The "total" records correspond to the full plant for every owner (e.g. using
+        the same 2-owner 200 MW generator as above, each owner will have a
+        records with 200 MW).
+    """
+    # grab the ownership table, and reduce it to only the columns we need
+    own860 = own_eia860[
+        [
+            "plant_id_eia",
+            "generator_id",
+            "report_date",
+            "fraction_owned",
+            "owner_utility_id_eia",
+        ]
+    ].pipe(pudl.helpers.convert_cols_dtypes, "eia")
+    # we're left merging BC we've removed the retired gens, which are
+    # reported in the ownership table
+    gens = (
+        gens.merge(
+            own860,
+            how="left",
+            on=["plant_id_eia", "generator_id", "report_date"],
+            validate=validate,
+        )
+        .assign(  # assume gens that don't show up in the own table have one 100% owner
+            fraction_owned=lambda x: x.fraction_owned.fillna(value=1),
+            # assign the operator id as the owner if null bc if a gen isn't
+            # reported in the own_eia860 table we can assume the operator
+            # is the owner
+            owner_utility_id_eia=lambda x: x.owner_utility_id_eia.fillna(
+                x.utility_id_eia
+            ),
+            ownership_record_type="owned",
+        )  # swap in the owner as the utility
+        .drop(columns=["utility_id_eia"])
+        .rename(columns={"owner_utility_id_eia": "utility_id_eia"})
+    )
+
+    # duplicate all of these "owned" records, asign 1 to all of the
+    # fraction_owned column to indicate 100% ownership, and add these new
+    # "total" records to the "owned"
+    gens = pd.concat(
+        [
+            gens,
+            gens.copy().assign(fraction_owned=1, ownership_record_type="total"),
+        ]
+    )
+    gens.loc[:, scale_cols] = gens.loc[:, scale_cols].multiply(
+        gens["fraction_owned"], axis="index"
+    )
+    return gens

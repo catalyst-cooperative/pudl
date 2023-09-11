@@ -20,8 +20,12 @@ from pudl.io_managers import (
 from pudl.resources import dataset_settings, datastore, ferc_to_sqlite_settings
 from pudl.settings import EtlSettings
 
-from . import glue_assets  # noqa: F401
-from . import eia_bulk_elec_assets, epacems_assets, static_assets
+from . import (
+    eia_bulk_elec_assets,
+    epacems_assets,
+    glue_assets,
+    static_assets,
+)
 
 logger = pudl.logging_helpers.get_logger(__name__)
 
@@ -29,16 +33,21 @@ default_assets = (
     *load_assets_from_modules([eia_bulk_elec_assets], group_name="eia_bulk_elec"),
     *load_assets_from_modules([epacems_assets], group_name="epacems"),
     *load_assets_from_modules([pudl.extract.eia860], group_name="raw_eia860"),
-    *load_assets_from_modules([pudl.transform.eia860], group_name="clean_eia860"),
+    *load_assets_from_modules([pudl.transform.eia860], group_name="_core_eia860"),
     *load_assets_from_modules([pudl.extract.eia861], group_name="raw_eia861"),
     *load_assets_from_modules([pudl.transform.eia861], group_name="clean_eia861"),
     *load_assets_from_modules([pudl.extract.eia923], group_name="raw_eia923"),
-    *load_assets_from_modules([pudl.transform.eia923], group_name="clean_eia923"),
+    *load_assets_from_modules([pudl.transform.eia923], group_name="_core_eia923"),
     *load_assets_from_modules([pudl.transform.eia], group_name="norm_eia"),
     *load_assets_from_modules([pudl.extract.ferc1], group_name="raw_ferc1"),
     *load_assets_from_modules([pudl.transform.ferc1], group_name="norm_ferc1"),
     *load_assets_from_modules([pudl.extract.ferc714], group_name="raw_ferc714"),
     *load_assets_from_modules([pudl.transform.ferc714], group_name="clean_ferc714"),
+    *load_assets_from_modules([pudl.output.ferc714], group_name="respondents_ferc714"),
+    *load_assets_from_modules(
+        [pudl.convert.censusdp1tract_to_sqlite, pudl.output.censusdp1tract],
+        group_name="censusdp1",
+    ),
     *load_assets_from_modules([glue_assets], group_name="glue"),
     *load_assets_from_modules([static_assets], group_name="static"),
     *load_assets_from_modules(
@@ -50,7 +59,17 @@ default_assets = (
         ],
         group_name="denorm_eia",
     ),
+    *load_assets_from_modules(
+        [pudl.analysis.allocate_gen_fuel], group_name="allocate_gen_fuel"
+    ),
+    *load_assets_from_modules([pudl.analysis.mcoe], group_name="mcoe"),
     *load_assets_from_modules([pudl.output.ferc1], group_name="denorm_ferc1"),
+    *load_assets_from_modules(
+        [pudl.analysis.service_territory], group_name="service_territory_eia861"
+    ),
+    *load_assets_from_modules(
+        [pudl.analysis.state_demand], group_name="state_demand_ferc714"
+    ),
 )
 
 default_resources = {
@@ -89,11 +108,11 @@ def load_dataset_settings_from_file(setting_filename: str) -> dict:
     Returns:
         Dictionary of dataset settings.
     """
-    pkg_source = importlib.resources.files("pudl.package_data.settings").joinpath(
-        f"{setting_filename}.yml"
-    )
-    with importlib.resources.as_file(pkg_source) as yaml_file:
-        dataset_settings = EtlSettings.from_yaml(yaml_file).datasets.dict()
+    dataset_settings = EtlSettings.from_yaml(
+        importlib.resources.files("pudl.package_data.settings")
+        / f"{setting_filename}.yml"
+    ).datasets.dict()
+
     return dataset_settings
 
 

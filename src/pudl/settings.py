@@ -1,16 +1,15 @@
 """Module for validating pudl etl settings."""
 import itertools
 import json
-import pathlib
 from enum import Enum, unique
 from typing import ClassVar
 
+import fsspec
 import pandas as pd
 import yaml
 from dagster import Any, DagsterInvalidDefinitionError, Field
-from pydantic import AnyHttpUrl
+from pydantic import AnyHttpUrl, BaseSettings, root_validator, validator
 from pydantic import BaseModel as PydanticBaseModel
-from pydantic import BaseSettings, root_validator, validator
 
 import pudl
 import pudl.workspace.setup
@@ -44,7 +43,12 @@ class GenericDatasetSettings(BaseModel):
 
     Each dataset must specify working partitions. A dataset can have an arbitrary number
     of partitions.
+
+    Args:
+        disabled: if true, skip processing this dataset.
     """
+
+    disabled: bool = False
 
     @root_validator
     def validate_partitions(cls, partitions):  # noqa: N805
@@ -215,10 +219,10 @@ class Eia860Settings(GenericDatasetSettings):
         expected_year = max(cls.data_source.working_partitions["years"]) + 1
         if eia860m and (eia860m_year != expected_year):
             raise AssertionError(
-                """Attempting to integrate an eia860m year """
-                f"""({eia860m_year}) from {cls.eia860m_date} not immediately following """
-                f"""the eia860 years: {cls.data_source.working_partitions["years"]}. """
-                """Consider switching eia860m parameter to False."""
+                f"Attempting to integrate an eia860m year "
+                f"({eia860m_year}) from {cls.eia860m_date} not immediately following"
+                f"the eia860 years: {cls.data_source.working_partitions['years']}. "
+                f"Consider switching eia860m parameter to False."
             )
         return eia860m
 
@@ -350,10 +354,10 @@ class DatasetsSettings(BaseModel):
         * the ETL settings (for partitions that are used in the ETL)
         * the DataSource info (which is stored within the ETL settings)
 
-        The ETL settings and the datastore have different levels of nesting - and therefor
-        names for datasets. The nesting happens particularly with the EIA data. There
-        are three EIA datasets right now - eia923, eia860 and eia860m. eia860m is a monthly
-        update of a few tables in the larger eia860 dataset.
+        The ETL settings and the datastore have different levels of nesting - and
+        therefore names for datasets. The nesting happens particularly with the EI
+        data. There are three EIA datasets right now eia923, eia860 and eia860m.
+        eia860m is a monthly update of a few tables in the larger eia860 dataset.
 
         Args:
             ds: An initalized PUDL Datastore from which the DOI's for each raw input
@@ -443,10 +447,12 @@ class FercGenericXbrlToSqliteSettings(BaseSettings):
     Args:
         taxonomy: URL of XBRL taxonomy used to create structure of SQLite DB.
         years: list of years to validate.
+        disabled: if True, skip processing this dataset.
     """
 
     taxonomy: AnyHttpUrl
     years: list[int]
+    disabled: bool = False
 
 
 class Ferc1XbrlToSqliteSettings(FercGenericXbrlToSqliteSettings):
@@ -472,8 +478,43 @@ class Ferc2XbrlToSqliteSettings(FercGenericXbrlToSqliteSettings):
     """
 
     data_source: ClassVar[DataSource] = DataSource.from_id("ferc2")
-    years: list[int] = data_source.working_partitions["years"]
+    years: list[int] = [
+        year for year in data_source.working_partitions["years"] if year >= 2021
+    ]
     taxonomy: AnyHttpUrl = "https://eCollection.ferc.gov/taxonomy/form2/2022-01-01/form/form2/form-2_2022-01-01.xsd"
+
+
+class Ferc2DbfToSqliteSettings(GenericDatasetSettings):
+    """An immutable Pydantic model to validate FERC 2 to SQLite settings.
+
+    Args:
+        years: List of years to validate.
+        disabled: if True, skip processing this dataset.
+    """
+
+    data_source: ClassVar[DataSource] = DataSource.from_id("ferc2")
+    years: list[int] = [
+        year for year in data_source.working_partitions["years"] if year <= 2020
+    ]
+
+    refyear: ClassVar[int] = max(years)
+
+
+class Ferc6DbfToSqliteSettings(GenericDatasetSettings):
+    """An immutable Pydantic model to validate FERC 6 to SQLite settings.
+
+    Args:
+        years: List of years to validate.
+        disabled: if True, skip processing this dataset.
+    """
+
+    data_source: ClassVar[DataSource] = DataSource.from_id("ferc6")
+    years: list[int] = [
+        year for year in data_source.working_partitions["years"] if year <= 2020
+    ]
+    disabled: bool = False
+
+    refyear: ClassVar[int] = max(years)
 
 
 class Ferc6XbrlToSqliteSettings(FercGenericXbrlToSqliteSettings):
@@ -484,8 +525,27 @@ class Ferc6XbrlToSqliteSettings(FercGenericXbrlToSqliteSettings):
     """
 
     data_source: ClassVar[DataSource] = DataSource.from_id("ferc6")
-    years: list[int] = data_source.working_partitions["years"]
+    years: list[int] = [
+        year for year in data_source.working_partitions["years"] if year >= 2021
+    ]
     taxonomy: AnyHttpUrl = "https://eCollection.ferc.gov/taxonomy/form6/2022-01-01/form/form6/form-6_2022-01-01.xsd"
+
+
+class Ferc60DbfToSqliteSettings(GenericDatasetSettings):
+    """An immutable Pydantic model to validate FERC 60 to SQLite settings.
+
+    Args:
+        years: List of years to validate.
+        disabled: if True, skip processing this dataset.
+    """
+
+    data_source: ClassVar[DataSource] = DataSource.from_id("ferc60")
+    years: list[int] = [
+        year for year in data_source.working_partitions["years"] if year <= 2020
+    ]
+    disabled: bool = False
+
+    refyear: ClassVar[int] = max(years)
 
 
 class Ferc60XbrlToSqliteSettings(FercGenericXbrlToSqliteSettings):
@@ -496,7 +556,9 @@ class Ferc60XbrlToSqliteSettings(FercGenericXbrlToSqliteSettings):
     """
 
     data_source: ClassVar[DataSource] = DataSource.from_id("ferc60")
-    years: list[int] = data_source.working_partitions["years"]
+    years: list[int] = [
+        year for year in data_source.working_partitions["years"] if year >= 2021
+    ]
     taxonomy: AnyHttpUrl = "https://eCollection.ferc.gov/taxonomy/form60/2022-01-01/form/form60/form-60_2022-01-01.xsd"
 
 
@@ -517,14 +579,18 @@ class FercToSqliteSettings(BaseSettings):
 
     Args:
         ferc1_dbf_to_sqlite_settings: Settings for converting FERC 1 DBF data to SQLite.
-        ferc1_xbrl_to_sqlite_settings: Settings for converting FERC 1 XBRL data to SQLite.
+        ferc1_xbrl_to_sqlite_settings: Settings for converting FERC 1 XBRL data to
+          SQLite.
         other_xbrl_forms: List of non-FERC1 forms to convert from XBRL to SQLite.
     """
 
     ferc1_dbf_to_sqlite_settings: Ferc1DbfToSqliteSettings = None
     ferc1_xbrl_to_sqlite_settings: Ferc1XbrlToSqliteSettings = None
+    ferc2_dbf_to_sqlite_settings: Ferc2DbfToSqliteSettings = None
     ferc2_xbrl_to_sqlite_settings: Ferc2XbrlToSqliteSettings = None
+    ferc6_dbf_to_sqlite_settings: Ferc6DbfToSqliteSettings = None
     ferc6_xbrl_to_sqlite_settings: Ferc6XbrlToSqliteSettings = None
+    ferc60_dbf_to_sqlite_settings: Ferc60DbfToSqliteSettings = None
     ferc60_xbrl_to_sqlite_settings: Ferc60XbrlToSqliteSettings = None
     ferc714_xbrl_to_sqlite_settings: Ferc714XbrlToSqliteSettings = None
 
@@ -541,8 +607,11 @@ class FercToSqliteSettings(BaseSettings):
         if not any(values.values()):
             values["ferc1_dbf_to_sqlite_settings"] = Ferc1DbfToSqliteSettings()
             values["ferc1_xbrl_to_sqlite_settings"] = Ferc1XbrlToSqliteSettings()
+            values["ferc2_dbf_to_sqlite_settings"] = Ferc2DbfToSqliteSettings()
             values["ferc2_xbrl_to_sqlite_settings"] = Ferc2XbrlToSqliteSettings()
+            values["ferc6_dbf_to_sqlite_settings"] = Ferc6DbfToSqliteSettings()
             values["ferc6_xbrl_to_sqlite_settings"] = Ferc6XbrlToSqliteSettings()
+            values["ferc60_dbf_to_sqlite_settings"] = Ferc60DbfToSqliteSettings()
             values["ferc60_xbrl_to_sqlite_settings"] = Ferc60XbrlToSqliteSettings()
             values["ferc714_xbrl_to_sqlite_settings"] = Ferc714XbrlToSqliteSettings()
 
@@ -583,20 +652,20 @@ class EtlSettings(BaseSettings):
     description: str = None
     version: str = None
 
-    pudl_in: str = pudl.workspace.setup.get_defaults()["pudl_in"]
-    pudl_out: str = pudl.workspace.setup.get_defaults()["pudl_out"]
+    # This is list of fsspec compatible paths to publish the output datasets to.
+    publish_destinations: list[str] = []
 
     @classmethod
     def from_yaml(cls, path: str) -> "EtlSettings":
         """Create an EtlSettings instance from a yaml_file path.
 
         Args:
-            path: path to a yaml file.
+            path: path to a yaml file; this could be remote.
 
         Returns:
             An ETL settings object.
         """
-        with pathlib.Path(path).open() as f:
+        with fsspec.open(path) as f:
             yaml_file = yaml.safe_load(f)
         return cls.parse_obj(yaml_file)
 
