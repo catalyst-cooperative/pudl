@@ -62,7 +62,7 @@ def censusdp1tract_to_sqlite(context):
     # program happens to be in the user's path and named ogr2ogr. This is a
     # fragile solution that will not work on all platforms, but should cover
     # conda environments, Docker, and continuous integration on GitHub.
-    ogr2ogr = os.environ.get("CONDA_PREFIX", "/usr") + "/bin/ogr2ogr"
+    ogr2ogr = Path(os.environ.get("CONDA_PREFIX", "/usr")) / "bin/ogr2ogr"
     # Extract the sippzed GeoDB archive from the Datastore into a temporary
     # directory so that ogr2ogr can operate on it. Output the resulting SQLite
     # database into the user's PUDL workspace. We do not need to keep the
@@ -86,10 +86,10 @@ def censusdp1tract_to_sqlite(context):
                     f"Move {out_path} aside or set clobber=True and try again."
                 )
 
-        logger.info("Extracting the Census DP1 GeoDB to %s", out_path)
+        logger.info(f"Extracting the Census DP1 GeoDB to {out_path}")
         zip_ref.extractall(tmpdir_path)
-        logger.info("extract_root = %s", extract_root)
-        logger.info("out_path = %s", out_path)
+        logger.info(f"extract_root = {extract_root}")
+        logger.info(f"out_path = {out_path}")
         subprocess.run(
             [ogr2ogr, str(out_path), str(extract_root)], check=True  # noqa: S603
         )
