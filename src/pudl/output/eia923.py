@@ -119,8 +119,8 @@ def _fill_fuel_costs_by_state(
         out_df["fuel_cost_per_mmbtu"].isnull()
         & out_df["bulk_agg_fuel_cost_per_mmbtu"].notnull()
     )
-    out_df.loc[:, "fuel_cost_per_mmbtu"].fillna(
-        out_df["bulk_agg_fuel_cost_per_mmbtu"], inplace=True
+    out_df.loc[:, "fuel_cost_per_mmbtu"] = out_df.loc[:, "fuel_cost_per_mmbtu"].fillna(
+        out_df["bulk_agg_fuel_cost_per_mmbtu"]
     )
 
     return out_df
@@ -185,7 +185,7 @@ def denorm_generation_fuel_combined_eia923(
 
     gfn_gb = generation_fuel_nuclear_eia923.groupby(primary_key)
     # Ensure that all non-data columns are homogeneous within groups
-    if not (gfn_gb[non_data_cols].nunique() == 1).all(axis=None):
+    if gfn_gb[non_data_cols].nunique().ne(1).any(axis=None):
         raise ValueError(
             "Found inhomogeneous non-data cols while aggregating nuclear generation. "
             f"Non-data cols: {non_data_cols}"

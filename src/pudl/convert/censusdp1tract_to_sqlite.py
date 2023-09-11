@@ -90,7 +90,7 @@ def censusdp1tract_to_sqlite(context):
         zip_ref.extractall(tmpdir_path)
         logger.info("extract_root = %s", extract_root)
         logger.info("out_path = %s", out_path)
-        subprocess.run(  # nosec: B603 Trying to use absolute paths.
-            [ogr2ogr, str(out_path), str(extract_root)], check=True
+        subprocess.run(
+            [ogr2ogr, str(out_path), str(extract_root)], check=True  # noqa: S603
         )
     return out_path

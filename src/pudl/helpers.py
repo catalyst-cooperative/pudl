@@ -26,7 +26,7 @@ from dagster import AssetKey, AssetsDefinition, AssetSelection, SourceAsset
 from pandas._libs.missing import NAType
 
 import pudl.logging_helpers
-from pudl.metadata.fields import get_pudl_dtypes
+from pudl.metadata.fields import apply_pudl_dtypes, get_pudl_dtypes
 
 sum_na = partial(pd.Series.sum, skipna=False)
 """A sum function that returns NA if the Series includes any NA values.
@@ -94,7 +94,7 @@ def find_new_ferc1_strings(
         categories enumerated in strdict.
     """
     all_strings = set(
-        pd.read_sql(f"SELECT {field} FROM {table};", ferc1_engine).pipe(  # nosec
+        pd.read_sql(f"SELECT {field} FROM {table};", ferc1_engine).pipe(  # noqa: S608
             simplify_strings, columns=[field]
         )[field]
     )
@@ -364,22 +364,23 @@ def is_doi(doi):
     return bool(re.match(doi_regex, doi))
 
 
-def convert_col_to_datetime(df, date_col_name):
-    """Convert a column in a dataframe to a datetime.
+def convert_col_to_datetime(df: pd.DataFrame, date_col_name: str) -> pd.DataFrame:
+    """Convert a non-datetime column in a dataframe to a datetime64[s].
 
     If the column isn't a datetime, it needs to be converted to a string type
     first so that integer years are formatted correctly.
 
     Args:
-        df (pandas.DataFrame): Dataframe with column to convert.
-        date_col_name (string): name of the column to convert.
+        df: Dataframe with column to convert.
+        date_col_name: name of the datetime column to convert.
 
     Returns:
         Dataframe with the converted datetime column.
     """
-    if pd.api.types.is_datetime64_ns_dtype(df[date_col_name]) is False:
+    if not pd.api.types.is_datetime64_dtype(df[date_col_name]):
         logger.warning(
-            f"{date_col_name} is {df[date_col_name].dtype} column. Converting to datetime."
+            f"{date_col_name} is {df[date_col_name].dtype} column. "
+            "Converting to datetime64[ns]."
         )
         df[date_col_name] = pd.to_datetime(df[date_col_name].astype("string"))
     return df
@@ -528,10 +529,7 @@ def date_merge(
 
     suffixes = ["", ""]
     if left_date_col == right_date_col:
-        if "suffixes" in kwargs:
-            suffixes = kwargs["suffixes"]
-        else:
-            suffixes = ["_x", "_y"]
+        suffixes = kwargs.get("suffixes", ["_x", "_y"])
     # reconstruct the new report date column and clean up columns
     left_right_date_col = [left_date_col + suffixes[0], right_date_col + suffixes[1]]
     if report_at_start:
@@ -618,17 +616,21 @@ def expand_timeseries(
             f"{fill_through_freq} is not a valid frequency to fill through."
         )
     end_dates["drop_row"] = True
-    df = pd.concat([df, end_dates.reset_index()])
     df = (
-        df.set_index(date_col)
+        pd.concat([df, end_dates.reset_index()])
+        .set_index(date_col)
         .groupby(key_cols)
         .resample(freq)
         .ffill()
         .drop(key_cols, axis=1)
         .reset_index()
     )
-    df = df[df.drop_row.isnull()].drop("drop_row", axis=1).reset_index(drop=True)
-    return df
+    return (
+        df[df.drop_row.isnull()]
+        .drop(columns="drop_row")
+        .reset_index(drop=True)
+        .pipe(apply_pudl_dtypes)
+    )
 
 
 def organize_cols(df, cols):
@@ -866,12 +868,12 @@ def month_year_to_date(df):
         base_month_regex = f"^{base}{month_regex}"
         month_col = list(df.filter(regex=base_month_regex).columns)
         if not len(month_col) == 1:
-            raise AssertionError()
+            raise AssertionError
         month_col = month_col[0]
         base_year_regex = f"^{base}{year_regex}"
         year_col = list(df.filter(regex=base_year_regex).columns)
         if not len(year_col) == 1:
-            raise AssertionError()
+            raise AssertionError
         year_col = year_col[0]
         date_col = f"{base}_date"
         month_year_date.append((month_col, year_col, date_col))
@@ -967,43 +969,30 @@ def convert_to_date(
 
     year = df[year_col]
 
-    if month_col not in df.columns:
-        month = month_value
-    else:
-        month = df[month_col]
+    month = month_value if month_col not in df.columns else df[month_col]
 
-    if day_col not in df.columns:
-        day = day_value
-    else:
-        day = df[day_col]
+    day = day_value if day_col not in df.columns else df[day_col]
 
     df[date_col] = pd.to_datetime({"year": year, "month": month, "day": day})
     cols_to_drop = [x for x in [day_col, year_col, month_col] if x in df.columns]
-    df.drop(cols_to_drop, axis="columns", inplace=True)
+    df = df.drop(cols_to_drop, axis="columns")
 
     return df
 
 
-def fix_eia_na(df):
+def fix_eia_na(df: pd.DataFrame) -> pd.DataFrame:
     """Replace common ill-posed EIA NA spreadsheet values with np.nan.
 
     Currently replaces empty string, single decimal points with no numbers,
     and any single whitespace character with np.nan.
 
     Args:
-        df (pandas.DataFrame): The DataFrame to clean.
+        df: The DataFrame to clean.
 
     Returns:
-        pandas.DataFrame: The cleaned DataFrame.
+        DataFrame with regularized NA values.
     """
-    return df.replace(
-        to_replace=[
-            r"^\.$",  # Nothing but a decimal point
-            r"^\s*$",  # The empty string and entirely whitespace strings
-        ],
-        value=np.nan,
-        regex=True,
-    )
+    return df.replace(regex=r"(^\.$|^\s*$)", value=np.nan)
 
 
 def simplify_columns(df):
@@ -1025,6 +1014,9 @@ def simplify_columns(df):
     Todo:
         Update docstring.
     """
+    # Do nothing, if empty dataframe (e.g. mocked for tests)
+    if df.shape[0] == 0:
+        return df
     df.columns = (
         df.columns.str.replace(r"[^0-9a-zA-Z]+", " ", regex=True)
         .str.strip()
@@ -1151,12 +1143,13 @@ def convert_cols_dtypes(
     # columns to this nullable int type column. `utility_id_eia` shows up as a
     # column of strings (!) of numbers so it is an object column, and therefor
     # needs to be converted beforehand.
-    if "utility_id_eia" in df.columns:
-        # we want to be able to use this dtype cleaning at many stages, and
-        # sometimes this column has been converted to a float and therefor
-        # we need to skip this conversion
-        if df.utility_id_eia.dtypes is np.dtype("object"):
-            df = df.astype({"utility_id_eia": "float"})
+    # we want to be able to use this dtype cleaning at many stages, and
+    # sometimes this column has been converted to a float and therefore
+    # we need to skip this conversion
+    if "utility_id_eia" in df.columns and df.utility_id_eia.dtypes is np.dtype(
+        "object"
+    ):
+        df = df.astype({"utility_id_eia": "float"})
     df = (
         df.astype(non_bool_cols)
         .astype({col: "boolean" for col in bool_cols})
@@ -1220,11 +1213,11 @@ def generate_rolling_avg(
     # to get the backbone/complete date range/groups
     bones = (
         date_range.merge(groups)
-        .drop("tmp", axis=1)  # drop the temp column
+        .drop(columns="tmp")  # drop the temp column
         .merge(df, on=group_cols + ["report_date"])
         .set_index(group_cols + ["report_date"])
         .groupby(by=group_cols + ["report_date"])
-        .mean()
+        .mean(numeric_only=True)
     )
     # with the aggregated data, get a rolling average
     roll = bones.rolling(window=window, center=True, **kwargs).agg({data_col: "mean"})
@@ -1367,16 +1360,14 @@ def zero_pad_numeric_string(
 def iterate_multivalue_dict(**kwargs):
     """Make dicts from dict with main dict key and one value of main dict."""
     single_valued = {
-        k: v
-        for k, v in kwargs.items()
-        if not (isinstance(v, list) or isinstance(v, tuple))
+        k: v for k, v in kwargs.items() if not (isinstance(v, list | tuple))
     }
 
     # Transform multi-valued {k: vlist} into {k1: [{k1: v1}, {k1: v2}, ...], k2: [...], ...}
     multi_valued = {
         k: [{k: v} for v in vlist]
         for k, vlist in kwargs.items()
-        if (isinstance(vlist, list) or isinstance(vlist, tuple))
+        if (isinstance(vlist, list | tuple))
     }
 
     for value_assignments in itertools.product(*multi_valued.values()):
@@ -1584,7 +1575,7 @@ def flatten_list(xs: Iterable) -> Generator:
     `here <https://stackoverflow.com/questions/2158395/flatten-an-irregular-arbitrarily-nested-list-of-lists>`__
     """
     for x in xs:
-        if isinstance(x, Iterable) and not isinstance(x, (str, bytes)):
+        if isinstance(x, Iterable) and not isinstance(x, str | bytes):
             yield from flatten_list(x)
         else:
             yield x
@@ -1600,7 +1591,7 @@ def convert_df_to_excel_file(df: pd.DataFrame, **kwargs) -> pd.ExcelFile:
     writer = pd.ExcelWriter(bio, engine="xlsxwriter")
     df.to_excel(writer, **kwargs)
 
-    writer.save()
+    writer.close()
 
     bio.seek(0)
     workbook = bio.read()

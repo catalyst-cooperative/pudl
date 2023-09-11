@@ -1,21 +1,15 @@
 [build-system]
 build-backend = "setuptools.build_meta"
-requires = [
-    "setuptools>=66,<69",
-    "setuptools_scm[toml]>=3.5.0",
-    "wheel",
-]
+requires = ["setuptools>=66,<69", "setuptools_scm[toml]>=3.5.0", "wheel"]
 
 [project]
 name = "catalystcoop.pudl"
 description = "An open data processing pipeline for US energy data"
-readme = {file = "README.rst", content-type = "text/x-rst"}
-authors = [
-    {name = "Catalyst Cooperative", email = "pudl@catalyst.coop"}
-]
+readme = { file = "README.rst", content-type = "text/x-rst" }
+authors = [{ name = "Catalyst Cooperative", email = "pudl@catalyst.coop" }]
 requires-python = ">=3.11,<3.12"
 dynamic = ["version"]
-license = {file = "LICENSE.txt"}
+license = { file = "LICENSE.txt" }
 dependencies = [
     "addfips>=0.4,<0.5",
     "alembic>=1.10.3,<1.12",
@@ -24,23 +18,22 @@ dependencies = [
     "coloredlogs>=14.0,<15.1",  # Dagster requires 14.0
     "dagster-webserver>=1.4,<1.5",  # 1.2.2 is first version to support Python 3.11
     "dagster>=1.4,<1.5",  # 1.2.2 is first version to support Python 3.11
-    "dask>=2021.8,<2023.8.1",
+    "dask>=2021.8,<2023.9.1",
     "datapackage>=1.11,<1.16",  # Transition datastore to use frictionless.
     "fsspec>=2021.7,<2023.6.1",  # For caching datastore on GCS
-    "gcsfs>=2021.7,<2023.6.1",  # For caching datastore on GCS
+    "gcsfs>=2021.7,<2023.9.1",  # For caching datastore on GCS
     "geopandas>=0.13,<0.14",
     "grpcio<1.56.0",
     "jinja2>=2,<3.2",
     "matplotlib>=3.3,<3.8",  # Should make this optional with a "viz" extras
     "networkx>=2.2,<3.2",
     "numpy>=1.18.5,!=1.23.0,<1.26",
-    "pandas>=1.4,<1.5.4",
-    "pyarrow>=5,<12.1",
+    "pandas[parquet,excel,fss,gcp,compression]>=2.0,<2.1",
+    "pyarrow>=7,<13",
     "pydantic[email]>=1.7,<2",
     "python-dotenv>=0.21,<1.1",
-    "python-snappy>=0.6,<0.7",
     "pyyaml>=5,<6.1",
-    "recordlinkage>=0.14,<0.17",
+    "recordlinkage>=0.16,<0.17",
     "scikit-learn>=1.0,<1.4",
     "scipy>=1.6,<1.12",
     "Shapely>=2.0,<2.1",
@@ -114,50 +107,38 @@ pudl_check_fks = "pudl.etl.check_foreign_keys:main"
 [project.optional-dependencies]
 dev = [
     "black>=22.0,<23.8",
-    "build>=0.10,<0.11",
+    "build>=0.10,<1.1",
     "ipdb>=0.13,<0.14",
-    "isort>=5.0,<5.13",
     "jedi>=0.18,<0.20",
     "lxml>=4.6,<4.10",
-    "tox>=4,<4.7",
+    "ruff>=0.0.287",
+    "tox>=4,<4.12",
     "twine>=3.3,<4.1",
 ]
 doc = [
-    "doc8>=0.9,<1.2",
+    "doc8>=1.1,<1.2",
     "furo>=2022.4.7",
     "sphinx-autoapi>=1.8,<2.2",
     "sphinx-issues>=1.2,<3.1",
     "sphinx-reredirects",
-    "sphinx>=4,!=5.1.0,<7.2",
-    "sphinxcontrib_bibtex>=2.4,<2.6",
+    "sphinx>=4,!=5.1.0,<7.3",
+    "sphinxcontrib_bibtex>=2.4,<2.7",
 ]
 test = [
-    "bandit>=1.6,<1.8",
     "coverage>=5.3,<7.4",
-    "doc8>=0.9,<1.2",
-    "flake8-builtins>=1.5,<2.2",
-    "flake8-docstrings>=1.5,<1.8",
-    "flake8-rst-docstrings>=0.2,<0.4",
-    "flake8-use-fstring>=1.0,<1.5",
-    "flake8>=4.0,<6.2",
     "jupyter",
-    "mccabe>=0.6,<0.8",
     "nbconvert>=7,<8",
     "nbformat>=5,<6",
-    "pep8-naming>=0.12,<0.14",
-    "pre-commit>=2.9,<3.4",
-    "pydocstyle>=5.1,<6.4",
+    "pre-commit>=2.9,<3.5",
     "pytest-console-scripts>=1.1,<1.5",
     "pytest-cov>=2.10,<4.2",
     "pytest-mock>=3.0,<3.12",
     "pytest>=6.2,<7.5",
     "responses>=0.14,<0.24",
-    "rstcheck[sphinx]>=5.0,<6.2",
-    "tox>=4.0,<4.9",
+    "ruff>=0.0.287",
+    "tox>=4.0,<4.12",
 ]
-datasette = [
-    "datasette>=0.60,<0.65",
-]
+datasette = ["datasette>=0.60,<0.65"]
 
 [tool.setuptools]
 include-package-data = true
@@ -167,11 +148,113 @@ where = ["src"]
 
 [tool.setuptools_scm]
 
+[tool.ruff]
+select = [
+    "A", # flake8-builtins
+    # "ARG", # unused arguments
+    # "B",  # flake8-bugbear
+    "C",   # Limit cyclomatic complexity using mccabe
+    "D",   # pydocstyle errors
+    "E",   # pycodestyle errors
+    "EXE", # executable file issues
+    # "ERA", # eradicate: find commented out code
+    "F",   # pyflakes
+    "I",   # isort
+    "ISC", # implicit string concatenation
+    "N",   # pep8-naming
+    "NPY", # NumPy specific checks
+    "PD",  # pandas checks
+    "PGH", # pygrep-hooks
+    # "PL",  # pylint
+    # "PT",  # pytest style
+    "PTH", # use pathlib
+    "Q",   # flake8-quotes
+    "RET", # check return values
+    "RSE", # unnecessary parenthises on raised exceptions
+    "S",   # flake8-bandit
+    "SIM", # flake8-simplify
+    # "T",   # print statements found
+    "UP", # pyupgrade (use modern python syntax)
+    "W",  # pycodestyle warnings
+]
+ignore = [
+    "D401",   # Require imperative mood in docstrings.
+    "D417",
+    "E501",   # Overlong lines.
+    "E203",   # Space before ':' (black recommends to ignore)
+    "PD003",  # Use of isna rather than isnull
+    "PD004",  # Use of notna rather than notnull
+    "PD008",  # Use of df.at[] rather than df.loc[]
+    "PD010",  # Use of df.stack()
+    "PD013",  # Use of df.unstack()
+    "PD015",  # Use of pd.merge() rather than df.merge()
+    "PD901",  # df as variable name
+    "RET504", # Ignore unnecessary assignment before return
+    "S101",   # Use of assert
+]
+
+# Assume Python 3.11
+target-version = "py311"
+line-length = 88
+
+# Don't automatically concatenate strings -- sometimes we forget a comma!
+unfixable = ["ISC"]
+
+[tool.ruff.per-file-ignores]
+"__init__.py" = ["F401"]    # Ignore unused imports
+"test/*" = ["D"]
+"migrations/*" = ["D", "Q"]
+
+[tool.ruff.pep8-naming]
+# Allow Pydantic's `@validator` decorator to trigger class method treatment.
+classmethod-decorators = ["pydantic.validator", "pydantic.root_validator"]
+
+[tool.ruff.isort]
+known-first-party = ["pudl"]
+
+[tool.ruff.pydocstyle]
+convention = "google"
+
+[tool.ruff.mccabe]
+max-complexity = 10
+
+[tool.ruff.flake8-quotes]
+docstring-quotes = "double"
+inline-quotes = "double"
+multiline-quotes = "double"
+
 [tool.black]
 line-length = 88
 target-version = ["py311"]
 include = "\\.pyi?$"
 
-[tool.isort]
-profile = "black"
-known_first_party = "pudl"
+[tool.doc8]
+max-line-length = 88
+ignore-path = ["docs/ferc/form1", "docs/_build"]
+
+[tool.pytest.ini_options]
+testpaths = "./"
+filterwarnings = [
+    "ignore:distutils Version classes are deprecated:DeprecationWarning",
+    "ignore:The Shapely GEOS version:UserWarning:geopandas[.*]",
+    "ignore:Unknown extension:UserWarning:openpyxl.worksheet[.*]",
+    "ignore:In a future version, the Index constructor:FutureWarning:pandas.core.reshape.merge",
+    "ignore:Feature names only support names:FutureWarning:sklearn.utils.validation",
+    "ignore:Integration of FERC 714:UserWarning:pudl.extract.ferc714",
+    "ignore:Integration of EIA 861:UserWarning:pudl.extract.eia861",
+    "ignore:Deprecated call to `pkg_resources.declare_namespace:DeprecationWarning",
+    "ignore:pkg_resources is deprecated as an API.:DeprecationWarning",
+    "ignore:Subclassing validator classes is not intended to be part of their public API.:DeprecationWarning",
+    "once:In a future version:FutureWarning:pudl.helpers",
+]
+
+addopts = "--verbose --pdbcls=IPython.terminal.debugger:TerminalPdb"
+log_format = "%(asctime)s [%(levelname)8s] %(name)s:%(lineno)s %(message)s"
+log_date_format = "%Y-%m-%d %H:%M:%S"
+log_cli = "true"
+log_cli_level = "DEBUG"
+doctest_optionflags = [
+    "NORMALIZE_WHITESPACE",
+    "IGNORE_EXCEPTION_DETAIL",
+    "ELLIPSIS",
+]

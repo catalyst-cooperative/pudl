@@ -308,23 +308,24 @@ def _compile_all_entity_records(
         # inside of main() we are going to be adding items into
         # clean_dfs with the name 'annual'. We don't want to harvest
         # from our newly harvested tables.
-        if "annual" not in table_name:
-            # if the df contains the desired columns the grab those columns
-            if set(base_cols).issubset(transformed_df.columns):
-                logger.debug(f"        {table_name}...")
-                # create a copy of the df to muck with
-                df = transformed_df.copy()
-                # we know these columns must be in the dfs
-                cols = []
-                # check whether the columns are in the specific table
-                for column in static_cols + annual_cols:
-                    if column in df.columns:
-                        cols.append(column)
-                df = df[(base_cols + cols)]
-                df = df.dropna(subset=id_cols)
-                # add a column with the table name so we know its origin
-                df["table"] = table_name
-                dfs.append(df)
+        # if the df contains the desired columns the grab those columns
+        if "annual" not in table_name and set(base_cols).issubset(
+            transformed_df.columns
+        ):
+            logger.debug(f"        {table_name}...")
+            # create a copy of the df to muck with
+            df = transformed_df.copy()
+            # we know these columns must be in the dfs
+            cols = []
+            # check whether the columns are in the specific table
+            for column in static_cols + annual_cols:
+                if column in df.columns:
+                    cols.append(column)
+            df = df[(base_cols + cols)]
+            df = df.dropna(subset=id_cols)
+            # add a column with the table name so we know its origin
+            df["table"] = table_name
+            dfs.append(df)
 
     # add those records to the compliation
     compiled_df = pd.concat(dfs, axis=0, ignore_index=True, sort=True)
@@ -450,7 +451,7 @@ def harvest_entity_tables(  # noqa: C901
 
     # compile annual ids
     annual_id_df = compiled_df[["report_date"] + id_cols].copy().drop_duplicates()
-    annual_id_df.sort_values(["report_date"] + id_cols, inplace=True, ascending=False)
+    annual_id_df = annual_id_df.sort_values(["report_date"] + id_cols, ascending=False)
 
     # create the annual and entity dfs
     entity_id_df = annual_id_df.drop(["report_date"], axis=1).drop_duplicates(
@@ -502,7 +503,7 @@ def harvest_entity_tables(  # noqa: C901
         # we can't just use the col_df records when the consistency is not True
         dirty_df = col_df.merge(clean_df[clean_df[col].isnull()][id_cols])
 
-        if col in special_case_cols.keys():
+        if col in special_case_cols:
             clean_df = special_case_cols[col][0](
                 dirty_df,
                 clean_df,
@@ -588,10 +589,10 @@ def harvest_entity_tables(  # noqa: C901
     ins={
         table_name: AssetIn()
         for table_name in [
-            "clean_boiler_generator_assn_eia860",
-            "clean_generation_eia923",
-            "clean_generators_eia860",
-            "clean_boiler_fuel_eia923",
+            "_core_eia860__boiler_generator_assn",
+            "_core_eia923__generation",
+            "_core_eia860__generators",
+            "_core_eia923__boiler_fuel",
         ]
     },
     config_schema={
@@ -658,7 +659,7 @@ def boiler_generator_assn_eia860(context, **clean_dfs) -> pd.DataFrame:  # noqa:
     logger.debug(f"{clean_dfs.keys()=}")
 
     # grab the generation_eia923 table, group annually, generate a new tag
-    gen_eia923 = clean_dfs["clean_generation_eia923"]
+    gen_eia923 = clean_dfs["_core_eia923__generation"]
     gen_eia923 = (
         gen_eia923.set_index(pd.DatetimeIndex(gen_eia923.report_date))
         .groupby([pd.Grouper(freq="AS"), "plant_id_eia", "generator_id"])
@@ -670,7 +671,7 @@ def boiler_generator_assn_eia860(context, **clean_dfs) -> pd.DataFrame:  # noqa:
     # compile all of the generators
     gens = pd.merge(
         gen_eia923,
-        clean_dfs["clean_generators_eia860"],
+        clean_dfs["_core_eia860__generators"],
         on=["plant_id_eia", "report_date", "generator_id"],
         how="outer",
     )
@@ -690,7 +691,7 @@ def boiler_generator_assn_eia860(context, **clean_dfs) -> pd.DataFrame:  # noqa:
     # background
     bga_compiled_1 = pd.merge(
         gens,
-        clean_dfs["clean_boiler_generator_assn_eia860"],
+        clean_dfs["_core_eia860__boiler_generator_assn"],
         on=["plant_id_eia", "generator_id", "report_date"],
         how="outer",
     )
@@ -707,7 +708,7 @@ def boiler_generator_assn_eia860(context, **clean_dfs) -> pd.DataFrame:  # noqa:
     # apear in gens9 or gens8 (must uncomment-out the og_tag creation above)
     # bga_compiled_1[bga_compiled_1['og_tag'].isnull()]
 
-    bf_eia923 = clean_dfs["clean_boiler_fuel_eia923"].assign(
+    bf_eia923 = clean_dfs["_core_eia923__boiler_fuel"].assign(
         total_heat_content_mmbtu=lambda x: x.fuel_consumed_units * x.fuel_mmbtu_per_unit
     )
     bf_eia923 = (
@@ -751,7 +752,7 @@ def boiler_generator_assn_eia860(context, **clean_dfs) -> pd.DataFrame:  # noqa:
     bga_boil_units = bga_compiled_units[
         ["plant_id_eia", "report_date", "boiler_id", "unit_id_eia"]
     ].copy()
-    bga_boil_units.dropna(subset=["boiler_id"], inplace=True)
+    bga_boil_units = bga_boil_units.dropna(subset=["boiler_id"])
 
     # merge the units with the boilers
     bga_unit_compilation = bga_gen_units.merge(
@@ -764,7 +765,7 @@ def boiler_generator_assn_eia860(context, **clean_dfs) -> pd.DataFrame:  # noqa:
     bga_unit_compilation.loc[
         bga_unit_compilation["bga_source"].isnull(), "bga_source"
     ] = "unit_connection"
-    bga_unit_compilation.drop(["_merge"], axis=1, inplace=True)
+    bga_unit_compilation = bga_unit_compilation.drop(["_merge"], axis=1)
     bga_non_units = bga_compiled_2[bga_compiled_2["unit_id_eia"].isnull()]
 
     # combine the unit compilation and the non units
@@ -921,12 +922,10 @@ def boiler_generator_assn_eia860(context, **clean_dfs) -> pd.DataFrame:  # noqa:
     # These assertions test that all boilers and generators ended up in the
     # same unit_id across all the years of reporting:
     pgu_gb = bga_w_units.groupby(["plant_id_eia", "generator_id"])["unit_id_pudl"]
-    if not (pgu_gb.nunique() <= 1).all():
-        # raise AssertionError("Inconsistent inter-annual BGA assignment!")
+    if pgu_gb.nunique().gt(1).any():
         logger.error("Inconsistent inter-annual plant-generator-units!")
     pbu_gb = bga_w_units.groupby(["plant_id_eia", "boiler_id"])["unit_id_pudl"]
-    if not (pbu_gb.nunique() <= 1).all():
-        # raise AssertionError("Inconsistent inter-annual BGA assignment!")
+    if pbu_gb.nunique().gt(1).any():
         logger.error("Inconsistent inter-annual plant-boiler-units!")
 
     bga_w_units = (
@@ -1083,7 +1082,7 @@ def fix_balancing_authority_codes_with_state(
     """
     # Identify the most common mapping from a BA name to a BA code:
     ba_name_to_code_map = map_balancing_authority_names_to_codes(plants)
-    ba_name_to_code_map.reset_index(inplace=True)
+    ba_name_to_code_map = ba_name_to_code_map.reset_index()
 
     # Prior to 2013, there are no BA codes or names. Running a pre-2013 subset of data
     # through the transform will thus return an empty ba_name_to_code_map.
@@ -1138,22 +1137,22 @@ def harvested_entity_asset_factory(
 ) -> AssetsDefinition:
     """Create an asset definition for the harvested entity tables."""
     harvestable_assets = (
-        "clean_boiler_fuel_eia923",
-        "clean_boiler_generator_assn_eia860",
-        "clean_boilers_eia860",
-        "clean_coalmine_eia923",
-        "clean_fuel_receipts_costs_eia923",
-        "clean_generation_eia923",
-        "clean_generation_fuel_eia923",
-        "clean_generation_fuel_nuclear_eia923",
-        "clean_generators_eia860",
-        "clean_ownership_eia860",
-        "clean_plants_eia860",
-        "clean_utilities_eia860",
-        "clean_emissions_control_equipment_eia860",
-        "clean_boiler_emissions_control_equipment_assn_eia860",
-        "clean_boiler_cooling_assn_eia860",
-        "clean_boiler_stack_flue_assn_eia860",
+        "_core_eia923__boiler_fuel",
+        "_core_eia860__boiler_generator_assn",
+        "_core_eia860__boilers",
+        "_core_eia923__coalmine",
+        "_core_eia923__fuel_receipts_costs",
+        "_core_eia923__generation",
+        "_core_eia923__generation_fuel",
+        "_core_eia923__generation_fuel_nuclear",
+        "_core_eia860__generators",
+        "_core_eia860__ownership",
+        "_core_eia860__plants",
+        "_core_eia860__utilities",
+        "_core_eia860__emissions_control_equipment",
+        "_core_eia860__boiler_emissions_control_equipment_assn",
+        "_core_eia860__boiler_cooling_assn",
+        "_core_eia860__boiler_stack_flue_assn",
     )
 
     @multi_asset(
@@ -1203,16 +1202,21 @@ def finished_eia_asset_factory(
     table_name: str, io_manager_key: str | None = None
 ) -> AssetsDefinition:
     """An asset factory for finished EIA tables."""
-    clean_table_name = "clean_" + table_name
+    # TODO (bendnorman): Create a more graceful function for parsing table name
+    table_name_parts = table_name.split("_")
+    dataset = table_name_parts[-1]
+    table_name_no_dataset = "_".join(table_name_parts[:-1])
+
+    _core_table_name = f"_core_{dataset}__{table_name_no_dataset}"
 
     @asset(
-        ins={clean_table_name: AssetIn()},
+        ins={_core_table_name: AssetIn()},
         name=table_name,
         io_manager_key=io_manager_key,
     )
     def finished_eia_asset(**kwargs) -> pd.DataFrame:
         """Enforce PUDL DB schema on a cleaned EIA dataframe."""
-        df = convert_cols_dtypes(kwargs[clean_table_name], data_source="eia")
+        df = convert_cols_dtypes(kwargs[_core_table_name], data_source="eia")
         res = Package.from_resource_ids().get_resource(table_name)
         return res.enforce_schema(df)
 

@@ -61,7 +61,7 @@ class ForeignKeyError(SQLAlchemyError):
         return False
 
 
-class ForeignKeyErrors(SQLAlchemyError):
+class ForeignKeyErrors(SQLAlchemyError):  # noqa: N818
     """Raised when data in a database violate multiple foreign key constraints."""
 
     def __init__(self, fk_errors: list[ForeignKeyError]):
@@ -70,7 +70,7 @@ class ForeignKeyErrors(SQLAlchemyError):
 
     def __str__(self):
         """Create string representation of ForeignKeyErrors object."""
-        fk_errors = list(map(lambda x: str(x), self.fk_errors))
+        fk_errors = [str(x) for x in self.fk_errors]
         return "\n".join(fk_errors)
 
     def __iter__(self):
@@ -176,7 +176,7 @@ class SQLiteIOManager(IOManager):
         sa_table = self.md.tables.get(table_name, None)
         if sa_table is None:
             raise ValueError(
-                f"{sa_table} not found in database metadata. Either add the table to "
+                f"{table_name} not found in database metadata. Either add the table to "
                 "the metadata or use a different IO Manager."
             )
         return sa_table
@@ -646,6 +646,8 @@ class FercDBFSQLiteIOManager(FercSQLiteIOManager):
         ferc1_settings = context.resources.dataset_settings.ferc1
 
         table_name = self._get_table_name(context)
+        # Remove preceeding asset name metadata
+        table_name = table_name.replace("raw_ferc1_dbf__", "")
 
         # Check if the table_name exists in the self.md object
         _ = self._get_sqlalchemy_table(table_name)
@@ -654,7 +656,7 @@ class FercDBFSQLiteIOManager(FercSQLiteIOManager):
 
         with engine.connect() as con:
             return pd.read_sql_query(
-                f"SELECT * FROM {table_name} "  # nosec: B608
+                f"SELECT * FROM {table_name} "  # noqa: S608
                 "WHERE report_year BETWEEN :min_year AND :max_year;",
                 con=con,
                 params={
@@ -695,6 +697,9 @@ class FercXBRLSQLiteIOManager(FercSQLiteIOManager):
         ferc1_settings = context.resources.dataset_settings.ferc1
 
         table_name = self._get_table_name(context)
+        # Remove preceeding asset name metadata
+        table_name = table_name.replace("raw_ferc1_xbrl__", "")
+
         # TODO (bendnorman): Figure out a better to handle tables that
         # don't have duration and instant
         # Not every table contains both instant and duration
@@ -713,7 +718,7 @@ class FercXBRLSQLiteIOManager(FercSQLiteIOManager):
                 SELECT {table_name}.*, {id_table}.report_year FROM {table_name}
                 JOIN {id_table} ON {id_table}.filing_name = {table_name}.filing_name
                 WHERE {id_table}.report_year BETWEEN :min_year AND :max_year;
-                """,  # nosec: B608 - table names not supplied by user
+                """,  # noqa: S608 - table names not supplied by user
                 con=con,
                 params={
                     "min_year": min(ferc1_settings.xbrl_years),

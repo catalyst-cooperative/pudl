@@ -29,6 +29,7 @@ from pudl.analysis.classify_plants_ferc1 import (
 )
 from pudl.extract.ferc1 import TABLE_NAME_MAP_FERC1
 from pudl.helpers import convert_cols_dtypes
+from pudl.metadata.fields import apply_pudl_dtypes
 from pudl.settings import Ferc1Settings
 from pudl.transform.classes import (
     AbstractTableTransformer,
@@ -406,11 +407,10 @@ def drop_duplicate_rows_dbf(
         if return_dupes_w_unique_data:
             logger.warning("Returning duplicate records for debugging.")
             return dupes_w_unique_data
-        else:
-            raise AssertionError(
-                "Duplicates have unique data and should not be dropped. Unique data: "
-                f"{len(dupes_w_unique_data)}: \n{dupes_w_unique_data.sort_values(by=pks)}"
-            )
+        raise AssertionError(
+            "Duplicates have unique data and should not be dropped. Unique data: "
+            f"{len(dupes_w_unique_data)}: \n{dupes_w_unique_data.sort_values(by=pks)}"
+        )
     len_og = len(df)
     df = (
         df.sort_values(by=["null_data"], ascending=True)
@@ -587,45 +587,47 @@ def unstack_balances_to_report_year_instant_xbrl(
             generated automatically based on other class transformation parameters via
             :meth:`Ferc1AbstractTableTransformer.source_table_primary_key`.
     """
-    if params.unstack_balances_to_report_year:
-        df["year"] = pd.to_datetime(df["date"]).dt.year
-        # Check that the originally reported records are annually unique.
-        # year and report_year aren't necessarily the same since previous year data
-        # is often reported in the current report year, but we're constructing a table
-        # where report_year is part of the primary key, so we have to do this:
-        unique_cols = [c for c in primary_key_cols if c != "report_year"] + ["year"]
-        if df.duplicated(unique_cols).any():
-            raise AssertionError(
-                "Looks like there are multiple entries per year--not sure which to use "
-                f"for the start/end balance. {params=} {primary_key_cols=}"
-            )
-        if not pd.to_datetime(df["date"]).dt.is_year_end.all():
-            raise AssertionError(
-                "Looks like there are some values in here that aren't from the end of "
-                "the year. We can't use those to calculate start and end balances."
-            )
-        df.loc[df.report_year == (df.year + 1), "balance_type"] = "starting_balance"
-        df.loc[df.report_year == df.year, "balance_type"] = "ending_balance"
-        if df.balance_type.isna().any():
-            # Remove rows from years that are not representative of start/end dates
-            # for a given report year (i.e., the report year and one year prior).
-            logger.warning(
-                f"Dropping unexpected years: "
-                f"{df.loc[df.balance_type.isna(), 'year'].unique()}"
-            )
-            df = df[df["balance_type"].notna()].copy()
-        df = (
-            df.drop(["year", "date"], axis="columns")
-            .set_index(primary_key_cols + ["balance_type", "sched_table_name"])
-            .unstack("balance_type")
-        )
-        # This turns a multi-index into a single-level index with tuples of strings
-        # as the keys, and then converts the tuples of strings into a single string
-        # by joining their values with an underscore. This results in column labels
-        # like boiler_plant_equipment_steam_production_starting_balance
-        df.columns = ["_".join(items) for items in df.columns.to_flat_index()]
-        df = df.reset_index()
+    if not params.unstack_balances_to_report_year:
         return df
+
+    df["year"] = pd.to_datetime(df["date"]).dt.year
+    # Check that the originally reported records are annually unique.
+    # year and report_year aren't necessarily the same since previous year data
+    # is often reported in the current report year, but we're constructing a table
+    # where report_year is part of the primary key, so we have to do this:
+    unique_cols = [c for c in primary_key_cols if c != "report_year"] + ["year"]
+    if df.duplicated(unique_cols).any():
+        raise AssertionError(
+            "Looks like there are multiple entries per year--not sure which to use "
+            f"for the start/end balance. {params=} {primary_key_cols=}"
+        )
+    if not pd.to_datetime(df["date"]).dt.is_year_end.all():
+        raise AssertionError(
+            "Looks like there are some values in here that aren't from the end of "
+            "the year. We can't use those to calculate start and end balances."
+        )
+    df.loc[df.report_year == (df.year + 1), "balance_type"] = "starting_balance"
+    df.loc[df.report_year == df.year, "balance_type"] = "ending_balance"
+    if df.balance_type.isna().any():
+        # Remove rows from years that are not representative of start/end dates
+        # for a given report year (i.e., the report year and one year prior).
+        logger.warning(
+            f"Dropping unexpected years: "
+            f"{df.loc[df.balance_type.isna(), 'year'].unique()}"
+        )
+        df = df[df["balance_type"].notna()].copy()
+    df = (
+        df.drop(["year", "date"], axis="columns")
+        .set_index(primary_key_cols + ["balance_type", "sched_table_name"])
+        .unstack("balance_type")
+    )
+    # This turns a multi-index into a single-level index with tuples of strings
+    # as the keys, and then converts the tuples of strings into a single string
+    # by joining their values with an underscore. This results in column labels
+    # like boiler_plant_equipment_steam_production_starting_balance
+    df.columns = ["_".join(items) for items in df.columns.to_flat_index()]
+    df = df.reset_index()
+    return df
 
 
 class CombineAxisColumnsXbrl(TransformParams):
@@ -640,11 +642,10 @@ class CombineAxisColumnsXbrl(TransformParams):
     @validator("new_axis_column_name")
     def doesnt_end_with_axis(cls, v):
         """Ensure that new axis column ends in _axis."""
-        if v is not None:
-            if not v.endswith("_axis"):
-                raise ValueError(
-                    "The new axis column name must end with the suffix '_axis'!"
-                )
+        if v is not None and not v.endswith("_axis"):
+            raise ValueError(
+                "The new axis column name must end with the suffix '_axis'!"
+            )
         return v
 
 
@@ -869,7 +870,9 @@ def reconcile_table_calculations(
         sub_total_errors = (
             calculated_df.groupby(pks_wo_subgroup)
             # If subcomponent sum != total sum, we have nunique()>1
-            .filter(lambda x: x["sub_total_sum"].nunique() > 1).groupby(pks_wo_subgroup)
+            .filter(lambda x: x["sub_total_sum"].nunique() > 1).groupby(  # noqa: PD101
+                pks_wo_subgroup
+            )
         )
         off_ratio_sub = (
             sub_total_errors.ngroups / calculated_df.groupby(pks_wo_subgroup).ngroups
@@ -2276,10 +2279,7 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
         if not params:
             params = self.params.wide_to_tidy.__getattribute__(source_ferc1.value)
 
-        if isinstance(params, WideToTidy):
-            multiple_params = [params]
-        else:
-            multiple_params = params
+        multiple_params = [params] if isinstance(params, WideToTidy) else params
         for single_params in multiple_params:
             if single_params.idx_cols or single_params.value_types:
                 logger.info(
@@ -2455,7 +2455,7 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
         have an end_date at the end of the report_year.
         """
         len_og = len(df)
-        df = df.astype({"start_date": "datetime64", "end_date": "datetime64"})
+        df = df.astype({"start_date": "datetime64[s]", "end_date": "datetime64[s]"})
         df = df[
             (df.start_date.dt.year == df.report_year)
             & (df.start_date.dt.month == 1)
@@ -2585,7 +2585,7 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
             )
         df.record_id = enforce_snake_case(df.record_id)
 
-        dupe_ids = df.record_id[df.record_id.duplicated()].values
+        dupe_ids = df.record_id[df.record_id.duplicated()].to_numpy()
         if dupe_ids.any() and self.has_unique_record_ids:
             logger.warning(
                 f"{self.table_id.value}: Found {len(dupe_ids)} duplicate record_ids: \n"
@@ -3926,20 +3926,16 @@ class PlantsSmallFerc1TableTransformer(Ferc1AbstractTableTransformer):
         # there is a new header. So imagine row_type["header", NA, NA, "header", NA].
         # this creates a series of [1,1,1,2,2] so that the data can be grouped by
         # header.
-        header_groups = df.groupby(
-            [
-                "utility_id_ferc1",
-                "report_year",
-                (df["row_type"] == "header").cumsum(),
-            ]
-        )
-        # Forward fill based on headers
-        df.loc[df["row_type"] != "note", "header"] = header_groups.header.ffill()
+        df = df.reset_index(drop=True)
+        df["header_group"] = (df["row_type"] == "header").cumsum()
+        df.loc[df["row_type"] != "note", "header"] = df.groupby(
+            ["utility_id_ferc1", "report_year", "header_group"]
+        ).header.ffill()
 
         # Create temporary columns for plant type and fuel type
         df["plant_type_from_header"] = df["header"]
         df["fuel_type_from_header"] = df["header"]
-        df = df.drop(columns=["header"])
+        df = df.drop(columns=["header", "header_group"])
 
         return df
 
@@ -4205,7 +4201,7 @@ class PlantsSmallFerc1TableTransformer(Ferc1AbstractTableTransformer):
         # Replace row missing information with data from row containing information
         df.loc[row_missing_info, cols_to_change] = df[row_with_info][
             cols_to_change
-        ].values
+        ].to_numpy()
 
         # Remove row_with_info so there is no duplicate information
         df = df[~row_with_info]
@@ -4400,7 +4396,7 @@ class UtilityPlantSummaryFerc1TableTransformer(Ferc1AbstractTableTransformer):
             df_keys = pd.DataFrame(spot_fix_pks, columns=primary_keys).set_index(
                 primary_keys
             )
-            df.set_index(primary_keys, inplace=True)
+            df = df.set_index(primary_keys)
             # Flip the signs for the values in "ending balance" all records in the original
             # df that appear in the primary key df
             df.loc[df_keys.index, "ending_balance"] = df["ending_balance"] * -1
@@ -4409,9 +4405,9 @@ class UtilityPlantSummaryFerc1TableTransformer(Ferc1AbstractTableTransformer):
             flipped_values = df.loc[df_keys.index]
             if (flipped_values["ending_balance"] < 0).any():
                 raise AssertionError("None of these spot fixes should be negative")
-            df.reset_index(inplace=True)
+            df = df.reset_index()
 
-        return df
+        return apply_pudl_dtypes(df, group="ferc1")
 
 
 class BalanceSheetLiabilitiesFerc1TableTransformer(Ferc1AbstractTableTransformer):
@@ -4483,7 +4479,7 @@ class IncomeStatementFerc1TableTransformer(Ferc1AbstractTableTransformer):
                 & (df.income_type == "net_utility_operating_income")
             )
         ]
-        return df
+        return apply_pudl_dtypes(df, group="ferc1")
 
 
 class RetainedEarningsFerc1TableTransformer(Ferc1AbstractTableTransformer):
@@ -5261,9 +5257,15 @@ def ferc1_transform_asset_factory(
     dbf_tables = listify(TABLE_NAME_MAP_FERC1[table_name]["dbf"])
     xbrl_tables = listify(TABLE_NAME_MAP_FERC1[table_name]["xbrl"])
 
-    ins = {f"raw_dbf__{tn}": AssetIn(tn) for tn in dbf_tables}
-    ins |= {f"raw_xbrl_instant__{tn}": AssetIn(f"{tn}_instant") for tn in xbrl_tables}
-    ins |= {f"raw_xbrl_duration__{tn}": AssetIn(f"{tn}_duration") for tn in xbrl_tables}
+    ins = {f"raw_dbf__{tn}": AssetIn(f"raw_ferc1_dbf__{tn}") for tn in dbf_tables}
+    ins |= {
+        f"raw_xbrl_instant__{tn}": AssetIn(f"raw_ferc1_xbrl__{tn}_instant")
+        for tn in xbrl_tables
+    }
+    ins |= {
+        f"raw_xbrl_duration__{tn}": AssetIn(f"raw_ferc1_xbrl__{tn}_duration")
+        for tn in xbrl_tables
+    }
     ins["clean_xbrl_metadata_json"] = AssetIn("clean_xbrl_metadata_json")
 
     table_id = TableIdFerc1(table_name)
@@ -5335,18 +5337,18 @@ ferc1_assets = create_ferc1_transform_assets()
 @asset(io_manager_key="pudl_sqlite_io_manager")
 def plants_steam_ferc1(
     clean_xbrl_metadata_json: dict[str, dict[str, list[dict[str, Any]]]],
-    f1_steam: pd.DataFrame,
-    steam_electric_generating_plant_statistics_large_plants_402_duration: pd.DataFrame,
-    steam_electric_generating_plant_statistics_large_plants_402_instant: pd.DataFrame,
+    raw_ferc1_dbf__f1_steam: pd.DataFrame,
+    raw_ferc1_xbrl__steam_electric_generating_plant_statistics_large_plants_402_duration: pd.DataFrame,
+    raw_ferc1_xbrl__steam_electric_generating_plant_statistics_large_plants_402_instant: pd.DataFrame,
     fuel_ferc1: pd.DataFrame,
 ) -> pd.DataFrame:
     """Create the clean plants_steam_ferc1 table.
 
     Args:
             clean_xbrl_metadata_json: XBRL metadata json for all tables.
-            f1_steam: Raw f1_steam table.
-            steam_electric_generating_plant_statistics_large_plants_402_duration: raw XBRL duration table.
-            steam_electric_generating_plant_statistics_large_plants_402_instant: raw XBRL instant table.
+            raw_ferc1_dbf__f1_steam: Raw f1_steam table.
+            raw_ferc1_xbrl__steam_electric_generating_plant_statistics_large_plants_402_duration: raw XBRL duration table.
+            raw_ferc1_xbrl__steam_electric_generating_plant_statistics_large_plants_402_instant: raw XBRL instant table.
             fuel_ferc1: Transformed fuel_ferc1 table.
 
     Returns:
@@ -5355,9 +5357,9 @@ def plants_steam_ferc1(
     df = PlantsSteamFerc1TableTransformer(
         xbrl_metadata_json=clean_xbrl_metadata_json["plants_steam_ferc1"]
     ).transform(
-        raw_dbf=f1_steam,
-        raw_xbrl_instant=steam_electric_generating_plant_statistics_large_plants_402_instant,
-        raw_xbrl_duration=steam_electric_generating_plant_statistics_large_plants_402_duration,
+        raw_dbf=raw_ferc1_dbf__f1_steam,
+        raw_xbrl_instant=raw_ferc1_xbrl__steam_electric_generating_plant_statistics_large_plants_402_instant,
+        raw_xbrl_duration=raw_ferc1_xbrl__steam_electric_generating_plant_statistics_large_plants_402_duration,
         transformed_fuel=fuel_ferc1,
     )
     return convert_cols_dtypes(df, data_source="ferc1")

@@ -41,7 +41,7 @@ class Extractor(excel.GenericExtractor):
     def process_raw(self, df, page, **partition):
         """Drops reserved columns."""
         to_drop = [c for c in df.columns if c[:8] == "reserved"]
-        df.drop(to_drop, axis=1, inplace=True)
+        df = df.drop(to_drop, axis=1)
         df = df.rename(columns=self._metadata.get_column_map(page, **partition))
         self.cols_added = []
         # Eventually we should probably make this a transform
@@ -78,7 +78,7 @@ class Extractor(excel.GenericExtractor):
     def process_final_page(df, page):
         """Removes reserved columns from the final dataframe."""
         to_drop = [c for c in df.columns if c[:8] == "reserved"]
-        df.drop(columns=to_drop, inplace=True, errors="ignore")
+        df = df.drop(columns=to_drop, errors="ignore")
         return df
 
     @staticmethod
@@ -95,11 +95,11 @@ class Extractor(excel.GenericExtractor):
 
 # TODO (bendnorman): Add this information to the metadata
 eia_raw_table_names = (
-    "raw_boiler_fuel_eia923",
-    "raw_fuel_receipts_costs_eia923",
-    "raw_generation_fuel_eia923",
-    "raw_generator_eia923",
-    "raw_stocks_eia923",
+    "raw_eia923__boiler_fuel",
+    "raw_eia923__fuel_receipts_costs",
+    "raw_eia923__generation_fuel",
+    "raw_eia923__generator",
+    "raw_eia923__stocks",
     # There's an issue with the EIA-923 archive for 2018 which prevents this table
     # from being extracted currently. When we update to a new DOI this problem will
     # probably fix itself. See comments on this issue:
@@ -129,7 +129,7 @@ def extract_eia923(context):
 
     # create descriptive table_names
     eia923_raw_dfs = {
-        "raw_" + table_name + "_eia923": df for table_name, df in eia923_raw_dfs.items()
+        "raw_eia923__" + table_name: df for table_name, df in eia923_raw_dfs.items()
     }
 
     eia923_raw_dfs = dict(sorted(eia923_raw_dfs.items()))
@@ -141,5 +141,5 @@ def extract_eia923(context):
         # from being extracted currently. When we update to a new DOI this problem will
         # probably fix itself. See comments on this issue:
         # https://github.com/catalyst-cooperative/pudl/issues/2448
-        if table_name != "raw_emissions_control_eia923"
+        if table_name != "raw_eia923__emissions_control"
     )

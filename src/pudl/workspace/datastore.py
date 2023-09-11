@@ -9,13 +9,14 @@ import zipfile
 from collections import defaultdict
 from collections.abc import Iterator
 from pathlib import Path
-from typing import Any
+from typing import Any, Self
 
 import datapackage
 import requests
 from google.auth.exceptions import DefaultCredentialsError
+from pydantic import BaseSettings, HttpUrl, constr
 from requests.adapters import HTTPAdapter
-from requests.packages.urllib3.util.retry import Retry
+from urllib3.util.retry import Retry
 
 import pudl
 from pudl.workspace import resource_cache
@@ -24,14 +25,11 @@ from pudl.workspace.setup import PudlPaths
 
 logger = pudl.logging_helpers.get_logger(__name__)
 
-# The Zenodo tokens recorded here should have read-only access to our archives.
-# Including them here is correct in order to allow public use of this tool, so
-# long as we stick to read-only keys.
-
 PUDL_YML = Path.home() / ".pudl.yml"
+ZenodoDoi = constr(regex=r"(10\.5072|10\.5281)/zenodo.([\d]+)")
 
 
-class ChecksumMismatch(ValueError):
+class ChecksumMismatchError(ValueError):
     """Resource checksum (md5) does not match."""
 
     pass
@@ -44,9 +42,9 @@ class DatapackageDescriptor:
         """Constructs DatapackageDescriptor.
 
         Args:
-          datapackage_json (dict): parsed datapackage.json describing this datapackage.
-          dataset (str): name of the dataset.
-          doi (str): DOI (aka version) of the dataset.
+          datapackage_json: parsed datapackage.json describing this datapackage.
+          dataset: The name (an identifying string) of the dataset.
+          doi: A versioned Digital Object Identifier for the dataset.
         """
         self.datapackage_json = datapackage_json
         self.dataset = dataset
@@ -76,10 +74,10 @@ class DatapackageDescriptor:
     def validate_checksum(self, name: str, content: str) -> bool:
         """Returns True if content matches checksum for given named resource."""
         expected_checksum = self._get_resource_metadata(name)["hash"]
-        m = hashlib.md5()  # nosec
+        m = hashlib.md5()  # noqa: S324 MD5 is required by Zenodo
         m.update(content)
         if m.hexdigest() != expected_checksum:
-            raise ChecksumMismatch(
+            raise ChecksumMismatchError(
                 f"Checksum for resource {name} does not match."
                 f"Expected {expected_checksum}, got {m.hexdigest()}"
             )
@@ -96,12 +94,12 @@ class DatapackageDescriptor:
         )
 
     def get_resources(
-        self, name: str = None, **filters: Any
+        self: Self, name: str = None, **filters: Any
     ) -> Iterator[PudlResourceKey]:
         """Returns series of PudlResourceKey identifiers for matching resources.
 
         Args:
-          name (str): if specified, find resource(s) with this name.
+          name: if specified, find resource(s) with this name.
           filters (dict): if specified, find resoure(s) matching these key=value constraints.
             The constraints are matched against the 'parts' field of the resource
             entry in the datapackage.json.
@@ -154,106 +152,126 @@ class DatapackageDescriptor:
         return json.dumps(self.datapackage_json, sort_keys=True, indent=4)
 
 
+class ZenodoDoiSettings(BaseSettings):
+    """Digital Object Identifiers pointing to currently used Zenodo archives."""
+
+    # Sandbox DOIs are provided for reference
+    censusdp1tract: ZenodoDoi = "10.5281/zenodo.4127049"
+    # censusdp1tract: ZenodoDoi = "10.5072/zenodo.674992"
+    eia860: ZenodoDoi = "10.5281/zenodo.8164776"
+    # eia860: ZenodoDoi = "10.5072/zenodo.1222854"
+    eia860m: ZenodoDoi = "10.5281/zenodo.8188017"
+    # eia860m: ZenodoDoi = "10.5072/zenodo.1225517"
+    eia861: ZenodoDoi = "10.5281/zenodo.8231268"
+    # eia861: ZenodoDoi = "10.5072/zenodo.1229930"
+    eia923: ZenodoDoi = "10.5281/zenodo.8172818"
+    # eia923: ZenodoDoi = "10.5072/zenodo.1217724"
+    eia_bulk_elec: ZenodoDoi = "10.5281/zenodo.7067367"
+    # eia_bulk_elec: ZenodoDoi = "10.5072/zenodo.1103572"
+    epacamd_eia: ZenodoDoi = "10.5281/zenodo.7900974"
+    # epacamd_eia: ZenodoDoi = "10.5072/zenodo.1199170"
+    epacems: ZenodoDoi = "10.5281/zenodo.8235497"
+    # epacems": ZenodoDoi = "10.5072/zenodo.1228519"
+    ferc1: ZenodoDoi = "10.5281/zenodo.7314437"
+    # ferc1: ZenodoDoi = 10.5072/zenodo.1070868"
+    ferc2: ZenodoDoi = "10.5281/zenodo.8006881"
+    # ferc2: ZenodoDoi = "10.5072/zenodo.1188447"
+    ferc6: ZenodoDoi = "10.5281/zenodo.7130141"
+    # ferc6: ZenodoDoi = "10.5072/zenodo.1098088"
+    ferc60: ZenodoDoi = "10.5281/zenodo.7130146"
+    # ferc60: ZenodoDoi = "10.5072/zenodo.1098089"
+    ferc714: ZenodoDoi = "10.5281/zenodo.7139875"
+    # ferc714: ZenodoDoi = "10.5072/zenodo.1098302"
+
+    class Config:
+        """Pydantic config, reads from .env file."""
+
+        env_prefix = "pudl_zenodo_doi_"
+        env_file = ".env"
+
+
 class ZenodoFetcher:
     """API for fetching datapackage descriptors and resource contents from zenodo."""
 
-    # Zenodo tokens recorded here should have read-only access to our archives.
-    # Including them here is correct in order to allow public use of this tool, so
-    # long as we stick to read-only keys.
-    TOKEN = {
-        # Read-only personal access tokens for pudl@catalyst.coop:
-        "sandbox": "qyPC29wGPaflUUVAv1oGw99ytwBqwEEdwi4NuUrpwc3xUcEwbmuB4emwysco",
-        "production": "KXcG5s9TqeuPh1Ukt5QYbzhCElp9LxuqAuiwdqHP0WS4qGIQiydHn6FBtdJ5",
-    }
+    _descriptor_cache: dict[str, DatapackageDescriptor]
+    zenodo_dois: ZenodoDoiSettings
+    timeout: float
+    http: requests.Session
 
-    DOI = {
-        "sandbox": {
-            "censusdp1tract": "10.5072/zenodo.674992",
-            "eia860": "10.5072/zenodo.1222854",
-            "eia860m": "10.5072/zenodo.1225517",
-            "eia861": "10.5072/zenodo.1229930",
-            "eia923": "10.5072/zenodo.1217724",
-            "eia_bulk_elec": "10.5072/zenodo.1103572",
-            "epacamd_eia": "10.5072/zenodo.1199170",
-            "epacems": "10.5072/zenodo.672963",
-            "ferc1": "10.5072/zenodo.1070868",
-            "ferc2": "10.5072/zenodo.1188447",
-            "ferc6": "10.5072/zenodo.1098088",
-            "ferc60": "10.5072/zenodo.1098089",
-            "ferc714": "10.5072/zenodo.1098302",
-        },
-        "production": {
-            "censusdp1tract": "10.5281/zenodo.4127049",
-            "eia860": "10.5281/zenodo.8164776",
-            "eia860m": "10.5281/zenodo.8188017",
-            "eia861": "10.5281/zenodo.8231268",
-            "eia923": "10.5281/zenodo.8172818",
-            "eia_bulk_elec": "10.5281/zenodo.7067367",
-            "epacamd_eia": "10.5281/zenodo.7900974",
-            "epacems": "10.5281/zenodo.6910058",
-            "ferc1": "10.5281/zenodo.7314437",
-            "ferc2": "10.5281/zenodo.8006881",
-            "ferc6": "10.5281/zenodo.7130141",
-            "ferc60": "10.5281/zenodo.7130146",
-            "ferc714": "10.5281/zenodo.7139875",
-        },
-    }
-    API_ROOT = {
-        "sandbox": "https://sandbox.zenodo.org/api",
-        "production": "https://zenodo.org/api",
-    }
-
-    def __init__(self, sandbox: bool = False, timeout: float = 15.0):
-        """Constructs ZenodoFetcher instance.
-
-        Args:
-            sandbox (bool): controls whether production or sandbox zenodo backends
-                and associated DOIs should be used.
-            timeout (float): timeout (in seconds) for http requests.
-        """
-        backend = "sandbox" if sandbox else "production"
-        self._api_root = self.API_ROOT[backend]
-        self._token = self.TOKEN[backend]
-        self._dataset_to_doi = self.DOI[backend]
-        self._descriptor_cache: dict[str, DatapackageDescriptor] = {}
+    def __init__(
+        self: Self, zenodo_dois: ZenodoDoiSettings | None = None, timeout: float = 15.0
+    ):
+        """Constructs ZenodoFetcher instance."""
+        if not zenodo_dois:
+            self.zenodo_dois = ZenodoDoiSettings()
 
         self.timeout = timeout
+
         retries = Retry(
             backoff_factor=2, total=3, status_forcelist=[429, 500, 502, 503, 504]
         )
         adapter = HTTPAdapter(max_retries=retries)
-
         self.http = requests.Session()
         self.http.mount("http://", adapter)
         self.http.mount("https://", adapter)
+        self._descriptor_cache = {}
 
-    def _fetch_from_url(self, url: str) -> requests.Response:
+    def get_doi(self: Self, dataset: str) -> ZenodoDoi:
+        """Returns DOI for given dataset."""
+        try:
+            doi = self.zenodo_dois.__getattribute__(dataset)
+        except AttributeError:
+            raise AttributeError(f"No Zenodo DOI found for dataset {dataset}.")
+        return doi
+
+    def get_known_datasets(self: Self) -> list[str]:
+        """Returns list of supported datasets."""
+        return [name for name, doi in sorted(self.zenodo_dois)]
+
+    def _get_token(self: Self, url: HttpUrl) -> str:
+        """Return the appropriate read-only Zenodo personal access token.
+
+        These tokens are associated with the pudl@catalyst.coop Zenodo account, which
+        owns all of the Catalyst raw data archives.
+        """
+        if "sandbox" in url:
+            token = "qyPC29wGPaflUUVAv1oGw99ytwBqwEEdwi4NuUrpwc3xUcEwbmuB4emwysco"  # noqa: S105
+        else:
+            token = "KXcG5s9TqeuPh1Ukt5QYbzhCElp9LxuqAuiwdqHP0WS4qGIQiydHn6FBtdJ5"  # noqa: S105
+        return token
+
+    def _get_url(self: Self, doi: ZenodoDoi) -> HttpUrl:
+        """Construct a Zenodo depsition URL based on its Zenodo DOI."""
+        match = re.search(r"(10\.5072|10\.5281)/zenodo.([\d]+)", doi)
+
+        if match is None:
+            raise ValueError(f"Invalid Zenodo DOI: {doi}")
+
+        doi_prefix = match.groups()[0]
+        zenodo_id = match.groups()[1]
+        if doi_prefix == "10.5072":
+            api_root = "https://sandbox.zenodo.org/api"
+        elif doi_prefix == "10.5281":
+            api_root = "https://zenodo.org/api"
+        else:
+            raise ValueError(f"Invalid Zenodo DOI: {doi}")
+        return f"{api_root}/deposit/depositions/{zenodo_id}"
+
+    def _fetch_from_url(self: Self, url: HttpUrl) -> requests.Response:
         logger.info(f"Retrieving {url} from zenodo")
         response = self.http.get(
-            url, params={"access_token": self._token}, timeout=self.timeout
+            url, params={"access_token": self._get_token(url)}, timeout=self.timeout
         )
         if response.status_code == requests.codes.ok:
             logger.debug(f"Successfully downloaded {url}")
             return response
-        else:
-            raise ValueError(f"Could not download {url}: {response.text}")
+        raise ValueError(f"Could not download {url}: {response.text}")
 
-    def _doi_to_url(self, doi: str) -> str:
-        """Returns url that holds the datapackage for given doi."""
-        match = re.search(r"zenodo.([\d]+)", doi)
-        if match is None:
-            raise ValueError(f"Invalid doi {doi}")
-
-        zen_id = int(match.groups()[0])
-        return f"{self._api_root}/deposit/depositions/{zen_id}"
-
-    def get_descriptor(self, dataset: str) -> DatapackageDescriptor:
-        """Returns DatapackageDescriptor for given dataset."""
-        doi = self._dataset_to_doi.get(dataset)
-        if not doi:
-            raise KeyError(f"No doi found for dataset {dataset}")
+    def get_descriptor(self: Self, dataset: str) -> DatapackageDescriptor:
+        """Returns class:`DatapackageDescriptor` for given dataset."""
+        doi = self.get_doi(dataset)
         if doi not in self._descriptor_cache:
-            dpkg = self._fetch_from_url(self._doi_to_url(doi))
+            dpkg = self._fetch_from_url(self._get_url(doi))
             for f in dpkg.json()["files"]:
                 if f["filename"] == "datapackage.json":
                     resp = self._fetch_from_url(f["links"]["download"])
@@ -267,25 +285,13 @@ class ZenodoFetcher:
                 )
         return self._descriptor_cache[doi]
 
-    def get_resource_key(self, dataset: str, name: str) -> PudlResourceKey:
-        """Returns PudlResourceKey for given resource."""
-        return PudlResourceKey(dataset, self._dataset_to_doi[dataset], name)
-
-    def get_doi(self, dataset: str) -> str:
-        """Returns DOI for given dataset."""
-        return self._dataset_to_doi[dataset]
-
-    def get_resource(self, res: PudlResourceKey) -> bytes:
+    def get_resource(self: Self, res: PudlResourceKey) -> bytes:
         """Given resource key, retrieve contents of the file from zenodo."""
         desc = self.get_descriptor(res.dataset)
         url = desc.get_resource_path(res.name)
         content = self._fetch_from_url(url).content
         desc.validate_checksum(res.name, content)
         return content
-
-    def get_known_datasets(self) -> list[str]:
-        """Returns list of supported datasets."""
-        return sorted(self._dataset_to_doi)
 
 
 class Datastore:
@@ -295,22 +301,18 @@ class Datastore:
         self,
         local_cache_path: Path | None = None,
         gcs_cache_path: str | None = None,
-        sandbox: bool = False,
-        timeout: float = 15,
+        timeout: float = 15.0,
     ):
         # TODO(rousik): figure out an efficient way to configure datastore caching
         """Datastore manages file retrieval for PUDL datasets.
 
         Args:
-            local_cache_path (Path): if provided, LocalFileCache pointed at the data
+            local_cache_path: if provided, LocalFileCache pointed at the data
               subdirectory of this path will be used with this Datastore.
-            gcs_cache_path (str): if provided, GoogleCloudStorageCache will be used
+            gcs_cache_path: if provided, GoogleCloudStorageCache will be used
               to retrieve data files. The path is expected to have the following
               format: gs://bucket[/path_prefix]
-            sandbox (bool): if True, use sandbox zenodo backend when retrieving files,
-              otherwise use production. This affects which zenodo servers are contacted
-              as well as dois used for each dataset.
-            timeout (floaTR): connection timeouts (in seconds) to use when connecting
+            timeout: connection timeouts (in seconds) to use when connecting
               to Zenodo servers.
         """
         self._cache = resource_cache.LayeredCache()
@@ -332,7 +334,7 @@ class Datastore:
                 )
                 pass
 
-        self._zenodo_fetcher = ZenodoFetcher(sandbox=sandbox, timeout=timeout)
+        self._zenodo_fetcher = ZenodoFetcher(timeout=timeout)
 
     def get_known_datasets(self) -> list[str]:
         """Returns list of supported datasets."""
@@ -421,6 +423,10 @@ class Datastore:
         for resource_key, content in self.get_resources(dataset, **filters):
             yield resource_key, zipfile.ZipFile(io.BytesIO(content))
 
+    def get_zipfile_file_names(self, zip_file: zipfile.ZipFile):
+        """Given a zipfile, return a list of the file names in it."""
+        return zipfile.ZipFile.namelist(zip_file)
+
 
 class ParseKeyValues(argparse.Action):
     """Transforms k1=v1,k2=v2,...
@@ -442,17 +448,13 @@ class ParseKeyValues(argparse.Action):
 
 def parse_command_line():
     """Collect the command line arguments."""
-    prod_dois = "\n".join(
-        [f"    - {x}" for x in ZenodoFetcher.DOI["production"].keys()]
+    known_datasets = "\n".join(
+        [f"    - {x}" for x in ZenodoFetcher().get_known_datasets()]
     )
-    sand_dois = "\n".join([f"    - {x}" for x in ZenodoFetcher.DOI["sandbox"].keys()])
 
     dataset_msg = f"""
-Available Production Datasets:
-{prod_dois}
-
-Available Sandbox Datasets:
-{sand_dois}"""
+Available Datasets:
+{known_datasets}"""
 
     parser = argparse.ArgumentParser(
         description="Download and cache ETL source data from Zenodo.",
@@ -463,22 +465,12 @@ Available Sandbox Datasets:
     parser.add_argument(
         "--dataset",
         help="Download the specified dataset only. See below for available options. "
-        "The default is to download all, which may take an hour or more."
-        "speed.",
-    )
-    parser.add_argument(
-        "--pudl_in",
-        help="Override pudl_in directory, defaults to setting in ~/.pudl.yml",
+        "The default is to download all datasets, which may take hours depending on "
+        "network speed.",
     )
     parser.add_argument(
         "--validate",
         help="Validate locally cached datapackages, but don't download anything.",
-        action="store_true",
-        default=False,
-    )
-    parser.add_argument(
-        "--sandbox",
-        help="Download data from Zenodo sandbox server. For testing purposes only.",
         action="store_true",
         default=False,
     )
@@ -559,7 +551,7 @@ def validate_cache(
             try:
                 num_total += 1
                 descriptor.validate_checksum(res.name, content)
-            except ChecksumMismatch:
+            except ChecksumMismatchError:
                 num_invalid += 1
                 logger.warning(
                     f"Resource {res} has invalid checksum. Removing from cache."
@@ -593,23 +585,16 @@ def main():
         logfile=args.logfile, loglevel=args.loglevel
     )
 
-    if args.pudl_in:
-        PudlPaths.set_path_overrides(input_dir=args.pudl_in)
-
     cache_path = None
     if not args.bypass_local_cache:
         cache_path = PudlPaths().input_dir
 
     dstore = Datastore(
         gcs_cache_path=args.gcs_cache_path,
-        sandbox=args.sandbox,
         local_cache_path=cache_path,
     )
 
-    if args.dataset:
-        datasets = [args.dataset]
-    else:
-        datasets = dstore.get_known_datasets()
+    datasets = [args.dataset] if args.dataset else dstore.get_known_datasets()
 
     if args.partition:
         logger.info(f"Only retrieving resources for partition: {args.partition}")

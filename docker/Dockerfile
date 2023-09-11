@@ -1,4 +1,4 @@
-FROM condaforge/mambaforge:4.12.0-0
+FROM condaforge/mambaforge:23.3.1-1
 
 # Install curl and js
 # awscli requires unzip, less, groff and mandoc
@@ -27,7 +27,7 @@ WORKDIR ${CONTAINER_HOME}
 ENV CONDA_PREFIX=${CONTAINER_HOME}/env
 ENV PUDL_REPO=${CONTAINER_HOME}/pudl
 ENV CONDA_RUN="conda run --no-capture-output --prefix ${CONDA_PREFIX}"
-ENV PYTHON_VERSION="3.10"
+ENV PYTHON_VERSION="3.11"
 
 ENV CONTAINER_PUDL_WORKSPACE=${CONTAINER_HOME}/pudl_work
 ENV PUDL_INPUT=${CONTAINER_PUDL_WORKSPACE}/data

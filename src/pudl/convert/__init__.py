@@ -11,7 +11,7 @@ original raw data as organized by the :mod:`pudl.workspace` package (e.g.
 and others convert metadata into RST for use in documentation
 (e.g. :mod:`pudl.convert.metadata_to_rst`).
 """
-from . import (  # noqa: F401
+from . import (
     censusdp1tract_to_sqlite,
     datasette_metadata_to_yml,
     epacems_to_parquet,

@@ -64,18 +64,18 @@ What data is available?
 
 PUDL currently integrates data from:
 
-* `EIA Form 860 <https://www.eia.gov/electricity/data/eia860/>`__: 2001-2021
-* `EIA Form 860m <https://www.eia.gov/electricity/data/eia860m/>`__: 2022-06
-* `EIA Form 861 <https://www.eia.gov/electricity/data/eia861/>`__: 2001-2021
-* `EIA Form 923 <https://www.eia.gov/electricity/data/eia923/>`__: 2001-2021
-* `EPA Continuous Emissions Monitoring System (CEMS) <https://campd.epa.gov/>`__: 1995-2021
+* `EIA Form 860 <https://www.eia.gov/electricity/data/eia860/>`__: 2001-2022
+* `EIA Form 860m <https://www.eia.gov/electricity/data/eia860m/>`__: 2023-06
+* `EIA Form 861 <https://www.eia.gov/electricity/data/eia861/>`__: 2001-2022
+* `EIA Form 923 <https://www.eia.gov/electricity/data/eia923/>`__: 2001-2022
+* `EPA Continuous Emissions Monitoring System (CEMS) <https://campd.epa.gov/>`__: 1995-2022
 * `FERC Form 1 <https://www.ferc.gov/industries-data/electric/general-information/electric-industry-forms/form-1-electric-utility-annual>`__: 1994-2021
 * `FERC Form 714 <https://www.ferc.gov/industries-data/electric/general-information/electric-industry-forms/form-no-714-annual-electric/data>`__: 2006-2020
 * `US Census Demographic Profile 1 Geodatabase <https://www.census.gov/geographies/mapping-files/2010/geo/tiger-data.html>`__: 2010
 
 Thanks to support from the `Alfred P. Sloan Foundation Energy & Environment
 Program <https://sloan.org/programs/research/energy-and-environment>`__, from
-2021 to 2023 we will be integrating the following data as well:
+2021 to 2024 we will be integrating the following data as well:
 
 * `EIA Form 176 <https://www.eia.gov/dnav/ng/TblDefs/NG_DataSources.html#s176>`__
   (The Annual Report of Natural Gas Supply and Disposition)
@@ -124,7 +124,7 @@ Want access to all the published data in bulk? If you're familiar with Python
 and `Jupyter Notebooks <https://jupyter.org/>`__ and are willing to install Docker you
 can:
 
-* `Download a PUDL data release <https://sandbox.zenodo.org/record/764696>`__ from
+* `Download a PUDL data release <https://zenodo.org/record/3653158>`__ from
   CERN's `Zenodo <https://zenodo.org>`__ archiving service.
 * `Install Docker <https://docs.docker.com/get-docker/>`__
 * Run the archived image using ``docker-compose up``

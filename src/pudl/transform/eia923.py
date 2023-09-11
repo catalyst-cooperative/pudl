@@ -545,7 +545,9 @@ def plants_eia923(eia923_dfs, eia923_transformed_dfs):
         ]
     ]
     # Since this is a plain Yes/No variable -- just make it a real sa.Boolean.
-    plant_info_df.combined_heat_power.replace({"N": False, "Y": True}, inplace=True)
+    plant_info_df.combined_heat_power = plant_info_df.combined_heat_power.replace(
+        {"N": False, "Y": True}
+    )
 
     # Get rid of excessive whitespace introduced to break long lines (ugh)
     plant_info_df.census_region = plant_info_df.census_region.str.replace(" ", "")
@@ -592,11 +594,11 @@ def gen_fuel_nuclear(gen_fuel_nuke: pd.DataFrame) -> pd.DataFrame:
 
 @multi_asset(
     outs={
-        "clean_generation_fuel_eia923": AssetOut(),
-        "clean_generation_fuel_nuclear_eia923": AssetOut(),
+        "_core_eia923__generation_fuel": AssetOut(),
+        "_core_eia923__generation_fuel_nuclear": AssetOut(),
     },
 )
-def clean_generation_fuel_eia923(raw_generation_fuel_eia923: pd.DataFrame):
+def _core_eia_923__generation_fuel_eia923(raw_eia923__generation_fuel: pd.DataFrame):
     """Transforms the generation_fuel_eia923 table.
 
     Transformations include:
@@ -613,14 +615,14 @@ def clean_generation_fuel_eia923(raw_generation_fuel_eia923: pd.DataFrame):
     * Aggregate records with duplicate natural keys.
 
     Args:
-        raw_generation_fuel_eia923: The raw ``raw_generation_fuel_eia923`` dataframe.
+        raw_eia923__generation_fuel: The raw ``raw_eia923__generation_fuel`` dataframe.
 
     Returns:
-        clean_generation_fuel_eia923: Cleaned ``generation_fuel_eia923`` dataframe ready for harvesting.
-        clean_generation_fuel_nuclear_eia923: Cleaned ``generation_fuel_nuclear_eia923`` dataframe ready for harvesting.
+        _core_eia923__generation_fuel: Cleaned ``generation_fuel_eia923`` dataframe ready for harvesting.
+        _core_eia923__generation_fuel_nuclear: Cleaned ``generation_fuel_nuclear_eia923`` dataframe ready for harvesting.
     """
     # This needs to be a copy of what we're passed in so we can edit it.
-    gen_fuel = raw_generation_fuel_eia923
+    gen_fuel = raw_eia923__generation_fuel
 
     # Drop fields we're not inserting into the generation_fuel_eia923 table.
     cols_to_drop = [
@@ -640,7 +642,7 @@ def clean_generation_fuel_eia923(raw_generation_fuel_eia923: pd.DataFrame):
         "net_generation_megawatthours",
         "early_release",
     ]
-    gen_fuel.drop(cols_to_drop, axis=1, inplace=True)
+    gen_fuel = gen_fuel.drop(cols_to_drop, axis=1)
 
     # Convert the EIA923 DataFrame from yearly to monthly records.
     gen_fuel = _yearly_to_monthly_records(gen_fuel)
@@ -709,8 +711,10 @@ def clean_generation_fuel_eia923(raw_generation_fuel_eia923: pd.DataFrame):
     gen_fuel = _aggregate_generation_fuel_duplicates(gen_fuel)
 
     return (
-        Output(output_name="clean_generation_fuel_eia923", value=gen_fuel),
-        Output(output_name="clean_generation_fuel_nuclear_eia923", value=gen_fuel_nuke),
+        Output(output_name="_core_eia923__generation_fuel", value=gen_fuel),
+        Output(
+            output_name="_core_eia923__generation_fuel_nuclear", value=gen_fuel_nuke
+        ),
     )
 
 
@@ -731,15 +735,14 @@ def _map_prime_mover_sets(prime_mover_set: np.ndarray) -> str:
     """
     if len(prime_mover_set) == 1:  # single valued
         return prime_mover_set[0]
-    elif "CA" in prime_mover_set:
+    if "CA" in prime_mover_set:
         return "CA"  # arbitrary choice
-    elif "CS" in prime_mover_set:
+    if "CS" in prime_mover_set:
         return "CS"
-    else:
-        raise ValueError(
-            "Dataset contains new kinds of duplicate boiler_fuel rows. "
-            f"Prime movers are {prime_mover_set}"
-        )
+    raise ValueError(
+        "Dataset contains new kinds of duplicate boiler_fuel rows. "
+        f"Prime movers are {prime_mover_set}"
+    )
 
 
 def _aggregate_duplicate_boiler_fuel_keys(boiler_fuel_df: pd.DataFrame) -> pd.DataFrame:
@@ -813,7 +816,7 @@ def _aggregate_duplicate_boiler_fuel_keys(boiler_fuel_df: pd.DataFrame) -> pd.Da
 
 
 @asset
-def clean_boiler_fuel_eia923(raw_boiler_fuel_eia923: pd.DataFrame) -> pd.DataFrame:
+def _core_eia923__boiler_fuel(raw_eia923__boiler_fuel: pd.DataFrame) -> pd.DataFrame:
     """Transforms the boiler_fuel_eia923 table.
 
     Transformations include:
@@ -826,12 +829,12 @@ def clean_boiler_fuel_eia923(raw_boiler_fuel_eia923: pd.DataFrame) -> pd.DataFra
     * Combine year and month columns into a single date column.
 
     Args:
-        raw_boiler_fuel_eia923: The raw ``raw_boiler_fuel_eia923`` dataframe.
+        raw_eia923__boiler_fuel: The raw ``raw_eia923__boiler_fuel`` dataframe.
 
     Returns:
         Cleaned ``boiler_fuel_eia923`` dataframe ready for harvesting.
     """
-    bf_df = raw_boiler_fuel_eia923
+    bf_df = raw_eia923__boiler_fuel
 
     # Need to stop dropping fields that contain harvestable entity attributes.
     # See https://github.com/catalyst-cooperative/pudl/issues/509
@@ -851,9 +854,9 @@ def clean_boiler_fuel_eia923(raw_boiler_fuel_eia923: pd.DataFrame) -> pd.DataFra
         "reporting_frequency_code",
         "data_maturity",
     ]
-    bf_df.drop(cols_to_drop, axis=1, inplace=True)
+    bf_df = bf_df.drop(cols_to_drop, axis=1)
 
-    bf_df.dropna(subset=["boiler_id", "plant_id_eia"], inplace=True)
+    bf_df = bf_df.dropna(subset=["boiler_id", "plant_id_eia"])
 
     bf_df = _yearly_to_monthly_records(bf_df)
     # Replace the EIA923 NA value ('.') with a real NA value.
@@ -935,7 +938,7 @@ def remove_duplicate_pks_boiler_fuel_eia923(bf: pd.DataFrame) -> pd.DataFrame:
 
 
 @asset
-def clean_generation_eia923(raw_generator_eia923: pd.DataFrame) -> pd.DataFrame:
+def _core_eia923__generation(raw_eia923__generator: pd.DataFrame) -> pd.DataFrame:
     """Transforms the generation_eia923 table.
 
     Transformations include:
@@ -946,13 +949,13 @@ def clean_generation_eia923(raw_generator_eia923: pd.DataFrame) -> pd.DataFrame:
     * Drop generator-date row duplicates (all have no data).
 
     Args:
-        raw_generator_eia923: The raw ``raw_generator_eia923`` dataframe.
+        raw_eia923__generator: The raw ``raw_eia923__generator`` dataframe.
 
     Returns:
         Cleaned ``generation_eia923`` dataframe ready for harvesting.
     """
     gen_df = (
-        raw_generator_eia923.dropna(subset=["generator_id"])
+        raw_eia923__generator.dropna(subset=["generator_id"])
         .drop(
             [
                 "combined_heat_power",
@@ -1001,7 +1004,9 @@ def clean_generation_eia923(raw_generator_eia923: pd.DataFrame) -> pd.DataFrame:
 
 
 @asset
-def clean_coalmine_eia923(raw_fuel_receipts_costs_eia923: pd.DataFrame) -> pd.DataFrame:
+def _core_eia923__coalmine(
+    raw_eia923__fuel_receipts_costs: pd.DataFrame,
+) -> pd.DataFrame:
     """Transforms the coalmine_eia923 table.
 
     Transformations include:
@@ -1010,7 +1015,7 @@ def clean_coalmine_eia923(raw_fuel_receipts_costs_eia923: pd.DataFrame) -> pd.Da
     * Drop duplicates with MSHA ID.
 
     Args:
-        raw_fuel_receipts_costs_eia923: raw precursor to the
+        raw_eia923__fuel_receipts_costs: raw precursor to the
             :ref:`fuel_receipts_costs_eia923` table.
 
     Returns:
@@ -1029,7 +1034,7 @@ def clean_coalmine_eia923(raw_fuel_receipts_costs_eia923: pd.DataFrame) -> pd.Da
 
     # Make a copy so we don't alter the FRC data frame... which we'll need
     # to use again for populating the FRC table (see below)
-    cmi_df = raw_fuel_receipts_costs_eia923
+    cmi_df = raw_eia923__fuel_receipts_costs
     # Keep only the columns listed above:
     cmi_df = _coalmine_cleanup(cmi_df)
 
@@ -1054,7 +1059,7 @@ def clean_coalmine_eia923(raw_fuel_receipts_costs_eia923: pd.DataFrame) -> pd.Da
     cmi_df = cmi_df.drop_duplicates(subset=coalmine_cols)
 
     # drop null values if they occur in vital fields....
-    cmi_df.dropna(subset=["mine_name", "state"], inplace=True)
+    cmi_df = cmi_df.dropna(subset=["mine_name", "state"])
 
     # we need an mine id to associate this coalmine table with the frc
     # table. In order to do that, we need to create a clean index, like
@@ -1080,8 +1085,8 @@ def clean_coalmine_eia923(raw_fuel_receipts_costs_eia923: pd.DataFrame) -> pd.Da
 
 
 @asset
-def clean_fuel_receipts_costs_eia923(
-    raw_fuel_receipts_costs_eia923: pd.DataFrame, clean_coalmine_eia923: pd.DataFrame
+def _core_eia923__fuel_receipts_costs(
+    raw_eia923__fuel_receipts_costs: pd.DataFrame, _core_eia923__coalmine: pd.DataFrame
 ) -> pd.DataFrame:
     """Transforms the fuel_receipts_costs_eia923 dataframe.
 
@@ -1096,13 +1101,13 @@ def clean_fuel_receipts_costs_eia923(
     Fuel cost is reported in cents per mmbtu. Converts cents to dollars.
 
     Args:
-        raw_fuel_receipts_costs_eia923: The raw ``raw_fuel_receipts_costs_eia923`` dataframe.
-        clean_coalmine_eia923: The cleaned pre-harvest ``coalmine_eia923`` dataframe.
+        raw_eia923__fuel_receipts_costs: The raw ``raw_eia923__fuel_receipts_costs`` dataframe.
+        _core_eia923__coalmine: The cleaned pre-harvest ``coalmine_eia923`` dataframe.
 
     Returns:
         Cleaned ``fuel_receipts_costs_eia923`` dataframe ready for harvesting.
     """
-    frc_df = raw_fuel_receipts_costs_eia923
+    frc_df = raw_eia923__fuel_receipts_costs
 
     # Drop fields we're not inserting into the fuel_receipts_costs_eia923
     # table.
@@ -1122,7 +1127,7 @@ def clean_fuel_receipts_costs_eia923(
     ]
 
     cmi_df = (
-        clean_coalmine_eia923
+        _core_eia923__coalmine
         # In order for the merge to work, we need to get the county_id_fips
         # field back into ready-to-dump form... so it matches the types of the
         # county_id_fips field that we are going to be merging on in the
