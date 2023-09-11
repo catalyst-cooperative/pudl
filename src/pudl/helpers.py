@@ -347,7 +347,7 @@ def prep_dir(dir_path: str | pathlib.Path, clobber: bool = False) -> pathlib.Pat
         FileExistsError: if a file or directory already exists at dir_path.
 
     Returns:
-        pathlib.Path: Path to the created directory.
+        Path to the created directory.
     """
     dir_path = pathlib.Path(dir_path)
     if dir_path.exists():
@@ -717,7 +717,7 @@ def cleanstrings_series(
         col: A pandas Series, typically a single column of a
             dataframe, containing the freeform strings that are to be cleaned.
         str_map: A dictionary of lists of strings, in which the keys are
-            the simplified canonical strings, witch which each string found in
+            the simplified canonical strings, with which each string found in
             the corresponding list will be replaced.
         unmapped: A value with which to replace any string found in col
             that is not found in one of the lists of strings in map. Typically
@@ -979,7 +979,7 @@ def convert_to_date(
         month_col: the name of the month column in the original table.
         day_col: the name of the day column in the original table.
         month_value: generated month if no month exists.
-        day_value: generated day if no month exists.
+        day_value: generated day if no day exists.
 
     Returns:
         A DataFrame in which the year, month, day columns values have been converted
