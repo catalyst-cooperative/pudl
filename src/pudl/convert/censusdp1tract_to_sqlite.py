@@ -96,6 +96,8 @@ def censusdp1tract_to_sqlite(context):
         assert extract_root.is_dir()
         logger.info(f"out_path = {out_path}")
         subprocess.run(
-            [ogr2ogr, str(out_path), str(extract_root)], check=True  # noqa: S603
+            [ogr2ogr, str(out_path), str(extract_root)],  # noqa: S603
+            check=True,
+            capture_output=True,
         )
     return out_path
