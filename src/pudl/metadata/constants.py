@@ -169,6 +169,7 @@ CONTRIBUTORS: dict[str, dict[str, str]] = {
         "email": "ella.belfer@catalyst.coop",
         "role": "contributor",
         "organization": "Catalyst Cooperative",
+        "orcid": "0000-0001-9784-8531",
     },
 }
 """PUDL Contributors for attribution."""
