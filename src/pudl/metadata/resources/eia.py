@@ -622,6 +622,7 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
         "description": "Output table with the aggregation of all EIA plant parts. For use with matching to FERC 1.",
         "schema": {
             "fields": [
+                "record_id_eia",
                 "plant_id_eia",
                 "report_date",
                 "plant_part",
@@ -665,6 +666,7 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
                 "report_year",
                 "plant_id_report_year",
             ],
+            "primary_key": ["record_id_eia"],
         },
         "sources": ["eia860", "eia923"],
         "etl_group": "outputs",

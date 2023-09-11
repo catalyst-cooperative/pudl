@@ -393,7 +393,7 @@ def plant_parts_eia_asset_factory(
             "denorm_plants_eia": AssetIn(key="denorm_plants_eia"),
             "denorm_utilities_eia": AssetIn(key="denorm_utilities_eia"),
         },
-        io_manager_key=io_manager_key,
+        # io_manager_key=io_manager_key,
         compute_kind="Python",
     )
     def plant_parts_eia_asset(
@@ -628,12 +628,7 @@ class MakePlantParts:
     """
 
     def __init__(self):
-        """Initialize instance of :class:`MakePlantParts`.
-
-        Args:
-            pudl_out (pudl.output.pudltabl.PudlTabl): An object used to create
-                the tables for EIA and FERC Form 1 analysis.
-        """
+        """Initialize instance of :class:`MakePlantParts`."""
         self.parts_to_ids = make_parts_to_ids_dict()
 
         # get a list of all of the id columns that constitue the primary keys
@@ -647,6 +642,10 @@ class MakePlantParts:
             pandas.DataFrame: The complete plant parts list
         """
         # aggregate everything by each plant part
+        gens_mega = gens_mega[
+            (gens_mega.report_date < "2021-01-01")
+            & (gens_mega.report_date >= "2020-01-01")
+        ]
         part_dfs = []
         for part_name in PLANT_PARTS:
             if part_name == "plant_match_ferc1":
@@ -684,7 +683,6 @@ class MakePlantParts:
             .pipe(self._clean_plant_parts)
             .pipe(Resource.from_id("plant_parts_eia").format_df)
         )
-        self.plant_parts_eia.index = self.plant_parts_eia.index.astype("string")
         return self.plant_parts_eia
 
     #######################################
@@ -832,20 +830,18 @@ class MakePlantParts:
         return plant_parts_eia
 
     def _clean_plant_parts(self, plant_parts_eia):
-        plant_parts_eia = (
-            plant_parts_eia.assign(
-                report_year=lambda x: x.report_date.dt.year,
-                plant_id_report_year=lambda x: x.plant_id_pudl.astype(str)
-                + "_"
-                + x.report_year.astype(str),
-            )
-            .pipe(
-                pudl.helpers.cleanstrings_snake,
-                ["record_id_eia", "appro_record_id_eia"],
-            )
-            .set_index("record_id_eia")
+        plant_parts_eia = plant_parts_eia.assign(
+            report_year=lambda x: x.report_date.dt.year,
+            plant_id_report_year=lambda x: x.plant_id_pudl.astype(str)
+            + "_"
+            + x.report_year.astype(str),
+        ).pipe(
+            pudl.helpers.cleanstrings_snake,
+            ["record_id_eia", "appro_record_id_eia"],
         )
-        return plant_parts_eia[~plant_parts_eia.index.duplicated(keep="first")]
+        return plant_parts_eia[
+            ~plant_parts_eia["record_id_eia"].duplicated(keep="first")
+        ]
 
     def add_attributes(self, part_df, attribute_df, part_name):
         """Add constant and min/max attributes to plant parts."""
@@ -1490,8 +1486,10 @@ def add_record_id(part_df, id_cols, plant_part_col="plant_part", year=True):
     )
     if year:
         part_df = part_df.rename(columns={"record_id_eia_temp": "record_id_eia"})
+        part_df["record_id_eia"] = part_df["record_id_eia"].astype("string")
     else:
         part_df = part_df.rename(columns={"record_id_eia_temp": "plant_part_id_eia"})
+        part_df["plant_part_id_eia"] = part_df["plant_part_id_eia"].astype("string")
     return part_df
 
 

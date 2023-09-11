@@ -2092,6 +2092,10 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "type": "string",
         "description": "Identifier indicating original FERC Form 1 source record. format: {table_name}_{report_year}_{report_prd}_{respondent_id}_{spplmnt_num}_{row_number}. Unique within FERC Form 1 DB tables which are not row-mapped.",  # noqa: FS003
     },
+    "record_id_eia": {
+        "type": "string",
+        "description": "Identifier for EIA plant parts analysis records.",
+    },
     "region_name_us_census": {
         "type": "string",
         "description": "Human-readable name of a US Census region.",
