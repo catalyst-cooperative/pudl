@@ -12,5 +12,9 @@ dependencies:
   - setuptools<69
   - sqlite>=3.36,<4
   - tox>=4,<5
-  - google-cloud-sdk>=386.0.0,<413.0.0
+  - google-cloud-sdk>=386,<446
   - sqlite-utils~=3.29
+
+  # libabseil 20230802 isn't linked by libgdal-3.7.1, which is dependency of
+  # fiona==1.9.4, dependency of geopandas 0.13.2
+  - libabseil==20230125.3

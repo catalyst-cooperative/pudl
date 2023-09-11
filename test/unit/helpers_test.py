@@ -9,6 +9,7 @@ from pandas.tseries.offsets import BYearEnd
 
 import pudl
 from pudl.helpers import (
+    apply_pudl_dtypes,
     convert_col_to_bool,
     convert_df_to_excel_file,
     convert_to_date,
@@ -381,15 +382,17 @@ def test_timeseries_fillin(test_dir):
             ],
             "plant_id_eia": [1, 1, 1, 1, 2, 2],
             "generator_id": [1, 2, 1, 1, 3, 3],
-            "data": [2, 1, 2, 3, 10, 2],
+            "data": [2.0, 1.0, 2.0, 3.0, 10.0, 2.0],
         }
-    ).astype({"report_date": "datetime64[ns]"})
+    ).pipe(apply_pudl_dtypes, group="eia")
 
     expected_out_path = (
         test_dir / "data/date_merge_unit_test/timeseries_fillin_expected_out.csv"
     )
-    expected_out = pd.read_csv(expected_out_path).astype(
-        {"report_date": "datetime64[ns]", "data": "float64"}
+    expected_out = (
+        pd.read_csv(expected_out_path)
+        .pipe(apply_pudl_dtypes, group="eia")
+        .astype({"data": "float64"})
     )
 
     out = expand_timeseries(
@@ -411,16 +414,18 @@ def test_timeseries_fillin_through_month(test_dir):
             ],
             "plant_id_eia": [1, 1, 1, 2, 2],
             "generator_id": [1, 1, 2, 1, 1],
-            "data": [1, 2, 1, 3, 4],
+            "data": [1.0, 2.0, 1.0, 3.0, 4.0],
         }
-    )
+    ).pipe(apply_pudl_dtypes, group="eia")
 
     expected_out_path = (
         test_dir
         / "data/date_merge_unit_test/timeseries_fillin_through_month_expected_out.csv"
     )
-    expected_out = pd.read_csv(expected_out_path).astype(
-        {"report_date": "datetime64[ns]", "data": "float64"}
+    expected_out = (
+        pd.read_csv(expected_out_path)
+        .pipe(apply_pudl_dtypes, group="eia")
+        .astype({"data": "float64"})
     )
     out = expand_timeseries(
         input_df,

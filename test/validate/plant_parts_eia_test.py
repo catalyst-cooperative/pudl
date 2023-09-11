@@ -128,7 +128,7 @@ def test_run_aggregations(pudl_out_eia, live_dbs):
                 logger.info(f"  Results for {test_col}: {result}")
                 if not all(result):
                     logger.warning(
-                        f"{test_col} has {len([val for val in result if val == False])} non-unique values when aggregating for {part_name}."
+                        f"{test_col} has {len([val for val in result if val is False])} non-unique values when aggregating for {part_name}."
                     )
                     # raise AssertionError(
                     #    f"{test_col}'s '"

@@ -242,6 +242,7 @@ class LayeredCache(AbstractCache):
                 )
                 return True
         logger.debug(f"contains: {resource} not found in layered cache.")
+        return False
 
     def is_optimally_cached(self, resource: PudlResourceKey) -> bool:
         """Return True if resource is contained in the closest write-enabled layer."""
@@ -252,3 +253,4 @@ class LayeredCache(AbstractCache):
                 f"{resource} optimally cached in {cache_layer.__class__.__name__}"
             )
             return cache_layer.contains(resource)
+        return False

@@ -14,7 +14,7 @@ don't have to update this manually.
 
 import importlib.resources
 import logging
-import os
+from pathlib import Path
 
 import pandas as pd
 import pytest
@@ -170,14 +170,14 @@ def test_generate_all_override_spreadsheets(plant_parts_eia, ferc1_eia, utils_ei
         utils_eia860,
         util_dict={"NextEra": [6452, 7801]},
         years=[2020],
-        output_dir_path=f"{os.getcwd()}",
+        output_dir_path=f"{Path.cwd()}",
     )
     # Make sure there is something there
     mapping_spreadsheet = pd.read_excel(
-        f"{os.getcwd()}/NextEra_fix_FERC-EIA_overrides.xlsx"
+        f"{Path.cwd()}/NextEra_fix_FERC-EIA_overrides.xlsx"
     )
     if mapping_spreadsheet.empty:
         raise AssertionError("Mapping spreadsheet has no contents")
 
     # Remove this test file
-    os.remove(f"{os.getcwd()}/NextEra_fix_FERC-EIA_overrides.xlsx")
+    Path.unlink(f"{Path.cwd()}/NextEra_fix_FERC-EIA_overrides.xlsx")
