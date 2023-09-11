@@ -107,7 +107,7 @@ def ferc_to_sqlite_job_factory(
                 resource_defs=ferc_to_sqlite.default_resources_defs,
                 name="ferc_to_sqlite_job",
             )
-        elif enable_xbrl:
+        if enable_xbrl:
             return ferc_to_sqlite.ferc_to_sqlite_xbrl_only.to_job(
                 resource_defs=ferc_to_sqlite.default_resources_defs,
                 name="ferc_to_sqlite_xbrl_only_job",

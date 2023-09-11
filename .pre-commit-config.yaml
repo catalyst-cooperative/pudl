@@ -5,8 +5,6 @@ repos:
     rev: v1.10.0
     hooks:
       - id: python-check-blanket-noqa # Prohibit overly broad QA exclusions.
-      - id: python-no-eval # Never use eval() it's dangerous.
-      - id: python-no-log-warn # logger.warning(), not old .warn()
       - id: rst-backticks # Find single rather than double backticks
       - id: rst-directive-colons # Missing double-colons after directives
       - id: rst-inline-touching-normal # Inline code should never touch normal text
@@ -21,21 +19,18 @@ repos:
       - id: check-yaml # Validate all YAML files.
       - id: check-case-conflict # Avoid case sensitivity in file names.
       - id: debug-statements # Watch for lingering debugger calls.
-      - id: end-of-file-fixer # Ensure there's a newline at EOF.
       - id: mixed-line-ending # Use Unix line-endings to avoid big no-op CSV diffs.
         args: ["--fix=lf"]
-      - id: trailing-whitespace # Remove trailing whitespace.
       - id: name-tests-test # Follow PyTest naming convention.
 
   ####################################################################################
   # Formatters: hooks that re-write Python & documentation files
   ####################################################################################
-  # Make sure import statements are sorted uniformly.
-  - repo: https://github.com/PyCQA/isort
-    rev: 5.12.0
+  - repo: https://github.com/astral-sh/ruff-pre-commit
+    rev: v0.0.287
     hooks:
-      - id: isort
-        exclude: migrations/.*
+      - id: ruff
+        args: [--fix, --exit-non-zero-on-fix]
 
   # Format the code
   - repo: https://github.com/psf/black
@@ -45,75 +40,28 @@ repos:
         language_version: python3.11
         exclude: migrations/.*
 
-  # Remove f-string prefix when there's nothing in the string to format.
-  - repo: https://github.com/dannysepler/rm_unneeded_f_str
-    rev: v0.2.0
-    hooks:
-      - id: rm-unneeded-f-str
-
   - repo: https://github.com/pre-commit/mirrors-prettier
     rev: v3.0.3
     hooks:
       - id: prettier
         types_or: [yaml]
 
-  # Update Python language constructs to modern standards
-  - repo: https://github.com/asottile/pyupgrade
-    rev: v3.10.1
-    hooks:
-      - id: pyupgrade
-        args: ["--py311-plus"]
-
   ####################################################################################
-  # Linters: hooks that check but don't alter Python and documentation files
+  # Linters: hooks that check but don't alter files
   ####################################################################################
-
-  # Check for PEP8 non-compliance, code complexity, style, errors, etc:
-  - repo: https://github.com/PyCQA/flake8
-    rev: 6.1.0
-    hooks:
-      - id: flake8
-        args: [--config, tox.ini]
-        exclude: migrations/.*
-        additional_dependencies:
-          - flake8-docstrings
-          - flake8-colors
-          - pydocstyle
-          - flake8-builtins
-          - mccabe
-          - pep8-naming
-          - pycodestyle
-          - pyflakes
-          - flake8-rst-docstrings
-          - flake8-use-fstring
-
-  # Check for known security vulnerabilities:
-  - repo: https://github.com/PyCQA/bandit
-    rev: 1.7.5
-    hooks:
-      - id: bandit
-        additional_dependencies: ["bandit[toml]"]
-        args: ["--configfile", ".bandit.yml"]
 
   # Lint Dockerfiles for errors and to ensure best practices
   - repo: https://github.com/AleksaC/hadolint-py
     rev: v2.12.0.2
     hooks:
       - id: hadolint
+
   # Check for errors in restructuredtext (.rst) files under the doc hierarchy
   - repo: https://github.com/PyCQA/doc8
     rev: v1.1.1
     hooks:
       - id: doc8
-        args: [--config, tox.ini]
-
-  # Lint any RST files and embedded code blocks for syntax / formatting errors
-  - repo: https://github.com/rstcheck/rstcheck
-    rev: v6.1.2
-    hooks:
-      - id: rstcheck
-        additional_dependencies: [sphinx]
-        args: [--config, tox.ini]
+        args: [--config, pyproject.toml]
 
   #####################################################################################
   # Our own pre-commit hooks, which don't come from the pre-commit project

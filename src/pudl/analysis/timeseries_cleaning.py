@@ -87,11 +87,11 @@ def array_diff(
 
     Examples:
         >>> x = np.random.random((4, 2))
-        >>> np.all(array_diff(x, 1)[1:] == pd.DataFrame(x).diff(1).values[1:])
+        >>> np.all(array_diff(x, 1)[1:] == pd.DataFrame(x).diff(1).to_numpy()[1:])
         True
-        >>> np.all(array_diff(x, 2)[2:] == pd.DataFrame(x).diff(2).values[2:])
+        >>> np.all(array_diff(x, 2)[2:] == pd.DataFrame(x).diff(2).to_numpy()[2:])
         True
-        >>> np.all(array_diff(x, -1)[:-1] == pd.DataFrame(x).diff(-1).values[:-1])
+        >>> np.all(array_diff(x, -1)[:-1] == pd.DataFrame(x).diff(-1).to_numpy()[:-1])
         True
     """
     if not periods:
@@ -355,6 +355,7 @@ def impute_latc_tnn(
     Returns:
         Tensor with missing values in `tensor` replaced by imputed values.
     """
+    rng = np.random.default_rng()
     tensor = np.where(np.isnan(tensor), 0, tensor)
     dim = np.array(tensor.shape)
     dim_time = int(np.prod(dim) / dim[0])
@@ -366,7 +367,7 @@ def impute_latc_tnn(
     t = np.zeros(np.insert(dim, 0, len(dim)))
     z = mat.copy()
     z[pos_missing] = np.mean(mat[mat != 0])
-    a = 0.001 * np.random.rand(dim[0], d)
+    a = 0.001 * rng.random(dim[0] * d).reshape([dim[0], d])
     it = 0
     ind = np.zeros((d, dim_time - max_lag), dtype=int)
     for i in range(d):
@@ -459,6 +460,7 @@ def impute_latc_tubal(  # noqa: C901
     Returns:
         Tensor with missing values in `tensor` replaced by imputed values.
     """
+    rng = np.random.default_rng()
     tensor = np.where(np.isnan(tensor), 0, tensor)
     dim = np.array(tensor.shape)
     dim_time = int(np.prod(dim) / dim[0])
@@ -469,7 +471,7 @@ def impute_latc_tubal(  # noqa: C901
     t = np.zeros(dim)
     z = mat.copy()
     z[pos_missing] = np.mean(mat[mat != 0])
-    a = 0.001 * np.random.rand(dim[0], d)
+    a = 0.001 * rng.random(dim[0] * d).reshape([dim[0], d])
     it = 0
     ind = np.zeros((d, dim_time - max_lag), dtype=np.int_)
     for i in range(d):
@@ -499,7 +501,7 @@ def impute_latc_tubal(  # noqa: C901
             elif dim_time > 5e3:
                 for m in range(dim[0]):
                     idx = np.arange(0, dim_time - max_lag)
-                    np.random.shuffle(idx)
+                    rng.shuffle(idx)
                     idx = idx[: int(sample_rate * (dim_time - max_lag))]
                     qm = mat_hat[m, ind].T
                     a[m, :] = np.linalg.pinv(qm[idx[:], :]) @ z[m, max_lag:][idx[:]]
@@ -556,7 +558,7 @@ class Timeseries:
         self.index: pd.Index
         self.columns: pd.Index
         if isinstance(x, pd.DataFrame):
-            self.xi = x.values
+            self.xi = x.to_numpy()
             self.index = x.index
             self.columns = x.columns
         else:
@@ -673,7 +675,7 @@ class Timeseries:
         """
         # RUGGLES: rollingDem, rollingDemLong (window=480)
         df = pd.DataFrame(self.x, copy=False)
-        return df.rolling(window, min_periods=1, center=True).median().values
+        return df.rolling(window, min_periods=1, center=True).median().to_numpy()
 
     def rolling_median_offset(self, window: int = 48) -> np.ndarray:
         """Values minus the rolling median.
@@ -734,7 +736,7 @@ class Timeseries:
         offset = self.rolling_median_offset(window=window)
         df = pd.DataFrame(offset, copy=False)
         rolling = df.rolling(iqr_window, min_periods=1, center=True)
-        return (rolling.quantile(0.75) - rolling.quantile(0.25)).values
+        return (rolling.quantile(0.75) - rolling.quantile(0.25)).to_numpy()
 
     def median_prediction(
         self,
@@ -820,7 +822,7 @@ class Timeseries:
         diff = self.diff(shift=shift)
         df = pd.DataFrame(diff, copy=False)
         rolling = df.rolling(window, min_periods=1, center=True)
-        return (rolling.quantile(0.75) - rolling.quantile(0.25)).values
+        return (rolling.quantile(0.75) - rolling.quantile(0.25)).to_numpy()
 
     def flag_double_delta(self, iqr_window: int = 240, multiplier: float = 2) -> None:
         """Flag values very different from neighbors on either side (DOUBLE_DELTA).
@@ -1021,7 +1023,7 @@ class Timeseries:
             .rolling(window=half_window)
             .mean()
             .lt(1)
-            .values
+            .to_numpy()
         )
         is_before = np.roll(is_after, -(half_window - 1), axis=0)
         # Check whether not part of a run of unflagged values longer than a half-width
@@ -1039,7 +1041,7 @@ class Timeseries:
             .rolling(window=window, center=True)
             .max()
             .eq(True)
-            .values
+            .to_numpy()
         )
         # Flag if all conditions are met
         mask &= is_after & is_before & is_not_run & is_region
@@ -1244,10 +1246,7 @@ class Timeseries:
             ValueError: Zero values present. Replace with very small value.
         """
         imputer = {"tubal": impute_latc_tubal, "tnn": impute_latc_tnn}[method]
-        if mask is None:
-            x = self.x.copy()
-        else:
-            x = np.where(mask, np.nan, self.x)
+        x = self.x.copy() if mask is None else np.where(mask, np.nan, self.x)
         if (x == 0).any():
             raise ValueError("Zero values present. Replace with very small value.")
         tensor = self.fold_tensor(x, periods=periods)

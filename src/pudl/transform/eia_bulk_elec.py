@@ -106,18 +106,17 @@ def _transform_timeseries(raw_ts: pd.DataFrame) -> pd.DataFrame:
     )
     ts.columns = ts.columns.droplevel(level=None)
     ts.columns.name = None  # remove "series_code" as name - no longer appropriate
-    ts.reset_index(drop=False, inplace=True)
+    ts = ts.reset_index(drop=False)
 
     # convert units from billion BTU to MMBTU for consistency with other PUDL tables
     ts.loc[:, "RECEIPTS_BTU"] *= 1000
 
-    ts.rename(
+    ts = ts.rename(
         columns={
             "RECEIPTS_BTU": "fuel_received_mmbtu",
             "COST_BTU": "fuel_cost_per_mmbtu",
             "date": "report_date",
         },
-        inplace=True,
     )
 
     return ts

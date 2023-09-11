@@ -2,7 +2,7 @@
 
 import importlib.metadata
 
-from . import (  # noqa: F401
+from . import (
     analysis,
     cli,
     convert,
