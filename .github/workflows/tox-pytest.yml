@@ -35,6 +35,7 @@ jobs:
       - name: Install Conda environment using mamba
         uses: mamba-org/setup-micromamba@v1
         with:
+          environment-file: test/test-environment.yml
           cache-environment: true
           condarc: |
             channels:
@@ -77,6 +78,7 @@ jobs:
       - name: Install Conda environment using mamba
         uses: mamba-org/setup-micromamba@v1
         with:
+          environment-file: test/test-environment.yml
           cache-environment: true
           condarc: |
             channels:
@@ -129,6 +131,7 @@ jobs:
       - name: Install Conda environment using mamba
         uses: mamba-org/setup-micromamba@v1
         with:
+          environment-file: test/test-environment.yml
           cache-environment: true
           condarc: |
             channels:
