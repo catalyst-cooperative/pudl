@@ -1077,6 +1077,25 @@ def drop_tables(engine: sa.engine.Engine, clobber: bool = False) -> None:
         conn.exec_driver_sql("VACUUM")
 
 
+def merge_dicts(lods: list[dict[Any, Any]]) -> dict[Any, Any]:
+    """Merge multipe dictionaries together.
+
+    Given any number of dicts, shallow copy and merge into a new dict, precedence goes
+    to key value pairs in latter dicts within the input list.
+
+    Args:
+        lods: a list of dictionaries.
+
+    Returns:
+        A single merged dictionary.
+
+    """
+    merged = {}
+    for d in lods:
+        merged |= d
+    return merged
+
+
 def convert_cols_dtypes(
     df: pd.DataFrame,
     data_source: str | None = None,
