@@ -158,8 +158,22 @@ def _core_eia860__ownership(raw_eia860__ownership: pd.DataFrame) -> pd.DataFrame
     state_to_country = {
         x.subdivision_code: x.country_code for x in POLITICAL_SUBDIVISIONS.itertuples()
     } | {"CN": "CAN"}
-    own_df["owner_country"] = own_df["owner_state"].map(state_to_country)
+    own_df["country"] = own_df["owner_state"].map(state_to_country)
     own_df.loc[own_df.owner_state == "CN", "owner_state"] = pd.NA
+
+    # rename columns to reflect owner centric attributes
+    own_df = own_df.rename(
+        columns={
+            "utility_id_eia": "operator_utility_id_eia",
+            "utility_name_eia": "operator_name",
+            "owner_name": "utility_name_eia",
+            "owner_zip_code": "zip_code",
+            "owner_utility_id_eia": "utility_id_eia",
+            "owner_street_address": "street_address",
+            "owner_state": "state",
+            "owner_city": "city",
+        }
+    )
 
     # Spot fix NA generator_id. Might want to change this once we have the official 2022
     # data not just early release.

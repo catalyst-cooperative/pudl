@@ -289,12 +289,8 @@ ENTITIES: dict[str, dict[str, list[str] | dict[str, str]]] = {
             "data_maturity",
         ],
         "map_cols_dict": {
-            "owner_utility_id_eia": "utility_id_eia",
-            "owner_zip_code": "zip_code",
-            "owner_city": "city",
-            "owner_name": "utility_name_eia",
-            "owner_state": "state",
-            "owner_street_address": "street_address",
+            "operator_utility_id_eia": "utility_id_eia",
+            "operator_name": "utility_name_eia",
         },
     },
 }

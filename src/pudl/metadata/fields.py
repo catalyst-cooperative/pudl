@@ -445,6 +445,7 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "description": "Purchase type under which receipts occurred in the reporting month. C: Contract, NC: New Contract, S: Spot Purchase, T: Tolling Agreement.",
         "constraints": {"enum": ["S", "C", "NC", "T"]},
     },
+    "country": {"type": "string", "description": "Three letter country abbreviation."},
     "emission_control_id_eia": {
         "type": "string",
         "description": (
