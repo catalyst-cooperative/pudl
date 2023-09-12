@@ -27,14 +27,14 @@ repos:
   # Formatters: hooks that re-write Python & documentation files
   ####################################################################################
   - repo: https://github.com/astral-sh/ruff-pre-commit
-    rev: v0.0.287
+    rev: v0.0.288
     hooks:
       - id: ruff
         args: [--fix, --exit-non-zero-on-fix]
 
   # Format the code
-  - repo: https://github.com/psf/black
-    rev: 23.7.0
+  - repo: https://github.com/psf/black-pre-commit-mirror
+    rev: 23.9.1
     hooks:
       - id: black
         language_version: python3.11
