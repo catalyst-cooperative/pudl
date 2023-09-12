@@ -686,6 +686,12 @@ table_a,fact_3,voyager,total,table_a,fact_3,voyager,nebula,True,False
 
 
 def test_multi_dims_totals():
+    # TODO (daz): define these dataframes programmatically
+
+    # observed dimension: values
+    # utility_type: electric
+    # plant_status: future, in_service, total
+    # plant_function: steam_production, general, total
     table_dims = pd.read_csv(
         StringIO(
             """
@@ -702,18 +708,27 @@ electric_plant_depreciation_change_ferc1,accumulated_depreciation,electric,total
 """
         )
     )
+
+    # metadata dimension: values
+    # utility_type: electric
+    # plant_status: future, in_service, total
+    # plant_function: steam_production, general, bogus, total
+
     meta_w_dims = pd.read_csv(
         StringIO(
             """
 table_name,xbrl_factoid,utility_type,plant_status,plant_function
 electric_plant_depreciation_change_ferc1,accumulated_depreciation,electric,future,steam_production
 electric_plant_depreciation_change_ferc1,accumulated_depreciation,electric,future,general
+electric_plant_depreciation_change_ferc1,accumulated_depreciation,electric,future,bogus
 electric_plant_depreciation_change_ferc1,accumulated_depreciation,electric,future,total
 electric_plant_depreciation_change_ferc1,accumulated_depreciation,electric,in_service,steam_production
 electric_plant_depreciation_change_ferc1,accumulated_depreciation,electric,in_service,general
+electric_plant_depreciation_change_ferc1,accumulated_depreciation,electric,in_service,bogus
 electric_plant_depreciation_change_ferc1,accumulated_depreciation,electric,in_service,total
 electric_plant_depreciation_change_ferc1,accumulated_depreciation,electric,total,steam_production
 electric_plant_depreciation_change_ferc1,accumulated_depreciation,electric,total,general
+electric_plant_depreciation_change_ferc1,accumulated_depreciation,electric,total,bogus
 electric_plant_depreciation_change_ferc1,accumulated_depreciation,electric,total,total
 """
         )
@@ -751,6 +766,11 @@ electric_plant_depreciation_change_ferc1,accumulated_depreciation,electric,total
         table_dimensions=table_dims,
         dimensions=dimensions,
     )
+
+    # total/total has the 4 components we expect ([future, in_service] X [steam_production, general])
+    # all 4 1-dimensional totals have 2 components each
+
+    # TODO (daz): should this function already drop the duplicated table_name and xbrl_factoid columns? tests would be easier to read.
     calc_components_w_totals_expected = pd.read_csv(
         StringIO(
             """
@@ -770,6 +790,7 @@ electric_plant_depreciation_change_ferc1,accumulated_depreciation,electric,futur
 """
         )
     )
+
     pd.testing.assert_frame_equal(
         calc_components_w_totals_expected,
         calc_components_w_totals[list(calc_components_w_totals_expected)]

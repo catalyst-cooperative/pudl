@@ -5889,8 +5889,6 @@ def add_dimension_total_calculations(
             # add on the non-total values for this dimension as calculation components
             # if there's a record with two dimensions where there are totals, we make two
             # versions of the calculation.
-            # if there's a record where there's two totals, don't we want the
-            # calc comps to be *all* of the non-total values for *both* dimensions?
             pd.merge(
                 # the total records will become _parent columns in new records
                 left=meta_w_dims.loc[(meta_w_dims[dim] == "total")],
@@ -5962,6 +5960,7 @@ def add_dimension_total_calculations(
     ]
     calc_cols = ["table_name", "xbrl_factoid"] + dimensions
     calc_and_parent_cols = calc_cols + [f"{col}_parent" for col in calc_cols]
+
     check_for_calc_components_duplicates(
         calc_components,
         table_names_known_dupes=[
