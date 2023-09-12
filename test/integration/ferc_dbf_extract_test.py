@@ -8,6 +8,8 @@ import sqlalchemy as sa
 from pudl.extract.dbf import FercDbfReader
 from pudl.extract.ferc1 import Ferc1DbfExtractor
 from pudl.extract.ferc2 import Ferc2DbfExtractor
+from pudl.extract.ferc6 import Ferc6DbfExtractor
+from pudl.extract.ferc60 import Ferc60DbfExtractor
 
 logger = logging.getLogger(__name__)
 
@@ -25,6 +27,8 @@ def test_ferc1_dbf2sqlite(ferc1_engine_dbf):
     [
         pytest.param(Ferc1DbfExtractor, id="ferc1"),
         pytest.param(Ferc2DbfExtractor, id="ferc2"),
+        pytest.param(Ferc6DbfExtractor, id="ferc6"),
+        pytest.param(Ferc60DbfExtractor, id="ferc60"),
     ],
 )
 def test_ferc_schema(ferc_to_sqlite_settings, pudl_datastore_fixture, extractor_class):
