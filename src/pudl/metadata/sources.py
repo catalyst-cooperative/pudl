@@ -50,11 +50,10 @@ SOURCES: dict[str, Any] = {
                 [
                     "eia176",
                     "form 176",
+                    "natural gas",
                 ]
                 + KEYWORDS["eia"]
                 + KEYWORDS["us_govt"]
-                + KEYWORDS["fuels"]
-                + KEYWORDS["environment"]
             )
         ),
         "license_raw": LICENSES["us-govt"],
@@ -261,6 +260,9 @@ SOURCES: dict[str, Any] = {
         "description": (
             "Monthly cooling water usage by generator and boiler. Data "
             "collected in conjunction with the EIA-860 and EIA-923."
+        ),
+        "keywords": sorted(
+            set(KEYWORDS["eia"] + KEYWORDS["us_govt"] + KEYWORDS["eia_water"])
         ),
         "license_raw": LICENSES["us-govt"],
         "license_pudl": LICENSES["cc-by-4.0"],
@@ -523,6 +525,17 @@ SOURCES: dict[str, Any] = {
             "as well as transaction information for short-term and long-term "
             "market-based power sales and cost-based power sales."
         ),
+        "keywords": sorted(
+            set(
+                [
+                    "ferceqr",
+                    "electric quarterly report",
+                ]
+                + KEYWORDS["ferc"]
+                + KEYWORDS["us_govt"]
+                + KEYWORDS["electricity"]
+            )
+        ),
         "license_raw": LICENSES["us-govt"],
         "license_pudl": LICENSES["cc-by-4.0"],
     },
@@ -535,6 +548,7 @@ SOURCES: dict[str, Any] = {
             "mine (Active, Abandoned, NonProducing, etc.), the current owner and "
             "operating company, commodity codes and physical attributes of the mine."
         ),
+        "keywords": sorted(set(KEYWORDS["msha"] + KEYWORDS["us_govt"])),
         "license_raw": LICENSES["us-govt"],
         "license_pudl": LICENSES["cc-by-4.0"],
     },
@@ -548,6 +562,7 @@ SOURCES: dict[str, Any] = {
             "pipeline mileage, facilities, commodities transported, miles by material, "
             "and installation dates."
         ),
+        "keywords": sorted(set(KEYWORDS["phmsa"] + KEYWORDS["us_govt"])),
         "license_raw": LICENSES["us-govt"],
         "license_pudl": LICENSES["cc-by-4.0"],
     },
