@@ -230,11 +230,11 @@ EIA_CODE_FIXES = {
 """Overrides of FERC 714 respondent IDs with wrong or missing EIA Codes."""
 
 RENAME_COLS = {
-    "respondent_id_ferc714": {
+    "core_ferc714__respondent_id": {
         "respondent_id": "respondent_id_ferc714",
         "respondent_name": "respondent_name_ferc714",
     },
-    "demand_hourly_pa_ferc714": {
+    "core_ferc714__hourly_demand_pa": {
         "report_yr": "report_year",
         "plan_date": "report_date",
         "respondent_id": "respondent_id_ferc714",
@@ -369,7 +369,9 @@ def _standardize_offset_codes(df: pd.DataFrame, offset_fixes) -> pd.DataFrame:
 
 
 @asset(io_manager_key="pudl_sqlite_io_manager")
-def respondent_id_ferc714(raw_ferc714__respondent_id: pd.DataFrame) -> pd.DataFrame:
+def core_ferc714__respondent_id(
+    raw_ferc714__respondent_id: pd.DataFrame,
+) -> pd.DataFrame:
     """Transform the FERC 714 respondent IDs, names, and EIA utility IDs.
 
     Clean up FERC-714 respondent names and manually assign EIA utility IDs to a few FERC
@@ -383,17 +385,19 @@ def respondent_id_ferc714(raw_ferc714__respondent_id: pd.DataFrame) -> pd.DataFr
     Returns:
         A clean(er) version of the FERC-714 respondents table.
     """
-    df = _pre_process(raw_ferc714__respondent_id, table_name="respondent_id_ferc714")
+    df = _pre_process(
+        raw_ferc714__respondent_id, table_name="core_ferc714__respondent_id"
+    )
     df["respondent_name_ferc714"] = df.respondent_name_ferc714.str.strip()
     df.loc[df.eia_code == 0, "eia_code"] = pd.NA
     # There are a few utilities that seem mappable, but missing:
     for rid in EIA_CODE_FIXES:
         df.loc[df.respondent_id_ferc714 == rid, "eia_code"] = EIA_CODE_FIXES[rid]
-    return _post_process(df, table_name="respondent_id_ferc714")
+    return _post_process(df, table_name="core_ferc714__respondent_id")
 
 
 @asset(io_manager_key="pudl_sqlite_io_manager")
-def demand_hourly_pa_ferc714(
+def core_ferc714__hourly_demand_pa(
     raw_ferc714__demand_hourly_pa: pd.DataFrame,
 ) -> pd.DataFrame:
     """Transform the hourly demand time series by Planning Area.
@@ -416,7 +420,7 @@ def demand_hourly_pa_ferc714(
     """
     logger.info("Converting dates into pandas Datetime types.")
     df = _pre_process(
-        raw_ferc714__demand_hourly_pa, table_name="demand_hourly_pa_ferc714"
+        raw_ferc714__demand_hourly_pa, table_name="core_ferc714__hourly_demand_pa"
     )
 
     # Parse date strings
@@ -519,5 +523,5 @@ def demand_hourly_pa_ferc714(
         "demand_mwh",
     ]
     df.drop(columns=set(df.columns) - set(columns), inplace=True)
-    df = _post_process(df[columns], table_name="demand_hourly_pa_ferc714")
+    df = _post_process(df[columns], table_name="core_ferc714__hourly_demand_pa")
     return df

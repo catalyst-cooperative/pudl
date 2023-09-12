@@ -12,20 +12,20 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
             "foreign_key_rules": {
                 "fields": [["balancing_authority_code_eia"]],
                 "exclude": [
-                    "advanced_metering_infrastructure_eia861",
-                    "balancing_authority_eia861",
+                    "core_eia861__yearly_advanced_metering_infrastructure",
+                    "core_eia861__yearly_balancing_authority",
                     "compiled_geometry_balancing_authority_eia861",
-                    "demand_response_eia861",
-                    "demand_response_water_heater_eia861",
-                    "dynamic_pricing_eia861",
-                    "energy_efficiency_eia861",
+                    "core_eia861__yearly_demand_response",
+                    "core_eia861__yearly_demand_response_water_heater",
+                    "core_eia861__yearly_dynamic_pricing",
+                    "core_eia861__yearly_energy_efficiency",
                     "fipsified_respondents_ferc714",
-                    "net_metering_customer_fuel_class_eia861",
-                    "net_metering_misc_eia861",
-                    "non_net_metering_customer_fuel_class_eia861",
-                    "non_net_metering_misc_eia861",
-                    "reliability_eia861",
-                    "sales_eia861",
+                    "core_eia861__yearly_net_metering_customer_fuel_class",
+                    "core_eia861__yearly_net_metering_misc",
+                    "core_eia861__yearly_non_net_metering_customer_fuel_class",
+                    "core_eia861__yearly_non_net_metering_misc",
+                    "core_eia861__yearly_reliability",
+                    "core_eia861__yearly_sales",
                     "summarized_demand_ferc714",
                 ],
             },
@@ -516,9 +516,9 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
             "primary_key": ["plant_id_eia", "generator_id"],
             "foreign_key_rules": {
                 "fields": [["plant_id_eia", "generator_id"]],
-                # exclude epacamd_eia_subplant_ids bc there are generator ids in this
+                # exclude core_epa__assn_epacamd_eia_subplant_ids bc there are generator ids in this
                 # glue table that come only from epacamd
-                "exclude": ["epacamd_eia_subplant_ids"],
+                "exclude": ["core_epa__assn_epacamd_eia_subplant_ids"],
             },
         },
         "sources": ["eia860", "eia923"],
@@ -537,7 +537,7 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
         "etl_group": "static_eia",
         "field_namespace": "eia",
     },
-    "plants_eia": {
+    "core_pudl__assn_plants_eia": {
         "description": "Association between EIA Plant IDs and manually assigned PUDL Plant IDs",
         "schema": {
             "fields": ["plant_id_eia", "plant_name_eia", "plant_id_pudl"],
@@ -565,13 +565,16 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
             "primary_key": ["plant_id_eia"],
             "foreign_key_rules": {
                 "fields": [["plant_id_eia"]],
-                # Excluding plants_eia because it's static and manually compiled
+                # Excluding core_pudl__assn_plants_eia because it's static and manually compiled
                 # so it has plants from *all* years of data, even when only a
                 # restricted set of data is processed, leading to constraint
                 # violations.
                 # See: https://github.com/catalyst-cooperative/pudl/issues/1196
-                # Exclude the epacamd_eia_subplant_ids table
-                "exclude": ["plants_eia", "epacamd_eia_subplant_ids"],
+                # Exclude the core_epa__assn_epacamd_eia_subplant_ids table
+                "exclude": [
+                    "core_pudl__assn_plants_eia",
+                    "core_epa__assn_epacamd_eia_subplant_ids",
+                ],
             },
         },
         "sources": ["eia860", "eia923"],
@@ -660,7 +663,7 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
         "etl_group": "static_eia",
         "field_namespace": "eia",
     },
-    "utilities_eia": {
+    "core_pudl__assn_utilities_eia": {
         "description": "Associations between the EIA Utility IDs and the manually assigned PUDL Utility IDs.",
         "schema": {
             "fields": ["utility_id_eia", "utility_name_eia", "utility_id_pudl"],
@@ -683,45 +686,45 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
                     # https://github.com/catalyst-cooperative/pudl/issues/1196
                     # ["owner_utility_id_eia"]
                 ],
-                # Excluding utilities_eia b/c it's static and manually compiled
+                # Excluding core_pudl__assn_utilities_eia b/c it's static and manually compiled
                 # so it has utilities from *all* years of data, even when only a
                 # restricted set of data is processed, leading to constraint
                 # violations.
                 # See: https://github.com/catalyst-cooperative/pudl/issues/1196
                 # Excluding EIA-861 because they haven't been harvested/normalized.
                 "exclude": [
-                    "utilities_eia",
-                    "advanced_metering_infrastructure_eia861",
-                    "balancing_authority_assn_eia861",
+                    "core_pudl__assn_utilities_eia",
+                    "core_eia861__yearly_advanced_metering_infrastructure",
+                    "core_eia861__assn_balancing_authority",
                     "compiled_geometry_utility_eia861",
-                    "demand_response_eia861",
-                    "demand_response_water_heater_eia861",
-                    "demand_side_management_ee_dr_eia861",
-                    "demand_side_management_misc_eia861",
-                    "demand_side_management_sales_eia861",
-                    "distributed_generation_fuel_eia861",
-                    "distributed_generation_misc_eia861",
-                    "distributed_generation_tech_eia861",
-                    "distribution_systems_eia861",
-                    "dynamic_pricing_eia861",
-                    "energy_efficiency_eia861",
+                    "core_eia861__yearly_demand_response",
+                    "core_eia861__yearly_demand_response_water_heater",
+                    "core_eia861__yearly_demand_side_management_ee_dr",
+                    "core_eia861__yearly_demand_side_management_misc",
+                    "core_eia861__yearly_demand_side_management_sales",
+                    "core_eia861__yearly_distributed_generation_fuel",
+                    "core_eia861__yearly_distributed_generation_misc",
+                    "core_eia861__yearly_distributed_generation_tech",
+                    "core_eia861__yearly_distribution_systems",
+                    "core_eia861__yearly_dynamic_pricing",
+                    "core_eia861__yearly_energy_efficiency",
                     "fipsified_respondents_ferc714",
-                    "green_pricing_eia861",
-                    "mergers_eia861",
-                    "net_metering_customer_fuel_class_eia861",
-                    "net_metering_misc_eia861",
-                    "non_net_metering_customer_fuel_class_eia861",
-                    "non_net_metering_misc_eia861",
-                    "operational_data_misc_eia861",
-                    "operational_data_revenue_eia861",
-                    "reliability_eia861",
-                    "sales_eia861",
-                    "service_territory_eia861",
+                    "core_eia861__yearly_green_pricing",
+                    "core_eia861__yearly_mergers",
+                    "core_eia861__yearly_net_metering_customer_fuel_class",
+                    "core_eia861__yearly_net_metering_misc",
+                    "core_eia861__yearly_non_net_metering_customer_fuel_class",
+                    "core_eia861__yearly_non_net_metering_misc",
+                    "core_eia861__yearly_operational_data_misc",
+                    "core_eia861__yearly_operational_data_revenue",
+                    "core_eia861__yearly_reliability",
+                    "core_eia861__yearly_sales",
+                    "core_eia861__yearly_service_territory",
                     "summarized_demand_ferc714",
-                    "utility_assn_eia861",
-                    "utility_data_misc_eia861",
-                    "utility_data_nerc_eia861",
-                    "utility_data_rto_eia861",
+                    "core_eia861__assn_utility",
+                    "core_eia861__yearly_utility_data_misc",
+                    "core_eia861__yearly_utility_data_nerc",
+                    "core_eia861__yearly_utility_data_rto",
                     # Utility IDs in this table are owners, not operators, and we are
                     # not yet harvesting owner_utility_id_eia from core_eia860__scd_ownership.
                     # See https://github.com/catalyst-cooperative/pudl/issues/1393

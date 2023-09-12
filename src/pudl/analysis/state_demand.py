@@ -273,12 +273,12 @@ def load_ventyx_hourly_state_demand(path: str) -> pd.DataFrame:
     },
 )
 def load_hourly_demand_matrix_ferc714(
-    demand_hourly_pa_ferc714: pd.DataFrame,
+    core_ferc714__hourly_demand_pa: pd.DataFrame,
 ) -> tuple[pd.DataFrame, pd.DataFrame]:
     """Read and format FERC 714 hourly demand into matrix form.
 
     Args:
-        demand_hourly_pa_ferc714: FERC 714 hourly demand time series by planning area.
+        core_ferc714__hourly_demand_pa: FERC 714 hourly demand time series by planning area.
 
     Returns:
         Hourly demand as a matrix with a `datetime` row index
@@ -289,19 +289,22 @@ def load_hourly_demand_matrix_ferc714(
         of each `respondent_id_ferc714` and reporting `year` (int).
     """
     # Convert UTC to local time (ignoring daylight savings)
-    demand_hourly_pa_ferc714["utc_offset"] = demand_hourly_pa_ferc714["timezone"].map(
-        STANDARD_UTC_OFFSETS
-    )
-    demand_hourly_pa_ferc714["datetime"] = utc_to_local(
-        demand_hourly_pa_ferc714["utc_datetime"], demand_hourly_pa_ferc714["utc_offset"]
+    core_ferc714__hourly_demand_pa["utc_offset"] = core_ferc714__hourly_demand_pa[
+        "timezone"
+    ].map(STANDARD_UTC_OFFSETS)
+    core_ferc714__hourly_demand_pa["datetime"] = utc_to_local(
+        core_ferc714__hourly_demand_pa["utc_datetime"],
+        core_ferc714__hourly_demand_pa["utc_offset"],
     )
     # Pivot to demand matrix: timestamps x respondents
-    matrix = demand_hourly_pa_ferc714.pivot(
+    matrix = core_ferc714__hourly_demand_pa.pivot(
         index="datetime", columns="respondent_id_ferc714", values="demand_mwh"
     )
     # List timezone by year for each respondent
-    demand_hourly_pa_ferc714["year"] = demand_hourly_pa_ferc714["report_date"].dt.year
-    utc_offset = demand_hourly_pa_ferc714.groupby(
+    core_ferc714__hourly_demand_pa["year"] = core_ferc714__hourly_demand_pa[
+        "report_date"
+    ].dt.year
+    utc_offset = core_ferc714__hourly_demand_pa.groupby(
         ["respondent_id_ferc714", "year"], as_index=False
     )["utc_offset"].first()
     return matrix, utc_offset
@@ -545,17 +548,17 @@ def census_counties(
 
 
 def total_state_sales_eia861(
-    sales_eia861,
+    core_eia861__yearly_sales,
 ) -> pd.DataFrame:
     """Read and format EIA 861 sales by state and year.
 
     Args:
-        sales_eia861: Electricity sales data from EIA 861.
+        core_eia861__yearly_sales: Electricity sales data from EIA 861.
 
     Returns:
         Dataframe with columns `state_id_fips`, `year`, `demand_mwh`.
     """
-    df = sales_eia861.groupby(["state", "report_date"], as_index=False)[
+    df = core_eia861__yearly_sales.groupby(["state", "report_date"], as_index=False)[
         "sales_mwh"
     ].sum()
     # Convert report_date to year
@@ -589,7 +592,7 @@ def predicted_state_hourly_demand(
     imputed_hourly_demand_ferc714: pd.DataFrame,
     core_censusdp1__entity_county: pd.DataFrame,
     fipsified_respondents_ferc714: pd.DataFrame,
-    sales_eia861: pd.DataFrame = None,
+    core_eia861__yearly_sales: pd.DataFrame = None,
 ) -> pd.DataFrame:
     """Predict state hourly demand.
 
@@ -599,7 +602,7 @@ def predicted_state_hourly_demand(
         core_censusdp1__entity_county: The county layer of the Census DP1 shapefile.
         fipsified_respondents_ferc714: Annual respondents with the county FIPS IDs
             for their service territories.
-        sales_eia861: EIA 861 sales data. If provided, the predicted hourly demand is
+        core_eia861__yearly_sales: EIA 861 sales data. If provided, the predicted hourly demand is
             scaled to match these totals.
 
     Returns:
@@ -613,7 +616,7 @@ def predicted_state_hourly_demand(
     # Call necessary functions
     count_assign_ferc714 = county_assignments_ferc714(fipsified_respondents_ferc714)
     counties = census_counties(core_censusdp1__entity_county)
-    total_sales_eia861 = total_state_sales_eia861(sales_eia861)
+    total_sales_eia861 = total_state_sales_eia861(core_eia861__yearly_sales)
 
     # Pre-compute list of respondent-years with demand
     with_demand = (

@@ -57,7 +57,7 @@ gsutil -m cp "$GCS_URL/*.sqlite" "$GCS_URL/ferc*_xbrl_*.json" $RELEASE_DIR/pudl_
 
 echo "Copying Parquet datasets..."
 mkdir -p $RELEASE_DIR/pudl_data/parquet/epacems
-gsutil -m cp -r "$GCS_URL/hourly_emissions_epacems/*" $RELEASE_DIR/pudl_data/parquet/epacems
+gsutil -m cp -r "$GCS_URL/core_epacems__hourly_emissions/*" $RELEASE_DIR/pudl_data/parquet/epacems
 
 # Save the Docker image as a tarball so it can be archived with the data:
 echo "Saving Docker image: $DOCKER_IMAGE"

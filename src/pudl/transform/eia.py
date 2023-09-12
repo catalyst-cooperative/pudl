@@ -1237,7 +1237,7 @@ finished_eia_assets = [
         "core_eia923__monthly_generation_fuel_nuclear",
         "core_eia860__scd_ownership",
         "core_eia860__scd_emissions_control_equipment",
-        "core_eia860__annual_boiler_emissions_control_equipment_assn",
+        "core_eia860__yearly_boiler_emissions_control_equipment_assn",
         "core_eia860__assn_boiler_cooling",
         "core_eia860__assn_boiler_stack_flue",
     ]

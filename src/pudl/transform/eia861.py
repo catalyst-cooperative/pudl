@@ -620,10 +620,10 @@ def backfill_ba_codes_by_ba_id(df: pd.DataFrame) -> pd.DataFrame:
 
     Args:
         df: The transformed EIA 861 Balancing Authority dataframe
-            (balancing_authority_eia861).
+            (core_eia861__yearly_balancing_authority).
 
     Returns:
-        pandas.DataFrame: The balancing_authority_eia861 dataframe, but with many fewer
+        pandas.DataFrame: The core_eia861__yearly_balancing_authority dataframe, but with many fewer
         NA values in the balancing_authority_code_eia column.
     """
     ba_eia861_filled = (
@@ -933,7 +933,7 @@ def _compare_nerc_physical_w_nerc_operational(df: pd.DataFrame) -> pd.DataFrame:
     year where there is a match between the cols.
 
     Args:
-        df: utility_data_nerc_eia861 table from :func:`clean_utility_data_eia861`
+        df: core_eia861__yearly_utility_data_nerc table.
 
     Returns:
         A DataFrame with rows for utilities where NO listed operating nerc region
@@ -1029,7 +1029,7 @@ def _harvest_associations(dfs: list[pd.DataFrame], cols: list[str]) -> pd.DataFr
 # EIA Form 861 Table Transform Functions
 ###############################################################################
 @asset(io_manager_key="pudl_sqlite_io_manager")
-def service_territory_eia861(
+def core_eia861__yearly_service_territory(
     raw_eia861__service_territory: pd.DataFrame,
 ) -> pd.DataFrame:
     """Transform the EIA 861 utility service territory table.
@@ -1070,7 +1070,7 @@ def service_territory_eia861(
 
     pk = (
         Package.from_resource_ids()
-        .get_resource("service_territory_eia861")
+        .get_resource("core_eia861__yearly_service_territory")
         .schema.primary_key
     )
     # We've fixed all we can fix! ~99.84% FIPS coverage.
@@ -1083,7 +1083,7 @@ def service_territory_eia861(
 
 
 @asset
-def clean_balancing_authority_eia861(
+def _core_eia861__balancing_authority(
     raw_eia861__balancing_authority: pd.DataFrame,
 ) -> pd.DataFrame:
     """Transform the EIA 861 Balancing Authority table.
@@ -1142,7 +1142,7 @@ def clean_balancing_authority_eia861(
 
 
 @asset(io_manager_key="pudl_sqlite_io_manager")
-def sales_eia861(raw_eia861__sales: pd.DataFrame) -> pd.DataFrame:
+def core_eia861__yearly_sales(raw_eia861__sales: pd.DataFrame) -> pd.DataFrame:
     """Transform the EIA 861 Sales table.
 
     Transformations include:
@@ -1225,7 +1225,7 @@ def sales_eia861(raw_eia861__sales: pd.DataFrame) -> pd.DataFrame:
 
 
 @asset(io_manager_key="pudl_sqlite_io_manager")
-def advanced_metering_infrastructure_eia861(
+def core_eia861__yearly_advanced_metering_infrastructure(
     raw_eia861__advanced_metering_infrastructure: pd.DataFrame,
 ) -> pd.DataFrame:
     """Transform the EIA 861 Advanced Metering Infrastructure table.
@@ -1270,13 +1270,15 @@ def advanced_metering_infrastructure_eia861(
 
 @multi_asset(
     outs={
-        "demand_response_eia861": AssetOut(io_manager_key="pudl_sqlite_io_manager"),
-        "demand_response_water_heater_eia861": AssetOut(
+        "core_eia861__yearly_demand_response": AssetOut(
+            io_manager_key="pudl_sqlite_io_manager"
+        ),
+        "core_eia861__yearly_demand_response_water_heater": AssetOut(
             io_manager_key="pudl_sqlite_io_manager"
         ),
     },
 )
-def demand_response_eia861(raw_eia861__demand_response: pd.DataFrame):
+def core_eia861__yearly_demand_response(raw_eia861__demand_response: pd.DataFrame):
     """Transform the EIA 861 Demand Response table.
 
     Transformations include:
@@ -1341,11 +1343,11 @@ def demand_response_eia861(raw_eia861__demand_response: pd.DataFrame):
 
     return (
         Output(
-            output_name="demand_response_eia861",
+            output_name="core_eia861__yearly_demand_response",
             value=_post_process(transformed_dr),
         ),
         Output(
-            output_name="demand_response_water_heater_eia861",
+            output_name="core_eia861__yearly_demand_response_water_heater",
             value=_post_process(dr_water),
         ),
     )
@@ -1353,18 +1355,18 @@ def demand_response_eia861(raw_eia861__demand_response: pd.DataFrame):
 
 @multi_asset(
     outs={
-        "demand_side_management_sales_eia861": AssetOut(
+        "core_eia861__yearly_demand_side_management_sales": AssetOut(
             io_manager_key="pudl_sqlite_io_manager"
         ),
-        "demand_side_management_ee_dr_eia861": AssetOut(
+        "core_eia861__yearly_demand_side_management_ee_dr": AssetOut(
             io_manager_key="pudl_sqlite_io_manager"
         ),
-        "demand_side_management_misc_eia861": AssetOut(
+        "core_eia861__yearly_demand_side_management_misc": AssetOut(
             io_manager_key="pudl_sqlite_io_manager"
         ),
     },
 )
-def demand_side_management_eia861(
+def core_demand_side_management_eia861(
     raw_eia861__demand_side_management: pd.DataFrame,
 ):
     """Transform the EIA 861 Demand Side Management table.
@@ -1503,15 +1505,15 @@ def demand_side_management_eia861(
 
     return (
         Output(
-            output_name="demand_side_management_sales_eia861",
+            output_name="core_eia861__yearly_demand_side_management_sales",
             value=_post_process(dsm_sales),
         ),
         Output(
-            output_name="demand_side_management_ee_dr_eia861",
+            output_name="core_eia861__yearly_demand_side_management_ee_dr",
             value=_post_process(dsm_ee_dr),
         ),
         Output(
-            output_name="demand_side_management_misc_eia861",
+            output_name="core_eia861__yearly_demand_side_management_misc",
             value=_post_process(dsm_misc),
         ),
     )
@@ -1519,18 +1521,18 @@ def demand_side_management_eia861(
 
 @multi_asset(
     outs={
-        "distributed_generation_tech_eia861": AssetOut(
+        "core_eia861__yearly_distributed_generation_tech": AssetOut(
             io_manager_key="pudl_sqlite_io_manager"
         ),
-        "distributed_generation_fuel_eia861": AssetOut(
+        "core_eia861__yearly_distributed_generation_fuel": AssetOut(
             io_manager_key="pudl_sqlite_io_manager"
         ),
-        "distributed_generation_misc_eia861": AssetOut(
+        "core_eia861__yearly_distributed_generation_misc": AssetOut(
             io_manager_key="pudl_sqlite_io_manager"
         ),
     },
 )
-def distributed_generation_eia861(
+def core_distributed_generation_eia861(
     raw_eia861__distributed_generation: pd.DataFrame,
 ):
     """Transform the EIA 861 Distributed Generation table.
@@ -1694,22 +1696,22 @@ def distributed_generation_eia861(
 
     return (
         Output(
-            output_name="distributed_generation_tech_eia861",
+            output_name="core_eia861__yearly_distributed_generation_tech",
             value=_post_process(tidy_dg_tech),
         ),
         Output(
-            output_name="distributed_generation_fuel_eia861",
+            output_name="core_eia861__yearly_distributed_generation_fuel",
             value=_post_process(tidy_dg_fuel),
         ),
         Output(
-            output_name="distributed_generation_misc_eia861",
+            output_name="core_eia861__yearly_distributed_generation_misc",
             value=_post_process(dg_misc),
         ),
     )
 
 
 @asset(io_manager_key="pudl_sqlite_io_manager")
-def distribution_systems_eia861(
+def core_eia861__yearly_distribution_systems(
     raw_eia861__distribution_systems: pd.DataFrame,
 ) -> pd.DataFrame:
     """Transform the EIA 861 Distribution Systems table.
@@ -1731,7 +1733,9 @@ def distribution_systems_eia861(
 
 
 @asset(io_manager_key="pudl_sqlite_io_manager")
-def dynamic_pricing_eia861(raw_eia861__dynamic_pricing: pd.DataFrame) -> pd.DataFrame:
+def core_eia861__yearly_dynamic_pricing(
+    raw_eia861__dynamic_pricing: pd.DataFrame,
+) -> pd.DataFrame:
     """Transform the EIA 861 Dynamic Pricing table.
 
     Transformations include:
@@ -1793,7 +1797,7 @@ def dynamic_pricing_eia861(raw_eia861__dynamic_pricing: pd.DataFrame) -> pd.Data
 
 
 @asset(io_manager_key="pudl_sqlite_io_manager")
-def energy_efficiency_eia861(
+def core_eia861__yearly_energy_efficiency(
     raw_eia861__energy_efficiency: pd.DataFrame,
 ) -> pd.DataFrame:
     """Transform the EIA 861 Energy Efficiency table.
@@ -1861,7 +1865,7 @@ def energy_efficiency_eia861(
 
 
 @asset(io_manager_key="pudl_sqlite_io_manager")
-def green_pricing_eia861(
+def core_eia861__yearly_green_pricing(
     raw_eia861__green_pricing: pd.DataFrame,
 ) -> pd.DataFrame:
     """Transform the EIA 861 Green Pricing table.
@@ -1905,7 +1909,7 @@ def green_pricing_eia861(
 
 
 @asset(io_manager_key="pudl_sqlite_io_manager")
-def mergers_eia861(raw_eia861__mergers: pd.DataFrame) -> pd.DataFrame:
+def core_eia861__yearly_mergers(raw_eia861__mergers: pd.DataFrame) -> pd.DataFrame:
     """Transform the EIA 861 Mergers table."""
     # No duplicates to speak of but take measures to check just in case
     df = (
@@ -1922,13 +1926,15 @@ def mergers_eia861(raw_eia861__mergers: pd.DataFrame) -> pd.DataFrame:
 
 @multi_asset(
     outs={
-        "net_metering_customer_fuel_class_eia861": AssetOut(
+        "core_eia861__yearly_net_metering_customer_fuel_class": AssetOut(
             io_manager_key="pudl_sqlite_io_manager"
         ),
-        "net_metering_misc_eia861": AssetOut(io_manager_key="pudl_sqlite_io_manager"),
+        "core_eia861__yearly_net_metering_misc": AssetOut(
+            io_manager_key="pudl_sqlite_io_manager"
+        ),
     },
 )
-def net_metering_eia861(raw_eia861__net_metering: pd.DataFrame):
+def core_net_metering_eia861(raw_eia861__net_metering: pd.DataFrame):
     """Transform the EIA 861 Net Metering table.
 
     Transformations include:
@@ -1994,11 +2000,11 @@ def net_metering_eia861(raw_eia861__net_metering: pd.DataFrame):
 
     return (
         Output(
-            output_name="net_metering_customer_fuel_class_eia861",
+            output_name="core_eia861__yearly_net_metering_customer_fuel_class",
             value=_post_process(tidy_nm_customer_fuel_class),
         ),
         Output(
-            output_name="net_metering_misc_eia861",
+            output_name="core_eia861__yearly_net_metering_misc",
             value=_post_process(raw_nm_misc),
         ),
     )
@@ -2006,15 +2012,15 @@ def net_metering_eia861(raw_eia861__net_metering: pd.DataFrame):
 
 @multi_asset(
     outs={
-        "non_net_metering_customer_fuel_class_eia861": AssetOut(
+        "core_eia861__yearly_non_net_metering_customer_fuel_class": AssetOut(
             io_manager_key="pudl_sqlite_io_manager"
         ),
-        "non_net_metering_misc_eia861": AssetOut(
+        "core_eia861__yearly_non_net_metering_misc": AssetOut(
             io_manager_key="pudl_sqlite_io_manager"
         ),
     },
 )
-def non_net_metering_eia861(raw_eia861__non_net_metering: pd.DataFrame):
+def core_non_net_metering_eia861(raw_eia861__non_net_metering: pd.DataFrame):
     """Transform the EIA 861 Non-Net Metering table.
 
     Transformations include:
@@ -2104,11 +2110,11 @@ def non_net_metering_eia861(raw_eia861__non_net_metering: pd.DataFrame):
 
     return (
         Output(
-            output_name="non_net_metering_customer_fuel_class_eia861",
+            output_name="core_eia861__yearly_non_net_metering_customer_fuel_class",
             value=_post_process(tidy_nnm_customer_fuel_class),
         ),
         Output(
-            output_name="non_net_metering_misc_eia861",
+            output_name="core_eia861__yearly_non_net_metering_misc",
             value=_post_process(raw_nnm_misc),
         ),
     )
@@ -2116,15 +2122,15 @@ def non_net_metering_eia861(raw_eia861__non_net_metering: pd.DataFrame):
 
 @multi_asset(
     outs={
-        "operational_data_revenue_eia861": AssetOut(
+        "core_eia861__yearly_operational_data_revenue": AssetOut(
             io_manager_key="pudl_sqlite_io_manager"
         ),
-        "operational_data_misc_eia861": AssetOut(
+        "core_eia861__yearly_operational_data_misc": AssetOut(
             io_manager_key="pudl_sqlite_io_manager"
         ),
     },
 )
-def operational_data_eia861(raw_eia861__operational_data: pd.DataFrame):
+def core_operational_data_eia861(raw_eia861__operational_data: pd.DataFrame):
     """Transform the EIA 861 Operational Data table.
 
     Transformations include:
@@ -2196,18 +2202,20 @@ def operational_data_eia861(raw_eia861__operational_data: pd.DataFrame):
 
     return (
         Output(
-            output_name="operational_data_revenue_eia861",
+            output_name="core_eia861__yearly_operational_data_revenue",
             value=_post_process(transformed_od_rev),
         ),
         Output(
-            output_name="operational_data_misc_eia861",
+            output_name="core_eia861__yearly_operational_data_misc",
             value=_post_process(transformed_od_misc),
         ),
     )
 
 
 @asset(io_manager_key="pudl_sqlite_io_manager")
-def reliability_eia861(raw_eia861__reliability: pd.DataFrame) -> pd.DataFrame:
+def core_eia861__yearly_reliability(
+    raw_eia861__reliability: pd.DataFrame,
+) -> pd.DataFrame:
     """Transform the EIA 861 Reliability table.
 
     Transformations include:
@@ -2263,7 +2271,7 @@ def reliability_eia861(raw_eia861__reliability: pd.DataFrame) -> pd.DataFrame:
 
     transformed_r = (
         pudl.metadata.classes.Package.from_resource_ids()
-        .get_resource("reliability_eia861")
+        .get_resource("core_eia861__yearly_reliability")
         .encode(transformed_r)
     )
 
@@ -2272,12 +2280,18 @@ def reliability_eia861(raw_eia861__reliability: pd.DataFrame) -> pd.DataFrame:
 
 @multi_asset(
     outs={
-        "utility_data_nerc_eia861": AssetOut(io_manager_key="pudl_sqlite_io_manager"),
-        "utility_data_rto_eia861": AssetOut(io_manager_key="pudl_sqlite_io_manager"),
-        "utility_data_misc_eia861": AssetOut(io_manager_key="pudl_sqlite_io_manager"),
+        "core_eia861__yearly_utility_data_nerc": AssetOut(
+            io_manager_key="pudl_sqlite_io_manager"
+        ),
+        "core_eia861__yearly_utility_data_rto": AssetOut(
+            io_manager_key="pudl_sqlite_io_manager"
+        ),
+        "core_eia861__yearly_utility_data_misc": AssetOut(
+            io_manager_key="pudl_sqlite_io_manager"
+        ),
     },
 )
-def utility_data_eia861(raw_eia861__utility_data: pd.DataFrame):
+def core_utility_data_eia861(raw_eia861__utility_data: pd.DataFrame):
     """Transform the EIA 861 Utility Data table.
 
     Transformations include:
@@ -2398,15 +2412,15 @@ def utility_data_eia861(raw_eia861__utility_data: pd.DataFrame):
 
     return (
         Output(
-            output_name="utility_data_nerc_eia861",
+            output_name="core_eia861__yearly_utility_data_nerc",
             value=_post_process(transformed_ud_nerc),
         ),
         Output(
-            output_name="utility_data_rto_eia861",
+            output_name="core_eia861__yearly_utility_data_rto",
             value=_post_process(transformed_ud_rto),
         ),
         Output(
-            output_name="utility_data_misc_eia861",
+            output_name="core_eia861__yearly_utility_data_misc",
             value=_post_process(transformed_ud_misc),
         ),
     )
@@ -2417,35 +2431,35 @@ def utility_data_eia861(raw_eia861__utility_data: pd.DataFrame):
 ##############################################################################
 @asset(
     ins={
-        "advanced_metering_infrastructure_eia861": AssetIn(),
-        "demand_response_eia861": AssetIn(),
-        "demand_response_water_heater_eia861": AssetIn(),
-        "demand_side_management_ee_dr_eia861": AssetIn(),
-        "demand_side_management_misc_eia861": AssetIn(),
-        "demand_side_management_sales_eia861": AssetIn(),
-        "distributed_generation_fuel_eia861": AssetIn(),
-        "distributed_generation_misc_eia861": AssetIn(),
-        "distributed_generation_tech_eia861": AssetIn(),
-        "distribution_systems_eia861": AssetIn(),
-        "dynamic_pricing_eia861": AssetIn(),
-        "energy_efficiency_eia861": AssetIn(),
-        "green_pricing_eia861": AssetIn(),
-        "mergers_eia861": AssetIn(),
-        "net_metering_customer_fuel_class_eia861": AssetIn(),
-        "net_metering_misc_eia861": AssetIn(),
-        "non_net_metering_customer_fuel_class_eia861": AssetIn(),
-        "non_net_metering_misc_eia861": AssetIn(),
-        "operational_data_misc_eia861": AssetIn(),
-        "operational_data_revenue_eia861": AssetIn(),
-        "reliability_eia861": AssetIn(),
-        "sales_eia861": AssetIn(),
-        "utility_data_misc_eia861": AssetIn(),
-        "utility_data_nerc_eia861": AssetIn(),
-        "utility_data_rto_eia861": AssetIn(),
+        "core_eia861__yearly_advanced_metering_infrastructure": AssetIn(),
+        "core_eia861__yearly_demand_response": AssetIn(),
+        "core_eia861__yearly_demand_response_water_heater": AssetIn(),
+        "core_eia861__yearly_demand_side_management_ee_dr": AssetIn(),
+        "core_eia861__yearly_demand_side_management_misc": AssetIn(),
+        "core_eia861__yearly_demand_side_management_sales": AssetIn(),
+        "core_eia861__yearly_distributed_generation_fuel": AssetIn(),
+        "core_eia861__yearly_distributed_generation_misc": AssetIn(),
+        "core_eia861__yearly_distributed_generation_tech": AssetIn(),
+        "core_eia861__yearly_distribution_systems": AssetIn(),
+        "core_eia861__yearly_dynamic_pricing": AssetIn(),
+        "core_eia861__yearly_energy_efficiency": AssetIn(),
+        "core_eia861__yearly_green_pricing": AssetIn(),
+        "core_eia861__yearly_mergers": AssetIn(),
+        "core_eia861__yearly_net_metering_customer_fuel_class": AssetIn(),
+        "core_eia861__yearly_net_metering_misc": AssetIn(),
+        "core_eia861__yearly_non_net_metering_customer_fuel_class": AssetIn(),
+        "core_eia861__yearly_non_net_metering_misc": AssetIn(),
+        "core_eia861__yearly_operational_data_misc": AssetIn(),
+        "core_eia861__yearly_operational_data_revenue": AssetIn(),
+        "core_eia861__yearly_reliability": AssetIn(),
+        "core_eia861__yearly_sales": AssetIn(),
+        "core_eia861__yearly_utility_data_misc": AssetIn(),
+        "core_eia861__yearly_utility_data_nerc": AssetIn(),
+        "core_eia861__yearly_utility_data_rto": AssetIn(),
     },
     io_manager_key="pudl_sqlite_io_manager",
 )
-def utility_assn_eia861(**data_dfs: dict[str, pd.DataFrame]) -> pd.DataFrame:
+def core_eia861__assn_utility(**data_dfs: dict[str, pd.DataFrame]) -> pd.DataFrame:
     """Harvest a Utility-Date-State Association Table."""
     logger.info("Building an EIA 861 Util-State-Date association table.")
     df = _harvest_associations(
@@ -2456,45 +2470,47 @@ def utility_assn_eia861(**data_dfs: dict[str, pd.DataFrame]) -> pd.DataFrame:
 
 @asset(
     ins={
-        "advanced_metering_infrastructure_eia861": AssetIn(),
-        "clean_balancing_authority_eia861": AssetIn(),
-        "demand_response_eia861": AssetIn(),
-        "demand_response_water_heater_eia861": AssetIn(),
-        "demand_side_management_ee_dr_eia861": AssetIn(),
-        "demand_side_management_misc_eia861": AssetIn(),
-        "demand_side_management_sales_eia861": AssetIn(),
-        "distributed_generation_fuel_eia861": AssetIn(),
-        "distributed_generation_misc_eia861": AssetIn(),
-        "distributed_generation_tech_eia861": AssetIn(),
-        "distribution_systems_eia861": AssetIn(),
-        "dynamic_pricing_eia861": AssetIn(),
-        "energy_efficiency_eia861": AssetIn(),
-        "green_pricing_eia861": AssetIn(),
-        "mergers_eia861": AssetIn(),
-        "net_metering_customer_fuel_class_eia861": AssetIn(),
-        "net_metering_misc_eia861": AssetIn(),
-        "non_net_metering_customer_fuel_class_eia861": AssetIn(),
-        "non_net_metering_misc_eia861": AssetIn(),
-        "operational_data_misc_eia861": AssetIn(),
-        "operational_data_revenue_eia861": AssetIn(),
-        "reliability_eia861": AssetIn(),
-        "sales_eia861": AssetIn(),
-        "utility_data_misc_eia861": AssetIn(),
-        "utility_data_nerc_eia861": AssetIn(),
-        "utility_data_rto_eia861": AssetIn(),
+        "core_eia861__yearly_advanced_metering_infrastructure": AssetIn(),
+        "_core_eia861__balancing_authority": AssetIn(),
+        "core_eia861__yearly_demand_response": AssetIn(),
+        "core_eia861__yearly_demand_response_water_heater": AssetIn(),
+        "core_eia861__yearly_demand_side_management_ee_dr": AssetIn(),
+        "core_eia861__yearly_demand_side_management_misc": AssetIn(),
+        "core_eia861__yearly_demand_side_management_sales": AssetIn(),
+        "core_eia861__yearly_distributed_generation_fuel": AssetIn(),
+        "core_eia861__yearly_distributed_generation_misc": AssetIn(),
+        "core_eia861__yearly_distributed_generation_tech": AssetIn(),
+        "core_eia861__yearly_distribution_systems": AssetIn(),
+        "core_eia861__yearly_dynamic_pricing": AssetIn(),
+        "core_eia861__yearly_energy_efficiency": AssetIn(),
+        "core_eia861__yearly_green_pricing": AssetIn(),
+        "core_eia861__yearly_mergers": AssetIn(),
+        "core_eia861__yearly_net_metering_customer_fuel_class": AssetIn(),
+        "core_eia861__yearly_net_metering_misc": AssetIn(),
+        "core_eia861__yearly_non_net_metering_customer_fuel_class": AssetIn(),
+        "core_eia861__yearly_non_net_metering_misc": AssetIn(),
+        "core_eia861__yearly_operational_data_misc": AssetIn(),
+        "core_eia861__yearly_operational_data_revenue": AssetIn(),
+        "core_eia861__yearly_reliability": AssetIn(),
+        "core_eia861__yearly_sales": AssetIn(),
+        "core_eia861__yearly_utility_data_misc": AssetIn(),
+        "core_eia861__yearly_utility_data_nerc": AssetIn(),
+        "core_eia861__yearly_utility_data_rto": AssetIn(),
     },
     io_manager_key="pudl_sqlite_io_manager",
 )
-def balancing_authority_assn_eia861(**dfs: dict[str, pd.DataFrame]) -> pd.DataFrame:
+def core_eia861__assn_balancing_authority(
+    **dfs: dict[str, pd.DataFrame]
+) -> pd.DataFrame:
     """Compile a balancing authority, utility, state association table.
 
     For the years up through 2012, the only BA-Util information that's available comes
-    from the balancing_authority_eia861 table, and it does not include any state-level
+    from the core_eia861__yearly_balancing_authority table, and it does not include any state-level
     information. However, there is utility-state association information in the
-    sales_eia861 and other data tables.
+    core_eia861__yearly_sales and other data tables.
 
     For the years from 2013 onward, there's explicit BA-Util-State information in the
-    data tables (e.g. :ref:`sales_eia861`). These observed associations can be compiled
+    data tables (e.g. :ref:`core_eia861__yearly_sales`). These observed associations can be compiled
     to give us a picture of which BA-Util-State associations exist. However, we need to
     merge in the balancing authority IDs since the data tables only contain the
     balancing authority codes.
@@ -2508,10 +2524,10 @@ def balancing_authority_assn_eia861(**dfs: dict[str, pd.DataFrame]) -> pd.DataFr
     Returns:
         An association table describing the annual linkages between balancing
         authorities, states, and utilities. Becomes
-        :ref:`balancing_authority_assn_eia861`.
+        :ref:`core_eia861__assn_balancing_authority`.
     """
     # The dataframes from which to compile BA-Util-State associations
-    ba_eia861 = dfs.pop("clean_balancing_authority_eia861")
+    ba_eia861 = dfs.pop("_core_eia861__balancing_authority")
     data_dfs = list(dfs.values())
 
     logger.info("Building an EIA 861 BA-Util-State association table.")
@@ -2580,31 +2596,31 @@ def balancing_authority_assn_eia861(**dfs: dict[str, pd.DataFrame]) -> pd.DataFr
 
 
 @asset(io_manager_key="pudl_sqlite_io_manager")
-def balancing_authority_eia861(
-    clean_balancing_authority_eia861: pd.DataFrame,
+def core_eia861__yearly_balancing_authority(
+    _core_eia861__balancing_authority: pd.DataFrame,
 ) -> pd.DataFrame:
-    """Finish the normalization of the balancing_authority_eia861 table.
+    """Finish the normalization of the core_eia861__yearly_balancing_authority table.
 
-    The :ref:`balancing_authority_assn_eia861` table depends on information that is only
-    available in the UN-normalized form of the :ref:`balancing_authority_eia861` table,
+    The :ref:`core_eia861__assn_balancing_authority` table depends on information that is only
+    available in the UN-normalized form of the :ref:`core_eia861__yearly_balancing_authority` table,
     and also on having access to a bunch of transformed data tables, so it can compile
     the observed combinations of report dates, balancing authorities, states, and
     utilities.  This means that we have to hold off on the final normalization of the
-    :ref:`balancing_authority_eia861` table until the rest of the transform process is
+    :ref:`core_eia861__yearly_balancing_authority` table until the rest of the transform process is
     over.
 
     Args:
-        clean_balancing_authority_eia861: A cleaned up version of the originally
+        _core_eia861__balancing_authority: A cleaned up version of the originally
             reported balancing authority table.
 
     Returns:
-        The final, normalized version of the :ref:`balancing_authority_eia861` table,
+        The final, normalized version of the :ref:`core_eia861__yearly_balancing_authority` table,
         linking together balancing authorities and utility IDs by year, but without
         information about what states they were operating in (which is captured in
-        :ref:`balancing_authority_assn_eia861`).
+        :ref:`core_eia861__assn_balancing_authority`).
     """
-    logger.info("Completing normalization of balancing_authority_eia861.")
-    ba_eia861_normed = clean_balancing_authority_eia861.loc[
+    logger.info("Completing normalization of core_eia861__yearly_balancing_authority.")
+    ba_eia861_normed = _core_eia861__balancing_authority.loc[
         :,
         [
             "report_date",
@@ -2640,7 +2656,7 @@ def balancing_authority_eia861(
     if delta > 3:
         logger.warning(
             "Unexpectedly large number of rows with NULL PK values found in "
-            f"balancing_authority_eia861. Expected 3, found {delta} (out of "
+            f"core_eia861__yearly_balancing_authority. Expected 3, found {delta} (out of "
             f"{len_before} total)."
         )
 

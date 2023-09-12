@@ -73,9 +73,9 @@ Data Coverage
 * Updated :doc:`data_sources/eia923` to include early release data from 2022.
 * Updated :doc:`data_sources/epacems` to switch from the old FTP server to the new
   CAMPD API, and to include 2022 data.
-* New :ref:`epacamd_eia` crosswalk version v0.3, see issue :issue:`2317` and PR
-  :pr:`2316`. EPA's updates add manual matches and exclusions focusing on operating
-  units with a generator ID as of 2018.
+* New :ref:`core_epa__assn_epacamd_eia` crosswalk version v0.3, see issue :issue:`2317`
+  and PR :pr:`2316`. EPA's updates add manual matches and exclusions focusing on
+  operating units with a generator ID as of 2018.
 * New PUDL tables from :doc:`data_sources/ferc1`, integrating older DBF and newer XBRL
   data. See :issue:`1574` for an overview of our progress integrating FERC's XBRL data.
   To see which DBF and XBRL tables the following PUDL tables are derived from, refer to
@@ -114,7 +114,7 @@ Data Coverage
     :pr:`2561`.
   * :ref:`denorm_emissions_control_equipment_eia860`, see issue :issue:`2338` & PR
     :pr:`2561`.
-  * :ref:`core_eia860__annual_boiler_emissions_control_equipment_assn`, see
+  * :ref:`core_eia860__yearly_boiler_emissions_control_equipment_assn`, see
     :issue:`2338` & PR :pr:`2561`.
   * :ref:`core_eia860__assn_boiler_cooling`, see :issue:`2586` & PR :pr:`2587`
   * :ref:`core_eia860__assn_boiler_stack_flue`, see :issue:`2586` & PR :pr:`2587`
@@ -134,50 +134,50 @@ Data Coverage
   data types, rather than actually doing the ETL. See :issue:`2265` & :pr:`2403`. The
   newly accessible tables contain data from 2001-2021 and include:
 
-  * :ref:`advanced_metering_infrastructure_eia861`
-  * :ref:`balancing_authority_eia861`
-  * :ref:`balancing_authority_assn_eia861`
-  * :ref:`demand_response_eia861`
-  * :ref:`demand_response_water_heater_eia861`
-  * :ref:`demand_side_management_sales_eia861`
-  * :ref:`demand_side_management_ee_dr_eia861`
-  * :ref:`demand_side_management_misc_eia861`
-  * :ref:`distributed_generation_tech_eia861`
-  * :ref:`distributed_generation_fuel_eia861`
-  * :ref:`distributed_generation_misc_eia861`
-  * :ref:`distribution_systems_eia861`
-  * :ref:`dynamic_pricing_eia861`
-  * :ref:`energy_efficiency_eia861`
-  * :ref:`green_pricing_eia861`
-  * :ref:`mergers_eia861`
-  * :ref:`net_metering_customer_fuel_class_eia861`
-  * :ref:`net_metering_misc_eia861`
-  * :ref:`non_net_metering_customer_fuel_class_eia861`
-  * :ref:`non_net_metering_misc_eia861`
-  * :ref:`operational_data_revenue_eia861`
-  * :ref:`operational_data_misc_eia861`
-  * :ref:`reliability_eia861`
-  * :ref:`sales_eia861`
-  * :ref:`service_territory_eia861`
-  * :ref:`utility_assn_eia861`
-  * :ref:`utility_data_nerc_eia861`
-  * :ref:`utility_data_rto_eia861`
-  * :ref:`utility_data_misc_eia861`
+  * :ref:`core_eia861__yearly_advanced_metering_infrastructure`
+  * :ref:`core_eia861__yearly_balancing_authority`
+  * :ref:`core_eia861__assn_balancing_authority`
+  * :ref:`core_eia861__yearly_demand_response`
+  * :ref:`core_eia861__yearly_demand_response_water_heater`
+  * :ref:`core_eia861__yearly_demand_side_management_sales`
+  * :ref:`core_eia861__yearly_demand_side_management_ee_dr`
+  * :ref:`core_eia861__yearly_demand_side_management_misc`
+  * :ref:`core_eia861__yearly_distributed_generation_tech`
+  * :ref:`core_eia861__yearly_distributed_generation_fuel`
+  * :ref:`core_eia861__yearly_distributed_generation_misc`
+  * :ref:`core_eia861__yearly_distribution_systems`
+  * :ref:`core_eia861__yearly_dynamic_pricing`
+  * :ref:`core_eia861__yearly_energy_efficiency`
+  * :ref:`core_eia861__yearly_green_pricing`
+  * :ref:`core_eia861__yearly_mergers`
+  * :ref:`core_eia861__yearly_net_metering_customer_fuel_class`
+  * :ref:`core_eia861__yearly_net_metering_misc`
+  * :ref:`core_eia861__yearly_non_net_metering_customer_fuel_class`
+  * :ref:`core_eia861__yearly_non_net_metering_misc`
+  * :ref:`core_eia861__yearly_operational_data_revenue`
+  * :ref:`core_eia861__yearly_operational_data_misc`
+  * :ref:`core_eia861__yearly_reliability`
+  * :ref:`core_eia861__yearly_sales`
+  * :ref:`core_eia861__yearly_service_territory`
+  * :ref:`core_eia861__assn_utility`
+  * :ref:`core_eia861__yearly_utility_data_nerc`
+  * :ref:`core_eia861__yearly_utility_data_rto`
+  * :ref:`core_eia861__yearly_utility_data_misc`
 
 * A couple of tables from :doc:`data_sources/ferc714` have been added to the PUDL DB.
   These tables contain data from 2006-2020 (2021 is distributed by FERC in XBRL format
   and we have not yet integrated it). See :issue:`2266`, :pr:`2421` and :pr:`2550`.
   The newly accessible tables include:
 
-  * :ref:`respondent_id_ferc714` (linking FERC-714 respondents to EIA utilities)
-  * :ref:`demand_hourly_pa_ferc714` (hourly electricity demand by planning area)
+  * :ref:`core_ferc714__respondent_id` (linking FERC-714 respondents to EIA utilities)
+  * :ref:`core_ferc714__hourly_demand_pa` (hourly electricity demand by planning area)
   * :ref:`fipsified_respondents_ferc714` (annual respondents with county FIPS IDs)
   * :ref:`summarized_demand_ferc714` (annual demand for FERC-714 respondents)
 
-* Added new table :ref:`epacamd_eia_subplant_ids`, which aguments the
-  :ref:`epacamd_eia` glue table. This table incorporates all
-  :ref:`core_eia__entity_generators` and all :ref:`hourly_emissions_epacems` ID's and
-  uses these complete IDs to develop a full-coverage ``subplant_id`` column which
+* Added new table :ref:`core_epa__assn_epacamd_eia_subplant_ids`, which aguments the
+  :ref:`core_epa__assn_epacamd_eia` glue table. This table incorporates all
+  :ref:`core_eia__entity_generators` and all :ref:`core_epacems__hourly_emissions` ID's
+  and uses these complete IDs to develop a full-coverage ``subplant_id`` column which
   granularly connects EPA CAMD with EIA. Thanks to :user:`grgmiller` for his
   contribution to this process. See :issue:`2456` & :pr:`2491`.
 
@@ -208,8 +208,8 @@ Data Cleaning
   affected a small number of records in any table referring to boilers, including
   :ref:`core_eia__entity_boilers`, :ref:`core_eia860__scd_boilers`,
   :ref:`core_eia923__monthly_boiler_fuel`, :ref:`core_eia860__assn_boiler_generator`
-  and the :ref:`epacamd_eia` crosswalk. It also had some minor downstream effects on the
-  MCOE outputs. See :issue:`2366` and :pr:`2367`.
+  and the :ref:`core_epa__assn_epacamd_eia` crosswalk. It also had some minor downstream
+  effects on the MCOE outputs. See :issue:`2366` and :pr:`2367`.
 * The :ref:`core_eia923__monthly_boiler_fuel` table now includes the
   ``prime_mover_code`` column. This column was previously incorrectly being associated
   with boilers in the :ref:`core_eia__entity_boilers` table. See issue :issue:`2349` &
@@ -296,7 +296,7 @@ Deprecations
   functions have been deprecated. The table level EIA cleaning funtions are now
   coordinated using dagster.
 * The :mod:`pudl.convert.epacems_to_parquet` command now executes the
-  ``hourly_emissions_epacems`` asset as a dagster job. The ``—partition`` option
+  ``core_epacems__hourly_emissions`` asset as a dagster job. The ``—partition`` option
   is no longer supported. Now only creates a directory of parquet files
   for each year/state partition.
 * ``pudl.transform.ferc1.transform()`` has been removed. The ferc1 table

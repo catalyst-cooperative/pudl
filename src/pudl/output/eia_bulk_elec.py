@@ -9,7 +9,7 @@ logger = pudl.logging_helpers.get_logger(__name__)
 
 @asset(io_manager_key=None, compute_kind="Python")
 def state_average_fuel_costs_eia(
-    fuel_receipts_costs_aggs_eia: pd.DataFrame,
+    core_eia__yearly_fuel_receipts_costs_aggs: pd.DataFrame,
 ) -> pd.DataFrame:
     """Get state-level average fuel costs from EIA's bulk electricity data.
 
@@ -17,7 +17,7 @@ def state_average_fuel_costs_eia(
     :ref:`core_eia923__monthly_fuel_receipts_costs` table. It was created as a drop-in replacement
     for data we were previously obtaining from EIA's unreliable API.
     """
-    aggregates = fuel_receipts_costs_aggs_eia.loc[
+    aggregates = core_eia__yearly_fuel_receipts_costs_aggs.loc[
         :,
         [
             "report_date",

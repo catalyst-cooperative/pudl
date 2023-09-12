@@ -2,7 +2,7 @@
 from typing import Any
 
 RESOURCE_METADATA: dict[str, dict[str, Any]] = {
-    "epacamd_eia": {
+    "core_epa__assn_epacamd_eia": {
         "description": """This crosswalk table comes from the
 EPA's Github repo camd-eia-crosswalk:
 https://github.com/USEPA/camd-eia-crosswalk.
@@ -17,7 +17,7 @@ have shifted before or since then aren't accurately reflected in the data. We're
 to create a temporal version of the crosswalk at some point.
 
 Our version of the crosswalk clarifies some of the column names and removes unmatched
-rows. The :func:`pudl.etl.glue_assets.epacamd_eia` function doc strings explain
+rows. The :func:`pudl.etl.glue_assets.core_epa__assn_epacamd_eia` function doc strings explain
 what changes are made from the EPA's version.
 """,
         "schema": {
@@ -35,8 +35,8 @@ what changes are made from the EPA's version.
         "etl_group": "glue",
         "sources": ["epacamd_eia"],
     },
-    "epacamd_eia_subplant_ids": {
-        "description": """This table is an augmented version of the epacamd_eia
+    "core_epa__assn_epacamd_eia_subplant_ids": {
+        "description": """This table is an augmented version of the core_epa__assn_epacamd_eia
 crosswalk table which initally comes from the EPA's Github repo camd-eia-crosswalk:
 https://github.com/USEPA/camd-eia-crosswalk.
 It's purpose is to connect EPA units with EIA units, and generators.
@@ -55,8 +55,8 @@ allocating pollution to energy producers. Furthermore, heterogeneity within plan
 make aggregation to the parent entity difficult or inappropriate.
 
 This table inherits from the EPA's crosswalk, the ID's from EPA CAMD
-hourly_emissions_epacems table itself, the core_eia860__assn_boiler_generator table and the
-core_eia860__scd_generators table. While the epacamd_eia table is the core backbone of the table,
+core_epacems__hourly_emissions table itself, the core_eia860__assn_boiler_generator table and the
+core_eia860__scd_generators table. While the core_epa__assn_epacamd_eia table is the core backbone of the table,
 EPA CAMD id's ensure there is complete coverage of EPA CAMD reporting units. The EIA 860
 table addition ensures there is also complete coverage of those units as well.
 
@@ -65,7 +65,7 @@ pudl.etl.glue_assets.make_subplant_ids and pudl.etl.glue_assets.update_subplant_
 from: https://catalystcoop-pudl.readthedocs.io/en/latest/autoapi/index.html
 
 But by analyzing the relationships between combustors and generators,
-as provided in the epacamd_eia crosswalk, we can identify distinct power plants.
+as provided in the core_epa__assn_epacamd_eia crosswalk, we can identify distinct power plants.
 These are the smallest coherent units of aggregation.
 
 This table does not have primary keys because the primary keys would have been:

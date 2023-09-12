@@ -15,26 +15,30 @@ logger = pudl.logging_helpers.get_logger(__name__)
 def denorm_utilities_eia(
     core_eia__entity_utilities: pd.DataFrame,
     core_eia860__scd_utilities: pd.DataFrame,
-    utilities_eia: pd.DataFrame,
+    core_pudl__assn_utilities_eia: pd.DataFrame,
 ) -> pd.DataFrame:
     """Pull all fields from the EIA Utilities table.
 
     Args:
         core_eia__entity_utilities: EIA utility entity table.
         core_eia860__scd_utilities: EIA 860 annual utility table.
-        utilities_eia: Associations between EIA utilities and pudl utility IDs.
+        core_pudl__assn_utilities_eia: Associations between EIA utilities and pudl utility IDs.
 
     Returns:
         A DataFrame containing utility attributes from EIA Forms 860 and 923.
     """
-    utilities_eia = utilities_eia[["utility_id_eia", "utility_id_pudl"]]
+    core_pudl__assn_utilities_eia = core_pudl__assn_utilities_eia[
+        ["utility_id_eia", "utility_id_pudl"]
+    ]
     out_df = pd.merge(
         core_eia__entity_utilities,
         core_eia860__scd_utilities,
         how="left",
         on=["utility_id_eia"],
     )
-    out_df = pd.merge(out_df, utilities_eia, how="left", on=["utility_id_eia"])
+    out_df = pd.merge(
+        out_df, core_pudl__assn_utilities_eia, how="left", on=["utility_id_eia"]
+    )
     out_df = out_df.assign(report_date=lambda x: pd.to_datetime(x.report_date)).dropna(
         subset=["report_date", "utility_id_eia"]
     )
@@ -52,16 +56,16 @@ def denorm_utilities_eia(
 def denorm_plants_eia(
     core_eia__entity_plants: pd.DataFrame,
     core_eia860__scd_plants: pd.DataFrame,
-    plants_eia: pd.DataFrame,
-    utilities_eia: pd.DataFrame,
+    core_pudl__assn_plants_eia: pd.DataFrame,
+    core_pudl__assn_utilities_eia: pd.DataFrame,
 ) -> pd.DataFrame:
     """Pull all fields from the EIA Plants tables.
 
     Args:
         core_eia__entity_plants: EIA plant entity table.
         core_eia860__scd_plants: EIA 860 annual plant attribute table.
-        plants_eia: Associations between EIA plants and pudl utility IDs.
-        utilities_eia: EIA utility ID table.
+        core_pudl__assn_plants_eia: Associations between EIA plants and pudl utility IDs.
+        core_pudl__assn_utilities_eia: EIA utility ID table.
 
     Returns:
         A DataFrame containing plant attributes from EIA Forms 860 and 923
@@ -70,7 +74,9 @@ def denorm_plants_eia(
         report_date=lambda x: pd.to_datetime(x.report_date)
     )
 
-    plants_eia = plants_eia[["plant_id_eia", "plant_id_pudl"]]
+    core_pudl__assn_plants_eia = core_pudl__assn_plants_eia[
+        ["plant_id_eia", "plant_id_pudl"]
+    ]
 
     out_df = (
         pd.merge(
@@ -79,8 +85,8 @@ def denorm_plants_eia(
             how="left",
             on=["plant_id_eia"],
         )
-        .merge(plants_eia, how="left", on=["plant_id_eia"])
-        .merge(utilities_eia, how="left", on=["utility_id_eia"])
+        .merge(core_pudl__assn_plants_eia, how="left", on=["plant_id_eia"])
+        .merge(core_pudl__assn_utilities_eia, how="left", on=["utility_id_eia"])
         .dropna(subset=["report_date", "plant_id_eia"])
         .pipe(fill_in_missing_ba_codes)
     )
@@ -321,7 +327,7 @@ def denorm_plants_utilities_eia(
         A DataFrame containing plant and utility IDs and names from EIA 860.
     """
     # Contains the one-to-one mapping of EIA plants to their operators
-    plants_eia = denorm_plants_eia.drop(
+    core_pudl__assn_plants_eia = denorm_plants_eia.drop(
         [
             "utility_id_pudl",
             "city",
@@ -337,7 +343,7 @@ def denorm_plants_utilities_eia(
 
     # to avoid duplicate columns on the merge...
     out_df = pd.merge(
-        plants_eia,
+        core_pudl__assn_plants_eia,
         denorm_utilities_eia,
         how="left",
         on=["report_date", "utility_id_eia"],

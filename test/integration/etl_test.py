@@ -23,8 +23,8 @@ def test_pudl_engine(pudl_engine, pudl_sql_io_manager, check_foreign_keys):
     """
     assert isinstance(pudl_engine, sa.engine.Engine)  # nosec: B101
     insp = sa.inspect(pudl_engine)
-    assert "plants_pudl" in insp.get_table_names()  # nosec: B101
-    assert "utilities_pudl" in insp.get_table_names()  # nosec: B101
+    assert "core_pudl__entity_plants_pudl" in insp.get_table_names()  # nosec: B101
+    assert "core_pudl__entity_utilities_pudl" in insp.get_table_names()  # nosec: B101
 
     if check_foreign_keys:
         # Raises ForeignKeyErrors if there are any

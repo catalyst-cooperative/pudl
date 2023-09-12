@@ -266,7 +266,7 @@ store the path to this new directory:
     $ set -Ux PUDL_OUTPUT /absolute/path/to/pudl_output # fish
 
 The path stored in ``PUDL_OUTPUT`` contains all ETL outputs like
-``pudl.sqlite`` and ``hourly_emissions_epacems.parquet``.
+``pudl.sqlite`` and ``core_epacems__hourly_emissions.parquet``.
 
 **Make sure you create separate directories for these environment variables!
 It is recommended you create these directories outside of the pudl repository

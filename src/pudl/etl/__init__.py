@@ -27,18 +27,20 @@ logger = pudl.logging_helpers.get_logger(__name__)
 
 default_assets = (
     *load_assets_from_modules([eia_bulk_elec_assets], group_name="eia_bulk_elec"),
-    *load_assets_from_modules([epacems_assets], group_name="epacems"),
+    *load_assets_from_modules([epacems_assets], group_name="core_epacems"),
     *load_assets_from_modules([pudl.extract.eia860], group_name="raw_eia860"),
     *load_assets_from_modules([pudl.transform.eia860], group_name="_core_eia860"),
     *load_assets_from_modules([pudl.extract.eia861], group_name="raw_eia861"),
-    *load_assets_from_modules([pudl.transform.eia861], group_name="clean_eia861"),
+    *load_assets_from_modules(
+        [pudl.transform.eia861], group_name="core_eia861"
+    ),  # TODO: move one _core asset to separate module?
     *load_assets_from_modules([pudl.extract.eia923], group_name="raw_eia923"),
     *load_assets_from_modules([pudl.transform.eia923], group_name="_core_eia923"),
     *load_assets_from_modules([pudl.transform.eia], group_name="core_eia"),
     *load_assets_from_modules([pudl.extract.ferc1], group_name="raw_ferc1"),
     *load_assets_from_modules([pudl.transform.ferc1], group_name="core_ferc1"),
     *load_assets_from_modules([pudl.extract.ferc714], group_name="raw_ferc714"),
-    *load_assets_from_modules([pudl.transform.ferc714], group_name="clean_ferc714"),
+    *load_assets_from_modules([pudl.transform.ferc714], group_name="core_ferc714"),
     *load_assets_from_modules([pudl.output.ferc714], group_name="respondents_ferc714"),
     *load_assets_from_modules(
         [pudl.convert.censusdp1tract_to_sqlite, pudl.output.censusdp1tract],
@@ -91,7 +93,7 @@ def create_non_cems_selection(all_assets: list[AssetsDefinition]) -> AssetSelect
     all_asset_keys = pudl.helpers.get_asset_keys(all_assets)
     all_selection = AssetSelection.keys(*all_asset_keys)
 
-    cems_selection = AssetSelection.keys(AssetKey("hourly_emissions_epacems"))
+    cems_selection = AssetSelection.keys(AssetKey("core_epacems__hourly_emissions"))
     return all_selection - cems_selection.downstream()
 
 
@@ -123,7 +125,7 @@ defs: Definitions = Definitions(
             name="etl_full_no_cems",
             selection=create_non_cems_selection(default_assets),
             description="This job executes all years of all assets except the "
-            "hourly_emissions_epacems asset and all assets downstream.",
+            "core_epacems__hourly_emissions asset and all assets downstream.",
         ),
         define_asset_job(
             name="etl_fast",
@@ -147,7 +149,7 @@ defs: Definitions = Definitions(
                 }
             },
             description="This job executes the most recent year of each asset except the "
-            "hourly_emissions_epacems asset and all assets downstream.",
+            "core_epacems__hourly_emissions asset and all assets downstream.",
         ),
     ],
 )

@@ -7,8 +7,8 @@ that show up in EPA CAMD.
 Usage Example:
 
 epacems = pudl.output.epacems.epacems(states=['ID'], years=[2020]) # subset for test
-epacamd_eia = pudl_out.epacamd_eia()
-filtered_crosswalk = filter_crosswalk(epacamd_eia, epacems)
+core_epa__assn_epacamd_eia = pudl_out.epacamd_eia()
+filtered_crosswalk = filter_crosswalk(core_epa__assn_epacamd_eia, epacems)
 crosswalk_with_subplant_ids = pudl.etl.make_subplant_ids(filtered_crosswalk)
 """
 
@@ -37,18 +37,18 @@ def _get_unique_keys(epacems: pd.DataFrame | dd.DataFrame) -> pd.DataFrame:
 def filter_crosswalk_by_epacems(
     crosswalk: pd.DataFrame, epacems: pd.DataFrame | dd.DataFrame
 ) -> pd.DataFrame:
-    """Inner join unique CEMS units with the epacamd_eia crosswalk.
+    """Inner join unique CEMS units with the core_epa__assn_epacamd_eia crosswalk.
 
     This is essentially an empirical filter on EPA units. Instead of filtering by
     construction/retirement dates in the crosswalk (thus assuming they are accurate),
     use the presence/absence of CEMS data to filter the units.
 
     Args:
-        crosswalk: epacamd_eia crosswalk
+        crosswalk: core_epa__assn_epacamd_eia crosswalk
         unique_epacems_ids (pd.DataFrame): unique ids from _get_unique_keys
 
     Returns:
-        The inner join of the epacamd_eia crosswalk and unique epacems units. Adds
+        The inner join of the core_epa__assn_epacamd_eia crosswalk and unique epacems units. Adds
         the global ID column unit_id_epa.
     """
     unique_epacems_ids = _get_unique_keys(epacems)
@@ -64,10 +64,10 @@ def filter_out_boiler_rows(crosswalk: pd.DataFrame) -> pd.DataFrame:
     """Remove rows that represent graph edges between generators and boilers.
 
     Args:
-        crosswalk (pd.DataFrame): epacamd_eia crosswalk
+        crosswalk (pd.DataFrame): core_epa__assn_epacamd_eia crosswalk
 
     Returns:
-        pd.DataFrame: the epacamd_eia crosswalk with boiler rows (many/one-to-many)
+        pd.DataFrame: the core_epa__assn_epacamd_eia crosswalk with boiler rows (many/one-to-many)
             removed
     """
     crosswalk = crosswalk.drop_duplicates(
@@ -82,12 +82,12 @@ def filter_crosswalk(
     """Remove unmapped crosswalk rows or duplicates due to m2m boiler relationships.
 
     Args:
-        crosswalk (pd.DataFrame): The epacamd_eia crosswalk.
+        crosswalk (pd.DataFrame): The core_epa__assn_epacamd_eia crosswalk.
         epacems (Union[pd.DataFrame, dd.DataFrame]): Emissions data. Must contain
             columns named ["plant_id_eia", "emissions_unit_id_epa"]
 
     Returns:
-        pd.DataFrame: A filtered copy of epacamd_eia crosswalk
+        pd.DataFrame: A filtered copy of core_epa__assn_epacamd_eia crosswalk
     """
     filtered_crosswalk = filter_out_boiler_rows(crosswalk)
     key_map = filter_crosswalk_by_epacems(filtered_crosswalk, epacems)

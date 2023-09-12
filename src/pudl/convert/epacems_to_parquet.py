@@ -111,7 +111,9 @@ def epacems_job_factory(loglevel: str, logfile: str) -> Callable[[], JobDefiniti
             assets=pudl.etl.default_assets,
             resources=pudl.etl.default_resources,
             jobs=[
-                define_asset_job("epacems_job", selection="hourly_emissions_epacems")
+                define_asset_job(
+                    "epacems_job", selection="core_epacems__hourly_emissions"
+                )
             ],
         ).get_job_def("epacems_job")
 

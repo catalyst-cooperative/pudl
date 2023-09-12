@@ -112,7 +112,7 @@ def test_resource_with_only_key_fields_harvests() -> None:
 # ---- EIA example ---- #
 
 INPUT_DFS: dict[str, pd.DataFrame] = dict(
-    service_territory_eia861=pd.DataFrame(
+    core_eia861__yearly_service_territory=pd.DataFrame(
         columns=[
             "utility_id_eia",
             "utility_name_eia",
@@ -127,7 +127,7 @@ INPUT_DFS: dict[str, pd.DataFrame] = dict(
             (3989, "City of Colorado Springs - (CO)", "2018-01-01", "Teller", "CO"),
         ],
     ),
-    sales_eia861=pd.DataFrame(
+    core_eia861__yearly_sales=pd.DataFrame(
         columns=[
             "utility_id_eia",
             "utility_name_eia",
@@ -316,7 +316,7 @@ RESOURCES: list[dict[str, Any]] = [
         },
     },
     {
-        "name": "sales_eia861",
+        "name": "core_eia861__yearly_sales",
         "harvest": {"harvest": False},
         "schema": {
             "fields": ["utility_id_eia", "report_year", "state", "county", "sales"],
@@ -404,7 +404,7 @@ EXPECTED_DFS: dict[str, pd.DataFrame] = dict(
             (3, "1", "2018-12-01", -494.0),
         ],
     ),
-    sales_eia861=pd.DataFrame(
+    core_eia861__yearly_sales=pd.DataFrame(
         columns=["utility_id_eia", "report_year", "state", "county", "sales"],
         data=[
             (3989, "2017-01-01", "CO", "El Paso", 127682),

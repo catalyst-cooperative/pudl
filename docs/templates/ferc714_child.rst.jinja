@@ -23,13 +23,13 @@ respondents that show up in the respondents table.
 
 WIth the EIA IDs, we link the hourly electricity demand to a particular georgraphic
 region at the county level, because utilities and balancing authorities report their
-service territories in :ref:`service_territory_eia861`, and from that information we
+service territories in :ref:`core_eia861__yearly_service_territory`, and from that information we
 can estimate historical hourly electricity demand by state.
 
 Plant operators reported in :ref:`core_eia860__scd_plants` and generator ownership information
 reported in :ref:`core_eia860__scd_ownership` are linked to :ref:`core_eia860__scd_utilities` and
-:ref:`balancing_authority_eia861` and so can also be linked to the
-:ref:`respondent_id_ferc714` table, as well as the :ref:`hourly_emissions_epacems`
+:ref:`core_eia861__yearly_balancing_authority` and so can also be linked to the
+:ref:`core_ferc714__respondent_id` table, as well as the :ref:`core_epacems__hourly_emissions`
 unit-level emissions and generation data reported in :doc:`epacems`.
 
 {% endblock %}

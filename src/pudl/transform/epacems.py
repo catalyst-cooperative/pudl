@@ -43,7 +43,7 @@ def harmonize_eia_epa_orispl(
 
     Args:
         df: A CEMS hourly dataframe for one year-month-state.
-        crosswalk_df: The epacamd_eia dataframe from the database.
+        crosswalk_df: The core_epa__assn_epacamd_eia dataframe from the database.
 
     Returns:
         The same data, with the ORISPL plant codes corrected to match the EIA plant IDs.
@@ -56,7 +56,7 @@ def harmonize_eia_epa_orispl(
 
     if not one_to_many.empty:
         raise AssertionError(
-            "The epacamd_eia crosswalk has more than one plant_id_eia value per "
+            "The core_epa__assn_epacamd_eia crosswalk has more than one plant_id_eia value per "
             "plant_id_epa and emissions_unit_id_epa group"
         )
     crosswalk_df = crosswalk_df[
@@ -173,7 +173,7 @@ def correct_gross_load_mw(df: pd.DataFrame) -> pd.DataFrame:
 
 def transform(
     raw_df: pd.DataFrame,
-    epacamd_eia: pd.DataFrame,
+    core_epa__assn_epacamd_eia: pd.DataFrame,
     core_eia__entity_plants: pd.DataFrame,
 ) -> pd.DataFrame:
     """Transform EPA CEMS hourly data and ready it for export to Parquet.
@@ -190,7 +190,7 @@ def transform(
     return (
         raw_df.pipe(apply_pudl_dtypes, group="epacems")
         .pipe(remove_leading_zeros_from_numeric_strings, "emissions_unit_id_epa")
-        .pipe(harmonize_eia_epa_orispl, epacamd_eia)
+        .pipe(harmonize_eia_epa_orispl, core_epa__assn_epacamd_eia)
         .pipe(
             convert_to_utc,
             plant_utc_offset=_load_plant_utc_offset(core_eia__entity_plants),

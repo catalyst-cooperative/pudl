@@ -22,7 +22,10 @@ def epacems_parquet_path(
 ):
     """Get path to the directory of EPA CEMS .parquet data."""
     context = build_init_resource_context()
-    return epacems_io_manager(context)._base_path / "hourly_emissions_epacems.parquet"
+    return (
+        epacems_io_manager(context)._base_path
+        / "core_epacems__hourly_emissions.parquet"
+    )
 
 
 def test_epacems_subset(epacems_year_and_state, epacems_parquet_path):
@@ -53,7 +56,7 @@ def test_epacems_missing_partition(pudl_datastore_fixture):
     Note that this should pass for both the Fast and Full ETL because the behavior
     towards a missing file is identical."""
     df = extract(year=1996, state="UT", ds=pudl_datastore_fixture)
-    epacems_res = Resource.from_id("hourly_emissions_epacems")
+    epacems_res = Resource.from_id("core_epacems__hourly_emissions")
     expected_cols = list(epacems_res.get_field_names())
     assert df.shape[0] == 0  # Check that no rows of data are there
     # Check that all columns expected of EPACEMS data are present.

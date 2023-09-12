@@ -42,14 +42,14 @@ The changes are applied locally to EIA 861 tables.
 * `id` (int): EIA balancing authority identifier (`balancing_authority_id_eia`).
 * `from` (int): Reference year, to use as a template for target years.
 * `to` (List[int]): Target years, in the closed interval format [minimum, maximum].
-  Rows in `balancing_authority_eia861` are added (if missing) for every target year
+  Rows in `core_eia861__yearly_balancing_authority` are added (if missing) for every target year
   with the attributes from the reference year.
-  Rows in `balancing_authority_assn_eia861` are added (or replaced, if existing)
+  Rows in `core_eia861__assn_balancing_authority` are added (or replaced, if existing)
   for every target year with the utility associations from the reference year.
-  Rows in `service_territory_eia861` are added (if missing) for every target year
+  Rows in `core_eia861__yearly_service_territory` are added (if missing) for every target year
   with the nearest year's associated utilities' counties.
 * `exclude` (Optional[List[str]]): Utilities to exclude, by state (two-letter code).
-  Rows are excluded from `balancing_authority_assn_eia861` with target year and state.
+  Rows are excluded from `core_eia861__assn_balancing_authority` with target year and state.
 """
 
 UTILITIES: list[dict[str, Any]] = [
@@ -61,7 +61,7 @@ UTILITIES: list[dict[str, Any]] = [
     {"id": 4922, "reassign": True},
     # (no code): Consumers Energy Company
     # NOTE: 2003-2006 parent to 40211, which is never child to parent BA (12427),
-    # (and 40211 never reports in service_territory_eia861) so don't reassign.
+    # (and 40211 never reports in core_eia861__yearly_service_territory) so don't reassign.
     {"id": 4254},
 ]
 """Balancing authorities to treat as utilities in associations from EIA 861.
@@ -69,13 +69,13 @@ UTILITIES: list[dict[str, Any]] = [
 The changes are applied locally to EIA 861 tables.
 
 * `id` (int): EIA balancing authority (BA) identifier (`balancing_authority_id_eia`).
-  Rows for `id` are removed from `balancing_authority_eia861`.
+  Rows for `id` are removed from `core_eia861__yearly_balancing_authority`.
 * `reassign` (Optional[bool]): Whether to reassign utilities to parent BAs.
-  Rows for `id` as BA in `balancing_authority_assn_eia861` are removed.
+  Rows for `id` as BA in `core_eia861__assn_balancing_authority` are removed.
   Utilities assigned to `id` for a given year are reassigned
   to the BAs for which `id` is an associated utility.
 * `replace` (Optional[bool]): Whether to remove rows where `id` is a utility in
-  `balancing_authority_assn_eia861`. Applies only if `reassign=True`.
+  `core_eia861__assn_balancing_authority`. Applies only if `reassign=True`.
 """
 
 ################################################################################
@@ -207,17 +207,17 @@ def categorize_eia_code(
 ################################################################################
 
 
-def filled_balancing_authority_eia861(
-    balancing_authority_eia861: pd.DataFrame,
+def filled_core_eia861__yearly_balancing_authority(
+    core_eia861__yearly_balancing_authority: pd.DataFrame,
 ) -> pd.DataFrame:
-    """Modified balancing_authority_eia861 table.
+    """Modified core_eia861__yearly_balancing_authority table.
 
     This function adds rows for each balancing authority-year pair missing from the
-    cleaned balancing_authority_eia861 table, using a dictionary of manual fixes. It
+    cleaned core_eia861__yearly_balancing_authority table, using a dictionary of manual fixes. It
     uses the reference year as a template. The function also removes balancing
     authorities that are manually categorized as utilities.
     """
-    df = balancing_authority_eia861
+    df = core_eia861__yearly_balancing_authority
     index = ["balancing_authority_id_eia", "report_date"]
     dfi = df.set_index(index)
     # Prepare reference rows
@@ -239,18 +239,18 @@ def filled_balancing_authority_eia861(
     return apply_pudl_dtypes(df[~mask], group="eia")
 
 
-def filled_balancing_authority_assn_eia861(
-    balancing_authority_assn_eia861: pd.DataFrame,
+def filled_core_eia861__assn_balancing_authority(
+    core_eia861__assn_balancing_authority: pd.DataFrame,
 ) -> pd.DataFrame:
-    """Modified balancing_authority_assn_eia861 table.
+    """Modified core_eia861__assn_balancing_authority table.
 
     This function adds rows for each balancing authority-year pair missing from the
-    cleaned balancing_authority_assn_eia861 table, using a dictionary of manual fixes.
+    cleaned core_eia861__assn_balancing_authority table, using a dictionary of manual fixes.
     It uses the reference year as a template. The function also reassigns balancing
     authorities that are manually categorized as utilities to their parent balancing
     authorities.
     """
-    df = balancing_authority_assn_eia861
+    df = core_eia861__assn_balancing_authority
     # Prepare reference rows
     refs = []
     for fix in ASSOCIATIONS:
@@ -320,20 +320,22 @@ def filled_balancing_authority_assn_eia861(
 
 
 def filled_service_territory_eia861(
-    balancing_authority_assn_eia861: pd.DataFrame,
-    service_territory_eia861: pd.DataFrame,
+    core_eia861__assn_balancing_authority: pd.DataFrame,
+    core_eia861__yearly_service_territory: pd.DataFrame,
 ) -> pd.DataFrame:
-    """Modified service_territory_eia861 table.
+    """Modified core_eia861__yearly_service_territory table.
 
     This function adds rows for each balancing authority-year pair missing from the
-    cleaned service_territory_eia861 table, using a dictionary of manual fixes. It also
+    cleaned core_eia861__yearly_service_territory table, using a dictionary of manual fixes. It also
     drops utility-state combinations which are missing counties across all years of
     data, fills records missing counties with the nearest year of county data for the
     same utility and state.
     """
     index = ["utility_id_eia", "state", "report_date"]
     # Select relevant balancing authority-utility associations
-    assn = filled_balancing_authority_assn_eia861(balancing_authority_assn_eia861)
+    assn = filled_core_eia861__assn_balancing_authority(
+        core_eia861__assn_balancing_authority
+    )
     selected = np.zeros(assn.shape[0], dtype=bool)
     for fix in ASSOCIATIONS:
         years = [fix["from"], *range(fix["to"][0], fix["to"][1] + 1)]
@@ -344,7 +346,7 @@ def filled_service_territory_eia861(
     # Reformat as unique utility-state-year
     assn = assn[selected][index].drop_duplicates()
     # Select relevant service territories
-    mdf = assn.merge(service_territory_eia861, how="left")
+    mdf = assn.merge(core_eia861__yearly_service_territory, how="left")
     # Drop utility-state with no counties for all years
     grouped = mdf.groupby(["utility_id_eia", "state"])["county_id_fips"]
     mdf = mdf[grouped.transform("count").gt(0)]
@@ -364,14 +366,15 @@ def filled_service_territory_eia861(
         idx = (years - row["report_date"]).abs().idxmin()
         mask &= mdf["report_date"].eq(years[idx])
         tables.append(mdf[mask].assign(report_date=row["report_date"]))
-    return pd.concat([service_territory_eia861] + tables).pipe(
+    return pd.concat([core_eia861__yearly_service_territory] + tables).pipe(
         apply_pudl_dtypes, group="eia"
     )
 
 
 @asset(compute_kind="Python")
 def annualized_respondents_ferc714(
-    demand_hourly_pa_ferc714: pd.DataFrame, respondent_id_ferc714: pd.DataFrame
+    core_ferc714__hourly_demand_pa: pd.DataFrame,
+    core_ferc714__respondent_id: pd.DataFrame,
 ) -> pd.DataFrame:
     """Broadcast respondent data across all years with reported demand.
 
@@ -385,9 +388,11 @@ def annualized_respondents_ferc714(
     """
     # Calculate the total demand per respondent, per year:
     report_dates = [
-        time for time in demand_hourly_pa_ferc714.report_date.unique() if pd.notna(time)
+        time
+        for time in core_ferc714__hourly_demand_pa.report_date.unique()
+        if pd.notna(time)
     ]
-    annualized_respondents_ferc714 = respondent_id_ferc714.pipe(
+    annualized_respondents_ferc714 = core_ferc714__respondent_id.pipe(
         add_dates, report_dates
     ).pipe(apply_pudl_dtypes)
     return annualized_respondents_ferc714
@@ -409,10 +414,10 @@ def annualized_respondents_ferc714(
 )
 def categorized_respondents_ferc714(
     context,
-    respondent_id_ferc714: pd.DataFrame,
+    core_ferc714__respondent_id: pd.DataFrame,
     denorm_utilities_eia: pd.DataFrame,
-    service_territory_eia861: pd.DataFrame,
-    balancing_authority_eia861: pd.DataFrame,
+    core_eia861__yearly_service_territory: pd.DataFrame,
+    core_eia861__yearly_balancing_authority: pd.DataFrame,
     annualized_respondents_ferc714: pd.DataFrame,
 ) -> pd.DataFrame:
     """Annualized respondents with ``respondent_type`` assigned if possible.
@@ -427,13 +432,15 @@ def categorized_respondents_ferc714(
 
     logger.info("Categorizing EIA codes associated with FERC-714 Respondents.")
 
-    bal_auth = filled_balancing_authority_eia861(balancing_authority_eia861)
+    bal_auth = filled_core_eia861__yearly_balancing_authority(
+        core_eia861__yearly_balancing_authority
+    )
     utilids_all_eia = utility_ids_all_eia(
-        denorm_utilities_eia, service_territory_eia861
+        denorm_utilities_eia, core_eia861__yearly_service_territory
     )
 
     categorized = categorize_eia_code(
-        respondent_id_ferc714.eia_code.dropna().unique(),
+        core_ferc714__respondent_id.eia_code.dropna().unique(),
         ba_ids=bal_auth.balancing_authority_id_eia.dropna().unique(),
         util_ids=utilids_all_eia.utility_id_eia,
         priority=priority,
@@ -514,9 +521,9 @@ def categorized_respondents_ferc714(
 def fipsified_respondents_ferc714(
     context,
     categorized_respondents_ferc714: pd.DataFrame,
-    balancing_authority_assn_eia861: pd.DataFrame,
-    service_territory_eia861: pd.DataFrame,
-    utility_assn_eia861: pd.DataFrame,
+    core_eia861__assn_balancing_authority: pd.DataFrame,
+    core_eia861__yearly_service_territory: pd.DataFrame,
+    core_eia861__assn_utility: pd.DataFrame,
 ) -> pd.DataFrame:
     """Annual respondents with the county FIPS IDs for their service territories.
 
@@ -527,14 +534,16 @@ def fipsified_respondents_ferc714(
     are thousands of counties and many of them are served by more than one entity.
 
     Currently respondents categorized as ``utility`` will include any county that
-    appears in the ``service_territory_eia861`` table in association with that
+    appears in the ``core_eia861__yearly_service_territory`` table in association with that
     utility ID in each year, while for ``balancing_authority`` respondents, some
     counties can be excluded based on state (if ``limit_by_state==True``).
     """
     #
-    assn = filled_balancing_authority_assn_eia861(balancing_authority_assn_eia861)
+    assn = filled_core_eia861__assn_balancing_authority(
+        core_eia861__assn_balancing_authority
+    )
     st_eia861 = filled_service_territory_eia861(
-        balancing_authority_assn_eia861, service_territory_eia861
+        core_eia861__assn_balancing_authority, core_eia861__yearly_service_territory
     )
 
     # Generate the BA:FIPS relation:
@@ -544,7 +553,7 @@ def fipsified_respondents_ferc714(
             ids=categorized_respondents_ferc714.balancing_authority_id_eia.unique(),
             assn=assn,
             assn_col="balancing_authority_id_eia",
-            service_territory_eia861=st_eia861,
+            core_eia861__yearly_service_territory=st_eia861,
             limit_by_state=context.op_config["limit_by_state"],
         ),
         on=["report_date", "balancing_authority_id_eia"],
@@ -555,9 +564,9 @@ def fipsified_respondents_ferc714(
         categorized_respondents_ferc714.query("respondent_type=='utility'"),
         pudl.analysis.service_territory.get_territory_fips(
             ids=categorized_respondents_ferc714.utility_id_eia.unique(),
-            assn=utility_assn_eia861,
+            assn=core_eia861__assn_utility,
             assn_col="utility_id_eia",
-            service_territory_eia861=st_eia861,
+            core_eia861__yearly_service_territory=st_eia861,
             limit_by_state=context.op_config["limit_by_state"],
         ),
         on=["report_date", "utility_id_eia"],
@@ -630,7 +639,7 @@ def georeferenced_respondents_ferc714(
 @asset(compute_kind="Python", io_manager_key="pudl_sqlite_io_manager")
 def summarized_demand_ferc714(
     annualized_respondents_ferc714: pd.DataFrame,
-    demand_hourly_pa_ferc714: pd.DataFrame,
+    core_ferc714__hourly_demand_pa: pd.DataFrame,
     fipsified_respondents_ferc714: pd.DataFrame,
     categorized_respondents_ferc714: pd.DataFrame,
     georeferenced_counties_ferc714: gpd.GeoDataFrame,
@@ -649,7 +658,7 @@ def summarized_demand_ferc714(
     demand_annual = (
         pd.merge(
             annualized_respondents_ferc714,
-            demand_hourly_pa_ferc714.loc[
+            core_ferc714__hourly_demand_pa.loc[
                 :, ["report_date", "respondent_id_ferc714", "demand_mwh"]
             ],
             how="left",
