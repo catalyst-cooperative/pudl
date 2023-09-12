@@ -28,7 +28,7 @@ dependencies = [
     "matplotlib>=3.3,<3.8",  # Should make this optional with a "viz" extras
     "networkx>=2.2,<3.2",
     "numpy>=1.18.5,!=1.23.0,<1.26",
-    "pandas[parquet,excel,fss,gcp,compression]>=2.0,<2.1",
+    "pandas[parquet,excel,fss,gcp,compression]>=2.1,<2.2",
     "pyarrow>=7,<13",
     "pydantic[email]>=1.7,<2",
     "python-dotenv>=0.21,<1.1",

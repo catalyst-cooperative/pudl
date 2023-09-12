@@ -572,7 +572,7 @@ class Field(Base):
     Examples:
         >>> field = Field(name='x', type='string', constraints={'enum': ['x', 'y']})
         >>> field.to_pandas_dtype()
-        CategoricalDtype(categories=['x', 'y'], ordered=False)
+        CategoricalDtype(categories=['x', 'y'], ordered=False, categories_dtype=object)
         >>> field.to_sql()
         Column('x', Enum('x', 'y'), CheckConstraint(...), table=None)
         >>> field = Field.from_id('utility_id_eia')
