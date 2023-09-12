@@ -267,6 +267,7 @@ KEYWORDS: dict[str, list[str]] = {
         "mining",
         "coal",
         "metal",
+        "department of labor",
     ],
     "phmsa": [
         "phmsa",
@@ -280,12 +281,16 @@ KEYWORDS: dict[str, list[str]] = {
         "liquified natural gas",
         "lng",
         "underground natural gas storage",
+        "department of transportation",
+        "us dot",
     ],
     "eia_water": [
         "eia thermoelectric cooling water",
         "eia waterthermoelectric",
         "cooling water",
         "water usage",
+        "water energy nexus",
+        "energy water nexus",
     ],
 }
 
