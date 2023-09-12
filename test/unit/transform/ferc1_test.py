@@ -20,6 +20,7 @@ from pudl.transform.ferc1 import (
     fill_dbf_to_xbrl_map,
     make_calculation_dimensions_explicit,
     read_dbf_to_xbrl_map,
+    unexpected_total_components,
     unstack_balances_to_report_year_instant_xbrl,
     wide_to_tidy,
 )
@@ -701,8 +702,6 @@ table_a,fact_3,voyager,total,table_a,fact_3,voyager,nebula,NA
 
 
 def test_multi_dims_totals():
-    # TODO (daz): define these dataframes programmatically
-
     # observed dimension: values
     # utility_type: electric
     # plant_status: future, in_service, total
@@ -745,6 +744,7 @@ electric_plant_depreciation_change_ferc1,accumulated_depreciation,electric,total
 electric_plant_depreciation_change_ferc1,accumulated_depreciation,electric,total,general
 electric_plant_depreciation_change_ferc1,accumulated_depreciation,electric,total,bogus
 electric_plant_depreciation_change_ferc1,accumulated_depreciation,electric,total,total
+electric_plant_depreciation_change_ferc1,accumulated_depreciation,electric,NA,NA
 """
         )
     )
@@ -785,7 +785,6 @@ electric_plant_depreciation_change_ferc1,accumulated_depreciation,electric,total
     # total/total has the 4 components we expect ([future, in_service] X [steam_production, general])
     # all 4 1-dimensional totals have 2 components each
 
-    # TODO (daz): should this function already drop the duplicated table_name and xbrl_factoid columns? tests would be easier to read.
     calc_components_w_totals_expected = canonicalize(
         pd.read_csv(
             StringIO(
@@ -812,3 +811,23 @@ electric_plant_depreciation_change_ferc1,accumulated_depreciation,electric,futur
         calc_components_w_totals_expected,
         calc_components_w_totals,
     )
+
+
+def test_unexpected_total_components():
+    has_extra_components = pd.read_csv(
+        StringIO(
+            """
+table_name_parent,xbrl_factoid_parent,utility_type_parent,plant_status_parent,plant_function_parent,table_name,xbrl_factoid,utility_type,plant_status,plant_function
+table_1,factoid_1,electric,total,total,electric_plant_depreciation_change_ferc1,accumulated_depreciation,electric,in_service,steam_production
+table_1,factoid_1,electric,total,total,electric_plant_depreciation_change_ferc1,accumulated_depreciation,gas,in_service,steam_production
+"""
+        )
+    )
+
+    assert not unexpected_total_components(
+        has_extra_components, ["utility_type", "plant_status", "plant_function"]
+    ).empty
+
+    assert unexpected_total_components(
+        has_extra_components, ["plant_status", "plant_function"]
+    ).empty

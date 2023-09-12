@@ -5644,7 +5644,9 @@ def calculation_components_xbrl_ferc1(**kwargs) -> pd.DataFrame:
     )
 
     # Defensive testing on this table!
+
     assert calc_components[["table_name", "xbrl_factoid"]].notnull().all(axis=1).all()
+
     calc_cols = ["table_name", "xbrl_factoid"] + dimensions
     calc_and_parent_cols = calc_cols + [f"{col}_parent" for col in calc_cols]
 
@@ -5678,8 +5680,37 @@ def calculation_components_xbrl_ferc1(**kwargs) -> pd.DataFrame:
             f"Found {len(parent_child_dupes)} calcuations where the parent and child "
             f"columns are identical and expected 0.\n{parent_child_dupes=}"
         )
+
+    assert unexpected_total_components(calc_components, dimensions).empty
     # Remove convert_dtypes() once we're writing to the DB using enforce_schema()
     return calc_components.convert_dtypes()
+
+
+def unexpected_total_components(
+    calc_comps: pd.DataFrame, dimensions: list[str]
+) -> pd.DataFrame:
+    """Find components that do not match with parent in non-total dimensions.
+
+    For example, if utility_type_parent is not "total", then utility_type must
+    be the same as utility_type_parent.
+
+    Args:
+        calc_comps: calculation component join table
+        dimensions: list of dimensions we resolved "total" values for
+    """
+    parent_dimensions = [f"{dim}_parent" for dim in dimensions]
+    totals_mask = (calc_comps[parent_dimensions] == "total").any(axis=1)
+    calcs_with_totals = calc_comps[totals_mask]
+
+    unexpected_links = []
+    for dim in dimensions:
+        unexpected_links.append(
+            calcs_with_totals[
+                (calcs_with_totals[f"{dim}_parent"] != calcs_with_totals[dim])
+                & (calcs_with_totals[f"{dim}_parent"] != "total")
+            ][["table_name", "xbrl_factoid"] + parent_dimensions + dimensions]
+        )
+    return pd.concat(unexpected_links)
 
 
 def check_for_calc_components_duplicates(
@@ -5890,11 +5921,6 @@ def add_dimension_total_calculations(
         (``utility_type``, ``plant_status``, ``plant_function``). The parent columns
         have a ``_parent`` suffix.
     """
-    # * Take all rows in the metadata that have at least one total in the relevant dimensions
-    # * For each row, find all observed values for this factoid:
-    #   * that have a non-'total' value in any total'ed dimension
-    #   * that have the same value in any non-total'ed dimension
-
     table_dims_no_totals = table_dimensions[
         ~(table_dimensions[dimensions] == "total").any(axis=1)
     ]
@@ -5904,9 +5930,10 @@ def add_dimension_total_calculations(
     dim_combos = itertools.chain.from_iterable(
         itertools.combinations(dimensions, i + 1) for i in range(len(dimensions))
     )
-    for total_dims in dim_combos:
-        meta_totals = meta_w_dims.loc[
-            (meta_w_dims[list(total_dims)] == "total").all(axis=1, skipna=False)
+    for _total_dims in dim_combos:
+        total_dims = list(_total_dims)
+        meta_totals = meta_w_dims.dropna(subset=total_dims).loc[
+            (meta_w_dims[total_dims] == "total").all(axis=1)
         ]
         non_total_dims = [d for d in dimensions if d not in total_dims]
         merge_key = factoid_key + non_total_dims
@@ -5946,6 +5973,5 @@ def add_dimension_total_calculations(
     calc_components = calc_components.drop_duplicates(
         calc_and_parent_cols, keep="first"
     )
-
     assert calc_components[calc_components.duplicated()].empty
     return calc_components
