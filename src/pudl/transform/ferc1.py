@@ -5906,18 +5906,19 @@ def add_dimension_total_calculations(
     )
     for total_dims in dim_combos:
         meta_totals = meta_w_dims.loc[
-            (meta_w_dims[list(total_dims)] == "total").all(axis=1)
+            (meta_w_dims[list(total_dims)] == "total").all(axis=1, skipna=False)
         ]
         non_total_dims = [d for d in dimensions if d not in total_dims]
         merge_key = factoid_key + non_total_dims
+        components = pd.merge(
+            left=meta_totals,
+            right=table_dims_no_totals,
+            on=merge_key,
+            how="inner",
+            suffixes=("_parent", ""),
+        )
         total_comps.append(
-            pd.merge(
-                left=meta_totals,
-                right=table_dims_no_totals,
-                on=merge_key,
-                how="inner",
-                suffixes=("_parent", ""),
-            ).assign(
+            components.assign(
                 table_name_parent=lambda x: x.table_name,
                 xbrl_factoid_parent=lambda x: x.xbrl_factoid,
             )
@@ -5936,7 +5937,6 @@ def add_dimension_total_calculations(
     check_for_calc_components_duplicates(
         calc_components,
         table_names_known_dupes=[
-            "electric_plant_depreciation_functional_ferc1",
             "electricity_sales_by_rate_schedule_ferc1",
         ],
         idx=calc_and_parent_cols,
