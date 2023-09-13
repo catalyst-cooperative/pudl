@@ -5885,18 +5885,21 @@ def add_dimension_total_calculations(
 
     If there is a record with "total" in utility_type and plant_status,
     table_dimensions will say that that factoid has
-      - possible utility types: "total", "gas", "electric";
-      - possible plant status: "total", "in_service", "future"
+
+    * possible utility types: "total", "gas", "electric";
+    * possible plant status: "total", "in_service", "future"
 
     In calc_components, we'll see these children for the "total", "total" parent.
-      - child:"factoid", "electric", "in_service"; parent: "factoid", "total", "total"
-      - child:"factoid", "electric", "future"; parent: "factoid", "total", "total"
-      - child:"factoid", "gas", "in_service"; parent: "factoid", "total", "total"
-      - child:"factoid", "gas", "future"; parent: "factoid", "total", "total"
+
+    * child:"factoid", "electric", "in_service"; parent: "factoid", "total", "total"
+    * child:"factoid", "electric", "future"; parent: "factoid", "total", "total"
+    * child:"factoid", "gas", "in_service"; parent: "factoid", "total", "total"
+    * child:"factoid", "gas", "future"; parent: "factoid", "total", "total"
 
     We will also see these which are redundant with the above, and should be filtered out:
-      - child:"factoid", "gas", "total"; parent: "factoid", "total", "total"
-      - child:"factoid", "total", "leased"; parent: "factoid", "total", "total"
+
+    * child:"factoid", "gas", "total"; parent: "factoid", "total", "total"
+    * child:"factoid", "total", "leased"; parent: "factoid", "total", "total"
 
     See the unit test in ferc1_test.py for more details.
 
