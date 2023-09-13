@@ -11,7 +11,7 @@ also enable continuous deployment of PUDL's data outputs.
 The builds are kicked off by the ``build-deploy-pudl`` GitHub Action, which builds and
 pushes a Docker image with PUDL installed to `Docker Hub <https://hub.docker.com/r/catalystcoop/pudl-etl>`__
 and deploys the image as a container to a GCE instance. The container runs the ETL and
-tests, then copies the outputs to GCS buckets for the PUDL Intake catalogs to consume.
+tests, then copies the outputs to a public AWS s3 bucket for distribution.
 
 Breaking the Builds
 -------------------
@@ -189,8 +189,7 @@ from the ``pudl`` directory:
 
 How to access the nightly build outputs from AWS
 ------------------------------------------------
-To access the nightly build outputs you can either use the `PUDL data catalog
-<https://catalystcoop-pudl-catalog.readthedocs.io/en/latest/>`__ or you can download
+To access the nightly build outputs you can download
 the data directly from the ``s3://pudl.catalyst.coop`` bucket. To do this, you'll
 need to `follow the instructions
 <https://docs.aws.amazon.com/cli/latest/userguide/getting-started-install.html>`__
@@ -219,14 +218,10 @@ bucket, ``aws`` will give you an authentication error.
 
    If you download the files directly with ``aws`` then you'll be responsible for
    updating them, making sure you have the right version, putting them in the right
-   place on your computer, etc. You also won't benefit from the caching that the Intake
-   catalogs do. For easier automatic updates, data versioning and dependency management,
-   we recommend using the Intake catalog rather than direct downloads. But for
-   developent work it can often be convenient to grab the fresh nightly build outputs.
+   place on your computer, etc.
 
-If you want to copy these files directly to your computer, rather than using the
-PUDL Intake catalog, you can use the ``aws s3 cp`` command, which behaves very much like
-the Unix ``cp`` command:
+To copy these files directly to your computer you can use
+the ``aws s3 cp`` command, which behaves very much like the Unix ``cp`` command:
 
 .. code::
 
@@ -287,7 +282,7 @@ the project to be used for requester pays access through applications:
 
 To test whether your GCP account is set up correctly and authenticated you can run the
 following command to list the contents of the cloud storage bucket containing the PUDL
-catalog data. This doesn't actually download any data, but will show you the versions
+data. This doesn't actually download any data, but will show you the versions
 that are available:
 
 .. code::
