@@ -824,7 +824,7 @@ any cleaning mechanisms in place to account for this."""
         "etl_group": "ferc1",
         "field_namespace": "ferc1",
     },
-    "denorm_plants_utilities_ferc1": {
+    "_out_ferc1__yearly_plants_utilities": {
         "description": "Denormalized table that contains FERC plant and utility information.",
         "schema": {
             "fields": [
@@ -840,7 +840,7 @@ any cleaning mechanisms in place to account for this."""
         "etl_group": "outputs",
         "sources": ["ferc1"],
     },
-    "denorm_balance_sheet_assets_ferc1": {
+    "out_ferc1__yearly_balance_sheet_assets": {
         "description": "Denormalized table that contains FERC balance sheet asset information.",
         "schema": {
             "fields": [
@@ -866,7 +866,7 @@ any cleaning mechanisms in place to account for this."""
         "etl_group": "outputs",
         "sources": ["ferc1"],
     },
-    "denorm_balance_sheet_liabilities_ferc1": {
+    "out_ferc1__yearly_balance_sheet_liabilities": {
         "description": "Denormalized table that contains FERC balance sheet liability information.",
         "schema": {
             "fields": [
@@ -892,7 +892,7 @@ any cleaning mechanisms in place to account for this."""
         "etl_group": "outputs",
         "field_namespace": "ferc1",
     },
-    "denorm_cash_flow_ferc1": {
+    "out_ferc1__yearly_cash_flow": {
         "description": "Denormalized table that contains FERC cash flow information.",
         "schema": {
             "fields": [
@@ -916,7 +916,7 @@ any cleaning mechanisms in place to account for this."""
         "etl_group": "outputs",
         "field_namespace": "ferc1",
     },
-    "denorm_depreciation_amortization_summary_ferc1": {
+    "out_ferc1__yearly_depreciation_amortization_summary": {
         "description": "Denormalized table that contains FERC depreciation amortization information.",
         "schema": {
             "fields": [
@@ -941,7 +941,7 @@ any cleaning mechanisms in place to account for this."""
         "etl_group": "outputs",
         "field_namespace": "ferc1",
     },
-    "denorm_electric_energy_dispositions_ferc1": {
+    "out_ferc1__yearly_electric_energy_dispositions": {
         "description": "Denormalized table that contains FERC electric energy dispositions information.",
         "schema": {
             "fields": [
@@ -964,7 +964,7 @@ any cleaning mechanisms in place to account for this."""
         "etl_group": "outputs",
         "field_namespace": "ferc1",
     },
-    "denorm_electric_energy_sources_ferc1": {
+    "out_ferc1__yearly_electric_energy_sources": {
         "description": "Denormalized table that contains FERC electric energy sources information.",
         "schema": {
             "fields": [
@@ -987,7 +987,7 @@ any cleaning mechanisms in place to account for this."""
         "etl_group": "outputs",
         "field_namespace": "ferc1",
     },
-    "denorm_electric_operating_expenses_ferc1": {
+    "out_ferc1__yearly_electric_operating_expenses": {
         "description": "Denormalized table that contains FERC electric operating expense information.",
         "schema": {
             "fields": [
@@ -1007,7 +1007,7 @@ any cleaning mechanisms in place to account for this."""
         "etl_group": "outputs",
         "field_namespace": "ferc1",
     },
-    "denorm_electric_operating_revenues_ferc1": {
+    "out_ferc1__yearly_electric_operating_revenues": {
         "description": "Denormalized table that contains FERC electric operating revenue information.",
         "schema": {
             "fields": [
@@ -1033,7 +1033,7 @@ any cleaning mechanisms in place to account for this."""
         "etl_group": "outputs",
         "field_namespace": "ferc1",
     },
-    "denorm_electric_plant_depreciation_changes_ferc1": {
+    "out_ferc1__yearly_electric_plant_depreciation_changes": {
         "description": "Denormalized table that contains FERC electric plant depreciation changes information.",
         "schema": {
             "fields": [
@@ -1062,7 +1062,7 @@ any cleaning mechanisms in place to account for this."""
         "etl_group": "outputs",
         "field_namespace": "ferc1",
     },
-    "denorm_electric_plant_depreciation_functional_ferc1": {
+    "out_ferc1__yearly_electric_plant_depreciation_functional": {
         "description": "Denormalized table that contains FERC electric plant depreciation functional information.",
         "schema": {
             "fields": [
@@ -1091,7 +1091,7 @@ any cleaning mechanisms in place to account for this."""
         "etl_group": "outputs",
         "field_namespace": "ferc1",
     },
-    "denorm_electricity_sales_by_rate_schedule_ferc1": {
+    "out_ferc1__yearly_electricity_sales_by_rate_schedule": {
         "description": "Denormalized table that contains FERC electricity sales by rate schedule information.",
         "schema": {
             "fields": [
@@ -1114,7 +1114,7 @@ any cleaning mechanisms in place to account for this."""
         "etl_group": "outputs",
         "field_namespace": "ferc1",
     },
-    "denorm_income_statement_ferc1": {
+    "out_ferc1__yearly_income_statement": {
         "description": "Denormalized table that contains FERC income statement information.",
         "schema": {
             "fields": [
@@ -1141,7 +1141,7 @@ any cleaning mechanisms in place to account for this."""
         "etl_group": "outputs",
         "field_namespace": "ferc1",
     },
-    "denorm_other_regulatory_liabilities_ferc1": {
+    "out_ferc1__yearly_other_regulatory_liabilities": {
         "description": "Denormalized table that contains FERC other regulatory liabilities information.",
         "schema": {
             "fields": [
@@ -1161,7 +1161,7 @@ any cleaning mechanisms in place to account for this."""
         "etl_group": "outputs",
         "field_namespace": "ferc1",
     },
-    "denorm_retained_earnings_ferc1": {
+    "out_ferc1__yearly_retained_earnings": {
         "description": "Denormalized table that contains FERC retained earnings information.",
         "schema": {
             "fields": [
@@ -1187,7 +1187,7 @@ any cleaning mechanisms in place to account for this."""
         "etl_group": "outputs",
         "field_namespace": "ferc1",
     },
-    "denorm_transmission_statistics_ferc1": {
+    "out_ferc1__yearly_transmission_statistics": {
         "description": "Denormalized table that contains FERC transmission statistics information.",
         "schema": {
             "fields": [
@@ -1218,7 +1218,7 @@ any cleaning mechanisms in place to account for this."""
         "etl_group": "outputs",
         "field_namespace": "ferc1",
     },
-    "denorm_utility_plant_summary_ferc1": {
+    "out_ferc1__yearly_utility_plant_summary": {
         "description": "Denormalized table that contains FERC utility plant summary information.",
         "schema": {
             "fields": [
@@ -1244,7 +1244,7 @@ any cleaning mechanisms in place to account for this."""
         "etl_group": "outputs",
         "field_namespace": "ferc1",
     },
-    "denorm_plants_steam_ferc1": {
+    "_out_ferc1__yearly_steam_plants": {
         "description": "Denormalized table that contains steam plant information from FERC Form 1.",
         "schema": {
             "fields": [
@@ -1312,7 +1312,7 @@ any cleaning mechanisms in place to account for this."""
         "etl_group": "outputs",
         "field_namespace": "ferc1",
     },
-    "denorm_plants_small_ferc1": {
+    "_out_ferc1__yearly_small_plants": {
         "description": "Denormalized table that contains small plant information from FERC Form 1.",
         "schema": {
             "fields": [
@@ -1347,7 +1347,7 @@ any cleaning mechanisms in place to account for this."""
         "etl_group": "outputs",
         "field_namespace": "ferc1",
     },
-    "denorm_plants_hydro_ferc1": {
+    "_out_ferc1__yearly_hydro_plants": {
         "description": "Denormalized table that contains small plant information from FERC Form 1.",
         "schema": {
             "fields": [
@@ -1402,7 +1402,7 @@ any cleaning mechanisms in place to account for this."""
         "etl_group": "outputs",
         "field_namespace": "ferc1",
     },
-    "denorm_plants_pumped_storage_ferc1": {
+    "_out_ferc1__yearly_pumped_storage_plants": {
         "description": "Denormalized table that contains pumped storage plant information from FERC Form 1.",
         "schema": {
             "fields": [
@@ -1461,7 +1461,7 @@ any cleaning mechanisms in place to account for this."""
         "etl_group": "outputs",
         "field_namespace": "ferc1",
     },
-    "denorm_fuel_ferc1": {
+    "out_ferc1__yearly_fuel": {
         "description": "Denormalized table that contains fuel information from FERC Form 1.",
         "schema": {
             "fields": [
@@ -1490,7 +1490,7 @@ any cleaning mechanisms in place to account for this."""
         "etl_group": "outputs",
         "field_namespace": "ferc1",
     },
-    "denorm_purchased_power_ferc1": {
+    "out_ferc1__yearly_purchased_power": {
         "description": "Denormalized table of FERC Form 1 Purchased Power data.",
         "schema": {
             "fields": [
@@ -1518,7 +1518,7 @@ any cleaning mechanisms in place to account for this."""
         "etl_group": "outputs",
         "field_namespace": "ferc1",
     },
-    "denorm_plant_in_service_ferc1": {
+    "out_ferc1__yearly_plant_in_service": {
         "description": "Denormalized table of FERC Form 1 Electric Plant in Service data.",
         "schema": {
             "fields": [
@@ -1543,7 +1543,7 @@ any cleaning mechanisms in place to account for this."""
         "etl_group": "outputs",
         "field_namespace": "ferc1",
     },
-    "denorm_plants_all_ferc1": {
+    "out_ferc1__yearly_all_plants": {
         "description": "Denormalized table combining the steam, small generators, hydro, and pumped storage tables from FERC Form 1.",
         "schema": {
             "fields": [
@@ -1632,7 +1632,7 @@ any cleaning mechanisms in place to account for this."""
         "etl_group": "outputs",
         "field_namespace": "ferc1",
     },
-    "denorm_fuel_by_plant_ferc1": {
+    "out_ferc1__yearly_fuel_by_plant": {
         "description": "A table summarizing FERC fuel data by plant, using FERC Form 1 data.",
         "schema": {
             "fields": [
