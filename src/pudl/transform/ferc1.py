@@ -5689,26 +5689,44 @@ def calculation_components_xbrl_ferc1(**kwargs) -> pd.DataFrame:
 def unexpected_total_components(
     calc_comps: pd.DataFrame, dimensions: list[str]
 ) -> pd.DataFrame:
-    """Find components that do not match with parent in non-total dimensions.
+    """Find unexpected components in the "total" calculations.
 
-    For example, if utility_type_parent is not "total", then utility_type must
-    be the same as utility_type_parent.
+    Criteria:
+
+    - child components that do not match with parent in non-total dimensions.
+
+      - For example, if utility_type_parent is not "total", then utility_type
+        must be the same as utility_type_parent.
+
+    - child components, that share table_name/xbrl_factoid with their parent,
+      that have "total" for any dimension - these should be represented by
+      *their* child components
 
     Args:
         calc_comps: calculation component join table
         dimensions: list of dimensions we resolved "total" values for
     """
     parent_dimensions = [f"{dim}_parent" for dim in dimensions]
-    totals_mask = (calc_comps[parent_dimensions] == "total").any(axis=1)
+    totals_mask = (
+        (calc_comps[parent_dimensions] == "total").any(axis="columns")
+        & (calc_comps["table_name_parent"] == calc_comps["table_name"])
+        & (calc_comps["xbrl_factoid_parent"] == calc_comps["xbrl_factoid"])
+    )
     calcs_with_totals = calc_comps[totals_mask]
 
     unexpected_links = []
-    for dim in dimensions:
+    for child_dim in dimensions:
+        mismatched_non_total = (
+            calcs_with_totals[f"{child_dim}_parent"] != calcs_with_totals[child_dim]
+        ) & (calcs_with_totals[f"{child_dim}_parent"] != "total")
+        children_with_totals = calcs_with_totals[child_dim] == "total"
         unexpected_links.append(
-            calcs_with_totals[
-                (calcs_with_totals[f"{dim}_parent"] != calcs_with_totals[dim])
-                & (calcs_with_totals[f"{dim}_parent"] != "total")
-            ][["table_name", "xbrl_factoid"] + parent_dimensions + dimensions]
+            calcs_with_totals[mismatched_non_total | children_with_totals][
+                ["table_name_parent", "xbrl_factoid_parent"]
+                + parent_dimensions
+                + ["table_name", "xbrl_factoid"]
+                + dimensions
+            ]
         )
     return pd.concat(unexpected_links)
 
@@ -5877,34 +5895,37 @@ def add_dimension_total_calculations(
 ) -> pd.DataFrame:
     """Define dimension total calculations.
 
-    If a factoid is marked as a total along some dimension, then that's
-    implicitly a calculation. Make these explicit.
+    Some factoids are marked as a total along some dimension in the metadata,
+    which means that they are the sum of all the non-total factoids along that
+    dimension.
 
-    The multi-dimension totals logic is a little hard to follow, so a concrete
-    example:
+    We match the parent factoids from the metadata to child factoids from the
+    table_dimensions. We treat "total" as a wildcard value.
 
-    If there is a record with "total" in utility_type and plant_status,
-    table_dimensions will say that that factoid has
+    We exclude child factoids that are themselves totals, because that would
+    result in a double-count.
 
-    * possible utility types: "total", "gas", "electric";
-    * possible plant status: "total", "in_service", "future"
+    Here are a few examples:
 
-    In calc_components, we'll see these children for the "total", "total" parent.
+    Imagine a factoid with the following dimensions & values:
 
-    * child:"factoid", "electric", "in_service"; parent: "factoid", "total", "total"
-    * child:"factoid", "electric", "future"; parent: "factoid", "total", "total"
-    * child:"factoid", "gas", "in_service"; parent: "factoid", "total", "total"
-    * child:"factoid", "gas", "future"; parent: "factoid", "total", "total"
+    - utility types: "total", "gas", "electric";
+    - plant status: "total", "in_service", "future"
 
-    We will also see these which are redundant with the above, and should be filtered out:
+    Then the following parents would match/not-match:
 
-    * child:"factoid", "gas", "total"; parent: "factoid", "total", "total"
-    * child:"factoid", "total", "leased"; parent: "factoid", "total", "total"
+    - parent: "total", "in_service"
+
+      - child: "gas", "in_service" WOULD match.
+      - child: "electric", "in_service" WOULD match.
+      - child: "electric", "future" WOULD NOT match.
+
+    - parent: "total", "total"
+
+      - child: "gas", "in_service" WOULD match.
+      - child: "electric", "future" WOULD match.
 
     See the unit test in ferc1_test.py for more details.
-
-    Outside of these ``total`` calculations we require that a factoid and its
-    calculation components share the same dimensional values.
 
     To be able to define these within-dimension calculations we also add dimension
     columns to all of the parent factoids in the table.
@@ -5924,39 +5945,43 @@ def add_dimension_total_calculations(
         (``utility_type``, ``plant_status``, ``plant_function``). The parent columns
         have a ``_parent`` suffix.
     """
-    table_dims_no_totals = table_dimensions[
-        ~(table_dimensions[dimensions] == "total").any(axis=1)
+    child_candidates = table_dimensions[
+        ~(table_dimensions[dimensions] == "total").any(axis="columns")
     ]
-    factoid_key = ["table_name", "xbrl_factoid"]
 
     total_comps = []
+
+    # check *every* combination of dimensions that could have any total values
     dim_combos = itertools.chain.from_iterable(
         itertools.combinations(dimensions, i + 1) for i in range(len(dimensions))
     )
     for _total_dims in dim_combos:
         total_dims = list(_total_dims)
-        meta_totals = meta_w_dims.dropna(subset=total_dims).loc[
-            (meta_w_dims[total_dims] == "total").all(axis=1)
+        parents = meta_w_dims.dropna(subset=total_dims).loc[
+            (meta_w_dims[total_dims] == "total").all(axis="columns")
         ]
-        non_total_dims = [d for d in dimensions if d not in total_dims]
-        merge_key = factoid_key + non_total_dims
-        components = pd.merge(
-            left=meta_totals,
-            right=table_dims_no_totals,
-            on=merge_key,
-            how="inner",
-            suffixes=("_parent", ""),
-        )
+        if parents.empty:
+            continue
+
+        # There's no wildcard merge in Pandas, so we just ignore whichever
+        # columns have "total"
+        non_total_cols = ["table_name", "xbrl_factoid"] + [
+            d for d in dimensions if d not in total_dims
+        ]
         total_comps.append(
-            components.assign(
-                table_name_parent=lambda x: x.table_name,
-                xbrl_factoid_parent=lambda x: x.xbrl_factoid,
+            pd.merge(
+                left=parents,
+                right=child_candidates,
+                on=non_total_cols,
+                how="inner",
+                suffixes=("_parent", ""),
             )
         )
 
     calc_components = pd.concat([calc_components] + total_comps).reset_index(drop=True)
-    # for the parent cols, fill any NA values with the corresponding child value
-    child_values = calc_components[dimensions].rename(
+
+    # merge() will have dropped shared columns, so re-fill with child values:
+    child_values = calc_components[["table_name", "xbrl_factoid"] + dimensions].rename(
         lambda dim: f"{dim}_parent", axis="columns"
     )
     calc_components = calc_components.fillna(child_values)

@@ -750,6 +750,11 @@ electric_plant_depreciation_change_ferc1,accumulated_depreciation,electric,NA,NA
     )
     calcs = pd.DataFrame(
         columns=[
+            "table_name_parent",
+            "xbrl_factoid_parent",
+            "utility_type_parent",
+            "plant_status_parent",
+            "plant_function_parent",
             "table_name",
             "xbrl_factoid",
             "utility_type",
@@ -814,20 +819,33 @@ electric_plant_depreciation_change_ferc1,accumulated_depreciation,electric,futur
 
 
 def test_unexpected_total_components():
+    dimensions = ["utility_type", "plant_status", "plant_function"]
+
     has_extra_components = pd.read_csv(
         StringIO(
             """
 table_name_parent,xbrl_factoid_parent,utility_type_parent,plant_status_parent,plant_function_parent,table_name,xbrl_factoid,utility_type,plant_status,plant_function
-table_1,factoid_1,electric,total,total,electric_plant_depreciation_change_ferc1,accumulated_depreciation,electric,in_service,steam_production
-table_1,factoid_1,electric,total,total,electric_plant_depreciation_change_ferc1,accumulated_depreciation,gas,in_service,steam_production
+table_1,factoid_1,electric,total,total,table_1,factoid_1,electric,in_service,steam_production
+table_1,factoid_1,electric,total,total,table_1,factoid_1,gas,in_service,steam_production
+table_1,factoid_1,electric,total,total,table_1,factoid_1,total,in_service,steam_production
 """
         )
     )
+    assert len(unexpected_total_components(has_extra_components, dimensions)) == 2
 
-    assert not unexpected_total_components(
-        has_extra_components, ["utility_type", "plant_status", "plant_function"]
-    ).empty
-
-    assert unexpected_total_components(
-        has_extra_components, ["plant_status", "plant_function"]
-    ).empty
+    no_extra_components = pd.read_csv(
+        StringIO(
+            """
+table_name_parent,xbrl_factoid_parent,utility_type_parent,plant_status_parent,plant_function_parent,table_name,xbrl_factoid,utility_type,plant_status,plant_function
+table_1,factoid_1,electric,total,general,table_1,factoid_2,electric,in_service,steam_production
+table_1,factoid_1,electric,total,general,table_1,factoid_2,electric,in_service,general
+table_1,factoid_1,electric,total,general,table_1,factoid_2,electric,in_service,total
+table_1,factoid_1,electric,total,general,table_1,factoid_2,electric,in_service,general
+table_1,factoid_1,electric,total,total,table_1,factoid_1,electric,in_service,steam_production
+table_1,factoid_1,electric,total,total,table_1,factoid_1,electric,in_service,general
+table_1,factoid_1,electric,total,total,table_1,factoid_1,electric,future,steam_production
+table_1,factoid_1,electric,total,total,table_1,factoid_1,electric,future,general
+"""
+        )
+    )
+    assert unexpected_total_components(no_extra_components, dimensions).empty
