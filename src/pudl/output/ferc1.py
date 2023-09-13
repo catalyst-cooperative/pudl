@@ -1750,7 +1750,24 @@ class XbrlCalculationForestFerc1(BaseModel):
 
     @cached_property
     def annotated_forest(self: Self) -> nx.DiGraph:
-        """Calculation forest annotated with node calculation weights and tags."""
+        """Annotate the calculation forest with node calculation weights and tags.
+
+        The annotated forest should have exactly the same structure as the forest, but
+        with additional data associated with each of the nodes. This method also does
+        some error checking to try and ensure that the weights and tags that are being
+        associated with the forest are internally self-consistent.
+
+        We check whether there are multiple different weights assocated with the same
+        node in the calculation components. There are a few instances where this is
+        expected, but if there a lot of conflicting weights something is probably wrong.
+
+        We check whether any of the nodes that were orphaned (never connected to the
+        graph) or that were pruned in the course of enforcing a forest structure had
+        manually assigned tags (e.g. indicating whether they contribute to rate base).
+        If they do, then the final exploded data table may not capture all of the
+        manually assigned metadata, and we either need to edit the metadata, or figure
+        out why those nodes aren't being included in the final calculation forest.
+        """
         # Reshape the tags to turn them into a dictionary of values per-node. This
         # will make it easier to add arbitrary sets of tags later on.
         tags_dict = (
@@ -1836,7 +1853,18 @@ class XbrlCalculationForestFerc1(BaseModel):
 
     @staticmethod
     def check_conflicting_tags(annotated_forest: nx.DiGraph) -> None:
-        """Check for conflicts between ancestor and descendant tags."""
+        """Check for conflicts between ancestor and descendant tags.
+
+        At this point, we have just applied the manually compiled tags to the nodes in
+        the forest, and haven't yet propagated them down to the leaves. It's possible
+        that ancestor nodes (closer to the roots) might have tags associated with them
+        that are in conflict with descendant nodes (closer to the leaves). If that's
+        the case then when we propagate the tags to the leaves, whichever tag is
+        propagated last will end up taking precedence.
+
+        These kinds of conflicts are probably due to errors in the tagging metadata, and
+        should be investigated.
+        """
         nodes = annotated_forest.nodes
         for ancestor in nodes:
             for descendant in nx.descendants(annotated_forest, ancestor):
