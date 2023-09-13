@@ -26,7 +26,7 @@ from . import eia_bulk_elec_assets, epacems_assets, static_assets
 logger = pudl.logging_helpers.get_logger(__name__)
 
 default_assets = (
-    *load_assets_from_modules([eia_bulk_elec_assets], group_name="eia_bulk_elec"),
+    *load_assets_from_modules([eia_bulk_elec_assets], group_name="core_eia_bulk_elec"),
     *load_assets_from_modules([epacems_assets], group_name="core_epacems"),
     *load_assets_from_modules([pudl.extract.eia860], group_name="raw_eia860"),
     *load_assets_from_modules([pudl.transform.eia860], group_name="_core_eia860"),
@@ -44,10 +44,10 @@ default_assets = (
     *load_assets_from_modules([pudl.output.ferc714], group_name="respondents_ferc714"),
     *load_assets_from_modules(
         [pudl.convert.censusdp1tract_to_sqlite, pudl.output.censusdp1tract],
-        group_name="censusdp1",
+        group_name="core_censusdp1",
     ),
-    *load_assets_from_modules([glue_assets], group_name="glue"),
-    *load_assets_from_modules([static_assets], group_name="static"),
+    *load_assets_from_modules([glue_assets], group_name="core_assn"),
+    *load_assets_from_modules([static_assets], group_name="core_codes"),
     *load_assets_from_modules(
         [
             pudl.output.eia,

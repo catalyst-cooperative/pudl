@@ -202,7 +202,7 @@ class PudlTabl:
             "core_eia861__yearly_utility_data_misc": "utility_data_misc_eia861",
             "core_eia861__assn_utility": "core_eia861__assn_utility",
             "core_eia861__yearly_balancing_authority": "balancing_authority_eia861",
-            "balancing_authority_assn_eia861": "balancing_authority_assn_eia861",
+            "core_eia861__assn_balancing_authority": "balancing_authority_assn_eia861",
             # eia923 (denormalized, data primarily from EIA-923)
             "denorm_boiler_fuel_AGG_eia923": "bf_eia923",
             "denorm_fuel_receipts_costs_AGG_eia923": "frc_eia923",
