@@ -1,6 +1,7 @@
 """A collection of denormalized FERC assets and helper functions."""
 import importlib
 import re
+from copy import deepcopy
 from functools import cached_property
 from typing import Literal, NamedTuple, Self
 
@@ -914,7 +915,7 @@ class NodeId(NamedTuple):
 
 
 @asset
-def _out_tags_ferc1(table_dimensions_ferc1) -> pd.DataFrame:
+def _out_ferc1__explosion_tags(table_dimensions_ferc1) -> pd.DataFrame:
     """Grab the stored table of tags and add infered dimension."""
     # NOTE: there are a bunch of duplicate records in xbrl_factoid_rate_base_tags.csv
     # Also, these tags are only applicable to the balance_sheet_assets_ferc1 table, but
@@ -961,7 +962,7 @@ def exploded_table_asset_factory(
         "calculation_components_xbrl_ferc1": AssetIn(
             "calculation_components_xbrl_ferc1"
         ),
-        "_out_tags_ferc1": AssetIn("_out_tags_ferc1"),
+        "_out_ferc1__explosion_tags": AssetIn("_out_ferc1__explosion_tags"),
     }
     ins |= {table_name: AssetIn(table_name) for table_name in table_names_to_explode}
 
@@ -971,7 +972,7 @@ def exploded_table_asset_factory(
     ) -> pd.DataFrame:
         metadata_xbrl_ferc1 = kwargs["metadata_xbrl_ferc1"]
         calculation_components_xbrl_ferc1 = kwargs["calculation_components_xbrl_ferc1"]
-        tags = kwargs["_out_tags_ferc1"]
+        tags = kwargs["_out_ferc1__explosion_tags"]
         tables_to_explode = {
             name: df
             for (name, df) in kwargs.items()
@@ -979,7 +980,7 @@ def exploded_table_asset_factory(
             not in [
                 "metadata_xbrl_ferc1",
                 "calculation_components_xbrl_ferc1",
-                "_out_tags_ferc1",
+                "_out_ferc1__explosion_tags",
             ]
         }
         return Exploder(
@@ -1811,9 +1812,47 @@ class XbrlCalculationForestFerc1(BaseModel):
         )
         # Fill NA tag dictionaries with an empty dict so the type is uniform:
         node_attrs["tags"] = node_attrs["tags"].apply(lambda x: {} if x != x else x)
-        forest = self.forest
-        nx.set_node_attributes(forest, node_attrs.to_dict(orient="index"))
-        return forest
+        annotated_forest = deepcopy(self.forest)
+        nx.set_node_attributes(annotated_forest, node_attrs.to_dict(orient="index"))
+
+        logger.info("Checking whether any pruned nodes were also tagged.")
+        self.check_lost_tags(lost_nodes=self.pruned)
+        logger.info("Checking whether any orphaned nodes were also tagged.")
+        self.check_lost_tags(lost_nodes=self.orphans)
+        self.check_conflicting_tags(annotated_forest)
+        return annotated_forest
+
+    def check_lost_tags(self: Self, lost_nodes: list[NodeId]) -> None:
+        """Check whether any of the input lost nodes were also tagged nodes."""
+        if lost_nodes:
+            lost = pd.DataFrame(lost_nodes).set_index(self.calc_cols)
+            tagged = self.tags.set_index(self.calc_cols)
+            lost_tagged = tagged.index.intersection(lost.index)
+            if not lost_tagged.empty:
+                logger.warning(
+                    "The following tagged nodes were lost in building the forest: \n"
+                    f"{tagged.loc[lost_tagged].sort_index()}"
+                )
+
+    @staticmethod
+    def check_conflicting_tags(annotated_forest: nx.DiGraph) -> None:
+        """Check for conflicts between ancestor and descendant tags."""
+        nodes = annotated_forest.nodes
+        for ancestor in nodes:
+            for descendant in nx.descendants(annotated_forest, ancestor):
+                for tag in nodes[ancestor]["tags"]:
+                    if tag in nodes[descendant]["tags"]:
+                        ancestor_tag_value = nodes[ancestor]["tags"][tag]
+                        descendant_tag_value = nodes[descendant]["tags"][tag]
+                        if ancestor_tag_value != descendant_tag_value:
+                            logger.error(
+                                "\n================================================"
+                                f"\nCalculation forest nodes have conflicting tags:"
+                                f"\nAncestor: {ancestor}"
+                                f"\n    tags[{tag}] == {ancestor_tag_value}"
+                                f"\nDescendant: {descendant}"
+                                f"\n    tags[{tag}] == {descendant_tag_value}"
+                            )
 
     @cached_property
     def full_digraph(self: Self) -> nx.DiGraph:
@@ -2138,14 +2177,13 @@ class XbrlCalculationForestFerc1(BaseModel):
         - The weight associated with the leaf, in relation to its root.
         """
         # Construct a dataframe that links the leaf node IDs to their root nodes:
-        pruned_forest = self.annotated_forest
         leaves = self.forest_leaves
         roots = self.forest_roots
         leaf_to_root_map = {
             leaf: root
             for leaf in leaves
             for root in roots
-            if leaf in nx.descendants(pruned_forest, root)
+            if leaf in nx.descendants(self.annotated_forest, root)
         }
         leaves_df = pd.DataFrame(list(leaf_to_root_map.keys()))
         roots_df = pd.DataFrame(list(leaf_to_root_map.values())).rename(
@@ -2157,20 +2195,16 @@ class XbrlCalculationForestFerc1(BaseModel):
         leaf_rows = []
         for leaf in leaves:
             leaf_tags = {}
-            leaf_weight = pruned_forest.nodes[leaf].get("weight", 1.0)
-            for node in nx.ancestors(pruned_forest, leaf):
-                # TODO: need to check that there are no conflicts between tags that are
-                # being propagated, e.g. if two different ancestors have been tagged
-                # rate_base: yes and rate_base: no.
-                leaf_tags |= pruned_forest.nodes[node]["tags"]
+            leaf_weight = self.annotated_forest.nodes[leaf].get("weight", 1.0)
+            for node in nx.ancestors(self.annotated_forest, leaf):
+                leaf_tags |= self.annotated_forest.nodes[node]["tags"]
                 # Root nodes have no weight because they don't come from calculations
                 # We assign them a weight of 1.0
-                # if not pruned_forest.nodes[node].get("weight", False):
-                if pd.isna(pruned_forest.nodes[node]["weight"]):
+                if pd.isna(self.annotated_forest.nodes[node]["weight"]):
                     assert node in roots
                     node_weight = 1.0
                 else:
-                    node_weight = pruned_forest.nodes[node]["weight"]
+                    node_weight = self.annotated_forest.nodes[node]["weight"]
                 leaf_weight *= node_weight
 
             # Construct a dictionary describing the leaf node and convert it into a
