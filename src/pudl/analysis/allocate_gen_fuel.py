@@ -1638,20 +1638,16 @@ def adjust_msw_energy_source_codes(
     # Adjust any energy source codes related to municipal solid waste
     # get a list of all of the MSW-related codes used in gf and bf
     msw_codes_in_gf = set(
-        list(
-            gf.loc[
-                gf["energy_source_code"].isin(["MSW", "MSB", "MSN"]),
-                "energy_source_code",
-            ].unique()
-        )
+        gf.loc[
+            gf["energy_source_code"].isin(["MSW", "MSB", "MSN"]),
+            "energy_source_code",
+        ].unique()
     )
     msw_codes_in_bf = set(
-        list(
-            bf_by_gens.loc[
-                bf_by_gens["energy_source_code"].isin(["MSW", "MSB", "MSN"]),
-                "energy_source_code",
-            ].unique()
-        )
+        bf_by_gens.loc[
+            bf_by_gens["energy_source_code"].isin(["MSW", "MSB", "MSN"]),
+            "energy_source_code",
+        ].unique()
     )
     msw_codes_used = list(msw_codes_in_gf | msw_codes_in_bf)
     # join these codes into a string that will be used to replace the MSW code
@@ -1674,7 +1670,7 @@ def adjust_msw_energy_source_codes(
                         for col in gens.columns
                         if col.startswith(f"{esc_type}source_code")
                     ],
-                ].values
+                ].to_numpy()
             ]
 
             # replace any MSW codes with the codes used in bf and gf
@@ -1737,7 +1733,7 @@ def add_missing_energy_source_codes_to_gens(gens_at_freq, gf, bf):
         index=idx, columns="num"
     )[["energy_source_code"]]
     missing_gf_escs_from_gens.columns = [
-        "_".join(col) for col in missing_gf_escs_from_gens.columns.values
+        "_".join(col) for col in missing_gf_escs_from_gens.columns.to_numpy()
     ]
     missing_gf_escs_from_gens = missing_gf_escs_from_gens.reset_index()
 

@@ -20,8 +20,12 @@ from pudl.io_managers import (
 from pudl.resources import dataset_settings, datastore, ferc_to_sqlite_settings
 from pudl.settings import EtlSettings
 
-from . import glue_assets  # noqa: F401
-from . import eia_bulk_elec_assets, epacems_assets, static_assets
+from . import (
+    eia_bulk_elec_assets,
+    epacems_assets,
+    glue_assets,
+    static_assets,
+)
 
 logger = pudl.logging_helpers.get_logger(__name__)
 

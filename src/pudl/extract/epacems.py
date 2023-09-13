@@ -109,7 +109,7 @@ class EpaCemsPartition(NamedTuple):
 
     def get_filters(self):
         """Returns filters for retrieving given partition resource from Datastore."""
-        return dict(year=self.year, state=self.state.lower())
+        return {"year": self.year, "state": self.state.lower()}
 
     def get_annual_file(self) -> Path:
         """Return the name of the CSV file that holds annual hourly data."""
@@ -146,8 +146,7 @@ class EpaCemsDatastore:
                     csv_file, ignore_cols=API_IGNORE_COLS, rename_dict=API_RENAME_DICT
                 )
             return df
-        else:
-            raise AssertionError(f"Unexpected archive format. Found files: {files}.")
+        raise AssertionError(f"Unexpected archive format. Found files: {files}.")
 
     def _csv_to_dataframe(
         self, csv_file: Path, ignore_cols: dict[str, str], rename_dict: dict[str, str]

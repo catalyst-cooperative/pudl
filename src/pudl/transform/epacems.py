@@ -52,7 +52,9 @@ def harmonize_eia_epa_orispl(
     # plant_id_epa and emissions_unit_id_epa value before reassigning IDs.
     one_to_many = crosswalk_df.groupby(
         ["plant_id_epa", "emissions_unit_id_epa"]
-    ).filter(lambda x: x.plant_id_eia.nunique() > 1)
+    ).filter(
+        lambda x: x.plant_id_eia.nunique() > 1  # noqa: PD101
+    )
 
     if not one_to_many.empty:
         raise AssertionError(

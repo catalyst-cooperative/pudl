@@ -19,4 +19,4 @@ that's been identified.
 These dictionaries are used by :class:`pudl.transform.classes.AbstractTableTransformer`
 to look up the parameters to be used in transforming a table based on the table name.
 """
-from . import ferc1  # noqa: F401
+from . import ferc1

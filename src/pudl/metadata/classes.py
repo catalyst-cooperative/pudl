@@ -107,14 +107,14 @@ def _format_for_sql(x: Any, identifier: bool = False) -> str:  # noqa: C901
         raise ValueError("Identifier must be a string")
     if x is None:
         return "null"
-    elif isinstance(x, (int, float)):
+    if isinstance(x, int | float):
         # NOTE: nan and (-)inf are TEXT in sqlite but numeric in postgresSQL
         return str(x)
-    elif x is True:
+    if x is True:
         return "TRUE"
-    elif x is False:
+    if x is False:
         return "FALSE"
-    elif isinstance(x, re.Pattern):
+    if isinstance(x, re.Pattern):
         x = x.pattern
     elif isinstance(x, datetime.datetime):
         # Check datetime.datetime first, since also datetime.date
@@ -267,7 +267,7 @@ class Pattern(BaseType):
     @classmethod
     def validate(cls, value: Any) -> re.Pattern:
         """Validate as pattern."""
-        if not isinstance(value, (str, re.Pattern)):
+        if not isinstance(value, str | re.Pattern):
             raise TypeError("value is not a string or compiled regular expression")
         if isinstance(value, str):
             try:
@@ -774,14 +774,13 @@ class ForeignKey(Base):
 
     @pydantic.validator("reference")
     def _check_fields_equal_length(cls, value, values):  # noqa: N805
-        if "fields_" in values:
-            if len(value.fields) != len(values["fields_"]):
-                raise ValueError("fields and reference.fields are not equal length")
+        if "fields_" in values and len(value.fields) != len(values["fields_"]):
+            raise ValueError("fields and reference.fields are not equal length")
         return value
 
     def is_simple(self) -> bool:
         """Indicate whether the FK relationship contains a single column."""
-        return True if len(self.fields) == 1 else False
+        return len(self.fields) == 1
 
     def to_sql(self) -> sa.ForeignKeyConstraint:
         """Return equivalent SQL Foreign Key."""
@@ -941,10 +940,9 @@ class DataSource(Base):
             partitions = self.working_partitions
         if "years" in partitions:
             return f"{min(partitions['years'])}-{max(partitions['years'])}"
-        elif "year_month" in partitions:
+        if "year_month" in partitions:
             return f"through {partitions['year_month']}"
-        else:
-            return ""
+        return ""
 
     def add_datastore_metadata(self) -> None:
         """Get source file metadata from the datastore."""
@@ -1205,9 +1203,8 @@ class Resource(Base):
 
     @pydantic.validator("schema_")
     def _check_harvest_primary_key(cls, value, values):  # noqa: N805
-        if values["harvest"].harvest:
-            if not value.primary_key:
-                raise ValueError("Harvesting requires a primary key")
+        if values["harvest"].harvest and not value.primary_key:
+            raise ValueError("Harvesting requires a primary key")
         return value
 
     @staticmethod
@@ -1460,7 +1457,7 @@ class Resource(Base):
             return self.format_df()
         df = df.copy()
         # Rename periodic key columns (if any) to the requested period
-        df.rename(columns=matches, inplace=True)
+        df = df.rename(columns=matches)
         # Cast integer year fields to datetime
         for field in self.schema.fields:
             if (
@@ -1593,10 +1590,7 @@ class Resource(Base):
         nrows, ncols = df.reset_index().shape
         freports = {}
         for field in self.schema.fields:
-            if field.name in errors:
-                nerrors = errors[field.name].size
-            else:
-                nerrors = 0
+            nerrors = errors[field.name].size if field.name in errors else 0
             stats = {
                 "all": nrows,
                 "invalid": nerrors,
@@ -1991,7 +1985,7 @@ class DatasetteMetadata(Base):
         xbrl_resources = {}
         for xbrl_id in xbrl_ids:
             # Read JSON Package descriptor from file
-            with open(Path(output_path) / f"{xbrl_id}_datapackage.json") as f:
+            with Path.open(Path(output_path) / f"{xbrl_id}_datapackage.json") as f:
                 descriptor = json.load(f)
 
             # Use descriptor to create Package object

@@ -41,7 +41,7 @@ class Extractor(excel.GenericExtractor):
     def process_raw(self, df, page, **partition):
         """Drops reserved columns."""
         to_drop = [c for c in df.columns if c[:8] == "reserved"]
-        df.drop(to_drop, axis=1, inplace=True)
+        df = df.drop(to_drop, axis=1)
         df = df.rename(columns=self._metadata.get_column_map(page, **partition))
         self.cols_added = []
         # Eventually we should probably make this a transform
@@ -78,7 +78,7 @@ class Extractor(excel.GenericExtractor):
     def process_final_page(df, page):
         """Removes reserved columns from the final dataframe."""
         to_drop = [c for c in df.columns if c[:8] == "reserved"]
-        df.drop(columns=to_drop, inplace=True, errors="ignore")
+        df = df.drop(columns=to_drop, errors="ignore")
         return df
 
     @staticmethod

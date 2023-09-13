@@ -48,10 +48,10 @@ unique_record_tables = [
 def test_record_id_dupes(pudl_engine, table_name):
     """Verify that the generated ferc1 record_ids are unique."""
     table = pd.read_sql(table_name, pudl_engine)
-    n_dupes = table.record_id.duplicated().values.sum()
+    n_dupes = table.record_id.duplicated().to_numpy().sum()
 
     if n_dupes:
-        dupe_ids = table.record_id[table.record_id.duplicated()].values
+        dupe_ids = table.record_id[table.record_id.duplicated()].to_numpy()
         raise AssertionError(
             f"{n_dupes} duplicate record_ids found in {table_name}: {dupe_ids}."
         )

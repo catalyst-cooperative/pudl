@@ -236,8 +236,10 @@ def _core_epa__assn_epacamd_eia_unique(
     # the same plant_id_epa and emissions_unit_id_epa value.
     one_to_many = core_epa__assn_epacamd_eia.groupby(
         ["plant_id_epa", "emissions_unit_id_epa"]
-    ).filter(lambda x: x.plant_id_eia.nunique() > 1 and x.report_year.nunique() > 1)
-
+    ).filter(
+        lambda x: x.plant_id_eia.nunique() > 1  # noqa: PD101
+        and x.report_year.nunique() > 1  # noqa: PD101)
+    )
     # For each mismatch drop the one from 2018, then drop report_year column
     return core_epa__assn_epacamd_eia.drop(
         one_to_many[one_to_many.report_year == 2018].index
@@ -501,12 +503,12 @@ def _convert_global_id_to_composite_id(
     # Errors like mismatched length will raise exceptions, which is good.
 
     # drop the outer group, leave the reindexed row index
-    composite_key.reset_index(level=0, drop=True, inplace=True)
-    composite_key.sort_index(inplace=True)  # put back in same order as reindexed
+    composite_key = composite_key.reset_index(level=0, drop=True)
+    composite_key = composite_key.sort_index()  # put back in same order as reindexed
     reindexed["subplant_id"] = composite_key
     # restore original index
-    reindexed.set_index(idx_col, inplace=True)  # restore values
-    reindexed.index.rename(idx_name, inplace=True)  # restore original name
+    reindexed = reindexed.set_index(idx_col)  # restore values
+    reindexed.index = reindexed.index.rename(idx_name)  # restore original name
     return reindexed
 
 

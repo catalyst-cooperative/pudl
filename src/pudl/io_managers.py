@@ -61,7 +61,7 @@ class ForeignKeyError(SQLAlchemyError):
         return False
 
 
-class ForeignKeyErrors(SQLAlchemyError):
+class ForeignKeyErrors(SQLAlchemyError):  # noqa: N818
     """Raised when data in a database violate multiple foreign key constraints."""
 
     def __init__(self, fk_errors: list[ForeignKeyError]):
@@ -70,7 +70,7 @@ class ForeignKeyErrors(SQLAlchemyError):
 
     def __str__(self):
         """Create string representation of ForeignKeyErrors object."""
-        fk_errors = list(map(lambda x: str(x), self.fk_errors))
+        fk_errors = [str(x) for x in self.fk_errors]
         return "\n".join(fk_errors)
 
     def __iter__(self):
@@ -656,7 +656,7 @@ class FercDBFSQLiteIOManager(FercSQLiteIOManager):
 
         with engine.connect() as con:
             return pd.read_sql_query(
-                f"SELECT * FROM {table_name} "  # nosec: B608
+                f"SELECT * FROM {table_name} "  # noqa: S608
                 "WHERE report_year BETWEEN :min_year AND :max_year;",
                 con=con,
                 params={
@@ -718,7 +718,7 @@ class FercXBRLSQLiteIOManager(FercSQLiteIOManager):
                 SELECT {table_name}.*, {id_table}.report_year FROM {table_name}
                 JOIN {id_table} ON {id_table}.filing_name = {table_name}.filing_name
                 WHERE {id_table}.report_year BETWEEN :min_year AND :max_year;
-                """,  # nosec: B608 - table names not supplied by user
+                """,  # noqa: S608 - table names not supplied by user
                 con=con,
                 params={
                     "min_year": min(ferc1_settings.xbrl_years),
