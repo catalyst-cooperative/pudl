@@ -315,7 +315,7 @@ def out_ferc1__yearly_balance_sheet_liabilities(
 
 
 @asset(io_manager_key="pudl_sqlite_io_manager", compute_kind="Python")
-def denorm_cash_flow_ferc1(
+def out_ferc1__yearly_cash_flow(
     core_ferc1__yearly_cash_flow: pd.DataFrame,
     core_pudl__assn_utilities_ferc1: pd.DataFrame,
 ) -> pd.DataFrame:
