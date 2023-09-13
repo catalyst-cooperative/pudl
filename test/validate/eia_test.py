@@ -159,7 +159,7 @@ def test_minmax_rows(
             ),
         ),
         (
-            "core_eia860__scd_emissions_control_equipment",
+            "emissions_control_equipment_eia860",
             (
                 Resource.from_id(
                     "core_eia860__scd_emissions_control_equipment"

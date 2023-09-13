@@ -75,9 +75,9 @@ Data Coverage
   CAMPD API, and to include 2022 data. Due to changes in the ETL, Alaska, Puerto Rico
   and Hawaii are now included in CEMS processing. See issue :issue:`1264` & PRs
   :pr:`2779`, :pr:` 2816`.
-* New :ref:`epacamd_eia` crosswalk version v0.3, see issue :issue:`2317` and PR
-  :pr:`2316`. EPA's updates add manual matches and exclusions focusing on operating
-  units with a generator ID as of 2018.
+* New :ref:`core_epa__assn_epacamd_eia` crosswalk version v0.3, see issue :issue:`2317`
+  and PR :pr:`2316`. EPA's updates add manual matches and exclusions focusing on
+  operating units with a generator ID as of 2018.
 * New PUDL tables from :doc:`data_sources/ferc1`, integrating older DBF and newer XBRL
   data. See :issue:`1574` for an overview of our progress integrating FERC's XBRL data.
   To see which DBF and XBRL tables the following PUDL tables are derived from, refer to
