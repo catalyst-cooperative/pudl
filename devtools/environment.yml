@@ -17,6 +17,10 @@ dependencies:
   - python-snappy>=0.6,<1
   - sqlite>=3.36,<4
 
+  # libabseil 20230802 isn't linked by libgdal-3.7.1, which is dependency of
+  # fiona==1.9.4, dependency of geopandas 0.13.2
+  - libabseil==20230125.3
+
   # These are not normal Python packages available on PyPI
   - nodejs # Useful for Jupyter
   - pandoc # Useful for rendering RST files in Atom

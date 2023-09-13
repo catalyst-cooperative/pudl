@@ -146,7 +146,7 @@ def test_ferc_xbrl_datastore_get_filings(mocker, file_map, selected_filings):
                 ferc60_xbrl_to_sqlite_settings=Ferc60XbrlToSqliteSettings(),
                 ferc714_xbrl_to_sqlite_settings=Ferc714XbrlToSqliteSettings(),
             ),
-            [form for form in XbrlFormNumber],
+            list(XbrlFormNumber),
         ),
         (
             FercToSqliteSettings(

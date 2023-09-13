@@ -263,7 +263,7 @@ all_electric_power,3
     ),
 )
 """Association table describing the many-to-many relationships between plant sectors and
-various aggregates in fuel_receipts_costs_aggs_eia."""
+various aggregates in core_eia__yearly_fuel_receipts_costs_aggs."""
 
 
 EIA_FUEL_AGGREGATE_ASSN = pd.read_csv(
@@ -288,7 +288,7 @@ petroleum_liquids,WO
     ),
 )
 """Association table describing the many-to-many relationships between fuel types and
-various aggregates in fuel_receipts_costs_aggs_eia.
+various aggregates in core_eia__yearly_fuel_receipts_costs_aggs.
 
 Missing from these aggregates are all the "other" categories of gases: OG, BFG, SGP, SC,
 PG. But those gases combine for about 0.2% of total MMBTU of reported fuel receipts.
@@ -314,7 +314,7 @@ DE,Delaware,USA,United States of America,state,America/New_York,"10",South Atlan
 FL,Florida,USA,United States of America,state,America/New_York,"12",South Atlantic,SAT,South,1
 GA,Georgia,USA,United States of America,state,America/New_York,"13",South Atlantic,SAT,South,1
 GU,Guam,USA,United States of America,outlying_area,Pacific/Guam,"66",,,,0
-HI,Hawaii,USA,United States of America,state,Pacific/Honolulu,"15",Pacific Noncontiguous,PCN,West,0
+HI,Hawaii,USA,United States of America,state,Pacific/Honolulu,"15",Pacific Noncontiguous,PCN,West,1
 IA,Iowa,USA,United States of America,state,America/Chicago,"19",West North Central,WNC,Midwest,1
 ID,Idaho,USA,United States of America,state,America/Denver,"16",Mountain,MTN,West,1
 IL,Illinois,USA,United States of America,state,America/Chicago,"17",East North Central,ENC,Midwest,1

@@ -413,7 +413,7 @@ any cleaning mechanisms in place to account for this."""
         "etl_group": "ferc1",
         "field_namespace": "ferc1",
     },
-    "plants_ferc1": {
+    "core_pudl__assn_plants_ferc1": {
         "description": "FERC 1 Plants and their associated manually assigned PUDL Plant IDs",
         "schema": {
             "fields": ["utility_id_ferc1", "plant_name_ferc1", "plant_id_pudl"],
@@ -537,14 +537,21 @@ any cleaning mechanisms in place to account for this."""
         "field_namespace": "ferc1",
     },
     "core_ferc1__yearly_plants_small": {
-        "description": (
-            "Generating plant statistics for steam plants with less than 25 MW "
-            "installed nameplate capacity and internal combustion plants, gas "
-            "turbine-plants, conventional hydro plants, and pumped storage plants with "
-            "less than 10 MW installed nameplate capacity. As reported on FERC Form 1 "
-            "Schedule 410 (pages 410-411), and extracted from the FERC Visual FoxPro "
-            "database table f1_gnrt_plant."
-        ),
+        "description": """The generating plant statistics for internal combustion
+plants, gas turbine-plants, conventional hydro plants, and pumped storage plants with
+less than 10 MW installed nameplate capacity and steam plants with less than 25 MW
+installed nameplate capacity. As reported on FERC Form 1 Schedule 410 (pages 410-411)
+and extracted from the FERC Visual FoxPro and XBRL. See our
+``pudl.extract.ferc1.TABLE_NAME_MAP_FERC1`` for links to the raw tables.
+
+The raw version of this table is more like a digitized PDF than an actual data table.
+The rows contain lots of information in addition to what the columns might suggest.
+For instance, a single column may contain header rows, note rows, and total rows. This
+extraneous information is useful, but it prevents proper analysis when mixed in with the
+rest of the values data in the column. We employ a couple of data transformations to
+extract these rows from the data and preserve some of the information they contain
+(fuel type, plant type, FERC license, or general notes about the plant) in separate
+columns.""",
         "schema": {
             "fields": [
                 "record_id",
@@ -702,7 +709,7 @@ any cleaning mechanisms in place to account for this."""
         "etl_group": "ferc1",
         "field_namespace": "ferc1",
     },
-    "utilities_ferc1": {
+    "core_pudl__assn_utilities_ferc1": {
         "description": "This table maps two manually assigned utility IDs: a PUDL ID and a FERC1 ID. The PUDL ID maps EIA and FERC1 utilities. The FERC1 ID maps the older DBF respondent IDs to new XBRL entity IDs. This table is generated from a table stored in the PUDL repository: src/package_data/glue/utility_id_pudl.csv",
         "schema": {
             "fields": ["utility_id_ferc1", "utility_name_ferc1", "utility_id_pudl"],
@@ -713,7 +720,7 @@ any cleaning mechanisms in place to account for this."""
         "etl_group": "glue",
         "field_namespace": "ferc1",
     },
-    "utilities_ferc1_dbf": {
+    "core_pudl__assn_utilities_ferc1_dbf": {
         "description": "This table maps the assign utility ID FERC1 to the native utility ID from the FERC1 DBF inputs - originally reported as respondent_id.",
         "schema": {
             "fields": ["utility_id_ferc1", "utility_id_ferc1_dbf"],
@@ -723,7 +730,7 @@ any cleaning mechanisms in place to account for this."""
         "etl_group": "glue",
         "field_namespace": "ferc1",
     },
-    "utilities_ferc1_xbrl": {
+    "core_pudl__assn_utilities_ferc1_xbrl": {
         "description": "This table maps the assign utility ID FERC1 to the native utility ID from the FERC1 XBRL inputs - originally reported as entity_id.",
         "schema": {
             "fields": ["utility_id_ferc1", "utility_id_ferc1_xbrl"],

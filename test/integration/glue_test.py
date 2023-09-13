@@ -75,18 +75,18 @@ def glue_test_dfs(
     glue_test_dfs.update(
         {
             "utilities_ferc1_dbf_labeled": label_utilities_ferc1_dbf(
-                glue_test_dfs["utilities_ferc1_dbf"],
+                glue_test_dfs["core_pudl__assn_utilities_ferc1_dbf"],
                 glue_test_dfs["util_ids_ferc1_raw_dbf"],
             ),
             "utilities_ferc1_xbrl_labeled": label_utilities_ferc1_xbrl(
-                glue_test_dfs["utilities_ferc1_xbrl"],
+                glue_test_dfs["core_pudl__assn_utilities_ferc1_xbrl"],
                 glue_test_dfs["util_ids_ferc1_raw_xbrl"],
             ),
         }
     )
     # Make everything lowercase
     glue_test_dfs = {
-        df_name: df.applymap(lambda x: x.lower() if type(x) is str else x)
+        df_name: df.applymap(lambda x: x.lower() if isinstance(x, str) else x)
         for (df_name, df) in glue_test_dfs.items()
     }
 
@@ -103,63 +103,63 @@ def save_to_devtools_glue(missing_df: pd.DataFrame, test_dir, file_name: str):
     "ids_left,ids_right,id_cols,label_df",
     [
         pytest.param(
-            "utilities_pudl",
-            "utilities_ferc1",
+            "core_pudl__entity_utilities_pudl",
+            "core_pudl__assn_utilities_ferc1",
             ["utility_id_pudl"],
-            "utilities_ferc1",
+            "core_pudl__assn_utilities_ferc1",
             id="missing_utility_id_pudl_in_utilities_ferc1",
         ),
         pytest.param(
-            "utilities_ferc1",
-            "utilities_ferc1_dbf",
+            "core_pudl__assn_utilities_ferc1",
+            "core_pudl__assn_utilities_ferc1_dbf",
             ["utility_id_ferc1"],
             "utilities_ferc1_dbf_labeled",
             id="missing_utility_id_ferc1_in_utilities_ferc1_dbf",
         ),
         pytest.param(
-            "utilities_ferc1",
-            "utilities_ferc1_xbrl",
+            "core_pudl__assn_utilities_ferc1",
+            "core_pudl__assn_utilities_ferc1_xbrl",
             ["utility_id_ferc1"],
             "utilities_ferc1_xbrl_labeled",
             id="missing_utility_id_ferc1_in_utilities_ferc1_xbrl",
         ),
         pytest.param(
-            "utilities_ferc1",
-            "plants_ferc1",
+            "core_pudl__assn_utilities_ferc1",
+            "core_pudl__assn_plants_ferc1",
             ["utility_id_ferc1"],
-            "plants_ferc1",
+            "core_pudl__assn_plants_ferc1",
             id="missing_utility_id_ferc1_in_plants_ferc1",
         ),
         pytest.param(
-            "utilities_ferc1_xbrl",
+            "core_pudl__assn_utilities_ferc1_xbrl",
             "util_ids_ferc1_raw_xbrl",
             ["utility_id_ferc1_xbrl"],
             "util_ids_ferc1_raw_xbrl",
             id="missing_utility_id_ferc1_xbrl_in_raw_xbrl",
         ),
         pytest.param(
-            "utilities_ferc1_dbf",
+            "core_pudl__assn_utilities_ferc1_dbf",
             "util_ids_ferc1_raw_dbf",
             ["utility_id_ferc1_dbf"],
             "util_ids_ferc1_raw_dbf",
             id="missing_utility_id_ferc1_dbf_in_raw_dbf",
         ),
         pytest.param(
-            "plants_pudl",
-            "plants_ferc1",
+            "core_pudl__entity_plants_pudl",
+            "core_pudl__assn_plants_ferc1",
             ["plant_id_pudl"],
             None,  # should only ever happen if a plant is in the mapping sheet w/o a pudl id
             id="missing_plant_id_pudl_in_plants_ferc1",
         ),
         pytest.param(
-            "plants_ferc1",
+            "core_pudl__assn_plants_ferc1",
             "plants_ferc1_raw",
             ["utility_id_ferc1", "plant_name_ferc1"],
             "plants_ferc1_raw",
             id="missing_plants_in_plants_ferc1",
         ),
         pytest.param(
-            "plants_eia",
+            "core_pudl__assn_plants_eia",
             "plants_eia_pudl_db",
             ["plant_id_eia"],
             "plants_eia_labeled",
@@ -222,15 +222,15 @@ def test_for_fk_validation_and_unmapped_ids(
     "ids_left,ids_right,id_cols,drop",
     [
         pytest.param(
-            "plants_ferc1",
+            "core_pudl__assn_plants_ferc1",
             "plants_ferc1_raw",
             ["utility_id_ferc1", "plant_name_ferc1"],
             (227, "comanche"),
             id="check_for_unmmapped_plants_in_plants_ferc1",
         ),
         pytest.param(
-            "utilities_ferc1",
-            "utilities_ferc1_xbrl",
+            "core_pudl__assn_utilities_ferc1",
+            "core_pudl__assn_utilities_ferc1_xbrl",
             ["utility_id_ferc1"],
             (227),
             id="validate_utility_id_ferc1_in_utilities_ferc1_xbrl",
@@ -271,12 +271,12 @@ def test_unmapped_utils_eia(
 
     This test has its own call signature because its more complex. In order to label the
     missing utilities, we use both the ``pudl_out`` object as well as direct SQL
-    queries. This test is duplicative with the sql foriegn key constraints.
+    queries. This test is duplicative with the sql foreign key constraints.
     """
     unmapped_utils_eia = get_util_ids_eia_unmapped(
         pudl_out,
         pudl_engine,
-        glue_test_dfs["utilities_eia"],
+        glue_test_dfs["core_pudl__assn_utilities_eia"],
     )
 
     if save_unmapped_ids:

@@ -368,8 +368,8 @@ PPE_COLS = [
 class MakeMegaGenTbl:
     """Compiler for a MEGA generator table with ownership integrated.
 
-    Examples
-    --------
+    Examples:
+    ---------
     **Input Tables**
 
     Here is an example of one plant with three generators. We will use
@@ -525,11 +525,11 @@ class MakeMegaGenTbl:
         Args:
             gen_df (pandas.DataFrame): annual table of all generators from EIA.
 
-        Returns
+        Returns:
             pandas.DataFrame: annual table of all generators from EIA that
             operated within each reporting year.
 
-        TODO:
+        Todo:
             This function results in warning: `PerformanceWarning: DataFrame
             is highly fragmented...` I expect this is because of the number of
             columns that are being assigned here via `.loc[:, col_to_assign]`.
@@ -660,7 +660,7 @@ class MakePlantParts:
             path_to_one_to_many: a Path to the one_to_many csv
             file in `pudl.package_data.glue`.
 
-        Returns
+        Returns:
             pandas.DataFrame: master unit list table with one-to-many matches aggregated
             as plant parts.
         """
@@ -808,11 +808,11 @@ class MakePlantParts:
             part_df = AddConsistentAttributes(attribute_col, part_name).execute(
                 part_df, attribute_df
             )
-        for attribute_col in PRIORITY_ATTRIBUTES_DICT.keys():
+        for attribute_col in PRIORITY_ATTRIBUTES_DICT:
             part_df = AddPriorityAttribute(attribute_col, part_name).execute(
                 part_df, attribute_df
             )
-        for attribute_col in MAX_MIN_ATTRIBUTES_DICT.keys():
+        for attribute_col in MAX_MIN_ATTRIBUTES_DICT:
             part_df = AddMaxMinAttribute(
                 attribute_col,
                 part_name,
@@ -1191,8 +1191,7 @@ class AddAttribute:
         """Add a new column to gens_mega."""
         if self.assign_col_dict is not None:
             return gens_mega.assign(**self.assign_col_dict)
-        else:
-            return gens_mega
+        return gens_mega
 
 
 class AddConsistentAttributes(AddAttribute):
@@ -1535,7 +1534,7 @@ def match_to_single_plant_part(
             suffixes=("_og", ""),
         )
         # there should be no records without a matching generator
-        assert ~(part_df.record_id_eia.isnull().values.any())
+        assert ~(part_df.record_id_eia.isnull().to_numpy().any())
         out_dfs.append(part_df)
     out_df = pd.concat(out_dfs)
 

@@ -176,7 +176,7 @@ def _prep_ferc1_eia(ferc1_eia, utils_eia860) -> pd.DataFrame:
     )
 
     # Add the new columns to the df
-    for new_col in [x for x in RENAME_COLS_FERC1_EIA.keys() if "new_" in x]:
+    for new_col in [x for x in RENAME_COLS_FERC1_EIA if "new_" in x]:
         ferc1_eia_prep.loc[:, new_col] = pd.NA
 
     # Rename the columns, and remove unwanted columns from ferc-eia table

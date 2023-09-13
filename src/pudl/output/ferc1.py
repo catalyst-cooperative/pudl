@@ -10,11 +10,15 @@ logger = pudl.logging_helpers.get_logger(__name__)
 
 @asset(io_manager_key="pudl_sqlite_io_manager", compute_kind="Python")
 def _out_ferc1__yearly_plants_utilities(
-    plants_ferc1: pd.DataFrame,
-    utilities_ferc1: pd.DataFrame,
+    core_pudl__assn_plants_ferc1: pd.DataFrame,
+    core_pudl__assn_utilities_ferc1: pd.DataFrame,
 ) -> pd.DataFrame:
     """A denormalized table containing FERC plant and utility names and IDs."""
-    return pd.merge(plants_ferc1, utilities_ferc1, on="utility_id_ferc1")
+    return pd.merge(
+        core_pudl__assn_plants_ferc1,
+        core_pudl__assn_utilities_ferc1,
+        on="utility_id_ferc1",
+    )
 
 
 @asset(io_manager_key="pudl_sqlite_io_manager", compute_kind="Python")
@@ -221,11 +225,12 @@ def out_ferc1__yearly_fuel(
 
 @asset(io_manager_key="pudl_sqlite_io_manager", compute_kind="Python")
 def out_ferc1__yearly_purchased_power(
-    core_ferc1__yearly_purchased_power: pd.DataFrame, utilities_ferc1: pd.DataFrame
+    core_ferc1__yearly_purchased_power: pd.DataFrame,
+    core_pudl__assn_utilities_ferc1: pd.DataFrame,
 ) -> pd.DataFrame:
     """Pull a useful dataframe of FERC Form 1 Purchased Power data."""
     purchased_power_df = core_ferc1__yearly_purchased_power.merge(
-        utilities_ferc1, on="utility_id_ferc1"
+        core_pudl__assn_utilities_ferc1, on="utility_id_ferc1"
     ).pipe(
         pudl.helpers.organize_cols,
         [
@@ -242,11 +247,12 @@ def out_ferc1__yearly_purchased_power(
 
 @asset(io_manager_key="pudl_sqlite_io_manager", compute_kind="Python")
 def out_ferc1__yearly_plant_in_service(
-    core_ferc1__yearly_plant_in_service: pd.DataFrame, utilities_ferc1: pd.DataFrame
+    core_ferc1__yearly_plant_in_service: pd.DataFrame,
+    core_pudl__assn_utilities_ferc1: pd.DataFrame,
 ) -> pd.DataFrame:
     """Pull a dataframe of FERC Form 1 Electric Plant in Service data."""
     pis_df = core_ferc1__yearly_plant_in_service.merge(
-        utilities_ferc1, on="utility_id_ferc1"
+        core_pudl__assn_utilities_ferc1, on="utility_id_ferc1"
     ).pipe(
         pudl.helpers.organize_cols,
         [
@@ -263,12 +269,12 @@ def out_ferc1__yearly_plant_in_service(
 @asset(io_manager_key="pudl_sqlite_io_manager", compute_kind="Python")
 def out_ferc1__yearly_balance_sheet_assets(
     core_ferc1__yearly_balance_sheet_assets: pd.DataFrame,
-    utilities_ferc1: pd.DataFrame,
+    core_pudl__assn_utilities_ferc1: pd.DataFrame,
 ) -> pd.DataFrame:
     """Pull a useful dataframe of FERC Form 1 balance sheet assets data."""
     out_ferc1__yearly_balance_sheet_assets = (
         core_ferc1__yearly_balance_sheet_assets.merge(
-            utilities_ferc1, on="utility_id_ferc1"
+            core_pudl__assn_utilities_ferc1, on="utility_id_ferc1"
         ).pipe(
             pudl.helpers.organize_cols,
             [
@@ -287,12 +293,12 @@ def out_ferc1__yearly_balance_sheet_assets(
 @asset(io_manager_key="pudl_sqlite_io_manager", compute_kind="Python")
 def out_ferc1__yearly_balance_sheet_liabilities(
     core_ferc1__yearly_balance_sheet_liabilities: pd.DataFrame,
-    utilities_ferc1: pd.DataFrame,
+    core_pudl__assn_utilities_ferc1: pd.DataFrame,
 ) -> pd.DataFrame:
     """Pull a useful dataframe of FERC Form 1 balance_sheet liabilities data."""
     out_ferc1__yearly_balance_sheet_liabilities = (
         core_ferc1__yearly_balance_sheet_liabilities.merge(
-            utilities_ferc1, on="utility_id_ferc1"
+            core_pudl__assn_utilities_ferc1, on="utility_id_ferc1"
         ).pipe(
             pudl.helpers.organize_cols,
             [
@@ -309,12 +315,13 @@ def out_ferc1__yearly_balance_sheet_liabilities(
 
 
 @asset(io_manager_key="pudl_sqlite_io_manager", compute_kind="Python")
-def out_ferc1__yearly_cash_flow(
-    core_ferc1__yearly_cash_flow: pd.DataFrame, utilities_ferc1: pd.DataFrame
+def denorm_cash_flow_ferc1(
+    core_ferc1__yearly_cash_flow: pd.DataFrame,
+    core_pudl__assn_utilities_ferc1: pd.DataFrame,
 ) -> pd.DataFrame:
     """Pull a useful dataframe of FERC Form 1 cash flow data."""
     out_ferc1__yearly_cash_flow = core_ferc1__yearly_cash_flow.merge(
-        utilities_ferc1, on="utility_id_ferc1"
+        core_pudl__assn_utilities_ferc1, on="utility_id_ferc1"
     ).pipe(
         pudl.helpers.organize_cols,
         [
@@ -332,12 +339,12 @@ def out_ferc1__yearly_cash_flow(
 @asset(io_manager_key="pudl_sqlite_io_manager", compute_kind="Python")
 def out_ferc1__yearly_depreciation_amortization_summary(
     core_ferc1__yearly_depreciation_amortization_summary: pd.DataFrame,
-    utilities_ferc1: pd.DataFrame,
+    core_pudl__assn_utilities_ferc1: pd.DataFrame,
 ) -> pd.DataFrame:
     """Pull a useful dataframe of FERC Form 1 depreciation amortization data."""
     out_ferc1__yearly_depreciation_amortization_summary = (
         core_ferc1__yearly_depreciation_amortization_summary.merge(
-            utilities_ferc1, on="utility_id_ferc1"
+            core_pudl__assn_utilities_ferc1, on="utility_id_ferc1"
         ).pipe(
             pudl.helpers.organize_cols,
             [
@@ -357,12 +364,12 @@ def out_ferc1__yearly_depreciation_amortization_summary(
 @asset(io_manager_key="pudl_sqlite_io_manager", compute_kind="Python")
 def out_ferc1__yearly_electric_energy_dispositions(
     core_ferc1__yearly_electric_energy_dispositions: pd.DataFrame,
-    utilities_ferc1: pd.DataFrame,
+    core_pudl__assn_utilities_ferc1: pd.DataFrame,
 ) -> pd.DataFrame:
     """Pull a useful dataframe of FERC Form 1 energy dispositions data."""
     out_ferc1__yearly_electric_energy_dispositions = (
         core_ferc1__yearly_electric_energy_dispositions.merge(
-            utilities_ferc1, on="utility_id_ferc1"
+            core_pudl__assn_utilities_ferc1, on="utility_id_ferc1"
         ).pipe(
             pudl.helpers.organize_cols,
             [
@@ -381,12 +388,12 @@ def out_ferc1__yearly_electric_energy_dispositions(
 @asset(io_manager_key="pudl_sqlite_io_manager", compute_kind="Python")
 def out_ferc1__yearly_electric_energy_sources(
     core_ferc1__yearly_electric_energy_sources: pd.DataFrame,
-    utilities_ferc1: pd.DataFrame,
+    core_pudl__assn_utilities_ferc1: pd.DataFrame,
 ) -> pd.DataFrame:
     """Pull a useful dataframe of FERC Form 1 Purchased Power data."""
     out_ferc1__yearly_electric_energy_sources = (
         core_ferc1__yearly_electric_energy_sources.merge(
-            utilities_ferc1, on="utility_id_ferc1"
+            core_pudl__assn_utilities_ferc1, on="utility_id_ferc1"
         ).pipe(
             pudl.helpers.organize_cols,
             [
@@ -405,12 +412,12 @@ def out_ferc1__yearly_electric_energy_sources(
 @asset(io_manager_key="pudl_sqlite_io_manager", compute_kind="Python")
 def out_ferc1__yearly_electric_operating_expenses(
     core_ferc1__yearly_electric_operating_expenses: pd.DataFrame,
-    utilities_ferc1: pd.DataFrame,
+    core_pudl__assn_utilities_ferc1: pd.DataFrame,
 ) -> pd.DataFrame:
     """Pull a useful dataframe of FERC Form 1 Purchased Power data."""
     out_ferc1__yearly_electric_operating_expenses = (
         core_ferc1__yearly_electric_operating_expenses.merge(
-            utilities_ferc1, on="utility_id_ferc1"
+            core_pudl__assn_utilities_ferc1, on="utility_id_ferc1"
         ).pipe(
             pudl.helpers.organize_cols,
             [
@@ -429,12 +436,12 @@ def out_ferc1__yearly_electric_operating_expenses(
 @asset(io_manager_key="pudl_sqlite_io_manager", compute_kind="Python")
 def out_ferc1__yearly_electric_operating_revenues(
     core_ferc1__yearly_electric_operating_revenues: pd.DataFrame,
-    utilities_ferc1: pd.DataFrame,
+    core_pudl__assn_utilities_ferc1: pd.DataFrame,
 ) -> pd.DataFrame:
     """Pull a useful dataframe of FERC Form 1 Purchased Power data."""
     out_ferc1__yearly_electric_operating_revenues = (
         core_ferc1__yearly_electric_operating_revenues.merge(
-            utilities_ferc1, on="utility_id_ferc1"
+            core_pudl__assn_utilities_ferc1, on="utility_id_ferc1"
         ).pipe(
             pudl.helpers.organize_cols,
             [
@@ -453,12 +460,12 @@ def out_ferc1__yearly_electric_operating_revenues(
 @asset(io_manager_key="pudl_sqlite_io_manager", compute_kind="Python")
 def out_ferc1__yearly_electric_plant_depreciation_changes(
     core_ferc1__yearly_electric_plant_depreciation_changes: pd.DataFrame,
-    utilities_ferc1: pd.DataFrame,
+    core_pudl__assn_utilities_ferc1: pd.DataFrame,
 ) -> pd.DataFrame:
     """Pull a useful dataframe of FERC Form 1 Purchased Power data."""
     out_ferc1__yearly_electric_plant_depreciation_changes = (
         core_ferc1__yearly_electric_plant_depreciation_changes.merge(
-            utilities_ferc1, on="utility_id_ferc1"
+            core_pudl__assn_utilities_ferc1, on="utility_id_ferc1"
         ).pipe(
             pudl.helpers.organize_cols,
             [
@@ -479,12 +486,12 @@ def out_ferc1__yearly_electric_plant_depreciation_changes(
 @asset(io_manager_key="pudl_sqlite_io_manager", compute_kind="Python")
 def out_ferc1__yearly_electric_plant_depreciation_functional(
     core_ferc1__yearly_electric_plant_depreciation_functional: pd.DataFrame,
-    utilities_ferc1: pd.DataFrame,
+    core_pudl__assn_utilities_ferc1: pd.DataFrame,
 ) -> pd.DataFrame:
     """Pull a useful dataframe of FERC Form 1 Purchased Power data."""
     out_ferc1__yearly_electric_plant_depreciation_functional = (
         core_ferc1__yearly_electric_plant_depreciation_functional.merge(
-            utilities_ferc1, on="utility_id_ferc1"
+            core_pudl__assn_utilities_ferc1, on="utility_id_ferc1"
         ).pipe(
             pudl.helpers.organize_cols,
             [
@@ -505,12 +512,12 @@ def out_ferc1__yearly_electric_plant_depreciation_functional(
 @asset(io_manager_key="pudl_sqlite_io_manager", compute_kind="Python")
 def out_ferc1__yearly_electricity_sales_by_rate_schedule(
     core_ferc1__yearly_electricity_sales_by_rate_schedule: pd.DataFrame,
-    utilities_ferc1: pd.DataFrame,
+    core_pudl__assn_utilities_ferc1: pd.DataFrame,
 ) -> pd.DataFrame:
     """Pull a useful dataframe of FERC Form 1 Purchased Power data."""
     out_ferc1__yearly_electricity_sales_by_rate_schedule = (
         core_ferc1__yearly_electricity_sales_by_rate_schedule.merge(
-            utilities_ferc1, on="utility_id_ferc1"
+            core_pudl__assn_utilities_ferc1, on="utility_id_ferc1"
         ).pipe(
             pudl.helpers.organize_cols,
             [
@@ -526,12 +533,13 @@ def out_ferc1__yearly_electricity_sales_by_rate_schedule(
 
 
 @asset(io_manager_key="pudl_sqlite_io_manager", compute_kind="Python")
-def out_ferc1__yearly_income_statement(
-    core_ferc1__yearly_income_statement: pd.DataFrame, utilities_ferc1: pd.DataFrame
+def denorm_income_statement_ferc1(
+    core_ferc1__yearly_income_statement: pd.DataFrame,
+    core_pudl__assn_utilities_ferc1: pd.DataFrame,
 ) -> pd.DataFrame:
     """Pull a useful dataframe of FERC Form 1 Purchased Power data."""
     out_ferc1__yearly_income_statement = core_ferc1__yearly_income_statement.merge(
-        utilities_ferc1, on="utility_id_ferc1"
+        core_pudl__assn_utilities_ferc1, on="utility_id_ferc1"
     ).pipe(
         pudl.helpers.organize_cols,
         [
@@ -550,12 +558,12 @@ def out_ferc1__yearly_income_statement(
 @asset(io_manager_key="pudl_sqlite_io_manager", compute_kind="Python")
 def out_ferc1__yearly_other_regulatory_liabilities(
     core_ferc1__yearly_other_regulatory_liabilities: pd.DataFrame,
-    utilities_ferc1: pd.DataFrame,
+    core_pudl__assn_utilities_ferc1: pd.DataFrame,
 ) -> pd.DataFrame:
     """Pull a useful dataframe of FERC Form 1 Purchased Power data."""
     out_ferc1__yearly_other_regulatory_liabilities = (
         core_ferc1__yearly_other_regulatory_liabilities.merge(
-            utilities_ferc1, on="utility_id_ferc1"
+            core_pudl__assn_utilities_ferc1, on="utility_id_ferc1"
         ).pipe(
             pudl.helpers.organize_cols,
             [
@@ -571,11 +579,12 @@ def out_ferc1__yearly_other_regulatory_liabilities(
 
 @asset(io_manager_key="pudl_sqlite_io_manager", compute_kind="Python")
 def out_ferc1__yearly_retained_earnings(
-    core_ferc1__yearly_retained_earnings: pd.DataFrame, utilities_ferc1: pd.DataFrame
+    core_ferc1__yearly_retained_earnings: pd.DataFrame,
+    core_pudl__assn_utilities_ferc1: pd.DataFrame,
 ) -> pd.DataFrame:
     """Pull a useful dataframe of FERC Form 1 Purchased Power data."""
     out_ferc1__yearly_retained_earnings = core_ferc1__yearly_retained_earnings.merge(
-        utilities_ferc1, on="utility_id_ferc1"
+        core_pudl__assn_utilities_ferc1, on="utility_id_ferc1"
     ).pipe(
         pudl.helpers.organize_cols,
         [
@@ -593,12 +602,12 @@ def out_ferc1__yearly_retained_earnings(
 @asset(io_manager_key="pudl_sqlite_io_manager", compute_kind="Python")
 def out_ferc1__yearly_transmission_statistics(
     core_ferc1__yearly_transmission_statistics: pd.DataFrame,
-    utilities_ferc1: pd.DataFrame,
+    core_pudl__assn_utilities_ferc1: pd.DataFrame,
 ) -> pd.DataFrame:
     """Pull a useful dataframe of FERC Form 1 Purchased Power data."""
     out_ferc1__yearly_transmission_statistics = (
         core_ferc1__yearly_transmission_statistics.merge(
-            utilities_ferc1, on="utility_id_ferc1"
+            core_pudl__assn_utilities_ferc1, on="utility_id_ferc1"
         ).pipe(
             pudl.helpers.organize_cols,
             [
@@ -615,12 +624,12 @@ def out_ferc1__yearly_transmission_statistics(
 @asset(io_manager_key="pudl_sqlite_io_manager", compute_kind="Python")
 def out_ferc1__yearly_utility_plant_summary(
     core_ferc1__yearly_utility_plant_summary: pd.DataFrame,
-    utilities_ferc1: pd.DataFrame,
+    core_pudl__assn_utilities_ferc1: pd.DataFrame,
 ) -> pd.DataFrame:
     """Pull a useful dataframe of FERC Form 1 Purchased Power data."""
     out_ferc1__yearly_utility_plant_summary = (
         core_ferc1__yearly_utility_plant_summary.merge(
-            utilities_ferc1, on="utility_id_ferc1"
+            core_pudl__assn_utilities_ferc1, on="utility_id_ferc1"
         ).pipe(
             pudl.helpers.organize_cols,
             [

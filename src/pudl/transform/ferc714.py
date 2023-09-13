@@ -230,11 +230,11 @@ EIA_CODE_FIXES = {
 """Overrides of FERC 714 respondent IDs with wrong or missing EIA Codes."""
 
 RENAME_COLS = {
-    "respondent_id_ferc714": {
+    "core_ferc714__respondent_id": {
         "respondent_id": "respondent_id_ferc714",
         "respondent_name": "respondent_name_ferc714",
     },
-    "demand_hourly_pa_ferc714": {
+    "core_ferc714__hourly_demand_pa": {
         "report_yr": "report_year",
         "plan_date": "report_date",
         "respondent_id": "respondent_id_ferc714",
@@ -369,7 +369,9 @@ def _standardize_offset_codes(df: pd.DataFrame, offset_fixes) -> pd.DataFrame:
 
 
 @asset(io_manager_key="pudl_sqlite_io_manager")
-def respondent_id_ferc714(raw_ferc714__respondent_id: pd.DataFrame) -> pd.DataFrame:
+def core_ferc714__respondent_id(
+    raw_ferc714__respondent_id: pd.DataFrame,
+) -> pd.DataFrame:
     """Transform the FERC 714 respondent IDs, names, and EIA utility IDs.
 
     Clean up FERC-714 respondent names and manually assign EIA utility IDs to a few FERC
@@ -383,17 +385,19 @@ def respondent_id_ferc714(raw_ferc714__respondent_id: pd.DataFrame) -> pd.DataFr
     Returns:
         A clean(er) version of the FERC-714 respondents table.
     """
-    df = _pre_process(raw_ferc714__respondent_id, table_name="respondent_id_ferc714")
+    df = _pre_process(
+        raw_ferc714__respondent_id, table_name="core_ferc714__respondent_id"
+    )
     df["respondent_name_ferc714"] = df.respondent_name_ferc714.str.strip()
     df.loc[df.eia_code == 0, "eia_code"] = pd.NA
     # There are a few utilities that seem mappable, but missing:
     for rid in EIA_CODE_FIXES:
         df.loc[df.respondent_id_ferc714 == rid, "eia_code"] = EIA_CODE_FIXES[rid]
-    return _post_process(df, table_name="respondent_id_ferc714")
+    return _post_process(df, table_name="core_ferc714__respondent_id")
 
 
 @asset(io_manager_key="pudl_sqlite_io_manager")
-def demand_hourly_pa_ferc714(
+def core_ferc714__hourly_demand_pa(
     raw_ferc714__demand_hourly_pa: pd.DataFrame,
 ) -> pd.DataFrame:
     """Transform the hourly demand time series by Planning Area.
@@ -416,7 +420,7 @@ def demand_hourly_pa_ferc714(
     """
     logger.info("Converting dates into pandas Datetime types.")
     df = _pre_process(
-        raw_ferc714__demand_hourly_pa, table_name="demand_hourly_pa_ferc714"
+        raw_ferc714__demand_hourly_pa, table_name="core_ferc714__hourly_demand_pa"
     )
 
     # Parse date strings
@@ -450,17 +454,16 @@ def demand_hourly_pa_ferc714(
     # Replace UTC offset codes with UTC offset and timezone
     df["utc_offset"] = df["utc_offset_code"].map(OFFSET_CODES)
     df["timezone"] = df["utc_offset_code"].map(TZ_CODES)
-    df.drop(columns="utc_offset_code", inplace=True)
+    df = df.drop(columns="utc_offset_code")
 
     # Almost all 25th hours are unusable (0.0 or daily totals),
     # and they shouldn't really exist at all based on FERC instructions.
-    df.drop(columns="hour25", inplace=True)
+    df = df.drop(columns="hour25")
 
     # Melt daily rows with 24 demands to hourly rows with single demand
     logger.info("Melting daily FERC 714 records into hourly records.")
-    df.rename(
+    df = df.rename(
         columns=lambda x: int(re.sub(r"^hour", "", x)) - 1 if "hour" in x else x,
-        inplace=True,
     )
     df = df.melt(
         id_vars=[
@@ -479,21 +482,21 @@ def demand_hourly_pa_ferc714(
     missing_offset = df["utc_offset"].isna()
     assert df.loc[missing_offset, "demand_mwh"].eq(0).all()  # nosec B101
     # Drop these records
-    df.query("~@missing_offset", inplace=True)
+    df = df.query("~@missing_offset")
 
     # Construct UTC datetime
     logger.info("Converting local time + offset code to UTC + timezone.")
     hour_timedeltas = {i: pd.to_timedelta(i, unit="h") for i in range(24)}
     df["report_date"] += df["hour"].map(hour_timedeltas)
     df["utc_datetime"] = df["report_date"] - df["utc_offset"]
-    df.drop(columns=["hour", "utc_offset"], inplace=True)
+    df = df.drop(columns=["hour", "utc_offset"])
 
     # Report and drop duplicated UTC datetimes
     # There should be less than 10 of these,
     # resulting from changes to a planning area's reporting timezone.
     duplicated = df.duplicated(["respondent_id_ferc714", "utc_datetime"])
     logger.info(f"Found {np.count_nonzero(duplicated)} duplicate UTC datetimes.")
-    df.query("~@duplicated", inplace=True)
+    df = df.query("~@duplicated")
 
     # Flip the sign on sections of demand which were reported as negative
     mask = (
@@ -518,6 +521,6 @@ def demand_hourly_pa_ferc714(
         "timezone",
         "demand_mwh",
     ]
-    df.drop(columns=set(df.columns) - set(columns), inplace=True)
-    df = _post_process(df[columns], table_name="demand_hourly_pa_ferc714")
+    df = df.drop(columns=set(df.columns) - set(columns))
+    df = _post_process(df[columns], table_name="core_ferc714__hourly_demand_pa")
     return df

@@ -209,7 +209,7 @@ CODE_METADATA: dict[str, dict[str, Any]] = {
                     "duquense",
                     "Duquense Light Company & Energy Systems Associates",
                 ),
-                ("DS", "doosan" "Doosan"),
+                ("DS", "doosan", "Doosan"),
                 ("DV", "davis", "Davis"),
                 ("DX", "deltex", "Deltex"),
                 ("EA", "eagle_air", "Eagle Air"),
@@ -217,7 +217,8 @@ CODE_METADATA: dict[str, dict[str, Any]] = {
                 ("EE", "environmental_engineering", "Environmental Engineering"),
                 (
                     "EEC",
-                    "environmental_elements_corp" "Environmental Elements Corporation",
+                    "environmental_elements_corp",
+                    "Environmental Elements Corporation",
                 ),
                 (
                     "EG",

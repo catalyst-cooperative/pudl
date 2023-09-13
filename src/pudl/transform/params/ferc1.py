@@ -13,87 +13,87 @@ import pandas as pd
 ##############################################################################
 # Unit converstion parameters
 ##############################################################################
-PERPOUND_TO_PERSHORTTON = dict(
-    multiplier=2000.0,
-    from_unit=r"_per_lb",
-    to_unit=r"_per_ton",
-)
+PERPOUND_TO_PERSHORTTON = {
+    "multiplier": 2000.0,
+    "from_unit": r"_per_lb",
+    "to_unit": r"_per_ton",
+}
 """Parameters for converting from inverse pounds to inverse short tons."""
 
-CENTS_TO_DOLLARS = dict(
-    multiplier=0.01,
-    from_unit=r"_cents",
-    to_unit=r"_usd",
-)
+CENTS_TO_DOLLARS = {
+    "multiplier": 0.01,
+    "from_unit": r"_cents",
+    "to_unit": r"_usd",
+}
 """Parameters for converting from cents to dollars."""
 
-CENTS_PERMMBTU_TO_USD_PERMMBTU = dict(
-    multiplier=0.01,
-)
+CENTS_PERMMBTU_TO_USD_PERMMBTU = {
+    "multiplier": 0.01,
+}
 """Parameters for converting from cents per mmbtu to dollars per mmbtu."""
 
 
-PERCF_TO_PERMCF = dict(
-    multiplier=1000.0,
-    from_unit=r"_per_cf",
-    to_unit=r"_per_mcf",
-)
+PERCF_TO_PERMCF = {
+    "multiplier": 1000.0,
+    "from_unit": r"_per_cf",
+    "to_unit": r"_per_mcf",
+}
 """Parameters for converting from inverse cubic feet to inverse 1000s of cubic feet."""
 
-PERGALLON_TO_PERBARREL = dict(
-    multiplier=42.0,
-    from_unit=r"_per_gal",
-    to_unit=r"_per_bbl",
-)
+PERGALLON_TO_PERBARREL = {
+    "multiplier": 42.0,
+    "from_unit": r"_per_gal",
+    "to_unit": r"_per_bbl",
+}
 """Parameters for converting from inverse gallons to inverse barrels."""
 
-PERKW_TO_PERMW = dict(
-    multiplier=1000.0,
-    from_unit=r"_per_kw",
-    to_unit=r"_per_mw",
-)
+PERKW_TO_PERMW = {
+    "multiplier": 1000.0,
+    "from_unit": r"_per_kw",
+    "to_unit": r"_per_mw",
+}
 """Parameters for converting column units from per kW to per MW."""
 
-PERKWH_TO_PERMWH = dict(
-    multiplier=1000.0,
-    from_unit=r"_per_kwh",
-    to_unit=r"_per_mwh",
-)
+PERKWH_TO_PERMWH = {
+    "multiplier": 1000.0,
+    "from_unit": r"_per_kwh",
+    "to_unit": r"_per_mwh",
+}
 """Parameters for converting column units from per kWh to per MWh."""
 
-KW_TO_MW = dict(
-    multiplier=1e-3,
-    from_unit=r"_kw",
-    to_unit=r"_mw",
-)
+KW_TO_MW = {
+    "multiplier": 1e-3,
+    "from_unit": r"_kw",
+    "to_unit": r"_mw",
+}
 """Parameters for converting column units from kW to MW."""
 
-KWH_TO_MWH = dict(
-    multiplier=1e-3,
-    from_unit=r"_kwh",
-    to_unit=r"_mwh",
-)
+KWH_TO_MWH = {
+    "multiplier": 1e-3,
+    "from_unit": r"_kwh",
+    "to_unit": r"_mwh",
+}
 """Parameters for converting column units from kWh to MWh."""
 
-BTU_TO_MMBTU = dict(
-    multiplier=1e-6,
-    from_unit=r"_btu",
-    to_unit=r"_mmbtu",
-)
+BTU_TO_MMBTU = {
+    "multiplier": 1e-6,
+    "from_unit": r"_btu",
+    "to_unit": r"_mmbtu",
+}
 """Parameters for converting column units from BTU to MMBTU."""
 
-PERBTU_TO_PERMMBTU = dict(
-    multiplier=1e6,
-    from_unit=r"_per_btu",
-    to_unit=r"_per_mmbtu",
-)
+PERBTU_TO_PERMMBTU = {
+    "multiplier": 1e6,
+    "from_unit": r"_per_btu",
+    "to_unit": r"_per_mmbtu",
+}
 """Parameters for converting column units from BTU to MMBTU."""
 
-BTU_PERKWH_TO_MMBTU_PERMWH = dict(
-    multiplier=(1e-6 * 1000.0),
-    from_unit=r"_btu_per_kwh",
-    to_unit=r"_mmbtu_per_mwh",
-)
+BTU_PERKWH_TO_MMBTU_PERMWH = {
+    "multiplier": (1e-6 * 1000.0),
+    "from_unit": r"_btu_per_kwh",
+    "to_unit": r"_mmbtu_per_mwh",
+}
 """Parameters for converting column units from BTU/kWh to MMBTU/MWh."""
 
 
@@ -979,7 +979,8 @@ FUEL_UNIT_CATEGORIES: dict[str, set[str]] = {
             "mw days thrml",
             "nuclear mwd",
             "mmwd",
-            "mw day/therml" "mw days/therm",
+            "mw day/therml",
+            "mw days/therm",
             "mw days (th",
             "ermal)",
         },
@@ -1019,11 +1020,9 @@ FUEL_UNIT_CATEGORIES: dict[str, set[str]] = {
             'a"',
             "dekatherm",
             "0",
-            "mw day/therml",
             "nuclear",
             "gas",
             "62,679",
-            "mw days/therm",
             "uranium",
             "oil/gas",
             "thermal",
@@ -1362,7 +1361,8 @@ PLANT_TYPE_CATEGORIES: dict[str, set[str]] = {
             "nuclear",
             "nuclear (3)",
             "steam(nuclear)",
-            "nuclear(see note4)" "nuclear steam",
+            "nuclear(see note4)",
+            "nuclear steam",
             "nuclear turbine",
             "nuclear - steam",
             "nuclear (a)(b)(c)",
@@ -1846,7 +1846,8 @@ CONSTRUCTION_TYPE_CATEGORIES: dict[str, set[str]] = {
             "semi outdoor boiler",
             "semi- outdoor",
             "semi - outdoors",
-            "semi -outdoor" "conven & semi-outdr",
+            "semi -outdoor",
+            "conven & semi-outdr",
             "conv & semi-outdoor",
             "conv & semi- outdoor",
             "convent. semi-outdr",
@@ -1964,7 +1965,7 @@ CONSTRUCTION_TYPE_CATEGORIES: dict[str, set[str]] = {
             "conven full boiler",
             "c0nventional",
             "conventtional",
-            "convential" "underground",
+            "convential",
             "conventional bulb",
             "conventrional",
             "*conventional",
@@ -2013,6 +2014,9 @@ CONSTRUCTION_TYPE_CATEGORIES: dict[str, set[str]] = {
             "conventional - boilr",
             "indoor boiler and st",
             "conven",
+            "conv. underground",
+            "conven. underground",
+            "conventional (a)",
         },
         "na_category": {
             "na_category",
@@ -2123,9 +2127,6 @@ CONSTRUCTION_TYPE_CATEGORIES: dict[str, set[str]] = {
             "pump storage",
             "underground",
             "see page 402",
-            "conv. underground",
-            "conven. underground",
-            "conventional (a)",
             "non-applicable",
             "duct burner",
             "see footnote",

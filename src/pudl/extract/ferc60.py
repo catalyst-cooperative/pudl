@@ -40,5 +40,4 @@ class Ferc60DbfExtractor(FercDbfExtractor):
         """
         if table_name == "f60_s0_respondent_id":
             return deduplicate_by_year(dfs, "respondent_id")
-        else:
-            return super().aggregate_table_frames(table_name, dfs)
+        return super().aggregate_table_frames(table_name, dfs)

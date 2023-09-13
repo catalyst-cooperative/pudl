@@ -3,7 +3,7 @@
 from typing import Any
 
 RESOURCE_METADATA: dict[str, dict[str, Any]] = {
-    "respondent_id_ferc714": {
+    "core_ferc714__respondent_id": {
         "description": "Respondent identification. FERC Form 714, Part I, Schedule 1.",
         "schema": {
             "fields": [
@@ -18,7 +18,7 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
         "field_namespace": "ferc714",
         "etl_group": "ferc714",
     },
-    "demand_hourly_pa_ferc714": {
+    "core_ferc714__hourly_demand_pa": {
         "description": (
             "Hourly electricity demand by planning area. FERC Form 714, Part III, "
             "Schedule 2a."

@@ -150,7 +150,7 @@ def local_to_utc(local: pd.Series, tz: Iterable, **kwargs: Any) -> pd.Series:
     return local.groupby(tz).transform(
         lambda x: x.dt.tz_localize(
             datetime.timezone(datetime.timedelta(hours=x.name))
-            if isinstance(x.name, (int, float))
+            if isinstance(x.name, int | float)
             else x.name,
             **kwargs,
         ).dt.tz_convert(None)
@@ -184,7 +184,7 @@ def utc_to_local(utc: pd.Series, tz: Iterable) -> pd.Series:
     return utc.groupby(tz).transform(
         lambda x: x.dt.tz_convert(
             datetime.timezone(datetime.timedelta(hours=x.name))
-            if isinstance(x.name, (int, float))
+            if isinstance(x.name, int | float)
             else x.name
         ).dt.tz_localize(None)
     )
@@ -229,14 +229,13 @@ def load_ventyx_hourly_state_demand(path: str) -> pd.DataFrame:
             "Estimated State Load MW - Sum",
         ],
     )
-    df.rename(
+    df = df.rename(
         columns={
             "State/Province": "state",
             "Local Datetime (Hour Ending)": "datetime",
             "Estimated State Load MW - Sum": "demand_mwh",
             "Time Zone": "tz",
         },
-        inplace=True,
     )
     # Convert state name to FIPS codes and keep only data for US states
     fips = {x["name"]: x["fips"] for x in STATES}
@@ -273,12 +272,12 @@ def load_ventyx_hourly_state_demand(path: str) -> pd.DataFrame:
     },
 )
 def load_hourly_demand_matrix_ferc714(
-    demand_hourly_pa_ferc714: pd.DataFrame,
+    core_ferc714__hourly_demand_pa: pd.DataFrame,
 ) -> tuple[pd.DataFrame, pd.DataFrame]:
     """Read and format FERC 714 hourly demand into matrix form.
 
     Args:
-        demand_hourly_pa_ferc714: FERC 714 hourly demand time series by planning area.
+        core_ferc714__hourly_demand_pa: FERC 714 hourly demand time series by planning area.
 
     Returns:
         Hourly demand as a matrix with a `datetime` row index
@@ -289,19 +288,22 @@ def load_hourly_demand_matrix_ferc714(
         of each `respondent_id_ferc714` and reporting `year` (int).
     """
     # Convert UTC to local time (ignoring daylight savings)
-    demand_hourly_pa_ferc714["utc_offset"] = demand_hourly_pa_ferc714["timezone"].map(
-        STANDARD_UTC_OFFSETS
-    )
-    demand_hourly_pa_ferc714["datetime"] = utc_to_local(
-        demand_hourly_pa_ferc714["utc_datetime"], demand_hourly_pa_ferc714["utc_offset"]
+    core_ferc714__hourly_demand_pa["utc_offset"] = core_ferc714__hourly_demand_pa[
+        "timezone"
+    ].map(STANDARD_UTC_OFFSETS)
+    core_ferc714__hourly_demand_pa["datetime"] = utc_to_local(
+        core_ferc714__hourly_demand_pa["utc_datetime"],
+        core_ferc714__hourly_demand_pa["utc_offset"],
     )
     # Pivot to demand matrix: timestamps x respondents
-    matrix = demand_hourly_pa_ferc714.pivot(
+    matrix = core_ferc714__hourly_demand_pa.pivot(
         index="datetime", columns="respondent_id_ferc714", values="demand_mwh"
     )
     # List timezone by year for each respondent
-    demand_hourly_pa_ferc714["year"] = demand_hourly_pa_ferc714["report_date"].dt.year
-    utc_offset = demand_hourly_pa_ferc714.groupby(
+    core_ferc714__hourly_demand_pa["year"] = core_ferc714__hourly_demand_pa[
+        "report_date"
+    ].dt.year
+    utc_offset = core_ferc714__hourly_demand_pa.groupby(
         ["respondent_id_ferc714", "year"], as_index=False
     )["utc_offset"].first()
     return matrix, utc_offset
@@ -366,7 +368,7 @@ def filter_ferc714_hourly_demand_matrix(
         (short, "Nulled short respondent-years (below min_data)"),
         (bad, "Nulled bad respondent-years (below min_data_fraction)"),
     ]:
-        row, col = mask.values.nonzero()
+        row, col = mask.to_numpy().nonzero()
         report = (
             pd.DataFrame({"id": mask.columns[col], "year": mask.index[row]})
             .groupby("id")["year"]
@@ -376,7 +378,7 @@ def filter_ferc714_hourly_demand_matrix(
             logger.info(f"{msg}:\n{report}")
     # Drop respondents with no data
     blank = df.columns[df.isnull().all()].tolist()
-    df.drop(columns=blank, inplace=True)
+    df = df.drop(columns=blank)
     # Report dropped respondents (with no data)
     logger.info(f"Dropped blank respondents: {blank}")
     return df
@@ -425,12 +427,12 @@ def melt_ferc714_hourly_demand_matrix(
     """
     # Melt demand matrix to long format
     df = df.melt(value_name="demand_mwh", ignore_index=False)
-    df.reset_index(inplace=True)
+    df = df.reset_index()
     # Convert local times to UTC
     df["year"] = df["datetime"].dt.year
     df = df.merge(tz, on=["respondent_id_ferc714", "year"])
     df["utc_datetime"] = local_to_utc(df["datetime"], df["utc_offset"])
-    df.drop(columns=["utc_offset", "datetime"], inplace=True)
+    df = df.drop(columns=["utc_offset", "datetime"])
     return df
 
 
@@ -521,7 +523,7 @@ def county_assignments_ferc714(
     df = df[~df["county_id_fips"].isnull()].drop_duplicates()
     # Convert date to year
     df["year"] = df["report_date"].dt.year
-    df.drop(columns=["report_date"], inplace=True)
+    df = df.drop(columns=["report_date"])
     return df
 
 
@@ -545,17 +547,17 @@ def census_counties(
 
 
 def total_state_sales_eia861(
-    sales_eia861,
+    core_eia861__yearly_sales,
 ) -> pd.DataFrame:
     """Read and format EIA 861 sales by state and year.
 
     Args:
-        sales_eia861: Electricity sales data from EIA 861.
+        core_eia861__yearly_sales: Electricity sales data from EIA 861.
 
     Returns:
         Dataframe with columns `state_id_fips`, `year`, `demand_mwh`.
     """
-    df = sales_eia861.groupby(["state", "report_date"], as_index=False)[
+    df = core_eia861__yearly_sales.groupby(["state", "report_date"], as_index=False)[
         "sales_mwh"
     ].sum()
     # Convert report_date to year
@@ -564,7 +566,7 @@ def total_state_sales_eia861(
     fips = {x["code"]: x["fips"] for x in STATES}
     df["state_id_fips"] = df["state"].map(fips)
     # Drop records with zero sales
-    df.rename(columns={"sales_mwh": "demand_mwh"}, inplace=True)
+    df = df.rename(columns={"sales_mwh": "demand_mwh"})
     df = df[df["demand_mwh"].gt(0)]
     return df[["state_id_fips", "year", "demand_mwh"]]
 
@@ -589,7 +591,7 @@ def predicted_state_hourly_demand(
     imputed_hourly_demand_ferc714: pd.DataFrame,
     core_censusdp1__entity_county: pd.DataFrame,
     fipsified_respondents_ferc714: pd.DataFrame,
-    sales_eia861: pd.DataFrame = None,
+    core_eia861__yearly_sales: pd.DataFrame = None,
 ) -> pd.DataFrame:
     """Predict state hourly demand.
 
@@ -599,7 +601,7 @@ def predicted_state_hourly_demand(
         core_censusdp1__entity_county: The county layer of the Census DP1 shapefile.
         fipsified_respondents_ferc714: Annual respondents with the county FIPS IDs
             for their service territories.
-        sales_eia861: EIA 861 sales data. If provided, the predicted hourly demand is
+        core_eia861__yearly_sales: EIA 861 sales data. If provided, the predicted hourly demand is
             scaled to match these totals.
 
     Returns:
@@ -613,7 +615,7 @@ def predicted_state_hourly_demand(
     # Call necessary functions
     count_assign_ferc714 = county_assignments_ferc714(fipsified_respondents_ferc714)
     counties = census_counties(core_censusdp1__entity_county)
-    total_sales_eia861 = total_state_sales_eia861(sales_eia861)
+    total_sales_eia861 = total_state_sales_eia861(core_eia861__yearly_sales)
 
     # Pre-compute list of respondent-years with demand
     with_demand = (

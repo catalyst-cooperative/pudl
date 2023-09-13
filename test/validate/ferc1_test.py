@@ -48,10 +48,10 @@ unique_record_tables = [
 def test_record_id_dupes(pudl_engine, table_name):
     """Verify that the generated ferc1 record_ids are unique."""
     table = pd.read_sql(table_name, pudl_engine)
-    n_dupes = table.record_id.duplicated().values.sum()
+    n_dupes = table.record_id.duplicated().to_numpy().sum()
 
     if n_dupes:
-        dupe_ids = table.record_id[table.record_id.duplicated()].values
+        dupe_ids = table.record_id[table.record_id.duplicated()].to_numpy()
         raise AssertionError(
             f"{n_dupes} duplicate record_ids found in {table_name}: {dupe_ids}."
         )
@@ -61,15 +61,15 @@ def test_record_id_dupes(pudl_engine, table_name):
     "df_name,cols",
     [
         ("fbp_ferc1", "all"),
-        ("core_ferc1__yearly_fuel", "all"),
-        ("core_ferc1__yearly_plant_in_service", "all"),
+        ("fuel_ferc1", "all"),
+        ("plant_in_service_ferc1", "all"),
         ("plants_all_ferc1", "all"),
-        ("core_ferc1__yearly_plants_hydro", "all"),
-        ("core_ferc1__yearly_plants_pumped_storage", "all"),
-        ("core_ferc1__yearly_plants_small", "all"),
-        ("core_ferc1__yearly_plants_steam", "all"),
+        ("plants_hydro_ferc1", "all"),
+        ("plants_pumped_storage_ferc1", "all"),
+        ("plants_small_ferc1", "all"),
+        ("plants_steam_ferc1", "all"),
         ("pu_ferc1", "all"),
-        ("core_ferc1__yearly_purchased_power", "all"),
+        ("purchased_power_ferc1", "all"),
     ],
 )
 def test_no_null_cols_ferc1(pudl_out_ferc1, live_dbs, cols, df_name):
@@ -85,15 +85,15 @@ def test_no_null_cols_ferc1(pudl_out_ferc1, live_dbs, cols, df_name):
     "df_name,expected_rows",
     [
         ("fbp_ferc1", 25_421),
-        ("core_ferc1__yearly_fuel", 48_841),
-        ("core_ferc1__yearly_plant_in_service", 311_986),
+        ("fuel_ferc1", 48_841),
+        ("plant_in_service_ferc1", 311_986),
         ("plants_all_ferc1", 54_284),
-        ("core_ferc1__yearly_plants_hydro", 6_796),
-        ("core_ferc1__yearly_plants_pumped_storage", 544),
-        ("core_ferc1__yearly_plants_small", 16_235),
-        ("core_ferc1__yearly_plants_steam", 30_709),
+        ("plants_hydro_ferc1", 6_796),
+        ("plants_pumped_storage_ferc1", 544),
+        ("plants_small_ferc1", 16_235),
+        ("plants_steam_ferc1", 30_709),
         ("pu_ferc1", 7_425),
-        ("core_ferc1__yearly_purchased_power", 197_523),
+        ("purchased_power_ferc1", 197_523),
     ],
 )
 def test_minmax_rows(pudl_out_ferc1, live_dbs, expected_rows, df_name):
@@ -127,7 +127,7 @@ def test_minmax_rows(pudl_out_ferc1, live_dbs, expected_rows, df_name):
         ("pu_ferc1", ["utility_id_ferc1", "plant_name_ferc1"]),
         ("fbp_ferc1", ["report_year", "utility_id_ferc1", "plant_name_ferc1"]),
         (
-            "core_ferc1__yearly_plants_hydro",
+            "plants_hydro_ferc1",
             [
                 "report_year",
                 "utility_id_ferc1",
@@ -136,7 +136,7 @@ def test_minmax_rows(pudl_out_ferc1, live_dbs, expected_rows, df_name):
             ],
         ),
         (
-            "core_ferc1__yearly_plants_pumped_storage",
+            "plants_pumped_storage_ferc1",
             [
                 "report_year",
                 "utility_id_ferc1",
@@ -145,7 +145,7 @@ def test_minmax_rows(pudl_out_ferc1, live_dbs, expected_rows, df_name):
             ],
         ),
         (
-            "core_ferc1__yearly_plant_in_service",
+            "plant_in_service_ferc1",
             ["report_year", "utility_id_ferc1", "ferc_account_label"],
         ),
     ],

@@ -4,7 +4,7 @@ import os
 import pathlib
 import shutil
 from pathlib import Path
-from typing import Any, Union
+from typing import Any
 
 from pydantic import BaseSettings, DirectoryPath
 from pydantic.validators import path_validator
@@ -33,7 +33,7 @@ class MissingPath(Path):
 
 
 # TODO: The following could be replaced with NewPath from pydantic v2
-PotentialDirectoryPath = Union[DirectoryPath, MissingPath]
+PotentialDirectoryPath = DirectoryPath | MissingPath
 
 
 class PudlPaths(BaseSettings):
