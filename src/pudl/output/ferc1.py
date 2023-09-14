@@ -12,16 +12,49 @@ from dagster import AssetIn, AssetsDefinition, Field, Mapping, asset
 from matplotlib import pyplot as plt
 from networkx.drawing.nx_agraph import graphviz_layout
 from pandas._libs.missing import NAType as pandas_NAType
-from pydantic import BaseModel, validator
+from pydantic import BaseModel, confloat, validator
 
 import pudl
 
 logger = pudl.logging_helpers.get_logger(__name__)
 
-MAX_MULTIVALUE_WEIGHT_FRAC: dict[str, float] = {
-    "income_statement_ferc1": 0.12,
-    "balance_sheet_assets_ferc1": 0.02,
-    "balance_sheet_liabilities_ferc1": 0.0,
+
+class CalculationToleranceFerc1(BaseModel):
+    """Data quality expectations related to FERC 1 calculations.
+
+    We are doing a lot of comparisons between calculated and reported values to identify
+    reporting errors in the data, errors in FERC's metadata, and bugs in our own code.
+    This class provides a structure for encoding our expectations about the level of
+    acceptable (or at least expected) errors, and allows us to pass them around.
+
+    In the future we might also want to specify much more granular expectations,
+    pertaining to individual tables, years, utilities, or facts to ensure that we don't
+    have low overall error rates, but a problem with the way the data or metadata is
+    reported in a particular year.  We could also define per-filing and per-table error
+    tolerances to help us identify individual utilities that have e.g. used an outdated
+    version of Form 1 when filing.
+    """
+
+    multivalued_weights: confloat(ge=0.0, le=1.0) = 0.05
+    """Fraction of nodes in an exploded table allowed to have multi-valued weights."""
+
+    intertable_calculation_errors: confloat(ge=0.0, le=1.0) = 0.05
+    """Fraction of interatble calculations that are allowed to not match exactly."""
+
+
+EXPLOSION_CALCULATION_TOLERANCES: dict[str, CalculationToleranceFerc1] = {
+    "income_statement_ferc1": CalculationToleranceFerc1(
+        multivalued_weights=0.12,
+        intertable_calculation_errors=0.12,
+    ),
+    "balance_sheet_assets_ferc1": CalculationToleranceFerc1(
+        multivalued_weights=0.02,
+        intertable_calculation_errors=0.55,
+    ),
+    "balance_sheet_liabilities_ferc1": CalculationToleranceFerc1(
+        multivalued_weights=0.0,
+        intertable_calculation_errors=0.07,
+    ),
 }
 
 
@@ -952,8 +985,8 @@ def _out_ferc1__explosion_tags(table_dimensions_ferc1) -> pd.DataFrame:
 def exploded_table_asset_factory(
     root_table: str,
     table_names_to_explode: list[str],
-    seed_nodes: list[NodeId] = [],
-    calculation_tolerance: float = 0.05,
+    seed_nodes: list[NodeId],
+    calculation_tolerance: CalculationToleranceFerc1,
     io_manager_key: str | None = None,
 ) -> AssetsDefinition:
     """Create an exploded table based on a set of related input tables."""
@@ -992,7 +1025,7 @@ def exploded_table_asset_factory(
             tags=tags,
         ).boom(
             tables_to_explode=tables_to_explode,
-            calculation_tolerance=calculation_tolerance,
+            calculation_tolerance=EXPLOSION_CALCULATION_TOLERANCES[root_table],
         )
 
     return exploded_tables_asset
@@ -1014,7 +1047,9 @@ def create_exploded_table_assets() -> list[AssetsDefinition]:
                 "electric_operating_expenses_ferc1",
                 "electric_operating_revenues_ferc1",
             ],
-            "calculation_tolerance": 0.12,
+            "calculation_tolerance": EXPLOSION_CALCULATION_TOLERANCES[
+                "income_statement_ferc1"
+            ],
             "seed_nodes": [
                 NodeId(
                     table_name="income_statement_ferc1",
@@ -1034,7 +1069,9 @@ def create_exploded_table_assets() -> list[AssetsDefinition]:
                 "plant_in_service_ferc1",
                 "electric_plant_depreciation_functional_ferc1",
             ],
-            "calculation_tolerance": 0.55,
+            "calculation_tolerance": EXPLOSION_CALCULATION_TOLERANCES[
+                "balance_sheet_assets_ferc1"
+            ],
             "seed_nodes": [
                 NodeId(
                     table_name="balance_sheet_assets_ferc1",
@@ -1052,7 +1089,9 @@ def create_exploded_table_assets() -> list[AssetsDefinition]:
                 "balance_sheet_liabilities_ferc1",
                 "retained_earnings_ferc1",
             ],
-            "calculation_tolerance": 0.07,
+            "calculation_tolerance": EXPLOSION_CALCULATION_TOLERANCES[
+                "balance_sheet_liabilities_ferc1"
+            ],
             "seed_nodes": [
                 NodeId(
                     table_name="balance_sheet_liabilities_ferc1",
@@ -1078,11 +1117,13 @@ class MetadataExploder:
         table_names: list[str],
         metadata_xbrl_ferc1: pd.DataFrame,
         calculation_components_xbrl_ferc1: pd.DataFrame,
+        calculation_tolerance: CalculationToleranceFerc1 = CalculationToleranceFerc1(),
     ):
         """Instantiate MetadataExploder."""
         self.table_names = table_names
         self.calculation_components_xbrl_ferc1 = calculation_components_xbrl_ferc1
         self.metadata_xbrl_ferc1 = metadata_xbrl_ferc1
+        self.calculation_tolerance = calculation_tolerance
 
     @property
     def calculations(self: Self):
@@ -1204,6 +1245,7 @@ class Exploder:
         calculation_components_xbrl_ferc1: pd.DataFrame,
         seed_nodes: list[NodeId] = [],
         tags: pd.DataFrame = pd.DataFrame(),
+        calculation_tolerance: CalculationToleranceFerc1 = CalculationToleranceFerc1(),
     ):
         """Instantiate an Exploder class.
 
@@ -1217,10 +1259,12 @@ class Exploder:
         """
         self.table_names: list[str] = table_names
         self.root_table: str = root_table
+        self.calculation_tolerance = calculation_tolerance
         self.meta_exploder = MetadataExploder(
             self.table_names,
             metadata_xbrl_ferc1,
             calculation_components_xbrl_ferc1,
+            calculation_tolerance=self.calculation_tolerance,
         )
         self.metadata_exploded: pd.DataFrame = self.meta_exploder.metadata
         self.calculations_exploded: pd.DataFrame = self.meta_exploder.calculations
@@ -1253,15 +1297,16 @@ class Exploder:
             exploded_meta=self.metadata_exploded,
             seeds=self.seed_nodes,
             tags=self.tags,
+            calculation_tolerance=self.calculation_tolerance,
         )
 
     @cached_property
-    def other_dimensions(self) -> list[str]:
+    def other_dimensions(self: Self) -> list[str]:
         """Get all of the column names for the other dimensions."""
         return pudl.transform.ferc1.other_dimensions(table_names=self.table_names)
 
     @cached_property
-    def exploded_pks(self) -> list[str]:
+    def exploded_pks(self: Self) -> list[str]:
         """Get the joint primary keys of the exploded tables."""
         pks = []
         for table_name in self.table_names:
@@ -1286,7 +1331,7 @@ class Exploder:
         return pks
 
     @cached_property
-    def value_col(self) -> str:
+    def value_col(self: Self) -> str:
         """Get the value column for the exploded tables."""
         value_cols = []
         for table_name in self.table_names:
@@ -1303,11 +1348,7 @@ class Exploder:
         value_col = list(set(value_cols))[0]
         return value_col
 
-    def boom(
-        self,
-        tables_to_explode: dict[str, pd.DataFrame],
-        calculation_tolerance: float = 0.05,
-    ) -> pd.DataFrame:
+    def boom(self: Self, tables_to_explode: dict[str, pd.DataFrame]) -> pd.DataFrame:
         """Explode a set of nested tables.
 
         There are five main stages of this process:
@@ -1326,7 +1367,10 @@ class Exploder:
         exploded = (
             self.initial_explosion_concatenation(tables_to_explode)
             .pipe(self.generate_intertable_calculations)
-            .pipe(self.reconcile_intertable_calculations, calculation_tolerance)
+            .pipe(
+                self.reconcile_intertable_calculations,
+                self.calculation_tolerance.intertable_calculation_errors,
+            )
             .pipe(self.calculation_forest.leafy_data, value_col=self.value_col)
         )
         # Identify which columns should be kept in the output...
@@ -1503,7 +1547,7 @@ class Exploder:
         Args:
             calculated_df: table with calculated fields
             calculation_tolerance: What proportion (0-1) of calculated values are
-              allowed to be incorrect without raising an AssertionError.
+                allowed to be incorrect without raising an AssertionError.
         """
         if "calculated_amount" not in calculated_df.columns:
             return calculated_df
@@ -1614,6 +1658,7 @@ class XbrlCalculationForestFerc1(BaseModel):
     exploded_calcs: pd.DataFrame = pd.DataFrame()
     seeds: list[NodeId] = []
     tags: pd.DataFrame = pd.DataFrame()
+    calculation_tolerance: CalculationToleranceFerc1 = CalculationToleranceFerc1()
 
     class Config:
         """Allow the class to store a dataframe."""
@@ -1789,10 +1834,7 @@ class XbrlCalculationForestFerc1(BaseModel):
         calcs_to_drop = multi_valued_weights & (self.exploded_calcs.weight == 1)
         # Check that there are only a *few* multi-valued weights.
         mv_wt_frac = sum(multi_valued_weights) / len(self.exploded_calcs)
-        for table in self.table_names:
-            if table in MAX_MULTIVALUE_WEIGHT_FRAC:
-                max_mv_wt_frac = MAX_MULTIVALUE_WEIGHT_FRAC[table]
-
+        max_mv_wt_frac = self.calculation_tolerance.multivalued_weights
         logger.info(
             f"Found {sum(multi_valued_weights)}/{len(self.exploded_calcs)} "
             f"({mv_wt_frac:.2%}; max allowed: {max_mv_wt_frac:.2%}) "
