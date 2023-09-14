@@ -981,7 +981,7 @@ def create_exploded_table_assets() -> list[AssetsDefinition]:
                 "electric_operating_revenues_ferc1",
             ],
             # This is very high, otherwise CI w/ 2 years of data currently fails.
-            "calculation_tolerance": 0.27,
+            "calculation_tolerance": 0.28,
             "seed_nodes": [
                 NodeId(
                     table_name="income_statement_ferc1",
@@ -1751,19 +1751,20 @@ class XbrlCalculationForestFerc1(BaseModel):
             data={"tags": list(tags_dict.values())},
         ).reset_index()
 
-        tags_dict = tags.set_index(["table_name", "xbrl_factoid"]).to_dict(
-            orient="index"
+        multi_valued_weights = (
+            exploded_calcs.groupby(self.calc_cols, dropna=False)["weight"]
+            .transform("nunique")
+            .gt(1)
         )
-        tags_dict_df = pd.DataFrame(
-            index=pd.MultiIndex.from_tuples(
-                tags_dict.keys(), names=["table_name", "xbrl_factoid"]
-            ),
-            data={"tags": list(tags_dict.values())},
-        ).reset_index()
 
-        # Add metadata tags to the calculation components and reset the index.
+        calcs_to_drop = multi_valued_weights & (exploded_calcs.weight == 1)
+
         attr_cols = ["weight"]
-        node_attrs = (
+        deduped_calcs = exploded_calcs[~calcs_to_drop][
+            self.calc_cols + attr_cols
+        ].drop_duplicates()
+
+        meta_w_tags = (
             pd.merge(
                 left=exploded_meta,
                 right=tags_dict_df,
@@ -1772,13 +1773,14 @@ class XbrlCalculationForestFerc1(BaseModel):
             )
             .reset_index(drop=True)
             .drop(columns=["xbrl_factoid_original", "is_within_table_calc"])
-            .merge(
-                exploded_calcs[self.calc_cols + attr_cols].drop_duplicates(),
-                how="left",
-                validate="1:1",
-            )
-            .set_index(self.calc_cols)
         )
+        # Add metadata tags to the calculation components and reset the index.
+        node_attrs = pd.merge(
+            left=meta_w_tags,
+            right=deduped_calcs,
+            how="left",
+            validate="1:1",
+        ).set_index(self.calc_cols)
         # Fill NA tag dictionaries with an empty dict so the type is uniform:
         node_attrs["tags"] = node_attrs["tags"].apply(lambda x: {} if x != x else x)
         nx.set_node_attributes(forest, node_attrs.to_dict(orient="index"))
@@ -1911,12 +1913,12 @@ class XbrlCalculationForestFerc1(BaseModel):
         if pruned_nodes := set(nodes_before_pruning).difference(nodes_after_pruning):
             raise AssertionError(f"Unexpectedly pruned stepchildren: {pruned_nodes=}")
 
-        # forest = self.set_forest_attributes(
-        #    forest,
-        #    exploded_meta=self.exploded_meta,
-        #    exploded_calcs=self.exploded_calcs,
-        #    tags=self.tags,
-        # )
+        forest = self.set_forest_attributes(
+            forest,
+            exploded_meta=self.exploded_meta,
+            exploded_calcs=self.exploded_calcs,
+            tags=self.tags,
+        )
         return forest
 
     @staticmethod

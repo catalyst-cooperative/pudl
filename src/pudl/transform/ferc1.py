@@ -5975,7 +5975,7 @@ def add_dimension_total_calculations(
                 on=non_total_cols,
                 how="inner",
                 suffixes=("_parent", ""),
-            )
+            ).assign(is_within_table_calc=True, weight=1)
         )
 
     calc_components = pd.concat([calc_components] + total_comps).reset_index(drop=True)
