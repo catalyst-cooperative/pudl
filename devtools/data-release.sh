@@ -17,7 +17,7 @@ DOCKER_TAG=$2
 RELEASE_DIR=$3
 
 # Construct the GCS URL:
-GCS_ROOT="gs://intake.catalyst.coop"
+GCS_ROOT="gs://pudl.catalyst.coop"
 GCS_URL="$GCS_ROOT/$PUDL_REF"
 
 # Construct the Docker image name
