@@ -533,7 +533,7 @@ def out_ferc1__yearly_electricity_sales_by_rate_schedule(
 
 
 @asset(io_manager_key="pudl_sqlite_io_manager", compute_kind="Python")
-def denorm_income_statement_ferc1(
+def out_ferc1__yearly_income_statement(
     core_ferc1__yearly_income_statement: pd.DataFrame,
     core_pudl__assn_utilities_ferc1: pd.DataFrame,
 ) -> pd.DataFrame:
