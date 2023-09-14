@@ -13,11 +13,11 @@ from pudl.transform.ferc1 import (
     TableIdFerc1,
     UnstackBalancesToReportYearInstantXbrl,
     WideToTidy,
-    add_dimension_total_calculations,
     assign_parent_dimensions,
     calculate_values_from_components,
     drop_duplicate_rows_dbf,
     fill_dbf_to_xbrl_map,
+    infer_intra_factoid_totals,
     make_calculation_dimensions_explicit,
     read_dbf_to_xbrl_map,
     unexpected_total_components,
@@ -600,7 +600,7 @@ table_a,fact_2,table_b,fact_8,next_gen,futile
 
 
 def test_adding_parent_dimensions():
-    """Test :func:`assign_parent_dimensions` & :func:`add_dimension_total_calculations`.
+    """Test :func:`assign_parent_dimensions` & :func:`infer_intra_factoid_totals`.
 
     These two parent dimension steps are related so we test them in the same process.
     """
@@ -687,7 +687,7 @@ table_a,fact_3,voyager,total,table_a,fact_3,voyager,nebula,True,1
     )
 
     out_total_to_subdim = canonicalize(
-        add_dimension_total_calculations(
+        infer_intra_factoid_totals(
             calc_components=out_parent_dim_same_trek,
             meta_w_dims=table_dimensions_same_trek,
             table_dimensions=table_dimensions_same_trek,
@@ -781,7 +781,7 @@ electric_plant_depreciation_change_ferc1,accumulated_depreciation,electric,NA,NA
     assert calc_comps.empty
 
     calc_components_w_totals = calc_comps.pipe(
-        add_dimension_total_calculations,
+        infer_intra_factoid_totals,
         meta_w_dims=meta_w_dims,
         table_dimensions=table_dims,
         dimensions=dimensions,

@@ -5636,7 +5636,7 @@ def calculation_components_xbrl_ferc1(**kwargs) -> pd.DataFrame:
             dimensions=dimensions,
         )
         .pipe(
-            add_dimension_total_calculations,
+            infer_intra_factoid_totals,
             meta_w_dims=metadata_xbrl_ferc1,
             table_dimensions=table_dimensions_ferc1,
             dimensions=dimensions,
@@ -5689,9 +5689,12 @@ def calculation_components_xbrl_ferc1(**kwargs) -> pd.DataFrame:
 def unexpected_total_components(
     calc_comps: pd.DataFrame, dimensions: list[str]
 ) -> pd.DataFrame:
-    """Find unexpected components in the "total" calculations.
+    """Find unexpected components in within-fact total calculations.
 
-    Criteria:
+    This doesn't check anything about the calcs we get from the metadata, we
+    are only looking at within-fact totals which we've added ourselves.
+
+    Finds calculation relationships where:
 
     - child components that do not match with parent in non-total dimensions.
 
@@ -5887,7 +5890,7 @@ def assign_parent_dimensions(
     return calc_components
 
 
-def add_dimension_total_calculations(
+def infer_intra_factoid_totals(
     calc_components: pd.DataFrame,
     meta_w_dims: pd.DataFrame,
     table_dimensions: pd.DataFrame,
@@ -5932,7 +5935,7 @@ def add_dimension_total_calculations(
 
     Args:
         calc_components: a table of calculation component records which have had some
-            manual calculation fixes applied.
+            manual calculation fixes applied. Passed through unmodified.
         meta_w_dims: metadata table with the dimensions.
         table_dimensions: table with all observed values of :func:`other_dimensions` for
             each ``table_name`` and ``xbrl_factoid``.
@@ -5975,31 +5978,42 @@ def add_dimension_total_calculations(
                 on=non_total_cols,
                 how="inner",
                 suffixes=("_parent", ""),
-            ).assign(is_within_table_calc=True, weight=1)
+            ).assign(
+                is_within_table_calc=True,
+                weight=1,
+                table_name_parent=lambda x: x.table_name,
+                xbrl_factoid_parent=lambda x: x.xbrl_factoid,
+            )
         )
 
-    calc_components = pd.concat([calc_components] + total_comps).reset_index(drop=True)
+    child_node_pk = ["table_name", "xbrl_factoid"] + dimensions
+    parent_node_pk = [f"{col}_parent" for col in child_node_pk]
+    relationship_cols = ["is_within_table_calc", "weight"]
+    all_expected_cols = parent_node_pk + child_node_pk + relationship_cols
+    inferred_totals = (
+        pd.concat(total_comps).reindex(columns=all_expected_cols).reset_index(drop=True)
+    )
 
     # merge() will have dropped shared columns, so re-fill with child values:
-    child_values = calc_components[["table_name", "xbrl_factoid"] + dimensions].rename(
+    child_values = inferred_totals[["table_name", "xbrl_factoid"] + dimensions].rename(
         lambda dim: f"{dim}_parent", axis="columns"
     )
-    calc_components = calc_components.fillna(child_values)
+    inferred_totals = inferred_totals.fillna(child_values)
+    calcs_with_totals = pd.concat([calc_components, inferred_totals])
 
-    calc_cols = ["table_name", "xbrl_factoid"] + dimensions
-    calc_and_parent_cols = calc_cols + [f"{col}_parent" for col in calc_cols]
+    # verification + deduping below.
 
     check_for_calc_components_duplicates(
-        calc_components,
+        calcs_with_totals,
         table_names_known_dupes=[
             "electricity_sales_by_rate_schedule_ferc1",
         ],
-        idx=calc_and_parent_cols,
+        idx=parent_node_pk + child_node_pk,
     )
 
     # only drop duplicates if the table_name is in known dupes list.
-    calc_components = calc_components.drop_duplicates(
-        calc_and_parent_cols, keep="first"
+    calcs_with_totals = calcs_with_totals.drop_duplicates(
+        parent_node_pk + child_node_pk, keep="first"
     )
-    assert calc_components[calc_components.duplicated()].empty
-    return calc_components
+    assert calcs_with_totals[calcs_with_totals.duplicated()].empty
+    return calcs_with_totals
