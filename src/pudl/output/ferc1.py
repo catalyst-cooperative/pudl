@@ -1828,7 +1828,7 @@ class XbrlCalculationForestFerc1(BaseModel):
             .set_index(self.calc_cols)
         )
         # Fill NA tag dictionaries with an empty dict so the type is uniform:
-        node_attrs["tags"] = node_attrs["tags"].apply(lambda x: {} if x != x else x)
+        node_attrs["tags"] = node_attrs["tags"].apply(lambda x: {} if pd.isna(x) else x)
         annotated_forest = deepcopy(self.forest)
         nx.set_node_attributes(annotated_forest, node_attrs.to_dict(orient="index"))
 
