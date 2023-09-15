@@ -1898,8 +1898,6 @@ class XbrlCalculationForestFerc1(BaseModel):
             )
 
         deduplicated_calcs = self.exploded_calcs.loc[~calcs_to_drop]
-
-        # Add metadata tags to the calculation components and reset the index.
         attr_cols = ["weight"]
         node_attrs = (
             pd.merge(
