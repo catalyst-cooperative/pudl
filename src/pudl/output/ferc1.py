@@ -1992,36 +1992,48 @@ class XbrlCalculationForestFerc1(BaseModel):
         return full_digraph
 
     def prune_unrooted(self: Self, graph: nx.DiGraph) -> nx.DiGraph:
-        """Prune any portions of the digraph that aren't reachable from the roots."""
+        """Prune those parts of the input graph that aren't reachable from the roots.
+
+        Build a table of exploded calculations that includes only those nodes that
+        are part of the input graph, and that are reachable from the roots of the
+        calculation forest. Then use that set of exploded calculations to construct a
+        new graph.
+
+        This is complicated by the fact that some nodes may have already been pruned
+        from the input graph, and so when selecting both parent and child nodes from
+        the calculations, we need to make sure that they are present in the input graph,
+        as well as the complete set of calculation components.
+        """
         seeded_nodes = set(self.seeds)
         for seed in self.seeds:
             # the seeds and all of their descendants from the graph
             seeded_nodes = list(
                 seeded_nodes.union({seed}).union(nx.descendants(graph, seed))
             )
-        # any seeded node that is also a parent
+        # Any seeded node that appears in the input graph and is also a parent.
         seeded_parents = [
             node
             for node, degree in dict(graph.out_degree(seeded_nodes)).items()
             if degree > 0
         ]
+        # Any calculation where the parent is one of the seeded parents.
         seeded_calcs = (
             self.exploded_calcs.set_index(self.parent_cols)
             .loc[seeded_parents]
             .reset_index()
         )
+        # All child nodes in the seeded calculations that are part of the input graph.
         seeded_child_nodes = list(
             set(
                 seeded_calcs[self.calc_cols].itertuples(index=False, name="NodeId")
             ).intersection(graph.nodes)
         )
+        # This seeded calcs includes only calculations where both the parent and child
+        # nodes were part of the input graph.
         seeded_calcs = (
             seeded_calcs.set_index(self.calc_cols).loc[seeded_child_nodes].reset_index()
         )
-        seeded_digraph: nx.DiGraph = self.exploded_calcs_to_digraph(
-            exploded_calcs=seeded_calcs
-        )
-        return seeded_digraph
+        return self.exploded_calcs_to_digraph(exploded_calcs=seeded_calcs)
 
     @cached_property
     def seeded_digraph(self: Self) -> nx.DiGraph:
@@ -2053,7 +2065,7 @@ class XbrlCalculationForestFerc1(BaseModel):
         table may or may not have a top level summary value that includes all underlying
         calculated values of interest.
         """
-        forest = self.seeded_digraph
+        forest = deepcopy(self.seeded_digraph)
         # Remove any node that has only one parent and one child, and add an edge
         # between its parent and child.
         for node in self.passthroughs:
