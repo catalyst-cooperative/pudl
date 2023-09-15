@@ -457,7 +457,8 @@ def align_row_numbers_dbf(df: pd.DataFrame, params: AlignRowNumbersDbf) -> pd.Da
         df = pd.merge(df, row_map, on=["report_year", "row_number"], how="left")
         if df.xbrl_factoid.isna().any():
             raise ValueError(
-                rf"Found null row labeles after aligning DBF/XBRL rows. n\ {df[df.xbrl_factoid.isna()]}"
+                "Found null row labels after aligning DBF/XBRL rows.\n"
+                f"{df[df.xbrl_factoid.isna()]}"
             )
         # eliminate the header rows since they (should!) contain no data in either the
         # DBF or XBRL records:
@@ -1040,6 +1041,11 @@ class Ferc1TableTransformParams(TableTransformParams):
         """Compile a list of all of the ``value_types`` from ``wide_to_tidy``."""
         return self.wide_to_tidy.value_types
 
+    @property
+    def aligned_dbf_table_names(self) -> list[str]:
+        """The list of DBF tables aligned by row number in this transform."""
+        return self.align_row_numbers_dbf.dbf_table_names
+
 
 ################################################################################
 # FERC 1 transform helper functions. Probably to be integrated into a class
@@ -1106,6 +1112,7 @@ def read_dbf_to_xbrl_map(dbf_table_names: list[str]) -> pd.DataFrame:
             "report_year",
             "row_number",
             "row_type",
+            "row_literal",
             "xbrl_factoid",
         ],
     )
@@ -1196,11 +1203,11 @@ def fill_dbf_to_xbrl_map(
 
     # Forward fill missing XBRL column names, until a new definition for the row
     # number is encountered:
-    df["xbrl_factoid"] = df.groupby(
+    df.loc[:, ["xbrl_factoid", "row_literal"]] = df.groupby(
         ["row_number", "sched_table_name"]
-    ).xbrl_factoid.transform("ffill")
+    )[["xbrl_factoid", "row_literal"]].transform("ffill")
     # Drop NA values produced in the broadcasting merge onto the exhaustive index.
-    df = df.dropna(subset="xbrl_factoid").drop(columns=["sched_table_name"])
+    df = df.dropna(subset="xbrl_factoid")
     # There should be no NA values left at this point:
     if df.isnull().any(axis=None):
         raise ValueError(

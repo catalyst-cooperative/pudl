@@ -1023,10 +1023,8 @@ def exploded_table_asset_factory(
             calculation_components_xbrl_ferc1=calculation_components_xbrl_ferc1,
             seed_nodes=seed_nodes,
             tags=tags,
-        ).boom(
-            tables_to_explode=tables_to_explode,
-            calculation_tolerance=EXPLOSION_CALCULATION_TOLERANCES[root_table],
-        )
+            calculation_tolerance=calculation_tolerance,
+        ).boom(tables_to_explode=tables_to_explode)
 
     return exploded_tables_asset
 
@@ -1204,21 +1202,18 @@ class MetadataExploder:
         return calc_explode
 
     @property
-    def metadata(self):
+    def metadata(self: Self) -> pd.DataFrame:
         """Combine a set of interrelated table's metatada for use in :class:`Exploder`.
 
         Any calculations containing components that are part of tables outside the
         set of exploded tables will be converted to reported values with an empty
         calculation. Then we verify that all referenced calculation components actually
         appear as their own records within the concatenated metadata dataframe.
-
-        Args:
-            clean_xbrl_metadata_json: cleaned XRBL metadata.
         """
         calc_cols = list(NodeId._fields)
         exploded_metadata = (
             self.metadata_xbrl_ferc1[
-                self.metadata_xbrl_ferc1.table_name.isin(self.table_names)
+                self.metadata_xbrl_ferc1["table_name"].isin(self.table_names)
             ]
             .set_index(calc_cols)
             .sort_index()
@@ -1231,6 +1226,60 @@ class MetadataExploder:
             calc_comps.set_index(calc_cols).index
         )
         assert missing_from_calcs_idx.empty
+
+        # Add additional metadata useful for debugging calculations and tagging:
+        def snake_to_camel_case(factoid: str):
+            return "".join([word.capitalize() for word in factoid.split("_")])
+
+        exploded_metadata["xbrl_taxonomy_fact_name"] = exploded_metadata[
+            "xbrl_factoid_original"
+        ].apply(snake_to_camel_case)
+        pudl_to_xbrl_map = {
+            pudl_table: source_tables["xbrl"]
+            for pudl_table, source_tables in pudl.extract.ferc1.TABLE_NAME_MAP_FERC1.items()
+        }
+        exploded_metadata["xbrl_schedule_name"] = exploded_metadata["table_name"].map(
+            pudl_to_xbrl_map
+        )
+
+        def get_dbf_row_metadata(pudl_table: str, year: int = 2020):
+            dbf_tables = pudl.transform.ferc1.FERC1_TFR_CLASSES[
+                pudl_table
+            ]().params.aligned_dbf_table_names
+            dbf_metadata = (
+                pudl.transform.ferc1.read_dbf_to_xbrl_map(dbf_table_names=dbf_tables)
+                .pipe(pudl.transform.ferc1.fill_dbf_to_xbrl_map)
+                .query("report_year==@year")
+                .drop(columns="report_year")
+                .astype(
+                    {
+                        "row_number": "Int64",
+                        "row_literal": "string",
+                    }
+                )
+                .rename(
+                    columns={
+                        "row_number": f"dbf{year}_row_number",
+                        "row_literal": f"dbf{year}_row_literal",
+                        "sched_table_name": f"dbf{year}_table_name",
+                    }
+                )
+                .assign(table_name=pudl_table)
+                .drop_duplicates(subset=["table_name", "xbrl_factoid"])
+            )
+            return dbf_metadata
+
+        dbf_row_metadata = pd.concat(
+            [get_dbf_row_metadata(table) for table in self.table_names]
+        )
+
+        exploded_metadata = exploded_metadata.merge(
+            dbf_row_metadata,
+            how="left",
+            on=["table_name", "xbrl_factoid"],
+            validate="many_to_one",
+        )
+
         return exploded_metadata
 
 
