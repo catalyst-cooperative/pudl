@@ -13,13 +13,14 @@ from pudl.transform.ferc1 import (
     TableIdFerc1,
     UnstackBalancesToReportYearInstantXbrl,
     WideToTidy,
-    add_dimension_total_calculations,
     assign_parent_dimensions,
     calculate_values_from_components,
     drop_duplicate_rows_dbf,
     fill_dbf_to_xbrl_map,
+    infer_intra_factoid_totals,
     make_calculation_dimensions_explicit,
     read_dbf_to_xbrl_map,
+    unexpected_total_components,
     unstack_balances_to_report_year_instant_xbrl,
     wide_to_tidy,
 )
@@ -58,6 +59,15 @@ test_table2,2002,"Account E",9,ferc_account,account_e
 """
     ),
 )
+
+
+def canonicalize(df):
+    return (
+        df.convert_dtypes()
+        .sort_index(axis="columns")
+        .pipe(lambda df: df.sort_values(list(df.columns)))
+        .reset_index(drop=True)
+    )
 
 
 @pytest.mark.parametrize(
@@ -590,40 +600,26 @@ table_a,fact_2,table_b,fact_8,next_gen,futile
 
 
 def test_adding_parent_dimensions():
-    """Test :func:`assign_parent_dimensions` & :func:`add_dimension_total_calculations`.
+    """Test :func:`assign_parent_dimensions` & :func:`infer_intra_factoid_totals`.
 
     These two parent dimension steps are related so we test them in the same process.
     """
-    calc_comp_idx = [
-        "table_name_parent",
-        "xbrl_factoid_parent",
-        "table_name",
-        "xbrl_factoid",
-    ]
+
+    # existing calc comps - these should remain unmolested throughout
+    # table_a:fact_1 -> table_a:fact_3[dim_x[voyager],dim_y[coffee,in,that,nebula,total]]
     calc_comps_trek = pd.read_csv(
         StringIO(
             """
-table_name_parent,xbrl_factoid_parent,table_name,xbrl_factoid,dim_x,dim_y,is_within_table_calc
-table_a,fact_1,table_a,fact_3,voyager,coffee,True
-table_a,fact_1,table_a,fact_3,voyager,in,True
-table_a,fact_1,table_a,fact_3,voyager,that,True
-table_a,fact_1,table_a,fact_3,voyager,nebula,True
-table_a,fact_1,table_a,fact_3,voyager,total,True
+table_name_parent,xbrl_factoid_parent,table_name,xbrl_factoid,dim_x,dim_y,is_within_table_calc,weight
+table_a,fact_1,table_a,fact_3,voyager,coffee,True,2
+table_a,fact_1,table_a,fact_3,voyager,in,True,2
+table_a,fact_1,table_a,fact_3,voyager,that,True,2
+table_a,fact_1,table_a,fact_3,voyager,nebula,True,2
+table_a,fact_1,table_a,fact_3,voyager,total,True,2
 """
         )
     )
-    expected_parent_dim_trek = pd.read_csv(
-        StringIO(
-            """
-table_name,xbrl_factoid,dim_x,dim_y,is_within_table_calc,dim_x_parent,table_name_parent,xbrl_factoid_parent,dim_y_parent
-table_a,fact_3,voyager,coffee,True,voyager,table_a,fact_1,coffee
-table_a,fact_3,voyager,in,True,voyager,table_a,fact_1,in
-table_a,fact_3,voyager,that,True,voyager,table_a,fact_1,that
-table_a,fact_3,voyager,nebula,True,voyager,table_a,fact_1,nebula
-table_a,fact_3,voyager,total,True,voyager,table_a,fact_1,total
-"""
-        )
-    )
+
     table_dimensions_same_trek = pd.read_csv(
         StringIO(
             """
@@ -642,84 +638,123 @@ table_a,fact_3,voyager,total
         )
     )
 
-    out_parent_dim_same_trek = (
+    out_parent_dim_same_trek = canonicalize(
         assign_parent_dimensions(
             calc_components=calc_comps_trek,
             table_dimensions=table_dimensions_same_trek,
             dimensions=["dim_x", "dim_y"],
-        )[list(expected_parent_dim_trek)]
-        .sort_values(calc_comp_idx)
-        .reset_index(drop=True)
+        )
+    )
+
+    # For fact_1, attach the fact_3 dimensions of the child components
+    expected_parent_dim_trek = canonicalize(
+        pd.read_csv(
+            StringIO(
+                """
+table_name,xbrl_factoid,dim_x,dim_y,is_within_table_calc,dim_x_parent,table_name_parent,xbrl_factoid_parent,dim_y_parent,weight
+table_a,fact_3,voyager,coffee,True,voyager,table_a,fact_1,coffee,2
+table_a,fact_3,voyager,in,True,voyager,table_a,fact_1,in,2
+table_a,fact_3,voyager,that,True,voyager,table_a,fact_1,that,2
+table_a,fact_3,voyager,nebula,True,voyager,table_a,fact_1,nebula,2
+table_a,fact_3,voyager,total,True,voyager,table_a,fact_1,total,2
+"""
+            )
+        )
     )
     pd.testing.assert_frame_equal(out_parent_dim_same_trek, expected_parent_dim_trek)
 
-    expected_total_to_subdim = pd.read_csv(
-        StringIO(
-            """
-table_name_parent,xbrl_factoid_parent,dim_x_parent,dim_y_parent,table_name,xbrl_factoid,dim_x,dim_y,is_within_dimension_dim_y,is_within_dimension_dim_x
-table_a,fact_1,voyager,coffee,table_a,fact_3,voyager,coffee,False,False
-table_a,fact_1,voyager,in,table_a,fact_3,voyager,in,False,False
-table_a,fact_1,voyager,that,table_a,fact_3,voyager,that,False,False
-table_a,fact_1,voyager,nebula,table_a,fact_3,voyager,nebula,False,False
-table_a,fact_1,voyager,total,table_a,fact_3,voyager,total,False,False
-table_a,fact_1,voyager,total,table_a,fact_1,voyager,coffee,True,False
-table_a,fact_1,voyager,total,table_a,fact_1,voyager,in,True,False
-table_a,fact_1,voyager,total,table_a,fact_1,voyager,that,True,False
-table_a,fact_1,voyager,total,table_a,fact_1,voyager,nebula,True,False
-table_a,fact_3,voyager,total,table_a,fact_3,voyager,coffee,True,False
-table_a,fact_3,voyager,total,table_a,fact_3,voyager,in,True,False
-table_a,fact_3,voyager,total,table_a,fact_3,voyager,that,True,False
-table_a,fact_3,voyager,total,table_a,fact_3,voyager,nebula,True,False
+    expected_total_to_subdim = canonicalize(
+        pd.read_csv(
+            StringIO(
+                """
+table_name_parent,xbrl_factoid_parent,dim_x_parent,dim_y_parent,table_name,xbrl_factoid,dim_x,dim_y,is_within_table_calc,weight
+table_a,fact_1,voyager,coffee,table_a,fact_3,voyager,coffee,True,2
+table_a,fact_1,voyager,in,table_a,fact_3,voyager,in,True,2
+table_a,fact_1,voyager,that,table_a,fact_3,voyager,that,True,2
+table_a,fact_1,voyager,nebula,table_a,fact_3,voyager,nebula,True,2
+table_a,fact_1,voyager,total,table_a,fact_3,voyager,total,True,2
+table_a,fact_1,voyager,total,table_a,fact_1,voyager,coffee,True,1
+table_a,fact_1,voyager,total,table_a,fact_1,voyager,in,True,1
+table_a,fact_1,voyager,total,table_a,fact_1,voyager,that,True,1
+table_a,fact_1,voyager,total,table_a,fact_1,voyager,nebula,True,1
+table_a,fact_3,voyager,total,table_a,fact_3,voyager,coffee,True,1
+table_a,fact_3,voyager,total,table_a,fact_3,voyager,in,True,1
+table_a,fact_3,voyager,total,table_a,fact_3,voyager,that,True,1
+table_a,fact_3,voyager,total,table_a,fact_3,voyager,nebula,True,1
 """
+            )
         )
     )
-    out_total_to_subdim = add_dimension_total_calculations(
-        calc_components=out_parent_dim_same_trek,
-        meta_w_dims=table_dimensions_same_trek,
-        table_dimensions=table_dimensions_same_trek,
-        dimensions=["dim_x", "dim_y"],
-    )[list(expected_total_to_subdim)]
+
+    out_total_to_subdim = canonicalize(
+        infer_intra_factoid_totals(
+            calc_components=out_parent_dim_same_trek,
+            meta_w_dims=table_dimensions_same_trek,
+            table_dimensions=table_dimensions_same_trek,
+            dimensions=["dim_x", "dim_y"],
+        )
+    )
 
     pd.testing.assert_frame_equal(
-        out_total_to_subdim.convert_dtypes(), expected_total_to_subdim.convert_dtypes()
+        out_total_to_subdim,
+        expected_total_to_subdim,
     )
 
 
 def test_multi_dims_totals():
+    # observed dimension: values
+    # utility_type: electric
+    # plant_status: future, in_service, total
+    # plant_function: steam_production, general, total
     table_dims = pd.read_csv(
         StringIO(
             """
 table_name,xbrl_factoid,utility_type,plant_status,plant_function
-electric_plant_depreciation_functional_ferc1,accumulated_depreciation,electric,future,steam_production
-electric_plant_depreciation_functional_ferc1,accumulated_depreciation,electric,in_service,steam_production
-electric_plant_depreciation_functional_ferc1,accumulated_depreciation,electric,total,steam_production
-electric_plant_depreciation_functional_ferc1,accumulated_depreciation,electric,future,general
-electric_plant_depreciation_functional_ferc1,accumulated_depreciation,electric,in_service,general
-electric_plant_depreciation_functional_ferc1,accumulated_depreciation,electric,total,general
-electric_plant_depreciation_functional_ferc1,accumulated_depreciation,electric,future,total
-electric_plant_depreciation_functional_ferc1,accumulated_depreciation,electric,in_service,total
-electric_plant_depreciation_functional_ferc1,accumulated_depreciation,electric,total,total
+electric_plant_depreciation_change_ferc1,accumulated_depreciation,electric,future,steam_production
+electric_plant_depreciation_change_ferc1,accumulated_depreciation,electric,in_service,steam_production
+electric_plant_depreciation_change_ferc1,accumulated_depreciation,electric,total,steam_production
+electric_plant_depreciation_change_ferc1,accumulated_depreciation,electric,future,general
+electric_plant_depreciation_change_ferc1,accumulated_depreciation,electric,in_service,general
+electric_plant_depreciation_change_ferc1,accumulated_depreciation,electric,total,general
+electric_plant_depreciation_change_ferc1,accumulated_depreciation,electric,future,total
+electric_plant_depreciation_change_ferc1,accumulated_depreciation,electric,in_service,total
+electric_plant_depreciation_change_ferc1,accumulated_depreciation,electric,total,total
 """
         )
     )
+
+    # metadata dimension: values
+    # utility_type: electric
+    # plant_status: future, in_service, total
+    # plant_function: steam_production, general, bogus, total
+
     meta_w_dims = pd.read_csv(
         StringIO(
             """
 table_name,xbrl_factoid,utility_type,plant_status,plant_function
-electric_plant_depreciation_functional_ferc1,accumulated_depreciation,electric,future,steam_production
-electric_plant_depreciation_functional_ferc1,accumulated_depreciation,electric,future,general
-electric_plant_depreciation_functional_ferc1,accumulated_depreciation,electric,future,total
-electric_plant_depreciation_functional_ferc1,accumulated_depreciation,electric,in_service,steam_production
-electric_plant_depreciation_functional_ferc1,accumulated_depreciation,electric,in_service,general
-electric_plant_depreciation_functional_ferc1,accumulated_depreciation,electric,in_service,total
-electric_plant_depreciation_functional_ferc1,accumulated_depreciation,electric,total,steam_production
-electric_plant_depreciation_functional_ferc1,accumulated_depreciation,electric,total,general
-electric_plant_depreciation_functional_ferc1,accumulated_depreciation,electric,total,total
+electric_plant_depreciation_change_ferc1,accumulated_depreciation,electric,future,steam_production
+electric_plant_depreciation_change_ferc1,accumulated_depreciation,electric,future,general
+electric_plant_depreciation_change_ferc1,accumulated_depreciation,electric,future,bogus
+electric_plant_depreciation_change_ferc1,accumulated_depreciation,electric,future,total
+electric_plant_depreciation_change_ferc1,accumulated_depreciation,electric,in_service,steam_production
+electric_plant_depreciation_change_ferc1,accumulated_depreciation,electric,in_service,general
+electric_plant_depreciation_change_ferc1,accumulated_depreciation,electric,in_service,bogus
+electric_plant_depreciation_change_ferc1,accumulated_depreciation,electric,in_service,total
+electric_plant_depreciation_change_ferc1,accumulated_depreciation,electric,total,steam_production
+electric_plant_depreciation_change_ferc1,accumulated_depreciation,electric,total,general
+electric_plant_depreciation_change_ferc1,accumulated_depreciation,electric,total,bogus
+electric_plant_depreciation_change_ferc1,accumulated_depreciation,electric,total,total
+electric_plant_depreciation_change_ferc1,accumulated_depreciation,electric,NA,NA
 """
         )
     )
     calcs = pd.DataFrame(
         columns=[
+            "table_name_parent",
+            "xbrl_factoid_parent",
+            "utility_type_parent",
+            "plant_status_parent",
+            "plant_function_parent",
             "table_name",
             "xbrl_factoid",
             "utility_type",
@@ -746,43 +781,71 @@ electric_plant_depreciation_functional_ferc1,accumulated_depreciation,electric,t
     assert calc_comps.empty
 
     calc_components_w_totals = calc_comps.pipe(
-        add_dimension_total_calculations,
+        infer_intra_factoid_totals,
         meta_w_dims=meta_w_dims,
         table_dimensions=table_dims,
         dimensions=dimensions,
+    ).pipe(canonicalize)
+
+    # total/total has the 4 components we expect ([future, in_service] X [steam_production, general])
+    # all 4 1-dimensional totals have 2 components each
+
+    calc_components_w_totals_expected = canonicalize(
+        pd.read_csv(
+            StringIO(
+                """
+table_name_parent,xbrl_factoid_parent,utility_type_parent,plant_status_parent,plant_function_parent,table_name,xbrl_factoid,utility_type,plant_status,plant_function,is_within_table_calc,weight
+electric_plant_depreciation_change_ferc1,accumulated_depreciation,electric,total,total,electric_plant_depreciation_change_ferc1,accumulated_depreciation,electric,in_service,steam_production,True,1
+electric_plant_depreciation_change_ferc1,accumulated_depreciation,electric,total,total,electric_plant_depreciation_change_ferc1,accumulated_depreciation,electric,in_service,general,True,1
+electric_plant_depreciation_change_ferc1,accumulated_depreciation,electric,total,total,electric_plant_depreciation_change_ferc1,accumulated_depreciation,electric,future,steam_production,True,1
+electric_plant_depreciation_change_ferc1,accumulated_depreciation,electric,total,total,electric_plant_depreciation_change_ferc1,accumulated_depreciation,electric,future,general,True,1
+electric_plant_depreciation_change_ferc1,accumulated_depreciation,electric,total,steam_production,electric_plant_depreciation_change_ferc1,accumulated_depreciation,electric,in_service,steam_production,True,1
+electric_plant_depreciation_change_ferc1,accumulated_depreciation,electric,total,steam_production,electric_plant_depreciation_change_ferc1,accumulated_depreciation,electric,future,steam_production,True,1
+electric_plant_depreciation_change_ferc1,accumulated_depreciation,electric,total,general,electric_plant_depreciation_change_ferc1,accumulated_depreciation,electric,in_service,general,True,1
+electric_plant_depreciation_change_ferc1,accumulated_depreciation,electric,total,general,electric_plant_depreciation_change_ferc1,accumulated_depreciation,electric,future,general,True,1
+electric_plant_depreciation_change_ferc1,accumulated_depreciation,electric,in_service,total,electric_plant_depreciation_change_ferc1,accumulated_depreciation,electric,in_service,steam_production,True,1
+electric_plant_depreciation_change_ferc1,accumulated_depreciation,electric,in_service,total,electric_plant_depreciation_change_ferc1,accumulated_depreciation,electric,in_service,general,True,1
+electric_plant_depreciation_change_ferc1,accumulated_depreciation,electric,future,total,electric_plant_depreciation_change_ferc1,accumulated_depreciation,electric,future,steam_production,True,1
+electric_plant_depreciation_change_ferc1,accumulated_depreciation,electric,future,total,electric_plant_depreciation_change_ferc1,accumulated_depreciation,electric,future,general,True,1
+"""
+            )
+        )
     )
-    calc_components_w_totals_expected = pd.read_csv(
+
+    pd.testing.assert_frame_equal(
+        calc_components_w_totals_expected,
+        calc_components_w_totals,
+    )
+
+
+def test_unexpected_total_components():
+    dimensions = ["utility_type", "plant_status", "plant_function"]
+
+    has_extra_components = pd.read_csv(
         StringIO(
             """
 table_name_parent,xbrl_factoid_parent,utility_type_parent,plant_status_parent,plant_function_parent,table_name,xbrl_factoid,utility_type,plant_status,plant_function
-electric_plant_depreciation_functional_ferc1,accumulated_depreciation,electric,total,total,electric_plant_depreciation_functional_ferc1,accumulated_depreciation,electric,in_service,steam_production
-electric_plant_depreciation_functional_ferc1,accumulated_depreciation,electric,total,total,electric_plant_depreciation_functional_ferc1,accumulated_depreciation,electric,in_service,general
-electric_plant_depreciation_functional_ferc1,accumulated_depreciation,electric,total,total,electric_plant_depreciation_functional_ferc1,accumulated_depreciation,electric,future,steam_production
-electric_plant_depreciation_functional_ferc1,accumulated_depreciation,electric,total,total,electric_plant_depreciation_functional_ferc1,accumulated_depreciation,electric,future,general
-electric_plant_depreciation_functional_ferc1,accumulated_depreciation,electric,total,steam_production,electric_plant_depreciation_functional_ferc1,accumulated_depreciation,electric,in_service,steam_production
-electric_plant_depreciation_functional_ferc1,accumulated_depreciation,electric,total,steam_production,electric_plant_depreciation_functional_ferc1,accumulated_depreciation,electric,in_service,general
-electric_plant_depreciation_functional_ferc1,accumulated_depreciation,electric,total,steam_production,electric_plant_depreciation_functional_ferc1,accumulated_depreciation,electric,future,steam_production
-electric_plant_depreciation_functional_ferc1,accumulated_depreciation,electric,total,steam_production,electric_plant_depreciation_functional_ferc1,accumulated_depreciation,electric,future,general
-electric_plant_depreciation_functional_ferc1,accumulated_depreciation,electric,total,general,electric_plant_depreciation_functional_ferc1,accumulated_depreciation,electric,in_service,steam_production
-electric_plant_depreciation_functional_ferc1,accumulated_depreciation,electric,total,general,electric_plant_depreciation_functional_ferc1,accumulated_depreciation,electric,in_service,general
-electric_plant_depreciation_functional_ferc1,accumulated_depreciation,electric,total,general,electric_plant_depreciation_functional_ferc1,accumulated_depreciation,electric,future,steam_production
-electric_plant_depreciation_functional_ferc1,accumulated_depreciation,electric,total,general,electric_plant_depreciation_functional_ferc1,accumulated_depreciation,electric,future,general
-electric_plant_depreciation_functional_ferc1,accumulated_depreciation,electric,in_service,total,electric_plant_depreciation_functional_ferc1,accumulated_depreciation,electric,in_service,steam_production
-electric_plant_depreciation_functional_ferc1,accumulated_depreciation,electric,in_service,total,electric_plant_depreciation_functional_ferc1,accumulated_depreciation,electric,in_service,general
-electric_plant_depreciation_functional_ferc1,accumulated_depreciation,electric,in_service,total,electric_plant_depreciation_functional_ferc1,accumulated_depreciation,electric,future,steam_production
-electric_plant_depreciation_functional_ferc1,accumulated_depreciation,electric,in_service,total,electric_plant_depreciation_functional_ferc1,accumulated_depreciation,electric,future,general
-electric_plant_depreciation_functional_ferc1,accumulated_depreciation,electric,future,total,electric_plant_depreciation_functional_ferc1,accumulated_depreciation,electric,in_service,steam_production
-electric_plant_depreciation_functional_ferc1,accumulated_depreciation,electric,future,total,electric_plant_depreciation_functional_ferc1,accumulated_depreciation,electric,in_service,general
-electric_plant_depreciation_functional_ferc1,accumulated_depreciation,electric,future,total,electric_plant_depreciation_functional_ferc1,accumulated_depreciation,electric,future,steam_production
-electric_plant_depreciation_functional_ferc1,accumulated_depreciation,electric,future,total,electric_plant_depreciation_functional_ferc1,accumulated_depreciation,electric,future,general
+table_1,factoid_1,electric,total,total,table_1,factoid_1,electric,in_service,steam_production
+table_1,factoid_1,electric,total,total,table_1,factoid_1,gas,in_service,steam_production
+table_1,factoid_1,electric,total,total,table_1,factoid_1,total,in_service,steam_production
 """
         )
     )
-    pd.testing.assert_frame_equal(
-        calc_components_w_totals_expected,
-        calc_components_w_totals[list(calc_components_w_totals_expected)]
-        .sort_values(
-            by=list(calc_components_w_totals_expected.columns), ascending=False
+    assert len(unexpected_total_components(has_extra_components, dimensions)) == 2
+
+    no_extra_components = pd.read_csv(
+        StringIO(
+            """
+table_name_parent,xbrl_factoid_parent,utility_type_parent,plant_status_parent,plant_function_parent,table_name,xbrl_factoid,utility_type,plant_status,plant_function
+table_1,factoid_1,electric,total,general,table_1,factoid_2,electric,in_service,steam_production
+table_1,factoid_1,electric,total,general,table_1,factoid_2,electric,in_service,general
+table_1,factoid_1,electric,total,general,table_1,factoid_2,electric,in_service,total
+table_1,factoid_1,electric,total,general,table_1,factoid_2,electric,in_service,general
+table_1,factoid_1,electric,total,total,table_1,factoid_1,electric,in_service,steam_production
+table_1,factoid_1,electric,total,total,table_1,factoid_1,electric,in_service,general
+table_1,factoid_1,electric,total,total,table_1,factoid_1,electric,future,steam_production
+table_1,factoid_1,electric,total,total,table_1,factoid_1,electric,future,general
+"""
         )
-        .reset_index(drop=True),
     )
+    assert unexpected_total_components(no_extra_components, dimensions).empty
