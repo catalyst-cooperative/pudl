@@ -137,7 +137,7 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
         "sources": ["eia923"],
         "etl_group": "eia923",
     },
-    "denorm_boiler_fuel_eia923": {
+    "denorm_boiler_fuel_monthly_eia923": {
         "description": TABLE_DESCRIPTIONS["core_eia923__monthly_boiler_fuel"],
         "schema": {
             "fields": [
@@ -174,42 +174,6 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
         "etl_group": "outputs",
     },
     "denorm_boiler_fuel_yearly_eia923": {
-        "description": TABLE_DESCRIPTIONS["core_eia923__monthly_boiler_fuel"],
-        "schema": {
-            "fields": [
-                "report_date",
-                "plant_id_eia",
-                "plant_id_pudl",
-                "plant_name_eia",
-                "utility_id_eia",
-                "utility_id_pudl",
-                "utility_name_eia",
-                "boiler_id",
-                "unit_id_pudl",
-                "energy_source_code",
-                "prime_mover_code",
-                "fuel_type_code_pudl",
-                "fuel_consumed_units",
-                "fuel_mmbtu_per_unit",
-                "fuel_consumed_mmbtu",
-                "sulfur_content_pct",
-                "ash_content_pct",
-                # No data_maturity field
-                # see: https://github.com/catalyst-cooperative/pudl/issues/1847
-            ],
-            "primary_key": [
-                "plant_id_eia",
-                "boiler_id",
-                "energy_source_code",
-                "prime_mover_code",
-                "report_date",
-            ],
-        },
-        "field_namespace": "eia",
-        "sources": ["eia923"],
-        "etl_group": "outputs",
-    },
-    "denorm_boiler_fuel_monthly_eia923": {
         "description": TABLE_DESCRIPTIONS["core_eia923__monthly_boiler_fuel"],
         "schema": {
             "fields": [
@@ -434,28 +398,6 @@ is for those supplies.
         "sources": ["eia923"],
         "etl_group": "eia923",
     },
-    "denorm_generation_eia923": {
-        "description": TABLE_DESCRIPTIONS["core_eia923__monthly_generation"],
-        "schema": {
-            "fields": [
-                "report_date",
-                "plant_id_eia",
-                "plant_id_pudl",
-                "plant_name_eia",
-                "utility_id_eia",
-                "utility_id_pudl",
-                "utility_name_eia",
-                "generator_id",
-                "unit_id_pudl",
-                "net_generation_mwh",
-                "data_maturity",
-            ],
-            "primary_key": ["plant_id_eia", "generator_id", "report_date"],
-        },
-        "field_namespace": "eia",
-        "sources": ["eia923"],
-        "etl_group": "outputs",
-    },
     "denorm_generation_monthly_eia923": {
         "description": TABLE_DESCRIPTIONS["core_eia923__monthly_generation"],
         "schema": {
@@ -470,6 +412,7 @@ is for those supplies.
                 "generator_id",
                 "unit_id_pudl",
                 "net_generation_mwh",
+                "data_maturity",
             ],
             "primary_key": ["plant_id_eia", "generator_id", "report_date"],
         },
@@ -527,7 +470,7 @@ is for those supplies.
         "sources": ["eia923"],
         "etl_group": "eia923",
     },
-    "denorm_generation_fuel_combined_eia923": {
+    "denorm_generation_fuel_combined_monthly_eia923": {
         "description": TABLE_DESCRIPTIONS["generation_fuel_combined_eia923"],
         "schema": {
             "fields": [
@@ -562,38 +505,6 @@ is for those supplies.
         "etl_group": "outputs",
     },
     "denorm_generation_fuel_combined_yearly_eia923": {
-        "description": TABLE_DESCRIPTIONS["generation_fuel_combined_eia923"],
-        "schema": {
-            "fields": [
-                "report_date",
-                "plant_id_eia",
-                "plant_id_pudl",
-                "plant_name_eia",
-                "utility_id_eia",
-                "utility_id_pudl",
-                "utility_name_eia",
-                "energy_source_code",
-                "fuel_type_code_pudl",
-                "prime_mover_code",
-                "fuel_consumed_units",
-                "fuel_consumed_for_electricity_units",
-                "fuel_mmbtu_per_unit",
-                "fuel_consumed_mmbtu",
-                "fuel_consumed_for_electricity_mmbtu",
-                "net_generation_mwh",
-            ],
-            "primary_key": [
-                "plant_id_eia",
-                "report_date",
-                "prime_mover_code",
-                "energy_source_code",
-            ],
-        },
-        "field_namespace": "eia",
-        "sources": ["eia923"],
-        "etl_group": "outputs",
-    },
-    "denorm_generation_fuel_combined_monthly_eia923": {
         "description": TABLE_DESCRIPTIONS["generation_fuel_combined_eia923"],
         "schema": {
             "fields": [

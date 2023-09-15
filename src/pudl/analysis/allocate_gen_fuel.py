@@ -348,7 +348,7 @@ def allocate_gen_fuel_by_generator_energy_source(
     net generation from the :ref:`core_eia923__monthly_generation_fuel` table.
 
     Args:
-        gf: Temporally aggregated :ref:`denorm_generation_fuel_combined_eia923` dataframe.
+        gf: Temporally aggregated :ref:`denorm_generation_fuel_combined_monthly_eia923` dataframe.
         bf: Temporally aggregated :ref:`core_eia923__monthly_boiler_fuel` dataframe.
         gen: Temporally aggregated :ref:`core_eia923__monthly_generation` dataframe.
         bga: :ref:`core_eia860__assn_boiler_generator` dataframe.

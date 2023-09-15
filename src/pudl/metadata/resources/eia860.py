@@ -109,7 +109,6 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
                 # See: https://github.com/catalyst-cooperative/pudl/issues/1196
                 "exclude": [
                     "core_eia923__monthly_boiler_fuel",
-                    "denorm_boiler_fuel_eia923",
                     "denorm_boiler_fuel_monthly_eia923",
                 ],
             },
@@ -229,7 +228,6 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
                 "exclude": [
                     "core_eia923__monthly_boiler_fuel",
                     "capacity_factor_by_generator_monthly",
-                    "denorm_generation_eia923",
                     "denorm_generation_monthly_eia923",
                     "fuel_cost_by_generator_monthly",
                     "core_eia923__monthly_fuel_receipts_costs",
@@ -374,13 +372,10 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
                 # See: https://github.com/catalyst-cooperative/pudl/issues/1196
                 "exclude": [
                     "core_eia923__monthly_boiler_fuel",
-                    "denorm_boiler_fuel_eia923",
                     "denorm_boiler_fuel_monthly_eia923",
                     "denorm_fuel_receipts_costs_eia923",
                     "denorm_fuel_receipts_costs_monthly_eia923",
-                    "denorm_generation_eia923",
                     "denorm_generation_monthly_eia923",
-                    "denorm_generation_fuel_combined_eia923",
                     "denorm_generation_fuel_combined_monthly_eia923",
                     "generation_fuel_by_generator_energy_source_monthly_eia923",
                     "generation_fuel_by_generator_monthly_eia923",
@@ -456,13 +451,10 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
                     "core_eia861__yearly_demand_side_management_ee_dr",
                     "core_eia861__yearly_demand_side_management_misc",
                     "core_eia861__yearly_demand_side_management_sales",
-                    "denorm_boiler_fuel_eia923",
                     "denorm_boiler_fuel_monthly_eia923",
                     "denorm_fuel_receipts_costs_eia923",
                     "denorm_fuel_receipts_costs_monthly_eia923",
-                    "denorm_generation_eia923",
                     "denorm_generation_monthly_eia923",
-                    "denorm_generation_fuel_combined_eia923",
                     "denorm_generation_fuel_combined_monthly_eia923",
                     "fuel_cost_by_generator_monthly",
                     "generation_fuel_by_generator_energy_source_monthly_eia923",

@@ -131,7 +131,7 @@ def test_minmax_rows(
         (
             "gf_eia923",
             Resource.from_id(
-                "denorm_generation_fuel_combined_eia923"
+                "denorm_generation_fuel_combined_monthly_eia923"
             ).schema.primary_key,
         ),
         (
