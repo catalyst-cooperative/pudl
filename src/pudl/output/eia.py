@@ -12,7 +12,7 @@ logger = pudl.logging_helpers.get_logger(__name__)
 
 
 @asset(io_manager_key="pudl_sqlite_io_manager", compute_kind="Python")
-def denorm_utilities_eia(
+def out_eia__yearly_utilities(
     core_eia__entity_utilities: pd.DataFrame,
     core_eia860__scd_utilities: pd.DataFrame,
     core_pudl__assn_utilities_eia: pd.DataFrame,
@@ -53,7 +53,7 @@ def denorm_utilities_eia(
 
 
 @asset(io_manager_key="pudl_sqlite_io_manager", compute_kind="Python")
-def denorm_plants_eia(
+def out_eia__yearly_plants(
     core_eia__entity_plants: pd.DataFrame,
     core_eia860__scd_plants: pd.DataFrame,
     core_pudl__assn_plants_eia: pd.DataFrame,
@@ -114,12 +114,12 @@ def denorm_plants_eia(
     },
     compute_kind="Python",
 )
-def denorm_generators_eia(
+def out_eia__yearly_generators(
     context,
     core_eia860__scd_generators: pd.DataFrame,
     core_eia__entity_generators: pd.DataFrame,
     core_eia__entity_plants: pd.DataFrame,
-    denorm_plants_utilities_eia: pd.DataFrame,
+    _out_eia__plants_utilities: pd.DataFrame,
     core_eia860__assn_boiler_generator: pd.DataFrame,
 ) -> pd.DataFrame:
     """Pull all fields from the EIA Utilities table.
@@ -129,7 +129,7 @@ def denorm_generators_eia(
         core_eia860__scd_generators: EIA 860 annual generator table.
         core_eia__entity_generators: EIA generators entity table.
         core_eia__entity_plants: EIA plant entity table.
-        denorm_plants_utilities_eia: Denormalized plant_utility EIA ID table.
+        _out_eia__plants_utilities: Denormalized plant_utility EIA ID table.
         core_eia860__assn_boiler_generator: Associations between EIA boiler and generator IDs.
 
     Returns:
@@ -153,7 +153,7 @@ def denorm_generators_eia(
     out_df.report_date = pd.to_datetime(out_df.report_date)
 
     # Bring in some generic plant & utility information:
-    pu_eia = denorm_plants_utilities_eia.drop(
+    pu_eia = _out_eia__plants_utilities.drop(
         ["plant_name_eia", "utility_id_eia"], axis="columns"
     )
     out_df = pd.merge(out_df, pu_eia, on=["report_date", "plant_id_eia"], how="left")
@@ -222,11 +222,11 @@ def denorm_generators_eia(
 
 
 @asset(io_manager_key="pudl_sqlite_io_manager", compute_kind="Python")
-def denorm_boilers_eia(
+def out_eia__yearly_boilers(
     core_eia860__scd_boilers: pd.DataFrame,
     core_eia__entity_boilers: pd.DataFrame,
     core_eia__entity_plants: pd.DataFrame,
-    denorm_plants_utilities_eia: pd.DataFrame,
+    _out_eia__plants_utilities: pd.DataFrame,
     core_eia860__assn_boiler_generator: pd.DataFrame,
 ) -> pd.DataFrame:
     """Pull all fields reported in the EIA boilers tables.
@@ -240,7 +240,7 @@ def denorm_boilers_eia(
         core_eia860__scd_boilers: EIA 860 annual boiler table.
         core_eia__entity_boilers: EIA boiler entity table.
         core_eia__entity_plants: EIA plant entity table.
-        denorm_plants_utilities_eia: Denormalized plant_utility EIA ID table.
+        _out_eia__plants_utilities: Denormalized plant_utility EIA ID table.
         core_eia860__assn_boiler_generator: Associations between EIA boiler and generator IDs.
 
     Returns:
@@ -262,7 +262,7 @@ def denorm_boilers_eia(
     # Bring in some generic plant & utility information:
     out_df = pd.merge(
         out_df,
-        denorm_plants_utilities_eia.drop(["plant_name_eia"], axis="columns"),
+        _out_eia__plants_utilities.drop(["plant_name_eia"], axis="columns"),
         on=["report_date", "plant_id_eia"],
         how="left",
     )
@@ -304,9 +304,9 @@ def denorm_boilers_eia(
 
 
 @asset(io_manager_key="pudl_sqlite_io_manager", compute_kind="Python")
-def denorm_plants_utilities_eia(
-    denorm_plants_eia: pd.DataFrame,
-    denorm_utilities_eia: pd.DataFrame,
+def _out_eia__plants_utilities(
+    out_eia__yearly_plants: pd.DataFrame,
+    out_eia__yearly_utilities: pd.DataFrame,
 ) -> pd.DataFrame:
     """Create a dataframe of plant and utility IDs and names from EIA 860.
 
@@ -320,14 +320,14 @@ def denorm_plants_utilities_eia(
     - utility_id_pudl
 
     Args:
-        denorm_plants_eia: Denormalized EIA plants table.
-        denorm_utilities_eia: Denormalized EIA utilities table.
+        out_eia__yearly_plants: Denormalized EIA plants table.
+        out_eia__yearly_utilities: Denormalized EIA utilities table.
 
     Returns:
         A DataFrame containing plant and utility IDs and names from EIA 860.
     """
     # Contains the one-to-one mapping of EIA plants to their operators
-    core_pudl__assn_plants_eia = denorm_plants_eia.drop(
+    core_pudl__assn_plants_eia = out_eia__yearly_plants.drop(
         [
             "utility_id_pudl",
             "city",
@@ -344,7 +344,7 @@ def denorm_plants_utilities_eia(
     # to avoid duplicate columns on the merge...
     out_df = pd.merge(
         core_pudl__assn_plants_eia,
-        denorm_utilities_eia,
+        out_eia__yearly_utilities,
         how="left",
         on=["report_date", "utility_id_eia"],
     )

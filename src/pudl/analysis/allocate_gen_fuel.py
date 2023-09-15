@@ -211,12 +211,12 @@ def allocate_gen_fuel_asset_factory(
         name=f"generation_fuel_by_generator_energy_source_{agg_freqs[freq]}_eia923",
         ins={
             "gf": AssetIn(
-                key=f"denorm_generation_fuel_combined_{agg_freqs[freq]}_eia923"
+                key=f"out_eia923__{agg_freqs[freq]}_generation_fuel_combined"
             ),
-            "bf": AssetIn(key=f"denorm_boiler_fuel_{agg_freqs[freq]}_eia923"),
-            "gen": AssetIn(key=f"denorm_generation_{agg_freqs[freq]}_eia923"),
+            "bf": AssetIn(key=f"out_eia923__{agg_freqs[freq]}_boiler_fuel"),
+            "gen": AssetIn(key=f"out_eia923__{agg_freqs[freq]}_generation"),
             "bga": AssetIn(key="core_eia860__assn_boiler_generator"),
-            "gens": AssetIn(key="denorm_generators_eia"),
+            "gens": AssetIn(key="out_eia__yearly_generators"),
         },
         io_manager_key=io_manager_key,
         compute_kind="Python",
@@ -261,7 +261,7 @@ def allocate_gen_fuel_asset_factory(
             "net_gen_fuel_alloc": AssetIn(
                 key=f"generation_fuel_by_generator_energy_source_{agg_freqs[freq]}_eia923"
             ),
-            "pu": AssetIn(key="denorm_plants_utilities_eia"),
+            "pu": AssetIn(key="_out_eia__plants_utilities"),
             "bga": AssetIn(key="core_eia860__assn_boiler_generator"),
         },
         io_manager_key=io_manager_key,
@@ -277,7 +277,7 @@ def allocate_gen_fuel_asset_factory(
                 net_gen_fuel_alloc=net_gen_fuel_alloc,
                 sum_cols=DATA_COLUMNS,
             )
-            # make the output resemble denorm_generation_eia923:
+            # make the output resemble out_eia923__generation:
             .pipe(pudl.output.eia923.denorm_by_gen, pu=pu, bga=bga)
         )
 
@@ -287,8 +287,8 @@ def allocate_gen_fuel_asset_factory(
             "net_gen_fuel_alloc": AssetIn(
                 key=f"generation_fuel_by_generator_energy_source_{agg_freqs[freq]}_eia923"
             ),
-            "gens": AssetIn(key="denorm_generators_eia"),
-            "own_eia860": AssetIn(key="denorm_ownership_eia860"),
+            "gens": AssetIn(key="out_eia__yearly_generators"),
+            "own_eia860": AssetIn(key="out_eia860__yearly_ownership"),
         },
         io_manager_key=io_manager_key,
         compute_kind="Python",
@@ -348,7 +348,7 @@ def allocate_gen_fuel_by_generator_energy_source(
     net generation from the :ref:`core_eia923__monthly_generation_fuel` table.
 
     Args:
-        gf: Temporally aggregated :ref:`denorm_generation_fuel_combined_eia923` dataframe.
+        gf: Temporally aggregated :ref:`out_eia923__generation_fuel_combined` dataframe.
         bf: Temporally aggregated :ref:`core_eia923__monthly_boiler_fuel` dataframe.
         gen: Temporally aggregated :ref:`core_eia923__monthly_generation` dataframe.
         bga: :ref:`core_eia860__assn_boiler_generator` dataframe.

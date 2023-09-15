@@ -59,7 +59,7 @@ default_assets = (
             pudl.output.eia923,
             pudl.output.eia_bulk_elec,
         ],
-        group_name="denorm_eia",
+        group_name="out_eia",
     ),
     *load_assets_from_modules(
         [pudl.analysis.allocate_gen_fuel], group_name="allocate_gen_fuel"

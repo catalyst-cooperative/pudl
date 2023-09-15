@@ -415,7 +415,7 @@ def annualized_respondents_ferc714(
 def categorized_respondents_ferc714(
     context,
     core_ferc714__respondent_id: pd.DataFrame,
-    denorm_utilities_eia: pd.DataFrame,
+    out_eia__yearly_utilities: pd.DataFrame,
     core_eia861__yearly_service_territory: pd.DataFrame,
     core_eia861__yearly_balancing_authority: pd.DataFrame,
     annualized_respondents_ferc714: pd.DataFrame,
@@ -436,7 +436,7 @@ def categorized_respondents_ferc714(
         core_eia861__yearly_balancing_authority
     )
     utilids_all_eia = utility_ids_all_eia(
-        denorm_utilities_eia, core_eia861__yearly_service_territory
+        out_eia__yearly_utilities, core_eia861__yearly_service_territory
     )
 
     categorized = categorize_eia_code(

@@ -736,7 +736,7 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
         "etl_group": "entity_eia",
         "field_namespace": "eia",
     },
-    "denorm_utilities_eia": {
+    "out_eia__yearly_utilities": {
         "description": ("Denormalized table containing all EIA utility attributes."),
         "schema": {
             "fields": [
@@ -774,7 +774,7 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
         "sources": ["eia860", "eia923"],
         "etl_group": "outputs",
     },
-    "denorm_plants_eia": {
+    "out_eia__yearly_plants": {
         "description": ("Denormalized table containing all EIA plant attributes."),
         "schema": {
             "fields": [
@@ -839,7 +839,7 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
         "sources": ["eia860", "eia923"],
         "etl_group": "outputs",
     },
-    "denorm_plants_utilities_eia": {
+    "_out_eia__plants_utilities": {
         "description": (
             "Denormalized table containing all plant and utility IDs and names from EIA."
         ),
@@ -859,7 +859,7 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
         "sources": ["eia860", "eia923"],
         "etl_group": "outputs",
     },
-    "denorm_boilers_eia": {
+    "out_eia__yearly_boilers": {
         "description": ("Denormalized table containing all EIA boiler attributes."),
         "schema": {
             "fields": [
@@ -977,7 +977,7 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
         "sources": ["eia860", "eia923"],
         "etl_group": "outputs",
     },
-    "denorm_generators_eia": {
+    "out_eia__yearly_generators": {
         "description": ("Denormalized table containing all EIA generator attributes."),
         "schema": {
             "fields": [

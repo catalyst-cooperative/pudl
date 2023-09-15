@@ -137,7 +137,7 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
         "sources": ["eia923"],
         "etl_group": "eia923",
     },
-    "denorm_boiler_fuel_eia923": {
+    "out_eia923__boiler_fuel": {
         "description": TABLE_DESCRIPTIONS["core_eia923__monthly_boiler_fuel"],
         "schema": {
             "fields": [
@@ -173,7 +173,7 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
         "sources": ["eia923"],
         "etl_group": "outputs",
     },
-    "denorm_boiler_fuel_yearly_eia923": {
+    "out_eia923__yearly_boiler_fuel": {
         "description": TABLE_DESCRIPTIONS["core_eia923__monthly_boiler_fuel"],
         "schema": {
             "fields": [
@@ -209,7 +209,7 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
         "sources": ["eia923"],
         "etl_group": "outputs",
     },
-    "denorm_boiler_fuel_monthly_eia923": {
+    "out_eia923__monthly_boiler_fuel": {
         "description": TABLE_DESCRIPTIONS["core_eia923__monthly_boiler_fuel"],
         "schema": {
             "fields": [
@@ -312,7 +312,7 @@ is for those supplies.
         "sources": ["eia923"],
         "etl_group": "eia923",
     },
-    "denorm_fuel_receipts_costs_eia923": {
+    "out_eia923__fuel_receipts_costs": {
         "description": TABLE_DESCRIPTIONS["core_eia923__monthly_fuel_receipts_costs"],
         "schema": {
             "fields": [
@@ -358,7 +358,7 @@ is for those supplies.
         "sources": ["eia923"],
         "etl_group": "outputs",
     },
-    "denorm_fuel_receipts_costs_yearly_eia923": {
+    "out_eia923__yearly_fuel_receipts_costs": {
         "description": TABLE_DESCRIPTIONS["core_eia923__monthly_fuel_receipts_costs"],
         "schema": {
             "fields": [
@@ -388,7 +388,7 @@ is for those supplies.
         "sources": ["eia923"],
         "etl_group": "outputs",
     },
-    "denorm_fuel_receipts_costs_monthly_eia923": {
+    "out_eia923__monthly_fuel_receipts_costs": {
         "description": TABLE_DESCRIPTIONS["core_eia923__monthly_fuel_receipts_costs"],
         "schema": {
             "fields": [
@@ -434,7 +434,7 @@ is for those supplies.
         "sources": ["eia923"],
         "etl_group": "eia923",
     },
-    "denorm_generation_eia923": {
+    "out_eia923__generation": {
         "description": TABLE_DESCRIPTIONS["core_eia923__monthly_generation"],
         "schema": {
             "fields": [
@@ -456,7 +456,7 @@ is for those supplies.
         "sources": ["eia923"],
         "etl_group": "outputs",
     },
-    "denorm_generation_monthly_eia923": {
+    "out_eia923__monthly_generation": {
         "description": TABLE_DESCRIPTIONS["core_eia923__monthly_generation"],
         "schema": {
             "fields": [
@@ -477,7 +477,7 @@ is for those supplies.
         "sources": ["eia923"],
         "etl_group": "outputs",
     },
-    "denorm_generation_yearly_eia923": {
+    "out_eia923__yearly_generation": {
         "description": TABLE_DESCRIPTIONS["core_eia923__monthly_generation"],
         "schema": {
             "fields": [
@@ -527,7 +527,7 @@ is for those supplies.
         "sources": ["eia923"],
         "etl_group": "eia923",
     },
-    "denorm_generation_fuel_combined_eia923": {
+    "out_eia923__generation_fuel_combined": {
         "description": TABLE_DESCRIPTIONS["generation_fuel_combined_eia923"],
         "schema": {
             "fields": [
@@ -561,7 +561,7 @@ is for those supplies.
         "sources": ["eia923"],
         "etl_group": "outputs",
     },
-    "denorm_generation_fuel_combined_yearly_eia923": {
+    "out_eia923__yearly_generation_fuel_combined": {
         "description": TABLE_DESCRIPTIONS["generation_fuel_combined_eia923"],
         "schema": {
             "fields": [
@@ -593,7 +593,7 @@ is for those supplies.
         "sources": ["eia923"],
         "etl_group": "outputs",
     },
-    "denorm_generation_fuel_combined_monthly_eia923": {
+    "out_eia923__monthly_generation_fuel_combined": {
         "description": TABLE_DESCRIPTIONS["generation_fuel_combined_eia923"],
         "schema": {
             "fields": [

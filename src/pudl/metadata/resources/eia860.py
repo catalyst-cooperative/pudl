@@ -109,8 +109,8 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
                 # See: https://github.com/catalyst-cooperative/pudl/issues/1196
                 "exclude": [
                     "core_eia923__monthly_boiler_fuel",
-                    "denorm_boiler_fuel_eia923",
-                    "denorm_boiler_fuel_monthly_eia923",
+                    "out_eia923__boiler_fuel",
+                    "out_eia923__monthly_boiler_fuel",
                 ],
             },
         },
@@ -229,8 +229,8 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
                 "exclude": [
                     "core_eia923__monthly_boiler_fuel",
                     "capacity_factor_by_generator_monthly",
-                    "denorm_generation_eia923",
-                    "denorm_generation_monthly_eia923",
+                    "out_eia923__generation",
+                    "out_eia923__monthly_generation",
                     "fuel_cost_by_generator_monthly",
                     "core_eia923__monthly_fuel_receipts_costs",
                     "core_eia923__monthly_generation",
@@ -279,7 +279,7 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
         "sources": ["eia860"],
         "etl_group": "eia860",
     },
-    "denorm_ownership_eia860": {
+    "out_eia860__yearly_ownership": {
         "description": (
             "Generator Ownership, reported in EIA-860 Schedule 4. Includes only "
             "jointly or third-party owned generators. Denormalized to include plant "
@@ -374,14 +374,14 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
                 # See: https://github.com/catalyst-cooperative/pudl/issues/1196
                 "exclude": [
                     "core_eia923__monthly_boiler_fuel",
-                    "denorm_boiler_fuel_eia923",
-                    "denorm_boiler_fuel_monthly_eia923",
-                    "denorm_fuel_receipts_costs_eia923",
-                    "denorm_fuel_receipts_costs_monthly_eia923",
-                    "denorm_generation_eia923",
-                    "denorm_generation_monthly_eia923",
-                    "denorm_generation_fuel_combined_eia923",
-                    "denorm_generation_fuel_combined_monthly_eia923",
+                    "out_eia923__boiler_fuel",
+                    "out_eia923__monthly_boiler_fuel",
+                    "out_eia923__fuel_receipts_costs",
+                    "out_eia923__monthly_fuel_receipts_costs",
+                    "out_eia923__generation",
+                    "out_eia923__monthly_generation",
+                    "out_eia923__generation_fuel_combined",
+                    "out_eia923__monthly_generation_fuel_combined",
                     "generation_fuel_by_generator_energy_source_monthly_eia923",
                     "generation_fuel_by_generator_monthly_eia923",
                     "core_eia923__monthly_fuel_receipts_costs",
@@ -456,14 +456,14 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
                     "core_eia861__yearly_demand_side_management_ee_dr",
                     "core_eia861__yearly_demand_side_management_misc",
                     "core_eia861__yearly_demand_side_management_sales",
-                    "denorm_boiler_fuel_eia923",
-                    "denorm_boiler_fuel_monthly_eia923",
-                    "denorm_fuel_receipts_costs_eia923",
-                    "denorm_fuel_receipts_costs_monthly_eia923",
-                    "denorm_generation_eia923",
-                    "denorm_generation_monthly_eia923",
-                    "denorm_generation_fuel_combined_eia923",
-                    "denorm_generation_fuel_combined_monthly_eia923",
+                    "out_eia923__boiler_fuel",
+                    "out_eia923__monthly_boiler_fuel",
+                    "out_eia923__fuel_receipts_costs",
+                    "out_eia923__monthly_fuel_receipts_costs",
+                    "out_eia923__generation",
+                    "out_eia923__monthly_generation",
+                    "out_eia923__generation_fuel_combined",
+                    "out_eia923__monthly_generation_fuel_combined",
                     "fuel_cost_by_generator_monthly",
                     "generation_fuel_by_generator_energy_source_monthly_eia923",
                     "generation_fuel_by_generator_monthly_eia923",
@@ -533,7 +533,7 @@ emissions control equipment reported to EIA. Includes control ids for sulfur dio
         "sources": ["eia860"],
         "etl_group": "eia860",
     },
-    "denorm_emissions_control_equipment_eia860": {
+    "out_eia860__yearly_emissions_control_equipment": {
         "description": (
             """The cost, type, operating status, retirement date, and install year of
 emissions control equipment reported to EIA. Includes control ids for sulfur dioxide
