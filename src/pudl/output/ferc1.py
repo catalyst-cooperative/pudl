@@ -1759,6 +1759,12 @@ class XbrlCalculationForestFerc1(BaseModel):
 
         calcs_to_drop = multi_valued_weights & (exploded_calcs.weight == 1)
 
+        logger.info(
+            f"Found {len(calcs_to_drop)}/{len(exploded_calcs)} calculations "
+            "where weight was both 1 and -1. Dropping the 1-weighted "
+            "calculations."
+        )
+
         attr_cols = ["weight"]
         deduped_calcs = exploded_calcs[~calcs_to_drop][
             self.calc_cols + attr_cols
