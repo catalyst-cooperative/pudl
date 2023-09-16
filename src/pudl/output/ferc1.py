@@ -1917,7 +1917,9 @@ class XbrlCalculationForestFerc1(BaseModel):
             .set_index(self.calc_cols)
         )
         # Fill NA tag dictionaries with an empty dict so the type is uniform:
-        node_attrs["tags"] = node_attrs["tags"].apply(lambda x: {} if pd.isna(x) else x)
+        node_attrs["tags"] = node_attrs["tags"].apply(
+            lambda tags: {} if pd.isna(tags) else tags
+        )
         annotated_forest = deepcopy(self.forest)
         nx.set_node_attributes(annotated_forest, node_attrs.to_dict(orient="index"))
 
@@ -1936,7 +1938,7 @@ class XbrlCalculationForestFerc1(BaseModel):
             lost_tagged = tagged.index.intersection(lost.index)
             if not lost_tagged.empty:
                 logger.warning(
-                    "The following tagged nodes were lost in building the forest: \n"
+                    "The following tagged nodes were lost in building the forest:\n"
                     f"{tagged.loc[lost_tagged].sort_index()}"
                 )
 
