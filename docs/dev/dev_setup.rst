@@ -3,12 +3,11 @@
 ===============================================================================
 Development Setup
 ===============================================================================
+This page will walk you through what you need to do if you want to be able to contribute
+code or documentation to the PUDL project.
 
-This page will walk you through what you need to do if you want to be able to
-contribute code or documentation to the PUDL project.
-
-These instructions assume that you are working on a Unix-like operating system (MacOS
-or Linux) and are already familiar with ``git``, GitHub, and the Unix shell.
+These instructions assume that you are working on a Unix-like operating system (MacOS or
+Linux) and are already familiar with ``git``, GitHub, and the Unix shell.
 
 .. warning::
 
@@ -51,23 +50,23 @@ with the following commands:
 ------------------------------------------------------------------------------
 Fork and Clone the PUDL Repository
 ------------------------------------------------------------------------------
-Unless you're part of the Catalyst Cooperative organization already, you'll need to
-fork `the PUDL repository <https://github.com/catalyst-cooperative/pudl>`__
-This makes a copy of it in your personal (or organizational) account on GitHub that
-is independent of, but linked to, the original "upstream" project.
+Unless you're part of the Catalyst Cooperative organization already, you'll need to fork
+`the PUDL repository <https://github.com/catalyst-cooperative/pudl>`__ This makes a copy
+of it in your personal (or organizational) account on GitHub that is independent of, but
+linked to, the original "upstream" project.
 
 Then, `clone the repository <https://help.github.com/articles/cloning-a-repository/>`__
-from your fork to your local computer where you'll be editing the code or docs.
-This will download the whole history of the project, including the most recent
-version, and put it in a local directory where you can make changes.
+from your fork to your local computer where you'll be editing the code or docs.  This
+will download the whole history of the project, including the most recent version, and
+put it in a local directory where you can make changes.
 
 -------------------------------------------------------------------------------
 Create the PUDL Dev Environment
 -------------------------------------------------------------------------------
-Inside the ``devtools`` directory of your newly cloned repository, you'll see
-an ``environment.yml`` file that specifies the ``pudl-dev`` ``conda``
-environment. You can create and activate that environment from within the
-main repository directory by running:
+Inside the ``devtools`` directory of your newly cloned repository, you'll see an
+``environment.yml`` file that specifies the ``pudl-dev`` ``conda`` environment. You can
+create and activate that environment from within the main repository directory by
+running:
 
 .. code-block:: console
 
@@ -84,23 +83,20 @@ binary dependencies which can be easier to satisfy through ``conda`` packages.
 -------------------------------------------------------------------------------
 Updating the PUDL Dev Environment
 -------------------------------------------------------------------------------
-You will need to periodically update your development (``pudl-dev``) conda
-environment to get you newer versions of existing dependencies and
-incorporate any changes to the environment specification that have been
-made by other contributors. The most reliable way to do this is to remove the
-existing environment and recreate it.
+You will need to periodically update your development (``pudl-dev``) conda environment
+to get you newer versions of existing dependencies and incorporate any changes to the
+environment specification that have been made by other contributors. The most reliable
+way to do this is to remove the existing environment and recreate it.
 
 .. note::
 
-    Different development branches within the repository may specify their own
-    slightly different versions of the ``pudl-dev`` conda environment. As a
-    result, you may need to update your environment when switching from one
-    branch to another.
+    Different development branches within the repository may specify their own slightly
+    different versions of the ``pudl-dev`` conda environment. As a result, you may need
+    to update your environment when switching from one branch to another.
 
 
-If you want to work with the most recent version of the code on a branch
-named ``new-feature``, then from within the top directory of the PUDL
-repository you would do:
+If you want to work with the most recent version of the code on a branch named
+``new-feature``, then from within the top directory of the PUDL repository you would do:
 
 .. code-block:: console
 
@@ -112,32 +108,31 @@ repository you would do:
     $ mamba env create --name pudl-dev --file devtools/environment.yml
     $ mamba activate pudl-dev
 
-If you are working with locally processed data and there have been changes to
-the expectations about that data in the PUDL software, you may also need to
-regenerate your PUDL SQLite database or other outputs. See :doc:`run_the_etl`
-for more details.
+If you are working with locally processed data and there have been changes to the
+expectations about that data in the PUDL software, you may also need to regenerate your
+PUDL SQLite database or other outputs. See :doc:`run_the_etl` for more details.
 
 .. _linting:
 
 -------------------------------------------------------------------------------
 Set Up Code Linting
 -------------------------------------------------------------------------------
-We use several automated tools to apply uniform coding style and formatting
-across the project codebase. This is known as
-`code linting <https://en.wikipedia.org/wiki/Lint_(software)>`__, and it reduces
-merge conflicts, makes the code easier to read, and helps catch some types of
-bugs before they are committed. These tools are part of the ``pudl-dev`` conda
-environment and their configuration files are checked into the GitHub
-repository. If you've cloned the pudl repo and are working inside the pudl conda
-environment, they should be installed and ready to go.
+We use several automated tools to apply uniform coding style and formatting across the
+project codebase. This is known as `code linting
+<https://en.wikipedia.org/wiki/Lint_(software)>`__, and it reduces merge conflicts,
+makes the code easier to read, and helps catch some types of bugs before they are
+committed. These tools are part of the ``pudl-dev`` conda environment and their
+configuration files are checked into the GitHub repository. If you've cloned the pudl
+repo and are working inside the pudl conda environment, they should be installed and
+ready to go.
 
 Git Pre-commit Hooks
 ^^^^^^^^^^^^^^^^^^^^
-Git hooks let you automatically run scripts at various points as you manage
-your source code. "Pre-commit" hook scripts are run when you try to make a new
-commit. These scripts can review your code and identify bugs, formatting
-errors, bad coding habits, and other issues before the code gets checked in.
-This gives you the opportunity to fix those issues before publishing them.
+Git hooks let you automatically run scripts at various points as you manage your source
+code. "Pre-commit" hook scripts are run when you try to make a new commit. These scripts
+can review your code and identify bugs, formatting errors, bad coding habits, and other
+issues before the code gets checked in.  This gives you the opportunity to fix those
+issues before publishing them.
 
 To make sure they are run before you commit any code, you need to enable the
 `pre-commit hooks scripts <https://pre-commit.com/>`__ with this command:
@@ -157,28 +152,23 @@ The scripts that run are configured in the ``.pre-commit-config.yaml`` file.
 
 Code and Docs Linters
 ^^^^^^^^^^^^^^^^^^^^^
-`Flake8 <http://flake8.pycqa.org/en/latest/>`__ is a popular Python
-`linting <https://en.wikipedia.org/wiki/Lint_(software)>`__ framework, with a
-large selection of plugins. We use it to check the formatting and syntax of
-the code and docstrings embedded within the PUDL packages.
-`Doc8 <https://github.com/PyCQA/doc8>`__ is a lot like flake8, but for Python
-documentation written in the reStructuredText format and built by
-`Sphinx <https://www.sphinx-doc.org/en/master/>`__. This is the de-facto
-standard for Python documentation. The ``doc8`` tool checks for syntax errors
-and other formatting issues in the documentation source files under the
-``docs/`` directory.
+
+* `ruff <https://docs.astral.sh/ruff/>`__ is a popular, fast Python
+  `linting <https://en.wikipedia.org/wiki/Lint_(software)>`__ and autofix framework,
+  with a large selection of rules that can be configured (often mirroring plugins
+  originally developed for ``flake8``). We use it to check the formatting and syntax of
+  the code and to ensure that we're all using modern python syntax, type hinting, etc.
+* `doc8 <https://github.com/PyCQA/doc8>`__ , lints our documentation files, which are
+  written in the reStructuredText format and built by `Sphinx
+  <https://www.sphinx-doc.org/en/master/>`__. This is the de-facto standard for Python
+  documentation. The ``doc8`` tool checks for syntax errors and other formatting issues
+  in the documentation source files under the ``docs/`` directory.
 
 Automatic Formatting
 ^^^^^^^^^^^^^^^^^^^^
 We are using the the `black <https://black.readthedocs.io/en/stable/>`__ code formatter
 and style. It's automatically applied by oure pre-commit hooks, and can probably be
-integrated directly into your code editor.  Similarly `isort
-<https://isort.readthedocs.io/en/latest/>`__ automatically groups and orders Python
-import statements in each module to minimize diffs and merge conflicts. Note that both
-``isort`` and ``flake8`` need to be set up to work well with ``black`` -- but those
-configurations are stored in the PUDL repository, so you should be able to point your
-editor at those configuration files (``tox.ini`` and ``pyproject.toml``) to get
-everything acting consistently.
+integrated directly into your code editor.
 
 Linting Within Your Editor
 ^^^^^^^^^^^^^^^^^^^^^^^^^^
