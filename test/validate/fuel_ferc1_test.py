@@ -16,7 +16,7 @@ logger = logging.getLogger(__name__)
 def test_fuel_ferc1_trivial(pudl_out_ferc1):
     """Test output routines for tables from FERC Form 1."""
     logger.info("Compiling FERC Form 1 fuel table...")
-    fuel_tab = pd.read_sql("denorm_fuel_ferc1", pudl_out_ferc1.pudl_engine)
+    fuel_tab = pd.read_sql("out_ferc1__yearly_fuel", pudl_out_ferc1.pudl_engine)
     assert len(fuel_tab) > 0, "FERC Form 1 fuel table is empty."
     logger.info(f"{len(fuel_tab)} fuel records found")
 
@@ -55,7 +55,7 @@ def test_vs_bounds(pudl_out_ferc1, live_dbs, cases):
         pytest.skip("Data validation only works with a live PUDL DB.")
     for case in cases:
         pv.vs_bounds(
-            pd.read_sql("denorm_fuel_ferc1", pudl_out_ferc1.pudl_engine), **case
+            pd.read_sql("out_ferc1__yearly_fuel", pudl_out_ferc1.pudl_engine), **case
         )
 
 
@@ -64,4 +64,6 @@ def test_self_vs_historical(pudl_out_ferc1, live_dbs):
     if not live_dbs:
         pytest.skip("Data validation only works with a live PUDL DB.")
     for args in pv.fuel_ferc1_self:
-        pv.vs_self(pd.read_sql("denorm_fuel_ferc1", pudl_out_ferc1.pudl_engine), **args)
+        pv.vs_self(
+            pd.read_sql("out_ferc1__yearly_fuel", pudl_out_ferc1.pudl_engine), **args
+        )
