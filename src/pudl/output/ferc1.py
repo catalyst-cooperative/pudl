@@ -3,7 +3,7 @@ import importlib
 import re
 from copy import deepcopy
 from functools import cached_property
-from typing import Literal, NamedTuple, Self
+from typing import Any, Literal, NamedTuple, Self
 
 import networkx as nx
 import numpy as np
@@ -1843,6 +1843,60 @@ class XbrlCalculationForestFerc1(BaseModel):
         return forest
 
     @cached_property
+    def node_attrs(self: Self) -> dict[NodeId, dict[str, dict[str, str]]]:
+        """Construct a dictionary of node attributes for application to the forest.
+
+        Note attributes consist of the manually assigned tags.
+        """
+        # Reshape the tags to turn them into a dictionary of values per-node. This
+        # will make it easier to add arbitrary sets of tags later on.
+        tags_dict = (
+            self.tags.convert_dtypes().set_index(self.calc_cols).to_dict(orient="index")
+        )
+        node_attrs = (
+            pd.DataFrame(
+                index=pd.MultiIndex.from_tuples(tags_dict.keys(), names=self.calc_cols),
+                data={"tags": list(tags_dict.values())},
+            )
+            .reset_index()
+            # Type conversion is necessary to get pd.NA in the index:
+            .astype({col: pd.StringDtype() for col in self.calc_cols})
+            # We need a dictionary for *all* nodes, not just those with tags.
+            .merge(
+                self.exploded_meta.loc[:, self.calc_cols],
+                how="right",
+                on=self.calc_cols,
+                validate="one_to_many",
+            )
+            # For nodes with no tags, we assign an empty dictionary:
+            .assign(tags=lambda x: np.where(x["tags"].isna(), {}, x["tags"]))
+            .set_index(self.calc_cols)
+            .to_dict(orient="index")
+        )
+        return node_attrs
+
+    @cached_property
+    def edge_attrs(self: Self) -> dict[Any, Any]:
+        """Construct a dictionary of edge attributes for application to the forest.
+
+        The only edge attribute is the calculation component weight.
+        """
+        parents = [
+            NodeId(*x)
+            for x in self.exploded_calcs.set_index(self.parent_cols).index.to_list()
+        ]
+        children = [
+            NodeId(*x)
+            for x in self.exploded_calcs.set_index(self.calc_cols).index.to_list()
+        ]
+        weights = self.exploded_calcs["weight"].to_list()
+        edge_attrs = {
+            (parent, child): {"weight": weight}
+            for parent, child, weight in zip(parents, children, weights)
+        }
+        return edge_attrs
+
+    @cached_property
     def annotated_forest(self: Self) -> nx.DiGraph:
         """Annotate the calculation forest with node calculation weights and tags.
 
@@ -1862,66 +1916,9 @@ class XbrlCalculationForestFerc1(BaseModel):
         manually assigned metadata, and we either need to edit the metadata, or figure
         out why those nodes aren't being included in the final calculation forest.
         """
-        # Reshape the tags to turn them into a dictionary of values per-node. This
-        # will make it easier to add arbitrary sets of tags later on.
-        tags_dict = (
-            self.tags.convert_dtypes().set_index(self.calc_cols).to_dict(orient="index")
-        )
-        tags_dict_df = pd.DataFrame(
-            index=pd.MultiIndex.from_tuples(tags_dict.keys(), names=self.calc_cols),
-            data={"tags": list(tags_dict.values())},
-        ).reset_index()
-
-        # There are a few rare instances where a particular node is specified with more
-        # than one weight (-1 vs. 1) and in those cases, we always want to keep the
-        # weight of -1, since it affects the overall root->leaf calculation outcome.
-        multi_valued_weights = (
-            self.exploded_calcs.groupby(self.calc_cols, dropna=False)["weight"]
-            .transform("nunique")
-            .gt(1)
-        )
-        calcs_to_drop = multi_valued_weights & (self.exploded_calcs.weight == 1)
-        # Check that there are only a *few* multi-valued weights.
-        mv_wt_frac = sum(multi_valued_weights) / len(self.exploded_calcs)
-        max_mv_wt_frac = self.calculation_tolerance.multivalued_weights
-        logger.info(
-            f"Found {sum(multi_valued_weights)}/{len(self.exploded_calcs)} "
-            f"({mv_wt_frac:.2%}; max allowed: {max_mv_wt_frac:.2%}) "
-            "nodes having conflicting weights. Dropping "
-            f"{sum(calcs_to_drop)/len(self.exploded_calcs):.2%} where weight == 1"
-        )
-
-        if mv_wt_frac > max_mv_wt_frac:
-            raise ValueError(
-                "Unexpectedly high fraction of multivalued weights: "
-                f"{mv_wt_frac} > {max_mv_wt_frac}"
-            )
-
-        deduplicated_calcs = self.exploded_calcs.loc[~calcs_to_drop]
-        attr_cols = ["weight"]
-        node_attrs = (
-            pd.merge(
-                left=self.exploded_meta,
-                right=tags_dict_df,
-                how="left",
-                validate="m:1",
-            )
-            .reset_index(drop=True)
-            .drop(columns=["xbrl_factoid_original", "is_within_table_calc"])
-            .merge(
-                deduplicated_calcs[self.calc_cols + attr_cols].drop_duplicates(),
-                how="left",
-                validate="1:1",
-            )
-            .astype({col: pd.StringDtype() for col in self.calc_cols})
-            .set_index(self.calc_cols)
-        )
-        # Fill NA tag dictionaries with an empty dict so the type is uniform:
-        node_attrs["tags"] = node_attrs["tags"].apply(
-            lambda tags: {} if pd.isna(tags) else tags
-        )
         annotated_forest = deepcopy(self.forest)
-        nx.set_node_attributes(annotated_forest, node_attrs.to_dict(orient="index"))
+        nx.set_node_attributes(annotated_forest, self.node_attrs)
+        nx.set_edge_attributes(annotated_forest, self.edge_attrs)
 
         logger.info("Checking whether any pruned nodes were also tagged.")
         self.check_lost_tags(lost_nodes=self.pruned)
@@ -2148,40 +2145,6 @@ class XbrlCalculationForestFerc1(BaseModel):
         ]
         forest.remove_nodes_from(almost_pure_stepparents)
 
-        # Ensure that we haven't removed any calculation components that *would* have
-        # altered the final root-to-leaf calculations.
-        # * Weights pertain to child nodes.
-        # * But the nodes we're removing above are guaranteed to be parents (Though
-        #   many them will also be children)
-        # * We want to check that any of them that *are* children have a weight of 1.0
-        # * Any node that gets removed by prune_unrooted() below isn't a concern, since
-        #   it couldn't have been part of a calculation path leading to our chosen root.
-        # * Need to look at the calc_cols columns because we care about children.
-        # * Only care about the intersection of our pure / almost pure stepparents and
-        #   the nodes that show up in calc_cols.
-        # * This was probably failing before because the almost_pure_stepparents are
-        #   table-specific, but we were trying to check them in all explosions. Duh.
-
-        removed_stepparents = pure_stepparents
-
-        if "utility_plant_summary_ferc1" in self.table_names:
-            removed_stepparents = removed_stepparents + almost_pure_stepparents
-
-        if (
-            self.exploded_calcs.set_index(self.calc_cols)
-            .loc[removed_stepparents, "weight"]
-            .ne(1)
-            .any()
-        ):
-            removed_with_weights = self.exploded_calcs.set_index(self.calc_cols).loc[
-                removed_stepparents, "weight"
-            ]
-            logger.error(
-                "Stepparent nodes with weights other than 1.0 were removed, altering "
-                "the final root-to-leaf calculations and spacetime continuum.\n"
-                f"{removed_with_weights[removed_with_weights != 1]}"
-            )
-
         forest = self.prune_unrooted(forest)
         if not nx.is_forest(forest):
             logger.error(
@@ -2320,34 +2283,38 @@ class XbrlCalculationForestFerc1(BaseModel):
         roots_df = pd.DataFrame(list(leaf_to_root_map.values())).rename(
             columns={col: col + "_root" for col in self.calc_cols}
         )
-        leafy_meta = pd.concat([leaves_df, roots_df], axis="columns")
+        leafy_meta = pd.concat([roots_df, leaves_df], axis="columns")
 
         # Propagate tags and weights to leaf nodes
         leaf_rows = []
         for leaf in leaves:
             leaf_tags = {}
-            leaf_weight = self.annotated_forest.nodes[leaf].get("weight", 1.0)
-            for node in nx.ancestors(self.annotated_forest, leaf):
+            ancestors = list(nx.ancestors(self.annotated_forest, leaf)) + [leaf]
+            for node in ancestors:
                 leaf_tags |= self.annotated_forest.nodes[node]["tags"]
-                # Root nodes have no weight because they don't come from calculations
-                # We assign them a weight of 1.0
-                if pd.isna(self.annotated_forest.nodes[node]["weight"]):
-                    assert node in roots
-                    node_weight = 1.0
-                else:
-                    node_weight = self.annotated_forest.nodes[node]["weight"]
-                leaf_weight *= node_weight
+            # Calculate the product of all edge weights in path from root to leaf
+            all_paths = list(
+                nx.all_simple_paths(self.annotated_forest, leaf_to_root_map[leaf], leaf)
+            )
+            # In a forest there should only be one path from root to leaf
+            assert len(all_paths) == 1
+            path = all_paths[0]
+            leaf_weight = 1.0
+            for parent, child in zip(path, path[1:]):
+                leaf_weight *= self.annotated_forest.get_edge_data(parent, child)[
+                    "weight"
+                ]
 
             # Construct a dictionary describing the leaf node and convert it into a
             # single row DataFrame. This makes adding arbitrary tags easy.
             leaf_attrs = {
-                "weight": leaf_weight,
-                "tags": leaf_tags,
                 "table_name": leaf.table_name,
                 "xbrl_factoid": leaf.xbrl_factoid,
                 "utility_type": leaf.utility_type,
                 "plant_status": leaf.plant_status,
                 "plant_function": leaf.plant_function,
+                "weight": leaf_weight,
+                "tags": leaf_tags,
             }
             leaf_rows.append(pd.json_normalize(leaf_attrs, sep="_"))
 
@@ -2520,14 +2487,13 @@ def nodes_to_df(calc_forest: nx.DiGraph, nodes: list[NodeId]) -> pd.DataFrame:
         nodes: List of :class:`NodeId` values to extract from the calculation forest.
 
     Returns:
-        A tabular dataframe representation of the nodes, including their weights and
-        tags, extracted from the calculation forest.
+        A tabular dataframe representation of the nodes, including their tags, extracted
+        from the calculation forest.
     """
     node_dict = {
         k: v for k, v in dict(calc_forest.nodes(data=True)).items() if k in nodes
     }
     index = pd.DataFrame(node_dict.keys()).astype("string")
     data = pd.DataFrame(node_dict.values())
-    weights = data["weight"]
     tags = pd.json_normalize(data.tags).astype("string")
-    return pd.concat([index, weights, tags], axis="columns")
+    return pd.concat([index, tags], axis="columns")
