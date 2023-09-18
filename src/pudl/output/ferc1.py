@@ -2063,38 +2063,7 @@ class XbrlCalculationForestFerc1(BaseModel):
         calculated values of interest.
         """
         forest = deepcopy(self.seeded_digraph)
-        # Remove any node that has only one parent and one child, and add an edge
-        # between its parent and child.
-        for node in self.passthroughs:
-            parent = list(forest.predecessors(node))
-            assert len(parent) == 1
-            successors = forest.successors(node)
-            assert len(list(successors)) == 2
-            child = [
-                n
-                for n in forest.successors(node)
-                if not n.xbrl_factoid.endswith("_correction")
-            ]
-            correction = [
-                n
-                for n in forest.successors(node)
-                if n.xbrl_factoid.endswith("_correction")
-            ]
-            assert len(child) == 1
-            logger.debug(
-                f"Replacing passthrough node {node} with edge from "
-                f"{parent[0]} to {child[0]}"
-            )
-            forest.remove_nodes_from(correction + [node])
-            forest.add_edge(parent[0], child[0])
-
-        connected_components = list(nx.connected_components(forest.to_undirected()))
-        logger.debug(
-            f"Calculation forest contains {len(connected_components)} connected components."
-        )
-
-        # Remove any node that:
-        # - ONLY has stepchildren.
+        # Remove any node that ONLY has stepchildren.
         pure_stepparents = []
         stepparents = sorted(self.stepparents(forest))
         logger.info(f"Investigating {len(stepparents)=}")
@@ -2107,12 +2076,11 @@ class XbrlCalculationForestFerc1(BaseModel):
         logger.info(f"Removed {len(pure_stepparents)} redundant/stepparent nodes.")
         logger.debug(f"Removed redunant/stepparent nodes: {sorted(pure_stepparents)}")
 
-        # Prune any newly disconnected nodes resulting from the above removal of
-        # pure stepparents. We expect the set of newly disconnected nodes to be empty.
+        # Removing pure stepparents should NEVER disconnect nodes from the forest.
+        # Defensive check to ensure that this is actually true
         nodes_before_pruning = forest.nodes
         forest = self.prune_unrooted(forest)
         nodes_after_pruning = forest.nodes
-
         if pruned_nodes := set(nodes_before_pruning).difference(nodes_after_pruning):
             raise AssertionError(f"Unexpectedly pruned stepchildren: {pruned_nodes=}")
 
@@ -2222,35 +2190,6 @@ class XbrlCalculationForestFerc1(BaseModel):
         for stepchild in stepchildren:
             stepparents = stepparents.union(graph.predecessors(stepchild))
         return list(stepparents)
-
-    @cached_property
-    def passthroughs(self: Self) -> list[NodeId]:
-        """All nodes in the seeded digraph with a single parent and a single child.
-
-        These nodes can be pruned, hopefully converting the seeded digraph into a
-        forest. Note that having a "single child" really means having 2 children, one
-        of which is a _correction to the calculation. We verify that the two children
-        are one real child node, and one appropriate correction.
-        """
-        # In theory every node should have only one parent, but just to be safe, since
-        # that's not always true right now:
-        has_one_parent = {n for n, d in self.seeded_digraph.in_degree() if d == 1}
-        # Calculated fields always have both the reported child and a correction that
-        # we have added, so having "one" child really means having 2 successor nodes.
-        may_have_one_child: set[NodeId] = {
-            n for n, d in self.seeded_digraph.out_degree() if d == 2
-        }
-        # Check that one of these successors is the correction.
-        has_one_child = []
-        for node in may_have_one_child:
-            children: set[NodeId] = set(self.seeded_digraph.successors(node))
-            for child in children:
-                if (node.table_name == child.table_name) and (
-                    child.xbrl_factoid == node.xbrl_factoid + "_correction"
-                ):
-                    has_one_child.append(node)
-
-        return list(has_one_parent.intersection(has_one_child))
 
     @cached_property
     def leafy_meta(self: Self) -> pd.DataFrame:
