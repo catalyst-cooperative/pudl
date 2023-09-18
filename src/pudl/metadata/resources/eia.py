@@ -728,7 +728,7 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
                     # Utility IDs in this table are owners, not operators, and we are
                     # not yet harvesting owner_utility_id_eia from core_eia860__scd_ownership.
                     # See https://github.com/catalyst-cooperative/pudl/issues/1393
-                    "generation_fuel_by_generator_energy_source_owner_yearly_eia923",
+                    "out_eia923__yearly_generation_fuel_by_generator_energy_source_owner",
                 ],
             },
         },
