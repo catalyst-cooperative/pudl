@@ -446,8 +446,10 @@ def align_row_numbers_dbf(df: pd.DataFrame, params: AlignRowNumbersDbf) -> pd.Da
         logger.info(
             f"Aligning row numbers from DBF row to XBRL map for {params.dbf_table_names}"
         )
-        row_map = read_dbf_to_xbrl_map(dbf_table_names=params.dbf_table_names).pipe(
-            fill_dbf_to_xbrl_map
+        row_map = (
+            read_dbf_to_xbrl_map(dbf_table_names=params.dbf_table_names)
+            .pipe(fill_dbf_to_xbrl_map)
+            .drop(columns=["sched_table_name", "row_literal"])
         )
         if row_map.isnull().any(axis=None):
             raise ValueError(

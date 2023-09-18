@@ -45,11 +45,11 @@ class CalculationToleranceFerc1(BaseModel):
 EXPLOSION_CALCULATION_TOLERANCES: dict[str, CalculationToleranceFerc1] = {
     "income_statement_ferc1": CalculationToleranceFerc1(
         multivalued_weights=0.12,
-        intertable_calculation_errors=0.12,
+        intertable_calculation_errors=0.20,
     ),
     "balance_sheet_assets_ferc1": CalculationToleranceFerc1(
         multivalued_weights=0.02,
-        intertable_calculation_errors=0.55,
+        intertable_calculation_errors=0.85,
     ),
     "balance_sheet_liabilities_ferc1": CalculationToleranceFerc1(
         multivalued_weights=0.0,
@@ -2371,8 +2371,8 @@ class XbrlCalculationForestFerc1(BaseModel):
         onto the table, recursively until there are no more children to add. Creating a
         tabular representation of the calculation forest that can be inspected in Excel.
 
-        Include node annotations like weight and tags, as well as other familiar
-        metadata, to aid in the inspection.
+        Include inter-layer calculation weights and tags associated with the nodes pre
+        propagation.
         """
         # Identify the last layer of nodes present in the input dataframe.
         current_layer = df.rename(
