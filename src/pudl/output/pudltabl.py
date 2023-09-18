@@ -391,7 +391,9 @@ class PudlTabl:
                     "Allocated net generation requires frequency of `AS` or `MS`, "
                     f"got {self.freq}"
                 )
-            table_name = self._agg_table_name("generation_fuel_by_generator_AGG_eia923")
+            table_name = self._agg_table_name(
+                "out_eia923__AGG_generation_fuel_by_generator"
+            )
             gen_df = self._get_table_from_db(table_name)
             resource = Resource.from_id(table_name)
             gen_df = gen_df.loc[:, resource.get_field_names()]
