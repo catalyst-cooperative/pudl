@@ -130,9 +130,7 @@ def test_minmax_rows(
         ),
         (
             "gf_eia923",
-            Resource.from_id(
-                "denorm_generation_fuel_combined_eia923"
-            ).schema.primary_key,
+            Resource.from_id("out_eia923__generation_fuel_combined").schema.primary_key,
         ),
         (
             "own_eia860",
@@ -144,7 +142,7 @@ def test_minmax_rows(
         ),
         (
             "pu_eia860",
-            Resource.from_id("denorm_plants_utilities_eia").schema.primary_key,
+            Resource.from_id("_out_eia__plants_utilities").schema.primary_key,
         ),
         (
             "utils_eia860",
@@ -154,7 +152,7 @@ def test_minmax_rows(
             "denorm_emissions_control_equipment_eia860",
             (
                 Resource.from_id(
-                    "denorm_emissions_control_equipment_eia860"
+                    "out_eia860__yearly_emissions_control_equipment"
                 ).schema.primary_key
             ),
         ),

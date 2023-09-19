@@ -67,7 +67,7 @@ def mcoe_asset_factory(
         ins={
             "bga": AssetIn(key="core_eia860__assn_boiler_generator"),
             "hr_by_unit": AssetIn(key=f"heat_rate_by_unit_{agg_freqs[freq]}"),
-            "gens": AssetIn(key="denorm_generators_eia"),
+            "gens": AssetIn(key="out_eia__yearly_generators"),
         },
         io_manager_key=io_manager_key,
         compute_kind="Python",
@@ -81,8 +81,8 @@ def mcoe_asset_factory(
         name=f"fuel_cost_by_generator_{agg_freqs[freq]}",
         ins={
             "hr_by_gen": AssetIn(key=f"heat_rate_by_generator_{agg_freqs[freq]}"),
-            "gens": AssetIn(key="denorm_generators_eia"),
-            "frc": AssetIn(key=f"denorm_fuel_receipts_costs_{agg_freqs[freq]}_eia923"),
+            "gens": AssetIn(key="out_eia__yearly_generators"),
+            "frc": AssetIn(key=f"out_eia923__{agg_freqs[freq]}_fuel_receipts_costs"),
         },
         io_manager_key=io_manager_key,
         compute_kind="Python",
@@ -98,7 +98,7 @@ def mcoe_asset_factory(
             "gen": AssetIn(
                 key=f"generation_fuel_by_generator_{agg_freqs[freq]}_eia923"
             ),
-            "gens": AssetIn(key="denorm_generators_eia"),
+            "gens": AssetIn(key="out_eia__yearly_generators"),
         },
         io_manager_key=io_manager_key,
         compute_kind="Python",
@@ -172,7 +172,7 @@ def mcoe_asset_factory(
         name=f"mcoe_generators_{agg_freqs[freq]}",
         ins={
             "mcoe": AssetIn(key=f"mcoe_{agg_freqs[freq]}"),
-            "gens": AssetIn(key="denorm_generators_eia"),
+            "gens": AssetIn(key="out_eia__yearly_generators"),
         },
         io_manager_key=io_manager_key,
         compute_kind="Python",

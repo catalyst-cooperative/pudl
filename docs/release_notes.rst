@@ -114,7 +114,7 @@ Data Coverage
 
   * :ref:`core_eia860__scd_emissions_control_equipment`, see issue :issue:`2338` & PR
     :pr:`2561`.
-  * :ref:`denorm_emissions_control_equipment_eia860`, see issue :issue:`2338` & PR
+  * :ref:`out_eia860__yearly_emissions_control_equipment`, see issue :issue:`2338` & PR
     :pr:`2561`.
   * :ref:`core_eia860__yearly_boiler_emissions_control_equipment_assn`, see
     :issue:`2338` & PR :pr:`2561`.

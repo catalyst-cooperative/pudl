@@ -160,15 +160,15 @@ class PudlTabl:
             "out_ferc1__yearly_plant_in_service": "plant_in_service_ferc1",
             "out_ferc1__yearly_all_plants": "plants_all_ferc1",
             # denorm_eia (data comes from multiple EIA forms)
-            "denorm_plants_eia": "plants_eia860",
-            "denorm_utilities_eia": "utils_eia860",
-            "denorm_boilers_eia": "boil_eia860",
-            "denorm_generators_eia": "gens_eia860",
-            "denorm_plants_utilities_eia": "pu_eia860",
+            "out_eia__yearly_plants": "plants_eia860",
+            "out_eia__yearly_utilities": "utils_eia860",
+            "out_eia__yearly_boilers": "boil_eia860",
+            "out_eia__yearly_generators": "gens_eia860",
+            "_out_eia__plants_utilities": "pu_eia860",
             # eia860 (denormalized, data primarily from EIA-860)
-            "denorm_ownership_eia860": "own_eia860",
+            "out_eia860__yearly_ownership": "own_eia860",
             "core_eia860__assn_boiler_generator": "bga_eia860",
-            "denorm_emissions_control_equipment_eia860": "denorm_emissions_control_equipment_eia860",
+            "out_eia860__yearly_emissions_control_equipment": "denorm_emissions_control_equipment_eia860",
             "core_eia860__yearly_boiler_emissions_control_equipment_assn": "boiler_emissions_control_equipment_assn_eia860",
             "core_eia860__scd_emissions_control_equipment": "emissions_control_equipment_eia860",
             "core_eia860__assn_boiler_stack_flue": "boiler_stack_flue_assn_eia860",
@@ -204,10 +204,10 @@ class PudlTabl:
             "core_eia861__yearly_balancing_authority": "balancing_authority_eia861",
             "core_eia861__assn_balancing_authority": "balancing_authority_assn_eia861",
             # eia923 (denormalized, data primarily from EIA-923)
-            "denorm_boiler_fuel_AGG_eia923": "bf_eia923",
-            "denorm_fuel_receipts_costs_AGG_eia923": "frc_eia923",
-            "denorm_generation_AGG_eia923": "gen_original_eia923",
-            "denorm_generation_fuel_combined_AGG_eia923": "gf_eia923",
+            "out_eia923__AGG_boiler_fuel": "bf_eia923",
+            "out_eia923__AGG_fuel_receipts_costs": "frc_eia923",
+            "out_eia923__AGG_generation": "gen_original_eia923",
+            "out_eia923__AGG_generation_fuel_combined": "gf_eia923",
             # ferc714
             "core_ferc714__respondent_id": "respondent_id_ferc714",
             "core_ferc714__hourly_demand_pa": "demand_hourly_pa_ferc714",
@@ -396,7 +396,7 @@ class PudlTabl:
             resource = Resource.from_id(table_name)
             gen_df = gen_df.loc[:, resource.get_field_names()]
         else:
-            table_name = self._agg_table_name("denorm_generation_AGG_eia923")
+            table_name = self._agg_table_name("out_eia923__AGG_generation")
             gen_df = self._get_table_from_db(table_name)
         return gen_df
 

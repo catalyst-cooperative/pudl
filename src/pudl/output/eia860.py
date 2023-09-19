@@ -7,21 +7,21 @@ from pudl.metadata.codes import CODE_METADATA
 
 
 @asset(io_manager_key="pudl_sqlite_io_manager", compute_kind="Python")
-def denorm_ownership_eia860(
-    denorm_plants_utilities_eia: pd.DataFrame,
+def out_eia860__yearly_ownership(
+    _out_eia__plants_utilities: pd.DataFrame,
     core_eia860__scd_ownership: pd.DataFrame,
 ) -> pd.DataFrame:
     """A denormalized version of the EIA 860 ownership table.
 
     Args:
-        denorm_plants_utilities_eia: Denormalized table containing plant and utility
+        _out_eia__plants_utilities: Denormalized table containing plant and utility
             names and IDs.
         core_eia860__scd_ownership: EIA 860 ownership table.
 
     Returns:
         A denormalized version of the EIA 860 ownership table.
     """
-    pu_df = denorm_plants_utilities_eia.loc[
+    pu_df = _out_eia__plants_utilities.loc[
         :,
         [
             "plant_id_eia",
@@ -58,21 +58,21 @@ def denorm_ownership_eia860(
 
 
 @asset(io_manager_key="pudl_sqlite_io_manager", compute_kind="Python")
-def denorm_emissions_control_equipment_eia860(
+def out_eia860__yearly_emissions_control_equipment(
     core_eia860__scd_emissions_control_equipment: pd.DataFrame,
-    denorm_plants_utilities_eia: pd.DataFrame,
+    _out_eia__plants_utilities: pd.DataFrame,
 ) -> pd.DataFrame:
     """A denormalized version of the EIA 860 emission control equipment table.
 
     Args:
         core_eia860__scd_emissions_control_equipment: EIA 860 emissions control equipment table.
-        denorm_plants_utilities_eia: Denormalized table containing plant and utility
+        _out_eia__plants_utilities: Denormalized table containing plant and utility
             names and IDs.
 
     Returns:
         A denormalized version of the EIA 860 emissions control equipment table.
     """
-    pu_df = denorm_plants_utilities_eia.loc[
+    pu_df = _out_eia__plants_utilities.loc[
         :,
         [
             "plant_id_eia",

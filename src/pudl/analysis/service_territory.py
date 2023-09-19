@@ -32,7 +32,7 @@ ENTITY_TYPE = {"ba": "balancing_authority", "util": "utility"}
 
 
 def utility_ids_all_eia(
-    denorm_utilities_eia: pd.DataFrame,
+    out_eia__yearly_utilities: pd.DataFrame,
     core_eia861__yearly_service_territory: pd.DataFrame,
 ) -> pd.DataFrame:
     """Compile IDs and Names of all known EIA Utilities.
@@ -43,7 +43,7 @@ def utility_ids_all_eia(
     process and PUDL database yet.
 
     Args:
-        denorm_utilities_eia: De-normalized EIA 860 utility attributes table.
+        out_eia__yearly_utilities: De-normalized EIA 860 utility attributes table.
         core_eia861__yearly_service_territory: Normalized EIA 861 Service Territory table.
 
     Returns:
@@ -52,7 +52,7 @@ def utility_ids_all_eia(
     return (
         pd.concat(
             [
-                denorm_utilities_eia[["utility_id_eia", "utility_name_eia"]],
+                out_eia__yearly_utilities[["utility_id_eia", "utility_name_eia"]],
                 core_eia861__yearly_service_territory[
                     ["utility_id_eia", "utility_name_eia"]
                 ],
@@ -279,7 +279,7 @@ def _save_geoparquet(gdf, entity_type, dissolve, limit_by_state):
 def compile_geoms(
     core_eia861__yearly_balancing_authority: pd.DataFrame,
     core_eia861__assn_balancing_authority: pd.DataFrame,
-    denorm_utilities_eia: pd.DataFrame,
+    out_eia__yearly_utilities: pd.DataFrame,
     core_eia861__yearly_service_territory: pd.DataFrame,
     core_eia861__assn_utility: pd.DataFrame,
     census_counties: pd.DataFrame,
@@ -303,7 +303,7 @@ def compile_geoms(
     )
 
     utilids_all_eia = utility_ids_all_eia(
-        denorm_utilities_eia, core_eia861__yearly_service_territory
+        out_eia__yearly_utilities, core_eia861__yearly_service_territory
     )
 
     if entity_type == "ba":
@@ -386,7 +386,7 @@ def compiled_geoms_asset_factory(
         context,
         core_eia861__yearly_balancing_authority: pd.DataFrame,
         core_eia861__assn_balancing_authority: pd.DataFrame,
-        denorm_utilities_eia: pd.DataFrame,
+        out_eia__yearly_utilities: pd.DataFrame,
         core_eia861__yearly_service_territory: pd.DataFrame,
         core_eia861__assn_utility: pd.DataFrame,
         core_censusdp1__entity_county: pd.DataFrame,
@@ -404,7 +404,7 @@ def compiled_geoms_asset_factory(
         return compile_geoms(
             core_eia861__yearly_balancing_authority=core_eia861__yearly_balancing_authority,
             core_eia861__assn_balancing_authority=core_eia861__assn_balancing_authority,
-            denorm_utilities_eia=denorm_utilities_eia,
+            out_eia__yearly_utilities=out_eia__yearly_utilities,
             core_eia861__yearly_service_territory=core_eia861__yearly_service_territory,
             core_eia861__assn_utility=core_eia861__assn_utility,
             census_counties=core_censusdp1__entity_county,
@@ -605,7 +605,9 @@ def main():
             core_eia861__assn_balancing_authority=pd.read_sql(
                 "core_eia861__assn_balancing_authority", pudl_engine
             ),
-            denorm_utilities_eia=pd.read_sql(AssetKey("denorm_utilities_eia")),
+            out_eia__yearly_utilities=pd.read_sql(
+                AssetKey("out_eia__yearly_utilities")
+            ),
             core_eia861__yearly_service_territory=pd.read_sql(
                 AssetKey("core_eia861__yearly_service_territory")
             ),
