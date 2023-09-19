@@ -186,7 +186,7 @@ from typing import Literal
 
 import numpy as np
 import pandas as pd
-from dagster import AssetIn, AssetsDefinition, asset
+from dagster import asset
 
 import pudl
 from pudl.metadata.classes import Resource
@@ -366,52 +366,36 @@ PPE_COLS = [
 ]
 
 
-def plant_parts_eia_asset_factory(
-    io_manager_key: str | None = None,
-) -> list[AssetsDefinition]:
-    """Build EIA plant parts table related assets."""
-
-    @asset(
-        name="mega_generators_eia",
-        ins={
-            "mcoe": AssetIn(key="mcoe_generators_yearly"),
-            "own_eia860": AssetIn(key="denorm_ownership_eia860"),
-        },
-        compute_kind="Python",
-    )
-    def mega_gens_asset(mcoe: pd.DataFrame, own_eia860: pd.DataFrame) -> pd.DataFrame:
-        return MakeMegaGenTbl().execute(
-            mcoe=mcoe,
-            own_eia860=own_eia860,
-        )
-
-    @asset(
-        name="plant_parts_eia",
-        ins={
-            "mega_generators_eia": AssetIn(key="mega_generators_eia"),
-            "denorm_plants_eia": AssetIn(key="denorm_plants_eia"),
-            "denorm_utilities_eia": AssetIn(key="denorm_utilities_eia"),
-        },
-        io_manager_key=io_manager_key,
-        compute_kind="Python",
-    )
-    def plant_parts_eia_asset(
-        mega_generators_eia: pd.DataFrame,
-        denorm_plants_eia: pd.DataFrame,
-        denorm_utilities_eia: pd.DataFrame,
-    ) -> pd.DataFrame:
-        return MakePlantParts().execute(
-            gens_mega=mega_generators_eia,
-            plants_eia860=denorm_plants_eia,
-            utils_eia860=denorm_utilities_eia,
-        )
-
-    return [mega_gens_asset, plant_parts_eia_asset]
-
-
-plant_parts_eia_assets = list(
-    plant_parts_eia_asset_factory(io_manager_key="pudl_sqlite_io_manager")
+@asset(
+    name="mega_generators_eia",
+    compute_kind="Python",
 )
+def mega_gens_asset(
+    mcoe_generators_yearly: pd.DataFrame, denorm_ownership_eia860: pd.DataFrame
+) -> pd.DataFrame:
+    """Create mega generators table asset."""
+    return MakeMegaGenTbl().execute(
+        mcoe=mcoe_generators_yearly,
+        own_eia860=denorm_ownership_eia860,
+    )
+
+
+@asset(
+    name="plant_parts_eia",
+    io_manager_key="pudl_sqlite_io_manager",
+    compute_kind="Python",
+)
+def plant_parts_eia_asset(
+    mega_generators_eia: pd.DataFrame,
+    denorm_plants_eia: pd.DataFrame,
+    denorm_utilities_eia: pd.DataFrame,
+) -> pd.DataFrame:
+    """Create plant parts list asset."""
+    return MakePlantParts().execute(
+        gens_mega=mega_generators_eia,
+        plants_eia860=denorm_plants_eia,
+        utils_eia860=denorm_utilities_eia,
+    )
 
 
 class MakeMegaGenTbl:

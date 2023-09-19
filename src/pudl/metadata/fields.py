@@ -2624,11 +2624,6 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     "utility_id_eia": {
         "type": "integer",
         "description": "The EIA Utility Identification number.",
-        # TODO: Disambiguate column name. In some cases this specifically refers to
-        # the utility which operates a given plant or generator, but comes from the
-        # same set of IDs as all the utility IDs.
-        # E.g. in ownership_eia860 or generators_eia860 it would be something like:
-        # "description": "EIA-assigned identification number for the company that is responsible for the day-to-day operations of the generator.",
     },
     "utility_id_ferc1": {
         "type": "integer",
@@ -2868,6 +2863,16 @@ FIELD_METADATA_BY_RESOURCE: dict[str, dict[str, Any]] = {
                     "Pacific/Honolulu",
                 ]
             }
+        }
+    },
+    "ownership_eia860": {
+        "utility_id_eia": {
+            "description": "The EIA utility Identification number for the owner company that is responsible for the day-to-day operations of the generator, not the operator utility."
+        }
+    },
+    "denorm_ownership_eia860": {
+        "utility_id_eia": {
+            "description": "The EIA utility Identification number for the owner company that is responsible for the day-to-day operations of the generator, not the operator utility."
         }
     },
 }

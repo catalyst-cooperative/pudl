@@ -299,18 +299,17 @@ ENTITIES: dict[str, dict[str, list[str] | dict[str, str]]] = {
 For each entity type (key), the ID columns, static columns, annual columns, and mapped
 columns.
 
-Mapped columns allow for harvesting the same entity ID / value relationship
-from multiple columns in the same input dataframe. This is useful if an entity has a
-relationship with another entity of the same kind, for example owner and operator utilities
-showing up in the same ownership table records. The mapped column dictionary maps from
-column names of the second group of entity ID / value columns to the standard names
-for the entity ID / values columns.
-
-Mapped column dictionaries must include key value pairs for all the column names
-that should be harvested for that relationship, even if the column doesn't need to be renamed.
-If a column doesn't need to be renamed, it should map to itself,
-i.e. `utility_id_eia: utility_id_eia`.
-
 The order of the entities matters. Plants must be harvested before utilities, since
 plant location must be removed before the utility locations are harvested.
+
+Mapped columns allow for harvesting the same entity ID / value relationship
+from multiple columns in the same input dataframe. This is useful if a table has multiple
+sets of entities that should be harvested, for example owner and operator utilities
+showing up in the same ownership table records. ``map_col_dict`` maps from
+column names of the 'other' group of entity ID / value columns to a column name in one of
+the ``id_cols``, ``static_cols``, or ``annual_cols list``. In the harvesting process, these
+columns are renamed so the relationship can be harvested and added to the normalized entity
+tables. Note that not all of the columns in the ``map_cols_dict`` need to be present at once,
+i.e. if ``map_cols_dict`` has keys ``col_a`` and ``col_b``, then ``col_a`` and ``col_b``
+don't need to be present in the same table.
 """
