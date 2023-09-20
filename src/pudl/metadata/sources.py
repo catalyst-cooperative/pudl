@@ -365,7 +365,7 @@ SOURCES: dict[str, Any] = {
         },
         "field_namespace": "ferc1",
         "working_partitions": {
-            "years": sorted(set(range(1994, 2022))),
+            "years": sorted(set(range(1994, 2023))),
         },
         "contributors": [
             CONTRIBUTORS["catalyst-cooperative"],
