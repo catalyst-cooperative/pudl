@@ -1,7 +1,9 @@
 """A collection of denormalized FERC assets and helper functions."""
 import importlib
 import re
-from typing import Literal, NamedTuple, Self
+from copy import deepcopy
+from functools import cached_property
+from typing import Any, Literal, NamedTuple, Self
 
 import networkx as nx
 import numpy as np
@@ -10,11 +12,44 @@ from dagster import AssetIn, AssetsDefinition, Field, Mapping, asset
 from matplotlib import pyplot as plt
 from networkx.drawing.nx_agraph import graphviz_layout
 from pandas._libs.missing import NAType as pandas_NAType
-from pydantic import BaseModel, validator
+from pydantic import BaseModel, confloat, validator
 
 import pudl
 
 logger = pudl.logging_helpers.get_logger(__name__)
+
+
+class CalculationToleranceFerc1(BaseModel):
+    """Data quality expectations related to FERC 1 calculations.
+
+    We are doing a lot of comparisons between calculated and reported values to identify
+    reporting errors in the data, errors in FERC's metadata, and bugs in our own code.
+    This class provides a structure for encoding our expectations about the level of
+    acceptable (or at least expected) errors, and allows us to pass them around.
+
+    In the future we might also want to specify much more granular expectations,
+    pertaining to individual tables, years, utilities, or facts to ensure that we don't
+    have low overall error rates, but a problem with the way the data or metadata is
+    reported in a particular year.  We could also define per-filing and per-table error
+    tolerances to help us identify individual utilities that have e.g. used an outdated
+    version of Form 1 when filing.
+    """
+
+    intertable_calculation_errors: confloat(ge=0.0, le=1.0) = 0.05
+    """Fraction of interatble calculations that are allowed to not match exactly."""
+
+
+EXPLOSION_CALCULATION_TOLERANCES: dict[str, CalculationToleranceFerc1] = {
+    "income_statement_ferc1": CalculationToleranceFerc1(
+        intertable_calculation_errors=0.20,
+    ),
+    "balance_sheet_assets_ferc1": CalculationToleranceFerc1(
+        intertable_calculation_errors=0.85,
+    ),
+    "balance_sheet_liabilities_ferc1": CalculationToleranceFerc1(
+        intertable_calculation_errors=0.07,
+    ),
+}
 
 
 @asset(io_manager_key="pudl_sqlite_io_manager", compute_kind="Python")
@@ -906,12 +941,46 @@ class NodeId(NamedTuple):
     plant_function: str | pandas_NAType
 
 
+@asset
+def _out_ferc1__explosion_tags(table_dimensions_ferc1) -> pd.DataFrame:
+    """Grab the stored table of tags and add infered dimension."""
+    # NOTE: there are a bunch of duplicate records in xbrl_factoid_rate_base_tags.csv
+    # Also, these tags are only applicable to the balance_sheet_assets_ferc1 table, but
+    # we need to pass in a dataframe with the right structure to all of the exploders,
+    # so we're just re-using this one for the moment.
+    tags_csv = (
+        importlib.resources.files("pudl.package_data.ferc1")
+        / "xbrl_factoid_rate_base_tags.csv"
+    )
+    tags_df = (
+        pd.read_csv(
+            tags_csv,
+            usecols=[
+                "table_name",
+                "xbrl_factoid",
+                "in_rate_base",
+                "utility_type",
+                "plant_function",
+                "plant_status",
+            ],
+        )
+        .drop_duplicates()
+        .dropna(subset=["table_name", "xbrl_factoid"], how="any")
+        .pipe(
+            pudl.transform.ferc1.make_calculation_dimensions_explicit,
+            table_dimensions_ferc1,
+            dimensions=["utility_type", "plant_function", "plant_status"],
+        )
+        .astype(pd.StringDtype())
+    )
+    return tags_df
+
+
 def exploded_table_asset_factory(
     root_table: str,
     table_names_to_explode: list[str],
-    tags: pd.DataFrame,
-    seed_nodes: list[NodeId] = [],
-    calculation_tolerance: float = 0.05,
+    seed_nodes: list[NodeId],
+    calculation_tolerance: CalculationToleranceFerc1,
     io_manager_key: str | None = None,
 ) -> AssetsDefinition:
     """Create an exploded table based on a set of related input tables."""
@@ -920,6 +989,7 @@ def exploded_table_asset_factory(
         "calculation_components_xbrl_ferc1": AssetIn(
             "calculation_components_xbrl_ferc1"
         ),
+        "_out_ferc1__explosion_tags": AssetIn("_out_ferc1__explosion_tags"),
     }
     ins |= {table_name: AssetIn(table_name) for table_name in table_names_to_explode}
 
@@ -929,10 +999,16 @@ def exploded_table_asset_factory(
     ) -> pd.DataFrame:
         metadata_xbrl_ferc1 = kwargs["metadata_xbrl_ferc1"]
         calculation_components_xbrl_ferc1 = kwargs["calculation_components_xbrl_ferc1"]
+        tags = kwargs["_out_ferc1__explosion_tags"]
         tables_to_explode = {
             name: df
             for (name, df) in kwargs.items()
-            if name not in ["metadata_xbrl_ferc1", "calculation_components_xbrl_ferc1"]
+            if name
+            not in [
+                "metadata_xbrl_ferc1",
+                "calculation_components_xbrl_ferc1",
+                "_out_ferc1__explosion_tags",
+            ]
         }
         return Exploder(
             table_names=tables_to_explode.keys(),
@@ -941,10 +1017,8 @@ def exploded_table_asset_factory(
             calculation_components_xbrl_ferc1=calculation_components_xbrl_ferc1,
             seed_nodes=seed_nodes,
             tags=tags,
-        ).boom(
-            tables_to_explode=tables_to_explode,
             calculation_tolerance=calculation_tolerance,
-        )
+        ).boom(tables_to_explode=tables_to_explode)
 
     return exploded_tables_asset
 
@@ -956,21 +1030,6 @@ def create_exploded_table_assets() -> list[AssetsDefinition]:
         A list of :class:`AssetsDefinitions` where each asset is an exploded FERC Form 1
         table.
     """
-    # NOTE: there are a bunch of duplicate records in xbrl_factoid_rate_base_tags.csv
-    # Also, these tags are only applicable to the balance_sheet_assets_ferc1 table, but
-    # we need to pass in a dataframe with the right structure to all of the exploders,
-    # so we're just re-using this one for the moment.
-    tags_csv = (
-        importlib.resources.files("pudl.package_data.ferc1")
-        / "xbrl_factoid_rate_base_tags.csv"
-    )
-    tags_df = (
-        pd.read_csv(tags_csv, usecols=["table_name", "xbrl_factoid", "in_rate_base"])
-        .drop_duplicates()
-        .dropna(subset=["table_name", "xbrl_factoid"], how="any")
-        .astype(pd.StringDtype())
-    )
-
     explosion_args = [
         {
             "root_table": "income_statement_ferc1",
@@ -980,8 +1039,9 @@ def create_exploded_table_assets() -> list[AssetsDefinition]:
                 "electric_operating_expenses_ferc1",
                 "electric_operating_revenues_ferc1",
             ],
-            # This is very high, otherwise CI w/ 2 years of data currently fails.
-            "calculation_tolerance": 0.28,
+            "calculation_tolerance": EXPLOSION_CALCULATION_TOLERANCES[
+                "income_statement_ferc1"
+            ],
             "seed_nodes": [
                 NodeId(
                     table_name="income_statement_ferc1",
@@ -991,7 +1051,6 @@ def create_exploded_table_assets() -> list[AssetsDefinition]:
                     plant_function=pd.NA,
                 ),
             ],
-            "tags": tags_df,
         },
         {
             "root_table": "balance_sheet_assets_ferc1",
@@ -1002,7 +1061,9 @@ def create_exploded_table_assets() -> list[AssetsDefinition]:
                 "plant_in_service_ferc1",
                 "electric_plant_depreciation_functional_ferc1",
             ],
-            "calculation_tolerance": 0.81,
+            "calculation_tolerance": EXPLOSION_CALCULATION_TOLERANCES[
+                "balance_sheet_assets_ferc1"
+            ],
             "seed_nodes": [
                 NodeId(
                     table_name="balance_sheet_assets_ferc1",
@@ -1012,7 +1073,6 @@ def create_exploded_table_assets() -> list[AssetsDefinition]:
                     plant_function=pd.NA,
                 )
             ],
-            "tags": tags_df,
         },
         {
             "root_table": "balance_sheet_liabilities_ferc1",
@@ -1021,7 +1081,9 @@ def create_exploded_table_assets() -> list[AssetsDefinition]:
                 "balance_sheet_liabilities_ferc1",
                 "retained_earnings_ferc1",
             ],
-            "calculation_tolerance": 0.075,
+            "calculation_tolerance": EXPLOSION_CALCULATION_TOLERANCES[
+                "balance_sheet_liabilities_ferc1"
+            ],
             "seed_nodes": [
                 NodeId(
                     table_name="balance_sheet_liabilities_ferc1",
@@ -1031,7 +1093,6 @@ def create_exploded_table_assets() -> list[AssetsDefinition]:
                     plant_function=pd.NA,
                 )
             ],
-            "tags": tags_df,
         },
     ]
     return [exploded_table_asset_factory(**kwargs) for kwargs in explosion_args]
@@ -1040,22 +1101,39 @@ def create_exploded_table_assets() -> list[AssetsDefinition]:
 exploded_ferc1_assets = create_exploded_table_assets()
 
 
-class MetadataExploder:
-    """Combine a set of inter-related, nested table's metadata."""
+class Exploder:
+    """Get unique, granular datapoints from a set of related, nested FERC1 tables."""
 
     def __init__(
-        self,
+        self: Self,
         table_names: list[str],
+        root_table: str,
         metadata_xbrl_ferc1: pd.DataFrame,
         calculation_components_xbrl_ferc1: pd.DataFrame,
+        seed_nodes: list[NodeId],
+        tags: pd.DataFrame = pd.DataFrame(),
+        calculation_tolerance: CalculationToleranceFerc1 = CalculationToleranceFerc1(),
     ):
-        """Instantiate MetadataExploder."""
-        self.table_names = table_names
-        self.calculation_components_xbrl_ferc1 = calculation_components_xbrl_ferc1
-        self.metadata_xbrl_ferc1 = metadata_xbrl_ferc1
+        """Instantiate an Exploder class.
 
-    @property
-    def calculations(self: Self):
+        Args:
+            table_names: list of table names to explode.
+            root_table: the table at the base of the tree of tables_to_explode.
+            metadata_xbrl_ferc1: table of factoid-level metadata.
+            calculation_components_xbrl_ferc1: table of calculation components.
+            seed_nodes: NodeIds to use as seeds for the calculation forest.
+            tags: Additional metadata to merge onto the exploded dataframe.
+        """
+        self.table_names: list[str] = table_names
+        self.root_table: str = root_table
+        self.calculation_tolerance = calculation_tolerance
+        self.metadata_xbrl_ferc1 = metadata_xbrl_ferc1
+        self.calculation_components_xbrl_ferc1 = calculation_components_xbrl_ferc1
+        self.seed_nodes = seed_nodes
+        self.tags = tags
+
+    @cached_property
+    def exploded_calcs(self: Self):
         """Remove any calculation components that aren't relevant to the explosion.
 
         At the end of this process several things should be true:
@@ -1132,22 +1210,19 @@ class MetadataExploder:
 
         return calc_explode
 
-    @property
-    def metadata(self):
+    @cached_property
+    def exploded_meta(self: Self) -> pd.DataFrame:
         """Combine a set of interrelated table's metatada for use in :class:`Exploder`.
 
         Any calculations containing components that are part of tables outside the
         set of exploded tables will be converted to reported values with an empty
         calculation. Then we verify that all referenced calculation components actually
         appear as their own records within the concatenated metadata dataframe.
-
-        Args:
-            clean_xbrl_metadata_json: cleaned XRBL metadata.
         """
         calc_cols = list(NodeId._fields)
         exploded_metadata = (
             self.metadata_xbrl_ferc1[
-                self.metadata_xbrl_ferc1.table_name.isin(self.table_names)
+                self.metadata_xbrl_ferc1["table_name"].isin(self.table_names)
             ]
             .set_index(calc_cols)
             .sort_index()
@@ -1155,83 +1230,85 @@ class MetadataExploder:
         )
         # At this point all remaining calculation components should exist within the
         # exploded metadata.
-        calc_comps = self.calculations
+        calc_comps = self.exploded_calcs
         missing_from_calcs_idx = calc_comps.set_index(calc_cols).index.difference(
             calc_comps.set_index(calc_cols).index
         )
         assert missing_from_calcs_idx.empty
+
+        # Add additional metadata useful for debugging calculations and tagging:
+        def snake_to_camel_case(factoid: str):
+            return "".join([word.capitalize() for word in factoid.split("_")])
+
+        exploded_metadata["xbrl_taxonomy_fact_name"] = exploded_metadata[
+            "xbrl_factoid_original"
+        ].apply(snake_to_camel_case)
+        pudl_to_xbrl_map = {
+            pudl_table: source_tables["xbrl"]
+            for pudl_table, source_tables in pudl.extract.ferc1.TABLE_NAME_MAP_FERC1.items()
+        }
+        exploded_metadata["xbrl_schedule_name"] = exploded_metadata["table_name"].map(
+            pudl_to_xbrl_map
+        )
+
+        def get_dbf_row_metadata(pudl_table: str, year: int = 2020):
+            dbf_tables = pudl.transform.ferc1.FERC1_TFR_CLASSES[
+                pudl_table
+            ]().params.aligned_dbf_table_names
+            dbf_metadata = (
+                pudl.transform.ferc1.read_dbf_to_xbrl_map(dbf_table_names=dbf_tables)
+                .pipe(pudl.transform.ferc1.fill_dbf_to_xbrl_map)
+                .query("report_year==@year")
+                .drop(columns="report_year")
+                .astype(
+                    {
+                        "row_number": "Int64",
+                        "row_literal": "string",
+                    }
+                )
+                .rename(
+                    columns={
+                        "row_number": f"dbf{year}_row_number",
+                        "row_literal": f"dbf{year}_row_literal",
+                        "sched_table_name": f"dbf{year}_table_name",
+                    }
+                )
+                .assign(table_name=pudl_table)
+                .drop_duplicates(subset=["table_name", "xbrl_factoid"])
+            )
+            return dbf_metadata
+
+        dbf_row_metadata = pd.concat(
+            [get_dbf_row_metadata(table) for table in self.table_names]
+        )
+
+        exploded_metadata = exploded_metadata.merge(
+            dbf_row_metadata,
+            how="left",
+            on=["table_name", "xbrl_factoid"],
+            validate="many_to_one",
+        )
+
         return exploded_metadata
 
-
-class Exploder:
-    """Get unique, granular datapoints from a set of related, nested FERC1 tables."""
-
-    def __init__(
-        self: Self,
-        table_names: list[str],
-        root_table: str,
-        metadata_xbrl_ferc1: pd.DataFrame,
-        calculation_components_xbrl_ferc1: pd.DataFrame,
-        seed_nodes: list[NodeId] = [],
-        tags: pd.DataFrame = pd.DataFrame(),
-    ):
-        """Instantiate an Exploder class.
-
-        Args:
-            table_names: list of table names to explode.
-            root_table: the table at the base of the tree of tables_to_explode.
-            metadata_xbrl_ferc1: table of factoid-level metadata.
-            calculation_components_xbrl_ferc1: table of calculation components.
-            seed_nodes: NodeIds to use as seeds for the calculation forest.
-            tags: Additional metadata to merge onto the exploded dataframe.
-        """
-        self.table_names: list[str] = table_names
-        self.root_table: str = root_table
-        self.meta_exploder = MetadataExploder(
-            self.table_names,
-            metadata_xbrl_ferc1,
-            calculation_components_xbrl_ferc1,
-        )
-        self.metadata_exploded: pd.DataFrame = self.meta_exploder.metadata
-        self.calculations_exploded: pd.DataFrame = self.meta_exploder.calculations
-
-        # If we don't get any explicit seed nodes, use all nodes from the root table
-        # that have calculations associated with them:
-        if len(seed_nodes) == 0:
-            logger.info(
-                "No seeds provided. Using all calculated nodes in root table: "
-                f"{self.root_table}"
-            )
-            seed_nodes = [
-                NodeId(seed)
-                for seed in self.metadata_exploded[
-                    (self.metadata_exploded.table_name == self.root_table)
-                    & (self.metadata_exploded.calculations != "[]")
-                ]
-                .set_index(["table_name", "xbrl_factoid"])
-                .index
-            ]
-            logger.info(f"Identified {seed_nodes=}")
-        self.seed_nodes = seed_nodes
-        self.tags = tags
-
-    @property
+    @cached_property
     def calculation_forest(self: Self) -> "XbrlCalculationForestFerc1":
         """Construct a calculation forest based on class attributes."""
         return XbrlCalculationForestFerc1(
-            exploded_calcs=self.calculations_exploded,
-            exploded_meta=self.metadata_exploded,
+            exploded_calcs=self.exploded_calcs,
+            exploded_meta=self.exploded_meta,
             seeds=self.seed_nodes,
             tags=self.tags,
+            calculation_tolerance=self.calculation_tolerance,
         )
 
-    @property
-    def other_dimensions(self) -> list[str]:
+    @cached_property
+    def other_dimensions(self: Self) -> list[str]:
         """Get all of the column names for the other dimensions."""
         return pudl.transform.ferc1.other_dimensions(table_names=self.table_names)
 
-    @property
-    def exploded_pks(self) -> list[str]:
+    @cached_property
+    def exploded_pks(self: Self) -> list[str]:
         """Get the joint primary keys of the exploded tables."""
         pks = []
         for table_name in self.table_names:
@@ -1255,8 +1332,8 @@ class Exploder:
         ] + pudl.helpers.dedupe_n_flatten_list_of_lists(pks)
         return pks
 
-    @property
-    def value_col(self) -> str:
+    @cached_property
+    def value_col(self: Self) -> str:
         """Get the value column for the exploded tables."""
         value_cols = []
         for table_name in self.table_names:
@@ -1273,11 +1350,7 @@ class Exploder:
         value_col = list(set(value_cols))[0]
         return value_col
 
-    def boom(
-        self,
-        tables_to_explode: dict[str, pd.DataFrame],
-        calculation_tolerance: float = 0.05,
-    ) -> pd.DataFrame:
+    def boom(self: Self, tables_to_explode: dict[str, pd.DataFrame]) -> pd.DataFrame:
         """Explode a set of nested tables.
 
         There are five main stages of this process:
@@ -1296,7 +1369,10 @@ class Exploder:
         exploded = (
             self.initial_explosion_concatenation(tables_to_explode)
             .pipe(self.generate_intertable_calculations)
-            .pipe(self.reconcile_intertable_calculations, calculation_tolerance)
+            .pipe(
+                self.reconcile_intertable_calculations,
+                self.calculation_tolerance.intertable_calculation_errors,
+            )
             .pipe(self.calculation_forest.leafy_data, value_col=self.value_col)
         )
         # Identify which columns should be kept in the output...
@@ -1348,22 +1424,22 @@ class Exploder:
         meta_idx = list(NodeId._fields)
         missing_dims = list(set(meta_idx).difference(exploded.columns))
         # Missing dimensions SHOULD be entirely null in the metadata, if so we can drop
-        if not self.metadata_exploded.loc[:, missing_dims].isna().all(axis=None):
+        if not self.exploded_meta.loc[:, missing_dims].isna().all(axis=None):
             raise AssertionError(
                 f"Expected missing metadata dimensions {missing_dims} to be null."
             )
-        metadata_exploded = self.metadata_exploded.drop(columns=missing_dims)
+        exploded_meta = self.exploded_meta.drop(columns=missing_dims)
         meta_idx = list(set(meta_idx).difference(missing_dims))
 
         # drop any metadata columns that appear in the data tables, because we may have
         # edited them in the metadata table, and want the edited version to take
         # precedence
         cols_to_keep = list(
-            set(exploded.columns).difference(metadata_exploded.columns).union(meta_idx)
+            set(exploded.columns).difference(exploded_meta.columns).union(meta_idx)
         )
         exploded = pd.merge(
             left=exploded.loc[:, cols_to_keep],
-            right=metadata_exploded,
+            right=exploded_meta,
             how="left",
             on=meta_idx,
             validate="m:1",
@@ -1384,8 +1460,8 @@ class Exploder:
         Args:
             exploded: concatenated tables for table explosion.
         """
-        calculations_intertable = self.calculations_exploded[
-            ~self.calculations_exploded.is_within_table_calc
+        calculations_intertable = self.exploded_calcs[
+            ~self.exploded_calcs.is_within_table_calc
         ]
         if calculations_intertable.empty:
             return exploded
@@ -1473,7 +1549,7 @@ class Exploder:
         Args:
             calculated_df: table with calculated fields
             calculation_tolerance: What proportion (0-1) of calculated values are
-              allowed to be incorrect without raising an AssertionError.
+                allowed to be incorrect without raising an AssertionError.
         """
         if "calculated_amount" not in calculated_df.columns:
             return calculated_df
@@ -1567,11 +1643,11 @@ class XbrlCalculationForestFerc1(BaseModel):
     several trees) rather than a single tree.
 
     The information required to build a calculation forest is most readily found in the
-    data produced by :meth:`MetadataExploder.boom`  A list of seed nodes can also be
-    supplied, indicating which nodes must be present in the resulting forest. This can
-    be used to prune irrelevant portions of the overall forest out of the exploded
-    metadata. If no seeds are provided, then all of the nodes referenced in the
-    exploded_calcs input dataframe will be used as seeds.
+    :meth:`Exploder.exploded_calcs`  A list of seed nodes can also be supplied,
+    indicating which nodes must be present in the resulting forest. This can be used to
+    prune irrelevant portions of the overall forest out of the exploded metadata. If no
+    seeds are provided, then all of the nodes referenced in the exploded_calcs input
+    dataframe will be used as seeds.
 
     This class makes heavy use of :mod:`networkx` to manage the graph that we build
     from calculation relationships.
@@ -1584,11 +1660,13 @@ class XbrlCalculationForestFerc1(BaseModel):
     exploded_calcs: pd.DataFrame = pd.DataFrame()
     seeds: list[NodeId] = []
     tags: pd.DataFrame = pd.DataFrame()
+    calculation_tolerance: CalculationToleranceFerc1 = CalculationToleranceFerc1()
 
     class Config:
         """Allow the class to store a dataframe."""
 
         arbitrary_types_allowed = True
+        keep_untouched = (cached_property,)
 
     @validator("parent_cols", always=True)
     def set_parent_cols(cls, v, values) -> list[str]:
@@ -1619,12 +1697,9 @@ class XbrlCalculationForestFerc1(BaseModel):
             .gt(1)
         )
         if multi_valued_weights.any():
-            # Maybe this should be an AssertionError but we have one weird special case
-            # That we are dealing with explicitly in building the trees below. Maybe it
-            # should be happening here instead?
             logger.warning(
-                "Calculation forest nodes specified with conflicting weights:\n"
-                f"{v.loc[multi_valued_weights]}"
+                f"Found {sum(multi_valued_weights)} calculations with conflicting "
+                "weights."
             )
         return v
 
@@ -1649,9 +1724,7 @@ class XbrlCalculationForestFerc1(BaseModel):
     @validator("tags")
     def tags_have_required_cols(cls, v: pd.DataFrame, values) -> pd.DataFrame:
         """Ensure tagging dataframe contains all required index columns."""
-        missing_cols = [
-            col for col in ["table_name", "xbrl_factoid"] if col not in v.columns
-        ]
+        missing_cols = [col for col in values["calc_cols"] if col not in v.columns]
         if missing_cols:
             raise ValueError(
                 f"Tagging dataframe was missing expected columns: {missing_cols=}"
@@ -1674,7 +1747,7 @@ class XbrlCalculationForestFerc1(BaseModel):
     @validator("tags")
     def single_valued_tags(cls, v: pd.DataFrame, values) -> pd.DataFrame:
         """Ensure all tags have unique values."""
-        dupes = v.duplicated(subset=["table_name", "xbrl_factoid"], keep=False)
+        dupes = v.duplicated(subset=values["calc_cols"], keep=False)
         if dupes.any():
             logger.warning(
                 f"Found {dupes.sum()} duplicate tag records:\n{v.loc[dupes]}"
@@ -1694,15 +1767,6 @@ class XbrlCalculationForestFerc1(BaseModel):
         if bad_seeds:
             raise ValueError(f"Seeds missing from exploded_calcs index: {bad_seeds=}")
         return v
-
-    # Need to update this to generate a new valid set of seeds
-    # @validator("seeds", always=True)
-    # def seeds_not_empty(cls, v, values):
-    #    """If no seeds are provided, use all nodes in the index of exploded_calcs."""
-    #    if v == []:
-    #        logger.info("No seeds provided. Using all nodes from exploded_calcs.")
-    #        v = list(values["exploded_calcs"].index)
-    #    return v
 
     def exploded_calcs_to_digraph(
         self: Self,
@@ -1731,68 +1795,135 @@ class XbrlCalculationForestFerc1(BaseModel):
         forest = nx.from_pandas_edgelist(edgelist, create_using=nx.DiGraph)
         return forest
 
-    def set_forest_attributes(
-        self,
-        forest: nx.DiGraph,
-        exploded_calcs: pd.DataFrame,
-        exploded_meta: pd.DataFrame,
-        tags: pd.DataFrame,
-    ) -> nx.DiGraph:
-        """Set the attributes of a forest."""
+    @cached_property
+    def node_attrs(self: Self) -> dict[NodeId, dict[str, dict[str, str]]]:
+        """Construct a dictionary of node attributes for application to the forest.
+
+        Note attributes consist of the manually assigned tags.
+        """
         # Reshape the tags to turn them into a dictionary of values per-node. This
         # will make it easier to add arbitrary sets of tags later on.
-        tags_dict = tags.set_index(["table_name", "xbrl_factoid"]).to_dict(
-            orient="index"
+        tags_dict = (
+            self.tags.convert_dtypes().set_index(self.calc_cols).to_dict(orient="index")
         )
-        tags_dict_df = pd.DataFrame(
-            index=pd.MultiIndex.from_tuples(
-                tags_dict.keys(), names=["table_name", "xbrl_factoid"]
-            ),
-            data={"tags": list(tags_dict.values())},
-        ).reset_index()
-
-        multi_valued_weights = (
-            exploded_calcs.groupby(self.calc_cols, dropna=False)["weight"]
-            .transform("nunique")
-            .gt(1)
-        )
-
-        calcs_to_drop = multi_valued_weights & (exploded_calcs.weight == 1)
-
-        logger.info(
-            f"Found {len(calcs_to_drop)}/{len(exploded_calcs)} calculations "
-            "where weight was both 1 and -1. Dropping the 1-weighted "
-            "calculations."
-        )
-
-        attr_cols = ["weight"]
-        deduped_calcs = exploded_calcs[~calcs_to_drop][
-            self.calc_cols + attr_cols
-        ].drop_duplicates()
-
-        meta_w_tags = (
-            pd.merge(
-                left=exploded_meta,
-                right=tags_dict_df,
-                how="left",
-                validate="m:1",
+        node_attrs = (
+            pd.DataFrame(
+                index=pd.MultiIndex.from_tuples(tags_dict.keys(), names=self.calc_cols),
+                data={"tags": list(tags_dict.values())},
             )
-            .reset_index(drop=True)
-            .drop(columns=["xbrl_factoid_original", "is_within_table_calc"])
+            .reset_index()
+            # Type conversion is necessary to get pd.NA in the index:
+            .astype({col: pd.StringDtype() for col in self.calc_cols})
+            # We need a dictionary for *all* nodes, not just those with tags.
+            .merge(
+                self.exploded_meta.loc[:, self.calc_cols],
+                how="right",
+                on=self.calc_cols,
+                validate="one_to_many",
+            )
+            # For nodes with no tags, we assign an empty dictionary:
+            .assign(tags=lambda x: np.where(x["tags"].isna(), {}, x["tags"]))
+            .set_index(self.calc_cols)
+            .to_dict(orient="index")
         )
-        # Add metadata tags to the calculation components and reset the index.
-        node_attrs = pd.merge(
-            left=meta_w_tags,
-            right=deduped_calcs,
-            how="left",
-            validate="1:1",
-        ).set_index(self.calc_cols)
-        # Fill NA tag dictionaries with an empty dict so the type is uniform:
-        node_attrs["tags"] = node_attrs["tags"].apply(lambda x: {} if x != x else x)
-        nx.set_node_attributes(forest, node_attrs.to_dict(orient="index"))
-        return forest
+        return node_attrs
 
-    @property
+    @cached_property
+    def edge_attrs(self: Self) -> dict[Any, Any]:
+        """Construct a dictionary of edge attributes for application to the forest.
+
+        The only edge attribute is the calculation component weight.
+        """
+        parents = [
+            NodeId(*x)
+            for x in self.exploded_calcs.set_index(self.parent_cols).index.to_list()
+        ]
+        children = [
+            NodeId(*x)
+            for x in self.exploded_calcs.set_index(self.calc_cols).index.to_list()
+        ]
+        weights = self.exploded_calcs["weight"].to_list()
+        edge_attrs = {
+            (parent, child): {"weight": weight}
+            for parent, child, weight in zip(parents, children, weights)
+        }
+        return edge_attrs
+
+    @cached_property
+    def annotated_forest(self: Self) -> nx.DiGraph:
+        """Annotate the calculation forest with node calculation weights and tags.
+
+        The annotated forest should have exactly the same structure as the forest, but
+        with additional data associated with each of the nodes. This method also does
+        some error checking to try and ensure that the weights and tags that are being
+        associated with the forest are internally self-consistent.
+
+        We check whether there are multiple different weights assocated with the same
+        node in the calculation components. There are a few instances where this is
+        expected, but if there a lot of conflicting weights something is probably wrong.
+
+        We check whether any of the nodes that were orphaned (never connected to the
+        graph) or that were pruned in the course of enforcing a forest structure had
+        manually assigned tags (e.g. indicating whether they contribute to rate base).
+        If they do, then the final exploded data table may not capture all of the
+        manually assigned metadata, and we either need to edit the metadata, or figure
+        out why those nodes aren't being included in the final calculation forest.
+        """
+        annotated_forest = deepcopy(self.forest)
+        nx.set_node_attributes(annotated_forest, self.node_attrs)
+        nx.set_edge_attributes(annotated_forest, self.edge_attrs)
+
+        logger.info("Checking whether any pruned nodes were also tagged.")
+        self.check_lost_tags(lost_nodes=self.pruned)
+        logger.info("Checking whether any orphaned nodes were also tagged.")
+        self.check_lost_tags(lost_nodes=self.orphans)
+        self.check_conflicting_tags(annotated_forest)
+        return annotated_forest
+
+    def check_lost_tags(self: Self, lost_nodes: list[NodeId]) -> None:
+        """Check whether any of the input lost nodes were also tagged nodes."""
+        if lost_nodes:
+            lost = pd.DataFrame(lost_nodes).set_index(self.calc_cols)
+            tagged = self.tags.set_index(self.calc_cols)
+            lost_tagged = tagged.index.intersection(lost.index)
+            if not lost_tagged.empty:
+                logger.warning(
+                    "The following tagged nodes were lost in building the forest:\n"
+                    f"{tagged.loc[lost_tagged].sort_index()}"
+                )
+
+    @staticmethod
+    def check_conflicting_tags(annotated_forest: nx.DiGraph) -> None:
+        """Check for conflicts between ancestor and descendant tags.
+
+        At this point, we have just applied the manually compiled tags to the nodes in
+        the forest, and haven't yet propagated them down to the leaves. It's possible
+        that ancestor nodes (closer to the roots) might have tags associated with them
+        that are in conflict with descendant nodes (closer to the leaves). If that's
+        the case then when we propagate the tags to the leaves, whichever tag is
+        propagated last will end up taking precedence.
+
+        These kinds of conflicts are probably due to errors in the tagging metadata, and
+        should be investigated.
+        """
+        nodes = annotated_forest.nodes
+        for ancestor in nodes:
+            for descendant in nx.descendants(annotated_forest, ancestor):
+                for tag in nodes[ancestor]["tags"]:
+                    if tag in nodes[descendant]["tags"]:
+                        ancestor_tag_value = nodes[ancestor]["tags"][tag]
+                        descendant_tag_value = nodes[descendant]["tags"][tag]
+                        if ancestor_tag_value != descendant_tag_value:
+                            logger.error(
+                                "\n================================================"
+                                f"\nCalculation forest nodes have conflicting tags:"
+                                f"\nAncestor: {ancestor}"
+                                f"\n    tags[{tag}] == {ancestor_tag_value}"
+                                f"\nDescendant: {descendant}"
+                                f"\n    tags[{tag}] == {descendant_tag_value}"
+                            )
+
+    @cached_property
     def full_digraph(self: Self) -> nx.DiGraph:
         """A digraph of all calculations described by the exploded metadata."""
         full_digraph = self.exploded_calcs_to_digraph(
@@ -1811,28 +1942,50 @@ class XbrlCalculationForestFerc1(BaseModel):
         return full_digraph
 
     def prune_unrooted(self: Self, graph: nx.DiGraph) -> nx.DiGraph:
-        """Prune any portions of the digraph that aren't reachable from the roots."""
+        """Prune those parts of the input graph that aren't reachable from the roots.
+
+        Build a table of exploded calculations that includes only those nodes that
+        are part of the input graph, and that are reachable from the roots of the
+        calculation forest. Then use that set of exploded calculations to construct a
+        new graph.
+
+        This is complicated by the fact that some nodes may have already been pruned
+        from the input graph, and so when selecting both parent and child nodes from
+        the calculations, we need to make sure that they are present in the input graph,
+        as well as the complete set of calculation components.
+        """
         seeded_nodes = set(self.seeds)
         for seed in self.seeds:
+            # the seeds and all of their descendants from the graph
             seeded_nodes = list(
                 seeded_nodes.union({seed}).union(nx.descendants(graph, seed))
             )
+        # Any seeded node that appears in the input graph and is also a parent.
         seeded_parents = [
             node
             for node, degree in dict(graph.out_degree(seeded_nodes)).items()
             if degree > 0
         ]
+        # Any calculation where the parent is one of the seeded parents.
         seeded_calcs = (
             self.exploded_calcs.set_index(self.parent_cols)
             .loc[seeded_parents]
             .reset_index()
         )
-        seeded_digraph: nx.DiGraph = self.exploded_calcs_to_digraph(
-            exploded_calcs=seeded_calcs
+        # All child nodes in the seeded calculations that are part of the input graph.
+        seeded_child_nodes = list(
+            set(
+                seeded_calcs[self.calc_cols].itertuples(index=False, name="NodeId")
+            ).intersection(graph.nodes)
         )
-        return seeded_digraph
+        # This seeded calcs includes only calculations where both the parent and child
+        # nodes were part of the input graph.
+        seeded_calcs = (
+            seeded_calcs.set_index(self.calc_cols).loc[seeded_child_nodes].reset_index()
+        )
+        return self.exploded_calcs_to_digraph(exploded_calcs=seeded_calcs)
 
-    @property
+    @cached_property
     def seeded_digraph(self: Self) -> nx.DiGraph:
         """A digraph of all calculations that contribute to the seed values.
 
@@ -1848,7 +2001,7 @@ class XbrlCalculationForestFerc1(BaseModel):
         """
         return self.prune_unrooted(self.full_digraph)
 
-    @property
+    @cached_property
     def forest(self: Self) -> nx.DiGraph:
         """A pruned version of the seeded digraph that should be one or more trees.
 
@@ -1862,69 +2015,69 @@ class XbrlCalculationForestFerc1(BaseModel):
         table may or may not have a top level summary value that includes all underlying
         calculated values of interest.
         """
-        forest = self.seeded_digraph
-        # Remove any node that has only one parent and one child, and add an edge
-        # between its parent and child.
-        for node in self.passthroughs:
-            parent = list(forest.predecessors(node))
-            assert len(parent) == 1
-            successors = forest.successors(node)
-            assert len(list(successors)) == 2
-            child = [
-                n
-                for n in forest.successors(node)
-                if not n.xbrl_factoid.endswith("_correction")
-            ]
-            correction = [
-                n
-                for n in forest.successors(node)
-                if n.xbrl_factoid.endswith("_correction")
-            ]
-            assert len(child) == 1
-            logger.debug(
-                f"Replacing passthrough node {node} with edge from "
-                f"{parent[0]} to {child[0]}"
-            )
-            forest.remove_nodes_from(correction + [node])
-            forest.add_edge(parent[0], child[0])
+        forest = deepcopy(self.seeded_digraph)
+        # Remove any node that ONLY has stepchildren.
+        # A stepparent is a node that has a child with more than one parent.
+        # A stepchild is a node with more than one parent.
+        # See self.stepparents and self.stepchildren
+        pure_stepparents = []
+        stepparents = sorted(self.stepparents(forest))
+        logger.info(f"Investigating {len(stepparents)=}")
+        for node in stepparents:
+            children = set(forest.successors(node))
+            stepchildren = set(self.stepchildren(forest)).intersection(children)
+            if (children == stepchildren) & (len(children) > 0):
+                pure_stepparents.append(node)
+                forest.remove_node(node)
+        logger.info(f"Removed {len(pure_stepparents)} redundant/stepparent nodes.")
+        logger.debug(f"Removed redunant/stepparent nodes: {sorted(pure_stepparents)}")
 
+        # Removing pure stepparents should NEVER disconnect nodes from the forest.
+        # Defensive check to ensure that this is actually true
+        nodes_before_pruning = forest.nodes
+        forest = self.prune_unrooted(forest)
+        nodes_after_pruning = forest.nodes
+        if pruned_nodes := set(nodes_before_pruning).difference(nodes_after_pruning):
+            raise AssertionError(f"Unexpectedly pruned stepchildren: {pruned_nodes=}")
+
+        # HACK alter.
+        # two different parents. those parents have different sets of dimensions.
+        # sharing some but not all of their children so they weren't caught from in the
+        # only stepchildren node removal from above. a generalization here would be good
+        almost_pure_stepparents = [
+            NodeId(
+                "utility_plant_summary_ferc1",
+                "depreciation_amortization_and_depletion_utility_plant_leased_to_others",
+                "total",
+                pd.NA,
+                pd.NA,
+            ),
+            NodeId(
+                "utility_plant_summary_ferc1",
+                "depreciation_and_amortization_utility_plant_held_for_future_use",
+                "total",
+                pd.NA,
+                pd.NA,
+            ),
+            NodeId(
+                "utility_plant_summary_ferc1",
+                "utility_plant_in_service_classified_and_unclassified",
+                "total",
+                pd.NA,
+                pd.NA,
+            ),
+        ]
+        forest.remove_nodes_from(almost_pure_stepparents)
+
+        forest = self.prune_unrooted(forest)
         if not nx.is_forest(forest):
             logger.error(
                 "Calculations in Exploded Metadata can not be represented as a forest!"
             )
-        connected_components = list(nx.connected_components(forest.to_undirected()))
-        logger.debug(
-            f"Calculation forest contains {len(connected_components)} connected components."
-        )
+        remaining_stepparents = set(self.stepparents(forest))
+        if remaining_stepparents:
+            logger.error(f"{remaining_stepparents=}")
 
-        # Remove any node that:
-        # - ONLY has stepchildren.
-        # - AND has utility_type total
-        for node in self.stepparents(forest):
-            children = set(forest.successors(node))
-            stepchildren = set(self.stepchildren(forest)).intersection(children)
-            if (
-                (children == stepchildren)
-                & (len(children) > 0)
-                & (node.utility_type == "total")
-            ):
-                forest.remove_node(node)
-
-        # Prune any newly disconnected nodes resulting from the above removal of
-        # pure stepparents. We expect the set of newly disconnected nodes to be empty.
-        nodes_before_pruning = forest.nodes
-        forest = self.prune_unrooted(forest)
-        nodes_after_pruning = forest.nodes
-
-        if pruned_nodes := set(nodes_before_pruning).difference(nodes_after_pruning):
-            raise AssertionError(f"Unexpectedly pruned stepchildren: {pruned_nodes=}")
-
-        forest = self.set_forest_attributes(
-            forest,
-            exploded_meta=self.exploded_meta,
-            exploded_calcs=self.exploded_calcs,
-            tags=self.tags,
-        )
         return forest
 
     @staticmethod
@@ -1932,17 +2085,17 @@ class XbrlCalculationForestFerc1(BaseModel):
         """Identify all root nodes in a digraph."""
         return [n for n, d in graph.in_degree() if d == 0]
 
-    @property
+    @cached_property
     def full_digraph_roots(self: Self) -> list[NodeId]:
         """Find all roots in the full digraph described by the exploded metadata."""
         return self.roots(graph=self.full_digraph)
 
-    @property
+    @cached_property
     def seeded_digraph_roots(self: Self) -> list[NodeId]:
         """Find all roots in the seeded digraph."""
         return self.roots(graph=self.seeded_digraph)
 
-    @property
+    @cached_property
     def forest_roots(self: Self) -> list[NodeId]:
         """Find all roots in the pruned calculation forest."""
         return self.roots(graph=self.forest)
@@ -1952,22 +2105,22 @@ class XbrlCalculationForestFerc1(BaseModel):
         """Identify all leaf nodes in a digraph."""
         return [n for n, d in graph.out_degree() if d == 0]
 
-    @property
+    @cached_property
     def full_digraph_leaves(self: Self) -> list[NodeId]:
         """All leaf nodes in the full digraph."""
         return self.leaves(graph=self.full_digraph)
 
-    @property
+    @cached_property
     def seeded_digraph_leaves(self: Self) -> list[NodeId]:
         """All leaf nodes in the seeded digraph."""
         return self.leaves(graph=self.seeded_digraph)
 
-    @property
+    @cached_property
     def forest_leaves(self: Self) -> list[NodeId]:
         """All leaf nodes in the pruned forest."""
         return self.leaves(graph=self.forest)
 
-    @property
+    @cached_property
     def orphans(self: Self) -> list[NodeId]:
         """Identify all nodes that appear in metadata but not in the full digraph."""
         nodes = self.full_digraph.nodes
@@ -1977,7 +2130,7 @@ class XbrlCalculationForestFerc1(BaseModel):
             if n not in nodes
         ]
 
-    @property
+    @cached_property
     def pruned(self: Self) -> list[NodeId]:
         """List of all nodes that appear in the DAG but not in the pruned forest."""
         return list(set(self.full_digraph.nodes).difference(self.forest.nodes))
@@ -1994,36 +2147,7 @@ class XbrlCalculationForestFerc1(BaseModel):
             stepparents = stepparents.union(graph.predecessors(stepchild))
         return list(stepparents)
 
-    @property
-    def passthroughs(self: Self) -> list[NodeId]:
-        """All nodes in the seeded digraph with a single parent and a single child.
-
-        These nodes can be pruned, hopefully converting the seeded digraph into a
-        forest. Note that having a "single child" really means having 2 children, one
-        of which is a _correction to the calculation. We verify that the two children
-        are one real child node, and one appropriate correction.
-        """
-        # In theory every node should have only one parent, but just to be safe, since
-        # that's not always true right now:
-        has_one_parent = {n for n, d in self.seeded_digraph.in_degree() if d == 1}
-        # Calculated fields always have both the reported child and a correction that
-        # we have added, so having "one" child really means having 2 successor nodes.
-        may_have_one_child: set[NodeId] = {
-            n for n, d in self.seeded_digraph.out_degree() if d == 2
-        }
-        # Check that one of these successors is the correction.
-        has_one_child = []
-        for node in may_have_one_child:
-            children: set[NodeId] = set(self.seeded_digraph.successors(node))
-            for child in children:
-                if (node.table_name == child.table_name) and (
-                    child.xbrl_factoid == node.xbrl_factoid + "_correction"
-                ):
-                    has_one_child.append(node)
-
-        return list(has_one_parent.intersection(has_one_child))
-
-    @property
+    @cached_property
     def leafy_meta(self: Self) -> pd.DataFrame:
         """Identify leaf facts and compile their metadata.
 
@@ -2042,51 +2166,50 @@ class XbrlCalculationForestFerc1(BaseModel):
         - The weight associated with the leaf, in relation to its root.
         """
         # Construct a dataframe that links the leaf node IDs to their root nodes:
-        pruned_forest = self.forest
         leaves = self.forest_leaves
         roots = self.forest_roots
         leaf_to_root_map = {
             leaf: root
             for leaf in leaves
             for root in roots
-            if leaf in nx.descendants(pruned_forest, root)
+            if leaf in nx.descendants(self.annotated_forest, root)
         }
         leaves_df = pd.DataFrame(list(leaf_to_root_map.keys()))
         roots_df = pd.DataFrame(list(leaf_to_root_map.values())).rename(
             columns={col: col + "_root" for col in self.calc_cols}
         )
-        leafy_meta = pd.concat([leaves_df, roots_df], axis="columns")
+        leafy_meta = pd.concat([roots_df, leaves_df], axis="columns")
 
         # Propagate tags and weights to leaf nodes
         leaf_rows = []
         for leaf in leaves:
             leaf_tags = {}
-            leaf_weight = pruned_forest.nodes[leaf].get("weight", 1.0)
-            for node in nx.ancestors(pruned_forest, leaf):
-                # TODO: need to check that there are no conflicts between tags that are
-                # being propagated, e.g. if two different ancestors have been tagged
-                # rate_base: yes and rate_base: no.
-                leaf_tags |= pruned_forest.nodes[node]["tags"]
-                # Root nodes have no weight because they don't come from calculations
-                # We assign them a weight of 1.0
-                # if not pruned_forest.nodes[node].get("weight", False):
-                if pd.isna(pruned_forest.nodes[node]["weight"]):
-                    assert node in roots
-                    node_weight = 1.0
-                else:
-                    node_weight = pruned_forest.nodes[node]["weight"]
-                leaf_weight *= node_weight
+            ancestors = list(nx.ancestors(self.annotated_forest, leaf)) + [leaf]
+            for node in ancestors:
+                leaf_tags |= self.annotated_forest.nodes[node]["tags"]
+            # Calculate the product of all edge weights in path from root to leaf
+            all_paths = list(
+                nx.all_simple_paths(self.annotated_forest, leaf_to_root_map[leaf], leaf)
+            )
+            # In a forest there should only be one path from root to leaf
+            assert len(all_paths) == 1
+            path = all_paths[0]
+            leaf_weight = 1.0
+            for parent, child in zip(path, path[1:]):
+                leaf_weight *= self.annotated_forest.get_edge_data(parent, child)[
+                    "weight"
+                ]
 
             # Construct a dictionary describing the leaf node and convert it into a
             # single row DataFrame. This makes adding arbitrary tags easy.
             leaf_attrs = {
-                "weight": leaf_weight,
-                "tags": leaf_tags,
                 "table_name": leaf.table_name,
                 "xbrl_factoid": leaf.xbrl_factoid,
                 "utility_type": leaf.utility_type,
                 "plant_status": leaf.plant_status,
                 "plant_function": leaf.plant_function,
+                "weight": leaf_weight,
+                "tags": leaf_tags,
             }
             leaf_rows.append(pd.json_normalize(leaf_attrs, sep="_"))
 
@@ -2097,7 +2220,7 @@ class XbrlCalculationForestFerc1(BaseModel):
             .convert_dtypes()
         )
 
-    @property
+    @cached_property
     def root_calculations(self: Self) -> pd.DataFrame:
         """Produce a calculation components dataframe containing only roots and leaves.
 
@@ -2107,7 +2230,7 @@ class XbrlCalculationForestFerc1(BaseModel):
         """
         return self.leafy_meta.rename(columns=lambda x: re.sub("_root$", "_parent", x))
 
-    @property
+    @cached_property
     def table_names(self: Self) -> list[str]:
         """Produce the list of tables involved in this explosion."""
         return list(self.exploded_calcs["table_name_parent"].unique())
@@ -2175,3 +2298,97 @@ class XbrlCalculationForestFerc1(BaseModel):
         # Scale the data column of interest:
         leafy_data[value_col] = leafy_data[value_col] * leafy_data["weight"]
         return leafy_data.reset_index(drop=True).convert_dtypes()
+
+    @cached_property
+    def forest_as_table(self: Self) -> pd.DataFrame:
+        """Construct a tabular representation of the calculation forest.
+
+        Each generation of nodes, starting with the root(s) of the calculation forest,
+        make up a set of columns in the table. Each set of columns is merged onto
+        """
+        logger.info("Recursively building a tabular version of the calculation forest.")
+        # Identify all root nodes in the forest:
+        layer0_nodes = [n for n, d in self.annotated_forest.in_degree() if d == 0]
+        # Convert them into the first layer of the dataframe:
+        layer0_df = pd.DataFrame(layer0_nodes).rename(columns=lambda x: x + "_layer0")
+
+        return (
+            self._add_layers_to_forest_as_table(df=layer0_df)
+            .dropna(axis="columns", how="all")
+            .convert_dtypes()
+        )
+
+    def _add_layers_to_forest_as_table(self: Self, df: pd.DataFrame) -> pd.DataFrame:
+        """Recursively add additional layers of nodes from the forest to the table.
+
+        Given a dataframe with one or more set of columns with names corresponding to
+        the components of a NodeId with suffixes of the form _layerN, identify the
+        children of the nodes in the set of columns with the largest N, and merge them
+        onto the table, recursively until there are no more children to add. Creating a
+        tabular representation of the calculation forest that can be inspected in Excel.
+
+        Include inter-layer calculation weights and tags associated with the nodes pre
+        propagation.
+        """
+        # Identify the last layer of nodes present in the input dataframe.
+        current_layer = df.rename(
+            columns=lambda x: int(re.sub(r"^.*_layer(\d+)$", r"\1", x))
+        ).columns.max()
+        logger.info(f"{current_layer=}")
+        suffix = f"_layer{current_layer}"
+        parent_cols = [col + suffix for col in self.calc_cols]
+        # Identify the list of nodes that are part of that last layer:
+        parent_nodes = list(
+            df[parent_cols]
+            .drop_duplicates()
+            .dropna(how="all")
+            .rename(columns=lambda x: x.removesuffix(suffix))
+            .itertuples(name="NodeId", index=False)
+        )
+
+        # Identify the successors (children), if any, of each node in the last layer:
+        successor_dfs = []
+        for node in parent_nodes:
+            successor_nodes = list(self.forest.successors(node))
+            # If this particular node has no successors, skip to the next one.
+            if not successor_nodes:
+                continue
+            # Convert the list of successor nodes into a dataframe with layer = n+1
+            successor_df = nodes_to_df(
+                calc_forest=self.annotated_forest, nodes=successor_nodes
+            ).rename(columns=lambda x: x + f"_layer{current_layer + 1}")
+            # Add a set of parent columns that all have the same values so we can merge
+            # this onto the previous layer
+            successor_df[parent_cols] = node
+            successor_dfs.append(successor_df)
+
+        # If any child nodes were found, merge them onto the input dataframe creating
+        # a new layer , and recurse:
+        if successor_dfs:
+            new_df = df.merge(pd.concat(successor_dfs), on=parent_cols, how="outer")
+            df = self._add_layers_to_forest_as_table(df=new_df)
+
+        # If no child nodes were found return the dataframe terminating the recursion.
+        return df
+
+
+def nodes_to_df(calc_forest: nx.DiGraph, nodes: list[NodeId]) -> pd.DataFrame:
+    """Construct a dataframe from a list of nodes, including their annotations.
+
+    NodeIds that are not present in the calculation forest will be ignored.
+
+    Args:
+        calc_forest: A calculation forest made of nodes with "weight" and "tags" data.
+        nodes: List of :class:`NodeId` values to extract from the calculation forest.
+
+    Returns:
+        A tabular dataframe representation of the nodes, including their tags, extracted
+        from the calculation forest.
+    """
+    node_dict = {
+        k: v for k, v in dict(calc_forest.nodes(data=True)).items() if k in nodes
+    }
+    index = pd.DataFrame(node_dict.keys()).astype("string")
+    data = pd.DataFrame(node_dict.values())
+    tags = pd.json_normalize(data.tags).astype("string")
+    return pd.concat([index, tags], axis="columns")

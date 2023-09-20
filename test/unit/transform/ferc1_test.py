@@ -99,30 +99,28 @@ def test_fill_dbf_to_xbrl_map():
     expected = pd.read_csv(
         StringIO(
             """
-report_year,row_number,xbrl_factoid
-2000,2,account_a
-2000,3,account_b
-2000,5,account_c
-2001,2,account_a
-2001,3,account_b
-2001,5,account_c
-2002,2,account_a
-2002,3,account_b
-2002,4,account_b1
-2002,6,account_c
-2003,2,account_a
-2003,3,account_b
-2003,4,account_b1
-2003,6,account_c
+sched_table_name,report_year,row_literal,row_number,xbrl_factoid
+test_table1,2000,"Account A",2,account_a
+test_table1,2000,"Account B",3,account_b
+test_table1,2000,"Account C",5,account_c
+test_table1,2001,"Account A",2,account_a
+test_table1,2001,"Account B",3,account_b
+test_table1,2001,"Account C",5,account_c
+test_table1,2002,"Account A",2,account_a
+test_table1,2002,"Account B",3,account_b
+test_table1,2002,"Account B1",4,account_b1
+test_table1,2002,"Account C",6,account_c
+test_table1,2003,"Account A",2,account_a
+test_table1,2003,"Account B",3,account_b
+test_table1,2003,"Account B1",4,account_b1
+test_table1,2003,"Account C",6,account_c
 """
         )
     )
-    test_map = TEST_DBF_XBRL_MAP.drop(["row_literal"], axis="columns").reset_index(
-        drop=True
-    )
+    test_map = TEST_DBF_XBRL_MAP.reset_index(drop=True)
     actual = fill_dbf_to_xbrl_map(df=test_map, dbf_years=sorted(range(2000, 2004)))
     actual = actual[actual.xbrl_factoid != "HEADER_ROW"].reset_index(drop=True)
-    pd.testing.assert_frame_equal(actual, expected)
+    pd.testing.assert_frame_equal(actual, expected, check_like=True)
 
 
 def test_two_table_fill_dbf_to_xbrl_map():
@@ -130,40 +128,38 @@ def test_two_table_fill_dbf_to_xbrl_map():
     expected = pd.read_csv(
         StringIO(
             """
-report_year,row_number,xbrl_factoid
-2000,2,account_a
-2000,3,account_b
-2000,5,account_c
-2000,7,account_d
-2000,8,account_e
-2001,2,account_a
-2001,3,account_b
-2001,5,account_c
-2001,7,account_d
-2001,8,account_e
-2002,2,account_a
-2002,3,account_b
-2002,4,account_b1
-2002,6,account_c
-2002,8,account_d
-2002,9,account_e
-2003,2,account_a
-2003,3,account_b
-2003,4,account_b1
-2003,6,account_c
-2003,8,account_d
-2003,9,account_e
+sched_table_name,report_year,row_number,xbrl_factoid,row_literal
+test_table1,2000,2,account_a,"Account A"
+test_table1,2000,3,account_b,"Account B"
+test_table1,2000,5,account_c,"Account C"
+test_table2,2000,7,account_d,"Account D"
+test_table2,2000,8,account_e,"Account E"
+test_table1,2001,2,account_a,"Account A"
+test_table1,2001,3,account_b,"Account B"
+test_table1,2001,5,account_c,"Account C"
+test_table2,2001,7,account_d,"Account D"
+test_table2,2001,8,account_e,"Account E"
+test_table1,2002,2,account_a,"Account A"
+test_table1,2002,3,account_b,"Account B"
+test_table1,2002,4,account_b1,"Account B1"
+test_table1,2002,6,account_c,"Account C"
+test_table2,2002,8,account_d,"Account D"
+test_table2,2002,9,account_e,"Account E"
+test_table1,2003,2,account_a,"Account A"
+test_table1,2003,3,account_b,"Account B"
+test_table1,2003,4,account_b1,"Account B1"
+test_table1,2003,6,account_c,"Account C"
+test_table2,2003,8,account_d,"Account D"
+test_table2,2003,9,account_e,"Account E"
 """
         )
     )
-    test_map = (
-        pd.concat([TEST_DBF_XBRL_MAP, TEST_MUTLI_TABLE_DBF_XBRL_MAP])
-        .drop(["row_literal"], axis="columns")
-        .reset_index(drop=True)
-    )
+    test_map = pd.concat(
+        [TEST_DBF_XBRL_MAP, TEST_MUTLI_TABLE_DBF_XBRL_MAP]
+    ).reset_index(drop=True)
     actual = fill_dbf_to_xbrl_map(df=test_map, dbf_years=sorted(range(2000, 2004)))
     actual = actual[actual.xbrl_factoid != "HEADER_ROW"].reset_index(drop=True)
-    pd.testing.assert_frame_equal(actual, expected)
+    pd.testing.assert_frame_equal(actual, expected, check_like=True)
 
 
 WIDE_TO_TIDY_DF = pd.read_csv(
