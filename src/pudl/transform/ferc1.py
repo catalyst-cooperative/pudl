@@ -24,16 +24,23 @@ from pandas.core.groupby import DataFrameGroupBy
 from pydantic import validator
 
 import pudl
-from pudl.analysis.classify_plants_ferc1 import (plants_steam_assign_plant_ids,
-                                                 plants_steam_validate_ids)
+from pudl.analysis.classify_plants_ferc1 import (
+    plants_steam_assign_plant_ids,
+    plants_steam_validate_ids,
+)
 from pudl.extract.ferc1 import TABLE_NAME_MAP_FERC1
 from pudl.helpers import convert_cols_dtypes
 from pudl.metadata.fields import apply_pudl_dtypes
 from pudl.settings import Ferc1Settings
-from pudl.transform.classes import (AbstractTableTransformer, InvalidRows,
-                                    RenameColumns, TableTransformParams,
-                                    TransformParams, cache_df,
-                                    enforce_snake_case)
+from pudl.transform.classes import (
+    AbstractTableTransformer,
+    InvalidRows,
+    RenameColumns,
+    TableTransformParams,
+    TransformParams,
+    cache_df,
+    enforce_snake_case,
+)
 
 logger = pudl.logging_helpers.get_logger(__name__)
 
