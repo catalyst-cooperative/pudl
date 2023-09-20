@@ -38,7 +38,7 @@ ferc_to_sqlite_settings:
       # A list of tables to be loaded into the local SQLite database. These are
       # the table names as they appear in the 2015 FERC Form 1 database.
   ferc1_xbrl_to_sqlite_settings:
-    years: [2021]
+    years: [2021, 2022]
     # A list of tables to be loaded into the local SQLite database. These are
     # the table names as created from the 2022 XBRL taxonomy.
   ferc2_dbf_to_sqlite_settings:
@@ -71,7 +71,7 @@ ferc_to_sqlite_settings:
         2020,
       ]
   ferc2_xbrl_to_sqlite_settings:
-    years: [2021]
+    years: [2021, 2022]
   ferc6_dbf_to_sqlite_settings:
     years:
       [
@@ -98,7 +98,7 @@ ferc_to_sqlite_settings:
         2020,
       ]
   ferc6_xbrl_to_sqlite_settings:
-    years: [2021]
+    years: [2021, 2022]
   ferc60_dbf_to_sqlite_settings:
     years:
       [
@@ -119,9 +119,9 @@ ferc_to_sqlite_settings:
         2020,
       ]
   ferc60_xbrl_to_sqlite_settings:
-    years: [2021]
+    years: [2021, 2022]
   ferc714_xbrl_to_sqlite_settings:
-    years: [2021]
+    years: [2021, 2022]
 
 ###########################################################################
 # Settings for pudl_etl script
