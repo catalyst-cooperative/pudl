@@ -7,6 +7,7 @@ Naming Conventions
 We try to use consistent naming conventions for the data tables, data assets,
 columns, data sources, and functions.
 
+.. _asset-naming:
 
 Asset Naming Conventions
 ---------------------------------------------------

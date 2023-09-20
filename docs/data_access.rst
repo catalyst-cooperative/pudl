@@ -8,6 +8,12 @@ PUDL data, so if you have a suggestion please `open a GitHub issue
 <https://github.com/catalyst-cooperative/pudl/issues>`__. If you have a question you
 can `create a GitHub discussion <https://github.com/orgs/catalyst-cooperative/discussions/new?category=help-me>`__.
 
+PUDL's primary data output is the ``pudl.sqlite`` database. It contains a collection
+of tables that follow :ref:`PUDL's asset naming convention <asset-naming>`. Tables
+with the ``core_`` prefix are normalized tables that serve as building blocks for the
+more denormalized and easy to work with ``output_`` tables. **We recommend only working
+with ``output_`` tables.**
+
 .. _access-modes:
 
 ---------------------------------------------------------------------------------------

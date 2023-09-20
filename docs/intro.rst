@@ -73,31 +73,44 @@ needed and organize them in a local :doc:`datastore <dev/datastore>`.
 .. _etl-process:
 
 ---------------------------------------------------------------------------------------
-The ETL Process
+The Data Warehouse Design
 ---------------------------------------------------------------------------------------
 
-The core of PUDL's work takes place in the ETL (Extract, Transform, and Load)
-process.
+PUDL's data processing produces a data warehouse that can be used for analytics.
+The processing happens within Dagster assets that are persisted to storage,
+typically pickle, parquet or SQLite files. The raw data moves through three
+layers of the data warehouse.
 
-Extract
-^^^^^^^
+Raw Layer
+^^^^^^^^^
 
-The Extract step reads the raw data from the original heterogeneous formats into a
-collection of :class:`pandas.DataFrame` with uniform column names across all years so
+Assets in the Raw layer read the raw data from the original heterogeneous formats into
+a collection of :class:`pandas.DataFrame` with uniform column names across all years so
 that it can be easily processed in bulk. Data distributed as binary database files, such
 as the DBF files from FERC Form 1, may be converted into a unified SQLite database
-before individual dataframes are created.
+before individual dataframes are created. Raw data assets are typically persisted to
+pickle files and are not distributed to users.
 
 .. seealso::
 
     Module documentation within the :mod:`pudl.extract` subpackage.
 
-Transform
-^^^^^^^^^
+Core Layer
+^^^^^^^^^^
 
-The Transform step is generally broken down into two phases. Phase one focuses on
-cleaning and organizing data within individual tables while phase two focuses on the
-integration and deduplication of data between tables. These tasks can be tedious
+The Core layer contains well-modeled assets that serve as building blocks for
+downstream wide tables and analyses. Well-modeled means tables in the database
+have logical primary keys, foreign keys, datatypes and generally follow
+:ref:`Tidy Data standards <tidy-data>`. The assets are loaded to a SQLite
+database or Parquet file.
+
+These outputs can be accessed via Python, R, and many other tools. See the
+:doc:`data_dictionaries/pudl_db` page for a list of the normalized database tables and
+their contents.
+
+Data processing in the Core layer is generally broken down into two phases. Phase one
+focuses on cleaning and organizing data within individual tables while phase two focuses
+on the integration and deduplication of data between tables. These tasks can be tedious
 `data wrangling toil <https://sre.google/sre-book/eliminating-toil/>`__ that impose a
 huge amount of overhead on anyone trying to do analysis based on the publicly
 available data. PUDL implements common data cleaning operations in the hopes that we
@@ -128,73 +141,32 @@ longitude are reported separately every year. Often, these reported values are n
 self-consistent. There may be several different spellings of a plant's name, or an
 incorrectly reported latitude in one year.
 
-The transform step attempts to eliminate this kind of inconsistent and duplicate
+Assets in the Core layer attempt to eliminate this kind of inconsistent and duplicate
 information when normalizing the tables by choosing only the most consistently reported
 value for inclusion in the final database. If a value which should be static is not
 consistently reported, it may also be set to N/A.
 
-.. seealso::
-
-    * `Tidy Data <https://vita.had.co.nz/papers/tidy-data.pdf>`__ by Hadley
-      Wickham, Journal of Statistical Software (2014).
-    * `A Simple Guide to the Five Normal Forms in Relational Database Theory <https://www.bkent.net/Doc/simple5.htm>`__
-      by William Kent, Communications of the ACM (1983).
-
-Load
-^^^^
-
-At the end of the Transform step, we have collections of :class:`pandas.DataFrame` that
-correspond to database tables. These are loaded into a SQLite database.
-To handle the ~1 billion row :doc:`data_sources/epacems`, we load the dataframes into
-an Apache Parquet dataset that is partitioned by state and year.
-
-These outputs can be accessed via Python, R, and many other tools. See the
-:doc:`data_dictionaries/pudl_db` page for a list of the normalized database tables and
-their contents.
-
-.. seealso::
-
-    Module documentation within the :mod:`pudl.load` sub-package.
-
-.. _db-and-outputs:
-
----------------------------------------------------------------------------------------
-Output Tables
----------------------------------------------------------------------------------------
-
-Denormalized Outputs
+Output Layer
 ^^^^^^^^^^^^^^^^^^^^
 
-We normalize the data to make storage more efficient and avoid data integrity issues,
-but you may want to combine information from more than one of the tables to make the
-data more readable and readily interpretable. For example, PUDL stores the name that EIA
-uses to refer to a power plant in the :ref:`core_eia__entity_plants` table in
-association with the plant's unique numeric ID. If you are working with data from the
-:ref:`core_eia923__monthly_fuel_receipts_costs` table, which records monthly per-plant
-fuel deliveries, you may want to have the name of the plant alongside the fuel delivery
-information since it's more recognizable than the plant ID.
+Assets in the Core layer normalize the data to make storage more efficient and avoid
+data integrity issues, but you may want to combine information from more than one of
+the tables to make the data more readable and readily interpretable. For example, PUDL
+stores the name that EIA uses to refer to a power plant in the
+:ref:`core_eia__entity_plants` table in association with the plant's unique numeric ID.
+If you are working with data from the :ref:`core_eia923__monthly_fuel_receipts_costs`
+table, which records monthly per-plant fuel deliveries, you may want to have the name
+of the plant alongside the fuel delivery information since it's more recognizable than
+the plant ID.
 
 Rather than requiring everyone to write their own SQL ``SELECT`` and ``JOIN`` statements
 or do a bunch of :func:`pandas.merge` operations to bring together data, PUDL provides a
-variety of predefined queries as methods of the :class:`pudl.output.pudltabl.PudlTabl`
-class. These methods perform common joins to return output tables (pandas DataFrames)
-that contain all of the useful information in one place. In some cases, like with EIA,
-the output tables are composed to closely resemble the raw spreadsheet tables you're
-familiar with.
+variety of output tables that contain all of the useful information in one place. In
+some cases, like with EIA, the output tables are composed to closely resemble the raw
+spreadsheet tables you're familiar with.
 
-.. note::
-
-    In the future, we intend to replace the simple denormalized output tables with
-    database views that are integrated into the distributed SQLite database directly.
-    This will provide the same convenience without requiring use of the Python software
-    layer.
-
-Analysis Outputs
-^^^^^^^^^^^^^^^^
-
-There are several analytical routines built into the
-:mod:`pudl.output.pudltabl.PudlTabl` output objects for calculating derived values
-like the heat rate by generation unit (:meth:`hr_by_unit
+The Output layer also contains tables produced by analytical routines for
+calculating derived values like the heat rate by generation unit (:meth:`hr_by_unit
 <pudl.output.pudltabl.PudlTabl.hr_by_unit>`) or the capacity factor by generator
 (:meth:`capacity_factor <pudl.output.pudltabl.PudlTabl.capacity_factor>`). We intend to
 integrate more analytical outputs into the library over time.

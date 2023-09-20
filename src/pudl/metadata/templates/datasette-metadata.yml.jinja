@@ -42,12 +42,13 @@ databases:
       <a href="https://catalyst.coop">Catalyst Cooperative</a> as part of the
       <a href="https://github.com/catalyst-cooperative/pudl">Public Utility
       Data Liberation Project</a>.</p>
-      <h2>Caution:</h2>
+      <h2>Note:</h2>
       <ul>
-      <li>Please note that tables beginning with "denorm_" are temporary tables whose
-      names and metadata will shortly change, as we migrate new tables into our database.</li>
-      <li>The structure of the data and the API are not necessarily stable, so don't
-      build any critical infrastructure on top of this just yet.</li>
+      <li>Tables with the "core_" prefix are normalized tables that serve as building blocks for the
+          more denormalized and easy to work with "out_" tables.</li>
+      <li><strong>We recommend only working with "out_" tables.</strong></li>
+      <li>To learn more about how the database is organized check out 
+      <a href="https://catalystcoop-pudl.readthedocs.io/en/dev/naming_conventions.html#asset-naming">PUDL's naming conventions</a>.</li>
       <li>If you find something wrong, please
       <a href="https://github.com/catalyst-cooperative/pudl/issues">make an issue
       on GitHub</a> to let us know.</li>
