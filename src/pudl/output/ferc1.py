@@ -1369,10 +1369,6 @@ class Exploder:
         exploded = (
             self.initial_explosion_concatenation(tables_to_explode)
             .pipe(self.generate_intertable_calculations)
-            .pipe(
-                self.reconcile_intertable_calculations,
-                self.calculation_tolerance.intertable_calculation_errors,
-            )
             .pipe(self.calculation_forest.leafy_data, value_col=self.value_col)
         )
         # Identify which columns should be kept in the output...
@@ -1483,89 +1479,6 @@ class Exploder:
             calculation_tolerance=self.calculation_tolerance.intertable_calculation_errors,
             table_name=self.root_table,
         )
-        return calculated_df
-
-    def reconcile_intertable_calculations(
-        self: Self, calculated_df: pd.DataFrame, calculation_tolerance: float = 0.05
-    ):
-        """Ensure inter-table calculated values match reported values within a tolerance.
-
-        In addition to checking whether all reported "calculated" values match the output
-        of our repaired calculations, this function adds a correction record to the
-        dataframe that is included in the calculations so that after the fact the
-        calculations match exactly. This is only done when the fraction of records that
-        don't match within the tolerances of :func:`numpy.isclose` is below a set
-        threshold.
-
-        Note that only calculations which are off by a significant amount result in the
-        creation of a correction record. Many calculations are off from the reported values
-        by exaclty one dollar, presumably due to rounding errrors. These records typically
-        do not fail the :func:`numpy.isclose()` test and so are not corrected.
-
-        Args:
-            calculated_df: table with calculated fields
-            calculation_tolerance: What proportion (0-1) of calculated values are
-                allowed to be incorrect without raising an AssertionError.
-        """
-        if "calculated_amount" not in calculated_df.columns:
-            return calculated_df
-
-        # Data types were very messy here, including pandas Float64 for the
-        # calculated_amount columns which did not work with the np.isclose(). Not sure
-        # why these are cropping up.
-        calculated_df = calculated_df.convert_dtypes(convert_floating=False).astype(
-            {self.value_col: "float64", "calculated_amount": "float64"}
-        )
-        calculated_df = calculated_df.assign(
-            abs_diff=lambda x: abs(x[self.value_col] - x.calculated_amount),
-            rel_diff=lambda x: np.where(
-                (x[self.value_col] != 0.0),
-                abs(x.abs_diff / x[self.value_col]),
-                np.nan,
-            ),
-        )
-        off_df = calculated_df[
-            ~np.isclose(calculated_df.calculated_amount, calculated_df[self.value_col])
-            & (calculated_df["abs_diff"].notnull())
-        ]
-        calculated_values = calculated_df[(calculated_df.abs_diff.notnull())]
-        if calculated_values.empty:
-            # Will only occur if all reported values are NaN when calculated values
-            # exist, or vice versa.
-            logger.warning(
-                "Warning: No calculated values have a corresponding reported value in the table."
-            )
-            off_ratio = np.nan
-        else:
-            off_ratio = len(off_df) / len(calculated_values)
-            if off_ratio > calculation_tolerance:
-                raise AssertionError(
-                    f"Calculations in {self.root_table} are off by {off_ratio:.2%}. Expected tolerance "
-                    f"of {calculation_tolerance:.1%}."
-                )
-
-        # We'll only get here if the proportion of calculations that are off is acceptable
-        if off_ratio > 0 or np.isnan(off_ratio):
-            logger.info(
-                f"{self.root_table}: has {len(off_df)} ({off_ratio:.02%}) records whose "
-                "calculations don't match. Adding correction records to make calculations "
-                "match reported values."
-            )
-            corrections = off_df.copy()
-
-            corrections[self.value_col] = (
-                corrections[self.value_col].fillna(0.0)
-                - corrections["calculated_amount"]
-            )
-            corrections["original_factoid"] = corrections["xbrl_factoid"]
-            corrections["xbrl_factoid"] = corrections["xbrl_factoid"] + "_correction"
-            corrections["row_type_xbrl"] = "correction"
-            corrections["is_within_table_calc"] = False
-            corrections["record_id"] = pd.NA
-
-            calculated_df = pd.concat(
-                [calculated_df, corrections], axis="index"
-            ).reset_index(drop=True)
         return calculated_df
 
 
