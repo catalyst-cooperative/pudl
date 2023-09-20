@@ -1469,64 +1469,20 @@ class Exploder:
             f"{self.root_table}: Reconcile inter-table calculations: "
             f"{list(calculations_intertable.xbrl_factoid.unique())}."
         )
-        # compile the lists of columns we are going to use later
-        calc_component_idx = ["table_name", "xbrl_factoid"] + self.other_dimensions
-        # Merge the reported data and the calculation component metadata to enable
-        # validation of calculated values. Here the data table exploded is supplying the
-        # values associated with individual calculation components, and the table_name
-        # and xbrl_factoid to which we aggregate are coming from the calculation
-        # components table. After merging we use the weights to adjust the reported
-        # values so they can be summed directly. This gives us aggregated calculated
-        # values that can later be compared to the higher level reported values.
-
-        # the validation is one_many in all instances expect for the xbrl_factoid
-        # construction_work_in_progress in the balance_sheet_assets_ferc1 explosion.
-        # this may be a problem in the calculations that we should track down in #2717
-        validate = (
-            "one_to_many"
-            if self.root_table != "balance_sheet_assets_ferc1"
-            else "many_to_many"
+        calc_idx = [col for col in list(NodeId._fields) if col in self.exploded_pks]
+        calculated_df = pudl.transform.ferc1.calculate_values_from_components(
+            calculation_components=calculations_intertable,
+            data=exploded,
+            validate="one_to_many",
+            calc_idx=calc_idx,
+            value_col=self.value_col,
         )
-        # we are going to merge the data onto the calc components with the _parent
-        # column names, so the groupby after the merge needs a set of by cols with the
-        # _parent suffix
-        meta_idx = [col for col in list(NodeId._fields) if col in self.exploded_pks]
-        gby_parent = [
-            f"{col}_parent" if col in meta_idx else col for col in self.exploded_pks
-        ]
-        calc_df = (
-            pd.merge(
-                calculations_intertable,
-                exploded,
-                validate=validate,
-                on=calc_component_idx,
-            )
-            # apply the weight from the calc to convey the sign before summing.
-            .assign(calculated_amount=lambda x: x[self.value_col] * x.weight)
-            .groupby(gby_parent, as_index=False, dropna=False)[["calculated_amount"]]
-            .sum(min_count=1)
+        calculated_df = pudl.transform.ferc1.check_calculcation_metrics(
+            calculated_df=calculated_df,
+            value_col=self.value_col,
+            calculation_tolerance=self.calculation_tolerance.intertable_calculation_errors,
+            table_name=self.root_table,
         )
-        # remove the _parent suffix so we can merge these calculated values back onto
-        # the data using the original pks
-        calc_df.columns = calc_df.columns.str.removesuffix("_parent")
-        calculated_df = pd.merge(
-            exploded,
-            calc_df,
-            on=self.exploded_pks,
-            how="outer",
-            validate="1:1",
-            indicator=True,
-        )
-
-        assert calculated_df[
-            (calculated_df._merge == "right_only")
-            & (calculated_df[self.value_col].notnull())
-        ].empty
-
-        calculated_df = calculated_df.drop(columns=["_merge"])
-        # Force value_col to be a float to prevent any hijinks with calculating differences.
-        calculated_df[self.value_col] = calculated_df[self.value_col].astype(float)
-
         return calculated_df
 
     def reconcile_intertable_calculations(
@@ -1588,7 +1544,7 @@ class Exploder:
                     f"of {calculation_tolerance:.1%}."
                 )
 
-        # # We'll only get here if the proportion of calculations that are off is acceptable
+        # We'll only get here if the proportion of calculations that are off is acceptable
         if off_ratio > 0 or np.isnan(off_ratio):
             logger.info(
                 f"{self.root_table}: has {len(off_df)} ({off_ratio:.02%}) records whose "

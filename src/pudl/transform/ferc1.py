@@ -24,23 +24,16 @@ from pandas.core.groupby import DataFrameGroupBy
 from pydantic import validator
 
 import pudl
-from pudl.analysis.classify_plants_ferc1 import (
-    plants_steam_assign_plant_ids,
-    plants_steam_validate_ids,
-)
+from pudl.analysis.classify_plants_ferc1 import (plants_steam_assign_plant_ids,
+                                                 plants_steam_validate_ids)
 from pudl.extract.ferc1 import TABLE_NAME_MAP_FERC1
 from pudl.helpers import convert_cols_dtypes
 from pudl.metadata.fields import apply_pudl_dtypes
 from pudl.settings import Ferc1Settings
-from pudl.transform.classes import (
-    AbstractTableTransformer,
-    InvalidRows,
-    RenameColumns,
-    TableTransformParams,
-    TransformParams,
-    cache_df,
-    enforce_snake_case,
-)
+from pudl.transform.classes import (AbstractTableTransformer, InvalidRows,
+                                    RenameColumns, TableTransformParams,
+                                    TransformParams, cache_df,
+                                    enforce_snake_case)
 
 logger = pudl.logging_helpers.get_logger(__name__)
 
@@ -843,52 +836,13 @@ def reconcile_table_calculations(
         validate="one_to_many",
         calc_idx=calc_idx,
         value_col=params.column_to_check,
-    ).rename(columns={"xbrl_factoid": xbrl_factoid_name})
-
-    calculated_df = calculated_df.assign(
-        abs_diff=lambda x: abs(x[params.column_to_check] - x.calculated_amount),
-        rel_diff=lambda x: np.where(
-            (x[params.column_to_check] != 0.0),
-            abs(x.abs_diff / x[params.column_to_check]),
-            np.nan,
-        ),
     )
-
-    off_df = calculated_df[
-        ~np.isclose(
-            calculated_df.calculated_amount, calculated_df[params.column_to_check]
-        )
-        & (calculated_df["abs_diff"].notnull())
-    ]
-    calculated_values = calculated_df[(calculated_df.abs_diff.notnull())]
-    off_ratio = len(off_df) / len(calculated_values)
-
-    if off_ratio > params.calculation_tolerance:
-        raise AssertionError(
-            f"Calculations in {table_name} are off by {off_ratio}. Expected tolerance "
-            f"of {params.calculation_tolerance}."
-        )
-
-    # We'll only get here if the proportion of calculations that are off is acceptable
-    if off_ratio > 0:
-        logger.info(
-            f"{table_name}: has {len(off_df)} ({off_ratio:.02%}) records whose "
-            "calculations don't match. Adding correction records to make calculations "
-            "match reported values."
-        )
-        corrections = off_df.copy()
-        corrections[params.column_to_check] = (
-            corrections[params.column_to_check].fillna(0.0)
-            - corrections["calculated_amount"]
-        )
-        corrections[xbrl_factoid_name] = corrections[xbrl_factoid_name] + "_correction"
-        corrections["row_type_xbrl"] = "correction"
-        corrections["is_within_table_calc"] = True
-        corrections["record_id"] = pd.NA
-
-        calculated_df = pd.concat(
-            [calculated_df, corrections], axis="index"
-        ).reset_index()
+    calculated_df = check_calculcation_metrics(
+        calculated_df=calculated_df,
+        value_col=params.column_to_check,
+        calculation_tolerance=params.calculation_tolerance,
+        table_name=table_name,
+    ).rename(columns={"xbrl_factoid": xbrl_factoid_name})
 
     # Check that sub-total calculations sum to total.
     if params.subtotal_column is not None:
@@ -998,6 +952,71 @@ def calculate_values_from_components(
     calculated_df = calculated_df.drop(columns=["_merge"])
     # # Force value_col to be a float to prevent any hijinks with calculating differences.
     calculated_df[value_col] = calculated_df[value_col].astype(float)
+    return calculated_df
+
+
+def check_calculcation_metrics(
+    calculated_df: pd.DataFrame,
+    value_col: str,
+    calculation_tolerance: float,
+    table_name: str,
+) -> pd.DataFrame:
+    """Run the calculation metrics and determine if calculations are within tolerance."""
+    # Data types were very messy here, including pandas Float64 for the
+    # calculated_amount columns which did not work with the np.isclose(). Not sure
+    # why these are cropping up.
+    calculated_df = calculated_df.convert_dtypes(convert_floating=False).astype(
+        {value_col: "float64", "calculated_amount": "float64"}
+    )
+    calculated_df = calculated_df.assign(
+        abs_diff=lambda x: abs(x[value_col] - x.calculated_amount),
+        rel_diff=lambda x: np.where(
+            (x[value_col] != 0.0),
+            abs(x.abs_diff / x[value_col]),
+            np.nan,
+        ),
+    )
+
+    off_df = calculated_df[
+        ~np.isclose(calculated_df.calculated_amount, calculated_df[value_col])
+        & (calculated_df["abs_diff"].notnull())
+    ]
+    calculated_values = calculated_df[(calculated_df.abs_diff.notnull())]
+    if calculated_values.empty:
+        # Will only occur if all reported values are NaN when calculated values
+        # exist, or vice versa.
+        logger.warning(
+            "Warning: No calculated values have a corresponding reported value in the table."
+        )
+        off_ratio = np.nan
+    else:
+        off_ratio = len(off_df) / len(calculated_values)
+        if off_ratio > calculation_tolerance:
+            raise AssertionError(
+                f"Calculations in {table_name} are off by {off_ratio:.2%}. Expected tolerance "
+                f"of {calculation_tolerance:.1%}."
+            )
+
+    # We'll only get here if the proportion of calculations that are off is acceptable
+    if off_ratio > 0 or np.isnan(off_ratio):
+        logger.info(
+            f"{table_name}: has {len(off_df)} ({off_ratio:.02%}) records whose "
+            "calculations don't match. Adding correction records to make calculations "
+            "match reported values."
+        )
+        corrections = off_df.copy()
+        corrections[value_col] = (
+            corrections[value_col].fillna(0.0) - corrections["calculated_amount"]
+        )
+        corrections["original_factoid"] = corrections["xbrl_factoid"]
+        corrections["xbrl_factoid"] = corrections["xbrl_factoid"] + "_correction"
+        corrections["row_type_xbrl"] = "correction"
+        corrections["is_within_table_calc"] = False
+        corrections["record_id"] = pd.NA
+
+        calculated_df = pd.concat(
+            [calculated_df, corrections], axis="index"
+        ).reset_index()
     return calculated_df
 
 
