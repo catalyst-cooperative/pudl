@@ -35,24 +35,18 @@ class CalculationToleranceFerc1(BaseModel):
     version of Form 1 when filing.
     """
 
-    multivalued_weights: confloat(ge=0.0, le=1.0) = 0.05
-    """Fraction of nodes in an exploded table allowed to have multi-valued weights."""
-
     intertable_calculation_errors: confloat(ge=0.0, le=1.0) = 0.05
     """Fraction of interatble calculations that are allowed to not match exactly."""
 
 
 EXPLOSION_CALCULATION_TOLERANCES: dict[str, CalculationToleranceFerc1] = {
     "income_statement_ferc1": CalculationToleranceFerc1(
-        multivalued_weights=0.12,
         intertable_calculation_errors=0.20,
     ),
     "balance_sheet_assets_ferc1": CalculationToleranceFerc1(
-        multivalued_weights=0.02,
         intertable_calculation_errors=0.85,
     ),
     "balance_sheet_liabilities_ferc1": CalculationToleranceFerc1(
-        multivalued_weights=0.0,
         intertable_calculation_errors=0.07,
     ),
 }
@@ -1107,24 +1101,39 @@ def create_exploded_table_assets() -> list[AssetsDefinition]:
 exploded_ferc1_assets = create_exploded_table_assets()
 
 
-class MetadataExploder:
-    """Combine a set of inter-related, nested table's metadata."""
+class Exploder:
+    """Get unique, granular datapoints from a set of related, nested FERC1 tables."""
 
     def __init__(
-        self,
+        self: Self,
         table_names: list[str],
+        root_table: str,
         metadata_xbrl_ferc1: pd.DataFrame,
         calculation_components_xbrl_ferc1: pd.DataFrame,
+        seed_nodes: list[NodeId],
+        tags: pd.DataFrame = pd.DataFrame(),
         calculation_tolerance: CalculationToleranceFerc1 = CalculationToleranceFerc1(),
     ):
-        """Instantiate MetadataExploder."""
-        self.table_names = table_names
-        self.calculation_components_xbrl_ferc1 = calculation_components_xbrl_ferc1
-        self.metadata_xbrl_ferc1 = metadata_xbrl_ferc1
-        self.calculation_tolerance = calculation_tolerance
+        """Instantiate an Exploder class.
 
-    @property
-    def calculations(self: Self):
+        Args:
+            table_names: list of table names to explode.
+            root_table: the table at the base of the tree of tables_to_explode.
+            metadata_xbrl_ferc1: table of factoid-level metadata.
+            calculation_components_xbrl_ferc1: table of calculation components.
+            seed_nodes: NodeIds to use as seeds for the calculation forest.
+            tags: Additional metadata to merge onto the exploded dataframe.
+        """
+        self.table_names: list[str] = table_names
+        self.root_table: str = root_table
+        self.calculation_tolerance = calculation_tolerance
+        self.metadata_xbrl_ferc1 = metadata_xbrl_ferc1
+        self.calculation_components_xbrl_ferc1 = calculation_components_xbrl_ferc1
+        self.seed_nodes = seed_nodes
+        self.tags = tags
+
+    @cached_property
+    def exploded_calcs(self: Self):
         """Remove any calculation components that aren't relevant to the explosion.
 
         At the end of this process several things should be true:
@@ -1201,8 +1210,8 @@ class MetadataExploder:
 
         return calc_explode
 
-    @property
-    def metadata(self: Self) -> pd.DataFrame:
+    @cached_property
+    def exploded_meta(self: Self) -> pd.DataFrame:
         """Combine a set of interrelated table's metatada for use in :class:`Exploder`.
 
         Any calculations containing components that are part of tables outside the
@@ -1221,7 +1230,7 @@ class MetadataExploder:
         )
         # At this point all remaining calculation components should exist within the
         # exploded metadata.
-        calc_comps = self.calculations
+        calc_comps = self.exploded_calcs
         missing_from_calcs_idx = calc_comps.set_index(calc_cols).index.difference(
             calc_comps.set_index(calc_cols).index
         )
@@ -1282,68 +1291,12 @@ class MetadataExploder:
 
         return exploded_metadata
 
-
-class Exploder:
-    """Get unique, granular datapoints from a set of related, nested FERC1 tables."""
-
-    def __init__(
-        self: Self,
-        table_names: list[str],
-        root_table: str,
-        metadata_xbrl_ferc1: pd.DataFrame,
-        calculation_components_xbrl_ferc1: pd.DataFrame,
-        seed_nodes: list[NodeId] = [],
-        tags: pd.DataFrame = pd.DataFrame(),
-        calculation_tolerance: CalculationToleranceFerc1 = CalculationToleranceFerc1(),
-    ):
-        """Instantiate an Exploder class.
-
-        Args:
-            table_names: list of table names to explode.
-            root_table: the table at the base of the tree of tables_to_explode.
-            metadata_xbrl_ferc1: table of factoid-level metadata.
-            calculation_components_xbrl_ferc1: table of calculation components.
-            seed_nodes: NodeIds to use as seeds for the calculation forest.
-            tags: Additional metadata to merge onto the exploded dataframe.
-        """
-        self.table_names: list[str] = table_names
-        self.root_table: str = root_table
-        self.calculation_tolerance = calculation_tolerance
-        self.meta_exploder = MetadataExploder(
-            self.table_names,
-            metadata_xbrl_ferc1,
-            calculation_components_xbrl_ferc1,
-            calculation_tolerance=self.calculation_tolerance,
-        )
-        self.metadata_exploded: pd.DataFrame = self.meta_exploder.metadata
-        self.calculations_exploded: pd.DataFrame = self.meta_exploder.calculations
-
-        # If we don't get any explicit seed nodes, use all nodes from the root table
-        # that have calculations associated with them:
-        if len(seed_nodes) == 0:
-            logger.info(
-                "No seeds provided. Using all calculated nodes in root table: "
-                f"{self.root_table}"
-            )
-            seed_nodes = [
-                NodeId(seed)
-                for seed in self.metadata_exploded[
-                    (self.metadata_exploded.table_name == self.root_table)
-                    & (self.metadata_exploded.calculations != "[]")
-                ]
-                .set_index(["table_name", "xbrl_factoid"])
-                .index
-            ]
-            logger.info(f"Identified {seed_nodes=}")
-        self.seed_nodes = seed_nodes
-        self.tags = tags
-
     @cached_property
     def calculation_forest(self: Self) -> "XbrlCalculationForestFerc1":
         """Construct a calculation forest based on class attributes."""
         return XbrlCalculationForestFerc1(
-            exploded_calcs=self.calculations_exploded,
-            exploded_meta=self.metadata_exploded,
+            exploded_calcs=self.exploded_calcs,
+            exploded_meta=self.exploded_meta,
             seeds=self.seed_nodes,
             tags=self.tags,
             calculation_tolerance=self.calculation_tolerance,
@@ -1471,22 +1424,22 @@ class Exploder:
         meta_idx = list(NodeId._fields)
         missing_dims = list(set(meta_idx).difference(exploded.columns))
         # Missing dimensions SHOULD be entirely null in the metadata, if so we can drop
-        if not self.metadata_exploded.loc[:, missing_dims].isna().all(axis=None):
+        if not self.exploded_meta.loc[:, missing_dims].isna().all(axis=None):
             raise AssertionError(
                 f"Expected missing metadata dimensions {missing_dims} to be null."
             )
-        metadata_exploded = self.metadata_exploded.drop(columns=missing_dims)
+        exploded_meta = self.exploded_meta.drop(columns=missing_dims)
         meta_idx = list(set(meta_idx).difference(missing_dims))
 
         # drop any metadata columns that appear in the data tables, because we may have
         # edited them in the metadata table, and want the edited version to take
         # precedence
         cols_to_keep = list(
-            set(exploded.columns).difference(metadata_exploded.columns).union(meta_idx)
+            set(exploded.columns).difference(exploded_meta.columns).union(meta_idx)
         )
         exploded = pd.merge(
             left=exploded.loc[:, cols_to_keep],
-            right=metadata_exploded,
+            right=exploded_meta,
             how="left",
             on=meta_idx,
             validate="m:1",
@@ -1507,8 +1460,8 @@ class Exploder:
         Args:
             exploded: concatenated tables for table explosion.
         """
-        calculations_intertable = self.calculations_exploded[
-            ~self.calculations_exploded.is_within_table_calc
+        calculations_intertable = self.exploded_calcs[
+            ~self.exploded_calcs.is_within_table_calc
         ]
         if calculations_intertable.empty:
             return exploded
@@ -1690,11 +1643,11 @@ class XbrlCalculationForestFerc1(BaseModel):
     several trees) rather than a single tree.
 
     The information required to build a calculation forest is most readily found in the
-    data produced by :meth:`MetadataExploder.boom`  A list of seed nodes can also be
-    supplied, indicating which nodes must be present in the resulting forest. This can
-    be used to prune irrelevant portions of the overall forest out of the exploded
-    metadata. If no seeds are provided, then all of the nodes referenced in the
-    exploded_calcs input dataframe will be used as seeds.
+    :meth:`Exploder.exploded_calcs`  A list of seed nodes can also be supplied,
+    indicating which nodes must be present in the resulting forest. This can be used to
+    prune irrelevant portions of the overall forest out of the exploded metadata. If no
+    seeds are provided, then all of the nodes referenced in the exploded_calcs input
+    dataframe will be used as seeds.
 
     This class makes heavy use of :mod:`networkx` to manage the graph that we build
     from calculation relationships.
@@ -2064,6 +2017,9 @@ class XbrlCalculationForestFerc1(BaseModel):
         """
         forest = deepcopy(self.seeded_digraph)
         # Remove any node that ONLY has stepchildren.
+        # A stepparent is a node that has a child with more than one parent.
+        # A stepchild is a node with more than one parent.
+        # See self.stepparents and self.stepchildren
         pure_stepparents = []
         stepparents = sorted(self.stepparents(forest))
         logger.info(f"Investigating {len(stepparents)=}")
