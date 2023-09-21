@@ -21,13 +21,13 @@ dependencies = [
     "dask>=2021.8,<2023.9.2",
     "datapackage>=1.11,<1.16",  # Transition datastore to use frictionless.
     "fsspec>=2021.7,<2023.6.1",  # For caching datastore on GCS
+    "geopandas>=0.13,<0.15",
     "gcsfs>=2021.7,<2023.9.2",  # For caching datastore on GCS
-    "geopandas>=0.13,<0.14",
     "grpcio<1.56.0",
     "jinja2>=2,<3.2",
-    "matplotlib>=3.3,<3.8",  # Should make this optional with a "viz" extras
+    "matplotlib>=3.3,<3.9",  # Should make this optional with a "viz" extras
     "networkx>=2.2,<3.2",
-    "numpy>=1.18.5,!=1.23.0,<1.26",
+    "numpy>=1.18.5,!=1.23.0,<1.27",
     "pandas[parquet,excel,fss,gcp,compression]>=2.0,<2.1",
     "pyarrow>=7,<13",
     "pydantic[email]>=1.7,<2",
@@ -236,16 +236,21 @@ ignore-path = ["docs/ferc/form1", "docs/_build"]
 testpaths = "./"
 filterwarnings = [
     "ignore:distutils Version classes are deprecated:DeprecationWarning",
-    "ignore:The Shapely GEOS version:UserWarning:geopandas[.*]",
-    "ignore:Unknown extension:UserWarning:openpyxl.worksheet[.*]",
-    "ignore:In a future version, the Index constructor:FutureWarning:pandas.core.reshape.merge",
+    "ignore:Deprecated call to `pkg_resources.declare_namespace:DeprecationWarning",
+    "ignore:Deprecated call to.*declare_namespace:DeprecationWarning:pkg_resources",
+    "ignore:Deprecated call to:DeprecationWarning:google.rpc",
     "ignore:Feature names only support names:FutureWarning:sklearn.utils.validation",
+    "ignore:In a future version, the Index constructor:FutureWarning:pandas.core.reshape.merge",
     "ignore:Integration of FERC 714:UserWarning:pudl.extract.ferc714",
     "ignore:Integration of EIA 861:UserWarning:pudl.extract.eia861",
-    "ignore:Deprecated call to `pkg_resources.declare_namespace:DeprecationWarning",
     "ignore:pkg_resources is deprecated as an API.:DeprecationWarning",
     "ignore:Subclassing validator classes is not intended to be part of their public API.:DeprecationWarning",
+    "ignore:Subclassing validator classes:DeprecationWarning:tableschema",
+    "ignore:The Shapely GEOS version:UserWarning:geopandas[.*]",
+    "ignore:Unknown extension:UserWarning:openpyxl.worksheet[.*]",
     "once:In a future version:FutureWarning:pudl.helpers",
+    "once:open_binary is deprecated:DeprecationWarning:pudl.glue.ferc1_eia",
+    "once:open_text is deprecated:DeprecationWarning:pudl.glue.ferc1_eia",
 ]
 
 addopts = "--verbose --pdbcls=IPython.terminal.debugger:TerminalPdb"
