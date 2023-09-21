@@ -173,8 +173,8 @@ Data Coverage
 
   * :ref:`core_ferc714__respondent_id` (linking FERC-714 respondents to EIA utilities)
   * :ref:`core_ferc714__hourly_demand_pa` (hourly electricity demand by planning area)
-  * :ref:`fipsified_respondents_ferc714` (annual respondents with county FIPS IDs)
-  * :ref:`summarized_demand_ferc714` (annual demand for FERC-714 respondents)
+  * :ref:`out_ferc714__fipsified_respondents` (annual respondents with county FIPS IDs)
+  * :ref:`out_ferc714__summarized_demand` (annual demand for FERC-714 respondents)
 
 * Added new table :ref:`core_epa__assn_epacamd_eia_subplant_ids`, which aguments the
   :ref:`core_epa__assn_epacamd_eia` glue table. This table incorporates all
@@ -272,9 +272,10 @@ Analysis
 * Added outputs from :mod:`pudl.analysis.service_territory` and
   :mod:`pudl.analysis.state_demand` into PUDL. These outputs include the US Census
   geometries associated with balancing authority and utility data from EIA 861
-  (:ref:`compiled_geometry_balancing_authority_eia861` and
-  :ref:`compiled_geometry_utility_eia861`), and the estimated total hourly electricity
-  demand for each US state in :ref:`predicted_state_hourly_demand`. See :issue:`1973`
+  (:ref:`out_eia861__compiled_geometry_balancing_authorities` and
+  :ref:`out_eia861__compiled_geometry_utilities`), and the estimated total hourly
+  electricity demand for each US state in
+  :ref:`out_ferc714__hourly_predicted_state_demand`. See :issue:`1973`
   and :pr:`2550`.
 
 Deprecations
