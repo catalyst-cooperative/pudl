@@ -5,6 +5,9 @@ on:
   workflow_dispatch:
   schedule:
     - cron: "0 6 * * 1-5" # Weekdays at midnight on MST
+  pull_request:
+    paths:
+      - "src/pudl/workspace/datastore.py"
 
 env:
   INTERNAL_ZENODO_CACHE_BUCKET: gs://internal-zenodo-cache.catalyst.coop
