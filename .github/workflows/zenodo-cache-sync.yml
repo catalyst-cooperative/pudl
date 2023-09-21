@@ -34,8 +34,13 @@ jobs:
         run: |
           echo "This action was triggered by a schedule." && echo "GITHUB_REF=dev" >> $GITHUB_ENV
 
-      - name: Checkout desired branch branch
-        uses: actions/checkout@v3
+      - name: Log value of github ref
+        if: ${{ (github.event_name == 'pull_request') }}
+        run: |
+          echo "This action was triggered by a pull request." && echo "GITHUB_REF=" ${{ env.GITHUB_REF }} "github.ref_name =" ${{ github.ref_name }}
+
+      - name: Checkout desired branch
+        uses: actions/checkout@v4
         with:
           ref: ${{ env.GITHUB_REF }}
 
