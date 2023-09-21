@@ -208,7 +208,7 @@ def allocate_gen_fuel_asset_factory(
         raise ValueError(f"freq must be one of {agg_freqs.keys()}, got: {freq}.")
 
     @asset(
-        name=f"generation_fuel_by_generator_energy_source_{agg_freqs[freq]}_eia923",
+        name=f"out_eia923__{agg_freqs[freq]}_generation_fuel_by_generator_energy_source",
         ins={
             "gf": AssetIn(
                 key=f"out_eia923__{agg_freqs[freq]}_generation_fuel_combined"
@@ -256,10 +256,10 @@ def allocate_gen_fuel_asset_factory(
         )
 
     @asset(
-        name=f"generation_fuel_by_generator_{agg_freqs[freq]}_eia923",
+        name=f"out_eia923__{agg_freqs[freq]}_generation_fuel_by_generator",
         ins={
             "net_gen_fuel_alloc": AssetIn(
-                key=f"generation_fuel_by_generator_energy_source_{agg_freqs[freq]}_eia923"
+                key=f"out_eia923__{agg_freqs[freq]}_generation_fuel_by_generator_energy_source"
             ),
             "pu": AssetIn(key="_out_eia__plants_utilities"),
             "bga": AssetIn(key="core_eia860__assn_boiler_generator"),
@@ -282,10 +282,10 @@ def allocate_gen_fuel_asset_factory(
         )
 
     @asset(
-        name=f"generation_fuel_by_generator_energy_source_owner_{agg_freqs[freq]}_eia923",
+        name=f"out_eia923__{agg_freqs[freq]}_generation_fuel_by_generator_energy_source_owner",
         ins={
             "net_gen_fuel_alloc": AssetIn(
-                key=f"generation_fuel_by_generator_energy_source_{agg_freqs[freq]}_eia923"
+                key=f"out_eia923__{agg_freqs[freq]}_generation_fuel_by_generator_energy_source"
             ),
             "gens": AssetIn(key="out_eia__yearly_generators"),
             "own_eia860": AssetIn(key="out_eia860__yearly_ownership"),

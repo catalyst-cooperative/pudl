@@ -221,8 +221,8 @@ class PudlTabl:
         }
 
         table_method_map_any_agg = {
-            "generation_fuel_by_generator_energy_source_AGG_eia923": "gen_fuel_by_generator_energy_source_eia923",
-            "generation_fuel_by_generator_AGG_eia923": "gen_fuel_by_generator_eia923",
+            "out_eia923__AGG_generation_fuel_by_generator_energy_source": "gen_fuel_by_generator_energy_source_eia923",
+            "out_eia923__AGG_generation_fuel_by_generator": "gen_fuel_by_generator_eia923",
             "heat_rate_by_unit_AGG": "hr_by_unit",
             "heat_rate_by_generator_AGG": "hr_by_gen",
             "capacity_factor_by_generator_AGG": "capacity_factor",
@@ -232,7 +232,7 @@ class PudlTabl:
         }
 
         table_method_map_yearly_only = {
-            "generation_fuel_by_generator_energy_source_owner_yearly_eia923": "gen_fuel_by_generator_energy_source_owner_eia923",
+            "out_eia923__yearly_generation_fuel_by_generator_energy_source_owner": "gen_fuel_by_generator_energy_source_owner_eia923",
         }
 
         for table_name, method_name in (
@@ -391,7 +391,9 @@ class PudlTabl:
                     "Allocated net generation requires frequency of `AS` or `MS`, "
                     f"got {self.freq}"
                 )
-            table_name = self._agg_table_name("generation_fuel_by_generator_AGG_eia923")
+            table_name = self._agg_table_name(
+                "out_eia923__AGG_generation_fuel_by_generator"
+            )
             gen_df = self._get_table_from_db(table_name)
             resource = Resource.from_id(table_name)
             gen_df = gen_df.loc[:, resource.get_field_names()]

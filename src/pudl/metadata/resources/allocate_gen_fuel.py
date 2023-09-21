@@ -15,7 +15,7 @@ KNOWN_DRAWBACKS_DESCRIPTION = (
 
 RESOURCE_METADATA: dict[str, dict[str, Any]] = (
     {
-        f"generation_fuel_by_generator_energy_source_{freq}_eia923": {
+        f"out_eia923__{freq}_generation_fuel_by_generator_energy_source": {
             "description": (
                 f"{freq.title()} estimated net generation and fuel consumption "
                 "associated with each combination of generator, energy source, and "
@@ -52,7 +52,7 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = (
         for freq in AGG_FREQS
     }
     | {
-        f"generation_fuel_by_generator_{freq}_eia923": {
+        f"out_eia923__{freq}_generation_fuel_by_generator": {
             "description": (
                 f"{freq.title()} estimated net generation and fuel consumption by generator. "
                 "Based on allocating net electricity generation and fuel consumption reported "
@@ -86,7 +86,7 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = (
         for freq in AGG_FREQS
     }
     | {
-        "generation_fuel_by_generator_energy_source_owner_yearly_eia923": {
+        "out_eia923__yearly_generation_fuel_by_generator_energy_source_owner": {
             "description": (
                 "Yearly estimated net generation and fuel consumption for each generator, "
                 "associated with each combination of generator, energy source, prime mover, "
