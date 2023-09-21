@@ -4,7 +4,6 @@ repos:
   - repo: https://github.com/pre-commit/pygrep-hooks
     rev: v1.10.0
     hooks:
-      - id: python-check-blanket-noqa # Prohibit overly broad QA exclusions.
       - id: rst-backticks # Find single rather than double backticks
       - id: rst-directive-colons # Missing double-colons after directives
       - id: rst-inline-touching-normal # Inline code should never touch normal text
