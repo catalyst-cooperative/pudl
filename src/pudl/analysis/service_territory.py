@@ -28,7 +28,7 @@ logger = pudl.logging_helpers.get_logger(__name__)
 MAP_CRS = "EPSG:3857"  # For mapping w/ OSM baselayer tiles
 CALC_CRS = "ESRI:102003"  # For accurate area calculations
 
-ENTITY_TYPE = {"ba": "balancing_authority", "util": "utility"}
+ENTITY_TYPE = {"ba": "balancing_authorities", "util": "utilities"}
 
 
 def utility_ids_all_eia(
@@ -355,7 +355,7 @@ def compiled_geoms_asset_factory(
     """Build asset definitions for balancing authority and utility geometries."""
 
     @asset(
-        name=f"compiled_geometry_{ENTITY_TYPE[entity_type]}_eia861",
+        name=f"out_eia861__compiled_geometry_{ENTITY_TYPE[entity_type]}",
         io_manager_key=io_manager_key,
         config_schema={
             "dissolve": Field(

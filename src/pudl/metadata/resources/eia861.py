@@ -656,7 +656,7 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
         "sources": ["eia861"],
         "etl_group": "eia861",
     },
-    "compiled_geometry_utility_eia861": {
+    "out_eia861__compiled_geometry_utilities": {
         "description": "County-level spatial data for EIA861 utilities.",
         "schema": {
             "fields": [
@@ -676,7 +676,7 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
         "field_namespace": "eia",
         "etl_group": "service_territories",
     },
-    "compiled_geometry_balancing_authority_eia861": {
+    "out_eia861__compiled_geometry_balancing_authorities": {
         "description": "County-level spatial data for EIA861 balancing authorities.",
         "schema": {
             "fields": [

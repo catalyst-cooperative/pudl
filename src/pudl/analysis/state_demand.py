@@ -267,8 +267,8 @@ def load_ventyx_hourly_state_demand(path: str) -> pd.DataFrame:
 @multi_asset(
     compute_kind="Python",
     outs={
-        "raw_hourly_demand_matrix_ferc714": AssetOut(),
-        "utc_offset_ferc714": AssetOut(),
+        "_out_ferc714__hourly_pivoted_demand_matrix": AssetOut(),
+        "_out_ferc714__utc_offset": AssetOut(),
     },
 )
 def load_hourly_demand_matrix_ferc714(
@@ -457,13 +457,13 @@ def melt_ferc714_hourly_demand_matrix(
         ),
     },
 )
-def clean_hourly_demand_matrix_ferc714(
-    context, raw_hourly_demand_matrix_ferc714: pd.DataFrame
+def _out_ferc714__hourly_demand_matrix(
+    context, _out_ferc714__hourly_pivoted_demand_matrix: pd.DataFrame
 ) -> pd.DataFrame:
     """Cleaned and nulled FERC 714 hourly demand matrix.
 
     Args:
-        raw_hourly_demand_matrix_ferc714: FERC 714 hourly demand data in a matrix form.
+        _out_ferc714__hourly_pivoted_demand_matrix: FERC 714 hourly demand data in a matrix form.
 
     Returns:
         df: Matrix with nulled anomalous values, where respondent-years with too few responses
@@ -471,7 +471,7 @@ def clean_hourly_demand_matrix_ferc714(
     """
     min_data = context.op_config["min_data"]
     min_data_fraction = context.op_config["min_data_fraction"]
-    df = clean_ferc714_hourly_demand_matrix(raw_hourly_demand_matrix_ferc714)
+    df = clean_ferc714_hourly_demand_matrix(_out_ferc714__hourly_pivoted_demand_matrix)
     df = filter_ferc714_hourly_demand_matrix(
         df, min_data=min_data, min_data_fraction=min_data_fraction
     )
@@ -479,8 +479,9 @@ def clean_hourly_demand_matrix_ferc714(
 
 
 @asset(compute_kind="Python")
-def imputed_hourly_demand_ferc714(
-    clean_hourly_demand_matrix_ferc714: pd.DataFrame, utc_offset_ferc714: pd.DataFrame
+def _out_ferc714__hourly_imputed_demand(
+    _out_ferc714__hourly_demand_matrix: pd.DataFrame,
+    _out_ferc714__utc_offset: pd.DataFrame,
 ) -> pd.DataFrame:
     """Imputed FERC714 hourly demand in long format.
 
@@ -489,14 +490,14 @@ def imputed_hourly_demand_ferc714(
     melt data into a long format.
 
     Args:
-        clean_hourly_demand_matrix_ferc714: Cleaned hourly demand matrix from FERC 714.
-        utc_offset_ferc714: Timezone by year for each respondent.
+        _out_ferc714__hourly_demand_matrix: Cleaned hourly demand matrix from FERC 714.
+        _out_ferc714__utc_offset: Timezone by year for each respondent.
 
     Returns:
         df: DataFrame with imputed FERC714 hourly demand.
     """
-    df = impute_ferc714_hourly_demand_matrix(clean_hourly_demand_matrix_ferc714)
-    df = melt_ferc714_hourly_demand_matrix(df, utc_offset_ferc714)
+    df = impute_ferc714_hourly_demand_matrix(_out_ferc714__hourly_demand_matrix)
+    df = melt_ferc714_hourly_demand_matrix(df, _out_ferc714__utc_offset)
     return df
 
 
@@ -504,19 +505,19 @@ def imputed_hourly_demand_ferc714(
 
 
 def county_assignments_ferc714(
-    fipsified_respondents_ferc714,
+    out_ferc714__fipsified_respondents,
 ) -> pd.DataFrame:
     """Load FERC 714 county assignments.
 
     Args:
-        fipsified_respondents_ferc714: From `pudl.output.ferc714`, FERC 714 respondents
+        out_ferc714__fipsified_respondents: From `pudl.output.ferc714`, FERC 714 respondents
             with county FIPS IDs.
 
     Returns:
         Dataframe with columns
         `respondent_id_ferc714`, report `year` (int), and `county_id_fips`.
     """
-    df = fipsified_respondents_ferc714[
+    df = out_ferc714__fipsified_respondents[
         ["respondent_id_ferc714", "county_id_fips", "report_date"]
     ]
     # Drop rows where county is blank or a duplicate
@@ -586,20 +587,20 @@ def total_state_sales_eia861(
         ),
     },
 )
-def predicted_state_hourly_demand(
+def out_ferc714__hourly_predicted_state_demand(
     context,
-    imputed_hourly_demand_ferc714: pd.DataFrame,
+    _out_ferc714__hourly_imputed_demand: pd.DataFrame,
     core_censusdp1__entity_county: pd.DataFrame,
-    fipsified_respondents_ferc714: pd.DataFrame,
+    out_ferc714__fipsified_respondents: pd.DataFrame,
     core_eia861__yearly_sales: pd.DataFrame = None,
 ) -> pd.DataFrame:
     """Predict state hourly demand.
 
     Args:
-        imputed_hourly_demand_ferc714: Hourly demand timeseries, with columns
+        _out_ferc714__hourly_imputed_demand: Hourly demand timeseries, with columns
           `respondent_id_ferc714`, report `year`, `utc_datetime`, and `demand_mwh`.
         core_censusdp1__entity_county: The county layer of the Census DP1 shapefile.
-        fipsified_respondents_ferc714: Annual respondents with the county FIPS IDs
+        out_ferc714__fipsified_respondents: Annual respondents with the county FIPS IDs
             for their service territories.
         core_eia861__yearly_sales: EIA 861 sales data. If provided, the predicted hourly demand is
             scaled to match these totals.
@@ -613,13 +614,15 @@ def predicted_state_hourly_demand(
     mean_overlaps = context.op_config["mean_overlaps"]
 
     # Call necessary functions
-    count_assign_ferc714 = county_assignments_ferc714(fipsified_respondents_ferc714)
+    count_assign_ferc714 = county_assignments_ferc714(
+        out_ferc714__fipsified_respondents
+    )
     counties = census_counties(core_censusdp1__entity_county)
     total_sales_eia861 = total_state_sales_eia861(core_eia861__yearly_sales)
 
     # Pre-compute list of respondent-years with demand
     with_demand = (
-        imputed_hourly_demand_ferc714.groupby(
+        _out_ferc714__hourly_imputed_demand.groupby(
             ["respondent_id_ferc714", "year"], as_index=False
         )["demand_mwh"]
         .sum()
@@ -653,7 +656,7 @@ def predicted_state_hourly_demand(
     )["weight"].sum()
     # Multiply respondent-state weights with demands
     df = weights.merge(
-        imputed_hourly_demand_ferc714, on=["respondent_id_ferc714", "year"]
+        _out_ferc714__hourly_imputed_demand, on=["respondent_id_ferc714", "year"]
     )
     df["demand_mwh"] *= df["weight"]
     # Scale estimates using state totals
@@ -835,7 +838,7 @@ def main():
 
     # --- Read in inputs from PUDL + dagster cache --- #
     prediction = pudl.etl.defs.load_asset_value(
-        AssetKey("predicted_state_hourly_demand")
+        AssetKey("out_ferc714__hourly_predicted_state_demand")
     )
 
     # --- Export results --- #
