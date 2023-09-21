@@ -24,16 +24,23 @@ from pandas.core.groupby import DataFrameGroupBy
 from pydantic import validator
 
 import pudl
-from pudl.analysis.classify_plants_ferc1 import (plants_steam_assign_plant_ids,
-                                                 plants_steam_validate_ids)
+from pudl.analysis.classify_plants_ferc1 import (
+    plants_steam_assign_plant_ids,
+    plants_steam_validate_ids,
+)
 from pudl.extract.ferc1 import TABLE_NAME_MAP_FERC1
 from pudl.helpers import convert_cols_dtypes
 from pudl.metadata.fields import apply_pudl_dtypes
 from pudl.settings import Ferc1Settings
-from pudl.transform.classes import (AbstractTableTransformer, InvalidRows,
-                                    RenameColumns, TableTransformParams,
-                                    TransformParams, cache_df,
-                                    enforce_snake_case)
+from pudl.transform.classes import (
+    AbstractTableTransformer,
+    InvalidRows,
+    RenameColumns,
+    TableTransformParams,
+    TransformParams,
+    cache_df,
+    enforce_snake_case,
+)
 
 logger = pudl.logging_helpers.get_logger(__name__)
 
@@ -842,6 +849,7 @@ def reconcile_table_calculations(
         value_col=params.column_to_check,
         calculation_tolerance=params.calculation_tolerance,
         table_name=table_name,
+        add_corrections=True,
     ).rename(columns={"xbrl_factoid": xbrl_factoid_name})
 
     # Check that sub-total calculations sum to total.
@@ -960,6 +968,7 @@ def check_calculcation_metrics(
     value_col: str,
     calculation_tolerance: float,
     table_name: str,
+    add_corrections: bool,
 ) -> pd.DataFrame:
     """Run the calculation metrics and determine if calculations are within tolerance."""
     # Data types were very messy here, including pandas Float64 for the
@@ -998,7 +1007,7 @@ def check_calculcation_metrics(
             )
 
     # We'll only get here if the proportion of calculations that are off is acceptable
-    if off_ratio > 0 or np.isnan(off_ratio):
+    if off_ratio > 0 or np.isnan(off_ratio) and add_corrections:
         logger.info(
             f"{table_name}: has {len(off_df)} ({off_ratio:.02%}) records whose "
             "calculations don't match. Adding correction records to make calculations "

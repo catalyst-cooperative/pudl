@@ -1478,6 +1478,7 @@ class Exploder:
             value_col=self.value_col,
             calculation_tolerance=self.calculation_tolerance.intertable_calculation_errors,
             table_name=self.root_table,
+            add_corrections=True,
         )
         return calculated_df
 
