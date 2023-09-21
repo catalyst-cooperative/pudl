@@ -38,8 +38,6 @@ jobs:
         if: ${{ (github.event_name == 'pull_request') }}
         run: |
           echo "This action was triggered by a pull request." && echo "GITHUB_REF="${{ github.head_ref }} >> $GITHUB_ENV
-          echo "This action was triggered by a pull request." && echo "GITHUB_REF="${{ github.head_ref }}
-          echo "This action was triggered by a pull request." && echo "GITHUB_REF="${{ env.GITHUB_REF }}
 
       - name: Checkout desired branch
         uses: actions/checkout@v4
