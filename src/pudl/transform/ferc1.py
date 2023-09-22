@@ -4047,6 +4047,7 @@ class UtilityPlantSummaryFerc1TableTransformer(Ferc1AbstractTableTransformer):
         """Default transforming, plus spot fixing and building aggregate xbrl_factoid."""
         # we want to aggregate the factoids first here bc merge_xbrl_metadata is done
         # at the end of super().transform_main
+        df = super().transform_main(df)
         df = (
             self.aggregated_xbrl_factoids(df)
             .pipe(super().transform_main)
