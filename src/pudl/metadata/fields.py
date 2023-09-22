@@ -2059,7 +2059,17 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     },
     "purchased_mwh": {
         "type": "number",
-        "description": "Megawatt-hours shown on bills rendered to the respondent.",
+        "description": "Megawatt-hours shown on bills rendered to the respondent. Includes both electricity purchased for storage and non-storage purposes, which were lumped together prior to 2021.",
+        "unit": "MWh",
+    },
+    "purchased_other_than_storage_mwh": {
+        "type": "number",
+        "description": "Number of megawatt hours purchased for other than energy storage during the period.",
+        "unit": "MWh",
+    },
+    "purchased_storage_mwh": {
+        "type": "number",
+        "description": "Number of megawatt hours purchased for energy storage during the period.",
         "unit": "MWh",
     },
     "pv_current_flow_type": {"type": "string", "constraints": {"enum": ["AC", "DC"]}},

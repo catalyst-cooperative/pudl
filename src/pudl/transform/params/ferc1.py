@@ -2946,6 +2946,7 @@ TRANSFORM_PARAMS = {
                     "other_charges",
                     "total_settlement",
                     "purchased_storage_mwh",
+                    "purchased_other_than_storage_mwh",
                     "billing_demand_mw",
                     "non_coincident_peak_demand_mw",
                     "coincident_peak_demand_mw",
