@@ -93,7 +93,7 @@ def test_no_null_cols_ferc1(pudl_out_ferc1, live_dbs, cols, df_name):
         ("plants_small_ferc1", 16_235),
         ("plants_steam_ferc1", 30_709),
         ("pu_ferc1", 7_425),
-        ("purchased_power_ferc1", 197_494),
+        ("purchased_power_ferc1", 197_523),
     ],
 )
 def test_minmax_rows(pudl_out_ferc1, live_dbs, expected_rows, df_name):
