@@ -182,6 +182,8 @@ class ZenodoDoiSettings(BaseSettings):
     # ferc60: ZenodoDoi = "10.5072/zenodo.1236694"
     ferc714: ZenodoDoi = "10.5281/zenodo.8326694"
     # ferc714: ZenodoDoi = "10.5072/zenodo.1237565"
+    phmsagas: ZenodoDoi = "10.5281/zenodo.8346646"
+    # phmsagas: ZenodoDoi = "10.5072/zenodo.1239253"
 
     class Config:
         """Pydantic config, reads from .env file."""
