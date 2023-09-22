@@ -7,7 +7,7 @@ We use `Tox <https://tox.readthedocs.io>`__ to coordinate our software testing
 and to manage other build and sanity checking tools. Under the hood, it invokes
 a variety of other collections of command-line tools in predefined combinations
 that are described in ``tox.ini``. These include software tests defined using
-`pytest <https://pytest.org>`__, code linters like ``flake8``, documentation
+`pytest <https://pytest.org>`__, code linters like ``ruff``, documentation
 generators like Sphinx, and sanity checks defined as git pre-commit hooks. Each
 of these tools, or sometimes collections of related tools, can be selected at
 the command line. They can also be run independently without using Tox, but for
@@ -149,10 +149,9 @@ their own:
     ci               -> Run all continuous integration (CI) checks & generate test coverage.
 
     additional environments:
-    flake8           -> Run the full suite of flake8 linters on the PUDL codebase.
+    ruff             -> Run the ruff linter but without autofixes enabled.
     pre_commit       -> Run git pre-commit hooks not covered by the other linters.
-    bandit           -> Check the PUDL codebase for common insecure code patterns.
-    linters          -> Run the pre-commit, flake8, and bandit linters.
+    linters          -> Run the pre-commit and ruff linters.
     doc8             -> Check the documentation input files for syntactical correctness.
     docs             -> Remove old docs output and rebuild HTML from scratch with Sphinx
     unit             -> Run all the software unit tests.
