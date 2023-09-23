@@ -845,7 +845,7 @@ def reconcile_table_calculations(
         calc_idx=calc_idx,
         value_col=params.column_to_check,
     )
-    calculated_df = check_calculcation_metrics(
+    calculated_df = check_calculation_metrics(
         calculated_df=calculated_df,
         value_col=params.column_to_check,
         calculation_tolerance=params.calculation_tolerance,
@@ -879,7 +879,7 @@ def reconcile_table_calculations(
             calc_idx=calc_idx,
             value_col=params.column_to_check,
         )
-        subtotal_calcs = check_calculcation_metrics(
+        subtotal_calcs = check_calculation_metrics(
             calculated_df=subtotal_calcs,
             value_col=params.column_to_check,
             calculation_tolerance=params.calculation_tolerance,
@@ -962,7 +962,7 @@ def calculate_values_from_components(
     return calculated_df
 
 
-def check_calculcation_metrics(
+def check_calculation_metrics(
     calculated_df: pd.DataFrame,
     value_col: str,
     calculation_tolerance: float,
