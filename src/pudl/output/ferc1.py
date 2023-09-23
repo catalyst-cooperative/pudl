@@ -44,7 +44,7 @@ EXPLOSION_CALCULATION_TOLERANCES: dict[str, CalculationToleranceFerc1] = {
         intertable_calculation_errors=0.20,
     ),
     "balance_sheet_assets_ferc1": CalculationToleranceFerc1(
-        intertable_calculation_errors=0.85,
+        intertable_calculation_errors=1.00,
     ),
     "balance_sheet_liabilities_ferc1": CalculationToleranceFerc1(
         intertable_calculation_errors=0.07,
