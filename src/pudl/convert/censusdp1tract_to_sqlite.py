@@ -63,7 +63,7 @@ def censusdp1tract_to_sqlite(context):
     # fragile solution that will not work on all platforms, but should cover
     # conda environments, Docker, and continuous integration on GitHub.
     ogr2ogr = Path(os.environ.get("CONDA_PREFIX", "/usr")) / "bin/ogr2ogr"
-    assert ogr2ogr.exists()
+    assert ogr2ogr.is_file()
     # Extract the sippzed GeoDB archive from the Datastore into a temporary
     # directory so that ogr2ogr can operate on it. Output the resulting SQLite
     # database into the user's PUDL workspace. We do not need to keep the

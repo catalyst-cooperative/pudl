@@ -2724,7 +2724,11 @@ TRANSFORM_PARAMS = {
             "on": "ferc_account_label",
         },
         "align_row_numbers_dbf": {"dbf_table_names": ["f1_plant_in_srvce"]},
-        "reconcile_table_calculations": {"column_to_check": "ending_balance"},
+        # Known issue with reporting of construction in progress not classified in classified fields of table.
+        "reconcile_table_calculations": {
+            "column_to_check": "ending_balance",
+            "calculation_tolerance": 0.08,
+        },
     },
     "plants_pumped_storage_ferc1": {
         "rename_columns_ferc1": {
@@ -2911,8 +2915,8 @@ TRANSFORM_PARAMS = {
                     "energy_charges_of_purchased_power": "energy_charges",
                     "energy_delivered_through_power_exchanges": "delivered_mwh",
                     "energy_received_through_power_exchanges": "received_mwh",
-                    "megawatt_hours_purchased_for_energy_storage": "purchased_storage_mwh",  # new column
-                    "megawatt_hours_purchased_other_than_storage": "purchased_mwh",
+                    "megawatt_hours_purchased_for_energy_storage": "purchased_storage_mwh",
+                    "megawatt_hours_purchased_other_than_storage": "purchased_other_than_storage_mwh",
                     "name_of_company_or_public_authority_providing_purchased_power": "seller_name",
                     "other_charges_of_purchased_power": "other_charges",
                     "purchased_power_axis": "purchased_power_axis",  # new probably pk col
@@ -2942,6 +2946,7 @@ TRANSFORM_PARAMS = {
                     "other_charges",
                     "total_settlement",
                     "purchased_storage_mwh",
+                    "purchased_other_than_storage_mwh",
                     "billing_demand_mw",
                     "non_coincident_peak_demand_mw",
                     "coincident_peak_demand_mw",
@@ -3347,6 +3352,7 @@ TRANSFORM_PARAMS = {
                     "entity_id": "utility_id_ferc1_xbrl",
                     "report_year": "report_year",
                     "xbrl_factoid": "asset_type",
+                    "preliminary_natural_gas_survey_and_investigation_charges_and_other_preliminary_survey_and_investigation_charges": "preliminary_natural_gas_survey_and_investigation_charges",
                 }
             },
         },
@@ -3977,7 +3983,6 @@ TRANSFORM_PARAMS = {
             # Note: this table does not currently get exploded. It will require
             # additional debugging at a later date.
             "calculation_tolerance": 0.4,
-            "subtotal_column": "depreciation_type",
         },
     },
     "electric_plant_depreciation_functional_ferc1": {
@@ -4053,8 +4058,8 @@ TRANSFORM_PARAMS = {
             },
         },
         "merge_xbrl_metadata": {
-            "rename_columns": {"xbrl_factoid": "plant_function"},
-            "on": "plant_function",
+            "rename_columns": {"xbrl_factoid": "depreciation_type"},
+            "on": "depreciation_type",
         },
         "select_dbf_rows_by_category": {
             "column_name": "plant_function",
