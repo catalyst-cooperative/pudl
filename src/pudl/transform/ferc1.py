@@ -749,6 +749,7 @@ class ReconcileTableCalculations(TransformParams):
 def reconcile_table_calculations(
     df: pd.DataFrame,
     calculation_components: pd.DataFrame,
+    xbrl_metadata: pd.DataFrame,
     xbrl_factoid_name: str,
     table_name: str,
     params: ReconcileTableCalculations,
@@ -800,7 +801,9 @@ def reconcile_table_calculations(
     calc_idx = ["xbrl_factoid", "table_name"] + dim_cols
 
     if dim_cols:
-        table_dims = df[calc_idx].drop_duplicates(keep="first")
+        table_dims = (
+            df[calc_idx].drop_duplicates(keep="first").assign(table_name=table_name)
+        )
         # need to add in the correction dimensions. they don't show up in the data at
         # this point so we don't have the dimensions yet. NOTE: this could have been
         # done by adding the dims into table_dims..... maybe would have been more
@@ -836,11 +839,9 @@ def reconcile_table_calculations(
                     & intra_tbl_calcs[f"{dim}_parent"].isnull()
                 )
             ]
-    pks = pudl.metadata.classes.Resource.from_id(table_name).schema.primary_key
     calculated_df = calculate_values_from_components(
         data=df,
         calculation_components=intra_tbl_calcs,
-        validate="one_to_many",
         calc_idx=calc_idx,
         value_col=params.column_to_check,
     )
@@ -854,36 +855,37 @@ def reconcile_table_calculations(
 
     # Check that sub-total calculations sum to total.
     if params.subtotal_column is not None:
-        sub_group_col = params.subtotal_column
-        pks_wo_subgroup = [col for col in pks if col != sub_group_col]
-        calculated_df["sub_total_sum"] = (
-            calculated_df.pipe(lambda df: df[df[sub_group_col] != "total"])
-            .groupby(pks_wo_subgroup)[params.column_to_check]
-            .transform("sum")  # For each group, calculate sum of sub-components
+        logger.info(
+            f"Checking total-to-subtotal calculations within {params.subtotal_column}"
         )
-        calculated_df["sub_total_sum"] = calculated_df["sub_total_sum"].fillna(
-            calculated_df[params.column_to_check]  # Fill in value from 'total' column
+        meta_w_dims = xbrl_metadata.assign(
+            **{dim: pd.NA for dim in dim_cols} | {"table_name": table_name}
+        ).pipe(
+            make_calculation_dimensions_explicit,
+            table_dimensions_ferc1=table_dims,
+            dimensions=dim_cols,
         )
-        sub_total_errors = (
-            calculated_df.groupby(pks_wo_subgroup)
-            # If subcomponent sum != total sum, we have nunique()>1
-            .filter(lambda x: x["sub_total_sum"].nunique() > 1).groupby(  # noqa: PD101
-                pks_wo_subgroup
-            )
+        calc_comps_w_totals = infer_intra_factoid_totals(
+            intra_tbl_calcs,
+            meta_w_dims=meta_w_dims,
+            table_dimensions=table_dims,
+            dimensions=dim_cols,
         )
-        off_ratio_sub = (
-            sub_total_errors.ngroups / calculated_df.groupby(pks_wo_subgroup).ngroups
+        subtotal_calcs = calculate_values_from_components(
+            data=df,
+            calculation_components=calc_comps_w_totals[
+                calc_comps_w_totals.is_total_to_subdimensions_calc
+            ],
+            calc_idx=calc_idx,
+            value_col=params.column_to_check,
         )
-        if sub_total_errors.ngroups > 0:
-            logger.warning(
-                f"{table_name}: has {sub_total_errors.ngroups} ({off_ratio_sub:.02%}) sub-total calculations that don't "
-                "sum to the equivalent total column."
-            )
-        if off_ratio_sub > params.subtotal_calculation_tolerance:
-            raise AssertionError(
-                f"Sub-total calculations in {table_name} are off by {off_ratio_sub}. Expected tolerance "
-                f"of {params.subtotal_calculation_tolerance}."
-            )
+        subtotal_calcs = check_calculcation_metrics(
+            calculated_df=subtotal_calcs,
+            value_col=params.column_to_check,
+            calculation_tolerance=params.calculation_tolerance,
+            table_name=table_name,
+            add_corrections=True,
+        ).rename(columns={"xbrl_factoid": xbrl_factoid_name})
 
     return calculated_df
 
@@ -891,7 +893,6 @@ def reconcile_table_calculations(
 def calculate_values_from_components(
     calculation_components: pd.DataFrame,
     data: pd.DataFrame,
-    validate: Literal["one_to_many", "many_to_many"],
     calc_idx: list[str],
     value_col: str,
 ) -> pd.DataFrame:
@@ -905,8 +906,6 @@ def calculate_values_from_components(
         data: exploded FERC data to apply the calculations to. Primary key should be
             ``report_year``, ``utility_id_ferc1``, ``table_name``, ``xbrl_factoid``, and
             whatever additional dimensions are relevant to the data.
-        validate: type of merge validation to apply when initially merging the calculation
-            components (left) and the data (right).
         calc_idx: primary key columns that uniquely identify a calculation component (not
             including the ``_parent`` columns).
         value_col: label of the column in ``data`` that contains the values to apply the
@@ -933,7 +932,7 @@ def calculate_values_from_components(
         pd.merge(
             calculation_components,
             data,
-            validate=validate,
+            validate="one_to_many",
             on=calc_idx,
         )
         # apply the weight from the calc to convey the sign before summing.
@@ -2391,6 +2390,7 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
                 df=df,
                 calculation_components=self.xbrl_calculations,
                 xbrl_factoid_name=self.params.xbrl_factoid_name,
+                xbrl_metadata=self.xbrl_metadata,
                 table_name=self.table_id.value,
                 params=params,
             )
@@ -6036,7 +6036,12 @@ def infer_intra_factoid_totals(
         lambda dim: f"{dim}_parent", axis="columns"
     )
     inferred_totals = inferred_totals.fillna(child_values)
-    calcs_with_totals = pd.concat([calc_components, inferred_totals])
+    calcs_with_totals = pd.concat(
+        [
+            calc_components.assign(is_total_to_subdimensions_calc=False),
+            inferred_totals.assign(is_total_to_subdimensions_calc=True),
+        ]
+    )
 
     # verification + deduping below.
 
