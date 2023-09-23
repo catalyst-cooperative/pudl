@@ -110,7 +110,9 @@ jobs:
           path: coverage.xml
 
   ci-integration:
-    runs-on: ubuntu-latest
+    runs-on:
+      group: large-runner-group
+      labels: ubuntu-22.04-4core
     if: github.event.pull_request.draft == false
     permissions:
       contents: read
