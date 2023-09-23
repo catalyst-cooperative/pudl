@@ -1373,7 +1373,7 @@ class Exploder:
         """
         exploded = (
             self.initial_explosion_concatenation(tables_to_explode)
-            .pipe(self.generate_intertable_calculations)
+            .pipe(self.reconcile_intertable_calculations)
             .pipe(self.calculation_forest.leafy_data, value_col=self.value_col)
         )
         # Identify which columns should be kept in the output...
@@ -1447,7 +1447,7 @@ class Exploder:
         )
         return exploded
 
-    def generate_intertable_calculations(
+    def reconcile_intertable_calculations(
         self: Self, exploded: pd.DataFrame
     ) -> pd.DataFrame:
         """Generate calculated values for inter-table calculated factoids.
@@ -1496,7 +1496,7 @@ class Exploder:
             calc_idx=calc_idx,
             value_col=self.value_col,
         )
-        subtotal_calcs = pudl.transform.ferc1.check_calculcation_metrics(
+        subtotal_calcs = pudl.transform.ferc1.check_calculation_metrics(
             calculated_df=subtotal_calcs,
             value_col=self.value_col,
             calculation_tolerance=self.calculation_tolerance.intertable_calculation_errors,

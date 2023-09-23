@@ -882,7 +882,7 @@ def reconcile_table_calculations(
             calc_idx=calc_idx,
             value_col=params.column_to_check,
         )
-        subtotal_calcs = check_calculcation_metrics(
+        subtotal_calcs = check_calculation_metrics(
             calculated_df=subtotal_calcs,
             value_col=params.column_to_check,
             calculation_tolerance=params.calculation_tolerance,
