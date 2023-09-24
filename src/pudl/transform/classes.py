@@ -552,7 +552,7 @@ def convert_units(col: pd.Series, params: UnitConversion) -> pd.Series:
         new_name = col.name
     if (col.name == new_name) & (params.from_unit != "") & (params.to_unit != ""):
         logger.debug(f"Old and new column names are identical: {col.name}.")
-    col = (params.multiplier * col) + params.adder
+    col = (params.multiplier * pd.to_numeric(col)) + params.adder
     col.name = new_name
     return col
 

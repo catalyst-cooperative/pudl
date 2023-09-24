@@ -2485,6 +2485,7 @@ class FuelFerc1TableTransformer(Ferc1AbstractTableTransformer):
         df = (
             super()
             .process_dbf(raw_dbf)
+            .pipe(self.to_numeric)
             .pipe(self.convert_units)
             .pipe(self.normalize_strings)
             .pipe(self.categorize_strings)
@@ -2518,6 +2519,7 @@ class FuelFerc1TableTransformer(Ferc1AbstractTableTransformer):
                 raw_xbrl_instant, raw_xbrl_duration
             )
             .pipe(self.rename_columns, rename_stage="xbrl")
+            .pipe(self.to_numeric)
             .pipe(self.convert_units)
             .pipe(self.normalize_strings)
             .pipe(self.categorize_strings)
@@ -2530,7 +2532,20 @@ class FuelFerc1TableTransformer(Ferc1AbstractTableTransformer):
             )
         )
 
-    def standardize_physical_fuel_units(self, df: pd.DataFrame) -> pd.DataFrame:
+    def to_numeric(self: Self, df: pd.DataFrame) -> pd.DataFrame:
+        """Convert columns containing numeric strings to numeric types."""
+        numeric_cols = [
+            "fuel_consumed_units",
+            "fuel_cost_per_unit_burned",
+            "fuel_cost_per_unit_delivered",
+            "fuel_cost_per_mmbtu",
+        ]
+        for col in numeric_cols:
+            df[col] = pd.to_numeric(df[col])
+
+        return df
+
+    def standardize_physical_fuel_units(self: Self, df: pd.DataFrame) -> pd.DataFrame:
         """Convert reported fuel quantities to standard units depending on fuel type.
 
         Use the categorized fuel type and reported fuel units to convert all fuel
@@ -3970,6 +3985,11 @@ class TransmissionStatisticsFerc1TableTransformer(Ferc1AbstractTableTransformer)
 
     table_id: TableIdFerc1 = TableIdFerc1.TRANSMISSION_STATISTICS_FERC1
     has_unique_record_ids: bool = False
+
+    def transform_main(self: Self, df: pd.DataFrame) -> pd.DataFrame:
+        """Do some string-to-numeric ninja moves."""
+        df["num_transmission_circuits"] = pd.to_numeric(df["num_transmission_circuits"])
+        return super().transform_main(df)
 
 
 class ElectricEnergySourcesFerc1TableTransformer(Ferc1AbstractTableTransformer):
