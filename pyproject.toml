@@ -14,7 +14,7 @@ dependencies = [
     "addfips>=0.4,<0.5",
     "alembic>=1.10.3,<1.13",
     "catalystcoop.dbfread>=3.0,<3.1",
-    "catalystcoop.ferc-xbrl-extractor>=1.1.0,<2",
+    "catalystcoop.ferc-xbrl-extractor>=1.1.1,<2",
     "coloredlogs>=14.0,<15.1",  # Dagster requires 14.0
     "dagster-webserver>=1.4,<1.5",  # 1.2.2 is first version to support Python 3.11
     "dagster>=1.4,<1.5",  # 1.2.2 is first version to support Python 3.11
@@ -28,7 +28,7 @@ dependencies = [
     "matplotlib>=3.3,<3.9",  # Should make this optional with a "viz" extras
     "networkx>=2.2,<3.2",
     "numpy>=1.18.5,!=1.23.0,<1.27",
-    "pandas[parquet,excel,fss,gcp,compression]>=2,<2.2",
+    "pandas[compression,excel,fss,gcp,parquet,performance]>=2,<2.2",
     "pyarrow>=7,<13",
     "pydantic[email]>=1.7,<2",
     "python-dotenv>=0.21,<1.1",
