@@ -1559,21 +1559,6 @@ class XbrlCalculationForestFerc1(BaseModel):
         return v
 
     @validator("exploded_calcs")
-    def single_valued_weights(cls, v: pd.DataFrame, values) -> pd.DataFrame:
-        """Ensure that every calculation component has a uniquely specified weight."""
-        multi_valued_weights = (
-            v.groupby(values["calc_cols"], dropna=False)["weight"]
-            .transform("nunique")
-            .gt(1)
-        )
-        if multi_valued_weights.any():
-            logger.warning(
-                f"Found {sum(multi_valued_weights)} calculations with conflicting "
-                "weights."
-            )
-        return v
-
-    @validator("exploded_calcs")
     def calcs_have_required_cols(cls, v: pd.DataFrame, values) -> pd.DataFrame:
         """Ensure exploded calculations include all required columns."""
         required_cols = values["parent_cols"] + values["calc_cols"] + ["weight"]
