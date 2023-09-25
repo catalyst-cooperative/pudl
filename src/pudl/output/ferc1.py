@@ -44,7 +44,7 @@ EXPLOSION_CALCULATION_TOLERANCES: dict[str, CalculationToleranceFerc1] = {
         intertable_calculation_errors=0.20,
     ),
     "balance_sheet_assets_ferc1": CalculationToleranceFerc1(
-        intertable_calculation_errors=0.85,
+        intertable_calculation_errors=0.65,
     ),
     "balance_sheet_liabilities_ferc1": CalculationToleranceFerc1(
         intertable_calculation_errors=0.07,
@@ -1469,7 +1469,6 @@ class Exploder:
         calculated_df = pudl.transform.ferc1.calculate_values_from_components(
             calculation_components=calculations_intertable,
             data=exploded,
-            validate="one_to_many",
             calc_idx=calc_idx,
             value_col=self.value_col,
         )

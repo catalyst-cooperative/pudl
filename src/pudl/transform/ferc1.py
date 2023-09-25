@@ -843,7 +843,6 @@ def reconcile_table_calculations(
     calculated_df = calculate_values_from_components(
         data=df,
         calculation_components=intra_tbl_calcs,
-        validate="one_to_many",
         calc_idx=calc_idx,
         value_col=params.column_to_check,
     )
@@ -894,7 +893,6 @@ def reconcile_table_calculations(
 def calculate_values_from_components(
     calculation_components: pd.DataFrame,
     data: pd.DataFrame,
-    validate: Literal["one_to_many", "many_to_many"],
     calc_idx: list[str],
     value_col: str,
 ) -> pd.DataFrame:
@@ -936,7 +934,7 @@ def calculate_values_from_components(
         pd.merge(
             calculation_components,
             data,
-            validate=validate,
+            validate="one_to_many",
             on=calc_idx,
         )
         # apply the weight from the calc to convey the sign before summing.
