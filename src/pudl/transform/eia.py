@@ -301,11 +301,7 @@ def _compile_all_entity_records(
     annual_cols = ENTITIES[entity.value]["annual_cols"]
     # A dictionary of columns representing additional data to be harvested,
     # whose names should map to an ID, static, or annual column name.
-    map_cols_dict = (
-        ENTITIES[entity.value]["map_cols_dict"]
-        if ("map_cols_dict" in ENTITIES[entity.value])
-        else None
-    )
+    map_cols_dict = ENTITIES[entity.value].get("map_cols_dict")
     base_cols = id_cols + ["report_date"]
 
     # empty list for dfs to be added to for each table below
