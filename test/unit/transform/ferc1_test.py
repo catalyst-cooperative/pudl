@@ -451,7 +451,6 @@ books,big_fact,earth,12.0,44,2312,{3+4+5}
     out_ksr = calculate_values_from_components(
         calculation_components=calculation_components_ksr,
         data=data_ksr,
-        validate="one_to_many",
         calc_idx=["table_name", "xbrl_factoid", "planet"],
         value_col="value",
     )
