@@ -54,11 +54,14 @@ function shutdown_vm() {
     curl -X POST -H "Content-Length: 0" -H "Authorization: Bearer ${ACCESS_TOKEN}" https://compute.googleapis.com/compute/v1/projects/catalyst-cooperative-pudl/zones/$GCE_INSTANCE_ZONE/instances/$GCE_INSTANCE/stop
 }
 
-function copy_outputs_to_intake_bucket() {
-    echo "Copying outputs to GCP intake bucket"
-    gsutil -m -u $GCP_BILLING_PROJECT cp -r "$PUDL_OUTPUT/*" "gs://intake.catalyst.coop/$GITHUB_REF"
+function copy_outputs_to_distribution_bucket() {
+    echo "Copying outputs to GCP distribution bucket"
+    gsutil -m -u $GCP_BILLING_PROJECT cp -r "$PUDL_OUTPUT/*" "gs://pudl.catalyst.coop/$GITHUB_REF"
 
+    echo "Copying outputs to AWS distribution bucket"
+    aws s3 cp "$PUDL_OUTPUT/" "s3://pudl.catalyst.coop/$GITHUB_REF" --recursive
     echo "Copying outputs to AWS intake bucket"
+    # This is temporary as we migrate people to pudl.catalyst.coop
     aws s3 cp "$PUDL_OUTPUT/" "s3://intake.catalyst.coop/$GITHUB_REF" --recursive
 }
 
@@ -86,7 +89,11 @@ run_pudl_etl 2>&1 | tee $LOGFILE
 # Notify slack if the etl succeeded.
 if [[ ${PIPESTATUS[0]} == 0 ]]; then
     notify_slack "success"
-    copy_outputs_to_intake_bucket
+
+    # Dump outputs to s3 bucket if branch is dev or build was triggered by a tag
+    if [ $GITHUB_ACTION_TRIGGER = "push" ] || [ $GITHUB_REF = "dev" ]; then
+        copy_outputs_to_distribution_bucket
+    fi
 
     # Deploy the updated data to datasette
     if [ $GITHUB_REF = "dev" ]; then
