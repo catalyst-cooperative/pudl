@@ -3,7 +3,7 @@ name: tox-pytest
 
 on:
   workflow_dispatch:
-  pull_reqyest:
+  pull_request:
     types:
       - created
       - opened
@@ -32,7 +32,7 @@ jobs:
         shell: bash -l {0}
 
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
         with:
           fetch-depth: 2
 
@@ -75,7 +75,7 @@ jobs:
         shell: bash -l {0}
 
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
         with:
           fetch-depth: 2
 
@@ -129,7 +129,7 @@ jobs:
     strategy:
       fail-fast: false
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
         with:
           fetch-depth: 2
       - name: Install Conda environment using mamba
@@ -142,7 +142,6 @@ jobs:
             - conda-forge
             - defaults
             channel_priority: strict
-
       - name: Compile Zenodo datastore DOIs for cache invalidation
         run:
           grep -e '.*10\.\(5281\|5072\)/zenodo\..*' src/pudl/workspace/datastore.py
@@ -177,9 +176,8 @@ jobs:
 
       - name: Upload coverage
         uses: actions/upload-artifact@v3
-        if: ${{ matrix.tox-env == 'docs' }}
         with:
-          name: coverage-docs
+          name: coverage-integration
           path: coverage.xml
 
   ci-coverage:
@@ -189,7 +187,7 @@ jobs:
       - ci-integration
       - ci-static
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - name: Download coverage
         id: download-unit
         uses: actions/download-artifact@v3

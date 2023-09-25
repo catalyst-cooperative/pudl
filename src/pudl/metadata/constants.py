@@ -98,6 +98,7 @@ CONTRIBUTORS: dict[str, dict[str, str]] = {
         "email": "christina.gosnell@catalyst.coop",
         "role": "contributor",
         "organization": "Catalyst Cooperative",
+        "orcid": "0009-0004-2979-6142",
     },
     "steven-winter": {
         "title": "Steven Winter",
@@ -117,12 +118,14 @@ CONTRIBUTORS: dict[str, dict[str, str]] = {
         "path": "https://karldw.org",
         "role": "contributor",
         "organization": "UC Berkeley",
+        "orcid": "0000-0003-0523-7309",
     },
     "greg-schivley": {
         "title": "Greg Schivley",
         "path": "https://gschivley.github.io",
         "role": "contributor",
         "organization": "Carbon Impact Consulting",
+        "orcid": "0000-0002-8947-694X",
     },
     "austen-sharpe": {
         "title": "Austen Sharpe",
@@ -153,6 +156,20 @@ CONTRIBUTORS: dict[str, dict[str, str]] = {
         "email": "ethan.welty@gmail.com",
         "role": "contributor",
         "organization": "Catalyst Cooperative",
+        "orcid": "0000-0001-8046-2210",
+    },
+    "dazhong-xia": {
+        "title": "Dazhong Xia",
+        "email": "dazhong.xia@catalyst.coop",
+        "role": "contributor",
+        "organization": "Catalyst Cooperative",
+    },
+    "ella-belfer": {
+        "title": "Ella Belfer",
+        "email": "ella.belfer@catalyst.coop",
+        "role": "contributor",
+        "organization": "Catalyst Cooperative",
+        "orcid": "0000-0001-9784-8531",
     },
 }
 """PUDL Contributors for attribution."""
@@ -258,6 +275,39 @@ KEYWORDS: dict[str, list[str]] = {
         "usa",
         "government",
         "federal",
+    ],
+    "msha": [
+        "msha",
+        "mshamines",
+        "mine safety and health administration",
+        "mines",
+        "mining",
+        "coal",
+        "metal",
+        "department of labor",
+    ],
+    "phmsa": [
+        "phmsa",
+        "phmsagas",
+        "pipelines and hazardous materials safety administration",
+        "pipelines",
+        "natural gas",
+        "transmission",
+        "distribution",
+        "gathering",
+        "liquified natural gas",
+        "lng",
+        "underground natural gas storage",
+        "department of transportation",
+        "us dot",
+    ],
+    "eia_water": [
+        "eia thermoelectric cooling water",
+        "eia waterthermoelectric",
+        "cooling water",
+        "water usage",
+        "water energy nexus",
+        "energy water nexus",
     ],
 }
 
