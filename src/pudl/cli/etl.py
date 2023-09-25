@@ -135,28 +135,37 @@ def main():
             "process_epacems": process_epacems,
         },
     )
-    result = execute_job(
-        pudl_etl_reconstructable_job,
-        instance=DagsterInstance.get(),
-        run_config={
-            "execution": {
+    run_config = {
+        "resources": {
+            "dataset_settings": {"config": dataset_settings_config},
+            "datastore": {
+                "config": {
+                    "gcs_cache_path": args.gcs_cache_path
+                    if args.gcs_cache_path
+                    else "",
+                },
+            },
+        },
+    }
+    if args.max_concurrent:
+        if args.max_concurrent == 1:
+            run_config["execution"] = {
+                "config": {
+                    "in_process": {},
+                },
+            }
+        else:
+            run_config["execution"] = {
                 "config": {
                     "multiprocess": {
                         "max_concurrent": int(args.max_concurrent),
                     },
                 }
-            },
-            "resources": {
-                "dataset_settings": {"config": dataset_settings_config},
-                "datastore": {
-                    "config": {
-                        "gcs_cache_path": args.gcs_cache_path
-                        if args.gcs_cache_path
-                        else "",
-                    },
-                },
-            },
-        },
+            }
+    result = execute_job(
+        pudl_etl_reconstructable_job,
+        instance=DagsterInstance.get(),
+        run_config=run_config,
     )
 
     # Workaround to reliably getting full stack trace

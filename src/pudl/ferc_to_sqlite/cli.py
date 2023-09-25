@@ -7,6 +7,7 @@ main PUDL ETL process. The underlying work in the script is being done in
 """
 import argparse
 import sys
+import time
 from collections.abc import Callable
 
 from dagster import (
@@ -76,6 +77,11 @@ def parse_command_line(argv):
         help="Set logging level (DEBUG, INFO, WARNING, ERROR, or CRITICAL).",
         default="INFO",
     )
+    parser.add_argument(
+        "--max-concurrent",
+        help="Set the max number of processes that dagster can launch. If set to 1, use in-process executor.",
+        default=0,
+    )
     arguments = parser.parse_args(argv[1:])
     return arguments
 
@@ -138,38 +144,60 @@ def main():  # noqa: C901
         "ferc_to_sqlite_job_factory",
         reconstructable_kwargs={"loglevel": args.loglevel, "logfile": args.logfile},
     )
-
-    result = execute_job(
-        ferc_to_sqlite_reconstructable_job,
-        instance=DagsterInstance.get(),
-        run_config={
-            "resources": {
-                "ferc_to_sqlite_settings": {
-                    "config": etl_settings.ferc_to_sqlite_settings.dict()
-                },
-                "datastore": {
-                    "config": {
-                        "gcs_cache_path": args.gcs_cache_path
-                        if args.gcs_cache_path
-                        else "",
-                    },
-                },
+    run_config = {
+        "resources": {
+            "ferc_to_sqlite_settings": {
+                "config": etl_settings.ferc_to_sqlite_settings.dict()
             },
-            "ops": {
-                "xbrl2sqlite": {
-                    "config": {
-                        "workers": args.workers,
-                        "batch_size": args.batch_size,
-                        "clobber": args.clobber,
-                    },
-                },
-                "dbf2sqlite": {
-                    "config": {"clobber": args.clobber},
+            "datastore": {
+                "config": {
+                    "gcs_cache_path": args.gcs_cache_path
+                    if args.gcs_cache_path
+                    else "",
                 },
             },
         },
+        "ops": {
+            "xbrl2sqlite": {
+                "config": {
+                    "workers": args.workers,
+                    "batch_size": args.batch_size,
+                    "clobber": args.clobber,
+                },
+            },
+            "dbf2sqlite": {
+                "config": {"clobber": args.clobber},
+            },
+        },
+    }
+
+    if args.max_concurrent:
+        if args.max_concurrent == 1:
+            logger.info("Using in-process executor.")
+            run_config["execution"] = {
+                "config": {
+                    "in_process": {},
+                },
+            }
+        else:
+            logger.info("Using multiprocess executor with {args.max_concurrent} workers.")
+            run_config["execution"] = {
+                "config": {
+                    "multiprocess": {
+                        "max_concurrent": int(args.max_concurrent),
+                    },
+                }
+            }
+
+    start_time = time.time()
+    result = execute_job(
+        ferc_to_sqlite_reconstructable_job,
+        instance=DagsterInstance.get(),
+        run_config=run_config,
         raise_on_error=True,
     )
+    end_time = time.time()
+    logger.info(f"FERC to SQLite job completed in {end_time - start_time} seconds.")
 
     # Workaround to reliably getting full stack trace
     if not result.success:
