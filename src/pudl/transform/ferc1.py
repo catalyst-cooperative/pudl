@@ -2396,7 +2396,7 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
                 xbrl_factoid_name=self.params.xbrl_factoid_name,
                 table_name=self.table_id.value,
                 params=params,
-                add_corrections=False,
+                add_corrections=True,
             )
         return df
 
