@@ -5,6 +5,9 @@ on:
   workflow_dispatch:
   schedule:
     - cron: "0 6 * * 1-5" # Weekdays at midnight on MST
+  pull_request:
+    paths:
+      - "src/pudl/workspace/datastore.py"
 
 env:
   INTERNAL_ZENODO_CACHE_BUCKET: gs://internal-zenodo-cache.catalyst.coop
@@ -31,8 +34,13 @@ jobs:
         run: |
           echo "This action was triggered by a schedule." && echo "GITHUB_REF=dev" >> $GITHUB_ENV
 
-      - name: Checkout desired branch branch
-        uses: actions/checkout@v3
+      - name: Log value of github ref
+        if: ${{ (github.event_name == 'pull_request') }}
+        run: |
+          echo "This action was triggered by a pull request." && echo "GITHUB_REF="${{ github.head_ref }} >> $GITHUB_ENV
+
+      - name: Checkout desired branch
+        uses: actions/checkout@v4
         with:
           ref: ${{ env.GITHUB_REF }}
 
