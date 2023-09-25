@@ -232,9 +232,9 @@ def filled_balancing_authority_eia861(
             key = (fix["id"], pd.Timestamp(year, 1, 1))
             if key not in dfi.index:
                 rows.append({**ref, "report_date": key[1]})
-    # Append to original table
-    new_rows = apply_pudl_dtypes(pd.DataFrame(rows), group="eia")
-    df = pd.concat([df, new_rows], axis="index")
+    df = pd.concat(
+        [df, apply_pudl_dtypes(pd.DataFrame(rows), group="eia")], axis="index"
+    )
     # Remove balancing authorities treated as utilities
     mask = df["balancing_authority_id_eia"].isin([util["id"] for util in UTILITIES])
     return apply_pudl_dtypes(df[~mask], group="eia")
