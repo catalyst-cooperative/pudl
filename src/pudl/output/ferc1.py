@@ -1473,7 +1473,7 @@ class Exploder:
             calc_idx=calc_idx,
             value_col=self.value_col,
         )
-        calculated_df = pudl.transform.ferc1.check_calculcation_metrics(
+        calculated_df = pudl.transform.ferc1.check_calculation_metrics(
             calculated_df=calculated_df,
             value_col=self.value_col,
             calculation_tolerance=self.calculation_tolerance.intertable_calculation_errors,
