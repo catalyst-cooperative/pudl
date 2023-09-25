@@ -855,51 +855,6 @@ def reconcile_table_calculations(
         add_corrections=add_corrections,
     ).rename(columns={"xbrl_factoid": xbrl_factoid_name})
 
-    calculated_df = calculated_df.assign(
-        abs_diff=lambda x: abs(x[params.column_to_check] - x.calculated_amount),
-        rel_diff=lambda x: np.where(
-            (x[params.column_to_check] != 0.0),
-            abs(x.abs_diff / x[params.column_to_check]),
-            np.nan,
-        ),
-    )
-
-    off_df = calculated_df[
-        ~np.isclose(
-            calculated_df.calculated_amount, calculated_df[params.column_to_check]
-        )
-        & (calculated_df["abs_diff"].notnull())
-    ]
-    calculated_values = calculated_df[(calculated_df.abs_diff.notnull())]
-    off_ratio = len(off_df) / len(calculated_values)
-
-    if off_ratio > params.calculation_tolerance:
-        raise AssertionError(
-            f"Calculations in {table_name} are off by {off_ratio}. Expected tolerance "
-            f"of {params.calculation_tolerance}."
-        )
-
-    # We'll only get here if the proportion of calculations that are off is acceptable
-    if off_ratio > 0:
-        logger.info(
-            f"{table_name}: has {len(off_df)} ({off_ratio:.02%}) records whose "
-            "calculations don't match. Adding correction records to make calculations "
-            "match reported values."
-        )
-        corrections = off_df.copy()
-        corrections[params.column_to_check] = (
-            corrections[params.column_to_check].fillna(0.0)
-            - corrections["calculated_amount"]
-        )
-        corrections[xbrl_factoid_name] = corrections[xbrl_factoid_name] + "_correction"
-        corrections["row_type_xbrl"] = "correction"
-        corrections["is_within_table_calc"] = True
-        corrections["record_id"] = pd.NA
-
-        calculated_df = pd.concat(
-            [calculated_df, corrections], axis="index"
-        ).reset_index()
-
     # Check that sub-total calculations sum to total.
     if params.subtotal_column is not None:
         sub_group_col = params.subtotal_column
