@@ -373,8 +373,8 @@ def configure_paths_for_tests(tmp_path_factory, request):
     gha_override_input = False
     gha_override_output = False
     if os.environ.get("GITHUB_ACTIONS", False):
-        gha_override_input = "PUDL_INPUTS" not in os.environ
-        gha_override_output = "PUDL_OUTPUTS" not in os.environ
+        gha_override_input = "PUDL_INPUT" not in os.environ
+        gha_override_output = "PUDL_OUTPUT" not in os.environ
         logger.info(
             "Running in GitHub Actions environment, using"
             f" temporary input dir: {gha_override_input}, and"
