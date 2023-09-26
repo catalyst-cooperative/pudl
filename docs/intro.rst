@@ -89,8 +89,8 @@ Assets in the Raw layer read the raw data from the original heterogeneous format
 a collection of :class:`pandas.DataFrame` with uniform column names across all years so
 that it can be easily processed in bulk. Data distributed as binary database files, such
 as the DBF files from FERC Form 1, may be converted into a unified SQLite database
-before individual dataframes are created. Raw data assets are typically persisted to
-pickle files and are not distributed to users.
+before individual dataframes are created. Raw data assets are not written to
+``pudl.sqlite``, persisted to pickle files and not distributed to users.
 
 .. seealso::
 
