@@ -1,6 +1,5 @@
 """Tests for timeseries anomalies detection and imputation."""
 from importlib import resources
-from typing import Literal
 
 import pandas as pd
 
@@ -193,8 +192,8 @@ def test_make_mega_gen_tbl():
                 "plant_id_eia": 1,
                 "report_date": "2020-01-01",
                 "generator_id": ["a", "b", "c", "c"],
-                "utility_id_eia": 111,
-                "owner_utility_id_eia": [111, 111, 111, 888],
+                # "utility_id_eia": 111,
+                "utility_id_eia": [111, 111, 111, 888],
                 "fraction_owned": [1, 1, 0.75, 0.25],
             }
         )
@@ -266,8 +265,7 @@ def test_scale_by_ownership():
             "plant_id_eia": [1, 1, 1, 1],
             "report_date": ["2019-01-01", "2019-01-01", "2019-01-01", "2019-01-01"],
             "generator_id": ["a", "a", "b", "b"],
-            "utility_id_eia": [3, 3, 3, 3],
-            "owner_utility_id_eia": [3, 4, 3, 4],
+            "utility_id_eia": [3, 4, 3, 4],
             "fraction_owned": [0.7, 0.3, 0.1, 0.9],
         },
     ).astype(dtypes)
@@ -492,21 +490,6 @@ def test_label_true_grans():
     pd.testing.assert_frame_equal(expected_out, out)
 
 
-class PudlTablMock:
-    """Mock ``pudl_out`` object."""
-
-    freq: Literal["AS", "MS"]
-
-    def __init__(
-        self,
-        freq="AS",
-    ):
-        self.freq = freq
-
-    def execute(self):
-        return self
-
-
 def test_one_to_many():
     plant_part_list_input = pd.DataFrame(
         {
@@ -570,8 +553,7 @@ def test_one_to_many():
         "test_one_to_many.csv",
     )
 
-    pudl_out = PudlTablMock()
-    parts_compiler = pudl.analysis.plant_parts_eia.MakePlantParts(pudl_out)
+    parts_compiler = pudl.analysis.plant_parts_eia.MakePlantParts()
 
     one_to_many_df = (
         parts_compiler.add_one_to_many(
