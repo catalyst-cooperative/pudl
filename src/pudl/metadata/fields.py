@@ -445,6 +445,7 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "description": "Purchase type under which receipts occurred in the reporting month. C: Contract, NC: New Contract, S: Spot Purchase, T: Tolling Agreement.",
         "constraints": {"enum": ["S", "C", "NC", "T"]},
     },
+    "country": {"type": "string", "description": "Three letter country abbreviation."},
     "emission_control_id_eia": {
         "type": "string",
         "description": (
@@ -2102,6 +2103,10 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "type": "string",
         "description": "Identifier indicating original FERC Form 1 source record. format: {table_name}_{report_year}_{report_prd}_{respondent_id}_{spplmnt_num}_{row_number}. Unique within FERC Form 1 DB tables which are not row-mapped.",  # noqa: FS003
     },
+    "record_id_eia": {
+        "type": "string",
+        "description": "Identifier for EIA plant parts analysis records.",
+    },
     "region_name_us_census": {
         "type": "string",
         "description": "Human-readable name of a US Census region.",
@@ -2629,11 +2634,6 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     "utility_id_eia": {
         "type": "integer",
         "description": "The EIA Utility Identification number.",
-        # TODO: Disambiguate column name. In some cases this specifically refers to
-        # the utility which operates a given plant or generator, but comes from the
-        # same set of IDs as all the utility IDs.
-        # E.g. in ownership_eia860 or generators_eia860 it would be something like:
-        # "description": "EIA-assigned identification number for the company that is responsible for the day-to-day operations of the generator.",
     },
     "utility_id_ferc1": {
         "type": "integer",
@@ -2873,6 +2873,16 @@ FIELD_METADATA_BY_RESOURCE: dict[str, dict[str, Any]] = {
                     "Pacific/Honolulu",
                 ]
             }
+        }
+    },
+    "ownership_eia860": {
+        "utility_id_eia": {
+            "description": "The EIA utility Identification number for the owner company that is responsible for the day-to-day operations of the generator, not the operator utility."
+        }
+    },
+    "denorm_ownership_eia860": {
+        "utility_id_eia": {
+            "description": "The EIA utility Identification number for the owner company that is responsible for the day-to-day operations of the generator, not the operator utility."
         }
     },
 }
