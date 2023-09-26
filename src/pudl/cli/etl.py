@@ -26,6 +26,7 @@ from dagster import (
 )
 
 import pudl
+from pudl.helpers import get_dagster_execution_config
 from pudl.settings import EtlSettings
 from pudl.workspace.setup import PudlPaths
 
@@ -61,7 +62,7 @@ def parse_command_line(argv):
         default="INFO",
     )
     parser.add_argument(
-        "--max-concurrent",
+        "--dagster-workers",
         help="Set the max number of processes dagster can launch. Defaults to use the number of CPUs on the machine.",
         default=0,
     )
@@ -147,21 +148,8 @@ def main():
             },
         },
     }
-    if args.max_concurrent:
-        if args.max_concurrent == 1:
-            run_config["execution"] = {
-                "config": {
-                    "in_process": {},
-                },
-            }
-        else:
-            run_config["execution"] = {
-                "config": {
-                    "multiprocess": {
-                        "max_concurrent": int(args.max_concurrent),
-                    },
-                }
-            }
+    run_config.update(get_dagster_execution_config(args.dagster_workers))
+
     result = execute_job(
         pudl_etl_reconstructable_job,
         instance=DagsterInstance.get(),

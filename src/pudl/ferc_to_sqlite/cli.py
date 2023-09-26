@@ -19,6 +19,7 @@ from dagster import (
 
 import pudl
 from pudl import ferc_to_sqlite
+from pudl.helpers import get_dagster_execution_config
 from pudl.settings import EtlSettings
 
 # Create a logger to output any messages we might have...
@@ -78,7 +79,7 @@ def parse_command_line(argv):
         default="INFO",
     )
     parser.add_argument(
-        "--max-concurrent",
+        "--dagster-workers",
         help="Set the max number of processes that dagster can launch. If set to 1, use in-process executor.",
         default=0,
     )
@@ -170,24 +171,7 @@ def main():  # noqa: C901
             },
         },
     }
-
-    if args.max_concurrent:
-        if args.max_concurrent == 1:
-            logger.info("Using in-process executor.")
-            run_config["execution"] = {
-                "config": {
-                    "in_process": {},
-                },
-            }
-        else:
-            logger.info("Using multiprocess executor with {args.max_concurrent} workers.")
-            run_config["execution"] = {
-                "config": {
-                    "multiprocess": {
-                        "max_concurrent": int(args.max_concurrent),
-                    },
-                }
-            }
+    run_config.update(get_dagster_execution_config(args.dagster_workers))
 
     start_time = time.time()
     result = execute_job(

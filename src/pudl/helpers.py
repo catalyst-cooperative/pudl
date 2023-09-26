@@ -1798,3 +1798,36 @@ def scale_by_ownership(
         gens["fraction_owned"], axis="index"
     )
     return gens
+
+
+def get_dagster_execution_config(num_workers: int = 0):
+    """Get the dagster execution config for a given number of workers.
+
+    If num_workers is 0, then the dagster execution config will not include
+    any limits. With num_workesr set to 1, we will use in-process serial
+    executor, otherwise multi-process executor with maximum of num_workers
+    will be used.
+
+    Args:
+        num_workers: The number of workers to use for the dagster execution config.
+            If 0, then the dagster execution config will not include a multiprocess
+            executor.
+
+    Returns:
+        A dagster execution config.
+    """
+    if not num_workers:
+        return {}
+    if num_workers == 1:
+        return {
+            "execution": {
+                "config": {
+                    "in_process": {},
+                },
+            },
+        }
+    return {
+        "execution": {
+            "config": {"max_concurrent": num_workers},
+        },
+    }
