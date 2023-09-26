@@ -116,6 +116,7 @@ dev = [
     "twine>=3.3,<4.1",
 ]
 doc = [
+    "astroid<3.0.0",
     "doc8>=1.1,<1.2",
     "furo>=2022.4.7",
     "sphinx-autoapi>=1.8,<2.2",
