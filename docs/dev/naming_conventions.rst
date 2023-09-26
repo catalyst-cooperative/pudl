@@ -12,8 +12,12 @@ columns, data sources, and functions.
 Asset Naming Conventions
 ---------------------------------------------------
 
-PUDL's data processing is divided into three layers of dagster assets: Raw, Core
-and Output. Asset names should generally follow this naming convention:
+PUDL's data processing is divided into three layers of Dagster assets: Raw, Core
+and Output. Dagster assets are the core unit of computation in PUDL. The outputs
+of assets can be persisted to any type of storage though PUDL outputs are typically
+tables in a SQLite database, parquet files or pickle files. The asset name is used
+for the table or parquet file name. Asset names should generally follow this naming
+convention:
 
 .. code-block::
 
@@ -39,10 +43,12 @@ Raw layer
 
 Core layer
 ^^^^^^^^^^
-* This layer contains well-modeled assets that serve as building blocks for downstream
-  wide tables and analyses. Well-modeled means tables in the database have logical
+* This layer contains assets that typically break denormalized raw assets into
+  well-modeled tables that serve as building blocks for downstream wide tables
+  and analyses. Well-modeled means tables in the database have logical
   primary keys, foreign keys, datatypes and generally follow
-  :ref:`Tidy Data standards <tidy-data>`.
+  :ref:`Tidy Data standards <tidy-data>`. Assets in this layer create
+  consistent categorical variables, decuplicate and impute data.
   These assets are typically stored in parquet files or tables in a database.
 * Naming convention: ``core_{source}__{asset_type}_{asset_name}``
 * ``asset_type`` describes how the asset is modeled and its role in PUDL’s
@@ -50,27 +56,37 @@ Core layer
 
   * ``assn``: Association tables provide connections between entities. This data
     can be manually compiled or extracted from data sources. Examples:
-    ``core_pudl__assn_plants_eia``, ``core_eia861__assn_utility``.
+
+    * ``core_pudl__assn_plants_eia`` associates EIA Plant IDs and manually assigned
+      PUDL Plant IDs.
   * ``codes``: Code tables contain more verbose descriptions of categorical codes
     typically manually compiled from source data dictionaries. Examples:
-    ``core_eia__codes_averaging_periods``, ``core_eia__codes_balancing_authorities``
+
+    * ``core_eia__codes_averaging_periods``
+    * ``core_eia__codes_balancing_authorities``
   * ``entity``: Entity tables contain static information about entities. For example,
-    the state a plant is located in, or the plant a boiler is a part of. Examples:
-    ``core_eia__entity_boilers``, ``core_eia923__entity_coalmine``.
+    the state a plant is located in or the plant a boiler is a part of. Examples:
+
+    * ``core_eia__entity_boilers``
+    * ``core_eia923__entity_coalmine``.
   * ``scd``: Slowly changing dimension tables describe attributes of entities that
     rarely change. For example, the ownership or the capacity of a plant. Examples:
-    ``core_eia860__scd_generators``, ``core_eia860__scd_plants``.
+
+    * ``core_eia860__scd_generators``
+    * ``core_eia860__scd_plants``.
   * ``yearly/monthly/hourly``: Time series tables contain attributes about entities
     that are expected to change for each reported timestamp. Time series tables
     typically contain measurements of processes like net generation or co2 emissions.
-    Examples: ``core_ferc714__hourly_demand_pa``,
-    ``core_ferc1__yearly_plant_in_service``.
+    Examples:
+
+    * ``core_ferc714__hourly_demand_pa``,
+    * ``core_ferc1__yearly_plant_in_service``.
 
 Output layer
 ^^^^^^^^^^^^
-* This layer uses assets in the Core layer to construct wide and complete tables
-  suitable for users to perform analysis on. This layer can contain intermediate
-  tables that bridge the core and user-facing tables.
+* Assets in this layer use the well modeled tables from the Core layer to construct
+  wide and complete tables suitable for users to perform analysis on. This layer
+  contains intermediate tables that bridge the core and user-facing tables.
 * Naming convention: ``out_{source}__{asset_type}_{asset_name}``
 * ``source`` is optional in this layer because there can be assets that join data from
   multiple sources.
@@ -79,13 +95,18 @@ Output layer
 
 Intermediate Assets
 ^^^^^^^^^^^^^^^^^^^
-* Intermediate assets are logical steps towards a final well-modeled core asset or
+* Intermediate assets are logical steps towards a final well-modeled core or
   user-facing output asset. These assets are not intended to be persisted in the
   database or accessible to the user. These assets are denoted by a preceding
   underscore, like a private python method. For example, the intermediate asset
   ``_core_eia860__plants`` is a logical step towards the
   ``core_eia860__entity_plants`` and ``core_eia860__scd_plants`` assets.
-* The number of intermediate assets should be limited to avoid an extremely
+  ``_core_eia860__plants`` does some basic cleaning of the ``raw_eia860__plant``
+  asset but still contains duplicate plant entities. The computation intensive
+  harvesting process deduplicates ``_core_eia860__plants`` and outputs the
+  ``core_eia860__entity_plants`` and ``core_eia860__scd_plants`` assets which
+  follow Tiny Data standards.
+* Limit the number of intermediate assets to avoid an extremely
   cluttered DAG. It is appropriate to create an intermediate asset when:
 
   * there is a short and long running portion of a process. It is convenient to separate
@@ -115,12 +136,15 @@ that the quantities are actually different.
   ``plant_id_eia``)
 * The data source or label (e.g. ``plant_id_pudl``) should follow the thing it
   is describing
-* Units should be appended to field names where applicable (e.g.
+* Append units to field names where applicable (e.g.
   ``net_generation_mwh``). This includes "per unit" signifiers (e.g. ``_pct``
   for percent, ``_ppm`` for parts per million, or a generic ``_per_unit`` when
   the type of unit varies, as in columns containing a heterogeneous collection
   of fuels)
-* Financial values are assumed to be in nominal US dollars.
+* Financial values are assumed to be in nominal US dollars (I.e., the suffix
+  _usd is implied.)If they are not reported in USD, convert them to USD. If
+  they must be kept in their original form for some reason, append a suffix
+  that lets the user know they are not USD.
 * ``_id`` indicates the field contains a usually numerical reference to
   another table, which will not be intelligible without looking up the value in
   that other table.
@@ -155,8 +179,8 @@ as we come across them again in maintaining the code.
   (e.g. connect_db), unless the function returns a simple value (e.g. datadir).
 * No duplication of information (e.g. form names).
 * lowercase, underscores separate words (i.e. ``snake_case``).
-* Semi-private helper functions (functions used within a single module only
-  and not exposed via the public API) should be preceded by an underscore.
+* Add a preceeding underscore to semi-private helper functions (functions used
+  within a single module only and not exposed via the public API).
 * When the object is a table, use the full table name (e.g. ingest_fuel_ferc1).
 * When dataframe outputs are built from multiple tables, identify the type of
   information being pulled (e.g. "plants") and the source of the tables (e.g.
