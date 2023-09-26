@@ -505,19 +505,19 @@ def _out_ferc714__hourly_imputed_demand(
 
 
 def county_assignments_ferc714(
-    out_ferc714__fipsified_respondents,
+    out_ferc714__respondents_with_fips,
 ) -> pd.DataFrame:
     """Load FERC 714 county assignments.
 
     Args:
-        out_ferc714__fipsified_respondents: From `pudl.output.ferc714`, FERC 714 respondents
+        out_ferc714__respondents_with_fips: From `pudl.output.ferc714`, FERC 714 respondents
             with county FIPS IDs.
 
     Returns:
         Dataframe with columns
         `respondent_id_ferc714`, report `year` (int), and `county_id_fips`.
     """
-    df = out_ferc714__fipsified_respondents[
+    df = out_ferc714__respondents_with_fips[
         ["respondent_id_ferc714", "county_id_fips", "report_date"]
     ]
     # Drop rows where county is blank or a duplicate
@@ -591,7 +591,7 @@ def out_ferc714__hourly_predicted_state_demand(
     context,
     _out_ferc714__hourly_imputed_demand: pd.DataFrame,
     core_censusdp1__entity_county: pd.DataFrame,
-    out_ferc714__fipsified_respondents: pd.DataFrame,
+    out_ferc714__respondents_with_fips: pd.DataFrame,
     core_eia861__yearly_sales: pd.DataFrame = None,
 ) -> pd.DataFrame:
     """Predict state hourly demand.
@@ -600,7 +600,7 @@ def out_ferc714__hourly_predicted_state_demand(
         _out_ferc714__hourly_imputed_demand: Hourly demand timeseries, with columns
           `respondent_id_ferc714`, report `year`, `utc_datetime`, and `demand_mwh`.
         core_censusdp1__entity_county: The county layer of the Census DP1 shapefile.
-        out_ferc714__fipsified_respondents: Annual respondents with the county FIPS IDs
+        out_ferc714__respondents_with_fips: Annual respondents with the county FIPS IDs
             for their service territories.
         core_eia861__yearly_sales: EIA 861 sales data. If provided, the predicted hourly demand is
             scaled to match these totals.
@@ -615,7 +615,7 @@ def out_ferc714__hourly_predicted_state_demand(
 
     # Call necessary functions
     count_assign_ferc714 = county_assignments_ferc714(
-        out_ferc714__fipsified_respondents
+        out_ferc714__respondents_with_fips
     )
     counties = census_counties(core_censusdp1__entity_county)
     total_sales_eia861 = total_state_sales_eia861(core_eia861__yearly_sales)

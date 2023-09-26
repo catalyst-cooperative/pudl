@@ -477,7 +477,7 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
                     "core_eia861__yearly_distribution_systems",
                     "core_eia861__yearly_dynamic_pricing",
                     "core_eia861__yearly_energy_efficiency",
-                    "out_ferc714__fipsified_respondents",
+                    "out_ferc714__respondents_with_fips",
                     "core_eia861__yearly_green_pricing",
                     "mcoe_monthly",
                     "mcoe_generators_monthly",

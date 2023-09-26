@@ -173,7 +173,7 @@ Data Coverage
 
   * :ref:`core_ferc714__respondent_id` (linking FERC-714 respondents to EIA utilities)
   * :ref:`core_ferc714__hourly_demand_pa` (hourly electricity demand by planning area)
-  * :ref:`out_ferc714__fipsified_respondents` (annual respondents with county FIPS IDs)
+  * :ref:`out_ferc714__respondents_with_fips` (annual respondents with county FIPS IDs)
   * :ref:`out_ferc714__summarized_demand` (annual demand for FERC-714 respondents)
 
 * Added new table :ref:`core_epa__assn_epacamd_eia_subplant_ids`, which aguments the

@@ -37,7 +37,7 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
         "field_namespace": "ferc714",
         "etl_group": "ferc714",
     },
-    "out_ferc714__fipsified_respondents": {
+    "out_ferc714__respondents_with_fips": {
         "description": (
             "Annual respondents with the county FIPS IDs for their service territories."
         ),

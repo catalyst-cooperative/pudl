@@ -161,7 +161,7 @@ def test_outputs_by_table_suffix(fast_out, table_suffix):
     "df_name",
     [
         "out_ferc714__summarized_demand",
-        "out_ferc714__fipsified_respondents",
+        "out_ferc714__respondents_with_fips",
     ],
 )
 def test_ferc714_outputs(pudl_engine, df_name):

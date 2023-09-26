@@ -520,7 +520,7 @@ def _out_ferc714__categorized_respondents(
     compute_kind="Python",
     io_manager_key="pudl_sqlite_io_manager",
 )
-def out_ferc714__fipsified_respondents(
+def out_ferc714__respondents_with_fips(
     context,
     _out_ferc714__categorized_respondents: pd.DataFrame,
     core_eia861__assn_balancing_authority: pd.DataFrame,
@@ -590,7 +590,7 @@ def out_ferc714__fipsified_respondents(
 
 @asset(compute_kind="Python")
 def _out_ferc714__georeferenced_counties(
-    out_ferc714__fipsified_respondents: pd.DataFrame,
+    out_ferc714__respondents_with_fips: pd.DataFrame,
     core_censusdp1__entity_county: gpd.GeoDataFrame,
 ) -> gpd.GeoDataFrame:
     """Annual respondents with all associated county-level geometries.
@@ -602,14 +602,14 @@ def _out_ferc714__georeferenced_counties(
     of the FIPS IDs so you can also still do ID based analyses.
     """
     counties_gdf = pudl.analysis.service_territory.add_geometries(
-        out_ferc714__fipsified_respondents, census_gdf=core_censusdp1__entity_county
+        out_ferc714__respondents_with_fips, census_gdf=core_censusdp1__entity_county
     ).pipe(apply_pudl_dtypes)
     return counties_gdf
 
 
 @asset(compute_kind="Python")
 def _out_ferc714__georeferenced_respondents(
-    out_ferc714__fipsified_respondents: pd.DataFrame,
+    out_ferc714__respondents_with_fips: pd.DataFrame,
     out_ferc714__summarized_demand: pd.DataFrame,
     core_censusdp1__entity_county: gpd.GeoDataFrame,
 ) -> gpd.GeoDataFrame:
@@ -625,7 +625,7 @@ def _out_ferc714__georeferenced_respondents(
     """
     respondents_gdf = (
         pudl.analysis.service_territory.add_geometries(
-            out_ferc714__fipsified_respondents,
+            out_ferc714__respondents_with_fips,
             census_gdf=core_censusdp1__entity_county,
             dissolve=True,
             dissolve_by=["report_date", "respondent_id_ferc714"],
@@ -644,7 +644,7 @@ def _out_ferc714__georeferenced_respondents(
 def out_ferc714__summarized_demand(
     _out_ferc714__annualized_respondents: pd.DataFrame,
     core_ferc714__hourly_demand_pa: pd.DataFrame,
-    out_ferc714__fipsified_respondents: pd.DataFrame,
+    out_ferc714__respondents_with_fips: pd.DataFrame,
     _out_ferc714__categorized_respondents: pd.DataFrame,
     _out_ferc714__georeferenced_counties: gpd.GeoDataFrame,
 ) -> pd.DataFrame:
