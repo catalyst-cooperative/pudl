@@ -1,7 +1,7 @@
 xbrl_factoid_rmi,xbrl_factoid_rmi_renamed,xbrl_factoid,table_name,in_rate_base,utility_type,plant_function,plant_status,notes
 accrued_utility_revenues,accrued_utility_revenues,accrued_utility_revenues,balance_sheet_assets_ferc1,yes,,,,"At the option of the utility, the estimated amount accrued for service rendered, but not billed at the end of any accounting period, may be included herein. In case accruals are made for unbilled revenues, they shall be made likewise for unbilled expenses, such as for the purchase of energy."
 advances_for_gas,advances_for_gas,advances_for_gas,balance_sheet_assets_ferc1,yes,,,,"4/13/21 - changed from ""non-electric"" to ""mixed"" - could be for gas power plants."
-allowances,allowances,allowances,electric_operating_expenses_ferc1,yes,,,,
+allowances,allowances,allowance_inventory_and_withheld,balance_sheet_assets_ferc1,yes,,,,
 cash,cash,cash,balance_sheet_assets_ferc1,yes,,,,
 customer_accounts_receivable,customer_accounts_receivable,customer_accounts_receivable,balance_sheet_assets_ferc1,yes,,,,"service provided & billed/collected, asset earned on."
 derivative_instrument_assets,derivative_instrument_assets,derivative_instrument_assets,balance_sheet_assets_ferc1,yes,,,,Ryan/David spoke - believe hedges to be part of rate base - capital put up by customers for their benefit?
@@ -115,10 +115,10 @@ unappropriated_undistributed_subsidiary_earnings,unappropriated_undistributed_su
 unappropriated_undistributed_subsidiary_earnings,unappropriated_undistributed_subsidiary_earnings,unappropriated_undistributed_subsidiary_earnings,retained_earnings_ferc1,no,,,,
 accounts_receivable_from_assoc_companies,accounts_receivable_from_assoc_companies,notes_receivable_from_associated_companies,balance_sheet_assets_ferc1,no,,,,Don't believe associated companies are involved in utility services?
 accum_prov_for_uncollectible_acct_credit,accum_prov_for_uncollectible_acct_credit,accumulated_provision_for_uncollectible_accounts_credit,,yes,,,,Losses on accounts receivable which may become collectible.
-cash_and_working_funds_(non_major_only),cash_and_working_funds_(non_major_only),cash_and_working_funds,,yes,,,,
-derivative_instrument_assets___hedges,derivative_instrument_assets___hedges,derivative_instrument_assets_hedges,,yes,,,,Ryan/David spoke - believe hedges to be part of rate base - capital put up by customers for their benefit?
+cash_and_working_funds_(non_major_only),cash_and_working_funds_(non_major_only),cash_and_working_funds,balance_sheet_assets_ferc1,yes,,,,
+derivative_instrument_assets___hedges,derivative_instrument_assets___hedges,derivative_instrument_assets_hedges,balance_sheet_assets_ferc1,yes,,,,Ryan/David spoke - believe hedges to be part of rate base - capital put up by customers for their benefit?
 gas_stored_underground___current,gas_stored_underground___current,gas_stored_current,balance_sheet_assets_ferc1,yes,,,,
-long_term_portion_of_derivative_instrument_assets,long_term_portion_of_derivative_instrument_assets,derivative_instrument_assets_hedges_long_term,,yes,,,,Ryan/David spoke - believe hedges to be part of rate base - capital put up by customers for their benefit?
+long_term_portion_of_derivative_instrument_assets,long_term_portion_of_derivative_instrument_assets,derivative_instrument_assets_hedges_long_term,balance_sheet_assets_ferc1,yes,,,,Ryan/David spoke - believe hedges to be part of rate base - capital put up by customers for their benefit?
 long_term_portion_of_derivative_instrument_assets___hedges,long_term_portion_of_derivative_instrument_assets___hedges,derivative_instrument_assets_hedges_long_term,balance_sheet_assets_ferc1,yes,,,,Ryan/David spoke - believe hedges to be part of rate base - capital put up by customers for their benefit?
 residuals_(elec)_and_extracted_products,residuals_(elec)_and_extracted_products,residuals,balance_sheet_assets_ferc1,yes,,,,
 working_fund,working_fund,working_funds,balance_sheet_assets_ferc1,yes,,,,
