@@ -6,7 +6,7 @@ import pudl
 from pudl.metadata.codes import CODE_METADATA
 
 
-@asset(compute_kind="Python")
+@asset(io_manager_key="pudl_sqlite_io_manager", compute_kind="Python")
 def denorm_ownership_eia860(
     denorm_plants_utilities_eia: pd.DataFrame,
     ownership_eia860: pd.DataFrame,
