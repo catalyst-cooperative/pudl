@@ -45,7 +45,9 @@ default_assets = (
     *load_assets_from_modules([pudl.transform.ferc1], group_name="core_ferc1"),
     *load_assets_from_modules([pudl.extract.ferc714], group_name="raw_ferc714"),
     *load_assets_from_modules([pudl.transform.ferc714], group_name="core_ferc714"),
-    *load_assets_from_modules([pudl.output.ferc714], group_name="respondents_ferc714"),
+    *load_assets_from_modules(
+        [pudl.output.ferc714], group_name="out_respondents_ferc714"
+    ),
     *load_assets_from_modules(
         [pudl.convert.censusdp1tract_to_sqlite, pudl.output.censusdp1tract],
         group_name="core_censusdp1",
@@ -62,15 +64,15 @@ default_assets = (
         group_name="out_eia",
     ),
     *load_assets_from_modules(
-        [pudl.analysis.allocate_gen_fuel], group_name="allocate_gen_fuel"
+        [pudl.analysis.allocate_gen_fuel], group_name="out_allocate_gen_fuel"
     ),
     *load_assets_from_modules([pudl.analysis.mcoe], group_name="mcoe"),
     *load_assets_from_modules([pudl.output.ferc1], group_name="out_ferc1"),
     *load_assets_from_modules(
-        [pudl.analysis.service_territory], group_name="service_territory_eia861"
+        [pudl.analysis.service_territory], group_name="out_service_territory_eia861"
     ),
     *load_assets_from_modules(
-        [pudl.analysis.state_demand], group_name="state_demand_ferc714"
+        [pudl.analysis.state_demand], group_name="out_state_demand_ferc714"
     ),
 )
 

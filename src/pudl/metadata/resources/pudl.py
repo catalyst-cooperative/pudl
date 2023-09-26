@@ -78,7 +78,7 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
         "field_namespace": "pudl",
         "sources": ["pudl"],
     },
-    "predicted_state_hourly_demand": {
+    "out_ferc714__hourly_predicted_state_demand": {
         "schema": {
             "fields": [
                 "state_id_fips",

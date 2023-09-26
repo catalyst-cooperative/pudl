@@ -52,7 +52,7 @@ def mcoe_asset_factory(
         name=f"heat_rate_by_unit_{agg_freqs[freq]}",
         ins={
             "gen": AssetIn(
-                key=f"generation_fuel_by_generator_energy_source_{agg_freqs[freq]}_eia923"
+                key=f"out_eia923__{agg_freqs[freq]}_generation_fuel_by_generator_energy_source"
             ),
             "bga": AssetIn(key="core_eia860__assn_boiler_generator"),
         },
@@ -96,7 +96,7 @@ def mcoe_asset_factory(
         name=f"capacity_factor_by_generator_{agg_freqs[freq]}",
         ins={
             "gen": AssetIn(
-                key=f"generation_fuel_by_generator_{agg_freqs[freq]}_eia923"
+                key=f"out_eia923__{agg_freqs[freq]}_generation_fuel_by_generator"
             ),
             "gens": AssetIn(key="out_eia__yearly_generators"),
         },
