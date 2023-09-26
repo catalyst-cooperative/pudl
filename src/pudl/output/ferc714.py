@@ -372,7 +372,7 @@ def filled_service_territory_eia861(
 
 
 @asset(compute_kind="Python")
-def annualized_respondents_ferc714(
+def _out_ferc714__annualized_respondents(
     core_ferc714__hourly_demand_pa: pd.DataFrame,
     core_ferc714__respondent_id: pd.DataFrame,
 ) -> pd.DataFrame:
@@ -392,10 +392,10 @@ def annualized_respondents_ferc714(
         for time in core_ferc714__hourly_demand_pa.report_date.unique()
         if pd.notna(time)
     ]
-    annualized_respondents_ferc714 = core_ferc714__respondent_id.pipe(
+    _out_ferc714__annualized_respondents = core_ferc714__respondent_id.pipe(
         add_dates, report_dates
     ).pipe(apply_pudl_dtypes)
-    return annualized_respondents_ferc714
+    return _out_ferc714__annualized_respondents
 
 
 @asset(
@@ -412,13 +412,13 @@ def annualized_respondents_ferc714(
     },
     compute_kind="Python",
 )
-def categorized_respondents_ferc714(
+def _out_ferc714__categorized_respondents(
     context,
     core_ferc714__respondent_id: pd.DataFrame,
     out_eia__yearly_utilities: pd.DataFrame,
     core_eia861__yearly_service_territory: pd.DataFrame,
     core_eia861__yearly_balancing_authority: pd.DataFrame,
-    annualized_respondents_ferc714: pd.DataFrame,
+    _out_ferc714__annualized_respondents: pd.DataFrame,
 ) -> pd.DataFrame:
     """Annualized respondents with ``respondent_type`` assigned if possible.
 
@@ -448,7 +448,9 @@ def categorized_respondents_ferc714(
     logger.info(
         "Merging categorized EIA codes with annualized FERC-714 Respondent data."
     )
-    categorized = pd.merge(categorized, annualized_respondents_ferc714, how="right")
+    categorized = pd.merge(
+        categorized, _out_ferc714__annualized_respondents, how="right"
+    )
     # Names, ids, and codes for BAs identified as FERC 714 respondents
     # NOTE: this is not *strictly* correct, because the EIA BAs are not
     # eternal and unchanging.  There's at least one case in which the BA
@@ -518,9 +520,9 @@ def categorized_respondents_ferc714(
     compute_kind="Python",
     io_manager_key="pudl_sqlite_io_manager",
 )
-def fipsified_respondents_ferc714(
+def out_ferc714__respondents_with_fips(
     context,
-    categorized_respondents_ferc714: pd.DataFrame,
+    _out_ferc714__categorized_respondents: pd.DataFrame,
     core_eia861__assn_balancing_authority: pd.DataFrame,
     core_eia861__yearly_service_territory: pd.DataFrame,
     core_eia861__assn_utility: pd.DataFrame,
@@ -548,9 +550,11 @@ def fipsified_respondents_ferc714(
 
     # Generate the BA:FIPS relation:
     ba_counties = pd.merge(
-        categorized_respondents_ferc714.query("respondent_type=='balancing_authority'"),
+        _out_ferc714__categorized_respondents.query(
+            "respondent_type=='balancing_authority'"
+        ),
         pudl.analysis.service_territory.get_territory_fips(
-            ids=categorized_respondents_ferc714.balancing_authority_id_eia.unique(),
+            ids=_out_ferc714__categorized_respondents.balancing_authority_id_eia.unique(),
             assn=assn,
             assn_col="balancing_authority_id_eia",
             core_eia861__yearly_service_territory=st_eia861,
@@ -561,9 +565,9 @@ def fipsified_respondents_ferc714(
     )
     # Generate the Util:FIPS relation:
     util_counties = pd.merge(
-        categorized_respondents_ferc714.query("respondent_type=='utility'"),
+        _out_ferc714__categorized_respondents.query("respondent_type=='utility'"),
         pudl.analysis.service_territory.get_territory_fips(
-            ids=categorized_respondents_ferc714.utility_id_eia.unique(),
+            ids=_out_ferc714__categorized_respondents.utility_id_eia.unique(),
             assn=core_eia861__assn_utility,
             assn_col="utility_id_eia",
             core_eia861__yearly_service_territory=st_eia861,
@@ -576,8 +580,8 @@ def fipsified_respondents_ferc714(
         [
             ba_counties,
             util_counties,
-            categorized_respondents_ferc714[
-                categorized_respondents_ferc714.respondent_type.isnull()
+            _out_ferc714__categorized_respondents[
+                _out_ferc714__categorized_respondents.respondent_type.isnull()
             ],
         ]
     ).pipe(apply_pudl_dtypes)
@@ -585,8 +589,8 @@ def fipsified_respondents_ferc714(
 
 
 @asset(compute_kind="Python")
-def georeferenced_counties_ferc714(
-    fipsified_respondents_ferc714: pd.DataFrame,
+def _out_ferc714__georeferenced_counties(
+    out_ferc714__respondents_with_fips: pd.DataFrame,
     core_censusdp1__entity_county: gpd.GeoDataFrame,
 ) -> gpd.GeoDataFrame:
     """Annual respondents with all associated county-level geometries.
@@ -598,15 +602,15 @@ def georeferenced_counties_ferc714(
     of the FIPS IDs so you can also still do ID based analyses.
     """
     counties_gdf = pudl.analysis.service_territory.add_geometries(
-        fipsified_respondents_ferc714, census_gdf=core_censusdp1__entity_county
+        out_ferc714__respondents_with_fips, census_gdf=core_censusdp1__entity_county
     ).pipe(apply_pudl_dtypes)
     return counties_gdf
 
 
 @asset(compute_kind="Python")
-def georeferenced_respondents_ferc714(
-    fipsified_respondents_ferc714: pd.DataFrame,
-    summarized_demand_ferc714: pd.DataFrame,
+def _out_ferc714__georeferenced_respondents(
+    out_ferc714__respondents_with_fips: pd.DataFrame,
+    out_ferc714__summarized_demand: pd.DataFrame,
     core_censusdp1__entity_county: gpd.GeoDataFrame,
 ) -> gpd.GeoDataFrame:
     """Annual respondents with a single all-encompassing geometry for each year.
@@ -621,13 +625,13 @@ def georeferenced_respondents_ferc714(
     """
     respondents_gdf = (
         pudl.analysis.service_territory.add_geometries(
-            fipsified_respondents_ferc714,
+            out_ferc714__respondents_with_fips,
             census_gdf=core_censusdp1__entity_county,
             dissolve=True,
             dissolve_by=["report_date", "respondent_id_ferc714"],
         )
         .merge(
-            summarized_demand_ferc714[
+            out_ferc714__summarized_demand[
                 ["report_date", "respondent_id_ferc714", "demand_annual_mwh"]
             ]
         )
@@ -637,12 +641,12 @@ def georeferenced_respondents_ferc714(
 
 
 @asset(compute_kind="Python", io_manager_key="pudl_sqlite_io_manager")
-def summarized_demand_ferc714(
-    annualized_respondents_ferc714: pd.DataFrame,
+def out_ferc714__summarized_demand(
+    _out_ferc714__annualized_respondents: pd.DataFrame,
     core_ferc714__hourly_demand_pa: pd.DataFrame,
-    fipsified_respondents_ferc714: pd.DataFrame,
-    categorized_respondents_ferc714: pd.DataFrame,
-    georeferenced_counties_ferc714: gpd.GeoDataFrame,
+    out_ferc714__respondents_with_fips: pd.DataFrame,
+    _out_ferc714__categorized_respondents: pd.DataFrame,
+    _out_ferc714__georeferenced_counties: gpd.GeoDataFrame,
 ) -> pd.DataFrame:
     """Compile annualized, categorized respondents and summarize values.
 
@@ -657,7 +661,7 @@ def summarized_demand_ferc714(
     """
     demand_annual = (
         pd.merge(
-            annualized_respondents_ferc714,
+            _out_ferc714__annualized_respondents,
             core_ferc714__hourly_demand_pa.loc[
                 :, ["report_date", "respondent_id_ferc714", "demand_mwh"]
             ],
@@ -668,7 +672,7 @@ def summarized_demand_ferc714(
         .rename(columns={"demand_mwh": "demand_annual_mwh"})
         .reset_index()
         .merge(
-            georeferenced_counties_ferc714.groupby(
+            _out_ferc714__georeferenced_counties.groupby(
                 ["report_date", "respondent_id_ferc714"]
             )
             .agg({"population": sum, "area_km2": sum})
@@ -682,6 +686,6 @@ def summarized_demand_ferc714(
     )
     # Merge respondent categorizations into the annual demand
     demand_summary = pd.merge(
-        demand_annual, categorized_respondents_ferc714, how="left"
+        demand_annual, _out_ferc714__categorized_respondents, how="left"
     ).pipe(apply_pudl_dtypes)
     return demand_summary
