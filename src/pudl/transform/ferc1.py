@@ -3018,6 +3018,21 @@ class PlantInServiceFerc1TableTransformer(Ferc1AbstractTableTransformer):
         )
         return deduped
 
+    # def add_plant_function(self, df: pd.DataFrame) -> pd.DataFrame: # TO DO: Figure out where to add to not throw off calcs.
+    #     """Label factoids with plant function."""
+    #     for function in ['intangible', 'steam_production', 'nuclear_production', 'hydraulic_production', 'other_production', 'transmission', 'distribution', 'regional_transmission_and_market_operation', 'general', "common_plant_electric"]:
+    #         if function == "transmission":
+    #             mask = (df.ferc_account_label.str.contains(function)) & ~(df.ferc_account_label.str.contains('regional_transmission_and_market_operation'))
+    #         elif function == "common_plant_electric":
+    #             mask = df.ferc_account_label.str.contains("electric")
+    #         else:
+    #             mask = df.ferc_account_label.str.contains(function)
+    #         df.loc[mask, 'plant_function'] = function
+    #     # Add some stragglers that aren't inferrable by factoid name
+    #     df.loc[df.ferc_account_label.isin(["organization", "franchises_and_consents"]), 'plant_function'] = "intangible"
+    #     df.loc[df.ferc_account_label=="production_plant", 'plant_function'] = "mixed"
+    #     return df
+
     @cache_df(key="dbf")
     def process_dbf(self, raw_dbf: pd.DataFrame) -> pd.DataFrame:
         """Drop targeted duplicates in the DBF data so we can use FERC respondent ID."""
@@ -3028,10 +3043,15 @@ class PlantInServiceFerc1TableTransformer(Ferc1AbstractTableTransformer):
         """The main table-specific transformations, affecting contents not structure.
 
         Annotates and alters data based on information from the XBRL taxonomy metadata.
-        Also assigns utility type for use in table explosions.
+        Also assigns utility type, plant status & function for use in table explosions.
         Make all electric_plant_sold balances positive.
         """
-        df = super().transform_main(df).pipe(self.apply_sign_conventions)
+        df = (
+            super()
+            .transform_main(df)
+            .pipe(self.apply_sign_conventions)
+            .pipe(self.add_plant_function)
+        )
         # Make all electric_plant_sold values positive
         # This could probably be a FERC transformer class function or in the
         # apply_sign_conventions function, but it doesn't seem like the best fit for
@@ -3043,7 +3063,15 @@ class PlantInServiceFerc1TableTransformer(Ferc1AbstractTableTransformer):
         logger.info(
             f"{self.table_id.value}: Converted {len(df[neg_values])} negative values to positive."
         )
-        return df.assign(utility_type="electric")
+        df = df.assign(
+            utility_type="electric", plant_status="in_service"
+        )  # Assign plant status and utility type
+        df.loc[
+            df.ferc_account_label.isin(
+                ["electric_plant_sold", "electric_plant_purchased"]
+            )
+        ].plant_status = pd.NA  # With two exceptions
+        return df
 
 
 class PlantsSmallFerc1TableTransformer(Ferc1AbstractTableTransformer):
@@ -4394,7 +4422,7 @@ class BalanceSheetAssetsFerc1TableTransformer(Ferc1AbstractTableTransformer):
             .assign(asset_type=lambda x: "less_" + x.asset_type)
         )
 
-        return pd.concat([df, new_data])
+        return pd.concat([df, new_data]).assign(utility_type="total")
 
     def convert_xbrl_metadata_json_to_df(
         self: Self,
