@@ -120,6 +120,7 @@ pudl_check_fks = "pudl.etl.check_foreign_keys:main"
 dev = [
     "black>=23,<23.11",
     "build>=1,<1.1",
+    "conda-lock>=2.3,<3",
     "ipdb>=0.13,<0.14",
     "jedi>=0.18,<0.20",
     "lxml>=4.6,<4.10",
@@ -276,3 +277,23 @@ doctest_optionflags = [
     "IGNORE_EXCEPTION_DETAIL",
     "ELLIPSIS",
 ]
+
+[tool.conda-lock]
+channels = [
+    "conda-forge",
+    "defaults",
+]
+platforms = [
+    "osx-arm64",
+    "linux-64",
+]
+channel-priority = "strict"
+name = "pudl-dev"
+
+[tool.conda-lock.dependencies]
+recordlinkage = {source = "pypi"}
+sphinx-autoapi = {source = "pypi"}
+pip = ">=23,<24"
+python = ">=3.11,<3.12"
+python-snappy = ">=0.6,<1"
+sqlite = ">=3.36,<4"
