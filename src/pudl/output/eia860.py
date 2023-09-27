@@ -27,7 +27,6 @@ def out_eia860__yearly_ownership(
             "plant_id_eia",
             "plant_id_pudl",
             "plant_name_eia",
-            "utility_name_eia",
             "utility_id_pudl",
             "report_date",
         ],
@@ -37,9 +36,7 @@ def out_eia860__yearly_ownership(
         pu_df,
         on=["report_date", "plant_id_eia"],
         how="left",
-    ).dropna(
-        subset=["report_date", "plant_id_eia", "generator_id", "owner_utility_id_eia"]
-    )
+    ).dropna(subset=["report_date", "plant_id_eia", "generator_id", "utility_id_eia"])
     first_cols = [
         "report_date",
         "plant_id_eia",
@@ -49,8 +46,6 @@ def out_eia860__yearly_ownership(
         "utility_id_pudl",
         "utility_name_eia",
         "generator_id",
-        "owner_utility_id_eia",
-        "owner_name",
     ]
 
     # Re-arrange the columns for easier readability:

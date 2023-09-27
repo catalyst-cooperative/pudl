@@ -74,6 +74,9 @@ default_assets = (
     *load_assets_from_modules(
         [pudl.analysis.state_demand], group_name="out_state_demand_ferc714"
     ),
+    *load_assets_from_modules(
+        [pudl.analysis.plant_parts_eia], group_name="plant_parts_eia"
+    ),
 )
 
 default_resources = {

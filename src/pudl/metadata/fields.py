@@ -445,6 +445,7 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "description": "Purchase type under which receipts occurred in the reporting month. C: Contract, NC: New Contract, S: Spot Purchase, T: Tolling Agreement.",
         "constraints": {"enum": ["S", "C", "NC", "T"]},
     },
+    "country": {"type": "string", "description": "Three letter country abbreviation."},
     "emission_control_id_eia": {
         "type": "string",
         "description": (
@@ -2075,7 +2076,17 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     },
     "purchased_mwh": {
         "type": "number",
-        "description": "Megawatt-hours shown on bills rendered to the respondent.",
+        "description": "Megawatt-hours shown on bills rendered to the respondent. Includes both electricity purchased for storage and non-storage purposes, which were lumped together prior to 2021.",
+        "unit": "MWh",
+    },
+    "purchased_other_than_storage_mwh": {
+        "type": "number",
+        "description": "Number of megawatt hours purchased during the period for other than energy storage.",
+        "unit": "MWh",
+    },
+    "purchased_storage_mwh": {
+        "type": "number",
+        "description": "Number of megawatt hours purchased during the period for energy storage.",
         "unit": "MWh",
     },
     "pv_current_flow_type": {"type": "string", "constraints": {"enum": ["AC", "DC"]}},
@@ -2107,6 +2118,10 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     "record_id": {
         "type": "string",
         "description": "Identifier indicating original FERC Form 1 source record. format: {table_name}_{report_year}_{report_prd}_{respondent_id}_{spplmnt_num}_{row_number}. Unique within FERC Form 1 DB tables which are not row-mapped.",  # noqa: FS003
+    },
+    "record_id_eia": {
+        "type": "string",
+        "description": "Identifier for EIA plant parts analysis records.",
     },
     "region_name_us_census": {
         "type": "string",
@@ -2885,6 +2900,16 @@ FIELD_METADATA_BY_RESOURCE: dict[str, dict[str, Any]] = {
                     "Pacific/Honolulu",
                 ]
             }
+        }
+    },
+    "ownership_eia860": {
+        "utility_id_eia": {
+            "description": "The EIA utility Identification number for the owner company that is responsible for the day-to-day operations of the generator, not the operator utility."
+        }
+    },
+    "denorm_ownership_eia860": {
+        "utility_id_eia": {
+            "description": "The EIA utility Identification number for the owner company that is responsible for the day-to-day operations of the generator, not the operator utility."
         }
     },
 }

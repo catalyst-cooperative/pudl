@@ -110,6 +110,10 @@ Data Coverage
   * :ref:`core_ferc1__yearly_electricity_sales_by_rate_schedule`, see issue
     :issue:`1823` & PR :pr:`2205`.
 
+* Harvested owner utilities from the EIA 860 ownership table which are now included in
+  the :ref:`core_eia__entity_utilities` and :ref:`core_pudl__assn_utilities_eia`
+  tables. See :pr:`2714`.
+
 * New PUDL tables from :doc:`data_sources/eia860`:
 
   * :ref:`core_eia860__scd_emissions_control_equipment`, see issue :issue:`2338` & PR
