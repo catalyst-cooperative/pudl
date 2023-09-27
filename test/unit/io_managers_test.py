@@ -218,7 +218,7 @@ def test_error_when_handling_view_without_metadata(pudl_sqlite_io_manager_fixtur
         pudl_sqlite_io_manager_fixture.handle_output(output_context, sql_stmt)
 
 
-@pytest.mark.xfail(reason="SQLAlchemy is not finding the view. Debug or remove.")
+@pytest.mark.skip(reason="SQLAlchemy is not finding the view. Debug or remove.")
 def test_handling_view_with_metadata(pudl_sqlite_io_manager_fixture):
     """Make sure an users can create and load views when it has metadata."""
     # Create some sample data

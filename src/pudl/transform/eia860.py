@@ -163,6 +163,21 @@ def _core_eia860__ownership(raw_eia860__ownership: pd.DataFrame) -> pd.DataFrame
     own_df["owner_country"] = own_df["owner_state"].map(state_to_country)
     own_df.loc[own_df.owner_state == "CN", "owner_state"] = pd.NA
 
+    # rename columns to reflect owner centric attributes
+    # don't rename owner zip code, street address, and city as this leads to
+    # inconsistent harvesting
+    own_df = own_df.rename(
+        columns={
+            "utility_id_eia": "operator_utility_id_eia",
+            "utility_name_eia": "operator_name",
+            "state": "operator_state",
+            "owner_name": "utility_name_eia",
+            "owner_utility_id_eia": "utility_id_eia",
+            "owner_state": "state",
+            "owner_country": "country",
+        }
+    )
+
     # Spot fix NA generator_id. Might want to change this once we have the official 2022
     # data not just early release.
     constraints = (own_df["plant_id_eia"] == 62844) & (

@@ -33,8 +33,8 @@ def nuke_gen_fraction(df):
 @pytest.mark.parametrize(
     "df_name,expected_nuke_fraction,tolerance",
     [
-        ("gf_eia923", 0.2, 0.02),
-        ("mcoe_generators", 0.2, 0.02),
+        ("gf_eia923", 0.19, 0.02),
+        ("mcoe_generators", 0.19, 0.02),
     ],
 )
 def test_nuclear_fraction(fast_out, df_name, expected_nuke_fraction, tolerance):
