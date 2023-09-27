@@ -13,7 +13,6 @@ license = { file = "LICENSE.txt" }
 dependencies = [
     "addfips>=0.4,<0.5",
     "alembic>=1.10.3,<1.13",
-    "astroid>=2,<3",
     "catalystcoop.dbfread>=3.0,<3.1",
     "catalystcoop.ferc-xbrl-extractor==0.8.3",
     "coloredlogs>=14.0,<15.1",  # Dagster requires 14.0
@@ -119,7 +118,7 @@ dev = [
 doc = [
     "doc8>=1.1,<1.2",
     "furo>=2022.4.7",
-    "sphinx-autoapi>=1.8,<2.2",
+    "sphinx-autoapi>=3,<4",
     "sphinx-issues>=1.2,<3.1",
     "sphinx-reredirects",
     "sphinx>=4,!=5.1.0,<7.3",
