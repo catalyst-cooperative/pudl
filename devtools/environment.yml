@@ -25,6 +25,11 @@ dependencies:
   - jupyter-resource-usage
   - nbconvert>=6,<7
   - jupyterlab>=3.2,<4.1
+  # Dagster needs these packages. When pip installs them,
+  # they have shared library linking errors on macos-arm64
+  - grpcio==1.57.0
+  - grpcio-status==1.57.0
+  - grpcio-health-checking==1.57.0
 
   # Use pip to install the main PUDL repo / package for development:
   - pip:
