@@ -5711,16 +5711,21 @@ def calculation_components_xbrl_ferc1(**kwargs) -> pd.DataFrame:
         )
     check_for_calc_components_duplicates(
         calc_components,
-        table_names_known_dupes=["electricity_sales_by_rate_schedule_ferc1"],
+        table_names_known_dupes=[
+            "core_ferc1__yearly_electricity_sales_by_rate_schedule"
+        ],
         idx=calc_and_parent_cols,
     )
 
     # check for parent/child duplicates. again need to remove the
-    # electricity_sales_by_rate_schedule_ferc1 table. Null hack bc comparing pandas
+    # core_ferc1__yearly_electricity_sales_by_rate_schedule table. Null hack bc comparing pandas
     # nulls
     self_refs_mask = calc_components[calc_and_parent_cols].fillna("NULL HACK").apply(
         lambda x: all(x[col] == x[f"{col}_parent"] for col in calc_cols), axis=1
-    ) & (calc_components.table_name != "electricity_sales_by_rate_schedule_ferc1")
+    ) & (
+        calc_components.table_name
+        != "core_ferc1__yearly_electricity_sales_by_rate_schedule"
+    )
     if not (parent_child_dupes := calc_components.loc[self_refs_mask]).empty:
         raise AssertionError(
             f"Found {len(parent_child_dupes)} calcuations where the parent and child "
@@ -5785,7 +5790,7 @@ def check_for_calc_components_duplicates(
 ) -> None:
     """Check for duplicates calculation records.
 
-    We need to remove the electricity_sales_by_rate_schedule_ferc1 bc there are
+    We need to remove the core_ferc1__yearly_electricity_sales_by_rate_schedule bc there are
     duplicate renamed factoids in that table (originally billed/unbilled).
     """
     calc_components_test = (
@@ -6053,7 +6058,7 @@ def infer_intra_factoid_totals(
     check_for_calc_components_duplicates(
         calcs_with_totals,
         table_names_known_dupes=[
-            "electricity_sales_by_rate_schedule_ferc1",
+            "core_ferc1__yearly_electricity_sales_by_rate_schedule",
         ],
         idx=parent_node_pk + child_node_pk,
     )

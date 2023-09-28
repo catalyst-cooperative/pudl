@@ -1945,21 +1945,21 @@ class XbrlCalculationForestFerc1(BaseModel):
         # only stepchildren node removal from above. a generalization here would be good
         almost_pure_stepparents = [
             NodeId(
-                "utility_plant_summary_ferc1",
+                "core_ferc1__yearly_utility_plant_summary",
                 "depreciation_amortization_and_depletion_utility_plant_leased_to_others",
                 "total",
                 pd.NA,
                 pd.NA,
             ),
             NodeId(
-                "utility_plant_summary_ferc1",
+                "core_ferc1__yearly_utility_plant_summary",
                 "depreciation_and_amortization_utility_plant_held_for_future_use",
                 "total",
                 pd.NA,
                 pd.NA,
             ),
             NodeId(
-                "utility_plant_summary_ferc1",
+                "core_ferc1__yearly_utility_plant_summary",
                 "utility_plant_in_service_classified_and_unclassified",
                 "total",
                 pd.NA,
