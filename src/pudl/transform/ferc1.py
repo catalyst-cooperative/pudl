@@ -4081,14 +4081,15 @@ class UtilityPlantSummaryFerc1TableTransformer(Ferc1AbstractTableTransformer):
         return df
 
     def aggregated_xbrl_factoids(self: Self, df: pd.DataFrame) -> pd.DataFrame:
-        """Aggregate xbrl_factoids records for linking to :ref:`plant_in_service_ferc1`.
+        """Aggregate xbrl_factoids records for linking to :ref:`core_ferc1__yearly_plant_in_service`.
 
         This table has two ``xbrl_factoid`` which can be linked via calcuations to one
-        ``xbrl_factoid`` in the :ref:`plant_in_service_ferc1`. Doing this 2:1 linkage
-        would be fine in theory. But the :ref:`plant_in_service_ferc1` is in most senses
+        ``xbrl_factoid`` in the :ref:`core_ferc1__yearly_plant_in_service`.
+        Doing this 2:1 linkage would be fine in theory. But the
+        :ref:`core_ferc1__yearly_plant_in_service` is in most senses
         the table with the more details and of our desire to build tree-link
         relationships between factoids, we need to build a new factoid to link in a 1:1
-        manner between this table and the :ref:`plant_in_service_ferc1`.
+        manner between this table and the :ref:`core_ferc1__yearly_plant_in_service`.
 
         We'll also add this factoid into the metadata via :meth:`process_xbrl_metadata`
         and add the linking calculation via :meth:`apply_xbrl_calculation_fixes`.
@@ -5577,7 +5578,7 @@ def table_dimensions_ferc1(**kwargs) -> pd.DataFrame:
     Compile a dataframe indicating what distinct values are observed in the data for
     each dimension column in association with each unique combination of ``table_name``
     and ``xbrl_factoid``. E.g. for all factoids found in the
-    :ref:`electric_plant_depreciation_functional_ferc1` table,
+    :ref:`core_ferc1__yearly_electric_plant_depreciation_functional` table,
     the only value observed for ``utility_type`` is ``electric`` and the values observed
     for ``plant_status`` include: ``future``, ``in_service``, ``leased`` and ``total``.
 
@@ -5817,13 +5818,14 @@ def make_calculation_dimensions_explicit(
 
     We have extended this calculation system to allow independent calculations to be
     specified for different values within a given dimension. For example, the
-    :ref:`utility_plant_summary_ferc1` table contains records with a variety of
+    :ref:`core_ferc1__yearly_utility_plant_summary` table contains records with a variety of
     different ``utility_type`` values (gas, electric, etc.). For many combinations of
     fact and ``utility_type``, no more detailed information about the soruce of the data
     is available, but for some, and only in the case of electric utilities, much more
-    detail can be found in the :ref:`plant_in_service_ferc1` table. In order to use this
-    additional information when it is available, we sometimes explicitly specify
-    different calculations for different values of additional dimension columns.
+    detail can be found in the :ref:`core_ferc1__yearly_plant_in_service` table.
+    In order to use this additional information when it is available, we sometimes
+    explicitly specify different calculations for different values of additional
+    dimension columns.
 
     This function uses the observed associations between ``table_name``,
     ``xbrl_factoid`` and the other dimension columns compiled by

@@ -988,8 +988,9 @@ class NodeId(NamedTuple):
 def _out_ferc1__explosion_tags(table_dimensions_ferc1) -> pd.DataFrame:
     """Grab the stored table of tags and add infered dimension."""
     # NOTE: there are a bunch of duplicate records in xbrl_factoid_rate_base_tags.csv
-    # Also, these tags are only applicable to the balance_sheet_assets_ferc1 table, but
-    # we need to pass in a dataframe with the right structure to all of the exploders,
+    # Also, these tags are only applicable to the
+    # core_ferc1__yearly_balance_sheet_assets table, but we need to pass in
+    # a dataframe with the right structure to all of the exploders,
     # so we're just re-using this one for the moment.
     tags_csv = (
         importlib.resources.files("pudl.package_data.ferc1")
@@ -1544,7 +1545,8 @@ class XbrlCalculationForestFerc1(BaseModel):
     """A class for manipulating groups of hierarchically nested XBRL calculations.
 
     We expect that the facts reported in high-level FERC tables like
-    :ref:`income_statement_ferc1` and :ref:`balance_sheet_assets_ferc1` should be
+    :ref:`core_ferc1__yearly_income_statement` and
+    :ref:`core_ferc1__yearly_balance_sheet_assets` should be
     calculable from many individually reported granular values, based on the
     calculations encoded in the XBRL Metadata, and that these relationships should have
     a hierarchical tree structure. Several individual values from the higher level
