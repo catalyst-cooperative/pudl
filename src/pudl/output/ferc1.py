@@ -51,6 +51,64 @@ EXPLOSION_CALCULATION_TOLERANCES: dict[str, CalculationToleranceFerc1] = {
     ),
 }
 
+MANUAL_DBF_METADATA_FIXES: dict[str, dict[str, str]] = {
+    "less_noncurrent_portion_of_allowances": {
+        "dbf2020_row_number": 53,
+        "dbf2020_table_name": "f1_comp_balance_db",
+        "dbf2020_row_literal": "(Less) Noncurrent Portion of Allowances",
+    },
+    "less_derivative_instrument_assets_long_term": {
+        "dbf2020_row_number": 64,
+        "dbf2020_table_name": "f1_comp_balance_db",
+        "dbf2020_row_literal": "(Less) Long-Term Portion of Derivative Instrument Assets (175)",
+    },
+    "less_derivative_instrument_assets_hedges_long_term": {
+        "dbf2020_row_number": 66,
+        "dbf2020_table_name": "f1_comp_balance_db",
+        "dbf2020_row_literal": "(Less) Long-Term Portion of Derivative Instrument Assets - Hedges (176)",
+    },
+    "less_long_term_portion_of_derivative_instrument_liabilities": {
+        "dbf2020_row_number": 51,
+        "dbf2020_table_name": "f1_bal_sheet_cr",
+        "dbf2020_row_literal": "(Less) Long-Term Portion of Derivative Instrument Liabilities",
+    },
+    "less_long_term_portion_of_derivative_instrument_liabilities_hedges": {
+        "dbf2020_row_number": 53,
+        "dbf2020_table_name": "f1_bal_sheet_cr",
+        "dbf2020_row_literal": "(Less) Long-Term Portion of Derivative Instrument Liabilities-Hedges",
+    },
+    "other_miscellaneous_operating_revenues": {
+        "dbf2020_row_number": 25,
+        "dbf2020_table_name": "f1_elctrc_oper_rev",
+        "dbf2020_row_literal": "",
+    },
+    "amortization_limited_term_electric_plant": {
+        "dbf2020_row_number": pd.NA,
+        "dbf2020_table_name": "f1_dacs_epda",
+        "dbf2020_row_literal": "Amortization of Limited Term Electric Plant (Account 404) (d)",
+    },
+    "amortization_other_electric_plant": {
+        "dbf2020_row_number": pd.NA,
+        "dbf2020_table_name": "f1_dacs_epda",
+        "dbf2020_row_literal": "Amortization of Other Electric Plant (Acc 405) (e)",
+    },
+    "depreciation_amortization_total": {
+        "dbf2020_row_number": pd.NA,
+        "dbf2020_table_name": "f1_dacs_epda",
+        "dbf2020_row_literal": "Total (f)",
+    },
+    "depreciation_expense": {
+        "dbf2020_row_number": pd.NA,
+        "dbf2020_table_name": "f1_dacs_epda",
+        "dbf2020_row_literal": "Depreciation Expense (Account 403) (b)",
+    },
+    "depreciation_expense_asset_retirement": {
+        "dbf2020_row_number": pd.NA,
+        "dbf2020_table_name": "f1_dacs_epda",
+        "dbf2020_row_literal": "Depreciation Expense for Asset Retirement Costs (Account 403.1) (c)",
+    },
+}
+
 
 @asset(io_manager_key="pudl_sqlite_io_manager", compute_kind="Python")
 def denorm_plants_utilities_ferc1(
@@ -1068,7 +1126,7 @@ def create_exploded_table_assets() -> list[AssetsDefinition]:
                 NodeId(
                     table_name="balance_sheet_assets_ferc1",
                     xbrl_factoid="assets_and_other_debits",
-                    utility_type=pd.NA,
+                    utility_type="total",
                     plant_status=pd.NA,
                     plant_function=pd.NA,
                 )
@@ -1088,7 +1146,7 @@ def create_exploded_table_assets() -> list[AssetsDefinition]:
                 NodeId(
                     table_name="balance_sheet_liabilities_ferc1",
                     xbrl_factoid="liabilities_and_other_credits",
-                    utility_type=pd.NA,
+                    utility_type="total",
                     plant_status=pd.NA,
                     plant_function=pd.NA,
                 )
@@ -1288,6 +1346,46 @@ class Exploder:
             on=["table_name", "xbrl_factoid"],
             validate="many_to_one",
         )
+
+        # electric_plant_deprecation_functional_ferc1 should actually be merged by
+        # plant_function on the LHS because of its transform.
+        depreciation = dbf_row_metadata[
+            dbf_row_metadata.table_name
+            == "electric_plant_depreciation_functional_ferc1"
+        ]
+        exploded_sub = exploded_metadata.loc[
+            exploded_metadata.table_name
+            == "electric_plant_depreciation_functional_ferc1"
+        ]
+        exploded_sub = exploded_sub.merge(
+            depreciation,
+            how="left",
+            left_on=["table_name", "plant_function"],
+            right_on=["table_name", "xbrl_factoid"],
+            validate="many_to_one",
+            suffixes=("_x", ""),
+        ).rename(
+            columns={"xbrl_factoid": "xbrl_factoid_x", "xbrl_factoid_x": "xbrl_factoid"}
+        )
+        exploded_sub = exploded_sub.drop(
+            exploded_sub.filter(regex="_x", axis=1), axis=1
+        )
+        exploded_metadata = pd.concat(
+            [
+                exploded_metadata.loc[
+                    exploded_metadata.table_name
+                    != "electric_plant_depreciation_functional_ferc1"
+                ],
+                exploded_sub,
+            ]
+        )
+
+        # Add manual fixes for created factoids
+        for factoid, fixes in MANUAL_DBF_METADATA_FIXES.items():
+            for column, value in fixes.items():
+                exploded_metadata.loc[
+                    exploded_metadata.xbrl_factoid == factoid, column
+                ] = value
 
         return exploded_metadata
 

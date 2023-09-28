@@ -840,6 +840,7 @@ def reconcile_table_calculations(
                 )
             ]
     pks = pudl.metadata.classes.Resource.from_id(table_name).schema.primary_key
+    logger.info(pks)
     calculated_df = calculate_values_from_components(
         data=df,
         calculation_components=intra_tbl_calcs,
@@ -930,18 +931,23 @@ def calculate_values_from_components(
         "utility_id_ferc1",
         "report_year",
     ]
-    calc_df = (
-        pd.merge(
-            calculation_components,
-            data,
-            validate="one_to_many",
-            on=calc_idx,
+    try:
+        calc_df = (
+            pd.merge(
+                calculation_components,
+                data,
+                validate="one_to_many",
+                on=calc_idx,
+            )
+            # apply the weight from the calc to convey the sign before summing.
+            .assign(calculated_amount=lambda x: x[value_col] * x.weight)
+            .groupby(gby_parent, as_index=False, dropna=False)[["calculated_amount"]]
+            .sum(min_count=1)
         )
-        # apply the weight from the calc to convey the sign before summing.
-        .assign(calculated_amount=lambda x: x[value_col] * x.weight)
-        .groupby(gby_parent, as_index=False, dropna=False)[["calculated_amount"]]
-        .sum(min_count=1)
-    )
+    except pd.errors.MergeError:  # Make debugging easier.
+        logger.info(
+            f"Merge failed, duplicated merge keys in left dataset: \n{calculation_components[calculation_components.duplicated(calc_idx)]}"
+        )
     # remove the _parent suffix so we can merge these calculated values back onto
     # the data using the original pks
     calc_df.columns = calc_df.columns.str.removesuffix("_parent")
@@ -3050,7 +3056,7 @@ class PlantInServiceFerc1TableTransformer(Ferc1AbstractTableTransformer):
             super()
             .transform_main(df)
             .pipe(self.apply_sign_conventions)
-            .pipe(self.add_plant_function)
+            # .pipe(self.add_plant_function) # Ignore for now.
         )
         # Make all electric_plant_sold values positive
         # This could probably be a FERC transformer class function or in the
@@ -4344,7 +4350,7 @@ class BalanceSheetLiabilitiesFerc1TableTransformer(Ferc1AbstractTableTransformer
             .assign(liability_type=lambda x: "less_" + x.liability_type)
         )
 
-        return pd.concat([df, new_data])
+        return pd.concat([df, new_data]).assign(utility_type="total")
 
     def convert_xbrl_metadata_json_to_df(
         self: Self,
@@ -4422,7 +4428,7 @@ class BalanceSheetAssetsFerc1TableTransformer(Ferc1AbstractTableTransformer):
             .assign(asset_type=lambda x: "less_" + x.asset_type)
         )
 
-        return pd.concat([df, new_data]).assign(utility_type="total")
+        return pd.concat([df, new_data])
 
     def convert_xbrl_metadata_json_to_df(
         self: Self,
@@ -4638,7 +4644,7 @@ class RetainedEarningsFerc1TableTransformer(Ferc1AbstractTableTransformer):
         enable access to DBF data to fill this in as well.
         """
         df = super().transform_main(df).pipe(self.add_previous_year_factoid)
-        return df
+        return df.assign(utility_type="total")
 
     def targeted_drop_duplicates_dbf(self, df: pd.DataFrame) -> pd.DataFrame:
         """Drop duplicates with truly duplicate data.
