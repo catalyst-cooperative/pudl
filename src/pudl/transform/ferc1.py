@@ -840,7 +840,6 @@ def reconcile_table_calculations(
                 )
             ]
     pks = pudl.metadata.classes.Resource.from_id(table_name).schema.primary_key
-    logger.info(pks)
     calculated_df = calculate_values_from_components(
         data=df,
         calculation_components=intra_tbl_calcs,
@@ -3024,21 +3023,6 @@ class PlantInServiceFerc1TableTransformer(Ferc1AbstractTableTransformer):
         )
         return deduped
 
-    # def add_plant_function(self, df: pd.DataFrame) -> pd.DataFrame: # TO DO: Figure out where to add to not throw off calcs.
-    #     """Label factoids with plant function."""
-    #     for function in ['intangible', 'steam_production', 'nuclear_production', 'hydraulic_production', 'other_production', 'transmission', 'distribution', 'regional_transmission_and_market_operation', 'general', "common_plant_electric"]:
-    #         if function == "transmission":
-    #             mask = (df.ferc_account_label.str.contains(function)) & ~(df.ferc_account_label.str.contains('regional_transmission_and_market_operation'))
-    #         elif function == "common_plant_electric":
-    #             mask = df.ferc_account_label.str.contains("electric")
-    #         else:
-    #             mask = df.ferc_account_label.str.contains(function)
-    #         df.loc[mask, 'plant_function'] = function
-    #     # Add some stragglers that aren't inferrable by factoid name
-    #     df.loc[df.ferc_account_label.isin(["organization", "franchises_and_consents"]), 'plant_function'] = "intangible"
-    #     df.loc[df.ferc_account_label=="production_plant", 'plant_function'] = "mixed"
-    #     return df
-
     @cache_df(key="dbf")
     def process_dbf(self, raw_dbf: pd.DataFrame) -> pd.DataFrame:
         """Drop targeted duplicates in the DBF data so we can use FERC respondent ID."""
@@ -3052,12 +3036,7 @@ class PlantInServiceFerc1TableTransformer(Ferc1AbstractTableTransformer):
         Also assigns utility type, plant status & function for use in table explosions.
         Make all electric_plant_sold balances positive.
         """
-        df = (
-            super()
-            .transform_main(df)
-            .pipe(self.apply_sign_conventions)
-            # .pipe(self.add_plant_function) # Ignore for now.
-        )
+        df = super().transform_main(df).pipe(self.apply_sign_conventions)
         # Make all electric_plant_sold values positive
         # This could probably be a FERC transformer class function or in the
         # apply_sign_conventions function, but it doesn't seem like the best fit for

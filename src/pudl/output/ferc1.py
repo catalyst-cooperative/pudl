@@ -1347,39 +1347,6 @@ class Exploder:
             validate="many_to_one",
         )
 
-        # electric_plant_deprecation_functional_ferc1 should actually be merged by
-        # plant_function on the LHS because of its transform.
-        depreciation = dbf_row_metadata[
-            dbf_row_metadata.table_name
-            == "electric_plant_depreciation_functional_ferc1"
-        ]
-        exploded_sub = exploded_metadata.loc[
-            exploded_metadata.table_name
-            == "electric_plant_depreciation_functional_ferc1"
-        ]
-        exploded_sub = exploded_sub.merge(
-            depreciation,
-            how="left",
-            left_on=["table_name", "plant_function"],
-            right_on=["table_name", "xbrl_factoid"],
-            validate="many_to_one",
-            suffixes=("_x", ""),
-        ).rename(
-            columns={"xbrl_factoid": "xbrl_factoid_x", "xbrl_factoid_x": "xbrl_factoid"}
-        )
-        exploded_sub = exploded_sub.drop(
-            exploded_sub.filter(regex="_x", axis=1), axis=1
-        )
-        exploded_metadata = pd.concat(
-            [
-                exploded_metadata.loc[
-                    exploded_metadata.table_name
-                    != "electric_plant_depreciation_functional_ferc1"
-                ],
-                exploded_sub,
-            ]
-        )
-
         # Add manual fixes for created factoids
         for factoid, fixes in MANUAL_DBF_METADATA_FIXES.items():
             for column, value in fixes.items():
