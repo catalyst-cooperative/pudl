@@ -318,6 +318,12 @@ def _compile_all_entity_records(
             logger.debug(f"        {table_name}...")
             # create a copy of the df to muck with
             df = transformed_df.copy()
+            # TODO: take care of this elewhere, make less janky
+            # don't harvest owner utilities for plant and generator annual operator utility
+            if ((entity == EiaEntity.PLANTS) or (entity == EiaEntity.GENERATORS)) and (
+                table_name == "_core_eia860__ownership"
+            ):
+                continue
             # we know these columns must be in the dfs
             cols = []
             # check whether the columns are in the specific table
