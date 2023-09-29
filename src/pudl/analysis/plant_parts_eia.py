@@ -658,7 +658,7 @@ class MakePlantParts:
             )
             .pipe(pudl.helpers.organize_cols, FIRST_COLS)
             .pipe(self._clean_plant_parts)
-            .pipe(Resource.from_id("plant_parts_eia").format_df)
+            .pipe(Resource.from_id("out_eia__plant_parts").format_df)
         )
         return self.plant_parts_eia
 
