@@ -1013,14 +1013,7 @@ def _out_ferc1__explosion_tags(table_dimensions_ferc1) -> pd.DataFrame:
     tags_df = (
         pd.read_csv(
             tags_csv,
-            usecols=[
-                "table_name",
-                "xbrl_factoid",
-                "in_rate_base",
-                "utility_type",
-                "plant_function",
-                "plant_status",
-            ],
+            usecols=list(NodeId._fields) + ["in_rate_base"],
         )
         .drop_duplicates()
         .dropna(subset=["table_name", "xbrl_factoid"], how="any")
@@ -1029,9 +1022,49 @@ def _out_ferc1__explosion_tags(table_dimensions_ferc1) -> pd.DataFrame:
             table_dimensions_ferc1,
             dimensions=["utility_type", "plant_function", "plant_status"],
         )
-        .astype(pd.StringDtype())
+        # .astype(pd.StringDtype())
     )
+    plant_status_tags = _plant_status_tags(table_dimensions_ferc1)
+    tags_df = pd.merge(
+        tags_df, plant_status_tags, on=list(NodeId._fields), how="outer"
+    ).astype(pd.StringDtype())
     return tags_df
+
+
+def _plant_status_tags(table_dimensions_ferc1):
+    # make a new lil csv w the manually compiled plant_statuses
+    # add in the rest from the table_dims
+    # merge it into _out_ferc1__explosion_tags
+    tags_csv = (
+        importlib.resources.files("pudl.package_data.ferc1")
+        / "xbrl_factoid_plant_status_tags.csv"
+    )
+    dimensions = ["utility_type", "plant_function", "plant_status"]
+    idx = list(NodeId._fields)
+    tags_df = (
+        pd.read_csv(tags_csv)
+        .assign(**{dim: pd.NA for dim in dimensions})
+        .pipe(
+            pudl.transform.ferc1.make_calculation_dimensions_explicit,
+            table_dimensions_ferc1,
+            dimensions=dimensions,
+        )
+        .astype(pd.StringDtype())
+        .set_index(idx)
+    )
+    table_dimensions_ferc1 = table_dimensions_ferc1.set_index(idx)
+    tags_df = pd.concat(
+        [
+            tags_df,
+            table_dimensions_ferc1.loc[
+                table_dimensions_ferc1.index.difference(tags_df.index)
+            ],
+        ]
+    ).reset_index()
+    tags_df.aggregatable_plant_status = tags_df.aggregatable_plant_status.fillna(
+        tags_df.plant_status
+    )
+    return tags_df[tags_df.aggregatable_plant_status != "total"]
 
 
 def exploded_table_asset_factory(
