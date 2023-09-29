@@ -114,7 +114,7 @@ def out_eia__yearly_plants(
     },
     compute_kind="Python",
 )
-def out_eia__yearly_generators(
+def _out_eia__yearly_generators(
     context,
     core_eia860__scd_generators: pd.DataFrame,
     core_eia__entity_generators: pd.DataFrame,

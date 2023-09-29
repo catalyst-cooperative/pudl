@@ -525,7 +525,7 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
         "etl_group": "entity_eia",
         "field_namespace": "eia",
     },
-    "mega_generators_eia": {
+    "out_eia__yearly_generators_by_ownership": {
         "description": "A mega table of all EIA generators with ownership integrated.",
         "schema": {
             "fields": [
@@ -1020,7 +1020,7 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
         "sources": ["eia860", "eia923"],
         "etl_group": "outputs",
     },
-    "out_eia__yearly_generators": {
+    "_out_eia__yearly_generators": {
         "description": ("Denormalized table containing all EIA generator attributes."),
         "schema": {
             "fields": [
