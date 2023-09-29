@@ -1596,6 +1596,18 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "description": "The operating status of the asset using PUDL categories.",
         "constraints": {"enum": ["operating", "retired", "proposed"]},
     },
+    "operator_name": {
+        "type": "string",
+        "descripion": "The name of the EIA operator utility.",
+    },
+    "operator_state": {
+        "type": "string",
+        "description": "The state where the operator utility is located.",
+    },
+    "operator_utility_id_eia": {
+        "type": "string",
+        "descrption": "The EIA utility Identification number for the operator utility.",
+    },
     "opex_allowances": {"type": "number", "description": "Allowances.", "unit": "USD"},
     "opex_boiler": {
         "type": "number",
@@ -1790,7 +1802,11 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     },
     "owner_utility_id_eia": {
         "type": "integer",
-        "description": "EIA-assigned owner's identification number.",
+        "description": "The EIA utility Identification number for the owner company that is responsible for the day-to-day operations of the generator, not the operator utility.",
+    },
+    "owner_utility_name_eia": {
+        "type": "string",
+        "description": "The name of the EIA owner utility.",
     },
     "owner_zip_code": {
         "type": "string",
@@ -2873,16 +2889,6 @@ FIELD_METADATA_BY_RESOURCE: dict[str, dict[str, Any]] = {
                     "Pacific/Honolulu",
                 ]
             }
-        }
-    },
-    "ownership_eia860": {
-        "utility_id_eia": {
-            "description": "The EIA utility Identification number for the owner company that is responsible for the day-to-day operations of the generator, not the operator utility."
-        }
-    },
-    "denorm_ownership_eia860": {
-        "utility_id_eia": {
-            "description": "The EIA utility Identification number for the owner company that is responsible for the day-to-day operations of the generator, not the operator utility."
         }
     },
 }

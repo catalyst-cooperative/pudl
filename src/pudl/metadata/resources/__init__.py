@@ -71,6 +71,9 @@ ENTITIES: dict[str, dict[str, list[str] | dict[str, str]]] = {
             "water_source",
             "data_maturity",
         ],
+        "map_cols_dict": {
+            "operator_utility_id_eia": "utility_id_eia",
+        },
     },
     "generators": {
         "id_cols": ["plant_id_eia", "generator_id"],
@@ -162,6 +165,9 @@ ENTITIES: dict[str, dict[str, list[str] | dict[str, str]]] = {
             "energy_storage_capacity_mwh",
             "net_capacity_mwdc",
         ],
+        "map_cols_dict": {
+            "operator_utility_id_eia": "utility_id_eia",
+        },
     },
     "boilers": {
         "id_cols": ["plant_id_eia", "boiler_id"],
@@ -289,8 +295,15 @@ ENTITIES: dict[str, dict[str, list[str] | dict[str, str]]] = {
             "data_maturity",
         ],
         "map_cols_dict": {
-            "operator_utility_id_eia": "utility_id_eia",
-            "operator_name": "utility_name_eia",
+            "owner_utility_id_eia": "utility_id_eia",
+            "owner_name": "utility_name_eia",
+            "owner_state": "state",
+            "owner_country": "country",
+            "owner_street_address": "street_address",
+            "owner_zip_code": "zip_code",
+            "owner_city": "city"
+            # currently can't harvest operator utilities in the same dict
+            # probaby okay because no new operator utilities should be in this table
         },
     },
 }

@@ -29,21 +29,23 @@ def denorm_ownership_eia860(
             "plant_id_eia",
             "plant_id_pudl",
             "plant_name_eia",
-            "utility_id_pudl",
+            # "utility_id_pudl",
             "report_date",
         ],
     ]
     own_df = pd.merge(
         ownership_eia860, pu_df, on=["report_date", "plant_id_eia"], how="left"
-    ).dropna(subset=["report_date", "plant_id_eia", "generator_id", "utility_id_eia"])
+    ).dropna(
+        subset=["report_date", "plant_id_eia", "generator_id", "owner_utility_id_eia"]
+    )
     first_cols = [
         "report_date",
         "plant_id_eia",
         "plant_id_pudl",
         "plant_name_eia",
-        "utility_id_eia",
-        "utility_id_pudl",
-        "utility_name_eia",
+        "owner_utility_id_eia",
+        # "utility_id_pudl",
+        "owner_utility_name_eia",
         "generator_id",
     ]
 
