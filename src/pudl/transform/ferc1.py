@@ -4076,46 +4076,6 @@ class UtilityPlantSummaryFerc1TableTransformer(Ferc1AbstractTableTransformer):
         tbl_meta = pd.concat([tbl_meta, new_fact]).reset_index(drop=True)
         return tbl_meta
 
-    @cache_df("process_xbrl_metadata")
-    def process_xbrl_metadata(
-        self: Self,
-        xbrl_metadata_converted: pd.DataFrame,
-        xbrl_calculations: pd.DataFrame,
-    ) -> pd.DataFrame:
-        """Transform the metadata to reflect the transformed data.
-
-        We fill in some gaps in the metadata, e.g. for FERC accounts that have been
-        split across multiple rows, or combined without being calculated. We also need
-        to rename the XBRL metadata categories to conform to the same naming convention
-        that we are using in the data itself (since FERC doesn't quite follow their own
-        naming conventions...). We use the same rename dictionary, but as an argument to
-        :meth:`pd.Series.replace` instead of :meth:`pd.DataFrame.rename`.
-        """
-        meta = (
-            super()
-            .process_xbrl_metadata(xbrl_metadata_converted, xbrl_calculations)
-            .assign(plant_status=pd.NA)
-        )
-        # auto assign a status if the status is in the name
-        for status in pudl.transform.params.ferc1.PLANT_STATUS["categories"]:
-            meta = meta.assign(
-                plant_status=lambda x: np.where(
-                    x.xbrl_factoid.str.contains(status), status, x.plant_status
-                )
-            )
-        # add some manual statuses
-        plant_status_manual = {
-            "utility_plant_net": "total",
-            "accumulated_provision_for_depreciation_amortization_and_depletion_of_plant_utility": "total",
-        }
-        meta = meta.set_index("xbrl_factoid")
-        meta.loc[plant_status_manual.keys(), "plant_status"] = list(
-            plant_status_manual.values()
-        )
-        meta = meta.reset_index()
-        meta.plant_status = meta.plant_status.fillna("total")
-        return meta
-
     def transform_main(self: Self, df: pd.DataFrame) -> pd.DataFrame:
         """Default transforming, plus spot fixing and building aggregate xbrl_factoid."""
         # we want to aggregate the factoids first here bc merge_xbrl_metadata is done
