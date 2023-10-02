@@ -1758,10 +1758,17 @@ class XbrlCalculationForestFerc1(BaseModel):
         tags_dict = (
             self.tags.convert_dtypes().set_index(self.calc_cols).to_dict(orient="index")
         )
+        # Drop None tags created by combining multiple tagging CSVs
+        clean_tags_dict = {
+            k: {a: b for a, b in v.items() if b is not None}
+            for k, v in tags_dict.items()
+        }
         node_attrs = (
             pd.DataFrame(
-                index=pd.MultiIndex.from_tuples(tags_dict.keys(), names=self.calc_cols),
-                data={"tags": list(tags_dict.values())},
+                index=pd.MultiIndex.from_tuples(
+                    clean_tags_dict.keys(), names=self.calc_cols
+                ),
+                data={"tags": list(clean_tags_dict.values())},
             )
             .reset_index()
             # Type conversion is necessary to get pd.NA in the index:
