@@ -1605,7 +1605,7 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "description": "The state where the operator utility is located.",
     },
     "operator_utility_id_eia": {
-        "type": "string",
+        "type": "integer",
         "descrption": "The EIA utility Identification number for the operator utility.",
     },
     "opex_allowances": {"type": "number", "description": "Allowances.", "unit": "USD"},
