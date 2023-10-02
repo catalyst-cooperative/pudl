@@ -226,9 +226,9 @@ class PudlTabl:
         table_method_map_any_agg = {
             "out_eia923__AGG_generation_fuel_by_generator_energy_source": "gen_fuel_by_generator_energy_source_eia923",
             "out_eia923__AGG_generation_fuel_by_generator": "gen_fuel_by_generator_eia923",
-            "heat_rate_by_unit_AGG": "hr_by_unit",
-            "heat_rate_by_generator_AGG": "hr_by_gen",
-            "capacity_factor_by_generator_AGG": "capacity_factor",
+            "_out_eia__AGG_heat_rate_by_unit": "hr_by_unit",
+            "_out_eia__AGG_heat_rate_by_generator": "hr_by_gen",
+            "_out_eia__AGG_capacity_factor_by_generator": "capacity_factor",
             "fuel_cost_by_generator_AGG": "fuel_cost",
             "_out_eia__AGG_derived_generator_attributes": "mcoe",
             "out_eia__AGG_generators": "mcoe_generators",

@@ -1885,9 +1885,9 @@ class Package(Base):
         """Get a list of sorted Resources.
 
         Currently Resources are listed in reverse alphabetical order based
-        on their name which results in the following order: (out_*, core_*, _*).
-        This is promotes out_ tables to users and pushes intermediate tables
-        to the bottom of the docs.
+        on their name which results in the following order to promote output
+        tables to users and push intermediate tables to the bottom of the
+        docs: output, core, intermediate.
 
         In the future we might want to have more fine grain control over how
         Resources are sorted.

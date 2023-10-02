@@ -56,6 +56,7 @@ def mcoe_asset_factory(
             "bga": AssetIn(key="core_eia860__assn_boiler_generator"),
         },
         compute_kind="Python",
+        io_manager_key="pudl_sqlite_io_manager",
         description=f"{agg_freqs[freq].title()} heat rate estimates by generation unit. Generation "
         "units are identified by ``unit_id_pudl`` and are composed of a set of "
         f"interconnected boilers and generators.",
@@ -71,6 +72,7 @@ def mcoe_asset_factory(
             "gens": AssetIn(key="_out_eia__yearly_generators"),
         },
         compute_kind="Python",
+        io_manager_key="pudl_sqlite_io_manager",
         description=f"{agg_freqs[freq].title()} heat rate estimates by generator. These are actually "
         "just generation unit level heat rates, which have been broadcast "
         "across all constituent generator IDs, since heat rates really only "
@@ -113,6 +115,7 @@ def mcoe_asset_factory(
             "gens": AssetIn(key="_out_eia__yearly_generators"),
         },
         compute_kind="Python",
+        io_manager_key="pudl_sqlite_io_manager",
         description=f"{agg_freqs[freq].title()} estimates of generator capacity factor. Capacity "
         "factor is calculated based on reported generator capacity and the "
         "allocated net generation reported in the generation and generation ",
