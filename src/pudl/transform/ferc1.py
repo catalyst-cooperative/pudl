@@ -3048,14 +3048,11 @@ class PlantInServiceFerc1TableTransformer(Ferc1AbstractTableTransformer):
         logger.info(
             f"{self.table_id.value}: Converted {len(df[neg_values])} negative values to positive."
         )
-        df = df.assign(
-            utility_type="electric", plant_status="in_service"
-        )  # Assign plant status and utility type
-        df.loc[
-            df.ferc_account_label.isin(
-                ["electric_plant_sold", "electric_plant_purchased"]
-            )
-        ].plant_status = pd.NA  # With two exceptions
+        # Assign plant status and utility type
+        not_in_service = ["electric_plant_sold", "electric_plant_purchased"]
+        in_service = ~df.ferc_account_label.isin(not_in_service)
+        df.loc[in_service, "plant_status"] = "in_service"
+        df["utility_type"] = "electric"
         return df
 
 
