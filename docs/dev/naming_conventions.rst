@@ -15,9 +15,9 @@ Asset Naming Conventions
 PUDL's data processing is divided into three layers of Dagster assets: Raw, Core
 and Output. Dagster assets are the core unit of computation in PUDL. The outputs
 of assets can be persisted to any type of storage though PUDL outputs are typically
-tables in a SQLite database, parquet files or pickle files. The asset name is used
-for the table or parquet file name. Asset names should generally follow this naming
-convention:
+tables in a SQLite database, parquet files or pickle files (read more about this here:
+:doc:`../intro`). The asset name is used for the table or parquet file name. Asset
+names should generally follow this naming convention:
 
 .. code-block::
 
@@ -33,9 +33,11 @@ convention:
 
 Raw layer
 ^^^^^^^^^
-* This layer contains assets that extract data from spreadsheets and databases
-  and are persisted as pickle files.
-* Naming convention: ``raw_{source}__{asset_name}``
+This layer contains assets that extract data from spreadsheets and databases
+and are persisted as pickle files.
+
+Naming convention: ``raw_{source}__{asset_name}``
+
 * ``asset_name`` is typically copied from the source data.
 * ``asset_type`` is not included in this layer because the data modeling does not
   yet conform to PUDL standards. Raw assets are typically just copies of the
@@ -43,17 +45,20 @@ Raw layer
 
 Core layer
 ^^^^^^^^^^
-* This layer contains assets that typically break denormalized raw assets into
-  well-modeled tables that serve as building blocks for downstream wide tables
-  and analyses. Well-modeled means tables in the database have logical
-  primary keys, foreign keys, datatypes and generally follow
-  :ref:`Tidy Data standards <tidy-data>`. Assets in this layer create
-  consistent categorical variables, decuplicate and impute data.
-  These assets are typically stored in parquet files or tables in a database.
-* Naming convention: ``core_{source}__{asset_type}_{asset_name}``
-* ``asset_type`` describes how the asset is modeled and its role in PUDL’s
-  collection of core assets. There are a handful of table types in this layer:
+This layer contains assets that typically break denormalized raw assets into
+well-modeled tables that serve as building blocks for downstream wide tables
+and analyses. Well-modeled means tables in the database have logical
+primary keys, foreign keys, datatypes and generally follow
+:ref:`Tidy Data standards <tidy-data>`. Assets in this layer create
+consistent categorical variables, decuplicate and impute data.
+These assets are typically stored in parquet files or tables in a database.
 
+Naming convention: ``core_{source}__{asset_type}_{asset_name}``
+
+  * ``asset_type`` describes how the asset is modeled and its role in PUDL’s
+    collection of core assets. There are a handful of table types in this layer:
+  * ``asset_type`` describes how the asset is modeled and its role in PUDL’s
+    collection of core assets. There are a handful of table types in this layer:
   * ``assn``: Association tables provide connections between entities. This data
     can be manually compiled or extracted from data sources. Examples:
 
@@ -82,32 +87,23 @@ Core layer
     * ``core_ferc714__hourly_demand_pa``,
     * ``core_ferc1__yearly_plant_in_service``.
 
-Output layer
-^^^^^^^^^^^^
-* Assets in this layer use the well modeled tables from the Core layer to construct
-  wide and complete tables suitable for users to perform analysis on. This layer
-  contains intermediate tables that bridge the core and user-facing tables.
-* Naming convention: ``out_{source}__{asset_type}_{asset_name}``
-* ``source`` is optional in this layer because there can be assets that join data from
-  multiple sources.
-* ``asset_type`` is also optional. It will likely describe the frequency at which
-  the data is reported (annual/monthly/hourly).
 
-Intermediate Assets
-^^^^^^^^^^^^^^^^^^^
-* Intermediate assets are logical steps towards a final well-modeled core or
-  user-facing output asset. These assets are not intended to be persisted in the
-  database or accessible to the user. These assets are denoted by a preceding
-  underscore, like a private python method. For example, the intermediate asset
-  ``_core_eia860__plants`` is a logical step towards the
-  ``core_eia860__entity_plants`` and ``core_eia860__scd_plants`` assets.
-  ``_core_eia860__plants`` does some basic cleaning of the ``raw_eia860__plant``
-  asset but still contains duplicate plant entities. The computation intensive
-  harvesting process deduplicates ``_core_eia860__plants`` and outputs the
-  ``core_eia860__entity_plants`` and ``core_eia860__scd_plants`` assets which
-  follow Tiny Data standards.
-* Limit the number of intermediate assets to avoid an extremely
-  cluttered DAG. It is appropriate to create an intermediate asset when:
+Core Layer (Intermediate Assets)
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+Intermediate assets are logical steps towards a final well-modeled core or
+user-facing output asset. These assets are not intended to be persisted in the
+database or accessible to the user. These assets are denoted by a preceding
+underscore, like a private python method. For example, the intermediate asset
+``_core_eia860__plants`` is a logical step towards the
+``core_eia860__entity_plants`` and ``core_eia860__scd_plants`` assets.
+``_core_eia860__plants`` does some basic cleaning of the ``raw_eia860__plant``
+asset but still contains duplicate plant entities. The computation intensive
+harvesting process deduplicates ``_core_eia860__plants`` and outputs the
+``core_eia860__entity_plants`` and ``core_eia860__scd_plants`` assets which
+follow Tiny Data standards.
+
+Limit the number of intermediate assets to avoid an extremely
+cluttered DAG. It is appropriate to create an intermediate asset when:
 
   * there is a short and long running portion of a process. It is convenient to separate
     the long and short-running processing portions into separate assets so debugging the
@@ -116,18 +112,32 @@ Intermediate Assets
     example, the pre harvest assets in the ``_core_eia860`` and ``_core_eia923`` groups
     are frequently inspected when new years of data are added.
 
+Output layer
+^^^^^^^^^^^^
+This layer uses assets in the Core layer to construct wide and complete tables
+suitable for users to perform analysis on. This layer can contain intermediate
+tables that bridge the core and user-facing tables.
+
+Naming convention: ``out_{source}__{asset_type}_{asset_name}``
+
+* ``source`` is optional in this layer because there can be assets that join data from
+  multiple sources.
+* ``asset_type`` is also optional. It will likely describe the frequency at which
+  the data is reported (annual/monthly/hourly).
+
 
 Columns and Field Names
-^^^^^^^^^^^^^^^^^^^^^^^
+------------------------------
+
 If two columns in different tables record the same quantity in the same units,
 give them the same name. That way if they end up in the same dataframe for
 comparison it's easy to automatically rename them with suffixes indicating
 where they came from. For example, net electricity generation is reported to
-both :doc:`FERC Form 1 <../data_sources/ferc1>` and :doc:`EIA 923
-<../data_sources/eia923>`, so we've named columns ``net_generation_mwh`` in
-each of those data sources. Similarly, give non-comparable quantities reported
-in different data sources **different** column names. This helps make it clear
-that the quantities are actually different.
+both :doc:`FERC Form 1 <../data_sources/ferc1>` and
+:doc:`EIA 923<../data_sources/eia923>`, so we've named columns ``net_generation_mwh``
+in each of those data sources. Similarly, give non-comparable quantities reported in
+different data sources **different** column names. This helps make it clear that the
+quantities are actually different.
 
 * ``total`` should come at the beginning of the name (e.g.
   ``total_expns_production``)

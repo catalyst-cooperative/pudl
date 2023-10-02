@@ -1,43 +1,15 @@
 =======================================================================================
-Introduction
+What is PUDL?
 =======================================================================================
 
-PUDL is a data processing pipeline created by `Catalyst Cooperative
-<https://catalyst.coop/>`__ that cleans, integrates, and standardizes some of the most
-widely used public energy datasets in the US. The data serve researchers, activists,
-journalists, and policy makers that might not have the technical expertise to access it
-in its raw form, the time to clean and prepare the data for bulk analysis, or the means
-to purchase it from  existing commercial providers.
+Welcome to the Public Utilities Data Liberation Project (PUDL)! Our README explains that
+PUDL has three core components:
 
----------------------------------------------------------------------------------------
-Available Data
----------------------------------------------------------------------------------------
+- **Raw Data Archives** (raw, versioned inputs)
+- **ETL Pipeline** (code to process, clean, and organize the raw inputs)
+- **Data Warehouse** (location where ETL outputs, both interim and final, are stored)
 
-We focus primarily on poorly curated data published by the US government in
-semi-structured but machine readable formats. For details on exactly what data is
-available from these data sources and what state it is in, see the the individual
-pages for each source:
-
-* :doc:`data_sources/eia860`
-* :doc:`data_sources/eia861`
-* :doc:`data_sources/eia923`
-* :doc:`data_sources/epacems`
-* :doc:`data_sources/ferc1`
-* :doc:`data_sources/ferc714`
-
-We also publish SQLite databases containing relatively pristine versions of our more
-difficult to parse inputs, especially the old Visual FoxPro (DBF, pre-2021) and new XBRL
-data (2021+) published by FERC:
-
-* `FERC Form 1 (DBF) <https://s3.us-west-2.amazonaws.com/pudl.catalyst.coop/dev/ferc1.sqlite>`__
-* `FERC Form 1 (XBRL) <https://s3.us-west-2.amazonaws.com/pudl.catalyst.coop/dev/ferc1_xbrl.sqlite>`__
-* `FERC Form 2 (XBRL) <https://s3.us-west-2.amazonaws.com/pudl.catalyst.coop/dev/ferc2_xbrl.sqlite>`__
-* `FERC Form 6 (XBRL) <https://s3.us-west-2.amazonaws.com/pudl.catalyst.coop/dev/ferc6_xbrl.sqlite>`__
-* `FERC Form 60 (XBRL) <https://s3.us-west-2.amazonaws.com/pudl.catalyst.coop/dev/ferc60_xbrl.sqlite>`__
-* `FERC Form 714 (XBRL) <https://s3.us-west-2.amazonaws.com/pudl.catalyst.coop/dev/ferc714_xbrl.sqlite>`__
-
-To get started using PUDL data, visit our :doc:`data_access` page, or continue reading
-to learn more about the PUDL data processing pipeline.
+Let's dig into each of these...
 
 .. _raw-data-archive:
 
@@ -74,13 +46,43 @@ needed and organize them in a local :doc:`datastore <dev/datastore>`.
 .. _etl-process:
 
 ---------------------------------------------------------------------------------------
-The Data Warehouse Design
+The ETL Pipeline
 ---------------------------------------------------------------------------------------
 
-PUDL's data processing produces a data warehouse that can be used for analytics.
-The processing happens within Dagster assets that are persisted to storage,
-typically pickle, parquet or SQLite files. The raw data moves through three
-layers of the data warehouse.
+Dagster stuff, etc. I feel like this is similar to the data warehouse stuff, or rather,
+it informs the structure? Talk about validation tests n stuff here.
+
+Data Validation
+^^^^^^^^^^^^^^^
+
+We have a growing collection of data validation test cases that we run before
+publishing a data release to try and avoid publishing data with known issues. Most of
+these validations are described in the :mod:`pudl.validate` module. They check things
+like:
+
+* The heat content of various fuel types are within expected bounds.
+* Coal ash, moisture, mercury, sulfur etc. content are within expected bounds
+* Generator heat rates and capacity factors are realistic for the type of prime mover
+  being reported.
+
+Some data validations are currently only specified within our test suite, including:
+
+* The expected number of records within each table
+* The fact that there are no entirely N/A columns
+
+A variety of database integrity checks are also run either during the ETL process or
+when the data is loaded into SQLite.
+
+See our :doc:`dev/testing` documentation for more information.
+
+---------------------------------------------------------------------------------------
+The Data Warehouse
+---------------------------------------------------------------------------------------
+
+The Data Warehouse contains all the cleaned data outputs and interim outputs from the
+ETL pipeline.
+
+Data passing through the ETL pipeline passes different phases or "layers"....ADD MORE
 
 Raw Layer
 ^^^^^^^^^
@@ -182,26 +184,3 @@ integrate more analytical outputs into the library over time.
       Python, Pandas, and NumPy.
 
 .. _test-and-validate:
-
----------------------------------------------------------------------------------------
-Data Validation
----------------------------------------------------------------------------------------
-We have a growing collection of data validation test cases that we run before
-publishing a data release to try and avoid publishing data with known issues. Most of
-these validations are described in the :mod:`pudl.validate` module. They check things
-like:
-
-* The heat content of various fuel types are within expected bounds.
-* Coal ash, moisture, mercury, sulfur etc. content are within expected bounds
-* Generator heat rates and capacity factors are realistic for the type of prime mover
-  being reported.
-
-Some data validations are currently only specified within our test suite, including:
-
-* The expected number of records within each table
-* The fact that there are no entirely N/A columns
-
-A variety of database integrity checks are also run either during the ETL process or
-when the data is loaded into SQLite.
-
-See our :doc:`dev/testing` documentation for more information.
