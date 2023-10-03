@@ -104,19 +104,19 @@ TABLE_NAME_MAP_FERC1: dict[str, dict[str, str]] = {
         "dbf": "f1_fuel",
         "xbrl": "steam_electric_generating_plant_statistics_large_plants_fuel_statistics_402",
     },
-    "core_ferc1__yearly_plants_steam": {
+    "core_ferc1__yearly_steam_plants": {
         "dbf": "f1_steam",
         "xbrl": "steam_electric_generating_plant_statistics_large_plants_402",
     },
-    "core_ferc1__yearly_plants_small": {
+    "core_ferc1__yearly_small_plants": {
         "dbf": "f1_gnrt_plant",
         "xbrl": "generating_plant_statistics_410",
     },
-    "core_ferc1__yearly_plants_hydro": {
+    "core_ferc1__yearly_hydro_plants": {
         "dbf": "f1_hydro",
         "xbrl": "hydroelectric_generating_plant_statistics_large_plants_406",
     },
-    "core_ferc1__yearly_plants_pumped_storage": {
+    "core_ferc1__yearly_pumped_storage_plants": {
         "dbf": "f1_pumped_storage",
         "xbrl": "pumped_storage_generating_plant_statistics_large_plants_408",
     },
@@ -156,7 +156,7 @@ TABLE_NAME_MAP_FERC1: dict[str, dict[str, str]] = {
         "dbf": "f1_comp_balance_db",
         "xbrl": "comparative_balance_sheet_assets_and_other_debits_110",
     },
-    "core_ferc1__yearly_income_statement": {
+    "core_ferc1__yearly_income_statements": {
         "dbf": ["f1_income_stmnt", "f1_incm_stmnt_2"],
         "xbrl": "statement_of_income_114",
     },

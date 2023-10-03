@@ -633,7 +633,7 @@ def fuel_by_plant_ferc1(
 
     Returns:
         DataFrame with a single record for each plant-year, including the columns
-        required to merge it with the core_ferc1__yearly_plants_steam table/DataFrame (report_year,
+        required to merge it with the core_ferc1__yearly_steam_plants table/DataFrame (report_year,
         utility_id_ferc1, and plant_name) as well as totals for fuel mmbtu consumed in
         that plant-year, and the cost of fuel in that year, the proportions of heat
         content and fuel costs for each fuel in that year, and a column that labels the

@@ -2817,7 +2817,7 @@ elements which should be overridden need to be specified.
 
 FIELD_METADATA_BY_RESOURCE: dict[str, dict[str, Any]] = {
     "sector_consolidated_eia": {"code": {"type": "integer"}},
-    "core_ferc1__yearly_plants_hydro": {
+    "core_ferc1__yearly_hydro_plants": {
         "plant_type": {
             "type": "string",
             "constraints": {
@@ -2835,7 +2835,7 @@ FIELD_METADATA_BY_RESOURCE: dict[str, dict[str, Any]] = {
             },
         }
     },
-    "core_ferc1__yearly_plants_steam": {
+    "core_ferc1__yearly_steam_plants": {
         "plant_type": {
             "type": "string",
             "constraints": {

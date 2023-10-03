@@ -97,7 +97,8 @@ Data Coverage
     :pr:`2134`.
   * :ref:`core_ferc1__yearly_depreciation_amortization_summary`, see issue :issue:`1816`
     & PR :pr:`2143`.
-  * :ref:`core_ferc1__yearly_income_statement`, see issue :issue:`1813` & PR :pr:`2147`.
+  * :ref:`core_ferc1__yearly_income_statements`, see issue :issue:`1813` & PR
+    :pr:`2147`.
   * :ref:`core_ferc1__yearly_electric_plant_depreciation_changes` see issue
     :issue:`1808` & :pr:`2119`.
   * :ref:`core_ferc1__yearly_electric_plant_depreciation_functional` see issue
@@ -223,7 +224,7 @@ Data Cleaning
 * Fixed column naming issues in the
   :ref:`core_ferc1__yearly_electric_operating_revenues` table.
 * Made minor calculation fixes in the metadata for
-  :ref:`core_ferc1__yearly_income_statement`,
+  :ref:`core_ferc1__yearly_income_statements`,
   :ref:`core_ferc1__yearly_utility_plant_summary`,
   :ref:`core_ferc1__yearly_electric_operating_revenues`,
   :ref:`core_ferc1__yearly_balance_sheet_assets`,

@@ -40,7 +40,7 @@ class CalculationToleranceFerc1(BaseModel):
 
 
 EXPLOSION_CALCULATION_TOLERANCES: dict[str, CalculationToleranceFerc1] = {
-    "core_ferc1__yearly_income_statement": CalculationToleranceFerc1(
+    "core_ferc1__yearly_income_statements": CalculationToleranceFerc1(
         intertable_calculation_errors=0.20,
     ),
     "core_ferc1__yearly_balance_sheet_assets": CalculationToleranceFerc1(
@@ -68,7 +68,7 @@ def _out_ferc1__yearly_plants_utilities(
 @asset(io_manager_key="pudl_sqlite_io_manager", compute_kind="Python")
 def _out_ferc1__yearly_steam_plants(
     _out_ferc1__yearly_plants_utilities: pd.DataFrame,
-    core_ferc1__yearly_plants_steam: pd.DataFrame,
+    core_ferc1__yearly_steam_plants: pd.DataFrame,
 ) -> pd.DataFrame:
     """Select and joins some useful fields from the FERC Form 1 steam table.
 
@@ -81,13 +81,13 @@ def _out_ferc1__yearly_steam_plants(
     Args:
         _out_ferc1__yearly_plants_utilities: Denormalized dataframe of FERC Form 1 plants and
             utilities data.
-        core_ferc1__yearly_plants_steam: The normalized FERC Form 1 steam table.
+        core_ferc1__yearly_steam_plants: The normalized FERC Form 1 steam table.
 
     Returns:
         A DataFrame containing useful fields from the FERC Form 1 steam table.
     """
     steam_df = (
-        core_ferc1__yearly_plants_steam.merge(
+        core_ferc1__yearly_steam_plants.merge(
             _out_ferc1__yearly_plants_utilities,
             on=["utility_id_ferc1", "plant_name_ferc1"],
             how="left",
@@ -122,12 +122,12 @@ def _out_ferc1__yearly_steam_plants(
 
 @asset(io_manager_key="pudl_sqlite_io_manager", compute_kind="Python")
 def _out_ferc1__yearly_small_plants(
-    core_ferc1__yearly_plants_small: pd.DataFrame,
+    core_ferc1__yearly_small_plants: pd.DataFrame,
     _out_ferc1__yearly_plants_utilities: pd.DataFrame,
 ) -> pd.DataFrame:
     """Pull a useful dataframe related to the FERC Form 1 small plants."""
     plants_small_df = (
-        core_ferc1__yearly_plants_small.merge(
+        core_ferc1__yearly_small_plants.merge(
             _out_ferc1__yearly_plants_utilities,
             on=["utility_id_ferc1", "plant_name_ferc1"],
             how="left",
@@ -159,12 +159,12 @@ def _out_ferc1__yearly_small_plants(
 
 @asset(io_manager_key="pudl_sqlite_io_manager", compute_kind="Python")
 def _out_ferc1__yearly_hydro_plants(
-    core_ferc1__yearly_plants_hydro: pd.DataFrame,
+    core_ferc1__yearly_hydro_plants: pd.DataFrame,
     _out_ferc1__yearly_plants_utilities: pd.DataFrame,
 ) -> pd.DataFrame:
     """Pull a useful dataframe related to the FERC Form 1 hydro plants."""
     plants_hydro_df = (
-        core_ferc1__yearly_plants_hydro.merge(
+        core_ferc1__yearly_hydro_plants.merge(
             _out_ferc1__yearly_plants_utilities,
             on=["utility_id_ferc1", "plant_name_ferc1"],
             how="left",
@@ -190,12 +190,12 @@ def _out_ferc1__yearly_hydro_plants(
 
 @asset(io_manager_key="pudl_sqlite_io_manager", compute_kind="Python")
 def _out_ferc1__yearly_pumped_storage_plants(
-    core_ferc1__yearly_plants_pumped_storage: pd.DataFrame,
+    core_ferc1__yearly_pumped_storage_plants: pd.DataFrame,
     _out_ferc1__yearly_plants_utilities: pd.DataFrame,
 ) -> pd.DataFrame:
     """Pull a dataframe of FERC Form 1 Pumped Storage plant data."""
     pumped_storage_df = (
-        core_ferc1__yearly_plants_pumped_storage.merge(
+        core_ferc1__yearly_pumped_storage_plants.merge(
             _out_ferc1__yearly_plants_utilities,
             on=["utility_id_ferc1", "plant_name_ferc1"],
             how="left",
@@ -578,11 +578,11 @@ def out_ferc1__yearly_electricity_sales_by_rate_schedule(
 
 @asset(io_manager_key="pudl_sqlite_io_manager", compute_kind="Python")
 def out_ferc1__yearly_income_statement(
-    core_ferc1__yearly_income_statement: pd.DataFrame,
+    core_ferc1__yearly_income_statements: pd.DataFrame,
     core_pudl__assn_utilities_ferc1: pd.DataFrame,
 ) -> pd.DataFrame:
     """Pull a useful dataframe of FERC Form 1 Purchased Power data."""
-    out_ferc1__yearly_income_statement = core_ferc1__yearly_income_statement.merge(
+    out_ferc1__yearly_income_statement = core_ferc1__yearly_income_statements.merge(
         core_pudl__assn_utilities_ferc1, on="utility_id_ferc1"
     ).pipe(
         pudl.helpers.organize_cols,
@@ -1037,7 +1037,10 @@ def exploded_table_asset_factory(
     }
     ins |= {table_name: AssetIn(table_name) for table_name in table_names_to_explode}
 
-    @asset(name=f"exploded_{root_table}", ins=ins, io_manager_key=io_manager_key)
+    asset_group, asset_name = root_table.split("__")
+    asset_name = f"{asset_group}__exploded_{asset_name}"
+
+    @asset(name=asset_name, ins=ins, io_manager_key=io_manager_key)
     def exploded_tables_asset(
         **kwargs: dict[str, pd.DataFrame],
     ) -> pd.DataFrame:
@@ -1076,19 +1079,19 @@ def create_exploded_table_assets() -> list[AssetsDefinition]:
     """
     explosion_args = [
         {
-            "root_table": "income_statement_ferc1",
+            "root_table": "core_ferc1__yearly_income_statements",
             "table_names_to_explode": [
-                "core_ferc1__yearly_income_statement",
+                "core_ferc1__yearly_income_statements",
                 "core_ferc1__yearly_depreciation_amortization_summary",
                 "core_ferc1__yearly_electric_operating_expenses",
                 "core_ferc1__yearly_electric_operating_revenues",
             ],
             "calculation_tolerance": EXPLOSION_CALCULATION_TOLERANCES[
-                "core_ferc1__yearly_income_statement"
+                "core_ferc1__yearly_income_statements"
             ],
             "seed_nodes": [
                 NodeId(
-                    table_name="core_ferc1__yearly_income_statement",
+                    table_name="core_ferc1__yearly_income_statements",
                     xbrl_factoid="net_income_loss",
                     utility_type="total",
                     plant_status=pd.NA,
@@ -1097,7 +1100,7 @@ def create_exploded_table_assets() -> list[AssetsDefinition]:
             ],
         },
         {
-            "root_table": "balance_sheet_assets_ferc1",
+            "root_table": "core_ferc1__yearly_balance_sheet_assets",
             "table_names_to_explode": [
                 "core_ferc1__yearly_balance_sheet_assets",
                 "core_ferc1__yearly_balance_sheet_assets",
@@ -1119,7 +1122,7 @@ def create_exploded_table_assets() -> list[AssetsDefinition]:
             ],
         },
         {
-            "root_table": "balance_sheet_liabilities_ferc1",
+            "root_table": "core_ferc1__yearly_balance_sheet_liabilities",
             "table_names_to_explode": [
                 "core_ferc1__yearly_balance_sheet_liabilities",
                 "core_ferc1__yearly_balance_sheet_liabilities",
@@ -1545,7 +1548,7 @@ class XbrlCalculationForestFerc1(BaseModel):
     """A class for manipulating groups of hierarchically nested XBRL calculations.
 
     We expect that the facts reported in high-level FERC tables like
-    :ref:`core_ferc1__yearly_income_statement` and
+    :ref:`core_ferc1__yearly_income_statements` and
     :ref:`core_ferc1__yearly_balance_sheet_assets` should be
     calculable from many individually reported granular values, based on the
     calculations encoded in the XBRL Metadata, and that these relationships should have

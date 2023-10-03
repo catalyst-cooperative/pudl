@@ -655,7 +655,7 @@ def plot_vs_agg(orig_df, agg_df, validation_cases):
 ###############################################################################
 
 
-core_ferc1__yearly_plants_steam_capacity = [
+core_ferc1__yearly_steam_plants_capacity = [
     {
         "title": "All Plant Capacity",
         "query": "",
@@ -678,7 +678,7 @@ core_ferc1__yearly_plants_steam_capacity = [
     },
 ]
 
-core_ferc1__yearly_plants_steam_expenses = [
+core_ferc1__yearly_steam_plants_expenses = [
     {
         "title": "Capital Expenses (median)",
         "query": "",
@@ -741,7 +741,7 @@ core_ferc1__yearly_plants_steam_expenses = [
     },
 ]
 
-core_ferc1__yearly_plants_steam_capacity_ratios = [
+core_ferc1__yearly_steam_plants_capacity_ratios = [
     {
         "title": "Capacity Factor (Tails)",
         "query": "capacity_factor>0.05",
@@ -844,7 +844,7 @@ core_ferc1__yearly_plants_steam_capacity_ratios = [
     },
 ]
 
-core_ferc1__yearly_plants_steam_connected_hours = [
+core_ferc1__yearly_steam_plants_connected_hours = [
     {  # Currently failing b/c ~10% of plants have way more than 8760 hours...
         "title": "Plant Hours Connected (min/max)",
         "query": "",
@@ -857,7 +857,7 @@ core_ferc1__yearly_plants_steam_connected_hours = [
     },
 ]
 
-core_ferc1__yearly_plants_steam_self = [
+core_ferc1__yearly_steam_plants_self = [
     {
         "title": "All Plant Capacity",
         "query": "",

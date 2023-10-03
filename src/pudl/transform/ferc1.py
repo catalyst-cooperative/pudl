@@ -132,10 +132,10 @@ class TableIdFerc1(enum.Enum):
     """
 
     FUEL_FERC1 = "core_ferc1__yearly_fuel"
-    PLANTS_STEAM_FERC1 = "core_ferc1__yearly_plants_steam"
-    PLANTS_HYDRO_FERC1 = "core_ferc1__yearly_plants_hydro"
-    PLANTS_SMALL_FERC1 = "core_ferc1__yearly_plants_small"
-    PLANTS_PUMPED_STORAGE_FERC1 = "core_ferc1__yearly_plants_pumped_storage"
+    PLANTS_STEAM_FERC1 = "core_ferc1__yearly_steam_plants"
+    PLANTS_HYDRO_FERC1 = "core_ferc1__yearly_hydro_plants"
+    PLANTS_SMALL_FERC1 = "core_ferc1__yearly_small_plants"
+    PLANTS_PUMPED_STORAGE_FERC1 = "core_ferc1__yearly_pumped_storage_plants"
     PLANT_IN_SERVICE_FERC1 = "core_ferc1__yearly_plant_in_service"
     PURCHASED_POWER_FERC1 = "core_ferc1__yearly_purchased_power"
     TRANSMISSION_STATISTICS_FERC1 = "core_ferc1__yearly_transmission_statistics"
@@ -151,7 +151,7 @@ class TableIdFerc1(enum.Enum):
     )
     BALANCE_SHEET_ASSETS_FERC1 = "core_ferc1__yearly_balance_sheet_assets"
     RETAINED_EARNINGS_FERC1 = "core_ferc1__yearly_retained_earnings"
-    INCOME_STATEMENT_FERC1 = "core_ferc1__yearly_income_statement"
+    INCOME_STATEMENT_FERC1 = "core_ferc1__yearly_income_statements"
     ELECTRIC_PLANT_DEPRECIATION_CHANGES_FERC1 = (
         "core_ferc1__yearly_electric_plant_depreciation_changes"
     )
@@ -2409,7 +2409,7 @@ class FuelFerc1TableTransformer(Ferc1AbstractTableTransformer):
     """A table transformer specific to the :ref:`core_ferc1__yearly_fuel` table.
 
     The :ref:`core_ferc1__yearly_fuel` table reports data about fuel consumed by large thermal power
-    plants in the :ref:`core_ferc1__yearly_plants_steam` table. Each record in the steam table is
+    plants in the :ref:`core_ferc1__yearly_steam_plants` table. Each record in the steam table is
     typically associated with several records in the fuel table, with each fuel record
     reporting data for a particular type of fuel consumed by that plant over the course
     of a year. The fuel table presents several challenges.
@@ -2737,7 +2737,7 @@ class FuelFerc1TableTransformer(Ferc1AbstractTableTransformer):
 
 
 class PlantsSteamFerc1TableTransformer(Ferc1AbstractTableTransformer):
-    """Transformer class for the :ref:`core_ferc1__yearly_plants_steam` table."""
+    """Transformer class for the :ref:`core_ferc1__yearly_steam_plants` table."""
 
     table_id: TableIdFerc1 = TableIdFerc1.PLANTS_STEAM_FERC1
 
@@ -2745,10 +2745,10 @@ class PlantsSteamFerc1TableTransformer(Ferc1AbstractTableTransformer):
     def transform_main(
         self, df: pd.DataFrame, transformed_fuel: pd.DataFrame
     ) -> pd.DataFrame:
-        """Perform table transformations for the :ref:`core_ferc1__yearly_plants_steam` table.
+        """Perform table transformations for the :ref:`core_ferc1__yearly_steam_plants` table.
 
         Note that this method has a non-standard call signature, since the
-        :ref:`core_ferc1__yearly_plants_steam` table depends on the :ref:`core_ferc1__yearly_fuel` table.
+        :ref:`core_ferc1__yearly_steam_plants` table depends on the :ref:`core_ferc1__yearly_fuel` table.
 
         Args:
             df: The pre-processed steam plants table.
@@ -2807,7 +2807,7 @@ class PlantsSteamFerc1TableTransformer(Ferc1AbstractTableTransformer):
 
 
 class PlantsHydroFerc1TableTransformer(Ferc1AbstractTableTransformer):
-    """A table transformer specific to the :ref:`core_ferc1__yearly_plants_hydro` table."""
+    """A table transformer specific to the :ref:`core_ferc1__yearly_hydro_plants` table."""
 
     table_id: TableIdFerc1 = TableIdFerc1.PLANTS_HYDRO_FERC1
 
@@ -2854,7 +2854,7 @@ class PlantsHydroFerc1TableTransformer(Ferc1AbstractTableTransformer):
 
 
 class PlantsPumpedStorageFerc1TableTransformer(Ferc1AbstractTableTransformer):
-    """Transformer class for :ref:`core_ferc1__yearly_plants_pumped_storage` table."""
+    """Transformer class for :ref:`core_ferc1__yearly_pumped_storage_plants` table."""
 
     table_id: TableIdFerc1 = TableIdFerc1.PLANTS_PUMPED_STORAGE_FERC1
 
@@ -3053,13 +3053,13 @@ class PlantInServiceFerc1TableTransformer(Ferc1AbstractTableTransformer):
 
 
 class PlantsSmallFerc1TableTransformer(Ferc1AbstractTableTransformer):
-    """A table transformer specific to the :ref:`core_ferc1__yearly_plants_small` table."""
+    """A table transformer specific to the :ref:`core_ferc1__yearly_small_plants` table."""
 
     table_id: TableIdFerc1 = TableIdFerc1.PLANTS_SMALL_FERC1
 
     @cache_df(key="main")
     def transform_main(self, df: pd.DataFrame) -> pd.DataFrame:
-        """Table specific transforms for core_ferc1__yearly_plants_small.
+        """Table specific transforms for core_ferc1__yearly_small_plants.
 
         Params:
             df: Pre-processed, concatenated XBRL and DBF data.
@@ -4453,7 +4453,7 @@ class BalanceSheetAssetsFerc1TableTransformer(Ferc1AbstractTableTransformer):
 
 
 class IncomeStatementFerc1TableTransformer(Ferc1AbstractTableTransformer):
-    """Transformer class for the :ref:`core_ferc1__yearly_income_statement` table."""
+    """Transformer class for the :ref:`core_ferc1__yearly_income_statements` table."""
 
     table_id: TableIdFerc1 = TableIdFerc1.INCOME_STATEMENT_FERC1
     has_unique_record_ids: bool = False
@@ -5377,11 +5377,11 @@ class OtherRegulatoryLiabilitiesFerc1TableTransformer(Ferc1AbstractTableTransfor
 
 FERC1_TFR_CLASSES: Mapping[str, type[Ferc1AbstractTableTransformer]] = {
     "core_ferc1__yearly_fuel": FuelFerc1TableTransformer,
-    "core_ferc1__yearly_plants_steam": PlantsSteamFerc1TableTransformer,
-    "core_ferc1__yearly_plants_small": PlantsSmallFerc1TableTransformer,
-    "core_ferc1__yearly_plants_hydro": PlantsHydroFerc1TableTransformer,
+    "core_ferc1__yearly_steam_plants": PlantsSteamFerc1TableTransformer,
+    "core_ferc1__yearly_small_plants": PlantsSmallFerc1TableTransformer,
+    "core_ferc1__yearly_hydro_plants": PlantsHydroFerc1TableTransformer,
     "core_ferc1__yearly_plant_in_service": PlantInServiceFerc1TableTransformer,
-    "core_ferc1__yearly_plants_pumped_storage": PlantsPumpedStorageFerc1TableTransformer,
+    "core_ferc1__yearly_pumped_storage_plants": PlantsPumpedStorageFerc1TableTransformer,
     "core_ferc1__yearly_transmission_statistics": TransmissionStatisticsFerc1TableTransformer,
     "core_ferc1__yearly_purchased_power": PurchasedPowerFerc1TableTransformer,
     "core_ferc1__yearly_electric_energy_sources": ElectricEnergySourcesFerc1TableTransformer,
@@ -5391,7 +5391,7 @@ FERC1_TFR_CLASSES: Mapping[str, type[Ferc1AbstractTableTransformer]] = {
     "core_ferc1__yearly_balance_sheet_liabilities": BalanceSheetLiabilitiesFerc1TableTransformer,
     "core_ferc1__yearly_depreciation_amortization_summary": DepreciationAmortizationSummaryFerc1TableTransformer,
     "core_ferc1__yearly_balance_sheet_assets": BalanceSheetAssetsFerc1TableTransformer,
-    "core_ferc1__yearly_income_statement": IncomeStatementFerc1TableTransformer,
+    "core_ferc1__yearly_income_statements": IncomeStatementFerc1TableTransformer,
     "core_ferc1__yearly_electric_plant_depreciation_changes": ElectricPlantDepreciationChangesFerc1TableTransformer,
     "core_ferc1__yearly_electric_plant_depreciation_functional": ElectricPlantDepreciationFunctionalFerc1TableTransformer,
     "core_ferc1__yearly_retained_earnings": RetainedEarningsFerc1TableTransformer,
@@ -5414,7 +5414,7 @@ def ferc1_transform_asset_factory(
     This is a convenient way to create assets for tables that only depend on raw dbf,
     raw xbrl instant and duration tables and xbrl metadata. For tables with additional
     upstream dependencies, create a stand alone asset using an asset decorator. See
-    the core_ferc1__yearly_plants_steam asset.
+    the core_ferc1__yearly_steam_plants asset.
 
     Args:
         table_name: The name of the table to create an asset for.
@@ -5502,7 +5502,7 @@ def create_ferc1_transform_assets() -> list[AssetsDefinition]:
     for table_name, tfr_class in FERC1_TFR_CLASSES.items():
         # Bespoke exception. fuel must come before steam b/c fuel proportions are used to
         # aid in FERC plant ID assignment.
-        if table_name != "core_ferc1__yearly_plants_steam":
+        if table_name != "core_ferc1__yearly_steam_plants":
             assets.append(ferc1_transform_asset_factory(table_name, tfr_class))
     return assets
 
@@ -5511,14 +5511,14 @@ ferc1_assets = create_ferc1_transform_assets()
 
 
 @asset(io_manager_key="pudl_sqlite_io_manager")
-def core_ferc1__yearly_plants_steam(
+def core_ferc1__yearly_steam_plants(
     clean_xbrl_metadata_json: dict[str, dict[str, list[dict[str, Any]]]],
     raw_ferc1_dbf__f1_steam: pd.DataFrame,
     raw_ferc1_xbrl__steam_electric_generating_plant_statistics_large_plants_402_duration: pd.DataFrame,
     raw_ferc1_xbrl__steam_electric_generating_plant_statistics_large_plants_402_instant: pd.DataFrame,
     core_ferc1__yearly_fuel: pd.DataFrame,
 ) -> pd.DataFrame:
-    """Create the clean core_ferc1__yearly_plants_steam table.
+    """Create the clean core_ferc1__yearly_steam_plants table.
 
     Args:
             clean_xbrl_metadata_json: XBRL metadata json for all tables.
@@ -5528,10 +5528,10 @@ def core_ferc1__yearly_plants_steam(
             core_ferc1__yearly_fuel: Transformed core_ferc1__yearly_fuel table.
 
     Returns:
-        Clean core_ferc1__yearly_plants_steam table.
+        Clean core_ferc1__yearly_steam_plants table.
     """
     df = PlantsSteamFerc1TableTransformer(
-        xbrl_metadata_json=clean_xbrl_metadata_json["core_ferc1__yearly_plants_steam"]
+        xbrl_metadata_json=clean_xbrl_metadata_json["core_ferc1__yearly_steam_plants"]
     ).transform(
         raw_dbf=raw_ferc1_dbf__f1_steam,
         raw_xbrl_instant=raw_ferc1_xbrl__steam_electric_generating_plant_statistics_large_plants_402_instant,

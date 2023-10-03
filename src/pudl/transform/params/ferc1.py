@@ -2242,7 +2242,7 @@ TRANSFORM_PARAMS = {
             },
         ],
     },
-    "core_ferc1__yearly_plants_steam": {
+    "core_ferc1__yearly_steam_plants": {
         "rename_columns_ferc1": {
             "dbf": {
                 "columns": {
@@ -2400,7 +2400,7 @@ TRANSFORM_PARAMS = {
             },
         ],
     },
-    "core_ferc1__yearly_plants_hydro": {
+    "core_ferc1__yearly_hydro_plants": {
         "rename_columns_ferc1": {
             "dbf": {
                 "columns": {
@@ -2538,7 +2538,7 @@ TRANSFORM_PARAMS = {
             },
         ],
     },
-    "core_ferc1__yearly_plants_small": {
+    "core_ferc1__yearly_small_plants": {
         "rename_columns_ferc1": {
             "dbf": {
                 "columns": {
@@ -2730,7 +2730,7 @@ TRANSFORM_PARAMS = {
             "calculation_tolerance": 0.08,
         },
     },
-    "core_ferc1__yearly_plants_pumped_storage": {
+    "core_ferc1__yearly_pumped_storage_plants": {
         "rename_columns_ferc1": {
             "dbf": {
                 "columns": {
@@ -3718,7 +3718,7 @@ TRANSFORM_PARAMS = {
             "calculation_tolerance": 0.08,
         },
     },
-    "core_ferc1__yearly_income_statement": {
+    "core_ferc1__yearly_income_statements": {
         "rename_columns_ferc1": {
             "dbf": {
                 "columns": {
@@ -3850,7 +3850,7 @@ TRANSFORM_PARAMS = {
         },
         "drop_duplicate_rows_dbf": {
             "data_columns": ["dollar_value"],
-            "table_name": "core_ferc1__yearly_income_statement",
+            "table_name": "core_ferc1__yearly_income_statements",
         },
         "align_row_numbers_dbf": {
             "dbf_table_names": ["f1_income_stmnt", "f1_incm_stmnt_2"]

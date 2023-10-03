@@ -338,7 +338,7 @@ any cleaning mechanisms in place to account for this."""
         "etl_group": "ferc1",
         "field_namespace": "ferc1",
     },
-    "core_ferc1__yearly_income_statement": {
+    "core_ferc1__yearly_income_statements": {
         "description": "Statement of Income. Schedule 114.",
         "schema": {
             "fields": [
@@ -432,7 +432,7 @@ any cleaning mechanisms in place to account for this."""
         "etl_group": "glue",
         "field_namespace": "ferc1",
     },
-    "core_ferc1__yearly_plants_hydro": {
+    "core_ferc1__yearly_hydro_plants": {
         "description": (
             "Hydroelectric generating plant statistics for large plants. Large plants "
             "have an installed nameplate capacity of more than 10 MW. As reported on "
@@ -484,7 +484,7 @@ any cleaning mechanisms in place to account for this."""
         "etl_group": "ferc1",
         "field_namespace": "ferc1",
     },
-    "core_ferc1__yearly_plants_pumped_storage": {
+    "core_ferc1__yearly_pumped_storage_plants": {
         "description": (
             "Generating plant statistics for hydroelectric pumped storage plants with "
             "an installed nameplate capacity of 10+ MW. As reported in Scheudle 408 of "
@@ -540,7 +540,7 @@ any cleaning mechanisms in place to account for this."""
         "etl_group": "ferc1",
         "field_namespace": "ferc1",
     },
-    "core_ferc1__yearly_plants_small": {
+    "core_ferc1__yearly_small_plants": {
         "description": """The generating plant statistics for internal combustion
 plants, gas turbine-plants, conventional hydro plants, and pumped storage plants with
 less than 10 MW installed nameplate capacity and steam plants with less than 25 MW
@@ -581,7 +581,7 @@ columns.""",
         "etl_group": "ferc1",
         "field_namespace": "ferc1",
     },
-    "core_ferc1__yearly_plants_steam": {
+    "core_ferc1__yearly_steam_plants": {
         "description": (
             "Generating plant statistics for steam plants with a capacity of 25+ MW, "
             "internal combustion and gas-turbine plants of 10+ MW, and all nuclear "

@@ -26,7 +26,7 @@ non_unique_record_id_tables = [
     "core_ferc1__yearly_transmission_statistics",
     "core_ferc1__yearly_balance_sheet_liabilities",
     "core_ferc1__yearly_balance_sheet_assets",
-    "core_ferc1__yearly_income_statement",
+    "core_ferc1__yearly_income_statements",
     "core_ferc1__yearly_depreciation_amortization_summary",
     "core_ferc1__yearly_electric_plant_depreciation_changes",
     "core_ferc1__yearly_electric_plant_depreciation_functional",
