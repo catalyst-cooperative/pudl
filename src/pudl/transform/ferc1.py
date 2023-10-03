@@ -21,7 +21,7 @@ import pandas as pd
 import sqlalchemy as sa
 from dagster import AssetIn, AssetsDefinition, asset
 from pandas.core.groupby import DataFrameGroupBy
-from pydantic import validator
+from pydantic import confloat, validator
 
 import pudl
 from pudl.analysis.classify_plants_ferc1 import (
@@ -726,6 +726,35 @@ def combine_axis_columns_xbrl(
     return df
 
 
+class CalculationTolerance(TransformParams):
+    """Data quality expectations related to FERC 1 calculations.
+
+    We are doing a lot of comparisons between calculated and reported values to identify
+    reporting errors in the data, errors in FERC's metadata, and bugs in our own code.
+    This class provides a structure for encoding our expectations about the level of
+    acceptable (or at least expected) errors, and allows us to pass them around.
+
+    In the future we might also want to specify much more granular expectations,
+    pertaining to individual tables, years, utilities, or facts to ensure that we don't
+    have low overall error rates, but a problem with the way the data or metadata is
+    reported in a particular year.  We could also define per-filing and per-table error
+    tolerances to help us identify individual utilities that have e.g. used an outdated
+    version of Form 1 when filing.
+
+    NOTE: It may make sense to consolidate with :class:`ReconcileTableCalculations`
+    once the refactoring of the subtotals and the calculation corrections is done.
+    """
+
+    isclose_rtol: confloat(ge=0.0, le=1e-2) = 1e-5
+    """Relative tolerance to use in :func:`np.isclose` for determining equality."""
+
+    isclose_atol: confloat(ge=0.0) = 1e-8
+    """Absolute tolerance to use in :func:`np.isclose` for determining equality."""
+
+    bulk_error_rate: confloat(ge=0.0, le=1.0) = 0.05
+    """Fraction of interatble calculations that are allowed to not match exactly."""
+
+
 class ReconcileTableCalculations(TransformParams):
     """Parameters for reconciling xbrl-metadata based calculations within a table."""
 
@@ -735,7 +764,7 @@ class ReconcileTableCalculations(TransformParams):
     This will typically be ``dollar_value`` or ``ending_balance`` column for the income
     statement and the balance sheet tables.
     """
-    calculation_tolerance: float = 0.05
+    calculation_tolerance: CalculationTolerance = CalculationTolerance()
     """Fraction of calculated values which we allow not to match reported values."""
 
     subtotal_column: str | None = None
@@ -752,7 +781,6 @@ def reconcile_table_calculations(
     xbrl_factoid_name: str,
     table_name: str,
     params: ReconcileTableCalculations,
-    add_corrections: bool = True,
 ) -> pd.DataFrame:
     """Ensure intra-table calculated values match reported values within a tolerance.
 
@@ -769,13 +797,11 @@ def reconcile_table_calculations(
     do not fail the :func:`numpy.isclose()` test and so are not corrected.
 
     Args:
-        df: processed table.
+        df: processed table containing data values to check.
         calculation_components: processed calculation component metadata.
         xbrl_factoid_name: column name of the XBRL factoid in the processed table.
         table_name: name of the PUDL table.
         params: :class:`ReconcileTableCalculations` parameters.
-        add_corrections: Whether or not to create _correction records that force all
-            calculations to add up correctly.
     """
     # If we don't have this value, we aren't doing any calculation checking:
     if params.column_to_check is None or calculation_components.empty:
@@ -851,7 +877,11 @@ def reconcile_table_calculations(
         value_col=params.column_to_check,
         calculation_tolerance=params.calculation_tolerance,
         table_name=table_name,
-        add_corrections=add_corrections,
+    )
+    calculated_df = add_corrections(
+        calculated_df=calculated_df,
+        value_col=params.column_to_check,
+        table_name=table_name,
     ).rename(columns={"xbrl_factoid": xbrl_factoid_name})
 
     # Check that sub-total calculations sum to total.
@@ -878,13 +908,13 @@ def reconcile_table_calculations(
         )
         if sub_total_errors.ngroups > 0:
             logger.warning(
-                f"{table_name}: has {sub_total_errors.ngroups} ({off_ratio_sub:.02%}) sub-total calculations that don't "
-                "sum to the equivalent total column."
+                f"{table_name}: has {sub_total_errors.ngroups} ({off_ratio_sub:.02%}) "
+                "sub-total calculations that don't sum to the equivalent total column."
             )
         if off_ratio_sub > params.subtotal_calculation_tolerance:
             raise AssertionError(
-                f"Sub-total calculations in {table_name} are off by {off_ratio_sub}. Expected tolerance "
-                f"of {params.subtotal_calculation_tolerance}."
+                f"Sub-total calculations in {table_name} are off by {off_ratio_sub}. "
+                f"Expected tolerance of {params.subtotal_calculation_tolerance}."
             )
 
     return calculated_df
@@ -906,8 +936,6 @@ def calculate_values_from_components(
         data: exploded FERC data to apply the calculations to. Primary key should be
             ``report_year``, ``utility_id_ferc1``, ``table_name``, ``xbrl_factoid``, and
             whatever additional dimensions are relevant to the data.
-        validate: type of merge validation to apply when initially merging the calculation
-            components (left) and the data (right).
         calc_idx: primary key columns that uniquely identify a calculation component (not
             including the ``_parent`` columns).
         value_col: label of the column in ``data`` that contains the values to apply the
@@ -959,7 +987,7 @@ def calculate_values_from_components(
     ].empty
 
     calculated_df = calculated_df.drop(columns=["_merge"])
-    # # Force value_col to be a float to prevent any hijinks with calculating differences.
+    # Force value_col to be a float to prevent any hijinks with calculating differences.
     calculated_df[value_col] = calculated_df[value_col].astype(float)
     return calculated_df
 
@@ -967,9 +995,8 @@ def calculate_values_from_components(
 def check_calculation_metrics(
     calculated_df: pd.DataFrame,
     value_col: str,
-    calculation_tolerance: float,
+    calculation_tolerance: CalculationTolerance,
     table_name: str,
-    add_corrections: bool = True,
 ) -> pd.DataFrame:
     """Run the calculation metrics and determine if calculations are within tolerance."""
     # Data types were very messy here, including pandas Float64 for the
@@ -987,47 +1014,86 @@ def check_calculation_metrics(
         ),
     )
 
-    off_df = calculated_df[
+    # DO ERROR CHECKS
+    # off_df is pretty specific to the one check that we're doing now, but is also
+    # useful in creating the corrections later one.
+    # Find a simpler way to check this particular metric, and defer the creation of
+    # this metric until the new add_corrections() function.
+
+    # Identify records where the calculated and reported values are not equal within
+    # some tolerance (defined here by the np.isclose defaults). Ignore records for
+    # which the absolute difference "abs_dfiff" is NA since that indicates one or the
+    # other of the calculated or reported values was NA.
+    all_errors = calculated_df[
         ~np.isclose(calculated_df.calculated_amount, calculated_df[value_col])
         & (calculated_df["abs_diff"].notnull())
     ]
-    calculated_values = calculated_df[(calculated_df.abs_diff.notnull())]
-    if calculated_values.empty:
+    # Why does it make sense to compare against records where abs_diff is non-null?
+    # Why wouldn't we want to look at records where calculated_amount is non-null?
+    non_null_calculated_df = calculated_df.dropna(subset="abs_diff")
+    if non_null_calculated_df.empty:
         # Will only occur if all reported values are NaN when calculated values
         # exist, or vice versa.
         logger.warning(
-            "Warning: No calculated values have a corresponding reported value in the table."
+            "Calculated values have no corresponding reported values in this table."
         )
-        off_ratio = np.nan
+        bulk_error_rate = np.nan
     else:
-        off_ratio = len(off_df) / len(calculated_values)
-        if off_ratio > calculation_tolerance:
-            raise AssertionError(
-                f"Calculations in {table_name} are off by {off_ratio:.2%}. Expected tolerance "
-                f"of {calculation_tolerance:.1%}."
-            )
+        bulk_error_rate = len(all_errors) / len(non_null_calculated_df)
 
-    # We'll only get here if the proportion of calculations that are off is acceptable
-    if (off_ratio > 0 or np.isnan(off_ratio)) and add_corrections:
-        logger.info(
-            f"{table_name}: has {len(off_df)} ({off_ratio:.02%}) records whose "
-            "calculations don't match. Adding correction records to make calculations "
-            "match reported values."
+    if bulk_error_rate > calculation_tolerance.bulk_error_rate:
+        raise AssertionError(
+            f"Bulk error rate of calculations in {table_name} is {bulk_error_rate:.2%}. "
+            f"Accepted tolerance is {calculation_tolerance.bulk_error_rate:.1%}."
         )
-        corrections = off_df.copy()
-        corrections[value_col] = (
-            corrections[value_col].fillna(0.0) - corrections["calculated_amount"]
-        )
-        corrections["original_factoid"] = corrections["xbrl_factoid"]
-        corrections["xbrl_factoid"] = corrections["xbrl_factoid"] + "_correction"
-        corrections["row_type_xbrl"] = "correction"
-        corrections["is_within_table_calc"] = False
-        corrections["record_id"] = pd.NA
 
-        calculated_df = pd.concat(
-            [calculated_df, corrections], axis="index"
-        ).reset_index()
+    # Given a particular set of groupby() columns, calculate the fraction of records in
+    # each group whose calculations do not match reported values based on np.isclose()
+    # E.g. within each `report_year`.
     return calculated_df
+
+
+def add_corrections(
+    calculated_df: pd.DataFrame,
+    value_col: str,
+    table_name: str,
+) -> pd.DataFrame:
+    """Add corrections to discrepancies between reported & calculated values.
+
+    To isolate the sources of error, and ensure that all totals add up as expected in
+    later phases of the transformation, we add correction records to the dataframe
+    which compensate for any difference between the calculated and reported values. The
+    ``_correction`` factoids that are added here have already been added to the
+    calculation components during the metadata processing.
+
+    TODO: Pass in :class:`CalculationTolerance` and use rtol & atol in np.isclose().
+
+    Args:
+        calculated_df: DataFrame containing the data to correct. Must already have
+            ``abs_diff`` column that was added by :func:`check_calculation_metrics`
+        value_col: Label of the column whose values are being calculated.
+        table_name: Name of the table whose data we are working with. For logging.
+    """
+    corrections = calculated_df[
+        ~np.isclose(calculated_df["calculated_amount"], calculated_df[value_col])
+        & (calculated_df["abs_diff"].notnull())
+    ]
+    logger.info(f"{len(corrections)=}")
+
+    corrections = corrections.assign(
+        value_col=lambda x: x[value_col].fillna(0.0) - x["calculated_amount"],
+        original_factoid=lambda x: x["xbrl_factoid"],
+        xbrl_factoid=lambda x: x["xbrl_factoid"] + "_correction",
+        row_type_xbrl="correction",
+        is_within_table_calc=False,
+        record_id=pd.NA,
+    )
+    logger.info(
+        f"{table_name}: adding {len(corrections)} corrections to "
+        f"{len(calculated_df)} original records."
+    )
+
+    return pd.concat([calculated_df, corrections], axis="index").reset_index()
 
 
 class Ferc1TableTransformParams(TableTransformParams):
@@ -2394,7 +2460,6 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
                 xbrl_factoid_name=self.params.xbrl_factoid_name,
                 table_name=self.table_id.value,
                 params=params,
-                add_corrections=True,
             )
         return df
 

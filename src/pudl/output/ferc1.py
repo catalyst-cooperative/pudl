@@ -12,42 +12,23 @@ from dagster import AssetIn, AssetsDefinition, Field, Mapping, asset
 from matplotlib import pyplot as plt
 from networkx.drawing.nx_agraph import graphviz_layout
 from pandas._libs.missing import NAType as pandas_NAType
-from pydantic import BaseModel, confloat, validator
+from pydantic import BaseModel, validator
 
 import pudl
+from pudl.transform.ferc1 import CalculationTolerance
 
 logger = pudl.logging_helpers.get_logger(__name__)
 
 
-class CalculationToleranceFerc1(BaseModel):
-    """Data quality expectations related to FERC 1 calculations.
-
-    We are doing a lot of comparisons between calculated and reported values to identify
-    reporting errors in the data, errors in FERC's metadata, and bugs in our own code.
-    This class provides a structure for encoding our expectations about the level of
-    acceptable (or at least expected) errors, and allows us to pass them around.
-
-    In the future we might also want to specify much more granular expectations,
-    pertaining to individual tables, years, utilities, or facts to ensure that we don't
-    have low overall error rates, but a problem with the way the data or metadata is
-    reported in a particular year.  We could also define per-filing and per-table error
-    tolerances to help us identify individual utilities that have e.g. used an outdated
-    version of Form 1 when filing.
-    """
-
-    intertable_calculation_errors: confloat(ge=0.0, le=1.0) = 0.05
-    """Fraction of interatble calculations that are allowed to not match exactly."""
-
-
-EXPLOSION_CALCULATION_TOLERANCES: dict[str, CalculationToleranceFerc1] = {
-    "income_statement_ferc1": CalculationToleranceFerc1(
-        intertable_calculation_errors=0.20,
+EXPLOSION_CALCULATION_TOLERANCES: dict[str, CalculationTolerance] = {
+    "income_statement_ferc1": CalculationTolerance(
+        bulk_error_rate=0.20,
     ),
-    "balance_sheet_assets_ferc1": CalculationToleranceFerc1(
-        intertable_calculation_errors=0.65,
+    "balance_sheet_assets_ferc1": CalculationTolerance(
+        bulk_error_rate=0.65,
     ),
-    "balance_sheet_liabilities_ferc1": CalculationToleranceFerc1(
-        intertable_calculation_errors=0.07,
+    "balance_sheet_liabilities_ferc1": CalculationTolerance(
+        bulk_error_rate=0.07,
     ),
 }
 
@@ -980,7 +961,7 @@ def exploded_table_asset_factory(
     root_table: str,
     table_names_to_explode: list[str],
     seed_nodes: list[NodeId],
-    calculation_tolerance: CalculationToleranceFerc1,
+    calculation_tolerance: CalculationTolerance,
     io_manager_key: str | None = None,
 ) -> AssetsDefinition:
     """Create an exploded table based on a set of related input tables."""
@@ -1112,7 +1093,7 @@ class Exploder:
         calculation_components_xbrl_ferc1: pd.DataFrame,
         seed_nodes: list[NodeId],
         tags: pd.DataFrame = pd.DataFrame(),
-        calculation_tolerance: CalculationToleranceFerc1 = CalculationToleranceFerc1(),
+        calculation_tolerance: CalculationTolerance = CalculationTolerance(),
     ):
         """Instantiate an Exploder class.
 
@@ -1475,9 +1456,13 @@ class Exploder:
         calculated_df = pudl.transform.ferc1.check_calculation_metrics(
             calculated_df=calculated_df,
             value_col=self.value_col,
-            calculation_tolerance=self.calculation_tolerance.intertable_calculation_errors,
+            calculation_tolerance=self.calculation_tolerance.bulk_error_rate,
             table_name=self.root_table,
-            add_corrections=True,
+        )
+        calculated_df = pudl.transform.ferc1.add_corrections(
+            calculated_df=calculated_df,
+            value_col=self.value_col,
+            table_name=self.root_table,
         )
         return calculated_df
 
@@ -1529,7 +1514,7 @@ class XbrlCalculationForestFerc1(BaseModel):
     exploded_calcs: pd.DataFrame = pd.DataFrame()
     seeds: list[NodeId] = []
     tags: pd.DataFrame = pd.DataFrame()
-    calculation_tolerance: CalculationToleranceFerc1 = CalculationToleranceFerc1()
+    calculation_tolerance: CalculationTolerance = CalculationTolerance()
 
     class Config:
         """Allow the class to store a dataframe."""
