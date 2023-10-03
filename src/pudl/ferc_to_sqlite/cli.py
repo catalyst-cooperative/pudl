@@ -80,7 +80,9 @@ def parse_command_line(argv):
     )
     parser.add_argument(
         "--dagster-workers",
-        help="Set the max number of processes that dagster can launch. If set to 1, use in-process executor.",
+        help="""Set the max number of processes that dagster can launch. 
+        If set to 1, in-process serial executor will be used. If set to 0,
+        dagster will saturate available CPUs (this is the default).""",
         default=0,
     )
     arguments = parser.parse_args(argv[1:])
