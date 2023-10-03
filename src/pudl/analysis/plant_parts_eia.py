@@ -16,8 +16,8 @@ plant-part table is an attempt to create records corresponding to many
 different plant-parts in order to connect specific slices of EIA plants to
 other datasets.
 
-Because generators are often owned by multiple utilities, another dimention of
-the master unit list involves generating two records for each owner: one of the
+Because generators are often owned by multiple utilities, another dimension of
+the plant-part table involves generating two records for each owner: one for the
 portion of the plant part they own and one for the plant part as a whole. The
 portion records are labeled in the ``ownership_record_type`` column as "owned"
 and the total records are labeled as "total".
@@ -89,9 +89,9 @@ In this case the unit is more relevant:
 0              1    plant_unit               1            200
 
 But if this same plant had both this combined-cycle unit and two more
-generators that were self contained "GT" or gas combustion turbine, a frequent
-way to group these generators is differnt for the combined-cycle unit and the
-gas-turbine.
+generators that were self contained "GT" or gas combustion turbine, a logical
+way to group these generators is to have different recprds for the
+combined-cycle unit and the gas-turbine.
 
 >>> df_gens = pd.DataFrame({
 ...     'plant_id_eia': [1, 1, 1, 1, 1],
@@ -120,12 +120,12 @@ gas-turbine.
 0              1           plant_unit               1                <NA>            200
 1              1    plant_prime_mover            <NA>                  GT            150
 
-In this case last, the ``plant_unit`` record would have a null
-``plant_prime_mover`` because the unit contains more than one
+In this case, the ``plant_unit`` record would have a null
+``prime_mover_code`` because the unit contains more than one
 ``prime_mover_code``. Same goes for the ``unit_id_pudl`` of the
-``plant_prime_mover``. This is handled in the :class:``AddConsistentAttributes``.
+``plant_prime_mover`` record. This is handled in the :class:``AddConsistentAttributes``.
 
-**Overview of flow for generating the master unit list:**
+**Overview of flow for generating the plant-part table:**
 
 The two main classes which enable the generation of the plant-part table are:
 
@@ -186,6 +186,7 @@ from typing import Literal
 
 import numpy as np
 import pandas as pd
+from dagster import asset
 
 import pudl
 from pudl.metadata.classes import Resource
@@ -363,6 +364,38 @@ PPE_COLS = [
     "operational_status",
     "operational_status_pudl",
 ]
+
+
+@asset(
+    name="mega_generators_eia",
+    compute_kind="Python",
+)
+def mega_gens_asset(
+    mcoe_generators_yearly: pd.DataFrame, denorm_ownership_eia860: pd.DataFrame
+) -> pd.DataFrame:
+    """Create mega generators table asset."""
+    return MakeMegaGenTbl().execute(
+        mcoe=mcoe_generators_yearly,
+        own_eia860=denorm_ownership_eia860,
+    )
+
+
+@asset(
+    name="plant_parts_eia",
+    io_manager_key="pudl_sqlite_io_manager",
+    compute_kind="Python",
+)
+def plant_parts_eia_asset(
+    mega_generators_eia: pd.DataFrame,
+    denorm_plants_eia: pd.DataFrame,
+    denorm_utilities_eia: pd.DataFrame,
+) -> pd.DataFrame:
+    """Create plant parts list asset."""
+    return MakePlantParts().execute(
+        gens_mega=mega_generators_eia,
+        plants_eia860=denorm_plants_eia,
+        utils_eia860=denorm_utilities_eia,
+    )
 
 
 class MakeMegaGenTbl:
@@ -577,31 +610,21 @@ class MakePlantParts:
     The coordinating function here is :meth:`execute`.
     """
 
-    def __init__(self, pudl_out):
-        """Initialize instance of :class:`MakePlantParts`.
-
-        Args:
-            pudl_out (pudl.output.pudltabl.PudlTabl): An object used to create
-                the tables for EIA and FERC Form 1 analysis.
-        """
-        self.pudl_out = pudl_out
-        self.freq = pudl_out.freq
+    def __init__(self):
+        """Initialize instance of :class:`MakePlantParts`."""
         self.parts_to_ids = make_parts_to_ids_dict()
 
         # get a list of all of the id columns that constitue the primary keys
         # for all of the plant parts
         self.id_cols_list = make_id_cols_list()
 
-    def execute(self, gens_mega):
+    def execute(self, gens_mega, plants_eia860, utils_eia860):
         """Aggregate and slice data points by each plant part.
 
         Returns:
             pandas.DataFrame: The complete plant parts list
         """
         # aggregate everything by each plant part
-        df_keys = list(self.pudl_out._dfs.keys())
-        for k in df_keys:
-            del self.pudl_out._dfs[k]
         part_dfs = []
         for part_name in PLANT_PARTS:
             if part_name == "plant_match_ferc1":
@@ -630,12 +653,15 @@ class MakePlantParts:
         self.plant_parts_eia = TrueGranLabeler().execute(self.plant_parts_eia)
         # clean up, add additional columns
         self.plant_parts_eia = (
-            self.add_additonal_cols(self.plant_parts_eia)
+            self.add_additional_cols(
+                plant_parts_eia=self.plant_parts_eia,
+                plants_eia860=plants_eia860,
+                utils_eia860=utils_eia860,
+            )
             .pipe(pudl.helpers.organize_cols, FIRST_COLS)
             .pipe(self._clean_plant_parts)
             .pipe(Resource.from_id("plant_parts_eia").format_df)
         )
-        self.plant_parts_eia.index = self.plant_parts_eia.index.astype("string")
         return self.plant_parts_eia
 
     #######################################
@@ -741,7 +767,7 @@ class MakePlantParts:
 
         return pd.concat([plant_parts_eia, part_df])
 
-    def add_additonal_cols(self, plant_parts_eia):
+    def add_additional_cols(self, plant_parts_eia, plants_eia860, utils_eia860):
         """Add additonal data and id columns.
 
         This method adds a set of either calculated columns or PUDL ID columns.
@@ -758,21 +784,17 @@ class MakePlantParts:
         """
         plant_parts_eia = (
             pudl.helpers.calc_capacity_factor(
-                df=plant_parts_eia, min_cap_fact=-0.5, max_cap_fact=1.5, freq=self.freq
+                df=plant_parts_eia, min_cap_fact=-0.5, max_cap_fact=1.5, freq="AS"
             )
             .merge(
-                self.pudl_out.plants_eia860()[
-                    ["plant_id_eia", "plant_id_pudl"]
-                ].drop_duplicates(),
+                plants_eia860[["plant_id_eia", "plant_id_pudl"]].drop_duplicates(),
                 how="left",
                 on=[
                     "plant_id_eia",
                 ],
             )
             .merge(
-                self.pudl_out.utils_eia860()[
-                    ["utility_id_eia", "utility_id_pudl"]
-                ].drop_duplicates(),
+                utils_eia860[["utility_id_eia", "utility_id_pudl"]].drop_duplicates(),
                 how="left",
                 on=["utility_id_eia"],
             )
@@ -787,20 +809,18 @@ class MakePlantParts:
         return plant_parts_eia
 
     def _clean_plant_parts(self, plant_parts_eia):
-        plant_parts_eia = (
-            plant_parts_eia.assign(
-                report_year=lambda x: x.report_date.dt.year,
-                plant_id_report_year=lambda x: x.plant_id_pudl.astype(str)
-                + "_"
-                + x.report_year.astype(str),
-            )
-            .pipe(
-                pudl.helpers.cleanstrings_snake,
-                ["record_id_eia", "appro_record_id_eia"],
-            )
-            .set_index("record_id_eia")
+        plant_parts_eia = plant_parts_eia.assign(
+            report_year=lambda x: x.report_date.dt.year,
+            plant_id_report_year=lambda x: x.plant_id_pudl.astype(str)
+            + "_"
+            + x.report_year.astype(str),
+        ).pipe(
+            pudl.helpers.cleanstrings_snake,
+            ["record_id_eia", "appro_record_id_eia"],
         )
-        return plant_parts_eia[~plant_parts_eia.index.duplicated(keep="first")]
+        return plant_parts_eia[
+            ~plant_parts_eia["record_id_eia"].duplicated(keep="first")
+        ]
 
     def add_attributes(self, part_df, attribute_df, part_name):
         """Add constant and min/max attributes to plant parts."""
@@ -1445,8 +1465,10 @@ def add_record_id(part_df, id_cols, plant_part_col="plant_part", year=True):
     )
     if year:
         part_df = part_df.rename(columns={"record_id_eia_temp": "record_id_eia"})
+        part_df["record_id_eia"] = part_df["record_id_eia"].astype("string")
     else:
         part_df = part_df.rename(columns={"record_id_eia_temp": "plant_part_id_eia"})
+        part_df["plant_part_id_eia"] = part_df["plant_part_id_eia"].astype("string")
     return part_df
 
 
