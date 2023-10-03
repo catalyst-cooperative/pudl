@@ -229,7 +229,7 @@ class PudlTabl:
             "_out_eia__AGG_heat_rate_by_unit": "hr_by_unit",
             "_out_eia__AGG_heat_rate_by_generator": "hr_by_gen",
             "_out_eia__AGG_capacity_factor_by_generator": "capacity_factor",
-            "fuel_cost_by_generator_AGG": "fuel_cost",
+            "_out_eia__AGG_fuel_cost_by_generator": "fuel_cost",
             "_out_eia__AGG_derived_generator_attributes": "mcoe",
             "out_eia__AGG_generators": "mcoe_generators",
         }
