@@ -1,4 +1,4 @@
-﻿table_name,xbrl_factoid,plant_function
+table_name,xbrl_factoid,aggregatable_plant_function
 plant_in_service_ferc1,intangible_plant,intangible
 plant_in_service_ferc1,steam_production_plant,steam_production
 plant_in_service_ferc1,nuclear_production_plant,nuclear_production
