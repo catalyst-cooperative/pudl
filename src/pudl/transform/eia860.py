@@ -167,7 +167,7 @@ def _core_eia860__ownership(raw_eia860__ownership: pd.DataFrame) -> pd.DataFrame
     own_df = own_df.rename(
         columns={
             "utility_id_eia": "operator_utility_id_eia",
-            "utility_name_eia": "operator_name",
+            "utility_name_eia": "operator_utility_name_eia",
             "state": "operator_state",
             "owner_name": "owner_utility_name_eia",
         }

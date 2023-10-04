@@ -301,7 +301,7 @@ def _compile_all_entity_records(
     annual_cols = ENTITIES[entity.value]["annual_cols"]
     # A dictionary of columns representing additional data to be harvested,
     # whose names should map to an ID, static, or annual column name.
-    map_cols_dict = ENTITIES[entity.value].get("map_cols_dict")
+    mapped_schemas = ENTITIES[entity.value].get("mapped_schemas")
     base_cols = id_cols + ["report_date"]
 
     # empty list for dfs to be added to for each table below
@@ -312,25 +312,28 @@ def _compile_all_entity_records(
         # clean_dfs with the name 'annual'. We don't want to harvest
         # from our newly harvested tables.
         # if the df contains the desired columns the grab those columns
-        if "annual" not in table_name:
-            if set(base_cols).issubset(transformed_df.columns):
-                logger.debug(f"        {table_name}...")
-                # create a copy of the df to muck with
-                df = transformed_df.copy()
-                # we know these columns must be in the dfs
-                cols = []
-                # check whether the columns are in the specific table
-                for column in static_cols + annual_cols:
-                    if column in df.columns:
-                        cols.append(column)
-                df = df[(base_cols + cols)]
-                df = df.dropna(subset=id_cols)
-                # add a column with the table name so we know its origin
-                df["table"] = table_name
-                dfs.append(df)
-            # check if there are columns that should be renamed and harvested
-            # as an additional table
-            if map_cols_dict:
+        if "annual" not in table_name and set(base_cols).issubset(
+            transformed_df.columns
+        ):
+            logger.debug(f"        {table_name}...")
+            # create a copy of the df to muck with
+            df = transformed_df.copy()
+            # we know these columns must be in the dfs
+            cols = []
+            # check whether the columns are in the specific table
+            for column in static_cols + annual_cols:
+                if column in df.columns:
+                    cols.append(column)
+            df = df[(base_cols + cols)]
+            df = df.dropna(subset=id_cols)
+            # add a column with the table name so we know its origin
+            df["table"] = table_name
+            dfs.append(df)
+        # check if there are columns that should be renamed and harvested
+        # as an additional table
+        # for map_col_dict in mapped_schemas: iterate through map_cols_dict
+        if "annual" not in table_name and mapped_schemas:
+            for i, map_cols_dict in enumerate(mapped_schemas):
                 base_cols_to_add = set(base_cols) - set(map_cols_dict.values())
                 if base_cols_to_add.union(set(map_cols_dict.keys())).issubset(
                     transformed_df.columns
@@ -340,7 +343,7 @@ def _compile_all_entity_records(
                     ]
                     mapped_df = mapped_df.rename(columns=map_cols_dict)
                     mapped_df = mapped_df.dropna(subset=id_cols)
-                    mapped_df["table"] = table_name + "_mapped"
+                    mapped_df["table"] = table_name + f"_mapped_{i}"
                     dfs.append(mapped_df)
 
     # add those records to the compilation
