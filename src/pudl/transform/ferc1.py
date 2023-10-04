@@ -944,7 +944,7 @@ def calculate_values_from_components(
             .sum(min_count=1)
         )
     except pd.errors.MergeError:  # Make debugging easier.
-        logger.info(
+        raise pd.errors.MergeError(
             f"Merge failed, duplicated merge keys in left dataset: \n{calculation_components[calculation_components.duplicated(calc_idx)]}"
         )
     # remove the _parent suffix so we can merge these calculated values back onto
@@ -2893,18 +2893,22 @@ class PlantInServiceFerc1TableTransformer(Ferc1AbstractTableTransformer):
         naming conventions...). We use the same rename dictionary, but as an argument to
         :meth:`pd.Series.replace` instead of :meth:`pd.DataFrame.rename`.
         """
-        tbl_meta = super().process_xbrl_metadata(
-            xbrl_metadata_converted, xbrl_calculations
+        tbl_meta = (
+            super()
+            .process_xbrl_metadata(xbrl_metadata_converted, xbrl_calculations)
+            .assign(utility_type="electric", plant_status="in_service")
         )
 
         # Set pseudo-account numbers for rows that split or combine FERC accounts, but
         # which are not calculated values.
         tbl_meta.loc[
-            tbl_meta.xbrl_factoid == "electric_plant_purchased", "ferc_account"
-        ] = "102_purchased"
+            tbl_meta.xbrl_factoid == "electric_plant_purchased",
+            ["ferc_account", "plant_status"],
+        ] = ["102_purchased", pd.NA]
         tbl_meta.loc[
-            tbl_meta.xbrl_factoid == "electric_plant_sold", "ferc_account"
-        ] = "102_sold"
+            tbl_meta.xbrl_factoid == "electric_plant_sold",
+            ["ferc_account", "plant_status"],
+        ] = ["102_sold", pd.NA]
         tbl_meta.loc[
             tbl_meta.xbrl_factoid
             == "electric_plant_in_service_and_completed_construction_not_classified_electric",
@@ -4305,6 +4309,23 @@ class BalanceSheetLiabilitiesFerc1TableTransformer(Ferc1AbstractTableTransformer
     table_id: TableIdFerc1 = TableIdFerc1.BALANCE_SHEET_LIABILITIES
     has_unique_record_ids: bool = False
 
+    @cache_df("process_xbrl_metadata")
+    def process_xbrl_metadata(
+        self: Self,
+        xbrl_metadata_converted: pd.DataFrame,
+        xbrl_calculations: pd.DataFrame,
+    ) -> pd.DataFrame:
+        """Transform the metadata to reflect the transformed data.
+
+        Beyond the standard :meth:`Ferc1AbstractTableTransformer.process_xbrl_metadata`
+        processing, assign utility type.
+        """
+        return (
+            super()
+            .process_xbrl_metadata(xbrl_metadata_converted, xbrl_calculations)
+            .assign(utility_type="total")
+        )
+
     @cache_df(key="main")
     def transform_main(self: Self, df: pd.DataFrame) -> pd.DataFrame:
         """Duplicate data that appears in multiple distinct calculations.
@@ -4381,6 +4402,23 @@ class BalanceSheetAssetsFerc1TableTransformer(Ferc1AbstractTableTransformer):
 
     table_id: TableIdFerc1 = TableIdFerc1.BALANCE_SHEET_ASSETS_FERC1
     has_unique_record_ids: bool = False
+
+    @cache_df("process_xbrl_metadata")
+    def process_xbrl_metadata(
+        self: Self,
+        xbrl_metadata_converted: pd.DataFrame,
+        xbrl_calculations: pd.DataFrame,
+    ) -> pd.DataFrame:
+        """Transform the metadata to reflect the transformed data.
+
+        Beyond the standard :meth:`Ferc1AbstractTableTransformer.process_xbrl_metadata`
+        processing, assign utility type.
+        """
+        return (
+            super()
+            .process_xbrl_metadata(xbrl_metadata_converted, xbrl_calculations)
+            .assign(utility_type="total")
+        )
 
     @cache_df(key="main")
     def transform_main(self: Self, df: pd.DataFrame) -> pd.DataFrame:
@@ -4611,6 +4649,23 @@ class RetainedEarningsFerc1TableTransformer(Ferc1AbstractTableTransformer):
             .pipe(self.reconcile_double_year_earnings_types_dbf)
         )
         return processed_dbf
+
+    @cache_df("process_xbrl_metadata")
+    def process_xbrl_metadata(
+        self: Self,
+        xbrl_metadata_converted: pd.DataFrame,
+        xbrl_calculations: pd.DataFrame,
+    ) -> pd.DataFrame:
+        """Transform the metadata to reflect the transformed data.
+
+        Beyond the standard :meth:`Ferc1AbstractTableTransformer.process_xbrl_metadata`
+        processing, assign utility type.
+        """
+        return (
+            super()
+            .process_xbrl_metadata(xbrl_metadata_converted, xbrl_calculations)
+            .assign(utility_type="total")
+        )
 
     @cache_df("main")
     def transform_main(self, df):
@@ -4887,7 +4942,11 @@ class DepreciationAmortizationSummaryFerc1TableTransformer(
         Beyond the standard :meth:`Ferc1AbstractTableTransformer.process_xbrl_metadata`
         processing, add FERC account values for a few known values.
         """
-        meta = super().process_xbrl_metadata(xbrl_metadata_converted, xbrl_calculations)
+        meta = (
+            super()
+            .process_xbrl_metadata(xbrl_metadata_converted, xbrl_calculations)
+            .assign(utility_type="electric")
+        )
         # logger.info(meta)
         meta.loc[
             meta.xbrl_factoid == "depreciation_expense",
@@ -4911,7 +4970,6 @@ class DepreciationAmortizationSummaryFerc1TableTransformer(
     def transform_main(self, df):
         """After standard transform_main, assign utility type as electric."""
         df = super().transform_main(df).assign(utility_type="electric")
-        # df["plant_function"] = df["plant_function"].replace("total", "electric")
         return df
 
 
@@ -5122,6 +5180,23 @@ class ElectricOperatingExpensesFerc1TableTransformer(Ferc1AbstractTableTransform
         dbf_only_facts = pd.DataFrame(dbf_only_facts).convert_dtypes()
         return pd.concat([tbl_meta, dbf_only_facts])
 
+    @cache_df("process_xbrl_metadata")
+    def process_xbrl_metadata(
+        self: Self,
+        xbrl_metadata_converted: pd.DataFrame,
+        xbrl_calculations: pd.DataFrame,
+    ) -> pd.DataFrame:
+        """Transform the metadata to reflect the transformed data.
+
+        Beyond the standard :meth:`Ferc1AbstractTableTransformer.process_xbrl_metadata`
+        processing, add utility type.
+        """
+        return (
+            super()
+            .process_xbrl_metadata(xbrl_metadata_converted, xbrl_calculations)
+            .assign(utility_type="electric")
+        )
+
     @cache_df(key="dbf")
     def process_dbf(self, raw_dbf: pd.DataFrame) -> pd.DataFrame:
         """Process DBF but drop a bad row that is flagged by drop_duplicates."""
@@ -5186,6 +5261,23 @@ class ElectricOperatingRevenuesFerc1TableTransformer(Ferc1AbstractTableTransform
                 f"but found {missing}"
             )
         return tbl_meta_cleaned
+
+    @cache_df("process_xbrl_metadata")
+    def process_xbrl_metadata(
+        self: Self,
+        xbrl_metadata_converted: pd.DataFrame,
+        xbrl_calculations: pd.DataFrame,
+    ) -> pd.DataFrame:
+        """Transform the metadata to reflect the transformed data.
+
+        Beyond the standard :meth:`Ferc1AbstractTableTransformer.process_xbrl_metadata`
+        processing, add utility type.
+        """
+        return (
+            super()
+            .process_xbrl_metadata(xbrl_metadata_converted, xbrl_calculations)
+            .assign(utility_type="electric")
+        )
 
     @cache_df("main")
     def transform_main(self, df):
