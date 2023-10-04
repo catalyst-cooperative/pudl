@@ -281,7 +281,7 @@ SUM_COLS: list[str] = [
 
 WTAVG_DICT = {
     "fuel_cost_per_mwh": "capacity_mw",
-    "heat_rate_mmbtu_mwh": "capacity_mw",
+    "heat_rate_mmbtu_mwh_by_unit": "capacity_mw",
     "fuel_cost_per_mmbtu": "capacity_mw",
 }
 """Dict: a dictionary of columns (keys) to perform weighted averages on and the weight
