@@ -209,7 +209,9 @@ class InputManager:
                         x.plant_id_report_year + "_" + x.utility_id_pudl.map(str)
                     ),
                     fuel_cost_per_mmbtu=lambda x: (x.fuel_cost / x.fuel_mmbtu),
-                    heat_rate_mmbtu_mwh=lambda x: (x.fuel_mmbtu / x.net_generation_mwh),
+                    heat_rate_mmbtu_mwh_by_unit=lambda x: (
+                        x.fuel_mmbtu / x.net_generation_mwh
+                    ),
                 )
                 .rename(
                     columns={
@@ -419,9 +421,9 @@ class Features:
                     label="fuel_cost_per_mmbtu",
                 ),
                 Numeric(
-                    "heat_rate_mmbtu_mwh",
-                    "heat_rate_mmbtu_mwh",
-                    label="heat_rate_mmbtu_mwh",
+                    "heat_rate_mmbtu_mwh_by_unit",
+                    "heat_rate_mmbtu_mwh_by_unit",
+                    label="heat_rate_mmbtu_mwh_by_unit",
                 ),
                 Exact(
                     "fuel_type_code_pudl",
@@ -816,6 +818,20 @@ def prettyify_best_matches(
     and FERC plant data. This removes the comparison vectors (the floats between 0 and 1
     that compare the two columns from each dataset).
     """
+    # if utility_id_pudl is not in the `PPE_COLS`,  we need to include it
+    ppe_cols_to_grab = pudl.analysis.plant_parts_eia.PPE_COLS + [
+        "plant_id_pudl",
+        "total_fuel_cost",
+        "fuel_cost_per_mmbtu",
+        "net_generation_mwh",
+        "capacity_mw",
+        "capacity_factor",
+        "total_mmbtu",
+        "heat_rate_mmbtu_mwh_by_unit",
+        "fuel_type_code_pudl",
+        "installation_year",
+        "plant_part_id_eia",
+    ]
     connects_ferc1_eia = (
         # first merge in the EIA plant-parts
         pd.merge(
