@@ -88,8 +88,8 @@ Naming convention: ``core_{source}__{asset_type}_{asset_name}``
     * ``core_ferc1__yearly_plant_in_service``.
 
 
-Core Layer (Intermediate Assets)
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+Intermediate Assets
+^^^^^^^^^^^^^^^^^^^
 Intermediate assets are logical steps towards a final well-modeled core or
 user-facing output asset. These assets are not intended to be persisted in the
 database or accessible to the user. These assets are denoted by a preceding
