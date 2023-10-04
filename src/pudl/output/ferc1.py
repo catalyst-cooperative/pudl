@@ -1022,7 +1022,6 @@ def _out_ferc1__explosion_tags(table_dimensions_ferc1) -> pd.DataFrame:
             table_dimensions_ferc1,
             dimensions=["utility_type", "plant_function", "plant_status"],
         )
-        # .astype(pd.StringDtype())
     )
     plant_status_tags = _plant_status_tags(table_dimensions_ferc1)
     tags_df = pd.merge(
