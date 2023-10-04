@@ -296,7 +296,7 @@ ENTITIES: dict[str, dict[str, list[str] | dict[str, str]]] = {
         ],
         "map_cols_dict": {
             "owner_utility_id_eia": "utility_id_eia",
-            "owner_name": "utility_name_eia",
+            "owner_utility_name_eia": "utility_name_eia",
             "owner_state": "state",
             "owner_country": "country",
             "owner_street_address": "street_address",

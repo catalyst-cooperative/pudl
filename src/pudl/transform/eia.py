@@ -312,45 +312,36 @@ def _compile_all_entity_records(
         # clean_dfs with the name 'annual'. We don't want to harvest
         # from our newly harvested tables.
         # if the df contains the desired columns the grab those columns
-        if "annual" not in table_name and set(base_cols).issubset(
-            transformed_df.columns
-        ):
-            logger.debug(f"        {table_name}...")
-            # create a copy of the df to muck with
-            df = transformed_df.copy()
-            # we know these columns must be in the dfs
-            cols = []
-            # check whether the columns are in the specific table
-            for column in static_cols + annual_cols:
-                if column in df.columns:
-                    cols.append(column)
-            df = df[(base_cols + cols)]
-            df = df.dropna(subset=id_cols)
-            # add a column with the table name so we know its origin
-            df["table"] = table_name
-            dfs.append(df)
-            # check if there are any columns that should be renamed and harvested
+        if "annual" not in table_name:
+            if set(base_cols).issubset(transformed_df.columns):
+                logger.debug(f"        {table_name}...")
+                # create a copy of the df to muck with
+                df = transformed_df.copy()
+                # we know these columns must be in the dfs
+                cols = []
+                # check whether the columns are in the specific table
+                for column in static_cols + annual_cols:
+                    if column in df.columns:
+                        cols.append(column)
+                df = df[(base_cols + cols)]
+                df = df.dropna(subset=id_cols)
+                # add a column with the table name so we know its origin
+                df["table"] = table_name
+                dfs.append(df)
+            # check if there are columns that should be renamed and harvested
             # as an additional table
-            if map_cols_dict and (
-                set(map_cols_dict.keys()) & set(transformed_df.columns)
-            ):
-                mapped_df = transformed_df.copy()
-                map_cols_present_dict = {
-                    col: col_rename
-                    for col, col_rename in map_cols_dict.items()
-                    if col in mapped_df.columns
-                }
-                logger.debug(f"map_cols_present_dict: {map_cols_present_dict}")
-                # base cols that aren't included by a soon to be renamed column
-                base_cols_to_add = set(base_cols) - set(map_cols_present_dict.values())
-                mapped_df = mapped_df[
-                    list(base_cols_to_add) + list(map_cols_present_dict.keys())
-                ]
-                logger.debug(f"mapped_df columns: {mapped_df.columns}")
-                mapped_df = mapped_df.rename(columns=map_cols_present_dict)
-                mapped_df = mapped_df.dropna(subset=id_cols)
-                mapped_df["table"] = table_name + "_mapped"
-                dfs.append(mapped_df)
+            if map_cols_dict:
+                base_cols_to_add = set(base_cols) - set(map_cols_dict.values())
+                if base_cols_to_add.union(set(map_cols_dict.keys())).issubset(
+                    transformed_df.columns
+                ):
+                    mapped_df = transformed_df[
+                        list(base_cols_to_add) + list(map_cols_dict.keys())
+                    ]
+                    mapped_df = mapped_df.rename(columns=map_cols_dict)
+                    mapped_df = mapped_df.dropna(subset=id_cols)
+                    mapped_df["table"] = table_name + "_mapped"
+                    dfs.append(mapped_df)
 
     # add those records to the compilation
     compiled_df = pd.concat(dfs, axis=0, ignore_index=True, sort=True)
