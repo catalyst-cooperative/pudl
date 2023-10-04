@@ -285,7 +285,7 @@ def heat_rate_by_unit(gen_fuel_by_energy_source: pd.DataFrame, bga: pd.DataFrame
     - unit_id_pudl
     - net_generation_mwh
     - fuel_consumed_for_electricity_mmbtu
-    - heat_rate_mmbtu_mwh_by_unit
+    - unit_heat_rate_mmbtu_per_mwh
     """
     gen_fuel_by_unit = pudl.helpers.date_merge(
         left=gen_fuel_by_energy_source,
@@ -301,7 +301,7 @@ def heat_rate_by_unit(gen_fuel_by_energy_source: pd.DataFrame, bga: pd.DataFrame
         .sum()
         .convert_dtypes()
         .assign(
-            heat_rate_mmbtu_mwh_by_unit=lambda x: x.fuel_consumed_for_electricity_mmbtu
+            unit_heat_rate_mmbtu_per_mwh=lambda x: x.fuel_consumed_for_electricity_mmbtu
             / x.net_generation_mwh
         )
     )
@@ -326,7 +326,7 @@ def heat_rate_by_gen(
 
     Returns:
         DataFrame with columns report_date, plant_id_eia, unit_id_pudl, generator_id,
-        heat_rate_mmbtu_mwh_by_unit, fuel_type_code_pudl, fuel_type_count, prime_mover_code.
+        unit_heat_rate_mmbtu_per_mwh, fuel_type_code_pudl, fuel_type_count, prime_mover_code.
         The output will have a time frequency corresponding to that of the input
         pudl_out. Output data types are set to their canonical values before returning.
     """
@@ -339,7 +339,7 @@ def heat_rate_by_gen(
             "report_date",
             "plant_id_eia",
             "unit_id_pudl",
-            "heat_rate_mmbtu_mwh_by_unit",
+            "unit_heat_rate_mmbtu_per_mwh",
         ],
     ]
 
@@ -404,7 +404,7 @@ def fuel_cost(
             "generator_id",
             "unit_id_pudl",
             "report_date",
-            "heat_rate_mmbtu_mwh_by_unit",
+            "unit_heat_rate_mmbtu_per_mwh",
         ],
     ]
     gens = gens.loc[
@@ -515,7 +515,7 @@ def fuel_cost(
                 "plant_id_eia",
                 "report_date",
                 "generator_id",
-                "heat_rate_mmbtu_mwh_by_unit",
+                "unit_heat_rate_mmbtu_per_mwh",
                 "fuel_cost_from_eiaapi",
             ]
         ],
@@ -532,7 +532,7 @@ def fuel_cost(
             "report_date",
             "generator_id",
             "fuel_cost_per_mmbtu",
-            "heat_rate_mmbtu_mwh_by_unit",
+            "unit_heat_rate_mmbtu_per_mwh",
             "fuel_cost_from_eiaapi",
         ]
     ]
@@ -541,13 +541,13 @@ def fuel_cost(
         pd.concat([one_fuel, multi_fuel], sort=True)
         .assign(
             fuel_cost_per_mwh=lambda x: x.fuel_cost_per_mmbtu
-            * x.heat_rate_mmbtu_mwh_by_unit
+            * x.unit_heat_rate_mmbtu_per_mwh
         )
         .sort_values(["report_date", "plant_id_eia", "generator_id"])
     )
 
     out_df = (
-        gen_w_ft.drop("heat_rate_mmbtu_mwh_by_unit", axis=1)
+        gen_w_ft.drop("unit_heat_rate_mmbtu_per_mwh", axis=1)
         .drop_duplicates()
         .merge(fc, on=["report_date", "plant_id_eia", "generator_id"])
     )
@@ -634,7 +634,7 @@ def mcoe(
                     "unit_id_pudl",
                     "fuel_cost_from_eiaapi",
                     "fuel_cost_per_mmbtu",
-                    "heat_rate_mmbtu_mwh_by_unit",
+                    "unit_heat_rate_mmbtu_per_mwh",
                     "fuel_cost_per_mwh",
                 ],
             ],
@@ -646,12 +646,12 @@ def mcoe(
         )
         # Calculate a couple more derived values:
         .assign(
-            total_mmbtu=lambda x: x.net_generation_mwh * x.heat_rate_mmbtu_mwh_by_unit,
+            total_mmbtu=lambda x: x.net_generation_mwh * x.unit_heat_rate_mmbtu_per_mwh,
             total_fuel_cost=lambda x: x.total_mmbtu * x.fuel_cost_per_mmbtu,
         )
         .pipe(
             pudl.helpers.oob_to_nan_with_dependent_cols,
-            cols=["heat_rate_mmbtu_mwh_by_unit"],
+            cols=["unit_heat_rate_mmbtu_per_mwh"],
             dependent_cols=["total_mmbtu", "fuel_cost_per_mwh"],
             lb=min_heat_rate,
             ub=None,

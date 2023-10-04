@@ -193,7 +193,7 @@ class InputManager:
                         x.plant_id_report_year + "_" + x.utility_id_pudl.map(str)
                     ),
                     fuel_cost_per_mmbtu=lambda x: (x.fuel_cost / x.fuel_mmbtu),
-                    heat_rate_mmbtu_mwh_by_unit=lambda x: (
+                    unit_heat_rate_mmbtu_per_mwh=lambda x: (
                         x.fuel_mmbtu / x.net_generation_mwh
                     ),
                 )
@@ -405,9 +405,9 @@ class Features:
                     label="fuel_cost_per_mmbtu",
                 ),
                 Numeric(
-                    "heat_rate_mmbtu_mwh_by_unit",
-                    "heat_rate_mmbtu_mwh_by_unit",
-                    label="heat_rate_mmbtu_mwh_by_unit",
+                    "unit_heat_rate_mmbtu_per_mwh",
+                    "unit_heat_rate_mmbtu_per_mwh",
+                    label="unit_heat_rate_mmbtu_per_mwh",
                 ),
                 Exact(
                     "fuel_type_code_pudl",
@@ -810,7 +810,7 @@ def prettyify_best_matches(
         "capacity_mw",
         "capacity_factor",
         "total_mmbtu",
-        "heat_rate_mmbtu_mwh_by_unit",
+        "unit_heat_rate_mmbtu_per_mwh",
         "fuel_type_code_pudl",
         "installation_year",
         "plant_part_id_eia",
