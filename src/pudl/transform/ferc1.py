@@ -5811,7 +5811,7 @@ def calculation_components_xbrl_ferc1(**kwargs) -> pd.DataFrame:
         )
         calc_components = merge.query('_merge == "left_only"').drop(columns=["_merge"])
         logger.warning(
-            f"Dropped {len(merge)-len(calc_components)} calculation components that were not observed in the transformed tables to be exploded: {calc_components_to_drop[set_of_cols]}"
+            f"Dropped {len(merge)-len(calc_components)} calculation components that were not observed in the transformed tables: {calc_components_to_drop[set_of_cols]}"
         )
 
     # Defensive testing on this table!
@@ -5826,13 +5826,13 @@ def calculation_components_xbrl_ferc1(**kwargs) -> pd.DataFrame:
     )
     # ensure that none of the calculation components that are missing from the metadata
     # table are from any of the exploded tables.
-    calc_components.set_index(calc_cols).loc[missing_from_calcs_idx]
+    missing_calcs = calc_components.set_index(calc_cols).loc[missing_from_calcs_idx]
 
-    # if not missing_calcs.empty:
-    #     raise AssertionError(
-    #         # logger.warning(
-    #         f"Found missing calculations from the exploded tables:\n{missing_calcs=}"
-    #     )
+    if not missing_calcs.empty:
+        raise AssertionError(
+            # logger.warning(
+            f"Found missing calculations from the exploded tables:\n{missing_calcs=}"
+        )
     check_for_calc_components_duplicates(
         calc_components,
         table_names_known_dupes=["electricity_sales_by_rate_schedule_ferc1"],
