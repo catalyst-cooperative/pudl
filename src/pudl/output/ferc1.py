@@ -1006,10 +1006,10 @@ def _out_ferc1__explosion_tags(table_dimensions_ferc1) -> pd.DataFrame:
     # we need to pass in a dataframe with the right structure to all of the exploders,
     # so we're just re-using this one for the moment.
     rate_base_tags = _rate_base_tags(table_dimensions_ferc1=table_dimensions_ferc1)
-    plant_status_tags = _plant_tags(
+    plant_status_tags = _aggregatable_dimension_tags(
         table_dimensions_ferc1=table_dimensions_ferc1, dimension="plant_status"
     )
-    plant_function_tags = _plant_tags(
+    plant_function_tags = _aggregatable_dimension_tags(
         table_dimensions_ferc1=table_dimensions_ferc1, dimension="plant_function"
     )
     # We shouldn't have more than one row per tag, so we use a 1:1 validation here.
@@ -1044,7 +1044,7 @@ def _rate_base_tags(table_dimensions_ferc1: pd.DataFrame) -> pd.DataFrame:
     return tags_df
 
 
-def _plant_tags(
+def _aggregatable_dimension_tags(
     table_dimensions_ferc1: pd.DataFrame,
     dimension: Literal["plant_status", "plant_function"],
 ) -> pd.DataFrame:
