@@ -1036,6 +1036,7 @@ def create_exploded_table_assets() -> list[AssetsDefinition]:
             "table_names_to_explode": [
                 "income_statement_ferc1",
                 "depreciation_amortization_summary_ferc1",
+                "electric_operating_expenses_ferc1",
                 "electric_operating_revenues_ferc1",
             ],
             "calculation_tolerance": EXPLOSION_CALCULATION_TOLERANCES[
