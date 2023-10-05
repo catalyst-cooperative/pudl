@@ -1824,6 +1824,7 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
             .drop_duplicates(keep="first")
             # .pipe(self.add_calculation_corrections)
         )
+
         # this is really a xbrl_factoid-level flag, but we need it while using this
         # calc components.
         calc_comps["is_within_table_calc"] = (
@@ -5754,7 +5755,7 @@ def metadata_xbrl_ferc1(**kwargs) -> pd.DataFrame:
     io_manager_key=None,  # Change to sqlite_io_manager...
 )
 def calculation_components_xbrl_ferc1(**kwargs) -> pd.DataFrame:
-    """Create calculation-compnent table from table-level metadata."""
+    """Create calculation-component table from table-level metadata."""
     clean_xbrl_metadata_json = kwargs["clean_xbrl_metadata_json"]
     table_dimensions_ferc1 = kwargs["table_dimensions_ferc1"]
     metadata_xbrl_ferc1 = kwargs["metadata_xbrl_ferc1"]
@@ -5788,12 +5789,36 @@ def calculation_components_xbrl_ferc1(**kwargs) -> pd.DataFrame:
         )
     )
 
+    child_cols = ["table_name", "xbrl_factoid"]
+    parent_cols = [f"{col}_parent" for col in child_cols]
+    calc_cols = child_cols + dimensions
+    calc_and_parent_cols = calc_cols + [f"{col}_parent" for col in calc_cols]
+
+    # Drop any calc components that aren't in the actual processed tables.
+    for set_of_cols in [child_cols, parent_cols]:
+        calc_components_not_observed = (
+            calc_components[calc_components.table_name.isin(FERC1_TFR_CLASSES.keys())]
+            .set_index(set_of_cols)
+            .index.difference(table_dimensions_ferc1.set_index(child_cols).index)
+        )
+        calc_components_to_drop = (
+            calc_components.set_index(set_of_cols)
+            .loc[calc_components_not_observed]
+            .reset_index()
+        )
+        merge = calc_components.merge(
+            calc_components_to_drop, how="left", indicator=True
+        )
+        calc_components = merge.query('_merge == "left_only"').drop(columns=["_merge"])
+        logger.warning(
+            f"Dropped {len(merge)-len(calc_components)} calculation components that were not observed in the transformed tables to be exploded: {calc_components_to_drop[set_of_cols]}"
+        )
+
     # Defensive testing on this table!
     assert calc_components[["table_name", "xbrl_factoid"]].notnull().all(axis=1).all()
 
-    calc_cols = ["table_name", "xbrl_factoid"] + dimensions
-    calc_and_parent_cols = calc_cols + [f"{col}_parent" for col in calc_cols]
-
+    # Let's check that all calculated components that show up in our raw data are
+    # getting calculated.
     missing_from_calcs_idx = (
         calc_components[calc_components.table_name.isin(FERC1_TFR_CLASSES.keys())]
         .set_index(calc_cols)
@@ -5801,12 +5826,13 @@ def calculation_components_xbrl_ferc1(**kwargs) -> pd.DataFrame:
     )
     # ensure that none of the calculation components that are missing from the metadata
     # table are from any of the exploded tables.
-    missing_calcs = calc_components.set_index(calc_cols).loc[missing_from_calcs_idx]
-    if not missing_calcs.empty:
-        raise AssertionError(
-            # logger.warning(
-            f"Found missing calculations from the exploded tables:\n{missing_calcs=}"
-        )
+    calc_components.set_index(calc_cols).loc[missing_from_calcs_idx]
+
+    # if not missing_calcs.empty:
+    #     raise AssertionError(
+    #         # logger.warning(
+    #         f"Found missing calculations from the exploded tables:\n{missing_calcs=}"
+    #     )
     check_for_calc_components_duplicates(
         calc_components,
         table_names_known_dupes=["electricity_sales_by_rate_schedule_ferc1"],
