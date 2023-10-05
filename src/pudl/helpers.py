@@ -1753,19 +1753,15 @@ def scale_by_ownership(
         records with 200 MW).
     """
     # grab the ownership table, and reduce it to only the columns we need
-    own860 = (
-        own_eia860[
-            [
-                "plant_id_eia",
-                "generator_id",
-                "report_date",
-                "fraction_owned",
-                "utility_id_eia",
-            ]
-        ].pipe(pudl.helpers.convert_cols_dtypes, "eia")
-        # temporarily differentiate owner from operator utility
-        .rename(columns={"utility_id_eia": "owner_utility_id_eia"})
-    )
+    own860 = own_eia860[
+        [
+            "plant_id_eia",
+            "generator_id",
+            "report_date",
+            "fraction_owned",
+            "owner_utility_id_eia",
+        ]
+    ].pipe(pudl.helpers.convert_cols_dtypes, "eia")
     # we're left merging BC we've removed the retired gens, which are
     # reported in the ownership table
     gens = (
