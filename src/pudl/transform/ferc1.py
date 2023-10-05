@@ -1856,7 +1856,7 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
                     "Duplicates found in the calculation components where none were ."
                     f"expected {dupes}"
                 )
-        return calc_comps
+        return calc_comps.convert_dtypes()
 
     @cache_df(key="merge_xbrl_metadata")
     def merge_xbrl_metadata(
@@ -4492,7 +4492,9 @@ class BalanceSheetAssetsFerc1TableTransformer(Ferc1AbstractTableTransformer):
             ]
         ]
         new_facts = pd.DataFrame(facts_to_add).convert_dtypes()
-        return pd.concat([tbl_meta, new_facts, duplicated_facts])
+        return pd.concat([tbl_meta, new_facts, duplicated_facts]).assign(
+            utility_type="total"
+        )
 
 
 class IncomeStatementFerc1TableTransformer(Ferc1AbstractTableTransformer):
@@ -5178,7 +5180,7 @@ class ElectricOperatingExpensesFerc1TableTransformer(Ferc1AbstractTableTransform
             for dbf_only_fact in ["load_dispatching_transmission_expense"]
         ]
         dbf_only_facts = pd.DataFrame(dbf_only_facts).convert_dtypes()
-        return pd.concat([tbl_meta, dbf_only_facts])
+        return pd.concat([tbl_meta, dbf_only_facts]).assign(utility_type="electric")
 
     @cache_df("process_xbrl_metadata")
     def process_xbrl_metadata(
@@ -5655,7 +5657,7 @@ def other_dimensions(table_names: list[str]) -> list[str]:
 
 
 def table_to_xbrl_factoid_name() -> dict[str, str]:
-    """Build a dictionary of table name (keys) to ``xbrl_factiod`` column name."""
+    """Build a dictionary of table name (keys) to ``xbrl_factoid`` column name."""
     return {
         table_name: transformer().params.xbrl_factoid_name
         for (table_name, transformer) in FERC1_TFR_CLASSES.items()
@@ -5787,7 +5789,6 @@ def calculation_components_xbrl_ferc1(**kwargs) -> pd.DataFrame:
     )
 
     # Defensive testing on this table!
-
     assert calc_components[["table_name", "xbrl_factoid"]].notnull().all(axis=1).all()
 
     calc_cols = ["table_name", "xbrl_factoid"] + dimensions
