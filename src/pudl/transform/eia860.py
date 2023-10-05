@@ -132,22 +132,22 @@ def _core_eia860__ownership(raw_eia860__ownership: pd.DataFrame) -> pd.DataFrame
     duplicate_operators = (
         own_df.groupby(
             ["report_date", "plant_id_eia", "generator_id"]
-        ).utility_id_eia.transform(pd.Series.nunique)
+        ).operator_utility_id_eia.transform(pd.Series.nunique)
     ) > 1
-    own_df.loc[duplicate_operators, "utility_id_eia"] = pd.NA
+    own_df.loc[duplicate_operators, "operator_utility_id_eia"] = pd.NA
 
     # The above fix won't catch owner_utility_id_eia values in the
     # utility_id_eia (operator) column when there's only a single
-    # owner-operator. But also, when there's a single owner-operator they souldn't
+    # owner-operator. But also, when there's a single owner-operator they shouldn't
     # even be reporting in this table. So we can also drop those utility_id_eia
     # values without losing any valuable information here. The utility_id_eia
     # column here is only useful for entity harvesting & resolution purposes
     # since the (report_date, plant_id_eia) tuple fully defines the operator id.
     # See https://github.com/catalyst-cooperative/pudl/issues/1116
-    single_owner_operator = (own_df.utility_id_eia == own_df.owner_utility_id_eia) & (
-        own_df.fraction_owned == 1.0
-    )
-    own_df.loc[single_owner_operator, "utility_id_eia"] = pd.NA
+    single_owner_operator = (
+        own_df.operator_utility_id_eia == own_df.owner_utility_id_eia
+    ) & (own_df.fraction_owned == 1.0)
+    own_df.loc[single_owner_operator, "operator_utility_id_eia"] = pd.NA
     own_df = (
         pudl.metadata.classes.Package.from_resource_ids()
         .get_resource("ownership_eia860")
@@ -160,18 +160,6 @@ def _core_eia860__ownership(raw_eia860__ownership: pd.DataFrame) -> pd.DataFrame
     } | {"CN": "CAN"}
     own_df["owner_country"] = own_df["owner_state"].map(state_to_country)
     own_df.loc[own_df.owner_state == "CN", "owner_state"] = pd.NA
-
-    # rename columns to reflect owner centric attributes
-    # don't rename owner zip code, street address, and city as this leads to
-    # inconsistent harvesting
-    own_df = own_df.rename(
-        columns={
-            "utility_id_eia": "operator_utility_id_eia",
-            "utility_name_eia": "operator_utility_name_eia",
-            "state": "operator_state",
-            "owner_name": "owner_utility_name_eia",
-        }
-    )
 
     # Spot fix NA generator_id. Might want to change this once we have the official 2022
     # data not just early release.

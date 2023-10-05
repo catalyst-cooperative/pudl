@@ -240,8 +240,6 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
                     "heat_rate_by_generator_monthly",
                     "mcoe_monthly",
                     "mcoe_generators_monthly",
-                    "ownership_eia860",
-                    "denorm_ownership_eia860",
                 ],
             },
         },
@@ -393,8 +391,6 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
                     "capacity_factor_by_generator_monthly",
                     "mcoe_monthly",
                     "mcoe_generators_monthly",
-                    "ownership_eia860",
-                    "denorm_ownership_eia860",
                 ],
             },
         },
@@ -438,10 +434,7 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
             "foreign_key_rules": {
                 "fields": [
                     ["utility_id_eia", "report_date"],
-                    # Failing because this column is not harvested in the old
-                    # system. TODO: re-enable when we switch to new system.
-                    # https://github.com/catalyst-cooperative/pudl/issues/1196
-                    # ["owner_utility_id_eia", "report_date"],
+                    ["owner_utility_id_eia", "report_date"],
                 ],
                 # TODO: Excluding monthly data tables since their report_date
                 # values don't match up with plants_eia860, which is annual, so

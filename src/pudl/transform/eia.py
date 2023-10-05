@@ -312,9 +312,7 @@ def _compile_all_entity_records(
         # clean_dfs with the name 'annual'. We don't want to harvest
         # from our newly harvested tables.
         # if the df contains the desired columns the grab those columns
-        if "annual" not in table_name and set(base_cols).issubset(
-            transformed_df.columns
-        ):
+        if set(base_cols).issubset(transformed_df.columns):
             logger.debug(f"        {table_name}...")
             # create a copy of the df to muck with
             df = transformed_df.copy()
@@ -332,7 +330,7 @@ def _compile_all_entity_records(
         # check if there are columns that should be renamed and harvested
         # as an additional table
         # for map_col_dict in mapped_schemas: iterate through map_cols_dict
-        if "annual" not in table_name and mapped_schemas:
+        if mapped_schemas:
             for i, map_cols_dict in enumerate(mapped_schemas):
                 base_cols_to_add = set(base_cols) - set(map_cols_dict.values())
                 if base_cols_to_add.union(set(map_cols_dict.keys())).issubset(
