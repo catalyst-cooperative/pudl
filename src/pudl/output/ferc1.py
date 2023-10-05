@@ -1036,7 +1036,6 @@ def create_exploded_table_assets() -> list[AssetsDefinition]:
             "table_names_to_explode": [
                 "income_statement_ferc1",
                 "depreciation_amortization_summary_ferc1",
-                "electric_operating_expenses_ferc1",
                 "electric_operating_revenues_ferc1",
             ],
             "calculation_tolerance": EXPLOSION_CALCULATION_TOLERANCES[
@@ -1055,7 +1054,6 @@ def create_exploded_table_assets() -> list[AssetsDefinition]:
         {
             "root_table": "balance_sheet_assets_ferc1",
             "table_names_to_explode": [
-                "balance_sheet_assets_ferc1",
                 "balance_sheet_assets_ferc1",
                 "utility_plant_summary_ferc1",
                 "plant_in_service_ferc1",
@@ -1077,7 +1075,6 @@ def create_exploded_table_assets() -> list[AssetsDefinition]:
         {
             "root_table": "balance_sheet_liabilities_ferc1",
             "table_names_to_explode": [
-                "balance_sheet_liabilities_ferc1",
                 "balance_sheet_liabilities_ferc1",
                 "retained_earnings_ferc1",
             ],
