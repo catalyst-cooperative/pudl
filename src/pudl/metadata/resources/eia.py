@@ -623,7 +623,7 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
         "etl_group": "entity_eia",
         "field_namespace": "eia",
     },
-    "out_eia__plant_parts": {
+    "out_eia__yearly_plant_parts": {
         "description": "Output table with the aggregation of all EIA plant parts. For use with matching to FERC 1.",
         "schema": {
             "fields": [

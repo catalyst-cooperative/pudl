@@ -383,7 +383,7 @@ def out_eia__yearly_generators_by_ownership(
     io_manager_key="pudl_sqlite_io_manager",
     compute_kind="Python",
 )
-def out_eia__plant_parts(
+def out_eia__yearly_plant_parts(
     out_eia__yearly_generators_by_ownership: pd.DataFrame,
     out_eia__yearly_plants: pd.DataFrame,
     out_eia__yearly_utilities: pd.DataFrame,
@@ -658,7 +658,7 @@ class MakePlantParts:
             )
             .pipe(pudl.helpers.organize_cols, FIRST_COLS)
             .pipe(self._clean_plant_parts)
-            .pipe(Resource.from_id("out_eia__plant_parts").format_df)
+            .pipe(Resource.from_id("out_eia__yearly_plant_parts").format_df)
         )
         return self.plant_parts_eia
 

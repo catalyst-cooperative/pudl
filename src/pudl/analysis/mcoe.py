@@ -57,9 +57,6 @@ def mcoe_asset_factory(
         },
         compute_kind="Python",
         io_manager_key="pudl_sqlite_io_manager",
-        description=f"{agg_freqs[freq].title()} heat rate estimates by generation unit. Generation "
-        "units are identified by ``unit_id_pudl`` and are composed of a set of "
-        f"interconnected boilers and generators.",
     )
     def hr_by_unit_asset(gen: pd.DataFrame, bga: pd.DataFrame) -> pd.DataFrame:
         return heat_rate_by_unit(gen_fuel_by_energy_source=gen, bga=bga)
@@ -73,10 +70,6 @@ def mcoe_asset_factory(
         },
         compute_kind="Python",
         io_manager_key="pudl_sqlite_io_manager",
-        description=f"{agg_freqs[freq].title()} heat rate estimates by generator. These are actually "
-        "just generation unit level heat rates, which have been broadcast "
-        "across all constituent generator IDs, since heat rates really only "
-        "have a well-defined meaning in the context of a generation unit.",
     )
     def hr_by_gen_asset(
         bga: pd.DataFrame, hr_by_unit: pd.DataFrame, gens: pd.DataFrame
@@ -93,13 +86,6 @@ def mcoe_asset_factory(
             "frc": AssetIn(key=f"out_eia923__{agg_freqs[freq]}_fuel_receipts_costs"),
         },
         compute_kind="Python",
-        description=f"{agg_freqs[freq].title()} estimate of per-generator fuel costs both per MMBTU "
-        "and per MWh. These calculations are based on the allocation of net "
-        "generation and fuel consumption as well as plant-level delivered fuel prices "
-        "reported in the fuel receipts and cost table. The intermediary heat rate "
-        "calculation depends on having the unit ID filled in, which means fuel cost "
-        "coverage is low. The fuel costs are also currently aggregated to coarse fuel "
-        "categories rather than using the more detailed energy source codes.",
     )
     def fc_asset(
         hr_by_gen: pd.DataFrame, gens: pd.DataFrame, frc: pd.DataFrame
@@ -116,9 +102,6 @@ def mcoe_asset_factory(
         },
         compute_kind="Python",
         io_manager_key="pudl_sqlite_io_manager",
-        description=f"{agg_freqs[freq].title()} estimates of generator capacity factor. Capacity "
-        "factor is calculated based on reported generator capacity and the "
-        "allocated net generation reported in the generation and generation ",
     )
     def cf_asset(gens: pd.DataFrame, gen: pd.DataFrame) -> pd.DataFrame:
         return capacity_factor(gens=gens, gen=gen, freq=freq)
@@ -174,16 +157,6 @@ def mcoe_asset_factory(
             ),
         },
         io_manager_key="pudl_sqlite_io_manager",
-        description=f"{agg_freqs[freq].title()} generator capacity factor, heat rate, fuel cost per MMBTU and fuel cost "
-        "per MWh. These calculations are based on the allocation of net generation reported on "
-        "the basis of plant, prime mover and energy source to individual generators. Heat rates "
-        "by generator-month are estimated by using allocated estimates for per-generator net "
-        "generation and fuel consumption as well as the :ref:`core_eia923__monthly_boiler_fuel` table, which "
-        "reports fuel consumed by boiler. Heat rates are necessary to estimate the amount of fuel "
-        "consumed by a generation unit, and thus the fuel cost per MWh generated. Plant specific "
-        "fuel prices are taken from the :ref:`core_eia923__monthly_fuel_receipts_costs` table, which only has "
-        "~70% coverage, leading to some generators with heat rate estimates still lacking fuel "
-        "cost estimates.",
     )
     def mcoe_asset(
         context, fuel_cost: pd.DataFrame, capacity_factor: pd.DataFrame

@@ -219,8 +219,8 @@ class PudlTabl:
             # state demand
             "out_ferc714__hourly_predicted_state_demand": "predicted_state_hourly_demand",
             # plant parts
-            "out_eia__yearly_generators_by_ownership": "gens_by_own_eia",
-            "out_eia__plant_parts": "plant_parts_eia",
+            "out_eia__yearly_generators_by_ownership": "gens_mega_eia",
+            "out_eia__yearly_plant_parts": "plant_parts_eia",
         }
 
         table_method_map_any_agg = {
