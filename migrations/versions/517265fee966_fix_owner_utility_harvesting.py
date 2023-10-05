@@ -1,8 +1,8 @@
-"""add ppe and harvest owner utils
+"""fix owner utility harvesting
 
-Revision ID: 13b9fb61c466
+Revision ID: 517265fee966
 Revises:
-Create Date: 2023-09-24 12:01:06.767895
+Create Date: 2023-10-01 21:55:00.263467
 
 """
 import sqlalchemy as sa
@@ -10,7 +10,7 @@ from alembic import op
 from sqlalchemy.dialects import sqlite
 
 # revision identifiers, used by Alembic.
-revision = '13b9fb61c466'
+revision = '517265fee966'
 down_revision = None
 branch_labels = None
 depends_on = None
@@ -243,15 +243,15 @@ def upgrade() -> None:
     sa.PrimaryKeyConstraint('plant_id_pudl', name=op.f('pk_plants_pudl'))
     )
     op.create_table('political_subdivisions',
-    sa.Column('country_code', sa.Enum('CAN', 'USA'), nullable=False, comment='Three letter ISO-3166 country code (e.g. USA or CAN).'),
+    sa.Column('country_code', sa.Enum('USA', 'CAN'), nullable=False, comment='Three letter ISO-3166 country code (e.g. USA or CAN).'),
     sa.Column('country_name', sa.Text(), nullable=True, comment='Full country name (e.g. United States of America).'),
-    sa.Column('subdivision_code', sa.Enum('AS', 'IA', 'AZ', 'AB', 'UT', 'TN', 'DC', 'NH', 'OH', 'DE', 'MS', 'CT', 'MO', 'OK', 'NU', 'GA', 'IL', 'IN', 'NE', 'NV', 'MT', 'NL', 'FL', 'MI', 'SK', 'ND', 'NJ', 'AK', 'NB', 'WA', 'SC', 'VT', 'MB', 'WV', 'YT', 'MD', 'NT', 'MN', 'MA', 'KS', 'RI', 'SD', 'ON', 'AL', 'CA', 'NM', 'NS', 'PA', 'BC', 'LA', 'QC', 'ME', 'VI', 'WI', 'CO', 'MP', 'WY', 'PE', 'OR', 'TX', 'AR', 'KY', 'ID', 'NY', 'NC', 'VA', 'PR', 'HI', 'GU'), nullable=False, comment='Two-letter ISO-3166 political subdivision code (e.g. US state or Canadian provice abbreviations like CA or AB).'),
+    sa.Column('subdivision_code', sa.Enum('OH', 'NT', 'ID', 'ND', 'MP', 'NM', 'PA', 'IA', 'MD', 'WV', 'AK', 'CT', 'SC', 'TX', 'CA', 'TN', 'UT', 'KY', 'GU', 'MO', 'SD', 'WA', 'NE', 'ON', 'NL', 'KS', 'MA', 'RI', 'WY', 'FL', 'IN', 'MS', 'YT', 'NH', 'OK', 'IL', 'VT', 'SK', 'ME', 'GA', 'PE', 'AS', 'MB', 'AL', 'NC', 'NJ', 'NS', 'PR', 'AR', 'MN', 'OR', 'NV', 'AB', 'MT', 'NB', 'HI', 'DC', 'NY', 'BC', 'CO', 'LA', 'MI', 'NU', 'WI', 'AZ', 'QC', 'VI', 'VA', 'DE'), nullable=False, comment='Two-letter ISO-3166 political subdivision code (e.g. US state or Canadian provice abbreviations like CA or AB).'),
     sa.Column('subdivision_name', sa.Text(), nullable=True, comment='Full name of political subdivision (e.g. US state or Canadian province names like California or Alberta.'),
     sa.Column('subdivision_type', sa.Text(), nullable=True, comment='ISO-3166 political subdivision type. E.g. state, province, outlying_area.'),
     sa.Column('timezone_approx', sa.Enum('Africa/Abidjan', 'Africa/Accra', 'Africa/Addis_Ababa', 'Africa/Algiers', 'Africa/Asmara', 'Africa/Asmera', 'Africa/Bamako', 'Africa/Bangui', 'Africa/Banjul', 'Africa/Bissau', 'Africa/Blantyre', 'Africa/Brazzaville', 'Africa/Bujumbura', 'Africa/Cairo', 'Africa/Casablanca', 'Africa/Ceuta', 'Africa/Conakry', 'Africa/Dakar', 'Africa/Dar_es_Salaam', 'Africa/Djibouti', 'Africa/Douala', 'Africa/El_Aaiun', 'Africa/Freetown', 'Africa/Gaborone', 'Africa/Harare', 'Africa/Johannesburg', 'Africa/Juba', 'Africa/Kampala', 'Africa/Khartoum', 'Africa/Kigali', 'Africa/Kinshasa', 'Africa/Lagos', 'Africa/Libreville', 'Africa/Lome', 'Africa/Luanda', 'Africa/Lubumbashi', 'Africa/Lusaka', 'Africa/Malabo', 'Africa/Maputo', 'Africa/Maseru', 'Africa/Mbabane', 'Africa/Mogadishu', 'Africa/Monrovia', 'Africa/Nairobi', 'Africa/Ndjamena', 'Africa/Niamey', 'Africa/Nouakchott', 'Africa/Ouagadougou', 'Africa/Porto-Novo', 'Africa/Sao_Tome', 'Africa/Timbuktu', 'Africa/Tripoli', 'Africa/Tunis', 'Africa/Windhoek', 'America/Adak', 'America/Anchorage', 'America/Anguilla', 'America/Antigua', 'America/Araguaina', 'America/Argentina/Buenos_Aires', 'America/Argentina/Catamarca', 'America/Argentina/ComodRivadavia', 'America/Argentina/Cordoba', 'America/Argentina/Jujuy', 'America/Argentina/La_Rioja', 'America/Argentina/Mendoza', 'America/Argentina/Rio_Gallegos', 'America/Argentina/Salta', 'America/Argentina/San_Juan', 'America/Argentina/San_Luis', 'America/Argentina/Tucuman', 'America/Argentina/Ushuaia', 'America/Aruba', 'America/Asuncion', 'America/Atikokan', 'America/Atka', 'America/Bahia', 'America/Bahia_Banderas', 'America/Barbados', 'America/Belem', 'America/Belize', 'America/Blanc-Sablon', 'America/Boa_Vista', 'America/Bogota', 'America/Boise', 'America/Buenos_Aires', 'America/Cambridge_Bay', 'America/Campo_Grande', 'America/Cancun', 'America/Caracas', 'America/Catamarca', 'America/Cayenne', 'America/Cayman', 'America/Chicago', 'America/Chihuahua', 'America/Ciudad_Juarez', 'America/Coral_Harbour', 'America/Cordoba', 'America/Costa_Rica', 'America/Creston', 'America/Cuiaba', 'America/Curacao', 'America/Danmarkshavn', 'America/Dawson', 'America/Dawson_Creek', 'America/Denver', 'America/Detroit', 'America/Dominica', 'America/Edmonton', 'America/Eirunepe', 'America/El_Salvador', 'America/Ensenada', 'America/Fort_Nelson', 'America/Fort_Wayne', 'America/Fortaleza', 'America/Glace_Bay', 'America/Godthab', 'America/Goose_Bay', 'America/Grand_Turk', 'America/Grenada', 'America/Guadeloupe', 'America/Guatemala', 'America/Guayaquil', 'America/Guyana', 'America/Halifax', 'America/Havana', 'America/Hermosillo', 'America/Indiana/Indianapolis', 'America/Indiana/Knox', 'America/Indiana/Marengo', 'America/Indiana/Petersburg', 'America/Indiana/Tell_City', 'America/Indiana/Vevay', 'America/Indiana/Vincennes', 'America/Indiana/Winamac', 'America/Indianapolis', 'America/Inuvik', 'America/Iqaluit', 'America/Jamaica', 'America/Jujuy', 'America/Juneau', 'America/Kentucky/Louisville', 'America/Kentucky/Monticello', 'America/Knox_IN', 'America/Kralendijk', 'America/La_Paz', 'America/Lima', 'America/Los_Angeles', 'America/Louisville', 'America/Lower_Princes', 'America/Maceio', 'America/Managua', 'America/Manaus', 'America/Marigot', 'America/Martinique', 'America/Matamoros', 'America/Mazatlan', 'America/Mendoza', 'America/Menominee', 'America/Merida', 'America/Metlakatla', 'America/Mexico_City', 'America/Miquelon', 'America/Moncton', 'America/Monterrey', 'America/Montevideo', 'America/Montreal', 'America/Montserrat', 'America/Nassau', 'America/New_York', 'America/Nipigon', 'America/Nome', 'America/Noronha', 'America/North_Dakota/Beulah', 'America/North_Dakota/Center', 'America/North_Dakota/New_Salem', 'America/Nuuk', 'America/Ojinaga', 'America/Panama', 'America/Pangnirtung', 'America/Paramaribo', 'America/Phoenix', 'America/Port-au-Prince', 'America/Port_of_Spain', 'America/Porto_Acre', 'America/Porto_Velho', 'America/Puerto_Rico', 'America/Punta_Arenas', 'America/Rainy_River', 'America/Rankin_Inlet', 'America/Recife', 'America/Regina', 'America/Resolute', 'America/Rio_Branco', 'America/Rosario', 'America/Santa_Isabel', 'America/Santarem', 'America/Santiago', 'America/Santo_Domingo', 'America/Sao_Paulo', 'America/Scoresbysund', 'America/Shiprock', 'America/Sitka', 'America/St_Barthelemy', 'America/St_Johns', 'America/St_Kitts', 'America/St_Lucia', 'America/St_Thomas', 'America/St_Vincent', 'America/Swift_Current', 'America/Tegucigalpa', 'America/Thule', 'America/Thunder_Bay', 'America/Tijuana', 'America/Toronto', 'America/Tortola', 'America/Vancouver', 'America/Virgin', 'America/Whitehorse', 'America/Winnipeg', 'America/Yakutat', 'America/Yellowknife', 'Antarctica/Casey', 'Antarctica/Davis', 'Antarctica/DumontDUrville', 'Antarctica/Macquarie', 'Antarctica/Mawson', 'Antarctica/McMurdo', 'Antarctica/Palmer', 'Antarctica/Rothera', 'Antarctica/South_Pole', 'Antarctica/Syowa', 'Antarctica/Troll', 'Antarctica/Vostok', 'Arctic/Longyearbyen', 'Asia/Aden', 'Asia/Almaty', 'Asia/Amman', 'Asia/Anadyr', 'Asia/Aqtau', 'Asia/Aqtobe', 'Asia/Ashgabat', 'Asia/Ashkhabad', 'Asia/Atyrau', 'Asia/Baghdad', 'Asia/Bahrain', 'Asia/Baku', 'Asia/Bangkok', 'Asia/Barnaul', 'Asia/Beirut', 'Asia/Bishkek', 'Asia/Brunei', 'Asia/Calcutta', 'Asia/Chita', 'Asia/Choibalsan', 'Asia/Chongqing', 'Asia/Chungking', 'Asia/Colombo', 'Asia/Dacca', 'Asia/Damascus', 'Asia/Dhaka', 'Asia/Dili', 'Asia/Dubai', 'Asia/Dushanbe', 'Asia/Famagusta', 'Asia/Gaza', 'Asia/Harbin', 'Asia/Hebron', 'Asia/Ho_Chi_Minh', 'Asia/Hong_Kong', 'Asia/Hovd', 'Asia/Irkutsk', 'Asia/Istanbul', 'Asia/Jakarta', 'Asia/Jayapura', 'Asia/Jerusalem', 'Asia/Kabul', 'Asia/Kamchatka', 'Asia/Karachi', 'Asia/Kashgar', 'Asia/Kathmandu', 'Asia/Katmandu', 'Asia/Khandyga', 'Asia/Kolkata', 'Asia/Krasnoyarsk', 'Asia/Kuala_Lumpur', 'Asia/Kuching', 'Asia/Kuwait', 'Asia/Macao', 'Asia/Macau', 'Asia/Magadan', 'Asia/Makassar', 'Asia/Manila', 'Asia/Muscat', 'Asia/Nicosia', 'Asia/Novokuznetsk', 'Asia/Novosibirsk', 'Asia/Omsk', 'Asia/Oral', 'Asia/Phnom_Penh', 'Asia/Pontianak', 'Asia/Pyongyang', 'Asia/Qatar', 'Asia/Qostanay', 'Asia/Qyzylorda', 'Asia/Rangoon', 'Asia/Riyadh', 'Asia/Saigon', 'Asia/Sakhalin', 'Asia/Samarkand', 'Asia/Seoul', 'Asia/Shanghai', 'Asia/Singapore', 'Asia/Srednekolymsk', 'Asia/Taipei', 'Asia/Tashkent', 'Asia/Tbilisi', 'Asia/Tehran', 'Asia/Tel_Aviv', 'Asia/Thimbu', 'Asia/Thimphu', 'Asia/Tokyo', 'Asia/Tomsk', 'Asia/Ujung_Pandang', 'Asia/Ulaanbaatar', 'Asia/Ulan_Bator', 'Asia/Urumqi', 'Asia/Ust-Nera', 'Asia/Vientiane', 'Asia/Vladivostok', 'Asia/Yakutsk', 'Asia/Yangon', 'Asia/Yekaterinburg', 'Asia/Yerevan', 'Atlantic/Azores', 'Atlantic/Bermuda', 'Atlantic/Canary', 'Atlantic/Cape_Verde', 'Atlantic/Faeroe', 'Atlantic/Faroe', 'Atlantic/Jan_Mayen', 'Atlantic/Madeira', 'Atlantic/Reykjavik', 'Atlantic/South_Georgia', 'Atlantic/St_Helena', 'Atlantic/Stanley', 'Australia/ACT', 'Australia/Adelaide', 'Australia/Brisbane', 'Australia/Broken_Hill', 'Australia/Canberra', 'Australia/Currie', 'Australia/Darwin', 'Australia/Eucla', 'Australia/Hobart', 'Australia/LHI', 'Australia/Lindeman', 'Australia/Lord_Howe', 'Australia/Melbourne', 'Australia/NSW', 'Australia/North', 'Australia/Perth', 'Australia/Queensland', 'Australia/South', 'Australia/Sydney', 'Australia/Tasmania', 'Australia/Victoria', 'Australia/West', 'Australia/Yancowinna', 'Brazil/Acre', 'Brazil/DeNoronha', 'Brazil/East', 'Brazil/West', 'CET', 'CST6CDT', 'Canada/Atlantic', 'Canada/Central', 'Canada/Eastern', 'Canada/Mountain', 'Canada/Newfoundland', 'Canada/Pacific', 'Canada/Saskatchewan', 'Canada/Yukon', 'Chile/Continental', 'Chile/EasterIsland', 'Cuba', 'EET', 'EST', 'EST5EDT', 'Egypt', 'Eire', 'Etc/GMT', 'Etc/GMT+0', 'Etc/GMT+1', 'Etc/GMT+10', 'Etc/GMT+11', 'Etc/GMT+12', 'Etc/GMT+2', 'Etc/GMT+3', 'Etc/GMT+4', 'Etc/GMT+5', 'Etc/GMT+6', 'Etc/GMT+7', 'Etc/GMT+8', 'Etc/GMT+9', 'Etc/GMT-0', 'Etc/GMT-1', 'Etc/GMT-10', 'Etc/GMT-11', 'Etc/GMT-12', 'Etc/GMT-13', 'Etc/GMT-14', 'Etc/GMT-2', 'Etc/GMT-3', 'Etc/GMT-4', 'Etc/GMT-5', 'Etc/GMT-6', 'Etc/GMT-7', 'Etc/GMT-8', 'Etc/GMT-9', 'Etc/GMT0', 'Etc/Greenwich', 'Etc/UCT', 'Etc/UTC', 'Etc/Universal', 'Etc/Zulu', 'Europe/Amsterdam', 'Europe/Andorra', 'Europe/Astrakhan', 'Europe/Athens', 'Europe/Belfast', 'Europe/Belgrade', 'Europe/Berlin', 'Europe/Bratislava', 'Europe/Brussels', 'Europe/Bucharest', 'Europe/Budapest', 'Europe/Busingen', 'Europe/Chisinau', 'Europe/Copenhagen', 'Europe/Dublin', 'Europe/Gibraltar', 'Europe/Guernsey', 'Europe/Helsinki', 'Europe/Isle_of_Man', 'Europe/Istanbul', 'Europe/Jersey', 'Europe/Kaliningrad', 'Europe/Kiev', 'Europe/Kirov', 'Europe/Kyiv', 'Europe/Lisbon', 'Europe/Ljubljana', 'Europe/London', 'Europe/Luxembourg', 'Europe/Madrid', 'Europe/Malta', 'Europe/Mariehamn', 'Europe/Minsk', 'Europe/Monaco', 'Europe/Moscow', 'Europe/Nicosia', 'Europe/Oslo', 'Europe/Paris', 'Europe/Podgorica', 'Europe/Prague', 'Europe/Riga', 'Europe/Rome', 'Europe/Samara', 'Europe/San_Marino', 'Europe/Sarajevo', 'Europe/Saratov', 'Europe/Simferopol', 'Europe/Skopje', 'Europe/Sofia', 'Europe/Stockholm', 'Europe/Tallinn', 'Europe/Tirane', 'Europe/Tiraspol', 'Europe/Ulyanovsk', 'Europe/Uzhgorod', 'Europe/Vaduz', 'Europe/Vatican', 'Europe/Vienna', 'Europe/Vilnius', 'Europe/Volgograd', 'Europe/Warsaw', 'Europe/Zagreb', 'Europe/Zaporozhye', 'Europe/Zurich', 'GB', 'GB-Eire', 'GMT', 'GMT+0', 'GMT-0', 'GMT0', 'Greenwich', 'HST', 'Hongkong', 'Iceland', 'Indian/Antananarivo', 'Indian/Chagos', 'Indian/Christmas', 'Indian/Cocos', 'Indian/Comoro', 'Indian/Kerguelen', 'Indian/Mahe', 'Indian/Maldives', 'Indian/Mauritius', 'Indian/Mayotte', 'Indian/Reunion', 'Iran', 'Israel', 'Jamaica', 'Japan', 'Kwajalein', 'Libya', 'MET', 'MST', 'MST7MDT', 'Mexico/BajaNorte', 'Mexico/BajaSur', 'Mexico/General', 'NZ', 'NZ-CHAT', 'Navajo', 'PRC', 'PST8PDT', 'Pacific/Apia', 'Pacific/Auckland', 'Pacific/Bougainville', 'Pacific/Chatham', 'Pacific/Chuuk', 'Pacific/Easter', 'Pacific/Efate', 'Pacific/Enderbury', 'Pacific/Fakaofo', 'Pacific/Fiji', 'Pacific/Funafuti', 'Pacific/Galapagos', 'Pacific/Gambier', 'Pacific/Guadalcanal', 'Pacific/Guam', 'Pacific/Honolulu', 'Pacific/Johnston', 'Pacific/Kanton', 'Pacific/Kiritimati', 'Pacific/Kosrae', 'Pacific/Kwajalein', 'Pacific/Majuro', 'Pacific/Marquesas', 'Pacific/Midway', 'Pacific/Nauru', 'Pacific/Niue', 'Pacific/Norfolk', 'Pacific/Noumea', 'Pacific/Pago_Pago', 'Pacific/Palau', 'Pacific/Pitcairn', 'Pacific/Pohnpei', 'Pacific/Ponape', 'Pacific/Port_Moresby', 'Pacific/Rarotonga', 'Pacific/Saipan', 'Pacific/Samoa', 'Pacific/Tahiti', 'Pacific/Tarawa', 'Pacific/Tongatapu', 'Pacific/Truk', 'Pacific/Wake', 'Pacific/Wallis', 'Pacific/Yap', 'Poland', 'Portugal', 'ROC', 'ROK', 'Singapore', 'Turkey', 'UCT', 'US/Alaska', 'US/Aleutian', 'US/Arizona', 'US/Central', 'US/East-Indiana', 'US/Eastern', 'US/Hawaii', 'US/Indiana-Starke', 'US/Michigan', 'US/Mountain', 'US/Pacific', 'US/Samoa', 'UTC', 'Universal', 'W-SU', 'WET', 'Zulu'), nullable=True, comment='IANA timezone name of the timezone which encompasses the largest portion of the population in the associated geographic area.'),
     sa.Column('state_id_fips', sa.Text(), nullable=True, comment='Two digit state FIPS code.'),
     sa.Column('division_name_us_census', sa.Text(), nullable=True, comment='Longer human readable name describing the US Census division.'),
-    sa.Column('division_code_us_census', sa.Enum('MTN', 'PCN', 'NEW', 'ESC', 'MAT', 'PCC', 'SAT', 'WNC', 'WSC', 'ENC'), nullable=True, comment='Three-letter US Census division code as it appears in the bulk electricity data published by the EIA. Note that EIA splits the Pacific division into distinct contiguous (CA, OR, WA) and non-contiguous (AK, HI) states. For reference see this US Census region and division map: https://www2.census.gov/geo/pdfs/maps-data/maps/reference/us_regdiv.pdf'),
+    sa.Column('division_code_us_census', sa.Enum('ENC', 'WNC', 'NEW', 'MTN', 'WSC', 'PCC', 'PCN', 'MAT', 'SAT', 'ESC'), nullable=True, comment='Three-letter US Census division code as it appears in the bulk electricity data published by the EIA. Note that EIA splits the Pacific division into distinct contiguous (CA, OR, WA) and non-contiguous (AK, HI) states. For reference see this US Census region and division map: https://www2.census.gov/geo/pdfs/maps-data/maps/reference/us_regdiv.pdf'),
     sa.Column('region_name_us_census', sa.Text(), nullable=True, comment='Human-readable name of a US Census region.'),
     sa.Column('is_epacems_state', sa.Boolean(), nullable=True, comment="Indicates whether the associated state reports data within the EPA's Continuous Emissions Monitoring System."),
     sa.PrimaryKeyConstraint('country_code', 'subdivision_code', name=op.f('pk_political_subdivisions'))
@@ -1905,6 +1905,23 @@ def upgrade() -> None:
     sa.Column('decrease_in_other_regulatory_liabilities', sa.Float(), nullable=True, comment='The decrease during the reporting period of other regulatory liabilities.'),
     sa.ForeignKeyConstraint(['utility_id_ferc1'], ['utilities_ferc1.utility_id_ferc1'], name=op.f('fk_other_regulatory_liabilities_ferc1_utility_id_ferc1_utilities_ferc1'))
     )
+    op.create_table('ownership_eia860',
+    sa.Column('report_date', sa.Date(), nullable=False, comment='Date reported.'),
+    sa.Column('owner_utility_id_eia', sa.Integer(), nullable=False, comment='The EIA utility Identification number for the owner company that is responsible for the day-to-day operations of the generator, not the operator utility.'),
+    sa.Column('plant_id_eia', sa.Integer(), nullable=False, comment='The unique six-digit facility identification number, also called an ORISPL, assigned by the Energy Information Administration.'),
+    sa.Column('generator_id', sa.Text(), nullable=False, comment='Generator ID is usually numeric, but sometimes includes letters. Make sure you treat it as a string!'),
+    sa.Column('owner_utility_name_eia', sa.Text(), nullable=True, comment='The name of the EIA owner utility.'),
+    sa.Column('owner_state', sa.Enum('OH', 'NT', 'ID', 'ND', 'MP', 'NM', 'PA', 'IA', 'MD', 'WV', 'AK', 'CT', 'SC', 'TX', 'CA', 'TN', 'UT', 'KY', 'GU', 'MO', 'SD', 'WA', 'NE', 'ON', 'NL', 'KS', 'MA', 'RI', 'WY', 'FL', 'IN', 'MS', 'YT', 'NH', 'OK', 'IL', 'VT', 'SK', 'ME', 'GA', 'PE', 'AS', 'MB', 'AL', 'NC', 'NJ', 'NS', 'PR', 'AR', 'MN', 'OR', 'NV', 'AB', 'MT', 'NB', 'HI', 'DC', 'NY', 'BC', 'CO', 'LA', 'MI', 'NU', 'WI', 'AZ', 'QC', 'VI', 'VA', 'DE'), nullable=True, comment='Two letter ISO-3166 political subdivision code.'),
+    sa.Column('owner_city', sa.Text(), nullable=True, comment='City of owner.'),
+    sa.Column('owner_country', sa.Enum('USA', 'CAN'), nullable=True, comment='Three letter ISO-3166 country code.'),
+    sa.Column('owner_street_address', sa.Text(), nullable=True, comment='Steet address of owner.'),
+    sa.Column('owner_zip_code', sa.Text(), nullable=True, comment='Zip code of owner.'),
+    sa.Column('fraction_owned', sa.Float(), nullable=True, comment='Proportion of generator ownership attributable to this utility.'),
+    sa.Column('data_maturity', sa.Text(), nullable=True, comment='Level of maturity of the data record. Some data sources report less-than-final data. PUDL sometimes includes this data, but use at your own risk.'),
+    sa.ForeignKeyConstraint(['data_maturity'], ['data_maturities.code'], name=op.f('fk_ownership_eia860_data_maturity_data_maturities')),
+    sa.ForeignKeyConstraint(['plant_id_eia', 'generator_id'], ['generators_entity_eia.plant_id_eia', 'generators_entity_eia.generator_id'], name=op.f('fk_ownership_eia860_plant_id_eia_generators_entity_eia')),
+    sa.PrimaryKeyConstraint('report_date', 'plant_id_eia', 'generator_id', 'owner_utility_id_eia', name=op.f('pk_ownership_eia860'))
+    )
     op.create_table('plant_in_service_ferc1',
     sa.Column('utility_id_ferc1', sa.Integer(), nullable=False, comment='PUDL-assigned utility ID, identifying a FERC1 utility. This is an auto-incremented ID and is not expected to be stable from year to year.'),
     sa.Column('report_year', sa.Integer(), nullable=False, comment='Four-digit year in which the data was reported.'),
@@ -2795,7 +2812,7 @@ def upgrade() -> None:
     sa.Column('report_year', sa.Integer(), nullable=True, comment='Four-digit year in which the data was reported.'),
     sa.Column('plant_name_ferc1', sa.Text(), nullable=True, comment='Name of the plant, as reported to FERC. This is a freeform string, not guaranteed to be consistent across references to the same plant.'),
     sa.Column('project_num', sa.Integer(), nullable=True, comment='FERC Licensed Project Number.'),
-    sa.Column('plant_type', sa.Enum('hydro', 'storage', 'run_of_river', 'na_category', 'run_of_river_with_storage'), nullable=True),
+    sa.Column('plant_type', sa.Enum('run_of_river_with_storage', 'storage', 'hydro', 'run_of_river', 'na_category'), nullable=True),
     sa.Column('construction_type', sa.Enum('conventional', 'outdoor', 'semioutdoor'), nullable=True, comment="Type of plant construction ('outdoor', 'semioutdoor', or 'conventional'). Categorized by PUDL based on our best guess of intended value in FERC1 freeform strings."),
     sa.Column('construction_year', sa.Integer(), nullable=True, comment="Year the plant's oldest still operational unit was built."),
     sa.Column('installation_year', sa.Integer(), nullable=True, comment="Year the plant's most recently built unit was installed."),
@@ -2899,7 +2916,7 @@ def upgrade() -> None:
     sa.Column('report_year', sa.Integer(), nullable=True, comment='Four-digit year in which the data was reported.'),
     sa.Column('plant_id_ferc1', sa.Integer(), nullable=True, comment='Algorithmically assigned PUDL FERC Plant ID. WARNING: NOT STABLE BETWEEN PUDL DB INITIALIZATIONS.'),
     sa.Column('plant_name_ferc1', sa.Text(), nullable=True, comment='Name of the plant, as reported to FERC. This is a freeform string, not guaranteed to be consistent across references to the same plant.'),
-    sa.Column('plant_type', sa.Enum('steam', 'geothermal', 'internal_combustion', 'nuclear', 'combustion_turbine', 'na_category', 'combined_cycle', 'solar_thermal', 'wind', 'photovoltaic'), nullable=True),
+    sa.Column('plant_type', sa.Enum('wind', 'photovoltaic', 'na_category', 'solar_thermal', 'combined_cycle', 'internal_combustion', 'combustion_turbine', 'geothermal', 'steam', 'nuclear'), nullable=True),
     sa.Column('construction_type', sa.Enum('conventional', 'outdoor', 'semioutdoor'), nullable=True, comment="Type of plant construction ('outdoor', 'semioutdoor', or 'conventional'). Categorized by PUDL based on our best guess of intended value in FERC1 freeform strings."),
     sa.Column('construction_year', sa.Integer(), nullable=True, comment="Year the plant's oldest still operational unit was built."),
     sa.Column('installation_year', sa.Integer(), nullable=True, comment="Year the plant's most recently built unit was installed."),
@@ -3339,13 +3356,13 @@ def upgrade() -> None:
     sa.Column('plant_id_eia', sa.Integer(), nullable=False, comment='The unique six-digit facility identification number, also called an ORISPL, assigned by the Energy Information Administration.'),
     sa.Column('plant_id_pudl', sa.Integer(), nullable=True, comment='A manually assigned PUDL plant ID. May not be constant over time.'),
     sa.Column('plant_name_eia', sa.Text(), nullable=True, comment='Plant name.'),
-    sa.Column('utility_id_eia', sa.Integer(), nullable=False, comment='The EIA utility Identification number for the owner company that is responsible for the day-to-day operations of the generator, not the operator utility.'),
+    sa.Column('owner_utility_id_eia', sa.Integer(), nullable=False, comment='The EIA utility Identification number for the owner company that is responsible for the day-to-day operations of the generator, not the operator utility.'),
     sa.Column('utility_id_pudl', sa.Integer(), nullable=True, comment='A manually assigned PUDL utility ID. May not be stable over time.'),
-    sa.Column('utility_name_eia', sa.Text(), nullable=True, comment='The name of the utility.'),
+    sa.Column('owner_utility_name_eia', sa.Text(), nullable=True, comment='The name of the EIA owner utility.'),
     sa.Column('generator_id', sa.Text(), nullable=False, comment='Generator ID is usually numeric, but sometimes includes letters. Make sure you treat it as a string!'),
     sa.Column('state', sa.Text(), nullable=True, comment='Two letter US state abbreviation.'),
     sa.Column('owner_city', sa.Text(), nullable=True, comment='City of owner.'),
-    sa.Column('country', sa.Text(), nullable=True, comment='Three letter country abbreviation.'),
+    sa.Column('owner_country', sa.Enum('USA', 'CAN'), nullable=True, comment='Three letter ISO-3166 country code.'),
     sa.Column('owner_street_address', sa.Text(), nullable=True, comment='Steet address of owner.'),
     sa.Column('owner_zip_code', sa.Text(), nullable=True, comment='Zip code of owner.'),
     sa.Column('fraction_owned', sa.Float(), nullable=True, comment='Proportion of generator ownership attributable to this utility.'),
@@ -3353,9 +3370,8 @@ def upgrade() -> None:
     sa.ForeignKeyConstraint(['data_maturity'], ['data_maturities.code'], name=op.f('fk_denorm_ownership_eia860_data_maturity_data_maturities')),
     sa.ForeignKeyConstraint(['plant_id_eia', 'generator_id', 'report_date'], ['generators_eia860.plant_id_eia', 'generators_eia860.generator_id', 'generators_eia860.report_date'], name=op.f('fk_denorm_ownership_eia860_plant_id_eia_generators_eia860')),
     sa.ForeignKeyConstraint(['plant_id_pudl'], ['plants_pudl.plant_id_pudl'], name=op.f('fk_denorm_ownership_eia860_plant_id_pudl_plants_pudl')),
-    sa.ForeignKeyConstraint(['utility_id_eia', 'report_date'], ['utilities_eia860.utility_id_eia', 'utilities_eia860.report_date'], name=op.f('fk_denorm_ownership_eia860_utility_id_eia_utilities_eia860')),
     sa.ForeignKeyConstraint(['utility_id_pudl'], ['utilities_pudl.utility_id_pudl'], name=op.f('fk_denorm_ownership_eia860_utility_id_pudl_utilities_pudl')),
-    sa.PrimaryKeyConstraint('report_date', 'plant_id_eia', 'generator_id', 'utility_id_eia', name=op.f('pk_denorm_ownership_eia860'))
+    sa.PrimaryKeyConstraint('report_date', 'plant_id_eia', 'generator_id', 'owner_utility_id_eia', name=op.f('pk_denorm_ownership_eia860'))
     )
     op.create_table('fuel_cost_by_generator_yearly',
     sa.Column('report_date', sa.Date(), nullable=False, comment='Date reported.'),
@@ -3503,6 +3519,7 @@ def upgrade() -> None:
     sa.Column('unit_id_pudl', sa.Integer(), nullable=True, comment='Dynamically assigned PUDL unit id. WARNING: This ID is not guaranteed to be static long term as the input data and algorithm may evolve over time.'),
     sa.Column('plant_id_pudl', sa.Integer(), nullable=True, comment='A manually assigned PUDL plant ID. May not be constant over time.'),
     sa.Column('plant_name_eia', sa.Text(), nullable=True, comment='Plant name.'),
+    sa.Column('utility_id_eia', sa.Integer(), nullable=True, comment='The EIA Utility Identification number.'),
     sa.Column('utility_id_pudl', sa.Integer(), nullable=True, comment='A manually assigned PUDL utility ID. May not be stable over time.'),
     sa.Column('utility_name_eia', sa.Text(), nullable=True, comment='The name of the utility.'),
     sa.Column('technology_description', sa.Text(), nullable=True, comment='High level description of the technology used by the generator to produce electricity.'),
@@ -3527,7 +3544,6 @@ def upgrade() -> None:
     sa.Column('operational_status_pudl', sa.Enum('operating', 'retired', 'proposed'), nullable=True, comment='The operating status of the asset using PUDL categories.'),
     sa.Column('capacity_eoy_mw', sa.Float(), nullable=True, comment='Total end of year installed (nameplate) capacity for a plant part, in megawatts.'),
     sa.Column('fraction_owned', sa.Float(), nullable=True, comment='Proportion of generator ownership attributable to this utility.'),
-    sa.Column('utility_id_eia', sa.Integer(), nullable=True, comment='The EIA Utility Identification number.'),
     sa.Column('ownership_record_type', sa.Enum('owned', 'total'), nullable=True, comment='Whether each generator record is for one owner or represents a total of all ownerships.'),
     sa.ForeignKeyConstraint(['energy_source_code_1'], ['energy_sources_eia.code'], name=op.f('fk_mega_generators_eia_energy_source_code_1_energy_sources_eia')),
     sa.ForeignKeyConstraint(['plant_id_eia', 'generator_id', 'report_date'], ['generators_eia860.plant_id_eia', 'generators_eia860.generator_id', 'generators_eia860.report_date'], name=op.f('fk_mega_generators_eia_plant_id_eia_generators_eia860')),
@@ -3536,38 +3552,20 @@ def upgrade() -> None:
     sa.ForeignKeyConstraint(['utility_id_eia', 'report_date'], ['utilities_eia860.utility_id_eia', 'utilities_eia860.report_date'], name=op.f('fk_mega_generators_eia_utility_id_eia_utilities_eia860')),
     sa.ForeignKeyConstraint(['utility_id_pudl'], ['utilities_pudl.utility_id_pudl'], name=op.f('fk_mega_generators_eia_utility_id_pudl_utilities_pudl'))
     )
-    op.create_table('ownership_eia860',
-    sa.Column('report_date', sa.Date(), nullable=False, comment='Date reported.'),
-    sa.Column('utility_id_eia', sa.Integer(), nullable=False, comment='The EIA utility Identification number for the owner company that is responsible for the day-to-day operations of the generator, not the operator utility.'),
-    sa.Column('plant_id_eia', sa.Integer(), nullable=False, comment='The unique six-digit facility identification number, also called an ORISPL, assigned by the Energy Information Administration.'),
-    sa.Column('generator_id', sa.Text(), nullable=False, comment='Generator ID is usually numeric, but sometimes includes letters. Make sure you treat it as a string!'),
-    sa.Column('utility_name_eia', sa.Text(), nullable=True, comment='The name of the utility.'),
-    sa.Column('state', sa.Text(), nullable=True, comment='Two letter US state abbreviation.'),
-    sa.Column('owner_city', sa.Text(), nullable=True, comment='City of owner.'),
-    sa.Column('country', sa.Text(), nullable=True, comment='Three letter country abbreviation.'),
-    sa.Column('owner_street_address', sa.Text(), nullable=True, comment='Steet address of owner.'),
-    sa.Column('owner_zip_code', sa.Text(), nullable=True, comment='Zip code of owner.'),
-    sa.Column('fraction_owned', sa.Float(), nullable=True, comment='Proportion of generator ownership attributable to this utility.'),
-    sa.Column('data_maturity', sa.Text(), nullable=True, comment='Level of maturity of the data record. Some data sources report less-than-final data. PUDL sometimes includes this data, but use at your own risk.'),
-    sa.ForeignKeyConstraint(['data_maturity'], ['data_maturities.code'], name=op.f('fk_ownership_eia860_data_maturity_data_maturities')),
-    sa.ForeignKeyConstraint(['plant_id_eia', 'generator_id', 'report_date'], ['generators_eia860.plant_id_eia', 'generators_eia860.generator_id', 'generators_eia860.report_date'], name=op.f('fk_ownership_eia860_plant_id_eia_generators_eia860')),
-    sa.ForeignKeyConstraint(['utility_id_eia', 'report_date'], ['utilities_eia860.utility_id_eia', 'utilities_eia860.report_date'], name=op.f('fk_ownership_eia860_utility_id_eia_utilities_eia860')),
-    sa.PrimaryKeyConstraint('report_date', 'plant_id_eia', 'generator_id', 'utility_id_eia', name=op.f('pk_ownership_eia860'))
-    )
     op.create_table('plant_parts_eia',
     sa.Column('record_id_eia', sa.Text(), nullable=False, comment='Identifier for EIA plant parts analysis records.'),
     sa.Column('plant_id_eia', sa.Integer(), nullable=True, comment='The unique six-digit facility identification number, also called an ORISPL, assigned by the Energy Information Administration.'),
     sa.Column('report_date', sa.Date(), nullable=True, comment='Date reported.'),
-    sa.Column('plant_part', sa.Enum('plant_gen', 'plant_ferc_acct', 'plant_prime_fuel', 'plant_prime_mover', 'plant_technology', 'plant', 'plant_match_ferc1', 'plant_unit', 'plant_operating_year'), nullable=True, comment='The part of the plant a record corresponds to.'),
+    sa.Column('plant_part', sa.Enum('plant_unit', 'plant_prime_mover', 'plant_operating_year', 'plant_ferc_acct', 'plant_match_ferc1', 'plant', 'plant_prime_fuel', 'plant_gen', 'plant_technology'), nullable=True, comment='The part of the plant a record corresponds to.'),
     sa.Column('generator_id', sa.Text(), nullable=True, comment='Generator ID is usually numeric, but sometimes includes letters. Make sure you treat it as a string!'),
     sa.Column('unit_id_pudl', sa.Integer(), nullable=True, comment='Dynamically assigned PUDL unit id. WARNING: This ID is not guaranteed to be static long term as the input data and algorithm may evolve over time.'),
     sa.Column('prime_mover_code', sa.Text(), nullable=True, comment='Code for the type of prime mover (e.g. CT, CG)'),
-    sa.Column('energy_source_code_1', sa.Enum('OTH', 'MWH', 'SUN', 'AB', 'WND', 'ANT', 'WC', 'OBG', 'PUR', 'LIG', 'JF', 'PC', 'SGC', 'BLQ', 'WH', 'BIT', 'TDF', 'WDS', 'SLW', 'SUB', 'SC', 'OG', 'GEO', 'SG', 'SGP', 'RC', 'WO', 'PG', 'BFG', 'KER', 'NG', 'WAT', 'MSB', 'RFO', 'OBS', 'MSN', 'OBL', 'DFO', 'MSW', 'WDL', 'NUC', 'LFG'), nullable=True, comment='The code representing the most predominant type of energy that fuels the generator.'),
-    sa.Column('technology_description', sa.Enum('Offshore Wind Turbine', 'Solar Photovoltaic', 'Municipal Solid Waste', 'Geothermal', 'Other Gases', 'Batteries', 'Hydroelectric Pumped Storage', 'Petroleum Coke', 'Natural Gas Fired Combined Cycle', 'Natural Gas Internal Combustion Engine', 'Hydrokinetic', 'Conventional Steam Coal', 'Landfill Gas', 'All Other', 'Other Waste Biomass', 'Solar Thermal with Energy Storage', 'Petroleum Liquids', 'Natural Gas Fired Combustion Turbine', 'Coal Integrated Gasification Combined Cycle', 'Other Natural Gas', 'Onshore Wind Turbine', 'Flywheels', 'Natural Gas Steam Turbine', 'Natural Gas with Compressed Air Storage', 'Nuclear', 'Solar Thermal without Energy Storage', 'Conventional Hydroelectric', 'Wood/Wood Waste Biomass'), nullable=True, comment='High level description of the technology used by the generator to produce electricity.'),
+    sa.Column('energy_source_code_1', sa.Enum('LIG', 'OTH', 'OG', 'LFG', 'SC', 'MWH', 'WDL', 'MSB', 'SLW', 'WH', 'TDF', 'NUC', 'OBS', 'GEO', 'NG', 'RFO', 'OBL', 'SUB', 'WDS', 'PG', 'SG', 'SGP', 'OBG', 'KER', 'WND', 'DFO', 'WO', 'JF', 'AB', 'MSW', 'ANT', 'RC', 'MSN', 'SGC', 'BFG', 'PUR', 'BLQ', 'BIT', 'PC', 'WAT', 'WC', 'SUN'), nullable=True, comment='The code representing the most predominant type of energy that fuels the generator.'),
+    sa.Column('technology_description', sa.Enum('Municipal Solid Waste', 'Hydroelectric Pumped Storage', 'Offshore Wind Turbine', 'Petroleum Coke', 'Wood/Wood Waste Biomass', 'Onshore Wind Turbine', 'All Other', 'Hydrokinetic', 'Petroleum Liquids', 'Natural Gas Fired Combustion Turbine', 'Batteries', 'Other Waste Biomass', 'Natural Gas Internal Combustion Engine', 'Landfill Gas', 'Conventional Steam Coal', 'Flywheels', 'Nuclear', 'Coal Integrated Gasification Combined Cycle', 'Conventional Hydroelectric', 'Natural Gas Fired Combined Cycle', 'Other Natural Gas', 'Solar Thermal without Energy Storage', 'Natural Gas with Compressed Air Storage', 'Other Gases', 'Solar Thermal with Energy Storage', 'Solar Photovoltaic', 'Geothermal', 'Natural Gas Steam Turbine'), nullable=True, comment='High level description of the technology used by the generator to produce electricity.'),
     sa.Column('ferc_acct_name', sa.Enum('Hydraulic', 'Nuclear', 'Steam', 'Other'), nullable=True, comment='Name of FERC account, derived from technology description and prime mover code.'),
     sa.Column('utility_id_eia', sa.Integer(), nullable=True, comment='The EIA Utility Identification number.'),
     sa.Column('true_gran', sa.Boolean(), nullable=True, comment='Indicates whether a plant part list record is associated with the highest priority plant part for all identical records.'),
-    sa.Column('appro_part_label', sa.Enum('plant_gen', 'plant_ferc_acct', 'plant_prime_fuel', 'plant_prime_mover', 'plant_technology', 'plant', 'plant_match_ferc1', 'plant_unit', 'plant_operating_year'), nullable=True, comment='Plant part of the associated true granularity record.'),
+    sa.Column('appro_part_label', sa.Enum('plant_unit', 'plant_prime_mover', 'plant_operating_year', 'plant_ferc_acct', 'plant_match_ferc1', 'plant', 'plant_prime_fuel', 'plant_gen', 'plant_technology'), nullable=True, comment='Plant part of the associated true granularity record.'),
     sa.Column('appro_record_id_eia', sa.Text(), nullable=True, comment='EIA record ID of the associated true granularity record.'),
     sa.Column('ferc1_generator_agg_id', sa.Integer(), nullable=True, comment='ID dynamically assigned by PUDL to EIA records with multiple matches to a single FERC ID in the FERC-EIA manual matching process.'),
     sa.Column('capacity_eoy_mw', sa.Float(), nullable=True, comment='Total end of year installed (nameplate) capacity for a plant part, in megawatts.'),
@@ -3612,7 +3610,6 @@ def upgrade() -> None:
 def downgrade() -> None:
     # ### commands auto generated by Alembic - please adjust! ###
     op.drop_table('plant_parts_eia')
-    op.drop_table('ownership_eia860')
     op.drop_table('mega_generators_eia')
     op.drop_table('mcoe_yearly')
     op.drop_table('mcoe_generators_yearly')
@@ -3660,6 +3657,7 @@ def downgrade() -> None:
     op.drop_table('plants_ferc1')
     op.drop_table('plants_eia860')
     op.drop_table('plant_in_service_ferc1')
+    op.drop_table('ownership_eia860')
     op.drop_table('other_regulatory_liabilities_ferc1')
     op.drop_table('mcoe_monthly')
     op.drop_table('mcoe_generators_monthly')

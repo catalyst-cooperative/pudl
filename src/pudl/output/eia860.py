@@ -9,6 +9,7 @@ from pudl.metadata.codes import CODE_METADATA
 @asset(io_manager_key="pudl_sqlite_io_manager", compute_kind="Python")
 def denorm_ownership_eia860(
     denorm_plants_utilities_eia: pd.DataFrame,
+    utilities_eia: pd.DataFrame,
     ownership_eia860: pd.DataFrame,
 ) -> pd.DataFrame:
     """A denormalized version of the EIA 860 ownership table.
@@ -18,6 +19,8 @@ def denorm_ownership_eia860(
     Args:
         denorm_plants_utilities_eia: Denormalized table containing plant and utility
             names and IDs.
+        utilities_eia: Table of associations between EIA utility IDs and
+            PUDL Utility IDs.
         ownership_eia860: EIA 860 ownership table.
 
     Returns:
@@ -29,21 +32,26 @@ def denorm_ownership_eia860(
             "plant_id_eia",
             "plant_id_pudl",
             "plant_name_eia",
-            "utility_id_pudl",
             "report_date",
         ],
     ]
     own_df = pd.merge(
         ownership_eia860, pu_df, on=["report_date", "plant_id_eia"], how="left"
-    ).dropna(subset=["report_date", "plant_id_eia", "generator_id", "utility_id_eia"])
+    ).dropna(
+        subset=["report_date", "plant_id_eia", "generator_id", "owner_utility_id_eia"]
+    )
+    util_df = utilities_eia.loc[:, ["utility_id_eia", "utility_id_pudl"]]
+    own_df = own_df.merge(
+        util_df, how="left", left_on="owner_utility_id_eia", right_on="utility_id_eia"
+    )
     first_cols = [
         "report_date",
         "plant_id_eia",
         "plant_id_pudl",
         "plant_name_eia",
-        "utility_id_eia",
+        "owner_utility_id_eia",
         "utility_id_pudl",
-        "utility_name_eia",
+        "owner_utility_name_eia",
         "generator_id",
     ]
 
