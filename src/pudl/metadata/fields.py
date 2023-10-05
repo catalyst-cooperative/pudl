@@ -1159,7 +1159,7 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "description": "The energy contained in fuel burned, measured in million BTU.",
         "unit": "MMBtu",
     },
-    "heat_rate_mmbtu_mwh": {
+    "unit_heat_rate_mmbtu_per_mwh": {
         "type": "number",
         "description": "Fuel content per unit of electricity generated. Coming from MCOE calculation.",
         "unit": "MMBtu_MWh",
