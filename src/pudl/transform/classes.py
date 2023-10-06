@@ -818,7 +818,9 @@ def drop_invalid_rows(df: pd.DataFrame, params: InvalidRows) -> pd.DataFrame:
     # care about are invalid (i.e. where ANY of the columns we care about contain a
     # valid value):
 
-    # for some reason, a simple cols_to_check.isin(params.invalid_values) fails
+    # For some reason, a simple cols_to_check.isin(params.invalid_values) fails
+    # on some dfs with NA values. this cols_to_check.transform() is intended as
+    # a drop-in replacement for cols_to_check.isin(params.invalid_values)
     invalids = cols_to_check.transform(
         lambda x: x.map(dict.fromkeys(params.invalid_values, True)).fillna(False)
     )
