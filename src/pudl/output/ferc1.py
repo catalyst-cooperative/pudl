@@ -1805,7 +1805,7 @@ class XbrlCalculationForestFerc1(BaseModel):
         nodes = annotated_forest.nodes
         for ancestor in nodes:
             for descendant in nx.descendants(annotated_forest, ancestor):
-                for tag in nodes[ancestor]["tags"].get("tags", {}):
+                for tag in nodes[ancestor].get("tags", {}):
                     if tag in nodes[descendant].get("tags", {}):
                         ancestor_tag_value = nodes[ancestor]["tags"][tag]
                         descendant_tag_value = nodes[descendant]["tags"][tag]
