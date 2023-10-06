@@ -71,6 +71,9 @@ ENTITIES: dict[str, dict[str, list[str] | dict[str, str]]] = {
             "water_source",
             "data_maturity",
         ],
+        "mapped_schemas": [
+            {"operator_utility_id_eia": "utility_id_eia"},
+        ],
     },
     "generators": {
         "id_cols": ["plant_id_eia", "generator_id"],
@@ -161,6 +164,9 @@ ENTITIES: dict[str, dict[str, list[str] | dict[str, str]]] = {
             "data_maturity",
             "energy_storage_capacity_mwh",
             "net_capacity_mwdc",
+        ],
+        "mapped_schemas": [
+            {"operator_utility_id_eia": "utility_id_eia"},
         ],
     },
     "boilers": {
@@ -288,10 +294,22 @@ ENTITIES: dict[str, dict[str, list[str] | dict[str, str]]] = {
             "phone_number_2",
             "data_maturity",
         ],
-        "map_cols_dict": {
-            "operator_utility_id_eia": "utility_id_eia",
-            "operator_name": "utility_name_eia",
-        },
+        "mapped_schemas": [
+            {
+                "owner_utility_id_eia": "utility_id_eia",
+                "owner_utility_name_eia": "utility_name_eia",
+                "owner_state": "state",
+                "owner_country": "country",
+                "owner_street_address": "street_address",
+                "owner_zip_code": "zip_code",
+                "owner_city": "city",
+            },
+            {
+                "operator_utility_id_eia": "utility_id_eia",
+                "operator_utility_name_eia": "utility_name_eia",
+                "operator_state": "state",
+            },
+        ],
     },
 }
 """Columns kept for either entity or annual EIA tables in the harvesting process.
@@ -302,14 +320,13 @@ columns.
 The order of the entities matters. Plants must be harvested before utilities, since
 plant location must be removed before the utility locations are harvested.
 
-Mapped columns allow for harvesting the same entity ID / value relationship
-from multiple columns in the same input dataframe. This is useful if a table has multiple
-sets of entities that should be harvested, for example owner and operator utilities
-showing up in the same ownership table records. ``map_col_dict`` maps from
-column names of the 'other' group of entity ID / value columns to a column name in one of
-the ``id_cols``, ``static_cols``, or ``annual_cols list``. In the harvesting process, these
-columns are renamed so the relationship can be harvested and added to the normalized entity
-tables. Note that not all of the columns in the ``map_cols_dict`` need to be present at once,
-i.e. if ``map_cols_dict`` has keys ``col_a`` and ``col_b``, then ``col_a`` and ``col_b``
-don't need to be present in the same table.
+``mapped_schemas`` allows for harvesting an entity ID / value relationship
+from multiple columns in the same input dataframe. Each item in ``mapped_schemas`` is a
+dictionary mapping column names in one of the cleaned tables to the standard column names
+for that entity.  This is useful if a table has entities that should be harvested,
+but whose column names don't have the same name as those in the ``id_cols``, ``static_cols``,
+or ``annual_cols`` list. For example, in the ownership table the owner and operator utility
+columns map to different column names in the other tables, i.e. "owner_utility_id_eia": "utility_id_eia".
+In the harvesting process, a copy of the clean dataframe is made, and these columns are
+renamed so the relationship can be harvested and added to the normalized entity tables.
 """
