@@ -1,4 +1,4 @@
-"""Resource metadata for the MCOE (marginal cost of electricity) tables."""
+"""Resource metadata for the generator table with derived attributes."""
 from typing import Any
 
 AGG_FREQS = ["yearly", "monthly"]
@@ -11,7 +11,7 @@ FILTERING_WARNING = (
 )
 RESOURCE_METADATA: dict[str, dict[str, Any]] = (
     {
-        f"heat_rate_by_unit_{freq}": {
+        f"_out_eia__{freq}_heat_rate_by_unit": {
             "description": (
                 f"{freq.title()} heat rate estimates by generation unit. Generation "
                 "units are identified by ``unit_id_pudl`` and are composed of a set of "
@@ -39,7 +39,7 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = (
         for freq in AGG_FREQS
     }
     | {
-        f"heat_rate_by_generator_{freq}": {
+        f"_out_eia__{freq}_heat_rate_by_generator": {
             "description": (
                 f"{freq.title()} heat rate estimates by generator. These are actually "
                 "just generation unit level heat rates, which have been broadcast "
@@ -71,7 +71,7 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = (
         for freq in AGG_FREQS
     }
     | {
-        f"capacity_factor_by_generator_{freq}": {
+        f"_out_eia__{freq}_capacity_factor_by_generator": {
             "description": (
                 f"{freq.title()} estimates of generator capacity factor. Capacity "
                 "factor is calculated based on reported generator capacity and the "
@@ -100,7 +100,7 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = (
         for freq in AGG_FREQS
     }
     | {
-        f"fuel_cost_by_generator_{freq}": {
+        f"_out_eia__{freq}_fuel_cost_by_generator": {
             "description": (
                 f"{freq.title()} estimate of per-generator fuel costs both per MMBTU "
                 "and per MWh. These calculations are based on the allocation of net "
@@ -142,7 +142,7 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = (
         for freq in AGG_FREQS
     }
     | {
-        f"mcoe_{freq}": {
+        f"_out_eia__{freq}_derived_generator_attributes": {
             "description": (
                 f"{freq.title()} generator capacity factor, heat rate, fuel cost per MMBTU and fuel cost "
                 "per MWh. These calculations are based on the allocation of net generation reported on "
@@ -183,12 +183,10 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = (
         for freq in AGG_FREQS
     }
     | {
-        f"mcoe_generators_{freq}": {
+        f"out_eia__{freq}_generators": {
             "description": (
-                f"The marginal cost of energy table with {freq.title()} generator capacity factor, "
-                "heat rate, fuel cost per MMBTU and fuel cost, but with additional potentially "
-                "useful generator attributes merged on."
-                "See the description in the MCOE table for more explanation of these calculations."
+                f"{freq.title()} all generator attributes including calculated capacity factor, "
+                "heat rate, fuel cost per MMBTU and fuel cost."
             ),
             "schema": {
                 "fields": [
@@ -218,6 +216,90 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = (
                     "net_generation_mwh",
                     "total_fuel_cost",
                     "total_mmbtu",
+                    "associated_combined_heat_power",
+                    "bga_source",
+                    "bypass_heat_recovery",
+                    "carbon_capture",
+                    "city",
+                    "cofire_fuels",
+                    "county",
+                    "current_planned_generator_operating_date",
+                    "data_maturity",
+                    "deliver_power_transgrid",
+                    "distributed_generation",
+                    "duct_burners",
+                    "energy_source_1_transport_1",
+                    "energy_source_1_transport_2",
+                    "energy_source_1_transport_3",
+                    "energy_source_2_transport_1",
+                    "energy_source_2_transport_2",
+                    "energy_source_2_transport_3",
+                    "energy_source_code_2",
+                    "energy_source_code_3",
+                    "energy_source_code_4",
+                    "energy_source_code_5",
+                    "energy_source_code_6",
+                    "energy_storage_capacity_mwh",
+                    "ferc_qualifying_facility",
+                    "fluidized_bed_tech",
+                    "fuel_type_count",
+                    "latitude",
+                    "longitude",
+                    "minimum_load_mw",
+                    "multiple_fuels",
+                    "nameplate_power_factor",
+                    "net_capacity_mwdc",
+                    "operating_switch",
+                    "operational_status_code",
+                    "original_planned_generator_operating_date",
+                    "other_combustion_tech",
+                    "other_modifications_date",
+                    "other_planned_modifications",
+                    "owned_by_non_utility",
+                    "ownership_code",
+                    "planned_derate_date",
+                    "planned_energy_source_code_1",
+                    "planned_modifications",
+                    "planned_net_summer_capacity_derate_mw",
+                    "planned_net_summer_capacity_uprate_mw",
+                    "planned_net_winter_capacity_derate_mw",
+                    "planned_net_winter_capacity_uprate_mw",
+                    "planned_new_capacity_mw",
+                    "planned_new_prime_mover_code",
+                    "planned_repower_date",
+                    "planned_uprate_date",
+                    "previously_canceled",
+                    "pulverized_coal_tech",
+                    "reactive_power_output_mvar",
+                    "rto_iso_lmp_node_id",
+                    "rto_iso_location_wholesale_reporting_id",
+                    "solid_fuel_gasification",
+                    "startup_source_code_1",
+                    "startup_source_code_2",
+                    "startup_source_code_3",
+                    "startup_source_code_4",
+                    "state",
+                    "stoker_tech",
+                    "street_address",
+                    "subcritical_tech",
+                    "summer_capacity_estimate",
+                    "summer_capacity_mw",
+                    "summer_estimated_capability_mw",
+                    "supercritical_tech",
+                    "switch_oil_gas",
+                    "syncronized_transmission_grid",
+                    "time_cold_shutdown_full_load_code",
+                    "timezone",
+                    "topping_bottoming_code",
+                    "turbines_inverters_hydrokinetics",
+                    "turbines_num",
+                    "ultrasupercritical_tech",
+                    "uprate_derate_completed_date",
+                    "uprate_derate_during_year",
+                    "winter_capacity_estimate",
+                    "winter_capacity_mw",
+                    "winter_estimated_capability_mw",
+                    "zip_code",
                 ],
                 "primary_key": [
                     "report_date",

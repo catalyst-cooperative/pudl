@@ -163,7 +163,7 @@ class PudlTabl:
             "out_eia__yearly_plants": "plants_eia860",
             "out_eia__yearly_utilities": "utils_eia860",
             "out_eia__yearly_boilers": "boil_eia860",
-            "out_eia__yearly_generators": "gens_eia860",
+            "_out_eia__yearly_generators": "gens_eia860",
             "_out_eia__plants_utilities": "pu_eia860",
             # eia860 (denormalized, data primarily from EIA-860)
             "out_eia860__yearly_ownership": "own_eia860",
@@ -219,19 +219,19 @@ class PudlTabl:
             # state demand
             "out_ferc714__hourly_predicted_state_demand": "predicted_state_hourly_demand",
             # plant parts
-            "mega_generators_eia": "gens_mega_eia",
-            "plant_parts_eia": "plant_parts_eia",
+            "out_eia__yearly_generators_by_ownership": "gens_mega_eia",
+            "out_eia__yearly_plant_parts": "plant_parts_eia",
         }
 
         table_method_map_any_agg = {
             "out_eia923__AGG_generation_fuel_by_generator_energy_source": "gen_fuel_by_generator_energy_source_eia923",
             "out_eia923__AGG_generation_fuel_by_generator": "gen_fuel_by_generator_eia923",
-            "heat_rate_by_unit_AGG": "hr_by_unit",
-            "heat_rate_by_generator_AGG": "hr_by_gen",
-            "capacity_factor_by_generator_AGG": "capacity_factor",
-            "fuel_cost_by_generator_AGG": "fuel_cost",
-            "mcoe_AGG": "mcoe",
-            "mcoe_generators_AGG": "mcoe_generators",
+            "_out_eia__AGG_heat_rate_by_unit": "hr_by_unit",
+            "_out_eia__AGG_heat_rate_by_generator": "hr_by_gen",
+            "_out_eia__AGG_capacity_factor_by_generator": "capacity_factor",
+            "_out_eia__AGG_fuel_cost_by_generator": "fuel_cost",
+            "_out_eia__AGG_derived_generator_attributes": "mcoe",
+            "out_eia__AGG_generators": "mcoe_generators",
         }
 
         table_method_map_yearly_only = {

@@ -216,7 +216,7 @@ def allocate_gen_fuel_asset_factory(
             "bf": AssetIn(key=f"out_eia923__{agg_freqs[freq]}_boiler_fuel"),
             "gen": AssetIn(key=f"out_eia923__{agg_freqs[freq]}_generation"),
             "bga": AssetIn(key="core_eia860__assn_boiler_generator"),
-            "gens": AssetIn(key="out_eia__yearly_generators"),
+            "gens": AssetIn(key="_out_eia__yearly_generators"),
         },
         io_manager_key=io_manager_key,
         compute_kind="Python",
@@ -287,7 +287,7 @@ def allocate_gen_fuel_asset_factory(
             "net_gen_fuel_alloc": AssetIn(
                 key=f"out_eia923__{agg_freqs[freq]}_generation_fuel_by_generator_energy_source"
             ),
-            "gens": AssetIn(key="out_eia__yearly_generators"),
+            "gens": AssetIn(key="_out_eia__yearly_generators"),
             "own_eia860": AssetIn(key="out_eia860__yearly_ownership"),
         },
         io_manager_key=io_manager_key,
