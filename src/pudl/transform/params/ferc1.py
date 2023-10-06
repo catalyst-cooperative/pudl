@@ -2728,7 +2728,7 @@ TRANSFORM_PARAMS = {
         "reconcile_table_calculations": {
             "column_to_check": "ending_balance",
             "calculation_tolerance": {
-                "bulk_error_rate": 0.08,
+                "bulk_error_frequency": 0.08,
             },
         },
     },
@@ -3718,7 +3718,7 @@ TRANSFORM_PARAMS = {
         "reconcile_table_calculations": {
             "column_to_check": "ending_balance",
             "calculation_tolerance": {
-                "bulk_error_rate": 0.08,
+                "bulk_error_frequency": 0.08,
             },
         },
     },
@@ -3987,7 +3987,7 @@ TRANSFORM_PARAMS = {
             # Note: this table does not currently get exploded. It will require
             # additional debugging at a later date.
             "calculation_tolerance": {
-                "bulk_error_rate": 0.4,
+                "bulk_error_frequency": 0.4,
             },
         },
     },

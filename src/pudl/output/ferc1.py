@@ -22,13 +22,13 @@ logger = pudl.logging_helpers.get_logger(__name__)
 
 EXPLOSION_CALCULATION_TOLERANCES: dict[str, CalculationTolerance] = {
     "income_statement_ferc1": CalculationTolerance(
-        bulk_error_rate=0.20,
+        bulk_error_frequency=0.20,
     ),
     "balance_sheet_assets_ferc1": CalculationTolerance(
-        bulk_error_rate=0.65,
+        bulk_error_frequency=0.65,
     ),
     "balance_sheet_liabilities_ferc1": CalculationTolerance(
-        bulk_error_rate=0.07,
+        bulk_error_frequency=0.07,
     ),
 }
 
@@ -1456,12 +1456,13 @@ class Exploder:
         calculated_df = pudl.transform.ferc1.check_calculation_metrics(
             calculated_df=calculated_df,
             value_col=self.value_col,
-            calculation_tolerance=self.calculation_tolerance.bulk_error_rate,
+            calculation_tolerance=self.calculation_tolerance,
             table_name=self.root_table,
         )
         calculated_df = pudl.transform.ferc1.add_corrections(
             calculated_df=calculated_df,
             value_col=self.value_col,
+            calculation_tolerance=self.calculation_tolerance,
             table_name=self.root_table,
         )
         return calculated_df

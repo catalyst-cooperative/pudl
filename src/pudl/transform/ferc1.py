@@ -13,7 +13,7 @@ import itertools
 import json
 import re
 from collections import namedtuple
-from collections.abc import Mapping
+from collections.abc import Callable, Mapping
 from typing import Any, Literal, Self
 
 import numpy as np
@@ -743,16 +743,53 @@ class CalculationTolerance(TransformParams):
 
     NOTE: It may make sense to consolidate with :class:`ReconcileTableCalculations`
     once the refactoring of the subtotals and the calculation corrections is done.
+
+    NOTE: atol is currently one part in 100 million, could it be much larger? Like
+    one part in 1000? If numbers are off by a 0.1 cents, do we care?
+
+    NOTE: There should probably be some absolute magnitude checks in here. If we have an
+    error of $10 billion but it's less than 1% of the value in a table we probably still
+    want to know about it!
     """
 
-    isclose_rtol: confloat(ge=0.0, le=1e-2) = 1e-5
+    isclose_rtol: confloat(ge=0.0) = 1e-5
     """Relative tolerance to use in :func:`np.isclose` for determining equality."""
 
-    isclose_atol: confloat(ge=0.0) = 1e-8
-    """Absolute tolerance to use in :func:`np.isclose` for determining equality."""
+    isclose_atol: confloat(ge=0.0, le=0.01) = 1e-8
+    """Absolute tolerance to use in :func:`np.isclose` for determining equality.
 
-    bulk_error_rate: confloat(ge=0.0, le=1.0) = 0.05
-    """Fraction of interatble calculations that are allowed to not match exactly."""
+    Since we are comparing financial values, and we want them to be equal only insofar
+    as they would be financially indistinguishable, they should never differ by more
+    than a penny, hence the upper bound of 0.01.
+    """
+
+    bulk_error_frequency: confloat(ge=0.0, le=1.0) = 0.05
+    """Fraction of all calculations that are allowed to not match exactly."""
+
+    bulk_error_relative_magnitude: confloat(ge=0.0) = 0.01
+    """Maximum allowed sum of all errors, relative to the sum of all reported values."""
+
+    bulk_null_calculation_frequency: confloat(ge=0.0, le=1.0) = 0.05
+    """Fraction of records with non-null reported values and null calculated values."""
+
+    bulk_null_reported_value_frequency: confloat(ge=0.0, le=1.0) = 0.50
+    """Fraction of records with non-null reported values and null calculated values."""
+
+    utility_id_ferc1_error_frequency: confloat(ge=0.0, le=1.0) = 0.1
+    utility_id_ferc1_error_relative_magnitude: confloat(ge=0.0) = 0.001
+    utility_id_ferc1_null_calculation_frequency: confloat(ge=0.0, le=1.0) = 0.1
+
+    report_year_error_frequency: confloat(ge=0.0, le=1.0) = 0.1
+    report_year_error_relative_magnitude: confloat(ge=0.0) = 0.001
+    report_year_null_calculation_frequency: confloat(ge=0.0, le=1.0) = 0.1
+
+    xbrl_factoid_error_frequency: confloat(ge=0.0, le=1.0) = 0.1
+    xbrl_factoid_error_relative_magnitude: confloat(ge=0.0) = 0.001
+    xbrl_factoid_null_calculation_frequency: confloat(ge=0.0, le=1.0) = 0.1
+
+    table_name_error_frequency: confloat(ge=0.0, le=1.0) = 0.1
+    table_name_error_relative_magnitude: confloat(ge=0.0) = 0.001
+    table_name_null_calculation_frequency: confloat(ge=0.0, le=1.0) = 0.1
 
 
 class ReconcileTableCalculations(TransformParams):
@@ -878,11 +915,13 @@ def reconcile_table_calculations(
         calculation_tolerance=params.calculation_tolerance,
         table_name=table_name,
     )
-    calculated_df = add_corrections(
-        calculated_df=calculated_df,
-        value_col=params.column_to_check,
-        table_name=table_name,
-    ).rename(columns={"xbrl_factoid": xbrl_factoid_name})
+    # calculated_df = add_corrections(
+    #    calculated_df=calculated_df,
+    #    value_col=params.column_to_check,
+    #    calculation_tolerance=params.calculation_tolerance,
+    #    table_name=table_name,
+    # )
+    # calculated_df = calculated_df.rename(columns={"xbrl_factoid": xbrl_factoid_name})
 
     # Check that sub-total calculations sum to total.
     if params.subtotal_column is not None:
@@ -936,8 +975,8 @@ def calculate_values_from_components(
         data: exploded FERC data to apply the calculations to. Primary key should be
             ``report_year``, ``utility_id_ferc1``, ``table_name``, ``xbrl_factoid``, and
             whatever additional dimensions are relevant to the data.
-        calc_idx: primary key columns that uniquely identify a calculation component (not
-            including the ``_parent`` columns).
+        calc_idx: primary key columns that uniquely identify a calculation component
+            (not including the ``_parent`` columns).
         value_col: label of the column in ``data`` that contains the values to apply the
             calculations to (typically ``dollar_value`` or ``ending_balance``).
     """
@@ -1013,6 +1052,15 @@ def check_calculation_metrics(
             np.nan,
         ),
     )
+    calculated_df["is_error"] = (
+        ~np.isclose(
+            calculated_df["calculated_amount"],
+            calculated_df[value_col],
+            rtol=calculation_tolerance.isclose_rtol,
+            atol=calculation_tolerance.isclose_atol,
+        )
+        & calculated_df["abs_diff"].notnull()
+    )
 
     # DO ERROR CHECKS
     # off_df is pretty specific to the one check that we're doing now, but is also
@@ -1024,10 +1072,8 @@ def check_calculation_metrics(
     # some tolerance (defined here by the np.isclose defaults). Ignore records for
     # which the absolute difference "abs_dfiff" is NA since that indicates one or the
     # other of the calculated or reported values was NA.
-    all_errors = calculated_df[
-        ~np.isclose(calculated_df.calculated_amount, calculated_df[value_col])
-        & (calculated_df["abs_diff"].notnull())
-    ]
+    all_errors = calculated_df[calculated_df["is_error"]]
+
     # Why does it make sense to compare against records where abs_diff is non-null?
     # Why wouldn't we want to look at records where calculated_amount is non-null?
     non_null_calculated_df = calculated_df.dropna(subset="abs_diff")
@@ -1037,14 +1083,14 @@ def check_calculation_metrics(
         logger.warning(
             "Calculated values have no corresponding reported values in this table."
         )
-        bulk_error_rate = np.nan
+        bulk_error_frequency = np.nan
     else:
-        bulk_error_rate = len(all_errors) / len(non_null_calculated_df)
+        bulk_error_frequency = len(all_errors) / len(non_null_calculated_df)
 
-    if bulk_error_rate > calculation_tolerance.bulk_error_rate:
+    if bulk_error_frequency > calculation_tolerance.bulk_error_frequency:
         raise AssertionError(
-            f"Bulk error rate of calculations in {table_name} is {bulk_error_rate:.2%}. "
-            f"Accepted tolerance is {calculation_tolerance.bulk_error_rate:.1%}."
+            f"Bulk error rate of calculations in {table_name} is {bulk_error_frequency:.2%}. "
+            f"Accepted tolerance is {calculation_tolerance.bulk_error_frequency:.1%}."
         )
 
     # Given a particular set of groupby() columns, calculate the fraction of records in
@@ -1053,9 +1099,131 @@ def check_calculation_metrics(
     return calculated_df
 
 
+########################################################################################
+# Calculation Error Checking Functions
+# - These functions all take a dataframe and return a float.
+# - They are intended to be used in GroupBy.apply() (or on a whole dataframe).
+# - They require a uniform `reported_value` column so that they can all have the same
+#   call signature, which allows us to iterate over all of them in a matrix.
+########################################################################################
+def _is_valid_error_df(df: pd.DataFrame) -> bool:
+    """Helper function that verifies a dataframe is ready for error checking."""
+    required_cols = [
+        "is_error",
+        "reported_value",
+        "calculated_amount",
+        "abs_diff",
+    ]
+    return all(col in df.columns for col in required_cols)
+
+
+def error_frequency(df: pd.DataFrame) -> float:
+    """Calculate the frequency with which records are tagged as errors."""
+    try:
+        return df[df.is_error].shape[0] / df.shape[0]
+    except ZeroDivisionError:
+        # Will only occur if all reported values are NaN when calculated values
+        # exist, or vice versa.
+        logger.warning(
+            "Calculated values have no corresponding reported values in this table."
+        )
+        return np.nan
+
+
+def error_relative_magnitude(df: pd.DataFrame) -> float:
+    """Calculate the mangnitude of the errors relative to the reported value."""
+    try:
+        # Should we be taking the absolute value of the reported column?
+        return (
+            df[df.is_error].abs_diff.sum()
+            / df[df.is_error]["reported_value"].abs().sum()
+        )
+    except ZeroDivisionError:
+        return np.nan
+
+
+def error_absolute_magnitude(df: pd.DataFrame) -> float:
+    """Calculate the absolute magnitude of the errors in aggregate."""
+    return df.abs_diff.sum()
+
+
+def null_calculation_frequency(df: pd.DataFrame) -> float:
+    """Frequency with which calculated values are null when reported values are not."""
+    non_null_reported = df["reported_value"].notnull()
+    logger.info(f"{non_null_reported.sum()=}")
+    null_calculated = df["calculated_amount"].isnull()
+    logger.info(f"{null_calculated.sum()=}")
+    return (non_null_reported & null_calculated).sum() / non_null_reported.sum()
+
+
+def null_reported_value_frequency(df: pd.DataFrame) -> float:
+    """Frequency with which the reported values are Null."""
+    return df["reported_value"].isnull().sum() / df.shape[0]
+
+
+def aggregate_errors(
+    df: pd.DataFrame, gb_col: str | None, metric: Callable[[pd.DataFrame], float]
+) -> pd.Series:
+    """Calculate aggregate error metrics for a dataframe or record groups within it.
+
+    Args:
+        df: The dataframe to calculate the error metric from.
+        gb_col: The column to group by, if calculating errors by group, e.g.
+            ``report_year``. If None, calculate the error metric for full dataframe.
+        metric: The function that calculates the error metric. Takes a dataframe and
+            returns a scalar (float).
+
+    Returns:
+        A Series. If gb_col is not None and it is not in the columns of the input
+        dataframe, an empty series is returned.
+    """
+    if gb_col is None:
+        return pd.Series(metric(df))
+    if gb_col in df.columns:
+        return df.groupby(gb_col).apply(metric)
+    return pd.Series()
+
+
+def aggregate_error_matrix(
+    df: pd.DataFrame,
+    metrics: list[Callable[[pd.DataFrame], float]],
+    gb_cols: list[str | None],
+) -> dict[str, dict[str, pd.Series]]:
+    """Calculate a suite of error metrics on various data groupings."""
+    assert _is_valid_error_df(df)
+    if metrics is None:
+        metrics = [
+            error_frequency,
+            error_relative_magnitude,
+            error_absolute_magnitude,
+            null_calculation_frequency,
+            null_reported_value_frequency,
+            # Still need to write these
+            # duplicate_value_frequency,
+            # off_by_one_dollar_frequency,
+        ]
+    if gb_cols is None:
+        gb_cols = [
+            None,
+            "report_year",
+            "utility_id_ferc1",
+            "table_name",
+            "xbrl_factoid",
+        ]
+    agg_errors = {}
+    for metric in metrics:
+        agg_errors[metric.__name__] = {}
+        logger.info(f"Calculating {metric.__name__} by:")
+        for gb_col in gb_cols:
+            logger.info(f"    {gb_col}")
+            agg_errors[metric.__name__][gb_col] = aggregate_errors(df, gb_col, metric)
+    return agg_errors
+
+
 def add_corrections(
     calculated_df: pd.DataFrame,
     value_col: str,
+    calculation_tolerance: CalculationTolerance,
     table_name: str,
 ) -> pd.DataFrame:
     """Add corrections to discrepancies between reported & calculated values.
@@ -1066,31 +1234,41 @@ def add_corrections(
     ``_correction`` factoids that are added here have already been added to the
     calculation components during the metadata processing.
 
-    TODO: Pass in :class:`CalculationTolerance` and use rtol & atol in np.isclose().
-
     Args:
         calculated_df: DataFrame containing the data to correct. Must already have
             ``abs_diff`` column that was added by :func:`check_calculation_metrics`
         value_col: Label of the column whose values are being calculated.
+        calculation_tolerance: Data structure containing various calculation tolerances.
         table_name: Name of the table whose data we are working with. For logging.
     """
     corrections = calculated_df[
-        ~np.isclose(calculated_df["calculated_amount"], calculated_df[value_col])
+        ~np.isclose(
+            calculated_df["calculated_amount"],
+            calculated_df[value_col],
+            rtol=calculation_tolerance.isclose_rtol,
+            atol=calculation_tolerance.isclose_atol,
+        )
         & (calculated_df["abs_diff"].notnull())
     ]
-    logger.info(f"{len(corrections)=}")
 
+    corrections[value_col] = (
+        corrections[value_col].fillna(0.0) - corrections["calculated_amount"]
+    )
     corrections = corrections.assign(
-        value_col=lambda x: x[value_col].fillna(0.0) - x["calculated_amount"],
-        original_factoid=lambda x: x["xbrl_factoid"],
+        xbrl_factoid_corrected=lambda x: x["xbrl_factoid"],
         xbrl_factoid=lambda x: x["xbrl_factoid"] + "_correction",
         row_type_xbrl="correction",
         is_within_table_calc=False,
         record_id=pd.NA,
     )
+    num_notnull_calcs = sum(calculated_df["abs_diff"].notnull())
+    num_corrections = corrections.shape[0]
+    num_records = calculated_df.shape[0]
+    corrected_fraction = num_corrections / num_notnull_calcs
     logger.info(
-        f"{table_name}: adding {len(corrections)} corrections to "
-        f"{len(calculated_df)} original records."
+        f"{table_name}: Correcting {corrected_fraction:.2%} of all non-null reported "
+        f"values ({num_corrections}/{num_notnull_calcs}) out of a total of "
+        f"{num_records} original records."
     )
 
     return pd.concat([calculated_df, corrections], axis="index").reset_index()
