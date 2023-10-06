@@ -5790,7 +5790,6 @@ def calculation_components_xbrl_ferc1(**kwargs) -> pd.DataFrame:
     )
 
     child_cols = ["table_name", "xbrl_factoid"]
-    [f"{col}_parent" for col in child_cols]
     calc_cols = child_cols + dimensions
     calc_and_parent_cols = calc_cols + [f"{col}_parent" for col in calc_cols]
 
