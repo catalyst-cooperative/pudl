@@ -915,13 +915,13 @@ def reconcile_table_calculations(
         calculation_tolerance=params.calculation_tolerance,
         table_name=table_name,
     )
-    # calculated_df = add_corrections(
-    #    calculated_df=calculated_df,
-    #    value_col=params.column_to_check,
-    #    calculation_tolerance=params.calculation_tolerance,
-    #    table_name=table_name,
-    # )
-    # calculated_df = calculated_df.rename(columns={"xbrl_factoid": xbrl_factoid_name})
+    calculated_df = add_corrections(
+        calculated_df=calculated_df,
+        value_col=params.column_to_check,
+        calculation_tolerance=params.calculation_tolerance,
+        table_name=table_name,
+    )
+    calculated_df = calculated_df.rename(columns={"xbrl_factoid": xbrl_factoid_name})
 
     # Check that sub-total calculations sum to total.
     if params.subtotal_column is not None:
@@ -1061,6 +1061,8 @@ def check_calculation_metrics(
         )
         & calculated_df["abs_diff"].notnull()
     )
+    # Uniformity here helps keep the error checking functions simpler:
+    calculated_df["reported_value"] = calculated_df[value_col]
 
     # DO ERROR CHECKS
     # off_df is pretty specific to the one check that we're doing now, but is also
