@@ -5826,7 +5826,6 @@ def calculation_components_xbrl_ferc1(**kwargs) -> pd.DataFrame:
         idx_table=calc_cols,
         how="not_in",
     )
-    logger.info(missing_calcs)
     # ensure that none of the calculation components that are missing from the metadata
     # table are from any of the exploded tables.
     if not missing_calcs.empty:
@@ -5846,7 +5845,6 @@ def calculation_components_xbrl_ferc1(**kwargs) -> pd.DataFrame:
 
         if not actually_missing_kids.empty:
             raise AssertionError(
-                # logger.warning(
                 f"Found missing calculations from the exploded tables:\n{actually_missing_kids=}"
             )
 
