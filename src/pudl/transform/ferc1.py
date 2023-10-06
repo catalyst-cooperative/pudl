@@ -5790,49 +5790,66 @@ def calculation_components_xbrl_ferc1(**kwargs) -> pd.DataFrame:
     )
 
     child_cols = ["table_name", "xbrl_factoid"]
-    parent_cols = [f"{col}_parent" for col in child_cols]
+    [f"{col}_parent" for col in child_cols]
     calc_cols = child_cols + dimensions
     calc_and_parent_cols = calc_cols + [f"{col}_parent" for col in calc_cols]
-
-    # Drop any calc components that aren't in the actual processed tables.
-    for set_of_cols in [child_cols, parent_cols]:
-        calc_components_not_observed = (
-            calc_components[calc_components.table_name.isin(FERC1_TFR_CLASSES.keys())]
-            .set_index(set_of_cols)
-            .index.difference(table_dimensions_ferc1.set_index(child_cols).index)
-        )
-        calc_components_to_drop = (
-            calc_components.set_index(set_of_cols)
-            .loc[calc_components_not_observed]
-            .reset_index()
-        )
-        merge = calc_components.merge(
-            calc_components_to_drop, how="left", indicator=True
-        )
-        calc_components = merge.query('_merge == "left_only"').drop(columns=["_merge"])
-        logger.warning(
-            f"Dropped {len(merge)-len(calc_components)} calculation components that were not observed in the transformed tables: {calc_components_to_drop[set_of_cols]}"
-        )
 
     # Defensive testing on this table!
     assert calc_components[["table_name", "xbrl_factoid"]].notnull().all(axis=1).all()
 
-    # Let's check that all calculated components that show up in our raw data are
+    # Let's check that all calculated components that show up in our data are
     # getting calculated.
-    missing_from_calcs_idx = (
-        calc_components[calc_components.table_name.isin(FERC1_TFR_CLASSES.keys())]
-        .set_index(calc_cols)
-        .index.difference(metadata_xbrl_ferc1.set_index(calc_cols).index)
+    def check_calcs_vs_table(
+        calcs: pd.DataFrame,
+        checked_table: pd.DataFrame,
+        idx_calcs: list[str],
+        idx_table: list[str],
+        how: Literal["in", "not_in"],
+    ) -> pd.DataFrame:
+        if how == "in":
+            idx = calcs.set_index(idx_calcs).index.intersection(
+                checked_table.set_index(idx_table).index
+            )
+        elif how == "not_in":
+            idx = calcs.set_index(idx_calcs).index.difference(
+                checked_table.set_index(idx_table).index
+            )
+        calcs_vs_table = calcs.set_index(idx_calcs).loc[idx]
+        return calcs_vs_table.reset_index()
+
+    missing_calcs = check_calcs_vs_table(
+        calcs=calc_components[
+            calc_components.table_name.isin(FERC1_TFR_CLASSES.keys())
+        ],
+        checked_table=metadata_xbrl_ferc1,
+        idx_calcs=calc_cols,
+        idx_table=calc_cols,
+        how="not_in",
     )
+    logger.info(missing_calcs)
     # ensure that none of the calculation components that are missing from the metadata
     # table are from any of the exploded tables.
-    missing_calcs = calc_components.set_index(calc_cols).loc[missing_from_calcs_idx]
-
     if not missing_calcs.empty:
-        raise AssertionError(
-            # logger.warning(
-            f"Found missing calculations from the exploded tables:\n{missing_calcs=}"
+        logger.warning("Missing calculations found in calculation components table.")
+        # Ignore any 'missing' calc components that aren't in the actual transformed tables.
+        actually_missing_kids = check_calcs_vs_table(
+            calcs=missing_calcs,
+            checked_table=table_dimensions_ferc1,
+            idx_calcs=child_cols,
+            idx_table=child_cols,
+            how="in",
         )
+
+        logger.warning(
+            f"{len(actually_missing_kids)} of {len(missing_calcs)} missing calculation components observed in transformed FERC1 data."
+        )
+
+        if not actually_missing_kids.empty:
+            raise AssertionError(
+                # logger.warning(
+                f"Found missing calculations from the exploded tables:\n{actually_missing_kids=}"
+            )
+
     check_for_calc_components_duplicates(
         calc_components,
         table_names_known_dupes=["electricity_sales_by_rate_schedule_ferc1"],
