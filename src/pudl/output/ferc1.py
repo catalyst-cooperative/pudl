@@ -2375,5 +2375,8 @@ def nodes_to_df(calc_forest: nx.DiGraph, nodes: list[NodeId]) -> pd.DataFrame:
     }
     index = pd.DataFrame(node_dict.keys()).astype("string")
     data = pd.DataFrame(node_dict.values())
-    tags = pd.json_normalize(data.tags).astype("string")
+    try:
+        tags = pd.json_normalize(data.tags).astype("string")
+    except AttributeError:
+        tags = pd.DataFrame()
     return pd.concat([index, tags], axis="columns")
