@@ -1002,10 +1002,28 @@ class NodeId(NamedTuple):
 @asset
 def _out_ferc1__explosion_tags(table_dimensions_ferc1) -> pd.DataFrame:
     """Grab the stored table of tags and add infered dimension."""
-    # NOTE: there are a bunch of duplicate records in xbrl_factoid_rate_base_tags.csv
-    # Also, these tags are only applicable to the balance_sheet_assets_ferc1 table, but
+    # Also, these tags may not be applicable to all exploded tables, but
     # we need to pass in a dataframe with the right structure to all of the exploders,
     # so we're just re-using this one for the moment.
+    rate_base_tags = _rate_base_tags(table_dimensions_ferc1=table_dimensions_ferc1)
+    plant_status_tags = _aggregatable_dimension_tags(
+        table_dimensions_ferc1=table_dimensions_ferc1, dimension="plant_status"
+    )
+    plant_function_tags = _aggregatable_dimension_tags(
+        table_dimensions_ferc1=table_dimensions_ferc1, dimension="plant_function"
+    )
+    # We shouldn't have more than one row per tag, so we use a 1:1 validation here.
+    plant_tags = plant_status_tags.merge(
+        plant_function_tags, how="outer", on=list(NodeId._fields), validate="1:1"
+    )
+    tags_df = pd.merge(
+        rate_base_tags, plant_tags, on=list(NodeId._fields), how="outer"
+    ).astype(pd.StringDtype())
+    return tags_df
+
+
+def _rate_base_tags(table_dimensions_ferc1: pd.DataFrame) -> pd.DataFrame:
+    # NOTE: there are a bunch of duplicate records in xbrl_factoid_rate_base_tags.csv
     tags_csv = (
         importlib.resources.files("pudl.package_data.ferc1")
         / "xbrl_factoid_rate_base_tags.csv"
@@ -1023,20 +1041,20 @@ def _out_ferc1__explosion_tags(table_dimensions_ferc1) -> pd.DataFrame:
             dimensions=["utility_type", "plant_function", "plant_status"],
         )
     )
-    plant_status_tags = _plant_status_tags(table_dimensions_ferc1)
-    tags_df = pd.merge(
-        tags_df, plant_status_tags, on=list(NodeId._fields), how="outer"
-    ).astype(pd.StringDtype())
     return tags_df
 
 
-def _plant_status_tags(table_dimensions_ferc1):
-    # make a new lil csv w the manually compiled plant_statuses
+def _aggregatable_dimension_tags(
+    table_dimensions_ferc1: pd.DataFrame,
+    dimension: Literal["plant_status", "plant_function"],
+) -> pd.DataFrame:
+    # make a new lil csv w the manually compiled plant status or dimension
     # add in the rest from the table_dims
     # merge it into _out_ferc1__explosion_tags
+    aggregatable_col = f"aggregatable_{dimension}"
     tags_csv = (
         importlib.resources.files("pudl.package_data.ferc1")
-        / "xbrl_factoid_plant_status_tags.csv"
+        / f"xbrl_factoid_{dimension}_tags.csv"
     )
     dimensions = ["utility_type", "plant_function", "plant_status"]
     idx = list(NodeId._fields)
@@ -1060,10 +1078,8 @@ def _plant_status_tags(table_dimensions_ferc1):
             ],
         ]
     ).reset_index()
-    tags_df.aggregatable_plant_status = tags_df.aggregatable_plant_status.fillna(
-        tags_df.plant_status
-    )
-    return tags_df[tags_df.aggregatable_plant_status != "total"]
+    tags_df[aggregatable_col] = tags_df[aggregatable_col].fillna(tags_df[dimension])
+    return tags_df[tags_df[aggregatable_col] != "total"]
 
 
 def exploded_table_asset_factory(
