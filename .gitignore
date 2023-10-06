@@ -29,6 +29,7 @@ devtools/user-environment.yml
 commit.txt
 devtools/profiles/
 notebooks/*.pkl.gz
+notebooks/*.tgz
 **/.~lock*#
 **/*~
 

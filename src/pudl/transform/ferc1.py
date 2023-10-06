@@ -753,6 +753,7 @@ def reconcile_table_calculations(
     xbrl_factoid_name: str,
     table_name: str,
     params: ReconcileTableCalculations,
+    add_corrections: bool = True,
 ) -> pd.DataFrame:
     """Ensure intra-table calculated values match reported values within a tolerance.
 
@@ -774,6 +775,8 @@ def reconcile_table_calculations(
         xbrl_factoid_name: column name of the XBRL factoid in the processed table.
         table_name: name of the PUDL table.
         params: :class:`ReconcileTableCalculations` parameters.
+        add_corrections: Whether or not to create _correction records that force all
+            calculations to add up correctly.
     """
     # If we don't have this value, we aren't doing any calculation checking:
     if params.column_to_check is None or calculation_components.empty:
@@ -850,7 +853,7 @@ def reconcile_table_calculations(
         value_col=params.column_to_check,
         calculation_tolerance=params.calculation_tolerance,
         table_name=table_name,
-        add_corrections=True,
+        add_corrections=add_corrections,
     ).rename(columns={"xbrl_factoid": xbrl_factoid_name})
 
     # Check that sub-total calculations sum to total.
@@ -967,7 +970,7 @@ def check_calculation_metrics(
     value_col: str,
     calculation_tolerance: float,
     table_name: str,
-    add_corrections: bool,
+    add_corrections: bool = True,
 ) -> pd.DataFrame:
     """Run the calculation metrics and determine if calculations are within tolerance."""
     # Data types were very messy here, including pandas Float64 for the
@@ -1006,7 +1009,7 @@ def check_calculation_metrics(
             )
 
     # We'll only get here if the proportion of calculations that are off is acceptable
-    if off_ratio > 0 or np.isnan(off_ratio) and add_corrections:
+    if (off_ratio > 0 or np.isnan(off_ratio)) and add_corrections:
         logger.info(
             f"{table_name}: has {len(off_df)} ({off_ratio:.02%}) records whose "
             "calculations don't match. Adding correction records to make calculations "
@@ -2393,6 +2396,7 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
                 xbrl_metadata=self.xbrl_metadata,
                 table_name=self.table_id.value,
                 params=params,
+                add_corrections=True,
             )
         return df
 

@@ -55,7 +55,7 @@ def test_no_null_cols_eia(pudl_out_eia, live_dbs, cols, df_name):
         ("own_eia860", 89_687, 89_687, 89_687),
         ("plants_eia860", 200_177, 200_177, 200_177),
         ("pu_eia860", 199_332, 199_332, 199_332),
-        ("utils_eia860", 125_280, 125_280, 125_280),
+        ("utils_eia860", 139_715, 139_715, 139_715),
         ("emissions_control_equipment_eia860", 56_612, 56_612, 56_612),
         ("denorm_emissions_control_equipment_eia860", 56_612, 56_612, 56_612),
         ("boiler_emissions_control_equipment_assn_eia860", 77_707, 77_707, 77_707),

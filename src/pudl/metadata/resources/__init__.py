@@ -17,7 +17,7 @@ FOREIGN_KEYS: dict[str, list[dict]] = build_foreign_keys(RESOURCE_METADATA)
 See :func:`pudl.metadata.helpers.build_foreign_keys`.
 """
 
-ENTITIES: dict[str, dict[str, list[str]]] = {
+ENTITIES: dict[str, dict[str, list[str] | dict[str, str]]] = {
     "plants": {
         "id_cols": ["plant_id_eia"],
         "static_cols": [
@@ -70,6 +70,9 @@ ENTITIES: dict[str, dict[str, list[str]]] = {
             "utility_id_eia",
             "water_source",
             "data_maturity",
+        ],
+        "mapped_schemas": [
+            {"operator_utility_id_eia": "utility_id_eia"},
         ],
     },
     "generators": {
@@ -161,6 +164,9 @@ ENTITIES: dict[str, dict[str, list[str]]] = {
             "data_maturity",
             "energy_storage_capacity_mwh",
             "net_capacity_mwdc",
+        ],
+        "mapped_schemas": [
+            {"operator_utility_id_eia": "utility_id_eia"},
         ],
     },
     "boilers": {
@@ -288,12 +294,39 @@ ENTITIES: dict[str, dict[str, list[str]]] = {
             "phone_number_2",
             "data_maturity",
         ],
+        "mapped_schemas": [
+            {
+                "owner_utility_id_eia": "utility_id_eia",
+                "owner_utility_name_eia": "utility_name_eia",
+                "owner_state": "state",
+                "owner_country": "country",
+                "owner_street_address": "street_address",
+                "owner_zip_code": "zip_code",
+                "owner_city": "city",
+            },
+            {
+                "operator_utility_id_eia": "utility_id_eia",
+                "operator_utility_name_eia": "utility_name_eia",
+                "operator_state": "state",
+            },
+        ],
     },
 }
 """Columns kept for either entity or annual EIA tables in the harvesting process.
 
-For each entity type (key), the ID columns, static columns, and annual columns,
+For each entity type (key), the ID columns, static columns, annual columns, and mapped
+columns.
 
 The order of the entities matters. Plants must be harvested before utilities, since
 plant location must be removed before the utility locations are harvested.
+
+``mapped_schemas`` allows for harvesting an entity ID / value relationship
+from multiple columns in the same input dataframe. Each item in ``mapped_schemas`` is a
+dictionary mapping column names in one of the cleaned tables to the standard column names
+for that entity.  This is useful if a table has entities that should be harvested,
+but whose column names don't have the same name as those in the ``id_cols``, ``static_cols``,
+or ``annual_cols`` list. For example, in the ownership table the owner and operator utility
+columns map to different column names in the other tables, i.e. "owner_utility_id_eia": "utility_id_eia".
+In the harvesting process, a copy of the clean dataframe is made, and these columns are
+renamed so the relationship can be harvested and added to the normalized entity tables.
 """

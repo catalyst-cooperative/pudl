@@ -44,7 +44,7 @@ EXPLOSION_CALCULATION_TOLERANCES: dict[str, CalculationToleranceFerc1] = {
         intertable_calculation_errors=0.20,
     ),
     "balance_sheet_assets_ferc1": CalculationToleranceFerc1(
-        intertable_calculation_errors=0.85,
+        intertable_calculation_errors=0.65,
     ),
     "balance_sheet_liabilities_ferc1": CalculationToleranceFerc1(
         intertable_calculation_errors=0.07,
@@ -1056,7 +1056,6 @@ def create_exploded_table_assets() -> list[AssetsDefinition]:
             "root_table": "balance_sheet_assets_ferc1",
             "table_names_to_explode": [
                 "balance_sheet_assets_ferc1",
-                "balance_sheet_assets_ferc1",
                 "utility_plant_summary_ferc1",
                 "plant_in_service_ferc1",
                 "electric_plant_depreciation_functional_ferc1",
@@ -1077,7 +1076,6 @@ def create_exploded_table_assets() -> list[AssetsDefinition]:
         {
             "root_table": "balance_sheet_liabilities_ferc1",
             "table_names_to_explode": [
-                "balance_sheet_liabilities_ferc1",
                 "balance_sheet_liabilities_ferc1",
                 "retained_earnings_ferc1",
             ],
@@ -1579,21 +1577,6 @@ class XbrlCalculationForestFerc1(BaseModel):
         # Drop all duplicates with null weights -- this is a temporary fix to an issue
         # from upstream.
         assert not v.duplicated(subset=pks, keep=False).any()
-        return v
-
-    @validator("exploded_calcs")
-    def single_valued_weights(cls, v: pd.DataFrame, values) -> pd.DataFrame:
-        """Ensure that every calculation component has a uniquely specified weight."""
-        multi_valued_weights = (
-            v.groupby(values["calc_cols"], dropna=False)["weight"]
-            .transform("nunique")
-            .gt(1)
-        )
-        if multi_valued_weights.any():
-            logger.warning(
-                f"Found {sum(multi_valued_weights)} calculations with conflicting "
-                "weights."
-            )
         return v
 
     @validator("exploded_calcs")
