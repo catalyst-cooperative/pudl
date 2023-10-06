@@ -1131,13 +1131,10 @@ def error_frequency(df: pd.DataFrame) -> float:
 
 
 def error_relative_magnitude(df: pd.DataFrame) -> float:
-    """Calculate the mangnitude of the errors relative to the reported value."""
+    """Calculate the mangnitude of the errors relative to total reported value."""
     try:
         # Should we be taking the absolute value of the reported column?
-        return (
-            df[df.is_error].abs_diff.sum()
-            / df[df.is_error]["reported_value"].abs().sum()
-        )
+        return df[df.is_error].abs_diff.sum() / df["reported_value"].abs().sum()
     except ZeroDivisionError:
         return np.nan
 
@@ -1150,9 +1147,7 @@ def error_absolute_magnitude(df: pd.DataFrame) -> float:
 def null_calculation_frequency(df: pd.DataFrame) -> float:
     """Frequency with which calculated values are null when reported values are not."""
     non_null_reported = df["reported_value"].notnull()
-    logger.info(f"{non_null_reported.sum()=}")
     null_calculated = df["calculated_amount"].isnull()
-    logger.info(f"{null_calculated.sum()=}")
     return (non_null_reported & null_calculated).sum() / non_null_reported.sum()
 
 
@@ -1162,13 +1157,13 @@ def null_reported_value_frequency(df: pd.DataFrame) -> float:
 
 
 def aggregate_errors(
-    df: pd.DataFrame, gb_col: str | None, metric: Callable[[pd.DataFrame], float]
+    df: pd.DataFrame, by: str | None, metric: Callable[[pd.DataFrame], float]
 ) -> pd.Series:
     """Calculate aggregate error metrics for a dataframe or record groups within it.
 
     Args:
         df: The dataframe to calculate the error metric from.
-        gb_col: The column to group by, if calculating errors by group, e.g.
+        by: The column to group by, if calculating errors by group, e.g.
             ``report_year``. If None, calculate the error metric for full dataframe.
         metric: The function that calculates the error metric. Takes a dataframe and
             returns a scalar (float).
@@ -1177,17 +1172,17 @@ def aggregate_errors(
         A Series. If gb_col is not None and it is not in the columns of the input
         dataframe, an empty series is returned.
     """
-    if gb_col is None:
+    if by is None:
         return pd.Series(metric(df))
-    if gb_col in df.columns:
-        return df.groupby(gb_col).apply(metric)
+    if by in df.columns:
+        return df.groupby(by=by).apply(metric)
     return pd.Series()
 
 
 def aggregate_error_matrix(
     df: pd.DataFrame,
-    metrics: list[Callable[[pd.DataFrame], float]],
-    gb_cols: list[str | None],
+    metrics: list[Callable[[pd.DataFrame], float]] | None = None,
+    by_cols: list[str | None] | None = None,
 ) -> dict[str, dict[str, pd.Series]]:
     """Calculate a suite of error metrics on various data groupings."""
     assert _is_valid_error_df(df)
@@ -1202,8 +1197,8 @@ def aggregate_error_matrix(
             # duplicate_value_frequency,
             # off_by_one_dollar_frequency,
         ]
-    if gb_cols is None:
-        gb_cols = [
+    if by_cols is None:
+        by_cols = [
             None,
             "report_year",
             "utility_id_ferc1",
@@ -1214,9 +1209,9 @@ def aggregate_error_matrix(
     for metric in metrics:
         agg_errors[metric.__name__] = {}
         logger.info(f"Calculating {metric.__name__} by:")
-        for gb_col in gb_cols:
-            logger.info(f"    {gb_col}")
-            agg_errors[metric.__name__][gb_col] = aggregate_errors(df, gb_col, metric)
+        for by in by_cols:
+            logger.info(f"    {by}")
+            agg_errors[metric.__name__][by] = aggregate_errors(df, by, metric)
     return agg_errors
 
 
