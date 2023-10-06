@@ -158,6 +158,8 @@ class ZenodoDoiSettings(BaseSettings):
     # Sandbox DOIs are provided for reference
     censusdp1tract: ZenodoDoi = "10.5281/zenodo.4127049"
     # censusdp1tract: ZenodoDoi = "10.5072/zenodo.674992"
+    eia176: ZenodoDoi = "10.5281/zenodo.7682358"
+    # eia176: ZenodoDoi - "10.5072/zenodo.1166385"
     eia860: ZenodoDoi = "10.5281/zenodo.8164776"
     # eia860: ZenodoDoi = "10.5072/zenodo.1222854"
     eia860m: ZenodoDoi = "10.5281/zenodo.8188017"
