@@ -1805,8 +1805,8 @@ class XbrlCalculationForestFerc1(BaseModel):
         nodes = annotated_forest.nodes
         for ancestor in nodes:
             for descendant in nx.descendants(annotated_forest, ancestor):
-                for tag in nodes[ancestor].get("tags", []):
-                    if tag in nodes[descendant].get("tags", []):
+                for tag in nodes[ancestor]["tags"].get("tags", {}):
+                    if tag in nodes[descendant].get("tags", {}):
                         ancestor_tag_value = nodes[ancestor]["tags"][tag]
                         descendant_tag_value = nodes[descendant]["tags"][tag]
                         if ancestor_tag_value != descendant_tag_value:
@@ -2082,7 +2082,7 @@ class XbrlCalculationForestFerc1(BaseModel):
             leaf_tags = {}
             ancestors = list(nx.ancestors(self.annotated_forest, leaf)) + [leaf]
             for node in ancestors:
-                leaf_tags |= self.annotated_forest.nodes[node].get("tags", [])
+                leaf_tags |= self.annotated_forest.nodes[node].get("tags", {})
             # Calculate the product of all edge weights in path from root to leaf
             all_paths = list(
                 nx.all_simple_paths(self.annotated_forest, leaf_to_root_map[leaf], leaf)
