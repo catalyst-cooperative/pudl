@@ -1844,7 +1844,7 @@ class XbrlCalculationForestFerc1(BaseModel):
         ]
         if not lefties.empty:
             logger.warning(
-                "Found {len(lefties)} tags that only exist in our manually compiled "
+                f"Found {len(lefties)} tags that only exist in our manually compiled "
                 "tags when expected none. Ensure the compiled tags match the metadata."
                 f"Mismatched tags:\n{lefties}"
             )
