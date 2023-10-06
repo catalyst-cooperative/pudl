@@ -1400,6 +1400,48 @@ class Exploder:
                     exploded_metadata.xbrl_factoid == factoid, column
                 ] = value
 
+        def handle_electric_plant_depreciation(
+            dbf_row_metadata: pd.DataFrame, exploded_metadata: pd.DataFrame
+        ) -> pd.DataFrame:
+            """Handle a special case where the DBF factoids correspond to plant function in PUDL data."""
+            dbf_epd = (
+                dbf_row_metadata.loc[
+                    dbf_row_metadata.table_name
+                    == "electric_plant_depreciation_functional_ferc1"
+                ]
+                .rename(columns={"xbrl_factoid": "plant_function"})
+                .assign(xbrl_factoid="accumulated_depreciation")
+            )
+            meta_epd = exploded_metadata[
+                exploded_metadata.table_name
+                == "electric_plant_depreciation_functional_ferc1"
+            ].drop(columns=[col for col in exploded_metadata.columns if "dbf" in col])
+            meta_epd = meta_epd.merge(
+                dbf_epd,
+                how="left",
+                on=["table_name", "xbrl_factoid", "plant_function"],
+                validate="many_to_one",
+            )
+            exploded_metadata = pd.concat(
+                [
+                    exploded_metadata.loc[
+                        exploded_metadata.table_name
+                        != "electric_plant_depreciation_functional_ferc1"
+                    ],
+                    meta_epd,
+                ]
+            )
+            return exploded_metadata
+
+        # Handle special case where factoids were reassigned to plant function.
+        if "electric_plant_depreciation_functional_ferc1" in self.table_names:
+            logger.info(
+                "Add DBF metadata for electric_plant_depreciation_functional_ferc1."
+            )
+            exploded_metadata = handle_electric_plant_depreciation(
+                dbf_row_metadata, exploded_metadata
+            )
+
         return exploded_metadata
 
     @cached_property
@@ -1782,23 +1824,35 @@ class XbrlCalculationForestFerc1(BaseModel):
                     clean_tags_dict.keys(), names=self.calc_cols
                 ),
                 data={"tags": list(clean_tags_dict.values())},
-            )
-            .reset_index()
+            ).reset_index()
             # Type conversion is necessary to get pd.NA in the index:
             .astype({col: pd.StringDtype() for col in self.calc_cols})
             # We need a dictionary for *all* nodes, not just those with tags.
             .merge(
                 self.exploded_meta.loc[:, self.calc_cols],
-                how="right",
+                how="left",
                 on=self.calc_cols,
                 validate="one_to_many",
+                indicator=True,
             )
             # For nodes with no tags, we assign an empty dictionary:
             .assign(tags=lambda x: np.where(x["tags"].isna(), {}, x["tags"]))
+        )
+        lefties = node_attrs[
+            (node_attrs._merge == "left_only")
+            & (node_attrs.table_name.isin(self.table_names))
+        ]
+        if not lefties.empty:
+            logger.warning(
+                "Found {len(lefties)} tags that only exist in our manually compiled "
+                "tags when expected none. Ensure the compiled tags match the metadata."
+                f"Mismatched tags:\n{lefties}"
+            )
+        return (
+            node_attrs.drop(columns=["_merge"])
             .set_index(self.calc_cols)
             .to_dict(orient="index")
         )
-        return node_attrs
 
     @cached_property
     def edge_attrs(self: Self) -> dict[Any, Any]:
@@ -1881,8 +1935,8 @@ class XbrlCalculationForestFerc1(BaseModel):
         nodes = annotated_forest.nodes
         for ancestor in nodes:
             for descendant in nx.descendants(annotated_forest, ancestor):
-                for tag in nodes[ancestor]["tags"]:
-                    if tag in nodes[descendant]["tags"]:
+                for tag in nodes[ancestor].get("tags", {}):
+                    if tag in nodes[descendant].get("tags", {}):
                         ancestor_tag_value = nodes[ancestor]["tags"][tag]
                         descendant_tag_value = nodes[descendant]["tags"][tag]
                         if ancestor_tag_value != descendant_tag_value:
@@ -2158,7 +2212,7 @@ class XbrlCalculationForestFerc1(BaseModel):
             leaf_tags = {}
             ancestors = list(nx.ancestors(self.annotated_forest, leaf)) + [leaf]
             for node in ancestors:
-                leaf_tags |= self.annotated_forest.nodes[node]["tags"]
+                leaf_tags |= self.annotated_forest.nodes[node].get("tags", {})
             # Calculate the product of all edge weights in path from root to leaf
             all_paths = list(
                 nx.all_simple_paths(self.annotated_forest, leaf_to_root_map[leaf], leaf)
