@@ -17,7 +17,7 @@ dependencies = [
     "boto3>=1.28.55",
     "bottleneck>=1.3.4",  # pandas[performance]
     "catalystcoop.dbfread>=3.0,<3.1",
-    "catalystcoop.ferc-xbrl-extractor>=1.1.1,<1.2",
+    "catalystcoop.ferc-xbrl-extractor>=1.2.0,<2",
     "coloredlogs>=14.0,<15.1",  # Dagster requires 14.0
     "croniter<2",  # 2.0.0 seems to break mamba
     "dagster-webserver>=1.4,<1.6",
@@ -31,6 +31,7 @@ dependencies = [
     "grpcio==1.57.0",  # Required by dagster. Version works with MacOS
     "grpcio-health-checking==1.57.0",  # Required by dagster. Version works with MacOS
     "grpcio-status==1.57.0",  # Required by dagster. Version works with MacOS
+    "hypothesis>=6.87,<7.0",
     "jellyfish>=1.0.1,<1.1",  # recordlinkage dependency
     "jinja2>=3,<3.2",
     "matplotlib>=3.6.1,<3.9",
@@ -40,6 +41,7 @@ dependencies = [
     "numpy>=1.24,<2.0a0",
     "openpyxl>=3.0.10",  # pandas[excel]
     "pandas[parquet,excel,fss,gcp,compression]>=2,<2.2",
+    "pandera>=0.17,<1.0",
     "pyarrow>=13,<14",  # pandas[parquet]
     "pydantic>=1.7,<2",
     "python-dotenv>=1,<1.1",
