@@ -1706,23 +1706,35 @@ class XbrlCalculationForestFerc1(BaseModel):
             pd.DataFrame(
                 index=pd.MultiIndex.from_tuples(tags_dict.keys(), names=self.calc_cols),
                 data={"tags": list(tags_dict.values())},
-            )
-            .reset_index()
+            ).reset_index()
             # Type conversion is necessary to get pd.NA in the index:
             .astype({col: pd.StringDtype() for col in self.calc_cols})
             # We need a dictionary for *all* nodes, not just those with tags.
             .merge(
                 self.exploded_meta.loc[:, self.calc_cols],
-                how="right",
+                how="left",
                 on=self.calc_cols,
                 validate="one_to_many",
+                indicator=True,
             )
             # For nodes with no tags, we assign an empty dictionary:
             .assign(tags=lambda x: np.where(x["tags"].isna(), {}, x["tags"]))
+        )
+        lefties = node_attrs[
+            (node_attrs._merge == "left_only")
+            & (node_attrs.table_name.isin(self.table_names))
+        ]
+        if not lefties.empty:
+            logger.warning(
+                "Found {len(lefties)} tags that only exist in our manually compiled "
+                "tags when expected none. Ensure the compiled tags match the metadata."
+                f"Mismatched tags:\n{lefties}"
+            )
+        return (
+            node_attrs.drop(columns=["_merge"])
             .set_index(self.calc_cols)
             .to_dict(orient="index")
         )
-        return node_attrs
 
     @cached_property
     def edge_attrs(self: Self) -> dict[Any, Any]:
