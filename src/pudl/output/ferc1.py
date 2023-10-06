@@ -1396,6 +1396,8 @@ class Exploder:
         # Add manual fixes for created factoids
         fixes = pd.DataFrame(MANUAL_DBF_METADATA_FIXES).T
         exploded_metadata = exploded_metadata.set_index("xbrl_factoid")
+        # restrict fixes to only those that are actually in the meta.
+        fixes = fixes.loc[fixes.index.intersection(exploded_metadata.index)]
         exploded_metadata.loc[fixes.index, fixes.columns] = fixes
         exploded_metadata = exploded_metadata.reset_index()
 
