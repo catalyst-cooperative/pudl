@@ -1168,7 +1168,12 @@ class Exploder:
         # things for legibility.
         calc_explode = (
             calc_explode[calc_explode.is_in_explosion]
-            .loc[:, parent_cols + calc_cols + ["weight", "is_within_table_calc"]]
+            .loc[
+                :,
+                parent_cols
+                + calc_cols
+                + ["weight", "is_within_table_calc", "is_total_to_subdimensions_calc"],
+            ]
             .drop_duplicates()
             .set_index(parent_cols + calc_cols)
             .sort_index()
@@ -1366,7 +1371,7 @@ class Exploder:
         """
         exploded = (
             self.initial_explosion_concatenation(tables_to_explode)
-            .pipe(self.generate_intertable_calculations)
+            .pipe(self.reconcile_intertable_calculations)
             .pipe(self.calculation_forest.leafy_data, value_col=self.value_col)
         )
         # Identify which columns should be kept in the output...
@@ -1440,7 +1445,7 @@ class Exploder:
         )
         return exploded
 
-    def generate_intertable_calculations(
+    def reconcile_intertable_calculations(
         self: Self, exploded: pd.DataFrame
     ) -> pd.DataFrame:
         """Generate calculated values for inter-table calculated factoids.
@@ -1464,14 +1469,33 @@ class Exploder:
             f"{list(calculations_intertable.xbrl_factoid.unique())}."
         )
         calc_idx = [col for col in list(NodeId._fields) if col in self.exploded_pks]
+        logger.info("Checking inter-table, non-total to subtotal calcs.")
         calculated_df = pudl.transform.ferc1.calculate_values_from_components(
-            calculation_components=calculations_intertable,
+            calculation_components=calculations_intertable[
+                ~calculations_intertable.is_total_to_subdimensions_calc
+            ],
             data=exploded,
             calc_idx=calc_idx,
             value_col=self.value_col,
         )
         calculated_df = pudl.transform.ferc1.check_calculation_metrics(
             calculated_df=calculated_df,
+            value_col=self.value_col,
+            calculation_tolerance=self.calculation_tolerance.intertable_calculation_errors,
+            table_name=self.root_table,
+            add_corrections=True,
+        )
+        logger.info("Checking sub-total calcs.")
+        subtotal_calcs = pudl.transform.ferc1.calculate_values_from_components(
+            calculation_components=calculations_intertable[
+                calculations_intertable.is_total_to_subdimensions_calc
+            ],
+            data=exploded,
+            calc_idx=calc_idx,
+            value_col=self.value_col,
+        )
+        subtotal_calcs = pudl.transform.ferc1.check_calculation_metrics(
+            calculated_df=subtotal_calcs,
             value_col=self.value_col,
             calculation_tolerance=self.calculation_tolerance.intertable_calculation_errors,
             table_name=self.root_table,
