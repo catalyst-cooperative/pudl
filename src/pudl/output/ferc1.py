@@ -1394,53 +1394,10 @@ class Exploder:
         )
 
         # Add manual fixes for created factoids
-        for factoid, fixes in MANUAL_DBF_METADATA_FIXES.items():
-            for column, value in fixes.items():
-                exploded_metadata.loc[
-                    exploded_metadata.xbrl_factoid == factoid, column
-                ] = value
-
-        def handle_electric_plant_depreciation(
-            dbf_row_metadata: pd.DataFrame, exploded_metadata: pd.DataFrame
-        ) -> pd.DataFrame:
-            """Handle a special case where the DBF factoids correspond to plant function in PUDL data."""
-            dbf_epd = (
-                dbf_row_metadata.loc[
-                    dbf_row_metadata.table_name
-                    == "electric_plant_depreciation_functional_ferc1"
-                ]
-                .rename(columns={"xbrl_factoid": "plant_function"})
-                .assign(xbrl_factoid="accumulated_depreciation")
-            )
-            meta_epd = exploded_metadata[
-                exploded_metadata.table_name
-                == "electric_plant_depreciation_functional_ferc1"
-            ].drop(columns=[col for col in exploded_metadata.columns if "dbf" in col])
-            meta_epd = meta_epd.merge(
-                dbf_epd,
-                how="left",
-                on=["table_name", "xbrl_factoid", "plant_function"],
-                validate="many_to_one",
-            )
-            exploded_metadata = pd.concat(
-                [
-                    exploded_metadata.loc[
-                        exploded_metadata.table_name
-                        != "electric_plant_depreciation_functional_ferc1"
-                    ],
-                    meta_epd,
-                ]
-            )
-            return exploded_metadata
-
-        # Handle special case where factoids were reassigned to plant function.
-        if "electric_plant_depreciation_functional_ferc1" in self.table_names:
-            logger.info(
-                "Add DBF metadata for electric_plant_depreciation_functional_ferc1."
-            )
-            exploded_metadata = handle_electric_plant_depreciation(
-                dbf_row_metadata, exploded_metadata
-            )
+        fixes = pd.DataFrame(MANUAL_DBF_METADATA_FIXES).T
+        exploded_metadata = exploded_metadata.set_index("xbrl_factoid")
+        exploded_metadata.loc[fixes.index, fixes.columns] = fixes
+        exploded_metadata = exploded_metadata.reset_index()
 
         return exploded_metadata
 
