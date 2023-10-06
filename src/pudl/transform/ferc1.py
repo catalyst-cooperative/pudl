@@ -2487,6 +2487,7 @@ class FuelFerc1TableTransformer(Ferc1AbstractTableTransformer):
         df = (
             super()
             .process_dbf(raw_dbf)
+            .pipe(self.to_numeric)
             .pipe(self.convert_units)
             .pipe(self.normalize_strings)
             .pipe(self.categorize_strings)
@@ -2520,6 +2521,7 @@ class FuelFerc1TableTransformer(Ferc1AbstractTableTransformer):
                 raw_xbrl_instant, raw_xbrl_duration
             )
             .pipe(self.rename_columns, rename_stage="xbrl")
+            .pipe(self.to_numeric)
             .pipe(self.convert_units)
             .pipe(self.normalize_strings)
             .pipe(self.categorize_strings)
@@ -2532,7 +2534,20 @@ class FuelFerc1TableTransformer(Ferc1AbstractTableTransformer):
             )
         )
 
-    def standardize_physical_fuel_units(self, df: pd.DataFrame) -> pd.DataFrame:
+    def to_numeric(self: Self, df: pd.DataFrame) -> pd.DataFrame:
+        """Convert columns containing numeric strings to numeric types."""
+        numeric_cols = [
+            "fuel_consumed_units",
+            "fuel_cost_per_unit_burned",
+            "fuel_cost_per_unit_delivered",
+            "fuel_cost_per_mmbtu",
+        ]
+        for col in numeric_cols:
+            df[col] = pd.to_numeric(df[col])
+
+        return df
+
+    def standardize_physical_fuel_units(self: Self, df: pd.DataFrame) -> pd.DataFrame:
         """Convert reported fuel quantities to standard units depending on fuel type.
 
         Use the categorized fuel type and reported fuel units to convert all fuel
@@ -3973,6 +3988,11 @@ class TransmissionStatisticsFerc1TableTransformer(Ferc1AbstractTableTransformer)
     table_id: TableIdFerc1 = TableIdFerc1.TRANSMISSION_STATISTICS_FERC1
     has_unique_record_ids: bool = False
 
+    def transform_main(self: Self, df: pd.DataFrame) -> pd.DataFrame:
+        """Do some string-to-numeric ninja moves."""
+        df["num_transmission_circuits"] = pd.to_numeric(df["num_transmission_circuits"])
+        return super().transform_main(df)
+
 
 class ElectricEnergySourcesFerc1TableTransformer(Ferc1AbstractTableTransformer):
     """Transformer class for :ref:`electric_energy_sources_ferc1` table.
@@ -4025,6 +4045,16 @@ class UtilityPlantSummaryFerc1TableTransformer(Ferc1AbstractTableTransformer):
 
     table_id: TableIdFerc1 = TableIdFerc1.UTILITY_PLANT_SUMMARY_FERC1
     has_unique_record_ids: bool = False
+
+    def process_xbrl(
+        self: Self, raw_xbrl_instant: pd.DataFrame, raw_xbrl_duration: pd.DataFrame
+    ) -> pd.DataFrame:
+        """Remove the end-of-previous-year instant data."""
+        all_current_year = raw_xbrl_instant[
+            raw_xbrl_instant["date"].astype("datetime64[ns]").dt.year
+            == raw_xbrl_instant["report_year"].astype("int64")
+        ]
+        return super().process_xbrl(all_current_year, raw_xbrl_duration)
 
     def convert_xbrl_metadata_json_to_df(
         self: Self,
@@ -4133,40 +4163,6 @@ class UtilityPlantSummaryFerc1TableTransformer(Ferc1AbstractTableTransformer):
             "utility_plant_asset_type",
         ]
 
-        # The utility_id_ferc1 211 follows the same pattern for several years
-        # instead of writing them all out in spot_fix_pks, we'll create a loop that
-        # generates all of them and then append them to spot_fix_pks later
-        spot_fix_211 = []
-        for year in np.append(2006, range(2009, 2021)):
-            for utility_type in ["electric", "total"]:
-                pks = [
-                    (
-                        year,
-                        211,
-                        utility_type,
-                        "accumulated_provision_for_depreciation_amortization_and_depletion_of_plant_utility",
-                    ),
-                    (
-                        year,
-                        211,
-                        utility_type,
-                        "amortization_of_other_utility_plant_utility_plant_in_service",
-                    ),
-                    (
-                        year,
-                        211,
-                        utility_type,
-                        "depreciation_amortization_and_depletion_utility_plant_in_service",
-                    ),
-                    (
-                        year,
-                        211,
-                        utility_type,
-                        "depreciation_utility_plant_in_service",
-                    ),
-                ]
-                spot_fix_211 = spot_fix_211 + pks
-
         spot_fix_pks = [
             (
                 2012,
@@ -4262,8 +4258,17 @@ class UtilityPlantSummaryFerc1TableTransformer(Ferc1AbstractTableTransformer):
             (2007, 393, "total", "depreciation_utility_plant_in_service"),
         ]
 
-        # Combine bespoke fixes with programatically generated spot fixes
-        spot_fix_pks = spot_fix_pks + spot_fix_211
+        spot_fix_pks += [
+            (year, 211, utility_type, column_name)
+            for year in [2006] + list(range(2009, 2021))
+            for utility_type in ["electric", "total"]
+            for column_name in [
+                "accumulated_provision_for_depreciation_amortization_and_depletion_of_plant_utility",
+                "amortization_of_other_utility_plant_utility_plant_in_service",
+                "depreciation_amortization_and_depletion_utility_plant_in_service",
+                "depreciation_utility_plant_in_service",
+            ]
+        ]
 
         # Par down spot fixes to account for fast tests where not all years are used
         df_years = df.report_year.unique().tolist()
@@ -4278,7 +4283,7 @@ class UtilityPlantSummaryFerc1TableTransformer(Ferc1AbstractTableTransformer):
             df = df.set_index(primary_keys)
             # Flip the signs for the values in "ending balance" all records in the original
             # df that appear in the primary key df
-            df.loc[df_keys.index, "ending_balance"] = df["ending_balance"] * -1
+            df.loc[df_keys.index, "ending_balance"] *= -1
             # All of these are flipping negative values to positive values,
             # so let's make sure that's what happens
             flipped_values = df.loc[df_keys.index]
