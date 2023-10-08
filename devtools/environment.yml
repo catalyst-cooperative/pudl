@@ -14,7 +14,6 @@ dependencies:
   # benefit from binary libraries which conda can install.
   - geopandas>=0.13,<0.15
   - shapely>=2,<3
-  - python-snappy>=0.6,<1
   - sqlite>=3.36,<4
 
   # These are not normal Python packages available on PyPI
