@@ -28,7 +28,7 @@ dependencies = [
     "gcsfs>=2022.5,<2023.9.3",
     "geopandas>=0.13,<0.15",
     "grpcio==1.57.0",  # Required by dagster. Version works with MacOS
-    "grpcio-health-checking==1.57.0",  # Required by dagster. Version works with MacOS
+    "grpcio-health-checking==1.59.0",  # Required by dagster. Version works with MacOS
     "grpcio-status==1.57.0",  # Required by dagster. Version works with MacOS
     "jellyfish>=1.0.1,<1.1",  # recordlinkage dependency
     "jinja2>=3,<3.2",
