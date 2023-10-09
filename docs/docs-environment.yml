@@ -6,7 +6,6 @@ dependencies:
   - geopandas>=0.13,<0.15
   - pip>=22,<24
   - python>=3.11,<3.12
-  - python-snappy>=0.6,<1
   - setuptools<69
   - shapely>=2,<3
   - sqlite>=3.36,<4
