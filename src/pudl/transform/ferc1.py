@@ -766,30 +766,29 @@ class CalculationTolerance(TransformParams):
     bulk_error_frequency: confloat(ge=0.0, le=1.0) = 0.05
     """Fraction of all calculations that are allowed to not match exactly."""
 
+    utility_id_ferc1_error_frequency: confloat(ge=0.0, le=1.0) = 0.1
+    report_year_error_frequency: confloat(ge=0.0, le=1.0) = 0.1
+    xbrl_factoid_error_frequency: confloat(ge=0.0, le=1.0) = 0.1
+    table_name_error_frequency: confloat(ge=0.0, le=1.0) = 0.1
+
     bulk_error_relative_magnitude: confloat(ge=0.0) = 0.01
     """Maximum allowed sum of all errors, relative to the sum of all reported values."""
+
+    utility_id_ferc1_error_relative_magnitude: confloat(ge=0.0) = 0.001
+    report_year_error_relative_magnitude: confloat(ge=0.0) = 0.001
+    xbrl_factoid_error_relative_magnitude: confloat(ge=0.0) = 0.001
+    table_name_error_relative_magnitude: confloat(ge=0.0) = 0.001
 
     bulk_null_calculation_frequency: confloat(ge=0.0, le=1.0) = 0.05
     """Fraction of records with non-null reported values and null calculated values."""
 
+    utility_id_ferc1_null_calculation_frequency: confloat(ge=0.0, le=1.0) = 0.1
+    report_year_null_calculation_frequency: confloat(ge=0.0, le=1.0) = 0.1
+    xbrl_factoid_null_calculation_frequency: confloat(ge=0.0, le=1.0) = 0.1
+    table_name_null_calculation_frequency: confloat(ge=0.0, le=1.0) = 0.1
+
     bulk_null_reported_value_frequency: confloat(ge=0.0, le=1.0) = 0.50
     """Fraction of records with non-null reported values and null calculated values."""
-
-    utility_id_ferc1_error_frequency: confloat(ge=0.0, le=1.0) = 0.1
-    utility_id_ferc1_error_relative_magnitude: confloat(ge=0.0) = 0.001
-    utility_id_ferc1_null_calculation_frequency: confloat(ge=0.0, le=1.0) = 0.1
-
-    report_year_error_frequency: confloat(ge=0.0, le=1.0) = 0.1
-    report_year_error_relative_magnitude: confloat(ge=0.0) = 0.001
-    report_year_null_calculation_frequency: confloat(ge=0.0, le=1.0) = 0.1
-
-    xbrl_factoid_error_frequency: confloat(ge=0.0, le=1.0) = 0.1
-    xbrl_factoid_error_relative_magnitude: confloat(ge=0.0) = 0.001
-    xbrl_factoid_null_calculation_frequency: confloat(ge=0.0, le=1.0) = 0.1
-
-    table_name_error_frequency: confloat(ge=0.0, le=1.0) = 0.1
-    table_name_error_relative_magnitude: confloat(ge=0.0) = 0.001
-    table_name_null_calculation_frequency: confloat(ge=0.0, le=1.0) = 0.1
 
 
 class ReconcileTableCalculations(TransformParams):
@@ -837,128 +836,183 @@ def reconcile_table_calculations(
     Args:
         df: processed table containing data values to check.
         calculation_components: processed calculation component metadata.
-        xbrl_factoid_name: column name of the XBRL factoid in the processed table.
-        table_name: name of the PUDL table.
+        xbrl_metadata: A dataframe of fact-level metadata, required for inferring the
+            sub-dimension total calculations.
+        xbrl_factoid_name: The name of the column which contains XBRL factoid values in
+            the processed table.
+        table_name: name of the PUDL table whose data and metadata is being processed.
+            This is necessary so we can ensure the metadata has the same structure as
+            the calculation components, which at a minimum need both ``table_name`` and
+            ``xbrl_factoid`` to identify them.
         params: :class:`ReconcileTableCalculations` parameters.
+
+    Returns:
+        A dataframe that includes new *_correction records with values that ensure the
+        calculations all match to within the required tolerance. It will also contain
+        columns created by the calculation checking process like ``abs_diff`` and
+        ``rel_diff``.
     """
     # If we don't have this value, we aren't doing any calculation checking:
     if params.column_to_check is None or calculation_components.empty:
         return df
-    # we only want to check calucations that are fully within this table
-    intra_tbl_calcs = calculation_components[
+
+    # Use the calculation components which reference ONLY values within the table
+    intra_table_calcs = calculation_components[
         calculation_components.is_within_table_calc
-        & calculation_components.xbrl_factoid.notnull()  # no nulls bc we have all parents
     ]
+    # To interact with the calculation components, we need uniformly named columns
+    # for xbrl_factoid, and table_name
     df = df.rename(columns={xbrl_factoid_name: "xbrl_factoid"}).assign(
         table_name=table_name
     )
-    # !!! Add dimensions into the calculation components!!!
-    # First determine what dimensions matter in this table:
-    # usually you can rely on params.subtotal_column to get THE ONE dimension in the
-    # table... BUT some tables have more than one dimension so we grab from all of the
-    # the dims in the transformers. AAAND occasionally the factoid_name is in the dims
-    # wild. i know. so we are grabbing all of the non-factoid dimensions that show up
-    # in the data.
     dim_cols = [
-        d
-        for d in other_dimensions(table_names=list(FERC1_TFR_CLASSES))
-        if d in df.columns and d != xbrl_factoid_name
+        dim
+        for dim in other_dimensions(table_names=list(FERC1_TFR_CLASSES))
+        if dim in df.columns
     ]
     calc_idx = ["xbrl_factoid", "table_name"] + dim_cols
 
     if dim_cols:
-        table_dims = (
-            df[calc_idx].drop_duplicates(keep="first").assign(table_name=table_name)
+        table_dims = df[calc_idx].drop_duplicates(keep="first")
+        intra_table_calcs = _add_intra_table_calculation_dimensions(
+            intra_table_calcs=intra_table_calcs,
+            table_dims=table_dims,
+            dim_cols=dim_cols,
         )
-        # need to add in the correction dimensions. they don't show up in the data at
-        # this point so we don't have the dimensions yet. NOTE: this could have been
-        # done by adding the dims into table_dims..... maybe would have been more
-        # straightforward
-        correction_mask = intra_tbl_calcs.xbrl_factoid.str.contains("_correction")
-        intra_tbl_calcs = pd.concat(
-            [
-                intra_tbl_calcs[~correction_mask],
-                pd.merge(
-                    intra_tbl_calcs[correction_mask].drop(columns=dim_cols),
-                    table_dims[["table_name"] + dim_cols].drop_duplicates(),
-                    on=["table_name"],
-                ),
-            ]
+        # Check the subdimension totals, but don't add correction records for these
+        # intra-fact calculations:
+        _check_subtotal_calculations(
+            df=df,
+            intra_table_calcs=intra_table_calcs,
+            xbrl_metadata=xbrl_metadata,
+            params=params,
+            dim_cols=dim_cols,
+            table_name=table_name,
+            table_dims=table_dims,
+            calc_idx=calc_idx,
         )
-        intra_tbl_calcs = make_calculation_dimensions_explicit(
-            intra_tbl_calcs,
-            table_dimensions_ferc1=table_dims,
-            dimensions=dim_cols,
-        ).pipe(
-            assign_parent_dimensions,
-            table_dimensions=table_dims,
-            dimensions=dim_cols,
-        )
-        # this is for the income statement table specifically, but is general:
-        # remove all the bits where we have a child dim but not a parent dim
-        # sometimes there are child dimensions that have utility_type == "other2" etc
-        # where the parent dimension has nothing
-        for dim in dim_cols:
-            intra_tbl_calcs = intra_tbl_calcs[
-                ~(
-                    intra_tbl_calcs[dim].notnull()
-                    & intra_tbl_calcs[f"{dim}_parent"].isnull()
-                )
-            ]
-    calculated_df = calculate_values_from_components(
-        data=df,
-        calculation_components=intra_tbl_calcs,
-        calc_idx=calc_idx,
-        value_col=params.column_to_check,
-    )
-    calculated_df = check_calculation_metrics(
-        calculated_df=calculated_df,
-        value_col=params.column_to_check,
-        calculation_tolerance=params.calculation_tolerance,
-        table_name=table_name,
-    )
-    calculated_df = add_corrections(
-        calculated_df=calculated_df,
-        value_col=params.column_to_check,
-        calculation_tolerance=params.calculation_tolerance,
-        table_name=table_name,
-    )
-    calculated_df = calculated_df.rename(columns={"xbrl_factoid": xbrl_factoid_name})
 
-    # Check that sub-total calculations sum to total.
-    if params.subtotal_column is not None:
-        logger.info(
-            f"Checking total-to-subtotal calculations within {params.subtotal_column}"
-        )
-        meta_w_dims = xbrl_metadata.assign(
-            **{dim: pd.NA for dim in dim_cols} | {"table_name": table_name}
-        ).pipe(
-            make_calculation_dimensions_explicit,
-            table_dimensions_ferc1=table_dims,
-            dimensions=dim_cols,
-        )
-        calc_comps_w_totals = infer_intra_factoid_totals(
-            intra_tbl_calcs,
-            meta_w_dims=meta_w_dims,
-            table_dimensions=table_dims,
-            dimensions=dim_cols,
-        )
-        subtotal_calcs = calculate_values_from_components(
+    calculated_df = (
+        calculate_values_from_components(
             data=df,
-            calculation_components=calc_comps_w_totals[
-                calc_comps_w_totals.is_total_to_subdimensions_calc
-            ],
+            calculation_components=intra_table_calcs,
             calc_idx=calc_idx,
             value_col=params.column_to_check,
         )
-        subtotal_calcs = check_calculation_metrics(
-            calculated_df=subtotal_calcs,
+        .pipe(
+            check_calculation_metrics,
             value_col=params.column_to_check,
             calculation_tolerance=params.calculation_tolerance,
             table_name=table_name,
-        ).rename(columns={"xbrl_factoid": xbrl_factoid_name})
+        )
+        .pipe(
+            add_corrections,
+            value_col=params.column_to_check,
+            calculation_tolerance=params.calculation_tolerance,
+            table_name=table_name,
+        )
+        # Rename back to the original xbrl_factoid column name before returning:
+        .rename(columns={"xbrl_factoid": xbrl_factoid_name})
+    )
 
     return calculated_df
+
+
+def _check_subtotal_calculations(
+    df: pd.DataFrame,
+    intra_table_calcs: pd.DataFrame,
+    xbrl_metadata: pd.DataFrame,
+    params: "Ferc1TableTransformParams",
+    dim_cols: list[str],
+    table_name: str,
+    table_dims: pd.DataFrame,
+    calc_idx: list[str],
+) -> None:
+    """Check that sub-dimension calculations sum to the reported totals.
+
+    No correction records are added to the sub-dimensions calculations. This is only an
+    error check, and returns nothing.
+    """
+    if params.subtotal_column is None:
+        return
+    logger.info(f"Checking total-to-subtotal calculations in {params.subtotal_column}")
+    meta_w_dims = xbrl_metadata.assign(
+        **{dim: pd.NA for dim in dim_cols} | {"table_name": table_name}
+    ).pipe(
+        make_calculation_dimensions_explicit,
+        table_dimensions_ferc1=table_dims,
+        dimensions=dim_cols,
+    )
+    calc_comps_w_totals = infer_intra_factoid_totals(
+        intra_table_calcs,
+        meta_w_dims=meta_w_dims,
+        table_dimensions=table_dims,
+        dimensions=dim_cols,
+    )
+    subtotal_calcs = calculate_values_from_components(
+        data=df,
+        calculation_components=calc_comps_w_totals[
+            calc_comps_w_totals.is_total_to_subdimensions_calc
+        ],
+        calc_idx=calc_idx,
+        value_col=params.column_to_check,
+    )
+    subtotal_calcs = check_calculation_metrics(
+        calculated_df=subtotal_calcs,
+        value_col=params.column_to_check,
+        calculation_tolerance=params.calculation_tolerance,
+        table_name=table_name,
+    )
+
+
+def _add_intra_table_calculation_dimensions(
+    intra_table_calcs: pd.DataFrame,
+    table_dims: pd.DataFrame,
+    dim_cols: list[str],
+) -> pd.DataFrame:
+    """Add all observed subdimensions into the calculation components."""
+    ######## Add all observed subdimensions into the calculation components!!!
+    # First determine what dimensions matter in this table:
+    # - usually params.subtotal_column has THE ONE dimension in the table...
+    # - BUT some tables have more than one dimension so we grab from all of the
+    #   the dims in the transformers.
+
+    # need to add in the correction dimensions. they don't show up in the data at
+    # this point so we don't have the dimensions yet. NOTE: this could have been
+    # done by adding the dims into table_dims..... maybe would have been more
+    # straightforward
+    correction_mask = intra_table_calcs.xbrl_factoid.str.endswith("_correction")
+    intra_table_calcs = pd.concat(
+        [
+            intra_table_calcs[~correction_mask],
+            pd.merge(
+                intra_table_calcs[correction_mask].drop(columns=dim_cols),
+                table_dims[["table_name"] + dim_cols].drop_duplicates(),
+                on=["table_name"],
+            ),
+        ]
+    )
+    intra_table_calcs = make_calculation_dimensions_explicit(
+        intra_table_calcs,
+        table_dimensions_ferc1=table_dims,
+        dimensions=dim_cols,
+    ).pipe(
+        assign_parent_dimensions,
+        table_dimensions=table_dims,
+        dimensions=dim_cols,
+    )
+    # this is for the income statement table specifically, but is general:
+    # remove all the bits where we have a child dim but not a parent dim
+    # sometimes there are child dimensions that have utility_type == "other2" etc
+    # where the parent dimension has nothing
+    for dim in dim_cols:
+        intra_table_calcs = intra_table_calcs[
+            ~(
+                intra_table_calcs[dim].notnull()
+                & intra_table_calcs[f"{dim}_parent"].isnull()
+            )
+        ]
+    return intra_table_calcs
 
 
 def calculate_values_from_components(
