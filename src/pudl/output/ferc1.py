@@ -1348,7 +1348,7 @@ class Exploder:
         Args:
             tables_to_explode: dictionary of table name (key) to transfomed table (value).
             calculation_tolerance: What proportion (0-1) of calculated values are
-              allowed to be incorrect without raising an AssertionError.
+            allowed to be incorrect without raising an AssertionError.
         """
         exploded = (
             self.initial_explosion_concatenation(tables_to_explode)
@@ -1483,9 +1483,8 @@ class Exploder:
         subtotal_calcs = pudl.transform.ferc1.check_calculation_metrics(
             calculated_df=subtotal_calcs,
             value_col=self.value_col,
-            calculation_tolerance=self.calculation_tolerance.intertable_calculation_errors,
+            calculation_tolerance=self.calculation_tolerance,
             table_name=self.root_table,
-            add_corrections=True,
         )
         return calculated_df
 
