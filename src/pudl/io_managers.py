@@ -1,4 +1,5 @@
 """Dagster IO Managers."""
+import json
 import re
 from pathlib import Path
 from sqlite3 import sqlite_version
@@ -643,6 +644,7 @@ class FercDBFSQLiteIOManager(FercSQLiteIOManager):
             context: dagster keyword that provides access output information like asset
                 name.
         """
+        # TODO (daz): this is hard-coded to FERC1, though this is nominally for all FERC datasets.
         ferc1_settings = context.resources.dataset_settings.ferc1
 
         table_name = self._get_table_name(context)
@@ -683,6 +685,47 @@ class FercXBRLSQLiteIOManager(FercSQLiteIOManager):
     metadata.
     """
 
+    @staticmethod
+    def use_latest_filing_for_context(
+        table: pd.DataFrame, unique_cols: list[str]
+    ) -> pd.DataFrame:
+        """Get facts from the latest filing that reported for each context.
+
+        We treat two XBRL contexts that are the same except for their IDs as the same context.
+        """
+        strict_deduped = table.drop_duplicates()
+        logger.debug(
+            f"Dropped {len(table) - len(strict_deduped)} completely duplicated rows."
+        )
+        chrono_order = table.sort_values("publication_time")
+        inter_filing_deduped = chrono_order.drop_duplicates(
+            subset=[
+                c for c in table.columns if c not in {"publication_time", "filing_name"}
+            ],
+            keep="last",
+        )
+        logger.debug(
+            f"Dropped {len(chrono_order) - len(inter_filing_deduped)} rows that were duplicated across filings."
+        )
+
+        deduped_by_context = inter_filing_deduped.drop_duplicates(
+            subset=unique_cols,
+            keep="last",
+        )
+        logger.debug(
+            f"Dropped {len(inter_filing_deduped) - len(deduped_by_context)} rows for contexts that were updated in later filings."
+        )
+
+        return deduped_by_context
+
+    def _get_primary_key(self, sched_table_name: str) -> list[str]:
+        with (self.base_dir / f"{self.db_name}_datapackage.json").open() as f:
+            datapackage = json.loads(f.read())
+        [table_resource] = [
+            tr for tr in datapackage["resources"] if tr["name"] == sched_table_name
+        ]
+        return table_resource["schema"]["primary_key"]
+
     def handle_output(self, context: OutputContext, obj: pd.DataFrame | str):
         """Handle an op or asset output."""
         raise NotImplementedError("FercXBRLSQLiteIOManager can't write outputs yet.")
@@ -694,6 +737,7 @@ class FercXBRLSQLiteIOManager(FercSQLiteIOManager):
             context: dagster keyword that provides access output information like asset
                 name.
         """
+        # TODO (daz): this is hard-coded to FERC1, though this is nominally for all FERC datasets.
         ferc1_settings = context.resources.dataset_settings.ferc1
 
         table_name = self._get_table_name(context)
@@ -713,7 +757,7 @@ class FercXBRLSQLiteIOManager(FercSQLiteIOManager):
 
         sched_table_name = re.sub("_instant|_duration", "", table_name)
         with engine.connect() as con:
-            return pd.read_sql(
+            df = pd.read_sql(
                 f"""
                 SELECT {table_name}.*, {id_table}.report_year FROM {table_name}
                 JOIN {id_table} ON {id_table}.filing_name = {table_name}.filing_name
@@ -725,6 +769,12 @@ class FercXBRLSQLiteIOManager(FercSQLiteIOManager):
                     "max_year": max(ferc1_settings.xbrl_years),
                 },
             ).assign(sched_table_name=sched_table_name)
+
+        primary_key = self._get_primary_key(table_name)
+        context_cols = [
+            col for col in primary_key if col not in {"filing_name", "publication_time"}
+        ]
+        return self.use_latest_filing_for_context(df, context_cols)
 
 
 @io_manager(required_resource_keys={"dataset_settings"})
