@@ -4,7 +4,7 @@ import json
 
 import hypothesis
 import pandas as pd
-import pandera as pa
+import pandera
 import pytest
 import sqlalchemy as sa
 from dagster import AssetKey, build_input_context, build_output_context
@@ -259,18 +259,16 @@ def test_error_when_reading_view_without_metadata(pudl_sqlite_io_manager_fixture
 
 def test_ferc_xbrl_sqlite_io_manager_dedupes(mocker, tmp_path):
     db_path = tmp_path / "test_db.sqlite"
+    # fake datapackage descriptor just to see if we can find the primary keys -
+    # lots of optional stuff dropped.
     datapackage = json.dumps(
         {
-            "profile": "tabular-data-package",
             "name": "test_db",
             "title": "Ferc1 data extracted from XBRL filings",
             "resources": [
                 {
-                    "path": f"sqlite:///{db_path}",
-                    "profile": "tabular-data-resource",
+                    "path": f"{db_path}",
                     "name": "test_table_instant",
-                    "format": "sqlite",
-                    "mediatype": "application/vnd.sqlite3",
                     "schema": {
                         "fields": [
                             {
@@ -362,125 +360,53 @@ def test_ferc_xbrl_sqlite_io_manager_dedupes(mocker, tmp_path):
     assert observed_table.str_factoid.to_numpy().item() == "updated 2021 EOY value"
 
 
-example_schema = pa.DataFrameSchema(
+example_schema = pandera.DataFrameSchema(
     {
-        "entity_id": pa.Column(str, nullable=False),
-        "date": pa.Column("datetime64[ns]", nullable=False),
-        "utility_type": pa.Column(
-            str, pa.Check.isin(["electric", "gas", "total", "other"]), nullable=False
+        "entity_id": pandera.Column(str, nullable=False),
+        "date": pandera.Column("datetime64[ns]", nullable=False),
+        "utility_type": pandera.Column(
+            str,
+            pandera.Check.isin(["electric", "gas", "total", "other"]),
+            nullable=False,
         ),
-        "publication_time": pa.Column("datetime64[ns]", nullable=False),
-        "int_factoid": pa.Column(int),
-        "float_factoid": pa.Column(float),
-        "str_factoid": pa.Column("str"),
+        "publication_time": pandera.Column("datetime64[ns]", nullable=False),
+        "int_factoid": pandera.Column(int),
+        "float_factoid": pandera.Column(float),
+        "str_factoid": pandera.Column("str"),
     }
 )
 
 
 @hypothesis.given(example_schema.strategy(size=3))
-def test_get_unique_row_per_context(df):
-    context_cols = ["entity_id", "date", "utility_type"]
-    deduped = FercXBRLSQLiteIOManager.use_latest_filing_for_context(df, context_cols)
+def test_filter_for_freshest_data(df):
+    # XBRL context is the identifying metadata for reported values
+    xbrl_context_cols = ["entity_id", "date", "utility_type"]
+    filing_metadata_cols = ["publication_time", "filing_name"]
+    primary_key = xbrl_context_cols + filing_metadata_cols
+    deduped = FercXBRLSQLiteIOManager.filter_for_freshest_data(
+        df, primary_key=primary_key
+    )
     example_schema.validate(deduped)
 
     # every post-deduplication row exists in the original rows
     assert (deduped.merge(df, how="left", indicator=True)._merge != "left_only").all()
     # for every [entity_id, utility_type, date] - th"true"e is only one row
-    assert (~deduped.duplicated(subset=context_cols)).all()
+    assert (~deduped.duplicated(subset=xbrl_context_cols)).all()
     # for every *context* in the input there is a corresponding row in the output
-    original_contexts = df.groupby(context_cols, as_index=False).last()
+    original_contexts = df.groupby(xbrl_context_cols, as_index=False).last()
     paired_by_context = original_contexts.merge(
-        deduped, on=context_cols, how="outer", suffixes=["_in", "_out"], indicator=True
-    ).set_index(context_cols)
-    hypothesis.note(original_contexts)
-    hypothesis.note(deduped)
+        deduped,
+        on=xbrl_context_cols,
+        how="outer",
+        suffixes=["_in", "_out"],
+        indicator=True,
+    ).set_index(xbrl_context_cols)
+    hypothesis.note(f"Found these contexts in input data: {original_contexts}")
+    hypothesis.note(f"The freshest data: {deduped}")
     assert (paired_by_context._merge == "both").all()
 
     # for every row in the output - its publication time is greater than or equal to all of the other ones for that [entity_id, utility_type, date] in the input data
     assert (
         paired_by_context["publication_time_out"]
         >= paired_by_context["publication_time_in"]
-    ).all()
-
-
-def test_latest_filing():
-    first_2021_filing = [
-        {
-            "entity_id": "C123456",
-            "utility_type": "electric",
-            "date": "2020-12-31",
-            "publication_time": "2022-02-02T01:02:03Z",
-            "factoid_1": 10.0,
-            "factoid_2": 20.0,
-        },
-        {
-            "entity_id": "C123456",
-            "utility_type": "electric",
-            "date": "2021-12-31",
-            "publication_time": "2022-02-02T01:02:03Z",
-            "factoid_1": 11.0,
-            "factoid_2": 21.0,
-        },
-    ]
-
-    second_2021_filing = [
-        {
-            "entity_id": "C123456",
-            "utility_type": "electric",
-            "date": "2020-12-31",
-            "publication_time": "2022-02-02T01:05:03Z",
-            "factoid_1": 10.1,
-            "factoid_2": 20.1,
-        },
-        {
-            "entity_id": "C123456",
-            "utility_type": "electric",
-            "date": "2021-12-31",
-            "publication_time": "2022-02-02T01:05:03Z",
-            "factoid_1": 11.1,
-            "factoid_2": 21.1,
-        },
-    ]
-
-    first_2022_filing = [
-        {
-            "entity_id": "C123456",
-            "utility_type": "electric",
-            "date": "2021-12-31",
-            "publication_time": "2023-04-02T01:05:03Z",
-            "factoid_1": 110.0,
-            "factoid_2": 120.0,
-        },
-        {
-            "entity_id": "C123456",
-            "utility_type": "electric",
-            "date": "2022-12-31",
-            "publication_time": "2023-04-02T01:05:03Z",
-            "factoid_1": 111.0,
-            "factoid_2": 121.0,
-        },
-    ]
-
-    test_df = pd.DataFrame.from_records(
-        first_2021_filing + first_2022_filing + second_2021_filing
-    ).convert_dtypes()
-    context_cols = ["entity_id", "date", "utility_type"]
-    deduped = FercXBRLSQLiteIOManager.use_latest_filing_for_context(
-        test_df, context_cols
-    )
-
-    # for every [entity_id, utility_type, date] - there is only one row
-    assert (~deduped.duplicated(subset=context_cols)).all()
-
-    # for every *context* in the input there is a corresponding row in the output
-    input_contexts = test_df.groupby(context_cols, as_index=False).last()
-    inputs_paired_with_outputs = input_contexts.merge(
-        deduped, on=context_cols, how="outer", suffixes=["_in", "_out"], indicator=True
-    ).set_index(context_cols)
-    assert (inputs_paired_with_outputs._merge == "both").all()
-
-    # for every row in the output - its publication time is greater than or equal to all of the other ones for that [entity_id, utility_type, date] in the input data
-    assert (
-        inputs_paired_with_outputs["publication_time_out"]
-        >= inputs_paired_with_outputs["publication_time_in"]
     ).all()

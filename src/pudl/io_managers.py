@@ -686,39 +686,55 @@ class FercXBRLSQLiteIOManager(FercSQLiteIOManager):
     """
 
     @staticmethod
-    def use_latest_filing_for_context(
-        table: pd.DataFrame, unique_cols: list[str]
+    def filter_for_freshest_data(
+        table: pd.DataFrame, primary_key: list[str]
     ) -> pd.DataFrame:
-        """Get facts from the latest filing that reported for each context.
+        """Get most updated values for each XBRL context.
 
-        We treat two XBRL contexts that are the same except for their IDs as the same context.
+        An XBRL context includes an entity ID, the time period the data applies
+        to, and other dimensions such as utility type. Each context has its own
+        ID, but they are frequently redefined with the same contents but
+        different IDs - so we identify them by their actual content.
+
+        Each row in our SQLite database includes all the facts for one
+        context/filing pair.
+
+        If one context is represented in multiple filings, we take the facts from the most recently-published filing.
+
+        This means that if a recently-published filing does not include a value for a fact that was previously reported, then that value will remain null. We do not
+        forward-fill facts on a fact-by-fact basis.
         """
-        strict_deduped = table.drop_duplicates()
-        logger.debug(
-            f"Dropped {len(table) - len(strict_deduped)} completely duplicated rows."
-        )
-        chrono_order = table.sort_values("publication_time")
-        inter_filing_deduped = chrono_order.drop_duplicates(
-            subset=[
-                c for c in table.columns if c not in {"publication_time", "filing_name"}
-            ],
-            keep="last",
-        )
-        logger.debug(
-            f"Dropped {len(chrono_order) - len(inter_filing_deduped)} rows that were duplicated across filings."
-        )
+        filing_metadata_cols = {"publication_time", "filing_name"}
+        xbrl_context_cols = [c for c in primary_key if c not in filing_metadata_cols]
+        # we do this in multiple stages so we can log the drop-off at each stage.
+        stages = [
+            {
+                "message": "completely duplicated rows",
+                "subset": table.columns,
+            },
+            {
+                "message": "rows that are exactly the same in multiple filings",
+                "subset": [c for c in table.columns if c not in filing_metadata_cols],
+            },
+            {
+                "message": "rows that were updated by later filings",
+                "subset": xbrl_context_cols,
+            },
+        ]
+        original = table.sort_values("publication_time")
+        for stage in stages:
+            deduped = original.drop_duplicates(subset=stage["subset"], keep="last")
+            logger.debug(f"Dropped {len(original) - len(deduped)} {stage['message']}")
+            original = deduped
 
-        deduped_by_context = inter_filing_deduped.drop_duplicates(
-            subset=unique_cols,
-            keep="last",
-        )
-        logger.debug(
-            f"Dropped {len(inter_filing_deduped) - len(deduped_by_context)} rows for contexts that were updated in later filings."
-        )
-
-        return deduped_by_context
+        return deduped
 
     def _get_primary_key(self, sched_table_name: str) -> list[str]:
+        # TODO (daz): as of 2023-10-13, our datapackage.json is merely
+        # "frictionless-like" so we manually parse it as JSON. once we make our
+        # datapackage.json conformant, we will need to at least update the
+        # "primary_key" to "primaryKey", but maybe there will be other changes
+        # as well.
         with (self.base_dir / f"{self.db_name}_datapackage.json").open() as f:
             datapackage = json.loads(f.read())
         [table_resource] = [
@@ -771,10 +787,7 @@ class FercXBRLSQLiteIOManager(FercSQLiteIOManager):
             ).assign(sched_table_name=sched_table_name)
 
         primary_key = self._get_primary_key(table_name)
-        context_cols = [
-            col for col in primary_key if col not in {"filing_name", "publication_time"}
-        ]
-        deduped = self.use_latest_filing_for_context(df, context_cols)
+        deduped = self.filter_for_freshest_data(df, primary_key=primary_key)
         return deduped.drop(columns=["publication_time"])
 
 
