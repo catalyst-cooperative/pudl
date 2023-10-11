@@ -445,6 +445,7 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "description": "Purchase type under which receipts occurred in the reporting month. C: Contract, NC: New Contract, S: Spot Purchase, T: Tolling Agreement.",
         "constraints": {"enum": ["S", "C", "NC", "T"]},
     },
+    "country": {"type": "string", "description": "Three letter country abbreviation."},
     "emission_control_id_eia": {
         "type": "string",
         "description": (
@@ -1595,6 +1596,18 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "description": "The operating status of the asset using PUDL categories.",
         "constraints": {"enum": ["operating", "retired", "proposed"]},
     },
+    "operator_name": {
+        "type": "string",
+        "descripion": "The name of the EIA operator utility.",
+    },
+    "operator_state": {
+        "type": "string",
+        "description": "The state where the operator utility is located.",
+    },
+    "operator_utility_id_eia": {
+        "type": "integer",
+        "descrption": "The EIA utility Identification number for the operator utility.",
+    },
     "opex_allowances": {"type": "number", "description": "Allowances.", "unit": "USD"},
     "opex_boiler": {
         "type": "number",
@@ -1789,7 +1802,11 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     },
     "owner_utility_id_eia": {
         "type": "integer",
-        "description": "EIA-assigned owner's identification number.",
+        "description": "The EIA utility Identification number for the owner company that is responsible for the day-to-day operations of the generator, not the operator utility.",
+    },
+    "owner_utility_name_eia": {
+        "type": "string",
+        "description": "The name of the EIA owner utility.",
     },
     "owner_zip_code": {
         "type": "string",
@@ -2059,7 +2076,17 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     },
     "purchased_mwh": {
         "type": "number",
-        "description": "Megawatt-hours shown on bills rendered to the respondent.",
+        "description": "Megawatt-hours shown on bills rendered to the respondent. Includes both electricity purchased for storage and non-storage purposes, which were lumped together prior to 2021.",
+        "unit": "MWh",
+    },
+    "purchased_other_than_storage_mwh": {
+        "type": "number",
+        "description": "Number of megawatt hours purchased during the period for other than energy storage.",
+        "unit": "MWh",
+    },
+    "purchased_storage_mwh": {
+        "type": "number",
+        "description": "Number of megawatt hours purchased during the period for energy storage.",
         "unit": "MWh",
     },
     "pv_current_flow_type": {"type": "string", "constraints": {"enum": ["AC", "DC"]}},
@@ -2091,6 +2118,10 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     "record_id": {
         "type": "string",
         "description": "Identifier indicating original FERC Form 1 source record. format: {table_name}_{report_year}_{report_prd}_{respondent_id}_{spplmnt_num}_{row_number}. Unique within FERC Form 1 DB tables which are not row-mapped.",  # noqa: FS003
+    },
+    "record_id_eia": {
+        "type": "string",
+        "description": "Identifier for EIA plant parts analysis records.",
     },
     "region_name_us_census": {
         "type": "string",
@@ -2619,11 +2650,6 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     "utility_id_eia": {
         "type": "integer",
         "description": "The EIA Utility Identification number.",
-        # TODO: Disambiguate column name. In some cases this specifically refers to
-        # the utility which operates a given plant or generator, but comes from the
-        # same set of IDs as all the utility IDs.
-        # E.g. in ownership_eia860 or generators_eia860 it would be something like:
-        # "description": "EIA-assigned identification number for the company that is responsible for the day-to-day operations of the generator.",
     },
     "utility_id_ferc1": {
         "type": "integer",

@@ -552,7 +552,7 @@ def convert_units(col: pd.Series, params: UnitConversion) -> pd.Series:
         new_name = col.name
     if (col.name == new_name) & (params.from_unit != "") & (params.to_unit != ""):
         logger.debug(f"Old and new column names are identical: {col.name}.")
-    col = (params.multiplier * col) + params.adder
+    col = (params.multiplier * pd.to_numeric(col)) + params.adder
     col.name = new_name
     return col
 
@@ -817,7 +817,14 @@ def drop_invalid_rows(df: pd.DataFrame, params: InvalidRows) -> pd.DataFrame:
     # Create a boolean mask selecting the ROWS where NOT ALL of the columns we
     # care about are invalid (i.e. where ANY of the columns we care about contain a
     # valid value):
-    mask = ~cols_to_check.isin(params.invalid_values).all(axis="columns")
+
+    # For some reason, a simple cols_to_check.isin(params.invalid_values) fails
+    # on some dfs with NA values. this cols_to_check.transform() is intended as
+    # a drop-in replacement for cols_to_check.isin(params.invalid_values)
+    invalids = cols_to_check.transform(
+        lambda x: x.map(dict.fromkeys(params.invalid_values, True)).fillna(False)
+    )
+    mask = ~(invalids.all(axis="columns"))
     # Mask the input dataframe and make a copy to avoid returning a slice.
     df_out = df[mask].copy()
     logger.info(

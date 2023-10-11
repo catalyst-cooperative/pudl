@@ -7,7 +7,7 @@ We use `Tox <https://tox.readthedocs.io>`__ to coordinate our software testing
 and to manage other build and sanity checking tools. Under the hood, it invokes
 a variety of other collections of command-line tools in predefined combinations
 that are described in ``tox.ini``. These include software tests defined using
-`pytest <https://pytest.org>`__, code linters like ``flake8``, documentation
+`pytest <https://pytest.org>`__, code linters like ``ruff``, documentation
 generators like Sphinx, and sanity checks defined as git pre-commit hooks. Each
 of these tools, or sometimes collections of related tools, can be selected at
 the command line. They can also be run independently without using Tox, but for
@@ -149,25 +149,25 @@ their own:
     ci               -> Run all continuous integration (CI) checks & generate test coverage.
 
     additional environments:
-    flake8           -> Run the full suite of flake8 linters on the PUDL codebase.
+    ruff             -> Run the ruff linter but without autofixes enabled.
     pre_commit       -> Run git pre-commit hooks not covered by the other linters.
-    bandit           -> Check the PUDL codebase for common insecure code patterns.
-    linters          -> Run the pre-commit, flake8, and bandit linters.
+    linters          -> Run the pre-commit and ruff linters.
     doc8             -> Check the documentation input files for syntactical correctness.
     docs             -> Remove old docs output and rebuild HTML from scratch with Sphinx
     unit             -> Run all the software unit tests.
-    ferc1_solo       -> Test whether FERC 1 can be loaded into the PUDL database alone.
     integration      -> Run all software integration tests and process a full year of data.
+    minmax_rows      -> Check that all outputs have the expected number of rows.
     validate         -> Run all data validation tests. This requires a complete PUDL DB.
-    ferc1_schema     -> Verify FERC Form 1 DB schema are compatible for all years.
+    jupyter          -> Ensure that designated Jupyter notebooks can be executed.
     full_integration -> Run ETL and integration tests for all years and data sources.
     full             -> Run all CI checks, but for all years of data.
-    build            -> Prepare Python source and binary packages for release.
-    testrelease      -> Do a dry run of Python package release using the PyPI test server.
-    release          -> Release the PUDL package to the production PyPI server.
+    nuke             -> Nuke & recreate SQLite & Parquet outputs, then run all tests and
+                        data validations against the new outputs.
+    get_unmapped_ids -> Make the raw FERC1 DB and generate a PUDL database with only EIA in
+                        order to generate any unmapped IDs.
 
-Note that not all of them literally run tests. For instance, to lint and
-build the documentation you can run:
+Note that not all of them literally run tests. For instance, to lint and build the
+documentation you can run:
 
 .. code-block:: console
 
@@ -322,41 +322,25 @@ with the construction of that database. For example, the output routines:
 
 We also use this option to run the data validations.
 
-Assuming you do want to run the ETL and build new databases as part of the test
-you're running, the contents of that database are determined by an ETL settings
-file. By default, the settings file that's used is
-``test/settings/integration-test.yml`` But it's also possible to use a
-different input file, generating a different database, and then run some
-tests against that database.
+Assuming you do want to run the ETL and build new databases as part of the test you're
+running, the contents of that database are determined by an ETL settings file. By
+default, the settings file that's used is
+``src/pudl/package_data/settings/etl_fast.yml`` But it's also possible to use a
+different input file, generating a different database, and then run some tests against
+that database.
 
-For example, we test that FERC 1 data can be loaded into a PUDL database all
-by itself by running the ETL tests with a settings file that includes only A
-couple of FERC 1 tables for a single year. This is the ``ferc1_solo`` Tox
-test environment:
+We use the ``src/pudl/package_data/etl_full.yml`` settings file to specify an exhaustive
+collection of input data.
 
-.. code-block:: console
+The raw input data that all the tests use is ultimately coming from our `archives on
+Zenodo <https://zenodo.org/communities/catalyst-cooperative>`__. However, you can
+optionally tell the tests to look in a different places for more rapidly accessible
+caches of that data and to force the download of a fresh copy (especially useful when
+you are testing the datastore functionality specifically). By default, the tests will
+use the datastore that's part of your local PUDL workspace.
 
-  $ pytest --etl-settings=test/settings/ferc1-solo-test.yml test/integration/etl_test.py
-
-Similarly, we use the ``test/settings/full-integration-test.yml`` settings file
-to specify an exhaustive collection of input data, and then we run a test that
-checks that the database schemas extracted from all historical FERC 1 databases
-are compatible with each other. This is the ``ferc1_schema`` test:
-
-.. code-block:: console
-
-  $ pytest --etl-settings test/settings/full-integration-test.yml test/integration/etl_test.py::test_ferc1_schema
-
-The raw input data that all the tests use is ultimately coming from our
-`archives on Zenodo <https://zenodo.org/communities/catalyst-cooperative>`__.
-However, you can optionally tell the tests to look in a different places for more
-rapidly accessible caches of that data and to force the download of a fresh
-copy (especially useful when you are testing the datastore functionality
-specifically). By default, the tests will use the datastore that's part of your
-local PUDL workspace.
-
-For example, to run the ETL portion of the integration tests and download
-fresh input data to a temporary datastore that's later deleted automatically:
+For example, to run the ETL portion of the integration tests and download fresh input
+data to a temporary datastore that's later deleted automatically:
 
 .. code-block:: console
 
