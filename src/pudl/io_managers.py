@@ -774,7 +774,8 @@ class FercXBRLSQLiteIOManager(FercSQLiteIOManager):
         context_cols = [
             col for col in primary_key if col not in {"filing_name", "publication_time"}
         ]
-        return self.use_latest_filing_for_context(df, context_cols)
+        deduped = self.use_latest_filing_for_context(df, context_cols)
+        return deduped.drop(columns=["publication_time"])
 
 
 @io_manager(required_resource_keys={"dataset_settings"})

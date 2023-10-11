@@ -34,7 +34,7 @@ description: >
 version: 0.1.0
 datasets:
   ferc1:
-    years: [2020, 2021]
+    years: [2020, 2021, 2022]
   ferc714:
     years: [2019, 2020]
   eia:

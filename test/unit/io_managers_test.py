@@ -364,12 +364,12 @@ def test_ferc_xbrl_sqlite_io_manager_dedupes(mocker, tmp_path):
 
 example_schema = pa.DataFrameSchema(
     {
-        "entity_id": pa.Column(str),
-        "date": pa.Column("datetime64[ns]"),
+        "entity_id": pa.Column(str, nullable=False),
+        "date": pa.Column("datetime64[ns]", nullable=False),
         "utility_type": pa.Column(
-            str, pa.Check.isin(["electric", "gas", "total", "other"])
+            str, pa.Check.isin(["electric", "gas", "total", "other"]), nullable=False
         ),
-        "publication_time": pa.Column("datetime64[ns]"),
+        "publication_time": pa.Column("datetime64[ns]", nullable=False),
         "int_factoid": pa.Column(int),
         "float_factoid": pa.Column(float),
         "str_factoid": pa.Column("str"),
@@ -392,6 +392,8 @@ def test_get_unique_row_per_context(df):
     paired_by_context = original_contexts.merge(
         deduped, on=context_cols, how="outer", suffixes=["_in", "_out"], indicator=True
     ).set_index(context_cols)
+    hypothesis.note(original_contexts)
+    hypothesis.note(deduped)
     assert (paired_by_context._merge == "both").all()
 
     # for every row in the output - its publication time is greater than or equal to all of the other ones for that [entity_id, utility_type, date] in the input data
