@@ -4762,7 +4762,8 @@ class RetainedEarningsFerc1TableTransformer(Ferc1AbstractTableTransformer):
         ]
         # If previous_year type factoids aren't in all report_years, make factoids
         # for these years. Raise exception if more than one year.
-        [missing_year] = [
+
+        missing_years = [
             year
             for year in df[
                 df.earnings_type.isin(current_year_types)
@@ -4771,58 +4772,59 @@ class RetainedEarningsFerc1TableTransformer(Ferc1AbstractTableTransformer):
             not in df[df.earnings_type.isin(previous_year_types)].report_year.unique()
         ]
 
-        current_year = df[
-            (df.report_year == missing_year)
-            & (df.earnings_type.isin(current_year_types))
-        ]
-        previous_year = df[
-            (df.report_year == missing_year - 1)
-            & (df.earnings_type.isin(current_year_types))
-        ]
+        for missing_year in missing_years:
+            current_year = df[
+                (df.report_year == missing_year)
+                & (df.earnings_type.isin(current_year_types))
+            ]
+            previous_year = df[
+                (df.report_year == missing_year - 1)
+                & (df.earnings_type.isin(current_year_types))
+            ]
 
-        idx = [
-            "utility_id_ferc1",
-            "earnings_type",
-        ]
-        # This only works if there are two years of data, thus the assertion above.
-        data_columns = ["starting_balance", "ending_balance"]
-        metadata_columns = [
-            "balance",
-            "xbrl_factoid_original",
-            "is_within_table_calc",
-            "row_type_xbrl",
-        ]
-        date_dupe_types = pd.merge(
-            current_year.loc[:, ~current_year.columns.isin(metadata_columns)],
-            previous_year[idx + data_columns],
-            on=idx,
-            how="inner",
-            suffixes=("_original", ""),
-        ).drop(columns=["starting_balance_original", "ending_balance_original"])
+            idx = [
+                "utility_id_ferc1",
+                "earnings_type",
+            ]
+            # This only works if there are two years of data, thus the assertion above.
+            data_columns = ["starting_balance", "ending_balance"]
+            metadata_columns = [
+                "balance",
+                "xbrl_factoid_original",
+                "is_within_table_calc",
+                "row_type_xbrl",
+            ]
+            date_dupe_types = pd.merge(
+                current_year.loc[:, ~current_year.columns.isin(metadata_columns)],
+                previous_year[idx + data_columns],
+                on=idx,
+                how="inner",
+                suffixes=("_original", ""),
+            ).drop(columns=["starting_balance_original", "ending_balance_original"])
 
-        date_dupe_types["earnings_type"] = date_dupe_types["earnings_type"].apply(
-            lambda x: f"{x}_previous_year"
-        )
+            date_dupe_types["earnings_type"] = date_dupe_types["earnings_type"].apply(
+                lambda x: f"{x}_previous_year"
+            )
 
-        # Add in metadata that matches that of prior year's `previous_year` factoids
-        # These should be consistent.
-        previous_factoid_metadata = df.loc[
-            (df.report_year == missing_year - 1)
-            & (df.earnings_type.str.contains("_previous_year"))
-        ]
-        date_dupe_types = pd.merge(
-            date_dupe_types,
-            previous_factoid_metadata[idx + metadata_columns],
-            on=idx,
-            how="left",
-        )
+            # Add in metadata that matches that of prior year's `previous_year` factoids
+            # These should be consistent.
+            previous_factoid_metadata = df.loc[
+                (df.report_year == missing_year - 1)
+                & (df.earnings_type.str.contains("_previous_year"))
+            ]
+            date_dupe_types = pd.merge(
+                date_dupe_types,
+                previous_factoid_metadata[idx + metadata_columns],
+                on=idx,
+                how="left",
+            )
 
-        df = pd.concat([df, date_dupe_types])
+            df = pd.concat([df, date_dupe_types])
 
-        # All `previous_year` factoids are missing `row_type_xbrl`. Fill in.
-        df.loc[
-            df.earnings_type.isin(previous_year_types), "row_type_xbrl"
-        ] = "reported_value"
+            # All `previous_year` factoids are missing `row_type_xbrl`. Fill in.
+            df.loc[
+                df.earnings_type.isin(previous_year_types), "row_type_xbrl"
+            ] = "reported_value"
 
         return df
 
