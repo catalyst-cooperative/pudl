@@ -5133,6 +5133,20 @@ class ElectricPlantDepreciationFunctionalFerc1TableTransformer(
         df = df.assign(depreciation_type="accumulated_depreciation").pipe(
             super().transform_main
         )
+        # convert this **one** utility's depreciation $$ from negative -> +
+        # this was found through checking the inter-table calculations in the explosion
+        # process. The one factoid in this table is linked with
+        # depreciation_utility_plant_in_service in the utility_plant_summary_ferc1 table.
+        # the values in both tables are almost always postive. Not always & there are
+        # some logical reasons why depreciation can sometimes be negative. Nonetheless,
+        # for this one utility, all of its values in utility_plant_summary_ferc1 are
+        # postive while nearly all of the $s over here are negative. No other utility
+        # has as many -$ which tells me this is a data entry error.
+        # see https://github.com/catalyst-cooperative/pudl/issues/2703 for more details
+        negative_util_mask = df.utility_id_ferc1 == 211
+        df.loc[negative_util_mask, "ending_balance"] = abs(
+            df.loc[negative_util_mask, "ending_balance"]
+        )
         return df
 
 
