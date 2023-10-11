@@ -19,7 +19,6 @@ dependencies = [
     "catalystcoop.dbfread>=3.0,<3.1",
     "catalystcoop.ferc-xbrl-extractor>=1.1.1,<1.2",
     "coloredlogs>=14.0,<15.1",  # Dagster requires 14.0
-    "croniter<2",  # 2.0.0 seems to break mamba
     "dagster-webserver>=1.4,<1.6",
     "dagster>=1.4,<1.6",
     "dask>=2022.5,<2023.9.4",
