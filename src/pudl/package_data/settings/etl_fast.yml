@@ -77,3 +77,5 @@ datasets:
     # also load the EIA 860 data for that year if possible
     states: [ID, ME]
     years: [2020, 2022]
+  phmsagas:
+    years: [2020, 2022]

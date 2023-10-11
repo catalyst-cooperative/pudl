@@ -182,7 +182,7 @@ class ZenodoDoiSettings(BaseSettings):
     # ferc60: ZenodoDoi = "10.5072/zenodo.1098089"
     ferc714: ZenodoDoi = "10.5281/zenodo.7139875"
     # ferc714: ZenodoDoi = "10.5072/zenodo.1098302"
-    phmsagas: ZenodoDoi = "10.5281/zenodo.7683352"
+    phmsagas: ZenodoDoi = "10.5281/zenodo.8346646"
     # phmsagas: ZenodoDoi = "10.5072/zenodo.1239253"
 
     class Config:
