@@ -1061,8 +1061,8 @@ def calculate_values_from_components(
             on=calc_idx,
         )
         # apply the weight from the calc to convey the sign before summing.
-        .assign(calculated_amount=lambda x: x[value_col] * x.weight)
-        .groupby(gby_parent, as_index=False, dropna=False)[["calculated_amount"]]
+        .assign(calculated_value=lambda x: x[value_col] * x.weight)
+        .groupby(gby_parent, as_index=False, dropna=False)[["calculated_value"]]
         .sum(min_count=1)
     )
     # remove the _parent suffix so we can merge these calculated values back onto
@@ -1095,13 +1095,13 @@ def check_calculation_metrics(
 ) -> pd.DataFrame:
     """Run the calculation metrics and determine if calculations are within tolerance."""
     # Data types were very messy here, including pandas Float64 for the
-    # calculated_amount columns which did not work with the np.isclose(). Not sure
+    # calculated_value columns which did not work with the np.isclose(). Not sure
     # why these are cropping up.
     calculated_df = calculated_df.convert_dtypes(convert_floating=False).astype(
-        {value_col: "float64", "calculated_amount": "float64"}
+        {value_col: "float64", "calculated_value": "float64"}
     )
     calculated_df = calculated_df.assign(
-        abs_diff=lambda x: abs(x[value_col] - x.calculated_amount),
+        abs_diff=lambda x: abs(x[value_col] - x.calculated_value),
         rel_diff=lambda x: np.where(
             (x[value_col] != 0.0),
             abs(x.abs_diff / x[value_col]),
@@ -1110,7 +1110,7 @@ def check_calculation_metrics(
     )
     calculated_df["is_error"] = (
         ~np.isclose(
-            calculated_df["calculated_amount"],
+            calculated_df["calculated_value"],
             calculated_df[value_col],
             rtol=calculation_tolerance.isclose_rtol,
             atol=calculation_tolerance.isclose_atol,
@@ -1133,7 +1133,7 @@ def check_calculation_metrics(
     all_errors = calculated_df[calculated_df["is_error"]]
 
     # Why does it make sense to compare against records where abs_diff is non-null?
-    # Why wouldn't we want to look at records where calculated_amount is non-null?
+    # Why wouldn't we want to look at records where calculated_value is non-null?
     non_null_calculated_df = calculated_df.dropna(subset="abs_diff")
     if non_null_calculated_df.empty:
         # Will only occur if all reported values are NaN when calculated values
@@ -1169,7 +1169,7 @@ def _is_valid_error_df(df: pd.DataFrame) -> bool:
     required_cols = [
         "is_error",
         "reported_value",
-        "calculated_amount",
+        "calculated_value",
         "abs_diff",
     ]
     return all(col in df.columns for col in required_cols)
@@ -1188,7 +1188,7 @@ def error_frequency(df: pd.DataFrame) -> float:
         return np.nan
 
 
-def error_relative_magnitude(df: pd.DataFrame) -> float:
+def relative_error_magnitude(df: pd.DataFrame) -> float:
     """Calculate the mangnitude of the errors relative to total reported value."""
     try:
         # Should we be taking the absolute value of the reported column?
@@ -1197,7 +1197,7 @@ def error_relative_magnitude(df: pd.DataFrame) -> float:
         return np.nan
 
 
-def error_absolute_magnitude(df: pd.DataFrame) -> float:
+def absolute_error_magnitude(df: pd.DataFrame) -> float:
     """Calculate the absolute magnitude of the errors in aggregate."""
     return df.abs_diff.sum()
 
@@ -1205,7 +1205,7 @@ def error_absolute_magnitude(df: pd.DataFrame) -> float:
 def null_calculation_frequency(df: pd.DataFrame) -> float:
     """Frequency with which calculated values are null when reported values are not."""
     non_null_reported = df["reported_value"].notnull()
-    null_calculated = df["calculated_amount"].isnull()
+    null_calculated = df["calculated_value"].isnull()
     return (non_null_reported & null_calculated).sum() / non_null_reported.sum()
 
 
@@ -1247,8 +1247,8 @@ def aggregate_error_matrix(
     if metrics is None:
         metrics = [
             error_frequency,
-            error_relative_magnitude,
-            error_absolute_magnitude,
+            relative_error_magnitude,
+            absolute_error_magnitude,
             null_calculation_frequency,
             null_reported_value_frequency,
             # Still need to write these
@@ -1296,7 +1296,7 @@ def add_corrections(
     """
     corrections = calculated_df[
         ~np.isclose(
-            calculated_df["calculated_amount"],
+            calculated_df["calculated_value"],
             calculated_df[value_col],
             rtol=calculation_tolerance.isclose_rtol,
             atol=calculation_tolerance.isclose_atol,
@@ -1305,7 +1305,7 @@ def add_corrections(
     ]
 
     corrections[value_col] = (
-        corrections[value_col].fillna(0.0) - corrections["calculated_amount"]
+        corrections[value_col].fillna(0.0) - corrections["calculated_value"]
     )
     corrections = corrections.assign(
         xbrl_factoid_corrected=lambda x: x["xbrl_factoid"],

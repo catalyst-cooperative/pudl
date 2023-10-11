@@ -1435,7 +1435,7 @@ class Exploder:
         components originate entirely or partially outside of the table. It also
         accounts for components that only sum to a factoid within a particular dimension
         (e.g., for an electric utility or for plants whose plant_function is
-        "in_service"). This returns a dataframe with a "calculated_amount" column.
+        "in_service"). This returns a dataframe with a "calculated_value" column.
 
         Args:
             exploded: concatenated tables for table explosion.
