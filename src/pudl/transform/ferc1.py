@@ -1317,7 +1317,10 @@ def add_corrections(
     num_notnull_calcs = sum(calculated_df["abs_diff"].notnull())
     num_corrections = corrections.shape[0]
     num_records = calculated_df.shape[0]
-    corrected_fraction = num_corrections / num_notnull_calcs
+    try:
+        corrected_fraction = num_corrections / num_notnull_calcs
+    except ZeroDivisionError:
+        corrected_fraction = np.nan
     logger.info(
         f"{table_name}: Correcting {corrected_fraction:.2%} of all non-null reported "
         f"values ({num_corrections}/{num_notnull_calcs}) out of a total of "
