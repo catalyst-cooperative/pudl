@@ -126,6 +126,30 @@ def _fill_fuel_costs_by_state(
     return out_df
 
 
+def drop_ytd_for_annual_tables(df: pd.DataFrame, freq: str) -> pd.DataFrame:
+    """Drop records in annual tables where data_maturity is incremental_ytd.
+
+    This avoids accidental aggregation errors due to sub-annually reported data.
+
+    Args:
+        df: A pd.DataFrame that contains a data_maturity column and for
+            which you want to drop values where data_maturity = incremental_ytd.
+        freq: either MS or AS to indicate the level of aggretation for a specific table.
+
+    Returns:
+        pd.DataFrame: The same input pd.DataFrames but without any rows where
+            data_maturity = incremental_ytd.
+    """
+    if freq == "AS":
+        logger.info(
+            "Removing rows where data_maturity is incremental_ytd to avoid "
+            "aggregation errors."
+        )
+        return df.loc[df["data_maturity"] != "incremental_ytd"]
+    else:
+        return df
+
+
 #####################################################################################
 # Simple Denormalized Assets
 #####################################################################################
@@ -339,6 +363,7 @@ def time_aggregated_eia923_asset_factory(
             denorm_generation_eia923.set_index(
                 pd.DatetimeIndex(denorm_generation_eia923.report_date)
             )
+            .pipe(drop_ytd_for_annual_tables, freq)
             .groupby(
                 by=["plant_id_eia", "generator_id", pd.Grouper(freq=freq)],
                 observed=True,
@@ -367,6 +392,7 @@ def time_aggregated_eia923_asset_factory(
             denorm_generation_fuel_combined_eia923.set_index(
                 pd.DatetimeIndex(denorm_generation_fuel_combined_eia923.report_date)
             )
+            .pipe(drop_ytd_for_annual_tables, freq)
             .groupby(
                 by=[
                     "plant_id_eia",
@@ -439,6 +465,7 @@ def time_aggregated_eia923_asset_factory(
                 total_ash_content=lambda x: x.fuel_consumed_units * x.ash_content_pct,
             )
             .set_index(pd.DatetimeIndex(denorm_boiler_fuel_eia923.report_date))
+            .pipe(drop_ytd_for_annual_tables, freq)
             .groupby(
                 by=[
                     "plant_id_eia",
@@ -501,6 +528,7 @@ def time_aggregated_eia923_asset_factory(
                 total_chlorine_content=lambda x: x.chlorine_content_ppm
                 * x.fuel_received_units,
             )
+            .pipe(drop_ytd_for_annual_tables, freq)
             .groupby(
                 by=["plant_id_eia", "fuel_type_code_pudl", pd.Grouper(freq=freq)],
                 observed=True,
