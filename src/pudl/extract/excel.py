@@ -8,8 +8,6 @@ import regex as re
 
 import pudl
 
-from dagster._utils.forked_pdb import ForkedPdb
-
 logger = pudl.logging_helpers.get_logger(__name__)
 
 
