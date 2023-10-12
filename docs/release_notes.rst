@@ -101,6 +101,11 @@ Data Coverage
   * :ref:`cash_flow_ferc1`, see issue :issue:`1821` & PR :pr:`2184`
   * :ref:`electricity_sales_by_rate_schedule_ferc1`, see issue :issue:`1823` & PR
     :pr:`2205`
+* Harvested owner utilities from the EIA 860 ownership table which are now included in
+  the :ref:`utilities_entity_eia` and :ref:`utilities_eia` tables. See :pr:`2714` and
+  :pr:`2903`. Renamed columns with owner or operator suffix to differentiate between
+  owner and operator utility columns in :ref:`ownership_eia860` and
+  :ref:`denorm_ownership_eia860`.
 
 * New PUDL tables from :doc:`data_sources/eia860`:
 

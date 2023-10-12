@@ -749,6 +749,7 @@ class ReconcileTableCalculations(TransformParams):
 def reconcile_table_calculations(
     df: pd.DataFrame,
     calculation_components: pd.DataFrame,
+    xbrl_metadata: pd.DataFrame,
     xbrl_factoid_name: str,
     table_name: str,
     params: ReconcileTableCalculations,
@@ -803,7 +804,9 @@ def reconcile_table_calculations(
     calc_idx = ["xbrl_factoid", "table_name"] + dim_cols
 
     if dim_cols:
-        table_dims = df[calc_idx].drop_duplicates(keep="first")
+        table_dims = (
+            df[calc_idx].drop_duplicates(keep="first").assign(table_name=table_name)
+        )
         # need to add in the correction dimensions. they don't show up in the data at
         # this point so we don't have the dimensions yet. NOTE: this could have been
         # done by adding the dims into table_dims..... maybe would have been more
@@ -839,7 +842,6 @@ def reconcile_table_calculations(
                     & intra_tbl_calcs[f"{dim}_parent"].isnull()
                 )
             ]
-    pks = pudl.metadata.classes.Resource.from_id(table_name).schema.primary_key
     calculated_df = calculate_values_from_components(
         data=df,
         calculation_components=intra_tbl_calcs,
@@ -856,36 +858,37 @@ def reconcile_table_calculations(
 
     # Check that sub-total calculations sum to total.
     if params.subtotal_column is not None:
-        sub_group_col = params.subtotal_column
-        pks_wo_subgroup = [col for col in pks if col != sub_group_col]
-        calculated_df["sub_total_sum"] = (
-            calculated_df.pipe(lambda df: df[df[sub_group_col] != "total"])
-            .groupby(pks_wo_subgroup)[params.column_to_check]
-            .transform("sum")  # For each group, calculate sum of sub-components
+        logger.info(
+            f"Checking total-to-subtotal calculations within {params.subtotal_column}"
         )
-        calculated_df["sub_total_sum"] = calculated_df["sub_total_sum"].fillna(
-            calculated_df[params.column_to_check]  # Fill in value from 'total' column
+        meta_w_dims = xbrl_metadata.assign(
+            **{dim: pd.NA for dim in dim_cols} | {"table_name": table_name}
+        ).pipe(
+            make_calculation_dimensions_explicit,
+            table_dimensions_ferc1=table_dims,
+            dimensions=dim_cols,
         )
-        sub_total_errors = (
-            calculated_df.groupby(pks_wo_subgroup)
-            # If subcomponent sum != total sum, we have nunique()>1
-            .filter(lambda x: x["sub_total_sum"].nunique() > 1).groupby(  # noqa: PD101
-                pks_wo_subgroup
-            )
+        calc_comps_w_totals = infer_intra_factoid_totals(
+            intra_tbl_calcs,
+            meta_w_dims=meta_w_dims,
+            table_dimensions=table_dims,
+            dimensions=dim_cols,
         )
-        off_ratio_sub = (
-            sub_total_errors.ngroups / calculated_df.groupby(pks_wo_subgroup).ngroups
+        subtotal_calcs = calculate_values_from_components(
+            data=df,
+            calculation_components=calc_comps_w_totals[
+                calc_comps_w_totals.is_total_to_subdimensions_calc
+            ],
+            calc_idx=calc_idx,
+            value_col=params.column_to_check,
         )
-        if sub_total_errors.ngroups > 0:
-            logger.warning(
-                f"{table_name}: has {sub_total_errors.ngroups} ({off_ratio_sub:.02%}) sub-total calculations that don't "
-                "sum to the equivalent total column."
-            )
-        if off_ratio_sub > params.subtotal_calculation_tolerance:
-            raise AssertionError(
-                f"Sub-total calculations in {table_name} are off by {off_ratio_sub}. Expected tolerance "
-                f"of {params.subtotal_calculation_tolerance}."
-            )
+        subtotal_calcs = check_calculation_metrics(
+            calculated_df=subtotal_calcs,
+            value_col=params.column_to_check,
+            calculation_tolerance=params.calculation_tolerance,
+            table_name=table_name,
+            add_corrections=True,
+        ).rename(columns={"xbrl_factoid": xbrl_factoid_name})
 
     return calculated_df
 
@@ -906,8 +909,6 @@ def calculate_values_from_components(
         data: exploded FERC data to apply the calculations to. Primary key should be
             ``report_year``, ``utility_id_ferc1``, ``table_name``, ``xbrl_factoid``, and
             whatever additional dimensions are relevant to the data.
-        validate: type of merge validation to apply when initially merging the calculation
-            components (left) and the data (right).
         calc_idx: primary key columns that uniquely identify a calculation component (not
             including the ``_parent`` columns).
         value_col: label of the column in ``data`` that contains the values to apply the
@@ -2392,6 +2393,7 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
                 df=df,
                 calculation_components=self.xbrl_calculations,
                 xbrl_factoid_name=self.params.xbrl_factoid_name,
+                xbrl_metadata=self.xbrl_metadata,
                 table_name=self.table_id.value,
                 params=params,
                 add_corrections=True,
@@ -2485,6 +2487,7 @@ class FuelFerc1TableTransformer(Ferc1AbstractTableTransformer):
         df = (
             super()
             .process_dbf(raw_dbf)
+            .pipe(self.to_numeric)
             .pipe(self.convert_units)
             .pipe(self.normalize_strings)
             .pipe(self.categorize_strings)
@@ -2518,6 +2521,7 @@ class FuelFerc1TableTransformer(Ferc1AbstractTableTransformer):
                 raw_xbrl_instant, raw_xbrl_duration
             )
             .pipe(self.rename_columns, rename_stage="xbrl")
+            .pipe(self.to_numeric)
             .pipe(self.convert_units)
             .pipe(self.normalize_strings)
             .pipe(self.categorize_strings)
@@ -2530,7 +2534,20 @@ class FuelFerc1TableTransformer(Ferc1AbstractTableTransformer):
             )
         )
 
-    def standardize_physical_fuel_units(self, df: pd.DataFrame) -> pd.DataFrame:
+    def to_numeric(self: Self, df: pd.DataFrame) -> pd.DataFrame:
+        """Convert columns containing numeric strings to numeric types."""
+        numeric_cols = [
+            "fuel_consumed_units",
+            "fuel_cost_per_unit_burned",
+            "fuel_cost_per_unit_delivered",
+            "fuel_cost_per_mmbtu",
+        ]
+        for col in numeric_cols:
+            df[col] = pd.to_numeric(df[col])
+
+        return df
+
+    def standardize_physical_fuel_units(self: Self, df: pd.DataFrame) -> pd.DataFrame:
         """Convert reported fuel quantities to standard units depending on fuel type.
 
         Use the categorized fuel type and reported fuel units to convert all fuel
@@ -3971,6 +3988,11 @@ class TransmissionStatisticsFerc1TableTransformer(Ferc1AbstractTableTransformer)
     table_id: TableIdFerc1 = TableIdFerc1.TRANSMISSION_STATISTICS_FERC1
     has_unique_record_ids: bool = False
 
+    def transform_main(self: Self, df: pd.DataFrame) -> pd.DataFrame:
+        """Do some string-to-numeric ninja moves."""
+        df["num_transmission_circuits"] = pd.to_numeric(df["num_transmission_circuits"])
+        return super().transform_main(df)
+
 
 class ElectricEnergySourcesFerc1TableTransformer(Ferc1AbstractTableTransformer):
     """Transformer class for :ref:`electric_energy_sources_ferc1` table.
@@ -4023,6 +4045,16 @@ class UtilityPlantSummaryFerc1TableTransformer(Ferc1AbstractTableTransformer):
 
     table_id: TableIdFerc1 = TableIdFerc1.UTILITY_PLANT_SUMMARY_FERC1
     has_unique_record_ids: bool = False
+
+    def process_xbrl(
+        self: Self, raw_xbrl_instant: pd.DataFrame, raw_xbrl_duration: pd.DataFrame
+    ) -> pd.DataFrame:
+        """Remove the end-of-previous-year instant data."""
+        all_current_year = raw_xbrl_instant[
+            raw_xbrl_instant["date"].astype("datetime64[ns]").dt.year
+            == raw_xbrl_instant["report_year"].astype("int64")
+        ]
+        return super().process_xbrl(all_current_year, raw_xbrl_duration)
 
     def convert_xbrl_metadata_json_to_df(
         self: Self,
@@ -4131,40 +4163,6 @@ class UtilityPlantSummaryFerc1TableTransformer(Ferc1AbstractTableTransformer):
             "utility_plant_asset_type",
         ]
 
-        # The utility_id_ferc1 211 follows the same pattern for several years
-        # instead of writing them all out in spot_fix_pks, we'll create a loop that
-        # generates all of them and then append them to spot_fix_pks later
-        spot_fix_211 = []
-        for year in np.append(2006, range(2009, 2021)):
-            for utility_type in ["electric", "total"]:
-                pks = [
-                    (
-                        year,
-                        211,
-                        utility_type,
-                        "accumulated_provision_for_depreciation_amortization_and_depletion_of_plant_utility",
-                    ),
-                    (
-                        year,
-                        211,
-                        utility_type,
-                        "amortization_of_other_utility_plant_utility_plant_in_service",
-                    ),
-                    (
-                        year,
-                        211,
-                        utility_type,
-                        "depreciation_amortization_and_depletion_utility_plant_in_service",
-                    ),
-                    (
-                        year,
-                        211,
-                        utility_type,
-                        "depreciation_utility_plant_in_service",
-                    ),
-                ]
-                spot_fix_211 = spot_fix_211 + pks
-
         spot_fix_pks = [
             (
                 2012,
@@ -4260,8 +4258,17 @@ class UtilityPlantSummaryFerc1TableTransformer(Ferc1AbstractTableTransformer):
             (2007, 393, "total", "depreciation_utility_plant_in_service"),
         ]
 
-        # Combine bespoke fixes with programatically generated spot fixes
-        spot_fix_pks = spot_fix_pks + spot_fix_211
+        spot_fix_pks += [
+            (year, 211, utility_type, column_name)
+            for year in [2006] + list(range(2009, 2021))
+            for utility_type in ["electric", "total"]
+            for column_name in [
+                "accumulated_provision_for_depreciation_amortization_and_depletion_of_plant_utility",
+                "amortization_of_other_utility_plant_utility_plant_in_service",
+                "depreciation_amortization_and_depletion_utility_plant_in_service",
+                "depreciation_utility_plant_in_service",
+            ]
+        ]
 
         # Par down spot fixes to account for fast tests where not all years are used
         df_years = df.report_year.unique().tolist()
@@ -4276,7 +4283,7 @@ class UtilityPlantSummaryFerc1TableTransformer(Ferc1AbstractTableTransformer):
             df = df.set_index(primary_keys)
             # Flip the signs for the values in "ending balance" all records in the original
             # df that appear in the primary key df
-            df.loc[df_keys.index, "ending_balance"] = df["ending_balance"] * -1
+            df.loc[df_keys.index, "ending_balance"] *= -1
             # All of these are flipping negative values to positive values,
             # so let's make sure that's what happens
             flipped_values = df.loc[df_keys.index]
@@ -6038,7 +6045,12 @@ def infer_intra_factoid_totals(
         lambda dim: f"{dim}_parent", axis="columns"
     )
     inferred_totals = inferred_totals.fillna(child_values)
-    calcs_with_totals = pd.concat([calc_components, inferred_totals])
+    calcs_with_totals = pd.concat(
+        [
+            calc_components.assign(is_total_to_subdimensions_calc=False),
+            inferred_totals.assign(is_total_to_subdimensions_calc=True),
+        ]
+    )
 
     # verification + deduping below.
 
