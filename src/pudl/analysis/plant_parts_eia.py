@@ -16,8 +16,8 @@ plant-part table is an attempt to create records corresponding to many
 different plant-parts in order to connect specific slices of EIA plants to
 other datasets.
 
-Because generators are often owned by multiple utilities, another dimention of
-the master unit list involves generating two records for each owner: one of the
+Because generators are often owned by multiple utilities, another dimension of
+the plant-part table involves generating two records for each owner: one for the
 portion of the plant part they own and one for the plant part as a whole. The
 portion records are labeled in the ``ownership_record_type`` column as "owned"
 and the total records are labeled as "total".
@@ -89,9 +89,9 @@ In this case the unit is more relevant:
 0              1    plant_unit               1            200
 
 But if this same plant had both this combined-cycle unit and two more
-generators that were self contained "GT" or gas combustion turbine, a frequent
-way to group these generators is differnt for the combined-cycle unit and the
-gas-turbine.
+generators that were self contained "GT" or gas combustion turbine, a logical
+way to group these generators is to have different recprds for the
+combined-cycle unit and the gas-turbine.
 
 >>> df_gens = pd.DataFrame({
 ...     'plant_id_eia': [1, 1, 1, 1, 1],
@@ -120,12 +120,12 @@ gas-turbine.
 0              1           plant_unit               1                <NA>            200
 1              1    plant_prime_mover            <NA>                  GT            150
 
-In this case last, the ``plant_unit`` record would have a null
-``plant_prime_mover`` because the unit contains more than one
+In this case, the ``plant_unit`` record would have a null
+``prime_mover_code`` because the unit contains more than one
 ``prime_mover_code``. Same goes for the ``unit_id_pudl`` of the
-``plant_prime_mover``. This is handled in the :class:``AddConsistentAttributes``.
+``plant_prime_mover`` record. This is handled in the :class:``AddConsistentAttributes``.
 
-**Overview of flow for generating the master unit list:**
+**Overview of flow for generating the plant-part table:**
 
 The two main classes which enable the generation of the plant-part table are:
 
@@ -159,7 +159,8 @@ Create the :class:`pudl.output.pudltabl.PudlTabl` object:
 .. code-block:: python
 
     import pudl
-    pudl_engine = sa.create_engine(pudl.workspace.setup.get_defaults()['pudl_db'])
+    from pudl.workspace.setup import PudlPaths
+    pudl_engine = sa.create_engine(PudlPaths().pudl_db)
     pudl_out = pudl.output.pudltabl.PudlTabl(pudl_engine,freq='AS')
 
 Then make the table via pudl_out:
@@ -185,6 +186,7 @@ from typing import Literal
 
 import numpy as np
 import pandas as pd
+from dagster import asset
 
 import pudl
 from pudl.metadata.classes import Resource
@@ -364,11 +366,43 @@ PPE_COLS = [
 ]
 
 
+@asset(
+    name="mega_generators_eia",
+    compute_kind="Python",
+)
+def mega_gens_asset(
+    mcoe_generators_yearly: pd.DataFrame, denorm_ownership_eia860: pd.DataFrame
+) -> pd.DataFrame:
+    """Create mega generators table asset."""
+    return MakeMegaGenTbl().execute(
+        mcoe=mcoe_generators_yearly,
+        own_eia860=denorm_ownership_eia860,
+    )
+
+
+@asset(
+    name="plant_parts_eia",
+    io_manager_key="pudl_sqlite_io_manager",
+    compute_kind="Python",
+)
+def plant_parts_eia_asset(
+    mega_generators_eia: pd.DataFrame,
+    denorm_plants_eia: pd.DataFrame,
+    denorm_utilities_eia: pd.DataFrame,
+) -> pd.DataFrame:
+    """Create plant parts list asset."""
+    return MakePlantParts().execute(
+        gens_mega=mega_generators_eia,
+        plants_eia860=denorm_plants_eia,
+        utils_eia860=denorm_utilities_eia,
+    )
+
+
 class MakeMegaGenTbl:
     """Compiler for a MEGA generator table with ownership integrated.
 
-    Examples
-    --------
+    Examples:
+    ---------
     **Input Tables**
 
     Here is an example of one plant with three generators. We will use
@@ -446,10 +480,11 @@ class MakeMegaGenTbl:
         """Make the mega generators table with ownership integrated.
 
         Args:
-            mcoe: generator-based mcoe table from :meth:`pudl.output.PudlTabl.mcoe()`
+            mcoe: generator-based mcoe table with DEFAULT_GENS_COLS generator attributes
+                from :meth:`pudl.output.PudlTabl.mcoe_generators()`
             own_eia860: ownership table from :meth:`pudl.output.PudlTabl.own_eia860()`
             scale_cols: list of columns to slice by ownership fraction in
-                :meth:`MakeMegaGenTbl.scale_by_ownership`. Default is :py:const:`SUM_COLS`
+                :meth:`pudl.helpers.scale_by_ownership`. Default is :py:const:`SUM_COLS`
             validate_own_merge: how the merge between ``mcoe`` and ``own_eia860``
                 is to be validated via ``pd.merge``. If there should be one
                 record for each plant/generator/date in ``mcoe`` then the default
@@ -471,8 +506,14 @@ class MakeMegaGenTbl:
         gens_mega = (
             self.get_gens_mega_table(mcoe)
             .pipe(self.label_operating_gens)
-            .pipe(self.scale_by_ownership, own_eia860, slice_cols, validate_own_merge)
+            .pipe(
+                pudl.helpers.scale_by_ownership,
+                own_eia860,
+                slice_cols,
+                validate_own_merge,
+            )
         )
+        gens_mega = gens_mega.convert_dtypes()
         return gens_mega
 
     def get_gens_mega_table(self, mcoe):
@@ -517,11 +558,11 @@ class MakeMegaGenTbl:
         Args:
             gen_df (pandas.DataFrame): annual table of all generators from EIA.
 
-        Returns
+        Returns:
             pandas.DataFrame: annual table of all generators from EIA that
             operated within each reporting year.
 
-        TODO:
+        Todo:
             This function results in warning: `PerformanceWarning: DataFrame
             is highly fragmented...` I expect this is because of the number of
             columns that are being assigned here via `.loc[:, col_to_assign]`.
@@ -547,84 +588,6 @@ class MakeMegaGenTbl:
         )
         return gen_df
 
-    def scale_by_ownership(
-        self, gens_mega, own_eia860, scale_cols=SUM_COLS, validate="1:m"
-    ):
-        """Generate proportional data by ownership %s.
-
-        Why do we have to do this at all? Sometimes generators are owned by
-        many different utility owners that own slices of that generator. EIA
-        reports which portion of each generator is owned by which utility
-        relatively clearly in their ownership table. On the other hand, in
-        FERC1, sometimes a partial owner reports the full plant-part, sometimes
-        they report only their ownership portion of the plant-part. And of
-        course it is not labeld in FERC1. Because of this, we need to compile
-        all of the possible ownership slices of the EIA generators.
-
-        In order to accumulate every possible version of how a generator could
-        be reported, this method generates two records for each generator's
-        reported owners: one of the portion of the plant part they own and one
-        for the plant-part as a whole. The portion records are labeled in the
-        ``ownership_record_type`` column as "owned" and the total records are labeled as
-        "total".
-
-        In this function we merge in the ownership table so that generators
-        with multiple owners then have one record per owner with the
-        ownership fraction (in column ``fraction_owned``). Because the ownership
-        table only contains records for generators that have multiple owners,
-        we assume that all other generators are owned 100% by their operator.
-        Then we generate the "total" records by duplicating the "owned" records
-        but assigning the ``fraction_owned`` to be 1 (i.e. 100%).
-        """
-        # grab the ownership table, and reduce it to only the columns we need
-        own860 = own_eia860[
-            [
-                "plant_id_eia",
-                "generator_id",
-                "report_date",
-                "fraction_owned",
-                "owner_utility_id_eia",
-            ]
-        ].pipe(pudl.helpers.convert_cols_dtypes, "eia")
-        # we're left merging BC we've removed the retired gens, which are
-        # reported in the ownership table
-        gens_mega = (
-            gens_mega.merge(
-                own860,
-                how="left",
-                on=["plant_id_eia", "generator_id", "report_date"],
-                validate=validate,
-            )
-            .assign(  # assume gens that don't show up in the own table have one 100% owner
-                fraction_owned=lambda x: x.fraction_owned.fillna(value=1),
-                # assign the operator id as the owner if null bc if a gen isn't
-                # reported in the own_eia860 table we can assume the operator
-                # is the owner
-                owner_utility_id_eia=lambda x: x.owner_utility_id_eia.fillna(
-                    x.utility_id_eia
-                ),
-                ownership_record_type="owned",
-            )  # swap in the owner as the utility
-            .drop(columns=["utility_id_eia"])
-            .rename(columns={"owner_utility_id_eia": "utility_id_eia"})
-        )
-
-        # duplicate all of these "owned" records, asign 1 to all of the
-        # fraction_owned column to indicate 100% ownership, and add these new
-        # "total" records to the "owned"
-        gens_mega = pd.concat(
-            [
-                gens_mega,
-                gens_mega.copy().assign(
-                    fraction_owned=1, ownership_record_type="total"
-                ),
-            ]
-        )
-        gens_mega.loc[:, scale_cols] = gens_mega.loc[:, scale_cols].multiply(
-            gens_mega["fraction_owned"], axis="index"
-        )
-        return gens_mega
-
 
 class MakePlantParts:
     """Compile the plant parts for the master unit list.
@@ -647,31 +610,21 @@ class MakePlantParts:
     The coordinating function here is :meth:`execute`.
     """
 
-    def __init__(self, pudl_out):
-        """Initialize instance of :class:`MakePlantParts`.
-
-        Args:
-            pudl_out (pudl.output.pudltabl.PudlTabl): An object used to create
-                the tables for EIA and FERC Form 1 analysis.
-        """
-        self.pudl_out = pudl_out
-        self.freq = pudl_out.freq
+    def __init__(self):
+        """Initialize instance of :class:`MakePlantParts`."""
         self.parts_to_ids = make_parts_to_ids_dict()
 
         # get a list of all of the id columns that constitue the primary keys
         # for all of the plant parts
         self.id_cols_list = make_id_cols_list()
 
-    def execute(self, gens_mega):
+    def execute(self, gens_mega, plants_eia860, utils_eia860):
         """Aggregate and slice data points by each plant part.
 
         Returns:
             pandas.DataFrame: The complete plant parts list
         """
         # aggregate everything by each plant part
-        df_keys = list(self.pudl_out._dfs.keys())
-        for k in df_keys:
-            del self.pudl_out._dfs[k]
         part_dfs = []
         for part_name in PLANT_PARTS:
             if part_name == "plant_match_ferc1":
@@ -700,12 +653,15 @@ class MakePlantParts:
         self.plant_parts_eia = TrueGranLabeler().execute(self.plant_parts_eia)
         # clean up, add additional columns
         self.plant_parts_eia = (
-            self.add_additonal_cols(self.plant_parts_eia)
+            self.add_additional_cols(
+                plant_parts_eia=self.plant_parts_eia,
+                plants_eia860=plants_eia860,
+                utils_eia860=utils_eia860,
+            )
             .pipe(pudl.helpers.organize_cols, FIRST_COLS)
             .pipe(self._clean_plant_parts)
             .pipe(Resource.from_id("plant_parts_eia").format_df)
         )
-        self.plant_parts_eia.index = self.plant_parts_eia.index.astype("string")
         return self.plant_parts_eia
 
     #######################################
@@ -730,7 +686,7 @@ class MakePlantParts:
             path_to_one_to_many: a Path to the one_to_many csv
             file in `pudl.package_data.glue`.
 
-        Returns
+        Returns:
             pandas.DataFrame: master unit list table with one-to-many matches aggregated
             as plant parts.
         """
@@ -811,7 +767,7 @@ class MakePlantParts:
 
         return pd.concat([plant_parts_eia, part_df])
 
-    def add_additonal_cols(self, plant_parts_eia):
+    def add_additional_cols(self, plant_parts_eia, plants_eia860, utils_eia860):
         """Add additonal data and id columns.
 
         This method adds a set of either calculated columns or PUDL ID columns.
@@ -828,21 +784,17 @@ class MakePlantParts:
         """
         plant_parts_eia = (
             pudl.helpers.calc_capacity_factor(
-                df=plant_parts_eia, min_cap_fact=-0.5, max_cap_fact=1.5, freq=self.freq
+                df=plant_parts_eia, min_cap_fact=-0.5, max_cap_fact=1.5, freq="AS"
             )
             .merge(
-                self.pudl_out.plants_eia860()[
-                    ["plant_id_eia", "plant_id_pudl"]
-                ].drop_duplicates(),
+                plants_eia860[["plant_id_eia", "plant_id_pudl"]].drop_duplicates(),
                 how="left",
                 on=[
                     "plant_id_eia",
                 ],
             )
             .merge(
-                self.pudl_out.utils_eia860()[
-                    ["utility_id_eia", "utility_id_pudl"]
-                ].drop_duplicates(),
+                utils_eia860[["utility_id_eia", "utility_id_pudl"]].drop_duplicates(),
                 how="left",
                 on=["utility_id_eia"],
             )
@@ -857,20 +809,18 @@ class MakePlantParts:
         return plant_parts_eia
 
     def _clean_plant_parts(self, plant_parts_eia):
-        plant_parts_eia = (
-            plant_parts_eia.assign(
-                report_year=lambda x: x.report_date.dt.year,
-                plant_id_report_year=lambda x: x.plant_id_pudl.astype(str)
-                + "_"
-                + x.report_year.astype(str),
-            )
-            .pipe(
-                pudl.helpers.cleanstrings_snake,
-                ["record_id_eia", "appro_record_id_eia"],
-            )
-            .set_index("record_id_eia")
+        plant_parts_eia = plant_parts_eia.assign(
+            report_year=lambda x: x.report_date.dt.year,
+            plant_id_report_year=lambda x: x.plant_id_pudl.astype(str)
+            + "_"
+            + x.report_year.astype(str),
+        ).pipe(
+            pudl.helpers.cleanstrings_snake,
+            ["record_id_eia", "appro_record_id_eia"],
         )
-        return plant_parts_eia[~plant_parts_eia.index.duplicated(keep="first")]
+        return plant_parts_eia[
+            ~plant_parts_eia["record_id_eia"].duplicated(keep="first")
+        ]
 
     def add_attributes(self, part_df, attribute_df, part_name):
         """Add constant and min/max attributes to plant parts."""
@@ -878,11 +828,11 @@ class MakePlantParts:
             part_df = AddConsistentAttributes(attribute_col, part_name).execute(
                 part_df, attribute_df
             )
-        for attribute_col in PRIORITY_ATTRIBUTES_DICT.keys():
+        for attribute_col in PRIORITY_ATTRIBUTES_DICT:
             part_df = AddPriorityAttribute(attribute_col, part_name).execute(
                 part_df, attribute_df
             )
-        for attribute_col in MAX_MIN_ATTRIBUTES_DICT.keys():
+        for attribute_col in MAX_MIN_ATTRIBUTES_DICT:
             part_df = AddMaxMinAttribute(
                 attribute_col,
                 part_name,
@@ -1261,8 +1211,7 @@ class AddAttribute:
         """Add a new column to gens_mega."""
         if self.assign_col_dict is not None:
             return gens_mega.assign(**self.assign_col_dict)
-        else:
-            return gens_mega
+        return gens_mega
 
 
 class AddConsistentAttributes(AddAttribute):
@@ -1516,8 +1465,10 @@ def add_record_id(part_df, id_cols, plant_part_col="plant_part", year=True):
     )
     if year:
         part_df = part_df.rename(columns={"record_id_eia_temp": "record_id_eia"})
+        part_df["record_id_eia"] = part_df["record_id_eia"].astype("string")
     else:
         part_df = part_df.rename(columns={"record_id_eia_temp": "plant_part_id_eia"})
+        part_df["plant_part_id_eia"] = part_df["plant_part_id_eia"].astype("string")
     return part_df
 
 
@@ -1605,7 +1556,7 @@ def match_to_single_plant_part(
             suffixes=("_og", ""),
         )
         # there should be no records without a matching generator
-        assert ~(part_df.record_id_eia.isnull().values.any())
+        assert ~(part_df.record_id_eia.isnull().to_numpy().any())
         out_dfs.append(part_df)
     out_df = pd.concat(out_dfs)
 

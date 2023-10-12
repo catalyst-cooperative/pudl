@@ -5,7 +5,8 @@ Much of the data we work with is released in a "final" state annually. We typica
 integrate the new year of data over 2-4 weeks in October since, by that
 time, the final release for the previous year have been published by EIA and FERC. We
 also integrate EIA early release data when available. The ``data_maturity`` field will
-indicate whether the data is final or provisional.
+indicate whether the data is final or provisional. To see what data we have available
+for each dataset, click on the links below and look at the "Years Liberated" field.
 
 As of spring 2023 the annual updates include:
 
@@ -126,10 +127,20 @@ in :py:const:`pudl.extract.ferc714.TABLE_ENCODING` and that it may change over t
 
 A. EIA Forms
 ^^^^^^^^^^^^
-**3.A.1)** Use the Jupyter notebook ``devtools/eia-etl-debug.ipynb`` to run the extract
-process independently for each dataset. Given that there are hundreds of columns mapped
-across all the different EIA spreadsheets, you'll almost certainly find some typos or
-errors in the extract process and need to revise your work from step 2.
+**3.A.1)** You can either materialize the raw assets (ex: ``raw_eia860``) in Dagster
+(learn more about Dagster in :doc:`run_the_etl`) or use the Jupyter notebook
+``devtools/eia-etl-debug.ipynb`` to run the extract process for a given data set. There
+are hundreds of columns mapped across all the different EIA spreadsheets, you'll almost
+certainly encounter typos or errors that will cause the extraction to fail. Interpret
+these errors and revise your work from step 2. Using Dagster will help speed up the
+debugging process because it allows you to load individual, problematic assets rather
+than the whole suite of tables from a source.
+
+.. note::
+
+    If you've created or removed any assets, you'll need to refresh the code location in
+    Dagster before materializing any assets. You can do this by clicking on the circular
+    arrow in the upper left hand corner next to the text "Job in <NAME OF JOB>".
 
 B. FERC Form 1
 ^^^^^^^^^^^^^^
@@ -142,8 +153,15 @@ B. FERC Form 1
 This is necessary to enable mapping associations between the FERC 1 and EIA plants and
 utilities later.
 
-**3.B.2)** You can use the ``devtools/ferc1-etl-debug.ipynb`` notebook to run the
-extract process for each table.
+**3.B.2)** Like EIA, you can either materialize the raw assets in Dagster or
+use the ``devtools/ferc1-etl-debug.ipynb`` notebook to run the extract process for
+each table.
+
+C. EPA CEMS
+^^^^^^^^^^^
+**3.C.1)** The CEMS data are so large that it doesn't make sense to store a raw and
+cleaned version of the data in the database. We'll test the extraction and
+transformation steps together in the next section.
 
 4. Update Table & Column Transformations
 ----------------------------------------
@@ -151,15 +169,21 @@ Currently, our FERC and EIA tables utilize different transform processes.
 
 A. EIA Forms
 ^^^^^^^^^^^^
-**4.A.1)** Use the EIA ETL Debugging notebook mentioned above to run the initial
-transform step on all tables of the new year of data and debug any failures. If any new
-tables were added in the new year of data you will need to add a new transform function
-for the corresponding dataframe. If new columns have been added, they should also be
-inspected for cleanup.
+**4.A.1)** You can either materialize the ``_core`` (clean) and ``_core`` (normalized)
+dagster asset groups for your dataset of interest (ex: ``_core_eia860`` and
+``core_eia860``) or use the EIA ETL Debugging notebook mentioned above to run the
+initial transform step on all tables of the new year of data. As mentioned in 3.A.1,
+the debugging process is significantly faster with Dagster. If any new tables were added
+in the new year, you will need to add a new transform function for the corresponding
+dataframe. If new columns have been added, they should also be inspected for cleanup.
+Debug and rematerialize the assets until they load successfully.
 
 .. note::
 
-    The next time we update EIA we should probably do so in the new transform framework.
+    As with the extract phase, if new Dagster assets are added to the pipeline, you'll
+    need to refresh the code location in Dagster by clicking on the circular
+    arrow in the upper left hand corner next to the text "Job in <NAME OF JOB>" before
+    materializing the new assets.
 
 B. FERC Form 1
 ^^^^^^^^^^^^^^
@@ -212,10 +236,11 @@ the relationship between DBF rows and XBRL rows in
     reasoning and is intended for humans (vs. computers) to read.
 
 
-**4.B.3)** Use the FERC 1 debugging notebook ``devtools/ferc1-etl-debug.ipynb`` to run
-the transforms for each table. Heed any errors or warnings that pop up in the
-logs. One of the most likely bugs will be uncategorized strings (think new, strange fuel
-type spellings.
+**4.B.3)** Either materialize the clean and/or normalized FERC 1 dagster asset groups or
+use the FERC 1 debugging notebook ``devtools/ferc1-etl-debug.ipynb`` to run the
+transforms for each table. Heed any errors or warnings that pop up in the logs. One of
+the most likely bugs will be uncategorized strings (think new, strange fuel type
+spellings.
 
 **4.B.4)** If there's a new column, add it to the transform process. At the very least,
 you'll need to include it in the ``rename_columns`` dictionary in
@@ -249,6 +274,13 @@ script in the terminal. From within the pudl repo directory, run:
 
     python src/pudl/transform/ferc1.py
 
+C. EPA CEMS
+^^^^^^^^^^^
+
+**4.C.1)** Use dagster to materialize the ``epacems`` asset group and debug. The most
+common errors will occur when new CEMS plants lack timezone data in the EIA database.
+See section 6.B.1 for instructions on how to fix this. Once you've updated the
+spreadsheet tracking these errors, reload the ``epacems`` assets in Dagster.
 
 5. Update the PUDL DB Schema
 ----------------------------
@@ -276,6 +308,10 @@ dataframes in the normalization and entity resolution process (and associated wi
 generator, boiler, plant, utility, or balancing authority entity), and those that should
 remain in the table where they are reported.
 
+**5.5)** Once you've updated the metadata, you'll need to update the alembic version.
+See the instructions for doing so in :doc:`run_the_etl`. You may have already updated
+alembic if you used Dagster to materialize the raw and clean assets.
+
 6. Connect Datasets
 -------------------
 
@@ -302,12 +338,13 @@ A. FERC 1 & EIA Plants & Utilities
 B. Missing EIA Plant Locations from CEMS
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 **6.B.1)** If there are any plants that appear in the EPA CEMS dataset that do not
-appear in the ``plants_entity_eia`` table or that are missing latitute and longitude
-values, the missing information should be compiled and added to
+appear in the ``plants_entity_eia`` table, or that are missing latitude and longitude
+values, you'll get a warning when you try and materialize the ``epacamd`` asset group in
+Dagster. You'll need to manually compile the missing information and add it to
 ``src/pudl/package_data/epacems/additional_epacems_plants.csv`` to enable accurate
-adjustment of the EPA CEMS timestamps to UTC. This information can usually be obtained
-with the ``plant_id_eia`` and the
-`EPA's FACT API <https://www.epa.gov/airmarkets/field-audit-checklist-tool-fact-api>`__.
+adjustment of the EPA CEMS timestamps to UTC. Using the Plant ID from the warning, look
+up the plant coordinates in the
+`EPA FACT API <https://www.epa.gov/airmarkets/field-audit-checklist-tool-fact-api>`__.
 In some cases you may need to resort to Google Maps. If no coordinates can be found
 then at least the plant's state should be included so that an approximate timezone can
 be inferred.

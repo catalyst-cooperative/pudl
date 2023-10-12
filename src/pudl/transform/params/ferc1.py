@@ -13,87 +13,87 @@ import pandas as pd
 ##############################################################################
 # Unit converstion parameters
 ##############################################################################
-PERPOUND_TO_PERSHORTTON = dict(
-    multiplier=2000.0,
-    from_unit=r"_per_lb",
-    to_unit=r"_per_ton",
-)
+PERPOUND_TO_PERSHORTTON = {
+    "multiplier": 2000.0,
+    "from_unit": r"_per_lb",
+    "to_unit": r"_per_ton",
+}
 """Parameters for converting from inverse pounds to inverse short tons."""
 
-CENTS_TO_DOLLARS = dict(
-    multiplier=0.01,
-    from_unit=r"_cents",
-    to_unit=r"_usd",
-)
+CENTS_TO_DOLLARS = {
+    "multiplier": 0.01,
+    "from_unit": r"_cents",
+    "to_unit": r"_usd",
+}
 """Parameters for converting from cents to dollars."""
 
-CENTS_PERMMBTU_TO_USD_PERMMBTU = dict(
-    multiplier=0.01,
-)
+CENTS_PERMMBTU_TO_USD_PERMMBTU = {
+    "multiplier": 0.01,
+}
 """Parameters for converting from cents per mmbtu to dollars per mmbtu."""
 
 
-PERCF_TO_PERMCF = dict(
-    multiplier=1000.0,
-    from_unit=r"_per_cf",
-    to_unit=r"_per_mcf",
-)
+PERCF_TO_PERMCF = {
+    "multiplier": 1000.0,
+    "from_unit": r"_per_cf",
+    "to_unit": r"_per_mcf",
+}
 """Parameters for converting from inverse cubic feet to inverse 1000s of cubic feet."""
 
-PERGALLON_TO_PERBARREL = dict(
-    multiplier=42.0,
-    from_unit=r"_per_gal",
-    to_unit=r"_per_bbl",
-)
+PERGALLON_TO_PERBARREL = {
+    "multiplier": 42.0,
+    "from_unit": r"_per_gal",
+    "to_unit": r"_per_bbl",
+}
 """Parameters for converting from inverse gallons to inverse barrels."""
 
-PERKW_TO_PERMW = dict(
-    multiplier=1000.0,
-    from_unit=r"_per_kw",
-    to_unit=r"_per_mw",
-)
+PERKW_TO_PERMW = {
+    "multiplier": 1000.0,
+    "from_unit": r"_per_kw",
+    "to_unit": r"_per_mw",
+}
 """Parameters for converting column units from per kW to per MW."""
 
-PERKWH_TO_PERMWH = dict(
-    multiplier=1000.0,
-    from_unit=r"_per_kwh",
-    to_unit=r"_per_mwh",
-)
+PERKWH_TO_PERMWH = {
+    "multiplier": 1000.0,
+    "from_unit": r"_per_kwh",
+    "to_unit": r"_per_mwh",
+}
 """Parameters for converting column units from per kWh to per MWh."""
 
-KW_TO_MW = dict(
-    multiplier=1e-3,
-    from_unit=r"_kw",
-    to_unit=r"_mw",
-)
+KW_TO_MW = {
+    "multiplier": 1e-3,
+    "from_unit": r"_kw",
+    "to_unit": r"_mw",
+}
 """Parameters for converting column units from kW to MW."""
 
-KWH_TO_MWH = dict(
-    multiplier=1e-3,
-    from_unit=r"_kwh",
-    to_unit=r"_mwh",
-)
+KWH_TO_MWH = {
+    "multiplier": 1e-3,
+    "from_unit": r"_kwh",
+    "to_unit": r"_mwh",
+}
 """Parameters for converting column units from kWh to MWh."""
 
-BTU_TO_MMBTU = dict(
-    multiplier=1e-6,
-    from_unit=r"_btu",
-    to_unit=r"_mmbtu",
-)
+BTU_TO_MMBTU = {
+    "multiplier": 1e-6,
+    "from_unit": r"_btu",
+    "to_unit": r"_mmbtu",
+}
 """Parameters for converting column units from BTU to MMBTU."""
 
-PERBTU_TO_PERMMBTU = dict(
-    multiplier=1e6,
-    from_unit=r"_per_btu",
-    to_unit=r"_per_mmbtu",
-)
+PERBTU_TO_PERMMBTU = {
+    "multiplier": 1e6,
+    "from_unit": r"_per_btu",
+    "to_unit": r"_per_mmbtu",
+}
 """Parameters for converting column units from BTU to MMBTU."""
 
-BTU_PERKWH_TO_MMBTU_PERMWH = dict(
-    multiplier=(1e-6 * 1000.0),
-    from_unit=r"_btu_per_kwh",
-    to_unit=r"_mmbtu_per_mwh",
-)
+BTU_PERKWH_TO_MMBTU_PERMWH = {
+    "multiplier": (1e-6 * 1000.0),
+    "from_unit": r"_btu_per_kwh",
+    "to_unit": r"_mmbtu_per_mwh",
+}
 """Parameters for converting column units from BTU/kWh to MMBTU/MWh."""
 
 
@@ -299,6 +299,8 @@ UTILITY_TYPE_CATEGORIES = {
         "electric": {"electric", "ferc:ElectricUtilityMember"},
         "gas": {"gas", "ferc:GasUtilityMember"},
         "common": {"common", "ferc:CommonUtilityMember"},
+        "other": {"other", "ferc:OtherUtilityMember"},
+        "total": {"total"},
     }
 }
 
@@ -979,7 +981,8 @@ FUEL_UNIT_CATEGORIES: dict[str, set[str]] = {
             "mw days thrml",
             "nuclear mwd",
             "mmwd",
-            "mw day/therml" "mw days/therm",
+            "mw day/therml",
+            "mw days/therm",
             "mw days (th",
             "ermal)",
         },
@@ -1019,11 +1022,9 @@ FUEL_UNIT_CATEGORIES: dict[str, set[str]] = {
             'a"',
             "dekatherm",
             "0",
-            "mw day/therml",
             "nuclear",
             "gas",
             "62,679",
-            "mw days/therm",
             "uranium",
             "oil/gas",
             "thermal",
@@ -1362,7 +1363,8 @@ PLANT_TYPE_CATEGORIES: dict[str, set[str]] = {
             "nuclear",
             "nuclear (3)",
             "steam(nuclear)",
-            "nuclear(see note4)" "nuclear steam",
+            "nuclear(see note4)",
+            "nuclear steam",
             "nuclear turbine",
             "nuclear - steam",
             "nuclear (a)(b)(c)",
@@ -1846,7 +1848,8 @@ CONSTRUCTION_TYPE_CATEGORIES: dict[str, set[str]] = {
             "semi outdoor boiler",
             "semi- outdoor",
             "semi - outdoors",
-            "semi -outdoor" "conven & semi-outdr",
+            "semi -outdoor",
+            "conven & semi-outdr",
             "conv & semi-outdoor",
             "conv & semi- outdoor",
             "convent. semi-outdr",
@@ -1964,7 +1967,7 @@ CONSTRUCTION_TYPE_CATEGORIES: dict[str, set[str]] = {
             "conven full boiler",
             "c0nventional",
             "conventtional",
-            "convential" "underground",
+            "convential",
             "conventional bulb",
             "conventrional",
             "*conventional",
@@ -2013,6 +2016,9 @@ CONSTRUCTION_TYPE_CATEGORIES: dict[str, set[str]] = {
             "conventional - boilr",
             "indoor boiler and st",
             "conven",
+            "conv. underground",
+            "conven. underground",
+            "conventional (a)",
         },
         "na_category": {
             "na_category",
@@ -2123,9 +2129,6 @@ CONSTRUCTION_TYPE_CATEGORIES: dict[str, set[str]] = {
             "pump storage",
             "underground",
             "see page 402",
-            "conv. underground",
-            "conven. underground",
-            "conventional (a)",
             "non-applicable",
             "duct burner",
             "see footnote",
@@ -2723,7 +2726,11 @@ TRANSFORM_PARAMS = {
             "on": "ferc_account_label",
         },
         "align_row_numbers_dbf": {"dbf_table_names": ["f1_plant_in_srvce"]},
-        "reconcile_table_calculations": {"column_to_check": "ending_balance"},
+        # Known issue with reporting of construction in progress not classified in classified fields of table.
+        "reconcile_table_calculations": {
+            "column_to_check": "ending_balance",
+            "calculation_tolerance": 0.08,
+        },
     },
     "plants_pumped_storage_ferc1": {
         "rename_columns_ferc1": {
@@ -2910,8 +2917,8 @@ TRANSFORM_PARAMS = {
                     "energy_charges_of_purchased_power": "energy_charges",
                     "energy_delivered_through_power_exchanges": "delivered_mwh",
                     "energy_received_through_power_exchanges": "received_mwh",
-                    "megawatt_hours_purchased_for_energy_storage": "purchased_storage_mwh",  # new column
-                    "megawatt_hours_purchased_other_than_storage": "purchased_mwh",
+                    "megawatt_hours_purchased_for_energy_storage": "purchased_storage_mwh",
+                    "megawatt_hours_purchased_other_than_storage": "purchased_other_than_storage_mwh",
                     "name_of_company_or_public_authority_providing_purchased_power": "seller_name",
                     "other_charges_of_purchased_power": "other_charges",
                     "purchased_power_axis": "purchased_power_axis",  # new probably pk col
@@ -2941,6 +2948,7 @@ TRANSFORM_PARAMS = {
                     "other_charges",
                     "total_settlement",
                     "purchased_storage_mwh",
+                    "purchased_other_than_storage_mwh",
                     "billing_demand_mw",
                     "non_coincident_peak_demand_mw",
                     "coincident_peak_demand_mw",
@@ -3204,8 +3212,8 @@ TRANSFORM_PARAMS = {
                     # detail of accum deprish
                     # in service
                     "in_srvce_depr": "depreciation_utility_plant_in_service_ending_balance",
-                    "amrtzd_dplt_nglr": "amortization_and_depletion_of_producing_natural_gas_land_and_land_rightsutility_plant_in_service_ending_balance",
-                    "amrtzd_ugrndstrg": "amortization_of_underground_storage_land_and_land_rightsutility_plant_in_service_ending_balance",
+                    "amrtzd_dplt_nglr": "amortization_and_depletion_of_producing_natural_gas_land_and_land_rights_utility_plant_in_service_ending_balance",
+                    "amrtzd_ugrndstrg": "amortization_of_underground_storage_land_and_land_rights_utility_plant_in_service_ending_balance",
                     "amrtz_utlty_plnt": "amortization_of_other_utility_plant_utility_plant_in_service_ending_balance",
                     "tot_in_service": "depreciation_amortization_and_depletion_utility_plant_in_service_ending_balance",
                     # leased to others
@@ -3246,7 +3254,6 @@ TRANSFORM_PARAMS = {
                         "depreciation_utility_plant_held_for_future_use",
                         "abandonment_of_leases",
                         "utility_plant_net",
-                        "amortization_and_depletion_of_producing_natural_gas_land_and_land_rightsutility_plant_in_service",
                         "amortization_utility_plant_held_for_future_use",
                         "amortization_and_depletion_utility_plant_leased_to_others",
                         "accumulated_provision_for_depreciation_amortization_and_depletion_of_plant_utility",
@@ -3255,12 +3262,16 @@ TRANSFORM_PARAMS = {
                         "utility_plant_leased_to_others",
                         "utility_plant_held_for_future_use",
                         "amortization_of_other_utility_plant_utility_plant_in_service",
-                        "amortization_of_underground_storage_land_and_land_rightsutility_plant_in_service",
+                        "amortization_of_underground_storage_land_and_land_rights_utility_plant_in_service",
                         "utility_plant_in_service_completed_construction_not_classified",
                         "utility_plant_in_service_plant_purchased_or_sold",
                         "construction_work_in_progress",
                         "utility_plant_in_service_experimental_plant_unclassified",
                     ]
+                }
+                | {
+                    "amortization_and_depletion_of_producing_natural_gas_land_and_land_rightsutility_plant_in_service": "amortization_and_depletion_of_producing_natural_gas_land_and_land_rights_utility_plant_in_service_ending_balance",
+                    "amortization_of_underground_storage_land_and_land_rightsutility_plant_in_service": "amortization_of_underground_storage_land_and_land_rights_utility_plant_in_service_ending_balance",
                 }
             },
         },
@@ -3304,8 +3315,6 @@ TRANSFORM_PARAMS = {
             "utility_type": {
                 "categories": UTILITY_TYPE_CATEGORIES["categories"]
                 | {
-                    "total": {"total"},
-                    "other1": {"other1", "ferc:OtherUtilityMember"},
                     "other2": {"other2", "ferc:OtherUtility2Member"},
                     "other3": {"other3", "ferc:OtherUtility3Member"},
                 }
@@ -3343,6 +3352,7 @@ TRANSFORM_PARAMS = {
                     "entity_id": "utility_id_ferc1_xbrl",
                     "report_year": "report_year",
                     "xbrl_factoid": "asset_type",
+                    "preliminary_natural_gas_survey_and_investigation_charges_and_other_preliminary_survey_and_investigation_charges": "preliminary_natural_gas_survey_and_investigation_charges",
                 }
             },
         },
@@ -3973,7 +3983,6 @@ TRANSFORM_PARAMS = {
             # Note: this table does not currently get exploded. It will require
             # additional debugging at a later date.
             "calculation_tolerance": 0.4,
-            "subtotal_column": "depreciation_type",
         },
     },
     "electric_plant_depreciation_functional_ferc1": {
@@ -4049,8 +4058,8 @@ TRANSFORM_PARAMS = {
             },
         },
         "merge_xbrl_metadata": {
-            "rename_columns": {"xbrl_factoid": "plant_function"},
-            "on": "plant_function",
+            "rename_columns": {"xbrl_factoid": "depreciation_type"},
+            "on": "depreciation_type",
         },
         "select_dbf_rows_by_category": {
             "column_name": "plant_function",

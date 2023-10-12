@@ -10,51 +10,51 @@ logger = pudl.logging_helpers.get_logger(__name__)
 
 FERC714_FILES: OrderedDict[str, dict[str, str]] = OrderedDict(
     {
-        "id_certification_ferc714": {
+        "id_certification": {
             "name": "Part 1 Schedule 1 - Identification Certification.csv",
             "encoding": "iso-8859-1",
         },
-        "gen_plants_ba_ferc714": {
+        "gen_plants_ba": {
             "name": "Part 2 Schedule 1 - Balancing Authority Generating Plants.csv",
             "encoding": "iso-8859-1",
         },
-        "demand_monthly_ba_ferc714": {
+        "demand_monthly_ba": {
             "name": "Part 2 Schedule 2 - Balancing Authority Monthly Demand.csv",
             "encoding": "utf-8",
         },
-        "net_energy_load_ba_ferc714": {
+        "net_energy_load_ba": {
             "name": "Part 2 Schedule 3 - Balancing Authority Net Energy for Load.csv",
             "encoding": "utf-8",
         },
-        "adjacency_ba_ferc714": {
+        "adjacency_ba": {
             "name": "Part 2 Schedule 4 - Adjacent Balancing Authorities.csv",
             "encoding": "iso-8859-1",
         },
-        "interchange_ba_ferc714": {
+        "interchange_ba": {
             "name": "Part 2 Schedule 5 - Balancing Authority Interchange.csv",
             "encoding": "iso-8859-1",
         },
-        "lambda_hourly_ba_ferc714": {
+        "lambda_hourly_ba": {
             "name": "Part 2 Schedule 6 - Balancing Authority Hourly System Lambda.csv",
             "encoding": "utf-8",
         },
-        "lambda_description_ferc714": {
+        "lambda_description": {
             "name": "Part 2 Schedule 6 - System Lambda Description.csv",
             "encoding": "iso-8859-1",
         },
-        "description_pa_ferc714": {
+        "description_pa": {
             "name": "Part 3 Schedule 1 - Planning Area Description.csv",
             "encoding": "iso-8859-1",
         },
-        "demand_forecast_pa_ferc714": {
+        "demand_forecast_pa": {
             "name": "Part 3 Schedule 2 - Planning Area Forecast Demand.csv",
             "encoding": "utf-8",
         },
-        "demand_hourly_pa_ferc714": {
+        "demand_hourly_pa": {
             "name": "Part 3 Schedule 2 - Planning Area Hourly Demand.csv",
             "encoding": "utf-8",
         },
-        "respondent_id_ferc714": {
+        "respondent_id": {
             "name": "Respondent IDs.csv",
             "encoding": "utf-8",
         },
@@ -64,7 +64,7 @@ FERC714_FILES: OrderedDict[str, dict[str, str]] = OrderedDict(
 
 
 @multi_asset(
-    outs={"raw_" + table_name: AssetOut() for table_name in FERC714_FILES},
+    outs={"raw_ferc714__" + table_name: AssetOut() for table_name in FERC714_FILES},
     required_resource_keys={"datastore", "dataset_settings"},
 )
 def extract_ferc714(context):
@@ -91,12 +91,12 @@ def extract_ferc714(context):
             raw_dfs[table_name] = pd.read_csv(
                 f, encoding=FERC714_FILES[table_name]["encoding"]
             )
-        if table_name != "respondent_id_ferc714":
+        if table_name != "respondent_id":
             raw_dfs[table_name] = raw_dfs[table_name].query(
                 "report_yr in @ferc714_settings.years"
             )
 
     return (
-        Output(output_name="raw_" + table_name, value=df)
+        Output(output_name="raw_ferc714__" + table_name, value=df)
         for table_name, df in raw_dfs.items()
     )

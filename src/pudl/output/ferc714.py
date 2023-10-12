@@ -135,14 +135,15 @@ def categorize_eia_code(
     This function associates a ``respondent_type`` of ``utility``,
     ``balancing_authority`` or ``pandas.NA`` with each input ``eia_code`` using the
     following rules:
+
     * If a ``eia_code`` appears only in ``util_ids`` the ``respondent_type`` will be
-    ``utility``.
+      ``utility``.
     * If ``eia_code`` appears only in ``ba_ids`` the ``respondent_type`` will be
-    assigned ``balancing_authority``.
+      assigned ``balancing_authority``.
     * If ``eia_code`` appears in neither set of IDs, ``respondent_type`` will be
-    assigned ``pandas.NA``.
+      assigned ``pandas.NA``.
     * If ``eia_code`` appears in both sets of IDs, then whichever ``respondent_type``
-    has been selected with the ``priority`` flag will be assigned.
+      has been selected with the ``priority`` flag will be assigned.
 
     Note that the vast majority of ``balancing_authority_id_eia`` values also show up
     as ``utility_id_eia`` values, but only a small subset of the ``utility_id_eia``
@@ -163,8 +164,7 @@ def categorize_eia_code(
             "balancing_authority". The default is "balancing_authority".
 
     Returns:
-        A DataFrame containing 2 columns: ``eia_code`` and
-        ``respondent_type``.
+        A DataFrame containing 2 columns: ``eia_code`` and ``respondent_type``.
     """
     if priority == "balancing_authority":
         primary = "balancing_authority"
@@ -226,17 +226,18 @@ def filled_balancing_authority_eia861(
     # Build table of new rows
     # Insert row for each target balancing authority-year pair
     # missing from the original table, using the reference year as a template.
-    rows = []
+    rows: list[dict[str, Any]] = []
     for ref, fix in zip(refs, ASSOCIATIONS):
         for year in range(fix["to"][0], fix["to"][1] + 1):
             key = (fix["id"], pd.Timestamp(year, 1, 1))
             if key not in dfi.index:
                 rows.append({**ref, "report_date": key[1]})
-    # Append to original table
-    df = pd.concat([df, pd.DataFrame(rows)])
+    df = pd.concat(
+        [df, apply_pudl_dtypes(pd.DataFrame(rows), group="eia")], axis="index"
+    )
     # Remove balancing authorities treated as utilities
     mask = df["balancing_authority_id_eia"].isin([util["id"] for util in UTILITIES])
-    return df[~mask]
+    return apply_pudl_dtypes(df[~mask], group="eia")
 
 
 def filled_balancing_authority_assn_eia861(
@@ -275,7 +276,7 @@ def filled_balancing_authority_assn_eia861(
             tables.append(ref.assign(report_date=key[1]))
             replaced |= mask
     # Append to original table with matching rows removed
-    df = pd.concat([df[~replaced], pd.concat(tables)])
+    df = pd.concat([df[~replaced], apply_pudl_dtypes(pd.concat(tables), group="eia")])
     # Remove balancing authorities treated as utilities
     mask = np.zeros(df.shape[0], dtype=bool)
     tables = []
@@ -312,7 +313,11 @@ def filled_balancing_authority_assn_eia861(
             tables.append(table)
             if "replace" in util and util["replace"]:
                 mask |= is_child
-    return pd.concat([df[~mask], pd.concat(tables)]).drop_duplicates()
+    return (
+        pd.concat([df[~mask]] + tables)
+        .drop_duplicates()
+        .pipe(apply_pudl_dtypes, group="eia")
+    )
 
 
 def filled_service_territory_eia861(
@@ -340,8 +345,7 @@ def filled_service_territory_eia861(
     # Reformat as unique utility-state-year
     assn = assn[selected][index].drop_duplicates()
     # Select relevant service territories
-    df = service_territory_eia861
-    mdf = assn.merge(df, how="left")
+    mdf = assn.merge(service_territory_eia861, how="left")
     # Drop utility-state with no counties for all years
     grouped = mdf.groupby(["utility_id_eia", "state"])["county_id_fips"]
     mdf = mdf[grouped.transform("count").gt(0)]
@@ -361,7 +365,9 @@ def filled_service_territory_eia861(
         idx = (years - row["report_date"]).abs().idxmin()
         mask &= mdf["report_date"].eq(years[idx])
         tables.append(mdf[mask].assign(report_date=row["report_date"]))
-    return pd.concat([df] + tables)
+    return pd.concat([service_territory_eia861] + tables).pipe(
+        apply_pudl_dtypes, group="eia"
+    )
 
 
 @asset(compute_kind="Python")
@@ -434,7 +440,7 @@ def categorized_respondents_ferc714(
         priority=priority,
     )
     logger.info(
-        "Merging categorized EIA codes with annualized FERC-714 Respondent " "data."
+        "Merging categorized EIA codes with annualized FERC-714 Respondent data."
     )
     categorized = pd.merge(categorized, annualized_respondents_ferc714, how="right")
     # Names, ids, and codes for BAs identified as FERC 714 respondents

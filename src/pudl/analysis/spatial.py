@@ -107,7 +107,9 @@ def explode(gdf: gpd.GeoDataFrame, ratios: Iterable[str] = None) -> gpd.GeoDataF
             raise ValueError("Geometry contains self-intersecting MultiPolygon")
     result = gdf.explode(index_parts=False)
     if ratios:
-        fraction = result.geometry.area.values / gdf.geometry.area[result.index].values
+        fraction = (
+            result.geometry.area.to_numpy() / gdf.geometry.area[result.index].to_numpy()
+        )
         result[ratios] = result[ratios].multiply(fraction, axis="index")
     return result[gdf.columns]
 
@@ -155,10 +157,10 @@ def self_union(gdf: gpd.GeoDataFrame, ratios: Iterable[str] = None) -> gpd.GeoDa
     columns = get_data_columns(gdf)
     df = gpd.GeoDataFrame(
         data=gdf.loc[oids, columns].reset_index(drop=True),
-        geometry=polygons[oids.index].values,
+        geometry=polygons[oids.index].to_numpy(),
     )
     if ratios:
-        fraction = df.area.values / gdf.area[oids].values
+        fraction = df.area.to_numpy() / gdf.area[oids].to_numpy()
         df[ratios] = df[ratios].multiply(fraction, axis="index")
     # Add original row indices to index
     df.index = oids.groupby(oids.index).agg(tuple)[oids.index]

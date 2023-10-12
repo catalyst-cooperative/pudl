@@ -163,7 +163,6 @@ def _prep_ferc1_eia(ferc1_eia, utils_eia860) -> pd.DataFrame:
     logger.debug("Prepping FERC-EIA table")
     # Only want to keep the plant_name_ppe field which replaces plant_name_eia
     ferc1_eia_prep = ferc1_eia.copy().drop(columns="plant_name_eia")
-
     # Add utility_name_eia - this must happen before renaming the cols or else there
     # will be duplicate utility_name_eia columns.
     utils_eia860.loc[:, "report_year"] = utils_eia860.report_date.dt.year
@@ -176,30 +175,31 @@ def _prep_ferc1_eia(ferc1_eia, utils_eia860) -> pd.DataFrame:
     )
 
     # Add the new columns to the df
-    for new_col in [x for x in RENAME_COLS_FERC1_EIA.keys() if "new_" in x]:
+    for new_col in [x for x in RENAME_COLS_FERC1_EIA if "new_" in x]:
         ferc1_eia_prep.loc[:, new_col] = pd.NA
 
     # Rename the columns, and remove unwanted columns from ferc-eia table
     ferc1_eia_prep = ferc1_eia_prep.rename(columns=RENAME_COLS_FERC1_EIA)[
         list(RENAME_COLS_FERC1_EIA.values())
     ]
-
     # Add in pct diff values
     for pct_diff_col in [x for x in RENAME_COLS_FERC1_EIA.values() if "_pct_diff" in x]:
         ferc1_eia_prep = _pct_diff(ferc1_eia_prep, pct_diff_col)
-
     # Add in fuel_type_code_pudl diff (qualitative bool)
-    ferc1_eia_prep.loc[
+    ferc1_eia_prep["fuel_type_code_pudl_diff"] = False
+    ferc1_eia_prep_nona = ferc1_eia_prep[
         ferc1_eia_prep.fuel_type_code_pudl_eia.notna()
-        & ferc1_eia_prep.fuel_type_code_pudl_ferc1.notna(),
-        "fuel_type_code_pudl_diff",
-    ] = ferc1_eia_prep.fuel_type_code_pudl_eia == (
-        ferc1_eia_prep.fuel_type_code_pudl_ferc1
+        & ferc1_eia_prep.fuel_type_code_pudl_ferc1.notna()
+    ].copy()
+    ferc1_eia_prep_nona["fuel_type_code_pudl_diff"] = (
+        ferc1_eia_prep_nona.fuel_type_code_pudl_eia
+        == ferc1_eia_prep_nona.fuel_type_code_pudl_ferc1
     )
+    ferc1_eia_prep.update(ferc1_eia_prep_nona)
 
     # Add in installation_year diff (diff vs. pct_diff)
     ferc1_eia_prep.loc[
-        :, "installation_year_ferc1"
+        ferc1_eia_prep.installation_year_ferc1.notna(), "installation_year_ferc1"
     ] = ferc1_eia_prep.installation_year_ferc1.astype("Int64")
 
     ferc1_eia_prep.loc[
@@ -212,7 +212,6 @@ def _prep_ferc1_eia(ferc1_eia, utils_eia860) -> pd.DataFrame:
 
     # Add best match col
     ferc1_eia_prep = _is_best_match(ferc1_eia_prep)
-
     return ferc1_eia_prep
 
 
@@ -712,18 +711,13 @@ def validate_and_add_to_training(
     Returns:
         pandas.DataFrame: A DataFrame with all of the new overrides combined.
     """
-    path_to_current_training = importlib.resources.files(
-        "pudl.package_data.glue"
-    ).joinpath("ferc1_eia_train.csv")
+    glue_resource_path = importlib.resources.files("pudl.package_data.glue")
+    path_to_current_training = glue_resource_path / "ferc1_eia_train.csv"
     path_to_new_training = input_dir_path
     current_training_df = pd.read_csv(path_to_current_training)
-    path_to_null_overrides = importlib.resources.files(
-        "pudl.package_data.glue"
-    ).joinpath("ferc1_eia_null.csv")
+    path_to_null_overrides = glue_resource_path / "ferc1_eia_null.csv"
     if one_to_many:
-        path_to_one_to_many = importlib.resources.files(
-            "pudl.package_data.glue"
-        ).joinpath("ferc1_eia_one_to_many.csv")
+        path_to_one_to_many = glue_resource_path / "ferc1_eia_one_to_many.csv"
     override_cols = [
         "record_id_eia",
         "record_id_ferc1",

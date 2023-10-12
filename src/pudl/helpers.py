@@ -6,15 +6,14 @@ designed to be used as a general purpose tool, applicable in multiple scenarios,
 should probably live here. There are lost of transform type functions in here that help
 with cleaning and restructing dataframes.
 """
+import importlib.resources
 import itertools
-import os
 import pathlib
 import re
 import shutil
 from collections import defaultdict
 from collections.abc import Generator, Iterable
 from functools import partial
-from importlib import resources
 from io import BytesIO
 from typing import Any, Literal
 
@@ -23,13 +22,11 @@ import numpy as np
 import pandas as pd
 import requests
 import sqlalchemy as sa
-from dagster import AssetKey, AssetsDefinition, AssetSelection, Noneable, SourceAsset
-from dagster._config.errors import PostProcessingError
+from dagster import AssetKey, AssetsDefinition, AssetSelection, SourceAsset
 from pandas._libs.missing import NAType
 
 import pudl.logging_helpers
-from pudl.metadata.fields import get_pudl_dtypes
-from pudl.workspace.setup import get_defaults
+from pudl.metadata.fields import apply_pudl_dtypes, get_pudl_dtypes
 
 sum_na = partial(pd.Series.sum, skipna=False)
 """A sum function that returns NA if the Series includes any NA values.
@@ -97,7 +94,7 @@ def find_new_ferc1_strings(
         categories enumerated in strdict.
     """
     all_strings = set(
-        pd.read_sql(f"SELECT {field} FROM {table};", ferc1_engine).pipe(  # nosec
+        pd.read_sql(f"SELECT {field} FROM {table};", ferc1_engine).pipe(  # noqa: S608
             simplify_strings, columns=[field]
         )[field]
     )
@@ -153,16 +150,18 @@ def find_foreign_key_errors(dfs: dict[str, pd.DataFrame]) -> list[dict[str, Any]
     return errors
 
 
-def download_zip_url(url, save_path, chunk_size=128, timeout=9.05):
+def download_zip_url(
+    url: str, save_path: pathlib.Path, chunk_size: int = 128, timeout: float = 9.05
+) -> None:
     """Download and save a Zipfile locally.
 
     Useful for acquiring and storing non-PUDL data locally.
 
     Args:
-        url (str): The URL from which to download the Zipfile
-        save_path (pathlib.Path): The location to save the file.
-        chunk_size (int): Data chunk in bytes to use while downloading.
-        timeout (float): Time to wait for the server to accept a connection.
+        url: The URL from which to download the Zipfile
+        save_path: The location to save the file.
+        chunk_size: Data chunk in bytes to use while downloading.
+        timeout: Time to wait for the server to accept a connection.
             See https://requests.readthedocs.io/en/latest/user/advanced/#timeouts
 
     Returns:
@@ -183,7 +182,12 @@ def download_zip_url(url, save_path, chunk_size=128, timeout=9.05):
             fd.write(chunk)
 
 
-def add_fips_ids(df, state_col="state", county_col="county", vintage=2015):
+def add_fips_ids(
+    df: pd.DataFrame,
+    state_col: str = "state",
+    county_col: str = "county",
+    vintage: int = 2015,
+) -> pd.DataFrame:
     """Add State and County FIPS IDs to a dataframe.
 
     To just add State FIPS IDs, make county_col = None.
@@ -229,7 +233,12 @@ def add_fips_ids(df, state_col="state", county_col="county", vintage=2015):
     return df
 
 
-def clean_eia_counties(df, fixes, state_col="state", county_col="county"):
+def clean_eia_counties(
+    df: pd.DataFrame,
+    fixes: pd.DataFrame,
+    state_col: str = "state",
+    county_col: str = "county",
+) -> pd.DataFrame:
     """Replace non-standard county names with county nmes from US Census."""
     df = df.copy()
     df[county_col] = (
@@ -262,19 +271,24 @@ def clean_eia_counties(df, fixes, state_col="state", county_col="county"):
     return df
 
 
-def oob_to_nan(df, cols, lb=None, ub=None):
-    """Set non-numeric values and those outside of a given rage to NaN.
+def oob_to_nan(
+    df: pd.DataFrame,
+    cols: list[str],
+    lb: float | None = None,
+    ub: float | None = None,
+) -> pd.DataFrame:
+    """Set non-numeric values and those outside of a given range to NaN.
 
     Args:
-        df (pandas.DataFrame): The dataframe containing values to be altered.
-        cols (iterable): Labels of the columns whose values are to be changed.
-        lb: (number): Lower bound, below which values are set to NaN. If None,
-            don't use a lower bound.
-        ub: (number): Upper bound, below which values are set to NaN. If None,
-            don't use an upper bound.
+        df: The dataframe containing values to be altered.
+        cols: Labels of the columns whose values are to be changed.
+        lb: Lower bound, below which values are set to NaN. If None, don't use a lower
+            bound.
+        ub: Upper bound, below which values are set to NaN. If None, don't use an upper
+            bound.
 
     Returns:
-        pandas.DataFrame: The altered DataFrame.
+        The altered DataFrame.
     """
     out_df = df.copy()
     for col in cols:
@@ -288,20 +302,52 @@ def oob_to_nan(df, cols, lb=None, ub=None):
     return out_df
 
 
-def prep_dir(dir_path, clobber=False):
+def oob_to_nan_with_dependent_cols(
+    df: pd.DataFrame,
+    cols: list[str],
+    dependent_cols: list[str],
+    lb: float | None = None,
+    ub: float | None = None,
+) -> pd.DataFrame:
+    """Call :func:`oob_to_nan` and additionally nullify any derived columns.
+
+    Set values in ``cols`` to NaN if values are non-numeric or outside of a
+    given range. The corresponding values in ``dependent_cols`` are then set
+    to NaN. ``dependent_cols`` should be columns derived from one or multiple
+    of the columns in ``cols``.
+
+    Args:
+        df: The dataframe containing values to be altered.
+        cols: Labels of the columns whose values are to be changed.
+        dependent_cols: Labels of the columns whose corresponding values should also be
+            nullified. Columns are derived from one or multiple of the columns in
+            ``cols``.
+        lb: Lower bound, below which values are set to NaN. If None, don't use a lower
+            bound.
+        ub: Upper bound, below which values are set to NaN. If None, don't use an upper
+            bound.
+
+    Returns:
+        The altered DataFrame.
+    """
+    out_df = oob_to_nan(df, cols, lb, ub)
+    out_df.loc[out_df[cols].isnull().any(axis=1), dependent_cols] = np.nan
+    return out_df
+
+
+def prep_dir(dir_path: str | pathlib.Path, clobber: bool = False) -> pathlib.Path:
     """Create (or delete and recreate) a directory.
 
     Args:
-        dir_path (path-like): path to the directory that you are trying to
-            clean and prepare.
-        clobber (bool): If True and dir_path exists, it will be removed and
-            replaced with a new, empty directory.
+        dir_path: path to the directory that you are trying to clean and prepare.
+        clobber: If True and dir_path exists, it will be removed and replaced with a
+            new, empty directory.
 
     Raises:
         FileExistsError: if a file or directory already exists at dir_path.
 
     Returns:
-        pathlib.Path: Path to the created directory.
+        Path to the created directory.
     """
     dir_path = pathlib.Path(dir_path)
     if dir_path.exists():
@@ -313,7 +359,7 @@ def prep_dir(dir_path, clobber=False):
     return dir_path
 
 
-def is_doi(doi):
+def is_doi(doi: str) -> bool:
     """Determine if a string is a valid digital object identifier (DOI).
 
     Function simply checks whether the offered string matches a regular
@@ -321,10 +367,10 @@ def is_doi(doi):
     with the relevant authority.
 
     Args:
-        doi (str): String to validate.
+        doi: String to validate.
 
     Returns:
-        bool: True if doi matches the regex for valid DOIs, False otherwise.
+        True if doi matches the regex for valid DOIs, False otherwise.
     """
     doi_regex = re.compile(
         r"(doi:\s*|(?:https?://)?(?:dx\.)?doi\.org/)?(10\.\d+(.\d+)*/.+)$",
@@ -334,22 +380,23 @@ def is_doi(doi):
     return bool(re.match(doi_regex, doi))
 
 
-def convert_col_to_datetime(df, date_col_name):
-    """Convert a column in a dataframe to a datetime.
+def convert_col_to_datetime(df: pd.DataFrame, date_col_name: str) -> pd.DataFrame:
+    """Convert a non-datetime column in a dataframe to a datetime64[s].
 
     If the column isn't a datetime, it needs to be converted to a string type
     first so that integer years are formatted correctly.
 
     Args:
-        df (pandas.DataFrame): Dataframe with column to convert.
-        date_col_name (string): name of the column to convert.
+        df: Dataframe with column to convert.
+        date_col_name: name of the datetime column to convert.
 
     Returns:
         Dataframe with the converted datetime column.
     """
-    if pd.api.types.is_datetime64_ns_dtype(df[date_col_name]) is False:
+    if not pd.api.types.is_datetime64_dtype(df[date_col_name]):
         logger.warning(
-            f"{date_col_name} is {df[date_col_name].dtype} column. Converting to datetime."
+            f"{date_col_name} is {df[date_col_name].dtype} column. "
+            "Converting to datetime64[ns]."
         )
         df[date_col_name] = pd.to_datetime(df[date_col_name].astype("string"))
     return df
@@ -367,7 +414,7 @@ def full_timeseries_date_merge(
     report_at_start: bool = True,
     freq: str = "MS",
     **kwargs,
-):
+) -> pd.DataFrame:
     """Merge dataframes with different date frequencies and expand to a full timeseries.
 
     Arguments: see arguments for ``date_merge`` and ``expand_timeseries``
@@ -498,10 +545,7 @@ def date_merge(
 
     suffixes = ["", ""]
     if left_date_col == right_date_col:
-        if "suffixes" in kwargs:
-            suffixes = kwargs["suffixes"]
-        else:
-            suffixes = ["_x", "_y"]
+        suffixes = kwargs.get("suffixes", ["_x", "_y"])
     # reconstruct the new report date column and clean up columns
     left_right_date_col = [left_date_col + suffixes[0], right_date_col + suffixes[1]]
     if report_at_start:
@@ -530,7 +574,7 @@ def expand_timeseries(
     with the next previous chronological observation for a group of primary key columns
     specified by ``key_cols``.
 
-    Arguments:
+    Args:
         df: The dataframe to expand. Must have ``date_col`` in columns.
         key_cols: Column names of the non-date primary key columns in the dataframe.
             The resulting dataframe will have a full timeseries expanded for each
@@ -542,7 +586,10 @@ def expand_timeseries(
         fill_through_freq: The frequency in which to fill in the data through. For
             example, if equal to "year" the data will be filled in through the end of
             the last reported year for each grouping of `key_cols`. Valid frequencies
-            are only year, month, or day.
+            are only "year", "month", or "day".
+
+    Raises:
+        ValueError: if ``fill_through_freq`` is not one of "year", "month" or "day".
     """
     try:
         pd.tseries.frequencies.to_offset(freq)
@@ -584,24 +631,28 @@ def expand_timeseries(
             }
         )
     else:
-        raise AssertionError(
+        raise ValueError(
             f"{fill_through_freq} is not a valid frequency to fill through."
         )
     end_dates["drop_row"] = True
-    df = pd.concat([df, end_dates.reset_index()])
     df = (
-        df.set_index(date_col)
+        pd.concat([df, end_dates.reset_index()])
+        .set_index(date_col)
         .groupby(key_cols)
         .resample(freq)
         .ffill()
         .drop(key_cols, axis=1)
         .reset_index()
     )
-    df = df[df.drop_row.isnull()].drop("drop_row", axis=1).reset_index(drop=True)
-    return df
+    return (
+        df[df.drop_row.isnull()]
+        .drop(columns="drop_row")
+        .reset_index(drop=True)
+        .pipe(apply_pudl_dtypes)
+    )
 
 
-def organize_cols(df, cols):
+def organize_cols(df: pd.DataFrame, cols: list[str]) -> pd.DataFrame:
     """Organize columns into key ID & name fields & alphabetical data columns.
 
     For readability, it's nice to group a few key columns at the beginning
@@ -617,14 +668,13 @@ def organize_cols(df, cols):
         DataFrame df, but with cols first, in the same order as they
         were passed in, and the remaining columns sorted alphabetically.
     """
-    # Generate a list of all the columns in the dataframe that are not
-    # included in cols
+    # Generate a list of all the columns in the dataframe that are not included in cols
     data_cols = sorted(c for c in df.columns.tolist() if c not in cols)
     organized_cols = cols + data_cols
     return df[organized_cols]
 
 
-def simplify_strings(df, columns):
+def simplify_strings(df: pd.DataFrame, columns: list[str]) -> pd.DataFrame:
     """Simplify the strings contained in a set of dataframe columns.
 
     Performs several operations to simplify strings for comparison and parsing purposes.
@@ -635,12 +685,11 @@ def simplify_strings(df, columns):
     Leaves null values unaltered. Casts other values with astype(str).
 
     Args:
-        df (pandas.DataFrame): DataFrame whose columns are being cleaned up.
-        columns (iterable): The labels of the string columns to be simplified.
+        df: DataFrame whose columns are being cleaned up.
+        columns: The labels of the string columns to be simplified.
 
     Returns:
-        pandas.DataFrame: The whole DataFrame that was passed in, with
-        the string columns cleaned up.
+        The whole DataFrame that was passed in, with the string columns cleaned up.
     """
     out_df = df.copy()
     for col in columns:
@@ -656,26 +705,31 @@ def simplify_strings(df, columns):
     return out_df
 
 
-def cleanstrings_series(col, str_map, unmapped=None, simplify=True):
+def cleanstrings_series(
+    col: pd.Series,
+    str_map: dict[str, list[str]],
+    unmapped: str | None = None,
+    simplify: bool = True,
+) -> pd.Series:
     """Clean up the strings in a single column/Series.
 
     Args:
-        col (pandas.Series): A pandas Series, typically a single column of a
+        col: A pandas Series, typically a single column of a
             dataframe, containing the freeform strings that are to be cleaned.
-        str_map (dict): A dictionary of lists of strings, in which the keys are
-            the simplified canonical strings, witch which each string found in
+        str_map: A dictionary of lists of strings, in which the keys are
+            the simplified canonical strings, with which each string found in
             the corresponding list will be replaced.
-        unmapped (str): A value with which to replace any string found in col
+        unmapped: A value with which to replace any string found in col
             that is not found in one of the lists of strings in map. Typically
             the null string ''. If None, these strings will not be replaced.
-        simplify (bool): If True, strip and compact whitespace, and lowercase
+        simplify: If True, strip and compact whitespace, and lowercase
             all strings in both the list of values to be replaced, and the
             values found in col. This can reduce the number of strings that
             need to be kept track of.
 
     Returns:
-        pandas.Series: The cleaned up Series / column, suitable for
-        replacing the original messy column in a :class:`pandas.DataFrame`.
+        The cleaned up Series / column, suitable for replacing the original messy column
+        in a :class:`pandas.DataFrame`.
     """
     if simplify:
         col = (
@@ -699,42 +753,43 @@ def cleanstrings_series(col, str_map, unmapped=None, simplify=True):
     return col
 
 
-def cleanstrings(df, columns, stringmaps, unmapped=None, simplify=True):
+def cleanstrings(
+    df: pd.DataFrame,
+    columns: list[str],
+    stringmaps: list[dict[str, list[str]]],
+    unmapped: str | None = None,
+    simplify: bool = True,
+) -> pd.DataFrame:
     """Consolidate freeform strings in several dataframe columns.
 
-    This function will consolidate freeform strings found in `columns` into
-    simplified categories, as defined by `stringmaps`. This is useful when
-    a field contains many different strings that are really meant to represent
-    a finite number of categories, e.g. a type of fuel. It can also be used to
-    create simplified categories that apply to similar attributes that are
-    reported in various data sources from different agencies that use their own
-    taxonomies.
+    This function will consolidate freeform strings found in `columns` into simplified
+    categories, as defined by `stringmaps`. This is useful when a field contains many
+    different strings that are really meant to represent a finite number of categories,
+    e.g. a type of fuel. It can also be used to create simplified categories that apply
+    to similar attributes that are reported in various data sources from different
+    agencies that use their own taxonomies.
 
-    The function takes and returns a pandas.DataFrame, making it suitable for
-    use with the :func:`pandas.DataFrame.pipe` method in a chain.
+    The function takes and returns a pandas.DataFrame, making it suitable for use with
+    the :func:`pandas.DataFrame.pipe` method in a chain.
 
     Args:
-        df (pandas.DataFrame): the DataFrame containing the string columns to
-            be cleaned up.
-        columns (list): a list of string column labels found in the column
-            index of df. These are the columns that will be cleaned.
-        stringmaps (list): a list of dictionaries. The keys of these
-            dictionaries are strings, and the values are lists of strings. Each
-            dictionary in the list corresponds to a column in columns. The
-            keys of the dictionaries are the values with which every string in
-            the list of values will be replaced.
-        unmapped (str, None): the value with which strings not found in the
-            stringmap dictionary will be replaced. Typically the null string
-            ''. If None, then strings found in the columns but not in the
-            stringmap will be left unchanged.
-        simplify (bool): If true, strip whitespace, remove duplicate
-            whitespace, and force lower-case on both the string map and the
-            values found in the columns to be cleaned. This can reduce the
-            overall number of string values that need to be tracked.
+        df: the DataFrame containing the string columns to be cleaned up.
+        columns: a list of string column labels found in the column index of df. These
+            are the columns that will be cleaned.
+        stringmaps: a list of dictionaries. The keys of these dictionaries are strings,
+            and the values are lists of strings. Each dictionary in the list corresponds
+            to a column in columns. The keys of the dictionaries are the values with
+            which every string in the list of values will be replaced.
+        unmapped: the value with which strings not found in the stringmap dictionary
+            will be replaced. Typically the null string ''. If None, then strings found
+            in the columns but not in the stringmap will be left unchanged.
+        simplify: If true, strip whitespace, remove duplicate whitespace, and force
+            lower-case on both the string map and the values found in the columns to be
+            cleaned. This can reduce the overall number of string values that need to be
+            tracked.
 
     Returns:
-        pandas.DataFrame: The function returns a new DataFrame containing the
-        cleaned strings.
+        The function returns a new DataFrame containing the cleaned strings.
     """
     out_df = df.copy()
     for col, str_map in zip(columns, stringmaps):
@@ -745,38 +800,42 @@ def cleanstrings(df, columns, stringmaps, unmapped=None, simplify=True):
     return out_df
 
 
-def fix_int_na(df, columns, float_na=np.nan, int_na=-1, str_na=""):
+def fix_int_na(
+    df: pd.DataFrame,
+    columns: list[str],
+    float_na: float = np.nan,
+    int_na: int = -1,
+    str_na: str = "",
+) -> pd.DataFrame:
     """Convert NA containing integer columns from float to string.
 
-    Numpy doesn't have a real NA value for integers. When pandas stores integer
-    data which has NA values, it thus upcasts integers to floating point
-    values, using np.nan values for NA. However, in order to dump some of our
-    dataframes to CSV files for use in data packages, we need to write out
-    integer formatted numbers, with empty strings as the NA value. This
-    function replaces np.nan values with a sentinel value, converts the column
-    to integers, and then to strings, finally replacing the sentinel value with
-    the desired NA string.
+    Numpy doesn't have a real NA value for integers. When pandas stores integer data
+    which has NA values, it thus upcasts integers to floating point values, using np.nan
+    values for NA. However, in order to dump some of our dataframes to CSV files for use
+    in data packages, we need to write out integer formatted numbers, with empty strings
+    as the NA value. This function replaces np.nan values with a sentinel value,
+    converts the column to integers, and then to strings, finally replacing the sentinel
+    value with the desired NA string.
 
     This is an interim solution -- now that pandas extension arrays have been
-    implemented, we need to go back through and convert all of these integer
-    columns that contain NA values to Nullable Integer types like Int64.
+    implemented, we need to go back through and convert all of these integer columns
+    that contain NA values to Nullable Integer types like Int64.
 
     Args:
-        df (pandas.DataFrame): The dataframe to be fixed. This argument allows
-            method chaining with the pipe() method.
-        columns (iterable of strings): A list of DataFrame column labels
-            indicating which columns need to be reformatted for output.
-        float_na (float): The floating point value to be interpreted as NA and
-            replaced in col.
-        int_na (int): Sentinel value to substitute for float_na prior to
-            conversion of the column to integers.
-        str_na (str): sa.String value to substitute for int_na after the column
-            has been converted to strings.
+        df: The dataframe to be fixed. This argument allows method chaining with the
+            pipe() method.
+        columns: A list of DataFrame column labels indicating which columns need to be
+            reformatted for output.
+        float_na: The floating point value to be interpreted as NA and replaced in col.
+        int_na: Sentinel value to substitute for float_na prior to conversion of the
+            column to integers.
+        str_na: String value to substitute for int_na after the column has been
+            converted to strings.
 
     Returns:
-        df (pandas.DataFrame): a new DataFrame, with the selected columns
-        converted to strings that look like integers, compatible with
-        the postgresql COPY FROM command.
+        A new DataFrame, with the selected columns converted to strings that look like
+        integers, compatible with the postgresql COPY FROM command.
+
     """
     return (
         df.replace({c: float_na for c in columns}, int_na)
@@ -786,7 +845,7 @@ def fix_int_na(df, columns, float_na=np.nan, int_na=-1, str_na=""):
     )
 
 
-def month_year_to_date(df):
+def month_year_to_date(df: pd.DataFrame) -> pd.DataFrame:
     """Convert all pairs of year/month fields in a dataframe into Date fields.
 
     This function finds all column names within a dataframe that match the
@@ -805,12 +864,10 @@ def month_year_to_date(df):
         * Do the Right Thing when invalid or NA values are encountered.
 
     Args:
-        df (pandas.DataFrame): The DataFrame in which to convert year/months
-            fields to Date fields.
+        The DataFrame in which to convert year/months fields to Date fields.
 
     Returns:
-        pandas.DataFrame: A DataFrame in which the year/month fields have been
-        converted into Date fields.
+        A DataFrame in which the year/month fields have been converted into Date fields.
     """
     df = df.copy()
     month_regex = "_month$"
@@ -836,12 +893,12 @@ def month_year_to_date(df):
         base_month_regex = f"^{base}{month_regex}"
         month_col = list(df.filter(regex=base_month_regex).columns)
         if not len(month_col) == 1:
-            raise AssertionError()
+            raise AssertionError
         month_col = month_col[0]
         base_year_regex = f"^{base}{year_regex}"
         year_col = list(df.filter(regex=base_year_regex).columns)
         if not len(year_col) == 1:
-            raise AssertionError()
+            raise AssertionError
         year_col = year_col[0]
         date_col = f"{base}_date"
         month_year_date.append((month_col, year_col, date_col))
@@ -900,14 +957,14 @@ def remove_leading_zeros_from_numeric_strings(
 
 
 def convert_to_date(
-    df,
-    date_col="report_date",
-    year_col="report_year",
-    month_col="report_month",
-    day_col="report_day",
-    month_value=1,
-    day_value=1,
-):
+    df: pd.DataFrame,
+    date_col: str = "report_date",
+    year_col: str = "report_year",
+    month_col: str = "report_month",
+    day_col: str = "report_day",
+    month_value: int = 1,
+    day_value: int = 1,
+) -> pd.DataFrame:
     """Convert specified year, month or day columns into a datetime object.
 
     If the input ``date_col`` already exists in the input dataframe, then no
@@ -916,20 +973,17 @@ def convert_to_date(
     which were used to create the date are dropped.
 
     Args:
-        df (pandas.DataFrame): dataframe to convert
-        date_col (str): the name of the column you want in the output.
-        year_col (str): the name of the year column in the original table.
-        month_col (str): the name of the month column in the original table.
+        df: dataframe to convert
+        date_col: the name of the column you want in the output.
+        year_col: the name of the year column in the original table.
+        month_col: the name of the month column in the original table.
         day_col: the name of the day column in the original table.
-        month_value (int): generated month if no month exists.
-        day_value (int): generated day if no month exists.
+        month_value: generated month if no month exists.
+        day_value: generated day if no day exists.
 
     Returns:
-        pandas.DataFrame: A DataFrame in which the year, month, day columns
-        values have been converted into datetime objects.
-
-    Todo:
-        Update docstring.
+        A DataFrame in which the year, month, day columns values have been converted
+        into datetime objects.
     """
     df = df.copy()
     if date_col in df.columns:
@@ -937,49 +991,37 @@ def convert_to_date(
 
     year = df[year_col]
 
-    if month_col not in df.columns:
-        month = month_value
-    else:
-        month = df[month_col]
+    month = month_value if month_col not in df.columns else df[month_col]
 
-    if day_col not in df.columns:
-        day = day_value
-    else:
-        day = df[day_col]
+    day = day_value if day_col not in df.columns else df[day_col]
 
     df[date_col] = pd.to_datetime({"year": year, "month": month, "day": day})
     cols_to_drop = [x for x in [day_col, year_col, month_col] if x in df.columns]
-    df.drop(cols_to_drop, axis="columns", inplace=True)
+    df = df.drop(cols_to_drop, axis="columns")
 
     return df
 
 
-def fix_eia_na(df):
+def fix_eia_na(df: pd.DataFrame) -> pd.DataFrame:
     """Replace common ill-posed EIA NA spreadsheet values with np.nan.
 
     Currently replaces empty string, single decimal points with no numbers,
     and any single whitespace character with np.nan.
 
     Args:
-        df (pandas.DataFrame): The DataFrame to clean.
+        df: The DataFrame to clean.
 
     Returns:
-        pandas.DataFrame: The cleaned DataFrame.
+        DataFrame with regularized NA values.
     """
-    return df.replace(
-        to_replace=[
-            r"^\.$",  # Nothing but a decimal point
-            r"^\s*$",  # The empty string and entirely whitespace strings
-        ],
-        value=np.nan,
-        regex=True,
-    )
+    return df.replace(regex=r"(^\.$|^\s*$)", value=np.nan)
 
 
-def simplify_columns(df):
+def simplify_columns(df: pd.DataFrame) -> pd.DataFrame:
     """Simplify column labels for use as snake_case database fields.
 
-    All columns will be re-labeled by:
+    All column labels will be simplified by:
+
     * Replacing all non-alphanumeric characters with spaces.
     * Forcing all letters to be lower case.
     * Compacting internal whitespace to a single " ".
@@ -987,14 +1029,14 @@ def simplify_columns(df):
     * Replacing all remaining whitespace with underscores.
 
     Args:
-        df (pandas.DataFrame): The DataFrame to clean.
+        df: The DataFrame whose column labels to simplify.
 
     Returns:
-        pandas.DataFrame: The cleaned DataFrame.
-
-    Todo:
-        Update docstring.
+        A dataframe with simplified column names.
     """
+    # Do nothing, if empty dataframe (e.g. mocked for tests)
+    if df.shape[0] == 0:
+        return df
     df.columns = (
         df.columns.str.replace(r"[^0-9a-zA-Z]+", " ", regex=True)
         .str.strip()
@@ -1005,15 +1047,12 @@ def simplify_columns(df):
     return df
 
 
-def drop_tables(engine: sa.engine.Engine, clobber: bool = False):
+def drop_tables(engine: sa.engine.Engine, clobber: bool = False) -> None:
     """Drops all tables from a SQLite database.
 
     Creates an sa.schema.MetaData object reflecting the structure of the
     database that the passed in ``engine`` refers to, and uses that schema to
     drop all existing tables.
-
-    Todo:
-        Treat DB connection as a context manager (with/as).
 
     Args:
         engine: An SQL Alchemy SQLite database Engine pointing at an exising SQLite
@@ -1027,34 +1066,34 @@ def drop_tables(engine: sa.engine.Engine, clobber: bool = False):
         None
     """
     md = sa.MetaData()
-    md.reflect(engine)
-    insp = sa.inspect(engine)
-    if len(insp.get_table_names()) > 0 and not clobber:
-        raise AssertionError(
-            f"You are attempting to drop your database at {engine} while clobber is set to {clobber}"
-        )
-    md.drop_all(engine)
-    conn = engine.connect()
-    conn.exec_driver_sql("VACUUM")
-    conn.close()
+    with engine.connect() as conn:
+        md.reflect(conn)
+        insp = sa.inspect(conn)
+        if len(insp.get_table_names()) > 0 and not clobber:
+            raise AssertionError(
+                f"Attempting to drop database at {engine} while clobber is {clobber}."
+            )
+        md.drop_all(conn)
+        conn.exec_driver_sql("VACUUM")
 
 
-def merge_dicts(list_of_dicts):
+def merge_dicts(lods: list[dict[Any, Any]]) -> dict[Any, Any]:
     """Merge multipe dictionaries together.
 
-    Given any number of dicts, shallow copy and merge into a new dict,
-    precedence goes to key value pairs in latter dicts.
+    Given any number of dicts, shallow copy and merge into a new dict, precedence goes
+    to key value pairs in latter dicts within the input list.
 
     Args:
-        dict_args (list): a list of dictionaries.
+        lods: a list of dictionaries.
 
     Returns:
-        dict
+        A single merged dictionary.
+
     """
-    merge_dict = {}
-    for dictionary in list_of_dicts:
-        merge_dict.update(dictionary)
-    return merge_dict
+    merged = {}
+    for d in lods:
+        merged |= d
+    return merged
 
 
 def convert_cols_dtypes(
@@ -1121,12 +1160,13 @@ def convert_cols_dtypes(
     # columns to this nullable int type column. `utility_id_eia` shows up as a
     # column of strings (!) of numbers so it is an object column, and therefor
     # needs to be converted beforehand.
-    if "utility_id_eia" in df.columns:
-        # we want to be able to use this dtype cleaning at many stages, and
-        # sometimes this column has been converted to a float and therefor
-        # we need to skip this conversion
-        if df.utility_id_eia.dtypes is np.dtype("object"):
-            df = df.astype({"utility_id_eia": "float"})
+    # we want to be able to use this dtype cleaning at many stages, and
+    # sometimes this column has been converted to a float and therefore
+    # we need to skip this conversion
+    if "utility_id_eia" in df.columns and df.utility_id_eia.dtypes is np.dtype(
+        "object"
+    ):
+        df = df.astype({"utility_id_eia": "float"})
     df = (
         df.astype(non_bool_cols)
         .astype({col: "boolean" for col in bool_cols})
@@ -1190,11 +1230,11 @@ def generate_rolling_avg(
     # to get the backbone/complete date range/groups
     bones = (
         date_range.merge(groups)
-        .drop("tmp", axis=1)  # drop the temp column
+        .drop(columns="tmp")  # drop the temp column
         .merge(df, on=group_cols + ["report_date"])
         .set_index(group_cols + ["report_date"])
         .groupby(by=group_cols + ["report_date"])
-        .mean()
+        .mean(numeric_only=True)
     )
     # with the aggregated data, get a rolling average
     roll = bones.rolling(window=window, center=True, **kwargs).agg({data_col: "mean"})
@@ -1240,18 +1280,19 @@ def fillna_w_rolling_avg(
     return df_new.drop(columns=f"{data_col}_rollfilled")
 
 
-def count_records(df, cols, new_count_col_name):
+def count_records(
+    df: pd.DataFrame, cols: list[str], new_count_col_name: str
+) -> pd.DataFrame:
     """Count the number of unique records in group in a dataframe.
 
     Args:
-        df (panda.DataFrame) : dataframe you would like to groupby and count.
-        cols (iterable) : list of columns to group and count by.
-        new_count_col_name (string) : the name that will be assigned to the
-            column that will contain the count.
+        df: dataframe you would like to groupby and count.
+        cols: list of columns to group and count by.
+        new_count_col_name: the name that will be assigned to the column that will
+            contain the count.
 
     Returns:
-        pandas.DataFrame: dataframe containing only ``cols`` and
-        ``new_count_col_name``.
+        DataFrame containing only ``cols`` and ``new_count_col_name``.
     """
     return (
         df.assign(count_me=1)
@@ -1262,12 +1303,12 @@ def count_records(df, cols, new_count_col_name):
     )
 
 
-def cleanstrings_snake(df, cols):
+def cleanstrings_snake(df: pd.DataFrame, cols: list[str]) -> pd.DataFrame:
     """Clean the strings in a columns in a dataframe with snake case.
 
     Args:
-        df (panda.DataFrame) : original dataframe.
-        cols (list): list of columns in `df` to apply snake case to.
+        df: original dataframe.
+        cols: list of columns in to apply snake case to.
     """
     for col in cols:
         df.loc[:, col] = (
@@ -1280,10 +1321,7 @@ def cleanstrings_snake(df, cols):
     return df
 
 
-def zero_pad_numeric_string(
-    col: pd.Series,
-    n_digits: int,
-) -> pd.Series:
+def zero_pad_numeric_string(col: pd.Series, n_digits: int) -> pd.Series:
     """Clean up fixed-width leading zero padded numeric (e.g. ZIP, FIPS) codes.
 
     Often values like ZIP and FIPS codes are stored as integers, or get
@@ -1337,16 +1375,14 @@ def zero_pad_numeric_string(
 def iterate_multivalue_dict(**kwargs):
     """Make dicts from dict with main dict key and one value of main dict."""
     single_valued = {
-        k: v
-        for k, v in kwargs.items()
-        if not (isinstance(v, list) or isinstance(v, tuple))
+        k: v for k, v in kwargs.items() if not (isinstance(v, list | tuple))
     }
 
     # Transform multi-valued {k: vlist} into {k1: [{k1: v1}, {k1: v2}, ...], k2: [...], ...}
     multi_valued = {
         k: [{k: v} for v in vlist]
         for k, vlist in kwargs.items()
-        if (isinstance(vlist, list) or isinstance(vlist, tuple))
+        if (isinstance(vlist, list | tuple))
     }
 
     for value_assignments in itertools.product(*multi_valued.values()):
@@ -1356,7 +1392,7 @@ def iterate_multivalue_dict(**kwargs):
         yield result
 
 
-def get_working_dates_by_datasource(datasource):
+def get_working_dates_by_datasource(datasource: str) -> pd.DatetimeIndex:
     """Get all working dates of a datasource as a DatetimeIndex."""
     import pudl.metadata.classes
 
@@ -1400,7 +1436,12 @@ def dedupe_on_category(
     return dedup_df.drop_duplicates(subset=base_cols, keep="first")
 
 
-def calc_capacity_factor(df, freq, min_cap_fact=None, max_cap_fact=None):
+def calc_capacity_factor(
+    df: pd.DataFrame,
+    freq: Literal["AS", "MS"],
+    min_cap_fact: float | None = None,
+    max_cap_fact: float | None = None,
+) -> pd.DataFrame:
     """Calculate capacity factor.
 
     Capacity factor is calcuated from the capcity, the net generation over a
@@ -1411,19 +1452,18 @@ def calc_capacity_factor(df, freq, min_cap_fact=None, max_cap_fact=None):
     `min_cap_fact` and `max_cap_fact` are dropped.
 
     Args:
-        df (pandas.DataFrame): table with components of capacity factor (
-            `report_date`, `net_generation_mwh` and `capacity_mw`)
-        min_cap_fact (float): Lower bound, below which values are set to NaN.
-            If None, don't use a lower bound. Default is None.
-        max_cap_fact (float): Upper bound, below which values are set to NaN.
-            If None, don't use an upper bound. Default is None.
-        freq (str): String describing time frequency at which to aggregate
-            the reported data, such as 'MS' (month start) or 'AS' (annual
-            start).
+        df: table with required inputs for capacity factor (``report_date``,
+            ``net_generation_mwh`` and ``capacity_mw``).
+        freq: String describing time frequency at which to aggregate the reported data,
+            such as ``MS`` (month start) or ``AS`` (annual start).
+        min_cap_fact: Lower bound, below which values are set to NaN. If None, don't use
+            a lower bound. Default is None.
+        max_cap_fact: Upper bound, below which values are set to NaN.  If None, don't
+            use an upper bound. Default is None.
 
     Returns:
-        pandas.DataFrame: modified version of input `df` with one additional
-        column (`capacity_factor`).
+        Modified version of the input DataFrame with an additional ``capacity_factor``
+        column.
     """
     # get a unique set of dates to generate the number of hours
     dates = df["report_date"].drop_duplicates()
@@ -1455,20 +1495,20 @@ def calc_capacity_factor(df, freq, min_cap_fact=None, max_cap_fact=None):
     return df
 
 
-def weighted_average(df, data_col, weight_col, by):
+def weighted_average(
+    df: pd.DataFrame, data_col: str, weight_col: str, by: list[str]
+) -> pd.DataFrame:
     """Generate a weighted average.
 
     Args:
-        df (pandas.DataFrame): A DataFrame containing, at minimum, the columns
-            specified in the other parameters data_col and weight_col.
-        data_col (string): column name of data column to average
-        weight_col (string): column name to weight on
-        by (list): A list of the columns to group by when calcuating
-            the weighted average value.
+        df: A DataFrame containing, at minimum, the columns specified in the other
+            parameters data_col and weight_col.
+        data_col: column name of data column to average
+        weight_col: column name to weight on
+        by: List of columns to group by when calcuating the weighted average value.
 
     Returns:
-        pandas.DataFrame: a table with ``by`` columns as the index and the
-        weighted ``data_col``.
+        A table with ``by`` columns as the index and the weighted ``data_col``.
     """
     df["_data_times_weight"] = df[data_col] * df[weight_col]
     df["_weight_where_notnull"] = df.loc[df[data_col].notnull(), weight_col]
@@ -1519,7 +1559,7 @@ def sum_and_weighted_average_agg(
     return df_out.reset_index()
 
 
-def get_eia_ferc_acct_map():
+def get_eia_ferc_acct_map() -> pd.DataFrame:
     """Get map of EIA technology_description/pm codes <> ferc accounts.
 
     Returns:
@@ -1532,12 +1572,13 @@ def get_eia_ferc_acct_map():
             'prime_mover_code', 'ferc_acct_name']`
     """
     eia_ferc_acct_map = pd.read_csv(
-        resources.open_text("pudl.package_data.glue", "ferc_acct_to_pm_tech_map.csv")
+        importlib.resources.files("pudl.package_data.glue")
+        / "ferc_acct_to_pm_tech_map.csv"
     )
     return eia_ferc_acct_map
 
 
-def dedupe_n_flatten_list_of_lists(mega_list):
+def dedupe_n_flatten_list_of_lists(mega_list: list) -> list:
     """Flatten a list of lists and remove duplicates."""
     return list({item for sublist in mega_list for item in sublist})
 
@@ -1549,7 +1590,7 @@ def flatten_list(xs: Iterable) -> Generator:
     `here <https://stackoverflow.com/questions/2158395/flatten-an-irregular-arbitrarily-nested-list-of-lists>`__
     """
     for x in xs:
-        if isinstance(x, Iterable) and not isinstance(x, (str, bytes)):
+        if isinstance(x, Iterable) and not isinstance(x, str | bytes):
             yield from flatten_list(x)
         else:
             yield x
@@ -1565,47 +1606,12 @@ def convert_df_to_excel_file(df: pd.DataFrame, **kwargs) -> pd.ExcelFile:
     writer = pd.ExcelWriter(bio, engine="xlsxwriter")
     df.to_excel(writer, **kwargs)
 
-    writer.save()
+    writer.close()
 
     bio.seek(0)
     workbook = bio.read()
 
     return pd.ExcelFile(workbook)
-
-
-class EnvVar(Noneable):
-    """A dagster config type for env vars."""
-
-    def __init__(self, env_var: str) -> None:
-        """Initialize EnvVarField."""
-        super().__init__(inner_type=str)
-        self.env_var = env_var
-
-    def post_process(self, value: str) -> str:
-        """Validate an EnvVar config value.
-
-        Returns the value of the object environment variable if the
-        config value is not specified is not specified with dagster.
-
-        Args:
-            value: config value to validate.
-
-        Returns:
-            validated config value.
-
-        Raises:
-            PostProcessingError: if the value is not specified in the env var or config.
-        """
-        if value is None:
-            try:
-                value = os.environ.get(self.env_var)
-                if value is None:
-                    value = get_defaults()[self.env_var]
-            except KeyError:
-                raise PostProcessingError(
-                    f"Config value could not be found. Set the {self.env_var} environment variable or specify a value in dagster config."
-                )
-        return value
 
 
 def get_asset_keys(
@@ -1693,3 +1699,102 @@ def convert_col_to_bool(
     df[col_name] = df[col_name].astype("boolean")
 
     return df
+
+
+def scale_by_ownership(
+    gens: pd.DataFrame,
+    own_eia860: pd.DataFrame,
+    scale_cols: list,
+    validate: str = "1:m",
+) -> pd.DataFrame:
+    """Generate proportional data by ownership %s.
+
+    Why do we have to do this at all? Sometimes generators are owned by
+    many different utility owners that own slices of that generator. EIA
+    reports which portion of each generator is owned by which utility
+    relatively clearly in their ownership table. On the other hand, in
+    FERC1, sometimes a partial owner reports the full plant-part, sometimes
+    they report only their ownership portion of the plant-part. And of
+    course it is not labeld in FERC1. Because of this, we need to compile
+    all of the possible ownership slices of the EIA generators.
+
+    In order to accumulate every possible version of how a generator could
+    be reported, this method generates two records for each generator's
+    reported owners: one of the portion of the plant part they own and one
+    for the plant-part as a whole. The portion records are labeled in the
+    ``ownership_record_type`` column as "owned" and the total records are labeled as
+    "total".
+
+    In this function we merge in the ownership table so that generators
+    with multiple owners then have one record per owner with the
+    ownership fraction (in column ``fraction_owned``). Because the ownership
+    table only contains records for generators that have multiple owners,
+    we assume that all other generators are owned 100% by their operator.
+    Then we generate the "total" records by duplicating the "owned" records
+    but assigning the ``fraction_owned`` to be 1 (i.e. 100%).
+
+    Arguments:
+        gens: table with records at the generator level and generator attributes
+            to be scaled by ownership, must have columns ``plant_id_eia``,
+            ``generator_id``, and ``report_date``
+        own_eia860: the ``ownership_eia860`` table
+        scale_cols: a list of columns in the generator table to slice by ownership
+            fraction
+        validate: how to validate merging the ownership table onto the
+            generators table
+    Returns:
+        Table of generator records with ``scale_cols`` sliced by ownership fraction
+        such that there is a "total" and "owned" record for each generator owner.
+        The "owned" records have the generator's data scaled to the ownership
+        percentage (e.g. if a 200 MW generator has a 75% stake owner and a 25%
+        stake owner, this will result in two "owned" records with 150 MW and 50 MW).
+        The "total" records correspond to the full plant for every owner (e.g. using
+        the same 2-owner 200 MW generator as above, each owner will have a
+        records with 200 MW).
+    """
+    # grab the ownership table, and reduce it to only the columns we need
+    own860 = own_eia860[
+        [
+            "plant_id_eia",
+            "generator_id",
+            "report_date",
+            "fraction_owned",
+            "owner_utility_id_eia",
+        ]
+    ].pipe(pudl.helpers.convert_cols_dtypes, "eia")
+    # we're left merging BC we've removed the retired gens, which are
+    # reported in the ownership table
+    gens = (
+        gens.merge(
+            own860,
+            how="left",
+            on=["plant_id_eia", "generator_id", "report_date"],
+            validate=validate,
+        )
+        .assign(  # assume gens that don't show up in the own table have one 100% owner
+            fraction_owned=lambda x: x.fraction_owned.fillna(value=1),
+            # assign the operator id as the owner if null bc if a gen isn't
+            # reported in the own_eia860 table we can assume the operator
+            # is the owner
+            owner_utility_id_eia=lambda x: x.owner_utility_id_eia.fillna(
+                x.utility_id_eia
+            ),
+            ownership_record_type="owned",
+        )  # swap in the owner as the utility
+        .drop(columns=["utility_id_eia"])
+        .rename(columns={"owner_utility_id_eia": "utility_id_eia"})
+    )
+
+    # duplicate all of these "owned" records, asign 1 to all of the
+    # fraction_owned column to indicate 100% ownership, and add these new
+    # "total" records to the "owned"
+    gens = pd.concat(
+        [
+            gens,
+            gens.copy().assign(fraction_owned=1, ownership_record_type="total"),
+        ]
+    )
+    gens.loc[:, scale_cols] = gens.loc[:, scale_cols].multiply(
+        gens["fraction_owned"], axis="index"
+    )
+    return gens

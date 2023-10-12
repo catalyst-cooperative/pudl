@@ -1,18 +1,15 @@
 """Unit tests for the :mod:`pudl.helpers` module."""
 
-import os
-
 import numpy as np
 import pandas as pd
 import pytest
 from dagster import AssetKey
-from dagster._config.errors import PostProcessingError
 from pandas.testing import assert_frame_equal, assert_series_equal
 from pandas.tseries.offsets import BYearEnd
 
 import pudl
 from pudl.helpers import (
-    EnvVar,
+    apply_pudl_dtypes,
     convert_col_to_bool,
     convert_df_to_excel_file,
     convert_to_date,
@@ -385,15 +382,17 @@ def test_timeseries_fillin(test_dir):
             ],
             "plant_id_eia": [1, 1, 1, 1, 2, 2],
             "generator_id": [1, 2, 1, 1, 3, 3],
-            "data": [2, 1, 2, 3, 10, 2],
+            "data": [2.0, 1.0, 2.0, 3.0, 10.0, 2.0],
         }
-    ).astype({"report_date": "datetime64[ns]"})
+    ).pipe(apply_pudl_dtypes, group="eia")
 
     expected_out_path = (
         test_dir / "data/date_merge_unit_test/timeseries_fillin_expected_out.csv"
     )
-    expected_out = pd.read_csv(expected_out_path).astype(
-        {"report_date": "datetime64[ns]", "data": "float64"}
+    expected_out = (
+        pd.read_csv(expected_out_path)
+        .pipe(apply_pudl_dtypes, group="eia")
+        .astype({"data": "float64"})
     )
 
     out = expand_timeseries(
@@ -415,16 +414,18 @@ def test_timeseries_fillin_through_month(test_dir):
             ],
             "plant_id_eia": [1, 1, 1, 2, 2],
             "generator_id": [1, 1, 2, 1, 1],
-            "data": [1, 2, 1, 3, 4],
+            "data": [1.0, 2.0, 1.0, 3.0, 4.0],
         }
-    )
+    ).pipe(apply_pudl_dtypes, group="eia")
 
     expected_out_path = (
         test_dir
         / "data/date_merge_unit_test/timeseries_fillin_through_month_expected_out.csv"
     )
-    expected_out = pd.read_csv(expected_out_path).astype(
-        {"report_date": "datetime64[ns]", "data": "float64"}
+    expected_out = (
+        pd.read_csv(expected_out_path)
+        .pipe(apply_pudl_dtypes, group="eia")
+        .astype({"data": "float64"})
     )
     out = expand_timeseries(
         input_df,
@@ -634,27 +635,6 @@ def test_sql_asset_factory_missing_file():
     asset name."""
     with pytest.raises(FileNotFoundError):
         sql_asset_factory(name="fake_view")()
-
-
-def test_env_var():
-    os.environ["_PUDL_TEST"] = "test value"
-    env_var = EnvVar(env_var="_PUDL_TEST")
-    assert env_var.post_process(None) == "test value"
-    del os.environ["_PUDL_TEST"]
-
-
-def test_env_var_reads_defaults(mocker):
-    mocker.patch(
-        "pudl.helpers.get_defaults",
-        lambda: {"_PUDL_TEST": "test value default"},
-    )
-    env_var = EnvVar(env_var="_PUDL_TEST")
-    assert env_var.post_process(None) == "test value default"
-
-
-def test_env_var_missing_completely():
-    with pytest.raises(PostProcessingError):
-        EnvVar(env_var="_PUDL_BOGUS").post_process(None)
 
 
 @pytest.mark.parametrize(

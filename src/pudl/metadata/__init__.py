@@ -1,5 +1,5 @@
 """Metadata constants and methods."""
-from . import (  # noqa: F401
+from . import (
     classes,
     codes,
     constants,

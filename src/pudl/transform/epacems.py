@@ -52,7 +52,9 @@ def harmonize_eia_epa_orispl(
     # plant_id_epa and emissions_unit_id_epa value before reassigning IDs.
     one_to_many = crosswalk_df.groupby(
         ["plant_id_epa", "emissions_unit_id_epa"]
-    ).filter(lambda x: x.plant_id_eia.nunique() > 1)
+    ).filter(
+        lambda x: x.plant_id_eia.nunique() > 1  # noqa: PD101
+    )
 
     if not one_to_many.empty:
         raise AssertionError(
@@ -96,7 +98,7 @@ def convert_to_utc(df: pd.DataFrame, plant_utc_offset: pd.DataFrame) -> pd.DataF
         # `parse_dates=True`, is >10x faster.
         # Read the date as a datetime, so all the dates are midnight
         op_datetime_naive=lambda x: pd.to_datetime(
-            x.op_date, format=r"%m-%d-%Y", exact=True, cache=True
+            x.op_date, format=r"%Y-%m-%d", exact=True, cache=True
         )
         + pd.to_timedelta(x.op_hour, unit="h")  # Add the hour
     ).merge(

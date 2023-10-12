@@ -76,7 +76,7 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
     },
     "depreciation_amortization_summary_ferc1": {
         "description": (
-            "Depreciation and Amortization of Electric Plan (Account 403, 404, 405) "
+            "Depreciation and Amortization of Electric Plant (Account 403, 404, 405) "
             "Section A: Summary of depreciation and amortization changes. "
             "Schedule 336a of FERC Form 1."
         ),
@@ -89,6 +89,8 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
                 "ferc_account_label",
                 "ferc_account",
                 "dollar_value",
+                "utility_type",
+                "row_type_xbrl",
             ],
             "primary_key": [
                 "utility_id_ferc1",
@@ -161,6 +163,7 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
                 "dollar_value",
                 "expense_type",
                 "record_id",
+                "utility_type",
                 "ferc_account",
                 "row_type_xbrl",
             ],
@@ -209,13 +212,13 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
             "fields": [
                 "utility_id_ferc1",
                 "report_year",
+                "depreciation_type",
                 "plant_function",
                 "plant_status",
                 "utility_type",
                 "ending_balance",
                 "record_id",
                 "balance",
-                "ferc_account",
                 "row_type_xbrl",
             ],
             "primary_key": [
@@ -406,6 +409,7 @@ any cleaning mechanisms in place to account for this."""
                 "transfers",
                 "ending_balance",
                 "record_id",
+                "utility_type",
             ],
             "primary_key": ["utility_id_ferc1", "report_year", "ferc_account_label"],
         },
@@ -537,14 +541,21 @@ any cleaning mechanisms in place to account for this."""
         "field_namespace": "ferc1",
     },
     "plants_small_ferc1": {
-        "description": (
-            "Generating plant statistics for steam plants with less than 25 MW "
-            "installed nameplate capacity and internal combustion plants, gas "
-            "turbine-plants, conventional hydro plants, and pumped storage plants with "
-            "less than 10 MW installed nameplate capacity. As reported on FERC Form 1 "
-            "Schedule 410 (pages 410-411), and extracted from the FERC Visual FoxPro "
-            "database table f1_gnrt_plant."
-        ),
+        "description": """The generating plant statistics for internal combustion
+plants, gas turbine-plants, conventional hydro plants, and pumped storage plants with
+less than 10 MW installed nameplate capacity and steam plants with less than 25 MW
+installed nameplate capacity. As reported on FERC Form 1 Schedule 410 (pages 410-411)
+and extracted from the FERC Visual FoxPro and XBRL. See our
+``pudl.extract.ferc1.TABLE_NAME_MAP_FERC1`` for links to the raw tables.
+
+The raw version of this table is more like a digitized PDF than an actual data table.
+The rows contain lots of information in addition to what the columns might suggest.
+For instance, a single column may contain header rows, note rows, and total rows. This
+extraneous information is useful, but it prevents proper analysis when mixed in with the
+rest of the values data in the column. We employ a couple of data transformations to
+extract these rows from the data and preserve some of the information they contain
+(fuel type, plant type, FERC license, or general notes about the plant) in separate
+columns.""",
         "schema": {
             "fields": [
                 "record_id",
@@ -657,6 +668,8 @@ any cleaning mechanisms in place to account for this."""
                 "non_coincident_peak_demand_mw",
                 "coincident_peak_demand_mw",
                 "purchased_mwh",
+                "purchased_storage_mwh",
+                "purchased_other_than_storage_mwh",
                 "received_mwh",
                 "delivered_mwh",
                 "demand_charges",
@@ -812,6 +825,7 @@ any cleaning mechanisms in place to account for this."""
                 "sales_mwh",
                 "avg_customers_per_month",
                 "ferc_account",
+                "utility_type",
                 "row_type_xbrl",
             ],
             "primary_key": [
@@ -928,6 +942,7 @@ any cleaning mechanisms in place to account for this."""
                 "plant_function",
                 "ferc_account_label",
                 "ferc_account",
+                "utility_type",
                 "dollar_value",
             ],
             "primary_key": [
@@ -997,6 +1012,7 @@ any cleaning mechanisms in place to account for this."""
                 "report_year",
                 "dollar_value",
                 "expense_type",
+                "utility_type",
                 "record_id",
                 "ferc_account",
                 "row_type_xbrl",
@@ -1021,6 +1037,7 @@ any cleaning mechanisms in place to account for this."""
                 "sales_mwh",
                 "avg_customers_per_month",
                 "ferc_account",
+                "utility_type",
                 "row_type_xbrl",
             ],
             "primary_key": [
@@ -1063,20 +1080,23 @@ any cleaning mechanisms in place to account for this."""
         "field_namespace": "ferc1",
     },
     "denorm_electric_plant_depreciation_functional_ferc1": {
-        "description": "Denormalized table that contains FERC electric plant depreciation functional information.",
+        "description": (
+            "Denormalized accumulated provision for depreciation of electric utility "
+            "plant (Account 108). Schedule 219 Section B: Functional plant classifications."
+        ),
         "schema": {
             "fields": [
                 "utility_id_ferc1",
                 "utility_id_pudl",
                 "utility_name_ferc1",
                 "report_year",
+                "depreciation_type",
                 "plant_function",
                 "plant_status",
                 "utility_type",
                 "ending_balance",
                 "record_id",
                 "balance",
-                "ferc_account",
                 "row_type_xbrl",
             ],
             "primary_key": [
@@ -1509,6 +1529,8 @@ any cleaning mechanisms in place to account for this."""
                 "other_charges",
                 "purchase_type_code",
                 "purchased_mwh",
+                "purchased_storage_mwh",
+                "purchased_other_than_storage_mwh",
                 "received_mwh",
                 "tariff",
                 "total_settlement",
@@ -1526,6 +1548,7 @@ any cleaning mechanisms in place to account for this."""
                 "utility_id_ferc1",
                 "utility_id_pudl",
                 "utility_name_ferc1",
+                "utility_type",
                 "record_id",
                 "additions",
                 "adjustments",

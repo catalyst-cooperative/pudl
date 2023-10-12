@@ -69,7 +69,12 @@ Dagster Adoption
 Data Coverage
 ^^^^^^^^^^^^^
 
-* Updated :doc:`data_sources/eia860` to include data as of 2022-09.
+* Updated :doc:`data_sources/eia860` to include early release data from 2022.
+* Updated :doc:`data_sources/eia923` to include early release data from 2022.
+* Updated :doc:`data_sources/epacems` to switch from the old FTP server to the new
+  CAMPD API, and to include 2022 data. Due to changes in the ETL, Alaska, Puerto Rico
+  and Hawaii are now included in CEMS processing. See issue :issue:`1264` & PRs
+  :pr:`2779`, :pr:` 2816`.
 * New :ref:`epacamd_eia` crosswalk version v0.3, see issue :issue:`2317` and PR
   :pr:`2316`. EPA's updates add manual matches and exclusions focusing on operating
   units with a generator ID as of 2018.
@@ -96,6 +101,11 @@ Data Coverage
   * :ref:`cash_flow_ferc1`, see issue :issue:`1821` & PR :pr:`2184`
   * :ref:`electricity_sales_by_rate_schedule_ferc1`, see issue :issue:`1823` & PR
     :pr:`2205`
+* Harvested owner utilities from the EIA 860 ownership table which are now included in
+  the :ref:`utilities_entity_eia` and :ref:`utilities_eia` tables. See :pr:`2714` and
+  :pr:`2903`. Renamed columns with owner or operator suffix to differentiate between
+  owner and operator utility columns in :ref:`ownership_eia860` and
+  :ref:`denorm_ownership_eia860`.
 
 * New PUDL tables from :doc:`data_sources/eia860`:
 
@@ -183,6 +193,10 @@ Data Coverage
     to SQLite, describing the finances of oil pipeline companies. When the nightly
     builds succeed, `FERC Form 6 will be available on Datasette <https://data.catalyst.coop/ferc6>`__
     as well.
+  * :pr:`2734` converts the earlier years of FERC Form 60 (2006-2020) from DBF to
+    SQLite. Form 60 is a comprehensive financial and operating report submitted for
+    centralized service companies. `FERC Form 60 will also be available on Datasette
+    <https://data.catalyst.coop/ferc6>`__.
 
 
 Data Cleaning
@@ -231,11 +245,19 @@ Analysis
   account for 1:m matches in the manual data, we added ``plant_match_ferc1`` as a plant
   part in :mod:`pudl.analysis.plant_parts_eia`.
 * Refined how we are associating generation and fuel data in
-  :mod:`pudl.analysis.allocate_net_gen`. Energy source codes that show up in the
-  :ref:`generation_fuel_eia923` or the :ref:`boiler_fuel_eia923` are now added into
-  the :ref:`generators_eia860` table so associating those gf and bf records are more
-  cleanly associated with generators. Thanks to :user:`grgmiller` for his
-  contribution, which was integrated by :user:`cmgosnell`! See PRs :pr:`2235,2446`.
+  :mod:`pudl.analysis.allocate_gen_fuel`, which was renamed from ``allocate_net_gen``.
+  Energy source codes that show up in the :ref:`generation_fuel_eia923` or the
+  :ref:`boiler_fuel_eia923` are now added into the :ref:`generators_eia860` table so
+  associating those gf and bf records are more cleanly associated with generators.
+  Thanks to :user:`grgmiller` for his contribution, which was integrated by
+  :user:`cmgosnell`! See PRs :pr:`2235,2446`.
+* The :mod:`pudl.analysis.mcoe` table now uses the allocated estimates for per-generator
+  net generation and fuel consumption. See PR :pr:`2553`.
+* Additionally, the :mod:`pudl.analysis.mcoe` table now only includes attributes
+  pertaining to the generator capacity, heat rate, and fuel cost. No additional
+  generator attributes are included in this table. The full table with generator
+  attributes merged on is now provided by :mod:`pudl.analysis.mcoe_generators`. See PR
+  :pr:`2553`.
 * Added outputs from :mod:`pudl.analysis.service_territory` and
   :mod:`pudl.analysis.state_demand` into PUDL. These outputs include the US Census
   geometries associated with balancing authority and utility data from EIA 861
@@ -271,7 +293,7 @@ Deprecations
 * ``pudl.transform.ferc1.transform()`` has been removed. The ferc1 table
     transformations are now being orchestrated with Dagster.
 * ``pudl.transform.ferc1.transform`` can no longer be executed as a script.
-  Use dagit to execute just the FERC Form 1 pipeline.
+  Use dagster-webserver to execute just the FERC Form 1 pipeline.
 * ``pudl.extract.ferc1.extract_dbf``, ``pudl.extract.ferc1.extract_xbrl``
   ``pudl.extract.ferc1.extract_xbrl_single``,
   ``pudl.extract.ferc1.extract_dbf_single``,
@@ -298,6 +320,8 @@ Miscellaneous
   reported a balancing authority code of "ISONE" to "NYISO". These plants now retain
   their original EIA codes. Plants with manual re-mapping of BA codes have also been
   fixed to have correctly updated BA names. See :pr:`2312` and :issue:`2255`.
+* Fixed a column naming bug that was causing EIA860 monthly retirement dates to get
+  nulled out. See :issue:`2834` and :pr:`2835`
 
 .. _release-v2022.11.30:
 
@@ -891,7 +915,7 @@ The :ref:`generation_fuel_eia923` table is more complete, but the
 The :ref:`generation_eia923` table includes only ~55% of the total MWhs reported
 in the :ref:`generation_fuel_eia923` table.
 
-The :mod:`pudl.analysis.allocate_net_gen` module estimates the net electricity
+The :mod:`pudl.analysis.allocate_gen_fuel` module estimates the net electricity
 generation and fuel consumption attributable to individual generators based on
 the more expansive reporting of the data in the :ref:`generation_fuel_eia923`
 table.
