@@ -1466,7 +1466,7 @@ class Resource(Base):
                 and pd.api.types.is_integer_dtype(df[field.name])
             ):
                 df[field.name] = pd.to_datetime(df[field.name], format="%Y")
-            if pd.api.types.is_categorical_dtype(dtypes[field.name]):
+            if isinstance(dtypes[field.name], pd.CategoricalDtype):
                 uncategorized = [
                     value
                     for value in df[field.name].dropna().unique()

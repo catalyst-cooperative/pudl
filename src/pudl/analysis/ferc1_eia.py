@@ -32,6 +32,7 @@ from typing import Literal
 import numpy as np
 import pandas as pd
 import recordlinkage as rl
+from dagster import asset
 from recordlinkage.compare import Exact, Numeric, String  # , Date
 from sklearn.linear_model import LogisticRegression
 from sklearn.metrics import precision_recall_fscore_support
@@ -46,19 +47,26 @@ logger = pudl.logging_helpers.get_logger(__name__)
 # Silence the recordlinkage logger, which is out of control
 
 
-def execute(
-    plants_all_ferc1: pd.DataFrame,
-    fbp_ferc1: pd.DataFrame,
+@asset(
+    name="ferc1_eia",
+    # io_manager_key="pudl_sqlite_io_manager",
+    compute_kind="Python",
+)
+def ferc1_eia(
+    denorm_plants_all_ferc1: pd.DataFrame,
+    denorm_fuel_by_plant_ferc1: pd.DataFrame,
     plant_parts_eia: pd.DataFrame,
 ) -> pd.DataFrame:
     """Coordinate the connection between FERC1 plants and EIA plant-parts.
 
     Args:
-        plants_all_ferc1: Table of all of the FERC1-reporting plants.
-        fbp_ferc1: Table of the fuel reported aggregated to the FERC1 plant-level.
+        denorm_plants_all_ferc1: Table of all of the FERC1-reporting plants.
+        denorm_fuel_by_plant_ferc1: Table of the fuel reported aggregated to the FERC1 plant-level.
         plant_parts_eia: The EIA plant parts list.
     """
-    inputs = InputManager(plants_all_ferc1, fbp_ferc1, plant_parts_eia)
+    inputs = InputManager(
+        denorm_plants_all_ferc1, denorm_fuel_by_plant_ferc1, plant_parts_eia
+    )
     # compile/cache inputs upfront. Hopefully we can catch any errors in inputs early.
     inputs.execute()
     features_all = Features(feature_type="all", inputs=inputs).get_features(
@@ -1043,28 +1051,17 @@ def add_null_overrides(connects_ferc1_eia):
     logger.debug(f"Found {len(null_overrides)} null overrides")
     # List of EIA columns to null. Ideally would like to get this from elsewhere, but
     # compiling this here for now...
-    eia_cols_to_null = [
-        "plant_name_new",
-        "plant_part",
-        "ownership_record_type",
-        "generator_id",
-        "unit_code_pudl",
-        "prime_mover_code",
-        "energy_source_code_1",
-        "technology_description",
-        "true_gran",
-        "appro_part_label",
-        "record_count",
-        "fraction_owned",
-        "ownership_dupe",
-        "operational_status",
-        "operational_status_pudl",
-    ] + [x for x in connects_ferc1_eia.columns if x.endswith("eia")]
+    eia_cols_to_null = pudl.metadata.classes.Resource.from_id(
+        "plant_parts_eia"
+    ).get_field_names()
     # Make all EIA values NA for record_id_ferc1 values in the Null overrides list and
     # make the match_type column say "overriden"
     connects_ferc1_eia.loc[
         connects_ferc1_eia["record_id_ferc1"].isin(null_overrides.record_id_ferc1),
-        eia_cols_to_null + ["match_type"],
-    ] = [np.nan] * len(eia_cols_to_null) + ["overridden"]
-
+        eia_cols_to_null,
+    ] = np.nan
+    connects_ferc1_eia.loc[
+        connects_ferc1_eia["record_id_ferc1"].isin(null_overrides.record_id_ferc1),
+        "match_type",
+    ] = "overridden"
     return connects_ferc1_eia
