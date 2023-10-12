@@ -42,7 +42,6 @@ dependencies = [
     "pyarrow>=13,<14",  # pandas[parquet]
     "pydantic>=1.7,<2",
     "python-dotenv>=1,<1.1",
-    "python-snappy>=0.6,<1",  # Requires libsnappydev be installed somehow.
     "pyxlsb>=1.0.9",  # pandas[excel]
     "pyyaml>=6,<6.1",
     "recordlinkage>=0.16,<0.17",
@@ -293,7 +292,6 @@ name = "pudl-dev"
 
 [tool.conda-lock.dependencies]
 recordlinkage = {source = "pypi"}
-sphinx-autoapi = {source = "pypi"}
 pip = ">=23,<24"
 python = ">=3.11,<3.12"
 sqlite = ">=3.36,<4"
