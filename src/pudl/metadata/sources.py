@@ -191,7 +191,7 @@ SOURCES: dict[str, Any] = {
         },
         "field_namespace": "eia",
         "working_partitions": {
-            "years": sorted(set(range(2001, 2023))),
+            "years": sorted(set(range(2001, 2024))),
         },
         "contributors": [
             CONTRIBUTORS["catalyst-cooperative"],
