@@ -41,7 +41,7 @@ from sklearn.model_selection import GridSearchCV  # , cross_val_score
 import pudl
 import pudl.helpers
 from pudl.analysis.plant_parts_eia import match_to_single_plant_part
-from pudl.metadata.classes import DataSource
+from pudl.metadata.classes import DataSource, Package
 
 logger = pudl.logging_helpers.get_logger(__name__)
 # Silence the recordlinkage logger, which is out of control
@@ -49,10 +49,10 @@ logger = pudl.logging_helpers.get_logger(__name__)
 
 @asset(
     name="ferc1_eia",
-    # io_manager_key="pudl_sqlite_io_manager",
+    io_manager_key="pudl_sqlite_io_manager",
     compute_kind="Python",
 )
-def ferc1_eia(
+def ferc1_eia_asset(
     denorm_plants_all_ferc1: pd.DataFrame,
     denorm_fuel_by_plant_ferc1: pd.DataFrame,
     plant_parts_eia: pd.DataFrame,
@@ -93,7 +93,6 @@ def ferc1_eia(
     ).pipe(
         add_null_overrides
     )  # Override specified values with NA record_id_eia
-
     return connects_ferc1_eia
 
 
@@ -807,26 +806,11 @@ def prettyify_best_matches(
     and FERC plant data. This removes the comparison vectors (the floats between 0 and 1
     that compare the two columns from each dataset).
     """
-    # if utility_id_pudl is not in the `PPE_COLS`,  we need to include it
-    ppe_cols_to_grab = pudl.analysis.plant_parts_eia.PPE_COLS + [
-        "plant_id_pudl",
-        "total_fuel_cost",
-        "fuel_cost_per_mmbtu",
-        "net_generation_mwh",
-        "capacity_mw",
-        "capacity_factor",
-        "total_mmbtu",
-        "heat_rate_mmbtu_mwh",
-        "fuel_type_code_pudl",
-        "installation_year",
-        "plant_part_id_eia",
-    ]
     connects_ferc1_eia = (
         # first merge in the EIA plant-parts
         pd.merge(
             matches_best[["record_id_ferc1", "record_id_eia", "match_type"]],
-            # we only want the identifying columns from the PPE
-            plant_parts_eia_true.reset_index()[ppe_cols_to_grab],
+            plant_parts_eia_true.reset_index(),
             how="left",
             on=["record_id_eia"],
             validate="m:1",  # multiple FERC records can have the same EIA match
@@ -889,7 +873,11 @@ def prettyify_best_matches(
             train_df,
             match_set=match_set,
         )
-
+    connects_ferc1_eia = (
+        Package.from_resource_ids()
+        .get_resource("ferc1_eia")
+        .enforce_schema(connects_ferc1_eia)
+    )
     return connects_ferc1_eia
 
 
