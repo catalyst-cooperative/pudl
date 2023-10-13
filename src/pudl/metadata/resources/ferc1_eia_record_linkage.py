@@ -3,7 +3,32 @@ from typing import Any
 
 RESOURCE_METADATA: dict[str, dict[str, Any]] = {
     "plant_parts_eia": {
-        "description": "Output table with the aggregation of all EIA plant parts. For use with matching to FERC 1.",
+        "description": """Output table with the aggregation of all EIA plant parts. For use with matching to FERC 1.
+
+Practically speaking, a plant is a collection of generator(s). There are many
+attributes of generators (i.e. prime mover, primary fuel source, technology
+type). We can use these generator attributes to group generator records into
+larger aggregate records which we call "plant parts". A plant part is a record
+which corresponds to a particular collection of generators that all share an
+identical attribute and utility owner. E.g. all of the generators with unit_id=2, or all
+of the generators with coal as their primary fuel source.
+
+The EIA data about power plants (from EIA 923 and 860) is reported in tables
+with records that correspond to mostly generators and plants. Other datasets
+(cough cough FERC1) are less well organized and include plants, generators and
+other plant parts all in the same table without any clear labels. This plant part table
+is an attempt to create records corresponding to many different plant parts in order to
+connect specific slices of EIA plants to other datasets.
+
+Because generators are often owned by multiple utilities, another dimension of
+this plant part table involves generating two records for each owner: one for the
+portion of the plant part they own and one for the plant part as a whole. The
+portion records are labeled in the "ownership_record_type" column as "owned"
+and the total records are labeled as "total".
+
+This table includes A LOT of duplicative information about EIA plants. It is primarily
+meant for use as an input into the record linkage between FERC1 plants and EIA.
+""",
         "schema": {
             "fields": [
                 "record_id_eia",
