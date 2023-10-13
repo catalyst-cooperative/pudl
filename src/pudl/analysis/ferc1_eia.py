@@ -876,9 +876,9 @@ def prettyify_best_matches(
             train_df,
             match_set=match_set,
         )
-    connects_ferc1_eia = Resource.from_id("ferc1_eia").enforce_schema(
-        connects_ferc1_eia
-    )
+    connects_ferc1_eia = Resource.from_id(
+        "out__yearly_plants_all_ferc1_plant_parts_eia"
+    ).enforce_schema(connects_ferc1_eia)
     return connects_ferc1_eia
 
 
