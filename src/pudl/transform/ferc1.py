@@ -29,7 +29,7 @@ from pudl.analysis.classify_plants_ferc1 import (
     plants_steam_validate_ids,
 )
 from pudl.extract.ferc1 import TABLE_NAME_MAP_FERC1
-from pudl.helpers import convert_cols_dtypes
+from pudl.helpers import assert_cols_areclose, convert_cols_dtypes
 from pudl.metadata.fields import apply_pudl_dtypes
 from pudl.settings import Ferc1Settings
 from pudl.transform.classes import (
@@ -4617,6 +4617,88 @@ class RetainedEarningsFerc1TableTransformer(Ferc1AbstractTableTransformer):
         enable access to DBF data to fill this in as well.
         """
         df = super().transform_main(df).pipe(self.add_previous_year_factoid)
+        return df
+
+    def transform_end(self, df: pd.DataFrame) -> pd.DataFrame:
+        """Check ``_previous_year`` factoids for consistency after the transformation is done."""
+        return super().transform_end(df).pipe(self.check_double_year_earnings_types)
+
+    def check_double_year_earnings_types(self, df: pd.DataFrame) -> pd.DataFrame:
+        """Check previous year/current year factoids for consistency.
+
+        The terminology can be very confusing - here are the expectations:
+
+        1. "inter year consistency": earlier year's "current starting/end
+           balance" == later year's "previous starting/end balance"
+        2. "intra year consistency": each year's "previous ending balance" ==
+           "current starting balance"
+        """
+        current_year_types = [
+            "unappropriated_undistributed_subsidiary_earnings",
+            "unappropriated_retained_earnings",
+        ]
+        previous_year_types = [
+            "unappropriated_undistributed_subsidiary_earnings_previous_year",
+            "unappropriated_retained_earnings_previous_year",
+        ]
+        current_year_facts = df.loc[df.earnings_type.isin(current_year_types)]
+        previous_year_facts = df.loc[df.earnings_type.isin(previous_year_types)].pipe(
+            lambda df: df.assign(
+                earnings_type=df.earnings_type.str.removesuffix("_previous_year")
+            )
+        )
+
+        # inter year comparison requires us to match the earlier year's current facts
+        # to the later year's previous facts, so we add 1 to the report year & merge.
+        earlier_years = current_year_facts.assign(
+            report_year=current_year_facts.report_year + 1
+        )
+        later_years = previous_year_facts
+        idx = ["utility_id_ferc1", "report_year", "earnings_type"]
+        inter_year_facts = earlier_years.merge(
+            later_years,
+            on=idx,
+            suffixes=["_earlier", "_later"],
+        ).dropna(
+            subset=[
+                "starting_balance_earlier",
+                "starting_balance_later",
+                "ending_balance_earlier",
+                "ending_balance_later",
+            ]
+        )
+
+        intra_year_facts = previous_year_facts.merge(
+            current_year_facts, on=idx, suffixes=["_previous", "_current"]
+        )
+
+        assert_cols_areclose(
+            df=inter_year_facts,
+            a_cols=["starting_balance_earlier"],
+            b_cols=["starting_balance_later"],
+            mismatch_threshold=0.05,
+            message="'Current starting balance' for year X-1 doesn't match "
+            "'previous starting balance' for year X.",
+        )
+
+        assert_cols_areclose(
+            df=inter_year_facts,
+            a_cols=["ending_balance_earlier"],
+            b_cols=["ending_balance_later"],
+            mismatch_threshold=0.05,
+            message="'Current ending balance' for year X-1 doesn't match "
+            "'previous ending balance' for year X.",
+        )
+
+        assert_cols_areclose(
+            df=intra_year_facts,
+            a_cols=["ending_balance_previous"],
+            b_cols=["starting_balance_current"],
+            mismatch_threshold=0.02,
+            message="'Previous year ending balance' should be the same as "
+            "'current year starting balance' for all years!",
+        )
+
         return df
 
     def targeted_drop_duplicates_dbf(self, df: pd.DataFrame) -> pd.DataFrame:
