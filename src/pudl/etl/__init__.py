@@ -72,7 +72,7 @@ default_assets = (
     ),
     *load_assets_from_modules(
         [pudl.analysis.plant_parts_eia, pudl.analysis.ferc1_eia],
-        group_name="ferc1_eia_entity_matching",
+        group_name="ferc1_eia_record_linkage",
     ),
 )
 
