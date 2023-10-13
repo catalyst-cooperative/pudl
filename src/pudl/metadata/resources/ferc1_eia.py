@@ -124,7 +124,7 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
                 "plant_id_report_year",
                 "heat_rate_mmbtu_mwh_ferc1",
             ],
-            "primary_key": ["record_id_eia", "record_id_ferc1"],
+            "primary_key": ["record_id_ferc1"],
         },
         "field_namespace": "pudl",
         "etl_group": "outputs",

@@ -41,7 +41,7 @@ from sklearn.model_selection import GridSearchCV  # , cross_val_score
 import pudl
 import pudl.helpers
 from pudl.analysis.plant_parts_eia import match_to_single_plant_part
-from pudl.metadata.classes import DataSource, Package
+from pudl.metadata.classes import DataSource, Resource
 
 logger = pudl.logging_helpers.get_logger(__name__)
 # Silence the recordlinkage logger, which is out of control
@@ -872,10 +872,8 @@ def prettyify_best_matches(
             train_df,
             match_set=match_set,
         )
-    connects_ferc1_eia = (
-        Package.from_resource_ids()
-        .get_resource("ferc1_eia")
-        .enforce_schema(connects_ferc1_eia)
+    connects_ferc1_eia = Resource.from_id("ferc1_eia").enforce_schema(
+        connects_ferc1_eia
     )
     return connects_ferc1_eia
 
@@ -1038,9 +1036,7 @@ def add_null_overrides(connects_ferc1_eia):
     logger.debug(f"Found {len(null_overrides)} null overrides")
     # List of EIA columns to null. Ideally would like to get this from elsewhere, but
     # compiling this here for now...
-    eia_cols_to_null = pudl.metadata.classes.Resource.from_id(
-        "plant_parts_eia"
-    ).get_field_names()
+    eia_cols_to_null = Resource.from_id("plant_parts_eia").get_field_names()
     # Make all EIA values NA for record_id_ferc1 values in the Null overrides list and
     # make the match_type column say "overriden"
     connects_ferc1_eia.loc[
