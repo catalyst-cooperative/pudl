@@ -64,7 +64,8 @@ def out__yearly_plants_all_ferc1_plant_parts_eia(
 
     Args:
         denorm_plants_all_ferc1: Table of all of the FERC1-reporting plants.
-        denorm_fuel_by_plant_ferc1: Table of the fuel reported aggregated to the FERC1 plant-level.
+        denorm_fuel_by_plant_ferc1: Table of the fuel reported aggregated to the FERC1
+            plant-level.
         plant_parts_eia: The EIA plant parts list.
     """
     inputs = InputManager(
@@ -876,9 +877,9 @@ def prettyify_best_matches(
             train_df,
             match_set=match_set,
         )
-    connects_ferc1_eia = Resource.from_id("ferc1_eia").enforce_schema(
-        connects_ferc1_eia
-    )
+    connects_ferc1_eia = Resource.from_id(
+        "out__yearly_plants_all_ferc1_plant_parts_eia"
+    ).enforce_schema(connects_ferc1_eia)
     return connects_ferc1_eia
 
 
