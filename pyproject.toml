@@ -291,7 +291,6 @@ channel-priority = "strict"
 name = "pudl-dev"
 
 [tool.conda-lock.dependencies]
-recordlinkage = {source = "pypi"}
 pip = ">=23,<24"
 python = ">=3.11,<3.12"
 sqlite = ">=3.36,<4"
