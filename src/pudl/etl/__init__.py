@@ -73,7 +73,7 @@ default_assets = (
     *load_assets_from_modules(
         [pudl.analysis.plant_parts_eia], group_name="plant_parts_eia"
     ),
-    *load_assets_from_modules([pudl.analysis.ferc1_eia], group_name="ferc1_eia"),
+    *load_assets_from_modules([pudl.analysis.ferc1_eia], group_name="ferc1_eia_stuff"),
 )
 
 default_resources = {

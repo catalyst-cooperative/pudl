@@ -48,11 +48,10 @@ logger = pudl.logging_helpers.get_logger(__name__)
 
 
 @asset(
-    name="ferc1_eia",
     io_manager_key="pudl_sqlite_io_manager",
     compute_kind="Python",
 )
-def ferc1_eia_asset(
+def ferc1_eia(
     denorm_plants_all_ferc1: pd.DataFrame,
     denorm_fuel_by_plant_ferc1: pd.DataFrame,
     plant_parts_eia: pd.DataFrame,
