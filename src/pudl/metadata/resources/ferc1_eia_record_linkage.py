@@ -99,9 +99,9 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
         "field_namespace": "eia",
     },
     "out__yearly_plants_all_ferc1_plant_parts_eia": {
-        "description": """This table links power plant level data reported in FERC Form 1 to related EIA data.
-However, because FERC and EIA report this data in very different ways, the linkage is
-complex.
+        "description": """This table links power plant data reported in FERC Form 1 to related EIA data. It
+answers the question "What EIA data reported about plants or generators should be
+associated with a given plant record found in the FERC Form 1."
 
 Each record in this table corresponds to a single FERC Form 1 record reported in one of
 several tables describing power plants (large steam, hydro, small, etc.). These FERC
@@ -110,12 +110,9 @@ generators in a plant with the same prime mover type, or just the respondent's o
 share of any of those categories (or other categories). Furthermore, the same utility
 may report the same plant in different ways in different years.
 
-The EIA data associated with each of these heterogeneous FERC plant records comes from
-our Plant Parts EIA table. It represents an aggregation of potentially several slices
-of an EIA plant, across both physical characteristics and utility ownership.
-
-The table answers the question "What data reported about plants or generators should be
-associated with a given plant record found in the FERC Form 1."
+The EIA data associated with each FERC plant record comes from our Plant Parts EIA
+table. The EIA data in each record represents an aggregation of several slices of an EIA
+plant, across both physical characteristics and utility ownership.
 """,
         "schema": {
             "fields": [
