@@ -4538,6 +4538,12 @@ class RetainedEarningsFerc1TableTransformer(Ferc1AbstractTableTransformer):
     table_id: TableIdFerc1 = TableIdFerc1.RETAINED_EARNINGS_FERC1
     has_unique_record_ids: bool = False
 
+    current_year_types: set[str] = {}
+    previous_year_types: set[str] = {
+        "unappropriated_undistributed_subsidiary_earnings_previous_year",
+        "unappropriated_retained_earnings_previous_year",
+    }
+
     def convert_xbrl_metadata_json_to_df(
         self: Self,
         xbrl_metadata_json: dict[Literal["instant", "duration"], list[dict[str, Any]]],
@@ -4633,16 +4639,10 @@ class RetainedEarningsFerc1TableTransformer(Ferc1AbstractTableTransformer):
         2. "intra year consistency": each year's "previous ending balance" ==
            "current starting balance"
         """
-        current_year_types = [
-            "unappropriated_undistributed_subsidiary_earnings",
-            "unappropriated_retained_earnings",
-        ]
-        previous_year_types = [
-            "unappropriated_undistributed_subsidiary_earnings_previous_year",
-            "unappropriated_retained_earnings_previous_year",
-        ]
-        current_year_facts = df.loc[df.earnings_type.isin(current_year_types)]
-        previous_year_facts = df.loc[df.earnings_type.isin(previous_year_types)].pipe(
+        current_year_facts = df.loc[df.earnings_type.isin(self.current_year_types)]
+        previous_year_facts = df.loc[
+            df.earnings_type.isin(self.previous_year_types)
+        ].pipe(
             lambda df: df.assign(
                 earnings_type=df.earnings_type.str.removesuffix("_previous_year")
             )
@@ -4759,6 +4759,7 @@ class RetainedEarningsFerc1TableTransformer(Ferc1AbstractTableTransformer):
                 earnings types.
         """
         logger.info(f"{self.table_id.value}: Reconciling previous year's data.")
+        # DBF has _current_year suffix while PUDL core version does not
         current_year_types = [
             "unappropriated_undistributed_subsidiary_earnings_current_year",
             "unappropriated_retained_earnings_current_year",
@@ -4767,7 +4768,7 @@ class RetainedEarningsFerc1TableTransformer(Ferc1AbstractTableTransformer):
             "unappropriated_undistributed_subsidiary_earnings_previous_year",
             "unappropriated_retained_earnings_previous_year",
         ]
-        # assign copies so no need to double copy when extracting this slice
+        # assign() copies, so no need to double copy when extracting this slice
         current_year = df[df.earnings_type.isin(current_year_types)].assign(
             earnings_type=lambda x: x.earnings_type.str.removesuffix("_current_year")
         )
@@ -4833,82 +4834,41 @@ class RetainedEarningsFerc1TableTransformer(Ferc1AbstractTableTransformer):
         return df
 
     def add_previous_year_factoid(self, df: pd.DataFrame) -> pd.DataFrame:
-        """Add `previous_year` factoids to XBRL data from prior year's DBF data."""
-        current_year_types = [
-            "unappropriated_undistributed_subsidiary_earnings",
-            "unappropriated_retained_earnings",
-        ]
-        previous_year_types = [
-            "unappropriated_undistributed_subsidiary_earnings_previous_year",
-            "unappropriated_retained_earnings_previous_year",
-        ]
-        # If previous_year type factoids aren't in all report_years, make factoids
-        # for these years. Raise exception if more than one year.
+        """Create ``*_previous_year`` factoids for XBRL data.
 
-        missing_years = [
-            year
-            for year in df[
-                df.earnings_type.isin(current_year_types)
-            ].report_year.unique()
-            if year
-            not in df[df.earnings_type.isin(previous_year_types)].report_year.unique()
+        XBRL doesn't include the previous year's data, but DBF does - so we try to
+        check that year X's ``*_current_year`` factoid has the same value as year X+1's
+        ``*_previous_year`` factoid.
+
+        To do this, we need to add some ``*_previous_year`` factoids to the XBRL data.
+        """
+        current_year_facts = df[df.earnings_type.isin(self.current_year_types)]
+        previous_year_facts = df[df.earnings_type.isin(self.previous_year_types)]
+
+        missing_years = set(current_year_facts.report_year.unique()) - set(
+            previous_year_facts.report_year.unique()
+        )
+
+        to_copy_forward = current_year_facts[
+            (current_year_facts.report_year + 1).isin(missing_years)
         ]
 
-        for missing_year in missing_years:
-            current_year = df[
-                (df.report_year == missing_year)
-                & (df.earnings_type.isin(current_year_types))
-            ]
-            previous_year = df[
-                (df.report_year == missing_year - 1)
-                & (df.earnings_type.isin(current_year_types))
-            ]
-
-            idx = [
-                "utility_id_ferc1",
-                "earnings_type",
-            ]
-            # This only works if there are two years of data, thus the assertion above.
-            data_columns = ["starting_balance", "ending_balance"]
-            metadata_columns = [
-                "balance",
-                "xbrl_factoid_original",
-                "is_within_table_calc",
-                "row_type_xbrl",
-            ]
-            date_dupe_types = pd.merge(
-                current_year.loc[:, ~current_year.columns.isin(metadata_columns)],
-                previous_year[idx + data_columns],
-                on=idx,
-                how="inner",
-                suffixes=("_original", ""),
-            ).drop(columns=["starting_balance_original", "ending_balance_original"])
-
-            date_dupe_types["earnings_type"] = date_dupe_types["earnings_type"].apply(
-                lambda x: f"{x}_previous_year"
+        idx = [
+            "utility_id_ferc1",
+            "earnings_type",
+            "report_year",
+        ]
+        inferred_previous_year_facts = (
+            to_copy_forward.assign(
+                report_year=to_copy_forward.report_year + 1,
+                new_earnings_type=to_copy_forward.earnings_type + "_previous_year",
             )
-
-            # Add in metadata that matches that of prior year's `previous_year` factoids
-            # These should be consistent.
-            previous_factoid_metadata = df.loc[
-                (df.report_year == missing_year - 1)
-                & (df.earnings_type.str.contains("_previous_year"))
-            ]
-            date_dupe_types = pd.merge(
-                date_dupe_types,
-                previous_factoid_metadata[idx + metadata_columns],
-                on=idx,
-                how="left",
-            )
-
-            df = pd.concat([df, date_dupe_types])
-
-            # All `previous_year` factoids are missing `row_type_xbrl`. Fill in.
-            df.loc[
-                df.earnings_type.isin(previous_year_types), "row_type_xbrl"
-            ] = "reported_value"
-
-        return df
+            .merge(current_year_facts[idx])
+            .drop(columns=["earnings_type"])
+            .rename(columns={"new_earnings_type": "earnings_type"})
+            .assign(row_type_xbrl="reported_value")
+        )
+        return pd.concat([df, inferred_previous_year_facts])
 
     def deduplicate_xbrl_factoid_xbrl_metadata(self, tbl_meta) -> pd.DataFrame:
         """Deduplicate the xbrl_metadata based on the ``xbrl_factoid``.
