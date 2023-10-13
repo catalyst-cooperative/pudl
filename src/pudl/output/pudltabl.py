@@ -221,7 +221,7 @@ class PudlTabl:
             # plant parts
             "mega_generators_eia": "gens_mega_eia",
             "plant_parts_eia": "plant_parts_eia",
-            "ferc1_eia": "ferc1_eia",
+            "out__yearly_plants_all_ferc1_plant_parts_eia": "ferc1_eia",
         }
 
         table_method_map_any_agg = {

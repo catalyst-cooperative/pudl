@@ -51,7 +51,7 @@ logger = pudl.logging_helpers.get_logger(__name__)
     io_manager_key="pudl_sqlite_io_manager",
     compute_kind="Python",
 )
-def ferc1_eia(
+def out__yearly_plants_all_ferc1_plant_parts_eia(
     denorm_plants_all_ferc1: pd.DataFrame,
     denorm_fuel_by_plant_ferc1: pd.DataFrame,
     plant_parts_eia: pd.DataFrame,
