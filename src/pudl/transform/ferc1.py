@@ -12,8 +12,9 @@ import importlib.resources
 import itertools
 import json
 import re
+from abc import abstractmethod
 from collections import namedtuple
-from collections.abc import Callable, Mapping
+from collections.abc import Mapping
 from typing import Any, Literal, Self
 
 import numpy as np
@@ -898,21 +899,20 @@ def reconcile_table_calculations(
             calculation_components=intra_table_calcs,
             calc_idx=calc_idx,
             value_col=params.column_to_check,
-        )
-        .pipe(
+        ).pipe(
             check_calculation_metrics,
             value_col=params.column_to_check,
             calculation_tolerance=params.calculation_tolerance,
             table_name=table_name,
         )
-        .pipe(
-            add_corrections,
-            value_col=params.column_to_check,
-            calculation_tolerance=params.calculation_tolerance,
-            table_name=table_name,
-        )
+        # .pipe(
+        #    add_corrections,
+        #    value_col=params.column_to_check,
+        #    calculation_tolerance=params.calculation_tolerance,
+        #    table_name=table_name,
+        # )
         # Rename back to the original xbrl_factoid column name before returning:
-        .rename(columns={"xbrl_factoid": xbrl_factoid_name})
+        # .rename(columns={"xbrl_factoid": xbrl_factoid_name})
     )
 
     return calculated_df
@@ -1108,15 +1108,6 @@ def check_calculation_metrics(
             np.nan,
         ),
     )
-    calculated_df["is_error"] = (
-        ~np.isclose(
-            calculated_df["calculated_value"],
-            calculated_df[value_col],
-            rtol=calculation_tolerance.isclose_rtol,
-            atol=calculation_tolerance.isclose_atol,
-        )
-        & calculated_df["abs_diff"].notnull()
-    )
     # Uniformity here helps keep the error checking functions simpler:
     calculated_df["reported_value"] = calculated_df[value_col]
 
@@ -1130,26 +1121,26 @@ def check_calculation_metrics(
     # some tolerance (defined here by the np.isclose defaults). Ignore records for
     # which the absolute difference "abs_dfiff" is NA since that indicates one or the
     # other of the calculated or reported values was NA.
-    all_errors = calculated_df[calculated_df["is_error"]]
+    # all_errors = calculated_df[calculated_df["is_error"]]
 
     # Why does it make sense to compare against records where abs_diff is non-null?
     # Why wouldn't we want to look at records where calculated_value is non-null?
-    non_null_calculated_df = calculated_df.dropna(subset="abs_diff")
-    if non_null_calculated_df.empty:
-        # Will only occur if all reported values are NaN when calculated values
-        # exist, or vice versa.
-        logger.warning(
-            "Calculated values have no corresponding reported values in this table."
-        )
-        bulk_error_frequency = np.nan
-    else:
-        bulk_error_frequency = len(all_errors) / len(non_null_calculated_df)
+    # non_null_calculated_df = calculated_df.dropna(subset="abs_diff")
+    # if non_null_calculated_df.empty:
+    #     # Will only occur if all reported values are NaN when calculated values
+    #     # exist, or vice versa.
+    #     logger.warning(
+    #         "Calculated values have no corresponding reported values in this table."
+    #     )
+    #     bulk_error_frequency = np.nan
+    # else:
+    #     bulk_error_frequency = len(all_errors) / len(non_null_calculated_df)
 
-    if bulk_error_frequency > calculation_tolerance.bulk_error_frequency:
-        raise AssertionError(
-            f"Bulk error rate of calculations in {table_name} is {bulk_error_frequency:.2%}. "
-            f"Accepted tolerance is {calculation_tolerance.bulk_error_frequency:.1%}."
-        )
+    # if bulk_error_frequency > calculation_tolerance.bulk_error_frequency:
+    #     raise AssertionError(
+    #         f"Bulk error rate of calculations in {table_name} is {bulk_error_frequency:.2%}. "
+    #         f"Accepted tolerance is {calculation_tolerance.bulk_error_frequency:.1%}."
+    #     )
 
     # Given a particular set of groupby() columns, calculate the fraction of records in
     # each group whose calculations do not match reported values based on np.isclose()
@@ -1164,113 +1155,217 @@ def check_calculation_metrics(
 # - They require a uniform `reported_value` column so that they can all have the same
 #   call signature, which allows us to iterate over all of them in a matrix.
 ########################################################################################
-def _is_valid_error_df(df: pd.DataFrame) -> bool:
-    """Helper function that verifies a dataframe is ready for error checking."""
-    required_cols = [
-        "is_error",
+class CalcTol(TransformParams):
+    """A simple class to contain an error tolerance specification."""
+
+    by: str | list[str] | None = None
+    name: str | None = None
+    tol: float
+
+    @validator("name", always=True)
+    def name_by(v, values):
+        """Set the name to be the same as by if name is none and by is string."""
+        if isinstance(v, str):
+            return v
+
+        if v is None and isinstance(values["by"], str):
+            return values["by"]
+
+        raise ValueError("Must give tolerance a name if by is a list.")
+
+
+class CalcCheck(TransformParams):
+    """Per metric calculation checks."""
+
+    isclose_rtol: confloat(ge=0.0) = 1e-5
+    """Relative tolerance to use in :func:`np.isclose` for determining equality."""
+
+    isclose_atol: confloat(ge=0.0, le=0.01) = 1e-8
+    """Absolute tolerance to use in :func:`np.isclose` for determining equality.
+
+    Since we are comparing financial values, and we want them to be equal only insofar
+    as they would be financially indistinguishable, they should never differ by more
+    than a penny, hence the upper bound of 0.01.
+    """
+
+    required_cols: list[str] = [
+        "table_name",
+        "xbrl_factoid",
+        "report_year",
+        "utility_id_ferc1",
         "reported_value",
         "calculated_value",
         "abs_diff",
+        "rel_diff",
     ]
-    return all(col in df.columns for col in required_cols)
 
+    tols: list[CalcTol] = []
+    """List of tolrances to check.
 
-def error_frequency(df: pd.DataFrame) -> float:
-    """Calculate the frequency with which records are tagged as errors."""
-    try:
-        return df[df.is_error].shape[0] / df.shape[0]
-    except ZeroDivisionError:
-        # Will only occur if all reported values are NaN when calculated values
-        # exist, or vice versa.
-        logger.warning(
-            "Calculated values have no corresponding reported values in this table."
-        )
-        return np.nan
+    Not totally satisfied here. It would be nice to be able to refer to the specific
+    tolerances by name, since they're pretty well defined now, and we know that there
+    are some testable properties relating them to each other.
 
-
-def relative_error_magnitude(df: pd.DataFrame) -> float:
-    """Calculate the mangnitude of the errors relative to total reported value."""
-    try:
-        # Should we be taking the absolute value of the reported column?
-        return df[df.is_error].abs_diff.sum() / df["reported_value"].abs().sum()
-    except ZeroDivisionError:
-        return np.nan
-
-
-def absolute_error_magnitude(df: pd.DataFrame) -> float:
-    """Calculate the absolute magnitude of the errors in aggregate."""
-    return df.abs_diff.sum()
-
-
-def null_calculation_frequency(df: pd.DataFrame) -> float:
-    """Frequency with which calculated values are null when reported values are not."""
-    non_null_reported = df["reported_value"].notnull()
-    null_calculated = df["calculated_value"].isnull()
-    return (non_null_reported & null_calculated).sum() / non_null_reported.sum()
-
-
-def null_reported_value_frequency(df: pd.DataFrame) -> float:
-    """Frequency with which the reported values are Null."""
-    return df["reported_value"].isnull().sum() / df.shape[0]
-
-
-def aggregate_errors(
-    df: pd.DataFrame, by: str | None, metric: Callable[[pd.DataFrame], float]
-) -> pd.Series:
-    """Calculate aggregate error metrics for a dataframe or record groups within it.
-
-    Args:
-        df: The dataframe to calculate the error metric from.
-        by: The column to group by, if calculating errors by group, e.g.
-            ``report_year``. If None, calculate the error metric for full dataframe.
-        metric: The function that calculates the error metric. Takes a dataframe and
-            returns a scalar (float).
-
-    Returns:
-        A Series. If gb_col is not None and it is not in the columns of the input
-        dataframe, an empty series is returned.
+    At the same time it's nice to have this be a generic list of whatever groupby
+    elements you want to check, since there could be special cases for different
+    tables or groups of tables and it would be nice to avoid hard coding that into
+    the classes.
     """
-    if by is None:
-        return pd.Series(metric(df))
-    if by in df.columns:
-        return df.groupby(by=by).apply(metric)
-    return pd.Series()
+
+    # @validator("utility_id_ferc1", "report_year", "table_name", "xbrl_factoid")
+    # def grouped_tol_ge_ungrouped_tol(v, values):
+    #    """Grouped tolerance should always be greater than or equal to ungrouped."""
+    #    if v is not None:
+    #        assert v >= values["ungrouped"]
+    #    return v
+
+    def _is_valid_error_df(self: Self, df: pd.DataFrame):
+        """Check that the input dataframe has all required columns."""
+        return all(col in df.columns for col in self.required_cols)
+
+    @abstractmethod
+    def metric(self: Self, df: pd.DataFrame) -> float:
+        """The error metric to calculate for a dataframe or group."""
+        ...
+
+    def is_error(self: Self, df: pd.DataFrame) -> pd.Series:
+        """Flag those records that qualify as an error.
+
+        NOTE: How should this categorization vary from metric to metric? Why is it
+        reasonable to only look at records where ``abs_diff`` is not Null?
+        """
+        return pd.Series(
+            ~np.isclose(
+                df["calculated_value"],
+                df["reported_value"],
+                rtol=self.isclose_rtol,
+                atol=self.isclose_atol,
+            )
+            & df["abs_diff"].notnull()
+        )
+
+    def report(self: Self, df: pd.DataFrame) -> dict[str, pd.Series]:
+        """Report the full distribution of errors by group."""
+        assert self._is_valid_error_df(df)
+        df.loc[:, "is_error"] = self.is_error(df)
+        error_report = {}
+        for tol in self.tols:
+            if tol.by == "ungrouped":
+                errors = pd.Series(self.metric(df))
+            else:
+                errors = df.groupby(by=tol.by).apply(self.metric)
+            error_report[tol.name] = errors
+        return error_report
+
+    def check(self: Self, df: pd.DataFrame) -> bool:
+        """Check metric for all groups and their tolerances."""
+        error_report = self.report(df)
+        message = ""
+        error_message = ""
+        valid = True
+        for tol in self.tols:
+            max_error = error_report[tol.name].max()
+            msg = (
+                f"{tol.name} max error: {max_error:0.6f}; "
+                f"tolerance: {tol.tol:0.6f}\n"
+            )
+            if max_error > tol.tol:
+                valid = False
+                error_message += msg
+            else:
+                message += msg
+        logger.info(message)
+        if not valid:
+            raise AssertionError(message)
 
 
-def aggregate_error_matrix(
-    df: pd.DataFrame,
-    metrics: list[Callable[[pd.DataFrame], float]] | None = None,
-    by_cols: list[str | None] | None = None,
-) -> dict[str, dict[str, pd.Series]]:
-    """Calculate a suite of error metrics on various data groupings."""
-    assert _is_valid_error_df(df)
-    if metrics is None:
-        metrics = [
-            error_frequency,
-            relative_error_magnitude,
-            absolute_error_magnitude,
-            null_calculation_frequency,
-            null_reported_value_frequency,
-            # Still need to write these
-            # duplicate_value_frequency,
-            # off_by_one_dollar_frequency,
-        ]
-    if by_cols is None:
-        by_cols = [
-            None,
-            "report_year",
-            "utility_id_ferc1",
-            "table_name",
-            "xbrl_factoid",
-        ]
-    agg_errors = {}
-    for metric in metrics:
-        agg_errors[metric.__name__] = {}
-        logger.info(f"Calculating {metric.__name__} by:")
-        for by in by_cols:
-            logger.info(f"    {by}")
-            agg_errors[metric.__name__][by] = aggregate_errors(df, by, metric)
-    return agg_errors
+class ErrorFrequency(CalcCheck):
+    """Check error frequency in XBRL calculations."""
+
+    tols: list[CalcTol] = [
+        CalcTol(by="ungrouped", tol=0.01),
+        CalcTol(by="table_name", tol=0.1),
+        CalcTol(by="xbrl_factoid", tol=0.1),
+        CalcTol(by="utility_id_ferc1", tol=0.1),
+        CalcTol(by="report_year", tol=0.1),
+    ]
+
+    def metric(self: Self, df: pd.DataFrame) -> float:
+        """Calculate the frequency with which records are tagged as errors."""
+        try:
+            return df[df.is_error].shape[0] / df.shape[0]
+        except ZeroDivisionError:
+            # Will only occur if all reported values are NaN when calculated values
+            # exist, or vice versa.
+            logger.warning(
+                "Calculated values have no corresponding reported values in this table."
+            )
+            return np.nan
+
+
+class RelativeErrorMagnitude(CalcCheck):
+    """Check relative magnitude of errors in XBRL calculations."""
+
+    tols: list[CalcTol] = [
+        CalcTol(by="ungrouped", tol=0.001),
+        CalcTol(by="table_name", tol=0.01),
+        CalcTol(by="xbrl_factoid", tol=0.01),
+        CalcTol(by="utility_id_ferc1", tol=0.01),
+        CalcTol(by="report_year", tol=0.01),
+    ]
+
+    def metric(self: Self, df: pd.DataFrame) -> float:
+        """Calculate the mangnitude of the errors relative to total reported value."""
+        try:
+            # Should we be taking the absolute value of the reported column?
+            return df[df.is_error].abs_diff.sum() / df["reported_value"].abs().sum()
+        except ZeroDivisionError:
+            return np.nan
+
+
+class AbsoluteErrorMagnitude(CalcCheck):
+    """Check relative magnitude of errors in XBRL calculations.
+
+    These numbers may vary wildly from table to table so no default values for the
+    expected errors are provided here...
+    """
+
+    def metric(self: Self, df: pd.DataFrame) -> float:
+        """Calculate the absolute mangnitude of XBRL calculation errors."""
+        return df.abs_diff.sum()
+
+
+class NullCalculationFrequency(CalcCheck):
+    """Check the frequency of null calculated values."""
+
+    tols: list[CalcTol] = [
+        CalcTol(by="ungrouped", tol=1.0),
+        CalcTol(by="table_name", tol=1.0),
+        CalcTol(by="xbrl_factoid", tol=1.0),
+        CalcTol(by="utility_id_ferc1", tol=1.0),
+        CalcTol(by="report_year", tol=1.0),
+    ]
+
+    def metric(self: Self, df: pd.DataFrame) -> float:
+        """Frequency of null calculated values when reported values are not."""
+        non_null_reported = df["reported_value"].notnull()
+        null_calculated = df["calculated_value"].isnull()
+        try:
+            return (non_null_reported & null_calculated).sum() / non_null_reported.sum()
+        except ZeroDivisionError:
+            return np.nan
+
+
+class NullReportedValueFrequency(CalcCheck):
+    """Check the frequency of null reported values."""
+
+    tols: list[CalcTol] = [
+        CalcTol(by="ungrouped", tol=0.50),
+    ]
+
+    def metric(self: Self, df: pd.DataFrame) -> float:
+        """Frequency with which the reported values are Null."""
+        return df["reported_value"].isnull().sum() / df.shape[0]
 
 
 def add_corrections(
@@ -1327,7 +1422,7 @@ def add_corrections(
         f"{num_records} original records."
     )
 
-    return pd.concat([calculated_df, corrections], axis="index").reset_index()
+    return pd.concat([calculated_df, corrections], axis="index")
 
 
 class Ferc1TableTransformParams(TableTransformParams):
