@@ -145,9 +145,8 @@ def drop_ytd_for_annual_tables(df: pd.DataFrame, freq: str) -> pd.DataFrame:
             "Removing rows where data_maturity is incremental_ytd to avoid "
             "aggregation errors."
         )
-        return df.loc[df["data_maturity"] != "incremental_ytd"]
-    else:
-        return df
+        df = df.loc[df["data_maturity"] != "incremental_ytd"].copy()
+    return df
 
 
 #####################################################################################

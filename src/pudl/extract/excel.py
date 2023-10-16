@@ -192,21 +192,19 @@ class GenericExtractor:
         ``self.cols_added``.
         """
         maturity = "final"
-        if "early_release" in self.excel_filename(page, **partition).lower():
+        file_name = self.excel_filename(page, **partition)
+        eia923_ytd_file_name_start = "EIA923_Schedules_2_3_4_5_M_"
+        if "early_release" in file_name.lower():
             maturity = "provisional"
         elif self._dataset_name == "eia860m":
             maturity = "monthly_update"
-        elif self._dataset_name == "eia923":
-            # this conditional is a hacky way to get around the fact that the formatting
-            # for the file names didn't always look like "EIA923_Schedules_2_3_4_5_M_"
-            # But, because we only want YTD data, it's fine to set a year floor.
-            if partition["year"] > 2022:
-                release_month = re.search(
-                    r"EIA923_Schedules_2_3_4_5_M_(\d{2})",
-                    self.excel_filename(page, **partition),
-                ).group(1)
-                if release_month != "12":
-                    maturity = "incremental_ytd"
+        elif eia923_ytd_file_name_start in file_name:
+            release_month = re.search(
+                r"eia923_ytd_file_name_start(\d{2})",
+                file_name,
+            ).group(1)
+            if release_month != "12":
+                maturity = "incremental_ytd"
         df = df.assign(data_maturity=maturity)
         self.cols_added.append("data_maturity")
         return df
