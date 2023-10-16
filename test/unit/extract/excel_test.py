@@ -152,5 +152,5 @@ def test_merge_dfs_by_page():
     for page in pages:
         pd.testing.assert_frame_equal(
             merged_dfs[page],
-            pd.DataFrame({"df": [1, 2], "page": [page, page]}, index=[0, 0]),
+            pd.DataFrame({"df": [1, 2], "page": [page, page]}, index=[0, 1]),
         )

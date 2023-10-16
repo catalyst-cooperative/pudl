@@ -384,7 +384,7 @@ def merge_dfs_by_page(
             merged[page].append(dfs[page])
 
     for page in merged:
-        merged[page] = pd.concat(merged[page])
+        merged[page] = pd.concat(merged[page]).reset_index(drop=True)
 
     return merged
 
