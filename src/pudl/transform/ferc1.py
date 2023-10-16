@@ -848,10 +848,10 @@ def reconcile_table_calculations(
         params: :class:`ReconcileTableCalculations` parameters.
 
     Returns:
-        A dataframe that includes new *_correction records with values that ensure the
-        calculations all match to within the required tolerance. It will also contain
-        columns created by the calculation checking process like ``abs_diff`` and
-        ``rel_diff``.
+        A dataframe that includes new ``*_correction`` records with values that ensure
+        the calculations all match to within the required tolerance. It will also
+        contain columns created by the calculation checking process like ``abs_diff``
+        and ``rel_diff``.
     """
     # If we don't have this value, we aren't doing any calculation checking:
     if params.column_to_check is None or calculation_components.empty:
