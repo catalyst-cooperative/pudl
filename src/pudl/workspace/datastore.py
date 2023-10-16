@@ -61,7 +61,7 @@ class DatapackageDescriptor:
         parsed_path = urlparse(resource_path)
         if parsed_path.path.startswith("/api/files"):
             record_number = self.doi.lower().rsplit("zenodo.", 1)[-1]
-            new_path = f"/api/records/{record_number}/files/{name}/content"
+            new_path = f"/records/{record_number}/files/{name}"
             new_url = ParseResult(**(parsed_path._asdict() | {"path": new_path}))
 
             return new_url.geturl()

@@ -103,7 +103,7 @@ class TestDatapackageDescriptor(unittest.TestCase):
 
         assert (
             descriptor.get_resource_path("datapackage.json")
-            == "https://zenodo.org/api/records/123123/files/datapackage.json/content"
+            == "https://zenodo.org/records/123123/files/datapackage.json"
         )
 
     def test_get_resources_filtering(self):
