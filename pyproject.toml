@@ -142,7 +142,7 @@ test = [
     "jupyter",
     "nbconvert>=7,<8",
     "nbformat>=5,<6",
-    "pre-commit>=3,<3.5",
+    "pre-commit>=3,<3.6",
     "pytest-console-scripts>=1.1,<1.5",
     "pytest-cov>=4,<4.2",
     "pytest-mock>=3,<3.12",
