@@ -1163,7 +1163,7 @@ class CalcTol(TransformParams):
     tol: float
 
     @validator("name", always=True)
-    def name_by(v, values):
+    def name_by(cls, v, values):
         """Set the name to be the same as by if name is none and by is string."""
         if isinstance(v, str):
             return v
