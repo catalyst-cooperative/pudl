@@ -19,7 +19,6 @@ from pudl.settings import (
     _convert_settings_to_dagster_config,
 )
 from pudl.workspace.datastore import Datastore
-from pudl.workspace.setup import PudlPaths
 
 
 class TestGenericDatasetSettings:
@@ -263,7 +262,7 @@ def test_partitions_with_json_normalize(pudl_etl_settings):
 
 def test_partitions_for_datasource_table(pudl_etl_settings):
     """Test whether or not we can make the datasource table."""
-    ds = Datastore(local_cache_path=PudlPaths().data_dir)
+    ds = Datastore(local_cache_path=None)
     datasource = pudl_etl_settings.make_datasources_table(ds)
     datasets = pudl_etl_settings.get_datasets().keys()
     if datasource.empty and datasets != 0:

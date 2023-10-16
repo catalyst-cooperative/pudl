@@ -10,6 +10,7 @@ from collections import defaultdict
 from collections.abc import Iterator
 from pathlib import Path
 from typing import Any, Self
+from urllib.parse import ParseResult, urlparse
 
 import datapackage
 import requests
@@ -38,7 +39,7 @@ class ChecksumMismatchError(ValueError):
 class DatapackageDescriptor:
     """A simple wrapper providing access to datapackage.json contents."""
 
-    def __init__(self, datapackage_json: dict, dataset: str, doi: str):
+    def __init__(self, datapackage_json: dict, dataset: str, doi: ZenodoDoi):
         """Constructs DatapackageDescriptor.
 
         Args:
@@ -56,7 +57,15 @@ class DatapackageDescriptor:
         res = self._get_resource_metadata(name)
         # remote_url is sometimes set on the local cached version of datapackage.json
         # so we should be using that if it exists.
-        return res.get("remote_url") or res.get("path")
+        resource_path = res.get("remote_url") or res.get("path")
+        parsed_path = urlparse(resource_path)
+        if parsed_path.path.startswith("/api/files"):
+            record_number = self.doi.lower().rsplit("zenodo.", 1)[-1]
+            new_path = f"/api/records/{record_number}/files/{name}/content"
+            new_url = ParseResult(**(parsed_path._asdict() | {"path": new_path}))
+
+            return new_url.geturl()
+        return resource_path
 
     def _get_resource_metadata(self, name: str) -> dict:
         for res in self.datapackage_json["resources"]:
@@ -257,7 +266,7 @@ class ZenodoFetcher:
             api_root = "https://zenodo.org/api"
         else:
             raise ValueError(f"Invalid Zenodo DOI: {doi}")
-        return f"{api_root}/deposit/depositions/{zenodo_id}"
+        return f"{api_root}/records/{zenodo_id}/files"
 
     def _fetch_from_url(self: Self, url: HttpUrl) -> requests.Response:
         logger.info(f"Retrieving {url} from zenodo")
@@ -274,9 +283,9 @@ class ZenodoFetcher:
         doi = self.get_doi(dataset)
         if doi not in self._descriptor_cache:
             dpkg = self._fetch_from_url(self._get_url(doi))
-            for f in dpkg.json()["files"]:
-                if f["filename"] == "datapackage.json":
-                    resp = self._fetch_from_url(f["links"]["download"])
+            for f in dpkg.json()["entries"]:
+                if f["key"] == "datapackage.json":
+                    resp = self._fetch_from_url(f["links"]["content"])
                     self._descriptor_cache[doi] = DatapackageDescriptor(
                         resp.json(), dataset=dataset, doi=doi
                     )

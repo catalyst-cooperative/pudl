@@ -92,6 +92,20 @@ class TestDatapackageDescriptor(unittest.TestCase):
         # The following resource does not exist and should throw KeyError
         self.assertRaises(KeyError, desc.get_resource_path, "other")
 
+    def test_modernize_zenodo_legacy_api_url(self):
+        legacy_url = "https://zenodo.org/api/files/082e4932-c772-4e9c-a670-376a1acc3748/datapackage.json"
+
+        descriptor = datastore.DatapackageDescriptor(
+            {"resources": [{"name": "datapackage.json", "path": legacy_url}]},
+            dataset="test",
+            doi="10.5281/zenodo.123123",
+        )
+
+        assert (
+            descriptor.get_resource_path("datapackage.json")
+            == "https://zenodo.org/api/records/123123/files/datapackage.json/content"
+        )
+
     def test_get_resources_filtering(self):
         """Verifies correct operation of get_resources()."""
         desc = _make_descriptor(
@@ -197,11 +211,11 @@ class TestZenodoFetcher(unittest.TestCase):
     """Unit tests for ZenodoFetcher class."""
 
     MOCK_EPACEMS_DEPOSITION = {
-        "files": [
-            {"filename": "random.zip"},
+        "entries": [
+            {"key": "random.zip"},
             {
-                "filename": "datapackage.json",
-                "links": {"download": "http://localhost/my/datapackage.json"},
+                "key": "datapackage.json",
+                "links": {"content": "http://localhost/my/datapackage.json"},
             },
         ]
     }
@@ -282,7 +296,7 @@ class TestZenodoFetcher(unittest.TestCase):
         fetcher = datastore.ZenodoFetcher()
         responses.add(
             responses.GET,
-            f"https://zenodo.org/api/deposit/depositions/{self.PROD_EPACEMS_ZEN_ID}",
+            f"https://zenodo.org/api/records/{self.PROD_EPACEMS_ZEN_ID}/files",
             json=self.MOCK_EPACEMS_DEPOSITION,
         )
         responses.add(
