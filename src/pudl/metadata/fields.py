@@ -431,6 +431,14 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "type": "integer",
         "description": "Year the plant's oldest still operational unit was built.",
     },
+    "construction_year_eia": {
+        "type": "integer",
+        "description": "Year the plant's oldest still operational unit was built.",
+    },
+    "construction_year_ferc1": {
+        "type": "integer",
+        "description": "Year the plant's oldest still operational unit was built.",
+    },
     "consumed_by_facility_mwh": {"type": "number", "unit": "MWh"},
     "consumed_by_respondent_without_charge_mwh": {"type": "number", "unit": "MWh"},
     "contact_firstname": {
@@ -1011,6 +1019,16 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "unit": "USD_per_MMBtu",
     },
     "fuel_cost_per_mwh": {
+        "type": "number",
+        "description": "Derived from MCOE, a unit level value. Average fuel cost per MWh of heat content in nominal USD.",
+        "unit": "USD_per_MWh",
+    },
+    "fuel_cost_per_mwh_eia": {
+        "type": "number",
+        "description": "Derived from MCOE, a unit level value. Average fuel cost per MWh of heat content in nominal USD.",
+        "unit": "USD_per_MWh",
+    },
+    "fuel_cost_per_mwh_ferc1": {
         "type": "number",
         "description": "Derived from MCOE, a unit level value. Average fuel cost per MWh of heat content in nominal USD.",
         "unit": "USD_per_MWh",

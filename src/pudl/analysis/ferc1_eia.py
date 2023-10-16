@@ -96,6 +96,9 @@ def out__yearly_plants_all_ferc1_plant_parts_eia(
     ).pipe(
         add_null_overrides
     )  # Override specified values with NA record_id_eia
+    connects_ferc1_eia = Resource.from_id(
+        "out__yearly_plants_all_ferc1_plant_parts_eia"
+    ).enforce_schema(connects_ferc1_eia)
     return connects_ferc1_eia
 
 
@@ -572,6 +575,7 @@ def overwrite_bad_predictions(match_df, train_df):
         how="outer",
         suffixes=("_pred", "_train"),
         indicator=True,
+        validate="1:1",
     )
     # construct new record_id_eia column with incorrect preds overwritten
     overwrite_df["record_id_eia"] = np.where(
@@ -818,27 +822,34 @@ def prettyify_best_matches(
             on=["record_id_eia"],
             validate="m:1",  # multiple FERC records can have the same EIA match
         )
-        # this is necessary in instances where the overrides don't have a record_id_eia
-        # i.e., they override to NO MATCH. These get merged in without a report_year,
-        # so we need to create one for them from the record_id.
-        .assign(
-            report_year=lambda x: (
-                x.record_id_ferc1.str.extract(r"(\d{4})")[0]
-                .astype("float")
-                .astype("Int64")
-            )
-        )
         # then merge in the FERC data we want the backbone of this table to be
         # the plant records so we have all possible FERC plant records, even
         # the unmapped ones
         .merge(
             plants_ferc1,
             how="outer",
-            on=["record_id_ferc1", "report_year", "plant_id_pudl", "utility_id_pudl"],
+            on=["record_id_ferc1"],
             suffixes=("_eia", "_ferc1"),
             validate="1:1",
             indicator=True,
-        ).assign(
+        )
+    )
+
+    # now we have some important cols that have dataset suffixes that we want to condense
+    def fill_eia_w_ferc1(x, col):
+        return x[f"{col}_eia"].fillna(x[f"{col}_ferc1"])
+
+    condense_cols = ["report_year", "plant_id_pudl", "utility_id_pudl"]
+    connects_ferc1_eia = (
+        connects_ferc1_eia.assign(
+            **{col: fill_eia_w_ferc1(connects_ferc1_eia, col) for col in condense_cols}
+        )
+        .drop(
+            columns=[
+                col + dataset for col in condense_cols for dataset in ["_eia", "_ferc1"]
+            ]
+        )
+        .assign(
             report_date=lambda x: pd.to_datetime(
                 x.report_year, format="%Y", errors="coerce"
             ),
@@ -876,9 +887,6 @@ def prettyify_best_matches(
             train_df,
             match_set=match_set,
         )
-    connects_ferc1_eia = Resource.from_id(
-        "out__yearly_plants_all_ferc1_plant_parts_eia"
-    ).enforce_schema(connects_ferc1_eia)
     return connects_ferc1_eia
 
 
