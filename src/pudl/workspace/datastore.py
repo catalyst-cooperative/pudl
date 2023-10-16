@@ -239,18 +239,6 @@ class ZenodoFetcher:
         """Returns list of supported datasets."""
         return [name for name, doi in sorted(self.zenodo_dois)]
 
-    def _get_token(self: Self, url: HttpUrl) -> str:
-        """Return the appropriate read-only Zenodo personal access token.
-
-        These tokens are associated with the pudl@catalyst.coop Zenodo account, which
-        owns all of the Catalyst raw data archives.
-        """
-        if "sandbox" in url:
-            token = "qyPC29wGPaflUUVAv1oGw99ytwBqwEEdwi4NuUrpwc3xUcEwbmuB4emwysco"  # noqa: S105
-        else:
-            token = "KXcG5s9TqeuPh1Ukt5QYbzhCElp9LxuqAuiwdqHP0WS4qGIQiydHn6FBtdJ5"  # noqa: S105
-        return token
-
     def _get_url(self: Self, doi: ZenodoDoi) -> HttpUrl:
         """Construct a Zenodo depsition URL based on its Zenodo DOI."""
         match = re.search(r"(10\.5072|10\.5281)/zenodo.([\d]+)", doi)
@@ -270,9 +258,7 @@ class ZenodoFetcher:
 
     def _fetch_from_url(self: Self, url: HttpUrl) -> requests.Response:
         logger.info(f"Retrieving {url} from zenodo")
-        response = self.http.get(
-            url, params={"access_token": self._get_token(url)}, timeout=self.timeout
-        )
+        response = self.http.get(url, timeout=self.timeout)
         if response.status_code == requests.codes.ok:
             logger.debug(f"Successfully downloaded {url}")
             return response
