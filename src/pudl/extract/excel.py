@@ -381,16 +381,19 @@ def merge_dfs_by_page(
     all_data = defaultdict(list)
     for dfs in paged_dfs:  # For each dataframe
         for page in dfs:  # For each page in a raw dataframe
-            if (
-                isinstance(dfs[page], pd.DataFrame) and not dfs[page].empty
-            ):  # If there is data for the page
-                all_data[page].append(
-                    dfs[page]
-                )  # Append to other raw data with same page name
+            all_data[page].append(
+                dfs[page]
+            )  # Append to other raw data with same page name
 
     for page in all_data:  # For each page of data
-        # Merge all the dataframes for one page
-        all_data[page] = pd.concat(all_data[page]).reset_index(drop=True)
+        # Drop any empty dataframes
+        all_data[page] = [df for df in all_data[page] if not df.empty]
+        if not all_data[page]:
+            logger.warning(f"No data found for table: {page}.")
+            all_data[page] = pd.DataFrame()
+        else:
+            # Merge all the dataframes for one page
+            all_data[page] = pd.concat(all_data[page]).reset_index(drop=True)
 
     return all_data
 
