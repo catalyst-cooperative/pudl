@@ -366,81 +366,87 @@ class GenericExtractor:
 
 
 @op
-def merge_dfs_by_page(
-    paged_dfs: list[dict[str, pd.DataFrame]]
-) -> dict[str, pd.DataFrame]:
-    """Merge DataFrames loaded with independent calls to .extract().
+def concat_pages(paged_dfs: list[dict[str, pd.DataFrame]]) -> dict[str, pd.DataFrame]:
+    """Concatenate pages loaded with independent calls to .extract().
 
-    The input is a list of dictionaries where the keys are the page names,
-    and values are DataFrame of extracted data.
-    Where a page name appears more than once in the dictionaries, all
-    DataFrames with that page name are merged together, and the result
-    returned as a single dict mapping unique page names to merged
-    DataFrames.
+    Transform a list of dictionaries of dataframes into a single dictionary of
+    dataframes, where each dataframe is the concatenation of dataframes with identical
+    keys from the input list.
+
+    Args:
+        paged_dfs: A list of dictionaries whose keys are page names, and values are
+            extracted DataFrames. Each element of the list corresponds to a single
+            year of the dataset being extracted.
+
+    Returns:
+        A dictionary of DataFrames keyed by page name, where the DataFrame contains that
+        page's data from all extracted years concatenated together.
     """
+    # Transform the list of dictionaries of dataframes into a dictionary of lists of
+    # dataframes, in which all dataframes in each list represent different instances of
+    # the same page of data from different years
     all_data = defaultdict(list)
-    for dfs in paged_dfs:  # For each dataframe
-        for page in dfs:  # For each page in a raw dataframe
-            all_data[page].append(
-                dfs[page]
-            )  # Append to other raw data with same page name
+    for dfs in paged_dfs:
+        for page in dfs:
+            all_data[page].append(dfs[page])
 
-    for page in all_data:  # For each page of data
-        # Drop any empty dataframes
-        all_data[page] = [df for df in all_data[page] if not df.empty]
-        if not all_data[page]:
-            logger.warning(f"No data found for table: {page}.")
-            all_data[page] = pd.DataFrame()
-        else:
-            # Merge all the dataframes for one page
-            all_data[page] = pd.concat(all_data[page]).reset_index(drop=True)
+    # concatenate the dataframes in each list in the dictionary into a single dataframe
+    for page in all_data:
+        all_data[page] = pd.concat(all_data[page]).reset_index(drop=True)
 
     return all_data
 
 
-def year_loader_factory(
+def year_extractor_factory(
     extractor_cls: type[GenericExtractor], name: str
 ) -> OpDefinition:
-    """Return a dagster op to load a single year using a given extractor class.
+    """Construct a Dagster op that extracts one year of data, given an extractor class.
 
     Args:
-        extractor_cls: Class of type GenericExtractor used to extract the data.
-        name(str): Name of dataset (e.g. "eia860").
+        extractor_cls: Class of type :class:`GenericExtractor` used to extract the data.
+        name: Name of an Excel based dataset (e.g. "eia860").
     """
 
-    def load_single_year(context, year: int) -> dict[str, pd.DataFrame]:
-        """Load a single year of EIA data from file.
+    def extract_single_year(context, year: int) -> dict[str, pd.DataFrame]:
+        """A function that extracts a year of spreadsheet data from an Excel file.
+
+        This function will be decorated with a Dagster op and returned.
 
         Args:
-            context:
-                context: dagster keyword that provides access to resources and config.
-            year:
-                Year to load.
+            context: Dagster keyword that provides access to resources and config.
+            year: Year of data to extract.
 
         Returns:
-            Loaded data in a dataframe.
+            A dictionary of DataFrames extracted from Excel, keyed by page name.
         """
         ds = context.resources.datastore
         return extractor_cls(ds).extract(year=[year])
 
     return op(
         required_resource_keys={"datastore", "dataset_settings"},
-        name=f"load_single_{name}_year",
-    )(load_single_year)
+        name=f"extract_single_{name}_year",
+    )(extract_single_year)
 
 
 def years_from_settings_factory(name: str) -> OpDefinition:
-    """Return a dagster op to get EIA years from settings.
+    """Construct a Dagster op to get target years from settings in the Dagster context.
 
     Args:
-        name (str): Name of dataset (e.g. "eia860")
+        name: Name of an Excel based dataset (e.g. "eia860"). Currently this must be
+            one of the attributes of :class:`pudl.settings.EiaSettings`
+
     """
 
-    def years_from_settings(context):
-        """Return set of years for EIA data in settings.
+    def years_from_settings(context) -> DynamicOutput:
+        """Produce target years for the given dataset from the EIA settings object.
 
-        These will be used to kick off worker processes to load each year of data in
+        These will be used to kick off worker processes to extract each year of data in
         parallel.
+
+        Yields:
+            A Dagster :class:`DynamicOutput` object representing the year to be
+            extracted. See the Dagster API documentation for more details:
+            https://docs.dagster.io/_apidocs/dynamic#dagster.DynamicOut
         """
         eia_settings = context.resources.dataset_settings.eia
         for year in getattr(eia_settings, name).years:
@@ -456,23 +462,29 @@ def years_from_settings_factory(name: str) -> OpDefinition:
 def raw_df_factory(
     extractor_cls: type[GenericExtractor], name: str
 ) -> AssetsDefinition:
-    """Return a graph asset to load a set of raw DataFrames from Excel files.
+    """Return a dagster graph asset to extract a set of raw DataFrames from Excel files.
 
     Args:
-        extractor_cls: Class of type GenericExtractor used to extract the data.
-        name(str): Name of dataset (e.g. "eia860").
+        extractor_cls: The dataset-specific Excel extractor used to extract the data.
+            Needs to correspond to the dataset identified by ``name``.
+        name: Name of an Excel based dataset (e.g. "eia860"). Currently this must be
+            one of the attributes of :class:`pudl.settings.EiaSettings`
     """
-    # Instantiate dagster factory for dataset
-    year_loader = year_loader_factory(extractor_cls, name)
-    # Get years from settings
+    # Build a Dagster op that can extract a single year of data
+    year_extractor = year_extractor_factory(extractor_cls, name)
+    # Get the list of target years to extract from the PUDL ETL settings object which is
+    # stored in the Dagster context that is available to all ops.
     years_from_settings = years_from_settings_factory(name)
 
     def raw_dfs() -> dict[str, pd.DataFrame]:
-        """All loaded EIA dataframes."""
+        """Produce a dictionary of extracted EIA dataframes."""
         years = years_from_settings()
-        # Clone dagster op for each year
-        dfs = years.map(lambda year: year_loader(year))
-        # Gather all ops and merge them by page
-        return merge_dfs_by_page(dfs.collect())
+        # Clone dagster op for each year using DynamicOut.map()
+        # See https://docs.dagster.io/_apidocs/dynamic#dagster.DynamicOut
+        dfs = years.map(lambda year: year_extractor(year))
+        # Collect the results from all of those cloned ops and concatenate the
+        # individual years of data into a single multi-year dataframe for each different
+        # page in the spreadsheet based dataset using DynamicOut.collect()
+        return concat_pages(dfs.collect())
 
     return graph_asset(name=f"{name}_raw_dfs")(raw_dfs)
