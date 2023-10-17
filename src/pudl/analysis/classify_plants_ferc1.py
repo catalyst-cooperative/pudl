@@ -681,7 +681,7 @@ def fuel_by_plant_ferc1(
                 "fuel_type_code_pudl",
             ]
         )
-        .agg(sum)
+        .sum()
         .reset_index()
         # Set the index to the keys, and pivot to get per-fuel columns:
         .set_index(["utility_id_ferc1", "plant_name_ferc1", "report_year"])
