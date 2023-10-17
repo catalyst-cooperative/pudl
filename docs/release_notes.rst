@@ -34,7 +34,7 @@ Dagster Adoption
     datasources if no datasets are specified.
   * The Excel extractor in ``pudl.extract.excel`` has been updated to parallelize
     Excel spreadsheet extraction using Dagster ``@multi_asset`` functionality, thanks to
-    :user:`dstanby`. This is currently being used for EIA 860, 861 and 923 data. See
+    :user:`dstansby`. This is currently being used for EIA 860, 861 and 923 data. See
     :issue:`2385` and PRs :pr:`2644`, :pr:`2943`.
 
 * EIA ETL changes:
