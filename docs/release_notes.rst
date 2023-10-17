@@ -180,6 +180,9 @@ Data Coverage
   connects EPA CAMD with EIA. Thanks to :user:`grgmiller` for his contribution to this
   process. See :issue:`2456` & :pr:`2491`.
 
+* Added new table :ref:`out__yearly_plants_all_ferc1_plant_parts_eia` which links FERC1
+  records from :ref:`denorm_plants_all_ferc1` and :ref:`plant_parts_eia`.
+
 * Thanks to contributions from :user:`rousik` we've generalized the code we use to
   convert FERC's old annual Visual FoxPro databases into multi-year SQLite databases.
 

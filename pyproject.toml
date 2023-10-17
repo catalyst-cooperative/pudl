@@ -21,7 +21,7 @@ dependencies = [
     "coloredlogs>=14.0,<15.1",  # Dagster requires 14.0
     "dagster-webserver>=1.4,<1.6",
     "dagster>=1.4,<1.6",
-    "dask>=2022.5,<2023.9.4",
+    "dask>=2022.5,<2023.10.1",
     "datapackage>=1.11,<1.16",  # Transition datastore to use frictionless.
     "email-validator>=1.0.3",  # pydantic[email]
     "fsspec>=2022.5,<2023.9.3",
@@ -142,7 +142,7 @@ test = [
     "jupyter",
     "nbconvert>=7,<8",
     "nbformat>=5,<6",
-    "pre-commit>=3,<3.5",
+    "pre-commit>=3,<3.6",
     "pytest-console-scripts>=1.1,<1.5",
     "pytest-cov>=4,<4.2",
     "pytest-mock>=3,<3.12",
