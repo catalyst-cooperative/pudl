@@ -459,7 +459,9 @@ def raw_df_factory(
         extractor_cls: Class of type GenericExtractor used to extract the data.
         name(str): Name of dataset (e.g. "eia860").
     """
+    # Instantiate dagster factory for dataset
     year_loader = year_loader_factory(extractor_cls, name)
+    # Get years from settings
     years_from_settings = years_from_settings_factory(name)
 
     def raw_dfs() -> dict[str, pd.DataFrame]:
