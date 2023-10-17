@@ -378,15 +378,21 @@ def merge_dfs_by_page(
     returned as a single dict mapping unique page names to merged
     DataFrames.
     """
-    merged = defaultdict(list)
-    for dfs in paged_dfs:
-        for page in dfs:
-            merged[page].append(dfs[page])
+    all_data = defaultdict(list)
+    for dfs in paged_dfs:  # For each dataframe
+        for page in dfs:  # For each page in a raw dataframe
+            if (
+                isinstance(dfs[page], pd.DataFrame) and not dfs[page].empty
+            ):  # If there is data for the page
+                all_data[page].append(
+                    dfs[page]
+                )  # Append to other raw data with same page name
 
-    for page in merged:
-        merged[page] = pd.concat(merged[page]).reset_index(drop=True)
+    for page in all_data:  # For each page of data
+        # Merge all the dataframes for one page
+        all_data[page] = pd.concat(all_data[page]).reset_index(drop=True)
 
-    return merged
+    return all_data
 
 
 def year_loader_factory(
@@ -459,7 +465,9 @@ def raw_df_factory(
     def raw_dfs() -> dict[str, pd.DataFrame]:
         """All loaded EIA dataframes."""
         years = years_from_settings()
+        # Clone dagster op for each year
         dfs = years.map(lambda year: year_loader(year))
+        # Gather all ops and merge them by page
         return merge_dfs_by_page(dfs.collect())
 
     return graph_asset(name=f"{name}_raw_dfs")(raw_dfs)
