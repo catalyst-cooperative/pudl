@@ -1,29 +1,33 @@
 """Connect FERC1 plant tables to EIA's plant-parts via record linkage.
 
-FERC plant records are reported... kind of messily. In the same table there are records
-that are reported as whole plants, generators, collections of prime movers. So we have
-this heterogeneously reported collection of parts of plants in FERC1.
+FERC plant records are reported very non-uniformly. In the same table there are records
+that are reported as whole plants, individual generators, and collections of prime
+movers. This means portions of EIA plants that correspond to a plant record in FERC
+Form 1 are heterogeneous, which complicates using the two data sets together.
 
-EIA on the other hand is reported in a much cleaner way. The are generators with ids and
-plants with ids reported in *seperate* tables. What a joy. In
-:mod:`pudl.analysis.plant_parts_eia`, we've generated the EIA plant-parts. The EIA
-plant-parts (often referred to as ``plant_parts_eia`` in this module) generated records
-for various levels or granularities of plant parts.
+The EIA plant data is much cleaner and more uniformly structured. The are generators
+with ids and plants with ids reported in *seperate* tables. Several generator IDs are
+typically grouped under a single plant ID. In :mod:`pudl.analysis.plant_parts_eia`,
+we create a large number of synthetic aggregated records representing many possible
+slices of a power plant which could in theory be what is actually reported in the FERC
+Form 1.
 
-For each of the FERC1 plant records we want to figure out which EIA plant-parts record
-is the corresponding record. We do this with a record linkage/ scikitlearn logistic
-regression model. The recordlinkage package helps us create feature vectors (via
-:meth:`Features.make_features`) for each candidate match between FERC and EIA. Feature
-vectors contain numbers between 0 and 1 that indicates the closeness for each value we
-want to compare.
+In this module we infer which of the many ``plant_parts_eia`` records is most likely to
+correspond to an actually reported FERC Form 1 plant record. this is done with a
+logistic regression model. The :mod:`recordlinkage` package helps us create feature
+vectors (via :meth:`Features.make_features`) for each candidate match between FERC and
+EIA.
 
-We use the feature vectors of our known-to-be-connected training data and Grid Search
-cross validation to train the logistic regression model. This model is then used to
-predict matches on the full dataset (:func:`run_model`). The model can return multiple
-EIA match options for each FERC1 record, so we rank the matches and choose the
-best/winning match (:func:`find_best_matches`). We then ensure those connections contain
-our training data (:func:`overwrite_bad_predictions`). The final match results are the
-connections we keep as the matches between FERC1 plant records and the EIA plant-parts.
+We train the logistic regression model using manually labeled training data that links
+together several thousand EIA and FERC plant records, and use grid search cross
+validation to select a best set of hyperparameters. This trained model is used to
+predict matches on the full dataset (see :func:`run_model`). The model can return
+multiple EIA match options for each FERC1 record, so we rank the matches and choose the
+one with the highest score (see :func:`find_best_matches`). Any matches identified by
+the model which are in conflict with our training data are overwritten with the manually
+assigned associations (see :func:`overwrite_bad_predictions`). The final match results
+are the connections we keep as the matches between FERC1 plant records and EIA
+plant-parts.
 """
 
 import importlib.resources
@@ -32,6 +36,7 @@ from typing import Literal
 import numpy as np
 import pandas as pd
 import recordlinkage as rl
+from dagster import asset
 from recordlinkage.compare import Exact, Numeric, String  # , Date
 from sklearn.linear_model import LogisticRegression
 from sklearn.metrics import precision_recall_fscore_support
@@ -40,25 +45,32 @@ from sklearn.model_selection import GridSearchCV  # , cross_val_score
 import pudl
 import pudl.helpers
 from pudl.analysis.plant_parts_eia import match_to_single_plant_part
-from pudl.metadata.classes import DataSource
+from pudl.metadata.classes import DataSource, Resource
 
 logger = pudl.logging_helpers.get_logger(__name__)
 # Silence the recordlinkage logger, which is out of control
 
 
-def execute(
-    plants_all_ferc1: pd.DataFrame,
-    fbp_ferc1: pd.DataFrame,
+@asset(
+    io_manager_key="pudl_sqlite_io_manager",
+    compute_kind="Python",
+)
+def out__yearly_plants_all_ferc1_plant_parts_eia(
+    denorm_plants_all_ferc1: pd.DataFrame,
+    denorm_fuel_by_plant_ferc1: pd.DataFrame,
     plant_parts_eia: pd.DataFrame,
 ) -> pd.DataFrame:
     """Coordinate the connection between FERC1 plants and EIA plant-parts.
 
     Args:
-        plants_all_ferc1: Table of all of the FERC1-reporting plants.
-        fbp_ferc1: Table of the fuel reported aggregated to the FERC1 plant-level.
+        denorm_plants_all_ferc1: Table of all of the FERC1-reporting plants.
+        denorm_fuel_by_plant_ferc1: Table of the fuel reported aggregated to the FERC1
+            plant-level.
         plant_parts_eia: The EIA plant parts list.
     """
-    inputs = InputManager(plants_all_ferc1, fbp_ferc1, plant_parts_eia)
+    inputs = InputManager(
+        denorm_plants_all_ferc1, denorm_fuel_by_plant_ferc1, plant_parts_eia
+    )
     # compile/cache inputs upfront. Hopefully we can catch any errors in inputs early.
     inputs.execute()
     features_all = Features(feature_type="all", inputs=inputs).get_features(
@@ -85,7 +97,9 @@ def execute(
     ).pipe(
         add_null_overrides
     )  # Override specified values with NA record_id_eia
-
+    connects_ferc1_eia = Resource.from_id(
+        "out__yearly_plants_all_ferc1_plant_parts_eia"
+    ).enforce_schema(connects_ferc1_eia)
     return connects_ferc1_eia
 
 
@@ -562,6 +576,7 @@ def overwrite_bad_predictions(match_df, train_df):
         how="outer",
         suffixes=("_pred", "_train"),
         indicator=True,
+        validate="1:1",
     )
     # construct new record_id_eia column with incorrect preds overwritten
     overwrite_df["record_id_eia"] = np.where(
@@ -799,39 +814,14 @@ def prettyify_best_matches(
     and FERC plant data. This removes the comparison vectors (the floats between 0 and 1
     that compare the two columns from each dataset).
     """
-    # if utility_id_pudl is not in the `PPE_COLS`,  we need to include it
-    ppe_cols_to_grab = pudl.analysis.plant_parts_eia.PPE_COLS + [
-        "plant_id_pudl",
-        "total_fuel_cost",
-        "fuel_cost_per_mmbtu",
-        "net_generation_mwh",
-        "capacity_mw",
-        "capacity_factor",
-        "total_mmbtu",
-        "heat_rate_mmbtu_mwh",
-        "fuel_type_code_pudl",
-        "installation_year",
-        "plant_part_id_eia",
-    ]
     connects_ferc1_eia = (
         # first merge in the EIA plant-parts
         pd.merge(
             matches_best[["record_id_ferc1", "record_id_eia", "match_type"]],
-            # we only want the identifying columns from the PPE
-            plant_parts_eia_true.reset_index()[ppe_cols_to_grab],
+            plant_parts_eia_true.reset_index(),
             how="left",
             on=["record_id_eia"],
             validate="m:1",  # multiple FERC records can have the same EIA match
-        )
-        # this is necessary in instances where the overrides don't have a record_id_eia
-        # i.e., they override to NO MATCH. These get merged in without a report_year,
-        # so we need to create one for them from the record_id.
-        .assign(
-            report_year=lambda x: (
-                x.record_id_ferc1.str.extract(r"(\d{4})")[0]
-                .astype("float")
-                .astype("Int64")
-            )
         )
         # then merge in the FERC data we want the backbone of this table to be
         # the plant records so we have all possible FERC plant records, even
@@ -839,11 +829,28 @@ def prettyify_best_matches(
         .merge(
             plants_ferc1,
             how="outer",
-            on=["record_id_ferc1", "report_year", "plant_id_pudl", "utility_id_pudl"],
+            on=["record_id_ferc1"],
             suffixes=("_eia", "_ferc1"),
             validate="1:1",
             indicator=True,
-        ).assign(
+        )
+    )
+
+    # now we have some important cols that have dataset suffixes that we want to condense
+    def fill_eia_w_ferc1(x, col):
+        return x[f"{col}_eia"].fillna(x[f"{col}_ferc1"])
+
+    condense_cols = ["report_year", "plant_id_pudl", "utility_id_pudl"]
+    connects_ferc1_eia = (
+        connects_ferc1_eia.assign(
+            **{col: fill_eia_w_ferc1(connects_ferc1_eia, col) for col in condense_cols}
+        )
+        .drop(
+            columns=[
+                col + dataset for col in condense_cols for dataset in ["_eia", "_ferc1"]
+            ]
+        )
+        .assign(
             report_date=lambda x: pd.to_datetime(
                 x.report_year, format="%Y", errors="coerce"
             ),
@@ -881,7 +888,6 @@ def prettyify_best_matches(
             train_df,
             match_set=match_set,
         )
-
     return connects_ferc1_eia
 
 
@@ -1043,28 +1049,15 @@ def add_null_overrides(connects_ferc1_eia):
     logger.debug(f"Found {len(null_overrides)} null overrides")
     # List of EIA columns to null. Ideally would like to get this from elsewhere, but
     # compiling this here for now...
-    eia_cols_to_null = [
-        "plant_name_new",
-        "plant_part",
-        "ownership_record_type",
-        "generator_id",
-        "unit_code_pudl",
-        "prime_mover_code",
-        "energy_source_code_1",
-        "technology_description",
-        "true_gran",
-        "appro_part_label",
-        "record_count",
-        "fraction_owned",
-        "ownership_dupe",
-        "operational_status",
-        "operational_status_pudl",
-    ] + [x for x in connects_ferc1_eia.columns if x.endswith("eia")]
+    eia_cols_to_null = Resource.from_id("plant_parts_eia").get_field_names()
     # Make all EIA values NA for record_id_ferc1 values in the Null overrides list and
     # make the match_type column say "overriden"
     connects_ferc1_eia.loc[
         connects_ferc1_eia["record_id_ferc1"].isin(null_overrides.record_id_ferc1),
-        eia_cols_to_null + ["match_type"],
-    ] = [np.nan] * len(eia_cols_to_null) + ["overridden"]
-
+        eia_cols_to_null,
+    ] = np.nan
+    connects_ferc1_eia.loc[
+        connects_ferc1_eia["record_id_ferc1"].isin(null_overrides.record_id_ferc1),
+        "match_type",
+    ] = "overridden"
     return connects_ferc1_eia
