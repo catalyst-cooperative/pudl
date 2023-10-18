@@ -166,13 +166,12 @@ jobs:
           service_account: "tox-pytest-github-action@catalyst-cooperative-pudl.iam.gserviceaccount.com"
 
       - name: Run ferc_to_sqlite
-        run: tox -e ci_ferc_to_sqlite
+        run: tox -e github_ferc_to_sqlite
 
       - name: Run pudl_etl
-        run: tox -e ci_pudl_etl
-
+        run: tox -e github_pudl_etl
       - name: Run integration tests
-        run: tox -e ci_integration
+        run: tox -e github_integration
 
       - name: Upload coverage
         uses: actions/upload-artifact@v3
