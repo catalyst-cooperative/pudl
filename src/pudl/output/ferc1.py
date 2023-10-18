@@ -2023,6 +2023,13 @@ class XbrlCalculationForestFerc1(BaseModel):
             stepparents = stepparents.union(graph.predecessors(stepchild))
         return list(stepparents)
 
+    def _get_path_weight(self, path: list[NodeId], graph: nx.DiGraph) -> float:
+        """Multiply all weights along a path together."""
+        leaf_weight = 1.0
+        for parent, child in zip(path, path[1:]):
+            leaf_weight *= graph.get_edge_data(parent, child)["weight"]
+        return leaf_weight
+
     @cached_property
     def leafy_meta(self: Self) -> pd.DataFrame:
         """Identify leaf facts and compile their metadata.
@@ -2063,18 +2070,18 @@ class XbrlCalculationForestFerc1(BaseModel):
             ancestors = list(nx.ancestors(self.annotated_forest, leaf)) + [leaf]
             for node in ancestors:
                 leaf_tags |= self.annotated_forest.nodes[node]["tags"]
-            # Calculate the product of all edge weights in path from root to leaf
-            all_paths = list(
-                nx.all_simple_paths(self.annotated_forest, leaf_to_root_map[leaf], leaf)
-            )
-            # In a forest there should only be one path from root to leaf
-            assert len(all_paths) == 1
-            path = all_paths[0]
-            leaf_weight = 1.0
-            for parent, child in zip(path, path[1:]):
-                leaf_weight *= self.annotated_forest.get_edge_data(parent, child)[
-                    "weight"
-                ]
+            all_leaf_weights = {
+                self._get_path_weight(path, self.annotated_forest)
+                for path in nx.all_simple_paths(
+                    self.annotated_forest, leaf_to_root_map[leaf], leaf
+                )
+            }
+            if len(all_leaf_weights) != 1:
+                raise ValueError(
+                    f"Paths from {leaf_to_root_map[leaf]} to {leaf} have "
+                    f"different weights: {all_leaf_weights}"
+                )
+            leaf_weight = all_leaf_weights.pop()
 
             # Construct a dictionary describing the leaf node and convert it into a
             # single row DataFrame. This makes adding arbitrary tags easy.
