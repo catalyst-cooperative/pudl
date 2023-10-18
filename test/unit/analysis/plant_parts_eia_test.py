@@ -192,8 +192,7 @@ def test_make_mega_gen_tbl():
                 "plant_id_eia": 1,
                 "report_date": "2020-01-01",
                 "generator_id": ["a", "b", "c", "c"],
-                # "utility_id_eia": 111,
-                "utility_id_eia": [111, 111, 111, 888],
+                "owner_utility_id_eia": [111, 111, 111, 888],
                 "fraction_owned": [1, 1, 0.75, 0.25],
             }
         )
@@ -259,17 +258,17 @@ def test_make_mega_gen_tbl():
 
 def test_scale_by_ownership():
     """Test the scale_by_ownership method."""
-    dtypes = {"report_date": "datetime64[s]", "utility_id_eia": pd.Int64Dtype()}
     own_ex1 = pd.DataFrame(
         {
             "plant_id_eia": [1, 1, 1, 1],
             "report_date": ["2019-01-01", "2019-01-01", "2019-01-01", "2019-01-01"],
             "generator_id": ["a", "a", "b", "b"],
-            "utility_id_eia": [3, 4, 3, 4],
+            "owner_utility_id_eia": [3, 4, 3, 4],
             "fraction_owned": [0.7, 0.3, 0.1, 0.9],
         },
-    ).astype(dtypes)
+    ).astype({"report_date": "datetime64[s]", "owner_utility_id_eia": pd.Int64Dtype()})
 
+    dtypes = {"report_date": "datetime64[s]", "utility_id_eia": pd.Int64Dtype()}
     gens_mega_ex1 = pd.DataFrame(
         {
             "plant_id_eia": [1, 1],
