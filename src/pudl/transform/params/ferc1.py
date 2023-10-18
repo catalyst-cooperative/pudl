@@ -2729,8 +2729,8 @@ TRANSFORM_PARAMS = {
         # Known issue with reporting of construction in progress not classified in classified fields of table.
         "reconcile_table_calculations": {
             "column_to_check": "ending_balance",
-            "calculation_tolerance": {
-                "bulk_error_frequency": 0.08,
+            "calculation_checks": {
+                "group_checks": {"ungrouped": {"error_frequency": 0.08}},
             },
         },
     },
@@ -3717,8 +3717,8 @@ TRANSFORM_PARAMS = {
         "strip_non_numeric_values": {"amount": {"strip_non_numeric_values": True}},
         "reconcile_table_calculations": {
             "column_to_check": "ending_balance",
-            "calculation_tolerance": {
-                "bulk_error_frequency": 0.08,
+            "calculation_checks": {
+                "group_checks": {"ungrouped": {"error_frequency": 0.08}},
             },
         },
     },
@@ -3986,8 +3986,8 @@ TRANSFORM_PARAMS = {
             "column_to_check": "dollar_value",
             # Note: this table does not currently get exploded. It will require
             # additional debugging at a later date.
-            "calculation_tolerance": {
-                "bulk_error_frequency": 0.4,
+            "calculation_checks": {
+                "group_checks": {"ungrouped": {"error_frequency": 0.4}},
             },
         },
     },

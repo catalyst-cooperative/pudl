@@ -15,20 +15,30 @@ from pandas._libs.missing import NAType as pandas_NAType
 from pydantic import BaseModel, validator
 
 import pudl
-from pudl.transform.ferc1 import CalculationTolerance
+from pudl.transform.ferc1 import (
+    CalculationChecks,
+    CalculationGroupChecks,
+    GroupedCalculationTolerance,
+)
 
 logger = pudl.logging_helpers.get_logger(__name__)
 
 
-EXPLOSION_CALCULATION_TOLERANCES: dict[str, CalculationTolerance] = {
-    "income_statement_ferc1": CalculationTolerance(
-        bulk_error_frequency=0.20,
+EXPLOSION_CALCULATION_TOLERANCES: dict[str, CalculationChecks] = {
+    "income_statement_ferc1": CalculationChecks(
+        group_checks=CalculationGroupChecks(
+            ungrouped=GroupedCalculationTolerance(error_frequency=0.20)
+        )
     ),
-    "balance_sheet_assets_ferc1": CalculationTolerance(
-        bulk_error_frequency=0.65,
+    "balance_sheet_assets_ferc1": CalculationChecks(
+        group_checks=CalculationGroupChecks(
+            ungrouped=GroupedCalculationTolerance(error_frequency=0.65)
+        )
     ),
-    "balance_sheet_liabilities_ferc1": CalculationTolerance(
-        bulk_error_frequency=0.07,
+    "balance_sheet_liabilities_ferc1": CalculationChecks(
+        group_checks=CalculationGroupChecks(
+            ungrouped=GroupedCalculationTolerance(error_frequency=0.07)
+        )
     ),
 }
 
@@ -961,7 +971,7 @@ def exploded_table_asset_factory(
     root_table: str,
     table_names_to_explode: list[str],
     seed_nodes: list[NodeId],
-    calculation_tolerance: CalculationTolerance,
+    calculation_tolerance: CalculationChecks,
     io_manager_key: str | None = None,
 ) -> AssetsDefinition:
     """Create an exploded table based on a set of related input tables."""
@@ -1091,7 +1101,7 @@ class Exploder:
         calculation_components_xbrl_ferc1: pd.DataFrame,
         seed_nodes: list[NodeId],
         tags: pd.DataFrame = pd.DataFrame(),
-        calculation_tolerance: CalculationTolerance = CalculationTolerance(),
+        calculation_tolerance: CalculationChecks = CalculationChecks(),
     ):
         """Instantiate an Exploder class.
 
@@ -1536,7 +1546,7 @@ class XbrlCalculationForestFerc1(BaseModel):
     exploded_calcs: pd.DataFrame = pd.DataFrame()
     seeds: list[NodeId] = []
     tags: pd.DataFrame = pd.DataFrame()
-    calculation_tolerance: CalculationTolerance = CalculationTolerance()
+    calculation_tolerance: CalculationChecks = CalculationChecks()
 
     class Config:
         """Allow the class to store a dataframe."""
