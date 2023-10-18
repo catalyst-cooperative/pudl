@@ -354,12 +354,12 @@ class GenericExtractor:
         """Produce the xlsx document file name as it will appear in the archive.
 
         Args:
-            page: pudl name for the dataset contents, eg
-                  "boiler_generator_assn" or "coal_stocks"
-            partition: partition to load. (ex: 2009 for year partition or
-                "2020-08" for year_month partition)
+            page: pudl name for the dataset contents, eg "boiler_generator_assn" or
+                "coal_stocks"
+            partition: partition to load. (ex: 2009 for year partition or "2020-08" for
+                year_month partition)
 
-        Return:
+        Returns:
             string name of the xlsx file
         """
         return self.METADATA.get_file_name(page, **partition)
@@ -367,7 +367,7 @@ class GenericExtractor:
 
 @op
 def concat_pages(paged_dfs: list[dict[str, pd.DataFrame]]) -> dict[str, pd.DataFrame]:
-    """Concatenate pages loaded with independent calls to .extract().
+    """Concatenate similar pages of data from different years into single dataframes.
 
     Transform a list of dictionaries of dataframes into a single dictionary of
     dataframes, where each dataframe is the concatenation of dataframes with identical
