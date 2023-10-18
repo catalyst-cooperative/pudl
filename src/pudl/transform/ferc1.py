@@ -743,6 +743,7 @@ class CalculationMetricInputs(TransformParams):
     error_frequency: MetricInputs = MetricInputs()
     relative_error_magnitude: MetricInputs = MetricInputs(isclose_atol=1e-9)
     absolute_error_magnitude: MetricInputs = MetricInputs()
+    null_calculation_frequency: MetricInputs = MetricInputs()
 
 
 class CalculationMetricTolerance(TransformParams):
@@ -751,6 +752,8 @@ class CalculationMetricTolerance(TransformParams):
     error_frequency: confloat(ge=0.0, le=1.0) = 0.01
     relative_error_magnitude: confloat(ge=0.0) = 0.001
     absolute_error_magnitude: confloat(ge=0.0) = np.inf
+    null_calculation_frequency: confloat(ge=0.0, le=1.0) = 0.7
+    """Fraction of records with non-null reported values and null calculated values."""
 
 
 class CalculationGroupChecks(TransformParams):
@@ -781,27 +784,18 @@ class CalculationGroupChecks(TransformParams):
 
     # TODO: determine how to null a group so we don't have to do all the groups all the time
     ungrouped: CalculationMetricTolerance = CalculationMetricTolerance(
-        error_frequency=0.05, relative_error_magnitude=0.01
+        error_frequency=0.05,
+        relative_error_magnitude=0.01,
+        null_calculation_frequency=0.50,
     )
     xbrl_factoid: CalculationMetricTolerance = CalculationMetricTolerance()
     utility_id_ferc1: CalculationMetricTolerance = CalculationMetricTolerance(
-        relative_error_magnitude=0.004
+        relative_error_magnitude=0.004, null_calculation_frequency=0.8
     )
     report_year: CalculationMetricTolerance = CalculationMetricTolerance()
     table_name: CalculationMetricTolerance = CalculationMetricTolerance()
 
-    # bulk_null_calculation_frequency: confloat(ge=0.0, le=1.0) = 0.05
-    # """Fraction of records with non-null reported values and null calculated values."""
-
-    # utility_id_ferc1_null_calculation_frequency: confloat(ge=0.0, le=1.0) = 0.1
-    # report_year_null_calculation_frequency: confloat(ge=0.0, le=1.0) = 0.1
-    # xbrl_factoid_null_calculation_frequency: confloat(ge=0.0, le=1.0) = 0.1
-    # table_name_null_calculation_frequency: confloat(ge=0.0, le=1.0) = 0.1
-
-    # bulk_null_reported_value_frequency: confloat(ge=0.0, le=1.0) = 0.50
-    # """Fraction of records with non-null reported values and null calculated values."""
-
-    # @validator("utility_id_ferc1", "report_year", "table_name", "xbrl_factoid")
+    # @validator("ungrouped", "utility_id_ferc1", "report_year", "table_name", "xbrl_factoid")
     # def grouped_tol_ge_ungrouped_tol(v, values):
     #    """Grouped tolerance should always be greater than or equal to ungrouped."""
     #    if v is not None:
@@ -1299,17 +1293,17 @@ class AbsoluteErrorMagnitude(GroupCheck):
         return gb.abs_diff.sum()
 
 
-# class NullCalculationFrequency(GroupCheck):
-#     """Check the frequency of null calculated values."""
+class NullCalculationFrequency(GroupCheck):
+    """Check the frequency of null calculated values."""
 
-#     def metric(self: Self, df: pd.DataFrame) -> float:
-#         """Frequency of null calculated values when reported values are not."""
-#         non_null_reported = df["reported_value"].notnull()
-#         null_calculated = df["calculated_value"].isnull()
-#         try:
-#             return (non_null_reported & null_calculated).sum() / non_null_reported.sum()
-#         except ZeroDivisionError:
-#             return np.nan
+    def metric(self: Self, gb: pd.DataFrame) -> pd.Series:
+        """Frequency of null calculated values when reported values are not."""
+        non_null_reported = gb["reported_value"].notnull()
+        null_calculated = gb["calculated_value"].isnull()
+        try:
+            return (non_null_reported & null_calculated).sum() / non_null_reported.sum()
+        except ZeroDivisionError:
+            return np.nan
 
 
 # class NullReportedValueFrequency(GroupCheck):
