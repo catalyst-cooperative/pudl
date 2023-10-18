@@ -729,6 +729,39 @@ class FercXBRLSQLiteIOManager(FercSQLiteIOManager):
 
         return deduped
 
+    @staticmethod
+    def refine_report_year(df: pd.DataFrame) -> pd.DataFrame:
+        """Set a fact's report year by its actual dates.
+
+        Sometimes a fact belongs to a context which has no ReportYear
+        associated with it; other times there are multiple ReportYears
+        associated with a single filing. In these cases the report year of a
+        specific fact may be associated with the other years in the filing.
+
+        In many cases we can infer the actual report year from the fact's
+        associated time period - either duration or instant.
+        """
+        is_duration = len({"start_date", "end_date"} - set(df.columns)) == 0
+        is_instant = "date" in df.columns
+
+        def get_year(df: pd.DataFrame, col: str) -> pd.Series:
+            datetimes = pd.to_datetime(df.loc[:, col])
+            if datetimes.isna().any():
+                raise ValueError(f"{col} has null values!")
+            return datetimes.apply(lambda x: x.year)
+
+        if is_duration:
+            start_years = get_year(df, "start_date")
+            end_years = get_year(df, "end_date")
+            if not (start_years == end_years).all():
+                raise ValueError("start_date and end_date are in different years!")
+            new_report_years = start_years
+        elif is_instant:
+            new_report_years = get_year(df, "date")
+        else:
+            raise ValueError("Attempted to read a non-instant, non-duration table.")
+        return df.assign(report_year=new_report_years)
+
     def _get_primary_key(self, sched_table_name: str) -> list[str]:
         # TODO (daz): as of 2023-10-13, our datapackage.json is merely
         # "frictionless-like" so we manually parse it as JSON. once we make our
@@ -787,8 +820,14 @@ class FercXBRLSQLiteIOManager(FercSQLiteIOManager):
             ).assign(sched_table_name=sched_table_name)
 
         primary_key = self._get_primary_key(table_name)
-        deduped = self.filter_for_freshest_data(df, primary_key=primary_key)
-        return deduped.drop(columns=["publication_time"])
+        return (
+            df.pipe(
+                FercXBRLSQLiteIOManager.filter_for_freshest_data,
+                primary_key=primary_key,
+            )
+            .pipe(FercXBRLSQLiteIOManager.refine_report_year)
+            .drop(columns=["publication_time"])
+        )
 
 
 @io_manager(required_resource_keys={"dataset_settings"})
