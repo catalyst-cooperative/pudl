@@ -18,7 +18,7 @@ import pudl
 from pudl.transform.ferc1 import (
     CalculationChecks,
     CalculationGroupChecks,
-    GroupedCalculationTolerance,
+    CalculationMetricTolerance,
 )
 
 logger = pudl.logging_helpers.get_logger(__name__)
@@ -27,17 +27,17 @@ logger = pudl.logging_helpers.get_logger(__name__)
 EXPLOSION_CALCULATION_TOLERANCES: dict[str, CalculationChecks] = {
     "income_statement_ferc1": CalculationChecks(
         group_checks=CalculationGroupChecks(
-            ungrouped=GroupedCalculationTolerance(error_frequency=0.20)
+            ungrouped=CalculationMetricTolerance(error_frequency=0.20)
         )
     ),
     "balance_sheet_assets_ferc1": CalculationChecks(
         group_checks=CalculationGroupChecks(
-            ungrouped=GroupedCalculationTolerance(error_frequency=0.65)
+            ungrouped=CalculationMetricTolerance(error_frequency=0.65)
         )
     ),
     "balance_sheet_liabilities_ferc1": CalculationChecks(
         group_checks=CalculationGroupChecks(
-            ungrouped=GroupedCalculationTolerance(error_frequency=0.07)
+            ungrouped=CalculationMetricTolerance(error_frequency=0.07)
         )
     ),
 }
