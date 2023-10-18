@@ -941,9 +941,7 @@ def reconcile_table_calculations(
             value_col=params.column_to_check,
         ).pipe(
             check_calculation_metrics,
-            value_col=params.column_to_check,
             calculation_checks=params.calculation_checks,
-            table_name=table_name,
         )
         # .pipe(
         #    add_corrections,
@@ -999,9 +997,7 @@ def _check_subtotal_calculations(
     )
     subtotal_calcs = check_calculation_metrics(
         calculated_df=subtotal_calcs,
-        value_col=params.column_to_check,
         calculation_checks=params.calculation_checks,
-        table_name=table_name,
     )
 
 
@@ -1123,17 +1119,6 @@ def calculate_values_from_components(
 
     calculated_df = calculated_df.drop(columns=["_merge"])
     # Force value_col to be a float to prevent any hijinks with calculating differences.
-    calculated_df[value_col] = calculated_df[value_col].astype(float)
-    return calculated_df
-
-
-def check_calculation_metrics(
-    calculated_df: pd.DataFrame,
-    value_col: str,
-    calculation_checks: CalculationChecks,
-    table_name: str,
-) -> pd.DataFrame:
-    """Run the calculation metrics and determine if calculations are within tolerance."""
     # Data types were very messy here, including pandas Float64 for the
     # calculated_value columns which did not work with the np.isclose(). Not sure
     # why these are cropping up.
@@ -1150,19 +1135,25 @@ def check_calculation_metrics(
     )
     # Uniformity here helps keep the error checking functions simpler:
     calculated_df["reported_value"] = calculated_df[value_col]
+    return calculated_df
 
-    # DO ERROR CHECKS
+
+def calculation_check_results_by_group(
+    calculated_df: pd.DataFrame,
+    calculation_checks: CalculationChecks,
+) -> pd.DataFrame:
+    """Tabulate the results of the calculation checks by group."""
     results_dfs = {}
     # for each groupby grouping: calculate metrics for each test
     # then check if each test is within acceptable tolerance levels
     for by, group_tols in calculation_checks.group_checks:
         if by == "ungrouped":
-            calculated_df = calculated_df.assign(ungrouped=1)
+            calculated_df = calculated_df.assign(ungrouped="ungrouped")
         group_metrics = {}
         for test, tol in group_tols:
             logger.info(f"{by}: {test}")
             title_case_test = test.title().replace("_", "")
-            tester = locals()[title_case_test](
+            tester = globals()[title_case_test](
                 by=by, test_checks=calculation_checks.test_checks.dict()[test]
             )
             group_metrics[test] = tester.metric(df=calculated_df)
@@ -1183,12 +1174,22 @@ def check_calculation_metrics(
     # group/test and a boolean indicating whether or not that metric failed to meet
     # the tolerance
     results = pd.concat(results_dfs)
+    return results
+
+
+def check_calculation_metrics(
+    calculated_df: pd.DataFrame,
+    calculation_checks: CalculationChecks,
+) -> pd.DataFrame:
+    """Run the calculation metrics and determine if calculations are within tolerance."""
+    # DO ERROR CHECKS
+    results = calculation_check_results_by_group(calculated_df, calculation_checks)
     # get the records w/ errors in any! of their checks
     errors = results[results.filter(like="is_error").any(axis=1)]
     if not errors.empty:
         # it miiight be good to isolate just the error columns..
         raise AssertionError(
-            f"Found errors while checking the  make a cuter message:\n{errors}"
+            f"Found errors while running tests on the calculations:\n{errors}"
         )
 
     # off_df is pretty specific to the one check that we're doing now, but is also
