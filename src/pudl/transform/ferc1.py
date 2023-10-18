@@ -744,6 +744,7 @@ class CalculationMetricInputs(TransformParams):
     relative_error_magnitude: MetricInputs = MetricInputs(isclose_atol=1e-9)
     absolute_error_magnitude: MetricInputs = MetricInputs()
     null_calculation_frequency: MetricInputs = MetricInputs()
+    null_reported_value_frequency: MetricInputs = MetricInputs()
 
 
 class CalculationMetricTolerance(TransformParams):
@@ -752,8 +753,9 @@ class CalculationMetricTolerance(TransformParams):
     error_frequency: confloat(ge=0.0, le=1.0) = 0.01
     relative_error_magnitude: confloat(ge=0.0) = 0.001
     absolute_error_magnitude: confloat(ge=0.0) = np.inf
-    null_calculation_frequency: confloat(ge=0.0, le=1.0) = 0.7
+    null_calculation_frequency: confloat(ge=0.0, le=1.0) = 0.02
     """Fraction of records with non-null reported values and null calculated values."""
+    null_reported_value_frequency: confloat(ge=0.0, le=1.0) = 1.0
 
 
 class CalculationGroupChecks(TransformParams):
@@ -790,7 +792,7 @@ class CalculationGroupChecks(TransformParams):
     )
     xbrl_factoid: CalculationMetricTolerance = CalculationMetricTolerance()
     utility_id_ferc1: CalculationMetricTolerance = CalculationMetricTolerance(
-        relative_error_magnitude=0.004, null_calculation_frequency=0.8
+        relative_error_magnitude=0.004, null_calculation_frequency=0.6
     )
     report_year: CalculationMetricTolerance = CalculationMetricTolerance()
     table_name: CalculationMetricTolerance = CalculationMetricTolerance()
@@ -806,8 +808,19 @@ class CalculationGroupChecks(TransformParams):
 class CalculationChecks(TransformParams):
     """Input for checking calculations organized by group and test."""
 
+    groups_to_check: list[str] = [
+        "ungrouped",
+        "xbrl_factoid",
+        "utility_id_ferc1",
+    ]
+    metrics_to_check: list[str] = [
+        "error_frequency",
+        "relative_error_magnitude",
+        "null_calculation_frequency",
+        "null_reported_value_frequency",
+    ]
     group_checks: CalculationGroupChecks = CalculationGroupChecks()
-    metric_intputs: CalculationMetricInputs = CalculationMetricInputs()
+    metric_inputs: CalculationMetricInputs = CalculationMetricInputs()
 
 
 class ReconcileTableCalculations(TransformParams):
@@ -1131,23 +1144,26 @@ def calculation_check_results_by_group(
     results_dfs = {}
     # for each groupby grouping: calculate metrics for each test
     # then check if each test is within acceptable tolerance levels
-    for by, group_checks in calculation_checks.group_checks:
-        if by == "ungrouped":
+    for group_name in calculation_checks.groups_to_check:
+        if group_name == "ungrouped":
             calculated_df = calculated_df.assign(ungrouped="ungrouped")
         group_metrics = {}
-        for metric_name, tol in group_checks:
-            # this feels icky. the param name for the metrics are all snake_case while
-            # the metric classes are all TitleCase. So we convert to TitleCase
-            title_case_test = metric_name.title().replace("_", "")
-            tester = globals()[title_case_test](
-                by=by,
-                metric_intputs=calculation_checks.metric_intputs.dict()[metric_name],
-                metric_tolerance=calculation_checks.group_checks.dict()[by][
-                    metric_name
-                ],
-            )
-            group_metrics[metric_name] = tester.check(calculated_df=calculated_df)
-        results_dfs[by] = pd.concat(group_metrics.values(), axis=1)
+        for metric_name, metric_tolerance in calculation_checks.group_checks.dict()[
+            group_name
+        ].items():
+            # only check the metric if it was turned on in the param.
+            # TODO: move this logic into the param class?
+            if metric_name in calculation_checks.metrics_to_check:
+                # this feels icky. the param name for the metrics are all snake_case while
+                # the metric classes are all TitleCase. So we convert to TitleCase
+                title_case_test = metric_name.title().replace("_", "")
+                tester = globals()[title_case_test](
+                    by=group_name,
+                    metric_inputs=calculation_checks.metric_inputs.dict()[metric_name],
+                    metric_tolerance=metric_tolerance,
+                )
+                group_metrics[metric_name] = tester.check(calculated_df=calculated_df)
+        results_dfs[group_name] = pd.concat(group_metrics.values(), axis=1)
     results = pd.concat(results_dfs.values())
     return results
 
@@ -1178,11 +1194,11 @@ def check_calculation_metrics(
 ########################################################################################
 
 
-class GroupCheck(BaseModel):
-    """Per metric calculation checks."""
+class GroupMetricCheck(BaseModel):
+    """Base class for checking a particular metric for a particular group."""
 
-    by: str | list[str]
-    metric_intputs: MetricInputs
+    by: str  # right now this only works with one column! bc of index rename in check()
+    metric_inputs: MetricInputs
     metric_tolerance: float
 
     required_cols: list[str] = [
@@ -1215,8 +1231,8 @@ class GroupCheck(BaseModel):
             ~np.isclose(
                 df["calculated_value"],
                 df["reported_value"],
-                rtol=self.metric_intputs.isclose_rtol,
-                atol=self.metric_intputs.isclose_atol,
+                rtol=self.metric_inputs.isclose_rtol,
+                atol=self.metric_inputs.isclose_atol,
             )
             & df["abs_diff"].notnull()
         )
@@ -1238,7 +1254,7 @@ class GroupCheck(BaseModel):
             pd.DataFrame(self.calculate_metric(calculated_df), columns=[metric_name])
             .assign(
                 **{
-                    f"tolerance_{metric_name}": self.metric_tolerance,  # tol is just for reporting so you can know of off you are
+                    # f"tolerance_{metric_name}": self.metric_tolerance,  # tol is just for reporting so you can know of off you are
                     f"is_error_{metric_name}": lambda x: x[metric_name]
                     > self.metric_tolerance,
                 }
@@ -1252,7 +1268,7 @@ class GroupCheck(BaseModel):
         return df
 
 
-class ErrorFrequency(GroupCheck):
+class ErrorFrequency(GroupMetricCheck):
     """Check error frequency in XBRL calculations."""
 
     def metric(self: Self, gb: DataFrameGroupBy) -> pd.Series:
@@ -1269,7 +1285,7 @@ class ErrorFrequency(GroupCheck):
         return out
 
 
-class RelativeErrorMagnitude(GroupCheck):
+class RelativeErrorMagnitude(GroupMetricCheck):
     """Check relative magnitude of errors in XBRL calculations."""
 
     def metric(self: Self, gb: DataFrameGroupBy) -> pd.Series:
@@ -1281,7 +1297,7 @@ class RelativeErrorMagnitude(GroupCheck):
             return np.nan
 
 
-class AbsoluteErrorMagnitude(GroupCheck):
+class AbsoluteErrorMagnitude(GroupMetricCheck):
     """Check relative magnitude of errors in XBRL calculations.
 
     These numbers may vary wildly from table to table so no default values for the
@@ -1293,10 +1309,18 @@ class AbsoluteErrorMagnitude(GroupCheck):
         return gb.abs_diff.sum()
 
 
-class NullCalculationFrequency(GroupCheck):
+class NullCalculationFrequency(GroupMetricCheck):
     """Check the frequency of null calculated values."""
 
-    def metric(self: Self, gb: pd.DataFrame) -> pd.Series:
+    def calculate_metric(self: Self, df: pd.DataFrame) -> pd.Series:
+        """Calculate the frequency with which records are tagged as errors."""
+        return (
+            df[(df.row_type_xbrl == "calculated_value") & (df.is_within_table_calc)]
+            .groupby(self.by)
+            .apply(self.metric)
+        )
+
+    def metric(self: Self, gb: DataFrameGroupBy) -> pd.Series:
         """Frequency of null calculated values when reported values are not."""
         non_null_reported = gb["reported_value"].notnull()
         null_calculated = gb["calculated_value"].isnull()
@@ -1306,16 +1330,12 @@ class NullCalculationFrequency(GroupCheck):
             return np.nan
 
 
-# class NullReportedValueFrequency(GroupCheck):
-#     """Check the frequency of null reported values."""
+class NullReportedValueFrequency(GroupMetricCheck):
+    """Check the frequency of null reported values."""
 
-#     tols: list[CalcTol] = [
-#         CalcTol(by="ungrouped", tol=0.50),
-#     ]
-
-#     def metric(self: Self, df: pd.DataFrame) -> float:
-#         """Frequency with which the reported values are Null."""
-#         return df["reported_value"].isnull().sum() / df.shape[0]
+    def metric(self: Self, gb: DataFrameGroupBy) -> pd.Series:
+        """Frequency with which the reported values are Null."""
+        return gb["reported_value"].isnull().sum() / gb.shape[0]
 
 
 def add_corrections(
