@@ -29,7 +29,3 @@ dependencies:
   - grpcio==1.57.0
   - grpcio-status==1.57.0
   - grpcio-health-checking==1.57.0
-
-  # Use pip to install the main PUDL repo / package for development:
-  - pip:
-      - --editable ../[dev,docs,test,datasette]
