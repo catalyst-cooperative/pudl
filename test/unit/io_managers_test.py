@@ -425,7 +425,9 @@ def test_report_year_fixing_instant():
         ]
     )
 
-    observed = FercXBRLSQLiteIOManager.refine_report_year(instant_df).report_year
+    observed = FercXBRLSQLiteIOManager.refine_report_year(
+        instant_df, xbrl_years=[2021, 2022]
+    ).report_year
     expected = pd.Series([2020])
     assert (observed == expected).all()
 
@@ -435,16 +437,25 @@ def test_report_year_fixing_duration():
         [
             {
                 "entity_id": "123",
-                "start_date": "2020-01-01",
-                "end_date": "2020-12-31",
+                "start_date": "2004-01-01",
+                "end_date": "2004-12-31",
+                "report_year": 3021,
+                "factoid": "filter out since the report year is out of bounds",
+            },
+            {
+                "entity_id": "123",
+                "start_date": "2021-01-01",
+                "end_date": "2021-12-31",
                 "report_year": 3021,
                 "factoid": "replace report year with date year",
             },
         ]
     )
 
-    observed = FercXBRLSQLiteIOManager.refine_report_year(duration_df).report_year
-    expected = pd.Series([2020])
+    observed = FercXBRLSQLiteIOManager.refine_report_year(
+        duration_df, xbrl_years=[2021, 2022]
+    ).report_year
+    expected = pd.Series([2021])
     assert (observed == expected).all()
 
 
@@ -500,4 +511,4 @@ def test_report_year_fixing_duration():
 )
 def test_report_year_fixing_bad_values(df, match):
     with pytest.raises(ValueError, match=match):
-        FercXBRLSQLiteIOManager.refine_report_year(df)
+        FercXBRLSQLiteIOManager.refine_report_year(df, xbrl_years=[2021, 2022])

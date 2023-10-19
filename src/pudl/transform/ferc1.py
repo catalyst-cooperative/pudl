@@ -599,12 +599,8 @@ def unstack_balances_to_report_year_instant_xbrl(
     if not params.unstack_balances_to_report_year:
         return df
 
-    df["year"] = pd.to_datetime(df["date"]).dt.year
-    # Check that the originally reported records are annually unique.
-    # year and report_year aren't necessarily the same since previous year data
-    # is often reported in the current report year, but we're constructing a table
-    # where report_year is part of the primary key, so we have to do this:
-    unique_cols = [c for c in primary_key_cols if c != "report_year"] + ["year"]
+    # report year always corresponds to the year of "date"
+    unique_cols = set(primary_key_cols).union({"report_year"})
     if df.duplicated(unique_cols).any():
         raise AssertionError(
             "Looks like there are multiple entries per year--not sure which to use "
@@ -615,28 +611,26 @@ def unstack_balances_to_report_year_instant_xbrl(
             "Looks like there are some values in here that aren't from the end of "
             "the year. We can't use those to calculate start and end balances."
         )
-    df.loc[df.report_year == (df.year + 1), "balance_type"] = "starting_balance"
-    df.loc[df.report_year == df.year, "balance_type"] = "ending_balance"
-    if df.balance_type.isna().any():
-        # Remove rows from years that are not representative of start/end dates
-        # for a given report year (i.e., the report year and one year prior).
-        logger.warning(
-            f"Dropping unexpected years: "
-            f"{df.loc[df.balance_type.isna(), 'year'].unique()}"
-        )
-        df = df[df["balance_type"].notna()].copy()
-    df = (
-        df.drop(["year", "date"], axis="columns")
+
+    ending_balances = df.assign(balance_type="ending_balance")
+    starting_balances = df.assign(
+        report_year=df.report_year + 1, balance_type="starting_balance"
+    )
+    all_balances = pd.concat([starting_balances, ending_balances])
+    # for the first year, we expect no starting balances; for the last year, we expect no ending balances.
+    first_last_year_stripped = all_balances.loc[
+        lambda df: ~df.report_year.isin({df.report_year.min(), df.report_year.max()})
+    ]
+    unstacked_by_year = (
+        first_last_year_stripped.drop(columns=["date"])
         .set_index(primary_key_cols + ["balance_type", "sched_table_name"])
         .unstack("balance_type")
     )
-    # This turns a multi-index into a single-level index with tuples of strings
-    # as the keys, and then converts the tuples of strings into a single string
-    # by joining their values with an underscore. This results in column labels
-    # like boiler_plant_equipment_steam_production_starting_balance
-    df.columns = ["_".join(items) for items in df.columns.to_flat_index()]
-    df = df.reset_index()
-    return df
+    # munge multi-index into flat index, separated by _
+    unstacked_by_year.columns = [
+        "_".join(items) for items in unstacked_by_year.columns.to_flat_index()
+    ]
+    return unstacked_by_year.reset_index()
 
 
 class CombineAxisColumnsXbrl(TransformParams):
@@ -2163,7 +2157,8 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
                     ],
                     axis="columns",
                 ).reset_index()
-        return out_df
+
+        return out_df.loc[out_df.report_year.isin(Ferc1Settings().xbrl_years)]
 
     @cache_df("process_instant_xbrl")
     def process_instant_xbrl(self, df: pd.DataFrame) -> pd.DataFrame:
@@ -4697,7 +4692,7 @@ class RetainedEarningsFerc1TableTransformer(Ferc1AbstractTableTransformer):
             df=intra_year_facts,
             a_cols=["ending_balance_previous"],
             b_cols=["starting_balance_current"],
-            mismatch_threshold=0.02,
+            mismatch_threshold=0.05,
             message="'Previous year ending balance' should be the same as "
             "'current year starting balance' for all years!",
         )

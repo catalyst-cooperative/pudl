@@ -730,7 +730,7 @@ class FercXBRLSQLiteIOManager(FercSQLiteIOManager):
         return deduped
 
     @staticmethod
-    def refine_report_year(df: pd.DataFrame) -> pd.DataFrame:
+    def refine_report_year(df: pd.DataFrame, xbrl_years: list[int]) -> pd.DataFrame:
         """Set a fact's report year by its actual dates.
 
         Sometimes a fact belongs to a context which has no ReportYear
@@ -760,7 +760,16 @@ class FercXBRLSQLiteIOManager(FercSQLiteIOManager):
             new_report_years = get_year(df, "date")
         else:
             raise ValueError("Attempted to read a non-instant, non-duration table.")
-        return df.assign(report_year=new_report_years)
+
+        # we include XBRL data from before our "officially supported" XBRL
+        # range because we want to use it to set start-of-year values for the
+        # first XBRL year.
+        xbrl_years_plus_one_previous = [min(xbrl_years) - 1] + xbrl_years
+        return (
+            df.assign(report_year=new_report_years)
+            .loc[lambda df: df.report_year.isin(xbrl_years_plus_one_previous)]
+            .reset_index(drop=True)
+        )
 
     def _get_primary_key(self, sched_table_name: str) -> list[str]:
         # TODO (daz): as of 2023-10-13, our datapackage.json is merely
@@ -820,12 +829,16 @@ class FercXBRLSQLiteIOManager(FercSQLiteIOManager):
             ).assign(sched_table_name=sched_table_name)
 
         primary_key = self._get_primary_key(table_name)
+
         return (
             df.pipe(
                 FercXBRLSQLiteIOManager.filter_for_freshest_data,
                 primary_key=primary_key,
             )
-            .pipe(FercXBRLSQLiteIOManager.refine_report_year)
+            .pipe(
+                FercXBRLSQLiteIOManager.refine_report_year,
+                xbrl_years=ferc1_settings.xbrl_years,
+            )
             .drop(columns=["publication_time"])
         )
 

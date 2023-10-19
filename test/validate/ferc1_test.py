@@ -84,16 +84,16 @@ def test_no_null_cols_ferc1(pudl_out_ferc1, live_dbs, cols, df_name):
 @pytest.mark.parametrize(
     "df_name,expected_rows",
     [
-        ("fbp_ferc1", 25_406),
-        ("fuel_ferc1", 48_815),
-        ("plant_in_service_ferc1", 315_112),
-        ("plants_all_ferc1", 54_415),
-        ("plants_hydro_ferc1", 6_798),
-        ("plants_pumped_storage_ferc1", 544),
-        ("plants_small_ferc1", 16_248),
-        ("plants_steam_ferc1", 30_825),
+        ("fbp_ferc1", 26_112),
+        ("fuel_ferc1", 49_932),
+        ("plant_in_service_ferc1", 335_750),
+        ("plants_all_ferc1", 56_408),
+        ("plants_hydro_ferc1", 6_979),
+        ("plants_pumped_storage_ferc1", 562),
+        ("plants_small_ferc1", 16_988),
+        ("plants_steam_ferc1", 31_879),
         ("pu_ferc1", 7_528),
-        ("purchased_power_ferc1", 197_947),
+        ("purchased_power_ferc1", 204_720),
     ],
 )
 def test_minmax_rows(pudl_out_ferc1, live_dbs, expected_rows, df_name):
