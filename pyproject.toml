@@ -128,7 +128,7 @@ dev = [
     "tox>=4,<4.12",
     "twine>=4,<4.1",
 ]
-doc = [
+docs = [
     "doc8>=1.1,<1.2",
     "furo>=2022.4.7",
     "sphinx-autoapi>=3,<4",
