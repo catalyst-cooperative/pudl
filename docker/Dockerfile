@@ -38,10 +38,10 @@ ENV DAGSTER_HOME=${CONTAINER_PUDL_WORKSPACE}/dagster_home
 RUN mkdir -p ${PUDL_INPUT} ${PUDL_OUTPUT} ${DAGSTER_HOME}
 
 # Create a conda environment based on the specification in the repo
-COPY test/test-environment.yml test/test-environment.yml
+COPY environments/test-environment.yml environments/test-environment.yml
 RUN mamba create --copy --prefix ${CONDA_PREFIX} --yes python=${PYTHON_VERSION} && \
     # Then we can use mamba env update, which can parse the environment.yml file:
-    mamba env update --prefix ${CONDA_PREFIX} --file test/test-environment.yml && \
+    mamba env update --prefix ${CONDA_PREFIX} --file environments/test-environment.yml && \
     conda clean -afy
 
 
