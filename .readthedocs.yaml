@@ -14,7 +14,7 @@ build:
 
 # Define the python environment using conda / mamba
 conda:
-  environment: docs/docs-environment.yml
+  environment: environments/docs-environment.yml
 
 # Build documentation in the docs/ directory with Sphinx
 sphinx:
@@ -28,4 +28,4 @@ python:
     - method: pip
       path: .
       extra_requirements:
-        - doc
+        - docs

@@ -32,4 +32,4 @@ dependencies:
 
   # Use pip to install the main PUDL repo / package for development:
   - pip:
-      - --editable ../[doc,test,dev,datasette]
+      - --editable ../[dev,docs,test,datasette]

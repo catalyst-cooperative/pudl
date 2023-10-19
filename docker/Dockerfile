@@ -54,7 +54,7 @@ ENV LD_LIBRARY_PATH=${CONDA_PREFIX}/lib
 # We need information from .git to get version with setuptools_scm so we mount that
 # directory without copying it into the image.
 RUN --mount=type=bind,source=.git,target=${PUDL_REPO}/.git \
-    ${CONDA_RUN} pip install --no-cache-dir -e './[dev,doc,test,datasette]' && \
+    ${CONDA_RUN} pip install --no-cache-dir -e './[dev,docs,test,datasette]' && \
     # Run the PUDL setup script so we know where to read and write data
     ${CONDA_RUN} pudl_setup
 
