@@ -27,7 +27,7 @@ jobs:
           environment-name: pudl-dev
 
       - name: Install pudl from branch
-        run: pip install --editable ./[dev,docs,test,datasette]
+        run: pip install --editable "./[dev,docs,test,datasette]"
 
       - name: Run conda-lock to recreate lockfile from scratch
         run: |
