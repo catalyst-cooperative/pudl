@@ -19,14 +19,14 @@ dependencies = [
     "catalystcoop.dbfread>=3.0,<3.1",
     "catalystcoop.ferc-xbrl-extractor>=1.1.1,<1.2",
     "coloredlogs>=14.0,<15.1",  # Dagster requires 14.0
-    "dagster-webserver>=1.4,<1.6",
-    "dagster>=1.4,<1.6",
-    "dask>=2022.5,<2023.10.1",
+    "dagster-webserver>=1.5,<1.6",
+    "dagster>=1.5,<1.6",
+    "dask>=2023,<2023.10.1",
     "datapackage>=1.11,<1.16",  # Transition datastore to use frictionless.
     "email-validator>=1.0.3",  # pydantic[email]
-    "fsspec>=2022.5,<2023.9.3",
-    "gcsfs>=2022.5,<2023.9.3",
-    "geopandas>=0.13,<0.15",
+    "fsspec>=2023,<2023.9.3",
+    "gcsfs>=2023,<2023.9.3",
+    "geopandas>=0.14,<0.15",
     "grpcio==1.57.0",  # Required by dagster. Version works with MacOS
     "grpcio-health-checking==1.57.0",  # Required by dagster. Version works with MacOS
     "grpcio-status==1.57.0",  # Required by dagster. Version works with MacOS
@@ -40,7 +40,7 @@ dependencies = [
     "openpyxl>=3.0.10",  # pandas[excel]
     "pandas[parquet,excel,fss,gcp,compression]>=2,<2.2",
     "pyarrow>=13,<14",  # pandas[parquet]
-    "pydantic>=1.7,<2",
+    "pydantic>=1.10,<2",
     "python-dotenv>=1,<1.1",
     "pyxlsb>=1.0.9",  # pandas[excel]
     "pyyaml>=6,<6.1",
@@ -123,9 +123,12 @@ dev = [
     "conda-lock>=2.3,<3",
     "ipdb>=0.13,<0.14",
     "jedi>=0.18,<0.20",
+    "jupyterlab>3.2,<4.1",
+    "jupyter-resource-usage",
     "lxml>=4.6,<4.10",
+    "nbconvert>=7,<8",
     "ruff>=0.1,<0.2",
-    "tox>=4,<4.12",
+    "tox>=4.4,<4.12",
     "twine>=4,<4.1",
 ]
 docs = [
@@ -150,7 +153,7 @@ test = [
     "pytest>=7,<7.5",
     "responses>=0.14,<0.24",
     "ruff>=0.1,<0.2",
-    "tox>=4,<4.12",
+    "tox>=4.4,<4.12",
 ]
 datasette = ["datasette>=0.60,<0.65"]
 
@@ -291,6 +294,8 @@ channel-priority = "strict"
 name = "pudl-dev"
 
 [tool.conda-lock.dependencies]
+nodejs = ">=20,<21"
+pandoc = ">=2,<3"
 pip = ">=23,<24"
 python = ">=3.11,<3.12"
 sqlite = ">=3.36,<4"
