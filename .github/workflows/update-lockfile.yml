@@ -53,3 +53,5 @@ jobs:
           labels: dependencies, conda-lock
           reviewers: zaneselvans
           delete-branch: true
+          base: dev
+          draft: true
