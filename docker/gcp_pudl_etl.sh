@@ -2,7 +2,7 @@
 # This script runs the entire ETL and validation tests in a docker container on a Google Compute Engine instance.
 # This script won't work locally because it needs adequate GCP permissions.
 
-: "${GCS_OUTPUT:=gs://nightly-build-outputs.catalyst.coop/$ACTION_SHA-$GITHUB_REF}"
+: "${PUDL_GCS_OUTPUT:=gs://nightly-build-outputs.catalyst.coop/$ACTION_SHA-$GITHUB_REF}"
 
 set -x
 
@@ -56,8 +56,8 @@ function shutdown_vm() {
 }
 
 function copy_outputs_to_gcs() {
-    echo "Copying outputs to GCP bucket $GCS_OUTPUT"
-    gsutil -m cp -r $PUDL_OUTPUT $GCS_OUTPUT
+    echo "Copying outputs to GCP bucket $PUDL_GCS_OUTPUT"
+    gsutil -m cp -r $PUDL_OUTPUT ${PUDL_GCS_OUTPUT}
 }
 
 function copy_outputs_to_distribution_bucket() {
