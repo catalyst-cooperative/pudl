@@ -14,7 +14,7 @@ build:
 
 # Define the python environment using conda / mamba
 conda:
-  environment: environments/readthedocs-linux-64.conda.lock
+  environment: environments/readthedocs-linux-64.conda.lock.yml
 
 # Build documentation in the docs/ directory with Sphinx
 sphinx:
