@@ -3,16 +3,18 @@ FROM condaforge/mambaforge:23.3.1-1
 # Install curl and js
 # awscli requires unzip, less, groff and mandoc
 # hadolint ignore=DL3008
-RUN apt-get update && apt-get install --no-install-recommends -y curl jq unzip less groff mandoc \
-    && apt-get clean \
-    && rm -rf /var/lib/apt/lists/*
+RUN apt-get update && apt-get install --no-install-recommends -y curl jq unzip less groff mandoc && \
+    apt-get clean && \
+    rm -rf /var/lib/apt/lists/*
 
 # Configure gsutil authentication
 # hadolint ignore=DL3059
 RUN printf '[GoogleCompute]\nservice_account = default' > /etc/boto.cfg
 
 # Install awscli2
-RUN curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip" && unzip awscliv2.zip && ./aws/install
+RUN curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip" && \
+    unzip awscliv2.zip && \
+    ./aws/install
 
 # Create a non-root user inside the container
 # hadolint ignore=DL3059
@@ -38,10 +40,10 @@ ENV DAGSTER_HOME=${CONTAINER_PUDL_WORKSPACE}/dagster_home
 RUN mkdir -p ${PUDL_INPUT} ${PUDL_OUTPUT} ${DAGSTER_HOME}
 
 # Create a conda environment based on the specification in the repo
-COPY environments/test-environment.yml environments/test-environment.yml
+COPY environments/conda-linux-64.lock.yml environments/conda-linux-64.lock.yml
 RUN mamba create --copy --prefix ${CONDA_PREFIX} --yes python=${PYTHON_VERSION} && \
     # Then we can use mamba env update, which can parse the environment.yml file:
-    mamba env update --prefix ${CONDA_PREFIX} --file environments/test-environment.yml && \
+    mamba env update --prefix ${CONDA_PREFIX} --file environments/conda-linux-64.lock.yml && \
     conda clean -afy
 
 
@@ -54,7 +56,7 @@ ENV LD_LIBRARY_PATH=${CONDA_PREFIX}/lib
 # We need information from .git to get version with setuptools_scm so we mount that
 # directory without copying it into the image.
 RUN --mount=type=bind,source=.git,target=${PUDL_REPO}/.git \
-    ${CONDA_RUN} pip install --no-cache-dir -e './[dev,docs,test,datasette]' && \
+    ${CONDA_RUN} pip install --no-cache-dir --editable . && \
     # Run the PUDL setup script so we know where to read and write data
     ${CONDA_RUN} pudl_setup
 

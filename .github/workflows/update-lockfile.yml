@@ -26,7 +26,7 @@ jobs:
       - name: Install Micromamba
         uses: mamba-org/setup-micromamba@v1
         with:
-          environment-file: environments/conda-lock.yml
+          environment-file: environments/conda-linux-64.lock
           environment-name: pudl-dev
 
       - name: Install conda-lock

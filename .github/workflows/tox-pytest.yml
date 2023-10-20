@@ -35,7 +35,7 @@ jobs:
       - name: Install Conda environment using mamba
         uses: mamba-org/setup-micromamba@v1
         with:
-          environment-file: environments/conda-lock.yml
+          environment-file: environments/conda-linux-64.lock
           environment-name: pudl-dev
           cache-environment: true
 
@@ -74,7 +74,7 @@ jobs:
       - name: Install Conda environment using mamba
         uses: mamba-org/setup-micromamba@v1
         with:
-          environment-file: environments/conda-lock.yml
+          environment-file: environments/conda-linux-64.lock
           environment-name: pudl-dev
           cache-environment: true
 
@@ -123,7 +123,7 @@ jobs:
       - name: Install Conda environment using mamba
         uses: mamba-org/setup-micromamba@v1
         with:
-          environment-file: environments/conda-lock.yml
+          environment-file: environments/conda-linux-64.lock
           environment-name: pudl-dev
           cache-environment: true
 
