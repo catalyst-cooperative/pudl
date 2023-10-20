@@ -31,9 +31,6 @@ jobs:
             python=3.11
             conda-lock
 
-      - name: Install conda-lock
-        run: pip install conda-lock
-
       - name: Run conda-lock to recreate lockfile from scratch
         run: |
           cd environments

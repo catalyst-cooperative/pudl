@@ -35,7 +35,7 @@ ENV DAGSTER_HOME=${CONTAINER_PUDL_WORKSPACE}/dagster_home
 
 # Create a conda environment based on the specification in the repo
 COPY environments/conda-lock.yml environments/conda-lock.yml
-RUN micromamba create --prefix ${CONDA_PREFIX} --yes --category dev docs test datasette --file environments/conda-lock.yml && \
+RUN micromamba create --prefix ${CONDA_PREFIX} --yes --category main dev docs test datasette --file environments/conda-lock.yml && \
     micromamba clean -afy
 
 # Copy the cloned pudl repository into the user's home directory
