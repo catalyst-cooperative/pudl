@@ -17,6 +17,8 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+        # If running on a schedule, run on dev.
+        # If running from workflow_dispatch, run on whatever the chosen branch/ref was.
         # with:
         #   ref: dev
       - name: Install Micromamba
