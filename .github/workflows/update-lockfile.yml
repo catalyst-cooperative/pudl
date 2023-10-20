@@ -1,12 +1,11 @@
 ---
-name: Run conda-lock to update dependencies
+name: update-lockfile
 
 on:
   workflow_dispatch:
   # schedule:
   # At 5:28am UTC Monday and Thursday
   # - cron: 28 5 * * MON,THU
-  push:
 
 jobs:
   conda-lock:
@@ -47,12 +46,12 @@ jobs:
           # # This PAT should have read-write permissions for "Pull Requests"
           # # and read-write permissions for "Contents".
           # token: ${{ secrets.GH_PAT_FOR_PR }}
-          commit-message: Relock dependencies
-          title: Relock dependencies
+          commit-message: Update lockfile
+          title: Update Lockfile
           body: >
             This pull request relocks the dependencies with conda-lock.
             It is triggered by [update-lockfile](https://github.com/catalyst-cooperative/pudl/blob/main/.github/workflows/update-lockfile.yml).
-          branch: relock-deps
-          labels: conda-lock
+          branch: update-lockfile
+          labels: dependencies, conda-lock
           reviewers: zaneselvans
           delete-branch: true
