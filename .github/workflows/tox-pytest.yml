@@ -38,7 +38,7 @@ jobs:
           environment-file: environments/conda-lock.yml
           environment-name: pudl-dev
           cache-environment: true
-          create-args: --category dev docs test datasette
+          create-args: --category main dev docs test datasette
 
       - name: Log environment details
         run: |
@@ -78,7 +78,7 @@ jobs:
           environment-file: environments/conda-lock.yml
           environment-name: pudl-dev
           cache-environment: true
-          create-args: --category dev docs test datasette
+          create-args: --category main dev docs test datasette
 
       - name: Log environment details
         run: |
@@ -128,7 +128,7 @@ jobs:
           environment-file: environments/conda-lock.yml
           environment-name: pudl-dev
           cache-environment: true
-          create-args: --category dev docs test datasette
+          create-args: --category main dev docs test datasette
 
       - name: Log environment details
         run: |
