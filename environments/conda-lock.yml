@@ -17,10 +17,10 @@
 version: 1
 metadata:
   content_hash:
-    linux-64: c6b9ac2079678510e45be1ce5b81282c5781dea3c7de83d1b18fb35059b2b026
-    osx-64: ca2ed64643082e194bc203be13c2d3243b67818c2780dee9fddac6a4ec77bf1e
-    osx-arm64: 30f7820818fcdb32a682ea93ec652f166487bc933304d6a9ff67e44e7ccd1497
-    win-64: adef8bcd6c12ac89514c4043dc6db2a68cb02ecd885e064386b693d45069eaf8
+    linux-64: 6b275211d62209ab730e75e4494ddb1fb1aedc8468ca40364e938b83bd44428f
+    osx-64: 07cc885f4d45e297e78cdd389602ffe65883d5b4a93b3755694086dafcabff40
+    osx-arm64: 0c4340c060faf3860b84b414a537adc7d1b391f5adfbf71ac1111f97d84be061
+    win-64: 67f71a1bf2cf6c30b3a4cb7be1e0566046ebe895c797fba61668d90ca41a9e8c
   channels:
     - url: conda-forge
       used_env_vars: []
@@ -6261,6 +6261,21 @@ package:
       md5: fdc16f5dc3a911d8f43f64f814a45961
       sha256: 61e03765ebdb168fc8747e8183db4067b55888c89d59e0f4f53b5b4046846cda
     category: dev
+    optional: true
+  - name: readthedocs-sphinx-ext
+    version: 2.2.3
+    manager: conda
+    platform: linux-64
+    dependencies:
+      jinja2: ">=2.9"
+      packaging: ""
+      python: ">=3.6"
+      requests: ""
+    url: https://conda.anaconda.org/conda-forge/noarch/readthedocs-sphinx-ext-2.2.3-pyhd8ed1ab_0.conda
+    hash:
+      md5: 6bc1a00f5502f9ed13526e4c6bea6900
+      sha256: 464cfb706266a2dfbee7d0226c83114c9868a65f9fc7e05b223faac8bd2b3f8e
+    category: docs
     optional: true
   - name: requests-toolbelt
     version: 0.10.1
@@ -13495,6 +13510,21 @@ package:
       md5: fdc16f5dc3a911d8f43f64f814a45961
       sha256: 61e03765ebdb168fc8747e8183db4067b55888c89d59e0f4f53b5b4046846cda
     category: dev
+    optional: true
+  - name: readthedocs-sphinx-ext
+    version: 2.2.3
+    manager: conda
+    platform: osx-64
+    dependencies:
+      requests: ""
+      packaging: ""
+      python: ">=3.6"
+      jinja2: ">=2.9"
+    url: https://conda.anaconda.org/conda-forge/noarch/readthedocs-sphinx-ext-2.2.3-pyhd8ed1ab_0.conda
+    hash:
+      md5: 6bc1a00f5502f9ed13526e4c6bea6900
+      sha256: 464cfb706266a2dfbee7d0226c83114c9868a65f9fc7e05b223faac8bd2b3f8e
+    category: docs
     optional: true
   - name: requests-toolbelt
     version: 0.10.1
@@ -20832,6 +20862,21 @@ package:
       md5: fdc16f5dc3a911d8f43f64f814a45961
       sha256: 61e03765ebdb168fc8747e8183db4067b55888c89d59e0f4f53b5b4046846cda
     category: dev
+    optional: true
+  - name: readthedocs-sphinx-ext
+    version: 2.2.3
+    manager: conda
+    platform: osx-arm64
+    dependencies:
+      requests: ""
+      packaging: ""
+      python: ">=3.6"
+      jinja2: ">=2.9"
+    url: https://conda.anaconda.org/conda-forge/noarch/readthedocs-sphinx-ext-2.2.3-pyhd8ed1ab_0.conda
+    hash:
+      md5: 6bc1a00f5502f9ed13526e4c6bea6900
+      sha256: 464cfb706266a2dfbee7d0226c83114c9868a65f9fc7e05b223faac8bd2b3f8e
+    category: docs
     optional: true
   - name: requests-toolbelt
     version: 0.10.1
@@ -28883,6 +28928,21 @@ package:
       md5: 4bbbe67d5df19db30f04b8e344dc9976
       sha256: 89f7fecc7355181dbc2ab851e668a2fce6aa4830b336a34c93b59bda93206270
     category: dev
+    optional: true
+  - name: readthedocs-sphinx-ext
+    version: 2.2.3
+    manager: conda
+    platform: win-64
+    dependencies:
+      requests: ""
+      packaging: ""
+      python: ">=3.6"
+      jinja2: ">=2.9"
+    url: https://conda.anaconda.org/conda-forge/noarch/readthedocs-sphinx-ext-2.2.3-pyhd8ed1ab_0.conda
+    hash:
+      md5: 6bc1a00f5502f9ed13526e4c6bea6900
+      sha256: 464cfb706266a2dfbee7d0226c83114c9868a65f9fc7e05b223faac8bd2b3f8e
+    category: docs
     optional: true
   - name: requests-oauthlib
     version: 1.3.1
