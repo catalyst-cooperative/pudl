@@ -2,6 +2,8 @@
 # This script runs the entire ETL and validation tests in a docker container on a Google Compute Engine instance.
 # This script won't work locally because it needs adequate GCP permissions.
 
+: "${GCS_OUTPUT:=gs://nightly-build-outputs.catalyst.coop/$ACTION_SHA-$GITHUB_REF}"
+
 set -x
 
 function send_slack_msg() {
@@ -41,7 +43,6 @@ function run_pudl_etl() {
 
 function shutdown_vm() {
     # Copy the outputs to the GCS bucket
-    gsutil -m cp -r $PUDL_OUTPUT "gs://nightly-build-outputs.catalyst.coop/$ACTION_SHA-$GITHUB_REF"
 
     upload_file_to_slack $LOGFILE "pudl_etl logs for $ACTION_SHA-$GITHUB_REF:"
 
@@ -52,6 +53,11 @@ function shutdown_vm() {
         -H "Metadata-Flavor: Google" | jq -r '.access_token'`
 
     curl -X POST -H "Content-Length: 0" -H "Authorization: Bearer ${ACCESS_TOKEN}" https://compute.googleapis.com/compute/v1/projects/catalyst-cooperative-pudl/zones/$GCE_INSTANCE_ZONE/instances/$GCE_INSTANCE/stop
+}
+
+function copy_outputs_to_gcs() {
+    echo "Copying outputs to GCP bucket $GCS_OUTPUT"
+    gsutil -m cp -r $PUDL_OUTPUT $GCS_OUTPUT
 }
 
 function copy_outputs_to_distribution_bucket() {
@@ -89,8 +95,12 @@ run_pudl_etl 2>&1 | tee $LOGFILE
 # Notify slack if the etl succeeded.
 if [[ ${PIPESTATUS[0]} == 0 ]]; then
     notify_slack "success"
+    copy_outputs_to_gcs
 
     # Dump outputs to s3 bucket if branch is dev or build was triggered by a tag
+    # TODO: this behavior should be controlled by on/off switch here and this logic
+    # should be moved to the triggering github action. Having it here feels
+    # fragmented.
     if [ $GITHUB_ACTION_TRIGGER = "push" ] || [ $GITHUB_REF = "dev" ]; then
         copy_outputs_to_distribution_bucket
     fi
