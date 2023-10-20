@@ -26,7 +26,7 @@ jobs:
       - name: Install Micromamba
         uses: mamba-org/setup-micromamba@v1
         with:
-          environment-name: base
+          environment-name: conda-lock
           create-args: >-
             python=3.11
             conda-lock
