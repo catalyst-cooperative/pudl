@@ -13,8 +13,6 @@ jobs:
     if: (github.event_name == 'schedule' && github.repository == 'catalyst-cooperative/pudl') || (github.event_name != 'schedule')
     defaults:
       run:
-        # Ensure the environment is activated
-        # <https://github.com/mamba-org/provision-with-micromamba#important>
         shell: bash -l {0}
     runs-on: ubuntu-latest
     steps:
@@ -25,8 +23,8 @@ jobs:
           environment-file: environments/conda-lock.yml
           environment-name: pudl-dev
 
-      - name: Install pudl from branch
-        run: mamba install conda-lock
+      - name: Install conda-lock
+        run: pip install conda-lock
 
       - name: Run conda-lock to recreate lockfile from scratch
         run: |
