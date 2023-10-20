@@ -3,9 +3,11 @@ name: update-lockfile
 
 on:
   workflow_dispatch:
-  # schedule:
-  # At 5:28am UTC Monday and Thursday
-  # - cron: 28 5 * * MON,THU
+  #schedule:
+  #  - cron: "0 9 * * 1-5" # Weekdays at 9AM UTC
+  #pull_request:
+  #  paths:
+  #   - "pyproject.toml"
 
 jobs:
   conda-lock:
