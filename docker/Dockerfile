@@ -35,7 +35,7 @@ ENV DAGSTER_HOME=${CONTAINER_PUDL_WORKSPACE}/dagster_home
 
 # Create a conda environment based on the specification in the repo
 COPY environments/conda-lock.yml environments/conda-lock.yml
-RUN micromamba create --prefix ${CONDA_PREFIX} --yes --file environments/conda-lock.yml && \
+RUN micromamba create --prefix ${CONDA_PREFIX} --yes --category dev docs test datasette --file environments/conda-lock.yml && \
     micromamba clean -afy
 
 # Copy the cloned pudl repository into the user's home directory
@@ -50,7 +50,6 @@ RUN --mount=type=bind,source=.git,target=${PUDL_REPO}/.git \
     ${CONDA_RUN} pip install --no-cache-dir --editable . && \
     # Run the PUDL setup script so we know where to read and write data
     ${CONDA_RUN} pudl_setup
-
 
 # Run the unit tests:
 CMD ["conda", "run", "--no-capture-output", "--prefix", "${CONDA_PREFIX}", "pytest", "test/unit"]
