@@ -286,6 +286,7 @@ channels = [
     "defaults",
 ]
 platforms = [
+    "linux-aarch64",
     "linux-64",
     "osx-64",
     "osx-arm64",
