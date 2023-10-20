@@ -17,6 +17,8 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+        # with:
+        #   ref: dev
       - name: Install Micromamba
         uses: mamba-org/setup-micromamba@v1
         with:
@@ -53,5 +55,5 @@ jobs:
           labels: dependencies, conda-lock
           reviewers: zaneselvans
           delete-branch: true
-          base: dev
+          # base: dev
           draft: true
