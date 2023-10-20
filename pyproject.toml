@@ -132,6 +132,7 @@ dev = [
 docs = [
     "doc8>=1.1,<1.2",
     "furo>=2022.4.7",
+    "readthedocs-sphinx-ext>=2,<3",
     "sphinx-autoapi>=3,<4",
     "sphinx-issues>=1.2,<4",
     "sphinx-reredirects>=0.1.2,<0.2",
