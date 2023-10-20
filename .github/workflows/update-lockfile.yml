@@ -34,7 +34,7 @@ jobs:
           rm conda-lock.yml
           conda-lock \
               --micromamba \
-              --file=pyproject.toml \
+              --file=../pyproject.toml \
               --lockfile=conda-lock.yml
           conda-lock render \
               --kind explicit \
@@ -43,6 +43,7 @@ jobs:
               --extras docs \
               --extras datasette \
               conda-lock.yml
+          cd ..
       - name: Open a pull request
         uses: peter-evans/create-pull-request@v5
         with:
