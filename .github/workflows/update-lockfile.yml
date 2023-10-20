@@ -45,6 +45,13 @@ jobs:
               --extras docs \
               --extras datasette \
               conda-lock.yml
+          conda-lock render \
+              --kind explicit \
+              --kind env \
+              --extras docs \
+              --platform linux-64 \
+              --filename-template "readthedocs-{platform}.conda.lock" \
+              conda-lock.yml
           cd ..
       - name: Open a pull request
         uses: peter-evans/create-pull-request@v5
