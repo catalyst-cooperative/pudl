@@ -46,7 +46,6 @@ jobs:
               --extras datasette \
               conda-lock.yml
           conda-lock render \
-              --kind explicit \
               --kind env \
               --extras docs \
               --platform linux-64 \
