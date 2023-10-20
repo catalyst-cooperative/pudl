@@ -26,7 +26,7 @@ jobs:
           environment-name: pudl-dev
 
       - name: Install pudl from branch
-        run: pip install --editable .
+        run: mamba install conda-lock
 
       - name: Run conda-lock to recreate lockfile from scratch
         run: |
