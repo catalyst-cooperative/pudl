@@ -811,21 +811,11 @@ class FercXBRLSQLiteIOManager(FercSQLiteIOManager):
 
         engine = self.engine
 
-        id_table = "identification_001_duration"
-
         sched_table_name = re.sub("_instant|_duration", "", table_name)
         with engine.connect() as con:
             df = pd.read_sql(
-                f"""
-                SELECT {table_name}.*, {id_table}.report_year FROM {table_name}
-                JOIN {id_table} ON {id_table}.filing_name = {table_name}.filing_name
-                WHERE {id_table}.report_year BETWEEN :min_year AND :max_year;
-                """,  # noqa: S608 - table names not supplied by user
+                f"SELECT {table_name}.* FROM {table_name}",  # noqa: S608 - table names not supplied by user
                 con=con,
-                params={
-                    "min_year": min(ferc1_settings.xbrl_years),
-                    "max_year": max(ferc1_settings.xbrl_years),
-                },
             ).assign(sched_table_name=sched_table_name)
 
         primary_key = self._get_primary_key(table_name)

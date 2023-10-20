@@ -334,17 +334,8 @@ def test_ferc_xbrl_sqlite_io_manager_dedupes(mocker, tmp_path):
         ]
     )
 
-    id_table = pd.DataFrame.from_records(
-        [
-            {"filing_name": "Utility_Co_0001", "report_year": 2021},
-            {"filing_name": "Utility_Co_0002", "report_year": 2021},
-        ]
-    )
-
     conn = sa.create_engine(f"sqlite:///{db_path}")
     df.to_sql("test_table_instant", conn)
-    id_table.to_sql("identification_001_duration", conn)
-
     input_context = build_input_context(
         asset_key=AssetKey("test_table_instant"),
         resources={
