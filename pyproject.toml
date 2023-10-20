@@ -287,8 +287,10 @@ channels = [
     "defaults",
 ]
 platforms = [
-    "osx-arm64",
     "linux-64",
+    "osx-64",
+    "osx-arm64",
+    "win-64",
 ]
 channel-priority = "strict"
 name = "pudl-dev"
