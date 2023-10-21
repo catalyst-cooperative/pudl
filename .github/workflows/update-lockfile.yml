@@ -1,0 +1,77 @@
+---
+name: update-lockfile
+
+on:
+  workflow_dispatch:
+  #schedule:
+  #  - cron: "0 9 * * 1-5" # Weekdays at 9AM UTC
+  #pull_request:
+  #  paths:
+  #   - "pyproject.toml"
+
+jobs:
+  conda-lock:
+    # Don't run scheduled job on forks.
+    if: (github.event_name == 'schedule' && github.repository == 'catalyst-cooperative/pudl') || (github.event_name != 'schedule')
+    defaults:
+      run:
+        shell: bash -l {0}
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        # If running on a schedule, run on dev.
+        # If running from workflow_dispatch, run on whatever the chosen branch/ref was.
+        # with:
+        #   ref: dev
+      - name: Install Micromamba
+        uses: mamba-org/setup-micromamba@v1
+        with:
+          environment-name: conda-lock
+          create-args: >-
+            python=3.11
+            conda-lock
+
+      - name: Run conda-lock to recreate lockfile from scratch
+        run: |
+          cd environments
+          rm conda-lock.yml
+          conda-lock \
+              --micromamba \
+              --file=../pyproject.toml \
+              --lockfile=conda-lock.yml
+          conda-lock render \
+              --kind explicit \
+              --kind env \
+              --dev-dependencies \
+              --extras docs \
+              --extras datasette \
+              conda-lock.yml
+          conda-lock render \
+              --kind env \
+              --extras docs \
+              --platform linux-64 \
+              --filename-template "readthedocs-{platform}.conda.lock" \
+              conda-lock.yml
+          cd ..
+      - name: Open a pull request
+        uses: peter-evans/create-pull-request@v5
+        with:
+          # # The default GITHUB_TOKEN doesn't allow other workflows to trigger.
+          # # Thus if there are tests to be run, they won't be run. For more info,
+          # # see the note under
+          # # <https://github.com/peter-evans/create-pull-request#action-inputs>.
+          # # One possible workaround is to specify a Personal Access Token (PAT).
+          # # This PAT should have read-write permissions for "Pull Requests"
+          # # and read-write permissions for "Contents".
+          # token: ${{ secrets.GH_PAT_FOR_PR }}
+          commit-message: Update lockfile
+          title: Update Lockfile
+          body: >
+            This pull request relocks the dependencies with conda-lock.
+            It is triggered by [update-lockfile](https://github.com/catalyst-cooperative/pudl/blob/main/.github/workflows/update-lockfile.yml).
+          branch: update-lockfile
+          labels: dependencies, conda-lock
+          reviewers: zaneselvans
+          delete-branch: true
+          # base: dev
+          draft: true
