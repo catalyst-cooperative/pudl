@@ -3,9 +3,11 @@ name: update-lockfile
 
 on:
   workflow_dispatch:
-  # schedule:
-  # At 5:28am UTC Monday and Thursday
-  # - cron: 28 5 * * MON,THU
+  #schedule:
+  #  - cron: "0 9 * * 1-5" # Weekdays at 9AM UTC
+  #pull_request:
+  #  paths:
+  #   - "pyproject.toml"
 
 jobs:
   conda-lock:
@@ -13,28 +15,44 @@ jobs:
     if: (github.event_name == 'schedule' && github.repository == 'catalyst-cooperative/pudl') || (github.event_name != 'schedule')
     defaults:
       run:
-        # Ensure the environment is activated
-        # <https://github.com/mamba-org/provision-with-micromamba#important>
         shell: bash -l {0}
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+        # If running on a schedule, run on dev.
+        # If running from workflow_dispatch, run on whatever the chosen branch/ref was.
+        # with:
+        #   ref: dev
       - name: Install Micromamba
         uses: mamba-org/setup-micromamba@v1
         with:
-          environment-file: environments/conda-lock.yml
-          environment-name: pudl-dev
-
-      - name: Install pudl from branch
-        run: pip install --editable "./[dev,docs,test,datasette]"
+          environment-name: conda-lock
+          create-args: >-
+            python=3.11
+            conda-lock
 
       - name: Run conda-lock to recreate lockfile from scratch
         run: |
-          rm environments/conda-lock.yml
+          cd environments
+          rm conda-lock.yml
           conda-lock \
-              --file=environments/dev-environment.yml \
-              --file=pyproject.toml \
-              --lockfile=environments/conda-lock.yml
+              --micromamba \
+              --file=../pyproject.toml \
+              --lockfile=conda-lock.yml
+          conda-lock render \
+              --kind explicit \
+              --kind env \
+              --dev-dependencies \
+              --extras docs \
+              --extras datasette \
+              conda-lock.yml
+          conda-lock render \
+              --kind env \
+              --extras docs \
+              --platform linux-64 \
+              --filename-template "readthedocs-{platform}.conda.lock" \
+              conda-lock.yml
+          cd ..
       - name: Open a pull request
         uses: peter-evans/create-pull-request@v5
         with:
@@ -55,3 +73,5 @@ jobs:
           labels: dependencies, conda-lock
           reviewers: zaneselvans
           delete-branch: true
+          # base: dev
+          draft: true
