@@ -63,6 +63,7 @@ def parse_command_line(argv):
     )
     parser.add_argument(
         "--dagster-workers",
+        type=int,
         help="Set the max number of processes dagster can launch. Defaults to use the number of CPUs on the machine.",
         default=0,
     )

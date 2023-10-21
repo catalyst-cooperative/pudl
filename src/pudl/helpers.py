@@ -1828,6 +1828,8 @@ def get_dagster_execution_config(num_workers: int = 0):
         }
     return {
         "execution": {
-            "config": {"max_concurrent": num_workers},
+            "config": {
+                "multiprocess": {"max_concurrent": num_workers},
+            },
         },
     }
