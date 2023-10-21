@@ -83,6 +83,11 @@ jobs:
       - name: Set up Cloud SDK
         uses: google-github-actions/setup-gcloud@v1
 
+      - name: Determine commit information
+        run: |-
+          echo "COMMIT_BRANCH=$(gitrev-parse --abbrev-ref HEAD)" >> $GITHUB_ENV
+          echo "COMMIT_TIME=$(git log -1 --format=%cd --date=format:%Y-%m-%d-%H%M)" >> $GITHUB_ENV
+
       # Deploy PUDL image to GCE
       - name: Deploy
         run: |-
@@ -110,6 +115,7 @@ jobs:
             --container-env AWS_ACCESS_KEY_ID=${{ secrets.AWS_ACCESS_KEY_ID }} \
             --container-env AWS_SECRET_ACCESS_KEY=${{ secrets.AWS_SECRET_ACCESS_KEY }} \
             --container-env AWS_DEFAULT_REGION=${{ secrets.AWS_DEFAULT_REGION }} \
+            --container-env PUDL_GCS_OUTPUT=gs://nightly-build-outputs.catalyst.coop/${{ env.COMMIT_TIME }}-${{ env.ACTION_SHA}-${{ env.COMMIT_BRANCH }}
 
       # Start the VM
       - name: Start the deploy-pudl-vm
