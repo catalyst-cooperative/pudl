@@ -27,17 +27,62 @@ logger = pudl.logging_helpers.get_logger(__name__)
 EXPLOSION_CALCULATION_TOLERANCES: dict[str, CalculationChecks] = {
     "income_statement_ferc1": CalculationChecks(
         group_checks=CalculationGroupChecks(
-            ungrouped=CalculationMetricTolerance(error_frequency=0.20)
+            ungrouped=CalculationMetricTolerance(
+                error_frequency=0.20, null_calculation_frequency=1.0
+            ),
+            report_year=CalculationMetricTolerance(
+                error_frequency=0.036,
+                relative_error_magnitude=0.048,
+                null_calculation_frequency=1.0,
+            ),
+            xbrl_factoid=CalculationMetricTolerance(
+                error_frequency=0.35,
+                relative_error_magnitude=0.17,
+                null_calculation_frequency=1.0,
+            ),
+            utility_id_ferc1=CalculationMetricTolerance(
+                error_frequency=0.13,
+                relative_error_magnitude=0.42,
+                null_calculation_frequency=1.0,
+            ),
         )
     ),
     "balance_sheet_assets_ferc1": CalculationChecks(
         group_checks=CalculationGroupChecks(
-            ungrouped=CalculationMetricTolerance(error_frequency=0.65)
+            ungrouped=CalculationMetricTolerance(
+                error_frequency=0.013, null_calculation_frequency=1.0
+            ),
+            report_year=CalculationMetricTolerance(
+                error_frequency=0.12, null_calculation_frequency=1.0
+            ),
+            xbrl_factoid=CalculationMetricTolerance(
+                error_frequency=0.37,
+                relative_error_magnitude=0.22,
+                null_calculation_frequency=1.0,
+            ),
+            utility_id_ferc1=CalculationMetricTolerance(
+                error_frequency=0.21,
+                relative_error_magnitude=0.26,
+                null_calculation_frequency=1.0,
+            ),
         )
     ),
     "balance_sheet_liabilities_ferc1": CalculationChecks(
         group_checks=CalculationGroupChecks(
-            ungrouped=CalculationMetricTolerance(error_frequency=0.07)
+            ungrouped=CalculationMetricTolerance(
+                error_frequency=0.07, null_calculation_frequency=1.0
+            ),
+            report_year=CalculationMetricTolerance(
+                error_frequency=0.028, null_calculation_frequency=1.0
+            ),
+            xbrl_factoid=CalculationMetricTolerance(
+                error_frequency=0.028,
+                relative_error_magnitude=0.019,
+                null_calculation_frequency=1.0,
+            ),
+            utility_id_ferc1=CalculationMetricTolerance(
+                error_frequency=0.063, null_calculation_frequency=1.0
+            ),
         )
     ),
 }
@@ -1470,15 +1515,12 @@ class Exploder:
             value_col=self.value_col,
         )
         calculated_df = pudl.transform.ferc1.check_calculation_metrics(
-            calculated_df=calculated_df,
-            value_col=self.value_col,
-            calculation_tolerance=self.calculation_tolerance,
-            table_name=self.root_table,
+            calculated_df=calculated_df, calculation_checks=self.calculation_tolerance
         )
         calculated_df = pudl.transform.ferc1.add_corrections(
             calculated_df=calculated_df,
             value_col=self.value_col,
-            calculation_tolerance=self.calculation_tolerance,
+            calculation_checks=pudl.transform.ferc1.MetricInputs(),
             table_name=self.root_table,
         )
         logger.info("Checking sub-total calcs.")
@@ -1492,9 +1534,7 @@ class Exploder:
         )
         subtotal_calcs = pudl.transform.ferc1.check_calculation_metrics(
             calculated_df=subtotal_calcs,
-            value_col=self.value_col,
-            calculation_tolerance=self.calculation_tolerance,
-            table_name=self.root_table,
+            calculation_checks=self.calculation_tolerance,
         )
         return calculated_df
 
@@ -1780,8 +1820,8 @@ class XbrlCalculationForestFerc1(BaseModel):
         nodes = annotated_forest.nodes
         for ancestor in nodes:
             for descendant in nx.descendants(annotated_forest, ancestor):
-                for tag in nodes[ancestor]["tags"]:
-                    if tag in nodes[descendant]["tags"]:
+                for tag in nodes[ancestor].get("tags", {}):
+                    if tag in nodes[descendant].get("tags", {}):
                         ancestor_tag_value = nodes[ancestor]["tags"][tag]
                         descendant_tag_value = nodes[descendant]["tags"][tag]
                         if ancestor_tag_value != descendant_tag_value:
@@ -2064,7 +2104,7 @@ class XbrlCalculationForestFerc1(BaseModel):
             leaf_tags = {}
             ancestors = list(nx.ancestors(self.annotated_forest, leaf)) + [leaf]
             for node in ancestors:
-                leaf_tags |= self.annotated_forest.nodes[node]["tags"]
+                leaf_tags |= self.annotated_forest.nodes[node].get("tags", {})
             all_leaf_weights = {
                 self._get_path_weight(path, self.annotated_forest)
                 for path in nx.all_simple_paths(
@@ -2268,5 +2308,8 @@ def nodes_to_df(calc_forest: nx.DiGraph, nodes: list[NodeId]) -> pd.DataFrame:
     }
     index = pd.DataFrame(node_dict.keys()).astype("string")
     data = pd.DataFrame(node_dict.values())
-    tags = pd.json_normalize(data.tags).astype("string")
+    try:
+        tags = pd.json_normalize(data.tags).astype("string")
+    except AttributeError:
+        tags = pd.DataFrame()
     return pd.concat([index, tags], axis="columns")
