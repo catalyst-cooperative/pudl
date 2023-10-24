@@ -2730,7 +2730,13 @@ TRANSFORM_PARAMS = {
         "reconcile_table_calculations": {
             "column_to_check": "ending_balance",
             "calculation_checks": {
-                "group_checks": {"ungrouped": {"error_frequency": 0.08}},
+                "group_checks": {
+                    "ungrouped": {"error_frequency": 0.08},
+                    "utility_id_ferc1": {
+                        "error_frequency": 0.038,
+                        "relative_error_magnitude": 0.11,
+                    },
+                },
             },
         },
     },
@@ -3331,6 +3337,19 @@ TRANSFORM_PARAMS = {
         "reconcile_table_calculations": {
             "column_to_check": "ending_balance",
             "subtotal_column": "utility_type",
+            "calculation_checks": {
+                "group_checks": {
+                    "ungrouped": {"error_frequency": 0.0012},
+                    "report_year": {
+                        "null_calculation_frequency": 1.0,
+                        "relative_error_magnitude": 0.041,
+                    },
+                    "utility_id_ferc1": {
+                        "error_frequency": 0.067,
+                        "null_calculation_frequency": 1.0,
+                    },
+                },
+            },
         },
     },
     "balance_sheet_assets_ferc1": {
@@ -3508,6 +3527,12 @@ TRANSFORM_PARAMS = {
         "reconcile_table_calculations": {
             "column_to_check": "dollar_value",
             "subtotal_column": "plant_function",
+            "calculation_checks": {
+                "group_checks": {
+                    "ungrouped": {"null_calculation_frequency": 0.84},
+                    "report_year": {"null_calculation_frequency": 1.0},
+                },
+            },
         },
     },
     "electric_operating_revenues_ferc1": {
@@ -3639,7 +3664,23 @@ TRANSFORM_PARAMS = {
                 ],
             },
         ],
-        "reconcile_table_calculations": {"column_to_check": "dollar_value"},
+        "reconcile_table_calculations": {
+            "column_to_check": "dollar_value",
+            "calculation_checks": {
+                "group_checks": {
+                    "ungrouped": {"error_frequency": 0.0031},
+                    "xbrl_factoid": {
+                        "error_frequency": 0.04,
+                        "null_calculation_frequency": 1.0,
+                        "relative_error_magnitude": 0.028,
+                    },  # other_operating_revenues bad
+                    "utility_id_ferc1": {
+                        "error_frequency": 0.17,
+                        "null_calculation_frequency": 1.0,
+                    },
+                },
+            },
+        },
     },
     "retained_earnings_ferc1": {
         "rename_columns_ferc1": {
@@ -3885,6 +3926,17 @@ TRANSFORM_PARAMS = {
         "reconcile_table_calculations": {
             "column_to_check": "dollar_value",
             "subtotal_column": "utility_type",
+            "calculation_checks": {
+                "group_checks": {
+                    "ungrouped": {"null_calculation_frequency": 0.74},
+                    "report_year": {"null_calculation_frequency": 1.0},
+                    "utility_id_ferc1": {
+                        "error_frequency": 0.042,
+                        "relative_error_magnitude": 0.22,
+                        "null_calculation_frequency": 1.0,
+                    },
+                },
+            },
         },
     },
     "electric_plant_depreciation_changes_ferc1": {
@@ -3987,7 +4039,21 @@ TRANSFORM_PARAMS = {
             # Note: this table does not currently get exploded. It will require
             # additional debugging at a later date.
             "calculation_checks": {
-                "group_checks": {"ungrouped": {"error_frequency": 0.4}},
+                "group_checks": {
+                    "ungrouped": {"error_frequency": 0.056},
+                    "report_year": {
+                        "error_frequency": 0.078,
+                        "relative_error_magnitude": 0.073,
+                    },
+                    "utility_id_ferc1": {
+                        "error_frequency": 0.13,
+                        "relative_error_magnitude": 0.66,
+                    },
+                    "xbrl_factoid": {
+                        "error_frequency": 0.43,
+                        "relative_error_magnitude": 0.078,
+                    },  # ending_balance is bad
+                },
             },
         },
     },
@@ -4436,7 +4502,23 @@ TRANSFORM_PARAMS = {
             "rename_columns": {"xbrl_factoid": "expense_type"},
             "on": "expense_type",
         },
-        "reconcile_table_calculations": {"column_to_check": "dollar_value"},
+        "reconcile_table_calculations": {
+            "column_to_check": "dollar_value",
+            "calculation_checks": {
+                "group_checks": {
+                    "ungrouped": {"relative_error_magnitude": 0.002},
+                    "report_year": {"relative_error_magnitude": 0.042},
+                    "xbrl_factoid": {
+                        "error_frequency": 0.018,
+                        "relative_error_magnitude": 0.028,
+                    },
+                    "utility_id_ferc1": {
+                        "error_frequency": 0.011,
+                        "relative_error_magnitude": 0.066,
+                    },
+                },
+            },
+        },
     },
     "other_regulatory_liabilities_ferc1": {
         "rename_columns_ferc1": {

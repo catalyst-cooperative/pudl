@@ -554,6 +554,7 @@ table_b,fact_8,next_gen,futile
             table_dimensions_ferc1=table_dimensions_trek,
             dimensions=["dim_x", "dim_y"],
         )
+        .convert_dtypes()
         .sort_values(calc_comp_idx)
         .reset_index(drop=True)
     )
@@ -579,7 +580,7 @@ table_a,fact_2,table_b,fact_8,next_gen,is
 table_a,fact_2,table_b,fact_8,next_gen,futile
 """
         )
-    )
+    ).convert_dtypes()
     pd.testing.assert_frame_equal(out_trek, expected_trek)
     # swap the order of the dims to test whether the input order effects the result
     out_reordered = (

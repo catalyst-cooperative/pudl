@@ -751,11 +751,12 @@ class CalculationMetricTolerance(TransformParams):
     """Tolerances for all data checks to be preformed within a grouped df."""
 
     error_frequency: confloat(ge=0.0, le=1.0) = 0.01
-    relative_error_magnitude: confloat(ge=0.0) = 0.001
+    relative_error_magnitude: confloat(ge=0.0) = 0.04
     absolute_error_magnitude: confloat(ge=0.0) = np.inf
-    null_calculation_frequency: confloat(ge=0.0, le=1.0) = 0.02
+    null_calculation_frequency: confloat(ge=0.0, le=1.0) = 0.7
     """Fraction of records with non-null reported values and null calculated values."""
     null_reported_value_frequency: confloat(ge=0.0, le=1.0) = 1.0
+    # ooof this one is just bad
 
 
 class CalculationGroupChecks(TransformParams):
@@ -784,18 +785,30 @@ class CalculationGroupChecks(TransformParams):
     want to know about it!
     """
 
-    # TODO: determine how to null a group so we don't have to do all the groups all the time
     ungrouped: CalculationMetricTolerance = CalculationMetricTolerance(
-        error_frequency=0.05,
-        relative_error_magnitude=0.01,
+        error_frequency=0.0005,
+        relative_error_magnitude=0.001,
         null_calculation_frequency=0.50,
+        null_reported_value_frequency=0.68,
     )
-    xbrl_factoid: CalculationMetricTolerance = CalculationMetricTolerance()
+    xbrl_factoid: CalculationMetricTolerance = CalculationMetricTolerance(
+        error_frequency=0.018,
+        relative_error_magnitude=0.0086,
+        null_calculation_frequency=1.0,
+    )
     utility_id_ferc1: CalculationMetricTolerance = CalculationMetricTolerance(
-        relative_error_magnitude=0.004, null_calculation_frequency=0.6
+        error_frequency=0.038,
+        null_calculation_frequency=1.0,
     )
-    report_year: CalculationMetricTolerance = CalculationMetricTolerance()
-    table_name: CalculationMetricTolerance = CalculationMetricTolerance()
+    report_year: CalculationMetricTolerance = CalculationMetricTolerance(
+        error_frequency=0.006
+    )
+    table_name: CalculationMetricTolerance = CalculationMetricTolerance(
+        error_frequency=0.0005,
+        relative_error_magnitude=0.001,
+        null_calculation_frequency=0.50,
+        null_reported_value_frequency=0.68,
+    )
 
     # @validator("ungrouped", "utility_id_ferc1", "report_year", "table_name", "xbrl_factoid")
     # def grouped_tol_ge_ungrouped_tol(v, values):
@@ -810,6 +823,7 @@ class CalculationChecks(TransformParams):
 
     groups_to_check: list[str] = [
         "ungrouped",
+        "report_year",
         "xbrl_factoid",
         "utility_id_ferc1",
     ]
@@ -930,18 +944,19 @@ def reconcile_table_calculations(
             calculation_components=intra_table_calcs,
             calc_idx=calc_idx,
             value_col=params.column_to_check,
-        ).pipe(
+        )
+        .pipe(
             check_calculation_metrics,
             calculation_checks=params.calculation_checks,
         )
-        # .pipe(
-        #    add_corrections,
-        #    value_col=params.column_to_check,
-        #    calculation_checks=params.calculation_checks,
-        #    table_name=table_name,
-        # )
+        .pipe(
+            add_corrections,
+            value_col=params.column_to_check,
+            calculation_checks=MetricInputs(),
+            table_name=table_name,
+        )
         # Rename back to the original xbrl_factoid column name before returning:
-        # .rename(columns={"xbrl_factoid": xbrl_factoid_name})
+        .rename(columns={"xbrl_factoid": xbrl_factoid_name})
     )
 
     return calculated_df
@@ -1145,14 +1160,11 @@ def calculation_check_results_by_group(
     # for each groupby grouping: calculate metrics for each test
     # then check if each test is within acceptable tolerance levels
     for group_name in calculation_checks.groups_to_check:
-        if group_name == "ungrouped":
-            calculated_df = calculated_df.assign(ungrouped="ungrouped")
+        logger.info(group_name)
         group_metrics = {}
         for metric_name, metric_tolerance in calculation_checks.group_checks.dict()[
             group_name
         ].items():
-            # only check the metric if it was turned on in the param.
-            # TODO: move this logic into the param class?
             if metric_name in calculation_checks.metrics_to_check:
                 # this feels icky. the param name for the metrics are all snake_case while
                 # the metric classes are all TitleCase. So we convert to TitleCase
@@ -1195,12 +1207,24 @@ def check_calculation_metrics(
 
 
 class GroupMetricCheck(BaseModel):
-    """Base class for checking a particular metric for a particular group."""
+    """Base class for checking a particular metric within a group."""
 
-    by: str  # right now this only works with one column! bc of index rename in check()
+    by: Literal[
+        "ungrouped", "table_name", "xbrl_factoid", "utility_id_ferc1", "report_year"
+    ]  # right now this only works with one column! bc of index rename in check()
+    """Name of group to check the metric based on.
+
+    Most groups are column names to use in groupby along with the ``table_name``. Both
+    ``ungrouped`` and ``table_name`` have some special exceptions in order to output the
+    metric results with the same index of ``table_name`` and ``group_value``. For the
+    ``ungrouped`` group, the values in ``table_name`` and ``group_value`` will be
+    ``ungrouped``. For the ``table_name`` group, the values in ``table_name`` and
+    ``group_value`` will be the table name values.
+    """
     metric_inputs: MetricInputs
+    """Inputs for the metric to determine :meth:`is_not_close`. Instance of :class:`MetricInputs`."""
     metric_tolerance: float
-
+    """Tolerance for checking the metric within the ``by`` group."""
     required_cols: list[str] = [
         "table_name",
         "xbrl_factoid",
@@ -1212,9 +1236,15 @@ class GroupMetricCheck(BaseModel):
         "rel_diff",
     ]
 
-    def _is_valid_error_df(self: Self, df: pd.DataFrame):
+    def check_required_cols_df(self: Self, df: pd.DataFrame):
         """Check that the input dataframe has all required columns."""
-        return all(col in df.columns for col in self.required_cols)
+        missing_required_cols = [
+            col for col in self.required_cols if col not in df.columns
+        ]
+        if missing_required_cols:
+            raise AssertionError(
+                f"The table is missing the following required columns: {missing_required_cols}"
+            )
 
     @abstractmethod
     def metric(self: Self, gb: DataFrameGroupBy) -> pd.Series:
@@ -1237,10 +1267,21 @@ class GroupMetricCheck(BaseModel):
             & df["abs_diff"].notnull()
         )
 
+    def groupby_by(self: Self) -> list[str]:
+        """The list of columns to group by.
+
+        We want to default to adding the table_name into all groupby's, but two of our
+        ``by`` options need special treatment.
+        """
+        gb_by = ["table_name", self.by]
+        if self.by in ["ungrouped", "table_name"]:
+            gb_by = [self.by]
+        return gb_by
+
     def calculate_metric(self: Self, df: pd.DataFrame) -> pd.Series:
         """Calculate the frequency with which records are tagged as errors."""
         df["is_not_close"] = self.is_not_close(df)
-        return df.groupby(self.by).apply(self.metric)
+        return df.groupby(by=self.groupby_by()).apply(self.metric)
 
     def snake_case_metric_name(self: Self) -> str:
         """Convert the TitleCase class name to a snake_case string."""
@@ -1249,12 +1290,20 @@ class GroupMetricCheck(BaseModel):
 
     def check(self: Self, calculated_df) -> pd.DataFrame:
         """Make a df w/ the metric, tolerance and is_error columns."""
+        self.check_required_cols_df(calculated_df)
+        # ungrouped is special because the rest of the stock group names are column
+        # names.
+        if self.by == "ungrouped":
+            calculated_df = calculated_df.assign(
+                ungrouped="ungrouped",
+            )
+
         metric_name = self.snake_case_metric_name()
         df = (
             pd.DataFrame(self.calculate_metric(calculated_df), columns=[metric_name])
             .assign(
-                **{
-                    # f"tolerance_{metric_name}": self.metric_tolerance,  # tol is just for reporting so you can know of off you are
+                **{  # totolerance_ is just for reporting so you can know of off you are
+                    f"tolerance_{metric_name}": self.metric_tolerance,
                     f"is_error_{metric_name}": lambda x: x[metric_name]
                     > self.metric_tolerance,
                 }
@@ -1263,9 +1312,17 @@ class GroupMetricCheck(BaseModel):
             .assign(group=self.by)
             .reset_index()
             .rename(columns={self.by: "group_value"})
-            .set_index(["group", "group_value"])
         )
-        return df
+        # we want to set the index values as the same for all groups, but both the
+        # ungrouped and table_name group require a special exception because we need
+        # to add table_name into the columns
+        if self.by == "ungrouped":
+            df = df.assign(table_name="ungrouped")
+        if self.by == "table_name":
+            # we end up having two columns w/ table_name values in order to keep all the
+            # outputs having the same indexes.
+            df = df.assign(table_name=lambda x: x["group_value"])
+        return df.set_index(["group", "table_name", "group_value"])
 
 
 class ErrorFrequency(GroupMetricCheck):
@@ -1315,8 +1372,8 @@ class NullCalculationFrequency(GroupMetricCheck):
     def calculate_metric(self: Self, df: pd.DataFrame) -> pd.Series:
         """Calculate the frequency with which records are tagged as errors."""
         return (
-            df[(df.row_type_xbrl == "calculated_value") & (df.is_within_table_calc)]
-            .groupby(self.by)
+            df[df.row_type_xbrl == "calculated_value"]
+            .groupby(self.groupby_by())
             .apply(self.metric)
         )
 
@@ -1341,7 +1398,7 @@ class NullReportedValueFrequency(GroupMetricCheck):
 def add_corrections(
     calculated_df: pd.DataFrame,
     value_col: str,
-    calculation_tolerance: CalculationChecks,
+    calculation_checks: CalculationChecks,
     table_name: str,
 ) -> pd.DataFrame:
     """Add corrections to discrepancies between reported & calculated values.
@@ -1363,8 +1420,8 @@ def add_corrections(
         ~np.isclose(
             calculated_df["calculated_value"],
             calculated_df[value_col],
-            rtol=calculation_tolerance.isclose_rtol,
-            atol=calculation_tolerance.isclose_atol,
+            rtol=calculation_checks.isclose_rtol,
+            atol=calculation_checks.isclose_atol,
         )
         & (calculated_df["abs_diff"].notnull())
     ]
@@ -2034,12 +2091,12 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
                 weight=1,
             )
         )
-        # for every calc component, also make the parent-only version
-        correction_parents = correction_components.assign(
-            table_name_parent=lambda t: t.table_name,
-            xbrl_factoid_parent=lambda x: x.xbrl_factoid,
-        ).drop(columns=["table_name", "xbrl_factoid"])
-        return pd.concat([calc_components, correction_components, correction_parents])
+        # # for every calc component, also make the parent-only version
+        # correction_parents = correction_components.assign(
+        #     table_name_parent=lambda t: t.table_name,
+        #     xbrl_factoid_parent=lambda x: x.xbrl_factoid,
+        # ).drop(columns=["table_name", "xbrl_factoid"])
+        return pd.concat([calc_components, correction_components])
 
     def get_xbrl_calculation_fixes(self: Self) -> pd.DataFrame:
         """Grab the XBRL calculation file."""
@@ -2182,7 +2239,7 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
                 calc_fixes=self.get_xbrl_calculation_fixes(),
             )
             .drop_duplicates(keep="first")
-            # .pipe(self.add_calculation_corrections)
+            .pipe(self.add_calculation_corrections)
         )
         # this is really a xbrl_factoid-level flag, but we need it while using this
         # calc components.
@@ -5928,6 +5985,15 @@ def table_to_xbrl_factoid_name() -> dict[str, str]:
     }
 
 
+def table_to_column_to_check() -> dict[str, str]:
+    """Build a dictionary of table name (keys) to ``xbrl_factiod`` column name."""
+    return {
+        table_name: transformer().params.reconcile_table_calculations.column_to_check
+        for (table_name, transformer) in FERC1_TFR_CLASSES.items()
+        if transformer().params.reconcile_table_calculations.column_to_check
+    }
+
+
 @asset(
     ins={
         table_name: AssetIn(table_name)
@@ -6090,7 +6156,12 @@ def calculation_components_xbrl_ferc1(**kwargs) -> pd.DataFrame:
             f"columns are identical and expected 0.\n{parent_child_dupes=}"
         )
 
-    assert unexpected_total_components(calc_components, dimensions).empty
+    if not (
+        unexpected_totals := unexpected_total_components(
+            calc_components.convert_dtypes(), dimensions
+        )
+    ).empty:
+        raise AssertionError(f"Found unexpected total records: {unexpected_totals}")
     # Remove convert_dtypes() once we're writing to the DB using enforce_schema()
     return calc_components.convert_dtypes()
 
@@ -6245,8 +6316,8 @@ def make_calculation_dimensions_explicit(
         # astypes dealing w/ future warning regarding empty or all null dfs
         calc_comps_w_dims = pd.concat(
             [
-                calc_comps_w_implied_dims.astype(calc_comps_w_explicit_dims.dtypes),
-                calc_comps_w_explicit_dims.astype(calc_comps_w_implied_dims.dtypes),
+                calc_comps_w_implied_dims.convert_dtypes(),
+                calc_comps_w_explicit_dims.convert_dtypes(),
             ]
         )
     return calc_comps_w_dims
