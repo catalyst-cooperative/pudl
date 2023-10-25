@@ -202,14 +202,13 @@ class GenericExtractor:
         """
         maturity = "final"
         file_name = self.excel_filename(page, **partition)
-        eia923_ytd_file_name_start = "EIA923_Schedules_2_3_4_5_M_"
         if "early_release" in file_name.lower():
             maturity = "provisional"
         elif self._dataset_name == "eia860m":
             maturity = "monthly_update"
-        elif eia923_ytd_file_name_start in file_name:
+        elif "EIA923_Schedules_2_3_4_5_M_" in file_name:
             release_month = re.search(
-                r"eia923_ytd_file_name_start(\d{2})",
+                r"EIA923_Schedules_2_3_4_5_M_(\d{2})",
                 file_name,
             ).group(1)
             if release_month != "12":
