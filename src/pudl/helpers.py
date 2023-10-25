@@ -1815,10 +1815,10 @@ def assert_cols_areclose(
     # instead of just whether or not there are matches.
     mismatch = df.loc[
         ~np.isclose(
-            df[a_cols],
-            df[b_cols],
+            np.ma.masked_where(np.isnan(df[a_cols]), df[a_cols]),
+            np.ma.masked_where(np.isnan(df[b_cols]), df[b_cols]),
             equal_nan=True,
-        )
+        ).filled()
     ]
     mismatch_ratio = len(mismatch) / len(df)
     if mismatch_ratio > mismatch_threshold:
