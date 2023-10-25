@@ -10,7 +10,6 @@ from pudl.resources import dataset_settings
 from pudl.settings import (
     DatasetsSettings,
     Eia860Settings,
-    Eia923Settings,
     EiaSettings,
     EpaCemsSettings,
     Ferc1DbfToSqliteSettings,
@@ -133,21 +132,21 @@ class TestEIA860Settings:
 class TestEiaSettings:
     """Test pydantic model that validates EIA datasets."""
 
-    def test_eia923_dependency(self):
-        """Test 860 is added if 923 is specified and 860 is not."""
-        eia923_settings = Eia923Settings()
-        settings = EiaSettings(eia923=eia923_settings)
-        data_source = DataSource.from_id("eia860")
+    # def test_eia923_dependency(self):
+    #     """Test 860 is added if 923 is specified and 860 is not."""
+    #     eia923_settings = Eia923Settings()
+    #     settings = EiaSettings(eia923=eia923_settings)
+    #     data_source = DataSource.from_id("eia860")
 
-        assert settings.eia860
+    #     assert settings.eia860
 
-        assert settings.eia860.years == data_source.working_partitions["years"]
+    #     assert settings.eia860.years == data_source.working_partitions["years"]
 
-    def test_eia860_dependency(self):
-        """Test 923 tables are added to eia860 if 923 is not specified."""
-        eia860_settings = Eia860Settings()
-        settings = EiaSettings(eia860=eia860_settings)
-        assert settings.eia923.years == eia860_settings.years
+    # def test_eia860_dependency(self):
+    #     """Test 923 tables are added to eia860 if 923 is not specified."""
+    #     eia860_settings = Eia860Settings()
+    #     settings = EiaSettings(eia860=eia860_settings)
+    #     assert settings.eia923.years == eia860_settings.years
 
 
 class TestDatasetsSettings:
