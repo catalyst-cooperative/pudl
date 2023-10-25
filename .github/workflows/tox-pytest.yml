@@ -168,7 +168,7 @@ jobs:
           service_account: "tox-pytest-github-action@catalyst-cooperative-pudl.iam.gserviceaccount.com"
 
       - name: Run ferc_to_sqlite
-        run: | 
+        run: |
           coverage --concurrency=multiprocessing run \
             src/pudl/ferc_to_sqlite/cli.py --clobber ${{ env.ETL_COMMANDLINE_OPTIONS }} ${{ env.ETL_CONFIG }}
       - name: Run pudl_etl
