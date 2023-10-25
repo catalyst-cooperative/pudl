@@ -4,13 +4,6 @@
 
 set -x
 
-COMMIT_HASH=$(git rev-parse HEAD)
-echo $COMMIT_HASH > commit_hash.txt
-
-SHA256_HASH=$(sha256sum $PUDL_OUTPUT/pudl.sqlite | cut -d ' ' -f 1)
-echo $SHA256_HASH > sha256_hash.txt
-
-
 function send_slack_msg() {
     curl -X POST -H "Content-type: application/json" -H "Authorization: Bearer ${SLACK_TOKEN}" https://slack.com/api/chat.postMessage --data "{\"channel\": \"C03FHB9N0PQ\", \"text\": \"$1\"}"
 }
@@ -26,18 +19,6 @@ function authenticate_gcp() {
 }
 
 function run_pudl_etl() {
-    if [ -f commit_hash.txt ] && [ -f sha256_hash.txt ]; then
-        CACHED_COMMIT_HASH=$(cat commit_hash.txt)
-        CACHED_SHA256_HASH=$(cat sha256_hash.txt)
-        if [ "$CACHED_COMMIT_HASH" = "$COMMIT_HASH" ] && [ "$CACHED_SHA256_HASH" = "$SHA256_HASH" ]; then
-            echo "Cached DB is up to date. Skipping download."
-            # Add any other actions you want to take when the cache is valid.
-            exit 0
-        else
-            echo "Cache is outdated. Downloading a new DB."
-        fi
-    fi
-
     send_slack_msg ":large_yellow_circle: Deployment started for $ACTION_SHA-$GITHUB_REF :floppy_disk:"
     authenticate_gcp \
     && alembic upgrade head \
@@ -108,8 +89,11 @@ run_pudl_etl 2>&1 | tee $LOGFILE
 # Notify slack if the etl succeeded.
 if [[ ${PIPESTATUS[0]} == 0 ]]; then
     notify_slack "success"
-    echo $COMMIT_HASH > commit_hash.txt
-    echo $SHA256_HASH > sha256_hash.txt
+    # Dump the commit hash and sha256 hash of the pudl.sqlite file to the output directory
+    COMMIT_HASH=$(git rev-parse HEAD)
+    echo $COMMIT_HASH > $PUDL_OUTPUT/commit_hash.txt
+    SHA256_HASH=$(sha256sum $PUDL_OUTPUT/pudl.sqlite | cut -d ' ' -f 1)
+    echo $SHA256_HASH > $PUDL_OUTPUT/sha256_hash.txt
 
     # Dump outputs to s3 bucket if branch is dev or build was triggered by a tag
     if [ $GITHUB_ACTION_TRIGGER = "push" ] || [ $GITHUB_REF = "dev" ]; then

@@ -99,21 +99,6 @@ jobs:
           which sqlite3
           sqlite3 --version
 
-      - name: Check Cache and Download PUDL DB
-        run: |
-          if [ -f commit_hash.txt ] && [ -f sha256_hash.txt ]; then
-            CACHED_COMMIT_HASH=$(cat commit_hash.txt)
-            CACHED_SHA256_HASH=$(cat sha256_hash.txt)
-            if [ "$CACHED_COMMIT_HASH" = "$GITHUB_SHA" ] && [ "$CACHED_SHA256_HASH" = "$SHA256_HASH_OF_DB" ]; then
-              echo "Cache is up to date. Skipping download."
-            else
-              echo "Cache is outdated. Downloading a new DB."
-              # Download the PUDL DB here
-            fi
-          else
-            echo "Cache is missing. Downloading a new DB."
-            # Download the PUDL DB here
-
       - name: Run unit tests with Tox
         run: |
           tox -e unit -- --durations 0
