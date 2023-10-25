@@ -10,7 +10,6 @@ from pudl.metadata.fields import apply_pudl_dtypes
 
 logger = pudl.logging_helpers.get_logger(__name__)
 
-
 FIRST_COLS = [
     "report_date",
     "plant_id_eia",
@@ -19,6 +18,7 @@ FIRST_COLS = [
     "utility_id_eia",
     "utility_id_pudl",
     "utility_name_eia",
+    "data_maturity",
 ]
 
 
@@ -161,7 +161,7 @@ def denorm_generation_eia923(
     """Denormalize the :ref:`generation_eia923` table."""
     return denorm_by_gen(
         generation_eia923,
-        pu=denorm_plants_utilities_eia,
+        pu=denorm_plants_utilities_eia.drop(columns=["data_maturity"]),
         bga=boiler_generator_assn_eia860,
     )
 
@@ -235,7 +235,9 @@ def denorm_generation_fuel_combined_eia923(
         .sort_values(primary_key)
         .reset_index(drop=True)
     )
-    return denorm_by_plant(gf, pu=denorm_plants_utilities_eia)
+    return denorm_by_plant(
+        gf, pu=denorm_plants_utilities_eia.drop(columns=["data_maturity"])
+    )
 
 
 @asset(io_manager_key="pudl_sqlite_io_manager", compute_kind="Python")
@@ -253,11 +255,12 @@ def denorm_boiler_fuel_eia923(
         boiler_fuel_eia923["fuel_consumed_units"]
         * boiler_fuel_eia923["fuel_mmbtu_per_unit"]
     )
-    return denorm_by_boil(
+    dd = denorm_by_boil(
         boiler_fuel_eia923,
-        pu=denorm_plants_utilities_eia,
+        pu=denorm_plants_utilities_eia.drop(columns=["data_maturity"]),
         bga=boiler_generator_assn_eia860,
     )
+    return dd
 
 
 @asset(
@@ -333,7 +336,9 @@ def denorm_fuel_receipts_costs_eia923(
         frc_df["fuel_consumed_mmbtu"] * frc_df["fuel_cost_per_mmbtu"]
     )
 
-    return denorm_by_plant(frc_df, pu=denorm_plants_utilities_eia)
+    return denorm_by_plant(
+        frc_df, pu=denorm_plants_utilities_eia.drop(columns=["data_maturity"])
+    )
 
 
 #####################################################################################

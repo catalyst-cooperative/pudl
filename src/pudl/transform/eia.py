@@ -799,7 +799,6 @@ def boiler_generator_assn_eia860(context, **clean_dfs) -> pd.DataFrame:  # noqa:
             "steam_plant_type_code",
             "net_generation_mwh",
             "missing_from_923",
-            "data_maturity",
         ]
     ]
 
