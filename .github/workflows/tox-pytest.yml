@@ -1,5 +1,7 @@
 ---
-name: tox-pytest
+name: Code validation
+# TODO(rousik): We could name this "Code tests", as that would 
+# better represent what it does. Maybe even migrate yml file.
 
 on:
   workflow_dispatch:
@@ -22,6 +24,7 @@ env:
 
 jobs:
   ci-static:
+    name: Static tests
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
@@ -69,6 +72,7 @@ jobs:
           path: coverage.xml
 
   ci-unit:
+    name: Unit tests
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
@@ -116,6 +120,7 @@ jobs:
           path: coverage.xml
 
   ci-integration:
+    name: Integration (fast ETL run)
     needs:
       - ci-unit
     runs-on:
@@ -207,6 +212,7 @@ jobs:
           path: coverage.xml
 
   ci-coverage:
+    name: Upload coverage to CodeCov
     runs-on: ubuntu-latest
     needs:
       - ci-unit
@@ -227,29 +233,33 @@ jobs:
         with:
           directory: coverage
 
-  ci-notify:
-    runs-on: ubuntu-latest
-    if: ${{ always() }}
-    needs:
-      - ci-unit
-      - ci-integration
-    steps:
-      - name: Inform the Codemonkeys
-        uses: 8398a7/action-slack@v3
-        continue-on-error: true
-        with:
-          status: custom
-          fields: workflow,job,commit,repo,ref,author,took
-          custom_payload: |
-            {
-              username: 'action-slack',
-              icon_emoji: ':octocat:',
-              attachments: [{
-                color: '${{ needs.ci-test.result }}' === 'success' ? 'good' : '${{ needs.ci-test.result }}' === 'failure' ? 'danger' : 'warning',
-                text: `${process.env.AS_REPO}@${process.env.AS_REF}\n ${process.env.AS_WORKFLOW} (${process.env.AS_COMMIT})\n by ${process.env.AS_AUTHOR}\n Status: ${{ needs.ci-test.result }}`,
-              }]
-            }
-        env:
-          GITHUB_TOKEN: ${{ github.token }} # required
-          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }} # required
-          MATRIX_CONTEXT: ${{ toJson(matrix) }} # required
+  # TODO(rousik): The following slack notification gives no value and
+  # needs to be fixed. Until then, it might be better to do nothing
+  # at all. 
+  # ci-notify:
+  #   name: Notify slack
+  #   runs-on: ubuntu-latest
+  #   if: ${{ always() }}
+  #   needs:
+  #     - ci-unit
+  #     - ci-integration
+  #   steps:
+  #     - name: Inform the Codemonkeys
+  #       uses: 8398a7/action-slack@v3
+  #       continue-on-error: true
+  #       with:
+  #         status: custom
+  #         fields: workflow,job,commit,repo,ref,author,took
+  #         custom_payload: |
+  #           {
+  #             username: 'action-slack',
+  #             icon_emoji: ':octocat:',
+  #             attachments: [{
+  #               color: '${{ needs.ci-test.result }}' === 'success' ? 'good' : '${{ needs.ci-test.result }}' === 'failure' ? 'danger' : 'warning',
+  #               text: `${process.env.AS_REPO}@${process.env.AS_REF}\n ${process.env.AS_WORKFLOW} (${process.env.AS_COMMIT})\n by ${process.env.AS_AUTHOR}\n Status: ${{ needs.ci-test.result }}`,
+  #             }]
+  #           }
+  #       env:
+  #         GITHUB_TOKEN: ${{ github.token }} # required
+  #         SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }} # required
+  #         MATRIX_CONTEXT: ${{ toJson(matrix) }} # required
