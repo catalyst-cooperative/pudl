@@ -45,11 +45,11 @@ def test_no_null_cols_eia(pudl_out_eia, live_dbs, cols, df_name):
 @pytest.mark.parametrize(
     "df_name,raw_rows,monthly_rows,annual_rows",
     [
-        ("bf_eia923", 1_559_257, 1_559_257, 133_754),
+        ("bf_eia923", 1_559_257, 1_559_257, 127_412),
         ("bga_eia860", 141_638, 141_638, 141_638),
         ("boil_eia860", 83_354, 83_354, 83_354),
         ("frc_eia923", 639_647, 261_583, 25_370),
-        ("gen_eia923", None, 5_178_892, 433_286),
+        ("gen_eia923", None, 5_178_828, 433_286),
         ("gens_eia860", 556_586, 556_586, 556_586),
         ("gf_eia923", 2_879_896, 2_879_896, 244_796),
         ("own_eia860", 89_687, 89_687, 89_687),
