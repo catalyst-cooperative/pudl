@@ -21,6 +21,7 @@ env:
   DAGSTER_HOME: /home/runner/pudl-work/dagster_home/
   ETL_CONFIG: src/pudl/package_data/settings/etl_fast.yml
   ETL_COMMANDLINE_OPTIONS: --gcs-cache-path=gs://zenodo-cache.catalyst.coop
+  COVERAGE_OPTIONS: --concurrency=multiprocessing --parallel-mode
 
 jobs:
   ci-static:
@@ -192,15 +193,17 @@ jobs:
 
       - name: Run ferc_to_sqlite
         run: |
-          coverage --concurrency=multiprocessing run \
+          coverage run ${{ env.COVERAGE_OPTIONS }} \
             src/pudl/ferc_to_sqlite/cli.py --clobber ${{ env.ETL_COMMANDLINE_OPTIONS }} ${{ env.ETL_CONFIG }}
       - name: Run pudl_etl
         run: |
-          coverage --concurrency=multiprocessing run \
+          coverage run ${{ env.COVERAGE_OPTIONS }} \
             src/pudl/etl/cli.py ${{ env.ETL_COMMANDLINE_OPTIONS }} ${{ env.ETL_CONFIG }}
       - name: Run integration tests
         run: |
-          coverage run --paralell-mode -m pytest --live-dbs test/integration
+          coverage run ${{ env.COVERAGE_OPTIONS }} \
+            \
+            -m pytest --live-dbs test/integration
       - name: Generate coverage
         run: |
           coverage combine
