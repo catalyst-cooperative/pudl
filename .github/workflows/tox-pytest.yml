@@ -198,7 +198,7 @@ jobs:
       - name: Run pudl_etl
         run: |
           coverage run ${{ env.COVERAGE_OPTIONS }} \
-            src/pudl/etl/cli.py ${{ env.ETL_COMMANDLINE_OPTIONS }} ${{ env.ETL_CONFIG }}
+            src/pudl/cli/etl.py ${{ env.ETL_COMMANDLINE_OPTIONS }} ${{ env.ETL_CONFIG }}
       - name: Run integration tests
         run: |
           coverage run ${{ env.COVERAGE_OPTIONS }} \
