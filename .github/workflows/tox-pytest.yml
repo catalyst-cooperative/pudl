@@ -144,6 +144,21 @@ jobs:
             - conda-forge
             - defaults
             channel_priority: strict
+      - name: Install PUDL and its dependencies
+        run: pip install .[test]
+      - name: Log environment details
+        run: |
+          conda info
+          conda list
+          conda config --show-sources
+          conda config --show
+          printenv | sort
+
+      - name: Log SQLite3 version
+        run: |
+          which sqlite3
+          sqlite3 --version
+
       - name: Compile Zenodo datastore DOIs for cache invalidation
         run:
           grep -e '.*10\.\(5281\|5072\)/zenodo\..*' src/pudl/workspace/datastore.py
@@ -158,6 +173,9 @@ jobs:
 
       - name: Make input, output and dagster dirs
         run: mkdir -p ${{ env.PUDL_OUTPUT }} ${{ env.PUDL_INPUT}} ${{ env.DAGSTER_HOME }}
+
+      - name: List workspace contents
+        run: find /home/runner/pudl-work
 
       - name: Set default GCP credentials
         id: gcloud-auth
