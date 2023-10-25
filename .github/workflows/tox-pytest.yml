@@ -17,6 +17,8 @@ env:
   PUDL_OUTPUT: /home/runner/pudl-work/output/
   PUDL_INPUT: /home/runner/pudl-work/data/
   DAGSTER_HOME: /home/runner/pudl-work/dagster_home/
+  ETL_CONFIG: src/pudl/package_data/settings/etl_fast.yml
+  ETL_COMMANDLINE_OPTIONS: --gcs-cache-path=gs://zenodo-cache.catalyst.coop
 
 jobs:
   ci-static:
@@ -166,13 +168,20 @@ jobs:
           service_account: "tox-pytest-github-action@catalyst-cooperative-pudl.iam.gserviceaccount.com"
 
       - name: Run ferc_to_sqlite
-        run: tox -e github_ferc_to_sqlite
-
+        run: | 
+          coverage --concurrency=multiprocessing run \
+            src/pudl/ferc_to_sqlite/cli.py --clobber ${{ env.ETL_COMMANDLINE_OPTIONS }} ${{ env.ETL_CONFIG }}
       - name: Run pudl_etl
-        run: tox -e github_pudl_etl
+        run: |
+          coverage --concurrency=multiprocessing run \
+            src/pudl/etl/cli.py ${{ env.ETL_COMMANDLINE_OPTIONS }} ${{ env.ETL_CONFIG }}
       - name: Run integration tests
-        run: tox -e github_integration
-
+        run: |
+          coverage run --paralell-mode -m pytest --live-dbs test/integration
+      - name: Generate coverage
+        run: |
+          coverage combine
+          coverage xml
       - name: Upload coverage
         uses: actions/upload-artifact@v3
         with:
