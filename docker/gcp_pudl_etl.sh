@@ -32,16 +32,14 @@ function run_pudl_etl() {
         --loglevel DEBUG \
         --gcs-cache-path gs://internal-zenodo-cache.catalyst.coop \
         $PUDL_SETTINGS_YML && \
-    # Run multiple pytest processes in the background and wait for them to exit
     pytest \
         --gcs-cache-path=gs://internal-zenodo-cache.catalyst.coop \
         --etl-settings=$PUDL_SETTINGS_YML \
-        --live-dbs test/integration test/unit & \
+        --live-dbs test/integration test/unit && \
     pytest \
         --gcs-cache-path=gs://internal-zenodo-cache.catalyst.coop \
         --etl-settings=$PUDL_SETTINGS_YML \
-        --live-dbs test/validate & \
-    wait
+        --live-dbs test/validate
 }
 
 function shutdown_vm() {
