@@ -20,23 +20,29 @@ function authenticate_gcp() {
 
 function run_pudl_etl() {
     send_slack_msg ":large_yellow_circle: Deployment started for $ACTION_SHA-$GITHUB_REF :floppy_disk:"
-    authenticate_gcp \
-    && alembic upgrade head \
-    && pudl_setup \
-    && ferc_to_sqlite \
+    authenticate_gcp && \
+    alembic upgrade head && \
+    pudl_setup && \
+    ferc_to_sqlite \
         --loglevel=DEBUG \
         --gcs-cache-path=gs://internal-zenodo-cache.catalyst.coop \
         --workers=8 \
-        $PUDL_SETTINGS_YML \
-    && pudl_etl \
+        $PUDL_SETTINGS_YML && \
+    pudl_etl \
         --loglevel DEBUG \
         --max-concurrent 6 \
         --gcs-cache-path gs://internal-zenodo-cache.catalyst.coop \
-        $PUDL_SETTINGS_YML \
-    && pytest \
+        $PUDL_SETTINGS_YML && \
+    # Run multiple pytest processes in the background and wait for them to exit
+    pytest \
         --gcs-cache-path=gs://internal-zenodo-cache.catalyst.coop \
         --etl-settings=$PUDL_SETTINGS_YML \
-        --live-dbs test
+        --live-dbs test/integration test/unit & \
+    pytest \
+        --gcs-cache-path=gs://internal-zenodo-cache.catalyst.coop \
+        --etl-settings=$PUDL_SETTINGS_YML \
+        --live-dbs test/validate & \
+    wait
 }
 
 function shutdown_vm() {
