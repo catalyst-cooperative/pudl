@@ -1,6 +1,4 @@
 record_id_eia,record_id_ferc1,signature_1,signature_2,notes
-1010_2018_plant_total_15470_retired,f1_steam_2018_12_144_2_1,OIU,,No extra information. Just the name.
-1010_2019_plant_total_15470_retired,f1_steam_2019_12_144_2_1,OIU,,
 1109_2018_plant_owned_19436,f1_hydro_2018_12_177_0_2,,,
 113_1_2018_plant_unit_owned_803,f1_steam_2018_12_7_0_1,,,
 113_3_2018_plant_unit_owned_803,f1_steam_2018_12_7_0_2,,,
@@ -138,7 +136,6 @@ record_id_eia,record_id_ferc1,signature_1,signature_2,notes
 55276_2018_plant_owned_733,f1_steam_2018_12_6_0_4,,,
 55343_2018_plant_owned_24211,f1_steam_2018_12_176_1_4,,,
 55350_2018_plant_owned_733,f1_steam_2018_12_6_0_5,,,
-55380_2018_plant_owned_814,f1_steam_2018_12_8_0_2,,,
 55402_2018_plant_owned_5109,f1_steam_2018_12_44_2_3,,,
 55455_1_2018_plant_unit_owned_803,f1_steam_2018_12_7_5_3,,,
 55455_2_2018_plant_unit_owned_803,f1_steam_2018_12_7_5_4,,,
@@ -493,8 +490,6 @@ record_id_eia,record_id_ferc1,signature_1,signature_2,notes
 2830_1_2012_plant_unit_total_3542,f1_steam_2012_12_27_0_2,AS,CG,"Combo of gens 1-5 based on FERC plant name. Cap close, net gen way off"
 2830_6_2013_plant_unit_owned_3542,f1_steam_2013_12_27_0_3,AS,CG,cap close-ish and net gen close-ish and inst year good. Gen id matches FERC plant name.
 2830_gt_2013_plant_prime_mover_total_3542,f1_steam_2013_12_27_1_4,AS,CG,
-2830_2013_plant_total_3542_retired,f1_steam_2013_12_27_0_2,AS,CG,"Cap very off, despite this being the pattern for prior years."
-2830_1_2014_plant_unit_total_3542_retired,f1_steam_2014_12_27_0_2,AS,CG,"Cap very off, despite this being the pattern for prior years."
 2830_6_2014_plant_unit_owned_3542,f1_steam_2014_12_27_0_3,AS,CG,"Cap very off, despite this being the pattern for prior years."
 2830_gt_2014_plant_prime_mover_total_3542,f1_steam_2014_12_27_1_4,AS,CG,
 2830_1952_2015_plant_operating_year_total_3542_retired,f1_steam_2015_12_27_0_2,AS,CG,"Cap very off, despite this being the pattern for prior years."
@@ -2377,7 +2372,6 @@ record_id_eia,record_id_ferc1,signature_1,signature_2,notes
 476_2007_plant_total_15466,f1_hydro_2007_12_145_0_2,AS,SW,
 6206_2007_plant_total_15466,f1_gnrt_plant_2007_12_145_0_6,AS,SW,missing a decimal point
 6194_2007_plant_total_17718,f1_steam_2007_12_166_0_5,AS,SW,
-2469_2007_plant_total_17718_retired,f1_steam_2007_12_166_2_5,AS,SW,Steve added plant_total to retired portion; this is closer to reported FERC capacity
 477_st_2007_plant_prime_mover_total_15466,f1_steam_2007_12_145_1_3,AS,SW,cap lags behind eia cap until 2009
 477_gt_2007_plant_prime_mover_total_15466,f1_steam_2007_12_145_2_3,AS,SW,
 1932_2007_plant_owned_13781_retired,f1_steam_2007_12_120_1_1,AS,SW,looks like a new unit was added when the plant was retired so now the total is 16.2 x 3 instead of 16.2  x 2. FERC keeps reporting the lower total. Mapped to larger total because it's retierd anyways.
@@ -2437,7 +2431,6 @@ record_id_eia,record_id_ferc1,signature_1,signature_2,notes
 476_2008_plant_total_15466,f1_hydro_2008_12_145_0_2,AS,SW,
 6206_2008_plant_total_15466,f1_gnrt_plant_2008_12_145_0_6,AS,SW,missing a decimal point
 6194_2008_plant_total_17718,f1_steam_2008_12_166_0_5,AS,SW,
-2469_2008_plant_total_17718_retired,f1_steam_2008_12_166_2_5,AS,SW,Steve added plant_total to retired portion; this is closer to reported FERC capacity
 477_st_2008_plant_prime_mover_total_15466,f1_steam_2008_12_145_1_3,AS,SW,cap lags behind eia cap until 2009
 477_gt_2008_plant_prime_mover_total_15466,f1_steam_2008_12_145_2_3,AS,SW,
 1932_2008_plant_owned_13781_retired,f1_steam_2008_12_120_1_1,AS,SW,looks like a new unit was added when the plant was retired so now the total is 16.2 x 3 instead of 16.2  x 2. FERC keeps reporting the lower total. Mapped to larger total because it's retierd anyways.
@@ -2498,7 +2491,6 @@ record_id_eia,record_id_ferc1,signature_1,signature_2,notes
 476_2009_plant_total_15466,f1_hydro_2009_12_145_0_2,AS,SW,
 6206_2009_plant_total_15466,f1_gnrt_plant_2009_12_145_0_6,AS,SW,missing a decimal point
 6194_2009_plant_total_17718,f1_steam_2009_12_166_0_5,AS,SW,
-2469_2009_plant_total_17718_retired,f1_steam_2009_12_166_2_5,AS,SW,Steve added plant_total to retired portion; this is closer to reported FERC capacity
 477_st_2009_plant_prime_mover_total_15466,f1_steam_2009_12_145_1_3,AS,SW,
 477_gt_2009_plant_prime_mover_total_15466,f1_steam_2009_12_145_2_3,AS,SW,
 1932_2009_plant_owned_13781_retired,f1_steam_2009_12_120_1_1,AS,SW,looks like a new unit was added when the plant was retired so now the total is 16.2 x 3 instead of 16.2  x 2. FERC keeps reporting the lower total. Mapped to larger total because it's retierd anyways.
@@ -2562,7 +2554,6 @@ record_id_eia,record_id_ferc1,signature_1,signature_2,notes
 476_2010_plant_total_15466,f1_hydro_2010_12_145_0_2,AS,SW,
 6206_2010_plant_total_15466,f1_gnrt_plant_2010_12_145_0_6,AS,SW,missing a decimal point
 6194_2010_plant_total_17718,f1_steam_2010_12_166_0_5,AS,SW,
-2469_2010_plant_total_17718_retired,f1_steam_2010_12_166_2_5,AS,SW,Steve added plant_total to retired portion; this is closer to reported FERC capacity
 477_st_2010_plant_prime_mover_total_15466,f1_steam_2010_12_145_1_3,AS,SW,
 477_gt_2010_plant_prime_mover_total_15466,f1_steam_2010_12_145_2_3,AS,SW,
 1932_2010_plant_owned_13781_retired,f1_steam_2010_12_120_1_1,AS,SW,looks like a new unit was added when the plant was retired so now the total is 16.2 x 3 instead of 16.2  x 2. FERC keeps reporting the lower total. Mapped to larger total because it's retierd anyways.
@@ -3272,7 +3263,6 @@ record_id_eia,record_id_ferc1,signature_1,signature_2,notes
 2047_2018_plant_total_12686,f1_steam_2018_12_99_1_3,CO,GT,
 2047_2019_plant_total_12686,f1_steam_2019_12_99_1_5,CO,GT,
 59556_2014_plant_total_7140,f1_steam_2014_12_57_5_2,CO,GT,
-59556_2015_plant_total_7140,f1_steam_2015_12_57_5_2,CO,GT,"FERC net gen really high, but EIA net gen goes up the next year"
 6073_st_2005_plant_prime_mover_owned_12686,f1_steam_2005_12_99_0_1,CO,GT,
 6073_st_2006_plant_prime_mover_owned_12686,f1_steam_2006_12_99_0_1,CO,GT,
 6073_st_2007_plant_prime_mover_owned_12686,f1_steam_2007_12_99_0_1,CO,GT,
@@ -3494,8 +3484,6 @@ record_id_eia,record_id_ferc1,signature_1,signature_2,notes
 709_2011_plant_total_7140,f1_steam_2011_12_57_1_4,CO,GT,
 709_2012_plant_total_7140,f1_steam_2012_12_57_1_4,CO,GT,
 709_2013_plant_total_7140,f1_steam_2013_12_57_1_4,CO,GT,
-709_2014_plant_total_7140,f1_steam_2014_12_57_1_4,CO,GT,
-709_2015_plant_total_7140,f1_steam_2015_12_57_1_4,CO,GT,
 6051_2005_plant_owned_7140,f1_steam_2005_12_57_3_2,CO,GT,EIA capacity doesn’t' match until 2019. AS changed from 6051_1_2005_plant_gen_owned_7140 and 6051_2_2005_plant_gen_owned_7140
 6051_2006_plant_owned_7140,f1_steam_2006_12_57_3_2,CO,GT,EIA capacity doesn’t' match until 2019. AS changed from 6051_1_2006_plant_gen_owned_7140 and 6051_2_2006_plant_gen_owned_7140
 6051_2007_plant_owned_7140,f1_steam_2007_12_57_3_2,CO,GT,EIA capacity doesn’t' match until 2019. AS changed from 6051_1_2007_plant_gen_owned_7140 and 6051_2_2007_plant_gen_owned_7140
@@ -3686,10 +3674,7 @@ record_id_eia,record_id_ferc1,signature_1,signature_2,notes
 14_2017_plant_owned_195,f1_hydro_2017_12_2_0_3,CO,GT,FERC decimal off
 14_2018_plant_total_195,f1_hydro_2018_12_2_0_3,CO,GT,
 14_2019_plant_total_195,f1_hydro_2019_12_2_0_3,CO,GT,
-7698_2016_plant_total_195,f1_steam_2016_12_2_3_2,CO,GT,"No name match, but perfect net gen match"
-7698_2017_plant_total_195,f1_steam_2017_12_2_3_2,CO,GT,"No name match, but perfect net gen match"
 7698_2018_plant_total_195,f1_steam_2018_12_2_3_2,CO,GT,"No name match, but perfect net gen match"
-7698_2019_plant_total_195,f1_steam_2019_12_2_3_2,CO,GT,"No name match, but perfect net gen match"
 16_2005_plant_total_195,f1_hydro_2005_12_2_1_3,CO,GT,
 16_2006_plant_total_195,f1_hydro_2006_12_2_1_3,CO,GT,
 16_2007_plant_total_195,f1_hydro_2007_12_2_1_3,CO,GT,
@@ -3797,8 +3782,6 @@ record_id_eia,record_id_ferc1,signature_1,signature_2,notes
 6124_ct1_2019_plant_gen_total_7140,f1_steam_2019_12_57_0_2,CO,GT,
 56150_2019_plant_total_7140,f1_steam_2019_12_57_0_3,CO,GT,
 6124_gt_2019_plant_prime_mover_total_7140,f1_steam_2019_12_57_1_4,CO,GT,
-59876_2018_plant_total_7140,f1_steam_2018_12_57_4_2,CO,GT,Austen found match from googling plant
-59876_2019_plant_total_7140,f1_steam_2019_12_57_4_2,CO,GT,Austen found match from googling plant
 715_st_2005_plant_prime_mover_total_7140,f1_steam_2005_12_57_2_3,CO,GT,
 715_st_2006_plant_prime_mover_total_7140,f1_steam_2006_12_57_2_3,CO,GT,
 715_st_2007_plant_prime_mover_total_7140,f1_steam_2007_12_57_2_3,CO,GT,
@@ -3939,12 +3922,6 @@ record_id_eia,record_id_ferc1,signature_1,signature_2,notes
 6188_2017_plant_owned_195,f1_hydro_2017_12_2_2_4,CO,GT,
 6188_2018_plant_total_195,f1_hydro_2018_12_2_2_4,CO,GT,
 6188_2019_plant_total_195,f1_hydro_2019_12_2_2_4,CO,GT,
-57037_2014_plant_total_12686,f1_steam_2014_12_99_1_5,CO,GT,Austen found by googling the plant. Ratcliffe plant in Kemper county and this is what it is also referred to as
-57037_2015_plant_total_12686,f1_steam_2015_12_99_1_5,CO,GT,Austen found by googling the plant. Ratcliffe plant in Kemper county and this is what it is also referred to as. Idk why FERC capacity went down this year…
-57037_2016_plant_total_12686,f1_steam_2016_12_99_1_5,CO,GT,Austen found by googling the plant. Ratcliffe plant in Kemper county and this is what it is also referred to as
-57037_2017_plant_total_12686,f1_steam_2017_12_99_1_5,CO,GT,Austen found by googling the plant. Ratcliffe plant in Kemper county and this is what it is also referred to as
-57037_2018_plant_total_12686,f1_steam_2018_12_99_1_5,CO,GT,Austen found by googling the plant. Ratcliffe plant in Kemper county and this is what it is also referred to as
-57037_2019_plant_total_12686,f1_steam_2019_12_99_0_5,CO,GT,Austen found by googling the plant. Ratcliffe plant in Kemper county and this is what it is also referred to as
 6189_2005_plant_owned_7140,f1_pumped_storage_2005_12_57_0_2,CO,GT,
 6189_2006_plant_owned_7140,f1_pumped_storage_2006_12_57_0_2,CO,GT,
 6189_2007_plant_owned_7140,f1_pumped_storage_2007_12_57_0_2,CO,GT,
@@ -5021,19 +4998,16 @@ EB: other ones match year, e.g. 23 and 24?"
 6101_2005_plant_owned_14354,f1_steam_2005_12_134_2_4,JER,AS,
 56102_2005_plant_total_14354,f1_steam_2005_12_134_4_2,JER,AS,
 2324_4_2005_plant_gen_total_13407,f1_steam_2005_12_108_1_4,,AS,eia capacity doesn't catch up until 2007
-2324_1_2005_plant_gen_total_13407,f1_steam_2005_12_108_0_3,,AS,
 6254_2005_plant_owned_12341,f1_steam_2005_12_210_0_4,,AS,
 113_4_2005_plant_gen_total_14354,f1_steam_2005_12_134_0_2,JER,AS,"MUL subset doesn't include generators owned by other owners. I think it's weird to use the eia record for the plant because of that, so switched to the generator even though it's a false "
 6165_1_2005_plant_gen_owned_14354,f1_steam_2005_12_134_1_2,JER,AS,
 6165_3_2005_plant_gen_total_14354,f1_steam_2005_12_134_1_4,JER,AS,unit or gen?
-2322_ct_2005_plant_prime_mover_total_13407,f1_steam_2005_12_108_1_5,,AS,
 7985_2005_plant_total_12341,f1_steam_2005_12_210_2_4,GT,AS,
 6664_2005_plant_owned_12341,f1_steam_2005_12_210_0_5,GT,AS,
 1082_2005_plant_owned_12341,f1_steam_2005_12_210_0_1,,AS,
 4162_2005_plant_total_14354,f1_steam_2005_12_134_2_3,JER,AS,
 4158_2005_plant_total_14354,f1_steam_2005_12_134_0_5,JER,AS,
 8069_2005_plant_total_14354,f1_steam_2005_12_134_2_1,JER,AS,
-1091_2005_plant_owned_12341,f1_steam_2005_12_210_0_2,,AS,uses records from two plants
 6165_2005_plant_owned_14354,f1_steam_2005_12_134_1_5,JER,AS,
 8066_2005_plant_owned_14354,f1_steam_2005_12_134_2_2,JER,AS,
 57873_2012_plant_total_12341,f1_gnrt_plant_2012_12_210_0_42,,AS,net gen kwh difference
@@ -5109,10 +5083,8 @@ EB: other ones match year, e.g. 23 and 24?"
 525_2006_plant_owned_14354,f1_steam_2006_12_134_1_1,JER,AS,
 2326_st_2006_plant_prime_mover_total_13407,f1_steam_2006_12_108_0_2,,AS,"capacity a little off but based it on matching of unti numbers between FERC and EIA, EIA matches starting in 2007"
 3028_2006_plant_total_14354,f1_hydro_2006_12_134_1_4,JER,AS,
-56379_2006_plant_total_12341,f1_gnrt_plant_2006_12_210_0_15,,AS,ferc mwh vs kwh issue with net gen
 56360_2006_plant_total_14354,f1_gnrt_plant_2006_12_134_0_41,,AS,ferc mwh vs kwh issue with net gen
 7082_gt1_2006_plant_gen_total_13407,f1_steam_2006_12_108_2_1,,AS,"could be mixed with other generator, EIA doesn't report this value until 2007"
-2336_ca_2006_plant_prime_mover_total_17166,f1_steam_2006_12_157_1_1,,AS,cap doesn't jump up till 2008
 7082_gt4_2006_plant_gen_total_13407,f1_steam_2006_12_108_2_4,,AS,"could be mixed with other generator, seems eroniously high -- FERC goes down to correct value (85) in 2009"
 1084_2006_plant_total_12341,f1_steam_2006_12_210_1_1,,AS,
 3852_2006_plant_total_14354,f1_hydro_2006_12_134_3_5,GT,AS,
@@ -5139,12 +5111,10 @@ EB: other ones match year, e.g. 23 and 24?"
 6165_2_2006_plant_gen_owned_14354,f1_steam_2006_12_134_1_3,JER,AS,"could be gen or unit, I chose unit because it's not a false granularity"
 6101_2006_plant_owned_14354,f1_steam_2006_12_134_2_4,JER,AS,
 2324_4_2006_plant_gen_total_13407,f1_steam_2006_12_108_1_4,,AS,eia capacity doesn't catch up until 2007
-2324_1_2006_plant_gen_total_13407,f1_steam_2006_12_108_0_3,,AS,
 6254_2006_plant_owned_12341,f1_steam_2006_12_210_0_4,,AS,
 113_4_2006_plant_gen_total_14354,f1_steam_2006_12_134_0_2,JER,AS,"MUL subset doesn't include generators owned by other owners. I think it's weird to use the eia record for the plant because of that, so switched to the generator even though it's a false "
 6165_1_2006_plant_gen_owned_14354,f1_steam_2006_12_134_1_2,JER,AS,
 6165_3_2006_plant_gen_total_14354,f1_steam_2006_12_134_1_4,JER,AS,unit or gen?
-2322_ct_2006_plant_prime_mover_total_13407,f1_steam_2006_12_108_1_5,,AS,
 56102_2006_plant_total_14354,f1_steam_2006_12_134_4_2,JER,AS,
 7985_2006_plant_total_12341,f1_steam_2006_12_210_2_4,GT,AS,
 6664_2006_plant_owned_12341,f1_steam_2006_12_210_0_5,GT,AS,
@@ -5152,7 +5122,6 @@ EB: other ones match year, e.g. 23 and 24?"
 4162_2006_plant_total_14354,f1_steam_2006_12_134_2_3,JER,AS,
 4158_2006_plant_total_14354,f1_steam_2006_12_134_0_5,JER,AS,
 8069_2006_plant_total_14354,f1_steam_2006_12_134_2_1,JER,AS,
-1091_2006_plant_owned_12341,f1_steam_2006_12_210_0_2,,AS,uses records from two plants
 6165_2006_plant_owned_14354,f1_steam_2006_12_134_1_5,JER,AS,
 55322_2006_plant_total_13407,f1_steam_2006_12_108_2_2,,AS,
 8066_2006_plant_owned_14354,f1_steam_2006_12_134_2_2,JER,AS,
@@ -5216,7 +5185,6 @@ EB: other ones match year, e.g. 23 and 24?"
 56379_2007_plant_total_12341,f1_gnrt_plant_2007_12_210_0_15,,AS,ferc mwh vs kwh issue with net gen
 56360_2007_plant_total_14354,f1_gnrt_plant_2007_12_134_0_39,,AS,
 7082_gt1_2007_plant_gen_total_13407,f1_steam_2007_12_108_2_1,,AS,net gen pretty off
-2336_ca_2007_plant_prime_mover_total_17166,f1_steam_2007_12_157_1_1,,AS,cap doesn't jump up till 2008
 7082_gt4_2007_plant_gen_total_13407,f1_steam_2007_12_108_2_4,,AS,"; capacity a little high, should be 85"
 1084_2007_plant_total_12341,f1_steam_2007_12_210_1_1,GT,AS,
 3852_2007_plant_total_14354,f1_hydro_2007_12_134_3_5,GT,AS,
@@ -5245,21 +5213,18 @@ EB: other ones match year, e.g. 23 and 24?"
 6165_2_2007_plant_gen_owned_14354,f1_steam_2007_12_134_1_3,JER,AS,"could be gen or unit, I chose unit because it's not a false granularity"
 6101_2007_plant_owned_14354,f1_steam_2007_12_134_2_4,JER,AS,
 2324_4_2007_plant_gen_total_13407,f1_steam_2007_12_108_1_4,,AS,
-2324_1_2007_plant_gen_total_13407,f1_steam_2007_12_108_0_3,,AS,
 6254_2007_plant_owned_12341,f1_steam_2007_12_210_0_4,,AS,
 113_4_2007_plant_gen_total_14354,f1_steam_2007_12_134_0_2,JER,AS,"MUL subset doesn't include generators owned by other owners. I think it's weird to use the eia record for the plant because of that, so switched to the generator even though it's a false "
 6165_1_2007_plant_gen_owned_14354,f1_steam_2007_12_134_1_2,JER,AS,
 880_2007_plant_owned_12341,f1_steam_2007_12_210_2_3,GT,AS,
 6165_3_2007_plant_gen_total_14354,f1_steam_2007_12_134_1_4,JER,AS,unit or gen?
 56237_2007_plant_total_14354,f1_steam_2007_12_134_4_3,JER,AS,"this doesn’t match great, but it's the first year the plant exists so that can be weird. I made it consistent with the following years"
-2322_ct_2007_plant_prime_mover_total_13407,f1_steam_2007_12_108_1_5,,AS,capacity went up in eia but not in ferc
 56102_2007_plant_total_14354,f1_steam_2007_12_134_4_2,JER,AS,
 7985_2007_plant_total_12341,f1_steam_2007_12_210_2_4,,AS,
 4162_2007_plant_total_14354,f1_steam_2007_12_134_2_3,JER,AS,
 6664_2007_plant_owned_12341,f1_steam_2007_12_210_0_5,,AS,
 4158_2007_plant_total_14354,f1_steam_2007_12_134_0_5,JER,AS,
 8069_2007_plant_total_14354,f1_steam_2007_12_134_2_1,JER,AS,
-1091_2007_plant_owned_12341,f1_steam_2007_12_210_0_2,,AS,uses records from two plants
 6165_2007_plant_owned_14354,f1_steam_2007_12_134_1_5,JER,AS,
 1082_2007_plant_owned_12341,f1_steam_2007_12_210_0_1,,AS,
 55322_2007_plant_total_13407,f1_steam_2007_12_108_2_2,,AS,
@@ -5294,7 +5259,6 @@ EB: other ones match year, e.g. 23 and 24?"
 3846_2008_plant_owned_14354,f1_gnrt_plant_2008_12_134_0_6,,AS,
 831_2008_plant_total_14354,f1_hydro_2008_12_134_3_2,GT,AS,
 3020_2008_plant_total_14354,f1_hydro_2008_12_134_0_3,JER,AS,
-6518_kb1_2008_plant_gen_total_17166,f1_steam_2008_12_157_0_5,,AS,For some reason this year only reports a total of the 16.2 and 15 combined so we have to add up the individual components
 6553_2008_plant_total_14354,f1_steam_2008_12_134_3_1,JER,AS,
 6533_2008_plant_total_17166,f1_steam_2008_12_157_1_2,,AS,
 297_2008_plant_total_14354,f1_hydro_2008_12_134_1_3,GT,AS,
@@ -5329,7 +5293,6 @@ EB: other ones match year, e.g. 23 and 24?"
 56360_2008_plant_total_14354,f1_gnrt_plant_2008_12_134_0_40,,AS,
 7082_gt1_2008_plant_gen_total_13407,f1_steam_2008_12_108_2_1,,AS,
 7082_gt4_2008_plant_gen_total_13407,f1_steam_2008_12_108_2_4,,AS,"could be mixed with other generator; capacity a little high, should be 85"
-2336_5_2008_plant_gen_total_17166,f1_steam_2008_12_157_1_1,,AS,poor generation match
 1084_2008_plant_total_12341,f1_steam_2008_12_210_1_1,,AS,
 3852_2008_plant_total_14354,f1_hydro_2008_12_134_3_5,GT,AS,
 3847_2008_plant_total_14354,f1_hydro_2008_12_134_2_2,GT,AS,
@@ -5360,7 +5323,6 @@ EB: other ones match year, e.g. 23 and 24?"
 6165_2_2008_plant_unit_owned_14354,f1_steam_2008_12_134_1_3,JER,AS,"could be gen or unit, I chose unit because it's not a false granularity"
 6101_2008_plant_owned_14354,f1_steam_2008_12_134_2_4,JER,AS,
 2324_4_2008_plant_unit_total_13407,f1_steam_2008_12_108_1_4,,AS,
-2324_1_2008_plant_gen_total_13407,f1_steam_2008_12_108_0_3,,AS,
 6254_2008_plant_owned_12341,f1_steam_2008_12_210_0_4,GT,AS,
 113_4_2008_plant_gen_total_14354,f1_steam_2008_12_134_0_2,JER,AS,"MUL subset doesn't include generators owned by other owners. I think it's weird to use the eia record for the plant because of that, so switched to the generator even though it's a false "
 6165_1_2008_plant_unit_owned_14354,f1_steam_2008_12_134_1_2,JER,AS,
@@ -5368,16 +5330,13 @@ EB: other ones match year, e.g. 23 and 24?"
 6165_3_2008_plant_unit_total_14354,f1_steam_2008_12_134_1_4,JER,AS,unit or gen?
 55662_2008_plant_total_14354,f1_steam_2008_12_134_4_4,JER,AS,"not a good match, unexplainable differences with other years"
 56237_2008_plant_total_14354,f1_steam_2008_12_134_4_3,JER,AS,
-2322_ct_2008_plant_prime_mover_total_13407,f1_steam_2008_12_108_1_5,,AS,
 56102_2008_plant_total_14354,f1_steam_2008_12_134_4_2,JER,AS,
 7985_2008_plant_total_12341,f1_steam_2008_12_210_2_4,GT,AS,
-2336_8_2008_plant_gen_total_17166,f1_steam_2008_12_157_1_3,,AS,"8, 9, and 10"
 55687_2008_plant_total_13407,f1_steam_2008_12_108_3_1,,AS,
 4162_2008_plant_total_14354,f1_steam_2008_12_134_2_3,JER,AS,
 6664_2008_plant_owned_12341,f1_steam_2008_12_210_0_5,GT,AS,
 4158_2008_plant_total_14354,f1_steam_2008_12_134_0_5,JER,AS,
 8069_2008_plant_total_14354,f1_steam_2008_12_134_2_1,JER,AS,
-1091_2008_plant_owned_12341,f1_steam_2008_12_210_0_2,,AS,uses records from two plants
 6165_2008_plant_owned_14354,f1_steam_2008_12_134_1_5,JER,AS,
 55322_2008_plant_total_13407,f1_steam_2008_12_108_2_2,,AS,
 1082_2008_plant_owned_12341,f1_steam_2008_12_210_0_1,GT,AS,
@@ -5449,7 +5408,6 @@ EB: other ones match year, e.g. 23 and 24?"
 56379_2009_plant_total_12341,f1_gnrt_plant_2009_12_210_0_15,,AS,ferc mwh vs kwh issue with net gen
 56360_2009_plant_total_14354,f1_gnrt_plant_2009_12_134_0_42,,AS,
 7082_gt1_2009_plant_gen_total_13407,f1_steam_2009_12_108_2_1,,AS,could be mixed with other generator
-2336_5_2009_plant_unit_total_17166,f1_steam_2009_12_157_1_1,,AS,poor generation match
 1084_2009_plant_total_12341,f1_steam_2009_12_210_1_1,,AS,
 3852_2009_plant_total_14354,f1_hydro_2009_12_134_3_5,GT,AS,
 3847_2009_plant_total_14354,f1_hydro_2009_12_134_2_2,GT,AS,
@@ -5480,24 +5438,20 @@ EB: other ones match year, e.g. 23 and 24?"
 6101_2009_plant_owned_14354,f1_steam_2009_12_134_2_4,JER,AS,
 6165_2_2009_plant_unit_owned_14354,f1_steam_2009_12_134_1_3,JER,AS,"could be gen or unit, I chose unit because it's not a false granularity"
 2324_4_2009_plant_unit_total_13407,f1_steam_2009_12_108_1_4,,AS,
-2324_1_2009_plant_gen_total_13407,f1_steam_2009_12_108_0_3,,AS,
 6254_2009_plant_owned_12341,f1_steam_2009_12_210_0_4,GT,AS,
 113_4_2009_plant_gen_total_14354,f1_steam_2009_12_134_0_2,JER,AS,"MUL subset doesn't include generators owned by other owners. I think it's weird to use the eia record for the plant because of that, so switched to the generator even though it's a false "
 6165_1_2009_plant_unit_owned_14354,f1_steam_2009_12_134_1_2,JER,AS,
 880_2009_plant_owned_12341,f1_steam_2009_12_210_2_3,,AS,
 6165_3_2009_plant_unit_total_14354,f1_steam_2009_12_134_1_4,JER,AS,unit or gen?
-2322_ct_2009_plant_prime_mover_total_13407,f1_steam_2009_12_108_1_5,,AS,
 56102_2009_plant_total_14354,f1_steam_2009_12_134_4_2,JER,AS,
 7985_2009_plant_total_12341,f1_steam_2009_12_210_2_4,GT,AS,
 56237_2009_plant_total_14354,f1_steam_2009_12_134_4_3,JER,AS,
 55662_2009_plant_total_14354,f1_steam_2009_12_134_3_5,JER,AS,
-2336_8_2009_plant_gen_total_17166,f1_steam_2009_12_157_1_3,,AS,
 55687_2009_plant_total_13407,f1_steam_2009_12_108_3_1,GT,AS,
 4162_2009_plant_total_14354,f1_steam_2009_12_134_2_3,JER,AS,
 6664_2009_plant_owned_12341,f1_steam_2009_12_210_0_5,GT,AS,
 4158_2009_plant_total_14354,f1_steam_2009_12_134_0_5,JER,AS,
 8069_2009_plant_total_14354,f1_steam_2009_12_134_2_1,JER,AS,
-1091_2009_plant_owned_12341,f1_steam_2009_12_210_0_2,,AS,uses records from two plants
 6165_2009_plant_owned_14354,f1_steam_2009_12_134_1_5,JER,AS,
 1082_2009_plant_owned_12341,f1_steam_2009_12_210_0_1,GT,AS,
 55322_2009_plant_total_13407,f1_steam_2009_12_108_2_2,GT,AS,
@@ -5570,7 +5524,6 @@ EB: other ones match year, e.g. 23 and 24?"
 56360_2010_plant_total_14354,f1_gnrt_plant_2010_12_134_0_43,,AS,ferc mwh vs kwh issue with net gen
 7082_gt1_2010_plant_gen_total_13407,f1_steam_2010_12_108_2_1,,AS,could be mixed with other generator
 57299_2010_plant_total_14354,f1_gnrt_plant_2010_12_134_0_37,,AS,ferc mwh vs. kwh issue with net gen
-2336_5_2010_plant_unit_total_17166,f1_steam_2010_12_157_1_1,,AS,poor generation match
 1084_2010_plant_total_12341,f1_steam_2010_12_210_1_1,,AS,
 3852_2010_plant_total_14354,f1_hydro_2010_12_134_3_5,GT,AS,
 3847_2010_plant_total_14354,f1_hydro_2010_12_134_2_2,GT,AS,
@@ -5601,25 +5554,21 @@ EB: other ones match year, e.g. 23 and 24?"
 6101_2010_plant_owned_14354,f1_steam_2010_12_134_2_4,JER,AS,
 6165_2_2010_plant_unit_owned_14354,f1_steam_2010_12_134_1_3,JER,AS,"could be gen or unit, I chose unit because it's not a false granularity"
 2324_4_2010_plant_unit_total_13407,f1_steam_2010_12_108_1_4,,AS,
-2324_1_2010_plant_gen_total_13407,f1_steam_2010_12_108_0_3,,AS,
 6254_2010_plant_owned_12341,f1_steam_2010_12_210_0_4,GT,AS,
 113_4_2010_plant_gen_total_14354,f1_steam_2010_12_134_0_2,JER,AS,"MUL subset doesn't include generators owned by other owners. I think it's weird to use the eia record for the plant because of that, so switched to the generator even though it's a false "
 6165_1_2010_plant_unit_owned_14354,f1_steam_2010_12_134_1_2,JER,AS,
 6165_3_2010_plant_unit_total_14354,f1_steam_2010_12_134_1_4,JER,AS,unit or gen?
 880_2010_plant_owned_12341,f1_steam_2010_12_210_2_3,GT,AS,
-2322_ct_2010_plant_prime_mover_total_13407,f1_steam_2010_12_108_1_5,,AS,
 56102_2010_plant_total_14354,f1_steam_2010_12_134_4_2,JER,AS,
 7985_2010_plant_total_12341,f1_steam_2010_12_210_2_4,GT,AS,
 56237_2010_plant_total_14354,f1_steam_2010_12_134_4_3,JER,AS,
 55662_2010_plant_total_14354,f1_steam_2010_12_134_3_5,JER,AS,
-2336_8_2010_plant_gen_total_17166,f1_steam_2010_12_157_1_2,,AS,
 55841_2010_plant_total_13407,f1_steam_2010_12_108_2_3,,AS,
 55687_2010_plant_total_13407,f1_steam_2010_12_108_3_1,,AS,
 4162_2010_plant_total_14354,f1_steam_2010_12_134_2_3,JER,AS,
 6664_2010_plant_owned_12341,f1_steam_2010_12_210_0_5,GT,AS,
 4158_2010_plant_total_14354,f1_steam_2010_12_134_0_5,JER,AS,
 8069_2010_plant_total_14354,f1_steam_2010_12_134_2_1,JER,AS,
-1091_2010_plant_owned_12341,f1_steam_2010_12_210_0_2,,AS,uses records from two plants
 6165_2010_plant_owned_14354,f1_steam_2010_12_134_1_5,JER,AS,
 1082_2010_plant_owned_12341,f1_steam_2010_12_210_0_1,GT,AS,
 55322_2010_plant_total_13407,f1_steam_2010_12_108_2_2,GT,AS,
@@ -5693,7 +5642,6 @@ EB: other ones match year, e.g. 23 and 24?"
 7082_gt1_2011_plant_gen_total_13407,f1_steam_2011_12_108_2_1,,AS,
 57299_2011_plant_total_14354,f1_gnrt_plant_2011_12_134_0_37,,AS,ferc mwh vs. kwh issue with net gen
 57500_2011_plant_total_12341,f1_gnrt_plant_2011_12_210_0_39,,AS,ferc mwh vs kwh issue with net gen
-2336_5_2011_plant_unit_total_17166,f1_steam_2011_12_157_1_1,,AS,poor generation match
 1084_2011_plant_total_12341,f1_steam_2011_12_210_2_1,,AS,
 3852_2011_plant_total_14354,f1_hydro_2011_12_134_3_5,GT,AS,
 3847_2011_plant_total_14354,f1_hydro_2011_12_134_2_2,GT,AS,
@@ -5724,7 +5672,6 @@ EB: other ones match year, e.g. 23 and 24?"
 6101_2011_plant_owned_14354,f1_steam_2011_12_134_2_4,JER,AS,
 6165_2_2011_plant_unit_owned_14354,f1_steam_2011_12_134_1_3,JER,AS,"could be gen or unit, I chose unit because it's not a false granularity"
 2324_4_2011_plant_unit_total_13407,f1_steam_2011_12_108_1_4,,AS,
-2324_1_2011_plant_gen_total_13407,f1_steam_2011_12_108_0_3,,AS,
 1091_2_2011_plant_unit_total_12341,f1_steam_2011_12_210_1_4,GT,AS,
 1091_3_2011_plant_unit_owned_12341,f1_steam_2011_12_210_0_2,GT,AS,
 113_4_2011_plant_gen_total_14354,f1_steam_2011_12_134_0_2,JER,AS,"MUL subset doesn't include generators owned by other owners. I think it's weird to use the eia record for the plant because of that, so switched to the generator even though it's a false "
@@ -5734,14 +5681,12 @@ EB: other ones match year, e.g. 23 and 24?"
 7082_ct_2011_plant_prime_mover_total_13407,f1_steam_2011_12_108_3_2,,AS,"looks like it's a blend of three records, but the capacity still doesn't match"
 6165_3_2011_plant_unit_total_14354,f1_steam_2011_12_134_1_4,JER,AS,unit or gen?
 880_2011_plant_owned_12341,f1_steam_2011_12_210_3_3,GT,AS,
-2322_ct_2011_plant_prime_mover_total_13407,f1_steam_2011_12_108_1_5,,AS,
 1082_4_2011_plant_unit_owned_12341,f1_steam_2011_12_210_3_5,GT,AS,
 56102_2011_plant_total_14354,f1_steam_2011_12_134_4_2,JER,AS,
 1082_3_2011_plant_unit_owned_12341,f1_steam_2011_12_210_0_1,GT,AS,
 7985_2011_plant_total_12341,f1_steam_2011_12_210_3_4,GT,AS,
 56237_2011_plant_total_14354,f1_steam_2011_12_134_4_3,JER,AS,
 55662_2011_plant_total_14354,f1_steam_2011_12_134_3_5,JER,AS,
-2336_8_2011_plant_gen_total_17166,f1_steam_2011_12_157_1_2,,AS,
 55841_2011_plant_total_13407,f1_steam_2011_12_108_2_3,,AS,
 55687_2011_plant_total_13407,f1_steam_2011_12_108_3_1,GT,AS,
 4162_2011_plant_total_14354,f1_steam_2011_12_134_2_3,JER,AS,
@@ -5815,7 +5760,6 @@ EB: other ones match year, e.g. 23 and 24?"
 57874_2012_plant_total_12341,f1_gnrt_plant_2012_12_210_1_1,,AS,ferc mwh vs kwh issue with net gen
 57299_2012_plant_total_14354,f1_gnrt_plant_2012_12_134_0_33,,AS,ferc mwh vs. kwh issue with net gen
 57500_2012_plant_total_12341,f1_gnrt_plant_2012_12_210_0_39,,AS,ferc mwh vs kwh issue with net gen
-2336_5_2012_plant_unit_total_17166,f1_steam_2012_12_157_1_1,,AS,poor generation match
 1084_2012_plant_total_12341,f1_steam_2012_12_210_2_1,GT,AS,
 3852_2012_plant_total_14354,f1_hydro_2012_12_134_3_5,GT,AS,
 3847_2012_plant_total_14354,f1_hydro_2012_12_134_2_2,GT,AS,
@@ -5846,7 +5790,6 @@ EB: other ones match year, e.g. 23 and 24?"
 6101_2012_plant_owned_14354,f1_steam_2012_12_134_2_4,JER,AS,
 6165_2_2012_plant_unit_owned_14354,f1_steam_2012_12_134_1_3,JER,AS,"could be gen or unit, I chose unit because it's not a false granularity"
 2324_4_2012_plant_unit_total_13407,f1_steam_2012_12_108_1_4,,AS,
-2324_1_2012_plant_gen_total_13407,f1_steam_2012_12_108_0_3,,AS,
 1091_2_2012_plant_unit_total_12341,f1_steam_2012_12_210_1_4,GT,AS,
 6254_2012_plant_owned_12341,f1_steam_2012_12_210_0_4,,AS,strange FERC capacity blip
 1091_3_2012_plant_unit_owned_12341,f1_steam_2012_12_210_0_2,GT,AS,
@@ -5856,14 +5799,12 @@ EB: other ones match year, e.g. 23 and 24?"
 6165_3_2012_plant_unit_total_14354,f1_steam_2012_12_134_1_4,JER,AS,unit or gen?
 880_2012_plant_owned_12341,f1_steam_2012_12_210_3_3,GT,AS,
 7082_ct_2012_plant_prime_mover_total_13407,f1_steam_2012_12_108_3_2,,AS,"looks like it's a blend of three records, but the capacity still doesn't match"
-2322_ct_2012_plant_prime_mover_total_13407,f1_steam_2012_12_108_1_5,,AS,
 1082_4_2012_plant_unit_owned_12341,f1_steam_2012_12_210_3_5,GT,AS,
 56102_2012_plant_total_14354,f1_steam_2012_12_134_4_1,JER,AS,
 1082_3_2012_plant_unit_owned_12341,f1_steam_2012_12_210_0_1,GT,AS,
 7985_2012_plant_total_12341,f1_steam_2012_12_210_3_4,GT,AS,
 56237_2012_plant_total_14354,f1_steam_2012_12_134_4_2,JER,AS,
 55662_2012_plant_total_14354,f1_steam_2012_12_134_3_4,JER,AS,
-2336_8_2012_plant_gen_total_17166,f1_steam_2012_12_157_1_2,,AS,
 55841_2012_plant_total_13407,f1_steam_2012_12_108_2_3,,AS,
 55687_2012_plant_total_13407,f1_steam_2012_12_108_3_1,GT,AS,
 4162_2012_plant_total_14354,f1_steam_2012_12_134_2_3,JER,AS,
@@ -5936,7 +5877,6 @@ EB: other ones match year, e.g. 23 and 24?"
 7082_gt1_2013_plant_gen_total_13407,f1_steam_2013_12_108_2_1,,AS,could be mixed with other generator
 57299_2013_plant_total_14354,f1_gnrt_plant_2013_12_134_0_33,,AS,ferc mwh vs. kwh issue with net gen
 57500_2013_plant_total_12341,f1_gnrt_plant_2013_12_210_0_39,,AS,ferc mwh vs kwh issue with net gen
-2336_5_2013_plant_unit_total_17166,f1_steam_2013_12_157_1_1,,AS,poor generation match
 1084_2013_plant_total_12341,f1_steam_2013_12_210_2_1,,AS,
 3852_2013_plant_total_14354,f1_hydro_2013_12_134_3_5,GT,AS,
 3847_2013_plant_total_14354,f1_hydro_2013_12_134_2_2,GT,AS,
@@ -5969,7 +5909,6 @@ EB: other ones match year, e.g. 23 and 24?"
 6101_2013_plant_owned_14354,f1_steam_2013_12_134_2_4,JER,AS,
 6165_2_2013_plant_unit_owned_14354,f1_steam_2013_12_134_1_3,JER,AS,"could be gen or unit, I chose unit because it's not a false granularity"
 2324_4_2013_plant_unit_total_13407,f1_steam_2013_12_108_1_4,,AS,
-2324_1_2013_plant_gen_total_13407,f1_steam_2013_12_108_0_3,,AS,
 1091_2_2013_plant_unit_total_12341,f1_steam_2013_12_210_1_4,GT,AS,
 6254_2013_plant_owned_12341,f1_steam_2013_12_210_0_4,,AS,
 1091_3_2013_plant_unit_owned_12341,f1_steam_2013_12_210_0_2,GT,AS,
@@ -5979,14 +5918,12 @@ EB: other ones match year, e.g. 23 and 24?"
 6165_3_2013_plant_unit_total_14354,f1_steam_2013_12_134_1_4,JER,AS,unit or gen?
 880_2013_plant_owned_12341,f1_steam_2013_12_210_3_3,GT,AS,
 7082_ct_2013_plant_prime_mover_total_13407,f1_steam_2013_12_108_3_2,,AS,"looks like it's a blend of three records, but the capacity still doesn't match"
-2322_ct_2013_plant_prime_mover_total_13407,f1_steam_2013_12_108_1_5,,AS,
 1082_4_2013_plant_unit_owned_12341,f1_steam_2013_12_210_3_5,,AS,
 56102_2013_plant_total_14354,f1_steam_2013_12_134_4_1,JER,AS,
 1082_3_2013_plant_unit_owned_12341,f1_steam_2013_12_210_0_1,GT,AS,
 7985_2013_plant_total_12341,f1_steam_2013_12_210_3_4,GT,AS,
 56237_2013_plant_total_14354,f1_steam_2013_12_134_4_2,JER,AS,
 55662_2013_plant_total_14354,f1_steam_2013_12_134_3_4,JER,AS,
-2336_8_2013_plant_gen_total_17166,f1_steam_2013_12_157_1_2,,AS,
 55841_2013_plant_total_13407,f1_steam_2013_12_108_2_3,,AS,
 55687_2013_plant_total_13407,f1_steam_2013_12_108_3_1,GT,AS,
 4162_2013_plant_total_14354,f1_steam_2013_12_134_2_3,JER,AS,
@@ -6060,7 +5997,6 @@ EB: other ones match year, e.g. 23 and 24?"
 57299_2014_plant_total_14354,f1_gnrt_plant_2014_12_134_0_32,,AS,ferc mwh vs. kwh issue with net gen
 57500_2014_plant_total_12341,f1_gnrt_plant_2014_12_210_0_39,,AS,ferc mwh vs kwh issue with net gen
 58885_2014_plant_total_12341,f1_gnrt_plant_2014_12_210_1_6,,AS,ferc mwh vs kwh issue with net gen
-2336_5_2014_plant_gen_total_17166,f1_steam_2014_12_157_1_1,,AS,poor generation match
 1084_2014_plant_total_12341,f1_steam_2014_12_210_2_1,,AS,
 3852_2014_plant_total_14354,f1_hydro_2014_12_134_3_5,GT,AS,
 3847_2014_plant_total_14354,f1_hydro_2014_12_134_2_2,GT,AS,
@@ -6096,7 +6032,6 @@ EB: other ones match year, e.g. 23 and 24?"
 54854_2014_plant_total_13407,f1_steam_2014_12_108_1_3,,AS,
 6165_2_2014_plant_unit_owned_14354,f1_steam_2014_12_134_1_3,JER,AS,"could be gen or unit, I chose unit because it's not a false granularity"
 2324_4_2014_plant_unit_total_13407,f1_steam_2014_12_108_1_4,GT,AS,
-2324_1_2014_plant_gen_total_13407,f1_steam_2014_12_108_0_3,,AS,
 1091_2_2014_plant_unit_total_12341,f1_steam_2014_12_210_1_4,GT,AS,
 10761_2014_plant_total_13407,f1_steam_2014_12_108_0_1,,AS,
 6254_2014_plant_owned_12341,f1_steam_2014_12_210_0_4,GT,AS,
@@ -6107,7 +6042,6 @@ EB: other ones match year, e.g. 23 and 24?"
 6165_3_2014_plant_unit_total_14354,f1_steam_2014_12_134_1_4,JER,AS,unit or gen?
 55841_2014_plant_owned_13407,f1_steam_2014_12_108_2_3,GT,AS,
 880_2014_plant_owned_12341,f1_steam_2014_12_210_3_3,GT,AS,
-2322_ct_2014_plant_prime_mover_total_13407,f1_steam_2014_12_108_1_5,,AS,
 1082_4_2014_plant_unit_owned_12341,f1_steam_2014_12_210_3_5,GT,AS,
 7082_1_2014_plant_unit_total_13407,f1_steam_2014_12_108_3_2,,AS,"adding the values of 5,6,7 get 557 which is really close to this!"
 56102_2014_plant_total_14354,f1_steam_2014_12_134_4_1,JER,AS,capacity increase in EIA in 2014 for all generators doesn't show in FERC
@@ -6190,7 +6124,6 @@ EB: other ones match year, e.g. 23 and 24?"
 57500_2015_plant_total_12341,f1_gnrt_plant_2015_12_210_0_39,,AS,ferc mwh vs kwh issue with net gen
 58885_2015_plant_total_12341,f1_gnrt_plant_2015_12_210_1_7,,AS,ferc mwh vs kwh issue with net gen
 2336_2_2015_plant_unit_owned_17166,f1_steam_2015_12_157_0_4,,AS,
-2336_5_2015_plant_gen_total_17166,f1_steam_2015_12_157_1_1,,AS,poor generation match
 1084_2015_plant_total_12341,f1_steam_2015_12_210_2_1,,AS,
 3852_2015_plant_total_14354,f1_hydro_2015_12_134_3_5,GT,AS,
 3847_2015_plant_total_14354,f1_hydro_2015_12_134_2_2,GT,AS,
@@ -6241,7 +6174,6 @@ EB: other ones match year, e.g. 23 and 24?"
 56102_2015_plant_total_14354,f1_steam_2015_12_134_4_1,JER,AS,capacity increase in EIA in 2014 for all generators doesn't show in FERC
 1082_3_2015_plant_unit_owned_12341,f1_steam_2015_12_210_0_1,GT,AS,
 7985_2015_plant_total_12341,f1_steam_2015_12_210_3_4,,AS,"generation doesn't match this year, unclear why"
-2322_ct_2015_plant_prime_mover_total_13407,f1_steam_2015_12_108_1_5,GT,AS,
 56237_1_2015_plant_unit_total_14354,f1_steam_2015_12_134_4_2,JER,AS,"Capacity doesnt match, but both sub-units went up in 2014 and the EIA capacity is the sum of the same two units as before"
 55662_2015_plant_total_14354,f1_steam_2015_12_134_3_4,JER,AS,EIA capacity increased in 2014 but FERC capacity stayed the same
 2336_1_2015_plant_unit_total_17166,f1_steam_2015_12_157_1_2,,AS,
@@ -6319,7 +6251,6 @@ EB: other ones match year, e.g. 23 and 24?"
 57500_2016_plant_total_12341,f1_gnrt_plant_2016_12_210_0_39,,AS,ferc mwh vs kwh issue with net gen
 58885_2016_plant_total_12341,f1_gnrt_plant_2016_12_210_1_8,,AS,ferc mwh vs kwh issue with net gen
 2336_2_2016_plant_unit_owned_17166,f1_steam_2016_12_157_0_4,,AS,
-2336_5_2016_plant_gen_total_17166,f1_steam_2016_12_157_1_1,,AS,poor generation match
 1084_2016_plant_total_12341,f1_steam_2016_12_210_2_1,,AS,
 3852_2016_plant_total_14354,f1_hydro_2016_12_134_3_5,GT,AS,
 3847_2016_plant_total_14354,f1_hydro_2016_12_134_2_2,GT,AS,
@@ -6371,7 +6302,6 @@ EB: other ones match year, e.g. 23 and 24?"
 56102_2016_plant_total_14354,f1_steam_2016_12_134_3_4,JER,AS,capacity increase in EIA in 2014 for all generators doesn't show in FERC
 1082_3_2016_plant_unit_owned_12341,f1_steam_2016_12_210_0_1,GT,AS,
 7985_2016_plant_total_12341,f1_steam_2016_12_210_3_4,GT,AS,
-2322_ct_2016_plant_prime_mover_total_13407,f1_steam_2016_12_108_1_5,GT,AS,
 56237_1_2016_plant_unit_total_14354,f1_steam_2016_12_134_3_5,JER,AS,"Capacity doesnt match, but both sub-units went up in 2014 and the EIA capacity is the sum of the same two units as before"
 55662_2016_plant_total_14354,f1_steam_2016_12_134_3_2,JER,AS,EIA capacity increased in 2014 but FERC capacity stayed the same
 2336_1_2016_plant_unit_total_17166,f1_steam_2016_12_157_1_2,,AS,
@@ -6446,7 +6376,6 @@ EB: other ones match year, e.g. 23 and 24?"
 57500_2017_plant_total_12341,f1_gnrt_plant_2017_12_210_0_40,,AS,ferc mwh vs kwh issue with net gen
 58885_2017_plant_total_12341,f1_gnrt_plant_2017_12_210_1_9,,AS,ferc mwh vs kwh issue with net gen
 2336_2_2017_plant_unit_owned_17166,f1_steam_2017_12_157_0_4,,AS,
-2336_5_2017_plant_gen_total_17166,f1_steam_2017_12_157_1_1,,AS,poor generation match
 1084_2017_plant_total_12341,f1_steam_2017_12_210_2_1,,AS,
 3852_2017_plant_total_14354,f1_hydro_2017_12_134_3_5,GT,AS,
 3847_2017_plant_total_14354,f1_hydro_2017_12_134_2_2,GT,AS,
@@ -6494,7 +6423,6 @@ EB: other ones match year, e.g. 23 and 24?"
 55841_2017_plant_owned_13407,f1_steam_2017_12_108_0_5,,AS,
 58883_2017_plant_total_12341,f1_gnrt_plant_2017_12_210_1_15,,AS,ferc mwh vs kwh issue with net gen
 880_2017_plant_owned_12341,f1_steam_2017_12_210_3_3,GT,AS,
-2322_ct_2017_plant_prime_mover_total_13407,f1_steam_2017_12_108_1_5,,AS,
 1082_4_2017_plant_unit_owned_12341,f1_steam_2017_12_210_3_5,GT,AS,
 7082_1_2017_plant_unit_total_13407,f1_steam_2017_12_108_3_2,,AS,"adding the values of 5,6,7 get 557 which is really close to this!"
 56102_2017_plant_total_14354,f1_steam_2017_12_134_3_4,JER,AS,capacity increase in EIA in 2014 for all generators doesn't show in FERC
@@ -6576,7 +6504,6 @@ EB: other ones match year, e.g. 23 and 24?"
 57500_2018_plant_total_12341,f1_gnrt_plant_2018_12_210_0_41,,AS,ferc mwh vs kwh issue with net gen
 58885_2018_plant_total_12341,f1_gnrt_plant_2018_12_210_1_11,,AS,ferc mwh vs kwh issue with net gen
 2336_2_2018_plant_unit_owned_17166,f1_steam_2018_12_157_0_4,,AS,
-2336_5_2018_plant_gen_total_17166,f1_steam_2018_12_157_1_1,,AS,poor generation match
 1084_2018_plant_total_12341,f1_steam_2018_12_210_1_2,,AS,
 3852_2018_plant_total_14354,f1_hydro_2018_12_134_3_5,GT,AS,
 3847_2018_plant_total_14354,f1_hydro_2018_12_134_2_2,GT,AS,
@@ -6624,7 +6551,6 @@ EB: other ones match year, e.g. 23 and 24?"
 6165_3_2018_plant_unit_total_14354,f1_steam_2018_12_134_1_3,JER,AS,unit or gen?
 58883_2018_plant_total_12341,f1_gnrt_plant_2018_12_210_1_17,,AS,ferc mwh vs kwh issue with net gen
 880_2018_plant_owned_12341,f1_steam_2018_12_210_2_4,GT,AS,
-2322_ct_2018_plant_prime_mover_total_13407,f1_steam_2018_12_108_1_5,GT,AS,
 1082_4_2018_plant_unit_owned_12341,f1_steam_2018_12_210_3_1,GT,AS,
 7082_1_2018_plant_unit_total_13407,f1_steam_2018_12_108_3_2,,AS,"adding the values of 5,6,7 get 557 which is really close to this!"
 56102_2018_plant_total_14354,f1_steam_2018_12_134_3_4,JER,AS,capacity increase in EIA in 2014 for all generators doesn't show in FERC
@@ -6705,7 +6631,6 @@ EB: other ones match year, e.g. 23 and 24?"
 57500_2019_plant_total_12341,f1_gnrt_plant_2019_12_210_0_42,,AS,ferc mwh vs kwh issue with net gen
 58885_2019_plant_total_12341,f1_gnrt_plant_2019_12_210_1_10,,AS,ferc mwh vs kwh issue with net gen
 2336_2_2019_plant_unit_owned_17166,f1_steam_2019_12_157_0_4,,AS,
-2336_5_2019_plant_gen_total_17166,f1_steam_2019_12_157_1_1,,AS,poor generation match
 1084_2019_plant_total_12341,f1_steam_2019_12_210_1_2,,AS,
 3852_2019_plant_total_14354,f1_hydro_2019_12_134_3_5,GT,AS,
 3847_2019_plant_total_14354,f1_hydro_2019_12_134_2_2,GT,AS,
@@ -6755,7 +6680,6 @@ EB: other ones match year, e.g. 23 and 24?"
 58883_2019_plant_total_12341,f1_gnrt_plant_2019_12_210_1_16,,AS,ferc mwh vs kwh issue with net gen
 60342_2019_plant_total_12341,f1_gnrt_plant_2019_12_210_1_23,,AS,ferc mwh vs kwh issue with net gen
 880_2019_plant_owned_12341,f1_steam_2019_12_210_2_4,GT,AS,
-2322_ct_2019_plant_prime_mover_total_13407,f1_steam_2019_12_108_1_5,,AS,
 1082_4_2019_plant_unit_owned_12341,f1_steam_2019_12_210_3_1,GT,AS,
 7082_1_2019_plant_unit_total_13407,f1_steam_2019_12_108_3_2,,AS,"adding the values of 5,6,7 get 557 which is really close to this!"
 56102_2019_plant_total_14354,f1_steam_2019_12_134_3_4,JER,AS,capacity increase in EIA in 2014 for all generators doesn't show in FERC
@@ -7040,7 +6964,6 @@ EB: other ones match year, e.g. 23 and 24?"
 820_2016_plant_total_9191,f1_gnrt_plant_2016_12_70_0_3,JER,SW,
 817_2016_plant_total_9191,f1_gnrt_plant_2016_12_70_0_7,JER,SW,
 814_2016_plant_total_9191,f1_gnrt_plant_2016_12_70_0_2,JER,SW,
-815_2005_plant_total_9191,f1_hydro_2005_12_70_1_2,JER,SW,upper + lower malad in EIA match malad in FERC
 812_2017_plant_total_9191,f1_hydro_2017_12_70_1_3,JER,SW,
 3014_2017_plant_total_9191,f1_hydro_2017_12_70_0_5,JER,SW,
 810_2017_plant_total_9191,f1_hydro_2017_12_70_0_2,JER,SW,
@@ -7048,73 +6971,45 @@ EB: other ones match year, e.g. 23 and 24?"
 816_2017_plant_total_9191,f1_hydro_2017_12_70_2_4,JER,SW,
 811_2017_plant_total_9191,f1_hydro_2017_12_70_0_3,JER,SW,
 821_2017_plant_total_9191,f1_hydro_2017_12_70_1_5,JER,SW,
-815_2006_plant_total_9191,f1_hydro_2006_12_70_1_2,JER,SW,upper + lower malad in EIA match malad in FERC
 813_2017_plant_total_9191,f1_hydro_2017_12_70_0_4,JER,SW,
 809_2017_plant_total_9191,f1_hydro_2017_12_70_0_1,JER,SW,
 818_2017_plant_total_9191,f1_hydro_2017_12_70_2_2,JER,SW,
 3013_2017_plant_total_9191,f1_hydro_2017_12_70_1_1,JER,SW,
 7190_2017_plant_total_9191,f1_hydro_2017_12_70_2_5,JER,SW,
-815_2007_plant_total_9191,f1_hydro_2007_12_70_1_2,JER,SW,upper + lower malad in EIA match malad in FERC
-815_2008_plant_total_9191,f1_hydro_2008_12_70_1_2,JER,SW,upper + lower malad in EIA match malad in FERC
 57028_2017_plant_total_9191,f1_steam_2017_12_70_1_1,JER,SW,
-815_2009_plant_total_9191,f1_hydro_2009_12_70_1_2,JER,SW,upper + lower malad in EIA match malad in FERC
-815_2010_plant_total_9191,f1_hydro_2010_12_70_1_2,JER,SW,upper + lower malad in EIA match malad in FERC
-815_2011_plant_total_9191,f1_hydro_2011_12_70_1_2,JER,SW,upper + lower malad in EIA match malad in FERC
 55733_2017_plant_total_9191,f1_steam_2017_12_70_0_5,JER,SW,
 820_2017_plant_total_9191,f1_gnrt_plant_2017_12_70_0_3,JER,SW,
 817_2017_plant_total_9191,f1_gnrt_plant_2017_12_70_0_7,JER,SW,
 814_2017_plant_total_9191,f1_gnrt_plant_2017_12_70_0_2,JER,SW,
-815_2012_plant_total_9191,f1_hydro_2012_12_70_1_2,JER,SW,upper + lower malad in EIA match malad in FERC
 812_2018_plant_total_9191,f1_hydro_2018_12_70_1_3,JER,SW,
 3014_2018_plant_total_9191,f1_hydro_2018_12_70_0_5,JER,SW,
 810_2018_plant_total_9191,f1_hydro_2018_12_70_0_2,JER,SW,
-815_2013_plant_total_9191,f1_hydro_2013_12_70_1_2,JER,SW,upper + lower malad in EIA match malad in FERC
 816_2018_plant_total_9191,f1_hydro_2018_12_70_2_4,JER,SW,
-815_2014_plant_total_9191,f1_hydro_2014_12_70_1_2,JER,SW,upper + lower malad in EIA match malad in FERC
 821_2018_plant_total_9191,f1_hydro_2018_12_70_1_5,JER,SW,
-815_2015_plant_total_9191,f1_hydro_2015_12_70_1_2,JER,SW,upper + lower malad in EIA match malad in FERC
 813_2018_plant_total_9191,f1_hydro_2018_12_70_0_4,JER,SW,
 809_2018_plant_total_9191,f1_hydro_2018_12_70_0_1,JER,SW,
 818_2018_plant_total_9191,f1_hydro_2018_12_70_2_2,JER,SW,
 3013_2018_plant_total_9191,f1_hydro_2018_12_70_1_1,JER,SW,
 7190_2018_plant_total_9191,f1_hydro_2018_12_70_2_5,JER,SW,
-815_2016_plant_total_9191,f1_hydro_2016_12_70_1_2,JER,SW,upper + lower malad in EIA match malad in FERC
-815_2017_plant_total_9191,f1_hydro_2017_12_70_1_2,JER,SW,upper + lower malad in EIA match malad in FERC
-815_2018_plant_total_9191,f1_hydro_2018_12_70_1_2,JER,SW,upper + lower malad in EIA match malad in FERC
-815_2019_plant_total_9191,f1_hydro_2019_12_70_1_2,JER,SW,upper + lower malad in EIA match malad in FERC
-822_2005_plant_total_9191,f1_hydro_2005_12_70_2_1,JER,SW,upper salmon in FERC = upper salmon A + upper salmon B in EIA
-822_2006_plant_total_9191,f1_hydro_2006_12_70_2_1,JER,SW,upper salmon in FERC = upper salmon A + upper salmon B in EIA
 55733_2018_plant_total_9191,f1_steam_2018_12_70_0_5,JER,SW,
 820_2018_plant_total_9191,f1_gnrt_plant_2018_12_70_0_3,JER,SW,
 817_2018_plant_total_9191,f1_gnrt_plant_2018_12_70_0_7,JER,SW,
 814_2018_plant_total_9191,f1_gnrt_plant_2018_12_70_0_2,JER,SW,
-822_2007_plant_total_9191,f1_hydro_2007_12_70_2_1,JER,SW,upper salmon in FERC = upper salmon A + upper salmon B in EIA
 812_2019_plant_total_9191,f1_hydro_2019_12_70_1_3,JER,SW,
 3014_2019_plant_total_9191,f1_hydro_2019_12_70_0_5,JER,SW,
 810_2019_plant_total_9191,f1_hydro_2019_12_70_0_2,JER,SW,
-822_2008_plant_total_9191,f1_hydro_2008_12_70_2_1,JER,SW,upper salmon in FERC = upper salmon A + upper salmon B in EIA
 816_2019_plant_total_9191,f1_hydro_2019_12_70_2_4,JER,SW,
-822_2009_plant_total_9191,f1_hydro_2009_12_70_2_1,JER,SW,upper salmon in FERC = upper salmon A + upper salmon B in EIA
 821_2019_plant_total_9191,f1_hydro_2019_12_70_1_5,JER,SW,
-822_2010_plant_total_9191,f1_hydro_2010_12_70_2_1,JER,SW,upper salmon in FERC = upper salmon A + upper salmon B in EIA
 813_2019_plant_total_9191,f1_hydro_2019_12_70_0_4,JER,SW,
 809_2019_plant_total_9191,f1_hydro_2019_12_70_0_1,JER,SW,
 818_2019_plant_total_9191,f1_hydro_2019_12_70_2_2,JER,SW,
 3013_2019_plant_total_9191,f1_hydro_2019_12_70_1_1,JER,SW,
 7190_2019_plant_total_9191,f1_hydro_2019_12_70_2_5,JER,SW,
-822_2011_plant_total_9191,f1_hydro_2011_12_70_2_1,JER,SW,upper salmon in FERC = upper salmon A + upper salmon B in EIA
-822_2012_plant_total_9191,f1_hydro_2012_12_70_2_1,JER,SW,upper salmon in FERC = upper salmon A + upper salmon B in EIA
-822_2013_plant_total_9191,f1_hydro_2013_12_70_2_1,JER,SW,upper salmon in FERC = upper salmon A + upper salmon B in EIA
-822_2014_plant_total_9191,f1_hydro_2014_12_70_2_1,JER,SW,upper salmon in FERC = upper salmon A + upper salmon B in EIA
-822_2015_plant_total_9191,f1_hydro_2015_12_70_2_1,JER,SW,upper salmon in FERC = upper salmon A + upper salmon B in EIA
-822_2016_plant_total_9191,f1_hydro_2016_12_70_2_1,JER,SW,upper salmon in FERC = upper salmon A + upper salmon B in EIA
 55733_2019_plant_total_9191,f1_steam_2019_12_70_0_5,JER,SW,
 820_2019_plant_total_9191,f1_gnrt_plant_2019_12_70_0_3,JER,SW,
 817_2019_plant_total_9191,f1_gnrt_plant_2019_12_70_0_7,JER,SW,
 814_2019_plant_total_9191,f1_gnrt_plant_2019_12_70_0_2,JER,SW,
 6106_2020_plant_owned_9191,f1_steam_2020_12_70_0_2,AS,,
-822_2017_plant_total_9191,f1_hydro_2017_12_70_2_1,JER,SW,upper salmon in FERC = upper salmon A + upper salmon B in EIA
-822_2018_plant_total_9191,f1_hydro_2018_12_70_2_1,JER,SW,upper salmon in FERC = upper salmon A + upper salmon B in EIA
 55733_2020_plant_total_9191,f1_steam_2020_12_70_0_5,AS,,
 57028_2020_plant_total_9191,f1_steam_2020_12_70_1_1,AS,,
 809_2020_plant_total_9191,f1_hydro_2020_12_70_0_1,AS,,
@@ -7124,7 +7019,6 @@ EB: other ones match year, e.g. 23 and 24?"
 3014_2020_plant_total_9191,f1_hydro_2020_12_70_0_5,AS,,
 3013_2020_plant_total_9191,f1_hydro_2020_12_70_1_1,AS,,
 812_2020_plant_total_9191,f1_hydro_2020_12_70_1_3,AS,,
-822_2019_plant_total_9191,f1_hydro_2019_12_70_2_1,JER,SW,upper salmon in FERC = upper salmon A + upper salmon B in EIA
 821_2020_plant_total_9191,f1_hydro_2020_12_70_1_5,AS,,
 818_2020_plant_total_9191,f1_hydro_2020_12_70_2_2,AS,,
 816_2020_plant_total_9191,f1_hydro_2020_12_70_2_4,AS,,
@@ -9149,8 +9043,6 @@ Azalea is a subsidiary of Dominion: https://www.sec.gov/Archives/edgar/data/1036
 3457_2019_plant_total_55937,f1_steam_2019_12_315_0_3,EB,AS,
 3457_2020_plant_total_55937,f1_steam_2020_12_315_0_3,EB,AS,
 171_2008_plant_total_814,f1_steam_2008_12_8_1_4,EB,AS,
-171_2014_plant_total_814,f1_steam_2014_12_8_0_4,EB,AS,Could also link retired portion of plant.
-171_2015_plant_total_814,f1_steam_2015_12_8_0_4,EB,AS,Could also link retired portion of plant.
 1402_2005_plant_total_11241,f1_steam_2005_12_87_0_4,EB,AS,
 1402_2006_plant_total_11241,f1_steam_2006_12_87_0_2,EB,AS,
 1402_2007_plant_total_11241,f1_steam_2007_12_87_0_2,EB,AS,
@@ -9294,14 +9186,8 @@ Azalea is a subsidiary of Dominion: https://www.sec.gov/Archives/edgar/data/1036
 1404_2010_plant_total_11241,f1_steam_2010_12_87_0_5,EB,AS,Net gen pretty off but cap and year match.
 1404_2011_plant_total_11241,f1_steam_2011_12_87_0_5,EB,AS,
 1404_2012_plant_total_11241,f1_steam_2012_12_87_0_5,EB,AS,
-1404_2013_plant_total_11241,f1_steam_2013_12_87_0_5,EB,AS,Capacity is a poor match because EIA reports retirement and FERC does not. Net gen and inst year closest match.
-1404_2014_plant_total_11241,f1_steam_2014_12_87_0_5,EB,AS,Capacity is a poor match because EIA reports retirement and FERC does not. Net gen and inst year closest match.
 1404_ct_2015_plant_prime_mover_total_11241,f1_steam_2015_12_87_0_5,,AS,ferc cap includes retired portion that is not accounted for in subcomponents
 1404_ca_2015_plant_prime_mover_total_11241,f1_steam_2015_12_454_0_4,,AS,ferc cap includes retired portion that is not accounted for in subcomponents
-1404_2016_plant_total_11241,f1_steam_2016_12_454_2_4,,AS,
-1404_2017_plant_total_11241,f1_steam_2017_12_454_2_3,,AS,
-1404_2018_plant_total_11241,f1_steam_2018_12_454_2_3,EB,AS,"Exact capacity match, bad net gen match but so are all other records."
-1404_2019_plant_total_11241,f1_steam_2019_12_454_2_3,,AS,Capacity very off but jumps in this year so not sure what is happening. Picked for consistency
 8056_2005_plant_total_11241,f1_steam_2005_12_87_1_3,EB,AS,
 4270_2005_plant_total_11241,f1_steam_2005_12_87_0_1,EB,AS,
 4270_2006_plant_total_11241,f1_steam_2006_12_87_0_1,EB,AS,
@@ -9350,8 +9236,6 @@ Azalea is a subsidiary of Dominion: https://www.sec.gov/Archives/edgar/data/1036
 6009_2019_plant_owned_814,f1_steam_2019_12_8_1_1,EB,AS,
 6009_2020_plant_owned_814,f1_steam_2020_12_8_1_1,EB,AS,
 1394_2016_plant_total_11241,f1_steam_2016_12_454_3_2,EB,AS,"Capacity, net gen better match."
-1394_2017_plant_total_11241,f1_steam_2017_12_454_3_1,,AS,"Could be capacity of plant total and retired summed in EIA, or just total (with FERC lag in data)"
-1394_2018_plant_total_11241,f1_steam_2018_12_454_3_1,,AS,"Could be capacity of plant total and retired summed in EIA, or just total (with FERC lag in data)"
 166_2005_plant_total_814,f1_hydro_2005_12_8_0_1,EB,AS,EIA missing inst. Year
 166_2006_plant_total_814,f1_hydro_2006_12_8_0_1,EB,AS,EIA missing inst. Year
 166_2007_plant_total_814,f1_hydro_2007_12_8_0_1,EB,AS,EIA missing inst. Year
