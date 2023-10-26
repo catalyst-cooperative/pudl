@@ -4,6 +4,7 @@ coverage_erase := coverage erase
 coverage_report := coverage report --sort=cover
 etl_fast_yml := src/pudl/package_data/settings/etl_fast.yml
 etl_full_yml := src/pudl/package_data/settings/etl_full.yml
+pip_install_pudl := pip install --no-deps --editable ./
 
 docs-clean:
 	rm -rf docs/_build
@@ -51,17 +52,21 @@ local-pytest-ci-all-years: docs-clean
 	${coverage_report}
 
 github-docs-build: docs-clean
+	${pip_install_pudl}
 	${coverage_erase}
 	doc8 docs/ README.rst
 	coverage run ${covargs} -- ${CONDA_PREFIX}/bin/sphinx-build -W -b html docs docs/_build/html
 	${coverage_report}
+	coverage xml
 
 github-pytest-unit:
+	${pip_install_pudl}
 	${coverage_erase}
 	pytest ${pytest_args} --doctest-modules src/pudl test/unit
 	${coverage_report}
 
 github-pytest-integration:
+	${pip_install_pudl}
 	${coverage_erase}
 	pytest ${pytest_args} --gcs-cache-path=gs://zenodo-cache.catalyst.coop test/integration
 	${coverage_report}
