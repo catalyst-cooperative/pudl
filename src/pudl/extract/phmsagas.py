@@ -1,23 +1,11 @@
-"""Retrieve data from PHMSA natural gas spreadsheets for analysis.
+"""Retrieves data from PHMSA natural gas spreadsheets for analysis.
 
 This modules pulls data from PHMSA's published Excel spreadsheets.
-
-This code is for use analyzing PHMSA data.
 """
-from collections import defaultdict
+import zipfile as zf
 
 import pandas as pd
-from dagster import (
-    AssetOut,
-    DynamicOut,
-    DynamicOutput,
-    Output,
-    graph_asset,
-    multi_asset,
-    op,
-)
 
-import pudl
 import pudl.logging_helpers
 from pudl.extract import excel
 
@@ -25,9 +13,7 @@ logger = pudl.logging_helpers.get_logger(__name__)
 
 
 class Extractor(excel.GenericExtractor):
-    """Extractor for the excel dataset EIA860."""
-
-    # TODO (e-belfer): Handle partitions, which aren't yearly.
+    """Extractor for the excel dataset PHMSA."""
 
     def __init__(self, *args, **kwargs):
         """Initialize the module.
@@ -47,97 +33,80 @@ class Extractor(excel.GenericExtractor):
         """
         df = df.rename(columns=self._metadata.get_column_map(page, **partition))
         if "report_year" not in df.columns:
-            df["report_year"] = list(partition.values())[0]
+            df["report_year"] = list(partition.values())[0]  # Fix
         self.cols_added = ["report_year"]
+        # Eventually we should probably make this a transform
+        # for col in ["generator_id", "boiler_id"]:
+        #     if col in df.columns:
+        #         df = remove_leading_zeros_from_numeric_strings(df=df, col_name=col)
+        df = self.add_data_maturity(df, page, **partition)
         return df
+
+    @staticmethod
+    def get_dtypes(page, **partition):
+        """Returns dtypes for plant id columns."""
+        return {
+            "Plant ID": pd.Int64Dtype(),
+            "Plant Id": pd.Int64Dtype(),
+        }
+
+    def load_excel_file(self, page, **partition):
+        """Produce the ExcelFile object for the given (partition, page).
+
+        We adapt this method because PHMSA has multiple files per partition.
+
+        Args:
+            page (str): pudl name for the dataset contents, eg
+                  "boiler_generator_assn" or "coal_stocks"
+            partition: partition to load. (ex: 2009 for year partition or
+                "2020-08" for year_month partition)
+
+        Returns:
+            pd.ExcelFile instance with the parsed excel spreadsheet frame
+        """
+        # Get all zipfiles for partitions
+        files = self.ds.get_zipfile_resources(self._dataset_name, **partition)
+
+        # For each zipfile, get a list of file names.
+        for file_name, file in files:
+            file_names = self.ds.get_zipfile_file_names(file)
+            for xlsx_filename in file_names:
+                if xlsx_filename not in self._file_cache and file.endswith(".xlsx"):
+                    excel_file = pd.ExcelFile(zf.read(xlsx_filename))
+                    self._file_cache[xlsx_filename] = excel_file
+
+        return self._file_cache[xlsx_filename]  # FIX THIS, obviously.
 
 
 # TODO (bendnorman): Add this information to the metadata
-raw_table_names = ("raw_phmsa__distribution",)
+raw_table_names = ("raw_phmsagas__distribution",)
+
+# phmsa_raw_dfs = excel.raw_df_factory(Extractor, name="phmsagas")
 
 
-@op(
-    out=DynamicOut(),
-    required_resource_keys={"dataset_settings"},
-)
-def phmsa_years_from_settings(context):
-    """Return set of years for PHMSA in settings.
+# # TODO (bendnorman): Figure out type hint for context keyword and mutli_asset return
+# @multi_asset(
+#     outs={table_name: AssetOut() for table_name in sorted(raw_table_names)},
+#     required_resource_keys={"datastore", "dataset_settings"},
+# )
+# def extract_phmsagas(context, phmsa_raw_dfs):
+#     """Extract raw PHMSA gas data from excel sheets into dataframes.
 
-    These will be used to kick off worker processes to load each year of data in
-    parallel.
-    """
-    phmsa_settings = context.resources.dataset_settings.phmsagas
-    for year in phmsa_settings.years:
-        yield DynamicOutput(year, mapping_key=str(year))
+#     Args:
+#         context: dagster keyword that provides access to resources and config.
 
+#     Returns:
+#         A tuple of extracted PHMSA gas dataframes.
+#     """
+#     ds = context.resources.datastore
 
-@op(
-    required_resource_keys={"datastore", "dataset_settings"},
-)
-def load_single_phmsa_year(context, year: int) -> dict[str, pd.DataFrame]:
-    """Load a single year of PHMSA data from file.
+#     # create descriptive table_names
+#     phmsa_raw_dfs = {
+#         "raw_phmsagas__" + table_name: df for table_name, df in phmsa_raw_dfs.items()
+#     }
+#     phmsa_raw_dfs = dict(sorted(phmsa_raw_dfs.items()))
 
-    Args:
-        context:
-            context: dagster keyword that provides access to resources and config.
-        year:
-            Year to load.
-
-    Returns:
-        Loaded data in a dataframe.
-    """
-    ds = context.resources.datastore
-    return Extractor(ds).extract(year=[year])
-
-
-@op
-def merge_phmsa_years(
-    yearly_dfs: list[dict[str, pd.DataFrame]]
-) -> dict[str, pd.DataFrame]:
-    """Merge yearly PHMSA dataframes."""
-    merged = defaultdict(list)
-    for dfs in yearly_dfs:
-        for page in dfs:
-            merged[page].append(dfs[page])
-
-    for page in merged:
-        merged[page] = pd.concat(merged[page])
-
-    return merged
-
-
-@graph_asset
-def phmsa_raw_dfs() -> dict[str, pd.DataFrame]:
-    """All loaded PHMSA dataframes.
-
-    This asset creates a dynamic graph of ops to load EIA860 data in parallel.
-    """
-    years = phmsa_years_from_settings()
-    dfs = years.map(lambda year: load_single_phmsa_year(year))
-    return merge_phmsa_years(dfs.collect())
-
-
-# TODO (bendnorman): Figure out type hint for context keyword and mutli_asset return
-@multi_asset(
-    outs={table_name: AssetOut() for table_name in sorted(raw_table_names)},
-    required_resource_keys={"datastore", "dataset_settings"},
-)
-def extract_phmsa(context, phmsa_raw_dfs):
-    """Extract raw PHMSA data from excel sheets into dataframes.
-
-    Args:
-        context: dagster keyword that provides access to resources and config.
-
-    Returns:
-        A tuple of extracted EIA dataframes.
-    """
-    # create descriptive table_names
-    phmsa_raw_dfs = {
-        "raw_phmsa__" + table_name: df for table_name, df in phmsa_raw_dfs.items()
-    }
-    dict(sorted(phmsa_raw_dfs.items()))
-
-    return (
-        Output(output_name=table_name, value=df)
-        for table_name, df in phmsa_raw_dfs.items()
-    )
+#     return (
+#         Output(output_name=table_name, value=df)
+#         for table_name, df in phmsa_raw_dfs.items()
+#     )

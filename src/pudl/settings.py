@@ -163,11 +163,11 @@ class PhmsaGasSettings(GenericDatasetSettings):
 
     Args:
         data_source: DataSource metadata object
-        years: list of years to validate.
+        start_years: list of zipped data start years to validate.
     """
 
     data_source: ClassVar[DataSource] = DataSource.from_id("phmsagas")
-    years: list[int] = data_source.working_partitions["years"]
+    start_years: list[int] = data_source.working_partitions["start_years"]
 
 
 class Eia923Settings(GenericDatasetSettings):
