@@ -355,10 +355,11 @@ def test_unstack_balances_to_report_year_instant_xbrl():
         StringIO(
             """
 idx,entity_id,date,report_year,sched_table_name,test_value
-0,1,2021-12-31,2021,table_name,2000
-1,1,2020-12-31,2021,table_name,1000
-2,2,2021-12-31,2021,table_name,21000
-3,2,2020-12-31,2021,table_name,8000
+0,1,2022-12-31,2022,table_name,2022.1
+1,1,2021-12-31,2021,table_name,2021.1
+2,1,2020-12-31,2020,table_name,2020.1
+3,2,2021-12-31,2021,table_name,2021.2
+4,2,2020-12-31,2020,table_name,2020.2
 """
         ),
     )
@@ -371,12 +372,15 @@ idx,entity_id,date,report_year,sched_table_name,test_value
         params=params,
         primary_key_cols=pk_cols,
     )
+    # because there are NaNs in idx when we unstack, both idx balances are floats.
     df_expected = pd.read_csv(
         StringIO(
             """
 entity_id,report_year,sched_table_name,idx_ending_balance,idx_starting_balance,test_value_ending_balance,test_value_starting_balance
-1,2021,table_name,0,1,2000,1000
-2,2021,table_name,2,3,21000,8000
+1,2021,table_name,1.0,2.0,2021.1,2020.1
+1,2022,table_name,0.0,1.0,2022.1,2021.1
+2,2021,table_name,3.0,4.0,2021.2,2020.2
+2,2022,table_name,,3.0,,2021.2
 """
         ),
     )
@@ -385,7 +389,15 @@ entity_id,report_year,sched_table_name,idx_ending_balance,idx_starting_balance,t
     # If there is more than one value per year (not report year) an AssertionError
     # should raise
     df_non_unique_years = df.copy()
-    df_non_unique_years.loc[4] = [4, 2, "2020-12-31", 2021, "table_name", 500]
+    df_non_unique_years.loc[len(df_non_unique_years.index)] = [
+        5,
+        2,
+        "2020-12-31",
+        2020,
+        "table_name",
+        2020.15,
+    ]
+
     with pytest.raises(AssertionError):
         unstack_balances_to_report_year_instant_xbrl(
             df_non_unique_years, params=params, primary_key_cols=pk_cols
