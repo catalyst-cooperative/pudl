@@ -12,7 +12,7 @@ pip_install_pudl := pip install --no-deps --editable ./
 # Conda lockfile generation
 ########################################################################################
 
-ifdef ${GITHUB}
+ifdef ${GITHUB_ACTION}
   mamba := micromamba
 else
   mamba := mamba
