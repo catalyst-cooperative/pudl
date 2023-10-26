@@ -46,7 +46,7 @@ jobs:
 
       - name: Lint and build PUDL documentation with Sphinx
         run: |
-          pip install "./[dev,docs,test,datasette]"
+          pip install --no-deps ./
           make github-docs-build
 
       - name: Upload coverage
@@ -91,7 +91,7 @@ jobs:
 
       - name: Run PUDL unit tests and collect test coverage
         run: |
-          pip install "./[dev,docs,test,datasette]"
+          pip install --no-deps ./
           make github-pytest-unit
 
       - name: Upload coverage
@@ -168,7 +168,7 @@ jobs:
 
       - name: Run integration tests, trying to use GCS cache if possible
         run: |
-          pip install "./[dev,docs,test,datasette]"
+          pip install --no-deps ./
           make github-pytest-integration
 
       - name: Upload coverage
