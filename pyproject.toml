@@ -126,7 +126,6 @@ dev = [
     "lxml>=4.6,<4.10",
     "nbconvert>=7,<8",
     "ruff>=0.1,<0.2",
-    "tox>=4.4,<4.12",
     "twine>=4,<4.1",
 ]
 docs = [
@@ -152,7 +151,6 @@ test = [
     "pytest>=7,<7.5",
     "responses>=0.14,<0.24",
     "ruff>=0.1,<0.2",
-    "tox>=4.4,<4.12",
 ]
 datasette = ["datasette>=0.60,<0.65"]
 
