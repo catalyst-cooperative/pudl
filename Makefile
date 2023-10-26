@@ -9,6 +9,12 @@ etl_full_yml := src/pudl/package_data/settings/etl_full.yml
 pip_install_pudl := pip install --no-deps --editable ./
 
 ########################################################################################
+# Start up the Dagster UI
+########################################################################################
+dagster:
+	dagster dev -m pudl.etl -m pudl.ferc_to_sqlite
+
+########################################################################################
 # Conda lockfile generation
 ########################################################################################
 
@@ -20,7 +26,7 @@ endif
 
 # Regenerate the conda lockfile and render platform specific conda environments.
 conda-lock:
-	rm -f environments/conda-lock.yml
+	rm -f environments/conda-*lock.yml
 	conda-lock \
 		--${mamba} \
 		--file=pyproject.toml \
@@ -31,11 +37,11 @@ conda-lock:
 		--extras docs \
 		--extras datasette \
 		conda-lock.yml)
+	prettier --write environments/*.yml
 
 ########################################################################################
 # Build documentation (for local use)
 ########################################################################################
-
 docs-clean:
 	rm -rf docs/_build
 
@@ -46,7 +52,6 @@ docs-build: docs-clean
 ########################################################################################
 # Generic pytest commands for local use, without test coverage
 ########################################################################################
-
 pytest-unit:
 	pytest --doctest-modules src/pudl test/unit
 
@@ -60,7 +65,6 @@ pytest-validate:
 ########################################################################################
 # More complex pytest commands for local use that collect test coverage
 ########################################################################################
-
 # Run unit & integration tests on 1-2 years of data and collect test coverage data.
 local-pytest-ci: docs-clean
 	${coverage_erase}

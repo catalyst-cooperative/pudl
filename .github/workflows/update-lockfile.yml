@@ -30,6 +30,7 @@ jobs:
           create-args: >-
             python=3.11
             conda-lock
+            prettier
 
       - name: Run conda-lock to recreate lockfile from scratch
         run: |

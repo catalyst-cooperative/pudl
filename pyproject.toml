@@ -18,8 +18,8 @@ dependencies = [
     "catalystcoop.dbfread>=3.0,<3.1",
     "catalystcoop.ferc-xbrl-extractor>=1.2.0,<2",
     "coloredlogs>=14.0,<15.1",  # Dagster requires 14.0
-    "dagster-webserver>=1.5,<1.6",
-    "dagster>=1.5,<1.6",
+    "dagster-webserver>=1.5.5,<1.6",
+    "dagster>=1.5.5,<1.6",
     "dask>=2023,<2023.10.1",
     "datapackage>=1.15,<1.16",  # Transition datastore to use frictionless.
     "email-validator>=1.0.3",  # pydantic[email]
@@ -49,7 +49,7 @@ dependencies = [
     "scipy>=1.11,<1.12",
     "Shapely>=2,<3",
     "sqlalchemy>=1.4,<2",
-    "timezonefinder>=6,<6.3",
+    "timezonefinder>=6.2,<6.3",
     "xlrd>=2.0.1",  # pandas[excel]
     "xlsxwriter>=3.1,<3.2",  # pandas[excel]
 ]
@@ -127,6 +127,7 @@ dev = [
     "jupyter-resource-usage",
     "lxml>=4.6,<4.10",
     "nbconvert>=7,<8",
+    "prettier>=3.0",
     "ruff>=0.1,<0.2",
     "twine>=4,<4.1",
 ]
@@ -288,16 +289,17 @@ channels = [
     "defaults",
 ]
 platforms = [
-    "linux-aarch64",
+    # "linux-aarch64",
     "linux-64",
     "osx-64",
     "osx-arm64",
-    "win-64",
+    # "win-64",
 ]
 channel-priority = "strict"
 name = "pudl-dev"
 
 [tool.conda-lock.dependencies]
+google-cloud-sdk = ">=452"
 nodejs = ">=20,<21"
 pandoc = ">=2,<3"
 pip = ">=23,<24"
