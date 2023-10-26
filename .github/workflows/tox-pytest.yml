@@ -46,7 +46,7 @@ jobs:
 
       - name: Lint and build PUDL documentation with Sphinx
         run: |
-          make github-docs-build
+          make docs-build
 
       - name: Upload coverage
         uses: actions/upload-artifact@v3
@@ -90,7 +90,7 @@ jobs:
 
       - name: Run PUDL unit tests and collect test coverage
         run: |
-          make github-pytest-unit
+          make pytest-unit
 
       - name: Upload coverage
         uses: actions/upload-artifact@v3
@@ -166,7 +166,7 @@ jobs:
 
       - name: Run integration tests, trying to use GCS cache if possible
         run: |
-          make github-pytest-integration
+          make pytest-integration
 
       - name: Upload coverage
         uses: actions/upload-artifact@v3

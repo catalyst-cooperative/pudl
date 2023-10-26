@@ -11,48 +11,48 @@ requires-python = ">=3.11,<3.12"
 dynamic = ["version"]
 license = { file = "LICENSE.txt" }
 dependencies = [
-    "addfips>=0.4,<0.5",
-    "alembic>=1.10.3,<1.13",
+    "addfips>=0.4",
+    "alembic>=1.12",
     "boto3>=1.28.55",
-    "bottleneck>=1.3.4",  # pandas[performance]
+    "bottleneck>=1.3.4", # pandas[performance]
     "catalystcoop.dbfread>=3.0,<3.1",
     "catalystcoop.ferc-xbrl-extractor>=1.2.0,<2",
-    "coloredlogs>=14.0,<15.1",  # Dagster requires 14.0
-    "dagster-postgres",
+    "coloredlogs>=14.0", # Dagster requires 14.0
+    "dagster-postgres", # Only valid for conda-forge, not PyPI
     "dagster-webserver>=1.5.6",
     "dagster>=1.5.6",
     "dask>=2023",
-    "datapackage>=1.15,<2",  # Transition datastore to use frictionless.
-    "email-validator>=1.0.3",  # pydantic[email]
-    "fsspec>=2023,<2023.10.1",
-    "gcsfs>=2023,<2023.9.3",
-    "geopandas>=0.14,<0.15",
-    "grpcio==1.57.0",  # Required by dagster, binary dependencies are flaky
-    "grpcio-health-checking==1.57.0",  # Required by dagster, binary dependencies are flaky
-    "grpcio-status==1.57.0",  # Required by dagster, binary dependencies are flaky
+    "datapackage>=1.15,<2", # Transition datastore to use frictionless.
+    "email-validator>=1.0.3", # pydantic[email]
+    "fsspec>=2023",
+    "gcsfs>=2023",
+    "geopandas>=0.14",
+    "grpcio==1.57.0", # Required by dagster, binary dependencies are flaky
+    "grpcio-health-checking==1.57.0", # Required by dagster, binary dependencies are flaky
+    "grpcio-status==1.57.0", # Required by dagster, binary dependencies are flaky
     "hypothesis>=6.87,<7.0",
-    "jinja2>=3,<3.2",
-    "matplotlib>=3.6.1,<3.9",
-    "networkx>=3.2,<3.3",
-    "numba>=0.57",  # pandas[performance]
-    "numexpr>=2.8.0",  # pandas[performance]
+    "jinja2>=3.1",
+    "matplotlib>=3.8",
+    "networkx>=3.2",
+    "numba>=0.57", # pandas[performance]
+    "numexpr>=2.8.0", # pandas[performance]
     "numpy>=1.24,<2.0a0",
-    "openpyxl>=3.0.10",  # pandas[excel]
-    "pandas>=2.1,<2.2",
-    "pandera>=0.17,<1.0",
-    "pyarrow>=13",  # pandas[parquet]
+    "openpyxl>=3.0.10", # pandas[excel]
+    "pandas>=2.1",
+    "pandera>=0.17",
+    "pyarrow>=13", # pandas[parquet]
     "pydantic>=1.10,<2",
-    "python-dotenv>=1,<1.1",
-    "pyxlsb>=1.0.9",  # pandas[excel]
-    "pyyaml>=6,<6.1",
+    "python-dotenv>=1",
+    "pyxlsb>=1.0.9", # pandas[excel]
+    "pyyaml>=6",
     "recordlinkage",
-    "scikit-learn>=1.3,<1.4",
-    "scipy>=1.11,<1.12",
-    "Shapely>=2,<3",
+    "scikit-learn>=1.3",
+    "scipy>=1.11",
+    "Shapely>=2",
     "sqlalchemy>=1.4,<2",
-    "timezonefinder>=6,<6.3",
-    "xlrd>=2.0.1",  # pandas[excel]
-    "xlsxwriter>=3.1,<3.2",  # pandas[excel]
+    "timezonefinder>=6.2",
+    "xlrd>=2.0.1", # pandas[excel]
+    "xlsxwriter>=3.1", # pandas[excel]
 ]
 classifiers = [
     "Development Status :: 3 - Alpha",
@@ -119,32 +119,30 @@ pudl_check_fks = "pudl.etl.check_foreign_keys:main"
 
 [project.optional-dependencies]
 dev = [
-    "black>=23,<23.11",
-    "build>=1,<1.1",
-    "conda-lock>=2.3,<3",
-    "ipdb>=0.13,<0.14",
-    "jedi>=0.18,<0.20",
-    "jupyterlab>3.2,<4.1",
+    "black>=23",
+    "build>=1.0",
+    "conda-lock>=2.3",
+    "jupyterlab>3.2",
     "jupyter-resource-usage",
-    "lxml>=4.6,<4.10",
-    "nbconvert>=7,<8",
-    "ruff>=0.1,<0.2",
-    "twine>=4,<4.1",
+    "nbconvert>=7",
+    "prettier>=3.0",
+    "ruff>=0.1",
 ]
 docs = [
-    "doc8>=1.1,<1.2",
+    "doc8>=1.1",
     "furo>=2022.4.7",
-    "readthedocs-sphinx-ext>=2,<3",
-    "sphinx-autoapi>=3,<4",
-    "sphinx-issues>=1.2,<4",
-    "sphinx-reredirects>=0.1.2,<0.2",
-    "sphinx>=7,<7.3",
-    "sphinxcontrib_bibtex>=2.4,<2.7",
+    "readthedocs-sphinx-ext>=2",
+    "sphinx-autoapi>=3",
+    "sphinx-issues>=1.2",
+    "sphinx-reredirects>=0.1.2",
+    "sphinx>=7",
+    "sphinxcontrib_bibtex>=2.6",
 ]
 test = [
-    "astroid>=3,<4",  # sphinx-autoapi dependency
-    "coverage>=7,<7.4",
+    "astroid>=3", # sphinx-autoapi dependency
+    "coverage>=7",
     "jupyter",
+<<<<<<< HEAD
     "nbconvert>=7,<8",
     "nbformat>=5,<6",
     "pre-commit>=3,<3.6",
@@ -154,8 +152,19 @@ test = [
     "pytest>=7,<7.5",
     "responses>=0.14,<0.25",
     "ruff>=0.1,<0.2",
+=======
+    "nbconvert>=7",
+    "nbformat>=5.9",
+    "pre-commit>=3",
+    "pytest-console-scripts>=1.4",
+    "pytest-cov>=4.1",
+    "pytest-mock>=3.11",
+    "pytest>=7.4",
+    "responses>=0.23",
+    "ruff>=0.1",
+>>>>>>> 2af780813 (Adjust Dockerfile & deployment use micromamba)
 ]
-datasette = ["datasette>=0.60,<0.65"]
+datasette = ["datasette>=0.64"]
 
 [tool.setuptools]
 include-package-data = true
@@ -169,30 +178,30 @@ where = ["src"]
 select = [
     "A", # flake8-builtins
     # "ARG", # unused arguments
-    # "B",  # flake8-bugbear
-    "C",   # Limit cyclomatic complexity using mccabe
-    "D",   # pydocstyle errors
-    "E",   # pycodestyle errors
+    # "B", # flake8-bugbear
+    "C", # Limit cyclomatic complexity using mccabe
+    "D", # pydocstyle errors
+    "E", # pycodestyle errors
     "EXE", # executable file issues
     # "ERA", # eradicate: find commented out code
-    "F",   # pyflakes
-    "I",   # isort
+    "F", # pyflakes
+    "I", # isort
     "ISC", # implicit string concatenation
-    "N",   # pep8-naming
+    "N", # pep8-naming
     "NPY", # NumPy specific checks
-    "PD",  # pandas checks
+    "PD", # pandas checks
     "PGH", # pygrep-hooks
-    # "PL",  # pylint
-    # "PT",  # pytest style
+    # "PL", # pylint
+    # "PT", # pytest style
     "PTH", # use pathlib
-    "Q",   # flake8-quotes
+    "Q", # flake8-quotes
     "RET", # check return values
     "RSE", # unnecessary parenthises on raised exceptions
-    "S",   # flake8-bandit
+    "S", # flake8-bandit
     "SIM", # flake8-simplify
-    # "T",   # print statements found
+    # "T", # print statements found
     "UP", # pyupgrade (use modern python syntax)
-    "W",  # pycodestyle warnings
+    "W", # pycodestyle warnings
 ]
 ignore = [
     "D401", # Require imperative mood in docstrings.
@@ -220,7 +229,7 @@ line-length = 88
 unfixable = ["ISC"]
 
 [tool.ruff.per-file-ignores]
-"__init__.py" = ["F401"]    # Ignore unused imports
+"__init__.py" = ["F401"] # Ignore unused imports
 "test/*" = ["D"]
 "migrations/*" = ["D", "Q"]
 
@@ -284,23 +293,21 @@ doctest_optionflags = [
 ]
 
 [tool.conda-lock]
-channels = [
-    "conda-forge",
-    "defaults",
-]
+channels = ["conda-forge", "defaults"]
 platforms = [
-    "linux-aarch64",
+    # "linux-aarch64",
     "linux-64",
     "osx-64",
     "osx-arm64",
-    "win-64",
+    # "win-64",
 ]
 channel-priority = "strict"
 name = "pudl-dev"
 
 [tool.conda-lock.dependencies]
-nodejs = ">=20,<21"
-pandoc = ">=2,<3"
-pip = ">=23,<24"
+google-cloud-sdk = ">=452"
+nodejs = ">=20"
+pandoc = ">=2"
+pip = ">=23"
 python = ">=3.11,<3.12"
-sqlite = ">=3.36,<4"
+sqlite = ">=3.43"
