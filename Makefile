@@ -6,6 +6,12 @@ etl_fast_yml := src/pudl/package_data/settings/etl_fast.yml
 etl_full_yml := src/pudl/package_data/settings/etl_full.yml
 pip_install_pudl := pip install --no-deps --editable ./
 
+ifdef ${GITHUB}
+  mamba := micromamba
+else
+  mamba := mamba
+endif
+
 docs-clean:
 	rm -rf docs/_build
 
@@ -98,3 +104,16 @@ unmapped-ids:
 		--ignore-foreign-key-constraints \
 		--etl-settings ${etl_full_yml} \
 		test/integration/glue_test.py
+
+conda-lock:
+	rm -f environments/conda-lock.yml
+	conda-lock \
+		--${mamba} \
+		--file=pyproject.toml \
+		--lockfile=environments/conda-lock.yml
+	(cd environments && conda-lock render \
+		--kind env \
+		--dev-dependencies \
+		--extras docs \
+		--extras datasette \
+		conda-lock.yml)
