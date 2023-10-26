@@ -76,8 +76,8 @@ nuke: docs-clean
 	pytest ${pytest_args} --doctest-modules src/pudl test/unit
 	pytest ${pytest_args} --etl-settings ${etl_fast_yml} test/integration
 	rm -f tox-nuke.log
-    coverage run ${covargs} -- src/pudl/convert/ferc_to_sqlite.py --logfile tox-nuke.log --clobber ${etl_full_yml}
-    coverage run ${covargs} -- src/pudl/cli/etl.py --logfile tox-nuke.log --clobber ${etl_full_yml}
+	coverage run ${covargs} -- src/pudl/convert/ferc_to_sqlite.py --logfile tox-nuke.log --clobber ${etl_full_yml}
+	coverage run ${covargs} -- src/pudl/cli/etl.py --logfile tox-nuke.log --clobber ${etl_full_yml}
 	pytest ${pytest_args} --live-dbs --etl-settings ${etl_full_yml} test/integration
 	pytest ${pytest_args} --live-dbs test/validate
 	${coverage_report}
