@@ -12,7 +12,7 @@ pip_install_pudl := pip install --no-deps --editable ./
 # Conda lockfile generation
 ########################################################################################
 
-ifdef ${GITHUB_ACTION}
+ifdef GITHUB_ACTION
   mamba := micromamba
 else
   mamba := mamba
@@ -95,7 +95,7 @@ nuke: docs-clean
 		test/integration
 	rm -f tox-nuke.log
 	coverage run ${covargs} -- \
-	    src/pudl/convert/ferc_to_sqlite.py \
+		src/pudl/convert/ferc_to_sqlite.py \
 		--logfile tox-nuke.log \
 		--clobber \
 		${gcs_cache_path} \
