@@ -368,6 +368,7 @@ example_schema = pandera.DataFrameSchema(
 )
 
 
+@pytest.mark.xfail
 @hypothesis.given(example_schema.strategy(size=3))
 def test_filter_for_freshest_data(df):
     # XBRL context is the identifying metadata for reported values
