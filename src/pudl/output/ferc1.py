@@ -94,8 +94,8 @@ EXPLOSION_CALCULATION_TOLERANCES: dict[str, GroupMetricChecks] = {
         ],
         group_metric_tolerances=GroupMetricTolerances(
             ungrouped=MetricTolerances(
-                error_frequency=0.07,
-                relative_error_magnitude=0.04,
+                error_frequency=0.028,
+                relative_error_magnitude=0.019,
                 null_calculation_frequency=1.0,
             ),
             report_year=MetricTolerances(

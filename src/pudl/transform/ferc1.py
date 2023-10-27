@@ -22,7 +22,7 @@ import pandas as pd
 import sqlalchemy as sa
 from dagster import AssetIn, AssetsDefinition, asset
 from pandas.core.groupby import DataFrameGroupBy
-from pydantic import BaseModel, confloat, validator
+from pydantic import BaseModel, confloat, root_validator, validator
 
 import pudl
 from pudl.analysis.classify_plants_ferc1 import (
@@ -830,22 +830,22 @@ class GroupMetricChecks(TransformParams):
     group_metric_tolerances: GroupMetricTolerances = GroupMetricTolerances()
     is_close_tolerance: CalculationIsCloseTolerance = CalculationIsCloseTolerance()
 
-    # @root_validator
-    # def grouped_tol_ge_ungrouped_tol(cls, values):
-    #     """Grouped tolerance should always be greater than or equal to ungrouped."""
-    #     group_metric_tolerances = values["group_metric_tolerances"]
-    #     groups_to_check = values["groups_to_check"]
-    #     for group in groups_to_check:
-    #         metric_tolerances = group_metric_tolerances.dict().get(group)
-    #         for metric_name, tolerance in metric_tolerances.items():
-    #             ungrouped_tolerance = group_metric_tolerances.dict()["ungrouped"].get(
-    #                 metric_name
-    #             )
-    #             if tolerance < ungrouped_tolerance:
-    #                 raise AssertionError(
-    #                     f"In {group=}, {tolerance=} for {metric_name} should be greater than {ungrouped_tolerance=}."
-    #                 )
-    #     return values
+    @root_validator
+    def grouped_tol_ge_ungrouped_tol(cls, values):
+        """Grouped tolerance should always be greater than or equal to ungrouped."""
+        group_metric_tolerances = values["group_metric_tolerances"]
+        groups_to_check = values["groups_to_check"]
+        for group in groups_to_check:
+            metric_tolerances = group_metric_tolerances.dict().get(group)
+            for metric_name, tolerance in metric_tolerances.items():
+                ungrouped_tolerance = group_metric_tolerances.dict()["ungrouped"].get(
+                    metric_name
+                )
+                if tolerance < ungrouped_tolerance:
+                    raise AssertionError(
+                        f"In {group=}, {tolerance=} for {metric_name} should be greater than {ungrouped_tolerance=}."
+                    )
+        return values
 
 
 class ReconcileTableCalculations(TransformParams):
