@@ -782,28 +782,28 @@ class GroupMetricTolerances(TransformParams):
     ungrouped: MetricTolerances = MetricTolerances(
         error_frequency=0.0005,
         relative_error_magnitude=0.001,
-        null_calculation_frequency=0.50,
+        null_calculated_value_frequency=0.50,
         null_reported_value_frequency=0.68,
     )
     xbrl_factoid: MetricTolerances = MetricTolerances(
         error_frequency=0.018,
         relative_error_magnitude=0.0086,
-        null_calculation_frequency=1.0,
+        null_calculated_value_frequency=1.0,
     )
     utility_id_ferc1: MetricTolerances = MetricTolerances(
         error_frequency=0.038,
         relative_error_magnitude=0.04,
-        null_calculation_frequency=1.0,
+        null_calculated_value_frequency=1.0,
     )
     report_year: MetricTolerances = MetricTolerances(
         error_frequency=0.006,
         relative_error_magnitude=0.04,
-        null_calculation_frequency=0.7,
+        null_calculated_value_frequency=0.7,
     )
     table_name: MetricTolerances = MetricTolerances(
         error_frequency=0.0005,
         relative_error_magnitude=0.001,
-        null_calculation_frequency=0.50,
+        null_calculated_value_frequency=0.50,
         null_reported_value_frequency=0.68,
     )
 
@@ -824,7 +824,7 @@ class GroupMetricChecks(TransformParams):
     metrics_to_check: list[str] = [
         "error_frequency",
         "relative_error_magnitude",
-        "null_calculation_frequency",
+        "null_calculated_value_frequency",
         "null_reported_value_frequency",
     ]
     group_metric_tolerances: GroupMetricTolerances = GroupMetricTolerances()
