@@ -18,7 +18,6 @@ FIRST_COLS = [
     "utility_id_eia",
     "utility_id_pudl",
     "utility_name_eia",
-    "data_maturity",
 ]
 
 
@@ -34,7 +33,7 @@ def denorm_by_plant(
     df = (
         pudl.helpers.date_merge(
             left=df,
-            right=pu,
+            right=pu.drop(columns=["data_maturity"]),
             on=["plant_id_eia"],
             date_on=["year"],
             how="left",
@@ -161,7 +160,7 @@ def denorm_generation_eia923(
     """Denormalize the :ref:`generation_eia923` table."""
     return denorm_by_gen(
         generation_eia923,
-        pu=denorm_plants_utilities_eia.drop(columns=["data_maturity"]),
+        pu=denorm_plants_utilities_eia,
         bga=boiler_generator_assn_eia860,
     )
 
@@ -235,9 +234,7 @@ def denorm_generation_fuel_combined_eia923(
         .sort_values(primary_key)
         .reset_index(drop=True)
     )
-    return denorm_by_plant(
-        gf, pu=denorm_plants_utilities_eia.drop(columns=["data_maturity"])
-    )
+    return denorm_by_plant(gf, pu=denorm_plants_utilities_eia)
 
 
 @asset(io_manager_key="pudl_sqlite_io_manager", compute_kind="Python")
@@ -257,7 +254,7 @@ def denorm_boiler_fuel_eia923(
     )
     dd = denorm_by_boil(
         boiler_fuel_eia923,
-        pu=denorm_plants_utilities_eia.drop(columns=["data_maturity"]),
+        pu=denorm_plants_utilities_eia,
         bga=boiler_generator_assn_eia860,
     )
     return dd
@@ -335,10 +332,7 @@ def denorm_fuel_receipts_costs_eia923(
     frc_df["total_fuel_cost"] = (
         frc_df["fuel_consumed_mmbtu"] * frc_df["fuel_cost_per_mmbtu"]
     )
-
-    return denorm_by_plant(
-        frc_df, pu=denorm_plants_utilities_eia.drop(columns=["data_maturity"])
-    )
+    return denorm_by_plant(frc_df, pu=denorm_plants_utilities_eia)
 
 
 #####################################################################################
@@ -372,7 +366,7 @@ def time_aggregated_eia923_asset_factory(
                 by=["plant_id_eia", "generator_id", pd.Grouper(freq=freq)],
                 observed=True,
             )
-            .agg({"net_generation_mwh": pudl.helpers.sum_na})
+            .agg({"net_generation_mwh": pudl.helpers.sum_na, "data_maturity": "first"})
             .reset_index()
             .pipe(
                 denorm_by_gen,
@@ -415,6 +409,7 @@ def time_aggregated_eia923_asset_factory(
                     "fuel_consumed_mmbtu": pudl.helpers.sum_na,
                     "fuel_consumed_for_electricity_mmbtu": pudl.helpers.sum_na,
                     "net_generation_mwh": pudl.helpers.sum_na,
+                    "data_maturity": "first",
                 }
             )
         ).reset_index()
@@ -489,6 +484,7 @@ def time_aggregated_eia923_asset_factory(
                     "fuel_consumed_units": pudl.helpers.sum_na,
                     "total_sulfur_content": pudl.helpers.sum_na,
                     "total_ash_content": pudl.helpers.sum_na,
+                    "data_maturity": "first",
                 }
             )
             .assign(
@@ -549,6 +545,7 @@ def time_aggregated_eia923_asset_factory(
                     "total_chlorine_content": pudl.helpers.sum_na,
                     "fuel_cost_from_eiaapi": "any",
                     "state": "first",
+                    "data_maturity": "first",
                 }
             )
             .assign(

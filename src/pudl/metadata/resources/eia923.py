@@ -123,8 +123,6 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
                 "sulfur_content_pct",
                 "ash_content_pct",
                 "data_maturity",
-                # No data_maturity field
-                # see: https://github.com/catalyst-cooperative/pudl/issues/1847
             ],
             "primary_key": [
                 "plant_id_eia",
@@ -160,8 +158,6 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
                 "sulfur_content_pct",
                 "ash_content_pct",
                 "data_maturity",
-                # No data_maturity field
-                # see: https://github.com/catalyst-cooperative/pudl/issues/1847
             ],
             "primary_key": [
                 "plant_id_eia",
@@ -196,9 +192,7 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
                 "fuel_consumed_mmbtu",
                 "sulfur_content_pct",
                 "ash_content_pct",
-                "data_maturity"
-                # No data_maturity field
-                # see: https://github.com/catalyst-cooperative/pudl/issues/1847
+                "data_maturity",
             ],
             "primary_key": [
                 "plant_id_eia",
@@ -234,8 +228,6 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
                 "sulfur_content_pct",
                 "ash_content_pct",
                 "data_maturity",
-                # No data_maturity field
-                # see: https://github.com/catalyst-cooperative/pudl/issues/1847
             ],
             "primary_key": [
                 "plant_id_eia",

@@ -134,6 +134,7 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
                 "boiler_generator_assn_type_code",
                 "steam_plant_type_code",
                 "bga_source",
+                "data_maturity",
             ],
             "primary_key": ["plant_id_eia", "report_date", "generator_id", "boiler_id"],
         },
