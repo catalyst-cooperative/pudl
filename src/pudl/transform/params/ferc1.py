@@ -3342,12 +3342,12 @@ TRANSFORM_PARAMS = {
                 "group_metric_tolerances": {
                     "ungrouped": {"error_frequency": 0.0012},
                     "report_year": {
-                        "null_calculation_frequency": 1.0,
+                        "null_calculated_value_frequency": 1.0,
                         "relative_error_magnitude": 0.041,
                     },
                     "utility_id_ferc1": {
                         "error_frequency": 0.067,
-                        "null_calculation_frequency": 1.0,
+                        "null_calculated_value_frequency": 1.0,
                     },
                 },
             },
@@ -3530,8 +3530,8 @@ TRANSFORM_PARAMS = {
             "subtotal_column": "plant_function",
             "group_metric_checks": {
                 "group_metric_tolerances": {
-                    "ungrouped": {"null_calculation_frequency": 0.84},
-                    "report_year": {"null_calculation_frequency": 1.0},
+                    "ungrouped": {"null_calculated_value_frequency": 0.84},
+                    "report_year": {"null_calculated_value_frequency": 1.0},
                 },
             },
         },
@@ -3672,12 +3672,12 @@ TRANSFORM_PARAMS = {
                     "ungrouped": {"error_frequency": 0.0031},
                     "xbrl_factoid": {
                         "error_frequency": 0.04,
-                        "null_calculation_frequency": 1.0,
+                        "null_calculated_value_frequency": 1.0,
                         "relative_error_magnitude": 0.028,
                     },  # other_operating_revenues bad
                     "utility_id_ferc1": {
                         "error_frequency": 0.17,
-                        "null_calculation_frequency": 1.0,
+                        "null_calculated_value_frequency": 1.0,
                     },
                 },
             },
@@ -3929,12 +3929,12 @@ TRANSFORM_PARAMS = {
             "subtotal_column": "utility_type",
             "group_metric_checks": {
                 "group_metric_tolerances": {
-                    "ungrouped": {"null_calculation_frequency": 0.74},
-                    "report_year": {"null_calculation_frequency": 1.0},
+                    "ungrouped": {"null_calculated_value_frequency": 0.74},
+                    "report_year": {"null_calculated_value_frequency": 1.0},
                     "utility_id_ferc1": {
                         "error_frequency": 0.042,
                         "relative_error_magnitude": 0.22,
-                        "null_calculation_frequency": 1.0,
+                        "null_calculated_value_frequency": 1.0,
                     },
                 },
             },

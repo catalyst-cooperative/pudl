@@ -737,7 +737,7 @@ class CalculationIsCloseTolerance(TransformParams):
     error_frequency: IsCloseTolerance = IsCloseTolerance()
     relative_error_magnitude: IsCloseTolerance = IsCloseTolerance(isclose_atol=1e-3)
     null_calculated_value_frequency: IsCloseTolerance = IsCloseTolerance()
-    null_calculation_frequency: IsCloseTolerance = IsCloseTolerance()
+    absolute_error_magnitude: IsCloseTolerance = IsCloseTolerance()
     null_reported_value_frequency: IsCloseTolerance = IsCloseTolerance()
 
 
@@ -746,9 +746,9 @@ class MetricTolerances(TransformParams):
 
     error_frequency: confloat(ge=0.0, le=1.0) = 0.01
     relative_error_magnitude: confloat(ge=0.0) = 0.04
-    null_calculation_frequency: confloat(ge=0.0, le=1.0) = 0.7
+    null_calculated_value_frequency: confloat(ge=0.0, le=1.0) = 0.7
     """Fraction of records with non-null reported values and null calculated values."""
-    null_calculated_value_frequency: confloat(ge=0.0) = np.inf
+    absolute_error_magnitude: confloat(ge=0.0) = np.inf
     null_reported_value_frequency: confloat(ge=0.0, le=1.0) = 1.0
     # ooof this one is just bad
 
@@ -1386,8 +1386,8 @@ class RelativeErrorMagnitude(ErrorMetric):
             return np.nan
 
 
-class NullCalculatedValueFrequency(ErrorMetric):
-    """Check relative magnitude of errors in XBRL calculations.
+class AbsoluteErrorMagnitude(ErrorMetric):
+    """Check absolute magnitude of errors in XBRL calculations.
 
     These numbers may vary wildly from table to table so no default values for the
     expected errors are provided here...
@@ -1398,7 +1398,7 @@ class NullCalculatedValueFrequency(ErrorMetric):
         return gb.abs_diff.abs().sum()
 
 
-class NullCalculationFrequency(ErrorMetric):
+class NullCalculatedValueFrequency(ErrorMetric):
     """Check the frequency of null calculated values."""
 
     def apply_metric(self: Self, df: pd.DataFrame) -> pd.Series:
