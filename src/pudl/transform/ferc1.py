@@ -938,16 +938,20 @@ def reconcile_table_calculations(
         )
         # Check the subdimension totals, but don't add correction records for these
         # intra-fact calculations:
-        _check_subtotal_calculations(
-            df=df,
-            intra_table_calcs=intra_table_calcs,
-            xbrl_metadata=xbrl_metadata,
-            params=params,
-            dim_cols=dim_cols,
-            table_name=table_name,
-            table_dims=table_dims,
-            calc_idx=calc_idx,
-        )
+        if params.subtotal_column:
+            calc_comps_w_totals = _calculation_components_subtotal_calculations(
+                intra_table_calcs=intra_table_calcs,
+                table_dims=table_dims,
+                xbrl_metadata=xbrl_metadata,
+                dim_cols=dim_cols,
+                table_name=table_name,
+            )
+            _check_subtotal_calculations(
+                df=df,
+                params=params,
+                calc_comps_w_totals=calc_comps_w_totals,
+                calc_idx=calc_idx,
+            )
 
     calculated_df = (
         calculate_values_from_components(
@@ -973,24 +977,14 @@ def reconcile_table_calculations(
     return calculated_df
 
 
-def _check_subtotal_calculations(
-    df: pd.DataFrame,
+def _calculation_components_subtotal_calculations(
     intra_table_calcs: pd.DataFrame,
+    table_dims: pd.DataFrame,
     xbrl_metadata: pd.DataFrame,
-    params: "Ferc1TableTransformParams",
     dim_cols: list[str],
     table_name: str,
-    table_dims: pd.DataFrame,
-    calc_idx: list[str],
-) -> None:
-    """Check that sub-dimension calculations sum to the reported totals.
-
-    No correction records are added to the sub-dimensions calculations. This is only an
-    error check, and returns nothing.
-    """
-    if params.subtotal_column is None:
-        return
-    logger.info(f"Checking total-to-subtotal calculations in {params.subtotal_column}")
+) -> pd.DataFrame:
+    """Add total to subtotal calculations into calculation components."""
     meta_w_dims = xbrl_metadata.assign(
         **{dim: pd.NA for dim in dim_cols} | {"table_name": table_name}
     ).pipe(
@@ -1004,6 +998,21 @@ def _check_subtotal_calculations(
         table_dimensions=table_dims,
         dimensions=dim_cols,
     )
+    return calc_comps_w_totals
+
+
+def _check_subtotal_calculations(
+    df: pd.DataFrame,
+    params: "Ferc1TableTransformParams",
+    calc_comps_w_totals: pd.DataFrame,
+    calc_idx: list[str],
+) -> None:
+    """Check that sub-dimension calculations sum to the reported totals.
+
+    No correction records are added to the sub-dimensions calculations. This is only an
+    error check, and returns nothing.
+    """
+    logger.info(f"Checking total-to-subtotal calculations in {params.subtotal_column}")
     subtotal_calcs = calculate_values_from_components(
         data=df,
         calculation_components=calc_comps_w_totals[
