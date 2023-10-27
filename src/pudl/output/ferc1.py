@@ -16,74 +16,104 @@ from pydantic import BaseModel, validator
 
 import pudl
 from pudl.transform.ferc1 import (
-    CalculationChecks,
-    CalculationGroupChecks,
-    CalculationMetricTolerance,
+    GroupMetricChecks,
+    GroupMetricTolerances,
+    MetricTolerances,
 )
 
 logger = pudl.logging_helpers.get_logger(__name__)
 
 
-EXPLOSION_CALCULATION_TOLERANCES: dict[str, CalculationChecks] = {
-    "income_statement_ferc1": CalculationChecks(
-        group_checks=CalculationGroupChecks(
-            ungrouped=CalculationMetricTolerance(
-                error_frequency=0.20, null_calculation_frequency=1.0
+EXPLOSION_CALCULATION_TOLERANCES: dict[str, GroupMetricChecks] = {
+    "income_statement_ferc1": GroupMetricChecks(
+        groups_to_check=[
+            "ungrouped",
+            "report_year",
+            "xbrl_factoid",
+            "utility_id_ferc1",
+        ],
+        group_metric_tolerances=GroupMetricTolerances(
+            ungrouped=MetricTolerances(
+                error_frequency=0.02,
+                relative_error_magnitude=0.04,
+                null_calculation_frequency=1.0,
             ),
-            report_year=CalculationMetricTolerance(
+            report_year=MetricTolerances(
                 error_frequency=0.036,
                 relative_error_magnitude=0.048,
                 null_calculation_frequency=1.0,
             ),
-            xbrl_factoid=CalculationMetricTolerance(
+            xbrl_factoid=MetricTolerances(
                 error_frequency=0.35,
                 relative_error_magnitude=0.17,
                 null_calculation_frequency=1.0,
             ),
-            utility_id_ferc1=CalculationMetricTolerance(
+            utility_id_ferc1=MetricTolerances(
                 error_frequency=0.13,
                 relative_error_magnitude=0.42,
                 null_calculation_frequency=1.0,
             ),
-        )
+        ),
     ),
-    "balance_sheet_assets_ferc1": CalculationChecks(
-        group_checks=CalculationGroupChecks(
-            ungrouped=CalculationMetricTolerance(
-                error_frequency=0.013, null_calculation_frequency=1.0
+    "balance_sheet_assets_ferc1": GroupMetricChecks(
+        groups_to_check=[
+            "ungrouped",
+            "report_year",
+            "xbrl_factoid",
+            "utility_id_ferc1",
+        ],
+        group_metric_tolerances=GroupMetricTolerances(
+            ungrouped=MetricTolerances(
+                error_frequency=0.013,
+                relative_error_magnitude=0.04,
+                null_calculation_frequency=1.0,
             ),
-            report_year=CalculationMetricTolerance(
-                error_frequency=0.12, null_calculation_frequency=1.0
+            report_year=MetricTolerances(
+                error_frequency=0.12,
+                relative_error_magnitude=0.04,
+                null_calculation_frequency=1.0,
             ),
-            xbrl_factoid=CalculationMetricTolerance(
+            xbrl_factoid=MetricTolerances(
                 error_frequency=0.37,
                 relative_error_magnitude=0.22,
                 null_calculation_frequency=1.0,
             ),
-            utility_id_ferc1=CalculationMetricTolerance(
+            utility_id_ferc1=MetricTolerances(
                 error_frequency=0.21,
                 relative_error_magnitude=0.26,
                 null_calculation_frequency=1.0,
             ),
-        )
+        ),
     ),
-    "balance_sheet_liabilities_ferc1": CalculationChecks(
-        group_checks=CalculationGroupChecks(
-            ungrouped=CalculationMetricTolerance(
-                error_frequency=0.07, null_calculation_frequency=1.0
+    "balance_sheet_liabilities_ferc1": GroupMetricChecks(
+        groups_to_check=[
+            "ungrouped",
+            "report_year",
+            "xbrl_factoid",
+            "utility_id_ferc1",
+        ],
+        group_metric_tolerances=GroupMetricTolerances(
+            ungrouped=MetricTolerances(
+                error_frequency=0.07,
+                relative_error_magnitude=0.04,
+                null_calculation_frequency=1.0,
             ),
-            report_year=CalculationMetricTolerance(
-                error_frequency=0.028, null_calculation_frequency=1.0
+            report_year=MetricTolerances(
+                error_frequency=0.028,
+                relative_error_magnitude=0.04,
+                null_calculation_frequency=1.0,
             ),
-            xbrl_factoid=CalculationMetricTolerance(
+            xbrl_factoid=MetricTolerances(
                 error_frequency=0.028,
                 relative_error_magnitude=0.019,
                 null_calculation_frequency=1.0,
             ),
-            utility_id_ferc1=CalculationMetricTolerance(
-                error_frequency=0.063, null_calculation_frequency=1.0
+            utility_id_ferc1=MetricTolerances(
+                error_frequency=0.063,
+                relative_error_magnitude=0.04,
+                null_calculation_frequency=1.0,
             ),
-        )
+        ),
     ),
 }
 
@@ -1016,7 +1046,7 @@ def exploded_table_asset_factory(
     root_table: str,
     table_names_to_explode: list[str],
     seed_nodes: list[NodeId],
-    calculation_tolerance: CalculationChecks,
+    calculation_tolerance: GroupMetricChecks,
     io_manager_key: str | None = None,
 ) -> AssetsDefinition:
     """Create an exploded table based on a set of related input tables."""
@@ -1146,7 +1176,7 @@ class Exploder:
         calculation_components_xbrl_ferc1: pd.DataFrame,
         seed_nodes: list[NodeId],
         tags: pd.DataFrame = pd.DataFrame(),
-        calculation_tolerance: CalculationChecks = CalculationChecks(),
+        calculation_tolerance: GroupMetricChecks = GroupMetricChecks(),
     ):
         """Instantiate an Exploder class.
 
@@ -1586,7 +1616,7 @@ class XbrlCalculationForestFerc1(BaseModel):
     exploded_calcs: pd.DataFrame = pd.DataFrame()
     seeds: list[NodeId] = []
     tags: pd.DataFrame = pd.DataFrame()
-    calculation_tolerance: CalculationChecks = CalculationChecks()
+    calculation_tolerance: GroupMetricChecks = GroupMetricChecks()
 
     class Config:
         """Allow the class to store a dataframe."""

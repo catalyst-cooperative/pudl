@@ -2729,8 +2729,8 @@ TRANSFORM_PARAMS = {
         # Known issue with reporting of construction in progress not classified in classified fields of table.
         "reconcile_table_calculations": {
             "column_to_check": "ending_balance",
-            "calculation_checks": {
-                "group_checks": {
+            "group_metric_checks": {
+                "group_metric_tolerances": {
                     "ungrouped": {"error_frequency": 0.08},
                     "utility_id_ferc1": {
                         "error_frequency": 0.038,
@@ -3337,8 +3337,8 @@ TRANSFORM_PARAMS = {
         "reconcile_table_calculations": {
             "column_to_check": "ending_balance",
             "subtotal_column": "utility_type",
-            "calculation_checks": {
-                "group_checks": {
+            "group_metric_checks": {
+                "group_metric_tolerances": {
                     "ungrouped": {"error_frequency": 0.0012},
                     "report_year": {
                         "null_calculation_frequency": 1.0,
@@ -3527,8 +3527,8 @@ TRANSFORM_PARAMS = {
         "reconcile_table_calculations": {
             "column_to_check": "dollar_value",
             "subtotal_column": "plant_function",
-            "calculation_checks": {
-                "group_checks": {
+            "group_metric_checks": {
+                "group_metric_tolerances": {
                     "ungrouped": {"null_calculation_frequency": 0.84},
                     "report_year": {"null_calculation_frequency": 1.0},
                 },
@@ -3666,8 +3666,8 @@ TRANSFORM_PARAMS = {
         ],
         "reconcile_table_calculations": {
             "column_to_check": "dollar_value",
-            "calculation_checks": {
-                "group_checks": {
+            "group_metric_checks": {
+                "group_metric_tolerances": {
                     "ungrouped": {"error_frequency": 0.0031},
                     "xbrl_factoid": {
                         "error_frequency": 0.04,
@@ -3758,8 +3758,8 @@ TRANSFORM_PARAMS = {
         "strip_non_numeric_values": {"amount": {"strip_non_numeric_values": True}},
         "reconcile_table_calculations": {
             "column_to_check": "ending_balance",
-            "calculation_checks": {
-                "group_checks": {"ungrouped": {"error_frequency": 0.08}},
+            "group_metric_checks": {
+                "group_metric_tolerances": {"ungrouped": {"error_frequency": 0.08}},
             },
         },
     },
@@ -3926,8 +3926,8 @@ TRANSFORM_PARAMS = {
         "reconcile_table_calculations": {
             "column_to_check": "dollar_value",
             "subtotal_column": "utility_type",
-            "calculation_checks": {
-                "group_checks": {
+            "group_metric_checks": {
+                "group_metric_tolerances": {
                     "ungrouped": {"null_calculation_frequency": 0.74},
                     "report_year": {"null_calculation_frequency": 1.0},
                     "utility_id_ferc1": {
@@ -4038,8 +4038,8 @@ TRANSFORM_PARAMS = {
             "column_to_check": "dollar_value",
             # Note: this table does not currently get exploded. It will require
             # additional debugging at a later date.
-            "calculation_checks": {
-                "group_checks": {
+            "group_metric_checks": {
+                "group_metric_tolerances": {
                     "ungrouped": {"error_frequency": 0.056},
                     "report_year": {
                         "error_frequency": 0.078,
@@ -4504,8 +4504,8 @@ TRANSFORM_PARAMS = {
         },
         "reconcile_table_calculations": {
             "column_to_check": "dollar_value",
-            "calculation_checks": {
-                "group_checks": {
+            "group_metric_checks": {
+                "group_metric_tolerances": {
                     "ungrouped": {"relative_error_magnitude": 0.002},
                     "report_year": {"relative_error_magnitude": 0.042},
                     "xbrl_factoid": {
