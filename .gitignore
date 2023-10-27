@@ -37,3 +37,4 @@ notebooks/*.tgz
 **.tfstate.*
 terraform/.terraform/*
 .env
+.hypothesis/
