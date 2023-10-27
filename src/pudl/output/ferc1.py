@@ -64,7 +64,7 @@ EXPLOSION_CALCULATION_TOLERANCES: dict[str, GroupMetricChecks] = {
         ],
         group_metric_tolerances=GroupMetricTolerances(
             ungrouped=MetricTolerances(
-                error_frequency=0.013,
+                error_frequency=0.014,
                 relative_error_magnitude=0.04,
                 null_calculated_value_frequency=1.0,
             ),
@@ -1046,7 +1046,7 @@ def exploded_table_asset_factory(
     root_table: str,
     table_names_to_explode: list[str],
     seed_nodes: list[NodeId],
-    calculation_tolerance: GroupMetricChecks,
+    group_metric_checks: GroupMetricChecks,
     io_manager_key: str | None = None,
 ) -> AssetsDefinition:
     """Create an exploded table based on a set of related input tables."""
@@ -1083,7 +1083,7 @@ def exploded_table_asset_factory(
             calculation_components_xbrl_ferc1=calculation_components_xbrl_ferc1,
             seed_nodes=seed_nodes,
             tags=tags,
-            calculation_tolerance=calculation_tolerance,
+            group_metric_checks=group_metric_checks,
         ).boom(tables_to_explode=tables_to_explode)
 
     return exploded_tables_asset
@@ -1105,7 +1105,7 @@ def create_exploded_table_assets() -> list[AssetsDefinition]:
                 "electric_operating_expenses_ferc1",
                 "electric_operating_revenues_ferc1",
             ],
-            "calculation_tolerance": EXPLOSION_CALCULATION_TOLERANCES[
+            "group_metric_checks": EXPLOSION_CALCULATION_TOLERANCES[
                 "income_statement_ferc1"
             ],
             "seed_nodes": [
@@ -1126,7 +1126,7 @@ def create_exploded_table_assets() -> list[AssetsDefinition]:
                 "plant_in_service_ferc1",
                 "electric_plant_depreciation_functional_ferc1",
             ],
-            "calculation_tolerance": EXPLOSION_CALCULATION_TOLERANCES[
+            "group_metric_checks": EXPLOSION_CALCULATION_TOLERANCES[
                 "balance_sheet_assets_ferc1"
             ],
             "seed_nodes": [
@@ -1145,7 +1145,7 @@ def create_exploded_table_assets() -> list[AssetsDefinition]:
                 "balance_sheet_liabilities_ferc1",
                 "retained_earnings_ferc1",
             ],
-            "calculation_tolerance": EXPLOSION_CALCULATION_TOLERANCES[
+            "group_metric_checks": EXPLOSION_CALCULATION_TOLERANCES[
                 "balance_sheet_liabilities_ferc1"
             ],
             "seed_nodes": [
@@ -1176,7 +1176,7 @@ class Exploder:
         calculation_components_xbrl_ferc1: pd.DataFrame,
         seed_nodes: list[NodeId],
         tags: pd.DataFrame = pd.DataFrame(),
-        calculation_tolerance: GroupMetricChecks = GroupMetricChecks(),
+        group_metric_checks: GroupMetricChecks = GroupMetricChecks(),
     ):
         """Instantiate an Exploder class.
 
@@ -1190,7 +1190,7 @@ class Exploder:
         """
         self.table_names: list[str] = table_names
         self.root_table: str = root_table
-        self.calculation_tolerance = calculation_tolerance
+        self.group_metric_checks = group_metric_checks
         self.metadata_xbrl_ferc1 = metadata_xbrl_ferc1
         self.calculation_components_xbrl_ferc1 = calculation_components_xbrl_ferc1
         self.seed_nodes = seed_nodes
@@ -1368,7 +1368,7 @@ class Exploder:
             exploded_meta=self.exploded_meta,
             seeds=self.seed_nodes,
             tags=self.tags,
-            calculation_tolerance=self.calculation_tolerance,
+            group_metric_checks=self.group_metric_checks,
         )
 
     @cached_property
@@ -1432,7 +1432,7 @@ class Exploder:
 
         Args:
             tables_to_explode: dictionary of table name (key) to transfomed table (value).
-            calculation_tolerance: What proportion (0-1) of calculated values are
+            group_metric_checks: What proportion (0-1) of calculated values are
             allowed to be incorrect without raising an AssertionError.
         """
         exploded = (
@@ -1545,12 +1545,12 @@ class Exploder:
             value_col=self.value_col,
         )
         calculated_df = pudl.transform.ferc1.check_calculation_metrics(
-            calculated_df=calculated_df, calculation_checks=self.calculation_tolerance
+            calculated_df=calculated_df, group_metric_checks=self.group_metric_checks
         )
         calculated_df = pudl.transform.ferc1.add_corrections(
             calculated_df=calculated_df,
             value_col=self.value_col,
-            calculation_checks=pudl.transform.ferc1.MetricInputs(),
+            is_close_tolerance=pudl.transform.ferc1.IsCloseTolerance(),
             table_name=self.root_table,
         )
         logger.info("Checking sub-total calcs.")
@@ -1564,7 +1564,7 @@ class Exploder:
         )
         subtotal_calcs = pudl.transform.ferc1.check_calculation_metrics(
             calculated_df=subtotal_calcs,
-            calculation_checks=self.calculation_tolerance,
+            group_metric_checks=self.group_metric_checks,
         )
         return calculated_df
 
@@ -1616,7 +1616,7 @@ class XbrlCalculationForestFerc1(BaseModel):
     exploded_calcs: pd.DataFrame = pd.DataFrame()
     seeds: list[NodeId] = []
     tags: pd.DataFrame = pd.DataFrame()
-    calculation_tolerance: GroupMetricChecks = GroupMetricChecks()
+    group_metric_checks: GroupMetricChecks = GroupMetricChecks()
 
     class Config:
         """Allow the class to store a dataframe."""

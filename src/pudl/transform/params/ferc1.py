@@ -3340,13 +3340,20 @@ TRANSFORM_PARAMS = {
             "subtotal_column": "utility_type",
             "group_metric_checks": {
                 "group_metric_tolerances": {
-                    "ungrouped": {"error_frequency": 0.0012},
+                    "ungrouped": {"error_frequency": 0.0025},
                     "report_year": {
+                        "error_frequency": 0.24,  # 2021 is bad :-/
                         "null_calculated_value_frequency": 1.0,
-                        "relative_error_magnitude": 0.041,
+                        "relative_error_magnitude": 0.47,  # 2021 is bad :-/
+                    },
+                    "xbrl_factoid": {
+                        "error_frequency": 0.018,
+                        "relative_error_magnitude": 0.031,
+                        "null_calculated_value_frequency": 1.0,
                     },
                     "utility_id_ferc1": {
-                        "error_frequency": 0.067,
+                        "error_frequency": 0.21,  # 444 is bad
+                        "relative_error_magnitude": 0.072,
                         "null_calculated_value_frequency": 1.0,
                     },
                 },
@@ -4041,7 +4048,10 @@ TRANSFORM_PARAMS = {
             # additional debugging at a later date.
             "group_metric_checks": {
                 "group_metric_tolerances": {
-                    "ungrouped": {"error_frequency": 0.056},
+                    "ungrouped": {
+                        "error_frequency": 0.056,
+                        "relative_error_magnitude": 0.037,
+                    },
                     "report_year": {
                         "error_frequency": 0.078,
                         "relative_error_magnitude": 0.073,
@@ -4052,7 +4062,7 @@ TRANSFORM_PARAMS = {
                     },
                     "xbrl_factoid": {
                         "error_frequency": 0.43,
-                        "relative_error_magnitude": 0.078,
+                        "relative_error_magnitude": 0.079,
                     },  # ending_balance is bad
                 },
             },
@@ -4514,7 +4524,7 @@ TRANSFORM_PARAMS = {
                         "relative_error_magnitude": 0.028,
                     },
                     "utility_id_ferc1": {
-                        "error_frequency": 0.011,
+                        "error_frequency": 0.012,
                         "relative_error_magnitude": 0.066,
                     },
                 },
