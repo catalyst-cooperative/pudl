@@ -365,7 +365,7 @@ SOURCES: dict[str, Any] = {
         },
         "field_namespace": "ferc1",
         "working_partitions": {
-            "years": sorted(set(range(1994, 2022))),
+            "years": sorted(set(range(1994, 2023))),
         },
         "contributors": [
             CONTRIBUTORS["catalyst-cooperative"],
@@ -405,7 +405,7 @@ SOURCES: dict[str, Any] = {
             # Years 1991-1995 use strange formats that need to be investigated further.
             # Years 1996-1999 come in split archives and full archives and we are going
             # to be using the aggregated archives (part=None).
-            "years": sorted(set(range(1996, 2022))),
+            "years": sorted(set(range(1996, 2023))),
         },
         "contributors": [
             CONTRIBUTORS["catalyst-cooperative"],
@@ -463,7 +463,7 @@ SOURCES: dict[str, Any] = {
         ),
         "field_namespace": "ferc60",
         "working_partitions": {
-            "years": sorted(set(range(2006, 2022))),
+            "years": sorted(set(range(2006, 2023))),
         },
         "contributors": [
             CONTRIBUTORS["catalyst-cooperative"],
