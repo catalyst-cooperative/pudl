@@ -151,7 +151,7 @@ jobs:
             - defaults
             channel_priority: strict
       - name: Install PUDL and its dependencies
-        run: pip install .[test]
+        run: pip install .[test,datasette]
       - name: Log environment details
         run: |
           conda info
