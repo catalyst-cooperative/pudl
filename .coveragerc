@@ -1,5 +1,4 @@
 [run]
-concurrency = multiprocessing
 omit =
     *__main__.py
     *__init__.py
