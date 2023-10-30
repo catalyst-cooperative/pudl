@@ -767,16 +767,6 @@ class GroupMetricTolerances(TransformParams):
     reported in a particular year.  We could also define per-filing and per-table error
     tolerances to help us identify individual utilities that have e.g. used an outdated
     version of Form 1 when filing.
-
-    NOTE: It may make sense to consolidate with :class:`ReconcileTableCalculations`
-    once the refactoring of the subtotals and the calculation corrections is done.
-
-    NOTE: atol is currently one part in 100 million, could it be much larger? Like
-    one part in 1000? If numbers are off by a 0.1 cents, do we care?
-
-    NOTE: There should probably be some absolute magnitude checks in here. If we have an
-    error of $10 billion but it's less than 1% of the value in a table we probably still
-    want to know about it!
     """
 
     ungrouped: MetricTolerances = MetricTolerances(
@@ -1180,7 +1170,6 @@ def check_calculation_metrics_by_group(
     # for each groupby grouping: calculate metrics for each test
     # then check if each test is within acceptable tolerance levels
     for group_name in group_metric_checks.groups_to_check:
-        logger.info(group_name)
         group_metrics = {}
         for (
             metric_name,
@@ -1254,15 +1243,14 @@ class ErrorMetric(BaseModel):
     ]
     """Name of group to check the metric based on.
 
-    Right now this only works with one column! Mostly because the outputs of :meth:`check`
-    are expected to be structured similarly and :meth:`groupby_cols` expects ``by`` to
-    be one column name.
+    With the exception of the ungrouped case, all groups depend on table_name as well as
+    the other column specified via by.
 
-    Most groups are column names to use in groupby along with the ``table_name``. Both
-    ``ungrouped`` and ``table_name`` have some special exceptions. ``ungrouped`` is not
-    a native column, so we assign an ``ungrouped`` column witin :meth:`check`. While all
-    other ``by`` values get combined with ``table_name`` in :meth:`groupby_cols`,
-    ``ungrouped`` and ``table_name`` are the only columns used in the groupby.
+    If by=="table_name" then that is the only column used in the groupby().
+
+    If by=="ungrouped" then all records are included in the "group" (via a dummy column
+    named ungrouped that contains only the value ungrouped). This allows us to use the
+    same infrastructure for applying the metrics to grouped and ungrouped data.
     """
 
     is_close_tolerance: IsCloseTolerance

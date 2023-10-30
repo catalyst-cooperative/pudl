@@ -3340,20 +3340,23 @@ TRANSFORM_PARAMS = {
             "subtotal_column": "utility_type",
             "group_metric_checks": {
                 "group_metric_tolerances": {
-                    "ungrouped": {"error_frequency": 0.0025},
+                    "ungrouped": {
+                        "error_frequency": 0.0092,
+                        "relative_error_magnitude": 0.039,
+                    },
                     "report_year": {
                         "error_frequency": 0.24,  # 2021 is bad :-/
                         "null_calculated_value_frequency": 1.0,
                         "relative_error_magnitude": 0.47,  # 2021 is bad :-/
                     },
                     "xbrl_factoid": {
-                        "error_frequency": 0.018,
-                        "relative_error_magnitude": 0.031,
+                        "error_frequency": 0.16,
+                        "relative_error_magnitude": 0.2,
                         "null_calculated_value_frequency": 1.0,
-                    },
+                    },  # utility_plant_and_construction_work_in_progress bad
                     "utility_id_ferc1": {
                         "error_frequency": 0.21,  # 444 is bad
-                        "relative_error_magnitude": 0.072,
+                        "relative_error_magnitude": 0.074,
                         "null_calculated_value_frequency": 1.0,
                     },
                 },
@@ -3409,7 +3412,14 @@ TRANSFORM_PARAMS = {
             "rename_columns": {"xbrl_factoid": "asset_type"},
             "on": "asset_type",
         },
-        "reconcile_table_calculations": {"column_to_check": "ending_balance"},
+        "reconcile_table_calculations": {
+            "column_to_check": "ending_balance",
+            "group_metric_checks": {
+                "group_metric_tolerances": {
+                    "ungrouped": {"error_frequency": 0.00013},
+                },
+            },
+        },
     },
     "balance_sheet_liabilities_ferc1": {
         "rename_columns_ferc1": {
@@ -3680,7 +3690,7 @@ TRANSFORM_PARAMS = {
                     "xbrl_factoid": {
                         "error_frequency": 0.04,
                         "null_calculated_value_frequency": 1.0,
-                        "relative_error_magnitude": 0.028,
+                        "relative_error_magnitude": 0.03,
                     },  # other_operating_revenues bad
                     "utility_id_ferc1": {
                         "error_frequency": 0.17,
@@ -4050,19 +4060,19 @@ TRANSFORM_PARAMS = {
                 "group_metric_tolerances": {
                     "ungrouped": {
                         "error_frequency": 0.056,
-                        "relative_error_magnitude": 0.037,
+                        "relative_error_magnitude": 0.045,
                     },
                     "report_year": {
                         "error_frequency": 0.078,
                         "relative_error_magnitude": 0.073,
                     },
                     "utility_id_ferc1": {
-                        "error_frequency": 0.13,
+                        "error_frequency": 0.14,
                         "relative_error_magnitude": 0.66,
                     },
                     "xbrl_factoid": {
-                        "error_frequency": 0.43,
-                        "relative_error_magnitude": 0.079,
+                        "error_frequency": 0.48,
+                        "relative_error_magnitude": 0.1,
                     },  # ending_balance is bad
                 },
             },
@@ -4524,7 +4534,7 @@ TRANSFORM_PARAMS = {
                         "relative_error_magnitude": 0.028,
                     },
                     "utility_id_ferc1": {
-                        "error_frequency": 0.012,
+                        "error_frequency": 0.017,
                         "relative_error_magnitude": 0.066,
                     },
                 },

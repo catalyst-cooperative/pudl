@@ -1432,8 +1432,6 @@ class Exploder:
 
         Args:
             tables_to_explode: dictionary of table name (key) to transfomed table (value).
-            group_metric_checks: What proportion (0-1) of calculated values are
-            allowed to be incorrect without raising an AssertionError.
         """
         exploded = (
             self.initial_explosion_concatenation(tables_to_explode)
