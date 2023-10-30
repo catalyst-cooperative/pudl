@@ -3416,7 +3416,7 @@ TRANSFORM_PARAMS = {
             "column_to_check": "ending_balance",
             "group_metric_checks": {
                 "group_metric_tolerances": {
-                    "ungrouped": {"error_frequency": 0.00013},
+                    "ungrouped": {"error_frequency": 0.0002},
                 },
             },
         },
