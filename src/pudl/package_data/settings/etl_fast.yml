@@ -5,23 +5,23 @@
 ferc_to_sqlite_settings:
   ferc1_dbf_to_sqlite_settings:
     # What years of original FERC data should be cloned into the SQLite DB?
-    years: [2020]
+    years: [2019, 2020]
   ferc1_xbrl_to_sqlite_settings:
-    years: [2021]
+    years: [2021, 2022]
   ferc2_dbf_to_sqlite_settings:
-    years: [2020]
+    years: [2019, 2020]
   ferc2_xbrl_to_sqlite_settings:
-    years: [2021]
+    years: [2021, 2022]
   ferc6_dbf_to_sqlite_settings:
-    years: [2020]
+    years: [2019, 2020]
   ferc6_xbrl_to_sqlite_settings:
-    years: [2021]
+    years: [2021, 2022]
   ferc60_dbf_to_sqlite_settings:
-    years: [2020]
+    years: [2019, 2020]
   ferc60_xbrl_to_sqlite_settings:
-    years: [2021]
+    years: [2021, 2022]
   ferc714_xbrl_to_sqlite_settings:
-    years: [2021]
+    years: [2021, 2022]
 
 ###########################################################################
 # Settings for pudl_etl script
@@ -34,7 +34,7 @@ description: >
 version: 0.1.0
 datasets:
   ferc1:
-    years: [2020, 2021]
+    years: [2020, 2021, 2022]
   ferc714:
     years: [2019, 2020]
   eia:

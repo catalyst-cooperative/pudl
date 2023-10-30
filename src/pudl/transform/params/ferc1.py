@@ -328,6 +328,7 @@ FUEL_CATEGORIES: dict[str, set[str]] = {
     "categories": {
         "coal": {
             "bit coal",
+            "bit-coal",
             "ciak",
             "coa",
             "coal",
