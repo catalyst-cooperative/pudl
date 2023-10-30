@@ -29,7 +29,7 @@ from pudl.analysis.classify_plants_ferc1 import (
     plants_steam_validate_ids,
 )
 from pudl.extract.ferc1 import TABLE_NAME_MAP_FERC1
-from pudl.helpers import convert_cols_dtypes
+from pudl.helpers import assert_cols_areclose, convert_cols_dtypes
 from pudl.metadata.fields import apply_pudl_dtypes
 from pudl.settings import Ferc1Settings
 from pudl.transform.classes import (
@@ -599,12 +599,8 @@ def unstack_balances_to_report_year_instant_xbrl(
     if not params.unstack_balances_to_report_year:
         return df
 
-    df["year"] = pd.to_datetime(df["date"]).dt.year
-    # Check that the originally reported records are annually unique.
-    # year and report_year aren't necessarily the same since previous year data
-    # is often reported in the current report year, but we're constructing a table
-    # where report_year is part of the primary key, so we have to do this:
-    unique_cols = [c for c in primary_key_cols if c != "report_year"] + ["year"]
+    # report year always corresponds to the year of "date"
+    unique_cols = set(primary_key_cols).union({"report_year"})
     if df.duplicated(unique_cols).any():
         raise AssertionError(
             "Looks like there are multiple entries per year--not sure which to use "
@@ -615,28 +611,26 @@ def unstack_balances_to_report_year_instant_xbrl(
             "Looks like there are some values in here that aren't from the end of "
             "the year. We can't use those to calculate start and end balances."
         )
-    df.loc[df.report_year == (df.year + 1), "balance_type"] = "starting_balance"
-    df.loc[df.report_year == df.year, "balance_type"] = "ending_balance"
-    if df.balance_type.isna().any():
-        # Remove rows from years that are not representative of start/end dates
-        # for a given report year (i.e., the report year and one year prior).
-        logger.warning(
-            f"Dropping unexpected years: "
-            f"{df.loc[df.balance_type.isna(), 'year'].unique()}"
-        )
-        df = df[df["balance_type"].notna()].copy()
-    df = (
-        df.drop(["year", "date"], axis="columns")
+
+    ending_balances = df.assign(balance_type="ending_balance")
+    starting_balances = df.assign(
+        report_year=df.report_year + 1, balance_type="starting_balance"
+    )
+    all_balances = pd.concat([starting_balances, ending_balances])
+    # for the first year, we expect no starting balances; for the last year, we expect no ending balances.
+    first_last_year_stripped = all_balances.loc[
+        lambda df: ~df.report_year.isin({df.report_year.min(), df.report_year.max()})
+    ]
+    unstacked_by_year = (
+        first_last_year_stripped.drop(columns=["date"])
         .set_index(primary_key_cols + ["balance_type", "sched_table_name"])
         .unstack("balance_type")
     )
-    # This turns a multi-index into a single-level index with tuples of strings
-    # as the keys, and then converts the tuples of strings into a single string
-    # by joining their values with an underscore. This results in column labels
-    # like boiler_plant_equipment_steam_production_starting_balance
-    df.columns = ["_".join(items) for items in df.columns.to_flat_index()]
-    df = df.reset_index()
-    return df
+    # munge multi-index into flat index, separated by _
+    unstacked_by_year.columns = [
+        "_".join(items) for items in unstacked_by_year.columns.to_flat_index()
+    ]
+    return unstacked_by_year.reset_index()
 
 
 class CombineAxisColumnsXbrl(TransformParams):
@@ -749,6 +743,7 @@ class ReconcileTableCalculations(TransformParams):
 def reconcile_table_calculations(
     df: pd.DataFrame,
     calculation_components: pd.DataFrame,
+    xbrl_metadata: pd.DataFrame,
     xbrl_factoid_name: str,
     table_name: str,
     params: ReconcileTableCalculations,
@@ -803,7 +798,9 @@ def reconcile_table_calculations(
     calc_idx = ["xbrl_factoid", "table_name"] + dim_cols
 
     if dim_cols:
-        table_dims = df[calc_idx].drop_duplicates(keep="first")
+        table_dims = (
+            df[calc_idx].drop_duplicates(keep="first").assign(table_name=table_name)
+        )
         # need to add in the correction dimensions. they don't show up in the data at
         # this point so we don't have the dimensions yet. NOTE: this could have been
         # done by adding the dims into table_dims..... maybe would have been more
@@ -839,7 +836,6 @@ def reconcile_table_calculations(
                     & intra_tbl_calcs[f"{dim}_parent"].isnull()
                 )
             ]
-    pks = pudl.metadata.classes.Resource.from_id(table_name).schema.primary_key
     calculated_df = calculate_values_from_components(
         data=df,
         calculation_components=intra_tbl_calcs,
@@ -856,36 +852,37 @@ def reconcile_table_calculations(
 
     # Check that sub-total calculations sum to total.
     if params.subtotal_column is not None:
-        sub_group_col = params.subtotal_column
-        pks_wo_subgroup = [col for col in pks if col != sub_group_col]
-        calculated_df["sub_total_sum"] = (
-            calculated_df.pipe(lambda df: df[df[sub_group_col] != "total"])
-            .groupby(pks_wo_subgroup)[params.column_to_check]
-            .transform("sum")  # For each group, calculate sum of sub-components
+        logger.info(
+            f"Checking total-to-subtotal calculations within {params.subtotal_column}"
         )
-        calculated_df["sub_total_sum"] = calculated_df["sub_total_sum"].fillna(
-            calculated_df[params.column_to_check]  # Fill in value from 'total' column
+        meta_w_dims = xbrl_metadata.assign(
+            **{dim: pd.NA for dim in dim_cols} | {"table_name": table_name}
+        ).pipe(
+            make_calculation_dimensions_explicit,
+            table_dimensions_ferc1=table_dims,
+            dimensions=dim_cols,
         )
-        sub_total_errors = (
-            calculated_df.groupby(pks_wo_subgroup)
-            # If subcomponent sum != total sum, we have nunique()>1
-            .filter(lambda x: x["sub_total_sum"].nunique() > 1).groupby(  # noqa: PD101
-                pks_wo_subgroup
-            )
+        calc_comps_w_totals = infer_intra_factoid_totals(
+            intra_tbl_calcs,
+            meta_w_dims=meta_w_dims,
+            table_dimensions=table_dims,
+            dimensions=dim_cols,
         )
-        off_ratio_sub = (
-            sub_total_errors.ngroups / calculated_df.groupby(pks_wo_subgroup).ngroups
+        subtotal_calcs = calculate_values_from_components(
+            data=df,
+            calculation_components=calc_comps_w_totals[
+                calc_comps_w_totals.is_total_to_subdimensions_calc
+            ],
+            calc_idx=calc_idx,
+            value_col=params.column_to_check,
         )
-        if sub_total_errors.ngroups > 0:
-            logger.warning(
-                f"{table_name}: has {sub_total_errors.ngroups} ({off_ratio_sub:.02%}) sub-total calculations that don't "
-                "sum to the equivalent total column."
-            )
-        if off_ratio_sub > params.subtotal_calculation_tolerance:
-            raise AssertionError(
-                f"Sub-total calculations in {table_name} are off by {off_ratio_sub}. Expected tolerance "
-                f"of {params.subtotal_calculation_tolerance}."
-            )
+        subtotal_calcs = check_calculation_metrics(
+            calculated_df=subtotal_calcs,
+            value_col=params.column_to_check,
+            calculation_tolerance=params.calculation_tolerance,
+            table_name=table_name,
+            add_corrections=True,
+        ).rename(columns={"xbrl_factoid": xbrl_factoid_name})
 
     return calculated_df
 
@@ -906,8 +903,6 @@ def calculate_values_from_components(
         data: exploded FERC data to apply the calculations to. Primary key should be
             ``report_year``, ``utility_id_ferc1``, ``table_name``, ``xbrl_factoid``, and
             whatever additional dimensions are relevant to the data.
-        validate: type of merge validation to apply when initially merging the calculation
-            components (left) and the data (right).
         calc_idx: primary key columns that uniquely identify a calculation component (not
             including the ``_parent`` columns).
         value_col: label of the column in ``data`` that contains the values to apply the
@@ -2162,7 +2157,8 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
                     ],
                     axis="columns",
                 ).reset_index()
-        return out_df
+
+        return out_df.loc[out_df.report_year.isin(Ferc1Settings().xbrl_years)]
 
     @cache_df("process_instant_xbrl")
     def process_instant_xbrl(self, df: pd.DataFrame) -> pd.DataFrame:
@@ -2392,6 +2388,7 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
                 df=df,
                 calculation_components=self.xbrl_calculations,
                 xbrl_factoid_name=self.params.xbrl_factoid_name,
+                xbrl_metadata=self.xbrl_metadata,
                 table_name=self.table_id.value,
                 params=params,
                 add_corrections=True,
@@ -2485,6 +2482,7 @@ class FuelFerc1TableTransformer(Ferc1AbstractTableTransformer):
         df = (
             super()
             .process_dbf(raw_dbf)
+            .pipe(self.to_numeric)
             .pipe(self.convert_units)
             .pipe(self.normalize_strings)
             .pipe(self.categorize_strings)
@@ -2518,6 +2516,7 @@ class FuelFerc1TableTransformer(Ferc1AbstractTableTransformer):
                 raw_xbrl_instant, raw_xbrl_duration
             )
             .pipe(self.rename_columns, rename_stage="xbrl")
+            .pipe(self.to_numeric)
             .pipe(self.convert_units)
             .pipe(self.normalize_strings)
             .pipe(self.categorize_strings)
@@ -2530,7 +2529,20 @@ class FuelFerc1TableTransformer(Ferc1AbstractTableTransformer):
             )
         )
 
-    def standardize_physical_fuel_units(self, df: pd.DataFrame) -> pd.DataFrame:
+    def to_numeric(self: Self, df: pd.DataFrame) -> pd.DataFrame:
+        """Convert columns containing numeric strings to numeric types."""
+        numeric_cols = [
+            "fuel_consumed_units",
+            "fuel_cost_per_unit_burned",
+            "fuel_cost_per_unit_delivered",
+            "fuel_cost_per_mmbtu",
+        ]
+        for col in numeric_cols:
+            df[col] = pd.to_numeric(df[col])
+
+        return df
+
+    def standardize_physical_fuel_units(self: Self, df: pd.DataFrame) -> pd.DataFrame:
         """Convert reported fuel quantities to standard units depending on fuel type.
 
         Use the categorized fuel type and reported fuel units to convert all fuel
@@ -3971,6 +3983,11 @@ class TransmissionStatisticsFerc1TableTransformer(Ferc1AbstractTableTransformer)
     table_id: TableIdFerc1 = TableIdFerc1.TRANSMISSION_STATISTICS_FERC1
     has_unique_record_ids: bool = False
 
+    def transform_main(self: Self, df: pd.DataFrame) -> pd.DataFrame:
+        """Do some string-to-numeric ninja moves."""
+        df["num_transmission_circuits"] = pd.to_numeric(df["num_transmission_circuits"])
+        return super().transform_main(df)
+
 
 class ElectricEnergySourcesFerc1TableTransformer(Ferc1AbstractTableTransformer):
     """Transformer class for :ref:`electric_energy_sources_ferc1` table.
@@ -4023,6 +4040,16 @@ class UtilityPlantSummaryFerc1TableTransformer(Ferc1AbstractTableTransformer):
 
     table_id: TableIdFerc1 = TableIdFerc1.UTILITY_PLANT_SUMMARY_FERC1
     has_unique_record_ids: bool = False
+
+    def process_xbrl(
+        self: Self, raw_xbrl_instant: pd.DataFrame, raw_xbrl_duration: pd.DataFrame
+    ) -> pd.DataFrame:
+        """Remove the end-of-previous-year instant data."""
+        all_current_year = raw_xbrl_instant[
+            raw_xbrl_instant["date"].astype("datetime64[ns]").dt.year
+            == raw_xbrl_instant["report_year"].astype("int64")
+        ]
+        return super().process_xbrl(all_current_year, raw_xbrl_duration)
 
     def convert_xbrl_metadata_json_to_df(
         self: Self,
@@ -4131,40 +4158,6 @@ class UtilityPlantSummaryFerc1TableTransformer(Ferc1AbstractTableTransformer):
             "utility_plant_asset_type",
         ]
 
-        # The utility_id_ferc1 211 follows the same pattern for several years
-        # instead of writing them all out in spot_fix_pks, we'll create a loop that
-        # generates all of them and then append them to spot_fix_pks later
-        spot_fix_211 = []
-        for year in np.append(2006, range(2009, 2021)):
-            for utility_type in ["electric", "total"]:
-                pks = [
-                    (
-                        year,
-                        211,
-                        utility_type,
-                        "accumulated_provision_for_depreciation_amortization_and_depletion_of_plant_utility",
-                    ),
-                    (
-                        year,
-                        211,
-                        utility_type,
-                        "amortization_of_other_utility_plant_utility_plant_in_service",
-                    ),
-                    (
-                        year,
-                        211,
-                        utility_type,
-                        "depreciation_amortization_and_depletion_utility_plant_in_service",
-                    ),
-                    (
-                        year,
-                        211,
-                        utility_type,
-                        "depreciation_utility_plant_in_service",
-                    ),
-                ]
-                spot_fix_211 = spot_fix_211 + pks
-
         spot_fix_pks = [
             (
                 2012,
@@ -4260,8 +4253,17 @@ class UtilityPlantSummaryFerc1TableTransformer(Ferc1AbstractTableTransformer):
             (2007, 393, "total", "depreciation_utility_plant_in_service"),
         ]
 
-        # Combine bespoke fixes with programatically generated spot fixes
-        spot_fix_pks = spot_fix_pks + spot_fix_211
+        spot_fix_pks += [
+            (year, 211, utility_type, column_name)
+            for year in [2006] + list(range(2009, 2021))
+            for utility_type in ["electric", "total"]
+            for column_name in [
+                "accumulated_provision_for_depreciation_amortization_and_depletion_of_plant_utility",
+                "amortization_of_other_utility_plant_utility_plant_in_service",
+                "depreciation_amortization_and_depletion_utility_plant_in_service",
+                "depreciation_utility_plant_in_service",
+            ]
+        ]
 
         # Par down spot fixes to account for fast tests where not all years are used
         df_years = df.report_year.unique().tolist()
@@ -4276,7 +4278,7 @@ class UtilityPlantSummaryFerc1TableTransformer(Ferc1AbstractTableTransformer):
             df = df.set_index(primary_keys)
             # Flip the signs for the values in "ending balance" all records in the original
             # df that appear in the primary key df
-            df.loc[df_keys.index, "ending_balance"] = df["ending_balance"] * -1
+            df.loc[df_keys.index, "ending_balance"] *= -1
             # All of these are flipping negative values to positive values,
             # so let's make sure that's what happens
             flipped_values = df.loc[df_keys.index]
@@ -4531,6 +4533,15 @@ class RetainedEarningsFerc1TableTransformer(Ferc1AbstractTableTransformer):
     table_id: TableIdFerc1 = TableIdFerc1.RETAINED_EARNINGS_FERC1
     has_unique_record_ids: bool = False
 
+    current_year_types: set[str] = {
+        "unappropriated_undistributed_subsidiary_earnings",
+        "unappropriated_retained_earnings",
+    }
+    previous_year_types: set[str] = {
+        "unappropriated_undistributed_subsidiary_earnings_previous_year",
+        "unappropriated_retained_earnings_previous_year",
+    }
+
     def convert_xbrl_metadata_json_to_df(
         self: Self,
         xbrl_metadata_json: dict[Literal["instant", "duration"], list[dict[str, Any]]],
@@ -4612,6 +4623,82 @@ class RetainedEarningsFerc1TableTransformer(Ferc1AbstractTableTransformer):
         df = super().transform_main(df).pipe(self.add_previous_year_factoid)
         return df
 
+    def transform_end(self, df: pd.DataFrame) -> pd.DataFrame:
+        """Check ``_previous_year`` factoids for consistency after the transformation is done."""
+        return super().transform_end(df).pipe(self.check_double_year_earnings_types)
+
+    def check_double_year_earnings_types(self, df: pd.DataFrame) -> pd.DataFrame:
+        """Check previous year/current year factoids for consistency.
+
+        The terminology can be very confusing - here are the expectations:
+
+        1. "inter year consistency": earlier year's "current starting/end
+           balance" == later year's "previous starting/end balance"
+        2. "intra year consistency": each year's "previous ending balance" ==
+           "current starting balance"
+        """
+        current_year_facts = df.loc[df.earnings_type.isin(self.current_year_types)]
+        previous_year_facts = df.loc[
+            df.earnings_type.isin(self.previous_year_types)
+        ].pipe(
+            lambda df: df.assign(
+                earnings_type=df.earnings_type.str.removesuffix("_previous_year")
+            )
+        )
+
+        # inter year comparison requires us to match the earlier year's current facts
+        # to the later year's previous facts, so we add 1 to the report year & merge.
+        earlier_years = current_year_facts.assign(
+            report_year=current_year_facts.report_year + 1
+        )
+        later_years = previous_year_facts
+        idx = ["utility_id_ferc1", "report_year", "earnings_type"]
+        inter_year_facts = earlier_years.merge(
+            later_years,
+            on=idx,
+            suffixes=["_earlier", "_later"],
+        ).dropna(
+            subset=[
+                "starting_balance_earlier",
+                "starting_balance_later",
+                "ending_balance_earlier",
+                "ending_balance_later",
+            ]
+        )
+
+        intra_year_facts = previous_year_facts.merge(
+            current_year_facts, on=idx, suffixes=["_previous", "_current"]
+        )
+
+        assert_cols_areclose(
+            df=inter_year_facts,
+            a_cols=["starting_balance_earlier"],
+            b_cols=["starting_balance_later"],
+            mismatch_threshold=0.05,
+            message="'Current starting balance' for year X-1 doesn't match "
+            "'previous starting balance' for year X.",
+        )
+
+        assert_cols_areclose(
+            df=inter_year_facts,
+            a_cols=["ending_balance_earlier"],
+            b_cols=["ending_balance_later"],
+            mismatch_threshold=0.05,
+            message="'Current ending balance' for year X-1 doesn't match "
+            "'previous ending balance' for year X.",
+        )
+
+        assert_cols_areclose(
+            df=intra_year_facts,
+            a_cols=["ending_balance_previous"],
+            b_cols=["starting_balance_current"],
+            mismatch_threshold=0.05,
+            message="'Previous year ending balance' should be the same as "
+            "'current year starting balance' for all years!",
+        )
+
+        return df
+
     def targeted_drop_duplicates_dbf(self, df: pd.DataFrame) -> pd.DataFrame:
         """Drop duplicates with truly duplicate data.
 
@@ -4670,6 +4757,7 @@ class RetainedEarningsFerc1TableTransformer(Ferc1AbstractTableTransformer):
                 earnings types.
         """
         logger.info(f"{self.table_id.value}: Reconciling previous year's data.")
+        # DBF has _current_year suffix while PUDL core version does not
         current_year_types = [
             "unappropriated_undistributed_subsidiary_earnings_current_year",
             "unappropriated_retained_earnings_current_year",
@@ -4678,7 +4766,7 @@ class RetainedEarningsFerc1TableTransformer(Ferc1AbstractTableTransformer):
             "unappropriated_undistributed_subsidiary_earnings_previous_year",
             "unappropriated_retained_earnings_previous_year",
         ]
-        # assign copies so no need to double copy when extracting this slice
+        # assign() copies, so no need to double copy when extracting this slice
         current_year = df[df.earnings_type.isin(current_year_types)].assign(
             earnings_type=lambda x: x.earnings_type.str.removesuffix("_current_year")
         )
@@ -4744,80 +4832,41 @@ class RetainedEarningsFerc1TableTransformer(Ferc1AbstractTableTransformer):
         return df
 
     def add_previous_year_factoid(self, df: pd.DataFrame) -> pd.DataFrame:
-        """Add `previous_year` factoids to XBRL data from prior year's DBF data."""
-        current_year_types = [
-            "unappropriated_undistributed_subsidiary_earnings",
-            "unappropriated_retained_earnings",
-        ]
-        previous_year_types = [
-            "unappropriated_undistributed_subsidiary_earnings_previous_year",
-            "unappropriated_retained_earnings_previous_year",
-        ]
-        # If previous_year type factoids aren't in all report_years, make factoids
-        # for these years. Raise exception if more than one year.
-        [missing_year] = [
-            year
-            for year in df[
-                df.earnings_type.isin(current_year_types)
-            ].report_year.unique()
-            if year
-            not in df[df.earnings_type.isin(previous_year_types)].report_year.unique()
-        ]
+        """Create ``*_previous_year`` factoids for XBRL data.
 
-        current_year = df[
-            (df.report_year == missing_year)
-            & (df.earnings_type.isin(current_year_types))
-        ]
-        previous_year = df[
-            (df.report_year == missing_year - 1)
-            & (df.earnings_type.isin(current_year_types))
+        XBRL doesn't include the previous year's data, but DBF does - so we try to
+        check that year X's ``*_current_year`` factoid has the same value as year X+1's
+        ``*_previous_year`` factoid.
+
+        To do this, we need to add some ``*_previous_year`` factoids to the XBRL data.
+        """
+        current_year_facts = df[df.earnings_type.isin(self.current_year_types)]
+        previous_year_facts = df[df.earnings_type.isin(self.previous_year_types)]
+
+        missing_years = set(current_year_facts.report_year.unique()) - set(
+            previous_year_facts.report_year.unique()
+        )
+
+        to_copy_forward = current_year_facts[
+            (current_year_facts.report_year + 1).isin(missing_years)
         ]
 
         idx = [
             "utility_id_ferc1",
             "earnings_type",
+            "report_year",
         ]
-        # This only works if there are two years of data, thus the assertion above.
-        data_columns = ["starting_balance", "ending_balance"]
-        metadata_columns = [
-            "balance",
-            "xbrl_factoid_original",
-            "is_within_table_calc",
-            "row_type_xbrl",
-        ]
-        date_dupe_types = pd.merge(
-            current_year.loc[:, ~current_year.columns.isin(metadata_columns)],
-            previous_year[idx + data_columns],
-            on=idx,
-            how="inner",
-            suffixes=("_original", ""),
-        ).drop(columns=["starting_balance_original", "ending_balance_original"])
-
-        date_dupe_types["earnings_type"] = date_dupe_types["earnings_type"].apply(
-            lambda x: f"{x}_previous_year"
+        inferred_previous_year_facts = (
+            to_copy_forward.assign(
+                report_year=to_copy_forward.report_year + 1,
+                new_earnings_type=to_copy_forward.earnings_type + "_previous_year",
+            )
+            .merge(current_year_facts[idx])
+            .drop(columns=["earnings_type"])
+            .rename(columns={"new_earnings_type": "earnings_type"})
+            .assign(row_type_xbrl="reported_value")
         )
-
-        # Add in metadata that matches that of prior year's `previous_year` factoids
-        # These should be consistent.
-        previous_factoid_metadata = df.loc[
-            (df.report_year == missing_year - 1)
-            & (df.earnings_type.str.contains("_previous_year"))
-        ]
-        date_dupe_types = pd.merge(
-            date_dupe_types,
-            previous_factoid_metadata[idx + metadata_columns],
-            on=idx,
-            how="left",
-        )
-
-        df = pd.concat([df, date_dupe_types])
-
-        # All `previous_year` factoids are missing `row_type_xbrl`. Fill in.
-        df.loc[
-            df.earnings_type.isin(previous_year_types), "row_type_xbrl"
-        ] = "reported_value"
-
-        return df
+        return pd.concat([df, inferred_previous_year_facts])
 
     def deduplicate_xbrl_factoid_xbrl_metadata(self, tbl_meta) -> pd.DataFrame:
         """Deduplicate the xbrl_metadata based on the ``xbrl_factoid``.
@@ -6038,7 +6087,12 @@ def infer_intra_factoid_totals(
         lambda dim: f"{dim}_parent", axis="columns"
     )
     inferred_totals = inferred_totals.fillna(child_values)
-    calcs_with_totals = pd.concat([calc_components, inferred_totals])
+    calcs_with_totals = pd.concat(
+        [
+            calc_components.assign(is_total_to_subdimensions_calc=False),
+            inferred_totals.assign(is_total_to_subdimensions_calc=True),
+        ]
+    )
 
     # verification + deduping below.
 

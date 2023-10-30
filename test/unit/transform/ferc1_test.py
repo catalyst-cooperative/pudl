@@ -355,10 +355,11 @@ def test_unstack_balances_to_report_year_instant_xbrl():
         StringIO(
             """
 idx,entity_id,date,report_year,sched_table_name,test_value
-0,1,2021-12-31,2021,table_name,2000
-1,1,2020-12-31,2021,table_name,1000
-2,2,2021-12-31,2021,table_name,21000
-3,2,2020-12-31,2021,table_name,8000
+0,1,2022-12-31,2022,table_name,2022.1
+1,1,2021-12-31,2021,table_name,2021.1
+2,1,2020-12-31,2020,table_name,2020.1
+3,2,2021-12-31,2021,table_name,2021.2
+4,2,2020-12-31,2020,table_name,2020.2
 """
         ),
     )
@@ -371,12 +372,15 @@ idx,entity_id,date,report_year,sched_table_name,test_value
         params=params,
         primary_key_cols=pk_cols,
     )
+    # because there are NaNs in idx when we unstack, both idx balances are floats.
     df_expected = pd.read_csv(
         StringIO(
             """
 entity_id,report_year,sched_table_name,idx_ending_balance,idx_starting_balance,test_value_ending_balance,test_value_starting_balance
-1,2021,table_name,0,1,2000,1000
-2,2021,table_name,2,3,21000,8000
+1,2021,table_name,1.0,2.0,2021.1,2020.1
+1,2022,table_name,0.0,1.0,2022.1,2021.1
+2,2021,table_name,3.0,4.0,2021.2,2020.2
+2,2022,table_name,,3.0,,2021.2
 """
         ),
     )
@@ -385,7 +389,15 @@ entity_id,report_year,sched_table_name,idx_ending_balance,idx_starting_balance,t
     # If there is more than one value per year (not report year) an AssertionError
     # should raise
     df_non_unique_years = df.copy()
-    df_non_unique_years.loc[4] = [4, 2, "2020-12-31", 2021, "table_name", 500]
+    df_non_unique_years.loc[len(df_non_unique_years.index)] = [
+        5,
+        2,
+        "2020-12-31",
+        2020,
+        "table_name",
+        2020.15,
+    ]
+
     with pytest.raises(AssertionError):
         unstack_balances_to_report_year_instant_xbrl(
             df_non_unique_years, params=params, primary_key_cols=pk_cols
@@ -662,20 +674,20 @@ table_a,fact_3,voyager,total,True,voyager,table_a,fact_1,total,2
         pd.read_csv(
             StringIO(
                 """
-table_name_parent,xbrl_factoid_parent,dim_x_parent,dim_y_parent,table_name,xbrl_factoid,dim_x,dim_y,is_within_table_calc,weight
-table_a,fact_1,voyager,coffee,table_a,fact_3,voyager,coffee,True,2
-table_a,fact_1,voyager,in,table_a,fact_3,voyager,in,True,2
-table_a,fact_1,voyager,that,table_a,fact_3,voyager,that,True,2
-table_a,fact_1,voyager,nebula,table_a,fact_3,voyager,nebula,True,2
-table_a,fact_1,voyager,total,table_a,fact_3,voyager,total,True,2
-table_a,fact_1,voyager,total,table_a,fact_1,voyager,coffee,True,1
-table_a,fact_1,voyager,total,table_a,fact_1,voyager,in,True,1
-table_a,fact_1,voyager,total,table_a,fact_1,voyager,that,True,1
-table_a,fact_1,voyager,total,table_a,fact_1,voyager,nebula,True,1
-table_a,fact_3,voyager,total,table_a,fact_3,voyager,coffee,True,1
-table_a,fact_3,voyager,total,table_a,fact_3,voyager,in,True,1
-table_a,fact_3,voyager,total,table_a,fact_3,voyager,that,True,1
-table_a,fact_3,voyager,total,table_a,fact_3,voyager,nebula,True,1
+table_name_parent,xbrl_factoid_parent,dim_x_parent,dim_y_parent,table_name,xbrl_factoid,dim_x,dim_y,is_within_table_calc,weight,is_total_to_subdimensions_calc
+table_a,fact_1,voyager,coffee,table_a,fact_3,voyager,coffee,True,2,False
+table_a,fact_1,voyager,in,table_a,fact_3,voyager,in,True,2,False
+table_a,fact_1,voyager,that,table_a,fact_3,voyager,that,True,2,False
+table_a,fact_1,voyager,nebula,table_a,fact_3,voyager,nebula,True,2,False
+table_a,fact_1,voyager,total,table_a,fact_3,voyager,total,True,2,False
+table_a,fact_1,voyager,total,table_a,fact_1,voyager,coffee,True,1,True
+table_a,fact_1,voyager,total,table_a,fact_1,voyager,in,True,1,True
+table_a,fact_1,voyager,total,table_a,fact_1,voyager,that,True,1,True
+table_a,fact_1,voyager,total,table_a,fact_1,voyager,nebula,True,1,True
+table_a,fact_3,voyager,total,table_a,fact_3,voyager,coffee,True,1,True
+table_a,fact_3,voyager,total,table_a,fact_3,voyager,in,True,1,True
+table_a,fact_3,voyager,total,table_a,fact_3,voyager,that,True,1,True
+table_a,fact_3,voyager,total,table_a,fact_3,voyager,nebula,True,1,True
 """
             )
         )
@@ -789,19 +801,19 @@ electric_plant_depreciation_change_ferc1,accumulated_depreciation,electric,NA,NA
         pd.read_csv(
             StringIO(
                 """
-table_name_parent,xbrl_factoid_parent,utility_type_parent,plant_status_parent,plant_function_parent,table_name,xbrl_factoid,utility_type,plant_status,plant_function,is_within_table_calc,weight
-electric_plant_depreciation_change_ferc1,accumulated_depreciation,electric,total,total,electric_plant_depreciation_change_ferc1,accumulated_depreciation,electric,in_service,steam_production,True,1
-electric_plant_depreciation_change_ferc1,accumulated_depreciation,electric,total,total,electric_plant_depreciation_change_ferc1,accumulated_depreciation,electric,in_service,general,True,1
-electric_plant_depreciation_change_ferc1,accumulated_depreciation,electric,total,total,electric_plant_depreciation_change_ferc1,accumulated_depreciation,electric,future,steam_production,True,1
-electric_plant_depreciation_change_ferc1,accumulated_depreciation,electric,total,total,electric_plant_depreciation_change_ferc1,accumulated_depreciation,electric,future,general,True,1
-electric_plant_depreciation_change_ferc1,accumulated_depreciation,electric,total,steam_production,electric_plant_depreciation_change_ferc1,accumulated_depreciation,electric,in_service,steam_production,True,1
-electric_plant_depreciation_change_ferc1,accumulated_depreciation,electric,total,steam_production,electric_plant_depreciation_change_ferc1,accumulated_depreciation,electric,future,steam_production,True,1
-electric_plant_depreciation_change_ferc1,accumulated_depreciation,electric,total,general,electric_plant_depreciation_change_ferc1,accumulated_depreciation,electric,in_service,general,True,1
-electric_plant_depreciation_change_ferc1,accumulated_depreciation,electric,total,general,electric_plant_depreciation_change_ferc1,accumulated_depreciation,electric,future,general,True,1
-electric_plant_depreciation_change_ferc1,accumulated_depreciation,electric,in_service,total,electric_plant_depreciation_change_ferc1,accumulated_depreciation,electric,in_service,steam_production,True,1
-electric_plant_depreciation_change_ferc1,accumulated_depreciation,electric,in_service,total,electric_plant_depreciation_change_ferc1,accumulated_depreciation,electric,in_service,general,True,1
-electric_plant_depreciation_change_ferc1,accumulated_depreciation,electric,future,total,electric_plant_depreciation_change_ferc1,accumulated_depreciation,electric,future,steam_production,True,1
-electric_plant_depreciation_change_ferc1,accumulated_depreciation,electric,future,total,electric_plant_depreciation_change_ferc1,accumulated_depreciation,electric,future,general,True,1
+table_name_parent,xbrl_factoid_parent,utility_type_parent,plant_status_parent,plant_function_parent,table_name,xbrl_factoid,utility_type,plant_status,plant_function,is_within_table_calc,weight,is_total_to_subdimensions_calc
+electric_plant_depreciation_change_ferc1,accumulated_depreciation,electric,total,total,electric_plant_depreciation_change_ferc1,accumulated_depreciation,electric,in_service,steam_production,True,1,True
+electric_plant_depreciation_change_ferc1,accumulated_depreciation,electric,total,total,electric_plant_depreciation_change_ferc1,accumulated_depreciation,electric,in_service,general,True,1,True
+electric_plant_depreciation_change_ferc1,accumulated_depreciation,electric,total,total,electric_plant_depreciation_change_ferc1,accumulated_depreciation,electric,future,steam_production,True,1,True
+electric_plant_depreciation_change_ferc1,accumulated_depreciation,electric,total,total,electric_plant_depreciation_change_ferc1,accumulated_depreciation,electric,future,general,True,1,True
+electric_plant_depreciation_change_ferc1,accumulated_depreciation,electric,total,steam_production,electric_plant_depreciation_change_ferc1,accumulated_depreciation,electric,in_service,steam_production,True,1,True
+electric_plant_depreciation_change_ferc1,accumulated_depreciation,electric,total,steam_production,electric_plant_depreciation_change_ferc1,accumulated_depreciation,electric,future,steam_production,True,1,True
+electric_plant_depreciation_change_ferc1,accumulated_depreciation,electric,total,general,electric_plant_depreciation_change_ferc1,accumulated_depreciation,electric,in_service,general,True,1,True
+electric_plant_depreciation_change_ferc1,accumulated_depreciation,electric,total,general,electric_plant_depreciation_change_ferc1,accumulated_depreciation,electric,future,general,True,1,True
+electric_plant_depreciation_change_ferc1,accumulated_depreciation,electric,in_service,total,electric_plant_depreciation_change_ferc1,accumulated_depreciation,electric,in_service,steam_production,True,1,True
+electric_plant_depreciation_change_ferc1,accumulated_depreciation,electric,in_service,total,electric_plant_depreciation_change_ferc1,accumulated_depreciation,electric,in_service,general,True,1,True
+electric_plant_depreciation_change_ferc1,accumulated_depreciation,electric,future,total,electric_plant_depreciation_change_ferc1,accumulated_depreciation,electric,future,steam_production,True,1,True
+electric_plant_depreciation_change_ferc1,accumulated_depreciation,electric,future,total,electric_plant_depreciation_change_ferc1,accumulated_depreciation,electric,future,general,True,1,True
 """
             )
         )

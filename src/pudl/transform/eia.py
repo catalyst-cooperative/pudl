@@ -299,6 +299,9 @@ def _compile_all_entity_records(
     id_cols = ENTITIES[entity.value]["id_cols"]
     static_cols = ENTITIES[entity.value]["static_cols"]
     annual_cols = ENTITIES[entity.value]["annual_cols"]
+    # A dictionary of columns representing additional data to be harvested,
+    # whose names should map to an ID, static, or annual column name.
+    mapped_schemas = ENTITIES[entity.value].get("mapped_schemas")
     base_cols = id_cols + ["report_date"]
 
     # empty list for dfs to be added to for each table below
@@ -309,9 +312,7 @@ def _compile_all_entity_records(
         # clean_dfs with the name 'annual'. We don't want to harvest
         # from our newly harvested tables.
         # if the df contains the desired columns the grab those columns
-        if "annual" not in table_name and set(base_cols).issubset(
-            transformed_df.columns
-        ):
+        if set(base_cols).issubset(transformed_df.columns):
             logger.debug(f"        {table_name}...")
             # create a copy of the df to muck with
             df = transformed_df.copy()
@@ -326,8 +327,24 @@ def _compile_all_entity_records(
             # add a column with the table name so we know its origin
             df["table"] = table_name
             dfs.append(df)
+        # check if there are columns that should be renamed and harvested
+        # as an additional table
+        # for map_col_dict in mapped_schemas: iterate through map_cols_dict
+        if mapped_schemas:
+            for i, map_cols_dict in enumerate(mapped_schemas):
+                base_cols_to_add = set(base_cols) - set(map_cols_dict.values())
+                if base_cols_to_add.union(set(map_cols_dict.keys())).issubset(
+                    transformed_df.columns
+                ):
+                    mapped_df = transformed_df[
+                        list(base_cols_to_add) + list(map_cols_dict.keys())
+                    ]
+                    mapped_df = mapped_df.rename(columns=map_cols_dict)
+                    mapped_df = mapped_df.dropna(subset=id_cols)
+                    mapped_df["table"] = table_name + f"_mapped_{i}"
+                    dfs.append(mapped_df)
 
-    # add those records to the compliation
+    # add those records to the compilation
     compiled_df = pd.concat(dfs, axis=0, ignore_index=True, sort=True)
     # strip the month and day from the date so we can have annual records
     compiled_df["report_date"] = compiled_df["report_date"].dt.year
@@ -402,7 +419,6 @@ def harvest_entity_tables(  # noqa: C901
     Args:
         entity: One of: plants, generators, boilers, or utilties
         clean_dfs: A dictionary of table names (keys) and clean dfs (values).
-        entities_dfs: A dictionary of entity table names (keys) and entity dfs (values)
         eia860m: if True, the etl run is attempting to include year-to-date updated from
             EIA 860M.
         debug: if True, log when columns are inconsistent, but don't raise an error.

@@ -218,6 +218,10 @@ class PudlTabl:
             "compiled_geometry_utility_eia861": "compiled_geometry_utility_eia861",
             # state demand
             "predicted_state_hourly_demand": "predicted_state_hourly_demand",
+            # plant parts
+            "mega_generators_eia": "gens_mega_eia",
+            "plant_parts_eia": "plant_parts_eia",
+            "out__yearly_plants_all_ferc1_plant_parts_eia": "ferc1_eia",
         }
 
         table_method_map_any_agg = {
@@ -401,95 +405,8 @@ class PudlTabl:
         return gen_df
 
     ###########################################################################
-    # Plant Parts EIA outputs
-    ###########################################################################
-    def gens_mega_eia(
-        self: Self,
-        update: bool = False,
-        gens_cols: Literal["all"] | list[str] | None = None,
-    ) -> pd.DataFrame:
-        """Generate and return a generators table with ownership integrated.
-
-        Args:
-            update: If True, re-calculate dataframe even if a cached version exists.
-            gens_cols: Ignored. Retained for backwards compatibility only.
-
-        Returns:
-            A table of all of the generators with identifying columns and data columns,
-            sliced by ownership which makes "total" and "owned" records for each
-            generator owner. The "owned" records have the generator's data scaled to the
-            ownership percentage (e.g. if a 100 MW generator has a 75% stake owner and a
-            25% stake owner, this will result in two "owned" records with 75 MW and 25
-            MW). The "total" records correspond to the full plant for every owner (e.g.
-            using the same 2-owner 100 MW generator as above, each owner will have a
-            records with 100 MW).
-
-        Raises:
-            AssertionError: If the frequency of the pudl_out object is not ``AS``.
-        """
-        if update or self._dfs["gens_mega_eia"] is None:
-            if self.freq != "AS":
-                raise AssertionError(
-                    "The frequency of the pudl_out object must be `AS` for the "
-                    f"plant-parts table and we got {self.freq}"
-                )
-
-            self._dfs[
-                "gens_mega_eia"
-            ] = pudl.analysis.plant_parts_eia.MakeMegaGenTbl().execute(
-                mcoe=self.mcoe_generators(),
-                own_eia860=self.own_eia860(),
-            )
-        return self._dfs["gens_mega_eia"]
-
-    def plant_parts_eia(
-        self: Self,
-        update: bool = False,
-        update_gens_mega: bool = False,
-        gens_cols: Literal["all"] | list[str] | None = None,
-    ) -> pd.DataFrame:
-        """Generate and return master plant-parts EIA.
-
-        Args:
-            update: If True, re-calculate dataframe even if a cached version exists.
-            update_gens_mega: If True, update the gigantic Gens Mega table.
-            gens_cols: Ignored. Retained for backwards compatibility only.
-        """
-        update_any = any([update, update_gens_mega])
-        if update_any or self._dfs["plant_parts_eia"] is None:
-            # make the plant-parts objects
-            self.parts_compiler = pudl.analysis.plant_parts_eia.MakePlantParts(self)
-            # make the plant-parts df!
-            self._dfs["plant_parts_eia"] = self.parts_compiler.execute(
-                gens_mega=self.gens_mega_eia(
-                    update=update_gens_mega,
-                )
-            )
-
-        return self._dfs["plant_parts_eia"]
-
-    ###########################################################################
     # GLUE OUTPUTS
     ###########################################################################
-    def ferc1_eia(
-        self: Self,
-        update: bool = False,
-        update_plant_parts_eia: bool = False,
-        update_plants_all_ferc1: bool = False,
-        update_fbp_ferc1: bool = False,
-    ) -> pd.DataFrame:
-        """Generate the connection between FERC1 and EIA."""
-        update_any = any(
-            [update, update_plant_parts_eia, update_plants_all_ferc1, update_fbp_ferc1]
-        )
-        if update_any or self._dfs["ferc1_eia"] is None:
-            self._dfs["ferc1_eia"] = pudl.analysis.ferc1_eia.execute(
-                plant_parts_eia=self.plant_parts_eia(update=update_plant_parts_eia),
-                plants_all_ferc1=self.plants_all_ferc1(),
-                fbp_ferc1=self.fbp_ferc1(),
-            )
-        return self._dfs["ferc1_eia"]
-
     def epacamd_eia(self: Self) -> pd.DataFrame:
         """Read the EPACAMD-EIA Crosswalk from the PUDL DB."""
         return pd.read_sql("epacamd_eia", self.pudl_engine).pipe(

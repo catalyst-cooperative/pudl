@@ -48,6 +48,9 @@ RUN mamba create --copy --prefix ${CONDA_PREFIX} --yes python=${PYTHON_VERSION} 
 # Copy the cloned pudl repository into the user's home directory
 COPY --chown=catalyst:catalyst . ${CONTAINER_HOME}
 
+# TODO(rousik): The following is a workaround for sudden breakage where conda
+# can't find libraries contained within the environment. It's unclear why!
+ENV LD_LIBRARY_PATH=${CONDA_PREFIX}/lib
 # We need information from .git to get version with setuptools_scm so we mount that
 # directory without copying it into the image.
 RUN --mount=type=bind,source=.git,target=${PUDL_REPO}/.git \
