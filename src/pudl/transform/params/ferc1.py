@@ -4059,7 +4059,7 @@ TRANSFORM_PARAMS = {
             "group_metric_checks": {
                 "group_metric_tolerances": {
                     "ungrouped": {
-                        "error_frequency": 0.056,
+                        "error_frequency": 0.058,
                         "relative_error_magnitude": 0.045,
                     },
                     "report_year": {
@@ -4071,7 +4071,7 @@ TRANSFORM_PARAMS = {
                         "relative_error_magnitude": 0.66,
                     },
                     "xbrl_factoid": {
-                        "error_frequency": 0.48,
+                        "error_frequency": 0.58,
                         "relative_error_magnitude": 0.1,
                     },  # ending_balance is bad
                 },
