@@ -159,7 +159,7 @@ class FercDbfArchive:
         table_columns = self.get_db_schema()[table_name]
         dbf = self.get_table_dbf(table_name)
         dbf_fields = [field for field in dbf.fields if field.name != "_NullFlags"]
-        if len(table_columns) != len(table_columns):
+        if len(dbf_fields) != len(table_columns):
             return ValueError(
                 f"Number of DBF fields in {table_name} does not match what was "
                 f"found in the DBC index file for {self.partition}."
