@@ -71,7 +71,7 @@ Data Coverage
 ^^^^^^^^^^^^^
 
 * Updated :doc:`data_sources/eia860` to include early release data from 2022.
-* Updated :doc:`data_sources/eia923` to include early release data from 2022 and 
+* Updated :doc:`data_sources/eia923` to include early release data from 2022 and
   monthly YTD data as of April 2023.
 * Updated :doc:`data_sources/epacems` to switch from the old FTP server to the new
   CAMPD API, and to include 2022 data. Due to changes in the ETL, Alaska, Puerto Rico
