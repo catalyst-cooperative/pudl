@@ -34,11 +34,11 @@ ENV PUDL_INPUT=${CONTAINER_PUDL_WORKSPACE}/data
 ENV PUDL_OUTPUT=${CONTAINER_PUDL_WORKSPACE}/output
 ENV DAGSTER_HOME=${CONTAINER_PUDL_WORKSPACE}/dagster_home
 
-# Copy dagster configuration file
-COPY docker/dagster.yaml ${DAGSTER_HOME}/dagster.yaml
-
 # Create data input/output directories
 RUN mkdir -p ${PUDL_INPUT} ${PUDL_OUTPUT} ${DAGSTER_HOME}
+
+# Copy dagster configuration file
+COPY docker/dagster.yaml ${DAGSTER_HOME}/dagster.yaml
 
 # Create a conda environment based on the specification in the repo
 COPY test/test-environment.yml test/test-environment.yml
