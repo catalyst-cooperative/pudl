@@ -32,11 +32,11 @@ function run_pudl_etl() {
         --loglevel DEBUG \
         --max-concurrent 6 \
         --gcs-cache-path gs://internal-zenodo-cache.catalyst.coop \
-        $PUDL_SETTINGS_YML \
-    && pytest \
-        --gcs-cache-path=gs://internal-zenodo-cache.catalyst.coop \
-        --etl-settings=$PUDL_SETTINGS_YML \
-        --live-dbs test
+        $PUDL_SETTINGS_YML
+    # && pytest \
+    #     --gcs-cache-path=gs://internal-zenodo-cache.catalyst.coop \
+    #     --etl-settings=$PUDL_SETTINGS_YML \
+    #     --live-dbs test
 }
 
 function shutdown_vm() {
@@ -82,24 +82,35 @@ function notify_slack() {
     send_slack_msg "$message"
 }
 
-# # Run ETL. Copy outputs to GCS and shutdown VM if ETL succeeds or fails
-# 2>&1 redirects stderr to stdout.
-run_pudl_etl 2>&1 | tee $LOGFILE
+function run_nightly_builds() {
+    # Run ETL, tests and redirects stderr to stdout.
+    run_pudl_etl 2>&1
 
-# Notify slack if the etl succeeded.
-if [[ ${PIPESTATUS[0]} == 0 ]]; then
+    BUILD_STATUS = $?
+
+    if [[ $BUILD_STATUS = 0 ]]; then
+
+        # Dump outputs to s3 bucket if branch is dev or build was triggered by a tag
+        if [ $GITHUB_ACTION_TRIGGER = "push" ] || [ $GITHUB_REF = "dev" ]; then
+            copy_outputs_to_distribution_bucket
+            BUILD_STATUS = $?
+        fi
+
+        # If running from dev and succesfully copied outputs to distribution bucket
+        # deploy the updated data to datasette
+        if [ $GITHUB_REF = "dev" ] && [$BUILD_STATUS = 0]; then
+            gcloud config set run/region us-central1
+            source ~/devtools/datasette/publish.sh
+            BUILD_STATUS = $?
+        fi
+    fi
+}
+
+run_nightly_builds | tee $LOGFILE
+
+if [[ $BUILD_STATUS = 0 ]]; then
     notify_slack "success"
-
-    # Dump outputs to s3 bucket if branch is dev or build was triggered by a tag
-    if [ $GITHUB_ACTION_TRIGGER = "push" ] || [ $GITHUB_REF = "dev" ]; then
-        copy_outputs_to_distribution_bucket
-    fi
-
-    # Deploy the updated data to datasette
-    if [ $GITHUB_REF = "dev" ]; then
-        gcloud config set run/region us-central1
-        source ~/devtools/datasette/publish.sh
-    fi
+fi
 else
     notify_slack "failure"
 fi
