@@ -8,7 +8,7 @@ datasette_metadata_to_yml -o "metadata.yml"
 
 datasette publish cloudrun \
     --service catalyst-datasette \
-    --memory 4Gi \
+    --memory 32Gi \
     --install datasette-cluster-map \
     --install datasette-vega \
     --install datasette-block-robots \
