@@ -110,6 +110,11 @@ jobs:
             --container-env AWS_ACCESS_KEY_ID=${{ secrets.AWS_ACCESS_KEY_ID }} \
             --container-env AWS_SECRET_ACCESS_KEY=${{ secrets.AWS_SECRET_ACCESS_KEY }} \
             --container-env AWS_DEFAULT_REGION=${{ secrets.AWS_DEFAULT_REGION }} \
+            --container-env DAGSTER_PG_USERNAME="postgres" \
+            --container-env DAGSTER_PG_PASSWORD=${{ secrets.DAGSTER_PG_PASSWORD }} \
+            --container-env DAGSTER_PG_HOST="104.154.182.24" \
+            --container-env DAGSTER_PG_DB="dagster-storage" \
+            --container-env PUDL_SETTINGS_YML=/home/catalyst/src/pudl/package_data/settings/etl_fast.yml \
 
       # Start the VM
       - name: Start the deploy-pudl-vm
