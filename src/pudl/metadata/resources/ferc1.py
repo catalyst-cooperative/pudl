@@ -52,7 +52,7 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
         "etl_group": "ferc1",
         "field_namespace": "ferc1",
     },
-    "core_ferc1__yearly_cash_flow": {
+    "core_ferc1__yearly_cash_flows": {
         "description": "The structured portion of the FERC1 cash flow table - Schedule 120.",
         "schema": {
             "fields": [
@@ -317,7 +317,7 @@ any cleaning mechanisms in place to account for this."""
         "etl_group": "static_ferc1",
         "field_namespace": "ferc1",
     },
-    "core_ferc1__yearly_fuel": {
+    "core_ferc1__yearly_steam_plants_fuel": {
         "description": "Annual fuel cost and quantity for steam plants with a capacity of 25+ MW, internal combustion and gas-turbine plants of 10+ MW, and all nuclear plants. As reported on page 402 of FERC Form 1 and extracted from the f1_fuel table in FERC's FoxPro Database.",
         "schema": {
             "fields": [
@@ -432,7 +432,7 @@ any cleaning mechanisms in place to account for this."""
         "etl_group": "glue",
         "field_namespace": "ferc1",
     },
-    "core_ferc1__yearly_plants_hydro": {
+    "core_ferc1__yearly_hydroelectric_plants": {
         "description": (
             "Hydroelectric generating plant statistics for large plants. Large plants "
             "have an installed nameplate capacity of more than 10 MW. As reported on "
@@ -648,7 +648,7 @@ columns.""",
         "etl_group": "static_ferc1",
         "field_namespace": "ferc1",
     },
-    "core_ferc1__yearly_purchased_power": {
+    "core_ferc1__yearly_purchased_power_and_exchanges": {
         "description": (
             "Purchased Power (Account 555) including power exchanges (transactions "
             "involving a balancing of debits and credits for energy, capacity, etc.) "
@@ -682,7 +682,7 @@ columns.""",
         "etl_group": "ferc1",
         "field_namespace": "ferc1",
     },
-    "core_ferc1__yearly_transmission_statistics": {
+    "core_ferc1__yearly_transmission_lines": {
         "description": (
             "Transmission Line Statistics. Schedule 422 of FERC Form 1. Information "
             "describing transmission lines, the cost of lines, annual operating and "
@@ -746,7 +746,7 @@ columns.""",
         "etl_group": "glue",
         "field_namespace": "ferc1",
     },
-    "core_ferc1__yearly_utility_plant_summary": {
+    "core_ferc1__yearly_utility_plant_and_depreciation_summary": {
         "description": (
             "Summary of utility plant and accumulated provisions for depreciation, "
             "amortization and depletion of utilty plant assets reported annually at "
@@ -906,7 +906,7 @@ columns.""",
         "etl_group": "outputs",
         "field_namespace": "ferc1",
     },
-    "out_ferc1__yearly_cash_flow": {
+    "out_ferc1__yearly_cash_flows": {
         "description": "Denormalized table that contains FERC cash flow information.",
         "schema": {
             "fields": [
@@ -1207,7 +1207,7 @@ columns.""",
         "etl_group": "outputs",
         "field_namespace": "ferc1",
     },
-    "out_ferc1__yearly_transmission_statistics": {
+    "out_ferc1__yearly_transmission_lines": {
         "description": "Denormalized table that contains FERC transmission statistics information.",
         "schema": {
             "fields": [
@@ -1238,7 +1238,7 @@ columns.""",
         "etl_group": "outputs",
         "field_namespace": "ferc1",
     },
-    "out_ferc1__yearly_utility_plant_summary": {
+    "out_ferc1__yearly_utility_plant_and_depreciation_summary": {
         "description": "Denormalized table that contains FERC utility plant summary information.",
         "schema": {
             "fields": [
@@ -1367,7 +1367,7 @@ columns.""",
         "etl_group": "outputs",
         "field_namespace": "ferc1",
     },
-    "_out_ferc1__yearly_hydro_plants": {
+    "_out_ferc1__yearly_hydroelectric_plants": {
         "description": "Denormalized table that contains small plant information from FERC Form 1.",
         "schema": {
             "fields": [
@@ -1481,7 +1481,7 @@ columns.""",
         "etl_group": "outputs",
         "field_namespace": "ferc1",
     },
-    "out_ferc1__yearly_fuel": {
+    "ou_ferc1__yearly_steam_plants_fuel": {
         "description": "Denormalized table that contains fuel information from FERC Form 1.",
         "schema": {
             "fields": [
@@ -1510,7 +1510,7 @@ columns.""",
         "etl_group": "outputs",
         "field_namespace": "ferc1",
     },
-    "out_ferc1__yearly_purchased_power": {
+    "out_ferc1__yearly_purchased_power_and_exchanges": {
         "description": "Denormalized table of FERC Form 1 Purchased Power data.",
         "schema": {
             "fields": [
@@ -1655,7 +1655,7 @@ columns.""",
         "etl_group": "outputs",
         "field_namespace": "ferc1",
     },
-    "out_ferc1__yearly_fuel_by_plant": {
+    "out_ferc1__yearly_steam_plants_fuel_by_plant": {
         "description": "A table summarizing FERC fuel data by plant, using FERC Form 1 data.",
         "schema": {
             "fields": [

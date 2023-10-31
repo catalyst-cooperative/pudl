@@ -625,7 +625,7 @@ def fuel_by_plant_ferc1(
 
     Args:
         fuel_df: Pandas DataFrame resembling the post-transform
-            result for the core_ferc1__yearly_fuel table.
+            result for the core_ferc1__yearly_steam_plants_fuel table.
         thresh: A value between 0.5 and 1.0 indicating the minimum fraction of
             overall heat content that must have been provided by a fuel in a plant-year
             for it to be considered the "primary" fuel for the plant in that year.
@@ -661,7 +661,8 @@ def fuel_by_plant_ferc1(
     # Calculate per-fuel derived values and add them to the DataFrame
     df = (
         # Really there should *not* be any duplicates here but... there's a
-        # bug somewhere that introduces them into the core_ferc1__yearly_fuel table.
+        # bug somewhere that introduces them into the
+        # core_ferc1__yearly_steam_plants_fuel table.
         fuel_df[keep_cols]
         .drop_duplicates()
         # Calculate totals for each record based on per-unit values:

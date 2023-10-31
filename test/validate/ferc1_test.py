@@ -19,11 +19,11 @@ logger = logging.getLogger(__name__)
 # attributes in the FERC classes.
 non_unique_record_id_tables = [
     "core_ferc1__yearly_plant_in_service",
-    "core_ferc1__yearly_purchased_power",
+    "core_ferc1__yearly_purchased_power_and_exchanges",
     "core_ferc1__yearly_electric_energy_sources",
     "core_ferc1__yearly_electric_energy_dispositions",
-    "core_ferc1__yearly_utility_plant_summary",
-    "core_ferc1__yearly_transmission_statistics",
+    "core_ferc1__yearly_utility_plant_and_depreciation_summary",
+    "core_ferc1__yearly_transmission_lines",
     "core_ferc1__yearly_balance_sheet_liabilities",
     "core_ferc1__yearly_balance_sheet_assets",
     "core_ferc1__yearly_income_statement",
@@ -31,7 +31,7 @@ non_unique_record_id_tables = [
     "core_ferc1__yearly_electric_plant_depreciation_changes",
     "core_ferc1__yearly_electric_plant_depreciation_functional",
     "core_ferc1__yearly_electric_operating_expenses",
-    "core_ferc1__yearly_cash_flow",
+    "core_ferc1__yearly_cash_flows",
     "core_ferc1__yearly_retained_earnings",
     "core_ferc1__yearly_electric_operating_revenues",
     "core_ferc1__yearly_other_regulatory_liabilities",

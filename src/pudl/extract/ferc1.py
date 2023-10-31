@@ -100,7 +100,7 @@ from pudl.workspace.setup import PudlPaths
 logger = pudl.logging_helpers.get_logger(__name__)
 
 TABLE_NAME_MAP_FERC1: dict[str, dict[str, str]] = {
-    "core_ferc1__yearly_fuel": {
+    "core_ferc1__yearly_steam_plants_fuel": {
         "dbf": "f1_fuel",
         "xbrl": "steam_electric_generating_plant_statistics_large_plants_fuel_statistics_402",
     },
@@ -112,7 +112,7 @@ TABLE_NAME_MAP_FERC1: dict[str, dict[str, str]] = {
         "dbf": "f1_gnrt_plant",
         "xbrl": "generating_plant_statistics_410",
     },
-    "core_ferc1__yearly_plants_hydro": {
+    "core_ferc1__yearly_hydroelectric_plants": {
         "dbf": "f1_hydro",
         "xbrl": "hydroelectric_generating_plant_statistics_large_plants_406",
     },
@@ -124,7 +124,7 @@ TABLE_NAME_MAP_FERC1: dict[str, dict[str, str]] = {
         "dbf": "f1_plant_in_srvce",
         "xbrl": "electric_plant_in_service_204",
     },
-    "core_ferc1__yearly_purchased_power": {
+    "core_ferc1__yearly_purchased_power_and_exchanges": {
         "dbf": "f1_purchased_pwr",
         "xbrl": "purchased_power_326",
     },
@@ -136,11 +136,11 @@ TABLE_NAME_MAP_FERC1: dict[str, dict[str, str]] = {
         "dbf": "f1_elctrc_erg_acct",
         "xbrl": "electric_energy_account_401a",
     },
-    "core_ferc1__yearly_utility_plant_summary": {
+    "core_ferc1__yearly_utility_plant_and_depreciation_summary": {
         "dbf": "f1_utltyplnt_smmry",
         "xbrl": "summary_of_utility_plant_and_accumulated_provisions_for_depreciation_amortization_and_depletion_200",
     },
-    "core_ferc1__yearly_transmission_statistics": {
+    "core_ferc1__yearly_transmission_lines": {
         "dbf": "f1_xmssn_line",
         "xbrl": "transmission_line_statistics_422",
     },
@@ -184,7 +184,7 @@ TABLE_NAME_MAP_FERC1: dict[str, dict[str, str]] = {
         "dbf": "f1_elctrc_oper_rev",
         "xbrl": "electric_operating_revenues_300",
     },
-    "core_ferc1__yearly_cash_flow": {
+    "core_ferc1__yearly_cash_flows": {
         "dbf": "f1_cash_flow",
         "xbrl": "statement_of_cash_flows_120",
     },

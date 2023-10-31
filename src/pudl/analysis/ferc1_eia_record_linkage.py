@@ -57,20 +57,20 @@ logger = pudl.logging_helpers.get_logger(__name__)
 )
 def out__yearly_plants_all_ferc1_plant_parts_eia(
     out_ferc1__yearly_all_plants: pd.DataFrame,
-    out_ferc1__yearly_fuel_by_plant: pd.DataFrame,
+    out_ferc1__yearly_steam_plants_fuel_by_plant: pd.DataFrame,
     out_eia__yearly_plant_parts: pd.DataFrame,
 ) -> pd.DataFrame:
     """Coordinate the connection between FERC1 plants and EIA plant-parts.
 
     Args:
         out_ferc1__yearly_all_plants: Table of all of the FERC1-reporting plants.
-        out_ferc1__yearly_fuel_by_plant: Table of the fuel reported aggregated to the FERC1
+        out_ferc1__yearly_steam_plants_fuel_by_plant: Table of the fuel reported aggregated to the FERC1
             plant-level.
         out_eia__yearly_plant_parts: The EIA plant parts list.
     """
     inputs = InputManager(
         out_ferc1__yearly_all_plants,
-        out_ferc1__yearly_fuel_by_plant,
+        out_ferc1__yearly_steam_plants_fuel_by_plant,
         out_eia__yearly_plant_parts,
     )
     # compile/cache inputs upfront. Hopefully we can catch any errors in inputs early.

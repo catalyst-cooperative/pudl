@@ -132,19 +132,21 @@ class TableIdFerc1(enum.Enum):
     Package. But this works for now.
     """
 
-    FUEL_FERC1 = "core_ferc1__yearly_fuel"
+    FUEL_FERC1 = "core_ferc1__yearly_steam_plants_fuel"
     PLANTS_STEAM_FERC1 = "core_ferc1__yearly_plants_steam"
-    PLANTS_HYDRO_FERC1 = "core_ferc1__yearly_plants_hydro"
+    PLANTS_HYDRO_FERC1 = "core_ferc1__yearly_hydroelectric_plants"
     PLANTS_SMALL_FERC1 = "core_ferc1__yearly_plants_small"
     PLANTS_PUMPED_STORAGE_FERC1 = "core_ferc1__yearly_plants_pumped_storage"
     PLANT_IN_SERVICE_FERC1 = "core_ferc1__yearly_plant_in_service"
-    PURCHASED_POWER_FERC1 = "core_ferc1__yearly_purchased_power"
-    TRANSMISSION_STATISTICS_FERC1 = "core_ferc1__yearly_transmission_statistics"
+    PURCHASED_POWER_FERC1 = "core_ferc1__yearly_purchased_power_and_exchanges"
+    TRANSMISSION_STATISTICS_FERC1 = "core_ferc1__yearly_transmission_lines"
     ELECTRIC_ENERGY_SOURCES_FERC1 = "core_ferc1__yearly_electric_energy_sources"
     ELECTRIC_ENERGY_DISPOSITIONS_FERC1 = (
         "core_ferc1__yearly_electric_energy_dispositions"
     )
-    UTILITY_PLANT_SUMMARY_FERC1 = "core_ferc1__yearly_utility_plant_summary"
+    UTILITY_PLANT_SUMMARY_FERC1 = (
+        "core_ferc1__yearly_utility_plant_and_depreciation_summary"
+    )
     ELECTRIC_OPERATING_EXPENSES_FERC1 = "core_ferc1__yearly_electric_operating_expenses"
     BALANCE_SHEET_LIABILITIES = "core_ferc1__yearly_balance_sheet_liabilities"
     DEPRECIATION_AMORTIZATION_SUMMARY_FERC1 = (
@@ -160,7 +162,7 @@ class TableIdFerc1(enum.Enum):
     ELECTRIC_PLANT_DEPRECIATION_FUNCTIONAL_FERC1 = (
         "core_ferc1__yearly_electric_plant_depreciation_functional"
     )
-    CASH_FLOW_FERC1 = "core_ferc1__yearly_cash_flow"
+    CASH_FLOW_FERC1 = "core_ferc1__yearly_cash_flows"
     ELECTRICITY_SALES_BY_RATE_SCHEDULE_FERC1 = (
         "core_ferc1__yearly_electricity_sales_by_rate_schedule"
     )
@@ -2858,9 +2860,9 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
 
 
 class FuelFerc1TableTransformer(Ferc1AbstractTableTransformer):
-    """A table transformer specific to the :ref:`core_ferc1__yearly_fuel` table.
+    """A table transformer specific to the :ref:`core_ferc1__yearly_steam_plants_fuel` table.
 
-    The :ref:`core_ferc1__yearly_fuel` table reports data about fuel consumed by large thermal power
+    The :ref:`core_ferc1__yearly_steam_plants_fuel` table reports data about fuel consumed by large thermal power
     plants in the :ref:`core_ferc1__yearly_plants_steam` table. Each record in the steam table is
     typically associated with several records in the fuel table, with each fuel record
     reporting data for a particular type of fuel consumed by that plant over the course
@@ -2917,7 +2919,7 @@ class FuelFerc1TableTransformer(Ferc1AbstractTableTransformer):
 
     @cache_df(key="main")
     def transform_main(self, df: pd.DataFrame) -> pd.DataFrame:
-        """Table specific transforms for core_ferc1__yearly_fuel.
+        """Table specific transforms for core_ferc1__yearly_steam_plants_fuel.
 
         Args:
             df: Pre-processed, concatenated XBRL and DBF data.
@@ -2955,7 +2957,7 @@ class FuelFerc1TableTransformer(Ferc1AbstractTableTransformer):
     def process_xbrl(
         self, raw_xbrl_instant: pd.DataFrame, raw_xbrl_duration: pd.DataFrame
     ) -> pd.DataFrame:
-        """Special pre-concat treatment of the :ref:`core_ferc1__yearly_fuel` table.
+        """Special pre-concat treatment of the :ref:`core_ferc1__yearly_steam_plants_fuel` table.
 
         We have to do most of the transformation before the DBF and XBRL data have been
         concatenated because the fuel type column is part of the primary key and it is
@@ -3165,7 +3167,7 @@ class FuelFerc1TableTransformer(Ferc1AbstractTableTransformer):
         * have no identifiable fuel units
         * DO report a value for MMBTU / MWh (heat rate)
 
-        In the case of the core_ferc1__yearly_fuel table, we drop any row where all the data columns
+        In the case of the core_ferc1__yearly_steam_plants_fuel table, we drop any row where all the data columns
         are null AND there's a non-null value in the ``fuel_mmbtu_per_mwh`` column, as
         it typically indicates a "total" row for a plant. We also require a null value
         for the fuel_units and an "other" value for the fuel type.
@@ -3215,11 +3217,11 @@ class PlantsSteamFerc1TableTransformer(Ferc1AbstractTableTransformer):
         """Perform table transformations for the :ref:`core_ferc1__yearly_plants_steam` table.
 
         Note that this method has a non-standard call signature, since the
-        :ref:`core_ferc1__yearly_plants_steam` table depends on the :ref:`core_ferc1__yearly_fuel` table.
+        :ref:`core_ferc1__yearly_plants_steam` table depends on the :ref:`core_ferc1__yearly_steam_plants_fuel` table.
 
         Args:
             df: The pre-processed steam plants table.
-            transformed_fuel: The fully transformed :ref:`core_ferc1__yearly_fuel` table. This is
+            transformed_fuel: The fully transformed :ref:`core_ferc1__yearly_steam_plants_fuel` table. This is
                 required because fuel consumption information is used to help link
                 steam plant records together across years using
                 :func:`plants_steam_assign_plant_ids`
@@ -3274,7 +3276,7 @@ class PlantsSteamFerc1TableTransformer(Ferc1AbstractTableTransformer):
 
 
 class PlantsHydroFerc1TableTransformer(Ferc1AbstractTableTransformer):
-    """A table transformer specific to the :ref:`core_ferc1__yearly_plants_hydro` table."""
+    """A table transformer specific to the :ref:`core_ferc1__yearly_hydroelectric_plants` table."""
 
     table_id: TableIdFerc1 = TableIdFerc1.PLANTS_HYDRO_FERC1
 
@@ -3327,7 +3329,7 @@ class PlantsPumpedStorageFerc1TableTransformer(Ferc1AbstractTableTransformer):
 
 
 class PurchasedPowerFerc1TableTransformer(Ferc1AbstractTableTransformer):
-    """Transformer class for :ref:`core_ferc1__yearly_purchased_power` table.
+    """Transformer class for :ref:`core_ferc1__yearly_purchased_power_and_exchanges`.
 
     This table has data about inter-utility power purchases into the PUDL DB. This
     includes how much electricty was purchased, how much it cost, and who it was
@@ -4439,7 +4441,7 @@ class PlantsSmallFerc1TableTransformer(Ferc1AbstractTableTransformer):
 
 
 class TransmissionStatisticsFerc1TableTransformer(Ferc1AbstractTableTransformer):
-    """A table transformer for the :ref:`core_ferc1__yearly_transmission_statistics` table."""
+    """A table transformer for the :ref:`core_ferc1__yearly_transmission_lines` table."""
 
     table_id: TableIdFerc1 = TableIdFerc1.TRANSMISSION_STATISTICS_FERC1
     has_unique_record_ids: bool = False
@@ -4497,7 +4499,7 @@ class ElectricEnergyDispositionsFerc1TableTransformer(Ferc1AbstractTableTransfor
 
 
 class UtilityPlantSummaryFerc1TableTransformer(Ferc1AbstractTableTransformer):
-    """Transformer class for :ref:`core_ferc1__yearly_utility_plant_summary` table."""
+    """Transformer class for :ref:`core_ferc1__yearly_utility_plant_and_depreciation_summary` table."""
 
     table_id: TableIdFerc1 = TableIdFerc1.UTILITY_PLANT_SUMMARY_FERC1
     has_unique_record_ids: bool = False
@@ -5709,7 +5711,7 @@ class ElectricOperatingRevenuesFerc1TableTransformer(Ferc1AbstractTableTransform
 
 
 class CashFlowFerc1TableTransformer(Ferc1AbstractTableTransformer):
-    """Transform class for :ref:`core_ferc1__yearly_cash_flow` table."""
+    """Transform class for :ref:`core_ferc1__yearly_cash_flows` table."""
 
     table_id: TableIdFerc1 = TableIdFerc1.CASH_FLOW_FERC1
     has_unique_record_ids: bool = False
@@ -5880,17 +5882,17 @@ class OtherRegulatoryLiabilitiesFerc1TableTransformer(Ferc1AbstractTableTransfor
 
 
 FERC1_TFR_CLASSES: Mapping[str, type[Ferc1AbstractTableTransformer]] = {
-    "core_ferc1__yearly_fuel": FuelFerc1TableTransformer,
+    "core_ferc1__yearly_steam_plants_fuel": FuelFerc1TableTransformer,
     "core_ferc1__yearly_plants_steam": PlantsSteamFerc1TableTransformer,
     "core_ferc1__yearly_plants_small": PlantsSmallFerc1TableTransformer,
-    "core_ferc1__yearly_plants_hydro": PlantsHydroFerc1TableTransformer,
+    "core_ferc1__yearly_hydroelectric_plants": PlantsHydroFerc1TableTransformer,
     "core_ferc1__yearly_plant_in_service": PlantInServiceFerc1TableTransformer,
     "core_ferc1__yearly_plants_pumped_storage": PlantsPumpedStorageFerc1TableTransformer,
-    "core_ferc1__yearly_transmission_statistics": TransmissionStatisticsFerc1TableTransformer,
-    "core_ferc1__yearly_purchased_power": PurchasedPowerFerc1TableTransformer,
+    "core_ferc1__yearly_transmission_lines": TransmissionStatisticsFerc1TableTransformer,
+    "core_ferc1__yearly_purchased_power_and_exchanges": PurchasedPowerFerc1TableTransformer,
     "core_ferc1__yearly_electric_energy_sources": ElectricEnergySourcesFerc1TableTransformer,
     "core_ferc1__yearly_electric_energy_dispositions": ElectricEnergyDispositionsFerc1TableTransformer,
-    "core_ferc1__yearly_utility_plant_summary": UtilityPlantSummaryFerc1TableTransformer,
+    "core_ferc1__yearly_utility_plant_and_depreciation_summary": UtilityPlantSummaryFerc1TableTransformer,
     "core_ferc1__yearly_electric_operating_expenses": ElectricOperatingExpensesFerc1TableTransformer,
     "core_ferc1__yearly_balance_sheet_liabilities": BalanceSheetLiabilitiesFerc1TableTransformer,
     "core_ferc1__yearly_depreciation_amortization_summary": DepreciationAmortizationSummaryFerc1TableTransformer,
@@ -5900,7 +5902,7 @@ FERC1_TFR_CLASSES: Mapping[str, type[Ferc1AbstractTableTransformer]] = {
     "core_ferc1__yearly_electric_plant_depreciation_functional": ElectricPlantDepreciationFunctionalFerc1TableTransformer,
     "core_ferc1__yearly_retained_earnings": RetainedEarningsFerc1TableTransformer,
     "core_ferc1__yearly_electric_operating_revenues": ElectricOperatingRevenuesFerc1TableTransformer,
-    "core_ferc1__yearly_cash_flow": CashFlowFerc1TableTransformer,
+    "core_ferc1__yearly_cash_flows": CashFlowFerc1TableTransformer,
     "core_ferc1__yearly_electricity_sales_by_rate_schedule": ElectricitySalesByRateScheduleFerc1TableTransformer,
     "core_ferc1__yearly_other_regulatory_liabilities": OtherRegulatoryLiabilitiesFerc1TableTransformer,
 }
@@ -6020,7 +6022,7 @@ def core_ferc1__yearly_plants_steam(
     raw_ferc1_dbf__f1_steam: pd.DataFrame,
     raw_ferc1_xbrl__steam_electric_generating_plant_statistics_large_plants_402_duration: pd.DataFrame,
     raw_ferc1_xbrl__steam_electric_generating_plant_statistics_large_plants_402_instant: pd.DataFrame,
-    core_ferc1__yearly_fuel: pd.DataFrame,
+    core_ferc1__yearly_steam_plants_fuel: pd.DataFrame,
 ) -> pd.DataFrame:
     """Create the clean core_ferc1__yearly_plants_steam table.
 
@@ -6029,7 +6031,7 @@ def core_ferc1__yearly_plants_steam(
             raw_ferc1_dbf__f1_steam: Raw f1_steam table.
             raw_ferc1_xbrl__steam_electric_generating_plant_statistics_large_plants_402_duration: raw XBRL duration table.
             raw_ferc1_xbrl__steam_electric_generating_plant_statistics_large_plants_402_instant: raw XBRL instant table.
-            core_ferc1__yearly_fuel: Transformed core_ferc1__yearly_fuel table.
+            core_ferc1__yearly_steam_plants_fuel: Transformed core_ferc1__yearly_steam_plants_fuel table.
 
     Returns:
         Clean core_ferc1__yearly_plants_steam table.
@@ -6040,7 +6042,7 @@ def core_ferc1__yearly_plants_steam(
         raw_dbf=raw_ferc1_dbf__f1_steam,
         raw_xbrl_instant=raw_ferc1_xbrl__steam_electric_generating_plant_statistics_large_plants_402_instant,
         raw_xbrl_duration=raw_ferc1_xbrl__steam_electric_generating_plant_statistics_large_plants_402_duration,
-        transformed_fuel=core_ferc1__yearly_fuel,
+        transformed_fuel=core_ferc1__yearly_steam_plants_fuel,
     )
     return convert_cols_dtypes(df, data_source="ferc1")
 
@@ -6341,7 +6343,7 @@ def make_calculation_dimensions_explicit(
 
     We have extended this calculation system to allow independent calculations to be
     specified for different values within a given dimension. For example, the
-    :ref:`core_ferc1__yearly_utility_plant_summary` table contains records with a variety of
+    :ref:`core_ferc1__yearly_utility_plant_and_depreciation_summary` table contains records with a variety of
     different ``utility_type`` values (gas, electric, etc.). For many combinations of
     fact and ``utility_type``, no more detailed information about the soruce of the data
     is available, but for some, and only in the case of electric utilities, much more
@@ -6610,7 +6612,7 @@ def infer_intra_factoid_totals(
         # not actually in the explosion work
         for table_name in [
             "core_ferc1__yearly_plant_in_service",
-            "core_ferc1__yearly_utility_plant_summary",
+            "core_ferc1__yearly_utility_plant_and_depreciation_summary",
             "core_ferc1__yearly_electric_operating_expenses",
             "core_ferc1__yearly_balance_sheet_liabilities",
             "core_ferc1__yearly_depreciation_amortization_summary",

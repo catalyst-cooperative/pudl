@@ -88,10 +88,10 @@ Data Coverage
     :pr:`2094`.
   * :ref:`core_ferc1__yearly_electric_energy_dispositions`, see issue :issue:`1819` &
     PR :pr:`2100`.
-  * :ref:`core_ferc1__yearly_transmission_statistics`, see issue :issue:`1822` & PR
+  * :ref:`core_ferc1__yearly_transmission_lines`, see issue :issue:`1822` & PR
     :pr:`2103`
-  * :ref:`core_ferc1__yearly_utility_plant_summary`, see issue :issue:`1806` & PR
-    :pr:`2105`.
+  * :ref:`core_ferc1__yearly_utility_plant_and_depreciation_summary`, see issue
+    :issue:`1806` & PR :pr:`2105`.
   * :ref:`core_ferc1__yearly_balance_sheet_assets`, see issue :issue:`1805` & PRs
     :pr:`2112,2127`.
   * :ref:`core_ferc1__yearly_balance_sheet_liabilities`, see issue :issue:`1810` & PR
@@ -107,7 +107,7 @@ Data Coverage
     :pr:`2162`.
   * :ref:`core_ferc1__yearly_retained_earnings`, see issue :issue:`1811` & PR
     :pr:`2155`.
-  * :ref:`core_ferc1__yearly_cash_flow`, see issue :issue:`1821` & PR :pr:`2184`
+  * :ref:`core_ferc1__yearly_cash_flows`, see issue :issue:`1821` & PR :pr:`2184`
   * :ref:`core_ferc1__yearly_electricity_sales_by_rate_schedule`, see issue
     :issue:`1823` & PR :pr:`2205`.
 
@@ -231,7 +231,7 @@ Data Cleaning
   :ref:`core_ferc1__yearly_electric_operating_revenues` table.
 * Made minor calculation fixes in the metadata for
   :ref:`core_ferc1__yearly_income_statement`,
-  :ref:`core_ferc1__yearly_utility_plant_summary`,
+  :ref:`core_ferc1__yearly_utility_plant_and_depreciation_summary`,
   :ref:`core_ferc1__yearly_electric_operating_revenues`,
   :ref:`core_ferc1__yearly_balance_sheet_assets`,
   :ref:`core_ferc1__yearly_balance_sheet_liabilities`, and
@@ -247,8 +247,8 @@ Data Cleaning
   the often incorrect calculation specifications!). See :issue:`2957` and :pr:`2620`.
 * Flip the sign of some erroneous negative values in the
   :ref:`core_ferc1__yearly_plant_in_service` and
-  :ref:`core_ferc1__yearly_utility_plant_summary` tables. See :issue:`2599`, and
-  :pr:`2647`.
+  :ref:`core_ferc1__yearly_utility_plant_and_depreciation_summary` tables. See
+  :issue:`2599`, and :pr:`2647`.
 
 Analysis
 ^^^^^^^^

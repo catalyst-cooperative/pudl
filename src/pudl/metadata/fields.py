@@ -2826,7 +2826,7 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     "utility_owned_capacity_mw": {"type": "number", "unit": "MW"},
     "utility_plant_asset_type": {
         "type": "string",
-        "description": "Type of utility plant asset reported in the core_ferc1__yearly_utility_plant_summary table. Assets include those leased to others, held for future use, construction work-in-progress and details of accumulated depreciation.",
+        "description": "Type of utility plant asset reported in the core_ferc1__yearly_utility_plant_and_depreciation_summary table. Assets include those leased to others, held for future use, construction work-in-progress and details of accumulated depreciation.",
     },
     "utility_pobox": {"type": "string"},
     "utility_type": {
@@ -2835,7 +2835,7 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     },
     "utility_type_other": {
         "type": "string",
-        "description": "Freeform description of type of utility reported in one of the other three other utility_type sections in the core_ferc1__yearly_utility_plant_summary table. This field is reported only in the DBF reporting years (1994-2020).",
+        "description": "Freeform description of type of utility reported in one of the other three other utility_type sections in the core_ferc1__yearly_utility_plant_and_depreciation_summary table. This field is reported only in the DBF reporting years (1994-2020).",
     },
     "variable_peak_pricing": {"type": "boolean"},
     "virtual_capacity_mw": {"type": "number", "unit": "MW"},
@@ -2957,7 +2957,7 @@ elements which should be overridden need to be specified.
 
 FIELD_METADATA_BY_RESOURCE: dict[str, dict[str, Any]] = {
     "sector_consolidated_eia": {"code": {"type": "integer"}},
-    "core_ferc1__yearly_plants_hydro": {
+    "core_ferc1__yearly_hydroelectric_plants": {
         "plant_type": {
             "type": "string",
             "constraints": {
@@ -3011,7 +3011,7 @@ FIELD_METADATA_BY_RESOURCE: dict[str, dict[str, Any]] = {
         },
         "technology_description": {"constraints": {"enum": set(TECH_DESCRIPTIONS)}},
     },
-    "core_ferc1__yearly_transmission_statistics": {
+    "core_ferc1__yearly_transmission_lines": {
         "capex_land": {
             "description": "Cost of Land and land rights for the transmission line."
         },

@@ -2159,7 +2159,7 @@ inclusive so that variants of conventional (e.g. "conventional full") and outdoo
 # Fully assembled set of FERC 1 transformation parameters
 ##############################################################################
 TRANSFORM_PARAMS = {
-    "core_ferc1__yearly_fuel": {
+    "core_ferc1__yearly_steam_plants_fuel": {
         "rename_columns_ferc1": {
             "dbf": {
                 "columns": {
@@ -2403,7 +2403,7 @@ TRANSFORM_PARAMS = {
             },
         ],
     },
-    "core_ferc1__yearly_plants_hydro": {
+    "core_ferc1__yearly_hydroelectric_plants": {
         "rename_columns_ferc1": {
             "dbf": {
                 "columns": {
@@ -2886,7 +2886,7 @@ TRANSFORM_PARAMS = {
             },
         ],
     },
-    "core_ferc1__yearly_purchased_power": {
+    "core_ferc1__yearly_purchased_power_and_exchanges": {
         "rename_columns_ferc1": {
             "dbf": {
                 "columns": {
@@ -2965,7 +2965,7 @@ TRANSFORM_PARAMS = {
             }
         ],
     },
-    "core_ferc1__yearly_transmission_statistics": {
+    "core_ferc1__yearly_transmission_lines": {
         "rename_columns_ferc1": {
             "dbf": {
                 "columns": {
@@ -3189,7 +3189,7 @@ TRANSFORM_PARAMS = {
         },
         "align_row_numbers_dbf": {"dbf_table_names": ["f1_elctrc_erg_acct"]},
     },
-    "core_ferc1__yearly_utility_plant_summary": {
+    "core_ferc1__yearly_utility_plant_and_depreciation_summary": {
         "rename_columns_ferc1": {
             "dbf": {
                 "columns": {
@@ -4179,7 +4179,7 @@ TRANSFORM_PARAMS = {
             "subtotal_column": "plant_status",
         },
     },
-    "core_ferc1__yearly_cash_flow": {
+    "core_ferc1__yearly_cash_flows": {
         "rename_columns_ferc1": {
             "instant_xbrl": {
                 "columns": {
