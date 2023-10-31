@@ -69,6 +69,9 @@ class Extractor(excel.GenericExtractor):
         }
 
 
+eia861_raw_dfs = excel.raw_df_factory(Extractor, name="eia861")
+
+
 @multi_asset(
     outs={
         table_name: AssetOut()
@@ -99,7 +102,7 @@ class Extractor(excel.GenericExtractor):
     },
     required_resource_keys={"datastore", "dataset_settings"},
 )
-def extract_eia861(context):
+def extract_eia861(context, eia861_raw_dfs):
     """Extract raw EIA-861 data from Excel sheets into dataframes.
 
     Args:
@@ -108,10 +111,6 @@ def extract_eia861(context):
     Returns:
         A tuple of extracted EIA-861 dataframes.
     """
-    eia_settings = context.resources.dataset_settings.eia
-    ds = context.resources.datastore
-    eia861_raw_dfs = Extractor(ds).extract(year=eia_settings.eia861.years)
-
     eia861_raw_dfs = {
         "raw_eia861__" + table_name.replace("_eia861", ""): df
         for table_name, df in eia861_raw_dfs.items()

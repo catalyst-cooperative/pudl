@@ -576,7 +576,7 @@ class Field(Base):
     Examples:
         >>> field = Field(name='x', type='string', constraints={'enum': ['x', 'y']})
         >>> field.to_pandas_dtype()
-        CategoricalDtype(categories=['x', 'y'], ordered=False)
+        CategoricalDtype(categories=['x', 'y'], ordered=False, categories_dtype=object)
         >>> field.to_sql()
         Column('x', Enum('x', 'y'), CheckConstraint(...), table=None)
         >>> field = Field.from_id('utility_id_eia')
@@ -1470,7 +1470,7 @@ class Resource(Base):
                 and pd.api.types.is_integer_dtype(df[field.name])
             ):
                 df[field.name] = pd.to_datetime(df[field.name], format="%Y")
-            if pd.api.types.is_categorical_dtype(dtypes[field.name]):
+            if isinstance(dtypes[field.name], pd.CategoricalDtype):
                 uncategorized = [
                     value
                     for value in df[field.name].dropna().unique()

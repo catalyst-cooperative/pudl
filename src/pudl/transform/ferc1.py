@@ -12,6 +12,7 @@ import importlib.resources
 import itertools
 import json
 import re
+from abc import abstractmethod
 from collections import namedtuple
 from collections.abc import Mapping
 from typing import Any, Literal, Self
@@ -21,7 +22,7 @@ import pandas as pd
 import sqlalchemy as sa
 from dagster import AssetIn, AssetsDefinition, asset
 from pandas.core.groupby import DataFrameGroupBy
-from pydantic import validator
+from pydantic import BaseModel, confloat, validator
 
 import pudl
 from pudl.analysis.classify_plants_ferc1 import (
@@ -29,7 +30,7 @@ from pudl.analysis.classify_plants_ferc1 import (
     plants_steam_validate_ids,
 )
 from pudl.extract.ferc1 import TABLE_NAME_MAP_FERC1
-from pudl.helpers import convert_cols_dtypes
+from pudl.helpers import assert_cols_areclose, convert_cols_dtypes
 from pudl.metadata.fields import apply_pudl_dtypes
 from pudl.settings import Ferc1Settings
 from pudl.transform.classes import (
@@ -605,12 +606,8 @@ def unstack_balances_to_report_year_instant_xbrl(
     if not params.unstack_balances_to_report_year:
         return df
 
-    df["year"] = pd.to_datetime(df["date"]).dt.year
-    # Check that the originally reported records are annually unique.
-    # year and report_year aren't necessarily the same since previous year data
-    # is often reported in the current report year, but we're constructing a table
-    # where report_year is part of the primary key, so we have to do this:
-    unique_cols = [c for c in primary_key_cols if c != "report_year"] + ["year"]
+    # report year always corresponds to the year of "date"
+    unique_cols = set(primary_key_cols).union({"report_year"})
     if df.duplicated(unique_cols).any():
         raise AssertionError(
             "Looks like there are multiple entries per year--not sure which to use "
@@ -621,28 +618,26 @@ def unstack_balances_to_report_year_instant_xbrl(
             "Looks like there are some values in here that aren't from the end of "
             "the year. We can't use those to calculate start and end balances."
         )
-    df.loc[df.report_year == (df.year + 1), "balance_type"] = "starting_balance"
-    df.loc[df.report_year == df.year, "balance_type"] = "ending_balance"
-    if df.balance_type.isna().any():
-        # Remove rows from years that are not representative of start/end dates
-        # for a given report year (i.e., the report year and one year prior).
-        logger.warning(
-            f"Dropping unexpected years: "
-            f"{df.loc[df.balance_type.isna(), 'year'].unique()}"
-        )
-        df = df[df["balance_type"].notna()].copy()
-    df = (
-        df.drop(["year", "date"], axis="columns")
+
+    ending_balances = df.assign(balance_type="ending_balance")
+    starting_balances = df.assign(
+        report_year=df.report_year + 1, balance_type="starting_balance"
+    )
+    all_balances = pd.concat([starting_balances, ending_balances])
+    # for the first year, we expect no starting balances; for the last year, we expect no ending balances.
+    first_last_year_stripped = all_balances.loc[
+        lambda df: ~df.report_year.isin({df.report_year.min(), df.report_year.max()})
+    ]
+    unstacked_by_year = (
+        first_last_year_stripped.drop(columns=["date"])
         .set_index(primary_key_cols + ["balance_type", "sched_table_name"])
         .unstack("balance_type")
     )
-    # This turns a multi-index into a single-level index with tuples of strings
-    # as the keys, and then converts the tuples of strings into a single string
-    # by joining their values with an underscore. This results in column labels
-    # like boiler_plant_equipment_steam_production_starting_balance
-    df.columns = ["_".join(items) for items in df.columns.to_flat_index()]
-    df = df.reset_index()
-    return df
+    # munge multi-index into flat index, separated by _
+    unstacked_by_year.columns = [
+        "_".join(items) for items in unstacked_by_year.columns.to_flat_index()
+    ]
+    return unstacked_by_year.reset_index()
 
 
 class CombineAxisColumnsXbrl(TransformParams):
@@ -732,6 +727,123 @@ def combine_axis_columns_xbrl(
     return df
 
 
+class IsCloseTolerance(TransformParams):
+    """Info for testing a particular check."""
+
+    isclose_rtol: confloat(ge=0.0) = 1e-5
+    """Relative tolerance to use in :func:`np.isclose` for determining equality."""
+
+    isclose_atol: confloat(ge=0.0, le=0.01) = 1e-8
+    """Absolute tolerance to use in :func:`np.isclose` for determining equality."""
+
+
+class CalculationIsCloseTolerance(TransformParams):
+    """Calc params organized by check type."""
+
+    error_frequency: IsCloseTolerance = IsCloseTolerance()
+    relative_error_magnitude: IsCloseTolerance = IsCloseTolerance(isclose_atol=1e-3)
+    null_calculated_value_frequency: IsCloseTolerance = IsCloseTolerance()
+    absolute_error_magnitude: IsCloseTolerance = IsCloseTolerance()
+    null_reported_value_frequency: IsCloseTolerance = IsCloseTolerance()
+
+
+class MetricTolerances(TransformParams):
+    """Tolerances for all data checks to be preformed within a grouped df."""
+
+    error_frequency: confloat(ge=0.0, le=1.0) = 0.01
+    relative_error_magnitude: confloat(ge=0.0) = 0.02
+    null_calculated_value_frequency: confloat(ge=0.0, le=1.0) = 0.7
+    """Fraction of records with non-null reported values and null calculated values."""
+    absolute_error_magnitude: confloat(ge=0.0) = np.inf
+    null_reported_value_frequency: confloat(ge=0.0, le=1.0) = 1.0
+    # ooof this one is just bad
+
+
+class GroupMetricTolerances(TransformParams):
+    """Data quality expectations related to FERC 1 calculations.
+
+    We are doing a lot of comparisons between calculated and reported values to identify
+    reporting errors in the data, errors in FERC's metadata, and bugs in our own code.
+    This class provides a structure for encoding our expectations about the level of
+    acceptable (or at least expected) errors, and allows us to pass them around.
+
+    In the future we might also want to specify much more granular expectations,
+    pertaining to individual tables, years, utilities, or facts to ensure that we don't
+    have low overall error rates, but a problem with the way the data or metadata is
+    reported in a particular year.  We could also define per-filing and per-table error
+    tolerances to help us identify individual utilities that have e.g. used an outdated
+    version of Form 1 when filing.
+    """
+
+    ungrouped: MetricTolerances = MetricTolerances(
+        error_frequency=0.0005,
+        relative_error_magnitude=0.0086,
+        null_calculated_value_frequency=0.50,
+        null_reported_value_frequency=0.68,
+    )
+    xbrl_factoid: MetricTolerances = MetricTolerances(
+        error_frequency=0.018,
+        relative_error_magnitude=0.0086,
+        null_calculated_value_frequency=1.0,
+    )
+    utility_id_ferc1: MetricTolerances = MetricTolerances(
+        error_frequency=0.038,
+        relative_error_magnitude=0.04,
+        null_calculated_value_frequency=1.0,
+    )
+    report_year: MetricTolerances = MetricTolerances(
+        error_frequency=0.006,
+        relative_error_magnitude=0.04,
+        null_calculated_value_frequency=0.7,
+    )
+    table_name: MetricTolerances = MetricTolerances(
+        error_frequency=0.0005,
+        relative_error_magnitude=0.001,
+        null_calculated_value_frequency=0.50,
+        null_reported_value_frequency=0.68,
+    )
+
+
+class GroupMetricChecks(TransformParams):
+    """Input for checking calculations organized by group and test."""
+
+    groups_to_check: list[
+        Literal[
+            "ungrouped", "table_name", "xbrl_factoid", "utility_id_ferc1", "report_year"
+        ]
+    ] = [
+        "ungrouped",
+        "report_year",
+        "xbrl_factoid",
+        "utility_id_ferc1",
+    ]
+    metrics_to_check: list[str] = [
+        "error_frequency",
+        "relative_error_magnitude",
+        "null_calculated_value_frequency",
+        "null_reported_value_frequency",
+    ]
+    group_metric_tolerances: GroupMetricTolerances = GroupMetricTolerances()
+    is_close_tolerance: CalculationIsCloseTolerance = CalculationIsCloseTolerance()
+
+    # @root_validator
+    # def grouped_tol_ge_ungrouped_tol(cls, values):
+    #     """Grouped tolerance should always be greater than or equal to ungrouped."""
+    #     group_metric_tolerances = values["group_metric_tolerances"]
+    #     groups_to_check = values["groups_to_check"]
+    #     for group in groups_to_check:
+    #         metric_tolerances = group_metric_tolerances.dict().get(group)
+    #         for metric_name, tolerance in metric_tolerances.items():
+    #             ungrouped_tolerance = group_metric_tolerances.dict()["ungrouped"].get(
+    #                 metric_name
+    #             )
+    #             if tolerance < ungrouped_tolerance:
+    #                 raise AssertionError(
+    #                     f"In {group=}, {tolerance=} for {metric_name} should be greater than {ungrouped_tolerance=}."
+    #                 )
+    #     return values
+
+
 class ReconcileTableCalculations(TransformParams):
     """Parameters for reconciling xbrl-metadata based calculations within a table."""
 
@@ -741,7 +853,7 @@ class ReconcileTableCalculations(TransformParams):
     This will typically be ``dollar_value`` or ``ending_balance`` column for the income
     statement and the balance sheet tables.
     """
-    calculation_tolerance: float = 0.05
+    group_metric_checks: GroupMetricChecks = GroupMetricChecks()
     """Fraction of calculated values which we allow not to match reported values."""
 
     subtotal_column: str | None = None
@@ -755,10 +867,10 @@ class ReconcileTableCalculations(TransformParams):
 def reconcile_table_calculations(
     df: pd.DataFrame,
     calculation_components: pd.DataFrame,
+    xbrl_metadata: pd.DataFrame,
     xbrl_factoid_name: str,
     table_name: str,
     params: ReconcileTableCalculations,
-    add_corrections: bool = True,
 ) -> pd.DataFrame:
     """Ensure intra-table calculated values match reported values within a tolerance.
 
@@ -775,125 +887,190 @@ def reconcile_table_calculations(
     do not fail the :func:`numpy.isclose()` test and so are not corrected.
 
     Args:
-        df: processed table.
+        df: processed table containing data values to check.
         calculation_components: processed calculation component metadata.
-        xbrl_factoid_name: column name of the XBRL factoid in the processed table.
-        table_name: name of the PUDL table.
+        xbrl_metadata: A dataframe of fact-level metadata, required for inferring the
+            sub-dimension total calculations.
+        xbrl_factoid_name: The name of the column which contains XBRL factoid values in
+            the processed table.
+        table_name: name of the PUDL table whose data and metadata is being processed.
+            This is necessary so we can ensure the metadata has the same structure as
+            the calculation components, which at a minimum need both ``table_name`` and
+            ``xbrl_factoid`` to identify them.
         params: :class:`ReconcileTableCalculations` parameters.
-        add_corrections: Whether or not to create _correction records that force all
-            calculations to add up correctly.
+
+    Returns:
+        A dataframe that includes new ``*_correction`` records with values that ensure
+        the calculations all match to within the required tolerance. It will also
+        contain columns created by the calculation checking process like ``abs_diff``
+        and ``rel_diff``.
     """
     # If we don't have this value, we aren't doing any calculation checking:
     if params.column_to_check is None or calculation_components.empty:
         return df
-    # we only want to check calucations that are fully within this table
-    intra_tbl_calcs = calculation_components[
+
+    # Use the calculation components which reference ONLY values within the table
+    intra_table_calcs = calculation_components[
         calculation_components.is_within_table_calc
-        & calculation_components.xbrl_factoid.notnull()  # no nulls bc we have all parents
     ]
+    # To interact with the calculation components, we need uniformly named columns
+    # for xbrl_factoid, and table_name
     df = df.rename(columns={xbrl_factoid_name: "xbrl_factoid"}).assign(
         table_name=table_name
     )
-    # !!! Add dimensions into the calculation components!!!
-    # First determine what dimensions matter in this table:
-    # usually you can rely on params.subtotal_column to get THE ONE dimension in the
-    # table... BUT some tables have more than one dimension so we grab from all of the
-    # the dims in the transformers. AAAND occasionally the factoid_name is in the dims
-    # wild. i know. so we are grabbing all of the non-factoid dimensions that show up
-    # in the data.
     dim_cols = [
-        d
-        for d in other_dimensions(table_names=list(FERC1_TFR_CLASSES))
-        if d in df.columns and d != xbrl_factoid_name
+        dim
+        for dim in other_dimensions(table_names=list(FERC1_TFR_CLASSES))
+        if dim in df.columns
     ]
     calc_idx = ["xbrl_factoid", "table_name"] + dim_cols
 
     if dim_cols:
         table_dims = df[calc_idx].drop_duplicates(keep="first")
-        # need to add in the correction dimensions. they don't show up in the data at
-        # this point so we don't have the dimensions yet. NOTE: this could have been
-        # done by adding the dims into table_dims..... maybe would have been more
-        # straightforward
-        correction_mask = intra_tbl_calcs.xbrl_factoid.str.contains("_correction")
-        intra_tbl_calcs = pd.concat(
-            [
-                intra_tbl_calcs[~correction_mask],
-                pd.merge(
-                    intra_tbl_calcs[correction_mask].drop(columns=dim_cols),
-                    table_dims[["table_name"] + dim_cols].drop_duplicates(),
-                    on=["table_name"],
-                ),
-            ]
+        intra_table_calcs = _add_intra_table_calculation_dimensions(
+            intra_table_calcs=intra_table_calcs,
+            table_dims=table_dims,
+            dim_cols=dim_cols,
         )
-        intra_tbl_calcs = make_calculation_dimensions_explicit(
-            intra_tbl_calcs,
-            table_dimensions_ferc1=table_dims,
-            dimensions=dim_cols,
-        ).pipe(
-            assign_parent_dimensions,
-            table_dimensions=table_dims,
-            dimensions=dim_cols,
+        # Check the subdimension totals, but don't add correction records for these
+        # intra-fact calculations:
+        if params.subtotal_column:
+            calc_comps_w_totals = _calculation_components_subtotal_calculations(
+                intra_table_calcs=intra_table_calcs,
+                table_dims=table_dims,
+                xbrl_metadata=xbrl_metadata,
+                dim_cols=dim_cols,
+                table_name=table_name,
+            )
+            _check_subtotal_calculations(
+                df=df,
+                params=params,
+                calc_comps_w_totals=calc_comps_w_totals,
+                calc_idx=calc_idx,
+            )
+
+    calculated_df = (
+        calculate_values_from_components(
+            data=df,
+            calculation_components=intra_table_calcs,
+            calc_idx=calc_idx,
+            value_col=params.column_to_check,
         )
-        # this is for the income statement table specifically, but is general:
-        # remove all the bits where we have a child dim but not a parent dim
-        # sometimes there are child dimensions that have utility_type == "other2" etc
-        # where the parent dimension has nothing
-        for dim in dim_cols:
-            intra_tbl_calcs = intra_tbl_calcs[
-                ~(
-                    intra_tbl_calcs[dim].notnull()
-                    & intra_tbl_calcs[f"{dim}_parent"].isnull()
-                )
-            ]
-    pks = pudl.metadata.classes.Resource.from_id(table_name).schema.primary_key
-    calculated_df = calculate_values_from_components(
+        .pipe(
+            check_calculation_metrics,
+            group_metric_checks=params.group_metric_checks,
+        )
+        .pipe(
+            add_corrections,
+            value_col=params.column_to_check,
+            is_close_tolerance=IsCloseTolerance(),
+            table_name=table_name,
+        )
+        # Rename back to the original xbrl_factoid column name before returning:
+        .rename(columns={"xbrl_factoid": xbrl_factoid_name})
+    )
+
+    return calculated_df
+
+
+def _calculation_components_subtotal_calculations(
+    intra_table_calcs: pd.DataFrame,
+    table_dims: pd.DataFrame,
+    xbrl_metadata: pd.DataFrame,
+    dim_cols: list[str],
+    table_name: str,
+) -> pd.DataFrame:
+    """Add total to subtotal calculations into calculation components."""
+    meta_w_dims = xbrl_metadata.assign(
+        **{dim: pd.NA for dim in dim_cols} | {"table_name": table_name}
+    ).pipe(
+        make_calculation_dimensions_explicit,
+        table_dimensions_ferc1=table_dims,
+        dimensions=dim_cols,
+    )
+    calc_comps_w_totals = infer_intra_factoid_totals(
+        intra_table_calcs,
+        meta_w_dims=meta_w_dims,
+        table_dimensions=table_dims,
+        dimensions=dim_cols,
+    )
+    return calc_comps_w_totals
+
+
+def _check_subtotal_calculations(
+    df: pd.DataFrame,
+    params: "Ferc1TableTransformParams",
+    calc_comps_w_totals: pd.DataFrame,
+    calc_idx: list[str],
+) -> None:
+    """Check that sub-dimension calculations sum to the reported totals.
+
+    No correction records are added to the sub-dimensions calculations. This is only an
+    error check, and returns nothing.
+    """
+    logger.info(f"Checking total-to-subtotal calculations in {params.subtotal_column}")
+    subtotal_calcs = calculate_values_from_components(
         data=df,
-        calculation_components=intra_tbl_calcs,
+        calculation_components=calc_comps_w_totals[
+            calc_comps_w_totals.is_total_to_subdimensions_calc
+        ],
         calc_idx=calc_idx,
         value_col=params.column_to_check,
     )
-    calculated_df = check_calculation_metrics(
-        calculated_df=calculated_df,
-        value_col=params.column_to_check,
-        calculation_tolerance=params.calculation_tolerance,
-        table_name=table_name,
-        add_corrections=add_corrections,
-    ).rename(columns={"xbrl_factoid": xbrl_factoid_name})
+    subtotal_calcs = check_calculation_metrics(
+        calculated_df=subtotal_calcs,
+        group_metric_checks=params.group_metric_checks,
+    )
 
-    # Check that sub-total calculations sum to total.
-    if params.subtotal_column is not None:
-        sub_group_col = params.subtotal_column
-        pks_wo_subgroup = [col for col in pks if col != sub_group_col]
-        calculated_df["sub_total_sum"] = (
-            calculated_df.pipe(lambda df: df[df[sub_group_col] != "total"])
-            .groupby(pks_wo_subgroup)[params.column_to_check]
-            .transform("sum")  # For each group, calculate sum of sub-components
-        )
-        calculated_df["sub_total_sum"] = calculated_df["sub_total_sum"].fillna(
-            calculated_df[params.column_to_check]  # Fill in value from 'total' column
-        )
-        sub_total_errors = (
-            calculated_df.groupby(pks_wo_subgroup)
-            # If subcomponent sum != total sum, we have nunique()>1
-            .filter(lambda x: x["sub_total_sum"].nunique() > 1).groupby(  # noqa: PD101
-                pks_wo_subgroup
-            )
-        )
-        off_ratio_sub = (
-            sub_total_errors.ngroups / calculated_df.groupby(pks_wo_subgroup).ngroups
-        )
-        if sub_total_errors.ngroups > 0:
-            logger.warning(
-                f"{table_name}: has {sub_total_errors.ngroups} ({off_ratio_sub:.02%}) sub-total calculations that don't "
-                "sum to the equivalent total column."
-            )
-        if off_ratio_sub > params.subtotal_calculation_tolerance:
-            raise AssertionError(
-                f"Sub-total calculations in {table_name} are off by {off_ratio_sub}. Expected tolerance "
-                f"of {params.subtotal_calculation_tolerance}."
-            )
 
-    return calculated_df
+def _add_intra_table_calculation_dimensions(
+    intra_table_calcs: pd.DataFrame,
+    table_dims: pd.DataFrame,
+    dim_cols: list[str],
+) -> pd.DataFrame:
+    """Add all observed subdimensions into the calculation components."""
+    ######## Add all observed subdimensions into the calculation components!!!
+    # First determine what dimensions matter in this table:
+    # - usually params.subtotal_column has THE ONE dimension in the table...
+    # - BUT some tables have more than one dimension so we grab from all of the
+    #   the dims in the transformers.
+
+    # need to add in the correction dimensions. they don't show up in the data at
+    # this point so we don't have the dimensions yet. NOTE: this could have been
+    # done by adding the dims into table_dims..... maybe would have been more
+    # straightforward
+    correction_mask = intra_table_calcs.xbrl_factoid.str.endswith("_correction")
+    intra_table_calcs = pd.concat(
+        [
+            intra_table_calcs[~correction_mask],
+            pd.merge(
+                intra_table_calcs[correction_mask].drop(columns=dim_cols),
+                table_dims[["table_name"] + dim_cols].drop_duplicates(),
+                on=["table_name"],
+            ),
+        ]
+    )
+    intra_table_calcs = make_calculation_dimensions_explicit(
+        intra_table_calcs,
+        table_dimensions_ferc1=table_dims,
+        dimensions=dim_cols,
+    ).pipe(
+        assign_parent_dimensions,
+        table_dimensions=table_dims,
+        dimensions=dim_cols,
+    )
+    # this is for the income statement table specifically, but is general:
+    # remove all the bits where we have a child dim but not a parent dim
+    # sometimes there are child dimensions that have utility_type == "other2" etc
+    # where the parent dimension has nothing
+    for dim in dim_cols:
+        intra_table_calcs = intra_table_calcs[
+            ~(
+                intra_table_calcs[dim].notnull()
+                & intra_table_calcs[f"{dim}_parent"].isnull()
+            )
+        ]
+    return intra_table_calcs
 
 
 def calculate_values_from_components(
@@ -912,10 +1089,8 @@ def calculate_values_from_components(
         data: exploded FERC data to apply the calculations to. Primary key should be
             ``report_year``, ``utility_id_ferc1``, ``table_name``, ``xbrl_factoid``, and
             whatever additional dimensions are relevant to the data.
-        validate: type of merge validation to apply when initially merging the calculation
-            components (left) and the data (right).
-        calc_idx: primary key columns that uniquely identify a calculation component (not
-            including the ``_parent`` columns).
+        calc_idx: primary key columns that uniquely identify a calculation component
+            (not including the ``_parent`` columns).
         value_col: label of the column in ``data`` that contains the values to apply the
             calculations to (typically ``dollar_value`` or ``ending_balance``).
     """
@@ -944,8 +1119,8 @@ def calculate_values_from_components(
             on=calc_idx,
         )
         # apply the weight from the calc to convey the sign before summing.
-        .assign(calculated_amount=lambda x: x[value_col] * x.weight)
-        .groupby(gby_parent, as_index=False, dropna=False)[["calculated_amount"]]
+        .assign(calculated_value=lambda x: x[value_col] * x.weight)
+        .groupby(gby_parent, as_index=False, dropna=False)[["calculated_value"]]
         .sum(min_count=1)
     )
     # remove the _parent suffix so we can merge these calculated values back onto
@@ -965,75 +1140,351 @@ def calculate_values_from_components(
     ].empty
 
     calculated_df = calculated_df.drop(columns=["_merge"])
-    # # Force value_col to be a float to prevent any hijinks with calculating differences.
-    calculated_df[value_col] = calculated_df[value_col].astype(float)
-    return calculated_df
-
-
-def check_calculation_metrics(
-    calculated_df: pd.DataFrame,
-    value_col: str,
-    calculation_tolerance: float,
-    table_name: str,
-    add_corrections: bool = True,
-) -> pd.DataFrame:
-    """Run the calculation metrics and determine if calculations are within tolerance."""
+    # Force value_col to be a float to prevent any hijinks with calculating differences.
     # Data types were very messy here, including pandas Float64 for the
-    # calculated_amount columns which did not work with the np.isclose(). Not sure
+    # calculated_value columns which did not work with the np.isclose(). Not sure
     # why these are cropping up.
     calculated_df = calculated_df.convert_dtypes(convert_floating=False).astype(
-        {value_col: "float64", "calculated_amount": "float64"}
+        {value_col: "float64", "calculated_value": "float64"}
     )
     calculated_df = calculated_df.assign(
-        abs_diff=lambda x: abs(x[value_col] - x.calculated_amount),
+        abs_diff=lambda x: abs(x[value_col] - x.calculated_value),
         rel_diff=lambda x: np.where(
             (x[value_col] != 0.0),
             abs(x.abs_diff / x[value_col]),
             np.nan,
         ),
     )
+    # Uniformity here helps keep the error checking functions simpler:
+    calculated_df["reported_value"] = calculated_df[value_col]
+    return calculated_df
 
-    off_df = calculated_df[
-        ~np.isclose(calculated_df.calculated_amount, calculated_df[value_col])
-        & (calculated_df["abs_diff"].notnull())
-    ]
-    calculated_values = calculated_df[(calculated_df.abs_diff.notnull())]
-    if calculated_values.empty:
-        # Will only occur if all reported values are NaN when calculated values
-        # exist, or vice versa.
-        logger.warning(
-            "Warning: No calculated values have a corresponding reported value in the table."
+
+def check_calculation_metrics_by_group(
+    calculated_df: pd.DataFrame,
+    group_metric_checks: GroupMetricChecks,
+) -> pd.DataFrame:
+    """Tabulate the results of the calculation checks by group.
+
+    Convert all of the groups' checks into a big df. This will have two indexes: first
+    for the group name (group) and one for the groups values. the columns will include
+    three for each test: the test mertic that is the same name as the test (ex:
+    error_frequency), the tolerance for that group/test and a boolean indicating
+    whether or not that metric failed to meet the tolerance.
+    """
+    results_dfs = {}
+    # for each groupby grouping: calculate metrics for each test
+    # then check if each test is within acceptable tolerance levels
+    for group_name in group_metric_checks.groups_to_check:
+        group_metrics = {}
+        for (
+            metric_name,
+            metric_tolerance,
+        ) in group_metric_checks.group_metric_tolerances.dict()[group_name].items():
+            if metric_name in group_metric_checks.metrics_to_check:
+                # this feels icky. the param name for the metrics are all snake_case while
+                # the metric classes are all TitleCase. So we convert to TitleCase
+                title_case_test = metric_name.title().replace("_", "")
+                group_metric_checker = globals()[title_case_test](
+                    by=group_name,
+                    is_close_tolerance=group_metric_checks.is_close_tolerance.dict()[
+                        metric_name
+                    ],
+                    metric_tolerance=metric_tolerance,
+                )
+                group_metric = group_metric_checker.check(
+                    calculated_df=calculated_df
+                ).rename(columns={group_name: "group_value"})
+                # we want to set the index values as the same for all groups, but both the
+                # ungrouped and table_name group require a special exception because we need
+                # to add table_name into the columns
+                if group_name == "ungrouped":
+                    group_metric = group_metric.assign(table_name="ungrouped")
+                if group_name == "table_name":
+                    # we end up having two columns w/ table_name values in order to keep all the
+                    # outputs having the same indexes.
+                    group_metric = group_metric.assign(
+                        table_name=lambda x: x["group_value"]
+                    )
+                # make a uniform multi-index w/ group name and group values
+                group_metrics[metric_name] = group_metric.set_index(
+                    ["group", "table_name", "group_value"]
+                )
+        results_dfs[group_name] = pd.concat(group_metrics.values(), axis="columns")
+    results = pd.concat(results_dfs.values(), axis="index")
+    return results
+
+
+def check_calculation_metrics(
+    calculated_df: pd.DataFrame,
+    group_metric_checks: GroupMetricChecks,
+) -> pd.DataFrame:
+    """Run the calculation metrics and determine if calculations are within tolerance."""
+    # DO ERROR CHECKS
+    results = check_calculation_metrics_by_group(calculated_df, group_metric_checks)
+    # get the records w/ errors in any! of their checks
+    errors = results[results.filter(like="is_error").any(axis=1)]
+    if not errors.empty:
+        # it miiight be good to isolate just the error columns..
+        raise AssertionError(
+            f"Found errors while running tests on the calculations:\n{errors}"
         )
-        off_ratio = np.nan
-    else:
-        off_ratio = len(off_df) / len(calculated_values)
-        if off_ratio > calculation_tolerance:
+    return calculated_df
+
+
+########################################################################################
+# Calculation Error Checking Functions
+# - These functions all take a dataframe and return a float.
+# - They are intended to be used in GroupBy.apply() (or on a whole dataframe).
+# - They require a uniform `reported_value` column so that they can all have the same
+#   call signature, which allows us to iterate over all of them in a matrix.
+########################################################################################
+
+
+class ErrorMetric(BaseModel):
+    """Base class for checking a particular metric within a group."""
+
+    by: Literal[
+        "ungrouped", "table_name", "xbrl_factoid", "utility_id_ferc1", "report_year"
+    ]
+    """Name of group to check the metric based on.
+
+    With the exception of the ungrouped case, all groups depend on table_name as well as
+    the other column specified via by.
+
+    If by=="table_name" then that is the only column used in the groupby().
+
+    If by=="ungrouped" then all records are included in the "group" (via a dummy column
+    named ungrouped that contains only the value ungrouped). This allows us to use the
+    same infrastructure for applying the metrics to grouped and ungrouped data.
+    """
+
+    is_close_tolerance: IsCloseTolerance
+    """Inputs for the metric to determine :meth:`is_not_close`. Instance of :class:`IsCloseTolerance`."""
+
+    metric_tolerance: float
+    """Tolerance for checking the metric within the ``by`` group."""
+
+    required_cols: list[str] = [
+        "table_name",
+        "xbrl_factoid",
+        "report_year",
+        "utility_id_ferc1",
+        "reported_value",
+        "calculated_value",
+        "abs_diff",
+        "rel_diff",
+    ]
+
+    def has_required_cols(self: Self, df: pd.DataFrame):
+        """Check that the input dataframe has all required columns."""
+        missing_required_cols = [
+            col for col in self.required_cols if col not in df.columns
+        ]
+        if missing_required_cols:
             raise AssertionError(
-                f"Calculations in {table_name} are off by {off_ratio:.2%}. Expected tolerance "
-                f"of {calculation_tolerance:.1%}."
+                f"The table is missing the following required columns: {missing_required_cols}"
+            )
+        return True
+
+    @abstractmethod
+    def metric(self: Self, gb: DataFrameGroupBy) -> pd.Series:
+        """Metric function that will be applied to each group of values being checked."""
+        ...
+
+    def is_not_close(self, df: pd.DataFrame) -> pd.Series:
+        """Flag records where reported and calculated values differ significantly.
+
+        We only want to check this metric when there is a non-null ``abs_diff`` because
+        we want to avoid the instances in which there are either null reported or
+        calculated values.
+        """
+        return pd.Series(
+            ~np.isclose(
+                df["calculated_value"],
+                df["reported_value"],
+                rtol=self.is_close_tolerance.isclose_rtol,
+                atol=self.is_close_tolerance.isclose_atol,
+            )
+            & df["abs_diff"].notnull()
+        )
+
+    def groupby_cols(self: Self) -> list[str]:
+        """The list of columns to group by.
+
+        We want to default to adding the table_name into all groupby's, but two of our
+        ``by`` options need special treatment.
+        """
+        gb_by = ["table_name", self.by]
+        if self.by in ["ungrouped", "table_name"]:
+            gb_by = [self.by]
+        return gb_by
+
+    def apply_metric(self: Self, df: pd.DataFrame) -> pd.Series:
+        """Generate the metric values within each group through an apply method.
+
+        This method adds a column ``is_not_close`` into the df before the groupby
+        because that column is used in many of the :meth:`metric`.
+        """
+        # return a df instead of a series
+        df["is_not_close"] = self.is_not_close(df)
+        return df.groupby(by=self.groupby_cols()).apply(self.metric)
+
+    def _snake_case_metric_name(self: Self) -> str:
+        """Convert the TitleCase class name to a snake_case string."""
+        class_name = self.__class__.__name__
+        return re.sub("(?!^)([A-Z]+)", r"_\1", class_name).lower()
+
+    def check(self: Self, calculated_df) -> pd.DataFrame:
+        """Make a df w/ the metric, tolerance and is_error columns."""
+        self.has_required_cols(calculated_df)
+        # ungrouped is special because the rest of the stock group names are column
+        # names.
+        if self.by == "ungrouped":
+            calculated_df = calculated_df.assign(
+                ungrouped="ungrouped",
             )
 
-    # We'll only get here if the proportion of calculations that are off is acceptable
-    if (off_ratio > 0 or np.isnan(off_ratio)) and add_corrections:
-        logger.info(
-            f"{table_name}: has {len(off_df)} ({off_ratio:.02%}) records whose "
-            "calculations don't match. Adding correction records to make calculations "
-            "match reported values."
+        metric_name = self._snake_case_metric_name()
+        df = (
+            pd.DataFrame(self.apply_metric(calculated_df), columns=[metric_name])
+            .assign(
+                **{  # totolerance_ is just for reporting so you can know of off you are
+                    f"tolerance_{metric_name}": self.metric_tolerance,
+                    f"is_error_{metric_name}": lambda x: x[metric_name]
+                    > self.metric_tolerance,
+                }
+            )
+            .assign(group=self.by)
+            .reset_index()
         )
-        corrections = off_df.copy()
-        corrections[value_col] = (
-            corrections[value_col].fillna(0.0) - corrections["calculated_amount"]
-        )
-        corrections["original_factoid"] = corrections["xbrl_factoid"]
-        corrections["xbrl_factoid"] = corrections["xbrl_factoid"] + "_correction"
-        corrections["row_type_xbrl"] = "correction"
-        corrections["is_within_table_calc"] = False
-        corrections["record_id"] = pd.NA
+        return df
 
-        calculated_df = pd.concat(
-            [calculated_df, corrections], axis="index"
-        ).reset_index()
-    return calculated_df
+
+class ErrorFrequency(ErrorMetric):
+    """Check error frequency in XBRL calculations."""
+
+    def metric(self: Self, gb: DataFrameGroupBy) -> pd.Series:
+        """Calculate the frequency with which records are tagged as errors."""
+        try:
+            out = gb[gb.is_not_close].shape[0] / gb.shape[0]
+        except ZeroDivisionError:
+            # Will only occur if all reported values are NaN when calculated values
+            # exist, or vice versa.
+            logger.warning(
+                "Calculated values have no corresponding reported values in this table."
+            )
+            out = np.nan
+        return out
+
+
+class RelativeErrorMagnitude(ErrorMetric):
+    """Check relative magnitude of errors in XBRL calculations."""
+
+    def metric(self: Self, gb: DataFrameGroupBy) -> pd.Series:
+        """Calculate the mangnitude of the errors relative to total reported value."""
+        try:
+            return gb.abs_diff.abs().sum() / gb["reported_value"].abs().sum()
+        except ZeroDivisionError:
+            return np.nan
+
+
+class AbsoluteErrorMagnitude(ErrorMetric):
+    """Check absolute magnitude of errors in XBRL calculations.
+
+    These numbers may vary wildly from table to table so no default values for the
+    expected errors are provided here...
+    """
+
+    def metric(self: Self, gb: DataFrameGroupBy) -> pd.Series:
+        """Calculate the absolute mangnitude of XBRL calculation errors."""
+        return gb.abs_diff.abs().sum()
+
+
+class NullCalculatedValueFrequency(ErrorMetric):
+    """Check the frequency of null calculated values."""
+
+    def apply_metric(self: Self, df: pd.DataFrame) -> pd.Series:
+        """Only apply metric to rows that contain calculated values."""
+        return (
+            df[df.row_type_xbrl == "calculated_value"]
+            .groupby(self.groupby_cols())
+            .apply(self.metric)
+        )
+
+    def metric(self: Self, gb: DataFrameGroupBy) -> pd.Series:
+        """Fraction of non-null reported values that have null corresponding calculated values."""
+        non_null_reported = gb["reported_value"].notnull()
+        null_calculated = gb["calculated_value"].isnull()
+        try:
+            return (non_null_reported & null_calculated).sum() / non_null_reported.sum()
+        except ZeroDivisionError:
+            return np.nan
+
+
+class NullReportedValueFrequency(ErrorMetric):
+    """Check the frequency of null reported values."""
+
+    def metric(self: Self, gb: DataFrameGroupBy) -> pd.Series:
+        """Frequency with which the reported values are Null."""
+        return gb["reported_value"].isnull().sum() / gb.shape[0]
+
+
+def add_corrections(
+    calculated_df: pd.DataFrame,
+    value_col: str,
+    is_close_tolerance: IsCloseTolerance,
+    table_name: str,
+) -> pd.DataFrame:
+    """Add corrections to discrepancies between reported & calculated values.
+
+    To isolate the sources of error, and ensure that all totals add up as expected in
+    later phases of the transformation, we add correction records to the dataframe
+    which compensate for any difference between the calculated and reported values. The
+    ``_correction`` factoids that are added here have already been added to the
+    calculation components during the metadata processing.
+
+    Args:
+        calculated_df: DataFrame containing the data to correct. Must already have
+            ``abs_diff`` column that was added by :func:`check_calculation_metrics`
+        value_col: Label of the column whose values are being calculated.
+        calculation_tolerance: Data structure containing various calculation tolerances.
+        table_name: Name of the table whose data we are working with. For logging.
+    """
+    corrections = calculated_df[
+        ~np.isclose(
+            calculated_df["calculated_value"],
+            calculated_df[value_col],
+            rtol=is_close_tolerance.isclose_rtol,
+            atol=is_close_tolerance.isclose_atol,
+        )
+        & (calculated_df["abs_diff"].notnull())
+    ].copy()
+
+    corrections[value_col] = (
+        corrections[value_col].fillna(0.0) - corrections["calculated_value"]
+    )
+    corrections = corrections.assign(
+        xbrl_factoid_corrected=lambda x: x["xbrl_factoid"],
+        xbrl_factoid=lambda x: x["xbrl_factoid"] + "_correction",
+        row_type_xbrl="correction",
+        is_within_table_calc=False,
+        record_id=pd.NA,
+    )
+    num_notnull_calcs = sum(calculated_df["abs_diff"].notnull())
+    num_corrections = corrections.shape[0]
+    num_records = calculated_df.shape[0]
+    try:
+        corrected_fraction = num_corrections / num_notnull_calcs
+    except ZeroDivisionError:
+        corrected_fraction = np.nan
+    logger.info(
+        f"{table_name}: Correcting {corrected_fraction:.2%} of all non-null reported "
+        f"values ({num_corrections}/{num_notnull_calcs}) out of a total of "
+        f"{num_records} original records."
+    )
+
+    return pd.concat([calculated_df, corrections], axis="index")
 
 
 class Ferc1TableTransformParams(TableTransformParams):
@@ -1676,11 +2127,11 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
             )
         )
         # for every calc component, also make the parent-only version
-        correction_parents = correction_components.assign(
+        correction_components.assign(
             table_name_parent=lambda t: t.table_name,
             xbrl_factoid_parent=lambda x: x.xbrl_factoid,
         ).drop(columns=["table_name", "xbrl_factoid"])
-        return pd.concat([calc_components, correction_components, correction_parents])
+        return pd.concat([calc_components, correction_components])
 
     def get_xbrl_calculation_fixes(self: Self) -> pd.DataFrame:
         """Grab the XBRL calculation file."""
@@ -1823,7 +2274,7 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
                 calc_fixes=self.get_xbrl_calculation_fixes(),
             )
             .drop_duplicates(keep="first")
-            # .pipe(self.add_calculation_corrections)
+            .pipe(self.add_calculation_corrections)
         )
         # this is really a xbrl_factoid-level flag, but we need it while using this
         # calc components.
@@ -2168,7 +2619,8 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
                     ],
                     axis="columns",
                 ).reset_index()
-        return out_df
+
+        return out_df.loc[out_df.report_year.isin(Ferc1Settings().xbrl_years)]
 
     @cache_df("process_instant_xbrl")
     def process_instant_xbrl(self, df: pd.DataFrame) -> pd.DataFrame:
@@ -2398,9 +2850,9 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
                 df=df,
                 calculation_components=self.xbrl_calculations,
                 xbrl_factoid_name=self.params.xbrl_factoid_name,
+                xbrl_metadata=self.xbrl_metadata,
                 table_name=self.table_id.value,
                 params=params,
-                add_corrections=True,
             )
         return df
 
@@ -2491,6 +2943,7 @@ class FuelFerc1TableTransformer(Ferc1AbstractTableTransformer):
         df = (
             super()
             .process_dbf(raw_dbf)
+            .pipe(self.to_numeric)
             .pipe(self.convert_units)
             .pipe(self.normalize_strings)
             .pipe(self.categorize_strings)
@@ -2524,6 +2977,7 @@ class FuelFerc1TableTransformer(Ferc1AbstractTableTransformer):
                 raw_xbrl_instant, raw_xbrl_duration
             )
             .pipe(self.rename_columns, rename_stage="xbrl")
+            .pipe(self.to_numeric)
             .pipe(self.convert_units)
             .pipe(self.normalize_strings)
             .pipe(self.categorize_strings)
@@ -2536,7 +2990,20 @@ class FuelFerc1TableTransformer(Ferc1AbstractTableTransformer):
             )
         )
 
-    def standardize_physical_fuel_units(self, df: pd.DataFrame) -> pd.DataFrame:
+    def to_numeric(self: Self, df: pd.DataFrame) -> pd.DataFrame:
+        """Convert columns containing numeric strings to numeric types."""
+        numeric_cols = [
+            "fuel_consumed_units",
+            "fuel_cost_per_unit_burned",
+            "fuel_cost_per_unit_delivered",
+            "fuel_cost_per_mmbtu",
+        ]
+        for col in numeric_cols:
+            df[col] = pd.to_numeric(df[col])
+
+        return df
+
+    def standardize_physical_fuel_units(self: Self, df: pd.DataFrame) -> pd.DataFrame:
         """Convert reported fuel quantities to standard units depending on fuel type.
 
         Use the categorized fuel type and reported fuel units to convert all fuel
@@ -3977,6 +4444,11 @@ class TransmissionStatisticsFerc1TableTransformer(Ferc1AbstractTableTransformer)
     table_id: TableIdFerc1 = TableIdFerc1.TRANSMISSION_STATISTICS_FERC1
     has_unique_record_ids: bool = False
 
+    def transform_main(self: Self, df: pd.DataFrame) -> pd.DataFrame:
+        """Do some string-to-numeric ninja moves."""
+        df["num_transmission_circuits"] = pd.to_numeric(df["num_transmission_circuits"])
+        return super().transform_main(df)
+
 
 class ElectricEnergySourcesFerc1TableTransformer(Ferc1AbstractTableTransformer):
     """Transformer class for :ref:`core_ferc1__yearly_electric_energy_sources` table.
@@ -4029,6 +4501,16 @@ class UtilityPlantSummaryFerc1TableTransformer(Ferc1AbstractTableTransformer):
 
     table_id: TableIdFerc1 = TableIdFerc1.UTILITY_PLANT_SUMMARY_FERC1
     has_unique_record_ids: bool = False
+
+    def process_xbrl(
+        self: Self, raw_xbrl_instant: pd.DataFrame, raw_xbrl_duration: pd.DataFrame
+    ) -> pd.DataFrame:
+        """Remove the end-of-previous-year instant data."""
+        all_current_year = raw_xbrl_instant[
+            raw_xbrl_instant["date"].astype("datetime64[ns]").dt.year
+            == raw_xbrl_instant["report_year"].astype("int64")
+        ]
+        return super().process_xbrl(all_current_year, raw_xbrl_duration)
 
     def convert_xbrl_metadata_json_to_df(
         self: Self,
@@ -4138,40 +4620,6 @@ class UtilityPlantSummaryFerc1TableTransformer(Ferc1AbstractTableTransformer):
             "utility_plant_asset_type",
         ]
 
-        # The utility_id_ferc1 211 follows the same pattern for several years
-        # instead of writing them all out in spot_fix_pks, we'll create a loop that
-        # generates all of them and then append them to spot_fix_pks later
-        spot_fix_211 = []
-        for year in np.append(2006, range(2009, 2021)):
-            for utility_type in ["electric", "total"]:
-                pks = [
-                    (
-                        year,
-                        211,
-                        utility_type,
-                        "accumulated_provision_for_depreciation_amortization_and_depletion_of_plant_utility",
-                    ),
-                    (
-                        year,
-                        211,
-                        utility_type,
-                        "amortization_of_other_utility_plant_utility_plant_in_service",
-                    ),
-                    (
-                        year,
-                        211,
-                        utility_type,
-                        "depreciation_amortization_and_depletion_utility_plant_in_service",
-                    ),
-                    (
-                        year,
-                        211,
-                        utility_type,
-                        "depreciation_utility_plant_in_service",
-                    ),
-                ]
-                spot_fix_211 = spot_fix_211 + pks
-
         spot_fix_pks = [
             (
                 2012,
@@ -4267,8 +4715,17 @@ class UtilityPlantSummaryFerc1TableTransformer(Ferc1AbstractTableTransformer):
             (2007, 393, "total", "depreciation_utility_plant_in_service"),
         ]
 
-        # Combine bespoke fixes with programatically generated spot fixes
-        spot_fix_pks = spot_fix_pks + spot_fix_211
+        spot_fix_pks += [
+            (year, 211, utility_type, column_name)
+            for year in [2006] + list(range(2009, 2021))
+            for utility_type in ["electric", "total"]
+            for column_name in [
+                "accumulated_provision_for_depreciation_amortization_and_depletion_of_plant_utility",
+                "amortization_of_other_utility_plant_utility_plant_in_service",
+                "depreciation_amortization_and_depletion_utility_plant_in_service",
+                "depreciation_utility_plant_in_service",
+            ]
+        ]
 
         # Par down spot fixes to account for fast tests where not all years are used
         df_years = df.report_year.unique().tolist()
@@ -4283,7 +4740,7 @@ class UtilityPlantSummaryFerc1TableTransformer(Ferc1AbstractTableTransformer):
             df = df.set_index(primary_keys)
             # Flip the signs for the values in "ending balance" all records in the original
             # df that appear in the primary key df
-            df.loc[df_keys.index, "ending_balance"] = df["ending_balance"] * -1
+            df.loc[df_keys.index, "ending_balance"] *= -1
             # All of these are flipping negative values to positive values,
             # so let's make sure that's what happens
             flipped_values = df.loc[df_keys.index]
@@ -4538,6 +4995,15 @@ class RetainedEarningsFerc1TableTransformer(Ferc1AbstractTableTransformer):
     table_id: TableIdFerc1 = TableIdFerc1.RETAINED_EARNINGS_FERC1
     has_unique_record_ids: bool = False
 
+    current_year_types: set[str] = {
+        "unappropriated_undistributed_subsidiary_earnings",
+        "unappropriated_retained_earnings",
+    }
+    previous_year_types: set[str] = {
+        "unappropriated_undistributed_subsidiary_earnings_previous_year",
+        "unappropriated_retained_earnings_previous_year",
+    }
+
     def convert_xbrl_metadata_json_to_df(
         self: Self,
         xbrl_metadata_json: dict[Literal["instant", "duration"], list[dict[str, Any]]],
@@ -4619,6 +5085,82 @@ class RetainedEarningsFerc1TableTransformer(Ferc1AbstractTableTransformer):
         df = super().transform_main(df).pipe(self.add_previous_year_factoid)
         return df
 
+    def transform_end(self, df: pd.DataFrame) -> pd.DataFrame:
+        """Check ``_previous_year`` factoids for consistency after the transformation is done."""
+        return super().transform_end(df).pipe(self.check_double_year_earnings_types)
+
+    def check_double_year_earnings_types(self, df: pd.DataFrame) -> pd.DataFrame:
+        """Check previous year/current year factoids for consistency.
+
+        The terminology can be very confusing - here are the expectations:
+
+        1. "inter year consistency": earlier year's "current starting/end
+           balance" == later year's "previous starting/end balance"
+        2. "intra year consistency": each year's "previous ending balance" ==
+           "current starting balance"
+        """
+        current_year_facts = df.loc[df.earnings_type.isin(self.current_year_types)]
+        previous_year_facts = df.loc[
+            df.earnings_type.isin(self.previous_year_types)
+        ].pipe(
+            lambda df: df.assign(
+                earnings_type=df.earnings_type.str.removesuffix("_previous_year")
+            )
+        )
+
+        # inter year comparison requires us to match the earlier year's current facts
+        # to the later year's previous facts, so we add 1 to the report year & merge.
+        earlier_years = current_year_facts.assign(
+            report_year=current_year_facts.report_year + 1
+        )
+        later_years = previous_year_facts
+        idx = ["utility_id_ferc1", "report_year", "earnings_type"]
+        inter_year_facts = earlier_years.merge(
+            later_years,
+            on=idx,
+            suffixes=["_earlier", "_later"],
+        ).dropna(
+            subset=[
+                "starting_balance_earlier",
+                "starting_balance_later",
+                "ending_balance_earlier",
+                "ending_balance_later",
+            ]
+        )
+
+        intra_year_facts = previous_year_facts.merge(
+            current_year_facts, on=idx, suffixes=["_previous", "_current"]
+        )
+
+        assert_cols_areclose(
+            df=inter_year_facts,
+            a_cols=["starting_balance_earlier"],
+            b_cols=["starting_balance_later"],
+            mismatch_threshold=0.05,
+            message="'Current starting balance' for year X-1 doesn't match "
+            "'previous starting balance' for year X.",
+        )
+
+        assert_cols_areclose(
+            df=inter_year_facts,
+            a_cols=["ending_balance_earlier"],
+            b_cols=["ending_balance_later"],
+            mismatch_threshold=0.05,
+            message="'Current ending balance' for year X-1 doesn't match "
+            "'previous ending balance' for year X.",
+        )
+
+        assert_cols_areclose(
+            df=intra_year_facts,
+            a_cols=["ending_balance_previous"],
+            b_cols=["starting_balance_current"],
+            mismatch_threshold=0.05,
+            message="'Previous year ending balance' should be the same as "
+            "'current year starting balance' for all years!",
+        )
+
+        return df
+
     def targeted_drop_duplicates_dbf(self, df: pd.DataFrame) -> pd.DataFrame:
         """Drop duplicates with truly duplicate data.
 
@@ -4677,6 +5219,7 @@ class RetainedEarningsFerc1TableTransformer(Ferc1AbstractTableTransformer):
                 earnings types.
         """
         logger.info(f"{self.table_id.value}: Reconciling previous year's data.")
+        # DBF has _current_year suffix while PUDL core version does not
         current_year_types = [
             "unappropriated_undistributed_subsidiary_earnings_current_year",
             "unappropriated_retained_earnings_current_year",
@@ -4685,7 +5228,7 @@ class RetainedEarningsFerc1TableTransformer(Ferc1AbstractTableTransformer):
             "unappropriated_undistributed_subsidiary_earnings_previous_year",
             "unappropriated_retained_earnings_previous_year",
         ]
-        # assign copies so no need to double copy when extracting this slice
+        # assign() copies, so no need to double copy when extracting this slice
         current_year = df[df.earnings_type.isin(current_year_types)].assign(
             earnings_type=lambda x: x.earnings_type.str.removesuffix("_current_year")
         )
@@ -4751,80 +5294,41 @@ class RetainedEarningsFerc1TableTransformer(Ferc1AbstractTableTransformer):
         return df
 
     def add_previous_year_factoid(self, df: pd.DataFrame) -> pd.DataFrame:
-        """Add `previous_year` factoids to XBRL data from prior year's DBF data."""
-        current_year_types = [
-            "unappropriated_undistributed_subsidiary_earnings",
-            "unappropriated_retained_earnings",
-        ]
-        previous_year_types = [
-            "unappropriated_undistributed_subsidiary_earnings_previous_year",
-            "unappropriated_retained_earnings_previous_year",
-        ]
-        # If previous_year type factoids aren't in all report_years, make factoids
-        # for these years. Raise exception if more than one year.
-        [missing_year] = [
-            year
-            for year in df[
-                df.earnings_type.isin(current_year_types)
-            ].report_year.unique()
-            if year
-            not in df[df.earnings_type.isin(previous_year_types)].report_year.unique()
-        ]
+        """Create ``*_previous_year`` factoids for XBRL data.
 
-        current_year = df[
-            (df.report_year == missing_year)
-            & (df.earnings_type.isin(current_year_types))
-        ]
-        previous_year = df[
-            (df.report_year == missing_year - 1)
-            & (df.earnings_type.isin(current_year_types))
+        XBRL doesn't include the previous year's data, but DBF does - so we try to
+        check that year X's ``*_current_year`` factoid has the same value as year X+1's
+        ``*_previous_year`` factoid.
+
+        To do this, we need to add some ``*_previous_year`` factoids to the XBRL data.
+        """
+        current_year_facts = df[df.earnings_type.isin(self.current_year_types)]
+        previous_year_facts = df[df.earnings_type.isin(self.previous_year_types)]
+
+        missing_years = set(current_year_facts.report_year.unique()) - set(
+            previous_year_facts.report_year.unique()
+        )
+
+        to_copy_forward = current_year_facts[
+            (current_year_facts.report_year + 1).isin(missing_years)
         ]
 
         idx = [
             "utility_id_ferc1",
             "earnings_type",
+            "report_year",
         ]
-        # This only works if there are two years of data, thus the assertion above.
-        data_columns = ["starting_balance", "ending_balance"]
-        metadata_columns = [
-            "balance",
-            "xbrl_factoid_original",
-            "is_within_table_calc",
-            "row_type_xbrl",
-        ]
-        date_dupe_types = pd.merge(
-            current_year.loc[:, ~current_year.columns.isin(metadata_columns)],
-            previous_year[idx + data_columns],
-            on=idx,
-            how="inner",
-            suffixes=("_original", ""),
-        ).drop(columns=["starting_balance_original", "ending_balance_original"])
-
-        date_dupe_types["earnings_type"] = date_dupe_types["earnings_type"].apply(
-            lambda x: f"{x}_previous_year"
+        inferred_previous_year_facts = (
+            to_copy_forward.assign(
+                report_year=to_copy_forward.report_year + 1,
+                new_earnings_type=to_copy_forward.earnings_type + "_previous_year",
+            )
+            .merge(current_year_facts[idx])
+            .drop(columns=["earnings_type"])
+            .rename(columns={"new_earnings_type": "earnings_type"})
+            .assign(row_type_xbrl="reported_value")
         )
-
-        # Add in metadata that matches that of prior year's `previous_year` factoids
-        # These should be consistent.
-        previous_factoid_metadata = df.loc[
-            (df.report_year == missing_year - 1)
-            & (df.earnings_type.str.contains("_previous_year"))
-        ]
-        date_dupe_types = pd.merge(
-            date_dupe_types,
-            previous_factoid_metadata[idx + metadata_columns],
-            on=idx,
-            how="left",
-        )
-
-        df = pd.concat([df, date_dupe_types])
-
-        # All `previous_year` factoids are missing `row_type_xbrl`. Fill in.
-        df.loc[
-            df.earnings_type.isin(previous_year_types), "row_type_xbrl"
-        ] = "reported_value"
-
-        return df
+        return pd.concat([df, inferred_previous_year_facts])
 
     def deduplicate_xbrl_factoid_xbrl_metadata(self, tbl_meta) -> pd.DataFrame:
         """Deduplicate the xbrl_metadata based on the ``xbrl_factoid``.
@@ -5565,6 +6069,15 @@ def table_to_xbrl_factoid_name() -> dict[str, str]:
     }
 
 
+def table_to_column_to_check() -> dict[str, list[str]]:
+    """Build a dictionary of table name (keys) to column_to_check from reconcile_table_calculations."""
+    return {
+        table_name: transformer().params.reconcile_table_calculations.column_to_check
+        for (table_name, transformer) in FERC1_TFR_CLASSES.items()
+        if transformer().params.reconcile_table_calculations.column_to_check
+    }
+
+
 @asset(
     ins={
         table_name: AssetIn(table_name)
@@ -5732,7 +6245,12 @@ def calculation_components_xbrl_ferc1(**kwargs) -> pd.DataFrame:
             f"columns are identical and expected 0.\n{parent_child_dupes=}"
         )
 
-    assert unexpected_total_components(calc_components, dimensions).empty
+    if not (
+        unexpected_totals := unexpected_total_components(
+            calc_components.convert_dtypes(), dimensions
+        )
+    ).empty:
+        raise AssertionError(f"Found unexpected total records: {unexpected_totals}")
     # Remove convert_dtypes() once we're writing to the DB using enforce_schema()
     return calc_components.convert_dtypes()
 
@@ -5885,8 +6403,12 @@ def make_calculation_dimensions_explicit(
             how="left",
         )
         calc_comps_w_explicit_dims = calc_comps_w_dims[~null_dim_mask]
+        # astypes dealing w/ future warning regarding empty or all null dfs
         calc_comps_w_dims = pd.concat(
-            [calc_comps_w_implied_dims, calc_comps_w_explicit_dims]
+            [
+                calc_comps_w_implied_dims.convert_dtypes(),
+                calc_comps_w_explicit_dims.convert_dtypes(),
+            ]
         )
     return calc_comps_w_dims
 
@@ -5935,8 +6457,12 @@ def assign_parent_dimensions(
             right_on=parent_dim_idx,
             how="left",
         )
+        # astypes dealing w/ future warning regarding empty or all null dfs
         calc_components = pd.concat(
-            [calc_components_null, calc_components_non_null]
+            [
+                calc_components_null.astype(calc_components_non_null.dtypes),
+                calc_components_non_null.astype(calc_components_null.dtypes),
+            ]
         ).reset_index(drop=True)
 
     return calc_components
@@ -6051,7 +6577,12 @@ def infer_intra_factoid_totals(
         lambda dim: f"{dim}_parent", axis="columns"
     )
     inferred_totals = inferred_totals.fillna(child_values)
-    calcs_with_totals = pd.concat([calc_components, inferred_totals])
+    calcs_with_totals = pd.concat(
+        [
+            calc_components.assign(is_total_to_subdimensions_calc=False),
+            inferred_totals.assign(is_total_to_subdimensions_calc=True),
+        ]
+    )
 
     # verification + deduping below.
 
@@ -6069,3 +6600,94 @@ def infer_intra_factoid_totals(
     )
     assert calcs_with_totals[calcs_with_totals.duplicated()].empty
     return calcs_with_totals
+
+
+@asset(
+    ins={
+        table_name: AssetIn(table_name)
+        # list of tables that have reconcile_table_calculations params
+        # minus electric_plant_depreciation_changes_ferc1 bc that table is messy and
+        # not actually in the explosion work
+        for table_name in [
+            "core_ferc1__yearly_plant_in_service",
+            "core_ferc1__yearly_utility_plant_summary",
+            "core_ferc1__yearly_electric_operating_expenses",
+            "core_ferc1__yearly_balance_sheet_liabilities",
+            "core_ferc1__yearly_depreciation_amortization_summary",
+            "core_ferc1__yearly_balance_sheet_assets",
+            "core_ferc1__yearly_income_statement",
+            "core_ferc1__yearly_electric_plant_depreciation_functional",
+            "core_ferc1__yearly_retained_earnings",
+            "core_ferc1__yearly_electric_operating_revenues",
+        ]
+    }
+    | {
+        "calculation_components_xbrl_ferc1": AssetIn(
+            "calculation_components_xbrl_ferc1"
+        )
+    },
+)
+def _core_ferc1__calculation_metric_checks(**kwargs):
+    """Check calculation metrics for all transformed tables which have reconciled calcs."""
+    calculation_components = kwargs["calculation_components_xbrl_ferc1"]
+    transformed_ferc1_dfs = {
+        name: df
+        for (name, df) in kwargs.items()
+        if name not in ["calculation_components_xbrl_ferc1"]
+    }
+    # standardize the two key columns we are going to use into generic names
+    xbrl_factoid_name = table_to_xbrl_factoid_name()
+    columns_to_check = table_to_column_to_check()
+    tbls = [
+        df.assign(table_name=name).rename(
+            columns={
+                xbrl_factoid_name[name]: "xbrl_factoid",
+                columns_to_check[name]: "column_to_check",
+            }
+        )
+        for (name, df) in transformed_ferc1_dfs.items()
+    ]
+    transformed_ferc1 = pd.concat(tbls)
+    # restrict the calculation components to only the bits we want
+    calculation_components = calculation_components[
+        # remove total to subdimensions
+        ~calculation_components.is_total_to_subdimensions_calc
+        # only the intra table calcs
+        & calculation_components.is_within_table_calc
+        # remove corrections (bc they would clean up the calcs so the errors wouldn't show up)
+        & ~calculation_components.xbrl_factoid.str.contains("_correction")
+        # remove all of the tables that aren't in this check
+        & calculation_components.table_name_parent.isin(transformed_ferc1_dfs.keys())
+    ]
+
+    calc_idx = ["xbrl_factoid", "table_name"] + other_dimensions(
+        table_names=list(FERC1_TFR_CLASSES)
+    )
+    calculated_df = calculate_values_from_components(
+        data=transformed_ferc1,
+        calculation_components=calculation_components,
+        calc_idx=calc_idx,
+        value_col="column_to_check",
+    )
+    calculation_metrics = check_calculation_metrics_by_group(
+        calculated_df=calculated_df,
+        group_metric_checks=GroupMetricChecks(
+            groups_to_check=[
+                "ungrouped",
+                "table_name",
+                "xbrl_factoid",
+                "utility_id_ferc1",
+                "report_year",
+            ]
+        ),
+    )
+
+    errors = calculation_metrics[
+        calculation_metrics.filter(like="is_error").any(axis=1)
+    ]
+    if len(errors) > 42:
+        raise AssertionError(
+            f"Found {len(errors)} from the results of check_calculation_metrics_by_group"
+            f"with default group values when less than 41 was expected.\n{errors}"
+        )
+    return calculation_metrics

@@ -256,7 +256,7 @@ utility_id_pudl,utility_id_ferc1,utility_name_ferc1,utility_id_eia,utility_name_
 258,111,Pinnacle West Marketing & Trading Co. LLC,,
 259,414,Pioneer Power and Light Company,,
 260,153,"PJM Interconnection, LLC",,
-261,437,"PJM Settlement, Inc.",,
+261,445,"PJM Settlement, Inc.",,
 262,84,Platte-Clay Electric Cooperative Inc.,,
 263,250,Portland General Electric Company,15248,Portland General Electric Co
 264,290,Potomac Electric Power Company,,
@@ -15826,3 +15826,5 @@ utility_id_pudl,utility_id_ferc1,utility_name_ferc1,utility_id_eia,utility_name_
 15868,,,65633,"BKV Barnett, LLC"
 15869,,,65634,Highpeak Solar LLC
 15870,,,1937004,
+15871,446,"Transource Oklahoma, LLC",,
+15872,447,"Mountrail-Williams Electric Cooperative",,

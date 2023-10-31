@@ -193,6 +193,6 @@ class TestFerc1ExtractDebugFunctions:
             for table_type, df in xbrl_tables.items():
                 # Some raw xbrl tables are empty
                 if not df.empty and table_type == "duration":
-                    assert (df.report_year >= 2021).all() and (
+                    assert (df.report_year >= 2020).all() and (
                         df.report_year < 2022
                     ).all(), f"Unexpected years found in table: {table_name}"

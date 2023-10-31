@@ -722,14 +722,8 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
             "fields": ["utility_id_eia", "utility_name_eia"],
             "primary_key": ["utility_id_eia"],
             "foreign_key_rules": {
-                "fields": [
-                    ["utility_id_eia"],
-                    # Results in constraint failures because this column is not
-                    # harvested in the old system. See:
-                    # https://github.com/catalyst-cooperative/pudl/issues/1196
-                    # ["owner_utility_id_eia"]
-                ],
-                # Excluding core_pudl__assn_utilities_eia b/c it's static and manually compiled
+                "fields": [["utility_id_eia"], ["owner_utility_id_eia"]],
+                # Excluding utilities_eia b/c it's static and manually compiled
                 # so it has utilities from *all* years of data, even when only a
                 # restricted set of data is processed, leading to constraint
                 # violations.

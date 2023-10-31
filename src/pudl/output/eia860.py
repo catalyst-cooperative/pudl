@@ -10,6 +10,7 @@ from pudl.metadata.codes import CODE_METADATA
 def out_eia860__yearly_ownership(
     _out_eia__plants_utilities: pd.DataFrame,
     core_eia860__scd_ownership: pd.DataFrame,
+    core_pudl__assn_utilities_eia: pd.DataFrame,
 ) -> pd.DataFrame:
     """A denormalized version of the EIA 860 ownership table.
 
@@ -17,6 +18,8 @@ def out_eia860__yearly_ownership(
         _out_eia__plants_utilities: Denormalized table containing plant and utility
             names and IDs.
         core_eia860__scd_ownership: EIA 860 ownership table.
+        core_pudl__assn_utilities_eia: Table of associations between EIA utility IDs and
+            PUDL Utility IDs.
 
     Returns:
         A denormalized version of the EIA 860 ownership table.
@@ -27,7 +30,6 @@ def out_eia860__yearly_ownership(
             "plant_id_eia",
             "plant_id_pudl",
             "plant_name_eia",
-            "utility_id_pudl",
             "report_date",
         ],
     ]
@@ -36,15 +38,23 @@ def out_eia860__yearly_ownership(
         pu_df,
         on=["report_date", "plant_id_eia"],
         how="left",
-    ).dropna(subset=["report_date", "plant_id_eia", "generator_id", "utility_id_eia"])
+    ).dropna(
+        subset=["report_date", "plant_id_eia", "generator_id", "owner_utility_id_eia"]
+    )
+    util_df = core_pudl__assn_utilities_eia.loc[
+        :, ["utility_id_eia", "utility_id_pudl"]
+    ]
+    own_df = own_df.merge(
+        util_df, how="left", left_on="owner_utility_id_eia", right_on="utility_id_eia"
+    )
     first_cols = [
         "report_date",
         "plant_id_eia",
         "plant_id_pudl",
         "plant_name_eia",
-        "utility_id_eia",
+        "owner_utility_id_eia",
         "utility_id_pudl",
-        "utility_name_eia",
+        "owner_utility_name_eia",
         "generator_id",
     ]
 

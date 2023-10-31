@@ -1753,19 +1753,15 @@ def scale_by_ownership(
         records with 200 MW).
     """
     # grab the ownership table, and reduce it to only the columns we need
-    own860 = (
-        own_eia860[
-            [
-                "plant_id_eia",
-                "generator_id",
-                "report_date",
-                "fraction_owned",
-                "utility_id_eia",
-            ]
-        ].pipe(pudl.helpers.convert_cols_dtypes, "eia")
-        # temporarily differentiate owner from operator utility
-        .rename(columns={"utility_id_eia": "owner_utility_id_eia"})
-    )
+    own860 = own_eia860[
+        [
+            "plant_id_eia",
+            "generator_id",
+            "report_date",
+            "fraction_owned",
+            "owner_utility_id_eia",
+        ]
+    ].pipe(pudl.helpers.convert_cols_dtypes, "eia")
     # we're left merging BC we've removed the retired gens, which are
     # reported in the ownership table
     gens = (
@@ -1802,3 +1798,31 @@ def scale_by_ownership(
         gens["fraction_owned"], axis="index"
     )
     return gens
+
+
+def assert_cols_areclose(
+    df: pd.DataFrame,
+    a_cols: list[str],
+    b_cols: list[str],
+    mismatch_threshold: float,
+    message: str,
+):
+    """Check if two column sets of a dataframe are close to each other.
+
+    Ignores NANs and raises if there are too many mismatches.
+    """
+    # we use df.loc, so if we use a debugger in here we can see the actual data
+    # instead of just whether or not there are matches.
+    mismatch = df.loc[
+        ~np.isclose(
+            np.ma.masked_where(np.isnan(df[a_cols]), df[a_cols]),
+            np.ma.masked_where(np.isnan(df[b_cols]), df[b_cols]),
+            equal_nan=True,
+        ).filled()
+    ]
+    mismatch_ratio = len(mismatch) / len(df)
+    if mismatch_ratio > mismatch_threshold:
+        raise AssertionError(
+            f"{message} Mismatch ratio {mismatch_ratio:.01%} > "
+            f"threshold {mismatch_threshold:.01%}."
+        )
