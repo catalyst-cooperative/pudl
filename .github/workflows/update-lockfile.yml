@@ -5,9 +5,11 @@ on:
   workflow_dispatch:
   #schedule:
   #  - cron: "0 9 * * 1-5" # Weekdays at 9AM UTC
-  #pull_request:
-  #  paths:
-  #   - "pyproject.toml"
+  pull_request:
+    paths:
+      - "pyproject.toml"
+    branches:
+      - update-lockfile
 
 jobs:
   conda-lock:
@@ -36,6 +38,7 @@ jobs:
         run: |
           make conda-lock
 
+      # TODO: Make this step require the success of the the previous make conda-lock step
       - name: Open a pull request
         uses: peter-evans/create-pull-request@v5
         with:
@@ -52,9 +55,10 @@ jobs:
           body: >
             This pull request relocks the dependencies with conda-lock.
             It is triggered by [update-lockfile](https://github.com/catalyst-cooperative/pudl/blob/main/.github/workflows/update-lockfile.yml).
-          branch: update-lockfile
           labels: dependencies, conda-lock
           reviewers: zaneselvans
           delete-branch: true
+          # branch: update-lockfile
+          base: update-lockfile
           # base: dev
           draft: true
