@@ -8,7 +8,7 @@ function setup_dagster_storage() {
     # Start dagster-storage Cloud SQL instance
     gcloud sql instances patch dagster-storage --activation-policy=ALWAYS
     # Create database
-    gcloud sql databases create "dagster-storage-$ACTION_SHA-$GITHUB_REF" --instance=dagster-storage 
+    gcloud sql databases create "dagster-storage-$SHORT_GITHUB_REF" --instance=dagster-storage 
 }
 
 function send_slack_msg() {
@@ -53,7 +53,7 @@ function shutdown_vm() {
     upload_file_to_slack $LOGFILE "pudl_etl logs for $ACTION_SHA-$GITHUB_REF:"
 
     # Delete dagster-storage database
-    gcloud sql databases delete "dagster-storage-$ACTION_SHA-$GITHUB_REF" --instance=dagster-storage
+    gcloud sql databases delete "dagster-storage-$SHORT_GITHUB_REF" --instance=dagster-storage
     # Start dagster-storage Cloud SQL instance
     gcloud sql instances patch dagster-storage --activation-policy=NEVER
 
@@ -93,6 +93,8 @@ function notify_slack() {
 
     send_slack_msg "$message"
 }
+
+SHORT_GITHUB_REF=$(git rev-parse --short $GITHUB_REF)
 
 # # Run ETL. Copy outputs to GCS and shutdown VM if ETL succeeds or fails
 # 2>&1 redirects stderr to stdout.
