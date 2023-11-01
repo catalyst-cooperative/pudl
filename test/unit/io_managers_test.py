@@ -354,7 +354,7 @@ def test_ferc_xbrl_sqlite_io_manager_dedupes(mocker, tmp_path):
 example_schema = pandera.DataFrameSchema(
     {
         "entity_id": pandera.Column(
-            str, pandera.Check.isin(r"C0123456789"), nullable=False
+            str, pandera.Check.isin("C0123456789"), nullable=False
         ),
         "date": pandera.Column("datetime64[ns]", nullable=False),
         "utility_type": pandera.Column(
@@ -370,6 +370,7 @@ example_schema = pandera.DataFrameSchema(
 )
 
 
+@hypothesis.settings(print_blob=True, deadline=400)
 @hypothesis.given(example_schema.strategy(size=3))
 def test_filter_for_freshest_data(df):
     # XBRL context is the identifying metadata for reported values
