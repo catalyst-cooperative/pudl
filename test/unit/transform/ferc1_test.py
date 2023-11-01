@@ -448,7 +448,7 @@ books,big_fact,earth,{3+4+5},44,2312
     expected_ksr = pd.read_csv(
         StringIO(
             f"""
-table_name,xbrl_factoid,planet,value,utility_id_ferc1,report_year,calculated_amount
+table_name,xbrl_factoid,planet,value,utility_id_ferc1,report_year,calculated_value
 books,lil_fact_x,venus,10.0,44,2312,
 books,lil_fact_z,venus,11.0,44,2312,
 books,lil_fact_y,venus,12.0,44,2312,
@@ -459,13 +459,13 @@ books,lil_fact_y,earth,5.0,44,2312,
 books,big_fact,earth,12.0,44,2312,{3+4+5}
 """
         )
-    )
+    ).convert_dtypes()
     out_ksr = calculate_values_from_components(
         calculation_components=calculation_components_ksr,
         data=data_ksr,
         calc_idx=["table_name", "xbrl_factoid", "planet"],
         value_col="value",
-    )
+    )[list(expected_ksr.columns)].convert_dtypes()
     pd.testing.assert_frame_equal(expected_ksr, out_ksr)
 
 
@@ -566,6 +566,7 @@ table_b,fact_8,next_gen,futile
             table_dimensions_ferc1=table_dimensions_trek,
             dimensions=["dim_x", "dim_y"],
         )
+        .convert_dtypes()
         .sort_values(calc_comp_idx)
         .reset_index(drop=True)
     )
@@ -591,7 +592,7 @@ table_a,fact_2,table_b,fact_8,next_gen,is
 table_a,fact_2,table_b,fact_8,next_gen,futile
 """
         )
-    )
+    ).convert_dtypes()
     pd.testing.assert_frame_equal(out_trek, expected_trek)
     # swap the order of the dims to test whether the input order effects the result
     out_reordered = (
