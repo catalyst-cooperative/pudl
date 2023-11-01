@@ -354,7 +354,7 @@ def test_ferc_xbrl_sqlite_io_manager_dedupes(mocker, tmp_path):
 example_schema = pandera.DataFrameSchema(
     {
         "entity_id": pandera.Column(
-            str, pandera.Check.str_matches(r"[0-9a-zA-Z]+"), nullable=False
+            str, pandera.Check.isin(r"C0123456789"), nullable=False
         ),
         "date": pandera.Column("datetime64[ns]", nullable=False),
         "utility_type": pandera.Column(
@@ -365,7 +365,7 @@ example_schema = pandera.DataFrameSchema(
         "publication_time": pandera.Column("datetime64[ns]", nullable=False),
         "int_factoid": pandera.Column(int),
         "float_factoid": pandera.Column(float),
-        "str_factoid": pandera.Column("str"),
+        "str_factoid": pandera.Column(str),
     }
 )
 
