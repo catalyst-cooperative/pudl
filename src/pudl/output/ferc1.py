@@ -868,7 +868,7 @@ def out_ferc1__yearly_steam_plants_fuel_by_plant_sched402(
     ] = core_ferc1__yearly_steam_plants_fuel_sched402["fuel_type_code_pudl"].astype(str)
 
     fuel_categories = list(
-        pudl.transform.ferc1.FuelFerc1TableTransformer()
+        pudl.transform.ferc1.SteamPlantsFuelTableTransformer()
         .params.categorize_strings["fuel_type_code_pudl"]
         .categories.keys()
     )

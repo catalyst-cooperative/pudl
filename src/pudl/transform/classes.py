@@ -1082,7 +1082,7 @@ class AbstractTableTransformer(ABC):
     single dataframe. Since Python is lazy about enforcing types and interfaces you can
     get away with other kinds of arguments when they're sometimes necessary, but this
     isn't a good arrangement and we should figure out how to do it right. See the
-    :class:`pudl.transform.ferc1.PlantsSteamFerc1TableTransformer` class for an example.
+    :class:`pudl.transform.ferc1.SteamPlantsTableTransformer` class for an example.
     """
 
     table_id: enum.Enum
@@ -1171,7 +1171,7 @@ class AbstractTableTransformer(ABC):
         return a single dataframe, and that pattern is implemented in the
         :meth:`AbstractTableTransformer.transform` method. In cases where transforms
         take or return more than one dataframe, you will need to define a new transform
-        method within the child class. See :class:`PlantsSteamFerc1TableTransformer`
+        method within the child class. See :class:`SteamPlantsTableTransformer`
         as an example.
         """
         ...

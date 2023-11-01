@@ -265,7 +265,7 @@ report_year,start_date,end_date,values
 
     class FakeTransformer(Ferc1AbstractTableTransformer):
         # just need any table name here so that one method is callable
-        table_id = TableIdFerc1.FUEL_FERC1
+        table_id = TableIdFerc1.STEAM_PLANTS_FUEL
 
     fake_transformer = FakeTransformer()
     df_out = fake_transformer.select_current_year_annual_records_duration_xbrl(df=df)
@@ -505,7 +505,7 @@ table_a,fact_1,table_a,replace_me,1.0
 
     class FakeTransformer(Ferc1AbstractTableTransformer):
         # just need any table name here so that one method is callable
-        table_id = TableIdFerc1.FUEL_FERC1
+        table_id = TableIdFerc1.STEAM_PLANTS_FUEL
 
     calc_comps_fixed_out = FakeTransformer().apply_xbrl_calculation_fixes(
         calc_components=calc_comps_fix_test, calc_fixes=calc_fixes_test
