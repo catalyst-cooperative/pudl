@@ -296,7 +296,7 @@ report_year,utility_id_ferc1,asset_type,data_col1,data_col2
         )
     )
     params = DropDuplicateRowsDbf(
-        table_name="core_ferc1__yearly_balance_sheet_assets",
+        table_name="core_ferc1__yearly_balance_sheet_assets_sched110",
         data_columns=["data_col1", "data_col2"],
     )
     df_out = drop_duplicate_rows_dbf(df, params=params).reset_index(drop=True)

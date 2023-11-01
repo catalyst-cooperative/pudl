@@ -17,7 +17,7 @@ def test_fuel_ferc1_trivial(pudl_out_ferc1):
     """Test output routines for tables from FERC Form 1."""
     logger.info("Compiling FERC Form 1 fuel table...")
     fuel_tab = pd.read_sql(
-        "ou_ferc1__yearly_steam_plants_fuel", pudl_out_ferc1.pudl_engine
+        "out_ferc1__yearly_steam_plants_fuel_sched402", pudl_out_ferc1.pudl_engine
     )
     assert len(fuel_tab) > 0, "FERC Form 1 fuel table is empty."
     logger.info(f"{len(fuel_tab)} fuel records found")
@@ -52,13 +52,14 @@ def test_fuel_ferc1_trivial(pudl_out_ferc1):
     ],
 )
 def test_vs_bounds(pudl_out_ferc1, live_dbs, cases):
-    """Test distributions of reported core_ferc1__yearly_plants_steam columns."""
+    """Test distributions of reported core_ferc1__yearly_steam_plants_sched402 columns."""
     if not live_dbs:
         pytest.skip("Data validation only works with a live PUDL DB.")
     for case in cases:
         pv.vs_bounds(
             pd.read_sql(
-                "ou_ferc1__yearly_steam_plants_fuel", pudl_out_ferc1.pudl_engine
+                "out_ferc1__yearly_steam_plants_fuel_sched402",
+                pudl_out_ferc1.pudl_engine,
             ),
             **case,
         )
@@ -71,7 +72,8 @@ def test_self_vs_historical(pudl_out_ferc1, live_dbs):
     for args in pv.fuel_ferc1_self:
         pv.vs_self(
             pd.read_sql(
-                "ou_ferc1__yearly_steam_plants_fuel", pudl_out_ferc1.pudl_engine
+                "out_ferc1__yearly_steam_plants_fuel_sched402",
+                pudl_out_ferc1.pudl_engine,
             ),
             **args,
         )

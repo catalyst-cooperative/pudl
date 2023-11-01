@@ -106,7 +106,7 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     },
     "asset_type": {
         "type": "string",
-        "description": "Type of asset being reported to the core_ferc1__yearly_balance_sheet_assets table.",
+        "description": "Type of asset being reported to the core_ferc1__yearly_balance_sheet_assets_sched110 table.",
     },
     "associated_combined_heat_power": {
         "type": "boolean",
@@ -709,7 +709,7 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     "energy_displaced_mwh": {"type": "number", "unit": "MWh"},
     "energy_disposition_type": {
         "type": "string",
-        "description": "Type of energy disposition reported in the core_ferc1__yearly_electric_energy_dispositions. Dispositions include sales to customers, re-sales of energy, energy used internally, losses, etc.",
+        "description": "Type of energy disposition reported in the core_ferc1__yearly_energy_dispositions_sched401. Dispositions include sales to customers, re-sales of energy, energy used internally, losses, etc.",
     },
     "energy_efficiency_annual_actual_peak_reduction_mw": {
         "type": "number",
@@ -800,7 +800,7 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     },
     "energy_source_type": {
         "type": "string",
-        "description": "Type of energy source reported in the core_ferc1__yearly_electric_energy_sources table. There are three groups of energy sources: generation, power exchanges and transmission.",
+        "description": "Type of energy source reported in the core_ferc1__yearly_energy_sources_sched401 table. There are three groups of energy sources: generation, power exchanges and transmission.",
     },
     "energy_storage": {
         "type": "boolean",
@@ -1314,7 +1314,7 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     },
     "liability_type": {
         "type": "string",
-        "description": "Type of liability being reported to the core_ferc1__yearly_balance_sheet_liabilities table.",
+        "description": "Type of liability being reported to the core_ferc1__yearly_balance_sheet_liabilities_sched110 table.",
     },
     "license_id_ferc1": {
         "type": "integer",
@@ -2826,7 +2826,7 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     "utility_owned_capacity_mw": {"type": "number", "unit": "MW"},
     "utility_plant_asset_type": {
         "type": "string",
-        "description": "Type of utility plant asset reported in the core_ferc1__yearly_utility_plant_and_depreciation_summary table. Assets include those leased to others, held for future use, construction work-in-progress and details of accumulated depreciation.",
+        "description": "Type of utility plant asset reported in the core_ferc1__yearly_utility_plant_summary_sched200 table. Assets include those leased to others, held for future use, construction work-in-progress and details of accumulated depreciation.",
     },
     "utility_pobox": {"type": "string"},
     "utility_type": {
@@ -2835,7 +2835,7 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     },
     "utility_type_other": {
         "type": "string",
-        "description": "Freeform description of type of utility reported in one of the other three other utility_type sections in the core_ferc1__yearly_utility_plant_and_depreciation_summary table. This field is reported only in the DBF reporting years (1994-2020).",
+        "description": "Freeform description of type of utility reported in one of the other three other utility_type sections in the core_ferc1__yearly_utility_plant_summary_sched200 table. This field is reported only in the DBF reporting years (1994-2020).",
     },
     "variable_peak_pricing": {"type": "boolean"},
     "virtual_capacity_mw": {"type": "number", "unit": "MW"},
@@ -2957,7 +2957,7 @@ elements which should be overridden need to be specified.
 
 FIELD_METADATA_BY_RESOURCE: dict[str, dict[str, Any]] = {
     "sector_consolidated_eia": {"code": {"type": "integer"}},
-    "core_ferc1__yearly_hydroelectric_plants": {
+    "core_ferc1__yearly_hydroelectric_plants_sched406": {
         "plant_type": {
             "type": "string",
             "constraints": {
@@ -2975,7 +2975,7 @@ FIELD_METADATA_BY_RESOURCE: dict[str, dict[str, Any]] = {
             },
         }
     },
-    "core_ferc1__yearly_plants_steam": {
+    "core_ferc1__yearly_steam_plants_sched402": {
         "plant_type": {
             "type": "string",
             "constraints": {
@@ -3011,7 +3011,7 @@ FIELD_METADATA_BY_RESOURCE: dict[str, dict[str, Any]] = {
         },
         "technology_description": {"constraints": {"enum": set(TECH_DESCRIPTIONS)}},
     },
-    "core_ferc1__yearly_transmission_lines": {
+    "core_ferc1__yearly_transmission_lines_sched422": {
         "capex_land": {
             "description": "Cost of Land and land rights for the transmission line."
         },

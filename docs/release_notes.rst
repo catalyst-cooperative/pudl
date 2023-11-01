@@ -84,31 +84,33 @@ Data Coverage
   To see which DBF and XBRL tables the following PUDL tables are derived from, refer to
   :py:const:`pudl.extract.ferc1.TABLE_NAME_MAP`
 
-  * :ref:`core_ferc1__yearly_electric_energy_sources`, see issue :issue:`1819` & PR
+  * :ref:`core_ferc1__yearly_energy_sources_sched401`, see issue :issue:`1819` & PR
     :pr:`2094`.
-  * :ref:`core_ferc1__yearly_electric_energy_dispositions`, see issue :issue:`1819` &
+  * :ref:`core_ferc1__yearly_energy_dispositions_sched401`, see issue :issue:`1819` &
     PR :pr:`2100`.
-  * :ref:`core_ferc1__yearly_transmission_lines`, see issue :issue:`1822` & PR
+  * :ref:`core_ferc1__yearly_transmission_lines_sched422`, see issue :issue:`1822` & PR
     :pr:`2103`
-  * :ref:`core_ferc1__yearly_utility_plant_and_depreciation_summary`, see issue
+  * :ref:`core_ferc1__yearly_utility_plant_summary_sched200`, see issue
     :issue:`1806` & PR :pr:`2105`.
-  * :ref:`core_ferc1__yearly_balance_sheet_assets`, see issue :issue:`1805` & PRs
-    :pr:`2112,2127`.
-  * :ref:`core_ferc1__yearly_balance_sheet_liabilities`, see issue :issue:`1810` & PR
-    :pr:`2134`.
-  * :ref:`core_ferc1__yearly_depreciation_amortization_summary`, see issue :issue:`1816`
+  * :ref:`core_ferc1__yearly_balance_sheet_assets_sched110`, see issue :issue:`1805` &
+    PRs :pr:`2112,2127`.
+  * :ref:`core_ferc1__yearly_balance_sheet_liabilities_sched110`, see issue
+    :issue:`1810` & PR :pr:`2134`.
+  * :ref:`core_ferc1__yearly_depreciation_summary_sched336`, see issue :issue:`1816`
     & PR :pr:`2143`.
-  * :ref:`core_ferc1__yearly_income_statement`, see issue :issue:`1813` & PR :pr:`2147`.
-  * :ref:`core_ferc1__yearly_electric_plant_depreciation_changes` see issue
+  * :ref:`core_ferc1__yearly_income_statements_sched114`, see issue :issue:`1813` & PR
+    :pr:`2147`.
+  * :ref:`core_ferc1__yearly_depreciation_changes_sched219` see issue
     :issue:`1808` & :pr:`2119`.
-  * :ref:`core_ferc1__yearly_electric_plant_depreciation_functional` see issue
+  * :ref:`core_ferc1__yearly_depreciation_by_function_sched219` see issue
     :issue:`1808` & PR :pr:`2183`.
-  * :ref:`core_ferc1__yearly_electric_operating_expenses`, see issue :issue:`1817` & PR
+  * :ref:`core_ferc1__yearly_operating_expenses_sched320`, see issue :issue:`1817` & PR
     :pr:`2162`.
-  * :ref:`core_ferc1__yearly_retained_earnings`, see issue :issue:`1811` & PR
+  * :ref:`core_ferc1__yearly_retained_earnings_sched118`, see issue :issue:`1811` & PR
     :pr:`2155`.
-  * :ref:`core_ferc1__yearly_cash_flows`, see issue :issue:`1821` & PR :pr:`2184`
-  * :ref:`core_ferc1__yearly_electricity_sales_by_rate_schedule`, see issue
+  * :ref:`core_ferc1__yearly_cash_flows_sched120`, see issue :issue:`1821` & PR
+    :pr:`2184`.
+  * :ref:`core_ferc1__yearly_sales_by_rate_schedules_sched304`, see issue
     :issue:`1823` & PR :pr:`2205`.
 
 * Harvested owner utilities from the EIA 860 ownership table which are now included in
@@ -228,26 +230,26 @@ Data Cleaning
   with boilers in the :ref:`core_eia__entity_boilers` table. See issue :issue:`2349` &
   PR :pr:`2362`.
 * Fixed column naming issues in the
-  :ref:`core_ferc1__yearly_electric_operating_revenues` table.
+  :ref:`core_ferc1__yearly_operating_revenues_sched300` table.
 * Made minor calculation fixes in the metadata for
-  :ref:`core_ferc1__yearly_income_statement`,
-  :ref:`core_ferc1__yearly_utility_plant_and_depreciation_summary`,
-  :ref:`core_ferc1__yearly_electric_operating_revenues`,
-  :ref:`core_ferc1__yearly_balance_sheet_assets`,
-  :ref:`core_ferc1__yearly_balance_sheet_liabilities`, and
-  :ref:`core_ferc1__yearly_electric_operating_expenses`,
-  :ref:`core_ferc1__yearly_electric_plant_depreciation_changes` and
-  :ref:`core_ferc1__yearly_electric_plant_depreciation_functional`. See :issue:`2016`,
+  :ref:`core_ferc1__yearly_income_statements_sched114`,
+  :ref:`core_ferc1__yearly_utility_plant_summary_sched200`,
+  :ref:`core_ferc1__yearly_operating_revenues_sched300`,
+  :ref:`core_ferc1__yearly_balance_sheet_assets_sched110`,
+  :ref:`core_ferc1__yearly_balance_sheet_liabilities_sched110`, and
+  :ref:`core_ferc1__yearly_operating_expenses_sched320`,
+  :ref:`core_ferc1__yearly_depreciation_changes_sched219` and
+  :ref:`core_ferc1__yearly_depreciation_by_function_sched219`. See :issue:`2016`,
   :pr:`2563`, :pr:`2662` and :pr:`2687`.
-* Changed the :ref:`core_ferc1__yearly_retained_earnings` table transform to restore
-  factoids for previous year balances, and added calculation metadata. See
+* Changed the :ref:`core_ferc1__yearly_retained_earnings_sched118` table transform to
+  restore factoids for previous year balances, and added calculation metadata. See
   :issue:`1811`, :issue:`2016`, and :pr:`2645`.
 * Added "correction" records to many FERC Form 1 tables where the reported totals do not
   match the outcomes of calculations specified in XBRL metadata (even after cleaning up
   the often incorrect calculation specifications!). See :issue:`2957` and :pr:`2620`.
 * Flip the sign of some erroneous negative values in the
-  :ref:`core_ferc1__yearly_plant_in_service` and
-  :ref:`core_ferc1__yearly_utility_plant_and_depreciation_summary` tables. See
+  :ref:`core_ferc1__yearly_plant_in_service_sched204` and
+  :ref:`core_ferc1__yearly_utility_plant_summary_sched200` tables. See
   :issue:`2599`, and :pr:`2647`.
 
 Analysis

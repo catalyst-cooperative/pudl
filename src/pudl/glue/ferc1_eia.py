@@ -255,11 +255,11 @@ def get_plants_ferc1_raw_job() -> JobDefinition:
     This job expects ferc1.sqlite and ferc_xbrl.sqlite databases to be populated.
     """
     plant_tables = [
-        "core_ferc1__yearly_hydroelectric_plants",
-        "core_ferc1__yearly_plants_small",
-        "core_ferc1__yearly_plants_pumped_storage",
-        "core_ferc1__yearly_plants_steam",
-        "core_ferc1__yearly_steam_plants_fuel",  # bc it has plants/is associated w/ the steam table
+        "core_ferc1__yearly_hydroelectric_plants_sched406",
+        "core_ferc1__yearly_small_plants_sched410",
+        "core_ferc1__yearly_pumped_storage_plants_sched408",
+        "core_ferc1__yearly_steam_plants_sched402",
+        "core_ferc1__yearly_steam_plants_fuel_sched402",  # bc it has plants/is associated w/ the steam table
     ]
 
     @asset(ins={table_name: AssetIn() for table_name in plant_tables})
