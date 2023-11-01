@@ -832,9 +832,9 @@ core_ferc1__yearly_plants_steam_capacity_ratios = [
         "data_col": "capability_ratio",
         "weight_col": "",
     },
-    {
+    {  # XBRL data (post-2021) reports 0 capability for ~22% of plants, so we exclude.
         "title": "Capability Ratio (tails)",
-        "query": "",
+        "query": "report_year < 2021 | plant_capability_mw > 0",
         "low_q": 0.05,
         "low_bound": 0.5,
         "hi_q": 0.95,

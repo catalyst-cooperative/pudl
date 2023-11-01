@@ -1,11 +1,17 @@
 """Test Dagster IO Managers."""
+import datetime
+import json
+
+import hypothesis
 import pandas as pd
+import pandera
 import pytest
 import sqlalchemy as sa
 from dagster import AssetKey, build_input_context, build_output_context
 from sqlalchemy.exc import IntegrityError, OperationalError
 
 from pudl.io_managers import (
+    FercXBRLSQLiteIOManager,
     ForeignKeyError,
     ForeignKeyErrors,
     PudlSQLiteIOManager,
@@ -218,7 +224,7 @@ def test_error_when_handling_view_without_metadata(pudl_sqlite_io_manager_fixtur
         pudl_sqlite_io_manager_fixture.handle_output(output_context, sql_stmt)
 
 
-@pytest.mark.xfail(reason="SQLAlchemy is not finding the view. Debug or remove.")
+@pytest.mark.skip(reason="SQLAlchemy is not finding the view. Debug or remove.")
 def test_handling_view_with_metadata(pudl_sqlite_io_manager_fixture):
     """Make sure an users can create and load views when it has metadata."""
     # Create some sample data
@@ -249,3 +255,252 @@ def test_error_when_reading_view_without_metadata(pudl_sqlite_io_manager_fixture
     input_context = build_input_context(asset_key=AssetKey(asset_key))
     with pytest.raises(ValueError):
         pudl_sqlite_io_manager_fixture.load_input(input_context)
+
+
+def test_ferc_xbrl_sqlite_io_manager_dedupes(mocker, tmp_path):
+    db_path = tmp_path / "test_db.sqlite"
+    # fake datapackage descriptor just to see if we can find the primary keys -
+    # lots of optional stuff dropped.
+    datapackage = json.dumps(
+        {
+            "name": "test_db",
+            "title": "Ferc1 data extracted from XBRL filings",
+            "resources": [
+                {
+                    "path": f"{db_path}",
+                    "name": "test_table_instant",
+                    "schema": {
+                        "fields": [
+                            {
+                                "name": "entity_id",
+                                "type": "string",
+                            },
+                            {
+                                "name": "utility_type_axis",
+                                "type": "string",
+                            },
+                            {
+                                "name": "filing_name",
+                                "type": "string",
+                            },
+                            {
+                                "name": "publication_time",
+                                "type": "datetime",
+                            },
+                            {
+                                "name": "date",
+                                "type": "date",
+                            },
+                            {
+                                "name": "str_factoid",
+                                "type": "string",
+                            },
+                        ],
+                        "primary_key": [
+                            "entity_id",
+                            "filing_name",
+                            "publication_time",
+                            "date",
+                            "utility_type_axis",
+                        ],
+                    },
+                }
+            ],
+        }
+    )
+
+    datapackage_path = tmp_path / "test_db_datapackage.json"
+    with datapackage_path.open("w") as f:
+        f.write(datapackage)
+
+    df = pd.DataFrame.from_records(
+        [
+            {
+                "entity_id": "C000001",
+                "utility_type_axis": "electric",
+                "filing_name": "Utility_Co_0001",
+                "date": datetime.date(2021, 12, 31),
+                "publication_time": datetime.datetime(2022, 2, 1, 0, 0, 0),
+                "str_factoid": "original 2021 EOY value",
+            },
+            {
+                "entity_id": "C000001",
+                "utility_type_axis": "electric",
+                "filing_name": "Utility_Co_0002",
+                "date": datetime.date(2021, 12, 31),
+                "publication_time": datetime.datetime(2022, 2, 1, 1, 1, 1),
+                "str_factoid": "updated 2021 EOY value",
+            },
+        ]
+    )
+
+    conn = sa.create_engine(f"sqlite:///{db_path}")
+    df.to_sql("test_table_instant", conn)
+    input_context = build_input_context(
+        asset_key=AssetKey("test_table_instant"),
+        resources={
+            "dataset_settings": mocker.MagicMock(
+                ferc1=mocker.MagicMock(xbrl_years=[2021])
+            )
+        },
+    )
+    io_manager = FercXBRLSQLiteIOManager(base_dir=tmp_path, db_name="test_db")
+    observed_table = io_manager.load_input(input_context)
+
+    assert len(observed_table) == 1
+    assert observed_table.str_factoid.to_numpy().item() == "updated 2021 EOY value"
+
+
+example_schema = pandera.DataFrameSchema(
+    {
+        "entity_id": pandera.Column(str, nullable=False),
+        "date": pandera.Column("datetime64[ns]", nullable=False),
+        "utility_type": pandera.Column(
+            str,
+            pandera.Check.isin(["electric", "gas", "total", "other"]),
+            nullable=False,
+        ),
+        "publication_time": pandera.Column("datetime64[ns]", nullable=False),
+        "int_factoid": pandera.Column(int),
+        "float_factoid": pandera.Column(float),
+        "str_factoid": pandera.Column("str"),
+    }
+)
+
+
+@pytest.mark.xfail
+@hypothesis.given(example_schema.strategy(size=3))
+def test_filter_for_freshest_data(df):
+    # XBRL context is the identifying metadata for reported values
+    xbrl_context_cols = ["entity_id", "date", "utility_type"]
+    filing_metadata_cols = ["publication_time", "filing_name"]
+    primary_key = xbrl_context_cols + filing_metadata_cols
+    deduped = FercXBRLSQLiteIOManager.filter_for_freshest_data(
+        df, primary_key=primary_key
+    )
+    example_schema.validate(deduped)
+
+    # every post-deduplication row exists in the original rows
+    assert (deduped.merge(df, how="left", indicator=True)._merge != "left_only").all()
+    # for every [entity_id, utility_type, date] - th"true"e is only one row
+    assert (~deduped.duplicated(subset=xbrl_context_cols)).all()
+    # for every *context* in the input there is a corresponding row in the output
+    original_contexts = df.groupby(xbrl_context_cols, as_index=False).last()
+    paired_by_context = original_contexts.merge(
+        deduped,
+        on=xbrl_context_cols,
+        how="outer",
+        suffixes=["_in", "_out"],
+        indicator=True,
+    ).set_index(xbrl_context_cols)
+    hypothesis.note(f"Found these contexts in input data:\n{original_contexts}")
+    hypothesis.note(f"The freshest data:\n{deduped}")
+    hypothesis.note(f"Paired by context:\n{paired_by_context}")
+    assert (paired_by_context._merge == "both").all()
+
+    # for every row in the output - its publication time is greater than or equal to all of the other ones for that [entity_id, utility_type, date] in the input data
+    assert (
+        paired_by_context["publication_time_out"]
+        >= paired_by_context["publication_time_in"]
+    ).all()
+
+
+def test_report_year_fixing_instant():
+    instant_df = pd.DataFrame.from_records(
+        [
+            {
+                "entity_id": "123",
+                "date": "2020-07-01",
+                "report_year": 3021,
+                "factoid": "replace report year with date year",
+            },
+        ]
+    )
+
+    observed = FercXBRLSQLiteIOManager.refine_report_year(
+        instant_df, xbrl_years=[2021, 2022]
+    ).report_year
+    expected = pd.Series([2020])
+    assert (observed == expected).all()
+
+
+def test_report_year_fixing_duration():
+    duration_df = pd.DataFrame.from_records(
+        [
+            {
+                "entity_id": "123",
+                "start_date": "2004-01-01",
+                "end_date": "2004-12-31",
+                "report_year": 3021,
+                "factoid": "filter out since the report year is out of bounds",
+            },
+            {
+                "entity_id": "123",
+                "start_date": "2021-01-01",
+                "end_date": "2021-12-31",
+                "report_year": 3021,
+                "factoid": "replace report year with date year",
+            },
+        ]
+    )
+
+    observed = FercXBRLSQLiteIOManager.refine_report_year(
+        duration_df, xbrl_years=[2021, 2022]
+    ).report_year
+    expected = pd.Series([2021])
+    assert (observed == expected).all()
+
+
+@pytest.mark.parametrize(
+    "df, match",
+    [
+        (
+            pd.DataFrame.from_records(
+                [
+                    {"entity_id": "123", "report_year": 3021, "date": ""},
+                ]
+            ),
+            "date has null values",
+        ),
+        (
+            pd.DataFrame.from_records(
+                [
+                    {
+                        "entity_id": "123",
+                        "report_year": 3021,
+                        "start_date": "",
+                        "end_date": "2020-12-31",
+                    },
+                ]
+            ),
+            "start_date has null values",
+        ),
+        (
+            pd.DataFrame.from_records(
+                [
+                    {
+                        "entity_id": "123",
+                        "report_year": 3021,
+                        "start_date": "2020-06-01",
+                        "end_date": "2021-05-31",
+                    },
+                ]
+            ),
+            "start_date and end_date are in different years",
+        ),
+        (
+            pd.DataFrame.from_records(
+                [
+                    {
+                        "entity_id": "123",
+                        "report_year": 3021,
+                    },
+                ]
+            ),
+            "Attempted to read a non-instant, non-duration table",
+        ),
+    ],
+)
+def test_report_year_fixing_bad_values(df, match):
+    with pytest.raises(ValueError, match=match):
+        FercXBRLSQLiteIOManager.refine_report_year(df, xbrl_years=[2021, 2022])

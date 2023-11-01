@@ -244,6 +244,7 @@ class EiaSettings(BaseModel):
 
     Args:
         eia860: Immutable pydantic model to validate eia860 settings.
+        eia861: Immutable pydantic model to validate eia861 settings.
         eia923: Immutable pydantic model to validate eia923 settings.
     """
 

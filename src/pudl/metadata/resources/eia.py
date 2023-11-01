@@ -525,6 +525,48 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
         "etl_group": "entity_eia",
         "field_namespace": "eia",
     },
+    "out_eia__yearly_generators_by_ownership": {
+        "description": "A mega table of all EIA generators with ownership integrated.",
+        "schema": {
+            "fields": [
+                "plant_id_eia",
+                "generator_id",
+                "report_date",
+                "unit_id_pudl",
+                "plant_id_pudl",
+                "plant_name_eia",
+                "utility_id_eia",
+                "utility_id_pudl",
+                "utility_name_eia",
+                "technology_description",
+                "energy_source_code_1",
+                "prime_mover_code",
+                "generator_operating_date",
+                "generator_retirement_date",
+                "operational_status",
+                "capacity_mw",
+                "fuel_type_code_pudl",
+                "planned_generator_retirement_date",
+                "capacity_factor",
+                "fuel_cost_from_eiaapi",
+                "fuel_cost_per_mmbtu",
+                "fuel_cost_per_mwh",
+                "heat_rate_mmbtu_mwh",
+                "net_generation_mwh",
+                "total_fuel_cost",
+                "total_mmbtu",
+                "ferc_acct_name",
+                "generator_operating_year",
+                "operational_status_pudl",
+                "capacity_eoy_mw",
+                "fraction_owned",
+                "ownership_record_type",
+            ],
+        },
+        "sources": ["eia860", "eia923"],
+        "etl_group": "outputs",
+        "field_namespace": "eia",
+    },
     "core_eia__codes_momentary_interruptions": {
         "description": "A coding table for utility definitions of momentary service interruptions.",
         "schema": {
@@ -581,10 +623,11 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
         "etl_group": "entity_eia",
         "field_namespace": "eia",
     },
-    "plant_parts_eia": {
+    "out_eia__yearly_plant_parts": {
         "description": "Output table with the aggregation of all EIA plant parts. For use with matching to FERC 1.",
         "schema": {
             "fields": [
+                "record_id_eia",
                 "plant_id_eia",
                 "report_date",
                 "plant_part",
@@ -627,12 +670,12 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
                 "utility_id_pudl",
                 "report_year",
                 "plant_id_report_year",
-            ]
+            ],
+            "primary_key": ["record_id_eia"],
         },
         "sources": ["eia860", "eia923"],
         "etl_group": "outputs",
-        "field_namespace": "ppe",
-        "create_database_schema": False,
+        "field_namespace": "eia",
     },
     "core_eia__codes_prime_movers": {
         "description": "Long descriptions explaining the short prime mover codes reported in the EIA-860 and EIA-923.",
@@ -679,14 +722,8 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
             "fields": ["utility_id_eia", "utility_name_eia"],
             "primary_key": ["utility_id_eia"],
             "foreign_key_rules": {
-                "fields": [
-                    ["utility_id_eia"],
-                    # Results in constraint failures because this column is not
-                    # harvested in the old system. See:
-                    # https://github.com/catalyst-cooperative/pudl/issues/1196
-                    # ["owner_utility_id_eia"]
-                ],
-                # Excluding core_pudl__assn_utilities_eia b/c it's static and manually compiled
+                "fields": [["utility_id_eia"], ["owner_utility_id_eia"]],
+                # Excluding utilities_eia b/c it's static and manually compiled
                 # so it has utilities from *all* years of data, even when only a
                 # restricted set of data is processed, leading to constraint
                 # violations.
@@ -977,7 +1014,7 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
         "sources": ["eia860", "eia923"],
         "etl_group": "outputs",
     },
-    "out_eia__yearly_generators": {
+    "_out_eia__yearly_generators": {
         "description": ("Denormalized table containing all EIA generator attributes."),
         "schema": {
             "fields": [

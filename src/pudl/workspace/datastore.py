@@ -10,6 +10,7 @@ from collections import defaultdict
 from collections.abc import Iterator
 from pathlib import Path
 from typing import Any, Self
+from urllib.parse import ParseResult, urlparse
 
 import datapackage
 import requests
@@ -38,7 +39,7 @@ class ChecksumMismatchError(ValueError):
 class DatapackageDescriptor:
     """A simple wrapper providing access to datapackage.json contents."""
 
-    def __init__(self, datapackage_json: dict, dataset: str, doi: str):
+    def __init__(self, datapackage_json: dict, dataset: str, doi: ZenodoDoi):
         """Constructs DatapackageDescriptor.
 
         Args:
@@ -56,7 +57,15 @@ class DatapackageDescriptor:
         res = self._get_resource_metadata(name)
         # remote_url is sometimes set on the local cached version of datapackage.json
         # so we should be using that if it exists.
-        return res.get("remote_url") or res.get("path")
+        resource_path = res.get("remote_url") or res.get("path")
+        parsed_path = urlparse(resource_path)
+        if parsed_path.path.startswith("/api/files"):
+            record_number = self.doi.lower().rsplit("zenodo.", 1)[-1]
+            new_path = f"/records/{record_number}/files/{name}"
+            new_url = ParseResult(**(parsed_path._asdict() | {"path": new_path}))
+
+            return new_url.geturl()
+        return resource_path
 
     def _get_resource_metadata(self, name: str) -> dict:
         for res in self.datapackage_json["resources"]:
@@ -171,17 +180,19 @@ class ZenodoDoiSettings(BaseSettings):
     epacamd_eia: ZenodoDoi = "10.5281/zenodo.7900974"
     # epacamd_eia: ZenodoDoi = "10.5072/zenodo.1199170"
     epacems: ZenodoDoi = "10.5281/zenodo.8235497"
-    # epacems": ZenodoDoi = "10.5072/zenodo.1228519"
-    ferc1: ZenodoDoi = "10.5281/zenodo.7314437"
-    # ferc1: ZenodoDoi = 10.5072/zenodo.1070868"
-    ferc2: ZenodoDoi = "10.5281/zenodo.8006881"
-    # ferc2: ZenodoDoi = "10.5072/zenodo.1188447"
-    ferc6: ZenodoDoi = "10.5281/zenodo.7130141"
-    # ferc6: ZenodoDoi = "10.5072/zenodo.1098088"
-    ferc60: ZenodoDoi = "10.5281/zenodo.7130146"
-    # ferc60: ZenodoDoi = "10.5072/zenodo.1098089"
-    ferc714: ZenodoDoi = "10.5281/zenodo.7139875"
-    # ferc714: ZenodoDoi = "10.5072/zenodo.1098302"
+    # epacems: ZenodoDoi = "10.5072/zenodo.1228519"
+    ferc1: ZenodoDoi = "10.5281/zenodo.8326634"
+    # ferc1: ZenodoDoi = "10.5072/zenodo.1234455"
+    ferc2: ZenodoDoi = "10.5281/zenodo.8326697"
+    # ferc2: ZenodoDoi = "10.5072/zenodo.1236695"
+    ferc6: ZenodoDoi = "10.5281/zenodo.8326696"
+    # ferc6: ZenodoDoi = "10.5072/zenodo.1236703"
+    ferc60: ZenodoDoi = "10.5281/zenodo.8326695"
+    # ferc60: ZenodoDoi = "10.5072/zenodo.1236694"
+    ferc714: ZenodoDoi = "10.5281/zenodo.8326694"
+    # ferc714: ZenodoDoi = "10.5072/zenodo.1237565"
+    phmsagas: ZenodoDoi = "10.5281/zenodo.8346646"
+    # phmsagas: ZenodoDoi = "10.5072/zenodo.1239253"
 
     class Config:
         """Pydantic config, reads from .env file."""
@@ -228,18 +239,6 @@ class ZenodoFetcher:
         """Returns list of supported datasets."""
         return [name for name, doi in sorted(self.zenodo_dois)]
 
-    def _get_token(self: Self, url: HttpUrl) -> str:
-        """Return the appropriate read-only Zenodo personal access token.
-
-        These tokens are associated with the pudl@catalyst.coop Zenodo account, which
-        owns all of the Catalyst raw data archives.
-        """
-        if "sandbox" in url:
-            token = "qyPC29wGPaflUUVAv1oGw99ytwBqwEEdwi4NuUrpwc3xUcEwbmuB4emwysco"  # noqa: S105
-        else:
-            token = "KXcG5s9TqeuPh1Ukt5QYbzhCElp9LxuqAuiwdqHP0WS4qGIQiydHn6FBtdJ5"  # noqa: S105
-        return token
-
     def _get_url(self: Self, doi: ZenodoDoi) -> HttpUrl:
         """Construct a Zenodo depsition URL based on its Zenodo DOI."""
         match = re.search(r"(10\.5072|10\.5281)/zenodo.([\d]+)", doi)
@@ -255,13 +254,11 @@ class ZenodoFetcher:
             api_root = "https://zenodo.org/api"
         else:
             raise ValueError(f"Invalid Zenodo DOI: {doi}")
-        return f"{api_root}/deposit/depositions/{zenodo_id}"
+        return f"{api_root}/records/{zenodo_id}/files"
 
     def _fetch_from_url(self: Self, url: HttpUrl) -> requests.Response:
         logger.info(f"Retrieving {url} from zenodo")
-        response = self.http.get(
-            url, params={"access_token": self._get_token(url)}, timeout=self.timeout
-        )
+        response = self.http.get(url, timeout=self.timeout)
         if response.status_code == requests.codes.ok:
             logger.debug(f"Successfully downloaded {url}")
             return response
@@ -272,9 +269,9 @@ class ZenodoFetcher:
         doi = self.get_doi(dataset)
         if doi not in self._descriptor_cache:
             dpkg = self._fetch_from_url(self._get_url(doi))
-            for f in dpkg.json()["files"]:
-                if f["filename"] == "datapackage.json":
-                    resp = self._fetch_from_url(f["links"]["download"])
+            for f in dpkg.json()["entries"]:
+                if f["key"] == "datapackage.json":
+                    resp = self._fetch_from_url(f["links"]["content"])
                     self._descriptor_cache[doi] = DatapackageDescriptor(
                         resp.json(), dataset=dataset, doi=doi
                     )

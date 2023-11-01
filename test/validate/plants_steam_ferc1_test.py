@@ -119,7 +119,7 @@ def test_plant_id_clash(pudl_out_ferc1):
         bad_records = steam_df[steam_df.plant_id_ferc1.isin(bad_plant_ids_ferc1)]
         bad_plant_ids_pudl = bad_records.plant_id_pudl.unique().tolist()
         msg = (
-            f"Found {len(bad_plant_ids_ferc1)} plant_id_ferc1 values "
+            f"Found {len(bad_plant_ids_ferc1)} (expected 6) plant_id_ferc1 values "
             f"associated with {len(bad_plant_ids_pudl)} non-unique "
             f"plant_id_pudl values.\nplant_id_ferc1: {bad_plant_ids_ferc1}\n"
             f"plant_id_pudl: {bad_plant_ids_pudl}."

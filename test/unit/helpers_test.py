@@ -20,6 +20,7 @@ from pudl.helpers import (
     remove_leading_zeros_from_numeric_strings,
     zero_pad_numeric_string,
 )
+from pudl.metadata.helpers import _format_resource_name_cross_ref
 from pudl.output.sql.helpers import sql_asset_factory
 
 MONTHLY_GEN_FUEL = pd.DataFrame(
@@ -666,3 +667,16 @@ def test_convert_col_to_bool(df):
         .isin([False, np.nan])
         .all()
     )
+
+
+@pytest.mark.parametrize(
+    "test_input,expected",
+    [
+        ("out_eia__yearly_generators", "out_eia__yearly_generators"),
+        ("_out_eia__yearly_generators", "i_out_eia__yearly_generators"),
+        ("__out_eia__yearly_generators", "i__out_eia__yearly_generators"),
+        ("", ""),
+    ],
+)
+def test_format_resource_name_cross_ref(test_input, expected):
+    assert _format_resource_name_cross_ref(test_input) == expected

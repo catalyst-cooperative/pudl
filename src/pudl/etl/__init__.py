@@ -66,13 +66,19 @@ default_assets = (
     *load_assets_from_modules(
         [pudl.analysis.allocate_gen_fuel], group_name="out_allocate_gen_fuel"
     ),
-    *load_assets_from_modules([pudl.analysis.mcoe], group_name="mcoe"),
+    *load_assets_from_modules(
+        [pudl.analysis.mcoe], group_name="out_derived_gen_attributes"
+    ),
     *load_assets_from_modules([pudl.output.ferc1], group_name="out_ferc1"),
     *load_assets_from_modules(
         [pudl.analysis.service_territory], group_name="out_service_territory_eia861"
     ),
     *load_assets_from_modules(
         [pudl.analysis.state_demand], group_name="out_state_demand_ferc714"
+    ),
+    *load_assets_from_modules(
+        [pudl.analysis.plant_parts_eia, pudl.analysis.ferc1_eia_record_linkage],
+        group_name="ferc1_eia_record_linkage",
     ),
 )
 
