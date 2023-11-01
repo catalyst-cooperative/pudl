@@ -14,7 +14,7 @@ on:
 jobs:
   conda-lock:
     # Don't run scheduled job on forks.
-    if: (github.event_name == 'schedule' && github.repository == 'catalyst-cooperative/pudl') || (github.event_name != 'schedule')
+    # if: (github.event_name == 'schedule' && github.repository == 'catalyst-cooperative/pudl') || (github.event_name != 'schedule')
     defaults:
       run:
         shell: bash -l {0}

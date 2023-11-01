@@ -142,7 +142,7 @@ test = [
     "coverage>=7",
     "jupyter",
     "nbconvert>=7",
-    "nbformat>=7",
+    "nbformat>=5.9",
     "pre-commit>=3",
     "pytest-console-scripts>=1.4",
     "pytest-cov>=4.1",
