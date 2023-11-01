@@ -58,7 +58,6 @@ jobs:
           labels: dependencies, conda-lock
           reviewers: zaneselvans
           delete-branch: true
-          # branch: update-lockfile
-          base: update-lockfile
+          branch: update-lockfile
           # base: dev
           draft: true
