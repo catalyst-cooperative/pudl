@@ -74,13 +74,13 @@ needed and organize them in a local :doc:`datastore <dev/datastore>`.
 .. _etl-process:
 
 ---------------------------------------------------------------------------------------
-The Data Warehouse Design
+The ETL Process
 ---------------------------------------------------------------------------------------
 
-PUDL's data processing produces a data warehouse that can be used for analytics.
+PUDL's ETL produces a data warehouse that can be used for analytics.
 The processing happens within Dagster assets that are persisted to storage,
 typically pickle, parquet or SQLite files. The raw data moves through three
-layers of the data warehouse.
+layers of processing.
 
 Raw Layer
 ^^^^^^^^^
@@ -201,7 +201,7 @@ Some data validations are currently only specified within our test suite, includ
 * The expected number of records within each table
 * The fact that there are no entirely N/A columns
 
-A variety of database integrity checks are also run either during the ETL process or
-when the data is loaded into SQLite.
+A variety of database integrity checks are also run either during the data processing
+or when the data is loaded into SQLite.
 
 See our :doc:`dev/testing` documentation for more information.
