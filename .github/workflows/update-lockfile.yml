@@ -9,7 +9,7 @@ on:
     paths:
       - "pyproject.toml"
     branches:
-      - update-lockfile
+      - conda-lockfile
 
 jobs:
   conda-lock:
