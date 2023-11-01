@@ -788,6 +788,7 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
                 "utility_id_eia",
                 "utility_name_eia",
                 "utility_id_pudl",
+                "data_maturity",
             ],
             "primary_key": ["report_date", "plant_id_eia", "utility_id_eia"],
         },
