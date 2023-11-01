@@ -10,6 +10,7 @@ from pudl.resources import dataset_settings
 from pudl.settings import (
     DatasetsSettings,
     Eia860Settings,
+    Eia923Settings,
     EiaSettings,
     EpaCemsSettings,
     Ferc1DbfToSqliteSettings,
@@ -134,7 +135,8 @@ class TestEiaSettings:
 
     def test_eia923_dependency(self):
         """Test that there is some overlap between EIA860 and EIA923 data."""
-        settings = EiaSettings()
+        eia923_settings = Eia923Settings()
+        settings = EiaSettings(eia923=eia923_settings)
         data_source = DataSource.from_id("eia860")
         assert settings.eia860
         # assign both EIA form years
@@ -144,6 +146,20 @@ class TestEiaSettings:
         # assert that there is some overlap between EIA years
         assert not set(eia860_years).isdisjoint(eia923_years_partition)
         assert not set(eia860_years).isdisjoint(eia923_years_settings)
+
+    def test_eia860_dependency(self):
+        """Test that there is some overlap between EIA860 and EIA923 data."""
+        eia860_settings = Eia860Settings()
+        settings = EiaSettings(eia860=eia860_settings)
+        data_source = DataSource.from_id("eia923")
+        assert settings.eia923
+        # assign both EIA form years
+        eia923_years = settings.eia923.years
+        eia860_years_partition = data_source.working_partitions["years"]
+        eia860_years_settings = settings.eia860.years
+        # assert that there is some overlap between EIA years
+        assert not set(eia923_years).isdisjoint(eia860_years_partition)
+        assert not set(eia923_years).isdisjoint(eia860_years_settings)
 
 
 class TestDatasetsSettings:
