@@ -20,6 +20,7 @@ SOURCES: dict[str, Any] = {
         ),
         "license_raw": LICENSES["us-govt"],
         "license_pudl": LICENSES["cc-by-4.0"],
+        "contributors": [CONTRIBUTORS["catalyst-cooperative"]],
     },
     "eia176": {
         "title": "EIA Form 176 -- Annual Report of Natural and Supplemental Gas Supply and Disposition",
@@ -75,10 +76,6 @@ SOURCES: dict[str, Any] = {
         "field_namespace": "eia",
         "contributors": [
             CONTRIBUTORS["catalyst-cooperative"],
-            CONTRIBUTORS["zane-selvans"],
-            CONTRIBUTORS["christina-gosnell"],
-            CONTRIBUTORS["steven-winter"],
-            CONTRIBUTORS["alana-wilson"],
         ],
         "working_partitions": {
             "years": sorted(set(range(2001, 2023))),
@@ -195,10 +192,6 @@ SOURCES: dict[str, Any] = {
         },
         "contributors": [
             CONTRIBUTORS["catalyst-cooperative"],
-            CONTRIBUTORS["zane-selvans"],
-            CONTRIBUTORS["christina-gosnell"],
-            CONTRIBUTORS["steven-winter"],
-            CONTRIBUTORS["katherine-lamb"],
         ],
         "keywords": sorted(
             set(
@@ -240,8 +233,6 @@ SOURCES: dict[str, Any] = {
         "working_partitions": {},
         "contributors": [
             CONTRIBUTORS["catalyst-cooperative"],
-            CONTRIBUTORS["zane-selvans"],
-            CONTRIBUTORS["trenton-bush"],
         ],
         "keywords": sorted(
             set(
@@ -286,8 +277,6 @@ SOURCES: dict[str, Any] = {
         },
         "contributors": [
             CONTRIBUTORS["catalyst-cooperative"],
-            CONTRIBUTORS["karl-dunkle-werner"],
-            CONTRIBUTORS["zane-selvans"],
         ],
         "keywords": sorted(
             set(
@@ -325,7 +314,6 @@ SOURCES: dict[str, Any] = {
         "working_partitions": {},
         "contributors": [
             CONTRIBUTORS["catalyst-cooperative"],
-            CONTRIBUTORS["austen-sharpe"],
         ],
         "keywords": sorted(
             set(
@@ -369,11 +357,6 @@ SOURCES: dict[str, Any] = {
         },
         "contributors": [
             CONTRIBUTORS["catalyst-cooperative"],
-            CONTRIBUTORS["zane-selvans"],
-            CONTRIBUTORS["christina-gosnell"],
-            CONTRIBUTORS["steven-winter"],
-            CONTRIBUTORS["alana-wilson"],
-            CONTRIBUTORS["austen-sharpe"],
         ],
         "keywords": sorted(
             set(
@@ -580,9 +563,6 @@ SOURCES: dict[str, Any] = {
         ),
         "contributors": [
             CONTRIBUTORS["catalyst-cooperative"],
-            CONTRIBUTORS["zane-selvans"],
-            CONTRIBUTORS["christina-gosnell"],
-            CONTRIBUTORS["steven-winter"],
         ],
         "field_namespace": "pudl",
         "keywords": ["us", "electricity", "open data", "open source"],

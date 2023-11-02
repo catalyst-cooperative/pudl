@@ -229,6 +229,9 @@ Email = pydantic.EmailStr
 HttpUrl = pydantic.AnyHttpUrl
 """Http(s) URL."""
 
+Doi = pydantic.constr(min_length=1, strict=True, regex=r"10\.5281/zenodo\.\d{6,8}")
+"""DOIs from Zenodo archives."""
+
 
 class BaseType:
     """Base class for custom pydantic types."""
@@ -869,6 +872,27 @@ class Contributor(Base):
     role: Literal[
         "author", "contributor", "maintainer", "publisher", "wrangler"
     ] = "contributor"
+    zenodo_role: Literal[
+        "contact person",
+        "data collector",
+        "data curator",
+        "data manager",
+        "distributor",
+        "editor",
+        "hosting institution",
+        "other",
+        "producer",
+        "project leader",
+        "project member",
+        "registration agency",
+        "registration authority",
+        "related person",
+        "researcher",
+        "rights holder",
+        "sponsor",
+        "supervisor",
+        "work package leader",
+    ] = "project member"
     organization: String = None
     orcid: String = None
 
@@ -911,10 +935,10 @@ class DataSource(Base):
     field_namespace: String = None
     keywords: list[str] = []
     path: HttpUrl = None
-    contributors: list[Contributor] = []  # Or should this be compiled from Resources?
+    contributors: list[Contributor] = []
     license_raw: License
     license_pudl: License
-    # concept_doi: Doi = None  # Need to define a Doi type?
+    concept_doi: Doi = None
     working_partitions: dict[SnakeCase, Any] = {}
     source_file_dict: dict[SnakeCase, Any] = {}
     # agency: Agency  # needs to be defined
