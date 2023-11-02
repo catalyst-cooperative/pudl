@@ -228,7 +228,6 @@ Email = pydantic.EmailStr
 
 HttpUrl = pydantic.AnyHttpUrl
 """Http(s) URL."""
-"""DOIs from Zenodo archives."""
 
 
 class BaseType:
