@@ -62,7 +62,7 @@ LICENSES: dict[str, dict[str, str]] = {
     "us-govt": {
         "name": "other-pd",
         "title": "U.S. Government Works",
-        "path": "http://www.usa.gov/publicdomain/label/1.0/",
+        "path": "https://www.usa.gov/publicdomain/label/1.0/",
     },
 }
 """License attributes."""

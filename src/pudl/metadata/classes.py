@@ -42,7 +42,7 @@ from pudl.metadata.helpers import (
 )
 from pudl.metadata.resources import FOREIGN_KEYS, RESOURCE_METADATA, eia861
 from pudl.metadata.sources import SOURCES
-from pudl.workspace.datastore import Datastore
+from pudl.workspace.datastore import Datastore, ZenodoDoi
 from pudl.workspace.setup import PudlPaths
 
 logger = pudl.logging_helpers.get_logger(__name__)
@@ -228,8 +228,6 @@ Email = pydantic.EmailStr
 
 HttpUrl = pydantic.AnyHttpUrl
 """Http(s) URL."""
-
-Doi = pydantic.constr(min_length=1, strict=True, regex=r"10\.5281/zenodo\.\d{6,8}")
 """DOIs from Zenodo archives."""
 
 
@@ -938,7 +936,7 @@ class DataSource(Base):
     contributors: list[Contributor] = []
     license_raw: License
     license_pudl: License
-    concept_doi: Doi = None
+    concept_doi: ZenodoDoi = None
     working_partitions: dict[SnakeCase, Any] = {}
     source_file_dict: dict[SnakeCase, Any] = {}
     # agency: Agency  # needs to be defined
