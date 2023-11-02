@@ -122,8 +122,7 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
                 "fuel_mmbtu_per_unit",
                 "sulfur_content_pct",
                 "ash_content_pct",
-                # No data_maturity field
-                # see: https://github.com/catalyst-cooperative/pudl/issues/1847
+                "data_maturity",
             ],
             "primary_key": [
                 "plant_id_eia",
@@ -158,8 +157,7 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
                 "fuel_consumed_mmbtu",
                 "sulfur_content_pct",
                 "ash_content_pct",
-                # No data_maturity field
-                # see: https://github.com/catalyst-cooperative/pudl/issues/1847
+                "data_maturity",
             ],
             "primary_key": [
                 "plant_id_eia",
@@ -194,8 +192,7 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
                 "fuel_consumed_mmbtu",
                 "sulfur_content_pct",
                 "ash_content_pct",
-                # No data_maturity field
-                # see: https://github.com/catalyst-cooperative/pudl/issues/1847
+                "data_maturity",
             ],
             "primary_key": [
                 "plant_id_eia",
@@ -230,8 +227,7 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
                 "fuel_consumed_mmbtu",
                 "sulfur_content_pct",
                 "ash_content_pct",
-                # No data_maturity field
-                # see: https://github.com/catalyst-cooperative/pudl/issues/1847
+                "data_maturity",
             ],
             "primary_key": [
                 "plant_id_eia",
@@ -382,6 +378,7 @@ is for those supplies.
                 "mercury_content_ppm",
                 "moisture_content_pct",
                 "chlorine_content_ppm",
+                "data_maturity",
             ],
         },
         "field_namespace": "eia",
@@ -412,6 +409,7 @@ is for those supplies.
                 "mercury_content_ppm",
                 "moisture_content_pct",
                 "chlorine_content_ppm",
+                "data_maturity",
             ],
         },
         "field_namespace": "eia",
@@ -470,6 +468,7 @@ is for those supplies.
                 "generator_id",
                 "unit_id_pudl",
                 "net_generation_mwh",
+                "data_maturity",
             ],
             "primary_key": ["plant_id_eia", "generator_id", "report_date"],
         },
@@ -491,6 +490,7 @@ is for those supplies.
                 "generator_id",
                 "unit_id_pudl",
                 "net_generation_mwh",
+                "data_maturity",
             ],
             "primary_key": ["plant_id_eia", "generator_id", "report_date"],
         },
@@ -581,6 +581,7 @@ is for those supplies.
                 "fuel_consumed_mmbtu",
                 "fuel_consumed_for_electricity_mmbtu",
                 "net_generation_mwh",
+                "data_maturity",
             ],
             "primary_key": [
                 "plant_id_eia",
@@ -613,6 +614,7 @@ is for those supplies.
                 "fuel_consumed_mmbtu",
                 "fuel_consumed_for_electricity_mmbtu",
                 "net_generation_mwh",
+                "data_maturity",
             ],
             "primary_key": [
                 "plant_id_eia",
