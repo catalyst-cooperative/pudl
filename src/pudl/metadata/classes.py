@@ -2031,7 +2031,4 @@ class DatasetteMetadata(Base):
             xbrl_resources=self.xbrl_resources,
             label_columns=self.label_columns,
         )
-        if path:
-            Path(path).write_text(rendered)
-        else:
-            sys.stdout.write(rendered)
+        return rendered

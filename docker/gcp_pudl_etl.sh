@@ -97,7 +97,7 @@ if [[ ${PIPESTATUS[0]} == 0 ]]; then
     # Deploy the updated data to datasette
     if [ $GITHUB_REF = "dev" ]; then
         gcloud config set run/region us-central1
-        source ~/devtools/datasette/publish.sh
+        python ~/devtools/datasette/publish.py
     fi
 else
     notify_slack "failure"

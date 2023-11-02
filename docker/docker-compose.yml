@@ -12,6 +12,7 @@ services:
     environment:
       - API_KEY_EIA
       - GCP_BILLING_PROJECT
+      - FLY_ACCESS_TOKEN
     env_file:
       - .env
     build:
