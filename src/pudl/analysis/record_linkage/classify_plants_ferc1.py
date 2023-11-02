@@ -1,4 +1,12 @@
-"""Infrastructure for embedding dataframes for generalized entity matching framework."""
+"""Scikit-Learn classification pipeline for identifying related FERC 1 plant records.
+
+Sadly FERC doesn't provide any kind of real IDs for the plants that report to them --
+all we have is their names (a freeform string) and the data that is reported alongside
+them. This is often enough information to be able to recognize which records ought to be
+associated with each other year to year to create a continuous time series. However, we
+want to do that programmatically, which means using some clustering / categorization
+tools from scikit-learn
+"""
 import importlib
 import re
 
