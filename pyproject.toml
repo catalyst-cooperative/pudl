@@ -18,7 +18,7 @@ dependencies = [
     "catalystcoop.dbfread>=3.0,<3.1",
     "catalystcoop.ferc-xbrl-extractor>=1.2.0,<2",
     "coloredlogs>=14.0", # Dagster requires 14.0
-    "dagster-postgres", # Only valid for conda-forge, not PyPI
+    "dagster-postgres",
     "dagster-webserver>=1.5.6",
     "dagster>=1.5.6",
     "dask>=2023",
@@ -39,9 +39,12 @@ dependencies = [
     "numpy>=1.24,<2.0a0",
     "openpyxl>=3.0.10", # pandas[excel]
     "pandas>=2.1",
-    "pandera>=0.17",
+    "pandera>=0.17.2",
     "pyarrow>=13", # pandas[parquet]
     "pydantic>=1.10,<2",
+    # Required after pandera-core is retired and we switch to pydantic v2
+    #"pydantic>=2.4",
+    #"pydantic-settings>=2",
     "python-dotenv>=1",
     "pyxlsb>=1.0.9", # pandas[excel]
     "pyyaml>=6",
