@@ -154,6 +154,7 @@ class CsvReader:
         )
 
     @lru_cache
+    # TODO: We shouldn't need to call get_zipfile_resource multiple times
     def _cache_zipfile(self) -> ZipFile:
         """Returns a ZipFile instance corresponding to the dataset."""
         return self.datastore.get_zipfile_resource(self.dataset)
@@ -252,7 +253,9 @@ class CsvExtractor:
     def load_table_data(self) -> None:
         """Extracts and loads csv data into sqlite."""
         for table in self.csv_reader.get_table_names():
-            df = self.csv_reader.read(table)
+            # TODO: Make a method instead of using this private attribute
+            filename = self.csv_reader._table_file_map[table]
+            df = self.csv_reader.read(filename)
             coltypes = {col.name: col.type for col in self.sqlite_meta.tables[table].c}
             logger.info(f"SQLite: loading {len(df)} rows into {table}.")
             df.to_sql(
