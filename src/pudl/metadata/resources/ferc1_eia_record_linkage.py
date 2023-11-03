@@ -123,7 +123,7 @@ meant for use as an input into the record linkage between FERC1 plants and EIA.
         "etl_group": "outputs",
         "field_namespace": "eia",
     },
-    "out__yearly_plants_all_ferc1_plant_parts_eia": {
+    "out_pudl__yearly_assn_eia_ferc1_plant_parts": {
         "description": """This table links power plant data reported in FERC Form 1 to related EIA data. It
 answers the question "What EIA data reported about plants or generators should be
 associated with a given plant record found in the FERC Form 1."

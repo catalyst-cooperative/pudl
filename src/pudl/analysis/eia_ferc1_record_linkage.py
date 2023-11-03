@@ -55,7 +55,7 @@ logger = pudl.logging_helpers.get_logger(__name__)
     io_manager_key="pudl_sqlite_io_manager",
     compute_kind="Python",
 )
-def out__yearly_plants_all_ferc1_plant_parts_eia(
+def out_pudl__yearly_assn_eia_ferc1_plant_parts(
     out_ferc1__yearly_all_plants: pd.DataFrame,
     out_ferc1__yearly_steam_plants_fuel_by_plant_sched402: pd.DataFrame,
     out_eia__yearly_plant_parts: pd.DataFrame,
@@ -100,7 +100,7 @@ def out__yearly_plants_all_ferc1_plant_parts_eia(
         add_null_overrides
     )  # Override specified values with NA record_id_eia
     connects_ferc1_eia = Resource.from_id(
-        "out__yearly_plants_all_ferc1_plant_parts_eia"
+        "out_pudl__yearly_assn_eia_ferc1_plant_parts"
     ).enforce_schema(connects_ferc1_eia)
     return connects_ferc1_eia
 
@@ -696,7 +696,7 @@ def prep_train_connections(
     one_to_many = (
         pd.read_csv(
             importlib.resources.files("pudl.package_data.glue")
-            / "ferc1_eia_one_to_many.csv"
+            / "eia_ferc1_one_to_many.csv"
         )
         .pipe(pudl.helpers.cleanstrings_snake, ["record_id_eia"])
         .drop_duplicates(subset=["record_id_ferc1", "record_id_eia"])
@@ -744,7 +744,7 @@ def prep_train_connections(
 
     train_df = (
         pd.read_csv(
-            importlib.resources.files("pudl.package_data.glue") / "ferc1_eia_train.csv"
+            importlib.resources.files("pudl.package_data.glue") / "eia_ferc1_train.csv"
         )
         .pipe(pudl.helpers.cleanstrings_snake, ["record_id_eia"])
         .drop_duplicates(subset=["record_id_ferc1", "record_id_eia"])
@@ -1032,7 +1032,7 @@ def add_null_overrides(connects_ferc1_eia):
     logger.info("Overriding specified record_id_ferc1 values with NA record_id_eia")
     # Get record_id_ferc1 values that should be overriden to have no EIA match
     null_overrides = pd.read_csv(
-        importlib.resources.files("pudl.package_data.glue") / "ferc1_eia_null.csv"
+        importlib.resources.files("pudl.package_data.glue") / "eia_ferc1_null.csv"
     ).pipe(
         restrict_train_connections_on_date_range,
         id_col="record_id_ferc1",

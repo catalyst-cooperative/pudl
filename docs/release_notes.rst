@@ -192,7 +192,7 @@ Data Coverage
   granularly connects EPA CAMD with EIA. Thanks to :user:`grgmiller` for his
   contribution to this process. See :issue:`2456` & :pr:`2491`.
 
-* Added new table :ref:`out__yearly_plants_all_ferc1_plant_parts_eia` which links FERC1
+* Added new table :ref:`out_pudl__yearly_assn_eia_ferc1_plant_parts` which links FERC1
   records from :ref:`out_ferc1__yearly_all_plants` and
   :ref:`out_eia__yearly_plant_parts`.
 

@@ -9,7 +9,7 @@ set of related analyses? E.g.
 * state_demand_assets
 * depreciation_assets
 * plant_parts_eia_assets
-* ferc1_eia_record_linkage_assets
+* eia_ferc1_record_linkage_assets
 
 Not sure what the right organization is but they'll be defined across a bunch of
 different modules. Eventually I imagine these would just be the novel derived values,

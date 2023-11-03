@@ -43,6 +43,9 @@ class Extractor(excel.GenericExtractor):
             df["report_year"] = datetime.strptime(
                 list(partition.values())[0], "%Y-%m"
             ).year
+            df["report_date"] = pd.to_datetime(
+                list(partition.values())[0], format="%Y-%m", exact=False
+            )
         df = self.add_data_maturity(df, page, **partition)
         self.cols_added.append("report_year")
         # Eventually we should probably make this a transform
