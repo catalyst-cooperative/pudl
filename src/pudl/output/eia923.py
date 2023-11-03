@@ -10,7 +10,6 @@ from pudl.metadata.fields import apply_pudl_dtypes
 
 logger = pudl.logging_helpers.get_logger(__name__)
 
-
 FIRST_COLS = [
     "report_date",
     "plant_id_eia",
@@ -34,7 +33,7 @@ def denorm_by_plant(
     df = (
         pudl.helpers.date_merge(
             left=df,
-            right=pu,
+            right=pu.drop(columns=["data_maturity"]),
             on=["plant_id_eia"],
             date_on=["year"],
             how="left",
@@ -124,6 +123,29 @@ def _fill_fuel_costs_by_state(
     )
 
     return out_df
+
+
+def drop_ytd_for_annual_tables(df: pd.DataFrame, freq: str) -> pd.DataFrame:
+    """Drop records in annual tables where data_maturity is incremental_ytd.
+
+    This avoids accidental aggregation errors due to sub-annually reported data.
+
+    Args:
+        df: A pd.DataFrame that contains a data_maturity column and for
+            which you want to drop values where data_maturity = incremental_ytd.
+        freq: either MS or AS to indicate the level of aggretation for a specific table.
+
+    Returns:
+        pd.DataFrame: The same input pd.DataFrames but without any rows where
+            data_maturity = incremental_ytd.
+    """
+    if freq == "AS":
+        logger.info(
+            "Removing rows where data_maturity is incremental_ytd to avoid "
+            "aggregation errors."
+        )
+        df = df.loc[df["data_maturity"] != "incremental_ytd"].copy()
+    return df
 
 
 #####################################################################################
@@ -311,7 +333,6 @@ def out_eia923__fuel_receipts_costs(
     frc_df["total_fuel_cost"] = (
         frc_df["fuel_consumed_mmbtu"] * frc_df["fuel_cost_per_mmbtu"]
     )
-
     return denorm_by_plant(frc_df, pu=_out_eia__plants_utilities)
 
 
@@ -341,11 +362,12 @@ def time_aggregated_eia923_asset_factory(
             out_eia923__generation.set_index(
                 pd.DatetimeIndex(out_eia923__generation.report_date)
             )
+            .pipe(drop_ytd_for_annual_tables, freq)
             .groupby(
                 by=["plant_id_eia", "generator_id", pd.Grouper(freq=freq)],
                 observed=True,
             )
-            .agg({"net_generation_mwh": pudl.helpers.sum_na})
+            .agg({"net_generation_mwh": pudl.helpers.sum_na, "data_maturity": "first"})
             .reset_index()
             .pipe(
                 denorm_by_gen,
@@ -369,6 +391,7 @@ def time_aggregated_eia923_asset_factory(
             out_eia923__generation_fuel_combined.set_index(
                 pd.DatetimeIndex(out_eia923__generation_fuel_combined.report_date)
             )
+            .pipe(drop_ytd_for_annual_tables, freq)
             .groupby(
                 by=[
                     "plant_id_eia",
@@ -387,6 +410,7 @@ def time_aggregated_eia923_asset_factory(
                     "fuel_consumed_mmbtu": pudl.helpers.sum_na,
                     "fuel_consumed_for_electricity_mmbtu": pudl.helpers.sum_na,
                     "net_generation_mwh": pudl.helpers.sum_na,
+                    "data_maturity": "first",
                 }
             )
         ).reset_index()
@@ -441,6 +465,7 @@ def time_aggregated_eia923_asset_factory(
                 total_ash_content=lambda x: x.fuel_consumed_units * x.ash_content_pct,
             )
             .set_index(pd.DatetimeIndex(out_eia923__boiler_fuel.report_date))
+            .pipe(drop_ytd_for_annual_tables, freq)
             .groupby(
                 by=[
                     "plant_id_eia",
@@ -460,6 +485,7 @@ def time_aggregated_eia923_asset_factory(
                     "fuel_consumed_units": pudl.helpers.sum_na,
                     "total_sulfur_content": pudl.helpers.sum_na,
                     "total_ash_content": pudl.helpers.sum_na,
+                    "data_maturity": "first",
                 }
             )
             .assign(
@@ -503,6 +529,7 @@ def time_aggregated_eia923_asset_factory(
                 total_chlorine_content=lambda x: x.chlorine_content_ppm
                 * x.fuel_received_units,
             )
+            .pipe(drop_ytd_for_annual_tables, freq)
             .groupby(
                 by=["plant_id_eia", "fuel_type_code_pudl", pd.Grouper(freq=freq)],
                 observed=True,
@@ -519,6 +546,7 @@ def time_aggregated_eia923_asset_factory(
                     "total_chlorine_content": pudl.helpers.sum_na,
                     "fuel_cost_from_eiaapi": "any",
                     "state": "first",
+                    "data_maturity": "first",
                 }
             )
             .assign(

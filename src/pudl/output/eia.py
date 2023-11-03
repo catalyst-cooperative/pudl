@@ -154,7 +154,7 @@ def _out_eia__yearly_generators(
 
     # Bring in some generic plant & utility information:
     pu_eia = _out_eia__plants_utilities.drop(
-        ["plant_name_eia", "utility_id_eia"], axis="columns"
+        ["plant_name_eia", "utility_id_eia", "data_maturity"], axis="columns"
     )
     out_df = pd.merge(out_df, pu_eia, on=["report_date", "plant_id_eia"], how="left")
 
@@ -262,7 +262,9 @@ def out_eia__yearly_boilers(
     # Bring in some generic plant & utility information:
     out_df = pd.merge(
         out_df,
-        _out_eia__plants_utilities.drop(["plant_name_eia"], axis="columns"),
+        _out_eia__plants_utilities.drop(
+            ["plant_name_eia", "data_maturity"], axis="columns"
+        ),
         on=["report_date", "plant_id_eia"],
         how="left",
     )
@@ -344,7 +346,7 @@ def _out_eia__plants_utilities(
     # to avoid duplicate columns on the merge...
     out_df = pd.merge(
         core_pudl__assn_plants_eia,
-        out_eia__yearly_utilities,
+        out_eia__yearly_utilities.drop(columns=["data_maturity"]),
         how="left",
         on=["report_date", "utility_id_eia"],
     )
@@ -359,6 +361,7 @@ def _out_eia__plants_utilities(
             "utility_id_eia",
             "utility_name_eia",
             "utility_id_pudl",
+            "data_maturity",
         ],
     ].dropna(subset=["report_date", "plant_id_eia", "utility_id_eia"])
     return out_df

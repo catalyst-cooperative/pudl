@@ -21,6 +21,7 @@ dependencies = [
     "coloredlogs>=14.0,<15.1",  # Dagster requires 14.0
     "dagster-webserver>=1.4,<1.6",
     "dagster>=1.4,<1.6",
+    "dagster-postgres>=0.21.5,<0.21.6",
     "dask>=2022.5,<2023.10.2",
     "datapackage>=1.11,<1.16",  # Transition datastore to use frictionless.
     "email-validator>=1.0.3",  # pydantic[email]

@@ -509,9 +509,7 @@ def core_ferc714__hourly_demand_pa(
     df.loc[mask, "demand_mwh"] *= -1
 
     # Convert report_date to first day of year
-    df["report_date"] = pd.Series(
-        df.loc[:, "report_date"].to_numpy().astype("datetime64[Y]")
-    )
+    df["report_date"] = df.report_date.dt.to_period("Y").dt.to_timestamp()
 
     # Format result
     columns = [

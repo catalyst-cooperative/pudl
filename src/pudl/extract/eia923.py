@@ -49,6 +49,10 @@ class Extractor(excel.GenericExtractor):
             if col in df.columns:
                 df = remove_leading_zeros_from_numeric_strings(df=df, col_name=col)
         df = self.add_data_maturity(df, page, **partition)
+        # Fill in blank reporting_frequency_code for monthly data
+        df.loc[
+            df["data_maturity"] == "incremental_ytd", "reporting_frequency_code"
+        ] = "M"
         # the 2021 early release data had some ding dang "."'s and nulls in the year column
         if "report_year" in df.columns:
             mask = (df.report_year == ".") | df.report_year.isnull()
