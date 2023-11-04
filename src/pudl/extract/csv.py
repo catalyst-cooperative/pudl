@@ -96,17 +96,12 @@ class CsvArchive:
             schema.add_column(column_name, col_type)
         return schema
 
-    def load_table(self, table_name: str) -> pd.DataFrame:
-        """Returns dataframe that holds data for a table contained within this archive.
-
-        Args:
-            table_name: name of the table.
-        """
-        sch = self.get_table_schema(table_name)
-        df = pd.DataFrame(iter(self.get_table_dbf(table_name)))
-        df = df.drop("_NullFlags", axis=1, errors="ignore").rename(
-            sch.get_column_rename_map(), axis=1
-        )
+    def load_table(self, filename: str) -> pd.DataFrame:
+        """Read the data from the CSV source and return as dataframes."""
+        logger.info(f"Extracting {filename} from CSV into pandas DataFrame.")
+        with self.zipfile.open(filename) as f:
+            # TODO: Define encoding
+            df = pd.read_csv(f)
         return df
 
 
@@ -152,21 +147,6 @@ class CsvReader:
             table_file_map=self._table_file_map,
             column_types=self._column_types,
         )
-
-    @lru_cache
-    # TODO: We shouldn't need to call get_zipfile_resource multiple times
-    def _cache_zipfile(self) -> ZipFile:
-        """Returns a ZipFile instance corresponding to the dataset."""
-        return self.datastore.get_zipfile_resource(self.dataset)
-
-    def read(self, filename: str) -> pd.DataFrame:
-        """Read the data from the CSV source and return as dataframes."""
-        logger.info(f"Extracting {filename} from CSV into pandas DataFrame.")
-        zipfile = self._cache_zipfile()
-        with zipfile.open(filename) as f:
-            # TODO: Define encoding
-            df = pd.read_csv(f)
-        return df
 
 
 class CsvExtractor:
@@ -245,6 +225,8 @@ class CsvExtractor:
     def create_sqlite_tables(self):
         """Creates database schema based on the input tables."""
         csv_archive = self.csv_reader.get_archive()
+        print("TABLE NAMESSS")
+        print(self.csv_reader.get_table_names())
         for tn in self.csv_reader.get_table_names():
             csv_archive.get_table_schema(tn).create_sa_table(self.sqlite_meta)
         self.finalize_schema(self.sqlite_meta)
@@ -255,7 +237,7 @@ class CsvExtractor:
         for table in self.csv_reader.get_table_names():
             # TODO: Make a method instead of using this private attribute
             filename = self.csv_reader._table_file_map[table]
-            df = self.csv_reader.read(filename)
+            df = self.csv_reader.get_archive().load_table(filename)
             coltypes = {col.name: col.type for col in self.sqlite_meta.tables[table].c}
             logger.info(f"SQLite: loading {len(df)} rows into {table}.")
             df.to_sql(
