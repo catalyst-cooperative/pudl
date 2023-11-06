@@ -43,7 +43,7 @@ from pudl.metadata.helpers import (
 )
 from pudl.metadata.resources import FOREIGN_KEYS, RESOURCE_METADATA, eia861
 from pudl.metadata.sources import SOURCES
-from pudl.workspace.datastore import Datastore
+from pudl.workspace.datastore import Datastore, ZenodoDoi
 from pudl.workspace.setup import PudlPaths
 
 logger = pudl.logging_helpers.get_logger(__name__)
@@ -873,6 +873,27 @@ class Contributor(Base):
     role: Literal[
         "author", "contributor", "maintainer", "publisher", "wrangler"
     ] = "contributor"
+    zenodo_role: Literal[
+        "contact person",
+        "data collector",
+        "data curator",
+        "data manager",
+        "distributor",
+        "editor",
+        "hosting institution",
+        "other",
+        "producer",
+        "project leader",
+        "project member",
+        "registration agency",
+        "registration authority",
+        "related person",
+        "researcher",
+        "rights holder",
+        "sponsor",
+        "supervisor",
+        "work package leader",
+    ] = "project member"
     organization: String = None
     orcid: String = None
 
@@ -915,10 +936,10 @@ class DataSource(Base):
     field_namespace: String = None
     keywords: list[str] = []
     path: HttpUrl = None
-    contributors: list[Contributor] = []  # Or should this be compiled from Resources?
+    contributors: list[Contributor] = []
     license_raw: License
     license_pudl: License
-    # concept_doi: Doi = None  # Need to define a Doi type?
+    concept_doi: ZenodoDoi = None
     working_partitions: dict[SnakeCase, Any] = {}
     source_file_dict: dict[SnakeCase, Any] = {}
     # agency: Agency  # needs to be defined

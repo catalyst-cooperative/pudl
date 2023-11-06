@@ -353,7 +353,9 @@ def test_ferc_xbrl_sqlite_io_manager_dedupes(mocker, tmp_path):
 
 example_schema = pandera.DataFrameSchema(
     {
-        "entity_id": pandera.Column(str, nullable=False),
+        "entity_id": pandera.Column(
+            str, pandera.Check.isin("C0123456789"), nullable=False
+        ),
         "date": pandera.Column("datetime64[ns]", nullable=False),
         "utility_type": pandera.Column(
             str,
@@ -363,12 +365,12 @@ example_schema = pandera.DataFrameSchema(
         "publication_time": pandera.Column("datetime64[ns]", nullable=False),
         "int_factoid": pandera.Column(int),
         "float_factoid": pandera.Column(float),
-        "str_factoid": pandera.Column("str"),
+        "str_factoid": pandera.Column(str),
     }
 )
 
 
-@pytest.mark.xfail
+@hypothesis.settings(print_blob=True, deadline=400)
 @hypothesis.given(example_schema.strategy(size=3))
 def test_filter_for_freshest_data(df):
     # XBRL context is the identifying metadata for reported values
@@ -382,7 +384,7 @@ def test_filter_for_freshest_data(df):
 
     # every post-deduplication row exists in the original rows
     assert (deduped.merge(df, how="left", indicator=True)._merge != "left_only").all()
-    # for every [entity_id, utility_type, date] - th"true"e is only one row
+    # for every [entity_id, utility_type, date] - there is only one row
     assert (~deduped.duplicated(subset=xbrl_context_cols)).all()
     # for every *context* in the input there is a corresponding row in the output
     original_contexts = df.groupby(xbrl_context_cols, as_index=False).last()
@@ -393,7 +395,9 @@ def test_filter_for_freshest_data(df):
         suffixes=["_in", "_out"],
         indicator=True,
     ).set_index(xbrl_context_cols)
-    hypothesis.note(f"Found these contexts in input data:\n{original_contexts}")
+    hypothesis.note(
+        f"Found these contexts ({xbrl_context_cols}) in input data:\n{original_contexts[xbrl_context_cols]}"
+    )
     hypothesis.note(f"The freshest data:\n{deduped}")
     hypothesis.note(f"Paired by context:\n{paired_by_context}")
     assert (paired_by_context._merge == "both").all()

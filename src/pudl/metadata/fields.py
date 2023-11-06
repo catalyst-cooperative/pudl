@@ -3040,7 +3040,12 @@ FIELD_METADATA_BY_RESOURCE: dict[str, dict[str, Any]] = {
                     "Pacific/Honolulu",
                 ]
             }
-        }
+        },
+        "report_date": {
+            "constraints": {
+                "required": True,
+            }
+        },
     },
 }
 
