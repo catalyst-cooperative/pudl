@@ -5,6 +5,15 @@ name: Code validation
 
 on:
   workflow_dispatch:
+    inputs:
+      runner_shape:
+        description: 'GitHub runner to use'
+        type: choice
+        options: 
+        - ubuntu-latest
+        - ubuntu-22.04-4core
+        - ubuntu-22.04-8core
+        default: ubuntu-22.04-4core
   pull_request:
     types:
       - created
@@ -12,7 +21,7 @@ on:
       - synchronize
       - ready_for_review
 concurrency:
-  group: ${{ github.workflow }}-${{ github.ref }}
+  group: ${{ github.workflow }}-${{ github.ref }}-${{ github.event_name }}-${{ github.event.inputs.runner_shape }}
   cancel-in-progress: true
 
 env:
@@ -124,9 +133,7 @@ jobs:
     name: Integration (fast ETL run)
     needs:
       - ci-unit
-    runs-on:
-      group: large-runner-group
-      labels: ubuntu-22.04-4core
+    runs-on: ${{ github.event_name == "workflow_dispatch" && github.event.inputs.runner_shape || "ubuntu-22.04-4core" }}
     if: github.event.pull_request.draft == false
     permissions:
       contents: read
