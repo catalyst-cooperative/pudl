@@ -1,9 +1,11 @@
+"""Unit tests for pudl.extract.csv module."""
 from pathlib import Path
 from unittest import mock
 from unittest.mock import MagicMock, patch
 from zipfile import ZipFile
 
 import sqlalchemy as sa
+from pytest import raises
 
 from pudl.extract.csv import CsvArchive, CsvExtractor, CsvReader, CsvTableSchema
 
@@ -88,7 +90,7 @@ def test_csv_table_schema_create_sa_table(mock_column, mock_table):
 @patch("pudl.extract.csv.DictReader")
 @patch("pudl.extract.csv.TextIOWrapper")
 @patch("pudl.extract.csv.ZipFile")
-def test_csv_archive_get_table_schema(
+def test_csv_archive_get_table_schema_valid(
     mock_zipfile, mock_text_io_wrapper, mock_dict_reader
 ):
     mock_dict_reader.return_value.fieldnames = [COL1_NAME, COL2_NAME]
@@ -98,6 +100,19 @@ def test_csv_archive_get_table_schema(
     assert [(COL1_NAME, COL1_TYPE), (COL2_NAME, COL2_TYPE)] == list(
         schema.get_columns()
     )
+
+
+@patch("pudl.extract.csv.DictReader")
+@patch("pudl.extract.csv.TextIOWrapper")
+@patch("pudl.extract.csv.ZipFile")
+def test_csv_archive_get_table_schema_invalid(
+    mock_zipfile, mock_text_io_wrapper, mock_dict_reader
+):
+    mock_dict_reader.return_value.fieldnames = [COL1_NAME]
+    zipfile = MagicMock(ZipFile)
+    archive = CsvArchive(zipfile, TABLE_FILE_MAP, COLUMN_TYPES)
+    with raises(ValueError):
+        archive.get_table_schema(TABLE_NAME)
 
 
 @patch("pudl.extract.csv.pd")

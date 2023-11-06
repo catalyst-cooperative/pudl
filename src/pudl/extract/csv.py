@@ -1,4 +1,5 @@
 """Extractor for CSV data."""
+import contextlib
 from csv import DictReader
 from functools import lru_cache
 from importlib import resources
@@ -16,7 +17,7 @@ logger = pudl.logging_helpers.get_logger(__name__)
 
 
 class CsvTableSchema:
-    """Simple data-wrapper for the fox-pro table schema."""
+    """Provides the data definition of a table."""
 
     def __init__(self, table_name: str):
         """Creates new instance of the table schema setting.
@@ -42,7 +43,7 @@ class CsvTableSchema:
             self._short_name_map[short_name] = col_name
 
     def get_columns(self) -> list[tuple[str, sa.types.TypeEngine]]:
-        """Itereates over the (column_name, column_type) pairs."""
+        """Iterates over the (column_name, column_type) pairs."""
         for col_name in self._columns:
             yield (col_name, self._column_types[col_name])
 
@@ -83,24 +84,26 @@ class CsvArchive:
 
     @lru_cache
     def get_table_schema(self, table_name: str) -> CsvTableSchema:
-        """Returns TableSchema for a given table and a given year."""
+        """Returns TableSchema for a given table."""
         with self.zipfile.open(self._table_file_map[table_name]) as f:
             text_f = TextIOWrapper(f)
             table_columns = DictReader(text_f).fieldnames
 
-        # TODO: Introduce some validations here so we can know if source structure changed
+        if sorted(table_columns) != sorted(self._column_types[table_name].keys()):
+            raise ValueError(
+                f"Columns extracted from CSV for {table_name} do not match expected columns"
+            )
+
         schema = CsvTableSchema(table_name)
         for column_name in table_columns:
-            # TODO: length for string type, if default is inappropriate
             col_type = self._column_types[table_name][column_name]
             schema.add_column(column_name, col_type)
         return schema
 
     def load_table(self, filename: str) -> pd.DataFrame:
-        """Read the data from the CSV source and return as dataframes."""
+        """Read the data from the CSV source and return as a dataframe."""
         logger.info(f"Extracting {filename} from CSV into pandas DataFrame.")
         with self.zipfile.open(filename) as f:
-            # TODO: Define encoding
             df = pd.read_csv(f)
         return df
 
@@ -141,7 +144,7 @@ class CsvReader:
 
     @lru_cache
     def get_archive(self) -> CsvArchive:
-        """Returns a ZipFile instance corresponding to the dataset."""
+        """Returns a CsvArchive instance corresponding to the dataset."""
         return CsvArchive(
             self.datastore.get_zipfile_resource(self.dataset),
             table_file_map=self._table_file_map,
@@ -150,7 +153,7 @@ class CsvReader:
 
 
 class CsvExtractor:
-    """Generalized class for loading data from CSV files into tables into SQLAlchemy.
+    """Generalized class for extracting and loading data from CSV files into SQL database.
 
     When subclassing from this generic extractor, one should implement dataset specific
     logic in the following manner:
@@ -162,40 +165,28 @@ class CsvExtractor:
 
     Dataset specific logic and transformations can be injected by overriding:
 
-    # TODO: Update the details here to align with functions in this class
     1. finalize_schema() in order to modify sqlite schema. This is called just before
     the schema is written into the sqlite database. This is good place for adding
     primary and/or foreign key constraints to tables.
-    2. aggregate_table_frames() is responsible for concatenating individual data frames
-    (one par input partition) into single one. This is where deduplication can take place.
-    3. transform_table(table_name, df) will be invoked after dataframe is loaded from
-    the foxpro database and before it's written to sqlite. This is good place for
-    table-specific preprocessing and/or cleanup.
-    4. postprocess() is called after data is written to sqlite. This can be used for
-    database level final cleanup and transformations (e.g. injecting missing
-    respondent_ids).
+    2. postprocess() is called after data is written to sqlite. This can be used for
+    database level final cleanup and transformations (e.g. injecting missing IDs).
 
     The extraction logic is invoked by calling execute() method of this class.
-    """
-
-    # TODO: Reconcile this with the above
-    """This represents an ETL pipeling (as opposed to an ELT pipeline), since we're more interested in transformed output and don't want to commit a lot of space to persisting raw data
-    Transformation mainly occurs just before loading (aside from more circumstantial pre- or postprocessing that's introduced).
     """
 
     DATABASE_NAME = None
     DATASET = None
     COLUMN_TYPES = {}
 
-    def __init__(self, datastore: Datastore, output_path: Path):
+    def __init__(self, datastore: Datastore, output_path: Path, clobber: bool = False):
         """Constructs new instance of CsvExtractor.
 
         Args:
             datastore: top-level datastore instance for accessing raw data files.
             output_path: directory where the output databases should be stored.
-            # TODO: Consider including this for consistency
             clobber: if True, existing databases should be replaced.
         """
+        self.clobber = clobber
         self.output_path = output_path
         self.csv_reader = self.get_csv_reader(datastore)
         self.sqlite_engine = sa.create_engine(self.get_db_path())
@@ -218,15 +209,20 @@ class CsvExtractor:
         self.postprocess()
 
     def delete_schema(self):
-        # TODO: Implement or extract from dbf.py to more general space. Take a pass at reconciling with excel.py
         """Drops all tables from the existing sqlite database."""
-        pass
+        with contextlib.suppress(sa.exc.OperationalError):
+            pudl.helpers.drop_tables(
+                self.sqlite_engine,
+                clobber=self.clobber,
+            )
+
+        self.sqlite_engine = sa.create_engine(self.get_db_path())
+        self.sqlite_meta = sa.MetaData()
+        self.sqlite_meta.reflect(self.sqlite_engine)
 
     def create_sqlite_tables(self):
         """Creates database schema based on the input tables."""
         csv_archive = self.csv_reader.get_archive()
-        print("TABLE NAMESSS")
-        print(self.csv_reader.get_table_names())
         for tn in self.csv_reader.get_table_names():
             csv_archive.get_table_schema(tn).create_sa_table(self.sqlite_meta)
         self.finalize_schema(self.sqlite_meta)
@@ -235,7 +231,6 @@ class CsvExtractor:
     def load_table_data(self) -> None:
         """Extracts and loads csv data into sqlite."""
         for table in self.csv_reader.get_table_names():
-            # TODO: Make a method instead of using this private attribute
             filename = self.csv_reader._table_file_map[table]
             df = self.csv_reader.get_archive().load_table(filename)
             coltypes = {col.name: col.type for col in self.sqlite_meta.tables[table].c}
