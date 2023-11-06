@@ -5,7 +5,6 @@ coverage_report := coverage report --sort=cover
 pytest_args := --durations 20 ${pytest_covargs} ${gcs_cache_path}
 etl_fast_yml := src/pudl/package_data/settings/etl_fast.yml
 etl_full_yml := src/pudl/package_data/settings/etl_full.yml
-pip_install_pudl := pip install --no-deps --editable ./
 
 # We use mamba locally, but micromamba in CI, so choose the right binary:
 ifdef GITHUB_ACTION
@@ -47,25 +46,17 @@ conda-lock.yml: pyproject.toml
 	cd environments && conda-lock render \
 		--kind env \
 		--dev-dependencies \
-		--extras docs \
-		--extras datasette \
 		conda-lock.yml
 	prettier --write environments/*.yml
 
 # Create the pudl-dev conda environment based on the universal lockfile
 .PHONY: pudl-dev
 pudl-dev: conda-lock.yml
-	conda-lock install \
-		--name pudl-dev \
-		--${mamba} \
-		--dev \
-		--extras docs \
-		--extras datasette \
-		environments/conda-lock.yml
+	conda-lock install --name pudl-dev --${mamba} --dev environments/conda-lock.yml
 
 .PHONY: install-pudl
 install-pudl: pudl-dev
-	${mamba} run --name pudl-dev pip install --no-deps --editable .
+	${mamba} run --name pudl-dev pip install --no-cache-dir --no-deps --editable .
 
 ########################################################################################
 # Build documentation for local use or testing
@@ -92,19 +83,24 @@ docs-build: docs-clean
 ########################################################################################
 
 # Extract all FERC DBF and XBRL data to SQLite.
-ferc1.sqlite ferc1_xbrl.sqlite:
+.PHONY: ferc
+ferc:
+	rm -f ${PUDL_OUTPUT}/ferc*.sqlite
+	rm -f ${PUDL_OUTPUT}/ferc*_xbrl_datapackage.json
+	rm -f ${PUDL_OUTPUT}/ferc*_xbrl_taxonomy_metadata.json
 	coverage run ${covargs} -- \
 		src/pudl/ferc_to_sqlite/cli.py \
-		--clobber \
 		${gcs_cache_path} \
 		${etl_full_yml}
 
-# Run the full PUDL ETL
-pudl.sqlite:
-	coverage run ${covargs} -- \
-		src/pudl/cli/etl.py \
-		${gcs_cache_path} \
-		${etl_full_yml}
+# Remove the existing PUDL DB if it exists.
+# Create a new empty DB using alembic.
+# Run the full PUDL ETL.
+.PHONY: pudl
+pudl:
+	rm -f ${PUDL_OUTPUT}/pudl.sqlite
+	alembic upgrade head
+	coverage run ${covargs} -- src/pudl/cli/etl.py ${gcs_cache_path} ${etl_full_yml}
 
 ########################################################################################
 # pytest
@@ -140,11 +136,10 @@ pytest-validate:
 # Backgrounding the data validation and integration tests and using wait allows them to
 # run in parallel.
 .PHONY: nuke
-nuke: coverage-erase docs-build pytest-unit ferc1.sqlite ferc1_xbrl.sqlite pudl.sqlite
+nuke: coverage-erase docs-build pytest-unit ferc pudl
 	pudl_check_fks
-	pytest ${pytest_args} --live-dbs --etl-settings ${etl_full_yml} test/integration & \
-	pytest ${pytest_args} --live-dbs test/validate & \
-	wait
+	pytest ${pytest_args} -n auto --live-dbs --etl-settings ${etl_full_yml} test/integration
+	pytest ${pytest_args} -n auto --live-dbs test/validate
 	${coverage_report}
 
 # Check that designated Jupyter notebooks can be run against the current DB

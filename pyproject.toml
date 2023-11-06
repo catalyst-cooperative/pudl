@@ -13,18 +13,24 @@ license = { file = "LICENSE.txt" }
 dependencies = [
     "addfips>=0.4",
     "alembic>=1.12",
+    "black>=23",
     "boto3>=1.28.55",
     "bottleneck>=1.3.4", # pandas[performance]
+    "build>=1.0",
     "catalystcoop.dbfread>=3.0,<3.1",
     "catalystcoop.ferc-xbrl-extractor>=1.2.0,<2",
     "coloredlogs>=14.0", # Dagster requires 14.0
-    "dagster-postgres",
-    "dagster-webserver>=1.5.6",
+    "conda-lock>=2.4",
+    "coverage>=7",
     "dagster>=1.5.6",
+    "dagster-postgres>=0.21.6,<1", # Update when dagster-postgres graduates to 1.x
     "dask>=2023",
     "datapackage>=1.15,<2", # Transition datastore to use frictionless.
+    "datasette>=0.64",
+    "doc8>=1.1",
     "email-validator>=1.0.3", # pydantic[email]
     "fsspec>=2023",
+    "furo>=2022.4.7",
     "gcsfs>=2023",
     "geopandas>=0.14",
     "grpcio==1.57.0", # Required by dagster, binary dependencies are flaky
@@ -32,26 +38,43 @@ dependencies = [
     "grpcio-status==1.57.0", # Required by dagster, binary dependencies are flaky
     "hypothesis>=6.87,<7.0",
     "jinja2>=3.1",
+    "jupyter",
     "matplotlib>=3.8",
+    "nbconvert>=7",
+    "nbformat>=5.9",
     "networkx>=3.2",
-    "numba>=0.57", # pandas[performance]
+    "numba>=0.58", # pandas[performance]
     "numexpr>=2.8.0", # pandas[performance]
-    "numpy>=1.24,<2.0a0",
+    "numpy>=1.26,<2.0a0",
     "openpyxl>=3.0.10", # pandas[excel]
     "pandas>=2.1",
     "pandera>=0.17.2",
+    "pre-commit>=3",
     "pyarrow>=13", # pandas[parquet]
     "pydantic>=1.10,<2",
     # Required after pandera-core is retired and we switch to pydantic v2
     #"pydantic>=2.4",
     #"pydantic-settings>=2",
+    "pytest>=7.4",
+    "pytest-cov>=4.1",
+    "pytest-console-scripts>=1.4",
+    "pytest-mock>=3.11",
+    "pytest-xdist>=3.3",
     "python-dotenv>=1",
     "pyxlsb>=1.0.9", # pandas[excel]
     "pyyaml>=6",
+    "readthedocs-sphinx-ext>=2",
     "recordlinkage",
+    "responses>=0.23",
+    "ruff>=0.1",
     "scikit-learn>=1.3",
     "scipy>=1.11",
     "Shapely>=2",
+    "sphinx-autoapi>=3",
+    "sphinx-issues>=1.2",
+    "sphinx-reredirects>=0.1.2",
+    "sphinx>=7",
+    "sphinxcontrib_bibtex>=2.6",
     "sqlalchemy>=1.4,<2",
     "timezonefinder>=6.2",
     "xlrd>=2.0.1", # pandas[excel]
@@ -121,40 +144,11 @@ pudl_check_fks = "pudl.etl.check_foreign_keys:main"
 
 [project.optional-dependencies]
 dev = [
-    "black>=23",
-    "build>=1.0",
-    "conda-lock>=2.3",
+    "dagster-webserver>=1.5.6",
     "jupyterlab>3.2",
     "jupyter-resource-usage",
-    "nbconvert>=7",
-    "prettier>=3.0",
-    "ruff>=0.1",
+    "pygraphviz",
 ]
-docs = [
-    "doc8>=1.1",
-    "furo>=2022.4.7",
-    "readthedocs-sphinx-ext>=2",
-    "sphinx-autoapi>=3",
-    "sphinx-issues>=1.2",
-    "sphinx-reredirects>=0.1.2",
-    "sphinx>=7",
-    "sphinxcontrib_bibtex>=2.6",
-]
-test = [
-    "astroid>=3", # sphinx-autoapi dependency
-    "coverage>=7",
-    "jupyter",
-    "nbconvert>=7",
-    "nbformat>=5.9",
-    "pre-commit>=3",
-    "pytest-console-scripts>=1.4",
-    "pytest-cov>=4.1",
-    "pytest-mock>=3.11",
-    "pytest>=7.4",
-    "responses>=0.23",
-    "ruff>=0.1",
-]
-datasette = ["datasette>=0.64"]
 
 [tool.setuptools]
 include-package-data = true
@@ -269,6 +263,7 @@ filterwarnings = [
     "once:In a future version:FutureWarning:pudl.helpers",
     "once:open_binary is deprecated:DeprecationWarning:pudl.glue.ferc1_eia",
     "once:open_text is deprecated:DeprecationWarning:pudl.glue.ferc1_eia",
+    "once:The behavior of DataFrame concatenation with empty or all-NA entries is deprecated.:FutureWarning",
 ]
 
 addopts = "--verbose --pdbcls=IPython.terminal.debugger:TerminalPdb"
@@ -299,5 +294,6 @@ google-cloud-sdk = ">=452"
 nodejs = ">=20"
 pandoc = ">=2"
 pip = ">=23"
+prettier = ">=3.0"
 python = ">=3.11,<3.12"
 sqlite = ">=3.43"
