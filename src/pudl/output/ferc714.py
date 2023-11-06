@@ -631,7 +631,6 @@ def georeferenced_respondents_ferc714(
 def summarized_demand_ferc714(
     annualized_respondents_ferc714: pd.DataFrame,
     demand_hourly_pa_ferc714: pd.DataFrame,
-    fipsified_respondents_ferc714: pd.DataFrame,
     categorized_respondents_ferc714: pd.DataFrame,
     georeferenced_counties_ferc714: gpd.GeoDataFrame,
 ) -> pd.DataFrame:
@@ -655,14 +654,14 @@ def summarized_demand_ferc714(
             how="left",
         )
         .groupby(["report_date", "respondent_id_ferc714"])
-        .agg({"demand_mwh": sum})
+        .agg({"demand_mwh": "sum"})
         .rename(columns={"demand_mwh": "demand_annual_mwh"})
         .reset_index()
         .merge(
             georeferenced_counties_ferc714.groupby(
                 ["report_date", "respondent_id_ferc714"]
             )
-            .agg({"population": sum, "area_km2": sum})
+            .agg({"population": "sum", "area_km2": "sum"})
             .reset_index()
         )
         .assign(

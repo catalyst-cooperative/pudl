@@ -10,7 +10,7 @@ version: 2
 build:
   os: ubuntu-22.04
   tools:
-    python: mambaforge-4.10
+    python: mambaforge-22.9
 
 # Define the python environment using conda / mamba
 conda:
