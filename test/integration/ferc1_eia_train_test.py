@@ -1,4 +1,4 @@
-"""Tests for the validation functions in the ferc1_eia_train module.
+"""Tests for the validation functions in the eia_ferc1_train module.
 
 The functions that this module is testing were not designed with tests in mind. Ideally
 we would refactor the functions to be more testable, but for now we are just focusing on
@@ -19,10 +19,10 @@ from pathlib import Path
 import pandas as pd
 import pytest
 
-from pudl.analysis.ferc1_eia_record_linkage import (
+from pudl.analysis.eia_ferc1_record_linkage import (
     restrict_train_connections_on_date_range,
 )
-from pudl.analysis.ferc1_eia_train import (
+from pudl.analysis.eia_ferc1_train import (
     generate_all_override_spreadsheets,
     validate_override_fixes,
 )
@@ -43,16 +43,17 @@ def plant_parts_eia(fast_out_annual):
 
 
 @pytest.fixture(scope="module")
-def ferc1_eia(fast_out_annual):
-    """The ferc1_eia output table."""
+def eia_ferc1(fast_out_annual):
+    """The eia_ferc1 output table."""
+    # the pudl_out name here is the old, non-alphabetized ordering.
     return fast_out_annual.ferc1_eia()
 
 
 @pytest.fixture(scope="module")
-def ferc1_eia_training_data():
-    """The training data for the ferc1_eia matching."""
+def eia_ferc1_training_data():
+    """The training data for the eia_ferc1 matching."""
     return pd.read_csv(
-        importlib.resources.files("pudl.package_data.glue") / "ferc1_eia_train.csv"
+        importlib.resources.files("pudl.package_data.glue") / "eia_ferc1_train.csv"
     )
 
 
@@ -129,8 +130,8 @@ def ferc1_eia_training_data():
 )
 def test_validate_override_fixes(
     plant_parts_eia,
-    ferc1_eia,
-    ferc1_eia_training_data,
+    eia_ferc1,
+    eia_ferc1_training_data,
     verified,
     report_year,
     record_id_eia_override_1,
@@ -147,27 +148,27 @@ def test_validate_override_fixes(
             "utility_id_pudl_ferc1": utility_id_pudl_ferc1,
         }
     ).assign(verified=lambda x: x.verified.astype("bool"))
-    ferc1_eia_training_data_restricted = restrict_train_connections_on_date_range(
-        train_df=ferc1_eia_training_data,
+    eia_ferc1_training_data_restricted = restrict_train_connections_on_date_range(
+        train_df=eia_ferc1_training_data,
         id_col="record_id_ferc1",
-        start_date=min(ferc1_eia.report_date),
-        end_date=max(ferc1_eia.report_date),
+        start_date=min(eia_ferc1.report_date),
+        end_date=max(eia_ferc1.report_date),
     )
     validate_override_fixes(
         validated_connections=test_df,
         ppe=plant_parts_eia,
-        ferc1_eia=ferc1_eia,
-        training_data=ferc1_eia_training_data_restricted,
+        eia_ferc1=eia_ferc1,
+        training_data=eia_ferc1_training_data_restricted,
         expect_override_overrides=True,
         allow_mismatched_utilities=True,
     )
 
 
-def test_generate_all_override_spreadsheets(plant_parts_eia, ferc1_eia, utils_eia860):
+def test_generate_all_override_spreadsheets(plant_parts_eia, eia_ferc1, utils_eia860):
     """Test the genation of the override spreadsheet for mapping FERC-EIA records."""
     # Create the test spreadsheet
     generate_all_override_spreadsheets(
-        ferc1_eia,
+        eia_ferc1,
         plant_parts_eia,
         utils_eia860,
         util_dict={"NextEra": [6452, 7801]},
