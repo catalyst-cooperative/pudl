@@ -21,11 +21,12 @@ dependencies = [
     "coloredlogs>=14.0,<15.1",  # Dagster requires 14.0
     "dagster-webserver>=1.4,<1.6",
     "dagster>=1.4,<1.6",
-    "dask>=2022.5,<2023.10.1",
+    "dagster-postgres>=0.21.5,<0.21.6",
+    "dask>=2022.5,<2023.10.2",
     "datapackage>=1.11,<1.16",  # Transition datastore to use frictionless.
     "email-validator>=1.0.3",  # pydantic[email]
     "fsspec>=2022.5,<2023.10.1",
-    "gcsfs>=2022.5,<2023.9.3",
+    "gcsfs>=2022.5,<2023.10.1",
     "geopandas>=0.13,<0.15",
     "grpcio==1.57.0",  # Required by dagster. Version works with MacOS
     "grpcio-health-checking==1.57.0",  # Required by dagster. Version works with MacOS
@@ -193,19 +194,21 @@ select = [
     "W",  # pycodestyle warnings
 ]
 ignore = [
-    "D401",   # Require imperative mood in docstrings.
+    "D401", # Require imperative mood in docstrings.
     "D417",
-    "E501",   # Overlong lines.
-    "E203",   # Space before ':' (black recommends to ignore)
-    "PD003",  # Use of isna rather than isnull
-    "PD004",  # Use of notna rather than notnull
-    "PD008",  # Use of df.at[] rather than df.loc[]
-    "PD010",  # Use of df.stack()
-    "PD013",  # Use of df.unstack()
-    "PD015",  # Use of pd.merge() rather than df.merge()
-    "PD901",  # df as variable name
+    "E501", # Overlong lines.
+    "E203", # Space before ':' (black recommends to ignore)
+    "E226", # Missing whitespace around arithmetic operator
+    "E266", # Too many leading `#` before block comment
+    "PD003", # Use of isna rather than isnull
+    "PD004", # Use of notna rather than notnull
+    "PD008", # Use of df.at[] rather than df.loc[]
+    "PD010", # Use of df.stack()
+    "PD013", # Use of df.unstack()
+    "PD015", # Use of pd.merge() rather than df.merge()
+    "PD901", # df as variable name
     "RET504", # Ignore unnecessary assignment before return
-    "S101",   # Use of assert
+    "S101", # Use of assert
 ]
 
 # Assume Python 3.11
