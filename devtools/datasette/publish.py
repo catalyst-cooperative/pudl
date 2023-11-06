@@ -1,3 +1,14 @@
+"""Publish the datasette to fly.io.
+
+We use custom logic here because the datasette-publish-fly plugin bakes the uncompressed databases into the image, which makes the image too large.
+
+We compress the databases before baking them into the image. Then we decompress
+them at runtime to a Fly volume mounted at /data. This avoids a long download at startup, and allows us stay within the 8GB image size limit.
+
+The volume handling is done manually outside of this publish.py script - it
+should be terraformed at some point.
+"""
+
 import json
 import logging
 import secrets
@@ -22,20 +33,27 @@ RUN pip install -U datasette datasette-cluster-map datasette-vega datasette-bloc
 ENV PORT 8080
 EXPOSE 8080
 
-CMD ["/bin/bash", "-c", "shopt -s nullglob && find /data/ -name '*.sqlite' -delete && mv all_dbs.tar.zst /data && zstd -f -d /data/all_dbs.tar.zst -o /data/all_dbs.tar && tar -xf /data/all_dbs.tar --directory /data && datasette serve --host 0.0.0.0 /data/*.sqlite --cors --inspect-file inspect-data.json --metadata metadata.yml --setting sql_time_limit_ms 5000 --port $PORT"]
-
+CMD ["./run.sh"]
 """
 
 
-def make_dockerfile(datasets):
-    dataset_names = " ".join(datasets)
+def make_dockerfile():
+    """Write a dockerfile from template, to use in fly deploy.
+
+    We write this from template so we can generate a datasette secret. This way
+    we don't have to manage secrets at all.
+    """
     datasette_secret = secrets.token_hex(16)
-    return DOCKERFILE_TEMPLATE.format(
-        datasette_secret=datasette_secret, datasets=dataset_names
-    )
+    return DOCKERFILE_TEMPLATE.format(datasette_secret=datasette_secret)
 
 
 def inspect_data(datasets, pudl_out):
+    """Pre-inspect databases to generate some metadata for Datasette.
+
+    This is done in the image build process in datasette-publish-fly, but since
+    we don't have access to the databases in the build process we have to
+    inspect before building the Docker image.
+    """
     inspect_output = json.loads(
         check_output(
             [  # noqa: S603
@@ -54,18 +72,20 @@ def inspect_data(datasets, pudl_out):
 
 
 def metadata(pudl_out) -> str:
+    """Return human-readable metadata for Datasette."""
     return DatasetteMetadata.from_data_source_ids(pudl_out).to_yaml()
 
 
 def main():
+    """Generate deployment files and run the deploy."""
     fly_dir = Path(__file__).parent.absolute() / "fly"
     docker_path = fly_dir / "Dockerfile"
     inspect_path = fly_dir / "inspect-data.json"
     metadata_path = fly_dir / "metadata.yml"
 
     pudl_out = PudlPaths().pudl_output
-    datasets = [str(p.name) for p in pudl_out.glob("*.sqlite")]
-    logging.info("Inspecting DBs for datasette...")
+    datasets = [str(p.name) for p in pudl_out.glob("*.sqlite")][:1]
+    logging.info(f"Inspecting DBs for datasette: {datasets}...")
     inspect_output = inspect_data(datasets, pudl_out)
     with inspect_path.open("w") as f:
         f.write(json.dumps(inspect_output))
@@ -80,11 +100,11 @@ def main():
 
     logging.info(f"Compressing databases at {datasets}...")
     check_call(
-        ["tar", "-a", "-czvf", fly_dir / "all_dbs.tar.zst"] + datasets,
+        ["tar", "-a", "-czvf", fly_dir / "all_dbs.tar.zst"] + datasets,  # noqa: S603
         cwd=pudl_out,
     )
 
-    check_call(["flyctl", "deploy"], cwd=fly_dir)
+    check_call(["/usr/bin/env", "flyctl", "deploy"], cwd=fly_dir)  # noqa: S603
 
 
 if __name__ == "__main__":
