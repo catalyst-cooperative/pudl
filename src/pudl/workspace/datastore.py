@@ -27,7 +27,9 @@ from pudl.workspace.setup import PudlPaths
 logger = pudl.logging_helpers.get_logger(__name__)
 
 PUDL_YML = Path.home() / ".pudl.yml"
-ZenodoDoi = constr(regex=r"(10\.5072|10\.5281)/zenodo.([\d]+)")
+ZenodoDoi = constr(
+    strict=True, min_length=16, regex=r"(10\.5072|10\.5281)/zenodo.([\d]+)"
+)
 
 
 class ChecksumMismatchError(ValueError):
