@@ -7,12 +7,12 @@ on:
   workflow_dispatch:
     inputs:
       runner_shape:
-        description: 'GitHub runner to use'
+        description: "GitHub runner to use"
         type: choice
-        options: 
-        - ubuntu-latest
-        - ubuntu-22.04-4core
-        - ubuntu-22.04-8core
+        options:
+          - ubuntu-latest
+          - ubuntu-22.04-4core
+          - ubuntu-22.04-8core
         default: ubuntu-22.04-4core
   pull_request:
     types:
