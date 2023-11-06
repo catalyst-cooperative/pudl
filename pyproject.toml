@@ -150,7 +150,7 @@ test = [
     "pytest-cov>=4,<4.2",
     "pytest-mock>=3,<3.13",
     "pytest>=7,<7.5",
-    "responses>=0.14,<0.24",
+    "responses>=0.14,<0.25",
     "ruff>=0.1,<0.2",
     "tox>=4,<4.12",
 ]
