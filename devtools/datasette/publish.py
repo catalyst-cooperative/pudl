@@ -103,7 +103,7 @@ def main():
 
     logging.info("Writing Dockerfile...")
     with docker_path.open("w") as f:
-        f.write(make_dockerfile(datasets))
+        f.write(make_dockerfile())
 
     logging.info(f"Compressing databases at {datasets}...")
     check_call(
@@ -111,7 +111,9 @@ def main():
         cwd=pudl_out,
     )
 
+    logging.info("Running fly deploy...")
     check_call(["/usr/bin/env", "flyctl", "deploy"], cwd=fly_dir)  # noqa: S603
+    logging.info("Deploy finished!")
 
 
 if __name__ == "__main__":
