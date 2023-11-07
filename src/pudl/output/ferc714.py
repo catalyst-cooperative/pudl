@@ -348,6 +348,9 @@ def annualized_respondents_ferc714(
     having entries for years in which they reported no demand, and that's fine.
     They can be filtered later.
     """
+    if "report_date" in respondent_id_ferc714.columns:
+        raise AssertionError("report_date already present, can't be added again!")
+
     ferc714_settings = context.resources.dataset_settings.ferc714
     report_dates = pd.DataFrame(
         {"report_date": pd.to_datetime(sorted(ferc714_settings.years), format="%Y")}
