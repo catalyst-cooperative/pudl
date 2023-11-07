@@ -35,6 +35,7 @@ jobs:
       - name: Get HEAD of the branch (main or dev)
         run: |
           echo "ACTION_SHA=$(git rev-parse HEAD)" >> $GITHUB_ENV
+          echo "SHORT_SHA=$(git rev-parse --short HEAD)" >> $GITHUB_ENV
 
       - name: Print action vars
         run: |
@@ -123,7 +124,7 @@ jobs:
             --container-env DAGSTER_PG_HOST="104.154.182.24" \
             --container-env DAGSTER_PG_DB="dagster-storage" \
             --container-env PUDL_SETTINGS_YML="/home/catalyst/src/pudl/package_data/settings/etl_full.yml" \
-            --container-env PUDL_GCS_OUTPUT=${{ env.GCS_OUTPUT_BUCKET }}/${{ env.COMMIT_TIME }}-${{ env.ACTION_SHA }}-${{ env.COMMIT_BRANCH }}
+            --container-env PUDL_GCS_OUTPUT=${{ env.GCS_OUTPUT_BUCKET }}/${{ env.COMMIT_TIME }}-${{ env.SHORT_SHA }}-${{ env.COMMIT_BRANCH }}
 
       # Start the VM
       - name: Start the deploy-pudl-vm
@@ -134,6 +135,6 @@ jobs:
         uses: slackapi/slack-github-action@v1.24.0
         with:
           channel-id: "C03FHB9N0PQ"
-          slack-message: "build-deploy-pudl status: ${{ job.status }}\n${{ env.COMMIT_TIME}}-${{ env.ACTION_SHA }}-${{ env.COMMIT_BRANCH }}"
+          slack-message: "build-deploy-pudl status: ${{ job.status }}\n${{ env.COMMIT_TIME}}-${{ env.SHORT_SHA }}-${{ env.COMMIT_BRANCH }}"
         env:
           SLACK_BOT_TOKEN: ${{ secrets.PUDL_DEPLOY_SLACK_TOKEN }}
