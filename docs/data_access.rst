@@ -2,16 +2,16 @@
 Data Access
 =======================================================================================
 
-We publish the :doc:`PUDL pipeline <intro>` outputs in several ways to serve
+We publish the PUDL pipeline outputs in several ways to serve
 different users and use cases. We're always trying to increase accessibility of the
 PUDL data, so if you have a suggestion please `open a GitHub issue
 <https://github.com/catalyst-cooperative/pudl/issues>`__. If you have a question you
 can `create a GitHub discussion <https://github.com/orgs/catalyst-cooperative/discussions/new?category=help-me>`__.
 
-PUDL's primary data output is the ``pudl.sqlite`` database. We recommend working
-with tables with the ``out_`` prefix as these tables contain the most complete
-data. For more information about the different types of tables, read through
-:ref:`PUDL's naming conventions <asset-naming>`.
+PUDL's primary data output is the ``pudl.sqlite`` database. We recommend working with
+tables with the ``out_`` prefix, as these tables contain the most complete and easiest
+to work with data. For more information about the different types
+of tables, read through :ref:`PUDL's naming conventions <asset-naming>`.
 
 .. _access-modes:
 

@@ -16,7 +16,7 @@ PUDL's data processing is divided into three layers of Dagster assets: Raw, Core
 and Output. Dagster assets are the core unit of computation in PUDL. The outputs
 of assets can be persisted to any type of storage though PUDL outputs are typically
 tables in a SQLite database, parquet files or pickle files (read more about this here:
-:doc:`../intro`). The asset name is used for the table or parquet file name. Asset
+:doc:`../index`). The asset name is used for the table or parquet file name. Asset
 names should generally follow this naming convention:
 
 .. code-block::

@@ -59,6 +59,16 @@ it's often difficult to work with. PUDL takes the original spreadsheets, CSV fil
 and databases and turns them into a unified resource. This allows users to spend more
 time on novel analysis and less time on data preparation.
 
+The project is focused on serving researchers, activists, journalists, policy makers,
+and small businesses that might not otherwise be able to afford access to this data
+from commercial sources and who may not have the time or expertise to do all the
+data processing themselves from scratch.
+
+We want to make this data accessible and easy to work with for as wide an audience as
+possible: anyone from a grassroots youth climate organizers working with Google
+sheets to university researchers with access to scalable cloud computing
+resources and everyone in between!
+
 PUDL is comprised of three core components:
 
 - **Raw Data Archives**
@@ -131,19 +141,6 @@ Program <https://sloan.org/programs/research/energy-and-environment>`__, from
 * `FERC Form 2 <https://www.ferc.gov/industries-data/natural-gas/overview/general-information/natural-gas-industry-forms/form-22a-data>`__
   (Annual Report of Major Natural Gas Companies)
 * `PHMSA Natural Gas Annual Report <https://www.phmsa.dot.gov/data-and-statistics/pipeline/gas-distribution-gas-gathering-gas-transmission-hazardous-liquids>`__
-
-Who is PUDL for?
-----------------
-
-The project is focused on serving researchers, activists, journalists, policy makers,
-and small businesses that might not otherwise be able to afford access to this data
-from commercial sources and who may not have the time or expertise to do all the
-data processing themselves from scratch.
-
-We want to make this data accessible and easy to work with for as wide an audience as
-possible: anyone from a grassroots youth climate organizers working with Google
-sheets to university researchers with access to scalable cloud computing
-resources and everyone in between!
 
 How do I access the data?
 -------------------------
