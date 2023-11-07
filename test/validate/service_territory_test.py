@@ -46,3 +46,22 @@ def test_minmax_rows(
             pv.check_max_rows, expected_rows=expected_rows, margin=0.0, df_name=df_name
         )
     )
+
+
+def test_report_year_discrepency_in_demand_hourly_pa_ferc714(pudl_out_orig):
+    """Test if the vast majority of the years in the two date columns line up."""
+    demand_hourly_pa_ferc714 = pudl_out_orig.demand_hourly_pa_ferc714()
+    mismatched_report_years = demand_hourly_pa_ferc714[
+        (
+            demand_hourly_pa_ferc714.utc_datetime.dt.year
+            != demand_hourly_pa_ferc714.report_date.dt.year
+        )
+    ]
+    if (
+        off_ratio := len(mismatched_report_years) / len(demand_hourly_pa_ferc714)
+    ) > 0.001:
+        raise AssertionError(
+            f"Found more ({off_ratio:.2%}) than expected (>.1%) FERC714 records"
+            " where the report year from the utc_datetime differs from the "
+            "report_date column."
+        )
