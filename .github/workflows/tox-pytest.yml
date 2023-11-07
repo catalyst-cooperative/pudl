@@ -133,7 +133,7 @@ jobs:
     name: Integration (fast ETL run)
     needs:
       - ci-unit
-    runs-on: ${{ github.event_name == "workflow_dispatch" && github.event.inputs.runner_shape || "ubuntu-22.04-4core" }}
+    runs-on: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.runner_shape || 'ubuntu-22.04-4core' }}
     if: github.event.pull_request.draft == false
     permissions:
       contents: read
