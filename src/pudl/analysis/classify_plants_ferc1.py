@@ -546,7 +546,7 @@ def revert_filled_in_string_nulls(df: pd.DataFrame) -> pd.DataFrame:
         if col in df.columns:
             # the replace to_replace={column_name: {"", pd.NA}} mysteriously doesn't work.
             df[col] = df[col].replace(
-                to_replace=[""],
+                to_replace=["", "nan"],
                 value=pd.NA,
             )
     return df
