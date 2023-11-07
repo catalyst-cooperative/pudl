@@ -4,16 +4,6 @@ name: Code validation
 # better represent what it does. Maybe even migrate yml file.
 
 on:
-  workflow_dispatch:
-    inputs:
-      runner_shape:
-        description: "GitHub runner to use"
-        type: choice
-        options:
-          - ubuntu-latest
-          - ubuntu-22.04-4core
-          - ubuntu-22.04-8core
-        default: ubuntu-22.04-4core
   pull_request:
     types:
       - created
@@ -130,10 +120,16 @@ jobs:
           path: coverage.xml
 
   ci-integration:
+    strategy:
+      matrix:
+        runner_shape:
+          - ubuntu-latest
+          - ubuntu-22.04-4core
+          - ubuntu-22.04-8core
     name: Integration (fast ETL run)
     needs:
       - ci-unit
-    runs-on: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.runner_shape || 'ubuntu-22.04-4core' }}
+    runs-on: ${{ matrix.runner_shape }}
     if: github.event.pull_request.draft == false
     permissions:
       contents: read
