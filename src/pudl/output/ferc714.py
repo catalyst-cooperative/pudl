@@ -334,7 +334,10 @@ def filled_service_territory_eia861(
     )
 
 
-@asset(compute_kind="Python")
+@asset(
+    compute_kind="Python",
+    required_resource_keys={"dataset_settings"},
+)
 def annualized_respondents_ferc714(
     context, respondent_id_ferc714: pd.DataFrame
 ) -> pd.DataFrame:
