@@ -48,9 +48,30 @@ def test_minmax_rows(
     )
 
 
-def test_report_year_discrepency_in_demand_hourly_pa_ferc714(pudl_out_orig):
-    """Test if the vast majority of the years in the two date columns line up."""
-    demand_hourly_pa_ferc714 = pudl_out_orig.demand_hourly_pa_ferc714()
+@pytest.mark.parametrize(
+    "df_name,expected_rows",
+    [("demand_hourly_pa_ferc714", 15_608_154)],
+)
+def test_minmax_rows_and_year_in_demand_hourly_pa_ferc714(
+    pudl_out_orig: "pudl.output.pudltabl.PudlTabl",
+    live_dbs: bool,
+    expected_rows: int,
+    df_name: str,
+):
+    """Test if the majority of the years in the two date columns line up & min/max rows.
+
+    We are parameterizing this test even though it only has one input because the
+    test_minmax_rows is a common test across many tables and we wanted to preserve the
+    format.
+    """
+    if not live_dbs:
+        pytest.skip("Data validation only works with a live PUDL DB.")
+    demand_hourly_pa_ferc714 = pudl_out_orig.__getattribute__(df_name)()
+    _ = demand_hourly_pa_ferc714.pipe(
+        pv.check_min_rows, expected_rows=expected_rows, margin=0.0, df_name=df_name
+    ).pipe(pv.check_max_rows, expected_rows=expected_rows, margin=0.0, df_name=df_name)
+
+    logger.info("Checking the consistency of the year in the multiple date columns.")
     mismatched_report_years = demand_hourly_pa_ferc714[
         (
             demand_hourly_pa_ferc714.utc_datetime.dt.year
