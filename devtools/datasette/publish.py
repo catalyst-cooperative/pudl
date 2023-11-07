@@ -1,9 +1,11 @@
 """Publish the datasette to fly.io.
 
-We use custom logic here because the datasette-publish-fly plugin bakes the uncompressed databases into the image, which makes the image too large.
+We use custom logic here because the datasette-publish-fly plugin bakes the
+uncompressed databases into the image, which makes the image too large.
 
 We compress the databases before baking them into the image. Then we decompress
-them at runtime to a Fly volume mounted at /data. This avoids a long download at startup, and allows us stay within the 8GB image size limit.
+them at runtime to a Fly volume mounted at /data. This avoids a long download
+at startup, and allows us stay within the Fly.io 8GB image size limit.
 
 The volume handling is done manually outside of this publish.py script - it
 should be terraformed at some point.
@@ -105,7 +107,7 @@ def main():
     with docker_path.open("w") as f:
         f.write(make_dockerfile())
 
-    logging.info(f"Compressing databases at {datasets}...")
+    logging.info(f"Compressing {datasets} and putting into docker context...")
     check_call(
         ["tar", "-a", "-czvf", fly_dir / "all_dbs.tar.zst"] + datasets,  # noqa: S603
         cwd=pudl_out,
