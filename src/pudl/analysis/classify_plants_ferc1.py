@@ -546,7 +546,7 @@ def revert_filled_in_string_nulls(df: pd.DataFrame) -> pd.DataFrame:
         if col in df.columns:
             # the replace to_replace={column_name: {"", pd.NA}} mysteriously doesn't work.
             df[col] = df[col].replace(
-                to_replace=["", "nan"],
+                to_replace=[""],
                 value=pd.NA,
             )
     return df
@@ -654,9 +654,11 @@ def fuel_by_plant_ferc1(
     ]
 
     # Ensure that the dataframe we've gotten has all the information we need:
-    for col in keep_cols:
-        if col not in fuel_df.columns:
-            raise AssertionError(f"Required column {col} not found in input fuel_df.")
+    missing_cols = [col for col in keep_cols if col not in fuel_df.columns]
+    if missing_cols:
+        raise AssertionError(
+            f"Required columns not found in input fuel_df: {missing_cols}"
+        )
 
     # Calculate per-fuel derived values and add them to the DataFrame
     df = (
@@ -679,7 +681,8 @@ def fuel_by_plant_ferc1(
                 "plant_name_ferc1",
                 "report_year",
                 "fuel_type_code_pudl",
-            ]
+            ],
+            observed=True,
         )
         .sum()
         .reset_index()
@@ -732,6 +735,7 @@ def fuel_by_plant_ferc1(
     ).reset_index()
 
     # Label each plant-year record by primary fuel:
+    df.loc[:, ["primary_fuel_by_cost", "primary_fuel_by_mmbtu"]] = pd.NA
     for fuel_str in fuel_categories:
         try:
             mmbtu_mask = df[f"{fuel_str}_fraction_mmbtu"] > thresh
