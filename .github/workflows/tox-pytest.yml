@@ -121,6 +121,7 @@ jobs:
 
   ci-integration:
     strategy:
+      fail-fast: false
       matrix:
         runner_shape:
           - ubuntu-latest
@@ -137,8 +138,6 @@ jobs:
     defaults:
       run:
         shell: bash -l {0}
-    strategy:
-      fail-fast: false
     steps:
       - uses: actions/checkout@v4
         with:
