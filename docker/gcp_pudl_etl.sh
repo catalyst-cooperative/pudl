@@ -32,7 +32,6 @@ function run_pudl_etl() {
         $PUDL_SETTINGS_YML \
     && pudl_etl \
         --loglevel DEBUG \
-        --max-concurrent 6 \
         --gcs-cache-path gs://internal-zenodo-cache.catalyst.coop \
         $PUDL_SETTINGS_YML \
     && pytest \
@@ -92,10 +91,11 @@ function notify_slack() {
 # 2>&1 redirects stderr to stdout.
 run_pudl_etl 2>&1 | tee $LOGFILE
 
+copy_outputs_to_gcs
+
 # Notify slack if the etl succeeded.
 if [[ ${PIPESTATUS[0]} == 0 ]]; then
     notify_slack "success"
-    copy_outputs_to_gcs
 
     # Dump outputs to s3 bucket if branch is dev or build was triggered by a tag
     # TODO: this behavior should be controlled by on/off switch here and this logic
