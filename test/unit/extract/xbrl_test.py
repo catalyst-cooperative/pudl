@@ -122,9 +122,9 @@ def test_xbrl2sqlite(settings, forms, mocker):
             form,
             mock_datastore,
             output_path=PudlPaths().output_dir,
+            sql_path=PudlPaths().output_dir / f"ferc{form.value}_xbrl.sqlite",
             batch_size=20,
             workers=10,
-            clobber=True,
         )
 
 
@@ -158,7 +158,7 @@ def test_convert_form(mocker):
             form,
             FakeDatastore(),
             output_path=output_path,
-            clobber=True,
+            sql_path=output_path / f"ferc{form.value}_xbrl.sqlite",
             batch_size=10,
             workers=5,
         )
@@ -169,8 +169,8 @@ def test_convert_form(mocker):
             expected_calls.append(
                 mocker.call(
                     instance_path=f"filings_{year}_{form.value}",
-                    sql_path=str(output_path / f"ferc{form.value}_xbrl.sqlite"),
-                    clobber=True,
+                    sql_path=output_path / f"ferc{form.value}_xbrl.sqlite",
+                    clobber=False,
                     taxonomy=f"raw_archive_{year}_{form.value}",
                     entry_point=f"taxonomy_entry_point_{year}_{form.value}",
                     form_number=form.value,

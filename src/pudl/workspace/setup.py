@@ -54,12 +54,12 @@ class PudlPaths(BaseSettings):
     @property
     def input_dir(self) -> Path:
         """Path to PUDL input directory."""
-        return Path(self.pudl_input)
+        return Path(self.pudl_input).absolute()
 
     @property
     def output_dir(self) -> Path:
         """Path to PUDL output directory."""
-        return Path(self.pudl_output)
+        return Path(self.pudl_output).absolute()
 
     @property
     def settings_dir(self) -> Path:
@@ -83,9 +83,8 @@ class PudlPaths(BaseSettings):
         The name is expected to be the name of the database without the .sqlite
         suffix. E.g. pudl, ferc1 and so on.
         """
-        db_path = PudlPaths().output_dir / f"{name}.sqlite"
-        return f"sqlite:///{db_path}"
-        return self.output_dir / f"{name}.sqlite"
+        db_path = self.output_dir / f"{name}.sqlite"
+        return f"sqlite://{db_path}"
 
     def output_file(self, filename: str) -> Path:
         """Path to file in PUDL output directory."""

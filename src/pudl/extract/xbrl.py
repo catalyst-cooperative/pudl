@@ -2,6 +2,7 @@
 import io
 from datetime import date
 from pathlib import Path
+from urllib.parse import urlparse
 
 from dagster import Field, Noneable, op
 from ferc_xbrl_extractor.cli import run_main
@@ -85,12 +86,17 @@ def xbrl2sqlite(context) -> None:
             logger.info(f"Dataset ferc{form}_xbrl is disabled, skipping")
             continue
 
+        sql_path = Path(urlparse(PudlPaths().sqlite_db(f"ferc{form.value}_xbrl")).path)
+
+        if clobber:
+            sql_path.unlink(missing_ok=True)
+
         convert_form(
             settings,
             form,
             datastore,
             output_path=output_path,
-            clobber=clobber,
+            sql_path=sql_path,
             batch_size=batch_size,
             workers=workers,
         )
@@ -101,7 +107,7 @@ def convert_form(
     form: XbrlFormNumber,
     datastore: FercXbrlDatastore,
     output_path: Path,
-    clobber: bool,
+    sql_path: Path,
     batch_size: int | None = None,
     workers: int | None = None,
 ) -> None:
@@ -128,10 +134,8 @@ def convert_form(
 
         run_main(
             instance_path=filings_archive,
-            sql_path=PudlPaths()
-            .sqlite_db(f"ferc{form.value}_xbrl")
-            .removeprefix("sqlite:///"),  # Temp hacky solution
-            clobber=clobber,
+            sql_path=sql_path,
+            clobber=False,  # if we set clobber=True, clobbers on *every* call to run_main
             taxonomy=taxonomy_archive,
             entry_point=taxonomy_entry_point,
             form_number=form.value,
