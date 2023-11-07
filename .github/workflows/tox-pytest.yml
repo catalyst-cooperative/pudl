@@ -11,7 +11,7 @@ on:
       - synchronize
       - ready_for_review
 concurrency:
-  group: ${{ github.workflow }}-${{ github.ref }}-${{ github.event_name }}-${{ github.event.inputs.runner_shape }}
+  group: ${{ github.workflow }}-${{ github.ref }}-${{ github.event_name }}
   cancel-in-progress: true
 
 env:
@@ -79,7 +79,6 @@ jobs:
     defaults:
       run:
         shell: bash -l {0}
-
     steps:
       - uses: actions/checkout@v4
         with:
@@ -120,17 +119,10 @@ jobs:
           path: coverage.xml
 
   ci-integration:
-    strategy:
-      fail-fast: false
-      matrix:
-        runner_shape:
-          - ubuntu-latest
-          - ubuntu-22.04-4core
-          - ubuntu-22.04-8core
     name: Integration (fast ETL run)
     needs:
       - ci-unit
-    runs-on: ${{ matrix.runner_shape }}
+    runs-on: ubuntu-22.04-4core
     if: github.event.pull_request.draft == false
     permissions:
       contents: read
