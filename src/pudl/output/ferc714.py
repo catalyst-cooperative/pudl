@@ -1,5 +1,4 @@
 """Functions & classes for compiling derived aspects of the FERC Form 714 data."""
-from datetime import datetime
 from typing import Any
 
 import geopandas as gpd
@@ -81,41 +80,6 @@ The changes are applied locally to EIA 861 tables.
 ################################################################################
 # Helper functions
 ################################################################################
-
-
-def add_dates(rids_ferc714: pd.DataFrame, report_dates: list[datetime]) -> pd.DataFrame:
-    """Broadcast respondent data across dates.
-
-    Args:
-        rids_ferc714: A simple FERC 714 Respondent ID dataframe,
-            without any date information.
-        report_dates: Dates for which each respondent
-            should be given a record.
-
-    Raises:
-        ValueError: if a ``report_date`` column exists in ``rids_ferc714``.
-
-    Returns:
-        A Dataframe having all the same columns as the input
-        ``rids_ferc714`` with the addition of a ``report_date`` column, but with all
-        records associated with each ``respondent_id_ferc714`` duplicated on a per-date
-        basis.
-    """
-    if "report_date" in rids_ferc714.columns:
-        raise ValueError("report_date already present, can't be added again!")
-    # Create DataFrame with all report_date and respondent_id_ferc714 combos
-    logger.info(f"Got {len(report_dates)} report_dates.")
-    unique_rids = rids_ferc714.respondent_id_ferc714.unique()
-    logger.info(f"found {len(unique_rids)} unique FERC-714 respondent IDs.")
-    dates_rids_df = pd.DataFrame(
-        index=pd.MultiIndex.from_product(
-            [report_dates, unique_rids],
-            names=["report_date", "respondent_id_ferc714"],
-        )
-    ).reset_index()
-    rids_with_dates = pd.merge(rids_ferc714, dates_rids_df, on="respondent_id_ferc714")
-    logger.info(f"Generated {len(rids_with_dates)} report_date + respondent_id rows.")
-    return rids_with_dates
 
 
 def categorize_eia_code(
@@ -372,26 +336,23 @@ def filled_service_territory_eia861(
 
 @asset(compute_kind="Python")
 def annualized_respondents_ferc714(
-    demand_hourly_pa_ferc714: pd.DataFrame, respondent_id_ferc714: pd.DataFrame
+    context, respondent_id_ferc714: pd.DataFrame
 ) -> pd.DataFrame:
     """Broadcast respondent data across all years with reported demand.
 
     The FERC 714 Respondent IDs and names are reported in their own table, without any
     refence to individual years, but much of the information we are associating with
     them varies annually. This method creates an annualized version of the respondent
-    table, with each respondent having an entry corresponding to every year in which
-    hourly demand was reported in the FERC 714 dataset as a whole -- this necessarily
-    means that many of the respondents will end up having entries for years in which
-    they reported no demand, and that's fine.  They can be filtered later.
+    table, with each respondent having an entry corresponding to every year for which
+    FERC 714 has been processed. This means that many of the respondents will end up
+    having entries for years in which they reported no demand, and that's fine.
+    They can be filtered later.
     """
-    # Calculate the total demand per respondent, per year:
-    report_dates = [
-        time for time in demand_hourly_pa_ferc714.report_date.unique() if pd.notna(time)
-    ]
-    annualized_respondents_ferc714 = respondent_id_ferc714.pipe(
-        add_dates, report_dates
-    ).pipe(apply_pudl_dtypes)
-    return annualized_respondents_ferc714
+    ferc714_settings = context.resources.dataset_settings.ferc714
+    report_dates = pd.DataFrame(
+        {"report_date": pd.to_datetime(sorted(ferc714_settings.years), format="%Y")}
+    )
+    return respondent_id_ferc714.merge(report_dates, how="cross")
 
 
 @asset(
