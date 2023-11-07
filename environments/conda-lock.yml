@@ -4452,16 +4452,16 @@ package:
     category: main
     optional: false
   - name: importlib_resources
-    version: 6.1.0
+    version: 6.1.1
     manager: conda
     platform: linux-64
     dependencies:
       python: ">=3.8"
       zipp: ">=3.1.0"
-    url: https://conda.anaconda.org/conda-forge/noarch/importlib_resources-6.1.0-pyhd8ed1ab_0.conda
+    url: https://conda.anaconda.org/conda-forge/noarch/importlib_resources-6.1.1-pyhd8ed1ab_0.conda
     hash:
-      md5: 48b0d98e0c0ec810d3ccc2a0926c8c0e
-      sha256: adab6da633ec3b642f036ab5c1196c3e2db0e8db57fb0c7fc9a8e06e29fa9bdc
+      md5: 3d5fa25cf42f3f32a12b2d874ace8574
+      sha256: e584f9ae08fb2d242af0ce7e19e3cd2f85f362d8523119e08f99edb962db99ed
     category: main
     optional: false
   - name: isodate
@@ -5582,17 +5582,17 @@ package:
       geos: ">=3.12.0,<3.12.1.0a0"
       libgcc-ng: ">=12"
       librttopo: ">=1.1.0,<1.2.0a0"
-      libsqlite: ">=3.43.0,<4.0a0"
+      libsqlite: ">=3.44.0,<4.0a0"
       libstdcxx-ng: ">=12"
       libxml2: ">=2.11.5,<2.12.0a0"
       libzlib: ">=1.2.13,<1.3.0a0"
       proj: ">=9.3.0,<9.3.1.0a0"
       sqlite: ""
       zlib: ""
-    url: https://conda.anaconda.org/conda-forge/linux-64/libspatialite-5.1.0-h090f1da_0.conda
+    url: https://conda.anaconda.org/conda-forge/linux-64/libspatialite-5.1.0-h090f1da_1.conda
     hash:
-      md5: c4360eaa543bb3bcbb9cd135eb6fb0fc
-      sha256: 9c2098ae38f5018ad77cf7928778cf5af08008a0b383fe731ef812ef688953bc
+      md5: 9a2d6acaa8ce6d53a150248e7b11165e
+      sha256: c00eb70e8cf3778bffd04a9551e205e399d16e83a04f55ec392c3163b93d4feb
     category: main
     optional: false
   - name: mako
@@ -12206,16 +12206,16 @@ package:
     category: main
     optional: false
   - name: importlib_resources
-    version: 6.1.0
+    version: 6.1.1
     manager: conda
     platform: osx-64
     dependencies:
       python: ">=3.8"
       zipp: ">=3.1.0"
-    url: https://conda.anaconda.org/conda-forge/noarch/importlib_resources-6.1.0-pyhd8ed1ab_0.conda
+    url: https://conda.anaconda.org/conda-forge/noarch/importlib_resources-6.1.1-pyhd8ed1ab_0.conda
     hash:
-      md5: 48b0d98e0c0ec810d3ccc2a0926c8c0e
-      sha256: adab6da633ec3b642f036ab5c1196c3e2db0e8db57fb0c7fc9a8e06e29fa9bdc
+      md5: 3d5fa25cf42f3f32a12b2d874ace8574
+      sha256: e584f9ae08fb2d242af0ce7e19e3cd2f85f362d8523119e08f99edb962db99ed
     category: main
     optional: false
   - name: isodate
@@ -13299,21 +13299,22 @@ package:
     manager: conda
     platform: osx-64
     dependencies:
+      __osx: ">=10.9"
       freexl: ">=2.0.0,<3.0a0"
       geos: ">=3.12.0,<3.12.1.0a0"
-      libcxx: ">=15.0.7"
+      libcxx: ">=16.0.6"
       libiconv: ">=1.17,<2.0a0"
       librttopo: ">=1.1.0,<1.2.0a0"
-      libsqlite: ">=3.43.0,<4.0a0"
+      libsqlite: ">=3.44.0,<4.0a0"
       libxml2: ">=2.11.5,<2.12.0a0"
       libzlib: ">=1.2.13,<1.3.0a0"
       proj: ">=9.3.0,<9.3.1.0a0"
       sqlite: ""
       zlib: ""
-    url: https://conda.anaconda.org/conda-forge/osx-64/libspatialite-5.1.0-h231fb02_0.conda
+    url: https://conda.anaconda.org/conda-forge/osx-64/libspatialite-5.1.0-h4a59d8e_1.conda
     hash:
-      md5: 01e2c119c7b00f2116bc33660107ad37
-      sha256: 6a0571ce1ce67d95c4f9245645a5613247a7c425abff1e1c7edf6f402ea4e3d9
+      md5: 606bfbfee0ea2acb14adfca6b484223e
+      sha256: 7857801563bc23c3bfa547aa160852b637ff9c34723bba62c566ea6d9eaaf980
     category: main
     optional: false
   - name: mako
@@ -15064,8 +15065,8 @@ package:
     dependencies:
       typing_extensions: ""
       decorator: ""
-      exceptiongroup: ""
       __osx: ""
+      exceptiongroup: ""
       stack_data: ""
       matplotlib-inline: ""
       appnope: ""
@@ -19864,16 +19865,16 @@ package:
     category: main
     optional: false
   - name: importlib_resources
-    version: 6.1.0
+    version: 6.1.1
     manager: conda
     platform: osx-arm64
     dependencies:
       python: ">=3.8"
       zipp: ">=3.1.0"
-    url: https://conda.anaconda.org/conda-forge/noarch/importlib_resources-6.1.0-pyhd8ed1ab_0.conda
+    url: https://conda.anaconda.org/conda-forge/noarch/importlib_resources-6.1.1-pyhd8ed1ab_0.conda
     hash:
-      md5: 48b0d98e0c0ec810d3ccc2a0926c8c0e
-      sha256: adab6da633ec3b642f036ab5c1196c3e2db0e8db57fb0c7fc9a8e06e29fa9bdc
+      md5: 3d5fa25cf42f3f32a12b2d874ace8574
+      sha256: e584f9ae08fb2d242af0ce7e19e3cd2f85f362d8523119e08f99edb962db99ed
     category: main
     optional: false
   - name: isodate
@@ -20955,21 +20956,22 @@ package:
     manager: conda
     platform: osx-arm64
     dependencies:
+      __osx: ">=10.9"
       freexl: ">=2.0.0,<3.0a0"
       geos: ">=3.12.0,<3.12.1.0a0"
-      libcxx: ">=15.0.7"
+      libcxx: ">=16.0.6"
       libiconv: ">=1.17,<2.0a0"
       librttopo: ">=1.1.0,<1.2.0a0"
-      libsqlite: ">=3.43.0,<4.0a0"
+      libsqlite: ">=3.44.0,<4.0a0"
       libxml2: ">=2.11.5,<2.12.0a0"
       libzlib: ">=1.2.13,<1.3.0a0"
       proj: ">=9.3.0,<9.3.1.0a0"
       sqlite: ""
       zlib: ""
-    url: https://conda.anaconda.org/conda-forge/osx-arm64/libspatialite-5.1.0-h32510b6_0.conda
+    url: https://conda.anaconda.org/conda-forge/osx-arm64/libspatialite-5.1.0-h5b80306_1.conda
     hash:
-      md5: 075be471a7d969b14e3e49074974bac8
-      sha256: bb84ffd0ea6e2859127e737c444898c7133c3df7c7fe41e2abda5b3cef36be60
+      md5: eb794aae59c5b3b475a42809a5240a73
+      sha256: 21c40582abf3b8125b810873e434dc3c8bc4fc024b92ebd25f9a549154791919
     category: main
     optional: false
   - name: mako
@@ -22718,8 +22720,8 @@ package:
     dependencies:
       typing_extensions: ""
       decorator: ""
-      exceptiongroup: ""
       __osx: ""
+      exceptiongroup: ""
       stack_data: ""
       matplotlib-inline: ""
       appnope: ""

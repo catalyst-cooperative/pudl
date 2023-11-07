@@ -321,7 +321,7 @@ dependencies:
   - html5lib=1.1=pyh9f0ad1d_0
   - hypothesis=6.88.3=pyha770c72_0
   - importlib-metadata=6.8.0=pyha770c72_0
-  - importlib_resources=6.1.0=pyhd8ed1ab_0
+  - importlib_resources=6.1.1=pyhd8ed1ab_0
   - isodate=0.6.1=pyhd8ed1ab_0
   - janus=1.0.0=pyhd8ed1ab_0
   - jaraco.classes=3.3.0=pyhd8ed1ab_0
@@ -397,7 +397,7 @@ dependencies:
   - jupyter_server_terminals=0.4.4=pyhd8ed1ab_1
   - kealib=1.5.2=h052fcf7_1
   - libnetcdf=4.9.2=nompi_h6a32802_112
-  - libspatialite=5.1.0=h231fb02_0
+  - libspatialite=5.1.0=h4a59d8e_1
   - mako=1.2.4=pyhd8ed1ab_0
   - numpy=1.24.4=py311hc44ba51_0
   - pango=1.50.14=h19c1c8a_2
