@@ -379,7 +379,7 @@ dependencies:
   - arrow=1.3.0=pyhd8ed1ab_0
   - async-timeout=4.0.3=pyhd8ed1ab_0
   - aws-crt-cpp=0.24.2=hbe5f050_2
-  - botocore=1.31.78=pyhd8ed1ab_0
+  - botocore=1.31.79=pyhd8ed1ab_0
   - branca=0.7.0=pyhd8ed1ab_1
   - croniter=2.0.1=pyhd8ed1ab_0
   - cryptography=41.0.5=py311h71175c2_0
@@ -435,7 +435,7 @@ dependencies:
   - dask-core=2023.10.1=pyhd8ed1ab_0
   - dnspython=2.4.2=pyhd8ed1ab_1
   - ensureconda=1.4.3=pyhd8ed1ab_0
-  - folium=0.14.0=pyhd8ed1ab_0
+  - folium=0.15.0=pyhd8ed1ab_0
   - google-resumable-media=2.6.0=pyhd8ed1ab_0
   - graphene=3.3=pyhd8ed1ab_0
   - grpcio-status=1.57.0=pyhd8ed1ab_0
@@ -468,7 +468,7 @@ dependencies:
   - typer=0.9.0=pyhd8ed1ab_0
   - uvicorn-standard=0.24.0=ha1ab1f8_0
   - virtualenv=20.24.6=pyhd8ed1ab_0
-  - boto3=1.28.78=pyhd8ed1ab_0
+  - boto3=1.28.79=pyhd8ed1ab_0
   - cachecontrol-with-filecache=0.13.1=pyhd8ed1ab_0
   - dagster=1.5.6=pyhd8ed1ab_2
   - datasette=0.64.4=pyhd8ed1ab_1
