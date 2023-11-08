@@ -1236,12 +1236,12 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "description": "Fuel content per unit of electricity generated. Coming from MCOE calculation.",
         "unit": "MMBtu_MWh",
     },
-    "heat_rate_mmbtu_mwh_eia": {
+    "unit_heat_rate_mmbtu_per_mwh_eia": {
         "type": "number",
         "description": "Fuel content per unit of electricity generated. Coming from MCOE calculation.",
         "unit": "MMBtu_MWh",
     },
-    "heat_rate_mmbtu_mwh_ferc1": {
+    "unit_heat_rate_mmbtu_per_mwh_ferc1": {
         "type": "number",
         "description": "Fuel content per unit of electricity generated. Calculated from FERC reported fuel consumption and net generation.",
         "unit": "MMBtu_MWh",
