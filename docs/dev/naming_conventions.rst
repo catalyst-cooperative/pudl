@@ -66,9 +66,8 @@ Naming convention: ``core_{source}__{asset_type}_{asset_name}``
 
   * ``assn``: Association tables provide connections between entities. This data
     can be manually compiled or extracted from data sources. If the asset associates
-    data from two sources, the source names should be included in the ``asset_name``.
-    The source names should appear in the same order for all assets that associate
-    the two sources. Examples:
+    data from two sources, the source names should be included in the ``asset_name``
+    in alphabetical order. Examples:
 
     * ``core_pudl__assn_plants_eia`` associates EIA Plant IDs and manually assigned
       PUDL Plant IDs.

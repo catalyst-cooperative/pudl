@@ -79,10 +79,9 @@ To help users migrate away from using ``PudlTabl`` and our temporary table names
 we've created a `google sheet <https://docs.google.com/spreadsheets/d/1RBuKl_xKzRSLgRM7GIZbc5zUYieWFE20cXumWuv5njo/edit?usp=sharing>`__
 that maps the old table names and ``PudlTabl`` methods to the new table names.
 
-We plan to remove ``PudlTabl`` from the pudl package once our known users have
-succesfully migrated to pulling data directly from ``pudl.sqlite``. We've added
-deprecation warnings to the ``PudlTabl`` class. We expect to remove ``PudlTabl``
-at the end of February 2024.
+We've added deprecation warnings to the ``PudlTabl`` class. We plan to remove
+``PudlTabl`` from the ``pudl`` package once our known users have
+succesfully migrated to pulling data directly from ``pudl.sqlite``.
 
 Data Coverage
 ^^^^^^^^^^^^^

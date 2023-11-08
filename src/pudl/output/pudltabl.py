@@ -90,10 +90,9 @@ class PudlTabl:
                 individual generators to functional units. EXPERIMENTAL.
         """
         logger.warning(
-            "PudlTabl is deprecated and will be removed from the pudl package"
-            "at the end of February 2024. To acccess the data returned by"
-            "this class, pull the desired table directly from the pudl.sqlite"
-            "database."
+            "PudlTabl is deprecated and will be removed from the pudl package "
+            "once known users have migrated to accessing the data directly from "
+            "pudl.sqlite. "
         )
         if not isinstance(pudl_engine, sa.engine.base.Engine):
             raise TypeError(
@@ -303,8 +302,9 @@ class PudlTabl:
             )
         table_name = self._agg_table_name(table_name)
         logger.warning(
-            "PudlTabl is deprecated and will be removed from the pudl package"
-            "at the end of February 2024. To access the data returned by this method,"
+            "PudlTabl is deprecated and will be removed from the pudl package "
+            "once known users have migrated to accessing the data directly from "
+            "pudl.sqlite. To access the data returned by this method, "
             f"use the {table_name} table in the pudl.sqlite database."
         )
         resource = Resource.from_id(table_name)
