@@ -818,20 +818,6 @@ def prettyify_best_matches(
     and FERC plant data. This removes the comparison vectors (the floats between 0 and 1
     that compare the two columns from each dataset).
     """
-    # if utility_id_pudl is not in the `PPE_COLS`,  we need to include it
-    ppe_cols_to_grab = pudl.analysis.plant_parts_eia.PPE_COLS + [
-        "plant_id_pudl",
-        "total_fuel_cost",
-        "fuel_cost_per_mmbtu",
-        "net_generation_mwh",
-        "capacity_mw",
-        "capacity_factor",
-        "total_mmbtu",
-        "unit_heat_rate_mmbtu_per_mwh",
-        "fuel_type_code_pudl",
-        "installation_year",
-        "plant_part_id_eia",
-    ]
     connects_ferc1_eia = (
         # first merge in the EIA plant-parts
         pd.merge(
