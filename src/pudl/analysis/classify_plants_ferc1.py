@@ -736,6 +736,12 @@ def fuel_by_plant_ferc1(
 
     # Label each plant-year record by primary fuel:
     df.loc[:, ["primary_fuel_by_cost", "primary_fuel_by_mmbtu"]] = pd.NA
+    df = df.astype(
+        {
+            "primary_fuel_by_cost": pd.StringDtype(),
+            "primary_fuel_by_mmbtu": pd.StringDtype(),
+        }
+    )
     for fuel_str in fuel_categories:
         try:
             mmbtu_mask = df[f"{fuel_str}_fraction_mmbtu"] > thresh
