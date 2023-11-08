@@ -238,19 +238,23 @@ class LayeredCache(AbstractCache):
         for i, cache in enumerate(self._caches):
             if cache.contains(resource):
                 logger.debug(
-                    f"contains: {resource} found in {i}-th layer ({cache.__class__.__name__})."
+                    f"resource-cache: {resource} found in {i}-th layer ({cache.__class__.__name__})."
                 )
                 return True
-        logger.debug(f"contains: {resource} not found in layered cache.")
+        logger.debug(f"resource-cache: {resource} not found in layered cache.")
         return False
+
+    def contained_in_layer(self, resource: PudlResourceKey) -> str:
+        """Returns the name of the layer that contains this resource."""
+        for cache in self._caches:
+            if cache.contains(resource):
+                return cache.__class__.__name__
+        return ""
 
     def is_optimally_cached(self, resource: PudlResourceKey) -> bool:
         """Return True if resource is contained in the closest write-enabled layer."""
         for cache_layer in self._caches:
             if cache_layer.is_read_only():
                 continue
-            logger.debug(
-                f"{resource} optimally cached in {cache_layer.__class__.__name__}"
-            )
             return cache_layer.contains(resource)
         return False
