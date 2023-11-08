@@ -26,7 +26,7 @@ pages for each source:
 * :doc:`data_sources/ferc714`
 
 PUDL's clean and complete versions of these data sources are stored in the
-``pudl.sqlite`` database and ``core_epacems__hourly_emissions.parquet`` files.
+``pudl.sqlite`` database. Larger datasets like EPA CEMS are stored in parquet files.
 To get started using PUDL data, visit our :doc:`data_access` page, or continue reading
 to learn more about the PUDL data processing pipeline.
 
