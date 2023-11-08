@@ -94,16 +94,17 @@ if [[ ${PIPESTATUS[0]} == 0 ]]; then
 
     # Deploy the updated data to datasette
     if [ $GITHUB_REF = "dev" ]; then
-        gcloud config set run/region us-central1
-        python ~/devtools/datasette/publish.py
+        python ~/devtools/datasette/publish.py 2>&1 | tee -a $LOGFILE
     fi
 fi
 
 # Notify slack about entire pipeline's success or failure;
 # PIPESTATUS[0] either refers to the failed ETL run or the last distribution
 # task that was run above
-if [[ ${PIPESTATUS[0]} == 0 ]]; then notify_slack "success" else notify_slack
-    "failure" fi
-
+if [[ ${PIPESTATUS[0]} == 0 ]]; then
+    notify_slack "success"
+else
+    notify_slack "failure"
+fi
 
 shutdown_vm
