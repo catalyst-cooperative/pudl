@@ -67,6 +67,23 @@ Dagster Adoption
   * :mod:`pudl.convert.censusdp1tract_to_sqlite` and :mod:`pudl.output.censusdp1tract`
     are now integrated into dagster. See :issue:`1973` and :pr:`2621`.
 
+New Asset Naming Convention
+^^^^^^^^^^^^^^^^^^^^^^^^^^^
+There are hundreds of new tables in ``pudl.sqlite`` now that the methods in ``PudlTabl``
+have been converted to Dagster assets. This significant increase in tables and diversity
+of table types prompted us to create a new naming convention to make the table names
+more descriptive and organized. You can read about the new naming convention in the
+:ref:`docs <asset-naming>`.
+
+To help users migrate away from using ``PudlTabl`` and our temporary table names,
+we've created a `google sheet <https://docs.google.com/spreadsheets/d/1RBuKl_xKzRSLgRM7GIZbc5zUYieWFE20cXumWuv5njo/edit?usp=sharing>`__
+that maps the old table names and ``PudlTabl`` methods to the new table names.
+
+We plan to remove ``PudlTabl`` from the pudl package once our known users have
+succesfully migrated to pulling data directly from ``pudl.sqlite``. We've added
+deprecation warnings to the ``PudlTabl`` class. We expect to remove ``PudlTabl``
+at the end of February 2024.
+
 Data Coverage
 ^^^^^^^^^^^^^
 

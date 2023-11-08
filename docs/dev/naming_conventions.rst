@@ -29,7 +29,9 @@ names should generally follow this naming convention:
   ``eia860``, ``ferc1`` and ``epacems``.
 * ``asset_type`` describes how the asset in modeled.
 * ``asset_name`` should describe the entity, categorical code type, or measurement of
-  the asset.
+  the asset. Note: FERC Form 1 assets typically include the schedule number in the
+  ``asset_name`` so users and contributors know which schedule the cleaned asset
+  refers to.
 
 Raw layer
 ^^^^^^^^^
@@ -55,14 +57,23 @@ These assets are typically stored in parquet files or tables in a database.
 
 Naming convention: ``core_{source}__{asset_type}_{asset_name}``
 
+* ``source`` is sometimes ``pudl``. This means the asset
+  is a derived connection the contributors of PUDL created to connect multiple
+  datasets via manual or machine learning methods.
+
 * ``asset_type`` describes how the asset is modeled and its role in PUDL’s
   collection of core assets. There are a handful of table types in this layer:
 
   * ``assn``: Association tables provide connections between entities. This data
-    can be manually compiled or extracted from data sources. Examples:
+    can be manually compiled or extracted from data sources. If the asset associates
+    data from two sources, the source names should be included in the ``asset_name``.
+    The source names should appear in the same order for all assets that associate
+    the two sources. Examples:
 
     * ``core_pudl__assn_plants_eia`` associates EIA Plant IDs and manually assigned
       PUDL Plant IDs.
+    * ``core_epa__assn_epacamd_eia`` associates  EPA units with EIA plants, boilers,
+      and generators.
   * ``codes``: Code tables contain more verbose descriptions of categorical codes
     typically manually compiled from source data dictionaries. Examples:
 
