@@ -7,7 +7,6 @@ associated with each other year to year to create a continuous time series. Howe
 want to do that programmatically, which means using some clustering / categorization
 tools from scikit-learn
 """
-import importlib
 import re
 
 import numpy as np
@@ -214,7 +213,7 @@ def make_ferc1_clf(
             ),
             (
                 "dim_reduction",
-                PCA(n_components=0.99),
+                PCA(copy=False, n_components=1000),
             ),
             (
                 "precompute_dist",
@@ -233,9 +232,6 @@ def make_ferc1_clf(
                 ),
             ),
         ],
-        memory=str(
-            importlib.resources.files("pudl.package_data") / "ferc1_plant_classifier"
-        ),
     )
     return ferc1_pipe
 
