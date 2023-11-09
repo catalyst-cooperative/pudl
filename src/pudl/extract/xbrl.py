@@ -88,8 +88,13 @@ def xbrl2sqlite(context) -> None:
 
         sql_path = Path(urlparse(PudlPaths().sqlite_db(f"ferc{form.value}_xbrl")).path)
 
-        if clobber:
-            sql_path.unlink(missing_ok=True)
+        if sql_path.exists():
+            if clobber:
+                sql_path.unlink()
+            else:
+                raise RuntimeError(
+                    f"Found existing DB at {sql_path} and clobber was set to False. Aborting."
+                )
 
         convert_form(
             settings,
@@ -117,8 +122,8 @@ def convert_form(
         form_settings: Validated settings for converting the desired XBRL form to SQLite.
         form: FERC form number.
         datastore: Instance of a FERC XBRL datastore for retrieving data.
-        pudl_settings: Dictionary containing paths and database URLs
-            used by PUDL.
+        output_path: PUDL output directory
+        sql_path: path to the SQLite DB we'd like to write to.
         batch_size: Number of XBRL filings to process in a single CPU process.
         workers: Number of CPU processes to create for processing XBRL filings.
 
@@ -131,11 +136,12 @@ def convert_form(
     for year in form_settings.years:
         taxonomy_archive, taxonomy_entry_point = datastore.get_taxonomy(year, form)
         filings_archive = datastore.get_filings(year, form)
-
+        # if we set clobber=True, clobbers on *every* call to run_main;
+        # we already delete the existing base on `clobber=True` in `xbrl2sqlite`
         run_main(
             instance_path=filings_archive,
             sql_path=sql_path,
-            clobber=False,  # if we set clobber=True, clobbers on *every* call to run_main
+            clobber=False,
             taxonomy=taxonomy_archive,
             entry_point=taxonomy_entry_point,
             form_number=form.value,
