@@ -218,12 +218,24 @@ def fake_pudl_sqlite_io_manager_fixture(tmp_path, test_pkg, monkeypatch):
 
 
 def test_migrations_match_metadata(tmp_path, monkeypatch):
-    pkg = Package.from_resource_ids()
+    """If you create a `PudlSQLiteIOManager` that points at a non-existing
+    `pudl.sqlite` - it will initialize the DB based on the `package`.
+
+    If you create a `PudlSQLiteIOManager` that points at an existing
+    `pudl.sqlite`, like one initialized via `alembic upgrade head`, it
+    will compare the existing db schema with the db schema in `package`.
+
+    We want to make sure that the schema defined in `package` is the same as
+    the one we arrive at by applying all the migrations.
+    """
+    # alembic wants current directory to be the one with `alembic.ini` in it
     monkeypatch.chdir(Path(__file__).parent.parent.parent)
     # alembic knows to use PudlPaths().pudl_db - so we need to set PUDL_OUTPUT env var
     monkeypatch.setenv("PUDL_OUTPUT", tmp_path)
+    # run all the migrations on a fresh DB at tmp_path/pudl.sqlite
     alembic.config.main(["upgrade", "head"])
 
+    pkg = Package.from_resource_ids()
     PudlSQLiteIOManager(base_dir=tmp_path, db_name="pudl", package=pkg)
 
     # all we care about is that it didn't raise an error
