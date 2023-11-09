@@ -169,7 +169,7 @@ class PudlTabl:
             "out_eia860__yearly_ownership": "own_eia860",
             "core_eia860__assn_boiler_generator": "bga_eia860",
             "out_eia860__yearly_emissions_control_equipment": "denorm_emissions_control_equipment_eia860",
-            "core_eia860__yearly_boiler_emissions_control_equipment_assn": "boiler_emissions_control_equipment_assn_eia860",
+            "core_eia860__assn_yearly_boiler_emissions_control_equipment": "boiler_emissions_control_equipment_assn_eia860",
             "core_eia860__scd_emissions_control_equipment": "emissions_control_equipment_eia860",
             "core_eia860__assn_boiler_stack_flue": "boiler_stack_flue_assn_eia860",
             "core_eia860__assn_boiler_cooling": "boiler_cooling_assn_eia860",
@@ -411,6 +411,6 @@ class PudlTabl:
     ###########################################################################
     def epacamd_eia(self: Self) -> pd.DataFrame:
         """Read the EPACAMD-EIA Crosswalk from the PUDL DB."""
-        return pd.read_sql("core_epa__assn_epacamd_eia", self.pudl_engine).pipe(
+        return pd.read_sql("core_epa__assn_eia_epacamd", self.pudl_engine).pipe(
             apply_pudl_dtypes, group="glue"
         )

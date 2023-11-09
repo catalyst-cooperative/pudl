@@ -14,7 +14,7 @@ accessed by merging this data with the EIA860 plants entity table. We also remov
 
 Pre-transform, the `plant_id_epa` field is a close but not perfect indicator for
 `plant_id_eia`. In the raw data it's called `Facility ID` (ORISPL code) but that's not
-entirely accurate. The core_epa__assn_epacamd_eia crosswalk will show that the mapping between
+entirely accurate. The core_epa__assn_eia_epacamd crosswalk will show that the mapping between
 `Facility ID` as it appears in CEMS and the `plant_id_eia` field used in EIA data.
 Hence, we've called it `plant_id_epa` until it gets transformed into `plant_id_eia`
 during the transform process with help from the crosswalk.
