@@ -29,15 +29,16 @@ logger = pudl.logging_helpers.get_logger(__name__)
 class DistancePenalizeSameYear(BaseEstimator, TransformerMixin):
     """Custom estimator to compute distances used to identify clusters of plants."""
 
-    def __init__(self, plants_steam_df, metric="euclidean", penalty=100):
+    def __init__(self, report_years: np.array, metric="euclidean", penalty=100):
         """Initialize estimator with configurable parameters.
 
         Args:
-            plants_steam_df: Plants steam DataFrame used to get report years.
+            report_years: reporty_year column used to penalize distance for records
+                          from same year.
             metric: Distance metric to use in computation.
             penalty: Penalty to apply to records with the same report year.
         """
-        self.plants_steam_df = plants_steam_df
+        self.report_years = report_years
         self.metric = metric
         self.penalty = penalty
 
@@ -48,18 +49,13 @@ class DistancePenalizeSameYear(BaseEstimator, TransformerMixin):
     def transform(self, X, y=None, **fit_params):  # noqa: N803
         """Compute distance between records then add penalty to records from same year."""
         dist_matrix = pairwise_distances(X, metric=self.metric)
-        report_years = range(
-            self.plants_steam_df.report_year.min(),
-            self.plants_steam_df.report_year.max() + 1,
-        )
-        penalty_matrix = np.full(dist_matrix.shape, 0)
-        for yr in report_years:
-            # get the indices of all the record pairs that have matching report years
-            yr_idx = self.plants_steam_df[self.plants_steam_df.report_year == yr].index
-            yr_match_pairs_idx = np.array(np.meshgrid(yr_idx, yr_idx)).T.reshape(-1, 2)
-            idx_x = yr_match_pairs_idx[:, 0]
-            idx_y = yr_match_pairs_idx[:, 1]
-            penalty_matrix[idx_x, idx_y] = self.penalty
+
+        # Create penalty matrix
+        # Probably not the most elegant way to handle this
+        penalty_matrix = pairwise_distances(self.report_years.reshape(-1, 1))
+        penalty_matrix += self.penalty
+        penalty_matrix[penalty_matrix > self.penalty] = 0
+
         # distance from node to itself should still be 0
         np.fill_diagonal(penalty_matrix, 0)
         dist_matrix += penalty_matrix
@@ -222,7 +218,9 @@ def make_ferc1_clf(
             ),
             (
                 "precompute_dist",
-                DistancePenalizeSameYear(plants_df, metric="euclidean"),
+                DistancePenalizeSameYear(
+                    np.array(plants_df.report_year), metric="euclidean"
+                ),
             ),
             (
                 "classifier",
