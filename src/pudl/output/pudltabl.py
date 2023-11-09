@@ -89,6 +89,11 @@ class PudlTabl:
             unit_ids: If True, use several heuristics to assign
                 individual generators to functional units. EXPERIMENTAL.
         """
+        logger.warning(
+            "PudlTabl is deprecated and will be removed from the pudl package "
+            "once known users have migrated to accessing the data directly from "
+            "pudl.sqlite. "
+        )
         if not isinstance(pudl_engine, sa.engine.base.Engine):
             raise TypeError(
                 "PudlTabl needs pudl_engine to be a SQLAlchemy Engine, but we "
@@ -296,6 +301,12 @@ class PudlTabl:
                 "It is retained for backwards compatibility only."
             )
         table_name = self._agg_table_name(table_name)
+        logger.warning(
+            "PudlTabl is deprecated and will be removed from the pudl package "
+            "once known users have migrated to accessing the data directly from "
+            "pudl.sqlite. To access the data returned by this method, "
+            f"use the {table_name} table in the pudl.sqlite database."
+        )
         resource = Resource.from_id(table_name)
         return pd.concat(
             [
