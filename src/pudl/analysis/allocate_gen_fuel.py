@@ -360,7 +360,8 @@ def allocate_gen_fuel_by_generator_energy_source(
     # Add any startup energy source codes to the list of energy source codes
     gens_at_freq = adjust_msw_energy_source_codes(gens_at_freq, gf, bf)
     gens_at_freq = add_missing_energy_source_codes_to_gens(gens_at_freq, gf, bf)
-    # do the association!
+    # do the association! --> this step is where a small no. of plants are dropped for
+    # an unknown reason. Investigate in issue #2978.
     gen_assoc = associate_generator_tables(
         gens=gens_at_freq, gf=gf, gen=gen, bf=bf, bga=bga
     )

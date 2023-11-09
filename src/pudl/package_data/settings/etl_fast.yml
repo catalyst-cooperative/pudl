@@ -39,7 +39,7 @@ datasets:
     years: [2019, 2020]
   eia:
     eia923:
-      years: [2020, 2022]
+      years: [2020, 2023]
     eia860:
       years: [2020, 2022]
       eia860m: true

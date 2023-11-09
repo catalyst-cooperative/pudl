@@ -652,18 +652,20 @@ def summarized_demand_ferc714(
             demand_hourly_pa_ferc714.loc[
                 :, ["report_date", "respondent_id_ferc714", "demand_mwh"]
             ],
+            on=["report_date", "respondent_id_ferc714"],
             how="left",
         )
-        .groupby(["report_date", "respondent_id_ferc714"])
-        .agg({"demand_mwh": sum})
+        .groupby(["report_date", "respondent_id_ferc714"], as_index=False)[
+            ["demand_mwh"]
+        ]
+        .sum(min_count=1)
         .rename(columns={"demand_mwh": "demand_annual_mwh"})
-        .reset_index()
         .merge(
             georeferenced_counties_ferc714.groupby(
-                ["report_date", "respondent_id_ferc714"]
-            )
-            .agg({"population": sum, "area_km2": sum})
-            .reset_index()
+                ["report_date", "respondent_id_ferc714"], as_index=False
+            )[["population", "area_km2"]].sum(min_count=1),
+            on=["report_date", "respondent_id_ferc714"],
+            how="left",
         )
         .assign(
             population_density_km2=lambda x: x.population / x.area_km2,

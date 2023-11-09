@@ -1,5 +1,7 @@
 FROM condaforge/mambaforge:23.3.1-1
 
+SHELL [ "/bin/bash", "-exo", "pipefail", "-c" ]
+
 # Install curl and js
 # awscli requires unzip, less, groff and mandoc
 # hadolint ignore=DL3008
@@ -24,6 +26,10 @@ ENV CONTAINER_HOME=/home/catalyst
 USER catalyst
 WORKDIR ${CONTAINER_HOME}
 
+# Install flyctl
+RUN curl -L https://fly.io/install.sh | sh
+ENV PATH="${CONTAINER_HOME}/.fly/bin:$PATH"
+
 ENV CONDA_PREFIX=${CONTAINER_HOME}/env
 ENV PUDL_REPO=${CONTAINER_HOME}/pudl
 ENV CONDA_RUN="conda run --no-capture-output --prefix ${CONDA_PREFIX}"
@@ -36,6 +42,9 @@ ENV DAGSTER_HOME=${CONTAINER_PUDL_WORKSPACE}/dagster_home
 
 # Create data input/output directories
 RUN mkdir -p ${PUDL_INPUT} ${PUDL_OUTPUT} ${DAGSTER_HOME}
+
+# Copy dagster configuration file
+COPY docker/dagster.yaml ${DAGSTER_HOME}/dagster.yaml
 
 # Create a conda environment based on the specification in the repo
 COPY test/test-environment.yml test/test-environment.yml
