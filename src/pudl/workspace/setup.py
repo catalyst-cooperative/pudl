@@ -84,7 +84,9 @@ class PudlPaths(BaseSettings):
         suffix. E.g. pudl, ferc1 and so on.
         """
         db_path = self.output_dir / f"{name}.sqlite"
-        return f"sqlite://{db_path}"
+        # SQLite URI has 3 slashes - 2 to separate URI scheme, 1 to separate creds
+        # sqlite://{credentials}/{db_path}
+        return f"sqlite:///{db_path}"
 
     def output_file(self, filename: str) -> Path:
         """Path to file in PUDL output directory."""

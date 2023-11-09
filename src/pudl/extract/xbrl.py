@@ -86,7 +86,9 @@ def xbrl2sqlite(context) -> None:
             logger.info(f"Dataset ferc{form}_xbrl is disabled, skipping")
             continue
 
-        sql_path = Path(urlparse(PudlPaths().sqlite_db(f"ferc{form.value}_xbrl")).path)
+        sql_path = Path(
+            urlparse(PudlPaths().sqlite_db(f"ferc{form.value}_xbrl")).path
+        ).resolve()
 
         if sql_path.exists():
             if clobber:
