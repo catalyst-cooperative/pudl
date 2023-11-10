@@ -67,6 +67,22 @@ Dagster Adoption
   * :mod:`pudl.convert.censusdp1tract_to_sqlite` and :mod:`pudl.output.censusdp1tract`
     are now integrated into dagster. See :issue:`1973` and :pr:`2621`.
 
+New Asset Naming Convention
+^^^^^^^^^^^^^^^^^^^^^^^^^^^
+There are hundreds of new tables in ``pudl.sqlite`` now that the methods in ``PudlTabl``
+have been converted to Dagster assets. This significant increase in tables and diversity
+of table types prompted us to create a new naming convention to make the table names
+more descriptive and organized. You can read about the new naming convention in the
+:ref:`docs <asset-naming>`.
+
+To help users migrate away from using ``PudlTabl`` and our temporary table names,
+we've created a `google sheet <https://docs.google.com/spreadsheets/d/1RBuKl_xKzRSLgRM7GIZbc5zUYieWFE20cXumWuv5njo/edit?usp=sharing>`__
+that maps the old table names and ``PudlTabl`` methods to the new table names.
+
+We've added deprecation warnings to the ``PudlTabl`` class. We plan to remove
+``PudlTabl`` from the ``pudl`` package once our known users have
+succesfully migrated to pulling data directly from ``pudl.sqlite``.
+
 Data Coverage
 ^^^^^^^^^^^^^
 
@@ -298,7 +314,7 @@ Deprecations
 * Replace references to deprecated ``pudl-scrapers`` and
   ``pudl-zenodo-datastore`` repositories with references to `pudl-archiver
   <https://www.github.com/catalyst-cooperative/pudl-archiver>`__ repository in
-  :doc:`intro`, :doc:`dev/datastore`, and :doc:`dev/annual_updates`. See :pr:`2190`.
+  ``intro``, :doc:`dev/datastore`, and :doc:`dev/annual_updates`. See :pr:`2190`.
 * :mod:`pudl.etl` is now a subpackage that collects all pudl assets into a dagster
   `Definition <https://docs.dagster.io/concepts/code-locations>`__. All
   ``pudl.etl._etl_{datasource}`` functions have been deprecated. The coordination
