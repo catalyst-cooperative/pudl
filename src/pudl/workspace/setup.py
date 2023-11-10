@@ -73,20 +73,23 @@ class PudlPaths(BaseSettings):
         return self.input_dir
 
     @property
-    def pudl_db(self) -> Path:
+    def pudl_db(self) -> str:
         """Returns url of locally stored pudl sqlite database."""
-        return self.sqlite_db("pudl")
+        return self.sqlite_db_uri("pudl")
 
-    def sqlite_db(self, name: str) -> str:
-        """Returns url of locally stored pudl slqlite database with given name.
+    def sqlite_db_uri(self, name: str) -> str:
+        """Returns url of locally stored pudl sqlite database with given name.
 
         The name is expected to be the name of the database without the .sqlite
         suffix. E.g. pudl, ferc1 and so on.
         """
-        db_path = self.output_dir / f"{name}.sqlite"
         # SQLite URI has 3 slashes - 2 to separate URI scheme, 1 to separate creds
         # sqlite://{credentials}/{db_path}
-        return f"sqlite:///{db_path}"
+        return f"sqlite:///{self.sqlite_db_path(name)}"
+
+    def sqlite_db_path(self, name: str) -> Path:
+        """Return path to locally stored SQLite DB file."""
+        return self.output_dir / f"{name}.sqlite"
 
     def output_file(self, filename: str) -> Path:
         """Path to file in PUDL output directory."""

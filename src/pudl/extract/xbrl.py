@@ -2,7 +2,6 @@
 import io
 from datetime import date
 from pathlib import Path
-from urllib.parse import urlparse
 
 from dagster import Field, Noneable, op
 from ferc_xbrl_extractor.cli import run_main
@@ -86,9 +85,7 @@ def xbrl2sqlite(context) -> None:
             logger.info(f"Dataset ferc{form}_xbrl is disabled, skipping")
             continue
 
-        sql_path = Path(
-            urlparse(PudlPaths().sqlite_db(f"ferc{form.value}_xbrl")).path
-        ).resolve()
+        sql_path = PudlPaths().sqlite_db_path(f"ferc{form.value}_xbrl")
 
         if sql_path.exists():
             if clobber:
