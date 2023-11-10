@@ -64,10 +64,15 @@ Naming convention: ``core_{source}__{asset_type}_{asset_name}``
 * ``asset_type`` describes how the asset is modeled and its role in PUDL’s
   collection of core assets. There are a handful of table types in this layer:
 
-  * ``assn``: Association tables provide connections between entities. This data
-    can be manually compiled or extracted from data sources. If the asset associates
-    data from two sources, the source names should be included in the ``asset_name``
-    in alphabetical order. Examples:
+  * ``assn``: Association assets provide connections between entities. They should
+    follow this naming convention:
+
+    ``{layer}_{source of association asset}__assn_{datasets being linked}_{entity
+    being linked}``
+
+    Association assets can be manually compiled or extracted from data sources. If
+    the asset associates data from two sources, the source names should be included
+    in the ``asset_name`` in alphabetical order. Examples:
 
     * ``core_pudl__assn_plants_eia`` associates EIA Plant IDs and manually assigned
       PUDL Plant IDs.
