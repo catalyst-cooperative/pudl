@@ -91,13 +91,21 @@ def test_ferc_xbrl_datastore_get_filings(mocker):
         ),
     ],
 )
-def test_xbrl2sqlite(settings, forms, mocker):
+def test_xbrl2sqlite(settings, forms, mocker, tmp_path):
     convert_form_mock = mocker.MagicMock()
     mocker.patch("pudl.extract.xbrl.convert_form", new=convert_form_mock)
 
     # Mock datastore object to allow comparison
     mock_datastore = mocker.MagicMock()
     mocker.patch("pudl.extract.xbrl.FercXbrlDatastore", return_value=mock_datastore)
+
+    # always use tmp path here so that we don't clobber the live DB when --live-dbs is passed
+    mock_pudl_paths = mocker.MagicMock(
+        spec=PudlPaths(),
+        sqlite_db_path=lambda form_name: tmp_path / f"{form_name}.sqlite",
+        output_dir=PudlPaths().output_dir,
+    )
+    mocker.patch("pudl.extract.xbrl.PudlPaths", return_value=mock_pudl_paths)
 
     # Construct xbrl2sqlite op context
     context = build_op_context(
@@ -122,7 +130,7 @@ def test_xbrl2sqlite(settings, forms, mocker):
             form,
             mock_datastore,
             output_path=PudlPaths().output_dir,
-            sql_path=PudlPaths().output_dir / f"ferc{form.value}_xbrl.sqlite",
+            sql_path=tmp_path / f"ferc{form.value}_xbrl.sqlite",
             batch_size=20,
             workers=10,
         )
