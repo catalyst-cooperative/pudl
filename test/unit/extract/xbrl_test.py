@@ -163,7 +163,7 @@ def test_xbrl2sqlite_db_exists_no_clobber(mocker):
         xbrl2sqlite(context)
 
 
-def test_xbrl2sqlite_db_exists_yes_clobber(mocker):
+def test_xbrl2sqlite_db_exists_yes_clobber(mocker, tmp_path):
     convert_form_mock = mocker.MagicMock()
     mocker.patch("pudl.extract.xbrl.convert_form", new=convert_form_mock)
 
@@ -171,7 +171,8 @@ def test_xbrl2sqlite_db_exists_yes_clobber(mocker):
     mock_datastore = mocker.MagicMock()
     mocker.patch("pudl.extract.xbrl.FercXbrlDatastore", return_value=mock_datastore)
 
-    ferc1_sqlite_path = PudlPaths().output_dir / "ferc1_xbrl.sqlite"
+    # always use tmp path here so that we don't clobber the live DB when --live-dbs is passed
+    ferc1_sqlite_path = tmp_path / "ferc1_xbrl.sqlite"
     ferc1_sqlite_path.touch()
 
     # mock the db path so we can assert it gets clobbered
