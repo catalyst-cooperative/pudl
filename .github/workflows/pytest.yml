@@ -1,5 +1,5 @@
 ---
-name: tox-pytest
+name: pytest
 
 on:
   pull_request:

@@ -1,5 +1,5 @@
 ---
-name: update-lockfile
+name: update-conda-lockfile
 
 on:
   workflow_dispatch:
@@ -9,7 +9,7 @@ on:
     paths:
       - "pyproject.toml"
       - "environments/*"
-      - ".github/workflows/update-lockfile.yml"
+      - ".github/workflows/update-conda-lockfile.yml"
 
 # What branch does this action run on?
 # - workflow_dispatch: Whatever branch it was run against.
@@ -31,7 +31,7 @@ jobs:
       - name: Set GITHUB_REF for use with schedule
         if: ${{ (github.event_name == 'schedule') }}
         run: |
-          echo "GITHUB_REF=conda-lockfile" >> $GITHUB_ENV
+          echo "GITHUB_REF=dev" >> $GITHUB_ENV
       - name: Set GITHUB_REF for use with push
         if: ${{ (github.event_name == 'push') }}
         run: |
@@ -75,7 +75,7 @@ jobs:
           title: Update Lockfile
           body: >
             This pull request relocks the dependencies with conda-lock.
-            It is triggered by [update-lockfile](https://github.com/catalyst-cooperative/pudl/blob/main/.github/workflows/update-lockfile.yml).
+            It is triggered by [update-conda-lockfile](https://github.com/catalyst-cooperative/pudl/blob/main/.github/workflows/update-conda-lockfile.yml).
           labels: dependencies, conda-lock
           reviewers: zaneselvans
           branch: update-conda-lockfile

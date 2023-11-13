@@ -33,9 +33,9 @@ dependencies = [
     "furo>=2022.4.7",
     "gcsfs>=2023",
     "geopandas>=0.14",
-    "grpcio==1.57.0", # Required by dagster, binary dependencies are flaky
-    "grpcio-health-checking==1.57.0", # Required by dagster, binary dependencies are flaky
-    "grpcio-status==1.57.0", # Required by dagster, binary dependencies are flaky
+    "grpcio==1.59.2", # Required by dagster, binary dependencies are flaky
+    "grpcio-health-checking==1.59.2", # Required by dagster, binary dependencies are flaky
+    "grpcio-status==1.59.2", # Required by dagster, binary dependencies are flaky
     "hypothesis>=6.87,<7.0",
     "jinja2>=3.1",
     "jupyter",
@@ -50,7 +50,7 @@ dependencies = [
     "pandas>=2.1",
     "pandera>=0.17.2",
     "pre-commit>=3",
-    "pyarrow>=13", # pandas[parquet]
+    "pyarrow>=14.0.1", # pandas[parquet]
     "pydantic>=1.10,<2",
     # Required after pandera-core is retired and we switch to pydantic v2
     #"pydantic>=2.4",

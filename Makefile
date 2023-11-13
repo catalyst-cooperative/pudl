@@ -52,6 +52,7 @@ conda-lock.yml: pyproject.toml
 # Create the pudl-dev conda environment based on the universal lockfile
 .PHONY: pudl-dev
 pudl-dev: conda-lock.yml
+	${mamba} run --name base ${mamba} env remove --name pudl-dev
 	conda-lock install --name pudl-dev --${mamba} --dev environments/conda-lock.yml
 
 .PHONY: install-pudl
@@ -123,12 +124,12 @@ pytest-coverage: coverage-erase docs-build pytest-unit pytest-integration
 
 .PHONY: pytest-integration-full
 pytest-integration-full:
-	pytest ${pytest_args} --etl-settings ${etl_full_yml} test/integration
+	pytest ${pytest_args} -n auto --live-dbs --etl-settings ${etl_full_yml} test/integration
 
 .PHONY: pytest-validate
 pytest-validate:
-	pytest --live-dbs test/validate
 	pudl_check_fks
+	pytest ${pytest_args} -n auto --live-dbs test/validate
 
 # Run the full ETL, generating new FERC & PUDL SQLite DBs and EPA CEMS Parquet files.
 # Then run the full integration tests and data validations on all years of data.
