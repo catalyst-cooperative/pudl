@@ -1,5 +1,7 @@
 FROM condaforge/mambaforge:23.3.1-1
 
+SHELL [ "/bin/bash", "-exo", "pipefail", "-c" ]
+
 # Install curl and js
 # awscli requires unzip, less, groff and mandoc
 # hadolint ignore=DL3008
@@ -23,6 +25,10 @@ ENV CONTAINER_HOME=/home/catalyst
 # Switch to being the catalyst user and go into the copied repo
 USER catalyst
 WORKDIR ${CONTAINER_HOME}
+
+# Install flyctl
+RUN curl -L https://fly.io/install.sh | sh
+ENV PATH="${CONTAINER_HOME}/.fly/bin:$PATH"
 
 ENV CONDA_PREFIX=${CONTAINER_HOME}/env
 ENV PUDL_REPO=${CONTAINER_HOME}/pudl
