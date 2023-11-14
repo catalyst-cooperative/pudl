@@ -2359,16 +2359,16 @@ package:
     category: dev
     optional: true
   - name: google-cloud-sdk
-    version: 454.0.0
+    version: 455.0.0
     manager: conda
     platform: linux-64
     dependencies:
       python: ">=3.11,<3.12.0a0"
       python_abi: 3.11.*
-    url: https://conda.anaconda.org/conda-forge/linux-64/google-cloud-sdk-454.0.0-py311h38be061_0.conda
+    url: https://conda.anaconda.org/conda-forge/linux-64/google-cloud-sdk-455.0.0-py311h38be061_0.conda
     hash:
-      md5: 41a90dc6c2c279d6622b628d82abf3be
-      sha256: a5315dd0f48f204f9860ea3ae68724b32e186d27f2ac3460c2a5cddc3904496e
+      md5: 1505ce6a9284c331e05de23b56d023ff
+      sha256: 17c439e5b01341a4aae55a2f1841878244d25b365cef52b39fb9bfd3e30c8315
     category: main
     optional: false
   - name: greenlet
@@ -10398,16 +10398,16 @@ package:
     category: main
     optional: false
   - name: google-cloud-sdk
-    version: 454.0.0
+    version: 455.0.0
     manager: conda
     platform: osx-64
     dependencies:
       python: ">=3.11,<3.12.0a0"
       python_abi: 3.11.*
-    url: https://conda.anaconda.org/conda-forge/osx-64/google-cloud-sdk-454.0.0-py311h6eed73b_0.conda
+    url: https://conda.anaconda.org/conda-forge/osx-64/google-cloud-sdk-455.0.0-py311h6eed73b_0.conda
     hash:
-      md5: 0e82f1fcdd1f6e84ba9f420df21f0c16
-      sha256: c60b148ed70af57cd6d838988649b7533a96fa1596548bd436d1e724d6c7da6f
+      md5: 0a635aa75ccc84e4dd16e06b559d3d49
+      sha256: 8e133ed925ed75409a354b564ff2ebc2ebb3ebdd659f2d190b4c198b164c6f8e
     category: main
     optional: false
   - name: greenlet
@@ -18210,16 +18210,16 @@ package:
     category: main
     optional: false
   - name: google-cloud-sdk
-    version: 454.0.0
+    version: 455.0.0
     manager: conda
     platform: osx-arm64
     dependencies:
       python: ">=3.11,<3.12.0a0"
       python_abi: 3.11.*
-    url: https://conda.anaconda.org/conda-forge/osx-arm64/google-cloud-sdk-454.0.0-py311h267d04e_0.conda
+    url: https://conda.anaconda.org/conda-forge/osx-arm64/google-cloud-sdk-455.0.0-py311h267d04e_0.conda
     hash:
-      md5: ea722bdba06e3ce046217b43f678fcd5
-      sha256: 19cef1ef69ff34bdb5860386e825c0b4e4a7b34f32b1b58dc571ff48eebe73ab
+      md5: 2f60b4b18d39e85bdf3557f19bd407be
+      sha256: 9511a6c98a01a1e5013c73d8e7cb0d1200643e9d531cbc49ebebfb5cd9e71f27
     category: main
     optional: false
   - name: greenlet

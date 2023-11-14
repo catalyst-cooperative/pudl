@@ -170,7 +170,7 @@ dependencies:
   - filelock=3.13.1=pyhd8ed1ab_0
   - frozenlist=1.4.0=py311heffc1b2_1
   - fsspec=2023.10.0=pyhca7485f_0
-  - google-cloud-sdk=454.0.0=py311h267d04e_0
+  - google-cloud-sdk=455.0.0=py311h267d04e_0
   - greenlet=3.0.1=py311hbaf5611_0
   - hpack=4.0.0=pyh9f0ad1d_0
   - httptools=0.6.1=py311h05b510d_0

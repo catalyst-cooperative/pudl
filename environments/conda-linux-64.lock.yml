@@ -182,7 +182,7 @@ dependencies:
   - frozenlist=1.4.0=py311h459d7ec_1
   - fsspec=2023.10.0=pyhca7485f_0
   - gdk-pixbuf=2.42.10=h829c605_4
-  - google-cloud-sdk=454.0.0=py311h38be061_0
+  - google-cloud-sdk=455.0.0=py311h38be061_0
   - greenlet=3.0.1=py311hb755f60_0
   - gts=0.7.6=h977cf35_4
   - hpack=4.0.0=pyh9f0ad1d_0
