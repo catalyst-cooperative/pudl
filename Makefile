@@ -22,7 +22,7 @@ VPATH = environments:${PUDL_OUTPUT}
 ########################################################################################
 .PHONY: dagster
 dagster:
-	dagster dev -m pudl.etl -m pudl.ferc_to_sqlite
+	dagster-webserver -m pudl.etl -m pudl.ferc_to_sqlite
 
 .PHONY: jlab
 jlab:
@@ -54,6 +54,7 @@ conda-lock.yml: pyproject.toml
 pudl-dev: conda-lock.yml
 	${mamba} run --name base ${mamba} env remove --name pudl-dev
 	conda-lock install --name pudl-dev --${mamba} --dev environments/conda-lock.yml
+	echo "To activate the fresh environment run: mamba activate pudl-dev"
 
 .PHONY: install-pudl
 install-pudl: pudl-dev
@@ -104,7 +105,7 @@ pudl:
 	coverage run ${covargs} -- src/pudl/cli/etl.py ${gcs_cache_path} ${etl_full_yml}
 
 ########################################################################################
-# pytest
+# Targets that are coordinated by pytest -- mostly they're actual tests.
 ########################################################################################
 .PHONY: pytest-unit
 pytest-unit:
@@ -119,8 +120,11 @@ coverage-erase:
 	coverage erase
 
 .PHONY: pytest-coverage
-pytest-coverage: coverage-erase docs-build pytest-unit pytest-integration
+pytest-coverage: coverage-erase docs-build pytest-ci
 	${coverage_report}
+
+.PHONY: pytest-ci
+pytest-ci: pytest-unit pytest-integration
 
 .PHONY: pytest-integration-full
 pytest-integration-full:
@@ -165,3 +169,15 @@ unmapped-ids:
 		--ignore-foreign-key-constraints \
 		--etl-settings ${etl_full_yml} \
 		test/integration/glue_test.py
+
+########################################################################################
+# Continuous Integration Tests
+########################################################################################
+.PHONY: pre-commit
+pre-commit:
+	pre-commit run --all-files
+
+# This target will run all the tests that typically take place in our continuous
+# integration tests on GitHub (with the exception building our docker container).
+.PHONY: ci
+ci: pre-commit pytest-coverage

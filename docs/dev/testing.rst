@@ -67,6 +67,8 @@ above there are also:
 * ``pytest-minmax-rows``: Check that various database tables have the expected number of
   records in them, and report back the actual number of records found. Requires an
   existing PUDL DB.
+* ``pytest-coverage``: Run all the software tests and generate a test coverage report.
+* ``pytest-ci``: Run the unit and integration tests (those tests that get run in CI).
 
 Running Other Commands with Make
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -89,6 +91,8 @@ There are a number of non-test ```make`` targets. To see them all open up the
   kill it with ``Control-C``).
 * ``jlab``: start up a JupyerLab notebook server (will remain running in your terminal
   until you kill it with ``Control-C``).
+* ``ci``: Run all the checks that would be run in CI on GitHub, including the pre-commit
+  hooks, docs build, and software unit and integration tests.
 
 -------------------------------------------------------------------------------
 Selecting Input Data for Integration Tests
