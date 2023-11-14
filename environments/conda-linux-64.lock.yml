@@ -124,7 +124,7 @@ dependencies:
   - libthrift=0.19.0=hb90f79a_1
   - libtiff=4.6.0=ha9c0a0a_2
   - libxslt=1.1.37=h0054252_1
-  - minizip=4.0.2=h0ab5242_0
+  - minizip=4.0.3=h0ab5242_0
   - nodejs=20.8.1=h1990674_0
   - nss=3.94=h1d7d5a4_0
   - orc=1.9.0=h4b38347_4
@@ -237,7 +237,7 @@ dependencies:
   - pkgutil-resolve-name=1.3.10=pyhd8ed1ab_1
   - pluggy=1.3.0=pyhd8ed1ab_0
   - prettier=3.1.0=h31abb78_0
-  - prometheus_client=0.18.0=pyhd8ed1ab_0
+  - prometheus_client=0.18.0=pyhd8ed1ab_1
   - psutil=5.9.5=py311h459d7ec_1
   - ptyprocess=0.7.0=pyhd3deb0d_0
   - pure_eval=0.2.2=pyhd8ed1ab_0
@@ -401,7 +401,7 @@ dependencies:
   - arrow=1.3.0=pyhd8ed1ab_0
   - async-timeout=4.0.3=pyhd8ed1ab_0
   - aws-c-s3=0.3.23=h7630044_1
-  - botocore=1.31.84=pyhd8ed1ab_0
+  - botocore=1.31.85=pyhd8ed1ab_0
   - branca=0.7.0=pyhd8ed1ab_1
   - croniter=2.0.1=pyhd8ed1ab_0
   - cryptography=41.0.5=py311h63ff55d_0
@@ -444,12 +444,12 @@ dependencies:
   - ukkonen=1.0.1=py311h9547e67_4
   - uvicorn=0.24.0=py311h38be061_0
   - watchfiles=0.20.0=py311h46250e7_2
-  - wcwidth=0.2.9=pyhd8ed1ab_0
+  - wcwidth=0.2.10=pyhd8ed1ab_0
   - aiohttp=3.8.6=py311h459d7ec_1
   - alembic=1.12.1=pyhd8ed1ab_0
   - arelle-release=2.17.3=pyhd8ed1ab_0
   - argon2-cffi=23.1.0=pyhd8ed1ab_0
-  - aws-crt-cpp=0.24.5=h270613d_5
+  - aws-crt-cpp=0.24.6=h270613d_0
   - black=23.10.1=py311h38be061_0
   - bottleneck=1.3.7=py311h1f0f07a_1
   - cachecontrol=0.13.1=pyhd8ed1ab_0
@@ -473,7 +473,7 @@ dependencies:
   - oauthlib=3.2.2=pyhd8ed1ab_0
   - pandas=2.1.3=py311h320fe9a_0
   - pango=1.50.14=ha41ecd1_2
-  - prompt-toolkit=3.0.40=pyha770c72_0
+  - prompt-toolkit=3.0.41=pyha770c72_0
   - pybtex-docutils=1.0.3=py311h38be061_1
   - pyopenssl=23.3.0=pyhd8ed1ab_0
   - readthedocs-sphinx-ext=2.2.3=pyhd8ed1ab_0
@@ -488,8 +488,8 @@ dependencies:
   - typer=0.9.0=pyhd8ed1ab_0
   - uvicorn-standard=0.24.0=h38be061_0
   - virtualenv=20.24.6=pyhd8ed1ab_0
-  - aws-sdk-cpp=1.11.182=h8df25a1_5
-  - boto3=1.28.84=pyhd8ed1ab_0
+  - aws-sdk-cpp=1.11.182=h771f7cb_6
+  - boto3=1.28.85=pyhd8ed1ab_0
   - cachecontrol-with-filecache=0.13.1=pyhd8ed1ab_0
   - dagster=1.5.7=pyhd8ed1ab_0
   - datasette=0.64.4=pyhd8ed1ab_1
@@ -509,7 +509,7 @@ dependencies:
   - nbformat=5.9.2=pyhd8ed1ab_0
   - pandera-core=0.17.2=pyhd8ed1ab_1
   - pre-commit=3.5.0=pyha770c72_0
-  - prompt_toolkit=3.0.40=hd8ed1ab_0
+  - prompt_toolkit=3.0.41=hd8ed1ab_0
   - requests-oauthlib=1.3.1=pyhd8ed1ab_0
   - scikit-learn=1.3.2=py311hc009520_1
   - timezonefinder=6.2.0=py311h459d7ec_2
@@ -523,7 +523,7 @@ dependencies:
   - graphviz=8.1.0=h28d9a01_0
   - ipython=8.17.2=pyh41d4057_0
   - jupyter_events=0.9.0=pyhd8ed1ab_0
-  - libarrow=14.0.1=h0406937_1_cpu
+  - libarrow=14.0.1=he5826ec_2_cpu
   - mapclassify=2.6.1=pyhd8ed1ab_0
   - nbclient=0.8.0=pyhd8ed1ab_0
   - recordlinkage=0.16=pyhd8ed1ab_0
@@ -533,10 +533,10 @@ dependencies:
   - google-cloud-core=2.3.3=pyhd8ed1ab_0
   - ipykernel=6.26.0=pyhf8b6a83_0
   - ipywidgets=8.1.1=pyhd8ed1ab_0
-  - libarrow-acero=14.0.1=h59595ed_1_cpu
-  - libarrow-flight=14.0.1=h120cb0d_1_cpu
-  - libarrow-gandiva=14.0.1=hacb8726_1_cpu
-  - libparquet=14.0.1=h352af49_1_cpu
+  - libarrow-acero=14.0.1=h59595ed_2_cpu
+  - libarrow-flight=14.0.1=h120cb0d_2_cpu
+  - libarrow-gandiva=14.0.1=hacb8726_2_cpu
+  - libparquet=14.0.1=h352af49_2_cpu
   - nbconvert-core=7.11.0=pyhd8ed1ab_0
   - pygraphviz=1.11=py311h72a77b7_1
   - tableschema=1.19.3=pyh9f0ad1d_0
@@ -544,19 +544,19 @@ dependencies:
   - google-cloud-storage=2.13.0=pyhca7485f_0
   - jupyter_console=6.6.3=pyhd8ed1ab_0
   - jupyter_server=2.10.0=pyhd8ed1ab_0
-  - libarrow-dataset=14.0.1=h59595ed_1_cpu
-  - libarrow-flight-sql=14.0.1=h61ff412_1_cpu
+  - libarrow-dataset=14.0.1=h59595ed_2_cpu
+  - libarrow-flight-sql=14.0.1=h61ff412_2_cpu
   - nbconvert-pandoc=7.11.0=pyhd8ed1ab_0
   - qtconsole-base=5.5.0=pyha770c72_0
   - gcsfs=2023.10.0=pyhd8ed1ab_0
   - jupyter-lsp=2.2.0=pyhd8ed1ab_0
   - jupyter-resource-usage=1.0.1=pyhd8ed1ab_0
   - jupyterlab_server=2.25.1=pyhd8ed1ab_0
-  - libarrow-substrait=14.0.1=h61ff412_1_cpu
+  - libarrow-substrait=14.0.1=h61ff412_2_cpu
   - nbconvert=7.11.0=pyhd8ed1ab_0
   - notebook-shim=0.2.3=pyhd8ed1ab_0
   - jupyterlab=4.0.8=pyhd8ed1ab_0
-  - pyarrow=14.0.1=py311h39c9aba_1_cpu
+  - pyarrow=14.0.1=py311h39c9aba_2_cpu
   - notebook=7.0.6=pyhd8ed1ab_0
   - jupyter=1.0.0=pyhd8ed1ab_10
   - sphinx-autoapi=3.0.0=pyhd8ed1ab_0
