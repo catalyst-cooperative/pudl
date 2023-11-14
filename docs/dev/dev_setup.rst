@@ -27,16 +27,13 @@ Linux) and are already familiar with ``git``, GitHub, and the Unix shell.
     * `Cloning a Repository <https://help.github.com/articles/cloning-a-repository/>`__
 
 ------------------------------------------------------------------------------
-Install mambaforge
+Install ``conda`` / ``mamba``
 ------------------------------------------------------------------------------
-We use the ``mamba`` package manager to specify and update our development
-environment, preferentially installing packages from the community maintained
-`conda-forge <https://conda-forge.org>`__ distribution channel. We recommend
-using `mambaforge <https://github.com/conda-forge/miniforge#mambaforge>`__ rather than
-it's ``conda`` equivalent
-`miniconda <https://docs.conda.io/en/latest/miniconda.html>`__ or the large pre-defined
-collection of scientific packages bundled together in the Anaconda Python distribution
-because it's faster.
+We use the ``mamba`` package manager to specify and update our development environment,
+preferentially installing packages from the community maintained `conda-forge
+<https://conda-forge.org>`__ distribution channel. We recommend using `miniforge
+<https://github.com/conda-forge/miniforge>`__ to install ``mamba`` and automatically
+default to the ``conda-forge`` channel.
 
 After installing your package manager, make sure it's configured to use
 `strict channel priority <https://docs.conda.io/projects/conda/en/latest/user-guide/tasks/manage-channels.html#>`__
@@ -46,6 +43,14 @@ with the following commands:
 
     $ mamba update mamba
     $ conda config --set channel_priority strict
+
+At this point you should have a ``base`` ``conda`` environment. You'll need to install
+``conda-lock`` to work with our environment lockfiles, discussed below:
+
+.. code-block:: console
+
+    $ mamba activate base
+    $ mamba install conda-lock
 
 ------------------------------------------------------------------------------
 Fork and Clone the PUDL Repository
@@ -63,37 +68,87 @@ put it in a local directory where you can make changes.
 -------------------------------------------------------------------------------
 Create the PUDL Dev Environment
 -------------------------------------------------------------------------------
-Inside the ``devtools`` directory of your newly cloned repository, you'll see an
-``environment.yml`` file that specifies the ``pudl-dev`` ``conda`` environment. You can
-create and activate that environment from within the main repository directory by
-running:
+We use `conda-lock <https://github.com/conda/conda-lock>`__ to specify particular
+versions of all of PUDL's direct and indirect software dependencies in a lockfile,
+resulting in a stable, reproducible environment. This lockfile and several
+platform-specific rendered environment files are stored under the ``environments/``
+directory in the main PUDL repository.
+
+All of the dependencies in ``environments/conda-lock.yml`` are derived from packages
+listed in the project's ``pyproject.toml`` file.  The conda lockfile is updated
+automatically by a GitHub Action workflow that runs once a week, or any time
+``pyproject.toml`` is changed.
+
+Use ``conda-lock`` to create a new ``pudl-dev`` environment and activate it:
 
 .. code-block:: console
 
-    $ mamba update mamba
-    $ mamba env create --name pudl-dev --file devtools/environment.yml
+    $ mamba activate base
+    $ conda-lock install --name pudl-dev --mamba --dev environments/conda-lock.yml
+    $ mamba deactivate
     $ mamba activate pudl-dev
 
-This environment installs the ``catalystcoop.pudl`` package directly using the code in
-your cloned repository so that it can be edited during development. It also installs all
-of the software PUDL depends on, some packages for testing and quality control, packages
-for working with interactive Jupyter Notebooks, and a few Python packages that have
-binary dependencies which can be easier to satisfy through ``conda`` packages.
+Now we need to install the PUDL package defined by the repository into the ``pudl-dev``
+conda environment. We use ``pip`` since this is just a local package, and since all of
+the required packages should have already been satisfied by the locked conda
+environment, we tell ``pip`` not to try and install any dependencies.
+
+.. code-block:: console
+
+    $ pip install --no-cache-dir --no-deps --editable .
 
 -------------------------------------------------------------------------------
-Updating the PUDL Dev Environment
+Automating tasks with Make
 -------------------------------------------------------------------------------
-You will need to periodically update your development (``pudl-dev``) conda environment
-to get you newer versions of existing dependencies and incorporate any changes to the
-environment specification that have been made by other contributors. The most reliable
-way to do this is to remove the existing environment and recreate it.
+We use the GNU build tool ``make`` to remember and automate some repetitive tasks in the
+PUDL repository, including creating and updating the ``pudl-dev`` conda environment. If
+you are on a Unix-based platform (Linux or MacOS) it should already be installed.
+Typically, rather than running the commands in the section above, you'll want to use
+the predefined ``make`` commands. If you'd like to learn more about how Makefiles work,
+check out `this excellent Makefile tutorial <https://makefiletutorial.com/>`__
+
+To create the ``pudl-dev`` environment and install the local PUDL package, run:
+
+.. code-block:: console
+
+    $ make install-pudl
+
+-------------------------------------------------------------------------------
+Updating the PUDL Development Environment
+-------------------------------------------------------------------------------
+
+You will need to periodically update your installed development (``pudl-dev``) conda
+environment to get you newer versions of existing dependencies and incorporate any
+changes to the environment specification that have been made by other contributors. The
+most reliable way to do this is to remove the existing environment and recreate it.
+
+Recreating the ``pudl-dev`` environment from scratch uses the same ``make`` command as
+creating it the first time:
+
+.. code-block:: console
+
+    $ make install-pudl
+
+If you happen to be changing the dependencies listed in ``pyproject.toml`` and you want
+to re-create the conda lockfile from scratch, resolving for any newly updated
+dependencies, and then create a fresh ``pudl-dev`` environment using the new lockfile,
+you can use:
+
+.. code-block:: console
+
+    $ make conda-clean
+    $ make install-pudl
+
+However, unless you are adding or removing dependencies from ``pyproject.toml`` it is
+probably best to just use the already prepared lockfile, and allow it to be updated
+automatically by the weekly GitHub Action.
 
 .. note::
 
     Different development branches within the repository may specify their own slightly
     different versions of the ``pudl-dev`` conda environment. As a result, you may need
-    to update your environment when switching from one branch to another.
-
+    to update your environment when switching from one branch to another to ensure that
+    the codebase and the dependencies are in sync.
 
 If you want to work with the most recent version of the code on a branch named
 ``new-feature``, then from within the top directory of the PUDL repository you would do:
@@ -102,10 +157,7 @@ If you want to work with the most recent version of the code on a branch named
 
     $ git checkout new-feature
     $ git pull
-    $ mamba deactivate
-    $ mamba update mamba
-    $ mamba env remove --name pudl-dev
-    $ mamba env create --name pudl-dev --file devtools/environment.yml
+    $ make install-pudl
     $ mamba activate pudl-dev
 
 If you are working with locally processed data and there have been changes to the
@@ -176,12 +228,14 @@ If you are using an editor designed for Python development many of these code li
 and formatting tools can be run automatically in the background while you write code or
 documentation. Popular editors that work with the above tools include:
 
-* `Visual Studio Code <https://code.visualstudio.com/>`__, from Microsoft (free)
-* `Atom <https://atom.io/>`__ developed by GitHub (free), and
+* `Visual Studio Code <https://code.visualstudio.com/>`__, from Microsoft (free, but
+   controlled by the hegemon).
+* `NeoVim <https://neovim.io/>`__, (free and open source; for diehard Unix lovers)
+* `PyCharm <https://www.jetbrains.com/pycharm/>`__ (paid).
 * `Sublime Text <https://www.sublimetext.com/>`__ (paid).
 
 Each of these editors have their own collection of plugins and settings for working
-with linters and other code analysis tools.
+with linters, formatters, and other code analysis tools.
 
 .. seealso::
 
@@ -311,12 +365,8 @@ The workspace is laid out like this:
 **Directory / File** **Contents**
 -------------------- ----------------------------------------------------------
 ``data/``            Raw data, automatically organized by source, year, etc.
-                     This is the path ``PUDL_INPUT`` can point to.
+                     This is the path ``PUDL_INPUT`` should point to.
 -------------------- ----------------------------------------------------------
-``parquet/``         `Apache Parquet <https://parquet.apache.org/>`__ files
-                     generated by PUDL.
--------------------- ----------------------------------------------------------
-``settings/``        Example configuration files for controlling PUDL scripts.
--------------------- ----------------------------------------------------------
-``sqlite/``          :mod:`sqlite3` databases generated by PUDL.
+``output/``          The directory into which all the durable products of the
+                     PUDL data processing pipeline will be written.
 ==================== ==========================================================

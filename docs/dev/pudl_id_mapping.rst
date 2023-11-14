@@ -75,21 +75,24 @@ Checking for Unmapped Records
 -----------------------------
 
 With every new year of data comes the possibility of new plants and utilities. Once
-you’ve integrated the new data into PUDL :doc:`(see these instructions)
-<annual_updates>`, you’ll need to check for unmapped utility and plants. To do this,
-run the glue tests with specific arguments, or directly run the following ``tox`` test.
-This test identifies plants and utilities which exist in the updated FERC 1 and EIA
-datasets that do not yet appear in the stored ID maps. This will generate a complete
-databse based on the settings files stored in
-``pudl/package_data/settings/etl_full.yml`` without foreign-key constraints and save
-any unmapped IDs to the ``devtools/ferc1-eia-glue`` directory that correspond to
-unmapped plants and utilities from FERC 1 and EIA.
+you've integrated the new data into PUDL :doc:`(see instructions) <annual_updates>`,
+you'll need to check for unmapped utility and plants. To do this,
+run the glue tests with specific arguments, or directly run the following ``make``
+command.
 
 .. code-block:: console
 
-    $ tox -e get_unmapped_ids
+    $ make unmapped_ids
 
-If you have already generated a databse without foreign-key constraints, you can
+This invokes a script that identifies plants and utilities which exist in the updated
+FERC 1 and EIA datasets that do not yet appear in the stored ID maps. This will generate
+a complete database based on the settings files stored in
+``pudl/package_data/settings/etl_full.yml`` without foreign-key constraints and save any
+unmapped IDs to the ``devtools/ferc1-eia-glue`` directory that correspond to unmapped
+plants and utilities from FERC 1 and EIA.
+
+If you have already generated a databse without foreign-key constraints, you can run
+just the script that extracts the umapped IDs with:
 
 .. code-block:: console
 
