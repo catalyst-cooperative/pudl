@@ -21309,7 +21309,7 @@ def upgrade() -> None:
             comment="Total annual heat content of fuel consumed by a plant part record in the plant parts list.",
         ),
         sa.Column(
-            "unit_heat_rate_mmbtu_per_mwh_eia",
+            "heat_rate_mmbtu_mwh_eia",
             sa.Float(),
             nullable=True,
             comment="Fuel content per unit of electricity generated. Coming from MCOE calculation.",
@@ -21802,7 +21802,7 @@ def upgrade() -> None:
             comment="Simplified fuel type code used in PUDL",
         ),
         sa.Column(
-            "unit_heat_rate_mmbtu_per_mwh_ferc1",
+            "heat_rate_mmbtu_mwh_ferc1",
             sa.Float(),
             nullable=True,
             comment="Fuel content per unit of electricity generated. Calculated from FERC reported fuel consumption and net generation.",

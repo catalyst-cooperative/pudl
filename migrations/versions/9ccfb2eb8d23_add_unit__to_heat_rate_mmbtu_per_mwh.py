@@ -1,15 +1,15 @@
-"""Rename heat_rate_mmbtu_mwh -> unit_heat_rate_mmbtu_per_mwh
+"""Add unit_ to heat_rate_mmbtu_per_mwh
 
-Revision ID: c22d59125ab4
+Revision ID: 9ccfb2eb8d23
 Revises: 1fef7b82e48b
-Create Date: 2023-11-08 11:48:55.310396
+Create Date: 2023-11-15 10:27:27.709921
 
 """
 import sqlalchemy as sa
 from alembic import op
 
 # revision identifiers, used by Alembic.
-revision = 'c22d59125ab4'
+revision = '9ccfb2eb8d23'
 down_revision = '1fef7b82e48b'
 branch_labels = None
 depends_on = None
@@ -118,6 +118,12 @@ def upgrade() -> None:
         batch_op.add_column(sa.Column('unit_heat_rate_mmbtu_per_mwh', sa.Float(), nullable=True, comment='Fuel content per unit of electricity generated. Coming from MCOE calculation.'))
         batch_op.drop_column('heat_rate_mmbtu_mwh')
 
+    with op.batch_alter_table('out_pudl__yearly_assn_eia_ferc1_plant_parts', schema=None) as batch_op:
+        batch_op.add_column(sa.Column('unit_heat_rate_mmbtu_per_mwh_eia', sa.Float(), nullable=True, comment='Fuel content per unit of electricity generated. Coming from MCOE calculation.'))
+        batch_op.add_column(sa.Column('unit_heat_rate_mmbtu_per_mwh_ferc1', sa.Float(), nullable=True, comment='Fuel content per unit of electricity generated. Calculated from FERC reported fuel consumption and net generation.'))
+        batch_op.drop_column('heat_rate_mmbtu_mwh_eia')
+        batch_op.drop_column('heat_rate_mmbtu_mwh_ferc1')
+
     with op.batch_alter_table('plant_parts_eia', schema=None) as batch_op:
         batch_op.add_column(sa.Column('unit_heat_rate_mmbtu_per_mwh', sa.Float(), nullable=True, comment='Fuel content per unit of electricity generated. Coming from MCOE calculation.'))
         batch_op.drop_column('heat_rate_mmbtu_mwh')
@@ -130,6 +136,12 @@ def downgrade() -> None:
     with op.batch_alter_table('plant_parts_eia', schema=None) as batch_op:
         batch_op.add_column(sa.Column('heat_rate_mmbtu_mwh', sa.FLOAT(), nullable=True))
         batch_op.drop_column('unit_heat_rate_mmbtu_per_mwh')
+
+    with op.batch_alter_table('out_pudl__yearly_assn_eia_ferc1_plant_parts', schema=None) as batch_op:
+        batch_op.add_column(sa.Column('heat_rate_mmbtu_mwh_ferc1', sa.FLOAT(), nullable=True))
+        batch_op.add_column(sa.Column('heat_rate_mmbtu_mwh_eia', sa.FLOAT(), nullable=True))
+        batch_op.drop_column('unit_heat_rate_mmbtu_per_mwh_ferc1')
+        batch_op.drop_column('unit_heat_rate_mmbtu_per_mwh_eia')
 
     with op.batch_alter_table('out_eia__yearly_plant_parts', schema=None) as batch_op:
         batch_op.add_column(sa.Column('heat_rate_mmbtu_mwh', sa.FLOAT(), nullable=True))
