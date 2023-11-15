@@ -154,7 +154,7 @@ dependencies:
   - colorama=0.4.6=pyhd8ed1ab_0
   - crashtest=0.4.1=pyhd8ed1ab_0
   - cycler=0.12.1=pyhd8ed1ab_0
-  - dagster-pipes=1.5.7=pyhd8ed1ab_0
+  - dagster-pipes=1.5.8=pyhd8ed1ab_0
   - dataclasses=0.8=pyhc8e2a94_3
   - debugpy=1.8.0=py311ha891d26_1
   - decorator=5.1.1=pyhd8ed1ab_0
@@ -472,7 +472,7 @@ dependencies:
   - virtualenv=20.24.6=pyhd8ed1ab_0
   - boto3=1.29.0=pyhd8ed1ab_0
   - cachecontrol-with-filecache=0.13.1=pyhd8ed1ab_0
-  - dagster=1.5.7=pyhd8ed1ab_0
+  - dagster=1.5.8=pyhd8ed1ab_0
   - datasette=0.64.4=pyhd8ed1ab_1
   - doc8=1.1.1=pyhd8ed1ab_0
   - email-validator=2.1.0.post1=pyhd8ed1ab_0
@@ -495,8 +495,8 @@ dependencies:
   - timezonefinder=6.2.0=py311h05b510d_2
   - catalystcoop.ferc_xbrl_extractor=1.2.1=pyhd8ed1ab_0
   - conda-lock=2.4.2=pyhd8ed1ab_0
-  - dagster-graphql=1.5.7=pyhd8ed1ab_0
-  - dagster-postgres=0.21.7=pyhd8ed1ab_0
+  - dagster-graphql=1.5.8=pyhd8ed1ab_0
+  - dagster-postgres=0.21.8=pyhd8ed1ab_0
   - fiona=1.9.5=py311h4760b73_1
   - google-api-core=2.14.0=pyhd8ed1ab_0
   - google-auth-oauthlib=1.1.0=pyhd8ed1ab_0
@@ -511,7 +511,7 @@ dependencies:
   - pygraphviz=1.11=py311h5178850_1
   - recordlinkage=0.16=pyhd8ed1ab_0
   - tabulator=1.53.5=pyhd8ed1ab_0
-  - dagster-webserver=1.5.7=pyhd8ed1ab_0
+  - dagster-webserver=1.5.8=pyhd8ed1ab_0
   - geopandas=0.14.1=pyhd8ed1ab_0
   - google-cloud-core=2.3.3=pyhd8ed1ab_0
   - ipykernel=6.26.0=pyh3cd1d5f_0
