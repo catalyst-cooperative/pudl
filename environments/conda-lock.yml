@@ -4332,7 +4332,7 @@ package:
     category: main
     optional: false
   - name: fonttools
-    version: 4.44.0
+    version: 4.44.1
     manager: conda
     platform: linux-64
     dependencies:
@@ -4341,10 +4341,10 @@ package:
       munkres: ""
       python: ">=3.11,<3.12.0a0"
       python_abi: 3.11.*
-    url: https://conda.anaconda.org/conda-forge/linux-64/fonttools-4.44.0-py311h459d7ec_0.conda
+    url: https://conda.anaconda.org/conda-forge/linux-64/fonttools-4.44.1-py311h459d7ec_0.conda
     hash:
-      md5: f12f4d7361178f94df1052d6b63fd868
-      sha256: d1a0023bc0a35b9e3f9be10b6fe5f305a0e14fe4e956d688304413f4234ae286
+      md5: 6d9f40aa7c1fcd9cef01fddb5caed228
+      sha256: e8a9ed75baea05eb2de54f52792f2f463915019ee91f75af178c59bb7a747ec2
     category: main
     optional: false
   - name: gitdb
@@ -12222,7 +12222,7 @@ package:
     category: main
     optional: false
   - name: fonttools
-    version: 4.44.0
+    version: 4.44.1
     manager: conda
     platform: osx-64
     dependencies:
@@ -12230,10 +12230,10 @@ package:
       munkres: ""
       python: ">=3.11,<3.12.0a0"
       python_abi: 3.11.*
-    url: https://conda.anaconda.org/conda-forge/osx-64/fonttools-4.44.0-py311he705e18_0.conda
+    url: https://conda.anaconda.org/conda-forge/osx-64/fonttools-4.44.1-py311he705e18_0.conda
     hash:
-      md5: 548f6770647b112d218577be7c10f644
-      sha256: 30a7405f8689032835c34efae453af26ae5fb8750a90fe4eb907686bc2468902
+      md5: 762a6863f0c6fcb793260016f654ae3e
+      sha256: 04b56801d5eccec937f83a081851b256eefab920833d52889cb909969287fe14
     category: main
     optional: false
   - name: gitdb
@@ -20034,7 +20034,7 @@ package:
     category: main
     optional: false
   - name: fonttools
-    version: 4.44.0
+    version: 4.44.1
     manager: conda
     platform: osx-arm64
     dependencies:
@@ -20042,10 +20042,10 @@ package:
       munkres: ""
       python: ">=3.11,<3.12.0a0"
       python_abi: 3.11.*
-    url: https://conda.anaconda.org/conda-forge/osx-arm64/fonttools-4.44.0-py311h05b510d_0.conda
+    url: https://conda.anaconda.org/conda-forge/osx-arm64/fonttools-4.44.1-py311h05b510d_0.conda
     hash:
-      md5: b39a3eefda8e93bbdf5be812e17bf521
-      sha256: eefa9107f6b33d65b951aec2f3022da94c146656d55e66fbdceb6e36f2a9cde4
+      md5: 238ee16be84c5667adbfb1f0b6671166
+      sha256: af81d6a4596b0ad2d2defd32ed2e06c084137243bd704a1ec174df6470bd4ac9
     category: main
     optional: false
   - name: gitdb
