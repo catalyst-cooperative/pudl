@@ -168,7 +168,7 @@ def test_minmax_rows(
             "boiler_emissions_control_equipment_assn_eia860",
             (
                 Resource.from_id(
-                    "core_eia860__yearly_boiler_emissions_control_equipment_assn"
+                    "core_eia860__assn_yearly_boiler_emissions_control_equipment"
                 ).schema.primary_key
             ),
         ),

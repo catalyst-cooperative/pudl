@@ -1965,10 +1965,10 @@ class DatasetteMetadata(Base):
     xbrl_resources: dict[str, list[Resource]] = {}
     label_columns: dict[str, str] = {
         "core_eia__entity_plants": "plant_name_eia",
-        "core_pudl__assn_plants_ferc1": "plant_name_ferc1",
+        "core_pudl__assn_ferc1_pudl_plants": "plant_name_ferc1",
         "core_pudl__entity_plants_pudl": "plant_name_pudl",
         "core_eia__entity_utilities": "utility_name_eia",
-        "core_pudl__assn_utilities_ferc1": "utility_name_ferc1",
+        "core_pudl__assn_ferc1_pudl_utilities": "utility_name_ferc1",
         "core_pudl__entity_utilities_pudl": "utility_name_pudl",
     }
 

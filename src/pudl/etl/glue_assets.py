@@ -19,8 +19,8 @@ logger = pudl.logging_helpers.get_logger(__name__)
     outs={
         table_name: AssetOut(io_manager_key="pudl_sqlite_io_manager")
         for table_name in Package.get_etl_group_tables("glue")
-        #  do not load core_epa__assn_epacamd_eia glue assets bc they are stand-alone assets below.
-        if "core_epa__assn_epacamd_eia" not in table_name
+        #  do not load core_epa__assn_eia_epacamd glue assets bc they are stand-alone assets below.
+        if "core_epa__assn_eia_epacamd" not in table_name
     },
     required_resource_keys={"datastore", "dataset_settings"},
 )
@@ -57,7 +57,7 @@ def create_glue_tables(context):
 
 
 @asset(required_resource_keys={"datastore"})
-def raw_epacamd_eia(context) -> pd.DataFrame:
+def raw_pudl__assn_eia_epacamd(context) -> pd.DataFrame:
     """Extract the EPACAMD-EIA Crosswalk from the Datastore."""
     logger.info("Extracting the EPACAMD-EIA crosswalk from Zenodo")
     csv_map = {
@@ -79,9 +79,9 @@ def raw_epacamd_eia(context) -> pd.DataFrame:
 @asset(
     required_resource_keys={"dataset_settings"}, io_manager_key="pudl_sqlite_io_manager"
 )
-def core_epa__assn_epacamd_eia(
+def core_epa__assn_eia_epacamd(
     context,
-    raw_epacamd_eia: pd.DataFrame,
+    raw_pudl__assn_eia_epacamd: pd.DataFrame,
     core_eia__entity_generators: pd.DataFrame,
     core_eia__entity_boilers: pd.DataFrame,
 ) -> pd.DataFrame:
@@ -142,7 +142,7 @@ def core_epa__assn_epacamd_eia(
             match the EIA860 working partitions. This indicates whether or not to
             restrict the crosswalk data so the tests don't fail on foreign key
             restraints.
-        raw_epacamd_eia: The result of running this module's extract() function.
+        raw_pudl__assn_eia_epacamd: The result of running this module's extract() function.
         core_eia__entity_generators: The core_eia__entity_generator table.
         core_eia__entity_boilers: The core_eia__entity_boilerstable.
 
@@ -163,7 +163,7 @@ def core_epa__assn_epacamd_eia(
 
     # Basic column rename, selection, and dtype alignment.
     crosswalk_clean = (
-        raw_epacamd_eia.pipe(pudl.helpers.simplify_columns)
+        raw_pudl__assn_eia_epacamd.pipe(pudl.helpers.simplify_columns)
         .rename(columns=column_rename)
         .filter(list(column_rename.values()))
         .pipe(
@@ -209,12 +209,12 @@ def core_epa__assn_epacamd_eia(
 
 
 @asset
-def _core_epa__assn_epacamd_eia_unique(
-    core_epa__assn_epacamd_eia: pd.DataFrame,
+def _core_epa__assn_eia_epacamd_unique(
+    core_epa__assn_eia_epacamd: pd.DataFrame,
 ) -> pd.DataFrame:
-    """Intermediate asset that contains all unique core_epa__assn_epacamd_eia matches.
+    """Intermediate asset that contains all unique core_epa__assn_eia_epacamd matches.
 
-    The core_epa__assn_epacamd_eia asset contains crosswalk matches from both 2018 and 2021. This
+    The core_epa__assn_eia_epacamd asset contains crosswalk matches from both 2018 and 2021. This
     means there are many duplicate matches found from both years. Several downstream
     assets expect these matches to be unique, so this asset will drop duplicates to
     serve as the input to those downstream assets. This asset, however, will not itself
@@ -222,26 +222,26 @@ def _core_epa__assn_epacamd_eia_unique(
     taking the match from the most recent year (2021).
 
     Args:
-        core_epa__assn_epacamd_eia: Cleaned crosswalk with duplicate matches.
+        core_epa__assn_eia_epacamd: Cleaned crosswalk with duplicate matches.
 
     Returns:
         Cleaned crosswalk with duplicates removed.
     """
     # Drop fully duplicated matches
-    core_epa__assn_epacamd_eia = core_epa__assn_epacamd_eia.drop_duplicates(
-        subset=core_epa__assn_epacamd_eia.columns.difference(["report_year"])
+    core_epa__assn_eia_epacamd = core_epa__assn_eia_epacamd.drop_duplicates(
+        subset=core_epa__assn_eia_epacamd.columns.difference(["report_year"])
     )
 
     # Find mismatches where there are different plant_id_eia values between years for
     # the same plant_id_epa and emissions_unit_id_epa value.
-    one_to_many = core_epa__assn_epacamd_eia.groupby(
+    one_to_many = core_epa__assn_eia_epacamd.groupby(
         ["plant_id_epa", "emissions_unit_id_epa"]
     ).filter(
         lambda x: x.plant_id_eia.nunique() > 1  # noqa: PD101
         and x.report_year.nunique() > 1  # noqa: PD101)
     )
     # For each mismatch drop the one from 2018, then drop report_year column
-    return core_epa__assn_epacamd_eia.drop(
+    return core_epa__assn_eia_epacamd.drop(
         one_to_many[one_to_many.report_year == 2018].index
     ).drop(["report_year"], axis=1)
 
@@ -263,16 +263,16 @@ def correct_epa_eia_plant_id_mapping(df: pd.DataFrame) -> pd.DataFrame:
 
 
 @asset(io_manager_key="pudl_sqlite_io_manager")
-def core_epa__assn_epacamd_eia_subplant_ids(
-    _core_epa__assn_epacamd_eia_unique: pd.DataFrame,
+def core_epa__assn_eia_epacamd_subplant_ids(
+    _core_epa__assn_eia_epacamd_unique: pd.DataFrame,
     core_eia860__scd_generators: pd.DataFrame,
     emissions_unit_ids_epacems: pd.DataFrame,
     core_eia860__assn_boiler_generator: pd.DataFrame,
 ) -> pd.DataFrame:
     """Groups units and generators into unique subplant groups.
 
-    This takes :func:`_core_epa__assn_epacamd_eia_unique` as an input because this asset so it doesn't
-    have to deal with duplicate matches that may be present in the :func:`core_epa__assn_epacamd_eia`
+    This takes :func:`_core_epa__assn_eia_epacamd_unique` as an input because this asset so it doesn't
+    have to deal with duplicate matches that may be present in the :func:`core_epa__assn_eia_epacamd`
     asset due to its use of multiple years of raw crosswalk outputs.
 
     This function consists of three primary parts:
@@ -299,7 +299,7 @@ def core_epa__assn_epacamd_eia_subplant_ids(
     # BEFORE this step so the subplant IDs can benefit from the more fleshed out units
     epacamd_eia_complete = (
         augement_crosswalk_with_generators_eia860(
-            _core_epa__assn_epacamd_eia_unique, core_eia860__scd_generators
+            _core_epa__assn_eia_epacamd_unique, core_eia860__scd_generators
         )
         .pipe(augement_crosswalk_with_epacamd_ids, emissions_unit_ids_epacems)
         .pipe(augement_crosswalk_with_bga_eia860, core_eia860__assn_boiler_generator)
@@ -412,10 +412,10 @@ def _prep_for_networkx(crosswalk: pd.DataFrame) -> pd.DataFrame:
     """Make surrogate keys for combustors and generators.
 
     Args:
-        crosswalk (pd.DataFrame): core_epa__assn_epacamd_eia crosswalk
+        crosswalk (pd.DataFrame): core_epa__assn_eia_epacamd crosswalk
 
     Returns:
-        pd.DataFrame: copy of core_epa__assn_epacamd_eia crosswalk with new surrogate ID columns
+        pd.DataFrame: copy of core_epa__assn_eia_epacamd crosswalk with new surrogate ID columns
             'combustor_id' and 'generator_id'
     """
     prepped = crosswalk.copy()
@@ -436,11 +436,11 @@ def _subplant_ids_from_prepped_crosswalk(prepped: pd.DataFrame) -> pd.DataFrame:
     """Use networkx graph analysis to create subplant IDs from crosswalk edge list.
 
     Args:
-        prepped (pd.DataFrame): core_epa__assn_epacamd_eia crosswalked passed through
+        prepped (pd.DataFrame): core_epa__assn_eia_epacamd crosswalked passed through
             _prep_for_networkx()
 
     Returns:
-        pd.DataFrame: copy of core_epa__assn_epacamd_eia crosswalk plus new column 'global_subplant_id'
+        pd.DataFrame: copy of core_epa__assn_eia_epacamd crosswalk plus new column 'global_subplant_id'
     """
     graph = nx.from_pandas_edgelist(
         prepped,
@@ -533,8 +533,8 @@ def make_subplant_ids(crosswalk: pd.DataFrame) -> pd.DataFrame:
     Usage Example:
 
     epacems = pudl.output.epacems.epacems(states=['ID']) # small subset for quick test
-    core_epa__assn_epacamd_eia = pudl_out.epacamd_eia()
-    filtered_crosswalk = pudl.analysis.epacamd_eia.filter_crosswalk(core_epa__assn_epacamd_eia, epacems)
+    core_epa__assn_eia_epacamd = pudl_out.epacamd_eia()
+    filtered_crosswalk = pudl.analysis.epacamd_eia.filter_crosswalk(core_epa__assn_eia_epacamd, epacems)
     crosswalk_with_subplant_ids = make_subplant_ids(filtered_crosswalk)
 
     Note that sub-plant ids should be used in conjunction with `plant_id_eia` vs.
@@ -542,7 +542,7 @@ def make_subplant_ids(crosswalk: pd.DataFrame) -> pd.DataFrame:
     the transform process.
 
     Args:
-        crosswalk (pd.DataFrame): The core_epa__assn_epacamd_eia crosswalk
+        crosswalk (pd.DataFrame): The core_epa__assn_eia_epacamd crosswalk
 
     Returns:
         pd.DataFrame: An edge list connecting EPA units to EIA generators, with

@@ -1217,15 +1217,18 @@ harvested_entities = [
 
 
 def finished_eia_asset_factory(
-    table_name: str, io_manager_key: str | None = None
+    table_name: str, _core_table_name: str, io_manager_key: str | None = None
 ) -> AssetsDefinition:
-    """An asset factory for finished EIA tables."""
-    # TODO (bendnorman): Create a more graceful function for parsing table name
-    table_name_parts = table_name.split("__")
-    dataset = table_name_parts[0].replace("core_", "")
-    table_name_no_asset_type = "_".join(table_name_parts[-1].split("_")[1:])
+    """An asset factory for finished EIA tables.
 
-    _core_table_name = f"_core_{dataset}__{table_name_no_asset_type}"
+    Args:
+        table_name: the name of the harvest table.
+        _core_table_name: the name of the unharvested input table
+        io_manager_key: the name of the IO Manager of the final asset.
+
+    Returns:
+        A harvest EIA asset.
+    """
 
     @asset(
         ins={_core_table_name: AssetIn()},
@@ -1242,18 +1245,20 @@ def finished_eia_asset_factory(
 
 
 finished_eia_assets = [
-    finished_eia_asset_factory(table_name, io_manager_key="pudl_sqlite_io_manager")
-    for table_name in [
-        "core_eia923__monthly_boiler_fuel",
-        "core_eia923__entity_coalmine",
-        "core_eia923__monthly_fuel_receipts_costs",
-        "core_eia923__monthly_generation",
-        "core_eia923__monthly_generation_fuel",
-        "core_eia923__monthly_generation_fuel_nuclear",
-        "core_eia860__scd_ownership",
-        "core_eia860__scd_emissions_control_equipment",
-        "core_eia860__yearly_boiler_emissions_control_equipment_assn",
-        "core_eia860__assn_boiler_cooling",
-        "core_eia860__assn_boiler_stack_flue",
-    ]
+    finished_eia_asset_factory(
+        table_name, _core_table_name, io_manager_key="pudl_sqlite_io_manager"
+    )
+    for table_name, _core_table_name in {
+        "core_eia923__monthly_boiler_fuel": "_core_eia923__boiler_fuel",
+        "core_eia923__entity_coalmine": "_core_eia923__coalmine",
+        "core_eia923__monthly_fuel_receipts_costs": "_core_eia923__fuel_receipts_costs",
+        "core_eia923__monthly_generation": "_core_eia923__generation",
+        "core_eia923__monthly_generation_fuel": "_core_eia923__generation_fuel",
+        "core_eia923__monthly_generation_fuel_nuclear": "_core_eia923__generation_fuel_nuclear",
+        "core_eia860__scd_ownership": "_core_eia860__ownership",
+        "core_eia860__scd_emissions_control_equipment": "_core_eia860__emissions_control_equipment",
+        "core_eia860__assn_yearly_boiler_emissions_control_equipment": "_core_eia860__boiler_emissions_control_equipment_assn",
+        "core_eia860__assn_boiler_cooling": "_core_eia860__boiler_cooling",
+        "core_eia860__assn_boiler_stack_flue": "_core_eia860__boiler_stack_flue",
+    }.items()
 ]
