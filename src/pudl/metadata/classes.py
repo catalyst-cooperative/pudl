@@ -2041,9 +2041,7 @@ class DatasetteMetadata(Base):
             xbrl_resources=xbrl_resources,
         )
 
-    def to_yaml(
-        self, path: str = None, exclude_intermediate_resources: bool = False
-    ) -> None:
+    def to_yaml(self, exclude_intermediate_resources: bool = False) -> None:
         """Output database, table, and column metadata to YAML file."""
         template = _get_jinja_environment().get_template("datasette-metadata.yml.jinja")
         if exclude_intermediate_resources:
@@ -2059,7 +2057,4 @@ class DatasetteMetadata(Base):
             xbrl_resources=self.xbrl_resources,
             label_columns=self.label_columns,
         )
-        if path:
-            Path(path).write_text(rendered)
-        else:
-            sys.stdout.write(rendered)
+        return rendered

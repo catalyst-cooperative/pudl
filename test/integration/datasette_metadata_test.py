@@ -18,7 +18,8 @@ def test_datasette_metadata_to_yml(ferc1_engine_xbrl):
     logger.info(f"Writing Datasette Metadata to {metadata_yml}")
 
     dm = DatasetteMetadata.from_data_source_ids(PudlPaths().output_dir)
-    dm.to_yaml(path=metadata_yml)
+    with metadata_yml.open("w") as f:
+        f.write(dm.to_yaml())
 
     logger.info("Parsing generated metadata using datasette utils.")
     metadata_json = json.dumps(yaml.safe_load(metadata_yml.open()))

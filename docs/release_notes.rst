@@ -86,7 +86,8 @@ succesfully migrated to pulling data directly from ``pudl.sqlite``.
 Data Coverage
 ^^^^^^^^^^^^^
 
-* Updated :doc:`data_sources/eia860` to include early release data from 2022.
+* Updated :doc:`data_sources/eia860` to include final release data from 2022.
+* Updated :doc:`data_sources/eia861` to include final release data from 2022.
 * Updated :doc:`data_sources/eia923` to include early release data from 2022 and
   monthly YTD data as of April 2023.
 * Updated :doc:`data_sources/epacems` to switch from the old FTP server to the new
@@ -364,6 +365,9 @@ Miscellaneous
   fixed to have correctly updated BA names. See :pr:`2312` and :issue:`2255`.
 * Fixed a column naming bug that was causing EIA860 monthly retirement dates to get
   nulled out. See :issue:`2834` and :pr:`2835`
+* Switched to using ``conda-lock`` and ``Makefile`` to manage testing and python
+  environment. Moved away from packaging PUDL for distribution via PyPI and
+  ``conda-forge`` and toward treating it as an application.  See :pr:`2968`
 
 .. _release-v2022.11.30:
 
