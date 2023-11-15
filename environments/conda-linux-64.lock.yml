@@ -478,7 +478,7 @@ dependencies:
   - pyopenssl=23.3.0=pyhd8ed1ab_0
   - readthedocs-sphinx-ext=2.2.3=pyhd8ed1ab_0
   - requests-toolbelt=0.10.1=pyhd8ed1ab_0
-  - responses=0.24.0=pyhd8ed1ab_0
+  - responses=0.24.1=pyhd8ed1ab_0
   - s3transfer=0.7.0=pyhd8ed1ab_0
   - scipy=1.11.3=py311h64a7726_1
   - secretstorage=3.3.3=py311h38be061_2
