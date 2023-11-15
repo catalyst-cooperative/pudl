@@ -333,7 +333,7 @@ dependencies:
   - coloredlogs=14.0=pyhd8ed1ab_3
   - comm=0.1.4=pyhd8ed1ab_0
   - coverage=7.3.2=py311h459d7ec_0
-  - fonttools=4.44.0=py311h459d7ec_0
+  - fonttools=4.44.1=py311h459d7ec_0
   - gitdb=4.0.11=pyhd8ed1ab_0
   - graphql-core=3.2.3=pyhd8ed1ab_0
   - grpcio=1.59.2=py311ha6695c7_0
@@ -478,7 +478,7 @@ dependencies:
   - pyopenssl=23.3.0=pyhd8ed1ab_0
   - readthedocs-sphinx-ext=2.2.3=pyhd8ed1ab_0
   - requests-toolbelt=0.10.1=pyhd8ed1ab_0
-  - responses=0.24.0=pyhd8ed1ab_0
+  - responses=0.24.1=pyhd8ed1ab_0
   - s3transfer=0.7.0=pyhd8ed1ab_0
   - scipy=1.11.3=py311h64a7726_1
   - secretstorage=3.3.3=py311h38be061_2
