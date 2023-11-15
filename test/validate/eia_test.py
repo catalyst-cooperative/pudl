@@ -46,20 +46,20 @@ def test_no_null_cols_eia(pudl_out_eia, live_dbs, cols, df_name):
     "df_name,raw_rows,monthly_rows,annual_rows",
     [
         ("bf_eia923", 1_559_257, 1_559_257, 127_412),
-        ("bga_eia860", 141_638, 141_638, 141_638),
-        ("boil_eia860", 83_354, 83_354, 83_354),
+        ("bga_eia860", 141_652, 141_652, 141_652),
+        ("boil_eia860", 83_356, 83_356, 83_356),
         ("frc_eia923", 639_647, 261_583, 25_370),
-        ("gen_eia923", None, 5_178_828, 433_286),
-        ("gens_eia860", 556_586, 556_586, 556_586),
-        ("gf_eia923", 2_879_896, 2_879_896, 244_796),
-        ("own_eia860", 89_687, 89_687, 89_687),
-        ("plants_eia860", 200_210, 200_210, 200_210),
-        ("pu_eia860", 199_332, 199_332, 199_332),
-        ("utils_eia860", 139_715, 139_715, 139_715),
-        ("emissions_control_equipment_eia860", 56_612, 56_612, 56_612),
-        ("denorm_emissions_control_equipment_eia860", 56_612, 56_612, 56_612),
-        ("boiler_emissions_control_equipment_assn_eia860", 77_707, 77_707, 77_707),
-        ("boiler_cooling_assn_eia860", 41_280, 41_280, 41_280),
+        ("gen_eia923", None, 5_179_377, 433_332),
+        ("gens_eia860", 556_948, 556_948, 556_948),
+        ("gf_eia923", 2_879_884, 2_879_884, 244_795),
+        ("own_eia860", 89_741, 89_741, 89_741),
+        ("plants_eia860", 200_514, 200_514, 200_514),
+        ("pu_eia860", 199_635, 199_635, 199_635),
+        ("utils_eia860", 139_883, 139_883, 139_883),
+        ("emissions_control_equipment_eia860", 56_616, 56_616, 56_616),
+        ("denorm_emissions_control_equipment_eia860", 56_616, 56_616, 56_616),
+        ("boiler_emissions_control_equipment_assn_eia860", 77_705, 77_705, 77_705),
+        ("boiler_cooling_assn_eia860", 41_282, 41_282, 41_282),
         ("boiler_stack_flue_assn_eia860", 41_673, 41_673, 41_673),
     ],
 )
@@ -168,7 +168,7 @@ def test_minmax_rows(
             "boiler_emissions_control_equipment_assn_eia860",
             (
                 Resource.from_id(
-                    "core_eia860__yearly_boiler_emissions_control_equipment_assn"
+                    "core_eia860__assn_yearly_boiler_emissions_control_equipment"
                 ).schema.primary_key
             ),
         ),

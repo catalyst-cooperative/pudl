@@ -91,7 +91,6 @@ intersphinx_mapping = {
     "setuptools": ("https://setuptools.pypa.io/en/latest/", None),
     "sklearn": ("https://scikit-learn.org/stable", None),
     "sqlalchemy": ("https://docs.sqlalchemy.org/en/latest/", None),
-    "tox": ("https://tox.wiki/en/latest/", None),
 }
 
 # Add any paths that contain templates here, relative to this directory.

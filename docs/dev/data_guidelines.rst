@@ -64,6 +64,8 @@ Examples of Unacceptable Changes
   fuel heat content and net electricity generation. The heat rate would
   be a derived value and not part of the original data.
 
+.. _tidy-data:
+
 -------------------------------------------------------------------------------
 Make Tidy Data
 -------------------------------------------------------------------------------
@@ -118,24 +120,6 @@ energy required to raise the temperature of one an *avoirdupois pound* of water
 by 1 degree *Farenheit*?! What century even is this?).
 
 -------------------------------------------------------------------------------
-Silo the ETL Process
--------------------------------------------------------------------------------
-It should be possible to run the ETL process on each data source independently
-and with any combination of data sources included. This allows users to include
-only the data need. In some cases, like the :doc:`EIA 860
-<../data_sources/eia860>` and :doc:`EIA 923 <../data_sources/eia923>` data, two
-data sources may be so intertwined that keeping them separate doesn't really
-make sense. This should be the exception, however, not the rule.
-
--------------------------------------------------------------------------------
-Separate Data from Glue
--------------------------------------------------------------------------------
-The glue that relates different data sources to each other should be applied
-after or alongside the ETL process and not as a mandatory part of ETL. This
-makes it easy to pull individual data sources in and work with them even when
-the glue isn't working or doesn't yet exist.
-
--------------------------------------------------------------------------------
 Partition Big Data
 -------------------------------------------------------------------------------
 Our goal is for users to be able to run the ETL process on a decent laptop.
@@ -145,35 +129,6 @@ need to use the entire dataset for the work they are doing. Partitioning the dat
 them to pull in only certain years, certain states, or other sensible partitions of the
 data so that they don’t run out of memory or disk space or have to wait hours while data
 they don't need is being processed.
-
--------------------------------------------------------------------------------
-Naming Conventions
--------------------------------------------------------------------------------
-    *There are only two hard problems in computer science: caching,
-    naming things, and off-by-one errors.*
-
-Use Consistent Names
-^^^^^^^^^^^^^^^^^^^^
-If two columns in different tables record the same quantity in the same units,
-give them the same name. That way if they end up in the same dataframe for
-comparison it's easy to automatically rename them with suffixes indicating
-where they came from. For example, net electricity generation is reported to
-both :doc:`FERC Form 1 <../data_sources/ferc1>` and :doc:`EIA 923
-<../data_sources/eia923>`, so we've named columns ``net_generation_mwh`` in
-each of those data sources. Similarly, give non-comparable quantities reported
-in different data sources **different** column names. This helps make it clear
-that the quantities are actually different.
-
-Follow Existing Conventions
-^^^^^^^^^^^^^^^^^^^^^^^^^^^
-We are trying to use consistent naming conventions for the data tables,
-columns, data sources, and functions. Generally speaking PUDL is a collection
-of subpackages organized by purpose (extract, transform, load, analysis,
-output, datastore…), containing a module for each data source. Each data source
-has a short name that is used everywhere throughout the project and is composed of
-the reporting agency and the form number or another identifying abbreviation:
-``ferc1``, ``epacems``, ``eia923``, ``eia861``, etc. See the :doc:`naming
-conventions <naming_conventions>` document for more details.
 
 -------------------------------------------------------------------------------
 Complete, Continuous Time Series

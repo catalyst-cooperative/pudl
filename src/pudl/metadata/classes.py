@@ -1965,10 +1965,10 @@ class DatasetteMetadata(Base):
     xbrl_resources: dict[str, list[Resource]] = {}
     label_columns: dict[str, str] = {
         "core_eia__entity_plants": "plant_name_eia",
-        "core_pudl__assn_plants_ferc1": "plant_name_ferc1",
+        "core_pudl__assn_ferc1_pudl_plants": "plant_name_ferc1",
         "core_pudl__entity_plants_pudl": "plant_name_pudl",
         "core_eia__entity_utilities": "utility_name_eia",
-        "core_pudl__assn_utilities_ferc1": "utility_name_ferc1",
+        "core_pudl__assn_ferc1_pudl_utilities": "utility_name_ferc1",
         "core_pudl__entity_utilities_pudl": "utility_name_pudl",
     }
 
@@ -2041,9 +2041,7 @@ class DatasetteMetadata(Base):
             xbrl_resources=xbrl_resources,
         )
 
-    def to_yaml(
-        self, path: str = None, exclude_intermediate_resources: bool = False
-    ) -> None:
+    def to_yaml(self, exclude_intermediate_resources: bool = False) -> None:
         """Output database, table, and column metadata to YAML file."""
         template = _get_jinja_environment().get_template("datasette-metadata.yml.jinja")
         if exclude_intermediate_resources:
@@ -2059,7 +2057,4 @@ class DatasetteMetadata(Base):
             xbrl_resources=self.xbrl_resources,
             label_columns=self.label_columns,
         )
-        if path:
-            Path(path).write_text(rendered)
-        else:
-            sys.stdout.write(rendered)
+        return rendered

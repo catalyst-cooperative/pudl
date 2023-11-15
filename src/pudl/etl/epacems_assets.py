@@ -45,7 +45,7 @@ def get_years_from_settings(context):
 def process_single_year(
     context,
     year,
-    core_epa__assn_epacamd_eia: pd.DataFrame,
+    core_epa__assn_eia_epacamd: pd.DataFrame,
     core_eia__entity_plants: pd.DataFrame,
 ) -> YearPartitions:
     """Process a single year of EPA CEMS data.
@@ -53,7 +53,7 @@ def process_single_year(
     Args:
         context: dagster keyword that provides access to resources and config.
         year: Year of data to process.
-        core_epa__assn_epacamd_eia: The EPA EIA crosswalk table used for harmonizing the
+        core_epa__assn_eia_epacamd: The EPA EIA crosswalk table used for harmonizing the
             ORISPL code with EIA.
         core_eia__entity_plants: The EIA Plant entities used for aligning timezones.
     """
@@ -69,7 +69,7 @@ def process_single_year(
         df = pudl.extract.epacems.extract(year=year, state=state, ds=ds)
         if not df.empty:  # If state-year combination has data
             df = pudl.transform.epacems.transform(
-                df, core_epa__assn_epacamd_eia, core_eia__entity_plants
+                df, core_epa__assn_eia_epacamd, core_eia__entity_plants
             )
         table = pa.Table.from_pandas(df, schema=schema, preserve_index=False)
 
@@ -112,7 +112,7 @@ def consolidate_partitions(context, partitions: list[YearPartitions]) -> None:
 
 @graph_asset
 def core_epacems__hourly_emissions(
-    _core_epa__assn_epacamd_eia_unique: pd.DataFrame,
+    _core_epa__assn_eia_epacamd_unique: pd.DataFrame,
     core_eia__entity_plants: pd.DataFrame,
 ) -> None:
     """Extract, transform and load CSVs for EPA CEMS.
@@ -126,7 +126,7 @@ def core_epacems__hourly_emissions(
     partitions = years.map(
         lambda year: process_single_year(
             year,
-            _core_epa__assn_epacamd_eia_unique,
+            _core_epa__assn_eia_epacamd_unique,
             core_eia__entity_plants,
         )
     )

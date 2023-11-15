@@ -67,17 +67,34 @@ Dagster Adoption
   * :mod:`pudl.convert.censusdp1tract_to_sqlite` and :mod:`pudl.output.censusdp1tract`
     are now integrated into dagster. See :issue:`1973` and :pr:`2621`.
 
+New Asset Naming Convention
+^^^^^^^^^^^^^^^^^^^^^^^^^^^
+There are hundreds of new tables in ``pudl.sqlite`` now that the methods in ``PudlTabl``
+have been converted to Dagster assets. This significant increase in tables and diversity
+of table types prompted us to create a new naming convention to make the table names
+more descriptive and organized. You can read about the new naming convention in the
+:ref:`docs <asset-naming>`.
+
+To help users migrate away from using ``PudlTabl`` and our temporary table names,
+we've created a `google sheet <https://docs.google.com/spreadsheets/d/1RBuKl_xKzRSLgRM7GIZbc5zUYieWFE20cXumWuv5njo/edit?usp=sharing>`__
+that maps the old table names and ``PudlTabl`` methods to the new table names.
+
+We've added deprecation warnings to the ``PudlTabl`` class. We plan to remove
+``PudlTabl`` from the ``pudl`` package once our known users have
+succesfully migrated to pulling data directly from ``pudl.sqlite``.
+
 Data Coverage
 ^^^^^^^^^^^^^
 
-* Updated :doc:`data_sources/eia860` to include early release data from 2022.
+* Updated :doc:`data_sources/eia860` to include final release data from 2022.
+* Updated :doc:`data_sources/eia861` to include final release data from 2022.
 * Updated :doc:`data_sources/eia923` to include early release data from 2022 and
   monthly YTD data as of April 2023.
 * Updated :doc:`data_sources/epacems` to switch from the old FTP server to the new
   CAMPD API, and to include 2022 data. Due to changes in the ETL, Alaska, Puerto Rico
   and Hawaii are now included in CEMS processing. See issue :issue:`1264` & PRs
   :pr:`2779`, :pr:` 2816`.
-* New :ref:`core_epa__assn_epacamd_eia` crosswalk version v0.3, see issue :issue:`2317`
+* New :ref:`core_epa__assn_eia_epacamd` crosswalk version v0.3, see issue :issue:`2317`
   and PR :pr:`2316`. EPA's updates add manual matches and exclusions focusing on
   operating units with a generator ID as of 2018.
 * New PUDL tables from :doc:`data_sources/ferc1`, integrating older DBF and newer XBRL
@@ -115,7 +132,7 @@ Data Coverage
     :issue:`1823` & PR :pr:`2205`.
 
 * Harvested owner utilities from the EIA 860 ownership table which are now included in
-  the :ref:`core_eia__entity_utilities` and :ref:`core_pudl__assn_utilities_eia`
+  the :ref:`core_eia__entity_utilities` and :ref:`core_pudl__assn_eia_pudl_utilities`
   tables. See :pr:`2714`. Renamed columns with owner or operator suffix to differentiate
   between owner and operator utility columns in :ref:`core_eia860__scd_ownership` and
   :ref:`out_eia860__yearly_ownership`. See :pr:`2903`.
@@ -126,7 +143,7 @@ Data Coverage
     :pr:`2561`.
   * :ref:`out_eia860__yearly_emissions_control_equipment`, see issue :issue:`2338` & PR
     :pr:`2561`.
-  * :ref:`core_eia860__yearly_boiler_emissions_control_equipment_assn`, see
+  * :ref:`core_eia860__assn_yearly_boiler_emissions_control_equipment`, see
     :issue:`2338` & PR :pr:`2561`.
   * :ref:`core_eia860__assn_boiler_cooling`, see :issue:`2586` & PR :pr:`2587`
   * :ref:`core_eia860__assn_boiler_stack_flue`, see :issue:`2586` & PR :pr:`2587`
@@ -186,8 +203,8 @@ Data Coverage
   * :ref:`out_ferc714__respondents_with_fips` (annual respondents with county FIPS IDs)
   * :ref:`out_ferc714__summarized_demand` (annual demand for FERC-714 respondents)
 
-* Added new table :ref:`core_epa__assn_epacamd_eia_subplant_ids`, which aguments the
-  :ref:`core_epa__assn_epacamd_eia` glue table. This table incorporates all
+* Added new table :ref:`core_epa__assn_eia_epacamd_subplant_ids`, which aguments the
+  :ref:`core_epa__assn_eia_epacamd` glue table. This table incorporates all
   :ref:`core_eia__entity_generators` and all :ref:`core_epacems__hourly_emissions` ID's
   and uses these complete IDs to develop a full-coverage ``subplant_id`` column which
   granularly connects EPA CAMD with EIA. Thanks to :user:`grgmiller` for his
@@ -224,7 +241,7 @@ Data Cleaning
   affected a small number of records in any table referring to boilers, including
   :ref:`core_eia__entity_boilers`, :ref:`core_eia860__scd_boilers`,
   :ref:`core_eia923__monthly_boiler_fuel`, :ref:`core_eia860__assn_boiler_generator`
-  and the :ref:`core_epa__assn_epacamd_eia` crosswalk. It also had some minor downstream
+  and the :ref:`core_epa__assn_eia_epacamd` crosswalk. It also had some minor downstream
   effects on the MCOE outputs. See :issue:`2366` and :pr:`2367`.
 * The :ref:`core_eia923__monthly_boiler_fuel` table now includes the
   ``prime_mover_code`` column. This column was previously incorrectly being associated
@@ -298,7 +315,7 @@ Deprecations
 * Replace references to deprecated ``pudl-scrapers`` and
   ``pudl-zenodo-datastore`` repositories with references to `pudl-archiver
   <https://www.github.com/catalyst-cooperative/pudl-archiver>`__ repository in
-  :doc:`intro`, :doc:`dev/datastore`, and :doc:`dev/annual_updates`. See :pr:`2190`.
+  ``intro``, :doc:`dev/datastore`, and :doc:`dev/annual_updates`. See :pr:`2190`.
 * :mod:`pudl.etl` is now a subpackage that collects all pudl assets into a dagster
   `Definition <https://docs.dagster.io/concepts/code-locations>`__. All
   ``pudl.etl._etl_{datasource}`` functions have been deprecated. The coordination
@@ -348,6 +365,9 @@ Miscellaneous
   fixed to have correctly updated BA names. See :pr:`2312` and :issue:`2255`.
 * Fixed a column naming bug that was causing EIA860 monthly retirement dates to get
   nulled out. See :issue:`2834` and :pr:`2835`
+* Switched to using ``conda-lock`` and ``Makefile`` to manage testing and python
+  environment. Moved away from packaging PUDL for distribution via PyPI and
+  ``conda-forge`` and toward treating it as an application.  See :pr:`2968`
 
 .. _release-v2022.11.30:
 

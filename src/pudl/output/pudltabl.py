@@ -89,6 +89,11 @@ class PudlTabl:
             unit_ids: If True, use several heuristics to assign
                 individual generators to functional units. EXPERIMENTAL.
         """
+        logger.warning(
+            "PudlTabl is deprecated and will be removed from the pudl package "
+            "once known users have migrated to accessing the data directly from "
+            "pudl.sqlite. "
+        )
         if not isinstance(pudl_engine, sa.engine.base.Engine):
             raise TypeError(
                 "PudlTabl needs pudl_engine to be a SQLAlchemy Engine, but we "
@@ -169,7 +174,7 @@ class PudlTabl:
             "out_eia860__yearly_ownership": "own_eia860",
             "core_eia860__assn_boiler_generator": "bga_eia860",
             "out_eia860__yearly_emissions_control_equipment": "denorm_emissions_control_equipment_eia860",
-            "core_eia860__yearly_boiler_emissions_control_equipment_assn": "boiler_emissions_control_equipment_assn_eia860",
+            "core_eia860__assn_yearly_boiler_emissions_control_equipment": "boiler_emissions_control_equipment_assn_eia860",
             "core_eia860__scd_emissions_control_equipment": "emissions_control_equipment_eia860",
             "core_eia860__assn_boiler_stack_flue": "boiler_stack_flue_assn_eia860",
             "core_eia860__assn_boiler_cooling": "boiler_cooling_assn_eia860",
@@ -296,6 +301,12 @@ class PudlTabl:
                 "It is retained for backwards compatibility only."
             )
         table_name = self._agg_table_name(table_name)
+        logger.warning(
+            "PudlTabl is deprecated and will be removed from the pudl package "
+            "once known users have migrated to accessing the data directly from "
+            "pudl.sqlite. To access the data returned by this method, "
+            f"use the {table_name} table in the pudl.sqlite database."
+        )
         resource = Resource.from_id(table_name)
         return pd.concat(
             [
@@ -411,6 +422,6 @@ class PudlTabl:
     ###########################################################################
     def epacamd_eia(self: Self) -> pd.DataFrame:
         """Read the EPACAMD-EIA Crosswalk from the PUDL DB."""
-        return pd.read_sql("core_epa__assn_epacamd_eia", self.pudl_engine).pipe(
+        return pd.read_sql("core_epa__assn_eia_epacamd", self.pudl_engine).pipe(
             apply_pudl_dtypes, group="glue"
         )

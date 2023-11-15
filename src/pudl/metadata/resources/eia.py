@@ -516,9 +516,9 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
             "primary_key": ["plant_id_eia", "generator_id"],
             "foreign_key_rules": {
                 "fields": [["plant_id_eia", "generator_id"]],
-                # exclude core_epa__assn_epacamd_eia_subplant_ids bc there are generator ids in this
+                # exclude core_epa__assn_eia_epacamd_subplant_ids bc there are generator ids in this
                 # glue table that come only from epacamd
-                "exclude": ["core_epa__assn_epacamd_eia_subplant_ids"],
+                "exclude": ["core_epa__assn_eia_epacamd_subplant_ids"],
             },
         },
         "sources": ["eia860", "eia923"],
@@ -579,7 +579,7 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
         "etl_group": "static_eia",
         "field_namespace": "eia",
     },
-    "core_pudl__assn_plants_eia": {
+    "core_pudl__assn_eia_pudl_plants": {
         "description": "Association between EIA Plant IDs and manually assigned PUDL Plant IDs",
         "schema": {
             "fields": ["plant_id_eia", "plant_name_eia", "plant_id_pudl"],
@@ -607,15 +607,15 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
             "primary_key": ["plant_id_eia"],
             "foreign_key_rules": {
                 "fields": [["plant_id_eia"]],
-                # Excluding core_pudl__assn_plants_eia because it's static and manually compiled
+                # Excluding core_pudl__assn_eia_pudl_plants because it's static and manually compiled
                 # so it has plants from *all* years of data, even when only a
                 # restricted set of data is processed, leading to constraint
                 # violations.
                 # See: https://github.com/catalyst-cooperative/pudl/issues/1196
-                # Exclude the core_epa__assn_epacamd_eia_subplant_ids table
+                # Exclude the core_epa__assn_eia_epacamd_subplant_ids table
                 "exclude": [
-                    "core_pudl__assn_plants_eia",
-                    "core_epa__assn_epacamd_eia_subplant_ids",
+                    "core_pudl__assn_eia_pudl_plants",
+                    "core_epa__assn_eia_epacamd_subplant_ids",
                 ],
             },
         },
@@ -706,7 +706,7 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
         "etl_group": "static_eia",
         "field_namespace": "eia",
     },
-    "core_pudl__assn_utilities_eia": {
+    "core_pudl__assn_eia_pudl_utilities": {
         "description": "Associations between the EIA Utility IDs and the manually assigned PUDL Utility IDs.",
         "schema": {
             "fields": ["utility_id_eia", "utility_name_eia", "utility_id_pudl"],
@@ -730,7 +730,7 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
                 # See: https://github.com/catalyst-cooperative/pudl/issues/1196
                 # Excluding EIA-861 because they haven't been harvested/normalized.
                 "exclude": [
-                    "core_pudl__assn_utilities_eia",
+                    "core_pudl__assn_eia_pudl_utilities",
                     "core_eia861__yearly_advanced_metering_infrastructure",
                     "core_eia861__assn_balancing_authority",
                     "out_eia861__compiled_geometry_utilities",
