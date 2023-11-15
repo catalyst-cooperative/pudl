@@ -6574,7 +6574,7 @@ package:
     category: dev
     optional: true
   - name: responses
-    version: 0.24.0
+    version: 0.24.1
     manager: conda
     platform: linux-64
     dependencies:
@@ -6584,10 +6584,10 @@ package:
       types-pyyaml: ""
       typing_extensions: ""
       urllib3: ">=1.25.10,<3.0"
-    url: https://conda.anaconda.org/conda-forge/noarch/responses-0.24.0-pyhd8ed1ab_0.conda
+    url: https://conda.anaconda.org/conda-forge/noarch/responses-0.24.1-pyhd8ed1ab_0.conda
     hash:
-      md5: 3b9575392a494595648f1abe295bd5a5
-      sha256: e38de0da8c9cfff976a0a6bbc98d5da771a79f0a86a88f54b4081b26bfaa88fe
+      md5: b1b80aaa77d5e83183cd0c9e9025b1fa
+      sha256: 35a1cc20beca329bfa2b17feeb5ca66a2741bdccf39621dfe386f48206e73d67
     category: main
     optional: false
   - name: s3transfer
@@ -8603,14 +8603,14 @@ package:
     category: main
     optional: false
   - name: llvm-openmp
-    version: 17.0.4
+    version: 17.0.5
     manager: conda
     platform: osx-64
     dependencies: {}
-    url: https://conda.anaconda.org/conda-forge/osx-64/llvm-openmp-17.0.4-hb6ac08f_0.conda
+    url: https://conda.anaconda.org/conda-forge/osx-64/llvm-openmp-17.0.5-hb6ac08f_0.conda
     hash:
-      md5: 31391b68245bc68504169e98ffaf2c44
-      sha256: d49b6958d22075de5fb707fd5f593cfa4be059015db48b7f1cd5e47e7efde2ff
+      md5: 8ca3784280b7cb54163a46e8a918fb43
+      sha256: 8ad5acab5d5fb38785c6f41e17e5e1729f305f4838cc3a4470688c6cf942c0da
     category: main
     optional: false
   - name: lzo
@@ -14468,7 +14468,7 @@ package:
     category: dev
     optional: true
   - name: responses
-    version: 0.24.0
+    version: 0.24.1
     manager: conda
     platform: osx-64
     dependencies:
@@ -14478,10 +14478,10 @@ package:
       python: ">=3.7"
       requests: ">=2.30.0,<3.0"
       urllib3: ">=1.25.10,<3.0"
-    url: https://conda.anaconda.org/conda-forge/noarch/responses-0.24.0-pyhd8ed1ab_0.conda
+    url: https://conda.anaconda.org/conda-forge/noarch/responses-0.24.1-pyhd8ed1ab_0.conda
     hash:
-      md5: 3b9575392a494595648f1abe295bd5a5
-      sha256: e38de0da8c9cfff976a0a6bbc98d5da771a79f0a86a88f54b4081b26bfaa88fe
+      md5: b1b80aaa77d5e83183cd0c9e9025b1fa
+      sha256: 35a1cc20beca329bfa2b17feeb5ca66a2741bdccf39621dfe386f48206e73d67
     category: main
     optional: false
   - name: s3transfer
@@ -16417,14 +16417,14 @@ package:
     category: main
     optional: false
   - name: llvm-openmp
-    version: 17.0.4
+    version: 17.0.5
     manager: conda
     platform: osx-arm64
     dependencies: {}
-    url: https://conda.anaconda.org/conda-forge/osx-arm64/llvm-openmp-17.0.4-hcd81f8e_0.conda
+    url: https://conda.anaconda.org/conda-forge/osx-arm64/llvm-openmp-17.0.5-hcd81f8e_0.conda
     hash:
-      md5: 88618857d4b3fadc13649d1a25cf1e4c
-      sha256: 99a8145f38c02f317d1293eaf0e34af028d94d6854dfb2dd044702995cf74b89
+      md5: 7307ed345b859c2d6680d277dfc13bdd
+      sha256: d6ac131d98df60c85206455f49fe1921a9eeef9962bbe1f06ada22573c09b0e6
     category: main
     optional: false
   - name: lzo
@@ -22279,7 +22279,7 @@ package:
     category: dev
     optional: true
   - name: responses
-    version: 0.24.0
+    version: 0.24.1
     manager: conda
     platform: osx-arm64
     dependencies:
@@ -22289,10 +22289,10 @@ package:
       python: ">=3.7"
       requests: ">=2.30.0,<3.0"
       urllib3: ">=1.25.10,<3.0"
-    url: https://conda.anaconda.org/conda-forge/noarch/responses-0.24.0-pyhd8ed1ab_0.conda
+    url: https://conda.anaconda.org/conda-forge/noarch/responses-0.24.1-pyhd8ed1ab_0.conda
     hash:
-      md5: 3b9575392a494595648f1abe295bd5a5
-      sha256: e38de0da8c9cfff976a0a6bbc98d5da771a79f0a86a88f54b4081b26bfaa88fe
+      md5: b1b80aaa77d5e83183cd0c9e9025b1fa
+      sha256: 35a1cc20beca329bfa2b17feeb5ca66a2741bdccf39621dfe386f48206e73d67
     category: main
     optional: false
   - name: s3transfer
