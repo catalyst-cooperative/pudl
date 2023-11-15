@@ -50,10 +50,8 @@ dependencies = [
     "pandera>=0.17.2",
     "pre-commit>=3",
     "pyarrow>=14.0.1", # pandas[parquet]
-    "pydantic>=1.10,<2",
-    # Required after pandera-core is retired and we switch to pydantic v2
-    #"pydantic>=2.4",
-    #"pydantic-settings>=2",
+    "pydantic>=2.4",
+    "pydantic-settings>=2",
     "pytest>=7.4",
     "pytest-cov>=4.1",
     "pytest-console-scripts>=1.4",
@@ -219,10 +217,6 @@ exclude = ["migrations/versions/*"]
 "__init__.py" = ["F401"] # Ignore unused imports
 "test/*" = ["D"]
 "migrations/*" = ["D", "Q"]
-
-[tool.ruff.pep8-naming]
-# Allow Pydantic's `@validator` decorator to trigger class method treatment.
-classmethod-decorators = ["pydantic.validator", "pydantic.root_validator"]
 
 [tool.ruff.isort]
 known-first-party = ["pudl"]

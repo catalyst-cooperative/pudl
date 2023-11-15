@@ -43,6 +43,9 @@ jobs:
           conda config --show
           printenv | sort
 
+      - name: Make input, output and dagster dirs
+        run: mkdir -p ${{ env.PUDL_OUTPUT }} ${{ env.PUDL_INPUT}} ${{ env.DAGSTER_HOME }}
+
       - name: Lint and build PUDL documentation with Sphinx
         run: |
           pip install --no-deps --editable .

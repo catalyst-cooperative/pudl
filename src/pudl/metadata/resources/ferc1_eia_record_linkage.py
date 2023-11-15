@@ -27,8 +27,7 @@ portion records are labeled in the "ownership_record_type" column as "owned"
 and the total records are labeled as "total".
 
 This table includes A LOT of duplicative information about EIA plants. It is primarily
-meant for use as an input into the record linkage between FERC1 plants and EIA.
-""",
+meant for use as an input into the record linkage between FERC1 plants and EIA.""",
         "schema": {
             "fields": [
                 "record_id_eia",
@@ -137,8 +136,7 @@ may report the same plant in different ways in different years.
 
 The EIA data associated with each FERC plant record comes from our Plant Parts EIA
 table. The EIA data in each record represents an aggregation of several slices of an EIA
-plant, across both physical characteristics and utility ownership.
-""",
+plant, across both physical characteristics and utility ownership.""",
         "schema": {
             "fields": [
                 "record_id_ferc1",

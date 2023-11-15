@@ -8,7 +8,6 @@ from pathlib import Path
 
 import pytest
 import sqlalchemy as sa
-import yaml
 from dagster import build_init_resource_context, materialize_to_memory
 
 import pudl
@@ -112,9 +111,7 @@ def etl_parameters(request, test_dir) -> EtlSettings:
         etl_settings_yml = Path(
             test_dir.parent / "src/pudl/package_data/settings/etl_fast.yml"
         )
-    with Path.open(etl_settings_yml, encoding="utf8") as settings_file:
-        etl_settings_out = yaml.safe_load(settings_file)
-    etl_settings = EtlSettings().parse_obj(etl_settings_out)
+    etl_settings = EtlSettings.from_yaml(etl_settings_yml)
     return etl_settings
 
 

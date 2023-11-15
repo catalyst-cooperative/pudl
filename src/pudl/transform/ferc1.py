@@ -15,14 +15,14 @@ import re
 from abc import abstractmethod
 from collections import namedtuple
 from collections.abc import Mapping
-from typing import Any, Literal, Self
+from typing import Annotated, Any, Literal, Self
 
 import numpy as np
 import pandas as pd
 import sqlalchemy as sa
 from dagster import AssetIn, AssetsDefinition, asset
 from pandas.core.groupby import DataFrameGroupBy
-from pydantic import BaseModel, confloat, validator
+from pydantic import BaseModel, Field, field_validator
 
 import pudl
 from pudl.analysis.classify_plants_ferc1 import (
@@ -205,13 +205,13 @@ class RenameColumnsFerc1(TransformParams):
 class WideToTidy(TransformParams):
     """Parameters for converting a wide table to a tidy table with value types."""
 
-    idx_cols: list[str] | None
+    idx_cols: list[str] | None = None
     """List of column names to treat as the table index."""
 
     stacked_column_name: str | None = None
     """Name of column that will contain the stacked categories."""
 
-    value_types: list[str] | None
+    value_types: list[str] | None = None
     """List of names of value types that will end up being the column names.
 
     Some of the FERC tables have multiple data types spread across many different
@@ -643,7 +643,8 @@ class CombineAxisColumnsXbrl(TransformParams):
     new_axis_column_name: str | None = None
     """The name of the combined axis column -- must end with the suffix ``_axis``!."""
 
-    @validator("new_axis_column_name")
+    @field_validator("new_axis_column_name")
+    @classmethod
     def doesnt_end_with_axis(cls, v):
         """Ensure that new axis column ends in _axis."""
         if v is not None and not v.endswith("_axis"):
@@ -724,10 +725,10 @@ def combine_axis_columns_xbrl(
 class IsCloseTolerance(TransformParams):
     """Info for testing a particular check."""
 
-    isclose_rtol: confloat(ge=0.0) = 1e-5
+    isclose_rtol: Annotated[float, Field(ge=0.0)] = 1e-5
     """Relative tolerance to use in :func:`np.isclose` for determining equality."""
 
-    isclose_atol: confloat(ge=0.0, le=0.01) = 1e-8
+    isclose_atol: Annotated[float, Field(ge=0.0, le=0.01)] = 1e-8
     """Absolute tolerance to use in :func:`np.isclose` for determining equality."""
 
 
@@ -744,12 +745,12 @@ class CalculationIsCloseTolerance(TransformParams):
 class MetricTolerances(TransformParams):
     """Tolerances for all data checks to be preformed within a grouped df."""
 
-    error_frequency: confloat(ge=0.0, le=1.0) = 0.01
-    relative_error_magnitude: confloat(ge=0.0) = 0.02
-    null_calculated_value_frequency: confloat(ge=0.0, le=1.0) = 0.7
+    error_frequency: Annotated[float, Field(ge=0.0, le=1.0)] = 0.01
+    relative_error_magnitude: Annotated[float, Field(ge=0.0)] = 0.02
+    null_calculated_value_frequency: Annotated[float, Field(ge=0.0, le=1.0)] = 0.7
     """Fraction of records with non-null reported values and null calculated values."""
-    absolute_error_magnitude: confloat(ge=0.0) = np.inf
-    null_reported_value_frequency: confloat(ge=0.0, le=1.0) = 1.0
+    absolute_error_magnitude: Annotated[float, Field(ge=0.0)] = np.inf
+    null_reported_value_frequency: Annotated[float, Field(ge=0.0, le=1.0)] = 1.0
     # ooof this one is just bad
 
 
@@ -820,7 +821,7 @@ class GroupMetricChecks(TransformParams):
     group_metric_tolerances: GroupMetricTolerances = GroupMetricTolerances()
     is_close_tolerance: CalculationIsCloseTolerance = CalculationIsCloseTolerance()
 
-    # @root_validator
+    # @model_validator
     # def grouped_tol_ge_ungrouped_tol(cls, values):
     #     """Grouped tolerance should always be greater than or equal to ungrouped."""
     #     group_metric_tolerances = values["group_metric_tolerances"]

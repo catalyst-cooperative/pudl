@@ -2,19 +2,27 @@
 import itertools
 import json
 from enum import Enum, unique
-from typing import ClassVar
+from typing import Any, ClassVar
 
 import fsspec
 import pandas as pd
 import yaml
-from dagster import Any, DagsterInvalidDefinitionError, Field
-from pydantic import AnyHttpUrl, BaseSettings, root_validator, validator
+from dagster import Field as DagsterField
 from pydantic import BaseModel as PydanticBaseModel
+from pydantic import (
+    ConfigDict,
+    field_validator,
+    model_validator,
+    root_validator,
+)
+from pydantic_settings import BaseSettings
 
 import pudl
 import pudl.workspace.setup
 from pudl.metadata.classes import DataSource
 from pudl.workspace.datastore import Datastore
+
+logger = pudl.logging_helpers.get_logger(__name__)
 
 
 @unique
@@ -31,11 +39,7 @@ class XbrlFormNumber(Enum):
 class BaseModel(PydanticBaseModel):
     """BaseModel with global configuration."""
 
-    class Config:
-        """Pydantic config."""
-
-        allow_mutation = False
-        extra = "forbid"
+    model_config = ConfigDict(frozen=True, extra="forbid")
 
 
 class GenericDatasetSettings(BaseModel):
@@ -50,8 +54,10 @@ class GenericDatasetSettings(BaseModel):
 
     disabled: bool = False
 
-    @root_validator
-    def validate_partitions(cls, partitions):  # noqa: N805
+    # TODO[pydantic]: Refactor to use model_validator
+    @root_validator(skip_on_failure=True)
+    @classmethod
+    def validate_partitions(cls, partitions: Any):  # noqa: N805
         """Validate the requested data partitions.
 
         Check that all the partitions defined in the ``working_partitions`` of the
@@ -150,7 +156,8 @@ class EpaCemsSettings(GenericDatasetSettings):
     years: list[int] = data_source.working_partitions["years"]
     states: list[str] = data_source.working_partitions["states"]
 
-    @validator("states")
+    @field_validator("states")
+    @classmethod
     def allow_all_keyword(cls, states):  # noqa: N805
         """Allow users to specify ['all'] to get all states."""
         if states == ["all"]:
@@ -202,7 +209,8 @@ class Eia860Settings(GenericDatasetSettings):
     years: list[int] = data_source.working_partitions["years"]
     eia860m: bool = True
 
-    @validator("eia860m")
+    @field_validator("eia860m")
+    @classmethod
     def check_eia860m_date(cls, eia860m: bool) -> bool:  # noqa: N805
         """Check 860m date-year is exactly one year after most recent working 860 year.
 
@@ -248,11 +256,12 @@ class EiaSettings(BaseModel):
         eia923: Immutable pydantic model to validate eia923 settings.
     """
 
-    eia860: Eia860Settings = None
-    eia861: Eia861Settings = None
-    eia923: Eia923Settings = None
+    eia860: Eia860Settings | None = None
+    eia861: Eia861Settings | None = None
+    eia923: Eia923Settings | None = None
 
-    @root_validator(pre=True)
+    @model_validator(mode="before")
+    @classmethod
     def default_load_all(cls, values):  # noqa: N805
         """If no datasets are specified default to all.
 
@@ -269,7 +278,8 @@ class EiaSettings(BaseModel):
 
         return values
 
-    @root_validator
+    @model_validator(mode="before")
+    @classmethod
     def check_eia_dependencies(cls, values):  # noqa: N805
         """Make sure the dependencies between the eia datasets are satisfied.
 
@@ -282,15 +292,15 @@ class EiaSettings(BaseModel):
         Returns:
             values (Dict[str, BaseModel]): dataset settings.
         """
-        eia923 = values.get("eia923")
-        eia860 = values.get("eia860")
-        if not eia923 and eia860:
-            values["eia923"] = Eia923Settings(years=eia860.years)
+        if not values.get("eia923") and values.get("eia860"):
+            values["eia923"] = Eia923Settings(years=values["eia860"].years)
 
-        if eia923 and not eia860:
-            available_years = Eia860Settings()
+        if values.get("eia923") and not values.get("eia860"):
+            available_years = Eia860Settings().years
             values["eia860"] = Eia860Settings(
-                years=[year for year in eia923.years if year in available_years]
+                years=[
+                    year for year in values["eia923"].years if year in available_years
+                ]
             )
         return values
 
@@ -311,7 +321,8 @@ class DatasetsSettings(BaseModel):
     ferc714: Ferc714Settings = None
     glue: GlueSettings = None
 
-    @root_validator(pre=True)
+    @model_validator(mode="before")
+    @classmethod
     def default_load_all(cls, values):  # noqa: N805
         """If no datasets are specified default to all.
 
@@ -330,8 +341,9 @@ class DatasetsSettings(BaseModel):
 
         return values
 
-    @root_validator
-    def add_glue_settings(cls, values):  # noqa: N805
+    @model_validator(mode="before")
+    @classmethod
+    def add_glue_settings(cls, data: Any):  # noqa: N805
         """Add glue settings if ferc1 and eia data are both requested.
 
         Args:
@@ -340,11 +352,11 @@ class DatasetsSettings(BaseModel):
         Returns:
             values (Dict[str, BaseModel]): dataset settings.
         """
-        ferc1 = bool(values.get("ferc1"))
-        eia = bool(values.get("eia"))
-
-        values["glue"] = GlueSettings(ferc1=ferc1, eia=eia)
-        return values
+        ferc1 = bool(data.get("ferc1"))
+        eia = bool(data.get("eia"))
+        if ferc1 and eia:
+            data["glue"] = GlueSettings(ferc1=ferc1, eia=eia)
+        return data
 
     def get_datasets(self):  # noqa: N805
         """Gets dictionary of dataset settings."""
@@ -454,7 +466,7 @@ class FercGenericXbrlToSqliteSettings(BaseSettings):
         disabled: if True, skip processing this dataset.
     """
 
-    taxonomy: AnyHttpUrl
+    taxonomy: str
     years: list[int]
     disabled: bool = False
 
@@ -471,7 +483,7 @@ class Ferc1XbrlToSqliteSettings(FercGenericXbrlToSqliteSettings):
     years: list[int] = [
         year for year in data_source.working_partitions["years"] if year >= 2021
     ]
-    taxonomy: AnyHttpUrl = "https://eCollection.ferc.gov/taxonomy/form1/2022-01-01/form/form1/form-1_2022-01-01.xsd"
+    taxonomy: str = "https://eCollection.ferc.gov/taxonomy/form1/2022-01-01/form/form1/form-1_2022-01-01.xsd"
 
 
 class Ferc2XbrlToSqliteSettings(FercGenericXbrlToSqliteSettings):
@@ -485,7 +497,7 @@ class Ferc2XbrlToSqliteSettings(FercGenericXbrlToSqliteSettings):
     years: list[int] = [
         year for year in data_source.working_partitions["years"] if year >= 2021
     ]
-    taxonomy: AnyHttpUrl = "https://eCollection.ferc.gov/taxonomy/form2/2022-01-01/form/form2/form-2_2022-01-01.xsd"
+    taxonomy: str = "https://eCollection.ferc.gov/taxonomy/form2/2022-01-01/form/form2/form-2_2022-01-01.xsd"
 
 
 class Ferc2DbfToSqliteSettings(GenericDatasetSettings):
@@ -532,7 +544,7 @@ class Ferc6XbrlToSqliteSettings(FercGenericXbrlToSqliteSettings):
     years: list[int] = [
         year for year in data_source.working_partitions["years"] if year >= 2021
     ]
-    taxonomy: AnyHttpUrl = "https://eCollection.ferc.gov/taxonomy/form6/2022-01-01/form/form6/form-6_2022-01-01.xsd"
+    taxonomy: str = "https://eCollection.ferc.gov/taxonomy/form6/2022-01-01/form/form6/form-6_2022-01-01.xsd"
 
 
 class Ferc60DbfToSqliteSettings(GenericDatasetSettings):
@@ -563,7 +575,7 @@ class Ferc60XbrlToSqliteSettings(FercGenericXbrlToSqliteSettings):
     years: list[int] = [
         year for year in data_source.working_partitions["years"] if year >= 2021
     ]
-    taxonomy: AnyHttpUrl = "https://eCollection.ferc.gov/taxonomy/form60/2022-01-01/form/form60/form-60_2022-01-01.xsd"
+    taxonomy: str = "https://eCollection.ferc.gov/taxonomy/form60/2022-01-01/form/form60/form-60_2022-01-01.xsd"
 
 
 class Ferc714XbrlToSqliteSettings(FercGenericXbrlToSqliteSettings):
@@ -574,8 +586,8 @@ class Ferc714XbrlToSqliteSettings(FercGenericXbrlToSqliteSettings):
     """
 
     data_source: ClassVar[DataSource] = DataSource.from_id("ferc714")
-    years: list[int] = [2021]
-    taxonomy: AnyHttpUrl = "https://eCollection.ferc.gov/taxonomy/form714/2022-01-01/form/form714/form-714_2022-01-01.xsd"
+    years: list[int] = [2021, 2022]
+    taxonomy: str = "https://eCollection.ferc.gov/taxonomy/form714/2022-01-01/form/form714/form-714_2022-01-01.xsd"
 
 
 class FercToSqliteSettings(BaseSettings):
@@ -584,21 +596,22 @@ class FercToSqliteSettings(BaseSettings):
     Args:
         ferc1_dbf_to_sqlite_settings: Settings for converting FERC 1 DBF data to SQLite.
         ferc1_xbrl_to_sqlite_settings: Settings for converting FERC 1 XBRL data to
-          SQLite.
+            SQLite.
         other_xbrl_forms: List of non-FERC1 forms to convert from XBRL to SQLite.
     """
 
-    ferc1_dbf_to_sqlite_settings: Ferc1DbfToSqliteSettings = None
-    ferc1_xbrl_to_sqlite_settings: Ferc1XbrlToSqliteSettings = None
-    ferc2_dbf_to_sqlite_settings: Ferc2DbfToSqliteSettings = None
-    ferc2_xbrl_to_sqlite_settings: Ferc2XbrlToSqliteSettings = None
-    ferc6_dbf_to_sqlite_settings: Ferc6DbfToSqliteSettings = None
-    ferc6_xbrl_to_sqlite_settings: Ferc6XbrlToSqliteSettings = None
-    ferc60_dbf_to_sqlite_settings: Ferc60DbfToSqliteSettings = None
-    ferc60_xbrl_to_sqlite_settings: Ferc60XbrlToSqliteSettings = None
-    ferc714_xbrl_to_sqlite_settings: Ferc714XbrlToSqliteSettings = None
+    ferc1_dbf_to_sqlite_settings: Ferc1DbfToSqliteSettings | None = None
+    ferc1_xbrl_to_sqlite_settings: Ferc1XbrlToSqliteSettings | None = None
+    ferc2_dbf_to_sqlite_settings: Ferc2DbfToSqliteSettings | None = None
+    ferc2_xbrl_to_sqlite_settings: Ferc2XbrlToSqliteSettings | None = None
+    ferc6_dbf_to_sqlite_settings: Ferc6DbfToSqliteSettings | None = None
+    ferc6_xbrl_to_sqlite_settings: Ferc6XbrlToSqliteSettings | None = None
+    ferc60_dbf_to_sqlite_settings: Ferc60DbfToSqliteSettings | None = None
+    ferc60_xbrl_to_sqlite_settings: Ferc60XbrlToSqliteSettings | None = None
+    ferc714_xbrl_to_sqlite_settings: Ferc714XbrlToSqliteSettings | None = None
 
-    @root_validator(pre=True)
+    @model_validator(mode="before")
+    @classmethod
     def default_load_all(cls, values):  # noqa: N805
         """If no datasets are specified default to all.
 
@@ -648,13 +661,13 @@ class FercToSqliteSettings(BaseSettings):
 class EtlSettings(BaseSettings):
     """Main settings validation class."""
 
-    ferc_to_sqlite_settings: FercToSqliteSettings = None
-    datasets: DatasetsSettings = None
+    ferc_to_sqlite_settings: FercToSqliteSettings | None = None
+    datasets: DatasetsSettings | None = None
 
-    name: str = None
-    title: str = None
-    description: str = None
-    version: str = None
+    name: str | None = None
+    title: str | None = None
+    description: str | None = None
+    version: str | None = None
 
     # This is list of fsspec compatible paths to publish the output datasets to.
     publish_destinations: list[str] = []
@@ -671,7 +684,7 @@ class EtlSettings(BaseSettings):
         """
         with fsspec.open(path) as f:
             yaml_file = yaml.safe_load(f)
-        return cls.parse_obj(yaml_file)
+        return cls.model_validate(yaml_file)
 
 
 def _convert_settings_to_dagster_config(d: dict) -> None:
@@ -689,13 +702,7 @@ def _convert_settings_to_dagster_config(d: dict) -> None:
         if isinstance(v, dict):
             _convert_settings_to_dagster_config(v)
         else:
-            try:
-                d[k] = Field(type(v), default_value=v)
-            except DagsterInvalidDefinitionError:
-                # Dagster config accepts a valid dagster types.
-                # Most of our settings object properties are valid types
-                # except for fields like taxonomy which are the AnyHttpUrl type.
-                d[k] = Field(Any, default_value=v)
+            d[k] = DagsterField(type(v), default_value=v)
 
 
 def create_dagster_config(settings: BaseModel) -> dict:
@@ -704,7 +711,7 @@ def create_dagster_config(settings: BaseModel) -> dict:
     Returns:
         A dictionary of dagster configuration.
     """
-    ds = settings.dict()
+    ds = settings.model_dump()
     _convert_settings_to_dagster_config(ds)
     return ds
 

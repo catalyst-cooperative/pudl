@@ -7,7 +7,7 @@ import sys
 from collections.abc import Callable, Iterable
 from functools import lru_cache
 from pathlib import Path
-from typing import Any, Literal
+from typing import Annotated, Any, Literal
 
 import jinja2
 import pandas as pd
@@ -15,6 +15,7 @@ import pyarrow as pa
 import pydantic
 import sqlalchemy as sa
 from pandas._libs.missing import NAType
+from pydantic import ConfigDict, StringConstraints, ValidationInfo
 from pydantic.types import DirectoryPath
 
 import pudl.logging_helpers
@@ -161,13 +162,7 @@ class Base(pydantic.BaseModel):
         {'fields': ['y']}
     """
 
-    class Config:
-        """Custom Pydantic configuration."""
-
-        validate_all: bool = True
-        validate_assignment: bool = True
-        extra: str = "forbid"
-        arbitrary_types_allowed = True
+    model_config = ConfigDict(arbitrary_types_allowed=True)
 
     def dict(self, *args, by_alias=True, **kwargs) -> dict:  # noqa: A003
         """Return as a dictionary."""
@@ -200,12 +195,17 @@ class Base(pydantic.BaseModel):
 # ---- Class attribute types ---- #
 
 # NOTE: Using regex=r"^\S(.*\S)*$" to fail on whitespace is too slow
-String = pydantic.constr(min_length=1, strict=True, regex=r"^\S+(\s+\S+)*$")
+String = Annotated[
+    str, StringConstraints(min_length=1, strict=True, pattern=r"^\S+(\s+\S+)*$")
+]
 """Non-empty :class:`str` with no trailing or leading whitespace."""
 
-SnakeCase = pydantic.constr(
-    min_length=1, strict=True, regex=r"^[a-z_][a-z0-9_]*(_[a-z0-9]+)*$"
-)
+SnakeCase = Annotated[
+    str,
+    StringConstraints(
+        min_length=1, strict=True, pattern=r"^[a-z_][a-z0-9_]*(_[a-z0-9]+)*$"
+    ),
+]
 """Snake-case variable name :class:`str` (e.g. 'pudl', 'entity_eia860')."""
 
 Bool = pydantic.StrictBool
@@ -217,10 +217,10 @@ Float = pydantic.StrictFloat
 Int = pydantic.StrictInt
 """Any :class:`int`."""
 
-PositiveInt = pydantic.conint(ge=0, strict=True)
+PositiveInt = Annotated[int, pydantic.Field(ge=0, strict=True)]
 """Positive :class:`int`."""
 
-PositiveFloat = pydantic.confloat(ge=0, strict=True)
+PositiveFloat = Annotated[float, pydantic.Field(ge=0, strict=True)]
 """Positive :class:`float`."""
 
 Email = pydantic.EmailStr
@@ -230,60 +230,13 @@ HttpUrl = pydantic.AnyHttpUrl
 """Http(s) URL."""
 
 
-class BaseType:
-    """Base class for custom pydantic types."""
-
-    @classmethod
-    def __get_validators__(cls) -> Callable:
-        """Yield validator methods."""
-        yield cls.validate
-
-
-class Date(BaseType):
-    """Any :class:`datetime.date`."""
-
-    @classmethod
-    def validate(cls, value: Any) -> datetime.date:
-        """Validate as date."""
-        if not isinstance(value, datetime.date):
-            raise TypeError("value is not a date")
-        return value
-
-
-class Datetime(BaseType):
-    """Any :class:`datetime.datetime`."""
-
-    @classmethod
-    def validate(cls, value: Any) -> datetime.datetime:
-        """Validate as datetime."""
-        if not isinstance(value, datetime.datetime):
-            raise TypeError("value is not a datetime")
-        return value
-
-
-class Pattern(BaseType):
-    """Regular expression pattern."""
-
-    @classmethod
-    def validate(cls, value: Any) -> re.Pattern:
-        """Validate as pattern."""
-        if not isinstance(value, str | re.Pattern):
-            raise TypeError("value is not a string or compiled regular expression")
-        if isinstance(value, str):
-            try:
-                value = re.compile(value)
-            except re.error:
-                raise ValueError("string is not a valid regular expression")
-        return value
-
-
-def StrictList(item_type: type = Any) -> pydantic.ConstrainedList:  # noqa: N802
+def StrictList(item_type: type = Any) -> type:  # noqa: N802
     """Non-empty :class:`list`.
 
     Allows :class:`list`, :class:`tuple`, :class:`set`, :class:`frozenset`,
     :class:`collections.deque`, or generators and casts to a :class:`list`.
     """
-    return pydantic.conlist(item_type=item_type, min_items=1)
+    return Annotated[list[item_type], pydantic.Field(min_length=1)]
 
 
 # ---- Class attribute validators ---- #
@@ -303,17 +256,17 @@ def _validator(*names, fn: Callable) -> Callable:
 
     Args:
         names: Names of attributes to validate.
-        fn: Validation function (see :meth:`pydantic.validator`).
+        fn: Validation function (see :meth:`pydantic.field_validator`).
 
     Examples:
         >>> class Class(Base):
         ...     x: list = None
         ...     _check_unique = _validator("x", fn=_check_unique)
-        >>> Class(y=[0, 0])
+        >>> Class(x=[0, 0])
         Traceback (most recent call last):
         ValidationError: ...
     """
-    return pydantic.validator(*names, allow_reuse=True)(fn)
+    return pydantic.field_validator(*names)(fn)
 
 
 # ---- Classes: Field ---- #
@@ -329,17 +282,20 @@ class FieldConstraints(Base):
     unique: Bool = False
     min_length: PositiveInt = None
     max_length: PositiveInt = None
-    minimum: Int | Float | Date | Datetime = None
-    maximum: Int | Float | Date | Datetime = None
-    pattern: Pattern = None
+    minimum: Int | Float | datetime.date | datetime.datetime = None
+    maximum: Int | Float | datetime.date | datetime.datetime = None
+    pattern: re.Pattern = None
     # TODO: Replace with String (min_length=1) once "" removed from enums
-    enum: StrictList(pydantic.StrictStr | Int | Float | Bool | Date | Datetime) = None
+    enum: StrictList(
+        pydantic.StrictStr | Int | Float | Bool | datetime.date | datetime.datetime
+    ) = None
 
     _check_unique = _validator("enum", fn=_check_unique)
 
-    @pydantic.validator("max_length")
-    def _check_max_length(cls, value, values):  # noqa: N805
-        minimum, maximum = values.get("min_length"), value
+    @pydantic.field_validator("max_length")
+    @classmethod
+    def _check_max_length(cls, value, info: ValidationInfo):
+        minimum, maximum = info.data.get("min_length"), value
         if minimum is not None and maximum is not None:
             if type(minimum) is not type(maximum):
                 raise ValueError("must be same type as min_length")
@@ -347,9 +303,10 @@ class FieldConstraints(Base):
                 raise ValueError("must be greater or equal to min_length")
         return value
 
-    @pydantic.validator("maximum")
-    def _check_max(cls, value, values):  # noqa: N805
-        minimum, maximum = values.get("minimum"), value
+    @pydantic.field_validator("maximum")
+    @classmethod
+    def _check_max(cls, value, info: ValidationInfo):
+        minimum, maximum = info.data.get("minimum"), value
         if minimum is not None and maximum is not None:
             if type(minimum) is not type(maximum):
                 raise ValueError("must be same type as minimum")
@@ -434,7 +391,8 @@ class Encoder(Base):
     name: String = None
     """The name of the code."""
 
-    @pydantic.validator("df")
+    @pydantic.field_validator("df")
+    @classmethod
     def _df_is_encoding_table(cls, df):  # noqa: N805
         """Verify that the coding table provides both codes and descriptions."""
         errors = []
@@ -449,52 +407,56 @@ class Encoder(Base):
             raise ValueError(format_errors(*errors, pydantic=True))
         return df
 
-    @pydantic.validator("ignored_codes")
-    def _good_and_ignored_codes_are_disjoint(cls, ignored_codes, values):  # noqa: N805
+    @pydantic.field_validator("ignored_codes")
+    @classmethod
+    def _good_and_ignored_codes_are_disjoint(cls, ignored_codes, info: ValidationInfo):
         """Check that there's no overlap between good and ignored codes."""
-        if "df" not in values:
+        if "df" not in info.data:
             return ignored_codes
         errors = []
-        overlap = set(values["df"]["code"]).intersection(ignored_codes)
+        overlap = set(info.data["df"]["code"]).intersection(ignored_codes)
         if overlap:
             errors.append(f"Overlap found between good and ignored codes: {overlap}.")
         if errors:
             raise ValueError(format_errors(*errors, pydantic=True))
         return ignored_codes
 
-    @pydantic.validator("code_fixes")
-    def _good_and_fixable_codes_are_disjoint(cls, code_fixes, values):  # noqa: N805
+    @pydantic.field_validator("code_fixes")
+    @classmethod
+    def _good_and_fixable_codes_are_disjoint(cls, code_fixes, info: ValidationInfo):
         """Check that there's no overlap between the good and fixable codes."""
-        if "df" not in values:
+        if "df" not in info.data:
             return code_fixes
         errors = []
-        overlap = set(values["df"]["code"]).intersection(code_fixes)
+        overlap = set(info.data["df"]["code"]).intersection(code_fixes)
         if overlap:
             errors.append(f"Overlap found between good and fixable codes: {overlap}")
         if errors:
             raise ValueError(format_errors(*errors, pydantic=True))
         return code_fixes
 
-    @pydantic.validator("code_fixes")
-    def _fixable_and_ignored_codes_are_disjoint(cls, code_fixes, values):  # noqa: N805
+    @pydantic.field_validator("code_fixes")
+    @classmethod
+    def _fixable_and_ignored_codes_are_disjoint(cls, code_fixes, info: ValidationInfo):
         """Check that there's no overlap between the ignored and fixable codes."""
-        if "ignored_codes" not in values:
+        if "ignored_codes" not in info.data:
             return code_fixes
         errors = []
-        overlap = set(code_fixes).intersection(values["ignored_codes"])
+        overlap = set(code_fixes).intersection(info.data["ignored_codes"])
         if overlap:
             errors.append(f"Overlap found between fixable and ignored codes: {overlap}")
         if errors:
             raise ValueError(format_errors(*errors, pydantic=True))
         return code_fixes
 
-    @pydantic.validator("code_fixes")
-    def _check_fixed_codes_are_good_codes(cls, code_fixes, values):  # noqa: N805
+    @pydantic.field_validator("code_fixes")
+    @classmethod
+    def _check_fixed_codes_are_good_codes(cls, code_fixes, info: ValidationInfo):
         """Check that every every fixed code is also one of the good codes."""
-        if "df" not in values:
+        if "df" not in info.data:
             return code_fixes
         errors = []
-        bad_codes = set(code_fixes.values()).difference(values["df"]["code"])
+        bad_codes = set(code_fixes.values()).difference(info.data["df"]["code"])
         if bad_codes:
             errors.append(
                 f"Some fixed codes aren't in the list of good codes: {bad_codes}"
@@ -594,15 +556,16 @@ class Field(Base):
     format: Literal["default"] = "default"  # noqa: A003
     description: String = None
     unit: String = None
-    constraints: FieldConstraints = {}
-    harvest: FieldHarvest = {}
-    encoder: Encoder = None
+    constraints: FieldConstraints = FieldConstraints()
+    harvest: FieldHarvest = FieldHarvest()
+    encoder: Encoder | None = None
 
-    @pydantic.validator("constraints")
-    def _check_constraints(cls, value, values):  # noqa: N805, C901
-        if "type" not in values:
+    @pydantic.field_validator("constraints")
+    @classmethod
+    def _check_constraints(cls, value, info: ValidationInfo):  # noqa: C901
+        if "type" not in info.data:
             return value
-        dtype = values["type"]
+        dtype = info.data["type"]
         errors = []
         for key in ("min_length", "max_length", "pattern"):
             if getattr(value, key) is not None and dtype != "string":
@@ -622,12 +585,13 @@ class Field(Base):
             raise ValueError(format_errors(*errors, pydantic=True))
         return value
 
-    @pydantic.validator("encoder")
-    def _check_encoder(cls, value, values):  # noqa: N805
-        if "type" not in values or value is None:
+    @pydantic.field_validator("encoder")
+    @classmethod
+    def _check_encoder(cls, value, info: ValidationInfo):
+        if "type" not in info.data or value is None:
             return value
         errors = []
-        dtype = values["type"]
+        dtype = info.data["type"]
         if dtype not in ["string", "integer"]:
             errors.append(
                 "Encoding only supported for string and integer fields, found "
@@ -772,9 +736,10 @@ class ForeignKey(Base):
 
     _check_unique = _validator("fields_", fn=_check_unique)
 
-    @pydantic.validator("reference")
-    def _check_fields_equal_length(cls, value, values):  # noqa: N805
-        if "fields_" in values and len(value.fields) != len(values["fields_"]):
+    @pydantic.field_validator("reference")
+    @classmethod
+    def _check_fields_equal_length(cls, value, info: ValidationInfo):
+        if "fields_" in info.data and len(value.fields) != len(info.data["fields_"]):
             raise ValueError("fields and reference.fields are not equal length")
         return value
 
@@ -805,20 +770,22 @@ class Schema(Base):
         "missing_values", "primary_key", "foreign_keys", fn=_check_unique
     )
 
-    @pydantic.validator("fields_")
+    @pydantic.field_validator("fields_")
+    @classmethod
     def _check_field_names_unique(cls, value):  # noqa: N805
         _check_unique([f.name for f in value])
         return value
 
-    @pydantic.validator("primary_key")
-    def _check_primary_key_in_fields(cls, value, values):  # noqa: N805
-        if value is not None and "fields_" in values:
+    @pydantic.field_validator("primary_key")
+    @classmethod
+    def _check_primary_key_in_fields(cls, value, info: ValidationInfo):
+        if value is not None and "fields_" in info.data:
             missing = []
-            names = [f.name for f in values["fields_"]]
+            names = [f.name for f in info.data["fields_"]]
             for name in value:
                 if name in names:
                     # Flag primary key fields as required
-                    field = values["fields_"][names.index(name)]
+                    field = info.data["fields_"][names.index(name)]
                     field.constraints.required = True
                 else:
                     missing.append(field.name)
@@ -826,14 +793,15 @@ class Schema(Base):
                 raise ValueError(f"names {missing} missing from fields")
         return value
 
-    @pydantic.validator("foreign_keys", each_item=True)
-    def _check_foreign_key_in_fields(cls, value, values):  # noqa: N805
-        if value and "fields_" in values:
-            names = [f.name for f in values["fields_"]]
-            missing = [x for x in value.fields if x not in names]
-            if missing:
-                raise ValueError(f"names {missing} missing from fields")
-        return value
+    # TODO[pydantic] Refactor...
+    # @pydantic.validator("foreign_keys", each_item=True)
+    # def _check_foreign_key_in_fields(cls, value, info: ValidationInfo):
+    #    if value and "fields_" in info.data:
+    #        names = [f.name for f in info.data["fields_"]]
+    #        missing = [x for x in value.fields if x not in names]
+    #        if missing:
+    #            raise ValueError(f"names {missing} missing from fields")
+    #    return value
 
 
 class License(Base):
@@ -1174,7 +1142,7 @@ class Resource(Base):
     name: SnakeCase
     title: String = None
     description: String = None
-    harvest: ResourceHarvest = {}
+    harvest: ResourceHarvest = ResourceHarvest()
     schema_: Schema = pydantic.Field(alias="schema")
     format_: String = pydantic.Field(alias="format", default=None)
     mediatype: String = None
@@ -1185,7 +1153,7 @@ class Resource(Base):
     licenses: list[License] = []
     sources: list[DataSource] = []
     keywords: list[String] = []
-    encoder: Encoder = None
+    encoder: Encoder | None = None
     field_namespace: Literal[
         "eia",
         "epacems",
@@ -1222,9 +1190,10 @@ class Resource(Base):
         "contributors", "keywords", "licenses", "sources", fn=_check_unique
     )
 
-    @pydantic.validator("schema_")
-    def _check_harvest_primary_key(cls, value, values):  # noqa: N805
-        if values["harvest"].harvest and not value.primary_key:
+    @pydantic.field_validator("schema_")
+    @classmethod
+    def _check_harvest_primary_key(cls, value, info: ValidationInfo):
+        if info.data["harvest"].harvest and not value.primary_key:
             raise ValueError("Harvesting requires a primary key")
         return value
 
@@ -1745,14 +1714,15 @@ class Package(Base):
     description: String = None
     keywords: list[String] = []
     homepage: HttpUrl = "https://catalyst.coop/pudl"
-    created: Datetime = datetime.datetime.utcnow()
+    created: datetime.datetime = datetime.datetime.utcnow()
     contributors: list[Contributor] = []
     sources: list[DataSource] = []
     licenses: list[License] = []
     resources: StrictList(Resource)
     profile: String = "tabular-data-package"
 
-    @pydantic.validator("resources")
+    @pydantic.field_validator("resources")
+    @classmethod
     def _check_foreign_keys(cls, value):  # noqa: N805
         rnames = [resource.name for resource in value]
         errors = []

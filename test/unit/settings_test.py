@@ -212,18 +212,18 @@ class TestGlobalConfig:
     def test_unknown_dataset(self):
         """Test unkown dataset fed to DatasetsSettings."""
         with pytest.raises(ValidationError):
-            DatasetsSettings().parse_obj({"unknown_data": "data"})
+            DatasetsSettings().model_validate({"unknown_data": "data"})
 
         with pytest.raises(ValidationError):
-            EiaSettings().parse_obj({"unknown_data": "data"})
+            EiaSettings().model_validate({"unknown_data": "data"})
 
     def test_immutability(self):
         """Test immutability config is working correctly."""
-        with pytest.raises(TypeError):
+        with pytest.raises(ValidationError):
             settings = DatasetsSettings()
             settings.eia = EiaSettings()
 
-        with pytest.raises(TypeError):
+        with pytest.raises(ValidationError):
             settings = EiaSettings()
             settings.eia860 = Eia860Settings()
 
