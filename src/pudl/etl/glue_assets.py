@@ -591,7 +591,7 @@ def update_subplant_ids(subplant_crosswalk: pd.DataFrame) -> pd.DataFrame:
                 x.subplant_id_connected
                 + x.groupby(
                     ["plant_id_eia"], dropna=False
-                ).unit_id_pudl_connected.transform(max)
+                ).unit_id_pudl_connected.transform("max")
             )
         ),
         # create a new unique subplant_id based on the connected subplant ids and the
