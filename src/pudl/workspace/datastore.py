@@ -173,7 +173,7 @@ class ZenodoDoiSettings(BaseSettings):
     # eia860: ZenodoDoi = "10.5072/zenodo.1222854"
     eia860m: ZenodoDoi = "10.5281/zenodo.8188017"
     # eia860m: ZenodoDoi = "10.5072/zenodo.1225517"
-    eia861: ZenodoDoi = "10.5281/zenodo.8231268"
+    eia861: ZenodoDoi = "10.5281/zenodo.10093091"
     # eia861: ZenodoDoi = "10.5072/zenodo.1229930"
     eia923: ZenodoDoi = "10.5281/zenodo.8172818"
     # eia923: ZenodoDoi = "10.5072/zenodo.1217724"
