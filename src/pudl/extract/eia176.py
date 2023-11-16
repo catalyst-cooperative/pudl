@@ -3,7 +3,6 @@
 The EIA Form 176 archive also contains CSVs for EIA Form 191 and EIA Form 757.
 """
 
-import sqlalchemy as sa  # noqa: I001
 from dagster import AssetOut, Output, multi_asset
 
 from pudl.extract.csv import CsvExtractor, raw_df_factory
@@ -14,15 +13,7 @@ DATASET = "eia176"
 class Eia176CsvExtractor(CsvExtractor):
     """Extractor for EIA Form 176 data."""
 
-    DATABASE_NAME = f"{DATASET}.sqlite"
     DATASET = DATASET
-    COLUMN_TYPES = {
-        "e176_company": {
-            "COMPANY_ID": sa.String,
-            "ACTIVITY_STATUS": sa.String,
-            "NAME1": sa.String,
-        },
-    }
 
 
 # TODO (davidmudrauskas): Add this information to the metadata

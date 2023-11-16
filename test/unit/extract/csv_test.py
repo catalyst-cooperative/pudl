@@ -1,7 +1,7 @@
 """Unit tests for pudl.extract.csv module."""
 from unittest.mock import MagicMock, patch
 
-from pudl.extract.csv import CsvArchive, CsvExtractor, CsvReader
+from pudl.extract.csv import CsvExtractor
 
 TABLE_NAME = "company"
 
@@ -9,12 +9,10 @@ FILENAME = "all_company_176.csv"
 TABLE_FILE_MAP = {TABLE_NAME: FILENAME}
 
 DATASET = "eia176"
-DATABASE_NAME = f"{DATASET}.sqlite"
 
 
 class FakeCsvExtractor(CsvExtractor):
     DATASET = DATASET
-    DATABASE_NAME = DATABASE_NAME
 
 
 def get_csv_extractor():
@@ -23,10 +21,10 @@ def get_csv_extractor():
 
 
 @patch("pudl.extract.csv.pd")
-@patch("pudl.extract.csv.ZipFile")
-def test_csv_archive_load_table(mock_zipfile, mock_pd):
-    archive = CsvArchive(mock_zipfile)
-    res = archive.load_table(FILENAME)
+def test_csv_extractor_read_source(mock_pd):
+    extractor = get_csv_extractor()
+    res = extractor.read_source(FILENAME)
+    mock_zipfile = extractor._zipfile
     mock_zipfile.open.assert_called_once_with(FILENAME)
     f = mock_zipfile.open.return_value.__enter__.return_value
     mock_pd.read_csv.assert_called_once_with(f)
@@ -34,33 +32,10 @@ def test_csv_archive_load_table(mock_zipfile, mock_pd):
     assert df == res
 
 
-def test_csv_reader_get_table_names():
-    datastore = MagicMock()
-    reader = CsvReader(datastore, DATASET)
-    assert reader._table_file_map == TABLE_FILE_MAP
-    assert [TABLE_NAME] == reader.get_table_names()
-
-
-def test_csv_reader_get_archive():
-    datastore = MagicMock()
-    reader = CsvReader(datastore, DATASET)
-    archive = reader.get_archive()
-    zipfile = datastore.get_zipfile_resource(DATASET)
-    assert zipfile == archive.zipfile
-
-
-def test_csv_extractor_get_csv_reader():
+def test_csv_extractor_extract():
     extractor = get_csv_extractor()
-    datastore = MagicMock()
-    reader = extractor.get_csv_reader(datastore)
-    assert datastore == reader.datastore
-    assert reader.dataset == DATASET
-
-
-@patch("pudl.extract.csv.CsvArchive")
-def test_csv_extractor_extract(mock_archive):
-    extractor = get_csv_extractor()
-    raw_dfs = extractor.extract()
-    mock_archive.return_value.load_table.assert_called_once_with(FILENAME)
-    df = mock_archive.return_value.load_table.return_value
+    df = MagicMock()
+    with patch.object(CsvExtractor, "read_source", return_value=df) as mock_read_source:
+        raw_dfs = extractor.extract()
+    mock_read_source.assert_called_once_with(FILENAME)
     assert {TABLE_NAME: df} == raw_dfs

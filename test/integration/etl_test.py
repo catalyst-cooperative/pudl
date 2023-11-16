@@ -68,6 +68,17 @@ def test_ferc1_xbrl2sqlite(ferc1_engine_xbrl, ferc1_xbrl_taxonomy_metadata):
     )
 
 
+class TestCsvExtractor:
+    """Verify that we can lead CSV files as provided via the datastore."""
+
+    def test_extract_eia176(self, pudl_datastore_fixture):
+        """Spot check extraction of eia176 csv files."""
+        extractor = pudl.extract.eia176.Eia176CsvExtractor(pudl_datastore_fixture)
+        table = "company"
+        if table not in extractor.extract():
+            raise AssertionError(f"table {table} not found in datastore")
+
+
 class TestExcelExtractor:
     """Verify that we can lead excel files as provided via the datastore."""
 
