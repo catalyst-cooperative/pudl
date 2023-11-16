@@ -1254,17 +1254,17 @@ package:
     category: main
     optional: false
   - name: pcre2
-    version: "10.40"
+    version: "10.42"
     manager: conda
     platform: linux-64
     dependencies:
       bzip2: ">=1.0.8,<2.0a0"
       libgcc-ng: ">=12"
-      libzlib: ">=1.2.12,<1.3.0a0"
-    url: https://conda.anaconda.org/conda-forge/linux-64/pcre2-10.40-hc3806b6_0.tar.bz2
+      libzlib: ">=1.2.13,<1.3.0a0"
+    url: https://conda.anaconda.org/conda-forge/linux-64/pcre2-10.42-hcad00b1_0.conda
     hash:
-      md5: 69e2c796349cd9b273890bee0febfe1b
-      sha256: 7a29ec847556eed4faa1646010baae371ced69059a4ade43851367a076d6108a
+      md5: 679c8961826aa4b50653bce17ee52abe
+      sha256: 3ca54ff0abcda964af7d4724d389ae20d931159ae1881cfe57ad4b0ab9e6a380
     category: main
     optional: false
   - name: readline
@@ -1483,11 +1483,11 @@ package:
       libiconv: ">=1.17,<2.0a0"
       libstdcxx-ng: ">=12"
       libzlib: ">=1.2.13,<1.3.0a0"
-      pcre2: ">=10.40,<10.41.0a0"
-    url: https://conda.anaconda.org/conda-forge/linux-64/libglib-2.78.1-hebfc3b9_0.conda
+      pcre2: ">=10.42,<10.43.0a0"
+    url: https://conda.anaconda.org/conda-forge/linux-64/libglib-2.78.1-h783c2da_1.conda
     hash:
-      md5: ddd09e8904fde46b85f41896621803e6
-      sha256: 44c5f58593b074886436db7d13fdfcba2fe3731867ea52237f049b8400341a2b
+      md5: 70052d6c1e84643e30ffefb21ab6950f
+      sha256: 4e6fa28002f834cfc30a64792e95c1701d835cc3d3a4bb18d6e8d16bb8aba05b
     category: main
     optional: false
   - name: libllvm15
@@ -4332,7 +4332,7 @@ package:
     category: main
     optional: false
   - name: fonttools
-    version: 4.44.1
+    version: 4.44.3
     manager: conda
     platform: linux-64
     dependencies:
@@ -4341,10 +4341,10 @@ package:
       munkres: ""
       python: ">=3.11,<3.12.0a0"
       python_abi: 3.11.*
-    url: https://conda.anaconda.org/conda-forge/linux-64/fonttools-4.44.1-py311h459d7ec_0.conda
+    url: https://conda.anaconda.org/conda-forge/linux-64/fonttools-4.44.3-py311h459d7ec_0.conda
     hash:
-      md5: 6d9f40aa7c1fcd9cef01fddb5caed228
-      sha256: e8a9ed75baea05eb2de54f52792f2f463915019ee91f75af178c59bb7a747ec2
+      md5: a811af88d3c522cf36f4674ef699021d
+      sha256: 44a9f21a1f02c07ea8d2b3d7880e631db6f4bd08aafc620d4324542ebb2d3009
     category: main
     optional: false
   - name: gitdb
@@ -5316,7 +5316,7 @@ package:
     category: main
     optional: false
   - name: botocore
-    version: 1.32.0
+    version: 1.32.1
     manager: conda
     platform: linux-64
     dependencies:
@@ -5324,10 +5324,10 @@ package:
       python: ">=3.7"
       python-dateutil: ">=2.1,<3.0.0"
       urllib3: ">=1.25.4,<1.27"
-    url: https://conda.anaconda.org/conda-forge/noarch/botocore-1.32.0-pyhd8ed1ab_0.conda
+    url: https://conda.anaconda.org/conda-forge/noarch/botocore-1.32.1-pyhd8ed1ab_0.conda
     hash:
-      md5: 5dc66c692881e2014e7096681c71211b
-      sha256: fa35195f88fdfd75addce1e291596cd7b4042c91ce4b3fa76464235ca0fcba23
+      md5: ed6c51f21b00b73f27d754083a03734f
+      sha256: 1bbfa7c5b2b0016779805c664bfba9958f5ce5916f57c1a65d173f15d4dc7471
     category: main
     optional: false
   - name: branca
@@ -6401,7 +6401,7 @@ package:
       lz4-c: ">=1.9.3,<1.10.0a0"
       openjpeg: ">=2.5.0,<3.0a0"
       openssl: ">=3.1.4,<4.0a0"
-      pcre2: ">=10.40,<10.41.0a0"
+      pcre2: ">=10.42,<10.43.0a0"
       poppler: ">=23.11.0,<23.12.0a0"
       postgresql: ""
       proj: ">=9.3.0,<9.3.1.0a0"
@@ -6409,10 +6409,10 @@ package:
       xerces-c: ">=3.2.4,<3.3.0a0"
       xz: ">=5.2.6,<6.0a0"
       zstd: ">=1.5.5,<1.6.0a0"
-    url: https://conda.anaconda.org/conda-forge/linux-64/libgdal-3.8.0-h0a992f2_1.conda
+    url: https://conda.anaconda.org/conda-forge/linux-64/libgdal-3.8.0-h12dd931_3.conda
     hash:
-      md5: edc8775e918b2dfd06165ecffa1afd89
-      sha256: 87b87e2ecc3c8e1359245e5e76f98bc7f28e8bb3cec48a66025db32b7a023b10
+      md5: 67bb2c3670f86fd94ef16a2fba2c233f
+      sha256: f79d914389b5e88d2e2e1516700a89817f33cc581d959966d62b85561a1284a1
     category: main
     optional: false
   - name: numba
@@ -6927,10 +6927,10 @@ package:
       openssl: ">=3.1.4,<4.0a0"
       python: ">=3.11,<3.12.0a0"
       python_abi: 3.11.*
-    url: https://conda.anaconda.org/conda-forge/linux-64/gdal-3.8.0-py311h815a124_1.conda
+    url: https://conda.anaconda.org/conda-forge/linux-64/gdal-3.8.0-py311h815a124_3.conda
     hash:
-      md5: 300c7d9823df699e3f52dac28bfadd25
-      sha256: c77e0aa84ddc475739090b68a83f4ac5700e73650938975f5a87386e9813407e
+      md5: 016efff8d2aba5789ae4fba3258e923b
+      sha256: f7b85b26f3119e582324331208413254865537a43ed913ad9c05a682a3cd254d
     category: main
     optional: false
   - name: geopandas-base
@@ -9084,16 +9084,16 @@ package:
     category: main
     optional: false
   - name: pcre2
-    version: "10.40"
+    version: "10.42"
     manager: conda
     platform: osx-64
     dependencies:
       bzip2: ">=1.0.8,<2.0a0"
-      libzlib: ">=1.2.12,<1.3.0a0"
-    url: https://conda.anaconda.org/conda-forge/osx-64/pcre2-10.40-h1c4e4bc_0.tar.bz2
+      libzlib: ">=1.2.13,<1.3.0a0"
+    url: https://conda.anaconda.org/conda-forge/osx-64/pcre2-10.42-h0ad2156_0.conda
     hash:
-      md5: e0f80c8f3a0352a54eddfe59cd2b25b1
-      sha256: 60265b48c96decbea89a19a7bc34be88d9b95d4725fd4dbdae158529c601875a
+      md5: 41de8bab2d5e5cd6daaba1896e81d366
+      sha256: 689559d94b64914e503d2ced53b78afc19562ed1ccfb284040797a6d41bb564c
     category: main
     optional: false
   - name: pixman
@@ -9329,11 +9329,11 @@ package:
       libffi: ">=3.4,<4.0a0"
       libiconv: ">=1.17,<2.0a0"
       libzlib: ">=1.2.13,<1.3.0a0"
-      pcre2: ">=10.40,<10.41.0a0"
-    url: https://conda.anaconda.org/conda-forge/osx-64/libglib-2.78.1-h6d9ecee_0.conda
+      pcre2: ">=10.42,<10.43.0a0"
+    url: https://conda.anaconda.org/conda-forge/osx-64/libglib-2.78.1-h198397b_1.conda
     hash:
-      md5: 0282868f1debc145b732276b2fe40397
-      sha256: b16bc30db9688d17b5d1cd9e93d0640d02a862145b072a63af6e45e91da6795c
+      md5: fb318c3fed632cf2de190fb10496fbd1
+      sha256: 73bcb4ea07af4291221271aa7aaa0795d59d851a6f43d6e0df22601f61725e4b
     category: main
     optional: false
   - name: libkml
@@ -12223,7 +12223,7 @@ package:
     category: main
     optional: false
   - name: fonttools
-    version: 4.44.1
+    version: 4.44.3
     manager: conda
     platform: osx-64
     dependencies:
@@ -12231,10 +12231,10 @@ package:
       munkres: ""
       python: ">=3.11,<3.12.0a0"
       python_abi: 3.11.*
-    url: https://conda.anaconda.org/conda-forge/osx-64/fonttools-4.44.1-py311he705e18_0.conda
+    url: https://conda.anaconda.org/conda-forge/osx-64/fonttools-4.44.3-py311he705e18_0.conda
     hash:
-      md5: 762a6863f0c6fcb793260016f654ae3e
-      sha256: 04b56801d5eccec937f83a081851b256eefab920833d52889cb909969287fe14
+      md5: 07fdfc42db3c7be6abfb6c5eeb3b54c9
+      sha256: e565a457df0ee77013554e26cd9f14dafe88872654980f7311a0d0a7cd2825af
     category: main
     optional: false
   - name: gitdb
@@ -13213,7 +13213,7 @@ package:
     category: main
     optional: false
   - name: botocore
-    version: 1.32.0
+    version: 1.32.1
     manager: conda
     platform: osx-64
     dependencies:
@@ -13221,10 +13221,10 @@ package:
       python-dateutil: ">=2.1,<3.0.0"
       jmespath: ">=0.7.1,<2.0.0"
       urllib3: ">=1.25.4,<1.27"
-    url: https://conda.anaconda.org/conda-forge/noarch/botocore-1.32.0-pyhd8ed1ab_0.conda
+    url: https://conda.anaconda.org/conda-forge/noarch/botocore-1.32.1-pyhd8ed1ab_0.conda
     hash:
-      md5: 5dc66c692881e2014e7096681c71211b
-      sha256: fa35195f88fdfd75addce1e291596cd7b4042c91ce4b3fa76464235ca0fcba23
+      md5: ed6c51f21b00b73f27d754083a03734f
+      sha256: 1bbfa7c5b2b0016779805c664bfba9958f5ce5916f57c1a65d173f15d4dc7471
     category: main
     optional: false
   - name: branca
@@ -14300,7 +14300,7 @@ package:
       lz4-c: ">=1.9.3,<1.10.0a0"
       openjpeg: ">=2.5.0,<3.0a0"
       openssl: ">=3.1.4,<4.0a0"
-      pcre2: ">=10.40,<10.41.0a0"
+      pcre2: ">=10.42,<10.43.0a0"
       poppler: ">=23.11.0,<23.12.0a0"
       postgresql: ""
       proj: ">=9.3.0,<9.3.1.0a0"
@@ -14308,10 +14308,10 @@ package:
       xerces-c: ">=3.2.4,<3.3.0a0"
       xz: ">=5.2.6,<6.0a0"
       zstd: ">=1.5.5,<1.6.0a0"
-    url: https://conda.anaconda.org/conda-forge/osx-64/libgdal-3.8.0-h0ef8398_1.conda
+    url: https://conda.anaconda.org/conda-forge/osx-64/libgdal-3.8.0-h1c9f6b2_3.conda
     hash:
-      md5: c5bc0d7e152cd5da44c78457ffded064
-      sha256: 99b281846fd1a01727619a2281ff8f1ea74eaebbac14bc8860bed354e7542c7d
+      md5: 6ce9abc53ceacd9fad5495fbfe23c0b7
+      sha256: adbb1cb7476e4af9b41d2d1f21603d6247791629eb028387297a956ca7567af0
     category: main
     optional: false
   - name: librsvg
@@ -14798,10 +14798,10 @@ package:
       openssl: ">=3.1.4,<4.0a0"
       python: ">=3.11,<3.12.0a0"
       python_abi: 3.11.*
-    url: https://conda.anaconda.org/conda-forge/osx-64/gdal-3.8.0-py311h5646c56_1.conda
+    url: https://conda.anaconda.org/conda-forge/osx-64/gdal-3.8.0-py311h5646c56_3.conda
     hash:
-      md5: c46175f8aeffce8b8064b920b628111b
-      sha256: 7ae6740af7c596eba0eab9b600324c1261b9e07be9a9aaad08fe624509abe929
+      md5: 4ced46299c6057651c6a5a8bf7153459
+      sha256: 04b3a9789c4a80e2d503ae62c56883569630479309db758094b8eb30c5bdf374
     category: main
     optional: false
   - name: geopandas-base
@@ -16898,16 +16898,16 @@ package:
     category: main
     optional: false
   - name: pcre2
-    version: "10.40"
+    version: "10.42"
     manager: conda
     platform: osx-arm64
     dependencies:
       bzip2: ">=1.0.8,<2.0a0"
-      libzlib: ">=1.2.12,<1.3.0a0"
-    url: https://conda.anaconda.org/conda-forge/osx-arm64/pcre2-10.40-hb34f9b4_0.tar.bz2
+      libzlib: ">=1.2.13,<1.3.0a0"
+    url: https://conda.anaconda.org/conda-forge/osx-arm64/pcre2-10.42-h26f9a81_0.conda
     hash:
-      md5: 721b7288270bafc83586b0f01c2a67f2
-      sha256: 93503b5e05470ccc87f696c0fdf0d47938e0305b5047eacb85c15d78dcf641fe
+      md5: 3e12888ecc8ee1ebee2eef9b7856357a
+      sha256: 0335a08349ecd8dce0b81699fcd61b58415e658fe953feb27316fbb994df0685
     category: main
     optional: false
   - name: pixman
@@ -17143,11 +17143,11 @@ package:
       libffi: ">=3.4,<4.0a0"
       libiconv: ">=1.17,<2.0a0"
       libzlib: ">=1.2.13,<1.3.0a0"
-      pcre2: ">=10.40,<10.41.0a0"
-    url: https://conda.anaconda.org/conda-forge/osx-arm64/libglib-2.78.1-hd9b11f9_0.conda
+      pcre2: ">=10.42,<10.43.0a0"
+    url: https://conda.anaconda.org/conda-forge/osx-arm64/libglib-2.78.1-hb438215_1.conda
     hash:
-      md5: 4e4a9c1cf849de0f9e8b36af65f6f291
-      sha256: e18656fc4c9ecfd28382c0f84286a37daf3b33544f50c046bcf93e874a6c1ec0
+      md5: 3ce7984906f2ba4be662c219e8def77e
+      sha256: 3d94b6d8d27301f23b0d0c8b078c5e0bf6fc4f5f6260f3794cfaf7e247fe9e20
     category: main
     optional: false
   - name: libkml
@@ -20036,7 +20036,7 @@ package:
     category: main
     optional: false
   - name: fonttools
-    version: 4.44.1
+    version: 4.44.3
     manager: conda
     platform: osx-arm64
     dependencies:
@@ -20044,10 +20044,10 @@ package:
       munkres: ""
       python: ">=3.11,<3.12.0a0"
       python_abi: 3.11.*
-    url: https://conda.anaconda.org/conda-forge/osx-arm64/fonttools-4.44.1-py311h05b510d_0.conda
+    url: https://conda.anaconda.org/conda-forge/osx-arm64/fonttools-4.44.3-py311h05b510d_0.conda
     hash:
-      md5: 238ee16be84c5667adbfb1f0b6671166
-      sha256: af81d6a4596b0ad2d2defd32ed2e06c084137243bd704a1ec174df6470bd4ac9
+      md5: f3014d7569ba21fdf88e8c669b02a14b
+      sha256: f99f51ea99ff30cc80ad1040b8324d284bb7778ea0a9cc0d5cc6740218708ef5
     category: main
     optional: false
   - name: gitdb
@@ -21026,7 +21026,7 @@ package:
     category: main
     optional: false
   - name: botocore
-    version: 1.32.0
+    version: 1.32.1
     manager: conda
     platform: osx-arm64
     dependencies:
@@ -21034,10 +21034,10 @@ package:
       python-dateutil: ">=2.1,<3.0.0"
       jmespath: ">=0.7.1,<2.0.0"
       urllib3: ">=1.25.4,<1.27"
-    url: https://conda.anaconda.org/conda-forge/noarch/botocore-1.32.0-pyhd8ed1ab_0.conda
+    url: https://conda.anaconda.org/conda-forge/noarch/botocore-1.32.1-pyhd8ed1ab_0.conda
     hash:
-      md5: 5dc66c692881e2014e7096681c71211b
-      sha256: fa35195f88fdfd75addce1e291596cd7b4042c91ce4b3fa76464235ca0fcba23
+      md5: ed6c51f21b00b73f27d754083a03734f
+      sha256: 1bbfa7c5b2b0016779805c664bfba9958f5ce5916f57c1a65d173f15d4dc7471
     category: main
     optional: false
   - name: branca
@@ -22112,7 +22112,7 @@ package:
       lz4-c: ">=1.9.3,<1.10.0a0"
       openjpeg: ">=2.5.0,<3.0a0"
       openssl: ">=3.1.4,<4.0a0"
-      pcre2: ">=10.40,<10.41.0a0"
+      pcre2: ">=10.42,<10.43.0a0"
       poppler: ">=23.11.0,<23.12.0a0"
       postgresql: ""
       proj: ">=9.3.0,<9.3.1.0a0"
@@ -22120,10 +22120,10 @@ package:
       xerces-c: ">=3.2.4,<3.3.0a0"
       xz: ">=5.2.6,<6.0a0"
       zstd: ">=1.5.5,<1.6.0a0"
-    url: https://conda.anaconda.org/conda-forge/osx-arm64/libgdal-3.8.0-h4a48ae4_1.conda
+    url: https://conda.anaconda.org/conda-forge/osx-arm64/libgdal-3.8.0-h751e6a0_3.conda
     hash:
-      md5: 3ff4b732b6c8266789facda6095b3e48
-      sha256: a92de8365813c1784f0c21a34ac74c9be2b4afb133400f6da04abd222d753d9a
+      md5: 87072824894fdddeea27eeab2e14d753
+      sha256: d4ebfb904339ff018b20ca067ab28c7d22d814f167e9ffc3ccdcab54c48f235d
     category: main
     optional: false
   - name: librsvg
@@ -22610,10 +22610,10 @@ package:
       openssl: ">=3.1.4,<4.0a0"
       python: ">=3.11,<3.12.0a0"
       python_abi: 3.11.*
-    url: https://conda.anaconda.org/conda-forge/osx-arm64/gdal-3.8.0-py311h32a4f3d_1.conda
+    url: https://conda.anaconda.org/conda-forge/osx-arm64/gdal-3.8.0-py311h32a4f3d_3.conda
     hash:
-      md5: bfb0ad3bea851df908e80dd83430249e
-      sha256: 288adcfccf62a5958208c003e6f71c85059962563359cc466025de4cbf07ee2e
+      md5: 46f836acb8e8650e037c3df724caa269
+      sha256: 9925ba98c0e7a8caf441d2abccaa95042750755cb9f33a857ade0ac7d981861e
     category: main
     optional: false
   - name: geopandas-base
