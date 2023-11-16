@@ -262,7 +262,7 @@ dependencies:
   - regex=2023.10.3=py311h459d7ec_0
   - rfc3986=2.0.0=pyhd8ed1ab_0
   - rfc3986-validator=0.1.1=pyh9f0ad1d_0
-  - rpds-py=0.12.0=py311h46250e7_0
+  - rpds-py=0.13.0=py311h46250e7_0
   - rtree=1.1.0=py311h3bb2b0f_0
   - ruamel.yaml.clib=0.2.7=py311h459d7ec_2
   - ruff=0.1.5=py311h7145743_0
@@ -437,7 +437,7 @@ dependencies:
   - pytest-xdist=3.4.0=pyhd8ed1ab_0
   - python-build=1.0.3=pyhd8ed1ab_0
   - requests=2.31.0=pyhd8ed1ab_0
-  - rich=13.6.0=pyhd8ed1ab_0
+  - rich=13.7.0=pyhd8ed1ab_0
   - stack_data=0.6.2=pyhd8ed1ab_0
   - starlette=0.32.0.post1=pyhd8ed1ab_0
   - tiledb=2.16.3=h8c794c1_3
@@ -447,7 +447,7 @@ dependencies:
   - wcwidth=0.2.10=pyhd8ed1ab_0
   - aiohttp=3.8.6=py311h459d7ec_1
   - alembic=1.12.1=pyhd8ed1ab_0
-  - arelle-release=2.17.3=pyhd8ed1ab_0
+  - arelle-release=2.17.4=pyhd8ed1ab_0
   - argon2-cffi=23.1.0=pyhd8ed1ab_0
   - aws-crt-cpp=0.24.7=h4712614_1
   - black=23.10.1=py311h38be061_0
@@ -465,7 +465,7 @@ dependencies:
   - httpx=0.25.1=pyhd8ed1ab_0
   - identify=2.5.31=pyhd8ed1ab_0
   - isoduration=20.11.0=pyhd8ed1ab_0
-  - jsonschema=4.19.2=pyhd8ed1ab_0
+  - jsonschema=4.20.0=pyhd8ed1ab_0
   - jupyter_core=5.5.0=py311h38be061_0
   - libgdal=3.8.0=h12dd931_3
   - numba=0.58.1=py311h96b013e_0
@@ -501,7 +501,7 @@ dependencies:
   - google-auth=2.23.4=pyhca7485f_0
   - gql-with-requests=3.4.1=pyhd8ed1ab_0
   - gtk2=2.24.33=h90689f9_2
-  - jsonschema-with-format-nongpl=4.19.2=pyhd8ed1ab_0
+  - jsonschema-with-format-nongpl=4.20.0=pyhd8ed1ab_0
   - jupyter_client=8.6.0=pyhd8ed1ab_0
   - keyring=24.3.0=py311h38be061_0
   - librsvg=2.56.3=h98fae49_0
