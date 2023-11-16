@@ -3394,17 +3394,17 @@ package:
     category: main
     optional: false
   - name: rpds-py
-    version: 0.12.0
+    version: 0.13.0
     manager: conda
     platform: linux-64
     dependencies:
       libgcc-ng: ">=12"
       python: ">=3.11,<3.12.0a0"
       python_abi: 3.11.*
-    url: https://conda.anaconda.org/conda-forge/linux-64/rpds-py-0.12.0-py311h46250e7_0.conda
+    url: https://conda.anaconda.org/conda-forge/linux-64/rpds-py-0.13.0-py311h46250e7_0.conda
     hash:
-      md5: 1de71b7a1bef273d49132ffd90101b8d
-      sha256: d0c5f6cd0f4540541df4b32dff345f368ee398c48abc3d44309ab8e948f70c45
+      md5: 5e619ccf7939a4364d1b96648c90c34a
+      sha256: 03651a2670fd8f99e42f8e7b4581ded905cfbf62a2923ae532db4f1dede8fbc4
     category: main
     optional: false
   - name: rtree
@@ -5878,7 +5878,7 @@ package:
     category: main
     optional: false
   - name: rich
-    version: 13.6.0
+    version: 13.7.0
     manager: conda
     platform: linux-64
     dependencies:
@@ -5886,10 +5886,10 @@ package:
       pygments: ">=2.13.0,<3.0.0"
       python: ">=3.7.0"
       typing_extensions: ">=4.0.0,<5.0.0"
-    url: https://conda.anaconda.org/conda-forge/noarch/rich-13.6.0-pyhd8ed1ab_0.conda
+    url: https://conda.anaconda.org/conda-forge/noarch/rich-13.7.0-pyhd8ed1ab_0.conda
     hash:
-      md5: 3ca4829f40710f581ca1d76bc907e99f
-      sha256: a2f8838a75ab8c2c1da0a813c7569d4f6efba0d2b5dc3a7659e2cb6d96bd8e19
+      md5: d7a11d4f3024b2f4a6e0ae7377dd61e9
+      sha256: 4bb25bf1f5664772b2c4c2e3878aa6e7dc2695f97e3da4ee8e47c51e179913bb
     category: main
     optional: false
   - name: stack_data
@@ -6040,7 +6040,7 @@ package:
     category: main
     optional: false
   - name: arelle-release
-    version: 2.17.3
+    version: 2.17.4
     manager: conda
     platform: linux-64
     dependencies:
@@ -6053,10 +6053,10 @@ package:
       python: ">=3.8"
       python-dateutil: 2.*
       regex: ""
-    url: https://conda.anaconda.org/conda-forge/noarch/arelle-release-2.17.3-pyhd8ed1ab_0.conda
+    url: https://conda.anaconda.org/conda-forge/noarch/arelle-release-2.17.4-pyhd8ed1ab_0.conda
     hash:
-      md5: abfbac2d8dc552141038d71aa421b07c
-      sha256: cc02fa2148b9cdfe5e7d9017d807f4012f689cc2cf4580bb5d245b84dacc8636
+      md5: 66972cbec7556aa94aba3da76b408f19
+      sha256: a30a66c040021c396a99bf862ad78181a4888e67b2ac51ac7e21422c4165986c
     category: main
     optional: false
   - name: argon2-cffi
@@ -6329,7 +6329,7 @@ package:
     category: main
     optional: false
   - name: jsonschema
-    version: 4.19.2
+    version: 4.20.0
     manager: conda
     platform: linux-64
     dependencies:
@@ -6340,10 +6340,10 @@ package:
       python: ">=3.8"
       referencing: ">=0.28.4"
       rpds-py: ">=0.7.1"
-    url: https://conda.anaconda.org/conda-forge/noarch/jsonschema-4.19.2-pyhd8ed1ab_0.conda
+    url: https://conda.anaconda.org/conda-forge/noarch/jsonschema-4.20.0-pyhd8ed1ab_0.conda
     hash:
-      md5: 24d41c2f9cc199d0a180ecf7ef54739c
-      sha256: 07e5d395d83c4b12a7abe3989fb42abdcd3b1c51cd27549e5eab390bb8c7bf0f
+      md5: 1116d79def5268414fb0917520b2bbf1
+      sha256: 77aae609097d06deedb8ef8407a44b23d5fef95962ba6fe1c959ac7bd6195296
     category: main
     optional: false
   - name: jupyter_core
@@ -7004,7 +7004,7 @@ package:
     category: dev
     optional: true
   - name: jsonschema-with-format-nongpl
-    version: 4.19.2
+    version: 4.20.0
     manager: conda
     platform: linux-64
     dependencies:
@@ -7012,16 +7012,16 @@ package:
       idna: ""
       isoduration: ""
       jsonpointer: ">1.13"
-      jsonschema: ">=4.19.2,<4.19.3.0a0"
+      jsonschema: ">=4.20.0,<4.20.1.0a0"
       python: ""
       rfc3339-validator: ""
       rfc3986-validator: ">0.1.0"
       uri-template: ""
       webcolors: ">=1.11"
-    url: https://conda.anaconda.org/conda-forge/noarch/jsonschema-with-format-nongpl-4.19.2-pyhd8ed1ab_0.conda
+    url: https://conda.anaconda.org/conda-forge/noarch/jsonschema-with-format-nongpl-4.20.0-pyhd8ed1ab_0.conda
     hash:
-      md5: c447b7c28ad6bb3306f0015f1195c721
-      sha256: b06681b4499635f0ed901f4879122bfd3ff6ef28de1797367769a4ba6b990b0d
+      md5: a168c5f84010711f6d4ae650bc22b480
+      sha256: 03558b25daa57137fdf98e92731ba50ff5506f265294ac2eef5ec465c76ecf57
     category: main
     optional: false
   - name: jupyter_client
@@ -11379,16 +11379,16 @@ package:
     category: main
     optional: false
   - name: rpds-py
-    version: 0.12.0
+    version: 0.13.0
     manager: conda
     platform: osx-64
     dependencies:
       python: ">=3.11,<3.12.0a0"
       python_abi: 3.11.*
-    url: https://conda.anaconda.org/conda-forge/osx-64/rpds-py-0.12.0-py311h5e0f0e4_0.conda
+    url: https://conda.anaconda.org/conda-forge/osx-64/rpds-py-0.13.0-py311h5e0f0e4_0.conda
     hash:
-      md5: b29986cb468cc54043322ba3eea5d3b7
-      sha256: 77b1f0a59ef5d08c858ad62bda87f0a0a5af7cd3585a12a23709d9c3a4835712
+      md5: 756946b85906adc3f1cc3b72705c311b
+      sha256: 7949d24240aa997507056baad89ea57f6d41d6704499fbd3739934ad906478d0
     category: main
     optional: false
   - name: rtree
@@ -13754,7 +13754,7 @@ package:
     category: main
     optional: false
   - name: rich
-    version: 13.6.0
+    version: 13.7.0
     manager: conda
     platform: osx-64
     dependencies:
@@ -13762,10 +13762,10 @@ package:
       typing_extensions: ">=4.0.0,<5.0.0"
       pygments: ">=2.13.0,<3.0.0"
       markdown-it-py: ">=2.2.0"
-    url: https://conda.anaconda.org/conda-forge/noarch/rich-13.6.0-pyhd8ed1ab_0.conda
+    url: https://conda.anaconda.org/conda-forge/noarch/rich-13.7.0-pyhd8ed1ab_0.conda
     hash:
-      md5: 3ca4829f40710f581ca1d76bc907e99f
-      sha256: a2f8838a75ab8c2c1da0a813c7569d4f6efba0d2b5dc3a7659e2cb6d96bd8e19
+      md5: d7a11d4f3024b2f4a6e0ae7377dd61e9
+      sha256: 4bb25bf1f5664772b2c4c2e3878aa6e7dc2695f97e3da4ee8e47c51e179913bb
     category: main
     optional: false
   - name: stack_data
@@ -13913,7 +13913,7 @@ package:
     category: main
     optional: false
   - name: arelle-release
-    version: 2.17.3
+    version: 2.17.4
     manager: conda
     platform: osx-64
     dependencies:
@@ -13926,10 +13926,10 @@ package:
       lxml: 4.*
       openpyxl: 3.*
       pyparsing: 3.*
-    url: https://conda.anaconda.org/conda-forge/noarch/arelle-release-2.17.3-pyhd8ed1ab_0.conda
+    url: https://conda.anaconda.org/conda-forge/noarch/arelle-release-2.17.4-pyhd8ed1ab_0.conda
     hash:
-      md5: abfbac2d8dc552141038d71aa421b07c
-      sha256: cc02fa2148b9cdfe5e7d9017d807f4012f689cc2cf4580bb5d245b84dacc8636
+      md5: 66972cbec7556aa94aba3da76b408f19
+      sha256: a30a66c040021c396a99bf862ad78181a4888e67b2ac51ac7e21422c4165986c
     category: main
     optional: false
   - name: argon2-cffi
@@ -14215,7 +14215,7 @@ package:
     category: main
     optional: false
   - name: jsonschema
-    version: 4.19.2
+    version: 4.20.0
     manager: conda
     platform: osx-64
     dependencies:
@@ -14226,10 +14226,10 @@ package:
       jsonschema-specifications: ">=2023.03.6"
       referencing: ">=0.28.4"
       rpds-py: ">=0.7.1"
-    url: https://conda.anaconda.org/conda-forge/noarch/jsonschema-4.19.2-pyhd8ed1ab_0.conda
+    url: https://conda.anaconda.org/conda-forge/noarch/jsonschema-4.20.0-pyhd8ed1ab_0.conda
     hash:
-      md5: 24d41c2f9cc199d0a180ecf7ef54739c
-      sha256: 07e5d395d83c4b12a7abe3989fb42abdcd3b1c51cd27549e5eab390bb8c7bf0f
+      md5: 1116d79def5268414fb0917520b2bbf1
+      sha256: 77aae609097d06deedb8ef8407a44b23d5fef95962ba6fe1c959ac7bd6195296
     category: main
     optional: false
   - name: jupyter_core
@@ -14886,7 +14886,7 @@ package:
     category: dev
     optional: true
   - name: jsonschema-with-format-nongpl
-    version: 4.19.2
+    version: 4.20.0
     manager: conda
     platform: osx-64
     dependencies:
@@ -14899,11 +14899,11 @@ package:
       jsonpointer: ">1.13"
       webcolors: ">=1.11"
       rfc3986-validator: ">0.1.0"
-      jsonschema: ">=4.19.2,<4.19.3.0a0"
-    url: https://conda.anaconda.org/conda-forge/noarch/jsonschema-with-format-nongpl-4.19.2-pyhd8ed1ab_0.conda
+      jsonschema: ">=4.20.0,<4.20.1.0a0"
+    url: https://conda.anaconda.org/conda-forge/noarch/jsonschema-with-format-nongpl-4.20.0-pyhd8ed1ab_0.conda
     hash:
-      md5: c447b7c28ad6bb3306f0015f1195c721
-      sha256: b06681b4499635f0ed901f4879122bfd3ff6ef28de1797367769a4ba6b990b0d
+      md5: a168c5f84010711f6d4ae650bc22b480
+      sha256: 03558b25daa57137fdf98e92731ba50ff5506f265294ac2eef5ec465c76ecf57
     category: main
     optional: false
   - name: jupyter_client
@@ -19192,16 +19192,16 @@ package:
     category: main
     optional: false
   - name: rpds-py
-    version: 0.12.0
+    version: 0.13.0
     manager: conda
     platform: osx-arm64
     dependencies:
       python: ">=3.11,<3.12.0a0"
       python_abi: 3.11.*
-    url: https://conda.anaconda.org/conda-forge/osx-arm64/rpds-py-0.12.0-py311h94f323b_0.conda
+    url: https://conda.anaconda.org/conda-forge/osx-arm64/rpds-py-0.13.0-py311h94f323b_0.conda
     hash:
-      md5: 4af4fca8823524dfe529036c308bcf1f
-      sha256: 9fffe88d15c3c2682b3b5096b2e72118c817d77ace1dcee1cf954a8d035256f2
+      md5: 22cfbdbd0c58fb9688194a98c568808e
+      sha256: e09733d7c15109e2cbfc3694e612629a45848648419b1f8987150dde64d6dbc0
     category: main
     optional: false
   - name: rtree
@@ -21567,7 +21567,7 @@ package:
     category: main
     optional: false
   - name: rich
-    version: 13.6.0
+    version: 13.7.0
     manager: conda
     platform: osx-arm64
     dependencies:
@@ -21575,10 +21575,10 @@ package:
       typing_extensions: ">=4.0.0,<5.0.0"
       pygments: ">=2.13.0,<3.0.0"
       markdown-it-py: ">=2.2.0"
-    url: https://conda.anaconda.org/conda-forge/noarch/rich-13.6.0-pyhd8ed1ab_0.conda
+    url: https://conda.anaconda.org/conda-forge/noarch/rich-13.7.0-pyhd8ed1ab_0.conda
     hash:
-      md5: 3ca4829f40710f581ca1d76bc907e99f
-      sha256: a2f8838a75ab8c2c1da0a813c7569d4f6efba0d2b5dc3a7659e2cb6d96bd8e19
+      md5: d7a11d4f3024b2f4a6e0ae7377dd61e9
+      sha256: 4bb25bf1f5664772b2c4c2e3878aa6e7dc2695f97e3da4ee8e47c51e179913bb
     category: main
     optional: false
   - name: stack_data
@@ -21725,7 +21725,7 @@ package:
     category: main
     optional: false
   - name: arelle-release
-    version: 2.17.3
+    version: 2.17.4
     manager: conda
     platform: osx-arm64
     dependencies:
@@ -21738,10 +21738,10 @@ package:
       lxml: 4.*
       openpyxl: 3.*
       pyparsing: 3.*
-    url: https://conda.anaconda.org/conda-forge/noarch/arelle-release-2.17.3-pyhd8ed1ab_0.conda
+    url: https://conda.anaconda.org/conda-forge/noarch/arelle-release-2.17.4-pyhd8ed1ab_0.conda
     hash:
-      md5: abfbac2d8dc552141038d71aa421b07c
-      sha256: cc02fa2148b9cdfe5e7d9017d807f4012f689cc2cf4580bb5d245b84dacc8636
+      md5: 66972cbec7556aa94aba3da76b408f19
+      sha256: a30a66c040021c396a99bf862ad78181a4888e67b2ac51ac7e21422c4165986c
     category: main
     optional: false
   - name: argon2-cffi
@@ -22027,7 +22027,7 @@ package:
     category: main
     optional: false
   - name: jsonschema
-    version: 4.19.2
+    version: 4.20.0
     manager: conda
     platform: osx-arm64
     dependencies:
@@ -22038,10 +22038,10 @@ package:
       jsonschema-specifications: ">=2023.03.6"
       referencing: ">=0.28.4"
       rpds-py: ">=0.7.1"
-    url: https://conda.anaconda.org/conda-forge/noarch/jsonschema-4.19.2-pyhd8ed1ab_0.conda
+    url: https://conda.anaconda.org/conda-forge/noarch/jsonschema-4.20.0-pyhd8ed1ab_0.conda
     hash:
-      md5: 24d41c2f9cc199d0a180ecf7ef54739c
-      sha256: 07e5d395d83c4b12a7abe3989fb42abdcd3b1c51cd27549e5eab390bb8c7bf0f
+      md5: 1116d79def5268414fb0917520b2bbf1
+      sha256: 77aae609097d06deedb8ef8407a44b23d5fef95962ba6fe1c959ac7bd6195296
     category: main
     optional: false
   - name: jupyter_core
@@ -22698,7 +22698,7 @@ package:
     category: dev
     optional: true
   - name: jsonschema-with-format-nongpl
-    version: 4.19.2
+    version: 4.20.0
     manager: conda
     platform: osx-arm64
     dependencies:
@@ -22711,11 +22711,11 @@ package:
       jsonpointer: ">1.13"
       webcolors: ">=1.11"
       rfc3986-validator: ">0.1.0"
-      jsonschema: ">=4.19.2,<4.19.3.0a0"
-    url: https://conda.anaconda.org/conda-forge/noarch/jsonschema-with-format-nongpl-4.19.2-pyhd8ed1ab_0.conda
+      jsonschema: ">=4.20.0,<4.20.1.0a0"
+    url: https://conda.anaconda.org/conda-forge/noarch/jsonschema-with-format-nongpl-4.20.0-pyhd8ed1ab_0.conda
     hash:
-      md5: c447b7c28ad6bb3306f0015f1195c721
-      sha256: b06681b4499635f0ed901f4879122bfd3ff6ef28de1797367769a4ba6b990b0d
+      md5: a168c5f84010711f6d4ae650bc22b480
+      sha256: 03558b25daa57137fdf98e92731ba50ff5506f265294ac2eef5ec465c76ecf57
     category: main
     optional: false
   - name: jupyter_client
