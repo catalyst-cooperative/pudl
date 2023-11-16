@@ -41,7 +41,7 @@ or with the ``ferc_to_sqlite`` script (see :ref:`run-cli`).
 
 .. note::
 
-  We recommend using Dagit to execute the ETL as it provides additional
+  We recommend using the Dagster UI to execute the ETL as it provides additional
   functionality for re-execution and viewing dependences.
 
 Executing a ``ferc_to_sqlite`` job will create several outputs that you can
