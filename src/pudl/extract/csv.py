@@ -1,14 +1,11 @@
 """Extractor for CSV data."""
-import contextlib
 from csv import DictReader
 from functools import lru_cache
 from importlib import resources
-from io import TextIOWrapper
-from pathlib import Path
 from zipfile import ZipFile
 
 import pandas as pd
-import sqlalchemy as sa
+from dagster import AssetsDefinition, OpDefinition, graph_asset, op
 
 import pudl.logging_helpers
 from pudl.workspace.datastore import Datastore
@@ -16,89 +13,12 @@ from pudl.workspace.datastore import Datastore
 logger = pudl.logging_helpers.get_logger(__name__)
 
 
-class CsvTableSchema:
-    """Provides the data definition of a table."""
-
-    def __init__(self, table_name: str):
-        """Creates new instance of the table schema setting.
-
-        The table name will be set as table_name and table will have no columns.
-        """
-        self.name = table_name
-        self._columns = []
-        self._column_types = {}
-        self._short_name_map = {}  # short_name_map[short_name] -> long_name
-
-    def add_column(
-        self,
-        col_name: str,
-        col_type: sa.types.TypeEngine,
-        short_name: str | None = None,
-    ):
-        """Adds a new column to this table schema."""
-        assert col_name not in self._columns
-        self._columns.append(col_name)
-        self._column_types[col_name] = col_type
-        if short_name is not None:
-            self._short_name_map[short_name] = col_name
-
-    def get_columns(self) -> list[tuple[str, sa.types.TypeEngine]]:
-        """Iterates over the (column_name, column_type) pairs."""
-        for col_name in self._columns:
-            yield (col_name, self._column_types[col_name])
-
-    def get_column_names(self) -> set[str]:
-        """Returns set of long column names."""
-        return set(self._columns)
-
-    def get_column_rename_map(self) -> dict[str, str]:
-        """Returns dictionary that maps from short to long column names."""
-        return dict(self._short_name_map)
-
-    def create_sa_table(self, sa_meta: sa.MetaData) -> sa.Table:
-        """Creates SQLAlchemy table described by this instance.
-
-        Args:
-            sa_meta: new table will be written to this MetaData object.
-        """
-        table = sa.Table(self.name, sa_meta)
-        for col_name, col_type in self.get_columns():
-            table.append_column(sa.Column(col_name, col_type))
-        return table
-
-
 class CsvArchive:
     """Represents API for accessing files within a single CSV archive."""
 
-    def __init__(
-        self,
-        zipfile: ZipFile,
-        table_file_map: dict[str, str],
-        column_types: dict[str, dict[str, sa.types.TypeEngine]],
-    ):
+    def __init__(self, zipfile: ZipFile):
         """Constructs new instance of CsvArchive."""
         self.zipfile = zipfile
-        self._table_file_map = table_file_map
-        self._column_types = column_types
-        self._table_schemas: dict[str, list[str]] = {}
-
-    @lru_cache
-    def get_table_schema(self, table_name: str) -> CsvTableSchema:
-        """Returns TableSchema for a given table."""
-        with self.zipfile.open(self._table_file_map[table_name]) as f:
-            text_f = TextIOWrapper(f)
-            table_columns = DictReader(text_f).fieldnames
-
-        if sorted(table_columns) != sorted(self._column_types[table_name].keys()):
-            raise ValueError(
-                f"Columns extracted from CSV for {table_name} do not match expected columns"
-            )
-
-        schema = CsvTableSchema(table_name)
-        for column_name in table_columns:
-            col_type = self._column_types[table_name][column_name]
-            schema.add_column(column_name, col_type)
-        return schema
 
     def load_table(self, filename: str) -> pd.DataFrame:
         """Read the data from the CSV source and return as a dataframe."""
@@ -115,7 +35,6 @@ class CsvReader:
         self,
         datastore: Datastore,
         dataset: str,
-        column_types: dict[str, dict[str, sa.types.TypeEngine]],
     ):
         """Create a new instance of CsvReader.
 
@@ -129,7 +48,6 @@ class CsvReader:
         self.datastore = datastore
         self.dataset = dataset
         self._table_file_map = {}
-        self._column_types = column_types
         for row in self._open_csv_resource("table_file_map.csv"):
             self._table_file_map[row["table"]] = row["filename"]
 
@@ -145,11 +63,7 @@ class CsvReader:
     @lru_cache
     def get_archive(self) -> CsvArchive:
         """Returns a CsvArchive instance corresponding to the dataset."""
-        return CsvArchive(
-            self.datastore.get_zipfile_resource(self.dataset),
-            table_file_map=self._table_file_map,
-            column_types=self._column_types,
-        )
+        return CsvArchive(self.datastore.get_zipfile_resource(self.dataset))
 
 
 class CsvExtractor:
@@ -161,97 +75,76 @@ class CsvExtractor:
     1. Set DATABASE_NAME class attribute. This controls what filename is used for the output
     sqlite database.
     2. Set DATASET class attribute. This is used to load metadata from package_data/{dataset} subdirectory.
-    3. Set COLUMN_TYPES to a map of tables to column names and their sqlalchemy types. This is used to generate DDL.
 
-    Dataset specific logic and transformations can be injected by overriding:
-
-    1. finalize_schema() in order to modify sqlite schema. This is called just before
-    the schema is written into the sqlite database. This is good place for adding
-    primary and/or foreign key constraints to tables.
-    2. postprocess() is called after data is written to sqlite. This can be used for
-    database level final cleanup and transformations (e.g. injecting missing IDs).
-
-    The extraction logic is invoked by calling execute() method of this class.
+    The extraction logic is invoked by calling extract() method of this class.
     """
 
     DATABASE_NAME = None
     DATASET = None
-    COLUMN_TYPES = {}
 
-    def __init__(self, datastore: Datastore, output_path: Path, clobber: bool = False):
+    def __init__(self, datastore: Datastore):
         """Constructs new instance of CsvExtractor.
 
         Args:
             datastore: top-level datastore instance for accessing raw data files.
-            output_path: directory where the output databases should be stored.
-            clobber: if True, existing databases should be replaced.
         """
-        self.clobber = clobber
-        self.output_path = output_path
         self.csv_reader = self.get_csv_reader(datastore)
-        self.sqlite_engine = sa.create_engine(self.get_db_path())
-        self.sqlite_meta = sa.MetaData()
-
-    def get_db_path(self) -> str:
-        """Returns the connection string for the sqlite database."""
-        db_path = str(Path(self.output_path) / self.DATABASE_NAME)
-        return f"sqlite:///{db_path}"
 
     def get_csv_reader(self, datastore: Datastore):
         """Returns instance of CsvReader to access the data."""
-        return CsvReader(datastore, self.DATASET, self.COLUMN_TYPES)
+        return CsvReader(datastore, self.DATASET)
 
-    def execute(self):
-        """Runs the extraction of the data from csv to sqlite."""
-        self.delete_schema()
-        self.create_sqlite_tables()
-        self.load_table_data()
-        self.postprocess()
-
-    def delete_schema(self):
-        """Drops all tables from the existing sqlite database."""
-        with contextlib.suppress(sa.exc.OperationalError):
-            pudl.helpers.drop_tables(
-                self.sqlite_engine,
-                clobber=self.clobber,
-            )
-
-        self.sqlite_engine = sa.create_engine(self.get_db_path())
-        self.sqlite_meta = sa.MetaData()
-        self.sqlite_meta.reflect(self.sqlite_engine)
-
-    def create_sqlite_tables(self):
-        """Creates database schema based on the input tables."""
-        csv_archive = self.csv_reader.get_archive()
-        for tn in self.csv_reader.get_table_names():
-            csv_archive.get_table_schema(tn).create_sa_table(self.sqlite_meta)
-        self.finalize_schema(self.sqlite_meta)
-        self.sqlite_meta.create_all(self.sqlite_engine)
-
-    def load_table_data(self) -> None:
-        """Extracts and loads csv data into sqlite."""
+    def extract(self) -> dict[str, pd.DataFrame]:
+        """Extracts a dictionary of table names and dataframes from CSV files."""
+        data = {}
         for table in self.csv_reader.get_table_names():
             filename = self.csv_reader._table_file_map[table]
             df = self.csv_reader.get_archive().load_table(filename)
-            coltypes = {col.name: col.type for col in self.sqlite_meta.tables[table].c}
-            logger.info(f"SQLite: loading {len(df)} rows into {table}.")
-            df.to_sql(
-                table,
-                self.sqlite_engine,
-                if_exists="append",
-                chunksize=100000,
-                dtype=coltypes,
-                index=False,
-            )
+            data[table] = df
+        return data
 
-    def finalize_schema(self, meta: sa.MetaData) -> sa.MetaData:
-        """This method is called just before the schema is written to sqlite.
 
-        You can use this method to apply dataset specific alterations to the schema,
-        such as adding primary and foreign key constraints.
+def extractor_factory(extractor_cls: type[CsvExtractor], name: str) -> OpDefinition:
+    """Construct a Dagster op that extracts one year of data, given an extractor class.
+
+    Args:
+        extractor_cls: Class of type :class:`GenericExtractor` used to extract the data.
+        name: Name of an Excel based dataset (e.g. "eia860").
+    """
+
+    def extract(context) -> dict[str, pd.DataFrame]:
+        """A function that extracts data from a CSV file.
+
+        This function will be decorated with a Dagster op and returned.
+
+        Args:
+            context: Dagster keyword that provides access to resources and config.
+
+        Returns:
+            A dictionary of DataFrames extracted from CSV, keyed by page name.
         """
-        return meta
+        ds = context.resources.datastore
+        return extractor_cls(ds).extract()
 
-    def postprocess(self):
-        """This method is called after all the data is loaded into sqlite to transform raw data to targets."""
-        pass
+    return op(
+        required_resource_keys={"datastore", "dataset_settings"},
+        name=f"extract_single_{name}_year",
+    )(extract)
+
+
+def raw_df_factory(extractor_cls: type[CsvExtractor], name: str) -> AssetsDefinition:
+    """Return a dagster graph asset to extract a set of raw DataFrames from CSV files.
+
+    Args:
+        extractor_cls: The dataset-specific CSV extractor used to extract the data.
+            Needs to correspond to the dataset identified by ``name``.
+        name: Name of an CSV based dataset (e.g. "eia176"). Currently this must be
+            one of the attributes of :class:`pudl.settings.EiaSettings`
+    """
+    extractor = extractor_factory(extractor_cls, name)
+
+    def raw_dfs() -> dict[str, pd.DataFrame]:
+        """Produce a dictionary of extracted EIA dataframes."""
+        return extractor()
+
+    return graph_asset(name=f"{name}_raw_dfs")(raw_dfs)

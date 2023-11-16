@@ -301,7 +301,7 @@ class Ferc1DbfExtractor(FercDbfExtractor):
 
         # Write missing respondents back into SQLite.
         with self.sqlite_engine.begin() as conn:
-            conn.execute(
+            conn.extract(
                 self.sqlite_meta.tables["f1_respondent_id"].insert().values(records)
             )
 
