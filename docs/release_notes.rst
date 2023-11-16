@@ -70,7 +70,8 @@ Dagster Adoption
 Data Coverage
 ^^^^^^^^^^^^^
 
-* Updated :doc:`data_sources/eia860` to include early release data from 2022.
+* Updated :doc:`data_sources/eia860` to include final release data from 2022.
+* Updated :doc:`data_sources/eia861` to include final release data from 2022.
 * Updated :doc:`data_sources/eia923` to include early release data from 2022 and
   monthly YTD data as of April 2023.
 * Updated :doc:`data_sources/epacems` to switch from the old FTP server to the new
