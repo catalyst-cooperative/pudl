@@ -2661,7 +2661,7 @@ mcoe_gas_heat_rate = [
         "low_bound": 7.0,
         "hi_q": 0.50,
         "hi_bound": 7.5,
-        "data_col": "heat_rate_mmbtu_mwh",
+        "data_col": "unit_heat_rate_mmbtu_per_mwh",
         "weight_col": "net_generation_mwh",
     },
     {  # EIA natural gas reporting really only becomes usable in 2015.
@@ -2671,7 +2671,7 @@ mcoe_gas_heat_rate = [
         "low_bound": 6.4,
         "hi_q": 0.95,
         "hi_bound": 13.0,
-        "data_col": "heat_rate_mmbtu_mwh",
+        "data_col": "unit_heat_rate_mmbtu_per_mwh",
         "weight_col": "net_generation_mwh",
     },
 ]
@@ -2685,7 +2685,7 @@ mcoe_coal_heat_rate = [
         "low_bound": 10.0,
         "hi_q": 0.50,
         "hi_bound": 11.0,
-        "data_col": "heat_rate_mmbtu_mwh",
+        "data_col": "unit_heat_rate_mmbtu_per_mwh",
         "weight_col": "net_generation_mwh",
     },
     {
@@ -2695,7 +2695,7 @@ mcoe_coal_heat_rate = [
         "low_bound": 9.0,
         "hi_q": 0.95,
         "hi_bound": 12.5,
-        "data_col": "heat_rate_mmbtu_mwh",
+        "data_col": "unit_heat_rate_mmbtu_per_mwh",
         "weight_col": "net_generation_mwh",
     },
 ]
@@ -2861,7 +2861,7 @@ mcoe_self = [
         "low_q": 0.05,
         "mid_q": 0.50,
         "hi_q": 0.95,
-        "data_col": "heat_rate_mmbtu_mwh",
+        "data_col": "unit_heat_rate_mmbtu_per_mwh",
         "weight_col": "net_generation_mwh",
     },
     {
@@ -2870,7 +2870,7 @@ mcoe_self = [
         "low_q": 0.05,
         "mid_q": 0.50,
         "hi_q": 0.95,
-        "data_col": "heat_rate_mmbtu_mwh",
+        "data_col": "unit_heat_rate_mmbtu_per_mwh",
         "weight_col": "net_generation_mwh",
     },
 ]

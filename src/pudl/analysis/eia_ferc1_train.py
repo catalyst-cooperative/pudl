@@ -103,7 +103,7 @@ RELEVANT_COLS_PPE: list = [
     "total_fuel_cost",
     "total_mmbtu",
     "fuel_cost_per_mmbtu",
-    "heat_rate_mmbtu_mwh",
+    "unit_heat_rate_mmbtu_per_mwh",
 ]
 
 # --------------------------------------------------------------------------------------

@@ -209,7 +209,9 @@ class InputManager:
                         x.plant_id_report_year + "_" + x.utility_id_pudl.map(str)
                     ),
                     fuel_cost_per_mmbtu=lambda x: (x.fuel_cost / x.fuel_mmbtu),
-                    heat_rate_mmbtu_mwh=lambda x: (x.fuel_mmbtu / x.net_generation_mwh),
+                    unit_heat_rate_mmbtu_per_mwh=lambda x: (
+                        x.fuel_mmbtu / x.net_generation_mwh
+                    ),
                 )
                 .rename(
                     columns={
@@ -419,9 +421,9 @@ class Features:
                     label="fuel_cost_per_mmbtu",
                 ),
                 Numeric(
-                    "heat_rate_mmbtu_mwh",
-                    "heat_rate_mmbtu_mwh",
-                    label="heat_rate_mmbtu_mwh",
+                    "unit_heat_rate_mmbtu_per_mwh",
+                    "unit_heat_rate_mmbtu_per_mwh",
+                    label="unit_heat_rate_mmbtu_per_mwh",
                 ),
                 Exact(
                     "fuel_type_code_pudl",
