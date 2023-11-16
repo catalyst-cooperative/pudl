@@ -321,7 +321,7 @@ dependencies:
   - harfbuzz=8.3.0=hf45c392_0
   - hdf5=1.14.2=nompi_hedada53_100
   - html5lib=1.1=pyh9f0ad1d_0
-  - hypothesis=6.88.4=pyha770c72_0
+  - hypothesis=6.89.0=pyha770c72_0
   - importlib-metadata=6.8.0=pyha770c72_0
   - importlib_resources=6.1.1=pyhd8ed1ab_0
   - isodate=0.6.1=pyhd8ed1ab_0
@@ -526,7 +526,7 @@ dependencies:
   - jupyter_server=2.10.1=pyhd8ed1ab_0
   - libarrow-substrait=14.0.1=h2cc6c1c_3_cpu
   - nbconvert-pandoc=7.11.0=pyhd8ed1ab_0
-  - qtconsole-base=5.5.0=pyha770c72_0
+  - qtconsole-base=5.5.1=pyha770c72_0
   - gcsfs=2023.10.0=pyhd8ed1ab_0
   - jupyter-lsp=2.2.0=pyhd8ed1ab_0
   - jupyter-resource-usage=1.0.1=pyhd8ed1ab_0

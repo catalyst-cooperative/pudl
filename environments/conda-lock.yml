@@ -4451,7 +4451,7 @@ package:
     category: main
     optional: false
   - name: hypothesis
-    version: 6.88.4
+    version: 6.89.0
     manager: conda
     platform: linux-64
     dependencies:
@@ -4462,10 +4462,10 @@ package:
       python: ">=3.8"
       setuptools: ""
       sortedcontainers: ">=2.1.0,<3.0.0"
-    url: https://conda.anaconda.org/conda-forge/noarch/hypothesis-6.88.4-pyha770c72_0.conda
+    url: https://conda.anaconda.org/conda-forge/noarch/hypothesis-6.89.0-pyha770c72_0.conda
     hash:
-      md5: 0a2ee0e0e876282a7773c2f6dcbf77be
-      sha256: f4510276ccde52a2a44782039a5bb12a87b672a1f72a92ed084c146397f013c2
+      md5: 87fe6add77af84b6fafecd466e27a28d
+      sha256: 5805c101a002de63400e97d33d0e70f4cade33b2e7bf76061aaa0a7058fc44ea
     category: main
     optional: false
   - name: importlib-metadata
@@ -7907,7 +7907,7 @@ package:
     category: main
     optional: false
   - name: qtconsole-base
-    version: 5.5.0
+    version: 5.5.1
     manager: conda
     platform: linux-64
     dependencies:
@@ -7919,10 +7919,10 @@ package:
       python: ">=3.8"
       qtpy: ">=2.4.0"
       traitlets: ""
-    url: https://conda.anaconda.org/conda-forge/noarch/qtconsole-base-5.5.0-pyha770c72_0.conda
+    url: https://conda.anaconda.org/conda-forge/noarch/qtconsole-base-5.5.1-pyha770c72_0.conda
     hash:
-      md5: 4ddf53ce81d504a11fb7bd09edb91ba5
-      sha256: a18f35799b562441f03be4bd0d7213aee282ce30339fa863e9e97b7aa7a7f62a
+      md5: 5528a3eda283b421055c89bface19a1c
+      sha256: e81a294941a598aabfd9462cf9aaa3b3e2c04996420f82494bdc13233de8ca70
     category: main
     optional: false
   - name: gcsfs
@@ -12358,7 +12358,7 @@ package:
     category: main
     optional: false
   - name: hypothesis
-    version: 6.88.4
+    version: 6.89.0
     manager: conda
     platform: osx-64
     dependencies:
@@ -12369,10 +12369,10 @@ package:
       sortedcontainers: ">=2.1.0,<3.0.0"
       backports.zoneinfo: ">=0.2.1"
       exceptiongroup: ">=1.0.0rc8"
-    url: https://conda.anaconda.org/conda-forge/noarch/hypothesis-6.88.4-pyha770c72_0.conda
+    url: https://conda.anaconda.org/conda-forge/noarch/hypothesis-6.89.0-pyha770c72_0.conda
     hash:
-      md5: 0a2ee0e0e876282a7773c2f6dcbf77be
-      sha256: f4510276ccde52a2a44782039a5bb12a87b672a1f72a92ed084c146397f013c2
+      md5: 87fe6add77af84b6fafecd466e27a28d
+      sha256: 5805c101a002de63400e97d33d0e70f4cade33b2e7bf76061aaa0a7058fc44ea
     category: main
     optional: false
   - name: importlib-metadata
@@ -15739,7 +15739,7 @@ package:
     category: main
     optional: false
   - name: qtconsole-base
-    version: 5.5.0
+    version: 5.5.1
     manager: conda
     platform: osx-64
     dependencies:
@@ -15751,10 +15751,10 @@ package:
       ipykernel: ">=4.1"
       jupyter_client: ">=4.1"
       qtpy: ">=2.4.0"
-    url: https://conda.anaconda.org/conda-forge/noarch/qtconsole-base-5.5.0-pyha770c72_0.conda
+    url: https://conda.anaconda.org/conda-forge/noarch/qtconsole-base-5.5.1-pyha770c72_0.conda
     hash:
-      md5: 4ddf53ce81d504a11fb7bd09edb91ba5
-      sha256: a18f35799b562441f03be4bd0d7213aee282ce30339fa863e9e97b7aa7a7f62a
+      md5: 5528a3eda283b421055c89bface19a1c
+      sha256: e81a294941a598aabfd9462cf9aaa3b3e2c04996420f82494bdc13233de8ca70
     category: main
     optional: false
   - name: gcsfs
@@ -15928,8 +15928,8 @@ package:
       notebook: ""
       ipykernel: ""
       nbconvert: ""
-      jupyter_console: ""
       qtconsole-base: ""
+      jupyter_console: ""
       python: ">=3.6"
     url: https://conda.anaconda.org/conda-forge/noarch/jupyter-1.0.0-pyhd8ed1ab_10.conda
     hash:
@@ -20171,7 +20171,7 @@ package:
     category: main
     optional: false
   - name: hypothesis
-    version: 6.88.4
+    version: 6.89.0
     manager: conda
     platform: osx-arm64
     dependencies:
@@ -20182,10 +20182,10 @@ package:
       sortedcontainers: ">=2.1.0,<3.0.0"
       backports.zoneinfo: ">=0.2.1"
       exceptiongroup: ">=1.0.0rc8"
-    url: https://conda.anaconda.org/conda-forge/noarch/hypothesis-6.88.4-pyha770c72_0.conda
+    url: https://conda.anaconda.org/conda-forge/noarch/hypothesis-6.89.0-pyha770c72_0.conda
     hash:
-      md5: 0a2ee0e0e876282a7773c2f6dcbf77be
-      sha256: f4510276ccde52a2a44782039a5bb12a87b672a1f72a92ed084c146397f013c2
+      md5: 87fe6add77af84b6fafecd466e27a28d
+      sha256: 5805c101a002de63400e97d33d0e70f4cade33b2e7bf76061aaa0a7058fc44ea
     category: main
     optional: false
   - name: importlib-metadata
@@ -23551,7 +23551,7 @@ package:
     category: main
     optional: false
   - name: qtconsole-base
-    version: 5.5.0
+    version: 5.5.1
     manager: conda
     platform: osx-arm64
     dependencies:
@@ -23563,10 +23563,10 @@ package:
       ipykernel: ">=4.1"
       jupyter_client: ">=4.1"
       qtpy: ">=2.4.0"
-    url: https://conda.anaconda.org/conda-forge/noarch/qtconsole-base-5.5.0-pyha770c72_0.conda
+    url: https://conda.anaconda.org/conda-forge/noarch/qtconsole-base-5.5.1-pyha770c72_0.conda
     hash:
-      md5: 4ddf53ce81d504a11fb7bd09edb91ba5
-      sha256: a18f35799b562441f03be4bd0d7213aee282ce30339fa863e9e97b7aa7a7f62a
+      md5: 5528a3eda283b421055c89bface19a1c
+      sha256: e81a294941a598aabfd9462cf9aaa3b3e2c04996420f82494bdc13233de8ca70
     category: main
     optional: false
   - name: gcsfs
@@ -23740,8 +23740,8 @@ package:
       notebook: ""
       ipykernel: ""
       nbconvert: ""
-      jupyter_console: ""
       qtconsole-base: ""
+      jupyter_console: ""
       python: ">=3.6"
     url: https://conda.anaconda.org/conda-forge/noarch/jupyter-1.0.0-pyhd8ed1ab_10.conda
     hash:
