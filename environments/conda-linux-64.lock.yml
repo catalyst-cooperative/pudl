@@ -101,7 +101,7 @@ dependencies:
   - libsqlite=3.44.0=h2797004_0
   - libssh2=1.11.0=h0841786_0
   - libxcb=1.15=h0b41bf4_0
-  - libxml2=2.11.5=h232c23b_1
+  - libxml2=2.11.6=h232c23b_0
   - libzip=1.10.1=h2629f0a_3
   - pcre2=10.42=hcad00b1_0
   - readline=8.2=h8228510_1

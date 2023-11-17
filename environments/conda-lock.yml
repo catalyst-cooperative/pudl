@@ -1223,7 +1223,7 @@ package:
     category: main
     optional: false
   - name: libxml2
-    version: 2.11.5
+    version: 2.11.6
     manager: conda
     platform: linux-64
     dependencies:
@@ -1232,10 +1232,10 @@ package:
       libiconv: ">=1.17,<2.0a0"
       libzlib: ">=1.2.13,<1.3.0a0"
       xz: ">=5.2.6,<6.0a0"
-    url: https://conda.anaconda.org/conda-forge/linux-64/libxml2-2.11.5-h232c23b_1.conda
+    url: https://conda.anaconda.org/conda-forge/linux-64/libxml2-2.11.6-h232c23b_0.conda
     hash:
-      md5: f3858448893839820d4bcfb14ad3ecdf
-      sha256: 1b3cb6864de1a558ea5fb144c780121d52507837d15df0600491d8ed92cff90c
+      md5: 427a3e59d66cb5d145020bd9c6493334
+      sha256: e6183d5e57ee48cc1fc4340477c31a6bd8be4d3ba5dded82cbca0d5280591086
     category: main
     optional: false
   - name: libzip
@@ -9010,7 +9010,7 @@ package:
     category: main
     optional: false
   - name: libxml2
-    version: 2.11.5
+    version: 2.11.6
     manager: conda
     platform: osx-64
     dependencies:
@@ -9018,10 +9018,10 @@ package:
       libiconv: ">=1.17,<2.0a0"
       libzlib: ">=1.2.13,<1.3.0a0"
       xz: ">=5.2.6,<6.0a0"
-    url: https://conda.anaconda.org/conda-forge/osx-64/libxml2-2.11.5-h3346baf_1.conda
+    url: https://conda.anaconda.org/conda-forge/osx-64/libxml2-2.11.6-hc0ae0f7_0.conda
     hash:
-      md5: 7584dee6af7de378aed0ae49aebedb8a
-      sha256: d901fab32e57a43c44e630fb1c4d0a163d23b109eecd6c68b9ee371800760bca
+      md5: 2b6ec8c6366ea74db4b910469addad1d
+      sha256: b5b1c3df3e6d0d294764938e79d7f413191cc5b1af2ede49f42b1df04d068a18
     category: main
     optional: false
   - name: lz4-c
@@ -16837,7 +16837,7 @@ package:
     category: main
     optional: false
   - name: libxml2
-    version: 2.11.5
+    version: 2.11.6
     manager: conda
     platform: osx-arm64
     dependencies:
@@ -16845,10 +16845,10 @@ package:
       libiconv: ">=1.17,<2.0a0"
       libzlib: ">=1.2.13,<1.3.0a0"
       xz: ">=5.2.6,<6.0a0"
-    url: https://conda.anaconda.org/conda-forge/osx-arm64/libxml2-2.11.5-h25269f3_1.conda
+    url: https://conda.anaconda.org/conda-forge/osx-arm64/libxml2-2.11.6-h0d0cfa8_0.conda
     hash:
-      md5: 627b5d1377536b5b632ba53cd1455555
-      sha256: 8291549b87aca48e9cd4aec124af01b5037acd16f8ad14083d7af23c8bb6bebe
+      md5: 37e112ce9494adfcee6c0c7bf3b5d98d
+      sha256: 07d2da8f3fb00fb6f84cd36b5329174b878105889f0fe21e79981f27573b47af
     category: main
     optional: false
   - name: lz4-c
