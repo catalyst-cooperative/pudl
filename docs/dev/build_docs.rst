@@ -12,12 +12,12 @@ controlled by ``docs/conf.py``.
 
 If you are editing the documentation and need to regenerate the outputs as
 you go to see your changes reflected locally, the most reliable option is to
-use Tox. Tox will remove the previously generated outputs and regenerate
+use ``make``. Make will remove the previously generated outputs and regenerate
 everything from scratch:
 
 .. code-block:: console
 
-    $ tox -e docs
+    $ make docs-build
 
 If you're just working on a single page and don't care about the entire set
 of documents being regenerated and linked together, you can call Sphinx
@@ -44,5 +44,5 @@ documentation in your text editor with appropriate plugins.
     need to be checked in to version control.
 
     Similarly the :doc:`../data_dictionaries/pudl_db` is generated dynamically
-    by the :mod:`pudl.convert.metadata_to_rst` script that gets run by Tox when
-    it builds the docs.
+    by the :mod:`pudl.convert.metadata_to_rst` script that gets run by Sphinx during
+    the docs build.

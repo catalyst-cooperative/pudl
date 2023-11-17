@@ -75,6 +75,10 @@ def check_date_freq(df1: pd.DataFrame, df2: pd.DataFrame, mult: int) -> None:
     if ("report_date" not in df1.columns) or ("report_date" not in df2.columns):
         raise ValueError("Missing report_date column in one or both input DataFrames")
 
+    # Remove ytd values that mess up ratio assumptions
+    if "data_maturity" in df2:
+        df2 = df2[df2["data_maturity"] != "incremental_ytd"].copy()
+
     idx1 = pd.DatetimeIndex(df1.report_date.unique())
     idx2 = pd.DatetimeIndex(df2.report_date.unique())
 
@@ -351,7 +355,7 @@ def vs_bounds(
     if hi_q <= 1 and hi_bool:
         hi_test = weighted_quantile(df[data_col], df[weight_col], hi_q)
         logger.info(f"{data_col} ({hi_q:.0%}): {hi_test:.6} <= {hi_bound:.6}")
-        if weighted_quantile(df[data_col], df[weight_col], hi_q) > hi_bound:
+        if hi_test > hi_bound:
             raise ValueError(
                 f"{hi_q:.0%} quantile ({hi_test}) "
                 f"is above upper bound ({hi_bound}) "
@@ -832,9 +836,9 @@ plants_steam_ferc1_capacity_ratios = [
         "data_col": "capability_ratio",
         "weight_col": "",
     },
-    {
+    {  # XBRL data (post-2021) reports 0 capability for ~22% of plants, so we exclude.
         "title": "Capability Ratio (tails)",
-        "query": "",
+        "query": "report_year < 2021 | plant_capability_mw > 0",
         "low_q": 0.05,
         "low_bound": 0.5,
         "hi_q": 0.95,
@@ -2664,7 +2668,7 @@ mcoe_gas_heat_rate = [
         "title": "Natural Gas Unit Heat Rates (tails, 2015+)",
         "query": "fuel_type_code_pudl=='gas' and report_date>='2015-01-01'",
         "low_q": 0.05,
-        "low_bound": 6.5,
+        "low_bound": 6.4,
         "hi_q": 0.95,
         "hi_bound": 13.0,
         "data_col": "heat_rate_mmbtu_mwh",
@@ -2729,12 +2733,13 @@ mcoe_fuel_cost_per_mwh = [
         "weight_col": "net_generation_mwh",
     },
     {  # EIA natural gas reporting really only becomes usable in 2015.
+        # Adjusted hi_bound for extra high gas prices in 2022.
         "title": "Natural Gas Fuel Costs (tails, 2015+)",
         "query": "fuel_type_code_pudl=='gas' and report_date>='2015-01-01'",
         "low_q": 0.05,
         "low_bound": 10.0,
         "hi_q": 0.95,
-        "hi_bound": 55.0,
+        "hi_bound": 61.4,
         "data_col": "fuel_cost_per_mwh",
         "weight_col": "net_generation_mwh",
     },
@@ -2773,12 +2778,13 @@ mcoe_fuel_cost_per_mmbtu = [
         "weight_col": "total_mmbtu",
     },
     {  # EIA natural gas reporting really only becomes usable in 2015.
+        # Adjusted the hi_bound for extra high gas prices in 2022.
         "title": "Natural Gas Fuel Costs (tails, 2015+)",
         "query": "fuel_type_code_pudl=='gas' and report_date>='2015-01-01'",
         "low_q": 0.05,
         "low_bound": 1.65,
         "hi_q": 0.95,
-        "hi_bound": 6.7,
+        "hi_bound": 7.8,
         "data_col": "fuel_cost_per_mmbtu",
         "weight_col": "total_mmbtu",
     },

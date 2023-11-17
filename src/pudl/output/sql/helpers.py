@@ -1,5 +1,5 @@
 """Helper functions for creating output assets."""
-import importlib
+import importlib.resources
 
 from dagster import AssetsDefinition, asset
 
@@ -20,8 +20,8 @@ def sql_asset_factory(
     )
     def sql_view_asset() -> str:
         """Asset that creates sql view in a database."""
-        sql_path_traversable = importlib.resources.files("pudl.output.sql").joinpath(
-            f"{name}.sql"
+        sql_path_traversable = (
+            importlib.resources.files("pudl.output.sql") / f"{name}.sql"
         )
         try:
             with importlib.resources.as_file(sql_path_traversable) as sql_path:

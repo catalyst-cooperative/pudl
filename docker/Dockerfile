@@ -1,60 +1,65 @@
-FROM condaforge/mambaforge:4.12.0-0
+FROM mambaorg/micromamba:1.5.1
+
+USER root
+
+SHELL [ "/bin/bash", "-exo", "pipefail", "-c" ]
 
 # Install curl and js
 # awscli requires unzip, less, groff and mandoc
 # hadolint ignore=DL3008
-RUN apt-get update && apt-get install --no-install-recommends -y curl jq unzip less groff mandoc \
-    && apt-get clean \
-    && rm -rf /var/lib/apt/lists/*
+RUN apt-get update && \
+    apt-get install --no-install-recommends -y git curl jq unzip less groff mandoc && \
+    apt-get clean && \
+    rm -rf /var/lib/apt/lists/*
 
 # Configure gsutil authentication
 # hadolint ignore=DL3059
 RUN printf '[GoogleCompute]\nservice_account = default' > /etc/boto.cfg
 
 # Install awscli2
-RUN curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip" && unzip awscliv2.zip && ./aws/install
+RUN curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip" && \
+    unzip awscliv2.zip && \
+    ./aws/install
 
-# Create a non-root user inside the container
-# hadolint ignore=DL3059
-RUN useradd -Ums /bin/bash catalyst
-
-ENV CONTAINER_HOME=/home/catalyst
-
-# Switch to being the catalyst user and go into the copied repo
-USER catalyst
+# Switch back to being non-root user and get into the home directory
+USER $MAMBA_USER
+ENV CONTAINER_HOME=/home/$MAMBA_USER
 WORKDIR ${CONTAINER_HOME}
+
+# Install flyctl
+RUN curl -L https://fly.io/install.sh | sh
+ENV PATH="${CONTAINER_HOME}/.fly/bin:$PATH"
 
 ENV CONDA_PREFIX=${CONTAINER_HOME}/env
 ENV PUDL_REPO=${CONTAINER_HOME}/pudl
-ENV CONDA_RUN="conda run --no-capture-output --prefix ${CONDA_PREFIX}"
-ENV PYTHON_VERSION="3.10"
+ENV CONDA_RUN="micromamba run --prefix ${CONDA_PREFIX}"
 
 ENV CONTAINER_PUDL_WORKSPACE=${CONTAINER_HOME}/pudl_work
-ENV PUDL_INPUT=${CONTAINER_PUDL_WORKSPACE}/data
+ENV PUDL_INPUT=${CONTAINER_PUDL_WORKSPACE}/input
 ENV PUDL_OUTPUT=${CONTAINER_PUDL_WORKSPACE}/output
 ENV DAGSTER_HOME=${CONTAINER_PUDL_WORKSPACE}/dagster_home
 
-# Create data input/output directories
 RUN mkdir -p ${PUDL_INPUT} ${PUDL_OUTPUT} ${DAGSTER_HOME}
 
+# Copy dagster configuration file
+COPY docker/dagster.yaml ${DAGSTER_HOME}/dagster.yaml
+
 # Create a conda environment based on the specification in the repo
-COPY test/test-environment.yml test/test-environment.yml
-RUN mamba create --copy --prefix ${CONDA_PREFIX} --yes python=${PYTHON_VERSION} && \
-    # Then we can use mamba env update, which can parse the environment.yml file:
-    mamba env update --prefix ${CONDA_PREFIX} --file test/test-environment.yml && \
-    conda clean -afy
-
-
+COPY environments/conda-lock.yml environments/conda-lock.yml
+RUN micromamba create --prefix ${CONDA_PREFIX} --yes --file environments/conda-lock.yml && \
+    micromamba clean -afy
 # Copy the cloned pudl repository into the user's home directory
-COPY --chown=catalyst:catalyst . ${CONTAINER_HOME}
+COPY --chown=${MAMBA_USER}:${MAMBA_USER} . ${CONTAINER_HOME}
 
+# TODO(rousik): The following is a workaround for sudden breakage where conda
+# can't find libraries contained within the environment. It's unclear why!
+ENV LD_LIBRARY_PATH=${CONDA_PREFIX}/lib
 # We need information from .git to get version with setuptools_scm so we mount that
 # directory without copying it into the image.
 RUN --mount=type=bind,source=.git,target=${PUDL_REPO}/.git \
-    ${CONDA_RUN} pip install --no-cache-dir -e './[dev,doc,test,datasette]' && \
+    ${CONDA_RUN} pip install --no-cache-dir --no-deps --editable . && \
     # Run the PUDL setup script so we know where to read and write data
     ${CONDA_RUN} pudl_setup
 
-
 # Run the unit tests:
-CMD ["conda", "run", "--no-capture-output", "--prefix", "${CONDA_PREFIX}", "pytest", "test/unit"]
+CMD ["micromamba", "run", "--prefix", "${CONDA_PREFIX}", "--attach", "''", "pytest", "test/unit"]

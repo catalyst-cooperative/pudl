@@ -300,7 +300,7 @@ POLITICAL_SUBDIVISIONS: pd.DataFrame = pd.read_csv(
         """
 subdivision_code,subdivision_name,country_code,country_name,subdivision_type,timezone_approx,state_id_fips,division_name_us_census,division_code_us_census,region_name_us_census,is_epacems_state
 AB,Alberta,CAN,Canada,province,America/Edmonton,,,,,0
-AK,Alaska,USA,United States of America,state,America/Anchorage,"02",Pacific Noncontiguous,PCN,West,0
+AK,Alaska,USA,United States of America,state,America/Anchorage,"02",Pacific Noncontiguous,PCN,West,1
 AL,Alabama,USA,United States of America,state,America/Chicago,"01",East South Central,ESC,South,1
 AR,Arkansas,USA,United States of America,state,America/Chicago,"05",West South Central,WSC,South,1
 AS,American Samoa,USA,United States of America,outlying_area,Pacific/Pago_Pago,"60",,,,0
@@ -314,7 +314,7 @@ DE,Delaware,USA,United States of America,state,America/New_York,"10",South Atlan
 FL,Florida,USA,United States of America,state,America/New_York,"12",South Atlantic,SAT,South,1
 GA,Georgia,USA,United States of America,state,America/New_York,"13",South Atlantic,SAT,South,1
 GU,Guam,USA,United States of America,outlying_area,Pacific/Guam,"66",,,,0
-HI,Hawaii,USA,United States of America,state,Pacific/Honolulu,"15",Pacific Noncontiguous,PCN,West,0
+HI,Hawaii,USA,United States of America,state,Pacific/Honolulu,"15",Pacific Noncontiguous,PCN,West,1
 IA,Iowa,USA,United States of America,state,America/Chicago,"19",West North Central,WNC,Midwest,1
 ID,Idaho,USA,United States of America,state,America/Denver,"16",Mountain,MTN,West,1
 IL,Illinois,USA,United States of America,state,America/Chicago,"17",East North Central,ENC,Midwest,1
@@ -351,7 +351,7 @@ ON,Ontario,CAN,Canada,province,America/Toronto,,,,,0
 OR,Oregon,USA,United States of America,state,America/Los_Angeles,"41",Pacific Contiguous,PCC,West,1
 PA,Pennsylvania,USA,United States of America,state,America/New_York,"42",Middle Atlantic,MAT,Northeast,1
 PE,Prince Edwards Island,CAN,Canada,province,America/Halifax,,,,,0
-PR,Puerto Rico,USA,United States of America,outlying_area,America/Puerto_Rico,"72",,,,0
+PR,Puerto Rico,USA,United States of America,outlying_area,America/Puerto_Rico,"72",,,,1
 QC,Quebec,CAN,Canada,province,America/Montreal,,,,,0
 RI,Rhode Island,USA,United States of America,state,America/New_York,"44",New England,NEW,Northeast,1
 SC,South Carolina,USA,United States of America,state,America/New_York,"45",South Atlantic,SAT,South,1

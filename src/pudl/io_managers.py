@@ -1,4 +1,5 @@
 """Dagster IO Managers."""
+import json
 import re
 from pathlib import Path
 from sqlite3 import sqlite_version
@@ -10,7 +11,6 @@ import sqlalchemy as sa
 from alembic.autogenerate.api import compare_metadata
 from alembic.migration import MigrationContext
 from dagster import (
-    Field,
     InitResourceContext,
     InputContext,
     IOManager,
@@ -23,8 +23,8 @@ from sqlalchemy.exc import SQLAlchemyError
 from upath import UPath
 
 import pudl
-from pudl.helpers import EnvVar
 from pudl.metadata.classes import Package, Resource
+from pudl.workspace.setup import PudlPaths
 
 logger = pudl.logging_helpers.get_logger(__name__)
 
@@ -62,7 +62,7 @@ class ForeignKeyError(SQLAlchemyError):
         return False
 
 
-class ForeignKeyErrors(SQLAlchemyError):
+class ForeignKeyErrors(SQLAlchemyError):  # noqa: N818
     """Raised when data in a database violate multiple foreign key constraints."""
 
     def __init__(self, fk_errors: list[ForeignKeyError]):
@@ -71,7 +71,7 @@ class ForeignKeyErrors(SQLAlchemyError):
 
     def __str__(self):
         """Create string representation of ForeignKeyErrors object."""
-        fk_errors = list(map(lambda x: str(x), self.fk_errors))
+        fk_errors = [str(x) for x in self.fk_errors]
         return "\n".join(fk_errors)
 
     def __iter__(self):
@@ -177,7 +177,7 @@ class SQLiteIOManager(IOManager):
         sa_table = self.md.tables.get(table_name, None)
         if sa_table is None:
             raise ValueError(
-                f"{sa_table} not found in database metadata. Either add the table to "
+                f"{table_name} not found in database metadata. Either add the table to "
                 "the metadata or use a different IO Manager."
             )
         return sa_table
@@ -534,21 +534,10 @@ class PudlSQLiteIOManager(SQLiteIOManager):
         return df
 
 
-@io_manager(
-    config_schema={
-        "pudl_output_path": Field(
-            EnvVar(
-                env_var="PUDL_OUTPUT",
-            ),
-            description="Path of directory to store the database in.",
-            default_value=None,
-        ),
-    }
-)
+@io_manager
 def pudl_sqlite_io_manager(init_context) -> PudlSQLiteIOManager:
     """Create a SQLiteManager dagster resource for the pudl database."""
-    base_dir = init_context.resource_config["pudl_output_path"]
-    return PudlSQLiteIOManager(base_dir=base_dir, db_name="pudl")
+    return PudlSQLiteIOManager(base_dir=PudlPaths().output_dir, db_name="pudl")
 
 
 class FercSQLiteIOManager(SQLiteIOManager):
@@ -655,9 +644,12 @@ class FercDBFSQLiteIOManager(FercSQLiteIOManager):
             context: dagster keyword that provides access output information like asset
                 name.
         """
+        # TODO (daz): this is hard-coded to FERC1, though this is nominally for all FERC datasets.
         ferc1_settings = context.resources.dataset_settings.ferc1
 
         table_name = self._get_table_name(context)
+        # Remove preceeding asset name metadata
+        table_name = table_name.replace("raw_ferc1_dbf__", "")
 
         # Check if the table_name exists in the self.md object
         _ = self._get_sqlalchemy_table(table_name)
@@ -666,7 +658,7 @@ class FercDBFSQLiteIOManager(FercSQLiteIOManager):
 
         with engine.connect() as con:
             return pd.read_sql_query(
-                f"SELECT * FROM {table_name} "  # nosec: B608
+                f"SELECT * FROM {table_name} "  # noqa: S608
                 "WHERE report_year BETWEEN :min_year AND :max_year;",
                 con=con,
                 params={
@@ -676,23 +668,11 @@ class FercDBFSQLiteIOManager(FercSQLiteIOManager):
             ).assign(sched_table_name=table_name)
 
 
-@io_manager(
-    config_schema={
-        "pudl_output_path": Field(
-            EnvVar(
-                env_var="PUDL_OUTPUT",
-            ),
-            description="Path of directory to store the database in.",
-            default_value=None,
-        ),
-    },
-    required_resource_keys={"dataset_settings"},
-)
+@io_manager(required_resource_keys={"dataset_settings"})
 def ferc1_dbf_sqlite_io_manager(init_context) -> FercDBFSQLiteIOManager:
     """Create a SQLiteManager dagster resource for the ferc1 dbf database."""
-    base_dir = init_context.resource_config["pudl_output_path"]
     return FercDBFSQLiteIOManager(
-        base_dir=base_dir,
+        base_dir=PudlPaths().output_dir,
         db_name="ferc1",
     )
 
@@ -705,6 +685,105 @@ class FercXBRLSQLiteIOManager(FercSQLiteIOManager):
     metadata.
     """
 
+    @staticmethod
+    def filter_for_freshest_data(
+        table: pd.DataFrame, primary_key: list[str]
+    ) -> pd.DataFrame:
+        """Get most updated values for each XBRL context.
+
+        An XBRL context includes an entity ID, the time period the data applies
+        to, and other dimensions such as utility type. Each context has its own
+        ID, but they are frequently redefined with the same contents but
+        different IDs - so we identify them by their actual content.
+
+        Each row in our SQLite database includes all the facts for one
+        context/filing pair.
+
+        If one context is represented in multiple filings, we take the facts from the most recently-published filing.
+
+        This means that if a recently-published filing does not include a value for a fact that was previously reported, then that value will remain null. We do not
+        forward-fill facts on a fact-by-fact basis.
+        """
+        filing_metadata_cols = {"publication_time", "filing_name"}
+        xbrl_context_cols = [c for c in primary_key if c not in filing_metadata_cols]
+        # we do this in multiple stages so we can log the drop-off at each stage.
+        stages = [
+            {
+                "message": "completely duplicated rows",
+                "subset": table.columns,
+            },
+            {
+                "message": "rows that are exactly the same in multiple filings",
+                "subset": [c for c in table.columns if c not in filing_metadata_cols],
+            },
+            {
+                "message": "rows that were updated by later filings",
+                "subset": xbrl_context_cols,
+            },
+        ]
+        original = table.sort_values("publication_time")
+        for stage in stages:
+            deduped = original.drop_duplicates(subset=stage["subset"], keep="last")
+            logger.debug(f"Dropped {len(original) - len(deduped)} {stage['message']}")
+            original = deduped
+
+        return deduped
+
+    @staticmethod
+    def refine_report_year(df: pd.DataFrame, xbrl_years: list[int]) -> pd.DataFrame:
+        """Set a fact's report year by its actual dates.
+
+        Sometimes a fact belongs to a context which has no ReportYear
+        associated with it; other times there are multiple ReportYears
+        associated with a single filing. In these cases the report year of a
+        specific fact may be associated with the other years in the filing.
+
+        In many cases we can infer the actual report year from the fact's
+        associated time period - either duration or instant.
+        """
+        is_duration = len({"start_date", "end_date"} - set(df.columns)) == 0
+        is_instant = "date" in df.columns
+
+        def get_year(df: pd.DataFrame, col: str) -> pd.Series:
+            datetimes = pd.to_datetime(df.loc[:, col])
+            if datetimes.isna().any():
+                raise ValueError(f"{col} has null values!")
+            return datetimes.apply(lambda x: x.year)
+
+        if is_duration:
+            start_years = get_year(df, "start_date")
+            end_years = get_year(df, "end_date")
+            if not (start_years == end_years).all():
+                raise ValueError("start_date and end_date are in different years!")
+            new_report_years = start_years
+        elif is_instant:
+            new_report_years = get_year(df, "date")
+        else:
+            raise ValueError("Attempted to read a non-instant, non-duration table.")
+
+        # we include XBRL data from before our "officially supported" XBRL
+        # range because we want to use it to set start-of-year values for the
+        # first XBRL year.
+        xbrl_years_plus_one_previous = [min(xbrl_years) - 1] + xbrl_years
+        return (
+            df.assign(report_year=new_report_years)
+            .loc[lambda df: df.report_year.isin(xbrl_years_plus_one_previous)]
+            .reset_index(drop=True)
+        )
+
+    def _get_primary_key(self, sched_table_name: str) -> list[str]:
+        # TODO (daz): as of 2023-10-13, our datapackage.json is merely
+        # "frictionless-like" so we manually parse it as JSON. once we make our
+        # datapackage.json conformant, we will need to at least update the
+        # "primary_key" to "primaryKey", but maybe there will be other changes
+        # as well.
+        with (self.base_dir / f"{self.db_name}_datapackage.json").open() as f:
+            datapackage = json.loads(f.read())
+        [table_resource] = [
+            tr for tr in datapackage["resources"] if tr["name"] == sched_table_name
+        ]
+        return table_resource["schema"]["primary_key"]
+
     def handle_output(self, context: OutputContext, obj: pd.DataFrame | str):
         """Handle an op or asset output."""
         raise NotImplementedError("FercXBRLSQLiteIOManager can't write outputs yet.")
@@ -716,9 +795,13 @@ class FercXBRLSQLiteIOManager(FercSQLiteIOManager):
             context: dagster keyword that provides access output information like asset
                 name.
         """
+        # TODO (daz): this is hard-coded to FERC1, though this is nominally for all FERC datasets.
         ferc1_settings = context.resources.dataset_settings.ferc1
 
         table_name = self._get_table_name(context)
+        # Remove preceeding asset name metadata
+        table_name = table_name.replace("raw_ferc1_xbrl__", "")
+
         # TODO (bendnorman): Figure out a better to handle tables that
         # don't have duration and instant
         # Not every table contains both instant and duration
@@ -728,41 +811,33 @@ class FercXBRLSQLiteIOManager(FercSQLiteIOManager):
 
         engine = self.engine
 
-        id_table = "identification_001_duration"
-
         sched_table_name = re.sub("_instant|_duration", "", table_name)
         with engine.connect() as con:
-            return pd.read_sql(
-                f"""
-                SELECT {table_name}.*, {id_table}.report_year FROM {table_name}
-                JOIN {id_table} ON {id_table}.filing_name = {table_name}.filing_name
-                WHERE {id_table}.report_year BETWEEN :min_year AND :max_year;
-                """,  # nosec: B608 - table names not supplied by user
+            df = pd.read_sql(
+                f"SELECT {table_name}.* FROM {table_name}",  # noqa: S608 - table names not supplied by user
                 con=con,
-                params={
-                    "min_year": min(ferc1_settings.xbrl_years),
-                    "max_year": max(ferc1_settings.xbrl_years),
-                },
             ).assign(sched_table_name=sched_table_name)
 
+        primary_key = self._get_primary_key(table_name)
 
-@io_manager(
-    config_schema={
-        "pudl_output_path": Field(
-            EnvVar(
-                env_var="PUDL_OUTPUT",
-            ),
-            description="Path of directory to store the database in.",
-            default_value=None,
-        ),
-    },
-    required_resource_keys={"dataset_settings"},
-)
+        return (
+            df.pipe(
+                FercXBRLSQLiteIOManager.filter_for_freshest_data,
+                primary_key=primary_key,
+            )
+            .pipe(
+                FercXBRLSQLiteIOManager.refine_report_year,
+                xbrl_years=ferc1_settings.xbrl_years,
+            )
+            .drop(columns=["publication_time"])
+        )
+
+
+@io_manager(required_resource_keys={"dataset_settings"})
 def ferc1_xbrl_sqlite_io_manager(init_context) -> FercXBRLSQLiteIOManager:
     """Create a SQLiteManager dagster resource for the ferc1 dbf database."""
-    base_dir = init_context.resource_config["pudl_output_path"]
     return FercXBRLSQLiteIOManager(
-        base_dir=base_dir,
+        base_dir=PudlPaths().output_dir,
         db_name="ferc1_xbrl",
     )
 
@@ -793,21 +868,12 @@ class PandasParquetIOManager(UPathIOManager):
         )
 
 
-@io_manager(
-    config_schema={
-        "base_path": Field(
-            EnvVar(
-                env_var="PUDL_OUTPUT",
-            ),
-            is_required=False,
-            default_value=None,
-        )
-    }
-)
+@io_manager
 def epacems_io_manager(
     init_context: InitResourceContext,
 ) -> PandasParquetIOManager:
     """IO Manager that writes EPA CEMS partitions to individual parquet files."""
     schema = Resource.from_id("hourly_emissions_epacems").to_pyarrow()
-    base_path = UPath(init_context.resource_config["base_path"])
-    return PandasParquetIOManager(base_path=base_path, schema=schema)
+    return PandasParquetIOManager(
+        base_path=UPath(PudlPaths().output_dir), schema=schema
+    )

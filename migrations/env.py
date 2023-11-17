@@ -5,7 +5,7 @@ from alembic import context
 from sqlalchemy import engine_from_config, pool
 
 from pudl.metadata.classes import Package
-from pudl.workspace.setup import get_defaults
+from pudl.workspace.setup import PudlPaths
 
 # this is the Alembic Config object, which provides
 # access to the values within the .ini file in use.
@@ -28,7 +28,7 @@ target_metadata = Package.from_resource_ids().to_sql()
 # my_important_option = config.get_main_option("my_important_option")
 # ... etc.
 
-db_location = get_defaults()["pudl_db"]
+db_location = PudlPaths().pudl_db
 logger.info(f"alembic config.sqlalchemy.url: {db_location}")
 config.set_main_option("sqlalchemy.url", db_location)
 

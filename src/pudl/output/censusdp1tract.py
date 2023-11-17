@@ -42,17 +42,17 @@ def census_asset_factory(layer: str) -> AssetsDefinition:
             table_name = f"{layer}_2010census_dp1"
             df = pd.read_sql(
                 """
-        SELECT geom_cols.f_table_name as table_name,
-            geom_cols.f_geometry_column as geom_col,
-            crs.auth_name as auth_name,
-            crs.auth_srid as auth_srid
-        FROM geometry_columns geom_cols
-        INNER JOIN spatial_ref_sys crs
-            ON geom_cols.srid = crs.srid
-        WHERE table_name = ?
-        """,
+SELECT geom_cols.f_table_name as table_name,
+    geom_cols.f_geometry_column as geom_col,
+    crs.auth_name as auth_name,
+    crs.auth_srid as auth_srid
+FROM geometry_columns geom_cols
+INNER JOIN spatial_ref_sys crs
+    ON geom_cols.srid = crs.srid
+WHERE table_name = ?
+""",
                 dp1_engine,
-                params=[table_name],
+                params=(table_name,),
             )
             if len(df) != 1:
                 raise AssertionError(
@@ -65,7 +65,7 @@ def census_asset_factory(layer: str) -> AssetsDefinition:
             gdf = gpd.read_postgis(
                 table_name, dp1_engine, geom_col=geom_col, crs=crs_auth_str
             )
-            gdf.rename_geometry("geometry", inplace=True)
+            gdf = gdf.rename_geometry("geometry")
 
             return gdf
 

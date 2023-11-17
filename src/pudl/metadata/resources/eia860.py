@@ -228,13 +228,18 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
                 # See: https://github.com/catalyst-cooperative/pudl/issues/1196
                 "exclude": [
                     "boiler_fuel_eia923",
-                    "fuel_receipts_costs_eia923",
-                    "generation_eia923",
+                    "capacity_factor_by_generator_monthly",
                     "denorm_generation_eia923",
                     "denorm_generation_monthly_eia923",
+                    "fuel_cost_by_generator_monthly",
+                    "fuel_receipts_costs_eia923",
+                    "generation_eia923",
                     "generation_fuel_by_generator_energy_source_monthly_eia923",
                     "generation_fuel_by_generator_monthly_eia923",
                     "generation_fuel_eia923",
+                    "heat_rate_by_generator_monthly",
+                    "mcoe_monthly",
+                    "mcoe_generators_monthly",
                 ],
             },
         },
@@ -250,11 +255,10 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
         "schema": {
             "fields": [
                 "report_date",
-                "utility_id_eia",
+                "owner_utility_id_eia",
                 "plant_id_eia",
                 "generator_id",
-                "owner_utility_id_eia",
-                "owner_name",
+                "owner_utility_name_eia",
                 "owner_state",
                 "owner_city",
                 "owner_country",
@@ -286,12 +290,10 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
                 "plant_id_eia",
                 "plant_id_pudl",
                 "plant_name_eia",
-                "utility_id_eia",
-                "utility_id_pudl",
-                "utility_name_eia",
-                "generator_id",
                 "owner_utility_id_eia",
-                "owner_name",
+                "utility_id_pudl",
+                "owner_utility_name_eia",
+                "generator_id",
                 "owner_state",
                 "owner_city",
                 "owner_country",
@@ -379,11 +381,16 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
                     "denorm_generation_fuel_combined_monthly_eia923",
                     "generation_fuel_by_generator_energy_source_monthly_eia923",
                     "generation_fuel_by_generator_monthly_eia923",
-                    # "generation_fuel_by_generator_energy_source_owner_monthly_eia923",
                     "fuel_receipts_costs_eia923",
                     "generation_eia923",
                     "generation_fuel_eia923",
                     "generation_fuel_nuclear_eia923",
+                    "heat_rate_by_unit_monthly",
+                    "heat_rate_by_generator_monthly",
+                    "fuel_cost_by_generator_monthly",
+                    "capacity_factor_by_generator_monthly",
+                    "mcoe_monthly",
+                    "mcoe_generators_monthly",
                 ],
             },
         },
@@ -427,10 +434,7 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
             "foreign_key_rules": {
                 "fields": [
                     ["utility_id_eia", "report_date"],
-                    # Failing because this column is not harvested in the old
-                    # system. TODO: re-enable when we switch to new system.
-                    # https://github.com/catalyst-cooperative/pudl/issues/1196
-                    # ["owner_utility_id_eia", "report_date"],
+                    ["owner_utility_id_eia", "report_date"],
                 ],
                 # TODO: Excluding monthly data tables since their report_date
                 # values don't match up with plants_eia860, which is annual, so
@@ -454,6 +458,7 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
                     "denorm_generation_monthly_eia923",
                     "denorm_generation_fuel_combined_eia923",
                     "denorm_generation_fuel_combined_monthly_eia923",
+                    "fuel_cost_by_generator_monthly",
                     "generation_fuel_by_generator_energy_source_monthly_eia923",
                     "generation_fuel_by_generator_monthly_eia923",
                     # Utility IDs in this table are owners, not operators, and we are
@@ -468,6 +473,8 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
                     "energy_efficiency_eia861",
                     "fipsified_respondents_ferc714",
                     "green_pricing_eia861",
+                    "mcoe_monthly",
+                    "mcoe_generators_monthly",
                     "mergers_eia861",
                     "net_metering_customer_fuel_class_eia861",
                     "net_metering_misc_eia861",

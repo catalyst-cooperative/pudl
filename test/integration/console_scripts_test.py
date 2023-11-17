@@ -1,13 +1,14 @@
 """Test the PUDL console scripts from within PyTest."""
 
-import pkg_resources
+import importlib.metadata
+
 import pytest
 
 # Obtain a list of all deployed entry point scripts to test:
 PUDL_SCRIPTS = [
     ep.name
-    for ep in pkg_resources.iter_entry_points("console_scripts")
-    if ep.module_name.startswith("pudl")
+    for ep in importlib.metadata.entry_points(group="console_scripts")
+    if ep.value.startswith("pudl")
 ]
 
 

@@ -56,22 +56,22 @@ class TestDatapackageDescriptor(unittest.TestCase):
         )
         self.assertEqual(
             [
-                dict(group="first", color="red"),
-                dict(group="first", color="blue"),
-                dict(group="second", color="black", order=1),
+                {"group": "first", "color": "red"},
+                {"group": "first", "color": "blue"},
+                {"group": "second", "color": "black", "order": 1},
             ],
             list(desc.get_partition_filters()),
         )
         self.assertEqual(
             [
-                dict(group="first", color="red"),
-                dict(group="first", color="blue"),
+                {"group": "first", "color": "red"},
+                {"group": "first", "color": "blue"},
             ],
             list(desc.get_partition_filters(group="first")),
         )
         self.assertEqual(
             [
-                dict(group="first", color="blue"),
+                {"group": "first", "color": "blue"},
             ],
             list(desc.get_partition_filters(color="blue")),
         )
@@ -91,6 +91,20 @@ class TestDatapackageDescriptor(unittest.TestCase):
         self.assertEqual("http://localhost/bar", desc.get_resource_path("bar"))
         # The following resource does not exist and should throw KeyError
         self.assertRaises(KeyError, desc.get_resource_path, "other")
+
+    def test_modernize_zenodo_legacy_api_url(self):
+        legacy_url = "https://zenodo.org/api/files/082e4932-c772-4e9c-a670-376a1acc3748/datapackage.json"
+
+        descriptor = datastore.DatapackageDescriptor(
+            {"resources": [{"name": "datapackage.json", "path": legacy_url}]},
+            dataset="test",
+            doi="10.5281/zenodo.123123",
+        )
+
+        assert (
+            descriptor.get_resource_path("datapackage.json")
+            == "https://zenodo.org/records/123123/files/datapackage.json"
+        )
 
     def test_get_resources_filtering(self):
         """Verifies correct operation of get_resources()."""
@@ -190,18 +204,18 @@ class MockableZenodoFetcher(datastore.ZenodoFetcher):
     ):
         """Construct a test-friendly ZenodoFetcher with descriptors pre-loaded."""
         super().__init__(**kwargs)
-        self._descriptor_cache = dict(descriptors)
+        self._descriptor_cache = descriptors
 
 
 class TestZenodoFetcher(unittest.TestCase):
     """Unit tests for ZenodoFetcher class."""
 
     MOCK_EPACEMS_DEPOSITION = {
-        "files": [
-            {"filename": "random.zip"},
+        "entries": [
+            {"key": "random.zip"},
             {
-                "filename": "datapackage.json",
-                "links": {"download": "http://localhost/my/datapackage.json"},
+                "key": "datapackage.json",
+                "links": {"content": "http://localhost/my/datapackage.json"},
             },
         ]
     }
@@ -220,8 +234,8 @@ class TestZenodoFetcher(unittest.TestCase):
             },
         ]
     }
-    PROD_EPACEMS_DOI = "10.5281/zenodo.6910058"
-    PROD_EPACEMS_ZEN_ID = 6910058  # This is the last numeric part of doi
+    PROD_EPACEMS_DOI = "10.5281/zenodo.8235497"
+    PROD_EPACEMS_ZEN_ID = 8235497  # This is the last numeric part of doi
 
     def setUp(self):
         """Constructs mockable Zenodo fetcher based on MOCK_EPACEMS_DATAPACKAGE."""
@@ -235,37 +249,39 @@ class TestZenodoFetcher(unittest.TestCase):
             }
         )
 
-    def test_sandbox_doi_format_is_correct(self):
-        """Verifies that sandbox ZenodoFetcher DOIs have the right format."""
-        ds = datastore.ZenodoFetcher(sandbox=True)
-        self.assertTrue(ds.get_known_datasets())
-        for dataset in ds.get_known_datasets():
-            print(f"doi for {dataset} is {ds.get_doi(dataset)}")
-            self.assertTrue(
-                re.fullmatch(
-                    r"10\.5072/zenodo\.[0-9]{5,10}", ds.get_doi(dataset)
-                ),  # noqa: FS003
-                msg=f"doi for {dataset} is {ds.get_doi(dataset)}",
-            )
+    def test_doi_format_is_correct(self):
+        """Verifies ZenodoFetcher DOIs have correct format and are not sandbox DOIs.
 
-    def test_prod_doi_format_is_correct(self):
-        """Verifies that production ZenodoFetcher DOIs have the right format."""
-        ds = datastore.ZenodoFetcher(sandbox=False)
-        self.assertTrue(ds.get_known_datasets())
-        for dataset in ds.get_known_datasets():
+        Sandbox DOIs are only meant for use in testing and development, and should not
+        be checked in, thus this test will fail if a sandbox DOI with prefix 10.5072 is
+        identified.
+        """
+        zf = datastore.ZenodoFetcher()
+        self.assertTrue(zf.get_known_datasets())
+        for dataset, doi in zf.zenodo_dois:
             self.assertTrue(
-                re.fullmatch(
-                    r"10\.5281/zenodo\.[0-9]{5,10}", ds.get_doi(dataset)
-                ),  # noqa: FS003
-                msg=f"doi for {dataset} is {ds.get_doi(dataset)}",
+                zf.get_doi(dataset) == doi,
+                msg=f"Zenodo DOI for {dataset} matches result of get_doi()",
+            )
+            self.assertFalse(
+                re.fullmatch(r"10\.5072/zenodo\.[0-9]{5,10}", doi),
+                msg=f"Zenodo sandbox DOI found for {dataset}: {doi}",
+            )
+            self.assertTrue(
+                re.fullmatch(r"10\.5281/zenodo\.[0-9]{5,10}", doi),
+                msg=f"Zenodo production DOI for {dataset} is {doi}",
             )
 
     def test_get_known_datasets(self):
         """Call to get_known_datasets() produces the expected results."""
         self.assertEqual(
-            sorted(datastore.ZenodoFetcher.DOI["production"]),
+            sorted(name for name, doi in datastore.ZenodoFetcher().zenodo_dois),
             self.fetcher.get_known_datasets(),
         )
+
+    def test_get_unknown_dataset(self):
+        """Ensure that we get a failure when attempting to access an invalid dataset."""
+        self.assertRaises(AttributeError, self.fetcher.get_doi, "unknown")
 
     def test_doi_of_prod_epacems_matches(self):
         """Most of the tests assume specific DOI for production epacems dataset.
@@ -280,7 +296,7 @@ class TestZenodoFetcher(unittest.TestCase):
         fetcher = datastore.ZenodoFetcher()
         responses.add(
             responses.GET,
-            f"https://zenodo.org/api/deposit/depositions/{self.PROD_EPACEMS_ZEN_ID}",
+            f"https://zenodo.org/api/records/{self.PROD_EPACEMS_ZEN_ID}/files",
             json=self.MOCK_EPACEMS_DEPOSITION,
         )
         responses.add(
@@ -291,19 +307,6 @@ class TestZenodoFetcher(unittest.TestCase):
         desc = fetcher.get_descriptor("epacems")
         self.assertEqual(self.MOCK_EPACEMS_DATAPACKAGE, desc.datapackage_json)
         # self.assertTrue(responses.assert_call_count("http://localhost/my/datapackage.json", 1))
-
-    def test_get_resource_key(self):
-        """Tests normal operation of get_resource_key()."""
-        self.assertEqual(
-            PudlResourceKey("epacems", self.PROD_EPACEMS_DOI, "blob.zip"),
-            self.fetcher.get_resource_key("epacems", "blob.zip"),
-        )
-
-    def test_get_resource_key_for_unknown_dataset_fails(self):
-        """When get_resource_key() is called for unknown dataset it throws KeyError."""
-        self.assertRaises(
-            KeyError, self.fetcher.get_resource_key, "unknown", "blob.zip"
-        )
 
     @responses.activate
     def test_get_resource(self):
@@ -316,10 +319,12 @@ class TestZenodoFetcher(unittest.TestCase):
 
     @responses.activate
     def test_get_resource_with_invalid_checksum(self):
-        """Test that retrieving resource with bad checksum raises ChecksumMismatch."""
+        """Test that resource with bad checksum raises ChecksumMismatchError."""
         responses.add(responses.GET, "http://localhost/first", body="wrongContent")
         res = PudlResourceKey("epacems", self.PROD_EPACEMS_DOI, "first")
-        self.assertRaises(datastore.ChecksumMismatch, self.fetcher.get_resource, res)
+        self.assertRaises(
+            datastore.ChecksumMismatchError, self.fetcher.get_resource, res
+        )
 
     def test_get_resource_with_nonexistent_resource_fails(self):
         """If resource does not exist, get_resource() throws KeyError."""

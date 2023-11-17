@@ -13,87 +13,87 @@ import pandas as pd
 ##############################################################################
 # Unit converstion parameters
 ##############################################################################
-PERPOUND_TO_PERSHORTTON = dict(
-    multiplier=2000.0,
-    from_unit=r"_per_lb",
-    to_unit=r"_per_ton",
-)
+PERPOUND_TO_PERSHORTTON = {
+    "multiplier": 2000.0,
+    "from_unit": r"_per_lb",
+    "to_unit": r"_per_ton",
+}
 """Parameters for converting from inverse pounds to inverse short tons."""
 
-CENTS_TO_DOLLARS = dict(
-    multiplier=0.01,
-    from_unit=r"_cents",
-    to_unit=r"_usd",
-)
+CENTS_TO_DOLLARS = {
+    "multiplier": 0.01,
+    "from_unit": r"_cents",
+    "to_unit": r"_usd",
+}
 """Parameters for converting from cents to dollars."""
 
-CENTS_PERMMBTU_TO_USD_PERMMBTU = dict(
-    multiplier=0.01,
-)
+CENTS_PERMMBTU_TO_USD_PERMMBTU = {
+    "multiplier": 0.01,
+}
 """Parameters for converting from cents per mmbtu to dollars per mmbtu."""
 
 
-PERCF_TO_PERMCF = dict(
-    multiplier=1000.0,
-    from_unit=r"_per_cf",
-    to_unit=r"_per_mcf",
-)
+PERCF_TO_PERMCF = {
+    "multiplier": 1000.0,
+    "from_unit": r"_per_cf",
+    "to_unit": r"_per_mcf",
+}
 """Parameters for converting from inverse cubic feet to inverse 1000s of cubic feet."""
 
-PERGALLON_TO_PERBARREL = dict(
-    multiplier=42.0,
-    from_unit=r"_per_gal",
-    to_unit=r"_per_bbl",
-)
+PERGALLON_TO_PERBARREL = {
+    "multiplier": 42.0,
+    "from_unit": r"_per_gal",
+    "to_unit": r"_per_bbl",
+}
 """Parameters for converting from inverse gallons to inverse barrels."""
 
-PERKW_TO_PERMW = dict(
-    multiplier=1000.0,
-    from_unit=r"_per_kw",
-    to_unit=r"_per_mw",
-)
+PERKW_TO_PERMW = {
+    "multiplier": 1000.0,
+    "from_unit": r"_per_kw",
+    "to_unit": r"_per_mw",
+}
 """Parameters for converting column units from per kW to per MW."""
 
-PERKWH_TO_PERMWH = dict(
-    multiplier=1000.0,
-    from_unit=r"_per_kwh",
-    to_unit=r"_per_mwh",
-)
+PERKWH_TO_PERMWH = {
+    "multiplier": 1000.0,
+    "from_unit": r"_per_kwh",
+    "to_unit": r"_per_mwh",
+}
 """Parameters for converting column units from per kWh to per MWh."""
 
-KW_TO_MW = dict(
-    multiplier=1e-3,
-    from_unit=r"_kw",
-    to_unit=r"_mw",
-)
+KW_TO_MW = {
+    "multiplier": 1e-3,
+    "from_unit": r"_kw",
+    "to_unit": r"_mw",
+}
 """Parameters for converting column units from kW to MW."""
 
-KWH_TO_MWH = dict(
-    multiplier=1e-3,
-    from_unit=r"_kwh",
-    to_unit=r"_mwh",
-)
+KWH_TO_MWH = {
+    "multiplier": 1e-3,
+    "from_unit": r"_kwh",
+    "to_unit": r"_mwh",
+}
 """Parameters for converting column units from kWh to MWh."""
 
-BTU_TO_MMBTU = dict(
-    multiplier=1e-6,
-    from_unit=r"_btu",
-    to_unit=r"_mmbtu",
-)
+BTU_TO_MMBTU = {
+    "multiplier": 1e-6,
+    "from_unit": r"_btu",
+    "to_unit": r"_mmbtu",
+}
 """Parameters for converting column units from BTU to MMBTU."""
 
-PERBTU_TO_PERMMBTU = dict(
-    multiplier=1e6,
-    from_unit=r"_per_btu",
-    to_unit=r"_per_mmbtu",
-)
+PERBTU_TO_PERMMBTU = {
+    "multiplier": 1e6,
+    "from_unit": r"_per_btu",
+    "to_unit": r"_per_mmbtu",
+}
 """Parameters for converting column units from BTU to MMBTU."""
 
-BTU_PERKWH_TO_MMBTU_PERMWH = dict(
-    multiplier=(1e-6 * 1000.0),
-    from_unit=r"_btu_per_kwh",
-    to_unit=r"_mmbtu_per_mwh",
-)
+BTU_PERKWH_TO_MMBTU_PERMWH = {
+    "multiplier": (1e-6 * 1000.0),
+    "from_unit": r"_btu_per_kwh",
+    "to_unit": r"_mmbtu_per_mwh",
+}
 """Parameters for converting column units from BTU/kWh to MMBTU/MWh."""
 
 
@@ -299,6 +299,8 @@ UTILITY_TYPE_CATEGORIES = {
         "electric": {"electric", "ferc:ElectricUtilityMember"},
         "gas": {"gas", "ferc:GasUtilityMember"},
         "common": {"common", "ferc:CommonUtilityMember"},
+        "other": {"other", "ferc:OtherUtilityMember"},
+        "total": {"total"},
     }
 }
 
@@ -326,6 +328,7 @@ FUEL_CATEGORIES: dict[str, set[str]] = {
     "categories": {
         "coal": {
             "bit coal",
+            "bit-coal",
             "ciak",
             "coa",
             "coal",
@@ -979,7 +982,8 @@ FUEL_UNIT_CATEGORIES: dict[str, set[str]] = {
             "mw days thrml",
             "nuclear mwd",
             "mmwd",
-            "mw day/therml" "mw days/therm",
+            "mw day/therml",
+            "mw days/therm",
             "mw days (th",
             "ermal)",
         },
@@ -1019,11 +1023,9 @@ FUEL_UNIT_CATEGORIES: dict[str, set[str]] = {
             'a"',
             "dekatherm",
             "0",
-            "mw day/therml",
             "nuclear",
             "gas",
             "62,679",
-            "mw days/therm",
             "uranium",
             "oil/gas",
             "thermal",
@@ -1362,7 +1364,8 @@ PLANT_TYPE_CATEGORIES: dict[str, set[str]] = {
             "nuclear",
             "nuclear (3)",
             "steam(nuclear)",
-            "nuclear(see note4)" "nuclear steam",
+            "nuclear(see note4)",
+            "nuclear steam",
             "nuclear turbine",
             "nuclear - steam",
             "nuclear (a)(b)(c)",
@@ -1846,7 +1849,8 @@ CONSTRUCTION_TYPE_CATEGORIES: dict[str, set[str]] = {
             "semi outdoor boiler",
             "semi- outdoor",
             "semi - outdoors",
-            "semi -outdoor" "conven & semi-outdr",
+            "semi -outdoor",
+            "conven & semi-outdr",
             "conv & semi-outdoor",
             "conv & semi- outdoor",
             "convent. semi-outdr",
@@ -1964,7 +1968,7 @@ CONSTRUCTION_TYPE_CATEGORIES: dict[str, set[str]] = {
             "conven full boiler",
             "c0nventional",
             "conventtional",
-            "convential" "underground",
+            "convential",
             "conventional bulb",
             "conventrional",
             "*conventional",
@@ -2013,6 +2017,9 @@ CONSTRUCTION_TYPE_CATEGORIES: dict[str, set[str]] = {
             "conventional - boilr",
             "indoor boiler and st",
             "conven",
+            "conv. underground",
+            "conven. underground",
+            "conventional (a)",
         },
         "na_category": {
             "na_category",
@@ -2123,9 +2130,6 @@ CONSTRUCTION_TYPE_CATEGORIES: dict[str, set[str]] = {
             "pump storage",
             "underground",
             "see page 402",
-            "conv. underground",
-            "conven. underground",
-            "conventional (a)",
             "non-applicable",
             "duct burner",
             "see footnote",
@@ -2372,6 +2376,17 @@ TRANSFORM_PARAMS = {
                     ("f1_steam_2003_12_62_2_2", "smith"),
                     ("f1_steam_2000_12_204_0_1", "seabrook"),
                     ("f1_steam_2001_12_204_0_1", "seabrook"),
+                ],
+            },
+            {
+                "idx_cols": ["record_id"],
+                "fix_cols": ["capacity_mw"],
+                "expect_unique": True,
+                "spot_fixes": [
+                    (
+                        "steam_electric_generating_plant_statistics_large_plants_402_2021_c000290_cliffside",
+                        1530.5,
+                    ),
                 ],
             },
         ],
@@ -2723,7 +2738,19 @@ TRANSFORM_PARAMS = {
             "on": "ferc_account_label",
         },
         "align_row_numbers_dbf": {"dbf_table_names": ["f1_plant_in_srvce"]},
-        "reconcile_table_calculations": {"column_to_check": "ending_balance"},
+        # Known issue with reporting of construction in progress not classified in classified fields of table.
+        "reconcile_table_calculations": {
+            "column_to_check": "ending_balance",
+            "group_metric_checks": {
+                "group_metric_tolerances": {
+                    "ungrouped": {"error_frequency": 0.08},
+                    "utility_id_ferc1": {
+                        "error_frequency": 0.038,
+                        "relative_error_magnitude": 0.11,
+                    },
+                },
+            },
+        },
     },
     "plants_pumped_storage_ferc1": {
         "rename_columns_ferc1": {
@@ -2910,8 +2937,8 @@ TRANSFORM_PARAMS = {
                     "energy_charges_of_purchased_power": "energy_charges",
                     "energy_delivered_through_power_exchanges": "delivered_mwh",
                     "energy_received_through_power_exchanges": "received_mwh",
-                    "megawatt_hours_purchased_for_energy_storage": "purchased_storage_mwh",  # new column
-                    "megawatt_hours_purchased_other_than_storage": "purchased_mwh",
+                    "megawatt_hours_purchased_for_energy_storage": "purchased_storage_mwh",
+                    "megawatt_hours_purchased_other_than_storage": "purchased_other_than_storage_mwh",
                     "name_of_company_or_public_authority_providing_purchased_power": "seller_name",
                     "other_charges_of_purchased_power": "other_charges",
                     "purchased_power_axis": "purchased_power_axis",  # new probably pk col
@@ -2941,6 +2968,7 @@ TRANSFORM_PARAMS = {
                     "other_charges",
                     "total_settlement",
                     "purchased_storage_mwh",
+                    "purchased_other_than_storage_mwh",
                     "billing_demand_mw",
                     "non_coincident_peak_demand_mw",
                     "coincident_peak_demand_mw",
@@ -3307,8 +3335,6 @@ TRANSFORM_PARAMS = {
             "utility_type": {
                 "categories": UTILITY_TYPE_CATEGORIES["categories"]
                 | {
-                    "total": {"total"},
-                    "other1": {"other1", "ferc:OtherUtilityMember"},
                     "other2": {"other2", "ferc:OtherUtility2Member"},
                     "other3": {"other3", "ferc:OtherUtility3Member"},
                 }
@@ -3323,6 +3349,29 @@ TRANSFORM_PARAMS = {
         "reconcile_table_calculations": {
             "column_to_check": "ending_balance",
             "subtotal_column": "utility_type",
+            "group_metric_checks": {
+                "group_metric_tolerances": {
+                    "ungrouped": {
+                        "error_frequency": 0.0092,
+                        "relative_error_magnitude": 0.039,
+                    },
+                    "report_year": {
+                        "error_frequency": 0.24,  # 2021 is bad :-/
+                        "null_calculated_value_frequency": 1.0,
+                        "relative_error_magnitude": 0.47,  # 2021 is bad :-/
+                    },
+                    "xbrl_factoid": {
+                        "error_frequency": 0.16,
+                        "relative_error_magnitude": 0.2,
+                        "null_calculated_value_frequency": 1.0,
+                    },  # utility_plant_and_construction_work_in_progress bad
+                    "utility_id_ferc1": {
+                        "error_frequency": 0.21,  # 444 is bad
+                        "relative_error_magnitude": 0.074,
+                        "null_calculated_value_frequency": 1.0,
+                    },
+                },
+            },
         },
     },
     "balance_sheet_assets_ferc1": {
@@ -3346,6 +3395,7 @@ TRANSFORM_PARAMS = {
                     "entity_id": "utility_id_ferc1_xbrl",
                     "report_year": "report_year",
                     "xbrl_factoid": "asset_type",
+                    "preliminary_natural_gas_survey_and_investigation_charges_and_other_preliminary_survey_and_investigation_charges": "preliminary_natural_gas_survey_and_investigation_charges",
                 }
             },
         },
@@ -3373,7 +3423,14 @@ TRANSFORM_PARAMS = {
             "rename_columns": {"xbrl_factoid": "asset_type"},
             "on": "asset_type",
         },
-        "reconcile_table_calculations": {"column_to_check": "ending_balance"},
+        "reconcile_table_calculations": {
+            "column_to_check": "ending_balance",
+            "group_metric_checks": {
+                "group_metric_tolerances": {
+                    "ungrouped": {"error_frequency": 0.0002},
+                },
+            },
+        },
     },
     "balance_sheet_liabilities_ferc1": {
         "rename_columns_ferc1": {
@@ -3499,6 +3556,12 @@ TRANSFORM_PARAMS = {
         "reconcile_table_calculations": {
             "column_to_check": "dollar_value",
             "subtotal_column": "plant_function",
+            "group_metric_checks": {
+                "group_metric_tolerances": {
+                    "ungrouped": {"null_calculated_value_frequency": 0.84},
+                    "report_year": {"null_calculated_value_frequency": 1.0},
+                },
+            },
         },
     },
     "electric_operating_revenues_ferc1": {
@@ -3630,7 +3693,23 @@ TRANSFORM_PARAMS = {
                 ],
             },
         ],
-        "reconcile_table_calculations": {"column_to_check": "dollar_value"},
+        "reconcile_table_calculations": {
+            "column_to_check": "dollar_value",
+            "group_metric_checks": {
+                "group_metric_tolerances": {
+                    "ungrouped": {"error_frequency": 0.0031},
+                    "xbrl_factoid": {
+                        "error_frequency": 0.04,
+                        "null_calculated_value_frequency": 1.0,
+                        "relative_error_magnitude": 0.03,
+                    },  # other_operating_revenues bad
+                    "utility_id_ferc1": {
+                        "error_frequency": 0.17,
+                        "null_calculated_value_frequency": 1.0,
+                    },
+                },
+            },
+        },
     },
     "retained_earnings_ferc1": {
         "rename_columns_ferc1": {
@@ -3708,7 +3787,9 @@ TRANSFORM_PARAMS = {
         "strip_non_numeric_values": {"amount": {"strip_non_numeric_values": True}},
         "reconcile_table_calculations": {
             "column_to_check": "ending_balance",
-            "calculation_tolerance": 0.08,
+            "group_metric_checks": {
+                "group_metric_tolerances": {"ungrouped": {"error_frequency": 0.08}},
+            },
         },
     },
     "income_statement_ferc1": {
@@ -3874,6 +3955,17 @@ TRANSFORM_PARAMS = {
         "reconcile_table_calculations": {
             "column_to_check": "dollar_value",
             "subtotal_column": "utility_type",
+            "group_metric_checks": {
+                "group_metric_tolerances": {
+                    "ungrouped": {"null_calculated_value_frequency": 0.74},
+                    "report_year": {"null_calculated_value_frequency": 1.0},
+                    "utility_id_ferc1": {
+                        "error_frequency": 0.042,
+                        "relative_error_magnitude": 0.22,
+                        "null_calculated_value_frequency": 1.0,
+                    },
+                },
+            },
         },
     },
     "electric_plant_depreciation_changes_ferc1": {
@@ -3975,8 +4067,26 @@ TRANSFORM_PARAMS = {
             "column_to_check": "dollar_value",
             # Note: this table does not currently get exploded. It will require
             # additional debugging at a later date.
-            "calculation_tolerance": 0.4,
-            "subtotal_column": "depreciation_type",
+            "group_metric_checks": {
+                "group_metric_tolerances": {
+                    "ungrouped": {
+                        "error_frequency": 0.058,
+                        "relative_error_magnitude": 0.045,
+                    },
+                    "report_year": {
+                        "error_frequency": 0.078,
+                        "relative_error_magnitude": 0.073,
+                    },
+                    "utility_id_ferc1": {
+                        "error_frequency": 0.14,
+                        "relative_error_magnitude": 0.66,
+                    },
+                    "xbrl_factoid": {
+                        "error_frequency": 0.58,
+                        "relative_error_magnitude": 0.1,
+                    },  # ending_balance is bad
+                },
+            },
         },
     },
     "electric_plant_depreciation_functional_ferc1": {
@@ -4052,8 +4162,8 @@ TRANSFORM_PARAMS = {
             },
         },
         "merge_xbrl_metadata": {
-            "rename_columns": {"xbrl_factoid": "plant_function"},
-            "on": "plant_function",
+            "rename_columns": {"xbrl_factoid": "depreciation_type"},
+            "on": "depreciation_type",
         },
         "select_dbf_rows_by_category": {
             "column_name": "plant_function",
@@ -4424,7 +4534,23 @@ TRANSFORM_PARAMS = {
             "rename_columns": {"xbrl_factoid": "expense_type"},
             "on": "expense_type",
         },
-        "reconcile_table_calculations": {"column_to_check": "dollar_value"},
+        "reconcile_table_calculations": {
+            "column_to_check": "dollar_value",
+            "group_metric_checks": {
+                "group_metric_tolerances": {
+                    "ungrouped": {"relative_error_magnitude": 0.002},
+                    "report_year": {"relative_error_magnitude": 0.042},
+                    "xbrl_factoid": {
+                        "error_frequency": 0.018,
+                        "relative_error_magnitude": 0.028,
+                    },
+                    "utility_id_ferc1": {
+                        "error_frequency": 0.017,
+                        "relative_error_magnitude": 0.066,
+                    },
+                },
+            },
+        },
     },
     "other_regulatory_liabilities_ferc1": {
         "rename_columns_ferc1": {

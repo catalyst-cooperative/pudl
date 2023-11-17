@@ -243,12 +243,30 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "type": "number",
         "description": "Fraction of potential generation that was actually reported for a plant part.",
     },
+    "capacity_factor_eia": {
+        "type": "number",
+        "description": "Fraction of potential generation that was actually reported for a plant part.",
+    },
+    "capacity_factor_ferc1": {
+        "type": "number",
+        "description": "Fraction of potential generation that was actually reported for a plant part.",
+    },
     "capacity_mw": {
         "type": "number",
         "description": "Total installed (nameplate) capacity, in megawatts.",
         "unit": "MW",
         # TODO: Disambiguate if necessary. Does this mean different things in
         # different tables? It shows up in a lot of places.
+    },
+    "capacity_mw_eia": {
+        "type": "number",
+        "description": "Total installed (nameplate) capacity, in megawatts.",
+        "unit": "MW",
+    },
+    "capacity_mw_ferc1": {
+        "type": "number",
+        "description": "Total installed (nameplate) capacity, in megawatts.",
+        "unit": "MW",
     },
     "capex_annual_addition": {
         "type": "number",
@@ -413,6 +431,14 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "type": "integer",
         "description": "Year the plant's oldest still operational unit was built.",
     },
+    "construction_year_eia": {
+        "type": "integer",
+        "description": "Year the plant's oldest still operational unit was built.",
+    },
+    "construction_year_ferc1": {
+        "type": "integer",
+        "description": "Year the plant's oldest still operational unit was built.",
+    },
     "consumed_by_facility_mwh": {"type": "number", "unit": "MWh"},
     "consumed_by_respondent_without_charge_mwh": {"type": "number", "unit": "MWh"},
     "contact_firstname": {
@@ -445,6 +471,7 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "description": "Purchase type under which receipts occurred in the reporting month. C: Contract, NC: New Contract, S: Spot Purchase, T: Tolling Agreement.",
         "constraints": {"enum": ["S", "C", "NC", "T"]},
     },
+    "country": {"type": "string", "description": "Three letter country abbreviation."},
     "emission_control_id_eia": {
         "type": "string",
         "description": (
@@ -981,7 +1008,27 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "description": "Average fuel cost per mmBTU of heat content in nominal USD.",
         "unit": "USD_per_MMBtu",
     },
+    "fuel_cost_per_mmbtu_eia": {
+        "type": "number",
+        "description": "Average fuel cost per mmBTU of heat content in nominal USD.",
+        "unit": "USD_per_MMBtu",
+    },
+    "fuel_cost_per_mmbtu_ferc1": {
+        "type": "number",
+        "description": "Average fuel cost per mmBTU of heat content in nominal USD.",
+        "unit": "USD_per_MMBtu",
+    },
     "fuel_cost_per_mwh": {
+        "type": "number",
+        "description": "Derived from MCOE, a unit level value. Average fuel cost per MWh of heat content in nominal USD.",
+        "unit": "USD_per_MWh",
+    },
+    "fuel_cost_per_mwh_eia": {
+        "type": "number",
+        "description": "Derived from MCOE, a unit level value. Average fuel cost per MWh of heat content in nominal USD.",
+        "unit": "USD_per_MWh",
+    },
+    "fuel_cost_per_mwh_ferc1": {
         "type": "number",
         "description": "Derived from MCOE, a unit level value. Average fuel cost per MWh of heat content in nominal USD.",
         "unit": "USD_per_MWh",
@@ -1055,6 +1102,24 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "description": "A partial aggregation of the reported fuel type codes into larger categories used by EIA in, for example, the Annual Energy Review (AER). Two or three letter alphanumeric.",
     },
     "fuel_type_code_pudl": {
+        "type": "string",
+        "description": "Simplified fuel type code used in PUDL",
+        "constraints": {
+            "enum": sorted(
+                set(CODE_METADATA["energy_sources_eia"]["df"].fuel_type_code_pudl)
+            )
+        },
+    },
+    "fuel_type_code_pudl_eia": {
+        "type": "string",
+        "description": "Simplified fuel type code used in PUDL",
+        "constraints": {
+            "enum": sorted(
+                set(CODE_METADATA["energy_sources_eia"]["df"].fuel_type_code_pudl)
+            )
+        },
+    },
+    "fuel_type_code_pudl_ferc1": {
         "type": "string",
         "description": "Simplified fuel type code used in PUDL",
         "constraints": {
@@ -1147,6 +1212,16 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "description": "Fuel content per unit of electricity generated. Coming from MCOE calculation.",
         "unit": "MMBtu_MWh",
     },
+    "heat_rate_mmbtu_mwh_eia": {
+        "type": "number",
+        "description": "Fuel content per unit of electricity generated. Coming from MCOE calculation.",
+        "unit": "MMBtu_MWh",
+    },
+    "heat_rate_mmbtu_mwh_ferc1": {
+        "type": "number",
+        "description": "Fuel content per unit of electricity generated. Calculated from FERC reported fuel consumption and net generation.",
+        "unit": "MMBtu_MWh",
+    },
     "highest_distribution_voltage_kv": {"type": "number", "unit": "kV"},
     "home_area_network": {"type": "integer"},
     "hrsg": {
@@ -1173,6 +1248,14 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     "incremental_life_cycle_peak_reduction_mwh": {"type": "number", "unit": "MWh"},
     "incremental_peak_reduction_mw": {"type": "number", "unit": "MW"},
     "installation_year": {
+        "type": "integer",
+        "description": "Year the plant's most recently built unit was installed.",
+    },
+    "installation_year_eia": {
+        "type": "integer",
+        "description": "Year the plant's most recently built unit was installed.",
+    },
+    "installation_year_ferc1": {
         "type": "integer",
         "description": "Year the plant's most recently built unit was installed.",
     },
@@ -1245,6 +1328,10 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "description": "Longitude of the plant's location, in degrees.",
     },
     "major_program_changes": {"type": "boolean"},
+    "match_type": {
+        "type": "string",
+        "description": "Indicates the source and validation of the match between EIA and FERC. Match types include matches was generated from the model, verified by the training data, overridden by the training data, etc.",
+    },
     "max_fuel_mmbtu_per_unit": {
         "type": "number",
         "description": "Maximum heat content per physical unit of fuel in MMBtu.",
@@ -1412,6 +1499,16 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         # TODO: disambiguate as this column means something different in
         # generation_fuel_eia923:
         # "description": "Net generation, year to date in megawatthours (MWh). This is total electrical output net of station service.  In the case of combined heat and power plants, this value is intended to include internal consumption of electricity for the purposes of a production process, as well as power put on the grid.",
+    },
+    "net_generation_mwh_eia": {
+        "type": "number",
+        "description": "Net electricity generation for the specified period in megawatt-hours (MWh).",
+        "unit": "MWh",
+    },
+    "net_generation_mwh_ferc1": {
+        "type": "number",
+        "description": "Net electricity generation for the specified period in megawatt-hours (MWh).",
+        "unit": "MWh",
     },
     "net_load_mwh": {
         "type": "number",
@@ -1594,6 +1691,18 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "type": "string",
         "description": "The operating status of the asset using PUDL categories.",
         "constraints": {"enum": ["operating", "retired", "proposed"]},
+    },
+    "operator_name": {
+        "type": "string",
+        "descripion": "The name of the EIA operator utility.",
+    },
+    "operator_state": {
+        "type": "string",
+        "description": "The state where the operator utility is located.",
+    },
+    "operator_utility_id_eia": {
+        "type": "integer",
+        "descrption": "The EIA utility Identification number for the operator utility.",
     },
     "opex_allowances": {"type": "number", "description": "Allowances.", "unit": "USD"},
     "opex_boiler": {
@@ -1789,7 +1898,11 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     },
     "owner_utility_id_eia": {
         "type": "integer",
-        "description": "EIA-assigned owner's identification number.",
+        "description": "The EIA utility Identification number for the owner company that is responsible for the day-to-day operations of the generator, not the operator utility.",
+    },
+    "owner_utility_name_eia": {
+        "type": "string",
+        "description": "The name of the EIA owner utility.",
     },
     "owner_zip_code": {
         "type": "string",
@@ -2059,7 +2172,17 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     },
     "purchased_mwh": {
         "type": "number",
-        "description": "Megawatt-hours shown on bills rendered to the respondent.",
+        "description": "Megawatt-hours shown on bills rendered to the respondent. Includes both electricity purchased for storage and non-storage purposes, which were lumped together prior to 2021.",
+        "unit": "MWh",
+    },
+    "purchased_other_than_storage_mwh": {
+        "type": "number",
+        "description": "Number of megawatt hours purchased during the period for other than energy storage.",
+        "unit": "MWh",
+    },
+    "purchased_storage_mwh": {
+        "type": "number",
+        "description": "Number of megawatt hours purchased during the period for energy storage.",
         "unit": "MWh",
     },
     "pv_current_flow_type": {"type": "string", "constraints": {"enum": ["AC", "DC"]}},
@@ -2089,6 +2212,14 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "description": "Number of distinct generator IDs that partcipated in the aggregation for a plant part list record.",
     },
     "record_id": {
+        "type": "string",
+        "description": "Identifier indicating original FERC Form 1 source record. format: {table_name}_{report_year}_{report_prd}_{respondent_id}_{spplmnt_num}_{row_number}. Unique within FERC Form 1 DB tables which are not row-mapped.",  # noqa: FS003
+    },
+    "record_id_eia": {
+        "type": "string",
+        "description": "Identifier for EIA plant parts analysis records.",
+    },
+    "record_id_ferc1": {
         "type": "string",
         "description": "Identifier indicating original FERC Form 1 source record. format: {table_name}_{report_year}_{report_prd}_{respondent_id}_{spplmnt_num}_{row_number}. Unique within FERC Form 1 DB tables which are not row-mapped.",  # noqa: FS003
     },
@@ -2526,8 +2657,24 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "type": "number",
         "description": "Total annual reported fuel costs for the plant part. Includes costs from all fuels.",
     },
+    "total_fuel_cost_eia": {
+        "type": "number",
+        "description": "Total annual reported fuel costs for the plant part. Includes costs from all fuels.",
+    },
+    "total_fuel_cost_ferc1": {
+        "type": "number",
+        "description": "Total annual reported fuel costs for the plant part. Includes costs from all fuels.",
+    },
     "total_meters": {"type": "integer", "unit": "m"},
     "total_mmbtu": {
+        "type": "number",
+        "description": "Total annual heat content of fuel consumed by a plant part record in the plant parts list.",
+    },
+    "total_mmbtu_eia": {
+        "type": "number",
+        "description": "Total annual heat content of fuel consumed by a plant part record in the plant parts list.",
+    },
+    "total_mmbtu_ferc1": {
         "type": "number",
         "description": "Total annual heat content of fuel consumed by a plant part record in the plant parts list.",
     },
@@ -2619,11 +2766,6 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     "utility_id_eia": {
         "type": "integer",
         "description": "The EIA Utility Identification number.",
-        # TODO: Disambiguate column name. In some cases this specifically refers to
-        # the utility which operates a given plant or generator, but comes from the
-        # same set of IDs as all the utility IDs.
-        # E.g. in ownership_eia860 or generators_eia860 it would be something like:
-        # "description": "EIA-assigned identification number for the company that is responsible for the day-to-day operations of the generator.",
     },
     "utility_id_ferc1": {
         "type": "integer",
@@ -2863,7 +3005,12 @@ FIELD_METADATA_BY_RESOURCE: dict[str, dict[str, Any]] = {
                     "Pacific/Honolulu",
                 ]
             }
-        }
+        },
+        "report_date": {
+            "constraints": {
+                "required": True,
+            }
+        },
     },
 }
 
@@ -2907,7 +3054,7 @@ def apply_pudl_dtypes(
 ) -> pd.DataFrame:
     """Apply dtypes to those columns in a dataframe that have PUDL types defined.
 
-    Note at ad-hoc column dtypes can be defined and merged with default PUDL field
+    Note that ad-hoc column dtypes can be defined and merged with default PUDL field
     metadata before it's passed in as ``field_meta`` if you have module specific column
     types you need to apply alongside the standard PUDL field types.
 

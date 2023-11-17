@@ -5,8 +5,8 @@ from pathlib import Path
 
 import dask.dataframe as dd
 
-import pudl
 from pudl.settings import EpaCemsSettings
+from pudl.workspace.setup import PudlPaths
 
 
 def year_state_filter(
@@ -133,8 +133,7 @@ def epacems(
         columns = list(columns)
 
     if epacems_path is None:
-        pudl_settings = pudl.workspace.setup.get_defaults()
-        epacems_path = Path(pudl_settings["pudl_out"]) / "epacems"
+        epacems_path = PudlPaths().output_dir / "epacems"
 
     epacems = dd.read_parquet(
         epacems_path,

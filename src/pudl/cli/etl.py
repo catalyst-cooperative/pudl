@@ -27,6 +27,7 @@ from dagster import (
 
 import pudl
 from pudl.settings import EtlSettings
+from pudl.workspace.setup import PudlPaths
 
 logger = pudl.logging_helpers.get_logger(__name__)
 
@@ -43,12 +44,6 @@ def parse_command_line(argv):
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument(
         dest="settings_file", type=str, default="", help="path to ETL settings file."
-    )
-    parser.add_argument(
-        "--sandbox",
-        action="store_true",
-        default=False,
-        help="Use the Zenodo sandbox rather than production",
     )
     parser.add_argument(
         "--logfile",
@@ -121,9 +116,6 @@ def main():
 
     etl_settings = EtlSettings.from_yaml(args.settings_file)
 
-    # Set PUDL_INPUT/PUDL_OUTPUT env vars from .pudl.yml if not set already!
-    pudl.workspace.setup.get_defaults()
-
     dataset_settings_config = etl_settings.datasets.dict()
     process_epacems = True
     if etl_settings.datasets.epacems is None:
@@ -158,7 +150,6 @@ def main():
                 "dataset_settings": {"config": dataset_settings_config},
                 "datastore": {
                     "config": {
-                        "sandbox": args.sandbox,
                         "gcs_cache_path": args.gcs_cache_path
                         if args.gcs_cache_path
                         else "",
@@ -179,7 +170,7 @@ def main():
             logger.info(f"Publishing outputs to {output_path}")
             fs, _, _ = fsspec.get_fs_token_paths(output_path)
             fs.put(
-                etl_settings.pudl_out,
+                PudlPaths().output_dir,
                 output_path,
                 recursive=True,
             )

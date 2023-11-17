@@ -65,7 +65,7 @@ def test__parse_data_column(elec_txt_dataframe):
                 4371683.38189,
             ],
         },
-    )
+    ).convert_dtypes()
     expected.loc[:, "series_id"] = expected.loc[:, "series_id"].astype(
         "category", copy=False
     )

@@ -1,9 +1,10 @@
 """Collection of Dagster resources for PUDL."""
+
 from dagster import Field, resource
 
-from pudl.helpers import EnvVar
 from pudl.settings import DatasetsSettings, FercToSqliteSettings, create_dagster_config
 from pudl.workspace.datastore import Datastore
+from pudl.workspace.setup import PudlPaths
 
 
 @resource(config_schema=create_dagster_config(DatasetsSettings()))
@@ -28,13 +29,6 @@ def ferc_to_sqlite_settings(init_context) -> FercToSqliteSettings:
 
 @resource(
     config_schema={
-        "local_cache_path": Field(
-            EnvVar(
-                env_var="PUDL_INPUT",
-            ),
-            description="Path to local cache of raw data.",
-            default_value=None,
-        ),
         "gcs_cache_path": Field(
             str,
             description="Load datastore resources from Google Cloud Storage.",
@@ -45,19 +39,15 @@ def ferc_to_sqlite_settings(init_context) -> FercToSqliteSettings:
             description="If enabled, the local file cache for datastore will be used.",
             default_value=True,
         ),
-        "sandbox": Field(
-            bool,
-            description="Use the Zenodo sandbox rather than production",
-            default_value=False,
-        ),
     },
 )
 def datastore(init_context) -> Datastore:
     """Dagster resource to interact with Zenodo archives."""
     ds_kwargs = {}
     ds_kwargs["gcs_cache_path"] = init_context.resource_config["gcs_cache_path"]
-    ds_kwargs["sandbox"] = init_context.resource_config["sandbox"]
 
     if init_context.resource_config["use_local_cache"]:
-        ds_kwargs["local_cache_path"] = init_context.resource_config["local_cache_path"]
+        # TODO(rousik): we could also just use PudlPaths().input_dir here, because
+        # it should be initialized to the right values.
+        ds_kwargs["local_cache_path"] = PudlPaths().input_dir
     return Datastore(**ds_kwargs)

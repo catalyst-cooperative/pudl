@@ -34,7 +34,7 @@ def nuke_gen_fraction(df):
     "df_name,expected_nuke_fraction,tolerance",
     [
         ("gf_eia923", 0.2, 0.02),
-        ("mcoe", 0.2, 0.02),
+        ("mcoe_generators", 0.2, 0.02),
     ],
 )
 def test_nuclear_fraction(fast_out, df_name, expected_nuke_fraction, tolerance):
@@ -88,12 +88,10 @@ def test_ferc1_outputs(fast_out, df_name):
         ("gens_eia860", "capacity_factor", 12 / 1, {}),
         pytest.param(
             "gens_eia860",
-            "mcoe",
+            "mcoe_generators",
             12 / 1,
             {"all_gens": False},
-            marks=pytest.mark.xfail(
-                reason="MCOE has time coverage issues that will be resolved in Dagster migration."
-            ),
+            marks=pytest.mark.xfail(reason="MCOE has time coverage issues."),
         ),
     ],
 )
@@ -128,7 +126,7 @@ def test_annual_eia_outputs(fast_out_annual, df_name):
 @pytest.mark.parametrize(
     "df_name,thresh",
     [
-        ("mcoe", 0.9),
+        ("mcoe_generators", 0.9),
     ],
 )
 def test_null_rows(fast_out, df_name, thresh):

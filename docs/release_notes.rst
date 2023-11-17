@@ -32,12 +32,13 @@ Dagster Adoption
     returns the resources ids for a given etl group.
   * :mod:`pudl.settings.FercToSqliteSettings` class now loads all FERC
     datasources if no datasets are specified.
+  * The Excel extractor in ``pudl.extract.excel`` has been updated to parallelize
+    Excel spreadsheet extraction using Dagster ``@multi_asset`` functionality, thanks to
+    :user:`dstansby`. This is currently being used for EIA 860, 861 and 923 data. See
+    :issue:`2385` and PRs :pr:`2644`, :pr:`2943`.
 
 * EIA ETL changes:
 
-  * EIA extract methods are now ``@multi_asset`` that return an asset for each
-    raw table. 860 and 923 are separate ``@multi_asset`` which allows this data
-    to be extracted in parallel.
   * The EIA table level cleaning functions are now
     dagster assets. The table level cleaning assets now have a "clean\_" prefix
     and a "_{datasource}" suffix to distinguish them from the final harvested tables.
@@ -69,7 +70,14 @@ Dagster Adoption
 Data Coverage
 ^^^^^^^^^^^^^
 
-* Updated :doc:`data_sources/eia860` to include data as of 2022-09.
+* Updated :doc:`data_sources/eia860` to include final release data from 2022.
+* Updated :doc:`data_sources/eia861` to include final release data from 2022.
+* Updated :doc:`data_sources/eia923` to include early release data from 2022 and
+  monthly YTD data as of April 2023.
+* Updated :doc:`data_sources/epacems` to switch from the old FTP server to the new
+  CAMPD API, and to include 2022 data. Due to changes in the ETL, Alaska, Puerto Rico
+  and Hawaii are now included in CEMS processing. See issue :issue:`1264` & PRs
+  :pr:`2779`, :pr:` 2816`.
 * New :ref:`epacamd_eia` crosswalk version v0.3, see issue :issue:`2317` and PR
   :pr:`2316`. EPA's updates add manual matches and exclusions focusing on operating
   units with a generator ID as of 2018.
@@ -96,6 +104,11 @@ Data Coverage
   * :ref:`cash_flow_ferc1`, see issue :issue:`1821` & PR :pr:`2184`
   * :ref:`electricity_sales_by_rate_schedule_ferc1`, see issue :issue:`1823` & PR
     :pr:`2205`
+* Harvested owner utilities from the EIA 860 ownership table which are now included in
+  the :ref:`utilities_entity_eia` and :ref:`utilities_eia` tables. See :pr:`2714` and
+  :pr:`2903`. Renamed columns with owner or operator suffix to differentiate between
+  owner and operator utility columns in :ref:`ownership_eia860` and
+  :ref:`denorm_ownership_eia860`.
 
 * New PUDL tables from :doc:`data_sources/eia860`:
 
@@ -169,6 +182,9 @@ Data Coverage
   connects EPA CAMD with EIA. Thanks to :user:`grgmiller` for his contribution to this
   process. See :issue:`2456` & :pr:`2491`.
 
+* Added new table :ref:`out__yearly_plants_all_ferc1_plant_parts_eia` which links FERC1
+  records from :ref:`denorm_plants_all_ferc1` and :ref:`plant_parts_eia`.
+
 * Thanks to contributions from :user:`rousik` we've generalized the code we use to
   convert FERC's old annual Visual FoxPro databases into multi-year SQLite databases.
 
@@ -241,6 +257,13 @@ Analysis
   associating those gf and bf records are more cleanly associated with generators.
   Thanks to :user:`grgmiller` for his contribution, which was integrated by
   :user:`cmgosnell`! See PRs :pr:`2235,2446`.
+* The :mod:`pudl.analysis.mcoe` table now uses the allocated estimates for per-generator
+  net generation and fuel consumption. See PR :pr:`2553`.
+* Additionally, the :mod:`pudl.analysis.mcoe` table now only includes attributes
+  pertaining to the generator capacity, heat rate, and fuel cost. No additional
+  generator attributes are included in this table. The full table with generator
+  attributes merged on is now provided by :mod:`pudl.analysis.mcoe_generators`. See PR
+  :pr:`2553`.
 * Added outputs from :mod:`pudl.analysis.service_territory` and
   :mod:`pudl.analysis.state_demand` into PUDL. These outputs include the US Census
   geometries associated with balancing authority and utility data from EIA 861
@@ -303,6 +326,11 @@ Miscellaneous
   reported a balancing authority code of "ISONE" to "NYISO". These plants now retain
   their original EIA codes. Plants with manual re-mapping of BA codes have also been
   fixed to have correctly updated BA names. See :pr:`2312` and :issue:`2255`.
+* Fixed a column naming bug that was causing EIA860 monthly retirement dates to get
+  nulled out. See :issue:`2834` and :pr:`2835`
+* Switched to using ``conda-lock`` and ``Makefile`` to manage testing and python
+  environment. Moved away from packaging PUDL for distribution via PyPI and
+  ``conda-forge`` and toward treating it as an application.  See :pr:`2968`
 
 .. _release-v2022.11.30:
 

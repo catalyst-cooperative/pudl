@@ -28,7 +28,7 @@ FIELD_DTYPES_PYARROW: dict[str, pa.lib.DataType] = {
     "year": pa.int32(),
 }
 
-FIELD_DTYPES_SQL: dict[str, sa.sql.visitors.VisitableType] = {
+FIELD_DTYPES_SQL: dict[str, type] = {
     "boolean": sa.Boolean,
     "date": sa.Date,
     # Ensure SQLite's string representation of datetime uses only whole seconds:
@@ -62,7 +62,7 @@ LICENSES: dict[str, dict[str, str]] = {
     "us-govt": {
         "name": "other-pd",
         "title": "U.S. Government Works",
-        "path": "https://www.usa.gov/government-works",
+        "path": "https://www.usa.gov/publicdomain/label/1.0/",
     },
 }
 """License attributes."""
@@ -83,6 +83,7 @@ CONTRIBUTORS: dict[str, dict[str, str]] = {
         "email": "pudl@catalyst.coop",
         "path": "https://catalyst.coop",
         "role": "publisher",
+        "zenodo_role": "distributor",
         "organization": "Catalyst Cooperative",
     },
     "zane-selvans": {
@@ -90,6 +91,7 @@ CONTRIBUTORS: dict[str, dict[str, str]] = {
         "email": "zane.selvans@catalyst.coop",
         "path": "https://amateurearthling.org",
         "role": "wrangler",
+        "zenodo_role": "project member",
         "organization": "Catalyst Cooperative",
         "orcid": "0000-0002-9961-7208",
     },
@@ -97,18 +99,22 @@ CONTRIBUTORS: dict[str, dict[str, str]] = {
         "title": "Christina Gosnell",
         "email": "christina.gosnell@catalyst.coop",
         "role": "contributor",
+        "zenodo_role": "project member",
         "organization": "Catalyst Cooperative",
+        "orcid": "0009-0004-2979-6142",
     },
     "steven-winter": {
         "title": "Steven Winter",
         "email": "steven.winter@catalyst.coop",
         "role": "contributor",
+        "zenodo_role": "project member",
         "organization": "Catalyst Cooperative",
     },
     "alana-wilson": {
         "title": "Alana Wilson",
         "email": "alana.wilson@catalyst.coop",
         "role": "contributor",
+        "zenodo_role": "project member",
         "organization": "Catalyst Cooperative",
     },
     "karl-dunkle-werner": {
@@ -116,43 +122,68 @@ CONTRIBUTORS: dict[str, dict[str, str]] = {
         "email": "karldw@berkeley.edu",
         "path": "https://karldw.org",
         "role": "contributor",
+        "zenodo_role": "project member",
         "organization": "UC Berkeley",
+        "orcid": "0000-0003-0523-7309",
     },
     "greg-schivley": {
         "title": "Greg Schivley",
         "path": "https://gschivley.github.io",
         "role": "contributor",
+        "zenodo_role": "project member",
         "organization": "Carbon Impact Consulting",
+        "orcid": "0000-0002-8947-694X",
     },
     "austen-sharpe": {
         "title": "Austen Sharpe",
         "email": "austen.sharpe@catalyst.coop",
         "role": "contributor",
+        "zenodo_role": "project member",
         "organization": "Catalyst Cooperative",
     },
     "katherine-lamb": {
         "title": "Katherine Lamb",
         "email": "katherine.lamb@catalyst.coop",
         "role": "contributor",
+        "zenodo_role": "project member",
         "organization": "Catalyst Cooperative",
     },
     "bennett-norman": {
         "title": "Bennett Norman",
         "email": "bennett.norman@catalyst.coop",
         "role": "contributor",
+        "zenodo_role": "project member",
         "organization": "Catalyst Cooperative",
     },
     "trenton-bush": {
         "title": "Trenton Bush",
         "email": "trenton.bush@catalyst.coop",
         "role": "contributor",
+        "zenodo_role": "project member",
         "organization": "Catalyst Cooperative",
     },
     "ethan-welty": {
         "title": "Ethan Welty",
         "email": "ethan.welty@gmail.com",
         "role": "contributor",
+        "zenodo_role": "project member",
         "organization": "Catalyst Cooperative",
+        "orcid": "0000-0001-8046-2210",
+    },
+    "dazhong-xia": {
+        "title": "Dazhong Xia",
+        "email": "dazhong.xia@catalyst.coop",
+        "role": "contributor",
+        "zenodo_role": "project member",
+        "organization": "Catalyst Cooperative",
+    },
+    "ella-belfer": {
+        "title": "Ella Belfer",
+        "email": "ella.belfer@catalyst.coop",
+        "role": "contributor",
+        "zenodo_role": "project member",
+        "organization": "Catalyst Cooperative",
+        "orcid": "0000-0001-9784-8531",
     },
 }
 """PUDL Contributors for attribution."""
@@ -258,6 +289,39 @@ KEYWORDS: dict[str, list[str]] = {
         "usa",
         "government",
         "federal",
+    ],
+    "msha": [
+        "msha",
+        "mshamines",
+        "mine safety and health administration",
+        "mines",
+        "mining",
+        "coal",
+        "metal",
+        "department of labor",
+    ],
+    "phmsa": [
+        "phmsa",
+        "phmsagas",
+        "pipelines and hazardous materials safety administration",
+        "pipelines",
+        "natural gas",
+        "transmission",
+        "distribution",
+        "gathering",
+        "liquified natural gas",
+        "lng",
+        "underground natural gas storage",
+        "department of transportation",
+        "us dot",
+    ],
+    "eia_water": [
+        "eia thermoelectric cooling water",
+        "eia waterthermoelectric",
+        "cooling water",
+        "water usage",
+        "water energy nexus",
+        "energy water nexus",
     ],
 }
 

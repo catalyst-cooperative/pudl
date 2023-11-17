@@ -48,15 +48,9 @@ def parse_command_line(argv):
         "--clobber",
         action="store_true",
         help="""Clobber existing sqlite database if it exists. If clobber is
-        not included but the sqlite databse already exists the _build will
+        not included but the sqlite databse already exists the build will
         fail.""",
         default=False,
-    )
-    parser.add_argument(
-        "--sandbox",
-        action="store_true",
-        default=False,
-        help="Use the Zenodo sandbox rather than production",
     )
     parser.add_argument(
         "-b",
@@ -113,7 +107,7 @@ def ferc_to_sqlite_job_factory(
                 resource_defs=ferc_to_sqlite.default_resources_defs,
                 name="ferc_to_sqlite_job",
             )
-        elif enable_xbrl:
+        if enable_xbrl:
             return ferc_to_sqlite.ferc_to_sqlite_xbrl_only.to_job(
                 resource_defs=ferc_to_sqlite.default_resources_defs,
                 name="ferc_to_sqlite_xbrl_only_job",
@@ -139,9 +133,6 @@ def main():  # noqa: C901
 
     etl_settings = EtlSettings.from_yaml(args.settings_file)
 
-    # Set PUDL_INPUT/PUDL_OUTPUT env vars from .pudl.yml if not set already!
-    pudl.workspace.setup.get_defaults()
-
     ferc_to_sqlite_reconstructable_job = build_reconstructable_job(
         "pudl.ferc_to_sqlite.cli",
         "ferc_to_sqlite_job_factory",
@@ -158,7 +149,6 @@ def main():  # noqa: C901
                 },
                 "datastore": {
                     "config": {
-                        "sandbox": args.sandbox,
                         "gcs_cache_path": args.gcs_cache_path
                         if args.gcs_cache_path
                         else "",

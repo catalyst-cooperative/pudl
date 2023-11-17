@@ -111,8 +111,8 @@ def test_resource_with_only_key_fields_harvests() -> None:
 
 # ---- EIA example ---- #
 
-INPUT_DFS: dict[str, pd.DataFrame] = dict(
-    service_territory_eia861=pd.DataFrame(
+INPUT_DFS: dict[str, pd.DataFrame] = {
+    "service_territory_eia861": pd.DataFrame(
         columns=[
             "utility_id_eia",
             "utility_name_eia",
@@ -127,7 +127,7 @@ INPUT_DFS: dict[str, pd.DataFrame] = dict(
             (3989, "City of Colorado Springs - (CO)", "2018-01-01", "Teller", "CO"),
         ],
     ),
-    sales_eia861=pd.DataFrame(
+    "sales_eia861": pd.DataFrame(
         columns=[
             "utility_id_eia",
             "utility_name_eia",
@@ -179,7 +179,7 @@ INPUT_DFS: dict[str, pd.DataFrame] = dict(
             ),
         ],
     ),
-    generation_eia923=pd.DataFrame(
+    "generation_eia923": pd.DataFrame(
         columns=[
             "plant_id_eia",
             "generator_id",
@@ -204,7 +204,7 @@ INPUT_DFS: dict[str, pd.DataFrame] = dict(
             (3, "1", "2018-12-01", -494.0, "ST", "T", "SOCO"),
         ],
     ),
-    generators_eia860=pd.DataFrame(
+    "generators_eia860": pd.DataFrame(
         columns=[
             "plant_id_eia",
             "generator_id",
@@ -223,7 +223,7 @@ INPUT_DFS: dict[str, pd.DataFrame] = dict(
             (3, "2", "2018-01-01", 50, "ST", 195, "Alabama Power Co", "B", "AL"),
         ],
     ),
-    boiler_generator_assn_eia860=pd.DataFrame(
+    "boiler_generator_assn_eia860": pd.DataFrame(
         columns=["plant_id_eia", "generator_id", "report_year", "boiler_id"],
         data=[
             (3, "1", "2018-01-01", "1ST"),
@@ -236,7 +236,7 @@ INPUT_DFS: dict[str, pd.DataFrame] = dict(
             (4, "b", "2017-01-01", "b1"),
         ],
     ),
-)
+}
 
 FIELD_DTYPES: dict[str, str] = {
     "balancing_authority_code_eia": "string",
@@ -340,12 +340,12 @@ for i, d in enumerate(RESOURCES):
     ]
     RESOURCES[i] = Resource(**d)
 
-EXPECTED_DFS: dict[str, pd.DataFrame] = dict(
-    plant_entity_eia860=pd.DataFrame(
+EXPECTED_DFS: dict[str, pd.DataFrame] = {
+    "plant_entity_eia860": pd.DataFrame(
         columns=["plant_id_eia", "state", "balancing_authority_code_eia"],
         data=[(3, "AL", "SOCO"), (4, np.nan, np.nan)],
     ),
-    generator_entity_eia860=pd.DataFrame(
+    "generator_entity_eia860": pd.DataFrame(
         columns=[
             "plant_id_eia",
             "generator_id",
@@ -359,7 +359,7 @@ EXPECTED_DFS: dict[str, pd.DataFrame] = dict(
             (4, "b", np.nan, np.nan),
         ],
     ),
-    generators_eia860=pd.DataFrame(
+    "generators_eia860": pd.DataFrame(
         columns=["plant_id_eia", "generator_id", "report_year", "capacity_mw"],
         data=[
             (3, "1", "2017-01-01", 153.1),
@@ -370,14 +370,14 @@ EXPECTED_DFS: dict[str, pd.DataFrame] = dict(
             (4, "b", "2017-01-01", np.nan),
         ],
     ),
-    utility_entity_eia=pd.DataFrame(
+    "utility_entity_eia": pd.DataFrame(
         columns=["utility_id_eia", "utility_name_eia"],
         data=[
             (195, "Alabama Power Co"),
             (3989, "City of Colorado Springs - (CO)"),
         ],
     ),
-    utility_assn_eia=pd.DataFrame(
+    "utility_assn_eia": pd.DataFrame(
         columns=["utility_id_eia", "report_year", "state", "county"],
         data=[
             (3989, "2017-01-01", "CO", "El Paso"),
@@ -387,7 +387,7 @@ EXPECTED_DFS: dict[str, pd.DataFrame] = dict(
             (3989, "2018-01-01", "CO", "Boulder"),
         ],
     ),
-    generation_eia923=pd.DataFrame(
+    "generation_eia923": pd.DataFrame(
         columns=["plant_id_eia", "generator_id", "report_month", "net_generation_mwh"],
         data=[
             (3, "1", "2018-01-01", 10738.0),
@@ -404,7 +404,7 @@ EXPECTED_DFS: dict[str, pd.DataFrame] = dict(
             (3, "1", "2018-12-01", -494.0),
         ],
     ),
-    sales_eia861=pd.DataFrame(
+    "sales_eia861": pd.DataFrame(
         columns=["utility_id_eia", "report_year", "state", "county", "sales"],
         data=[
             (3989, "2017-01-01", "CO", "El Paso", 127682),
@@ -414,7 +414,7 @@ EXPECTED_DFS: dict[str, pd.DataFrame] = dict(
             (3989, "2018-01-01", "CO", "Boulder", 66666),
         ],
     ),
-    boiler_generator_assn_eia860=pd.DataFrame(
+    "boiler_generator_assn_eia860": pd.DataFrame(
         columns=["plant_id_eia", "generator_id", "report_year", "boiler_id"],
         data=[
             (3, "1", "2018-01-01", "1ST"),
@@ -426,7 +426,7 @@ EXPECTED_DFS: dict[str, pd.DataFrame] = dict(
             (4, "b", "2017-01-01", "b1"),
         ],
     ),
-)
+}
 
 # Format expected dataframes
 rnames = [r.name for r in RESOURCES]

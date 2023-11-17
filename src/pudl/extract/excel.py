@@ -1,9 +1,19 @@
 """Load excel metadata CSV files form a python data package."""
 import importlib.resources
 import pathlib
+from collections import defaultdict
 
 import dbfread
 import pandas as pd
+import regex as re
+from dagster import (
+    AssetsDefinition,
+    DynamicOut,
+    DynamicOutput,
+    OpDefinition,
+    graph_asset,
+    op,
+)
 
 import pudl
 
@@ -54,13 +64,11 @@ class Metadata:
         self._file_name = self._load_csv(pkg, "file_map.csv")
         column_map_pkg = pkg + ".column_maps"
         self._column_map = {}
-        for res in importlib.resources.contents(column_map_pkg):
-            # res is expected to be ${page}.csv
-            parts = res.split(".")
-            if len(parts) != 2 or parts[1] != "csv":
-                continue
-            column_map = self._load_csv(column_map_pkg, res)
-            self._column_map[parts[0]] = column_map
+        for res_path in importlib.resources.files(column_map_pkg).iterdir():
+            # res_path is expected to end with ${page}.csv
+            if res_path.suffix == ".csv":
+                column_map = self._load_csv(column_map_pkg, res_path.name)
+                self._column_map[res_path.stem] = column_map
 
     def get_dataset_name(self):
         """Returns the name of the dataset described by this metadata."""
@@ -105,7 +113,7 @@ class Metadata:
     def _load_csv(package, filename):
         """Load metadata from a filename that is found in a package."""
         return pd.read_csv(
-            importlib.resources.open_text(package, filename), index_col=0, comment="#"
+            importlib.resources.files(package) / filename, index_col=0, comment="#"
         )
 
     @staticmethod
@@ -193,10 +201,18 @@ class GenericExtractor:
         ``self.cols_added``.
         """
         maturity = "final"
-        if "early_release" in self.excel_filename(page, **partition).lower():
+        file_name = self.excel_filename(page, **partition)
+        if "early_release" in file_name.lower():
             maturity = "provisional"
         elif self._dataset_name == "eia860m":
             maturity = "monthly_update"
+        elif "EIA923_Schedules_2_3_4_5_M_" in file_name:
+            release_month = re.search(
+                r"EIA923_Schedules_2_3_4_5_M_(\d{2})",
+                file_name,
+            ).group(1)
+            if release_month != "12":
+                maturity = "incremental_ytd"
         df = df.assign(data_maturity=maturity)
         self.cols_added.append("data_maturity")
         return df
@@ -347,12 +363,137 @@ class GenericExtractor:
         """Produce the xlsx document file name as it will appear in the archive.
 
         Args:
-            page: pudl name for the dataset contents, eg
-                  "boiler_generator_assn" or "coal_stocks"
-            partition: partition to load. (ex: 2009 for year partition or
-                "2020-08" for year_month partition)
+            page: pudl name for the dataset contents, eg "boiler_generator_assn" or
+                "coal_stocks"
+            partition: partition to load. (ex: 2009 for year partition or "2020-08" for
+                year_month partition)
 
-        Return:
+        Returns:
             string name of the xlsx file
         """
         return self.METADATA.get_file_name(page, **partition)
+
+
+@op
+def concat_pages(paged_dfs: list[dict[str, pd.DataFrame]]) -> dict[str, pd.DataFrame]:
+    """Concatenate similar pages of data from different years into single dataframes.
+
+    Transform a list of dictionaries of dataframes into a single dictionary of
+    dataframes, where each dataframe is the concatenation of dataframes with identical
+    keys from the input list.
+
+    Args:
+        paged_dfs: A list of dictionaries whose keys are page names, and values are
+            extracted DataFrames. Each element of the list corresponds to a single
+            year of the dataset being extracted.
+
+    Returns:
+        A dictionary of DataFrames keyed by page name, where the DataFrame contains that
+        page's data from all extracted years concatenated together.
+    """
+    # Transform the list of dictionaries of dataframes into a dictionary of lists of
+    # dataframes, in which all dataframes in each list represent different instances of
+    # the same page of data from different years
+    all_data = defaultdict(list)
+    for dfs in paged_dfs:
+        for page in dfs:
+            all_data[page].append(dfs[page])
+
+    # concatenate the dataframes in each list in the dictionary into a single dataframe
+    for page in all_data:
+        all_data[page] = pd.concat(all_data[page]).reset_index(drop=True)
+
+    return all_data
+
+
+def year_extractor_factory(
+    extractor_cls: type[GenericExtractor], name: str
+) -> OpDefinition:
+    """Construct a Dagster op that extracts one year of data, given an extractor class.
+
+    Args:
+        extractor_cls: Class of type :class:`GenericExtractor` used to extract the data.
+        name: Name of an Excel based dataset (e.g. "eia860").
+    """
+
+    def extract_single_year(context, year: int) -> dict[str, pd.DataFrame]:
+        """A function that extracts a year of spreadsheet data from an Excel file.
+
+        This function will be decorated with a Dagster op and returned.
+
+        Args:
+            context: Dagster keyword that provides access to resources and config.
+            year: Year of data to extract.
+
+        Returns:
+            A dictionary of DataFrames extracted from Excel, keyed by page name.
+        """
+        ds = context.resources.datastore
+        return extractor_cls(ds).extract(year=[year])
+
+    return op(
+        required_resource_keys={"datastore", "dataset_settings"},
+        name=f"extract_single_{name}_year",
+    )(extract_single_year)
+
+
+def years_from_settings_factory(name: str) -> OpDefinition:
+    """Construct a Dagster op to get target years from settings in the Dagster context.
+
+    Args:
+        name: Name of an Excel based dataset (e.g. "eia860"). Currently this must be
+            one of the attributes of :class:`pudl.settings.EiaSettings`
+
+    """
+
+    def years_from_settings(context) -> DynamicOutput:
+        """Produce target years for the given dataset from the EIA settings object.
+
+        These will be used to kick off worker processes to extract each year of data in
+        parallel.
+
+        Yields:
+            A Dagster :class:`DynamicOutput` object representing the year to be
+            extracted. See the Dagster API documentation for more details:
+            https://docs.dagster.io/_apidocs/dynamic#dagster.DynamicOut
+        """
+        eia_settings = context.resources.dataset_settings.eia
+        for year in getattr(eia_settings, name).years:
+            yield DynamicOutput(year, mapping_key=str(year))
+
+    return op(
+        out=DynamicOut(),
+        required_resource_keys={"dataset_settings"},
+        name=f"{name}_years_from_settings",
+    )(years_from_settings)
+
+
+def raw_df_factory(
+    extractor_cls: type[GenericExtractor], name: str
+) -> AssetsDefinition:
+    """Return a dagster graph asset to extract a set of raw DataFrames from Excel files.
+
+    Args:
+        extractor_cls: The dataset-specific Excel extractor used to extract the data.
+            Needs to correspond to the dataset identified by ``name``.
+        name: Name of an Excel based dataset (e.g. "eia860"). Currently this must be
+            one of the attributes of :class:`pudl.settings.EiaSettings`
+    """
+    # Build a Dagster op that can extract a single year of data
+    year_extractor = year_extractor_factory(extractor_cls, name)
+    # Get the list of target years to extract from the PUDL ETL settings object which is
+    # stored in the Dagster context that is available to all ops.
+    years_from_settings = years_from_settings_factory(name)
+
+    def raw_dfs() -> dict[str, pd.DataFrame]:
+        """Produce a dictionary of extracted EIA dataframes."""
+        years = years_from_settings()
+        # Clone dagster op for each year using DynamicOut.map()
+        # See https://docs.dagster.io/_apidocs/dynamic#dagster.DynamicOut
+        dfs = years.map(lambda year: year_extractor(year))
+        # Collect the results from all of those cloned ops and concatenate the
+        # individual years of data into a single multi-year dataframe for each different
+        # page in the spreadsheet based dataset using DynamicOut.collect()
+        return concat_pages(dfs.collect())
+
+    return graph_asset(name=f"{name}_raw_dfs")(raw_dfs)

@@ -4,18 +4,8 @@ This modules pulls data from EIA's published Excel spreadsheets.
 
 This code is for use analyzing EIA Form 860 data.
 """
-from collections import defaultdict
-
 import pandas as pd
-from dagster import (
-    AssetOut,
-    DynamicOut,
-    DynamicOutput,
-    Output,
-    graph_asset,
-    multi_asset,
-    op,
-)
+from dagster import AssetOut, Output, multi_asset
 
 import pudl
 import pudl.logging_helpers
@@ -69,91 +59,33 @@ class Extractor(excel.GenericExtractor):
 
 # TODO (bendnorman): Add this information to the metadata
 raw_table_names = (
-    "raw_boiler_cooling_eia860",
-    "raw_boiler_generator_assn_eia860",
-    "raw_boiler_info_eia860",
-    "raw_boiler_mercury_eia860",
-    "raw_boiler_nox_eia860",
-    "raw_boiler_particulate_eia860",
-    "raw_boiler_so2_eia860",
-    "raw_boiler_stack_flue_eia860",
-    "raw_cooling_equipment_eia860",
-    "raw_emission_control_strategies_eia860",
-    "raw_emissions_control_equipment_eia860",
-    "raw_fgd_equipment_eia860",
-    "raw_fgp_equipment_eia860",
-    "raw_generator_eia860",
-    "raw_generator_existing_eia860",
-    "raw_generator_proposed_eia860",
-    "raw_generator_retired_eia860",
-    "raw_multifuel_existing_eia860",
-    "raw_multifuel_retired_eia860",
-    "raw_ownership_eia860",
-    "raw_plant_eia860",
-    "raw_stack_flue_equipment_eia860",
-    "raw_utility_eia860",
+    "raw_eia860__boiler_cooling",
+    "raw_eia860__boiler_generator_assn",
+    "raw_eia860__boiler_info",
+    "raw_eia860__boiler_mercury",
+    "raw_eia860__boiler_nox",
+    "raw_eia860__boiler_particulate",
+    "raw_eia860__boiler_so2",
+    "raw_eia860__boiler_stack_flue",
+    "raw_eia860__cooling_equipment",
+    "raw_eia860__emission_control_strategies",
+    "raw_eia860__emissions_control_equipment",
+    "raw_eia860__fgd_equipment",
+    "raw_eia860__fgp_equipment",
+    "raw_eia860__generator",
+    "raw_eia860__generator_existing",
+    "raw_eia860__generator_proposed",
+    "raw_eia860__generator_retired",
+    "raw_eia860__multifuel_existing",
+    "raw_eia860__multifuel_retired",
+    "raw_eia860__ownership",
+    "raw_eia860__plant",
+    "raw_eia860__stack_flue_equipment",
+    "raw_eia860__utility",
 )
 
 
-@op(
-    out=DynamicOut(),
-    required_resource_keys={"dataset_settings"},
-)
-def eia_years_from_settings(context):
-    """Return set of years for EIA in settings.
-
-    These will be used to kick off worker processes to load each year of data in
-    parallel.
-    """
-    eia_settings = context.resources.dataset_settings.eia
-    for year in eia_settings.eia860.years:
-        yield DynamicOutput(year, mapping_key=str(year))
-
-
-@op(
-    required_resource_keys={"datastore", "dataset_settings"},
-)
-def load_single_year(context, year: int) -> dict[str, pd.DataFrame]:
-    """Load a single year of EIA data from file.
-
-    Args:
-        context:
-            context: dagster keyword that provides access to resources and config.
-        year:
-            Year to load.
-
-    Returns:
-        Loaded data in a dataframe.
-    """
-    ds = context.resources.datastore
-    return Extractor(ds).extract(year=[year])
-
-
-@op
-def merge_eia860_years(
-    yearly_dfs: list[dict[str, pd.DataFrame]]
-) -> dict[str, pd.DataFrame]:
-    """Merge yearly EIA-860 dataframes."""
-    merged = defaultdict(list)
-    for dfs in yearly_dfs:
-        for page in dfs:
-            merged[page].append(dfs[page])
-
-    for page in merged:
-        merged[page] = pd.concat(merged[page])
-
-    return merged
-
-
-@graph_asset
-def eia860_raw_dfs() -> dict[str, pd.DataFrame]:
-    """All loaded EIA860 dataframes.
-
-    This asset creates a dynamic graph of ops to load EIA860 data in parallel.
-    """
-    years = eia_years_from_settings()
-    dfs = years.map(lambda year: load_single_year(year))
-    return merge_eia860_years(dfs.collect())
+eia860_raw_dfs = excel.raw_df_factory(Extractor, name="eia860")
 
 
 # TODO (bendnorman): Figure out type hint for context keyword and mutli_asset return
@@ -189,7 +121,7 @@ def extract_eia860(context, eia860_raw_dfs):
 
     # create descriptive table_names
     eia860_raw_dfs = {
-        "raw_" + table_name + "_eia860": df for table_name, df in eia860_raw_dfs.items()
+        "raw_eia860__" + table_name: df for table_name, df in eia860_raw_dfs.items()
     }
     eia860_raw_dfs = dict(sorted(eia860_raw_dfs.items()))
 

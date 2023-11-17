@@ -45,6 +45,7 @@ import pathlib
 import sys
 
 import pudl
+from pudl.workspace.setup import PudlPaths
 
 logger = pudl.logging_helpers.get_logger(__name__)
 
@@ -55,17 +56,17 @@ def initialize_parser():
         description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter
     )
     parser.add_argument(
-        "--pudl_input",
+        "--pudl_in",
         "-i",
         type=str,
-        dest="pudl_input",
+        dest="pudl_in",
         help="""Directory where the PUDL input data should be located.""",
     )
     parser.add_argument(
-        "--pudl_output",
+        "--pudl_out",
         "-o",
         type=str,
-        dest="pudl_output",
+        dest="pudl_out",
         help="""Directory where the PUDL outputs, notebooks, and example
         settings files should be located.""",
     )
@@ -102,20 +103,17 @@ def main():
         logfile=args.logfile, loglevel=args.loglevel
     )
 
-    if args.pudl_input:
+    if args.pudl_in:
         pudl_in = pathlib.Path(args.pudl_in).expanduser().resolve()
         if not pathlib.Path.is_dir(pudl_in):
             raise FileNotFoundError(f"Directory not found: {pudl_in}")
-
-    if args.pudl_output:
+        PudlPaths.set_path_overrides(input_dir=pudl_in)
+    if args.pudl_out:
         pudl_out = pathlib.Path(args.pudl_out).expanduser().resolve()
         if not pathlib.Path.is_dir(pudl_out):
             raise FileNotFoundError(f"Directory not found: {pudl_out}")
-
-    settings = pudl.workspace.setup.get_defaults(
-        input_dir=args.pudl_input, output_dir=args.pudl_output
-    )
-    pudl.workspace.setup.init(settings, clobber=args.clobber)
+        PudlPaths.set_path_overrides(output_dir=pudl_out)
+    pudl.workspace.setup.init(clobber=args.clobber)
 
 
 if __name__ == "__main__":

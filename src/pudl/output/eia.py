@@ -137,7 +137,7 @@ def denorm_generators_eia(
 
     # Bring in some generic plant & utility information:
     pu_eia = denorm_plants_utilities_eia.drop(
-        ["plant_name_eia", "utility_id_eia"], axis="columns"
+        ["plant_name_eia", "utility_id_eia", "data_maturity"], axis="columns"
     )
     out_df = pd.merge(out_df, pu_eia, on=["report_date", "plant_id_eia"], how="left")
 
@@ -242,7 +242,9 @@ def denorm_boilers_eia(
     # Bring in some generic plant & utility information:
     out_df = pd.merge(
         out_df,
-        denorm_plants_utilities_eia.drop(["plant_name_eia"], axis="columns"),
+        denorm_plants_utilities_eia.drop(
+            ["plant_name_eia", "data_maturity"], axis="columns"
+        ),
         on=["report_date", "plant_id_eia"],
         how="left",
     )
@@ -324,7 +326,7 @@ def denorm_plants_utilities_eia(
     # to avoid duplicate columns on the merge...
     out_df = pd.merge(
         plants_eia,
-        denorm_utilities_eia,
+        denorm_utilities_eia.drop(columns=["data_maturity"]),
         how="left",
         on=["report_date", "utility_id_eia"],
     )
@@ -339,6 +341,7 @@ def denorm_plants_utilities_eia(
             "utility_id_eia",
             "utility_name_eia",
             "utility_id_pudl",
+            "data_maturity",
         ],
     ].dropna(subset=["report_date", "plant_id_eia", "utility_id_eia"])
     return out_df
@@ -708,8 +711,9 @@ def assign_unit_ids(gens_df: pd.DataFrame) -> pd.DataFrame:
         unit_ids[~unit_ids.bga_source.isin(old_codes)]
         .groupby(["plant_id_eia", "generator_id"])["unit_id_pudl"]
         .nunique()
-        <= 1  # nunique() == 0 when there are only NA values.
-    ).all()
+        .le(1)  # nunique() == 0 when there are only NA values.
+        .all()
+    )
     if not gens_have_unique_unit:
         errstr = "Some generators are associated with more than one unit_id_pudl."
         raise ValueError(errstr)

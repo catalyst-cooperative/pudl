@@ -41,7 +41,7 @@ class Extractor(excel.GenericExtractor):
     def process_raw(self, df, page, **partition):
         """Drops reserved columns."""
         to_drop = [c for c in df.columns if c[:8] == "reserved"]
-        df.drop(to_drop, axis=1, inplace=True)
+        df = df.drop(to_drop, axis=1)
         df = df.rename(columns=self._metadata.get_column_map(page, **partition))
         self.cols_added = []
         # Eventually we should probably make this a transform
@@ -49,6 +49,11 @@ class Extractor(excel.GenericExtractor):
             if col in df.columns:
                 df = remove_leading_zeros_from_numeric_strings(df=df, col_name=col)
         df = self.add_data_maturity(df, page, **partition)
+        # Fill in blank reporting_frequency_code for monthly data
+        if "reporting_frequency_code" in df.columns:
+            df.loc[
+                df["data_maturity"] == "incremental_ytd", "reporting_frequency_code"
+            ] = "M"
         # the 2021 early release data had some ding dang "."'s and nulls in the year column
         if "report_year" in df.columns:
             mask = (df.report_year == ".") | df.report_year.isnull()
@@ -78,7 +83,7 @@ class Extractor(excel.GenericExtractor):
     def process_final_page(df, page):
         """Removes reserved columns from the final dataframe."""
         to_drop = [c for c in df.columns if c[:8] == "reserved"]
-        df.drop(columns=to_drop, inplace=True, errors="ignore")
+        df = df.drop(columns=to_drop, errors="ignore")
         return df
 
     @staticmethod
@@ -95,17 +100,20 @@ class Extractor(excel.GenericExtractor):
 
 # TODO (bendnorman): Add this information to the metadata
 raw_table_names = (
-    "raw_boiler_fuel_eia923",
-    "raw_fuel_receipts_costs_eia923",
-    "raw_generation_fuel_eia923",
-    "raw_generator_eia923",
-    "raw_stocks_eia923",
+    "raw_eia923__boiler_fuel",
+    "raw_eia923__fuel_receipts_costs",
+    "raw_eia923__generation_fuel",
+    "raw_eia923__generator",
+    "raw_eia923__stocks",
     # There's an issue with the EIA-923 archive for 2018 which prevents this table
     # from being extracted currently. When we update to a new DOI this problem will
     # probably fix itself. See comments on this issue:
     # https://github.com/catalyst-cooperative/pudl/issues/2448
-    # "raw_emissions_control_eia923",
+    # "raw_eia923__emissions_control",
 )
+
+
+eia923_raw_dfs = excel.raw_df_factory(Extractor, name="eia923")
 
 
 # TODO (bendnorman): Figure out type hint for context keyword and mutli_asset return
@@ -117,8 +125,8 @@ raw_table_names = (
     can_subset=True,
     required_resource_keys={"datastore", "dataset_settings"},
 )
-def extract_eia923(context):
-    """Extract raw EIA data from excel sheets into dataframes.
+def extract_eia923(context, eia923_raw_dfs):
+    """Extract raw EIA-923 data from excel sheets into dataframes.
 
     Args:
         context: dagster keyword that provides access to resources and config.
@@ -126,14 +134,9 @@ def extract_eia923(context):
     Returns:
         A tuple of extracted EIA dataframes.
     """
-    eia_settings = context.resources.dataset_settings.eia
-
-    ds = context.resources.datastore
-    eia923_raw_dfs = Extractor(ds).extract(year=eia_settings.eia923.years)
-
     # create descriptive table_names
     eia923_raw_dfs = {
-        "raw_" + table_name + "_eia923": df for table_name, df in eia923_raw_dfs.items()
+        "raw_eia923__" + table_name: df for table_name, df in eia923_raw_dfs.items()
     }
 
     eia923_raw_dfs = dict(sorted(eia923_raw_dfs.items()))
@@ -144,6 +147,6 @@ def extract_eia923(context):
         # probably fix itself. See comments on this issue:
         # https://github.com/catalyst-cooperative/pudl/issues/2448
         if (table_name in context.selected_output_names) and (
-            table_name != "raw_emissions_control_eia923"
+            table_name != "raw_eia923__emissions_control"
         ):
             yield Output(output_name=table_name, value=df)
