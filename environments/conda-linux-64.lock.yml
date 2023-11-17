@@ -489,7 +489,7 @@ dependencies:
   - uvicorn-standard=0.24.0=h38be061_0
   - virtualenv=20.24.6=pyhd8ed1ab_0
   - aws-sdk-cpp=1.11.182=h8beafcf_7
-  - boto3=1.29.0=pyhd8ed1ab_0
+  - boto3=1.29.2=pyhd8ed1ab_0
   - cachecontrol-with-filecache=0.13.1=pyhd8ed1ab_0
   - dagster=1.5.8=pyhd8ed1ab_0
   - datasette=0.64.4=pyhd8ed1ab_1

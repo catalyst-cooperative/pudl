@@ -6756,18 +6756,18 @@ package:
     category: main
     optional: false
   - name: boto3
-    version: 1.29.0
+    version: 1.29.2
     manager: conda
     platform: linux-64
     dependencies:
-      botocore: ">=1.32.0,<1.33.0"
+      botocore: ">=1.32.2,<1.33.0"
       jmespath: ">=0.7.1,<2.0.0"
       python: ">=3.7"
       s3transfer: ">=0.7.0,<0.8.0"
-    url: https://conda.anaconda.org/conda-forge/noarch/boto3-1.29.0-pyhd8ed1ab_0.conda
+    url: https://conda.anaconda.org/conda-forge/noarch/boto3-1.29.2-pyhd8ed1ab_0.conda
     hash:
-      md5: d9255fe2d07b6201b953ddb3fc93bf23
-      sha256: 27836e2f71e6ea00b82a8e1a57c7ff9609d9fba9d06bc6acffb86aecb2179a5a
+      md5: 7c73d1610c56a1d624c9ef470221d10c
+      sha256: 92b63c85d2bbb85be1f406abb41e36ef87d692222c57a24a0d27c6027107b023
     category: main
     optional: false
   - name: cachecontrol-with-filecache
@@ -14627,18 +14627,18 @@ package:
     category: main
     optional: false
   - name: boto3
-    version: 1.29.0
+    version: 1.29.2
     manager: conda
     platform: osx-64
     dependencies:
       python: ">=3.7"
       jmespath: ">=0.7.1,<2.0.0"
       s3transfer: ">=0.7.0,<0.8.0"
-      botocore: ">=1.32.0,<1.33.0"
-    url: https://conda.anaconda.org/conda-forge/noarch/boto3-1.29.0-pyhd8ed1ab_0.conda
+      botocore: ">=1.32.2,<1.33.0"
+    url: https://conda.anaconda.org/conda-forge/noarch/boto3-1.29.2-pyhd8ed1ab_0.conda
     hash:
-      md5: d9255fe2d07b6201b953ddb3fc93bf23
-      sha256: 27836e2f71e6ea00b82a8e1a57c7ff9609d9fba9d06bc6acffb86aecb2179a5a
+      md5: 7c73d1610c56a1d624c9ef470221d10c
+      sha256: 92b63c85d2bbb85be1f406abb41e36ef87d692222c57a24a0d27c6027107b023
     category: main
     optional: false
   - name: cachecontrol-with-filecache
@@ -22439,18 +22439,18 @@ package:
     category: main
     optional: false
   - name: boto3
-    version: 1.29.0
+    version: 1.29.2
     manager: conda
     platform: osx-arm64
     dependencies:
       python: ">=3.7"
       jmespath: ">=0.7.1,<2.0.0"
       s3transfer: ">=0.7.0,<0.8.0"
-      botocore: ">=1.32.0,<1.33.0"
-    url: https://conda.anaconda.org/conda-forge/noarch/boto3-1.29.0-pyhd8ed1ab_0.conda
+      botocore: ">=1.32.2,<1.33.0"
+    url: https://conda.anaconda.org/conda-forge/noarch/boto3-1.29.2-pyhd8ed1ab_0.conda
     hash:
-      md5: d9255fe2d07b6201b953ddb3fc93bf23
-      sha256: 27836e2f71e6ea00b82a8e1a57c7ff9609d9fba9d06bc6acffb86aecb2179a5a
+      md5: 7c73d1610c56a1d624c9ef470221d10c
+      sha256: 92b63c85d2bbb85be1f406abb41e36ef87d692222c57a24a0d27c6027107b023
     category: main
     optional: false
   - name: cachecontrol-with-filecache
