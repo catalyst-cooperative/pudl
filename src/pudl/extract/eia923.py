@@ -99,7 +99,7 @@ class Extractor(excel.GenericExtractor):
 
 
 # TODO (bendnorman): Add this information to the metadata
-eia_raw_table_names = (
+raw_table_names = (
     "raw_eia923__boiler_fuel",
     "raw_eia923__fuel_receipts_costs",
     "raw_eia923__generation_fuel",
@@ -109,7 +109,7 @@ eia_raw_table_names = (
     # from being extracted currently. When we update to a new DOI this problem will
     # probably fix itself. See comments on this issue:
     # https://github.com/catalyst-cooperative/pudl/issues/2448
-    # "raw_emissions_control_eia923",
+    # "raw_eia923__emissions_control",
 )
 
 
@@ -118,7 +118,11 @@ eia923_raw_dfs = excel.raw_df_factory(Extractor, name="eia923")
 
 # TODO (bendnorman): Figure out type hint for context keyword and mutli_asset return
 @multi_asset(
-    outs={table_name: AssetOut() for table_name in sorted(eia_raw_table_names)},
+    outs={
+        table_name: AssetOut(is_required=False)
+        for table_name in sorted(raw_table_names)
+    },
+    can_subset=True,
     required_resource_keys={"datastore", "dataset_settings"},
 )
 def extract_eia923(context, eia923_raw_dfs):
@@ -137,12 +141,12 @@ def extract_eia923(context, eia923_raw_dfs):
 
     eia923_raw_dfs = dict(sorted(eia923_raw_dfs.items()))
 
-    return (
-        Output(output_name=table_name, value=df)
-        for table_name, df in eia923_raw_dfs.items()
+    for table_name, df in eia923_raw_dfs.items():
         # There's an issue with the EIA-923 archive for 2018 which prevents this table
         # from being extracted currently. When we update to a new DOI this problem will
         # probably fix itself. See comments on this issue:
         # https://github.com/catalyst-cooperative/pudl/issues/2448
-        if table_name != "raw_eia923__emissions_control"
-    )
+        if (table_name in context.selected_output_names) and (
+            table_name != "raw_eia923__emissions_control"
+        ):
+            yield Output(output_name=table_name, value=df)

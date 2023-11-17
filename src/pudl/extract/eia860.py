@@ -90,7 +90,11 @@ eia860_raw_dfs = excel.raw_df_factory(Extractor, name="eia860")
 
 # TODO (bendnorman): Figure out type hint for context keyword and mutli_asset return
 @multi_asset(
-    outs={table_name: AssetOut() for table_name in sorted(raw_table_names)},
+    outs={
+        table_name: AssetOut(is_required=False)
+        for table_name in sorted(raw_table_names)
+    },
+    can_subset=True,
     required_resource_keys={"datastore", "dataset_settings"},
 )
 def extract_eia860(context, eia860_raw_dfs):
@@ -121,7 +125,6 @@ def extract_eia860(context, eia860_raw_dfs):
     }
     eia860_raw_dfs = dict(sorted(eia860_raw_dfs.items()))
 
-    return (
-        Output(output_name=table_name, value=df)
-        for table_name, df in eia860_raw_dfs.items()
-    )
+    for table_name, df in eia860_raw_dfs.items():
+        if table_name in context.selected_output_names:
+            yield Output(output_name=table_name, value=df)
