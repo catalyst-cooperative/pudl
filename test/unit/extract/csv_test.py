@@ -11,19 +11,21 @@ TABLE_FILE_MAP = {TABLE_NAME: FILENAME}
 DATASET = "eia176"
 
 
-class FakeCsvExtractor(CsvExtractor):
-    DATASET = DATASET
-
-
 def get_csv_extractor():
     datastore = MagicMock()
-    return FakeCsvExtractor(datastore)
+    return CsvExtractor(datastore, DATASET)
+
+
+def test_get_table_names():
+    extractor = get_csv_extractor()
+    table_names = extractor.get_table_names()
+    assert [TABLE_NAME] == table_names
 
 
 @patch("pudl.extract.csv.pd")
 def test_csv_extractor_read_source(mock_pd):
     extractor = get_csv_extractor()
-    res = extractor.read_source(FILENAME)
+    res = extractor.extract_one(TABLE_NAME)
     mock_zipfile = extractor._zipfile
     mock_zipfile.open.assert_called_once_with(FILENAME)
     f = mock_zipfile.open.return_value.__enter__.return_value
@@ -35,7 +37,7 @@ def test_csv_extractor_read_source(mock_pd):
 def test_csv_extractor_extract():
     extractor = get_csv_extractor()
     df = MagicMock()
-    with patch.object(CsvExtractor, "read_source", return_value=df) as mock_read_source:
-        raw_dfs = extractor.extract()
-    mock_read_source.assert_called_once_with(FILENAME)
+    with patch.object(CsvExtractor, "extract_one", return_value=df) as mock_read_source:
+        raw_dfs = extractor.extract_all()
+    mock_read_source.assert_called_once_with(TABLE_NAME)
     assert {TABLE_NAME: df} == raw_dfs

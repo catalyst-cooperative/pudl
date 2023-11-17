@@ -10,16 +10,10 @@ from pudl.extract.csv import CsvExtractor, raw_df_factory
 DATASET = "eia176"
 
 
-class Eia176CsvExtractor(CsvExtractor):
-    """Extractor for EIA Form 176 data."""
-
-    DATASET = DATASET
-
-
 # TODO (davidmudrauskas): Add this information to the metadata
 raw_table_names = (f"raw_{DATASET}__company",)
 
-eia176_raw_dfs = raw_df_factory(Eia176CsvExtractor, name=DATASET)
+eia176_raw_dfs = raw_df_factory(CsvExtractor, name=DATASET)
 
 
 @multi_asset(

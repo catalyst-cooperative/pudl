@@ -14,25 +14,20 @@ logger = pudl.logging_helpers.get_logger(__name__)
 class CsvExtractor:
     """Generalized class for extracting dataframes from CSV files.
 
-    When subclassing from this generic extractor, one should implement dataset specific
-    logic in the following manner:
-
-    2. Set DATASET class attribute. This is used to load metadata from package_data/{dataset} subdirectory.
-
     The extraction logic is invoked by calling extract() method of this class.
     """
 
-    DATASET = None
-
-    def __init__(self, datastore: Datastore):
+    def __init__(self, datastore: Datastore, dataset: str):
         """Create a new instance of CsvExtractor.
 
         This can be used for retrieving data from CSV files.
 
         Args:
             datastore: provides access to raw files on disk.
+            dataset: used to load metadata from package_data/{dataset} subdirectory.
         """
-        self._zipfile = datastore.get_zipfile_resource(self.DATASET)
+        self.dataset = dataset
+        self._zipfile = datastore.get_zipfile_resource(dataset)
         self._table_file_map = {
             row["table"]: row["filename"]
             for row in self._open_csv_resource("table_file_map.csv")
@@ -40,23 +35,27 @@ class CsvExtractor:
 
     def _open_csv_resource(self, base_filename: str) -> DictReader:
         """Open the given resource file as :class:`csv.DictReader`."""
-        csv_path = resources.files(f"pudl.package_data.{self.DATASET}") / base_filename
+        csv_path = resources.files(f"pudl.package_data.{self.dataset}") / base_filename
         return DictReader(csv_path.open())
 
-    def read_source(self, filename: str) -> pd.DataFrame:
+    def get_table_names(self) -> list[str]:
+        """Returns list of tables that this extractor provides access to."""
+        return list(self._table_file_map)
+
+    def extract_one(self, table_name: str) -> pd.DataFrame:
         """Read the data from the CSV source file and return as a dataframe."""
-        logger.info(f"Extracting {filename} from CSV into pandas DataFrame.")
+        logger.info(f"Extracting {table_name} from CSV into pandas DataFrame.")
+        filename = self._table_file_map[table_name]
         with self._zipfile.open(filename) as f:
             df = pd.read_csv(f)
         return df
 
-    def extract(self) -> dict[str, pd.DataFrame]:
+    def extract_all(self) -> dict[str, pd.DataFrame]:
         """Extracts a dictionary of table names and dataframes from CSV source files."""
         data = {}
-        for table in self._table_file_map:
-            filename = self._table_file_map[table]
-            df = self.read_source(filename)
-            data[table] = df
+        for table_name in self.get_table_names():
+            df = self.extract_one(table_name)
+            data[table_name] = df
         return data
 
 
@@ -80,7 +79,7 @@ def extractor_factory(extractor_cls: type[CsvExtractor], name: str) -> OpDefinit
             A dictionary of DataFrames extracted from CSV, keyed by table name.
         """
         ds = context.resources.datastore
-        return extractor_cls(ds).extract()
+        return extractor_cls(ds, name).extract()
 
     return op(
         required_resource_keys={"datastore", "dataset_settings"},
