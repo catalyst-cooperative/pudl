@@ -1,14 +1,36 @@
 """Extractor for CSV data."""
 from csv import DictReader
 from importlib import resources
+from zipfile import ZipFile
 
 import pandas as pd
-from dagster import AssetsDefinition, OpDefinition, graph_asset, op
 
 import pudl.logging_helpers
-from pudl.workspace.datastore import Datastore
 
 logger = pudl.logging_helpers.get_logger(__name__)
+
+
+def open_csv_resource(dataset: str, base_filename: str) -> DictReader:
+    """Open the given resource file as :class:`csv.DictReader`.
+
+    Args:
+        dataset: used to load metadata from package_data/{dataset} subdirectory.
+        base_filename: the name of the file in the subdirectory to open.
+    """
+    csv_path = resources.files(f"pudl.package_data.{dataset}") / base_filename
+    return DictReader(csv_path.open())
+
+
+def get_table_file_map(dataset: str) -> dict[str, str]:
+    """Return a dictionary of table names and filenames for the dataset.
+
+    Args:
+        dataset: used to load metadata from package_data/{dataset} subdirectory.
+    """
+    return {
+        row["table"]: row["filename"]
+        for row in open_csv_resource(dataset, "table_file_map.csv")
+    }
 
 
 class CsvExtractor:
@@ -17,26 +39,17 @@ class CsvExtractor:
     The extraction logic is invoked by calling extract() method of this class.
     """
 
-    def __init__(self, datastore: Datastore, dataset: str):
+    def __init__(self, zipfile: ZipFile, table_file_map: dict[str, str]):
         """Create a new instance of CsvExtractor.
 
         This can be used for retrieving data from CSV files.
 
         Args:
-            datastore: provides access to raw files on disk.
-            dataset: used to load metadata from package_data/{dataset} subdirectory.
+            zipfile: zipfile object containing source files
+            table_file_map: map of table name to source file in zipfile archive
         """
-        self.dataset = dataset
-        self._zipfile = datastore.get_zipfile_resource(dataset)
-        self._table_file_map = {
-            row["table"]: row["filename"]
-            for row in self._open_csv_resource("table_file_map.csv")
-        }
-
-    def _open_csv_resource(self, base_filename: str) -> DictReader:
-        """Open the given resource file as :class:`csv.DictReader`."""
-        csv_path = resources.files(f"pudl.package_data.{self.dataset}") / base_filename
-        return DictReader(csv_path.open())
+        self._zipfile = zipfile
+        self._table_file_map = table_file_map
 
     def get_table_names(self) -> list[str]:
         """Returns list of tables that this extractor provides access to."""
@@ -57,49 +70,3 @@ class CsvExtractor:
             df = self.extract_one(table_name)
             data[table_name] = df
         return data
-
-
-def extractor_factory(extractor_cls: type[CsvExtractor], name: str) -> OpDefinition:
-    """Construct a Dagster op that extracts data given an extractor class.
-
-    Args:
-        extractor_cls: Class of type :class:`CsvExtractor` used to extract the data.
-        name: Name of a CSV-based dataset (e.g. "eia176").
-    """
-
-    def extract(context) -> dict[str, pd.DataFrame]:
-        """A function that extracts data from a CSV file.
-
-        This function will be decorated with a Dagster op and returned.
-
-        Args:
-            context: Dagster keyword that provides access to resources and config.
-
-        Returns:
-            A dictionary of DataFrames extracted from CSV, keyed by table name.
-        """
-        ds = context.resources.datastore
-        return extractor_cls(ds, name).extract()
-
-    return op(
-        required_resource_keys={"datastore", "dataset_settings"},
-        name=f"extract_single_{name}_year",
-    )(extract)
-
-
-def raw_df_factory(extractor_cls: type[CsvExtractor], name: str) -> AssetsDefinition:
-    """Return a dagster graph asset to extract a set of raw DataFrames from CSV files.
-
-    Args:
-        extractor_cls: The dataset-specific CSV extractor used to extract the data.
-            Needs to correspond to the dataset identified by ``name``.
-        name: Name of a CSV-based dataset (e.g. "eia176"). Currently this must be
-            one of the attributes of :class:`pudl.settings.EiaSettings`
-    """
-    extractor = extractor_factory(extractor_cls, name)
-
-    def raw_dfs() -> dict[str, pd.DataFrame]:
-        """Produce a dictionary of extracted EIA dataframes."""
-        return extractor()
-
-    return graph_asset(name=f"{name}_raw_dfs")(raw_dfs)

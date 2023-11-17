@@ -1,19 +1,28 @@
 """Unit tests for pudl.extract.csv module."""
 from unittest.mock import MagicMock, patch
 
-from pudl.extract.csv import CsvExtractor
+from pudl.extract.csv import CsvExtractor, get_table_file_map, open_csv_resource
 
+DATASET = "eia176"
+BASE_FILENAME = "table_file_map.csv"
 TABLE_NAME = "company"
-
 FILENAME = "all_company_176.csv"
 TABLE_FILE_MAP = {TABLE_NAME: FILENAME}
 
-DATASET = "eia176"
-
 
 def get_csv_extractor():
-    datastore = MagicMock()
-    return CsvExtractor(datastore, DATASET)
+    zipfile = MagicMock()
+    return CsvExtractor(zipfile, TABLE_FILE_MAP)
+
+
+def test_open_csv_resource():
+    csv_resource = open_csv_resource(DATASET, BASE_FILENAME)
+    assert ["table", "filename"] == csv_resource.fieldnames
+
+
+def test_get_table_file_map():
+    table_file_map = get_table_file_map(DATASET)
+    assert table_file_map == TABLE_FILE_MAP
 
 
 def test_get_table_names():

@@ -73,9 +73,12 @@ class TestCsvExtractor:
 
     def test_extract_eia176(self, pudl_datastore_fixture):
         """Spot check extraction of eia176 csv files."""
-        extractor = pudl.extract.eia176.Eia176CsvExtractor(pudl_datastore_fixture)
+        dataset = "eia176"
+        zipfile = pudl_datastore_fixture.get_zipfile_resource(dataset)
+        table_file_map = pudl.extract.csv.get_table_file_map(dataset)
+        extractor = pudl.extract.csv.CsvExtractor(zipfile, table_file_map)
         table = "company"
-        if table not in extractor.extract():
+        if table not in extractor.extract_all():
             raise AssertionError(f"table {table} not found in datastore")
 
 
