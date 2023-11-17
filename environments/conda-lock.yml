@@ -5316,7 +5316,7 @@ package:
     category: main
     optional: false
   - name: botocore
-    version: 1.32.1
+    version: 1.32.2
     manager: conda
     platform: linux-64
     dependencies:
@@ -5324,10 +5324,10 @@ package:
       python: ">=3.7"
       python-dateutil: ">=2.1,<3.0.0"
       urllib3: ">=1.25.4,<1.27"
-    url: https://conda.anaconda.org/conda-forge/noarch/botocore-1.32.1-pyhd8ed1ab_0.conda
+    url: https://conda.anaconda.org/conda-forge/noarch/botocore-1.32.2-pyhd8ed1ab_0.conda
     hash:
-      md5: ed6c51f21b00b73f27d754083a03734f
-      sha256: 1bbfa7c5b2b0016779805c664bfba9958f5ce5916f57c1a65d173f15d4dc7471
+      md5: 303d0f8f09c41c07b18b9a1112cec29b
+      sha256: 621ee76f9d1e741039513e94ef3e4d3442f76098d863f50474ec60d823ef11ae
     category: main
     optional: false
   - name: branca
@@ -13213,7 +13213,7 @@ package:
     category: main
     optional: false
   - name: botocore
-    version: 1.32.1
+    version: 1.32.2
     manager: conda
     platform: osx-64
     dependencies:
@@ -13221,10 +13221,10 @@ package:
       python-dateutil: ">=2.1,<3.0.0"
       jmespath: ">=0.7.1,<2.0.0"
       urllib3: ">=1.25.4,<1.27"
-    url: https://conda.anaconda.org/conda-forge/noarch/botocore-1.32.1-pyhd8ed1ab_0.conda
+    url: https://conda.anaconda.org/conda-forge/noarch/botocore-1.32.2-pyhd8ed1ab_0.conda
     hash:
-      md5: ed6c51f21b00b73f27d754083a03734f
-      sha256: 1bbfa7c5b2b0016779805c664bfba9958f5ce5916f57c1a65d173f15d4dc7471
+      md5: 303d0f8f09c41c07b18b9a1112cec29b
+      sha256: 621ee76f9d1e741039513e94ef3e4d3442f76098d863f50474ec60d823ef11ae
     category: main
     optional: false
   - name: branca
@@ -21026,7 +21026,7 @@ package:
     category: main
     optional: false
   - name: botocore
-    version: 1.32.1
+    version: 1.32.2
     manager: conda
     platform: osx-arm64
     dependencies:
@@ -21034,10 +21034,10 @@ package:
       python-dateutil: ">=2.1,<3.0.0"
       jmespath: ">=0.7.1,<2.0.0"
       urllib3: ">=1.25.4,<1.27"
-    url: https://conda.anaconda.org/conda-forge/noarch/botocore-1.32.1-pyhd8ed1ab_0.conda
+    url: https://conda.anaconda.org/conda-forge/noarch/botocore-1.32.2-pyhd8ed1ab_0.conda
     hash:
-      md5: ed6c51f21b00b73f27d754083a03734f
-      sha256: 1bbfa7c5b2b0016779805c664bfba9958f5ce5916f57c1a65d173f15d4dc7471
+      md5: 303d0f8f09c41c07b18b9a1112cec29b
+      sha256: 621ee76f9d1e741039513e94ef3e4d3442f76098d863f50474ec60d823ef11ae
     category: main
     optional: false
   - name: branca

@@ -401,7 +401,7 @@ dependencies:
   - arrow=1.3.0=pyhd8ed1ab_0
   - async-timeout=4.0.3=pyhd8ed1ab_0
   - aws-c-s3=0.3.24=h7630044_0
-  - botocore=1.32.1=pyhd8ed1ab_0
+  - botocore=1.32.2=pyhd8ed1ab_0
   - branca=0.7.0=pyhd8ed1ab_1
   - croniter=2.0.1=pyhd8ed1ab_0
   - cryptography=41.0.5=py311h63ff55d_0
