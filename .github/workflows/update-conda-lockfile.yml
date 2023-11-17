@@ -71,6 +71,7 @@ jobs:
         if: ${{ (github.event_name == 'schedule' && github.repository == 'catalyst-cooperative/pudl') || (github.event_name == 'workflow_dispatch') }}
         uses: peter-evans/create-pull-request@v5
         with:
+          token: ${{ secrets.PUDL_BOT_PAT }}
           commit-message: "Update conda-lock.yml and rendered conda environment files."
           title: Update Lockfile
           body: >
@@ -80,5 +81,4 @@ jobs:
           reviewers: zaneselvans
           branch: update-conda-lockfile
           base: ${{ env.GITHUB_REF }}
-          draft: true
           delete-branch: true
