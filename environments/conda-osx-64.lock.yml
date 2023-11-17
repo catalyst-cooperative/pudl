@@ -67,7 +67,7 @@ dependencies:
   - libspatialindex=1.9.3=he49afe7_4
   - libsqlite=3.44.0=h92b6c6a_0
   - libxcb=1.15=hb7f2c08_0
-  - libxml2=2.11.5=h3346baf_1
+  - libxml2=2.11.6=hc0ae0f7_0
   - lz4-c=1.9.4=hf0c8a7f_0
   - ncurses=6.4=h93d8f39_2
   - nspr=4.35=hea0b92c_0
