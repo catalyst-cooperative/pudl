@@ -86,6 +86,7 @@ def mcoe_asset_factory(
             "frc": AssetIn(key=f"out_eia923__{agg_freqs[freq]}_fuel_receipts_costs"),
         },
         compute_kind="Python",
+        io_manager_key="pudl_sqlite_io_manager",
     )
     def fc_asset(
         hr_by_gen: pd.DataFrame, gens: pd.DataFrame, frc: pd.DataFrame
