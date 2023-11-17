@@ -5316,7 +5316,7 @@ package:
     category: main
     optional: false
   - name: botocore
-    version: 1.32.1
+    version: 1.32.2
     manager: conda
     platform: linux-64
     dependencies:
@@ -5324,10 +5324,10 @@ package:
       python: ">=3.7"
       python-dateutil: ">=2.1,<3.0.0"
       urllib3: ">=1.25.4,<1.27"
-    url: https://conda.anaconda.org/conda-forge/noarch/botocore-1.32.1-pyhd8ed1ab_0.conda
+    url: https://conda.anaconda.org/conda-forge/noarch/botocore-1.32.2-pyhd8ed1ab_0.conda
     hash:
-      md5: ed6c51f21b00b73f27d754083a03734f
-      sha256: 1bbfa7c5b2b0016779805c664bfba9958f5ce5916f57c1a65d173f15d4dc7471
+      md5: 303d0f8f09c41c07b18b9a1112cec29b
+      sha256: 621ee76f9d1e741039513e94ef3e4d3442f76098d863f50474ec60d823ef11ae
     category: main
     optional: false
   - name: branca
@@ -6409,10 +6409,10 @@ package:
       xerces-c: ">=3.2.4,<3.3.0a0"
       xz: ">=5.2.6,<6.0a0"
       zstd: ">=1.5.5,<1.6.0a0"
-    url: https://conda.anaconda.org/conda-forge/linux-64/libgdal-3.8.0-h12dd931_3.conda
+    url: https://conda.anaconda.org/conda-forge/linux-64/libgdal-3.8.0-h12dd931_4.conda
     hash:
-      md5: 67bb2c3670f86fd94ef16a2fba2c233f
-      sha256: f79d914389b5e88d2e2e1516700a89817f33cc581d959966d62b85561a1284a1
+      md5: 6c55ed78178c9f6b49a5f69d2b39e1f4
+      sha256: fb22df87932dae21ee78abfd09d1b1ff75e9649f69ebd58284e0e07ea938b717
     category: main
     optional: false
   - name: numba
@@ -6927,10 +6927,10 @@ package:
       openssl: ">=3.1.4,<4.0a0"
       python: ">=3.11,<3.12.0a0"
       python_abi: 3.11.*
-    url: https://conda.anaconda.org/conda-forge/linux-64/gdal-3.8.0-py311h815a124_3.conda
+    url: https://conda.anaconda.org/conda-forge/linux-64/gdal-3.8.0-py311h815a124_4.conda
     hash:
-      md5: 016efff8d2aba5789ae4fba3258e923b
-      sha256: f7b85b26f3119e582324331208413254865537a43ed913ad9c05a682a3cd254d
+      md5: 30805ad1da096924da69baecb1ebec0b
+      sha256: 7f4828e93aefa5bda481e68ad1c8b1eb1dd045195dc71b4f09efbd7a7a795d91
     category: main
     optional: false
   - name: geopandas-base
@@ -13213,7 +13213,7 @@ package:
     category: main
     optional: false
   - name: botocore
-    version: 1.32.1
+    version: 1.32.2
     manager: conda
     platform: osx-64
     dependencies:
@@ -13221,10 +13221,10 @@ package:
       python-dateutil: ">=2.1,<3.0.0"
       jmespath: ">=0.7.1,<2.0.0"
       urllib3: ">=1.25.4,<1.27"
-    url: https://conda.anaconda.org/conda-forge/noarch/botocore-1.32.1-pyhd8ed1ab_0.conda
+    url: https://conda.anaconda.org/conda-forge/noarch/botocore-1.32.2-pyhd8ed1ab_0.conda
     hash:
-      md5: ed6c51f21b00b73f27d754083a03734f
-      sha256: 1bbfa7c5b2b0016779805c664bfba9958f5ce5916f57c1a65d173f15d4dc7471
+      md5: 303d0f8f09c41c07b18b9a1112cec29b
+      sha256: 621ee76f9d1e741039513e94ef3e4d3442f76098d863f50474ec60d823ef11ae
     category: main
     optional: false
   - name: branca
@@ -14308,10 +14308,10 @@ package:
       xerces-c: ">=3.2.4,<3.3.0a0"
       xz: ">=5.2.6,<6.0a0"
       zstd: ">=1.5.5,<1.6.0a0"
-    url: https://conda.anaconda.org/conda-forge/osx-64/libgdal-3.8.0-h1c9f6b2_3.conda
+    url: https://conda.anaconda.org/conda-forge/osx-64/libgdal-3.8.0-h1c9f6b2_4.conda
     hash:
-      md5: 6ce9abc53ceacd9fad5495fbfe23c0b7
-      sha256: adbb1cb7476e4af9b41d2d1f21603d6247791629eb028387297a956ca7567af0
+      md5: aba2a8c1f0c3d63568a973dbcf728910
+      sha256: a4f1cb12cc0f42bfc0f56f4a8a4c80d750536b8efe7e8163c68f21af1533ccc9
     category: main
     optional: false
   - name: librsvg
@@ -14798,10 +14798,10 @@ package:
       openssl: ">=3.1.4,<4.0a0"
       python: ">=3.11,<3.12.0a0"
       python_abi: 3.11.*
-    url: https://conda.anaconda.org/conda-forge/osx-64/gdal-3.8.0-py311h5646c56_3.conda
+    url: https://conda.anaconda.org/conda-forge/osx-64/gdal-3.8.0-py311h5646c56_4.conda
     hash:
-      md5: 4ced46299c6057651c6a5a8bf7153459
-      sha256: 04b3a9789c4a80e2d503ae62c56883569630479309db758094b8eb30c5bdf374
+      md5: 1d9d1cbd571fb4c7e65085cb18037ae4
+      sha256: 808c395bb386f56595e0a11d3c1b6f629bd23cfef09da17969d64f116eaec568
     category: main
     optional: false
   - name: geopandas-base
@@ -21026,7 +21026,7 @@ package:
     category: main
     optional: false
   - name: botocore
-    version: 1.32.1
+    version: 1.32.2
     manager: conda
     platform: osx-arm64
     dependencies:
@@ -21034,10 +21034,10 @@ package:
       python-dateutil: ">=2.1,<3.0.0"
       jmespath: ">=0.7.1,<2.0.0"
       urllib3: ">=1.25.4,<1.27"
-    url: https://conda.anaconda.org/conda-forge/noarch/botocore-1.32.1-pyhd8ed1ab_0.conda
+    url: https://conda.anaconda.org/conda-forge/noarch/botocore-1.32.2-pyhd8ed1ab_0.conda
     hash:
-      md5: ed6c51f21b00b73f27d754083a03734f
-      sha256: 1bbfa7c5b2b0016779805c664bfba9958f5ce5916f57c1a65d173f15d4dc7471
+      md5: 303d0f8f09c41c07b18b9a1112cec29b
+      sha256: 621ee76f9d1e741039513e94ef3e4d3442f76098d863f50474ec60d823ef11ae
     category: main
     optional: false
   - name: branca
@@ -22120,10 +22120,10 @@ package:
       xerces-c: ">=3.2.4,<3.3.0a0"
       xz: ">=5.2.6,<6.0a0"
       zstd: ">=1.5.5,<1.6.0a0"
-    url: https://conda.anaconda.org/conda-forge/osx-arm64/libgdal-3.8.0-h751e6a0_3.conda
+    url: https://conda.anaconda.org/conda-forge/osx-arm64/libgdal-3.8.0-h751e6a0_4.conda
     hash:
-      md5: 87072824894fdddeea27eeab2e14d753
-      sha256: d4ebfb904339ff018b20ca067ab28c7d22d814f167e9ffc3ccdcab54c48f235d
+      md5: 76b2c16e64279c369be3802c67582f94
+      sha256: 9ec68927b10429560a0cbff85520d28ceb93a812195fe7c33dc2fcefc87055a3
     category: main
     optional: false
   - name: librsvg
@@ -22610,10 +22610,10 @@ package:
       openssl: ">=3.1.4,<4.0a0"
       python: ">=3.11,<3.12.0a0"
       python_abi: 3.11.*
-    url: https://conda.anaconda.org/conda-forge/osx-arm64/gdal-3.8.0-py311h32a4f3d_3.conda
+    url: https://conda.anaconda.org/conda-forge/osx-arm64/gdal-3.8.0-py311h32a4f3d_4.conda
     hash:
-      md5: 46f836acb8e8650e037c3df724caa269
-      sha256: 9925ba98c0e7a8caf441d2abccaa95042750755cb9f33a857ade0ac7d981861e
+      md5: 587260f73e05cfa163f3e8964746ae2f
+      sha256: ee6d7444923aba96618bdf4f29c5323fc6b4bc040eb2a77ad2396efebdb01823
     category: main
     optional: false
   - name: geopandas-base
