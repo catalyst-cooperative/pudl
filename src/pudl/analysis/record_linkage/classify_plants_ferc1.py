@@ -85,7 +85,7 @@ def make_ferc1_clf(
     construction_year_wt=1.0,
     utility_id_ferc1_wt=1.0,
     fuel_fraction_wt=1.0,
-    d_threshold=0.3,
+    d_threshold=1.5,
 ):
     """Create a FERC Plant Classifier using several weighted features.
 
