@@ -1012,7 +1012,7 @@ def _allocate_unassociated_pm_records(
     eia_generators_connected = gen_assoc.loc[connected_mask].assign(
         capacity_mw_minus_one=lambda x: x.groupby(idx_minus_one)[
             "capacity_mw"
-        ].transform(sum),
+        ].transform("sum"),
         frac_cap_minus_one=lambda x: x.capacity_mw / x.capacity_mw_minus_one,
     )
 
@@ -1192,7 +1192,7 @@ def prep_alloction_fraction(gen_assoc: pd.DataFrame) -> pd.DataFrame:
     )
     gen_pm_fuel["capacity_mw_fuel_in_bf_tbl_group"] = gen_pm_fuel.groupby(
         IDX_PM_ESC + ["in_bf_tbl"], dropna=False
-    )[["capacity_mw"]].transform(sum, min_count=1)
+    )[["capacity_mw"]].transform("sum", min_count=1)
 
     return gen_pm_fuel
 
@@ -1534,7 +1534,7 @@ def distribute_annually_reported_data_to_months_if_annual(
                 | np.isclose(reporters[data_column_name], 0)
             )
             .groupby(key_columns_annual, dropna=False)[["missing_data"]]
-            .transform(sum)
+            .transform("sum")
         )
 
         # seperate annual and monthly reporters

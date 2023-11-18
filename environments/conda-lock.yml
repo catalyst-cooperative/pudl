@@ -15,9 +15,9 @@
 version: 1
 metadata:
   content_hash:
-    linux-64: 62bcd0fc7d50df96982d048631ad45bff7910db618111621e212e7f3c28a44bc
-    osx-64: bcf38db86781af22df7f496ce0dafe43a905c359e9c7d6d038429569b874c305
-    osx-arm64: 8d8eb4c72944efa02bab31f0274acad445146594b4cad129cc341a304e08ebb2
+    linux-64: 3488f1f8b42f706745fb582d78e40be692fed5eb08accbfb1ebf539a089d87bd
+    osx-64: b0e3c33170a43614c2f811caf4b3f1572d74d3cfac308aaa1d7b7440f6b126a0
+    osx-arm64: 4741766e82a5d953aa4d5bc129ecfb5a9580d7cc918942e6ef8d36fc0bf4daa4
   channels:
     - url: conda-forge
       used_env_vars: []
@@ -1223,7 +1223,7 @@ package:
     category: main
     optional: false
   - name: libxml2
-    version: 2.11.5
+    version: 2.11.6
     manager: conda
     platform: linux-64
     dependencies:
@@ -1232,10 +1232,10 @@ package:
       libiconv: ">=1.17,<2.0a0"
       libzlib: ">=1.2.13,<1.3.0a0"
       xz: ">=5.2.6,<6.0a0"
-    url: https://conda.anaconda.org/conda-forge/linux-64/libxml2-2.11.5-h232c23b_1.conda
+    url: https://conda.anaconda.org/conda-forge/linux-64/libxml2-2.11.6-h232c23b_0.conda
     hash:
-      md5: f3858448893839820d4bcfb14ad3ecdf
-      sha256: 1b3cb6864de1a558ea5fb144c780121d52507837d15df0600491d8ed92cff90c
+      md5: 427a3e59d66cb5d145020bd9c6493334
+      sha256: e6183d5e57ee48cc1fc4340477c31a6bd8be4d3ba5dded82cbca0d5280591086
     category: main
     optional: false
   - name: libzip
@@ -5073,21 +5073,6 @@ package:
       sha256: c92e7bbb1d02286bcd3d3292208006f796ae45df82af3deec940339493415c04
     category: main
     optional: false
-  - name: sqlalchemy
-    version: 1.4.49
-    manager: conda
-    platform: linux-64
-    dependencies:
-      greenlet: "!=0.4.17"
-      libgcc-ng: ">=12"
-      python: ">=3.11,<3.12.0a0"
-      python_abi: 3.11.*
-    url: https://conda.anaconda.org/conda-forge/linux-64/sqlalchemy-1.4.49-py311h459d7ec_1.conda
-    hash:
-      md5: 17392bcb4ceac1b2c95db9d54b4ac018
-      sha256: 542dea4823e2e1283936fbd25c9f3fa960ec6df2dd54589b192b4dac68af7295
-    category: main
-    optional: false
   - name: terminado
     version: 0.18.0
     manager: conda
@@ -5890,6 +5875,22 @@ package:
     hash:
       md5: d7a11d4f3024b2f4a6e0ae7377dd61e9
       sha256: 4bb25bf1f5664772b2c4c2e3878aa6e7dc2695f97e3da4ee8e47c51e179913bb
+    category: main
+    optional: false
+  - name: sqlalchemy
+    version: 2.0.23
+    manager: conda
+    platform: linux-64
+    dependencies:
+      greenlet: "!=0.4.17"
+      libgcc-ng: ">=12"
+      python: ">=3.11,<3.12.0a0"
+      python_abi: 3.11.*
+      typing-extensions: ">=4.2.0"
+    url: https://conda.anaconda.org/conda-forge/linux-64/sqlalchemy-2.0.23-py311h459d7ec_0.conda
+    hash:
+      md5: caccc840985d972796a3c94e69376177
+      sha256: b616e46d0e4c914d29a9860384a6e44e33106cef565ba238d669766e658faa80
     category: main
     optional: false
   - name: stack_data
@@ -9009,7 +9010,7 @@ package:
     category: main
     optional: false
   - name: libxml2
-    version: 2.11.5
+    version: 2.11.6
     manager: conda
     platform: osx-64
     dependencies:
@@ -9017,10 +9018,10 @@ package:
       libiconv: ">=1.17,<2.0a0"
       libzlib: ">=1.2.13,<1.3.0a0"
       xz: ">=5.2.6,<6.0a0"
-    url: https://conda.anaconda.org/conda-forge/osx-64/libxml2-2.11.5-h3346baf_1.conda
+    url: https://conda.anaconda.org/conda-forge/osx-64/libxml2-2.11.6-hc0ae0f7_0.conda
     hash:
-      md5: 7584dee6af7de378aed0ae49aebedb8a
-      sha256: d901fab32e57a43c44e630fb1c4d0a163d23b109eecd6c68b9ee371800760bca
+      md5: 2b6ec8c6366ea74db4b910469addad1d
+      sha256: b5b1c3df3e6d0d294764938e79d7f413191cc5b1af2ede49f42b1df04d068a18
     category: main
     optional: false
   - name: lz4-c
@@ -12972,20 +12973,6 @@ package:
       sha256: afdaab0d0f5a288b31450c3da260381da5916c61f122a0b3f5dea76d1ca863bb
     category: main
     optional: false
-  - name: sqlalchemy
-    version: 1.4.49
-    manager: conda
-    platform: osx-64
-    dependencies:
-      greenlet: "!=0.4.17"
-      python: ">=3.11,<3.12.0a0"
-      python_abi: 3.11.*
-    url: https://conda.anaconda.org/conda-forge/osx-64/sqlalchemy-1.4.49-py311he705e18_1.conda
-    hash:
-      md5: 04845132cd5d140b638c4927e1895e12
-      sha256: 39569dfc13e742e1b61fcc92948e02bc7f361d05bb5100e5226251b70fcdf1af
-    category: main
-    optional: false
   - name: terminado
     version: 0.18.0
     manager: conda
@@ -13766,6 +13753,21 @@ package:
     hash:
       md5: d7a11d4f3024b2f4a6e0ae7377dd61e9
       sha256: 4bb25bf1f5664772b2c4c2e3878aa6e7dc2695f97e3da4ee8e47c51e179913bb
+    category: main
+    optional: false
+  - name: sqlalchemy
+    version: 2.0.23
+    manager: conda
+    platform: osx-64
+    dependencies:
+      greenlet: "!=0.4.17"
+      python: ">=3.11,<3.12.0a0"
+      python_abi: 3.11.*
+      typing-extensions: ">=4.2.0"
+    url: https://conda.anaconda.org/conda-forge/osx-64/sqlalchemy-2.0.23-py311he705e18_0.conda
+    hash:
+      md5: f06f912df000cc6bd840011c703c607a
+      sha256: da5ab07c9148d561586f7fa8110a0794b136e96e168cd591cb7aa87e9805f1da
     category: main
     optional: false
   - name: stack_data
@@ -16835,7 +16837,7 @@ package:
     category: main
     optional: false
   - name: libxml2
-    version: 2.11.5
+    version: 2.11.6
     manager: conda
     platform: osx-arm64
     dependencies:
@@ -16843,10 +16845,10 @@ package:
       libiconv: ">=1.17,<2.0a0"
       libzlib: ">=1.2.13,<1.3.0a0"
       xz: ">=5.2.6,<6.0a0"
-    url: https://conda.anaconda.org/conda-forge/osx-arm64/libxml2-2.11.5-h25269f3_1.conda
+    url: https://conda.anaconda.org/conda-forge/osx-arm64/libxml2-2.11.6-h0d0cfa8_0.conda
     hash:
-      md5: 627b5d1377536b5b632ba53cd1455555
-      sha256: 8291549b87aca48e9cd4aec124af01b5037acd16f8ad14083d7af23c8bb6bebe
+      md5: 37e112ce9494adfcee6c0c7bf3b5d98d
+      sha256: 07d2da8f3fb00fb6f84cd36b5329174b878105889f0fe21e79981f27573b47af
     category: main
     optional: false
   - name: lz4-c
@@ -20785,20 +20787,6 @@ package:
       sha256: 33c770e213c233e80b48256d17ce0e7bfe504576f2778307826cf1fd1db058d6
     category: main
     optional: false
-  - name: sqlalchemy
-    version: 1.4.49
-    manager: conda
-    platform: osx-arm64
-    dependencies:
-      greenlet: "!=0.4.17"
-      python: ">=3.11,<3.12.0a0"
-      python_abi: 3.11.*
-    url: https://conda.anaconda.org/conda-forge/osx-arm64/sqlalchemy-1.4.49-py311h05b510d_1.conda
-    hash:
-      md5: 1460f703e4ed3a7bda01ef1baee3a2ea
-      sha256: 99fbaaa9374f694a2fa86ca37b9c7d5044b3a21f2fdaff23048f1423031f03ac
-    category: main
-    optional: false
   - name: terminado
     version: 0.18.0
     manager: conda
@@ -21579,6 +21567,21 @@ package:
     hash:
       md5: d7a11d4f3024b2f4a6e0ae7377dd61e9
       sha256: 4bb25bf1f5664772b2c4c2e3878aa6e7dc2695f97e3da4ee8e47c51e179913bb
+    category: main
+    optional: false
+  - name: sqlalchemy
+    version: 2.0.23
+    manager: conda
+    platform: osx-arm64
+    dependencies:
+      greenlet: "!=0.4.17"
+      python: ">=3.11,<3.12.0a0"
+      python_abi: 3.11.*
+      typing-extensions: ">=4.2.0"
+    url: https://conda.anaconda.org/conda-forge/osx-arm64/sqlalchemy-2.0.23-py311h05b510d_0.conda
+    hash:
+      md5: 33795a9c237e7c3ec9cf01a2e89f11dd
+      sha256: ccf2046118ab2d32d41dc8e90aa3e701e9938522533e39332738f8654d9268cb
     category: main
     optional: false
   - name: stack_data
