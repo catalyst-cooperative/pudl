@@ -1,0 +1,84 @@
+---
+name: update-conda-lockfile
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: "0 9 * * 1-5" # Weekdays at 9AM UTC
+  push:
+    paths:
+      - "pyproject.toml"
+      - "environments/*"
+      - ".github/workflows/update-conda-lockfile.yml"
+
+# What branch does this action run on?
+# - workflow_dispatch: Whatever branch it was run against.
+# - schedule: Always the same branch (will be dev or main)
+# - push: Base branch of the PR.
+
+jobs:
+  update-conda-lockfile:
+    runs-on: ubuntu-latest
+    if: ${{ (github.event_name == 'push' && github.actor != 'pudlbot') || (github.event_name == 'schedule' && github.repository == 'catalyst-cooperative/pudl') || (github.event_name == 'workflow_dispatch') }}
+    defaults:
+      run:
+        shell: bash -l {0}
+    steps:
+      - name: Set GITHUB_REF for use with workflow_dispatch
+        if: ${{ (github.event_name == 'workflow_dispatch') }}
+        run: |
+          echo "GITHUB_REF="${{ github.ref_name }} >> $GITHUB_ENV
+      - name: Set GITHUB_REF for use with schedule
+        if: ${{ (github.event_name == 'schedule') }}
+        run: |
+          echo "GITHUB_REF=dev" >> $GITHUB_ENV
+      - name: Set GITHUB_REF for use with push
+        if: ${{ (github.event_name == 'push') }}
+        run: |
+          echo "GITHUB_REF="${{ github.ref_name }} >> $GITHUB_ENV
+      - name: Log final value of GITHUB_REF
+        run: |
+          echo "Final GITHUB_REF:" ${{ env.GITHUB_REF }}
+      - uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.PUDL_BOT_PAT }}
+          ref: ${{ env.GITHUB_REF }}
+      - name: Install Micromamba
+        uses: mamba-org/setup-micromamba@v1
+        with:
+          environment-name: conda-lock
+          create-args: >-
+            python=3.11
+            conda-lock
+            prettier
+      - name: Run conda-lock to recreate lockfile from scratch
+        run: |
+          make conda-clean
+          make conda-lock.yml
+      - name: Commit updated conda lockfiles to branch
+        # If running on push due to dependency changes, commit directly to the base
+        # branch of the existing PR. Don't trigger the workflow again if we're already
+        # running it as pudlbot (to avoid infinite recursion).
+        if: ${{ (github.event_name == 'push' && github.actor != 'pudlbot') }}
+        uses: stefanzweifel/git-auto-commit-action@v5
+        with:
+          file_pattern: "environments/*"
+          commit_message: "Update conda-lock.yml and rendered conda environment files."
+      - name: Make a PR to merge updated conda lockfiles
+        # If we are relocking dependencies on a schedule or workflow_dispatch, we need
+        # to make our own PR to check whether the updated environment actually solves
+        # and the tests pass.
+        if: ${{ (github.event_name == 'schedule' && github.repository == 'catalyst-cooperative/pudl') || (github.event_name == 'workflow_dispatch') }}
+        uses: peter-evans/create-pull-request@v5
+        with:
+          token: ${{ secrets.PUDL_BOT_PAT }}
+          commit-message: "Update conda-lock.yml and rendered conda environment files."
+          title: Update Lockfile
+          body: >
+            This pull request relocks the dependencies with conda-lock.
+            It is triggered by [update-conda-lockfile](https://github.com/catalyst-cooperative/pudl/blob/main/.github/workflows/update-conda-lockfile.yml).
+          labels: dependencies, conda-lock
+          reviewers: zaneselvans
+          branch: update-conda-lockfile
+          base: ${{ env.GITHUB_REF }}
+          delete-branch: true

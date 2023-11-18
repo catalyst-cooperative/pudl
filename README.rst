@@ -8,9 +8,9 @@ The Public Utility Data Liberation Project (PUDL)
    :target: https://www.repostatus.org/#active
    :alt: Project Status: Active
 
-.. image:: https://github.com/catalyst-cooperative/pudl/workflows/tox-pytest/badge.svg
-   :target: https://github.com/catalyst-cooperative/pudl/actions?query=workflow%3Atox-pytest
-   :alt: Tox-PyTest Status
+.. image:: https://github.com/catalyst-cooperative/pudl/workflows/pytest/badge.svg
+   :target: https://github.com/catalyst-cooperative/pudl/actions?query=workflow%3Apytest
+   :alt: PyTest Status
 
 .. image:: https://img.shields.io/codecov/c/github/catalyst-cooperative/pudl?style=flat&logo=codecov
    :target: https://codecov.io/gh/catalyst-cooperative/pudl
@@ -19,18 +19,6 @@ The Public Utility Data Liberation Project (PUDL)
 .. image:: https://img.shields.io/readthedocs/catalystcoop-pudl?style=flat&logo=readthedocs
    :target: https://catalystcoop-pudl.readthedocs.io/en/latest/
    :alt: Read the Docs Build Status
-
-.. image:: https://img.shields.io/pypi/v/catalystcoop.pudl
-   :target: https://pypi.org/project/catalystcoop.pudl/
-   :alt: PyPI Latest Version
-
-.. image:: https://img.shields.io/conda/vn/conda-forge/catalystcoop.pudl
-   :target: https://anaconda.org/conda-forge/catalystcoop.pudl
-   :alt: conda-forge Version
-
-.. image:: https://img.shields.io/pypi/pyversions/catalystcoop.pudl
-   :target: https://pypi.org/project/catalystcoop.pudl/
-   :alt: Supported Python Versions
 
 .. image:: https://img.shields.io/badge/code%20style-black-000000.svg
    :target: https://github.com/psf/black

@@ -23,7 +23,7 @@ UI for a given Run and Dagster related logs will appear at the bottom of the UI:
 
 .. image:: ../images/dagster_ui_logs.png
   :width: 800
-  :alt: Dagit logs
+  :alt: Dagster UI logs
 
 To view logs from previous runs, click on the Run tab in the upper left hand
 corner, then click the Run ID of the desired run to view the dagster logs.
@@ -77,12 +77,12 @@ of a given resource. PUDL currently has three resources:
 The ``dataset_settings`` resource tells the PUDL ETL which years
 of data to process. You can configure the dataset settings
 by holding shift while clicking the "Materialize All" button in the upper
-right hand corner of the Dagit interface. This will bring up a window
+right hand corner of the Dagster UI. This will bring up a window
 where you change how the resource is configured:
 
 .. image:: ../images/dataset_settings_config.png
   :width: 800
-  :alt: Dagit home
+  :alt: Dagster UI home
 
 .. note::
 

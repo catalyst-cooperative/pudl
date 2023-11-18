@@ -85,6 +85,8 @@ jobs:
 
       # Deploy PUDL image to GCE
       - name: Deploy
+        env:
+          DAGSTER_PG_PASSWORD: ${{ secrets.DAGSTER_PG_PASSWORD }}
         run: |-
           gcloud compute instances add-metadata "$GCE_INSTANCE" \
             --zone "$GCE_INSTANCE_ZONE" \
@@ -92,11 +94,12 @@ jobs:
           gcloud compute instances update-container "$GCE_INSTANCE" \
             --zone "$GCE_INSTANCE_ZONE" \
             --container-image "docker.io/catalystcoop/pudl-etl:${{ env.GITHUB_REF }}" \
-            --container-command "conda" \
+            --container-command "micromamba" \
             --container-arg="run" \
-            --container-arg="--no-capture-output" \
-            --container-arg="-p" \
-            --container-arg="/home/catalyst/env" \
+            --container-arg="--prefix" \
+            --container-arg="/home/mambauser/env" \
+            --container-arg="--attach" \
+            --container-arg='' \
             --container-arg="bash" \
             --container-arg="./docker/gcp_pudl_etl.sh" \
             --container-env-file="./docker/.env" \
@@ -110,6 +113,12 @@ jobs:
             --container-env AWS_ACCESS_KEY_ID=${{ secrets.AWS_ACCESS_KEY_ID }} \
             --container-env AWS_SECRET_ACCESS_KEY=${{ secrets.AWS_SECRET_ACCESS_KEY }} \
             --container-env AWS_DEFAULT_REGION=${{ secrets.AWS_DEFAULT_REGION }} \
+            --container-env DAGSTER_PG_USERNAME="postgres" \
+            --container-env DAGSTER_PG_PASSWORD="$DAGSTER_PG_PASSWORD" \
+            --container-env DAGSTER_PG_HOST="104.154.182.24" \
+            --container-env DAGSTER_PG_DB="dagster-storage" \
+            --container-env FLY_ACCESS_TOKEN=${{ secrets.FLY_ACCESS_TOKEN }} \
+            --container-env PUDL_SETTINGS_YML="/home/mambauser/src/pudl/package_data/settings/etl_full.yml" \
 
       # Start the VM
       - name: Start the deploy-pudl-vm
