@@ -9,231 +9,14 @@ tools from scikit-learn
 """
 import re
 
-import numpy as np
 import pandas as pd
-from sklearn.base import BaseEstimator, TransformerMixin
-from sklearn.cluster import AgglomerativeClustering
-from sklearn.compose import ColumnTransformer
-from sklearn.decomposition import PCA
-from sklearn.feature_extraction.text import TfidfVectorizer
-from sklearn.metrics import pairwise_distances
 from sklearn.pipeline import Pipeline
-from sklearn.preprocessing import MinMaxScaler, Normalizer, OneHotEncoder
+from sklearn.preprocessing import MinMaxScaler, Normalizer
 
 import pudl
+from pudl.analysis.record_linkage.cross_year import ColumnTransform, CrossYearLinker
 
 logger = pudl.logging_helpers.get_logger(__name__)
-
-
-class DistancePenalizeSameYear(BaseEstimator, TransformerMixin):
-    """Custom estimator to compute distances used to identify clusters of plants."""
-
-    def __init__(self, report_years: np.array, metric="euclidean", penalty=100):
-        """Initialize estimator with configurable parameters.
-
-        Args:
-            report_years: reporty_year column used to penalize distance for records
-                          from same year.
-            metric: Distance metric to use in computation.
-            penalty: Penalty to apply to records with the same report year.
-        """
-        self.report_years = report_years
-        self.metric = metric
-        self.penalty = penalty
-
-    def fit(self, X, y=None, **fit_params):  # noqa: N803
-        """Required by scikit-learn, but does not modify anything."""
-        return self
-
-    def transform(self, X, y=None, **fit_params):  # noqa: N803
-        """Compute distance between records then add penalty to records from same year."""
-        dist_matrix = pairwise_distances(X, metric=self.metric)
-
-        # Create penalty matrix
-        # Probably not the most elegant way to handle this
-        penalty_matrix = pairwise_distances(self.report_years.reshape(-1, 1))
-        penalty_matrix += self.penalty
-        penalty_matrix[penalty_matrix > self.penalty] = 0
-
-        # distance from node to itself should still be 0
-        np.fill_diagonal(penalty_matrix, 0)
-        dist_matrix += penalty_matrix
-        return dist_matrix
-
-
-class DenseTransformer(BaseEstimator, TransformerMixin):
-    """Convert sparse numpy matrix to dense numpy array."""
-
-    def fit(self, X, y=None, **fit_params):  # noqa: N803
-        """No modifications made during fitting."""
-        return self
-
-    def transform(self, X, y=None, **fit_params):  # noqa: N803
-        """No modifications made during fitting."""
-        return np.asarray(np.float32(X.todense()))
-
-
-def make_ferc1_clf(
-    plants_df,
-    ngram_min=2,
-    ngram_max=10,
-    min_sim=0.75,
-    plant_name_ferc1_wt=2.0,
-    plant_type_wt=2.0,
-    construction_type_wt=1.0,
-    capacity_mw_wt=1.0,
-    construction_year_wt=1.0,
-    utility_id_ferc1_wt=1.0,
-    fuel_fraction_wt=1.0,
-    d_threshold=1.5,
-):
-    """Create a FERC Plant Classifier using several weighted features.
-
-    Given a FERC steam plants dataframe plants_df, which also includes fuel consumption
-    information, transform a selection of useful columns into features suitable for use
-    in calculating inter-record cosine similarities. Individual features are weighted
-    according to the keyword arguments.
-
-    Features include:
-
-      * plant_name (via TF-IDF, with ngram_min and ngram_max as parameters)
-      * plant_type (OneHot encoded categorical feature)
-      * construction_type (OneHot encoded categorical feature)
-      * capacity_mw (MinMax scaled numerical feature)
-      * construction year (OneHot encoded categorical feature)
-      * utility_id_ferc1 (OneHot encoded categorical feature)
-      * fuel_fraction_mmbtu (several MinMax scaled numerical columns, which are
-        normalized and treated as a single feature.)
-
-    This feature matrix is then used to instantiate a FERCPlantClassifier.
-
-    The combination of the ColumnTransformer and FERCPlantClassifier are combined in a
-    sklearn Pipeline, which is returned by the function.
-
-    Arguments:
-        ngram_min (int): the minimum lengths to consider in the vectorization of the
-            plant_name feature.
-        ngram_max (int): the maximum n-gram lengths to consider in the vectorization of
-            the plant_name feature.
-        min_sim (float): the minimum cosine similarity between two records that can be
-            considered a "match" (a number between 0.0 and 1.0).
-        plant_name_ferc1_wt (float): weight used to determine the relative importance
-            of each of the features in the feature matrix used to calculate the cosine
-            similarity between records. Used to scale each individual feature before the
-            vectors are normalized.
-        plant_type_wt (float): weight used to determine the relative importance of each
-            of the features in the feature matrix used to calculate the cosine
-            similarity between records. Used to scale each individual feature before the
-            vectors are normalized.
-        construction_type_wt (float): weight used to determine the relative importance
-            of each of the features in the feature matrix used to calculate the cosine
-            similarity between records. Used to scale each individual feature before the
-            vectors are normalized.
-        capacity_mw_wt (float):weight used to determine the relative importance of each
-            of the features in the feature matrix used to calculate the cosine
-            similarity between records. Used to scale each individual feature before the
-            vectors are normalized.
-        construction_year_wt (float): weight used to determine the relative importance
-            of each of the features in the feature matrix used to calculate the cosine
-            similarity between records. Used to scale each individual feature before the
-            vectors are normalized.
-        utility_id_ferc1_wt (float): weight used to determine the relative importance
-            of each of the features in the feature matrix used to calculate the cosine
-            similarity between records. Used to scale each individual feature before the
-            vectors are normalized.
-        fuel_fraction_wt (float): weight used to determine the relative importance of
-            each of the features in the feature matrix used to calculate the cosine
-            similarity between records. Used to scale each individual feature before the
-            vectors are normalized.
-        d_threshold (float): distance threshold used by clustering algorithm.
-
-    Returns:
-        sklearn.pipeline.Pipeline: an sklearn Pipeline that performs reprocessing and
-        classification with a FERCPlantClassifier object.
-    """
-    # Make a list of all the fuel fraction columns for use as one feature.
-    fuel_cols = list(plants_df.filter(regex=".*_fraction_mmbtu$").columns)
-
-    ferc1_pipe = Pipeline(
-        [
-            (
-                "preprocessor",
-                ColumnTransformer(
-                    transformers=[
-                        (
-                            "plant_name_ferc1",
-                            TfidfVectorizer(
-                                analyzer="char", ngram_range=(ngram_min, ngram_max)
-                            ),
-                            "plant_name_ferc1",
-                        ),
-                        (
-                            "plant_type",
-                            OneHotEncoder(categories="auto"),
-                            ["plant_type"],
-                        ),
-                        (
-                            "construction_type",
-                            OneHotEncoder(categories="auto"),
-                            ["construction_type"],
-                        ),
-                        ("capacity_mw", MinMaxScaler(), ["capacity_mw"]),
-                        (
-                            "construction_year",
-                            OneHotEncoder(categories="auto"),
-                            ["construction_year"],
-                        ),
-                        (
-                            "utility_id_ferc1",
-                            OneHotEncoder(categories="auto"),
-                            ["utility_id_ferc1"],
-                        ),
-                        (
-                            "fuel_fraction_mmbtu",
-                            Pipeline(
-                                [("scaler", MinMaxScaler()), ("norm", Normalizer())]
-                            ),
-                            fuel_cols,
-                        ),
-                    ],
-                    transformer_weights={
-                        "plant_name_ferc1": plant_name_ferc1_wt,
-                        "plant_type": plant_type_wt,
-                        "construction_type": construction_type_wt,
-                        "capacity_mw": capacity_mw_wt,
-                        "construction_year": construction_year_wt,
-                        "utility_id_ferc1": utility_id_ferc1_wt,
-                        "fuel_fraction_mmbtu": fuel_fraction_wt,
-                    },
-                ),
-            ),
-            (
-                "to_dense",
-                DenseTransformer(),
-            ),
-            (
-                "dim_reduction",
-                PCA(copy=False, n_components=1000),
-            ),
-            (
-                "precompute_dist",
-                DistancePenalizeSameYear(
-                    np.array(plants_df.report_year), metric="euclidean"
-                ),
-            ),
-            (
-                "classifier",
-                AgglomerativeClustering(
-                    n_clusters=None,
-                    metric="precomputed",
-                    linkage="average",
-                    distance_threshold=d_threshold,
-                    compute_distances=True,
-                ),
-            ),
-        ],
-    )
-    return ferc1_pipe
 
 
 def fuel_by_plant_ferc1(
@@ -422,9 +205,64 @@ def plants_steam_assign_plant_ids(
     # fillin these two str columns with empty strings for the model
     str_cols = ["plant_type", "construction_type"]
     ferc1_steam_df[str_cols] = ferc1_steam_df[str_cols].fillna(value="")
+
+    fuel_cols = list(ferc1_steam_df.filter(regex=".*_fraction_mmbtu$").columns)
+
     # Train the classifier using DEFAULT weights, parameters not listed here.
-    clf = make_ferc1_clf(ferc1_steam_df)
-    ferc1_steam_df["plant_id_ferc1"] = clf.fit_predict(ferc1_steam_df)
+    clf = CrossYearLinker(
+        **{
+            "id_column": "plant_id_ferc1",
+            "column_transforms": [
+                ColumnTransform(
+                    **{
+                        "step_name": "plant_name_ferc1",
+                        "columns": "plant_name_ferc1",
+                        "transformer": "string",
+                        "weight": 2.0,
+                    }
+                ),
+                ColumnTransform(
+                    **{
+                        "step_name": "plant_type",
+                        "columns": ["plant_type"],
+                        "transformer": "category",
+                        "weight": 2.0,
+                    }
+                ),
+                ColumnTransform(
+                    **{
+                        "step_name": "construction_type",
+                        "columns": ["construction_type"],
+                        "transformer": "category",
+                    }
+                ),
+                ColumnTransform(
+                    **{
+                        "step_name": "capacity_mw",
+                        "columns": ["capacity_mw"],
+                        "transformer": "number",
+                    }
+                ),
+                ColumnTransform(
+                    **{
+                        "step_name": "utility_id_ferc1",
+                        "columns": ["utility_id_ferc1"],
+                        "transformer": "category",
+                    }
+                ),
+                ColumnTransform(
+                    **{
+                        "step_name": "fuel_fraction_mmbtu",
+                        "columns": fuel_cols,
+                        "transformer": Pipeline(
+                            [("scaler", MinMaxScaler()), ("norm", Normalizer())]
+                        ),
+                    }
+                ),
+            ],
+        }
+    )
+    ferc1_steam_df = clf.fit_predict(ferc1_steam_df)
 
     # Set the construction year back to numeric because it is.
     ferc1_steam_df["construction_year"] = pd.to_numeric(
