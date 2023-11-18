@@ -182,13 +182,6 @@ def plants_steam_assign_plant_ids(
     # do this for us.
     logger.info("Identifying distinct large FERC plants for ID assignment.")
 
-    # scikit-learn still doesn't deal well with NA values (this will be fixed
-    # eventually) We need to massage the type and missing data for the
-    # Classifier to work.
-    ferc1_steam_df = pudl.helpers.fix_int_na(
-        ferc1_steam_df, columns=["construction_year"]
-    )
-
     # Grab fuel consumption proportions for use in assigning plant IDs:
     fuel_fractions = fuel_by_plant_ferc1(ferc1_fuel_df, fuel_categories)
     ffc = list(fuel_fractions.filter(regex=".*_fraction_mmbtu$").columns)
@@ -198,13 +191,6 @@ def plants_steam_assign_plant_ids(
         on=["utility_id_ferc1", "plant_name_ferc1", "report_year"],
         how="left",
     )
-    # We need to fill the null values for these numerical feature vectors with
-    # zeros. not ideal, but the model requires dealing with nulls
-    null_to_zero = ffc + ["capacity_mw"]
-    ferc1_steam_df[null_to_zero] = ferc1_steam_df[null_to_zero].fillna(value=0.0)
-    # fillin these two str columns with empty strings for the model
-    str_cols = ["plant_type", "construction_type"]
-    ferc1_steam_df[str_cols] = ferc1_steam_df[str_cols].fillna(value="")
 
     fuel_cols = list(ferc1_steam_df.filter(regex=".*_fraction_mmbtu$").columns)
 
@@ -227,6 +213,7 @@ def plants_steam_assign_plant_ids(
                         "columns": ["plant_type"],
                         "transformer": "category",
                         "weight": 2.0,
+                        "cleaning_ops": ["null_to_empty_str"],
                     }
                 ),
                 ColumnTransform(
@@ -234,6 +221,7 @@ def plants_steam_assign_plant_ids(
                         "step_name": "construction_type",
                         "columns": ["construction_type"],
                         "transformer": "category",
+                        "cleaning_ops": ["null_to_empty_str"],
                     }
                 ),
                 ColumnTransform(
@@ -241,6 +229,15 @@ def plants_steam_assign_plant_ids(
                         "step_name": "capacity_mw",
                         "columns": ["capacity_mw"],
                         "transformer": "number",
+                        "cleaning_ops": ["null_to_zero"],
+                    }
+                ),
+                ColumnTransform(
+                    **{
+                        "step_name": "construction_year",
+                        "columns": ["construction_year"],
+                        "transformer": "category",
+                        "cleaning_ops": ["fix_int_na"],
                     }
                 ),
                 ColumnTransform(
@@ -257,6 +254,7 @@ def plants_steam_assign_plant_ids(
                         "transformer": Pipeline(
                             [("scaler", MinMaxScaler()), ("norm", Normalizer())]
                         ),
+                        "cleaning_ops": ["null_to_zero"],
                     }
                 ),
             ],

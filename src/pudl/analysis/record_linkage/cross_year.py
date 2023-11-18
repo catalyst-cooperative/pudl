@@ -32,6 +32,12 @@ _ONE_HOT_DEFAULT_OPTIONS = {
     "categories": "auto",
 }
 
+_CLEANING_FUNCTIONS = {
+    "null_to_zero": lambda df, cols: df[cols].fillna(value=0.0),
+    "null_to_empty_str": lambda df, cols: df[cols].fillna(value=""),
+    "fix_int_na": lambda df, cols: pudl.helpers.fix_int_na(df, columns=cols)[cols],
+}
+
 
 class ColumnTransform(BaseModel):
     """Configuration for a single column transform in the CrossYearLinker.
@@ -53,12 +59,20 @@ class ColumnTransform(BaseModel):
     transformer: BaseEstimator | Literal["string", "category", "number"]
     transformer_options: dict[str, Any] = {}
     weight: float = 1.0
+    cleaning_ops: list[str] = []
 
     # This can be handled more elegantly in Pydantic 2.0.
     class Config:
         """To allow a BaseEstimator for 'transformer', arbitrary types must be allowed."""
 
         arbitrary_types_allowed = True
+
+    def clean_columns(self, df):
+        """Perform configurable set of cleaning operations on inputs before pipeline."""
+        for cleaning_op in self.cleaning_ops:
+            df[self.columns] = _CLEANING_FUNCTIONS[cleaning_op](df, self.columns)
+
+        return df
 
     def as_step(self) -> tuple[str, BaseEstimator, list[str]]:
         """Return tuple formatted as sklearn expects for pipeline step."""
@@ -118,6 +132,9 @@ class CrossYearLinker(BaseModel):
             )
         else:
             distance_estimator = PrecomputeDistance(metric=self.distance_metric)
+
+        for transform in self.column_transforms:
+            df = transform.clean_columns(df)
 
         pipeline = Pipeline(
             [
