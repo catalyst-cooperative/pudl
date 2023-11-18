@@ -271,3 +271,39 @@ def plants_steam_assign_plant_ids(
     ferc1_steam_df = ferc1_steam_df.drop(ffc, axis=1)
 
     return ferc1_steam_df
+
+
+def plants_steam_validate_ids(ferc1_steam_df: pd.DataFrame) -> pd.DataFrame:
+    """Tests that plant_id_ferc1 times series includes one record per year.
+
+    Args:
+        ferc1_steam_df: A DataFrame of the data from the FERC 1 Steam table.
+
+    Returns:
+        The input dataframe, to enable method chaining.
+    """
+    ##########################################################################
+    # FERC PLANT ID ERROR CHECKING STUFF
+    ##########################################################################
+
+    # Test to make sure that we don't have any plant_id_ferc1 time series
+    # which include more than one record from a given year. Warn the user
+    # if we find such cases (which... we do, as of writing)
+    year_dupes = (
+        ferc1_steam_df.groupby(["plant_id_ferc1", "report_year"])["utility_id_ferc1"]
+        .count()
+        .reset_index()
+        .rename(columns={"utility_id_ferc1": "year_dupes"})
+        .query("year_dupes>1")
+    )
+    if len(year_dupes) > 0:
+        for dupe in year_dupes.itertuples():
+            logger.error(
+                f"Found report_year={dupe.report_year} "
+                f"{dupe.year_dupes} times in "
+                f"plant_id_ferc1={dupe.plant_id_ferc1}"
+            )
+    else:
+        logger.info("No duplicate years found in any plant_id_ferc1. Hooray!")
+
+    return ferc1_steam_df

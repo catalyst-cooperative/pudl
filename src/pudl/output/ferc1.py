@@ -820,7 +820,7 @@ def denorm_fuel_by_plant_ferc1(
     fbp_df = (
         fuel_ferc1.pipe(drop_other_fuel_types)
         .pipe(
-            pudl.analysis.classify_plants_ferc1.fuel_by_plant_ferc1,
+            pudl.analysis.record_linkage.classify_plants_ferc1.fuel_by_plant_ferc1,
             fuel_categories=fuel_categories,
             thresh=thresh,
         )
