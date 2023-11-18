@@ -2536,17 +2536,17 @@ package:
     category: main
     optional: false
   - name: jellyfish
-    version: 1.0.1
+    version: 1.0.3
     manager: conda
     platform: linux-64
     dependencies:
       libgcc-ng: ">=12"
       python: ">=3.11,<3.12.0a0"
       python_abi: 3.11.*
-    url: https://conda.anaconda.org/conda-forge/linux-64/jellyfish-1.0.1-py311h46250e7_1.conda
+    url: https://conda.anaconda.org/conda-forge/linux-64/jellyfish-1.0.3-py311h46250e7_0.conda
     hash:
-      md5: 6f38f2017654d124c2745fad7eb96968
-      sha256: e457cd8d073edf0ac698d2bd87f4255e0fe086470018ec8b58b9699c686f6129
+      md5: de10f4eb49991618d3c97123d5ecd70d
+      sha256: 3cb4412f397490b3905bbf49f952bfd70be155ba63dcc1972c4a4e0e0cd5a437
     category: main
     optional: false
   - name: jmespath
@@ -3436,7 +3436,7 @@ package:
     category: main
     optional: false
   - name: ruff
-    version: 0.1.5
+    version: 0.1.6
     manager: conda
     platform: linux-64
     dependencies:
@@ -3444,10 +3444,10 @@ package:
       libstdcxx-ng: ">=12"
       python: ">=3.11,<3.12.0a0"
       python_abi: 3.11.*
-    url: https://conda.anaconda.org/conda-forge/linux-64/ruff-0.1.5-py311h7145743_0.conda
+    url: https://conda.anaconda.org/conda-forge/linux-64/ruff-0.1.6-py311h7145743_0.conda
     hash:
-      md5: fb689551fcdea23b9edbe3aefea691b0
-      sha256: 957be00fcff45d338024a7623f4016de3e59265f005e1216c5b2d178f82a1ace
+      md5: aff8387edd5157da054c4b46cc38ffdc
+      sha256: dd8f7a3e2e7bc65fb6c2c32aae79ebc8623c6b87cbdbc8d2651be9ccd63e29d0
     category: main
     optional: false
   - name: send2trash
@@ -4063,7 +4063,7 @@ package:
     category: main
     optional: false
   - name: aws-c-auth
-    version: 0.7.6
+    version: 0.7.7
     manager: conda
     platform: linux-64
     dependencies:
@@ -4073,10 +4073,10 @@ package:
       aws-c-io: ">=0.13.35,<0.13.36.0a0"
       aws-c-sdkutils: ">=0.1.12,<0.1.13.0a0"
       libgcc-ng: ">=12"
-    url: https://conda.anaconda.org/conda-forge/linux-64/aws-c-auth-0.7.6-h37ad1db_0.conda
+    url: https://conda.anaconda.org/conda-forge/linux-64/aws-c-auth-0.7.7-h37ad1db_0.conda
     hash:
-      md5: 31836ccf72bc70ce2ec38a2ec2c8b504
-      sha256: 6f44ef79e2ab5005961847cdefd2a71aa3a33c741adc77e774ac9dbedd9a2f81
+      md5: c66539c2b4f100003e7dbba698585f00
+      sha256: 2dd3dd679d242ef644271891916e8153ee5ec87cb94a2c9036b35d8760ceaca2
     category: main
     optional: false
   - name: aws-c-mqtt
@@ -5286,7 +5286,7 @@ package:
     manager: conda
     platform: linux-64
     dependencies:
-      aws-c-auth: ">=0.7.6,<0.7.7.0a0"
+      aws-c-auth: ">=0.7.7,<0.7.8.0a0"
       aws-c-cal: ">=0.6.9,<0.6.10.0a0"
       aws-c-common: ">=0.9.8,<0.9.9.0a0"
       aws-c-http: ">=0.7.14,<0.7.15.0a0"
@@ -5294,10 +5294,10 @@ package:
       aws-checksums: ">=0.1.17,<0.1.18.0a0"
       libgcc-ng: ">=12"
       openssl: ">=3.1.4,<4.0a0"
-    url: https://conda.anaconda.org/conda-forge/linux-64/aws-c-s3-0.3.24-h7630044_0.conda
+    url: https://conda.anaconda.org/conda-forge/linux-64/aws-c-s3-0.3.24-hdb3bed3_1.conda
     hash:
-      md5: 527d813e1a1cfe40902d2254937b404b
-      sha256: 1f276b336ac57166541b1327264639547c7073b30e309502c77ab6eb113ff37c
+      md5: de14e39bcd4721b040f77aa37f241ff1
+      sha256: 421069b755bf6f0091ef168d718612503b820005af3306781d4583e193d14a2e
     category: main
     optional: false
   - name: botocore
@@ -6079,7 +6079,7 @@ package:
     manager: conda
     platform: linux-64
     dependencies:
-      aws-c-auth: ">=0.7.6,<0.7.7.0a0"
+      aws-c-auth: ">=0.7.7,<0.7.8.0a0"
       aws-c-cal: ">=0.6.9,<0.6.10.0a0"
       aws-c-common: ">=0.9.8,<0.9.9.0a0"
       aws-c-event-stream: ">=0.3.2,<0.3.3.0a0"
@@ -6090,10 +6090,10 @@ package:
       aws-c-sdkutils: ">=0.1.12,<0.1.13.0a0"
       libgcc-ng: ">=12"
       libstdcxx-ng: ">=12"
-    url: https://conda.anaconda.org/conda-forge/linux-64/aws-crt-cpp-0.24.7-h4712614_1.conda
+    url: https://conda.anaconda.org/conda-forge/linux-64/aws-crt-cpp-0.24.7-hd0f6be0_2.conda
     hash:
-      md5: 25b0124936225427980b8b7ab65f1ce2
-      sha256: 63ca05c2c38d1a7f691c7988c213669ecba16d17419f861e37011e668ba765ae
+      md5: dad2a20d6cec858052e7fdb6ee6741d7
+      sha256: 8082e5ae80900e04321d08c41772469bc89714e78b8b331d3d7b0a278cf22cb2
     category: main
     optional: false
   - name: black
@@ -9917,7 +9917,7 @@ package:
     category: main
     optional: false
   - name: aws-c-auth
-    version: 0.7.6
+    version: 0.7.7
     manager: conda
     platform: osx-64
     dependencies:
@@ -9926,10 +9926,10 @@ package:
       aws-c-http: ">=0.7.14,<0.7.15.0a0"
       aws-c-io: ">=0.13.35,<0.13.36.0a0"
       aws-c-sdkutils: ">=0.1.12,<0.1.13.0a0"
-    url: https://conda.anaconda.org/conda-forge/osx-64/aws-c-auth-0.7.6-hc3630cc_0.conda
+    url: https://conda.anaconda.org/conda-forge/osx-64/aws-c-auth-0.7.7-hc3630cc_0.conda
     hash:
-      md5: 1d23f626932e996892200295251d3f21
-      sha256: c377f6d42e895409fef51d868f0061b4a99cbf728030abcde318a37a12c0518a
+      md5: 8f5d20d754ea27da53eb460024433f43
+      sha256: 85c3821bc400bd32bff92e2da4db3fc7404acb8f662a6a2926c18f63cb5e9e01
     category: main
     optional: false
   - name: aws-c-mqtt
@@ -10550,16 +10550,16 @@ package:
     category: main
     optional: false
   - name: jellyfish
-    version: 1.0.1
+    version: 1.0.3
     manager: conda
     platform: osx-64
     dependencies:
       python: ">=3.11,<3.12.0a0"
       python_abi: 3.11.*
-    url: https://conda.anaconda.org/conda-forge/osx-64/jellyfish-1.0.1-py311h299eb51_1.conda
+    url: https://conda.anaconda.org/conda-forge/osx-64/jellyfish-1.0.3-py311h5e0f0e4_0.conda
     hash:
-      md5: ce10e6fb23ec2fe23918de203236fbf2
-      sha256: 17d786d60c76d882dd626423131ae17ed59b79bd4da08470944517ed28651557
+      md5: 6229bd3463f162abe20e7d12148f59f5
+      sha256: 6ba0f5f9fba8b231520a595cfc86a3f05ab0613ced553d3e5fa45187475eec23
     category: main
     optional: false
   - name: jmespath
@@ -11420,7 +11420,7 @@ package:
     category: main
     optional: false
   - name: ruff
-    version: 0.1.5
+    version: 0.1.6
     manager: conda
     platform: osx-64
     dependencies:
@@ -11428,10 +11428,10 @@ package:
       libcxx: ">=16.0.6"
       python: ">=3.11,<3.12.0a0"
       python_abi: 3.11.*
-    url: https://conda.anaconda.org/conda-forge/osx-64/ruff-0.1.5-py311hec6fdf1_0.conda
+    url: https://conda.anaconda.org/conda-forge/osx-64/ruff-0.1.6-py311hec6fdf1_0.conda
     hash:
-      md5: ff29608b152cbd76c422ad3f97004876
-      sha256: ec15e79d5131afdd4592f7c1a878df0b7a8e022d5b644ab9fcb8d431915b4082
+      md5: f0fa30260ad0ac05ef120b758c68d7ba
+      sha256: 2587bd6a04c6a1178b63438de97c091bcfca15f9bb5ea0d6a1f109a66187e33e
     category: main
     optional: false
   - name: setuptools
@@ -12005,16 +12005,16 @@ package:
     manager: conda
     platform: osx-64
     dependencies:
-      aws-c-auth: ">=0.7.6,<0.7.7.0a0"
+      aws-c-auth: ">=0.7.7,<0.7.8.0a0"
       aws-c-cal: ">=0.6.9,<0.6.10.0a0"
       aws-c-common: ">=0.9.8,<0.9.9.0a0"
       aws-c-http: ">=0.7.14,<0.7.15.0a0"
       aws-c-io: ">=0.13.35,<0.13.36.0a0"
       aws-checksums: ">=0.1.17,<0.1.18.0a0"
-    url: https://conda.anaconda.org/conda-forge/osx-64/aws-c-s3-0.3.24-hb1cbb54_0.conda
+    url: https://conda.anaconda.org/conda-forge/osx-64/aws-c-s3-0.3.24-h4293da7_1.conda
     hash:
-      md5: 1ecf15003d2a41c0c3a834c0c8df2201
-      sha256: e6f91423b15e0501e8f635d740cb2db39c057e97036e870aaf11b3a63a576335
+      md5: f336309a54f8846a21bed05b1dc8f419
+      sha256: d78f1c4ff3b64c689db39e5a0771e311db1a4fbe7bc01256881215de5fc100fe
     category: main
     optional: false
   - name: babel
@@ -13183,7 +13183,7 @@ package:
     platform: osx-64
     dependencies:
       __osx: ">=10.9"
-      aws-c-auth: ">=0.7.6,<0.7.7.0a0"
+      aws-c-auth: ">=0.7.7,<0.7.8.0a0"
       aws-c-cal: ">=0.6.9,<0.6.10.0a0"
       aws-c-common: ">=0.9.8,<0.9.9.0a0"
       aws-c-event-stream: ">=0.3.2,<0.3.3.0a0"
@@ -13193,10 +13193,10 @@ package:
       aws-c-s3: ">=0.3.24,<0.3.25.0a0"
       aws-c-sdkutils: ">=0.1.12,<0.1.13.0a0"
       libcxx: ">=16.0.6"
-    url: https://conda.anaconda.org/conda-forge/osx-64/aws-crt-cpp-0.24.7-ha2eb20f_1.conda
+    url: https://conda.anaconda.org/conda-forge/osx-64/aws-crt-cpp-0.24.7-h0a75192_2.conda
     hash:
-      md5: 1646058bbdbc33430fd3959a4460b3a0
-      sha256: 59df54ce67ba92330c2a449bd77d0f9db6ae8ce6a2aee86d73e84f239bcb1a45
+      md5: e32ea3580856d5e269fd107ea37f641a
+      sha256: ed33d09614d9133a440dd29ea804fc785311dcab6477f74d5fc278cdc887d5e1
     category: main
     optional: false
   - name: botocore
@@ -17731,7 +17731,7 @@ package:
     category: main
     optional: false
   - name: aws-c-auth
-    version: 0.7.6
+    version: 0.7.7
     manager: conda
     platform: osx-arm64
     dependencies:
@@ -17740,10 +17740,10 @@ package:
       aws-c-http: ">=0.7.14,<0.7.15.0a0"
       aws-c-io: ">=0.13.35,<0.13.36.0a0"
       aws-c-sdkutils: ">=0.1.12,<0.1.13.0a0"
-    url: https://conda.anaconda.org/conda-forge/osx-arm64/aws-c-auth-0.7.6-h30f9597_0.conda
+    url: https://conda.anaconda.org/conda-forge/osx-arm64/aws-c-auth-0.7.7-h30f9597_0.conda
     hash:
-      md5: 91a5e2b3608eaa0760c0921e00cad72c
-      sha256: 349efb5d66e108cfe21df0cf62209f5175b7a59b99ef7bf96f841274ccb2cc56
+      md5: 1d28beae816e8cb52bfe5f16cb62296b
+      sha256: cf93aa7371f55d779c6af63ce6386f63fcb82b8d924d1aa1be7928c758ae65a5
     category: main
     optional: false
   - name: aws-c-mqtt
@@ -18364,16 +18364,16 @@ package:
     category: main
     optional: false
   - name: jellyfish
-    version: 1.0.1
+    version: 1.0.3
     manager: conda
     platform: osx-arm64
     dependencies:
       python: ">=3.11,<3.12.0a0"
       python_abi: 3.11.*
-    url: https://conda.anaconda.org/conda-forge/osx-arm64/jellyfish-1.0.1-py311h0563b04_1.conda
+    url: https://conda.anaconda.org/conda-forge/osx-arm64/jellyfish-1.0.3-py311h94f323b_0.conda
     hash:
-      md5: edfdb1003442aef78df1f53fe2eb2404
-      sha256: c6ca4d92eddd8c8ecbe476e60b62ec05fa38d8cd0025e4585956b11c77b30315
+      md5: e93dd373d5a02f378d9ff392627572a1
+      sha256: fb44932ed3a86e55503f4c0216eff59e47a409e1d18fab4714130692d4f8a9af
     category: main
     optional: false
   - name: jmespath
@@ -19234,7 +19234,7 @@ package:
     category: main
     optional: false
   - name: ruff
-    version: 0.1.5
+    version: 0.1.6
     manager: conda
     platform: osx-arm64
     dependencies:
@@ -19242,10 +19242,10 @@ package:
       libcxx: ">=16.0.6"
       python: ">=3.11,<3.12.0a0"
       python_abi: 3.11.*
-    url: https://conda.anaconda.org/conda-forge/osx-arm64/ruff-0.1.5-py311h6fc163c_0.conda
+    url: https://conda.anaconda.org/conda-forge/osx-arm64/ruff-0.1.6-py311h6fc163c_0.conda
     hash:
-      md5: 24659c389d8601c8076fb9401f3c59ed
-      sha256: a496efea6c4723c7a0e9ef11f38c8237c913ff3b6911085f1793885d102101a5
+      md5: c9ff47502a21c1d072e8da209d9efba3
+      sha256: 8bde8b2d66f34a242ea6759df3c21f3321d17a8cdb4d421ae489f97f42452920
     category: main
     optional: false
   - name: setuptools
@@ -19819,16 +19819,16 @@ package:
     manager: conda
     platform: osx-arm64
     dependencies:
-      aws-c-auth: ">=0.7.6,<0.7.7.0a0"
+      aws-c-auth: ">=0.7.7,<0.7.8.0a0"
       aws-c-cal: ">=0.6.9,<0.6.10.0a0"
       aws-c-common: ">=0.9.8,<0.9.9.0a0"
       aws-c-http: ">=0.7.14,<0.7.15.0a0"
       aws-c-io: ">=0.13.35,<0.13.36.0a0"
       aws-checksums: ">=0.1.17,<0.1.18.0a0"
-    url: https://conda.anaconda.org/conda-forge/osx-arm64/aws-c-s3-0.3.24-h3940a1a_0.conda
+    url: https://conda.anaconda.org/conda-forge/osx-arm64/aws-c-s3-0.3.24-h2bce37b_1.conda
     hash:
-      md5: 180d51c04b2aa410b4dc9bd52f50f85c
-      sha256: fcbd618d77dc87ce337e7217edc2c59474ae8e30b784e82c121c2e6f8a9bdb5a
+      md5: 219fd27c7fc531e45269878f2979c5df
+      sha256: bdd562f3a64992385fffc69f134e4d3d5c7096423c839c785020facf3615bac9
     category: main
     optional: false
   - name: babel
@@ -20997,7 +20997,7 @@ package:
     platform: osx-arm64
     dependencies:
       __osx: ">=10.9"
-      aws-c-auth: ">=0.7.6,<0.7.7.0a0"
+      aws-c-auth: ">=0.7.7,<0.7.8.0a0"
       aws-c-cal: ">=0.6.9,<0.6.10.0a0"
       aws-c-common: ">=0.9.8,<0.9.9.0a0"
       aws-c-event-stream: ">=0.3.2,<0.3.3.0a0"
@@ -21007,10 +21007,10 @@ package:
       aws-c-s3: ">=0.3.24,<0.3.25.0a0"
       aws-c-sdkutils: ">=0.1.12,<0.1.13.0a0"
       libcxx: ">=16.0.6"
-    url: https://conda.anaconda.org/conda-forge/osx-arm64/aws-crt-cpp-0.24.7-h2da6921_1.conda
+    url: https://conda.anaconda.org/conda-forge/osx-arm64/aws-crt-cpp-0.24.7-h528e168_2.conda
     hash:
-      md5: b5bbdbe1fbbf0884ec5c95491e0f9b12
-      sha256: 15d1692fcd638d6a94695e2f655333dc3007bcb43d475706078ed767cdf106a1
+      md5: a01004b3736f99828d34191521a648ad
+      sha256: 38b5b5a93a0218586ee135cce4fce58c20b6be9cad8a7319d2bc83b3eee74668
     category: main
     optional: false
   - name: botocore
