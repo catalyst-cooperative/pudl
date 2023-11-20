@@ -196,12 +196,13 @@ class PrecomputeDistance(BaseEstimator, TransformerMixin):
 class DistancePenalizeSameYear(PrecomputeDistance):
     """Custom estimator to compute distances used to identify clusters of plants."""
 
-    def __init__(self, report_years: np.array, metric="euclidean", penalty=100):
+    def __init__(self, report_years: np.array, metric="euclidean", penalty=1000):
         """Initialize estimator with configurable parameters.
 
         Args:
-            report_years: reporty_year column used to penalize distance for records
-                          from same year.
+            report_years: Used to find records with same report year and add significant
+                          distance penalty to these records to avoid matching records.
+                          from the same year.
             metric: Distance metric to use in computation.
             penalty: Penalty to apply to records with the same report year.
         """
