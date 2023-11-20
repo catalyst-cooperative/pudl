@@ -94,9 +94,7 @@ def out__yearly_plants_all_ferc1_plant_parts_eia(
         train_df=inputs.get_train_df(),
         plant_parts_eia_true=inputs.get_plant_parts_eia_true(),
         plants_ferc1=inputs.get_plants_ferc1(),
-    ).pipe(
-        add_null_overrides
-    )  # Override specified values with NA record_id_eia
+    ).pipe(add_null_overrides)  # Override specified values with NA record_id_eia
     connects_ferc1_eia = Resource.from_id(
         "out__yearly_plants_all_ferc1_plant_parts_eia"
     ).enforce_schema(connects_ferc1_eia)

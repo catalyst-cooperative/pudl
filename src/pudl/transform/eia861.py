@@ -1809,9 +1809,8 @@ def energy_efficiency_eia861(
     ]
 
     raw_ee = (
-        _pre_process(raw_eia861__energy_efficiency).assign(
-            short_form=lambda x: _make_yn_bool(x.short_form)
-        )
+        _pre_process(raw_eia861__energy_efficiency)
+        .assign(short_form=lambda x: _make_yn_bool(x.short_form))
         # No duplicates to speak of but take measures to check just in case
         .pipe(_check_for_dupes, df_name="Energy Efficiency", subset=idx_cols)
     )
@@ -2255,7 +2254,8 @@ def reliability_eia861(raw_eia861__reliability: pd.DataFrame) -> pd.DataFrame:
             short_form=lambda x: _make_yn_bool(x.short_form),
         )
         # Drop duplicate entries for utilities 13027, 3408 and 9697
-        .pipe(_drop_dupes, df_name="Reliability", subset=idx_cols).pipe(_post_process)
+        .pipe(_drop_dupes, df_name="Reliability", subset=idx_cols)
+        .pipe(_post_process)
     )
 
     transformed_r = (
@@ -2561,9 +2561,8 @@ def balancing_authority_assn_eia861(**dfs: dict[str, pd.DataFrame]) -> pd.DataFr
     ba_assn_eia861 = (
         pd.concat([early_date_ba_util_state, late_date_ba_util_state])
         # If there's no BA ID, the record is not useful:
-        .dropna(subset=["balancing_authority_id_eia"]).pipe(
-            apply_pudl_dtypes, group="eia"
-        )
+        .dropna(subset=["balancing_authority_id_eia"])
+        .pipe(apply_pudl_dtypes, group="eia")
     )
     ba_assn_eia861 = ba_assn_eia861[
         # Without both Utility ID and State, there's no association information:
