@@ -8,7 +8,7 @@ channels:
 dependencies:
   - aws-c-common=0.9.8=h10d778d_0
   - bzip2=1.0.8=h10d778d_5
-  - c-ares=1.21.0=h10d778d_0
+  - c-ares=1.22.1=h10d778d_0
   - ca-certificates=2023.11.17=h8857fd0_0
   - font-ttf-dejavu-sans-mono=2.37=hab24e00_0
   - font-ttf-inconsolata=3.000=h77eed37_0
@@ -103,7 +103,7 @@ dependencies:
   - libxslt=1.1.37=h20bfa82_1
   - libzip=1.10.1=hc158999_3
   - minizip=4.0.3=h23f18a7_0
-  - nodejs=20.8.1=h9adec40_0
+  - nodejs=20.9.0=h9adec40_0
   - nss=3.94=hd6ac835_0
   - readline=8.2=h9e318b2_1
   - atk-1.0=2.38.0=h1d18e73_1
@@ -227,7 +227,7 @@ dependencies:
   - pure_eval=0.2.2=pyhd8ed1ab_0
   - pyasn1=0.5.0=pyhd8ed1ab_0
   - pycparser=2.21=pyhd8ed1ab_0
-  - pygments=2.17.0=pyhd8ed1ab_0
+  - pygments=2.17.1=pyhd8ed1ab_0
   - pyjwt=2.8.0=pyhd8ed1ab_0
   - pylev=1.4.0=pyhd8ed1ab_0
   - pyparsing=3.1.1=pyhd8ed1ab_0
@@ -321,7 +321,7 @@ dependencies:
   - harfbuzz=8.3.0=hf45c392_0
   - hdf5=1.14.2=nompi_hedada53_100
   - html5lib=1.1=pyh9f0ad1d_0
-  - hypothesis=6.89.0=pyha770c72_0
+  - hypothesis=6.90.0=pyha770c72_0
   - importlib-metadata=6.8.0=pyha770c72_0
   - importlib_resources=6.1.1=pyhd8ed1ab_0
   - isodate=0.6.1=pyhd8ed1ab_0
@@ -449,7 +449,7 @@ dependencies:
   - jsonschema=4.20.0=pyhd8ed1ab_0
   - jupyter_core=5.5.0=py311h6eed73b_0
   - keyring=24.3.0=py311h6eed73b_0
-  - libgdal=3.8.0=h1c9f6b2_4
+  - libgdal=3.8.0=h1c9f6b2_5
   - librsvg=2.56.3=hec3db73_0
   - numba=0.58.1=py311h32f2313_0
   - numexpr=2.8.7=py311h1eadf79_4
@@ -477,11 +477,11 @@ dependencies:
   - doc8=1.1.1=pyhd8ed1ab_0
   - email-validator=2.1.0.post1=pyhd8ed1ab_0
   - frictionless=4.40.8=pyh6c4a22f_0
-  - gdal=3.8.0=py311h5646c56_4
+  - gdal=3.8.0=py311h5646c56_5
   - geopandas-base=0.14.1=pyha770c72_0
   - google-auth=2.23.4=pyhca7485f_0
   - gql-with-requests=3.4.1=pyhd8ed1ab_0
-  - graphviz=8.1.0=hc7f41f9_0
+  - graphviz=9.0.0=h17d42e5_0
   - jsonschema-with-format-nongpl=4.20.0=pyhd8ed1ab_0
   - jupyter_client=8.6.0=pyhd8ed1ab_0
   - libarrow=14.0.1=hd201b0c_3_cpu
@@ -508,7 +508,7 @@ dependencies:
   - libparquet=14.0.1=h27bd29f_3_cpu
   - mapclassify=2.6.1=pyhd8ed1ab_0
   - nbclient=0.8.0=pyhd8ed1ab_0
-  - pygraphviz=1.11=py311hc6eba27_1
+  - pygraphviz=1.11=py311h03ee4fc_2
   - recordlinkage=0.16=pyhd8ed1ab_0
   - tabulator=1.53.5=pyhd8ed1ab_0
   - dagster-webserver=1.5.9=pyhd8ed1ab_0

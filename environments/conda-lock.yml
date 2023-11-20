@@ -263,15 +263,15 @@ package:
     category: main
     optional: false
   - name: c-ares
-    version: 1.21.0
+    version: 1.22.1
     manager: conda
     platform: linux-64
     dependencies:
       libgcc-ng: ">=12"
-    url: https://conda.anaconda.org/conda-forge/linux-64/c-ares-1.21.0-hd590300_0.conda
+    url: https://conda.anaconda.org/conda-forge/linux-64/c-ares-1.22.1-hd590300_0.conda
     hash:
-      md5: c06fa0440048270817b9e3142cc661bf
-      sha256: dfe0e81d5462fced79fd0f99edeec94c9b27268cb04238638180981af2f889f1
+      md5: 8430bd266c7b2cfbda403f7585d5ee86
+      sha256: d41cf87938ba66de538b91afed3ece9b4cf5ed082a7d1c1add46b70f482f34b9
     category: main
     optional: false
   - name: fribidi
@@ -1589,7 +1589,7 @@ package:
     category: main
     optional: false
   - name: nodejs
-    version: 20.8.1
+    version: 20.9.0
     manager: conda
     platform: linux-64
     dependencies:
@@ -1599,12 +1599,12 @@ package:
       libstdcxx-ng: ">=12"
       libuv: ">=1.46.0,<1.47.0a0"
       libzlib: ">=1.2.13,<1.3.0a0"
-      openssl: ">=3.1.3,<4.0a0"
+      openssl: ">=3.1.4,<4.0a0"
       zlib: ""
-    url: https://conda.anaconda.org/conda-forge/linux-64/nodejs-20.8.1-h1990674_0.conda
+    url: https://conda.anaconda.org/conda-forge/linux-64/nodejs-20.9.0-hb753e55_0.conda
     hash:
-      md5: 05b928e13df9548a47568d581fdfa8a1
-      sha256: a5491430566384933bd330571147f490bc4c5a01e312157a0d426fdeaf37b44f
+      md5: ddfcb003b0a6804fabe7dfbf1be16651
+      sha256: 4d35f8151f83bc561e4bcb41b46dcf77ec708c88eb333d1376f37371288f46ad
     category: main
     optional: false
   - name: nss
@@ -3154,15 +3154,15 @@ package:
     category: main
     optional: false
   - name: pygments
-    version: 2.17.0
+    version: 2.17.1
     manager: conda
     platform: linux-64
     dependencies:
       python: ">=3.7"
-    url: https://conda.anaconda.org/conda-forge/noarch/pygments-2.17.0-pyhd8ed1ab_0.conda
+    url: https://conda.anaconda.org/conda-forge/noarch/pygments-2.17.1-pyhd8ed1ab_0.conda
     hash:
-      md5: 33598684e190a91fa5b4ec82b546778d
-      sha256: 99f08c8bf6f62e906727df8025b4a1680ecae5cc17cdae100df12251f898dbf6
+      md5: 5bb8a4f4162594af97cee1434d39f500
+      sha256: 406ed28a4c8cd6be56e7e1b2dabd283e834f234d057522228adb72b1885b87c7
     category: main
     optional: false
   - name: pyjwt
@@ -4451,7 +4451,7 @@ package:
     category: main
     optional: false
   - name: hypothesis
-    version: 6.89.0
+    version: 6.90.0
     manager: conda
     platform: linux-64
     dependencies:
@@ -4462,10 +4462,10 @@ package:
       python: ">=3.8"
       setuptools: ""
       sortedcontainers: ">=2.1.0,<3.0.0"
-    url: https://conda.anaconda.org/conda-forge/noarch/hypothesis-6.89.0-pyha770c72_0.conda
+    url: https://conda.anaconda.org/conda-forge/noarch/hypothesis-6.90.0-pyha770c72_0.conda
     hash:
-      md5: 87fe6add77af84b6fafecd466e27a28d
-      sha256: 5805c101a002de63400e97d33d0e70f4cade33b2e7bf76061aaa0a7058fc44ea
+      md5: 158cd5ffb2605febd8dfaff449079eed
+      sha256: 1e5b6e988349ca6e81c52b65c243d5000740bdc97f898d95aabef99fae173119
     category: main
     optional: false
   - name: importlib-metadata
@@ -6397,7 +6397,7 @@ package:
       libtiff: ">=4.6.0,<4.7.0a0"
       libuuid: ">=2.38.1,<3.0a0"
       libwebp-base: ">=1.3.2,<2.0a0"
-      libxml2: ">=2.11.5,<2.12.0a0"
+      libxml2: ">=2.11.6,<2.12.0a0"
       libzlib: ">=1.2.13,<1.3.0a0"
       lz4-c: ">=1.9.3,<1.10.0a0"
       openjpeg: ">=2.5.0,<3.0a0"
@@ -6410,10 +6410,10 @@ package:
       xerces-c: ">=3.2.4,<3.3.0a0"
       xz: ">=5.2.6,<6.0a0"
       zstd: ">=1.5.5,<1.6.0a0"
-    url: https://conda.anaconda.org/conda-forge/linux-64/libgdal-3.8.0-h12dd931_4.conda
+    url: https://conda.anaconda.org/conda-forge/linux-64/libgdal-3.8.0-h12dd931_5.conda
     hash:
-      md5: 6c55ed78178c9f6b49a5f69d2b39e1f4
-      sha256: fb22df87932dae21ee78abfd09d1b1ff75e9649f69ebd58284e0e07ea938b717
+      md5: 4122ae0934ffd785a9c35143d79f07d8
+      sha256: de5fb44c09b86f9ccd4c84156f0b89aca67f06d7bfdf577b80ab16eb864f8d04
     category: main
     optional: false
   - name: numba
@@ -6923,15 +6923,15 @@ package:
       libgcc-ng: ">=12"
       libgdal: 3.8.0
       libstdcxx-ng: ">=12"
-      libxml2: ">=2.11.5,<2.12.0a0"
+      libxml2: ">=2.11.6,<2.12.0a0"
       numpy: ">=1.23.5,<2.0a0"
       openssl: ">=3.1.4,<4.0a0"
       python: ">=3.11,<3.12.0a0"
       python_abi: 3.11.*
-    url: https://conda.anaconda.org/conda-forge/linux-64/gdal-3.8.0-py311h815a124_4.conda
+    url: https://conda.anaconda.org/conda-forge/linux-64/gdal-3.8.0-py311h815a124_5.conda
     hash:
-      md5: 30805ad1da096924da69baecb1ebec0b
-      sha256: 7f4828e93aefa5bda481e68ad1c8b1eb1dd045195dc71b4f09efbd7a7a795d91
+      md5: 040d92b41d0de19c92855c58ad23d185
+      sha256: 6b880918cc1617b45bf7a0b720c11159bbc22af9056e5d56f3661517d9750969
     category: main
     optional: false
   - name: geopandas-base
@@ -7369,11 +7369,11 @@ package:
     category: main
     optional: false
   - name: graphviz
-    version: 8.1.0
+    version: 9.0.0
     manager: conda
     platform: linux-64
     dependencies:
-      cairo: ">=1.16.0,<2.0a0"
+      cairo: ">=1.18.0,<2.0a0"
       expat: ""
       fontconfig: ">=2.14.2,<3.0a0"
       fonts-conda-ecosystem: ""
@@ -7384,18 +7384,18 @@ package:
       libexpat: ">=2.5.0,<3.0a0"
       libgcc-ng: ">=12"
       libgd: ">=2.3.3,<2.4.0a0"
-      libglib: ">=2.76.4,<3.0a0"
-      librsvg: ">=2.56.1,<3.0a0"
+      libglib: ">=2.78.1,<3.0a0"
+      librsvg: ">=2.56.3,<3.0a0"
       libstdcxx-ng: ">=12"
       libtool: ""
-      libwebp-base: ">=1.3.1,<2.0a0"
+      libwebp-base: ">=1.3.2,<2.0a0"
       libzlib: ">=1.2.13,<1.3.0a0"
       pango: ">=1.50.14,<2.0a0"
       zlib: ""
-    url: https://conda.anaconda.org/conda-forge/linux-64/graphviz-8.1.0-h28d9a01_0.conda
+    url: https://conda.anaconda.org/conda-forge/linux-64/graphviz-9.0.0-h28d9a01_0.conda
     hash:
-      md5: 33628e0e3de7afd2c8172f76439894cb
-      sha256: 62b8a8b3bc89bc9f8d94fe88d382628f884572dc50b8041853da0ba4acaf4257
+      md5: 32cde7a2ac1ca255ed2a926d548b9d6c
+      sha256: 18dd71db06bfa4214cabceed8d454402be70b3014816ec2b2e0cbb9010840498
     category: dev
     optional: true
   - name: ipython
@@ -7739,14 +7739,14 @@ package:
     manager: conda
     platform: linux-64
     dependencies:
-      graphviz: ">=8.1.0,<9.0a0"
+      graphviz: ">=9.0.0,<10.0a0"
       libgcc-ng: ">=12"
       python: ">=3.11,<3.12.0a0"
       python_abi: 3.11.*
-    url: https://conda.anaconda.org/conda-forge/linux-64/pygraphviz-1.11-py311h72a77b7_1.conda
+    url: https://conda.anaconda.org/conda-forge/linux-64/pygraphviz-1.11-py311hbf5cbc9_2.conda
     hash:
-      md5: 7044cd923985abb6e3b976e5ac0542b8
-      sha256: 8c7f3a59935089169920f052a53d7a732034967ef46c81dc7385dff47985bc2c
+      md5: e2cc4c8cc7e6fdb322315f71276e6bab
+      sha256: 2f23fe04d90a5f284878b223c53b96cea27f82a58b8fa6a47a029ad5dacaf3e4
     category: dev
     optional: true
   - name: tableschema
@@ -8330,14 +8330,14 @@ package:
     category: main
     optional: false
   - name: c-ares
-    version: 1.21.0
+    version: 1.22.1
     manager: conda
     platform: osx-64
     dependencies: {}
-    url: https://conda.anaconda.org/conda-forge/osx-64/c-ares-1.21.0-h10d778d_0.conda
+    url: https://conda.anaconda.org/conda-forge/osx-64/c-ares-1.22.1-h10d778d_0.conda
     hash:
-      md5: 88426162f781739069a6bd178841ed5d
-      sha256: 7450d861c07e74b10dfcf3ba680b384cf22f1c2dd34c3eba763ab5920376bf79
+      md5: 7040d0624b78a81c8d52f22b662d7c35
+      sha256: e52123d4d1e880ad883da1fa6301fa318e87cf42b6228833177d41053f7288b4
     category: main
     optional: false
   - name: ca-certificates
@@ -9505,7 +9505,7 @@ package:
     category: main
     optional: false
   - name: nodejs
-    version: 20.8.1
+    version: 20.9.0
     manager: conda
     platform: osx-64
     dependencies:
@@ -9514,12 +9514,12 @@ package:
       libcxx: ">=16.0.6"
       libuv: ">=1.46.0,<1.47.0a0"
       libzlib: ">=1.2.13,<1.3.0a0"
-      openssl: ">=3.1.3,<4.0a0"
+      openssl: ">=3.1.4,<4.0a0"
       zlib: ""
-    url: https://conda.anaconda.org/conda-forge/osx-64/nodejs-20.8.1-h9adec40_0.conda
+    url: https://conda.anaconda.org/conda-forge/osx-64/nodejs-20.9.0-h9adec40_0.conda
     hash:
-      md5: d653802cf7edab59398a6896c62c4b9b
-      sha256: 8c749285d3f3c09dd4d4fd3009a3a55bca400b306541a64d62af25ca5bc5bab2
+      md5: eea3610c4b86886f545c0fe53d1e9438
+      sha256: b492f1478fbca841491fbb9feeca7e859a9f57ea6319eeef09d702e12140a44f
     category: main
     optional: false
   - name: nss
@@ -11144,15 +11144,15 @@ package:
     category: main
     optional: false
   - name: pygments
-    version: 2.17.0
+    version: 2.17.1
     manager: conda
     platform: osx-64
     dependencies:
       python: ">=3.7"
-    url: https://conda.anaconda.org/conda-forge/noarch/pygments-2.17.0-pyhd8ed1ab_0.conda
+    url: https://conda.anaconda.org/conda-forge/noarch/pygments-2.17.1-pyhd8ed1ab_0.conda
     hash:
-      md5: 33598684e190a91fa5b4ec82b546778d
-      sha256: 99f08c8bf6f62e906727df8025b4a1680ecae5cc17cdae100df12251f898dbf6
+      md5: 5bb8a4f4162594af97cee1434d39f500
+      sha256: 406ed28a4c8cd6be56e7e1b2dabd283e834f234d057522228adb72b1885b87c7
     category: main
     optional: false
   - name: pyjwt
@@ -12359,7 +12359,7 @@ package:
     category: main
     optional: false
   - name: hypothesis
-    version: 6.89.0
+    version: 6.90.0
     manager: conda
     platform: osx-64
     dependencies:
@@ -12370,10 +12370,10 @@ package:
       sortedcontainers: ">=2.1.0,<3.0.0"
       backports.zoneinfo: ">=0.2.1"
       exceptiongroup: ">=1.0.0rc8"
-    url: https://conda.anaconda.org/conda-forge/noarch/hypothesis-6.89.0-pyha770c72_0.conda
+    url: https://conda.anaconda.org/conda-forge/noarch/hypothesis-6.90.0-pyha770c72_0.conda
     hash:
-      md5: 87fe6add77af84b6fafecd466e27a28d
-      sha256: 5805c101a002de63400e97d33d0e70f4cade33b2e7bf76061aaa0a7058fc44ea
+      md5: 158cd5ffb2605febd8dfaff449079eed
+      sha256: 1e5b6e988349ca6e81c52b65c243d5000740bdc97f898d95aabef99fae173119
     category: main
     optional: false
   - name: importlib-metadata
@@ -14297,7 +14297,7 @@ package:
       libsqlite: ">=3.44.0,<4.0a0"
       libtiff: ">=4.6.0,<4.7.0a0"
       libwebp-base: ">=1.3.2,<2.0a0"
-      libxml2: ">=2.11.5,<2.12.0a0"
+      libxml2: ">=2.11.6,<2.12.0a0"
       libzlib: ">=1.2.13,<1.3.0a0"
       lz4-c: ">=1.9.3,<1.10.0a0"
       openjpeg: ">=2.5.0,<3.0a0"
@@ -14310,10 +14310,10 @@ package:
       xerces-c: ">=3.2.4,<3.3.0a0"
       xz: ">=5.2.6,<6.0a0"
       zstd: ">=1.5.5,<1.6.0a0"
-    url: https://conda.anaconda.org/conda-forge/osx-64/libgdal-3.8.0-h1c9f6b2_4.conda
+    url: https://conda.anaconda.org/conda-forge/osx-64/libgdal-3.8.0-h1c9f6b2_5.conda
     hash:
-      md5: aba2a8c1f0c3d63568a973dbcf728910
-      sha256: a4f1cb12cc0f42bfc0f56f4a8a4c80d750536b8efe7e8163c68f21af1533ccc9
+      md5: e6f10a2f1ae81e6c5dc33df60313a9ad
+      sha256: 8ae553c28f3b5a411ca62d8e52c8ce0ffb6c722478c1441ac093fc6382499056
     category: main
     optional: false
   - name: librsvg
@@ -14795,15 +14795,15 @@ package:
       hdf5: ">=1.14.2,<1.14.3.0a0"
       libcxx: ">=16.0.6"
       libgdal: 3.8.0
-      libxml2: ">=2.11.5,<2.12.0a0"
+      libxml2: ">=2.11.6,<2.12.0a0"
       numpy: ">=1.23.5,<2.0a0"
       openssl: ">=3.1.4,<4.0a0"
       python: ">=3.11,<3.12.0a0"
       python_abi: 3.11.*
-    url: https://conda.anaconda.org/conda-forge/osx-64/gdal-3.8.0-py311h5646c56_4.conda
+    url: https://conda.anaconda.org/conda-forge/osx-64/gdal-3.8.0-py311h5646c56_5.conda
     hash:
-      md5: 1d9d1cbd571fb4c7e65085cb18037ae4
-      sha256: 808c395bb386f56595e0a11d3c1b6f629bd23cfef09da17969d64f116eaec568
+      md5: 02d2d20f8016023b204a4dc9cf88bb2a
+      sha256: 3153441d108199de23283d53d1694c94d994aeb6d29a9c0a1ca8802a51cc6b9d
     category: main
     optional: false
   - name: geopandas-base
@@ -14859,11 +14859,12 @@ package:
     category: dev
     optional: true
   - name: graphviz
-    version: 8.1.0
+    version: 9.0.0
     manager: conda
     platform: osx-64
     dependencies:
-      cairo: ">=1.16.0,<2.0a0"
+      __osx: ">=10.9"
+      cairo: ">=1.18.0,<2.0a0"
       expat: ""
       fontconfig: ">=2.14.2,<3.0a0"
       fonts-conda-ecosystem: ""
@@ -14871,20 +14872,20 @@ package:
       gdk-pixbuf: ">=2.42.10,<3.0a0"
       gtk2: ""
       gts: ">=0.7.6,<0.8.0a0"
-      libcxx: ">=15.0.7"
+      libcxx: ">=16.0.6"
       libexpat: ">=2.5.0,<3.0a0"
       libgd: ">=2.3.3,<2.4.0a0"
-      libglib: ">=2.76.4,<3.0a0"
-      librsvg: ">=2.56.1,<3.0a0"
+      libglib: ">=2.78.1,<3.0a0"
+      librsvg: ">=2.56.3,<3.0a0"
       libtool: ""
-      libwebp-base: ">=1.3.1,<2.0a0"
+      libwebp-base: ">=1.3.2,<2.0a0"
       libzlib: ">=1.2.13,<1.3.0a0"
       pango: ">=1.50.14,<2.0a0"
       zlib: ""
-    url: https://conda.anaconda.org/conda-forge/osx-64/graphviz-8.1.0-hc7f41f9_0.conda
+    url: https://conda.anaconda.org/conda-forge/osx-64/graphviz-9.0.0-h17d42e5_0.conda
     hash:
-      md5: a840f2eb891fdc5c39c762e16ee09600
-      sha256: d3b8c3662a02d7dc5afb6ac7256be1c2887f6c5ea386f798a6f033b7243f6664
+      md5: 885e2f49a7c327a84af751ff6aceb3ed
+      sha256: 2c2419fa9a9f35f2cd2ac6b2196e1a886d9a261484d966ffff86a6dc81d71290
     category: dev
     optional: true
   - name: jsonschema-with-format-nongpl
@@ -15391,13 +15392,13 @@ package:
     manager: conda
     platform: osx-64
     dependencies:
-      graphviz: ">=8.1.0,<9.0a0"
+      graphviz: ">=9.0.0,<10.0a0"
       python: ">=3.11,<3.12.0a0"
       python_abi: 3.11.*
-    url: https://conda.anaconda.org/conda-forge/osx-64/pygraphviz-1.11-py311hc6eba27_1.conda
+    url: https://conda.anaconda.org/conda-forge/osx-64/pygraphviz-1.11-py311h03ee4fc_2.conda
     hash:
-      md5: 17602bac3f0091fc1383741385b1c1b1
-      sha256: b0e97e9a5bbd65edddaa9147bfb2410bbbc8105cf02dbd0c7a717355dc81ded3
+      md5: f73fe6c66f5d6da1789e15dc0f872684
+      sha256: 58ba0d94e54ffd62ca19c0b01a62054ee7a21fedc953f7f700147928f5700096
     category: dev
     optional: true
   - name: recordlinkage
@@ -16146,14 +16147,14 @@ package:
     category: main
     optional: false
   - name: c-ares
-    version: 1.21.0
+    version: 1.22.1
     manager: conda
     platform: osx-arm64
     dependencies: {}
-    url: https://conda.anaconda.org/conda-forge/osx-arm64/c-ares-1.21.0-h93a5062_0.conda
+    url: https://conda.anaconda.org/conda-forge/osx-arm64/c-ares-1.22.1-h93a5062_0.conda
     hash:
-      md5: b3679505660f03e94430de5ea72114bd
-      sha256: 1f6436eb0bc3c6d6e14ae83610f821b2d55c4b1fd343bbeefd60a0e48fabe63d
+      md5: f9d38cc3908c066e50b184cdcab12929
+      sha256: 75f0222f76c9848ef9c3892300d057cb8285f28341d2f149d1fc10373242969c
     category: main
     optional: false
   - name: ca-certificates
@@ -17319,7 +17320,7 @@ package:
     category: main
     optional: false
   - name: nodejs
-    version: 20.8.1
+    version: 20.9.0
     manager: conda
     platform: osx-arm64
     dependencies:
@@ -17328,12 +17329,12 @@ package:
       libcxx: ">=16.0.6"
       libuv: ">=1.46.0,<1.47.0a0"
       libzlib: ">=1.2.13,<1.3.0a0"
-      openssl: ">=3.1.3,<4.0a0"
+      openssl: ">=3.1.4,<4.0a0"
       zlib: ""
-    url: https://conda.anaconda.org/conda-forge/osx-arm64/nodejs-20.8.1-h0950e01_0.conda
+    url: https://conda.anaconda.org/conda-forge/osx-arm64/nodejs-20.9.0-h0950e01_0.conda
     hash:
-      md5: 1c0712dd46d145e9de1c4b83f4417751
-      sha256: b9e598bb7b7d410b116440fe0caf2d3ac1def45da21036c27b04147671a641b9
+      md5: f51aebc416d466c13a719f3604b2426c
+      sha256: 2e2cb08f6525a7ac7b4d9785ac826e9663ee969d21298f9718906fb931cb85e9
     category: main
     optional: false
   - name: nss
@@ -18958,15 +18959,15 @@ package:
     category: main
     optional: false
   - name: pygments
-    version: 2.17.0
+    version: 2.17.1
     manager: conda
     platform: osx-arm64
     dependencies:
       python: ">=3.7"
-    url: https://conda.anaconda.org/conda-forge/noarch/pygments-2.17.0-pyhd8ed1ab_0.conda
+    url: https://conda.anaconda.org/conda-forge/noarch/pygments-2.17.1-pyhd8ed1ab_0.conda
     hash:
-      md5: 33598684e190a91fa5b4ec82b546778d
-      sha256: 99f08c8bf6f62e906727df8025b4a1680ecae5cc17cdae100df12251f898dbf6
+      md5: 5bb8a4f4162594af97cee1434d39f500
+      sha256: 406ed28a4c8cd6be56e7e1b2dabd283e834f234d057522228adb72b1885b87c7
     category: main
     optional: false
   - name: pyjwt
@@ -20173,7 +20174,7 @@ package:
     category: main
     optional: false
   - name: hypothesis
-    version: 6.89.0
+    version: 6.90.0
     manager: conda
     platform: osx-arm64
     dependencies:
@@ -20184,10 +20185,10 @@ package:
       sortedcontainers: ">=2.1.0,<3.0.0"
       backports.zoneinfo: ">=0.2.1"
       exceptiongroup: ">=1.0.0rc8"
-    url: https://conda.anaconda.org/conda-forge/noarch/hypothesis-6.89.0-pyha770c72_0.conda
+    url: https://conda.anaconda.org/conda-forge/noarch/hypothesis-6.90.0-pyha770c72_0.conda
     hash:
-      md5: 87fe6add77af84b6fafecd466e27a28d
-      sha256: 5805c101a002de63400e97d33d0e70f4cade33b2e7bf76061aaa0a7058fc44ea
+      md5: 158cd5ffb2605febd8dfaff449079eed
+      sha256: 1e5b6e988349ca6e81c52b65c243d5000740bdc97f898d95aabef99fae173119
     category: main
     optional: false
   - name: importlib-metadata
@@ -22110,7 +22111,7 @@ package:
       libsqlite: ">=3.44.0,<4.0a0"
       libtiff: ">=4.6.0,<4.7.0a0"
       libwebp-base: ">=1.3.2,<2.0a0"
-      libxml2: ">=2.11.5,<2.12.0a0"
+      libxml2: ">=2.11.6,<2.12.0a0"
       libzlib: ">=1.2.13,<1.3.0a0"
       lz4-c: ">=1.9.3,<1.10.0a0"
       openjpeg: ">=2.5.0,<3.0a0"
@@ -22123,10 +22124,10 @@ package:
       xerces-c: ">=3.2.4,<3.3.0a0"
       xz: ">=5.2.6,<6.0a0"
       zstd: ">=1.5.5,<1.6.0a0"
-    url: https://conda.anaconda.org/conda-forge/osx-arm64/libgdal-3.8.0-h751e6a0_4.conda
+    url: https://conda.anaconda.org/conda-forge/osx-arm64/libgdal-3.8.0-h751e6a0_5.conda
     hash:
-      md5: 76b2c16e64279c369be3802c67582f94
-      sha256: 9ec68927b10429560a0cbff85520d28ceb93a812195fe7c33dc2fcefc87055a3
+      md5: ccaed3dd047dd3530aa2dfe678a574af
+      sha256: 8d3ab5ff43c7223faa51a52269ce1552060e6ea3bff75160413d437d82bf1b22
     category: main
     optional: false
   - name: librsvg
@@ -22608,15 +22609,15 @@ package:
       hdf5: ">=1.14.2,<1.14.3.0a0"
       libcxx: ">=16.0.6"
       libgdal: 3.8.0
-      libxml2: ">=2.11.5,<2.12.0a0"
+      libxml2: ">=2.11.6,<2.12.0a0"
       numpy: ">=1.23.5,<2.0a0"
       openssl: ">=3.1.4,<4.0a0"
       python: ">=3.11,<3.12.0a0"
       python_abi: 3.11.*
-    url: https://conda.anaconda.org/conda-forge/osx-arm64/gdal-3.8.0-py311h32a4f3d_4.conda
+    url: https://conda.anaconda.org/conda-forge/osx-arm64/gdal-3.8.0-py311h32a4f3d_5.conda
     hash:
-      md5: 587260f73e05cfa163f3e8964746ae2f
-      sha256: ee6d7444923aba96618bdf4f29c5323fc6b4bc040eb2a77ad2396efebdb01823
+      md5: e483f74da71cd836190839bcdb0dab60
+      sha256: ae48338ec415c9c1a3c75669d2ed9fa714eb6f9d118c4f69d28bc8865e9064dc
     category: main
     optional: false
   - name: geopandas-base
@@ -22672,11 +22673,12 @@ package:
     category: dev
     optional: true
   - name: graphviz
-    version: 8.1.0
+    version: 9.0.0
     manager: conda
     platform: osx-arm64
     dependencies:
-      cairo: ">=1.16.0,<2.0a0"
+      __osx: ">=10.9"
+      cairo: ">=1.18.0,<2.0a0"
       expat: ""
       fontconfig: ">=2.14.2,<3.0a0"
       fonts-conda-ecosystem: ""
@@ -22684,20 +22686,20 @@ package:
       gdk-pixbuf: ">=2.42.10,<3.0a0"
       gtk2: ""
       gts: ">=0.7.6,<0.8.0a0"
-      libcxx: ">=15.0.7"
+      libcxx: ">=16.0.6"
       libexpat: ">=2.5.0,<3.0a0"
       libgd: ">=2.3.3,<2.4.0a0"
-      libglib: ">=2.76.4,<3.0a0"
-      librsvg: ">=2.56.1,<3.0a0"
+      libglib: ">=2.78.1,<3.0a0"
+      librsvg: ">=2.56.3,<3.0a0"
       libtool: ""
-      libwebp-base: ">=1.3.1,<2.0a0"
+      libwebp-base: ">=1.3.2,<2.0a0"
       libzlib: ">=1.2.13,<1.3.0a0"
       pango: ">=1.50.14,<2.0a0"
       zlib: ""
-    url: https://conda.anaconda.org/conda-forge/osx-arm64/graphviz-8.1.0-h10878c0_0.conda
+    url: https://conda.anaconda.org/conda-forge/osx-arm64/graphviz-9.0.0-h4785655_0.conda
     hash:
-      md5: 2ac37563706d58d9129901ef9343d6e5
-      sha256: 9265eb1bf08480bef5993a3e2a36591c827f0998b7f7b1417e36fb060c99e607
+      md5: 30d67e79042ac37086fbaeb080478075
+      sha256: ab0d8f5b6367fdee4b98b571e9f041c9540fdf5e2d82239aca166e3d8b675c07
     category: dev
     optional: true
   - name: jsonschema-with-format-nongpl
@@ -23204,13 +23206,13 @@ package:
     manager: conda
     platform: osx-arm64
     dependencies:
-      graphviz: ">=8.1.0,<9.0a0"
+      graphviz: ">=9.0.0,<10.0a0"
       python: ">=3.11,<3.12.0a0"
       python_abi: 3.11.*
-    url: https://conda.anaconda.org/conda-forge/osx-arm64/pygraphviz-1.11-py311h5178850_1.conda
+    url: https://conda.anaconda.org/conda-forge/osx-arm64/pygraphviz-1.11-py311h1df6e61_2.conda
     hash:
-      md5: 92c2df5863e0adfa5465e24427ca327f
-      sha256: bb7fa662255f2d52d593da156d4f57c13fbe9658d057d6450bfa378655796970
+      md5: 0f8f3cf61a5562b5c5b75b4aaf606ba8
+      sha256: 6ff3f17f8fb8875d33b5c37d07371593caa62e2c382296a0714e386ae0880b49
     category: dev
     optional: true
   - name: recordlinkage
