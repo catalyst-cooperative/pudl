@@ -15,9 +15,9 @@
 version: 1
 metadata:
   content_hash:
-    linux-64: 3488f1f8b42f706745fb582d78e40be692fed5eb08accbfb1ebf539a089d87bd
-    osx-64: b0e3c33170a43614c2f811caf4b3f1572d74d3cfac308aaa1d7b7440f6b126a0
-    osx-arm64: 4741766e82a5d953aa4d5bc129ecfb5a9580d7cc918942e6ef8d36fc0bf4daa4
+    linux-64: 746ac2512e69c3fbcdbcabb3c0a9cef617d920eb423d83e50efec46fe41e75ea
+    osx-64: e6757bf740dfa42b9cc7f6c72f6aece12edf2723de6bb569f68b20f0b9949f7a
+    osx-arm64: ea1fb6b056948435600efb3e603260600c9805bb108a29e547e251b2b363487f
   channels:
     - url: conda-forge
       used_env_vars: []
@@ -4332,7 +4332,7 @@ package:
     category: main
     optional: false
   - name: fonttools
-    version: 4.44.3
+    version: 4.45.0
     manager: conda
     platform: linux-64
     dependencies:
@@ -4341,10 +4341,10 @@ package:
       munkres: ""
       python: ">=3.11,<3.12.0a0"
       python_abi: 3.11.*
-    url: https://conda.anaconda.org/conda-forge/linux-64/fonttools-4.44.3-py311h459d7ec_0.conda
+    url: https://conda.anaconda.org/conda-forge/linux-64/fonttools-4.45.0-py311h459d7ec_0.conda
     hash:
-      md5: a811af88d3c522cf36f4674ef699021d
-      sha256: 44a9f21a1f02c07ea8d2b3d7880e631db6f4bd08aafc620d4324542ebb2d3009
+      md5: 316e188c8068e6d9c55d23bbead5d6c3
+      sha256: 82df96b8adf1063c3d7996ad3cda09813c273b9edf6d56671f2610cb782c6ed7
     category: main
     optional: false
   - name: gitdb
@@ -7079,7 +7079,7 @@ package:
     category: dev
     optional: true
   - name: matplotlib-base
-    version: 3.8.1
+    version: 3.8.2
     manager: conda
     platform: linux-64
     dependencies:
@@ -7099,10 +7099,10 @@ package:
       python-dateutil: ">=2.7"
       python_abi: 3.11.*
       tk: ">=8.6.13,<8.7.0a0"
-    url: https://conda.anaconda.org/conda-forge/linux-64/matplotlib-base-3.8.1-py311h54ef318_0.conda
+    url: https://conda.anaconda.org/conda-forge/linux-64/matplotlib-base-3.8.2-py311h54ef318_0.conda
     hash:
-      md5: 201fdabdb86bb8fb6e99fa3f0dab8122
-      sha256: 9340ef0ba720e550c702fd25611884c79bfc419a85027d69900be5aa2ddbe3a9
+      md5: 9f80753bc008bfc9b95f39d9ff9f1694
+      sha256: 69319da0e6bad1711cac1573710370f31e9630fe6c972ff7eac95649e0c04114
     category: main
     optional: false
   - name: nbformat
@@ -12224,7 +12224,7 @@ package:
     category: main
     optional: false
   - name: fonttools
-    version: 4.44.3
+    version: 4.45.0
     manager: conda
     platform: osx-64
     dependencies:
@@ -12232,10 +12232,10 @@ package:
       munkres: ""
       python: ">=3.11,<3.12.0a0"
       python_abi: 3.11.*
-    url: https://conda.anaconda.org/conda-forge/osx-64/fonttools-4.44.3-py311he705e18_0.conda
+    url: https://conda.anaconda.org/conda-forge/osx-64/fonttools-4.45.0-py311he705e18_0.conda
     hash:
-      md5: 07fdfc42db3c7be6abfb6c5eeb3b54c9
-      sha256: e565a457df0ee77013554e26cd9f14dafe88872654980f7311a0d0a7cd2825af
+      md5: 9f844d6975f1d933a0eedb8f4704c33e
+      sha256: de3265702ebd6918984f4951e7d6595d36afeb5cb7303160c1aaa57a29f2f4b6
     category: main
     optional: false
   - name: gitdb
@@ -20039,7 +20039,7 @@ package:
     category: main
     optional: false
   - name: fonttools
-    version: 4.44.3
+    version: 4.45.0
     manager: conda
     platform: osx-arm64
     dependencies:
@@ -20047,10 +20047,10 @@ package:
       munkres: ""
       python: ">=3.11,<3.12.0a0"
       python_abi: 3.11.*
-    url: https://conda.anaconda.org/conda-forge/osx-arm64/fonttools-4.44.3-py311h05b510d_0.conda
+    url: https://conda.anaconda.org/conda-forge/osx-arm64/fonttools-4.45.0-py311h05b510d_0.conda
     hash:
-      md5: f3014d7569ba21fdf88e8c669b02a14b
-      sha256: f99f51ea99ff30cc80ad1040b8324d284bb7778ea0a9cc0d5cc6740218708ef5
+      md5: 50bd474c7268e7fe9d4557d0a1dfe9ff
+      sha256: 1ee7886d23b165862263820a108f62e744ca0fa468e44b5764c40a39852a1699
     category: main
     optional: false
   - name: gitdb
@@ -22771,7 +22771,7 @@ package:
     category: main
     optional: false
   - name: matplotlib-base
-    version: 3.8.1
+    version: 3.8.2
     manager: conda
     platform: osx-arm64
     dependencies:
@@ -22790,10 +22790,10 @@ package:
       python: ">=3.11,<3.12.0a0"
       python-dateutil: ">=2.7"
       python_abi: 3.11.*
-    url: https://conda.anaconda.org/conda-forge/osx-arm64/matplotlib-base-3.8.1-py311hfdba5f6_0.conda
+    url: https://conda.anaconda.org/conda-forge/osx-arm64/matplotlib-base-3.8.2-py311hfdba5f6_0.conda
     hash:
-      md5: 7b2974aa0ecc495f1cb9f269fadf9981
-      sha256: 2d61f4697a9906c4f56b8ffdcdd66edf64f7db9c5084827848f43390c203ee24
+      md5: 2531c01b5d6066fb5283639d7a923779
+      sha256: fa0ca87917aa449f7d7d6fb3941d0b01e0e9712342a9891af5540647f3398ece
     category: main
     optional: false
   - name: nbformat
