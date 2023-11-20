@@ -14957,7 +14957,7 @@ package:
     category: main
     optional: false
   - name: matplotlib-base
-    version: 3.8.1
+    version: 3.8.2
     manager: conda
     platform: osx-64
     dependencies:
@@ -14976,10 +14976,10 @@ package:
       python: ">=3.11,<3.12.0a0"
       python-dateutil: ">=2.7"
       python_abi: 3.11.*
-    url: https://conda.anaconda.org/conda-forge/osx-64/matplotlib-base-3.8.1-py311hd316c10_0.conda
+    url: https://conda.anaconda.org/conda-forge/osx-64/matplotlib-base-3.8.2-py311hd316c10_0.conda
     hash:
-      md5: 8952515c597009d2dfadf9ecaec30447
-      sha256: 5976a3c061b7918ac84a7e38fec1af297fe29b5e2ec9405f43feb55f77b4f6fb
+      md5: 26921b949e2f6f74bc66483372cbd18a
+      sha256: b863c66fa22f39b0bf240520f6d710d6bd634096e6e4a95c4815fcc7e0abad42
     category: main
     optional: false
   - name: nbformat

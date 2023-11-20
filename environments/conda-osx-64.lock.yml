@@ -485,7 +485,7 @@ dependencies:
   - jsonschema-with-format-nongpl=4.20.0=pyhd8ed1ab_0
   - jupyter_client=8.6.0=pyhd8ed1ab_0
   - libarrow=14.0.1=hd201b0c_3_cpu
-  - matplotlib-base=3.8.1=py311hd316c10_0
+  - matplotlib-base=3.8.2=py311hd316c10_0
   - nbformat=5.9.2=pyhd8ed1ab_0
   - pandera-core=0.17.2=pyhd8ed1ab_1
   - pre-commit=3.5.0=pyha770c72_0
