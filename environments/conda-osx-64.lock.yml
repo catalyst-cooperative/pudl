@@ -9,7 +9,7 @@ dependencies:
   - aws-c-common=0.9.8=h10d778d_0
   - bzip2=1.0.8=h10d778d_5
   - c-ares=1.21.0=h10d778d_0
-  - ca-certificates=2023.7.22=h8857fd0_0
+  - ca-certificates=2023.11.17=h8857fd0_0
   - font-ttf-dejavu-sans-mono=2.37=hab24e00_0
   - font-ttf-inconsolata=3.000=h77eed37_0
   - font-ttf-source-code-pro=2.038=h77eed37_0
@@ -145,7 +145,7 @@ dependencies:
   - cairo=1.18.0=h99e66fa_0
   - catalystcoop.dbfread=3.0.0=py_0
   - cchardet=2.1.7=py311hdf8f085_5
-  - certifi=2023.7.22=pyhd8ed1ab_0
+  - certifi=2023.11.17=pyhd8ed1ab_0
   - cfgv=3.3.1=pyhd8ed1ab_0
   - chardet=5.2.0=py311h6eed73b_1
   - charset-normalizer=3.3.2=pyhd8ed1ab_0
@@ -196,7 +196,7 @@ dependencies:
   - llvmlite=0.41.1=py311hb5c2e0a_0
   - locket=1.0.0=pyhd8ed1ab_0
   - lxml=4.9.3=py311h19a211c_1
-  - marko=1.3.1=pyhd8ed1ab_0
+  - marko=2.0.2=pyhd8ed1ab_0
   - markupsafe=2.1.3=py311h2725bcf_1
   - mdurl=0.1.0=pyhd8ed1ab_0
   - mergedeep=1.3.4=pyhd8ed1ab_0
@@ -227,7 +227,7 @@ dependencies:
   - pure_eval=0.2.2=pyhd8ed1ab_0
   - pyasn1=0.5.0=pyhd8ed1ab_0
   - pycparser=2.21=pyhd8ed1ab_0
-  - pygments=2.16.1=pyhd8ed1ab_0
+  - pygments=2.17.0=pyhd8ed1ab_0
   - pyjwt=2.8.0=pyhd8ed1ab_0
   - pylev=1.4.0=pyhd8ed1ab_0
   - pyparsing=3.1.1=pyhd8ed1ab_0
@@ -380,7 +380,7 @@ dependencies:
   - arrow=1.3.0=pyhd8ed1ab_0
   - async-timeout=4.0.3=pyhd8ed1ab_0
   - aws-crt-cpp=0.24.7=h0a75192_2
-  - botocore=1.32.2=pyhd8ed1ab_0
+  - botocore=1.32.3=pyhd8ed1ab_0
   - branca=0.7.0=pyhd8ed1ab_1
   - croniter=2.0.1=pyhd8ed1ab_0
   - cryptography=41.0.5=py311hd51016d_0
@@ -444,7 +444,7 @@ dependencies:
   - gtk2=2.24.33=h7c1209e_2
   - h3-py=3.7.6=py311hdf8f085_1
   - httpx=0.25.1=pyhd8ed1ab_0
-  - identify=2.5.31=pyhd8ed1ab_0
+  - identify=2.5.32=pyhd8ed1ab_0
   - isoduration=20.11.0=pyhd8ed1ab_0
   - jsonschema=4.20.0=pyhd8ed1ab_0
   - jupyter_core=5.5.0=py311h6eed73b_0
@@ -470,7 +470,7 @@ dependencies:
   - typer=0.9.0=pyhd8ed1ab_0
   - uvicorn-standard=0.24.0=h6eed73b_0
   - virtualenv=20.24.6=pyhd8ed1ab_0
-  - boto3=1.29.2=pyhd8ed1ab_0
+  - boto3=1.29.3=pyhd8ed1ab_0
   - cachecontrol-with-filecache=0.13.1=pyhd8ed1ab_0
   - dagster=1.5.9=pyhd8ed1ab_0
   - datasette=0.64.4=pyhd8ed1ab_1
@@ -530,11 +530,11 @@ dependencies:
   - gcsfs=2023.10.0=pyhd8ed1ab_0
   - jupyter-lsp=2.2.0=pyhd8ed1ab_0
   - jupyter-resource-usage=1.0.1=pyhd8ed1ab_0
-  - jupyterlab_server=2.25.1=pyhd8ed1ab_0
+  - jupyterlab_server=2.25.2=pyhd8ed1ab_0
   - nbconvert=7.11.0=pyhd8ed1ab_0
   - notebook-shim=0.2.3=pyhd8ed1ab_0
   - pyarrow=14.0.1=py311h98a0319_3_cpu
-  - jupyterlab=4.0.8=pyhd8ed1ab_0
+  - jupyterlab=4.0.9=pyhd8ed1ab_0
   - notebook=7.0.6=pyhd8ed1ab_0
   - jupyter=1.0.0=pyhd8ed1ab_10
   - sphinx-autoapi=3.0.0=pyhd8ed1ab_0
