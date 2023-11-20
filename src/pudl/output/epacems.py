@@ -137,7 +137,6 @@ def epacems(
 
     epacems = dd.read_parquet(
         epacems_path,
-        use_nullable_dtypes=True,
         columns=columns,
         engine="pyarrow",
         index=False,

@@ -36,7 +36,7 @@ dependencies = [
     "grpcio==1.59.2", # Required by dagster, binary dependencies are flaky
     "grpcio-health-checking==1.59.2", # Required by dagster, binary dependencies are flaky
     "grpcio-status==1.59.2", # Required by dagster, binary dependencies are flaky
-    "hypothesis>=6.87,<7.0",
+    "hypothesis>=6.87",
     "jinja2>=3.1",
     "jupyter",
     "matplotlib>=3.8",
@@ -75,7 +75,7 @@ dependencies = [
     "sphinx-reredirects>=0.1.2",
     "sphinx>=7",
     "sphinxcontrib_bibtex>=2.6",
-    "sqlalchemy>=1.4,<2",
+    "sqlalchemy>=2",
     "timezonefinder>=6.2",
     "xlrd>=2.0.1", # pandas[excel]
     "xlsxwriter>=3.1", # pandas[excel]
