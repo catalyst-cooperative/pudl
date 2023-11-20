@@ -1676,6 +1676,7 @@ package:
       tk: ">=8.6.13,<8.7.0a0"
       tzdata: ""
       xz: ">=5.2.6,<6.0a0"
+      pip: ""
     url: https://conda.anaconda.org/conda-forge/linux-64/python-3.11.6-hab00c5b_0_cpython.conda
     hash:
       md5: b0dfbe2fcbfdb097d321bfd50ecddab1
@@ -9796,6 +9797,7 @@ package:
       tk: ">=8.6.13,<8.7.0a0"
       tzdata: ""
       xz: ">=5.2.6,<6.0a0"
+      pip: ""
     url: https://conda.anaconda.org/conda-forge/osx-64/python-3.11.6-h30d4d87_0_cpython.conda
     hash:
       md5: 4d66c5fc01e9be526afe5d828d4de24d
@@ -17610,6 +17612,7 @@ package:
       tk: ">=8.6.13,<8.7.0a0"
       tzdata: ""
       xz: ">=5.2.6,<6.0a0"
+      pip: ""
     url: https://conda.anaconda.org/conda-forge/osx-arm64/python-3.11.6-h47c9636_0_cpython.conda
     hash:
       md5: 2271df1db9534f5cac7c2d0820c3359d
