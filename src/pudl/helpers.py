@@ -1218,9 +1218,7 @@ def generate_rolling_avg(
             freq="MS",
             name="report_date",
         )
-    ).assign(
-        tmp=1
-    )  # assiging a temp column to merge on
+    ).assign(tmp=1)  # assiging a temp column to merge on
     groups = (
         df[group_cols + ["report_date"]]
         .drop_duplicates()
@@ -1488,9 +1486,8 @@ def calc_capacity_factor(
             capacity_factor=lambda x: x.net_generation_mwh / (x.capacity_mw * x.hours)
         )
         # Replace unrealistic capacity factors with NaN
-        .pipe(oob_to_nan, ["capacity_factor"], lb=min_cap_fact, ub=max_cap_fact).drop(
-            ["hours"], axis=1
-        )
+        .pipe(oob_to_nan, ["capacity_factor"], lb=min_cap_fact, ub=max_cap_fact)
+        .drop(["hours"], axis=1)
     )
     return df
 
