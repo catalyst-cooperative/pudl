@@ -80,15 +80,19 @@ issues_github_path = "catalyst-cooperative/pudl"
 # we need to define these package to URL mappings:
 intersphinx_mapping = {
     "arrow": ("https://arrow.apache.org/docs/", None),
+    "dagster": ("https://docs.dagster.io/", None),
     "dask": ("https://docs.dask.org/en/latest/", None),
+    "datasette": ("https://docs.datasette.io/en/stable/", None),
     "geopandas": ("https://geopandas.org/en/stable/", None),
+    "hypothesis": ("https://hypothesis.readthedocs.io/en/latest/", None),
     "networkx": ("https://networkx.org/documentation/stable/", None),
     "numpy": ("https://numpy.org/doc/stable/", None),
     "pandas": ("https://pandas.pydata.org/pandas-docs/stable", None),
+    "pandera": ("https://pandera.readthedocs.io/en/stable/", None),
+    "pydantic": ("https://docs.pydantic.dev/latest/", None),
     "pytest": ("https://docs.pytest.org/en/latest/", None),
     "python": ("https://docs.python.org/3", None),
     "scipy": ("https://docs.scipy.org/doc/scipy/", None),
-    "setuptools": ("https://setuptools.pypa.io/en/latest/", None),
     "sklearn": ("https://scikit-learn.org/stable", None),
     "sqlalchemy": ("https://docs.sqlalchemy.org/en/latest/", None),
 }
