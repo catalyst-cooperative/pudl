@@ -91,23 +91,27 @@ function notify_slack() {
 # 2>&1 redirects stderr to stdout.
 run_pudl_etl 2>&1 | tee $LOGFILE
 
+ETL_SUCCESS=${PIPESTATUS[0]}
+
 # if pipeline is successful, distribute + publish datasette
-if [[ ${PIPESTATUS[0]} == 0 ]]; then
+if [[ $ETL_SUCCESS == 0 ]]; then
     # Dump outputs to s3 bucket if branch is dev or build was triggered by a tag
     if [ $GITHUB_ACTION_TRIGGER = "push" ] || [ $GITHUB_REF = "dev" ]; then
         copy_outputs_to_distribution_bucket
+        ETL_SUCCESS=${PIPESTATUS[0]}
     fi
 
     # Deploy the updated data to datasette
     if [ $GITHUB_REF = "dev" ]; then
         python ~/devtools/datasette/publish.py 2>&1 | tee -a $LOGFILE
+        ETL_SUCCESS=${PIPESTATUS[0]}
     fi
 fi
 
 # Notify slack about entire pipeline's success or failure;
 # PIPESTATUS[0] either refers to the failed ETL run or the last distribution
 # task that was run above
-if [[ ${PIPESTATUS[0]} == 0 ]]; then
+if [[ $ETL_SUCCESS == 0 ]]; then
     notify_slack "success"
 else
     notify_slack "failure"
