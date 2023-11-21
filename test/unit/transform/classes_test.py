@@ -677,7 +677,8 @@ def test_convert_units_round_trip():
     """Generate random unit conversions and check that we can invert them."""
     for _ in range(0, 10):
         from_unit = "".join(
-            random.choice(ascii_letters) for _ in range(10)  # noqa: S311
+            random.choice(ascii_letters)  # noqa: S311
+            for _ in range(10)
         )
         to_unit = "".join(random.choice(ascii_letters) for _ in range(10))  # noqa: S311
         uc = UnitConversion(
