@@ -15,9 +15,9 @@
 version: 1
 metadata:
   content_hash:
-    linux-64: 948078f7f90587f6b91354dbc73ccdcb6abab18c115f55a56d7f4eba9cd0cd6d
-    osx-64: c04c8d1ebc32d414a7bc23be2fa01ff71434da1c2e660a0c77e834b62e86d2e0
-    osx-arm64: 016e713916200bbd81bfb5f2f25497979ac1d528cc668d149f3b13e10369e0c4
+    linux-64: 88ab6b06102bd362f7a93aacfa6fd9a41a0824c3982e85120db6a645c2c00351
+    osx-64: 407bb59ef7f138fbfd77c40e38a21952ba1e13e25f2a6a4e43f5bb21abb3fcdf
+    osx-arm64: 3f9ca7f82365963841501c752f82c8cd7577658349f7f07a6c4b77f764b97b41
   channels:
     - url: conda-forge
       used_env_vars: []
@@ -1817,60 +1817,6 @@ package:
     hash:
       md5: a362ff7d976217f8fa78c0f1c4f59717
       sha256: 52d3e6bcd442537e22699cd227d8fdcfd54b708eeb8ee5b4c671a6a9b9cd74da
-    category: main
-    optional: false
-  - name: black
-    version: 23.10.1
-    manager: conda
-    platform: linux-64
-    dependencies:
-      click: ">=8.0.0"
-      mypy_extensions: ">=0.4.3"
-      packaging: ">=22.0"
-      pathspec: ">=0.9"
-      platformdirs: ">=2"
-      python: ">=3.11,<3.12.0a0"
-      python_abi: 3.11.*
-    url: https://conda.anaconda.org/conda-forge/linux-64/black-23.10.1-py311h38be061_0.conda
-    hash:
-      md5: 17874858641cb402ad73b9adb0e11a27
-      sha256: f2114740c055ca5d250e363eec69d0181c2ae5b6ead7597762cf766eaa40fe1d
-    category: main
-    optional: false
-  - name: black
-    version: 23.10.1
-    manager: conda
-    platform: osx-64
-    dependencies:
-      click: ">=8.0.0"
-      mypy_extensions: ">=0.4.3"
-      packaging: ">=22.0"
-      pathspec: ">=0.9"
-      platformdirs: ">=2"
-      python: ">=3.11,<3.12.0a0"
-      python_abi: 3.11.*
-    url: https://conda.anaconda.org/conda-forge/osx-64/black-23.10.1-py311h6eed73b_0.conda
-    hash:
-      md5: c802bfc16625b15e57e4d2d05bee622a
-      sha256: e6c81cc86c288f2d15852dc0068caa5acae3700eff57eeeeb5742844b1048b2b
-    category: main
-    optional: false
-  - name: black
-    version: 23.10.1
-    manager: conda
-    platform: osx-arm64
-    dependencies:
-      click: ">=8.0.0"
-      mypy_extensions: ">=0.4.3"
-      packaging: ">=22.0"
-      pathspec: ">=0.9"
-      platformdirs: ">=2"
-      python: ">=3.11,<3.12.0a0"
-      python_abi: 3.11.*
-    url: https://conda.anaconda.org/conda-forge/osx-arm64/black-23.10.1-py311h267d04e_0.conda
-    hash:
-      md5: 12b064976b0152cb193120c645f6c3a0
-      sha256: ec50f430559024cc7c8ef8733457bab49a6c88ef1ae857b4f7f2b44fe32b388e
     category: main
     optional: false
   - name: bleach
@@ -15923,42 +15869,6 @@ package:
     hash:
       md5: a4eea5bff523f26442405bc5d1f52adb
       sha256: 9153f0f38c76a09da7688a61fdbf8f3d7504e2326bef53e4ec20d994311b15bd
-    category: main
-    optional: false
-  - name: pathspec
-    version: 0.11.2
-    manager: conda
-    platform: linux-64
-    dependencies:
-      python: ">=3.7"
-    url: https://conda.anaconda.org/conda-forge/noarch/pathspec-0.11.2-pyhd8ed1ab_0.conda
-    hash:
-      md5: e41debb259e68490e3ab81e46b639ab6
-      sha256: 7bcfa6d86359d45572ba9ccaeaedc04b0452e2654fe44b6fe378d0d37b8745e1
-    category: main
-    optional: false
-  - name: pathspec
-    version: 0.11.2
-    manager: conda
-    platform: osx-64
-    dependencies:
-      python: ">=3.7"
-    url: https://conda.anaconda.org/conda-forge/noarch/pathspec-0.11.2-pyhd8ed1ab_0.conda
-    hash:
-      md5: e41debb259e68490e3ab81e46b639ab6
-      sha256: 7bcfa6d86359d45572ba9ccaeaedc04b0452e2654fe44b6fe378d0d37b8745e1
-    category: main
-    optional: false
-  - name: pathspec
-    version: 0.11.2
-    manager: conda
-    platform: osx-arm64
-    dependencies:
-      python: ">=3.7"
-    url: https://conda.anaconda.org/conda-forge/noarch/pathspec-0.11.2-pyhd8ed1ab_0.conda
-    hash:
-      md5: e41debb259e68490e3ab81e46b639ab6
-      sha256: 7bcfa6d86359d45572ba9ccaeaedc04b0452e2654fe44b6fe378d0d37b8745e1
     category: main
     optional: false
   - name: pbr
