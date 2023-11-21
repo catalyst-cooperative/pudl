@@ -9,6 +9,7 @@ tools from scikit-learn
 """
 import re
 
+import numpy as np
 import pandas as pd
 from sklearn.pipeline import Pipeline
 from sklearn.preprocessing import MinMaxScaler, Normalizer
@@ -273,8 +274,48 @@ def plants_steam_assign_plant_ids(
     # We don't actually want to save the fuel fractions in this table... they
     # were only here to help us match up the plants.
     ferc1_steam_df = ferc1_steam_df.drop(ffc, axis=1)
+    ferc1_steam_df = revert_filled_in_string_nulls(ferc1_steam_df)
 
     return ferc1_steam_df
+
+
+def revert_filled_in_string_nulls(df: pd.DataFrame) -> pd.DataFrame:
+    """Revert the filled nulls from string columns.
+
+    Many columns that are used for the classification in
+    :func:`plants_steam_assign_plant_ids` have many nulls. The classifier can't handle
+    nulls well, so we filled in nulls with empty strings for string columns. This
+    function replaces empty strings with null values for specific columns that are known
+    to contain empty strings introduced for the classifier.
+    """
+    for col in [
+        "plant_type",
+        "construction_type",
+        "fuel_type_code_pudl",
+        "primary_fuel_by_cost",
+        "primary_fuel_by_mmbtu",
+    ]:
+        if col in df.columns:
+            # the replace to_replace={column_name: {"", pd.NA}} mysteriously doesn't work.
+            df[col] = df[col].replace(
+                to_replace=[""],
+                value=pd.NA,
+            )
+    return df
+
+
+def revert_filled_in_float_nulls(df: pd.DataFrame) -> pd.DataFrame:
+    """Revert the filled nulls from float columns.
+
+    Many columns that are used for the classification in
+    :func:`plants_steam_assign_plant_ids` have many nulls. The classifier can't handle
+    nulls well, so we filled in nulls with zeros for float columns. This function
+    replaces zeros with nulls for all float columns.
+    """
+    float_cols = list(df.select_dtypes(include=[float]))
+    if float_cols:
+        df.loc[:, float_cols] = df.loc[:, float_cols].replace(0, np.nan)
+    return df
 
 
 def plants_steam_validate_ids(ferc1_steam_df: pd.DataFrame) -> pd.DataFrame:
