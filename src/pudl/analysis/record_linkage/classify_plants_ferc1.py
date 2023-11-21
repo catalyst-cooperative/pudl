@@ -14,6 +14,7 @@ from sklearn.pipeline import Pipeline
 from sklearn.preprocessing import MinMaxScaler, Normalizer
 
 import pudl
+from pudl.analysis.record_linkage.cleaning_steps import CleaningRules
 from pudl.analysis.record_linkage.cross_year import ColumnTransform, CrossYearLinker
 
 logger = pudl.logging_helpers.get_logger(__name__)
@@ -205,6 +206,9 @@ def plants_steam_assign_plant_ids(
                         "columns": "plant_name_ferc1",
                         "transformer": "string",
                         "weight": 2.0,
+                        "cleaning_ops": [
+                            CleaningRules(input_column="plant_name_ferc1")
+                        ],
                     }
                 ),
                 ColumnTransform(

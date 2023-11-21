@@ -19,6 +19,7 @@ from sklearn.pipeline import Pipeline
 from sklearn.preprocessing import MinMaxScaler, OneHotEncoder
 
 import pudl
+from pudl.analysis.record_linkage.cleaning_steps import CleaningRules
 
 logger = pudl.logging_helpers.get_logger(__name__)
 
@@ -59,7 +60,7 @@ class ColumnTransform(BaseModel):
     transformer: BaseEstimator | Literal["string", "category", "number"]
     transformer_options: dict[str, Any] = {}
     weight: float = 1.0
-    cleaning_ops: list[str] = []
+    cleaning_ops: list[str | CleaningRules] = []
 
     # This can be handled more elegantly in Pydantic 2.0.
     class Config:
@@ -70,7 +71,10 @@ class ColumnTransform(BaseModel):
     def clean_columns(self, df):
         """Perform configurable set of cleaning operations on inputs before pipeline."""
         for cleaning_op in self.cleaning_ops:
-            df[self.columns] = _CLEANING_FUNCTIONS[cleaning_op](df, self.columns)
+            if isinstance(cleaning_op, str):
+                df[self.columns] = _CLEANING_FUNCTIONS[cleaning_op](df, self.columns)
+            elif isinstance(cleaning_op, CleaningRules):
+                df = cleaning_op.clean(df)
 
         return df
 
