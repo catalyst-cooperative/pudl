@@ -176,7 +176,7 @@ MANUAL_DBF_METADATA_FIXES: dict[str, dict[str, str]] = {
 }
 """Manually compiled metadata from DBF-only or PUDL-generated xbrl_factios.
 
-Note: the factoids beginning with "less_" here could be removed after a transition
+Note: the factoids beginning with less_ here could be removed after a transition
 of expectations from assuming the calculation components in any given explosion
 is a tree structure to being a dag. These xbrl_factoids were added in
 `transform.ferc1` and could be removed upon this transition.
