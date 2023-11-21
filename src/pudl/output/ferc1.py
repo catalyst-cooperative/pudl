@@ -1873,7 +1873,8 @@ class XbrlCalculationForestFerc1(BaseModel):
                     clean_tags_dict.keys(), names=self.calc_cols
                 ),
                 data={"tags": list(clean_tags_dict.values())},
-            ).reset_index()
+            )
+            .reset_index()
             # Type conversion is necessary to get pd.NA in the index:
             .astype({col: pd.StringDtype() for col in self.calc_cols})
             # We need a dictionary for *all* nodes, not just those with tags.
