@@ -42,7 +42,7 @@ from pudl.metadata.helpers import (
 )
 from pudl.metadata.resources import FOREIGN_KEYS, RESOURCE_METADATA, eia861
 from pudl.metadata.sources import SOURCES
-from pudl.workspace.datastore import Datastore
+from pudl.workspace.datastore import Datastore, ZenodoDoi
 from pudl.workspace.setup import PudlPaths
 
 logger = pudl.logging_helpers.get_logger(__name__)
@@ -204,7 +204,7 @@ String = pydantic.constr(min_length=1, strict=True, regex=r"^\S+(\s+\S+)*$")
 """Non-empty :class:`str` with no trailing or leading whitespace."""
 
 SnakeCase = pydantic.constr(
-    min_length=1, strict=True, regex=r"^[a-z][a-z0-9]*(_[a-z0-9]+)*$"
+    min_length=1, strict=True, regex=r"^[a-z_][a-z0-9_]*(_[a-z0-9]+)*$"
 )
 """Snake-case variable name :class:`str` (e.g. 'pudl', 'entity_eia860')."""
 
@@ -572,7 +572,7 @@ class Field(Base):
     Examples:
         >>> field = Field(name='x', type='string', constraints={'enum': ['x', 'y']})
         >>> field.to_pandas_dtype()
-        CategoricalDtype(categories=['x', 'y'], ordered=False)
+        CategoricalDtype(categories=['x', 'y'], ordered=False, categories_dtype=object)
         >>> field.to_sql()
         Column('x', Enum('x', 'y'), CheckConstraint(...), table=None)
         >>> field = Field.from_id('utility_id_eia')
@@ -869,6 +869,27 @@ class Contributor(Base):
     role: Literal[
         "author", "contributor", "maintainer", "publisher", "wrangler"
     ] = "contributor"
+    zenodo_role: Literal[
+        "contact person",
+        "data collector",
+        "data curator",
+        "data manager",
+        "distributor",
+        "editor",
+        "hosting institution",
+        "other",
+        "producer",
+        "project leader",
+        "project member",
+        "registration agency",
+        "registration authority",
+        "related person",
+        "researcher",
+        "rights holder",
+        "sponsor",
+        "supervisor",
+        "work package leader",
+    ] = "project member"
     organization: String = None
     orcid: String = None
 
@@ -911,10 +932,10 @@ class DataSource(Base):
     field_namespace: String = None
     keywords: list[str] = []
     path: HttpUrl = None
-    contributors: list[Contributor] = []  # Or should this be compiled from Resources?
+    contributors: list[Contributor] = []
     license_raw: License
     license_pudl: License
-    # concept_doi: Doi = None  # Need to define a Doi type?
+    concept_doi: ZenodoDoi = None
     working_partitions: dict[SnakeCase, Any] = {}
     source_file_dict: dict[SnakeCase, Any] = {}
     # agency: Agency  # needs to be defined
@@ -1466,7 +1487,7 @@ class Resource(Base):
                 and pd.api.types.is_integer_dtype(df[field.name])
             ):
                 df[field.name] = pd.to_datetime(df[field.name], format="%Y")
-            if pd.api.types.is_categorical_dtype(dtypes[field.name]):
+            if isinstance(dtypes[field.name], pd.CategoricalDtype):
                 uncategorized = [
                     value
                     for value in df[field.name].dropna().unique()
@@ -2000,7 +2021,7 @@ class DatasetteMetadata(Base):
             xbrl_resources=xbrl_resources,
         )
 
-    def to_yaml(self, path: str = None) -> None:
+    def to_yaml(self) -> str:
         """Output database, table, and column metadata to YAML file."""
         template = _get_jinja_environment().get_template("datasette-metadata.yml.jinja")
         rendered = template.render(
@@ -2010,7 +2031,4 @@ class DatasetteMetadata(Base):
             xbrl_resources=self.xbrl_resources,
             label_columns=self.label_columns,
         )
-        if path:
-            Path(path).write_text(rendered)
-        else:
-            sys.stdout.write(rendered)
+        return rendered

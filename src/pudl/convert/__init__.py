@@ -13,7 +13,6 @@ and others convert metadata into RST for use in documentation
 """
 from . import (
     censusdp1tract_to_sqlite,
-    datasette_metadata_to_yml,
     epacems_to_parquet,
     metadata_to_rst,
 )

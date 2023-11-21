@@ -11,7 +11,7 @@ repos:
 
   # Other file formatting, plus common Git mistakes & text file standardization:
   - repo: https://github.com/pre-commit/pre-commit-hooks
-    rev: v4.4.0
+    rev: v4.5.0
     hooks:
       - id: check-added-large-files # Don't accidentally commit giant files.
       - id: check-merge-conflict # Watch for lingering merge markers.
@@ -26,21 +26,21 @@ repos:
   # Formatters: hooks that re-write Python & documentation files
   ####################################################################################
   - repo: https://github.com/astral-sh/ruff-pre-commit
-    rev: v0.0.292
+    rev: v0.1.6
     hooks:
       - id: ruff
         args: [--fix, --exit-non-zero-on-fix]
 
   # Format the code
   - repo: https://github.com/psf/black-pre-commit-mirror
-    rev: 23.9.1
+    rev: 23.11.0
     hooks:
       - id: black
         language_version: python3.11
         exclude: migrations/.*
 
   - repo: https://github.com/pre-commit/mirrors-prettier
-    rev: v3.0.3
+    rev: v3.1.0
     hooks:
       - id: prettier
         types_or: [yaml]
@@ -51,7 +51,7 @@ repos:
 
   # Lint Dockerfiles for errors and to ensure best practices
   - repo: https://github.com/AleksaC/hadolint-py
-    rev: v2.12.0.2
+    rev: v2.12.0.3
     hooks:
       - id: hadolint
 

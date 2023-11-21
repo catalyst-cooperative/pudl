@@ -49,6 +49,11 @@ class Extractor(excel.GenericExtractor):
             if col in df.columns:
                 df = remove_leading_zeros_from_numeric_strings(df=df, col_name=col)
         df = self.add_data_maturity(df, page, **partition)
+        # Fill in blank reporting_frequency_code for monthly data
+        if "reporting_frequency_code" in df.columns:
+            df.loc[
+                df["data_maturity"] == "incremental_ytd", "reporting_frequency_code"
+            ] = "M"
         # the 2021 early release data had some ding dang "."'s and nulls in the year column
         if "report_year" in df.columns:
             mask = (df.report_year == ".") | df.report_year.isnull()
@@ -108,13 +113,16 @@ eia_raw_table_names = (
 )
 
 
+eia923_raw_dfs = excel.raw_df_factory(Extractor, name="eia923")
+
+
 # TODO (bendnorman): Figure out type hint for context keyword and mutli_asset return
 @multi_asset(
     outs={table_name: AssetOut() for table_name in sorted(eia_raw_table_names)},
     required_resource_keys={"datastore", "dataset_settings"},
 )
-def extract_eia923(context):
-    """Extract raw EIA data from excel sheets into dataframes.
+def extract_eia923(context, eia923_raw_dfs):
+    """Extract raw EIA-923 data from excel sheets into dataframes.
 
     Args:
         context: dagster keyword that provides access to resources and config.
@@ -122,11 +130,6 @@ def extract_eia923(context):
     Returns:
         A tuple of extracted EIA dataframes.
     """
-    eia_settings = context.resources.dataset_settings.eia
-
-    ds = context.resources.datastore
-    eia923_raw_dfs = Extractor(ds).extract(year=eia_settings.eia923.years)
-
     # create descriptive table_names
     eia923_raw_dfs = {
         "raw_eia923__" + table_name: df for table_name, df in eia923_raw_dfs.items()

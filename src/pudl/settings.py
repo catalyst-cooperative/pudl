@@ -244,6 +244,7 @@ class EiaSettings(BaseModel):
 
     Args:
         eia860: Immutable pydantic model to validate eia860 settings.
+        eia861: Immutable pydantic model to validate eia861 settings.
         eia923: Immutable pydantic model to validate eia923 settings.
     """
 
@@ -287,7 +288,10 @@ class EiaSettings(BaseModel):
             values["eia923"] = Eia923Settings(years=eia860.years)
 
         if eia923 and not eia860:
-            values["eia860"] = Eia860Settings(years=eia923.years)
+            available_years = Eia860Settings()
+            values["eia860"] = Eia860Settings(
+                years=[year for year in eia923.years if year in available_years]
+            )
         return values
 
 

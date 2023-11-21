@@ -75,6 +75,10 @@ def check_date_freq(df1: pd.DataFrame, df2: pd.DataFrame, mult: int) -> None:
     if ("report_date" not in df1.columns) or ("report_date" not in df2.columns):
         raise ValueError("Missing report_date column in one or both input DataFrames")
 
+    # Remove ytd values that mess up ratio assumptions
+    if "data_maturity" in df2:
+        df2 = df2[df2["data_maturity"] != "incremental_ytd"].copy()
+
     idx1 = pd.DatetimeIndex(df1.report_date.unique())
     idx2 = pd.DatetimeIndex(df2.report_date.unique())
 
@@ -832,9 +836,9 @@ plants_steam_ferc1_capacity_ratios = [
         "data_col": "capability_ratio",
         "weight_col": "",
     },
-    {
+    {  # XBRL data (post-2021) reports 0 capability for ~22% of plants, so we exclude.
         "title": "Capability Ratio (tails)",
-        "query": "",
+        "query": "report_year < 2021 | plant_capability_mw > 0",
         "low_q": 0.05,
         "low_bound": 0.5,
         "hi_q": 0.95,
