@@ -11,6 +11,7 @@ from . import (
     ferc1_eia_record_linkage,
     mcoe,
     plant_parts_eia,
+    record_linkage,
     service_territory,
     spatial,
     state_demand,
