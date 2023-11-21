@@ -174,6 +174,13 @@ MANUAL_DBF_METADATA_FIXES: dict[str, dict[str, str]] = {
         "dbf2020_row_literal": "Depreciation Expense for Asset Retirement Costs (Account 403.1) (c)",
     },
 }
+"""Manually compiled metadata from DBF-only or PUDL-generated xbrl_factios.
+
+Note: the factoids beginning with "less_" here could be removed after a transition
+of expectations from assuming the calculation components in any given explosion
+is a tree structure to being a dag. These xbrl_factoids were added in
+`transform.ferc1` and could be removed upon this transition.
+"""
 
 
 @asset(io_manager_key="pudl_sqlite_io_manager", compute_kind="Python")
@@ -1063,7 +1070,7 @@ class NodeId(NamedTuple):
 
 @asset
 def _out_ferc1__explosion_tags(table_dimensions_ferc1) -> pd.DataFrame:
-    """Grab the stored table of tags and add infered dimension."""
+    """Grab the stored tables of tags and add inferred dimension."""
     # Also, these tags may not be applicable to all exploded tables, but
     # we need to pass in a dataframe with the right structure to all of the exploders,
     # so we're just re-using this one for the moment.

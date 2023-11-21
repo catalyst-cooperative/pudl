@@ -6343,6 +6343,7 @@ def calculation_components_xbrl_ferc1(**kwargs) -> pd.DataFrame:
         calcs_vs_table = calcs.set_index(idx_calcs).loc[idx]
         return calcs_vs_table.reset_index()
 
+    # which calculations are missing from the metadata table?
     missing_calcs = check_calcs_vs_table(
         calcs=calc_components[
             calc_components.table_name.isin(FERC1_TFR_CLASSES.keys())
@@ -6355,7 +6356,11 @@ def calculation_components_xbrl_ferc1(**kwargs) -> pd.DataFrame:
     # ensure that none of the calculation components that are missing from the metadata
     # table are from any of the exploded tables.
     if not missing_calcs.empty:
-        logger.warning("Missing calculations found in calculation components table.")
+        logger.warning(
+            "Calculations found in calculation components table are missing from the "
+            "metadata_xbrl_ferc1 table."
+        )
+        # which of these missing calculations actually show up in the transformed tables?
         # Ignore any 'missing' calc components that aren't in the actual transformed tables.
         actually_missing_kids = check_calcs_vs_table(
             calcs=missing_calcs,
@@ -6364,11 +6369,9 @@ def calculation_components_xbrl_ferc1(**kwargs) -> pd.DataFrame:
             idx_table=child_cols,
             how="in",
         )
-
         logger.warning(
             f"{len(actually_missing_kids)} of {len(missing_calcs)} missing calculation components observed in transformed FERC1 data."
         )
-
         if not actually_missing_kids.empty:
             raise AssertionError(
                 f"Found missing calculations from the exploded tables:\n{actually_missing_kids=}"
