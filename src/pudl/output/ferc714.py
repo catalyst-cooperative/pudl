@@ -631,7 +631,6 @@ def georeferenced_respondents_ferc714(
 def summarized_demand_ferc714(
     annualized_respondents_ferc714: pd.DataFrame,
     demand_hourly_pa_ferc714: pd.DataFrame,
-    fipsified_respondents_ferc714: pd.DataFrame,
     categorized_respondents_ferc714: pd.DataFrame,
     georeferenced_counties_ferc714: gpd.GeoDataFrame,
 ) -> pd.DataFrame:

@@ -21,7 +21,7 @@ are expected to pass. If they don't then someone needs to take responsibility fo
 getting them working again with some urgency.
 
 Because of how long the full build & tests take, we don’t typically run them
-individually before merging every PR into ``dev``. However, running ``tox -e nuke``
+individually before merging every PR into ``dev``. However, running ``make nuke``
 (the equivalent of the full builds) is recommended when you've added a new year of data
 or made other changes that would be expected to break the data validations, so that the
 appropriate changes can be made prior to those changes hitting ``dev`` and the nightly

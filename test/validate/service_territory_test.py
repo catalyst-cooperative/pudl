@@ -14,8 +14,8 @@ logger = logging.getLogger(__name__)
     [
         ("summarized_demand_ferc714", 3_195),
         ("fipsified_respondents_ferc714", 135_537),
-        ("compiled_geometry_balancing_authority_eia861", 112_507),
-        ("compiled_geometry_utility_eia861", 247_705),
+        ("compiled_geometry_balancing_authority_eia861", 112_853),
+        ("compiled_geometry_utility_eia861", 248_987),
     ],
 )
 def test_minmax_rows(

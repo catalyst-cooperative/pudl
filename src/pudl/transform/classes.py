@@ -395,7 +395,9 @@ def strip_non_numeric_values(
     if params is None:
         params = StripNonNumericValues(strip_non_numeric_values=True)
     if params.strip_non_numeric_values:
-        col = col.astype(str).str.extract(
+        col = col.astype(
+            str
+        ).str.extract(
             rf"(?P<{col.name}>(?<![a-z-A-Z])[-+]?\d+\.?\d*|[-+]?\.\d+)",  # name the series
             expand=False,
         )

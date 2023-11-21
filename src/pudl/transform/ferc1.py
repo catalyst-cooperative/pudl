@@ -1501,9 +1501,7 @@ class Ferc1TableTransformParams(TableTransformParams):
     align_row_numbers_dbf: AlignRowNumbersDbf = AlignRowNumbersDbf()
     drop_duplicate_rows_dbf: DropDuplicateRowsDbf = DropDuplicateRowsDbf()
     select_dbf_rows_by_category: SelectDbfRowsByCategory = SelectDbfRowsByCategory()
-    unstack_balances_to_report_year_instant_xbrl: UnstackBalancesToReportYearInstantXbrl = (
-        UnstackBalancesToReportYearInstantXbrl()
-    )
+    unstack_balances_to_report_year_instant_xbrl: UnstackBalancesToReportYearInstantXbrl = UnstackBalancesToReportYearInstantXbrl()
     combine_axis_columns_xbrl: CombineAxisColumnsXbrl = CombineAxisColumnsXbrl()
     reconcile_table_calculations: ReconcileTableCalculations = (
         ReconcileTableCalculations()
