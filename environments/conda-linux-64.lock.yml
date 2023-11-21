@@ -262,7 +262,7 @@ dependencies:
   - regex=2023.10.3=py311h459d7ec_0
   - rfc3986=2.0.0=pyhd8ed1ab_0
   - rfc3986-validator=0.1.1=pyh9f0ad1d_0
-  - rpds-py=0.13.0=py311h46250e7_0
+  - rpds-py=0.13.1=py311h46250e7_0
   - rtree=1.1.0=py311h3bb2b0f_0
   - ruamel.yaml.clib=0.2.7=py311h459d7ec_2
   - ruff=0.1.6=py311h7145743_0
@@ -400,7 +400,7 @@ dependencies:
   - arrow=1.3.0=pyhd8ed1ab_0
   - async-timeout=4.0.3=pyhd8ed1ab_0
   - aws-c-s3=0.3.24=hdb3bed3_1
-  - botocore=1.32.3=pyhd8ed1ab_0
+  - botocore=1.32.4=pyhd8ed1ab_0
   - branca=0.7.0=pyhd8ed1ab_1
   - croniter=2.0.1=pyhd8ed1ab_0
   - cryptography=41.0.5=py311h63ff55d_0
@@ -489,7 +489,7 @@ dependencies:
   - uvicorn-standard=0.24.0=h38be061_0
   - virtualenv=20.24.6=pyhd8ed1ab_0
   - aws-sdk-cpp=1.11.182=h8beafcf_7
-  - boto3=1.29.3=pyhd8ed1ab_0
+  - boto3=1.29.4=pyhd8ed1ab_0
   - cachecontrol-with-filecache=0.13.1=pyhd8ed1ab_0
   - dagster=1.5.9=pyhd8ed1ab_0
   - datasette=0.64.4=pyhd8ed1ab_1
