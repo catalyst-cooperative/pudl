@@ -193,7 +193,7 @@ class SQLiteIOManager(IOManager):
         method collapses foreign keys with multiple fields into one record for
         readability.
         """
-        with self.engine.connect() as con:
+        with self.engine.begin() as con:
             table_fks = pd.read_sql_query(f"PRAGMA foreign_key_list({table});", con)
 
         # Foreign keys with multiple fields are reported in separate records.
@@ -224,7 +224,7 @@ class SQLiteIOManager(IOManager):
             ForeignKeyErrors: if data in the database violate foreign key constraints.
         """
         logger.info(f"Running foreign key check on {self.db_name} database.")
-        with self.engine.connect() as con:
+        with self.engine.begin() as con:
             fk_errors = pd.read_sql_query("PRAGMA foreign_key_check;", con)
 
         if not fk_errors.empty:
@@ -284,10 +284,11 @@ class SQLiteIOManager(IOManager):
             )
 
         engine = self.engine
-        with engine.connect() as con:
+        with engine.begin() as con:
             # Remove old table records before loading to db
             con.execute(sa_table.delete())
 
+        with engine.begin() as con:
             df.to_sql(
                 table_name,
                 con,
@@ -314,7 +315,7 @@ class SQLiteIOManager(IOManager):
         # Make sure the metadata has been created for the view
         _ = self._get_sqlalchemy_table(table_name)
 
-        with engine.connect() as con:
+        with engine.begin() as con:
             # Drop the existing view if it exists and create the new view.
             # TODO (bendnorman): parameterize this safely.
             con.execute(f"DROP VIEW IF EXISTS {table_name}")
@@ -357,7 +358,7 @@ class SQLiteIOManager(IOManager):
 
         engine = self.engine
 
-        with engine.connect() as con:
+        with engine.begin() as con:
             try:
                 df = pd.read_sql_table(table_name, con)
             except ValueError:
@@ -369,7 +370,7 @@ class SQLiteIOManager(IOManager):
             if df.empty:
                 raise AssertionError(
                     f"The {table_name} table is empty. Materialize "
-                    "the {table_name} asset so it is available in the database."
+                    f"the {table_name} asset so it is available in the database."
                 )
             return df
 
@@ -461,7 +462,7 @@ class PudlSQLiteIOManager(SQLiteIOManager):
                 "it's a work in progress or is distributed in Apache Parquet format."
             )
 
-        with engine.connect() as con:
+        with engine.begin() as con:
             # Drop the existing view if it exists and create the new view.
             # TODO (bendnorman): parameterize this safely.
             con.execute(f"DROP VIEW IF EXISTS {table_name}")
@@ -476,7 +477,7 @@ class PudlSQLiteIOManager(SQLiteIOManager):
 
         df = res.enforce_schema(df)
 
-        with self.engine.connect() as con:
+        with self.engine.begin() as con:
             # Remove old table records before loading to db
             con.execute(sa_table.delete())
 
@@ -510,7 +511,7 @@ class PudlSQLiteIOManager(SQLiteIOManager):
                 "it's a work in progress or is distributed in Apache Parquet format."
             )
 
-        with self.engine.connect() as con:
+        with self.engine.begin() as con:
             try:
                 df = pd.concat(
                     [
@@ -656,7 +657,7 @@ class FercDBFSQLiteIOManager(FercSQLiteIOManager):
 
         engine = self.engine
 
-        with engine.connect() as con:
+        with engine.begin() as con:
             return pd.read_sql_query(
                 f"SELECT * FROM {table_name} "  # noqa: S608
                 "WHERE report_year BETWEEN :min_year AND :max_year;",
@@ -812,7 +813,7 @@ class FercXBRLSQLiteIOManager(FercSQLiteIOManager):
         engine = self.engine
 
         sched_table_name = re.sub("_instant|_duration", "", table_name)
-        with engine.connect() as con:
+        with engine.begin() as con:
             df = pd.read_sql(
                 f"SELECT {table_name}.* FROM {table_name}",  # noqa: S608 - table names not supplied by user
                 con=con,
@@ -861,7 +862,6 @@ class PandasParquetIOManager(UPathIOManager):
         logger.info(f"Reading parquet file from {path}")
         return dd.read_parquet(
             path,
-            use_nullable_dtypes=True,
             engine="pyarrow",
             index=False,
             split_row_groups=True,
