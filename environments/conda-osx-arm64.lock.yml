@@ -116,7 +116,7 @@ dependencies:
   - gts=0.7.6=he42f4ea_4
   - krb5=1.21.2=h92f50d5_0
   - lcms2=2.15=hf2736f0_3
-  - libopenblas=0.3.24=openmp_hd76b1f2_0
+  - libopenblas=0.3.25=openmp_h6c19121_0
   - libthrift=0.19.0=h026a170_1
   - libwebp=1.3.2=hf30222e_1
   - openjpeg=2.5.0=h4c1507b_3
@@ -188,7 +188,7 @@ dependencies:
   - jsonpointer=2.4=py311h267d04e_3
   - jupyterlab_widgets=3.0.9=pyhd8ed1ab_0
   - kiwisolver=1.4.5=py311he4fd1f5_1
-  - libblas=3.9.0=19_osxarm64_openblas
+  - libblas=3.9.0=20_osxarm64_openblas
   - libcurl=8.4.0=h2d989ff_0
   - libgd=2.3.3=hfdf3952_9
   - libgrpc=1.59.2=hbcf6334_0
@@ -333,9 +333,9 @@ dependencies:
   - jsonlines=4.0.0=pyhd8ed1ab_0
   - jupyterlab_pygments=0.2.2=pyhd8ed1ab_0
   - latexcodec=2.0.1=pyh9f0ad1d_0
-  - libcblas=3.9.0=19_osxarm64_openblas
+  - libcblas=3.9.0=20_osxarm64_openblas
   - libgoogle-cloud=2.12.0=hfb399a7_4
-  - liblapack=3.9.0=19_osxarm64_openblas
+  - liblapack=3.9.0=20_osxarm64_openblas
   - linear-tsv=1.1.0=py_1
   - markdown-it-py=3.0.0=pyhd8ed1ab_0
   - matplotlib-inline=0.1.6=pyhd8ed1ab_0

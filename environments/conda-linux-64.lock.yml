@@ -120,7 +120,7 @@ dependencies:
   - libarchive=3.7.2=h039dbb9_0
   - libglib=2.78.1=h783c2da_1
   - libllvm15=15.0.7=h5cf9203_3
-  - libopenblas=0.3.24=pthreads_h413a1c8_0
+  - libopenblas=0.3.25=pthreads_h413a1c8_0
   - libthrift=0.19.0=hb90f79a_1
   - libtiff=4.6.0=ha9c0a0a_2
   - libxslt=1.1.37=h0054252_1
@@ -203,7 +203,7 @@ dependencies:
   - jupyterlab_widgets=3.0.9=pyhd8ed1ab_0
   - kiwisolver=1.4.5=py311h9547e67_1
   - lcms2=2.15=hb7c19ff_3
-  - libblas=3.9.0=19_linux64_openblas
+  - libblas=3.9.0=20_linux64_openblas
   - libcurl=8.4.0=hca28451_0
   - libgrpc=1.59.2=hd6c4280_0
   - libpq=16.1=hfc447b1_0
@@ -353,10 +353,10 @@ dependencies:
   - jsonlines=4.0.0=pyhd8ed1ab_0
   - jupyterlab_pygments=0.2.2=pyhd8ed1ab_0
   - latexcodec=2.0.1=pyh9f0ad1d_0
-  - libcblas=3.9.0=19_linux64_openblas
+  - libcblas=3.9.0=20_linux64_openblas
   - libgd=2.3.3=h119a65a_9
   - libgoogle-cloud=2.12.0=h5206363_4
-  - liblapack=3.9.0=19_linux64_openblas
+  - liblapack=3.9.0=20_linux64_openblas
   - linear-tsv=1.1.0=py_1
   - markdown-it-py=3.0.0=pyhd8ed1ab_0
   - matplotlib-inline=0.1.6=pyhd8ed1ab_0
