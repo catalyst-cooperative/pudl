@@ -50,9 +50,10 @@ class ColumnTransform(BaseModel):
 
     The 'transformer' should be a string or an initialized scikit-learn BaseEstimator.
     If it is a string, it should be one of the following:
-        'string' - Applies a TfidfVectorizer to the column.
-        'category' - Applies a OneHotEncoder to the column.
-        'number' - Applies a MinMaxScaler to the column.
+
+    'string' - Applies a TfidfVectorizer to the column.
+    'category' - Applies a OneHotEncoder to the column.
+    'number' - Applies a MinMaxScaler to the column.
     """
 
     step_name: str
@@ -205,8 +206,8 @@ class DistancePenalizeSameYear(PrecomputeDistance):
 
         Args:
             report_years: Used to find records with same report year and add significant
-                          distance penalty to these records to avoid matching records.
-                          from the same year.
+                distance penalty to these records to avoid matching records.
+                from the same year.
             metric: Distance metric to use in computation.
             penalty: Penalty to apply to records with the same report year.
         """
