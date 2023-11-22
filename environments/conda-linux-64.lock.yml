@@ -98,7 +98,7 @@ dependencies:
   - libprotobuf=4.24.4=hf27288f_0
   - libre2-11=2023.06.02=h7a70373_0
   - librttopo=1.1.0=hb58d41b_14
-  - libsqlite=3.44.0=h2797004_0
+  - libsqlite=3.44.1=h2797004_0
   - libssh2=1.11.0=h0841786_0
   - libxcb=1.15=h0b41bf4_0
   - libxml2=2.11.6=h232c23b_0
@@ -131,7 +131,7 @@ dependencies:
   - pandoc=3.1.3=h32600fe_0
   - python=3.11.6=hab00c5b_0_cpython
   - re2=2023.06.02=h2873b5e_0
-  - sqlite=3.44.0=h2c6b66d_0
+  - sqlite=3.44.1=h2c6b66d_0
   - xorg-libx11=1.8.7=h8ee46fc_0
   - aiofiles=23.2.1=pyhd8ed1ab_0
   - alabaster=0.7.13=pyhd8ed1ab_0

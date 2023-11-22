@@ -12713,40 +12713,40 @@ package:
     category: main
     optional: false
   - name: libsqlite
-    version: 3.44.0
+    version: 3.44.1
     manager: conda
     platform: linux-64
     dependencies:
       libgcc-ng: ">=12"
       libzlib: ">=1.2.13,<1.3.0a0"
-    url: https://conda.anaconda.org/conda-forge/linux-64/libsqlite-3.44.0-h2797004_0.conda
+    url: https://conda.anaconda.org/conda-forge/linux-64/libsqlite-3.44.1-h2797004_0.conda
     hash:
-      md5: b58e6816d137f3aabf77d341dd5d732b
-      sha256: 74ef5dcb900c38bec53140036e5e2a9cc7ffcd806da479ea2305f962a358a259
+      md5: b4ad86d2527b890e43ff2efc68b239f4
+      sha256: c37bb6ec8b09f690d84e8f14fabb75e00c221d11a256137d5b206e26f37e9483
     category: main
     optional: false
   - name: libsqlite
-    version: 3.44.0
+    version: 3.44.1
     manager: conda
     platform: osx-64
     dependencies:
       libzlib: ">=1.2.13,<1.3.0a0"
-    url: https://conda.anaconda.org/conda-forge/osx-64/libsqlite-3.44.0-h92b6c6a_0.conda
+    url: https://conda.anaconda.org/conda-forge/osx-64/libsqlite-3.44.1-h92b6c6a_0.conda
     hash:
-      md5: 5dd5e957ebfee02720c30e0e2d127bbe
-      sha256: 0832dc9cf18e811d2b41f8f4951d5ab608678e3459b1a4f36347097d8a9abf68
+      md5: 7cf15accdee2a4a1cf267a78c4b76c3d
+      sha256: e51e3e3e84df3cee02434283c8c83ed604fa50cea945a3b14904a59fac5537a5
     category: main
     optional: false
   - name: libsqlite
-    version: 3.44.0
+    version: 3.44.1
     manager: conda
     platform: osx-arm64
     dependencies:
       libzlib: ">=1.2.13,<1.3.0a0"
-    url: https://conda.anaconda.org/conda-forge/osx-arm64/libsqlite-3.44.0-h091b4b1_0.conda
+    url: https://conda.anaconda.org/conda-forge/osx-arm64/libsqlite-3.44.1-h091b4b1_0.conda
     hash:
-      md5: 28eb31a5b4e704353ed575758e2fcf1d
-      sha256: 38e98953b572e2871f2b318fa7fe8d9997b0927970916c2d09402273b60ff832
+      md5: 1750563ea42661aa9e83f1077e58b75a
+      sha256: 03da3a7c97a9f24371ccb4d187454bac5db7463bd5a38c22fc5d91ee8b436515
     category: main
     optional: false
   - name: libssh2
@@ -20937,49 +20937,49 @@ package:
     category: main
     optional: false
   - name: sqlite
-    version: 3.44.0
+    version: 3.44.1
     manager: conda
     platform: linux-64
     dependencies:
       libgcc-ng: ">=12"
-      libsqlite: 3.44.0
+      libsqlite: 3.44.1
       libzlib: ">=1.2.13,<1.3.0a0"
       ncurses: ">=6.4,<7.0a0"
       readline: ">=8.2,<9.0a0"
-    url: https://conda.anaconda.org/conda-forge/linux-64/sqlite-3.44.0-h2c6b66d_0.conda
+    url: https://conda.anaconda.org/conda-forge/linux-64/sqlite-3.44.1-h2c6b66d_0.conda
     hash:
-      md5: df56c636df4a98990462d66ac7be2330
-      sha256: ae7031a471868c7057cc16eded7bb58fa3723d9c1650c9d3eb8de1ff65d89dbb
+      md5: cf535736bb0de7bf388dbfd2d6a50f53
+      sha256: a0a2fc6c9d7e170c5738ad134f8b71f51a1c982c4496c47f8caa73ef4e5b17c8
     category: main
     optional: false
   - name: sqlite
-    version: 3.44.0
+    version: 3.44.1
     manager: conda
     platform: osx-64
     dependencies:
-      libsqlite: 3.44.0
+      libsqlite: 3.44.1
       libzlib: ">=1.2.13,<1.3.0a0"
       ncurses: ">=6.4,<7.0a0"
       readline: ">=8.2,<9.0a0"
-    url: https://conda.anaconda.org/conda-forge/osx-64/sqlite-3.44.0-h7461747_0.conda
+    url: https://conda.anaconda.org/conda-forge/osx-64/sqlite-3.44.1-h7461747_0.conda
     hash:
-      md5: 4c125fcbf57aa07682468a1e9d202cfa
-      sha256: a222b2686f7e62c27ec2aaa64e7f2d927a883e5ef62e4ea060b6bd53c032cfca
+      md5: f7aa681a7d0fc0102654ad2db704529c
+      sha256: fdb83496e2e4cd0d243283d268cbf8d6dbb44a71ca0b4dba9235067436adfdc5
     category: main
     optional: false
   - name: sqlite
-    version: 3.44.0
+    version: 3.44.1
     manager: conda
     platform: osx-arm64
     dependencies:
-      libsqlite: 3.44.0
+      libsqlite: 3.44.1
       libzlib: ">=1.2.13,<1.3.0a0"
       ncurses: ">=6.4,<7.0a0"
       readline: ">=8.2,<9.0a0"
-    url: https://conda.anaconda.org/conda-forge/osx-arm64/sqlite-3.44.0-hf2abe2d_0.conda
+    url: https://conda.anaconda.org/conda-forge/osx-arm64/sqlite-3.44.1-hf2abe2d_0.conda
     hash:
-      md5: 0080e3f5d7d13d3b1e244ed24642ca9e
-      sha256: 8263043d2a5762a5bbbb4ceee28382d97e70182fff8d45371b65fedda0b709ee
+      md5: e753159d79c46b400a0ab40e8fa373f9
+      sha256: 6b49a9f825bb2bb2320ee7b061060a58217530c12b9f17372d64e2f28a23530f
     category: main
     optional: false
   - name: stack_data
