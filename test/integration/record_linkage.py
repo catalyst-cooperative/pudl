@@ -34,6 +34,9 @@ _RANDOM_GENERATOR = np.random.default_rng(12335)
 
 def _randomly_modify_string(input_str: str, k: int = 5) -> str:
     """Generate up to k random edits of input string."""
+    edit_types = ["add", "delete", "substitute"]
+
+    # Easier to modify list than str
     input_list = list(input_str)
 
     # Possible characters to select from when performing "add" or "substitute"
@@ -41,9 +44,10 @@ def _randomly_modify_string(input_str: str, k: int = 5) -> str:
     characters = (
         string.digits + string.ascii_letters + string.ascii_letters + string.punctuation
     )
-    edit_types = ["add", "delete", "substitute"]
-    num_edits = min(random.randrange(k) for i in range(10))
 
+    # Generate random number between 0-k many times and taking min
+    # This biases the number of edits to generally be low
+    num_edits = min(random.randrange(k) for i in range(10))
     for _ in range(num_edits):
         edit = edit_types[random.randrange(3)]
         position = random.randrange(len(input_str) - 1)
@@ -147,7 +151,7 @@ def _generate_random_test_df(
         plant_type_error_prob,
     )
 
-    # Generate l1 unit vector to represent fuel fractions
+    # Generate l1 unit vector to represent fuel fractions (all add up to 1)
     fuel_frac_vec = abs(_RANDOM_GENERATOR.normal(size=len(_FUEL_COLS)))
     fuel_frac_vec = fuel_frac_vec / np.linalg.norm(fuel_frac_vec, ord=1)
     generated_df[_FUEL_COLS] = fuel_frac_vec
@@ -162,6 +166,7 @@ def _generate_random_test_df(
 @pytest.fixture
 def mock_ferc1_plants_df():
     """Returns a test DataFrame for use in generic record linkage testing."""
+    # Creates test dataframes for a bunch of plants and concatenates them
     return pd.concat(
         [
             _generate_random_test_df("fox lake, mn"),
@@ -200,7 +205,6 @@ def test_classify_plants_ferc1(mock_ferc1_plants_df):
         .apply(lambda plant_ids: plant_ids.value_counts().iloc[0])
         .sum()
     )
-    print(correctly_matched / len(df))
 
     assert (
         correctly_matched / len(df) > 0.85
