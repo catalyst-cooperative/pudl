@@ -39,26 +39,31 @@ conda-clean:
 
 # Regenerate the conda lockfile and render platform specific conda environments.
 conda-lock.yml: pyproject.toml
-	conda-lock \
+	${mamba} run --name base ${mamba} install --yes conda-lock prettier
+	${mamba} run --name base conda-lock \
 		--${mamba} \
 		--file=pyproject.toml \
 		--lockfile=environments/conda-lock.yml
-	cd environments && conda-lock render \
+	cd environments && ${mamba} run --name base conda-lock render \
 		--kind env \
 		--dev-dependencies \
 		conda-lock.yml
-	prettier --write environments/*.yml
+	${mamba} run --name base prettier --write environments/*.yml
 
 # Create the pudl-dev conda environment based on the universal lockfile
 .PHONY: pudl-dev
-pudl-dev: conda-lock.yml
+pudl-dev:
 	${mamba} run --name base ${mamba} env remove --name pudl-dev
-	conda-lock install --name pudl-dev --${mamba} --dev environments/conda-lock.yml
+	${mamba} run --name base conda-lock install \
+		--name pudl-dev \
+		--${mamba} \
+		--dev environments/conda-lock.yml
 	echo "To activate the fresh environment run: mamba activate pudl-dev"
 
 .PHONY: install-pudl
 install-pudl: pudl-dev
 	${mamba} run --name pudl-dev pip install --no-cache-dir --no-deps --editable .
+	echo "To activate the fresh environment run: mamba activate pudl-dev"
 
 ########################################################################################
 # Build documentation for local use or testing
