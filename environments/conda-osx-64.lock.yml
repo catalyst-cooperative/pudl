@@ -133,7 +133,7 @@ dependencies:
   - astroid=3.0.1=py311h6eed73b_0
   - attrs=23.1.0=pyh71513ae_1
   - aws-c-auth=0.7.7=hc3630cc_0
-  - aws-c-mqtt=0.9.9=h5e4a26e_0
+  - aws-c-mqtt=0.9.10=h5e4a26e_0
   - backoff=2.2.1=pyhd8ed1ab_0
   - backports.zoneinfo=0.2.1=py311h6eed73b_8
   - blinker=1.7.0=pyhd8ed1ab_0
@@ -295,7 +295,7 @@ dependencies:
   - asgiref=3.7.2=pyhd8ed1ab_0
   - asttokens=2.4.1=pyhd8ed1ab_0
   - async-lru=2.0.4=pyhd8ed1ab_0
-  - aws-c-s3=0.3.24=h4293da7_1
+  - aws-c-s3=0.4.0=h4293da7_0
   - babel=2.13.1=pyhd8ed1ab_0
   - beautifulsoup4=4.12.2=pyha770c72_0
   - bleach=6.1.0=pyhd8ed1ab_0
@@ -378,7 +378,7 @@ dependencies:
   - argon2-cffi-bindings=21.2.0=py311h2725bcf_4
   - arrow=1.3.0=pyhd8ed1ab_0
   - async-timeout=4.0.3=pyhd8ed1ab_0
-  - aws-crt-cpp=0.24.7=h0a75192_2
+  - aws-crt-cpp=0.24.7=h6f34257_4
   - botocore=1.32.5=pyhd8ed1ab_0
   - branca=0.7.0=pyhd8ed1ab_1
   - croniter=2.0.1=pyhd8ed1ab_0
