@@ -787,7 +787,7 @@ def denorm_fuel_by_plant_ferc1(
     """Summarize FERC fuel data by plant for output.
 
     This is mostly a wrapper around
-    :func:`pudl.analysis.classify_plants_ferc1.fuel_by_plant_ferc1`
+    :func:`pudl.analysis.record_linkage.classify_plants_ferc1.fuel_by_plant_ferc1`
     which calculates some summary values on a per-plant basis (as indicated
     by ``utility_id_ferc1`` and ``plant_name_ferc1``) related to fuel
     consumption.
@@ -824,8 +824,12 @@ def denorm_fuel_by_plant_ferc1(
             fuel_categories=fuel_categories,
             thresh=thresh,
         )
-        .pipe(pudl.analysis.classify_plants_ferc1.revert_filled_in_float_nulls)
-        .pipe(pudl.analysis.classify_plants_ferc1.revert_filled_in_string_nulls)
+        .pipe(
+            pudl.analysis.record_linkage.classify_plants_ferc1.revert_filled_in_float_nulls
+        )
+        .pipe(
+            pudl.analysis.record_linkage.classify_plants_ferc1.revert_filled_in_string_nulls
+        )
         .merge(
             denorm_plants_utilities_ferc1, on=["utility_id_ferc1", "plant_name_ferc1"]
         )
