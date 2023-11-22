@@ -35,10 +35,13 @@ _RANDOM_GENERATOR = np.random.default_rng(12335)
 def _randomly_modify_string(input_str: str, k: int = 5) -> str:
     """Generate up to k random edits of input string."""
     input_list = list(input_str)
+
+    # Possible characters to select from when performing "add" or "substitute"
+    # Letters are included twice to increase odds of selecting a letter
     characters = (
         string.digits + string.ascii_letters + string.ascii_letters + string.punctuation
     )
-    edit_types = ["add", "delete", "subsitute"]
+    edit_types = ["add", "delete", "substitute"]
     num_edits = min(random.randrange(k) for i in range(10))
 
     for _ in range(num_edits):
@@ -57,7 +60,7 @@ def _randomly_modify_string(input_str: str, k: int = 5) -> str:
 
 def _noisify(col: pd.Series, sigma: float = 0.01, probability: float = 1) -> pd.Series:
     """Add random noise to a column."""
-    noisy_rows = _RANDOM_GENERATOR.rand(len(col)) > (1 - probability)
+    noisy_rows = _RANDOM_GENERATOR.random(len(col)) > (1 - probability)
     modifier_array = np.zeros(len(col))
     modifier_array[noisy_rows] += _RANDOM_GENERATOR.normal(
         scale=sigma, size=sum(noisy_rows)
@@ -66,12 +69,12 @@ def _noisify(col: pd.Series, sigma: float = 0.01, probability: float = 1) -> pd.
 
 
 def _modify_categorical(
-    col: pd.Series, categories: list, probability: float = 0.01
-) -> pd.Series:
+    df: pd.DataFrame, col: str, categories: list, probability: float = 0.01
+) -> pd.DataFrame:
     """Randomly modify categorical column using given probability."""
-    modify_elements = _RANDOM_GENERATOR.rand(len(col)) > (1 - probability)
-    col[modify_elements] = _RANDOM_GENERATOR.choice(categories)
-    return col
+    modify_elements = _RANDOM_GENERATOR.random(len(df)) > (1 - probability)
+    df.loc[modify_elements, col] = _RANDOM_GENERATOR.choice(categories)
+    return df
 
 
 def _generate_random_test_df(
@@ -125,18 +128,21 @@ def _generate_random_test_df(
     )
 
     # Modify categorical columns
-    generated_df["construction_type"] = _modify_categorical(
-        generated_df["construction_type"],
+    generated_df = _modify_categorical(
+        generated_df,
+        "construction_type",
         list(CONSTRUCTION_TYPE_CATEGORIES["categories"]),
         construction_type_error_prob,
     )
-    generated_df["construction_year"] = _modify_categorical(
-        generated_df["construction_year"],
+    generated_df = _modify_categorical(
+        generated_df,
+        "construction_year",
         list(range(VALID_PLANT_YEARS["lower_bound"], VALID_PLANT_YEARS["upper_bound"])),
         construction_year_error_prob,
     )
-    generated_df["plant_type"] = _modify_categorical(
-        generated_df["plant_type"],
+    generated_df = _modify_categorical(
+        generated_df,
+        "plant_type",
         list(PLANT_TYPE_CATEGORIES["categories"]),
         plant_type_error_prob,
     )
@@ -194,6 +200,7 @@ def test_classify_plants_ferc1(mock_ferc1_plants_df):
         .apply(lambda plant_ids: plant_ids.value_counts().iloc[0])
         .sum()
     )
+    print(correctly_matched / len(df))
 
     assert (
         correctly_matched / len(df) > 0.85
