@@ -7,6 +7,7 @@ on:
     - cron: "0 9 * * 1-5" # Weekdays at 9AM UTC
   push:
     paths:
+      - "Makefile"
       - "pyproject.toml"
       - "environments/*"
       - ".github/workflows/update-conda-lockfile.yml"
