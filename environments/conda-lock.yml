@@ -12713,16 +12713,16 @@ package:
     category: main
     optional: false
   - name: libsqlite
-    version: 3.44.0
+    version: 3.44.1
     manager: conda
     platform: linux-64
     dependencies:
       libgcc-ng: ">=12"
       libzlib: ">=1.2.13,<1.3.0a0"
-    url: https://conda.anaconda.org/conda-forge/linux-64/libsqlite-3.44.0-h2797004_0.conda
+    url: https://conda.anaconda.org/conda-forge/linux-64/libsqlite-3.44.1-h2797004_0.conda
     hash:
-      md5: b58e6816d137f3aabf77d341dd5d732b
-      sha256: 74ef5dcb900c38bec53140036e5e2a9cc7ffcd806da479ea2305f962a358a259
+      md5: b4ad86d2527b890e43ff2efc68b239f4
+      sha256: c37bb6ec8b09f690d84e8f14fabb75e00c221d11a256137d5b206e26f37e9483
     category: main
     optional: false
   - name: libsqlite
@@ -20937,19 +20937,19 @@ package:
     category: main
     optional: false
   - name: sqlite
-    version: 3.44.0
+    version: 3.44.1
     manager: conda
     platform: linux-64
     dependencies:
       libgcc-ng: ">=12"
-      libsqlite: 3.44.0
+      libsqlite: 3.44.1
       libzlib: ">=1.2.13,<1.3.0a0"
       ncurses: ">=6.4,<7.0a0"
       readline: ">=8.2,<9.0a0"
-    url: https://conda.anaconda.org/conda-forge/linux-64/sqlite-3.44.0-h2c6b66d_0.conda
+    url: https://conda.anaconda.org/conda-forge/linux-64/sqlite-3.44.1-h2c6b66d_0.conda
     hash:
-      md5: df56c636df4a98990462d66ac7be2330
-      sha256: ae7031a471868c7057cc16eded7bb58fa3723d9c1650c9d3eb8de1ff65d89dbb
+      md5: cf535736bb0de7bf388dbfd2d6a50f53
+      sha256: a0a2fc6c9d7e170c5738ad134f8b71f51a1c982c4496c47f8caa73ef4e5b17c8
     category: main
     optional: false
   - name: sqlite
