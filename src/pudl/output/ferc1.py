@@ -1552,8 +1552,10 @@ class Exploder:
         """
         exploded = (
             self.initial_explosion_concatenation(tables_to_explode)
-            .pipe(self.reconcile_intertable_calculations)
-            .pipe(self.calculation_forest.leafy_data, value_col=self.value_col)
+            # .pipe(self.indentify_and_correct_sizable_minority_utility_reporting)
+            .pipe(self.reconcile_intertable_calculations).pipe(
+                self.calculation_forest.leafy_data, value_col=self.value_col
+            )
         )
         # Identify which columns should be kept in the output...
         # TODO: Define schema for the tables explicitly.
@@ -1625,6 +1627,95 @@ class Exploder:
             validate="m:1",
         )
         return exploded
+
+    def indentify_and_correct_sizable_minority_utility_reporting(
+        self: Self, exploded: pd.DataFrame
+    ) -> pd.DataFrame:
+        """Identify and fix the utilities that report calculations differently."""
+        calculations_intertable = self.exploded_calcs[
+            ~self.exploded_calcs.is_within_table_calc
+        ]
+        calc_idx = [col for col in list(NodeId._fields) if col in self.exploded_pks]
+        calculated_df = pudl.transform.ferc1.calculate_values_from_components(
+            calculation_components=calculations_intertable[
+                ~calculations_intertable.is_total_to_subdimensions_calc
+            ],
+            data=exploded,
+            calc_idx=calc_idx,
+            value_col=self.value_col,
+        )
+        # add the ungrouped is_not_close column
+        calculated_df["is_not_close"] = pudl.transform.ferc1.ErrorFrequency(
+            by="ungrouped",
+            is_close_tolerance=self.group_metric_checks.is_close_tolerance.error_frequency,
+            metric_tolerance=self.group_metric_checks.group_metric_tolerances.ungrouped.error_frequency,
+        ).is_not_close(calculated_df)
+
+        idx = list(NodeId._fields) + ["report_year", "utility_id_ferc1"]
+        calc_cols = ["calculated_value", "abs_diff", "rel_diff"]
+
+        # Idenfity the calculations with one missing other fact
+        not_close = calculated_df[calculated_df.is_not_close]
+        # when the diff is the same as the value of another fact, then that
+        # calculated value could have been perfect with the addition of the
+        # missing facoid.
+        calcs_missing_xbrl_children = pd.merge(
+            not_close[idx + calc_cols],
+            calculated_df[calculated_df.row_type_xbrl != "correction"][
+                idx + [self.value_col] + calc_cols
+            ],
+            left_on=["utility_id_ferc1", "report_year", "abs_diff"]
+            + self.other_dimensions,
+            right_on=["utility_id_ferc1", "report_year", self.value_col]
+            + self.other_dimensions,
+            how="inner",
+            suffixes=("", "_missing"),
+        ).convert_dtypes()
+        # Grab the worst offenders and fix them
+        # NOTE: is it possible that we could have two missing facts from the same
+        # parent fact that are releated?
+        fix_idx = ["xbrl_factoid", "xbrl_factoid_missing"] + self.other_dimensions
+        facts_to_fix = pd.DataFrame(
+            calcs_missing_xbrl_children[fix_idx].value_counts(dropna=False)
+        )
+        facts_to_fix = facts_to_fix[facts_to_fix["count"] > 100]
+        facts_to_fix = facts_to_fix.reset_index().convert_dtypes().set_index(fix_idx)
+
+        exploded = self.add_sizable_minority_data_corrections(
+            exploded, calcs_missing_xbrl_children, facts_to_fix
+        )
+        return exploded
+
+    def add_sizable_minority_data_corrections(
+        self: Self,
+        exploded: pd.DataFrame,
+        calcs_missing_xbrl_children: pd.DataFrame,
+        facts_to_fix: pd.DataFrame,
+    ) -> pd.DataFrame:
+        """Add data corrections for the sizable minority of differently reporting utilities."""
+        idx = list(NodeId._fields) + ["report_year", "utility_id_ferc1"]
+        data_corrections = (
+            calcs_missing_xbrl_children.set_index(facts_to_fix.index.names).loc[
+                facts_to_fix.index
+            ]
+            # use a dict/kwarg for assign so we can dynamically set the name of value_col
+            .assign(
+                **{
+                    "xbrl_factoid": (
+                        lambda x: "correction_"
+                        + x.index.get_level_values("xbrl_factoid")
+                        + "_missing_"
+                        + x.index.get_level_values("xbrl_factoid_missing")
+                    ),
+                    self.value_col: lambda x: x[f"{self.value_col}_missing"],
+                }
+            )
+            # pop the dim columns out of the index
+            .reset_index(level=self.other_dimensions)
+            # drop the two factoid cols
+            .reset_index(drop=True)[idx + [self.value_col]]
+        )
+        return pd.concat([exploded, data_corrections]).reset_index(drop=True)
 
     def reconcile_intertable_calculations(
         self: Self, exploded: pd.DataFrame
@@ -1873,8 +1964,7 @@ class XbrlCalculationForestFerc1(BaseModel):
                     clean_tags_dict.keys(), names=self.calc_cols
                 ),
                 data={"tags": list(clean_tags_dict.values())},
-            )
-            .reset_index()
+            ).reset_index()
             # Type conversion is necessary to get pd.NA in the index:
             .astype({col: pd.StringDtype() for col in self.calc_cols})
             # We need a dictionary for *all* nodes, not just those with tags.
