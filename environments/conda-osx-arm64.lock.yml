@@ -66,7 +66,7 @@ dependencies:
   - libllvm14=14.0.6=hd1a9a77_4
   - libpng=1.6.39=h76d750c_0
   - libspatialindex=1.9.3=hbdafb3b_4
-  - libsqlite=3.44.0=h091b4b1_0
+  - libsqlite=3.44.1=h091b4b1_0
   - libxcb=1.15=hf346824_0
   - libxml2=2.11.6=h0d0cfa8_0
   - lz4-c=1.9.4=hb7217d7_0
@@ -124,7 +124,7 @@ dependencies:
   - prettier=3.1.0=hb67532b_0
   - python=3.11.6=h47c9636_0_cpython
   - re2=2023.06.02=h6135d0a_0
-  - sqlite=3.44.0=hf2abe2d_0
+  - sqlite=3.44.1=hf2abe2d_0
   - aiofiles=23.2.1=pyhd8ed1ab_0
   - alabaster=0.7.13=pyhd8ed1ab_0
   - anyascii=0.3.2=pyhd8ed1ab_0
