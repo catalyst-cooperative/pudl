@@ -133,7 +133,7 @@ dependencies:
   - astroid=3.0.1=py311h267d04e_0
   - attrs=23.1.0=pyh71513ae_1
   - aws-c-auth=0.7.7=h30f9597_0
-  - aws-c-mqtt=0.9.9=h2364c62_0
+  - aws-c-mqtt=0.9.10=h2364c62_0
   - backoff=2.2.1=pyhd8ed1ab_0
   - backports.zoneinfo=0.2.1=py311h267d04e_8
   - blinker=1.7.0=pyhd8ed1ab_0
@@ -225,7 +225,7 @@ dependencies:
   - pure_eval=0.2.2=pyhd8ed1ab_0
   - pyasn1=0.5.0=pyhd8ed1ab_0
   - pycparser=2.21=pyhd8ed1ab_0
-  - pygments=2.17.1=pyhd8ed1ab_0
+  - pygments=2.17.2=pyhd8ed1ab_0
   - pyjwt=2.8.0=pyhd8ed1ab_0
   - pylev=1.4.0=pyhd8ed1ab_0
   - pyparsing=3.1.1=pyhd8ed1ab_0
@@ -277,7 +277,7 @@ dependencies:
   - uri-template=1.3.0=pyhd8ed1ab_0
   - uvloop=0.19.0=py311h05b510d_0
   - validators=0.22.0=pyhd8ed1ab_0
-  - wcwidth=0.2.11=pyhd8ed1ab_0
+  - wcwidth=0.2.12=pyhd8ed1ab_0
   - webcolors=1.13=pyhd8ed1ab_0
   - webencodings=0.5.1=pyhd8ed1ab_2
   - websocket-client=1.6.4=pyhd8ed1ab_0
@@ -295,7 +295,7 @@ dependencies:
   - asgiref=3.7.2=pyhd8ed1ab_0
   - asttokens=2.4.1=pyhd8ed1ab_0
   - async-lru=2.0.4=pyhd8ed1ab_0
-  - aws-c-s3=0.3.24=h2bce37b_1
+  - aws-c-s3=0.4.0=h2bce37b_0
   - babel=2.13.1=pyhd8ed1ab_0
   - beautifulsoup4=4.12.2=pyha770c72_0
   - bleach=6.1.0=pyhd8ed1ab_0
@@ -378,8 +378,8 @@ dependencies:
   - argon2-cffi-bindings=21.2.0=py311heffc1b2_4
   - arrow=1.3.0=pyhd8ed1ab_0
   - async-timeout=4.0.3=pyhd8ed1ab_0
-  - aws-crt-cpp=0.24.7=h528e168_2
-  - botocore=1.32.4=pyhd8ed1ab_0
+  - aws-crt-cpp=0.24.7=h9b3cda8_4
+  - botocore=1.32.5=pyhd8ed1ab_0
   - branca=0.7.0=pyhd8ed1ab_1
   - croniter=2.0.1=pyhd8ed1ab_0
   - cryptography=41.0.5=py311h71175c2_0
@@ -413,7 +413,7 @@ dependencies:
   - pytest-console-scripts=1.4.1=pyhd8ed1ab_0
   - pytest-cov=4.1.0=pyhd8ed1ab_0
   - pytest-mock=3.12.0=pyhd8ed1ab_0
-  - pytest-xdist=3.4.0=pyhd8ed1ab_0
+  - pytest-xdist=3.5.0=pyhd8ed1ab_0
   - python-build=1.0.3=pyhd8ed1ab_0
   - requests=2.31.0=pyhd8ed1ab_0
   - rich=13.7.0=pyhd8ed1ab_0
@@ -468,7 +468,7 @@ dependencies:
   - typer=0.9.0=pyhd8ed1ab_0
   - uvicorn-standard=0.24.0=ha1ab1f8_0
   - virtualenv=20.24.6=pyhd8ed1ab_0
-  - boto3=1.29.4=pyhd8ed1ab_0
+  - boto3=1.29.5=pyhd8ed1ab_0
   - cachecontrol-with-filecache=0.13.1=pyhd8ed1ab_0
   - dagster=1.5.9=pyhd8ed1ab_0
   - datasette=0.64.4=pyhd8ed1ab_1
