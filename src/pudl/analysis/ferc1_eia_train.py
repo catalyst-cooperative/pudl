@@ -206,9 +206,7 @@ def _prep_ferc1_eia(ferc1_eia, utils_eia860) -> pd.DataFrame:
         ferc1_eia_prep.installation_year_eia.notna()
         & ferc1_eia_prep.installation_year_ferc1.notna(),
         "installation_year_diff",
-    ] = (
-        ferc1_eia_prep.installation_year_eia - ferc1_eia_prep.installation_year_ferc1
-    )
+    ] = ferc1_eia_prep.installation_year_eia - ferc1_eia_prep.installation_year_ferc1
 
     # Add best match col
     ferc1_eia_prep = _is_best_match(ferc1_eia_prep)
