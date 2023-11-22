@@ -171,33 +171,9 @@ def fuel_by_plant_ferc1(
     return df
 
 
-def plants_steam_assign_plant_ids(
-    ferc1_steam_df: pd.DataFrame,
-    ferc1_fuel_df: pd.DataFrame,
-    fuel_categories: list[str],
-) -> pd.DataFrame:
-    """Assign IDs to the large steam plants."""
-    ###########################################################################
-    # FERC PLANT ID ASSIGNMENT
-    ###########################################################################
-    # Now we need to assign IDs to the large steam plants, since FERC doesn't
-    # do this for us.
-    logger.info("Identifying distinct large FERC plants for ID assignment.")
-
-    # Grab fuel consumption proportions for use in assigning plant IDs:
-    fuel_fractions = fuel_by_plant_ferc1(ferc1_fuel_df, fuel_categories)
-    ffc = list(fuel_fractions.filter(regex=".*_fraction_mmbtu$").columns)
-
-    ferc1_steam_df = ferc1_steam_df.merge(
-        fuel_fractions[["utility_id_ferc1", "plant_name_ferc1", "report_year"] + ffc],
-        on=["utility_id_ferc1", "plant_name_ferc1", "report_year"],
-        how="left",
-    )
-
-    fuel_cols = list(ferc1_steam_df.filter(regex=".*_fraction_mmbtu$").columns)
-
-    # Train the classifier using DEFAULT weights, parameters not listed here.
-    clf = CrossYearLinker(
+def construct_ferc1_plant_matching_model(fuel_cols: list[str]) -> CrossYearLinker:
+    """Create a CrossYearLinker configured to match FERC1 plants."""
+    return CrossYearLinker(
         **{
             "id_column": "plant_id_ferc1",
             "column_transforms": [
@@ -265,6 +241,35 @@ def plants_steam_assign_plant_ids(
             ],
         }
     )
+
+
+def plants_steam_assign_plant_ids(
+    ferc1_steam_df: pd.DataFrame,
+    ferc1_fuel_df: pd.DataFrame,
+    fuel_categories: list[str],
+) -> pd.DataFrame:
+    """Assign IDs to the large steam plants."""
+    ###########################################################################
+    # FERC PLANT ID ASSIGNMENT
+    ###########################################################################
+    # Now we need to assign IDs to the large steam plants, since FERC doesn't
+    # do this for us.
+    logger.info("Identifying distinct large FERC plants for ID assignment.")
+
+    # Grab fuel consumption proportions for use in assigning plant IDs:
+    fuel_fractions = fuel_by_plant_ferc1(ferc1_fuel_df, fuel_categories)
+    ffc = list(fuel_fractions.filter(regex=".*_fraction_mmbtu$").columns)
+
+    ferc1_steam_df = ferc1_steam_df.merge(
+        fuel_fractions[["utility_id_ferc1", "plant_name_ferc1", "report_year"] + ffc],
+        on=["utility_id_ferc1", "plant_name_ferc1", "report_year"],
+        how="left",
+    )
+
+    fuel_cols = list(ferc1_steam_df.filter(regex=".*_fraction_mmbtu$").columns)
+
+    # Train the classifier using DEFAULT weights, parameters not listed here.
+    clf = construct_ferc1_plant_matching_model(fuel_cols)
     ferc1_steam_df = clf.fit_predict(ferc1_steam_df)
 
     # Set the construction year back to numeric because it is.
