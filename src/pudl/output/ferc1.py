@@ -12,7 +12,7 @@ from dagster import AssetIn, AssetsDefinition, Field, Mapping, asset
 from matplotlib import pyplot as plt
 from networkx.drawing.nx_agraph import graphviz_layout
 from pandas._libs.missing import NAType as pandas_NAType
-from pydantic import BaseModel, ConfigDict, field_validator, validator
+from pydantic import BaseModel, ConfigDict, ValidationInfo, field_validator
 
 import pudl
 from pudl.transform.ferc1 import (
@@ -1615,16 +1615,19 @@ class XbrlCalculationForestFerc1(BaseModel):
         arbitrary_types_allowed=True, ignored_types=(cached_property,)
     )
 
-    # TODO[pydantic]: refactor to use @field_validator
-    @validator("parent_cols", always=True)
+    @field_validator("parent_cols")
     @classmethod
-    def set_parent_cols(cls, v, values) -> list[str]:
+    def set_parent_cols(
+        cls, parent_cols: list[str] | None, info: ValidationInfo
+    ) -> list[str]:
         """A convenience property to generate parent column."""
-        return [col + "_parent" for col in values["calc_cols"]]
+        if parent_cols is None:
+            parent_cols = [col + "_parent" for col in info.data["calc_cols"]]
+        return parent_cols
 
     @field_validator("exploded_calcs")
     @classmethod
-    def unique_associations(cls, v: pd.DataFrame, info) -> pd.DataFrame:
+    def unique_associations(cls, v: pd.DataFrame, info: ValidationInfo) -> pd.DataFrame:
         """Ensure parent-child associations in exploded calculations are unique."""
         pks = info.data["calc_cols"] + info.data["parent_cols"]
         dupes = v.duplicated(subset=pks, keep=False)
@@ -1640,7 +1643,9 @@ class XbrlCalculationForestFerc1(BaseModel):
 
     @field_validator("exploded_calcs")
     @classmethod
-    def calcs_have_required_cols(cls, v: pd.DataFrame, info) -> pd.DataFrame:
+    def calcs_have_required_cols(
+        cls, v: pd.DataFrame, info: ValidationInfo
+    ) -> pd.DataFrame:
         """Ensure exploded calculations include all required columns."""
         required_cols = info.data["parent_cols"] + info.data["calc_cols"] + ["weight"]
         missing_cols = [col for col in required_cols if col not in v.columns]
@@ -1660,7 +1665,9 @@ class XbrlCalculationForestFerc1(BaseModel):
 
     @field_validator("tags")
     @classmethod
-    def tags_have_required_cols(cls, v: pd.DataFrame, info) -> pd.DataFrame:
+    def tags_have_required_cols(
+        cls, v: pd.DataFrame, info: ValidationInfo
+    ) -> pd.DataFrame:
         """Ensure tagging dataframe contains all required index columns."""
         missing_cols = [col for col in info.data["calc_cols"] if col not in v.columns]
         if missing_cols:
@@ -1685,7 +1692,7 @@ class XbrlCalculationForestFerc1(BaseModel):
 
     @field_validator("tags")
     @classmethod
-    def single_valued_tags(cls, v: pd.DataFrame, info) -> pd.DataFrame:
+    def single_valued_tags(cls, v: pd.DataFrame, info: ValidationInfo) -> pd.DataFrame:
         """Ensure all tags have unique values."""
         dupes = v.duplicated(subset=info.data["calc_cols"], keep=False)
         if dupes.any():
@@ -1696,7 +1703,7 @@ class XbrlCalculationForestFerc1(BaseModel):
 
     @field_validator("seeds")
     @classmethod
-    def seeds_within_bounds(cls, v: pd.DataFrame, info) -> pd.DataFrame:
+    def seeds_within_bounds(cls, v: pd.DataFrame, info: ValidationInfo) -> pd.DataFrame:
         """Ensure that all seeds are present within exploded_calcs index.
 
         For some reason this validator is being run before exploded_calcs has been
