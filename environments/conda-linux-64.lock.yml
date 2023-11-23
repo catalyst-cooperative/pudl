@@ -112,7 +112,7 @@ dependencies:
   - zeromq=4.3.5=h59595ed_0
   - zlib=1.2.13=hd590300_5
   - zstd=1.5.5=hfc55251_0
-  - aws-c-io=0.13.35=hc23c90e_8
+  - aws-c-io=0.13.36=hc23c90e_0
   - blosc=1.21.5=h0f2a231_0
   - brotli-bin=1.1.0=hd590300_1
   - freetype=2.12.1=h267a509_2
@@ -140,8 +140,8 @@ dependencies:
   - astroid=3.0.1=py311h38be061_0
   - atk-1.0=2.38.0=hd4edc92_1
   - attrs=23.1.0=pyh71513ae_1
-  - aws-c-event-stream=0.3.2=hae413d4_6
-  - aws-c-http=0.7.14=h162056d_1
+  - aws-c-event-stream=0.3.2=h1fff966_7
+  - aws-c-http=0.7.14=hc86c171_2
   - backoff=2.2.1=pyhd8ed1ab_0
   - backports.zoneinfo=0.2.1=py311h38be061_8
   - blinker=1.7.0=pyhd8ed1ab_0
@@ -314,8 +314,8 @@ dependencies:
   - asgiref=3.7.2=pyhd8ed1ab_0
   - asttokens=2.4.1=pyhd8ed1ab_0
   - async-lru=2.0.4=pyhd8ed1ab_0
-  - aws-c-auth=0.7.7=h37ad1db_0
-  - aws-c-mqtt=0.9.10=h1387108_0
+  - aws-c-auth=0.7.7=h4faf3ed_1
+  - aws-c-mqtt=0.9.10=hba57965_1
   - babel=2.13.1=pyhd8ed1ab_0
   - beautifulsoup4=4.12.2=pyha770c72_0
   - bleach=6.1.0=pyhd8ed1ab_0
@@ -398,8 +398,8 @@ dependencies:
   - argon2-cffi-bindings=21.2.0=py311h459d7ec_4
   - arrow=1.3.0=pyhd8ed1ab_0
   - async-timeout=4.0.3=pyhd8ed1ab_0
-  - aws-c-s3=0.4.0=hdb3bed3_0
-  - botocore=1.32.5=pyhd8ed1ab_0
+  - aws-c-s3=0.4.0=hfadff92_1
+  - botocore=1.32.6=pyhd8ed1ab_0
   - branca=0.7.0=pyhd8ed1ab_1
   - croniter=2.0.1=pyhd8ed1ab_0
   - cryptography=41.0.5=py311h63ff55d_0
@@ -448,7 +448,7 @@ dependencies:
   - alembic=1.12.1=pyhd8ed1ab_0
   - arelle-release=2.17.4=pyhd8ed1ab_0
   - argon2-cffi=23.1.0=pyhd8ed1ab_0
-  - aws-crt-cpp=0.24.7=h08a389d_4
+  - aws-crt-cpp=0.24.7=h13ddedd_5
   - bottleneck=1.3.7=py311h1f0f07a_1
   - cachecontrol=0.13.1=pyhd8ed1ab_0
   - contourpy=1.2.0=py311h9547e67_0
@@ -487,7 +487,7 @@ dependencies:
   - uvicorn-standard=0.24.0=h38be061_0
   - virtualenv=20.24.6=pyhd8ed1ab_0
   - aws-sdk-cpp=1.11.182=h8beafcf_7
-  - boto3=1.29.5=pyhd8ed1ab_0
+  - boto3=1.29.6=pyhd8ed1ab_0
   - cachecontrol-with-filecache=0.13.1=pyhd8ed1ab_0
   - dagster=1.5.9=pyhd8ed1ab_0
   - datasette=0.64.4=pyhd8ed1ab_1
