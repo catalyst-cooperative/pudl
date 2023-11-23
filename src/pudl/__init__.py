@@ -4,7 +4,6 @@ import importlib.metadata
 
 from . import (
     analysis,
-    cli,
     convert,
     etl,
     extract,

@@ -107,7 +107,10 @@ ferc:
 pudl:
 	rm -f ${PUDL_OUTPUT}/pudl.sqlite
 	alembic upgrade head
-	coverage run ${covargs} -- src/pudl/cli/etl.py ${gcs_cache_path} ${etl_full_yml}
+	coverage run ${covargs} -- \
+		src/pudl/etl/cli.py \
+		${gcs_cache_path} \
+		${etl_full_yml}
 
 ########################################################################################
 # Targets that are coordinated by pytest -- mostly they're actual tests.

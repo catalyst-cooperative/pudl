@@ -13,7 +13,7 @@ from dagster import build_init_resource_context, materialize_to_memory
 
 import pudl
 from pudl import resources
-from pudl.cli.etl import pudl_etl_job_factory
+from pudl.etl.cli import pudl_etl_job_factory
 from pudl.extract.ferc1 import raw_xbrl_metadata_json
 from pudl.ferc_to_sqlite.cli import ferc_to_sqlite_job_factory
 from pudl.io_managers import (

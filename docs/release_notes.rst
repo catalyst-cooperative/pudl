@@ -744,7 +744,7 @@ SQLite and Parquet Outputs
   :issue:`1176,806`.
 * Data types, specified value constraints, and the uniqueness / non-null
   constraints on primary keys are validated during insertion into the SQLite DB.
-* The PUDL ETL CLI :mod:`pudl.cli` now has flags to toggle various constraint
+* The PUDL ETL CLI :mod:`pudl.etl.cli` now has flags to toggle various constraint
   checks including ``--ignore-foreign-key-constraints``
   ``--ignore-type-constraints`` and ``--ignore-value-constraints``.
 
