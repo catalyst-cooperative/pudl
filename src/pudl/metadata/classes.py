@@ -15,7 +15,16 @@ import pyarrow as pa
 import pydantic
 import sqlalchemy as sa
 from pandas._libs.missing import NAType
-from pydantic import ConfigDict, StringConstraints, ValidationInfo
+from pydantic import (
+    AnyHttpUrl,
+    ConfigDict,
+    EmailStr,
+    StrictBool,
+    StrictFloat,
+    StrictInt,
+    StringConstraints,
+    ValidationInfo,
+)
 from pydantic.types import DirectoryPath
 
 import pudl.logging_helpers
@@ -158,19 +167,19 @@ class Base(pydantic.BaseModel):
         >>> m.fields
         ['x']
         >>> m.fields = ['y']
-        >>> m.model_dump(by_alias=True)
+        >>> m.model_dump()
         {'fields': ['y']}
     """
 
     model_config = ConfigDict(arbitrary_types_allowed=True)
 
-    def dict(self, *args, by_alias=True, **kwargs) -> dict:  # noqa: A003
+    def model_dump(self, *args, by_alias=True, **kwargs) -> dict:  # noqa: A003
         """Return as a dictionary."""
-        return super().dict(*args, by_alias=by_alias, **kwargs)
+        return super().model_dump(*args, by_alias=by_alias, **kwargs)
 
     def json(self, *args, by_alias=True, **kwargs) -> str:
         """Return as JSON."""
-        return super().json(*args, by_alias=by_alias, **kwargs)
+        return super().model_dump_json(*args, by_alias=by_alias, **kwargs)
 
     def __getattribute__(self, name: str) -> Any:
         """Get attribute."""
@@ -208,26 +217,11 @@ SnakeCase = Annotated[
 ]
 """Snake-case variable name :class:`str` (e.g. 'pudl', 'entity_eia860')."""
 
-Bool = pydantic.StrictBool
-"""Any :class:`bool` (`True` or `False`)."""
-
-Float = pydantic.StrictFloat
-"""Any :class:`float`."""
-
-Int = pydantic.StrictInt
-"""Any :class:`int`."""
-
 PositiveInt = Annotated[int, pydantic.Field(ge=0, strict=True)]
 """Positive :class:`int`."""
 
 PositiveFloat = Annotated[float, pydantic.Field(ge=0, strict=True)]
 """Positive :class:`float`."""
-
-Email = pydantic.EmailStr
-"""String representing an email."""
-
-HttpUrl = pydantic.AnyHttpUrl
-"""Http(s) URL."""
 
 
 def StrictList(item_type: type = Any) -> type:  # noqa: N802
@@ -278,16 +272,21 @@ class FieldConstraints(Base):
     See https://specs.frictionlessdata.io/table-schema/#constraints.
     """
 
-    required: Bool = False
-    unique: Bool = False
+    required: StrictBool = False
+    unique: StrictBool = False
     min_length: PositiveInt = None
     max_length: PositiveInt = None
-    minimum: Int | Float | datetime.date | datetime.datetime = None
-    maximum: Int | Float | datetime.date | datetime.datetime = None
+    minimum: StrictInt | StrictFloat | datetime.date | datetime.datetime = None
+    maximum: StrictInt | StrictFloat | datetime.date | datetime.datetime = None
     pattern: re.Pattern = None
     # TODO: Replace with String (min_length=1) once "" removed from enums
     enum: StrictList(
-        pydantic.StrictStr | Int | Float | Bool | datetime.date | datetime.datetime
+        pydantic.StrictStr
+        | StrictInt
+        | StrictFloat
+        | StrictBool
+        | datetime.date
+        | datetime.datetime
     ) = None
 
     _check_unique = _validator("enum", fn=_check_unique)
@@ -373,14 +372,14 @@ class Encoder(Base):
     values.
     """
 
-    ignored_codes: list[Int | str] = []
+    ignored_codes: list[StrictInt | str] = []
     """A list of non-standard codes which appear in the data, and will be set to NA.
 
     These codes may be the result of data entry errors, and we are unable to map them to
     the appropriate canonical code. They are discarded from the raw input data.
     """
 
-    code_fixes: dict[Int | String, Int | String] = {}
+    code_fixes: dict[StrictInt | String, StrictInt | String] = {}
     """A dictionary mapping non-standard codes to canonical, standardized codes.
 
     The intended meanings of some non-standard codes are clear, and therefore they can
@@ -393,7 +392,7 @@ class Encoder(Base):
 
     @pydantic.field_validator("df")
     @classmethod
-    def _df_is_encoding_table(cls, df):  # noqa: N805
+    def _df_is_encoding_table(cls, df: pd.DataFrame):
         """Verify that the coding table provides both codes and descriptions."""
         errors = []
         if "code" not in df.columns or "description" not in df.columns:
@@ -507,7 +506,7 @@ class Encoder(Base):
         return cls(**copy.deepcopy(CODE_METADATA[x]), name=x)
 
     def to_rst(
-        self, top_dir: DirectoryPath, csv_subdir: DirectoryPath, is_header: Bool
+        self, top_dir: DirectoryPath, csv_subdir: DirectoryPath, is_header: StrictBool
     ) -> String:
         """Ouput dataframe to a csv for use in jinja template.
 
@@ -812,7 +811,7 @@ class License(Base):
 
     name: String
     title: String
-    path: HttpUrl
+    path: AnyHttpUrl
 
     @staticmethod
     def dict_from_id(x: str) -> dict:
@@ -832,8 +831,8 @@ class Contributor(Base):
     """
 
     title: String
-    path: HttpUrl = None
-    email: Email = None
+    path: AnyHttpUrl = None
+    email: EmailStr = None
     role: Literal[
         "author", "contributor", "maintainer", "publisher", "wrangler"
     ] = "contributor"
@@ -899,7 +898,7 @@ class DataSource(Base):
     description: String = None
     field_namespace: String = None
     keywords: list[str] = []
-    path: HttpUrl = None
+    path: AnyHttpUrl = None
     contributors: list[Contributor] = []
     license_raw: License
     license_pudl: License
@@ -907,7 +906,7 @@ class DataSource(Base):
     working_partitions: dict[SnakeCase, Any] = {}
     source_file_dict: dict[SnakeCase, Any] = {}
     # agency: Agency  # needs to be defined
-    email: Email = None
+    email: EmailStr = None
 
     def get_resource_ids(self) -> list[str]:
         """Compile list of resource IDs associated with this data source."""
@@ -994,7 +993,6 @@ class DataSource(Base):
         """Look up the source by source name in the metadata."""
         # If ID ends with _xbrl strip end to find data source
         lookup_id = x.replace("_xbrl", "")
-
         return {"name": x, **copy.deepcopy(SOURCES[lookup_id])}
 
     @classmethod
@@ -1006,7 +1004,7 @@ class DataSource(Base):
 class ResourceHarvest(Base):
     """Resource harvest parameters (`resource.harvest`)."""
 
-    harvest: Bool = False
+    harvest: StrictBool = False
     """Whether to harvest from dataframes based on field names.
 
     If `False`, the dataframe with the same name is used and the process is limited to
@@ -1713,7 +1711,7 @@ class Package(Base):
     title: String = None
     description: String = None
     keywords: list[String] = []
-    homepage: HttpUrl = "https://catalyst.coop/pudl"
+    homepage: AnyHttpUrl = "https://catalyst.coop/pudl"
     created: datetime.datetime = datetime.datetime.utcnow()
     contributors: list[Contributor] = []
     sources: list[DataSource] = []
@@ -1723,17 +1721,17 @@ class Package(Base):
 
     @pydantic.field_validator("resources")
     @classmethod
-    def _check_foreign_keys(cls, value):  # noqa: N805
-        rnames = [resource.name for resource in value]
+    def _check_foreign_keys(cls, resources: list[Resource]):
+        rnames = [resource.name for resource in resources]
         errors = []
-        for resource in value:
+        for resource in resources:
             for foreign_key in resource.schema.foreign_keys:
                 rname = foreign_key.reference.resource
                 tag = f"[{resource.name} -> {rname}]"
                 if rname not in rnames:
                     errors.append(f"{tag}: Reference not found")
                     continue
-                reference = value[rnames.index(rname)]
+                reference = resources[rnames.index(rname)]
                 if not reference.schema.primary_key:
                     errors.append(f"{tag}: Reference missing primary key")
                     continue
@@ -1748,10 +1746,11 @@ class Package(Base):
             raise ValueError(
                 format_errors(*errors, title="Foreign keys", pydantic=True)
             )
-        return value
+        return resources
 
     @pydantic.root_validator(skip_on_failure=True)
-    def _populate_from_resources(cls, values):  # noqa: N805
+    @classmethod
+    def _populate_from_resources(cls, values):
         for key in ("keywords", "contributors", "sources", "licenses"):
             values[key] = _unique(
                 values[key], *[getattr(r, key) for r in values["resources"]]
