@@ -821,15 +821,16 @@ class GroupMetricChecks(TransformParams):
     group_metric_tolerances: GroupMetricTolerances = GroupMetricTolerances()
     is_close_tolerance: CalculationIsCloseTolerance = CalculationIsCloseTolerance()
 
+    # TODO[pydantic] refactor to work with Pydantic v2
     # @model_validator
     # def grouped_tol_ge_ungrouped_tol(cls, values):
     #     """Grouped tolerance should always be greater than or equal to ungrouped."""
     #     group_metric_tolerances = values["group_metric_tolerances"]
     #     groups_to_check = values["groups_to_check"]
     #     for group in groups_to_check:
-    #         metric_tolerances = group_metric_tolerances.dict().get(group)
+    #         metric_tolerances = group_metric_tolerances.model_dump().get(group)
     #         for metric_name, tolerance in metric_tolerances.items():
-    #             ungrouped_tolerance = group_metric_tolerances.dict()["ungrouped"].get(
+    #             ungrouped_tolerance = group_metric_tolerances.model_dump()["ungrouped"].get(
     #                 metric_name
     #             )
     #             if tolerance < ungrouped_tolerance:
@@ -1175,14 +1176,16 @@ def check_calculation_metrics_by_group(
         for (
             metric_name,
             metric_tolerance,
-        ) in group_metric_checks.group_metric_tolerances.dict()[group_name].items():
+        ) in group_metric_checks.group_metric_tolerances.model_dump()[
+            group_name
+        ].items():
             if metric_name in group_metric_checks.metrics_to_check:
                 # this feels icky. the param name for the metrics are all snake_case while
                 # the metric classes are all TitleCase. So we convert to TitleCase
                 title_case_test = metric_name.title().replace("_", "")
                 group_metric_checker = globals()[title_case_test](
                     by=group_name,
-                    is_close_tolerance=group_metric_checks.is_close_tolerance.dict()[
+                    is_close_tolerance=group_metric_checks.is_close_tolerance.model_dump()[
                         metric_name
                     ],
                     metric_tolerance=metric_tolerance,

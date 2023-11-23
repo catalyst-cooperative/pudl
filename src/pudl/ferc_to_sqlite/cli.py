@@ -145,7 +145,7 @@ def main():  # noqa: C901
         run_config={
             "resources": {
                 "ferc_to_sqlite_settings": {
-                    "config": etl_settings.ferc_to_sqlite_settings.dict()
+                    "config": etl_settings.ferc_to_sqlite_settings.model_dump()
                 },
                 "datastore": {
                     "config": {

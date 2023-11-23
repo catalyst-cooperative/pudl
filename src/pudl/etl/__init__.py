@@ -116,7 +116,7 @@ def load_dataset_settings_from_file(setting_filename: str) -> dict:
     dataset_settings = EtlSettings.from_yaml(
         importlib.resources.files("pudl.package_data.settings")
         / f"{setting_filename}.yml"
-    ).datasets.dict()
+    ).datasets.model_dump()
 
     return dataset_settings
 

@@ -158,7 +158,7 @@ class Base(pydantic.BaseModel):
         >>> m.fields
         ['x']
         >>> m.fields = ['y']
-        >>> m.dict()
+        >>> m.model_dump(by_alias=True)
         {'fields': ['y']}
     """
 
