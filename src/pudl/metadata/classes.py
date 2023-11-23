@@ -7,7 +7,7 @@ import sys
 from collections.abc import Callable, Iterable
 from functools import lru_cache
 from pathlib import Path
-from typing import Annotated, Any, Literal
+from typing import Annotated, Any, Literal, Self
 
 import jinja2
 import pandas as pd
@@ -19,14 +19,16 @@ from pydantic import (
     AnyHttpUrl,
     BaseModel,
     ConfigDict,
+    DirectoryPath,
     EmailStr,
     StrictBool,
     StrictFloat,
     StrictInt,
     StringConstraints,
     ValidationInfo,
+    field_validator,
+    model_validator,
 )
-from pydantic.types import DirectoryPath
 
 import pudl.logging_helpers
 from pudl.metadata.codes import CODE_METADATA
@@ -209,7 +211,7 @@ def _validator(*names, fn: Callable) -> Callable:
         Traceback (most recent call last):
         ValidationError: ...
     """
-    return pydantic.field_validator(*names)(fn)
+    return field_validator(*names)(fn)
 
 
 # ---- Classes: Field ---- #
@@ -240,7 +242,7 @@ class FieldConstraints(BaseModel):
 
     _check_unique = _validator("enum", fn=_check_unique)
 
-    @pydantic.field_validator("max_length")
+    @field_validator("max_length")
     @classmethod
     def _check_max_length(cls, value, info: ValidationInfo):
         minimum, maximum = info.data.get("min_length"), value
@@ -251,7 +253,7 @@ class FieldConstraints(BaseModel):
                 raise ValueError("must be greater or equal to min_length")
         return value
 
-    @pydantic.field_validator("maximum")
+    @field_validator("maximum")
     @classmethod
     def _check_max(cls, value, info: ValidationInfo):
         minimum, maximum = info.data.get("minimum"), value
@@ -342,7 +344,7 @@ class Encoder(BaseModel):
     # Required to allow DataFrame
     model_config = ConfigDict(arbitrary_types_allowed=True)
 
-    @pydantic.field_validator("df")
+    @field_validator("df")
     @classmethod
     def _df_is_encoding_table(cls, df: pd.DataFrame):
         """Verify that the coding table provides both codes and descriptions."""
@@ -358,7 +360,7 @@ class Encoder(BaseModel):
             raise ValueError(format_errors(*errors, pydantic=True))
         return df
 
-    @pydantic.field_validator("ignored_codes")
+    @field_validator("ignored_codes")
     @classmethod
     def _good_and_ignored_codes_are_disjoint(cls, ignored_codes, info: ValidationInfo):
         """Check that there's no overlap between good and ignored codes."""
@@ -372,7 +374,7 @@ class Encoder(BaseModel):
             raise ValueError(format_errors(*errors, pydantic=True))
         return ignored_codes
 
-    @pydantic.field_validator("code_fixes")
+    @field_validator("code_fixes")
     @classmethod
     def _good_and_fixable_codes_are_disjoint(cls, code_fixes, info: ValidationInfo):
         """Check that there's no overlap between the good and fixable codes."""
@@ -386,7 +388,7 @@ class Encoder(BaseModel):
             raise ValueError(format_errors(*errors, pydantic=True))
         return code_fixes
 
-    @pydantic.field_validator("code_fixes")
+    @field_validator("code_fixes")
     @classmethod
     def _fixable_and_ignored_codes_are_disjoint(cls, code_fixes, info: ValidationInfo):
         """Check that there's no overlap between the ignored and fixable codes."""
@@ -400,7 +402,7 @@ class Encoder(BaseModel):
             raise ValueError(format_errors(*errors, pydantic=True))
         return code_fixes
 
-    @pydantic.field_validator("code_fixes")
+    @field_validator("code_fixes")
     @classmethod
     def _check_fixed_codes_are_good_codes(cls, code_fixes, info: ValidationInfo):
         """Check that every every fixed code is also one of the good codes."""
@@ -494,6 +496,7 @@ class Field(BaseModel):
     """
 
     name: SnakeCase
+    # Shadows built-in type.
     type: Literal[  # noqa: A003
         "string",
         "number",
@@ -504,14 +507,15 @@ class Field(BaseModel):
         "year",
     ]
     title: String = None
-    format: Literal["default"] = "default"  # noqa: A003
+    # Alias required to avoid shadowing Python built-in format()
+    format_: Literal["default"] = pydantic.Field(alias="format", default="default")
     description: String = None
     unit: String = None
     constraints: FieldConstraints = FieldConstraints()
     harvest: FieldHarvest = FieldHarvest()
     encoder: Encoder | None = None
 
-    @pydantic.field_validator("constraints")
+    @field_validator("constraints")
     @classmethod
     def _check_constraints(cls, value, info: ValidationInfo):  # noqa: C901
         if "type" not in info.data:
@@ -536,7 +540,7 @@ class Field(BaseModel):
             raise ValueError(format_errors(*errors, pydantic=True))
         return value
 
-    @pydantic.field_validator("encoder")
+    @field_validator("encoder")
     @classmethod
     def _check_encoder(cls, value, info: ValidationInfo):
         if "type" not in info.data or value is None:
@@ -687,7 +691,7 @@ class ForeignKey(BaseModel):
 
     _check_unique = _validator("fields", fn=_check_unique)
 
-    @pydantic.field_validator("reference")
+    @field_validator("reference")
     @classmethod
     def _check_fields_equal_length(cls, value, info: ValidationInfo):
         if "fields" in info.data and len(value.fields) != len(info.data["fields"]):
@@ -721,13 +725,13 @@ class Schema(BaseModel):
         "missing_values", "primary_key", "foreign_keys", fn=_check_unique
     )
 
-    @pydantic.field_validator("fields")
+    @field_validator("fields")
     @classmethod
     def _check_field_names_unique(cls, value):  # noqa: N805
         _check_unique([f.name for f in value])
         return value
 
-    @pydantic.field_validator("primary_key")
+    @field_validator("primary_key")
     @classmethod
     def _check_primary_key_in_fields(cls, value, info: ValidationInfo):
         if value is not None and "fields" in info.data:
@@ -1141,7 +1145,7 @@ class Resource(BaseModel):
         "contributors", "keywords", "licenses", "sources", fn=_check_unique
     )
 
-    @pydantic.field_validator("schema")
+    @field_validator("schema")
     @classmethod
     def _check_harvest_primary_key(cls, value, info: ValidationInfo):
         if info.data["harvest"].harvest and not value.primary_key:
@@ -1672,7 +1676,7 @@ class Package(BaseModel):
     resources: StrictList(Resource)
     profile: String = "tabular-data-package"
 
-    @pydantic.field_validator("resources")
+    @field_validator("resources")
     @classmethod
     def _check_foreign_keys(cls, resources: list[Resource]):
         rnames = [resource.name for resource in resources]
@@ -1701,14 +1705,21 @@ class Package(BaseModel):
             )
         return resources
 
-    @pydantic.root_validator(skip_on_failure=True)
-    @classmethod
-    def _populate_from_resources(cls, values):
+    @model_validator(mode="after")
+    def _populate_from_resources(self: Self):
+        """Populate Package attributes from similar deduplicated Resource attributes.
+
+        Resources and Packages share some descriptive attributes. When building a
+        Package out of a collection of Resources, we want the Package to reflect the
+        union of all the analogous values found in the Resources, but we don't want
+        any duplicates. We may also get values directly from the Package inputs.
+        """
         for key in ("keywords", "contributors", "sources", "licenses"):
-            values[key] = _unique(
-                values[key], *[getattr(r, key) for r in values["resources"]]
-            )
-        return values
+            package_value = getattr(self, key)
+            resource_values = [getattr(resource, key) for resource in self.resources]
+            deduped_values = _unique(package_value, *resource_values)
+            setattr(self, key, deduped_values)
+        return self
 
     @classmethod
     @lru_cache
