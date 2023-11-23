@@ -275,8 +275,6 @@ class FieldHarvest(BaseModel):
     tolerance: PositiveFloat = 0.0
     """Fraction of invalid groups above which result is considered invalid."""
 
-    model_config = ConfigDict(arbitrary_types_allowed=True)
-
 
 class Encoder(BaseModel):
     """A class that allows us to standardize reported categorical codes.
@@ -341,6 +339,7 @@ class Encoder(BaseModel):
     name: String | None = None
     """The name of the code."""
 
+    # Required to allow DataFrame
     model_config = ConfigDict(arbitrary_types_allowed=True)
 
     @pydantic.field_validator("df")
@@ -511,8 +510,6 @@ class Field(BaseModel):
     constraints: FieldConstraints = FieldConstraints()
     harvest: FieldHarvest = FieldHarvest()
     encoder: Encoder | None = None
-
-    model_config = ConfigDict(arbitrary_types_allowed=True)
 
     @pydantic.field_validator("constraints")
     @classmethod
@@ -1097,6 +1094,7 @@ class Resource(BaseModel):
     description: String = None
     harvest: ResourceHarvest = ResourceHarvest()
     schema: Schema
+    # Alias required to avoid shadowing Python built-in format()
     format_: String = pydantic.Field(alias="format", default=None)
     mediatype: String = None
     path: String = None
@@ -1138,8 +1136,6 @@ class Resource(BaseModel):
         "service_territories",
     ] = None
     create_database_schema: bool = True
-
-    model_config = ConfigDict(arbitrary_types_allowed=True)
 
     _check_unique = _validator(
         "contributors", "keywords", "licenses", "sources", fn=_check_unique
