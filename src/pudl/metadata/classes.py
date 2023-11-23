@@ -17,6 +17,7 @@ import sqlalchemy as sa
 from pandas._libs.missing import NAType
 from pydantic import (
     AnyHttpUrl,
+    BaseModel,
     ConfigDict,
     EmailStr,
     StrictBool,
@@ -149,58 +150,6 @@ def _get_jinja_environment(template_dir: DirectoryPath = None):
     )
 
 
-# ---- Base ---- #
-
-
-class Base(pydantic.BaseModel):
-    """Custom Pydantic base class.
-
-    It overrides :meth:`fields` and :meth:`schema` to allow properties with those names.
-    To use them in a class, use an underscore prefix and an alias.
-
-    Examples:
-        >>> class Class(Base):
-        ...     fields_: list[str] = pydantic.Field(alias="fields")
-        >>> m = Class(fields=['x'])
-        >>> m
-        Class(fields=['x'])
-        >>> m.fields
-        ['x']
-        >>> m.fields = ['y']
-        >>> m.model_dump()
-        {'fields': ['y']}
-    """
-
-    model_config = ConfigDict(arbitrary_types_allowed=True)
-
-    def model_dump(self, *args, by_alias=True, **kwargs) -> dict:  # noqa: A003
-        """Return as a dictionary."""
-        return super().model_dump(*args, by_alias=by_alias, **kwargs)
-
-    def json(self, *args, by_alias=True, **kwargs) -> str:
-        """Return as JSON."""
-        return super().model_dump_json(*args, by_alias=by_alias, **kwargs)
-
-    def __getattribute__(self, name: str) -> Any:
-        """Get attribute."""
-        if name in ("fields", "schema") and f"{name}_" in self.__dict__:
-            name = f"{name}_"
-        return super().__getattribute__(name)
-
-    def __setattr__(self, name, value) -> None:
-        """Set attribute."""
-        if name in ("fields", "schema") and f"{name}_" in self.__dict__:
-            name = f"{name}_"
-        super().__setattr__(name, value)
-
-    def __repr_args__(self) -> list[tuple[str, Any]]:
-        """Returns the attributes to show in __str__, __repr__, and __pretty__."""
-        return [
-            (a[:-1] if a in ("fields_", "schema_") else a, v)
-            for a, v in self.__dict__.items()
-        ]
-
-
 # ---- Class attribute types ---- #
 
 # NOTE: Using regex=r"^\S(.*\S)*$" to fail on whitespace is too slow
@@ -253,7 +202,7 @@ def _validator(*names, fn: Callable) -> Callable:
         fn: Validation function (see :meth:`pydantic.field_validator`).
 
     Examples:
-        >>> class Class(Base):
+        >>> class Class(BaseModel):
         ...     x: list = None
         ...     _check_unique = _validator("x", fn=_check_unique)
         >>> Class(x=[0, 0])
@@ -266,7 +215,7 @@ def _validator(*names, fn: Callable) -> Callable:
 # ---- Classes: Field ---- #
 
 
-class FieldConstraints(Base):
+class FieldConstraints(BaseModel):
     """Field constraints (`resource.schema.fields[...].constraints`).
 
     See https://specs.frictionlessdata.io/table-schema/#constraints.
@@ -314,7 +263,7 @@ class FieldConstraints(Base):
         return value
 
 
-class FieldHarvest(Base):
+class FieldHarvest(BaseModel):
     """Field harvest parameters (`resource.schema.fields[...].harvest`)."""
 
     # NOTE: Callables with defaults must use pydantic.Field() to not bind to self
@@ -326,8 +275,10 @@ class FieldHarvest(Base):
     tolerance: PositiveFloat = 0.0
     """Fraction of invalid groups above which result is considered invalid."""
 
+    model_config = ConfigDict(arbitrary_types_allowed=True)
 
-class Encoder(Base):
+
+class Encoder(BaseModel):
     """A class that allows us to standardize reported categorical codes.
 
     Often the original data we are integrating uses short codes to indicate a
@@ -387,8 +338,10 @@ class Encoder(Base):
     the result of data entry errors or changes in the stanard codes over time.
     """
 
-    name: String = None
+    name: String | None = None
     """The name of the code."""
+
+    model_config = ConfigDict(arbitrary_types_allowed=True)
 
     @pydantic.field_validator("df")
     @classmethod
@@ -525,7 +478,7 @@ class Encoder(Base):
         return rendered
 
 
-class Field(Base):
+class Field(BaseModel):
     """Field (`resource.schema.fields[...]`).
 
     See https://specs.frictionlessdata.io/table-schema/#field-descriptors.
@@ -558,6 +511,8 @@ class Field(Base):
     constraints: FieldConstraints = FieldConstraints()
     harvest: FieldHarvest = FieldHarvest()
     encoder: Encoder | None = None
+
+    model_config = ConfigDict(arbitrary_types_allowed=True)
 
     @pydantic.field_validator("constraints")
     @classmethod
@@ -712,33 +667,33 @@ class Field(Base):
 # ---- Classes: Resource ---- #
 
 
-class ForeignKeyReference(Base):
+class ForeignKeyReference(BaseModel):
     """Foreign key reference (`resource.schema.foreign_keys[...].reference`).
 
     See https://specs.frictionlessdata.io/table-schema/#foreign-keys.
     """
 
     resource: SnakeCase
-    fields_: StrictList(SnakeCase) = pydantic.Field(alias="fields")
+    fields: StrictList(SnakeCase)
 
-    _check_unique = _validator("fields_", fn=_check_unique)
+    _check_unique = _validator("fields", fn=_check_unique)
 
 
-class ForeignKey(Base):
+class ForeignKey(BaseModel):
     """Foreign key (`resource.schema.foreign_keys[...]`).
 
     See https://specs.frictionlessdata.io/table-schema/#foreign-keys.
     """
 
-    fields_: StrictList(SnakeCase) = pydantic.Field(alias="fields")
+    fields: StrictList(SnakeCase)
     reference: ForeignKeyReference
 
-    _check_unique = _validator("fields_", fn=_check_unique)
+    _check_unique = _validator("fields", fn=_check_unique)
 
     @pydantic.field_validator("reference")
     @classmethod
     def _check_fields_equal_length(cls, value, info: ValidationInfo):
-        if "fields_" in info.data and len(value.fields) != len(info.data["fields_"]):
+        if "fields" in info.data and len(value.fields) != len(info.data["fields"]):
             raise ValueError("fields and reference.fields are not equal length")
         return value
 
@@ -754,13 +709,13 @@ class ForeignKey(Base):
         )
 
 
-class Schema(Base):
+class Schema(BaseModel):
     """Table schema (`resource.schema`).
 
     See https://specs.frictionlessdata.io/table-schema.
     """
 
-    fields_: StrictList(Field) = pydantic.Field(alias="fields")
+    fields: StrictList(Field)
     missing_values: list[pydantic.StrictStr] = [""]
     primary_key: StrictList(SnakeCase) = None
     foreign_keys: list[ForeignKey] = []
@@ -769,7 +724,7 @@ class Schema(Base):
         "missing_values", "primary_key", "foreign_keys", fn=_check_unique
     )
 
-    @pydantic.field_validator("fields_")
+    @pydantic.field_validator("fields")
     @classmethod
     def _check_field_names_unique(cls, value):  # noqa: N805
         _check_unique([f.name for f in value])
@@ -778,13 +733,13 @@ class Schema(Base):
     @pydantic.field_validator("primary_key")
     @classmethod
     def _check_primary_key_in_fields(cls, value, info: ValidationInfo):
-        if value is not None and "fields_" in info.data:
+        if value is not None and "fields" in info.data:
             missing = []
-            names = [f.name for f in info.data["fields_"]]
+            names = [f.name for f in info.data["fields"]]
             for name in value:
                 if name in names:
                     # Flag primary key fields as required
-                    field = info.data["fields_"][names.index(name)]
+                    field = info.data["fields"][names.index(name)]
                     field.constraints.required = True
                 else:
                     missing.append(field.name)
@@ -795,15 +750,15 @@ class Schema(Base):
     # TODO[pydantic] Refactor...
     # @pydantic.validator("foreign_keys", each_item=True)
     # def _check_foreign_key_in_fields(cls, value, info: ValidationInfo):
-    #    if value and "fields_" in info.data:
-    #        names = [f.name for f in info.data["fields_"]]
+    #    if value and "fields" in info.data:
+    #        names = [f.name for f in info.data["fields"]]
     #        missing = [x for x in value.fields if x not in names]
     #        if missing:
     #            raise ValueError(f"names {missing} missing from fields")
     #    return value
 
 
-class License(Base):
+class License(BaseModel):
     """Data license (`package|resource.licenses[...]`).
 
     See https://specs.frictionlessdata.io/data-package/#licenses.
@@ -824,7 +779,7 @@ class License(Base):
         return cls(**cls.dict_from_id(x))
 
 
-class Contributor(Base):
+class Contributor(BaseModel):
     """Data contributor (`package.contributors[...]`).
 
     See https://specs.frictionlessdata.io/data-package/#contributors.
@@ -878,7 +833,7 @@ class Contributor(Base):
         return hash(str(self))
 
 
-class DataSource(Base):
+class DataSource(BaseModel):
     """A data source that has been integrated into PUDL.
 
     This metadata is used for:
@@ -1001,7 +956,7 @@ class DataSource(Base):
         return cls(**cls.dict_from_id(x))
 
 
-class ResourceHarvest(Base):
+class ResourceHarvest(BaseModel):
     """Resource harvest parameters (`resource.harvest`)."""
 
     harvest: StrictBool = False
@@ -1015,7 +970,7 @@ class ResourceHarvest(Base):
     """Fraction of invalid fields above which result is considerd invalid."""
 
 
-class Resource(Base):
+class Resource(BaseModel):
     """Tabular data resource (`package.resources[...]`).
 
     See https://specs.frictionlessdata.io/tabular-data-resource.
@@ -1141,7 +1096,7 @@ class Resource(Base):
     title: String = None
     description: String = None
     harvest: ResourceHarvest = ResourceHarvest()
-    schema_: Schema = pydantic.Field(alias="schema")
+    schema: Schema
     format_: String = pydantic.Field(alias="format", default=None)
     mediatype: String = None
     path: String = None
@@ -1184,11 +1139,13 @@ class Resource(Base):
     ] = None
     create_database_schema: bool = True
 
+    model_config = ConfigDict(arbitrary_types_allowed=True)
+
     _check_unique = _validator(
         "contributors", "keywords", "licenses", "sources", fn=_check_unique
     )
 
-    @pydantic.field_validator("schema_")
+    @pydantic.field_validator("schema")
     @classmethod
     def _check_harvest_primary_key(cls, value, info: ValidationInfo):
         if info.data["harvest"].harvest and not value.primary_key:
@@ -1680,7 +1637,7 @@ class Resource(Base):
 # ---- Package ---- #
 
 
-class Package(Base):
+class Package(BaseModel):
     """Tabular data package.
 
     See https://specs.frictionlessdata.io/data-package.
@@ -1868,7 +1825,7 @@ class Package(Base):
         return metadata
 
 
-class CodeMetadata(Base):
+class CodeMetadata(BaseModel):
     """A list of Encoders for standardizing and documenting categorical codes.
 
     Used to export static coding metadata to PUDL documentation automatically
@@ -1903,7 +1860,7 @@ class CodeMetadata(Base):
                 f.write(rendered)
 
 
-class DatasetteMetadata(Base):
+class DatasetteMetadata(BaseModel):
     """A collection of Data Sources and Resources for metadata export.
 
     Used to create metadata YAML file to accompany Datasette.
