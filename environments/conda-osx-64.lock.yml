@@ -18,7 +18,7 @@ dependencies:
   - giflib=5.2.1=hb7f2c08_3
   - icu=73.2=hf5e326d_0
   - json-c=0.17=h8e11ae5_0
-  - libboost-headers=1.82.0=h694c41f_6
+  - libboost-headers=1.83.0=h694c41f_0
   - libbrotlicommon=1.1.0=h0dc2134_1
   - libcxx=16.0.6=hd57cbcb_0
   - libdeflate=1.19=ha4e1b8e_0
@@ -50,7 +50,7 @@ dependencies:
   - aws-checksums=0.1.17=hff1f2c8_5
   - expat=2.5.0=hf0c8a7f_1
   - fonts-conda-forge=1=0
-  - geos=3.12.0=he965462_0
+  - geos=3.12.1=h93d8f39_0
   - gettext=0.21.1=h8a4c099_0
   - gflags=2.2.2=hb1e8313_1004
   - graphite2=1.3.13=h2e338ed_1001
@@ -97,7 +97,7 @@ dependencies:
   - libnghttp2=1.58.0=h64cf6d3_0
   - libprotobuf=4.24.4=h0ee05dc_0
   - libre2-11=2023.06.02=h4694dbf_0
-  - librttopo=1.1.0=h23f359d_14
+  - librttopo=1.1.0=hf05f67e_15
   - libssh2=1.11.0=hd019ec5_0
   - libtiff=4.6.0=h684deea_2
   - libxslt=1.1.37=h20bfa82_1
@@ -290,7 +290,7 @@ dependencies:
   - xyzservices=2023.10.1=pyhd8ed1ab_0
   - zipp=3.17.0=pyhd8ed1ab_0
   - aiosignal=1.3.1=pyhd8ed1ab_0
-  - anyio=4.0.0=pyhd8ed1ab_0
+  - anyio=4.1.0=pyhd8ed1ab_0
   - asgi-csrf=0.9=pyhd8ed1ab_0
   - asgiref=3.7.2=pyhd8ed1ab_0
   - asttokens=2.4.1=pyhd8ed1ab_0
@@ -399,7 +399,7 @@ dependencies:
   - jupyter_server_terminals=0.4.4=pyhd8ed1ab_1
   - kealib=1.5.2=h052fcf7_1
   - libnetcdf=4.9.2=nompi_h6a32802_112
-  - libspatialite=5.1.0=h4a59d8e_1
+  - libspatialite=5.1.0=hf63aa75_2
   - mako=1.3.0=pyhd8ed1ab_0
   - numpy=1.26.0=py311hc44ba51_0
   - pango=1.50.14=h19c1c8a_2
@@ -445,12 +445,12 @@ dependencies:
   - h3-py=3.7.6=py311hdf8f085_1
   - httpx=0.25.1=pyhd8ed1ab_0
   - identify=2.5.32=pyhd8ed1ab_0
-  - ipython=8.17.2=pyh31c8845_0
+  - ipython=8.18.0=pyh31c8845_0
   - isoduration=20.11.0=pyhd8ed1ab_0
   - jsonschema=4.20.0=pyhd8ed1ab_0
   - jupyter_client=8.6.0=pyhd8ed1ab_0
   - keyring=24.3.0=py311h6eed73b_0
-  - libgdal=3.8.0=h1c9f6b2_5
+  - libgdal=3.8.0=h5b0c7d5_6
   - librsvg=2.56.3=hec3db73_0
   - numba=0.58.1=py311h32f2313_0
   - numexpr=2.8.7=py311h1eadf79_4
@@ -462,9 +462,9 @@ dependencies:
   - requests-toolbelt=0.10.1=pyhd8ed1ab_0
   - responses=0.24.1=pyhd8ed1ab_0
   - s3transfer=0.7.0=pyhd8ed1ab_0
-  - scipy=1.11.3=py311h16c3c4d_1
+  - scipy=1.11.4=py311he0bea55_0
   - send2trash=1.8.2=pyhd1c38e8_0
-  - shapely=2.0.2=py311h359915d_0
+  - shapely=2.0.2=py311h4c12f3d_1
   - stevedore=5.1.0=pyhd8ed1ab_0
   - typeguard=4.1.5=pyhd8ed1ab_1
   - typer=0.9.0=pyhd8ed1ab_0
@@ -476,7 +476,7 @@ dependencies:
   - doc8=1.1.1=pyhd8ed1ab_0
   - email-validator=2.1.0.post1=pyhd8ed1ab_0
   - frictionless=4.40.8=pyh6c4a22f_0
-  - gdal=3.8.0=py311h5646c56_5
+  - gdal=3.8.0=py311h5646c56_6
   - geopandas-base=0.14.1=pyha770c72_0
   - google-auth=2.23.4=pyhca7485f_0
   - gql-with-requests=3.4.1=pyhd8ed1ab_0
