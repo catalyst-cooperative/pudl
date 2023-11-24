@@ -12,7 +12,13 @@ from dagster import AssetIn, AssetsDefinition, Field, Mapping, asset
 from matplotlib import pyplot as plt
 from networkx.drawing.nx_agraph import graphviz_layout
 from pandas._libs.missing import NAType as pandas_NAType
-from pydantic import BaseModel, ConfigDict, ValidationInfo, field_validator
+from pydantic import (
+    BaseModel,
+    ConfigDict,
+    ValidationInfo,
+    field_validator,
+    model_validator,
+)
 
 import pudl
 from pudl.transform.ferc1 import (
@@ -1605,7 +1611,6 @@ class XbrlCalculationForestFerc1(BaseModel):
 
     # Not sure if dynamically basing this on NodeId is really a good idea here.
     calc_cols: list[str] = list(NodeId._fields)
-    parent_cols: list[str] | None = None
     exploded_meta: pd.DataFrame = pd.DataFrame()
     exploded_calcs: pd.DataFrame = pd.DataFrame()
     seeds: list[NodeId] = []
@@ -1615,53 +1620,48 @@ class XbrlCalculationForestFerc1(BaseModel):
         arbitrary_types_allowed=True, ignored_types=(cached_property,)
     )
 
-    @field_validator("parent_cols")
-    @classmethod
-    def set_parent_cols(
-        cls, parent_cols: list[str] | None, info: ValidationInfo
-    ) -> list[str]:
-        """A convenience property to generate parent column."""
-        if parent_cols is None:
-            parent_cols = [col + "_parent" for col in info.data["calc_cols"]]
-        return parent_cols
+    @property
+    def parent_cols(self: Self) -> list[str]:
+        """Construct parent_cols based on the provided calc_cols."""
+        return [col + "_parent" for col in self.calc_cols]
 
-    @field_validator("exploded_calcs")
-    @classmethod
-    def unique_associations(cls, v: pd.DataFrame, info: ValidationInfo) -> pd.DataFrame:
+    @model_validator(mode="after")
+    def unique_associations(self: Self):
         """Ensure parent-child associations in exploded calculations are unique."""
-        pks = info.data["calc_cols"] + info.data["parent_cols"]
-        dupes = v.duplicated(subset=pks, keep=False)
+        pks = self.calc_cols + self.parent_cols
+        dupes = self.exploded_calcs.duplicated(subset=pks, keep=False)
         if dupes.any():
             logger.warning(
                 "Consolidating non-unique associations found in exploded_calcs:\n"
-                f"{v.loc[dupes]}"
+                f"{self.exploded_calcs.loc[dupes]}"
             )
-        # Drop all duplicates with null weights -- this is a temporary fix to an issue
-        # from upstream.
-        assert not v.duplicated(subset=pks, keep=False).any()
-        return v
+        assert not self.exploded_calcs.duplicated(subset=pks, keep=False).any()
+        return self
 
-    @field_validator("exploded_calcs")
-    @classmethod
-    def calcs_have_required_cols(
-        cls, v: pd.DataFrame, info: ValidationInfo
-    ) -> pd.DataFrame:
+    @model_validator(mode="after")
+    def calcs_have_required_cols(self: Self):
         """Ensure exploded calculations include all required columns."""
-        required_cols = info.data["parent_cols"] + info.data["calc_cols"] + ["weight"]
-        missing_cols = [col for col in required_cols if col not in v.columns]
+        required_cols = self.parent_cols + self.calc_cols + ["weight"]
+        missing_cols = [
+            col for col in required_cols if col not in self.exploded_calcs.columns
+        ]
         if missing_cols:
             raise ValueError(
                 f"Exploded calculations missing expected columns: {missing_cols=}"
             )
-        return v[required_cols]
+        self.exploded_calcs = self.exploded_calcs.loc[:, required_cols]
+        return self
 
-    @field_validator("exploded_calcs")
-    @classmethod
-    def calc_parents_notna(cls, v: pd.DataFrame) -> pd.DataFrame:
+    @model_validator(mode="after")
+    def calc_parents_notna(self: Self):
         """Ensure that parent table_name and xbrl_factoid columns are non-null."""
-        if v[["table_name_parent", "xbrl_factoid_parent"]].isna().any(axis=None):
+        if (
+            self.exploded_calcs[["table_name_parent", "xbrl_factoid_parent"]]
+            .isna()
+            .any(axis=None)
+        ):
             raise AssertionError("Null parent table name or xbrl_factoid found.")
-        return v
+        return self
 
     @field_validator("tags")
     @classmethod
@@ -1701,22 +1701,19 @@ class XbrlCalculationForestFerc1(BaseModel):
             )
         return v
 
-    @field_validator("seeds")
-    @classmethod
-    def seeds_within_bounds(cls, v: pd.DataFrame, info: ValidationInfo) -> pd.DataFrame:
+    @model_validator(mode="after")
+    def seeds_within_bounds(self: Self):
         """Ensure that all seeds are present within exploded_calcs index.
 
         For some reason this validator is being run before exploded_calcs has been
         added to the values dictionary, which doesn't make sense, since "seeds" is
         defined after exploded_calcs in the model.
         """
-        all_nodes = (
-            info.data["exploded_calcs"].set_index(info.data["parent_cols"]).index
-        )
-        bad_seeds = [seed for seed in v if seed not in all_nodes]
+        all_nodes = self.exploded_calcs.set_index(self.parent_cols).index
+        bad_seeds = [seed for seed in self.seeds if seed not in all_nodes]
         if bad_seeds:
             raise ValueError(f"Seeds missing from exploded_calcs index: {bad_seeds=}")
-        return v
+        return self
 
     def exploded_calcs_to_digraph(
         self: Self,
