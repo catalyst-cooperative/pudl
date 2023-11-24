@@ -25,10 +25,12 @@ from pydantic import (
     StrictBool,
     StrictFloat,
     StrictInt,
+    StrictStr,
     StringConstraints,
     ValidationInfo,
     field_validator,
     model_validator,
+    validator,
 )
 
 import pudl.logging_helpers
@@ -240,9 +242,8 @@ class FieldConstraints(BaseModel):
     minimum: StrictInt | StrictFloat | datetime.date | datetime.datetime = None
     maximum: StrictInt | StrictFloat | datetime.date | datetime.datetime = None
     pattern: re.Pattern = None
-    # TODO: Replace with String (min_length=1) once "" removed from enums
     enum: StrictList(
-        pydantic.StrictStr
+        String
         | StrictInt
         | StrictFloat
         | StrictBool
@@ -727,7 +728,7 @@ class Schema(BaseModel):
     """
 
     fields: StrictList(Field)
-    missing_values: list[pydantic.StrictStr] = [""]
+    missing_values: list[StrictStr] = [""]
     primary_key: StrictList(SnakeCase) = None
     foreign_keys: list[ForeignKey] = []
 
@@ -758,15 +759,16 @@ class Schema(BaseModel):
                 raise ValueError(f"names {missing} missing from fields")
         return value
 
-    # TODO[pydantic] Refactor...
-    # @pydantic.validator("foreign_keys", each_item=True)
-    # def _check_foreign_key_in_fields(cls, value, info: ValidationInfo):
-    #    if value and "fields" in info.data:
-    #        names = [f.name for f in info.data["fields"]]
-    #        missing = [x for x in value.fields if x not in names]
-    #        if missing:
-    #            raise ValueError(f"names {missing} missing from fields")
-    #    return value
+    # TODO[pydantic] Refactor to use Pydantic v2 field_validator
+    @validator("foreign_keys", each_item=True)
+    @classmethod
+    def _check_foreign_key_in_fields(cls, fk, values):
+        if fk and "fields" in values:
+            names = [f.name for f in values["fields"]]
+            missing = [x for x in fk.fields if x not in names]
+            if missing:
+                raise ValueError(f"names {missing} missing from fields")
+        return fk
 
 
 class License(BaseModel):

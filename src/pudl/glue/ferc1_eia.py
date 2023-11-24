@@ -419,7 +419,7 @@ def get_utility_most_recent_capacity(pudl_engine) -> pd.DataFrame:
     gen_caps["utility_id_eia"] = gen_caps["utility_id_eia"].astype("Int64")
 
     most_recent_gens_idx = (
-        gen_caps.groupby("utility_id_eia")["report_date"].transform(max)
+        gen_caps.groupby("utility_id_eia")["report_date"].transform("max")
         == gen_caps["report_date"]
     )
     most_recent_gens = gen_caps.loc[most_recent_gens_idx]

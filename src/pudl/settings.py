@@ -108,6 +108,8 @@ class GenericDatasetSettings(FrozenBaseModel):
             setattr(self, name, sorted(set(partition)))
         return self
 
+    # TODO[pydantic] refactor to use Pydantic v2 model_validator.
+    # See attempts above.
     @root_validator(skip_on_failure=True)
     @classmethod
     def validate_partitions(cls, partitions):
