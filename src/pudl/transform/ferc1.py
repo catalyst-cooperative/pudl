@@ -6359,7 +6359,11 @@ def calculation_components_xbrl_ferc1(**kwargs) -> pd.DataFrame:
             "metadata_xbrl_ferc1 table."
         )
         # which of these missing calculations actually show up in the transformed tables?
-        # Ignore any 'missing' calc components that aren't in the actual transformed tables.
+        # This handles dbf-only calculation components, whic are added to the
+        # metadata_xbrl_ferc1 table as part of each table's transformations but aren't
+        # observed (or therefore present in table_dimensions_ferc1) in the fast ETL or
+        # in all subsets of years. We only want to flag calculation components as
+        # missing when they're actually observed in the data.
         actually_missing_kids = check_calcs_vs_table(
             calcs=missing_calcs,
             checked_table=table_dimensions_ferc1,
