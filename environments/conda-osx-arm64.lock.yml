@@ -18,7 +18,7 @@ dependencies:
   - giflib=5.2.1=h1a8c8d9_3
   - icu=73.2=hc8870d7_0
   - json-c=0.17=h40ed0f5_0
-  - libboost-headers=1.82.0=hce30654_6
+  - libboost-headers=1.83.0=hce30654_0
   - libbrotlicommon=1.1.0=hb547adb_1
   - libcxx=16.0.6=h4653b0c_0
   - libdeflate=1.19=hb547adb_0
@@ -290,7 +290,7 @@ dependencies:
   - xyzservices=2023.10.1=pyhd8ed1ab_0
   - zipp=3.17.0=pyhd8ed1ab_0
   - aiosignal=1.3.1=pyhd8ed1ab_0
-  - anyio=4.0.0=pyhd8ed1ab_0
+  - anyio=4.1.0=pyhd8ed1ab_0
   - asgi-csrf=0.9=pyhd8ed1ab_0
   - asgiref=3.7.2=pyhd8ed1ab_0
   - asttokens=2.4.1=pyhd8ed1ab_0
@@ -445,7 +445,7 @@ dependencies:
   - h3-py=3.7.6=py311ha891d26_1
   - httpx=0.25.1=pyhd8ed1ab_0
   - identify=2.5.32=pyhd8ed1ab_0
-  - ipython=8.17.2=pyh31c8845_0
+  - ipython=8.18.0=pyh31c8845_0
   - isoduration=20.11.0=pyhd8ed1ab_0
   - jsonschema=4.20.0=pyhd8ed1ab_0
   - jupyter_client=8.6.0=pyhd8ed1ab_0
