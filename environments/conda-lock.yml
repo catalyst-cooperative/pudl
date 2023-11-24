@@ -5798,10 +5798,10 @@ package:
       openssl: ">=3.1.4,<4.0a0"
       python: ">=3.11,<3.12.0a0"
       python_abi: 3.11.*
-    url: https://conda.anaconda.org/conda-forge/linux-64/gdal-3.8.0-py311h815a124_5.conda
+    url: https://conda.anaconda.org/conda-forge/linux-64/gdal-3.8.0-py311h815a124_6.conda
     hash:
-      md5: 040d92b41d0de19c92855c58ad23d185
-      sha256: 6b880918cc1617b45bf7a0b720c11159bbc22af9056e5d56f3661517d9750969
+      md5: a20379b7539caea4fd3ba6628d862138
+      sha256: 7aab0e96f76d15a35b78704d13523f234a47cd8c653d8085c1219a8d7d45ef22
     category: main
     optional: false
   - name: gdal
@@ -5818,10 +5818,10 @@ package:
       openssl: ">=3.1.4,<4.0a0"
       python: ">=3.11,<3.12.0a0"
       python_abi: 3.11.*
-    url: https://conda.anaconda.org/conda-forge/osx-64/gdal-3.8.0-py311h5646c56_5.conda
+    url: https://conda.anaconda.org/conda-forge/osx-64/gdal-3.8.0-py311h5646c56_6.conda
     hash:
-      md5: 02d2d20f8016023b204a4dc9cf88bb2a
-      sha256: 3153441d108199de23283d53d1694c94d994aeb6d29a9c0a1ca8802a51cc6b9d
+      md5: 1cb3c8b063c0aca152dd7d7045e8ec2e
+      sha256: b9428ade4519d84f5ef68174f403cac65ee8d44ba10992809ea54ac56508457b
     category: main
     optional: false
   - name: gdal
@@ -5838,10 +5838,10 @@ package:
       openssl: ">=3.1.4,<4.0a0"
       python: ">=3.11,<3.12.0a0"
       python_abi: 3.11.*
-    url: https://conda.anaconda.org/conda-forge/osx-arm64/gdal-3.8.0-py311h32a4f3d_5.conda
+    url: https://conda.anaconda.org/conda-forge/osx-arm64/gdal-3.8.0-py311h32a4f3d_6.conda
     hash:
-      md5: e483f74da71cd836190839bcdb0dab60
-      sha256: ae48338ec415c9c1a3c75669d2ed9fa714eb6f9d118c4f69d28bc8865e9064dc
+      md5: b266b8795152cc1dfc9296ac95cb60ad
+      sha256: f8d113f50e12756c4b6640a8f70b2bccc54cc2e1a29b11f5e3cb3e4671d259be
     category: main
     optional: false
   - name: gdk-pixbuf
@@ -5999,40 +5999,42 @@ package:
     category: main
     optional: false
   - name: geos
-    version: 3.12.0
+    version: 3.12.1
     manager: conda
     platform: linux-64
     dependencies:
       libgcc-ng: ">=12"
       libstdcxx-ng: ">=12"
-    url: https://conda.anaconda.org/conda-forge/linux-64/geos-3.12.0-h59595ed_0.conda
+    url: https://conda.anaconda.org/conda-forge/linux-64/geos-3.12.1-h59595ed_0.conda
     hash:
-      md5: 3fdf79ef322c8379ae83be491d805369
-      sha256: c80ff0ed71db0d56567ee87df28bc442b596330ac241ab86f488e3139f0e2cae
+      md5: 8c0f4f71f5a59ceb0c6fa9f51501066d
+      sha256: 2593b255cb9c4639d6ea261c47aaed1380216a366546f0468e95c36c2afd1c1a
     category: main
     optional: false
   - name: geos
-    version: 3.12.0
+    version: 3.12.1
     manager: conda
     platform: osx-64
     dependencies:
-      libcxx: ">=15.0.7"
-    url: https://conda.anaconda.org/conda-forge/osx-64/geos-3.12.0-he965462_0.conda
+      __osx: ">=10.9"
+      libcxx: ">=16.0.6"
+    url: https://conda.anaconda.org/conda-forge/osx-64/geos-3.12.1-h93d8f39_0.conda
     hash:
-      md5: 264a53af0fb378e81b44e45e5ab5aff1
-      sha256: e84ff98270717ae49aeba6788476d3569ad33993a46d33d727ee528fb3386a58
+      md5: d13f05ed3985f57456b610bab66366db
+      sha256: 6feffb0d1999a22c5f94d2168b1af9c5fbdd25c9a963a6825ee32cf05e5c07f5
     category: main
     optional: false
   - name: geos
-    version: 3.12.0
+    version: 3.12.1
     manager: conda
     platform: osx-arm64
     dependencies:
-      libcxx: ">=15.0.7"
-    url: https://conda.anaconda.org/conda-forge/osx-arm64/geos-3.12.0-h13dd4ca_0.conda
+      __osx: ">=10.9"
+      libcxx: ">=16.0.6"
+    url: https://conda.anaconda.org/conda-forge/osx-arm64/geos-3.12.1-h965bd2d_0.conda
     hash:
-      md5: 18eb5904d2561c782e71bfe05b2ad755
-      sha256: 8c21acd399d7509f6a7c7b65d5415e9500333a043f44dee063942d724adffc4a
+      md5: 0f28efe509ee998b3a09e571191d406a
+      sha256: 9cabd90e43caf8fe63a80909775f1ac76814f0666bf6fe7ba836d077a6d4dcf3
     category: main
     optional: false
   - name: geotiff
@@ -11434,7 +11436,7 @@ package:
       blosc: ">=1.21.5,<2.0a0"
       cfitsio: ">=4.3.0,<4.3.1.0a0"
       freexl: ">=2.0.0,<3.0a0"
-      geos: ">=3.12.0,<3.12.1.0a0"
+      geos: ">=3.12.1,<3.12.2.0a0"
       geotiff: ">=1.7.1,<1.8.0a0"
       giflib: ">=5.2.1,<5.3.0a0"
       hdf4: ">=4.2.15,<4.2.16.0a0"
@@ -11455,7 +11457,7 @@ package:
       libpng: ">=1.6.39,<1.7.0a0"
       libpq: ">=16.1,<17.0a0"
       libspatialite: ">=5.1.0,<5.2.0a0"
-      libsqlite: ">=3.44.0,<4.0a0"
+      libsqlite: ">=3.44.1,<4.0a0"
       libstdcxx-ng: ">=12"
       libtiff: ">=4.6.0,<4.7.0a0"
       libuuid: ">=2.38.1,<3.0a0"
@@ -11473,10 +11475,10 @@ package:
       xerces-c: ">=3.2.4,<3.3.0a0"
       xz: ">=5.2.6,<6.0a0"
       zstd: ">=1.5.5,<1.6.0a0"
-    url: https://conda.anaconda.org/conda-forge/linux-64/libgdal-3.8.0-h12dd931_5.conda
+    url: https://conda.anaconda.org/conda-forge/linux-64/libgdal-3.8.0-he7dcfe9_6.conda
     hash:
-      md5: 4122ae0934ffd785a9c35143d79f07d8
-      sha256: de5fb44c09b86f9ccd4c84156f0b89aca67f06d7bfdf577b80ab16eb864f8d04
+      md5: 16ff703a847430fa074c5d53916740c1
+      sha256: 06ccb879fc2783c371f1b02d062c4e90dfe4d8c5e9f2f83213bbef0fe27a00b0
     category: main
     optional: false
   - name: libgdal
@@ -11488,7 +11490,7 @@ package:
       blosc: ">=1.21.5,<2.0a0"
       cfitsio: ">=4.3.0,<4.3.1.0a0"
       freexl: ">=2.0.0,<3.0a0"
-      geos: ">=3.12.0,<3.12.1.0a0"
+      geos: ">=3.12.1,<3.12.2.0a0"
       geotiff: ">=1.7.1,<1.8.0a0"
       giflib: ">=5.2.1,<5.3.0a0"
       hdf4: ">=4.2.15,<4.2.16.0a0"
@@ -11509,7 +11511,7 @@ package:
       libpng: ">=1.6.39,<1.7.0a0"
       libpq: ">=16.1,<17.0a0"
       libspatialite: ">=5.1.0,<5.2.0a0"
-      libsqlite: ">=3.44.0,<4.0a0"
+      libsqlite: ">=3.44.1,<4.0a0"
       libtiff: ">=4.6.0,<4.7.0a0"
       libwebp-base: ">=1.3.2,<2.0a0"
       libxml2: ">=2.11.6,<2.12.0a0"
@@ -11525,10 +11527,10 @@ package:
       xerces-c: ">=3.2.4,<3.3.0a0"
       xz: ">=5.2.6,<6.0a0"
       zstd: ">=1.5.5,<1.6.0a0"
-    url: https://conda.anaconda.org/conda-forge/osx-64/libgdal-3.8.0-h1c9f6b2_5.conda
+    url: https://conda.anaconda.org/conda-forge/osx-64/libgdal-3.8.0-h5b0c7d5_6.conda
     hash:
-      md5: e6f10a2f1ae81e6c5dc33df60313a9ad
-      sha256: 8ae553c28f3b5a411ca62d8e52c8ce0ffb6c722478c1441ac093fc6382499056
+      md5: 01e293a419480a02fc7775f6c6afa530
+      sha256: fc602de0bb3d5b7c0493b25b1e4345018fd68f26c672c8abff621c492f67abf4
     category: main
     optional: false
   - name: libgdal
@@ -11540,7 +11542,7 @@ package:
       blosc: ">=1.21.5,<2.0a0"
       cfitsio: ">=4.3.0,<4.3.1.0a0"
       freexl: ">=2.0.0,<3.0a0"
-      geos: ">=3.12.0,<3.12.1.0a0"
+      geos: ">=3.12.1,<3.12.2.0a0"
       geotiff: ">=1.7.1,<1.8.0a0"
       giflib: ">=5.2.1,<5.3.0a0"
       hdf4: ">=4.2.15,<4.2.16.0a0"
@@ -11561,7 +11563,7 @@ package:
       libpng: ">=1.6.39,<1.7.0a0"
       libpq: ">=16.1,<17.0a0"
       libspatialite: ">=5.1.0,<5.2.0a0"
-      libsqlite: ">=3.44.0,<4.0a0"
+      libsqlite: ">=3.44.1,<4.0a0"
       libtiff: ">=4.6.0,<4.7.0a0"
       libwebp-base: ">=1.3.2,<2.0a0"
       libxml2: ">=2.11.6,<2.12.0a0"
@@ -11577,10 +11579,10 @@ package:
       xerces-c: ">=3.2.4,<3.3.0a0"
       xz: ">=5.2.6,<6.0a0"
       zstd: ">=1.5.5,<1.6.0a0"
-    url: https://conda.anaconda.org/conda-forge/osx-arm64/libgdal-3.8.0-h751e6a0_5.conda
+    url: https://conda.anaconda.org/conda-forge/osx-arm64/libgdal-3.8.0-h76f3012_6.conda
     hash:
-      md5: ccaed3dd047dd3530aa2dfe678a574af
-      sha256: 8d3ab5ff43c7223faa51a52269ce1552060e6ea3bff75160413d437d82bf1b22
+      md5: c7efc96733da609c84411293fa3a8457
+      sha256: 34d8f93a03a58396074dbbcc832a0c84bb6192d9e0ddf70992c4fa40349366c5
     category: main
     optional: false
   - name: libgfortran
@@ -12538,13 +12540,13 @@ package:
     manager: conda
     platform: linux-64
     dependencies:
-      geos: ">=3.12.0,<3.12.1.0a0"
+      geos: ">=3.12.1,<3.12.2.0a0"
       libgcc-ng: ">=12"
       libstdcxx-ng: ">=12"
-    url: https://conda.anaconda.org/conda-forge/linux-64/librttopo-1.1.0-hb58d41b_14.conda
+    url: https://conda.anaconda.org/conda-forge/linux-64/librttopo-1.1.0-h8917695_15.conda
     hash:
-      md5: 264f9a3a4ea52c8f4d3e8ae1213a3335
-      sha256: a87307e9c8fb446eb7a1698d9ab40e590ba7e55de669b59f5751c48c2b320827
+      md5: 20c3c14bc491f30daecaa6f73e2223ae
+      sha256: 03e248787162a1804683c614c0681c2488fa6d9f353cb32e2f8c1158157165ea
     category: main
     optional: false
   - name: librttopo
@@ -12552,12 +12554,13 @@ package:
     manager: conda
     platform: osx-64
     dependencies:
-      geos: ">=3.12.0,<3.12.1.0a0"
-      libcxx: ">=15.0.7"
-    url: https://conda.anaconda.org/conda-forge/osx-64/librttopo-1.1.0-h23f359d_14.conda
+      __osx: ">=10.9"
+      geos: ">=3.12.1,<3.12.2.0a0"
+      libcxx: ">=16.0.6"
+    url: https://conda.anaconda.org/conda-forge/osx-64/librttopo-1.1.0-hf05f67e_15.conda
     hash:
-      md5: 4cec4e76f3d1cd6ec739ca40e7e12847
-      sha256: df61f3c42651fd02d2e5fbb3cd6a225df29dc91ec6c5a57d0d717dc14ee8e2dc
+      md5: e65bedc9d9779a161cf26b6d12305246
+      sha256: 10c46efefda5cc77143832a186f517e401098907cf9c3ec7406a5c242bb34e33
     category: main
     optional: false
   - name: librttopo
@@ -12565,12 +12568,13 @@ package:
     manager: conda
     platform: osx-arm64
     dependencies:
-      geos: ">=3.12.0,<3.12.1.0a0"
-      libcxx: ">=15.0.7"
-    url: https://conda.anaconda.org/conda-forge/osx-arm64/librttopo-1.1.0-h667cd51_14.conda
+      __osx: ">=10.9"
+      geos: ">=3.12.1,<3.12.2.0a0"
+      libcxx: ">=16.0.6"
+    url: https://conda.anaconda.org/conda-forge/osx-arm64/librttopo-1.1.0-hc8f776e_15.conda
     hash:
-      md5: 5dfc75562bc705e4a645eb8079139c8c
-      sha256: 5ed612f91b1e0bfa41dca9f6bdd9edd28039b6880c3d1b9dc40aa748b6d1d7c7
+      md5: c87bc8aa4ea874b9db3f06cc16d939eb
+      sha256: 00f016e7b7d4f68ddefc4e857b63c963402e66aeff8bb560a8bacdd6d51c6508
     category: main
     optional: false
   - name: libsodium
@@ -12650,20 +12654,20 @@ package:
     platform: linux-64
     dependencies:
       freexl: ">=2.0.0,<3.0a0"
-      geos: ">=3.12.0,<3.12.1.0a0"
+      geos: ">=3.12.1,<3.12.2.0a0"
       libgcc-ng: ">=12"
       librttopo: ">=1.1.0,<1.2.0a0"
-      libsqlite: ">=3.44.0,<4.0a0"
+      libsqlite: ">=3.44.1,<4.0a0"
       libstdcxx-ng: ">=12"
-      libxml2: ">=2.11.5,<2.12.0a0"
+      libxml2: ">=2.11.6,<2.12.0a0"
       libzlib: ">=1.2.13,<1.3.0a0"
       proj: ">=9.3.0,<9.3.1.0a0"
       sqlite: ""
       zlib: ""
-    url: https://conda.anaconda.org/conda-forge/linux-64/libspatialite-5.1.0-h090f1da_1.conda
+    url: https://conda.anaconda.org/conda-forge/linux-64/libspatialite-5.1.0-h7385560_2.conda
     hash:
-      md5: 9a2d6acaa8ce6d53a150248e7b11165e
-      sha256: c00eb70e8cf3778bffd04a9551e205e399d16e83a04f55ec392c3163b93d4feb
+      md5: 4260750b280f6f7c38a4459bf0d919ff
+      sha256: 5efbd5bc05ebaa6bb66b7e408d2998a4116029c2e3c2b0336e29267488d93a45
     category: main
     optional: false
   - name: libspatialite
@@ -12673,20 +12677,20 @@ package:
     dependencies:
       __osx: ">=10.9"
       freexl: ">=2.0.0,<3.0a0"
-      geos: ">=3.12.0,<3.12.1.0a0"
+      geos: ">=3.12.1,<3.12.2.0a0"
       libcxx: ">=16.0.6"
       libiconv: ">=1.17,<2.0a0"
       librttopo: ">=1.1.0,<1.2.0a0"
-      libsqlite: ">=3.44.0,<4.0a0"
-      libxml2: ">=2.11.5,<2.12.0a0"
+      libsqlite: ">=3.44.1,<4.0a0"
+      libxml2: ">=2.11.6,<2.12.0a0"
       libzlib: ">=1.2.13,<1.3.0a0"
       proj: ">=9.3.0,<9.3.1.0a0"
       sqlite: ""
       zlib: ""
-    url: https://conda.anaconda.org/conda-forge/osx-64/libspatialite-5.1.0-h4a59d8e_1.conda
+    url: https://conda.anaconda.org/conda-forge/osx-64/libspatialite-5.1.0-hf63aa75_2.conda
     hash:
-      md5: 606bfbfee0ea2acb14adfca6b484223e
-      sha256: 7857801563bc23c3bfa547aa160852b637ff9c34723bba62c566ea6d9eaaf980
+      md5: 2c00e79960e3a8fde456ff228eaca1ed
+      sha256: e233c42c026efaf1fc0b0847e73137d16b9f5742615b9cf2426cfcb53a14f709
     category: main
     optional: false
   - name: libspatialite
@@ -12696,20 +12700,20 @@ package:
     dependencies:
       __osx: ">=10.9"
       freexl: ">=2.0.0,<3.0a0"
-      geos: ">=3.12.0,<3.12.1.0a0"
+      geos: ">=3.12.1,<3.12.2.0a0"
       libcxx: ">=16.0.6"
       libiconv: ">=1.17,<2.0a0"
       librttopo: ">=1.1.0,<1.2.0a0"
-      libsqlite: ">=3.44.0,<4.0a0"
-      libxml2: ">=2.11.5,<2.12.0a0"
+      libsqlite: ">=3.44.1,<4.0a0"
+      libxml2: ">=2.11.6,<2.12.0a0"
       libzlib: ">=1.2.13,<1.3.0a0"
       proj: ">=9.3.0,<9.3.1.0a0"
       sqlite: ""
       zlib: ""
-    url: https://conda.anaconda.org/conda-forge/osx-arm64/libspatialite-5.1.0-h5b80306_1.conda
+    url: https://conda.anaconda.org/conda-forge/osx-arm64/libspatialite-5.1.0-h66af7d6_2.conda
     hash:
-      md5: eb794aae59c5b3b475a42809a5240a73
-      sha256: 21c40582abf3b8125b810873e434dc3c8bc4fc024b92ebd25f9a549154791919
+      md5: cec958a38abd789967347005686c7dd9
+      sha256: f6871a59faa7781ac56c25e73bfca8b4f0428b4a1d4f9eac9394a6dc723974b7
     category: main
     optional: false
   - name: libsqlite
@@ -19867,23 +19871,24 @@ package:
     category: main
     optional: false
   - name: scipy
-    version: 1.11.3
+    version: 1.11.4
     manager: conda
     platform: osx-arm64
     dependencies:
+      __osx: ">=10.9"
       libblas: ">=3.9.0,<4.0a0"
       libcblas: ">=3.9.0,<4.0a0"
-      libcxx: ">=15.0.7"
+      libcxx: ">=16.0.6"
       libgfortran: 5.*
       libgfortran5: ">=13.2.0"
       liblapack: ">=3.9.0,<4.0a0"
       numpy: ">=1.23.5,<2.0a0"
       python: ">=3.11,<3.12.0a0"
       python_abi: 3.11.*
-    url: https://conda.anaconda.org/conda-forge/osx-arm64/scipy-1.11.3-py311h93d07a4_1.conda
+    url: https://conda.anaconda.org/conda-forge/osx-arm64/scipy-1.11.4-py311h2b215a9_0.conda
     hash:
-      md5: 1c687552b288a801a7851166f2494768
-      sha256: 6347f47c02eef02afe1e5534c88269f73b2da28cdff8c826b210e529b8bd1f07
+      md5: eeb78a4ed07acf5636a0cba7b16c8a89
+      sha256: a76f172fc8e76c319b9d93c81829fcb3b498ee057e82117a744b37e751e66569
     category: main
     optional: false
   - name: secretstorage
@@ -19984,15 +19989,15 @@ package:
     manager: conda
     platform: linux-64
     dependencies:
-      geos: ">=3.12.0,<3.12.1.0a0"
+      geos: ">=3.12.1,<3.12.2.0a0"
       libgcc-ng: ">=12"
       numpy: ">=1.23.5,<2.0a0"
       python: ">=3.11,<3.12.0a0"
       python_abi: 3.11.*
-    url: https://conda.anaconda.org/conda-forge/linux-64/shapely-2.0.2-py311he06c224_0.conda
+    url: https://conda.anaconda.org/conda-forge/linux-64/shapely-2.0.2-py311h2032efe_1.conda
     hash:
-      md5: c90e2469d7512f3bba893533a82d7a02
-      sha256: 2a02e516c57a2122cf9acaec54b75a821ad5f959a7702b17cb8df2c3fe31ef20
+      md5: 4ba860ff851768615b1a25b788022750
+      sha256: 5406be99410c471db7ce7bb59f238371525425acd7a7f5180387a7a16ae78b96
     category: main
     optional: false
   - name: shapely
@@ -20000,14 +20005,14 @@ package:
     manager: conda
     platform: osx-64
     dependencies:
-      geos: ">=3.12.0,<3.12.1.0a0"
+      geos: ">=3.12.1,<3.12.2.0a0"
       numpy: ">=1.23.5,<2.0a0"
       python: ">=3.11,<3.12.0a0"
       python_abi: 3.11.*
-    url: https://conda.anaconda.org/conda-forge/osx-64/shapely-2.0.2-py311h359915d_0.conda
+    url: https://conda.anaconda.org/conda-forge/osx-64/shapely-2.0.2-py311h4c12f3d_1.conda
     hash:
-      md5: 5569c5122a7938835a8a7c498aaded67
-      sha256: 240cca365e75d5f5aa09ee62c95813288d3652f666a1ab227015195316b8f9fe
+      md5: 24e0f5b8e619f554aa1ac3ab7edc4c9d
+      sha256: 4964855987357b819188224c19a771e8f8d9a9710dacd57ea4a35675c72df27c
     category: main
     optional: false
   - name: shapely
@@ -20015,14 +20020,14 @@ package:
     manager: conda
     platform: osx-arm64
     dependencies:
-      geos: ">=3.12.0,<3.12.1.0a0"
+      geos: ">=3.12.1,<3.12.2.0a0"
       numpy: ">=1.23.5,<2.0a0"
       python: ">=3.11,<3.12.0a0"
       python_abi: 3.11.*
-    url: https://conda.anaconda.org/conda-forge/osx-arm64/shapely-2.0.2-py311h4826c84_0.conda
+    url: https://conda.anaconda.org/conda-forge/osx-arm64/shapely-2.0.2-py311h0815064_1.conda
     hash:
-      md5: a9de7ff7899a7067646aa7053eb5737c
-      sha256: 3d08d9553565704fef53d0c9cb901bb2f40337f0a590b3ea714d363a34ee2250
+      md5: 025b38103c63f538ea6bdf7bd26224f2
+      sha256: 682106998eca2221a282eda01d468209ce778866b1d062cfa2f02c79a7bf1770
     category: main
     optional: false
   - name: shellingham
