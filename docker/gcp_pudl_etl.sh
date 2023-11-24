@@ -95,15 +95,21 @@ ETL_SUCCESS=${PIPESTATUS[0]}
 
 # if pipeline is successful, distribute + publish datasette
 if [[ $ETL_SUCCESS == 0 ]]; then
-    # Dump outputs to s3 bucket if branch is dev or build was triggered by a tag
-    if [ $GITHUB_ACTION_TRIGGER = "push" ] || [ $GITHUB_REF = "dev" ]; then
-        copy_outputs_to_distribution_bucket
-        ETL_SUCCESS=${PIPESTATUS[0]}
-    fi
-
     # Deploy the updated data to datasette
     if [ $GITHUB_REF = "dev" ]; then
         python ~/devtools/datasette/publish.py 2>&1 | tee -a $LOGFILE
+        ETL_SUCCESS=${PIPESTATUS[0]}
+    fi
+
+    # Compress the SQLite DBs for easier distribution
+    gzip $PUDL_OUTPUT/*.sqlite
+
+    # Remove redundant multi-file EPA CEMS outputs prior to distribution
+    rm -rf $PUDL_OUTPUT/hourly_emissions_epacems/
+
+    # Dump outputs to s3 bucket if branch is dev or build was triggered by a tag
+    if [ $GITHUB_ACTION_TRIGGER = "push" ] || [ $GITHUB_REF = "dev" ]; then
+        copy_outputs_to_distribution_bucket
         ETL_SUCCESS=${PIPESTATUS[0]}
     fi
 fi
