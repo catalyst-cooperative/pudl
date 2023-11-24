@@ -4,6 +4,7 @@ import datetime
 import json
 import re
 import sys
+import warnings
 from collections.abc import Callable, Iterable
 from functools import lru_cache
 from pathlib import Path
@@ -59,6 +60,15 @@ from pudl.workspace.datastore import Datastore, ZenodoDoi
 from pudl.workspace.setup import PudlPaths
 
 logger = pudl.logging_helpers.get_logger(__name__)
+
+# The BaseModel.schema attribute is deprecated and we are shadowing it to avoid needing
+# to define an inconvenient alias for it.
+warnings.filterwarnings(
+    action="ignore",
+    message='Field name "schema" shadows an attribute in parent "BaseModel"',
+    category=UserWarning,
+    module="pydantic._internal._fields",
+)
 
 # ---- Helpers ---- #
 

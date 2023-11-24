@@ -1594,21 +1594,20 @@ def flatten_list(xs: Iterable) -> Generator:
 
 
 def convert_df_to_excel_file(df: pd.DataFrame, **kwargs) -> pd.ExcelFile:
-    """Converts a pandas dataframe to a pandas ExcelFile object.
+    """Convert a :class:`pandas.DataFrame` into a :class:`pandas.ExcelFile`.
 
-    You can pass parameters for pandas.to_excel() function.
+    Args:
+        df: The DataFrame to convert.
+        kwargs: Additional arguments to pass into :meth:`pandas.to_excel`.
+
+    Returns:
+        The contents of the input DataFrame, represented as an ExcelFile.
     """
     bio = BytesIO()
-
-    writer = pd.ExcelWriter(bio, engine="xlsxwriter")
-    df.to_excel(writer, **kwargs)
-
-    writer.close()
-
+    with pd.ExcelWriter(bio, engine="xlsxwriter") as writer:
+        df.to_excel(writer, **kwargs)
     bio.seek(0)
-    workbook = bio.read()
-
-    return pd.ExcelFile(workbook)
+    return pd.ExcelFile(bio)
 
 
 def get_asset_keys(
