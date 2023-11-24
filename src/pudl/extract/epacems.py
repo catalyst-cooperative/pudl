@@ -101,28 +101,27 @@ class EpaCemsPartition(NamedTuple):
     """Represents EpaCems partition identifying unique resource file."""
 
     year: str
-    state: str
+    quarter: str
 
     def get_key(self):
         """Returns hashable key for use with EpaCemsDatastore."""
-        return (self.year, self.state.lower())
+        return (self.year, self.quarter)
 
     def get_filters(self):
         """Returns filters for retrieving given partition resource from Datastore."""
-        return {"year": self.year, "state": self.state.lower()}
+        return {"year": self.year, "quarter": self.quarter}
 
-    def get_annual_file(self) -> Path:
+    def get_quarterly_file(self) -> Path:
         """Return the name of the CSV file that holds annual hourly data."""
-        return Path(f"epacems-{self.year}-{self.state.lower()}.csv")
+        return Path(f"epacems-{self.year}-{self.quarter}.csv")
 
 
 class EpaCemsDatastore:
     """Helper class to extract EpaCems resources from datastore.
 
-    EpaCems resources are identified by a year and a state. Each of these zip files
-    contain monthly zip files that in turn contain csv files. This class implements
-    get_data_frame method that will concatenate tables for a given state and month
-    across all months.
+    EpaCems resources are identified by a year and a quarter. Each of these zip files
+    contains one csv file. This class implements get_data_frame method that will
+    rename columns for a quarterly CSV file.
     """
 
     def __init__(self, datastore: Datastore):
@@ -130,23 +129,16 @@ class EpaCemsDatastore:
         self.datastore = datastore
 
     def get_data_frame(self, partition: EpaCemsPartition) -> pd.DataFrame:
-        """Constructs dataframe from a zipfile for a given (year, state) partition."""
+        """Constructs dataframe from a zipfile for a given (year, quarter) partition."""
         archive = self.datastore.get_zipfile_resource(
             "epacems", **partition.get_filters()
         )
 
-        # Get names of files in zip file
-        files = self.datastore.get_zipfile_file_names(archive)
-
-        # If archive has one csv file in it, this is a yearly CSV (archived after 08/23)
-        # and this CSV does not need to be concatenated.
-        if len(files) == 1 and files[0].endswith(".csv"):
-            with archive.open(str(partition.get_annual_file()), "r") as csv_file:
-                df = self._csv_to_dataframe(
-                    csv_file, ignore_cols=API_IGNORE_COLS, rename_dict=API_RENAME_DICT
-                )
-            return df
-        raise AssertionError(f"Unexpected archive format. Found files: {files}.")
+        with archive.open(str(partition.get_annual_file()), "r") as csv_file:
+            df = self._csv_to_dataframe(
+                csv_file, ignore_cols=API_IGNORE_COLS, rename_dict=API_RENAME_DICT
+            )
+        return df
 
     def _csv_to_dataframe(
         self, csv_file: Path, ignore_cols: dict[str, str], rename_dict: dict[str, str]
