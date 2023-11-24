@@ -74,9 +74,7 @@ class FERCPlantClassifier(BaseEstimator, ClassifierMixin):
         self.plants_df = plants_df
         self._years = self.plants_df.report_year.unique()  # could we list() here?
 
-    def fit(
-        self, X, y=None  # noqa: N803 Canonical capital letter...
-    ) -> "FERCPlantClassifier":
+    def fit(self, X, y=None) -> "FERCPlantClassifier":  # noqa: N803
         """Use weighted FERC plant features to group records into time series.
 
         The fit method takes the vectorized, normalized, weighted FERC plant
@@ -147,7 +145,8 @@ class FERCPlantClassifier(BaseEstimator, ClassifierMixin):
                 # Grab the index values of the rows in the masked dataframe which
                 # are NOT all NaN -- these are the indices of the *other* records
                 # which found the record x to be one of their best matches.
-                .dropna(how="all").index.to_numpy()
+                .dropna(how="all")
+                .index.to_numpy()
             )
 
             # Now look up the indices of the records which were found to be
