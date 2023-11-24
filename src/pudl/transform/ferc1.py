@@ -22,7 +22,12 @@ import pandas as pd
 import sqlalchemy as sa
 from dagster import AssetIn, AssetsDefinition, asset
 from pandas.core.groupby import DataFrameGroupBy
-from pydantic import BaseModel, Field, field_validator, root_validator
+from pydantic import (
+    BaseModel,
+    Field,
+    field_validator,
+    model_validator,
+)
 
 import pudl
 from pudl.analysis.classify_plants_ferc1 import (
@@ -821,17 +826,13 @@ class GroupMetricChecks(TransformParams):
     group_metric_tolerances: GroupMetricTolerances = GroupMetricTolerances()
     is_close_tolerance: CalculationIsCloseTolerance = CalculationIsCloseTolerance()
 
-    # TODO[pydantic] refactor to use Pydantic v2 model_validator
-    @root_validator(skip_on_failure=True)
-    @classmethod
-    def grouped_tol_ge_ungrouped_tol(cls, values):
+    @model_validator(mode="after")
+    def grouped_tol_ge_ungrouped_tol(self: Self):
         """Grouped tolerance should always be greater than or equal to ungrouped."""
-        group_metric_tolerances = values["group_metric_tolerances"]
-        groups_to_check = values["groups_to_check"]
-        for group in groups_to_check:
-            metric_tolerances = group_metric_tolerances.model_dump().get(group)
+        for group in self.groups_to_check:
+            metric_tolerances = self.group_metric_tolerances.model_dump().get(group)
             for metric_name, tolerance in metric_tolerances.items():
-                ungrouped_tolerance = group_metric_tolerances.model_dump()[
+                ungrouped_tolerance = self.group_metric_tolerances.model_dump()[
                     "ungrouped"
                 ].get(metric_name)
                 if tolerance < ungrouped_tolerance:
@@ -839,7 +840,7 @@ class GroupMetricChecks(TransformParams):
                         f"In {group=}, {tolerance=} for {metric_name} should be "
                         f"greater than {ungrouped_tolerance=}."
                     )
-        return values
+        return self
 
 
 class ReconcileTableCalculations(TransformParams):

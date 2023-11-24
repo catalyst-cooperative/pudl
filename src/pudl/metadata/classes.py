@@ -30,7 +30,6 @@ from pydantic import (
     ValidationInfo,
     field_validator,
     model_validator,
-    validator,
 )
 
 import pudl.logging_helpers
@@ -738,17 +737,18 @@ class Schema(BaseModel):
 
     @field_validator("fields")
     @classmethod
-    def _check_field_names_unique(cls, value):  # noqa: N805
-        _check_unique([f.name for f in value])
-        return value
+    def _check_field_names_unique(cls, fields: list[Field]):
+        _check_unique([f.name for f in fields])
+        return fields
 
     @field_validator("primary_key")
     @classmethod
-    def _check_primary_key_in_fields(cls, value, info: ValidationInfo):
-        if value is not None and "fields" in info.data:
+    def _check_primary_key_in_fields(cls, pk, info: ValidationInfo):
+        """Verify that all primary key elements also appear in the schema fields."""
+        if pk is not None and "fields" in info.data:
             missing = []
             names = [f.name for f in info.data["fields"]]
-            for name in value:
+            for name in pk:
                 if name in names:
                     # Flag primary key fields as required
                     field = info.data["fields"][names.index(name)]
@@ -757,18 +757,20 @@ class Schema(BaseModel):
                     missing.append(field.name)
             if missing:
                 raise ValueError(f"names {missing} missing from fields")
-        return value
+        return pk
 
-    # TODO[pydantic] Refactor to use Pydantic v2 field_validator
-    @validator("foreign_keys", each_item=True)
-    @classmethod
-    def _check_foreign_key_in_fields(cls, fk, values):
-        if fk and "fields" in values:
-            names = [f.name for f in values["fields"]]
-            missing = [x for x in fk.fields if x not in names]
-            if missing:
-                raise ValueError(f"names {missing} missing from fields")
-        return fk
+    @model_validator(mode="after")
+    def _check_foreign_key_in_fields(self: Self):
+        """Verify that all foreign key elements also appear in the schema fields."""
+        if self.foreign_keys:
+            schema_field_names = [field.name for field in self.fields]
+            for fk in self.foreign_keys:
+                missing_field_names = set(fk.fields).difference(schema_field_names)
+                if missing_field_names:
+                    raise ValueError(
+                        f"Foreign key fields {missing_field_names} not found in schema."
+                    )
+        return self
 
 
 class License(BaseModel):
