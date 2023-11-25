@@ -14,7 +14,6 @@ from pydantic import (
     ConfigDict,
     field_validator,
     model_validator,
-    root_validator,
 )
 from pydantic_settings import BaseSettings
 
@@ -56,87 +55,38 @@ class GenericDatasetSettings(FrozenBaseModel):
     disabled: bool = False
     data_source: ClassVar[DataSource]
 
-    # TODO[pydantic]: This validator fails because it doesn't reproduce the current
-    # behavior we have on unspecified datasets.
-    # @model_validator(mode="before")
-    @classmethod
-    def validate_partitions_before(cls, data: dict[str, Any]) -> dict[str, Any]:
-        """Refactor with model validator after."""
-        for (
-            partition_name,
-            working_partitions,
-        ) in cls.data_source.working_partitions.items():
-            try:
-                partitions = data[partition_name]
-            except KeyError:
-                raise ValueError(
-                    f"{cls.__name__} is missing required '{partition_name}' field."
-                )
-
-            # If partition is empty or None, default to using all working_partitions
-            if not partitions:
-                data[partition_name] = working_partitions
-            else:
-                data[partition_name] = sorted(set(partitions))
-
-            nonworking_partitions = list(set(partitions) - set(working_partitions))
-            if nonworking_partitions:
-                raise ValueError(
-                    f"'{nonworking_partitions}' {partition_name} are not available."
-                )
-
-        return data
-
-    # TODO[pydantic]: This validator fails because the model is immutable after it's
-    # been defined.
-    # @model_validator(mode="after")
+    @model_validator(mode="after")
     def validate_partitions_after(self: Self):
-        """Refactor with model validator after."""
+        """Ensure that partitions and their values are valid.
+
+        Checks that:
+
+        * all partitions specified by the data source exist,
+        * partitions are not None
+        * only known to be working partition values are specified
+        * no duplicate partition values are specified
+
+        """
         for name, working_partitions in self.data_source.working_partitions.items():
             try:
                 partition = getattr(self, name)
             except KeyError:
                 raise ValueError(f"{self.__name__} is missing required '{name}' field.")
 
-            # If partition is None, default to working_partitions
-            if getattr(self, name) is None:
-                setattr(self, name, working_partitions)
+            # Partition should never be None -- should get a default value set in
+            # the child classes based on the working partitions.
+            if partition is None:
+                raise ValueError(f"'In {self.__name__} partition {name} is None.")
 
-            nonworking_partitions = list(set(partition) - set(working_partitions))
-            if nonworking_partitions:
+            if nonworking_partitions := list(set(partition) - set(working_partitions)):
                 raise ValueError(f"'{nonworking_partitions}' {name} are not available.")
-            setattr(self, name, sorted(set(partition)))
-        return self
 
-    # TODO[pydantic] refactor to use Pydantic v2 model_validator.
-    # See attempts above.
-    @root_validator(skip_on_failure=True)
-    @classmethod
-    def validate_partitions(cls, partitions):
-        """Validate the requested data partitions.
-
-        Check that all the partitions defined in the ``working_partitions`` of the
-        associated ``data_source`` (e.g. years or states) have been assigned in the
-        definition of the class, and that the requested values are a subset of the
-        allowable values defined by the ``data_source``.
-        """
-        for name, working_partitions in cls.data_source.working_partitions.items():
-            try:
-                partition = partitions[name]
-            except KeyError:
-                raise ValueError(f"{cls.__name__} is missing required '{name}' field.")
-
-            # If partition is None, default to working_partitions
-            if not partitions[name]:
-                partition = working_partitions
-
-            partitions_not_working = list(set(partition) - set(working_partitions))
-            if partitions_not_working:
+            if len(partition) != len(set(partition)):
                 raise ValueError(
-                    f"'{partitions_not_working}' {name} are not available."
+                    f"'Duplicate values found in partition {name}: {partition}'"
                 )
-            partitions[name] = sorted(set(partition))
-        return partitions
+
+        return self
 
     @property
     def partitions(cls) -> list[None | dict[str, str]]:  # noqa: N805
@@ -728,33 +678,37 @@ class EtlSettings(BaseSettings):
         return cls.model_validate(yaml_file)
 
 
-def _convert_settings_to_dagster_config(d: dict) -> None:
-    """Convert dictionary of dataset settings to dagster config.
+def _convert_settings_to_dagster_config(settings_dict: dict[str, Any]) -> None:
+    """Recursively convert a dictionary of dataset settings to dagster config in place.
 
-    For each partition parameter in a GenericDatasetSettings subclass, create a Noneable
-    Dagster field with a default value of None. The GenericDatasetSettings
-    subclasses will default to include all working paritions if the partition value
-    is None. Get the value type so dagster can do some basic type checking in the UI.
+    For each partition parameter in a :class:`GenericDatasetSettings` subclass, create a
+    corresponding :class:`DagsterField`. By default the :class:`GenericDatasetSettings`
+    subclasses will default to include all working paritions if the partition value is
+    None. Get the value type so dagster can do some basic type checking in the UI.
 
     Args:
-        d: dictionary of datasources and their parameters.
+        settings_dict: dictionary of datasources and their parameters.
     """
-    for k, v in d.items():
-        if isinstance(v, dict):
-            _convert_settings_to_dagster_config(v)
+    for key, value in settings_dict.items():
+        if isinstance(value, dict):
+            _convert_settings_to_dagster_config(value)
         else:
-            d[k] = DagsterField(type(v), default_value=v)
+            settings_dict[key] = DagsterField(type(value), default_value=value)
 
 
-def create_dagster_config(settings: FrozenBaseModel) -> dict:
-    """Create a dictionary of dagster config for the DatasetsSettings Class.
+def create_dagster_config(settings: GenericDatasetSettings) -> dict[str, DagsterField]:
+    """Create a dictionary of dagster config out of a :class:`GenericDatasetsSettings`.
+
+    Args:
+        settings: A dataset settings object, subclassed from
+            :class:`GenericDatasetSettings`.
 
     Returns:
-        A dictionary of dagster configuration.
+        A dictionary of :class:`DagsterField` objects.
     """
-    ds = settings.model_dump()
-    _convert_settings_to_dagster_config(ds)
-    return ds
+    settings_dict = settings.model_dump()
+    _convert_settings_to_dagster_config(settings_dict)
+    return settings_dict
 
 
 def _zenodo_doi_to_url(doi: ZenodoDoi) -> AnyHttpUrl:

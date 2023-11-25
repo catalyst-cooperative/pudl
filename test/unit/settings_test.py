@@ -1,5 +1,7 @@
 """Tests for settings validation."""
 
+from typing import Self
+
 import pytest
 from dagster import DagsterInvalidConfigError, Field, build_init_resource_context
 from pandas import json_normalize
@@ -25,7 +27,7 @@ from pudl.workspace.setup import PudlPaths
 class TestGenericDatasetSettings:
     """Test generic dataset behavior."""
 
-    def test_missing_field_error(self):
+    def test_missing_field_error(self: Self):
         """Test GenericDatasetSettings throws error if user forgets to add a field.
 
         In this case, the required ``data_source`` parameter is missing.
@@ -45,7 +47,7 @@ class TestGenericDatasetSettings:
 class TestFerc1DbfToSqliteSettings:
     """Test Ferc1DbfToSqliteSettings."""
 
-    def test_ref_year(self):
+    def test_ref_year(self: Self):
         """Test reference year is within working years."""
         with pytest.raises(ValidationError):
             Ferc1DbfToSqliteSettings(ferc1_to_sqlite_refyear=1990)
@@ -57,19 +59,22 @@ class TestFerc1Settings:
     EIA860 and EIA923 use the same validation functions.
     """
 
-    def test_not_working_year(self):
+    def test_not_working_year(self: Self):
         """Make sure a validation error is being thrown when given an invalid year."""
         with pytest.raises(ValidationError):
             Ferc1Settings(years=[1901])
 
-    def test_duplicate_sort_years(self):
+    def test_duplicate_sort_years(self: Self):
         """Test years are sorted and deduplicated."""
-        returned_settings = Ferc1Settings(years=[2001, 2001, 2000])
-        expected_years = [2000, 2001]
+        with pytest.raises(ValidationError):
+            _ = Ferc1Settings(years=[2001, 2001, 2000])
 
-        assert expected_years == returned_settings.years
+    def test_none_years_raise(self: Self):
+        """Test years are sorted and deduplicated."""
+        with pytest.raises(ValidationError):
+            _ = Ferc1Settings(years=None)
 
-    def test_default_years(self):
+    def test_default_years(self: Self):
         """Test all years are used as default."""
         returned_settings = Ferc1Settings()
 
@@ -86,31 +91,34 @@ class TestFerc1Settings:
 class TestEpaCemsSettings:
     """Test EpaCems settings validation."""
 
-    def test_not_working_state(self):
+    def test_not_working_state(self: Self):
         """Make sure a validation error is being thrown when given an invalid state."""
         with pytest.raises(ValidationError):
             EpaCemsSettings(states=["fake_state"])
 
-    def test_duplicate_sort_states(self):
+    def test_duplicate_sort_states(self: Self):
         """Test states are sorted and deduplicated."""
-        returned_settings = EpaCemsSettings(states=["CA", "CA", "AL"])
-        expected_states = ["AL", "CA"]
+        with pytest.raises(ValidationError):
+            _ = EpaCemsSettings(states=["CA", "CA", "AL"])
 
-        assert expected_states == returned_settings.states
-
-    def test_default_states(self):
+    def test_default_states(self: Self):
         """Test all states are used as default."""
         returned_settings = EpaCemsSettings()
 
         expected_states = DataSource.from_id("epacems").working_partitions["states"]
         assert expected_states == returned_settings.states
 
-    def test_all_states(self):
+    def test_all_states(self: Self):
         """Test all states are used as default."""
         returned_settings = EpaCemsSettings(states=["all"])
 
         expected_states = DataSource.from_id("epacems").working_partitions["states"]
         assert expected_states == returned_settings.states
+
+    def test_none_states_raise(self: Self):
+        """Test that setting a required partition to None raises an error."""
+        with pytest.raises(ValidationError):
+            _ = EpaCemsSettings(states=None)
 
 
 class TestEIA860Settings:
@@ -119,7 +127,7 @@ class TestEIA860Settings:
     Most of the validation is covered in TestFerc1Settings.
     """
 
-    def test_860m(self):
+    def test_860m(self: Self):
         """Test validation error is raised when eia860m date is within 860 years."""
         settings_cls = Eia860Settings
         original_eia80m_date = settings_cls.eia860m_date
@@ -133,7 +141,7 @@ class TestEIA860Settings:
 class TestEiaSettings:
     """Test pydantic model that validates EIA datasets."""
 
-    def test_eia923_dependency(self):
+    def test_eia923_dependency(self: Self):
         """Test that there is some overlap between EIA860 and EIA923 data."""
         eia923_settings = Eia923Settings()
         settings = EiaSettings(eia923=eia923_settings)
@@ -147,7 +155,7 @@ class TestEiaSettings:
         assert not set(eia860_years).isdisjoint(eia923_years_partition)
         assert not set(eia860_years).isdisjoint(eia923_years_settings)
 
-    def test_eia860_dependency(self):
+    def test_eia860_dependency(self: Self):
         """Test that there is some overlap between EIA860 and EIA923 data."""
         eia860_settings = Eia860Settings()
         settings = EiaSettings(eia860=eia860_settings)
@@ -165,7 +173,7 @@ class TestEiaSettings:
 class TestDatasetsSettings:
     """Test pydantic model that validates all datasets."""
 
-    def test_default_behavior(self):
+    def test_default_behavior(self: Self):
         """Make sure all of the years are added if nothing is specified."""
         settings = DatasetsSettings()
         data_source = DataSource.from_id("ferc1")
@@ -176,7 +184,7 @@ class TestDatasetsSettings:
 
         assert settings.eia, "EIA settings were not added."
 
-    def test_glue(self):
+    def test_glue(self: Self):
         """Test glue settings get added when ferc and eia are requested."""
         settings = DatasetsSettings()
         assert settings.glue, "Glue settings we not added when they should have been."
@@ -184,7 +192,7 @@ class TestDatasetsSettings:
         assert settings.glue.eia
         assert settings.glue.ferc1
 
-    def test_convert_settings_to_dagster_config(self):
+    def test_convert_settings_to_dagster_config(self: Self):
         """Test conversion of dictionary to Dagster config."""
         dct = {
             "eia": {
@@ -209,7 +217,7 @@ class TestDatasetsSettings:
 class TestGlobalConfig:
     """Test global pydantic model config works."""
 
-    def test_unknown_dataset(self):
+    def test_unknown_dataset(self: Self):
         """Test unkown dataset fed to DatasetsSettings."""
         with pytest.raises(ValidationError):
             DatasetsSettings().model_validate({"unknown_data": "data"})
@@ -217,7 +225,7 @@ class TestGlobalConfig:
         with pytest.raises(ValidationError):
             EiaSettings().model_validate({"unknown_data": "data"})
 
-    def test_immutability(self):
+    def test_immutability(self: Self):
         """Test immutability config is working correctly."""
         with pytest.raises(ValidationError):
             settings = DatasetsSettings()
@@ -231,7 +239,7 @@ class TestGlobalConfig:
 class TestDatasetsSettingsResource:
     """Test the DatasetsSettings dagster resource."""
 
-    def test_invalid_datasource(self):
+    def test_invalid_datasource(self: Self):
         """Test an error is thrown when there is an invalid datasource in the config."""
         init_context = build_init_resource_context(
             config={"new_datasource": {"years": [1990]}}
@@ -239,13 +247,13 @@ class TestDatasetsSettingsResource:
         with pytest.raises(DagsterInvalidConfigError):
             _ = dataset_settings(init_context)
 
-    def test_invalid_field_type(self):
+    def test_invalid_field_type(self: Self):
         """Test an error is thrown when there is an incorrect type in the config."""
         init_context = build_init_resource_context(config={"ferc1": {"years": 2021}})
         with pytest.raises(DagsterInvalidConfigError):
             _ = dataset_settings(init_context)
 
-    def test_default_values(self):
+    def test_default_values(self: Self):
         """Test the correct default values are created for dagster config."""
         expected_states = EpaCemsSettings().states
         assert (
