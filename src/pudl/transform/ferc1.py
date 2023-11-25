@@ -22,11 +22,7 @@ import pandas as pd
 import sqlalchemy as sa
 from dagster import AssetIn, AssetsDefinition, asset
 from pandas.core.groupby import DataFrameGroupBy
-from pydantic import (
-    BaseModel,
-    Field,
-    field_validator,
-)
+from pydantic import BaseModel, Field, field_validator
 
 import pudl
 from pudl.analysis.classify_plants_ferc1 import (
