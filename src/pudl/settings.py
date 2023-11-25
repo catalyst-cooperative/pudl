@@ -56,7 +56,7 @@ class GenericDatasetSettings(FrozenBaseModel):
     data_source: ClassVar[DataSource]
 
     @model_validator(mode="after")
-    def validate_partitions_after(self: Self):
+    def validate_partitions(self: Self):
         """Ensure that partitions and their values are valid.
 
         Checks that:
