@@ -15120,7 +15120,7 @@ package:
     category: main
     optional: false
   - name: numpy
-    version: 1.26.0
+    version: 1.26.2
     manager: conda
     platform: linux-64
     dependencies:
@@ -15131,44 +15131,46 @@ package:
       libstdcxx-ng: ">=12"
       python: ">=3.11,<3.12.0a0"
       python_abi: 3.11.*
-    url: https://conda.anaconda.org/conda-forge/linux-64/numpy-1.26.0-py311h64a7726_0.conda
+    url: https://conda.anaconda.org/conda-forge/linux-64/numpy-1.26.2-py311h64a7726_0.conda
     hash:
-      md5: bf16a9f625126e378302f08e7ed67517
-      sha256: 0aab5cef67cc2a1cd584f6e9cc6f2065c7a28c142d7defcb8096e8f719d9b3bf
+      md5: fd2f142dcd680413b5ede5d0fb799205
+      sha256: c68b2c0ce95b79913134ec6ba2a2f1c10adcd60133afd48e4a57fdd128b694b7
     category: main
     optional: false
   - name: numpy
-    version: 1.26.0
+    version: 1.26.2
     manager: conda
     platform: osx-64
     dependencies:
+      __osx: ">=10.9"
       libblas: ">=3.9.0,<4.0a0"
       libcblas: ">=3.9.0,<4.0a0"
-      libcxx: ">=15.0.7"
+      libcxx: ">=16.0.6"
       liblapack: ">=3.9.0,<4.0a0"
       python: ">=3.11,<3.12.0a0"
       python_abi: 3.11.*
-    url: https://conda.anaconda.org/conda-forge/osx-64/numpy-1.26.0-py311hc44ba51_0.conda
+    url: https://conda.anaconda.org/conda-forge/osx-64/numpy-1.26.2-py311h93c810c_0.conda
     hash:
-      md5: f95605c5b73f5f6a0f5f1b0aabfc2f39
-      sha256: 517cb22d5594fdb934523dd1951929961f686b5d994c684201acbf282433ec9b
+      md5: 94d3dd8a8c0ad89583648b31e1a7f72a
+      sha256: ea57e333df9e3067b084a1d1b5c0abb65bc8dbdca22e1ee0300e58167032cb50
     category: main
     optional: false
   - name: numpy
-    version: 1.26.0
+    version: 1.26.2
     manager: conda
     platform: osx-arm64
     dependencies:
+      __osx: ">=10.9"
       libblas: ">=3.9.0,<4.0a0"
       libcblas: ">=3.9.0,<4.0a0"
-      libcxx: ">=15.0.7"
+      libcxx: ">=16.0.6"
       liblapack: ">=3.9.0,<4.0a0"
       python: ">=3.11,<3.12.0a0"
       python_abi: 3.11.*
-    url: https://conda.anaconda.org/conda-forge/osx-arm64/numpy-1.26.0-py311hb8f3215_0.conda
+    url: https://conda.anaconda.org/conda-forge/osx-arm64/numpy-1.26.2-py311h6d074dd_0.conda
     hash:
-      md5: 97f8632bf2ad5c179ff68fc90c71c2ae
-      sha256: fca5ee1363f22a160c97e92d6400d4636f4b05987b08085e4f79fb6efb75fd0a
+      md5: 686a22bdbc601bfe7e7243f0263c10e3
+      sha256: a88e48461bea106a0ce41684625f79efe473d42cf0f0310535dcfe1d98c888ba
     category: main
     optional: false
   - name: oauthlib
@@ -15306,40 +15308,40 @@ package:
     category: main
     optional: false
   - name: openssl
-    version: 3.1.4
+    version: 3.2.0
     manager: conda
     platform: linux-64
     dependencies:
       ca-certificates: ""
       libgcc-ng: ">=12"
-    url: https://conda.anaconda.org/conda-forge/linux-64/openssl-3.1.4-hd590300_0.conda
+    url: https://conda.anaconda.org/conda-forge/linux-64/openssl-3.2.0-hd590300_0.conda
     hash:
-      md5: 412ba6938c3e2abaca8b1129ea82e238
-      sha256: d15b3e83ce66c6f6fbb4707f2f5c53337124c01fb03bfda1cf25c5b41123efc7
+      md5: 68223671a2b68cdf7241eb4679ab2dd4
+      sha256: a8ca7c31be33894bd70bb34786d1a8c26ae650382411250b61f6b5249b69a23e
     category: main
     optional: false
   - name: openssl
-    version: 3.1.4
+    version: 3.2.0
     manager: conda
     platform: osx-64
     dependencies:
       ca-certificates: ""
-    url: https://conda.anaconda.org/conda-forge/osx-64/openssl-3.1.4-hd75f5a5_0.conda
+    url: https://conda.anaconda.org/conda-forge/osx-64/openssl-3.2.0-hd75f5a5_0.conda
     hash:
-      md5: bc9201da6eb1e0df4107901df5371347
-      sha256: 1c436103a8de0dc82c9c56974badaa1b8b8f8cd9f37c2766bd50cd9899720f6b
+      md5: fe12816a450e2807b99798e68a7b599d
+      sha256: 840aa40f278d486688198514dd70df7bd7cb0659bd63d79427bf9a7e151c5dfb
     category: main
     optional: false
   - name: openssl
-    version: 3.1.4
+    version: 3.2.0
     manager: conda
     platform: osx-arm64
     dependencies:
       ca-certificates: ""
-    url: https://conda.anaconda.org/conda-forge/osx-arm64/openssl-3.1.4-h0d3ecfb_0.conda
+    url: https://conda.anaconda.org/conda-forge/osx-arm64/openssl-3.2.0-h0d3ecfb_0.conda
     hash:
-      md5: 5a89552fececf4cd99628318ccbb67a3
-      sha256: 3c715b1d4940c7ad6065935db18924b85a54048dde066f963cfc250340639457
+      md5: 4521ffa5c81e02feb99f1c8e87301a4f
+      sha256: 4fb546cf566287a80658e2d778e27c241bcc5743478da6cb03bf0b4ef8226e1c
     category: main
     optional: false
   - name: orc

@@ -63,7 +63,7 @@ dependencies:
   - lzo=2.10=h516909a_1000
   - ncurses=6.4=h59595ed_2
   - nspr=4.35=h27087fc_0
-  - openssl=3.1.4=hd590300_0
+  - openssl=3.2.0=hd590300_0
   - pixman=0.42.2=h59595ed_0
   - pthread-stubs=0.4=h36c2ea0_1001
   - rdma-core=28.9=h59595ed_1
@@ -423,7 +423,7 @@ dependencies:
   - libnetcdf=4.9.2=nompi_h80fb2b6_112
   - libspatialite=5.1.0=h7385560_2
   - mako=1.3.0=pyhd8ed1ab_0
-  - numpy=1.26.0=py311h64a7726_0
+  - numpy=1.26.2=py311h64a7726_0
   - pbr=6.0.0=pyhd8ed1ab_0
   - pendulum=2.1.2=py311h459d7ec_6
   - poppler=23.11.0=h590f24d_0
