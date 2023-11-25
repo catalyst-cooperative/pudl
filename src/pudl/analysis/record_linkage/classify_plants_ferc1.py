@@ -15,7 +15,7 @@ from sklearn.pipeline import Pipeline
 from sklearn.preprocessing import MinMaxScaler, Normalizer
 
 import pudl
-from pudl.analysis.record_linkage.cleaning_steps import CleaningRules
+from pudl.analysis.record_linkage.cleaning_steps import CompanyNameCleaner
 from pudl.analysis.record_linkage.cross_year import ColumnTransform, CrossYearLinker
 
 logger = pudl.logging_helpers.get_logger(__name__)
@@ -306,12 +306,10 @@ def construct_ferc1_plant_matching_model(fuel_cols: list[str]) -> CrossYearLinke
                 ColumnTransform(
                     **{
                         "step_name": "plant_name_ferc1",
-                        "columns": "plant_name_ferc1",
+                        "columns": ["plant_name_ferc1"],
                         "transformer": "string",
                         "weight": 2.0,
-                        "cleaning_ops": [
-                            CleaningRules(input_column="plant_name_ferc1")
-                        ],
+                        "cleaning_ops": [CompanyNameCleaner()],
                     }
                 ),
                 ColumnTransform(

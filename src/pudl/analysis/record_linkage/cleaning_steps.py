@@ -5,8 +5,7 @@ import json
 import logging
 import re
 from importlib.resources import as_file, files
-from pathlib import Path
-from typing import Any
+from typing import Literal
 
 import pandas as pd
 from pydantic import BaseModel
@@ -49,12 +48,36 @@ CLEANING_RULES_DICT = {
 }
 
 
-class CleaningRules(BaseModel):
-    """Configuration for CompanyNameCleaner class."""
+class LegalTermLocation(enum.Enum):
+    """The location of the legal terms within the name string."""
 
-    input_column: str
-    output_column: str | None = None
-    cleaning_rules: list[str] = [
+    AT_THE_END = 1
+    ANYWHERE = 2
+
+
+class CompanyNameCleaner(BaseModel):
+    """Class to normalize/clean up text based company names.
+
+    Attributes:
+        cleaning_rules_list (list): a list of cleaning rules to be applied. The dictionary of
+                    cleaning rules may contain rules that are not needed. Therefore, the _cleaning_rules_list
+                    allows the user to select only the cleaning rules necessary of interest. This list is also
+                    read from a json file and can be easily updated by changing the file or setting up the
+                    correspondent class property.
+        normalize_legal_terms (bool): a flag to indicate if the cleaning process must normalize
+                    text's legal terms. e.g. LTD => LIMITED.
+        output_lettercase (str): indicates the letter case (lower, by default) as the result of the cleaning
+                    Other options are: 'upper' and 'title'.
+        legal_term_location (enum): Where in the string legal terms are found.
+        remove_unicode (bool): indicates if the unicode character should be removed or not, which may depend
+                    on the language of the text's name.
+        remove_accents (bool): indicates if letters with accents should be replaced with non-accented ones.
+    """
+
+    # Constants used internally by the class
+    __NAME_LEGAL_TERMS_DICT_FILE = "us_legal_forms.json"
+    __NAME_JSON_ENTRY_LEGAL_TERMS = "legal_forms"
+    cleaning_rules_list: list[str] = [
         "replace_amperstand_between_space_by_AND",
         "replace_hyphen_between_spaces_by_single_space",
         "replace_underscore_by_space",
@@ -67,111 +90,22 @@ class CleaningRules(BaseModel):
         "remove_curly_brackets",
         "enforce_single_space_between_words",
     ]
+    normalize_legal_terms: bool = True
 
-    def clean(self, df: pd.DataFrame) -> pd.DataFrame:
-        """Apply ComanyNameCleaner to input DataFrame with rules specified in cleaning_rules."""
-        df = CompanyNameCleaner(cleaning_rules=self.cleaning_rules).get_clean_df(
-            df, self.input_column, self.output_column
-        )
-        return df
+    # Define if unicode characters should be removed from text's name
+    # This cleaning rule is treated separated from the regex rules because it depends on the
+    # language of the text's name. For instance, russian or japanese text's may contain
+    # unicode characters, while portuguese and french companies may not.
+    remove_unicode: bool = False
 
+    # Define the letter case of the cleaning output
+    output_lettercase: Literal["lower", "title"] = "lower"
 
-class LegalTermLocation(enum.Enum):
-    """The location of the legal terms within the name string."""
+    # Where in the string are legal terms found
+    legal_term_location: LegalTermLocation = LegalTermLocation.AT_THE_END
 
-    AT_THE_END = 1
-    ANYWHERE = 2
-
-
-class CompanyNameCleaner:
-    """Class to normalize/clean up text based company names.
-
-    Attributes:
-        _cleaning_rules_dict (dict): the dictionary of cleaning rules loaded from a json file. The cleaning rules
-                    are written in regex format and can be easily updated or incremented by changing the file.
-        _cleaning_rules_list (list): a list of cleaning rules to be applied. The dictionary of
-                    cleaning rules may contain rules that are not needed. Therefore, the _cleaning_rules_list
-                    allows the user to select only the cleaning rules necessary of interest. This list is also
-                    read from a json file and can be easily updated by changing the file or setting up the
-                    correspondent class property.
-        _normalize_legal_terms (bool): a flag to indicate if the cleaning process must normalize
-                    text's legal terms. e.g. LTD => LIMITED.
-        _dict_legal_terms (dict): a subset of the legal terms dictionary filtered by language and country.
-                    This will be the legal term dictionary to be applied during cleaning. The user can call the
-                    set_current_legal_term_dict() method to change the dictionary to another language/country.
-        _output_lettercase (str): indicates the letter case (lower, by default) as the result of the cleaning
-                    Other options are: 'upper' and 'title'.
-        _legal_term_location (enum): Where in the string legal terms are found.
-        _remove_unicode (bool): indicates if the unicode character should be removed or not, which may depend
-                    on the language of the text's name.
-        _remove_accents (bool): indicates if letters with accents should be replaced with non-accented ones.
-    """
-
-    # Constants used internally by the class
-    __NAME_LEGAL_TERMS_DICT_FILE = "us_legal_forms.json"
-    __NAME_JSON_ENTRY_LEGAL_TERMS = "legal_forms"
-
-    def __init__(
-        self,
-        cleaning_rules: list[str],
-        cleaning_rules_definitions_dict: dict = CLEANING_RULES_DICT,
-    ) -> None:
-        """Constructor method.
-
-        Arguments:
-            cleaning_rules_list: A list of the rules to apply for cleaning. By default is
-                DEFAULT_COMPANY_CLEANING_RULES
-            cleaning_rules_definitions_dict: A dictionary of cleaning rules where the keys
-                are the name of the cleaning rule and the value is the rule. By default is
-                CLEANING_RULES_DICT
-
-        Returns:
-            CompanyNameCleaner (object)
-        """
-        # The dictionary of cleaning rules define which regex functions to apply to the data
-        # A default set of regex rules is defined, but it can be changed by the user.
-        self._cleaning_rules_dict = cleaning_rules_definitions_dict
-        self._cleaning_rules_list = cleaning_rules
-
-        self._normalize_legal_terms = (
-            True  # indicates if legal terms need to be normalized
-        )
-        # The dictionary of legal terms define how to normalize the text's legal form abreviations
-        json_source = files("pudl.package_data.settings").joinpath(
-            self.__NAME_LEGAL_TERMS_DICT_FILE
-        )
-        with as_file(json_source) as json_file_path:
-            self._dict_legal_terms = self._load_json_file(json_file_path)[
-                self.__NAME_JSON_ENTRY_LEGAL_TERMS
-            ]["en"]
-
-        # Define the letter case of the cleaning output
-        self._output_lettercase = "lower"
-
-        # Where in the string are legal terms found
-        self._legal_term_location = LegalTermLocation.AT_THE_END
-
-        # Define if unicode characters should be removed from text's name
-        # This cleaning rule is treated separated from the regex rules because it depends on the
-        # language of the text's name. For instance, russian or japanese text's may contain
-        # unicode characters, while portuguese and french companies may not.
-        self._remove_unicode = False
-
-        # Define if the letters with accents are replaced with non-accented ones
-        self._remove_accents = False
-
-    def _load_json_file(self, file_to_read: Path) -> Any:
-        """Reads a json file and returns its content as a python dictionary.
-
-        Args:
-            file_to_read (str): complete path and name of the json file to read.
-
-        Returns:
-            (dict): the content of the json file as a python dictionary.
-        """
-        json_file = file_to_read.open()
-        dict_content = json.load(json_file)
-        return dict_content
+    # Define if the letters with accents are replaced with non-accented ones
+    remove_accents = False
 
     def _apply_regex_rules(
         self, str_value: str, dict_regex_rules: dict[str, list[str]]
@@ -236,8 +170,8 @@ class CompanyNameCleaner:
     def _apply_cleaning_rules(self, company_name: str) -> str:
         """Apply the cleaning rules from the dictionary of regex rules."""
         cleaning_dict = {}
-        for rule_name in self._cleaning_rules_list:
-            cleaning_dict[rule_name] = self._cleaning_rules_dict[rule_name]
+        for rule_name in self.cleaning_rules_list:
+            cleaning_dict[rule_name] = CLEANING_RULES_DICT[rule_name]
 
         # Apply all the cleaning rules
         clean_company_name = self._apply_regex_rules(company_name, cleaning_dict)
@@ -248,9 +182,18 @@ class CompanyNameCleaner:
         # Make sure to remove extra spaces, so legal terms can be found in the end (if requested)
         clean_company_name = company_name.strip()
 
+        # The dictionary of legal terms define how to normalize the text's legal form abreviations
+        json_source = files("pudl.package_data.settings").joinpath(
+            self.__NAME_LEGAL_TERMS_DICT_FILE
+        )
+        with as_file(json_source) as json_file_path:
+            _dict_legal_terms = json.load(json_file_path.open())[
+                self.__NAME_JSON_ENTRY_LEGAL_TERMS
+            ]["en"]
+
         # Apply normalization for legal terms
         # Iterate through the dictionary of legal terms
-        for replacement, legal_terms in self._dict_legal_terms.items():
+        for replacement, legal_terms in _dict_legal_terms.items():
             # Each replacement has a list of possible terms to be searched for
             replacement = " " + replacement.lower() + " "
             for legal_term in legal_terms:
@@ -264,7 +207,7 @@ class CompanyNameCleaner:
                 else:
                     legal_term = "\\b" + legal_term + "\\b"
                 # Check if the legal term should be found only at the end of the string
-                if self._legal_term_location == LegalTermLocation.AT_THE_END:
+                if self.legal_term_location == LegalTermLocation.AT_THE_END:
                     legal_term = legal_term + "$"
                 # ...and it's a raw string
                 regex_rule = rf"{legal_term}"
@@ -290,7 +233,7 @@ class CompanyNameCleaner:
             return pd.NA
 
         # Remove all unicode characters in the text's name, if requested
-        if self._remove_unicode:
+        if self.remove_unicode:
             clean_company_name = self._remove_unicode_chars(company_name)
         else:
             clean_company_name = company_name
@@ -302,15 +245,15 @@ class CompanyNameCleaner:
         clean_company_name = self._apply_cleaning_rules(clean_company_name)
 
         # Apply normalization for legal terms
-        if self._normalize_legal_terms:
+        if self.normalize_legal_terms:
             clean_company_name = self._apply_normalization_of_legal_terms(
                 clean_company_name
             )
 
         # Apply the letter case, if different from 'lower'
-        if self._output_lettercase == "upper":
+        if self.output_lettercase == "upper":
             clean_company_name = clean_company_name.upper()
-        elif self._output_lettercase == "title":
+        elif self.output_lettercase == "title":
             clean_company_name = clean_company_name.title()
 
         # Remove excess of white space that might be introduced during previous cleaning
@@ -319,12 +262,10 @@ class CompanyNameCleaner:
 
         return clean_company_name
 
-    def get_clean_df(
+    def get_clean_column(
         self,
         df: pd.DataFrame,
-        in_company_name_attribute: str | list,
-        out_company_name_attribute: str | list | None,
-    ) -> pd.DataFrame:
+    ) -> pd.Series:
         """Clean up text names in a dataframe.
 
         Arguments:
@@ -336,18 +277,4 @@ class CompanyNameCleaner:
         Returns:
             df (dataframe): the clean version of the input dataframe
         """
-        # Check if the company_name attribute exists in the dataframe
-        if in_company_name_attribute not in df.columns:
-            raise KeyError(f"Column {in_company_name_attribute} not in dataframe.")
-        if out_company_name_attribute is None:
-            out_company_name_attribute = in_company_name_attribute
-
-        # Make a copy so not to change the original dataframe
-        new_df = df.copy()
-
-        # Creates the new output attribute that will have the clean version of the text's name
-        new_df[out_company_name_attribute] = new_df[in_company_name_attribute].apply(
-            self.get_clean_data
-        )
-
-        return new_df
+        return df.squeeze().apply(self.get_clean_data)

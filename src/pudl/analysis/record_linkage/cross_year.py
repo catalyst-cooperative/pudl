@@ -16,10 +16,10 @@ from sklearn.decomposition import PCA
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.metrics import pairwise_distances
 from sklearn.pipeline import Pipeline
-from sklearn.preprocessing import MinMaxScaler, OneHotEncoder
+from sklearn.preprocessing import FunctionTransformer, MinMaxScaler, OneHotEncoder
 
 import pudl
-from pudl.analysis.record_linkage.cleaning_steps import CleaningRules
+from pudl.analysis.record_linkage.cleaning_steps import CompanyNameCleaner
 
 logger = pudl.logging_helpers.get_logger(__name__)
 
@@ -34,9 +34,9 @@ _ONE_HOT_DEFAULT_OPTIONS = {
 }
 
 _CLEANING_FUNCTIONS = {
-    "null_to_zero": lambda df, cols: df[cols].fillna(value=0.0),
-    "null_to_empty_str": lambda df, cols: df[cols].fillna(value=""),
-    "fix_int_na": lambda df, cols: pudl.helpers.fix_int_na(df, columns=cols)[cols],
+    "null_to_zero": lambda col: col.fillna(value=0.0),
+    "null_to_empty_str": lambda col: col.fillna(value=""),
+    "fix_int_na": lambda df: pudl.helpers.fix_int_na(df, columns=list(df.columns)),
 }
 
 
@@ -61,7 +61,7 @@ class ColumnTransform(BaseModel):
     transformer: BaseEstimator | Literal["string", "category", "number"]
     transformer_options: dict[str, Any] = {}
     weight: float = 1.0
-    cleaning_ops: list[str | CleaningRules] = []
+    cleaning_ops: list[str | CompanyNameCleaner] = []
 
     # This can be handled more elegantly in Pydantic 2.0.
     class Config:
@@ -69,41 +69,53 @@ class ColumnTransform(BaseModel):
 
         arbitrary_types_allowed = True
 
-    def clean_columns(self, df):
-        """Perform configurable set of cleaning operations on inputs before pipeline."""
+    def get_cleaning_steps(self):
+        """Return cleaning steps to add to column transform pipeline."""
+        cleaning_steps = []
         for cleaning_op in self.cleaning_ops:
             if isinstance(cleaning_op, str):
-                df[self.columns] = _CLEANING_FUNCTIONS[cleaning_op](df, self.columns)
-            elif isinstance(cleaning_op, CleaningRules):
-                df = cleaning_op.clean(df)
+                cleaning_step = (
+                    cleaning_op,
+                    FunctionTransformer(_CLEANING_FUNCTIONS[cleaning_op]),
+                )
+            elif isinstance(cleaning_op, CompanyNameCleaner):
+                cleaning_step = (
+                    "company_cleaner",
+                    FunctionTransformer(cleaning_op.get_clean_column),
+                )
 
-        return df
+            # Convert callable to a Pipeline step
+            cleaning_steps.append(cleaning_step)
+
+        return cleaning_steps
 
     def as_step(self) -> tuple[str, BaseEstimator, list[str]]:
         """Return tuple formatted as sklearn expects for pipeline step."""
+        transform_steps = self.get_cleaning_steps()
+
         # Create transform from one of the default types
         if isinstance(self.transformer, str):
             if self.transformer == "string":
                 options = _TFIDF_DEFAULT_OPTIONS | self.transformer_options
-                transformer = TfidfVectorizer(**options)
+                transform_steps.append(("tfidf", TfidfVectorizer(**options)))
             elif self.transformer == "category":
                 options = _ONE_HOT_DEFAULT_OPTIONS | self.transformer_options
-                transformer = OneHotEncoder(**options)
+                transform_steps.append(("one_hot", OneHotEncoder(**options)))
             elif self.transformer == "number":
                 options = self.transformer_options
-                transformer = MinMaxScaler(**options)
+                transform_steps.append(("scaler", MinMaxScaler(**options)))
             else:
                 raise RuntimeError(
                     f"Error: {self.transformer} must be either 'string', 'categor', 'number', or a scikit-learn BaseEstimator"
                 )
         elif isinstance(self.transformer, BaseEstimator):
-            transformer = self.transformer
+            transform_steps.append(("custom_transform", self.transformer))
         else:
             raise RuntimeError(
                 f"Error: {self.transformer} must be either 'string', 'categor', 'number', or a scikit-learn BaseEstimator"
             )
 
-        return (self.step_name, transformer, self.columns)
+        return (self.step_name, Pipeline(transform_steps), self.columns)
 
 
 class CrossYearLinker(BaseModel):
@@ -137,9 +149,6 @@ class CrossYearLinker(BaseModel):
             )
         else:
             distance_estimator = PrecomputeDistance(metric=self.distance_metric)
-
-        for transform in self.column_transforms:
-            df = transform.clean_columns(df)
 
         pipeline = Pipeline(
             [
