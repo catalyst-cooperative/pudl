@@ -28,7 +28,6 @@ dependencies:
   - libiconv=1.17=hac89ed1_0
   - libjpeg-turbo=3.0.0=h0dc2134_1
   - libsodium=1.0.18=hbcb3906_1
-  - libtool=2.4.7=hf0c8a7f_0
   - libutf8proc=2.8.0=hb7f2c08_0
   - libuv=1.46.0=h0c2f820_0
   - libwebp-base=1.3.2=h0dc2134_0
@@ -65,13 +64,13 @@ dependencies:
   - libllvm14=14.0.6=hc8e404f_4
   - libpng=1.6.39=ha978bb4_0
   - libspatialindex=1.9.3=he49afe7_4
-  - libsqlite=3.44.1=h92b6c6a_0
+  - libsqlite=3.44.2=h92b6c6a_0
   - libxcb=1.15=hb7f2c08_0
   - libxml2=2.11.6=hc0ae0f7_0
   - lz4-c=1.9.4=hf0c8a7f_0
   - ncurses=6.4=h93d8f39_2
   - nspr=4.35=hea0b92c_0
-  - openssl=3.1.4=hd75f5a5_0
+  - openssl=3.2.0=hd75f5a5_0
   - pandoc=3.1.3=h9d075a6_0
   - pcre2=10.42=h0ad2156_0
   - pixman=0.42.2=he965462_0
@@ -124,7 +123,7 @@ dependencies:
   - prettier=3.1.0=hbd11d21_0
   - python=3.11.6=h30d4d87_0_cpython
   - re2=2023.06.02=hd34609a_0
-  - sqlite=3.44.1=h7461747_0
+  - sqlite=3.44.2=h7461747_0
   - aiofiles=23.2.1=pyhd8ed1ab_0
   - alabaster=0.7.13=pyhd8ed1ab_0
   - anyascii=0.3.2=pyhd8ed1ab_0
@@ -176,7 +175,7 @@ dependencies:
   - humanfriendly=10.0=pyhd8ed1ab_6
   - hupper=1.12=pyhd8ed1ab_0
   - hyperframe=6.0.1=pyhd8ed1ab_0
-  - idna=3.4=pyhd8ed1ab_0
+  - idna=3.5=pyhd8ed1ab_0
   - ijson=3.2.3=pyhd8ed1ab_0
   - imagesize=1.4.1=pyhd8ed1ab_0
   - iniconfig=2.0.0=pyhd8ed1ab_0
@@ -201,7 +200,7 @@ dependencies:
   - mergedeep=1.3.4=pyhd8ed1ab_0
   - mistune=3.0.2=pyhd8ed1ab_0
   - more-itertools=10.1.0=pyhd8ed1ab_0
-  - msgpack-python=1.0.6=py311h5fe6e05_0
+  - msgpack-python=1.0.7=py311h7bea37d_0
   - multidict=6.0.4=py311h5547dcb_1
   - multimethod=1.9.1=pyhd8ed1ab_0
   - munch=4.0.0=pyhd8ed1ab_0
@@ -401,7 +400,7 @@ dependencies:
   - libnetcdf=4.9.2=nompi_h6a32802_112
   - libspatialite=5.1.0=hf63aa75_2
   - mako=1.3.0=pyhd8ed1ab_0
-  - numpy=1.26.0=py311hc44ba51_0
+  - numpy=1.26.2=py311h93c810c_0
   - pango=1.50.14=h19c1c8a_2
   - pbr=6.0.0=pyhd8ed1ab_0
   - pendulum=2.1.2=py311h2725bcf_6
@@ -480,7 +479,7 @@ dependencies:
   - geopandas-base=0.14.1=pyha770c72_0
   - google-auth=2.23.4=pyhca7485f_0
   - gql-with-requests=3.4.1=pyhd8ed1ab_0
-  - graphviz=9.0.0=h17d42e5_0
+  - graphviz=9.0.0=hee74176_1
   - ipykernel=6.26.0=pyh3cd1d5f_0
   - ipywidgets=8.1.1=pyhd8ed1ab_0
   - jsonschema-with-format-nongpl=4.20.0=pyhd8ed1ab_0
