@@ -15,9 +15,9 @@
 version: 1
 metadata:
   content_hash:
-    linux-64: b9f8826532896e72ca49913a87e8be150e02e08901365edadcf42074ef6dec9c
-    osx-64: 7df4f348c0efa8196db99028aba374d08e559c0d59480100dc244a1070fdf8c0
-    osx-arm64: d8713e5226fa38c644a6b4d9373fd0e32f49a61a8325d64e9cd932f0f91ed1e3
+    linux-64: f2183bab7eaf713e5e8558e6a94ecff41bfe50481d8921378a998a13cfda5ee7
+    osx-64: ddd7413694550c64aa8b2dc594234a5d0a89f19b10a7741ef0631ee46ae89b66
+    osx-arm64: 5075c3c6a027c8530f5d5907bcbb2a7dc1f333c1ea80b671cbbadb5e1fb5159c
   channels:
     - url: conda-forge
       used_env_vars: []
@@ -5203,10 +5203,10 @@ package:
     manager: conda
     platform: linux-64
     dependencies: {}
-    url: https://conda.anaconda.org/conda-forge/noarch/font-ttf-ubuntu-0.83-hab24e00_0.tar.bz2
+    url: https://conda.anaconda.org/conda-forge/noarch/font-ttf-ubuntu-0.83-h77eed37_1.conda
     hash:
-      md5: 19410c3df09dfb12d1206132a1d357c5
-      sha256: 470d5db54102bd51dbb0c5990324a2f4a0bc976faa493b22193338adb9882e2e
+      md5: 6185f640c43843e5ad6fd1c5372c3f80
+      sha256: 056c85b482d58faab5fd4670b6c1f5df0986314cca3bc831d458b22e4ef2c792
     category: main
     optional: false
   - name: font-ttf-ubuntu
@@ -5214,10 +5214,10 @@ package:
     manager: conda
     platform: osx-64
     dependencies: {}
-    url: https://conda.anaconda.org/conda-forge/noarch/font-ttf-ubuntu-0.83-hab24e00_0.tar.bz2
+    url: https://conda.anaconda.org/conda-forge/noarch/font-ttf-ubuntu-0.83-h77eed37_1.conda
     hash:
-      md5: 19410c3df09dfb12d1206132a1d357c5
-      sha256: 470d5db54102bd51dbb0c5990324a2f4a0bc976faa493b22193338adb9882e2e
+      md5: 6185f640c43843e5ad6fd1c5372c3f80
+      sha256: 056c85b482d58faab5fd4670b6c1f5df0986314cca3bc831d458b22e4ef2c792
     category: main
     optional: false
   - name: font-ttf-ubuntu
@@ -5225,10 +5225,10 @@ package:
     manager: conda
     platform: osx-arm64
     dependencies: {}
-    url: https://conda.anaconda.org/conda-forge/noarch/font-ttf-ubuntu-0.83-hab24e00_0.tar.bz2
+    url: https://conda.anaconda.org/conda-forge/noarch/font-ttf-ubuntu-0.83-h77eed37_1.conda
     hash:
-      md5: 19410c3df09dfb12d1206132a1d357c5
-      sha256: 470d5db54102bd51dbb0c5990324a2f4a0bc976faa493b22193338adb9882e2e
+      md5: 6185f640c43843e5ad6fd1c5372c3f80
+      sha256: 056c85b482d58faab5fd4670b6c1f5df0986314cca3bc831d458b22e4ef2c792
     category: main
     optional: false
   - name: fontconfig
@@ -5333,8 +5333,8 @@ package:
     dependencies:
       font-ttf-inconsolata: ""
       font-ttf-source-code-pro: ""
-      font-ttf-dejavu-sans-mono: ""
       font-ttf-ubuntu: ""
+      font-ttf-dejavu-sans-mono: ""
     url: https://conda.anaconda.org/conda-forge/noarch/fonts-conda-forge-1-0.tar.bz2
     hash:
       md5: f766549260d6815b0c52253f1fb1bb29
@@ -5348,8 +5348,8 @@ package:
     dependencies:
       font-ttf-inconsolata: ""
       font-ttf-source-code-pro: ""
-      font-ttf-dejavu-sans-mono: ""
       font-ttf-ubuntu: ""
+      font-ttf-dejavu-sans-mono: ""
     url: https://conda.anaconda.org/conda-forge/noarch/fonts-conda-forge-1-0.tar.bz2
     hash:
       md5: f766549260d6815b0c52253f1fb1bb29
