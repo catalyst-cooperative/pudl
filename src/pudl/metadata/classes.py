@@ -66,7 +66,7 @@ logger = pudl.logging_helpers.get_logger(__name__)
 # to define an inconvenient alias for it.
 warnings.filterwarnings(
     action="ignore",
-    message='Field name "schema" shadows an attribute in parent "BaseModel"',
+    message='Field name "schema" shadows an attribute in parent "PudlMeta"',
     category=UserWarning,
     module="pydantic._internal._fields",
 )
@@ -225,10 +225,20 @@ def _validator(*names, fn: Callable) -> Callable:
     return field_validator(*names)(fn)
 
 
-# ---- Classes: Field ---- #
+########################################################################################
+# PUDL Metadata Classes
+########################################################################################
+class PudlMeta(BaseModel):
+    """A base model that configures some options for PUDL metadata classes."""
+
+    model_config = ConfigDict(
+        extra="forbid",
+        validate_all=True,
+        validate_assignment=True,
+    )
 
 
-class FieldConstraints(BaseModel):
+class FieldConstraints(PudlMeta):
     """Field constraints (`resource.schema.fields[...].constraints`).
 
     See https://specs.frictionlessdata.io/table-schema/#constraints.
@@ -275,7 +285,7 @@ class FieldConstraints(BaseModel):
         return value
 
 
-class FieldHarvest(BaseModel):
+class FieldHarvest(PudlMeta):
     """Field harvest parameters (`resource.schema.fields[...].harvest`)."""
 
     # NOTE: Callables with defaults must use pydantic.Field() to not bind to self
@@ -288,7 +298,7 @@ class FieldHarvest(BaseModel):
     """Fraction of invalid groups above which result is considered invalid."""
 
 
-class Encoder(BaseModel):
+class Encoder(PudlMeta):
     """A class that allows us to standardize reported categorical codes.
 
     Often the original data we are integrating uses short codes to indicate a
@@ -489,7 +499,7 @@ class Encoder(BaseModel):
         return rendered
 
 
-class Field(BaseModel):
+class Field(PudlMeta):
     """Field (`resource.schema.fields[...]`).
 
     See https://specs.frictionlessdata.io/table-schema/#field-descriptors.
@@ -678,7 +688,7 @@ class Field(BaseModel):
 # ---- Classes: Resource ---- #
 
 
-class ForeignKeyReference(BaseModel):
+class ForeignKeyReference(PudlMeta):
     """Foreign key reference (`resource.schema.foreign_keys[...].reference`).
 
     See https://specs.frictionlessdata.io/table-schema/#foreign-keys.
@@ -690,7 +700,7 @@ class ForeignKeyReference(BaseModel):
     _check_unique = _validator("fields", fn=_check_unique)
 
 
-class ForeignKey(BaseModel):
+class ForeignKey(PudlMeta):
     """Foreign key (`resource.schema.foreign_keys[...]`).
 
     See https://specs.frictionlessdata.io/table-schema/#foreign-keys.
@@ -720,7 +730,7 @@ class ForeignKey(BaseModel):
         )
 
 
-class Schema(BaseModel):
+class Schema(PudlMeta):
     """Table schema (`resource.schema`).
 
     See https://specs.frictionlessdata.io/table-schema.
@@ -773,7 +783,7 @@ class Schema(BaseModel):
         return self
 
 
-class License(BaseModel):
+class License(PudlMeta):
     """Data license (`package|resource.licenses[...]`).
 
     See https://specs.frictionlessdata.io/data-package/#licenses.
@@ -794,7 +804,7 @@ class License(BaseModel):
         return cls(**cls.dict_from_id(x))
 
 
-class Contributor(BaseModel):
+class Contributor(PudlMeta):
     """Data contributor (`package.contributors[...]`).
 
     See https://specs.frictionlessdata.io/data-package/#contributors.
@@ -848,7 +858,7 @@ class Contributor(BaseModel):
         return hash(str(self))
 
 
-class DataSource(BaseModel):
+class DataSource(PudlMeta):
     """A data source that has been integrated into PUDL.
 
     This metadata is used for:
@@ -971,7 +981,7 @@ class DataSource(BaseModel):
         return cls(**cls.dict_from_id(x))
 
 
-class ResourceHarvest(BaseModel):
+class ResourceHarvest(PudlMeta):
     """Resource harvest parameters (`resource.harvest`)."""
 
     harvest: StrictBool = False
@@ -985,7 +995,7 @@ class ResourceHarvest(BaseModel):
     """Fraction of invalid fields above which result is considerd invalid."""
 
 
-class Resource(BaseModel):
+class Resource(PudlMeta):
     """Tabular data resource (`package.resources[...]`).
 
     See https://specs.frictionlessdata.io/tabular-data-resource.
@@ -1651,7 +1661,7 @@ class Resource(BaseModel):
 # ---- Package ---- #
 
 
-class Package(BaseModel):
+class Package(PudlMeta):
     """Tabular data package.
 
     See https://specs.frictionlessdata.io/data-package.
@@ -1689,6 +1699,7 @@ class Package(BaseModel):
     licenses: list[License] = []
     resources: StrictList(Resource)
     profile: String = "tabular-data-package"
+    model_config = ConfigDict(validate_assignment=False)
 
     @field_validator("resources")
     @classmethod
@@ -1846,7 +1857,7 @@ class Package(BaseModel):
         return metadata
 
 
-class CodeMetadata(BaseModel):
+class CodeMetadata(PudlMeta):
     """A list of Encoders for standardizing and documenting categorical codes.
 
     Used to export static coding metadata to PUDL documentation automatically
@@ -1881,7 +1892,7 @@ class CodeMetadata(BaseModel):
                 f.write(rendered)
 
 
-class DatasetteMetadata(BaseModel):
+class DatasetteMetadata(PudlMeta):
     """A collection of Data Sources and Resources for metadata export.
 
     Used to create metadata YAML file to accompany Datasette.
