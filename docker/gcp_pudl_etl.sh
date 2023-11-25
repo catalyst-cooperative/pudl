@@ -102,10 +102,10 @@ if [[ $ETL_SUCCESS == 0 ]]; then
     fi
 
     # Compress the SQLite DBs for easier distribution
-    gzip $PUDL_OUTPUT/*.sqlite
-
     # Remove redundant multi-file EPA CEMS outputs prior to distribution
+    gzip --verbose $PUDL_OUTPUT/*.sqlite && \
     rm -rf $PUDL_OUTPUT/hourly_emissions_epacems/
+    ETL_SUCCESS=${PIPESTATUS[0]}
 
     # Dump outputs to s3 bucket if branch is dev or build was triggered by a tag
     if [ $GITHUB_ACTION_TRIGGER = "push" ] || [ $GITHUB_REF = "dev" ]; then
