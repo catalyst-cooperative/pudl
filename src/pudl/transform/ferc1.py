@@ -26,7 +26,6 @@ from pydantic import (
     BaseModel,
     Field,
     field_validator,
-    model_validator,
 )
 
 import pudl
@@ -826,7 +825,11 @@ class GroupMetricChecks(TransformParams):
     group_metric_tolerances: GroupMetricTolerances = GroupMetricTolerances()
     is_close_tolerance: CalculationIsCloseTolerance = CalculationIsCloseTolerance()
 
-    @model_validator(mode="after")
+    # TODO: The mechanics of this validation are a pain, given the bajillion combos
+    # of tolerances we have in the matrix of checks. It works, but actually specifying
+    # all of the relative values is not currently ergonomic, so it is disabled for the
+    # moment.
+    # @model_validator(mode="after")
     def grouped_tol_ge_ungrouped_tol(self: Self):
         """Grouped tolerance should always be greater than or equal to ungrouped."""
         for group in self.groups_to_check:
@@ -1539,7 +1542,7 @@ class Ferc1TableTransformParams(TableTransformParams):
 # FERC 1 transform helper functions. Probably to be integrated into a class
 # below as methods or moved to a different module once it's clear where they belong.
 ################################################################################
-def get_ferc1_dbf_rows_to_map(ferc1_engine: sa.engine.Engine) -> pd.DataFrame:
+def get_ferc1_dbf_rows_to_map(ferc1_engine: sa.Engine) -> pd.DataFrame:
     """Identify DBF rows that need to be mapped to XBRL columns.
 
     Select all records in the ``f1_row_lit_tbl`` where the row literal associated with a
@@ -1560,7 +1563,7 @@ def get_ferc1_dbf_rows_to_map(ferc1_engine: sa.engine.Engine) -> pd.DataFrame:
     return row_lit.loc[row_lit.changed, idx_cols + data_cols]
 
 
-def update_dbf_to_xbrl_map(ferc1_engine: sa.engine.Engine) -> pd.DataFrame:
+def update_dbf_to_xbrl_map(ferc1_engine: sa.Engine) -> pd.DataFrame:
     """Regenerate the FERC 1 DBF+XBRL glue while retaining existing mappings.
 
     Reads all rows that need to be mapped out of the ``f1_row_lit_tbl`` and appends

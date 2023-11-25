@@ -78,7 +78,7 @@ def find_new_ferc1_strings(
     table: str,
     field: str,
     strdict: dict[str, list[str]],
-    ferc1_engine: sa.engine.Engine,
+    ferc1_engine: sa.Engine,
 ) -> set[str]:
     """Identify as-of-yet uncategorized freeform strings in FERC Form 1.
 
@@ -1047,7 +1047,7 @@ def simplify_columns(df: pd.DataFrame) -> pd.DataFrame:
     return df
 
 
-def drop_tables(engine: sa.engine.Engine, clobber: bool = False) -> None:
+def drop_tables(engine: sa.Engine, clobber: bool = False) -> None:
     """Drops all tables from a SQLite database.
 
     Creates an sa.schema.MetaData object reflecting the structure of the

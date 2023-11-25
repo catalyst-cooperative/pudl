@@ -134,7 +134,7 @@ class SQLiteIOManager(IOManager):
             table_name = context.get_identifier()
         return table_name
 
-    def _setup_database(self, timeout: float = 1_000.0) -> sa.engine.Engine:
+    def _setup_database(self, timeout: float = 1_000.0) -> sa.Engine:
         """Create database and metadata if they don't exist.
 
         Args:
@@ -572,10 +572,7 @@ class FercSQLiteIOManager(SQLiteIOManager):
         """
         super().__init__(base_dir, db_name, md, timeout)
 
-    def _setup_database(
-        self,
-        timeout: float = 1_000.0,
-    ) -> sa.engine.Engine:
+    def _setup_database(self, timeout: float = 1_000.0) -> sa.Engine:
         """Create database engine and read the metadata.
 
         Args:
