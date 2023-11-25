@@ -4,7 +4,7 @@ name: update-conda-lockfile
 on:
   workflow_dispatch:
   schedule:
-    - cron: "0 9 * * 1-5" # Weekdays at 9AM UTC
+    - cron: "0 9 * * 1" # Mondays at 9AM UTC
   push:
     paths:
       - "Makefile"
