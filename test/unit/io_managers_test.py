@@ -1,7 +1,9 @@
 """Test Dagster IO Managers."""
 import datetime
 import json
+from pathlib import Path
 
+import alembic.config
 import hypothesis
 import pandas as pd
 import pandera
@@ -204,40 +206,90 @@ def test_missing_schema_error(sqlite_io_manager_fixture):
 
 
 @pytest.fixture
-def pudl_sqlite_io_manager_fixture(tmp_path, test_pkg):
-    """Create a SQLiteIOManager fixture with a PUDL database schema."""
-    db_path = tmp_path / "pudl.sqlite"
+def fake_pudl_sqlite_io_manager_fixture(tmp_path, test_pkg, monkeypatch):
+    """Create a SQLiteIOManager fixture with a fake database schema."""
+    db_path = tmp_path / "fake.sqlite"
 
     # Create the database and schemas
     engine = sa.create_engine(f"sqlite:///{db_path}")
     md = test_pkg.to_sql()
     md.create_all(engine)
-    return PudlSQLiteIOManager(base_dir=tmp_path, db_name="pudl", package=test_pkg)
+    return PudlSQLiteIOManager(base_dir=tmp_path, db_name="fake", package=test_pkg)
 
 
-def test_error_when_handling_view_without_metadata(pudl_sqlite_io_manager_fixture):
+def test_pudl_sqlite_io_manager_delete_stmt(fake_pudl_sqlite_io_manager_fixture):
+    """Test we are replacing the data without dropping the table schema."""
+    manager = fake_pudl_sqlite_io_manager_fixture
+
+    asset_key = "artist"
+    artist = pd.DataFrame({"artistid": [1], "artistname": ["Co-op Mop"]})
+    output_context = build_output_context(asset_key=AssetKey(asset_key))
+    manager.handle_output(output_context, artist)
+
+    # Read the table back into pandas
+    input_context = build_input_context(asset_key=AssetKey(asset_key))
+    returned_df = manager.load_input(input_context)
+    assert len(returned_df) == 1
+
+    # Rerun the asset
+    # Load the dataframe to a sqlite table
+    output_context = build_output_context(asset_key=AssetKey(asset_key))
+    manager.handle_output(output_context, artist)
+
+    # Read the table back into pandas
+    input_context = build_input_context(asset_key=AssetKey(asset_key))
+    returned_df = manager.load_input(input_context)
+    assert len(returned_df) == 1
+
+
+def test_migrations_match_metadata(tmp_path, monkeypatch):
+    """If you create a `PudlSQLiteIOManager` that points at a non-existing
+    `pudl.sqlite` - it will initialize the DB based on the `package`.
+
+    If you create a `PudlSQLiteIOManager` that points at an existing
+    `pudl.sqlite`, like one initialized via `alembic upgrade head`, it
+    will compare the existing db schema with the db schema in `package`.
+
+    We want to make sure that the schema defined in `package` is the same as
+    the one we arrive at by applying all the migrations.
+    """
+    # alembic wants current directory to be the one with `alembic.ini` in it
+    monkeypatch.chdir(Path(__file__).parent.parent.parent)
+    # alembic knows to use PudlPaths().pudl_db - so we need to set PUDL_OUTPUT env var
+    monkeypatch.setenv("PUDL_OUTPUT", tmp_path)
+    # run all the migrations on a fresh DB at tmp_path/pudl.sqlite
+    alembic.config.main(["upgrade", "head"])
+
+    pkg = Package.from_resource_ids()
+    PudlSQLiteIOManager(base_dir=tmp_path, db_name="pudl", package=pkg)
+
+    # all we care about is that it didn't raise an error
+    assert True
+
+
+def test_error_when_handling_view_without_metadata(fake_pudl_sqlite_io_manager_fixture):
     """Make sure an error is thrown when a user creates a view without metadata."""
     asset_key = "track_view"
     sql_stmt = "CREATE VIEW track_view AS SELECT * FROM track;"
     output_context = build_output_context(asset_key=AssetKey(asset_key))
     with pytest.raises(ValueError):
-        pudl_sqlite_io_manager_fixture.handle_output(output_context, sql_stmt)
+        fake_pudl_sqlite_io_manager_fixture.handle_output(output_context, sql_stmt)
 
 
 @pytest.mark.skip(reason="SQLAlchemy is not finding the view. Debug or remove.")
-def test_handling_view_with_metadata(pudl_sqlite_io_manager_fixture):
+def test_handling_view_with_metadata(fake_pudl_sqlite_io_manager_fixture):
     """Make sure an users can create and load views when it has metadata."""
     # Create some sample data
     asset_key = "artist"
     artist = pd.DataFrame({"artistid": [1], "artistname": ["Co-op Mop"]})
     output_context = build_output_context(asset_key=AssetKey(asset_key))
-    pudl_sqlite_io_manager_fixture.handle_output(output_context, artist)
+    fake_pudl_sqlite_io_manager_fixture.handle_output(output_context, artist)
 
     # create the view
     asset_key = "artist_view"
     sql_stmt = "CREATE VIEW artist_view AS SELECT * FROM artist;"
     output_context = build_output_context(asset_key=AssetKey(asset_key))
-    pudl_sqlite_io_manager_fixture.handle_output(output_context, sql_stmt)
+    fake_pudl_sqlite_io_manager_fixture.handle_output(output_context, sql_stmt)
 
     # read the view data as a dataframe
     input_context = build_input_context(asset_key=AssetKey(asset_key))
@@ -246,15 +298,15 @@ def test_handling_view_with_metadata(pudl_sqlite_io_manager_fixture):
     # sqlalchemy.exc.InvalidRequestError: Could not reflect: requested table(s) not available in
     # Engine(sqlite:////private/var/folders/pg/zrqnq8l113q57bndc5__h2640000gn/
     # # T/pytest-of-nelsonauner/pytest-38/test_handling_view_with_metada0/pudl.sqlite): (artist_view)
-    pudl_sqlite_io_manager_fixture.load_input(input_context)
+    fake_pudl_sqlite_io_manager_fixture.load_input(input_context)
 
 
-def test_error_when_reading_view_without_metadata(pudl_sqlite_io_manager_fixture):
+def test_error_when_reading_view_without_metadata(fake_pudl_sqlite_io_manager_fixture):
     """Make sure and error is thrown when a user loads a view without metadata."""
     asset_key = "track_view"
     input_context = build_input_context(asset_key=AssetKey(asset_key))
     with pytest.raises(ValueError):
-        pudl_sqlite_io_manager_fixture.load_input(input_context)
+        fake_pudl_sqlite_io_manager_fixture.load_input(input_context)
 
 
 def test_ferc_xbrl_sqlite_io_manager_dedupes(mocker, tmp_path):
@@ -353,7 +405,9 @@ def test_ferc_xbrl_sqlite_io_manager_dedupes(mocker, tmp_path):
 
 example_schema = pandera.DataFrameSchema(
     {
-        "entity_id": pandera.Column(str, nullable=False),
+        "entity_id": pandera.Column(
+            str, pandera.Check.isin("C0123456789"), nullable=False
+        ),
         "date": pandera.Column("datetime64[ns]", nullable=False),
         "utility_type": pandera.Column(
             str,
@@ -363,12 +417,12 @@ example_schema = pandera.DataFrameSchema(
         "publication_time": pandera.Column("datetime64[ns]", nullable=False),
         "int_factoid": pandera.Column(int),
         "float_factoid": pandera.Column(float),
-        "str_factoid": pandera.Column("str"),
+        "str_factoid": pandera.Column(str),
     }
 )
 
 
-@pytest.mark.xfail
+@hypothesis.settings(print_blob=True, deadline=400)
 @hypothesis.given(example_schema.strategy(size=3))
 def test_filter_for_freshest_data(df):
     # XBRL context is the identifying metadata for reported values
@@ -382,7 +436,7 @@ def test_filter_for_freshest_data(df):
 
     # every post-deduplication row exists in the original rows
     assert (deduped.merge(df, how="left", indicator=True)._merge != "left_only").all()
-    # for every [entity_id, utility_type, date] - th"true"e is only one row
+    # for every [entity_id, utility_type, date] - there is only one row
     assert (~deduped.duplicated(subset=xbrl_context_cols)).all()
     # for every *context* in the input there is a corresponding row in the output
     original_contexts = df.groupby(xbrl_context_cols, as_index=False).last()
@@ -393,7 +447,9 @@ def test_filter_for_freshest_data(df):
         suffixes=["_in", "_out"],
         indicator=True,
     ).set_index(xbrl_context_cols)
-    hypothesis.note(f"Found these contexts in input data:\n{original_contexts}")
+    hypothesis.note(
+        f"Found these contexts ({xbrl_context_cols}) in input data:\n{original_contexts[xbrl_context_cols]}"
+    )
     hypothesis.note(f"The freshest data:\n{deduped}")
     hypothesis.note(f"Paired by context:\n{paired_by_context}")
     assert (paired_by_context._merge == "both").all()
