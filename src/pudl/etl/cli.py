@@ -57,7 +57,9 @@ def pudl_etl_job_factory(
     return get_pudl_etl_job
 
 
-@click.command()
+@click.command(
+    context_settings={"help_option_names": ["-h", "--help"]},
+)
 @click.argument(
     "etl_settings_yml",
     type=click.Path(
@@ -75,11 +77,14 @@ def pudl_etl_job_factory(
 )
 @click.option(
     "--gcs-cache-path",
-    default="gs://internal-zenodo-cache.catalyst.coop",
     type=str,
     help=(
-        "Load datastore resources from Google Cloud Storage if possible. "
-        "Path should be a URL of the form gs://bucket[/path_prefix]"
+        "Load cached inputs from Google Cloud Storage if possible. This is usually "
+        "much faster and more reliable than downloading from Zenodo directly. The "
+        "path should be a URL of the form gs://bucket[/path_prefix]. Internally we use "
+        "gs://internal-zenodo-cache.catalyst.coop. A public cache is available at "
+        "gs://zenodo-cache.catalyst.coop but requires GCS authentication and a billing "
+        "project to pay data egress costs."
     ),
 )
 @click.option(

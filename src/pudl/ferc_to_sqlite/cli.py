@@ -1,14 +1,9 @@
-"""A script for cloning the FERC Form 1 database into SQLite.
-
-This script generates a SQLite database that is a clone/mirror of the original
-FERC Form1 database. We use this cloned database as the starting point for the
-main PUDL ETL process. The underlying work in the script is being done in
-:mod:`pudl.extract.ferc1`.
-"""
-import argparse
+"""A script using Dagster to convert FERC data fom DBF and XBRL to SQLite databases."""
+import pathlib
 import sys
 from collections.abc import Callable
 
+import click
 from dagster import (
     DagsterInstance,
     JobDefinition,
@@ -22,62 +17,6 @@ from pudl.settings import EtlSettings
 
 # Create a logger to output any messages we might have...
 logger = pudl.logging_helpers.get_logger(__name__)
-
-
-def parse_command_line(argv):
-    """Parse command line arguments. See the -h option.
-
-    Args:
-        argv (str): Command line arguments, including caller filename.
-
-    Returns:
-        dict: Dictionary of command line arguments and their parsed values.
-    """
-    parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument(
-        "settings_file", type=str, default="", help="path to YAML settings file."
-    )
-    parser.add_argument(
-        "--logfile",
-        default=None,
-        type=str,
-        help="If specified, write logs to this file.",
-    )
-    parser.add_argument(
-        "-c",
-        "--clobber",
-        action="store_true",
-        help="""Clobber existing sqlite database if it exists. If clobber is
-        not included but the sqlite databse already exists the build will
-        fail.""",
-        default=False,
-    )
-    parser.add_argument(
-        "-b",
-        "--batch-size",
-        default=50,
-        type=int,
-        help="Specify number of XBRL instances to be processed at a time (defaults to 50)",
-    )
-    parser.add_argument(
-        "-w",
-        "--workers",
-        default=None,
-        type=int,
-        help="Specify number of worker processes for parsing XBRL filings.",
-    )
-    parser.add_argument(
-        "--gcs-cache-path",
-        type=str,
-        help="Load datastore resources from Google Cloud Storage. Should be gs://bucket[/path_prefix]",
-    )
-    parser.add_argument(
-        "--loglevel",
-        help="Set logging level (DEBUG, INFO, WARNING, ERROR, or CRITICAL).",
-        default="INFO",
-    )
-    arguments = parser.parse_args(argv[1:])
-    return arguments
 
 
 def ferc_to_sqlite_job_factory(
@@ -122,21 +61,98 @@ def ferc_to_sqlite_job_factory(
     return get_ferc_to_sqlite_job
 
 
-def main():  # noqa: C901
-    """Clone the FERC Form 1 FoxPro database into SQLite."""
-    args = parse_command_line(sys.argv)
+@click.command(
+    name="ferc_to_sqlite",
+    context_settings={"help_option_names": ["-h", "--help"]},
+)
+@click.argument(
+    "etl_settings_yml",
+    type=click.Path(
+        exists=True,
+        dir_okay=False,
+        resolve_path=True,
+        path_type=pathlib.Path,
+    ),
+)
+@click.option(
+    "-b",
+    "--batch-size",
+    default=50,
+    type=int,
+    help="Number of XBRL instances to be processed at a time.",
+)
+@click.option(
+    "--clobber/--no-clobber",
+    type=bool,
+    default=False,
+    help=(
+        "Clobber existing FERC SQLite databases if they exist. If clobber is not "
+        "specified but the SQLite database already exists the run will fail."
+    ),
+)
+@click.option(
+    "-w",
+    "--workers",
+    default=0,
+    type=int,
+    help=(
+        "Number of worker processes to use when parsing XBRL filings. "
+        "Defaults to using the number of CPUs."
+    ),
+)
+@click.option(
+    "--gcs-cache-path",
+    type=str,
+    help=(
+        "Load cached inputs from Google Cloud Storage if possible. This is usually "
+        "much faster and more reliable than downloading from Zenodo directly. The "
+        "path should be a URL of the form gs://bucket[/path_prefix]. Internally we use "
+        "gs://internal-zenodo-cache.catalyst.coop. A public cache is available at "
+        "gs://zenodo-cache.catalyst.coop but requires GCS authentication and a billing "
+        "project to pay data egress costs."
+    ),
+)
+@click.option(
+    "--logfile",
+    help="If specified, write logs to this file.",
+    type=click.Path(
+        exists=False,
+        resolve_path=True,
+        path_type=pathlib.Path,
+    ),
+)
+@click.option(
+    "--loglevel",
+    default="INFO",
+    type=click.Choice(
+        ["DEBUG", "INFO", "WARNING", "ERROR", "CRITICAL"], case_sensitive=False
+    ),
+)
+def main(
+    etl_settings_yml: pathlib.Path,
+    batch_size: int,
+    workers: int,
+    clobber: bool,
+    gcs_cache_path: str,
+    logfile: pathlib.Path,
+    loglevel: str,
+):
+    """Use Dagster to convert FERC data fom DBF and XBRL to SQLite databases.
 
+    Reads settings specifying which forms and years to convert from ETL_SETTINGS_YML.
+
+    Also produces JSON versions of XBRL taxonomies and datapackage descriptors which
+    annotate the XBRL derived SQLite databases.
+    """
     # Display logged output from the PUDL package:
-    pudl.logging_helpers.configure_root_logger(
-        logfile=args.logfile, loglevel=args.loglevel
-    )
+    pudl.logging_helpers.configure_root_logger(logfile=logfile, loglevel=loglevel)
 
-    etl_settings = EtlSettings.from_yaml(args.settings_file)
+    etl_settings = EtlSettings.from_yaml(etl_settings_yml)
 
     ferc_to_sqlite_reconstructable_job = build_reconstructable_job(
         "pudl.ferc_to_sqlite.cli",
         "ferc_to_sqlite_job_factory",
-        reconstructable_kwargs={"loglevel": args.loglevel, "logfile": args.logfile},
+        reconstructable_kwargs={"loglevel": loglevel, "logfile": logfile},
     )
 
     result = execute_job(
@@ -149,22 +165,20 @@ def main():  # noqa: C901
                 },
                 "datastore": {
                     "config": {
-                        "gcs_cache_path": args.gcs_cache_path
-                        if args.gcs_cache_path
-                        else "",
+                        "gcs_cache_path": gcs_cache_path if gcs_cache_path else "",
                     },
                 },
             },
             "ops": {
                 "xbrl2sqlite": {
                     "config": {
-                        "workers": args.workers,
-                        "batch_size": args.batch_size,
-                        "clobber": args.clobber,
+                        "workers": workers,
+                        "batch_size": batch_size,
+                        "clobber": clobber,
                     },
                 },
                 "dbf2sqlite": {
-                    "config": {"clobber": args.clobber},
+                    "config": {"clobber": clobber},
                 },
             },
         },
