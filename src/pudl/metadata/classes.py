@@ -233,7 +233,7 @@ class PudlMeta(BaseModel):
 
     model_config = ConfigDict(
         extra="forbid",
-        validate_all=True,
+        validate_default=True,
         validate_assignment=True,
     )
 
@@ -246,11 +246,11 @@ class FieldConstraints(PudlMeta):
 
     required: StrictBool = False
     unique: StrictBool = False
-    min_length: PositiveInt = None
-    max_length: PositiveInt = None
-    minimum: StrictInt | StrictFloat | datetime.date | datetime.datetime = None
-    maximum: StrictInt | StrictFloat | datetime.date | datetime.datetime = None
-    pattern: re.Pattern = None
+    min_length: PositiveInt | None = None
+    max_length: PositiveInt | None = None
+    minimum: StrictInt | StrictFloat | datetime.date | datetime.datetime | None = None
+    maximum: StrictInt | StrictFloat | datetime.date | datetime.datetime | None = None
+    pattern: re.Pattern | None = None
     enum: StrictList(
         String
         | StrictInt
@@ -258,7 +258,7 @@ class FieldConstraints(PudlMeta):
         | StrictBool
         | datetime.date
         | datetime.datetime
-    ) = None
+    ) | None = None
 
     _check_unique = _validator("enum", fn=_check_unique)
 
@@ -526,11 +526,11 @@ class Field(PudlMeta):
         "datetime",
         "year",
     ]
-    title: String = None
+    title: String | None = None
     # Alias required to avoid shadowing Python built-in format()
     format_: Literal["default"] = pydantic.Field(alias="format", default="default")
-    description: String = None
-    unit: String = None
+    description: String | None = None
+    unit: String | None = None
     constraints: FieldConstraints = FieldConstraints()
     harvest: FieldHarvest = FieldHarvest()
     encoder: Encoder | None = None
@@ -738,7 +738,7 @@ class Schema(PudlMeta):
 
     fields: StrictList(Field)
     missing_values: list[StrictStr] = [""]
-    primary_key: StrictList(SnakeCase) = None
+    primary_key: StrictList(SnakeCase) | None = None
     foreign_keys: list[ForeignKey] = []
 
     _check_unique = _validator(
@@ -811,8 +811,8 @@ class Contributor(PudlMeta):
     """
 
     title: String
-    path: AnyHttpUrl = None
-    email: EmailStr = None
+    path: AnyHttpUrl | None = None
+    email: EmailStr | None = None
     role: Literal[
         "author", "contributor", "maintainer", "publisher", "wrangler"
     ] = "contributor"
@@ -837,8 +837,8 @@ class Contributor(PudlMeta):
         "supervisor",
         "work package leader",
     ] = "project member"
-    organization: String = None
-    orcid: String = None
+    organization: String | None = None
+    orcid: String | None = None
 
     @staticmethod
     def dict_from_id(x: str) -> dict:
@@ -874,19 +874,19 @@ class DataSource(PudlMeta):
     """
 
     name: SnakeCase
-    title: String = None
-    description: String = None
-    field_namespace: String = None
+    title: String | None = None
+    description: String | None = None
+    field_namespace: String | None = None
     keywords: list[str] = []
-    path: AnyHttpUrl = None
+    path: AnyHttpUrl | None = None
     contributors: list[Contributor] = []
     license_raw: License
     license_pudl: License
-    concept_doi: ZenodoDoi = None
+    concept_doi: ZenodoDoi | None = None
     working_partitions: dict[SnakeCase, Any] = {}
     source_file_dict: dict[SnakeCase, Any] = {}
     # agency: Agency  # needs to be defined
-    email: EmailStr = None
+    email: EmailStr | None = None
 
     def get_resource_ids(self) -> list[str]:
         """Compile list of resource IDs associated with this data source."""
@@ -1118,15 +1118,15 @@ class Resource(PudlMeta):
     """
 
     name: SnakeCase
-    title: String = None
-    description: String = None
+    title: String | None = None
+    description: String | None = None
     harvest: ResourceHarvest = ResourceHarvest()
     schema: Schema
     # Alias required to avoid shadowing Python built-in format()
-    format_: String = pydantic.Field(alias="format", default=None)
-    mediatype: String = None
-    path: String = None
-    dialect: dict[str, str] = None
+    format_: String | None = pydantic.Field(alias="format", default=None)
+    mediatype: String | None = None
+    path: String | None = None
+    dialect: dict[str, str] | None = None
     profile: String = "tabular-data-resource"
     contributors: list[Contributor] = []
     licenses: list[License] = []
@@ -1142,7 +1142,7 @@ class Resource(PudlMeta):
         "pudl",
         "ppe",
         "eia_bulk_elec",
-    ] = None
+    ] | None = None
     etl_group: Literal[
         "eia860",
         "eia861",
@@ -1162,7 +1162,7 @@ class Resource(PudlMeta):
         "state_demand",
         "static_pudl",
         "service_territories",
-    ] = None
+    ] | None = None
     create_database_schema: bool = True
 
     _check_unique = _validator(
@@ -1689,10 +1689,10 @@ class Package(PudlMeta):
     """
 
     name: String
-    title: String = None
-    description: String = None
+    title: String | None = None
+    description: String | None = None
     keywords: list[String] = []
-    homepage: AnyHttpUrl = "https://catalyst.coop/pudl"
+    homepage: AnyHttpUrl = AnyHttpUrl("https://catalyst.coop/pudl")
     created: datetime.datetime = datetime.datetime.utcnow()
     contributors: list[Contributor] = []
     sources: list[DataSource] = []
