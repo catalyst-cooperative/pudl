@@ -13,7 +13,7 @@ dependencies:
   - font-ttf-dejavu-sans-mono=2.37=hab24e00_0
   - font-ttf-inconsolata=3.000=h77eed37_0
   - font-ttf-source-code-pro=2.038=h77eed37_0
-  - font-ttf-ubuntu=0.83=hab24e00_0
+  - font-ttf-ubuntu=0.83=h77eed37_1
   - fribidi=1.0.10=h27ca646_0
   - giflib=5.2.1=h1a8c8d9_3
   - icu=73.2=hc8870d7_0

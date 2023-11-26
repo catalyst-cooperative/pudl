@@ -11,7 +11,7 @@ dependencies:
   - font-ttf-dejavu-sans-mono=2.37=hab24e00_0
   - font-ttf-inconsolata=3.000=h77eed37_0
   - font-ttf-source-code-pro=2.038=h77eed37_0
-  - font-ttf-ubuntu=0.83=hab24e00_0
+  - font-ttf-ubuntu=0.83=h77eed37_1
   - ld_impl_linux-64=2.40=h41732ed_0
   - libboost-headers=1.83.0=ha770c72_0
   - libstdcxx-ng=13.2.0=h7e041cc_3
