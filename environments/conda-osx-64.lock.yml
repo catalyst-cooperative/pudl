@@ -103,7 +103,7 @@ dependencies:
   - libzip=1.10.1=hc158999_3
   - minizip=4.0.3=h23f18a7_0
   - nodejs=20.9.0=h9adec40_0
-  - nss=3.94=hd6ac835_0
+  - nss=3.95=hfeb00ea_0
   - readline=8.2=h9e318b2_1
   - atk-1.0=2.38.0=h1d18e73_1
   - aws-c-event-stream=0.3.2=hdb93a3d_7
@@ -318,7 +318,7 @@ dependencies:
   - harfbuzz=8.3.0=hf45c392_0
   - hdf5=1.14.2=nompi_hedada53_100
   - html5lib=1.1=pyh9f0ad1d_0
-  - hypothesis=6.90.0=pyha770c72_0
+  - hypothesis=6.91.0=pyha770c72_0
   - importlib-metadata=6.8.0=pyha770c72_0
   - importlib_resources=6.1.1=pyhd8ed1ab_0
   - isodate=0.6.1=pyhd8ed1ab_0
@@ -424,7 +424,7 @@ dependencies:
   - ukkonen=1.0.1=py311h5fe6e05_4
   - uvicorn=0.24.0=py311h6eed73b_0
   - virtualenv=20.24.7=pyhd8ed1ab_0
-  - watchfiles=0.20.0=py311h299eb51_2
+  - watchfiles=0.21.0=py311h5e0f0e4_0
   - aiohttp=3.8.6=py311he705e18_1
   - alembic=1.12.1=pyhd8ed1ab_0
   - arelle-release=2.17.4=pyhd8ed1ab_0
@@ -460,7 +460,7 @@ dependencies:
   - readthedocs-sphinx-ext=2.2.3=pyhd8ed1ab_0
   - requests-toolbelt=0.10.1=pyhd8ed1ab_0
   - responses=0.24.1=pyhd8ed1ab_0
-  - s3transfer=0.7.0=pyhd8ed1ab_0
+  - s3transfer=0.7.0=pyhd8ed1ab_1
   - scipy=1.11.4=py311he0bea55_0
   - send2trash=1.8.2=pyhd1c38e8_0
   - shapely=2.0.2=py311h4c12f3d_1
