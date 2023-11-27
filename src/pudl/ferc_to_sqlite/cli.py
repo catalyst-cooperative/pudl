@@ -48,7 +48,7 @@ def parse_command_line(argv):
         "--clobber",
         action="store_true",
         help="""Clobber existing sqlite database if it exists. If clobber is
-        not included but the sqlite databse already exists the _build will
+        not included but the sqlite databse already exists the build will
         fail.""",
         default=False,
     )

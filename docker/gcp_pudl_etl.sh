@@ -22,22 +22,28 @@ function authenticate_gcp() {
 
 function run_pudl_etl() {
     send_slack_msg ":large_yellow_circle: Deployment started for $ACTION_SHA-$GITHUB_REF :floppy_disk:"
-    authenticate_gcp \
-    && alembic upgrade head \
-    && pudl_setup \
-    && ferc_to_sqlite \
-        --loglevel=DEBUG \
-        --gcs-cache-path=gs://internal-zenodo-cache.catalyst.coop \
-        --workers=8 \
+    authenticate_gcp && \
+    alembic upgrade head && \
+    pudl_setup && \
+    ferc_to_sqlite \
+        --loglevel DEBUG \
+        --gcs-cache-path gs://internal-zenodo-cache.catalyst.coop \
+        --workers 8 \
         $PUDL_SETTINGS_YML \
     && pudl_etl \
         --loglevel DEBUG \
         --gcs-cache-path gs://internal-zenodo-cache.catalyst.coop \
         $PUDL_SETTINGS_YML \
     && pytest \
-        --gcs-cache-path=gs://internal-zenodo-cache.catalyst.coop \
-        --etl-settings=$PUDL_SETTINGS_YML \
-        --live-dbs test
+        -n auto \
+        --gcs-cache-path gs://internal-zenodo-cache.catalyst.coop \
+        --etl-settings $PUDL_SETTINGS_YML \
+        --live-dbs test/integration test/unit \
+    && pytest \
+        -n auto \
+        --gcs-cache-path gs://internal-zenodo-cache.catalyst.coop \
+        --etl-settings $PUDL_SETTINGS_YML \
+        --live-dbs test/validate
     && touch ${PUDL_OUTPUT}/success
 }
 
@@ -92,9 +98,21 @@ function notify_slack() {
 # 2>&1 redirects stderr to stdout.
 run_pudl_etl 2>&1 | tee $LOGFILE
 
-# Notify slack if the etl succeeded.
-if [[ ${PIPESTATUS[0]} == 0 ]]; then
-    notify_slack "success"
+ETL_SUCCESS=${PIPESTATUS[0]}
+
+# if pipeline is successful, distribute + publish datasette
+if [[ $ETL_SUCCESS == 0 ]]; then
+    # Deploy the updated data to datasette
+    if [ $GITHUB_REF = "dev" ]; then
+        python ~/devtools/datasette/publish.py 2>&1 | tee -a $LOGFILE
+        ETL_SUCCESS=${PIPESTATUS[0]}
+    fi
+
+    # Compress the SQLite DBs for easier distribution
+    # Remove redundant multi-file EPA CEMS outputs prior to distribution
+    gzip --verbose $PUDL_OUTPUT/*.sqlite && \
+    rm -rf $PUDL_OUTPUT/hourly_emissions_epacems/
+    ETL_SUCCESS=${PIPESTATUS[0]}
 
     # Dump outputs to s3 bucket if branch is dev or build was triggered by a tag
     # TODO: this behavior should be controlled by on/off switch here and this logic
@@ -102,13 +120,15 @@ if [[ ${PIPESTATUS[0]} == 0 ]]; then
     # fragmented.
     if [ $GITHUB_ACTION_TRIGGER = "push" ] || [ $GITHUB_REF = "dev" ]; then
         copy_outputs_to_distribution_bucket
+        ETL_SUCCESS=${PIPESTATUS[0]}
     fi
+fi
 
-    # Deploy the updated data to datasette
-    if [ $GITHUB_REF = "dev" ]; then
-        gcloud config set run/region us-central1
-        source ~/devtools/datasette/publish.sh
-    fi
+# Notify slack about entire pipeline's success or failure;
+# PIPESTATUS[0] either refers to the failed ETL run or the last distribution
+# task that was run above
+if [[ $ETL_SUCCESS == 0 ]]; then
+    notify_slack "success"
 else
     notify_slack "failure"
 fi

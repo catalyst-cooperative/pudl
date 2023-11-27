@@ -321,9 +321,9 @@ A. FERC 1 & EIA Plants & Utilities
 :doc:`pudl_id_mapping` page for further instructions.
 
 
-.. code-block:: bash
+.. code-block:: console
 
-    tox -e get_unmapped_ids
+    $ make unmapped-ids
 
 .. note::
 
@@ -369,21 +369,21 @@ called from within the :class:`pudl.output.pudltabl.PudlTabl` class.
 * Are there new columns that should incorporated into the output tables?
 * Are there new tables that need to have an output function defined for them?
 
-**8.2)** To ensure that you (more) fully exercise all of the possible output functions,
-run the entire CI test suite against your live databases with:
+**8.2)** To ensure that you fully exercise all of the possible output functions,
+run all the integration tests against your live PUDL DB with:
 
-.. code-block:: bash
+.. code-block:: console
 
-    tox -e full -- --live-dbs
+    $ make pytest-integration-full
 
 9. Run and Update Data Validations
 -----------------------------------
 **9.1)** When the CI tests are passing against all years of data, sanity check the data
 in the database and the derived outputs by running
 
-.. code-block:: bash
+.. code-block:: console
 
-    tox -e validate
+    $ make pytest-validate
 
 We expect at least some of the validation tests to fail initially because we haven't
 updated the number of records we expect to see in each table.
@@ -398,18 +398,18 @@ attention to how far off of previous expectations the new tables are. E.g. if th
 are already 20 years of data, and you're integrating 1 new year of data, probably the
 number of rows in the tables should be increasing by around 5% (since 1/20 = 0.05).
 
-10. Run Additional Standalone Analyses
---------------------------------------
-**10.1)** Run any important analyses that haven't been integrated into the CI
-tests on the new year of data for sanity checking. For example the
-:mod:`pudl.analysis.state_demand` script or generating the EIA Plant Parts List for
-integration with FERC 1 data.
-
-11. Update the Documentation
+10. Update the Documentation
 ----------------------------
-**11.1)** Once the new year of data is integrated, update the documentation
-to reflect the new state of affairs. This will include updating at least:
+**10.1)** Once the new year of data is integrated, update the documentation to reflect
+the new state of affairs. This will include updating at least:
 
 * the top-level :doc:`README </index>`
+* the :doc:`data access </data_access>` page
 * the :doc:`/release_notes`
 * any updated :doc:`data sources </data_sources/index>`
+
+Check that the docs still build with
+
+.. code-block:: console
+
+    $ make docs-build

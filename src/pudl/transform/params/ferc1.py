@@ -2378,6 +2378,17 @@ TRANSFORM_PARAMS = {
                     ("f1_steam_2001_12_204_0_1", "seabrook"),
                 ],
             },
+            {
+                "idx_cols": ["record_id"],
+                "fix_cols": ["capacity_mw"],
+                "expect_unique": True,
+                "spot_fixes": [
+                    (
+                        "steam_electric_generating_plant_statistics_large_plants_402_2021_c000290_cliffside",
+                        1530.5,
+                    ),
+                ],
+            },
         ],
         "drop_invalid_rows": [
             {
