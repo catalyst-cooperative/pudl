@@ -37,6 +37,7 @@ fix accordingly.
 related to encoding. Take a look at which column it's talking about and look at 
 `metadata/resources/eia.py` to see which encoder in `CODE_METADATA` to tweak.
 - [ ] Test table outputs in a Jupyter notebook to make sure expected dates appear.
+- [ ] Map new plant and utility IDs that appear in the new data: https://catalystcoop-pudl.readthedocs.io/en/dev/dev/annual_updates.html#connect-datasets.
 - [ ] Run the validation test `test_minmax_rows` in `test/validate/eia_test.py` and 
 `test/validate/mcoe.py` (in the terminal: `pytest test/validate/eia_test.py::test_minmax_rows --live-dbs` or `pytest test/validate/mcoe_test.py::test_minmax_rows_mcoe --live-dbs`).
 Because you've added new data (more rows), these tests will fail. You can use the
