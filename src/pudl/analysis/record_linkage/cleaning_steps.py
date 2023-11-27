@@ -56,27 +56,14 @@ class LegalTermLocation(enum.Enum):
 
 
 class CompanyNameCleaner(BaseModel):
-    """Class to normalize/clean up text based company names.
-
-    Attributes:
-        cleaning_rules_list (list): a list of cleaning rules to be applied. The dictionary of
-                    cleaning rules may contain rules that are not needed. Therefore, the _cleaning_rules_list
-                    allows the user to select only the cleaning rules necessary of interest. This list is also
-                    read from a json file and can be easily updated by changing the file or setting up the
-                    correspondent class property.
-        normalize_legal_terms (bool): a flag to indicate if the cleaning process must normalize
-                    text's legal terms. e.g. LTD => LIMITED.
-        output_lettercase (str): indicates the letter case (lower, by default) as the result of the cleaning
-                    Other options are: 'upper' and 'title'.
-        legal_term_location (enum): Where in the string legal terms are found.
-        remove_unicode (bool): indicates if the unicode character should be removed or not, which may depend
-                    on the language of the text's name.
-        remove_accents (bool): indicates if letters with accents should be replaced with non-accented ones.
-    """
+    """Class to normalize/clean up text based company names."""
 
     # Constants used internally by the class
     __NAME_LEGAL_TERMS_DICT_FILE = "us_legal_forms.json"
     __NAME_JSON_ENTRY_LEGAL_TERMS = "legal_forms"
+
+    #: A flag to indicate if the cleaning process must normalize
+    #: text's legal terms. e.g. LTD => LIMITED.
     cleaning_rules_list: list[str] = [
         "replace_amperstand_between_space_by_AND",
         "replace_hyphen_between_spaces_by_single_space",
@@ -90,21 +77,23 @@ class CompanyNameCleaner(BaseModel):
         "remove_curly_brackets",
         "enforce_single_space_between_words",
     ]
+
+    #: A flag to indicate if the cleaning process must normalize
     normalize_legal_terms: bool = True
 
-    # Define if unicode characters should be removed from text's name
-    # This cleaning rule is treated separated from the regex rules because it depends on the
-    # language of the text's name. For instance, russian or japanese text's may contain
-    # unicode characters, while portuguese and french companies may not.
+    #: Define if unicode characters should be removed from text's name
+    #: This cleaning rule is treated separated from the regex rules because it depends on the
+    #: language of the text's name. For instance, russian or japanese text's may contain
+    #: unicode characters, while portuguese and french companies may not.
     remove_unicode: bool = False
 
-    # Define the letter case of the cleaning output
+    #: Define the letter case of the cleaning output
     output_lettercase: Literal["lower", "title"] = "lower"
 
-    # Where in the string are legal terms found
+    #: Where in the string are legal terms found
     legal_term_location: LegalTermLocation = LegalTermLocation.AT_THE_END
 
-    # Define if the letters with accents are replaced with non-accented ones
+    #: Define if the letters with accents are replaced with non-accented ones
     remove_accents = False
 
     def _apply_regex_rules(
