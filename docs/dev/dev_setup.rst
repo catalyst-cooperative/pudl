@@ -44,14 +44,6 @@ with the following commands:
     $ mamba update mamba
     $ conda config --set channel_priority strict
 
-At this point you should have a ``base`` ``conda`` environment. You'll need to install
-``conda-lock`` to work with our environment lockfiles, discussed below:
-
-.. code-block:: console
-
-    $ mamba activate base
-    $ mamba install conda-lock
-
 ------------------------------------------------------------------------------
 Fork and Clone the PUDL Repository
 ------------------------------------------------------------------------------
@@ -128,6 +120,7 @@ and then create a fresh ``pudl-dev`` environment using the new lockfile, you can
 .. code-block:: console
 
     $ make conda-clean
+    $ make conda-lock.yml
     $ make install-pudl
 
 However, unless you are adding or removing dependencies from ``pyproject.toml`` it is
