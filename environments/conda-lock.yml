@@ -1875,48 +1875,48 @@ package:
     category: main
     optional: false
   - name: boto3
-    version: 1.29.6
+    version: 1.29.7
     manager: conda
     platform: linux-64
     dependencies:
-      botocore: ">=1.32.6,<1.33.0"
+      botocore: ">=1.32.7,<1.33.0"
       jmespath: ">=0.7.1,<2.0.0"
       python: ">=3.7"
-      s3transfer: ">=0.7.0,<0.8.0"
-    url: https://conda.anaconda.org/conda-forge/noarch/boto3-1.29.6-pyhd8ed1ab_0.conda
+      s3transfer: ">=0.8.0,<0.9.0"
+    url: https://conda.anaconda.org/conda-forge/noarch/boto3-1.29.7-pyhd8ed1ab_0.conda
     hash:
-      md5: 0cbc42e6f9557edfea7f552c644027d7
-      sha256: 7e3c31d99afff810f0d68b4d7c957be34917d1d4bfc76a34620dee0bc35eec1d
+      md5: f20e114fa86dbdca7534aa0af7664c0e
+      sha256: 44fe95ed89d0db0c421968d1e79c8372a15136a9146b9a9bd0c66795194eb81d
     category: main
     optional: false
   - name: boto3
-    version: 1.29.6
+    version: 1.29.7
     manager: conda
     platform: osx-64
     dependencies:
       python: ">=3.7"
       jmespath: ">=0.7.1,<2.0.0"
-      s3transfer: ">=0.7.0,<0.8.0"
-      botocore: ">=1.32.6,<1.33.0"
-    url: https://conda.anaconda.org/conda-forge/noarch/boto3-1.29.6-pyhd8ed1ab_0.conda
+      botocore: ">=1.32.7,<1.33.0"
+      s3transfer: ">=0.8.0,<0.9.0"
+    url: https://conda.anaconda.org/conda-forge/noarch/boto3-1.29.7-pyhd8ed1ab_0.conda
     hash:
-      md5: 0cbc42e6f9557edfea7f552c644027d7
-      sha256: 7e3c31d99afff810f0d68b4d7c957be34917d1d4bfc76a34620dee0bc35eec1d
+      md5: f20e114fa86dbdca7534aa0af7664c0e
+      sha256: 44fe95ed89d0db0c421968d1e79c8372a15136a9146b9a9bd0c66795194eb81d
     category: main
     optional: false
   - name: boto3
-    version: 1.29.6
+    version: 1.29.7
     manager: conda
     platform: osx-arm64
     dependencies:
       python: ">=3.7"
       jmespath: ">=0.7.1,<2.0.0"
-      s3transfer: ">=0.7.0,<0.8.0"
-      botocore: ">=1.32.6,<1.33.0"
-    url: https://conda.anaconda.org/conda-forge/noarch/boto3-1.29.6-pyhd8ed1ab_0.conda
+      botocore: ">=1.32.7,<1.33.0"
+      s3transfer: ">=0.8.0,<0.9.0"
+    url: https://conda.anaconda.org/conda-forge/noarch/boto3-1.29.7-pyhd8ed1ab_0.conda
     hash:
-      md5: 0cbc42e6f9557edfea7f552c644027d7
-      sha256: 7e3c31d99afff810f0d68b4d7c957be34917d1d4bfc76a34620dee0bc35eec1d
+      md5: f20e114fa86dbdca7534aa0af7664c0e
+      sha256: 44fe95ed89d0db0c421968d1e79c8372a15136a9146b9a9bd0c66795194eb81d
     category: main
     optional: false
   - name: botocore
@@ -19686,42 +19686,42 @@ package:
     category: main
     optional: false
   - name: s3transfer
-    version: 0.7.0
+    version: 0.8.0
     manager: conda
     platform: linux-64
     dependencies:
-      botocore: ">=1.12.36,<2.0a.0"
+      botocore: ">=1.32.7,<2.0a.0"
       python: ">=3.7"
-    url: https://conda.anaconda.org/conda-forge/noarch/s3transfer-0.7.0-pyhd8ed1ab_1.conda
+    url: https://conda.anaconda.org/conda-forge/noarch/s3transfer-0.8.0-pyhd8ed1ab_0.conda
     hash:
-      md5: 6cda17fe7eb0fd45bf8a72cb917c9711
-      sha256: c2ae0c88a402e7154999c7917693f024603d9f4c7b0adbb629982e3ff5ea4961
+      md5: 9d4e095f2a2e84d0a3f54e3d9f13f9b2
+      sha256: cedf5d2e5da3dcd14d7da767a0cee8ef18938af724fdcf2fec682d44024cc2e8
     category: main
     optional: false
   - name: s3transfer
-    version: 0.7.0
+    version: 0.8.0
     manager: conda
     platform: osx-64
     dependencies:
       python: ">=3.7"
-      botocore: ">=1.12.36,<2.0a.0"
-    url: https://conda.anaconda.org/conda-forge/noarch/s3transfer-0.7.0-pyhd8ed1ab_1.conda
+      botocore: ">=1.32.7,<2.0a.0"
+    url: https://conda.anaconda.org/conda-forge/noarch/s3transfer-0.8.0-pyhd8ed1ab_0.conda
     hash:
-      md5: 6cda17fe7eb0fd45bf8a72cb917c9711
-      sha256: c2ae0c88a402e7154999c7917693f024603d9f4c7b0adbb629982e3ff5ea4961
+      md5: 9d4e095f2a2e84d0a3f54e3d9f13f9b2
+      sha256: cedf5d2e5da3dcd14d7da767a0cee8ef18938af724fdcf2fec682d44024cc2e8
     category: main
     optional: false
   - name: s3transfer
-    version: 0.7.0
+    version: 0.8.0
     manager: conda
     platform: osx-arm64
     dependencies:
       python: ">=3.7"
-      botocore: ">=1.12.36,<2.0a.0"
-    url: https://conda.anaconda.org/conda-forge/noarch/s3transfer-0.7.0-pyhd8ed1ab_1.conda
+      botocore: ">=1.32.7,<2.0a.0"
+    url: https://conda.anaconda.org/conda-forge/noarch/s3transfer-0.8.0-pyhd8ed1ab_0.conda
     hash:
-      md5: 6cda17fe7eb0fd45bf8a72cb917c9711
-      sha256: c2ae0c88a402e7154999c7917693f024603d9f4c7b0adbb629982e3ff5ea4961
+      md5: 9d4e095f2a2e84d0a3f54e3d9f13f9b2
+      sha256: cedf5d2e5da3dcd14d7da767a0cee8ef18938af724fdcf2fec682d44024cc2e8
     category: main
     optional: false
   - name: scikit-learn

@@ -478,7 +478,7 @@ dependencies:
   - readthedocs-sphinx-ext=2.2.3=pyhd8ed1ab_0
   - requests-toolbelt=0.10.1=pyhd8ed1ab_0
   - responses=0.24.1=pyhd8ed1ab_0
-  - s3transfer=0.7.0=pyhd8ed1ab_1
+  - s3transfer=0.8.0=pyhd8ed1ab_0
   - scipy=1.11.4=py311h64a7726_0
   - secretstorage=3.3.3=py311h38be061_2
   - shapely=2.0.2=py311h2032efe_1
@@ -487,7 +487,7 @@ dependencies:
   - typer=0.9.0=pyhd8ed1ab_0
   - uvicorn-standard=0.24.0=h38be061_0
   - aws-sdk-cpp=1.11.182=h8beafcf_7
-  - boto3=1.29.6=pyhd8ed1ab_0
+  - boto3=1.29.7=pyhd8ed1ab_0
   - cachecontrol-with-filecache=0.13.1=pyhd8ed1ab_0
   - dagster=1.5.9=pyhd8ed1ab_0
   - datasette=0.64.4=pyhd8ed1ab_1
