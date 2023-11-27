@@ -91,8 +91,6 @@ function notify_slack() {
 # 2>&1 redirects stderr to stdout.
 run_pudl_etl 2>&1 | tee $LOGFILE
 
-copy_outputs_to_gcs
-
 # Notify slack if the etl succeeded.
 if [[ ${PIPESTATUS[0]} == 0 ]]; then
     notify_slack "success"
@@ -114,4 +112,5 @@ else
     notify_slack "failure"
 fi
 
+copy_outputs_to_gcs
 shutdown_vm
