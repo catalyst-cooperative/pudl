@@ -215,8 +215,7 @@ jobs:
         with:
           path: coverage
       - name: List downloaded files
-        run: |
-          ls -R
+        run: find -type f
       - name: Upload test coverage report to CodeCov
         uses: codecov/codecov-action@v3
         with:
