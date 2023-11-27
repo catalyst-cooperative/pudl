@@ -1218,9 +1218,7 @@ def generate_rolling_avg(
             freq="MS",
             name="report_date",
         )
-    ).assign(
-        tmp=1
-    )  # assiging a temp column to merge on
+    ).assign(tmp=1)  # assiging a temp column to merge on
     groups = (
         df[group_cols + ["report_date"]]
         .drop_duplicates()
@@ -1488,9 +1486,8 @@ def calc_capacity_factor(
             capacity_factor=lambda x: x.net_generation_mwh / (x.capacity_mw * x.hours)
         )
         # Replace unrealistic capacity factors with NaN
-        .pipe(oob_to_nan, ["capacity_factor"], lb=min_cap_fact, ub=max_cap_fact).drop(
-            ["hours"], axis=1
-        )
+        .pipe(oob_to_nan, ["capacity_factor"], lb=min_cap_fact, ub=max_cap_fact)
+        .drop(["hours"], axis=1)
     )
     return df
 
@@ -1798,6 +1795,34 @@ def scale_by_ownership(
         gens["fraction_owned"], axis="index"
     )
     return gens
+
+
+def assert_cols_areclose(
+    df: pd.DataFrame,
+    a_cols: list[str],
+    b_cols: list[str],
+    mismatch_threshold: float,
+    message: str,
+):
+    """Check if two column sets of a dataframe are close to each other.
+
+    Ignores NANs and raises if there are too many mismatches.
+    """
+    # we use df.loc, so if we use a debugger in here we can see the actual data
+    # instead of just whether or not there are matches.
+    mismatch = df.loc[
+        ~np.isclose(
+            np.ma.masked_where(np.isnan(df[a_cols]), df[a_cols]),
+            np.ma.masked_where(np.isnan(df[b_cols]), df[b_cols]),
+            equal_nan=True,
+        ).filled()
+    ]
+    mismatch_ratio = len(mismatch) / len(df)
+    if mismatch_ratio > mismatch_threshold:
+        raise AssertionError(
+            f"{message} Mismatch ratio {mismatch_ratio:.01%} > "
+            f"threshold {mismatch_threshold:.01%}."
+        )
 
 
 def get_dagster_execution_config(num_workers: int = 0):

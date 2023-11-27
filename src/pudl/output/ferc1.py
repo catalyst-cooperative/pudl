@@ -12,42 +12,108 @@ from dagster import AssetIn, AssetsDefinition, Field, Mapping, asset
 from matplotlib import pyplot as plt
 from networkx.drawing.nx_agraph import graphviz_layout
 from pandas._libs.missing import NAType as pandas_NAType
-from pydantic import BaseModel, confloat, validator
+from pydantic import BaseModel, validator
 
 import pudl
+from pudl.transform.ferc1 import (
+    GroupMetricChecks,
+    GroupMetricTolerances,
+    MetricTolerances,
+)
 
 logger = pudl.logging_helpers.get_logger(__name__)
 
 
-class CalculationToleranceFerc1(BaseModel):
-    """Data quality expectations related to FERC 1 calculations.
-
-    We are doing a lot of comparisons between calculated and reported values to identify
-    reporting errors in the data, errors in FERC's metadata, and bugs in our own code.
-    This class provides a structure for encoding our expectations about the level of
-    acceptable (or at least expected) errors, and allows us to pass them around.
-
-    In the future we might also want to specify much more granular expectations,
-    pertaining to individual tables, years, utilities, or facts to ensure that we don't
-    have low overall error rates, but a problem with the way the data or metadata is
-    reported in a particular year.  We could also define per-filing and per-table error
-    tolerances to help us identify individual utilities that have e.g. used an outdated
-    version of Form 1 when filing.
-    """
-
-    intertable_calculation_errors: confloat(ge=0.0, le=1.0) = 0.05
-    """Fraction of interatble calculations that are allowed to not match exactly."""
-
-
-EXPLOSION_CALCULATION_TOLERANCES: dict[str, CalculationToleranceFerc1] = {
-    "income_statement_ferc1": CalculationToleranceFerc1(
-        intertable_calculation_errors=0.20,
+EXPLOSION_CALCULATION_TOLERANCES: dict[str, GroupMetricChecks] = {
+    "income_statement_ferc1": GroupMetricChecks(
+        groups_to_check=[
+            "ungrouped",
+            "report_year",
+            "xbrl_factoid",
+            "utility_id_ferc1",
+        ],
+        group_metric_tolerances=GroupMetricTolerances(
+            ungrouped=MetricTolerances(
+                error_frequency=0.02,
+                relative_error_magnitude=0.04,
+                null_calculated_value_frequency=1.0,
+            ),
+            report_year=MetricTolerances(
+                error_frequency=0.036,
+                relative_error_magnitude=0.048,
+                null_calculated_value_frequency=1.0,
+            ),
+            xbrl_factoid=MetricTolerances(
+                error_frequency=0.35,
+                relative_error_magnitude=0.17,
+                null_calculated_value_frequency=1.0,
+            ),
+            utility_id_ferc1=MetricTolerances(
+                error_frequency=0.13,
+                relative_error_magnitude=0.42,
+                null_calculated_value_frequency=1.0,
+            ),
+        ),
     ),
-    "balance_sheet_assets_ferc1": CalculationToleranceFerc1(
-        intertable_calculation_errors=0.65,
+    "balance_sheet_assets_ferc1": GroupMetricChecks(
+        groups_to_check=[
+            "ungrouped",
+            "report_year",
+            "xbrl_factoid",
+            "utility_id_ferc1",
+        ],
+        group_metric_tolerances=GroupMetricTolerances(
+            ungrouped=MetricTolerances(
+                error_frequency=0.014,
+                relative_error_magnitude=0.04,
+                null_calculated_value_frequency=1.0,
+            ),
+            report_year=MetricTolerances(
+                error_frequency=0.12,
+                relative_error_magnitude=0.04,
+                null_calculated_value_frequency=1.0,
+            ),
+            xbrl_factoid=MetricTolerances(
+                error_frequency=0.37,
+                relative_error_magnitude=0.22,
+                null_calculated_value_frequency=1.0,
+            ),
+            utility_id_ferc1=MetricTolerances(
+                error_frequency=0.21,
+                relative_error_magnitude=0.26,
+                null_calculated_value_frequency=1.0,
+            ),
+        ),
     ),
-    "balance_sheet_liabilities_ferc1": CalculationToleranceFerc1(
-        intertable_calculation_errors=0.07,
+    "balance_sheet_liabilities_ferc1": GroupMetricChecks(
+        groups_to_check=[
+            "ungrouped",
+            "report_year",
+            "xbrl_factoid",
+            "utility_id_ferc1",
+        ],
+        group_metric_tolerances=GroupMetricTolerances(
+            ungrouped=MetricTolerances(
+                error_frequency=0.028,
+                relative_error_magnitude=0.019,
+                null_calculated_value_frequency=1.0,
+            ),
+            report_year=MetricTolerances(
+                error_frequency=0.028,
+                relative_error_magnitude=0.04,
+                null_calculated_value_frequency=1.0,
+            ),
+            xbrl_factoid=MetricTolerances(
+                error_frequency=0.028,
+                relative_error_magnitude=0.019,
+                null_calculated_value_frequency=1.0,
+            ),
+            utility_id_ferc1=MetricTolerances(
+                error_frequency=0.063,
+                relative_error_magnitude=0.04,
+                null_calculated_value_frequency=1.0,
+            ),
+        ),
     ),
 }
 
@@ -744,10 +810,6 @@ def denorm_fuel_by_plant_ferc1(
         return df[df.fuel_type_code_pudl != "other"].copy()
 
     thresh = context.op_config["thresh"]
-    # The existing function expects `fuel_type_code_pudl` to be an object, rather than
-    # a category. This is a legacy of pre-dagster code, and we convert here to prevent
-    # further retooling in the code-base.
-    fuel_ferc1["fuel_type_code_pudl"] = fuel_ferc1["fuel_type_code_pudl"].astype(str)
 
     fuel_categories = list(
         pudl.transform.ferc1.FuelFerc1TableTransformer()
@@ -980,7 +1042,7 @@ def exploded_table_asset_factory(
     root_table: str,
     table_names_to_explode: list[str],
     seed_nodes: list[NodeId],
-    calculation_tolerance: CalculationToleranceFerc1,
+    group_metric_checks: GroupMetricChecks,
     io_manager_key: str | None = None,
 ) -> AssetsDefinition:
     """Create an exploded table based on a set of related input tables."""
@@ -1017,7 +1079,7 @@ def exploded_table_asset_factory(
             calculation_components_xbrl_ferc1=calculation_components_xbrl_ferc1,
             seed_nodes=seed_nodes,
             tags=tags,
-            calculation_tolerance=calculation_tolerance,
+            group_metric_checks=group_metric_checks,
         ).boom(tables_to_explode=tables_to_explode)
 
     return exploded_tables_asset
@@ -1039,7 +1101,7 @@ def create_exploded_table_assets() -> list[AssetsDefinition]:
                 "electric_operating_expenses_ferc1",
                 "electric_operating_revenues_ferc1",
             ],
-            "calculation_tolerance": EXPLOSION_CALCULATION_TOLERANCES[
+            "group_metric_checks": EXPLOSION_CALCULATION_TOLERANCES[
                 "income_statement_ferc1"
             ],
             "seed_nodes": [
@@ -1060,7 +1122,7 @@ def create_exploded_table_assets() -> list[AssetsDefinition]:
                 "plant_in_service_ferc1",
                 "electric_plant_depreciation_functional_ferc1",
             ],
-            "calculation_tolerance": EXPLOSION_CALCULATION_TOLERANCES[
+            "group_metric_checks": EXPLOSION_CALCULATION_TOLERANCES[
                 "balance_sheet_assets_ferc1"
             ],
             "seed_nodes": [
@@ -1079,7 +1141,7 @@ def create_exploded_table_assets() -> list[AssetsDefinition]:
                 "balance_sheet_liabilities_ferc1",
                 "retained_earnings_ferc1",
             ],
-            "calculation_tolerance": EXPLOSION_CALCULATION_TOLERANCES[
+            "group_metric_checks": EXPLOSION_CALCULATION_TOLERANCES[
                 "balance_sheet_liabilities_ferc1"
             ],
             "seed_nodes": [
@@ -1110,7 +1172,7 @@ class Exploder:
         calculation_components_xbrl_ferc1: pd.DataFrame,
         seed_nodes: list[NodeId],
         tags: pd.DataFrame = pd.DataFrame(),
-        calculation_tolerance: CalculationToleranceFerc1 = CalculationToleranceFerc1(),
+        group_metric_checks: GroupMetricChecks = GroupMetricChecks(),
     ):
         """Instantiate an Exploder class.
 
@@ -1124,7 +1186,7 @@ class Exploder:
         """
         self.table_names: list[str] = table_names
         self.root_table: str = root_table
-        self.calculation_tolerance = calculation_tolerance
+        self.group_metric_checks = group_metric_checks
         self.metadata_xbrl_ferc1 = metadata_xbrl_ferc1
         self.calculation_components_xbrl_ferc1 = calculation_components_xbrl_ferc1
         self.seed_nodes = seed_nodes
@@ -1302,7 +1364,7 @@ class Exploder:
             exploded_meta=self.exploded_meta,
             seeds=self.seed_nodes,
             tags=self.tags,
-            calculation_tolerance=self.calculation_tolerance,
+            group_metric_checks=self.group_metric_checks,
         )
 
     @cached_property
@@ -1366,8 +1428,6 @@ class Exploder:
 
         Args:
             tables_to_explode: dictionary of table name (key) to transfomed table (value).
-            calculation_tolerance: What proportion (0-1) of calculated values are
-              allowed to be incorrect without raising an AssertionError.
         """
         exploded = (
             self.initial_explosion_concatenation(tables_to_explode)
@@ -1454,7 +1514,7 @@ class Exploder:
         components originate entirely or partially outside of the table. It also
         accounts for components that only sum to a factoid within a particular dimension
         (e.g., for an electric utility or for plants whose plant_function is
-        "in_service"). This returns a dataframe with a "calculated_amount" column.
+        "in_service"). This returns a dataframe with a "calculated_value" column.
 
         Args:
             exploded: concatenated tables for table explosion.
@@ -1479,11 +1539,13 @@ class Exploder:
             value_col=self.value_col,
         )
         calculated_df = pudl.transform.ferc1.check_calculation_metrics(
+            calculated_df=calculated_df, group_metric_checks=self.group_metric_checks
+        )
+        calculated_df = pudl.transform.ferc1.add_corrections(
             calculated_df=calculated_df,
             value_col=self.value_col,
-            calculation_tolerance=self.calculation_tolerance.intertable_calculation_errors,
+            is_close_tolerance=pudl.transform.ferc1.IsCloseTolerance(),
             table_name=self.root_table,
-            add_corrections=True,
         )
         logger.info("Checking sub-total calcs.")
         subtotal_calcs = pudl.transform.ferc1.calculate_values_from_components(
@@ -1496,10 +1558,7 @@ class Exploder:
         )
         subtotal_calcs = pudl.transform.ferc1.check_calculation_metrics(
             calculated_df=subtotal_calcs,
-            value_col=self.value_col,
-            calculation_tolerance=self.calculation_tolerance.intertable_calculation_errors,
-            table_name=self.root_table,
-            add_corrections=True,
+            group_metric_checks=self.group_metric_checks,
         )
         return calculated_df
 
@@ -1551,7 +1610,7 @@ class XbrlCalculationForestFerc1(BaseModel):
     exploded_calcs: pd.DataFrame = pd.DataFrame()
     seeds: list[NodeId] = []
     tags: pd.DataFrame = pd.DataFrame()
-    calculation_tolerance: CalculationToleranceFerc1 = CalculationToleranceFerc1()
+    group_metric_checks: GroupMetricChecks = GroupMetricChecks()
 
     class Config:
         """Allow the class to store a dataframe."""
@@ -1785,8 +1844,8 @@ class XbrlCalculationForestFerc1(BaseModel):
         nodes = annotated_forest.nodes
         for ancestor in nodes:
             for descendant in nx.descendants(annotated_forest, ancestor):
-                for tag in nodes[ancestor]["tags"]:
-                    if tag in nodes[descendant]["tags"]:
+                for tag in nodes[ancestor].get("tags", {}):
+                    if tag in nodes[descendant].get("tags", {}):
                         ancestor_tag_value = nodes[ancestor]["tags"][tag]
                         descendant_tag_value = nodes[descendant]["tags"][tag]
                         if ancestor_tag_value != descendant_tag_value:
@@ -2069,7 +2128,7 @@ class XbrlCalculationForestFerc1(BaseModel):
             leaf_tags = {}
             ancestors = list(nx.ancestors(self.annotated_forest, leaf)) + [leaf]
             for node in ancestors:
-                leaf_tags |= self.annotated_forest.nodes[node]["tags"]
+                leaf_tags |= self.annotated_forest.nodes[node].get("tags", {})
             all_leaf_weights = {
                 self._get_path_weight(path, self.annotated_forest)
                 for path in nx.all_simple_paths(
@@ -2273,5 +2332,8 @@ def nodes_to_df(calc_forest: nx.DiGraph, nodes: list[NodeId]) -> pd.DataFrame:
     }
     index = pd.DataFrame(node_dict.keys()).astype("string")
     data = pd.DataFrame(node_dict.values())
-    tags = pd.json_normalize(data.tags).astype("string")
+    try:
+        tags = pd.json_normalize(data.tags).astype("string")
+    except AttributeError:
+        tags = pd.DataFrame()
     return pd.concat([index, tags], axis="columns")
