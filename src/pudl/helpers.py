@@ -1564,7 +1564,7 @@ def get_eia_ferc_acct_map() -> pd.DataFrame:
             description and prime mover code to FERC Uniform System of Accounts
             (USOA) accouting names. Read more about USOA
             `here
-            <https://www.ferc.gov/enforcement-legal/enforcement/accounting-matters>`__
+            <https://www.ferc.gov/enforerent-legal/enforcement/accounting-matters>`__
             The output table has the following columns: `['technology_description',
             'prime_mover_code', 'ferc_acct_name']`
     """

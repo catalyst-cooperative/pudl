@@ -175,6 +175,7 @@ def main():  # noqa: C901
         },
     }
     run_config.update(get_dagster_execution_config(args.dagster_workers))
+    logger.info(f"Run config: {run_config}")
 
     start_time = time.time()
     result = execute_job(

@@ -17,6 +17,8 @@ from collections.abc import Callable
 
 import fsspec
 from dagster import (
+    AssetKey,
+    AssetSelection,
     DagsterInstance,
     Definitions,
     JobDefinition,
@@ -67,12 +69,18 @@ def parse_command_line(argv):
         help="Set the max number of processes dagster can launch. Defaults to use the number of CPUs on the machine.",
         default=0,
     )
+    parser.add_argument(
+        "--only-assets",
+        action="append",
+        default=[],
+    )
     arguments = parser.parse_args(argv[1:])
     return arguments
 
 
 def pudl_etl_job_factory(
-    logfile: str | None = None, loglevel: str = "INFO", process_epacems: bool = True
+    logfile: str | None = None, loglevel: str = "INFO", process_epacems: bool = True,
+    selected_assets: list[str] = [],
 ) -> Callable[[], JobDefinition]:
     """Factory for parameterizing a reconstructable pudl_etl job.
 
@@ -80,6 +88,8 @@ def pudl_etl_job_factory(
         loglevel: The log level for the job's execution.
         logfile: Path to a log file for the job's execution.
         process_epacems: Include EPA CEMS assets in the job execution.
+        selected_assets: if not empty, only execute these assets and their upstream
+            dependencies.
 
     Returns:
         The job definition to be executed.
@@ -89,7 +99,16 @@ def pudl_etl_job_factory(
         """Create an pudl_etl_job wrapped by to be wrapped by reconstructable."""
         pudl.logging_helpers.configure_root_logger(logfile=logfile, loglevel=loglevel)
         jobs = [define_asset_job("etl_job")]
-        if not process_epacems:
+        if selected_assets:
+            logger.info(f"Only executing selected assets: {selected_assets}")
+            targets = AssetSelection.keys(*[AssetKey(asset) for asset in selected_assets])
+            jobs = [
+                define_asset_job(
+                    "etl_job",
+                    selection=targets.upstream(),
+                ),
+             ]
+        elif not process_epacems:
             jobs = [
                 define_asset_job(
                     "etl_job",
@@ -135,6 +154,7 @@ def main():
             "loglevel": args.loglevel,
             "logfile": args.logfile,
             "process_epacems": process_epacems,
+            "selected_assets": args.only_assets,
         },
     )
     run_config = {
