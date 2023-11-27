@@ -13,7 +13,7 @@ dependencies:
   - font-ttf-dejavu-sans-mono=2.37=hab24e00_0
   - font-ttf-inconsolata=3.000=h77eed37_0
   - font-ttf-source-code-pro=2.038=h77eed37_0
-  - font-ttf-ubuntu=0.83=hab24e00_0
+  - font-ttf-ubuntu=0.83=h77eed37_1
   - fribidi=1.0.10=h27ca646_0
   - giflib=5.2.1=h1a8c8d9_3
   - icu=73.2=hc8870d7_0
@@ -103,7 +103,7 @@ dependencies:
   - libzip=1.10.1=ha0bc3c6_3
   - minizip=4.0.3=hd5cad61_0
   - nodejs=20.9.0=h0950e01_0
-  - nss=3.94=hc6b9969_0
+  - nss=3.95=h6cf673f_0
   - readline=8.2=h92ec313_1
   - atk-1.0=2.38.0=hcb7b3dd_1
   - aws-c-event-stream=0.3.2=h0574dc0_7
@@ -175,7 +175,7 @@ dependencies:
   - humanfriendly=10.0=pyhd8ed1ab_6
   - hupper=1.12=pyhd8ed1ab_0
   - hyperframe=6.0.1=pyhd8ed1ab_0
-  - idna=3.5=pyhd8ed1ab_0
+  - idna=3.6=pyhd8ed1ab_0
   - ijson=3.2.3=pyhd8ed1ab_0
   - imagesize=1.4.1=pyhd8ed1ab_0
   - iniconfig=2.0.0=pyhd8ed1ab_0
@@ -272,7 +272,7 @@ dependencies:
   - types-pyyaml=6.0.12.12=pyhd8ed1ab_0
   - typing_extensions=4.8.0=pyha770c72_0
   - typing_utils=0.1.0=pyhd8ed1ab_0
-  - unicodecsv=0.14.1=py_1
+  - unicodecsv=0.14.1=pyhd8ed1ab_2
   - uri-template=1.3.0=pyhd8ed1ab_0
   - uvloop=0.19.0=py311h05b510d_0
   - validators=0.22.0=pyhd8ed1ab_0
@@ -281,7 +281,7 @@ dependencies:
   - webencodings=0.5.1=pyhd8ed1ab_2
   - websocket-client=1.6.4=pyhd8ed1ab_0
   - websockets=10.4=py311he2be06e_1
-  - wheel=0.41.3=pyhd8ed1ab_0
+  - wheel=0.42.0=pyhd8ed1ab_0
   - widgetsnbextension=4.0.9=pyhd8ed1ab_0
   - wrapt=1.16.0=py311h05b510d_0
   - xlrd=2.0.1=pyhd8ed1ab_3
@@ -300,7 +300,7 @@ dependencies:
   - bleach=6.1.0=pyhd8ed1ab_0
   - cached-property=1.5.2=hd8ed1ab_1
   - cffi=1.16.0=py311h4a08483_0
-  - cfitsio=4.3.0=hca87796_0
+  - cfitsio=4.3.1=h808cd33_0
   - click-default-group=1.2.4=pyhd8ed1ab_0
   - click-default-group-wheel=1.2.2=pyhd8ed1ab_0
   - click-plugins=1.1.1=py_0
@@ -318,7 +318,7 @@ dependencies:
   - harfbuzz=8.3.0=h8f0ba13_0
   - hdf5=1.14.2=nompi_h3aba7b3_100
   - html5lib=1.1=pyh9f0ad1d_0
-  - hypothesis=6.90.0=pyha770c72_0
+  - hypothesis=6.91.0=pyha770c72_0
   - importlib-metadata=6.8.0=pyha770c72_0
   - importlib_resources=6.1.1=pyhd8ed1ab_0
   - isodate=0.6.1=pyhd8ed1ab_0
@@ -424,7 +424,7 @@ dependencies:
   - ukkonen=1.0.1=py311he4fd1f5_4
   - uvicorn=0.24.0=py311h267d04e_0
   - virtualenv=20.24.7=pyhd8ed1ab_0
-  - watchfiles=0.20.0=py311h0563b04_2
+  - watchfiles=0.21.0=py311h94f323b_0
   - aiohttp=3.8.6=py311h05b510d_1
   - alembic=1.12.1=pyhd8ed1ab_0
   - arelle-release=2.17.4=pyhd8ed1ab_0
@@ -442,14 +442,14 @@ dependencies:
   - grpcio-status=1.59.2=pyhd8ed1ab_0
   - gtk2=2.24.33=h57013de_2
   - h3-py=3.7.6=py311ha891d26_1
-  - httpx=0.25.1=pyhd8ed1ab_0
+  - httpx=0.25.2=pyhd8ed1ab_0
   - identify=2.5.32=pyhd8ed1ab_0
   - ipython=8.18.0=pyh31c8845_0
   - isoduration=20.11.0=pyhd8ed1ab_0
   - jsonschema=4.20.0=pyhd8ed1ab_0
   - jupyter_client=8.6.0=pyhd8ed1ab_0
   - keyring=24.3.0=py311h267d04e_0
-  - libgdal=3.8.0=h76f3012_6
+  - libgdal=3.8.0=hcefe9de_7
   - librsvg=2.56.3=h0db3404_0
   - numba=0.58.1=py311h9ec4793_0
   - numexpr=2.8.7=py311h6e08293_4
@@ -460,7 +460,7 @@ dependencies:
   - readthedocs-sphinx-ext=2.2.3=pyhd8ed1ab_0
   - requests-toolbelt=0.10.1=pyhd8ed1ab_0
   - responses=0.24.1=pyhd8ed1ab_0
-  - s3transfer=0.7.0=pyhd8ed1ab_0
+  - s3transfer=0.7.0=pyhd8ed1ab_1
   - scipy=1.11.4=py311h2b215a9_0
   - send2trash=1.8.2=pyhd1c38e8_0
   - shapely=2.0.2=py311h0815064_1
@@ -475,7 +475,7 @@ dependencies:
   - doc8=1.1.1=pyhd8ed1ab_0
   - email-validator=2.1.0.post1=pyhd8ed1ab_0
   - frictionless=4.40.8=pyh6c4a22f_0
-  - gdal=3.8.0=py311h32a4f3d_6
+  - gdal=3.8.0=py311h32a4f3d_7
   - geopandas-base=0.14.1=pyha770c72_0
   - google-auth=2.23.4=pyhca7485f_0
   - gql-with-requests=3.4.1=pyhd8ed1ab_0
