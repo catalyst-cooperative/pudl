@@ -15,8 +15,7 @@ Replace references to `EIA_DATASET_NAME` with either `eia_860`, `eia923`, or `ei
 depending on which EIA dataset you are updating.
 
 - [ ] Add the new Zenodo archive DOI to `pudl/workspace/datastore.py`.
-- [ ] Run the datastore script to download the new raw data: `pudl_datastore --dataset 
-EIA_DATASET_NAME`. The new raw data will appear in `pudl_input/eia923/<ZENODO_DOI>/...`
+- [ ] Run the datastore script to download the new raw data: `pudl_datastore --dataset EIA_DATASET_NAME`. The new raw data will appear in `PUDL_INPUT/data/EIA_DATASET_NAME/ZENODO_DOI/...`
 - Update the mapping information in `pudl/package_data/EIA_DATASET_NAME` if 
 necessary:
      - [ ] file maps (may need to add or remove _Early_Release suffix!).
